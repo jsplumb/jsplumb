@@ -376,7 +376,8 @@ $("someWindow").plumb({target:'otherWindow', anchors:[myAnchor, myAnchor]});
 		
 		<div class="section">		
 			<a id="connectors"><h3>Connectors</h3></a>			
-			Connectors are the lines that actually join elements of the UI.  jsPlumb has two connector implementations - a straight line and a Bezier curve.  The default connector is the Bezier curve.  			
+			Connectors are the lines that actually join elements of the UI.  jsPlumb has two connector implementations - a straight line and a Bezier curve.  The default connector is the Bezier curve.
+			<p>jsPlumb attaches the CSS class <em>_jsPlumb_connector</em> to Connectors that it generates.</p>  			
 			<p>
 			You can provide your own connectors if you need to. A Connector consists of two functions, which work as a pair.  First a call is made to the <em>compute</em> function:
 			

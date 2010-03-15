@@ -13,6 +13,9 @@ Array.prototype.indexOf = function( v, b, s ) {
 	_offsets : [],
 	_sizes : [],
 
+	connectorClass : '_jsPlumb_connector',
+	endpointClass : '_jsPlumb_endpoint',
+	
     DEFAULT_PAINT_STYLE : {
         lineWidth : 10,
         strokeStyle : "red"
@@ -477,12 +480,12 @@ var jsPlumbConnection = window.jsPlumbConnection = function(params) {
     jsPlumb._sizes[this.targetId] = [this.target.outerWidth(), this.target.outerHeight()];
 
 // *************** create canvases on which the connection will be drawn ************
-    var canvas = jsPlumb.newCanvas('connector');
+    var canvas = jsPlumb.newCanvas(jsPlumb.connectorClass);
     this.canvas = canvas;
     // create endpoint canvases
     if (this.drawEndpoints) {
-	    this.sourceEndpointCanvas = jsPlumb.newCanvas('endpoint');	    
-	    this.targetEndpointCanvas = jsPlumb.newCanvas('endpoint');
+	    this.sourceEndpointCanvas = jsPlumb.newCanvas(jsPlumb.endpointClass);	    
+	    this.targetEndpointCanvas = jsPlumb.newCanvas(jsPlumb.endpointClass);
 	    // sit them on top of the underlying element?
 	    if (this.endpointsOnTop) {
 		    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") + 1);
