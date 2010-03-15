@@ -1,0 +1,478 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb - documentation</title>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
+		<link rel="stylesheet" href="/mp.css"></link>
+	</head>
+	<body>	
+		<div class="menu"><a href="../html/demo.html" class="mplink">view demo</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a></div>
+	
+	<div class="section">
+			<h3>Index</h3>
+			<ul>
+				<li><a href="#summary">Summary</a></li>
+				<li><a href="#basic">Basic Configuration</a></li>
+				<li><a href="#examples">Examples</a></li>
+				<li><a href="#options">Options</a></li>
+				<li><a href="#defaults">Defaults</a></li>
+				<li><a href="#anchors">Anchors</a></li>
+				<li><a href="#connectors">Connectors</a></li>
+				<li><a href="#endpoints">Endpoints</a></li>
+				<li><a href="#enhancements">Future Enhancements</a></li>
+			</ul>
+		</div>
+	
+		<div class="section">
+			<a id="summary"><h3>Summary</h3></a>
+			jsPlumb allows you to connect elements on the screen with "plumbing", using a Canvas
+			element when supported, and Google's <a class="mplink" href="http://excanvas.sourceforge.net/" target="_blank">ExplorerCanvas</a> script to support older browsers.
+			<p>
+			It's written as a jQuery plugin, and relies on jQuery 1.3.x or jQuery 1.4.x (tested on 1.3.2 and 1.4.2), and also jQuery UI 1.7.2 (if you want to support
+			dragging).  For Canvas support in IE you also need to include Google's ExplorerCanvas script.
+			</p>	
+			<p>jsPlumb has been tested on the following browsers:
+				<ul>
+					<li>IE 6 on Windows XP</li>
+					<li>IE 7 on Windows XP</li>
+					<li>Firefox 3.5.8 on Windows XP</li>
+					<li>Firefox 3.6 on Ubuntu 9.10</li>
+					<li>Chrome on Ubuntu 9.10</li>
+					<li>Safari on Mac Tiger</li> 
+					<li>Opera 10.5 on Windows XP</li>
+				</ul>
+			</p>		
+		</div>
+						
+		<div class="section">						
+			<a id="basic"><h3>Basic configuration</h3></a>
+			To use jsPlumb you need jQuery 1.3.x or 1.4.x, jQueryUI 1.7.x, and ExplorerCanvas:
+			<div class="code">
+			<pre>&lt;script type="text/javascript" src="PATH_TO_EXPLORER_CANVAS_SCRIPT"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="PATH_TO/jsPlumb-0.0.3-min.js "&gt;&lt;/script&gt;</pre>
+			</div>
+			<p>Please don't link to the excanvas.js script on the morrisonpitt.com server.  I'm just a struggling 
+			web developer who needs to minimize his bandwidth.  You may wonder why it is not at ajax.googleapis.com - I 
+			know I did.</p>
+			
+		</div>
+		<div class="section">						
+			<a id="examples"><h3>Examples</h3></a>
+			
+			The basic syntax of a call is that you execute 'plumb' on some element, providing a target, and optionally a paintStyle and preferences for where you
+			want the plumbing to be anchored on each element, as well as the type of connector to use:
+			
+			<ul>
+				<li>Plumb window1 to window2 with the default settings:
+					<div class="code">			
+						<pre>$("#window1").plumb({target:'window2'});</pre>
+					</div>
+				</li>	
+				<li>Plumb window1 to window2 with a 15 pixel wide yellow plumb line, and a slightly brighter endpoint: 			
+					<div class="code">			
+<pre>$("#window1").plumb({
+	target:'window2', 
+	paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'}, 
+	endpointStyle:{fillStyle:'rgb(243,229,0)'}
+});</pre>
+					</div>	
+				</li>			
+				<li>Plumb window3 to 'window4' with a 10 pixel wide, semi opaque blue plumb line, anchored to the left middle of window3, and the right middle of window4, with an endpoint of radius 25:			
+					<div class="code">			
+<pre>$("#window3").plumb({
+	target:'window4', 
+	paintStyle:{lineWidth:10, strokeStyle:'rgba(0, 0, 200, 0.5)'}, 
+	anchors:[jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE], 
+	endpointStyle:{radius:25}
+});</pre>
+					</div>
+				</li>			
+				<li>Plumb window2 to window3 with a default plumb line from the top center of window2 to the bottom center of window3, and rectangular endpoints: 			
+					<div class="code">			
+<pre>$("#window2").plumb({
+	target:'window3', 
+	paintStyle:{lineWidth:8, strokeStyle:'rgb(189,11,11)'}, 
+	anchors:[jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.Anchors.TOP_CENTER], 
+	endpointType:jsPlumb.Endpoints.RECTANGLE
+});</pre>
+					</div>
+				</li>			
+				<li>Plumb window5 to window6 between their center points with a semi-opaque connector, and 125px endpoints:
+					<div class="code">			
+<pre>$("#window5").plumb({
+	target:'window6', 
+	anchors:[jsPlumb.Anchors.CENTER, jsPlumb.Anchors.CENTER], 
+	paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, 
+	endpointsOnTop:false, 
+	endpointStyle:{radius:125}
+});</pre>
+					</div>
+				</li>			
+				<li>Plumb window7 to window8 with a 10 pixel wide blue plumb line, anchored on the top left of window7 and the bottom right of window8, and
+				   disable dragging (if any other plumb command enables dragging on either element this will be overridden):
+					<div class="code">			
+<pre>$("#window7").plumb({
+	target:'window8', 
+	paintStyle:{lineWidth:10, strokeStyle:'blue'}, 
+	anchors:[jsPlumb.Anchors.TOP_LEFT, jsPlumb.Anchors.BOTTOM_RIGHT]
+});</pre>
+					</div>
+				</li>			
+				<li>Plumb the bottom right corner of window4 to the top left corner of window5, with rectangular endpoints of size 40x40 that appear below the content elements:
+					<div class="code">
+<pre>$("#window4").plumb({
+	target:'window5', 
+	anchors:[jsPlumb.Anchors.BOTTOM_RIGHT,jsPlumb.Anchors.TOP_LEFT], 
+	paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'},
+	endpointsOnTop:false, 
+	endpointStyle:{width:40, height:40},
+	endpointType:jsPlumb.Endpoints.RECTANGLE, 	 
+	connector:jsPlumb.Connectors.STRAIGHT_LINE 	
+});</pre>
+					</div>
+				</li>
+				<li>Plumb window1 to window2 with the default paint settings but provide some drag options (which are passed through to jQuery's draggable call):			
+					<div class="code">			
+						<pre>$("#window1").plumb({target:'window2', dragOptions:{cursor:'crosshair'}});</pre>
+					</div>
+				</li>
+				<li>Detach window2 from window1
+					<div class="code">
+						<pre>$("#window2").detach("window1");</pre>
+					</div>
+				</li>
+				<li>Detach window2 from window1 and window3
+					<div class="code">
+						<pre>$("#window2").detach(["window1", "window3"]);</pre>
+					</div>
+				</li>
+				<li>Detach window5 from all connections
+					<div class="code">
+						<pre>$("#window5").detachAll();</pre>
+					</div>
+				</li>
+				<li>Hide all window5's connections
+					<div class="code">
+						<pre>jsPlumb.hide("#window5");</pre>
+					</div>
+				</li>
+				<li>Show all window5's connections
+					<div class="code">
+						<pre>jsPlumb.show("#window5");</pre>
+					</div>
+				</li>
+				<li>Toggle the visibility of window5's connections
+					<div class="code">
+						<pre>jsPlumb.toggle("#window5");</pre>
+					</div>
+				</li>
+			</ul>			
+		</div>
+		<div class="section">			
+			<a id="options"><h3>Options</h3></a>
+			<p>These are the options you can specify on a call to the plumb method:</p>
+			<ul>
+				<li><strong>target</strong>
+					<p>This is a required argument.  It identifies the target element for the plumb.</p>
+				</li>
+				<li><strong>paintStyle</strong>
+					<p>Optional; if not supplied jsPlumb uses the values defined in jsPlumb.DEFAULT_PAINT_STYLE (see <a href="#defaults">defaults</a>). This object allows you to specify four attributes of the connector:
+						<ul>
+							<li>strokeStyle	- the color used to paint the connector.  NOTE: jsPlumb does not yet support gradients or patterns.</li>
+							<li>lineWidth - the width of the connector in pixels</li>
+							<li>lineCap - how the end of the line will be capped.</li>
+							<li>miterLimit - the limit on how mitery the miters can miterate.</li>
+						</ul>
+					</p>
+					<p>
+					The arguments to the strokeStyle parameter can be anything that is a valid argument for the strokeStyle parameter of HTML Canvas element, which
+					are CSS colors, patterns or gradients.
+					</p>
+					<p>
+					This is the <a class="mplink" href="http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html" target="_blank">working group's page for the Canvas element</a>, where you can find information
+					on painting in Canvas.
+					</p>
+					<p>
+					Mozilla also has some good documentation <a class="mplink" href="https://developer.mozilla.org/en/Canvas_tutorial/Applying_styles_and_colors" target="_blank">here</a>
+					</p>				
+				</li>
+				<li><strong>connector</strong>
+					<p>Optional; if not supplied jsPlumb uses a Bezier connector (see <a href="#defaults">defaults</a>)</p>
+					<p>Valid values for this are:
+						<ul>
+							<li>jsPlumb.Connectors.STRAIGHT_LINE - a straight line directly connecting two anchors</li>
+							<li>jsPlumb.Connectors.BEZIER - a Bezier curve connecting two anchors.</li>
+						</ul>
+					</p>
+					<p>You can also supply your own Connector implementation; for details on how to write a Connector see
+					the <a href="#connectors">Connectors</a> section below.</p>
+				</li>
+				<li><strong>anchors</strong>
+					<p>Optional; if not supplied jsPlumb uses [jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.Anchors.TOP_CENTER]  (see <a href="#defaults">Defaults</a>)</p>
+					<p>If you supply this, it must be in the form of a list with two elements - the first element is
+					the anchor type for the source element (the one on which you are calling the 'plumb' method), and the
+					second is the anchor type for the target element.
+					</p>
+					<p>Valid values for this are:
+						<ul>
+							<li>jsPlumb.Anchors.TOP_CENTER</li>
+							<li>jsPlumb.Anchors.TOP_RIGHT</li>
+							<li>jsPlumb.Anchors.RIGHT_MIDDLE</li>
+							<li>jsPlumb.Anchors.BOTTOM_RIGHT</li>
+							<li>jsPlumb.Anchors.BOTTOM_CENTER</li>
+							<li>jsPlumb.Anchors.BOTTOM_LEFT</li>
+							<li>jsPlumb.Anchors.LEFT_MIDDLE</li>
+							<li>jsPlumb.Anchors.TOP_LEFT</li>
+							<li>jsPlumb.Anchors.CENTER</li>
+						</ul>												
+					</p>
+					<p>The locations of these are hopefully self-explanatory.  You can supply your own Anchor implementations if you need to - see the section on <a href="#anchors">Anchors</a></p>
+				</li>
+				<li><strong>endpoint</strong>
+					<p>Optional; if not supplied jsPlumb uses jsPlumb.Endpoints.DOT, with the default size of 10  (see <a href="#defaults">Defaults</a>).</p>
+					<p>Valid values for this are:
+						<ul>
+							<li>jsPlumb.Endpoints.DOT</li>
+							<li>jsPlumb.Endpoints.RECTANGLE</li>
+						</ul>
+					</p>
+					<p>Similar to Connectors and Anchors, you can provide your own endpoint implementation; see the <a href="#endpoints">Endpoints</a> section.</p>
+				</li>
+				<li><strong>endpointStyle</strong>
+					<p>Optional; if not supplied jsPlumb uses the values defined in jsPlumb.DEFAULT_ENDPOINT_STYLE  (see <a href="#defaults">Defaults</a>).</p>
+					<p>This Javascript object allows you to specify one argument for the endpoint:
+						<ul>
+							<li>fillStyle - the color to fill the endpoint with.</li>
+						</ul>
+						<br />
+					</p>
+				</li>
+				<li><strong>endpointsOnTop</strong>
+					<p>This is a boolean value that defaults to true.  When true, it forces jsPlumb to set the z-index of endpoints
+						to be 1 more than that of the element to which they belong.  This is perhaps not the most awesome thing.
+						Something tells me a better way to manage all of this is in CSS (see the <a href="#connectors">connectors</a>, 
+						<a href="#endpoints">endpoints</a> and <a href="#anchors">anchors</a> sections for information on what CSS classes
+						jsPlumb uses. 
+					</p>
+				</li>
+				<li><strong>drawEndpoints</strong>
+					<p>This is a boolean value that defaults to true.</p>
+				</li>
+				<li><strong>dragOptions</strong>
+					<p>
+						You can provide your own set of dragOptions to pass through to the call to jQuery's draggable(..) function if you need to. jsPlumb will wrap any drag
+						method you provide, since it needs to be aware of drag activity, but everything else is passed through as you specify it. You can do this either on
+						each call you make:
+						<div class="code">
+							<pre>$("#someWindow").plumb({target:"otherWindow", dragOptions:{cursor: 'crosshair'}});</pre>
+						</div>
+				 		or for convenience you might want to override the defaults:
+						<div class="code">
+							<pre>jsPlumb.DEFAULT_DRAG_OPTIONS = { .. your drag options here. };</pre>
+						</div>
+						Consult <a class="mplink" target="_blank" href="http://docs.jquery.com/UI/Draggable">the jQuery documentation</a> for more information on what you can pass as drag options.</p>
+					</p>
+				</li>
+			</ul>
+			
+			
+		</div>
+				
+		<div class="section">			
+			<a id="defaults"><h3>Defaults</h3></a>
+			The easiest way to set a look and feel for your plumbing is to override the defaults that jsPlumb uses. If you
+			do not do this you are forced to provide your overridden values on every call.  Every argument to the plumb method has an
+			associated default value in jsPlumb.<br/><br/>
+			
+			The defaults that ship with jsPlumb are:
+	
+			<div class="code">
+<pre>DEFAULT_PAINT_STYLE : {
+    lineWidth : 10,
+    strokeStyle : "red"
+}
+			
+DEFAULT_DRAG_OPTIONS : { }
+
+DEFAULT_ENDPOINT_STYLE : { fillStyle : null; }
+
+DEFAULT_ANCHORS : [ jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.Anchors.TOP_CENTER ]
+
+DEFAULT_CONNECTOR : jsPlumb.Connectors.BEZIER;
+
+DEFAULT_ENDPOINT : jsPlumb.Endpoints.DOT;
+</pre>
+			</div>
+			Note that in DEFAULT_ENDPOINT_STYLE, the default fillStyle is 'null'.  This instructs jsPlumb to use the strokeStyle
+from the attached connector to fill the endpoint.<br/><br/>
+			
+			you can override these defaults by including this in a script somewhere:
+			<div class="code">
+<pre>
+jsPlumb.DEFAULT_PAINT_STYLE = {
+	lineWidth:your line width,
+	strokeStyle: your stroke style (see below for valid stroke styles)
+}
+
+jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'crosshair' };
+</pre>
+			</div>
+			after the jsPlumb script has been loaded of course! 
+				
+		</div>
+		
+		<div class="section">		
+			<a id="anchors"><h3>Anchors</h3></a>
+			<p>An Anchor models the notion of where on an element a plumb line should connect.  jsPlumb has nine default anchor locations you 
+			can use to specify where the plumb lines connect to elements: these are the four corners of an element,
+			the center of the element, and the midpoint of each edge of the element.</p><p>You can provide your own anchor locations if you need to.  They consist of
+			a function that computes the location, given the current xy and width/height of the source element and target element, plus an 'orientation' array, which gives jsPlumb hints
+			about which way plumb lines should flow into and out of the anchor point.  Not every Connector implementation 
+			will use this orientation array - the STRAIGHT_LINE Connector, for instance, igpores it completely, because it just
+			directly connects the two anchor points.
+			</p>
+			<p>
+			To provide your own anchor location you can either set it in amongst the defaults:
+			<div class="code">
+<pre>
+jsPlumb.Anchors.MY_ANCHOR = {
+	compute : function(xy, wh, txy, twh) { 	// do some maths and return an [x,y] location }
+	orientation : [ox, oy]       	// each value can be one of -1, 0 or 1. 0 means dont care, 
+								 	// 1 or -1 means go in this direction in this plane.
+};
+</pre>
+			</div>			
+			or you can create it elsewhere and reference it in your calls:
+			<div class="code">
+<pre>
+var myAnchor =  {
+	compute : function(xy, wh, txy, twh) {  	// do some maths and return an [x,y] location }
+	orientation : [ox, oy]       	// each value can be one of -1, 0 or 1. 0 means dont care, 
+									// 1 or -1 means go in this direction in this plane.
+};
+
+$("someWindow").plumb({target:'otherWindow', anchors:[myAnchor, myAnchor]});
+</pre>
+			</div>			
+			The arguments to the compute function are:
+			<ul>
+				<li>xy - location (on screen) of the source element's top left corner</li>
+				<li>wh - dimensions of the source element</li>
+				<li>txy - location (on screen) of the target element's top left corner</li>
+				<li>twh - dimensions of the target element</li>
+			</ul>			
+			</p>
+			<p>The <em>compute</em> function should return an array of two elements - the [x,y] on screen where the anchor is located.</p>
+			<p>
+			Examples of the <em>orientation</em> array can be found in the Javascript source.  It is simply a hint to jsPlumb
+			of what direction a plumb line leaving the given anchor should _initially_ head in.  So, for example, the TOP_CENTER
+			anchor point defines its orientation as [0,-1], meaning "i don't care about x, but i want you to head towards the
+			top of the screen as you leave this point".  Take another example - BOTTOM_RIGHT.  This is the bottom right corner
+			of an element.  It declares its orientation to be [1,1], meaning go down and to the right as you leave this element. 
+			</p>
+		</div>
+		
+		<div class="section">		
+			<a id="connectors"><h3>Connectors</h3></a>			
+			Connectors are the lines that actually join elements of the UI.  jsPlumb has two connector implementations - a straight line and a Bezier curve.  The default connector is the Bezier curve.  			
+			<p>
+			You can provide your own connectors if you need to. A Connector consists of two functions, which work as a pair.  First a call is made to the <em>compute</em> function:
+			
+			<div class="code">
+<pre>
+compute : function(sourcePos, targetPos, sourceAnchor, targetAnchor) { 
+	... 
+	return dimensions;	
+}
+</pre>
+			</div>
+			which is expected to return a list that the <em>paint</em> function can make sense of.  The first four entries in the
+			list <strong>must be</strong> the [x,y,width,height] values for the canvas that the connector will be drawn on; it
+			is the Connector's responsibility to ensure that the returned dimensions describe a large enough space for
+			the line that will be drawn on it.  </p><p>The remainder of the items in the returned list are arbitrary, and will
+			vary between Connector implementations; this list is passed in to a Connector's <em>paint</em> function, so each
+			implementation will put into the list whatever it needs to paint itself.  For instance, the straight line
+			connector just adds the [x,y] location of each end of the line it will paint, whereas the Bezier connector adds
+			the start and end points and also the two control points.  Other types of Connectors will do whatever is 
+			appropriate for their particular situation. 
+			</p>
+			This is the method signature for the <em>paint</em> function:
+			<div class="code">
+				<pre>paint : function(dimensions, ctx) { .. }</pre>
+			</div>
+			here, the 'dimensions' argument to the 'paint' function is the return value of the 'compute' function.  The 'ctx' argument is the Canvas context; you 
+			will do all your drawing on this.
+			</p>
+			To change the connector from the default, specify it in your plumb call:
+			<div class="code">
+				<pre>$("#someWindow").plumb({target:'otherWindow', connector:jsPlumb.Connectors.STRAIGHT_LINE});</pre>
+			</div>		
+		</div>
+		
+		<div class="section">		
+			<a id="endpoints"><h3>Endpoints</h3></a>		
+			<p>An Endpoint is the UI component that marks the location of an Anchor, ie. the place where a Connector joins an
+			element.  jsPlumb comes with two Endpoint implementations - DOT and RECTANGLE.
+				<ul>
+					<li>jsPlumb.Endpoints.DOT
+						<p>This draws a dot.  In the <em>endpointStyle</em> option of a <em>plumb</em> call, you can set two value
+						that this will pick up:
+							<ul>
+								<li>radius - the radius of the dot (in pixels)</li>
+								<li>fillStyle - the style to use when filling the dot.  note that if this is blank, jsPlumb will
+								attempt to use the strokeStyle from the associated Connector.</li>
+							</ul>
+							<br/>
+						</p>
+					</li>
+					<li>jsPlumb.Endpoints.RECTANGLE
+						<p>Draws a rectangle.  In the <em>endpointStyle</em> you can set the following for this:
+							<ul>
+								<li>width - optional, defaults to 20.</li>
+								<li>height - optional, defaults to 20.</li>
+								<li>fillStyle - the style to use when filling the rectangle.  note that if this is blank, jsPlumb will
+								attempt to use the strokeStyle from the associated Connector.</li>
+							</ul>
+						</p>
+					</li>
+				</ul>
+			</p>
+			<p>To create your own Endpoint implementation, you need to implement a single method:
+				<div class="code"><pre>paint : function(anchorPoint, canvas, endpointStyle, connectorPaintStyle) { ... }</pre></div>
+				The arguments to this method are as follows:
+				<ul>
+					<li>anchorPoint - [x,y] location of the anchor point on screen</li>
+					<li>canvas - the canvas to draw into</li>
+					<li>endpointStyle - Javascript object containing style directives as discussed above.  The contents of this are arbitrary, so if you write a new Endpoint that needs some extra settings, you can add them no hassle.</li>
+					<li>connectorPaintStyle - the style being used to paint the associated Connector.</li>
+				</ul>
+			</p>
+			<p>
+				It is your responsibility to size and locate the canvas to suit your needs. jsPlumb provides the following
+				helper methods to assist you:
+				<div class="code"><pre>jsPlumb.sizeCanvas(canvas, x, y, width, height);</pre></div>
+				Allows you to locate the canvas on screen and to size it.
+				<div class="code"><pre>jsPlumb.applyPaintStyle(toObject, fromObject);</pre></div>
+				Applies all the properties in <em>fromObject</em> to <em>toObject</em>.  Look in the jsPlumb source for
+				why this might be useful for you. 
+			</p>
+		</div>		
+
+		
+		<div class="section"> 		
+			<a id="enhancements"><h3>Future Enhancements</h3></a>
+			<ul>
+				<li>support gradients and patterns properly in connectors and endpoints.
+					<p>It is possible to stroke a line in the Canvas element with both gradients and patterns.  Currently jsPlumb does not support
+					this, but it would probably be a useful feature.</p>
+				</li>
+				<li>Move the random endpoint-related keys inside the endpointStyle object.<br/><br/>					
+				</li>
+				<li>Smart z-index handling.  After you use jsPlumb for a little while you might see what I mean.<br/><br/>					
+				</li>
+			</ul>
+		</div> 		
+ 	</body>
+ </html>
