@@ -1,10 +1,12 @@
 // Array.indexOf( value, begin, strict ) - Return index of the first element that matches value
-Array.prototype.indexOf = function( v, b, s ) {
- for( var i = +b || 0, l = this.length; i < l; i++ ) {
-  if( this[i]===v || s && this[i]==v ) { return i; }
- }
- return -1;
-};
+if (!Array.prototype.indexOf) {
+	Array.prototype.indexOf = function( v, b, s ) {
+		for( var i = +b || 0, l = this.length; i < l; i++ ) {
+  			if( this[i]===v || s && this[i]==v ) { return i; }
+ 		}
+ 		return -1;
+	};
+}
 
 (function() {
     var jsPlumb = window.jsPlumb = {
