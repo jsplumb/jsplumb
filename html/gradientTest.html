@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb - gradient demo</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<script type="text/javascript" src="http://morrisonpitt.com/scripts/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../js/jsPlumb-0.0.4-RC2.js "></script>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
+		<link rel="stylesheet" href="/mp.css"></link>
+		<style type="text/css">
+		.window { border:2px dotted #346789; opacity:0.8; filter:alpha(opacity=80); width:14em; height:12em; z-index:20; position:absolute; color:white;font-family:helvetica;padding:0.5em; font-size:0.8em;}		
+		#window1 { background-color:blue;top:5em;left:5em; }
+		#window2 { background-color:green; top:34em; left:28em; }
+		#window3 { background-color:red; top:14em; left:51em; }
+		</style>
+	</head>
+	<body>
+	
+	<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+	
+	
+		<div id="window1" class="window">i am plumbed with a connector that has a blue-green gradient to window2.</div>
+		<div id="window2" class="window">i am plumbed with a connector that has a green-blue gradient to window1, and a connector that has a green-yellow-red gradient to window3.</div>
+		<div id="window3" class="window">i am plumbed with a connector that has a red-yellow-green gradient to window3.<br/><br/>i show that you can have more than two color stops in a gradient.</div>
+		
+		<canvas id="canvas"  width="300" height="150" style="position:absolute;z-index:5000;top:20em;"></canvas>
+	
+	
+	<div id="explanation">
+	    	This page provides a demo of using gradients in your connectors. Additionally it sets the 'curviness' of the Bezier curves to 80. <p><strong>Note:</strong> this <strong>does not work</strong> in IE.</p>
+	    	<p>Support for gradients in endpoints is planned for an upcoming release.</p>
+	    	<p>This demo currently uses version 0.0.4-RC2 of jsPlumb.</p>
+	    	<br/><br/>
+	    	<a href="demo.html" class="mplink">home</a><br /><br />
+	    	<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a>
+	    </div>	   
+	    
+	    <script type="text/javascript"><!--
+			$(document).ready(function() {
+				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'move', zIndex:2000 };
+				jsPlumb.DEFAULT_PAINT_STYLE = { gradient:{stops:[[0,'blue'], [1,'green']] }, lineWidth:15 };
+				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:15, height:11 };
+				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Bezier(80);
+				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE];
+				 
+				$("#window1").plumb({target:'window2', drawEndpoints:false});
+				$("#window2").plumb({target:'window3', drawEndpoints:false, paintStyle:{ gradient:{stops:[[0,'green'], [0.5, 'yellow'], [1,'red']]}, lineWidth:15}});
+			});
+		--></script>
+	    
+	    <!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=5700644; 
+var sc_invisible=1; 
+var sc_partition=71; 
+var sc_click_stat=1; 
+var sc_security="1cb90164"; 
+</script>
+
+<script type="text/javascript"
+src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
+class="statcounter"><a title="counter for wordpress"
+href="http://www.statcounter.com/wordpress.org/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/5700644/0/1cb90164/1/"
+alt="counter for wordpress" ></a></div></noscript>
+<!-- End of StatCounter Code -->
+
+	</body>
+</html>	
