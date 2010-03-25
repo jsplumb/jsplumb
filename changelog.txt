@@ -1,0 +1,26 @@
+ 
+ * 0.0.4-RC2 (03/24/10)
+ 		
+ 	-	the Connectors and Endpoints are no longer static - they must now be instantiated, for example:
+ 	
+ 				new jsPlumb.Connectors.BEZIER();
+ 			
+ 	- you can supply a 'curviness' argument to the BEZIER constructor now:
+ 			
+ 			new jsPlumb.Connectors.BEZIER(75)
+ 			
+ 			it defines the distance in pixels that each control point is situated from the connector.
+ 	
+ 	- added support for gradients in Connectors  
+ 			
+ 	 
+ * 0.0.4-RC1   (3/23/10)
+ 
+   - fixed issue 1: when straight_line connector is used and elements directly underneath/next to
+     each other, the connector is not drawn.     
+ 
+ * 0.0.3	(3/15/10)
+ 
+   - initial release  
+   		 -- no support for gradients/patterns.  
+   		 -- single endpoint style per connector (can't have diff. endpoints at each end)
