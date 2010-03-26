@@ -24,6 +24,7 @@
 				<li><a href="#cssclasses">CSS Class Reference</a></li>
 				<li><a href="#enhancements">Future Enhancements</a></li>
 			</ul>
+			<strong>This document refers to release 0.0.4-RC3 of jsPlumb.</strong>
 		</div>
 	
 		<div class="section">
@@ -265,7 +266,8 @@
 					the anchor type for the source element (the one on which you are calling the 'plumb' method), and the
 					second is the anchor type for the target element.
 					</p>
-					<p>Valid values for this are:
+					<p>Valid values for this are any Anchor you have created yourself (see the <a href="#anchors">anchors</a> section below), or one
+					of these default anchors provided by jsPlumb:
 						<ul>
 							<li>jsPlumb.Anchors.TOP_CENTER</li>
 							<li>jsPlumb.Anchors.TOP_RIGHT</li>
@@ -348,28 +350,46 @@ DEFAULT_DRAG_OPTIONS : { }
 
 DEFAULT_ENDPOINT_STYLE : { fillStyle : null; }
 
+DEFAULT_ENDPOINT_STYLES : [ null, null ]
+
 DEFAULT_ANCHORS : [ jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.Anchors.TOP_CENTER ]
 
 DEFAULT_CONNECTOR : jsPlumb.Connectors.Bezier;
 
 DEFAULT_ENDPOINT : jsPlumb.Endpoints.Dot;
+
+DEFAULT_ENDPOINTS : [jsPlumb.Endpoints.Dot, jsPlumb.Endpoints.Dot];
 </pre>
 			</div>
+			<p>
 			Note that in DEFAULT_ENDPOINT_STYLE, the default fillStyle is 'null'.  This instructs jsPlumb to use the strokeStyle
-from the attached connector to fill the endpoint.<br/><br/>
+from the attached connector to fill the endpoint.</p>
+<p>Note also that you can specify either or both (or neither) of 'DEFAULT_ENDPOINT_STYLE' and 'DEFAULT_ENDPOINT_STYLES'.  This allows you to specify a different
+end point for each end of a connection.  'DEFAULT_ENDPOINT' and 'DEFAULT_ENDPOINTS' use the same concept.  jsPlumb will look first in the
+individual endpoint/endpoint style arrays, and then fall back to the single default version.</p>
 			
 			you can override these defaults by including this in a script somewhere:
 			<div class="code">
 <pre>
 jsPlumb.DEFAULT_PAINT_STYLE = {
-	lineWidth:your line width,
-	strokeStyle: your stroke style (see below for valid stroke styles)
+	lineWidth:13,
+	strokeStyle: 'rgba(200,0,0,100)'
 }
 
 jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'crosshair' };
+
+jsPlumb.DEFAULT_ENDPOINTS = [ new jsPlumb.Endpoints.Dot(7), new jsPlumb.Endpoints.Dot(11) ]
+
+jsPlumb.DEFAULT_ENDPOINT_STYLES = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }]; 
 </pre>
 			</div>
-			after the jsPlumb script has been loaded of course! 
+			after the jsPlumb script has been loaded of course!  Here we have specified the following default behaviour:
+			<ul>
+				<li>connectors are 13 pixels wide and painted with a semi-transparent red line</li>
+				<li>when dragging an element the crosshair cursor is used</li>
+				<li>the source endpoint is a dot of radius 7; the target endpoint is a dot of radius 11</li>
+				<li>the source endpoint is blue; the target endpoint is green</li>
+			</ul> 
 				
 		</div>
 		
@@ -377,13 +397,47 @@ jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'crosshair' };
 			<a id="anchors"><h3>Anchors</h3></a>
 			<p>An Anchor models the notion of where on an element a plumb line should connect.  jsPlumb has nine default anchor locations you 
 			can use to specify where the plumb lines connect to elements: these are the four corners of an element,
-			the center of the element, and the midpoint of each edge of the element.</p><p>You can provide your own anchor locations if you need to.  They consist of
-			a function that computes the location, given the current xy and width/height of the source element and target element, plus an 'orientation' array, which gives jsPlumb hints
-			about which way plumb lines should flow into and out of the anchor point.  Not every Connector implementation 
-			will use this orientation array - the Straight Connector, for instance, ignores it completely, because it just
-			directly connects the two anchor points.
-			</p>
-			<p>
+			the center of the element, and the midpoint of each edge of the element.</p>
+			<p>You can provide your own anchor locations if you need to.  jsPlumb supports two ways of doing this:
+				<ul>
+					<li>jsPlumb.makeAnchor(params) function
+					<p>
+					This function creates a basic Anchor of the type that jsPlumb uses internally, which is a statically located anchor whose
+					position is specified by providing a fractional distance for both x and y.  For instance, the TOP_CENTER anchor in jsPlumb
+					is situated at [0, 0.5].
+					</p>
+					A call to jsPlumb.makeAnchor should look something like this:
+<div class="code">
+<pre>
+var myAnchor = jsPlumb.makeAnchor( { x:0.333, y:0.5, orientation:[0,1] } );
+</pre>
+</div>					
+					<p>
+					Here we have specified an anchor that will be located at a point which is one-third of the width of the element, and half its height.  The orientation array indicates that the natural flow of connectors from this element is unspecified for the x direction, but straight down the page in the y direction.  			
+					</p>
+					The arguments are:
+					<ul>
+						<li>x - required. decimal value indicating proportional location with respect to width of the element. 0 is left. 1 is full width.  note that you can use any numbers here, even outside of the 0-1 range.  </li>
+						<li>y - required. decimal value indicating proportional location with respect to height of the element. 0 is left. 1 is full height.  note that you can use any numbers here, even outside of the 0-1 range.  </li>
+						<li>orientation - optional, defaults to [0,0].  This array defines the general direction in which connectors leaving the anchor should travel.  Valid values in this array, for each direction, are 0, 1, or -1.</li>
+						<li>offsets - optional, defaults to [0,0].  This array defines absolute pixel value offsets to apply once the relative positioning has been performed.</li>
+					</ul>
+					<br/>
+					</li>
+					<li>Providing your own anchor function
+					<p>
+					For most cases, the jsPlumb.makeAnchor function will probably suffice.  But the method signature of the <em>compute</em> function
+					of an anchor takes the location of <strong>both elements</strong>, meaning it is possible to write an anchor whose position takes
+					into account where the current element is in relation to the one it is plumbed to.  jsPlumb does not natively do this but it
+					seems like something that might be useful. 
+					</p>
+					<p>An anchors function consists of two parts - a function that computes the location of the anchor, given the current xy and width/height of the source 
+					element and target element, plus an 'orientation' array, which gives jsPlumb hints
+					about which way plumb lines should flow into and out of the anchor point.  Not every Connector implementation 
+					will use this orientation array - the Straight Connector, for instance, ignores it completely, because it just
+					directly connects the two anchor points.
+					</p>
+					<p>
 			To provide your own anchor location you can either set it in amongst the defaults:
 			<div class="code">
 <pre>
@@ -422,7 +476,12 @@ $("someWindow").plumb({target:'otherWindow', anchors:[myAnchor, myAnchor]});
 			top of the screen as you leave this point".  Take another example - BOTTOM_RIGHT.  This is the bottom right corner
 			of an element.  It declares its orientation to be [1,1], meaning go down and to the right as you leave this element. 
 			</p>
-		</div>
+							
+					</li>
+				</ul>
+			</p>
+			
+					</div>
 		
 		<div class="section">		
 			<a id="connectors"><h3>Connectors</h3></a>			
@@ -439,7 +498,7 @@ $("someWindow").plumb({target:'otherWindow', anchors:[myAnchor, myAnchor]});
 				we refer you to <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve" target="_blank">Wikipedia.</a>
 				</p>
 				<h4><a id="straightConnector">Straight Connector</a></h4>
-				<p>The Straight Connector cdraws a straight line between the two endpoints.  You construct one like this:
+				<p>The Straight Connector draws a straight line between the two endpoints.  You construct one like this:
 				<br/><br/>
 				var myConnector = new jsPlumb.Connectors.Straight();<br/><br/>
 				</p>	
@@ -459,7 +518,7 @@ compute : function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) 
 			list <strong>must be</strong> the [x,y,width,height] values for the canvas that the connector will be drawn on; jsPlumb will
 			use this information to size the canvas prior to calling the Connector's <em>paint</em> function.  Therefore it
 			is the Connector's responsibility to ensure that the returned dimensions describe a large enough space for
-			the line that will be drawn on it.</p><p>The next four elements must be the coordinates of the two endpoints of the line
+			the line that will be drawn on it.</p><p>The next four elements <strong>must be</strong> the coordinates of the two endpoints of the line
 			you are going to draw.</p><p>The remainder of the items in the returned list are arbitrary, and will
 			vary between Connector implementations; this list is passed in to a Connector's <em>paint</em> function, so each
 			implementation will put into the list whatever it needs to paint itself.  For instance, the straight line
@@ -562,10 +621,7 @@ $("#window2").plumb({target:'window3', paintStyle:{ gradient:{stops:[[0,'red'], 
 </div>						
 			</p>
 			<h4>Endpoint gradients</h4>
-			Not yet implemented.
-			<!-- Endpoint gradients may be either <em>linear</em> or <em>radial</em>.  Whereas a linear gradient can be described
-			by a series of color stops (since jsPlumb already knows the full geometry of the Connector's line), a radial gradient
-			requires that you specify  -->
+			Not yet implemented. We expect to support radial gradients in the Dot endpoint, and linear gradients in the Rectangle endpoint.
 			<p>
 			
 			</p>
@@ -593,7 +649,8 @@ $("#window2").plumb({target:'window3', paintStyle:{ gradient:{stops:[[0,'red'], 
 				</li>
 				<li>Smart z-index handling.  After you use jsPlumb for a little while you might see what I mean.<br/><br/>					
 				</li>		
-				<li>Support an endpoint deriving its color from the color of the element to which it is attached?</li>
+				<li>Support an endpoint deriving its color from the color of the element to which it is attached?<br/><br/></li>
+				<li>Attach DOM listeners so jsPlumb is aware when elements move/change size/disappear/appear etc.</li>
 			</ul>
 		</div> 		
 		
