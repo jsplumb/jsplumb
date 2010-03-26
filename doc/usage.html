@@ -24,7 +24,7 @@
 				<li><a href="#cssclasses">CSS Class Reference</a></li>
 				<li><a href="#enhancements">Future Enhancements</a></li>
 			</ul>
-			<strong>This document refers to release 0.0.4-RC3 of jsPlumb.</strong>
+			<strong>This document refers to release 0.0.4-RC4 of jsPlumb.</strong>
 		</div>
 	
 		<div class="section">
@@ -543,10 +543,18 @@ compute : function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) 
 		<div class="section">		
 			<a id="endpoints"><h3>Endpoints</h3></a>		
 			<p>An Endpoint is the UI component that marks the location of an Anchor, ie. the place where a Connector joins an
-			element.  jsPlumb comes with two Endpoint implementations - Dot and Rectangle.
+			element.  jsPlumb comes with three Endpoint implementations - Dot, Rectangle and Image.
 				<ul>
 					<li>jsPlumb.Endpoints.Dot
-						<p>This draws a dot.  In the <em>endpointStyle</em> option of a <em>plumb</em> call, you can set two value
+						<p>This draws a dot.  Example constructor:
+<div class="code">
+<pre>
+var myDot = new jsPlumb.Endpoints.Dot({radius:34});
+</pre>
+</div>						
+Here we created a dot with a radius of 34 pixels.  You do not need to supply the radius though - if you omit it, jsPlumb will assign a default of 10 pixels.  Note that you can also supply the radius in the endpointStyle object - see the next paragraph.
+						</p><p>
+						In the <em>endpointStyle</em> option of a <em>plumb</em> call, you can set two values
 						that this will pick up:
 							<ul>
 								<li>radius - the radius of the dot (in pixels)</li>
@@ -557,15 +565,34 @@ compute : function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) 
 						</p>
 					</li>
 					<li>jsPlumb.Endpoints.Rectangle
-						<p>Draws a rectangle.  In the <em>endpointStyle</em> you can set the following for this:
+						<p>Draws a rectangle.  Example constructor:  
+<div class="code">
+<pre>
+var myRect = new jsPlumb.Endpoints.Rectangle({width:34, height:10});
+</pre>
+</div>							
+Here we created a rectangle of size 34x10.  If you omit the size when you create a Rectangle, jsPlumb will use defaults of 20x20.  Just like with the Dot endpoint, you can also provide this information in the endpointStyle.
+</p><p>						
+						In the <em>endpointStyle</em> you can set the following for this:
 							<ul>
 								<li>width - optional, defaults to 20.</li>
 								<li>height - optional, defaults to 20.</li>
 								<li>fillStyle - the style to use when filling the rectangle.  note that if this is blank, jsPlumb will
 								attempt to use the strokeStyle from the associated Connector.</li>
 							</ul>
+							<br/>
 						</p>
 					</li>
+					<li>jsPlumb.Endpoints.Image
+						<p>Draws an image from a given URL.  Example constructor:
+<div class="code">
+<pre>
+var myImage = new jsPlumb.Endpoints.Image({url:"http://myserver.com/images/endpoint.png"});
+</pre>
+</div>							
+This creates an Image endpoint with the image at the given url.  You do not need to provide dimensions.  jsPlumb will figure that out for you.
+						</p>
+					</li>					
 				</ul>
 			</p>
 			<p>To create your own Endpoint implementation, you need to implement a single method:
