@@ -376,6 +376,20 @@ if (!Array.prototype.indexOf) {
     	connections[elId] = [];
     },
     
+    /**
+     * repaint element and its connections. element may be an id or the actual jQuery object.
+     */
+    repaint : function(el) {
+    	var el = typeof(el)=='string' ? $("#" + el) : el;
+    	var elId = el.attr("id");
+    	var jpcs = connections[elId];
+    	var idx = -1;
+    	var loc = {'absolutePosition': el.offset()};
+    	for (var i = 0; i < jpcs.length; i++) {
+    		jpcs[i].paint(elId, loc);
+    	}
+    },
+    
     hide : function(elId) {
     	jsPlumb._setVisible(elId, "none");
     },
@@ -512,7 +526,8 @@ var jsPlumbConnection = window.jsPlumbConnection = function(params) {
     	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
     	
     	if (this.canvas.getContext) {
-    		var myOffset = ui.absolutePosition;
+    		// faster to use the ui element if it was passed in.  offset is a fallback.
+    		var myOffset = ui != null ? ui.absolutePosition : $("#" + elId).offset();
     		offsets[elId] = myOffset;
             var myWH = sizes[elId];
             
@@ -546,6 +561,7 @@ var jsPlumbConnection = window.jsPlumbConnection = function(params) {
     	}
     };
 
+    // dragging
     var draggable = params.draggable == null ? true : params.draggable;
     if (draggable) {    	
     	var dragOptions = params.dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
@@ -566,9 +582,19 @@ var jsPlumbConnection = window.jsPlumbConnection = function(params) {
     		jsPlumb.drag(self.target, ui);
     		dragCascade(event, ui);
     	});
-    }    
+    }
+    
+    // resizing (using the jquery.ba-resize plugin)
+    if (this.source.resize) {
+    	this.source.resize(function(e) {
+    		jsPlumb.drag(self.source);
+    	});
+    }
+    
+    // finally, draw it.
     var o = this.source.offset();
     this.paint(this.sourceId, {'absolutePosition': this.source.offset()});
+    //jsPlumb.repaint(this.sourceId);
 };
 
 })();
