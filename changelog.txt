@@ -5,6 +5,8 @@
  	  anchors can take offsets too.
  	  
  	- added anchors demonstration.
+ 	
+ 	- added facility to specify different endpoints and endpoint styles for each end of a connector.
  
  * 0.0.4-RC2 (03/24/10)
  		
