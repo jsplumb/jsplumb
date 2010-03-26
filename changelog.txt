@@ -1,3 +1,10 @@
+
+ * 0.0.4-RC3 (03/26/10)
+ 
+ 	- refactored Anchors somewhat.  it's now easier to create a custom anchor location, and
+ 	  anchors can take offsets too.
+ 	  
+ 	- added anchors demonstration.
  
  * 0.0.4-RC2 (03/24/10)
  		

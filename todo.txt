@@ -1,7 +1,8 @@
  
-* 0.0.4 
+* 0.0.4 (not yet released)
   	
-  	- [todo] support
+  	- [todo] support offsets in the default anchors (percentage and also absolute)
+  	- [todo] support gradients in endpoints (dot can support radial, rectangle can support linear)
  	- [todo] support defining a different endpoint for each end of the connector
  	- [todo] support deriving endpoint/connector color from the bg color of the element they are
  	         plumbing.  this is kind of an extension to how the endpoints derive their colour from
