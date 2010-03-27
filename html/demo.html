@@ -16,7 +16,7 @@
 				 
 				$("#window1").plumb({target:'window2', paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'}, endpointStyle:{fillStyle:'rgb(243,229,0)'}});				
 		        $("#window3").plumb({target:'window4', paintStyle:{lineWidth:10, strokeStyle:'rgba(0, 0, 200, 0.5)'}, anchors:[jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE], endpointStyle:{radius:25}, endpointsOnTop:false});
-		        $("#window2").plumb({target:'window3', paintStyle:{lineWidth:8,strokeStyle:'rgb(189,11,11)'}, anchors:[jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.Anchors.TOP_CENTER], endpoint:new jsPlumb.Endpoints.Rectangle()});
+		        $("#window2").plumb({target:'window3', paintStyle:{lineWidth:8,strokeStyle:'rgb(189,11,11)'}, anchors:[jsPlumb.makeAnchor({x:0.5,y:1,orientation:[0,1]}), jsPlumb.Anchors.TOP_CENTER], endpoint:new jsPlumb.Endpoints.Rectangle()});
 		        $("#window5").plumb({target:'window6', anchors:[jsPlumb.Anchors.CENTER, jsPlumb.Anchors.CENTER], paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, endpointsOnTop:false, endpointStyle:{radius:125}});
 		        $("#window4").plumb({target:'window5', anchors:[jsPlumb.Anchors.BOTTOM_RIGHT,jsPlumb.Anchors.TOP_LEFT], paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), endpointStyle:{width:40,height:40}, connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true});
 		});
