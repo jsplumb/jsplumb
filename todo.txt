@@ -1,12 +1,11 @@
  
-* 0.0.4 (not yet released)
+* target 1.0.1
   	
-  	- [todo] support gradients in endpoints (dot can support radial, rectangle can support linear)
- 	- [todo] support deriving endpoint/connector color from the bg color of the element they are
- 	         plumbing.  this is kind of an extension to how the endpoints derive their colour from
+ 	- support deriving endpoint/connector color from the bg color of the element they are
+ 	         plumbing?  this is kind of an extension to how the endpoints derive their colour from
  	         the strokeStyle of the connector if their own color is not defined.
- 	- [todo] support an endpoint finding it's color from the closest color stop in a connector's
- 	         gradient, if the connector has a gradient.
- 	- [todo] ? support patterns in connectors and endpoints.
- 	- [todo] ? support attaching DOM events so jsPlumb can respond when the size/position/visibility
- 	           of some element changes.
+ 	- support an endpoint finding it's color from the closest color stop in a connector's
+ 	         gradient, if the connector has a gradient ?
+ 	- support patterns in connectors and endpoints ?
+ 	- support attaching DOM events so jsPlumb can respond when the size/position/visibility
+ 	           of some element changes ?
