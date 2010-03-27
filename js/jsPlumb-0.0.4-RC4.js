@@ -464,20 +464,35 @@ if (!Array.prototype.indexOf) {
     makeAnchor : function(params) {
     	return new Anchor(params);
     },
+        
     
     /**
      * repaint element and its connections. element may be an id or the actual jQuery object.
+     * this method gets new sizes for the elements before painting anything.
      */
     repaint : function(el) {
-    	var el = typeof(el)=='string' ? $("#" + el) : el;
-    	var elId = el.attr("id");
-    	var jpcs = connections[elId];
-    	var idx = -1;
-    	var loc = {'absolutePosition': el.offset()};
-    	for (var i = 0; i < jpcs.length; i++) {
-    		jpcs[i].paint(elId, loc);
-    	}
-    },
+    	var _repaint = function(el, elId) {
+	    	var jpcs = connections[elId];
+	    	var idx = -1;
+	    	var loc = {'absolutePosition': el.offset()};    	
+	    	for (var i = 0; i < jpcs.length; i++) {
+	    		jpcs[i].paint(elId, loc, true);
+	    	}
+    	};
+    	
+    	var _processElement = function(el) {
+    		var ele = typeof(el)=='string' ? $("#" + el) : el;
+	    	var eleId = ele.attr("id");
+	    	_repaint(ele, eleId);
+    	};
+    	
+    	// support both lists...
+    	if (typeof el =='object') {
+    		for (var i = 0; i < el.length; i++)
+    			_processElement(el[i]);
+    	} // ...and single strings.
+    	else _processElement(el);
+    },       
     
     /**
      * Sets the default size jsPlumb will use for a new canvas (we create a square canvas so
@@ -563,7 +578,13 @@ var jsPlumbConnection = function(params) {
     }
 // ************** store the anchors     
   
-    this.paint = function(elId, ui) {    	
+    /**
+     * paints the connection.
+     * @param elId Id of the element that is in motion
+     * @param ui jQuery's event system ui object (present if we came from a drag to get here)
+     * @param recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
+     */
+    this.paint = function(elId, ui, recalc) {    	
     	// if the moving object is not the source we must transpose the two references.
     	var swap = !(elId == this.sourceId);
     	var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
@@ -574,19 +595,20 @@ var jsPlumbConnection = function(params) {
     		var myOffset = ui != null ? ui.absolutePosition : $("#" + elId).offset();
     		offsets[elId] = myOffset;
     		var otherOffset = offsets[tId];
+    		    		
+    		if (recalc) {
+	    		// a test. this gets the dynamic sizes, not the sizes we got when first registered.
+	    		// slower but probably better really. well - almost certainly. if we're going to be
+	    		// able to respond to window sizes changing.  perhaps we can find ways of reducing how
+	    		// often we call this.
+	    		var s = $("#" + elId);
+	    		var t = $("#" + tId);
+	    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
+	    		sizes[tId] = [t.outerWidth(), t.outerHeight()];
+    		}
     		
-    		// get saved sizes. see below.
     		var myWH = sizes[elId];
             var otherWH = sizes[tId];
-            
-    		// a test. this gets the dynamic sizes, not the sizes we got when first registered.
-    		// slower but probably better really. well - almost certainly. if we're going to be
-    		// able to respond to window sizes changing.  perhaps we can find ways of reducing how
-    		// often we call this.
-    		/*var s = $("#" + elId);
-    		var t = $("#" + tId);
-    		var myWH = [s.outerWidth(), s.outerHeight()];
-    		var otherWH = [t.outerWidth(), t.outerHeight()];*/
             
     		var ctx = canvas.getContext('2d');
             var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
