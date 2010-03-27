@@ -24,7 +24,7 @@
 				<li><a href="#cssclasses">CSS Class Reference</a></li>
 				<li><a href="#enhancements">Future Enhancements</a></li>
 			</ul>
-			<strong>This document refers to release 0.0.4-RC4 of jsPlumb.</strong>
+			<strong>This document refers to release 0.0.4-RC5 of jsPlumb.</strong>
 		</div>
 	
 		<div class="section">
@@ -63,7 +63,7 @@
 			<p>Please don't link to the excanvas.js script on the morrisonpitt.com server!  I'm just a struggling 
 			web developer who needs to minimize his bandwidth.  You may wonder why it is not at ajax.googleapis.com - I 
 			know I did.</p>
-			The current released version of jsPlumb is 0.0.3; the demo site is running on 0.0.4-RC2 right now.  We intend to
+			The current released version of jsPlumb is 0.0.3; the demo site is running on 0.0.4-RC5 right now.  We intend to
 			release 0.0.4 by the end of March 2010.			
 		</div>
 		
@@ -400,7 +400,7 @@ jsPlumb.DEFAULT_ENDPOINT_STYLES = [{ fillStyle:'#225588' }, { fillStyle:'#558822
 			the center of the element, and the midpoint of each edge of the element.</p>
 			<p>You can provide your own anchor locations if you need to.  jsPlumb supports two ways of doing this:
 				<ul>
-					<li>jsPlumb.makeAnchor(params) function
+					<li>jsPlumb.makeAnchor(x, y, xOrientation, yOrientation, xOffset, yOffset) function
 					<p>
 					This function creates a basic Anchor of the type that jsPlumb uses internally, which is a statically located anchor whose
 					position is specified by providing a fractional distance for both x and y.  For instance, the TOP_CENTER anchor in jsPlumb
@@ -409,7 +409,7 @@ jsPlumb.DEFAULT_ENDPOINT_STYLES = [{ fillStyle:'#225588' }, { fillStyle:'#558822
 					A call to jsPlumb.makeAnchor should look something like this:
 <div class="code">
 <pre>
-var myAnchor = jsPlumb.makeAnchor( { x:0.333, y:0.5, orientation:[0,1] } );
+var myAnchor = jsPlumb.makeAnchor( 0.333, 0.5, 0, 1 );
 </pre>
 </div>					
 					<p>
@@ -419,8 +419,10 @@ var myAnchor = jsPlumb.makeAnchor( { x:0.333, y:0.5, orientation:[0,1] } );
 					<ul>
 						<li>x - required. decimal value indicating proportional location with respect to width of the element. 0 is left. 1 is full width.  note that you can use any numbers here, even outside of the 0-1 range.  </li>
 						<li>y - required. decimal value indicating proportional location with respect to height of the element. 0 is left. 1 is full height.  note that you can use any numbers here, even outside of the 0-1 range.  </li>
-						<li>orientation - optional, defaults to [0,0].  This array defines the general direction in which connectors leaving the anchor should travel.  Valid values in this array, for each direction, are 0, 1, or -1.</li>
-						<li>offsets - optional, defaults to [0,0].  This array defines absolute pixel value offsets to apply once the relative positioning has been performed.</li>
+						<li>xOrientation - optional, defaults to 0.  Defines the x hint for the general direction in which connectors leaving the anchor should travel.  Valid values are 0, 1, or -1.</li>
+						<li>yOrientation - optional, defaults to 0.  Defines the y hint for the general direction in which connectors leaving the anchor should travel.  Valid values are 0, 1, or -1.</li>
+						<li>xOffset - optional, defaults to 0.  Optional absolute pixel value offset to apply once the relative positioning has been performed.</li>
+						<li>yOffset - optional, defaults to 0.  Optional absolute pixel value offset to apply once the relative positioning has been performed.</li>
 					</ul>
 					<br/>
 					</li>
@@ -643,9 +645,18 @@ the colors in the <em>stops</em> list are the same as those that are valid for <
 			<p>As mentioned, the <em>stops</em> list can hold an arbitrary number of entries.  Here's an example of a gradient that goes from red to blue to green, and back again through blue to red:
 <div class="code">
 <pre>
-$("#window2").plumb({target:'window3', paintStyle:{ gradient:{stops:[[0,'red'], [0.33333,'blue'], [0.66666,'green'], [0.333333,'blue'], [1,'red']]}, lineWidth:15}});
+$("#window2").plumb({target:'window3', paintStyle:{ gradient:{stops:[[0,'red'], [0.33,'blue'], [0.66,'green'], [0.33,'blue'], [1,'red']]}, lineWidth:15}});
 </pre>
 </div>						
+<strong>Note:</strong> jsPlumb uses ExplorerCanvas for IE, which does not support gradients.  On IE, jsPlumb will simply ignore the gradient directive
+so it is best to ensure you also supply a <em>strokeStyle</em> in your paintStyle object, to give jsPlumb something to fall back on.  If you do not supply
+a <em>strokeStyle</em> your Connectors will be painted black.  The previous example might look like this, for instance:
+<div class="code">
+<pre>
+$("#window2").plumb({target:'window3', paintStyle:{ strokeStyle:'red', gradient:{stops:[[0,'red'], [0.33,'blue'], [0.66,'green'], [0.33,'blue'], [1,'red']]}, lineWidth:15}});
+</pre>
+</div>						
+Notice the <strong>strokeStyle:'red'</strong> directive at the beginning of the parameter list.
 			</p>
 			<h4>Endpoint gradients</h4>
 			Not yet implemented. We expect to support radial gradients in the Dot endpoint, and linear gradients in the Rectangle endpoint.
