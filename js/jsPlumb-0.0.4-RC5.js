@@ -1,7 +1,7 @@
 /*
- * jsPlumb 0.0.4-RC2
+ * jsPlumb 0.0.4-RC5
  * 
- * gradients are new in this version.  and many things have been renamed to more pleasing looking words.
+ * gradients in endpoints.
  * 
  */
 if (!Array.prototype.indexOf) {
@@ -328,7 +328,7 @@ if (!Array.prototype.indexOf) {
     		var self = this;
     		this.radius = params.radius;
     		
-	    	this.paint = function(anchorPoint, canvas, endpointStyle, connectorPaintStyle) {
+	    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
     			var radius = endpointStyle.radius || self.radius;
     			var x = anchorPoint[0] - radius;
     			var y = anchorPoint[1] - radius;
@@ -355,7 +355,7 @@ if (!Array.prototype.indexOf) {
     		this.width = params.width;
     		this.height = params.height;
     		
-	    	this.paint = function(anchorPoint, canvas, endpointStyle, connectorPaintStyle) {    		
+	    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {    		
     			var width = endpointStyle.width || self.width;
     			var height = endpointStyle.height || self.height;
     			var x = anchorPoint[0] - (width/2);
@@ -372,6 +372,19 @@ if (!Array.prototype.indexOf) {
     			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
     			applyPaintStyle(ctx, style);
     			
+    			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+                if (endpointStyle.gradient && !ie) {
+                	// first figure out which direction to run the gradient in (it depends on the orientation of the anchors)
+                	var y1 = orientation[1] == 1 ? height : orientation[1] == 0 ? height / 2 : 0;
+                	var y2 = orientation[1] == -1 ? height : orientation[1] == 0 ? height / 2 : 0;
+                	var x1 = orientation[0] == 1 ? width : orientation[0] == 0 ? width / 2 : 0;
+                	var x2 = orientation[0] == -1 ? width : orientation[0] == 0 ? height / 2 : 0;
+    	            var g = ctx.createLinearGradient(x1,y1,x2,y2);
+    	            for (var i = 0; i < endpointStyle.gradient.stops.length; i++)
+    	            	g.addColorStop(endpointStyle.gradient.stops[i][0], endpointStyle.gradient.stops[i][1]);
+    	            ctx.fillStyle = g;
+                }
+    			
     			ctx.beginPath();
     			ctx.rect(0, 0, width, height);
     			ctx.closePath();
@@ -387,7 +400,7 @@ if (!Array.prototype.indexOf) {
     		this.img = new Image();
     		this.img.src = params.url;
     		
-    		this.paint = function(anchorPoint, canvas, endpointStyle, connectorPaintStyle) {    		
+    		this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {    		
     			var width = self.img.width || endpointStyle.width;
     			var height = self.img.height || endpointStyle.height;
     			var x = anchorPoint[0] - (width/2);
@@ -637,7 +650,9 @@ var jsPlumbConnection = function(params) {
             
     		var ctx = canvas.getContext('2d');
             var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
+            var sAnchorO = this.anchors[sIdx].orientation;
             var tAnchorP = this.anchors[tIdx].compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
+            var tAnchorO = this.anchors[tIdx].orientation;
             var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
             sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
             applyPaintStyle(ctx, this.paintStyle);
@@ -656,8 +671,8 @@ var jsPlumbConnection = function(params) {
             	var style = this.endpointStyle || this.paintStyle;
             	var sourceCanvas = swap ? this.targetEndpointCanvas : this.sourceEndpointCanvas;
             	var targetCanvas = swap ? this.sourceEndpointCanvas : this.targetEndpointCanvas;
-            	this.endpoints[swap ? 1 : 0].paint(sAnchorP, sourceCanvas, this.endpointStyles[swap ? 1 : 0] || this.paintStyle, this.paintStyle);
-            	this.endpoints[swap ? 0 : 1].paint(tAnchorP, targetCanvas, this.endpointStyles[swap ? 0 : 1] || this.paintStyle, this.paintStyle);
+            	this.endpoints[swap ? 1 : 0].paint(sAnchorP, sAnchorO, sourceCanvas, this.endpointStyles[swap ? 1 : 0] || this.paintStyle, this.paintStyle);
+            	this.endpoints[swap ? 0 : 1].paint(tAnchorP, tAnchorO, targetCanvas, this.endpointStyles[swap ? 0 : 1] || this.paintStyle, this.paintStyle);
             }
     	}
     };
