@@ -258,10 +258,11 @@ if (!Array.prototype.indexOf) {
 
             this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth)
             {
-                var w = Math.abs(sourcePos[0] - targetPos[0]), h = Math.abs(sourcePos[1] - targetPos[1]);
-                var canvasX = Math.min(sourcePos[0], targetPos[0]), canvasY = Math.min(sourcePos[1], targetPos[1]);
-                var sx = sourcePos[0] < targetPos[0] ? w : 0, sy = sourcePos[1] < targetPos[1] ? h : 0;
-                var tx = sourcePos[0] < targetPos[0] ? 0 : w, ty = sourcePos[1] < targetPos[1] ? 0 : h;
+            	lineWidth = lineWidth || 0;
+                var w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth, h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
+                var canvasX = Math.min(sourcePos[0], targetPos[0])-(lineWidth/2), canvasY = Math.min(sourcePos[1], targetPos[1])-(lineWidth/2);
+                var sx = sourcePos[0] < targetPos[0] ? w - (lineWidth/2): (lineWidth/2), sy = sourcePos[1] < targetPos[1] ? h-(lineWidth/2) : (lineWidth/2);
+                var tx = sourcePos[0] < targetPos[0] ? (lineWidth/2) : w-(lineWidth/2), ty = sourcePos[1] < targetPos[1] ? (lineWidth/2) : h-(lineWidth/2);
                 var CP = self._findControlPoint([sx,sy], sourcePos, targetPos, sourceAnchor, targetAnchor);
                 var CP2 = self._findControlPoint([tx,ty], targetPos, sourcePos, targetAnchor, sourceAnchor);                
                 var minx1 = Math.min(sx,tx); var minx2 = Math.min(CP[0], CP2[0]); var minx = Math.min(minx1,minx2);
