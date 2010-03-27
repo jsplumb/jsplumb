@@ -2,8 +2,8 @@
 <html>
 	<head>
 		<title>jsPlumb - documentation</title>
-		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<link rel="stylesheet" href="/mp.css"></link>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>		
 	</head>
 	<body>	
 		<div class="menu"><a href="../html/demo.html" class="mplink">view demo</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a></div>
@@ -598,10 +598,11 @@ This creates an Image endpoint with the image at the given url.  You do not need
 				</ul>
 			</p>
 			<p>To create your own Endpoint implementation, you need to implement a single method:
-				<div class="code"><pre>paint : function(anchorPoint, canvas, endpointStyle, connectorPaintStyle) { ... }</pre></div>
+				<div class="code"><pre>paint : function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) { ... }</pre></div>
 				The arguments to this method are as follows:
 				<ul>
 					<li>anchorPoint - [x,y] location of the anchor point on screen</li>
+					<li>orientation - [x,y] hints for the general direction the anchor points to</li>
 					<li>canvas - the canvas to draw into</li>
 					<li>endpointStyle - Javascript object containing style directives as discussed above.  The contents of this are arbitrary, so if you write a new Endpoint that needs some extra settings, you can add them no hassle.</li>
 					<li>connectorPaintStyle - the style being used to paint the associated Connector.</li>
@@ -659,10 +660,68 @@ $("#window2").plumb({target:'window3', paintStyle:{ strokeStyle:'red', gradient:
 Notice the <strong>strokeStyle:'red'</strong> directive at the beginning of the parameter list.
 			</p>
 			<h4>Endpoint gradients</h4>
-			Not yet implemented. We expect to support radial gradients in the Dot endpoint, and linear gradients in the Rectangle endpoint.
+			Endpoint gradients are specified using the same syntax as Connector gradients.  You put the gradient specifier either in the
+			<strong>endpoint</strong> member, or if you are specifying different Endpoints for each end of the Connector, in one or both of
+			the values in the <strong>endpoints</strong> array.			
 			<p>
-			
+			This is an example of an Endpoint gradient that is different for each Endpoint in the Connector.  This comes from the main demo; it is
+			the Connector joining Window 2 to Window 3:
 			</p>
+<div class="code">
+<pre>
+var w23Stroke = 'rgb(189,11,11)'; 
+$("#window2").plumb({target:'window3', 
+	paintStyle:{lineWidth:8,strokeStyle:w23Stroke}, 
+ 	anchors:[jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TOP_CENTER], 
+ 	endpoint:new jsPlumb.Endpoints.Rectangle(), 
+ 	endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
+    				{ gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
+});
+</pre>
+</div>				
+The first entry in the gradient will be the one that is on the Connector end of the Endpoint.  You can of course have as many color stops as
+you want in this gradient, just like with Connector gradients.
+	<h5>Applying the gradient in Endpoints</h5>
+	Only the Dot and Rectangle endpoints honour the presence of a gradient (and not in IE, either!). The Image endpoint of course ignores a gradient
+	as it does no painting of its own.
+	<p>The type of gradient you will see depends on the Endpoint type:
+		<ul>
+			<li>Dot - renders a radial endpoint, with color stop 0 on the outside, progressing inwards as we move through color stops.
+			<p>Radial gradients actually require more data than linear gradients - in a linear gradient we just move from one point to another, whereas
+			in a radial gradient we move from one <em>circle</em> to another.  By default, jsPlumb will render a radial gradient using a source
+			circle of the same radius as the Endpoint itself, and a target circle of 1/3 of the radius of the Endpoint (both circles share the
+			same center as the Endpoint itself). This circle will be offset by radius/2 in each direction.</p>
+			<p>You can supply your own values for these inside the gradient descriptor:</p>
+<div class="code">
+<pre>
+var w34Stroke = 'rgba(50, 50, 200, 1)';
+var w34HlStroke = 'rgba(180, 180, 200, 1)';
+$("#window3").plumb({target:'window4', 
+       				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
+       				 anchors:[jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE], 
+       				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:37.5, innerRadius:40}, radius:55 }, 
+       				 endpointsOnTop:false});
+</pre>
+</div>			
+Here we have instructed jsPlumb to make the gradient's inner radius 10px instead of the default 25/3 = 8 ish pixels, and the offset in each direction
+will be 5px, instead of the default radius / 2 = 12.5 pixels.
+<p>It is also possible to specify the offset and inner radius as percentages - enter the values as strings with a '%' symbol on the end:</p>
+<div class="code">
+<pre>
+var w34Stroke = 'rgba(50, 50, 200, 1)';
+var w34HlStroke = 'rgba(180, 180, 200, 1)';
+$("#window3").plumb({target:'window4', 
+       				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
+       				 anchors:[jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE], 
+       				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'68%', innerRadius:'73%'}, radius:25 }, 
+       				 endpointsOnTop:false});
+</pre>
+</div>
+This will give roughly the same output as the example above (the percentages are not entirely exact).			
+			</li>
+			<li>Rectangle - renders a linear endpoint, with color stop 0 closest to the end of the Connector</li>
+		</ul>
+	</p>					
 		</div>		
 		
 		<div class="section">
