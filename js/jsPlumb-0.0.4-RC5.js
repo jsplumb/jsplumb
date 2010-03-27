@@ -327,6 +327,26 @@ if (!Array.prototype.indexOf) {
     		params = params || { radius:10 };
     		var self = this;
     		this.radius = params.radius;
+    		var defaultOffset = 0.5 * this.radius;
+    		var defaultInnerRadius = this.radius / 3;
+    		
+    		var parseValue = function(value) {
+    			try {
+					return parseInt(value); 
+				}
+				catch(e) {
+					if (value.substring(value.length - 1) == '%')
+						return parseInt(value.substring(0, value - 1));
+				}
+    		}
+    		
+    		var calculateAdjustments = function(gradient) {
+    			var offsetAdjustment = defaultOffset;
+    			var innerRadius = defaultInnerRadius;
+    			if (gradient.offset) offsetAdjustment = parseValue(gradient.offset);
+            	if(gradient.innerRadius) innerRadius = parseValue(gradient.innerRadius);
+            	return [offsetAdjustment, innerRadius];
+    		};
     		
 	    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
     			var radius = endpointStyle.radius || self.radius;
@@ -338,6 +358,20 @@ if (!Array.prototype.indexOf) {
     			applyPaintStyle(style, endpointStyle);
     			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
     			applyPaintStyle(ctx, style);
+    			
+    			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+                if (endpointStyle.gradient && !ie) {
+                	
+                	var adjustments = calculateAdjustments(endpointStyle.gradient); 
+                	var yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0];
+                	var xAdjust = orientation[0] == 1 ? adjustments[0] * -1:  adjustments[0];
+                	var g = ctx.createRadialGradient(radius, radius, radius, radius + xAdjust, radius + yAdjust, adjustments[1]);
+    	            for (var i = 0; i < endpointStyle.gradient.stops.length; i++)
+    	            	g.addColorStop(endpointStyle.gradient.stops[i][0], endpointStyle.gradient.stops[i][1]);
+    	            ctx.fillStyle = g;
+                }
+
+    			
     			ctx.beginPath();    			
     			ctx.arc(radius, radius, radius, 0, Math.PI*2, true);
     			ctx.closePath();
