@@ -1,4 +1,10 @@
 
+ * 0.0.4-RC5
+ 
+ 	- improved makeAnchor method
+ 	- added gradients for endpoints
+ 	- better documentation
+ 	
  * 0.0.4-RC4 (03/26/10)
  
  	- added Image endpoint type.
