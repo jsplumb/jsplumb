@@ -18,6 +18,82 @@ if (!Array.prototype.indexOf) {
 	var offsets = [];
 	var sizes = [];
 	
+	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
+	
+	/**
+     * applies all the styles to the given context.  this just wraps the $.extend function. 
+     * 
+     * @param context
+     * @param styles
+     */
+    var applyPaintStyle = function(context, styles) {
+        $.extend(context, styles);
+    };
+    
+    /**
+     * Handles the dragging of an element.  
+     * @param element jQuery element
+     * @param ui UI object from jQuery's event system
+     */
+    var drag = function(element, ui) {
+    	var id = element.attr("id");
+    	var l = connections[id];
+    	for (var i = 0; i < l.length; i++)
+    		l[i].paint(id, ui);
+    };
+	
+	/**
+	 * private method to do the business of hiding/showing.
+	 * @param elId Id of the element in question
+	 * @param state String specifying a value for the css 'display' property ('block' or 'none').
+	 */
+	var setVisible = function(elId, state) {
+    	var jpcs = connections[elId];
+    	for (var i = 0; i < jpcs.length; i++) {
+    		jpcs[i].canvas.style.display=state;
+    		if (jpcs[i].drawEndpoints) {
+    			jpcs[i].sourceEndpointCanvas.style.display=state;
+    			jpcs[i].targetEndpointCanvas.style.display=state;
+    		}
+    	}
+    };
+    
+    /**
+     * helper to size a canvas.
+     */
+    var sizeCanvas = function(canvas, x, y, w, h) {
+        canvas.style.height = h + "px"; canvas.height = h;
+        canvas.style.width = w + "px"; canvas.width = w; 
+        canvas.style.left = x + "px"; canvas.style.top = y + "px";
+    };
+    
+    /**
+     * helper to create a canvas.
+     * @param clazz optional class name for the canvas.
+     */
+    var newCanvas = function(clazz) {
+        var canvas = document.createElement("canvas");
+        document.body.appendChild(canvas);
+        canvas.style.position="absolute";
+        if (clazz) { canvas.className=clazz; }
+        
+        if (/MSIE/.test(navigator.userAgent) && !window.opera) {
+        	// for IE we have to set a big canvas size. actually you can override this, too, if 1200 pixels
+        	// is not big enough for the biggest connector/endpoint canvas you have at startup.
+        	sizeCanvas(canvas, 0, 0, DEFAULT_NEW_CANVAS_SIZE, DEFAULT_NEW_CANVAS_SIZE);
+        	canvas = G_vmlCanvasManager.initElement(canvas);          
+        }
+        
+        return canvas;
+    };               
+    
+    /**
+     * helper to remove a canvas from the DOM.
+     */
+    var removeCanvas = function(canvas) {
+    	if (canvas != null) document.body.removeChild(canvas);
+    }; 
+	
 	/**
 	 * generic anchor - can be situated anywhere.  params should contain three values, and may optionally have an 'offsets' argument:
 	 * 
@@ -35,6 +111,9 @@ if (!Array.prototype.indexOf) {
 		}
 	};
 	
+	/**
+	 * jsPlumb public API
+	 */
     var jsPlumb = window.jsPlumb = {
 
 	connectorClass : '_jsPlumb_connector',
@@ -45,19 +124,7 @@ if (!Array.prototype.indexOf) {
     DEFAULT_DRAG_OPTIONS : { },
     DEFAULT_CONNECTOR : null,
     DEFAULT_ENDPOINT : null,    
-    DEFAULT_ENDPOINTS : [null, null],  // new in 0.0.4, the ability to specify diff. endpoints.  DEFAULT_ENDPOINT is here for backwards compatibility.
-    DEFAULT_NEW_CANVAS_SIZE : 1200, // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
-    
-    /**
-     * Creates an anchor with the given params.
-     * x - the x location of the anchor as a percentage of the total width.  
-	 * y - the y location of the anchor as a percentage of the total height.
-	 * orientation - an [x,y] array indicating the general direction a connection from the anchor should go in.
-	 * offsets - an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  optional. defaults to [0,0]. 
-     */
-    makeAnchor : function(params) {
-    	return new Anchor(params);
-    },
+    DEFAULT_ENDPOINTS : [null, null],  // new in 0.0.4, the ability to specify diff. endpoints.  DEFAULT_ENDPOINT is here for backwards compatibility.            
     
     /**
     * Places you can anchor a connection to.  These are helpers for common locations; they all just return an instance
@@ -125,21 +192,15 @@ if (!Array.prototype.indexOf) {
              * would store the control point info in this array too.
              */
             this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) {
-    			$("#log").html("");
-    			var s = "sourcePos, targetPos : " + sourcePos + " : " + targetPos + "<br/>";
-                var w = Math.abs(sourcePos[0] - targetPos[0]);
+    			var w = Math.abs(sourcePos[0] - targetPos[0]);
                 var h = Math.abs(sourcePos[1] - targetPos[1]);
                 var widthAdjusted = false, heightAdjusted = false;
-                s += "original w = " + w + "; h = " + h + "<br/>";
                 if (w < lineWidth) { w = lineWidth; widthAdjusted = true; }                
                 if (h < lineWidth) { h = lineWidth; heightAdjusted = true; }
-                s += " w = " + w + "; h = " + h + "<br/>";
                 // these are padding to ensure the whole connector line appears
                 var xo = 0.45 * w, yo = 0.45 * h;
-                s += "xoffset = " + xo + "; yoffset = " + yo + "<br/>";
                 // these are padding to ensure the whole connector line appears
                 w *= 1.9; h *=1.9;
-                s += "adjusted w, h " + w + "," + h + "<br/>";
                 
                 var x = Math.min(sourcePos[0], targetPos[0]) - xo;
                 var y = Math.min(sourcePos[1], targetPos[1]) - yo;
@@ -150,11 +211,7 @@ if (!Array.prototype.indexOf) {
                 var tx = widthAdjusted ? (w - lineWidth) / 2 : sourcePos[0] < targetPos[0] ? xo : w-xo;
                 var ty = heightAdjusted ? (h - lineWidth) / 2 : sourcePos[1] < targetPos[1] ? yo : h-yo;
                 var retVal = [ x, y, w, h, sx, sy, tx, ty ];
-                
-                s += " lineWidth : " + lineWidth + "<br/>";
-                s += " retVal : " + retVal;
-                $("#log").html(s);
-                
+                                
                 // return [canvasX, canvasY, canvasWidth, canvasHeight, 
                 //         sourceX, sourceY, targetX, targetY] 
                 return retVal;
@@ -170,7 +227,14 @@ if (!Array.prototype.indexOf) {
         },
                 
         /**
-         * The Bezier connector draws a Bezier curve with two control points.
+         * This Connector draws a Bezier curve with two control points.
+         * @param curviness How 'curvy' you want the curve to be! This is a directive for the
+         * placement of control points, not endpoints of the curve, so your curve does not 
+         * actually touch the given point, but it has the tendency to lean towards it.  the larger
+         * this value, the greater the curve is pulled from a straight line.
+         * 
+         * a future implementation of this could take the control points as arguments, rather
+         * than fixing the curve to one basic shape.
          */
         Bezier : function(curviness) {
         	
@@ -234,12 +298,15 @@ if (!Array.prototype.indexOf) {
     
     
     /**
-     * Types of endpoint UIs.  we supply two - a circle of default radius 10px, and a rectangle of
-     * default size 20x20.  you can supply others of these if you want to - see the documentation
+     * Types of endpoint UIs.  we supply three - a circle of default radius 10px, a rectangle of
+     * default size 20x20, and an image (with no default).  you can supply others of these if you want to - see the documentation
      * for a howto.
      */
     Endpoints : {
 
+    	/**
+    	 * a round endpoint, with default radius 10 pixels.
+    	 */
     	Dot : function(params) {
     	
     		params = params || { radius:10 };
@@ -250,12 +317,12 @@ if (!Array.prototype.indexOf) {
     			var radius = endpointStyle.radius || self.radius;
     			var x = anchorPoint[0] - radius;
     			var y = anchorPoint[1] - radius;
-    			jsPlumb.sizeCanvas(canvas, x, y, radius * 2, radius * 2);
+    			sizeCanvas(canvas, x, y, radius * 2, radius * 2);
     			var ctx = canvas.getContext('2d');
     			var style = {};    			
-    			jsPlumb.applyPaintStyle(style, endpointStyle);
+    			applyPaintStyle(style, endpointStyle);
     			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
-    			jsPlumb.applyPaintStyle(ctx, style);
+    			applyPaintStyle(ctx, style);
     			ctx.beginPath();    			
     			ctx.arc(radius, radius, radius, 0, Math.PI*2, true);
     			ctx.closePath();
@@ -263,6 +330,9 @@ if (!Array.prototype.indexOf) {
 	    	};
     	},
     	
+    	/**
+    	 * A Rectangular endpoint, with default size 20x20.
+    	 */
     	Rectangle : function(params) {
         	
     		params = params || { width:20, height:20 };
@@ -275,7 +345,7 @@ if (!Array.prototype.indexOf) {
     			var height = endpointStyle.height || self.height;
     			var x = anchorPoint[0] - (width/2);
     			var y = anchorPoint[1] - (height/2);
-    			jsPlumb.sizeCanvas(canvas, x, y, width, height);
+    			sizeCanvas(canvas, x, y, width, height);
     			var ctx = canvas.getContext('2d');
     			//todo: the fillStyle needs some thought. we want to support a few options:
     			// 1. nothing supplied; use the stroke color or the default if no stroke color.
@@ -283,9 +353,9 @@ if (!Array.prototype.indexOf) {
     			// 3. a gradient supplied - use it
     			// 4. setting the endpoint to the same color as the bg of the element it is attached to.
     			var style = {};    			
-    			jsPlumb.applyPaintStyle(style, endpointStyle);
+    			applyPaintStyle(style, endpointStyle);
     			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
-    			jsPlumb.applyPaintStyle(ctx, style);
+    			applyPaintStyle(ctx, style);
     			
     			ctx.beginPath();
     			ctx.rect(0, 0, width, height);
@@ -307,13 +377,17 @@ if (!Array.prototype.indexOf) {
     			var height = self.img.height || endpointStyle.height;
     			var x = anchorPoint[0] - (width/2);
     			var y = anchorPoint[1] - (height/2);
-    			jsPlumb.sizeCanvas(canvas, x, y, width, height);
+    			sizeCanvas(canvas, x, y, width, height);
     			var ctx = canvas.getContext('2d');
     			ctx.drawImage(self.img,0,0);
     		};    		
     	}
     },
     
+    /**
+     * establishes a connection between two elements.
+     * @param params object containing setup for the connection.  see documentation.
+     */
     connect : function(params) {
     	var jpc = new jsPlumbConnection(params);
     	var key = jpc.sourceId + "_" + jpc.targetId;
@@ -330,28 +404,22 @@ if (!Array.prototype.indexOf) {
     	// register this connection.
     	addToList(jpc.sourceId, jpc);
     	addToList(jpc.targetId, jpc);
-    },
+    },           
     
-    getConnections : function(elId) {
-    	return connections[elId];
-    },
-    
-    drag : function(element, ui) {
-    	var id = element.attr("id");
-    	var l = jsPlumb.getConnections(id);
-    	for (var i = 0; i < l.length; i++)
-    		l[i].paint(id, ui);
-    },
-    
+    /**
+     * Remove one connection to an element.
+     * @param sourceId id of the first window in the connection
+     * @param targetId id of the second window in the connection
+     */
     detach : function(sourceId, targetId) {    	
     	var jpcs = connections[sourceId];
     	var idx = -1;
     	for (var i = 0; i < jpcs.length; i++) {
     		if ((jpcs[i].sourceId == sourceId && jpcs[i].targetId == targetId) || (jpcs[i].targetId == sourceId && jpcs[i].sourceId == targetId)) {
-    			jsPlumb.removeCanvas(jpcs[i].canvas);
+    			removeCanvas(jpcs[i].canvas);
     			if (jpcs[i].drawEndpoints) {
-    				jsPlumb.removeCanvas(jpcs[i].targetEndpointCanvas);
-    				jsPlumb.removeCanvas(jpcs[i].sourceEndpointCanvas);
+    				removeCanvas(jpcs[i].targetEndpointCanvas);
+    				removeCanvas(jpcs[i].sourceEndpointCanvas);
     			}
     			idx = i;
     			break;
@@ -364,16 +432,37 @@ if (!Array.prototype.indexOf) {
     	// allow an override on it?
     },
     
+    /**
+     * remove all an element's connections.
+     */
     detachAll : function(elId) {
     	var jpcs = connections[elId];
     	for (var i = 0; i < jpcs.length; i++) {
-	    	jsPlumb.removeCanvas(jpcs[i].canvas);
+	    	removeCanvas(jpcs[i].canvas);
 			if (jpcs[i].drawEndpoints) {
-				jsPlumb.removeCanvas(jpcs[i].targetEndpointCanvas);
-				jsPlumb.removeCanvas(jpcs[i].sourceEndpointCanvas);
+				removeCanvas(jpcs[i].targetEndpointCanvas);
+				removeCanvas(jpcs[i].sourceEndpointCanvas);
 			}
     	}
     	connections[elId] = [];
+    },
+    
+    /**
+     * Set an element's connections to be hidden.
+     */
+    hide : function(elId) {
+    	setVisible(elId, "none");
+    },
+    
+    /**
+     * Creates an anchor with the given params.
+     * x - the x location of the anchor as a percentage of the total width.  
+	 * y - the y location of the anchor as a percentage of the total height.
+	 * orientation - an [x,y] array indicating the general direction a connection from the anchor should go in.
+	 * offsets - an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  optional. defaults to [0,0]. 
+     */
+    makeAnchor : function(params) {
+    	return new Anchor(params);
     },
     
     /**
@@ -390,77 +479,32 @@ if (!Array.prototype.indexOf) {
     	}
     },
     
-    hide : function(elId) {
-    	jsPlumb._setVisible(elId, "none");
+    /**
+     * Sets the default size jsPlumb will use for a new canvas (we create a square canvas so
+     * one value is all that is required).  This is a hack for IE, because ExplorerCanvas seems
+     * to need for a canvas to be larger than what you are going to draw on it at initialisation
+     * time.  The default value of this is 1200 pixels, which is quite large, but if for some
+     * reason you're drawing connectors that are bigger, you should adjust this value appropriately.
+     */
+    setDefaultNewCanvasSize : function(size) {
+    	DEFAULT_NEW_CANVAS_SIZE = size;    	
     },
-    
+        
+    /**
+     * Set an element's connections to be visible.
+     */
     show : function(elId) {
-    	jsPlumb._setVisible(elId, "block");
+    	setVisible(elId, "block");
     },
     
+    /**
+     * Toggles visibility of an element's connections.
+     */
     toggle : function(elId) {
     	var jpcs = connections[elId];
     	if (jpcs.length > 0)
-    		jsPlumb._setVisible(elId, "none" == jpcs[0].canvas.style.display ? "block" : "none");
-    },
-    
-    _setVisible : function(elId, state) {
-    	var jpcs = connections[elId];
-    	for (var i = 0; i < jpcs.length; i++) {
-    		jpcs[i].canvas.style.display=state;
-    		if (jpcs[i].drawEndpoints) {
-    			jpcs[i].sourceEndpointCanvas.style.display=state;
-    			jpcs[i].targetEndpointCanvas.style.display=state;
-    		}
-    	}
-    },
-    
-    /**
-     * helper to create a canvas.
-     * @param clazz optional class name for the canvas.
-     */
-    newCanvas : function(clazz) {
-        var canvas = document.createElement("canvas");
-        document.body.appendChild(canvas);
-        canvas.style.position="absolute";
-        if (clazz) { canvas.className=clazz; }
-        
-        if (/MSIE/.test(navigator.userAgent) && !window.opera) {
-        	// for IE we have to set a big canvas size. actually you can override this, too, if 1200 pixels
-        	// is not big enough for the biggest connector/endpoint canvas you have at startup.
-        	jsPlumb.sizeCanvas(canvas, 0, 0, jsPlumb.DEFAULT_NEW_CANVAS_SIZE, jsPlumb.DEFAULT_NEW_CANVAS_SIZE);
-        	canvas = G_vmlCanvasManager.initElement(canvas);          
-        }
-        
-        return canvas;
-    },
-    
-    /**
-     * helper to remove a canvas from the DOM.
-     */
-    removeCanvas : function(canvas) {
-    	if (canvas != null) document.body.removeChild(canvas);
-    },
-
-    /**
-     * helper to size a canvas.
-     */
-    sizeCanvas : function(canvas, x, y, w, h) {
-        canvas.style.height = h + "px"; canvas.height = h;
-        canvas.style.width = w + "px"; canvas.width = w; 
-        canvas.style.left = x + "px"; canvas.style.top = y + "px";
-    },
-    
-    /**
-     * applies all the styles to the given context.
-     * @param canvas
-     * @param styles
-     */
-    applyPaintStyle : function(context, styles) {
-        for (var i in styles) {
-            context[i] = styles[i];
-        }
-    }
+    		setVisible(elId, "none" == jpcs[0].canvas.style.display ? "block" : "none");
+    }                                
 };
 
 // ************** connection
@@ -472,7 +516,7 @@ if (!Array.prototype.indexOf) {
 * anchors: optional array of anchor placements. defaults to BOTTOM_CENTER for source
 *          and TOP_CENTER for target.
 */
-var jsPlumbConnection = window.jsPlumbConnection = function(params) {
+var jsPlumbConnection = function(params) {
 
 // ************** get the source and target and register the connection. *******************
     var self = this;
@@ -505,12 +549,12 @@ var jsPlumbConnection = window.jsPlumbConnection = function(params) {
     sizes[this.targetId] = [this.target.outerWidth(), this.target.outerHeight()];
 
 // *************** create canvases on which the connection will be drawn ************
-    var canvas = jsPlumb.newCanvas(jsPlumb.connectorClass);
+    var canvas = newCanvas(jsPlumb.connectorClass);
     this.canvas = canvas;
     // create endpoint canvases
     if (this.drawEndpoints) {
-	    this.sourceEndpointCanvas = jsPlumb.newCanvas(jsPlumb.endpointClass);	    
-	    this.targetEndpointCanvas = jsPlumb.newCanvas(jsPlumb.endpointClass);
+	    this.sourceEndpointCanvas = newCanvas(jsPlumb.endpointClass);	    
+	    this.targetEndpointCanvas = newCanvas(jsPlumb.endpointClass);
 	    // sit them on top of the underlying element?
 	    if (this.endpointsOnTop) {
 		    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") + 1);
@@ -537,8 +581,8 @@ var jsPlumbConnection = window.jsPlumbConnection = function(params) {
             var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
             var tAnchorP = this.anchors[tIdx].compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
             var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
-            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
-            jsPlumb.applyPaintStyle(ctx, this.paintStyle);
+            sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
+            applyPaintStyle(ctx, this.paintStyle);
             
             // gradient experiment.
             var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
@@ -575,11 +619,11 @@ var jsPlumbConnection = window.jsPlumbConnection = function(params) {
         	element.draggable(opts);
     	};
     	initDrag(this.source, function(event, ui) {
-    		jsPlumb.drag(self.source, ui);
+    		drag(self.source, ui);
     		dragCascade(event, ui);
     	});
     	initDrag(this.target, function(event, ui) {
-    		jsPlumb.drag(self.target, ui);
+    		drag(self.target, ui);
     		dragCascade(event, ui);
     	});
     }
