@@ -521,7 +521,7 @@ var jsPlumbConnection = function(params) {
 // ************** get the source and target and register the connection. *******************
     var self = this;
     // get source and target as jQuery objects
-    this.source = (typeof params.source == 'string') ? $("#" + params.source) : params.source;
+    this.source = (typeof params.source == 'string') ? $("#" + params.source) : params.source;    
     this.target = (typeof params.target == 'string') ? $("#" + params.target) : params.target;
     this.sourceId = $(this.source).attr("id");
     this.targetId = $(this.target).attr("id");
@@ -573,11 +573,22 @@ var jsPlumbConnection = function(params) {
     		// faster to use the ui element if it was passed in.  offset is a fallback.
     		var myOffset = ui != null ? ui.absolutePosition : $("#" + elId).offset();
     		offsets[elId] = myOffset;
-            var myWH = sizes[elId];
+    		var otherOffset = offsets[tId];
+    		
+    		// get saved sizes. see below.
+    		var myWH = sizes[elId];
+            var otherWH = sizes[tId];
+            
+    		// a test. this gets the dynamic sizes, not the sizes we got when first registered.
+    		// slower but probably better really. well - almost certainly. if we're going to be
+    		// able to respond to window sizes changing.  perhaps we can find ways of reducing how
+    		// often we call this.
+    		/*var s = $("#" + elId);
+    		var t = $("#" + tId);
+    		var myWH = [s.outerWidth(), s.outerHeight()];
+    		var otherWH = [t.outerWidth(), t.outerHeight()];*/
             
     		var ctx = canvas.getContext('2d');
-            var otherOffset = offsets[tId];
-            var otherWH = sizes[tId];
             var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
             var tAnchorP = this.anchors[tIdx].compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
             var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
@@ -628,17 +639,16 @@ var jsPlumbConnection = function(params) {
     	});
     }
     
-    // resizing (using the jquery.ba-resize plugin)
+    // resizing (using the jquery.ba-resize plugin). todo: decide whether to include or not.
     if (this.source.resize) {
     	this.source.resize(function(e) {
-    		jsPlumb.drag(self.source);
+    		jsPlumb.repaint(self.sourceId);
     	});
     }
     
     // finally, draw it.
     var o = this.source.offset();
     this.paint(this.sourceId, {'absolutePosition': this.source.offset()});
-    //jsPlumb.repaint(this.sourceId);
 };
 
 })();
