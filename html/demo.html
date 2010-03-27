@@ -6,7 +6,7 @@
 		<script type="text/javascript" src="http://morrisonpitt.com/scripts/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../js/jsPlumb-0.0.4-RC5.js "></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.0-min.js "></script>
 		<!--  an ongoing experiment -->
 		<!-- script type="text/javascript" src="../js/jquery.ba-resize.js "></script-->
 		
@@ -15,7 +15,7 @@
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
 
 				// plumb window1 to window2 with a 15 px wide yellow Bezier. endpoints are a slightly lighter shade of yellow. 
-				$("#window1").plumb({target:'window2', anchors:[jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.makeAnchor(0.75,0,0,-1)], paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'}, endpointStyle:{fillStyle:'rgb(243,229,0)'}});
+				$("#window1").plumb({target:'window2', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'}, endpointStyle:{fillStyle:'rgb(243,229,0)'}});
 
 				// plumb window3 to window4 with a 10px wide blue-ish half transparent Bezier. put endpoints underneath the element they attach to.
 				// the endpoints have a radial gradient. both ways of specifying gradient positioning are shown here.
@@ -23,7 +23,7 @@
 				var w34HlStroke = 'rgba(180, 180, 200, 1)';
 				$("#window3").plumb({target:'window4', 
 			        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
-			        				 anchors:[jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE], 
+			        				 anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle], 
 			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
 			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 
 			        				 endpointsOnTop:false});
@@ -34,7 +34,7 @@
 		        var w23Stroke = 'rgb(189,11,11)'; 
 		        $("#window2").plumb({target:'window3', 
 			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke}, 
-			        				 anchors:[jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TOP_CENTER], 
+			        				 anchors:[jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TopCenter], 
 			        				 endpoint:new jsPlumb.Endpoints.Rectangle(), 
 			        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
 			    			        				 { gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
@@ -42,11 +42,11 @@
 
 		        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
 		        // the endpoints are 125px in radius and spill out from underneath their elements.
-		        $("#window5").plumb({target:'window6', anchors:[jsPlumb.Anchors.CENTER, jsPlumb.Anchors.CENTER], paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, endpointsOnTop:false, endpointStyle:{radius:125}});
+		        $("#window5").plumb({target:'window6', anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, endpointsOnTop:false, endpointStyle:{radius:125}});
 
 		        // plumb window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
 		        // image as the endpoint, placed on top of the element it is connected to.
-		        $("#window4").plumb({target:'window5', anchors:[jsPlumb.Anchors.BOTTOM_RIGHT,jsPlumb.Anchors.TOP_LEFT], paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true});
+		        $("#window4").plumb({target:'window5', anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft], paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true});
 		});
 		</script>
 		<link rel="stylesheet" href="/mp.css"></link>
@@ -77,7 +77,7 @@
 	    
 	    <div id="explanation">
 	    	<p>The jsPlumb jQuery plugin provides a way to "plumb" elements of a UI together.  This page contains a little bit of everything to whet your appetite.</p>
-	    	<p>This demonstration uses version 0.0.4-RC5 of jsPlumb.</p>
+	    	<p>This demonstration uses version 1.0.0 of jsPlumb.</p>
 	    	<a href="demo2.html" class="mplink">Next demonstration</a><br /><br />
 	    	<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a>
 	    </div>

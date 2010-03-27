@@ -6,7 +6,7 @@
 		<script type="text/javascript" src="http://morrisonpitt.com/scripts/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../js/jsPlumb-0.0.4-RC5.js "></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.0-min.js "></script>
 		
 		<script type="text/javascript">
 			$(document).ready(function() {
@@ -15,7 +15,7 @@
 				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:15, height:11 };
 				jsPlumb.DEFAULT_ENDPOINT = new jsPlumb.Endpoints.Rectangle();
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Straight();
-				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.Anchors.BOTTOM_CENTER];
+				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.BottomCenter];
 				 
 				$("#window1").plumb({target:'window2'}); 
 				$("#window1").plumb({target:'window3'});
@@ -50,7 +50,7 @@
 
 		<div id="explanation">
 	    	On this page we set our connectors to black, make the windows opaque, use a straight line connector, and specify a rectangular endpoint of size 15 by 11.<br/><br/>  Every connection is anchored at BOTTOM_CENTER.
-	    	<p>This demonstration uses version 0.0.4-RC5 of jsPlumb.</p>
+	    	<p>This demonstration uses version 1.0.0 of jsPlumb.</p>
 	    	<a href="gradientTest.html" class="mplink">Gradients demonstration</a><br /><br />
 	    	<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a>
 	    </div>	   

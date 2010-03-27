@@ -6,7 +6,7 @@
 		<script type="text/javascript" src="http://morrisonpitt.com/scripts/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../js/jsPlumb-0.0.4-RC5.js "></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.0-min.js "></script>
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>		
 		<style type="text/css">
@@ -22,9 +22,8 @@
 		<div id="window2" class="window">i am plumbed with a connector that has a green-blue gradient to window1, and a connector that has a green-yellow-red gradient to window3.</div>
 		<div id="window3" class="window">i am plumbed with a connector that has a red-yellow-green gradient to window3.<br/><br/>i show that you can have more than two color stops in a gradient.</div>				
 		<div id="explanation">
-		    	This page provides a demonstration of using gradients in your connectors. Additionally it sets the 'curviness' of the Bezier curves to 80. <p><strong>Note:</strong> this <strong>does not work</strong> in IE. In IE you will see fallback values for stroking the connectors - a line with the same colour as the target of the connection.</p>
-	    	<p>Support for gradients in endpoints is planned for the upcoming release 1.0.0.  Round endpoints will support radial gradients; rectangles will support linear gradients.</p>
-	    	<p>This demo currently uses version 0.0.4-RC5 of jsPlumb.</p>
+		    	This page provides a demonstration of using gradients in your connectors. Additionally it sets the 'curviness' of the Bezier curves to 80. <p><strong>Note:</strong> this <strong>does not work</strong> in IE. In IE you will see fallback values for stroking the connectors - a line with the same colour as the target of the connection.</p>	    	
+	    	<p>This demonstration uses version 1.0.0 of jsPlumb.</p>
 	    	<a href="anchorDemo.html" class="mplink">Anchors demonstration</a><br /><br />
 	    	<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a>
 	    </div>	   
@@ -36,7 +35,7 @@
 				jsPlumb.DEFAULT_PAINT_STYLE = { gradient:{stops:[[0,'blue'], [1,'green']] }, lineWidth:15, strokeStyle:'green' };
 				// Bezier curves with a 'curviness' of 80.
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Bezier(80);
-				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE];
+				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle];
 				 
 				$("#window1").plumb({target:'window2', endpointStyles:[ {fillStyle:'blue'}, {fillStyle:'green'} ], endpointsOnTop:false});
 				$("#window2").plumb({target:'window3', endpointStyles:[ {fillStyle:'green'}, {fillStyle:'red'} ], paintStyle:{ gradient:{stops:[[0,'green'], [0.5, 'yellow'], [1,'red']]}, lineWidth:15, strokeStyle:'yellow'}, endpointsOnTop:false});
