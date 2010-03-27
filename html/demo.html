@@ -7,13 +7,14 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="../js/jsPlumb-0.0.4-RC4.js "></script>
+		<script type="text/javascript" src="../js/jquery.ba-resize.js "></script>
 		
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
 				 
 				$("#window1").plumb({target:'window2', paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'}, endpointStyle:{fillStyle:'rgb(243,229,0)'}});				
-		        $("#window3").plumb({target:'window4', paintStyle:{lineWidth:10, strokeStyle:'rgba(0, 0, 200, 0.5)'}, anchors:[jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE], endpointStyle:{radius:25}});
+		        $("#window3").plumb({target:'window4', paintStyle:{lineWidth:10, strokeStyle:'rgba(0, 0, 200, 0.5)'}, anchors:[jsPlumb.Anchors.RIGHT_MIDDLE, jsPlumb.Anchors.LEFT_MIDDLE], endpointStyle:{radius:25}, endpointsOnTop:false});
 		        $("#window2").plumb({target:'window3', paintStyle:{lineWidth:8,strokeStyle:'rgb(189,11,11)'}, anchors:[jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.Anchors.TOP_CENTER], endpoint:new jsPlumb.Endpoints.Rectangle()});
 		        $("#window5").plumb({target:'window6', anchors:[jsPlumb.Anchors.CENTER, jsPlumb.Anchors.CENTER], paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, endpointsOnTop:false, endpointStyle:{radius:125}});
 		        $("#window4").plumb({target:'window5', anchors:[jsPlumb.Anchors.BOTTOM_RIGHT,jsPlumb.Anchors.TOP_LEFT], paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), endpointStyle:{width:40,height:40}, connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true});
@@ -52,7 +53,7 @@
 	    	<a href="demo2.html" class="mplink">Next demonstration</a><br /><br />
 	    	<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a>
 	    </div>
-	    
+	    	    
 	    <!-- Start of StatCounter Code -->
 <script type="text/javascript">
 var sc_project=5700644; 
