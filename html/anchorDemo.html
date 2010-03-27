@@ -6,14 +6,17 @@
 		<script type="text/javascript" src="http://morrisonpitt.com/scripts/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../js/jsPlumb-0.0.4-RC4.js "></script>
+		<script type="text/javascript" src="../js/jsPlumb-0.0.4-RC5.js "></script>
 		
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
+				// default to blue at one end and green at the other
 				jsPlumb.DEFAULT_ENDPOINT_STYLES = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }];
+				// blue endpoints 7 px; green endpoints 11. 
 				jsPlumb.DEFAULT_ENDPOINTS = [ new jsPlumb.Endpoints.Dot({radius:7}), new jsPlumb.Endpoints.Dot({radius:11})];
-				jsPlumb.DEFAULT_PAINT_STYLE = { gradient:{stops:[[0,'#225588'], [1, '#558822']] }, lineWidth:10 };
+				// default to a gradient stroke from blue to green.  for IE provide all green fallback.
+				jsPlumb.DEFAULT_PAINT_STYLE = { gradient:{stops:[[0,'#225588'], [1, '#558822']] }, strokeStyle:'#558822', lineWidth:10 };
 				 
 				$("#window1").plumb({target:'window3', anchors:[jsPlumb.makeAnchor({x:0.05,y:1,orientation:[0,1]}), jsPlumb.Anchors.TOP_CENTER], connector:new jsPlumb.Connectors.Straight()});
 				$("#window1").plumb({target:'window4', anchors:[jsPlumb.Anchors.BOTTOM_CENTER, jsPlumb.Anchors.TOP_CENTER]});				
@@ -49,9 +52,8 @@
 	    	<p>This page provides a demonstration of how to work with Anchors.</p>
 	    	<p>All the green windows are anchored to Window 1 using custom anchor positions on Window 1, except
 	    	Window 4, which uses the BOTTOM_CENTER anchor provided by jsPlumb.</p>
-	    	<p>Additionally, this page shows the usage of a different endpoint for each end of the connector, and a gradient in the connector.</p>
-	    	<p><strong>If you are using IE, you will probably see black connectors, making for a less than optimal aesthetic experience. This will be fixed for the upcoming 1.0 release. </strong></p>
-	    	<p>This demonstration uses version 0.0.4-RC4 of jsPlumb.</p>  
+	    	<p>Additionally, this page shows the usage of a different endpoint for each end of the connector, and a gradient in the connector.  <strong>If you are using IE,</strong> you will see green connectors with no gradient.  ExplorerCanvas, which jsPlumb uses for IE, does not support gradients.</p>
+	    	<p>This demonstration uses version 0.0.4-RC5 of jsPlumb.</p>  
 	    	<br/><br/>
 	    	<a href="demo.html" class="mplink">home</a><br /><br />
 	    	<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a>
