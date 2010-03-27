@@ -195,8 +195,6 @@ if (!Array.prototype.indexOf) {
     			var w = Math.abs(sourcePos[0] - targetPos[0]);
                 var h = Math.abs(sourcePos[1] - targetPos[1]);
                 var widthAdjusted = false, heightAdjusted = false;
-                if (w < lineWidth) { w = lineWidth; widthAdjusted = true; }                
-                if (h < lineWidth) { h = lineWidth; heightAdjusted = true; }
                 // these are padding to ensure the whole connector line appears
                 var xo = 0.45 * w, yo = 0.45 * h;
                 // these are padding to ensure the whole connector line appears
@@ -204,12 +202,28 @@ if (!Array.prototype.indexOf) {
                 
                 var x = Math.min(sourcePos[0], targetPos[0]) - xo;
                 var y = Math.min(sourcePos[1], targetPos[1]) - yo;
+                
+                if (w < 2 * lineWidth) { 
+            		// minimum size is 2 * line Width
+            		w = 2 * lineWidth; 
+            		// if we set this then we also have to place the canvas
+            		x = sourcePos[0]  + ((targetPos[0] - sourcePos[0]) / 2) - lineWidth;
+            		xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;//lineWidth/2;//lineWidth / 2;
+            	}
+                if (h < 2 * lineWidth) { 
+            		// minimum size is 2 * line Width
+            		h = 2 * lineWidth; 
+            		// if we set this then we also have to place the canvas
+            		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - lineWidth;
+            		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;//lineWidth/2;//lineWidth / 2;
+            	}
+                
                 // here we check to see if the delta was very small and so the line in
-                // one direction can be considered straight.
-                var sx = widthAdjusted ? (w - lineWidth) / 2 : sourcePos[0] < targetPos[0] ? w-xo : xo;
-                var sy = heightAdjusted ? (h - lineWidth) / 2 : sourcePos[1] < targetPos[1] ? h-yo : yo;
-                var tx = widthAdjusted ? (w - lineWidth) / 2 : sourcePos[0] < targetPos[0] ? xo : w-xo;
-                var ty = heightAdjusted ? (h - lineWidth) / 2 : sourcePos[1] < targetPos[1] ? yo : h-yo;
+                // one direction can be considered straight.                
+                var sx = sourcePos[0] < targetPos[0] ? w-xo : xo;
+                var sy = sourcePos[1] < targetPos[1] ? h-yo : yo;
+                var tx = sourcePos[0] < targetPos[0] ? xo : w-xo;
+                var ty = sourcePos[1] < targetPos[1] ? yo : h-yo;
                 var retVal = [ x, y, w, h, sx, sy, tx, ty ];
                                 
                 // return [canvasX, canvasY, canvasWidth, canvasHeight, 
