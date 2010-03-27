@@ -486,6 +486,8 @@ if (!Array.prototype.indexOf) {
 	    	_repaint(ele, eleId);
     	};
     	
+    	// TODO: support a jQuery result object too!
+    	
     	// support both lists...
     	if (typeof el =='object') {
     		for (var i = 0; i < el.length; i++)
