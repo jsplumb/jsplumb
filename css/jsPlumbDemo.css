@@ -15,3 +15,9 @@ a:hover {text-decoration:underline;}
 	background: -moz-linear-gradient(center top, #b8d8f2, #92bde0 25%, #3282c2 50%, #92bde0 75%, #b8d8f2);
 	background: -webkit-gradient(linear, center top, center bottom, from(#b8d8f2), color-stop(25%, #92bde0), color-stop(50%, #3282c2), color-stop(75%, #92bde0), to(#b8d8f2)); 
 }*/
+/*._jsPlumb_connector {
+border:1px solid blue;
+}
+._jsPlumb_endpoint {
+border:1px solid green;
+}*/
