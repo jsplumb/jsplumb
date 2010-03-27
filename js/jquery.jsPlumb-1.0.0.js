@@ -426,9 +426,13 @@ if (!Array.prototype.indexOf) {
     	Image : function(params) {
     		var self = this;
     		this.img = new Image();
+    		var ready = false;
+    		this.img.onload = function() {
+    			self.ready = true;
+    		};
     		this.img.src = params.url;
     		
-    		this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {    		
+    		var actuallyPaint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
     			var width = self.img.width || endpointStyle.width;
     			var height = self.img.height || endpointStyle.height;
     			var x = anchorPoint[0] - (width/2);
@@ -436,6 +440,16 @@ if (!Array.prototype.indexOf) {
     			jsPlumb.sizeCanvas(canvas, x, y, width, height);
     			var ctx = canvas.getContext('2d');
     			ctx.drawImage(self.img,0,0);
+    		};
+    		
+    		this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
+    			if (self.ready) {
+	    			actuallyPaint(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle)
+    			}
+    			else 
+    				window.setTimeout(function() {    					
+    					self.paint(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle);
+    				}, 200);
     		};    		
     	}
     },
