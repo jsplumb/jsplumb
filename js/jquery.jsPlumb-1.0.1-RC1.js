@@ -527,12 +527,18 @@ if (!Array.prototype.indexOf) {
     detachEverything : function() {
     	for (var elId in connections) {    		    
 	    	var jpcs = connections[elId];
-	    	for (var i = 0; i < jpcs.length; i++) {
-		    	removeCanvas(jpcs[i].canvas);
-				if (jpcs[i].drawEndpoints) {
-					removeCanvas(jpcs[i].targetEndpointCanvas);
-					removeCanvas(jpcs[i].sourceEndpointCanvas);
-				}
+	    	if (jpcs.length) {
+	    		try {
+			    	for (var i = 0; i < jpcs.length; i++) {
+			    		
+				    	removeCanvas(jpcs[i].canvas);
+						if (jpcs[i].drawEndpoints) {
+							removeCanvas(jpcs[i].targetEndpointCanvas);
+							removeCanvas(jpcs[i].sourceEndpointCanvas);
+						}
+						
+			    	}
+	    		} catch (e) { }
 	    	}
     	}
     	connections = [];
