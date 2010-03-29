@@ -26,7 +26,7 @@ if (!Array.prototype.indexOf) {
       var resizeTimer = null;
       $(window).bind('resize', function() {
 	      if (resizeTimer) clearTimeout(resizeTimer);
-	      resizeTimer = setTimeout(repaintEverything, 200);
+	      resizeTimer = setTimeout(repaintEverything, 100);
       });
 	
 	var connections = {};
