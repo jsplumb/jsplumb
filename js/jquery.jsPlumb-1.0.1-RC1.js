@@ -3,6 +3,9 @@
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
+ * v1.0.1 has window resize listener (which repaints all connections), and detachEverything, which does what
+ * the name implies: detaches everything. 
+ * 
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
  * 
@@ -16,6 +19,15 @@ if (!Array.prototype.indexOf) {
 	};
 }
 (function() {
+	
+      function repaintEverything() {
+    	  jsPlumb.repaintEverything();
+      };
+      var resizeTimer = null;
+      $(window).bind('resize', function() {
+	      if (resizeTimer) clearTimeout(resizeTimer);
+	      resizeTimer = setTimeout(repaintEverything, 200);
+      });
 	
 	var connections = {};
 	var offsets = [];
@@ -609,6 +621,22 @@ if (!Array.prototype.indexOf) {
     },       
     
     /**
+     * repaint all connections.
+     */
+    repaintEverything : function() {
+    	for (var elId in connections) {    		    
+	    	var jpcs = connections[elId];
+	    	if (jpcs.length) {
+	    		try {
+			    	for (var i = 0; i < jpcs.length; i++) {
+			    		jpcs[i].repaint();
+			    	}
+	    		} catch (e) { }
+	    	}
+    	}
+    },    
+    
+    /**
      * Sets the default size jsPlumb will use for a new canvas (we create a square canvas so
      * one value is all that is required).  This is a hack for IE, because ExplorerCanvas seems
      * to need for a canvas to be larger than what you are going to draw on it at initialisation
@@ -717,10 +745,6 @@ var jsPlumbConnection = function(params) {
     	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
     	
     	if (this.canvas.getContext) {
-    		// faster to use the ui element if it was passed in.  offset is a fallback.
-    		var myOffset = ui != null ? ui.absolutePosition : $("#" + elId).offset();
-    		offsets[elId] = myOffset;
-    		var otherOffset = offsets[tId];
     		    		
     		if (recalc) {
 	    		// get the current sizes of the two elements.
@@ -728,8 +752,16 @@ var jsPlumbConnection = function(params) {
 	    		var t = $("#" + tId);
 	    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
 	    		sizes[tId] = [t.outerWidth(), t.outerHeight()];
+	    		offsets[elId] = s.offset();
+	    		offsets[tId] = t.offset();
+    		} else {
+    			// faster to use the ui element if it was passed in.  offset is a fallback.
+        		var anOffset = ui != null ? ui.absolutePosition : $("#" + elId).offset();
+        		offsets[elId] = anOffset;
     		}
     		
+    		var myOffset = offsets[elId]; 
+    		var otherOffset = offsets[tId];
     		var myWH = sizes[elId];
             var otherWH = sizes[tId];
             
@@ -760,6 +792,10 @@ var jsPlumbConnection = function(params) {
             	this.endpoints[swap ? 0 : 1].paint(tAnchorP, tAnchorO, targetCanvas, this.endpointStyles[swap ? 0 : 1] || this.paintStyle, this.paintStyle);
             }
     	}
+    };
+    
+    this.repaint = function() {
+    	this.paint(this.sourceId, null, true);
     };
 
     // dragging
