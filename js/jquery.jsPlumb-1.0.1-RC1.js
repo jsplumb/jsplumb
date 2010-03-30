@@ -3,9 +3,6 @@
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
- * v1.0.1 has window resize listener (which repaints all connections), and detachEverything, which does what
- * the name implies: detaches everything. 
- * 
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
  * 
@@ -20,20 +17,22 @@ if (!Array.prototype.indexOf) {
 }
 (function() {
 	
-      function repaintEverything() {
-    	  jsPlumb.repaintEverything();
-      };
-      var resizeTimer = null;
-      $(window).bind('resize', function() {
-	      if (resizeTimer) clearTimeout(resizeTimer);
-	      resizeTimer = setTimeout(repaintEverything, 100);
-      });
+	var automaticRepaint = true;
+    function repaintEverything() {
+    	if (automaticRepaint)
+    		jsPlumb.repaintEverything();
+    };
+    var resizeTimer = null;
+    $(window).bind('resize', function() {
+    	if (resizeTimer) clearTimeout(resizeTimer);
+	    resizeTimer = setTimeout(repaintEverything, 100);
+     });
 	
 	var connections = {};
 	var offsets = [];
 	var sizes = [];
 	
-	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
+	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)	
 	
 	/**
      * applies all the styles to the given context.  this just wraps the $.extend function. 
@@ -530,6 +529,7 @@ if (!Array.prototype.indexOf) {
 				removeCanvas(jpcs[i].sourceEndpointCanvas);
 			}
     	}
+    	delete connections[elId];
     	connections[elId] = [];
     },
     
@@ -553,6 +553,7 @@ if (!Array.prototype.indexOf) {
 	    		} catch (e) { }
 	    	}
     	}
+    	delete connections;
     	connections = [];
     },    
     
@@ -634,7 +635,14 @@ if (!Array.prototype.indexOf) {
 	    		} catch (e) { }
 	    	}
     	}
-    },    
+    },
+    
+    /**
+     * sets/unsets automatic repaint on window resize.
+     */
+    setAutomaticRepaint : function(value) {
+    	automaticRepaint = value;
+    },
     
     /**
      * Sets the default size jsPlumb will use for a new canvas (we create a square canvas so
@@ -670,7 +678,19 @@ if (!Array.prototype.indexOf) {
     	var jpcs = connections[elId];
     	if (jpcs.length > 0)
     		setVisible(elId, "none" == jpcs[0].canvas.style.display ? "block" : "none");
-    }                                
+    }, 
+    
+    /**
+     * Unloads jsPlumb, deleting all storage.  You should call this 
+     */
+    unload : function() {
+    	try {
+    		delete connections;
+    		delete offsets;
+    		delete sizes;
+    	}
+    	catch (e) { }
+    }
 };
 
 // ************** connection
