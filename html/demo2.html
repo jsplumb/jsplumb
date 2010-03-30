@@ -3,7 +3,7 @@
 	<head>
 		<title>jsPlumb demo 2</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
-		<script type="text/javascript" src="http://morrisonpitt.com/scripts/excanvas.js"></script>
+		<script type="text/javascript" src="http://morrisonpitt.com/scripts/excanvas-min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.1-min.js"></script>
@@ -40,7 +40,7 @@
 #window8 {left:63em;top:32em;background-color:#045803;}	
 		</style>
 	</head>
-	<body>
+	<body onunload="jsPlumb.unload();">
 		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 	
 		<div class="window" id="window1">window one</div>
