@@ -684,12 +684,9 @@ if (!Array.prototype.indexOf) {
      * Unloads jsPlumb, deleting all storage.  You should call this 
      */
     unload : function() {
-    	try {
-    		delete connections;
-    		delete offsets;
-    		delete sizes;
-    	}
-    	catch (e) { }
+    	delete connections;
+		delete offsets;
+		delete sizes;    	
     }
 };
 
