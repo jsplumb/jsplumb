@@ -17,10 +17,11 @@ if (!Array.prototype.indexOf) {
 }
 (function() {
 	
+	var repaintFunction = function() { jsPlumb.repaintEverything(); };
 	var automaticRepaint = true;
     function repaintEverything() {
     	if (automaticRepaint)
-    		jsPlumb.repaintEverything();
+    		repaintFunction();
     };
     var resizeTimer = null;
     $(window).bind('resize', function() {
@@ -653,6 +654,13 @@ if (!Array.prototype.indexOf) {
      */
     setDefaultNewCanvasSize : function(size) {
     	DEFAULT_NEW_CANVAS_SIZE = size;    	
+    },
+    
+    /**
+     * Sets the function to fire when the window size has changed and a repaint was fired.
+     */
+    setRepaintFunction : function(f) {
+    	repaintFunction = f;
     },
         
     /**
