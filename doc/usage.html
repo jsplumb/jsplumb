@@ -26,8 +26,8 @@
 				<li><a href="#cssclasses">CSS Class Reference</a></li>
 				<li><a href="#enhancements">Future Enhancements</a></li>
 			</ul>
-			<strong>This document refers to release 1.0.1 of jsPlumb.</strong>
-			<strong>03/27/10</strong>
+			<strong>This document refers to release 1.0.2-RC1 of jsPlumb.</strong>
+			<strong>04/03/10</strong>
 		</div>
 	
 		<div class="section">
@@ -296,6 +296,26 @@ placed on top of the element it is connected to.
 <div class="code">
 <pre>jsPlumb.setAutomaticRepaint(false);</pre>
 </div>			
+You can also provide your own function for jsPlumb to execute instead of its default behaviour:
+<div class="code">
+<pre>var repaint = function() {	
+	// do some things, perhaps, and then...
+	jsPlumb.repaintEverything();
+};
+
+jsPlumb.setRepaintFunction(repaint);</pre>
+</div>
+Notice the call to <strong>repaintEverything()</strong> here - a useful method.
+<p>Another example"</p>
+<div class="code">
+<pre>var repaint = function() {	
+	// completely start over	
+	jsPlumb.detachEverything();
+	// paint all your connections
+};
+
+jsPlumb.setRepaintFunction(repaint);</pre>
+</div>
 		</div>
 		
 		<div class="section">			
@@ -306,7 +326,7 @@ placed on top of the element it is connected to.
 					<p>This is a required argument.  It identifies the target element for the plumb.</p>
 				</li>
 				<li><strong>paintStyle</strong>
-					<p>Optional; if not supplied jsPlumb uses the values defined in jsPlumb.DEFAULT_PAINT_STYLE (see <a href="#defaults">defaults</a>). This object allows you to specify four attributes of the connector:
+					<p>Optional; if not supplied jsPlumb uses the values defined in jsPlumb.DEFAULT_PAINT_STYLE (see <a href="#defaults">defaults</a>). This object allows you to specify five attributes of the connector:
 						<ul>
 							<li>strokeStyle	- the color used to paint the connector.  NOTE: jsPlumb does not yet support patterns.</li>
 							<li>lineWidth - the width of the connector in pixels</li>
