@@ -781,7 +781,10 @@ var jsPlumbConnection = function(params) {
 	    		offsets[tId] = t.offset();
     		} else {
     			// faster to use the ui element if it was passed in.  offset is a fallback.
-        		var anOffset = ui != null ? ui.absolutePosition : $("#" + elId).offset();
+    			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
+    			// 1.8 and 1.7.
+    			var pos = ui.absolutePosition || ui.offset;
+        		var anOffset = ui != null ? pos : $("#" + elId).offset();
         		offsets[elId] = anOffset;
     		}
     		
