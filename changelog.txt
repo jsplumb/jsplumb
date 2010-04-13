@@ -1,3 +1,7 @@
+* 1.0.2-RC1
+
+	- added fix for dragging in 1.8 (absolutePosition was renamed to 'offset' in the drag object)
+
 * 1.0.1
 
 	- added detachEverything() method : detaches, er, everything. and then cleans up the storage.
