@@ -87,28 +87,56 @@ if (!Array.prototype.indexOf) {
 	    		}
 	    	}
     	}*/
-    };  
+    };
     
-    var hoverStart = function(canvas, params) {
-    	$(canvas).css("border", "1px solid red"); debug("[" + e.pageX + "," + e.pageY + "]");		
-    	var jpcs = findMatchingConnectors(params);
+    var canvasMouseMove = function(jpc, e) {
+    	$("._jsPlumb_connector").css("border", "none");
+    	/*var o = $(jpc.canvas).offset();
+		var w = $(jpc.canvas).outerWidth();
+		var h = $(jpc.canvas).outerHeight();
+		var p1 = "pos old way:" + o.left + "," + o.top + " size:" + w + "," + h;
+		var p2 = "pos new way:" + jpc.currentX + "," + jpc.currentY + " size:" + jpc.currentWidth + "," + jpc.currentHeight;
+		debug(e.pageX + "," + e.pageY + "<br/>" + p1 + "<br/>" + p2);*/
+		var jpcs = findMatchingConnectors(e.pageX, e.pageY);
+		for (var i = 0; i < jpcs.length; i++)
+    		$(jpcs[i].canvas).css("border", "1px solid red");
+		//if (j.length > 1) alert("found more than one");
+    };
+    
+    var hoverStart = function(jpc, x, y) {
+    	//$(jpc.canvas) debug("[" + x + "," + y + "]");
+    	$("._jsPlumb_Connector").css("border", "none");
+    	var jpcs = findMatchingConnectors(x, y);
+    	for (var i = 0; i < jpcs.length; i++)
+    		$(jpcs[i].canvas).css("border", "1px solid red");
+    };
+    
+    var hoverEnd = function(jpc, x, y) {
+    	//$(jpc.canvas).css("border", "none");
+    	$("._jsPlumb_connector").css("border", "none");
     	
     };
     
-    var hoverEnd = function(canvas, params) {
-    	$(canvas).css("border", "none");
-    	
-    };
+   var containsPoint = function(jpc, x, y) {
+	   return (jpc.currentX <= x && jpc.currentX + jpc.currentWidth >= x) && (jpc.currentY <= y && jpc.currentY + jpc.currentHeight >= y);
+   };
     
     /**
      * Finds all the connectors whose canvas covers the given page location.
      */
-    var findMatchingConnectors = function(location) {
+    var findMatchingConnectors = function(x, y) {
+    	var results = [];
     	for (var pairId in connectionPairs) {    		    
 	    	var pair = connectionPairs[pairId];
-	    	
+	    	if (containsPoint(pair.jpc, x, y)) results.push(pair.jpc);
     	}
+    	return results;
     };
+    
+    var debug = function(text, append) { 
+		var t = (append ? $("#debug").html() : "") + "<br/>";
+		$("#debug").html(t + text); 
+	};
     
     /**
      * helper to create a canvas.
@@ -783,16 +811,18 @@ var jsPlumbConnection = function(params) {
     // attach hover and move listener
     $(canvas).hover(
     		function(e) { 
-				hoverStart($(this), {x:e.pageX, y:e.pageY});
+				hoverStart(self, e.pageX, e.pageY);
 			},
 			function(e) { 
 				
-				hoverEnd($(this), {x:e.pageX, y:e.pageY});
+				hoverEnd(self, e.pageX, e.pageY );
 			}
     );
-    $(canvas).mousemove(function(e) {
-    	
-    });
+    $(canvas).mousemove(
+			function(e) { 
+				canvasMouseMove(self, e);
+			}
+	);
     
     // create endpoint canvases
     if (this.drawEndpoints) {
@@ -852,6 +882,7 @@ var jsPlumbConnection = function(params) {
             var tAnchorO = this.anchors[tIdx].orientation;
             var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
             jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
+            this.currentX = dim[0]; this.currentY = dim[1]; this.currentWidth = dim[2]; this.currentHeight = dim[3];
             applyPaintStyle(ctx, this.paintStyle);
             
             var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
