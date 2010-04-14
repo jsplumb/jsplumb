@@ -10,6 +10,7 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
 		
 		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.2-RC1.js"></script>
+		<script type="text/javascript" src="../js/bezier.js"></script>
 		
 		<script type="text/javascript"><!--
 			$(document).ready(function() {
@@ -43,7 +44,10 @@
 
 				$("._jsPlumb_connector").mousemove(
 						function(e) { 
-							debug("[" + e.pageX + "," + e.pageY + "]");
+							var o = $(this).offset();
+							var w = $(this).outerWidth();
+							var h = $(this).outerHeight();
+							debug("[" + e.pageX + "," + e.pageY + ", pos:" + o.top + "," + o.left + " size:" + w + "," + h + "]");
 						}
 				);
 			});
