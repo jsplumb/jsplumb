@@ -1,5 +1,7 @@
 /*
- * jsPlumb 1.0.2-RC1
+ * jsPlumb 1.0.2-RC2
+ * 
+ * experimental work on ways to select the actual connector lines.  shelved for the moment. do not use.
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
@@ -89,34 +91,18 @@ if (!Array.prototype.indexOf) {
     	}*/
     };
     
-    var canvasMouseMove = function(jpc, e) {
+    var canvasMouseOverHelper = function(jpc, x, y, lineWidth) {
     	$("._jsPlumb_connector").css("border", "none");
-    	/*var o = $(jpc.canvas).offset();
-		var w = $(jpc.canvas).outerWidth();
-		var h = $(jpc.canvas).outerHeight();
-		var p1 = "pos old way:" + o.left + "," + o.top + " size:" + w + "," + h;
-		var p2 = "pos new way:" + jpc.currentX + "," + jpc.currentY + " size:" + jpc.currentWidth + "," + jpc.currentHeight;
-		debug(e.pageX + "," + e.pageY + "<br/>" + p1 + "<br/>" + p2);*/
-		var jpcs = findMatchingConnectors(e.pageX, e.pageY);
-		for (var i = 0; i < jpcs.length; i++)
-    		$(jpcs[i].canvas).css("border", "1px solid red");
-		//if (j.length > 1) alert("found more than one");
-    };
-    
-    var hoverStart = function(jpc, x, y) {
-    	//$(jpc.canvas) debug("[" + x + "," + y + "]");
-    	$("._jsPlumb_Connector").css("border", "none");
     	var jpcs = findMatchingConnectors(x, y);
-    	for (var i = 0; i < jpcs.length; i++)
-    		$(jpcs[i].canvas).css("border", "1px solid red");
+		for (var i = 0; i < jpcs.length; i++) {
+			if (jpcs[i].connector.isMouseOver(5, x, y, lineWidth))
+				$(jpcs[i].canvas).css("border", "1px solid red");
+		}
     };
     
-    var hoverEnd = function(jpc, x, y) {
-    	//$(jpc.canvas).css("border", "none");
-    	$("._jsPlumb_connector").css("border", "none");
-    	
-    };
-    
+   /**
+    * helper to compute intersection of point and box.
+    */    
    var containsPoint = function(jpc, x, y) {
 	   return (jpc.currentX <= x && jpc.currentX + jpc.currentWidth >= x) && (jpc.currentY <= y && jpc.currentY + jpc.currentHeight >= y);
    };
@@ -313,6 +299,15 @@ if (!Array.prototype.indexOf) {
                 ctx.lineTo(dimensions[6], dimensions[7]);
                 ctx.stroke();
             };
+            
+            /**
+             * Returns whether or not the given x,y is within 'threshold' of the
+             * actual connector.  this is different for each type of connector because
+             * they inscribe different lines.  bezier is more complex than straight line of course.
+             */
+            this.isMouseOver = function(threshold, x, y, lineWidth) {
+            	return false;
+            };
         },
                 
         /**
@@ -374,7 +369,8 @@ if (!Array.prototype.indexOf) {
                 // return [ canvasx, canvasy, canvasWidth, canvasHeight,
                 //          sourceX, sourceY, targetX, targetY,
                 //          controlPoint1_X, controlPoint1_Y, controlPoint2_X, controlPoint2_Y
-                return [canvasX, canvasY, w, h, sx, sy, tx, ty, CP[0], CP[1], CP2[0], CP2[1] ];
+                this.lastValues = [canvasX, canvasY, w, h, sx, sy, tx, ty, CP[0], CP[1], CP2[0], CP2[1] ];
+                return this.lastValues;
             };
 
             this.paint = function(d, ctx) {
@@ -382,7 +378,24 @@ if (!Array.prototype.indexOf) {
 	            ctx.moveTo(d[4],d[5]);
 	            ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
 	            ctx.stroke();
-            }
+            };
+            
+            /**
+             * Returns whether or not the given x,y is within 'threshold' of the
+             * actual connector.  this is different for each type of connector because
+             * they inscribe different lines.  bezier is more complex than straight line of course.
+             */
+            this.isMouseOver = function(threshold, x, y, lineWidth) {
+            	var p = {x:x, y:y};
+            	var curve = {
+            			start:{x:this.lastValues[0] + this.lastValues[4], y:this.lastValues[1] + this.lastValues[5]}, 
+            			end:{ x:this.lastValues[0] + this.lastValues[6], y:this.lastValues[1] + this.lastValues[7] }, 
+            			cp1:{ x:this.lastValues[0] + this.lastValues[8], y: this.lastValues[1] + this.lastValues[9] }, 
+            			cp2:{ x:this.lastValues[0] + this.lastValues[10], y:this.lastValues[1] + this.lastValues[11] }
+            	};
+            	var t = closestPointToBezier(curve, p);
+            	return true;
+            };
         }
     },
     
@@ -808,21 +821,9 @@ var jsPlumbConnection = function(params) {
 // *************** create canvases on which the connection will be drawn ************
     var canvas = newCanvas(jsPlumb.connectorClass);
     this.canvas = canvas;
-    // attach hover and move listener
-    $(canvas).hover(
-    		function(e) { 
-				hoverStart(self, e.pageX, e.pageY);
-			},
-			function(e) { 
-				
-				hoverEnd(self, e.pageX, e.pageY );
-			}
-    );
-    $(canvas).mousemove(
-			function(e) { 
-				canvasMouseMove(self, e);
-			}
-	);
+    // attach move and mouse out listeners
+    $(canvas).mousemove(function(e) { canvasMouseOverHelper(self, e.pageX, e.pageY); });
+    $(canvas).mouseout(function(e) { canvasMouseOverHelper(self, e.pageX, e.pageY); });
     
     // create endpoint canvases
     if (this.drawEndpoints) {
@@ -941,7 +942,7 @@ var jsPlumbConnection = function(params) {
     
     // finally, draw it.
     var o = this.source.offset();
-    this.paint(this.sourceId, {'absolutePosition': this.source.offset()});
+    this.paint(this.sourceId, {'offset': this.source.offset()});
 };
 
 })();
