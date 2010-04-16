@@ -9,7 +9,7 @@
 		
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
 		
-		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.2-RC1.js"></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.2-RC3.js"></script>
 		<!--  script type="text/javascript" src="../js/bezier.js"></script-->
 		
 		<script type="text/javascript"><!--
@@ -60,23 +60,18 @@
 	    	You also might like to check out <a  class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
 	    	
 	    	<div id="debug"></div>
-	    </div>	   
-	    <!-- Start of StatCounter Code -->
-<script type="text/javascript">
-var sc_project=5700644; 
-var sc_invisible=1; 
-var sc_partition=71; 
-var sc_click_stat=1; 
-var sc_security="1cb90164"; 
-</script>
+	    	<button id="btnHideAll">Hide</button>
+	    	<button id="btnShowAll">Show</button>
+	    	<button id="btnDetachAll">Detach All</button>
+	    </div>
+	    
+	    <script type="text/javascript">
+			$("#btnHideAll").click(function() { jsPlumb.hide("window2"); });
 
-<script type="text/javascript"
-src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
-class="statcounter"><a title="counter for wordpress"
-href="http://www.statcounter.com/wordpress.org/"
-target="_blank"><img class="statcounter"
-src="http://c.statcounter.com/5700644/0/1cb90164/1/"
-alt="counter for wordpress" ></a></div></noscript>
-<!-- End of StatCounter Code --> 
+			$("#btnShowAll").click(function() { jsPlumb.show("window2"); });
+
+			$("#btnDetachAll").click(function() { jsPlumb.detachEverything(); });
+
+	    </script>	   
 	</body>
 </html>
