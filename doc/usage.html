@@ -14,7 +14,7 @@
 				<li><a href="#summary">Summary</a></li>
 				<li><a href="#basic">Basic Configuration</a></li>
 				<li><a href="#basic">Unloading jsPlumb</a></li>
-				<li><a href="#changes">Changes between 1.0.0 and 1.0.1</a></li>
+				<li><a href="#changes">Changes between 1.0.1 and 1.0.2</a></li>
 				<li><a href="#examples">Examples</a></li>
 				<li><a href="#repaint">Automatic repaint</a></li>
 				<li><a href="#options">Options</a></li>
@@ -26,8 +26,8 @@
 				<li><a href="#cssclasses">CSS Class Reference</a></li>
 				<li><a href="#enhancements">Future Enhancements</a></li>
 			</ul>
-			<strong>This document refers to release 1.0.2-RC1 of jsPlumb.</strong>
-			<strong>04/03/10</strong>
+			<strong>This document refers to release 1.0.2 of jsPlumb.</strong>
+			<strong>04/18/10</strong>
 		</div>
 	
 		<div class="section">
@@ -35,7 +35,7 @@
 			jsPlumb allows you to connect elements on the screen with "plumbing", using a Canvas
 			element when supported, and Google's <a class="mplink" href="http://excanvas.sourceforge.net/" target="_blank">ExplorerCanvas</a> script to support older browsers.
 			<p>
-			It's written as a jQuery plugin, and relies on jQuery 1.3.x or jQuery 1.4.x (tested on 1.3.2 and 1.4.2), and also jQuery UI 1.7.2 (if you want to support
+			It's written as a jQuery plugin, and relies on jQuery 1.3.x or jQuery 1.4.x (tested on 1.3.2 and 1.4.2), and also jQuery UI 1.7.2 or 1.8.0 (if you want to support
 			dragging).  For Canvas support in IE you also need to include Google's ExplorerCanvas script.
 			</p>	
 			<p>jsPlumb has been tested on the following browsers:
@@ -56,7 +56,7 @@
 						
 		<div class="section">						
 			<a id="basic"><h3>Basic configuration</h3></a>
-			To use jsPlumb you need jQuery 1.3.x or 1.4.x, jQueryUI 1.7.x, and ExplorerCanvas:
+			To use jsPlumb you need jQuery 1.3.x or 1.4.x, jQueryUI 1.7.x or 1.8.x, and ExplorerCanvas:
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"&gt;&lt;/script&gt;
@@ -79,12 +79,10 @@
 		</div>
 		
 		<div class="section">						
-			<a id="changes"><h3>Changes between 1.0.0 AND 1.0.1</h3></a>
+			
+			<a id="changes"><h3>Changes between 1.0.1 AND 1.0.2</h3></a>
 			<ul>
-				<li>added refreshEverything() method</li>
-				<li>added detachEverything() method</li>
-				<li>added unload() method</li>
-				<li>added window listener for automatic repaint on window resize</li>
+				<li>support for changes to UI/draggable in jQuery 1.8.x.</li>
 			</ul>
 		</div>
 				
