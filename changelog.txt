@@ -3,6 +3,9 @@
 * 1.0.2
 
 	- added fix for dragging in 1.8 (absolutePosition was renamed to 'offset' in the drag object)
+	- bugfix for the case that detachAll has been called and the user subsequently tries to drag something.
+	- bugfix for hide/show being called with an id for an element that is not plumbed.
+	- applyPaintStyle method now returns the object that was extended; can be chained.
 
 * 1.0.1
 
