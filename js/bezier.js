@@ -1,4 +1,4 @@
-    public function closestPointToBezier( _curve, _p ):Number
+    function closestPointToBezier( _curve, _p )
     {
       if( _curve == null )
       {
@@ -70,7 +70,7 @@
     
     // compute control points of the polynomial resulting from the inner product of B(t)-P and B'(t), constructing the result as a Bezier
     // curve of order 2n-1, where n is the degree of B(t).
-    private function toBezierForm(_p, _v)
+    function toBezierForm(_p, _v)
     {
       var row = 0;  // row index
       var column = 0;	// column index
@@ -146,7 +146,7 @@
     }
     
     // convert 2D array indices in a k x n matrix to a linear index (this is an interim step ahead of a future implementation optimized for 1D array indexing)
-    private function getLinearIndex(_n, _row, _col)
+    function getLinearIndex(_n, _row, _col)
     {
       // no range-checking; you break it ... you buy it!
       return _row*_n + _col;
