@@ -1,5 +1,13 @@
+* target 1.1.0
+
+	- hideAll/showAll
+	- draggable endpoints
+	- drag new line from existing endpoint.
+
  
 * target 1.0.1
+
+
   	
  	- support deriving endpoint/connector color from the bg color of the element they are
  	         plumbing?  this is kind of an extension to how the endpoints derive their colour from
