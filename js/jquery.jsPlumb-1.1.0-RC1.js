@@ -3,7 +3,9 @@
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
- * 1.0.1-RC1 contains the first pass at supporting connection editing.
+ * 1.1.0-RC1 contains the first pass at supporting connection editing.  the mechanism used to register
+ * and retrieve connections has been turned around to be endpoint centric, rather than
+ * connection centric.  this will allow us to create endpoints that have 0-N connections. 
  * 
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
@@ -31,13 +33,12 @@ if (!Array.prototype.indexOf) {
 	    resizeTimer = setTimeout(repaintEverything, 100);
      });
 	
-	var connections = {};
+	//var connections = {};
 	/**
 	 * map of element id -> endpoint lists.  an element can have an arbitrary number of endpoints on it,
 	 * and not all of them have to be connected to anything.
 	 */
 	var endpointsByElement = {};
-	var connectionsByEndpoint = {};
 	var offsets = [];
 	var sizes = [];
 	
@@ -59,29 +60,67 @@ if (!Array.prototype.indexOf) {
      * @param element jQuery element
      * @param ui UI object from jQuery's event system
      */
-    var drag = function(element, ui) {
-    	var id = element.attr("id");
-    	var l = connections[id];
-    	for (var i = 0; i < l.length; i++)
-    		l[i].paint(id, ui);
+    var _drag = function(element, ui) {
+    	var id = element.attr("id");    	
+    	var endpoints = endpointsByElement[id];
+    	for (var i = 0; i < endpoints.length; i++) {
+    		var l = endpoints[i].connections;
+    		for (var j = 0; j < l.length; j++)
+    			l[j].paint(id, ui);
+    	}
     };
+    
+    /**
+     * performs the given function operation on all the connections found for the given element
+     * id; this means we find all the endpoints for the given element, and then for each endpoint
+     * find the connectors connected to it. then we pass each connection in to the given
+     * function.
+     */
+    var _operation = function(elId, func) {
+    	var endpoints = endpointsByElement[elId];
+    	if (endpoints && endpoints.length) {
+	    	for (var i = 0; i < endpoints.length; i++) {
+	    		for (var j = 0; j < endpoints[i].connections.length; j++) {
+	    			var retVal = func(endpoints[i].connections[j]);
+	    			// if the function passed in returns true, we exit.
+	    			// most functions return false.
+	    			if (retVal) return;
+	    		}
+	    	}
+    	}
+    };
+    
+    var _operationOnAll = function(func) {
+    	for (var elId in endpointsByElement) {
+    		_operation(elId, func);
+    	}    	
+    };
+    
+    /**
+     * helper method to add an item to a list, creating the list if it does not yet exist.
+     */
+    var _addToList = function(map, key, value) {
+		var l = map[key];
+		if (l == null) {
+			l = [];
+			map[key] = l; 
+		}
+		l.push(value);
+	};
 	
 	/**
 	 * private method to do the business of hiding/showing.
 	 * @param elId Id of the element in question
 	 * @param state String specifying a value for the css 'display' property ('block' or 'none').
 	 */
-	var setVisible = function(elId, state) {
-    	var jpcs = connections[elId];
-    	if (jpcs) {
-	    	for (var i = 0; i < jpcs.length; i++) {
-	    		jpcs[i].canvas.style.display=state;
-	    		if (jpcs[i].drawEndpoints) {
-	    			jpcs[i].sourceEndpointCanvas.style.display=state;
-	    			jpcs[i].targetEndpointCanvas.style.display=state;
-	    		}
-	    	}
-    	}
+	var _setVisible = function(elId, state) {
+    	var f = function(jpc) {
+    		jpc.canvas.style.display = state;
+			jpc.sourceEndpointCanvas.style.display = state;
+			jpc.targetEndpointCanvas.style.display = state;
+    	};
+    	
+    	_operation(elId, f);    	
     };        
     
     /**
@@ -111,8 +150,7 @@ if (!Array.prototype.indexOf) {
     	if (canvas != null) { 
     		try { document.body.removeChild(canvas); }
     		catch (e) { }
-    	}
-    	
+    	}    	
     }; 
 	
 	/**
@@ -130,6 +168,22 @@ if (!Array.prototype.indexOf) {
 		this.compute = function(xy, wh, txy, twh) {
 			return [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
 		}
+	};
+	
+	/**
+	 * models an endpoint.  can have one to N connections emanating from it. also has a Canvas.
+	 */
+	var Endpoint = function(canvas, connections) {
+		var self = this;
+		var _anchor = jsPlumb.Anchors.TopCenter;
+		// todo: endpoint has an associated anchor.
+		// todo: endpoint can act as a source for new connections
+		this.canvas = canvas;
+		this.connections = connections || [];
+		this.addConnection = function(connection) {
+			self.connections.push(connection);
+		};
+		this.setAnchor = function(anchor) { _anchor = anchor; };			
 	};
 	
 	/**
@@ -479,28 +533,28 @@ if (!Array.prototype.indexOf) {
     },
     
     /**
+     * adds an endpoint to the element
+     */
+    addEndpoint : function(params) {
+    	var a = params.anchor || jsPlumb.Anchors.TopCenter;
+    	var e = new Endpoint(newCanvas(jsPlumb.endpointClass));
+    	e.setAnchor(a);
+    	var el = $(params.source);
+    	_addToList(endpointsByElement, el.attr("id"), e);
+    },
+    
+    /**
      * establishes a connection between two elements.
      * @param params object containing setup for the connection.  see documentation.
      */
     connect : function(params) {
-    	var jpc = new jsPlumbConnection(params);
-    	var addToList = function(map, elId, jpc) {
-    		var l = map[elId];
-    		if (l == null) {
-    			l = [];
-    			map[elId] = l; 
-    		}
-    		l.push(jpc);
-    	};
+    	var jpc = new jsPlumbConnection(params);    	
     	
-    	// register this connection.
-    	addToList(connections, jpc.sourceId, jpc);
-    	addToList(connections, jpc.targetId, jpc);
-    	if (jpc.drawEndpoints) {
-    		// register endpoints for the element
-    		addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
-    		addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
-    	}
+		// register endpoints for the element
+		var sourceEndpoint = new Endpoint(jpc.endpoints[0], [jpc]);
+		var targetEndpoint = new Endpoint(jpc.endpoints[1], [jpc]);
+		_addToList(endpointsByElement, jpc.sourceId, sourceEndpoint);
+		_addToList(endpointsByElement, jpc.targetId, targetEndpoint);
     },           
     
     /**
@@ -509,30 +563,18 @@ if (!Array.prototype.indexOf) {
      * @param targetId id of the second window in the connection
      * @return true if successful, false if not.
      */
-    detach : function(sourceId, targetId) {    	
-    	var jpcs = connections[sourceId];
-    	if (jpcs) {
-	    	var idx = -1;
-	    	for (var i = 0; i < jpcs.length; i++) {
-	    		if ((jpcs[i].sourceId == sourceId && jpcs[i].targetId == targetId) || (jpcs[i].targetId == sourceId && jpcs[i].sourceId == targetId)) {
-	    			removeCanvas(jpcs[i].canvas);
-	    			if (jpcs[i].drawEndpoints) {
-	    				removeCanvas(jpcs[i].targetEndpointCanvas);
-	    				removeCanvas(jpcs[i].sourceEndpointCanvas);
-	    			}
-	    			idx = i;
-	    			break;
-	    		}
-	    	}
-	    	if (idx != -1)
-	    		jpcs.splice(idx, 1);
-	    	
-	    	return true;
-	    	// todo - dragging?  if no more connections for an object turn off dragging by default, but
-	    	// allow an override on it?
-    	} 
-    	else 
-    		return false;
+    detach : function(sourceId, targetId) {
+    	var f = function(jpc) {
+    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+    			removeCanvas(jpc.canvas);
+				removeCanvas(jpc.targetEndpointCanvas);
+				removeCanvas(jpc.sourceEndpointCanvas);    			
+    			return true;
+    		}    		
+    	};    	
+    	
+    	// todo: how to cleanup the actual storage?  a third arg to _operation?
+    	_operation(sourceId, f);    	
     },
     
     /**
@@ -541,55 +583,44 @@ if (!Array.prototype.indexOf) {
      */
     detachAll : function(elId) {    	
     	
-    	var jpcs = connections[elId];
-    	if (jpcs) {
-	    	for (var i = 0; i < jpcs.length; i++) {
-		    	removeCanvas(jpcs[i].canvas);
-				if (jpcs[i].drawEndpoints) {
-					removeCanvas(jpcs[i].targetEndpointCanvas);
-					removeCanvas(jpcs[i].sourceEndpointCanvas);
-				}
-	    	}
-	    	delete connections[elId];
-	    	connections[elId] = [];
-    	}
+    	var f = function(jpc) {
+    		removeCanvas(jpc.canvas);
+			removeCanvas(jpc.targetEndpointCanvas);
+			removeCanvas(jpc.sourceEndpointCanvas);
+    	};
+    	_operation(elId, f);
+    	delete endpointsByElement[elId];    	
     },
     
     /**
      * remove all connections.
      */
     detachEverything : function() {
-    	for (var elId in connections) {    		    
-	    	var jpcs = connections[elId];
-	    	if (jpcs.length) {
-	    		try {
-			    	for (var i = 0; i < jpcs.length; i++) {
-			    		
-				    	removeCanvas(jpcs[i].canvas);
-						if (jpcs[i].drawEndpoints) {
-							removeCanvas(jpcs[i].targetEndpointCanvas);
-							removeCanvas(jpcs[i].sourceEndpointCanvas);
-						}						
-			    	}
-	    		} catch (e) { }
-	    	}
-    	}
-    	delete connections;
-    	connections = [];
+    	var f = function(jpc) {
+    		removeCanvas(jpc.canvas);
+			removeCanvas(jpc.targetEndpointCanvas);
+			removeCanvas(jpc.sourceEndpointCanvas);
+    	};
+    	
+    	//for (var elId in endpointsByElement) {    		    	  
+    		_operationOnAll(f);
+    	//}
+    	delete endpointsByElement;
+    	endpointsByElement = {};
     },    
     
     /**
-     * Gets all connections for the element with the given id.
+     * Gets all endpoints for the element with the given id.
      */
-    getConnections : function(elId) {
-    	return connections[elId];
+    getEndpoints : function(elId) {
+    	return endpointsByElement[elId];
     },
     
     /**
      * Set an element's connections to be hidden.
      */
     hide : function(elId) {
-    	setVisible(elId, "none");
+    	_setVisible(elId, "none");
     },
     
     /**
@@ -621,12 +652,11 @@ if (!Array.prototype.indexOf) {
      */
     repaint : function(el) {
     	var _repaint = function(el, elId) {
-	    	var jpcs = connections[elId];
-	    	var idx = -1;
-	    	var loc = {'absolutePosition': el.offset()};    	
-	    	for (var i = 0; i < jpcs.length; i++) {
-	    		jpcs[i].paint(elId, loc, true);
-	    	}
+	    	var loc = {'absolutePosition': el.offset()};
+	    	var f = function(jpc) {
+	    		jpc.paint(elId, loc, true);
+	    	};
+	    	_operation(elId, f);
     	};
     	
     	var _processElement = function(el) {
@@ -649,15 +679,9 @@ if (!Array.prototype.indexOf) {
      * repaint all connections.
      */
     repaintEverything : function() {
-    	for (var elId in connections) {    		    
-	    	var jpcs = connections[elId];
-	    	if (jpcs.length) {
-	    		try {
-			    	for (var i = 0; i < jpcs.length; i++) {
-			    		jpcs[i].repaint();
-			    	}
-	    		} catch (e) { }
-	    	}
+    	var f = function(jpc) { jpc.repaint(); }
+    	for (var elId in endpointsByElement) {  
+    		_operation(elId, f);
     	}
     },
     
@@ -690,7 +714,7 @@ if (!Array.prototype.indexOf) {
      * Set an element's connections to be visible.
      */
     show : function(elId) {
-    	setVisible(elId, "block");
+    	_setVisible(elId, "block");
     },
     
     /**
@@ -706,16 +730,17 @@ if (!Array.prototype.indexOf) {
      * Toggles visibility of an element's connections.
      */
     toggle : function(elId) {
-    	var jpcs = connections[elId];
-    	if (jpcs.length > 0)
-    		setVisible(elId, "none" == jpcs[0].canvas.style.display ? "block" : "none");
+    	var f = function(jpc) {
+    		_setVisible(elId, "none" == jpc.canvas.style.display ? "block" : "none");
+    	};
+    	_operation(elId, f);
     }, 
     
     /**
      * Unloads jsPlumb, deleting all storage.  You should call this 
      */
     unload : function() {
-    	delete connections;
+    	delete endpointsByElement;
 		delete offsets;
 		delete sizes;    	
     }
@@ -739,7 +764,6 @@ var jsPlumbConnection = function(params) {
     this.target = (typeof params.target == 'string') ? $("#" + params.target) : params.target;
     this.sourceId = $(this.source).attr("id");
     this.targetId = $(this.target).attr("id");
-    this.drawEndpoints = params.drawEndpoints != null ? params.drawEndpoints : true;
     this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;
     
  // get anchor
@@ -766,21 +790,19 @@ var jsPlumbConnection = function(params) {
     var canvas = newCanvas(jsPlumb.connectorClass);
     this.canvas = canvas;
     // create endpoint canvases
-    if (this.drawEndpoints) {
-	    this.sourceEndpointCanvas = newCanvas(jsPlumb.endpointClass);	    
-	    this.targetEndpointCanvas = newCanvas(jsPlumb.endpointClass);
-	 // register the connection on the endpoints. if the endpoints get dragged we can repaint the
-	    // whole connection.
-	    this.sourceEndpointCanvas.connection = self;
-	    this.targetEndpointCanvas.connection = self;
-	    // sit them on top of the underlying element?
-	    if (this.endpointsOnTop) {
-		    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") + 1);
-		    $(this.targetEndpointCanvas).css("zIndex", this.target.css("zIndex") + 1);
-	    } else {
-		    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") - 1);
-		    $(this.targetEndpointCanvas).css("zIndex", this.target.css("zIndex") - 1);
-	    }
+    this.sourceEndpointCanvas = newCanvas(jsPlumb.endpointClass);	    
+    this.targetEndpointCanvas = newCanvas(jsPlumb.endpointClass);
+ // register the connection on the endpoints. if the endpoints get dragged we can repaint the
+    // whole connection.
+    this.sourceEndpointCanvas.connection = self;
+    this.targetEndpointCanvas.connection = self;
+    // sit them on top of the underlying element?
+    if (this.endpointsOnTop) {
+	    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") + 1);
+	    $(this.targetEndpointCanvas).css("zIndex", this.target.css("zIndex") + 1);
+    } else {
+	    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") - 1);
+	    $(this.targetEndpointCanvas).css("zIndex", this.target.css("zIndex") - 1);
     }
 // ************** store the anchors     
   
@@ -848,13 +870,11 @@ var jsPlumbConnection = function(params) {
             	            
             this.connector.paint(dim, ctx);
                             
-            if (this.drawEndpoints) {
-            	var style = this.endpointStyle || this.paintStyle;
-            	var sourceCanvas = swap ? this.targetEndpointCanvas : this.sourceEndpointCanvas;
-            	var targetCanvas = swap ? this.sourceEndpointCanvas : this.targetEndpointCanvas;
-            	this.endpoints[swap ? 1 : 0].paint(sAnchorP, sAnchorO, sourceCanvas, this.endpointStyles[swap ? 1 : 0] || this.paintStyle, this.paintStyle);
-            	this.endpoints[swap ? 0 : 1].paint(tAnchorP, tAnchorO, targetCanvas, this.endpointStyles[swap ? 0 : 1] || this.paintStyle, this.paintStyle);
-            }
+        	var style = this.endpointStyle || this.paintStyle;
+        	var sourceCanvas = swap ? this.targetEndpointCanvas : this.sourceEndpointCanvas;
+        	var targetCanvas = swap ? this.sourceEndpointCanvas : this.targetEndpointCanvas;
+        	this.endpoints[swap ? 1 : 0].paint(sAnchorP, sAnchorO, sourceCanvas, this.endpointStyles[swap ? 1 : 0] || this.paintStyle, this.paintStyle);
+        	this.endpoints[swap ? 0 : 1].paint(tAnchorP, tAnchorO, targetCanvas, this.endpointStyles[swap ? 0 : 1] || this.paintStyle, this.paintStyle);
     	}
     };
     
@@ -868,6 +888,7 @@ var jsPlumbConnection = function(params) {
     	var dragOptions = params.dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
     	var dragCascade = dragOptions.drag || function(e,u) {};
     	var initDrag = function(element, dragFunc) {
+    		// todo use $.extend here
     		var opts = {};
         	for (var i in dragOptions) {
                 opts[i] = dragOptions[i];
@@ -876,11 +897,11 @@ var jsPlumbConnection = function(params) {
         	element.draggable(opts);
     	};
     	initDrag(this.source, function(event, ui) {
-    		drag(self.source, ui);
+    		_drag(self.source, ui);
     		dragCascade(event, ui);
     	});
     	initDrag(this.target, function(event, ui) {
-    		drag(self.target, ui);
+    		_drag(self.target, ui);
     		dragCascade(event, ui);
     	});
     }
@@ -893,13 +914,13 @@ var jsPlumbConnection = function(params) {
     }
     
     // draggable endpoints.  put this on a toggle or something.
-    $(this.sourceEndpointCanvas).drag(function(event, ui) {
+   /* $(this.sourceEndpointCanvas).drag(function(event, ui) {
     	
     });
     
     $(this.targetEndpointCanvas).drag(function(event, ui) {
     	
-    });
+    });*/
     
     // finally, draw it.
     var o = this.source.offset();
@@ -910,37 +931,55 @@ var jsPlumbConnection = function(params) {
 
 // jQuery plugin code
 (function($){
+	/**
+	 * plumbs the results of the selector to some target, using the given options if supplied,
+	 * or the defaults otherwise.
+	 */
     $.fn.plumb = function(options) {
-        var defaults = { };
-        var options = $.extend(defaults, options);
+        var options = $.extend({}, options);
 
         return this.each(function()
         {
-            var obj = $(this);
-            var params = {};
-            params.source = obj;
-            for (var i in options) {
-                params[i] = options[i];
-            }
+            var params = $.extend({source:$(this)}, options);
             jsPlumb.connect(params);
         });
   };
   
-  $.fn.detach = function(options) {
+  /**
+   * detaches the results of the selector from the given target or list of targets - 'target'
+   * may be a String or a List.
+   */
+  $.fn.detach = function(target) {
 	  return this.each(function() 
 	  {
 		 var id = $(this).attr("id");
-		 if (typeof options == 'string') options = [options];
-		 for (var i = 0; i < options.length; i++)
-			 jsPlumb.detach(id, options[i]);
+		 if (typeof target == 'string') target = [target];
+		 for (var i = 0; i < target.length; i++)
+			 jsPlumb.detach(id, target[i]);
 	  });	  
   };
   
-  $.fn.detachAll = function(options) {
+  /**
+   * detaches the results from the selector from all connections. 
+   */
+  $.fn.detachAll = function() {
 	  return this.each(function() 
 	  {
 		 var id = $(this).attr("id");		 
 		 jsPlumb.detachAll(id);
 	  });	  
   };
+  
+  /**
+   * adds an endpoint to the elements resulting from the selector.  options may be null,
+   * in which case jsPlumb will use the default options. see documentation. 
+   */
+  $.fn.addEndpoint = function(options) {
+	  return this.each(function() 
+	  {
+		  var params = $.extend({source:$(this)}, options);		 
+		 jsPlumb.addEndpoint(params);
+	  });	  
+  };
+  
 })(jQuery);
