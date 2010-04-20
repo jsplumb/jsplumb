@@ -69,6 +69,8 @@ if (!Array.prototype.indexOf) {
     		//var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
             //var sAnchorO = this.anchors[sIdx].orientation;
     		
+    		//endpoints[i].repaint();
+    		
     		// then, get all connections for the endpoint..
     		var l = endpoints[i].connections;
     		for (var j = 0; j < l.length; j++)
@@ -849,23 +851,28 @@ var jsPlumbConnection = function(params) {
     	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
     	
     	if (this.canvas.getContext) {
+    		
+    		var _updateOffset = function(elId, ui, recalc) {
+    			if (recalc) {
+    	    		// get the current sizes of the two elements.
+    	    		var s = $("#" + elId);
+    	    		var t = $("#" + tId);
+    	    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
+    	    		sizes[tId] = [t.outerWidth(), t.outerHeight()];
+    	    		offsets[elId] = s.offset();
+    	    		offsets[tId] = t.offset();
+        		} else {
+        			// faster to use the ui element if it was passed in.  offset is a fallback.
+        			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
+        			// 1.8 and 1.7.
+        			var pos = ui.absolutePosition || ui.offset;
+            		var anOffset = ui != null ? pos : $("#" + elId).offset();
+            		offsets[elId] = anOffset;
+        		}
+    		};
     		    		
-    		if (recalc) {
-	    		// get the current sizes of the two elements.
-	    		var s = $("#" + elId);
-	    		var t = $("#" + tId);
-	    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
-	    		sizes[tId] = [t.outerWidth(), t.outerHeight()];
-	    		offsets[elId] = s.offset();
-	    		offsets[tId] = t.offset();
-    		} else {
-    			// faster to use the ui element if it was passed in.  offset is a fallback.
-    			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
-    			// 1.8 and 1.7.
-    			var pos = ui.absolutePosition || ui.offset;
-        		var anOffset = ui != null ? pos : $("#" + elId).offset();
-        		offsets[elId] = anOffset;
-    		}
+    		_updateOffset(elId, ui, recalc);
+    		//_updateOffset(tId, ui, recalc);
     		
     		var myOffset = offsets[elId]; 
     		var otherOffset = offsets[tId];
