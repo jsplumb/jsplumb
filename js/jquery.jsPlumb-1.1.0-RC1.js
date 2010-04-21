@@ -66,20 +66,20 @@ if (!Array.prototype.indexOf) {
     	var endpoints = endpointsByElement[id];
     	// loop through endpoints for this element
     	for (var i = 0; i < endpoints.length; i++) {
-    		
+    		var e = endpoints[i];
     		// first, paint the endpoint
-    		_updateOffset(id, ui);
-    		var off = offsets[id];
-    //		endpoints[i].paint([off.top, off.left]);
-    		//var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
-            //var sAnchorO = this.anchors[sIdx].orientation;
-    		
-    		//endpoints[i].repaint();
-    		
-    		// then, get all connections for the endpoint..
-    		var l = endpoints[i].connections;
-    		for (var j = 0; j < l.length; j++)
-    			l[j].paint(id, ui);  // and paint them
+    		/*_updateOffset(id, ui);
+    		var off = offsets[id];*/
+    		//todo...connector paint style?  we have lost that with the move to endpoint-centric.
+    		// perhaps we only paint the endpoint here if it has no connections; it can use its own style.
+    		if (!e.connections || e.connections.length == 0)
+    			e.paint(/*[off.left, off.top]*/);
+    		else {
+	    		// then, get all connections for the endpoint..
+	    		var l = e.connections;
+	    		for (var j = 0; j < l.length; j++)
+	    			l[j].paint(id, ui);  // and paint them
+    		}
     	}
     };
     
@@ -218,16 +218,22 @@ if (!Array.prototype.indexOf) {
 		var _anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || jsPlumb.DEFAULT_ENDPOINT_STYLE;
+		var _element = params.source;
+		var _elementId = $(_element).attr("id");
 		// todo: endpoint can act as a source for new connections
 		this.canvas = params.canvas || newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
 		this.addConnection = function(connection) {
 			self.connections.push(connection);
 		};
-		this.setAnchor = function(anchor) { _anchor = anchor; };
-		//this.setStyle = function(style) { 
-		this.paint = function(anchorPoint, connectorPaintStyle) { 
-			_endpoint.paint(anchorPoint, _anchor.orientation, self.canvas, _style, connectorPaintStyle);
+		this.paint = function(anchorPoint, connectorPaintStyle) {
+			if (arguments.length == 0) {
+				
+				var xy = offsets[_elementId];
+				var wh = sizes[_elementId];
+				anchorPoint = _anchor.compute([xy.left, xy.top], wh);
+			}
+			_endpoint.paint(anchorPoint, _anchor.orientation, self.canvas, _style, connectorPaintStyle || _style);
 		};
 	};
 	
@@ -830,8 +836,8 @@ var jsPlumbConnection = function(params) {
     var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[0] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
     var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[1] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
     
-    this.endpoints[0] = new Endpoint({style:endpointStyle0, endpoint:endpoint0});
-    this.endpoints[1] = new Endpoint({style:endpointStyle1, endpoint:endpoint1});
+    this.endpoints[0] = new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self] });
+    this.endpoints[1] = new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self] });
     
     offsets[this.sourceId] = this.source.offset(); 
     sizes[this.sourceId] = [this.source.outerWidth(), this.source.outerHeight()]; 
