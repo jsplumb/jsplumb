@@ -21,6 +21,8 @@ if (!Array.prototype.indexOf) {
 }
 (function() {
 	
+	var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+	
 	var repaintFunction = function() { jsPlumb.repaintEverything(); };
 	var automaticRepaint = true;
     function repaintEverything() {
@@ -33,7 +35,6 @@ if (!Array.prototype.indexOf) {
 	    resizeTimer = setTimeout(repaintEverything, 100);
      });
 	
-	//var connections = {};
 	/**
 	 * map of element id -> endpoint lists.  an element can have an arbitrary number of endpoints on it,
 	 * and not all of them have to be connected to anything.
@@ -65,7 +66,11 @@ if (!Array.prototype.indexOf) {
     	var endpoints = endpointsByElement[id];
     	// loop through endpoints for this element
     	for (var i = 0; i < endpoints.length; i++) {
+    		
     		// first, paint the endpoint
+    		_updateOffset(id, ui);
+    		var off = offsets[id];
+    //		endpoints[i].paint([off.top, off.left]);
     		//var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
             //var sAnchorO = this.anchors[sIdx].orientation;
     		
@@ -98,11 +103,36 @@ if (!Array.prototype.indexOf) {
     	}
     };
     
+    /**
+     * perform an operation on all elements.
+     */
     var _operationOnAll = function(func) {
     	for (var elId in endpointsByElement) {
     		_operation(elId, func);
     	}    	
     };
+    
+    /**
+     * updates the offset and size for a given element, and stores the values.
+     * if 'ui' is not null we use that (it would have been passed in from a drag call) because it's faster; but if it is null,
+     * or if 'recalc' is true in order to force a recalculation, we use the offset, outerWidth and outerHeight methods to get
+     * the current values.
+     */
+    var _updateOffset = function(elId, ui, recalc) {
+		if (recalc || ui == null) {
+    		// get the current size and offset, and store them
+    		var s = $("#" + elId);
+    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
+    		offsets[elId] = s.offset();
+		} else {
+			// faster to use the ui element if it was passed in.  offset is a fallback.
+			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
+			// 1.8 and 1.7.
+			var pos = ui.absolutePosition || ui.offset;
+    		var anOffset = ui != null ? pos : $("#" + elId).offset();
+    		offsets[elId] = anOffset;
+		}
+	};
     
     /**
      * helper method to add an item to a list, creating the list if it does not yet exist.
@@ -186,7 +216,8 @@ if (!Array.prototype.indexOf) {
 		params = params || {};
 		var self = this;
 		var _anchor = params.anchor || jsPlumb.Anchors.TopCenter;
-		var _style = params.style;
+		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
+		var _style = params.style || jsPlumb.DEFAULT_ENDPOINT_STYLE;
 		// todo: endpoint can act as a source for new connections
 		this.canvas = params.canvas || newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
@@ -196,7 +227,7 @@ if (!Array.prototype.indexOf) {
 		this.setAnchor = function(anchor) { _anchor = anchor; };
 		//this.setStyle = function(style) { 
 		this.paint = function(anchorPoint, connectorPaintStyle) { 
-			_anchor.paint(anchorPoint, _anchor.orientation, self.canvas, _style, connectorPaintStyle);
+			_endpoint.paint(anchorPoint, _anchor.orientation, self.canvas, _style, connectorPaintStyle);
 		};
 	};
 	
@@ -297,14 +328,14 @@ if (!Array.prototype.indexOf) {
             		w = 2 * lineWidth; 
             		// if we set this then we also have to place the canvas
             		x = sourcePos[0]  + ((targetPos[0] - sourcePos[0]) / 2) - lineWidth;
-            		xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;//lineWidth/2;//lineWidth / 2;
+            		xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;
             	}
                 if (h < 2 * lineWidth) { 
             		// minimum size is 2 * line Width
             		h = 2 * lineWidth; 
             		// if we set this then we also have to place the canvas
             		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - lineWidth;
-            		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;//lineWidth/2;//lineWidth / 2;
+            		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
             	}
                 
                 // here we check to see if the delta was very small and so the line in
@@ -550,9 +581,7 @@ if (!Array.prototype.indexOf) {
      * adds an endpoint to the element
      */
     addEndpoint : function(params) {
-    	var a = params.anchor || jsPlumb.Anchors.TopCenter;
-    	var e = new Endpoint();
-    	e.setAnchor(a);
+    	var e = new Endpoint(params);
     	var el = $(params.source);
     	_addToList(endpointsByElement, el.attr("id"), e);
     },
@@ -565,10 +594,10 @@ if (!Array.prototype.indexOf) {
     	var jpc = new jsPlumbConnection(params);    	
     	
 		// register endpoints for the element
-		var sourceEndpoint = new Endpoint({canvas:jpc.endpoints[0], connections:[jpc]});
-		var targetEndpoint = new Endpoint({canvas:jpc.endpoints[1], connections:[jpc]});
-		_addToList(endpointsByElement, jpc.sourceId, sourceEndpoint);
-		_addToList(endpointsByElement, jpc.targetId, targetEndpoint);
+		/*var sourceEndpoint = new Endpoint({canvas:jpc.endpoints[0], connections:[jpc]});
+		var targetEndpoint = new Endpoint({canvas:jpc.endpoints[1], connections:[jpc]});*/
+		_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
+		_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
     },           
     
     /**
@@ -791,8 +820,8 @@ var jsPlumbConnection = function(params) {
     if(!params.endpoints) params.endpoints = [null,null];
     //this.endpoints[0] = params.endpoints[0] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[0] || jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();
     //this.endpoints[1] = params.endpoints[1] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[1] ||jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();    
-    var anchor0 = params.endpoints[0] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[0] || jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();
-    var anchor1 = params.endpoints[1] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[1] ||jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();;
+    var endpoint0 = params.endpoints[0] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[0] || jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();
+    var endpoint1 = params.endpoints[1] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[1] ||jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();;
     
     this.endpointStyles = [];
     if (!params.endpointStyles) params.endpointStyles = [null,null];
@@ -801,8 +830,8 @@ var jsPlumbConnection = function(params) {
     var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[0] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
     var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[1] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
     
-    this.endpoints[0] = new Endpoint({style:endpointStyle0, anchor:anchor0});
-    this.endpoints[1] = new Endpoint({style:endpointStyle1, anchor:anchor1});
+    this.endpoints[0] = new Endpoint({style:endpointStyle0, endpoint:endpoint0});
+    this.endpoints[1] = new Endpoint({style:endpointStyle1, endpoint:endpoint1});
     
     offsets[this.sourceId] = this.source.offset(); 
     sizes[this.sourceId] = [this.source.outerWidth(), this.source.outerHeight()]; 
@@ -850,29 +879,10 @@ var jsPlumbConnection = function(params) {
     	var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
     	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
     	
-    	if (this.canvas.getContext) {
-    		
-    		var _updateOffset = function(elId, ui, recalc) {
-    			if (recalc) {
-    	    		// get the current sizes of the two elements.
-    	    		var s = $("#" + elId);
-    	    		var t = $("#" + tId);
-    	    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
-    	    		sizes[tId] = [t.outerWidth(), t.outerHeight()];
-    	    		offsets[elId] = s.offset();
-    	    		offsets[tId] = t.offset();
-        		} else {
-        			// faster to use the ui element if it was passed in.  offset is a fallback.
-        			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
-        			// 1.8 and 1.7.
-        			var pos = ui.absolutePosition || ui.offset;
-            		var anOffset = ui != null ? pos : $("#" + elId).offset();
-            		offsets[elId] = anOffset;
-        		}
-    		};
+    	if (this.canvas.getContext) {    		    		
     		    		
     		_updateOffset(elId, ui, recalc);
-    		//_updateOffset(tId, ui, recalc);
+    		if (recalc) _updateOffset(tId);  // update the target if this is a foreced repaint. otherwise, only the source has been moved.
     		
     		var myOffset = offsets[elId]; 
     		var otherOffset = offsets[tId];
@@ -887,8 +897,7 @@ var jsPlumbConnection = function(params) {
             var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
             jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
             applyPaintStyle(ctx, this.paintStyle);
-            
-            var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+                        
             if (this.paintStyle.gradient && !ie) { 
 	            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
 	            for (var i = 0; i < this.paintStyle.gradient.stops.length; i++)
