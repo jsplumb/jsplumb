@@ -929,7 +929,7 @@ var jsPlumbConnection = function(params) {
 
     // dragging
     var draggable = params.draggable == null ? true : params.draggable;
-    if (draggable) {    	
+    if (draggable && self.source.draggable) {    	
     	var dragOptions = params.dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
     	var dragCascade = dragOptions.drag || function(e,u) {};
     	var initDrag = function(element, dragFunc) {

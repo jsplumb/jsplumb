@@ -273,27 +273,27 @@ if (!Array.prototype.indexOf) {
                  * original, before patch for issue 4
                  * 
                  * this code still needs work before release.
-                 * 
-                 * if (anchor1.orientation[0] == 0) // X
+                 */ 
+                  if (anchor1.orientation[0] == 0) // X
                     p.push(anchor1Position[0] < anchor2Position[0] ? point[0] + mi : point[0] - mi);
                 else p.push(point[0] - (ma * anchor1.orientation[0]));
-                 */
-                if (anchor2.orientation[0] == 0) // X
+                 
+                /*if (anchor2.orientation[0] == 0) // X
                 	p.push(anchor2Position[0] < anchor1Position[0] ? point[0] + mi : point[0] - mi);
-                else p.push(point[0] + (ma * anchor2.orientation[0]));
+                else p.push(point[0] + (ma * anchor2.orientation[0]));*/
 
                 /*
                  * original, before patch for issue 4
                  * 
                  * this code still needs work before release.
-                 * 
-                 * if (anchor1.orientation[1] == 0) // Y
+                 */ 
+                 if (anchor1.orientation[1] == 0) // Y
                 	p.push(anchor1Position[1] < anchor2Position[1] ? point[1] + mi : point[1] - mi);
                 else p.push(point[1] + (ma * anchor2.orientation[1]));
-                 */
-                if (anchor2.orientation[1] == 0) // Y
+                 
+                /*if (anchor2.orientation[1] == 0) // Y
                 	p.push(anchor2Position[1] < anchor1Position[1] ? point[1] + mi : point[1] - mi);
-                else p.push(point[1] + (ma * anchor1.orientation[1]));
+                else p.push(point[1] + (ma * anchor1.orientation[1]));*/
 
                 return p;
             };
