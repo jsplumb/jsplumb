@@ -26,7 +26,17 @@
 				$("#window2").plumb({target:'window5'});
 				$("#window3").plumb({target:'window6'});
 
-				$("#window3").addEndpoint({endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})});
+				$("#window3").addEndpoints([{
+					endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
+					anchor:jsPlumb.makeAnchor(0.25, 0),
+					isSource:true
+					},{
+						endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
+						anchor:jsPlumb.makeAnchor(0.75, 0)
+					}
+				]);
+
+				jsPlumb.setDraggable("window2", false);
 									
 			});
 		--></script>
