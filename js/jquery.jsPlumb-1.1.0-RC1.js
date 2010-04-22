@@ -41,6 +41,7 @@ if (!Array.prototype.indexOf) {
 	 */
 	var endpointsByElement = {};
 	var offsets = [];
+	var draggableStates = [];
 	var sizes = [];
 	
 	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)	
@@ -236,6 +237,13 @@ if (!Array.prototype.indexOf) {
 			}
 			_endpoint.paint(anchorPoint, _anchor.orientation, self.canvas, _style, connectorPaintStyle || _style);
 		};
+		// is this a connection source? we make it draggable and have the drag listener 
+		// maintain a connection with a floating endpoint.
+		if (params.isSource) {
+			// todo allow for (some of) these drag values to be supplied
+			//helper: 'clone'
+			$(self.canvas).draggable({ opacity:0.5, revert:true, helper:"clone" });
+		}
 	};
 	
 	/**
@@ -767,6 +775,10 @@ if (!Array.prototype.indexOf) {
     	DEFAULT_NEW_CANVAS_SIZE = size;    	
     },
     
+    setDraggable : function(elId, value) {
+    	draggableStates[elId] = value;    	
+    },
+    
     /**
      * Sets the function to fire when the window size has changed and a repaint was fired.
      */
@@ -928,7 +940,8 @@ var jsPlumbConnection = function(params) {
     if (draggable && self.source.draggable) {    	
     	var dragOptions = params.dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
     	var dragCascade = dragOptions.drag || function(e,u) {};
-    	var initDrag = function(element, dragFunc) {
+    	var initDrag = function(element, id, dragFunc) {
+    		if (draggableStates[id] == null | draggableStates[id]) {
     		// todo use $.extend here
     		var opts = {};
         	for (var i in dragOptions) {
@@ -936,14 +949,19 @@ var jsPlumbConnection = function(params) {
             }
         	opts.drag = dragFunc;
         	element.draggable(opts);
+    		}
     	};
-    	initDrag(this.source, function(event, ui) {
-    		_draw(self.source, ui);
-    		dragCascade(event, ui);
+    	initDrag(this.source, this.sourceId, function(event, ui) {
+    		if (draggableStates[self.sourceId] == null | draggableStates[self.sourceId]) {
+	    		_draw(self.source, ui);
+	    		dragCascade(event, ui);
+    		}
     	});
-    	initDrag(this.target, function(event, ui) {
-    		_draw(self.target, ui);
-    		dragCascade(event, ui);
+    	initDrag(this.target, this.targetId, function(event, ui) {
+    		if (draggableStates[self.targetId] == null | draggableStates[self.targetId]) {
+	    		_draw(self.target, ui);
+	    		dragCascade(event, ui);
+    		}
     	});
     }
     
