@@ -61,27 +61,28 @@ if (!Array.prototype.indexOf) {
      * @param element jQuery element
      * @param ui UI object from jQuery's event system
      */
-    var _drag = function(element, ui) {
+    var _draw = function(element, ui) {
     	var id = element.attr("id");    	
     	var endpoints = endpointsByElement[id];
     	// loop through endpoints for this element
     	for (var i = 0; i < endpoints.length; i++) {
     		var e = endpoints[i];
     		// first, paint the endpoint
-    		/*_updateOffset(id, ui);
-    		var off = offsets[id];*/
+    		if (ui == null)
+    			_updateOffset(id, ui);
     		//todo...connector paint style?  we have lost that with the move to endpoint-centric.
     		// perhaps we only paint the endpoint here if it has no connections; it can use its own style.
     		if (!e.connections || e.connections.length == 0)
-    			e.paint(/*[off.left, off.top]*/);
+    			e.paint();
     		else {
-	    		// then, get all connections for the endpoint..
+	    		// get all connections for the endpoint...
 	    		var l = e.connections;
 	    		for (var j = 0; j < l.length; j++)
-	    			l[j].paint(id, ui);  // and paint them
+	    			l[j].paint(id, ui);  // ...and paint them.
     		}
     	}
     };
+    
     
     /**
      * performs the given function operation on all the connections found for the given element
@@ -119,13 +120,13 @@ if (!Array.prototype.indexOf) {
      * the current values.
      */
     var _updateOffset = function(elId, ui, recalc) {
-		if (recalc || ui == null) {
+		if (recalc || ui == null) {  // if forced repaint or no ui helper available, we recalculate.
     		// get the current size and offset, and store them
     		var s = $("#" + elId);
     		sizes[elId] = [s.outerWidth(), s.outerHeight()];
     		offsets[elId] = s.offset();
 		} else {
-			// faster to use the ui element if it was passed in.  offset is a fallback.
+			// faster to use the ui element if it was passed in.
 			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
 			// 1.8 and 1.7.
 			var pos = ui.absolutePosition || ui.offset;
@@ -590,6 +591,17 @@ if (!Array.prototype.indexOf) {
     	var e = new Endpoint(params);
     	var el = $(params.source);
     	_addToList(endpointsByElement, el.attr("id"), e);
+    	e.paint();
+    },
+    
+    /**
+     * adds a list of endpoints to the element
+     */
+    addEndpoints : function(endpoints, source) {
+    	for (var i = 0; i < endpoints.length; i++) {
+    		var params = $.extend({source:source}, endpoints[i]);
+    		jsPlumb.addEndpoint(params);
+    	}
     },
     
     /**
@@ -604,6 +616,9 @@ if (!Array.prototype.indexOf) {
 		var targetEndpoint = new Endpoint({canvas:jpc.endpoints[1], connections:[jpc]});*/
 		_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
 		_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
+		
+		// force a paint
+		_draw(jpc.source);
     },           
     
     /**
@@ -836,8 +851,8 @@ var jsPlumbConnection = function(params) {
     var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[0] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
     var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[1] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
     
-    this.endpoints[0] = new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self] });
-    this.endpoints[1] = new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self] });
+    this.endpoints[0] = params.sourceEndpoint || new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self] });
+    this.endpoints[1] = params.targetEndpoint || new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self] });
     
     offsets[this.sourceId] = this.source.offset(); 
     sizes[this.sourceId] = [this.source.outerWidth(), this.source.outerHeight()]; 
@@ -847,21 +862,6 @@ var jsPlumbConnection = function(params) {
 // *************** create canvases on which the connection will be drawn ************
     var canvas = newCanvas(jsPlumb.connectorClass);
     this.canvas = canvas;
-    // create endpoint canvases
-    /*this.sourceEndpointCanvas = newCanvas(jsPlumb.endpointClass);	    
-    this.targetEndpointCanvas = newCanvas(jsPlumb.endpointClass);*/
- // register the connection on the endpoints. if the endpoints get dragged we can repaint the
-    // whole connection.
-    /*this.sourceEndpointCanvas.connection = self;
-    this.targetEndpointCanvas.connection = self;*/
-    // sit them on top of the underlying element?
-    /*if (this.endpointsOnTop) {
-	    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") + 1);
-	    $(this.targetEndpointCanvas).css("zIndex", this.target.css("zIndex") + 1);
-    } else {
-	    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") - 1);
-	    $(this.targetEndpointCanvas).css("zIndex", this.target.css("zIndex") - 1);
-    }*/
 // ************** store the anchors     
   
     /**
@@ -884,11 +884,12 @@ var jsPlumbConnection = function(params) {
     	var swap = !(elId == this.sourceId);
     	var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
     	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
+    	var el = swap ? this.target : this.source;
     	
     	if (this.canvas.getContext) {    		    		
     		    		
     		_updateOffset(elId, ui, recalc);
-    		if (recalc) _updateOffset(tId);  // update the target if this is a foreced repaint. otherwise, only the source has been moved.
+    		if (recalc) _updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
     		
     		var myOffset = offsets[elId]; 
     		var otherOffset = offsets[tId];
@@ -913,13 +914,8 @@ var jsPlumbConnection = function(params) {
             	            
             this.connector.paint(dim, ctx);
                             
-        	/*var style = this.endpointStyle || this.paintStyle;
-        	var sourceCanvas = swap ? this.targetEndpointCanvas : this.sourceEndpointCanvas;
-        	var targetCanvas = swap ? this.sourceEndpointCanvas : this.targetEndpointCanvas;
-        	this.endpoints[swap ? 1 : 0].paint(sAnchorP, sAnchorO, sourceCanvas, this.endpointStyles[swap ? 1 : 0] || this.paintStyle, this.paintStyle);
-        	this.endpoints[swap ? 0 : 1].paint(tAnchorP, tAnchorO, targetCanvas, this.endpointStyles[swap ? 0 : 1] || this.paintStyle, this.paintStyle);*/
-            this.endpoints[swap ? 1 : 0].paint(sAnchorP, /*sAnchorO, */this.paintStyle);
-        	this.endpoints[swap ? 0 : 1].paint(tAnchorP, /*tAnchorO, */this.paintStyle);
+        	this.endpoints[swap ? 1 : 0].paint(sAnchorP, this.paintStyle);
+        	this.endpoints[swap ? 0 : 1].paint(tAnchorP, this.paintStyle);
     	}
     };
     
@@ -942,11 +938,11 @@ var jsPlumbConnection = function(params) {
         	element.draggable(opts);
     	};
     	initDrag(this.source, function(event, ui) {
-    		_drag(self.source, ui);
+    		_draw(self.source, ui);
     		dragCascade(event, ui);
     	});
     	initDrag(this.target, function(event, ui) {
-    		_drag(self.target, ui);
+    		_draw(self.target, ui);
     		dragCascade(event, ui);
     	});
     }
@@ -957,19 +953,6 @@ var jsPlumbConnection = function(params) {
     		jsPlumb.repaint(self.sourceId);
     	});
     }
-    
-    // draggable endpoints.  put this on a toggle or something.
-   /* $(this.sourceEndpointCanvas).drag(function(event, ui) {
-    	
-    });
-    
-    $(this.targetEndpointCanvas).drag(function(event, ui) {
-    	
-    });*/
-    
-    // finally, draw it.
-    var o = this.source.offset();
-    this.paint(this.sourceId, {'absolutePosition': this.source.offset()});
 };
 
 })();
@@ -1024,6 +1007,17 @@ var jsPlumbConnection = function(params) {
 	  {
 		  var params = $.extend({source:$(this)}, options);		 
 		 jsPlumb.addEndpoint(params);
+	  });	  
+  };
+  
+  /**
+   * adds a list of endpoints to the elements resulting from the selector.  options may be null,
+   * in which case jsPlumb will use the default options. see documentation. 
+   */
+  $.fn.addEndpoints = function(endpoints) {
+	  return this.each(function() 
+	  {		 
+		 jsPlumb.addEndpoints(endpoints, $(this));
 	  });	  
   };
   
