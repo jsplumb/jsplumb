@@ -29,12 +29,19 @@
 				$("#window3").addEndpoints([{
 					endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
 					anchor:jsPlumb.makeAnchor(0.25, 0),
-					isSource:true
+					isSource:true,
+					typeId:'someConnectorType'
 					},{
 						endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
 						anchor:jsPlumb.makeAnchor(0.75, 0)
 					}
 				]);
+
+				$("#window1").addEndpoint({
+					endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}), 
+					anchor:jsPlumb.makeAnchor(1, 0.25),
+					typeId:'someConnectorType'
+				});
 
 				jsPlumb.setDraggable("window2", false);
 									
@@ -50,6 +57,8 @@
 #window4 { top:4em; left:45em;background-color:#122704; left:4em;top:24em;}
 #window5 {top:27em;left:18em;background-color:#041227;left:22em;top:24em;}
 #window6 {top:35em;left:42em;background-color:#333300;left:47em;top:24em;}
+	
+	._jsPlumb_newEndpoint { width:10px;height:10px;background-color:red; }
 	
 		</style>
 	</head>
