@@ -1,5 +1,21 @@
 * 1.1.0-RC1
 
+* 1.0.3
+
+	- fix for issue 2:
+	
+		http://code.google.com/p/jsplumb/issues/detail?id=2&can=1
+		
+		jsPlumb threw an error if jquery UI was not included in the page.
+		
+	- fix for issue 4:
+	
+		http://code.google.com/p/jsplumb/issues/detail?id=4&can=1
+		
+		wrong control points for bezier curve when anchor orientations were perpendicular
+		to each other.
+		
+
 * 1.0.2
 
 	- added fix for dragging in 1.8 (absolutePosition was renamed to 'offset' in the drag object)
