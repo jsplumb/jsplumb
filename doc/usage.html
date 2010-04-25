@@ -15,7 +15,7 @@
 				<li><a href="#basic">Basic Configuration</a></li>
 				<li><a href="#unload">Unloading jsPlumb</a></li>
 				<li><a href="#upcoming">Upcoming in version 1.1.0</a></li>
-				<li><a href="#changes">Changes between 1.0.1 and 1.0.2</a></li>
+				<li><a href="#changes">Changes between 1.0.2 and 1.0.3</a></li>
 				<li><a href="#examples">Examples</a></li>
 				<li><a href="#repaint">Automatic repaint</a></li>
 				<li><a href="#options">Options</a></li>
@@ -27,8 +27,8 @@
 				<li><a href="#cssclasses">CSS Class Reference</a></li>
 				<li><a href="#enhancements">Future Enhancements</a></li>
 			</ul>
-			<strong>This document refers to release 1.0.2 of jsPlumb.</strong>
-			<strong>04/18/10</strong>
+			<strong>This document refers to release 1.0.3 of jsPlumb.</strong>
+			<strong>04/25/10</strong>
 		</div>
 	
 		<div class="section">
@@ -62,7 +62,7 @@
 			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.0.2-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.0.3-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 					
 			<a id="unload"><h3>Unloading jsPlumb</h3></a>
@@ -86,9 +86,10 @@
 				<li>a better demonstration of how to write your own type of connecting plumb line</li>
 			</ul>
 			
-			<a id="changes"><h3>Changes between 1.0.1 AND 1.0.2</h3></a>
+			<a id="changes"><h3>Changes between 1.0.1 AND 1.0.3</h3></a>
 			<ul>
-				<li>support for changes to UI/draggable in jQuery 1.8.x.</li>
+				<li>fix for issue http://code.google.com/p/jsplumb/issues/detail?id=2&can=1</li>
+				<li>fix for issue http://code.google.com/p/jsplumb/issues/detail?id=4&can=1</li>
 			</ul>
 		</div>
 				
@@ -287,6 +288,11 @@ placed on top of the element it is connected to.
 				<li>Detach every connection 
 					<div class="code">
 						<pre>jsPlumb.detachEverything();</pre>
+					</div>
+				</li>
+				<li>Set a given element to a certain drag state, no matter what some plumb command may request 
+					<div class="code">
+						<pre>jsPlumb.setElementDraggable("window1", false);</pre>
 					</div>
 				</li>
 			</ul>			
