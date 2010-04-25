@@ -266,36 +266,32 @@ if (!Array.prototype.indexOf) {
         	this.majorAnchor = curviness || 150;
             this.minorAnchor = 10;
             
-            this._findControlPoint = function(point, anchor1Position, anchor2Position, anchor1, anchor2) {
+            this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceAnchor, targetAnchor) {
+            	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
+            	// points around if so (code could be tightened up)
+            	var perpendicular = sourceAnchor.orientation[0] != targetAnchor.orientation[0] || sourceAnchor.orientation[1] == targetAnchor.orientation[1]; 
                 var p = [];            
-                var ma = self.majorAnchor, mi = self.minorAnchor;
-                /*
-                 * original, before patch for issue 4
-                 * 
-                 * this code still needs work before release.
-                 */ 
-                  if (anchor1.orientation[0] == 0) // X
-                    p.push(anchor1Position[0] < anchor2Position[0] ? point[0] + mi : point[0] - mi);
-                else p.push(point[0] - (ma * anchor1.orientation[0]));
-                 
-                /*if (anchor2.orientation[0] == 0) // X
-                	p.push(anchor2Position[0] < anchor1Position[0] ? point[0] + mi : point[0] - mi);
-                else p.push(point[0] + (ma * anchor2.orientation[0]));*/
+                var ma = self.majorAnchor, mi = self.minorAnchor;                
+                if (!perpendicular) {
+	                  if (sourceAnchor.orientation[0] == 0) // X
+	                    p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + mi : point[0] - mi);
+	                else p.push(point[0] - (ma * sourceAnchor.orientation[0]));
+	                                 
+	                 if (sourceAnchor.orientation[1] == 0) // Y
+	                	p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + mi : point[1] - mi);
+	                else p.push(point[1] + (ma * targetAnchor.orientation[1]));
+                }
+                 else {
+	                if (targetAnchor.orientation[0] == 0) // X
+	                	p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + mi : point[0] - mi);
+	                else p.push(point[0] + (ma * targetAnchor.orientation[0]));
+	                
+	                if (targetAnchor.orientation[1] == 0) // Y
+	                	p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + mi : point[1] - mi);
+	                else p.push(point[1] + (ma * sourceAnchor.orientation[1]));
+                 }
 
-                /*
-                 * original, before patch for issue 4
-                 * 
-                 * this code still needs work before release.
-                 */ 
-                 if (anchor1.orientation[1] == 0) // Y
-                	p.push(anchor1Position[1] < anchor2Position[1] ? point[1] + mi : point[1] - mi);
-                else p.push(point[1] + (ma * anchor2.orientation[1]));
-                 
-                /*if (anchor2.orientation[1] == 0) // Y
-                	p.push(anchor2Position[1] < anchor1Position[1] ? point[1] + mi : point[1] - mi);
-                else p.push(point[1] + (ma * anchor1.orientation[1]));*/
-
-                return p;
+                return p;                
             };
 
             this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth)
