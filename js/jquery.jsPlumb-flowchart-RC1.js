@@ -96,9 +96,9 @@ a flowchart connector for jsPlumb.
             		w = minStubLength * 2 + (sourcePos[0] - targetPos[0]);
             		x = targetPos[0] - minStubLength;
             		sx = sourcePos[0] - x;
-            		tx = minStubLength;
+            		tx = minStubLength;ty=swapY ? 0 : h;
             		points.push(sx + minStubLength);points.push(sy);
-            		points.push(sx + minStubLength);points.push(sy - h/2);
+            		points.push(sx + minStubLength);points.push(h/2);
             		points.push(0);points.push(h/2);
             		points.push(0);points.push(ty);
             	}
@@ -115,11 +115,11 @@ a flowchart connector for jsPlumb.
             		w = minStubLength * 2 + (targetPos[0] - sourcePos[0]);
             		x = sourcePos[0] - minStubLength;
             		sx = minStubLength;
-            		tx = w - minStubLength;
+            		tx = w - minStubLength;ty=swapY ? 0 : h;
             		points.push(sx - minStubLength);points.push(sy);
             		points.push(sx - minStubLength);points.push(h/2);
             		points.push(w);points.push(h/2);
-            		points.push(w);points.push(h);
+            		points.push(w);points.push(ty);
             	}
             }
             
