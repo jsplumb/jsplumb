@@ -38,10 +38,10 @@ a flowchart connector for jsPlumb.
             var swapX = targetPos[0] < sourcePos[0];
             var swapY = targetPos[1] < sourcePos[1];
             var x = swapX ? targetPos[0] : sourcePos[0], y = swapY ? targetPos[1] : sourcePos[1];
-            var w = Math.abs(targetPos[0] - sourcePos[0]);
-            var h = Math.abs(targetPos[1] - sourcePos[1]);
-            //var sx = swapX ? w : 0, sy = 0, tx = swapX ? 0 : w, ty = h;
-            var sx = swapX ? w : 0, sy = swapY ? h : 0, tx = swapX ? 0 : w, ty = swapY ? 0 : h;
+            x -= offx; y -= offy;
+            var w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx;
+            var h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
+            var sx = swapX ? w-offx  : offx, sy = swapY ? h-offy  : offy, tx = swapX ? offx : w-offx , ty = swapY ? offy : h-offy;
                         
             var stubLength = h / 2, stubWidth = w / 2;
             if (so[0] == 0 && so[1] == 1 && to[0] == 0 && to[1] == -1) {
@@ -53,14 +53,14 @@ a flowchart connector for jsPlumb.
             	}
             	else {
             		// a five line connection
-            		h = minStubLength * 2 + (sourcePos[1] - targetPos[1]);
+            		h = minStubLength * 2 + (sourcePos[1] - targetPos[1]) + 2*offy;
             		y = targetPos[1] - minStubLength;
-            		sy = sourcePos[1] - y;
+            		sy = sourcePos[1] - y - offy;
             		ty = minStubLength;
             		points.push(sx);points.push(sy + minStubLength);
             		points.push(w/2);points.push(sy + minStubLength);
-            		points.push(w/2);points.push(0);
-            		points.push(tx);points.push(0);
+            		points.push(w/2);points.push(offy);
+            		points.push(tx);points.push(offy);
             	}
             }
             else if (so[0] == 0 && so[1] == -1 && to[0] == 0 && to[1] == 1) {
@@ -72,14 +72,14 @@ a flowchart connector for jsPlumb.
             	}
             	else {
             		// a five line connection
-            		h = minStubLength * 2 + (targetPos[1] - sourcePos[1]);
+            		h = minStubLength * 2 + (targetPos[1] - sourcePos[1]) + 2*offy;
             		y = sourcePos[1] - minStubLength;
             		sy = minStubLength;
-            		ty = h - minStubLength;
-            		points.push(sx);points.push(sy - minStubLength);
-            		points.push(w/2);points.push(sy - minStubLength);
-            		points.push(w/2);points.push(h);
-            		points.push(tx);points.push(h);
+            		ty = h - minStubLength -  2*offy;
+            		points.push(sx);points.push(sy - minStubLength + offy);
+            		points.push(w/2);points.push(sy - minStubLength + offy);
+            		points.push(w/2);points.push(h - offy);
+            		points.push(tx);points.push(h - offy);
             	}
             }
             
@@ -93,14 +93,14 @@ a flowchart connector for jsPlumb.
             	}
             	else {
             		// a five line connection
-            		w = minStubLength * 2 + (sourcePos[0] - targetPos[0]);
-            		x = targetPos[0] - minStubLength;
+            		w = minStubLength * 2 + (sourcePos[0] - targetPos[0]) + 2*offx;
+            		x = targetPos[0] - minStubLength - offx;
             		sx = sourcePos[0] - x;
-            		tx = minStubLength;
+            		tx = minStubLength + offx;
             		points.push(sx + minStubLength);points.push(sy);
             		points.push(sx + minStubLength);points.push(h/2);
-            		points.push(0);points.push(h/2);
-            		points.push(0);points.push(ty);
+            		points.push(offx);points.push(h/2);
+            		points.push(offx);points.push(ty);
             	}
             }
             else if (so[0] == -1 && so[1] == 0 && to[0] == 1 && to[1] == 0) {
@@ -112,14 +112,14 @@ a flowchart connector for jsPlumb.
             	}
             	else {
             		// a five line connection
-            		w = minStubLength * 2 + (targetPos[0] - sourcePos[0]);
-            		x = sourcePos[0] - minStubLength;
-            		sx = minStubLength;
-            		tx = w - minStubLength;
+            		w = minStubLength * 2 + (targetPos[0] - sourcePos[0]) + 2*offx;
+            		x = sourcePos[0] - minStubLength - offx;
+            		sx = minStubLength + offx;
+            		tx = w - minStubLength  -  2*offx;
             		points.push(sx - minStubLength);points.push(sy);
             		points.push(sx - minStubLength);points.push(h/2);
-            		points.push(w);points.push(h/2);
-            		points.push(w);points.push(ty);
+            		points.push(w-offx);points.push(h/2);
+            		points.push(w-offx);points.push(ty);
             	}
             }
             
