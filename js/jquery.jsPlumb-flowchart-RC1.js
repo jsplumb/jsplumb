@@ -24,7 +24,8 @@ a flowchart connector for jsPlumb.
 	};
 	
 	jsPlumb.Connectors.Flowchart = function(params) {
-		
+		params = params || {};
+		var minStubLength = params.minStubLength || 30;
 		this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) {
 			// setup default for linewidth
 			lineWidth = lineWidth || 1;
@@ -35,13 +36,15 @@ a flowchart connector for jsPlumb.
             // short vars for access to orientation	
             var so = sourceAnchor.orientation, to = targetAnchor.orientation;
             var swapX = targetPos[0] < sourcePos[0];
+            var swapY = targetPos[1] < sourcePos[1];
             var x = swapX ? targetPos[0] : sourcePos[0], y = sourcePos[1];
             var w = Math.abs(targetPos[0] - sourcePos[0]);
             var h = Math.abs(targetPos[1] - sourcePos[1]);
             var sx = swapX ? w : 0, sy = 0, tx = swapX ? 0 : w, ty = h;
                         
-            var stubLength = h / 2, minStubLength = 30;
+            var stubLength = h / 2, stubWidth = w / 2;
             if (so[0] == 0 && so[1] == 1 && to[0] == 0 && to[1] == -1) {
+            	sy = 0; ty = h;
             	if (sourcePos[1] < targetPos[1]) {
             		// a three line connection
 	            	points.push(sx);points.push(sy + stubLength);
@@ -57,6 +60,65 @@ a flowchart connector for jsPlumb.
             		points.push(w/2);points.push(sy + minStubLength);
             		points.push(w/2);points.push(0);
             		points.push(tx);points.push(0);
+            	}
+            }
+            else if (so[0] == 0 && so[1] == -1 && to[0] == 0 && to[1] == 1) {
+            	sy = h; ty = 0; y = targetPos[1]; 
+            	if (sourcePos[1] > targetPos[1]) {
+            		// a three line connection
+	            	points.push(sx);points.push(sy - stubLength);
+	            	points.push(tx);points.push(ty + stubLength);
+            	}
+            	else {
+            		// a five line connection
+            		h = minStubLength * 2 + (targetPos[1] - sourcePos[1]);
+            		y = sourcePos[1] - minStubLength;
+            		sy = minStubLength;
+            		ty = h - minStubLength;
+            		points.push(sx);points.push(sy - minStubLength);
+            		points.push(w/2);points.push(sy - minStubLength);
+            		points.push(w/2);points.push(h);
+            		points.push(tx);points.push(h);
+            	}
+            }
+            
+            // X
+            else if (so[0] == 1 && so[1] == 0 && to[0] == -1 && to[1] == 0) {
+            //	sy = 0; ty = h;
+            	if (sourcePos[0] < targetPos[0]) {
+            		// a three line connection
+	            	points.push(sx+stubWidth);points.push(sy);
+	            	points.push(tx-stubWidth);points.push(ty);
+            	}
+            	else {
+            		// a five line connection
+            		h = minStubLength * 2 + (sourcePos[1] - targetPos[1]);
+            		y = targetPos[1] - minStubLength;
+            		sy = sourcePos[1] - y;
+            		ty = minStubLength;
+            		points.push(sx);points.push(sy + minStubLength);
+            		points.push(w/2);points.push(sy + minStubLength);
+            		points.push(w/2);points.push(0);
+            		points.push(tx);points.push(0);
+            	}
+            }
+            else if (so[0] == -1 && so[1] == 0 && to[0] == 1 && to[1] == 0) {
+            	sy = h; ty = 0; y = targetPos[1]; 
+            	if (sourcePos[1] < targetPos[1]) {
+            		// a three line connection
+	            	points.push(sx);points.push(sy - stubLength);
+	            	points.push(tx);points.push(ty + stubLength);
+            	}
+            	else {
+            		// a five line connection
+            		h = minStubLength * 2 + (targetPos[1] - sourcePos[1]);
+            		y = sourcePos[1] - minStubLength;
+            		sy = minStubLength;
+            		ty = h - minStubLength;
+            		points.push(sx);points.push(sy - minStubLength);
+            		points.push(w/2);points.push(sy - minStubLength);
+            		points.push(w/2);points.push(h);
+            		points.push(tx);points.push(h);
             	}
             }
             
