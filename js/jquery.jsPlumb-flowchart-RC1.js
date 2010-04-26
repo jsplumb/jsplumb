@@ -34,16 +34,18 @@ a flowchart connector for jsPlumb.
             var points = [];
             // short vars for access to orientation	
             var so = sourceAnchor.orientation, to = targetAnchor.orientation;
-            var x = sourcePos[0], y = sourcePos[1];
+            var swapX = targetPos[0] < sourcePos[0];
+            var x = swapX ? targetPos[0] : sourcePos[0], y = sourcePos[1];
             var w = Math.abs(targetPos[0] - sourcePos[0]);
             var h = Math.abs(targetPos[1] - sourcePos[1]);
-            var sx = 0, sy = 0, tx = w, ty = h;
+            var sx = swapX ? w : 0, sy = 0, tx = swapX ? 0 : w, ty = h;
+                        
             var stubLength = h / 2, minStubLength = 30;
             if (so[0] == 0 && so[1] == 1 && to[0] == 0 && to[1] == -1) {
             	if (sourcePos[1] < targetPos[1]) {
             		// a three line connection
 	            	points.push(sx);points.push(sy + stubLength);
-	            	points.push(w);points.push(h - stubLength);
+	            	points.push(tx);points.push(ty - stubLength);
             	}
             	else {
             		// a five line connection
@@ -51,15 +53,15 @@ a flowchart connector for jsPlumb.
             		y = targetPos[1] - minStubLength;
             		sy = sourcePos[1] - y;
             		ty = minStubLength;
-            		points.push(0);points.push(sy + minStubLength);
+            		points.push(sx);points.push(sy + minStubLength);
             		points.push(w/2);points.push(sy + minStubLength);
             		points.push(w/2);points.push(0);
-            		points.push(w);points.push(0);
+            		points.push(tx);points.push(0);
             	}
             }
             
             
-            // first define the basic points - location, width, height, and start/end points.
+            // first define the basic points - location, width, height, and start/end points.            
             var retVal = [x, y, w, h,sx,sy,tx,ty];
             // then store how many intermediate points we calculated
             retVal.push(points.length / 2);
