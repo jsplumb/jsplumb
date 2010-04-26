@@ -32,37 +32,50 @@ a flowchart connector for jsPlumb.
 			var retVal = [];
 			var w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth;
 			var h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
-            var so = sourceAnchor.orientation, to = targetAnchor.orientation;                
+            var so = sourceAnchor.orientation, to = targetAnchor.orientation;
+            var x = Math.min(sourcePos[0], targetPos[0])- offx, y = Math.min(sourcePos[1], targetPos[1]) - offy;
+            var sx = sourcePos[0] < targetPos[0] ? offx : w-offx;
+            var sy = sourcePos[1] < targetPos[1] ? offy : h-offy;
+            var tx = sourcePos[0] < targetPos[0] ? w-offx : offx;
+            var ty = sourcePos[1] < targetPos[1] ? h-offy : offy;
+            var points = [];
             if (so[0] == 0 && to[0] == 0) {
             	if (so[1] == 1 && to[1] == -1) {            		
-            		retVal = [sourcePos[0]-offx, sourcePos[1]-offy, w, h, offx, offy, w-offx,h-offy];
+            		
             		var ydiff = Math.abs(targetPos[1] - sourcePos[1]);
             		var stubLength = Math.max(ydiff/2, 30);
-            		if (offy + stubLength <= h - offy -stubLength) {            			
-            			retVal.push(2);
-            			retVal.push(offx);
-            			retVal.push(offy + stubLength);
-            			retVal.push(w-offx);
-            			retVal.push(h - offy -stubLength);
+             		if (offy + stubLength <= h - offy -stubLength) {            			
+            			
+            			points.push(sx);
+            			points.push(sy + stubLength);
+            			points.push(tx);
+            			points.push(ty-stubLength);
             		}
             		else {
-            			retVal.push(4);
             			
-            			retVal.push(offx);
-            			retVal.push(offy + stubLength);
+            			if (h < stubLength) {
+            				y -= (stubLength - h);
+            				sy += (stubLength - h);
+            				h = stubLength * 2;            				
+            			}
             			
-            			retVal.push(w/2);
-            			retVal.push(offy + stubLength);
+            			points.push(sx);
+            			points.push(sy + stubLength);
             			
-            			retVal.push(w/2);
-            			retVal.push(h - offy -stubLength);
+            			points.push(w/2);
+            			points.push(sy + stubLength);
             			
-            			retVal.push(w-offx);
-            			retVal.push(h - offy -stubLength);
+            			points.push(w/2);
+            			points.push(ty -stubLength);
+            			
+            			points.push(tx);
+            			points.push(ty -stubLength);
+            			
+            			
             		}
             	}
-            	else if (so[1] == -1 && to[1] == 1) {
-            		retVal = [sourcePos[0]-offx, sourcePos[1]-offy, w, h, offx, offy, w-offx,h-offy];
+            	/*else if (so[1] == -1 && to[1] == 1) {
+            		retVal = [sourcePos[0]-offx, sourcePos[1]-offy, w, h, sx,sy,tx,ty];
             		var ydiff = Math.abs(targetPos[1] - sourcePos[1]);
             		var stubLength = Math.max(ydiff/2, 30);
             		if (offy + stubLength < h - offy -stubLength) {            			                	
@@ -73,9 +86,13 @@ a flowchart connector for jsPlumb.
             			retVal.push(h - offy -stubLength);
             		}
             		else { alert("no"); retVal.push(0); }
-            	}
+            	}*/
             }
             
+            retVal = [x, y, w, h, sx, sy, tx,ty];
+            retVal.push(points.length / 2);
+            for (var i = 0; i < points.length; i++)
+            	retVal.push(points[i]);
             return retVal;	
 		};
 		
