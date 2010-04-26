@@ -5,6 +5,7 @@ a flowchart connector for jsPlumb.
 */
 
 (function() {
+		
 	
 	var inPhase = function (o1, o2) {
 	    var r = [o1[0] + o2[0], o1[1] + o2[1]];
@@ -24,78 +25,55 @@ a flowchart connector for jsPlumb.
 	
 	jsPlumb.Connectors.Flowchart = function(params) {
 		
-		this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) { 
-			var w = Math.abs(sourcePos[0] - targetPos[0]);
-            var h = Math.abs(sourcePos[1] - targetPos[1]);
-            // these are padding to ensure the whole connector line appears
-            var xo = 0.45 * w, yo = 0.45 * h;
-            // these are padding to ensure the whole connector line appears
-            w *= 1.9; h *=1.9;
-            
-            var x = Math.min(sourcePos[0], targetPos[0]) - xo;
-            var y = Math.min(sourcePos[1], targetPos[1]) - yo;
-            
-            if (w < 2 * lineWidth) { 
-        		// minimum size is 2 * line Width
-        		w = 2 * lineWidth; 
-        		// if we set this then we also have to place the canvas
-        		x = sourcePos[0]  + ((targetPos[0] - sourcePos[0]) / 2) - lineWidth;
-        		xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;;
-        	}
-            if (h < 2 * lineWidth) { 
-        		// minimum size is 2 * line Width
-        		h = 2 * lineWidth; 
-        		// if we set this then we also have to place the canvas
-        		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - lineWidth;
-        		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;;
-        	}
-                           
-            var sx = sourcePos[0] < targetPos[0] ? w-xo : xo;
-            var sy = sourcePos[1] < targetPos[1] ? h-yo : yo;
-            var tx = sourcePos[0] < targetPos[0] ? xo : w-xo;
-            var ty = sourcePos[1] < targetPos[1] ? yo : h-yo;
-            var retVal = [ x, y, w, h, sx, sy, tx, ty ];
-                            
-            // return [canvasX, canvasY, canvasWidth, canvasHeight, 
-            //         sourceX, sourceY, targetX, targetY] 
-            
-            // but really this should return, after all that:
-            // [number_of segments, seg1, seg2, ..., segx]
-            // and the paint function should just do a pathTo(..) for each of these.
-            
-            // here's a test - a line in the direction of the source anchor's orientation.
-            var o = sourceAnchor.orientation;
-            var o2 = targetAnchor.orientation;
-            
-            var DEFAULT_STUB_LENGTH = 30;
-            
-            // flowchart paints a direct line when orientation of one or more anchors is defined
-            // in more than one direction.
-            if (notSuitableOrientations(o, o2)) {
-            	retVal.push(0);
-            }
-            else if(inPhase(o, o2)) {
-	            
-            	// 
-            	
-		            var stubLengthX = Math.max(DEFAULT_STUB_LENGTH, Math.abs(sx-tx) / 2);
-		            var stubLengthY = Math.max(DEFAULT_STUB_LENGTH, Math.abs(sy-ty) / 2);
-		            retVal.push(2);  // two points between start and end points.
-		            retVal.push(sx + o2[0] * stubLengthX);
-		            retVal.push(sy + o2[1] * stubLengthY);
-		            retVal.push(tx + o[0] * stubLengthX);
-		            retVal.push(ty + o[1] * stubLengthY);
-		            
-		            var ymax = Math.max(retVal[10], retVal[12], retVal[5], retVal[7]);
-		            retVal[3] = ymax;
-            	
-            }
-            else {
-            	retVal.push(2);  // two points between start and end points.
-            	retVal.push(sx + o2[0] * DEFAULT_STUB_LENGTH);
-	            retVal.push(sy + o2[1] * DEFAULT_STUB_LENGTH);
-	            retVal.push(tx + o[0] * DEFAULT_STUB_LENGTH);
-	            retVal.push(ty + o[1] * DEFAULT_STUB_LENGTH);	
+		this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) {
+			
+			lineWidth = lineWidth || 1;
+			var offx = lineWidth / 2, offy = lineWidth / 2;
+			var retVal = [];
+			var w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth;
+			var h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
+            var so = sourceAnchor.orientation, to = targetAnchor.orientation;                
+            if (so[0] == 0 && to[0] == 0) {
+            	if (so[1] == 1 && to[1] == -1) {            		
+            		retVal = [sourcePos[0]-offx, sourcePos[1]-offy, w, h, offx, offy, w-offx,h-offy];
+            		var ydiff = Math.abs(targetPos[1] - sourcePos[1]);
+            		var stubLength = Math.max(ydiff/2, 30);
+            		if (offy + stubLength <= h - offy -stubLength) {            			
+            			retVal.push(2);
+            			retVal.push(offx);
+            			retVal.push(offy + stubLength);
+            			retVal.push(w-offx);
+            			retVal.push(h - offy -stubLength);
+            		}
+            		else {
+            			retVal.push(4);
+            			
+            			retVal.push(offx);
+            			retVal.push(offy + stubLength);
+            			
+            			retVal.push(w/2);
+            			retVal.push(offy + stubLength);
+            			
+            			retVal.push(w/2);
+            			retVal.push(h - offy -stubLength);
+            			
+            			retVal.push(w-offx);
+            			retVal.push(h - offy -stubLength);
+            		}
+            	}
+            	else if (so[1] == -1 && to[1] == 1) {
+            		retVal = [sourcePos[0]-offx, sourcePos[1]-offy, w, h, offx, offy, w-offx,h-offy];
+            		var ydiff = Math.abs(targetPos[1] - sourcePos[1]);
+            		var stubLength = Math.max(ydiff/2, 30);
+            		if (offy + stubLength < h - offy -stubLength) {            			                	
+            			retVal.push(2);
+            			retVal.push(offx);
+            			retVal.push(offy + stubLength);
+            			retVal.push(w-offx);
+            			retVal.push(h - offy -stubLength);
+            		}
+            		else { alert("no"); retVal.push(0); }
+            	}
             }
             
             return retVal;	
