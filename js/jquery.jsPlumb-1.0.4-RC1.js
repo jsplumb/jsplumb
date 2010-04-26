@@ -234,7 +234,6 @@ if (!Array.prototype.indexOf) {
             this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) {
     			var w = Math.abs(sourcePos[0] - targetPos[0]);
                 var h = Math.abs(sourcePos[1] - targetPos[1]);
-                var widthAdjusted = false, heightAdjusted = false;
                 // these are padding to ensure the whole connector line appears
                 var xo = 0.45 * w, yo = 0.45 * h;
                 // these are padding to ensure the whole connector line appears
@@ -248,18 +247,16 @@ if (!Array.prototype.indexOf) {
             		w = 2 * lineWidth; 
             		// if we set this then we also have to place the canvas
             		x = sourcePos[0]  + ((targetPos[0] - sourcePos[0]) / 2) - lineWidth;
-            		xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;//lineWidth/2;//lineWidth / 2;
+            		xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;;
             	}
                 if (h < 2 * lineWidth) { 
             		// minimum size is 2 * line Width
             		h = 2 * lineWidth; 
             		// if we set this then we also have to place the canvas
             		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - lineWidth;
-            		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;//lineWidth/2;//lineWidth / 2;
+            		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;;
             	}
-                
-                // here we check to see if the delta was very small and so the line in
-                // one direction can be considered straight.                
+                               
                 var sx = sourcePos[0] < targetPos[0] ? w-xo : xo;
                 var sy = sourcePos[1] < targetPos[1] ? h-yo : yo;
                 var tx = sourcePos[0] < targetPos[0] ? xo : w-xo;
