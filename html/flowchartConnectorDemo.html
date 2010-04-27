@@ -14,20 +14,17 @@
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
 				jsPlumb.DEFAULT_PAINT_STYLE = { strokeStyle:'#678', lineWidth:20 };
 				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:15, height:11 };
-			//	jsPlumb.DEFAULT_ENDPOINT = jsPlumb.Endpoints.Blank;
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Flowchart({minStubLength:30});
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.BottomCenter];
 				 
 				$("#window1").plumb({target:'window3', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]}); 
-			//	$("#window2").plumb({target:'window3', anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter]});
 				$("#window8").plumb({target:'window9', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});
 				$("#window5").plumb({target:'window4', anchors:[jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter]});
+				$("#window5").plumb({target:'window8', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});
+				$("#window7").plumb({target:'window4', anchors:[jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter]});
 				$("#window3").plumb({target:'window2', anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle]});
-				$("#window6").plumb({target:'window5', anchors:[jsPlumb.Anchors.LeftMiddle, jsPlumb.Anchors.BottomCenter]});
-				/*$("#window1").plumb({target:'window3'});
-				$("#window2").plumb({target:'window4'});
-				$("#window2").plumb({target:'window5'});
-				$("#window3").plumb({target:'window5'});*/
+				$("#window3").plumb({target:'window6', anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle]});
+				$("#window6").plumb({target:'window7', anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle]});
 			});
 		</script>
 		<link rel="stylesheet" href="/mp.css"></link>
@@ -39,11 +36,10 @@
 #window3 { background-color:#882255; left:30em;top:12em;}
 #window4 { background-color:#122704; left:4em;top:17em;}
 #window5 {background-color:#041227;left:24em;top:21em;}
-#window6 {background-color:#333300;left:47em;top:26em;}
-#window7 {top:34em;left:35em;background-color:#872431;}
-#window8 {left:18em;top:34em;background-color:#045803;}
+#window6 {background-color:#333300;left:54em;top:25em;}
+#window7 {top:34em;left:39em;background-color:#872431;}
+#window8 {left:18em;top:36em;background-color:#045803;}
 #window9 {left:0em;top:36em;background-color:#045803;}			
-/*._jsPlumb_connector {border: 1px solid black;}*/
 
 		</style>
 	</head>
@@ -61,9 +57,12 @@
 		<div class="window" id="window9">window nine</div>
 
 		<div id="explanation">
-	    	On this page we set our connectors to black, make the windows opaque, use a straight line connector, and specify a rectangular endpoint of size 15 by 11.<br/><br/>  Every connection is anchored at BottomCenter.
-	    	<p>This demonstration uses version 1.0.3 of jsPlumb.</p>
-	    	<a href="gradientTest.html" class="mplink">Next: Gradients demonstration</a>
+	    	This page provides a demonstration of how to plug a new Connector type in to jsPlumb - in this example the code is included in the file
+	    	'jquery.jsPlumb-flowchart-RC1.js', which provides a connector style reminiscent of flowcharts.  The flowchart connectors are not yet finished;
+	    	it currently does not support every different combination of endpoint locations, but I thought it'd be good to put the demo up for people
+	    	to play with. 
+	    	<p>This demonstration uses version 1.0.4-RC1 of jsPlumb and RC1 of the flowchart connectors.</p>
+	    	<a href="demo.html" class="mplink">Home</a>
 	    	<br/><br/>
 	    	You also might like to check out <a  class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
 	    </div>	   
