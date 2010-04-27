@@ -7,6 +7,10 @@ a flowchart connector for jsPlumb.
 (function() {
 		
 	
+	var perpendicular = function(o1, o2) {
+		
+	};
+	
 	var inPhase = function (o1, o2) {
 	    var r = [o1[0] + o2[0], o1[1] + o2[1]];
 	    return r[0] == 0 && r[1] == 0;
@@ -42,90 +46,98 @@ a flowchart connector for jsPlumb.
             var w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx;
             var h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
             var sx = swapX ? w-offx  : offx, sy = swapY ? h-offy  : offy, tx = swapX ? offx : w-offx , ty = swapY ? offy : h-offy;
-                        
-            var stubLength = h / 2, stubWidth = w / 2;
-            if (so[0] == 0 && so[1] == 1 && to[0] == 0 && to[1] == -1) {
-            	sy = 0; ty = h;
-            	if (sourcePos[1] < targetPos[1]) {
-            		// a three line connection
-	            	points.push(sx);points.push(sy + stubLength);
-	            	points.push(tx);points.push(ty - stubLength);
-            	}
-            	else {
-            		// a five line connection
-            		h = minStubLength * 2 + (sourcePos[1] - targetPos[1]) + 2*offy;
-            		y = targetPos[1] - minStubLength;
-            		sy = sourcePos[1] - y - offy;
-            		ty = minStubLength + 2*offy;
-            		points.push(sx);points.push(sy + minStubLength);
-            		points.push(w/2);points.push(sy + minStubLength);
-            		points.push(w/2);points.push(offy);
-            		points.push(tx);points.push(offy);
-            	}
-            }
-            else if (so[0] == 0 && so[1] == -1 && to[0] == 0 && to[1] == 1) {
-            	sy = h; ty = 0; y = targetPos[1]; 
-            	if (sourcePos[1] > targetPos[1]) {
-            		// a three line connection
-	            	points.push(sx);points.push(sy - stubLength);
-	            	points.push(tx);points.push(ty + stubLength);
-            	}
-            	else {
-            		// a five line connection
-            		h = minStubLength * 2 + (targetPos[1] - sourcePos[1]) + offy;
-            		y = sourcePos[1] - minStubLength - offy;
-            		sy = minStubLength + offy;
-            		ty = h - minStubLength -  2*offy;
-            		points.push(sx);points.push(sy - minStubLength + offy);
-            		points.push(w/2);points.push(sy - minStubLength + offy);
-            		points.push(w/2);points.push(h - offy);
-            		points.push(tx);points.push(h - offy);
-            	}
-            }
             
-            // X
-            else if (so[0] == 1 && so[1] == 0 && to[0] == -1 && to[1] == 0) {
-            	sx = 0; tx = w;
-            	if (sourcePos[0] < targetPos[0]) {
-            		// a three line connection
-	            	points.push(sx+stubWidth);points.push(sy);
-	            	points.push(tx-stubWidth);points.push(ty);
+            if (!notSuitableOrientations(so, to)) {                     
+            	
+            	if (perpendicular(so,to)) {
+            		
             	}
             	else {
-            		// a five line connection
-            		w = minStubLength * 2 + (sourcePos[0] - targetPos[0]) + 2*offx;
-            		x = targetPos[0] - minStubLength - offx;
-            		sx = sourcePos[0] - x;
-            		tx = minStubLength + offx;
-            		points.push(sx + minStubLength);points.push(sy);
-            		points.push(sx + minStubLength);points.push(h/2);
-            		points.push(offx);points.push(h/2);
-            		points.push(offx);points.push(ty);
-            	}
-            }
-            else if (so[0] == -1 && so[1] == 0 && to[0] == 1 && to[1] == 0) {
-            	sx = w; tx = 0; x = targetPos[0]; 
-            	if (sourcePos[0] > targetPos[0]) {
-            		// a three line connection
-	            	points.push(sx-stubWidth);points.push(sy);
-	            	points.push(tx+stubWidth);points.push(ty);
-            	}
-            	else {
-            		// a five line connection
-            		w = minStubLength * 2 + (targetPos[0] - sourcePos[0]) + 2*offx;
-            		x = sourcePos[0] - minStubLength - offx;
-            		sx = minStubLength + offx;
-            		tx = w - minStubLength  -  2*offx;
-            		points.push(sx - minStubLength);points.push(sy);
-            		points.push(sx - minStubLength);points.push(h/2);
-            		points.push(w-offx);points.push(h/2);
-            		points.push(w-offx);points.push(ty);
+		            var stubLength = h / 2, stubWidth = w / 2;
+		            if (so[0] == 0 && so[1] == 1 && to[0] == 0 && to[1] == -1) {
+		            	sy = 0; ty = h;
+		            	if (sourcePos[1] < targetPos[1]) {
+		            		// a three line connection
+			            	points.push(sx);points.push(sy + stubLength);
+			            	points.push(tx);points.push(ty - stubLength);
+		            	}
+		            	else {
+		            		// a five line connection
+		            		h = minStubLength * 2 + (sourcePos[1] - targetPos[1]) + 2*offy;
+		            		y = targetPos[1] - minStubLength;
+		            		sy = sourcePos[1] - y - offy;
+		            		ty = minStubLength + 2*offy;
+		            		points.push(sx);points.push(sy + minStubLength);
+		            		points.push(w/2);points.push(sy + minStubLength);
+		            		points.push(w/2);points.push(offy);
+		            		points.push(tx);points.push(offy);
+		            	}
+		            }
+		            else if (so[0] == 0 && so[1] == -1 && to[0] == 0 && to[1] == 1) {
+		            	sy = h; ty = 0; y = targetPos[1]; 
+		            	if (sourcePos[1] > targetPos[1]) {
+		            		// a three line connection
+			            	points.push(sx);points.push(sy - stubLength);
+			            	points.push(tx);points.push(ty + stubLength);
+		            	}
+		            	else {
+		            		// a five line connection
+		            		h = minStubLength * 2 + (targetPos[1] - sourcePos[1]) + offy;
+		            		y = sourcePos[1] - minStubLength - offy;
+		            		sy = minStubLength + offy;
+		            		ty = h - minStubLength -  2*offy;
+		            		points.push(sx);points.push(sy - minStubLength + offy);
+		            		points.push(w/2);points.push(sy - minStubLength + offy);
+		            		points.push(w/2);points.push(h - offy);
+		            		points.push(tx);points.push(h - offy);
+		            	}
+		            }
+		            
+		            // X
+		            else if (so[0] == 1 && so[1] == 0 && to[0] == -1 && to[1] == 0) {
+		            	sx = 0; tx = w;
+		            	if (sourcePos[0] < targetPos[0]) {
+		            		// a three line connection
+			            	points.push(sx+stubWidth);points.push(sy);
+			            	points.push(tx-stubWidth);points.push(ty);
+		            	}
+		            	else {
+		            		// a five line connection
+		            		w = minStubLength * 2 + (sourcePos[0] - targetPos[0]) + 2*offx;
+		            		x = targetPos[0] - minStubLength - offx;
+		            		sx = sourcePos[0] - x;
+		            		tx = minStubLength + offx;
+		            		points.push(sx + minStubLength);points.push(sy);
+		            		points.push(sx + minStubLength);points.push(h/2);
+		            		points.push(offx);points.push(h/2);
+		            		points.push(offx);points.push(ty);
+		            	}
+		            }
+		            else if (so[0] == -1 && so[1] == 0 && to[0] == 1 && to[1] == 0) {
+		            	sx = w; tx = 0; x = targetPos[0]; 
+		            	if (sourcePos[0] > targetPos[0]) {
+		            		// a three line connection
+			            	points.push(sx-stubWidth);points.push(sy);
+			            	points.push(tx+stubWidth);points.push(ty);
+		            	}
+		            	else {
+		            		// a five line connection
+		            		w = minStubLength * 2 + (targetPos[0] - sourcePos[0]) + 2*offx;
+		            		x = sourcePos[0] - minStubLength - offx;
+		            		sx = minStubLength + offx;
+		            		tx = w - minStubLength  -  2*offx;
+		            		points.push(sx - minStubLength);points.push(sy);
+		            		points.push(sx - minStubLength);points.push(h/2);
+		            		points.push(w-offx);points.push(h/2);
+		            		points.push(w-offx);points.push(ty);
+		            	}
+		            }
             	}
             }
             
             
             // first define the basic points - location, width, height, and start/end points.            
-            var retVal = [x, y, w, h,sx,sy,tx,ty];
+            var retVal = [x, y, w, h, sx, sy, tx, ty];
             // then store how many intermediate points we calculated
             retVal.push(points.length / 2);
             // add the intermediate points at the end.
