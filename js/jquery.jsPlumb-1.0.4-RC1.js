@@ -811,13 +811,14 @@ var jsPlumbConnection = function(params) {
 	    this.sourceEndpointCanvas = newCanvas(jsPlumb.endpointClass);	    
 	    this.targetEndpointCanvas = newCanvas(jsPlumb.endpointClass);
 	    // sit them on top of the underlying element?
-	    if (this.endpointsOnTop) {
-		    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") + 1);
-		    $(this.targetEndpointCanvas).css("zIndex", this.target.css("zIndex") + 1);
-	    } else {
-		    $(this.sourceEndpointCanvas).css("zIndex", this.source.css("zIndex") - 1);
-		    $(this.targetEndpointCanvas).css("zIndex", this.target.css("zIndex") - 1);
-	    }
+	    var setZIndex = function(canvas, source, above) {
+    	   var adj = above ? 1 : -1;
+    	   var zIndex = $(source).css("zIndex");
+    	   $(canvas).css("zIndex", zIndex != "auto" ? zIndex + adj : "auto");
+    	};
+
+    	setZIndex(this.sourceEndpointCanvas, this.source, this.endpointsOnTop);
+    	setZIndex(this.targetEndpointCanvas, this.target, this.endpointsOnTop);
     }
 // ************** store the anchors     
   
