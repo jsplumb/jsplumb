@@ -2,6 +2,8 @@
 
 a flowchart connector for jsPlumb.
 
+this is NOT FINISHED.  it doesnt support all combinations of anchor orientations, and the code that is here can definitely be refactored.
+
 */
 
 (function() {
