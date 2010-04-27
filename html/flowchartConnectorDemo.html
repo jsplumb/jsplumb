@@ -12,10 +12,10 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
-				jsPlumb.DEFAULT_PAINT_STYLE = { strokeStyle:'black' };
+				jsPlumb.DEFAULT_PAINT_STYLE = { strokeStyle:'#678', lineWidth:20 };
 				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:15, height:11 };
-				jsPlumb.DEFAULT_ENDPOINT = jsPlumb.Endpoints.Blank;
-				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Flowchart({minStubLength:20});
+			//	jsPlumb.DEFAULT_ENDPOINT = jsPlumb.Endpoints.Blank;
+				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Flowchart({minStubLength:30});
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.BottomCenter];
 				 
 				$("#window1").plumb({target:'window3', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]}); 
@@ -23,7 +23,7 @@
 				$("#window8").plumb({target:'window9', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});
 				$("#window5").plumb({target:'window4', anchors:[jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter]});
 				$("#window3").plumb({target:'window2', anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle]});
-			//	$("#window6").plumb({target:'window5', anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center]});
+				$("#window6").plumb({target:'window5', anchors:[jsPlumb.Anchors.LeftMiddle, jsPlumb.Anchors.BottomCenter]});
 				/*$("#window1").plumb({target:'window3'});
 				$("#window2").plumb({target:'window4'});
 				$("#window2").plumb({target:'window5'});
@@ -43,7 +43,7 @@
 #window7 {top:34em;left:35em;background-color:#872431;}
 #window8 {left:18em;top:34em;background-color:#045803;}
 #window9 {left:0em;top:36em;background-color:#045803;}			
-/*._jsPlumb_connector {border: 1px solid blue;}*/
+/*._jsPlumb_connector {border: 1px solid black;}*/
 
 		</style>
 	</head>
