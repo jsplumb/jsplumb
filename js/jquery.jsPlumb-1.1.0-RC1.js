@@ -281,7 +281,7 @@ if (!Array.prototype.indexOf) {
 			// here we take into account the orientation of the other anchor: if it declares zero for some direction, we declare zero too.
 			// this might not be the most awesome.  perhaps we can come up with a better way.  it's just so that the line we draw looks
 			// like it makes sense.  maybe this wont make sense.
-			return [Math.abs(o[0]) * xDir, Math.abs(o[1]) * yDir]; 
+			return [Math.abs(o[0]) * xDir * -1, Math.abs(o[1]) * yDir * -1]; 
 		};
 	};
 	
@@ -319,21 +319,27 @@ if (!Array.prototype.indexOf) {
 			var d = null;
 			var f = function() { return d; };
 			
-			var startDrag = function() {
+			var start = function() {
 				// create and paint the helper canvas
-				var n = self.canvas.cloneNode(true);
+		/*		var n = self.canvas.cloneNode(true);				
 				self.paint(null, null, n);
-				var loc = $(self.canvas).offset();
+				*/
+		/*		var loc = $(self.canvas).offset();
 				var d = document.createElement("div");
 				document.body.appendChild(d);
 				
 				d.className = "_jsPlumb_newEndpoint";	
 				$(d).offset({top:loc.top, left:loc.left});
 				var id = "jp_fe_" + (new Date().getTime());
-				$(d).attr("id", id);
+				$(d).attr("id", id);*/
 				
-				$(d).append(n);
+				/*$(d).append(n);
+				$(n).offset({top:0, left:0});*/
+			//	_updateOffset(id);
+				
+				var id = new String(new Date().getTime());
 				_updateOffset(id);
+				$(self.canvas).attr("id", id);
 				
 				
 				var floatingAnchor = new FloatingAnchor({reference:_anchor});
@@ -345,7 +351,10 @@ if (!Array.prototype.indexOf) {
 					targetEndpoint:floatingEndpoint,
 					source:id,
 					target:_elementId,
-					anchors:[floatingAnchor, _anchor]
+					anchors:[floatingAnchor, _anchor],
+					// todo parameterize.  it should be defined on the endpoint - what is the style of 
+					// connector this endpoint is the source of?
+					connector: new jsPlumb.Connectors.Bezier()
 				});
 				
 				floatingEndpoint.addConnection(jpc);
@@ -359,16 +368,16 @@ if (!Array.prototype.indexOf) {
 			$(self.canvas).draggable( { 
 				opacity:0.5, 
 				revert:true, 
-				helper:f, 
-				start : function() { startDrag(); },
+				//helper:f, 
+				//start : start,
 				drag: function(e, ui) {
-					_draw(d);
+					//_draw(d);
 				},
 				stop : function(e, ui) { 
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					//alert("cleaning up!");
 					_cleanupConnection(jpc);
-					removeElement(d);removeElement(n);
+					//removeElement(d);removeElement(n);
 				}
 			});
 		}
