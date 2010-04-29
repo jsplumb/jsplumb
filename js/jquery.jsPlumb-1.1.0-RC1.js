@@ -41,22 +41,12 @@ if (!Array.prototype.indexOf) {
 	 */
 	var endpointsByElement = {};
 	var offsets = [];
-	var draggableStates = [];
+	var draggableStates = {};
+	var _draggableByDefault = true;
 	var sizes = [];
 	
 	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)	
 	
-	/**
-     * applies all the styles to the given context.  this just wraps the $.extend function. 
-     * 
-     * @param context
-     * @param styles
-     */
-    var applyPaintStyle = function(context, styles) {
-        $.extend(context, styles);
-        return context;
-    };
-    
     /**
      * Handles the dragging of an element.  
      * @param element jQuery element
@@ -150,6 +140,33 @@ if (!Array.prototype.indexOf) {
 		l.push(value);
 	};
 	
+    /**
+     * Sets whether or not the given element(s) should be draggable, regardless of what a particular
+     * plumb command may request.
+     * 
+     * @param element May be a string, an jQuery object, or a list of strings.
+     * @param draggable Whether or not the given element(s) should be draggable.
+     */
+	var _setDraggable = function(element, draggable) {    
+    	var _helper = function(el, id) {
+    		draggableStates[id] = draggable;
+        	if (el.draggable) {
+        		el.draggable("option", "disabled", !draggable);
+        	}
+    	};
+    	
+    	if (typeof element == 'object' && element.length) {
+    		for (var i = 0; i < element.length; i++) {
+    			_helper($(element[i]), element[i]);
+    		}
+    	}
+    	else {
+	    	var el = typeof element == 'string' ? $("#" + element) : element;
+	    	var id = el.attr("id");
+	    	_helper(el, id);
+    	}
+    };
+	
 	/**
 	 * private method to do the business of hiding/showing.
 	 * @param elId Id of the element in question
@@ -206,10 +223,42 @@ if (!Array.prototype.indexOf) {
 	 */	
 	var Anchor = function(params) {
 		var self = this;
-		this.x = params.x || 0; this.y = params.y || 0; this.orientation = params.orientation || [0,0]; this.offsets = params.offsets || [0,0];
+		this.x = params.x || 0; this.y = params.y || 0; 
+		//this.orientation = params.orientation || [0,0]; 
+		var orientation = params.orientation || [0,0];
+		this.offsets = params.offsets || [0,0];
 		this.compute = function(xy, wh, txy, twh) {
 			return [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
 		}
+		this.getOrientation = function() { return orientation; };
+	};
+	
+	/**
+	 * an anchor that floats.  its orientation is computed dynamically from its position relative
+	 * to the anchor it is floating relative to.
+	 */
+	var FloatingAnchor = function(params) {
+		
+		// this is the anchor that this floating anchor is referenced to for purposes of calculating the orientation.
+		var ref = params.reference;
+		// these are used to store the current relative position of our anchor wrt the reference anchor.  they only indicate
+		// direction, so have a value of 1 or -1 (or, very rarely, 0).  these values are written by the compute method, and read
+		// by the getOrientation method.
+		var xDir = 0, yDir = 0; 
+		
+		this.compute = function(xy, wh, txy, twh) {
+			xDir = xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
+			yDir = xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
+			return [xy[0], xy[1]];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
+		};
+		
+		this.getOrientation = function() { 
+			var o = ref.getOrientation();
+			// here we take into account the orientation of the other anchor: if it declares zero for some direction, we declare zero too.
+			// this might not be the most awesome.  perhaps we can come up with a better way.  it's just so that the line we draw looks
+			// like it makes sense.  maybe this wont make sense.
+			return [Math.abs(o[0]) * xDir, Math.abs(o[1]) * yDir]; 
+		};
 	};
 	
 	/**
@@ -237,7 +286,7 @@ if (!Array.prototype.indexOf) {
 				var wh = sizes[_elementId];
 				anchorPoint = _anchor.compute([xy.left, xy.top], wh);
 			}
-			_endpoint.paint(anchorPoint, _anchor.orientation, canvas || self.canvas, _style, connectorPaintStyle || _style);
+			_endpoint.paint(anchorPoint, _anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
 		};
 		// is this a connection source? we make it draggable and have the drag listener 
 		// maintain a connection with a floating endpoint.
@@ -249,21 +298,24 @@ if (!Array.prototype.indexOf) {
 			// function to return the helper canvas when dragging
 	//		var f = function() { return n };
 			var d = document.createElement("div");
-			d.className = "_jsPlumb_newEndpoint";
+			d.className = "_jsPlumb_newEndpoint";			
 			var id = "jp_fe_" + (new Date().getTime());
 			$(d).attr("id", id);
 			document.body.appendChild(d);
+			$(d).append(n);
 			_updateOffset(id);
-			var f = function() { return d; };
+			var f = function() { return n; };
 			
-			var floatingEndpoint = new Endpoint({style:_style, endpoint:_endpoint, anchor:jsPlumb.Anchors.Origin, source:d })
+			var floatingAnchor = new FloatingAnchor({reference:_anchor});
+			var floatingEndpoint = new Endpoint({style:_style, endpoint:_endpoint, anchor:floatingAnchor, source:d })
 			
 			// create a connection. one end is this endpoint, the other is a floating endpoint.
 			var jpc = new jsPlumbConnection({
 				sourceEndpoint:self, 
 				targetEndpoint:floatingEndpoint,
 				source:id,
-				target:_elementId
+				target:_elementId,
+				anchors:[floatingAnchor, _anchor]
 			});
 			
 			floatingEndpoint.addConnection(jpc);
@@ -320,7 +372,6 @@ if (!Array.prototype.indexOf) {
     */
     Anchors :
 	{   
-    	Origin : new Anchor({x:0, y:0, orientation:[0,0]}),
     	TopCenter : new Anchor({x:0.5, y:0, orientation:[0,-1] }),
     	BottomCenter : new Anchor({x:0.5, y:1, orientation:[0, 1] }),
     	LeftMiddle: new Anchor({x:0, y:0.5, orientation:[-1,0] }),
@@ -429,13 +480,13 @@ if (!Array.prototype.indexOf) {
             this._findControlPoint = function(point, anchor1Position, anchor2Position, anchor1, anchor2) {
                 var p = [];            
                 var ma = self.majorAnchor, mi = self.minorAnchor;
-                if (anchor1.orientation[0] == 0) // X
+                if (anchor1.getOrientation()[0] == 0) // X
                     p.push(anchor1Position[0] < anchor2Position[0] ? point[0] + mi : point[0] - mi);
-                else p.push(point[0] - (ma * anchor1.orientation[0]));
+                else p.push(point[0] - (ma * anchor1.getOrientation()[0]));
 
-                if (anchor1.orientation[1] == 0) // Y
+                if (anchor1.getOrientation()[1] == 0) // Y
                 	p.push(anchor1Position[1] < anchor2Position[1] ? point[1] + mi : point[1] - mi);
-                else p.push(point[1] + (ma * anchor2.orientation[1]));
+                else p.push(point[1] + (ma * anchor2.getOrientation()[1]));
 
                 return p;
             };
@@ -483,12 +534,19 @@ if (!Array.prototype.indexOf) {
     
     
     /**
-     * Types of endpoint UIs.  we supply three - a circle of default radius 10px, a rectangle of
+     * Types of endpoint UIs.  we supply four - a blank one, a circle of default radius 10px, a rectangle of
      * default size 20x20, and an image (with no default).  you can supply others of these if you want to - see the documentation
      * for a howto.
      */
     Endpoints : {
-
+    	
+    	/**
+    	 * Blank endpoint. You do not need to construct one of these; just use 'jsPlumb.Endpoints.Blank'.
+    	 */
+    	Blank : {
+    		paint : function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) { }    			
+    	},	
+    	
     	/**
     	 * a round endpoint, with default radius 10 pixels.
     	 */
@@ -524,9 +582,9 @@ if (!Array.prototype.indexOf) {
     			var y = anchorPoint[1] - radius;
     			jsPlumb.sizeCanvas(canvas, x, y, radius * 2, radius * 2);
     			var ctx = canvas.getContext('2d');
-    			var style = applyPaintStyle({}, endpointStyle);
+    			var style = $.extend({}, endpointStyle);
     			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
-    			applyPaintStyle(ctx, style);
+    			$.extend(ctx, style);
     			
     			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
                 if (endpointStyle.gradient && !ie) {
@@ -569,9 +627,9 @@ if (!Array.prototype.indexOf) {
     			// 2. a fill color supplied - use it
     			// 3. a gradient supplied - use it
     			// 4. setting the endpoint to the same color as the bg of the element it is attached to.
-    			var style = applyPaintStyle({}, endpointStyle);
+    			var style = $.extend({}, endpointStyle);
     			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
-    			applyPaintStyle(ctx, style);
+    			$.extend(ctx, style);
     			
     			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
                 if (endpointStyle.gradient && !ie) {
@@ -807,8 +865,19 @@ if (!Array.prototype.indexOf) {
     	DEFAULT_NEW_CANVAS_SIZE = size;    	
     },
     
-    setDraggable : function(elId, value) {
-    	draggableStates[elId] = value;    	
+    /**
+     * Sets whether or not a given element is draggable, regardless of what any plumb command
+     * may request. 
+     */
+    setDraggable: function(element, draggable) {
+    	_setDraggable(element, draggable);
+    },
+    
+    /**
+     * Sets whether or not elements are draggable by default.  Default for this is true.
+     */
+    setDraggableByDefault: function(draggable) {
+    	_draggableByDefault = draggable;
     },
     
     /**
@@ -938,12 +1007,12 @@ var jsPlumbConnection = function(params) {
             
     		var ctx = canvas.getContext('2d');
             var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
-            var sAnchorO = this.anchors[sIdx].orientation;
+            var sAnchorO = this.anchors[sIdx].getOrientation();
             var tAnchorP = this.anchors[tIdx].compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
-            var tAnchorO = this.anchors[tIdx].orientation;
+            var tAnchorO = this.anchors[tIdx].getOrientation();
             var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
             jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
-            applyPaintStyle(ctx, this.paintStyle);
+            $.extend(ctx, this.paintStyle);
                         
             if (this.paintStyle.gradient && !ie) { 
 	            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
@@ -964,32 +1033,23 @@ var jsPlumbConnection = function(params) {
     };
 
     // dragging
-    var draggable = params.draggable == null ? true : params.draggable;
+    var draggable = params.draggable == null ? _draggableByDefault : params.draggable;
     if (draggable && self.source.draggable) {    	
     	var dragOptions = params.dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
     	var dragCascade = dragOptions.drag || function(e,u) {};
-    	var initDrag = function(element, id, dragFunc) {
-    		//if (draggableStates[id] == null | draggableStates[id]) {
-    		// todo use $.extend here
-    		var opts = {};
-        	for (var i in dragOptions) {
-                opts[i] = dragOptions[i];
-            }
-        	opts.drag = dragFunc;
+    	var initDrag = function(element, elementId, dragFunc) {
+    		var opts = $.extend({drag:dragFunc}, dragOptions);
+    		var draggable = draggableStates[elementId];
+    		opts.disabled = draggable == null ? false : !draggable;
         	element.draggable(opts);
-    		//}
     	};
     	initDrag(this.source, this.sourceId, function(event, ui) {
-    		//if (draggableStates[self.sourceId] == null | draggableStates[self.sourceId]) {
-	    		_draw(self.source, ui);
-	    		dragCascade(event, ui);
-    		//}
+    		 _draw(self.source, ui);
+	    	dragCascade(event, ui);
     	});
     	initDrag(this.target, this.targetId, function(event, ui) {
-    		//if (draggableStates[self.targetId] == null | draggableStates[self.targetId]) {
-	    		_draw(self.target, ui);
-	    		dragCascade(event, ui);
-    		//}
+    		_draw(self.target, ui);
+	    	dragCascade(event, ui);
     	});
     }
     
