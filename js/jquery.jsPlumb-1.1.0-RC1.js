@@ -140,6 +140,30 @@ if (!Array.prototype.indexOf) {
 		l.push(value);
 	};
 	
+	/**
+     * helper method to remove an item from a list.
+     */
+    var _removeFromList = function(map, key, value) {
+		var l = map[key];
+		if (l != null) {
+			for (var i = 0; i < l.length; i++) {
+				if (l[i] == value) {
+					delete(l[i]); break;
+				}
+			}
+		}		
+	};
+	
+	/**
+	 * cleans up a connection.
+	 * todo: should this remove the connection from the connection list too?
+	 */
+	var _cleanupConnection = function(jpc) {
+		removeElement(jpc.canvas);
+		removeElement(jpc.targetEndpointCanvas);
+		removeElement(jpc.sourceEndpointCanvas);		
+	};
+	
     /**
      * Sets whether or not the given element(s) should be draggable, regardless of what a particular
      * plumb command may request.
@@ -203,11 +227,11 @@ if (!Array.prototype.indexOf) {
     };               
     
     /**
-     * helper to remove a canvas from the DOM.
+     * helper to remove an element from the DOM.
      */
-    var removeCanvas = function(canvas) {
-    	if (canvas != null) { 
-    		try { document.body.removeChild(canvas); }
+    var removeElement = function(element) {
+    	if (element != null) { 
+    		try { document.body.removeChild(element); }
     		catch (e) { }
     	}    	
     }; 
@@ -292,43 +316,61 @@ if (!Array.prototype.indexOf) {
 		// maintain a connection with a floating endpoint.
 		if (params.isSource) {
 			
-			// create and paint the helper canvas
-			var n = self.canvas.cloneNode(true);
-			self.paint(null, null, n);
-			// function to return the helper canvas when dragging
-	//		var f = function() { return n };
-			var d = document.createElement("div");
-			d.className = "_jsPlumb_newEndpoint";			
-			var id = "jp_fe_" + (new Date().getTime());
-			$(d).attr("id", id);
-			document.body.appendChild(d);
-			$(d).append(n);
-			_updateOffset(id);
-			var f = function() { return n; };
+			var d = null;
+			var f = function() { return d; };
 			
-			var floatingAnchor = new FloatingAnchor({reference:_anchor});
-			var floatingEndpoint = new Endpoint({style:_style, endpoint:_endpoint, anchor:floatingAnchor, source:d })
-			
-			// create a connection. one end is this endpoint, the other is a floating endpoint.
-			var jpc = new jsPlumbConnection({
-				sourceEndpoint:self, 
-				targetEndpoint:floatingEndpoint,
-				source:id,
-				target:_elementId,
-				anchors:[floatingAnchor, _anchor]
-			});
-			
-			floatingEndpoint.addConnection(jpc);
-			
-			// only register for the target endpoint; we will not be dragging the source at any time
-			// before this connection is either discarded or made into a permanent connection.
-			_addToList(endpointsByElement, id, floatingEndpoint);
+			var startDrag = function() {
+				// create and paint the helper canvas
+				var n = self.canvas.cloneNode(true);
+				self.paint(null, null, n);
+				var loc = $(self.canvas).offset();
+				var d = document.createElement("div");
+				document.body.appendChild(d);
+				
+				d.className = "_jsPlumb_newEndpoint";	
+				$(d).offset({top:loc.top, left:loc.left});
+				var id = "jp_fe_" + (new Date().getTime());
+				$(d).attr("id", id);
+				
+				$(d).append(n);
+				_updateOffset(id);
+				
+				
+				var floatingAnchor = new FloatingAnchor({reference:_anchor});
+				var floatingEndpoint = new Endpoint({style:_style, endpoint:_endpoint, anchor:floatingAnchor, source:d })
+				
+				// create a connection. one end is this endpoint, the other is a floating endpoint.
+				var jpc = new jsPlumbConnection({
+					sourceEndpoint:self, 
+					targetEndpoint:floatingEndpoint,
+					source:id,
+					target:_elementId,
+					anchors:[floatingAnchor, _anchor]
+				});
+				
+				floatingEndpoint.addConnection(jpc);
+				
+				// only register for the target endpoint; we will not be dragging the source at any time
+				// before this connection is either discarded or made into a permanent connection.
+				_addToList(endpointsByElement, id, floatingEndpoint);
+			};
 			
 			// todo make parameterisable things like opacity/revert
-			$(self.canvas).draggable({ opacity:0.5, revert:true, helper:f, drag: function(e, ui) {
-				_draw(d);
-				
-			}});
+			$(self.canvas).draggable( { 
+				opacity:0.5, 
+				revert:true, 
+				helper:f, 
+				start : function() { startDrag(); },
+				drag: function(e, ui) {
+					_draw(d);
+				},
+				stop : function(e, ui) { 
+					_removeFromList(endpointsByElement, id, floatingEndpoint);
+					//alert("cleaning up!");
+					_cleanupConnection(jpc);
+					removeElement(d);removeElement(n);
+				}
+			});
 		}
 	};
 	
@@ -729,9 +771,9 @@ if (!Array.prototype.indexOf) {
     detach : function(sourceId, targetId) {
     	var f = function(jpc) {
     		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-    			removeCanvas(jpc.canvas);
-				removeCanvas(jpc.targetEndpointCanvas);
-				removeCanvas(jpc.sourceEndpointCanvas);    			
+    			removeElement(jpc.canvas);
+				removeElement(jpc.targetEndpointCanvas);
+				removeElement(jpc.sourceEndpointCanvas);    			
     			return true;
     		}    		
     	};    	
@@ -747,9 +789,10 @@ if (!Array.prototype.indexOf) {
     detachAll : function(elId) {    	
     	
     	var f = function(jpc) {
-    		removeCanvas(jpc.canvas);
-			removeCanvas(jpc.targetEndpointCanvas);
-			removeCanvas(jpc.sourceEndpointCanvas);
+    		// todo replace with _cleanupConnection call here.
+    		removeElement(jpc.canvas);
+			removeElement(jpc.targetEndpointCanvas);
+			removeElement(jpc.sourceEndpointCanvas);
     	};
     	_operation(elId, f);
     	delete endpointsByElement[elId];    	
@@ -760,9 +803,9 @@ if (!Array.prototype.indexOf) {
      */
     detachEverything : function() {
     	var f = function(jpc) {
-    		removeCanvas(jpc.canvas);
-			removeCanvas(jpc.targetEndpointCanvas);
-			removeCanvas(jpc.sourceEndpointCanvas);
+    		removeElement(jpc.canvas);
+			removeElement(jpc.targetEndpointCanvas);
+			removeElement(jpc.sourceEndpointCanvas);
     	};
     	
     	_operationOnAll(f);

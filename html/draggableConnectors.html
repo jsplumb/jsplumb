@@ -18,7 +18,7 @@
 				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:15, height:11 };
 				jsPlumb.DEFAULT_ENDPOINT = new jsPlumb.Endpoints.Rectangle();
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Bezier();
-				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.BottomCenter];
+				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
 				 
 				$("#window1").plumb({target:'window2'}); 
 				$("#window1").plumb({target:'window3'});
@@ -57,7 +57,7 @@
 #window4 { top:4em; left:45em;background-color:#122704; left:4em;top:24em;}
 #window5 {top:27em;left:18em;background-color:#041227;left:22em;top:24em;}
 #window6 {top:35em;left:42em;background-color:#333300;left:47em;top:24em;}
-	
+	.window { z-index:40; }
 	._jsPlumb_newEndpoint { width:10px;height:10px;background-color:red; }
 	
 		</style>
