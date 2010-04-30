@@ -582,18 +582,33 @@ if (!Array.prototype.indexOf) {
         	this.majorAnchor = curviness || 150;
             this.minorAnchor = 10;
             
-            this._findControlPoint = function(point, anchor1Position, anchor2Position, anchor1, anchor2) {
+            this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceAnchor, targetAnchor) {
+            	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
+            	// points around if so (code could be tightened up)
+            	var soo = sourceAnchor.getOrientation(), too = targetAnchor.getOrientation();
+            	var perpendicular = soo[0] != too[0] || soo[1] == too[1]; 
                 var p = [];            
-                var ma = self.majorAnchor, mi = self.minorAnchor;
-                if (anchor1.getOrientation()[0] == 0) // X
-                    p.push(anchor1Position[0] < anchor2Position[0] ? point[0] + mi : point[0] - mi);
-                else p.push(point[0] - (ma * anchor1.getOrientation()[0]));
+                var ma = self.majorAnchor, mi = self.minorAnchor;                
+                if (!perpendicular) {
+	                  if (soo[0] == 0) // X
+	                    p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + mi : point[0] - mi);
+	                else p.push(point[0] - (ma * soo[0]));
+	                                 
+	                 if (soo[1] == 0) // Y
+	                	p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + mi : point[1] - mi);
+	                else p.push(point[1] + (ma * too[1]));
+                }
+                 else {
+	                if (too[0] == 0) // X
+	                	p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + mi : point[0] - mi);
+	                else p.push(point[0] + (ma * too[0]));
+	                
+	                if (too[1] == 0) // Y
+	                	p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + mi : point[1] - mi);
+	                else p.push(point[1] + (ma * soo[1]));
+                 }
 
-                if (anchor1.getOrientation()[1] == 0) // Y
-                	p.push(anchor1Position[1] < anchor2Position[1] ? point[1] + mi : point[1] - mi);
-                else p.push(point[1] + (ma * anchor2.getOrientation()[1]));
-
-                return p;
+                return p;                
             };
 
             this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth)
