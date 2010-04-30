@@ -318,6 +318,11 @@ if (!Array.prototype.indexOf) {
 			if (anchorPoint == null) {				
 				var xy = offsets[_elementId];
 				var wh = sizes[_elementId];
+				if (xy == null || wh == null) {
+					_updateOffset(_elementId);
+					var xy = offsets[_elementId];
+					var wh = sizes[_elementId];
+				}
 				anchorPoint = _anchor.compute([xy.left, xy.top], wh);
 			}
 			_endpoint.paint(anchorPoint, _anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
@@ -337,6 +342,7 @@ if (!Array.prototype.indexOf) {
 				$(n).attr("id", id);
 				_updateOffset(id);
 				$(self.canvas).attr("dragId", id);
+				$(self.canvas).attr("elId", _elementId);
 				
 				var floatingAnchor = new FloatingAnchor({reference:_anchor});
 				floatingEndpoint = new Endpoint({
@@ -402,17 +408,14 @@ if (!Array.prototype.indexOf) {
 	    	var dropCascade = dropOptions.drop || function(e,u) {};
 	    	dropOptions.drop = function(e, ui) {
     			//var id = _getId(e.draggable);
-	    		var id = $(ui.draggable).attr("dragId");//$(e.draggable).attr("dragId");
-	    		// pass the floating target id and us (an endpoint) into the replumb method.
-	    		//_replumbConnection(id, self);
-	    		alert(id);
+	    		var id = $(ui.draggable).attr("dragId");
 	    		var jpc = floatingConnections[id];
 	    		jpc.target = _element;
 	    		jpc.targetId = _elementId;
 	    		jpc.anchors[1] = _anchor;
 	    		jpc.endpoints[1] = self;
 	    		self.addConnection(jpc);
-	    		jsPlumb.repaint(_elementId);
+	    		jsPlumb.repaint($(ui.draggable).attr("elId"));
 	    		delete floatingConnections[id];
     			//alert(id);
 				dropCascade(e, ui);
