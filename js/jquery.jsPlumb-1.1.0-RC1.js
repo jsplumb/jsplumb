@@ -41,11 +41,21 @@ if (!Array.prototype.indexOf) {
 	 */
 	var endpointsByElement = {};
 	var offsets = [];
+	var floatingConnections = {};
 	var draggableStates = {};
 	var _draggableByDefault = true;
 	var sizes = [];
 	
 	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)	
+	
+	var _getId = function(element) {
+		var id = $(element).attr("id");
+		if (!id) {
+			id = "_jsPlumb_" + new String((new Date()).getTime());
+			$(element).attr("id", id);
+		}
+		return id;
+	};
 	
     /**
      * Handles the dragging of an element.  
@@ -154,14 +164,8 @@ if (!Array.prototype.indexOf) {
 		}		
 	};
 	
-	/**
-	 * cleans up a connection.
-	 * todo: should this remove the connection from the connection list too?
-	 */
-	var _cleanupConnection = function(jpc) {
-		removeElement(jpc.canvas);
-		removeElement(jpc.endpoints[0].canvas);
-		removeElement(jpc.endpoints[1].canvas);		
+	var _replumbConnection = function (id, self) {
+		
 	};
 	
     /**
@@ -332,8 +336,7 @@ if (!Array.prototype.indexOf) {
 				id = new String(new Date().getTime());				
 				$(n).attr("id", id);
 				_updateOffset(id);
-				
-				//$(self.canvas).attr("id", new String(new Date().getTime()));
+				$(self.canvas).attr("dragId", id);
 				
 				var floatingAnchor = new FloatingAnchor({reference:_anchor});
 				floatingEndpoint = new Endpoint({
@@ -355,7 +358,12 @@ if (!Array.prototype.indexOf) {
 					connector: new jsPlumb.Connectors.Bezier()
 				});
 				
+				floatingConnections[id] = jpc;
+				
+				// todo unregister on stop
 				floatingEndpoint.addConnection(jpc);
+				// todo ...unregister on stop
+				self.addConnection(jpc);
 				
 				// only register for the target endpoint; we will not be dragging the source at any time
 				// before this connection is either discarded or made into a permanent connection.
@@ -374,9 +382,12 @@ if (!Array.prototype.indexOf) {
 					_draw($(n), ui);
 					dragFunc(e, ui);
 				}, 				
-				stop : function(e, ui) { 
+				stop : function(e, ui) {
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
-					removeElements([jpc.canvas, jpc.endpoints[1].canvas, n]);
+					removeElements([floatingEndpoint.canvas, n]);
+					if (jpc.endpoints[1] == floatingEndpoint) {						
+						removeElement(jpc.canvas);						
+					}
 					stopFunc(e, ui);
 				}
 			}, dragOptions);
@@ -389,6 +400,23 @@ if (!Array.prototype.indexOf) {
 		if (params.isTarget) {
 			var dropOptions = params.dropOptions || jsPlumb.DEFAULT_DROP_OPTIONS; 
 	    	var dropCascade = dropOptions.drop || function(e,u) {};
+	    	dropOptions.drop = function(e, ui) {
+    			//var id = _getId(e.draggable);
+	    		var id = $(ui.draggable).attr("dragId");//$(e.draggable).attr("dragId");
+	    		// pass the floating target id and us (an endpoint) into the replumb method.
+	    		//_replumbConnection(id, self);
+	    		alert(id);
+	    		var jpc = floatingConnections[id];
+	    		jpc.target = _element;
+	    		jpc.targetId = _elementId;
+	    		jpc.anchors[1] = _anchor;
+	    		jpc.endpoints[1] = self;
+	    		self.addConnection(jpc);
+	    		jsPlumb.repaint(_elementId);
+	    		delete floatingConnections[id];
+    			//alert(id);
+				dropCascade(e, ui);
+			 };
 	    	// what to do when something is dropped.
 	    	// 1. find the jpc that is being dragged.  the target endpoint of the jpc will be the
 	    	// one that is being dragged.
@@ -400,10 +428,8 @@ if (!Array.prototype.indexOf) {
 	    	// other considerations: when in the hover mode, we should switch the floating endpoint's
 	    	// orientation to be the same as the drop target.  this will cause the connector to snap
 	    	// into the shape it will take if the user drops at that point.
-	    	var options = $.extend({drop: function(e, ui) {
-					dropCascade(e, ui);
-				 }}, dropOptions);
-			$(self.canvas).droppable(options);
+	    	//var options = $.extend({drop: }, dropOptions);
+			$(self.canvas).droppable(dropOptions);
 			
 		}
 	};
