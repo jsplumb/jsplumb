@@ -15,7 +15,7 @@
 			$(document).ready(function() {
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
 				jsPlumb.DEFAULT_PAINT_STYLE = { strokeStyle:'black' };
-				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:15, height:11 };
+				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:25, height:21 };
 				jsPlumb.DEFAULT_ENDPOINT = new jsPlumb.Endpoints.Rectangle();
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Bezier();
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
@@ -27,20 +27,29 @@
 				$("#window3").plumb({target:'window6'});
 
 				$("#window3").addEndpoints([{
-					endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
-					anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1),
-					isSource:true,
-					typeId:'someConnectorType'
-					},{
 						endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
-						anchor:jsPlumb.makeAnchor(0.75, 0)
+						anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1),
+						isSource:true,
+						dragOptions : { scope:'exampleEndpoint' }
+					},
+					{
+						endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
+						anchor:jsPlumb.makeAnchor(0.75, 0, 0, -1)
 					}
 				]);
 
 				$("#window1").addEndpoint({
-					endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}), 
-					anchor:jsPlumb.makeAnchor(1, 0.25),
-					typeId:'someConnectorType'
+					endpoint:new jsPlumb.Endpoints.Rectangle({width:50,height:20}), 
+					anchor:jsPlumb.makeAnchor(1, 0.25, 1, 0),
+					typeId:'someConnectorType',
+					isTarget:true, 
+					dropOptions : { 
+						drop : function(e, ui) { alert('dropped'); }, 
+						tolerance:'touch', 
+						hoverClass:'dropHover',
+						activeClass:'dragActive', 
+						scope:'exampleEndpoint' 
+					}
 				});
 
 				jsPlumb.setDraggable("window2", false);
@@ -59,7 +68,10 @@
 #window6 {top:35em;left:42em;background-color:#333300;left:47em;top:24em;}
 	.window { z-index:40; }
 	._jsPlumb_newEndpoint { width:10px;height:10px;background-color:red; }
+	._jsPlumb_endpoint { z-index:50; }
 	
+	.dropHover { border:1px solid red; } 
+	.dragActive { border:1px solid blue; }
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
@@ -73,7 +85,10 @@
 		<div class="window" id="window6">window six</div>
 
 		<div id="explanation">
-	    	On this page we set our connectors to black, make the windows opaque, use a straight line connector, and specify a rectangular endpoint of size 15 by 11.<br/><br/>  Every connection is anchored at BOTTOM_CENTER.
+	    	Nothing is plumbed to anything else on this page to start with.  You can drag connectors 
+	    	between matching endpoints.  The endpoint appearance is actually separate from the id used
+	    	to tell which connectors can be joined to the endpoint, but in this demo we use the
+	    	endpoint appearance as a visual cue.
 	    	<p>This demonstration uses version 1.0.1 of jsPlumb.</p>
 	    	<a href="gradientTest.html" class="mplink">Next: Gradients demonstration</a>
 	    	<br/><br/>
