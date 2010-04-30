@@ -164,10 +164,6 @@ if (!Array.prototype.indexOf) {
 		}		
 	};
 	
-	var _replumbConnection = function (id, self) {
-		
-	};
-	
     /**
      * Sets whether or not the given element(s) should be draggable, regardless of what a particular
      * plumb command may request.
@@ -246,7 +242,15 @@ if (!Array.prototype.indexOf) {
     		try { document.body.removeChild(element); }
     		catch (e) { }
     	}    	
-    }; 
+    };
+    
+    var _wrap = function(cascadeFunction, plumbFunction) {
+    	cascadeFunction = cascadeFunction || function(e, ui) { };
+    	return function(e, ui) {
+    		plumbFunction(e, ui);
+    		cascadeFunction(e, ui);
+    	};
+    }
 	
 	/**
 	 * generic anchor - can be situated anywhere.  params should contain three values, and may optionally have an 'offsets' argument:
@@ -406,6 +410,7 @@ if (!Array.prototype.indexOf) {
 		if (params.isTarget) {
 			var dropOptions = params.dropOptions || jsPlumb.DEFAULT_DROP_OPTIONS; 
 	    	var dropCascade = dropOptions.drop || function(e,u) {};
+	    	var originalAnchor = null;
 	    	dropOptions.drop = function(e, ui) {
     			//var id = _getId(e.draggable);
 	    		var id = $(ui.draggable).attr("dragId");
@@ -427,11 +432,27 @@ if (!Array.prototype.indexOf) {
 	    	//    everything gets registered ok etc.
 	    	// 3. arrange for the floating endpoint to be deleted.
 	    	// 4. make sure that the stop method of the drag does not cause the jpc to be cleaned up.  we want to keep it now.
-	    	//
-	    	// other considerations: when in the hover mode, we should switch the floating endpoint's
+	    	
+			// other considerations: when in the hover mode, we should switch the floating endpoint's
 	    	// orientation to be the same as the drop target.  this will cause the connector to snap
 	    	// into the shape it will take if the user drops at that point.
-	    	//var options = $.extend({drop: }, dropOptions);
+			 
+			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
+				var id = $(ui.draggable).attr("dragId");
+		    	var jpc = floatingConnections[id];
+		    	originalAnchor = jpc.anchors[1];
+		    	jpc.anchors[1] = _anchor;
+			 });
+			 
+			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
+				var id = $(ui.draggable).attr("dragId");
+		    	var jpc = floatingConnections[id];
+		    	if(originalAnchor)	
+		    		jpc.anchors[1] = originalAnchor;
+			 });
+
+			 
+			 
 			$(self.canvas).droppable(dropOptions);
 			
 		}
