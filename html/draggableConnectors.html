@@ -20,11 +20,11 @@
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Bezier();
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
 				 
-				$("#window1").plumb({target:'window2'}); 
+				/*$("#window1").plumb({target:'window2'}); 
 				$("#window1").plumb({target:'window3'});
 				$("#window2").plumb({target:'window4'});
 				$("#window2").plumb({target:'window5'});
-				$("#window3").plumb({target:'window6'});
+				$("#window3").plumb({target:'window6'});*/
 
 				$("#window3").addEndpoints([{
 						endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
@@ -44,7 +44,7 @@
 					typeId:'someConnectorType',
 					isTarget:true, 
 					dropOptions : { 
-						drop : function(e, ui) { alert('dropped'); }, 
+						//drop : function(e, ui) { alert('dropped'); }, 
 						tolerance:'touch', 
 						hoverClass:'dropHover',
 						//activeClass:'dragActive', 
