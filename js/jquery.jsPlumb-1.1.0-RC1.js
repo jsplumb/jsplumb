@@ -214,7 +214,7 @@ if (!Array.prototype.indexOf) {
      * helper to create a canvas.
      * @param clazz optional class name for the canvas.
      */
-    var newCanvas = function(clazz) {
+    var _newCanvas = function(clazz) {
         var canvas = document.createElement("canvas");
         document.body.appendChild(canvas);
         canvas.style.position="absolute";
@@ -233,15 +233,15 @@ if (!Array.prototype.indexOf) {
     /**
      * helper to remove a list of elements from the DOM.
      */
-    var removeElements = function(elements) {
+    var _removeElements = function(elements) {
     	for (var i in elements)
-    		removeElement(elements[i]);
+    		_removeElement(elements[i]);
     }
     
     /**
      * helper to remove an element from the DOM.
      */
-    var removeElement = function(element) {
+    var _removeElement = function(element) {
     	if (element != null) { 
     		try { document.body.removeChild(element); }
     		catch (e) { }
@@ -309,7 +309,7 @@ if (!Array.prototype.indexOf) {
 		var _style = params.style || jsPlumb.DEFAULT_ENDPOINT_STYLE;
 		var _element = params.source;
 		var _elementId = $(_element).attr("id");
-		this.canvas = params.canvas || newCanvas(jsPlumb.endpointClass);
+		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
 		this.addConnection = function(connection) {
 			self.connections.push(connection);
@@ -390,9 +390,9 @@ if (!Array.prototype.indexOf) {
 				}, 				
 				stop : function(e, ui) {
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
-					removeElements([floatingEndpoint.canvas, n]);
+					_removeElements([floatingEndpoint.canvas, n]);
 					if (jpc.endpoints[1] == floatingEndpoint) {						
-						removeElement(jpc.canvas);						
+						_removeElement(jpc.canvas);						
 					}
 					stopFunc(e, ui);
 				}
@@ -658,14 +658,7 @@ if (!Array.prototype.indexOf) {
      * default size 20x20, and an image (with no default).  you can supply others of these if you want to - see the documentation
      * for a howto.
      */
-    Endpoints : {
-    	
-    	/**
-    	 * Blank endpoint. You do not need to construct one of these; just use 'jsPlumb.Endpoints.Blank'.
-    	 */
-    	Blank : {
-    		paint : function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) { }    			
-    	},	
+    Endpoints : {    	
     	
     	/**
     	 * a round endpoint, with default radius 10 pixels.
@@ -849,9 +842,9 @@ if (!Array.prototype.indexOf) {
     detach : function(sourceId, targetId) {
     	var f = function(jpc) {
     		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-    			removeElement(jpc.canvas);
-				removeElement(jpc.targetEndpointCanvas);
-				removeElement(jpc.sourceEndpointCanvas);    			
+    			_removeElement(jpc.canvas);
+				_removeElement(jpc.targetEndpointCanvas);
+				_removeElement(jpc.sourceEndpointCanvas);    			
     			return true;
     		}    		
     	};    	
@@ -868,9 +861,9 @@ if (!Array.prototype.indexOf) {
     	
     	var f = function(jpc) {
     		// todo replace with _cleanupConnection call here.
-    		removeElement(jpc.canvas);
-			removeElement(jpc.targetEndpointCanvas);
-			removeElement(jpc.sourceEndpointCanvas);
+    		_removeElement(jpc.canvas);
+			_removeElement(jpc.targetEndpointCanvas);
+			_removeElement(jpc.sourceEndpointCanvas);
     	};
     	_operation(elId, f);
     	delete endpointsByElement[elId];    	
@@ -881,9 +874,9 @@ if (!Array.prototype.indexOf) {
      */
     detachEverything : function() {
     	var f = function(jpc) {
-    		removeElement(jpc.canvas);
-			removeElement(jpc.targetEndpointCanvas);
-			removeElement(jpc.sourceEndpointCanvas);
+    		_removeElement(jpc.canvas);
+			_removeElement(jpc.targetEndpointCanvas);
+			_removeElement(jpc.sourceEndpointCanvas);
     	};
     	
     	_operationOnAll(f);
@@ -1040,7 +1033,9 @@ if (!Array.prototype.indexOf) {
     unload : function() {
     	delete endpointsByElement;
 		delete offsets;
-		delete sizes;    	
+		delete sizes;
+		delete floatingConnections;
+		delete draggableStates;		
     }
 };
 
@@ -1090,7 +1085,7 @@ var jsPlumbConnection = function(params) {
     sizes[this.targetId] = [this.target.outerWidth(), this.target.outerHeight()];
 
 // *************** create canvases on which the connection will be drawn ************
-    var canvas = newCanvas(jsPlumb.connectorClass);
+    var canvas = _newCanvas(jsPlumb.connectorClass);
     this.canvas = canvas;
 // ************** store the anchors     
   
