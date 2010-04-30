@@ -160,8 +160,8 @@ if (!Array.prototype.indexOf) {
 	 */
 	var _cleanupConnection = function(jpc) {
 		removeElement(jpc.canvas);
-		removeElement(jpc.targetEndpointCanvas);
-		removeElement(jpc.sourceEndpointCanvas);		
+		removeElement(jpc.endpoints[0].canvas);
+		removeElement(jpc.endpoints[1].canvas);		
 	};
 	
     /**
@@ -224,7 +224,15 @@ if (!Array.prototype.indexOf) {
         }
         
         return canvas;
-    };               
+    };         
+    
+    /**
+     * helper to remove a list of elements from the DOM.
+     */
+    var removeElements = function(elements) {
+    	for (var i in elements)
+    		removeElement(elements[i]);
+    }
     
     /**
      * helper to remove an element from the DOM.
@@ -248,7 +256,6 @@ if (!Array.prototype.indexOf) {
 	var Anchor = function(params) {
 		var self = this;
 		this.x = params.x || 0; this.y = params.y || 0; 
-		//this.orientation = params.orientation || [0,0]; 
 		var orientation = params.orientation || [0,0];
 		this.offsets = params.offsets || [0,0];
 		this.compute = function(xy, wh, txy, twh) {
@@ -298,7 +305,6 @@ if (!Array.prototype.indexOf) {
 		var _style = params.style || jsPlumb.DEFAULT_ENDPOINT_STYLE;
 		var _element = params.source;
 		var _elementId = $(_element).attr("id");
-		// todo: endpoint can act as a source for new connections
 		this.canvas = params.canvas || newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
 		this.addConnection = function(connection) {
@@ -316,42 +322,34 @@ if (!Array.prototype.indexOf) {
 		// maintain a connection with a floating endpoint.
 		if (params.isSource) {
 			
-			var d = null;
-			var f = function() { return d; };
+			var d = null, n = null, id = null, floatingEndpoint = null, jpc = null;
+			var f = function() { return n; };
 			
 			var start = function() {
-				// create and paint the helper canvas
-		/*		var n = self.canvas.cloneNode(true);				
-				self.paint(null, null, n);
-				*/
-		/*		var loc = $(self.canvas).offset();
-				var d = document.createElement("div");
-				document.body.appendChild(d);
-				
-				d.className = "_jsPlumb_newEndpoint";	
-				$(d).offset({top:loc.top, left:loc.left});
-				var id = "jp_fe_" + (new Date().getTime());
-				$(d).attr("id", id);*/
-				
-				/*$(d).append(n);
-				$(n).offset({top:0, left:0});*/
-			//	_updateOffset(id);
-				
-				var id = new String(new Date().getTime());
+				n = document.createElement("div");
+				//document.body.appendChild(n);...seems to be not needed.
+				// create and assign an id, and initialize the offset.
+				id = new String(new Date().getTime());				
+				$(n).attr("id", id);
 				_updateOffset(id);
-				$(self.canvas).attr("id", id);
 				
+				//$(self.canvas).attr("id", new String(new Date().getTime()));
 				
 				var floatingAnchor = new FloatingAnchor({reference:_anchor});
-				var floatingEndpoint = new Endpoint({style:_style, endpoint:_endpoint, anchor:floatingAnchor, source:d })
+				floatingEndpoint = new Endpoint({
+					style:_style, 
+					endpoint:_endpoint, 
+					anchor:floatingAnchor, 
+					source:n 
+				});
 				
 				// create a connection. one end is this endpoint, the other is a floating endpoint.
-				var jpc = new jsPlumbConnection({
+				jpc = new jsPlumbConnection({
 					sourceEndpoint:self, 
 					targetEndpoint:floatingEndpoint,
-					source:id,
-					target:_elementId,
-					anchors:[floatingAnchor, _anchor],
+					source:$(_element),
+					target:$(n),
+					anchors:[_anchor, floatingAnchor],
 					// todo parameterize.  it should be defined on the endpoint - what is the style of 
 					// connector this endpoint is the source of?
 					connector: new jsPlumb.Connectors.Bezier()
@@ -364,22 +362,49 @@ if (!Array.prototype.indexOf) {
 				_addToList(endpointsByElement, id, floatingEndpoint);
 			};
 			
-			// todo make parameterisable things like opacity/revert
-			$(self.canvas).draggable( { 
+			var dragOptions = params.dragOptions || { };
+			var dragFunc = dragOptions.dragFunc || function(e, u) { };
+			var stopFunc = dragOptions.stopFunc || function(e, u) { };
+			var options = $.extend( {
 				opacity:0.5, 
 				revert:true, 
-				//helper:f, 
-				//start : start,
-				drag: function(e, ui) {
-					//_draw(d);
-				},
+				helper:'clone', 
+				start : start,
+				drag: function(e, ui) {				
+					_draw($(n), ui);
+					dragFunc(e, ui);
+				}, 				
 				stop : function(e, ui) { 
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
-					//alert("cleaning up!");
-					_cleanupConnection(jpc);
-					//removeElement(d);removeElement(n);
+					removeElements([jpc.canvas, jpc.endpoints[1].canvas, n]);
+					stopFunc(e, ui);
 				}
-			});
+			}, dragOptions);
+			
+			// todo make parameterisable things like opacity/revert
+			$(self.canvas).draggable(options);
+		}
+		
+		// connector target
+		if (params.isTarget) {
+			var dropOptions = params.dropOptions || jsPlumb.DEFAULT_DROP_OPTIONS; 
+	    	var dropCascade = dropOptions.drop || function(e,u) {};
+	    	// what to do when something is dropped.
+	    	// 1. find the jpc that is being dragged.  the target endpoint of the jpc will be the
+	    	// one that is being dragged.
+	    	// 2. arrange for the floating endpoint to be replaced with this endpoint; make sure
+	    	//    everything gets registered ok etc.
+	    	// 3. arrange for the floating endpoint to be deleted.
+	    	// 4. make sure that the stop method of the drag does not cause the jpc to be cleaned up.  we want to keep it now.
+	    	//
+	    	// other considerations: when in the hover mode, we should switch the floating endpoint's
+	    	// orientation to be the same as the drop target.  this will cause the connector to snap
+	    	// into the shape it will take if the user drops at that point.
+	    	var options = $.extend({drop: function(e, ui) {
+					dropCascade(e, ui);
+				 }}, dropOptions);
+			$(self.canvas).droppable(options);
+			
 		}
 	};
 	
