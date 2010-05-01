@@ -25,25 +25,43 @@
 				$("#window2").plumb({target:'window4'});
 				$("#window2").plumb({target:'window5'});
 				$("#window3").plumb({target:'window6'});*/
+				
 
 				$("#window3").addEndpoints([{
 						endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
 						anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1),
 						isSource:true,
-						dragOptions : { scope:'exampleEndpoint' }
+						dragOptions : { scope:'exampleEndpoint' },
+						isTarget:true, 
+						dropOptions : { 
+							//drop : function(e, ui) { alert('dropped'); }, 
+							tolerance:'touch', 
+							hoverClass:'dropHover',
+							//activeClass:'dragActive', 
+							scope:'exampleEndpoint' 
+						}
 					},
 					{
 						endpoint:new jsPlumb.Endpoints.Dot({radius:15}),
 						anchor:jsPlumb.makeAnchor(0.75, 0, 0, -1),
 						isSource:true,
-						dragOptions : { scope:'exampleEndpoint2' }
+						dragOptions : { scope:'exampleEndpoint2' },
+						isTarget:true, 
+						dropOptions : { 
+							//drop : function(e, ui) { alert('dropped'); }, 
+							tolerance:'touch', 
+							hoverClass:'dropHover',
+							//activeClass:'dragActive', 
+							scope:'exampleEndpoint' 
+						}
 					}
 				]);
 
 				$("#window1").addEndpoint({
 					endpoint:new jsPlumb.Endpoints.Rectangle({width:50,height:20}), 
 					anchor:jsPlumb.makeAnchor(1, 0.25, 1, 0),
-					typeId:'someConnectorType',
+					isSource:true,
+					dragOptions : { scope:'exampleEndpoint' },
 					isTarget:true, 
 					dropOptions : { 
 						//drop : function(e, ui) { alert('dropped'); }, 
@@ -53,6 +71,20 @@
 						scope:'exampleEndpoint' 
 					}
 				});
+				$("#window1").addEndpoint({
+					endpoint:new jsPlumb.Endpoints.Rectangle({width:50,height:20}), 
+					anchor:jsPlumb.makeAnchor(1, 0.75, 0, 1),
+					isSource:true,
+					dragOptions : { scope:'exampleEndpoint' },
+					isTarget:true, 
+					dropOptions : { 
+						//drop : function(e, ui) { alert('dropped'); }, 
+						tolerance:'touch', 
+						hoverClass:'dropHover',
+						//activeClass:'dragActive', 
+						scope:'exampleEndpoint' 
+					}
+				});				
 
 				$("#window1").addEndpoint({
 					endpoint:new jsPlumb.Endpoints.Dot({radius:15}), 
@@ -65,6 +97,21 @@
 						hoverClass:'dropHover',
 						//activeClass:'dragActive', 
 						scope:'exampleEndpointType2' 
+					}
+				});
+
+				$("#window2").addEndpoint({
+					endpoint:new jsPlumb.Endpoints.Rectangle({width:50,height:20}), 
+					anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1),
+					isSource:true,
+					dragOptions : { scope:'exampleEndpoint' },
+					isTarget:true, 
+					dropOptions : { 
+						//drop : function(e, ui) { alert('dropped'); }, 
+						tolerance:'touch', 
+						hoverClass:'dropHover',
+						//activeClass:'dragActive', 
+						scope:'exampleEndpoint' 
 					}
 				});
 
