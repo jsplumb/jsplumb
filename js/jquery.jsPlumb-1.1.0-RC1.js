@@ -338,7 +338,7 @@ if (!Array.prototype.indexOf) {
 			var d = null, n = null, id = null, floatingEndpoint = null, jpc = null;
 			var f = function() { return n; };
 			
-			var start = function() {
+			var start = function(e, ui) {
 				n = document.createElement("div");
 				//document.body.appendChild(n);...seems to be not needed.
 				// create and assign an id, and initialize the offset.
@@ -383,10 +383,7 @@ if (!Array.prototype.indexOf) {
 			var dragOptions = params.dragOptions || { };
 			var dragFunc = dragOptions.dragFunc || function(e, u) { };
 			var stopFunc = dragOptions.stopFunc || function(e, u) { };
-			var options = $.extend( {
-				opacity:0.5, 
-				revert:true, 
-				helper:'clone', 
+			var options = $.extend( { opacity:0.5, revert:true, helper:'clone', 
 				start : start,
 				drag: function(e, ui) {				
 					_draw($(n), ui);
@@ -402,6 +399,16 @@ if (!Array.prototype.indexOf) {
 				}
 			}, dragOptions);
 			
+			/*options.start = _wrap(options.start, start);
+			options.drag = _wrap(options.drag, function(e, ui) { _draw($(n)); });
+			options.stop = _wrap(options.stop, function(e, ui) {
+				_removeFromList(endpointsByElement, id, floatingEndpoint);
+				_removeElements([floatingEndpoint.canvas, n]);
+				if (jpc.endpoints[1] == floatingEndpoint) {						
+					_removeElement(jpc.canvas);						
+				}
+			});*/
+			
 			// todo make parameterisable things like opacity/revert
 			$(self.canvas).draggable(options);
 		}
@@ -409,10 +416,8 @@ if (!Array.prototype.indexOf) {
 		// connector target
 		if (params.isTarget) {
 			var dropOptions = params.dropOptions || jsPlumb.DEFAULT_DROP_OPTIONS; 
-	    	var dropCascade = dropOptions.drop || function(e,u) {};
 	    	var originalAnchor = null;
-	    	dropOptions.drop = function(e, ui) {
-    			//var id = _getId(e.draggable);
+	    	dropOptions.drop = _wrap(dropOptions.drop , function(e, ui) {
 	    		var id = $(ui.draggable).attr("dragId");
 	    		var jpc = floatingConnections[id];
 	    		jpc.target = _element;
@@ -422,9 +427,7 @@ if (!Array.prototype.indexOf) {
 	    		self.addConnection(jpc);
 	    		jsPlumb.repaint($(ui.draggable).attr("elId"));
 	    		delete floatingConnections[id];
-    			//alert(id);
-				dropCascade(e, ui);
-			 };
+			 });
 	    	// what to do when something is dropped.
 	    	// 1. find the jpc that is being dragged.  the target endpoint of the jpc will be the
 	    	// one that is being dragged.
@@ -450,9 +453,7 @@ if (!Array.prototype.indexOf) {
 		    	if(originalAnchor)	
 		    		jpc.anchors[1] = originalAnchor;
 			 });
-
-			 
-			 
+			 		
 			$(self.canvas).droppable(dropOptions);
 			
 		}
