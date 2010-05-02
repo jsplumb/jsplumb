@@ -5,12 +5,12 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
 		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
+		<!-- script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script-->
 		
-		<!-- script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script-->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
 		
 		<script type="text/javascript" src="../js/jquery.jsPlumb-1.1.0-RC1.js"></script>
-		<script type="text/javascript" src="../js/jquery.jsPlumb-flowchart-RC1.js"></script>
+		<!-- script type="text/javascript" src="../js/jquery.jsPlumb-flowchart-RC1.js"></script-->
 		<script type="text/javascript" src="../js/jquery.jsPlumb-defaults-1.1.0-RC1.js"></script>
 		
 		<script type="text/javascript"><!--
@@ -21,72 +21,115 @@
 				jsPlumb.DEFAULT_ENDPOINT = new jsPlumb.Endpoints.Rectangle();
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Bezier();
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
-				 
+
+				 // plumb a few things together to start with, using the defaults.
 				$("#window1").plumb({target:'window2'}); 
 				$("#window1").plumb({target:'window3'});
 				$("#window2").plumb({target:'window4'});
 				$("#window2").plumb({target:'window5'});
 				$("#window3").plumb({target:'window6'});
-				
-				var exampleConnectionStyle = { strokeStyle:'#00f', lineWidth:5 };
-				var exampleEndpointStyle = { width:25, height:21, fillStyle:'#00f' };
-				var exampleDropOptions = { 
-					//drop : function(e, ui) { alert('dropped'); }, 
+
+				// generic drop options to be used by all endpoints - they will extend and provide their own scope.
+				// notice the 'drop' method which is commented out.  you might want to do your own thing in a drop method.
+				// also note the 'activeClass' - a class applied to your droppable when a suitable draggable is hovering.  these
+				// are both jquery UI droppable parameters: jsPlumb tries to be as transparent as possible with draggable and droppable,
+				// only wrapping the methods it needs, and assuming to know nothing more than that.			
+				var exampleDropOptions = { 					
 					tolerance:'touch', 
 					hoverClass:'dropHover',
-					//activeClass:'dragActive', 
-					scope:'exampleEndpoint' 
+					drop : function(e, ui) { alert('dropped'); }
+					//activeClass:'dragActive' 
 				};
+				
+				/**
+					first example endpoint.  it's a 25x21 rectangle (the size is provided in the 'style' arg to the Endpoint), and it's both a source
+					and target.  the 'scope' of this Endpoint is 'exampleConnection', meaning any connection starting from this Endpoint is of type
+					'exampleConnection' and can only be dropped on an Endpoint target that declares 'exampleEndpoint' as its drop scope, and also that
+					only 'exampleConnection' types can be dropped here.
+
+					the connection style for this endpoint is a Bezier curve (we didn't provide one, so we use the default), with a lineWidth of
+					5 pixels, and a gradient.
+
+					note the use of the '$.extend' function to setup generic connection types.  this will save you a lot of typing, and probably
+					errors.							
+									
+				*/
 				var exampleEndpoint = {
-					style:exampleEndpointStyle,					
+					endpoint:new jsPlumb.Endpoints.Rectangle(),
+					style:{ width:25, height:21, fillStyle:'#00f' },					
 					isSource:true,
-					dragOptions : { scope:'exampleEndpoint' },
-					//connectionStyle:exampleConnectionStyle,
+					dragOptions : { scope:'exampleConnection' },
 					connectionStyle : {
 						gradient:{stops:[[0,'#00f'], [0.5, '#09098e'], [1,'#00f']]},
 						lineWidth:5
 					},
-					//connector : new jsPlumb.Connectors.Flowchart({minStubLength:30}),
-					isTarget:true, 
-					dropOptions : exampleDropOptions
+					isTarget:true,
+					dropOptions : $.extend({scope:'exampleConnection'}, exampleDropOptions)
 				};
-				
-				var exampleConnectionStyle2 = { strokeStyle:'#316b31', lineWidth:8 };
-				var exampleEndpointStyle2 = { width:25, height:21, strokeStyle:'#316b31' };
+
+				/**
+					the second example uses a Dot of radius 15 as the endpoint marker, is both a source and target, and has scope
+					'exampleConnection2'.
+				*/
 				var exampleEndpoint2 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:15}),
-						style:exampleEndpointStyle2, 
+						style:{ strokeStyle:'#316b31' }, 
 						isSource:true,
-						dragOptions : { scope:'exampleEndpoint2' },
-						connectionStyle:exampleConnectionStyle2,
+						dragOptions : { scope:'exampleConnection2' },
+						connectionStyle:{ strokeStyle:'#316b31', lineWidth:8 },
 						isTarget:true, 
-						dropOptions : { 
-							//drop : function(e, ui) { alert('dropped'); }, 
-							tolerance:'touch', 
-							hoverClass:'dropHover',
-							//activeClass:'dragActive', 
-							scope:'exampleEndpoint2' 
-						}
-					}
-				
-				$("#window3").addEndpoints([
-				     $.extend({
-					     anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1),
-					     endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})
-					 }, exampleEndpoint),
-				     $.extend({anchor:jsPlumb.makeAnchor(0.75, 0, 0, -1)}, exampleEndpoint2)
+						dropOptions : $.extend({scope:'exampleConnection2'}, exampleDropOptions)
+				};
+
+				/**
+				the second example uses a Dot of radius 17 as the endpoint marker, is both a source and target, and has scope
+				'exampleConnection3'.  it uses a Straight connector, and the Anchor is created here (bottom left corner) and never
+				overriden, so it appears in the same place on every element.
+				*/
+				var example3Color = "rgba(229,219,61,0.5)";
+				var exampleEndpoint3 = {
+						endpoint:new jsPlumb.Endpoints.Dot({radius:17}),
+						anchor:jsPlumb.Anchors.BottomLeft,
+						style:{ strokeStyle:example3Color, opacity:0.5 }, 
+						isSource:true,
+						dragOptions : { scope:'exampleConnection3' },
+						connectionStyle:{ strokeStyle:example3Color, lineWidth:4 },
+						connector : new jsPlumb.Connectors.Straight(),
+						isTarget:true, 
+						dropOptions : $.extend({scope:'exampleConnection3'}, exampleDropOptions)
+				};
+			
+
+				// setup some empty endpoints.  again note the use of '$.extend' to reuse all the parameters except the location
+				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)				
+
+				$("#window1").addEndpoints([
+					$.extend({ anchor:jsPlumb.makeAnchor(1, 0.25, 1, 0) }, exampleEndpoint),
+					$.extend({ anchor:jsPlumb.makeAnchor(1, 0.75, 0, 1) }, exampleEndpoint),
+					$.extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint2)
 				]);
 
-				$("#window1").addEndpoint($.extend({
-					anchor:jsPlumb.makeAnchor(1, 0.25, 1, 0),
-				    endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})
-			     }, exampleEndpoint));
-				$("#window1").addEndpoint($.extend({anchor:jsPlumb.makeAnchor(1, 0.75, 0, 1),
-				     endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})}, exampleEndpoint));
-				$("#window1").addEndpoint($.extend({anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1)}, exampleEndpoint2));
+				$("#window2").addEndpoints([
+					$.extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint),
+					$.extend({ anchor:jsPlumb.Anchors.RightMiddle }, exampleEndpoint2)
+				]);
 
-				$("#window2").addEndpoint($.extend({anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1),
-				     endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})}, exampleEndpoint));				
+				$("#window3").addEndpoints([
+    				$.extend({ anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1) }, exampleEndpoint),
+    				$.extend({ anchor:jsPlumb.makeAnchor(0.75, 0, 0, -1) }, exampleEndpoint2)
+     			]);
+
+				$("#window4").addEndpoints([
+					$.extend({ anchor:jsPlumb.makeAnchor(1, 0.5, 1, 0) }, exampleEndpoint),
+					$.extend({ anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1) }, exampleEndpoint2)
+				]);
+				
+				$("#window5").addEndpoint($.extend({ anchor:jsPlumb.makeAnchor(0, 0.5, -1, 0) }, exampleEndpoint));
+
+				$("#window6").addEndpoint($.extend({ anchor:jsPlumb.makeAnchor(0.25, 0.5, 0, -1) }, exampleEndpoint2));				
+
+				// add the third example using the '.window' class.
+				$(".window").addEndpoint(exampleEndpoint3);
 
 									
 			});
@@ -100,29 +143,17 @@
 #window2 { top:14em; left:21em;left:10em;}
 #window3 { top:19em; left:40em;}
 #window4 { left:4em;top:28em;}
-#window5 {left:22em;top:29em;}
+#window5 {left:24em;top:29em;}
 #window6 {left:52em;top:29em;}
 .window { 
-border:1px solid gray; 
-width:14em; height:4em; 
-z-index:20; position:absolute; 
-color:gray;
-line-height:3em;
-font-family:serif;
-font-style:italic;
-padding-top:0.9em; 
-font-size:0.9em;
-text-align:center;
-z-index:40;
-background-color:white; 
-}
-	._jsPlumb_newEndpoint { width:10px;height:10px;background-color:red; }
-	._jsPlumb_endpoint { z-index:50; }
+border:1px solid gray; width:14em; height:4em; z-index:20; position:absolute; color:gray;line-height:3em;font-family:serif;font-style:italic;
+padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; 
+}	
+
+._jsPlumb_endpoint { z-index:50; }
 	
-	.dropHover { border:1px solid red; } 
-	.dragActive { border:1px solid blue; }
-
-
+.dropHover { border:1px solid red; } 
+.dragActive { border:1px solid blue; }
 		
 		</style>
 	</head>
@@ -137,12 +168,18 @@ background-color:white;
 		<div class="window" id="window6">six</div>
 
 		<div id="explanation">
-	    	Nothing is plumbed to anything else on this page to start with.  You can drag connectors 
-	    	between matching endpoints.  The endpoint appearance is actually separate from the id used
+	    	This page is an early demonstration of the draggable/droppable functionality we in the process of adding to jsPlumb.  
+	    	A few windows are plumbed to start with, using the default settings.  But there are empty Endpoints on each window, from which you 
+	    	can drag new connectors between matching endpoints.  The endpoint appearance is actually separate from the id used
 	    	to tell which connectors can be joined to the endpoint, but in this demo we use the
 	    	endpoint appearance as a visual cue.
-	    	<p>This demonstration uses version 1.0.1 of jsPlumb.</p>
-	    	<a href="gradientTest.html" class="mplink">Next: Gradients demonstration</a>
+	    	<p>
+	    	There is not yet any support for dragging an existing Connection (coming soon), or for removing an existing Connection (possibly
+	    	coming soon.  Requires a bit more thought.)
+	    	</p>
+	    	<p>This demonstration uses version 1.1.0-RC1 of jsPlumb.  You should NOT use this script yet.  It's not at all guaranteed to be free
+	    	of bugs; in fact I know for certain that it does not currently work with the other demos</p>
+	    	<a href="demo.html" class="mplink">Home</a>
 	    	<br/><br/>
 	    	You also might like to check out <a  class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
 	    	
