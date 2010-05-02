@@ -504,45 +504,9 @@ if (!Array.prototype.indexOf) {
     DEFAULT_CONNECTOR : null,
     DEFAULT_ENDPOINT : null,    
     DEFAULT_ENDPOINTS : [null, null],  // new in 0.0.4, the ability to specify diff. endpoints.  DEFAULT_ENDPOINT is here for backwards compatibility.            
-    
-    /**
-    * Places you can anchor a connection to.  These are helpers for common locations; they all just return an instance
-    * of Anchor that has been configured appropriately.  
-    * 
-    * You can write your own one of these; you
-    * just need to provide a 'compute' method and an 'orientation'.  so you'd say something like this:
-    * 
-    * jsPlumb.Anchors.MY_ANCHOR = {
-    * 	compute : function(xy, wh, txy, twh) { return some mathematics on those variables; },
-    *   orientation : [ox, oy]
-    * };
-    *
-    * compute takes the [x,y] position of the top left corner of the anchored element,
-    * and the element's [width,height] (all in pixels), as well as the location and dimension of the element it's plumbed to,
-    * and returns where the anchor should be located.
-    *
-    * the 'orientation' array (returned here as [ox,oy]) indicates the general direction a connection from the anchor
-    * should go in, if possible.  it is an [x,y] matrix where a value of 0 means no preference,
-    * -1 means go in a negative direction for the given axis, and 1 means go in a positive
-    * direction.  so consider a TopCenter anchor: the orientation matrix for it is [0,-1],
-    * meaning connections naturally want to go upwards on screen.  in a Bezier implementation, for example, 
-    * the curve would start out going in that direction, before bending towards the target anchor.
-    */
-    Anchors :
-	{   
-    	TopCenter : new Anchor({x:0.5, y:0, orientation:[0,-1] }),
-    	BottomCenter : new Anchor({x:0.5, y:1, orientation:[0, 1] }),
-    	LeftMiddle: new Anchor({x:0, y:0.5, orientation:[-1,0] }),
-    	RightMiddle : new Anchor({x:1, y:0.5, orientation:[1,0] }),
-    	Center : new Anchor({x:0.5, y:0.5, orientation:[0,0] }),
-    	TopRight : new Anchor({x:1, y:0, orientation:[0,-1] }),
-    	BottomRight : new Anchor({x:1, y:1, orientation:[0,1] }),
-    	TopLeft : new Anchor({x:0, y:0, orientation:[0,-1] }),
-    	BottomLeft : new Anchor({x:0, y:1, orientation:[0,1] })
-    },
 
-    
-    
+    Anchors : {},
+    Connectors : {},
     
     /**
      * Types of endpoint UIs.  we supply four - a blank one, a circle of default radius 10px, a rectangle of
