@@ -366,6 +366,12 @@ if (!Array.prototype.indexOf) {
 		this.addConnection = function(connection) {
 			self.connections.push(connection);
 		};
+		/**
+		 * first pass at default ConnectorSelector: returns the first connection, if we have any.
+		 */
+		this.connectorSelector = function() {
+			return self.connections.length > 0 ? self.connections[0] : null;
+		};
 
 		// get the jsplumb context...lookups are faster with a context.
 		var contextNode = _getContextNode();
@@ -425,16 +431,24 @@ if (!Array.prototype.indexOf) {
 					source:n 
 				});
 				
-				// create a connection. one end is this endpoint, the other is a floating endpoint.
-				jpc = new jsPlumbConnection({
-					sourceEndpoint:self, 
-					targetEndpoint:floatingEndpoint,
-					source:$(_element),
-					target:$(n, contextNode),
-					anchors:[_anchor, floatingAnchor],
-					paintStyle : params.connectionStyle, // this can be null. jsPlumbConnection will use the default.
-					connector: params.connector
-				});
+				//jpc = self.connectorSelector();
+				if (jpc == null) {
+					// create a connection. one end is this endpoint, the other is a floating endpoint.
+					jpc = new jsPlumbConnection({
+						sourceEndpoint:self, 
+						targetEndpoint:floatingEndpoint,
+						source:$(_element),
+						target:$(n, contextNode),
+						anchors:[_anchor, floatingAnchor],
+						paintStyle : params.connectionStyle, // this can be null. jsPlumbConnection will use the default.
+						connector: params.connector
+					});
+				} else {
+					jpc.target = $(n, contextNode);
+					jpc.targetId = id;
+					jpc.anchors[1] = floatingAnchor;
+					jpc.targetEndpoint = floatingEndpoint;
+				}
 				
 				// register it.
 				floatingConnections[id] = jpc;
@@ -457,12 +471,13 @@ if (!Array.prototype.indexOf) {
 			dragOptions.start = _wrap(dragOptions.start, start);
 			dragOptions.drag = _wrap(dragOptions.drag, function(e, ui) { _draw($(n, contextNode), ui); });
 			dragOptions.stop = _wrap(dragOptions.stop, 
-				function(e, ui) {
+				function(e, ui) {					
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					_removeElements([floatingEndpoint.canvas, n]);
 					if (jpc.endpoints[1] == floatingEndpoint) {						
 						_removeElement(jpc.canvas);						
 					}
+					jpc = null;
 				}			
 			);		
 											
