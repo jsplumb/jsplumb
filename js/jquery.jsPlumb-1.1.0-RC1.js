@@ -285,39 +285,70 @@ if (!Array.prototype.indexOf) {
 		// by the getOrientation method.
 		var xDir = 0, yDir = 0; 
 		
+		var orientation = null;
+		
 		this.compute = function(xy, wh, txy, twh) {
 			xDir = xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
 			yDir = xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
 			return [xy[0], xy[1]];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
 		};
 		
-		this.getOrientation = function() { 
-			var o = ref.getOrientation();
-			// here we take into account the orientation of the other anchor: if it declares zero for some direction, we declare zero too.
-			// this might not be the most awesome.  perhaps we can come up with a better way.  it's just so that the line we draw looks
-			// like it makes sense.  maybe this wont make sense.
-			return [Math.abs(o[0]) * xDir * -1, Math.abs(o[1]) * yDir * -1]; 
+		this.getOrientation = function() {
+			if (orientation) return orientation;
+			else {
+				var o = ref.getOrientation();
+				// here we take into account the orientation of the other anchor: if it declares zero for some direction, we declare zero too.
+				// this might not be the most awesome.  perhaps we can come up with a better way.  it's just so that the line we draw looks
+				// like it makes sense.  maybe this wont make sense.
+				return [Math.abs(o[0]) * xDir * -1, Math.abs(o[1]) * yDir * -1];
+			}
+		};
+		
+		this.setOrientation = function(o) {
+			orientation = o;			
+		};
+		
+		this.clearOrientation = function() {
+			orientation = null;
 		};
 	};
 	
 	/**
 	 * models an endpoint.  can have one to N connections emanating from it (although how to handle that in the UI is
 	 * a very good question). also has a Canvas and paint style.
+	 * 
+	 * params:
+	 * 
+	 * anchor			:	anchor for the endpoint, of type jsPlumb.Anchor. may be null. 
+	 * endpoint 		: 	endpoint object, of type jsPlumb.Endpoint. may be null.
+	 * style			:	endpoint style, a js object. may be null.
+	 * source			:	element the endpoint is attached to, of type jquery object.  Required.
+	 * canvas			:	canvas element to use. may be, and most often is, null.
+	 * connections  	:	optional list of connections to configure the endpoint with.
+	 * isSource			:	boolean. indicates the endpoint can act as a source of new connections. optional.
+	 * dragOptions		:	if isSource is set to true, you can supply arguments for the jquery draggable method.  optional.
+	 * connectionStyle	:	if isSource is set to true, this is the paint style for connections from this endpoint. optional.
+	 * connector		:	optional connector type to use.
+	 * isTarget			:	boolean. indicates the endpoint can act as a target of new connections. optional.
+	 * dropOptions		:	if isTarget is set to true, you can supply arguments for the jquery droppable method.  optional.
 	 */
 	var Endpoint = function(params) {
 		params = params || {};
 		var self = this;
-		var _typeId = params.typeId;  // may be null
 		var _anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || jsPlumb.DEFAULT_ENDPOINT_STYLE;
 		var _element = params.source;
 		var _elementId = $(_element).attr("id");
+		var _maxConnections = params.maxConnections || 1;
 		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
 		this.addConnection = function(connection) {
 			self.connections.push(connection);
 		};
+		
+		var isFull = function() { return self.connections.length >= _maxConnections; };
+		
 		this.paint = function(anchorPoint, connectorPaintStyle, canvas) {
 			if (anchorPoint == null) {				
 				var xy = offsets[_elementId];
@@ -339,7 +370,9 @@ if (!Array.prototype.indexOf) {
 			var f = function() { return n; };
 			
 			var start = function(e, ui) {
+				//if (!isFull()) {
 				n = document.createElement("div");
+				document.body.appendChild(n);
 				//document.body.appendChild(n);...seems to be not needed.
 				// create and assign an id, and initialize the offset.
 				id = new String(new Date().getTime());				
@@ -363,9 +396,10 @@ if (!Array.prototype.indexOf) {
 					source:$(_element),
 					target:$(n),
 					anchors:[_anchor, floatingAnchor],
+					paintStyle : params.connectionStyle, // this can be null. jsPlumbConnection will use the default.
 					// todo parameterize.  it should be defined on the endpoint - what is the style of 
 					// connector this endpoint is the source of?
-					connector: new jsPlumb.Connectors.Bezier()
+					connector: params.connector
 				});
 				
 				floatingConnections[id] = jpc;
@@ -378,7 +412,9 @@ if (!Array.prototype.indexOf) {
 				// only register for the target endpoint; we will not be dragging the source at any time
 				// before this connection is either discarded or made into a permanent connection.
 				_addToList(endpointsByElement, id, floatingEndpoint);
-			};
+				
+				}
+			//};
 			
 			var dragOptions = params.dragOptions || { };
 			var dragFunc = dragOptions.dragFunc || function(e, u) { };
@@ -427,6 +463,9 @@ if (!Array.prototype.indexOf) {
 	    		self.addConnection(jpc);
 	    		jsPlumb.repaint($(ui.draggable).attr("elId"));
 	    		delete floatingConnections[id];
+	    		
+	    		
+
 			 });
 	    	// what to do when something is dropped.
 	    	// 1. find the jpc that is being dragged.  the target endpoint of the jpc will be the
@@ -443,15 +482,21 @@ if (!Array.prototype.indexOf) {
 			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
 				var id = $(ui.draggable).attr("dragId");
 		    	var jpc = floatingConnections[id];
-		    	originalAnchor = jpc.anchors[1];
-		    	jpc.anchors[1] = _anchor;
+		    	/*originalAnchor = jpc.anchors[1];
+		    	jpc.anchors[1] = _anchor;*/
+		    	jpc.anchors[1].setOrientation(_anchor.getOrientation());
+		    	
+		    	//jsPlumb.repaint($(ui.draggable).attr("elId"));
 			 });
 			 
 			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
 				var id = $(ui.draggable).attr("dragId");
 		    	var jpc = floatingConnections[id];
-		    	if(originalAnchor)	
-		    		jpc.anchors[1] = originalAnchor;
+		    	//if(originalAnchor)	
+		    		//jpc.anchors[1] = originalAnchor;
+		    	jpc.anchors[1].clearOrientation();
+		    	
+		    //jsPlumb.repaint($(ui.draggable).attr("elId"));
 			 });
 			 		
 			$(self.canvas).droppable(dropOptions);
