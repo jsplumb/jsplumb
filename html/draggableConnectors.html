@@ -10,142 +10,131 @@
 		<!-- script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script-->
 		
 		<script type="text/javascript" src="../js/jquery.jsPlumb-1.1.0-RC1.js"></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-flowchart-RC1.js"></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-defaults-1.1.0-RC1.js"></script>
 		
 		<script type="text/javascript"><!--
 			$(document).ready(function() {
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
-				jsPlumb.DEFAULT_PAINT_STYLE = { strokeStyle:'black' };
-				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:25, height:21 };
+				jsPlumb.DEFAULT_PAINT_STYLE = { strokeStyle:'#666' };
+				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:20, height:16, strokeStyle:'#666' };
 				jsPlumb.DEFAULT_ENDPOINT = new jsPlumb.Endpoints.Rectangle();
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Bezier();
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
 				 
-				/*$("#window1").plumb({target:'window2'}); 
+				$("#window1").plumb({target:'window2'}); 
 				$("#window1").plumb({target:'window3'});
 				$("#window2").plumb({target:'window4'});
 				$("#window2").plumb({target:'window5'});
-				$("#window3").plumb({target:'window6'});*/
+				$("#window3").plumb({target:'window6'});
 				
-
-				$("#window3").addEndpoints([{
-						endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10}),
-						anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1),
-						isSource:true,
-						dragOptions : { scope:'exampleEndpoint' },
-						isTarget:true, 
-						dropOptions : { 
-							//drop : function(e, ui) { alert('dropped'); }, 
-							tolerance:'touch', 
-							hoverClass:'dropHover',
-							//activeClass:'dragActive', 
-							scope:'exampleEndpoint' 
-						}
+				var exampleConnectionStyle = { strokeStyle:'#00f', lineWidth:5 };
+				var exampleEndpointStyle = { width:25, height:21, fillStyle:'#00f' };
+				var exampleDropOptions = { 
+					//drop : function(e, ui) { alert('dropped'); }, 
+					tolerance:'touch', 
+					hoverClass:'dropHover',
+					//activeClass:'dragActive', 
+					scope:'exampleEndpoint' 
+				};
+				var exampleEndpoint = {
+					style:exampleEndpointStyle,					
+					isSource:true,
+					dragOptions : { scope:'exampleEndpoint' },
+					//connectionStyle:exampleConnectionStyle,
+					connectionStyle : {
+						gradient:{stops:[[0,'#00f'], [0.5, '#09098e'], [1,'#00f']]},
+						lineWidth:5
 					},
-					{
+					//connector : new jsPlumb.Connectors.Flowchart({minStubLength:30}),
+					isTarget:true, 
+					dropOptions : exampleDropOptions
+				};
+				
+				var exampleConnectionStyle2 = { strokeStyle:'#316b31', lineWidth:8 };
+				var exampleEndpointStyle2 = { width:25, height:21, strokeStyle:'#316b31' };
+				var exampleEndpoint2 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:15}),
-						anchor:jsPlumb.makeAnchor(0.75, 0, 0, -1),
+						style:exampleEndpointStyle2, 
 						isSource:true,
 						dragOptions : { scope:'exampleEndpoint2' },
+						connectionStyle:exampleConnectionStyle2,
 						isTarget:true, 
 						dropOptions : { 
 							//drop : function(e, ui) { alert('dropped'); }, 
 							tolerance:'touch', 
 							hoverClass:'dropHover',
 							//activeClass:'dragActive', 
-							scope:'exampleEndpoint' 
+							scope:'exampleEndpoint2' 
 						}
 					}
+				
+				$("#window3").addEndpoints([
+				     $.extend({
+					     anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1),
+					     endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})
+					 }, exampleEndpoint),
+				     $.extend({anchor:jsPlumb.makeAnchor(0.75, 0, 0, -1)}, exampleEndpoint2)
 				]);
 
-				$("#window1").addEndpoint({
-					endpoint:new jsPlumb.Endpoints.Rectangle({width:50,height:20}), 
+				$("#window1").addEndpoint($.extend({
 					anchor:jsPlumb.makeAnchor(1, 0.25, 1, 0),
-					isSource:true,
-					dragOptions : { scope:'exampleEndpoint' },
-					isTarget:true, 
-					dropOptions : { 
-						//drop : function(e, ui) { alert('dropped'); }, 
-						tolerance:'touch', 
-						hoverClass:'dropHover',
-						//activeClass:'dragActive', 
-						scope:'exampleEndpoint' 
-					}
-				});
-				$("#window1").addEndpoint({
-					endpoint:new jsPlumb.Endpoints.Rectangle({width:50,height:20}), 
-					anchor:jsPlumb.makeAnchor(1, 0.75, 0, 1),
-					isSource:true,
-					dragOptions : { scope:'exampleEndpoint' },
-					isTarget:true, 
-					dropOptions : { 
-						//drop : function(e, ui) { alert('dropped'); }, 
-						tolerance:'touch', 
-						hoverClass:'dropHover',
-						//activeClass:'dragActive', 
-						scope:'exampleEndpoint' 
-					}
-				});				
+				    endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})
+			     }, exampleEndpoint));
+				$("#window1").addEndpoint($.extend({anchor:jsPlumb.makeAnchor(1, 0.75, 0, 1),
+				     endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})}, exampleEndpoint));
+				$("#window1").addEndpoint($.extend({anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1)}, exampleEndpoint2));
 
-				$("#window1").addEndpoint({
-					endpoint:new jsPlumb.Endpoints.Dot({radius:15}), 
-					anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1),
-					typeId:'someConnectorType',
-					isTarget:true, 
-					dropOptions : { 
-						//drop : function(e, ui) { alert('dropped'); }, 
-						tolerance:'touch', 
-						hoverClass:'dropHover',
-						//activeClass:'dragActive', 
-						scope:'exampleEndpointType2' 
-					}
-				});
+				$("#window2").addEndpoint($.extend({anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1),
+				     endpoint:new jsPlumb.Endpoints.Rectangle({width:30,height:10})}, exampleEndpoint));				
 
-				$("#window2").addEndpoint({
-					endpoint:new jsPlumb.Endpoints.Rectangle({width:50,height:20}), 
-					anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1),
-					isSource:true,
-					dragOptions : { scope:'exampleEndpoint' },
-					isTarget:true, 
-					dropOptions : { 
-						//drop : function(e, ui) { alert('dropped'); }, 
-						tolerance:'touch', 
-						hoverClass:'dropHover',
-						//activeClass:'dragActive', 
-						scope:'exampleEndpoint' 
-					}
-				});
-
-				jsPlumb.setDraggable("window2", false);
 									
 			});
 		--></script>
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
-		<style type="text/css">/* demo */
-.window { border:2px dotted #346789; width:14em; height:4em; z-index:20; position:absolute; color:white;font-family:helvetica;padding-top:0.9em; font-size:0.9em;text-align:center;}
-#window1 { background-color:#225588; left:20em;}
-#window2 { top:6em; left:21em;background-color:#558822;left:10em;top:12em;}
-#window3 { top:20em;background-color:#882255; left:40em;top:12em;}
-#window4 { top:4em; left:45em;background-color:#122704; left:4em;top:24em;}
-#window5 {top:27em;left:18em;background-color:#041227;left:22em;top:24em;}
-#window6 {top:35em;left:42em;background-color:#333300;left:47em;top:24em;}
-	.window { z-index:40; }
+		<style type="text/css">
+/* demo */
+
+#window1 { top:6em;left:25em;}
+#window2 { top:14em; left:21em;left:10em;}
+#window3 { top:19em; left:40em;}
+#window4 { left:4em;top:28em;}
+#window5 {left:22em;top:29em;}
+#window6 {left:52em;top:29em;}
+.window { 
+border:1px solid gray; 
+width:14em; height:4em; 
+z-index:20; position:absolute; 
+color:gray;
+line-height:3em;
+font-family:serif;
+font-style:italic;
+padding-top:0.9em; 
+font-size:0.9em;
+text-align:center;
+z-index:40;
+background-color:white; 
+}
 	._jsPlumb_newEndpoint { width:10px;height:10px;background-color:red; }
 	._jsPlumb_endpoint { z-index:50; }
 	
 	.dropHover { border:1px solid red; } 
 	.dragActive { border:1px solid blue; }
+
+
+		
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
 		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 	
-		<div class="window" id="window1">window one</div>
-		<div class="window" id="window2">window two</div>
-		<div class="window" id="window3">window three</div>
-		<div class="window" id="window4">window four</div>
-		<div class="window" id="window5">window five</div>
-		<div class="window" id="window6">window six</div>
+		<div class="window" id="window1">one</div>
+		<div class="window" id="window2">two</div>
+		<div class="window" id="window3">three</div>
+		<div class="window" id="window4">four</div>
+		<div class="window" id="window5">five</div>
+		<div class="window" id="window6">six</div>
 
 		<div id="explanation">
 	    	Nothing is plumbed to anything else on this page to start with.  You can drag connectors 
