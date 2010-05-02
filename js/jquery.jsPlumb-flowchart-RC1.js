@@ -40,7 +40,7 @@ this is NOT FINISHED.  it doesnt support all combinations of anchor orientations
 			// get points list ready
             var points = [];
             // short vars for access to orientation	
-            var so = sourceAnchor.orientation, to = targetAnchor.orientation;
+            var so = sourceAnchor.orientation || sourceAnchor.getOrientation(), to = targetAnchor.orientation || targetAnchor.getOrientation();
             var swapX = targetPos[0] < sourcePos[0];
             var swapY = targetPos[1] < sourcePos[1];
             var x = swapX ? targetPos[0] : sourcePos[0], y = swapY ? targetPos[1] : sourcePos[1];
