@@ -314,10 +314,18 @@ if (!Array.prototype.indexOf) {
 			}
 		};
 		
+		/**
+		 * notification the endpoint associated with this anchor is hovering over another anchor; we want to assume that anchor's orientation
+		 * for the duration of the hover. 
+		 */
 		this.over = function(anchor) {
 			orientation = anchor.getOrientation();			
 		};
 		
+		/**
+		 * notification the endpoint associated with this anchor is no longer hovering over another anchor; we shouls resume calculating
+		 * orientation as we normally do.
+		 */
 		this.out = function() {
 			orientation = null;
 		};
@@ -344,6 +352,8 @@ if (!Array.prototype.indexOf) {
 	 */
 	var Endpoint = function(params) {
 		params = params || {};
+		// make a copy. then we can use the wrapper function.
+		params = $.extend({}, params);
 		var self = this;
 		var _anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
@@ -381,6 +391,21 @@ if (!Array.prototype.indexOf) {
 			var d = null, n = null, id = null, floatingEndpoint = null, jpc = null;
 			var f = function() { return n; };
 			
+			// todo: what if we want to drag an existing connection?
+			// 
+			// first the question is, how many connections are on this endpoint?  if it's only one, then excellent.  otherwise we will either need a way
+			// to select one connection from the list, or drag them all. if we had a pluggable 'ConnectorSelector' interface we could probably
+			// provide a way for people to implement their own UI components to do the connector selection.  the question in that particular case would be how much
+			// information the interface needs from jsPlumb at execution time. if, however, we leave out the connector selection, and drag them all,
+			// that wouldn't be too hard to organise. perhaps that behaviour would be on a switch for the endpoint, or perhaps the ConnectorSelector
+			// interface returns a List, with the default implementation just returning everything.  i think i like that.
+			//
+			// let's say for now that there is just one endpoint, cos we need to get this going before we can consider a list of them anyway.
+			// the major difference between that case and the case of a new endpoint is actually quite small - it's a question of where the
+			// jsPlumbConnection comes from.  for a new one, we create a new one. obviously.  otherwise we just get the jpc from the Endpoint
+			// (remember we're only assuming one connection right now).  so all of the UI stuff we do to create the floating endpoint etc
+			// will still be valid, but when we stop dragging, we'll have to do something different.  if we stop with a valid drop i think it will
+			// be the same process.  but if we stop with an invalid drop we have to reset the jsPlumbConnection to how it was when we got it.
 			var start = function(e, ui) {
 				//if (!isFull()) {
 				n = document.createElement("div");
@@ -411,6 +436,7 @@ if (!Array.prototype.indexOf) {
 					connector: params.connector
 				});
 				
+				// register it.
 				floatingConnections[id] = jpc;
 				
 				// todo unregister on stop
@@ -426,32 +452,29 @@ if (!Array.prototype.indexOf) {
 			//};
 			
 			var dragOptions = params.dragOptions || { };
-			var dragFunc = dragOptions.dragFunc || function(e, u) { };
-			var stopFunc = dragOptions.stopFunc || function(e, u) { };
-			var options = $.extend( { opacity:0.5, revert:true, helper:'clone', 
-				start : start,
-				drag: function(e, ui) {				
-					_draw($(n, contextNode), ui);
-					dragFunc(e, ui);
-				}, 				
-				stop : function(e, ui) {
+			dragOptions = $.extend({ opacity:0.5, revert:true, helper:'clone' }, dragOptions);
+			
+			dragOptions.start = _wrap(dragOptions.start, start);
+			dragOptions.drag = _wrap(dragOptions.drag, function(e, ui) { _draw($(n, contextNode), ui); });
+			dragOptions.stop = _wrap(dragOptions.stop, 
+				function(e, ui) {
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					_removeElements([floatingEndpoint.canvas, n]);
 					if (jpc.endpoints[1] == floatingEndpoint) {						
 						_removeElement(jpc.canvas);						
 					}
-					stopFunc(e, ui);
-				}
-			}, dragOptions);
+				}			
+			);		
 											
-			$(self.canvas, contextNode).draggable(options);
+			$(self.canvas, contextNode).draggable(dragOptions);
 		}
 		
 		// connector target
 		if (params.isTarget) {
-			var dropOptions = params.dropOptions || jsPlumb.DEFAULT_DROP_OPTIONS; 
+			var dropOptions = params.dropOptions || jsPlumb.DEFAULT_DROP_OPTIONS;
+			dropOptions = $.extend({}, dropOptions);
 	    	var originalAnchor = null;
-	    	dropOptions.drop = function(e, ui) {
+	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
 	    		var id = $(ui.draggable, contextNode).attr("dragId");
 	    		var jpc = floatingConnections[id];
 	    		jpc.target = _element;
@@ -461,7 +484,7 @@ if (!Array.prototype.indexOf) {
 	    		self.addConnection(jpc);
 	    		jsPlumb.repaint($(ui.draggable, contextNode).attr("elId"));
 	    		delete floatingConnections[id];	    			    	
-			 };
+			 });
 	    	// what to do when something is dropped.
 	    	// 1. find the jpc that is being dragged.  the target endpoint of the jpc will be the
 	    	// one that is being dragged.
@@ -474,17 +497,17 @@ if (!Array.prototype.indexOf) {
 	    	// orientation to be the same as the drop target.  this will cause the connector to snap
 	    	// into the shape it will take if the user drops at that point.
 			 
-			dropOptions.over = function(event, ui) {  
+			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
 				var id = $(ui.draggable, contextNode).attr("dragId");
 		    	var jpc = floatingConnections[id];
 		    	jpc.anchors[1].over(_anchor);		    	
-			 };
+			 });
 			 
-			 dropOptions.out = function(event, ui) {  
+			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
 				var id = $(ui.draggable, contextNode).attr("dragId");
 		    	var jpc = floatingConnections[id];
 		    	jpc.anchors[1].out();
-			 };
+			 });
 			 		
 			$(self.canvas, contextNode).droppable(dropOptions);			
 		}
