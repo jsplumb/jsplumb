@@ -157,10 +157,10 @@ if (!Array.prototype.indexOf) {
     var _removeFromList = function(map, key, value) {
 		var l = map[key];
 		if (l != null) {
-			for (var i = 0; i < l.length; i++) {
-				if (l[i] == value) {
-					delete(l[i]); break;
-				}
+			var i = l.indexOf(value);
+			if (i >= 0) {
+				delete( l[i] );
+				l.splice( i, 1 );	
 			}
 		}		
 	};
@@ -207,6 +207,12 @@ if (!Array.prototype.indexOf) {
     	_operation(elId, f);    	
     };        
     
+    /**
+     * Returns (creating if necessary) the DIV element that jsPlumb uses as the context for all of its 
+     * canvases.  having this makes it possible to makes calls like $("selector", context), which are
+     * faster than if you provide no context.  also we can clear out everything easily like this, either
+     * on a detachEverything() call or during unload().
+     */
     var _getContextNode = function() {
     	if (_jsPlumbContextNode == null) {
     		_jsPlumbContextNode= document.createElement("div");
@@ -221,7 +227,6 @@ if (!Array.prototype.indexOf) {
      */
     var _newCanvas = function(clazz) {
         var canvas = document.createElement("canvas");
-        //document.body.appendChild(canvas);
         _getContextNode().append(canvas);
         canvas.style.position="absolute";
         if (clazz) { canvas.className=clazz; }
@@ -254,6 +259,12 @@ if (!Array.prototype.indexOf) {
     	}    	
     };
     
+    /**
+     * wraps one function with another, creating a placeholder for the wrapped function
+     * if it was null.  this is used to wrap the various drag/drop event functions - to allow
+     * jsPlumb to be notified of important lifecycle events without imposing itself on the user's
+     * drap/drop functionality.
+     */
     var _wrap = function(cascadeFunction, plumbFunction) {
     	cascadeFunction = cascadeFunction || function(e, ui) { };
     	return function(e, ui) {
@@ -263,12 +274,18 @@ if (!Array.prototype.indexOf) {
     }
 	
 	/**
-	 * generic anchor - can be situated anywhere.  params should contain three values, and may optionally have an 'offsets' argument:
+	 * Anchor class. Anchors can be situated anywhere.  
+	 * params should contain three values, and may optionally have an 'offsets' argument:
 	 * 
-	 * x - the x location of the anchor as a percentage of the total width.  
-	 * y - the y location of the anchor as a percentage of the total height.
-	 * orientation - an [x,y] array indicating the general direction a connection from the anchor should go in.
-	 * offsets - an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  may be null.
+	 * x 			: the x location of the anchor as a fraction of the total width.
+	 *   
+	 * y 			: the y location of the anchor as a fraction of the total height.
+	 * 
+	 * orientation 	: an [x,y] array indicating the general direction a connection 
+	 * 				  from the anchor should go in. for more info on this, see the documentation, 
+	 * 				  or the docs in jquery-jsPlumb-defaults-XXX.js for the default Anchors.
+	 * 
+	 * offsets 		: an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  may be null.
 	 * 
 	 */	
 	var Anchor = function(params) {
@@ -298,6 +315,7 @@ if (!Array.prototype.indexOf) {
 		var orientation = null;
 		
 		this.compute = function(xy, wh, txy, twh) {
+			// set these for the getOrientation method to use.
 			xDir = xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
 			yDir = xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
 			return [xy[0], xy[1]];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
@@ -315,20 +333,147 @@ if (!Array.prototype.indexOf) {
 		};
 		
 		/**
-		 * notification the endpoint associated with this anchor is hovering over another anchor; we want to assume that anchor's orientation
-		 * for the duration of the hover. 
+		 * notification the endpoint associated with this anchor is hovering over another anchor; 
+		 * we want to assume that anchor's orientation for the duration of the hover. 
 		 */
 		this.over = function(anchor) {
 			orientation = anchor.getOrientation();			
 		};
 		
 		/**
-		 * notification the endpoint associated with this anchor is no longer hovering over another anchor; we shouls resume calculating
-		 * orientation as we normally do.
+		 * notification the endpoint associated with this anchor is no longer hovering 
+		 * over another anchor; we should resume calculating orientation as we normally do.
 		 */
 		this.out = function() {
 			orientation = null;
 		};
+	};
+	
+	// ************** connection
+	// ****************************************
+	/**
+	* allowed params:
+	* source:	source element (string or a jQuery element) (required)
+	* target:	target element (string or a jQuery element) (required)
+	* anchors: optional array of anchor placements. defaults to BottomCenter for source
+	*          and TopCenter for target.
+	*/
+	var Connection = function(params) {
+
+	// ************** get the source and target and register the connection. *******************
+	    var self = this;
+	    // get source and target as jQuery objects
+	    this.source = (typeof params.source == 'string') ? $("#" + params.source) : params.source;    
+	    this.target = (typeof params.target == 'string') ? $("#" + params.target) : params.target;
+	    this.sourceId = $(this.source).attr("id");
+	    this.targetId = $(this.target).attr("id");
+	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;
+	    
+	 // get anchor
+	    this.anchors = params.anchors || jsPlumb.DEFAULT_ANCHORS || [jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter];
+	    // make connector
+	    this.connector = params.connector || jsPlumb.DEFAULT_CONNECTOR || new jsPlumb.Connectors.Bezier();
+	    this.paintStyle = params.paintStyle || jsPlumb.DEFAULT_PAINT_STYLE;
+	    
+	    // init endpoints
+	    this.endpoints = [];
+	    if(!params.endpoints) params.endpoints = [null,null];
+	    var endpoint0 = params.endpoints[0] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[0] || jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();
+	    var endpoint1 = params.endpoints[1] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[1] ||jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();;
+	    
+	    this.endpointStyles = [];
+	    if (!params.endpointStyles) params.endpointStyles = [null,null];
+	    var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[0] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
+	    var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[1] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
+	    
+	    this.endpoints[0] = params.sourceEndpoint || new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self] });
+	    this.endpoints[1] = params.targetEndpoint || new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self] });
+	    
+	    _updateOffset(this.sourceId);
+	    _updateOffset(this.targetId);
+
+	// *************** create canvas on which the connection will be drawn ************
+	    var canvas = _newCanvas(jsPlumb.connectorClass);
+	    this.canvas = canvas;
+	     
+	    /**
+	     * paints the connection.
+	     * @param elId Id of the element that is in motion
+	     * @param ui jQuery's event system ui object (present if we came from a drag to get here)
+	     * @param recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
+	     */
+	    this.paint = function(elId, ui, recalc) {    	
+	    	var fai = self.floatingAnchorIndex;
+	    	// if the moving object is not the source we must transpose the two references.
+	    	var swap = !(elId == this.sourceId);
+	    	var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
+	    	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
+	    	var el = swap ? this.target : this.source;
+	    	
+	    	if (this.canvas.getContext) {    		    		
+	    		    		
+	    		_updateOffset(elId, ui, recalc);
+	    		if (recalc) _updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
+	    		
+	    		var myOffset = offsets[elId]; 
+	    		var otherOffset = offsets[tId];
+	    		var myWH = sizes[elId];
+	            var otherWH = sizes[tId];
+	            
+	    		var ctx = canvas.getContext('2d');
+	            var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
+	            var sAnchorO = this.anchors[sIdx].getOrientation();
+	            var tAnchorP = this.anchors[tIdx].compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
+	            var tAnchorO = this.anchors[tIdx].getOrientation();
+	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
+	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
+	            $.extend(ctx, this.paintStyle);
+	                        
+	            if (this.paintStyle.gradient && !ie) { 
+		            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
+		            for (var i = 0; i < this.paintStyle.gradient.stops.length; i++)
+		            	g.addColorStop(this.paintStyle.gradient.stops[i][0],this.paintStyle.gradient.stops[i][1]);
+		            ctx.strokeStyle = g;
+	            }
+	            	            
+	            this.connector.paint(dim, ctx);
+	                            
+	        	this.endpoints[swap ? 1 : 0].paint(sAnchorP, this.paintStyle);
+	        	this.endpoints[swap ? 0 : 1].paint(tAnchorP, this.paintStyle);
+	    	}
+	    };
+	    
+	    this.repaint = function() {
+	    	this.paint(this.sourceId, null, true);
+	    };
+
+	    // dragging
+	    var draggable = params.draggable == null ? _draggableByDefault : params.draggable;
+	    if (draggable && self.source.draggable) {    	
+	    	var dragOptions = params.dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
+	    	var dragCascade = dragOptions.drag || function(e,u) {};
+	    	var initDrag = function(element, elementId, dragFunc) {
+	    		var opts = $.extend({drag:dragFunc}, dragOptions);
+	    		var draggable = draggableStates[elementId];
+	    		opts.disabled = draggable == null ? false : !draggable;
+	        	element.draggable(opts);
+	    	};
+	    	initDrag(this.source, this.sourceId, function(event, ui) {
+	    		 _draw(self.source, ui);
+		    	dragCascade(event, ui);
+	    	});
+	    	initDrag(this.target, this.targetId, function(event, ui) {
+	    		_draw(self.target, ui);
+		    	dragCascade(event, ui);
+	    	});
+	    }
+	    
+	    // resizing (using the jquery.ba-resize plugin). todo: decide whether to include or not.
+	    if (this.source.resize) {
+	    	this.source.resize(function(e) {
+	    		jsPlumb.repaint(self.sourceId);
+	    	});
+	    }
 	};
 	
 	/**
@@ -366,6 +511,11 @@ if (!Array.prototype.indexOf) {
 		this.addConnection = function(connection) {
 			self.connections.push(connection);
 		};
+		this.removeConnection = function(connection) {
+			var idx = self.connections.indexOf(connection);
+			if (idx >= 0)
+				self.connections.splice(idx, 1);
+		};
 		/**
 		 * first pass at default ConnectorSelector: returns the first connection, if we have any.
 		 */
@@ -377,6 +527,9 @@ if (!Array.prototype.indexOf) {
 		var contextNode = _getContextNode();
 		var isFull = function() { return self.connections.length >= _maxConnections; };
 		
+		/**
+		 * paints the Endpoint, recalculating offset and anchor positions if necessary.
+		 */
 		this.paint = function(anchorPoint, connectorPaintStyle, canvas) {
 			if (anchorPoint == null) {				
 				var xy = offsets[_elementId];
@@ -390,15 +543,16 @@ if (!Array.prototype.indexOf) {
 			}
 			_endpoint.paint(anchorPoint, _anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
 		};
+		
+		
 		// is this a connection source? we make it draggable and have the drag listener 
 		// maintain a connection with a floating endpoint.
 		if (params.isSource) {
 			
-			var d = null, n = null, id = null, floatingEndpoint = null, jpc = null;
-			var f = function() { return n; };
+			var n = null, id = null, 
+			floatingEndpoint = null, jpc = null, 
+			existingJpc = false, existingJpcParams = null;
 			
-			// todo: what if we want to drag an existing connection?
-			// 
 			// first the question is, how many connections are on this endpoint?  if it's only one, then excellent.  otherwise we will either need a way
 			// to select one connection from the list, or drag them all. if we had a pluggable 'ConnectorSelector' interface we could probably
 			// provide a way for people to implement their own UI components to do the connector selection.  the question in that particular case would be how much
@@ -408,10 +562,10 @@ if (!Array.prototype.indexOf) {
 			//
 			// let's say for now that there is just one endpoint, cos we need to get this going before we can consider a list of them anyway.
 			// the major difference between that case and the case of a new endpoint is actually quite small - it's a question of where the
-			// jsPlumbConnection comes from.  for a new one, we create a new one. obviously.  otherwise we just get the jpc from the Endpoint
+			// Connection comes from.  for a new one, we create a new one. obviously.  otherwise we just get the jpc from the Endpoint
 			// (remember we're only assuming one connection right now).  so all of the UI stuff we do to create the floating endpoint etc
 			// will still be valid, but when we stop dragging, we'll have to do something different.  if we stop with a valid drop i think it will
-			// be the same process.  but if we stop with an invalid drop we have to reset the jsPlumbConnection to how it was when we got it.
+			// be the same process.  but if we stop with an invalid drop we have to reset the Connection to how it was when we got it.
 			var start = function(e, ui) {
 				//if (!isFull()) {
 				n = document.createElement("div");
@@ -420,9 +574,11 @@ if (!Array.prototype.indexOf) {
 				id = new String(new Date().getTime());				
 				$(n, contextNode).attr("id", id);
 				_updateOffset(id);
+				// store the id of the dragging div and the source element. the drop function
+				// will pick these up.
 				$(self.canvas, contextNode).attr("dragId", id);
 				$(self.canvas, contextNode).attr("elId", _elementId);
-				
+				// create a floating anchor
 				var floatingAnchor = new FloatingAnchor({reference:_anchor});
 				floatingEndpoint = new Endpoint({
 					style:_style, 
@@ -431,23 +587,41 @@ if (!Array.prototype.indexOf) {
 					source:n 
 				});
 				
-				//jpc = self.connectorSelector();
+				jpc = self.connectorSelector();
 				if (jpc == null) {
 					// create a connection. one end is this endpoint, the other is a floating endpoint.
-					jpc = new jsPlumbConnection({
+					jpc = new Connection({
 						sourceEndpoint:self, 
 						targetEndpoint:floatingEndpoint,
 						source:$(_element),
 						target:$(n, contextNode),
 						anchors:[_anchor, floatingAnchor],
-						paintStyle : params.connectionStyle, // this can be null. jsPlumbConnection will use the default.
+						paintStyle : params.connectionStyle, // this can be null. Connection will use the default.
 						connector: params.connector
 					});
+					// todo ...unregister on stop
+					self.addConnection(jpc);
 				} else {
-					jpc.target = $(n, contextNode);
-					jpc.targetId = id;
-					jpc.anchors[1] = floatingAnchor;
-					jpc.targetEndpoint = floatingEndpoint;
+					existingJpc = true;
+					var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;
+					jpc.floatingAnchorIndex = anchorIdx;
+					// probably we should remove the connection? and add it back if the user
+					// does not drop it somewhere proper.
+					self.removeConnection(jpc);
+					if (anchorIdx == 0){
+						existingJpcParams = [jpc.source, jpc.sourceId];
+						jpc.source = $(n, contextNode);
+						jpc.sourceId = id;						
+					}else {
+						existingJpcParams = [jpc.target, jpc.targetId];
+						jpc.target = $(n, contextNode);
+						jpc.targetId = id;
+					}					
+					// store the endpoint
+					existingJpcParams.push(jpc.anchors[anchorIdx]);
+					existingJpcParams.push(jpc.endpoints[anchorIdx]);
+					jpc.endpoints[anchorIdx] = floatingEndpoint;
+					jpc.anchors[anchorIdx] = floatingAnchor;
 				}
 				
 				// register it.
@@ -455,9 +629,7 @@ if (!Array.prototype.indexOf) {
 				
 				// todo unregister on stop
 				floatingEndpoint.addConnection(jpc);
-				// todo ...unregister on stop
-				self.addConnection(jpc);
-				
+								
 				// only register for the target endpoint; we will not be dragging the source at any time
 				// before this connection is either discarded or made into a permanent connection.
 				_addToList(endpointsByElement, id, floatingEndpoint);
@@ -469,15 +641,36 @@ if (!Array.prototype.indexOf) {
 			dragOptions = $.extend({ opacity:0.5, revert:true, helper:'clone' }, dragOptions);
 			
 			dragOptions.start = _wrap(dragOptions.start, start);
-			dragOptions.drag = _wrap(dragOptions.drag, function(e, ui) { _draw($(n, contextNode), ui); });
+			dragOptions.drag = _wrap(dragOptions.drag, function(e, ui) { 
+				_draw($(n, contextNode), ui); 
+			});
 			dragOptions.stop = _wrap(dragOptions.stop, 
 				function(e, ui) {					
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					_removeElements([floatingEndpoint.canvas, n]);
-					if (jpc.endpoints[1] == floatingEndpoint) {						
-						_removeElement(jpc.canvas);						
+					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+					if (jpc.endpoints[idx] == floatingEndpoint) {						
+						_removeElement(jpc.canvas);
+						if (existingJpc) {
+							//var idx = jpc.floatingAnchorIndex;
+							jpc.floatingAnchorIndex = null;
+							if (idx == 0) {
+								jpc.source = existingJpcParams[0];
+								jpc.sourceId = existingJpcParams[1];																	
+							} else {
+								jpc.target = existingJpcParams[0];
+								jpc.targetId = existingJpcParams[1];
+							}
+							jpc.anchors[idx] = existingJpcParams[2];
+							jpc.endpoints[idx] = existingJpcParams[3];
+							self.addConnection(jpc);
+						} else {
+							// do something?
+						}
 					}
 					jpc = null;
+					delete floatingEndpoint;
+					//delete floatingAnchor;
 				}			
 			);		
 											
@@ -492,10 +685,16 @@ if (!Array.prototype.indexOf) {
 	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
 	    		var id = $(ui.draggable, contextNode).attr("dragId");
 	    		var jpc = floatingConnections[id];
-	    		jpc.target = _element;
-	    		jpc.targetId = _elementId;
-	    		jpc.anchors[1] = _anchor;
-	    		jpc.endpoints[1] = self;
+	    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+	    		if (idx == 0) {
+	    			jpc.source = _element;
+		    		jpc.sourceId = _elementId;		    		
+	    		} else {
+		    		jpc.target = _element;
+		    		jpc.targetId = _elementId;		    		
+	    		}
+	    		jpc.anchors[idx] = _anchor;
+	    		jpc.endpoints[idx] = self;
 	    		self.addConnection(jpc);
 	    		jsPlumb.repaint($(ui.draggable, contextNode).attr("elId"));
 	    		delete floatingConnections[id];	    			    	
@@ -573,7 +772,7 @@ if (!Array.prototype.indexOf) {
      * @param params object containing setup for the connection.  see documentation.
      */
     connect : function(params) {
-    	var jpc = new jsPlumbConnection(params);    	
+    	var jpc = new Connection(params);    	
     	
 		// register endpoints for the element
 		_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
@@ -787,144 +986,6 @@ if (!Array.prototype.indexOf) {
 		delete floatingConnections;
 		delete draggableStates;		
 		document.body.removeChild(_jsPlumbContextNode);
-    }
-};
-
-// ************** connection
-// ****************************************
-/**
-* allowed params:
-* source:	source element (string or a jQuery element) (required)
-* target:	target element (string or a jQuery element) (required)
-* anchors: optional array of anchor placements. defaults to BottomCenter for source
-*          and TopCenter for target.
-*/
-var jsPlumbConnection = function(params) {
-
-// ************** get the source and target and register the connection. *******************
-    var self = this;
-    // get source and target as jQuery objects
-    this.source = (typeof params.source == 'string') ? $("#" + params.source) : params.source;    
-    this.target = (typeof params.target == 'string') ? $("#" + params.target) : params.target;
-    this.sourceId = $(this.source).attr("id");
-    this.targetId = $(this.target).attr("id");
-    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;
-    
- // get anchor
-    this.anchors = params.anchors || jsPlumb.DEFAULT_ANCHORS || [jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter];
-    // make connector
-    this.connector = params.connector || jsPlumb.DEFAULT_CONNECTOR || new jsPlumb.Connectors.Bezier();
-    this.paintStyle = params.paintStyle || jsPlumb.DEFAULT_PAINT_STYLE;
-    
-    // init endpoints
-    this.endpoints = [];
-    if(!params.endpoints) params.endpoints = [null,null];
-    var endpoint0 = params.endpoints[0] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[0] || jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();
-    var endpoint1 = params.endpoints[1] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[1] ||jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();;
-    
-    this.endpointStyles = [];
-    if (!params.endpointStyles) params.endpointStyles = [null,null];
-    var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[0] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
-    var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[1] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
-    
-    this.endpoints[0] = params.sourceEndpoint || new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self] });
-    this.endpoints[1] = params.targetEndpoint || new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self] });
-    
-    offsets[this.sourceId] = this.source.offset(); 
-    sizes[this.sourceId] = [this.source.outerWidth(), this.source.outerHeight()]; 
-    offsets[this.targetId] = this.target.offset();
-    sizes[this.targetId] = [this.target.outerWidth(), this.target.outerHeight()];
-
-// *************** create canvases on which the connection will be drawn ************
-    var canvas = _newCanvas(jsPlumb.connectorClass);
-    this.canvas = canvas;
-// ************** store the anchors     
-  
-    /**
-     * notification from an endpoint that it is currently floating.  the next time we paint, we should
-     * use the offset given here for the anchor location rather than the static position.
-     */
-    this.endpointFloating = function(endpoint, offset) {
-    	
-    	
-    };
-    
-    /**
-     * paints the connection.
-     * @param elId Id of the element that is in motion
-     * @param ui jQuery's event system ui object (present if we came from a drag to get here)
-     * @param recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
-     */
-    this.paint = function(elId, ui, recalc) {    	
-    	// if the moving object is not the source we must transpose the two references.
-    	var swap = !(elId == this.sourceId);
-    	var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
-    	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
-    	var el = swap ? this.target : this.source;
-    	
-    	if (this.canvas.getContext) {    		    		
-    		    		
-    		_updateOffset(elId, ui, recalc);
-    		if (recalc) _updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
-    		
-    		var myOffset = offsets[elId]; 
-    		var otherOffset = offsets[tId];
-    		var myWH = sizes[elId];
-            var otherWH = sizes[tId];
-            
-    		var ctx = canvas.getContext('2d');
-            var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
-            var sAnchorO = this.anchors[sIdx].getOrientation();
-            var tAnchorP = this.anchors[tIdx].compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
-            var tAnchorO = this.anchors[tIdx].getOrientation();
-            var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
-            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
-            $.extend(ctx, this.paintStyle);
-                        
-            if (this.paintStyle.gradient && !ie) { 
-	            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
-	            for (var i = 0; i < this.paintStyle.gradient.stops.length; i++)
-	            	g.addColorStop(this.paintStyle.gradient.stops[i][0],this.paintStyle.gradient.stops[i][1]);
-	            ctx.strokeStyle = g;
-            }
-            	            
-            this.connector.paint(dim, ctx);
-                            
-        	this.endpoints[swap ? 1 : 0].paint(sAnchorP, this.paintStyle);
-        	this.endpoints[swap ? 0 : 1].paint(tAnchorP, this.paintStyle);
-    	}
-    };
-    
-    this.repaint = function() {
-    	this.paint(this.sourceId, null, true);
-    };
-
-    // dragging
-    var draggable = params.draggable == null ? _draggableByDefault : params.draggable;
-    if (draggable && self.source.draggable) {    	
-    	var dragOptions = params.dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
-    	var dragCascade = dragOptions.drag || function(e,u) {};
-    	var initDrag = function(element, elementId, dragFunc) {
-    		var opts = $.extend({drag:dragFunc}, dragOptions);
-    		var draggable = draggableStates[elementId];
-    		opts.disabled = draggable == null ? false : !draggable;
-        	element.draggable(opts);
-    	};
-    	initDrag(this.source, this.sourceId, function(event, ui) {
-    		 _draw(self.source, ui);
-	    	dragCascade(event, ui);
-    	});
-    	initDrag(this.target, this.targetId, function(event, ui) {
-    		_draw(self.target, ui);
-	    	dragCascade(event, ui);
-    	});
-    }
-    
-    // resizing (using the jquery.ba-resize plugin). todo: decide whether to include or not.
-    if (this.source.resize) {
-    	this.source.resize(function(e) {
-    		jsPlumb.repaint(self.sourceId);
-    	});
     }
 };
 
