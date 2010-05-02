@@ -191,5 +191,148 @@
             ctx.stroke();
         }
     };
+    
+    
+    /**
+     * Types of endpoint UIs.  we supply three - a circle of default radius 10px, a rectangle of
+     * default size 20x20, and an image (with no default).  you can supply others of these if you want to - see the documentation
+     * for a howto.
+     */    	
+    	
+	/**
+	 * a round endpoint, with default radius 10 pixels.
+	 */
+	jsPlumb.Endpoints.Dot = function(params) {
+	
+		params = params || { radius:10 };
+		var self = this;
+		this.radius = params.radius;
+		var defaultOffset = 0.5 * this.radius;
+		var defaultInnerRadius = this.radius / 3;
 		
+		var parseValue = function(value) {
+			try {
+				return parseInt(value); 
+			}
+			catch(e) {
+				if (value.substring(value.length - 1) == '%')
+					return parseInt(value.substring(0, value - 1));
+			}
+		}
+		
+		var calculateAdjustments = function(gradient) {
+			var offsetAdjustment = defaultOffset;
+			var innerRadius = defaultInnerRadius;
+			if (gradient.offset) offsetAdjustment = parseValue(gradient.offset);
+        	if(gradient.innerRadius) innerRadius = parseValue(gradient.innerRadius);
+        	return [offsetAdjustment, innerRadius];
+		};
+		
+    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
+			var radius = endpointStyle.radius || self.radius;
+			var x = anchorPoint[0] - radius;
+			var y = anchorPoint[1] - radius;
+			jsPlumb.sizeCanvas(canvas, x, y, radius * 2, radius * 2);
+			var ctx = canvas.getContext('2d');
+			var style = $.extend({}, endpointStyle);
+			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
+			$.extend(ctx, style);
+			
+			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+            if (endpointStyle.gradient && !ie) {
+            	
+            	var adjustments = calculateAdjustments(endpointStyle.gradient); 
+            	var yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0];
+            	var xAdjust = orientation[0] == 1 ? adjustments[0] * -1:  adjustments[0];
+            	var g = ctx.createRadialGradient(radius, radius, radius, radius + xAdjust, radius + yAdjust, adjustments[1]);
+	            for (var i = 0; i < endpointStyle.gradient.stops.length; i++)
+	            	g.addColorStop(endpointStyle.gradient.stops[i][0], endpointStyle.gradient.stops[i][1]);
+	            ctx.fillStyle = g;
+            }
+			
+			ctx.beginPath();    			
+			ctx.arc(radius, radius, radius, 0, Math.PI*2, true);
+			ctx.closePath();
+			ctx.fill();
+    	};
+	};
+	
+	/**
+	 * A Rectangular endpoint, with default size 20x20.
+	 */
+	jsPlumb.Endpoints.Rectangle = function(params) {
+    	
+		params = params || { width:20, height:20 };
+		var self = this;
+		this.width = params.width;
+		this.height = params.height;
+		
+    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {    		
+			var width = endpointStyle.width || self.width;
+			var height = endpointStyle.height || self.height;
+			var x = anchorPoint[0] - (width/2);
+			var y = anchorPoint[1] - (height/2);
+			jsPlumb.sizeCanvas(canvas, x, y, width, height);
+			var ctx = canvas.getContext('2d');
+			//todo: the fillStyle needs some thought. we want to support a few options:
+			// 1. nothing supplied; use the stroke color or the default if no stroke color.
+			// 2. a fill color supplied - use it
+			// 3. a gradient supplied - use it
+			// 4. setting the endpoint to the same color as the bg of the element it is attached to.
+			var style = $.extend({}, endpointStyle);
+			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
+			$.extend(ctx, style);
+			
+			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+            if (endpointStyle.gradient && !ie) {
+            	// first figure out which direction to run the gradient in (it depends on the orientation of the anchors)
+            	var y1 = orientation[1] == 1 ? height : orientation[1] == 0 ? height / 2 : 0;
+            	var y2 = orientation[1] == -1 ? height : orientation[1] == 0 ? height / 2 : 0;
+            	var x1 = orientation[0] == 1 ? width : orientation[0] == 0 ? width / 2 : 0;
+            	var x2 = orientation[0] == -1 ? width : orientation[0] == 0 ? height / 2 : 0;
+	            var g = ctx.createLinearGradient(x1,y1,x2,y2);
+	            for (var i = 0; i < endpointStyle.gradient.stops.length; i++)
+	            	g.addColorStop(endpointStyle.gradient.stops[i][0], endpointStyle.gradient.stops[i][1]);
+	            ctx.fillStyle = g;
+            }
+			
+			ctx.beginPath();
+			ctx.rect(0, 0, width, height);
+			ctx.closePath();
+			ctx.fill();
+    	};
+	}; 
+	
+	/**
+	 * Image endpoint - draws an image as the endpoint.  You must provide a 'url' property in the params object..
+	 */
+	jsPlumb.Endpoints.Image = function(params) {
+		var self = this;
+		this.img = new Image();
+		var ready = false;
+		this.img.onload = function() {
+			self.ready = true;
+		};
+		this.img.src = params.url;
+		
+		var actuallyPaint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
+			var width = self.img.width || endpointStyle.width;
+			var height = self.img.height || endpointStyle.height;
+			var x = anchorPoint[0] - (width/2);
+			var y = anchorPoint[1] - (height/2);
+			jsPlumb.sizeCanvas(canvas, x, y, width, height);
+			var ctx = canvas.getContext('2d');
+			ctx.drawImage(self.img,0,0);
+		};
+		
+		this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
+			if (self.ready) {
+    			actuallyPaint(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle)
+			}
+			else 
+				window.setTimeout(function() {    					
+					self.paint(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle);
+				}, 200);
+		};    		
+	};    		
 })();
