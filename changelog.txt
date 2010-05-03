@@ -1,5 +1,38 @@
 * 1.1.0-RC1
 
+	- Anchors must now implement 'getOrientation' rather than just having an 'orientation' member.
+	  This is used to support anchors whose orientation is calculated dynamically (such as when dragging)
+	  
+
+    - internally jsPlumb is now "endpoint-centric" rather than "connection-centric" as it used to be.
+      this allows us to add Endpoints that have no connections at creation time, and that can act as
+      sources and targets for Connections.
+    
+    
+      
+    - renamed '_removeCanvas' to '_removeElement' to more properly reflect what it does.
+    - added '_removeElements' method
+    - 
+
+* 1.0.4
+
+	- fix for issue 5 (zIndex error causing 'invalid argument' in IE) :
+	
+	http://code.google.com/p/jsplumb/issues/detail?id=5&can=1
+		
+	- added 'setDraggable' method.  this allows you to override whether or not a given element can be dragged,
+	  regardless of what any plumb call might request.
+	  
+	- added setDraggableByDefault method.  Use this to tell jsPlumb whether or not elements should be draggable
+	  by default.  jsPlumb assumes they should be if you do nothing.
+	  
+	- private 'drag' method renamed to '_draw'
+	- private 'setVisible' method renamed to '_setVisible'
+	- private 'newCanvas' method renamed to '_newCanvas'
+	- private 'removeCanvas' method renamed to '_removeCanvas'
+	
+	  
+
 * 1.0.3
 
 	- fix for issue 2:
