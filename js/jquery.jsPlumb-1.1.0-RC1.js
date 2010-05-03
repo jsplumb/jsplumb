@@ -87,6 +87,30 @@ if (!Array.prototype.indexOf) {
     	}
     };
     
+    /**
+     * inits a draggable if it's not already initialised.
+     * todo: if the element was draggable already, like from some non-jsPlumb call, wrap the drag function. 
+     */
+    var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
+    	// dragging
+	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
+	    if (draggable && element.draggable) {    	
+	    	var options = dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
+	    	var dragCascade = options.drag || function(e,u) {};
+	    	var initDrag = function(element, elementId, dragFunc) {
+	    		var opts = $.extend({drag:dragFunc}, options);
+	    		var draggable = draggableStates[elementId];
+	    		opts.disabled = draggable == null ? false : !draggable;
+	        	element.draggable(opts);
+	    	};
+	    	initDrag(element, elementId, function(event, ui) {
+	    		 _draw(element, ui);
+		    	dragCascade(event, ui);
+	    	});
+	    }
+    	
+    };
+    
     
     /**
      * performs the given function operation on all the connections found for the given element
@@ -447,27 +471,9 @@ if (!Array.prototype.indexOf) {
 	    	this.paint(this.sourceId, null, true);
 	    };
 
-	    // dragging
-	    var draggable = params.draggable == null ? _draggableByDefault : params.draggable;
-	    if (draggable && self.source.draggable) {    	
-	    	var dragOptions = params.dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
-	    	var dragCascade = dragOptions.drag || function(e,u) {};
-	    	var initDrag = function(element, elementId, dragFunc) {
-	    		var opts = $.extend({drag:dragFunc}, dragOptions);
-	    		var draggable = draggableStates[elementId];
-	    		opts.disabled = draggable == null ? false : !draggable;
-	        	element.draggable(opts);
-	    	};
-	    	initDrag(this.source, this.sourceId, function(event, ui) {
-	    		 _draw(self.source, ui);
-		    	dragCascade(event, ui);
-	    	});
-	    	initDrag(this.target, this.targetId, function(event, ui) {
-	    		_draw(self.target, ui);
-		    	dragCascade(event, ui);
-	    	});
-	    }
-	    
+	    _initDraggableIfNecessary(self.source, self.sourceId, params.draggable, params.dragOptions);
+	    _initDraggableIfNecessary(self.target, self.targetId, params.draggable, params.dragOptions);
+	    	    
 	    // resizing (using the jquery.ba-resize plugin). todo: decide whether to include or not.
 	    if (this.source.resize) {
 	    	this.source.resize(function(e) {
@@ -619,7 +625,8 @@ if (!Array.prototype.indexOf) {
 					}					
 					// store the endpoint
 					existingJpcParams.push(jpc.anchors[anchorIdx]);
-					existingJpcParams.push(jpc.endpoints[anchorIdx]);
+					
+					jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
 					jpc.endpoints[anchorIdx] = floatingEndpoint;
 					jpc.anchors[anchorIdx] = floatingAnchor;
 				}
@@ -650,9 +657,8 @@ if (!Array.prototype.indexOf) {
 					_removeElements([floatingEndpoint.canvas, n]);
 					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 					if (jpc.endpoints[idx] == floatingEndpoint) {						
-						_removeElement(jpc.canvas);
+						
 						if (existingJpc) {
-							//var idx = jpc.floatingAnchorIndex;
 							jpc.floatingAnchorIndex = null;
 							if (idx == 0) {
 								jpc.source = existingJpcParams[0];
@@ -662,15 +668,17 @@ if (!Array.prototype.indexOf) {
 								jpc.targetId = existingJpcParams[1];
 							}
 							jpc.anchors[idx] = existingJpcParams[2];
-							jpc.endpoints[idx] = existingJpcParams[3];
-							self.addConnection(jpc);
+							jpc.endpoints[idx] = jpc.suspendedEndpoint;
+							jpc.suspendedEndpoint.addConnection(jpc);
+							jsPlumb.repaint(existingJpcParams[1]);
+							//self.addConnection(jpc);
 						} else {
-							// do something?
+							_removeElement(jpc.canvas);
+							self.removeConnection(jpc);
 						}
 					}
 					jpc = null;
 					delete floatingEndpoint;
-					//delete floatingAnchor;
 				}			
 			);		
 											
@@ -684,6 +692,7 @@ if (!Array.prototype.indexOf) {
 	    	var originalAnchor = null;
 	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
 	    		var id = $(ui.draggable, contextNode).attr("dragId");
+	    		var elId = $(ui.draggable, contextNode).attr("elId");
 	    		var jpc = floatingConnections[id];
 	    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 	    		if (idx == 0) {
@@ -694,6 +703,10 @@ if (!Array.prototype.indexOf) {
 		    		jpc.targetId = _elementId;		    		
 	    		}
 	    		jpc.anchors[idx] = _anchor;
+	    		// remove this jpc from the current endpoint
+	    		jpc.endpoints[idx].removeConnection(jpc);
+	    		if (jpc.suspendedEndpoint)
+	    			jpc.suspendedEndpoint.removeConnection(jpc);
 	    		jpc.endpoints[idx] = self;
 	    		self.addConnection(jpc);
 	    		jsPlumb.repaint($(ui.draggable, contextNode).attr("elId"));
@@ -714,13 +727,15 @@ if (!Array.prototype.indexOf) {
 			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
 				var id = $(ui.draggable, contextNode).attr("dragId");
 		    	var jpc = floatingConnections[id];
-		    	jpc.anchors[1].over(_anchor);		    	
+		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;  
+		    	jpc.anchors[idx].over(_anchor);		    	
 			 });
 			 
 			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
 				var id = $(ui.draggable, contextNode).attr("dragId");
 		    	var jpc = floatingConnections[id];
-		    	jpc.anchors[1].out();
+		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+		    	jpc.anchors[idx].out();
 			 });
 			 		
 			$(self.canvas, contextNode).droppable(dropOptions);			
@@ -732,262 +747,262 @@ if (!Array.prototype.indexOf) {
 	 */
     var jsPlumb = window.jsPlumb = {
 
-	connectorClass : '_jsPlumb_connector',
-	endpointClass : '_jsPlumb_endpoint',
-	DEFAULT_PAINT_STYLE : { lineWidth : 10, strokeStyle : "red" },
-    DEFAULT_ENDPOINT_STYLE : { fillStyle : null }, // meaning it will be derived from the stroke style of the connector.
-    DEFAULT_ENDPOINT_STYLES : [ null, null ], // meaning it will be derived from the stroke style of the connector.
-    DEFAULT_DRAG_OPTIONS : { },
-    DEFAULT_CONNECTOR : null,
-    DEFAULT_ENDPOINT : null,    
-    DEFAULT_ENDPOINTS : [null, null],  // new in 0.0.4, the ability to specify diff. endpoints.  DEFAULT_ENDPOINT is here for backwards compatibility.            
-
-    Anchors : {},
-    Connectors : {},
-    Endpoints : {},
-        
-    
-    /**
-     * adds an endpoint to the element
-     */
-    addEndpoint : function(params) {
-    	var e = new Endpoint(params);
-    	var el = $(params.source);
-    	_addToList(endpointsByElement, el.attr("id"), e);
-    	e.paint();
-    },
-    
-    /**
-     * adds a list of endpoints to the element
-     */
-    addEndpoints : function(endpoints, source) {
-    	for (var i = 0; i < endpoints.length; i++) {
-    		var params = $.extend({source:source}, endpoints[i]);
-    		jsPlumb.addEndpoint(params);
-    	}
-    },
-    
-    /**
-     * establishes a connection between two elements.
-     * @param params object containing setup for the connection.  see documentation.
-     */
-    connect : function(params) {
-    	var jpc = new Connection(params);    	
-    	
-		// register endpoints for the element
-		_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
-		_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
-		
-		// force a paint
-		_draw(jpc.source);
-    },           
-    
-    /**
-     * Remove one connection to an element.
-     * @param sourceId id of the first window in the connection
-     * @param targetId id of the second window in the connection
-     * @return true if successful, false if not.
-     */
-    detach : function(sourceId, targetId) {
-    	var f = function(jpc) {
-    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-    			_removeElement(jpc.canvas);
-				_removeElement(jpc.targetEndpointCanvas);
-				_removeElement(jpc.sourceEndpointCanvas);    			
-    			return true;
-    		}    		
-    	};    	
-    	
-    	// todo: how to cleanup the actual storage?  a third arg to _operation?
-    	_operation(sourceId, f);    	
-    },
-    
-    /**
-     * remove all an element's connections.
-     * @param elId id of the 
-     */
-    detachAll : function(elId) {    	
-    	
-    	var f = function(jpc) {
-    		// todo replace with _cleanupConnection call here.
-    		_removeElement(jpc.canvas);
-			_removeElement(jpc.targetEndpointCanvas);
-			_removeElement(jpc.sourceEndpointCanvas);
-    	};
-    	_operation(elId, f);
-    	delete endpointsByElement[elId];    	
-    },
-    
-    /**
-     * remove all connections.
-     */
-    detachEverything : function() {
-    	var f = function(jpc) {
-    		_removeElement(jpc.canvas);
-			_removeElement(jpc.targetEndpointCanvas);
-			_removeElement(jpc.sourceEndpointCanvas);
-    	};
-    	
-    	_operationOnAll(f);
-    	
-    	delete endpointsByElement;
-    	endpointsByElement = {};
-    },    
-    
-    /**
-     * Gets all endpoints for the element with the given id.
-     */
-    getEndpoints : function(elId) {
-    	return endpointsByElement[elId];
-    },
-    
-    /**
-     * Set an element's connections to be hidden.
-     */
-    hide : function(elId) {
-    	_setVisible(elId, "none");
-    },
-    
-    /**
-     * Creates an anchor with the given params.
-     * x - the x location of the anchor as a percentage of the total width.  
-	 * y - the y location of the anchor as a percentage of the total height.
-	 * orientation - an [x,y] array indicating the general direction a connection from the anchor should go in.
-	 * offsets - an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  optional. defaults to [0,0]. 
-     */
-    makeAnchor : function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
-    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
-    	// by just passing in four values.  but for backwards compatibility if we are given only one value we assume it's a call in the old form.
-    	var params = {};
-    	if (arguments.length == 1) $.extend(params, x);
-    	else {
-    		params = {x:x, y:y};
-    		if (arguments.length >= 4) {
-    			params.orientation = [arguments[2], arguments[3]];
-    		}
-    		if (arguments.length == 6) params.offsets = [arguments[4], arguments[5]];
-    	}
-    	return new Anchor(params);
-    },
-        
-    
-    /**
-     * repaint element and its connections. element may be an id or the actual jQuery object.
-     * this method gets new sizes for the elements before painting anything.
-     */
-    repaint : function(el) {
-    	var _repaint = function(el, elId) {
-	    	var loc = {'absolutePosition': el.offset()};
+		connectorClass : '_jsPlumb_connector',
+		endpointClass : '_jsPlumb_endpoint',
+		DEFAULT_PAINT_STYLE : { lineWidth : 10, strokeStyle : "red" },
+	    DEFAULT_ENDPOINT_STYLE : { fillStyle : null }, // meaning it will be derived from the stroke style of the connector.
+	    DEFAULT_ENDPOINT_STYLES : [ null, null ], // meaning it will be derived from the stroke style of the connector.
+	    DEFAULT_DRAG_OPTIONS : { },
+	    DEFAULT_CONNECTOR : null,
+	    DEFAULT_ENDPOINT : null,    
+	    DEFAULT_ENDPOINTS : [null, null],  // new in 0.0.4, the ability to specify diff. endpoints.  DEFAULT_ENDPOINT is here for backwards compatibility.            
+	
+	    Anchors : {},
+	    Connectors : {},
+	    Endpoints : {},
+	        
+	    
+	    /**
+	     * adds an endpoint to the element
+	     */
+	    addEndpoint : function(params) {
+	    	var e = new Endpoint(params);
+	    	var el = $(params.source);
+	    	_addToList(endpointsByElement, el.attr("id"), e);
+	    	e.paint();
+	    },
+	    
+	    /**
+	     * adds a list of endpoints to the element
+	     */
+	    addEndpoints : function(endpoints, source) {
+	    	for (var i = 0; i < endpoints.length; i++) {
+	    		var params = $.extend({source:source}, endpoints[i]);
+	    		jsPlumb.addEndpoint(params);
+	    	}
+	    },
+	    
+	    /**
+	     * establishes a connection between two elements.
+	     * @param params object containing setup for the connection.  see documentation.
+	     */
+	    connect : function(params) {
+	    	var jpc = new Connection(params);    	
+	    	
+			// register endpoints for the element
+			_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
+			_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
+			
+			// force a paint
+			_draw(jpc.source);
+	    },           
+	    
+	    /**
+	     * Remove one connection to an element.
+	     * @param sourceId id of the first window in the connection
+	     * @param targetId id of the second window in the connection
+	     * @return true if successful, false if not.
+	     */
+	    detach : function(sourceId, targetId) {
 	    	var f = function(jpc) {
-	    		jpc.paint(elId, loc, true);
+	    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+	    			_removeElement(jpc.canvas);
+					_removeElement(jpc.targetEndpointCanvas);
+					_removeElement(jpc.sourceEndpointCanvas);    			
+	    			return true;
+	    		}    		
+	    	};    	
+	    	
+	    	// todo: how to cleanup the actual storage?  a third arg to _operation?
+	    	_operation(sourceId, f);    	
+	    },
+	    
+	    /**
+	     * remove all an element's connections.
+	     * @param elId id of the 
+	     */
+	    detachAll : function(elId) {    	
+	    	
+	    	var f = function(jpc) {
+	    		// todo replace with _cleanupConnection call here.
+	    		_removeElement(jpc.canvas);
+				_removeElement(jpc.targetEndpointCanvas);
+				_removeElement(jpc.sourceEndpointCanvas);
 	    	};
 	    	_operation(elId, f);
-    	};
-    	
-    	var _processElement = function(el) {
-    		var ele = typeof(el)=='string' ? $("#" + el) : el;
-	    	var eleId = ele.attr("id");
-	    	_repaint(ele, eleId);
-    	};
-    	
-    	// TODO: support a jQuery result object too!
-    	
-    	// support both lists...
-    	if (typeof el =='object') {
-    		for (var i = 0; i < el.length; i++)
-    			_processElement(el[i]);
-    	} // ...and single strings.
-    	else _processElement(el);
-    },       
-    
-    /**
-     * repaint all connections.
-     */
-    repaintEverything : function() {
-    	var f = function(jpc) { jpc.repaint(); }
-    	for (var elId in endpointsByElement) {  
-    		_operation(elId, f);
-    	}
-    },
-    
-    /**
-     * sets/unsets automatic repaint on window resize.
-     */
-    setAutomaticRepaint : function(value) {
-    	automaticRepaint = value;
-    },
-    
-    /**
-     * Sets the default size jsPlumb will use for a new canvas (we create a square canvas so
-     * one value is all that is required).  This is a hack for IE, because ExplorerCanvas seems
-     * to need for a canvas to be larger than what you are going to draw on it at initialisation
-     * time.  The default value of this is 1200 pixels, which is quite large, but if for some
-     * reason you're drawing connectors that are bigger, you should adjust this value appropriately.
-     */
-    setDefaultNewCanvasSize : function(size) {
-    	DEFAULT_NEW_CANVAS_SIZE = size;    	
-    },
-    
-    /**
-     * Sets whether or not a given element is draggable, regardless of what any plumb command
-     * may request. 
-     */
-    setDraggable: function(element, draggable) {
-    	_setDraggable(element, draggable);
-    },
-    
-    /**
-     * Sets whether or not elements are draggable by default.  Default for this is true.
-     */
-    setDraggableByDefault: function(draggable) {
-    	_draggableByDefault = draggable;
-    },
-    
-    /**
-     * Sets the function to fire when the window size has changed and a repaint was fired.
-     */
-    setRepaintFunction : function(f) {
-    	repaintFunction = f;
-    },
-        
-    /**
-     * Set an element's connections to be visible.
-     */
-    show : function(elId) {
-    	_setVisible(elId, "block");
-    },
-    
-    /**
-     * helper to size a canvas.
-     */
-    sizeCanvas : function(canvas, x, y, w, h) {
-        canvas.style.height = h + "px"; canvas.height = h;
-        canvas.style.width = w + "px"; canvas.width = w; 
-        canvas.style.left = x + "px"; canvas.style.top = y + "px";
-    },
-    
-    /**
-     * Toggles visibility of an element's connections.
-     */
-    toggle : function(elId) {
-    	var f = function(jpc) {
-    		_setVisible(elId, "none" == jpc.canvas.style.display ? "block" : "none");
-    	};
-    	_operation(elId, f);
-    }, 
-    
-    /**
-     * Unloads jsPlumb, deleting all storage.  You should call this 
-     */
-    unload : function() {
-    	delete endpointsByElement;
-		delete offsets;
-		delete sizes;
-		delete floatingConnections;
-		delete draggableStates;		
-		document.body.removeChild(_jsPlumbContextNode);
-    }
-};
+	    	delete endpointsByElement[elId];    	
+	    },
+	    
+	    /**
+	     * remove all connections.
+	     */
+	    detachEverything : function() {
+	    	var f = function(jpc) {
+	    		_removeElement(jpc.canvas);
+				_removeElement(jpc.targetEndpointCanvas);
+				_removeElement(jpc.sourceEndpointCanvas);
+	    	};
+	    	
+	    	_operationOnAll(f);
+	    	
+	    	delete endpointsByElement;
+	    	endpointsByElement = {};
+	    },    
+	    
+	    /**
+	     * Gets all endpoints for the element with the given id.
+	     */
+	    getEndpoints : function(elId) {
+	    	return endpointsByElement[elId];
+	    },
+	    
+	    /**
+	     * Set an element's connections to be hidden.
+	     */
+	    hide : function(elId) {
+	    	_setVisible(elId, "none");
+	    },
+	    
+	    /**
+	     * Creates an anchor with the given params.
+	     * x - the x location of the anchor as a percentage of the total width.  
+		 * y - the y location of the anchor as a percentage of the total height.
+		 * orientation - an [x,y] array indicating the general direction a connection from the anchor should go in.
+		 * offsets - an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  optional. defaults to [0,0]. 
+	     */
+	    makeAnchor : function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
+	    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
+	    	// by just passing in four values.  but for backwards compatibility if we are given only one value we assume it's a call in the old form.
+	    	var params = {};
+	    	if (arguments.length == 1) $.extend(params, x);
+	    	else {
+	    		params = {x:x, y:y};
+	    		if (arguments.length >= 4) {
+	    			params.orientation = [arguments[2], arguments[3]];
+	    		}
+	    		if (arguments.length == 6) params.offsets = [arguments[4], arguments[5]];
+	    	}
+	    	return new Anchor(params);
+	    },
+	        
+	    
+	    /**
+	     * repaint element and its connections. element may be an id or the actual jQuery object.
+	     * this method gets new sizes for the elements before painting anything.
+	     */
+	    repaint : function(el) {
+	    	var _repaint = function(el, elId) {
+		    	var loc = {'absolutePosition': el.offset()};
+		    	var f = function(jpc) {
+		    		jpc.paint(elId, loc, true);
+		    	};
+		    	_operation(elId, f);
+	    	};
+	    	
+	    	var _processElement = function(el) {
+	    		var ele = typeof(el)=='string' ? $("#" + el) : el;
+		    	var eleId = ele.attr("id");
+		    	_repaint(ele, eleId);
+	    	};
+	    	
+	    	// TODO: support a jQuery result object too!
+	    	
+	    	// support both lists...
+	    	if (typeof el =='object') {
+	    		for (var i = 0; i < el.length; i++)
+	    			_processElement(el[i]);
+	    	} // ...and single strings.
+	    	else _processElement(el);
+	    },       
+	    
+	    /**
+	     * repaint all connections.
+	     */
+	    repaintEverything : function() {
+	    	var f = function(jpc) { jpc.repaint(); }
+	    	for (var elId in endpointsByElement) {  
+	    		_operation(elId, f);
+	    	}
+	    },
+	    
+	    /**
+	     * sets/unsets automatic repaint on window resize.
+	     */
+	    setAutomaticRepaint : function(value) {
+	    	automaticRepaint = value;
+	    },
+	    
+	    /**
+	     * Sets the default size jsPlumb will use for a new canvas (we create a square canvas so
+	     * one value is all that is required).  This is a hack for IE, because ExplorerCanvas seems
+	     * to need for a canvas to be larger than what you are going to draw on it at initialisation
+	     * time.  The default value of this is 1200 pixels, which is quite large, but if for some
+	     * reason you're drawing connectors that are bigger, you should adjust this value appropriately.
+	     */
+	    setDefaultNewCanvasSize : function(size) {
+	    	DEFAULT_NEW_CANVAS_SIZE = size;    	
+	    },
+	    
+	    /**
+	     * Sets whether or not a given element is draggable, regardless of what any plumb command
+	     * may request. 
+	     */
+	    setDraggable: function(element, draggable) {
+	    	_setDraggable(element, draggable);
+	    },
+	    
+	    /**
+	     * Sets whether or not elements are draggable by default.  Default for this is true.
+	     */
+	    setDraggableByDefault: function(draggable) {
+	    	_draggableByDefault = draggable;
+	    },
+	    
+	    /**
+	     * Sets the function to fire when the window size has changed and a repaint was fired.
+	     */
+	    setRepaintFunction : function(f) {
+	    	repaintFunction = f;
+	    },
+	        
+	    /**
+	     * Set an element's connections to be visible.
+	     */
+	    show : function(elId) {
+	    	_setVisible(elId, "block");
+	    },
+	    
+	    /**
+	     * helper to size a canvas.
+	     */
+	    sizeCanvas : function(canvas, x, y, w, h) {
+	        canvas.style.height = h + "px"; canvas.height = h;
+	        canvas.style.width = w + "px"; canvas.width = w; 
+	        canvas.style.left = x + "px"; canvas.style.top = y + "px";
+	    },
+	    
+	    /**
+	     * Toggles visibility of an element's connections.
+	     */
+	    toggle : function(elId) {
+	    	var f = function(jpc) {
+	    		_setVisible(elId, "none" == jpc.canvas.style.display ? "block" : "none");
+	    	};
+	    	_operation(elId, f);
+	    }, 
+	    
+	    /**
+	     * Unloads jsPlumb, deleting all storage.  You should call this 
+	     */
+	    unload : function() {
+	    	delete endpointsByElement;
+			delete offsets;
+			delete sizes;
+			delete floatingConnections;
+			delete draggableStates;		
+			document.body.removeChild(_jsPlumbContextNode);
+	    }
+	};
 
 })();
 
