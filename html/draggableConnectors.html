@@ -5,8 +5,6 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
 		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-		<!-- script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script-->
-		
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
 		
 		<script type="text/javascript" src="../js/jquery.jsPlumb-1.1.0-RC1.js"></script>
@@ -19,7 +17,6 @@
 				jsPlumb.DEFAULT_PAINT_STYLE = { strokeStyle:'#666' };
 				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:20, height:16, strokeStyle:'#666' };
 				jsPlumb.DEFAULT_ENDPOINT = new jsPlumb.Endpoints.Rectangle();
-				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Bezier();
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
 
 				 // plumb a few things together to start with, using the defaults.
@@ -36,8 +33,8 @@
 				// only wrapping the methods it needs, and assuming to know nothing more than that.			
 				var exampleDropOptions = { 					
 					tolerance:'touch', 
-					hoverClass:'dropHover',
-					drop : function(e, ui) { alert('dropped'); }
+					hoverClass:'dropHover'//,
+					//drop : function(e, ui) { alert('dropped'); }
 					//activeClass:'dragActive' 
 				};
 				
@@ -82,7 +79,7 @@
 				};
 
 				/**
-				the second example uses a Dot of radius 17 as the endpoint marker, is both a source and target, and has scope
+				the third example uses a Dot of radius 17 as the endpoint marker, is both a source and target, and has scope
 				'exampleConnection3'.  it uses a Straight connector, and the Anchor is created here (bottom left corner) and never
 				overriden, so it appears in the same place on every element.
 				*/
@@ -129,9 +126,7 @@
 				$("#window6").addEndpoint($.extend({ anchor:jsPlumb.makeAnchor(0.25, 0.5, 0, -1) }, exampleEndpoint2));				
 
 				// add the third example using the '.window' class.
-				$(".window").addEndpoint(exampleEndpoint3);
-
-									
+				$(".window").addEndpoint(exampleEndpoint3);								
 			});
 		--></script>
 		<link rel="stylesheet" href="/mp.css"></link>
@@ -139,12 +134,12 @@
 		<style type="text/css">
 /* demo */
 
-#window1 { top:6em;left:25em;}
-#window2 { top:14em; left:21em;left:10em;}
-#window3 { top:19em; left:40em;}
-#window4 { left:4em;top:28em;}
-#window5 {left:24em;top:29em;}
-#window6 {left:52em;top:29em;}
+#window1 { top:6em;left:25em; }
+#window2 { top:14em; left:21em;left:10em; }
+#window3 { top:19em; left:40em; }
+#window4 { left:4em;top:28em; }
+#window5 { left:24em;top:29em; }
+#window6 { left:52em;top:29em; }
 .window { 
 border:1px solid gray; width:14em; height:4em; z-index:20; position:absolute; color:gray;line-height:3em;font-family:serif;font-style:italic;
 padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; 
@@ -152,8 +147,10 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 
 ._jsPlumb_endpoint { z-index:50; }
 	
-.dropHover { border:1px solid red; } 
+.dropHover { border:1px dotted red; } 
 .dragActive { border:1px solid blue; }
+
+#explanation { width:26em; }		
 		
 		</style>
 	</head>
@@ -168,34 +165,58 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 		<div class="window" id="window6">six</div>
 
 		<div id="explanation">
-	    	This page is an early demonstration of the draggable/droppable functionality we in the process of adding to jsPlumb.  
-	    	A few windows are plumbed to start with, using the default settings.  But there are empty Endpoints on each window, from which you 
-	    	can drag new connectors between matching endpoints.  The endpoint appearance is actually separate from the id used
-	    	to tell which connectors can be joined to the endpoint, but in this demo we use the
-	    	endpoint appearance as a visual cue.
+	    	This page is an early demonstration of the draggable/droppable functionality that is being added to jsPlumb.  
+	    	A few windows are plumbed to start with, using the default settings, and there are empty Endpoints on each window, from which you 
+	    	can drag new connectors between matching endpoints.  
 	    	<p>
-	    	There is not yet any support for dragging an existing Connection (coming soon), or for removing an existing Connection (possibly
-	    	coming soon.  Requires a bit more thought.)
+		    	<ul>
+		    		<li>Once an Endpoint has a Connection attached, you cannot draw any more Connections from that Endpoint - you can
+		    		only drag that Connection somewhere else.  This topic is an open question, really.  It would be simple to support both
+		    		the current functionality as well as having the Endpoint always act as a Connection source (without the ability to move
+		    		existing Connections).  The middle ground would require something a little more tricky - a way to select the Connection
+		    		you wish to move.  This would probably involve some UI widget.<br/><br/></li>
+		    		<li>There is not yet any support for removing an existing Connection (via the UI.  jsPlumb does offer methods to
+		    		remove Connections in the API).  This, too, poses the question of how the user would trigger the deletion.  Should jsPlumb
+		    		provide the full UI or just some event hooks?<br/><br/></li>
+		    		<li>There may be other random bugs.  The script is not finalised.</li>	
+		    	</ul>
+	    	
 	    	</p>
 	    	<p>This demonstration uses version 1.1.0-RC1 of jsPlumb.  You should NOT use this script yet.  It's not at all guaranteed to be free
-	    	of bugs; in fact I know for certain that it does not currently work with the other demos</p>
+	    	of bugs.</p>
 	    	<a href="demo.html" class="mplink">Home</a>
 	    	<br/><br/>
 	    	You also might like to check out <a  class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
 	    	
 	    	<div id="debug"></div>
-	    	<button id="btnHideAll">Hide</button>
-	    	<button id="btnShowAll">Show</button>
-	    	<button id="btnDetachAll">Detach All</button>
+	    	<!-- button id="btnHideAll">Hide</button>
+	    	<button id="btnShowAll">Show</button-->
+	    	<!-- button id="btnDetachAll">Detach All</button-->
 	    </div>
 	    
 	    <script type="text/javascript">
-			$("#btnHideAll").click(function() { jsPlumb.hide("window2"); });
-
+			/*$("#btnHideAll").click(function() { jsPlumb.hide("window2"); });
 			$("#btnShowAll").click(function() { jsPlumb.show("window2"); });
+			$("#btnDetachAll").click(function() { jsPlumb.detachEverything(); });*/
 
-			$("#btnDetachAll").click(function() { jsPlumb.detachEverything(); });
+	    </script>
+	    
+	    	   	    <!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=5700644; 
+var sc_invisible=1; 
+var sc_partition=71; 
+var sc_click_stat=1; 
+var sc_security="1cb90164"; 
+</script>
 
-	    </script>	   
+<script type="text/javascript"
+src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
+class="statcounter"><a title="counter for wordpress"
+href="http://www.statcounter.com/wordpress.org/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/5700644/0/1cb90164/1/"
+alt="counter for wordpress" ></a></div></noscript>
+<!-- End of StatCounter Code -->
 	</body>
 </html>
