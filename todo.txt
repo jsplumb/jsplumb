@@ -3,6 +3,7 @@
 	- hideAll/showAll
 	- draggable endpoints
 	- drag new line from existing endpoint.
+	  
 
  
 * target 1.0.1
