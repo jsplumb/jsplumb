@@ -107,7 +107,7 @@ if (!Array.prototype.indexOf) {
      * helper to create a canvas.
      * @param clazz optional class name for the canvas.
      */
-    var newCanvas = function(clazz) {
+    var _newCanvas = function(clazz) {
         var canvas = document.createElement("canvas");
         document.body.appendChild(canvas);
         canvas.style.position="absolute";
@@ -126,7 +126,7 @@ if (!Array.prototype.indexOf) {
     /**
      * helper to remove a canvas from the DOM.
      */
-    var removeCanvas = function(canvas) {
+    var _removeCanvas = function(canvas) {
     	if (canvas != null) { 
     		try { document.body.removeChild(canvas); }
     		catch (e) { }
@@ -368,15 +368,7 @@ if (!Array.prototype.indexOf) {
      * default size 20x20, and an image (with no default).  you can supply others of these if you want to - see the documentation
      * for a howto.
      */
-    Endpoints : {
-
-    	
-    	/**
-    	 * Blank endpoint. You do not need to construct one of these; just use 'jsPlumb.Endpoints.Blank'.
-    	 */
-    	Blank : {
-    		paint : function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) { }    			
-    	},	
+    Endpoints : {	
 
     	/**
     	 * a round endpoint, with default radius 10 pixels.
@@ -551,10 +543,10 @@ if (!Array.prototype.indexOf) {
     	var idx = -1;
     	for (var i = 0; i < jpcs.length; i++) {
     		if ((jpcs[i].sourceId == sourceId && jpcs[i].targetId == targetId) || (jpcs[i].targetId == sourceId && jpcs[i].sourceId == targetId)) {
-    			removeCanvas(jpcs[i].canvas);
+    			_removeCanvas(jpcs[i].canvas);
     			if (jpcs[i].drawEndpoints) {
-    				removeCanvas(jpcs[i].targetEndpointCanvas);
-    				removeCanvas(jpcs[i].sourceEndpointCanvas);
+    				_removeCanvas(jpcs[i].targetEndpointCanvas);
+    				_removeCanvas(jpcs[i].sourceEndpointCanvas);
     			}
     			idx = i;
     			break;
@@ -573,10 +565,10 @@ if (!Array.prototype.indexOf) {
     detachAll : function(elId) {
     	var jpcs = connections[elId];
     	for (var i = 0; i < jpcs.length; i++) {
-	    	removeCanvas(jpcs[i].canvas);
+	    	_removeCanvas(jpcs[i].canvas);
 			if (jpcs[i].drawEndpoints) {
-				removeCanvas(jpcs[i].targetEndpointCanvas);
-				removeCanvas(jpcs[i].sourceEndpointCanvas);
+				_removeCanvas(jpcs[i].targetEndpointCanvas);
+				_removeCanvas(jpcs[i].sourceEndpointCanvas);
 			}
     	}
     	delete connections[elId];
@@ -593,10 +585,10 @@ if (!Array.prototype.indexOf) {
 	    		try {
 			    	for (var i = 0; i < jpcs.length; i++) {
 			    		
-				    	removeCanvas(jpcs[i].canvas);
+				    	_removeCanvas(jpcs[i].canvas);
 						if (jpcs[i].drawEndpoints) {
-							removeCanvas(jpcs[i].targetEndpointCanvas);
-							removeCanvas(jpcs[i].sourceEndpointCanvas);
+							_removeCanvas(jpcs[i].targetEndpointCanvas);
+							_removeCanvas(jpcs[i].sourceEndpointCanvas);
 						}
 						
 			    	}
@@ -758,7 +750,8 @@ if (!Array.prototype.indexOf) {
     unload : function() {
     	delete connections;
 		delete offsets;
-		delete sizes;    	
+		delete sizes;
+		delete draggableStates;  
     }
 };
 
@@ -804,12 +797,12 @@ var jsPlumbConnection = function(params) {
     sizes[this.targetId] = [this.target.outerWidth(), this.target.outerHeight()];
 
 // *************** create canvases on which the connection will be drawn ************
-    var canvas = newCanvas(jsPlumb.connectorClass);
+    var canvas = _newCanvas(jsPlumb.connectorClass);
     this.canvas = canvas;
     // create endpoint canvases
     if (this.drawEndpoints) {
-	    this.sourceEndpointCanvas = newCanvas(jsPlumb.endpointClass);	    
-	    this.targetEndpointCanvas = newCanvas(jsPlumb.endpointClass);
+	    this.sourceEndpointCanvas = _newCanvas(jsPlumb.endpointClass);	    
+	    this.targetEndpointCanvas = _newCanvas(jsPlumb.endpointClass);
 	    // sit them on top of the underlying element?
 	    var setZIndex = function(canvas, source, above) {
     	   var adj = above ? 1 : -1;
