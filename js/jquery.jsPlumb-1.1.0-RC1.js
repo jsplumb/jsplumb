@@ -775,21 +775,27 @@ if (!Array.prototype.indexOf) {
 	    /**
 	     * adds an endpoint to the element
 	     */
-	    addEndpoint : function(params) {
+	    addEndpoint : function(target, params) {
+	    	params = $.extend({}, params);
+	    	var el = typeof target == 'string' ? $("#" + target) : target;
+	    	var id = $(el).attr("id");
+	    	params.source = el; 
+	    	_updateOffset(id);
 	    	var e = new Endpoint(params);
-	    	var el = $(params.source);
-	    	_addToList(endpointsByElement, el.attr("id"), e);
+	    	_addToList(endpointsByElement, id, e);
 	    	e.paint();
+	    	return e;
 	    },
 	    
 	    /**
 	     * adds a list of endpoints to the element
 	     */
-	    addEndpoints : function(endpoints, source) {
+	    addEndpoints : function(target, endpoints) {
+	    	var results = [];
 	    	for (var i = 0; i < endpoints.length; i++) {
-	    		var params = $.extend({source:source}, endpoints[i]);
-	    		jsPlumb.addEndpoint(params);
+	    		results.push(jsPlumb.addEndpoint(target, endpoints[i]));
 	    	}
+	    	return results;
 	    },
 	    
 	    /**
@@ -1067,11 +1073,13 @@ if (!Array.prototype.indexOf) {
    * in which case jsPlumb will use the default options. see documentation. 
    */
   $.fn.addEndpoint = function(options) {
-	  return this.each(function() 
+	  var addedEndpoints = [];
+	  this.each(function() 
 	  {
-		  var params = $.extend({source:$(this)}, options);		 
-		 jsPlumb.addEndpoint(params);
-	  });	  
+		  //var params = $.extend({source:$(this)}, options);			  
+		  addedEndpoints.push(jsPlumb.addEndpoint($(this).attr("id"), options));
+	  });
+	  return addedEndpoints;
   };
   
   /**
@@ -1079,10 +1087,13 @@ if (!Array.prototype.indexOf) {
    * in which case jsPlumb will use the default options. see documentation. 
    */
   $.fn.addEndpoints = function(endpoints) {
+	  var addedEndpoints = [];
 	  return this.each(function() 
 	  {		 
-		 jsPlumb.addEndpoints(endpoints, $(this));
+		 var e = jsPlumb.addEndpoints($(this).attr("id"), endpoints);
+		 for (var i = 0; i < e.length; i++) addedEndpoints.push(e[i]);
 	  });	  
+	  return addedEndpoints;
   };
   
 })(jQuery);

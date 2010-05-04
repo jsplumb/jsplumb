@@ -19,12 +19,31 @@
 				jsPlumb.DEFAULT_ENDPOINT = new jsPlumb.Endpoints.Rectangle();
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
 
+				var exampleGreyEndpoint = {
+					endpoint:new jsPlumb.Endpoints.Rectangle(),
+					anchor:jsPlumb.Anchors.TopCenter,
+					style:{ width:25, height:21, fillStyle:'#666' },					
+					isSource:true,
+					dragOptions : { scope:'exampleGreyConnection' },
+					connectionStyle : {
+						strokeStyle:"#666"
+					},
+					isTarget:true,
+					dropOptions : $.extend({scope:'exampleGreyConnection'}, exampleDropOptions)
+				};
+
+				var w1grey = jsPlumb.addEndpoint("window1", exampleGreyEndpoint);
+				var w2grey = jsPlumb.addEndpoint("window2", exampleGreyEndpoint);
+				
+			//	$("#window1").plumb({target:'window2', sourceEndpoint:w1grey, targetEndpoint:w2grey});
+
+				
 				 // plumb a few things together to start with, using the defaults.
-				$("#window1").plumb({target:'window2'}); 
-				$("#window1").plumb({target:'window3'});
+				//$("#window1").plumb({target:'window2'}); 
+				/*$("#window1").plumb({target:'window3'});
 				$("#window2").plumb({target:'window4'});
 				$("#window2").plumb({target:'window5'});
-				$("#window3").plumb({target:'window6'});
+				$("#window3").plumb({target:'window6'});*/
 
 				// generic drop options to be used by all endpoints - they will extend and provide their own scope.
 				// notice the 'drop' method which is commented out.  you might want to do your own thing in a drop method.
