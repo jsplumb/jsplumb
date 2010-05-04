@@ -379,6 +379,7 @@ if (!Array.prototype.indexOf) {
 	* allowed params:
 	* source:	source element (string or a jQuery element) (required)
 	* target:	target element (string or a jQuery element) (required)
+	* 
 	* anchors: optional array of anchor placements. defaults to BottomCenter for source
 	*          and TopCenter for target.
 	*/
@@ -392,26 +393,31 @@ if (!Array.prototype.indexOf) {
 	    this.sourceId = $(this.source).attr("id");
 	    this.targetId = $(this.target).attr("id");
 	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;
-	    
-	 // get anchor
-	    this.anchors = params.anchors || jsPlumb.DEFAULT_ANCHORS || [jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter];
 	    // make connector
 	    this.connector = params.connector || jsPlumb.DEFAULT_CONNECTOR || new jsPlumb.Connectors.Bezier();
 	    this.paintStyle = params.paintStyle || jsPlumb.DEFAULT_PAINT_STYLE;
 	    
 	    // init endpoints
 	    this.endpoints = [];
-	    if(!params.endpoints) params.endpoints = [null,null];
-	    var endpoint0 = params.endpoints[0] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[0] || jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();
-	    var endpoint1 = params.endpoints[1] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[1] ||jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();;
-	    
 	    this.endpointStyles = [];
-	    if (!params.endpointStyles) params.endpointStyles = [null,null];
-	    var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[0] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
-	    var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[1] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
-	    
-	    this.endpoints[0] = params.sourceEndpoint || new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self] });
-	    this.endpoints[1] = params.targetEndpoint || new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self] });
+	    if (params.sourceEndpoint) this.endpoints[0] = params.sourceEndpoint;
+	    else {
+	    	if(!params.endpoints) params.endpoints = [null,null];
+		    var endpoint0 = params.endpoints[0] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[0] || jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();
+		    if (!params.endpointStyles) params.endpointStyles = [null,null];
+		    var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[0] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
+		    var anchor0 = params.anchors  ? params.anchors[0] : jsPlumb.DEFAULT_ANCHORS[0] || jsPlumb.Anchors.BottomCenter;
+		    this.endpoints[0] = new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self], anchor:anchor0 });	    	
+	    }
+	    if (params.targetEndpoint) this.endpoints[1] = params.targetEndpoint ;
+	    else {
+	    	if(!params.endpoints) params.endpoints = [null,null];
+	    	if (!params.endpointStyles) params.endpointStyles = [null,null];
+		    var endpoint1 = params.endpoints[1] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[1] ||jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();;
+		    var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[1] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
+		    var anchor1 = params.anchors  ? params.anchors[1] : jsPlumb.DEFAULT_ANCHORS[1] || jsPlumb.Anchors.TopCenter;
+		    this.endpoints[1] =  new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self], anchor:anchor1 });
+	    }
 	    
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
@@ -445,11 +451,11 @@ if (!Array.prototype.indexOf) {
 	            var otherWH = sizes[tId];
 	            
 	    		var ctx = canvas.getContext('2d');
-	            var sAnchorP = this.anchors[sIdx].compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
-	            var sAnchorO = this.anchors[sIdx].getOrientation();
-	            var tAnchorP = this.anchors[tIdx].compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
-	            var tAnchorO = this.anchors[tIdx].getOrientation();
-	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.anchors[sIdx], this.anchors[tIdx], this.paintStyle.lineWidth);
+	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
+	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
+	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
+	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
+	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
 	            $.extend(ctx, this.paintStyle);
 	                        
@@ -506,7 +512,7 @@ if (!Array.prototype.indexOf) {
 		// make a copy. then we can use the wrapper function.
 		params = $.extend({}, params);
 		var self = this;
-		var _anchor = params.anchor || jsPlumb.Anchors.TopCenter;
+		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || jsPlumb.DEFAULT_ENDPOINT_STYLE;
 		var _element = params.source;
@@ -525,7 +531,7 @@ if (!Array.prototype.indexOf) {
 		/**
 		 * first pass at default ConnectorSelector: returns the first connection, if we have any.
 		 */
-		this.connectorSelector = function() {
+		var connectorSelector = function() {
 			return self.connections.length > 0 ? self.connections[0] : null;
 		};
 
@@ -545,9 +551,9 @@ if (!Array.prototype.indexOf) {
 					var xy = offsets[_elementId];
 					var wh = sizes[_elementId];
 				}
-				anchorPoint = _anchor.compute([xy.left, xy.top], wh);
+				anchorPoint = self.anchor.compute([xy.left, xy.top], wh);
 			}
-			_endpoint.paint(anchorPoint, _anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
+			_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
 		};
 		
 		
@@ -585,7 +591,7 @@ if (!Array.prototype.indexOf) {
 				$(self.canvas, contextNode).attr("dragId", id);
 				$(self.canvas, contextNode).attr("elId", _elementId);
 				// create a floating anchor
-				var floatingAnchor = new FloatingAnchor({reference:_anchor});
+				var floatingAnchor = new FloatingAnchor({reference:self.anchor});
 				floatingEndpoint = new Endpoint({
 					style:_style, 
 					endpoint:_endpoint, 
@@ -593,7 +599,7 @@ if (!Array.prototype.indexOf) {
 					source:n 
 				});
 				
-				jpc = self.connectorSelector();
+				jpc = connectorSelector();
 				if (jpc == null) {
 					// create a connection. one end is this endpoint, the other is a floating endpoint.
 					jpc = new Connection({
@@ -601,7 +607,7 @@ if (!Array.prototype.indexOf) {
 						targetEndpoint:floatingEndpoint,
 						source:$(_element),
 						target:$(n, contextNode),
-						anchors:[_anchor, floatingAnchor],
+						anchors:[self.anchor, floatingAnchor],
 						paintStyle : params.connectionStyle, // this can be null. Connection will use the default.
 						connector: params.connector
 					});
@@ -623,12 +629,9 @@ if (!Array.prototype.indexOf) {
 						jpc.target = $(n, contextNode);
 						jpc.targetId = id;
 					}					
-					// store the endpoint
-					existingJpcParams.push(jpc.anchors[anchorIdx]);
 					
 					jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
 					jpc.endpoints[anchorIdx] = floatingEndpoint;
-					jpc.anchors[anchorIdx] = floatingAnchor;
 				}
 				
 				// register it.
@@ -667,11 +670,9 @@ if (!Array.prototype.indexOf) {
 								jpc.target = existingJpcParams[0];
 								jpc.targetId = existingJpcParams[1];
 							}
-							jpc.anchors[idx] = existingJpcParams[2];
 							jpc.endpoints[idx] = jpc.suspendedEndpoint;
 							jpc.suspendedEndpoint.addConnection(jpc);
 							jsPlumb.repaint(existingJpcParams[1]);
-							//self.addConnection(jpc);
 						} else {
 							_removeElement(jpc.canvas);
 							self.removeConnection(jpc);
@@ -702,7 +703,6 @@ if (!Array.prototype.indexOf) {
 		    		jpc.target = _element;
 		    		jpc.targetId = _elementId;		    		
 	    		}
-	    		jpc.anchors[idx] = _anchor;
 	    		// remove this jpc from the current endpoint
 	    		jpc.endpoints[idx].removeConnection(jpc);
 	    		if (jpc.suspendedEndpoint)
@@ -728,18 +728,28 @@ if (!Array.prototype.indexOf) {
 				var id = $(ui.draggable, contextNode).attr("dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;  
-		    	jpc.anchors[idx].over(_anchor);		    	
+		    	jpc.endpoints[idx].anchor.over(self.anchor);		    	
 			 });
 			 
 			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
 				var id = $(ui.draggable, contextNode).attr("dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-		    	jpc.anchors[idx].out();
+		    	jpc.endpoints[idx].anchor.out();
 			 });
 			 		
 			$(self.canvas, contextNode).droppable(dropOptions);			
 		}
+		
+		// woo...add a plumb command to Endpoint.
+		this.plumb = function(params) {
+			// not much to think about. the target should be an Endpoint, but what else?
+			// all the style stuff is on the endpoint itself already.
+			//todo this should call the main plumb method, just with some different args.
+			
+		};
+		
+		return self;
 	};
 	
 	/**
@@ -796,6 +806,11 @@ if (!Array.prototype.indexOf) {
 			// force a paint
 			_draw(jpc.source);
 	    },           
+	    
+	    connectEndpoints : function(params) {
+	    	var jpc = Connection(params);
+	    	
+	    },
 	    
 	    /**
 	     * Remove one connection to an element.
