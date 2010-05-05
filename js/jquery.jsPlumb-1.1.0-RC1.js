@@ -506,6 +506,9 @@ if (!Array.prototype.indexOf) {
 	 * connector		:	optional connector type to use.
 	 * isTarget			:	boolean. indicates the endpoint can act as a target of new connections. optional.
 	 * dropOptions		:	if isTarget is set to true, you can supply arguments for the jquery droppable method.  optional.
+	 * reattach			:	optional boolean that determines whether or not the connections reattach after they
+	 *                      have been dragged off an endpoint and left floating.  defaults to false - connections
+	 *                      dropped in this way will just be deleted.
 	 */
 	var Endpoint = function(params) {
 		params = params || {};
@@ -520,6 +523,7 @@ if (!Array.prototype.indexOf) {
 		var _maxConnections = params.maxConnections || 1;
 		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
+		var _reattach = params.reattach || false;
 		this.addConnection = function(connection) {
 			self.connections.push(connection);
 		};
@@ -661,19 +665,27 @@ if (!Array.prototype.indexOf) {
 					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 					if (jpc.endpoints[idx] == floatingEndpoint) {						
 						
+						// if the connection was an existing one:
 						if (existingJpc) {
-							jpc.floatingAnchorIndex = null;
-							if (idx == 0) {
-								jpc.source = existingJpcParams[0];
-								jpc.sourceId = existingJpcParams[1];																	
-							} else {
-								jpc.target = existingJpcParams[0];
-								jpc.targetId = existingJpcParams[1];
+							if (_reattach) {
+								jpc.floatingAnchorIndex = null;
+								if (idx == 0) {
+									jpc.source = existingJpcParams[0];
+									jpc.sourceId = existingJpcParams[1];																	
+								} else {
+									jpc.target = existingJpcParams[0];
+									jpc.targetId = existingJpcParams[1];
+								}
+								jpc.endpoints[idx] = jpc.suspendedEndpoint;
+								jpc.suspendedEndpoint.addConnection(jpc);
+								jsPlumb.repaint(existingJpcParams[1]);
 							}
-							jpc.endpoints[idx] = jpc.suspendedEndpoint;
-							jpc.suspendedEndpoint.addConnection(jpc);
-							jsPlumb.repaint(existingJpcParams[1]);
-						} else {
+							else {
+								jpc.suspendedEndpoint.removeConnection(jpc);
+								_removeElement(jpc.canvas);
+								self.removeConnection(jpc);
+							}
+						} else {							
 							_removeElement(jpc.canvas);
 							self.removeConnection(jpc);
 						}
