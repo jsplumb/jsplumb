@@ -681,9 +681,9 @@ if (!Array.prototype.indexOf) {
 								jsPlumb.repaint(existingJpcParams[1]);
 							}
 							else {
-								jpc.suspendedEndpoint.removeConnection(jpc);
+								jpc.endpoints[0].removeConnection(jpc);
+								jpc.endpoints[1].removeConnection(jpc);
 								_removeElement(jpc.canvas);
-								self.removeConnection(jpc);
 							}
 						} else {							
 							_removeElement(jpc.canvas);
