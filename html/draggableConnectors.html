@@ -32,8 +32,8 @@
 					dropOptions : $.extend({scope:'exampleGreyConnection'}, exampleDropOptions)
 				};
 
-				var w1grey = jsPlumb.addEndpoint("window1", exampleGreyEndpoint);
-				var w2grey = jsPlumb.addEndpoint("window2", exampleGreyEndpoint);
+				//var w1grey = jsPlumb.addEndpoint("window1", exampleGreyEndpoint);
+				//var w2grey = jsPlumb.addEndpoint("window2", exampleGreyEndpoint);
 				
 			//	$("#window1").plumb({target:'window2', sourceEndpoint:w1grey, targetEndpoint:w2grey});
 
@@ -102,17 +102,23 @@
 				the third example uses a Dot of radius 17 as the endpoint marker, is both a source and target, and has scope
 				'exampleConnection3'.  it uses a Straight connector, and the Anchor is created here (bottom left corner) and never
 				overriden, so it appears in the same place on every element.
+
+				this example also sets the 'reattach' flag for the Endpoint, meaning that when you drag a
+				connection off an endpoint and release it, it snaps back.  the default behaviour in this case
+				is to delete the connection.
+				
 				*/
 				var example3Color = "rgba(229,219,61,0.5)";
 				var exampleEndpoint3 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:17}),
+						reattach:true,
 						anchor:jsPlumb.Anchors.BottomLeft,
 						style:{ strokeStyle:example3Color, opacity:0.5 }, 
 						isSource:true,
 						dragOptions : { scope:'exampleConnection3' },
 						connectionStyle:{ strokeStyle:example3Color, lineWidth:4 },
 						connector : new jsPlumb.Connectors.Straight(),
-						isTarget:true, 
+						isTarget:true, 						
 						dropOptions : $.extend({scope:'exampleConnection3'}, exampleDropOptions)
 				};			
 
