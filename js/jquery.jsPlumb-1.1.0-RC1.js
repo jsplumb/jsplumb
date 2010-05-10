@@ -557,7 +557,7 @@ if (!Array.prototype.indexOf) {
 		var _style = params.style || jsPlumb.Defaults.EndpointStyle;
 		var _element = params.source;
 		var _elementId = $(_element).attr("id");
-		var _maxConnections = params.maxConnections || 1;
+		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
 		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
 		var _reattach = params.reattach || false;
@@ -571,9 +571,13 @@ if (!Array.prototype.indexOf) {
 		};
 		/**
 		 * first pass at default ConnectorSelector: returns the first connection, if we have any.
+		 * modified a little, 5/10/2010: now it only returns a connector if we have not got equal to or more than _maxConnector connectors
+		 * attached.  otherwise it is assumed a new connector is ok.  but note with this setup we can't select any other connection than the first
+		 * one.  what if this could return a list?  that implies everything should work with a list - dragging etc. could be nasty. could also
+		 * be cool.
 		 */
 		var connectorSelector = function() {
-			return self.connections.length > 0 ? self.connections[0] : null;
+			return self.connections.length == 0 || self.connections.length < _maxConnections ?  null : self.connections[0]; 
 		};
 
 		// get the jsplumb context...lookups are faster with a context.
@@ -703,7 +707,7 @@ if (!Array.prototype.indexOf) {
 					if (jpc.endpoints[idx] == floatingEndpoint) {						
 						
 						// if the connection was an existing one:
-						if (existingJpc) {
+						if (existingJpc && jpc.suspendedEndpoint) {
 							if (_reattach) {
 								jpc.floatingAnchorIndex = null;
 								if (idx == 0) {
