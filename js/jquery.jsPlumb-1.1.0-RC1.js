@@ -95,7 +95,7 @@ if (!Array.prototype.indexOf) {
     	// dragging
 	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
 	    if (draggable && element.draggable) {    	
-	    	var options = dragOptions || jsPlumb.DEFAULT_DRAG_OPTIONS; 
+	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
 	    	var dragCascade = options.drag || function(e,u) {};
 	    	var initDrag = function(element, elementId, dragFunc) {
 	    		var opts = $.extend({drag:dragFunc}, options);
@@ -189,11 +189,43 @@ if (!Array.prototype.indexOf) {
 		}		
 	};
 	
+	/**
+	 * helper function: the second argument is a function taking two args - the first is a
+	 * jquery element, and the second is the element's id.
+	 * 
+	 * the first argument may be one of three things:
+	 * 
+	 *  1. a string, in the form "window1", for example.  an element's id. if your id starts with a
+	 *     hash then jsPlumb does not append its own hash too... 
+	 *  2. a jquery element, already resolved using $(...).
+	 *  3. a list of strings/jquery elements.
+	 */
+	var _elementProxy = function(element, fn) {
+		var retVal = null;
+		if (typeof element == 'object' && element.length) {
+			retVal = [];
+    		for (var i = 0; i < element.length; i++) {
+    			var el = typeof element[i] == 'string' ? $("#" + element[i]) : element[i];
+    	    	var id = el.attr("id");
+    			retVal.push(fn(el, id));  // append return values to what we will return
+    		}
+    	}
+    	else {
+	    	var el = typeof element == 'string' ? 
+	    				element.indexOf("#") == 0 ? $(element) : $("#" + element) 
+	    						: element;
+	    	var id = el.attr("id");
+	    	retVal = fn(el, id);
+    	}
+		
+		return retVal;
+	};
+	
     /**
      * Sets whether or not the given element(s) should be draggable, regardless of what a particular
      * plumb command may request.
      * 
-     * @param element May be a string, an jQuery object, or a list of strings.
+     * @param element May be a string, a jQuery elements, or a list of strings/jquery elements.
      * @param draggable Whether or not the given element(s) should be draggable.
      */
 	var _setDraggable = function(element, draggable) {    
@@ -202,18 +234,9 @@ if (!Array.prototype.indexOf) {
         	if (el.draggable) {
         		el.draggable("option", "disabled", !draggable);
         	}
-    	};
+    	};       
     	
-    	if (typeof element == 'object' && element.length) {
-    		for (var i = 0; i < element.length; i++) {
-    			_helper($(element[i]), element[i]);
-    		}
-    	}
-    	else {
-	    	var el = typeof element == 'string' ? $("#" + element) : element;
-	    	var id = el.attr("id");
-	    	_helper(el, id);
-    	}
+    	return _elementProxy(element, _helper);
     };
 	
 	/**
@@ -281,6 +304,20 @@ if (!Array.prototype.indexOf) {
     		try { _jsPlumbContextNode.removeChild(element); }
     		catch (e) { }
     	}    	
+    };
+    
+    /**
+     * toggles the draggable state of the element with the given id.
+     */
+    var _toggleDraggable = function(el) {    	
+    	var fn = function(el, elId) {
+    		var state = draggableStates[elId] == null ? false : draggableStates[elId];
+	    	state = !state;
+	    	draggableStates[elId] = state;
+	    	el.draggable("option", "disabled", !state);
+	    	return state;
+    	};
+    	return _elementProxy(el, fn);
     };
     
     /**
@@ -394,8 +431,8 @@ if (!Array.prototype.indexOf) {
 	    this.targetId = $(this.target).attr("id");
 	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;
 	    // make connector
-	    this.connector = params.connector || jsPlumb.DEFAULT_CONNECTOR || new jsPlumb.Connectors.Bezier();
-	    this.paintStyle = params.paintStyle || jsPlumb.DEFAULT_PAINT_STYLE;
+	    this.connector = params.connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
+	    this.paintStyle = params.paintStyle || jsPlumb.Defaults.PaintStyle;
 	    
 	    // init endpoints
 	    this.endpoints = [];
@@ -403,19 +440,19 @@ if (!Array.prototype.indexOf) {
 	    if (params.sourceEndpoint) this.endpoints[0] = params.sourceEndpoint;
 	    else {
 	    	if(!params.endpoints) params.endpoints = [null,null];
-		    var endpoint0 = params.endpoints[0] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[0] || jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();
+		    var endpoint0 = params.endpoints[0] || params.endpoint || jsPlumb.Defaults.Endpoints[0] || jsPlumb.Defaults.Endpoint|| new jsPlumb.Endpoints.Dot();
 		    if (!params.endpointStyles) params.endpointStyles = [null,null];
-		    var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[0] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
-		    var anchor0 = params.anchors  ? params.anchors[0] : jsPlumb.DEFAULT_ANCHORS[0] || jsPlumb.Anchors.BottomCenter;
+		    var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.Defaults.EndpointStyles[0] || jsPlumb.Defaults.EndpointStyle;
+		    var anchor0 = params.anchors  ? params.anchors[0] : jsPlumb.Defaults.Anchors[0] || jsPlumb.Anchors.BottomCenter;
 		    this.endpoints[0] = new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self], anchor:anchor0 });	    	
 	    }
 	    if (params.targetEndpoint) this.endpoints[1] = params.targetEndpoint ;
 	    else {
 	    	if(!params.endpoints) params.endpoints = [null,null];
 	    	if (!params.endpointStyles) params.endpointStyles = [null,null];
-		    var endpoint1 = params.endpoints[1] || params.endpoint || jsPlumb.DEFAULT_ENDPOINTS[1] ||jsPlumb.DEFAULT_ENDPOINT || new jsPlumb.Endpoints.Dot();;
-		    var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.DEFAULT_ENDPOINT_STYLES[1] || jsPlumb.DEFAULT_ENDPOINT_STYLE;
-		    var anchor1 = params.anchors  ? params.anchors[1] : jsPlumb.DEFAULT_ANCHORS[1] || jsPlumb.Anchors.TopCenter;
+		    var endpoint1 = params.endpoints[1] || params.endpoint || jsPlumb.Defaults.Endpoints[1] ||jsPlumb.Defaults.Endpoint || new jsPlumb.Endpoints.Dot();;
+		    var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.Defaults.EndpointStyles[1] || jsPlumb.Defaults.EndpointStyle;
+		    var anchor1 = params.anchors  ? params.anchors[1] : jsPlumb.Defaults.Anchors[1] || jsPlumb.Anchors.TopCenter;
 		    this.endpoints[1] =  new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self], anchor:anchor1 });
 	    }
 	    
@@ -517,7 +554,7 @@ if (!Array.prototype.indexOf) {
 		var self = this;
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
-		var _style = params.style || jsPlumb.DEFAULT_ENDPOINT_STYLE;
+		var _style = params.style || jsPlumb.Defaults.EndpointStyle;
 		var _element = params.source;
 		var _elementId = $(_element).attr("id");
 		var _maxConnections = params.maxConnections || 1;
@@ -700,7 +737,7 @@ if (!Array.prototype.indexOf) {
 		
 		// connector target
 		if (params.isTarget) {
-			var dropOptions = params.dropOptions || jsPlumb.DEFAULT_DROP_OPTIONS;
+			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
 			dropOptions = $.extend({}, dropOptions);
 	    	var originalAnchor = null;
 	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
@@ -769,16 +806,28 @@ if (!Array.prototype.indexOf) {
 	 */
     var jsPlumb = window.jsPlumb = {
 
+    	Defaults : {
+    		Anchors : [ null, null ],
+    		Connector : null,
+    		DragOptions: { },
+    		DropOptions: { },
+    		Endpoint : null,
+    		Endpoints : [ null, null ],
+    		EndpointStyle : { fillStyle : null },
+    		EndpointStyles : [ null, null ],
+    		PaintStyle : { lineWidth : 10, strokeStyle : 'red' }    		    		
+    	},
+    		
 		connectorClass : '_jsPlumb_connector',
 		endpointClass : '_jsPlumb_endpoint',
-		DEFAULT_PAINT_STYLE : { lineWidth : 10, strokeStyle : "red" },
+		/*DEFAULT_PAINT_STYLE : { lineWidth : 10, strokeStyle : "red" },
 	    DEFAULT_ENDPOINT_STYLE : { fillStyle : null }, // meaning it will be derived from the stroke style of the connector.
 	    DEFAULT_ENDPOINT_STYLES : [ null, null ], // meaning it will be derived from the stroke style of the connector.
-	    DEFAULT_DRAG_OPTIONS : { },
+	    //DEFAULT_DRAG_OPTIONS : { },
 	    DEFAULT_CONNECTOR : null,
 	    DEFAULT_ENDPOINT : null,    
 	    DEFAULT_ENDPOINTS : [null, null],  // new in 0.0.4, the ability to specify diff. endpoints.  DEFAULT_ENDPOINT is here for backwards compatibility.            
-	
+	*/
 	    Anchors : {},
 	    Connectors : {},
 	    Endpoints : {},
@@ -981,7 +1030,7 @@ if (!Array.prototype.indexOf) {
 	     * may request. 
 	     */
 	    setDraggable: function(element, draggable) {
-	    	_setDraggable(element, draggable);
+	    	return _setDraggable(element, draggable);
 	    },
 	    
 	    /**
@@ -1023,6 +1072,13 @@ if (!Array.prototype.indexOf) {
 	    	};
 	    	_operation(elId, f);
 	    }, 
+	    
+	    /**
+	     * Toggles draggability (sic) of an element.
+	     */
+	    toggleDraggable : function(elId) {
+	    	return _toggleDraggable(elId);
+	    },
 	    
 	    /**
 	     * Unloads jsPlumb, deleting all storage.  You should call this 
