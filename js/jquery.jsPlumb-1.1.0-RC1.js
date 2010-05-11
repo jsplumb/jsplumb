@@ -47,15 +47,18 @@ if (!Array.prototype.indexOf) {
 	var sizes = [];
 	var _jsPlumbContextNode = null;
 	
-	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)	
+	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)		
 	
-	var _getId = function(element) {
-		var id = $(element).attr("id");
-		if (!id) {
-			id = "_jsPlumb_" + new String((new Date()).getTime());
-			$(element).attr("id", id);
+	/**
+     * helper method to add an item to a list, creating the list if it does not yet exist.
+     */
+    var _addToList = function(map, key, value) {
+		var l = map[key];
+		if (l == null) {
+			l = [];
+			map[key] = l; 
 		}
-		return id;
+		l.push(value);
 	};
 	
     /**
@@ -88,108 +91,6 @@ if (!Array.prototype.indexOf) {
     };
     
     /**
-     * inits a draggable if it's not already initialised.
-     * todo: if the element was draggable already, like from some non-jsPlumb call, wrap the drag function. 
-     */
-    var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
-    	// dragging
-	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
-	    if (draggable && element.draggable) {    	
-	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
-	    	var dragCascade = options.drag || function(e,u) {};
-	    	var initDrag = function(element, elementId, dragFunc) {
-	    		var opts = $.extend({drag:dragFunc}, options);
-	    		var draggable = draggableStates[elementId];
-	    		opts.disabled = draggable == null ? false : !draggable;
-	        	element.draggable(opts);
-	    	};
-	    	initDrag(element, elementId, function(event, ui) {
-	    		 _draw(element, ui);
-		    	dragCascade(event, ui);
-	    	});
-	    }
-    	
-    };
-    
-    
-    /**
-     * performs the given function operation on all the connections found for the given element
-     * id; this means we find all the endpoints for the given element, and then for each endpoint
-     * find the connectors connected to it. then we pass each connection in to the given
-     * function.
-     */
-    var _operation = function(elId, func) {
-    	var endpoints = endpointsByElement[elId];
-    	if (endpoints && endpoints.length) {
-	    	for (var i = 0; i < endpoints.length; i++) {
-	    		for (var j = 0; j < endpoints[i].connections.length; j++) {
-	    			var retVal = func(endpoints[i].connections[j]);
-	    			// if the function passed in returns true, we exit.
-	    			// most functions return false.
-	    			if (retVal) return;
-	    		}
-	    	}
-    	}
-    };
-    
-    /**
-     * perform an operation on all elements.
-     */
-    var _operationOnAll = function(func) {
-    	for (var elId in endpointsByElement) {
-    		_operation(elId, func);
-    	}    	
-    };
-    
-    /**
-     * updates the offset and size for a given element, and stores the values.
-     * if 'ui' is not null we use that (it would have been passed in from a drag call) because it's faster; but if it is null,
-     * or if 'recalc' is true in order to force a recalculation, we use the offset, outerWidth and outerHeight methods to get
-     * the current values.
-     */
-    var _updateOffset = function(elId, ui, recalc) {
-		if (recalc || ui == null) {  // if forced repaint or no ui helper available, we recalculate.
-    		// get the current size and offset, and store them
-    		var s = $("#" + elId);
-    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
-    		offsets[elId] = s.offset();
-		} else {
-			// faster to use the ui element if it was passed in.
-			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
-			// 1.8 and 1.7.
-			var pos = ui.absolutePosition || ui.offset;
-    		var anOffset = ui != null ? pos : $("#" + elId).offset();
-    		offsets[elId] = anOffset;
-		}
-	};
-    
-    /**
-     * helper method to add an item to a list, creating the list if it does not yet exist.
-     */
-    var _addToList = function(map, key, value) {
-		var l = map[key];
-		if (l == null) {
-			l = [];
-			map[key] = l; 
-		}
-		l.push(value);
-	};
-	
-	/**
-     * helper method to remove an item from a list.
-     */
-    var _removeFromList = function(map, key, value) {
-		var l = map[key];
-		if (l != null) {
-			var i = l.indexOf(value);
-			if (i >= 0) {
-				delete( l[i] );
-				l.splice( i, 1 );	
-			}
-		}		
-	};
-	
-	/**
 	 * helper function: the second argument is a function taking two args - the first is a
 	 * jquery element, and the second is the element's id.
 	 * 
@@ -221,41 +122,7 @@ if (!Array.prototype.indexOf) {
 		return retVal;
 	};
 	
-    /**
-     * Sets whether or not the given element(s) should be draggable, regardless of what a particular
-     * plumb command may request.
-     * 
-     * @param element May be a string, a jQuery elements, or a list of strings/jquery elements.
-     * @param draggable Whether or not the given element(s) should be draggable.
-     */
-	var _setDraggable = function(element, draggable) {    
-    	var _helper = function(el, id) {
-    		draggableStates[id] = draggable;
-        	if (el.draggable) {
-        		el.draggable("option", "disabled", !draggable);
-        	}
-    	};       
-    	
-    	return _elementProxy(element, _helper);
-    };
-	
 	/**
-	 * private method to do the business of hiding/showing.
-	 * @param elId Id of the element in question
-	 * @param state String specifying a value for the css 'display' property ('block' or 'none').
-	 */
-	var _setVisible = function(elId, state) {
-    	var f = function(jpc) {
-    		//todo should we find all the endpoints instead of going by connection? this will 
-    		jpc.canvas.style.display = state;
-			/*jpc.sourceEndpointCanvas.style.display = state;
-			jpc.targetEndpointCanvas.style.display = state;*/
-    	};
-    	
-    	_operation(elId, f);    	
-    };        
-    
-    /**
      * Returns (creating if necessary) the DIV element that jsPlumb uses as the context for all of its 
      * canvases.  having this makes it possible to makes calls like $("selector", context), which are
      * faster than if you provide no context.  also we can clear out everything easily like this, either
@@ -267,6 +134,42 @@ if (!Array.prototype.indexOf) {
     		document.body.appendChild(_jsPlumbContextNode);
     	}
     	return $(_jsPlumbContextNode);
+    };
+    
+    /**
+	 * gets an id for the given element, creating and setting one if necessary.
+	 */
+	var _getId = function(element) {
+		var id = $(element).attr("id");
+		if (!id) {
+			id = "_jsPlumb_" + new String((new Date()).getTime());
+			$(element).attr("id", id);
+		}
+		return id;
+	};
+    
+    /**
+     * inits a draggable if it's not already initialised.
+     * todo: if the element was draggable already, like from some non-jsPlumb call, wrap the drag function. 
+     */
+    var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
+    	// dragging
+	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
+	    if (draggable && element.draggable) {    	
+	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
+	    	var dragCascade = options.drag || function(e,u) {};
+	    	var initDrag = function(element, elementId, dragFunc) {
+	    		var opts = $.extend({drag:dragFunc}, options);
+	    		var draggable = draggableStates[elementId];
+	    		opts.disabled = draggable == null ? false : !draggable;
+	        	element.draggable(opts);
+	    	};
+	    	initDrag(element, elementId, function(event, ui) {
+	    		 _draw(element, ui);
+		    	dragCascade(event, ui);
+	    	});
+	    }
+    	
     };
     
     /**
@@ -287,16 +190,34 @@ if (!Array.prototype.indexOf) {
         }
         
         return canvas;
-    };         
-    
+    };  
     /**
-     * helper to remove a list of elements from the DOM.
+     * performs the given function operation on all the connections found for the given element
+     * id; this means we find all the endpoints for the given element, and then for each endpoint
+     * find the connectors connected to it. then we pass each connection in to the given
+     * function.
      */
-    var _removeElements = function(elements) {
-    	for (var i in elements)
-    		_removeElement(elements[i]);
-    }
-    
+    var _operation = function(elId, func) {
+    	var endpoints = endpointsByElement[elId];
+    	if (endpoints && endpoints.length) {
+	    	for (var i = 0; i < endpoints.length; i++) {
+	    		for (var j = 0; j < endpoints[i].connections.length; j++) {
+	    			var retVal = func(endpoints[i].connections[j]);
+	    			// if the function passed in returns true, we exit.
+	    			// most functions return false.
+	    			if (retVal) return;
+	    		}
+	    	}
+    	}
+    };
+    /**
+     * perform an operation on all elements.
+     */
+    var _operationOnAll = function(func) {
+    	for (var elId in endpointsByElement) {
+    		_operation(elId, func);
+    	}    	
+    };
     /**
      * helper to remove an element from the DOM.
      */
@@ -306,13 +227,64 @@ if (!Array.prototype.indexOf) {
     		catch (e) { }
     	}    	
     };
-    
+    /**
+     * helper to remove a list of elements from the DOM.
+     */
+    var _removeElements = function(elements) {
+    	for (var i in elements)
+    		_removeElement(elements[i]);
+    };
+	/**
+     * helper method to remove an item from a list.
+     */
+    var _removeFromList = function(map, key, value) {
+		var l = map[key];
+		if (l != null) {
+			var i = l.indexOf(value);
+			if (i >= 0) {
+				delete( l[i] );
+				l.splice( i, 1 );	
+			}
+		}		
+	};
+	/**
+     * Sets whether or not the given element(s) should be draggable, regardless of what a particular
+     * plumb command may request.
+     * 
+     * @param element May be a string, a jQuery elements, or a list of strings/jquery elements.
+     * @param draggable Whether or not the given element(s) should be draggable.
+     */
+	var _setDraggable = function(element, draggable) {    
+    	var _helper = function(el, id) {
+    		draggableStates[id] = draggable;
+        	if (el.draggable) {
+        		el.draggable("option", "disabled", !draggable);
+        	}
+    	};       
+    	
+    	return _elementProxy(element, _helper);
+    };
+	/**
+	 * private method to do the business of hiding/showing.
+	 * @param elId Id of the element in question
+	 * @param state String specifying a value for the css 'display' property ('block' or 'none').
+	 */
+	var _setVisible = function(elId, state) {
+    	var f = function(jpc) {
+    		//todo should we find all the endpoints instead of going by connection? this will 
+    		jpc.canvas.style.display = state;
+			/*jpc.sourceEndpointCanvas.style.display = state;
+			jpc.targetEndpointCanvas.style.display = state;*/
+    	};
+    	
+    	_operation(elId, f);
+    };        
     /**
      * toggles the draggable state of the element with the given id.
      */
     var _toggleDraggable = function(el) {    	
     	var fn = function(el, elId) {
-    		var state = draggableStates[elId] == null ? false : draggableStates[elId];
+    		var state = draggableStates[elId] == null ? _draggableByDefault : draggableStates[elId];
 	    	state = !state;
 	    	draggableStates[elId] = state;
 	    	el.draggable("option", "disabled", !state);
@@ -320,12 +292,47 @@ if (!Array.prototype.indexOf) {
     	};
     	return _elementProxy(el, fn);
     };
-    
+    /**
+	 * private method to do the business of toggling hiding/showing.
+	 * @param elId Id of the element in question
+	 */
+	var _toggleVisible = function(elId) {
+    	var f = function(jpc) {;
+    		var state = ('none' == jpc.canvas.style.display);
+    		jpc.canvas.style.display = state ? "block" : "none";
+			/*jpc.sourceEndpointCanvas.style.display = state;
+			jpc.targetEndpointCanvas.style.display = state;*/
+    	};
+    	
+    	_operation(elId, f);
+    };
+    /**
+     * updates the offset and size for a given element, and stores the values.
+     * if 'ui' is not null we use that (it would have been passed in from a drag call) because it's faster; but if it is null,
+     * or if 'recalc' is true in order to force a recalculation, we use the offset, outerWidth and outerHeight methods to get
+     * the current values.
+     */
+    var _updateOffset = function(elId, ui, recalc) {
+		if (recalc || ui == null) {  // if forced repaint or no ui helper available, we recalculate.
+    		// get the current size and offset, and store them
+    		var s = $("#" + elId);
+    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
+    		offsets[elId] = s.offset();
+		} else {
+			// faster to use the ui element if it was passed in.
+			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
+			// 1.8 and 1.7.
+			var pos = ui.absolutePosition || ui.offset;
+    		var anOffset = ui != null ? pos : $("#" + elId).offset();
+    		offsets[elId] = anOffset;
+		}
+	};
     /**
      * wraps one function with another, creating a placeholder for the wrapped function
      * if it was null.  this is used to wrap the various drag/drop event functions - to allow
      * jsPlumb to be notified of important lifecycle events without imposing itself on the user's
      * drap/drop functionality.
+     * TODO: determine whether or not we should try/catch the plumb function, so that the cascade function is always executed.
      */
     var _wrap = function(cascadeFunction, plumbFunction) {
     	cascadeFunction = cascadeFunction || function(e, ui) { };
@@ -334,7 +341,6 @@ if (!Array.prototype.indexOf) {
     		cascadeFunction(e, ui);
     	};
     }
-	
 	/**
 	 * Anchor class. Anchors can be situated anywhere.  
 	 * params should contain three values, and may optionally have an 'offsets' argument:
@@ -1032,9 +1038,7 @@ if (!Array.prototype.indexOf) {
 	     * Sets whether or not a given element is draggable, regardless of what any plumb command
 	     * may request. 
 	     */
-	    setDraggable: function(element, draggable) {
-	    	return _setDraggable(element, draggable);
-	    },
+	    setDraggable: _setDraggable, 
 	    
 	    /**
 	     * Sets whether or not elements are draggable by default.  Default for this is true.
@@ -1067,21 +1071,19 @@ if (!Array.prototype.indexOf) {
 	    },
 	    
 	    /**
-	     * Toggles visibility of an element's connections.
+	     * Toggles visibility of an element's connections. kept for backwards compatibility
 	     */
-	    toggle : function(elId) {
-	    	var f = function(jpc) {
-	    		_setVisible(elId, "none" == jpc.canvas.style.display ? "block" : "none");
-	    	};
-	    	_operation(elId, f);
-	    }, 
+	    toggle : _toggleVisible,
+	    
+	    /**
+	     * new name for the old toggle method.
+	     */
+	    toggleVisible : _toggleVisible,
 	    
 	    /**
 	     * Toggles draggability (sic) of an element.
 	     */
-	    toggleDraggable : function(elId) {
-	    	return _toggleDraggable(elId);
-	    },
+	    toggleDraggable : _toggleDraggable, 
 	    
 	    /**
 	     * Unloads jsPlumb, deleting all storage.  You should call this 
