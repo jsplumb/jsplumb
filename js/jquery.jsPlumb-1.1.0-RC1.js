@@ -246,9 +246,10 @@ if (!Array.prototype.indexOf) {
 	 */
 	var _setVisible = function(elId, state) {
     	var f = function(jpc) {
+    		//todo should we find all the endpoints instead of going by connection? this will 
     		jpc.canvas.style.display = state;
-			jpc.sourceEndpointCanvas.style.display = state;
-			jpc.targetEndpointCanvas.style.display = state;
+			/*jpc.sourceEndpointCanvas.style.display = state;
+			jpc.targetEndpointCanvas.style.display = state;*/
     	};
     	
     	_operation(elId, f);    	
@@ -824,19 +825,11 @@ if (!Array.prototype.indexOf) {
     		
 		connectorClass : '_jsPlumb_connector',
 		endpointClass : '_jsPlumb_endpoint',
-		/*DEFAULT_PAINT_STYLE : { lineWidth : 10, strokeStyle : "red" },
-	    DEFAULT_ENDPOINT_STYLE : { fillStyle : null }, // meaning it will be derived from the stroke style of the connector.
-	    DEFAULT_ENDPOINT_STYLES : [ null, null ], // meaning it will be derived from the stroke style of the connector.
-	    //DEFAULT_DRAG_OPTIONS : { },
-	    DEFAULT_CONNECTOR : null,
-	    DEFAULT_ENDPOINT : null,    
-	    DEFAULT_ENDPOINTS : [null, null],  // new in 0.0.4, the ability to specify diff. endpoints.  DEFAULT_ENDPOINT is here for backwards compatibility.            
-	*/
+		
 	    Anchors : {},
 	    Connectors : {},
 	    Endpoints : {},
-	        
-	    
+	        	    
 	    /**
 	     * adds an endpoint to the element
 	     */
@@ -893,8 +886,10 @@ if (!Array.prototype.indexOf) {
 	    	var f = function(jpc) {
 	    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
 	    			_removeElement(jpc.canvas);
-					_removeElement(jpc.targetEndpointCanvas);
-					_removeElement(jpc.sourceEndpointCanvas);    			
+					/*_removeElement(jpc.targetEndpointCanvas);
+					_removeElement(jpc.sourceEndpointCanvas);*/
+					jpc.endpoints[0].removeConnection(jpc);
+					jpc.endpoints[1].removeConnection(jpc);
 	    			return true;
 	    		}    		
 	    	};    	
@@ -912,11 +907,13 @@ if (!Array.prototype.indexOf) {
 	    	var f = function(jpc) {
 	    		// todo replace with _cleanupConnection call here.
 	    		_removeElement(jpc.canvas);
-				_removeElement(jpc.targetEndpointCanvas);
-				_removeElement(jpc.sourceEndpointCanvas);
+				/*_removeElement(jpc.targetEndpointCanvas);
+				_removeElement(jpc.sourceEndpointCanvas);*/
+				jpc.endpoints[0].removeConnection(jpc);
+				jpc.endpoints[1].removeConnection(jpc);
 	    	};
 	    	_operation(elId, f);
-	    	delete endpointsByElement[elId];    	
+	    	//delete endpointsByElement[elId];    	
 	    },
 	    
 	    /**
@@ -925,14 +922,16 @@ if (!Array.prototype.indexOf) {
 	    detachEverything : function() {
 	    	var f = function(jpc) {
 	    		_removeElement(jpc.canvas);
-				_removeElement(jpc.targetEndpointCanvas);
-				_removeElement(jpc.sourceEndpointCanvas);
+				/*_removeElement(jpc.targetEndpointCanvas);
+				_removeElement(jpc.sourceEndpointCanvas);*/
+				jpc.endpoints[0].removeConnection(jpc);
+				jpc.endpoints[1].removeConnection(jpc);
 	    	};
 	    	
 	    	_operationOnAll(f);
 	    	
-	    	delete endpointsByElement;
-	    	endpointsByElement = {};
+	    	/*delete endpointsByElement;
+	    	endpointsByElement = {};*/
 	    },    
 	    
 	    /**
