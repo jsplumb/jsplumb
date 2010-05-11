@@ -11,13 +11,13 @@
 		<!-- script type="text/javascript" src="../js/jquery.jsPlumb-flowchart-RC1.js"></script-->
 		<script type="text/javascript" src="../js/jquery.jsPlumb-defaults-1.1.0-RC1.js"></script>
 		
-		<script type="text/javascript"><!--
+		<script type="text/javascript">
 			$(document).ready(function() {
-				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
-				jsPlumb.DEFAULT_PAINT_STYLE = { strokeStyle:'#666' };
-				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:20, height:16, strokeStyle:'#666' };
-				jsPlumb.DEFAULT_ENDPOINT = new jsPlumb.Endpoints.Rectangle();
-				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
+				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
+				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
+				jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
+				jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
 
 				var exampleGreyEndpoint = {
 					endpoint:new jsPlumb.Endpoints.Rectangle(),
@@ -88,14 +88,15 @@
 					the second example uses a Dot of radius 15 as the endpoint marker, is both a source and target, and has scope
 					'exampleConnection2'.
 				*/
+				var example2Color = '#316b31', example2Scope = 'exampleConnection2';
 				var exampleEndpoint2 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:15}),
-						style:{ strokeStyle:'#316b31' }, 
+						style:{ strokeStyle:example2Color }, 
 						isSource:true,
-						dragOptions : { scope:'exampleConnection2' },
-						connectionStyle:{ strokeStyle:'#316b31', lineWidth:8 },
+						dragOptions : { scope:example2Scope },
+						connectionStyle:{ strokeStyle:example2Color, lineWidth:8 },
 						isTarget:true, 
-						dropOptions : $.extend({scope:'exampleConnection2'}, exampleDropOptions)
+						dropOptions : $.extend({scope:example2Scope}, exampleDropOptions)
 				};
 
 				/**
@@ -108,18 +109,19 @@
 				is to delete the connection.
 				
 				*/
-				var example3Color = "rgba(229,219,61,0.5)";
+				var example3Color = "rgba(229,219,61,0.5)", example3Scope = 'exampleConnection3';
 				var exampleEndpoint3 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:17}),
 						reattach:true,
 						anchor:jsPlumb.Anchors.BottomLeft,
 						style:{ strokeStyle:example3Color, opacity:0.5 }, 
 						isSource:true,
-						dragOptions : { scope:'exampleConnection3' },
+						dragOptions : { scope:example3Scope },
+						maxConnections : 3,
 						connectionStyle:{ strokeStyle:example3Color, lineWidth:4 },
 						connector : new jsPlumb.Connectors.Straight(),
 						isTarget:true, 						
-						dropOptions : $.extend({scope:'exampleConnection3'}, exampleDropOptions)
+						dropOptions : $.extend({scope:example3Scope}, exampleDropOptions)
 				};			
 
 				// setup some empty endpoints.  again note the use of '$.extend' to reuse all the parameters except the location
@@ -153,7 +155,7 @@
 				// add the third example using the '.window' class.
 				$(".window").addEndpoint(exampleEndpoint3);								
 			});
-		--></script>
+</script>
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<style type="text/css">
@@ -191,17 +193,12 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 
 		<div id="explanation">
 	    	This page is an early demonstration of the draggable/droppable functionality that is being added to jsPlumb.  
-	    	A few windows are plumbed to start with, using the default settings, and there are empty Endpoints on each window, from which you 
-	    	can drag new connectors between matching endpoints.  
+	    	There are empty Endpoints on each window, from which you 
+	    	can drag new connectors between matching endpoints.  The yellow endpoints support up to three connections each.
 	    	<p>
 		    	<ul>
-		    		<li>Once an Endpoint has a Connection attached, you cannot draw any more Connections from that Endpoint - you can
-		    		only drag that Connection somewhere else.  This topic is an open question, really.  It would be simple to support both
-		    		the current functionality as well as having the Endpoint always act as a Connection source (without the ability to move
-		    		existing Connections).  The middle ground would require something a little more tricky - a way to select the Connection
-		    		you wish to move.  This would probably involve some UI widget.<br/><br/></li>
 		    		<li>There is not yet any support for removing an existing Connection (via the UI.  jsPlumb does offer methods to
-		    		remove Connections in the API).  This, too, poses the question of how the user would trigger the deletion.  Should jsPlumb
+		    		remove Connections in the API).  This poses the question of how the user would trigger the deletion.  Should jsPlumb
 		    		provide the full UI or just some event hooks?<br/><br/></li>
 		    		<li>There may be other random bugs.  The script is not finalised.</li>	
 		    	</ul>
@@ -214,9 +211,9 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 	    	You also might like to check out <a  class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
 	    	
 	    	<div id="debug"></div>
-	    	<!-- button id="btnHideAll">Hide</button>
-	    	<button id="btnShowAll">Show</button-->
-	    	<!-- button id="btnDetachAll">Detach All</button-->
+	    	<button id="btnHideAll">Hide Window 2's Connections</button>
+	    	<button id="btnShowAll">Show Window 2's Connections</button>
+	    	<button id="btnDetachAll">Detach All</button>
 	    </div>
 	    
 	    <script type="text/javascript">
@@ -224,6 +221,11 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 			$("#btnShowAll").click(function() { jsPlumb.show("window2"); });
 			$("#btnDetachAll").click(function() { jsPlumb.detachEverything(); });*/
 
+			$(document).ready(function() {
+				$("#btnHideAll").click(function() { jsPlumb.hide("window2"); });
+				$("#btnShowAll").click(function() { jsPlumb.show("window2"); });
+				$("#btnDetachAll").click(function() { jsPlumb.detachEverything(); });
+			});
 	    </script>
 	    
 	    	   	    <!-- Start of StatCounter Code -->
