@@ -767,6 +767,7 @@ if (!Array.prototype.indexOf) {
 	    			jpc.suspendedEndpoint.removeConnection(jpc);
 	    		jpc.endpoints[idx] = self;
 	    		self.addConnection(jpc);
+	    		_initDraggableIfNecessary(_element, _elementId, params.draggable, {});
 	    		jsPlumb.repaint($(ui.draggable, contextNode).attr("elId"));
 	    		delete floatingConnections[id];	    			    	
 			 });
