@@ -81,6 +81,7 @@ if (!Array.prototype.indexOf) {
 	    		if (!e.connections || e.connections.length == 0)
 	    			e.paint();
 	    		else {
+	    		//if (e.connections && e.connections.length > 0) {
 		    		// get all connections for the endpoint...
 		    		var l = e.connections;
 		    		for (var j = 0; j < l.length; j++)
@@ -1006,9 +1007,8 @@ if (!Array.prototype.indexOf) {
 	     * repaint all connections.
 	     */
 	    repaintEverything : function() {
-	    	var f = function(jpc) { jpc.repaint(); }
-	    	for (var elId in endpointsByElement) {  
-	    		_operation(elId, f);
+	    	for (var elId in endpointsByElement) {
+	    		_draw($("#" + elId));
 	    	}
 	    },
 	    
