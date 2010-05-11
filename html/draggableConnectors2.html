@@ -18,33 +18,17 @@
 #window2 { top:6em; right:15%; }
 #window3 { top:24em; left:15%; }
 #window4 { top:24em; right:15%}
-.window { 
-border:1px solid gray; width:9em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
-padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; 
-}	
+.window {  border:1px solid gray; width:9em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
+padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; }	
 .drag-locked { border:1px solid red; }
 ._jsPlumb_endpoint { z-index:50; }
 ._jsPlumb_connector { z-index:1; }
 .dropHover { border:1px dotted red; } 
-.dragActive { border:1px solid blue; }
-#explanation { width:30%; background-color:transparent;
-z-index:2;
-font-size:1.2em;
-color:gray;
-border:none;
-position:relative;
-left:35%;
-right:auto;
-text-align:center;
-}
+.dragActive { border:2px dotted orange; }
+#explanation { width:30%; background-color:transparent;z-index:2;font-size:1.2em;color:gray;border:none;position:relative;left:35%;right:auto;text-align:center; }
 .cmdLink { font-size:0.80em;}
-#clear {
-padding:0.3em;
-}
-#clear:hover { 
-background-color:yellow;
-}
-
+#clear { padding:0.3em; }
+#clear:hover { background-color:yellow; }
 
 		</style>
 	</head>
@@ -84,9 +68,9 @@ background-color:yellow;
 
 				var exampleDropOptions = { 					
 					tolerance:'touch', 
-					hoverClass:'dropHover'//,
+					hoverClass:'dropHover',
 					//drop : function(e, ui) { alert('dropped'); }
-					//activeClass:'dragActive' 
+					activeClass:'dragActive' 
 				};
 				
 				/**
