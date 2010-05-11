@@ -444,24 +444,20 @@ if (!Array.prototype.indexOf) {
 	    // init endpoints
 	    this.endpoints = [];
 	    this.endpointStyles = [];
-	    if (params.sourceEndpoint) this.endpoints[0] = params.sourceEndpoint;
-	    else {
-	    	if(!params.endpoints) params.endpoints = [null,null];
-		    var endpoint0 = params.endpoints[0] || params.endpoint || jsPlumb.Defaults.Endpoints[0] || jsPlumb.Defaults.Endpoint|| new jsPlumb.Endpoints.Dot();
-		    if (!params.endpointStyles) params.endpointStyles = [null,null];
-		    var endpointStyle0 = params.endpointStyles[0] || params.endpointStyle || jsPlumb.Defaults.EndpointStyles[0] || jsPlumb.Defaults.EndpointStyle;
-		    var anchor0 = params.anchors  ? params.anchors[0] : jsPlumb.Defaults.Anchors[0] || jsPlumb.Anchors.BottomCenter;
-		    this.endpoints[0] = new Endpoint({style:endpointStyle0, endpoint:endpoint0, connections:[self], anchor:anchor0 });	    	
-	    }
-	    if (params.targetEndpoint) this.endpoints[1] = params.targetEndpoint ;
-	    else {
-	    	if(!params.endpoints) params.endpoints = [null,null];
-	    	if (!params.endpointStyles) params.endpointStyles = [null,null];
-		    var endpoint1 = params.endpoints[1] || params.endpoint || jsPlumb.Defaults.Endpoints[1] ||jsPlumb.Defaults.Endpoint || new jsPlumb.Endpoints.Dot();;
-		    var endpointStyle1 = params.endpointStyles[1] || params.endpointStyle || jsPlumb.Defaults.EndpointStyles[1] || jsPlumb.Defaults.EndpointStyle;
-		    var anchor1 = params.anchors  ? params.anchors[1] : jsPlumb.Defaults.Anchors[1] || jsPlumb.Anchors.TopCenter;
-		    this.endpoints[1] =  new Endpoint({style:endpointStyle1, endpoint:endpoint1, connections:[self], anchor:anchor1 });
-	    }
+	    var prepareEndpoint = function(existing, index, params) {
+	    	if (existing) self.endpoints[index] = existing;
+		    else {
+		    	if(!params.endpoints) params.endpoints = [null,null];
+			    var ep = params.endpoints[index] || params.endpoint || jsPlumb.Defaults.Endpoints[index] || jsPlumb.Defaults.Endpoint|| new jsPlumb.Endpoints.Dot();
+			    if (!params.endpointStyles) params.endpointStyles = [null,null];
+			    var es = params.endpointStyles[index] || params.endpointStyle || jsPlumb.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyle;
+			    var a = params.anchors  ? params.anchors[index] : jsPlumb.Defaults.Anchors[index] || jsPlumb.Anchors.BottomCenter;
+			    self.endpoints[index] = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a });	    	
+		    }
+	    };
+	    
+	    prepareEndpoint(params.sourceEndpoint, 0, params);
+	    prepareEndpoint(params.targetEndpoint, 1, params);	    	    
 	    
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
