@@ -592,14 +592,15 @@ if (!Array.prototype.indexOf) {
 		 * paints the Endpoint, recalculating offset and anchor positions if necessary.
 		 */
 		this.paint = function(anchorPoint, connectorPaintStyle, canvas) {
-			if (anchorPoint == null) {				
-				var xy = offsets[_elementId];
-				var wh = sizes[_elementId];
-				if (xy == null || wh == null) {
+			if (anchorPoint == null) {
+				// do we always want to force a repaint here?
+				//var xy = offsets[_elementId];
+				//var wh = sizes[_elementId];
+				//if (xy == null || wh == null) {
 					_updateOffset(_elementId);
 					var xy = offsets[_elementId];
 					var wh = sizes[_elementId];
-				}
+				//}
 				anchorPoint = self.anchor.compute([xy.left, xy.top], wh);
 			}
 			_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
