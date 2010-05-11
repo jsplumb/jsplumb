@@ -18,7 +18,7 @@
 #window2 { top:6em; right:15%; }
 #window3 { top:24em; left:15%; }
 #window4 { top:24em; right:15%}
-.window {  border:1px solid gray; width:9em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
+.window {  border:1px solid gray; width:9.7em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
 padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; }	
 .drag-locked { border:1px solid red; }
 ._jsPlumb_endpoint { z-index:50; }
@@ -33,7 +33,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
-		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+		<div class="menu"><a href="demo.html" class="mplink">jsPlumb home</a>&nbsp;|&nbsp;<a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 	
 		<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a></div>
 		<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a></div>
@@ -41,8 +41,9 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 		<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a></div>
 
 		<div id="explanation">
-	    	<p>drag boxes to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
+	    	<p>this is a prototype using jsPlumb 1.1.0-RC1.</p><p>drag boxes to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
 	    	<a id="clear" href="#">clear plumbing</a>
+	    	<p>you should not use jsPlumb-1.1.0-RC1 just yet.  there are outstanding bugs and performance enhancements to be completed.</p>
 	    </div>
 	    
 	    <script type="text/javascript">
