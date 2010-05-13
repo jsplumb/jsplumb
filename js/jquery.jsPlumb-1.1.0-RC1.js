@@ -23,6 +23,8 @@ if (!Array.prototype.indexOf) {
 	
 	var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
 	
+	var log = null;
+	
 	var repaintFunction = function() { jsPlumb.repaintEverything(); };
 	var automaticRepaint = true;
     function repaintEverything() {
@@ -70,23 +72,30 @@ if (!Array.prototype.indexOf) {
     	var id = $(element).attr("id");    	
     	var endpoints = endpointsByElement[id];
     	if (endpoints) {
+    		//if (ui == null) _updateOffset(id, ui);
+    		_updateOffset(id, ui);
+    		var myOffset = offsets[id];
+			var myWH = sizes[id];
 	    	// loop through endpoints for this element
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		var e = endpoints[i];
 	    		// first, paint the endpoint
-	    		if (ui == null)
-	    			_updateOffset(id, ui);
+	    		
+	    		var anchorLoc = endpoints[i].anchor.compute([myOffset.left, myOffset.top], myWH);
+	           // var anchorOrientation = endpoints[i].anchor.getOrientation();
+	    		
 	    		//todo...connector paint style?  we have lost that with the move to endpoint-centric.
 	    		// perhaps we only paint the endpoint here if it has no connections; it can use its own style.
-	    		if (!e.connections || e.connections.length == 0)
-	    			e.paint();
-	    		else {
+	    		//if (!e.connections || e.connections.length == 0)
+	    			e.paint(anchorLoc);
+	            
+	    	//	else {
 	    		//if (e.connections && e.connections.length > 0) {
 		    		// get all connections for the endpoint...
 		    		var l = e.connections;
 		    		for (var j = 0; j < l.length; j++)
 		    			l[j].paint(id, ui);  // ...and paint them.
-	    		}
+	    		//}
 	    	}
     	}
     };
@@ -314,6 +323,9 @@ if (!Array.prototype.indexOf) {
      * the current values.
      */
     var _updateOffset = function(elId, ui, recalc) {
+    	
+    	if (log) log.debug("updating offset for element [" + elId + "]; ui is [" + ui + "]; recalc is [" + recalc + "]");
+    	
 		if (recalc || ui == null) {  // if forced repaint or no ui helper available, we recalculate.
     		// get the current size and offset, and store them
     		var s = $("#" + elId);
@@ -385,8 +397,8 @@ if (!Array.prototype.indexOf) {
 		
 		this.compute = function(xy, wh, txy, twh) {
 			// set these for the getOrientation method to use.
-			xDir = xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
-			yDir = xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
+			xDir = 0;//xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
+			yDir = 0;//xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
 			return [xy[0], xy[1]];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
 		};
 		
@@ -474,6 +486,9 @@ if (!Array.prototype.indexOf) {
 	     * @param recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
 	     */
 	    this.paint = function(elId, ui, recalc) {    	
+	    	
+	    	if (log) log.debug("Painting Connection; element in motion is " + elId + "; ui is [" + ui + "]; recalc is [" + recalc + "]");
+	    	
 	    	var fai = self.floatingAnchorIndex;
 	    	// if the moving object is not the source we must transpose the two references.
 	    	var swap = !(elId == this.sourceId);
@@ -509,8 +524,8 @@ if (!Array.prototype.indexOf) {
 	            	            
 	            this.connector.paint(dim, ctx);
 	                            
-	        	this.endpoints[swap ? 1 : 0].paint(sAnchorP, this.paintStyle);
-	        	this.endpoints[swap ? 0 : 1].paint(tAnchorP, this.paintStyle);
+	        //	this.endpoints[swap ? 1 : 0].paint(sAnchorP, this.paintStyle);
+	        	//this.endpoints[swap ? 0 : 1].paint(tAnchorP, this.paintStyle);
 	    	}
 	    };
 	    
@@ -565,6 +580,7 @@ if (!Array.prototype.indexOf) {
 		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
 		var _reattach = params.reattach || false;
+		var floatingEndpoint = null;
 		this.addConnection = function(connection) {
 			self.connections.push(connection);
 		};
@@ -573,6 +589,7 @@ if (!Array.prototype.indexOf) {
 			if (idx >= 0)
 				self.connections.splice(idx, 1);
 		};
+		this.isFloating = function() { return floatingEndpoint != null; };
 		/**
 		 * first pass at default ConnectorSelector: returns the first connection, if we have any.
 		 * modified a little, 5/10/2010: now it only returns a connector if we have not got equal to or more than _maxConnector connectors
@@ -586,21 +603,23 @@ if (!Array.prototype.indexOf) {
 
 		// get the jsplumb context...lookups are faster with a context.
 		var contextNode = _getContextNode();
-		var isFull = function() { return self.connections.length >= _maxConnections; };
 		
 		/**
 		 * paints the Endpoint, recalculating offset and anchor positions if necessary.
 		 */
 		this.paint = function(anchorPoint, connectorPaintStyle, canvas) {
+			
+			if (log) log.debug("Painting Endpoint with elementId [" + _elementId + "]; anchorPoint is [" + anchorPoint + "]");
+			
 			if (anchorPoint == null) {
-				// do we always want to force a repaint here?
-				//var xy = offsets[_elementId];
-				//var wh = sizes[_elementId];
-				//if (xy == null || wh == null) {
+				// do we always want to force a repaint here?  i dont think so!
+				var xy = offsets[_elementId];
+				var wh = sizes[_elementId];
+				if (xy == null || wh == null) {
 					_updateOffset(_elementId);
-					var xy = offsets[_elementId];
-					var wh = sizes[_elementId];
-				//}
+					xy = offsets[_elementId];
+					wh = sizes[_elementId];
+				}
 				anchorPoint = self.anchor.compute([xy.left, xy.top], wh);
 			}
 			_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
@@ -612,7 +631,7 @@ if (!Array.prototype.indexOf) {
 		if (params.isSource) {
 			
 			var n = null, id = null, 
-			floatingEndpoint = null, jpc = null, 
+			 jpc = null, 
 			existingJpc = false, existingJpcParams = null;
 			
 			// first the question is, how many connections are on this endpoint?  if it's only one, then excellent.  otherwise we will either need a way
@@ -648,6 +667,7 @@ if (!Array.prototype.indexOf) {
 					anchor:floatingAnchor, 
 					source:n 
 				});
+				//floatingEndpoint.originalAnchor = 
 				
 				jpc = connectorSelector();
 				if (jpc == null) {
@@ -982,6 +1002,7 @@ if (!Array.prototype.indexOf) {
 	     */
 	    repaint : function(el) {
 	    	var _repaint = function(el, elId) {
+	    		if (log) log.debug("Repainting element " + elId);
 		    	var loc = {'absolutePosition': el.offset()};
 		    	var f = function(jpc) {
 		    		jpc.paint(elId, loc, true);
@@ -1043,6 +1064,10 @@ if (!Array.prototype.indexOf) {
 	     */
 	    setDraggableByDefault: function(draggable) {
 	    	_draggableByDefault = draggable;
+	    },
+	    
+	    setDebugLog: function(debugLog) {
+	    	log = debugLog;
 	    },
 	    
 	    /**
