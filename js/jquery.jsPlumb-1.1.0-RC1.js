@@ -885,6 +885,19 @@ if (!Array.prototype.indexOf) {
 	    },
 	    
 	    /**
+	     * wrapper around standard jquery animate function; injects a call to jsPlumb in the
+	     * 'step' function (creating it if necessary).  this only supports the two-arg version
+	     * of the animate call in jquery - the one that takes an object as the second arg.
+	     */
+	    animate : function(el, properties, options) {
+	    	var ele = typeof(el)=='string' ? $("#" + el) : el;
+	    	var id = ele.attr("id");
+	    	options = options || {};
+	    	options.step = _wrap(options.step, function() { jsPlumb.repaint(id); });
+	    	ele.animate(properties, options);    	
+	    },
+	    
+	    /**
 	     * adds a list of endpoints to the element
 	     */
 	    addEndpoints : function(target, endpoints) {

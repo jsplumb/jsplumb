@@ -77,7 +77,8 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					connector:new jsPlumb.Connectors.Bezier(90), 
 					endpointsOnTop:true,
 					isSource:true,
-					isTarget:true,
+					maxConnections:10,
+					isTarget:true,					
 					dropOptions:{tolerance:'touch', scope:'conn', hoverClass:'dropHover'},
 					dragOptions:{scope:'conn'}
 				};
@@ -101,10 +102,9 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 
 				$(".move").click(function() {
 					var id = $(this).attr("rel");
-					var dirs = { 'left':{left:'-=100'},'right':{left:'+=100'} };
-					//{left:'-=100',top:'+=100'}
+					var dirs = { 'left':{left:'-=250'},'right':{left:'+=250'} };
 					var dir = dirs[$(this).attr("di")]; 
-					$("#" + id).animate(dir,{duration:2900,step:function(){jsPlumb.repaint(id);}});
+					jsPlumb.animate( id, dir ,{ duration:900 } );
 				});
 				
 				$("#clear").click(function() { jsPlumb.detachEverything(); });
