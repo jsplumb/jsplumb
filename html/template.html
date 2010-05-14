@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+	<head>
+		<title>more draggable connectors experiments</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+		
+		<script type="text/javascript" src="../js/jquery.jsPlumb-1.1.0-RC1.js"></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-defaults-1.1.0-RC1.js"></script>
+		
+		<link rel="stylesheet" href="/mp.css"></link>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
+		<style type="text/css">
+/* demo */
+#window1 { top:6em;left:15%; }
+#window2 { top:6em; right:15%; }
+#window3 { top:24em; left:15%; }
+#window4 { top:24em; right:15%}
+.window {  border:1px solid gray; width:9.7em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
+padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; }	
+.drag-locked { border:1px solid red; }
+._jsPlumb_endpoint { z-index:50; }
+._jsPlumb_connector { z-index:1; }
+.dropHover { border:1px dotted red; } 
+.dragActive { border:2px dotted orange; }
+#explanation { width:30%; background-color:transparent;z-index:2;font-size:1.2em;color:gray;border:none;position:relative;left:35%;right:auto;text-align:center; }
+.cmdLink { font-size:0.80em;}
+#clear { padding:0.3em; }
+#clear:hover { background-color:yellow; }
+.move { font-size:1.5em; }
+		</style>
+	</head>
+	<body onunload="jsPlumb.unload();">
+		<div class="menu"><a href="demo.html" class="mplink">jsPlumb home</a>&nbsp;|&nbsp;<a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+	
+		<div class="window" id="window1">one<br/><br/>
+			<a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/>
+			<a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/>
+			<a href="#" class="cmdLink detach" rel="window1">detach all</a><br/>
+			<a href="#" class="cmdLink move" rel="window1" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window1" di="right" title="move right">&gt;</a>
+		</div>
+		<div class="window" id="window2">two<br/><br/>
+			<a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/>
+			<a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/>
+			<a href="#" class="cmdLink detach" rel="window2">detach all</a><br/>
+			<a href="#" class="cmdLink move" rel="window2" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window2" di="right" title="move right">&gt;</a>
+		</div>
+		<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a>
+		<br/>
+		<a href="#" class="cmdLink move" rel="window3" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window3" di="right" title="move right">&gt;</a>
+		</div>
+		<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a>
+		<br/>
+		<a href="#" class="cmdLink move" rel="window4" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window4" di="right" title="move right">&gt;</a>
+		</div>
+
+		<div id="explanation">
+	    	<p>this is a prototype using jsPlumb 1.1.0-RC1.</p><p>drag boxes to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
+	    	<a id="clear" href="#">clear plumbing</a>
+	    	<p>you should not use jsPlumb-1.1.0-RC1 just yet.  there are outstanding bugs and performance enhancements to be completed.</p>
+	    </div>
+	    
+	    <script type="text/javascript">
+			$(document).ready(function() {
+				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
+				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
+				jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
+				jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
+
+				var endpoint = {
+					anchor:jsPlumb.Anchors.TopCenter, 
+					connectionStyle:{lineWidth:7,strokeStyle:'rgba(131,8,135,0.5)'}, 
+					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
+					connector:new jsPlumb.Connectors.Bezier(90), 
+					endpointsOnTop:true,
+					isSource:true,
+					isTarget:true,
+					dropOptions:{tolerance:'touch', scope:'conn', hoverClass:'dropHover'},
+					dragOptions:{scope:'conn'}
+				};
+
+				$(".window").addEndpoint(endpoint);				
+
+				$(".hide").click(function() {
+					jsPlumb.toggle($(this).attr("rel"));
+				});
+
+				$(".drag").click(function() {
+					var s = jsPlumb.toggleDraggable($(this).attr("rel"));
+					$(this).html(s ? 'disable dragging' : 'enable dragging');
+					if (!s) $("#" + $(this).attr("rel")).addClass('drag-locked'); else $("#" + $(this).attr("rel")).removeClass('drag-locked');
+					$("#" + $(this).attr("rel")).css("cursor", s ? "pointer" : "default"); 
+				});
+
+				$(".detach").click(function() {
+					jsPlumb.detachAll($(this).attr("rel"));
+				});
+
+				$(".move").click(function() {
+					var id = $(this).attr("rel");
+					var dirs = { 'left':{left:'-=100'},'right':{left:'+=100'} };
+					//{left:'-=100',top:'+=100'}
+					var dir = dirs[$(this).attr("di")]; 
+					$("#" + id).animate(dir,{duration:2900,step:function(){jsPlumb.repaint(id);}});
+				});
+				
+				$("#clear").click(function() { jsPlumb.detachEverything(); });
+			});
+		</script>
+	    
+	    
+	    	   	    <!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=5700644; 
+var sc_invisible=1; 
+var sc_partition=71; 
+var sc_click_stat=1; 
+var sc_security="1cb90164"; 
+</script>
+
+<script type="text/javascript"
+src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
+class="statcounter"><a title="counter for wordpress"
+href="http://www.statcounter.com/wordpress.org/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/5700644/0/1cb90164/1/"
+alt="counter for wordpress" ></a></div></noscript>
+<!-- End of StatCounter Code -->
+	</body>
+</html>
