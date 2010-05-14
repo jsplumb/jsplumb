@@ -474,6 +474,14 @@ if (!Array.prototype.indexOf) {
 	    
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
+	    
+	    // paint the endpoints
+	    var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];		
+    	var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH);
+    	this.endpoints[0].paint(anchorLoc);    	
+    	myOffset = offsets[this.targetId]; myWH = sizes[this.targetId];		
+    	anchorLoc = this.endpoints[1].anchor.compute([myOffset.left, myOffset.top], myWH);
+    	this.endpoints[1].paint(anchorLoc);
 
 	// *************** create canvas on which the connection will be drawn ************
 	    var canvas = _newCanvas(jsPlumb.connectorClass);
@@ -845,6 +853,7 @@ if (!Array.prototype.indexOf) {
     		Endpoints : [ null, null ],
     		EndpointStyle : { fillStyle : null },
     		EndpointStyles : [ null, null ],
+    		MaxConnections : null,
     		PaintStyle : { lineWidth : 10, strokeStyle : 'red' }    		    		
     	},
     		
@@ -866,7 +875,12 @@ if (!Array.prototype.indexOf) {
 	    	_updateOffset(id);
 	    	var e = new Endpoint(params);
 	    	_addToList(endpointsByElement, id, e);
-	    	e.paint();
+
+    		var myOffset = offsets[id];
+			var myWH = sizes[id];
+			
+	    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH);
+	    	e.paint(anchorLoc);
 	    	return e;
 	    },
 	    
@@ -960,13 +974,6 @@ if (!Array.prototype.indexOf) {
 	    },    
 	    
 	    /**
-	     * Gets all endpoints for the element with the given id.
-	     */
-	    getEndpoints : function(elId) {
-	    	return endpointsByElement[elId];
-	    },
-	    
-	    /**
 	     * Set an element's connections to be hidden.
 	     */
 	    hide : function(elId) {
@@ -975,14 +982,14 @@ if (!Array.prototype.indexOf) {
 	    
 	    /**
 	     * Creates an anchor with the given params.
-	     * x - the x location of the anchor as a percentage of the total width.  
-		 * y - the y location of the anchor as a percentage of the total height.
+	     * x - the x location of the anchor as a fraction of the total width.  
+		 * y - the y location of the anchor as a fraction of the total height.
 		 * orientation - an [x,y] array indicating the general direction a connection from the anchor should go in.
 		 * offsets - an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  optional. defaults to [0,0]. 
 	     */
 	    makeAnchor : function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
 	    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
-	    	// by just passing in four values.  but for backwards compatibility if we are given only one value we assume it's a call in the old form.
+	    	// by just passing in four/six values.  but for backwards compatibility if we are given only one value we assume it's a call in the old form.
 	    	var params = {};
 	    	if (arguments.length == 1) $.extend(params, x);
 	    	else {
@@ -1001,19 +1008,10 @@ if (!Array.prototype.indexOf) {
 	     * this method gets new sizes for the elements before painting anything.
 	     */
 	    repaint : function(el) {
-	    	var _repaint = function(el, elId) {
-	    		if (log) log.debug("Repainting element " + elId);
-		    	var loc = {'absolutePosition': el.offset()};
-		    	var f = function(jpc) {
-		    		jpc.paint(elId, loc, true);
-		    	};
-		    	_operation(elId, f);
-	    	};
 	    	
 	    	var _processElement = function(el) {
 	    		var ele = typeof(el)=='string' ? $("#" + el) : el;
-		    	var eleId = ele.attr("id");
-		    	_repaint(ele, eleId);
+		    	_draw(ele);
 	    	};
 	    	
 	    	// TODO: support a jQuery result object too!
