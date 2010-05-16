@@ -183,6 +183,10 @@ if (!Array.prototype.indexOf) {
     	
     };
     
+    var _log = function(msg) {
+    // not implemented. yet.	
+    }
+    
     /**
      * helper to create a canvas.
      * @param clazz optional class name for the canvas.
@@ -479,7 +483,7 @@ if (!Array.prototype.indexOf) {
 	    };
 	    
 	    prepareEndpoint(params.sourceEndpoint, 0, params);
-	    prepareEndpoint(params.targetEndpoint, 1, params);	    	    
+	    prepareEndpoint(params.targetEndpoint, 1, params);	    
 	    
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
@@ -620,6 +624,8 @@ if (!Array.prototype.indexOf) {
 
 		// get the jsplumb context...lookups are faster with a context.
 		var contextNode = _getContextNode();
+		
+		this.isFull = function() { return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections); }; 
 		
 		/**
 		 * paints the Endpoint, recalculating offset and anchor positions if necessary.
@@ -922,14 +928,28 @@ if (!Array.prototype.indexOf) {
 	     * @param params object containing setup for the connection.  see documentation.
 	     */
 	    connect : function(params) {
+	    	if (params.sourceEndpoint && params.sourceEndpoint.isFull()) {
+	    		_log("could not add connection; source endpoint is full");
+	    		return;
+	    	}
+	    	
+	    	if (params.targetEndpoint && params.targetEndpoint.isFull()) {
+	    		_log("could not add connection; target endpoint is full");
+	    		return;
+	    	}
+	    		
 	    	var jpc = new Connection(params);    	
 	    	
 			// register endpoints for the element
 			_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
 			_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
 			
+			jpc.endpoints[0].addConnection(jpc);
+			jpc.endpoints[1].addConnection(jpc);
+			
 			// force a paint
 			_draw(jpc.source);
+    	
 	    },           
 	    
 	    connectEndpoints : function(params) {
@@ -1124,6 +1144,15 @@ if (!Array.prototype.indexOf) {
 	        canvas.style.height = h + "px"; canvas.height = h;
 	        canvas.style.width = w + "px"; canvas.width = w; 
 	        canvas.style.left = x + "px"; canvas.style.top = y + "px";
+	    },
+	    
+	    getTestHarness : function() {
+	    	return {
+	    		endpointCount : function(elId) {
+	    			var e = endpointsByElement[elId];
+	    			return e ? e.length : 0;
+	    		}	    		
+	    	};	    	
 	    },
 	    
 	    /**
