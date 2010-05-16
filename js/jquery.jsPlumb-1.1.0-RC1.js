@@ -140,8 +140,9 @@ if (!Array.prototype.indexOf) {
      */
     var _getContextNode = function() {
     	if (_jsPlumbContextNode == null) {
-    		_jsPlumbContextNode= document.createElement("div");
+    		_jsPlumbContextNode= document.createElement("div");    		
     		document.body.appendChild(_jsPlumbContextNode);
+    		_jsPlumbContextNode.className = "_jsPlumb_context";
     	}
     	return $(_jsPlumbContextNode);
     };
@@ -253,9 +254,11 @@ if (!Array.prototype.indexOf) {
 			var i = l.indexOf(value);
 			if (i >= 0) {
 				delete( l[i] );
-				l.splice( i, 1 );	
+				l.splice( i, 1 );
+				return true;
 			}
 		}		
+		return false;
 	};
 	/**
      * Sets whether or not the given element(s) should be draggable, regardless of what a particular
@@ -335,6 +338,12 @@ if (!Array.prototype.indexOf) {
 			// faster to use the ui element if it was passed in.
 			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
 			// 1.8 and 1.7.
+			
+			// todo: when the drag axis is supplied, the ui object passed in has incorrect values
+			// for the other axis - like say you set axis='x'. when you move the mouse up and down
+			// while dragging, the y values are for where the window would be if it was not
+			// just constrained to x.  not sure if this is a jquery bug or whether there's a known
+			// trick or whatever.
 			var pos = ui.absolutePosition || ui.offset;
     		var anOffset = ui != null ? pos : $("#" + elId).offset();
     		offsets[elId] = anOffset;
@@ -636,7 +645,7 @@ if (!Array.prototype.indexOf) {
 		
 		// is this a connection source? we make it draggable and have the drag listener 
 		// maintain a connection with a floating endpoint.
-		if (params.isSource) {
+		if (params.isSource && _element.draggable) {
 			
 			var n = null, id = null, 
 			 jpc = null, 
@@ -773,7 +782,7 @@ if (!Array.prototype.indexOf) {
 		}
 		
 		// connector target
-		if (params.isTarget) {
+		if (params.isTarget && _element.droppable) {
 			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
 			dropOptions = $.extend({}, dropOptions);
 	    	var originalAnchor = null;
@@ -969,7 +978,7 @@ if (!Array.prototype.indexOf) {
 	    },
 	    
 	    /**
-	     * remove all connections.
+	     * remove all connections.  and endpoints? probably not.
 	     */
 	    detachEverything : function() {
 	    	var f = function(jpc) {
@@ -1043,6 +1052,19 @@ if (!Array.prototype.indexOf) {
 	    repaintEverything : function() {
 	    	for (var elId in endpointsByElement) {
 	    		_draw($("#" + elId));
+	    	}
+	    },
+	    
+	    removeEndpoint : function(elId, endpoint) {
+	    	var ebe = endpointsByElement[elId];
+	    	if (ebe) {
+	    //		var i = ebe.indexOf(endpoint);
+	    	//	alert('element has ' + ebe.length);
+	    		//if (i > -1) {
+	    			//ebe.splice(i, 1);
+	    			if(_removeFromList(endpointsByElement, elId, endpoint))
+	    				_removeElement(endpoint.canvas);
+	    		//}
 	    	}
 	    },
 	    
@@ -1201,6 +1223,16 @@ if (!Array.prototype.indexOf) {
 		 for (var i = 0; i < e.length; i++) addedEndpoints.push(e[i]);
 	  });	  
 	  return addedEndpoints;
+  };
+  
+  /**
+   * remove the endpoint, if it exists, deleting its UI elements etc. 
+   */
+  $.fn.removeEndpoint = function(endpoint) {
+	  this.each(function() 
+	  {			  
+		  jsPlumb.removeEndpoint($(this).attr("id"), endpoint);
+	  });
   };
   
 })(jQuery);
