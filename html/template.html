@@ -5,7 +5,6 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
 		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
 		
 		<script type="text/javascript" src="../js/jquery.jsPlumb-1.1.0-RC1.js"></script>
 		<script type="text/javascript" src="../js/jquery.jsPlumb-defaults-1.1.0-RC1.js"></script>
@@ -17,9 +16,9 @@
 #window1 { top:6em;left:15%; }
 #window2 { top:6em; right:15%; }
 #window3 { top:24em; left:15%; }
-#window4 { top:24em; right:15%}
-.window {  border:1px solid gray; width:9.7em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
-padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; }	
+#window4 { top:24em; left:60em;}
+.window {  border:1px solid gray; width:10.7em; height:9.2em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
+font-size:0.9em;text-align:center;z-index:40;background-color:white; }	
 .drag-locked { border:1px solid red; }
 ._jsPlumb_endpoint { z-index:50; }
 ._jsPlumb_connector { z-index:1; }
@@ -29,39 +28,111 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 .cmdLink { font-size:0.80em;}
 #clear { padding:0.3em; }
 #clear:hover { background-color:yellow; }
-.move { font-size:1.5em; }
+/*.move { font-size:1.5em; }*/
+
+
+.wt, .wb { 
+background-color:gray; 
+height:1em;
+width:10.7em;
+}
+
+.wtl,.wbl { float:left;
+background-color:red;
+width:1em;
+height:1em;
+}
+
+
+.wtr,.wbr { float:right;
+background-color:red;
+width:1em;
+height:1em;
+}
+
+.wml {
+background-color:yellow;
+width:1em;
+height:7.2em;
+float:left;
+}
+
+.wc {
+float:left;
+width:8.7em;
+height:7.2em;
+background-color:pink;
+}
+
+.wmr {
+float:right;
+height:7.2em;
+width:1em;
+background-color:yellow;
+}
+
+
+
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
 		<div class="menu"><a href="demo.html" class="mplink">jsPlumb home</a>&nbsp;|&nbsp;<a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 	
-		<div class="window" id="window1">one<br/><br/>
-			<a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/>
-			<a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/>
-			<a href="#" class="cmdLink detach" rel="window1">detach all</a><br/>
-			<a href="#" class="cmdLink move" rel="window1" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window1" di="right" title="move right">&gt;</a>
+		<div class="window" id="window1">
+			<div class="wt"><div class="wtl"></div><div class="wtr"></div></div>
+			<div class="wml"></div>
+			<div class="wc">
+				one<br/>
+				<a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/>
+				<a href="#" class="cmdLink detach" rel="window1">detach all</a><br/>
+				<a href="#" class="cmdLink move" rel="window1" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window1" di="right" title="move right">&gt;</a>
+			</div>
+			<div class="wmr"></div>
+			<div style="clear:both"></div>
+			<div class="wb"><div class="wbl"></div><div class="wbr"></div></div>
 		</div>
-		<div class="window" id="window2">two<br/><br/>
-			<a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/>
-			<a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/>
-			<a href="#" class="cmdLink detach" rel="window2">detach all</a><br/>
-			<a href="#" class="cmdLink move" rel="window2" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window2" di="right" title="move right">&gt;</a>
+		<div class="window" id="window2">
+			<div class="wt"><div class="wtl"></div><div class="wtr"></div></div>
+			<div class="wml"></div>
+			<div class="wc">
+				two<br/>
+				<a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/>
+				<a href="#" class="cmdLink detach" rel="window2">detach all</a><br/>
+				<a href="#" class="cmdLink move" rel="window2" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window2" di="right" title="move right">&gt;</a>
+			</div>
+			<div class="wmr"></div>
+			<div style="clear:both"></div>
+			<div class="wb"><div class="wbl"></div><div class="wbr"></div></div>
 		</div>
-		<div class="window" id="window3">three<br/><br/>
-			<a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/>
-			<a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/>
-			<a href="#" class="cmdLink detach" rel="window3">detach all</a><br/>
-			<a href="#" class="cmdLink move" rel="window3" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window3" di="right" title="move right">&gt;</a>
+		<div class="window" id="window3">
+			<div class="wt"><div class="wtl"></div><div class="wtr"></div></div>
+			<div class="wml"></div>
+			<div class="wc">
+				three<br/>
+				<a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/>
+				<a href="#" class="cmdLink detach" rel="window3">detach all</a> <br/>
+				<a href="#" class="cmdLink move" rel="window3" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window3" di="right" title="move right">&gt;</a>
+				</div>
+			<div class="wmr"></div>
+			<div style="clear:both"></div>
+			<div class="wb"><div class="wbl"></div><div class="wbr"></div></div>
 		</div>
-		<div class="window" id="window4">four<br/><br/>
-			<a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/>
-			<a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/>
-			<a href="#" class="cmdLink detach" rel="window4">detach all</a> <br/>
-			<a href="#" class="cmdLink move" rel="window4" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window4" di="right" title="move right">&gt;</a>
+		<div class="window" id="window4">
+			<div class="wt move" di="up" rel="window4"><div class="wtl move" di="ul" rel="window4"></div><div class="wtr move" di="ur" rel="window4"></div></div>
+			<div class="wml move" di="left" rel="window4"></div>
+			<div class="wc">
+				four<br/>
+				<a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/>
+				<a href="#" class="cmdLink detach" rel="window4">detach all</a><br/>
+				<a href="#" class="cmdLink move" rel="window4" di="left" title="move left">&lt;</a>&nbsp;&nbsp;<a href="#" class="cmdLink move" rel="window4" di="right" title="move right">&gt;</a>
+			</div>
+			<div class="wmr move" di="right" rel="window4"></div>
+			<div style="clear:both"></div>
+			<div class="wb move" di="down" rel="window4"><div class="wbl move" di="dl" rel="window4"></div><div class="wbr move" di="dr" rel="window4"></div></div>
 		</div>
 
 		<div id="explanation">
-	    	<p>this is a prototype using jsPlumb 1.1.0-RC1, showing the animation functionality.</p><p>drag the blue circles to create connections.</p><p>drag them off an endpoint to remove.</p><p>use the arrows to move the boxes.</p>
+	    	<p>this is a prototype using jsPlumb 1.1.0-RC1.</p><p>drag boxes to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
 	    	<a id="clear" href="#">clear plumbing</a>
 	    	<p>you should not use jsPlumb-1.1.0-RC1 just yet.  there are outstanding bugs and performance enhancements to be completed.</p>
 	    </div>
@@ -82,7 +153,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					endpointsOnTop:true,
 					isSource:true,
 					maxConnections:10,
-					isTarget:true,					
+					isTarget:false,					
 					dropOptions:{tolerance:'touch', scope:'conn', hoverClass:'dropHover'},
 					dragOptions:{scope:'conn'}
 				};
@@ -93,20 +164,23 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					jsPlumb.toggle($(this).attr("rel"));
 				});
 
-				$(".drag").click(function() {
-					var s = jsPlumb.toggleDraggable($(this).attr("rel"));
-					$(this).html(s ? 'disable dragging' : 'enable dragging');
-					if (!s) $("#" + $(this).attr("rel")).addClass('drag-locked'); else $("#" + $(this).attr("rel")).removeClass('drag-locked');
-					$("#" + $(this).attr("rel")).css("cursor", s ? "pointer" : "default"); 
-				});
-
 				$(".detach").click(function() {
 					jsPlumb.detachAll($(this).attr("rel"));
 				});
 
+				var amt = 150, dirs = { 
+						'left':{left:'-=' + amt},
+						'right':{left:'+=' + amt},
+						'up':{top:'-=' + amt},
+						'down':{top:'+=' + amt},
+						'ul':{left:'-=' + amt, top:'-=' + amt},
+						'ur':{left:'+=' + amt, top:'-=' + amt},
+						'dl':{left:'-=' + amt, top:'+=' + amt},
+						'dr':{left:'+=' + amt, top:'+=' + amt} 
+				};
+				
 				$(".move").click(function() {
-					var id = $(this).attr("rel");
-					var dirs = { 'left':{left:'-=250'},'right':{left:'+=250'} };
+					var id = $(this).attr("rel");					
 					var dir = dirs[$(this).attr("di")]; 
 					jsPlumb.animate( id, dir ,{ duration:900 } );
 				});
