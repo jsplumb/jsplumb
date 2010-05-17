@@ -178,10 +178,16 @@
         };
 
         this.paint = function(d, ctx) {
+        	
+        	/*var img = new Image();
+        	img.src = "../img/pattern.jpg";
+        	ctx.fillStyle = ctx.createPattern(img, 'repeat-y');*/
+        	
             ctx.beginPath();
             ctx.moveTo(d[4],d[5]);
             ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
             ctx.stroke();
+            //ctx.fill();
         }
     };
     
