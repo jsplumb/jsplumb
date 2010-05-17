@@ -177,6 +177,7 @@ if (!Array.prototype.indexOf) {
 	    	};
 	    	initDrag(element, elementId, function(event, ui) {
 	    		 _draw(element, ui);
+	    		 $(element).addClass("jsPlumb_dragged");
 		    	dragCascade(event, ui);
 	    	});
 	    }
@@ -462,10 +463,7 @@ if (!Array.prototype.indexOf) {
 	    this.target = (typeof params.target == 'string') ? $("#" + params.target) : params.target;
 	    this.sourceId = $(this.source).attr("id");
 	    this.targetId = $(this.target).attr("id");
-	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;
-	    // make connector
-	    this.connector = params.connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
-	    this.paintStyle = params.paintStyle || jsPlumb.Defaults.PaintStyle;
+	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;	    
 	    
 	    // init endpoints
 	    this.endpoints = [];
@@ -483,8 +481,15 @@ if (!Array.prototype.indexOf) {
 	    };
 	    
 	    prepareEndpoint(params.sourceEndpoint, 0, params);
-	    prepareEndpoint(params.targetEndpoint, 1, params);	    
+	    prepareEndpoint(params.targetEndpoint, 1, params);
 	    
+	    // make connector.  if an endpoint has a connector + paintstyle to use, we use that.
+	    // otherwise we use sensible defaults.
+	    //this.connector = params.connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
+	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
+	    //this.paintStyle = params.paintStyle || jsPlumb.Defaults.PaintStyle;
+	    this.paintStyle = this.endpoints[0].connectionStyle  || this.endpoints[1].connectionStyle || params.paintStyle || jsPlumb.Defaults.PaintStyle;
+	    	    	    	   
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
 	    
@@ -595,6 +600,8 @@ if (!Array.prototype.indexOf) {
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || jsPlumb.Defaults.EndpointStyle;
+		this.connectionStyle = params.connectionStyle;
+		this.connector = params.connector;
 		var _element = params.source;
 		var _elementId = $(_element).attr("id");
 		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
@@ -1146,6 +1153,9 @@ if (!Array.prototype.indexOf) {
 	        canvas.style.left = x + "px"; canvas.style.top = y + "px";
 	    },
 	    
+	    /**
+	     * gets some test hooks.  nothing writable.
+	     */
 	    getTestHarness : function() {
 	    	return {
 	    		endpointCount : function(elId) {
