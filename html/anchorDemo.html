@@ -7,26 +7,26 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/jquery.jsPlumb-1.0.4-min.js"></script>
-		
+
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
 				// default to blue at one end and green at the other
 				jsPlumb.DEFAULT_ENDPOINT_STYLES = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }];
-				// blue endpoints 7 px; green endpoints 11. 
+				// blue endpoints 7 px; green endpoints 11.
 				jsPlumb.DEFAULT_ENDPOINTS = [ new jsPlumb.Endpoints.Dot({radius:7}), new jsPlumb.Endpoints.Dot({radius:11})];
 				// default to a gradient stroke from blue to green.  for IE provide all green fallback.
 				jsPlumb.DEFAULT_PAINT_STYLE = { gradient:{stops:[[0,'#225588'], [1, '#558822']] }, strokeStyle:'#558822', lineWidth:10 };
-				 
+
 				$("#window1").plumb({target:'window3', anchors:[jsPlumb.makeAnchor( 0.05, 1, 0, 1 ), jsPlumb.Anchors.TopCenter], connector:new jsPlumb.Connectors.Straight()});
-				$("#window1").plumb({target:'window4', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});				
+				$("#window1").plumb({target:'window4', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});
 				$("#window1").plumb({target:'window6', anchors:[jsPlumb.makeAnchor( 0.95, 1, 0, 1 ), jsPlumb.Anchors.TopCenter]});
 				$("#window1").plumb({target:'window5', anchors:[jsPlumb.makeAnchor( 0.275, 1, 0, 1 ), jsPlumb.Anchors.TopCenter]});
-				$("#window1").plumb({target:'window2', anchors:[jsPlumb.makeAnchor( 0.725, 1, 0, 1 ), jsPlumb.Anchors.TopCenter]});						        		
+				$("#window1").plumb({target:'window2', anchors:[jsPlumb.makeAnchor( 0.725, 1, 0, 1 ), jsPlumb.Anchors.TopCenter]});
 		});
 		</script>
 		<link rel="stylesheet" href="/mp.css"></link>
-		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>		
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<style type="text/css">
 			.window { border:2px dotted #346789; width:14em; height:4em; z-index:20; position:absolute; color:white;font-family:helvetica;padding:0.5em; font-size:0.8em;}
 			.smallWindow { background-color:#558822; }
@@ -40,34 +40,34 @@
 	</head>
 	<body onunload="jsPlumb.unload();">
 		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
-	
-		<div class="window" id="window1"><strong>Window 1</strong><br/><br/></div>		
+
+		<div class="window" id="window1"><strong>Window 1</strong><br/><br/></div>
 		<div class="window smallWindow" id="window2"><strong>Window 2</strong><br/><br/></div>
 	    <div class="window smallWindow" id="window3"><strong>Window 3</strong><br/><br/></div>
 	    <div class="window smallWindow" id="window4"><strong>Window 4</strong><br/><br/></div>
 	    <div class="window smallWindow" id="window5"><strong>Window 5</strong><br/><br/></div>
 	    <div class="window smallWindow" id="window6"><strong>Window 6</strong><br/><br/></div>
-	    
+
 	    <div id="explanation">
 	    	<p>This page provides a demonstration of how to work with Anchors.</p>
 	    	<p>All the green windows are anchored to Window 1 using custom anchor positions on Window 1, except
 	    	Window 4, which uses the BottomCenter anchor provided by jsPlumb.</p>
 	    	<p>Additionally, this page shows the usage of a different endpoint for each end of the connector, and a gradient in the connector.  <strong>If you are using IE,</strong> you will see green connectors with no gradient.  ExplorerCanvas, which jsPlumb uses for IE, does not support gradients.</p>
 	    	<p>This demonstration uses version 1.0.4 of jsPlumb.</p>
-	    	<a href="draggableConnectors2.html" class="mplink">Experimental draggable connectors demonstration</a>
+	    	<a href="draggableConnectors2.html" class="mplink">Draggable connectors demonstration</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
 	    </div>
-	    
+
 	    <!-- Start of StatCounter Code -->
 		<script type="text/javascript">
-		var sc_project=5700644; 
-		var sc_invisible=1; 
-		var sc_partition=71; 
-		var sc_click_stat=1; 
-		var sc_security="1cb90164"; 
+		var sc_project=5700644;
+		var sc_invisible=1;
+		var sc_partition=71;
+		var sc_click_stat=1;
+		var sc_security="1cb90164";
 		</script>
-		
+
 		<script type="text/javascript"
 		src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
 		class="statcounter"><a title="counter for wordpress"
@@ -76,6 +76,6 @@
 		src="http://c.statcounter.com/5700644/0/1cb90164/1/"
 		alt="counter for wordpress" ></a></div></noscript>
 		<!-- End of StatCounter Code -->
-		
+
 	</body>
 </html>
