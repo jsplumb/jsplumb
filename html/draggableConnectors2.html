@@ -6,10 +6,9 @@
 		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		
-		<script type="text/javascript" src="../js/jquery.jsPlumb-1.1.0-RC1.js"></script>
-		<script type="text/javascript" src="../js/jquery.jsPlumb-defaults-1.1.0-RC1.js"></script>
-		
+
+		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/jquery.jsPlumb-all-1.1.0-min.js"></script>
+
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<style type="text/css">
@@ -19,11 +18,11 @@
 #window3 { top:24em; left:15%; }
 #window4 { top:24em; right:15%}
 .window {  border:1px solid gray; width:9.7em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
-padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; }	
+padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; }
 .drag-locked { border:1px solid red; }
 ._jsPlumb_endpoint { z-index:50; }
 ._jsPlumb_connector { z-index:1; }
-.dropHover { border:1px dotted red; } 
+.dropHover { border:1px dotted red; }
 .dragActive { border:2px dotted orange; }
 #explanation { width:30%; background-color:transparent;z-index:2;font-size:1.2em;color:gray;border:none;position:relative;left:35%;right:auto;text-align:center; }
 .cmdLink { font-size:0.80em;}
@@ -34,19 +33,18 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 	</head>
 	<body onunload="jsPlumb.unload();">
 		<div class="menu"><a href="demo.html" class="mplink">jsPlumb home</a>&nbsp;|&nbsp;<a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
-	
+
 		<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window1">detach all</a></div>
 		<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window2">detach all</a></div>
 		<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a></div>
 		<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>
 
 		<div id="explanation">
-	    	<p>this is a prototype using jsPlumb 1.1.0-RC1.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
+	    	<p>this demo uses jsPlumb 1.1.0.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
 	    	<a id="clear" href="#">clear plumbing</a><br/><br/>
 	    	<a href="dragAnim.html">next: animated dragging demo</a><br/>
-	    	<p>you should not use jsPlumb-1.1.0-RC1 just yet.  there are outstanding bugs and performance enhancements to be completed.</p>
 	    </div>
-	    
+
 	    <script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
@@ -58,7 +56,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				var exampleGreyEndpoint = {
 					endpoint:new jsPlumb.Endpoints.Rectangle(),
 					anchor:jsPlumb.Anchors.TopCenter,
-					style:{ width:25, height:21, fillStyle:'#666' },					
+					style:{ width:25, height:21, fillStyle:'#666' },
 					isSource:true,
 					dragOptions : { scope:'exampleGreyConnection' },
 					connectionStyle : {
@@ -68,13 +66,13 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					dropOptions : $.extend({scope:'exampleGreyConnection'}, exampleDropOptions)
 				};
 
-				var exampleDropOptions = { 					
-					tolerance:'touch', 
+				var exampleDropOptions = {
+					tolerance:'touch',
 					hoverClass:'dropHover',
 					//drop : function(e, ui) { alert('dropped'); }
-					activeClass:'dragActive' 
+					activeClass:'dragActive'
 				};
-				
+
 				/**
 					first example endpoint.  it's a 25x21 rectangle (the size is provided in the 'style' arg to the Endpoint), and it's both a source
 					and target.  the 'scope' of this Endpoint is 'exampleConnection', meaning any connection starting from this Endpoint is of type
@@ -85,12 +83,12 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					5 pixels, and a gradient.
 
 					note the use of the '$.extend' function to setup generic connection types.  this will save you a lot of typing, and probably
-					errors.							
-									
+					errors.
+
 				*/
 				var exampleEndpoint = {
 					endpoint:new jsPlumb.Endpoints.Rectangle(),
-					style:{ width:25, height:21, fillStyle:'#00f' },					
+					style:{ width:25, height:21, fillStyle:'#00f' },
 					isSource:true,
 					dragOptions : { scope:'exampleConnection' },
 					connectionStyle : {
@@ -108,13 +106,13 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				*/
 				var exampleEndpoint2 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:15}),
-						style:{ strokeStyle:'#316b31' }, 
+						style:{ strokeStyle:'#316b31' },
 						isSource:true,
 						dragOptions : { scope:'exampleConnection2' },
 						connectionStyle:{ strokeStyle:'#316b31', lineWidth:8 },
 						connector: new jsPlumb.Connectors.Bezier(63),
 						maxConnections:3,
-						isTarget:true, 
+						isTarget:true,
 						dropOptions : $.extend({scope:'exampleConnection2'}, exampleDropOptions)
 				};
 
@@ -126,24 +124,24 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				this example also sets the 'reattach' flag for the Endpoint, meaning that when you drag a
 				connection off an endpoint and release it, it snaps back.  the default behaviour in this case
 				is to delete the connection.
-				
+
 				*/
 				var example3Color = "rgba(229,219,61,0.5)";
 				var exampleEndpoint3 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:17}),
 						reattach:true,
 						anchor:jsPlumb.Anchors.BottomLeft,
-						style:{ strokeStyle:example3Color, opacity:0.5 }, 
+						style:{ strokeStyle:example3Color, opacity:0.5 },
 						isSource:true,
 						dragOptions : { scope:'exampleConnection3' },
 						connectionStyle:{ strokeStyle:example3Color, lineWidth:4 },
 						connector : new jsPlumb.Connectors.Straight(),
-						isTarget:true, 						
+						isTarget:true,
 						dropOptions : $.extend({scope:'exampleConnection3'}, exampleDropOptions)
-				};			
+				};
 
 				// setup some empty endpoints.  again note the use of '$.extend' to reuse all the parameters except the location
-				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)				
+				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
 
 				$("#window1").addEndpoints([
 					$.extend({ anchor:jsPlumb.makeAnchor(1, 0.25, 1, 0) }, exampleEndpoint),
@@ -177,25 +175,25 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					var s = jsPlumb.toggleDraggable($(this).attr("rel"));
 					$(this).html(s ? 'disable dragging' : 'enable dragging');
 					if (!s) $("#" + $(this).attr("rel")).addClass('drag-locked'); else $("#" + $(this).attr("rel")).removeClass('drag-locked');
-					$("#" + $(this).attr("rel")).css("cursor", s ? "pointer" : "default"); 
+					$("#" + $(this).attr("rel")).css("cursor", s ? "pointer" : "default");
 				});
 
 				$(".detach").click(function() {
 					jsPlumb.detachAll($(this).attr("rel"));
 				});
-				
+
 				$("#clear").click(function() { jsPlumb.detachEverything(); });
 			});
 		</script>
-	    
-	    
+
+
 	    	   	    <!-- Start of StatCounter Code -->
 <script type="text/javascript">
-var sc_project=5700644; 
-var sc_invisible=1; 
-var sc_partition=71; 
-var sc_click_stat=1; 
-var sc_security="1cb90164"; 
+var sc_project=5700644;
+var sc_invisible=1;
+var sc_partition=71;
+var sc_click_stat=1;
+var sc_security="1cb90164";
 </script>
 
 <script type="text/javascript"

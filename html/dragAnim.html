@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title>animated draggable connectors demonstration</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=7">				
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<style type="text/css">
@@ -12,7 +12,7 @@
 .bigdot-hover { border:1px dotted orange; }
 .cmd { padding:0.3em; }
 .cmd:hover { background-color:yellow; }
-.dropHover { border:1px dotted orange; } 
+.dropHover { border:1px dotted orange; }
 #bd1 { top:10em;left:26em;}
 #bd2 { top:3em;left:3em;}
 #bd3 { top:19em;left:4.5em;}
@@ -22,40 +22,38 @@
 	</head>
 	<body onunload="jsPlumb.unload();">
 		<div class="menu"><a href="demo.html" class="mplink">jsPlumb home</a>&nbsp;|&nbsp;<a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
-		
+
 		<div class="bigdot" id="bd1"></div>
 		<div class="bigdot" id="bd2"></div>
 		<div class="bigdot" id="bd3"></div>
 		<div class="bigdot" id="bd4"></div>
 
 		<div id="explanation">
-	    	<p>this is a prototype using jsPlumb 1.1.0-RC1.</p>
+	    	<p>this demo uses jsPlumb 1.1.0.</p>
 	    	<p>drag orange dots to create connections.</p>
 	    	<p>click on or near blue dots to make them move in that direction.</p>
 	    	<p><a id="add" href="#" class="cmd">add a disc</a></p>
-	    	<p><a id="clear" href="#" class="cmd">remove all connections</a><br/>	    	
-	    	<p>you should not use jsPlumb-1.1.0-RC1 just yet.  there are outstanding bugs and performance enhancements to be completed.</p>
+	    	<p><a id="clear" href="#" class="cmd">remove all connections</a><br/>
 	    </div>
-	    
+
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../js/jquery.jsPlumb-1.1.0-RC1.js"></script>
-		<script type="text/javascript" src="../js/jquery.jsPlumb-defaults-1.1.0-RC1.js"></script>
-	    
+		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/jquery.jsPlumb-all-1.1.0-min.js"></script>
+
 	    <script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:6 };
 
 				var endpoint = {
-						anchor:jsPlumb.makeAnchor(0.5,0.5,0,-1), 
-						connectionStyle:{lineWidth:7,strokeStyle:'rgba(198,89,30,0.7)'}, 
-						endpoint:new jsPlumb.Endpoints.Image({url:"../img/littledot.png"}), 
-						connector:new jsPlumb.Connectors.Bezier(90), 
+						anchor:jsPlumb.makeAnchor(0.5,0.5,0,-1),
+						connectionStyle:{lineWidth:7,strokeStyle:'rgba(198,89,30,0.7)'},
+						endpoint:new jsPlumb.Endpoints.Image({url:"../img/littledot.png"}),
+						connector:new jsPlumb.Connectors.Bezier(90),
 						endpointsOnTop:true,
 						isSource:true,
-						maxConnections:10,  
-						isTarget:true,					
+						maxConnections:10,
+						isTarget:true,
 						dropOptions:{tolerance:'touch', scope:'conn', hoverClass:'dropHover'},
 						dragOptions:{scope:'conn'}
 				};
@@ -64,7 +62,7 @@
 					$("#" + elId).hover(
 							function() { $(this).addClass("bigdot-hover"); },
 							function() { $(this).removeClass("bigdot-hover"); }
-					); 				
+					);
 					$("#" + elId).click(function(e, ui) {
 						if ($(this).hasClass("jsPlumb_dragged")) {
 							$(this).removeClass("jsPlumb_dragged");
@@ -78,18 +76,18 @@
 						var l = oo[0] < 0 ? '+=' : '-=', t = oo[1] < 0 ? "+=" : '-=';
 						var DIST = 450;
 						l = l + Math.abs(oo[0] * DIST);
-						
+
 						t = t + Math.abs(oo[1] * DIST);
 						jsPlumb.animate($(this).attr("id"), {left:l, top:t}, {duration:900});
 					});
 					return $("#" + elId).addEndpoint(endpoint)[0];
 				};
-				
+
 				var e1 = prepare("bd1");
 				var e2 = prepare("bd2");
 				var e3 = prepare("bd3");
-				var e4 = prepare("bd4");											
-				
+				var e4 = prepare("bd4");
+
 				$("#clear").click(function() { jsPlumb.detachEverything(); });
 
 				$("#bd1").plumb({target:'bd2', sourceEndpoint:e1, targetEndpoint:e2});
@@ -108,23 +106,23 @@
 					var y = (0.2 * h) + Math.floor(Math.random()*(0.6 * h));
 					d.style.top= y + 'px';
 					d.style.left= x + 'px';
-					var e = prepare(id);					
+					var e = prepare(id);
 					e.canvas.style.display = 'none';
-					$(d).fadeIn(function() { 
+					$(d).fadeIn(function() {
 						jsPlumb.animate(id, {left:'+=5', top:'-=5'}, {duration:900});
 						$(e.canvas).fadeIn();
 					});
 				});
 			});
 	</script>
-	    	   
+
 <!-- Start of StatCounter Code -->
 <script type="text/javascript">
-var sc_project=5700644; 
-var sc_invisible=1; 
-var sc_partition=71; 
-var sc_click_stat=1; 
-var sc_security="1cb90164"; 
+var sc_project=5700644;
+var sc_invisible=1;
+var sc_partition=71;
+var sc_click_stat=1;
+var sc_security="1cb90164";
 </script>
 
 <script type="text/javascript"
