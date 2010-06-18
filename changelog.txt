@@ -1,3 +1,11 @@
+
+* 1.1.1-RC1
+
+	- added jsPlumb.removeAllEndpoints method
+	- added isConnectedTo(anEndpoint) method to Endpoint class
+	- added Triangle Endpoint type
+
+
 * 1.1.0-RC1
 
 	- Anchors must now implement 'getOrientation' rather than just having an 'orientation' member.
