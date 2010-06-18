@@ -7,7 +7,8 @@
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/jquery.jsPlumb-1.0.4-min.js"></script>
-		
+		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/jquery.jsPlumb-flowchart-RC1.js"></script>
+
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DEFAULT_DRAG_OPTIONS = { cursor: 'pointer', zIndex:2000 };
@@ -15,8 +16,8 @@
 				jsPlumb.DEFAULT_ENDPOINT_STYLE = { width:15, height:11 };
 				jsPlumb.DEFAULT_CONNECTOR = new jsPlumb.Connectors.Flowchart({minStubLength:30});
 				jsPlumb.DEFAULT_ANCHORS = [jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.BottomCenter];
-				 
-				$("#window1").plumb({target:'window3', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]}); 
+
+				$("#window1").plumb({target:'window3', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});
 				$("#window8").plumb({target:'window9', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});
 				$("#window5").plumb({target:'window4', anchors:[jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter]});
 				$("#window5").plumb({target:'window8', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});
@@ -38,13 +39,13 @@
 #window6 {background-color:#333300;left:54em;top:25em;}
 #window7 {top:34em;left:39em;background-color:#872431;}
 #window8 {left:18em;top:36em;background-color:#045803;}
-#window9 {left:0em;top:36em;background-color:#045803;}			
+#window9 {left:0em;top:36em;background-color:#045803;}
 
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
 		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
-	
+
 		<div class="window" id="window1">window one</div>
 		<div class="window" id="window2">window two</div>
 		<div class="window" id="window3">window three</div>
@@ -64,14 +65,14 @@
 	    	<a href="draggableConnectors.html" class="mplink">Experimental Drag/Drop demo</a>
 	    	<br/><br/>
 	    	You also might like to check out <a  class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
-	    </div>	   
+	    </div>
 	    <!--Start of StatCounter Code-->
 <script type="text/javascript">
-var sc_project=5700644; 
-var sc_invisible=1; 
-var sc_partition=71; 
-var sc_click_stat=1; 
-var sc_security="1cb90164"; 
+var sc_project=5700644;
+var sc_invisible=1;
+var sc_partition=71;
+var sc_click_stat=1;
+var sc_security="1cb90164";
 </script>
 
 <script type="text/javascript"
@@ -81,6 +82,6 @@ href="http://www.statcounter.com/wordpress.org/"
 target="_blank"><img class="statcounter"
 src="http://c.statcounter.com/5700644/0/1cb90164/1/"
 alt="counter for wordpress" ></a></div></noscript>
-<!-- End of StatCounter Code --> 
+<!-- End of StatCounter Code -->
 	</body>
 </html>
