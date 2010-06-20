@@ -8,11 +8,35 @@
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
  * 
- */
-if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function( v, b, s ) {
+ */ 
+if (!Array.prototype.findIndex) {
+	Array.prototype.findIndex = function( v, b, s ) {
+	
+	var _eq = function(o1, o2) {
+		if (o1 === o2) return true;
+		else if (typeof o1 == 'object' && typeof o2 == 'object') {
+			var same = true;
+				for(var propertyName in o1) {				
+				      if(!_eq(o1[propertyName], o2[propertyName])) {
+				         same = false;
+				         break;
+				      }
+				   }
+				   for(var propertyName in o2) {				
+				   				      if(!_eq(o2[propertyName], o1[propertyName])) {
+				   				         same = false;
+				   				         break;
+				   				      }
+				   }
+				   return same;
+
+			
+		}	
+	};
+	
 	 for( var i = +b || 0, l = this.length; i < l; i++ ) {
-	  if( this[i]===v || s && this[i]==v ) { return i; }
+	  //if( this[i]===v || s && this[i]==v ) { return i; }
+	  if( _eq(this[i], v)) { return i; }
 	 }
 	 return -1;
 	};
@@ -121,6 +145,7 @@ if (!Array.prototype.indexOf) {
     	}
     	else {
 	    	var el = typeof element == 'string' ? 
+	    	//todo : this indexOf call here...is this bad? why not use a startsWith function?
 	    				element.indexOf("#") == 0 ? $(element) : $("#" + element) 
 	    						: element;
 	    	var id = el.attr("id");
@@ -214,8 +239,10 @@ if (!Array.prototype.indexOf) {
     var _operation = function(elId, func) {
     	var endpoints = endpointsByElement[elId];
     	if (endpoints && endpoints.length) {
+    	//alert("there are " + endpoints.length + " endpoints");
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		for (var j = 0; j < endpoints[i].connections.length; j++) {
+	    		//alert("there are " + endpoints[i].connections.length + " connections");
 	    			var retVal = func(endpoints[i].connections[j]);
 	    			// if the function passed in returns true, we exit.
 	    			// most functions return false.
@@ -254,7 +281,7 @@ if (!Array.prototype.indexOf) {
     var _removeFromList = function(map, key, value) {
 		var l = map[key];
 		if (l != null) {
-			var i = l.indexOf(value);
+			var i = l.findIndex(value);
 			if (i >= 0) {
 				delete( l[i] );
 				l.splice( i, 1 );
@@ -282,21 +309,23 @@ if (!Array.prototype.indexOf) {
     };
 	/**
 	 * private method to do the business of hiding/showing.
-	 * @param elId Id of the element in question
+	 * @param el either Id of the element in question or a jquery object for the element.
 	 * @param state String specifying a value for the css 'display' property ('block' or 'none').
 	 */
-	var _setVisible = function(elId, state) {
-    	var f = function(jpc) {
+	var _setVisible = function(el, state) {
+		var elId = typeof el == 'string' ? el : $(el).attr("id");
+	    	var f = function(jpc) {
     		//todo should we find all the endpoints instead of going by connection? this will 
     		jpc.canvas.style.display = state;
 			/*jpc.sourceEndpointCanvas.style.display = state;
 			jpc.targetEndpointCanvas.style.display = state;*/
-    	};
+	    	};
     	
     	_operation(elId, f);
     };        
     /**
-     * toggles the draggable state of the element with the given id.
+     * toggles the draggable state of the given element(s).
+     * @param el either an id, or a jquery object, or a list of ids/jquery objects.
      */
     var _toggleDraggable = function(el) {    	
     	var fn = function(el, elId) {
@@ -309,11 +338,13 @@ if (!Array.prototype.indexOf) {
     	return _elementProxy(el, fn);
     };
     /**
-	 * private method to do the business of toggling hiding/showing.
-	 * @param elId Id of the element in question
-	 */
+    * private method to do the business of toggling hiding/showing.
+    * @param elId Id of the element in question
+    */
 	var _toggleVisible = function(elId) {
-    	var f = function(jpc) {;
+	alert("toggling " + elId);
+    	var f = function(jpc) {
+    	alert("jpc state is " + jpc.canvas.style.display);
     		var state = ('none' == jpc.canvas.style.display);
     		jpc.canvas.style.display = state ? "block" : "none";
 			/*jpc.sourceEndpointCanvas.style.display = state;
@@ -321,6 +352,8 @@ if (!Array.prototype.indexOf) {
     	};
     	
     	_operation(elId, f);
+    	
+    	//todo this should call _elementProxy, and pass in the _operation(elId, f) call as a function. cos _toggleDraggable does that.
     };
     /**
      * updates the offset and size for a given element, and stores the values.
@@ -611,7 +644,7 @@ if (!Array.prototype.indexOf) {
 			self.connections.push(connection);
 		};
 		this.removeConnection = function(connection) {
-			var idx = self.connections.indexOf(connection);
+			var idx = self.connections.findIndex(connection);
 			if (idx >= 0)
 				self.connections.splice(idx, 1);
 		};
@@ -906,6 +939,9 @@ if (!Array.prototype.indexOf) {
 	        	    
 	    /**
 	     * adds an endpoint to the element
+	     * @param target element to add the endpoint to.  either an element id, or a jquery object representing some element.
+	     * @param params object containing Endpoint options
+	     * @return the newly created Endpoint
 	     */
 	    addEndpoint : function(target, params) {
 	    	params = $.extend({}, params);
@@ -917,11 +953,24 @@ if (!Array.prototype.indexOf) {
 	    	_addToList(endpointsByElement, id, e);
 
     		var myOffset = offsets[id];
-			var myWH = sizes[id];
+		var myWH = sizes[id];
 			
 	    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH);
 	    	e.paint(anchorLoc);
 	    	return e;
+	    },
+	    
+	    /**
+	     * adds a list of endpoints to the element
+	     * @param target element to add the endpoint to.  either an element id, or a jquery object representing some element.
+	     * @param params list of objects containing Endpoint options. one Endpoint is created for each entry in this list.
+	     */
+	    addEndpoints : function(target, endpoints) {
+	    	var results = [];
+	    	for (var i = 0; i < endpoints.length; i++) {
+	    		results.push(jsPlumb.addEndpoint(target, endpoints[i]));
+	    	}
+	    	return results;
 	    },
 	    
 	    /**
@@ -935,17 +984,6 @@ if (!Array.prototype.indexOf) {
 	    	options = options || {};
 	    	options.step = _wrap(options.step, function() { jsPlumb.repaint(id); });
 	    	ele.animate(properties, options);    	
-	    },
-	    
-	    /**
-	     * adds a list of endpoints to the element
-	     */
-	    addEndpoints : function(target, endpoints) {
-	    	var results = [];
-	    	for (var i = 0; i < endpoints.length; i++) {
-	    		results.push(jsPlumb.addEndpoint(target, endpoints[i]));
-	    	}
-	    	return results;
 	    },
 	    
 	    /**
@@ -965,37 +1003,40 @@ if (!Array.prototype.indexOf) {
 	    		
 	    	var jpc = new Connection(params);    	
 	    	
-			// register endpoints for the element
-			_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
-			_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
-			
-			jpc.endpoints[0].addConnection(jpc);
-			jpc.endpoints[1].addConnection(jpc);
-			
-			// force a paint
-			_draw(jpc.source);
+		// register endpoints for the element
+		//_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
+		//_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
+
+		if (!params.sourceEndpoint) _addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
+		if (!params.targetEndpoint) _addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
+
+		jpc.endpoints[0].addConnection(jpc);
+		jpc.endpoints[1].addConnection(jpc);
+
+		// force a paint
+		_draw(jpc.source);
     	
 	    },           
 	    
+	    /**
+	    * not implemented yet. params object will have sourceEndpoint and targetEndpoint members; these will be Endpoints.
 	    connectEndpoints : function(params) {
 	    	var jpc = Connection(params);
 	    	
 	    },
 	    
 	    /**
-	     * Remove one connection to an element.
-	     * @param sourceId id of the first window in the connection
-	     * @param targetId id of the second window in the connection
-	     * @return true if successful, false if not.
-	     */
+	    * Remove a connection.
+	    * @param sourceId id of the first element in the connection
+	    * @param targetId id of the second element in the connection
+	    * @return true if successful, false if not.
+	    */
 	    detach : function(sourceId, targetId) {
 	    	var f = function(jpc) {
 	    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
 	    			_removeElement(jpc.canvas);
-					/*_removeElement(jpc.targetEndpointCanvas);
-					_removeElement(jpc.sourceEndpointCanvas);*/
-					jpc.endpoints[0].removeConnection(jpc);
-					jpc.endpoints[1].removeConnection(jpc);
+				jpc.endpoints[0].removeConnection(jpc);
+				jpc.endpoints[1].removeConnection(jpc);
 	    			return true;
 	    		}    		
 	    	};    	
@@ -1006,18 +1047,19 @@ if (!Array.prototype.indexOf) {
 	    
 	    /**
 	     * remove all an element's connections.
-	     * @param elId id of the 
+	     * @param el either id of the element, or a jquery object for the element.
 	     */
-	    detachAll : function(elId) {    	
-	    	
+	    detachAll : function(el) {    	
+	    	var ele = typeof(el)=='string' ? $("#" + el) : el;
+	    	var id = ele.attr("id");
 	    	var f = function(jpc) {
 	    		// todo replace with _cleanupConnection call here.
 	    		_removeElement(jpc.canvas);
 			jpc.endpoints[0].removeConnection(jpc);
 			jpc.endpoints[1].removeConnection(jpc);
 	    	};
-	    	_operation(elId, f);
-	    	//delete endpointsByElement[elId];    	 ??
+	    	_operation(id, f);
+	    	//delete endpointsByElement[id];    	 ??
 	    },
 	    
 	    /**
@@ -1038,17 +1080,20 @@ if (!Array.prototype.indexOf) {
 	    
 	    /**
 	     * Set an element's connections to be hidden.
+	     * @param el either id of the element, or a jquery object for the element.
 	     */
-	    hide : function(elId) {
-	    	_setVisible(elId, "none");
+	    hide : function(el) {
+	    	_setVisible(el, "none");
 	    },
 	    
 	    /**
 	     * Creates an anchor with the given params.
 	     * x - the x location of the anchor as a fraction of the total width.  
-		 * y - the y location of the anchor as a fraction of the total height.
-		 * orientation - an [x,y] array indicating the general direction a connection from the anchor should go in.
-		 * offsets - an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  optional. defaults to [0,0]. 
+	     * y - the y location of the anchor as a fraction of the total height.
+	     * xOrientation - value indicating the general direction a connection from the anchor should go in, in the x direction.
+	     * yOrientation - value indicating the general direction a connection from the anchor should go in, in the y direction.
+	     * xOffset - a fixed offset that should be applied in the x direction that should be applied after the x position has been figured out.  optional. defaults to 0. 
+	     * yOffset - a fixed offset that should be applied in the y direction that should be applied after the y position has been figured out.  optional. defaults to 0. 
 	     */
 	    makeAnchor : function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
 	    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
@@ -1067,8 +1112,9 @@ if (!Array.prototype.indexOf) {
 	        
 	    
 	    /**
-	     * repaint element and its connections. element may be an id or the actual jQuery object.
+	     * repaint element and its connections. 
 	     * this method gets new sizes for the elements before painting anything.
+	     * @param el may be an id or the actual jQuery object.
 	     */
 	    repaint : function(el) {
 	    	
@@ -1114,7 +1160,13 @@ if (!Array.prototype.indexOf) {
 	    	endpointsByElement[elId] = [];
 	    },
 	    
-	    removeEndpoint : function(elId, endpoint) {
+	    /**
+	    * removes the given Endpoint from the given element.
+	    * @param el either an element id, or a jquery object for an element.
+	    * @param endpoint Endpoint to remove.  this is an Endpoint object, such as would have been returned from a call to addEndpoint.
+	    */
+	    removeEndpoint : function(el, endpoint) {
+	        var elId = typeof el == 'string' ? el : $(el).attr("id");
 	    	var ebe = endpointsByElement[elId];
 	    	if (ebe) {
 	    		if(_removeFromList(endpointsByElement, elId, endpoint))
@@ -1124,6 +1176,7 @@ if (!Array.prototype.indexOf) {
 	    
 	    /**
 	     * sets/unsets automatic repaint on window resize.
+	     * @param value whether or not to automatically repaint when the window is resized.
 	     */
 	    setAutomaticRepaint : function(value) {
 	    	automaticRepaint = value;
@@ -1135,6 +1188,7 @@ if (!Array.prototype.indexOf) {
 	     * to need for a canvas to be larger than what you are going to draw on it at initialisation
 	     * time.  The default value of this is 1200 pixels, which is quite large, but if for some
 	     * reason you're drawing connectors that are bigger, you should adjust this value appropriately.
+	     * @param size The default size to use. jsPlumb will use a square canvas so you need only supply one value.
 	     */
 	    setDefaultNewCanvasSize : function(size) {
 	    	DEFAULT_NEW_CANVAS_SIZE = size;    	
@@ -1159,6 +1213,7 @@ if (!Array.prototype.indexOf) {
 	    
 	    /**
 	     * Sets the function to fire when the window size has changed and a repaint was fired.
+	     * @param f [function] Function to execute.
 	     */
 	    setRepaintFunction : function(f) {
 	    	repaintFunction = f;
@@ -1167,12 +1222,16 @@ if (!Array.prototype.indexOf) {
 	    /**
 	     * Set an element's connections to be visible.
 	     */
-	    show : function(elId) {
-	    	_setVisible(elId, "block");
+	    show : function(el) {
+	    	_setVisible(el, "block");
 	    },
 	    
 	    /**
-	     * helper to size a canvas.
+	     * helper to size a canvas. you would typically use this when writing your own Connector or Endpoint implementation.
+	     * @param x [int] x position for the Canvas origin
+	     * @param y [int] y position for the Canvas origin
+	     * @param w [int] width of the canvas
+	     * @param h [int] height of the canvas
 	     */
 	    sizeCanvas : function(canvas, x, y, w, h) {
 	        canvas.style.height = h + "px"; canvas.height = h;
@@ -1208,7 +1267,7 @@ if (!Array.prototype.indexOf) {
 	    toggleDraggable : _toggleDraggable, 
 	    
 	    /**
-	     * Unloads jsPlumb, deleting all storage.  You should call this 
+	     * Unloads jsPlumb, deleting all storage.  You should call this from an onunload attribute on the <body> element
 	     */
 	    unload : function() {
 	    	delete endpointsByElement;
@@ -1274,7 +1333,7 @@ if (!Array.prototype.indexOf) {
 		  //var params = $.extend({source:$(this)}, options);			  
 		  addedEndpoints.push(jsPlumb.addEndpoint($(this).attr("id"), options));
 	  });
-	  return addedEndpoints;
+	  return addedEndpoints[0];
   };
   
   /**
