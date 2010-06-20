@@ -342,9 +342,7 @@ if (!Array.prototype.findIndex) {
     * @param elId Id of the element in question
     */
 	var _toggleVisible = function(elId) {
-	alert("toggling " + elId);
     	var f = function(jpc) {
-    	alert("jpc state is " + jpc.canvas.style.display);
     		var state = ('none' == jpc.canvas.style.display);
     		jpc.canvas.style.display = state ? "block" : "none";
 			/*jpc.sourceEndpointCanvas.style.display = state;
@@ -748,7 +746,6 @@ if (!Array.prototype.findIndex) {
 					anchor:floatingAnchor, 
 					source:n 
 				});
-				//floatingEndpoint.originalAnchor = 
 				
 				jpc = connectorSelector();
 				if (jpc == null) {
@@ -917,6 +914,18 @@ if (!Array.prototype.findIndex) {
 	 */
     var jsPlumb = window.jsPlumb = {
 
+    	/*
+    	 Property: Defaults
+    	 
+    	 These are the default settings for jsPlumb, that is what will be used if you do not supply specific pieces of information
+    	 to the various API calls.  A convenient way to implement your own look and feel can be to override these defaults by including a script
+    	 somewhere after the jsPlumb include, but before you make any calls to jsPlumb, for instance in this example we set the PaintStyle to be
+    	 a blue line of 27 pixels:
+    	 
+    	 
+    	 jsPlumb.Defaults.PaintStyle = { lineWidth:27, strokeStyle:'blue' }
+    	  
+    	 */
     	Defaults : {
     		Anchors : [ null, null ],
     		Connector : null,
@@ -929,19 +938,67 @@ if (!Array.prototype.findIndex) {
     		MaxConnections : null,
     		PaintStyle : { lineWidth : 10, strokeStyle : 'red' }    		    		
     	},
-    		
+    	
+    	/*
+    	 Property: connectorClass
+    	 
+    	 The CSS class to set on Connection canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
+    	 */
 		connectorClass : '_jsPlumb_connector',
+		
+		/*
+   	 	Property: endpointClass
+   	 
+   	 	The CSS class to set on Endpoint canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
+		*/
 		endpointClass : '_jsPlumb_endpoint',
 		
+		/*
+		 Property: Anchors
+		 
+		 Default jsPlumb Anchors.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
+		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Anchors by supplying them in a script that is loaded after jsPlumb, for instance:
+		 
+		 jsPlumb.Anchors.MyAnchor = { ....anchor code here.  see the documentation. }
+		 */
 	    Anchors : {},
+	    
+	    /*
+		 Property: Connectors
+		 
+		 Default jsPlumb Connectors.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
+		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Connectors by supplying them in a script that is loaded after jsPlumb, for instance:
+		 
+		 jsPlumb.Connectors.MyConnector = { ....connector code here.  see the documentation. }
+		 */
 	    Connectors : {},
+	    
+	    /*
+		 Property: Endpoints
+		 
+		 Default jsPlumb Endpoints.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
+		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Endpoints by supplying them in a script that is loaded after jsPlumb, for instance:
+		 
+		 jsPlumb.Endpoints.MyEndpoint = { ....endpoint code here.  see the documentation. }
+		 */
 	    Endpoints : {},
-	        	    
-	    /**
-	     * adds an endpoint to the element
-	     * @param target element to add the endpoint to.  either an element id, or a jquery object representing some element.
-	     * @param params object containing Endpoint options
-	     * @return the newly created Endpoint
+	      
+	    /*
+	      Function: addEndpoint
+	     
+	      Adds an Endpoint to a given element.
+	      
+	      Parameters:
+	        target - Element to add the endpoint to.  either an element id, or a jQuery object representing some element.
+	        params - Object containing Endpoint options (more info required)
+	        
+	      Returns:
+	      
+	       The newly created Endpoint.
+	       
+	      See Also:
+	      
+	       <addEndpoints>
 	     */
 	    addEndpoint : function(target, params) {
 	    	params = $.extend({}, params);
@@ -953,17 +1010,30 @@ if (!Array.prototype.findIndex) {
 	    	_addToList(endpointsByElement, id, e);
 
     		var myOffset = offsets[id];
-		var myWH = sizes[id];
+    		var myWH = sizes[id];
 			
 	    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH);
 	    	e.paint(anchorLoc);
 	    	return e;
 	    },
 	    
-	    /**
-	     * adds a list of endpoints to the element
-	     * @param target element to add the endpoint to.  either an element id, or a jquery object representing some element.
-	     * @param params list of objects containing Endpoint options. one Endpoint is created for each entry in this list.
+	    /*
+	      Function: addEndpoint
+	     
+	      Adds a list of Endpoints to a given element.
+	      
+	      Parameters:
+	      
+	        target - element to add the endpoint to.  either an element id, or a jQuery object representing some element.
+	        endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list.
+	        
+	      Returns:
+	      
+	        List of newly created Endpoints, one for each entry in the 'endpoints' argument.
+	       
+	      See Also:
+	      
+	       <addEndpoint>
 	     */
 	    addEndpoints : function(target, endpoints) {
 	    	var results = [];
@@ -973,11 +1043,22 @@ if (!Array.prototype.findIndex) {
 	    	return results;
 	    },
 	    
-	    /**
-	     * wrapper around standard jquery animate function; injects a call to jsPlumb in the
-	     * 'step' function (creating it if necessary).  this only supports the two-arg version
-	     * of the animate call in jquery - the one that takes an object as the second arg.
-	     */
+	    /*
+	     Function: animate
+	     
+	     Wrapper around standard jQuery animate function; injects a call to jsPlumb in the 'step' function (creating it if necessary).  
+	     This only supports the two-arg version of the animate call in jQuery - the one that takes an 'options' object as the second arg.
+	     
+	     Parameters:
+	       
+	       el - Element to animate.  Either an id, or a jQuery object representing the element.
+	       properties - The 'properties' argument you want passed to the standard jQuery animate call.
+	       options - The 'options' argument you want passed to the standard jQuery animate call.
+	       
+	     Returns:
+	     
+	      void
+	    */	      
 	    animate : function(el, properties, options) {
 	    	var ele = typeof(el)=='string' ? $("#" + el) : el;
 	    	var id = ele.attr("id");
@@ -986,9 +1067,19 @@ if (!Array.prototype.findIndex) {
 	    	ele.animate(properties, options);    	
 	    },
 	    
-	    /**
-	     * establishes a connection between two elements.
-	     * @param params object containing setup for the connection.  see documentation.
+	    /*
+	     Function: connect
+	     
+	     Establishes a connection between two elements.
+	     
+	     Parameters:
+	     
+	     	params - Object containing setup for the connection.  see documentation.
+	     	
+	     Returns:
+	     
+	     	The newly created Connection.
+	     	
 	     */
 	    connect : function(params) {
 	    	if (params.sourceEndpoint && params.sourceEndpoint.isFull()) {
@@ -1003,18 +1094,21 @@ if (!Array.prototype.findIndex) {
 	    		
 	    	var jpc = new Connection(params);    	
 	    	
-		// register endpoints for the element
-		//_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
-		//_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
-
-		if (!params.sourceEndpoint) _addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
-		if (!params.targetEndpoint) _addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
-
-		jpc.endpoints[0].addConnection(jpc);
-		jpc.endpoints[1].addConnection(jpc);
-
-		// force a paint
-		_draw(jpc.source);
+			// register endpoints for the element. todo: is the test below sufficient? or should we test if the endpoint is already in the list, 
+		    // and add it only then?  perhaps _addToList could be overloaded with a a 'test for existence first' parameter?
+			//_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
+			//_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
+	
+			if (!params.sourceEndpoint) _addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
+			if (!params.targetEndpoint) _addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
+	
+			jpc.endpoints[0].addConnection(jpc);
+			jpc.endpoints[1].addConnection(jpc);
+	
+			// force a paint
+			_draw(jpc.source);
+			
+			return jpc;
     	
 	    },           
 	    
@@ -1023,13 +1117,21 @@ if (!Array.prototype.findIndex) {
 	    connectEndpoints : function(params) {
 	    	var jpc = Connection(params);
 	    	
-	    },
+	    },*/
 	    
-	    /**
-	    * Remove a connection.
-	    * @param sourceId id of the first element in the connection
-	    * @param targetId id of the second element in the connection
-	    * @return true if successful, false if not.
+	    /* 
+	     Function: detach
+	      
+	     Removes a connection.
+	     
+	     Parameters:
+	     
+	    	sourceId - Id of the first element in the connection. A String.
+	    	targetId - iI of the second element in the connection. A String.
+	    	
+	    Returns:
+	    
+	    	true if successful, false if not.
 	    */
 	    detach : function(sourceId, targetId) {
 	    	var f = function(jpc) {
@@ -1045,25 +1147,44 @@ if (!Array.prototype.findIndex) {
 	    	_operation(sourceId, f);    	
 	    },
 	    
-	    /**
-	     * remove all an element's connections.
-	     * @param el either id of the element, or a jquery object for the element.
+	    /*
+	     Function: detachAll 
+	     
+	     	Removes all an element's connections.
+	     	
+	     Parameters:
+	     
+	     	el - either the id of the element, or a jQuery object for the element.
+	     	
+	     Returns:
+	     
+	     	void
 	     */
 	    detachAll : function(el) {    	
 	    	var ele = typeof(el)=='string' ? $("#" + el) : el;
 	    	var id = ele.attr("id");
 	    	var f = function(jpc) {
-	    		// todo replace with _cleanupConnection call here.
-	    		_removeElement(jpc.canvas);
-			jpc.endpoints[0].removeConnection(jpc);
-			jpc.endpoints[1].removeConnection(jpc);
+		    	// todo replace with _cleanupConnection call here.
+		    	_removeElement(jpc.canvas);
+				jpc.endpoints[0].removeConnection(jpc);
+				jpc.endpoints[1].removeConnection(jpc);
 	    	};
 	    	_operation(id, f);
 	    	//delete endpointsByElement[id];    	 ??
 	    },
 	    
-	    /**
-	     * remove all connections.  and endpoints? probably not.
+	    /*
+	     Function: detachEverything
+	     
+	     Remove all Connections from all elements, but leaves Endpoints in place.
+	     
+	     Returns:
+	     
+	     	void
+	     
+	     See Also:
+	     
+	     	<removeAllEndpoints>
 	     */
 	    detachEverything : function() {
 	    	var f = function(jpc) {
@@ -1078,22 +1199,40 @@ if (!Array.prototype.findIndex) {
 	    	endpointsByElement = {};*/               //??
 	    },    
 	    
-	    /**
-	     * Set an element's connections to be hidden.
-	     * @param el either id of the element, or a jquery object for the element.
+	    /*
+	     Function: hide 
+	     
+	     Sets an element's connections to be hidden.
+	     
+	     Parameters:
+	     
+	     	el - either the id of the element, or a jQuery object for the element.
+	     	
+	     Returns:
+	     
+	     	void
 	     */
 	    hide : function(el) {
 	    	_setVisible(el, "none");
 	    },
 	    
-	    /**
-	     * Creates an anchor with the given params.
-	     * x - the x location of the anchor as a fraction of the total width.  
-	     * y - the y location of the anchor as a fraction of the total height.
-	     * xOrientation - value indicating the general direction a connection from the anchor should go in, in the x direction.
-	     * yOrientation - value indicating the general direction a connection from the anchor should go in, in the y direction.
-	     * xOffset - a fixed offset that should be applied in the x direction that should be applied after the x position has been figured out.  optional. defaults to 0. 
-	     * yOffset - a fixed offset that should be applied in the y direction that should be applied after the y position has been figured out.  optional. defaults to 0. 
+	    /*
+	     Function: makeAnchor
+	     
+	     Creates an anchor with the given params.
+	     
+	     Parameters:
+	     
+	     	x - the x location of the anchor as a fraction of the total width.  
+	     	y - the y location of the anchor as a fraction of the total height.
+	     	xOrientation - value indicating the general direction a connection from the anchor should go in, in the x direction.
+	     	yOrientation - value indicating the general direction a connection from the anchor should go in, in the y direction.
+	     	xOffset - a fixed offset that should be applied in the x direction that should be applied after the x position has been figured out.  optional. defaults to 0. 
+	     	yOffset - a fixed offset that should be applied in the y direction that should be applied after the y position has been figured out.  optional. defaults to 0.
+	     	
+	     Returns:
+	     
+	     	The newly created Anchor.
 	     */
 	    makeAnchor : function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
 	    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
@@ -1111,10 +1250,22 @@ if (!Array.prototype.findIndex) {
 	    },
 	        
 	    
-	    /**
-	     * repaint element and its connections. 
-	     * this method gets new sizes for the elements before painting anything.
-	     * @param el may be an id or the actual jQuery object.
+	    /*
+	     Function: repaint
+	     
+	     Repaints an element and its connections. This method gets new sizes for the elements before painting anything.
+	     
+	     Parameters:
+	      
+	     	el - either the id of the element or a jQuery object representing the element.
+	     	
+	     Returns:
+	     
+	     	void
+	     	
+	     See Also:
+	     
+	     	<repaintEverything>
 	     */
 	    repaint : function(el) {
 	    	
@@ -1133,8 +1284,18 @@ if (!Array.prototype.findIndex) {
 	    	else _processElement(el);
 	    },       
 	    
-	    /**
-	     * repaint all connections.
+	    /*
+	     Function: repaintEverything
+	     
+	     Repaints all connections.
+	     
+	     Returns:
+	     
+	     	void
+	     	
+	     See Also:
+	     
+	     	<repaint>
 	     */
 	    repaintEverything : function() {
 	    	for (var elId in endpointsByElement) {
@@ -1142,12 +1303,22 @@ if (!Array.prototype.findIndex) {
 	    	}
 	    },
 	    
-	    /**
-	    * removes all endpoints associated with a given element
-	    * also removes all connections associated with each endpoint it removes.
-	    *
-	    * @param el either an element id, or a jquery object for an element.
-	    * @since 1.1.1
+	    /*	     
+	     Function: removeAllEndpoints
+	     
+	     Removes all Endpoints associated with a given element.  Also removes all Connections associated with each Endpoint it removes.
+	    
+	     Parameters:
+	     
+	    	el - either an element id, or a jQuery object for an element.
+	    	
+	     Returns:
+	     
+	     	void
+	     	
+	     See Also:
+	     
+	     	<removeEndpoint>
 	    */
 	    removeAllEndpoints : function(el) {
 	    	elId = typeof el == 'string' ? el : $(el).attr("id");
@@ -1160,10 +1331,23 @@ if (!Array.prototype.findIndex) {
 	    	endpointsByElement[elId] = [];
 	    },
 	    
-	    /**
-	    * removes the given Endpoint from the given element.
-	    * @param el either an element id, or a jquery object for an element.
-	    * @param endpoint Endpoint to remove.  this is an Endpoint object, such as would have been returned from a call to addEndpoint.
+	    /*
+	     Function: removeEndpoint
+	     
+	     Removes the given Endpoint from the given element.
+	    
+	     Parameters:
+	     
+	    	el - either an element id, or a jQuery object for an element.
+	    	endpoint - Endpoint to remove.  this is an Endpoint object, such as would have been returned from a call to addEndpoint.
+	    	
+	    Returns:
+	    
+	    	void
+	    	
+	    See Also:
+	    
+	    	<removeAllEndpoints>
 	    */
 	    removeEndpoint : function(el, endpoint) {
 	        var elId = typeof el == 'string' ? el : $(el).attr("id");
@@ -1174,34 +1358,69 @@ if (!Array.prototype.findIndex) {
 	    	}
 	    },
 	    
-	    /**
-	     * sets/unsets automatic repaint on window resize.
-	     * @param value whether or not to automatically repaint when the window is resized.
+	    /*
+	     Function: setAutomaticRepaint
+	     
+	     Sets/unsets automatic repaint on window resize.
+	     
+	     Parameters:
+	     
+	     	value - whether or not to automatically repaint when the window is resized.
+	     	
+	     Returns:
+	     
+	     	void
 	     */
 	    setAutomaticRepaint : function(value) {
 	    	automaticRepaint = value;
 	    },
 	    
-	    /**
-	     * Sets the default size jsPlumb will use for a new canvas (we create a square canvas so
-	     * one value is all that is required).  This is a hack for IE, because ExplorerCanvas seems
-	     * to need for a canvas to be larger than what you are going to draw on it at initialisation
-	     * time.  The default value of this is 1200 pixels, which is quite large, but if for some
-	     * reason you're drawing connectors that are bigger, you should adjust this value appropriately.
-	     * @param size The default size to use. jsPlumb will use a square canvas so you need only supply one value.
+	    /*
+	     Function: setDefaultNewCanvasSize
+	     
+	     Sets the default size jsPlumb will use for a new canvas (we create a square canvas so one value is all that is required).  
+	     This is a hack for IE, because ExplorerCanvas seems to need for a canvas to be larger than what you are going to draw on 
+	     it at initialisation time.  The default value of this is 1200 pixels, which is quite large, but if for some reason you're 
+	     drawing connectors that are bigger, you should adjust this value appropriately.
+	     
+	     Parameters:
+	     
+	     	size - The default size to use. jsPlumb will use a square canvas so you need only supply one value.
+	     	
+	     Returns:
+	     
+	     	void
 	     */
 	    setDefaultNewCanvasSize : function(size) {
 	    	DEFAULT_NEW_CANVAS_SIZE = size;    	
 	    },
 	    
-	    /**
-	     * Sets whether or not a given element is draggable, regardless of what any plumb command
-	     * may request. 
+	    /*
+	     Function: setDraggable
+	     
+	     Sets whether or not a given element is draggable, regardless of what any plumb command may request.
+	     
+	     Parameters:
+	      
+	      	el - either the id for the element, or a jQuery object representing the element.
+	      	
+	     Returns:
+	     
+	      	void
 	     */
 	    setDraggable: _setDraggable, 
 	    
-	    /**
-	     * Sets whether or not elements are draggable by default.  Default for this is true.
+	    /*
+	     Function: setDraggableByDefault
+	     
+	     Sets whether or not elements are draggable by default.  Default for this is true.
+	     
+	     Parameters:
+	     	draggable - value to set
+	     	
+	     Returns:
+	     
+	     	void
 	     */
 	    setDraggableByDefault: function(draggable) {
 	    	_draggableByDefault = draggable;
@@ -1211,32 +1430,56 @@ if (!Array.prototype.findIndex) {
 	    	log = debugLog;
 	    },
 	    
-	    /**
-	     * Sets the function to fire when the window size has changed and a repaint was fired.
-	     * @param f [function] Function to execute.
+	    /*
+	     Function: setRepaintFunction
+	     
+	     Sets the function to fire when the window size has changed and a repaint was fired.
+	     
+	     Parameters:	     
+	     	f - Function to execute.
+	     	
+	     Returns:	     
+	     	void
 	     */
 	    setRepaintFunction : function(f) {
 	    	repaintFunction = f;
 	    },
 	        
-	    /**
-	     * Set an element's connections to be visible.
+	    /*
+	     Function: show	     
+	     
+	     Sets an element's connections to be visible.
+	     
+	     Parameters:	     
+	     	el - either the id of the element, or a jQuery object for the element.
+	     	
+	     Returns:
+	     	void	     
 	     */
 	    show : function(el) {
 	    	_setVisible(el, "block");
 	    },
 	    
-	    /**
-	     * helper to size a canvas. you would typically use this when writing your own Connector or Endpoint implementation.
-	     * @param x [int] x position for the Canvas origin
-	     * @param y [int] y position for the Canvas origin
-	     * @param w [int] width of the canvas
-	     * @param h [int] height of the canvas
+	    /*
+	     Function: sizeCanvas
+	     
+	     Helper to size a canvas. You would typically use this when writing your own Connector or Endpoint implementation.
+	     
+	     Parameters:
+	     	x - [int] x position for the Canvas origin
+	     	y - [int] y position for the Canvas origin
+	     	w - [int] width of the canvas
+	     	h - [int] height of the canvas
+	     	
+	     Returns:
+	     	void	     
 	     */
 	    sizeCanvas : function(canvas, x, y, w, h) {
-	        canvas.style.height = h + "px"; canvas.height = h;
-	        canvas.style.width = w + "px"; canvas.width = w; 
-	        canvas.style.left = x + "px"; canvas.style.top = y + "px";
+	    	if (canvas) {
+		        canvas.style.height = h + "px"; canvas.height = h;
+		        canvas.style.width = w + "px"; canvas.width = w; 
+		        canvas.style.left = x + "px"; canvas.style.top = y + "px";
+	    	}
 	    },
 	    
 	    /**
@@ -1256,18 +1499,40 @@ if (!Array.prototype.findIndex) {
 	     */
 	    toggle : _toggleVisible,
 	    
-	    /**
-	     * new name for the old toggle method.
+	    /*
+	     Function: toggleVisible
+	     
+	     Toggles visibility of an element's connections. 
+	     
+	     Parameters:
+	     	el - either the element's id, or a jQuery object representing the element.
+	     	
+	     Returns:
+	     	void, but should be updated to return the current state
 	     */
+	    //TODO: update this method to return the current state.
 	    toggleVisible : _toggleVisible,
 	    
-	    /**
-	     * Toggles draggability (sic) of an element.
+	    /*
+	     Function: toggleDraggable
+	     
+	     Toggles draggability (sic) of an element's connections. 
+	     
+	     Parameters:
+	     	el - either the element's id, or a jQuery object representing the element.
+	     	
+	     Returns:
+	     	The current draggable state.
 	     */
 	    toggleDraggable : _toggleDraggable, 
 	    
-	    /**
-	     * Unloads jsPlumb, deleting all storage.  You should call this from an onunload attribute on the <body> element
+	    /*
+	     Function: unload
+	     
+	     Unloads jsPlumb, deleting all storage.  You should call this from an onunload attribute on the <body> element
+	     
+	     Returns:
+	     	void
 	     */
 	    unload : function() {
 	    	delete endpointsByElement;
