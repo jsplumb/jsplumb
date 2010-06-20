@@ -1,14 +1,8 @@
 <!doctype html>
 <html>
 	<head>
-		<title>more draggable connectors experiments</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=7">
-		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-
-		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/jquery.jsPlumb-all-1.1.0-min.js"></script>
-
+		<title>draggable connectors experiments</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">		
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<style type="text/css">
@@ -41,10 +35,16 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 
 		<div id="explanation">
 	    	<p>this demo uses jsPlumb 1.1.0.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
-	    	<a id="clear" href="#">clear plumbing</a><br/><br/>
-	    	<a href="dragAnim.html">next: animated dragging demo</a><br/>
+	    	<a id="clear" href="#">clear plumbing</a><br/><br/>	    	
+	    	<a href="dragAnim.html">next: animated dragging demo</a><br/><br/>
+	    	<a href="../apidocs/files/jquery-jsPlumb-1-1-1-RC1-js.html">view api documentation</a><br/>
 	    </div>
-
+	    
+	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/jquery.jsPlumb-all-1.1.0-min.js"></script>
+	    
 	    <script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
