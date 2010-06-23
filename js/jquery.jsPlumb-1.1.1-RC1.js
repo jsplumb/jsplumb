@@ -9,6 +9,8 @@
  * http://code.google.com/p/jsPlumb
  * 
  */ 
+
+//TODO: why have this on the prototype? why not just a function in the private API?
 if (!Array.prototype.findIndex) {
 	Array.prototype.findIndex = function( v, b, s ) {
 	
@@ -35,8 +37,7 @@ if (!Array.prototype.findIndex) {
 	};
 	
 	 for( var i = +b || 0, l = this.length; i < l; i++ ) {
-	  //if( this[i]===v || s && this[i]==v ) { return i; }
-	  if( _eq(this[i], v)) { return i; }
+		 if( _eq(this[i], v)) return i; 
 	 }
 	 return -1;
 	};
@@ -91,33 +92,20 @@ if (!Array.prototype.findIndex) {
      * @param ui UI object from jQuery's event system
      */
     var _draw = function(element, ui) {
-    	var id = $(element).attr("id");    	
+    	var id = _getAttribute(element, "id");
     	var endpoints = endpointsByElement[id];
     	if (endpoints) {
-    		//if (ui == null) _updateOffset(id, ui);
     		_updateOffset(id, ui);
     		var myOffset = offsets[id];
 			var myWH = sizes[id];
 	    	// loop through endpoints for this element
 	    	for (var i = 0; i < endpoints.length; i++) {
-	    		var e = endpoints[i];
-	    		// first, paint the endpoint
-	    		
+	    		var e = endpoints[i];	    		
 	    		var anchorLoc = endpoints[i].anchor.compute([myOffset.left, myOffset.top], myWH);
-	           // var anchorOrientation = endpoints[i].anchor.getOrientation();
-	    		
-	    		//todo...connector paint style?  we have lost that with the move to endpoint-centric.
-	    		// perhaps we only paint the endpoint here if it has no connections; it can use its own style.
-	    		//if (!e.connections || e.connections.length == 0)
-	    			e.paint(anchorLoc);
-	            
-	    	//	else {
-	    		//if (e.connections && e.connections.length > 0) {
-		    		// get all connections for the endpoint...
-		    		var l = e.connections;
-		    		for (var j = 0; j < l.length; j++)
-		    			l[j].paint(id, ui);  // ...and paint them.
-	    		//}
+	            e.paint(anchorLoc);
+	            var l = e.connections;
+		    	for (var j = 0; j < l.length; j++)
+		    		l[j].paint(id, ui);  // ...and paint them.
 	    	}
     	}
     };
@@ -138,21 +126,49 @@ if (!Array.prototype.findIndex) {
 		if (typeof element == 'object' && element.length) {
 			retVal = [];
     		for (var i = 0; i < element.length; i++) {
-    			var el = typeof element[i] == 'string' ? $("#" + element[i]) : element[i];
-    	    	var id = el.attr("id");
+    			var el = _getElementObject(element[i]);
+    	    	var id = _getAttribute(el, "id");
     			retVal.push(fn(el, id));  // append return values to what we will return
     		}
     	}
     	else {
-	    	var el = typeof element == 'string' ? 
-	    	//todo : this indexOf call here...is this bad? why not use a startsWith function?
-	    				element.indexOf("#") == 0 ? $(element) : $("#" + element) 
-	    						: element;
-	    	var id = el.attr("id");
+	    	var el = _getElementObject(element);
+	    	var id = _getAttribute(el, "id");
 	    	retVal = fn(el, id);
     	}
 		
 		return retVal;
+	};
+	
+	/**
+	 * gets the named attribute from the given element (id or element object)
+	 */
+	var _getAttribute = function(el, attName) {
+		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getAttribute(ele, attName);
+	};
+	
+	var _setAttribute = function(el, attName, attValue) {
+		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
+		jsPlumb.CurrentLibrary.setAttribute(ele, attName, attValue);
+	};
+	
+	var _addClass = function(el, clazz) {
+		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
+		jsPlumb.CurrentLibrary.addClass(ele, clazz);
+	};
+	
+	var _getElementObject = function(elId) {
+		return jsPlumb.CurrentLibrary.getElementObject(elId);
+	};
+	
+	var _getOffset = function(el) {
+		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getOffset(ele);
+	};
+	
+	var _extend = function(o1, o2) {
+		return jsPlumb.CurrentLibrary.extend(o1, o2);
 	};
 	
 	/**
@@ -174,10 +190,10 @@ if (!Array.prototype.findIndex) {
 	 * gets an id for the given element, creating and setting one if necessary.
 	 */
 	var _getId = function(element) {
-		var id = $(element).attr("id");
+		var id = _getAttribute(element, "id");
 		if (!id) {
 			id = "_jsPlumb_" + new String((new Date()).getTime());
-			$(element).attr("id", id);
+			_setAttribute(element, "id", id);
 		}
 		return id;
 	};
@@ -193,15 +209,15 @@ if (!Array.prototype.findIndex) {
 	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
 	    	var dragCascade = options.drag || function(e,u) {};
 	    	var initDrag = function(element, elementId, dragFunc) {
-	    		var opts = $.extend({drag:dragFunc}, options);
+	    		var opts = _extend({drag:dragFunc}, options);
 	    		var draggable = draggableStates[elementId];
 	    		opts.disabled = draggable == null ? false : !draggable;
 	        	element.draggable(opts);
 	    	};
 	    	initDrag(element, elementId, function(event, ui) {
-	    		 _draw(element, ui);
-	    		 $(element).addClass("jsPlumb_dragged");
-		    	dragCascade(event, ui);
+	    		 _draw(element, ui);	
+	    		 _addClass(element, "jsPlumb_dragged");
+	    		 dragCascade(event, ui);
 	    	});
 	    }
     	
@@ -239,10 +255,8 @@ if (!Array.prototype.findIndex) {
     var _operation = function(elId, func) {
     	var endpoints = endpointsByElement[elId];
     	if (endpoints && endpoints.length) {
-    	//alert("there are " + endpoints.length + " endpoints");
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		for (var j = 0; j < endpoints[i].connections.length; j++) {
-	    		//alert("there are " + endpoints[i].connections.length + " connections");
 	    			var retVal = func(endpoints[i].connections[j]);
 	    			// if the function passed in returns true, we exit.
 	    			// most functions return false.
@@ -313,14 +327,10 @@ if (!Array.prototype.findIndex) {
 	 * @param state String specifying a value for the css 'display' property ('block' or 'none').
 	 */
 	var _setVisible = function(el, state) {
-		var elId = typeof el == 'string' ? el : $(el).attr("id");
-	    	var f = function(jpc) {
-    		//todo should we find all the endpoints instead of going by connection? this will 
-    		jpc.canvas.style.display = state;
-			/*jpc.sourceEndpointCanvas.style.display = state;
-			jpc.targetEndpointCanvas.style.display = state;*/
-	    	};
-    	
+		var elId = _getAttribute(el, "id");
+	    var f = function(jpc) {
+	    	jpc.canvas.style.display = state;
+	    };    	
     	_operation(elId, f);
     };        
     /**
@@ -345,8 +355,6 @@ if (!Array.prototype.findIndex) {
     	var f = function(jpc) {
     		var state = ('none' == jpc.canvas.style.display);
     		jpc.canvas.style.display = state ? "block" : "none";
-			/*jpc.sourceEndpointCanvas.style.display = state;
-			jpc.targetEndpointCanvas.style.display = state;*/
     	};
     	
     	_operation(elId, f);
@@ -365,9 +373,9 @@ if (!Array.prototype.findIndex) {
     	
 		if (recalc || ui == null) {  // if forced repaint or no ui helper available, we recalculate.
     		// get the current size and offset, and store them
-    		var s = $("#" + elId);
+    		var s = _getElementObject(elId);
     		sizes[elId] = [s.outerWidth(), s.outerHeight()];
-    		offsets[elId] = s.offset();
+    		offsets[elId] = _getOffset(elId);
 		} else {
 			// faster to use the ui element if it was passed in.
 			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
@@ -378,11 +386,14 @@ if (!Array.prototype.findIndex) {
 			// while dragging, the y values are for where the window would be if it was not
 			// just constrained to x.  not sure if this is a jquery bug or whether there's a known
 			// trick or whatever.
+			//TODO: make agnostic
 			var pos = ui.absolutePosition || ui.offset;
-    		var anOffset = ui != null ? pos : $("#" + elId).offset();
+			//offset
+    		var anOffset = ui != null ? pos : _getOffset(elId); 
     		offsets[elId] = anOffset;
 		}
 	};
+		
     /**
      * wraps one function with another, creating a placeholder for the wrapped function
      * if it was null.  this is used to wrap the various drag/drop event functions - to allow
@@ -397,20 +408,23 @@ if (!Array.prototype.findIndex) {
     		cascadeFunction(e, ui);
     	};
     }
-	/**
-	 * Anchor class. Anchors can be situated anywhere.  
-	 * params should contain three values, and may optionally have an 'offsets' argument:
-	 * 
-	 * x 			: the x location of the anchor as a fraction of the total width.
-	 *   
-	 * y 			: the y location of the anchor as a fraction of the total height.
-	 * 
-	 * orientation 	: an [x,y] array indicating the general direction a connection 
-	 * 				  from the anchor should go in. for more info on this, see the documentation, 
-	 * 				  or the docs in jquery-jsPlumb-defaults-XXX.js for the default Anchors.
-	 * 
-	 * offsets 		: an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  may be null.
-	 * 
+    
+    /*
+     Class: Anchor     
+     Models a position relative to the origin of some element that an Endpoint can be located.     
+     */
+	/*
+	 Function: Anchor
+	 
+       Constructor for the Anchor class	 
+	  
+	   Parameters:
+	   	params - Anchor parameters. This should contain three values, and may optionally have an 'offsets' argument:
+	  
+	 	- x : the x location of the anchor as a fraction of the total width.
+	    - y : the y location of the anchor as a fraction of the total height.
+	    - orientation : an [x,y] array indicating the general direction a connection from the anchor should go in. for more info on this, see the documentation, or the docs in jquery-jsPlumb-defaults-XXX.js for the default Anchors.
+	 	- offsets : an [x,y] array of fixed offsets that should be applied after the x,y position has been figured out.  may be null.
 	 */	
 	var Anchor = function(params) {
 		var self = this;
@@ -422,10 +436,10 @@ if (!Array.prototype.findIndex) {
 		}
 		this.getOrientation = function() { return orientation; };
 	};
-	
+		 
 	/**
-	 * an anchor that floats.  its orientation is computed dynamically from its position relative
-	 * to the anchor it is floating relative to.
+	 * An Anchor that floats.  its orientation is computed dynamically from its position relative to the anchor it is floating relative to.
+	 *  
 	 */
 	var FloatingAnchor = function(params) {
 		
@@ -488,10 +502,10 @@ if (!Array.prototype.findIndex) {
 	// ************** get the source and target and register the connection. *******************
 	    var self = this;
 	    // get source and target as jQuery objects
-	    this.source = (typeof params.source == 'string') ? $("#" + params.source) : params.source;    
-	    this.target = (typeof params.target == 'string') ? $("#" + params.target) : params.target;
-	    this.sourceId = $(this.source).attr("id");
-	    this.targetId = $(this.target).attr("id");
+	    this.source = _getElementObject(params.source);//(typeof params.source == 'string') ? $("#" + params.source) : params.source;    
+	    this.target = _getElementObject(params.target);//(typeof params.target == 'string') ? $("#" + params.target) : params.target;
+	    this.sourceId = _getAttribute(this.source, "id");	    
+	    this.targetId = _getAttribute(this.target, "id");
 	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;	    
 	    
 	    // init endpoints
@@ -568,7 +582,7 @@ if (!Array.prototype.findIndex) {
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
-	            $.extend(ctx, this.paintStyle);
+	            _extend(ctx, this.paintStyle);
 	                        
 	            if (this.paintStyle.gradient && !ie) { 
 		            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
@@ -577,10 +591,7 @@ if (!Array.prototype.findIndex) {
 		            ctx.strokeStyle = g;
 	            }
 	            	            
-	            this.connector.paint(dim, ctx);
-	                            
-	        //	this.endpoints[swap ? 1 : 0].paint(sAnchorP, this.paintStyle);
-	        	//this.endpoints[swap ? 0 : 1].paint(tAnchorP, this.paintStyle);
+	            this.connector.paint(dim, ctx);	                            
 	    	}
 	    };
 	    
@@ -599,32 +610,41 @@ if (!Array.prototype.findIndex) {
 	    }
 	};
 	
-	/**
-	 * models an endpoint.  can have one to N connections emanating from it (although how to handle that in the UI is
-	 * a very good question). also has a Canvas and paint style.
-	 * 
-	 * params:
-	 * 
-	 * anchor			:	anchor for the endpoint, of type jsPlumb.Anchor. may be null. 
-	 * endpoint 		: 	endpoint object, of type jsPlumb.Endpoint. may be null.
-	 * style			:	endpoint style, a js object. may be null.
-	 * source			:	element the endpoint is attached to, of type jquery object.  Required.
-	 * canvas			:	canvas element to use. may be, and most often is, null.
-	 * connections  	:	optional list of connections to configure the endpoint with.
-	 * isSource			:	boolean. indicates the endpoint can act as a source of new connections. optional.
-	 * dragOptions		:	if isSource is set to true, you can supply arguments for the jquery draggable method.  optional.
-	 * connectionStyle	:	if isSource is set to true, this is the paint style for connections from this endpoint. optional.
-	 * connector		:	optional connector type to use.
-	 * isTarget			:	boolean. indicates the endpoint can act as a target of new connections. optional.
-	 * dropOptions		:	if isTarget is set to true, you can supply arguments for the jquery droppable method.  optional.
-	 * reattach			:	optional boolean that determines whether or not the connections reattach after they
-	 *                      have been dragged off an endpoint and left floating.  defaults to false - connections
-	 *                      dropped in this way will just be deleted.
+	/*
+	 Class: Endpoint 
+	 
+	 Models an endpoint.  Can have one to N connections emanating from it (although how to handle that in the UI is 
+	 a very good question). also has a Canvas and paint style.
+	  	 
 	 */
+	
+	/* 
+	 Function: Endpoint
+	 
+	 This is the Endpoint class constructor.
+	 
+	 Parameters:
+	  
+	  anchor			-	anchor for the endpoint, of type jsPlumb.Anchor. may be null. 
+	  endpoint 		- 	endpoint object, of type jsPlumb.Endpoint. may be null.
+	  style			-	endpoint style, a js object. may be null.
+	  source			-	element the endpoint is attached to, of type jquery object.  Required.
+	  canvas			-	canvas element to use. may be, and most often is, null.
+	  connections  	-	optional list of connections to configure the endpoint with.
+	  isSource			-	boolean. indicates the endpoint can act as a source of new connections. optional.
+	  dragOptions		-	if isSource is set to true, you can supply arguments for the jquery draggable method.  optional.
+	  connectionStyle	-	if isSource is set to true, this is the paint style for connections from this endpoint. optional.
+	  connector		-	optional connector type to use.
+	  isTarget			-	boolean. indicates the endpoint can act as a target of new connections. optional.
+	  dropOptions		-	if isTarget is set to true, you can supply arguments for the jquery droppable method.  optional.
+	  reattach			-	optional boolean that determines whether or not the connections reattach after they
+	                       have been dragged off an endpoint and left floating.  defaults to false: connections
+	                       dropped in this way will just be deleted.
+	*/ 
 	var Endpoint = function(params) {
 		params = params || {};
 		// make a copy. then we can use the wrapper function.
-		params = $.extend({}, params);
+		_extend({}, params);
 		var self = this;
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
@@ -632,7 +652,7 @@ if (!Array.prototype.findIndex) {
 		this.connectionStyle = params.connectionStyle;
 		this.connector = params.connector;
 		var _element = params.source;
-		var _elementId = $(_element).attr("id");
+		var _elementId = _getAttribute(_element, "id");
 		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
 		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
@@ -727,17 +747,18 @@ if (!Array.prototype.findIndex) {
 			// will still be valid, but when we stop dragging, we'll have to do something different.  if we stop with a valid drop i think it will
 			// be the same process.  but if we stop with an invalid drop we have to reset the Connection to how it was when we got it.
 			var start = function(e, ui) {
-				//if (!isFull()) {
 				n = document.createElement("div");
 				contextNode.append(n);
 				// create and assign an id, and initialize the offset.
-				id = new String(new Date().getTime());				
-				$(n, contextNode).attr("id", id);
+				id = new String(new Date().getTime());
+				//TODO: write a setAttribute function for the agnostics at the bottom				
+				// todo...still need to abstract out the $(n, contextNode) call here
+				_setAttribute($(n, contextNode), "id", id);
 				_updateOffset(id);
 				// store the id of the dragging div and the source element. the drop function
 				// will pick these up.
-				$(self.canvas, contextNode).attr("dragId", id);
-				$(self.canvas, contextNode).attr("elId", _elementId);
+				_setAttribute($(self.canvas, contextNode), "dragId", id);
+				_setAttribute($(self.canvas, contextNode), "elId", _elementId);
 				// create a floating anchor
 				var floatingAnchor = new FloatingAnchor({reference:self.anchor});
 				floatingEndpoint = new Endpoint({
@@ -753,7 +774,7 @@ if (!Array.prototype.findIndex) {
 					jpc = new Connection({
 						sourceEndpoint:self, 
 						targetEndpoint:floatingEndpoint,
-						source:$(_element),
+						source:_getElementObject(_element),
 						target:$(n, contextNode),
 						anchors:[self.anchor, floatingAnchor],
 						paintStyle : params.connectionStyle, // this can be null. Connection will use the default.
@@ -796,7 +817,7 @@ if (!Array.prototype.findIndex) {
 			//};
 			
 			var dragOptions = params.dragOptions || { };
-			dragOptions = $.extend({ opacity:0.5, revert:true, helper:'clone' }, dragOptions);
+			dragOptions = _extend({ opacity:0.5, revert:true, helper:'clone' }, dragOptions);
 			
 			dragOptions.start = _wrap(dragOptions.start, start);
 			dragOptions.drag = _wrap(dragOptions.drag, function(e, ui) { 
@@ -845,11 +866,11 @@ if (!Array.prototype.findIndex) {
 		// connector target
 		if (params.isTarget && _element.droppable) {
 			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
-			dropOptions = $.extend({}, dropOptions);
+			dropOptions = _extend({}, dropOptions);
 	    	var originalAnchor = null;
 	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
-	    		var id = $(ui.draggable, contextNode).attr("dragId");
-	    		var elId = $(ui.draggable, contextNode).attr("elId");
+	    		var id = _getAttribute($(ui.draggable, contextNode), "dragId");
+	    		var elId = _getAttribute($(ui.draggable, contextNode),"elId");
 	    		var jpc = floatingConnections[id];
 	    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 	    		if (idx == 0) {
@@ -866,7 +887,8 @@ if (!Array.prototype.findIndex) {
 	    		jpc.endpoints[idx] = self;
 	    		self.addConnection(jpc);
 	    		_initDraggableIfNecessary(_element, _elementId, params.draggable, {});
-	    		jsPlumb.repaint($(ui.draggable, contextNode).attr("elId"));
+	    		jsPlumb.repaint(elId);
+	    		
 	    		delete floatingConnections[id];	    			    	
 			 });
 	    	// what to do when something is dropped.
@@ -882,14 +904,14 @@ if (!Array.prototype.findIndex) {
 	    	// into the shape it will take if the user drops at that point.
 			 
 			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
-				var id = $(ui.draggable, contextNode).attr("dragId");
+				var id = _getAttribute($(ui.draggable, contextNode),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;  
 		    	jpc.endpoints[idx].anchor.over(self.anchor);		    	
 			 });
 			 
 			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
-				var id = $(ui.draggable, contextNode).attr("dragId");
+				var id = _getAttribute($(ui.draggable, contextNode),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 		    	jpc.endpoints[idx].anchor.out();
@@ -909,8 +931,14 @@ if (!Array.prototype.findIndex) {
 		return self;
 	};
 	
-	/**
-	 * jsPlumb public API
+	/*
+	 Class: jsPlumb 
+	 
+	 This is the main entry point to jsPlumb.  There are a bunch of static methods you can
+	 use to connect/disconnect etc.  Some methods are also added to jQuery's "$.fn" object itself, but
+	 in general jsPlumb is moving away from that model, preferring instead the static class
+	 approach.  One of the reasons for this is that with no methods added to the jQuery $.fn object,
+	 it will be easier to provide support for other libraries such as MooTools. 
 	 */
     var jsPlumb = window.jsPlumb = {
 
@@ -921,10 +949,9 @@ if (!Array.prototype.findIndex) {
     	 to the various API calls.  A convenient way to implement your own look and feel can be to override these defaults by including a script
     	 somewhere after the jsPlumb include, but before you make any calls to jsPlumb, for instance in this example we set the PaintStyle to be
     	 a blue line of 27 pixels:
-    	 
-    	 
-    	 jsPlumb.Defaults.PaintStyle = { lineWidth:27, strokeStyle:'blue' }
-    	  
+    	     	 
+    	 > jsPlumb.Defaults.PaintStyle = { lineWidth:27, strokeStyle:'blue' }
+    	     	  
     	 */
     	Defaults : {
     		Anchors : [ null, null ],
@@ -959,7 +986,7 @@ if (!Array.prototype.findIndex) {
 		 Default jsPlumb Anchors.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
 		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Anchors by supplying them in a script that is loaded after jsPlumb, for instance:
 		 
-		 jsPlumb.Anchors.MyAnchor = { ....anchor code here.  see the documentation. }
+		 > jsPlumb.Anchors.MyAnchor = { ....anchor code here.  see the documentation. }
 		 */
 	    Anchors : {},
 	    
@@ -969,7 +996,7 @@ if (!Array.prototype.findIndex) {
 		 Default jsPlumb Connectors.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
 		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Connectors by supplying them in a script that is loaded after jsPlumb, for instance:
 		 
-		 jsPlumb.Connectors.MyConnector = { ....connector code here.  see the documentation. }
+		 > jsPlumb.Connectors.MyConnector = { ....connector code here.  see the documentation. }
 		 */
 	    Connectors : {},
 	    
@@ -979,7 +1006,7 @@ if (!Array.prototype.findIndex) {
 		 Default jsPlumb Endpoints.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
 		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Endpoints by supplying them in a script that is loaded after jsPlumb, for instance:
 		 
-		 jsPlumb.Endpoints.MyEndpoint = { ....endpoint code here.  see the documentation. }
+		 > jsPlumb.Endpoints.MyEndpoint = { ....endpoint code here.  see the documentation. }
 		 */
 	    Endpoints : {},
 	      
@@ -1001,17 +1028,15 @@ if (!Array.prototype.findIndex) {
 	       <addEndpoints>
 	     */
 	    addEndpoint : function(target, params) {
-	    	params = $.extend({}, params);
-	    	var el = typeof target == 'string' ? $("#" + target) : target;
-	    	var id = $(el).attr("id");
+	    	params = _extend({}, params);
+	    	var el = _getElementObject(target);
+	    	var id = _getAttribute(target,"id");
 	    	params.source = el; 
 	    	_updateOffset(id);
 	    	var e = new Endpoint(params);
 	    	_addToList(endpointsByElement, id, e);
-
     		var myOffset = offsets[id];
-    		var myWH = sizes[id];
-			
+    		var myWH = sizes[id];			
 	    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH);
 	    	e.paint(anchorLoc);
 	    	return e;
@@ -1060,8 +1085,9 @@ if (!Array.prototype.findIndex) {
 	      void
 	    */	      
 	    animate : function(el, properties, options) {
-	    	var ele = typeof(el)=='string' ? $("#" + el) : el;
-	    	var id = ele.attr("id");
+	    	//TODO use getElementObject here
+	    	var ele = _getElementObject(el);
+	    	var id = _getAttribute(el,"id");
 	    	options = options || {};
 	    	options.step = _wrap(options.step, function() { jsPlumb.repaint(id); });
 	    	ele.animate(properties, options);    	
@@ -1161,8 +1187,8 @@ if (!Array.prototype.findIndex) {
 	     	void
 	     */
 	    detachAll : function(el) {    	
-	    	var ele = typeof(el)=='string' ? $("#" + el) : el;
-	    	var id = ele.attr("id");
+	    	//var ele = typeof(el)=='string' ? $("#" + el) : el;
+	    	var id = _getAttribute(el, "id");
 	    	var f = function(jpc) {
 		    	// todo replace with _cleanupConnection call here.
 		    	_removeElement(jpc.canvas);
@@ -1238,7 +1264,7 @@ if (!Array.prototype.findIndex) {
 	    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
 	    	// by just passing in four/six values.  but for backwards compatibility if we are given only one value we assume it's a call in the old form.
 	    	var params = {};
-	    	if (arguments.length == 1) $.extend(params, x);
+	    	if (arguments.length == 1) _extend(params, x);
 	    	else {
 	    		params = {x:x, y:y};
 	    		if (arguments.length >= 4) {
@@ -1270,7 +1296,7 @@ if (!Array.prototype.findIndex) {
 	    repaint : function(el) {
 	    	
 	    	var _processElement = function(el) {
-	    		var ele = typeof(el)=='string' ? $("#" + el) : el;
+	    		var ele = _getElementObject(el);
 		    	_draw(ele);
 	    	};
 	    	
@@ -1299,7 +1325,8 @@ if (!Array.prototype.findIndex) {
 	     */
 	    repaintEverything : function() {
 	    	for (var elId in endpointsByElement) {
-	    		_draw($("#" + elId));
+	    		//TODO use getElementObject here
+	    		_draw(_getElementObject(elId));
 	    	}
 	    },
 	    
@@ -1321,7 +1348,7 @@ if (!Array.prototype.findIndex) {
 	     	<removeEndpoint>
 	    */
 	    removeAllEndpoints : function(el) {
-	    	elId = typeof el == 'string' ? el : $(el).attr("id");
+	    	var elId = _getAttribute(el, "id");
 	    	// first remove all Connections.
 	    	jsPlumb.detachAll(elId);
 	    	var ebe = endpointsByElement[elId];
@@ -1350,7 +1377,7 @@ if (!Array.prototype.findIndex) {
 	    	<removeAllEndpoints>
 	    */
 	    removeEndpoint : function(el, endpoint) {
-	        var elId = typeof el == 'string' ? el : $(el).attr("id");
+	        var elId = _getAttribute(el, "id");
 	    	var ebe = endpointsByElement[elId];
 	    	if (ebe) {
 	    		if(_removeFromList(endpointsByElement, elId, endpoint))
@@ -1626,3 +1653,67 @@ if (!Array.prototype.findIndex) {
   };
   
 })(jQuery);
+
+
+/* the library agnostic functions, such as find offset, get id, get attribute, extend etc.  currently
+hardcoded to jQuery here; will be extracted to separate impls for different libraries. 
+
+* much more work needs to be done on this.  some things that spring to mind: animation, drag, drop.
+* 
+* you should _never_ call these methods directly.  jsPlumb uses them when it needs them.
+*
+*/
+(function() {
+	
+	jsPlumb.CurrentLibrary = {
+			
+		/*
+		 * wrapper around the library's 'extend' functionality (which it hopefully has.
+		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
+		 * instead.  it's not like its hard.
+		 */
+		extend : function(o1, o2) {
+			return $.extend(o1, o2);
+		},
+	
+		/*
+		 * gets an "element object" from the given input.  this means an object that is used by the
+		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
+		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
+		 * function is used to find the element, using the given String as the element's id.
+		 */
+		getElementObject : function(el) {
+			return typeof(el)=='string' ? $("#" + el) : $(el);
+		},
+		
+		/*
+		  gets the offset for the element object.  this should return a js object like this:
+		  
+		  { left:xxx, top: xxx}
+		 */
+		getOffset : function(el) {
+			return el.offset();
+		},
+		
+		/**
+		 * gets the named attribute from the given element object.  
+		 */
+		getAttribute : function(el, attName) {
+			return el.attr(attName);
+		},
+		
+		/**
+		 * sets the named attribute on the given element object.  
+		 */
+		setAttribute : function(el, attName, attValue) {
+			el.attr(attName, attValue);
+		},
+		
+		/**
+		 * adds the given class to the element object.
+		 */
+		addClass : function(el, clazz) {
+			el.addClass(clazz);
+		}
+	};
+})();
