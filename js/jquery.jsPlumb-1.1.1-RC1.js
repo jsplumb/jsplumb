@@ -10,38 +10,6 @@
  * 
  */ 
 
-//TODO: why have this on the prototype? why not just a function in the private API?
-if (!Array.prototype.findIndex) {
-	Array.prototype.findIndex = function( v, b, s ) {
-	
-	var _eq = function(o1, o2) {
-		if (o1 === o2) return true;
-		else if (typeof o1 == 'object' && typeof o2 == 'object') {
-			var same = true;
-				for(var propertyName in o1) {				
-				      if(!_eq(o1[propertyName], o2[propertyName])) {
-				         same = false;
-				         break;
-				      }
-				   }
-				   for(var propertyName in o2) {				
-				   				      if(!_eq(o2[propertyName], o1[propertyName])) {
-				   				         same = false;
-				   				         break;
-				   				      }
-				   }
-				   return same;
-
-			
-		}	
-	};
-	
-	 for( var i = +b || 0, l = this.length; i < l; i++ ) {
-		 if( _eq(this[i], v)) return i; 
-	 }
-	 return -1;
-	};
-}
 (function() {
 	
 	var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
@@ -73,6 +41,34 @@ if (!Array.prototype.findIndex) {
 	var _jsPlumbContextNode = null;
 	
 	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)		
+	
+	var _findIndex = function( a, v, b, s ) {
+		
+		var _eq = function(o1, o2) {
+			if (o1 === o2) return true;
+			else if (typeof o1 == 'object' && typeof o2 == 'object') {
+				var same = true;
+				for(var propertyName in o1) {				
+					if(!_eq(o1[propertyName], o2[propertyName])) {
+						same = false;
+				        break;
+				    }
+				}
+				for(var propertyName in o2) {				
+					if(!_eq(o2[propertyName], o1[propertyName])) {
+						same = false;
+					   	break;
+					}
+				}
+				return same;			
+			}	
+		};
+		
+		 for( var i = +b || 0, l = a.length; i < l; i++ ) {
+			 if( _eq(a[i], v)) return i; 
+		 }
+		 return -1;
+	};
 	
 	/**
      * helper method to add an item to a list, creating the list if it does not yet exist.
@@ -295,7 +291,7 @@ if (!Array.prototype.findIndex) {
     var _removeFromList = function(map, key, value) {
 		var l = map[key];
 		if (l != null) {
-			var i = l.findIndex(value);
+			var i = _findIndex(l, value);
 			if (i >= 0) {
 				delete( l[i] );
 				l.splice( i, 1 );
@@ -662,7 +658,7 @@ if (!Array.prototype.findIndex) {
 			self.connections.push(connection);
 		};
 		this.removeConnection = function(connection) {
-			var idx = self.connections.findIndex(connection);
+			var idx = _findIndex(self.connections, connection);
 			if (idx >= 0)
 				self.connections.splice(idx, 1);
 		};
