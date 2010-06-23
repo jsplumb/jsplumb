@@ -23,6 +23,8 @@
     		repaintFunction();
     };
     var resizeTimer = null;
+    
+    //TODO: abstract this out from jQuery too!  but how...because jsPlumb is not loaded yet. 
     $(window).bind('resize', function() {
     	if (resizeTimer) clearTimeout(resizeTimer);
 	    resizeTimer = setTimeout(repaintEverything, 100);
@@ -154,8 +156,9 @@
 		jsPlumb.CurrentLibrary.addClass(ele, clazz);
 	};
 	
-	var _getElementObject = function(elId) {
-		return jsPlumb.CurrentLibrary.getElementObject(elId);
+	var _getElementObject = function(elId, elementIsInContext) {
+		var contextNode = elementIsInContext ? _getContextNode() : null;
+		return jsPlumb.CurrentLibrary.getElementObject(elId, contextNode);
 	};
 	
 	var _getOffset = function(el) {
@@ -165,6 +168,27 @@
 	
 	var _extend = function(o1, o2) {
 		return jsPlumb.CurrentLibrary.extend(o1, o2);
+	};
+	
+	var _initDraggable = function(el, options) {
+		//var ele = _getElementObject(el);
+		return jsPlumb.CurrentLibrary.initDraggable(el, options);
+	};
+	
+	var _isDragSupported = function(el) {		
+		return jsPlumb.CurrentLibrary.isDragSupported(el);
+	};
+	
+	var _initDroppable = function(el, options) {
+		return jsPlumb.CurrentLibrary.initDroppable(el, options);
+	};
+	
+	var _isDropSupported = function(el) {		
+		return jsPlumb.CurrentLibrary.isDropSupported(el);
+	};
+	
+	var _animate= function(el, properties, options) {
+		return jsPlumb.CurrentLibrary.animate(el, properties, options);
 	};
 	
 	/**
@@ -179,7 +203,7 @@
     		document.body.appendChild(_jsPlumbContextNode);
     		_jsPlumbContextNode.className = "_jsPlumb_context";
     	}
-    	return $(_jsPlumbContextNode);
+    	return _getElementObject(_jsPlumbContextNode, false);
     };
     
     /**
@@ -201,14 +225,16 @@
     var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
     	// dragging
 	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
-	    if (draggable && element.draggable) {    	
+	    //todo: the element.draggable test must be moved to the agnostic API stuff
+	    if (draggable && _isDragSupported(element)) {    	
 	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
 	    	var dragCascade = options.drag || function(e,u) {};
 	    	var initDrag = function(element, elementId, dragFunc) {
 	    		var opts = _extend({drag:dragFunc}, options);
 	    		var draggable = draggableStates[elementId];
 	    		opts.disabled = draggable == null ? false : !draggable;
-	        	element.draggable(opts);
+	        	//element.draggable(opts);
+	    		_initDraggable(element, opts);
 	    	};
 	    	initDrag(element, elementId, function(event, ui) {
 	    		 _draw(element, ui);	
@@ -310,7 +336,7 @@
 	var _setDraggable = function(element, draggable) {    
     	var _helper = function(el, id) {
     		draggableStates[id] = draggable;
-        	if (el.draggable) {
+        	if (_isDragSupported(el)) {
         		el.draggable("option", "disabled", !draggable);
         	}
     	};       
@@ -498,8 +524,8 @@
 	// ************** get the source and target and register the connection. *******************
 	    var self = this;
 	    // get source and target as jQuery objects
-	    this.source = _getElementObject(params.source);//(typeof params.source == 'string') ? $("#" + params.source) : params.source;    
-	    this.target = _getElementObject(params.target);//(typeof params.target == 'string') ? $("#" + params.target) : params.target;
+	    this.source = _getElementObject(params.source);    
+	    this.target = _getElementObject(params.target);
 	    this.sourceId = _getAttribute(this.source, "id");	    
 	    this.targetId = _getAttribute(this.target, "id");
 	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;	    
@@ -723,7 +749,7 @@
 		
 		// is this a connection source? we make it draggable and have the drag listener 
 		// maintain a connection with a floating endpoint.
-		if (params.isSource && _element.draggable) {
+		if (params.isSource && _isDragSupported(_element)) {
 			
 			var n = null, id = null, 
 			 jpc = null, 
@@ -747,14 +773,13 @@
 				contextNode.append(n);
 				// create and assign an id, and initialize the offset.
 				id = new String(new Date().getTime());
-				//TODO: write a setAttribute function for the agnostics at the bottom				
-				// todo...still need to abstract out the $(n, contextNode) call here
-				_setAttribute($(n, contextNode), "id", id);
+				//TODO: write a setAttribute function for the agnostics at the bottom
+				_setAttribute(_getElementObject(n, contextNode), "id", id);
 				_updateOffset(id);
 				// store the id of the dragging div and the source element. the drop function
 				// will pick these up.
-				_setAttribute($(self.canvas, contextNode), "dragId", id);
-				_setAttribute($(self.canvas, contextNode), "elId", _elementId);
+				_setAttribute(_getElementObject(self.canvas, contextNode), "dragId", id);
+				_setAttribute(_getElementObject(self.canvas, contextNode), "elId", _elementId);
 				// create a floating anchor
 				var floatingAnchor = new FloatingAnchor({reference:self.anchor});
 				floatingEndpoint = new Endpoint({
@@ -771,7 +796,7 @@
 						sourceEndpoint:self, 
 						targetEndpoint:floatingEndpoint,
 						source:_getElementObject(_element),
-						target:$(n, contextNode),
+						target:_getElementObject(n, contextNode),
 						anchors:[self.anchor, floatingAnchor],
 						paintStyle : params.connectionStyle, // this can be null. Connection will use the default.
 						connector: params.connector
@@ -787,11 +812,11 @@
 					self.removeConnection(jpc);
 					if (anchorIdx == 0){
 						existingJpcParams = [jpc.source, jpc.sourceId];
-						jpc.source = $(n, contextNode);
+						jpc.source = _getElementObject(n, contextNode);
 						jpc.sourceId = id;						
 					}else {
 						existingJpcParams = [jpc.target, jpc.targetId];
-						jpc.target = $(n, contextNode);
+						jpc.target = _getElementObject(n, contextNode);
 						jpc.targetId = id;
 					}					
 					
@@ -817,7 +842,7 @@
 			
 			dragOptions.start = _wrap(dragOptions.start, start);
 			dragOptions.drag = _wrap(dragOptions.drag, function(e, ui) { 
-				_draw($(n, contextNode), ui); 
+				_draw(_getElementObject(n, contextNode), ui); 
 			});
 			dragOptions.stop = _wrap(dragOptions.stop, 
 				function(e, ui) {					
@@ -856,17 +881,17 @@
 				}			
 			);		
 											
-			$(self.canvas, contextNode).draggable(dragOptions);
+			_initDraggable(_getElementObject(self.canvas, contextNode), dragOptions);
 		}
 		
 		// connector target
-		if (params.isTarget && _element.droppable) {
+		if (params.isTarget && _isDropSupported(_element)) {
 			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
 			dropOptions = _extend({}, dropOptions);
 	    	var originalAnchor = null;
 	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
-	    		var id = _getAttribute($(ui.draggable, contextNode), "dragId");
-	    		var elId = _getAttribute($(ui.draggable, contextNode),"elId");
+	    		var id = _getAttribute(_getElementObject(ui.draggable, contextNode), "dragId");
+	    		var elId = _getAttribute(_getElementObject(ui.draggable, contextNode),"elId");
 	    		var jpc = floatingConnections[id];
 	    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 	    		if (idx == 0) {
@@ -900,20 +925,20 @@
 	    	// into the shape it will take if the user drops at that point.
 			 
 			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
-				var id = _getAttribute($(ui.draggable, contextNode),"dragId");
+				var id = _getAttribute(_getElementObject(ui.draggable, contextNode),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;  
 		    	jpc.endpoints[idx].anchor.over(self.anchor);		    	
 			 });
 			 
 			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
-				var id = _getAttribute($(ui.draggable, contextNode),"dragId");
+				var id = _getAttribute(_getElementObject(ui.draggable, contextNode),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 		    	jpc.endpoints[idx].anchor.out();
 			 });
 			 		
-			$(self.canvas, contextNode).droppable(dropOptions);			
+			_initDroppable(_getElementObject(self.canvas, contextNode), dropOptions);			
 		}
 		
 		// woo...add a plumb command to Endpoint.
@@ -1086,7 +1111,7 @@
 	    	var id = _getAttribute(el,"id");
 	    	options = options || {};
 	    	options.step = _wrap(options.step, function() { jsPlumb.repaint(id); });
-	    	ele.animate(properties, options);    	
+	    	_animate(ele, properties, options);    	
 	    },
 	    
 	    /*
@@ -1183,7 +1208,6 @@
 	     	void
 	     */
 	    detachAll : function(el) {    	
-	    	//var ele = typeof(el)=='string' ? $("#" + el) : el;
 	    	var id = _getAttribute(el, "id");
 	    	var f = function(jpc) {
 		    	// todo replace with _cleanupConnection call here.
@@ -1618,7 +1642,6 @@
 	  var addedEndpoints = [];
 	  this.each(function() 
 	  {
-		  //var params = $.extend({source:$(this)}, options);			  
 		  addedEndpoints.push(jsPlumb.addEndpoint($(this).attr("id"), options));
 	  });
 	  return addedEndpoints[0];
@@ -1678,8 +1701,8 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
 		 * function is used to find the element, using the given String as the element's id.
 		 */
-		getElementObject : function(el) {
-			return typeof(el)=='string' ? $("#" + el) : $(el);
+		getElementObject : function(el, contextNode) {
+			return typeof(el)=='string' ? $("#" + el, contextNode) : $(el);
 		},
 		
 		/*
@@ -1710,6 +1733,26 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		 */
 		addClass : function(el, clazz) {
 			el.addClass(clazz);
+		},
+		
+		initDraggable : function(el, options) {
+			el.draggable(options);
+		},
+		
+		isDragSupported : function(el, options) {
+			return el.draggable != null;
+		},
+		
+		initDroppable : function(el, options) {
+			el.droppable(options);
+		},
+		
+		isDropSupported : function(el, options) {
+			return el.droppable != null;
+		},
+		
+		animate : function(el, properties, options) {
+			el.animate(properties, options);
 		}
 	};
 })();
