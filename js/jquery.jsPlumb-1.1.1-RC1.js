@@ -86,7 +86,7 @@
     /**
      * Handles the dragging of an element.  
      * @param element jQuery element
-     * @param ui UI object from jQuery's event system
+     * @param ui UI object from current library's event system
      */
     var _draw = function(element, ui) {
     	var id = _getAttribute(element, "id");
@@ -210,26 +210,25 @@
      * inits a draggable if it's not already initialised.
      * todo: if the element was draggable already, like from some non-jsPlumb call, wrap the drag function. 
      */
-    var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
+	var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
     	// dragging
 	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
-	    //todo: the element.draggable test must be moved to the agnostic API stuff
 	    if (draggable && _isDragSupported(element)) {    	
 	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
-	    	var dragCascade = options.drag || function(e,u) {};
-	    	var initDrag = function(element, elementId, dragFunc) {
-	    		var opts = jsPlumb.extend({drag:dragFunc}, options);
+	    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
+	    	var initDrag = function(element, elementId, dragFunc) {	    	
+	    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
 	    		var draggable = draggableStates[elementId];
-	    		opts.disabled = draggable == null ? false : !draggable;
-	        	_initDraggable(element, opts);
+	    		options.disabled = draggable == null ? false : !draggable;
+	        	_initDraggable(element, options);
 	    	};
-	    	initDrag(element, elementId, function(event, ui) {
-	    		 _draw(element, ui);	
+	    	initDrag(element, elementId, function() {
+	    		var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+	    		//todo: why does draw fail when i pass in this _ui object?
+	    		 _draw(element, null);	
 	    		 _addClass(element, "jsPlumb_dragged");
-	    		 dragCascade(event, ui);
 	    	});
-	    }
-    	
+	    }    	
     };
     
     var _log = function(msg) {
@@ -324,7 +323,9 @@
     	var _helper = function(el, id) {
     		draggableStates[id] = draggable;
         	if (_isDragSupported(el)) {
-        		el.draggable("option", "disabled", !draggable);
+        		// TODO: not library agnostic yet.
+        		jsPlumb.CurrentLibrary.setDraggable(el, draggable);
+        		//el.draggable("option", "disabled", !draggable);
         	}
     	};       
     	
@@ -351,7 +352,8 @@
     		var state = draggableStates[elId] == null ? _draggableByDefault : draggableStates[elId];
 	    	state = !state;
 	    	draggableStates[elId] = state;
-	    	el.draggable("option", "disabled", !state);
+	    	//el.draggable("option", "disabled", !state);
+	    	jsPlumb.CurrentLibrary.setDraggable(el, state);
 	    	return state;
     	};
     	return _elementProxy(el, fn);
@@ -753,12 +755,11 @@
 			// (remember we're only assuming one connection right now).  so all of the UI stuff we do to create the floating endpoint etc
 			// will still be valid, but when we stop dragging, we'll have to do something different.  if we stop with a valid drop i think it will
 			// be the same process.  but if we stop with an invalid drop we have to reset the Connection to how it was when we got it.
-			var start = function(e, ui) {
+			var start = function() {
 				n = document.createElement("div");
 				_appendCanvas(n);
 				// create and assign an id, and initialize the offset.
-				id = new String(new Date().getTime());
-				//TODO: write a setAttribute function for the agnostics at the bottom
+				var id = new String(new Date().getTime());
 				_setAttribute(_getElementObject(n), "id", id);
 				_updateOffset(id);
 				// store the id of the dragging div and the source element. the drop function
@@ -823,13 +824,20 @@
 			//};
 			
 			var dragOptions = params.dragOptions || { };
+			// todo these are still jquery specific
 			dragOptions = jsPlumb.extend({ opacity:0.5, revert:true, helper:'clone' }, dragOptions);
 			
-			dragOptions.start = _wrap(dragOptions.start, start);
-			dragOptions.drag = _wrap(dragOptions.drag, function(e, ui) { 
-				_draw(_getElementObject(n), ui); 
+			var startEvent = jsPlumb.CurrentLibrary.dragEvents['start'];
+			var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
+			var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
+			
+			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
+			
+			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function(/*e, ui*/) { 
+				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+				_draw(_getElementObject(n), _ui); 
 			});
-			dragOptions.stop = _wrap(dragOptions.stop, 
+			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
 				function(e, ui) {					
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					_removeElements([floatingEndpoint.canvas, n]);
@@ -1743,6 +1751,10 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 			return el.draggable;
 		},
 		
+		setDraggable : function(el, draggable) {
+			el.draggable("option", "disabled", !draggable);
+		},
+		
 		initDroppable : function(el, options) {
 			el.droppable(options);
 		},
@@ -1765,7 +1777,7 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		 */
 		getUIPosition : function(eventArgs) {
 			var ui = eventArgs[1];
-			return ui.absolutePosition || ui.offset;
+			return ui;//.absolutePosition || ui.offset;
 		},
 		
 		getDragObject : function(eventArgs) {
