@@ -248,9 +248,9 @@
 			var y = anchorPoint[1] - radius;
 			jsPlumb.sizeCanvas(canvas, x, y, radius * 2, radius * 2);
 			var ctx = canvas.getContext('2d');
-			var style = $.extend({}, endpointStyle);
+			var style = jsPlumb.extend({}, endpointStyle);
 			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
-			$.extend(ctx, style);
+			jsPlumb.extend(ctx, style);
 			
 			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
             if (endpointStyle.gradient && !ie) {
@@ -293,9 +293,9 @@
 			// 2. a fill color supplied - use it
 			// 3. a gradient supplied - use it
 			// 4. setting the endpoint to the same color as the bg of the element it is attached to.
-			var style = $.extend({}, endpointStyle);
+			var style = jsPlumb.extend({}, endpointStyle);
 			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
-			$.extend(ctx, style);
+			jsPlumb.extend(ctx, style);
 			
 			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
 		    if (endpointStyle.gradient && !ie) {
