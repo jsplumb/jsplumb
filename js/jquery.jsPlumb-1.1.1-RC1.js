@@ -40,7 +40,6 @@
 	var draggableStates = {};
 	var _draggableByDefault = true;
 	var sizes = [];
-	var _jsPlumbContextNode = null;
 	
 	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)		
 	
@@ -156,9 +155,8 @@
 		jsPlumb.CurrentLibrary.addClass(ele, clazz);
 	};
 	
-	var _getElementObject = function(elId, elementIsInContext) {
-		var contextNode = elementIsInContext ? _getContextNode() : null;
-		return jsPlumb.CurrentLibrary.getElementObject(elId, contextNode);
+	var _getElementObject = function(elId) {
+		return jsPlumb.CurrentLibrary.getElementObject(elId);
 	};
 	
 	var _getOffset = function(el) {
@@ -166,9 +164,10 @@
 		return jsPlumb.CurrentLibrary.getOffset(ele);
 	};
 	
-	var _extend = function(o1, o2) {
-		return jsPlumb.CurrentLibrary.extend(o1, o2);
-	};
+	var _getSize = function(el) {
+		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getSize(ele);
+	};		
 	
 	var _initDraggable = function(el, options) {
 		//var ele = _getElementObject(el);
@@ -191,21 +190,10 @@
 		return jsPlumb.CurrentLibrary.animate(el, properties, options);
 	};
 	
-	/**
-     * Returns (creating if necessary) the DIV element that jsPlumb uses as the context for all of its 
-     * canvases.  having this makes it possible to makes calls like $("selector", context), which are
-     * faster than if you provide no context.  also we can clear out everything easily like this, either
-     * on a detachEverything() call or during unload().
-     */
-    var _getContextNode = function() {
-    	if (_jsPlumbContextNode == null) {
-    		_jsPlumbContextNode= document.createElement("div");    		
-    		document.body.appendChild(_jsPlumbContextNode);
-    		_jsPlumbContextNode.className = "_jsPlumb_context";
-    	}
-    	return _getElementObject(_jsPlumbContextNode, false);
-    };
-    
+	var _appendCanvas = function(canvas) {
+		document.body.appendChild(canvas);
+	};
+	
     /**
 	 * gets an id for the given element, creating and setting one if necessary.
 	 */
@@ -230,11 +218,10 @@
 	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
 	    	var dragCascade = options.drag || function(e,u) {};
 	    	var initDrag = function(element, elementId, dragFunc) {
-	    		var opts = _extend({drag:dragFunc}, options);
+	    		var opts = jsPlumb.extend({drag:dragFunc}, options);
 	    		var draggable = draggableStates[elementId];
 	    		opts.disabled = draggable == null ? false : !draggable;
-	        	//element.draggable(opts);
-	    		_initDraggable(element, opts);
+	        	_initDraggable(element, opts);
 	    	};
 	    	initDrag(element, elementId, function(event, ui) {
 	    		 _draw(element, ui);	
@@ -255,11 +242,11 @@
      */
     var _newCanvas = function(clazz) {
         var canvas = document.createElement("canvas");
-        _getContextNode().append(canvas);
+        _appendCanvas(canvas);
         canvas.style.position="absolute";
         if (clazz) { canvas.className=clazz; }
         
-        if (/MSIE/.test(navigator.userAgent) && !window.opera) {
+        if (ie) {
         	// for IE we have to set a big canvas size. actually you can override this, too, if 1200 pixels
         	// is not big enough for the biggest connector/endpoint canvas you have at startup.
         	jsPlumb.sizeCanvas(canvas, 0, 0, DEFAULT_NEW_CANVAS_SIZE, DEFAULT_NEW_CANVAS_SIZE);
@@ -300,7 +287,7 @@
      */
     var _removeElement = function(element) {
     	if (element != null) { 
-    		try { _jsPlumbContextNode.removeChild(element); }
+    		try { document.body.removeChild(element); }
     		catch (e) { }
     	}    	
     };
@@ -396,7 +383,8 @@
 		if (recalc || ui == null) {  // if forced repaint or no ui helper available, we recalculate.
     		// get the current size and offset, and store them
     		var s = _getElementObject(elId);
-    		sizes[elId] = [s.outerWidth(), s.outerHeight()];
+    		//sizes[elId] = [s.outerWidth(), s.outerHeight()];
+    		sizes[elId] = _getSize(elId);
     		offsets[elId] = _getOffset(elId);
 		} else {
 			// faster to use the ui element if it was passed in.
@@ -604,7 +592,7 @@
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
-	            _extend(ctx, this.paintStyle);
+	            jsPlumb.extend(ctx, this.paintStyle);
 	                        
 	            if (this.paintStyle.gradient && !ie) { 
 		            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
@@ -666,7 +654,7 @@
 	var Endpoint = function(params) {
 		params = params || {};
 		// make a copy. then we can use the wrapper function.
-		_extend({}, params);
+		jsPlumb.extend({}, params);
 		var self = this;
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
@@ -719,9 +707,6 @@
 		var connectorSelector = function() {
 			return self.connections.length == 0 || self.connections.length < _maxConnections ?  null : self.connections[0]; 
 		};
-
-		// get the jsplumb context...lookups are faster with a context.
-		var contextNode = _getContextNode();
 		
 		this.isFull = function() { return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections); }; 
 		
@@ -770,16 +755,16 @@
 			// be the same process.  but if we stop with an invalid drop we have to reset the Connection to how it was when we got it.
 			var start = function(e, ui) {
 				n = document.createElement("div");
-				contextNode.append(n);
+				_appendCanvas(n);
 				// create and assign an id, and initialize the offset.
 				id = new String(new Date().getTime());
 				//TODO: write a setAttribute function for the agnostics at the bottom
-				_setAttribute(_getElementObject(n, contextNode), "id", id);
+				_setAttribute(_getElementObject(n), "id", id);
 				_updateOffset(id);
 				// store the id of the dragging div and the source element. the drop function
 				// will pick these up.
-				_setAttribute(_getElementObject(self.canvas, contextNode), "dragId", id);
-				_setAttribute(_getElementObject(self.canvas, contextNode), "elId", _elementId);
+				_setAttribute(_getElementObject(self.canvas), "dragId", id);
+				_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
 				// create a floating anchor
 				var floatingAnchor = new FloatingAnchor({reference:self.anchor});
 				floatingEndpoint = new Endpoint({
@@ -796,7 +781,7 @@
 						sourceEndpoint:self, 
 						targetEndpoint:floatingEndpoint,
 						source:_getElementObject(_element),
-						target:_getElementObject(n, contextNode),
+						target:_getElementObject(n),
 						anchors:[self.anchor, floatingAnchor],
 						paintStyle : params.connectionStyle, // this can be null. Connection will use the default.
 						connector: params.connector
@@ -812,11 +797,11 @@
 					self.removeConnection(jpc);
 					if (anchorIdx == 0){
 						existingJpcParams = [jpc.source, jpc.sourceId];
-						jpc.source = _getElementObject(n, contextNode);
+						jpc.source = _getElementObject(n);
 						jpc.sourceId = id;						
 					}else {
 						existingJpcParams = [jpc.target, jpc.targetId];
-						jpc.target = _getElementObject(n, contextNode);
+						jpc.target = _getElementObject(n);
 						jpc.targetId = id;
 					}					
 					
@@ -838,11 +823,11 @@
 			//};
 			
 			var dragOptions = params.dragOptions || { };
-			dragOptions = _extend({ opacity:0.5, revert:true, helper:'clone' }, dragOptions);
+			dragOptions = jsPlumb.extend({ opacity:0.5, revert:true, helper:'clone' }, dragOptions);
 			
 			dragOptions.start = _wrap(dragOptions.start, start);
 			dragOptions.drag = _wrap(dragOptions.drag, function(e, ui) { 
-				_draw(_getElementObject(n, contextNode), ui); 
+				_draw(_getElementObject(n), ui); 
 			});
 			dragOptions.stop = _wrap(dragOptions.stop, 
 				function(e, ui) {					
@@ -881,17 +866,17 @@
 				}			
 			);		
 											
-			_initDraggable(_getElementObject(self.canvas, contextNode), dragOptions);
+			_initDraggable(_getElementObject(self.canvas), dragOptions);
 		}
 		
 		// connector target
 		if (params.isTarget && _isDropSupported(_element)) {
 			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
-			dropOptions = _extend({}, dropOptions);
+			dropOptions = jsPlumb.extend({}, dropOptions);
 	    	var originalAnchor = null;
 	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
-	    		var id = _getAttribute(_getElementObject(ui.draggable, contextNode), "dragId");
-	    		var elId = _getAttribute(_getElementObject(ui.draggable, contextNode),"elId");
+	    		var id = _getAttribute(_getElementObject(ui.draggable), "dragId");
+	    		var elId = _getAttribute(_getElementObject(ui.draggable),"elId");
 	    		var jpc = floatingConnections[id];
 	    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 	    		if (idx == 0) {
@@ -925,20 +910,20 @@
 	    	// into the shape it will take if the user drops at that point.
 			 
 			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
-				var id = _getAttribute(_getElementObject(ui.draggable, contextNode),"dragId");
+				var id = _getAttribute(_getElementObject(ui.draggable),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;  
 		    	jpc.endpoints[idx].anchor.over(self.anchor);		    	
 			 });
 			 
 			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
-				var id = _getAttribute(_getElementObject(ui.draggable, contextNode),"dragId");
+				var id = _getAttribute(_getElementObject(ui.draggable),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 		    	jpc.endpoints[idx].anchor.out();
 			 });
 			 		
-			_initDroppable(_getElementObject(self.canvas, contextNode), dropOptions);			
+			_initDroppable(_getElementObject(self.canvas), dropOptions);			
 		}
 		
 		// woo...add a plumb command to Endpoint.
@@ -962,7 +947,7 @@
 	 it will be easier to provide support for other libraries such as MooTools. 
 	 */
     var jsPlumb = window.jsPlumb = {
-
+    		
     	/*
     	 Property: Defaults
     	 
@@ -1049,7 +1034,7 @@
 	       <addEndpoints>
 	     */
 	    addEndpoint : function(target, params) {
-	    	params = _extend({}, params);
+	    	params = jsPlumb.extend({}, params);
 	    	var el = _getElementObject(target);
 	    	var id = _getAttribute(target,"id");
 	    	params.source = el; 
@@ -1243,7 +1228,11 @@
 	    	
 	    	/*delete endpointsByElement;             //??
 	    	endpointsByElement = {};*/               //??
-	    },    
+	    },
+	    
+	    extend : function(o1, o2) {
+			return jsPlumb.CurrentLibrary.extend(o1, o2);
+		},
 	    
 	    /*
 	     Function: hide 
@@ -1284,7 +1273,7 @@
 	    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
 	    	// by just passing in four/six values.  but for backwards compatibility if we are given only one value we assume it's a call in the old form.
 	    	var params = {};
-	    	if (arguments.length == 1) _extend(params, x);
+	    	if (arguments.length == 1) jsPlumb.extend(params, x);
 	    	else {
 	    		params = {x:x, y:y};
 	    		if (arguments.length >= 4) {
@@ -1587,7 +1576,6 @@
 			delete sizes;
 			delete floatingConnections;
 			delete draggableStates;		
-			document.body.removeChild(_jsPlumbContextNode);
 	    }
 	};
 
@@ -1597,7 +1585,8 @@
 (function($){
 	/**
 	 * plumbs the results of the selector to some target, using the given options if supplied,
-	 * or the defaults otherwise.
+	 * or the defaults otherwise. this is DEPRECATED.  just use jsPlumb.connect(..) instead.
+	 * @deprecated
 	 */
     $.fn.plumb = function(options) {
         var options = $.extend({}, options);
@@ -1701,8 +1690,8 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
 		 * function is used to find the element, using the given String as the element's id.
 		 */
-		getElementObject : function(el, contextNode) {
-			return typeof(el)=='string' ? $("#" + el, contextNode) : $(el);
+		getElementObject : function(el) {
+			return typeof(el)=='string' ? $("#" + el) : $(el);
 		},
 		
 		/*
@@ -1712,6 +1701,10 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		 */
 		getOffset : function(el) {
 			return el.offset();
+		},
+		
+		getSize : function(el) {
+			return [el.outerWidth(), el.outerHeight()];
 		},
 		
 		/**
@@ -1740,7 +1733,7 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		},
 		
 		isDragSupported : function(el, options) {
-			return el.draggable != null;
+			return el.draggable;
 		},
 		
 		initDroppable : function(el, options) {
@@ -1748,11 +1741,15 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		},
 		
 		isDropSupported : function(el, options) {
-			return el.droppable != null;
+			return el.droppable;
 		},
 		
 		animate : function(el, properties, options) {
 			el.animate(properties, options);
+		},
+		
+		append : function(el, elementToAppend) {
+			el.append(elementToAppend);
 		}
 	};
 })();
