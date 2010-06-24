@@ -1752,8 +1752,27 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 			el.animate(properties, options);
 		},
 		
+		/*
+		 * takes the args passed to an event function and returns you an object that gives the
+		 * position of the object being moved, as a js object with the same params as the result of
+		 * getOffset, ie: { left: xxx, top: xxx }.
+		 * 
+		 * different libraries have different signatures for their event callbacks.  
+		 * see getDragObject as well
+		 */
+		getUIPosition : function(eventArgs) {
+			var ui = eventArgs[1];
+			return ui.absolutePosition || ui.offset;
+		},
+		
+		getDragObject : function(eventArgs) {
+			return eventArgs[1].draggable;
+		}
+		
+		/*,
+		
 		append : function(el, elementToAppend) {
 			el.append(elementToAppend);
-		}
+		}*/
 	};
 })();
