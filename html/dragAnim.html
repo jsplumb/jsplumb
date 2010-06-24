@@ -40,7 +40,8 @@
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/jquery.jsPlumb-all-1.1.0-min.js"></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-1.1.1-RC1.js"></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-defaults-1.1.1-RC1.js"></script>
 
 	    <script type="text/javascript">
 			$(document).ready(function() {
@@ -64,7 +65,7 @@
 							function() { $(this).addClass("bigdot-hover"); },
 							function() { $(this).removeClass("bigdot-hover"); }
 					);
-					$("#" + elId).click(function(e, ui) {
+					$("#" + elId).bind('click', function(e, ui) {
 						if ($(this).hasClass("jsPlumb_dragged")) {
 							$(this).removeClass("jsPlumb_dragged");
 							return;
@@ -81,7 +82,7 @@
 						t = t + Math.abs(oo[1] * DIST);
 						jsPlumb.animate($(this).attr("id"), {left:l, top:t}, {duration:900});
 					});
-					return $("#" + elId).addEndpoint(endpoint)[0];
+					return $("#" + elId).addEndpoint(endpoint);
 				};
 
 				var e1 = prepare("bd1");
@@ -89,13 +90,13 @@
 				var e3 = prepare("bd3");
 				var e4 = prepare("bd4");
 
-				$("#clear").click(function() { jsPlumb.detachEverything(); });
+				$("#clear").bind('click', function() { jsPlumb.detachEverything(); });
 
-				$("#bd1").plumb({target:'bd2', sourceEndpoint:e1, targetEndpoint:e2});
-				$("#bd1").plumb({target:'bd3', sourceEndpoint:e1, targetEndpoint:e3});
-				$("#bd1").plumb({target:'bd4', sourceEndpoint:e1, targetEndpoint:e4});
+				jsPlumb.connect({source:'bd1', target:'bd2', sourceEndpoint:e1, targetEndpoint:e2});
+				jsPlumb.connect({source:'bd1', target:'bd3', sourceEndpoint:e1, targetEndpoint:e3});
+				jsPlumb.connect({source:'bd1', target:'bd4', sourceEndpoint:e1, targetEndpoint:e4});
 
-				$("#add").click(function() {
+				$("#add").bind('click', function() {
 					var d = document.createElement("div");
 					d.className = "bigdot";
 					d.style.display='none';
