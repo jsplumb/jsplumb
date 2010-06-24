@@ -1674,7 +1674,11 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 (function() {
 	
 	jsPlumb.CurrentLibrary = {
-			
+		
+		dragEvents : {
+			'start':'start', 'stop':'stop', 'drag':'drag'		
+		},
+		
 		/*
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
 		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
