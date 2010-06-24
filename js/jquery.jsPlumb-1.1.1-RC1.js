@@ -874,9 +874,10 @@
 			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
 			dropOptions = jsPlumb.extend({}, dropOptions);
 	    	var originalAnchor = null;
-	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
-	    		var id = _getAttribute(_getElementObject(ui.draggable), "dragId");
-	    		var elId = _getAttribute(_getElementObject(ui.draggable),"elId");
+	    	dropOptions.drop = _wrap(dropOptions.drop, function() {
+	    		var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+	    		var id = _getAttribute(_getElementObject(draggable), "dragId");
+	    		var elId = _getAttribute(_getElementObject(draggable),"elId");
 	    		var jpc = floatingConnections[id];
 	    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 	    		if (idx == 0) {
@@ -909,15 +910,17 @@
 	    	// orientation to be the same as the drop target.  this will cause the connector to snap
 	    	// into the shape it will take if the user drops at that point.
 			 
-			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
-				var id = _getAttribute(_getElementObject(ui.draggable),"dragId");
+			dropOptions.over = _wrap(dropOptions.over, function() { 
+				var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+				var id = _getAttribute(_getElementObject(draggable),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;  
 		    	jpc.endpoints[idx].anchor.over(self.anchor);		    	
 			 });
 			 
-			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {  
-				var id = _getAttribute(_getElementObject(ui.draggable),"dragId");
+			 dropOptions.out = _wrap(dropOptions.out, function() {
+				var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+				var id = _getAttribute(_getElementObject(draggable),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 		    	jpc.endpoints[idx].anchor.out();
