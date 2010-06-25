@@ -171,7 +171,6 @@
 	};		
 	
 	var _initDraggable = function(el, options) {
-		//var ele = _getElementObject(el);
 		return jsPlumb.CurrentLibrary.initDraggable(el, options);
 	};
 	
@@ -225,10 +224,9 @@
 	        	_initDraggable(element, options);
 	    	};
 	    	initDrag(element, elementId, function() {
-	    		var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-	    		//todo: why does draw fail when i pass in this _ui object?
-	    		 _draw(element, null);	
-	    		 _addClass(element, "jsPlumb_dragged");
+	    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+	    		_draw(element, ui);	
+	    		_addClass(element, "jsPlumb_dragged");
 	    	});
 	    }    	
     };
