@@ -1049,9 +1049,9 @@
 	    	var id = _getAttribute(el,"id");
 	    	//TODO this is not agnostic yet.
 	    	options = options || {};
-	    	options.step = _wrap(options.step, function() 
+	    	var stepFunction = jsPlumb.CurrentLibrary.dragEvents['step'];
+	    	options[stepFunction] = _wrap(options[stepFunction], function() 
 	    	{
-	    		//var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
 	    		jsPlumb.repaint(id); 
 	    	});
 	    	jsPlumb.CurrentLibrary.animate(ele, properties, options);    	
