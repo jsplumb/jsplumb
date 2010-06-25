@@ -3,7 +3,8 @@
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
- * 1.1.1 contains bugfixes and API additions on 1.1.0
+ * 1.1.1 contains bugfixes and API additions on 1.1.0.
+ * 
  * 
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
@@ -23,13 +24,12 @@
     		repaintFunction();
     };
     var resizeTimer = null;
-  /*  
-    //TODO: abstract this out from jQuery too!  but how...because jsPlumb is not loaded yet. 
+    
+    /*TODO: abstract this out from jQuery too!  but how...because jsPlumb is not loaded yet. 
     $(window).bind('resize', function() {
     	if (resizeTimer) clearTimeout(resizeTimer);
 	    resizeTimer = setTimeout(repaintEverything, 100);
-     });
-     */
+     });*/
 	
 	/**
 	 * map of element id -> endpoint lists.  an element can have an arbitrary number of endpoints on it,
@@ -87,11 +87,9 @@
     /**
      * Handles the dragging of an element.  
      * @param element jQuery element
-     * @param ui UI object from jQuery's event system
+     * @param ui UI object from current library's event system
      */
     var _draw = function(element, ui) {
-    	//TODO: consider normalising the UI object here for diff. libs (rather than in
-    	// each method that calls this)
     	var id = _getAttribute(element, "id");
     	var endpoints = endpointsByElement[id];
     	if (endpoints) {
@@ -173,7 +171,6 @@
 	};		
 	
 	var _initDraggable = function(el, options) {
-		//var ele = _getElementObject(el);
 		return jsPlumb.CurrentLibrary.initDraggable(el, options);
 	};
 	
@@ -195,8 +192,8 @@
 	
 	var _appendCanvas = function(canvas) {
 		document.body.appendChild(canvas);
-	};	
-    
+	};
+	
     /**
 	 * gets an id for the given element, creating and setting one if necessary.
 	 */
@@ -217,7 +214,8 @@
     	// dragging
 	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
 	    if (draggable && _isDragSupported(element)) {    	
-	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
+	    	var options = dragOptions || jsPlumb.Defaults.DragOptions;
+	    	options = jsPlumb.extend({}, options);  // make a copy.
 	    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
 	    	var initDrag = function(element, elementId, dragFunc) {	    	
 	    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
@@ -226,10 +224,9 @@
 	        	_initDraggable(element, options);
 	    	};
 	    	initDrag(element, elementId, function() {
-	    		var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-	    		//todo: why does draw fail when i pass in this _ui object?
-	    		 _draw(element, null);	
-	    		 _addClass(element, "jsPlumb_dragged");
+	    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+	    		_draw(element, ui);	
+	    		_addClass(element, "jsPlumb_dragged");
 	    	});
 	    }    	
     };
@@ -247,6 +244,7 @@
         _appendCanvas(canvas);
         canvas.style.position="absolute";
         if (clazz) { canvas.className=clazz; }
+        _getId(canvas); // set an id.
         
         if (ie) {
         	// for IE we have to set a big canvas size. actually you can override this, too, if 1200 pixels
@@ -326,7 +324,9 @@
     	var _helper = function(el, id) {
     		draggableStates[id] = draggable;
         	if (_isDragSupported(el)) {
-        		el.draggable("option", "disabled", !draggable);
+        		// TODO: not library agnostic yet.
+        		jsPlumb.CurrentLibrary.setDraggable(el, draggable);
+        		//el.draggable("option", "disabled", !draggable);
         	}
     	};       
     	
@@ -353,7 +353,8 @@
     		var state = draggableStates[elId] == null ? _draggableByDefault : draggableStates[elId];
 	    	state = !state;
 	    	draggableStates[elId] = state;
-	    	el.draggable("option", "disabled", !state);
+	    	//el.draggable("option", "disabled", !state);
+	    	jsPlumb.CurrentLibrary.setDraggable(el, state);
 	    	return state;
     	};
     	return _elementProxy(el, fn);
@@ -374,37 +375,18 @@
     };
     /**
      * updates the offset and size for a given element, and stores the values.
-     * if 'ui' is not null we use that (it would have been passed in from a drag call) because it's faster; but if it is null,
+     * if 'offset' is not null we use that (it would have been passed in from a drag call) because it's faster; but if it is null,
      * or if 'recalc' is true in order to force a recalculation, we use the offset, outerWidth and outerHeight methods to get
      * the current values.
      */
-    var _updateOffset = function(elId, ui, recalc) {
-    	
-    	//TODO: normalising the ui object for diff. libs.
-    	
-    	if (log) log.debug("updating offset for element [" + elId + "]; ui is [" + ui + "]; recalc is [" + recalc + "]");
-    	
-		if (recalc || ui == null) {  // if forced repaint or no ui helper available, we recalculate.
+    var _updateOffset = function(elId, offset, recalc) {    	
+		if (recalc || offset == null) {  // if forced repaint or no offset available, we recalculate.
     		// get the current size and offset, and store them
     		var s = _getElementObject(elId);
     		sizes[elId] = _getSize(elId);
     		offsets[elId] = _getOffset(elId);
-		} else {
-			// faster to use the ui element if it was passed in.
-			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
-			// 1.8 and 1.7.
-			
-			// todo: when the drag axis is supplied, the ui object passed in has incorrect values
-			// for the other axis - like say you set axis='x'. when you move the mouse up and down
-			// while dragging, the y values are for where the window would be if it was not
-			// just constrained to x.  not sure if this is a jquery bug or whether there's a known
-			// trick or whatever.
-			//TODO: make agnostic...absolutePosition and offset are jQuery concepts from their
-			// 'ui' object.
-			var pos = ui.absolutePosition || ui.offset;
-			//offset
-    		var anOffset = ui != null ? pos : _getOffset(elId); 
-    		offsets[elId] = anOffset;
+		} else {			 
+    		offsets[elId] = offset;
 		}
 	};
 		
@@ -414,15 +396,13 @@
      * jsPlumb to be notified of important lifecycle events without imposing itself on the user's
      * drap/drop functionality.
      * TODO: determine whether or not we should try/catch the plumb function, so that the cascade function is always executed.
-     * TODO: this is not lib agnostic; it thinks there are two args always.  should be
-     * replaced with a 'call' function that applies all the args regardless of how many
-     * there were.
      */
     var _wrap = function(cascadeFunction, plumbFunction) {
-    	cascadeFunction = cascadeFunction || function(e, ui) { };
-    	return function(e, ui) {
-    		plumbFunction(e, ui);
-    		cascadeFunction(e, ui);
+    	cascadeFunction = cascadeFunction || function() { };
+    	plumbFunction = plumbFunction || function() { };
+    	return function() {
+    		plumbFunction.apply(this, arguments);
+    		cascadeFunction.apply(this, arguments);
     	};
     }
     
@@ -543,11 +523,7 @@
 	    prepareEndpoint(params.sourceEndpoint, 0, params);
 	    prepareEndpoint(params.targetEndpoint, 1, params);
 	    
-	    // make connector.  if an endpoint has a connector + paintstyle to use, we use that.
-	    // otherwise we use sensible defaults.
-	    //this.connector = params.connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
-	    //this.paintStyle = params.paintStyle || jsPlumb.Defaults.PaintStyle;
 	    this.paintStyle = this.endpoints[0].connectionStyle  || this.endpoints[1].connectionStyle || params.paintStyle || jsPlumb.Defaults.PaintStyle;
 	    	    	    	   
 	    _updateOffset(this.sourceId);
@@ -568,7 +544,7 @@
 	    /**
 	     * paints the connection.
 	     * @param elId Id of the element that is in motion
-	     * @param ui jQuery's event system ui object (present if we came from a drag to get here)
+	     * @param ui current library's event system ui object (present if we came from a drag to get here)
 	     * @param recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
 	     */
 	    this.paint = function(elId, ui, recalc) {    	
@@ -743,9 +719,7 @@
 		// maintain a connection with a floating endpoint.
 		if (params.isSource && _isDragSupported(_element)) {
 			
-			var n = null, id = null, 
-			 jpc = null, 
-			existingJpc = false, existingJpcParams = null;
+			var n = null, id = null, jpc = null, existingJpc = false, existingJpcParams = null;
 			
 			// first the question is, how many connections are on this endpoint?  if it's only one, then excellent.  otherwise we will either need a way
 			// to select one connection from the list, or drag them all. if we had a pluggable 'ConnectorSelector' interface we could probably
@@ -764,8 +738,7 @@
 				n = document.createElement("div");
 				_appendCanvas(n);
 				// create and assign an id, and initialize the offset.
-				id = new String(new Date().getTime());
-				//TODO: write a setAttribute function for the agnostics at the bottom
+				var id = "" + new String(new Date().getTime());
 				_setAttribute(_getElementObject(n), "id", id);
 				_updateOffset(id);
 				// store the id of the dragging div and the source element. the drop function
@@ -826,33 +799,28 @@
 				// before this connection is either discarded or made into a permanent connection.
 				_addToList(endpointsByElement, id, floatingEndpoint);
 				
-				}
+			};
 			//};
-			
-			var dragOptions = params.dragOptions || { };
-			//todo these are still jquery specific
-			dragOptions = jsPlumb.extend(jsPlumb.CurrentLibrary.defaultDragOptions, dragOptions);
 			
 			
 			var startEvent = jsPlumb.CurrentLibrary.dragEvents['start'];
 			var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
 			var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
-			
-			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
-	 
-			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function(e, ui) {
-				_draw(_getElementObject(n), jsPlumb.CurrentLibrary.getDragObject(arguments)); 
+			var dragOptions = params.dragOptions || { };
+			var defaultOpts = jsPlumb.extend({}, jsPlumb.CurrentLibrary.defaultDragOptions);
+			var defaultStart = defaultOpts[startEvent], defaultStop = defaultOpts[stopEvent], defaultDrag = defaultOpts[dragEvent];
+			dragOptions = jsPlumb.extend(defaultOpts, dragOptions);			
+			dragOptions[startEvent] = _wrap(_wrap(defaultStart, dragOptions[startEvent]), start);			
+			dragOptions[dragEvent] = _wrap(_wrap(defaultDrag, dragOptions[dragEvent]), function() { 
+				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+				_draw(_getElementObject(n), _ui); 
 			});
-			
-			//dragOptions.stop = _wrap(dragOptions.stop, 
-			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
+			dragOptions[stopEvent] = _wrap(_wrap(defaultStop, dragOptions[stopEvent]), 
 				function() {					
-				//TODO normalise the UI object here for diff. libs
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					_removeElements([floatingEndpoint.canvas, n]);
 					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-					if (jpc.endpoints[idx] == floatingEndpoint) {						
-						
+					if (jpc.endpoints[idx] == floatingEndpoint) {										
 						// if the connection was an existing one:
 						if (existingJpc && jpc.suspendedEndpoint) {
 							if (_reattach) {
@@ -882,8 +850,9 @@
 					delete floatingEndpoint;
 				}			
 			);		
-											
-			_initDraggable(_getElementObject(self.canvas), dragOptions);
+							
+			var i = _getElementObject(self.canvas);			
+			_initDraggable(i, dragOptions);
 		};
 		
 		// connector target
@@ -891,11 +860,10 @@
 			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
 			dropOptions = jsPlumb.extend({}, dropOptions);
 	    	var originalAnchor = null;
-	    	dropOptions.drop = _wrap(dropOptions.drop, function(e, ui) {
-	    		// TODO abstract out the business of getting the dragged object here...this is jQuery specific right now.
-	    		var id = _getAttribute(_getElementObject(ui.draggable), "dragId");
-	    		//TODO abstract access to the draggable; this is jquery specific
-	    		var elId = _getAttribute(_getElementObject(ui.draggable),"elId");
+	    	dropOptions.drop = _wrap(dropOptions.drop, function() {
+	    		var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+	    		var id = _getAttribute(_getElementObject(draggable), "dragId");
+	    		var elId = _getAttribute(_getElementObject(draggable),"elId");
 	    		var jpc = floatingConnections[id];
 	    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 	    		if (idx == 0) {
@@ -928,32 +896,24 @@
 	    	// orientation to be the same as the drop target.  this will cause the connector to snap
 	    	// into the shape it will take if the user drops at that point.
 			 
-			dropOptions.over = _wrap(dropOptions.over, function(event, ui) {  
-				//TODO abstract access to the draggable; this is jquery specific
-				var id = _getAttribute(_getElementObject(ui.draggable),"dragId");
+			dropOptions.over = _wrap(dropOptions.over, function() { 
+				var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+				var id = _getAttribute(_getElementObject(draggable),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;  
 		    	jpc.endpoints[idx].anchor.over(self.anchor);		    	
 			 });
 			 
-			 dropOptions.out = _wrap(dropOptions.out, function(event, ui) {
-				//TODO abstract access to the draggable; this is jquery specific
-				var id = _getAttribute(_getElementObject(ui.draggable),"dragId");
+			 dropOptions.out = _wrap(dropOptions.out, function() {
+				var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+				var id = _getAttribute(_getElementObject(draggable),"dragId");
 		    	var jpc = floatingConnections[id];
 		    	var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 		    	jpc.endpoints[idx].anchor.out();
 			 });
 			 		
 			_initDroppable(_getElementObject(self.canvas), dropOptions);			
-		}
-		
-		// woo...add a plumb command to Endpoint.
-		this.plumb = function(params) {
-			// not much to think about. the target should be an Endpoint, but what else?
-			// all the style stuff is on the endpoint itself already.
-			//todo this should call the main plumb method, just with some different args.
-			
-		};
+		}		
 		
 		return self;
 	};
@@ -1112,7 +1072,6 @@
 	      void
 	    */	      
 	    animate : function(el, properties, options) {
-	    	//TODO use getElementObject here
 	    	var ele = _getElementObject(el);
 	    	var id = _getAttribute(el,"id");
 	    	options = options || {};
@@ -1355,7 +1314,6 @@
 	     */
 	    repaintEverything : function() {
 	    	for (var elId in endpointsByElement) {
-	    		//TODO use getElementObject here
 	    		_draw(_getElementObject(elId));
 	    	}
 	    },
@@ -1601,8 +1559,6 @@
 	};
 
 })();
-
-
 /* the library agnostic functions, such as find offset, get id, get attribute, extend etc.  currently
 hardcoded to jQuery here; will be extracted to separate impls for different libraries. 
 
@@ -1619,7 +1575,20 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 			'start':'onStart', 'stop':'onStop', 'drag':'onDrag'		
 		},
 		
-		defaultDragOptions : { },
+		defaultDragOptions : { 
+			onStart:function()
+		    {
+		      this.el.setOpacity(.5);
+		    },
+		    onComplete:function()
+		    {
+		      // put the element back where it belongs
+		      this.el.setOpacity(1);
+		      this.el.style.left = 0;
+		      this.el.style.top = 0;
+		    }
+
+		},
 			
 		/*
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
@@ -1689,11 +1658,11 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		},
 		
 		initDroppable : function(el, options) {
-			el.droppable(options);
+			//el.droppable(options);
 		},
 		
 		isDropSupported : function(el, options) {
-			return el.droppable;
+			//return el.droppable;
 		},
 		
 		animate : function(el, properties, options) {
@@ -1709,8 +1678,8 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		 * see getDragObject as well
 		 */
 		getUIPosition : function(eventArgs) {
-			//var ui = eventArgs[1];
-			return null;//ui.absolutePosition || ui.offset;
+			var ui = eventArgs[1];
+			return { left: ui.target.offsetLeft, top: ui.target.offsetTop };
 		},
 		
 		getDragObject : function(eventArgs) {
