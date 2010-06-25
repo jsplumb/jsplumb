@@ -26,6 +26,8 @@
 		}
 	});
 	
+	var _droppables = {};
+	
 	jsPlumb.CurrentLibrary = {
 			
 		dragEvents : {
@@ -124,6 +126,9 @@
 				}
 			});
 			
+			//TODO: add droppables.  but what if a new draggable is created after a droppable?
+			// probably we will have to keep a list of these Drag objects by scope, and update
+			// each time a new init drag/drop call is issued.
 			new Drag(el, options);
 		},
 		
@@ -136,13 +141,22 @@
 		},
 		
 		initDroppable : function(el, options) {
-			//el.droppable(options);
-			// probably here we'll have to keep track of droppables by their category or whatever
-			// i called it. and then deal with it somehow in initDraggable. and stuff. 
+			// should test for the scope param here
+			var droppables = _droppables[options['scope']];
+			if (!droppables) {
+				droppables = [];
+				_droppables[options['scope']] = droppables;
+			}
+			droppables.push(el.get('id')); 
 		},
 		
+		/*
+		 * you need Drag.Move imported to make drop work.
+		 */
 		isDropSupported : function(el, options) {
-			//return el.droppable;
+			if (typeof Drag != undefined)
+				return typeof Drag.Move != undefined;
+			return false;
 		},
 		
 		animate : function(el, properties, options) {			
