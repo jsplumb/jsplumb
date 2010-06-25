@@ -375,35 +375,18 @@
     };
     /**
      * updates the offset and size for a given element, and stores the values.
-     * if 'ui' is not null we use that (it would have been passed in from a drag call) because it's faster; but if it is null,
+     * if 'offset' is not null we use that (it would have been passed in from a drag call) because it's faster; but if it is null,
      * or if 'recalc' is true in order to force a recalculation, we use the offset, outerWidth and outerHeight methods to get
      * the current values.
      */
-    var _updateOffset = function(elId, ui, recalc) {
-    	
-    	if (log) log.debug("updating offset for element [" + elId + "]; ui is [" + ui + "]; recalc is [" + recalc + "]");
-    	
-		if (recalc || ui == null) {  // if forced repaint or no ui helper available, we recalculate.
+    var _updateOffset = function(elId, offset, recalc) {    	
+		if (recalc || offset == null) {  // if forced repaint or no offset available, we recalculate.
     		// get the current size and offset, and store them
     		var s = _getElementObject(elId);
-    		//sizes[elId] = [s.outerWidth(), s.outerHeight()];
     		sizes[elId] = _getSize(elId);
     		offsets[elId] = _getOffset(elId);
-		} else {
-			// faster to use the ui element if it was passed in.
-			// fix for change in 1.8 (absolutePosition renamed to offset). plugin is compatible with
-			// 1.8 and 1.7.
-			
-			// todo: when the drag axis is supplied, the ui object passed in has incorrect values
-			// for the other axis - like say you set axis='x'. when you move the mouse up and down
-			// while dragging, the y values are for where the window would be if it was not
-			// just constrained to x.  not sure if this is a jquery bug or whether there's a known
-			// trick or whatever.
-			//TODO: make agnostic
-			var pos = ui.absolutePosition || ui.offset;
-			//offset
-    		var anOffset = ui != null ? pos : _getOffset(elId); 
-    		offsets[elId] = anOffset;
+		} else {			 
+    		offsets[elId] = offset;
 		}
 	};
 		
@@ -415,11 +398,6 @@
      * TODO: determine whether or not we should try/catch the plumb function, so that the cascade function is always executed.
      */
     var _wrap = function(cascadeFunction, plumbFunction) {
-    	/*cascadeFunction = cascadeFunction || function(e, ui) { };
-    	return function(e, ui) {
-    		plumbFunction(e, ui);
-    		cascadeFunction(e, ui);
-    	};*/
     	cascadeFunction = cascadeFunction || function() { };
     	return function() {
     		plumbFunction.apply(this, arguments);
@@ -820,11 +798,10 @@
 				// before this connection is either discarded or made into a permanent connection.
 				_addToList(endpointsByElement, id, floatingEndpoint);
 				
-			};
-			//};
-			
+			};			
 			
 			var dragOptions = params.dragOptions || { };
+			
 			var defaultOpts = jsPlumb.extend({}, jsPlumb.CurrentLibrary.defaultDragOptions);
 			dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
 			var startEvent = jsPlumb.CurrentLibrary.dragEvents['start'];
@@ -833,7 +810,6 @@
 			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() { 
 				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-				// this draw call seems to work with the UI object we computed.  but the main one does not.  why?
 				_draw(_getElementObject(n), _ui); 
 			});
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
@@ -841,8 +817,7 @@
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					_removeElements([floatingEndpoint.canvas, n]);
 					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-					if (jpc.endpoints[idx] == floatingEndpoint) {						
-					
+					if (jpc.endpoints[idx] == floatingEndpoint) {										
 						// if the connection was an existing one:
 						if (existingJpc && jpc.suspendedEndpoint) {
 							if (_reattach) {
@@ -935,15 +910,7 @@
 			 });
 			 		
 			_initDroppable(_getElementObject(self.canvas), dropOptions);			
-		}
-		
-		// woo...add a plumb command to Endpoint.
-		this.plumb = function(params) {
-			// not much to think about. the target should be an Endpoint, but what else?
-			// all the style stuff is on the endpoint itself already.
-			//todo this should call the main plumb method, just with some different args.
-			
-		};
+		}		
 		
 		return self;
 	};
@@ -1805,7 +1772,7 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		 */
 		getUIPosition : function(eventArgs) {
 			var ui = eventArgs[1];
-			return ui;//.absolutePosition || ui.offset;
+			return ui.absolutePosition || ui.offset;
 		},
 		
 		/**
