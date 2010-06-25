@@ -215,7 +215,8 @@
     	// dragging
 	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
 	    if (draggable && _isDragSupported(element)) {    	
-	    	var options = dragOptions || jsPlumb.Defaults.DragOptions; 
+	    	var options = dragOptions || jsPlumb.Defaults.DragOptions;
+	    	options = jsPlumb.extend({}, options);  // make a copy.
 	    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
 	    	var initDrag = function(element, elementId, dragFunc) {	    	
 	    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
@@ -245,6 +246,7 @@
         _appendCanvas(canvas);
         canvas.style.position="absolute";
         if (clazz) { canvas.className=clazz; }
+        _getId(canvas); // set an id.
         
         if (ie) {
         	// for IE we have to set a big canvas size. actually you can override this, too, if 1200 pixels
@@ -740,9 +742,7 @@
 		// maintain a connection with a floating endpoint.
 		if (params.isSource && _isDragSupported(_element)) {
 			
-			var n = null, id = null, 
-			 jpc = null, 
-			existingJpc = false, existingJpcParams = null;
+			var n = null, id = null, jpc = null, existingJpc = false, existingJpcParams = null;
 			
 			// first the question is, how many connections are on this endpoint?  if it's only one, then excellent.  otherwise we will either need a way
 			// to select one connection from the list, or drag them all. if we had a pluggable 'ConnectorSelector' interface we could probably
@@ -761,7 +761,7 @@
 				n = document.createElement("div");
 				_appendCanvas(n);
 				// create and assign an id, and initialize the offset.
-				var id = new String(new Date().getTime());
+				var id = "" + new String(new Date().getTime());
 				_setAttribute(_getElementObject(n), "id", id);
 				_updateOffset(id);
 				// store the id of the dragging div and the source element. the drop function
@@ -822,19 +822,17 @@
 				// before this connection is either discarded or made into a permanent connection.
 				_addToList(endpointsByElement, id, floatingEndpoint);
 				
-				}
+			};
 			//};
 			
-			var dragOptions = params.dragOptions || { };
-			// todo these are still jquery specific
-			dragOptions = jsPlumb.extend(jsPlumb.CurrentLibrary.defaultDragOptions, dragOptions);
 			
+			var dragOptions = params.dragOptions || { };
+			var defaultOpts = jsPlumb.extend({}, jsPlumb.CurrentLibrary.defaultDragOptions);
+			dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
 			var startEvent = jsPlumb.CurrentLibrary.dragEvents['start'];
 			var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
 			var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
-			
 			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
-			
 			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() { 
 				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
 				// this draw call seems to work with the UI object we computed.  but the main one does not.  why?
@@ -876,9 +874,10 @@
 					delete floatingEndpoint;
 				}			
 			);		
-											
-			_initDraggable(_getElementObject(self.canvas), dragOptions);
-		}
+							
+			var i = _getElementObject(self.canvas);			
+			_initDraggable(i, dragOptions);
+		};
 		
 		// connector target
 		if (params.isTarget && _isDropSupported(_element)) {
@@ -1759,6 +1758,7 @@ hardcoded to jQuery here; will be extracted to separate impls for different libr
 		 * initialises the given element to be draggable.
 		 */
 		initDraggable : function(el, options) {
+			if (el.length > 1) alert('poo');
 			el.draggable(options);
 		},
 		
