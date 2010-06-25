@@ -181,7 +181,12 @@
     
     /**
      * inits a draggable if it's not already initialised.
-     * todo: if the element was draggable already, like from some non-jsPlumb call, wrap the drag function. 
+     * todo: if the element was draggable already, like from some non-jsPlumb call, wrap the drag function.
+     * TODO: we need to hook in each library to this method.  they need to be given the opportunity to
+     * wrap/insert lifecycle functions, because each library does different things.  for instance, jQuery
+     * supports the notion of 'revert', which will clean up a dragged endpoint; MooTools does not.  jQuery
+     * also supports 'opacity' and MooTools does not; jQuery supports z-index of the draggable; MooTools
+     * does not. i could go on.  the point is...oh.  initDraggable can do this.  ok. 
      */
 	var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
     	// dragging
@@ -1528,7 +1533,9 @@
 			delete sizes;
 			delete floatingConnections;
 			delete draggableStates;		
-	    }
+	    },
+	    
+	    wrap : _wrap
 	};
 
 })();
