@@ -27,7 +27,39 @@
 	});
 	
 	var _droppables = {};
+	var _draggables = {};
+	var DEFAULT_SCOPE = "_jsPlumb_defaultScope";
 	
+	/**
+	 * finds everything from mainList that does not match, according to filterFunc.
+	 * used by initDraggable and initDroppable.
+	 */
+	var _find = function(list, filterFunc) {
+		var result = [];
+		if (list) {
+			for (var i = 0; i < list.length; i++) {
+				if (!filterFunc(list[i]))
+					result.push(list[i]);
+			}
+		}
+		return result;
+	};
+
+	/**
+	 * adds the given value to the given list, with the given scope. creates the scoped list
+	 * if necessary.
+	 * used by initDraggable and initDroppable.
+	 */
+	var _add = function(list, scope, value) {
+		var l = list[scope];
+		if (!l) {
+			l = [];
+			list[scope] = l;
+		}
+		l.push(value);
+	};
+
+		
 	jsPlumb.CurrentLibrary = {
 			
 		dragEvents : {
@@ -126,10 +158,12 @@
 				}
 			});
 			
+			//options['droppables'] = _droppables[options['scope']];
+			
 			//TODO: add droppables.  but what if a new draggable is created after a droppable?
 			// probably we will have to keep a list of these Drag objects by scope, and update
 			// each time a new init drag/drop call is issued.
-			new Drag(el, options);
+			new Drag.Move(el, options);
 		},
 		
 		isDragSupported : function(el, options) {
@@ -141,13 +175,14 @@
 		},
 		
 		initDroppable : function(el, options) {
-			// should test for the scope param here
-			var droppables = _droppables[options['scope']];
-			if (!droppables) {
-				droppables = [];
-				_droppables[options['scope']] = droppables;
-			}
-			droppables.push(el.get('id')); 
+			var scope = options['scope'] || DEFAULT_SCOPE;
+			_add(_droppables, scope, el);
+			var filterFunc = function(entry) {
+				return entry.element == el;
+			};
+			var draggables = _find(_draggables[scope], filterFunc);
+			for (var i = 0; i < draggables.length; i++)
+				draggables[i].droppables.push(el);
 		},
 		
 		/*
