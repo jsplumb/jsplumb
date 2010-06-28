@@ -158,12 +158,30 @@
 				}
 			});
 			
-			//options['droppables'] = _droppables[options['scope']];
-			
 			//TODO: add droppables.  but what if a new draggable is created after a droppable?
 			// probably we will have to keep a list of these Drag objects by scope, and update
 			// each time a new init drag/drop call is issued.
-			new Drag.Move(el, options);
+			// DROPPABLES:
+			var scope = options['scope'] || DEFAULT_SCOPE;
+			var filterFunc = function(entry) {
+				return entry.get("id") == el.get("id");
+			};
+			var droppables = _find(_droppables[scope], filterFunc);
+			if (droppables && droppables.length > 0) {
+				if (options['hoverClass']) {
+					options['onLeave'] = jsPlumb.wrap(options['onLeave'], function() {
+						if (dr) dr.removeClass(hoverClass);		
+					});
+					options['onEnter'] = jsPlumb.wrap(options['onLeave'], function() {
+						if (dr) dr.addClass(hoverClass);		
+					});
+				}
+				options['droppables'] = droppables;
+			}
+			
+			
+			var drag = new Drag.Move(el, options);
+			_add(_draggables, scope, drag);
 		},
 		
 		isDragSupported : function(el, options) {
@@ -205,8 +223,8 @@
 		 * getOffset, ie: { left: xxx, top: xxx }.
 		 */
 		getUIPosition : function(eventArgs) {
-			var ui = eventArgs[1];
-			return { left: ui.target.offsetLeft, top: ui.target.offsetTop };
+			var ui = eventArgs[0];
+			return { left: ui.offsetLeft, top: ui.offsetTop };
 		},
 		
 		//TODO!
