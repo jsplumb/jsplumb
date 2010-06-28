@@ -1616,7 +1616,7 @@
    */
   $.fn.addEndpoints = function(endpoints) {
 	  var addedEndpoints = [];
-	  return this.each(function() 
+	  this.each(function() 
 	  {		 
 		 var e = jsPlumb.addEndpoints($(this).attr("id"), endpoints);
 		 for (var i = 0; i < e.length; i++) addedEndpoints.push(e[i]);
