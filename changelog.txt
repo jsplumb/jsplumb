@@ -1,26 +1,59 @@
+* 1.2
 
-* 1.1.1-RC1
+	- adding support for libraries other than jQuery. Starting with MooTools.
+
+* 1.1.1
 
 	- added jsPlumb.removeAllEndpoints method
 	- added isConnectedTo(anEndpoint) method to Endpoint class
 	- added Triangle Endpoint type
+    - bugfix for removeEndpoint method (it was not removing endpoints...)
+    - introduced NaturalDocs for API documentation
 
-
-* 1.1.0-RC1
-
+* 1.1.0
+	  
+	- added _jsPlumbContextNode element into which all canvases are drawn.  makes for faster lookup and 
+	  easier cleanup.
+	  
 	- Anchors must now implement 'getOrientation' rather than just having an 'orientation' member.
 	  This is used to support anchors whose orientation is calculated dynamically (such as when dragging)
 	  
-
     - internally jsPlumb is now "endpoint-centric" rather than "connection-centric" as it used to be.
       this allows us to add Endpoints that have no connections at creation time, and that can act as
       sources and targets for Connections.
     
-    
+	- added setDraggable method to jsPlumb.  overrides what any given plumb command may request.
+	- added setDraggableByDefault method.
+	- added toggleDraggable method to jsPlumb.
+	
+	- renamed toggle to toggleVisible (but kept the old one for backwards compatibility)
+	
+	- added jsPlumb.Endpoints.Blank Endpoint type.
       
     - renamed '_removeCanvas' to '_removeElement' to more properly reflect what it does.
-    - added '_removeElements' method
-    - 
+    - added '_removeElements' method.
+    
+    - introduced jsPlumb.Defaults, which replaces all the old, capitalised, things like
+      DEFAULT_ENDPOINTS, DEFAULT_CONNECTOR, etc. so you'd say
+      
+      jsPlumb.Defaults.DefaultEndpoints
+      
+      instead of
+      
+      jsPlumb.DEFAULT_ENDPOINTS
+      
+    - added support for draggable connectors.
+    
+    - added animate function.
+    
+    - added removeEndpoint function
+    
+    - introduced qunit testing.
+    
+    - now writes a 'jsPlumb_dragged' class to an element at the end of a drag.
+      this can be used to test for a recent drag in a click handler, because drag fires click.
+      and you dont always want that.
+      
 
 * 1.0.4
 
@@ -66,8 +99,8 @@
 
 * 1.0.1
 
-	- added detachEverything() method : detaches, er, everything. and then cleans up the storage.
-	- added repaintEverything() method : refreshes, er, everything.
+	- added detachEverything() method : detaches everything. and then cleans up the storage.
+	- added repaintEverything() method : refreshes everything.
 	- added window resize listener; this is hooked up to the repaint everything method.
 	- added unload() method, used to cleanup jsPlumb when the page unloads 
 
