@@ -371,13 +371,16 @@
      * if it was null.  this is used to wrap the various drag/drop event functions - to allow
      * jsPlumb to be notified of important lifecycle events without imposing itself on the user's
      * drap/drop functionality.
-     * TODO: determine whether or not we should try/catch the plumb function, so that the cascade function is always executed.
+     * TODO: determine whether or not we should support an error handler concept, if one of the functions fails.
      */
-    var _wrap = function(cascadeFunction, plumbFunction) {
-    	cascadeFunction = cascadeFunction || function() { };
+    var _wrap = function(wrappedFunction, newFunction) {
+    	wrappedFunction = wrappedFunction || function() { };
+    	newFunction = newFunction || function() { };
     	return function() {
-    		plumbFunction.apply(this, arguments);
-    		cascadeFunction.apply(this, arguments);
+    		try { newFunction.apply(this, arguments); }
+    		catch (e) { }
+    		try { wrappedFunction.apply(this, arguments); }
+    		catch (e) { }
     	};
     }
     
@@ -626,13 +629,19 @@
 		this.connections = params.connections || [];
 		var _reattach = params.reattach || false;
 		var floatingEndpoint = null;
+		var inPlaceCopy = null;
 		this.addConnection = function(connection) {
+			
 			self.connections.push(connection);
 		};
 		this.removeConnection = function(connection) {
 			var idx = _findIndex(self.connections, connection);
 			if (idx >= 0)
 				self.connections.splice(idx, 1);
+		};
+		this.makeInPlaceCopy = function() {
+			var e = new Endpoint({anchor:self.anchor, source:_element, style:_style, endpoint:_endpoint});
+			return e;
 		};
 		/**
 		* returns whether or not this endpoint is connected to the given endpoint.
@@ -710,6 +719,10 @@
 			// will still be valid, but when we stop dragging, we'll have to do something different.  if we stop with a valid drop i think it will
 			// be the same process.  but if we stop with an invalid drop we have to reset the Connection to how it was when we got it.
 			var start = function() {
+				
+				inPlaceCopy = self.makeInPlaceCopy();
+				inPlaceCopy.paint();
+				
 				n = document.createElement("div");
 				_appendCanvas(n);
 				// create and assign an id, and initialize the offset.
@@ -723,7 +736,6 @@
 				// create a floating anchor
 				var floatingAnchor = new FloatingAnchor({reference:self.anchor});
 				floatingEndpoint = new Endpoint({
-					style:_style, 
 					endpoint:_endpoint, 
 					anchor:floatingAnchor, 
 					source:n 
@@ -791,7 +803,7 @@
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
 				function() {					
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
-					_removeElements([floatingEndpoint.canvas, n]);
+					_removeElements([floatingEndpoint.canvas, n, inPlaceCopy.canvas]);
 					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 					if (jpc.endpoints[idx] == floatingEndpoint) {										
 						// if the connection was an existing one:
@@ -821,6 +833,8 @@
 					}
 					jpc = null;
 					delete floatingEndpoint;
+					delete inPlaceCopy;
+					self.paint();
 				}			
 			);		
 							
@@ -833,7 +847,10 @@
 			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
 			dropOptions = jsPlumb.extend({}, dropOptions);
 	    	var originalAnchor = null;
-	    	dropOptions.drop = _wrap(dropOptions.drop, function() {
+	    	var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'];
+			var overEvent = jsPlumb.CurrentLibrary.dragEvents['over'];
+			var outEvent = jsPlumb.CurrentLibrary.dragEvents['out'];
+	    	dropOptions[dropEvent]= _wrap(dropOptions[dropEvent], function() {
 	    		var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
 	    		var id = _getAttribute(_getElementObject(draggable), "dragId");
 	    		var elId = _getAttribute(_getElementObject(draggable),"elId");
@@ -857,19 +874,8 @@
 	    		
 	    		delete floatingConnections[id];	    			    	
 			 });
-	    	// what to do when something is dropped.
-	    	// 1. find the jpc that is being dragged.  the target endpoint of the jpc will be the
-	    	// one that is being dragged.
-	    	// 2. arrange for the floating endpoint to be replaced with this endpoint; make sure
-	    	//    everything gets registered ok etc.
-	    	// 3. arrange for the floating endpoint to be deleted.
-	    	// 4. make sure that the stop method of the drag does not cause the jpc to be cleaned up.  we want to keep it now.
-	    	
-			// other considerations: when in the hover mode, we should switch the floating endpoint's
-	    	// orientation to be the same as the drop target.  this will cause the connector to snap
-	    	// into the shape it will take if the user drops at that point.
-			 
-			dropOptions.over = _wrap(dropOptions.over, function() { 
+	    	 
+			dropOptions[overEvent]= _wrap(dropOptions[overEvent], function() { 
 				var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
 				var id = _getAttribute(_getElementObject(draggable),"dragId");
 		    	var jpc = floatingConnections[id];
@@ -877,7 +883,7 @@
 		    	jpc.endpoints[idx].anchor.over(self.anchor);		    	
 			 });
 			 
-			 dropOptions.out = _wrap(dropOptions.out, function() {
+			 dropOptions[outEvent] = _wrap(dropOptions[outEvent], function() {
 				var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
 				var id = _getAttribute(_getElementObject(draggable),"dragId");
 		    	var jpc = floatingConnections[id];
@@ -1535,6 +1541,15 @@
 			delete draggableStates;		
 	    },
 	    
+	    /*
+	     Function: wrap
+	     Helper method to wrap an existing function with one of your own.  This is used by the various
+	     implementations to wrap event callbacks for drag/drop etc; it allows jsPlumb to be
+	     transparent in its handling of these things.  If a user supplies their own event callback,
+	     for anything, it will always be called.
+	     Parameters:
+	     	
+	     */
 	    wrap : _wrap
 	};
 

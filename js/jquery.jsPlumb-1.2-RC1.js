@@ -90,13 +90,14 @@
          * mapping of drag events for jQuery
          */
 		dragEvents : {
-			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step'		
+			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
+			'over':'over', 'out':'out', 'drop':'drop'
 		},
 		
 		/**
 		 * default drag options for jQuery.
 		 */
-		defaultDragOptions : { opacity:0.5, revert:true, helper:'clone' },
+		defaultDragOptions : { opacity:0.5/*, revert:true, helper:'clone'*/ },
 		
 		/**
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
@@ -158,7 +159,6 @@
 		 * initialises the given element to be draggable.
 		 */
 		initDraggable : function(el, options) {
-			if (el.length > 1) alert('poo');
 			el.draggable(options);
 		},
 		

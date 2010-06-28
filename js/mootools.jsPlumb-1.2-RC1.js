@@ -63,21 +63,18 @@
 	jsPlumb.CurrentLibrary = {
 			
 		dragEvents : {
-			'start':'onStart', 'stop':'onStop', 'drag':'onDrag', 'step':'onStep'		
+			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
+			'over':'onEnter', 'out':'onLeave','drop':'onDrop'
 		},
 		
 		defaultDragOptions : { 
 			onStart:function()
 		    {
-		      this.element.setOpacity(.5);
+		      	this.element.setOpacity(.5);
 		    },
 		    onComplete:function()
 		    {
-		      // TODO put the element back where it belongs. no. it shouldnt have moved.
-		    	//TODO remove the dragging connection.
-		      document.body.removeChild(this.element);/*.setOpacity(1);
-		      this.element.style.clientLeft = 0;
-		      this.element.style.clientTop = 0;*/
+		    	this.element.setOpacity(1);
 		    }
 
 		},
@@ -168,20 +165,22 @@
 			};
 			var droppables = _find(_droppables[scope], filterFunc);
 			if (droppables && droppables.length > 0) {
-				if (options['hoverClass']) {
-					options['onLeave'] = jsPlumb.wrap(options['onLeave'], function() {
+			//	if (options['hoverClass']) {
+				var hoverClass = "dropHover";
+					options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
 						if (dr) dr.removeClass(hoverClass);		
 					});
-					options['onEnter'] = jsPlumb.wrap(options['onLeave'], function() {
+					options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
 						if (dr) dr.addClass(hoverClass);		
 					});
-				}
+		//		}
 				options['droppables'] = droppables;
 			}
 			
 			
 			var drag = new Drag.Move(el, options);
 			_add(_draggables, scope, drag);
+			return drag;
 		},
 		
 		isDragSupported : function(el, options) {

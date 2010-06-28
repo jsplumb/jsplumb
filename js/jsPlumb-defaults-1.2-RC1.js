@@ -208,9 +208,9 @@
     
     
     /**
-     * Types of endpoint UIs.  we supply three - a circle of default radius 10px, a rectangle of
-     * default size 20x20, and an image (with no default).  you can supply others of these if you want to - see the documentation
-     * for a howto.
+     * Types of endpoint UIs.  we supply four - a circle of default radius 10px, a rectangle of
+     * default size 20x20, an image (with no default), and a Triangle, of default size 15.  
+     * you can supply others of these if you want to - see the documentation for a howto.
      */    	
     	
 	/**
