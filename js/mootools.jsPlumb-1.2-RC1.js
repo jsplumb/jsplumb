@@ -44,21 +44,21 @@
 				}
 			}
 		}
-	};
+	};	
 	
-	/**
-	 * finds everything from mainList that does not match, according to filterFunc.
-	 * used by initDraggable and initDroppable.
-	 */
-	var _find = function(list, filterFunc) {
-		var result = [];
-		if (list) {
-			for (var i = 0; i < list.length; i++) {
-				if (!filterFunc(list[i]))
-					result.push(list[i]);
+	var _checkHover = function(el, entering) {
+		if (el) {
+			var id = el.get("id");
+			if (id) {
+				var options = _droppableOptions[id];
+				if (options) {
+					if (options['hoverClass']) {
+						if (entering) el.addClass(options['hoverClass']);
+						else el.removeClass(options['hoverClass']);
+					}
+				}
 			}
 		}
-		return result;
 	};
 
 	/**
@@ -174,31 +174,28 @@
 			// DROPPABLES:
 			var scope = options['scope'] || jsPlumb.Defaults.Scope;
 			var filterFunc = function(entry) {
-				return entry.get("id") == el.get("id");
+				return entry.get("id") != el.get("id");
 			};
-			var droppables = _find(_droppables[scope], filterFunc);
+			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
 			if (droppables && droppables.length > 0) {
-			//	if (options['hoverClass']) {
-				//TODO sort out the hover class properly.
-				var hoverClass = "dropHover";
-					options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
-						if (dr) {
-							dr.removeClass(hoverClass);
-							_executeDroppableOption(el, dr, 'onLeave');						
-						}
-					});
-					options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
-						if (dr) {
-							dr.addClass(hoverClass);
-							_executeDroppableOption(el, dr, 'onEnter');							
-						}
-					});
-					options['onDrop'] = function(el, dr) {
-						if (dr) {
-							dr.removeClass(hoverClass);
-							_executeDroppableOption(el, dr, 'onDrop');						
-						}
-					};
+				options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
+					if (dr) {
+						_checkHover(dr, false);
+						_executeDroppableOption(el, dr, 'onLeave');						
+					}
+				});
+				options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
+					if (dr) {
+						_checkHover(dr, true);
+						_executeDroppableOption(el, dr, 'onEnter');							
+					}
+				});
+				options['onDrop'] = function(el, dr) {
+					if (dr) {
+						_checkHover(dr, false);
+						_executeDroppableOption(el, dr, 'onDrop');						
+					}
+				};
 				options['droppables'] = droppables;
 			}
 			
@@ -222,9 +219,9 @@
 			_add(_droppables, scope, el);
 			_droppableOptions[el.get("id")] = options;
 			var filterFunc = function(entry) {
-				return entry.element == el;
+				return entry.element != el;
 			};
-			var draggables = _find(_draggables[scope], filterFunc);
+			var draggables = _draggables[scope] ? _draggables[scope].filter(filterFunc) : [];
 			for (var i = 0; i < draggables.length; i++) {
 				draggables[i].droppables.push(el);
 			}
