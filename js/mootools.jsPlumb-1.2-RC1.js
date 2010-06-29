@@ -27,8 +27,22 @@
 	});
 	
 	var _droppables = {};
+	var _droppableOptions = {};
 	var _draggables = {};
 	var DEFAULT_SCOPE = "_jsPlumb_defaultScope";
+	var _executeDroppableOption = function(el, dr, event) {
+		if (dr) {
+			var id = dr.get("id");
+			if (id) {
+				var options = _droppableOptions[id];
+				if (options) {
+					if (options[event]) {
+						options[event](el, dr);
+					}
+				}
+			}
+		}
+	};
 	
 	/**
 	 * finds everything from mainList that does not match, according to filterFunc.
@@ -155,9 +169,6 @@
 				}
 			});
 			
-			//TODO: add droppables.  but what if a new draggable is created after a droppable?
-			// probably we will have to keep a list of these Drag objects by scope, and update
-			// each time a new init drag/drop call is issued.
 			// DROPPABLES:
 			var scope = options['scope'] || DEFAULT_SCOPE;
 			var filterFunc = function(entry) {
@@ -166,14 +177,26 @@
 			var droppables = _find(_droppables[scope], filterFunc);
 			if (droppables && droppables.length > 0) {
 			//	if (options['hoverClass']) {
+				//TODO sort out the hover class properly.
 				var hoverClass = "dropHover";
 					options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
-						if (dr) dr.removeClass(hoverClass);		
+						if (dr) {
+							dr.removeClass(hoverClass);
+							_executeDroppableOption(el, dr, 'onLeave');						
+						}
 					});
 					options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
-						if (dr) dr.addClass(hoverClass);		
+						if (dr) {
+							dr.addClass(hoverClass);
+							_executeDroppableOption(el, dr, 'onEnter');							
+						}
 					});
-		//		}
+					options['onDrop'] = function(el, dr) {
+						if (dr) {
+							dr.removeClass(hoverClass);
+							_executeDroppableOption(el, dr, 'onDrop');						
+						}
+					};
 				options['droppables'] = droppables;
 			}
 			
@@ -194,12 +217,14 @@
 		initDroppable : function(el, options) {
 			var scope = options['scope'] || DEFAULT_SCOPE;
 			_add(_droppables, scope, el);
+			_droppableOptions[el.get("id")] = options;
 			var filterFunc = function(entry) {
 				return entry.element == el;
 			};
 			var draggables = _find(_draggables[scope], filterFunc);
-			for (var i = 0; i < draggables.length; i++)
+			for (var i = 0; i < draggables.length; i++) {
 				draggables[i].droppables.push(el);
+			}
 		},
 		
 		/*
@@ -228,7 +253,7 @@
 		
 		//TODO!
 		getDragObject : function(eventArgs) {
-			return null;
+			return eventArgs[0];
 		}
 	};
 })();
