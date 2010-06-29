@@ -503,7 +503,7 @@
 	    prepareEndpoint(params.targetEndpoint, 1, params);
 	    
 	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
-	    this.paintStyle = this.endpoints[0].connectionStyle  || this.endpoints[1].connectionStyle || params.paintStyle || jsPlumb.Defaults.PaintStyle;
+	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || jsPlumb.Defaults.PaintStyle;
 	    	    	    	   
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
@@ -621,7 +621,7 @@
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || jsPlumb.Defaults.EndpointStyle;
-		this.connectionStyle = params.connectionStyle;
+		this.connectorStyle = params.connectorStyle;
 		this.connector = params.connector;
 		var _element = params.source;
 		var _elementId = _getAttribute(_element, "id");
@@ -751,7 +751,7 @@
 						source:_getElementObject(_element),
 						target:_getElementObject(n),
 						anchors:[self.anchor, floatingAnchor],
-						paintStyle : params.connectionStyle, // this can be null. Connection will use the default.
+						paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
 						connector: params.connector
 					});
 					// todo ...unregister on stop
@@ -930,7 +930,8 @@
     		EndpointStyle : { fillStyle : null },
     		EndpointStyles : [ null, null ],
     		MaxConnections : null,
-    		PaintStyle : { lineWidth : 10, strokeStyle : 'red' }    		    		
+    		PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
+    		Scope : "_jsPlumb_DefaultScope"
     	},
     	
     	/*
