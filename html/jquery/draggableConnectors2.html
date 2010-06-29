@@ -60,7 +60,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					style:{ width:25, height:21, fillStyle:'#666' },
 					isSource:true,
 					dragOptions : { scope:'exampleGreyConnection' },
-					connectionStyle : {
+					connectorStyle : {
 						strokeStyle:"#666"
 					},
 					isTarget:true,
@@ -92,7 +92,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					style:{ width:25, height:21, fillStyle:'#00f' },
 					isSource:true,
 					dragOptions : { scope:'exampleConnection' },
-					connectionStyle : {
+					connectorStyle : {
 						gradient:{stops:[[0,'#00f'], [0.5, '#09098e'], [1,'#00f']]},
 						lineWidth:5,
 						strokeStyle:"#00f"
@@ -110,7 +110,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						style:{ strokeStyle:'#316b31' },
 						isSource:true,
 						dragOptions : { scope:'exampleConnection2' },
-						connectionStyle:{ strokeStyle:'#316b31', lineWidth:8 },
+						connectorStyle:{ strokeStyle:'#316b31', lineWidth:8 },
 						connector: new jsPlumb.Connectors.Bezier(63),
 						maxConnections:3,
 						isTarget:true,
@@ -135,7 +135,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						style:{ strokeStyle:example3Color, opacity:0.5 },
 						isSource:true,
 						dragOptions : { scope:'exampleConnection3' },
-						connectionStyle:{ strokeStyle:example3Color, lineWidth:4 },
+						connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
 						connector : new jsPlumb.Connectors.Straight(),
 						isTarget:true,
 						dropOptions : $.extend({scope:'exampleConnection3'}, exampleDropOptions)
