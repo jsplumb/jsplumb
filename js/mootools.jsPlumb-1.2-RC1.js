@@ -29,7 +29,9 @@
 	var _droppables = {};
 	var _droppableOptions = {};
 	var _draggables = {};
-	var DEFAULT_SCOPE = "_jsPlumb_defaultScope";
+	/*
+	 * 
+	 */
 	var _executeDroppableOption = function(el, dr, event) {
 		if (dr) {
 			var id = dr.get("id");
@@ -84,7 +86,7 @@
 		defaultDragOptions : { 
 			onStart:function()
 		    {
-		      	this.element.setOpacity(.5);
+		      	this.element.setOpacity(.1);
 		    },
 		    onComplete:function()
 		    {
@@ -150,7 +152,7 @@
 		
 		initDraggable : function(el, options) {
 			var originalZIndex = 0, originalCursor = null;
-			var dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
+			var dragZIndex = jsPlumb.CurrentLibrary.defaultDragOptions.zIndex || 2000;
 			options['onStart'] = jsPlumb.wrap(options['onStart'], function()
 		    {
 				originalZIndex = this.element.getStyle('z-index'); 
@@ -170,7 +172,7 @@
 			});
 			
 			// DROPPABLES:
-			var scope = options['scope'] || DEFAULT_SCOPE;
+			var scope = options['scope'] || jsPlumb.Defaults.Scope;
 			var filterFunc = function(entry) {
 				return entry.get("id") == el.get("id");
 			};
@@ -211,11 +213,12 @@
 		},
 		
 		setDraggable : function(el, draggable) {
+			alert("not supported yet!");
 		//	el.draggable("option", "disabled", !draggable);
 		},
 		
 		initDroppable : function(el, options) {
-			var scope = options['scope'] || DEFAULT_SCOPE;
+			var scope = options['scope'] || jsPlumb.Defaults.Scope;
 			_add(_droppables, scope, el);
 			_droppableOptions[el.get("id")] = options;
 			var filterFunc = function(entry) {
@@ -251,7 +254,6 @@
 			return { left: ui.offsetLeft, top: ui.offsetTop };
 		},
 		
-		//TODO!
 		getDragObject : function(eventArgs) {
 			return eventArgs[0];
 		}
