@@ -6,7 +6,7 @@
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>
 		<style type="text/css">
-._jsPlumb_endpoint { z-index:50; cursor:move; border:1px solid blue;}
+._jsPlumb_endpoint { z-index:50; cursor:move; }
 ._jsPlumb_connector { z-index:1; }
 .bigdot { cursor:pointer;width:162px; height:162px; background-image:url(../../img/bigdot.png); z-index:5; position:absolute; }
 .bigdot-hover { border:1px dotted orange; }
@@ -48,6 +48,9 @@
 			$(document).ready(function() {
 				jsPlumb.Defaults.DragOptions = { cursor: 'wait', zIndex:2000 };
 
+				// notice there are no dragOptions specified here, which is different from the
+				// draggableConnectors2 demo.  all connections on this page are therefore
+				// implicitly in the default scope. 
 				var endpoint = {
 						anchor:jsPlumb.makeAnchor(0.5,0.5,0,-1),
 						connectorStyle:{lineWidth:7,strokeStyle:'rgba(198,89,30,0.7)'},
@@ -57,9 +60,9 @@
 						isSource:true,
 						maxConnections:10,
 						isTarget:true,
-						dropOptions:{tolerance:'touch', scope:'conn', hoverClass:'dropHover'},
-						dragOptions:{scope:'conn'}
+						dropOptions:{tolerance:'touch',hoverClass:'dropHover'}
 				};
+				
 
 				var prepare = function(elId) {
 					$("#" + elId).hover(
