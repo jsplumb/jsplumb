@@ -181,7 +181,7 @@
     
     /**
      * inits a draggable if it's not already initialised.
-     * todo: if the element was draggable already, like from some non-jsPlumb call, wrap the drag function.
+     * 
      * TODO: we need to hook in each library to this method.  they need to be given the opportunity to
      * wrap/insert lifecycle functions, because each library does different things.  for instance, jQuery
      * supports the notion of 'revert', which will clean up a dragged endpoint; MooTools does not.  jQuery
@@ -198,6 +198,7 @@
 	    	var initDrag = function(element, elementId, dragFunc) {	    	
 	    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
 	    		var draggable = draggableStates[elementId];
+	    		// TODO: this is still jQuery specific.
 	    		options.disabled = draggable == null ? false : !draggable;
 	    		jsPlumb.CurrentLibrary.initDraggable(element, options);
 	    	};
@@ -1489,7 +1490,9 @@
 	    		endpointCount : function(elId) {
 	    			var e = endpointsByElement[elId];
 	    			return e ? e.length : 0;
-	    		}	    		
+	    		},
+	    		
+	    		findIndex : _findIndex
 	    	};	    	
 	    },
 	    
