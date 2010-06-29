@@ -95,9 +95,13 @@
 		},
 		
 		/**
-		 * default drag options for jQuery.
+		 * default drag options for jQuery. do we even want to supply defaults for this?
+		 * possible values for this are:
+		 * 
+		 * opacity - indicates the opacity for the dragging element
+		 * zIndex - the z-index to assign to a dragging element
 		 */
-		defaultDragOptions : { opacity:0.5/*, revert:true, helper:'clone'*/ },
+		defaultDragOptions : { opacity:0.5, zIndex:2000 },
 		
 		/**
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
@@ -159,6 +163,12 @@
 		 * initialises the given element to be draggable.
 		 */
 		initDraggable : function(el, options) {
+			// remove helper directive if present.  we know what's best!
+			options.helper = null;
+			//TODO: if 'revert' is set on the options it causes end points to animate back to
+			// where they came from, if the connection is aborted.  do we care?  probably not.
+			// the todo is to decide whether we care or not.
+			options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
 			el.draggable(options);
 		},
 		
@@ -180,6 +190,7 @@
 		 * initialises the given element to be droppable.
 		 */
 		initDroppable : function(el, options) {
+			options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
 			el.droppable(options);
 		},
 		
