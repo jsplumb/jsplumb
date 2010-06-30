@@ -178,28 +178,25 @@
 				return entry.get("id") != el.get("id");
 			};
 			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
-			if (droppables && droppables.length > 0) {
-				options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
-					if (dr) {
-						_checkHover(dr, false);
-						_executeDroppableOption(el, dr, 'onLeave');						
-					}
-				});
-				options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
-					if (dr) {
-						_checkHover(dr, true);
-						_executeDroppableOption(el, dr, 'onEnter');							
-					}
-				});
-				options['onDrop'] = function(el, dr) {
-					if (dr) {
-						_checkHover(dr, false);
-						_executeDroppableOption(el, dr, 'onDrop');						
-					}
-				};
-				options['droppables'] = droppables;
-			}
-			
+			options['droppables'] = droppables;
+			options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
+				if (dr) {
+					_checkHover(dr, false);
+					_executeDroppableOption(el, dr, 'onLeave');						
+				}
+			});
+			options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
+				if (dr) {
+					_checkHover(dr, true);
+					_executeDroppableOption(el, dr, 'onEnter');							
+				}
+			});
+			options['onDrop'] = function(el, dr) {
+				if (dr) {
+					_checkHover(dr, false);
+					_executeDroppableOption(el, dr, 'onDrop');						
+				}
+			};					
 			
 			var drag = new Drag.Move(el, options);
 			_add(_draggablesByScope, scope, drag);
