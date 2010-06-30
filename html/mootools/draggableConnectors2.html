@@ -158,7 +158,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				});
 
 				$$(".hide").each(function(h) {
-					this.addEvent('click', function() {
+					h.addEvent('click', function() {
 						jsPlumb.toggle(h.get("rel"));
 					});
 				});
