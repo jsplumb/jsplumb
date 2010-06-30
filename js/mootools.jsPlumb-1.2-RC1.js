@@ -28,7 +28,8 @@
 	
 	var _droppables = {};
 	var _droppableOptions = {};
-	var _draggables = {};
+	var _draggablesByScope = {};
+	var _draggablesById = {};
 	/*
 	 * 
 	 */
@@ -201,7 +202,10 @@
 			
 			
 			var drag = new Drag.Move(el, options);
-			_add(_draggables, scope, drag);
+			_add(_draggablesByScope, scope, drag);
+			_add(_draggablesById, el.get("id"), drag);
+			// test for disabled.
+			if (options.disabled) drag.detach();
 			return drag;
 		},
 		
@@ -210,8 +214,12 @@
 		},
 		
 		setDraggable : function(el, draggable) {
-			alert("not supported yet!");
-		//	el.draggable("option", "disabled", !draggable);
+			var draggables = _draggablesById[el.get("id")];
+			if (draggables) {
+				draggables.each(function(d) {
+					if (draggable) d.attach(); else d.detach();
+				});
+			}
 		},
 		
 		initDroppable : function(el, options) {
@@ -221,7 +229,7 @@
 			var filterFunc = function(entry) {
 				return entry.element != el;
 			};
-			var draggables = _draggables[scope] ? _draggables[scope].filter(filterFunc) : [];
+			var draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
 			for (var i = 0; i < draggables.length; i++) {
 				draggables[i].droppables.push(el);
 			}
