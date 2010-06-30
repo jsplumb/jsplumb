@@ -52,20 +52,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
 				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
 				jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
-				jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
-
-				var exampleGreyEndpoint = {
-					endpoint:new jsPlumb.Endpoints.Rectangle(),
-					anchor:jsPlumb.Anchors.TopCenter,
-					style:{ width:25, height:21, fillStyle:'#666' },
-					isSource:true,
-					dragOptions : { scope:'exampleGreyConnection' },
-					connectorStyle : {
-						strokeStyle:"#666"
-					},
-					isTarget:true,
-					dropOptions : $extend({scope:'exampleGreyConnection'}, exampleDropOptions)
-				};
+				jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];				
 
 				var exampleDropOptions = {
 					tolerance:'touch',
@@ -141,7 +128,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						dropOptions : $extend({scope:'exampleConnection3'}, exampleDropOptions)
 				};
 
-				// setup some empty endpoints.  again note the use of '$.extend' to reuse all the parameters except the location
+				// setup some empty endpoints.  again note the use of '$extend' to reuse all the parameters except the location
 				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
 
 				jsPlumb.addEndpoints('window1', [
