@@ -152,57 +152,60 @@
 		},
 		
 		initDraggable : function(el, options) {
-			var originalZIndex = 0, originalCursor = null;
-			var dragZIndex = jsPlumb.CurrentLibrary.defaultDragOptions.zIndex || 2000;
-			options['onStart'] = jsPlumb.wrap(options['onStart'], function()
-		    {
-				originalZIndex = this.element.getStyle('z-index'); 
-				this.element.setStyle('z-index', dragZIndex);
-				if (jsPlumb.Defaults.DragOptions.cursor) {
-					originalCursor = this.element.getStyle('cursor');
-					this.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
-				}
-			});
-			
-			options['onComplete'] = jsPlumb.wrap(options['onComplete'], function()
-		    {
-				this.element.setStyle('z-index', originalZIndex);
-				if (originalCursor) {
-					this.element.setStyle('cursor', originalCursor);
-				}
-			});
-			
-			// DROPPABLES:
-			var scope = options['scope'] || jsPlumb.Defaults.Scope;
-			var filterFunc = function(entry) {
-				return entry.get("id") != el.get("id");
-			};
-			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
-			options['droppables'] = droppables;
-			options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
-				if (dr) {
-					_checkHover(dr, false);
-					_executeDroppableOption(el, dr, 'onLeave');						
-				}
-			});
-			options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
-				if (dr) {
-					_checkHover(dr, true);
-					_executeDroppableOption(el, dr, 'onEnter');							
-				}
-			});
-			options['onDrop'] = function(el, dr) {
-				if (dr) {
-					_checkHover(dr, false);
-					_executeDroppableOption(el, dr, 'onDrop');						
-				}
-			};					
-			
-			var drag = new Drag.Move(el, options);
-			_add(_draggablesByScope, scope, drag);
-			_add(_draggablesById, el.get("id"), drag);
-			// test for disabled.
-			if (options.disabled) drag.detach();
+			var drag = _draggablesById[el.get("id")];
+			if (!drag) {
+				var originalZIndex = 0, originalCursor = null;
+				var dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
+				options['onStart'] = jsPlumb.wrap(options['onStart'], function()
+			    {
+					originalZIndex = this.element.getStyle('z-index'); 
+					this.element.setStyle('z-index', dragZIndex);
+					if (jsPlumb.Defaults.DragOptions.cursor) {
+						originalCursor = this.element.getStyle('cursor');
+						this.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
+					}
+				});
+				
+				options['onComplete'] = jsPlumb.wrap(options['onComplete'], function()
+			    {
+					this.element.setStyle('z-index', originalZIndex);
+					if (originalCursor) {
+						this.element.setStyle('cursor', originalCursor);
+					}
+				});
+				
+				// DROPPABLES:
+				var scope = options['scope'] || jsPlumb.Defaults.Scope;
+				var filterFunc = function(entry) {
+					return entry.get("id") != el.get("id");
+				};
+				var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
+				options['droppables'] = droppables;
+				options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
+					if (dr) {
+						_checkHover(dr, false);
+						_executeDroppableOption(el, dr, 'onLeave');						
+					}
+				});
+				options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
+					if (dr) {
+						_checkHover(dr, true);
+						_executeDroppableOption(el, dr, 'onEnter');							
+					}
+				});
+				options['onDrop'] = function(el, dr) {
+					if (dr) {
+						_checkHover(dr, false);
+						_executeDroppableOption(el, dr, 'onDrop');						
+					}
+				};					
+				
+				drag = new Drag.Move(el, options);
+				_add(_draggablesByScope, scope, drag);
+				_add(_draggablesById, el.get("id"), drag);
+				// test for disabled.
+				if (options.disabled) drag.detach();
+			}
 			return drag;
 		},
 		
