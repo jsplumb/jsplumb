@@ -1195,16 +1195,22 @@
 	     	<removeAllEndpoints>
 	     */
 	    detachEverything : function() {
-	    	var f = function(jpc) {
-	    		_removeElement(jpc.canvas);
-			jpc.endpoints[0].removeConnection(jpc);
-			jpc.endpoints[1].removeConnection(jpc);
-	    	};
-	    	
-	    	_operationOnAll(f);
-	    	
-	    	/*delete endpointsByElement;             //??
-	    	endpointsByElement = {};*/               //??
+	    	for(var id in endpointsByElement) {	    	
+		    	var endpoints = endpointsByElement[id];
+		    	if (endpoints && endpoints.length) {
+			    	for (var i = 0; i < endpoints.length; i++) {
+			    		var c = endpoints[i].connections.length;
+			    		if (c > 0) {
+			    			for (var j = 0; j < c; j++) {
+			    				var jpc = endpoints[i].connections[0];
+			    				_removeElement(jpc.canvas);
+			    				jpc.endpoints[0].removeConnection(jpc);
+			    				jpc.endpoints[1].removeConnection(jpc);
+			    			}
+			    		}
+			    	}
+		    	}
+	    	}
 	    },
 	    
 	    extend : function(o1, o2) {
