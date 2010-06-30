@@ -93,16 +93,7 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop'
 		},
-		
-		/**
-		 * default drag options for jQuery. do we even want to supply defaults for this?
-		 * possible values for this are:
-		 * 
-		 * opacity - indicates the opacity for the dragging element
-		 * zIndex - the z-index to assign to a dragging element
-		 */
-		defaultDragOptions : { opacity:0.5, zIndex:2000 },
-		
+				
 		/**
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
 		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
