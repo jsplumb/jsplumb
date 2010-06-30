@@ -8,7 +8,7 @@ a {text-decoration:none;color:#05f;font-weight:bold;font-family:helvetica;}
 a:hover {text-decoration:underline;}
 .window { cursor:pointer; }
 /* demo */
-#explanation { color:black;border:0.25em solid #ddd; position:absolute;right:3.5em;top:4em;width:22em;font-size:90%;background-color:#ccc;padding:0.5em;z-index:1000;opacity:0.8;filter:alpha(opacity=80); }
+#explanation { color:black;border:0.25em solid #ddd; position:absolute;right:3.5em;top:4em;width:22em;font-size:90%;background-color:#ccc;padding:0.5em;z-index:1000;opacity:0.8; }
 
 /*
 ._jsPlumb_connector {
