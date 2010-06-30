@@ -1164,15 +1164,21 @@
 	     	void
 	     */
 	    detachAll : function(el) {    	
-	    	var id = _getAttribute(el, "id");
-	    	var f = function(jpc) {
-		    	// todo replace with _cleanupConnection call here.
-		    	_removeElement(jpc.canvas);
-				jpc.endpoints[0].removeConnection(jpc);
-				jpc.endpoints[1].removeConnection(jpc);
-	    	};
-	    	_operation(id, f);
-	    	//delete endpointsByElement[id];    	 ??
+	    	var id = _getAttribute(el, "id");	    	
+	    	var endpoints = endpointsByElement[id];
+	    	if (endpoints && endpoints.length) {
+		    	for (var i = 0; i < endpoints.length; i++) {
+		    		var c = endpoints[i].connections.length;
+		    		if (c > 0) {
+		    			for (var j = 0; j < c; j++) {
+		    				var jpc = endpoints[i].connections[0];
+		    				_removeElement(jpc.canvas);
+		    				jpc.endpoints[0].removeConnection(jpc);
+		    				jpc.endpoints[1].removeConnection(jpc);
+		    			}
+		    		}
+		    	}
+	    	}
 	    },
 	    
 	    /*
