@@ -421,6 +421,10 @@
 		
 		// this is the anchor that this floating anchor is referenced to for purposes of calculating the orientation.
 		var ref = params.reference;
+		// the canvas this refers to.
+		var refCanvas = params.referenceCanvas;
+		var size = _getSize(refCanvas);		
+		
 		// these are used to store the current relative position of our anchor wrt the reference anchor.  they only indicate
 		// direction, so have a value of 1 or -1 (or, very rarely, 0).  these values are written by the compute method, and read
 		// by the getOrientation method.
@@ -432,7 +436,7 @@
 			// set these for the getOrientation method to use.
 			xDir = 0;//xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
 			yDir = 0;//xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
-			return [xy[0], xy[1]];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
+			return [xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
 		};
 		
 		this.getOrientation = function() {
@@ -735,8 +739,9 @@
 				_setAttribute(_getElementObject(self.canvas), "dragId", id);
 				_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
 				// create a floating anchor
-				var floatingAnchor = new FloatingAnchor({reference:self.anchor});
+				var floatingAnchor = new FloatingAnchor({reference:self.anchor, referenceCanvas:self.canvas});
 				floatingEndpoint = new Endpoint({
+					style:{fillStyle:'rgba(0,0,0,0)'},
 					endpoint:_endpoint, 
 					anchor:floatingAnchor, 
 					source:n 
