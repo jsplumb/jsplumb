@@ -44,7 +44,7 @@
 		<script type="text/javascript" src="../../js/mootools.jsPlumb-1.2-RC1.js"></script>
 		<script type="text/javascript" src="../../js/jsPlumb-defaults-1.2-RC1.js"></script>
 
-	    <script type="text/javascript"><!--
+	    <script type="text/javascript">
 	    	window.addEvent('domready',function() {
 
 				jsPlumb.Defaults.DragOptions = { cursor: 'move', zIndex:20 };
@@ -96,13 +96,15 @@
 				var e2 = prepare("bd2");
 				var e3 = prepare("bd3");
 				var e4 = prepare("bd4");
-
+				
 				$("clear").addEvent('click', function() { jsPlumb.detachEverything(); });
 
-				jsPlumb.connect({source:'bd1', target:'bd2', sourceEndpoint:e1, targetEndpoint:e2/*, dragOptions: { onDrag:function() { alert('tt'); } }*/ });
+				jsPlumb.connect({source:'bd1', target:'bd2', sourceEndpoint:e1, targetEndpoint:e2 });
 				jsPlumb.connect({source:'bd1', target:'bd3', sourceEndpoint:e1, targetEndpoint:e3});
 				jsPlumb.connect({source:'bd1', target:'bd4', sourceEndpoint:e1, targetEndpoint:e4});
+
 				
+			
 				$("add").addEvent('click', function() {
 					var d = document.createElement("div");
 					d.className = "bigdot";
