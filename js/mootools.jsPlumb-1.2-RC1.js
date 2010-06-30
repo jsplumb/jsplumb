@@ -83,19 +83,7 @@
 			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
 			'over':'onEnter', 'out':'onLeave','drop':'onDrop'
 		},
-		
-		defaultDragOptions : { 
-			onStart:function()
-		    {
-		      	this.element.setOpacity(.1);
-		    },
-		    onComplete:function()
-		    {
-		    	this.element.setOpacity(1);
-		    }
 
-		},
-			
 		/*
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
 		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
