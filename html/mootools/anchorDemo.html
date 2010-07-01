@@ -32,7 +32,7 @@
 	    	Window 4, which uses the BottomCenter anchor provided by jsPlumb.</p>
 	    	<p>Additionally, this page shows the usage of a different endpoint for each end of the connector, and a gradient in the connector.  <strong>If you are using IE,</strong> you will see green connectors with no gradient.  ExplorerCanvas, which jsPlumb uses for IE, does not support gradients.</p>
 	    	<p>This demonstration uses jsPlumb 1.2, MooTools 1.2.4 and Drag.Move from MooTools More 1.2.4.4.</p>
-	    	<a href="draggableConnectors2.html" class="mplink">Draggable connectors demonstration</a>
+	    	<a href="draggableConnectorsDemo.html" class="mplink">Draggable connectors demonstration</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
 	    </div>
@@ -40,7 +40,8 @@
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
 		<script type="text/javascript" src="../../js/mootools-1.2.4.4-more.js"></script>
-		<script type="text/javascript" src="../../js/http://jsplumb.googlecode.com/svn/trunk/js/mootools.jsPlumb-1.2-all-min.js"></script>
+		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/mootools.jsPlumb-1.2-all-min.js"></script>
+		<script type="text/javascript">
 			window.addEvent('domready', function() {
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 				// default to blue at one end and green at the other
