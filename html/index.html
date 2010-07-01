@@ -3,49 +3,80 @@
 	<head>
 		<meta name="keywords"></meta>
 		<title>jsPlumb Javascript Library</title>
+		<meta name="description" content="jsPlumb - javascript library to visually connect elements on your page"></meta>
+		<meta name="keywords" content="jquery, javascript, mootools, jsplumb, html5"></meta> 
 		<link rel="stylesheet" href="http://morrisonpitt.com/mp.css"></link>
 		<style type="text/css">
-body { text-align:center; margin:0; padding:0;background-color:#bbb;color:#ffffef;font-size:0.9em;}
-#top { height:3em; margin-left:auto; margin-right:auto; width:80%;font-size:3em;padding-top:1em;margin-bottom:-1em;}
-#center { width:80%; margin-left:auto; margin-right:auto; }
-#main { width:70%; float:left; text-align:left; }
-#sidebar { margin-left:80%; margin-top:1.3em;text-align:left;padding:1.3em; border-top:0.0125em dotted black;border-bottom:0.0125em dotted black; font-size:0.95em;}
+body { text-align:center; margin:0; padding:0;background-color:#bbb;color:#ffffff;font-size:0.9em;font-weight:bold;}
+#bg { z-index:0;position:absolute;width:100%;height:641px;background-image:url(../img/index-bg.gif); background-position:center;background-repeat:no-repeat;opacity:0.07;margin-left:auto;margin-right:auto;}
+#top { height:4em; margin-left:auto; margin-right:auto; width:80%;margin-bottom:5em;clear:both;}
+#top h1 { font-size:3em; margin-bottom:0.2em;}
+#top span { letter-spacing:0.7em; }
+#center { position:absolute;z-index:1;width:90%; margin-left:auto; margin-right:auto;}
+#main { width:60%; float:left; text-align:left; margin-left:10%; }
+#sidebar { margin-left:80%; margin-top:1.8em;text-align:left;padding:1.3em; border-top:0.0125em dotted black;border-bottom:0.0125em dotted black; font-size:0.95em;}
 #sidebar ul li { list-style-type:none;margin-top:0.2em;}
 #sidebar ul { margin-left:0; padding:0;}
 a { text-decoration:none; color:#efe213;}
 a:hover{color:yellow;}
+table { width:100%; margin-left:0em;font-size:0.9em;}
+td { padding:1.2em; }
+#main h3 { color:#efe213; }
+
+.even { background-color:#c2c2c2;}
+.odd { background-color:#a2b2b2;}
 		</style>
 	</head>
-	<body>
-		
+	<body>		
+		<div id="bg"></div>
+		<div id="top"><h1>jsPlumb</h1><span class="tagline">javascript library</span></div>
 		<div id="center">
-		<div id="top">jsPlumb</div>
+		
 			<div id="main">
-			<p>jsPlumb is a Javascript library that allows you to visually connect elements on your page.  Some key features are:</p>
-			<ul>
-				<li>visual components use HTML5's Canvas element, making the UI highly customizable</li>
-				<li>supports drag and drop to create new connections</li>
-				<li>works with both jQuery and MooTools; support for other libraries is simple to implement</li>
-				<li>supports animation</li>
-				<li>easily extendible to add your own types of connections</li>
-				<li>compressed js file is only 15K</li>
-			</ul>
-			<p>Several demonstrations are available on this site:
-			
-			</p>
-			<table>
-				<tr>
-					<td><a href="jquery/demo.html"><img src="../img/drag1_thumb.gif" width="150" height="150">jQuery</a></td>
-					<td><a href="mootools/demo.html"><img src="../img/drag2_thumb.gif" width="150" height="150"> MooTools</a></td>
-				</tr>
-			</table>
+				<h3>what is it?</h3>
+				<p>jsPlumb allows you to visually connect elements on your page.  Some key features are:
+				<ul>
+					<li>visual components use HTML5's Canvas element, making the UI highly customizable</li>
+					<li>supports drag and drop to create new connections</li>
+					<li>works with both jQuery and MooTools; support for other libraries is simple to implement</li>
+					<li>supports animation</li>
+					<li>easily extendable to add your own types of connections</li>
+					<li>excellent browser support - even including IE6!</li>
+					<li>compressed js file is only 15K</li>
+				</ul>
+				</p>
+				<br/>
+				<h3>show me!</h3>
+				want to see it in action?  check these out:
+				<br/><br/>
+				<table>
+					<tr class="even">
+						<td>the kitchen sink - a crash course in the variety of effects you can use</td><td><a href="html/jquery/demo.html">jQuery</a></td><td><a href="html/mootools/demo.html">MooTools</a></td>
+					</tr>
+					<tr class="odd">
+						<td>an example organisation chart</td><td><a href="html/jquery/chartDemo.html">jQuery</a></td><td><a href="html/mootools/chartDemo.html">MooTools</a></td>
+					</tr>
+					<tr class="even">
+						<td>working with gradients in Canvas</td><td><a href="html/jquery/gradientDemo.html">jQuery</a></td><td><a href="html/mootools/gradientDemo.html">MooTools</a></td>
+					</tr>
+					<tr class="odd">
+						<td>custom locations for attaching connections</td><td><a href="html/jquery/anchorDemo.html">jQuery</a></td><td><a href="html/mootools/anchorDemo.html">MooTools</a></td>
+					</tr>
+					<tr class="even">
+						<td>drag and drop connectors</td><td><a href="html/jquery/draggableConnectorsDemo.html">jQuery</a></td><td><a href="html/mootools/draggableConnectorsDemo.html">MooTools</a></td>
+					</tr>
+					<tr class="odd">
+						<td>drag and drop connectors with animation</td><td><a href="html/jquery/dragAnimDemo.html">jQuery</a></td><td><a href="html/mootools/dragAnimDemo.html">MooTools</a></td>
+					</tr>
+				</table>
 			</div>
 			<div id="sidebar">jsPlumb links:
 				<ul>
-					<li><a href="http://code.google.com/p/jsplumb">google code</a></li>					
-					<li><a href="http://tweetplumb.com">TweetPlumb</a></li>
-					<li><a href="http://twitter.com/jquery_jsplumb">Twitter</a></li>					
-					<li><a href="http://jsplumb.tumblr.com">blog</a></li>
+					<li><a href="http://tweetplumb.com/?q=javascript" target="_blank" title="a Twitter visualization built with jsPlumb">TweetPlumb</a></li>					
+					<li><a href="http://code.google.com/p/jsplumb" target="_blank" title="jsPlumb project home on google code">google code</a></li>										
+					<li><a href="http://twitter.com/jsplumblib" target="_blank" title="jsPlumb's twitter account">Twitter</a></li>					
+					<li><a href="http://jsplumb.tumblr.com" target="_blank" title="jsPlumb's blog">blog</a></li>
+					<li><a href="http://morrisonpitt.com/jsPlumb/doc/usage.html" target="_blank" title="jsPlumb documentation">documentation</a></li>
 				</ul>
 			</div>
 		</div>
