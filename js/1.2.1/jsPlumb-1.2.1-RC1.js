@@ -117,6 +117,7 @@
 	 */
 	var _elementProxy = function(element, fn) {
 		var retVal = null;
+		// TODO this might be jquery specific. in fact it probably is.
 		if (typeof element == 'object' && element.length) {
 			retVal = [];
     		for (var i = 0; i < element.length; i++) {
@@ -134,36 +135,74 @@
 		return retVal;
 	};
 	
+	var _log = function(msg) {
+	    if (console) console.log(msg);	
+	    }
+	
+	var _logFnCall = function(fn, args) {
+	    if (console) {
+	    	var c = args.callee.caller.toString();
+	    	var i = c.indexOf("{");
+	    	var msg = fn + ' : ' + c.substring(0, i);
+	    	console.log(msg);
+	    }
+	};
+	
+	var cached = {};
+	var __getElementObject = function(el) {
+		
+		//return jsPlumb.CurrentLibrary.getElementObject(el);
+		if (typeof(el)=='string') {
+			var e = cached[el];
+			if (!e) {
+				e = jsPlumb.CurrentLibrary.getElementObject(el);
+				cached[el] = e;
+			}
+			return e;
+		}
+		else {					
+			return jsPlumb.CurrentLibrary.getElementObject(el);
+		}
+	};
+		
+	
 	/**
 	 * gets the named attribute from the given element (id or element object)
 	 */
 	var _getAttribute = function(el, attName) {
-		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
-		return jsPlumb.CurrentLibrary.getAttribute(ele, attName);
+		//_logFnCall('getAttribute',  arguments);
+		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getAttribute(el, attName);
 	};
 	
 	var _setAttribute = function(el, attName, attValue) {
-		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
-		jsPlumb.CurrentLibrary.setAttribute(ele, attName, attValue);
+		//_logFnCall('setAttribute',  arguments);
+		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		jsPlumb.CurrentLibrary.setAttribute(el, attName, attValue);
 	};
 	
 	var _addClass = function(el, clazz) {
-		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
-		jsPlumb.CurrentLibrary.addClass(ele, clazz);
+	//	_logFnCall('addClass',  arguments);
+		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		jsPlumb.CurrentLibrary.addClass(el, clazz);
 	};
 	
 	var _getElementObject = function(elId) {
-		return jsPlumb.CurrentLibrary.getElementObject(elId);
+	//	_logFnCall('getElementObject',  arguments);
+		//return jsPlumb.CurrentLibrary.getElementObject(elId);
+		return __getElementObject(elId);
 	};
 	
 	var _getOffset = function(el) {
-		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
-		return jsPlumb.CurrentLibrary.getOffset(ele);
+		//_logFnCall('getOffset',  arguments);
+		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getOffset(el);
 	};
 	
 	var _getSize = function(el) {
-		var ele = jsPlumb.CurrentLibrary.getElementObject(el);
-		return jsPlumb.CurrentLibrary.getSize(ele);
+		//_logFnCall('getSize',  arguments);
+		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getSize(el);
 	};							
 	
 	var _appendCanvas = function(canvas) {
@@ -174,10 +213,14 @@
 	 * gets an id for the given element, creating and setting one if necessary.
 	 */
 	var _getId = function(element) {
-		var id = _getAttribute(element, "id");
+		//_logFnCall('getId',  arguments);
+		//var ele = _getElementObject(element);
+		//var id = _getAttribute(ele, "id");
+		var id = element.id;
 		if (!id) {
 			id = "_jsPlumb_" + new String((new Date()).getTime());
-			_setAttribute(element, "id", id);
+			//_setAttribute(ele, "id", id);
+			element.id = id;
 		}
 		return id;
 	};
@@ -213,9 +256,7 @@
 	    }    	
     };
     
-    var _log = function(msg) {
-    // not implemented. yet.	
-    }
+    
     
     /**
      * helper to create a canvas.
@@ -362,8 +403,8 @@
 		if (recalc || offset == null) {  // if forced repaint or no offset available, we recalculate.
     		// get the current size and offset, and store them
     		var s = _getElementObject(elId);
-    		sizes[elId] = _getSize(elId);
-    		offsets[elId] = _getOffset(elId);
+    		sizes[elId] = _getSize(s);
+    		offsets[elId] = _getOffset(s);
 		} else {			 
     		offsets[elId] = offset;
 		}
