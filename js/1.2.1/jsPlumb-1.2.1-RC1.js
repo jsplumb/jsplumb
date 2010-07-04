@@ -590,8 +590,11 @@
 	    	
 	    	if (this.canvas.getContext) {    		    		
 	    		    		
-	    		_updateOffset(elId, ui, recalc);
-	    		if (recalc) _updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
+	//    		_updateOffset(elId, ui, recalc);
+	    		if (recalc) {
+	    			_updateOffset(elId, ui, recalc);
+	    			_updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
+	    		}
 	    		
 	    		var myOffset = offsets[elId]; 
 	    		var otherOffset = offsets[tId];
