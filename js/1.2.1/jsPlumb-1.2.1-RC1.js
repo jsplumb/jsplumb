@@ -130,18 +130,19 @@
     	var id = _getAttribute(element, "id");
     	var endpoints = endpointsByElement[id];
     	if (endpoints) {
+    		var timestamp = '' + (new Date().getTime());
     		_trace('draw');
     		_updateOffset(id, ui);
     		var myOffset = offsets[id];
-			var myWH = sizes[id];
+			var myWH = sizes[id];			
 	    	// loop through endpoints for this element
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		var e = endpoints[i];	    		
-	    		var anchorLoc = endpoints[i].anchor.compute([myOffset.left, myOffset.top], myWH);
+	    		var anchorLoc = endpoints[i].anchor.compute([myOffset.left, myOffset.top], myWH, timestamp);
 	            e.paint(anchorLoc);
 	            var l = e.connections;
 		    	for (var j = 0; j < l.length; j++)
-		    		l[j].paint(id, ui);  // ...and paint them.
+		    		l[j].paint(id, ui, false, timestamp);  // ...and paint them.
 	    	}
     	}
     };
@@ -490,10 +491,26 @@
 		var self = this;
 		this.x = params.x || 0; this.y = params.y || 0; 
 		var orientation = params.orientation || [0,0];
+		var lastTimestamp = null;
+		var lastReturnValue = null;
 		this.offsets = params.offsets || [0,0];
-		this.compute = function(xy, wh, txy, twh) {
+		//TODO: fix this properly.  since Anchors are often static, this timestamping business
+		// does not work at all well.  the timestamp should be inside the Endpoint, because they
+		// are _never_ static.  the method that Connection uses to find an anchor location should
+		// be done through the Endpoint clas, which can then deal with the timestamp.
+		// and, in fact, we should find out whether or not we even get a speed enhancement from doing
+		// this.
+		this.compute = function(xy, wh, timestamp) {
 			_trace('anchor compute');
-			return [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
+			//if (lastReturnValue && timestamp && timestamp == lastTimestamp) {
+				//_trace('anchor cache');
+				//return lastReturnValue;
+			//}
+			//else {
+				lastTimestamp = timestamp;
+				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
+			//}
+			return lastReturnValue;
 		}
 		this.getOrientation = function() { return orientation; };
 	};
@@ -584,6 +601,7 @@
 			    if (!params.endpointStyles) params.endpointStyles = [null,null];
 			    var es = params.endpointStyles[index] || params.endpointStyle || jsPlumb.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyle;
 			    var a = params.anchors  ? params.anchors[index] : jsPlumb.Defaults.Anchors[index] || jsPlumb.Anchors.BottomCenter;
+			    //if (a.clone) a = a.clone();
 			    self.endpoints[index] = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:self.source });	    	
 		    }
 	    };
@@ -615,7 +633,7 @@
 	     * @param ui current library's event system ui object (present if we came from a drag to get here)
 	     * @param recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
 	     */
-	    this.paint = function(elId, ui, recalc) {    	
+	    this.paint = function(elId, ui, recalc, timestamp) {    	
 	    	
 	    	if (log) log.debug("Painting Connection; element in motion is " + elId + "; ui is [" + ui + "]; recalc is [" + recalc + "]");
 	    	
@@ -640,9 +658,12 @@
 	            var otherWH = sizes[tId];
 	            
 	    		var ctx = canvas.getContext('2d');
-	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
+	    		//TODO: why are these calculated again?  they were calculated in the _draw function.
+	            //var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
+	    		var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, timestamp);
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
+	            //var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
+	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, timestamp);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
@@ -659,6 +680,8 @@
 	    	}
 	    };
 	    
+	    //TODO: should this take a timestamp?  probably. it reduces the amount of time
+	    // spent figuring out anchor locations.
 	    this.repaint = function() {
 	    	this.paint(this.sourceId, null, true);
 	    };
@@ -1356,7 +1379,9 @@
 	    		}
 	    		if (arguments.length == 6) params.offsets = [arguments[4], arguments[5]];
 	    	}
-	    	return new Anchor(params);
+	    	var a = new Anchor(params);
+	    	a.clone = function() { return new Anchor(params); }
+	    	return a;
 	    },
 	        
 	    
