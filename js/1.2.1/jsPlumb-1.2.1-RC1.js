@@ -22,6 +22,19 @@
 
 (function() {
 	
+	/*
+	 Class: jsPlumb 
+	 
+	 This is the main entry point to jsPlumb.  There are a bunch of static methods you can
+	 use to connect/disconnect etc.  Some methods are also added to jQuery's "$.fn" object itself, but
+	 in general jsPlumb is moving away from that model, preferring instead the static class
+	 approach.  One of the reasons for this is that with no methods added to the jQuery $.fn object,
+	 it will be easier to provide support for other libraries such as MooTools. 
+	 */
+   var jsPlumbInstance = function() {
+	   
+	   var _currentInstance = this;
+	
 	var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
 	
 	var log = null;
@@ -276,7 +289,7 @@
 		    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
 			if (draggable) {    		
 				if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
-			    	var options = dragOptions || jsPlumb.Defaults.DragOptions;
+			    	var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
 			    	options = jsPlumb.extend({}, options);  // make a copy.
 			    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
 			    	var initDrag = function(element, elementId, dragFunc) {	    	
@@ -597,10 +610,10 @@
 	    	if (existing) self.endpoints[index] = existing;
 		    else {
 		    	if(!params.endpoints) params.endpoints = [null,null];
-			    var ep = params.endpoints[index] || params.endpoint || jsPlumb.Defaults.Endpoints[index] || jsPlumb.Defaults.Endpoint|| new jsPlumb.Endpoints.Dot();
+			    var ep = params.endpoints[index] || params.endpoint || _currentInstance.Defaults.Endpoints[index] || jsPlumb.Defaults.Endpoints[index] || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || new jsPlumb.Endpoints.Dot();
 			    if (!params.endpointStyles) params.endpointStyles = [null,null];
-			    var es = params.endpointStyles[index] || params.endpointStyle || jsPlumb.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyle;
-			    var a = params.anchors  ? params.anchors[index] : jsPlumb.Defaults.Anchors[index] || jsPlumb.Anchors.BottomCenter;
+			    var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+			    var a = params.anchors  ? params.anchors[index] : _currentInstance.Defaults.Anchors[index] || jsPlumb.Defaults.Anchors[index] || _currentInstance.Defaults.Anchor || jsPlumb.Defaults.Anchor || jsPlumb.Anchors.BottomCenter;
 			    //if (a.clone) a = a.clone();
 			    self.endpoints[index] = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:self.source });	    	
 		    }
@@ -609,8 +622,8 @@
 	    prepareEndpoint(params.sourceEndpoint, 0, params);
 	    prepareEndpoint(params.targetEndpoint, 1, params);
 	    
-	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
-	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || jsPlumb.Defaults.PaintStyle;
+	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
+	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
 	    	    	    	   
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
@@ -735,7 +748,7 @@
 		var self = this;
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
-		var _style = params.style || jsPlumb.Defaults.EndpointStyle;
+		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 		this.connectorStyle = params.connectorStyle;
 		this.connector = params.connector;
 		var _element = params.source;
@@ -962,7 +975,7 @@
 		
 		// connector target
 		if (params.isTarget && jsPlumb.CurrentLibrary.isDropSupported(_element)) {
-			var dropOptions = params.dropOptions || jsPlumb.Defaults.DropOptions;
+			var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
 			dropOptions = jsPlumb.extend({}, dropOptions);
 	    	var originalAnchor = null;
 	    	var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'];
@@ -1015,16 +1028,7 @@
 		return self;
 	};
 	
-	/*
-	 Class: jsPlumb 
-	 
-	 This is the main entry point to jsPlumb.  There are a bunch of static methods you can
-	 use to connect/disconnect etc.  Some methods are also added to jQuery's "$.fn" object itself, but
-	 in general jsPlumb is moving away from that model, preferring instead the static class
-	 approach.  One of the reasons for this is that with no methods added to the jQuery $.fn object,
-	 it will be easier to provide support for other libraries such as MooTools. 
-	 */
-    var jsPlumb = window.jsPlumb = {
+	
     		
     	/*
     	 Property: Defaults
@@ -1037,7 +1041,8 @@
     	 > jsPlumb.Defaults.PaintStyle = { lineWidth:27, strokeStyle:'blue' }
     	     	  
     	 */
-    	Defaults : {
+    	this.Defaults = {
+    		Anchor : null,
     		Anchors : [ null, null ],
     		Connector : null,
     		DragOptions: { },
@@ -1049,21 +1054,21 @@
     		MaxConnections : null,
     		PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
     		Scope : "_jsPlumb_DefaultScope"
-    	},
+    	};
     	
     	/*
     	 Property: connectorClass
     	 
     	 The CSS class to set on Connection canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
     	 */
-		connectorClass : '_jsPlumb_connector',
+		this.connectorClass = '_jsPlumb_connector';
 		
 		/*
    	 	Property: endpointClass
    	 
    	 	The CSS class to set on Endpoint canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
 		*/
-		endpointClass : '_jsPlumb_endpoint',
+		this.endpointClass = '_jsPlumb_endpoint';
 		
 		/*
 		 Property: Anchors
@@ -1073,7 +1078,7 @@
 		 
 		 > jsPlumb.Anchors.MyAnchor = { ....anchor code here.  see the documentation. }
 		 */
-	    Anchors : {},
+	    this.Anchors = {};
 	    
 	    /*
 		 Property: Connectors
@@ -1083,7 +1088,7 @@
 		 
 		 > jsPlumb.Connectors.MyConnector = { ....connector code here.  see the documentation. }
 		 */
-	    Connectors : {},
+	    this.Connectors = {};
 	    
 	    /*
 		 Property: Endpoints
@@ -1093,7 +1098,7 @@
 		 
 		 > jsPlumb.Endpoints.MyEndpoint = { ....endpoint code here.  see the documentation. }
 		 */
-	    Endpoints : {},
+	    this.Endpoints = {};	    
 	      
 	    /*
 	      Function: addEndpoint
@@ -1112,7 +1117,7 @@
 	      
 	       <addEndpoints>
 	     */
-	    addEndpoint : function(target, params) {
+	    this.addEndpoint = function(target, params) {
 	    	params = jsPlumb.extend({}, params);
 	    	var el = _getElementObject(target);
 	    	var id = _getAttribute(el,"id");
@@ -1125,7 +1130,7 @@
 	    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH);
 	    	e.paint(anchorLoc);
 	    	return e;
-	    },
+	    };
 	    
 	    /*
 	      Function: addEndpoint
@@ -1145,13 +1150,13 @@
 	      
 	       <addEndpoint>
 	     */
-	    addEndpoints : function(target, endpoints) {
+	    this.addEndpoints = function(target, endpoints) {
 	    	var results = [];
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		results.push(jsPlumb.addEndpoint(target, endpoints[i]));
 	    	}
 	    	return results;
-	    },
+	    };
 	    
 	    /*
 	     Function: animate
@@ -1169,7 +1174,7 @@
 	     
 	      void
 	    */	      
-	    animate : function(el, properties, options) {
+	    this.animate = function(el, properties, options) {
 	    	var ele = _getElementObject(el);
 	    	var id = _getAttribute(el,"id");
 	    	//TODO this is not agnostic yet.
@@ -1180,7 +1185,7 @@
 	    		jsPlumb.repaint(id); 
 	    	});
 	    	jsPlumb.CurrentLibrary.animate(ele, properties, options);    	
-	    },
+	    };
 	    
 	    /*
 	     Function: connect
@@ -1196,7 +1201,7 @@
 	     	The newly created Connection.
 	     	
 	     */
-	    connect : function(params) {
+	    this.connect = function(params) {
 	    	if (params.sourceEndpoint && params.sourceEndpoint.isFull()) {
 	    		_log("could not add connection; source endpoint is full");
 	    		return;
@@ -1223,9 +1228,8 @@
 			// force a paint
 			_draw(jpc.source);
 			
-			return jpc;
-    	
-	    },           
+			return jpc;    	
+	    }           
 	    
 	    /**
 	    * not implemented yet. params object will have sourceEndpoint and targetEndpoint members; these will be Endpoints.
@@ -1248,7 +1252,7 @@
 	    
 	    	true if successful, false if not.
 	    */
-	    detach : function(sourceId, targetId) {
+	    this.detach = function(sourceId, targetId) {
 	    	var f = function(jpc) {
 	    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
 	    			_removeElement(jpc.canvas);
@@ -1260,7 +1264,7 @@
 	    	
 	    	// todo: how to cleanup the actual storage?  a third arg to _operation?
 	    	_operation(sourceId, f);    	
-	    },
+	    };
 	    
 	    /*
 	     Function: detachAll 
@@ -1275,7 +1279,7 @@
 	     
 	     	void
 	     */
-	    detachAll : function(el) {    	
+	    this.detachAll = function(el) {    	
 	    	var id = _getAttribute(el, "id");	    	
 	    	var endpoints = endpointsByElement[id];
 	    	if (endpoints && endpoints.length) {
@@ -1291,7 +1295,7 @@
 		    		}
 		    	}
 	    	}
-	    },
+	    };
 	    
 	    /*
 	     Function: detachEverything
@@ -1306,7 +1310,7 @@
 	     
 	     	<removeAllEndpoints>
 	     */
-	    detachEverything : function() {
+	    this.detachEverything = function() {
 	    	for(var id in endpointsByElement) {	    	
 		    	var endpoints = endpointsByElement[id];
 		    	if (endpoints && endpoints.length) {
@@ -1323,11 +1327,11 @@
 			    	}
 		    	}
 	    	}
-	    },
+	    };
 	    
-	    extend : function(o1, o2) {
+	    this.extend = function(o1, o2) {
 			return jsPlumb.CurrentLibrary.extend(o1, o2);
-		},
+		};
 	    
 	    /*
 	     Function: hide 
@@ -1342,9 +1346,9 @@
 	     
 	     	void
 	     */
-	    hide : function(el) {
+		this.hide = function(el) {
 	    	_setVisible(el, "none");
-	    },
+	    };
 	    
     	
     	
@@ -1367,7 +1371,7 @@
 	     
 	     	The newly created Anchor.
 	     */
-	    makeAnchor : function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
+	    this.makeAnchor = function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
 	    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
 	    	// by just passing in four/six values.  but for backwards compatibility if we are given only one value we assume it's a call in the old form.
 	    	var params = {};
@@ -1382,7 +1386,7 @@
 	    	var a = new Anchor(params);
 	    	a.clone = function() { return new Anchor(params); }
 	    	return a;
-	    },
+	    };
 	        
 	    
 	    /*
@@ -1402,7 +1406,7 @@
 	     
 	     	<repaintEverything>
 	     */
-	    repaint : function(el) {
+	    this.repaint = function(el) {
 	    	
 	    	var _processElement = function(el) {
 	    		var ele = _getElementObject(el);
@@ -1417,7 +1421,7 @@
 	    			_processElement(el[i]);
 	    	} // ...and single strings.
 	    	else _processElement(el);
-	    },       
+	    };     
 	    
 	    /*
 	     Function: repaintEverything
@@ -1432,11 +1436,11 @@
 	     
 	     	<repaint>
 	     */
-	    repaintEverything : function() {
+	    this.repaintEverything = function() {
 	    	for (var elId in endpointsByElement) {
 	    		_draw(_getElementObject(elId));
 	    	}
-	    },
+	    };
 	    
 	    /*	     
 	     Function: removeAllEndpoints
@@ -1455,7 +1459,7 @@
 	     
 	     	<removeEndpoint>
 	    */
-	    removeAllEndpoints : function(el) {
+	    this.removeAllEndpoints = function(el) {
 	    	var elId = _getAttribute(el, "id");
 	    	// first remove all Connections.
 	    	jsPlumb.detachAll(elId);
@@ -1464,7 +1468,7 @@
 			_removeElement(ebe[i].canvas);	    	
 	    	}	    
 	    	endpointsByElement[elId] = [];
-	    },
+	    };
 	    
 	    /*
 	     Function: removeEndpoint
@@ -1484,14 +1488,14 @@
 	    
 	    	<removeAllEndpoints>
 	    */
-	    removeEndpoint : function(el, endpoint) {
+	    this.removeEndpoint = function(el, endpoint) {
 	        var elId = _getAttribute(el, "id");
 	    	var ebe = endpointsByElement[elId];
 	    	if (ebe) {
 	    		if(_removeFromList(endpointsByElement, elId, endpoint))
 	    			_removeElement(endpoint.canvas);
 	    	}
-	    },
+	    };
 	    
 	    /*
 	     Function: setAutomaticRepaint
@@ -1506,9 +1510,9 @@
 	     
 	     	void
 	     */
-	    setAutomaticRepaint : function(value) {
+	    this.setAutomaticRepaint = function(value) {
 	    	automaticRepaint = value;
-	    },
+	    };
 	    
 	    /*
 	     Function: setDefaultNewCanvasSize
@@ -1526,9 +1530,9 @@
 	     
 	     	void
 	     */
-	    setDefaultNewCanvasSize : function(size) {
+	    this.setDefaultNewCanvasSize = function(size) {
 	    	DEFAULT_NEW_CANVAS_SIZE = size;    	
-	    },
+	    };
 	    
 	    /*
 	     Function: setDraggable
@@ -1543,7 +1547,7 @@
 	     
 	      	void
 	     */
-	    setDraggable: _setDraggable, 
+	    this.setDraggable = _setDraggable; 
 	    
 	    /*
 	     Function: setDraggableByDefault
@@ -1557,13 +1561,13 @@
 	     
 	     	void
 	     */
-	    setDraggableByDefault: function(draggable) {
+	    this.setDraggableByDefault = function(draggable) {
 	    	_draggableByDefault = draggable;
-	    },
+	    };
 	    
-	    setDebugLog: function(debugLog) {
+	    this.setDebugLog = function(debugLog) {
 	    	log = debugLog;
-	    },
+	    };
 	    
 	    /*
 	     Function: setRepaintFunction
@@ -1576,9 +1580,9 @@
 	     Returns:	     
 	     	void
 	     */
-	    setRepaintFunction : function(f) {
+	    this.setRepaintFunction = function(f) {
 	    	repaintFunction = f;
-	    },
+	    };
 	        
 	    /*
 	     Function: show	     
@@ -1591,9 +1595,9 @@
 	     Returns:
 	     	void	     
 	     */
-	    show : function(el) {
+	    this.show = function(el) {
 	    	_setVisible(el, "block");
-	    },
+	    };
 	    
 	    /*
 	     Function: sizeCanvas
@@ -1609,18 +1613,18 @@
 	     Returns:
 	     	void	     
 	     */
-	    sizeCanvas : function(canvas, x, y, w, h) {
+	    this.sizeCanvas = function(canvas, x, y, w, h) {
 	    	if (canvas) {
 		        canvas.style.height = h + "px"; canvas.height = h;
 		        canvas.style.width = w + "px"; canvas.width = w; 
 		        canvas.style.left = x + "px"; canvas.style.top = y + "px";
 	    	}
-	    },
+	    };
 	    
 	    /**
 	     * gets some test hooks.  nothing writable.
 	     */
-	    getTestHarness : function() {
+	    this.getTestHarness = function() {
 	    	return {
 	    		endpointCount : function(elId) {
 	    			var e = endpointsByElement[elId];
@@ -1629,12 +1633,12 @@
 	    		
 	    		findIndex : _findIndex
 	    	};	    	
-	    },
+	    };
 	    
 	    /**
 	     * Toggles visibility of an element's connections. kept for backwards compatibility
 	     */
-	    toggle : _toggleVisible,
+	    this.toggle = _toggleVisible;
 	    
 	    /*
 	     Function: toggleVisible
@@ -1648,7 +1652,7 @@
 	     	void, but should be updated to return the current state
 	     */
 	    //TODO: update this method to return the current state.
-	    toggleVisible : _toggleVisible,
+	    this.toggleVisible = _toggleVisible;
 	    
 	    /*
 	     Function: toggleDraggable
@@ -1661,7 +1665,7 @@
 	     Returns:
 	     	The current draggable state.
 	     */
-	    toggleDraggable : _toggleDraggable, 
+	    this.toggleDraggable = _toggleDraggable; 
 	    
 	    /*
 	     Function: unload
@@ -1671,13 +1675,13 @@
 	     Returns:
 	     	void
 	     */
-	    unload : function() {
+	    this.unload = function() {
 	    	delete endpointsByElement;
 			delete offsets;
 			delete sizes;
 			delete floatingConnections;
 			delete draggableStates;		
-	    },
+	    };
 	    
 	    /*
 	     Function: wrap
@@ -1688,13 +1692,21 @@
 	     Parameters:
 	     	
 	     */
-	    wrap : _wrap,
+	    this.wrap = _wrap;
 	    
-	    trace : _trace,
-	    clearTrace : _clearTrace,
-	    clearAllTraces : _clearAllTraces,
-	    getTrace : _getTrace
+	    this.trace = _trace;
+	    this.clearTrace = _clearTrace;
+	    this.clearAllTraces = _clearAllTraces;
+	    this.getTrace = _getTrace;
 	    
+	};
+	
+	var jsPlumb = window.jsPlumb = new jsPlumbInstance();
+	jsPlumb.getInstance = function(_defaults) {
+		var j = new jsPlumbInstance();
+		if (_defaults)
+			jsPlumb.extend(j.Defaults, _defaults);
+		return j;
 	};
 
 })();
