@@ -45,7 +45,42 @@
 	var _draggableByDefault = true;
 	var sizes = [];
 	
-	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)		
+	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
+	
+	var traced = {};
+	var _trace = function(category, event) {
+		var e = traced[category];
+		if (!e) {
+			e = {};
+			traced[category] = e;
+		}
+		event = event || 'DEFAULT';
+		var ee = e[event];
+		if (!ee) {
+			ee = 0;
+			e[event] = ee;
+		}
+		e[event]++;
+	};
+	
+	var _clearAllTraces = function() {
+		delete traced;
+		traced = {};
+	};
+			
+		var _clearTrace = function(category, event) {
+			var c = traced[category];
+			if (!c) return;
+			if (event) {
+				c[event] = 0;
+			}
+			else c['DEFAULT'] = 0;
+		};
+			
+		var _getTrace = function(category) {
+			return traced[category] || {'DEFAULT' : 0 };
+		};
+	
 	
 	var _findIndex = function( a, v, b, s ) {		
 		var _eq = function(o1, o2) {
@@ -95,6 +130,7 @@
     	var id = _getAttribute(element, "id");
     	var endpoints = endpointsByElement[id];
     	if (endpoints) {
+    		_trace('draw');
     		_updateOffset(id, ui);
     		var myOffset = offsets[id];
 			var myWH = sizes[id];
@@ -171,20 +207,20 @@
 	 */
 	var _getAttribute = function(el, attName) {
 		//_logFnCall('getAttribute',  arguments);
-		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
-		return jsPlumb.CurrentLibrary.getAttribute(el, attName);
+		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getAttribute(ele, attName);
 	};
 	
 	var _setAttribute = function(el, attName, attValue) {
 		//_logFnCall('setAttribute',  arguments);
-		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
-		jsPlumb.CurrentLibrary.setAttribute(el, attName, attValue);
+		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		jsPlumb.CurrentLibrary.setAttribute(ele, attName, attValue);
 	};
 	
 	var _addClass = function(el, clazz) {
 	//	_logFnCall('addClass',  arguments);
-		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
-		jsPlumb.CurrentLibrary.addClass(el, clazz);
+		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		jsPlumb.CurrentLibrary.addClass(ele, clazz);
 	};
 	
 	var _getElementObject = function(elId) {
@@ -195,14 +231,14 @@
 	
 	var _getOffset = function(el) {
 		//_logFnCall('getOffset',  arguments);
-		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
-		return jsPlumb.CurrentLibrary.getOffset(el);
+		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getOffset(ele);
 	};
 	
 	var _getSize = function(el) {
 		//_logFnCall('getSize',  arguments);
-		//var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
-		return jsPlumb.CurrentLibrary.getSize(el);
+		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		return jsPlumb.CurrentLibrary.getSize(ele);
 	};							
 	
 	var _appendCanvas = function(canvas) {
@@ -236,24 +272,25 @@
      */
 	var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
     	// dragging
-	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
-	    if (draggable && jsPlumb.CurrentLibrary.isDragSupported(element)) {    	
-	    	var options = dragOptions || jsPlumb.Defaults.DragOptions;
-	    	options = jsPlumb.extend({}, options);  // make a copy.
-	    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
-	    	var initDrag = function(element, elementId, dragFunc) {	    	
-	    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
-	    		var draggable = draggableStates[elementId];
-	    		// TODO: this is still jQuery specific.
-	    		options.disabled = draggable == null ? false : !draggable;
-	    		jsPlumb.CurrentLibrary.initDraggable(element, options);
-	    	};
-	    	initDrag(element, elementId, function() {
-	    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-	    		_draw(element, ui);	
-	    		_addClass(element, "jsPlumb_dragged");
-	    	});
-	    }    	
+		    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
+			if (draggable) {    		
+				if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
+			    	var options = dragOptions || jsPlumb.Defaults.DragOptions;
+			    	options = jsPlumb.extend({}, options);  // make a copy.
+			    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
+			    	var initDrag = function(element, elementId, dragFunc) {	    	
+			    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
+			    		var draggable = draggableStates[elementId];
+			    		options.disabled = draggable == null ? false : !draggable;
+			    		jsPlumb.CurrentLibrary.initDraggable(element, options);
+			    	};
+			    	initDrag(element, elementId, function() {
+			    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+			    		_draw(element, ui);	
+			    		_addClass(element, "jsPlumb_dragged");
+			    	});
+				}
+		    }
     };
     
     
@@ -455,6 +492,7 @@
 		var orientation = params.orientation || [0,0];
 		this.offsets = params.offsets || [0,0];
 		this.compute = function(xy, wh, txy, twh) {
+			_trace('anchor compute');
 			return [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
 		}
 		this.getOrientation = function() { return orientation; };
@@ -470,7 +508,7 @@
 		var ref = params.reference;
 		// the canvas this refers to.
 		var refCanvas = params.referenceCanvas;
-		var size = _getSize(refCanvas);		
+		var size = _getSize(_getElementObject(refCanvas));		
 		
 		// these are used to store the current relative position of our anchor wrt the reference anchor.  they only indicate
 		// direction, so have a value of 1 or -1 (or, very rarely, 0).  these values are written by the compute method, and read
@@ -779,10 +817,11 @@
 				inPlaceCopy.paint();
 				
 				n = document.createElement("div");
+				var nE = _getElementObject(n);
 				_appendCanvas(n);
 				// create and assign an id, and initialize the offset.
 				var id = "" + new String(new Date().getTime());
-				_setAttribute(_getElementObject(n), "id", id);
+				_setAttribute(nE, "id", id);
 				_updateOffset(id);
 				// store the id of the dragging div and the source element. the drop function
 				// will pick these up.
@@ -794,7 +833,7 @@
 					style:{fillStyle:'rgba(0,0,0,0)'},
 					endpoint:_endpoint, 
 					anchor:floatingAnchor, 
-					source:n 
+					source:nE 
 				});
 				
 				jpc = connectorSelector();
@@ -1053,7 +1092,7 @@
 	    addEndpoint : function(target, params) {
 	    	params = jsPlumb.extend({}, params);
 	    	var el = _getElementObject(target);
-	    	var id = _getAttribute(target,"id");
+	    	var id = _getAttribute(el,"id");
 	    	params.source = el; 
 	    	_updateOffset(id);
 	    	var e = new Endpoint(params);
@@ -1624,7 +1663,13 @@
 	     Parameters:
 	     	
 	     */
-	    wrap : _wrap
+	    wrap : _wrap,
+	    
+	    trace : _trace,
+	    clearTrace : _clearTrace,
+	    clearAllTraces : _clearAllTraces,
+	    getTrace : _getTrace
+	    
 	};
 
 })();
