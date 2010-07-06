@@ -106,7 +106,7 @@ $(window).bind('resize', function() {
 	 * 
 	 * 
 	 */
-	var cache = true;
+	var cache = false;
 	var elCache = {};
 	var traced = {};
 	var trace = function(category, event) {
