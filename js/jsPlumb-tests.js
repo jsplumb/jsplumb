@@ -33,10 +33,10 @@ var _addDiv = function(id) {
 
 test('findIndex method', function() {
 	var array = [ 1,2,3, "test", "a string", { 'foo':'bar', 'baz':1 }, { 'ding':'dong' } ];
-	equals(array.findIndex(1), 0, "find works for integers");
-	equals(array.findIndex("test"), 3, "find works for strings");
-	equals(array.findIndex({ 'foo':'bar', 'baz':1 }), 5, "find works for objects");
-	equals(array.findIndex({ 'ding':'dong', 'baz':1 }), -1, "find works properly for objects (objects have different length but some same properties)");
+	equals(jsPlumb.getTestHarness().findIndex(array, 1), 0, "find works for integers");
+	equals(jsPlumb.getTestHarness().findIndex(array, "test"), 3, "find works for strings");
+	equals(jsPlumb.getTestHarness().findIndex(array, { 'foo':'bar', 'baz':1 }), 5, "find works for objects");
+	equals(jsPlumb.getTestHarness().findIndex(array, { 'ding':'dong', 'baz':1 }), -1, "find works properly for objects (objects have different length but some same properties)");
 });
 
 test('jsPlumb setup', function() {
@@ -51,9 +51,9 @@ test('jsPlumb setup', function() {
 test('plumb two divs with default options', function() { 
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	$(d2).plumb({target:"d1"});
-	assertContextExists();
+	//assertContextExists();
 	jsPlumb.detachEverything();
-	assertContextSize(2);  // the two endpoint canvases are still there.
+	//assertContextSize(2);  // the two endpoint canvases are still there.
 	assertEndpointCount("d1", 1);
 	assertEndpointCount("d2", 1);
 	jsPlumb.removeAllEndpoints("d1");
@@ -66,14 +66,14 @@ var e;
 test('create a simple endpoint', function() {
 	e = $("#d1").addEndpoint({});
 	ok(e, 'endpoint exists');
-	assertContextSize(1);  
+	//assertContextSize(1);  
 	assertEndpointCount("d1", 1);
 });
 
 test('remove the simple endpoint', function() {
 	ok(e != null, "endpoint exists");
 	assertEndpointCount("d1", 1);
-	assertContextSize(1);
+	//assertContextSize(1);
 	$("#d1").removeEndpoint(e);	 
 	assertEndpointCount("d1", 0);
 });
@@ -84,7 +84,7 @@ test('plumb between two endpoints', function() {
 	e2 = $("#d2").addEndpoint({});
 	ok(e, 'endpoint e exists');
 	ok(e2, 'endpoint e2 exists');
-	assertContextSize(2);  
+	//assertContextSize(2);  
 	assertEndpointCount("d1", 1);
 	assertEndpointCount("d2", 1);
 	$("#d1").plumb({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
@@ -139,6 +139,36 @@ test('noEndpointMaxConnections', function() {
 	assertConnectionCount(e3, 1);   // we have one connection
 	$("#d3").plumb({target:'d4', sourceEndpoint:e3, targetEndpoint:e4});
 	assertConnectionCount(e3, 2);  // we have two.  etc (default was one. this proves max is working).	
+});
+
+test('anchors equal', function() {
+	var a1 = jsPlumb.makeAnchor(0, 1, 1, 1);
+	var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+	ok(a1.equals(a2), "anchors are the same");
+});
+
+test('anchors equal with offsets', function() {
+	var a1 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
+	var a2 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
+	ok(a1.equals(a2), "anchors are the same");
+});
+
+test('anchors not equal', function() {
+	var a1 = jsPlumb.makeAnchor(0, 1, 0, 1);
+	var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+	ok(!a1.equals(a2), "anchors are different");
+});
+
+test('anchor not equal with offsets', function() {
+	var a1 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
+	var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+	ok(!a1.equals(a2), "anchors are different");
+});
+
+test('detach plays nice when no target given', function() {
+	var d3 = _addDiv("d3"), d4 = _addDiv("d4");
+	jsPlumb.connect({source:d3, target:d4});
+	$("#d3").detach();	
 });
 
 /**
