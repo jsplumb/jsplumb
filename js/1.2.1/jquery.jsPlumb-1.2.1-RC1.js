@@ -19,13 +19,14 @@
    * detaches the results of the selector from the given target or list of targets - 'target'
    * may be a String or a List.
    */
-  $.fn.detach = function(target) {
-	  return this.each(function() 
-	  {
-		 var id = $(this).attr("id");
-		 if (typeof target == 'string') target = [target];
-		 for (var i = 0; i < target.length; i++)
-			 jsPlumb.detach(id, target[i]);
+  $.fn.detach = function(target) {	  
+	  return this.each(function() {
+		  if (target) {
+			 var id = $(this).attr("id");
+			 if (typeof target == 'string') target = [target];
+			 for (var i = 0; i < target.length; i++)
+				 jsPlumb.detach(id, target[i]);
+		  }
 	  });	  
   };
   
@@ -46,8 +47,7 @@
    */
   $.fn.addEndpoint = function(options) {
 	  var addedEndpoints = [];
-	  this.each(function() 
-	  {
+	  this.each(function() {
 		  addedEndpoints.push(jsPlumb.addEndpoint($(this).attr("id"), options));
 	  });
 	  return addedEndpoints[0];
@@ -59,8 +59,7 @@
    */
   $.fn.addEndpoints = function(endpoints) {
 	  var addedEndpoints = [];
-	  return this.each(function() 
-	  {		 
+	  return this.each(function() {		 
 		 var e = jsPlumb.addEndpoints($(this).attr("id"), endpoints);
 		 for (var i = 0; i < e.length; i++) addedEndpoints.push(e[i]);
 	  });	  
@@ -71,8 +70,7 @@
    * remove the endpoint, if it exists, deleting its UI elements etc. 
    */
   $.fn.removeEndpoint = function(endpoint) {
-	  this.each(function() 
-	  {			  
+	  this.each(function() {			  
 		  jsPlumb.removeEndpoint($(this).attr("id"), endpoint);
 	  });
   };
@@ -91,44 +89,10 @@ $(window).bind('resize', function() {
 /* 
  * the library agnostic functions, such as find offset, get id, get attribute, extend etc.  
  */
-(function() {
-	
-	/*
-	 * caching seems to make it go faster.  surprise.
-	 * 
-	 * no cache:
-	 * i made 432 connections in 6.424 seconds. 16626 string lookups; 2160 jquery lookups;2592 object lookups
-	 * 
-	 * cache on string lookup:
-	 * i made 432 connections in 5.848 seconds. 16626 string lookups; 2160 jquery lookups;2592 object lookups
-	 * 
-	 * cache on string and jquery object lookup:
-	 * 
-	 * 
-	 */
-	var cache = false;
-	var elCache = {};
-	var traced = {};
-	var trace = function(category, event) {
-		var e = traced[category];
-		if (!e) {
-			e = {};
-			traced[category] = e;
-		}
-		var ee = e[event];
-		if (!ee) {
-			ee = 0;
-			e[event] = ee;
-		}
-		e[event]++;
-	};
+(function() {	
 	
 	jsPlumb.CurrentLibrary = {
-			
-		getTrace : function(category) {
-			return traced[category];
-		},
-		
+					
         /**
          * mapping of drag events for jQuery
          */
@@ -160,25 +124,8 @@ $(window).bind('resize', function() {
 		 * with cache, 312 connections take 4.57 seconds to create. that's 13% faster.
 		 */
 		
-		getElementObject : function(el) {
-			trace('getElementObject', typeof el == 'string' ? 'string' : el.length ? 'jquery' : 'object');
-			if (cache) {
-				if (typeof(el)=='string') {
-					var e = elCache[el];
-					if (!e) {
-						e = $("#" + el);
-						elCache[el] = e;
-					}
-					return e;
-				}
-				else {					
-					//return el.length ? el : $(el);
-					return $(el);
-				}
-			}
-			else {
-				return typeof(el)=='string' ? $("#" + el) : $(el);
-			}
+		getElementObject : function(el) {			
+			return typeof(el)=='string' ? $("#" + el) : $(el);
 		},
 		
 		/**
