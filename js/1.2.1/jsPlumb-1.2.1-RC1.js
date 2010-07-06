@@ -524,8 +524,16 @@
 				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
 			//}
 			return lastReturnValue;
-		}
+		};
+		
 		this.getOrientation = function() { return orientation; };
+		
+		this.equals = function(anchor) {
+			if (!anchor) return false;
+			var ao = anchor.getOrientation();
+			var o = this.getOrientation();
+			return this.x == anchor.x && this.y == anchor.y && this.offsets[0] == anchor.offsets[0] && this.offsets[1] == anchor.offsets[1] && o[0] == ao[0] && o[1] == ao[1];
+		};
 	};
 		 
 	/**
@@ -804,7 +812,7 @@
 			return self.connections.length == 0 || self.connections.length < _maxConnections ?  null : self.connections[0]; 
 		};
 		
-		this.isFull = function() { return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections); }; 
+		this.isFull = function() { return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections); };		
 		
 		/**
 		 * paints the Endpoint, recalculating offset and anchor positions if necessary.
