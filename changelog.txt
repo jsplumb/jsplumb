@@ -1,6 +1,16 @@
+* 1.2.1
+
+	- supports multiple instances of jsPlumb per page ( jsPlumb.newInstance(defaults) )
+	- performance enhancements on connection registration
+	- jsPlumb.Defaults.Anchor added to defaults
+	- equals method added to Anchor class.
+	- fix for issue 8: detach method blows up if no target specified.
+
 * 1.2
 
 	- adding support for libraries other than jQuery. Starting with MooTools.
+	- added 'wrap' function in to jsPlumb public API.
+	- added 'extend' function in to jsPlumb public API.
 
 * 1.1.1
 
