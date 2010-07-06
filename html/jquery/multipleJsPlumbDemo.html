@@ -19,7 +19,7 @@ _jsPlumb_connector { z-index:1; }
 		</style>
 	</head>
 	<body>
-		<div id="info">Each 5x5 square is an independent jsPlumb instance, with separate clear and redraw buttons.</div>
+		<div id="info">Each 3x3 square is an independent jsPlumb instance, with separate clear and redraw buttons.</div>
 		<div id="container"><button disabled class="clear" rel="1">clear these</button><button disabled class="redo" rel="1">redraw these</button><button class="anim" rel="1">animate these</button></div>
 		<div id="container2"><button disabled class="clear" rel="2">clear these</button><button disabled class="redo" rel="2">redraw these</button><button class="anim" rel="2">animate these</button></div>
 		<div id="container3"><button disabled class="clear" rel="3">clear these</button><button disabled class="redo" rel="3">redraw these</button><button class="anim" rel="3">animate these</button></div>
@@ -67,7 +67,7 @@ _jsPlumb_connector { z-index:1; }
 // *************************** blips to draw, drawing functions etc *****************************
 
 				var blipWidth = 1, blipHeight = 1;
-				var blipX = 5, blipY = 5;
+				var blipX = 3, blipY = 3;
 				var spacer = 3.9;
 				
 				var getId = function(x, y, prefix) { return 'blip_' + (prefix ? prefix : '') + x + '_' + y; };
@@ -128,14 +128,15 @@ _jsPlumb_connector { z-index:1; }
 
 			var anim = function(jsPlumbInstance, prefix) {					
 					var nextX = function(curX) {
-						return curX < blipX - 1 ? curX + 1 : 0; 
+						//return curX < blipX - 1 ? curX + 1 : 0; 
+						return curX > 0  ? curX - 1 : blipX - 1;
 					};
 					var nextY = function(curY) {
 						return curY < blipY - 1 ? curY + 1 : -9999; 
 					};
 					var nextStep = function(curX, curY, prefix) {
 						var nx = nextX(curX);
-						var ny = nx == 0 ? nextY(curY) : curY;
+						var ny = nx == blipX - 1 ? nextY(curY) : curY;
 						if (ny != -9999) {
 							var id = getId(nx, ny, prefix);
 							//
@@ -143,7 +144,7 @@ _jsPlumb_connector { z-index:1; }
 						}
 					};
 
-					nextStep(-1,-1, prefix);
+					nextStep(blipX,-1, prefix);
 					
 					/*for (var i = 0; i < blipX; i++) {
 						for (var j = 0; j < blipY; j++) {
