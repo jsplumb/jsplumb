@@ -1516,9 +1516,9 @@
 			    	for (var i = 0; i < endpoints.length; i++) {			
 				    	// first remove all Connections ?
 				    	//jsPlumb.detachAll(elId);	    	
-				    	for (var i in ebe) {
-						_removeElement(ebe[i].canvas);	    	
-				    	}	    
+				    	//for (var i in ebe) {
+						_removeElement(endpoints[i].canvas);	    	
+				    	//}	    
 			    	}
 			    	delete endpointsByElement;
 			    	endpointsByElement = {};
