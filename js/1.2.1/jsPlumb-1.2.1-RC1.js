@@ -6,13 +6,22 @@
  * Several enhancements are planned for 1.2.1:
  * 
  * - speed enhancements for dragging/animation (fewer element positioning lookups etc)
- * - the ability to label connectors
+ * 
+ * - the ability to label connectors.  each connector type will have to tell us the right place
+ *   for a label to go.
+ * 
  * - the ability to interact with connectors/endpoints using the mouse
+ * 
  * - the log function should hook up to the console of whichever browser it is in. or library.
- * - export current chart as one entire jpg (Canvas can export a jpg. we just need to stitch them together)
+ * 
+ *   actually this may not be possible.  well - how will the user's elements get included? unless
+ *   they are canvases, forget about it.  so this is probably out.
+ * 
  * - reinstate the context node to put all our canvases in
+ * 
  * - possibly support multiple jsplumb instances on the same page.  this would not be too hard;
- *   it would just need to stop being a singleton.
+ *   it would just need to stop being a singleton. 07/05/10: this is done now.
+ *   
  * - support for devices with touch events. 
  * 
  * http://morrisonpitt.com/jsPlumb/demo.html
@@ -623,12 +632,16 @@
 			    var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			    var a = params.anchors  ? params.anchors[index] : _currentInstance.Defaults.Anchors[index] || jsPlumb.Defaults.Anchors[index] || _currentInstance.Defaults.Anchor || jsPlumb.Defaults.Anchor || jsPlumb.Anchors.BottomCenter;
 			    //if (a.clone) a = a.clone();
-			    self.endpoints[index] = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:self.source });	    	
+			    var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:self.source });
+			    self.endpoints[index] = e;
+			    return e;
 		    }
 	    };
 	    
-	    prepareEndpoint(params.sourceEndpoint, 0, params);
-	    prepareEndpoint(params.targetEndpoint, 1, params);
+	    var eS = prepareEndpoint(params.sourceEndpoint, 0, params);
+	    if (eS) _addToList(endpointsByElement, this.sourceId, eS);
+	    var eT = prepareEndpoint(params.targetEndpoint, 1, params);
+	    if (eT) _addToList(endpointsByElement, this.targetId, eT);
 	    
 	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
@@ -812,7 +825,16 @@
 			return self.connections.length == 0 || self.connections.length < _maxConnections ?  null : self.connections[0]; 
 		};
 		
-		this.isFull = function() { return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections); };		
+		this.isFull = function() { return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections); };
+		
+		/**
+		 * a deep equals check.  everything must match, including the anchor, styles, everything.
+		 * TODO: finish Endpoint.equals
+		 */		
+		this.equals = function(endpoint) {
+			return this.anchor.equals(endpoint.anchor) &&
+			true;
+		};
 		
 		/**
 		 * paints the Endpoint, recalculating offset and anchor positions if necessary.
@@ -1188,10 +1210,19 @@
 	    	//TODO this is not agnostic yet.
 	    	options = options || {};
 	    	var stepFunction = jsPlumb.CurrentLibrary.dragEvents['step'];
+	    	var completeFunction = jsPlumb.CurrentLibrary.dragEvents['complete'];
 	    	options[stepFunction] = _wrap(options[stepFunction], function() 
 	    	{
-	    		jsPlumb.repaint(id); 
+	    		_currentInstance.repaint(id); 
 	    	});
+	    	
+	    	// you know, probably onComplete should repaint too. that will help keep up
+	    	// with fast animations.
+	    	options[completeFunction] = _wrap(options[completeFunction], function() 
+	    	{
+	    		_currentInstance.repaint(id); 
+	    	});
+	    	
 	    	jsPlumb.CurrentLibrary.animate(ele, properties, options);    	
 	    };
 	    
@@ -1476,6 +1507,23 @@
 			_removeElement(ebe[i].canvas);	    	
 	    	}	    
 	    	endpointsByElement[elId] = [];
+	    };
+	    
+	    this.removeEveryEndpoint = function() {
+	    	for(var id in endpointsByElement) {	    	
+		    	var endpoints = endpointsByElement[id];
+		    	if (endpoints && endpoints.length) {
+			    	for (var i = 0; i < endpoints.length; i++) {			
+				    	// first remove all Connections ?
+				    	//jsPlumb.detachAll(elId);	    	
+				    	for (var i in ebe) {
+						_removeElement(ebe[i].canvas);	    	
+				    	}	    
+			    	}
+			    	delete endpointsByElement;
+			    	endpointsByElement = {};
+		    	}
+	    	}
 	    };
 	    
 	    /*
