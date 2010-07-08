@@ -1514,16 +1514,13 @@
 		    	var endpoints = endpointsByElement[id];
 		    	if (endpoints && endpoints.length) {
 			    	for (var i = 0; i < endpoints.length; i++) {			
-				    	// first remove all Connections ?
-				    	//jsPlumb.detachAll(elId);	    	
-				    	//for (var i in ebe) {
-						_removeElement(endpoints[i].canvas);	    	
-				    	//}	    
-			    	}
-			    	delete endpointsByElement;
-			    	endpointsByElement = {};
+				    	_removeElement(endpoints[i].canvas);	    	
+				    		   
+			    	}			    	
 		    	}
 	    	}
+	    	delete endpointsByElement;
+	    	endpointsByElement = {};
 	    };
 	    
 	    /*
