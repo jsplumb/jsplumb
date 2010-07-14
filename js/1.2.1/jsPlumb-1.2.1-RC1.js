@@ -292,29 +292,25 @@
      */
 	var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
     	// dragging
-		    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
-			if (draggable) {    		
-				if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
-			    	var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
-			    	options = jsPlumb.extend({}, options);  // make a copy.
-			    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
-			    	var initDrag = function(element, dragFunc) {	    	
-			    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
-			    		var draggable = draggableStates[_getId(element)];
-			    		options.disabled = draggable == null ? false : !draggable;
-			    		jsPlumb.CurrentLibrary.initDraggable(element, options);
-			    	};
-			    	initDrag(element, function() {
-			    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-			    		_draw(element, ui);	
-			    		_addClass(element, "jsPlumb_dragged");
-			    	});
-				}
-		    }
+	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
+		if (draggable) {    		
+			if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
+		    	var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
+		    	options = jsPlumb.extend({}, options);  // make a copy.
+		    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
+	    		options[dragEvent] = _wrap(options[dragEvent], function() {
+		    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+		    		_draw(element, ui);	
+		    		_addClass(element, "jsPlumb_dragged");
+		    	});
+	    		var draggable = draggableStates[_getId(element)];
+	    		options.disabled = draggable == null ? false : !draggable;
+	    		jsPlumb.CurrentLibrary.initDraggable(element, options);
+			}
+	    }
     };
     
-    
-    
+        
     /**
      * helper to create a canvas.
      * @param clazz optional class name for the canvas.
@@ -1511,8 +1507,7 @@
 		    	var endpoints = endpointsByElement[id];
 		    	if (endpoints && endpoints.length) {
 			    	for (var i = 0; i < endpoints.length; i++) {			
-				    	_removeElement(endpoints[i].canvas);	    	
-				    		   
+				    	_removeElement(endpoints[i].canvas);	    					    		   
 			    	}			    	
 		    	}
 	    	}
@@ -1742,8 +1737,7 @@
 	     Parameters:
 	     	
 	     */
-	    this.wrap = _wrap;
-	    
+	    this.wrap = _wrap;	    
 	    this.trace = _trace;
 	    this.clearTrace = _clearTrace;
 	    this.clearAllTraces = _clearAllTraces;
