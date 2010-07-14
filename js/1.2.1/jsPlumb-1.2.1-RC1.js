@@ -272,14 +272,11 @@
 	 * gets an id for the given element, creating and setting one if necessary.
 	 */
 	var _getId = function(element) {
-		//_logFnCall('getId',  arguments);
-		//var ele = _getElementObject(element);
-		//var id = _getAttribute(ele, "id");
-		var id = element.id;
+		var ele = _getElementObject(element);
+		var id = _getAttribute(ele, "id");
 		if (!id) {
 			id = "_jsPlumb_" + new String((new Date()).getTime());
-			//_setAttribute(ele, "id", id);
-			element.id = id;
+			_setAttribute(ele, "id", id);
 		}
 		return id;
 	};
@@ -295,26 +292,25 @@
      */
 	var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
     	// dragging
-	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
-		if (draggable) {    		
-			if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
-		    	var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
-		    	options = jsPlumb.extend({}, options);  // make a copy.
-		    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
-		    	var initDrag = function(element, dragFunc) {	    	
-		    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
-		    		//var draggable = draggableStates[elementId];
-		    		var draggable = draggableStates[_getId(element)];
-		    		options.disabled = draggable == null ? false : !draggable;
-		    		jsPlumb.CurrentLibrary.initDraggable(element, options);
-		    	};
-		    	initDrag(element, function() {
-		    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-		    		_draw(element, ui);	
-		    		_addClass(element, "jsPlumb_dragged");
-		    	});
-			}
-	    }
+		    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
+			if (draggable) {    		
+				if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
+			    	var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
+			    	options = jsPlumb.extend({}, options);  // make a copy.
+			    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
+			    	var initDrag = function(element, dragFunc) {	    	
+			    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
+			    		var draggable = draggableStates[_getId(element)];
+			    		options.disabled = draggable == null ? false : !draggable;
+			    		jsPlumb.CurrentLibrary.initDraggable(element, options);
+			    	};
+			    	initDrag(element, function() {
+			    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+			    		_draw(element, ui);	
+			    		_addClass(element, "jsPlumb_dragged");
+			    	});
+				}
+		    }
     };
     
     
@@ -1367,11 +1363,6 @@
 			    	}
 		    	}
 	    	}
-	    };
-	    
-	    this.draggable = function(el, options) {
-	    	var ele = _getElementObject(el);
-	    	_initDraggableIfNecessary(ele, true, options);
 	    };
 	    
 	    this.extend = function(o1, o2) {
