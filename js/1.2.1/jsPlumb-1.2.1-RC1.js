@@ -1361,6 +1361,23 @@
 	    	}
 	    };
 	    
+	    /**
+	     * initialise the draggability of some element or elements.
+	     */
+	    this.draggable = function(el, options) {
+	    	if (typeof el == 'string'){
+	    		var ele = _getElementObject(el);
+	    		_initDraggableIfNecessary(ele, true, options);
+	    	}
+	    	else if (typeof el == 'object' && el.length) {
+	    		for (var i = 0; i < el.length; i++)
+	    		{
+	    			var ele = _getElementObject(el[i]);
+		    		_initDraggableIfNecessary(ele, true, options);
+	    		}
+	    	}	    	
+	    };
+	    
 	    this.extend = function(o1, o2) {
 			return jsPlumb.CurrentLibrary.extend(o1, o2);
 		};
