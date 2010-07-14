@@ -293,27 +293,28 @@
      * also supports 'opacity' and MooTools does not; jQuery supports z-index of the draggable; MooTools
      * does not. i could go on.  the point is...oh.  initDraggable can do this.  ok. 
      */
-	var _initDraggableIfNecessary = function(element, elementId, isDraggable, dragOptions) {
+	var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
     	// dragging
-		    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
-			if (draggable) {    		
-				if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
-			    	var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
-			    	options = jsPlumb.extend({}, options);  // make a copy.
-			    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
-			    	var initDrag = function(element, elementId, dragFunc) {	    	
-			    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
-			    		var draggable = draggableStates[elementId];
-			    		options.disabled = draggable == null ? false : !draggable;
-			    		jsPlumb.CurrentLibrary.initDraggable(element, options);
-			    	};
-			    	initDrag(element, elementId, function() {
-			    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-			    		_draw(element, ui);	
-			    		_addClass(element, "jsPlumb_dragged");
-			    	});
-				}
-		    }
+	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
+		if (draggable) {    		
+			if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
+		    	var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
+		    	options = jsPlumb.extend({}, options);  // make a copy.
+		    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
+		    	var initDrag = function(element, dragFunc) {	    	
+		    		options[dragEvent] = _wrap(options[dragEvent], dragFunc);
+		    		//var draggable = draggableStates[elementId];
+		    		var draggable = draggableStates[_getId(element)];
+		    		options.disabled = draggable == null ? false : !draggable;
+		    		jsPlumb.CurrentLibrary.initDraggable(element, options);
+		    	};
+		    	initDrag(element, function() {
+		    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+		    		_draw(element, ui);	
+		    		_addClass(element, "jsPlumb_dragged");
+		    	});
+			}
+	    }
     };
     
     
@@ -720,8 +721,8 @@
 	    	this.paint(this.sourceId, null, true);
 	    };
 
-	    _initDraggableIfNecessary(self.source, self.sourceId, params.draggable, params.dragOptions);
-	    _initDraggableIfNecessary(self.target, self.targetId, params.draggable, params.dragOptions);
+	    _initDraggableIfNecessary(self.source, params.draggable, params.dragOptions);
+	    _initDraggableIfNecessary(self.target, params.draggable, params.dragOptions);
 	    	    
 	    // resizing (using the jquery.ba-resize plugin). todo: decide whether to include or not.
 	    if (this.source.resize) {
@@ -1030,7 +1031,7 @@
 	    			jpc.suspendedEndpoint.removeConnection(jpc);
 	    		jpc.endpoints[idx] = self;
 	    		self.addConnection(jpc);
-	    		_initDraggableIfNecessary(_element, _elementId, params.draggable, {});
+	    		_initDraggableIfNecessary(_element, params.draggable, {});
 	    		jsPlumb.repaint(elId);
 	    		
 	    		delete floatingConnections[id];	    			    	
@@ -1366,6 +1367,11 @@
 			    	}
 		    	}
 	    	}
+	    };
+	    
+	    this.draggable = function(el, options) {
+	    	var ele = _getElementObject(el);
+	    	_initDraggableIfNecessary(ele, true, options);
 	    };
 	    
 	    this.extend = function(o1, o2) {
