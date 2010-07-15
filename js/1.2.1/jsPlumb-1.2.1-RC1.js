@@ -58,6 +58,7 @@
 	 * and not all of them have to be connected to anything.
 	 */
 	var endpointsByElement = {};
+	var connectionsByScope = {};
 	var offsets = [];
 	var floatingConnections = {};
 	var draggableStates = {};
@@ -613,6 +614,9 @@
 	    this.sourceId = _getAttribute(this.source, "id");	    
 	    this.targetId = _getAttribute(this.target, "id");
 	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;	    
+	    this.scope = params.scope;  // scope may have been passed in to the connect call.
+	    						    // if it wasn't, we will pull it from the source endpoint,
+	    							// after having initialised the endpoints.
 	    
 	    // init endpoints
 	    this.endpoints = [];
@@ -638,6 +642,8 @@
 	    if (eS) _addToList(endpointsByElement, this.sourceId, eS);
 	    var eT = prepareEndpoint(params.targetEndpoint, 1, params);
 	    if (eT) _addToList(endpointsByElement, this.targetId, eT);
+	    // if scope not set, set it to be the scope for the source endpoint.
+	    if (!this.scope) this.scope = this.endpoints[0].scope;
 	    
 	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
@@ -1202,19 +1208,10 @@
 	    		return;
 	    	}
 	    		
-	    	var jpc = new Connection(params);    	
+	    	var jpc = new Connection(params);    		
+	    	// add to list of connections (by scope).
+	    	_addToList(connectionsByScope, jpc.scope, jpc);
 	    	
-			// register endpoints for the element. todo: is the test below sufficient? or should we test if the endpoint is already in the list, 
-		    // and add it only then?  perhaps _addToList could be overloaded with a a 'test for existence first' parameter?
-			//_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
-			//_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
-	
-			//if (params.sourceEndpoint) _addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
-			//if (params.targetEndpoint) _addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
-	
-			//jpc.endpoints[0].addConnection(jpc);
-			//jpc.endpoints[1].addConnection(jpc);
-	
 			// force a paint
 			_draw(jpc.source);
 			
@@ -1241,10 +1238,12 @@
 	    	var f = function(jpc) {
 	    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
 	    			_removeElement(jpc.canvas);
-				jpc.endpoints[0].removeConnection(jpc);
-				jpc.endpoints[1].removeConnection(jpc);
-	    			return true;
-	    		}    		
+					jpc.endpoints[0].removeConnection(jpc);
+					jpc.endpoints[1].removeConnection(jpc);
+					_removeFromList(connectionsByScope, jpc.scope, jpc);
+		    		return true;
+	    		}
+	    		
 	    	};    	
 	    	
 	    	// todo: how to cleanup the actual storage?  a third arg to _operation?
@@ -1302,6 +1301,8 @@
 			    	}
 		    	}
 	    	}
+	    	delete connectionsByScope;
+	    	connectionsByScope = {};
 	    };
 	    
 	    /*
@@ -1372,6 +1373,17 @@
 	    this.getConnections = function(options) {
 	    	var r = {};
 	    	options = options || {};
+	    	var includeScope = function(scope) {
+	    		return true;
+	    	};
+	    	for (var i in connectionsByScope) {
+	    		if (includeScope(i)) {
+	    			r[i] = connectionsByScope[i];
+	    		}
+	    	}
+	    	return r;
+	    	/*
+	    	options = options || {};
 	    	var elsToInclude = [];
 	    	var includeConnection = function(conn) {
 	    		return true;
@@ -1399,8 +1411,7 @@
 	    				}
 	    			}
 	    		}
-	    	}
-	    	return r;
+	    	}*/	    	
 	    };
 	    
 	    /*
@@ -1674,7 +1685,11 @@
 	    			var e = endpointsByElement[elId];
 	    			return e ? e.length : 0;
 	    		},
-	    		
+	    		connectionCount : function(scope) {
+	    			scope = scope || DEFAULT_SCOPE;
+	    			var c = connectionsByScope[scope];
+	    			return c ? c.length : 0; 
+	    		},	    		
 	    		findIndex : _findIndex,
 	    		getId : _getId
 	    	};	    	
