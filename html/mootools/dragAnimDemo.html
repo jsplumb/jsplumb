@@ -39,7 +39,9 @@
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
 		<script type="text/javascript" src="../../js/mootools-1.2.4.4-more.js"></script>
-		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/mootools.jsPlumb-1.2-all-min.js"></script>
+		<script type="text/javascript" src="../../js/1.2.1/jsPlumb-1.2.1-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.1/jsPlumb-defaults-1.2.1-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.1/mootools.jsPlumb-1.2.1-RC1.js"></script>
 
 	    <script type="text/javascript">
 	    	window.addEvent('domready',function() {
@@ -99,17 +101,14 @@
 				jsPlumb.connect({source:'bd1', target:'bd2', sourceEndpoint:e1, targetEndpoint:e2 });
 				jsPlumb.connect({source:'bd1', target:'bd3', sourceEndpoint:e1, targetEndpoint:e3});
 				jsPlumb.connect({source:'bd1', target:'bd4', sourceEndpoint:e1, targetEndpoint:e4});
-
-				
-			
+							
 				$("add").addEvent('click', function() {
 					var d = document.createElement("div");
 					d.className = "bigdot";
 					$(d).set("opacity", '0');
 					document.body.appendChild(d);
 					var id = '' + ((new Date().getTime()));
-					$(d).set("id", id);
-					
+					$(d).set("id", id);					
 					var w = screen.width - 162, h = screen.height - 162;
 					var x = (0.2 * w) + Math.floor(Math.random()*(0.5 * w));
 					var y = (0.2 * h) + Math.floor(Math.random()*(0.6 * h));
@@ -119,6 +118,7 @@
 					$(e.canvas).set("opacity","0");
 					$(d).tween('opacity', '1');
 					$(e.canvas).tween("opacity","1");
+					jsPlumb.draggable(id);	
 				});
 			});
 	</script>
