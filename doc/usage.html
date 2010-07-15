@@ -1110,6 +1110,41 @@ placed on top of the element it is connected to.
 						<pre>jsPlumb.setDraggableByDefault(false);</pre>
 					</div>
 				</li>
+				<li>Initialises window1 as a draggable element (all libraries)
+				<div class="code">
+					<pre>jsPlumb.draggable("window1");</pre>
+				</div>
+				</li>
+				<li>Initialises window1 and window2 as draggable elements (all libraries)
+				<div class="code">
+					<pre>jsPlumb.draggable(["window1","window2"]);</pre>
+				</div>
+				</li>
+				<li>Initialises window1 as a draggable element (all libraries)
+				<div class="code">
+					<pre>jsPlumb.draggable("window1");</pre>
+				</div>
+				</li>
+				<li>Initialises all elements with class 'window' as draggable elements (jQuery)
+				<div class="code">
+					<pre>jsPlumb.draggable($(".window"));</pre>
+				</div>
+				</li>
+				<li>Initialises all elements with class 'window' as draggable elements (MooTools)
+				<div class="code">
+					<pre>jsPlumb.draggable($$(".window"));</pre>
+				</div>
+				</li>
+				<li>Initialises window1 as a draggable element (jQuery)
+				<div class="code">
+					<pre>jsPlumb.draggable($("#window1"));</pre>
+				</div>
+				</li>
+				<li>Initialises window1 as a draggable element (MooTools)
+				<div class="code">
+					<pre>jsPlumb.draggable($("window1"));</pre>
+				</div>
+				</li>
 			</ul>
 		</div>
 		
@@ -1273,7 +1308,7 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 				<li>Support Patterns in both Endpoints and Connectors.
 					<p>It is possible to stroke a line in the Canvas element with both gradients and patterns.  Currently jsPlumb supports only
 					gradients.</p>
-					This work is not currently targetted for any release.
+					This work is not currently targeted for any release.
 				</li>
 				<li>Move the random endpoint-related keys inside the endpointStyle object.  This work is not currently targetted for any release.<br/><br/>
 				</li>
