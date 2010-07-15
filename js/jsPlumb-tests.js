@@ -24,6 +24,11 @@ var assertConnectionCount = function(endpoint, count) {
 	equals(endpoint.connections.length, count, "endpoint has " + count + " connections");
 };
 
+var assertConnectionByScopeCount = function(scope, count) {
+	equals(jsPlumb.getTestHarness().connectionCount(scope), count, 'Scope ' + scope + " has " + count + (count > 1) ? "connections" : "connection");
+
+};
+
 var _addDiv = function(id) {
 	var d1 = document.createElement("div");
 	document.body.appendChild(d1);
@@ -48,10 +53,15 @@ test('jsPlumb setup', function() {
 	ok($.fn.addEndpoints, "addEndpoints");
 });
 
+test('getId', function() {
+	var d10 = _addDiv('d10');
+	equals(jsPlumb.getTestHarness().getId(d10), "d10");
+});
+
 test('plumb two divs with default options', function() { 
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	$(d2).plumb({target:"d1"});
-	//assertContextExists();
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
 	jsPlumb.detachEverything();
 	//assertContextSize(2);  // the two endpoint canvases are still there.
 	assertEndpointCount("d1", 1);
@@ -171,6 +181,39 @@ test('detach plays nice when no target given', function() {
 	$("#d3").detach();	
 });
 
+//TODO make sure you run this test with a single detach call, to ensure that
+// single detach calls result in the connection being removed. detachEverything can
+// just blow away the connectionsByScope array and recreate it.
+test('get connections, simple case (default scope)', function() {
+	jsPlumb.detachEverything();
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+	jsPlumb.connect({source:d5, target:d6});
+	var c = jsPlumb.getConnections();  // will get all connections
+	equals(c[jsPlumb.getDefaultScope()].length, 1);
+});
+
+test('get connections, simple case (default scope); single detach call', function() {
+	jsPlumb.detachEverything();
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6"), d7 = _addDiv("d7");
+	jsPlumb.connect({source:d5, target:d6});
+	jsPlumb.connect({source:d6, target:d7});
+	var c = jsPlumb.getConnections();  // will get all connections
+	equals(c[jsPlumb.getDefaultScope()].length, 2);
+	jsPlumb.detach('d5', 'd6');
+	c = jsPlumb.getConnections();  // will get all connections
+	equals(c[jsPlumb.getDefaultScope()].length, 1);
+});
+
+test('get connections, scope testScope', function() {
+	jsPlumb.detachEverything();
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+	jsPlumb.connect({source:d5, target:d6, scope:'testScope'});
+	var c = jsPlumb.getConnections();  // will get all connections	
+	equals(c['testScope'].length, 1);
+	equals(c['testScope'][0].sourceId, 'd5');
+	equals(c['testScope'][0].targetId, 'd6');
+});
+
 /**
  * leave this test at the bottom!
  */
@@ -178,7 +221,6 @@ test('unload test', function() {
 	jsPlumb.unload();
 	var contextNode = $("._jsPlumb_context");
 	ok(contextNode.length == 0, 'context node unloaded');
-
 });
 
 
