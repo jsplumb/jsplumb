@@ -1050,19 +1050,14 @@
 		
 		return self;
 	};
-	
-	
-    		
+	    		
     	/*
-    	 Property: Defaults
-    	 
-    	 These are the default settings for jsPlumb, that is what will be used if you do not supply specific pieces of information
-    	 to the various API calls.  A convenient way to implement your own look and feel can be to override these defaults by including a script
-    	 somewhere after the jsPlumb include, but before you make any calls to jsPlumb, for instance in this example we set the PaintStyle to be
-    	 a blue line of 27 pixels:
-    	     	 
-    	 > jsPlumb.Defaults.PaintStyle = { lineWidth:27, strokeStyle:'blue' }
-    	     	  
+    	 Property: Defaults    	 
+    	 	These are the default settings for jsPlumb, that is what will be used if you do not supply specific pieces of information
+    	 	to the various API calls.  A convenient way to implement your own look and feel can be to override these defaults by including a script
+    	 	somewhere after the jsPlumb include, but before you make any calls to jsPlumb, for instance in this example we set the PaintStyle to be
+    	 	a blue line of 27 pixels:    	     	
+    	 	> jsPlumb.Defaults.PaintStyle = { lineWidth:27, strokeStyle:'blue' }    	     	 
     	 */
     	this.Defaults = {
     		Anchor : null,
@@ -1080,64 +1075,50 @@
     	};
     	
     	/*
-    	 Property: connectorClass
-    	 
-    	 The CSS class to set on Connection canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
+    	 Property: connectorClass    	 
+    	 	The CSS class to set on Connection canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
     	 */
 		this.connectorClass = '_jsPlumb_connector';
 		
 		/*
-   	 	Property: endpointClass
-   	 
-   	 	The CSS class to set on Endpoint canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
+   	 	Property: endpointClass   	 
+   	 		The CSS class to set on Endpoint canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
 		*/
 		this.endpointClass = '_jsPlumb_endpoint';
 		
 		/*
-		 Property: Anchors
-		 
-		 Default jsPlumb Anchors.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
-		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Anchors by supplying them in a script that is loaded after jsPlumb, for instance:
-		 
-		 > jsPlumb.Anchors.MyAnchor = { ....anchor code here.  see the documentation. }
+		 Property: Anchors		 
+		 	Default jsPlumb Anchors.  These are supplied in the file jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
+		 	to form <library>.jsPlumb-all-x.x.x.js.  You can provide your own Anchors by supplying them in a script that is loaded after jsPlumb, for instance:		 
+		 	> jsPlumb.Anchors.MyAnchor = { ....anchor code here.  see the documentation. }
 		 */
 	    this.Anchors = {};
 	    
 	    /*
-		 Property: Connectors
-		 
-		 Default jsPlumb Connectors.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
-		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Connectors by supplying them in a script that is loaded after jsPlumb, for instance:
-		 
-		 > jsPlumb.Connectors.MyConnector = { ....connector code here.  see the documentation. }
+		 Property: Connectors		 
+		 	Default jsPlumb Connectors.  These are supplied in the file jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
+		 	to form <library>.jsPlumb-all-x.x.x.js.  You can provide your own Connectors by supplying them in a script that is loaded after jsPlumb, for instance:		 
+		 	> jsPlumb.Connectors.MyConnector = { ....connector code here.  see the documentation. }
 		 */
 	    this.Connectors = {};
 	    
 	    /*
-		 Property: Endpoints
-		 
-		 Default jsPlumb Endpoints.  These are supplied in the file jquery.jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
-		 to form jquery.jsPlumb-all-x.x.x.js.  You can provide your own Endpoints by supplying them in a script that is loaded after jsPlumb, for instance:
-		 
-		 > jsPlumb.Endpoints.MyEndpoint = { ....endpoint code here.  see the documentation. }
+		 Property: Endpoints		 
+		 	Default jsPlumb Endpoints.  These are supplied in the file jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
+		 	to form <library>.jsPlumb-all-x.x.x.js.  You can provide your own Endpoints by supplying them in a script that is loaded after jsPlumb, for instance:		 
+		 	> jsPlumb.Endpoints.MyEndpoint = { ....endpoint code here.  see the documentation. }
 		 */
 	    this.Endpoints = {};	    
 	      
 	    /*
-	      Function: addEndpoint
-	     
-	      Adds an Endpoint to a given element.
-	      
+	      Function: addEndpoint	     
+	      	Adds an Endpoint to a given element.	      
 	      Parameters:
-	        target - Element to add the endpoint to.  either an element id, or a jQuery object representing some element.
-	        params - Object containing Endpoint options (more info required)
-	        
-	      Returns:
-	      
-	       The newly created Endpoint.
-	       
-	      See Also:
-	      
+	        target - Element to add the endpoint to.  either an element id, or a selector representing some element.
+	        params - Object containing Endpoint options (more info required)	        
+	      Returns:	      
+	       The newly created Endpoint.	       
+	      See Also:	      
 	       <addEndpoints>
 	     */
 	    this.addEndpoint = function(target, params) {
@@ -1156,21 +1137,14 @@
 	    };
 	    
 	    /*
-	      Function: addEndpoint
-	     
-	      Adds a list of Endpoints to a given element.
-	      
-	      Parameters:
-	      
-	        target - element to add the endpoint to.  either an element id, or a jQuery object representing some element.
-	        endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list.
-	        
-	      Returns:
-	      
-	        List of newly created Endpoints, one for each entry in the 'endpoints' argument.
-	       
-	      See Also:
-	      
+	      Function: addEndpoint	     
+	      	Adds a list of Endpoints to a given element.	      
+	      Parameters:	      
+	        target - element to add the endpoint to.  either an element id, or a selector representing some element.
+	        endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list.	        
+	      Returns:	      
+	        List of newly created Endpoints, one for each entry in the 'endpoints' argument.	       
+	      See Also:	      
 	       <addEndpoint>
 	     */
 	    this.addEndpoints = function(target, endpoints) {
@@ -1182,19 +1156,15 @@
 	    };
 	    
 	    /*
-	     Function: animate
-	     
-	     Wrapper around standard jQuery animate function; injects a call to jsPlumb in the 'step' function (creating it if necessary).  
-	     This only supports the two-arg version of the animate call in jQuery - the one that takes an 'options' object as the second arg.
-	     
-	     Parameters:
-	       
-	       el - Element to animate.  Either an id, or a jQuery object representing the element.
+	     Function: animate	     
+	     	Wrapper around supporting library's animate function; injects a call to jsPlumb in the 'step' function (creating it if necessary).  
+	     	This only supports the two-arg version of the animate call in jQuery - the one that takes an 'options' object as the second arg.
+	     	MooTools has only one method - a two arg one.  Which is handy.	     
+	     Parameters:	       
+	       el - Element to animate.  Either an id, or a selector representing the element.
 	       properties - The 'properties' argument you want passed to the standard jQuery animate call.
-	       options - The 'options' argument you want passed to the standard jQuery animate call.
-	       
-	     Returns:
-	     
+	       options - The 'options' argument you want passed to the standard jQuery animate call.	       
+	     Returns:	     
 	      void
 	    */	      
 	    this.animate = function(el, properties, options) {
@@ -1220,18 +1190,12 @@
 	    };
 	    
 	    /*
-	     Function: connect
-	     
-	     Establishes a connection between two elements.
-	     
-	     Parameters:
-	     
-	     	params - Object containing setup for the connection.  see documentation.
-	     	
-	     Returns:
-	     
-	     	The newly created Connection.
-	     	
+	     Function: connect	     
+	     	Establishes a connection between two elements.	     
+	     Parameters:	     
+	     	params - Object containing setup for the connection.  see documentation.	     
+	     Returns:	     
+	     	The newly created Connection.	     
 	     */
 	    this.connect = function(params) {
 	    	if (params.sourceEndpoint && params.sourceEndpoint.isFull()) {
@@ -1261,7 +1225,7 @@
 			_draw(jpc.source);
 			
 			return jpc;    	
-	    }           
+	    };           
 	    
 	    /**
 	    * not implemented yet. params object will have sourceEndpoint and targetEndpoint members; these will be Endpoints.
@@ -1271,17 +1235,12 @@
 	    },*/
 	    
 	    /* 
-	     Function: detach
-	      
-	     Removes a connection.
-	     
-	     Parameters:
-	     
+	     Function: detach	      
+	     	Removes a connection.	     
+	     Parameters:	     
 	    	sourceId - Id of the first element in the connection. A String.
-	    	targetId - iI of the second element in the connection. A String.
-	    	
-	    Returns:
-	    
+	    	targetId - iI of the second element in the connection. A String.	    	
+	     Returns:	    
 	    	true if successful, false if not.
 	    */
 	    this.detach = function(sourceId, targetId) {
@@ -1299,16 +1258,11 @@
 	    };
 	    
 	    /*
-	     Function: detachAll 
-	     
-	     	Removes all an element's connections.
-	     	
-	     Parameters:
-	     
-	     	el - either the id of the element, or a jQuery object for the element.
-	     	
-	     Returns:
-	     
+	     Function: detachAll 	     
+	     	Removes all an element's connections.	     	
+	     Parameters:	     
+	     	el - either the id of the element, or a selector for the element.	     	
+	     Returns:	     
 	     	void
 	     */
 	    this.detachAll = function(el) {    	
@@ -1330,17 +1284,12 @@
 	    };
 	    
 	    /*
-	     Function: detachEverything
-	     
-	     Remove all Connections from all elements, but leaves Endpoints in place.
-	     
-	     Returns:
-	     
-	     	void
-	     
-	     See Also:
-	     
-	     	<removeAllEndpoints>
+	     Function: detachEverything	     
+	     	Remove all Connections from all elements, but leaves Endpoints in place.	     
+	     Returns:	     
+	     	void	     
+	     See Also:	     
+	     	<removeEveryEndpoint>
 	     */
 	    this.detachEverything = function() {
 	    	for(var id in endpointsByElement) {	    	
@@ -1361,63 +1310,66 @@
 	    	}
 	    };
 	    
-	    /**
-	     * initialise the draggability of some element or elements.
+	    /*
+	     Function: draggable 
+	     	initialises the draggability of some element or elements.
+	     Parameters:
+	     	el - either an element id, a list of element ids, or a selector.
+	     	options - options to pass through to the underlying library
+	     Returns:
+	     	void
 	     */
 	    this.draggable = function(el, options) {
-	    	if (typeof el == 'string'){
-	    		var ele = _getElementObject(el);
-	    		_initDraggableIfNecessary(ele, true, options);
-	    	}
-	    	else if (typeof el == 'object' && el.length) {
+	    	if (typeof el == 'object' && el.length) {
 	    		for (var i = 0; i < el.length; i++)
 	    		{
 	    			var ele = _getElementObject(el[i]);
-		    		_initDraggableIfNecessary(ele, true, options);
+		    		if (ele) _initDraggableIfNecessary(ele, true, options);
 	    		}
 	    	}	    	
+	    	else {
+	    		var ele = _getElementObject(el);
+	    		if (ele)
+	    			_initDraggableIfNecessary(ele, true, options);
+	    	}
 	    };
 	    
+	    /*
+	     Function: extend
+	     	Wraps the underlying library's extend functionality.
+	     Parameters:
+	     	o1 - object to extend
+	     	o2 - object to extend o1 with
+	     Returns:
+	     	o1, extended with all properties from o2.
+	     */
 	    this.extend = function(o1, o2) {
 			return jsPlumb.CurrentLibrary.extend(o1, o2);
 		};
 	    
 	    /*
-	     Function: hide 
-	     
-	     Sets an element's connections to be hidden.
-	     
-	     Parameters:
-	     
-	     	el - either the id of the element, or a jQuery object for the element.
-	     	
-	     Returns:
-	     
+	     Function: hide 	     
+	     	Sets an element's connections to be hidden.	     
+	     Parameters:	     
+	     	el - either the id of the element, or a selector for the element.	     	
+	     Returns:	     
 	     	void
 	     */
 		this.hide = function(el) {
 	    	_setVisible(el, "none");
 	    };
-	    
-    	
-    	
-	    
+	        	    		    
 	    /*
-	     Function: makeAnchor
-	     
-	     Creates an anchor with the given params.
-	     
-	     Parameters:
-	     
+	     Function: makeAnchor	     
+	     	Creates an anchor with the given params.	     
+	     Parameters:	     
 	     	x - the x location of the anchor as a fraction of the total width.  
 	     	y - the y location of the anchor as a fraction of the total height.
 	     	xOrientation - value indicating the general direction a connection from the anchor should go in, in the x direction.
 	     	yOrientation - value indicating the general direction a connection from the anchor should go in, in the y direction.
 	     	xOffset - a fixed offset that should be applied in the x direction that should be applied after the x position has been figured out.  optional. defaults to 0. 
-	     	yOffset - a fixed offset that should be applied in the y direction that should be applied after the y position has been figured out.  optional. defaults to 0.
-	     	
-	     Returns:
-	     
+	     	yOffset - a fixed offset that should be applied in the y direction that should be applied after the y position has been figured out.  optional. defaults to 0.	     	
+	     Returns:	     
 	     	The newly created Anchor.
 	     */
 	    this.makeAnchor = function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
@@ -1436,23 +1388,15 @@
 	    	a.clone = function() { return new Anchor(params); }
 	    	return a;
 	    };
-	        
-	    
+	        	    
 	    /*
-	     Function: repaint
-	     
-	     Repaints an element and its connections. This method gets new sizes for the elements before painting anything.
-	     
-	     Parameters:
-	      
-	     	el - either the id of the element or a jQuery object representing the element.
-	     	
-	     Returns:
-	     
-	     	void
-	     	
-	     See Also:
-	     
+	     Function: repaint	     
+	     	Repaints an element and its connections. This method gets new sizes for the elements before painting anything.	     
+	     Parameters:	      
+	     	el - either the id of the element or a selector representing the element.	     	
+	     Returns:	     
+	     	void	     	
+	     See Also:	     
 	     	<repaintEverything>
 	     */
 	    this.repaint = function(el) {
@@ -1473,16 +1417,11 @@
 	    };     
 	    
 	    /*
-	     Function: repaintEverything
-	     
-	     Repaints all connections.
-	     
-	     Returns:
-	     
-	     	void
-	     	
-	     See Also:
-	     
+	     Function: repaintEverything	     
+	     	Repaints all connections.	     
+	     Returns:	     
+	     	void	     	
+	     See Also:	     
 	     	<repaint>
 	     */
 	    this.repaintEverything = function() {
@@ -1492,20 +1431,13 @@
 	    };
 	    
 	    /*	     
-	     Function: removeAllEndpoints
-	     
-	     Removes all Endpoints associated with a given element.  Also removes all Connections associated with each Endpoint it removes.
-	    
-	     Parameters:
-	     
-	    	el - either an element id, or a jQuery object for an element.
-	    	
-	     Returns:
-	     
-	     	void
-	     	
-	     See Also:
-	     
+	     Function: removeAllEndpoints	     
+	     	Removes all Endpoints associated with a given element.  Also removes all Connections associated with each Endpoint it removes.	    
+	     Parameters:	     
+	    	el - either an element id, or a selector for an element.	    	
+	     Returns:	     
+	     	void	     	
+	     See Also:	     
 	     	<removeEndpoint>
 	    */
 	    this.removeAllEndpoints = function(el) {
@@ -1519,6 +1451,14 @@
 	    	endpointsByElement[elId] = [];
 	    };
 	    
+	    /*	     
+	     Function: removeEveryEndpoint	     
+	     	Removes every Endpoint in this instance of jsPlumb.	    	
+	     Returns:	     
+	     	void	     	
+	     See Also:	     
+	     	<removeAllEndpoints> <removeEndpoint>
+	    */
 	    this.removeEveryEndpoint = function() {
 	    	for(var id in endpointsByElement) {	    	
 		    	var endpoints = endpointsByElement[id];
@@ -1533,22 +1473,15 @@
 	    };
 	    
 	    /*
-	     Function: removeEndpoint
-	     
-	     Removes the given Endpoint from the given element.
-	    
-	     Parameters:
-	     
-	    	el - either an element id, or a jQuery object for an element.
-	    	endpoint - Endpoint to remove.  this is an Endpoint object, such as would have been returned from a call to addEndpoint.
-	    	
-	    Returns:
-	    
-	    	void
-	    	
-	    See Also:
-	    
-	    	<removeAllEndpoints>
+	     Function: removeEndpoint	     
+	     	Removes the given Endpoint from the given element.	    
+	     Parameters:	     
+	    	el - either an element id, or a selector for an element.
+	    	endpoint - Endpoint to remove.  this is an Endpoint object, such as would have been returned from a call to addEndpoint.	    	
+	    Returns:	    
+	    	void	    	
+	    See Also:	    
+	    	<removeAllEndpoints> <removeEveryEndpoint>
 	    */
 	    this.removeEndpoint = function(el, endpoint) {
 	        var elId = _getAttribute(el, "id");
@@ -1560,16 +1493,11 @@
 	    };
 	    
 	    /*
-	     Function: setAutomaticRepaint
-	     
-	     Sets/unsets automatic repaint on window resize.
-	     
-	     Parameters:
-	     
-	     	value - whether or not to automatically repaint when the window is resized.
-	     	
-	     Returns:
-	     
+	     Function: setAutomaticRepaint	     
+	     	Sets/unsets automatic repaint on window resize.	     
+	     Parameters:	     
+	     	value - whether or not to automatically repaint when the window is resized.	     	
+	     Returns:	     
 	     	void
 	     */
 	    this.setAutomaticRepaint = function(value) {
@@ -1577,19 +1505,14 @@
 	    };
 	    
 	    /*
-	     Function: setDefaultNewCanvasSize
-	     
-	     Sets the default size jsPlumb will use for a new canvas (we create a square canvas so one value is all that is required).  
-	     This is a hack for IE, because ExplorerCanvas seems to need for a canvas to be larger than what you are going to draw on 
-	     it at initialisation time.  The default value of this is 1200 pixels, which is quite large, but if for some reason you're 
-	     drawing connectors that are bigger, you should adjust this value appropriately.
-	     
-	     Parameters:
-	     
-	     	size - The default size to use. jsPlumb will use a square canvas so you need only supply one value.
-	     	
-	     Returns:
-	     
+	     Function: setDefaultNewCanvasSize	     
+	     	Sets the default size jsPlumb will use for a new canvas (we create a square canvas so one value is all that is required).  
+	     	This is a hack for IE, because ExplorerCanvas seems to need for a canvas to be larger than what you are going to draw on 
+	     	it at initialisation time.  The default value of this is 1200 pixels, which is quite large, but if for some reason you're 
+	     	drawing connectors that are bigger, you should adjust this value appropriately.	     
+	     Parameters:	     
+	     	size - The default size to use. jsPlumb will use a square canvas so you need only supply one value.	     	
+	     Returns:	     
 	     	void
 	     */
 	    this.setDefaultNewCanvasSize = function(size) {
@@ -1597,30 +1520,21 @@
 	    };
 	    
 	    /*
-	     Function: setDraggable
-	     
-	     Sets whether or not a given element is draggable, regardless of what any plumb command may request.
-	     
-	     Parameters:
-	      
-	      	el - either the id for the element, or a jQuery object representing the element.
-	      	
-	     Returns:
-	     
+	     Function: setDraggable	     
+	     	Sets whether or not a given element is draggable, regardless of what any plumb command may request.	     
+	     Parameters:	      
+	      	el - either the id for the element, or a selector representing the element.	      	
+	     Returns:	     
 	      	void
 	     */
 	    this.setDraggable = _setDraggable; 
 	    
 	    /*
-	     Function: setDraggableByDefault
-	     
-	     Sets whether or not elements are draggable by default.  Default for this is true.
-	     
+	     Function: setDraggableByDefault	     
+	     	Sets whether or not elements are draggable by default.  Default for this is true.	     
 	     Parameters:
-	     	draggable - value to set
-	     	
-	     Returns:
-	     
+	     	draggable - value to set	     	
+	     Returns:	     
 	     	void
 	     */
 	    this.setDraggableByDefault = function(draggable) {
@@ -1632,13 +1546,10 @@
 	    };
 	    
 	    /*
-	     Function: setRepaintFunction
-	     
-	     Sets the function to fire when the window size has changed and a repaint was fired.
-	     
+	     Function: setRepaintFunction	     
+	     	Sets the function to fire when the window size has changed and a repaint was fired.	     
 	     Parameters:	     
-	     	f - Function to execute.
-	     	
+	     	f - Function to execute.	     	
 	     Returns:	     
 	     	void
 	     */
@@ -1647,13 +1558,10 @@
 	    };
 	        
 	    /*
-	     Function: show	     
-	     
-	     Sets an element's connections to be visible.
-	     
+	     Function: show	     	     
+	     	Sets an element's connections to be visible.	     
 	     Parameters:	     
-	     	el - either the id of the element, or a jQuery object for the element.
-	     	
+	     	el - either the id of the element, or a selector for the element.	     	
 	     Returns:
 	     	void	     
 	     */
@@ -1662,16 +1570,13 @@
 	    };
 	    
 	    /*
-	     Function: sizeCanvas
-	     
-	     Helper to size a canvas. You would typically use this when writing your own Connector or Endpoint implementation.
-	     
+	     Function: sizeCanvas	     
+	     	Helper to size a canvas. You would typically use this when writing your own Connector or Endpoint implementation.	     
 	     Parameters:
 	     	x - [int] x position for the Canvas origin
 	     	y - [int] y position for the Canvas origin
 	     	w - [int] width of the canvas
-	     	h - [int] height of the canvas
-	     	
+	     	h - [int] height of the canvas	     	
 	     Returns:
 	     	void	     
 	     */
@@ -1703,13 +1608,10 @@
 	    this.toggle = _toggleVisible;
 	    
 	    /*
-	     Function: toggleVisible
-	     
-	     Toggles visibility of an element's connections. 
-	     
+	     Function: toggleVisible	     
+	     	Toggles visibility of an element's connections. 	     
 	     Parameters:
-	     	el - either the element's id, or a jQuery object representing the element.
-	     	
+	     	el - either the element's id, or a selector representing the element.	     	
 	     Returns:
 	     	void, but should be updated to return the current state
 	     */
@@ -1717,23 +1619,18 @@
 	    this.toggleVisible = _toggleVisible;
 	    
 	    /*
-	     Function: toggleDraggable
-	     
-	     Toggles draggability (sic) of an element's connections. 
-	     
+	     Function: toggleDraggable	     
+	     	Toggles draggability (sic) of an element's connections. 	     
 	     Parameters:
-	     	el - either the element's id, or a jQuery object representing the element.
-	     	
+	     	el - either the element's id, or a selector representing the element.	     	
 	     Returns:
 	     	The current draggable state.
 	     */
 	    this.toggleDraggable = _toggleDraggable; 
 	    
 	    /*
-	     Function: unload
-	     
-	     Unloads jsPlumb, deleting all storage.  You should call this from an onunload attribute on the <body> element
-	     
+	     Function: unload	     
+	     	Unloads jsPlumb, deleting all storage.  You should call this from an onunload attribute on the <body> element	     
 	     Returns:
 	     	void
 	     */
@@ -1751,8 +1648,7 @@
 	     implementations to wrap event callbacks for drag/drop etc; it allows jsPlumb to be
 	     transparent in its handling of these things.  If a user supplies their own event callback,
 	     for anything, it will always be called.
-	     Parameters:
-	     	
+	     Parameters:	     	
 	     */
 	    this.wrap = _wrap;	    
 	    this.trace = _trace;
