@@ -139,6 +139,7 @@
 			map[key] = l; 
 		}
 		l.push(value);
+		return l;
 	};
 	
     /**
@@ -193,16 +194,16 @@
 	};
 	
 	var _log = function(msg) {
-	    if (console) console.log(msg);	
+	    //if (console) console.log(msg);	
 	    }
 	
 	var _logFnCall = function(fn, args) {
-	    if (console) {
+	    /*if (console) {
 	    	var c = args.callee.caller.toString();
 	    	var i = c.indexOf("{");
 	    	var msg = fn + ' : ' + c.substring(0, i);
 	    	console.log(msg);
-	    }
+	    }*/
 	};
 	
 	var cached = {};
@@ -510,7 +511,7 @@
 		//TODO: fix this properly.  since Anchors are often static, this timestamping business
 		// does not work at all well.  the timestamp should be inside the Endpoint, because they
 		// are _never_ static.  the method that Connection uses to find an anchor location should
-		// be done through the Endpoint clas, which can then deal with the timestamp.
+		// be done through the Endpoint class, which can then deal with the timestamp.
 		// and, in fact, we should find out whether or not we even get a speed enhancement from doing
 		// this.
 		this.compute = function(xy, wh, timestamp) {
@@ -604,6 +605,8 @@
 
 	// ************** get the source and target and register the connection. *******************
 	    var self = this;
+	    var id = new String('_jsplumb_c_' + (new Date()).getTime());
+	    this.getId = function() { return id; }
 	    // get source and target as jQuery objects
 	    this.source = _getElementObject(params.source);    
 	    this.target = _getElementObject(params.target);
@@ -615,14 +618,16 @@
 	    this.endpoints = [];
 	    this.endpointStyles = [];
 	    var prepareEndpoint = function(existing, index, params) {
-	    	if (existing) self.endpoints[index] = existing;
+	    	if (existing) { 
+	    		self.endpoints[index] = existing;
+	    		existing.addConnection(self);
+	    	}
 		    else {
 		    	if(!params.endpoints) params.endpoints = [null,null];
 			    var ep = params.endpoints[index] || params.endpoint || _currentInstance.Defaults.Endpoints[index] || jsPlumb.Defaults.Endpoints[index] || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || new jsPlumb.Endpoints.Dot();
 			    if (!params.endpointStyles) params.endpointStyles = [null,null];
 			    var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			    var a = params.anchors  ? params.anchors[index] : _currentInstance.Defaults.Anchors[index] || jsPlumb.Defaults.Anchors[index] || _currentInstance.Defaults.Anchor || jsPlumb.Defaults.Anchor || jsPlumb.Anchors.BottomCenter;
-			    //if (a.clone) a = a.clone();
 			    var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:self.source });
 			    self.endpoints[index] = e;
 			    return e;
@@ -669,9 +674,7 @@
 	    	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 	    	var el = swap ? this.target : this.source;
 	    	
-	    	if (this.canvas.getContext) {    		    		
-	    		    		
-	//    		_updateOffset(elId, ui, recalc);
+	    	if (this.canvas.getContext) {    		    			    		    	
 	    		if (recalc) {
 	    			_updateOffset(elId, ui, recalc);
 	    			_updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
@@ -684,10 +687,8 @@
 	            
 	    		var ctx = canvas.getContext('2d');
 	    		//TODO: why are these calculated again?  they were calculated in the _draw function.
-	            //var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, [otherOffset.left, otherOffset.top], otherWH);
-	    		var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, timestamp);
+	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, timestamp);
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-	            //var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, [myOffset.left, myOffset.top], myWH);
 	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, timestamp);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
@@ -723,20 +724,15 @@
 	};
 	
 	/*
-	 Class: Endpoint 
-	 
-	 Models an endpoint.  Can have one to N connections emanating from it (although how to handle that in the UI is 
-	 a very good question). also has a Canvas and paint style.
-	  	 
+	 Class: Endpoint 	 
+	 	Models an endpoint.  Can have one to N connections emanating from it (although how to handle that in the UI is 
+	 	a very good question). also has a Canvas and paint style.	  	
 	 */
 	
 	/* 
-	 Function: Endpoint
-	 
-	 This is the Endpoint class constructor.
-	 
-	 Parameters:
-	  
+	 Function: Endpoint	 
+	 	This is the Endpoint class constructor.	 
+	 Parameters:	  
 	  anchor			-	anchor for the endpoint, of type jsPlumb.Anchor. may be null. 
 	  endpoint 		- 	endpoint object, of type jsPlumb.Endpoint. may be null.
 	  style			-	endpoint style, a js object. may be null.
@@ -758,6 +754,8 @@
 		// make a copy. then we can use the wrapper function.
 		jsPlumb.extend({}, params);
 		var self = this;
+	    var id = new String('_jsplumb_e_' + (new Date()).getTime());
+	    this.getId = function() { return id; }
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
@@ -772,8 +770,7 @@
 		var _reattach = params.reattach || false;
 		var floatingEndpoint = null;
 		var inPlaceCopy = null;
-		this.addConnection = function(connection) {
-			
+		this.addConnection = function(connection) {			
 			self.connections.push(connection);
 		};
 		this.removeConnection = function(connection) {
@@ -1212,11 +1209,11 @@
 			//_addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
 			//_addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
 	
-			if (!params.sourceEndpoint) _addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
-			if (!params.targetEndpoint) _addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
+			//if (params.sourceEndpoint) _addToList(endpointsByElement, jpc.sourceId, jpc.endpoints[0]);
+			//if (params.targetEndpoint) _addToList(endpointsByElement, jpc.targetId, jpc.endpoints[1]);
 	
-			jpc.endpoints[0].addConnection(jpc);
-			jpc.endpoints[1].addConnection(jpc);
+			//jpc.endpoints[0].addConnection(jpc);
+			//jpc.endpoints[1].addConnection(jpc);
 	
 			// force a paint
 			_draw(jpc.source);
@@ -1346,40 +1343,74 @@
 		
 		/*
 		 Function: getAllConnections
-		 	Gets all connections currently managed by this jsPlumb instance.  this consists of a dictionary, with the keys being element ids, and the 
-		 	values being lists of element ids, eg:
+		 	Gets all connections currently managed by this jsPlumb instance.  
+		 Parameters:
+		    options - a JS object that holds options defining what sort of connections you're looking for.  Valid values are:
+		    	scope		this may be a String or a list of Strings. jsPlumb will only return Connections whose scope matches what this option
+		    	            defines.  If you omit it, you will be given Connections of every scope.
+		    	source			may be a string or a selector; constraints results to have only Connections whose source is this object.
+		    	target			may be a string or a selector; constraints results to have only Connections whose target is this object.   
+		 		sourceEndpoint	may be a string or a selector; constraints results to have only Connections whose source Endpoint is this object.
+		 		targetEndpoint	may be a string or a selector; constraints results to have only Connections whose targte Endpoint is this object.
+		 	
+		 	The return value is a dictionary in this format:
 		 	
 		 	{
-		 		'window1':['window2', 'window4'],
-		 		'window2':['window1'],
-		 		'window3':['window4'],
-		 		'window4':['window1','window3']
+		 		'scope1': {
+		 			'window1':['window2', 'window4'],
+		 			'window2':['window1'],
+		 			'window3':['window4'],
+		 			'window4':['window1','window3']
+		 		},
+		 		'scope2': {
+		 			'window3':['window4'],
+		 			'window4':['window3']		 		
+		 		}
 		 	}
 		 	
-		 	Notice how the connections are reported against each element, ie. each connection is essentially reported twice.  maybe this is rubbish.
-		 	we'll see what people think.
 		 */
-	    this.getAllConnections = function(el) {
+	    this.getConnections = function(options) {
 	    	var r = {};
-	    	var addSome = function(elId, endpoints) {
-	    		for (var i = 0; i < endpoints.length; i++) {
-	    			for (var j = 0; j < endpoints[i].connections.length; i++) {
-		    			_addToList(r, elId, [endpoints[i].connections[j].targetId, endpoints[i].scope]);
-		    		}
-	    		}
+	    	options = options || {};
+	    	var elsToInclude = [];
+	    	var includeConnection = function(conn) {
+	    		return true;
 	    	};
-	    	if (!el) {
-		    	for (var i in endpointsByElement) {
-		    		var e = endpointsByElement[i]
-		    		addSome(i, e);
-		    	}
-	    	}
-	    	else {
-	    		var id = typeof el == 'string' ? el : _getId(el);
-	    		var e = endpointsByElement[id];
-	    		addSome(id, e);
+	    	for (var i in endpointsByElement) {
+	    		var ebe = endpointsByElement[i];
+	    		for (var j = 0; j < ebe.length; j++) {
+	    			var e = ebe[j];  // get an endpoint.
+	    			for (var k = 0; k < e.connections.length; k++) {
+	    				var c = e.connections[k];
+	    				if (includeConnection(c)) {
+	    					// first find the object for this scope, creating if necessary
+	    					var scopedConns = r[e.scope];
+	    					if (!scopedConns) {
+	    						scopedConns = {};
+	    						r[e.scope] = scopedConns;
+	    					}
+	    					// now get the list for source element for this conn
+	    					var elConns = scopedConns[c.sourceId];
+	    					if (!elConns) {
+	    						elConns = [];
+	    						scopedConns[c.sourceId] = elConns;
+	    					}
+	    					elConns.push(c.targetId);	    						    					
+	    				}
+	    			}
+	    		}
 	    	}
 	    	return r;
+	    };
+	    
+	    /*
+	     Function: getDefaultScope
+	     	Gets the default scope for connections and endpoints. a scope defines a type of endpoint/connection; supplying a scope to an endpoint
+	     	or connection allows you to support different types of connections in the same UI.  but if you're only interested in one type of connection,
+	     	you don't need to supply a scope.  this method will probably be used by very few people; it's good for testing though.
+	     */
+	    this.getDefaultScope = function() {
+	    	return DEFAULT_SCOPE;
 	    };
 		
 	    /*
@@ -1644,7 +1675,8 @@
 	    			return e ? e.length : 0;
 	    		},
 	    		
-	    		findIndex : _findIndex
+	    		findIndex : _findIndex,
+	    		getId : _getId
 	    	};	    	
 	    };
 	    
