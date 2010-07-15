@@ -1378,40 +1378,14 @@
 	    	};
 	    	for (var i in connectionsByScope) {
 	    		if (includeScope(i)) {
-	    			r[i] = connectionsByScope[i];
-	    		}
-	    	}
-	    	return r;
-	    	/*
-	    	options = options || {};
-	    	var elsToInclude = [];
-	    	var includeConnection = function(conn) {
-	    		return true;
-	    	};
-	    	for (var i in endpointsByElement) {
-	    		var ebe = endpointsByElement[i];
-	    		for (var j = 0; j < ebe.length; j++) {
-	    			var e = ebe[j];  // get an endpoint.
-	    			for (var k = 0; k < e.connections.length; k++) {
-	    				var c = e.connections[k];
-	    				if (includeConnection(c)) {
-	    					// first find the object for this scope, creating if necessary
-	    					var scopedConns = r[e.scope];
-	    					if (!scopedConns) {
-	    						scopedConns = {};
-	    						r[e.scope] = scopedConns;
-	    					}
-	    					// now get the list for source element for this conn
-	    					var elConns = scopedConns[c.sourceId];
-	    					if (!elConns) {
-	    						elConns = [];
-	    						scopedConns[c.sourceId] = elConns;
-	    					}
-	    					elConns.push(c.targetId);	    						    					
-	    				}
+	    			r[i] = [];
+	    			for (var j = 0; j < connectionsByScope[i].length; j++) {
+	    				var c = connectionsByScope[i][j];
+	    				r[i].push({sourceId:c.sourceId, targetId:c.targetId});
 	    			}
 	    		}
-	    	}*/	    	
+	    	}
+	    	return r;	    	
 	    };
 	    
 	    /*
