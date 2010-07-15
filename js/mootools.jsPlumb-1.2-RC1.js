@@ -81,7 +81,7 @@
 			
 		dragEvents : {
 			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
-			'over':'onEnter', 'out':'onLeave','drop':'onDrop'
+			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
 		},
 
 		/*
