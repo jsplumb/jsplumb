@@ -63,6 +63,7 @@
 	var draggableStates = {};
 	var _draggableByDefault = true;
 	var sizes = [];
+	var DEFAULT_SCOPE = 'DEFAULT';
 	
 	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
 	
@@ -767,6 +768,7 @@
 		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
 		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
+		this.scope = params.scope || DEFAULT_SCOPE;
 		var _reattach = params.reattach || false;
 		var floatingEndpoint = null;
 		var inPlaceCopy = null;
@@ -876,6 +878,7 @@
 				var nE = _getElementObject(n);
 				_appendCanvas(n);
 				// create and assign an id, and initialize the offset.
+				//TODO can't this be replaced with a _getId call?
 				var id = "" + new String(new Date().getTime());
 				_setAttribute(nE, "id", id);
 				_updateOffset(id);
@@ -885,12 +888,7 @@
 				_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
 				// create a floating anchor
 				var floatingAnchor = new FloatingAnchor({reference:self.anchor, referenceCanvas:self.canvas});
-				floatingEndpoint = new Endpoint({
-					style:{fillStyle:'rgba(0,0,0,0)'},
-					endpoint:_endpoint, 
-					anchor:floatingAnchor, 
-					source:nE 
-				});
+				floatingEndpoint = new Endpoint({ style:{fillStyle:'rgba(0,0,0,0)'}, endpoint:_endpoint, anchor:floatingAnchor, source:nE });
 				
 				jpc = connectorSelector();
 				if (jpc == null) {
@@ -943,6 +941,7 @@
 			
 			var defaultOpts = jsPlumb.extend({}, jsPlumb.CurrentLibrary.defaultDragOptions);
 			dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
+			dragOptions.scope = dragOptions.scope || self.scope; 
 			var startEvent = jsPlumb.CurrentLibrary.dragEvents['start'];
 			var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
 			var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
@@ -997,6 +996,7 @@
 		if (params.isTarget && jsPlumb.CurrentLibrary.isDropSupported(_element)) {
 			var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
 			dropOptions = jsPlumb.extend({}, dropOptions);
+			dropOptions.scope = dropOptions.scope || self.scope;
 	    	var originalAnchor = null;
 	    	var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'];
 			var overEvent = jsPlumb.CurrentLibrary.dragEvents['over'];
@@ -1364,7 +1364,7 @@
 	    	var addSome = function(elId, endpoints) {
 	    		for (var i = 0; i < endpoints.length; i++) {
 	    			for (var j = 0; j < endpoints[i].connections.length; i++) {
-		    			_addToList(r, elId, endpoints[i].connections[j].targetId);
+		    			_addToList(r, elId, [endpoints[i].connections[j].targetId, endpoints[i].scope]);
 		    		}
 	    		}
 	    	};
@@ -1552,6 +1552,17 @@
 	     */
 	    this.setDefaultNewCanvasSize = function(size) {
 	    	DEFAULT_NEW_CANVAS_SIZE = size;    	
+	    };
+	    
+	    /*
+	     Function: setDefaultScope
+	     	Sets the default scope for connections and endpoints. a scope defines a type of endpoint/connection; supplying a scope to an endpoint
+	     	or connection allows you to support different types of connections in the same UI.  but if you're only interested in one type of connection,
+	     	you don't need to supply a scope.  this method will probably be used by very few people; it just instructs jsPlumb to use a different key
+	     	for the default scope.
+	     */
+	    this.setDefaultScope = function(scope) {
+	    	DEFAULT_SCOPE = scope;
 	    };
 	    
 	    /*
