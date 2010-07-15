@@ -41,7 +41,9 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
 		<script type="text/javascript" src="../../js/mootools-1.2.4.4-more.js"></script>
-		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/mootools.jsPlumb-1.2-all-min.js"></script>
+		<script type="text/javascript" src="../../js/1.2.1/jsPlumb-1.2.1-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.1/jsPlumb-defaults-1.2.1-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.1/mootools.jsPlumb-1.2.1-RC1.js"></script>
 				
 	    <script type="text/javascript">
 			window.addEvent('domready', function() {
@@ -71,34 +73,36 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					errors.
 
 				*/
+				var exampleColor = '#00f';
 				var exampleEndpoint = {
 					endpoint:new jsPlumb.Endpoints.Rectangle(),
-					style:{ width:25, height:21, fillStyle:'#00f' },
+					style:{ width:25, height:21, fillStyle:exampleColor },
 					isSource:true,
-					dragOptions : { scope:'exampleConnection' },
+					scope:'exampleConnection',
 					connectorStyle : {
-						gradient:{stops:[[0,'#00f'], [0.5, '#09098e'], [1,'#00f']]},
+						gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
 						lineWidth:5,
 						strokeStyle:"#00f"
 					},
 					isTarget:true,
-					dropOptions : $extend({scope:'exampleConnection'}, exampleDropOptions)
+					dropOptions : exampleDropOptions
 				};
 
 				/**
 					the second example uses a Dot of radius 15 as the endpoint marker, is both a source and target, and has scope
 					'exampleConnection2'.
 				*/
+				var color2 = '#316b31';
 				var exampleEndpoint2 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:15}),
-						style:{ strokeStyle:'#316b31' },
+						style:{ strokeStyle:color2 },
 						isSource:true,
-						dragOptions : { scope:'exampleConnection2' },
-						connectorStyle:{ strokeStyle:'#316b31', lineWidth:8 },
+						scope:'exampleConnection2',
+						connectorStyle:{ strokeStyle:color2, lineWidth:8 },
 						connector: new jsPlumb.Connectors.Bezier(63),
 						maxConnections:3,
 						isTarget:true,
-						dropOptions : $extend({scope:'exampleConnection2'}, exampleDropOptions)
+						dropOptions : exampleDropOptions
 				};
 
 				/**
@@ -118,11 +122,11 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						anchor:jsPlumb.Anchors.BottomLeft,
 						style:{ strokeStyle:example3Color, opacity:0.5 },
 						isSource:true,
-						dragOptions : { scope:'exampleConnection3' },
+						scope:'exampleConnection3',
 						connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
 						connector : new jsPlumb.Connectors.Straight(),
 						isTarget:true,
-						dropOptions : $extend({scope:'exampleConnection3'}, exampleDropOptions)
+						dropOptions : exampleDropOptions
 				};
 
 				// setup some empty endpoints.  again note the use of '$extend' to reuse all the parameters except the location
@@ -154,6 +158,12 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					jsPlumb.addEndpoint(w.get("id"),exampleEndpoint3);
 				});
 
+				// all four of these ways work to set a window draggable.
+				//jsPlumb.draggable("window1");
+				//jsPlumb.draggable(["window1", "window2"]);
+				//jsPlumb.draggable($("window1"));
+				jsPlumb.draggable($$(".window"));
+								
 				$$(".hide").each(function(h) {
 					h.addEvent('click', function() {
 						jsPlumb.toggle(h.get("rel"));
