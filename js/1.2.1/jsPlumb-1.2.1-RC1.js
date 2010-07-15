@@ -12,10 +12,7 @@
  * 
  * - the ability to interact with connectors/endpoints using the mouse
  * 
- * - the log function should hook up to the console of whichever browser it is in. or library.
- * 
- *   actually this may not be possible.  well - how will the user's elements get included? unless
- *   they are canvases, forget about it.  so this is probably out.
+ * - the log function should hook up to the console of whichever browser it is in. or library. 
  * 
  * - reinstate the context node to put all our canvases in
  * 
@@ -1346,7 +1343,45 @@
 	    this.extend = function(o1, o2) {
 			return jsPlumb.CurrentLibrary.extend(o1, o2);
 		};
-	    
+		
+		/*
+		 Function: getAllConnections
+		 	Gets all connections currently managed by this jsPlumb instance.  this consists of a dictionary, with the keys being element ids, and the 
+		 	values being lists of element ids, eg:
+		 	
+		 	{
+		 		'window1':['window2', 'window4'],
+		 		'window2':['window1'],
+		 		'window3':['window4'],
+		 		'window4':['window1','window3']
+		 	}
+		 	
+		 	Notice how the connections are reported against each element, ie. each connection is essentially reported twice.  maybe this is rubbish.
+		 	we'll see what people think.
+		 */
+	    this.getAllConnections = function(el) {
+	    	var r = {};
+	    	var addSome = function(elId, endpoints) {
+	    		for (var i = 0; i < endpoints.length; i++) {
+	    			for (var j = 0; j < endpoints[i].connections.length; i++) {
+		    			_addToList(r, elId, endpoints[i].connections[j].targetId);
+		    		}
+	    		}
+	    	};
+	    	if (!el) {
+		    	for (var i in endpointsByElement) {
+		    		var e = endpointsByElement[i]
+		    		addSome(i, e);
+		    	}
+	    	}
+	    	else {
+	    		var id = typeof el == 'string' ? el : _getId(el);
+	    		var e = endpointsByElement[id];
+	    		addSome(id, e);
+	    	}
+	    	return r;
+	    };
+		
 	    /*
 	     Function: hide 	     
 	     	Sets an element's connections to be hidden.	     
