@@ -98,7 +98,7 @@ $(window).bind('resize', function() {
          */
 		dragEvents : {
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
-			'over':'over', 'out':'out', 'drop':'drop'
+			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
 				
 		/**
