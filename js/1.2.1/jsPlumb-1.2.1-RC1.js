@@ -905,8 +905,6 @@
 						paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
 						connector: params.connector
 					});
-					// todo ...unregister on stop
-					self.addConnection(jpc);
 				} else {
 					existingJpc = true;
 					var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;
