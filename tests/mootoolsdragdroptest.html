@@ -31,7 +31,7 @@
 				var _droppables = {};
 				var _draggables = {};
 
-				var _find = function(mainList, filterFunc) {
+				/*var _find = function(mainList, filterFunc) {
 					var result = [];
 					if (mainList) {
 						for (var i = 0; i < mainList.length; i++) {
@@ -40,7 +40,7 @@
 						}
 					}
 					return result;
-				};
+				};*/
 
 				var _add = function(mainList, scope, el) {
 					var l = mainList[scope];
@@ -54,18 +54,19 @@
 				var initDroppable = function(el, scope) {
 					_add(_droppables, scope, el);
 					var filterFunc = function(entry) {
-						return entry.element == el;
+						return entry.element != el;
 					};
-					var draggables = _find(_draggables[scope], filterFunc);
+					//var draggables = _find(_draggables[scope], filterFunc);
+					var draggables = _draggables[scope] ? _draggables[scope].filter(filterFunc) : [];
 					for (var i = 0; i < draggables.length; i++)
 						draggables[i].droppables.push(el);
 				};
 
 				var initDraggable = function(target, scope) {
 					var filterFunc = function(entry) {
-						return entry.get("id") == target.get("id");
+						return entry.get("id") != target.get("id");
 					};
-					var d = _find(_droppables[scope], filterFunc);
+					var d = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
 					var drag = new Drag.Move(target, 
 					{
 						droppables:d, 
