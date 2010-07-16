@@ -1343,8 +1343,8 @@
 		};
 		
 		/*
-		 Function: getAllConnections
-		 	Gets all connections currently managed by this jsPlumb instance.  
+		 Function: getConnections
+		 	Gets all or a subset of connections currently managed by this jsPlumb instance.  
 		 Parameters:
 		    options - a JS object that holds options defining what sort of connections you're looking for.  Valid values are:
 		    	scope		this may be a String or a list of Strings. jsPlumb will only return Connections whose scope matches what this option
@@ -1373,15 +1373,46 @@
 	    this.getConnections = function(options) {
 	    	var r = {};
 	    	options = options || {};
+	    	var scopes = [];
+	    	if (options.scope) {
+	    		if (typeof options.scope == 'string') scopes.push(options.scope);
+	    		else {
+	    			//assume it's a list
+	    			scopes = options.scope;
+	    		}
+	    	}
+	    	var sourceIds = [];
+	    	if (options.sourceId) {
+	    		if (typeof options.sourceId == 'string') sourceIds.push(options.sourceId);
+	    		else {
+	    			//assume it's a list
+	    			sourceIds = options.sourceId;
+	    		}
+	    	}
+	    	var targetIds = [];
+	    	if (options.targetId) {
+	    		if (typeof options.targetId == 'string') targetIds.push(options.targetId);
+	    		else {
+	    			//assume it's a list
+	    			targetIds = options.targetId;
+	    		}
+	    	}
 	    	var includeScope = function(scope) {
-	    		return true;
+	    		return scopes.length > 0 ? _findIndex(scopes, scope) != -1 : true;
+	    	};
+	    	var includeSourceId = function(sourceId) {
+	    		return sourceIds.length > 0 ? _findIndex(sourceIds, sourceId) != -1 : true;
+	    	};
+	    	var includeTargetId = function(targetId) {
+	    		return targetIds.length > 0 ? _findIndex(targetIds, targetId) != -1 : true;
 	    	};
 	    	for (var i in connectionsByScope) {
 	    		if (includeScope(i)) {
 	    			r[i] = [];
 	    			for (var j = 0; j < connectionsByScope[i].length; j++) {
 	    				var c = connectionsByScope[i][j];
-	    				r[i].push({sourceId:c.sourceId, targetId:c.targetId});
+	    				if (includeSourceId(c.sourceId) && includeTargetId(c.targetId))
+	    					r[i].push({sourceId:c.sourceId, targetId:c.targetId});
 	    			}
 	    		}
 	    	}
