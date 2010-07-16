@@ -1349,10 +1349,8 @@
 		    options - a JS object that holds options defining what sort of connections you're looking for.  Valid values are:
 		    	scope		this may be a String or a list of Strings. jsPlumb will only return Connections whose scope matches what this option
 		    	            defines.  If you omit it, you will be given Connections of every scope.
-		    	source			may be a string or a selector; constraints results to have only Connections whose source is this object.
-		    	target			may be a string or a selector; constraints results to have only Connections whose target is this object.   
-		 		sourceEndpoint	may be a string or a selector; constraints results to have only Connections whose source Endpoint is this object.
-		 		targetEndpoint	may be a string or a selector; constraints results to have only Connections whose targte Endpoint is this object.
+		    	source			may be a string or a list of strings; constraints results to have only Connections whose source is this object.
+		    	target			may be a string or a list of strings; constraints results to have only Connections whose target is this object.
 		 	
 		 	The return value is a dictionary in this format:
 		 	
@@ -1373,45 +1371,26 @@
 	    this.getConnections = function(options) {
 	    	var r = {};
 	    	options = options || {};
-	    	var scopes = [];
-	    	if (options.scope) {
-	    		if (typeof options.scope == 'string') scopes.push(options.scope);
-	    		else {
-	    			//assume it's a list
-	    			scopes = options.scope;
+	    	var prepareList = function(input) {
+	    		var r = [];
+	    		if (input) {
+	    			if (typeof input == 'string') r.push(input);
+	    			else r = input;
 	    		}
-	    	}
-	    	var sourceIds = [];
-	    	if (options.sourceId) {
-	    		if (typeof options.sourceId == 'string') sourceIds.push(options.sourceId);
-	    		else {
-	    			//assume it's a list
-	    			sourceIds = options.sourceId;
-	    		}
-	    	}
-	    	var targetIds = [];
-	    	if (options.targetId) {
-	    		if (typeof options.targetId == 'string') targetIds.push(options.targetId);
-	    		else {
-	    			//assume it's a list
-	    			targetIds = options.targetId;
-	    		}
-	    	}
-	    	var includeScope = function(scope) {
-	    		return scopes.length > 0 ? _findIndex(scopes, scope) != -1 : true;
+	    		return r;
 	    	};
-	    	var includeSourceId = function(sourceId) {
-	    		return sourceIds.length > 0 ? _findIndex(sourceIds, sourceId) != -1 : true;
-	    	};
-	    	var includeTargetId = function(targetId) {
-	    		return targetIds.length > 0 ? _findIndex(targetIds, targetId) != -1 : true;
+	    	var scopes = prepareList(options.scope);
+	    	var sources = prepareList(options.source);
+	    	var targets = prepareList(options.target);
+	    	var filter = function(list, value) {
+	    		return list.length > 0 ? _findIndex(list, value) != -1 : true;
 	    	};
 	    	for (var i in connectionsByScope) {
-	    		if (includeScope(i)) {
+	    		if (filter(scopes, i)) {
 	    			r[i] = [];
 	    			for (var j = 0; j < connectionsByScope[i].length; j++) {
 	    				var c = connectionsByScope[i][j];
-	    				if (includeSourceId(c.sourceId) && includeTargetId(c.targetId))
+	    				if (filter(sources, c.sourceId) && filter(targets, c.targetId))
 	    					r[i].push({sourceId:c.sourceId, targetId:c.targetId});
 	    			}
 	    		}
