@@ -28,7 +28,7 @@
 		<div class="window" id="window6">window six</div>
 		
 		<div id="explanation">
-	    	On this page we set our connectors to gray and specify an endpoint of radius 9. <br/><br/>The Bezier curve used on this page has a 'curviness' of 50; the Bezier connectors are a lot flatter than those on the first demo, which uses the default values.  See the documentation for examples of how to set the Bezier curviness.<br/><br/>Everything else is default.
+	    	On this page we set our connectors to gray and specify an endpoint of radius 9. <br/><br/>The Bezier curve used on this page has a 'curviness' of 50; the Bezier connectors are a lot flatter than those on the first demo, which uses the default values.  See the documentation for examples of how to set the Bezier curviness.<br/><br/>The elements of the chart are not draggable.
 	    	<p>This demonstration uses jsPlumb 1.2, MooTools 1.2.4, and Drag.Move from MooTools More 1.2.2.4.</p>
 	    	<a href="gradientDemo.html" class="mplink">Next: Gradients demonstration</a>
 	    	<br/><br/>
@@ -51,6 +51,8 @@
 				jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:'gray' };
 				jsPlumb.Defaults.Anchors =  [ jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter ];
 
+				jsPlumb.setDraggableByDefault(false);
+				
 				jsPlumb.connect({source:'window3', target:'window6'}); 
 				jsPlumb.connect({source:'window1', target:'window2'}); 
 				jsPlumb.connect({source:'window1', target:'window3'});
