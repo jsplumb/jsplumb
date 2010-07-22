@@ -620,7 +620,7 @@
 	    // init endpoints
 	    this.endpoints = [];
 	    this.endpointStyles = [];
-	    var prepareEndpoint = function(existing, index, params) {
+	    var prepareEndpoint = function(existing, index, params, element) {
 	    	if (existing) { 
 	    		self.endpoints[index] = existing;
 	    		existing.addConnection(self);
@@ -631,15 +631,15 @@
 			    if (!params.endpointStyles) params.endpointStyles = [null,null];
 			    var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			    var a = params.anchors  ? params.anchors[index] : _currentInstance.Defaults.Anchors[index] || jsPlumb.Defaults.Anchors[index] || _currentInstance.Defaults.Anchor || jsPlumb.Defaults.Anchor || jsPlumb.Anchors.BottomCenter;
-			    var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:self.source });
+			    var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:element });
 			    self.endpoints[index] = e;
 			    return e;
 		    }
 	    };
 	    
-	    var eS = prepareEndpoint(params.sourceEndpoint, 0, params);
+	    var eS = prepareEndpoint(params.sourceEndpoint, 0, params, self.source);
 	    if (eS) _addToList(endpointsByElement, this.sourceId, eS);
-	    var eT = prepareEndpoint(params.targetEndpoint, 1, params);
+	    var eT = prepareEndpoint(params.targetEndpoint, 1, params, self.target);
 	    if (eT) _addToList(endpointsByElement, this.targetId, eT);
 	    // if scope not set, set it to be the scope for the source endpoint.
 	    if (!this.scope) this.scope = this.endpoints[0].scope;
@@ -651,12 +651,12 @@
 	    _updateOffset(this.targetId);
 	    
 	    // paint the endpoints
-	    //var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];		
-    	//var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH);
-    	//this.endpoints[0].paint(anchorLoc);    	
-    	//myOffset = offsets[this.targetId]; myWH = sizes[this.targetId];		
-    	//anchorLoc = this.endpoints[1].anchor.compute([myOffset.left, myOffset.top], myWH);
-    	//this.endpoints[1].paint(anchorLoc);
+	    var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];		
+    	var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH);
+    	this.endpoints[0].paint(anchorLoc);    	
+    	myOffset = offsets[this.targetId]; myWH = sizes[this.targetId];		
+    	anchorLoc = this.endpoints[1].anchor.compute([myOffset.left, myOffset.top], myWH);
+    	this.endpoints[1].paint(anchorLoc);
 
 	// *************** create canvas on which the connection will be drawn ************
 	    var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
