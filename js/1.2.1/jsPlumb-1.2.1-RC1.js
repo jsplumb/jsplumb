@@ -160,7 +160,7 @@
 	    	// loop through endpoints for this element
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		var e = endpoints[i];	    		
-	    		var anchorLoc = endpoints[i].anchor.compute([myOffset.left, myOffset.top], myWH, timestamp);
+	    		var anchorLoc = endpoints[i].anchor.compute([myOffset.left, myOffset.top], myWH, endpoints[i]);
 	            e.paint(anchorLoc);
 	            var l = e.connections;
 		    	for (var j = 0; j < l.length; j++)
@@ -520,9 +520,21 @@
 		// be done through the Endpoint class, which can then deal with the timestamp.
 		// and, in fact, we should find out whether or not we even get a speed enhancement from doing
 		// this.
-		this.compute = function(xy, wh) {
-			_trace('anchor compute');
+		this.compute = function(xy, wh, element) {
+			_trace('anchor compute');			
 			lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1]];
+			var container = element? element.container : null;
+			var containerAdjustment = {left:0, top:0 };
+            if (container != null) {
+            	var eo = _getElementObject(container);
+            	var o = _getOffset(container);
+            	var sl = eo.scrollLeft();//TODO make agnostic...this is jquery
+            	var st = eo.scrollTop();//TODO make agnostic...this is jquery
+            	containerAdjustment.left = containerAdjustment.left + o.left - sl;
+            	containerAdjustment.top = containerAdjustment.top + o.top - st;
+            	lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
+            	lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
+            }
 			return lastReturnValue;
 		};
 		
@@ -631,7 +643,7 @@
 			    if (!params.endpointStyles) params.endpointStyles = [null,null];
 			    var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			    var a = params.anchors  ? params.anchors[index] : _currentInstance.Defaults.Anchors[index] || jsPlumb.Defaults.Anchors[index] || _currentInstance.Defaults.Anchor || jsPlumb.Defaults.Anchor || jsPlumb.Anchors.BottomCenter;
-			    var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:element });
+			    var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:element, container:self.container });
 			    self.endpoints[index] = e;
 			    return e;
 		    }
@@ -652,10 +664,10 @@
 	    
 	    // paint the endpoints
 	    var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];		
-    	var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH);
+    	var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[0]);
     	this.endpoints[0].paint(anchorLoc);    	
     	myOffset = offsets[this.targetId]; myWH = sizes[this.targetId];		
-    	anchorLoc = this.endpoints[1].anchor.compute([myOffset.left, myOffset.top], myWH);
+    	anchorLoc = this.endpoints[1].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[1]);
     	this.endpoints[1].paint(anchorLoc);
 
 	// *************** create canvas on which the connection will be drawn ************
@@ -692,9 +704,9 @@
 	            
 	    		var ctx = canvas.getContext('2d');
 	    		//TODO: why are these calculated again?  they were calculated in the _draw function.
-	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH);
+	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH);
+	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            
 	            // new with element append stuff
@@ -788,10 +800,10 @@
 		this.connectorStyle = params.connectorStyle;
 		this.connector = params.connector;
 		var _element = params.source;
-		this.container = _element;
+		this.container = params.container || jsPlumb.Defaults.Container;
 		var _elementId = _getAttribute(_element, "id");
 		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
-		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
+		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, this.container);
 		this.connections = params.connections || [];
 		this.scope = params.scope || DEFAULT_SCOPE;
 		var _reattach = params.reattach || false;
@@ -868,7 +880,7 @@
 					xy = offsets[_elementId];
 					wh = sizes[_elementId];
 				}
-				anchorPoint = self.anchor.compute([xy.left, xy.top], wh);
+				anchorPoint = self.anchor.compute([xy.left, xy.top], wh, self);
 			}
 			_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
 		};
@@ -1152,7 +1164,7 @@
 	    	_addToList(endpointsByElement, id, e);
     		var myOffset = offsets[id];
     		var myWH = sizes[id];			
-	    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH);
+	    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
 	    	e.paint(anchorLoc);
 	    	return e;
 	    };
