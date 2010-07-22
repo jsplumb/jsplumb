@@ -522,7 +522,7 @@
 		// this.
 		this.compute = function(xy, wh) {
 			_trace('anchor compute');
-			lastReturnValue = [ /*xy[0] + */(self.x * wh[0]) + self.offsets[0], /*xy[1] + */(self.y * wh[1]) + self.offsets[1]];
+			lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1]];
 			return lastReturnValue;
 		};
 		
@@ -698,10 +698,10 @@
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            
 	            // new with element append stuff
-	            sAnchorP[0] = sAnchorP[0] + myOffset.left;
-	            sAnchorP[1] = sAnchorP[1] + myOffset.top;
-	            tAnchorP[0] = tAnchorP[0] + otherOffset.left;
-	            tAnchorP[1] = tAnchorP[1] + otherOffset.top;	            
+	            sAnchorP[0] = sAnchorP[0] //+ myOffset.left;
+	            sAnchorP[1] = sAnchorP[1] //+ myOffset.top;
+	            tAnchorP[0] = tAnchorP[0] //+ otherOffset.left;
+	            tAnchorP[1] = tAnchorP[1] //+ otherOffset.top;	            
 	            var containerAdjustment = {left:0, top:0 };
 	            if (self.container != null) {
 	            	var eo = _getElementObject(self.container);
@@ -711,10 +711,10 @@
 	            	containerAdjustment.left = containerAdjustment.left + o.left - sl;
 	            	containerAdjustment.top = containerAdjustment.top + o.top - st;
 	            }
-	            sAnchorP[0] = sAnchorP[0] - containerAdjustment.left;
-	            sAnchorP[1] = sAnchorP[1] - containerAdjustment.top;
-	            tAnchorP[0] = tAnchorP[0] - containerAdjustment.left;
-	            tAnchorP[1] = tAnchorP[1] - containerAdjustment.top;
+	            sAnchorP[0] = sAnchorP[0] //- containerAdjustment.left;
+	            sAnchorP[1] = sAnchorP[1] //- containerAdjustment.top;
+	            tAnchorP[0] = tAnchorP[0] //- containerAdjustment.left;
+	            tAnchorP[1] = tAnchorP[1] //- containerAdjustment.top;
 	            // end of new element append stuff.
 	            
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
@@ -791,7 +791,7 @@
 		this.container = _element;
 		var _elementId = _getAttribute(_element, "id");
 		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
-		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, _element);
+		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
 		this.connections = params.connections || [];
 		this.scope = params.scope || DEFAULT_SCOPE;
 		var _reattach = params.reattach || false;
