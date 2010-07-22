@@ -100,6 +100,10 @@ $(window).bind('resize', function() {
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
+		
+		appendElement : function(child, parent) {
+			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
+		},
 				
 		/**
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
@@ -232,6 +236,10 @@ $(window).bind('resize', function() {
 		 */
 		getDragObject : function(eventArgs) {
 			return eventArgs[1].draggable;
+		},
+		
+		removeElement : function(element, parent) {			
+			jsPlumb.CurrentLibrary.getElementObject(element).remove();
 		}
 	};
 })();

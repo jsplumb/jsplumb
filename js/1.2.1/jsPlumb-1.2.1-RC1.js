@@ -196,7 +196,7 @@
 	
 	var _log = function(msg) {
 	    //if (console) console.log(msg);	
-	    }
+	    };
 	
 	var _logFnCall = function(fn, args) {
 	    /*if (console) {
@@ -264,8 +264,9 @@
 		return jsPlumb.CurrentLibrary.getSize(ele);
 	};							
 	
-	var _appendCanvas = function(canvas) {
-		document.body.appendChild(canvas);
+	var _appendElement = function(canvas, parent) {
+		if (!parent) document.body.appendChild(canvas);
+		else jsPlumb.CurrentLibrary.appendElement(canvas, parent);		
 	};
 	
     /**
@@ -315,9 +316,9 @@
      * helper to create a canvas.
      * @param clazz optional class name for the canvas.
      */
-    var _newCanvas = function(clazz) {
+    var _newCanvas = function(clazz, parent) {
         var canvas = document.createElement("canvas");
-        _appendCanvas(canvas);
+        _appendElement(canvas, parent);
         canvas.style.position="absolute";
         if (clazz) { canvas.className=clazz; }
         _getId(canvas); // set an id.
@@ -361,18 +362,22 @@
     /**
      * helper to remove an element from the DOM.
      */
-    var _removeElement = function(element) {
+    var _removeElement = function(element, parent) {
     	if (element != null) { 
-    		try { document.body.removeChild(element); }
-    		catch (e) { }
+    		if (!parent) {
+	    		try { document.body.removeChild(element); }
+	    		catch (e) { }
+    		} else {
+    			jsPlumb.CurrentLibrary.removeElement(element, parent);
+    		}
     	}    	
     };
     /**
      * helper to remove a list of elements from the DOM.
      */
-    var _removeElements = function(elements) {
+    var _removeElements = function(elements, parent) {
     	for (var i in elements)
-    		_removeElement(elements[i]);
+    		_removeElement(elements[i], parent);
     };
 	/**
      * helper method to remove an item from a list.
@@ -483,7 +488,7 @@
     			_log('wrapped function failed : ' + e);    			
     		}
     	};
-    }
+    };
     
     /*
      Class: Anchor     
@@ -508,23 +513,16 @@
 		var orientation = params.orientation || [0,0];
 		var lastTimestamp = null;
 		var lastReturnValue = null;
-		this.offsets = params.offsets || [0,0];
+		this.offsets = params.offsets || [0,0];		
 		//TODO: fix this properly.  since Anchors are often static, this timestamping business
 		// does not work at all well.  the timestamp should be inside the Endpoint, because they
 		// are _never_ static.  the method that Connection uses to find an anchor location should
 		// be done through the Endpoint class, which can then deal with the timestamp.
 		// and, in fact, we should find out whether or not we even get a speed enhancement from doing
 		// this.
-		this.compute = function(xy, wh, timestamp) {
+		this.compute = function(xy, wh) {
 			_trace('anchor compute');
-			//if (lastReturnValue && timestamp && timestamp == lastTimestamp) {
-				//_trace('anchor cache');
-				//return lastReturnValue;
-			//}
-			//else {
-				lastTimestamp = timestamp;
-				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
-			//}
+			lastReturnValue = [ /*xy[0] + */(self.x * wh[0]) + self.offsets[0], /*xy[1] + */(self.y * wh[1]) + self.offsets[1]];
 			return lastReturnValue;
 		};
 		
@@ -561,7 +559,7 @@
 			// set these for the getOrientation method to use.
 			xDir = 0;//xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
 			yDir = 0;//xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
-			return [xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
+			return [/*xy[0] +*/ (size[0] / 2), /*xy[1] +*/ (size[1] / 2) ];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
 		};
 		
 		this.getOrientation = function() {
@@ -607,7 +605,8 @@
 	// ************** get the source and target and register the connection. *******************
 	    var self = this;
 	    var id = new String('_jsplumb_c_' + (new Date()).getTime());
-	    this.getId = function() { return id; }
+	    this.getId = function() { return id; };
+	    this.container = params.container || _currentInstance.Defaults.Container;  // may be null; we will append to the body if so.
 	    // get source and target as jQuery objects
 	    this.source = _getElementObject(params.source);    
 	    this.target = _getElementObject(params.target);
@@ -652,15 +651,15 @@
 	    _updateOffset(this.targetId);
 	    
 	    // paint the endpoints
-	    var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];		
-    	var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH);
-    	this.endpoints[0].paint(anchorLoc);    	
-    	myOffset = offsets[this.targetId]; myWH = sizes[this.targetId];		
-    	anchorLoc = this.endpoints[1].anchor.compute([myOffset.left, myOffset.top], myWH);
-    	this.endpoints[1].paint(anchorLoc);
+	    //var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];		
+    	//var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH);
+    	//this.endpoints[0].paint(anchorLoc);    	
+    	//myOffset = offsets[this.targetId]; myWH = sizes[this.targetId];		
+    	//anchorLoc = this.endpoints[1].anchor.compute([myOffset.left, myOffset.top], myWH);
+    	//this.endpoints[1].paint(anchorLoc);
 
 	// *************** create canvas on which the connection will be drawn ************
-	    var canvas = _newCanvas(jsPlumb.connectorClass);
+	    var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
 	    this.canvas = canvas;
 	     
 	    /**
@@ -681,10 +680,10 @@
 	    	var el = swap ? this.target : this.source;
 	    	
 	    	if (this.canvas.getContext) {    		    			    		    	
-	    		if (recalc) {
+	    		//if (recalc) {
 	    			_updateOffset(elId, ui, recalc);
 	    			_updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
-	    		}
+	    		//}
 	    		
 	    		var myOffset = offsets[elId]; 
 	    		var otherOffset = offsets[tId];
@@ -693,10 +692,31 @@
 	            
 	    		var ctx = canvas.getContext('2d');
 	    		//TODO: why are these calculated again?  they were calculated in the _draw function.
-	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, timestamp);
+	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH);
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, timestamp);
+	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
+	            
+	            // new with element append stuff
+	            sAnchorP[0] = sAnchorP[0] + myOffset.left;
+	            sAnchorP[1] = sAnchorP[1] + myOffset.top;
+	            tAnchorP[0] = tAnchorP[0] + otherOffset.left;
+	            tAnchorP[1] = tAnchorP[1] + otherOffset.top;	            
+	            var containerAdjustment = {left:0, top:0 };
+	            if (self.container != null) {
+	            	var eo = _getElementObject(self.container);
+	            	var o = _getOffset(self.container);
+	            	var sl = eo.scrollLeft();//TODO make agnostic...this is jquery
+	            	var st = eo.scrollTop();//TODO make agnostic...this is jquery
+	            	containerAdjustment.left = containerAdjustment.left + o.left - sl;
+	            	containerAdjustment.top = containerAdjustment.top + o.top - st;
+	            }
+	            sAnchorP[0] = sAnchorP[0] - containerAdjustment.left;
+	            sAnchorP[1] = sAnchorP[1] - containerAdjustment.top;
+	            tAnchorP[0] = tAnchorP[0] - containerAdjustment.left;
+	            tAnchorP[1] = tAnchorP[1] - containerAdjustment.top;
+	            // end of new element append stuff.
+	            
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
 	            jsPlumb.extend(ctx, this.paintStyle);
@@ -761,16 +781,17 @@
 		jsPlumb.extend({}, params);
 		var self = this;
 	    var id = new String('_jsplumb_e_' + (new Date()).getTime());
-	    this.getId = function() { return id; }
+	    this.getId = function() { return id; };
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 		this.connectorStyle = params.connectorStyle;
 		this.connector = params.connector;
 		var _element = params.source;
+		this.container = _element;
 		var _elementId = _getAttribute(_element, "id");
 		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
-		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass);
+		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, _element);
 		this.connections = params.connections || [];
 		this.scope = params.scope || DEFAULT_SCOPE;
 		var _reattach = params.reattach || false;
@@ -879,7 +900,7 @@
 				
 				n = document.createElement("div");
 				var nE = _getElementObject(n);
-				_appendCanvas(n);
+				_appendElement(n); //
 				// create and assign an id, and initialize the offset.
 				//TODO can't this be replaced with a _getId call?
 				var id = "" + new String(new Date().getTime());
@@ -954,7 +975,8 @@
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
 				function() {					
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
-					_removeElements([floatingEndpoint.canvas, n, inPlaceCopy.canvas]);
+					_removeElements([n, floatingEndpoint.canvas]); // TODO: clean up the connection canvas (if the user aborted)
+					_removeElement(inPlaceCopy.canvas, _element); 
 					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 					if (jpc.endpoints[idx] == floatingEndpoint) {										
 						// if the connection was an existing one:
@@ -1061,6 +1083,7 @@
     		Anchor : null,
     		Anchors : [ null, null ],
     		Connector : null,
+    		Container : null,
     		DragOptions: { },
     		DropOptions: { },
     		Endpoint : null,
@@ -1235,7 +1258,7 @@
 	    this.detach = function(sourceId, targetId) {
 	    	var f = function(jpc) {
 	    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-	    			_removeElement(jpc.canvas);
+	    			_removeElement(jpc.canvas, jpc.container);
 					jpc.endpoints[0].removeConnection(jpc);
 					jpc.endpoints[1].removeConnection(jpc);
 					_removeFromList(connectionsByScope, jpc.scope, jpc);
@@ -1265,7 +1288,7 @@
 		    		if (c > 0) {
 		    			for (var j = 0; j < c; j++) {
 		    				var jpc = endpoints[i].connections[0];
-		    				_removeElement(jpc.canvas);
+		    				_removeElement(jpc.canvas, jpc.container);
 		    				jpc.endpoints[0].removeConnection(jpc);
 		    				jpc.endpoints[1].removeConnection(jpc);
 		    			}
@@ -1291,7 +1314,7 @@
 			    		if (c > 0) {
 			    			for (var j = 0; j < c; j++) {
 			    				var jpc = endpoints[i].connections[0];
-			    				_removeElement(jpc.canvas);
+			    				_removeElement(jpc.canvas, jpc.container);
 			    				jpc.endpoints[0].removeConnection(jpc);
 			    				jpc.endpoints[1].removeConnection(jpc);
 			    			}
@@ -1444,7 +1467,7 @@
 	    		if (arguments.length == 6) params.offsets = [arguments[4], arguments[5]];
 	    	}
 	    	var a = new Anchor(params);
-	    	a.clone = function() { return new Anchor(params); }
+	    	a.clone = function() { return new Anchor(params); };
 	    	return a;
 	    };
 	        	    
@@ -1523,7 +1546,7 @@
 		    	var endpoints = endpointsByElement[id];
 		    	if (endpoints && endpoints.length) {
 			    	for (var i = 0; i < endpoints.length; i++) {			
-				    	_removeElement(endpoints[i].canvas);	    					    		   
+				    	_removeElement(endpoints[i].canvas, endpoints[i].container);	    					    		   
 			    	}			    	
 		    	}
 	    	}

@@ -83,6 +83,10 @@
 			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
 			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
 		},
+		
+		appendElement : function(child, parent) {
+			jsPlumb.CurrentLibrary.getElementObject(parent).grab(child);			
+		},
 
 		/*
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
@@ -249,6 +253,11 @@
 		
 		getDragObject : function(eventArgs) {
 			return eventArgs[0];
+		},
+		
+
+		removeElement : function(element, parent) {			
+			jsPlumb.CurrentLibrary.getElementObject(element).dispose();  // ??
 		}
 	};
 })();
