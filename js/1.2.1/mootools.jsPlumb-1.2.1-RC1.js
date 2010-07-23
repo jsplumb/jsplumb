@@ -258,6 +258,14 @@
 
 		removeElement : function(element, parent) {			
 			jsPlumb.CurrentLibrary.getElementObject(element).dispose();  // ??
+		},
+		
+		getScrollLeft : function(el) {
+			return null;
+		},
+		
+		getScrollTop : function(el) {
+			return null;
 		}
 	};
 })();

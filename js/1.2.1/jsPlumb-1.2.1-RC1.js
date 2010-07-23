@@ -160,7 +160,7 @@
 	    	// loop through endpoints for this element
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		var e = endpoints[i];	    		
-	    		var anchorLoc = endpoints[i].anchor.compute([myOffset.left, myOffset.top], myWH, endpoints[i]);
+	    		var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
 	            e.paint(anchorLoc);
 	            var l = e.connections;
 		    	for (var j = 0; j < l.length; j++)
@@ -229,38 +229,31 @@
 	 * gets the named attribute from the given element (id or element object)
 	 */
 	var _getAttribute = function(el, attName) {
-		//_logFnCall('getAttribute',  arguments);
-		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		var ele = __getElementObject(el);
 		return jsPlumb.CurrentLibrary.getAttribute(ele, attName);
 	};
 	
 	var _setAttribute = function(el, attName, attValue) {
-		//_logFnCall('setAttribute',  arguments);
-		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		var ele = __getElementObject(el);
 		jsPlumb.CurrentLibrary.setAttribute(ele, attName, attValue);
 	};
 	
 	var _addClass = function(el, clazz) {
-	//	_logFnCall('addClass',  arguments);
-		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		var ele = __getElementObject(el);
 		jsPlumb.CurrentLibrary.addClass(ele, clazz);
 	};
 	
 	var _getElementObject = function(elId) {
-	//	_logFnCall('getElementObject',  arguments);
-		//return jsPlumb.CurrentLibrary.getElementObject(elId);
 		return __getElementObject(elId);
 	};
 	
 	var _getOffset = function(el) {
-		//_logFnCall('getOffset',  arguments);
-		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		var ele = __getElementObject(el);
 		return jsPlumb.CurrentLibrary.getOffset(ele);
 	};
 	
 	var _getSize = function(el) {
-		//_logFnCall('getSize',  arguments);
-		var ele = __getElementObject(el);//jsPlumb.CurrentLibrary.getElementObject(el);
+		var ele = __getElementObject(el);
 		return jsPlumb.CurrentLibrary.getSize(ele);
 	};							
 	
@@ -527,11 +520,16 @@
 			var containerAdjustment = {left:0, top:0 };
             if (container != null) {
             	var eo = _getElementObject(container);
-            	var o = _getOffset(container);
-            	var sl = eo.scrollLeft();//TODO make agnostic...this is jquery
-            	var st = eo.scrollTop();//TODO make agnostic...this is jquery
-            	containerAdjustment.left = containerAdjustment.left + o.left - sl;
-            	containerAdjustment.top = containerAdjustment.top + o.top - st;
+            	var o = _getOffset(eo);
+            	var p = eo.position();
+            	
+            //	lastReturnValue[0] = lastReturnValue[0] + o.left;
+            //	lastReturnValue[1] = lastReturnValue[1] + o.top;
+	            
+            	var sl = jsPlumb.CurrentLibrary.getScrollLeft(eo);
+            	var st = jsPlumb.CurrentLibrary.getScrollTop(eo);
+            	containerAdjustment.left = o.left - sl;
+            	containerAdjustment.top = o.top - st;
             	lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
             	lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
             }
@@ -707,27 +705,7 @@
 	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
 	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
-	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
-	            
-	            // new with element append stuff
-	            sAnchorP[0] = sAnchorP[0] //+ myOffset.left;
-	            sAnchorP[1] = sAnchorP[1] //+ myOffset.top;
-	            tAnchorP[0] = tAnchorP[0] //+ otherOffset.left;
-	            tAnchorP[1] = tAnchorP[1] //+ otherOffset.top;	            
-	            var containerAdjustment = {left:0, top:0 };
-	            if (self.container != null) {
-	            	var eo = _getElementObject(self.container);
-	            	var o = _getOffset(self.container);
-	            	var sl = eo.scrollLeft();//TODO make agnostic...this is jquery
-	            	var st = eo.scrollTop();//TODO make agnostic...this is jquery
-	            	containerAdjustment.left = containerAdjustment.left + o.left - sl;
-	            	containerAdjustment.top = containerAdjustment.top + o.top - st;
-	            }
-	            sAnchorP[0] = sAnchorP[0] //- containerAdjustment.left;
-	            sAnchorP[1] = sAnchorP[1] //- containerAdjustment.top;
-	            tAnchorP[0] = tAnchorP[0] //- containerAdjustment.left;
-	            tAnchorP[1] = tAnchorP[1] //- containerAdjustment.top;
-	            // end of new element append stuff.
+	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();	        
 	            
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
@@ -1690,6 +1668,7 @@
 		        canvas.style.height = h + "px"; canvas.height = h;
 		        canvas.style.width = w + "px"; canvas.width = w; 
 		        canvas.style.left = x + "px"; canvas.style.top = y + "px";
+		       // _currentInstance.CurrentLibrary.setPosition(canvas, x, y);
 	    	}
 	    };
 	    

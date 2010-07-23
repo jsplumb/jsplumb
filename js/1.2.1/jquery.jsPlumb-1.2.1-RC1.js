@@ -240,6 +240,20 @@ $(window).bind('resize', function() {
 		
 		removeElement : function(element, parent) {			
 			jsPlumb.CurrentLibrary.getElementObject(element).remove();
-		}
+		},
+		
+		getScrollLeft : function(el) {
+			return el.scrollLeft();
+		},
+		
+		getScrollTop : function(el) {
+			return el.scrollTop();
+		}/*,
+		
+		setPosition : function(el, x, y) {
+			var p = $(el).parent();
+			var po = p.get(0).tagName.toUpperCase() != 'BODY' ? $(p).offset() : {left:0, top:0 };
+	        $(el).offset({left:po.left + x, top:po.top + y});	
+		}*/
 	};
 })();
