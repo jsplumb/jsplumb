@@ -521,11 +521,6 @@
             if (container != null) {
             	var eo = _getElementObject(container);
             	var o = _getOffset(eo);
-            	var p = eo.position();
-            	
-            //	lastReturnValue[0] = lastReturnValue[0] + o.left;
-            //	lastReturnValue[1] = lastReturnValue[1] + o.top;
-	            
             	var sl = jsPlumb.CurrentLibrary.getScrollLeft(eo);
             	var st = jsPlumb.CurrentLibrary.getScrollTop(eo);
             	containerAdjustment.left = o.left - sl;
@@ -569,7 +564,7 @@
 			// set these for the getOrientation method to use.
 			xDir = 0;//xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
 			yDir = 0;//xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
-			return [/*xy[0] +*/ (size[0] / 2), /*xy[1] +*/ (size[1] / 2) ];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
+			return [xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
 		};
 		
 		this.getOrientation = function() {
