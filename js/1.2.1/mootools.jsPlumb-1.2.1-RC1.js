@@ -113,7 +113,7 @@
 		  { left:xxx, top: xxx}
 		 */
 		getOffset : function(el) {
-			var p = el.getPosition();
+			var p = el.getPosition(pa);
 			return { left:p.x, top:p.y };
 		},
 		
