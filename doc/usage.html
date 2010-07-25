@@ -12,6 +12,7 @@
 			<h3>Index</h3>
 			<ul>
 				<li><a href="#summary">Summary</a></li>
+				<li><a href="#changes">Changes since version 1.2</a></li>
 				<li><a href="#requirements">Imports</a></li>
 				<li><a href="#jsPlumbBasics">jsPlumb Basic Concepts</a></li>
 				<li><a href="#simpleConnections">jsPlumb Basic Concepts - Simple Connections</a></li>
@@ -19,8 +20,9 @@
 				<li><a href="#dragOptions">jsPlumb Basic Concepts - Drag Options</a></li>
 				<li><a href="#dropOptions">jsPlumb Basic Concepts - Drop Options</a></li>
 				<li><a href="#dragAndDropScope">jsPlumb Basic Concepts - Drag and Drop Scope</a></li>
-				<li><a href="#unload">Unloading jsPlumb</a></li>				
+				<li><a href="#multipleInstances">Multiple Instances of jsPlumb</a></li>							
 				<li><a href="#repaint">Automatic repaint</a></li>
+				<li><a href="#unload">Unloading jsPlumb</a></li>
 				<li><a href="#options">jsPlumb.connect Options</a></li>
 				<li><a href="#defaults">Defaults</a></li>
 				<li><a href="#anchors">Anchors</a></li>
@@ -34,7 +36,6 @@
 				<li><a href="#connectionInfo">Retrieving Connection Information</a></li>
 				<li><a href="#developingJsPlumb">Advanced - jsPlumb internals</a></li>
 				<li><a href="#pluggableLibrarySupport">Pluggable Library Support</a></li>
-				<li><a href="#enhancements">Future Enhancements</a></li>
 			</ul>
 			<strong>NOTE: This document refers to release 1.2.1 of jsPlumb.</strong>  jsPlumb underwent some fundamental
 			changes starting from version 1.1.0.  Should you need to use a version prior to 1.1.0 I suggest
@@ -63,7 +64,7 @@
 			<p>
 			For Canvas support in IE you also need to include Google's <a class="mplink" href="http://excanvas.sourceforge.net/" target="_blank">ExplorerCanvas</a> script.
 			</p>
-			<p>jsPlumb 1.2 has been tested on the following browsers:
+			<p>jsPlumb 1.2.1 has been tested on the following browsers:
 				<ul>
 					<li>IE 7 on Windows Vista</li>
 					<li>IE 8 on Windows Vista (we force IE7 standards compatibility mode)</li>
@@ -76,6 +77,32 @@
 				</ul>
 			</p>
 		</div>
+		
+		<div class="section">
+			<a id="changes">Changes since version 1.2</a>
+			<p>
+			Several new concepts have been introduced since version 1.2, and a few convenience methods
+			have been added.  The major changes are:
+			</p>
+			<ul>
+				<li>supports multiple instances of jsPlumb per page ( jsPlumb.newInstance(defaults) )</li>  																				
+				<li>introduced scope concept into Endpoints and Connections</li>
+				<li>added getConnections method - lets you see what's been connected to what.</li>
+				<li>added 'container' concept - lets you constrain a jsPlumb instance to some containing div</li>				
+			</ul>
+			<p>
+			This other stuff has been done too:
+			</p>    
+			<ul>
+				<li>added 'complete' event to event lists in mootools and jquery</li>
+				<li>animate runs oncomplete event at anim end automatically, to clean up</li>				
+				<li>jsPlumb.Defaults.Anchor added to defaults (instead of having to supply Anchors for both source and target)</li>
+				<li>equals method added to Anchor class.</li>
+				<li>performance enhancements on connection registration</li>
+				<li>fix for issue 8: detach method blows up if no target specified.</li>
+				<li>added setDefaultScope and getDefaultScope  </li>
+			</ul>
+		</div>
 
 		<div class="section">
 			<a id="requirements"><h3>Imports</h3></a>
@@ -85,7 +112,7 @@
 			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-all-1.2-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-all-1.2.1-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			
 			<h4>MooTools</h4>
@@ -94,7 +121,7 @@
 			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_2_4_4"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-all-1.2-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-all-1.2.1-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 		</div>
 		
@@ -240,10 +267,9 @@ var exampleGreyEndpointOptions = {
 	endpoint:new jsPlumb.Endpoints.Rectangle(),
 	style:{ width:25, height:21, fillStyle:'#666' },
 	isSource:true,
-	dragOptions : { scope:'exampleGreyConnection' },
 	connectionStyle : { strokeStyle:"#666" },
 	isTarget:true,
-	dropOptions : { scope:'exampleGreyConnection' }
+	scope:'exampleGreyConnection'
 };</pre>		
 </div>  		
   										
@@ -258,27 +284,68 @@ jsPlumb.getDefaultScope();
 <pre>
 jsPlumb.setDefaultScope("mySpecialDefaultScope");
 </pre>	
-	</div>				
+	</div>			
+	You can also, should you want to, provide the scope value separately on the drag/drop options, like this:
+	<div class="code">
+<pre>
+var exampleGreyEndpointOptions = {
+	endpoint:new jsPlumb.Endpoints.Rectangle(),
+	style:{ width:25, height:21, fillStyle:'#666' },
+	isSource:true,
+	connectionStyle : { strokeStyle:"#666" },
+	isTarget:true,
+	dragOptions:{scope:'dragScope'},
+	dropOptions:{scope:'dropScope'}
+};</pre>		
+</div>  
+			
 			
 		</div>
 
+
+
 		<div class="section">
-			<a id="unload"><h3>Unloading jsPlumb</h3></a>
-			jsPlumb offers a method you can call when your page is unloading.  You should do this to insure
-			against memory leaks.  You configure it like this:
-				<div class="code">
+			<a id="multipleInstances"><h3>Multiple jsPlumb instances</h3></a>
+			jsPlumb is registered on the browser's Window by default, providing one static instance
+			for the whole page to use.  Should you need to, though, you can instantiate independent
+			instances of jsPlumb, using the <strong>getInstance</strong> method, for example:
+<div class="code">
 <pre>
-&lt;body onunload="jsPlumb.unload();"&gt;
-
-...
-
-&lt;/body&gt;
+var firstInstance = jsPlumb.getInstance();
 </pre>
-				</div>
+</div>
+The variable 'firstInstance' can now be treated exactly as you would treat the 'jsPlumb' variable - you can set
+defaults, call the connect method, whatever:
+<div class="code">
+<pre>
+firstInstance.Defaults.Connector = new jsPlumb.Connectors.Bezier(150);
+firstInstance.Defaults.Container = "container1";
+firstInstance.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter];
+
+firstInstance.connect({source:'element1', target:'element2', scope:'someScope'});
+</pre>
+</div>
+
+<strong>getInstance</strong> optionally takes an object that provides the defaults:
+<div class="code">
+<pre>
+var secondInstance = jsPlumb.getInstance({
+	PaintStyle:{lineWidth:3, strokeStyle:color3},
+	Connector:new jsPlumb.Connectors.Bezier(30),
+	Endpoint:new jsPlumb.Endpoints.Dot({radius:5}),
+	EndpointStyle : { fillStyle: color3  },
+	Anchor : jsPlumb.makeAnchor(0.5,0.5,1,1),
+	Container:"container2"
+});
+
+secondInstance.connect({source:'element4', target:'element3', scope:'someScope'});
+</pre>
+</div>
+Notice the <strong>container</strong> directives that are set on the defaults.  This tells jsPlumb
+to draw everything inside the container with the given id, giving you cleaner separation between
+instances.  While not actually required in order to make multiple instances work together, you might
+find it easier.  Using this concept you can, for example, drag an entire drawing area around as one.  
 		</div>
-
-
-
 
 		<div class="section">
 			<a id="repaint"><h3>Automatic Repaint</h3></a>
@@ -308,6 +375,21 @@ Notice the call to <strong>repaintEverything()</strong> here - a useful method.
 
 jsPlumb.setRepaintFunction(repaint);</pre>
 </div>
+		</div>
+		
+				<div class="section">
+			<a id="unload"><h3>Unloading jsPlumb</h3></a>
+			jsPlumb offers a method you can call when your page is unloading.  You should do this to insure
+			against memory leaks.  You configure it like this:
+				<div class="code">
+<pre>
+&lt;body onunload="jsPlumb.unload();"&gt;
+
+...
+
+&lt;/body&gt;
+</pre>
+				</div>
 		</div>
 
 		<div class="section">
@@ -929,6 +1011,18 @@ The arguments are as follows:
 });</pre>
 					</div>
 				</li>
+				
+				<li>Connect window1 to window2 with a 15 pixel wide yellow plumb line, and a slightly brighter endpoint, and tell jsPlumb that the scope of this connection is 'connectorType1' (see <a href="#dragAndDropScope">here</a>):
+					<div class="code">
+<pre>jsPlumb.connect({
+	source:'window1',
+	target:'window2',
+	paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
+	endpointStyle:{fillStyle:'rgb(243,229,0)'},
+	scope:'connectorType1'
+});</pre>
+					</div>
+				</li>				
 				<li>Connect window3 to 'window4' with a 10 pixel wide, semi opaque blue plumb line, anchored to the left middle of window3, and the right middle of window4, with an endpoint of radius 25:
 					<div class="code">
 <pre>jsPlumb.connect({
@@ -1421,10 +1515,10 @@ The array <strong>may be null</strong>.  If you have not registered any connecti
 				</ul>
 			These three files are packaged together to form the scripts that people use, for example:
 			<ul>
-				<li>jquery.jsPlumb-all-1.2.js
-				<p>Contains jsPlumb-1.2.js, jsPlumb-defaults-1.2.js and jquery.jsPlumb-1.2.js</p>
+				<li>jquery.jsPlumb-all-1.2.1.js
+				<p>Contains jsPlumb-1.2.1.js, jsPlumb-defaults-1.2.1.js and jquery.jsPlumb-1.2.1.js</p>
 				</li>
-				<li>jquery.jsPlumb-all-1.2-min.js
+				<li>jquery.jsPlumb-all-1.2.1-min.js
 				<p>A minified version of the script above (minified using Google's Closure minifier)</p>
 				</li>
 			</ul>
@@ -1437,21 +1531,7 @@ The array <strong>may be null</strong>.  If you have not registered any connecti
 		should be documented well enough for you to create your own.  If you do this, it would be
 		great to share it with everyone...</p>   
 		</div>
-		
-		<div class="section">
-			<a id="enhancements"><h3>Possible Future Enhancements</h3></a>
-			<ul>
-				<li>Support Patterns in both Endpoints and Connectors.
-					<p>It is possible to stroke a line in the Canvas element with both gradients and patterns.  Currently jsPlumb supports only
-					gradients.</p>
-					This work is not currently targeted for any release.
-				</li>
-				<li>Move the random endpoint-related keys inside the endpointStyle object.  This work is not currently targetted for any release.<br/><br/>
-				</li>
-				<li>Support an endpoint deriving its color from the color of the element to which it is attached?  This work is not currently targetted for any release.<br/><br/></li>
-				<li>Attach DOM listeners so jsPlumb is aware when elements move/change size/disappear/appear etc.  This work is not currently targetted for any release.</li>
-			</ul>
-		</div>
+	
 
 		<!-- Start of StatCounter Code -->
 <script type="text/javascript">
