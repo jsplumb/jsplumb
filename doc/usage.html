@@ -14,6 +14,11 @@
 				<li><a href="#summary">Summary</a></li>
 				<li><a href="#requirements">Imports</a></li>
 				<li><a href="#jsPlumbBasics">jsPlumb Basic Concepts</a></li>
+				<li><a href="#simpleConnections">jsPlumb Basic Concepts - Simple Connections</a></li>
+				<li><a href="#draggableConnections">jsPlumb Basic Concepts - Draggable Connections</a></li>
+				<li><a href="#dragOptions">jsPlumb Basic Concepts - Drag Options</a></li>
+				<li><a href="#dropOptions">jsPlumb Basic Concepts - Drop Options</a></li>
+				<li><a href="#dragAndDropScope">jsPlumb Basic Concepts - Drag and Drop Scope</a></li>
 				<li><a href="#unload">Unloading jsPlumb</a></li>				
 				<li><a href="#repaint">Automatic repaint</a></li>
 				<li><a href="#options">jsPlumb.connect Options</a></li>
@@ -24,13 +29,14 @@
 				<li><a href="#gradients">Gradients</a></li>
 				<li><a href="#animation">Animation</a></li>
 				<li><a href="#cssclasses">CSS Class Reference</a></li>				
-				<li><a href="#examples">Basic Examples</a></li>
+				<li><a href="#examples">Basic Examples</a></li>				
 				<li><a href="#dragAndDropExamples">Draggable Connections Examples</a></li>
+				<li><a href="#connectionInfo">Retrieving Connection Information</a></li>
 				<li><a href="#developingJsPlumb">Advanced - jsPlumb internals</a></li>
 				<li><a href="#pluggableLibrarySupport">Pluggable Library Support</a></li>
 				<li><a href="#enhancements">Future Enhancements</a></li>
 			</ul>
-			<strong>NOTE: This document refers to release 1.2 of jsPlumb.</strong>  jsPlumb underwent some fundamental
+			<strong>NOTE: This document refers to release 1.2.1 of jsPlumb.</strong>  jsPlumb underwent some fundamental
 			changes starting from version 1.1.0.  Should you need to use a version prior to 1.1.0 I suggest
 			1.0.4 - the last released version before 1.1.0.  Documentation for version 1.0.4 is <a href="usage_v1_0_x.html">here</a>.<br/><br/>
 			<strong>06/29/10</strong>
@@ -109,7 +115,7 @@
 			</ol>			
 			Depending on whether or not you wish to be able drag new Connections, step 2 can be
 			omitted.
-			<h4>Simple Connections</h4>
+			<a id="simpleConnections"><h4>Simple Connections</h4></a>
 			This section discusses Connections in which you do not need to support drag and drop.  <br/><br/>The most simple connection you can make looks like this:
 			<div class="code">
 <pre>
@@ -134,7 +140,7 @@ $("#element1").plumb({target:'element2'});
 		Default values are discussed in detail in the <a href="#defaults">Defaults</a> section below.<br/><br/>
 		The <a href="#examples">Basic Examples</a> section below contains many more examples of how to create simple Connections.
 		
-		<h4>Draggable Connections</h4>
+		<a id="draggableConnections"><h4>Draggable Connections</h4></a>
 		To support draggable Connections, you are required to first create Endpoints, as it is Endpoints
 		that the user drags to create new Connections.  Endpoints are created by making an <strong>addEndpoint</strong> call,
 		passing in the target element's id and an options object. There are quite a few things that can be set on the options object; all
@@ -222,7 +228,7 @@ it if you know the supporting library's corresponding method.
 	</p>   
 	<p>For more information about drop options when using jQuery, see <a href="http://docs.jquery.com/UI/Droppable" target="_blank">here</a>.</p>
 		
-	<a id="dragAndDropScope"><h4>Drag and Drop Scope</h4></a>
+	<a id="dragAndDropScope"><h4>Scope</h4></a>
 		jsPlumb borrowed the concept of 'scope' from jQuery's drag/drop implementation: the notion of
 		which draggables can be dropped on which droppables.  In jsPlumb you can provide a 'scope' entry in the
 		dragOptions and dropOptions you provide when creating an Endpoint.  Here's the example grey
@@ -241,7 +247,18 @@ var exampleGreyEndpointOptions = {
 };</pre>		
 </div>  		
   										
-	If you do not provide a 'scope' entry, jsPlumb uses a default scope.  										
+	If you do not provide a 'scope' entry, jsPlumb uses a default scope.  Its value is accessible through this method:
+	<div class="code">
+<pre>
+jsPlumb.getDefaultScope();
+</pre>	
+	</div>				
+	If you want to change it for some reason you can do so with this method:
+	<div class="code">
+<pre>
+jsPlumb.setDefaultScope("mySpecialDefaultScope");
+</pre>	
+	</div>				
 			
 		</div>
 
@@ -1267,6 +1284,125 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 				
 			</ul>
 		</div>
+		
+		<div class="section">
+			<a id="connectionInfo"><h3>Retrieving Connection Information</h3></a>
+			jsPlumb offers one fairly versatile method - <strong>getConnections</strong> - to retrieve information about the
+			currently managed connections.  
+			<p>Before you use this method you should understand jsPlumb's notion of 'scope' - documentation
+			is <a href="#dragAndDropScope">here</a> </p>
+			<p>
+			getConnections optionally takes an object specifying filter parameters, of which there are three:
+			<ul>
+				<li>scope - the scope of the connection type(s) you wish to retrieve</li>
+				<li>source - limits the returned connections to those that have this source id</li>
+				<li>target - limits the returned connections to those that have this target id</li>
+			</ul>			
+			Each of these three parameters may be supplied as a string, or a list of strings - see the examples below.
+			</p>
+			<p>
+			The return value of a call to getConnection is a dictionary whose keys are scope names,
+			and whose values are lists of sourceId/targetId pairs, for example:
+			
+<div class="code">
+<pre>
+{
+	"_jsPlumb_DefaultScope" : [
+		{sourceId:"window1", targetId:"window2"},
+		{sourceId:"window5", targetId:"window3"}
+	],
+	"someCustomScope": [
+		{sourceId:"window6", targetId:"window2"},
+		{sourceId:"window4", targetId:"window13"},
+		{sourceId:"window2", targetId:"window10"}
+	]
+}
+</pre>
+</div>			
+			</p>
+		The following examples show the various ways you can call this method:
+	<ul>
+		<li>Get all connections:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections();  
+</pre>
+</div>						
+		</li>
+<li>Get all connections for the default scope only:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections(jsPlumb.getDefaultScope());  
+</pre>
+</div>						
+		</li>
+		<li>Get all connections for the given scope:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections({scope:"myTestScope"});  
+</pre>
+</div>						
+		</li>
+		<li>Get all connections for the given scopes:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections({scope:["myTestScope", "yourTestScope"]});  
+</pre>
+</div>						
+		</li>
+		<li>Get all connections for the given source:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections({source:"mySourceElement"});  
+</pre>
+</div>						
+		</li>
+		<li>Get all connections for the given sources:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections({source:["mySourceElement", "yourSourceElement"]});  
+</pre>
+</div>						
+		</li>		
+<li>Get all connections for the given target:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections({target:"myTargetElement"});  
+</pre>
+</div>						
+		</li>				
+<li>Get all connections for the given source and targets:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections({source:"mySourceElement", target:["target1", "target2"]});  
+</pre>
+</div>						
+		</li>				
+		
+<li>Get all connections for the given scope, with the given source and target:
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", target:"myTargetElement"});  
+</pre>
+</div>						
+		</li>				
+		
+	</ul>	
+	Note that the return value is always a dictionary and not an array, even if you specified a single
+	scope in the getConnections call.  So you always have to get the array you need by looking it up in the dictionary:
+	
+			<div class="code">
+<pre>
+var c = jsPlumb.getConnections({scope:"myScope", source:"mySourceElement"});
+var conns = c["myScope"];  
+</pre>
+</div>					
+
+The array <strong>may be null</strong>.  If you have not registered any connections with that scope, it will be.  Code defensively!
+
+			
+		</div>
+		
 		
 		<div class="section">
 			<a id="developingJsPlumb"><h3>Advanced: jsPlumb internals</h3></a>
