@@ -1204,6 +1204,26 @@ placed on top of the element it is connected to.
 					<div class="code">
 						<pre>jsPlumb.detachEverything();</pre>
 					</div>
+				</li>
+				<li>Remove the given Endpoint from element "window1" 
+					<div class="code">
+						<pre>jsPlumb.removeEndpoint("window1", someEndpoint);</pre>
+					</div>
+				</li>
+				<li>Remove all Endpoints for the element 'window1'
+					<div class="code">
+						<pre>jsPlumb.removeAllEndpoints("window1");</pre>
+					</div>
+				</li>	
+				<li>Removes every Endpoint managed by this instance of jsPlumb 
+					<div class="code">
+						<pre>jsPlumb.removeEveryEndpoint();</pre>
+					</div>
+				</li>
+				<li>Clears this jsPlumb instance's cache of elements by id. You should call this if you remove elements from the DOM and then reattach them.  
+					<div class="code">
+						<pre>jsPlumb.clearCache();</pre>
+					</div>
 				</li>				
 				<li>Set window1 to be not draggable, no matter what some plumb command may request.
 					<div class="code">
