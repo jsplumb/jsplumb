@@ -210,7 +210,6 @@
 	var cached = {};
 	var __getElementObject = function(el) {
 		
-		//return jsPlumb.CurrentLibrary.getElementObject(el);
 		if (typeof(el)=='string') {
 			var e = cached[el];
 			if (!e) {
@@ -1193,6 +1192,16 @@
 	    	});
 	    	
 	    	jsPlumb.CurrentLibrary.animate(ele, properties, options);    	
+	    };
+	    
+	    /**
+	     * clears the cache used to lookup elements by their id.  if you remove any elements
+	     * from the DOM you should call this to ensure that if you add them back in jsPlumb does not
+	     * have a stale handle.
+	     */
+	    this.clearCache = function() {
+	    	delete cached;
+	    	cached = {};	    		
 	    };
 	    
 	    /*
