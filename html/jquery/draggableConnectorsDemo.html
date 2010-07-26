@@ -62,7 +62,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					var s = "<span>current connections</span><br/><br/><table><tr><th>scope</th><th>source</th><th>target</th></tr>";
 					for (var i in c) {
 						var l = c[i];
-						if (l) {
+						if (l && l.length > 0) {
 							foundSome = true;
 							for (var j = 0; j < l.length; j++) {
 								s = s + "<tr><td>" + i + "</td>" + "<td>" + l[j].sourceId + "</td><td>" + l[j].targetId + "</td></tr>";	
