@@ -1,10 +1,20 @@
 * 1.2.1
 
-	- supports multiple instances of jsPlumb per page ( jsPlumb.newInstance(defaults) )
+	- supports multiple instances of jsPlumb per page ( jsPlumb.newInstance(defaults) )  
 	- performance enhancements on connection registration
 	- jsPlumb.Defaults.Anchor added to defaults
 	- equals method added to Anchor class.
 	- fix for issue 8: detach method blows up if no target specified.
+	- added 'complete' event to event lists in mootools and jquery
+	- animate runs oncomplete event at anim end automatically, to clean up
+	- added setDefaultScope and getDefaultScope  
+	- moved scope from drag/drop options into Endpoint options
+	- todo: add scope to the connect method too.   
+	- added getConnections method  
+	- added 'container' concept    
+	- added 'clearCache' method
+	- added 'removeEveryEndpoint' method
+	- added 'reset' method
 
 * 1.2
 
