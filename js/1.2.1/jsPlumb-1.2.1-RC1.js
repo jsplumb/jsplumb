@@ -1287,6 +1287,7 @@
 		    				_removeElement(jpc.canvas, jpc.container);
 		    				jpc.endpoints[0].removeConnection(jpc);
 		    				jpc.endpoints[1].removeConnection(jpc);
+		    				_removeFromList(connectionsByScope, jpc.scope, jpc);
 		    			}
 		    		}
 		    	}
