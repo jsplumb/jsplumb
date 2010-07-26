@@ -21,7 +21,8 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 .cmdLink { font-size:0.80em;}
 #clear { padding:0.3em; }
 #clear:hover { background-color:yellow; }
-
+#list { display:none; border-bottom:1px dotted grey; padding-bottom:1.5em; font-size:90%;}
+#list table { width:100%; text-align:left;}
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
@@ -33,9 +34,11 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 		<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>
 
 		<div id="explanation">
+			<div id="list"></div>
 	    	<p>this demo uses jsPlumb 1.2.1, jQuery 1.4.2 and jQuery UI 1.8.0.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
 	    	<a id="clear" href="#">clear plumbing</a><br/><br/>	    	
 	    	<a href="dragAnimDemo.html">next: animated dragging demo</a><br/><br/>
+	    	<!-- a id="cmdList" href="#">list connections</a><br/><br/-->	    	
 	    </div>
 	    
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
@@ -52,11 +55,35 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
 				jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
 				jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
-			
+
+				var showConnections = function() {
+					var c = jsPlumb.getConnections();
+					var foundSome = false;
+					var s = "<span>current connections</span><br/><br/><table><tr><th>scope</th><th>source</th><th>target</th></tr>";
+					for (var i in c) {
+						var l = c[i];
+						if (l) {
+							foundSome = true;
+							for (var j = 0; j < l.length; j++) {
+								s = s + "<tr><td>" + i + "</td>" + "<td>" + l[j].sourceId + "</td><td>" + l[j].targetId + "</td></tr>";	
+							}
+						}														
+					}
+					s = s + "</table>";
+					if (foundSome) {
+						$("#list").html(s);
+						$("#list").fadeIn();
+					} else $("#list").fadeOut();
+				};
+
+				var exampleDragOptions = {
+					stop : function(e, ui) { showConnections(); }
+				};
+				
 				var exampleDropOptions = {
 					tolerance:'touch',
 					hoverClass:'dropHover',
-					//drop : function(e, ui) { alert('dropped'); }
+					drop : function(e, ui) { showConnections(); },
 					activeClass:'dragActive'
 				};
 
@@ -78,13 +105,14 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					endpoint:new jsPlumb.Endpoints.Rectangle(),
 					style:{ width:25, height:21, fillStyle:exampleColor },
 					isSource:true,
-					scope:'exampleConnection',
+					scope:'blue rectangle',
 					connectorStyle : {
 						gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
 						lineWidth:5,
 						strokeStyle:exampleColor
 					},
 					isTarget:true,
+					dragOptions : exampleDragOptions,
 					dropOptions : exampleDropOptions
 				};
 
@@ -97,11 +125,12 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						endpoint:new jsPlumb.Endpoints.Dot({radius:15}),
 						style:{ strokeStyle:color2 },
 						isSource:true,
-						scope:'exampleConnection2',
+						scope:'green dot',
 						connectorStyle:{ strokeStyle:color2, lineWidth:8 },
 						connector: new jsPlumb.Connectors.Bezier(63),
 						maxConnections:3,
 						isTarget:true,
+						dragOptions : exampleDragOptions,
 						dropOptions : exampleDropOptions
 				};
 
@@ -122,10 +151,11 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						anchor:jsPlumb.Anchors.BottomLeft,
 						style:{ strokeStyle:example3Color, opacity:0.5 },
 						isSource:true,
-						scope:'exampleConnection3',
+						scope:'yellow dot',
 						connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
 						connector : new jsPlumb.Connectors.Straight(),
 						isTarget:true,
+						dragOptions : exampleDragOptions,
 						dropOptions : exampleDropOptions
 				};
 
@@ -177,7 +207,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					jsPlumb.detachAll($(this).attr("rel"));
 				});
 
-				$("#clear").click(function() { jsPlumb.detachEverything(); });
+				$("#clear").click(function() { jsPlumb.detachEverything(); showConnections(); });				
 			});
 		</script>
 
