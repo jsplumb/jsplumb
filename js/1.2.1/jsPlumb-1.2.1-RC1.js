@@ -982,10 +982,11 @@
 								jpc.endpoints[0].removeConnection(jpc);
 								jpc.endpoints[1].removeConnection(jpc);
 								_removeElement(jpc.canvas);
+								_removeFromList(connectionsByScope, jpc.scope, jpc);
 							}
 						} else {							
 							_removeElement(jpc.canvas);
-							self.removeConnection(jpc);
+							self.removeConnection(jpc);							
 						}
 					}
 					jpc = null;
@@ -1027,6 +1028,7 @@
 	    			jpc.suspendedEndpoint.removeConnection(jpc);
 	    		jpc.endpoints[idx] = self;
 	    		self.addConnection(jpc);
+	    		_addToList(connectionsByScope, jpc.scope, jpc);
 	    		_initDraggableIfNecessary(_element, params.draggable, {});
 	    		jsPlumb.repaint(elId);
 	    		
@@ -1370,16 +1372,14 @@
 		 	The return value is a dictionary in this format:
 		 	
 		 	{
-		 		'scope1': {
-		 			'window1':['window2', 'window4'],
-		 			'window2':['window1'],
-		 			'window3':['window4'],
-		 			'window4':['window1','window3']
-		 		},
-		 		'scope2': {
-		 			'window3':['window4'],
-		 			'window4':['window3']		 		
-		 		}
+		 		'scope1': [ 
+		 			{sourceId:'window1', targetId:'window2'},
+		 			{sourceId:'window3', targetId:'window4'},
+		 			{sourceId:'window1', targetId:'window3'}
+		 		],
+		 		'scope2': [
+		 			{sourceId:'window1', targetId:'window3'}
+		 		]
 		 	}
 		 	
 		 */
