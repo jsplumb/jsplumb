@@ -1569,6 +1569,16 @@
 	    };
 	    
 	    /*
+	     Function:reset
+	     	removes all endpoints and connections and clears the element cache.
+	     */
+	    this.reset = function() {
+	    	this.detachEverything();
+			this.removeEveryEndpoint();
+			this.clearCache();
+	    };
+	    
+	    /*
 	     Function: setAutomaticRepaint	     
 	     	Sets/unsets automatic repaint on window resize.	     
 	     Parameters:	     
