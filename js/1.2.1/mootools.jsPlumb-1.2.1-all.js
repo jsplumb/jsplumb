@@ -1,25 +1,14 @@
 /*
- * jsPlumb 1.2.1-RC1
+ * jsPlumb 1.2.1
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
- * Several enhancements are planned for 1.2.1:
+ * Several enhancements were added in 1.2.1
  * 
- * - speed enhancements for dragging/animation (fewer element positioning lookups etc)
- * 
- * - the ability to label connectors.  each connector type will have to tell us the right place
- *   for a label to go.
- * 
- * - the ability to interact with connectors/endpoints using the mouse
- * 
- * - the log function should hook up to the console of whichever browser it is in. or library. 
- * 
- * - reinstate the context node to put all our canvases in
- * 
- * - possibly support multiple jsplumb instances on the same page.  this would not be too hard;
- *   it would just need to stop being a singleton. 07/05/10: this is done now.
- *   
- * - support for devices with touch events. 
+ * - supports multiple jsplumb instances on the same page.  
+ * - added getConnections() method; you can see what's connected to what.
+ * - supports containers; jsplumb adds elements to a container rather than the window. 
+ * - various convenience methods added - removeEveryEndpoint, reset, etc.  see docs.   
  * 
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
