@@ -189,7 +189,7 @@ test('get connections, simple case (default scope)', function() {
 	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
 	jsPlumb.connect({source:d5, target:d6});
 	var c = jsPlumb.getConnections();  // will get all connections
-	equals(c[jsPlumb.getDefaultScope()].length, 1);
+	equals(c[jsPlumb.getDefaultScope()].length, 1, "there is one connection");
 });
 
 test('get connections, simple case (default scope); single detach call', function() {
@@ -198,10 +198,10 @@ test('get connections, simple case (default scope); single detach call', functio
 	jsPlumb.connect({source:d5, target:d6});
 	jsPlumb.connect({source:d6, target:d7});
 	var c = jsPlumb.getConnections();  // will get all connections
-	equals(c[jsPlumb.getDefaultScope()].length, 2);
+	equals(c[jsPlumb.getDefaultScope()].length, 2, "there are two connections initially");
 	jsPlumb.detach('d5', 'd6');
 	c = jsPlumb.getConnections();  // will get all connections
-	equals(c[jsPlumb.getDefaultScope()].length, 1);
+	equals(c[jsPlumb.getDefaultScope()].length, 1, "after detaching one, there is now one connection.");
 });
 
 test('get connections, scope testScope', function() {
@@ -209,9 +209,9 @@ test('get connections, scope testScope', function() {
 	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
 	jsPlumb.connect({source:d5, target:d6, scope:'testScope'});
 	var c = jsPlumb.getConnections();  // will get all connections	
-	equals(c['testScope'].length, 1);
-	equals(c['testScope'][0].sourceId, 'd5');
-	equals(c['testScope'][0].targetId, 'd6');
+	equals(c['testScope'].length, 1, "there is one connection");
+	equals(c['testScope'][0].sourceId, 'd5', "the connection's source is d5");
+	equals(c['testScope'][0].targetId, 'd6', "the connection's source is d6");
 });
 
 test('get connections, filtered by scope', function() {
@@ -225,7 +225,7 @@ test('get connections, filtered by scope', function() {
 	// now supply a list of scopes
 	c = jsPlumb.getConnections({scope:[jsPlumb.getDefaultScope(),'testScope']});  // will get all connections	
 	equals(c[jsPlumb.getDefaultScope()].length, 1);
-	equals(c['testScope'].length, 1);
+	equals(c['testScope'].length, 1, "there is one connection in 'testScope'");
 });
 
 test('get connections, filtered by scope and sourceId', function() {
@@ -236,7 +236,7 @@ test('get connections, filtered by scope and sourceId', function() {
 	jsPlumb.connect({source:d9, target:d10}); // default scope
 	var c = jsPlumb.getConnections({scope:'testScope', source:'d8'});  // will get all connections with sourceId 'd8'	
 	equals(c[jsPlumb.getDefaultScope()], null);
-	equals(c['testScope'].length, 1);	
+	equals(c['testScope'].length, 1, "there is one connection in 'testScope' from d8");	
 });
 
 test('get connections, filtered by scope, sourceId and targetId', function() {
@@ -246,18 +246,49 @@ test('get connections, filtered by scope, sourceId and targetId', function() {
 	jsPlumb.connect({source:d12, target:d13, scope:'testScope'});
 	jsPlumb.connect({source:d11, target:d13, scope:'testScope'});
 	var c = jsPlumb.getConnections({scope:'testScope', source:'d11', target:'d13'});  
-	equals(c['testScope'].length, 1);	
+	equals(c['testScope'].length, 1, "there is one connection from d11 to d13");	
 });
 
-test('get connections, filtered by scope, sourceId and targetId, using selectors', function() {
+test('get connections, filtered by a list of scopes', function() {
 	jsPlumb.detachEverything();
 	var d11 = _addDiv("d11"), d12 = _addDiv("d12"), d13 = _addDiv('d13');
 	jsPlumb.connect({source:d11, target:d12, scope:'testScope'});
-	jsPlumb.connect({source:d12, target:d13, scope:'testScope'});
-	jsPlumb.connect({source:d11, target:d13, scope:'testScope'});
-	var c = jsPlumb.getConnections({scope:'testScope', source:'d11', target:'d13'});  
-	equals(c['testScope'].length, 1);	
+	jsPlumb.connect({source:d12, target:d13, scope:'testScope2'});
+	jsPlumb.connect({source:d11, target:d13, scope:'testScope3'});
+	var c = jsPlumb.getConnections({scope:['testScope','testScope3']});  
+	equals(c['testScope'].length, 1, 'there is one connection in testScope');
+	equals(c['testScope3'].length, 1, 'there is one connection in testScope3');
+	equals(c['testScope2'], null, 'there are no connections in testScope2');
 });
+
+test('get connections, filtered by a list of scopes and source ids', function() {
+	jsPlumb.detachEverything();
+	var d11 = _addDiv("d11"), d12 = _addDiv("d12"), d13 = _addDiv('d13');
+	jsPlumb.connect({source:d11, target:d12, scope:'testScope'});
+	jsPlumb.connect({source:d13, target:d12, scope:'testScope'});
+	jsPlumb.connect({source:d12, target:d13, scope:'testScope2'});
+	jsPlumb.connect({source:d11, target:d13, scope:'testScope3'});
+	var c = jsPlumb.getConnections({scope:['testScope','testScope3'], source:['d11']});  
+	equals(c['testScope'].length, 1, 'there is one connection in testScope');
+	equals(c['testScope3'].length, 1, 'there is one connection in testScope3');
+	equals(c['testScope2'], null, 'there are no connections in testScope2');
+});
+
+test('get connections, filtered by a list of scopes, source ids and target ids', function() {
+	jsPlumb.detachEverything();
+	var d11 = _addDiv("d11"), d12 = _addDiv("d12"), d13 = _addDiv('d13'), d14=_addDiv("d14"), d15=_addDiv("d15");
+	jsPlumb.connect({source:d11, target:d12, scope:'testScope'});
+	jsPlumb.connect({source:d13, target:d12, scope:'testScope'});
+	jsPlumb.connect({source:d11, target:d14, scope:'testScope'});
+	jsPlumb.connect({source:d11, target:d15, scope:'testScope'});
+	jsPlumb.connect({source:d12, target:d13, scope:'testScope2'});
+	jsPlumb.connect({source:d11, target:d13, scope:'testScope3'});
+	var c = jsPlumb.getConnections({scope:['testScope','testScope3'], source:['d11'], target:['d14', 'd15']});  
+	equals(c['testScope'].length, 2, 'there are two connections in testScope');
+	equals(c['testScope3'].length, 0, 'there is no connections in testScope3');
+	equals(c['testScope2'], null, 'there are no connections in testScope2');
+});
+
 
 /**
  * leave this test at the bottom!
