@@ -21,7 +21,8 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 .cmdLink { font-size:0.80em;}
 #clear { padding:0.3em; }
 #clear:hover { background-color:yellow; }
-
+#list { display:none; border-bottom:1px dotted grey; padding-bottom:1.5em; font-size:90%;}
+#list table { width:100%; text-align:left;}
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
@@ -33,6 +34,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 		<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>
 
 		<div id="explanation">
+			<div id="list"></div>
 	    	<p>this demo uses jsPlumb 1.2.1, MooTools 1.2.4 and Drag.Move from MooTools More 1.2.4.4.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
 	    	<a id="clear" href="#">clear plumbing</a><br/><br/>	    	
 	    	<a href="dragAnimDemo.html">next: animated dragging demo</a><br/><br/>
@@ -41,9 +43,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
 		<script type="text/javascript" src="../../js/mootools-1.2.4.4-more.js"></script>
-		<script type="text/javascript" src="../../js/1.2.1/jsPlumb-1.2.1-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.1/jsPlumb-defaults-1.2.1-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.1/mootools.jsPlumb-1.2.1-RC1.js"></script>
+		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/1.2.1/mootools.jsPlumb-1.2.1-all-min.js"></script>
 				
 	    <script type="text/javascript">
 			window.addEvent('domready', function() {
@@ -51,12 +51,38 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
 				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
 				jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
-				jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];				
+				jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
+
+
+				var showConnections = function() {
+					var c = jsPlumb.getConnections();
+					var foundSome = false;
+					var s = "<span>current connections</span><br/><br/><table><tr><th>scope</th><th>source</th><th>target</th></tr>";
+					for (var i in c) {
+						var l = c[i];
+						if (l && l.length > 0) {
+							foundSome = true;
+							for (var j = 0; j < l.length; j++) {
+								s = s + "<tr><td>" + i + "</td>" + "<td>" + l[j].sourceId + "</td><td>" + l[j].targetId + "</td></tr>";	
+							}
+						}														
+					}
+					s = s + "</table>";
+					if (foundSome) {
+						$("list").set('html', s);
+						$("list").setStyle("display","block");
+					} 
+					else $("list").setStyle("display","none");
+				};
+
+				var exampleDragOptions = {
+						onComplete : function(e, ui) { showConnections(); }
+					};				
 
 				var exampleDropOptions = {
 					tolerance:'touch',
 					hoverClass:'dropHover',
-					//drop : function(e, ui) { alert('dropped'); }
+					onDrop : function(e, ui) { showConnections(); },
 					activeClass:'dragActive'
 				};
 
@@ -85,6 +111,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						strokeStyle:"#00f"
 					},
 					isTarget:true,
+					dragOptions : exampleDragOptions,
 					dropOptions : exampleDropOptions
 				};
 
@@ -102,6 +129,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						connector: new jsPlumb.Connectors.Bezier(63),
 						maxConnections:3,
 						isTarget:true,
+						dragOptions : exampleDragOptions,
 						dropOptions : exampleDropOptions
 				};
 
@@ -126,6 +154,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
 						connector : new jsPlumb.Connectors.Straight(),
 						isTarget:true,
+						dragOptions : exampleDragOptions,
 						dropOptions : exampleDropOptions
 				};
 
@@ -184,10 +213,11 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				$$(".detach").each(function(d) {
 					d.addEvent('click', function() {
 						jsPlumb.detachAll(d.get("rel"));
+						showConnections();
 					});
 				});
 
-				$("clear").addEvent('click', function() { jsPlumb.detachEverything(); });
+				$("clear").addEvent('click', function() { jsPlumb.detachEverything(); showConnections(); });
 			});
 		</script>
 
