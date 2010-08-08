@@ -89,7 +89,7 @@ $(window).bind('resize', function() {
 /* 
  * the library agnostic functions, such as find offset, get id, get attribute, extend etc.  
  */
-(function() {	
+(function($) {	
 	
 	jsPlumb.CurrentLibrary = {
 					
@@ -250,4 +250,4 @@ $(window).bind('resize', function() {
 			return el.scrollTop();
 		}
 	};
-})();
+})(jQuery);
