@@ -598,15 +598,19 @@
 	    this.getId = function() { return id; };
 	    this.container = params.container || _currentInstance.Defaults.Container;  // may be null; we will append to the body if so.
 	    // get source and target as jQuery objects
-	    this.source = _getElementObject(params.source);    
+	    this.source = _getElementObject(params.source);   
 	    this.target = _getElementObject(params.target);
+	    // sourceEndpoint and targetEndpoint override source/target, if they are present.
+	    if (params.sourceEndpoint)
+	    	this.source = params.sourceEndpoint.getElement();	    
+	    if (params.targetEndpoint)
+	    	this.target = params.targetEndpoint.getElement();
 	    this.sourceId = _getAttribute(this.source, "id");	    
 	    this.targetId = _getAttribute(this.target, "id");
 	    this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;	    
 	    this.scope = params.scope;  // scope may have been passed in to the connect call.
 	    						    // if it wasn't, we will pull it from the source endpoint,
-	    							// after having initialised the endpoints.
-	    
+	    							// after having initialised the endpoints.	    
 	    // init endpoints
 	    this.endpoints = [];
 	    this.endpointStyles = [];
@@ -779,6 +783,7 @@
 			var e = new Endpoint({anchor:self.anchor, source:_element, style:_style, endpoint:_endpoint});
 			return e;
 		};
+		this.getElement = function() { return _element; };
 		/**
 		* returns whether or not this endpoint is connected to the given endpoint.
 		* @param endpoint  Endpoint to test.
