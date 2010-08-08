@@ -1,3 +1,9 @@
+* 1.2.2
+
+	- fixed bug where max connections on a target endpoint was ignored
+	- sourceEndpoint/targetEndpoint are used for source/target if they are provided to a connect/plumb call.
+	- added getElement method to Endpoint - it returns the element the Endpoint is connected to
+
 * 1.2.1
 
 	- supports multiple instances of jsPlumb per page ( jsPlumb.newInstance(defaults) )  
