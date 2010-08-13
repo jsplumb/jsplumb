@@ -29,11 +29,20 @@ var assertConnectionByScopeCount = function(scope, count) {
 
 };
 
+var _divs = [];
 var _addDiv = function(id) {
 	var d1 = document.createElement("div");
 	document.body.appendChild(d1);
 	$(d1).attr("id", id);
+	_divs.push(id);
 	return d1;
+};
+
+var _cleanup = function() {
+	for (var i in _divs) {
+		$("#" + _divs[i]).remove();
+	}	
+	_divs.splice(0, _divs.length - 1);
 };
 
 test('findIndex method', function() {
@@ -56,6 +65,7 @@ test('jsPlumb setup', function() {
 test('getId', function() {
 	var d10 = _addDiv('d10');
 	equals(jsPlumb.getTestHarness().getId(d10), "d10");
+	_cleanup();
 });
 
 test('plumb two divs with default options', function() { 
@@ -133,22 +143,28 @@ test('specifiedEndpointMaxConnections', function() {
 	var e6 = $("#d6").addEndpoint({isSource:true, maxConnections:2});  // this one has max TWO
 	assertEndpointCount("d5", 1); assertEndpointCount("d6", 1);
 	ok(!e5.isFull(), "endpoint 5 is not full.");
-	$("#d5").plumb({target:'d6', sourceEndpoint:e5, targetEndpoint:e6});
+	jsPlumb.connect({sourceEndpoint:e5, targetEndpoint:e6});
 	assertConnectionCount(e5, 1);   // we have one connection
-	$("#d5").plumb({target:'d6', sourceEndpoint:e5, targetEndpoint:e6});
+	jsPlumb.connect({sourceEndpoint:e5, targetEndpoint:e6});
 	assertConnectionCount(e5, 2);  // two connections
-	$("#d5").plumb({target:'d6', sourceEndpoint:e5, targetEndpoint:e6});
+	jsPlumb.connect({sourceEndpoint:e5, targetEndpoint:e6});
 	assertConnectionCount(e5, 2);  // should have refused; max is 2, for d4.
+	_cleanup();
 });
 
 test('noEndpointMaxConnections', function() {
 	var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 	var e3 = $("#d3").addEndpoint({isSource:true, maxConnections:-1});
 	var e4 = $("#d4").addEndpoint({isSource:true, maxConnections:-1});
-	$("#d3").plumb({target:'d4', sourceEndpoint:e3, targetEndpoint:e4});
+	jsPlumb.connect({sourceEndpoint:e3, targetEndpoint:e4});
 	assertConnectionCount(e3, 1);   // we have one connection
-	$("#d3").plumb({target:'d4', sourceEndpoint:e3, targetEndpoint:e4});
-	assertConnectionCount(e3, 2);  // we have two.  etc (default was one. this proves max is working).	
+	jsPlumb.connect({sourceEndpoint:e3, targetEndpoint:e4});
+	assertConnectionCount(e3, 2);  // we have two.  etc (default was one. this proves max is working).
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+	var e5 = $("#d3").addEndpoint({isSource:true, maxConnections:-1});
+	jsPlumb.connect({sourceEndpoint:e5, targetEndpoint:e4});
+	assertConnectionCount(e4, 3);  
+	_cleanup();
 });
 
 test('anchors equal', function() {
@@ -287,6 +303,14 @@ test('get connections, filtered by a list of scopes, source ids and target ids',
 	equals(c['testScope'].length, 2, 'there are two connections in testScope');
 	equals(c['testScope3'].length, 0, 'there is no connections in testScope3');
 	equals(c['testScope2'], null, 'there are no connections in testScope2');
+});
+
+test('connect by endpoint', function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var e16 = $("#d16").addEndpoint({isSource:true});
+	ok(e16.anchor, 'endpoint 16 has an anchor');
+	var e17 = $("#d17").addEndpoint({isSource:true});
+	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 });
 
 
