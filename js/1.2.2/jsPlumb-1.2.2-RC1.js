@@ -50,45 +50,11 @@
 	var draggableStates = {};
 	var _draggableByDefault = true;
 	var sizes = [];
+	var listeners = {};  // a map: keys are event types, values are lists of listeners.
 	var DEFAULT_SCOPE = 'DEFAULT';
 	
 	var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
-	
-	var traced = {};
-	var _trace = function(category, event) {
-		var e = traced[category];
-		if (!e) {
-			e = {};
-			traced[category] = e;
-		}
-		event = event || 'DEFAULT';
-		var ee = e[event];
-		if (!ee) {
-			ee = 0;
-			e[event] = ee;
-		}
-		e[event]++;
-	};
-	
-	var _clearAllTraces = function() {
-		delete traced;
-		traced = {};
-	};
-			
-		var _clearTrace = function(category, event) {
-			var c = traced[category];
-			if (!c) return;
-			if (event) {
-				c[event] = 0;
-			}
-			else c['DEFAULT'] = 0;
-		};
-			
-		var _getTrace = function(category) {
-			return traced[category] || {'DEFAULT' : 0 };
-		};
-	
-	
+				
 	var _findIndex = function( a, v, b, s ) {		
 		var _eq = function(o1, o2) {
 			if (o1 === o2) return true;
@@ -117,6 +83,18 @@
 	};
 	
 	/**
+	 * adds a listener for the specified event type.
+	 */
+	var _addListener = function(eventType, listener) {
+		var doOne = function(e, l) {
+			_addToList(listeners, e, l);
+		};
+		if (typeof eventType == 'object' && eventType.length) {
+			for (var i = 0; i < eventType.length; i++) doOne(eventType[i], listener);
+		} else doOne(eventType, listener);
+	};
+	
+	/**
      * helper method to add an item to a list, creating the list if it does not yet exist.
      */
     var _addToList = function(map, key, value) {
@@ -129,6 +107,11 @@
 		return l;
 	};
 	
+	var _appendElement = function(canvas, parent) {
+		if (!parent) document.body.appendChild(canvas);
+		else jsPlumb.CurrentLibrary.appendElement(canvas, parent);		
+	};
+	
     /**
      * Handles the dragging of an element.  
      * @param element jQuery element
@@ -139,7 +122,6 @@
     	var endpoints = endpointsByElement[id];
     	if (endpoints) {
     		var timestamp = '' + (new Date().getTime());
-    		_trace('draw');
     		_updateOffset(id, ui);
     		var myOffset = offsets[id];
 			var myWH = sizes[id];			
@@ -178,6 +160,24 @@
     	}
 		
 		return retVal;
+	};
+	
+	/**
+	 * fires an event of the given type.
+	 */
+	var _fireEvent = function(eventType, data) {
+		var l = listeners[eventType];
+		if (l) {			
+			for (var i in l) {
+				try {
+					l[i][eventType](data);
+				}
+				catch (e) {
+					
+					_log("while firing event [" + eventType + "]; listener failed like this: " + e);
+				} 
+			}
+		}
 	};
 	
 	var _log = function(msg) {
@@ -240,12 +240,7 @@
 	var _getSize = function(el) {
 		var ele = __getElementObject(el);
 		return jsPlumb.CurrentLibrary.getSize(ele);
-	};							
-	
-	var _appendElement = function(canvas, parent) {
-		if (!parent) document.body.appendChild(canvas);
-		else jsPlumb.CurrentLibrary.appendElement(canvas, parent);		
-	};
+	};									
 	
     /**
 	 * gets an id for the given element, creating and setting one if necessary.
@@ -499,7 +494,6 @@
 		// and, in fact, we should find out whether or not we even get a speed enhancement from doing
 		// this.
 		this.compute = function(xy, wh, element) {
-			_trace('anchor compute');			
 			lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1]];
 			var container = element? element.container : null;
 			var containerAdjustment = {left:0, top:0 };
@@ -974,6 +968,14 @@
 								jpc.endpoints[1].removeConnection(jpc);
 								_removeElement(jpc.canvas);
 								_removeFromList(connectionsByScope, jpc.scope, jpc);
+								_fireEvent("jsPlumbConnectionDetached", { 
+			    					source:jpc.source, 
+			    					target:jpc.target, 
+			    					sourceId:jpc.sourceId,
+			    					targetId:jpc.targetId,
+			    					sourceEndpoint:jpc.endpoints[0],
+			    					targetEndpoint:jpc.endpoints[1]
+								});
 							}
 						} else {							
 							_removeElement(jpc.canvas);
@@ -1024,6 +1026,14 @@
 		    		_addToList(connectionsByScope, jpc.scope, jpc);
 		    		_initDraggableIfNecessary(_element, params.draggable, {});
 		    		jsPlumb.repaint(elId);
+		    		_fireEvent("jsPlumbConnection", { 
+	    					source:jpc.source, 
+	    					target:jpc.target, 
+	    					sourceId:jpc.sourceId,
+	    					targetId:jpc.targetId,
+	    					sourceEndpoint:jpc.endpoints[0],
+	    					targetEndpoint:jpc.endpoints[1]
+			    	});
 	    		}
 	    		// else there must be some cleanup required.
 	    		
@@ -1223,7 +1233,15 @@
 	    	var jpc = new Connection(params);    		
 	    	// add to list of connections (by scope).
 	    	_addToList(connectionsByScope, jpc.scope, jpc);
-	    	
+	    	// fire an event
+	    	_fireEvent("jsPlumbConnection", { 
+	    					source:jpc.source, 
+	    					target:jpc.target, 
+	    					sourceId:jpc.sourceId,
+	    					targetId:jpc.targetId,
+	    					sourceEndpoint:jpc.endpoints[0],
+	    					targetEndpoint:jpc.endpoints[1]
+	    	});
 			// force a paint
 			_draw(jpc.source);
 			
@@ -1253,6 +1271,15 @@
 					jpc.endpoints[0].removeConnection(jpc);
 					jpc.endpoints[1].removeConnection(jpc);
 					_removeFromList(connectionsByScope, jpc.scope, jpc);
+					_fireEvent("jsPlumbConnectionDetached", { 
+						source:jpc.source, 
+						target:jpc.target, 
+						sourceId:jpc.sourceId,
+						targetId:jpc.targetId,
+						sourceEndpoint:jpc.endpoints[0],
+						targetEndpoint:jpc.endpoints[1]
+					});
+
 		    		return true;
 	    		}
 	    		
@@ -1283,6 +1310,14 @@
 		    				jpc.endpoints[0].removeConnection(jpc);
 		    				jpc.endpoints[1].removeConnection(jpc);
 		    				_removeFromList(connectionsByScope, jpc.scope, jpc);
+		    				_fireEvent("jsPlumbConnectionDetached", { 
+								source:jpc.source, 
+								target:jpc.target, 
+								sourceId:jpc.sourceId,
+								targetId:jpc.targetId,
+								sourceEndpoint:jpc.endpoints[0],
+								targetEndpoint:jpc.endpoints[1]
+							});
 		    			}
 		    		}
 		    	}
@@ -1309,6 +1344,14 @@
 			    				_removeElement(jpc.canvas, jpc.container);
 			    				jpc.endpoints[0].removeConnection(jpc);
 			    				jpc.endpoints[1].removeConnection(jpc);
+			    				_fireEvent("jsPlumbConnectionDetached", { 
+									source:jpc.source, 
+									target:jpc.target, 
+									sourceId:jpc.sourceId,
+									targetId:jpc.targetId,
+									sourceEndpoint:jpc.endpoints[0],
+									targetEndpoint:jpc.endpoints[1]
+								});
 			    			}
 			    		}
 			    	}
@@ -1750,10 +1793,7 @@
 	     Parameters:	     	
 	     */
 	    this.wrap = _wrap;	    
-	    this.trace = _trace;
-	    this.clearTrace = _clearTrace;
-	    this.clearAllTraces = _clearAllTraces;
-	    this.getTrace = _getTrace;
+	    this.addListener = _addListener;
 	    
 	};
 	
