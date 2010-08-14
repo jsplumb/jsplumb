@@ -77,9 +77,9 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				};
 
 				// connection listener
-				jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionRemoved"], {
+				jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
 					jsPlumbConnection : function(p) { showConnections(); },
-					jsPlumbConnectionRemoved : function(p) { showConnections(); }
+					jsPlumbConnectionDetached : function(p) { showConnections(); }
 				});				
 				
 				var exampleDropOptions = {
@@ -203,7 +203,6 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 
 				$(".detach").click(function() {
 					jsPlumb.detachAll($(this).attr("rel"));
-					showConnections();
 				});
 
 				$("#clear").click(function() { jsPlumb.detachEverything(); showConnections(); });				

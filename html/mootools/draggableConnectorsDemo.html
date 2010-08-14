@@ -40,11 +40,13 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 	    	<a href="dragAnimDemo.html">next: animated dragging demo</a><br/><br/>
 	    </div>
 	    
-	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
-		<script type="text/javascript" src="../../js/mootools-1.2.4.4-more.js"></script>
-		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/1.2.1/mootools.jsPlumb-1.2.1-all-min.js"></script>
-				
+	<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../../js/1.2.2/jsPlumb-1.2.2-RC1.js"></script>
+	<script type="text/javascript" src="../../js/1.2.2/jsPlumb-defaults-1.2.2-RC1.js"></script>
+	<script type="text/javascript" src="../../js/1.2.2/mootools.jsPlumb-1.2.2-RC1.js"></script>
+			
 	    <script type="text/javascript">
 			window.addEvent('domready', function() {
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
@@ -75,14 +77,15 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					else $("list").setStyle("display","none");
 				};
 
-				var exampleDragOptions = {
-						onComplete : function(e, ui) { showConnections(); }
-					};				
+				// connection listener
+				jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
+					jsPlumbConnection : function(p) { showConnections(); },
+					jsPlumbConnectionDetached : function(p) { showConnections(); }
+				});				
 
 				var exampleDropOptions = {
 					tolerance:'touch',
 					hoverClass:'dropHover',
-					onDrop : function(e, ui) { showConnections(); },
 					activeClass:'dragActive'
 				};
 
@@ -111,7 +114,6 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						strokeStyle:"#00f"
 					},
 					isTarget:true,
-					dragOptions : exampleDragOptions,
 					dropOptions : exampleDropOptions
 				};
 
@@ -129,7 +131,6 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						connector: new jsPlumb.Connectors.Bezier(63),
 						maxConnections:3,
 						isTarget:true,
-						dragOptions : exampleDragOptions,
 						dropOptions : exampleDropOptions
 				};
 
@@ -154,7 +155,6 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
 						connector : new jsPlumb.Connectors.Straight(),
 						isTarget:true,
-						dragOptions : exampleDragOptions,
 						dropOptions : exampleDropOptions
 				};
 
@@ -213,7 +213,6 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				$$(".detach").each(function(d) {
 					d.addEvent('click', function() {
 						jsPlumb.detachAll(d.get("rel"));
-						showConnections();
 					});
 				});
 
