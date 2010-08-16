@@ -1,4 +1,3 @@
-module("jsPlumb");
 
 var _getContextNode = function() {
 	return $("._jsPlumb_context");
@@ -35,15 +34,19 @@ var _addDiv = function(id) {
 	document.body.appendChild(d1);
 	$(d1).attr("id", id);
 	_divs.push(id);
-	return d1;
+	return $(d1);
 };
 
 var _cleanup = function() {
 	for (var i in _divs) {
-		$("#" + _divs[i]).remove();
+		$("#" + _divs[i]).remove();		
 	}	
 	_divs.splice(0, _divs.length - 1);
+	
+	jsPlumb.reset();
 };
+
+module("jsPlumb", {teardown: _cleanup});
 
 test('findIndex method', function() {
 	var array = [ 1,2,3, "test", "a string", { 'foo':'bar', 'baz':1 }, { 'ding':'dong' } ];
@@ -65,7 +68,6 @@ test('jsPlumb setup', function() {
 test('getId', function() {
 	var d10 = _addDiv('d10');
 	equals(jsPlumb.getTestHarness().getId(d10), "d10");
-	_cleanup();
 });
 
 test('plumb two divs with default options', function() { 
@@ -82,26 +84,27 @@ test('plumb two divs with default options', function() {
 	assertEndpointCount("d2", 0);
 });
 
-var e;
 test('create a simple endpoint', function() {
-	e = $("#d1").addEndpoint({});
-	ok(e, 'endpoint exists');
-	//assertContextSize(1);  
+	var d1 = _addDiv("d1");
+	var e = $("#d1").addEndpoint({});
+	ok(e, 'endpoint exists');  
 	assertEndpointCount("d1", 1);
 });
 
 test('remove the simple endpoint', function() {
-	ok(e != null, "endpoint exists");
+	var d1 = _addDiv("d1");
+	var ee = $("#d1").addEndpoint({});
+	ok(ee != null, "endpoint exists");
 	assertEndpointCount("d1", 1);
 	//assertContextSize(1);
-	$("#d1").removeEndpoint(e);	 
+	$("#d1").removeEndpoint(ee);	 
 	assertEndpointCount("d1", 0);
 });
 
-var e2;
 test('plumb between two endpoints', function() {
-	e = $("#d1").addEndpoint({});
-	e2 = $("#d2").addEndpoint({});
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e = $("#d1").addEndpoint({});
+	var e2 = $("#d2").addEndpoint({});
 	ok(e, 'endpoint e exists');
 	ok(e2, 'endpoint e2 exists');
 	//assertContextSize(2);  
@@ -113,12 +116,14 @@ test('plumb between two endpoints', function() {
 });
 
 test('draggable silently ignored when jquery ui not present', function() {
-	e = $("#d1").addEndpoint({isSource:true});
+	var d1 = _addDiv("d1");
+	var e = $("#d1").addEndpoint({isSource:true});
 	ok(e, 'endpoint exists');
 });
 
 test('droppable silently ignored when jquery ui not present', function() {
-	e = $("#d1").addEndpoint({isTarget:true});
+	var d1 = _addDiv("d1")
+	var e = $("#d1").addEndpoint({isTarget:true});
 	ok(e, 'endpoint exists');
 });
 
@@ -149,7 +154,6 @@ test('specifiedEndpointMaxConnections', function() {
 	assertConnectionCount(e5, 2);  // two connections
 	jsPlumb.connect({sourceEndpoint:e5, targetEndpoint:e6});
 	assertConnectionCount(e5, 2);  // should have refused; max is 2, for d4.
-	_cleanup();
 });
 
 test('noEndpointMaxConnections', function() {
@@ -163,8 +167,7 @@ test('noEndpointMaxConnections', function() {
 	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
 	var e5 = $("#d3").addEndpoint({isSource:true, maxConnections:-1});
 	jsPlumb.connect({sourceEndpoint:e5, targetEndpoint:e4});
-	assertConnectionCount(e4, 3);  
-	_cleanup();
+	assertConnectionCount(e4, 3);
 });
 
 test('anchors equal', function() {
@@ -303,6 +306,11 @@ test('get connections, filtered by a list of scopes, source ids and target ids',
 	equals(c['testScope'].length, 2, 'there are two connections in testScope');
 	equals(c['testScope3'].length, 0, 'there is no connections in testScope3');
 	equals(c['testScope2'], null, 'there are no connections in testScope2');
+	var anEntry = c['testScope'][0];
+	ok(anEntry.sourceEndpoint != null, "Source endpoint is set");
+	ok(anEntry.targetEndpoint != null, "Target endpoint is set");
+	equals(anEntry.source.attr("id"), "d11", "Source is div d11");
+	equals(anEntry.target.attr("id"), "d14", "Target is div d14");
 });
 
 test('connect by endpoint', function() {
@@ -311,6 +319,48 @@ test('connect by endpoint', function() {
 	ok(e16.anchor, 'endpoint 16 has an anchor');
 	var e17 = $("#d17").addEndpoint({isSource:true});
 	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+});
+
+test('connection events', function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var returnedParams = null, returnedParams2 = null;
+	jsPlumb.addListener(["jsPlumbConnection", "jsPlumbConnectionDetached"], {
+		// signature of the 'interface' method is jsPlumbConnection.  params
+		// has source, target, sourceId, targetId, sourceEndpoint, targetEndpoint
+		jsPlumbConnection : function(params) {
+			returnedParams = $.extend({}, params);
+		},
+		jsPlumbConnectionDetached : function(params) {
+			returnedParams2 = $.extend({}, params);
+		}
+	});
+	jsPlumb.connect({source:d1, target:d2});
+	ok(returnedParams != null, "new connection listener event was fired");
+	equals(returnedParams.sourceId, "d1", 'sourceid is set');
+	equals(returnedParams.targetId, "d2", 'targetid is set');
+	equals(returnedParams.source.attr("id"), "d1", 'source is set');
+	equals(returnedParams.target.attr("id"), "d2" , 'target is set');
+	ok(returnedParams.sourceEndpoint != null, "source endpoint is not null");
+	ok(returnedParams.targetEndpoint != null, "target endpoint is not null");
+	jsPlumb.detachAll("d1");
+	ok(returnedParams2 != null, "removed connection listener event was fired");
+});
+
+test('connection events that throw errors', function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var returnedParams = null, returnedParams2 = null;
+	jsPlumb.addListener(["jsPlumbConnection"], {
+		// signature of the 'interface' method is jsPlumbConnection.  params
+		// has source, target, sourceId, targetId, sourceEndpoint, targetEndpoint
+		jsPlumbConnection : function(params) {
+			returnedParams = $.extend({}, params);
+			throw "oh no!";
+		}
+	});
+	jsPlumb.connect({source:d1, target:d2});
+	var d3 = _addDiv("d3"), d4 = _addDiv("d4");
+	jsPlumb.connect({source:d3, target:d4});
+	ok(returnedParams != null, "new connection listener event was fired; we threw an error, jsPlumb survived.");
 });
 
 
