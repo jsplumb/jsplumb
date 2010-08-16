@@ -30,6 +30,7 @@
 				<li><a href="#endpoints">Endpoints</a></li>
 				<li><a href="#gradients">Gradients</a></li>
 				<li><a href="#animation">Animation</a></li>
+				<li><a href="#events">Events</a></li>
 				<li><a href="#cssclasses">CSS Class Reference</a></li>				
 				<li><a href="#examples">Basic Examples</a></li>				
 				<li><a href="#dragAndDropExamples">Draggable Connections Examples</a></li>
@@ -969,6 +970,51 @@ The arguments are as follows:
 		<li>options - options for the animation, such as callbacks etc.</li>
 	</ul>
 	
+		</div>
+		
+		<div class="section">
+			<a id="events"><h3>Events</h3></a>
+			As of version 1.2.2, jsPlumb fires an event to registered listeners whenever a connection
+			is made.  We plan to support more events in the future.
+			<h4>Registering Event Listeners</h4>
+			To register an event listener you need to supply the event name and a listener object:
+<div class="code">
+<pre>
+jsPlumb.addListener("jsPlumbConnection", someListener); 
+</pre>
+</div>
+The listener object - in this case 'someListener' - must have a method with the same name as the event. For example, to define
+a listener inline, you could do a call like this:
+<div class="code">
+<pre>
+jsPlumb.addListener("jsPlumbConnection", {
+	jsPlumbConnection:function(data) {
+		alert("a connection was made from " + data.sourceId + " to " + data.targetId);
+	}
+}); 
+</pre>
+</div>
+It is also possible to register a single listener for multiple event types - just pass in the event types as an array of Strings:
+<div class="code">
+<pre>
+jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
+	jsPlumbConnection:function(data) {
+		alert("a connection was made from " + data.sourceId + " to " + data.targetId);
+	},
+	jsPlumbConnectionDetached:function(data) {
+		alert("a connection was detached from " + data.sourceId + " to " + data.targetId);
+	}
+}); 
+</pre>
+</div>
+		<h4>Event Types</h4>
+		<table>
+			<tr><th>event name</th><th>function arguments</th><th>explanation</th></tr>
+			<tr><td>jsPlumbConnection</td><td>params - JS object containing sourceId, targetId, source, target, sourceEndpoint, targetEndpoint</td><td>fired whenever a new connection is made, either programmatically via jsPlumb.connect, or drag and drop</td></tr>
+			<tr><td>jsPlumbConnectionDetached</td><td>params - JS object containing sourceId, targetId, source, target, sourceEndpoint, targetEndpoint</td><td>fired whenever a connection is detached, either programmatically via one of the jsPlumb.detach methods, or drag and drop</td></tr>
+		</table>
+			
+		
 		</div>
 
 		<div class="section">
