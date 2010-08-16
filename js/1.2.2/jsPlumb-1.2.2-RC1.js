@@ -1445,7 +1445,15 @@
 	    			for (var j = 0; j < connectionsByScope[i].length; j++) {
 	    				var c = connectionsByScope[i][j];
 	    				if (filter(sources, c.sourceId) && filter(targets, c.targetId))
-	    					r[i].push({sourceId:c.sourceId, targetId:c.targetId});
+	    					//r[i].push({sourceId:c.sourceId, targetId:c.targetId});
+	    					r[i].push({
+	    						sourceId:c.sourceId, 
+	    						targetId:c.targetId,
+	    						source:c.source,
+	    						target:c.target,
+	    						sourceEndpoint:c.endpoints[0],
+	    						targetEndpoint:c.endpoints[1]
+	    					});
 	    			}
 	    		}
 	    	}
