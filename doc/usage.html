@@ -791,6 +791,82 @@ This creates an Image endpoint with the image at the given url.  You do not need
 				<div class="code"><pre>jsPlumb.sizeCanvas(canvas, x, y, width, height);</pre></div>
 				Allows you to locate the canvas on screen and to size it.
 			</p>
+			<h4>Endpoint Operations</h4>
+			These are the methods supported by the Endpoint class:
+			<ul>
+<li><p>removeConnection</p>
+This method is <em>deprecated</em>; it has been renamed to <strong>detach</strong>
+</li>
+<li><p>detach</p>
+Removes a Connection from the Endpoint.  The Connection will have been returned from a call to <strong>jsPlumb.connect</strong>.  This method is <em>deprecated</em>; it has been renamed to <strong>detach</strong>
+<div class="code">
+<pre>
+var c = myEndpoint.addConnection({...});
+
+...
+time passes
+...
+
+myEndpoint.detach(c);
+</pre>
+</div>
+</li>
+<li><p>detachAll</p>
+Removes all Connections from the Endpoint.  
+<div class="code">
+<pre>
+var c = myEndpoint.addConnection({...});
+var c2 = myEndpoint.addConnection({...});
+
+...
+time passes
+...
+
+myEndpoint.detachAll();
+</pre>
+</div>
+</li>
+<li><p>detachFrom</p>
+Detaches all Connections from this Endpoint to some other Endpoint.
+<div class="code">
+<pre>
+var c = myEndpoint.addConnection({...});
+var c2 = myOtherEndpoint.addConnection({...});
+jsPlumb.connect({sourceEndpoint:c, targetEndpoint:c2});
+
+...
+time passes
+...
+
+myEndpoint.detachFrom(myOtherEndpoint);
+</pre>
+</div>
+</li>
+<li>
+	<p>getElement</p>
+Returns the DOM element the Endpoint is attached to.	
+</li>
+<li>
+<p>isConnectedTo</p>
+Returns whether or not this Endpoint is connected to some other Endpoint.
+<div class="code">
+<pre>
+var c = myEndpoint.addConnection({...});
+var c2 = myOtherEndpoint.addConnection({...});
+jsPlumb.connect({sourceEndpoint:c, targetEndpoint:c2});
+
+var isConnected = c.isConnectedTo(c2);				// returns true
+</pre>
+</div>
+</li>
+<li>
+	<p>isFull</p>
+	Returns whether or not the Endpoint can accept any more Connections.  This is determined by the parameters
+	passed in to the addEndpoint call, specifically the 'maxConnections' value: by default this is set to 1. You
+	can provide any positive value for this, or -1 if you wish to have no maximum.
+</li>
+			</ul>
+			
 		</div>
 
 		<div class="section">
@@ -1387,8 +1463,7 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 	isTarget:true,
 	connector : new jsPlumb.Connectors.StraightLine(),
 	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
-	dragOptions:{ scope:'blueline' },
-	dropOptions:{ scope:'blueline' }	 
+	scope:"blueline"	 
 }; 
 </pre>
 </div>				 				
@@ -1405,8 +1480,8 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 	style:{fillStyle:'blue'},
 	connector : new jsPlumb.Connectors.StraightLine(),
 	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
-	dragOptions:{ scope:'blueline' },
-	dropOptions:{ scope:'blueline', drop:function(e, ui) { alert('drop!'); } }	 
+	scope:"blueline",
+	dropOptions:{ drop:function(e, ui) { alert('drop!'); } }	 
 }; 
 </pre>
 </div>				 				
@@ -1422,8 +1497,8 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 	maxConnections:5,
 	connector : new jsPlumb.Connectors.StraightLine(),
 	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
-	dragOptions:{ scope:'blueline' },
-	dropOptions:{ scope:'blueline', onDrop:function(e, ui) { alert('drop!'); } }	 
+	scope:"blueline",
+	dropOptions:{ onDrop:function(e, ui) { alert('drop!'); } }	 
 }; 
 </pre>
 </div>				 				
@@ -1439,8 +1514,8 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 	maxConnections:-1,
 	connector : new jsPlumb.Connectors.StraightLine(),
 	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
-	dragOptions:{ scope:'blueline' },
-	dropOptions:{ scope:'blueline', onDrop:function(e, ui) { alert('drop!'); } }	 
+	scope:"blueline",
+	dropOptions:{ onDrop:function(e, ui) { alert('drop!'); } }	 
 }; 
 </pre>
 </div>				 				
