@@ -3,6 +3,8 @@
 	- fixed bug where max connections on a target endpoint was ignored
 	- sourceEndpoint/targetEndpoint are used for source/target if they are provided to a connect/plumb call.
 	- added getElement method to Endpoint - it returns the element the Endpoint is connected to
+	- added detachAll method to Endpoint : detaches every connection (DOCUMENT THIS)
+	- added detachFrom(Endpoint) method to Endpoint : detaches all connections to the given target endpoint(DOCUMENT THIS)
 
 * 1.2.1
 
