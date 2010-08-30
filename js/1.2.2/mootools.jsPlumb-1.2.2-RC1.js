@@ -1,3 +1,18 @@
+/*
+ * mootools.jsPlumb 1.2.2-RC1
+ * 
+ * MooTools specific functionality for jsPlumb.
+ * 
+ * http://morrisonpitt.com/jsPlumb/demo.html
+ * http://code.google.com/p/jsPlumb
+ * 
+ * NOTE: for production usage you should use jsPlumb-all-x.x.x-min.js, which contains the main jsPlumb script and this script together,
+ * in a minified file.
+ * 
+ * Dual licensed under MIT and GPL2.
+ * 
+ */ 
+
 (function() {
 	
 	/*

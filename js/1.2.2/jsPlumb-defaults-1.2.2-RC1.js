@@ -1,4 +1,4 @@
-/**
+/*
 * jsPlumb-defaults-1.2.2-RC1
 *
 * This script contains the default Anchors, Endpoints and Connectors for jsPlumb.  It should be used with jsPlumb 1.1.0 and above; 
@@ -9,8 +9,10 @@
 * http://www.mintdesign.ru/blog/javascript-jsplumb-making-graph
 * http://www.mintdesign.ru/site/samples/jsplumb/jsPlumb-graph-sample.htm
 *
-* NOTE: for production usage you should use jsPlumb-all-1.1.1-min.js, which contains the main jsPlumb script and this script together,
+* NOTE: for production usage you should use jsPlumb-all-x.x.x-min.js, which contains the main jsPlumb script and this script together,
 * in a minified file.
+* 
+* Dual licensed under MIT and GPL2.
 */
 
 (function() {
