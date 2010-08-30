@@ -10,6 +10,8 @@
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
  * 
+ * Dual licensed under MIT and GPL2.
+ * 
  */ 
 
 (function() {
@@ -765,19 +767,61 @@
 		var _reattach = params.reattach || false;
 		var floatingEndpoint = null;
 		var inPlaceCopy = null;
+		
 		this.addConnection = function(connection) {			
 			self.connections.push(connection);
-		};
-		this.removeConnection = function(connection) {
+		};		
+		this.detach = function(connection) {
 			var idx = _findIndex(self.connections, connection);
-			if (idx >= 0)
+			if (idx >= 0) { 
+				var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0]; 
 				self.connections.splice(idx, 1);
+				t.detach(connection);
+			}
 		};
+		
+		/**
+		 * detaches all connections this Endpoint has
+		 */
+		this.detachAll = function() {
+			while(self.connections.length > 0) {
+				self.detach(self.connections[0]);
+			}		
+		};
+		
+		/**
+		 * removes any connections from this Endpoint that are
+		 * connected to the given target endpoint.
+		 * @param targetEndpoint
+		 */
+		this.detachFrom = function(targetEndpoint) {
+			var c = [];
+			for (var i = 0; i < self.connections.length; i++) {
+				if (self.connections[i].endpoints[1] == targetEndpoint || self.connections[i].endpoints[0] == targetEndpoint) {
+					c.push(self.connections[i]);
+				}
+			}
+			for (var i = 0; i < c.length; i++) {
+				targetEndpoint.detach(c[i]);
+				self.detach(c[i]);
+			}
+		};
+		
+		/**
+		 * returns the DOM element this Endpoint is attached to.
+		 * @returns
+		 */
+		this.getElement = function() { return _element; };
+				
+		/**
+		* private but must be exposed.
+		*/
 		this.makeInPlaceCopy = function() {
 			var e = new Endpoint({anchor:self.anchor, source:_element, style:_style, endpoint:_endpoint});
 			return e;
 		};
-		this.getElement = function() { return _element; };
+		
+		
 		/**
 		* returns whether or not this endpoint is connected to the given endpoint.
 		* @param endpoint  Endpoint to test.
@@ -798,6 +842,10 @@
 			return found;
 		};
 		
+		/**
+		 * private but needs to be exposed.
+		 * @returns {Boolean}
+		 */
 		this.isFloating = function() { return floatingEndpoint != null; };
 		/**
 		 * first pass at default ConnectorSelector: returns the first connection, if we have any.
@@ -810,6 +858,9 @@
 			return self.connections.length == 0 || self.connections.length < _maxConnections ?  null : self.connections[0]; 
 		};
 		
+		/**
+		 * @returns whether or not the Endpoint can accept any more Connections.
+		 */
 		this.isFull = function() { return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections); };
 		
 		/**
@@ -819,7 +870,7 @@
 		this.equals = function(endpoint) {
 			return this.anchor.equals(endpoint.anchor) &&
 			true;
-		};
+		};				
 		
 		/**
 		 * paints the Endpoint, recalculating offset and anchor positions if necessary.
@@ -841,6 +892,11 @@
 			}
 			_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
 		};
+		
+		/**
+		 * @deprecated
+		 */
+		this.removeConnection = this.detach;              // backwards compatibility
 		
 		
 		// is this a connection source? we make it draggable and have the drag listener 
