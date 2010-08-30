@@ -363,6 +363,36 @@ test('connection events that throw errors', function() {
 	ok(returnedParams != null, "new connection listener event was fired; we threw an error, jsPlumb survived.");
 });
 
+test("Endpoint.detachFrom", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var e16 = $("#d16").addEndpoint({isSource:true});
+	ok(e16.anchor, 'endpoint 16 has an anchor');
+	var e17 = $("#d17").addEndpoint({isSource:true});
+	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+	assertConnectionCount(e16, 1);
+	assertConnectionCount(e17, 1);
+	e16.detachFrom(e17);
+	assertConnectionCount(e16, 0);
+	assertConnectionCount(e17, 0);
+});
+
+test("Endpoint.detachAll", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); d18 = _addDiv("d18");
+	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1});
+	ok(e16.anchor, 'endpoint 16 has an anchor');
+	var e17 = $("#d17").addEndpoint({isSource:true});
+	var e18 = $("#d18").addEndpoint({isSource:true});
+	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e18});
+	assertConnectionCount(e16, 2);
+	assertConnectionCount(e17, 1);
+	assertConnectionCount(e18, 1);
+	e16.detachAll();
+	assertConnectionCount(e16, 0);
+	assertConnectionCount(e17, 0);
+});
+
+
 
 /**
  * leave this test at the bottom!
