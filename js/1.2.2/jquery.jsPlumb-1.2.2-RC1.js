@@ -133,14 +133,7 @@ $(window).bind('resize', function() {
 		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
 		 * function is used to find the element, using the given String as the element's id.
 		 * 
-		 * since 1.2.1 this method has had a cache applied to it.  the cache is a very simple
-		 * cache - a hashmap - so can grow and grow. this may not be optimum.  but it does
-		 * speed up performance:
-		 * 
-		 * without cache, 312 connections take 5.22 seconds to create.
-		 * with cache, 312 connections take 4.57 seconds to create. that's 13% faster.
-		 */
-		
+		 */		
 		getElementObject : function(el) {			
 			return typeof(el)=='string' ? $("#" + el) : $(el);
 		},
