@@ -1311,6 +1311,17 @@
 	    	
 	    },*/
 	    
+	    var fireDetachEvent = function(jpc) {
+	    	_fireEvent("jsPlumbConnectionDetached", { 
+				source:jpc.source, 
+				target:jpc.target, 
+				sourceId:jpc.sourceId,
+				targetId:jpc.targetId,
+				sourceEndpoint:jpc.endpoints[0],
+				targetEndpoint:jpc.endpoints[1]
+			});	    	
+	    };
+	    
 	    /* 
 	     Function: detach	      
 	     	Removes a connection.	     
@@ -1327,14 +1338,7 @@
 					jpc.endpoints[0].removeConnection(jpc);
 					jpc.endpoints[1].removeConnection(jpc);
 					_removeFromList(connectionsByScope, jpc.scope, jpc);
-					_fireEvent("jsPlumbConnectionDetached", { 
-						source:jpc.source, 
-						target:jpc.target, 
-						sourceId:jpc.sourceId,
-						targetId:jpc.targetId,
-						sourceEndpoint:jpc.endpoints[0],
-						targetEndpoint:jpc.endpoints[1]
-					});
+					fireDetachEvent(jpc);
 
 		    		return true;
 	    		}
@@ -1366,14 +1370,7 @@
 		    				jpc.endpoints[0].removeConnection(jpc);
 		    				jpc.endpoints[1].removeConnection(jpc);
 		    				_removeFromList(connectionsByScope, jpc.scope, jpc);
-		    				_fireEvent("jsPlumbConnectionDetached", { 
-								source:jpc.source, 
-								target:jpc.target, 
-								sourceId:jpc.sourceId,
-								targetId:jpc.targetId,
-								sourceEndpoint:jpc.endpoints[0],
-								targetEndpoint:jpc.endpoints[1]
-							});
+		    				fireDetachEvent(jpc);
 		    			}
 		    		}
 		    	}
@@ -1400,14 +1397,7 @@
 			    				_removeElement(jpc.canvas, jpc.container);
 			    				jpc.endpoints[0].removeConnection(jpc);
 			    				jpc.endpoints[1].removeConnection(jpc);
-			    				_fireEvent("jsPlumbConnectionDetached", { 
-									source:jpc.source, 
-									target:jpc.target, 
-									sourceId:jpc.sourceId,
-									targetId:jpc.targetId,
-									sourceEndpoint:jpc.endpoints[0],
-									targetEndpoint:jpc.endpoints[1]
-								});
+			    				fireDetachEvent(jpc);
 			    			}
 			    		}
 			    	}
