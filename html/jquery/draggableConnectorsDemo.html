@@ -69,8 +69,8 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					s = s + "</table>";
 					if (foundSome) {
 						$("#list").html(s);
-						$("#list").fadeIn();
-					} else $("#list").fadeOut();
+						$("#list").fadeIn({complete:function() { jsPlumb.repaintEverything(); }});
+					} else $("#list").fadeOut({complete:function() { jsPlumb.repaintEverything(); }});
 				};
 
 				// connection listener
