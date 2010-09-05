@@ -1629,6 +1629,13 @@
 	     	Endpoint with the given UUID, null if nothing found.
 	     */
 	    this.getEndpoint = _getEndpoint;
+	    
+	    /*
+	     * gets an element's id, creating one if necessary.  really only exposed for the lib-specific
+	     * functionality to access; would be better to pass the current instance into the lib-specific
+	     * code (even though this is a static call. i just don't want to expose it to the public API). 
+	     */
+	    this.getId = _getId;
 		
 	    /*
 	     Function: hide 	     
