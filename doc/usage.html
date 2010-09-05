@@ -1601,7 +1601,22 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 </pre>
 </div>				 				
 				</li>
-								
+	<li>Assign a UUID to the endpoint options created above, and add as Endpoints to "window1" and "window2":
+<div class="code">
+<pre>
+jsPlumb.addEndpoint("window1", jsPlumb.extend({uuid:"abcdefg"}, endpointOptions));
+jsPlumb.addEndpoint("window2", jsPlumb.extend({uuid:"hijklmn"}, endpointOptions));
+</pre>
+</div>	
+	</li>
+	
+	<li>Connect the two Endpoints we just registered on "window1" and "window2":
+<div class="code">
+<pre>
+jsPlumb.connect({uuids:["abcdefg", "hijklmn"]});
+</pre>
+</div>	
+	</li>
 				
 			</ul>
 		</div>
