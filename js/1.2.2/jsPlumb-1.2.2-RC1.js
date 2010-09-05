@@ -1303,7 +1303,6 @@
 	     	The newly created Connection.	     
 	     */
 	    this.connect = function(params) {
-	    	var sourceEndpoint = null, targetEndpoint = null;
 	    	var _p = jsPlumb.extend({}, params);
 	    	// test for endpoint uuids to connect
 	    	if (params.uuids) {
@@ -1366,21 +1365,67 @@
 	    	true if successful, false if not.
 	    */
 	    this.detach = function(sourceId, targetId) {
-	    	var f = function(jpc) {
-	    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-	    			_removeElement(jpc.canvas, jpc.container);
-					jpc.endpoints[0].removeConnection(jpc);
-					jpc.endpoints[1].removeConnection(jpc);
-					_removeFromList(connectionsByScope, jpc.scope, jpc);
-					fireDetachEvent(jpc);
-
-		    		return true;
-	    		}
-	    		
-	    	};    	
-	    	
-	    	// todo: how to cleanup the actual storage?  a third arg to _operation?
-	    	_operation(sourceId, f);    	
+	    	if (arguments.length == 2) {
+		    	var f = function(jpc) {
+		    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+		    			_removeElement(jpc.canvas, jpc.container);
+						jpc.endpoints[0].removeConnection(jpc);
+						jpc.endpoints[1].removeConnection(jpc);
+						_removeFromList(connectionsByScope, jpc.scope, jpc);
+						fireDetachEvent(jpc);
+	
+			    		return true;
+		    		}
+		    		
+		    	};    	
+		    	
+		    	// todo: how to cleanup the actual storage?  a third arg to _operation?
+		    	_operation(sourceId, f);
+	    	}
+	    	// this is the new version of the method, taking a JS object like the connect method does.
+	    	else if (arguments.length == 1) {
+		    	var _p = jsPlumb.extend({}, sourceId);  // a backwards compatibility hack: sourceId should be thought of as 'params' in this case.
+		    	// test for endpoint uuids to detach
+		    	if (_p.uuids) {		    		
+		    		_getEndpoint(_p.uuids[0]).detachFrom(_getEndpoint(_p.uuids[1]));
+		    	}		    	
+		    	else if (_p.sourceEndpoint && _p.targetEndpoint) {
+		    		_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
+		    	}
+		    	else {
+			    	sourceId = _getId(_p.source);
+			    	targetId = _getId(_p.target);
+			    	var f = function(jpc) {
+			    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+			    			_removeElement(jpc.canvas, jpc.container);
+							jpc.endpoints[0].removeConnection(jpc);
+							jpc.endpoints[1].removeConnection(jpc);
+							_removeFromList(connectionsByScope, jpc.scope, jpc);
+							fireDetachEvent(jpc);
+		
+				    		return true;
+			    		}
+			    		
+			    	};    	
+			    	
+			    	// todo: how to cleanup the actual storage?  a third arg to _operation?
+			    	_operation(sourceId, f);
+		    	}
+		    	
+		    	// fire an event
+		    	/*_fireEvent("jsPlumbDetach", { 
+		    					source:jpc.source, 
+		    					target:jpc.target, 
+		    					sourceId:jpc.sourceId,
+		    					targetId:jpc.targetId,
+		    					sourceEndpoint:jpc.endpoints[0],
+		    					targetEndpoint:jpc.endpoints[1]
+		    	});*/
+				/*// force a paint
+				_draw(jpc.source);
+				
+				return jpc;*/
+	    	}
 	    };
 	    
 	    /*
