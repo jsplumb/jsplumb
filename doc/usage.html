@@ -83,28 +83,38 @@
 		</div>
 		
 		<div class="section">
-			<a id="changes">Changes since version 1.2</a>
+			<a id="changes">Changes since version 1.2.1</a>
 			<p>
-			Several new concepts have been introduced since version 1.2, and a few convenience methods
-			have been added.  The major changes are:
+			Release 1.2.2 contains a bunch of new things to do with Endpoints: 
 			</p>
 			<ul>
-				<li>supports multiple instances of jsPlumb per page ( jsPlumb.newInstance(defaults) )</li>  																				
-				<li>introduced scope concept into Endpoints and Connections</li>
-				<li>added getConnections method - lets you see what's been connected to what.</li>
-				<li>added 'container' concept - lets you constrain a jsPlumb instance to some containing div</li>				
+				<li>added detachFrom(someEndpoint) - detaches connections to someEndpoint</li>  																				
+				<li>added detachAll() - detaches connections to all Endpoints</li>
+				<li>added getElement() - gets the DOM element associated with this Endpoint </li>
+				<li>added getUuid() - gets an Endpoint's UUID</li>
+				<li>added the ability to set a UUID on an Endpoint, both in jsPlumb.addEndpoint and jsPlumb.connect</li>
+				<li>added ability to connect two Endpoints by their UUIDs</li>
+				<li>added jsPlumb.getEndpoint(uuid)</li>
+				<li>added 'dragAllowedWhenFull' option to Endpoint - controls whether a user can drag Connections from an Endpoint that is full.</li>
+				<li>added setDragAllowedWhenFull(boolean) method</li>				
 			</ul>
 			<p>
-			This other stuff has been done too:
+			Basic support for events has been added too: the <strong>addListener</strong> method on
+			jsPlumb allows you to attach event listeners to 'jsPlumbConnection' and jsPlumbConnectionDetached'
+			events.  This will probably be expanded in the future.
+			</p>
+			<p>
+			The last new feature to be added is the <strong>getConnections</strong> function on 
+			jsPlumb. This returns you a summary of all the connections jsPlumb is currently maintaining. 
+			</p>
+			<p>
+			These issues have been fixed:
 			</p>    
 			<ul>
-				<li>added 'complete' event to event lists in mootools and jquery</li>
-				<li>animate runs oncomplete event at anim end automatically, to clean up</li>				
-				<li>jsPlumb.Defaults.Anchor added to defaults (instead of having to supply Anchors for both source and target)</li>
-				<li>equals method added to Anchor class.</li>
-				<li>performance enhancements on connection registration</li>
-				<li>fix for issue 8: detach method blows up if no target specified.</li>
-				<li>added setDefaultScope and getDefaultScope  </li>
+				<li>issue 13 - maxConnections doesnt check target connections</li>
+				<li>issue 11 - add getter function for EndpointsByElement</li>				
+				<li>issue 15 - maxConnections value of -1 doesnt support infinite connections</li>
+				<li>issue 16 - pipe from endpoint to endpoint</li>
 			</ul>
 		</div>
 
