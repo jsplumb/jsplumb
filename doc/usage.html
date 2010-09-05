@@ -938,6 +938,12 @@ var isConnected = c.isConnectedTo(c2);				// returns true
 	Returns the Endpoint's UUID, if one was provided when the Endpoint was created.  See also
 	<strong>jsPlumb.getEndpoint(uuid)</strong> and <strong>jsPlumb.connect</strong>.
 </li>
+<li>
+	<p>setDragAllowedWhenFull</p>
+	Sets whether or not connections can be dragged from the Endpoint once it is full.  Use this in conjunction
+	with the 'reattach' option on a connect call - if this is true, you can specify whether or not dropped
+	connections reattach or are removed.
+</li>
 			</ul>
 	<a id="endpointUuids"><h4>Endpoint UUIDs</h4></a>
 	Each Endpoint can have a UUID associated with it; these can be used to establish Connections and
@@ -1564,14 +1570,16 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 				</li>
 				
 				<li>Define an Endpoint that creates Connections that are 20px wide straight lines, that is both a source and target of new Connections,
-				and that has a 'scope' of 'blueline':
+				and that has a 'scope' of 'blueline'. Also, this Endpoint mandates that once it is full, Connections can
+				no longer be dragged from it (even if 'reattach' is specified on a Connection):
 <div class="code">
 <pre>var endpointOptions = { 
 	isSource:true, 
 	isTarget:true,
 	connector : new jsPlumb.Connectors.StraightLine(),
 	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
-	scope:"blueline"	 
+	scope:"blueline",
+	dragAllowedWhenFull:false	 
 }; 
 </pre>
 </div>				 				
