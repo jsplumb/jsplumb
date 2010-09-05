@@ -46,6 +46,7 @@
 	 * and not all of them have to be connected to anything.
 	 */
 	var endpointsByElement = {};
+	var endpointsByUUID = {};
 	var connectionsByScope = {};
 	var offsets = [];
 	var floatingConnections = {};
@@ -247,14 +248,25 @@
     /**
 	 * gets an id for the given element, creating and setting one if necessary.
 	 */
-	var _getId = function(element) {
+	var _getId = function(element, uuid) {
 		var ele = _getElementObject(element);
 		var id = _getAttribute(ele, "id");
 		if (!id) {
-			id = "_jsPlumb_" + new String((new Date()).getTime());
-			_setAttribute(ele, "id", id);
+			//check if fixed uuid parameter is given
+			if(arguments.length == 2)
+				id = uuid;
+			else
+				id = "_jsPlumb_" + new String((new Date()).getTime());
+				_setAttribute(ele, "id", id);
 		}
 		return id;
+	};
+	
+	/**
+	 * gets an Endpoint by uuid.
+	 */
+	var _getEndpoint = function(uuid) {
+		return endpointsByUUID[uuid];		
 	};
     
     /**
@@ -291,12 +303,14 @@
      * helper to create a canvas.
      * @param clazz optional class name for the canvas.
      */
-    var _newCanvas = function(clazz, parent) {
+    var _newCanvas = function(clazz, parent, uuid) {
         var canvas = document.createElement("canvas");
         _appendElement(canvas, parent);
         canvas.style.position="absolute";
         if (clazz) { canvas.className=clazz; }
-        _getId(canvas); // set an id.
+        
+        // set an id.  if no id on the element and if uuid was supplied it will be used, otherwise we'll create one. 
+        _getId(canvas, uuid);
         
         if (ie) {
         	// for IE we have to set a big canvas size. actually you can override this, too, if 1200 pixels
@@ -621,7 +635,12 @@
 			    if (!params.endpointStyles) params.endpointStyles = [null,null];
 			    var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			    var a = params.anchors  ? params.anchors[index] : _currentInstance.Defaults.Anchors[index] || jsPlumb.Defaults.Anchors[index] || _currentInstance.Defaults.Anchor || jsPlumb.Defaults.Anchor || jsPlumb.Anchors.BottomCenter;
-			    var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:element, container:self.container });
+			    var u = params.uuids  ? params.uuids[index] : null;
+			    if(params.uuids) 
+			    	var e = new Endpoint({style:es, endpoint:ep, connections:[self], uuid:u, anchor:a, source:element, container:self.container });
+			    else
+			    	var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:element, container:self.container });
+			    
 			    self.endpoints[index] = e;
 			    return e;
 		    }
@@ -758,10 +777,12 @@
 		this.connectorStyle = params.connectorStyle;
 		this.connector = params.connector;
 		var _element = params.source;
+		var _uuid = params.uuid;
+		if (_uuid) endpointsByUUID[_uuid] = self;
 		this.container = params.container || jsPlumb.Defaults.Container;
 		var _elementId = _getAttribute(_element, "id");
 		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
-		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, this.container);
+		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, this.container, params.uuid);
 		this.connections = params.connections || [];
 		this.scope = params.scope || DEFAULT_SCOPE;
 		var _reattach = params.reattach || false;
@@ -812,6 +833,12 @@
 		 * @returns
 		 */
 		this.getElement = function() { return _element; };
+		
+		/**
+		 * returns the UUID for this Endpoint, if there is one.
+		 * @returns
+		 */
+		this.getUuid= function() { return _uuid; };
 				
 		/**
 		* private but must be exposed.
@@ -1276,17 +1303,31 @@
 	     	The newly created Connection.	     
 	     */
 	    this.connect = function(params) {
-	    	if (params.sourceEndpoint && params.sourceEndpoint.isFull()) {
+	    	var sourceEndpoint = null, targetEndpoint = null;
+	    	var _p = jsPlumb.extend({}, params);
+	    	// test for endpoint uuids to connect
+	    	if (params.uuids) {
+	    		var _resolveByUuid = function(idx) {
+		    		var e = _getEndpoint(params.uuids[idx]);
+		    		if (!e) throw ("Endpoint with UUID " + params.uuids[idx] + " not found.");
+		    		return e;
+		    	};
+	    		_p.sourceEndpoint = _resolveByUuid(0);
+	    		_p.targetEndpoint = _resolveByUuid(1);
+	    	}
+	    	
+	    	// now ensure that if we do have Endpoints already, they're not full.
+	    	if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
 	    		_log("could not add connection; source endpoint is full");
 	    		return;
 	    	}
 	    	
-	    	if (params.targetEndpoint && params.targetEndpoint.isFull()) {
+	    	if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
 	    		_log("could not add connection; target endpoint is full");
 	    		return;
 	    	}
 	    		
-	    	var jpc = new Connection(params);    		
+	    	var jpc = new Connection(_p);    		
 	    	// add to list of connections (by scope).
 	    	_addToList(connectionsByScope, jpc.scope, jpc);
 	    	// fire an event
@@ -1302,14 +1343,7 @@
 			_draw(jpc.source);
 			
 			return jpc;    	
-	    };           
-	    
-	    /**
-	    * not implemented yet. params object will have sourceEndpoint and targetEndpoint members; these will be Endpoints.
-	    connectEndpoints : function(params) {
-	    	var jpc = Connection(params);
-	    	
-	    },*/
+	    };           	    
 	    
 	    var fireDetachEvent = function(jpc) {
 	    	_fireEvent("jsPlumbConnectionDetached", { 
@@ -1515,6 +1549,16 @@
 	    this.getDefaultScope = function() {
 	    	return DEFAULT_SCOPE;
 	    };
+	    
+	    /*
+	     Function: getEndpoint
+	     	gets an Endpoint by UUID
+	     Parameters:
+	     	uuid - the UUID for the Endpoint
+	     Returns:
+	     	Endpoint with the given UUID, null if nothing found.
+	     */
+	    this.getEndpoint = _getEndpoint;
 		
 	    /*
 	     Function: hide 	     
