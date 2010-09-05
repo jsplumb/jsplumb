@@ -24,6 +24,7 @@
 				<li><a href="#repaint">Automatic repaint</a></li>
 				<li><a href="#unload">Unloading jsPlumb</a></li>
 				<li><a href="#options">jsPlumb.connect Options</a></li>
+				<li><a href="#detachOptions">jsPlumb.detach Options</a></li>
 				<li><a href="#defaults">Defaults</a></li>
 				<li><a href="#anchors">Anchors</a></li>
 				<li><a href="#connectors">Connectors</a></li>
@@ -556,8 +557,34 @@ Connection, etc.
 					</p>					
 				</li>
 			</ul>
-
-
+		</div>
+		
+		<div class="section">
+			<a id="detachOptions"><h3>jsPlumb.detach Options</h3></a>
+			<p>Both the jsPlumb object and also individual elements have a method called 'detach'. The jsPlumb.detach method is more
+			versatile and allows you to speficy elements, element ids, endpoint uuids or Endpoint objects, whereas the detach method on
+			individual elements can only take the id of some element, or that element's selector.  This documentation refers to the
+			jsPlumb.detach method.  It has several similarities with the connect method discussed above.
+			 </p>
+			 <p>These are the options you can specify on a call to jsPlumb.detach. You don't need to supply them all: jsPlumb needs 
+			 either [source,target] or [sourceEndpoint, targetEndpoint] or uuids. </p>
+			<ul>
+				<li><strong>source</strong>
+					<p>Identifies the source element to find and detach connections from.  It may be a string representing the element's id, or a selector for the element.</p>
+				</li>
+				<li><strong>target</strong>
+					<p>Identifies the target element to find and detach connections from.  It may be a string representing the element's id, or a selector for the element.</p>
+				</li>
+				<li><strong>sourceEndpoint</strong>
+					<p>Identifies the source Endpoint to find and detach connections from.  </p>
+				</li>
+				<li><strong>targetEndpoint</strong>
+					<p>Identifies the target Endpoint to find and detach connections from.  </p>
+				</li>
+				<li><strong>uuids</strong>
+					<p>An array of two Endpoint UUIDs, identifying the source and target Endpoints.</p>
+				</li>				
+			</ul>
 		</div>
 
 		<div class="section">
