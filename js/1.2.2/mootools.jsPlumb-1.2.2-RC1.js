@@ -6,7 +6,7 @@
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
  * 
- * NOTE: for production usage you should use jsPlumb-all-x.x.x-min.js, which contains the main jsPlumb script and this script together,
+ * NOTE: for production usage you should use mootools.jsPlumb-all-x.x.x-min.js, which contains the main jsPlumb script and this script together,
  * in a minified file.
  * 
  * Dual licensed under MIT and GPL2.
@@ -159,7 +159,8 @@
 		},
 		
 		initDraggable : function(el, options) {
-			var drag = _draggablesById[el.get("id")];
+			var id = jsPlumb.getId(el);
+			var drag = _draggablesById[id];
 			if (!drag) {
 				var originalZIndex = 0, originalCursor = null;
 				var dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
@@ -232,7 +233,8 @@
 		initDroppable : function(el, options) {
 			var scope = options['scope'] || jsPlumb.Defaults.Scope;
 			_add(_droppables, scope, el);
-			_droppableOptions[el.get("id")] = options;
+			var id = jsPlumb.getId(el);
+			_droppableOptions[id] = options;
 			var filterFunc = function(entry) {
 				return entry.element != el;
 			};
