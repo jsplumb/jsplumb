@@ -28,6 +28,8 @@
 				<li><a href="#anchors">Anchors</a></li>
 				<li><a href="#connectors">Connectors</a></li>
 				<li><a href="#endpoints">Endpoints</a></li>
+				<li><a href="#endpointOperations">Endpoint Operations</a></li>
+				<li><a href="#endpointUuids">Endpoint UUIDs</a></li>
 				<li><a href="#gradients">Gradients</a></li>
 				<li><a href="#animation">Animation</a></li>
 				<li><a href="#events">Events</a></li>
@@ -398,10 +400,10 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 			<p>These are the options you can specify on a call to the connect/plumb method:</p>
 			<ul>
 				<li><strong>source</strong>
-					<p>This is a required argument only when using 'connect' (when using 'plumb' the source element is the one on which the plumb method was called).  It identifies the source element for the plumb.</p>
+					<p>This is a required argument only when using 'connect' (when using 'plumb' the source element is the one on which the plumb method was called).  It identifies the source element for the plumb.  It may be a string representing the element's id, or a selector for the element.</p>
 				</li>
 				<li><strong>target</strong>
-					<p>This is a required argument.  It identifies the target element for the plumb.</p>
+					<p>This is a required argument.  It identifies the target element for the plumb.  It may be a string representing the element's id, or a selector for the element.</p>
 				</li>
 				<li><strong>paintStyle</strong>
 					<p>Optional; if not supplied jsPlumb uses the values defined in jsPlumb.Defaults.PaintStyle (see <a href="#defaults">Defaults</a>). This object allows you to specify five attributes of the connector (note that all of these except 'gradient'
@@ -427,7 +429,7 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 					</p>
 				</li>
 				<li><strong>connector</strong>
-					<p>Optional; if not supplied jsPlumb uses a Bezier connector (see <a href="#defaults">Defaults</a>)</p>
+					<p>Defines the appearance of the connector.  Optional; if not supplied jsPlumb uses a Bezier connector (see <a href="#defaults">Defaults</a>)</p>
 					<p>Valid values for this are:
 						<ul>
 							<li>new jsPlumb.Connectors.Straight (optional_params) - a straight line directly connecting two anchors</li>
@@ -438,7 +440,7 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 					the <a href="#connectors">Connectors</a> section below.</p>
 				</li>
 				<li><strong>anchors</strong>
-					<p>Optional; if not supplied jsPlumb uses <strong>[ jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter ]</strong>  (see <a href="#defaults">defaults</a>)</p>
+					<p>Defines the location on each element to attach the Connection to.  Optional; if not supplied jsPlumb uses <strong>[ jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter ]</strong>  (see <a href="#defaults">defaults</a>)</p>
 					<p>If you supply this, it must be in the form of a list with two elements - the first element is
 					the anchor type for the source element (the one on which you are calling the 'plumb' method), and the
 					second is the anchor type for the target element.
@@ -460,7 +462,7 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 					<p>The locations of these are hopefully self-explanatory.  You can supply your own Anchor implementations, or use jsPlumb's 'makeAnchor' function to create an Anchor in a custom location, if you need to - see the section on <a href="#anchors">Anchors</a>.</p>
 				</li>
 				<li><strong>endpoint</strong>
-					<p>Optional; if not supplied jsPlumb uses <strong>jsPlumb.Endpoints.Dot</strong>, with the default size of 10  (see <a href="#defaults">Defaults</a>).</p>
+					<p>Defines the appearance of both Endpoints in the Connection. Optional; if not supplied jsPlumb uses <strong>jsPlumb.Endpoints.Dot</strong>, with the default size of 10  (see <a href="#defaults">Defaults</a>).</p>
 					<p>Valid values for this are:
 						<ul>
 							<li>new jsPlumb.Endpoints.Dot ( optional_params )</li>
@@ -471,7 +473,7 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 					<p>Similar to Connectors and Anchors, you can provide your own Endpoint implementation; see the <a href="#endpoints">Endpoints</a> section.</p>
 				</li>
 				<li><strong>endpoints</strong>
-					<p>Optional; this is similar to <strong>endpoint</strong> but should be used when you want to specify a different Endpoint for each end of the Connector.</p>
+					<p>Defines the appearance of each Endpoint separately.  Optional; this is similar to <strong>endpoint</strong> but should be used when you want to specify a different Endpoint for each end of the Connector.</p>
 					<p>This should be supplied as a list, for example:
 <div class="code">
 <pre>endpoints:[  ..endpoint1.. ,  ..endpoint2..  ]</pre>
@@ -479,7 +481,7 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 					</p>
 				</li>
 				<li><strong>endpointStyle</strong>
-					<p>Optional; if not supplied jsPlumb uses the values defined in <strong>jsPlumb.Defaults.EndpointStyle</strong>  (see <a href="#defaults">defaults</a>).</p>
+					<p>Defines the styles to apply to both Endpoints. Optional; if not supplied jsPlumb uses the values defined in <strong>jsPlumb.Defaults.EndpointStyle</strong>  (see <a href="#defaults">defaults</a>).</p>
 					<p>This Javascript object allows you to specify the following arguments for the Endpoint:
 						<ul>
 							<li>fillStyle - the color to fill the endpoint with.</li>
@@ -489,7 +491,7 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 					</p>
 				</li>
 				<li><strong>endpointStyles</strong>
-					<p>Optional; this is similar to <strong>endpointStyle</strong> but should be used when you want to specify a different style for each of the two Endpoints.</p>
+					<p>Defines the styles to apply to each Endpoint.  Optional; this is similar to <strong>endpointStyle</strong> but should be used when you want to specify a different style for each of the two Endpoints.</p>
 					<p>This should be supplied as a list, for example:
 <div class="code">
 <pre>endpointStyles:[ { ..style1.. }, { ..style2.. } ]</pre>
@@ -513,6 +515,45 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 						</div>
 						See the <a href="#dragOptions">Endpoints discussion</a> for more information about this.  dragOptions on an Endpoint are identical to dragOptions passed in to the 'connect' method.
 					</p>
+				</li>
+				<li><strong>sourceEndpoint</strong>
+					<p>
+						This is a configured Endpoint that has already been added to some element 
+						using jsPlumb.addEndpoint(...).  Note that this is distinct from the both the
+						<strong>endpoint</strong> and <strong>endpoints</strong> arguments you can
+						pass to jsPlumb.connect: in this case we have an Endpoint object that is
+						already attached to some element at some Anchor; the other endpoint arguments
+						are for passing in what _type_ of endpoint you want (as in, a Dot, or a Rectangle,
+						or whatever).  It's quite possible that this part of the API should be cleaned
+						up to prevent confusion.											
+					</p>
+				</li>
+				<li><strong>targetEndpoint</strong></li>
+					<p>
+						This is a configured Endpoint that has already been added to some element 
+						using jsPlumb.addEndpoint(...).  The same caveat applies here as applies to
+						the sourceEndpoint argument discussed above.									
+					</p>
+				</li>
+				<li>
+					<strong>uuids</strong>
+					<p>
+						Identifies the UUIDs of the source and target Endpoints for this connection.
+						These Endpoints may already exist, having been added with a call to 
+						jsPlumb.addEndpoint(..), in which case you do not need to provide information
+						about the source or target elements for the connection, as the Endpoints know.
+						However it is also possible to supply this array when you wish to make a 
+						connection and have jsPlumb create the Endpoints for you:
+<div class="code">
+	<pre>
+jsPlumb.connect({uuids:["uuid1", "uuid2"], source:"someElement", target:"someOtherElement"});	
+	</pre>
+</div>						
+This call would result in jsPlumb creating two Endpoints and registering them with the given UUIDs, and
+then creating a Connection between them.  Of course when you use this syntax you can supply all of the
+other things you might wish to tell jsPlumb, like what sort of Endpoints you want, how to draw the
+Connection, etc.
+					</p>					
 				</li>
 			</ul>
 
@@ -791,7 +832,7 @@ This creates an Image endpoint with the image at the given url.  You do not need
 				<div class="code"><pre>jsPlumb.sizeCanvas(canvas, x, y, width, height);</pre></div>
 				Allows you to locate the canvas on screen and to size it.
 			</p>
-			<h4>Endpoint Operations</h4>
+			<a id="endpointOperations"><h4>Endpoint Operations</h4></a>
 			These are the methods supported by the Endpoint class:
 			<ul>
 <li><p>removeConnection</p>
@@ -865,7 +906,47 @@ var isConnected = c.isConnectedTo(c2);				// returns true
 	passed in to the addEndpoint call, specifically the 'maxConnections' value: by default this is set to 1. You
 	can provide any positive value for this, or -1 if you wish to have no maximum.
 </li>
+<li>
+	<p>getUuid</p>
+	Returns the Endpoint's UUID, if one was provided when the Endpoint was created.  See also
+	<strong>jsPlumb.getEndpoint(uuid)</strong> and <strong>jsPlumb.connect</strong>.
+</li>
 			</ul>
+	<a id="endpointUuids"><h4>Endpoint UUIDs</h4></a>
+	Each Endpoint can have a UUID associated with it; these can be used to establish Connections and
+	also to retrieve Endpoints from jsPlumb.  To assign a UUID to an Endpoint you can do one of two things:
+	
+	<ul>
+	<li>
+	Nominate the UUID in a call to jsPlumb.addEndpoint (when creating an Endpoint you will use later):
+<div class="code">
+<pre>
+jsPlumb.addEndpoint("someElement", {uuid:"abcdefg"});
+</pre>
+</div>		
+	</li>
+	<li>Nominate two UUIDs in a call to jsPlumb.connect (Endpoints will be created and have these UUIDs assigned):
+<div class="code">
+<pre>
+jsPlumb.connect({uuids:["abcdefg", "hijklmn"], source:"someElement", target:"someOtherElement"});
+</pre>
+</div>		
+	</li>
+	</ul>
+	
+	Once you have an Endpoint that has a UUID assigned, you can retrieve it from jsPlumb:
+<div class="code">
+<pre>
+var e = jsPlumb.getEndpoint("abcdefg");
+</pre>
+</div>	
+...and you can also use the UUIDs to connect Endpoints:
+<div class="code">
+<pre>
+jsPlumb.connect({uuids:["abcdefg", "hijklmn"});
+</pre>
+</div>		
+
 			
 		</div>
 
