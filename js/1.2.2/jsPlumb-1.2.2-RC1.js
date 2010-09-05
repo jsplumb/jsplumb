@@ -461,21 +461,24 @@
      * wraps one function with another, creating a placeholder for the wrapped function
      * if it was null.  this is used to wrap the various drag/drop event functions - to allow
      * jsPlumb to be notified of important lifecycle events without imposing itself on the user's
-     * drap/drop functionality.
+     * drag/drop functionality.
      * TODO: determine whether or not we should support an error handler concept, if one of the functions fails.
      */
     var _wrap = function(wrappedFunction, newFunction) {
     	wrappedFunction = wrappedFunction || function() { };
     	newFunction = newFunction || function() { };
     	return function() {
-    		try { newFunction.apply(this, arguments); }
+    		var r = null;
+    		try { r = newFunction.apply(this, arguments); }
     		catch (e) { 
     			_log('jsPlumb function failed : ' + e);
     		}
-    		try { wrappedFunction.apply(this, arguments); }
+    		try { wrappedFunction.apply(this, arguments);
+    		}
     		catch (e) { 
     			_log('wrapped function failed : ' + e);    			
     		}
+    		return r;
     	};
     };
     
@@ -776,6 +779,8 @@
 		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 		this.connectorStyle = params.connectorStyle;
 		this.connector = params.connector;
+		this.isSource = params.isSource || false;
+		this.isTarget = params.isTarget || false;
 		var _element = params.source;
 		var _uuid = params.uuid;
 		if (_uuid) endpointsByUUID[_uuid] = self;
@@ -882,7 +887,10 @@
 		 * be cool.
 		 */
 		var connectorSelector = function() {
-			return self.connections.length == 0 || self.connections.length < _maxConnections ?  null : self.connections[0]; 
+			//return self.connections.length == 0 || self.connections.length < _maxConnections ?  null : self.connections[0];
+			if (self.connections.length < _maxConnections) return null;
+			//else if (self.connections.length == _maxConnections) return false;
+			else return self.connections[0];
 		};
 		
 		/**
@@ -947,6 +955,11 @@
 			// be the same process.  but if we stop with an invalid drop we have to reset the Connection to how it was when we got it.
 			var start = function() {
 				
+				jpc = connectorSelector();
+				/*if (jpc == false) 
+					return false; // cancel the drag if we are full.
+				// TODO: determine whether or not this is sufficient.
+*/				
 				inPlaceCopy = self.makeInPlaceCopy();
 				inPlaceCopy.paint();
 				
@@ -965,8 +978,7 @@
 				// create a floating anchor
 				var floatingAnchor = new FloatingAnchor({reference:self.anchor, referenceCanvas:self.canvas});
 				floatingEndpoint = new Endpoint({ style:{fillStyle:'rgba(0,0,0,0)'}, endpoint:_endpoint, anchor:floatingAnchor, source:nE });
-				
-				jpc = connectorSelector();
+								
 				if (jpc == null) {
 					// create a connection. one end is this endpoint, the other is a floating endpoint.
 					jpc = new Connection({
@@ -977,8 +989,11 @@
 						anchors:[self.anchor, floatingAnchor],
 						paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
 						connector: params.connector
-					});
+					});					
 				} else {
+					
+					if (jpc == false) return false;
+					
 					existingJpc = true;
 					var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;
 					jpc.floatingAnchorIndex = anchorIdx;
@@ -1007,8 +1022,7 @@
 								
 				// only register for the target endpoint; we will not be dragging the source at any time
 				// before this connection is either discarded or made into a permanent connection.
-				_addToList(endpointsByElement, id, floatingEndpoint);
-				
+				_addToList(endpointsByElement, id, floatingEndpoint);				
 			};			
 			
 			var dragOptions = params.dragOptions || { };
@@ -1020,12 +1034,12 @@
 			var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
 			var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
 			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
-			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() { 
+			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {				
 				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-				_draw(_getElementObject(n), _ui); 
+				_draw(_getElementObject(n), _ui);
 			});
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
-				function() {					
+				function() {	
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					_removeElements([n, floatingEndpoint.canvas]); // TODO: clean up the connection canvas (if the user aborted)
 					_removeElement(inPlaceCopy.canvas, _element); 
@@ -1062,6 +1076,7 @@
 							}
 						} else {							
 							_removeElement(jpc.canvas);
+							//if (jpc.endpoints[1]) alert("target set");
 							self.removeConnection(jpc);							
 						}
 					}
@@ -1086,12 +1101,13 @@
 			var overEvent = jsPlumb.CurrentLibrary.dragEvents['over'];
 			var outEvent = jsPlumb.CurrentLibrary.dragEvents['out'];
 	    	dropOptions[dropEvent]= _wrap(dropOptions[dropEvent], function() {
-	    		if (!self.isFull()) {
-		    		var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
-		    		var id = _getAttribute(_getElementObject(draggable), "dragId");
-		    		var elId = _getAttribute(_getElementObject(draggable),"elId");
-		    		var jpc = floatingConnections[id];
-		    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+	    		var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+	    		var id = _getAttribute(_getElementObject(draggable), "dragId");
+	    		var elId = _getAttribute(_getElementObject(draggable),"elId");
+	    		var jpc = floatingConnections[id];
+	    		var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+	    		var oidx = idx == 0 ? 1 : 0;
+	    		if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {		    		
 		    		if (idx == 0) {
 		    			jpc.source = _element;
 			    		jpc.sourceId = _elementId;		    		
@@ -1106,6 +1122,9 @@
 		    			jpc.suspendedEndpoint.removeConnection(jpc);
 		    		jpc.endpoints[idx] = self;
 		    		self.addConnection(jpc);
+		    		// add the jpc to the other endpoint too.
+		    		jpc.endpoints[oidx].addConnection(jpc);
+		    		
 		    		_addToList(connectionsByScope, jpc.scope, jpc);
 		    		_initDraggableIfNecessary(_element, params.draggable, {});
 		    		jsPlumb.repaint(elId);
