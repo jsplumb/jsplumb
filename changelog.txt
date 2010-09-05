@@ -3,8 +3,15 @@
 	- fixed bug where max connections on a target endpoint was ignored
 	- sourceEndpoint/targetEndpoint are used for source/target if they are provided to a connect/plumb call.
 	- added getElement method to Endpoint - it returns the element the Endpoint is connected to
-	- added detachAll method to Endpoint : detaches every connection (DOCUMENT THIS)
-	- added detachFrom(Endpoint) method to Endpoint : detaches all connections to the given target endpoint(DOCUMENT THIS)
+	- added addListener method (only supports jsPlumbConnection events right now)
+	- now fires "jsPlumbConnection" event from connect call.
+	- added detachAll method to Endpoint : detaches every connection
+	- added detachFrom(Endpoint) method to Endpoint : detaches all connections to the given target endpoint
+	- added the concept of uuid for Endpoints (contributed by qecko) 
+	- added getUuid method on Endpoint
+	- added getEndpoint method on jsPlumb - retrieves Endpoint by UUID.
+	- added ability to connect two endpoints by their UUID
+	- improved the jsPlumb.detach method to support the same sorts of arguments as jsPlumb.connect
 
 * 1.2.1
 
