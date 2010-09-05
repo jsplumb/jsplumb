@@ -392,7 +392,53 @@ test("Endpoint.detachAll", function() {
 	assertConnectionCount(e17, 0);
 });
 
+test("setting endpoint uuid", function() {
+	var uuid = "14785937583175927504313";
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); d18 = _addDiv("d18");
+	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1, uuid:uuid});
+	equals(e16.getUuid(), uuid, "endpoint's uuid was set correctly");
+});
 
+test("getting an Endpoint by uuid", function() {
+	var uuid = "14785937583175927504313";
+	var d16 = _addDiv("d16");
+	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1, uuid:uuid});
+	var e = jsPlumb.getEndpoint(uuid);
+	equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+
+});
+
+test("connecting two Endpoints (that have been already added) by UUID", function() {
+	var srcEndpointUuid = "14785937583175927504313", dstEndpointUuid = "14785937583175927534325";
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e1 = jsPlumb.addEndpoint("d16", {isSource:true, maxConnections:-1, uuid:srcEndpointUuid});
+	var e2 = jsPlumb.addEndpoint("d17", {isSource:true, maxConnections:-1, uuid:dstEndpointUuid});
+	jsPlumb.connect({ uuids:  [ srcEndpointUuid, dstEndpointUuid  ] });
+	assertConnectionCount(e1, 1);
+	assertConnectionCount(e2, 1);
+});
+
+
+test("connecting two Endpoints (that have not been already added) by UUID", function() {
+	var srcEndpointUuid = "14785937583175927504313", dstEndpointUuid = "14785937583175927534325";
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	jsPlumb.connect({ uuids:  [ srcEndpointUuid, dstEndpointUuid  ], source:d16, target:d17 });
+	var e1 = jsPlumb.getEndpoint(srcEndpointUuid);
+	ok(e1 != null, "endpoint with src uuid added");
+	var e2 = jsPlumb.getEndpoint(dstEndpointUuid);
+	ok(e2 != null, "endpoint with target uuid added");
+	assertConnectionCount(e1, 1);
+	assertConnectionCount(e2, 1);
+});
+
+test("connecting two Endpoints (that have been already added) by endpoint reference", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e1 = jsPlumb.addEndpoint("d16", {isSource:true, maxConnections:-1});
+	var e2 = jsPlumb.addEndpoint("d17", {isSource:true, maxConnections:-1});
+	jsPlumb.connect({ sourceEndpoint:e1, targetEndpoint:e2 });
+	assertConnectionCount(e1, 1);
+	assertConnectionCount(e2, 1);
+});
 
 /**
  * leave this test at the bottom!
