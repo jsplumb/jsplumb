@@ -440,6 +440,73 @@ test("connecting two Endpoints (that have been already added) by endpoint refere
 	assertConnectionCount(e2, 1);
 });
 
+// this test is for the original detach function; it should stay working after i mess with it
+// a little.
+test("original detach method tests", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e1 = jsPlumb.addEndpoint(d1);
+	var e2 = jsPlumb.addEndpoint(d2);
+	jsPlumb.connect({ sourceEndpoint:e1, targetEndpoint:e2 });
+	assertConnectionCount(e1, 1);
+	assertConnectionCount(e2, 1);
+	jsPlumb.detach("d1", "d2");
+	assertConnectionCount(e1, 0);
+	assertConnectionCount(e2, 0);
+});
+
+// detach is being made to operate more like connect - by taking one argument with a whole 
+// bunch of possible params in it.  if two args are passed in it will continue working
+// in the old way.
+test("detach method, source and target as element id strings", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e1 = jsPlumb.addEndpoint(d1);
+	var e2 = jsPlumb.addEndpoint(d2);
+	jsPlumb.connect({ sourceEndpoint:e1, targetEndpoint:e2 });
+	assertConnectionCount(e1, 1);
+	assertConnectionCount(e2, 1);
+	jsPlumb.detach({source:"d1", target:"d2"});
+	assertConnectionCount(e1, 0);
+	assertConnectionCount(e2, 0);
+});
+
+test("detach method, source and target as element objects", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e1 = jsPlumb.addEndpoint(d1);
+	var e2 = jsPlumb.addEndpoint(d2);
+	jsPlumb.connect({ sourceEndpoint:e1, targetEndpoint:e2 });
+	assertConnectionCount(e1, 1);
+	assertConnectionCount(e2, 1);
+	jsPlumb.detach({source:d1, target:d2});
+	assertConnectionCount(e1, 0);
+	assertConnectionCount(e2, 0);
+});
+
+test("detach method, source and target as endpoint UUIDs", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e1 = jsPlumb.addEndpoint(d1, {uuid:"abcdefg"});
+	ok(jsPlumb.getEndpoint("abcdefg") != null, "e1 exists");	
+	var e2 = jsPlumb.addEndpoint(d2, {uuid:"hijklmn"});
+	ok(jsPlumb.getEndpoint("hijklmn") != null, "e2 exists");
+	jsPlumb.connect({ sourceEndpoint:e1, targetEndpoint:e2 });
+	assertConnectionCount(e1, 1);
+	assertConnectionCount(e2, 1);
+	jsPlumb.detach({uuids:["abcdefg", "hijklmn"]});
+	assertConnectionCount(e1, 0);
+	assertConnectionCount(e2, 0);
+});
+
+test("detach method, sourceEndpoint and targetEndpoint supplied", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e1 = jsPlumb.addEndpoint(d1);
+	var e2 = jsPlumb.addEndpoint(d2);
+	jsPlumb.connect({ sourceEndpoint:e1, targetEndpoint:e2 });
+	assertConnectionCount(e1, 1);
+	assertConnectionCount(e2, 1);
+	jsPlumb.detach({ sourceEndpoint:e1, targetEndpoint:e2 });
+	assertConnectionCount(e1, 0);
+	assertConnectionCount(e2, 0);
+});
+
 /**
  * leave this test at the bottom!
  */
