@@ -793,6 +793,7 @@
 		var _reattach = params.reattach || false;
 		var floatingEndpoint = null;
 		var inPlaceCopy = null;
+		this.dragAllowedWhenFull = params.dragAllowedWhenFull || true;
 		
 		this.addConnection = function(connection) {			
 			self.connections.push(connection);
@@ -899,6 +900,16 @@
 		this.isFull = function() { return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections); };
 		
 		/**
+		 * sets whether or not connnctions can be dragged from this Endpoint once it is full. you would use
+		 * this in a UI in which you're going to provide some other way of breaking connections, if you need
+		 * to break them at all.  this property is by default true; use it in conjunction with the 'reattach'
+		 * option on a connect call.
+		 */
+		this.setDragAllowedWhenFull = function(allowed) {
+			self.dragAllowedWhenFull = allowed;
+		};
+		
+		/**
 		 * a deep equals check.  everything must match, including the anchor, styles, everything.
 		 * TODO: finish Endpoint.equals
 		 */		
@@ -956,10 +967,8 @@
 			var start = function() {
 				
 				jpc = connectorSelector();
-				/*if (jpc == false) 
-					return false; // cancel the drag if we are full.
-				// TODO: determine whether or not this is sufficient.
-*/				
+				if (self.isFull() && !self.dragAllowedWhenFull) return false;
+				
 				inPlaceCopy = self.makeInPlaceCopy();
 				inPlaceCopy.paint();
 				
@@ -991,9 +1000,6 @@
 						connector: params.connector
 					});					
 				} else {
-					
-					if (jpc == false) return false;
-					
 					existingJpc = true;
 					var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;
 					jpc.floatingAnchorIndex = anchorIdx;
