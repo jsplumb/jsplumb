@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb demo - jQuery</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<link rel="stylesheet" href="/mp.css"></link>
+		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>	
+		<style type="text/css">/* demo */
+/* demo */
+.window { border:2px dotted #346789; opacity:0.8; filter:alpha(opacity=80); width:14em; height:12em; z-index:20; position:absolute; color:white;font-family:helvetica;padding:0.5em; font-size:0.8em;}
+#window1 { background-color:#225588; top:2em;left:2em;}
+#window2 { top:16em; left:47em;background-color:#558822;}
+#window3 { top:28em;background-color:#882255;left:2em; }
+#window4 { top:6em; left:26em;background-color:#122704; }
+#window5 {top:34em;left:26em;background-color:#041227;}
+#window6 {top:23em;left:69em;background-color:#333300;}
+#window7 {top:18em;left:40em;background-color:#872431;}
+#window8 {left:63em;top:32em;background-color:#045803;}
+._jsPlumb_connector { z-index:4; }
+._jsPlumb_endpoint { z-index:5; }
+
+#debug { position:absolute; background-color:black; color:red; z-index:5000 }
+		</style>
+	</head>
+	<body onunload="jsPlumb.unload();">
+		<div class="menu"><a href="../../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+	
+		<div class="window" id="window1"><strong>Window 1</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 2.</div>
+		<div class="window" id="window2"><strong>Window 2</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 1, and a Bezier connector with square endpoints to Window 3</div>
+	    <div class="window" id="window3"><strong>Window 3</strong><br/><br/>i am plumbed with a Bezier connector and square endpoints to Window 2, and a Bezier connector with custom style to Window 4</div>
+	    <div class="window" id="window4"><strong>Window 4</strong><br/><br/>i am plumbed with a Bezier connector with custom style to Window 3, and with a straight line connector with image endpoints to Window 5.</div>
+	    <div class="window" id="window5"><strong>Window 5</strong><br/><br/>i am plumbed with a straight line connector to Window 6, between our two centerpoints, which are drawn below, and larger than, the window element; i am also plumbed to Window 4.</div>
+	    <div class="window" id="window6"><strong>Window 6</strong><br/><br/>i am plumbed with a straight line connector to Window 5, between our two centerpoints, which are drawn below, and larger than, the window element.</div>
+	    
+	    <div id="debug"></div>
+	    
+	    <div id="explanation">
+	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  This page contains a little bit of everything to whet your appetite.</p>
+	    	<p>This demonstration uses jsPlumb 1.2.2, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
+	    	<a href="chartDemo.html" class="mplink">Next: Chart demonstration</a>
+	    	<br/><br/>
+	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
+	    	<br/><br/>
+	    </div>
+	    
+	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../../js/1.2.2/jsPlumb-1.2.2-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.2/jsPlumb-defaults-1.2.2-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.2/jquery.jsPlumb-1.2.2-RC1.js"></script>
+		<script type="text/javascript" src="../../js/NearestPoint.js"></script>
+		
+		<script type="text/javascript">
+			$(document).ready(function() {
+				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
+
+				// plumb window1 to window2 with a 15 px wide yellow Bezier. endpoints are a slightly lighter shade of yellow. 
+				var connection1 = jsPlumb.connect({source:'window1', target:'window2', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'}, endpointStyle:{fillStyle:'rgb(243,229,0)'}});
+				// temporarily bump it to the top
+				$(connection1.canvas).css("z-index", 1000);
+				$(connection1.canvas).bind("mouseover", function() {
+					$(this).css("border", "1px solid blue");
+				});
+				$(connection1.canvas).bind("mouseout", function() {
+					$(this).css("border", "1px solid green");
+				});
+				$(connection1.canvas).bind("mousemove", function(e) {
+					var o = $(this).offset();
+					var p = { x:e.pageX - o.left, y:e.pageY - o.top };
+					var t = connection1.distanceFrom(p);
+					$("#debug").html(t.d + ", " + t.t);
+					if (t.d < 50) {
+						$(this).css("border", "3px solid red");
+						$(this).css("cursor", "pointer");
+					}
+					else {
+						$(this).css("border", "1px solid blue");
+						$(this).css("cursor", "default");
+					}
+				});
+				
+				// plumb window3 to window4 with a 10px wide blue-ish half transparent Bezier. put endpoints underneath the element they attach to.
+				// the endpoints have a radial gradient. both ways of specifying gradient positioning are shown here.
+				var w34Stroke = 'rgba(50, 50, 200, 1)';
+				var w34HlStroke = 'rgba(180, 180, 200, 1)';
+				jsPlumb.connect({source:'window3', target:'window4', 
+			        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
+			        				 anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle], 
+			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
+			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 
+			        				 endpointsOnTop:false});
+				 
+		        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
+		        // specified here - this is how you create anchors in locations jsPlumb does not offer shortcuts for.
+		        // the endpoints in this example have linear gradients applied.
+		        var w23Stroke = 'rgb(189,11,11)'; 
+		        jsPlumb.connect({source:'window2', target:'window3', 
+			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke}, 
+			        				 anchors:[jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TopCenter], 
+			        				 endpoint:new jsPlumb.Endpoints.Rectangle(), 
+			        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
+			    			        				 { gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
+			    			        });
+
+		        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
+		        // the endpoints are 125px in radius and spill out from underneath their elements.
+		        jsPlumb.connect({source:'window5', target:'window6', anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, endpointsOnTop:false, endpointStyle:{radius:125, fillStyle:'rgba(0,255,0,0.5)'}});
+
+		        // plumb window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
+		        // image as the endpoint, placed on top of the element it is connected to.
+		        jsPlumb.connect({source:'window4', target:'window5', anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft], paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true});
+		        
+		});
+		</script>
+	    
+	    	    
+	    <!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=5700644; 
+var sc_invisible=1; 
+var sc_partition=71; 
+var sc_click_stat=1; 
+var sc_security="1cb90164"; 
+</script>
+
+<script type="text/javascript"
+src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
+class="statcounter"><a title="counter for wordpress"
+href="http://www.statcounter.com/wordpress.org/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/5700644/0/1cb90164/1/"
+alt="counter for wordpress" ></a></div></noscript>
+<!-- End of StatCounter Code -->
+	</body>
+</html>
