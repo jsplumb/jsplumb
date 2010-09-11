@@ -8,255 +8,173 @@ from "Graphics Gems", Academic Press, 1990
 
  /*	point_on_curve.c	*/		
 									
+(function() {
 
-var		MAXDEPTH = 64;	/*  Maximum depth for recursion */
+	var	MAXDEPTH = 64;	/*  Maximum depth for recursion */
+	var EPSILON	= Math.pow(2.0,-MAXDEPTH-1); /*Flatness control value */
+	var	DEGREE =	3;			/*  Cubic Bezier curve		*/
+	var W_DEGREE = 5;			/*  Degree of eqn to find roots of */
 
-var EPSILON	= Math.pow(2.0,-MAXDEPTH-1); /*Flatness control value */
-var	DEGREE =	3;			/*  Cubic Bezier curve		*/
-var W_DEGREE = 5;			/*  Degree of eqn to find roots of */
-
-var v2dump = function(msg, v) {
-	print("VECTOR " + msg + " : " + v.x + "," + v.y);
-};
-
-var V2Sub = function(from, p) {
-	return {x:from.x - p.x, y:from.y - p.y };
-};
-
-var V2Dot = function(v1, v2) {
-	return (v1.x * v2.x)  + (v1.y * v2.y);
-};
-
-var V2SquaredLength = function(v) {
-	return (v.x * v.x) + (v.y * v.y);
-};
-
-/*
- *  main :
- *	Given a cubic Bezier curve (i.e., its control points), and some
- *	arbitrary point in the plane, find the point on the curve
- *	closest to that arbitrary point.
- */
-var NearestPoint = function()
-{
-   
- var bezCurve = [	/*  A cubic Bezier curve	*/
-	{ x:0.0, y:0.0 },
-	{ x:1.0, y:2.0 },
-	{ x:3.0, y:3.0 },
-	{ x:4.0, y:2.0 },
-    ];
-    var arbPoint = { x:3.5, y:2.0 }; /*Some arbitrary point*/
-	var	pointOnCurve;		 /*  Nearest point on the curve */
-
-	print("EPSILON : " + EPSILON);
-//print(Math.pow(parseFloat(1.0), -65));
-
-    /*  Find the closest point */
-    pointOnCurve = NearestPointOnCurve(arbPoint, bezCurve);
-    //printf("pointOnCurve : (%4.4f, %4.4f)\n", pointOnCurve.x, pointOnCurve.y);
-    print("pointOnCurve : " + pointOnCurve.x + "," + pointOnCurve.y);
-};
-
-
-/*
- *  NearestPointOnCurve :
- *  	Compute the parameter value of the point on a Bezier
- *		curve segment closest to some arbtitrary, user-input point.
- *		Return the point on the curve at that parameter value.
- *
- */
-var NearestPointOnCurve = function(P, V)
-//    Point2 	P;			/* The user-supplied point	  */
-  //  Point2 	*V;			/* Control points of cubic Bezier */
-{
-    var w;			/* Ctl pts for 5th-degree eqn	*/
-    var 	t_candidate = new Array(W_DEGREE);	/* Possible roots		*/     
-    var 	n_solutions;		/* Number of roots found	*/
-    var	t;			/* Parameter value of closest pt*/
-
-    /*  Convert problem to 5th-degree Bezier form	*/
-    w = ConvertToBezierForm(P, V);
-
-    /* Find all possible roots of 5th-degree equation */
-    n_solutions = FindRoots(w, W_DEGREE, t_candidate, 0);
-
-    /* Compare distances of P to all candidates, and to t=0, and t=1 */
-    //{
-		var	dist, new_dist;
-		var 	p;
-		var  v;
-		var		i;
-
+	var V2Sub = function(from, p) { return {x:from.x - p.x, y:from.y - p.y }; };
+	var V2Dot = function(v1, v2) { return (v1.x * v2.x)  + (v1.y * v2.y); };
+	var V2SquaredLength = function(v) { return (v.x * v.x) + (v.y * v.y); };
+	var V2ScaleII = function(v, s) { return {x:v.x * s, y:v.y * s }; };
 	
-	/* Check distance to beginning of curve, where t = 0	*/
+	/*
+	* just returns the distance the given point is from the closest point on the curve (and that point's t number)
+	* saves us the time of computing the point's x,y if we dont need it 
+	* @see NearestPointOnCurve
+	*/
+	var DistanceFromCurve = function(P, V) {
+		var w, n_solutions, t;			
+	    var 	t_candidate = new Array(W_DEGREE);     
+	    
+	    /*  Convert problem to 5th-degree Bezier form	*/
+	    w = ConvertToBezierForm(P, V);
+	    /* Find all possible roots of 5th-degree equation */
+	    n_solutions = FindRoots(w, W_DEGREE, t_candidate, 0);
+	    /* Compare distances of P to all candidates, and to t=0, and t=1 */
+		var	dist, new_dist, p, v, i;
+		/* Check distance to beginning of curve, where t = 0	*/
 		v = V2Sub(P, V[0]);
-		v2dump("vector in", v);
 		dist = V2SquaredLength(v);
-		print("dist " + dist);
-        	t = 0.0;
-
-	/* Find distances for candidate points	*/
-        for (i = 0; i < n_solutions; i++) {
+	    t = 0.0;
+	
+		/* Find distances for candidate points	*/
+	    for (i = 0; i < n_solutions; i++) {
 	    	p = Bezier(V, DEGREE, t_candidate[i],
 			null, null);
 			v = V2Sub(P, p);
 	    	new_dist = V2SquaredLength(v);
 	    	if (new_dist < dist) {
-                	dist = new_dist;
+	            	dist = new_dist;
 	        		t = t_candidate[i];
-    	    }
-        }
-
-	/* Finally, look at distance to end point, where t = 1.0 */
+		    }
+	    }
+	
+		/* Finally, look at distance to end point, where t = 1.0 */
 		v = V2Sub(P, V[DEGREE]);
 		new_dist = V2SquaredLength(v);
-        	if (new_dist < dist) {
-            	dist = new_dist;
+	    	if (new_dist < dist) {
+	        	dist = new_dist;
 	    	t = 1.0;
-        }
-    //}
-
-    /*  Return the point on the curve at parameter value t */
-//    printf("t : %4.12f\n", t);
-    print("t : " + t);
-    return Bezier(V, DEGREE, t, null, null);
-}
-
-
-/*
- *  ConvertToBezierForm :
- *		Given a point and a Bezier curve, generate a 5th-degree
- *		Bezier-format equation whose solution finds the point on the
- *      curve nearest the user-defined point.
- */
-var ConvertToBezierForm = function(P, V)
-//    Point2 	P;			/* The point to find t for	*/
-//    Point2 	*V;			/* The control points		*/
-{
-    var 	i, j, k, m, n, ub, lb;	
-    var 	row, column;		/* Table indices		*/
-    var 	c = new Array(DEGREE+1);		/* V(i)'s - P			*/
-    var 	d = new Array(DEGREE);		/* V(i+1) - V(i)		*/
-    var w;			/* Ctl pts of 5th-degree curve  */
-    var 	cdTable= [];//[3][4];		/* Dot product of c, d		*/
-    var z = [	/* Precomputed "z" for cubics	*/
-	[1.0, 0.6, 0.3, 0.1],
-	[0.4, 0.6, 0.6, 0.4],
-	[0.1, 0.3, 0.6, 1.0]
-    ];
-
-
-    /*Determine the c's -- these are vectors created by subtracting*/
-    /* point P from each of the control points				*/
-    for (i = 0; i <= DEGREE; i++) {
-//		V2Sub(V[i], P, c[i]);
-		c[i] = V2Sub(V[i], P);
-		v2dump("c at i", c[i]);
-    }
-    /* Determine the d's -- these are vectors created by subtracting*/
-    /* each control point from the next					*/
-    for (i = 0; i <= DEGREE - 1; i++) { 
-		d[i] = V2Sub(V[i+1], V[i]);
-		d[i] = V2ScaleII(d[i], 3.0);
-		v2dump("d[i]", d[i]);
-    }
-
-    /* Create the c,d table -- this is a table of dot products of the */
-    /* c's and d's							*/
-    for (row = 0; row <= DEGREE - 1; row++) {
-		for (column = 0; column <= DEGREE; column++) {
-			if (!cdTable[row]) cdTable[row] = [];
-	    	cdTable[row][column] = V2Dot(d[row], c[column]);
-			print("[row]" + d[row].x + "," + d[row].y);
-			print("[column]" + c[column].x + "," + c[column].y);
-			print("cdTable[row][column] : " + cdTable[row][column]);
-		}
-    }
-
-    /* Now, apply the z's to the dot products, on the skew diagonal*/
-    /* Also, set up the x-values, making these "points"		*/
-    //w = (Point2 *)malloc((unsigned)(W_DEGREE+1) * sizeof(Point2));
-	w = [];
-    for (i = 0; i <= W_DEGREE; i++) {
-		if (!w[i]) w[i] = [];
-		w[i].y = 0.0;
-		w[i].x = parseFloat(i) / W_DEGREE;
-    }
-
-    n = DEGREE;
-    m = DEGREE-1;
-    for (k = 0; k <= n + m; k++) {
-		lb = Math.max(0, k - m);
-		ub = Math.min(k, n);
-		for (i = lb; i <= ub; i++) {
-	    	j = k - i;
-	    	w[i+j].y += cdTable[j][i] * z[j][i];
-		}
-    }
-
-    return (w);
-};
-
-
-/*
- *  FindRoots :
- *	Given a 5th-degree equation in Bernstein-Bezier form, find
- *	all of the roots in the interval [0, 1].  Return the number
- *	of roots found.
- */
-var FindRoots = function(w, degree, t, depth)
-//    Point2 	*w;			/* The control points		*/
-  //  int 	degree;		/* The degree of the polynomial	*/
-    //double 	*t;			/* RETURN candidate t-values	*/
-//    int 	depth;		/* The depth of the recursion	*/
-{  
-    var 	i;
-    var 	Left = new Array(W_DEGREE+1),	/* New left and right 		*/
-    	  	Right = new Array(W_DEGREE+1);	/* control polygons		*/
-    var left_count,		/* Solution count from		*/
-		right_count;		/* children			*/
-    var 	left_t = new Array(W_DEGREE+1),	/* Solutions from kids		*/
-	   		right_t = new Array(W_DEGREE+1);
-
-    switch (CrossingCount(w, degree)) {
-       	case 0 : {	/* No solutions here	*/
-	     return 0;	
-	}
-	case 1 : {	/* Unique solution	*/
-	    /* Stop recursion when the tree is deep enough	*/
-	    /* if deep enough, return 1 solution at midpoint 	*/
-	    if (depth >= MAXDEPTH) {
-			t[0] = (w[0].x + w[W_DEGREE].x) / 2.0;
-			return 1;
 	    }
-	    if (ControlPolygonFlatEnough(w, degree)) {
-			t[0] = ComputeXIntercept(w, degree);
-			return 1;
+	
+		return {t:t,d:dist};
+	};
+
+	/*
+	 *  NearestPointOnCurve :
+	 *  	Compute the parameter value of the point on a Bezier
+	 *		curve segment closest to some arbtitrary, user-input point.
+	 *		Return the point on the curve at that parameter value.
+	 *
+	 */
+	var NearestPointOnCurve = function(P, V) {    
+		var td = DistanceFromCurve(P, V);
+	    return Bezier(V, DEGREE, td.t, null, null);
+	};
+
+	/*
+	 *  ConvertToBezierForm :
+	 *		Given a point and a Bezier curve, generate a 5th-degree
+	 *		Bezier-format equation whose solution finds the point on the
+	 *      curve nearest the user-defined point.
+	 */
+	var ConvertToBezierForm = function(P, V) {
+	    var i, j, k, m, n, ub, lb, w, row, column;
+	    var c = new Array(DEGREE+1), d = new Array(DEGREE);
+	    var cdTable = [];
+	    var z = [ [1.0, 0.6, 0.3, 0.1], [0.4, 0.6, 0.6, 0.4], [0.1, 0.3, 0.6, 1.0] ];
+	
+	    /*Determine the c's -- these are vectors created by subtracting*/
+	    /* point P from each of the control points				*/
+	    for (i = 0; i <= DEGREE; i++) {
+			c[i] = V2Sub(V[i], P);
 	    }
-	    break;
-	}
-}
+	    /* Determine the d's -- these are vectors created by subtracting*/
+	    /* each control point from the next					*/
+	    for (i = 0; i <= DEGREE - 1; i++) { 
+			d[i] = V2Sub(V[i+1], V[i]);
+			d[i] = V2ScaleII(d[i], 3.0);
+	    }
+	
+	    /* Create the c,d table -- this is a table of dot products of the */
+	    /* c's and d's							*/
+	    for (row = 0; row <= DEGREE - 1; row++) {
+			for (column = 0; column <= DEGREE; column++) {
+				if (!cdTable[row]) cdTable[row] = [];
+		    	cdTable[row][column] = V2Dot(d[row], c[column]);
+			}
+	    }
+	
+	    /* Now, apply the z's to the dot products, on the skew diagonal*/
+	    /* Also, set up the x-values, making these "points"		*/
+		w = [];
+	    for (i = 0; i <= W_DEGREE; i++) {
+			if (!w[i]) w[i] = [];
+			w[i].y = 0.0;
+			w[i].x = parseFloat(i) / W_DEGREE;
+	    }
+	
+	    n = DEGREE;
+	    m = DEGREE-1;
+	    for (k = 0; k <= n + m; k++) {
+			lb = Math.max(0, k - m);
+			ub = Math.min(k, n);
+			for (i = lb; i <= ub; i++) {
+		    	j = k - i;
+		    	w[i+j].y += cdTable[j][i] * z[j][i];
+			}
+	    }
+	
+	    return (w);
+	};
 
-    /* Otherwise, solve recursively after	*/
-    /* subdividing control polygon		*/
-    Bezier(w, degree, 0.5, Left, Right);
-    left_count  = FindRoots(Left,  degree, left_t, depth+1);
-    right_count = FindRoots(Right, degree, right_t, depth+1);
-
-
-    /* Gather solutions together	*/
-    for (i = 0; i < left_count; i++) {
-        t[i] = left_t[i];
-    }
-    for (i = 0; i < right_count; i++) {
- 		t[i+left_count] = right_t[i];
-    }
-
-    /* Send back total number of solutions	*/
-    return (left_count+right_count);
-}
-
+	/*
+	 *  FindRoots :
+	 *	Given a 5th-degree equation in Bernstein-Bezier form, find
+	 *	all of the roots in the interval [0, 1].  Return the number
+	 *	of roots found.
+	 */
+	var FindRoots = function(w, degree, t, depth) {  
+	    var  i;
+	    var Left = new Array(W_DEGREE+1), Right = new Array(W_DEGREE+1);	
+	    var left_count, right_count;	
+	    var left_t = new Array(W_DEGREE+1), right_t = new Array(W_DEGREE+1);
+	
+	    switch (CrossingCount(w, degree)) {
+	       	case 0 : {	/* No solutions here	*/
+	       		return 0;	
+	       	}
+	       	case 1 : {	/* Unique solution	*/
+	       		/* Stop recursion when the tree is deep enough	*/
+	       		/* if deep enough, return 1 solution at midpoint 	*/
+	       		if (depth >= MAXDEPTH) {
+	       			t[0] = (w[0].x + w[W_DEGREE].x) / 2.0;
+	       			return 1;
+	       		}
+	       		if (ControlPolygonFlatEnough(w, degree)) {
+	       			t[0] = ComputeXIntercept(w, degree);
+	       			return 1;
+	       		}
+	       		break;
+	       	}
+	    }
+	
+	    /* Otherwise, solve recursively after	*/
+	    /* subdividing control polygon		*/
+	    Bezier(w, degree, 0.5, Left, Right);
+	    left_count  = FindRoots(Left,  degree, left_t, depth+1);
+	    right_count = FindRoots(Right, degree, right_t, depth+1);
+	
+	    /* Gather solutions together	*/
+	    for (i = 0; i < left_count; i++) t[i] = left_t[i];
+	    for (i = 0; i < right_count; i++) t[i+left_count] = right_t[i];    
+	
+	    /* Send back total number of solutions	*/
+	    return (left_count+right_count);
+	};
 
 /*
  * CrossingCount :
@@ -264,10 +182,7 @@ var FindRoots = function(w, degree, t, depth)
  *	crosses the 0-axis. This number is >= the number of roots.
  *
  */
-var CrossingCount = function(V, degree)
-//    Point2	*V;			/*  Control pts of Bezier curve	*/
-  //  int		degree;			/*  Degreee of Bezier curve 	*/
-{
+var CrossingCount = function(V, degree) {
     var 	i;	
     var 	n_crossings = 0;	/*  Number of zero-crossings	*/
     var		sign, old_sign;		/*  Sign of coefficients	*/
@@ -281,9 +196,7 @@ var CrossingCount = function(V, degree)
 		old_sign = sign;
     }
     return n_crossings;
-}
-
-
+};
 
 /*
  *  ControlPolygonFlatEnough :
@@ -330,11 +243,7 @@ left_intercept = 0.0 and right_intercept = 0.9.
 
  */
 
-/* static int ControlPolygonFlatEnough( const Point2* V, int degree ) */
-var ControlPolygonFlatEnough = function(V, degree)
-//    Point2	*V;		/* Control points	*/
-//    int 	degree;		/* Degree of polynomial	*/
-{
+var ControlPolygonFlatEnough = function(V, degree) {
     var     i;        /* Index variable        */
     var  value;
     var  max_distance_above;
@@ -415,10 +324,7 @@ var ControlPolygonFlatEnough = function(V, degree)
 /* NOTE: "T" and "Y" do not have to be computed, and there are many useless
  * operations in the following (e.g. "0.0 - 0.0").
  */
-var ComputeXIntercept = function(V, degree)
-//    Point2 	*V;			/*  Control points	*/
-//    int		degree; 		/*  Degree of curve	*/
-{
+var ComputeXIntercept = function(V, degree) {
     var	XLK, YLK, XNM, YNM, XMK, YMK;
     var	det, detInv;
     var	S, T;
@@ -451,13 +357,7 @@ var ComputeXIntercept = function(V, degree)
  *	"Right" are non-null.
  * 
  */
-var Bezier = function(V, degree, t, Left, Right)
-//    int 	degree;		/* Degree of bezier curve	*/
-  //  Point2 	*V;			/* Control pts			*/
-//    double 	t;			/* Parameter value		*/
-//    Point2 	*Left;		/* RETURN left half ctl pts	*/
-//    Point2 	*Right;		/* RETURN right half ctl pts	*/
-{
+var Bezier = function(V, degree, t, Left, Right) {
     var 	i, j;		/* Index variables	*/
     var 	Vtemp = new Array();//[W_DEGREE+1][W_DEGREE+1];
 
@@ -471,8 +371,8 @@ var Bezier = function(V, degree, t, Left, Right)
     /* Triangle computation	*/
     for (i = 1; i <= degree; i++) {	
 		for (j =0 ; j <= degree - i; j++) {
-				if (!Vtemp[i]) Vtemp[i] = [];
-				if (!Vtemp[i][j]) Vtemp[i][j] = {};
+			if (!Vtemp[i]) Vtemp[i] = [];
+			if (!Vtemp[i][j]) Vtemp[i][j] = {};
 	    	Vtemp[i][j].x =
 	      		(1.0 - t) * Vtemp[i-1][j].x + t * Vtemp[i-1][j+1].x;
 	    	Vtemp[i][j].y =
@@ -494,12 +394,53 @@ var Bezier = function(V, degree, t, Left, Right)
     return (Vtemp[degree][0]);
 };
 
-var  V2ScaleII = function(v, s)
-//    Vector2	*v;
-//    double	s;
-{
-    var result = {};
 
-    result.x = parseFloat(v.x * s); result.y = parseFloat(v.y * s);
-    return (result);
-}
+var bezCurve = [	
+            	{ x:0.0, y:0.0 },
+            	{ x:1.0, y:2.0 },
+            	{ x:3.0, y:3.0 },
+            	{ x:4.0, y:2.0 },
+                ];
+                var arbPoint = { x:3.5, y:2.0 }; 
+            	var	pointOnCurve;		 
+
+//            	print("EPSILON : " + EPSILON);
+            //print(Math.pow(parseFloat(1.0), -65));
+                pointOnCurve = NearestPointOnCurve(arbPoint, bezCurve);
+                //alert("pointOnCurve : " + pointOnCurve.x + "," + pointOnCurve.y);
+
+
+                window.DistanceFromCurve = DistanceFromCurve;
+                window.NearestPointOnCurve = NearestPointOnCurve;
+                
+})();
+
+
+
+
+
+
+
+/*
+ *  main :
+ *	Given a cubic Bezier curve (i.e., its control points), and some
+ *	arbitrary point in the plane, find the point on the curve
+ *	closest to that arbitrary point.
+ *
+var NearestPoint = function()
+{
+   
+ var bezCurve = [	
+	{ x:0.0, y:0.0 },
+	{ x:1.0, y:2.0 },
+	{ x:3.0, y:3.0 },
+	{ x:4.0, y:2.0 },
+    ];
+    var arbPoint = { x:3.5, y:2.0 }; 
+	var	pointOnCurve;		 
+
+//	print("EPSILON : " + EPSILON);
+//print(Math.pow(parseFloat(1.0), -65));
+    pointOnCurve = NearestPointOnCurve(arbPoint, bezCurve);
+    print("pointOnCurve : " + pointOnCurve.x + "," + pointOnCurve.y);
+};*/
