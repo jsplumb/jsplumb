@@ -36,7 +36,7 @@
 	    
 	    <div id="explanation">
 	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  This page contains a little bit of everything to whet your appetite.</p>
-	    	<p>This demonstration uses jsPlumb 1.2.2, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
+	    	<p>This demonstration uses jsPlumb 1.2.3, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
 	    	<a href="chartDemo.html" class="mplink">Next: Chart demonstration</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
@@ -46,17 +46,24 @@
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.2/jsPlumb-1.2.2-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.2/jsPlumb-defaults-1.2.2-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.2/jquery.jsPlumb-1.2.2-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.3/jsPlumb-1.2.3-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.3/jsPlumb-defaults-1.2.3-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-RC1.js"></script>
 		<script type="text/javascript" src="../../js/NearestPoint.js"></script>
 		
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
+				//jsPlumb.Defaults.BackgroundPaintStyle = {lineWidth:17,strokeStyle:'black'};
 
 				// plumb window1 to window2 with a 15 px wide yellow Bezier. endpoints are a slightly lighter shade of yellow. 
-				var connection1 = jsPlumb.connect({source:'window1', target:'window2', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'}, endpointStyle:{fillStyle:'rgb(243,229,0)'}});
+				var connection1 = jsPlumb.connect({source:'window1', 
+												   target:'window2', 
+												   anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], 
+												   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
+												   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'}, 
+												   endpointStyle:{fillStyle:'rgb(243,229,0)'}
+												  });
 				// temporarily bump it to the top
 				$(connection1.canvas).css("z-index", 1000);
 				$(connection1.canvas).bind("mouseover", function() {
@@ -89,6 +96,7 @@
 			        				 anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle], 
 			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
 			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 
+			        				 backgroundPaintStyle:{lineWidth:14,strokeStyle:'#00a1ab'},
 			        				 endpointsOnTop:false});
 				 
 		        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
@@ -96,7 +104,8 @@
 		        // the endpoints in this example have linear gradients applied.
 		        var w23Stroke = 'rgb(189,11,11)'; 
 		        jsPlumb.connect({source:'window2', target:'window3', 
-			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke}, 
+			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
+			        				 backgroundPaintStyle:{lineWidth:10,strokeStyle:'black'}, 
 			        				 anchors:[jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TopCenter], 
 			        				 endpoint:new jsPlumb.Endpoints.Rectangle(), 
 			        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
