@@ -201,11 +201,21 @@
         	/*var img = new Image();
         	img.src = "../img/pattern.jpg";
         	ctx.fillStyle = ctx.createPattern(img, 'repeat-y');*/
-        	
+
+        	/*ctx.save();  
+        	ctx.strokeStyle = "black";
+        	ctx.lineWidth = ctx.lineWidth + 2;
             ctx.beginPath();
             ctx.moveTo(d[4],d[5]);
             ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
             ctx.stroke();
+            ctx.restore();*/
+            
+            ctx.beginPath();
+            ctx.moveTo(d[4],d[5]);
+            ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
+            ctx.stroke();
+            
             //ctx.fill();
         };
         

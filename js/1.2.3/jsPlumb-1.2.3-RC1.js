@@ -658,6 +658,7 @@
 	    
 	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
+	    this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle  || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
 	    	    	    	   
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
@@ -714,16 +715,27 @@
 	            
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
-	            jsPlumb.extend(ctx, this.paintStyle);
-	                        
-	            if (this.paintStyle.gradient && !ie) { 
-		            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
-		            for (var i = 0; i < this.paintStyle.gradient.stops.length; i++)
-		            	g.addColorStop(this.paintStyle.gradient.stops[i][0],this.paintStyle.gradient.stops[i][1]);
-		            ctx.strokeStyle = g;
-	            }
+	            
+	            var _paintOneStyle = function(ctx, paintStyle) {
+	            	ctx.save();
+	            	jsPlumb.extend(ctx, paintStyle);
+	            	if (paintStyle.gradient && !ie) { 
+			            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
+			            for (var i = 0; i < paintStyle.gradient.stops.length; i++)
+			            	g.addColorStop(paintStyle.gradient.stops[i][0],paintStyle.gradient.stops[i][1]);
+			            ctx.strokeStyle = g;
+		            }
+	            	self.connector.paint(dim, ctx);
+	            	ctx.restore();
+	            };
+	            	            	                        	           
 	            	            
-	            this.connector.paint(dim, ctx);	                            
+	            // first check for the background style
+	            if (this.backgroundPaintStyle != null) {
+	            	_paintOneStyle(ctx, this.backgroundPaintStyle);
+	            }
+	            _paintOneStyle(ctx, this.paintStyle);
+	            	                            
 	    	}
 	    };
 	    
@@ -780,6 +792,7 @@
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+		//var _backgroundStyle = params.backgroundStyle || _currentInstance.Defaults.EndpointBackgroundStyle || jsPlumb.Defaults.EndpointBackgroundStyle;
 		this.connectorStyle = params.connectorStyle;
 		this.connector = params.connector;
 		this.isSource = params.isSource || false;
@@ -939,6 +952,9 @@
 				}
 				anchorPoint = self.anchor.compute([xy.left, xy.top], wh, self);
 			}
+			/*if (_backgroundStyle)
+				_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _backgroundStyle, _backgroundStyle);
+			*/
 			_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
 		};
 		
@@ -1184,6 +1200,7 @@
     	this.Defaults = {
     		Anchor : null,
     		Anchors : [ null, null ],
+    		BackgroundPaintStyle : null ,
     		Connector : null,
     		Container : null,
     		DragOptions: { },
