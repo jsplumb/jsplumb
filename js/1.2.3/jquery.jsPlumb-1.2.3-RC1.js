@@ -114,6 +114,11 @@ $(window).bind('resize', function() {
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
 		
+		bind : function(el, event, callback) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el.bind(event, callback);
+		},
+		
 		appendElement : function(child, parent) {
 			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
 		},
