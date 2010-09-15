@@ -65,27 +65,29 @@
 												   endpointStyle:{fillStyle:'rgb(243,229,0)'}
 												  });
 				// temporarily bump it to the top
-				$(connection1.canvas).css("z-index", 1000);
-				$(connection1.canvas).bind("mouseover", function() {
-					$(this).css("border", "1px solid blue");
-				});
-				$(connection1.canvas).bind("mouseout", function() {
-					$(this).css("border", "1px solid green");
-				});
-				$(connection1.canvas).bind("mousemove", function(e) {
-					var o = $(this).offset();
+				//$(connection1.canvas).css("z-index", 1000);				
+				//$(connection1.canvas).bind("mousemove", function(e) {
+				connection1.addListener("mousemove", function(e) {
+				//var f = function(e, conn) {
+					var o = $(connection1.canvas).offset();
 					var p = { x:e.pageX - o.left, y:e.pageY - o.top };
 					var t = connection1.distanceFrom(p);
 					$("#debug").html(t.d + ", " + t.t);
 					if (t.d < 50) {
-						$(this).css("border", "3px solid red");
+//						$(this).css("border", "3px solid red");
+						connection1.backgroundPaintStyle = {lineWidth:19,strokeStyle:'red'},
+						jsPlumb.repaint("window1");
 						$(this).css("cursor", "pointer");
 					}
 					else {
-						$(this).css("border", "1px solid blue");
+						connection1.backgroundPaintStyle = {lineWidth:17,strokeStyle:'rgba(100,100,100,50)'};
+						jsPlumb.repaint("window1");
 						$(this).css("cursor", "default");
 					}
 				});
+				var c = function(e) {
+
+				};
 				
 				// plumb window3 to window4 with a 10px wide blue-ish half transparent Bezier. put endpoints underneath the element they attach to.
 				// the endpoints have a radial gradient. both ways of specifying gradient positioning are shown here.
