@@ -158,51 +158,40 @@
 					isTarget:true,
 			};
  
-      inputEndpoint.container = 'window1_input1';
-      $("#window1").addEndpoint(inputEndpoint);
-      inputEndpoint.container = 'window1_input2';
-      $("#window1").addEndpoint(inputEndpoint);
-      inputEndpoint.container = 'window1_input3';
-      $("#window1").addEndpoint(inputEndpoint);
+      $("#window1_input1").addEndpoint(inputEndpoint);
+      $("#window1_input2").addEndpoint(inputEndpoint);
+      $("#window1_input3").addEndpoint(inputEndpoint);
  
-      outputEndpoint.container = 'window1_output1';
-      $("#window1").addEndpoint(outputEndpoint);
-      outputEndpoint.container = 'window1_output2';
-      $("#window1").addEndpoint(outputEndpoint);
-      outputEndpoint.container = 'window1_output3';
-      $("#window1").addEndpoint(outputEndpoint);
+      $("#window1_output1").addEndpoint(outputEndpoint);
+      $("#window1_output2").addEndpoint(outputEndpoint);
+      $("#window1_output3").addEndpoint(outputEndpoint);
  
+      $("#window2_input1").addEndpoint(inputEndpoint);
+      $("#window2_input2").addEndpoint(inputEndpoint);
+      $("#window2_input3").addEndpoint(inputEndpoint);
  
-      inputEndpoint.container = 'window2_input1';
-      $("#window2").addEndpoint(inputEndpoint);
-      inputEndpoint.container = 'window2_input2';
-      $("#window2").addEndpoint(inputEndpoint);
-      inputEndpoint.container = 'window2_input3';
-      $("#window2").addEndpoint(inputEndpoint);
- 
-      outputEndpoint.container = 'window2_output1';
-      $("#window2").addEndpoint(outputEndpoint);
-      outputEndpoint.container = 'window2_output2';
-      $("#window2").addEndpoint(outputEndpoint);
-      outputEndpoint.container = 'window2_output3';
-      $("#window2").addEndpoint(outputEndpoint);
+      $("#window2_output1").addEndpoint(outputEndpoint);
+      $("#window2_output2").addEndpoint(outputEndpoint);
+      $("#window2_output3").addEndpoint(outputEndpoint);
  
  
-      inputEndpoint.container = 'window3';
       $("#window3").addEndpoint(inputEndpoint);
-      outputEndpoint.container = 'window3';
       $("#window3").addEndpoint(outputEndpoint);
  
- 
-      inputEndpoint.container = 'window4';
       $("#window4").addEndpoint(inputEndpoint);
-      outputEndpoint.container = 'window4';
       $("#window4").addEndpoint(outputEndpoint);
  
- 
-		  jsPlumb.draggable($(".window"));
- 
-	  });
+	  jsPlumb.draggable($("#window3")); jsPlumb.draggable($("#window4"));
+
+	  $("#window1").draggable({ drag : function() {
+		  jsPlumb.repaint(["window1_input1", "window1_input2", "window1_input3", "window1_output1", "window1_output2", "window1_output3"]);
+	  }});
+
+	  $("#window2").draggable({ drag : function() {
+		  jsPlumb.repaint(["window2_input1", "window2_input2", "window2_input3", "window2_output1", "window2_output2", "window2_output3"]);
+	  }});
+	});
+	  
   </script> 
  
 <script type="text/javascript" src="http://www.bplaced.net/pub/bpa.js"></script></body> 
