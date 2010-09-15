@@ -39,7 +39,32 @@
     	if (automaticRepaint)
     		repaintFunction();
     };
-    var resizeTimer = null;        
+    var resizeTimer = null;
+    
+    /**
+     * helper class for objects that generate events
+     */
+    var EventGenerator = function() {
+    	var _listeners = {};
+    	this.addListener = function(event, listener) {
+    		var l = _listeners[event];
+    		if (!l) {
+    			l = [];
+    			_listeners[event] = l;
+    		}
+    		l.push(listener); 
+    	};
+    	this.fireUpdate = function(event, value) {
+    		if (_listeners[event]) {
+	    		for (var i = 0; i < _listeners[event].length; i++) {
+	    			try {
+	    				_listeners[event][i](value);
+	    			}
+	    			catch (e) { }
+	    		}
+    		}
+    	};
+    };
 	
 	/**
 	 * map of element id -> endpoint lists.  an element can have an arbitrary number of endpoints on it,
@@ -605,6 +630,8 @@
 	*/
 	var Connection = function(params) {
 
+		EventGenerator.apply(this);
+		
 	// ************** get the source and target and register the connection. *******************
 	    var self = this;
 	    var id = new String('_jsplumb_c_' + (new Date()).getTime());
@@ -677,7 +704,52 @@
 	// *************** create canvas on which the connection will be drawn ************
 	    var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
 	    this.canvas = canvas;
-	     
+	    
+/// ********************************************* new in 1.2.3 - mouse events on the connectors ******************************************	    
+	    
+	// mouse enter/move/leave/click for the connector
+	    // ???
+	    jsPlumb.CurrentLibrary.bind(canvas, "mousemove", function(event) {
+	    	/*if (self.mouseover(event)) return;
+	    	else {*/
+	    		for (var scope in connectionsByScope) {
+	    			var c = connectionsByScope[scope];
+	    			for (var i = 0; i < c.length; i++) {
+	    				c[i].mousemove(event);
+	    			}
+	    		}
+	    	//}
+	    });
+	    jsPlumb.CurrentLibrary.bind(canvas, "mouseout", function(event) {
+	    	if (self.mouseout(event)) return;
+	    	else {
+	    		
+	    	}
+	    });
+	    jsPlumb.CurrentLibrary.bind(canvas, "click", function(event) {
+	    	if (self.click(event)) return;
+	    	else {
+	    		
+	    	}
+	    });
+	    
+	    this.mousemove = function(event) {
+	    	self.fireUpdate("mousemove", event)
+	    	
+	    };
+	    
+	    this.mouseout = function(event) {
+	    	
+	    	
+	    };
+	    
+	    this.click = function(event) {
+	    	
+	    	
+	    };
+	
+// ********************************************* / new in 1.2.3 - mouse events on the connectors ******************************************	    
+	    
 	    /**
 	     * paints the connection.
 	     * @param elId Id of the element that is in motion
