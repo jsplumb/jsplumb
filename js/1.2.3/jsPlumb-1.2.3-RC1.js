@@ -222,7 +222,7 @@
 	};
 	
 	var cached = {};
-	var __getElementObject = function(el) {
+	var _getElementObject = function(el) {
 		
 		if (typeof(el)=='string') {
 			var e = cached[el];
@@ -242,31 +242,31 @@
 	 * gets the named attribute from the given element (id or element object)
 	 */
 	var _getAttribute = function(el, attName) {
-		var ele = __getElementObject(el);
+		var ele = _getElementObject(el);
 		return jsPlumb.CurrentLibrary.getAttribute(ele, attName);
 	};
 	
 	var _setAttribute = function(el, attName, attValue) {
-		var ele = __getElementObject(el);
+		var ele = _getElementObject(el);
 		jsPlumb.CurrentLibrary.setAttribute(ele, attName, attValue);
 	};
 	
 	var _addClass = function(el, clazz) {
-		var ele = __getElementObject(el);
+		var ele = _getElementObject(el);
 		jsPlumb.CurrentLibrary.addClass(ele, clazz);
 	};
 	
-	var _getElementObject = function(elId) {
+	/*var _getElementObject = function(elId) {
 		return __getElementObject(elId);
-	};
+	};*/
 	
 	var _getOffset = function(el) {
-		var ele = __getElementObject(el);
+		var ele = _getElementObject(el);
 		return jsPlumb.CurrentLibrary.getOffset(ele);
 	};
 	
 	var _getSize = function(el) {
-		var ele = __getElementObject(el);
+		var ele = _getElementObject(el);
 		return jsPlumb.CurrentLibrary.getSize(ele);
 	};									
 	
@@ -938,7 +938,7 @@
 		* private but must be exposed.
 		*/
 		this.makeInPlaceCopy = function() {
-			var e = new Endpoint({anchor:self.anchor, source:_element, style:_style, endpoint:_endpoint});
+			var e = new Endpoint({anchor:self.anchor, source:_element, style:_style, endpoint:_endpoint/*, container:container*/});
 			return e;
 		};
 		
@@ -1059,13 +1059,14 @@
 				
 				jpc = connectorSelector();
 				if (self.isFull() && !self.dragAllowedWhenFull) return false;
-				
+
+				_updateOffset(_elementId);
 				inPlaceCopy = self.makeInPlaceCopy();
 				inPlaceCopy.paint();
 				
 				n = document.createElement("div");
 				var nE = _getElementObject(n);
-				_appendElement(n); //
+				_appendElement(n, self.container); //
 				// create and assign an id, and initialize the offset.
 				//TODO can't this be replaced with a _getId call?
 				var id = "" + new String(new Date().getTime());
@@ -1133,6 +1134,8 @@
 			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {				
 				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+				var o = self.container == null ? {x:0,y:0}:_getOffset(_getElementObject(self.container));
+				_ui.left=_ui.left-o.left;_ui.top=_ui.top-o.top;
 				_draw(_getElementObject(n), _ui);
 			});
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
@@ -1160,7 +1163,7 @@
 							else {
 								jpc.endpoints[0].removeConnection(jpc);
 								jpc.endpoints[1].removeConnection(jpc);
-								_removeElement(jpc.canvas);
+								_removeElement(jpc.canvas, self.container);
 								_removeFromList(connectionsByScope, jpc.scope, jpc);
 								_fireEvent("jsPlumbConnectionDetached", { 
 			    					source:jpc.source, 
@@ -1172,8 +1175,7 @@
 								});
 							}
 						} else {							
-							_removeElement(jpc.canvas);
-							//if (jpc.endpoints[1]) alert("target set");
+							_removeElement(jpc.canvas, self.container);
 							self.removeConnection(jpc);							
 						}
 					}

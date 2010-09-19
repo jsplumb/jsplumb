@@ -239,7 +239,8 @@ $(window).bind('resize', function() {
 		 */
 		getUIPosition : function(eventArgs) {
 			var ui = eventArgs[1];
-			return ui.absolutePosition || ui.offset;
+			//return ui.absolutePosition || ui.offset;
+			return ui.offset || ui.absolutePosition;
 		},
 		
 		/**
