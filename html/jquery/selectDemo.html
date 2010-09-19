@@ -18,7 +18,7 @@
 #window8 {left:63em;top:32em;background-color:#045803;}
 ._jsPlumb_connector { z-index:4; }
 ._jsPlumb_endpoint { z-index:5; }
-
+.hl { border:3px dotted red; }
 #debug { position:absolute; background-color:black; color:red; z-index:5000 }
 		</style>
 	</head>
@@ -95,40 +95,40 @@
 
 		        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
 		        // the endpoints are 125px in radius and spill out from underneath their elements.
-		        jsPlumb.connect({source:'window5', target:'window6', anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, endpointsOnTop:false, endpointStyle:{radius:125, fillStyle:'rgba(0,255,0,0.5)'}});
+		        var connection4 = jsPlumb.connect({source:'window5', target:'window6', anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, endpointsOnTop:false, endpointStyle:{radius:125, fillStyle:'rgba(0,255,0,0.5)'}});
 
 		        // plumb window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
 		        // image as the endpoint, placed on top of the element it is connected to.
-		        jsPlumb.connect({source:'window4', target:'window5', anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft], paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true});
+		        var connection5 = jsPlumb.connect({source:'window4', target:'window5', anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft], paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true});
 
 
 		        // all the mouse listener stuff
 		        var c = function(connection, window) {
+			        var bgstyle = connection.backgroundPaintStyle || {};
 					connection.addListener("mousemove", function(e) {
-						//var f = function(e, conn) {
-							var o = $(connection.canvas).offset();
-							var p = { x:e.pageX - o.left, y:e.pageY - o.top };
-							var t = connection.distanceFrom(p);
-							$("#debug").html(t.d + ", " + t.t);
-							if (t.d < 50) {
-//								$(this).css("border", "3px solid red");
-								connection.oldBackgroundPaintStyle = jsPlumb.extend({}, connection.backgroundPaintStyle); 
-								connection.backgroundPaintStyle = {lineWidth:19,strokeStyle:'red'},
-								jsPlumb.repaint(window);
-								$(connection.canvas).css("cursor", "pointer");
-							}
-							else {
-								if (connection.oldBackgroundPaintStyle) {
-									connection.backgroundPaintStyle = jsPlumb.extend({}, connection.oldBackgroundPaintStyle);
-									jsPlumb.repaint(window);
-									$(connection.canvas).css("cursor", "default");
-								}
-							}
-						});
+						var o = $(connection.canvas).offset();
+						var p = { x:e.pageX - o.left, y:e.pageY - o.top };
+						var t = connection.distanceFrom(p);
+						$("#debug").html(t.d + ", " + t.t);
+						if (t.d < 50) {
+							connection.backgroundPaintStyle = {lineWidth:19,strokeStyle:'red'};
+							jsPlumb.repaint(window);
+							$(connection.source).addClass("hl");
+							$(connection.target).addClass("hl");
+						}
+						else {
+							connection.backgroundPaintStyle = bgstyle;
+							jsPlumb.repaint(window);
+							$(connection.source).removeClass("hl");
+							$(connection.target).removeClass("hl");
+						}
+					});
 				};
 		        c(connection1, "window1");
 				c(connection2, "window3");
 				c(connection3, "window3");
+				c(connection4, "window4");
+				c(connection5, "window5");
 		        
 		});
 		</script>
