@@ -872,7 +872,7 @@
 		var _element = params.source;
 		var _uuid = params.uuid;
 		if (_uuid) endpointsByUUID[_uuid] = self;
-		this.container = params.container || jsPlumb.Defaults.Container;
+		this.container = params.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 		var _elementId = _getAttribute(_element, "id");
 		var _maxConnections = params.maxConnections || 1;                     // maximum number of connections this endpoint can be the source of.
 		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, this.container, params.uuid);
@@ -1141,7 +1141,7 @@
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
 				function() {	
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
-					_removeElements([n, floatingEndpoint.canvas]); // TODO: clean up the connection canvas (if the user aborted)
+					_removeElements([n, floatingEndpoint.canvas], _element); // TODO: clean up the connection canvas (if the user aborted)
 					_removeElement(inPlaceCopy.canvas, _element); 
 					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 					if (jpc.endpoints[idx] == floatingEndpoint) {										
@@ -1364,7 +1364,7 @@
 	    this.addEndpoints = function(target, endpoints) {
 	    	var results = [];
 	    	for (var i = 0; i < endpoints.length; i++) {
-	    		results.push(jsPlumb.addEndpoint(target, endpoints[i]));
+	    		results.push(_currentInstance.addEndpoint(target, endpoints[i]));
 	    	}
 	    	return results;
 	    };
