@@ -1830,7 +1830,7 @@
 	    	jsPlumb.detachAll(elId);
 	    	var ebe = endpointsByElement[elId];
 	    	for (var i in ebe) {
-			_removeElement(ebe[i].canvas);	    	
+			_removeElement(ebe[i].canvas, ebe[i].getElement());	    	
 	    	}	    
 	    	endpointsByElement[elId] = [];
 	    };
@@ -1872,7 +1872,7 @@
 	    	var ebe = endpointsByElement[elId];
 	    	if (ebe) {
 	    		if(_removeFromList(endpointsByElement, elId, endpoint))
-	    			_removeElement(endpoint.canvas);
+	    			_removeElement(endpoint.canvas, endpoint.getElement());
 	    	}
 	    };
 	    
