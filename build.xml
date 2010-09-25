@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project default="concat">
+<project default="build">
 	
 	<path id="yuicompressor.classpath">
         <fileset dir="./lib">
@@ -15,12 +15,6 @@
 	        </classpath>
 	    </java>
 	</target>
-	
-	 <!--taskdef name="yuicompress" classname="com.yahoo.platform.yui.compressor.YUICompressor">
-        <classpath>
-            <path refid="yuicompressor.classpath"/>
-        </classpath>
-    </taskdef-->
 	
 	<!-- ant-contrib taskdefs -->
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
@@ -94,6 +88,23 @@
 		<antcall target="minLibrary">
 			<param name="library" value="mootools"/>
 		</antcall>
+	</target>
+	
+	<target name="docs">
+	    <exec executable="naturaldocs">
+	        <arg line="-i"/>
+	        <arg path="js"/>
+	        <arg line="-o"/>
+	    	<arg line="HTML"/>
+	    	<arg line="apidocs"/>
+	    	<arg line="-p"/>
+	    	<arg line="."/>
+	    </exec>
+	</target>
+	
+	<target name="build">
+		<antcall target="min"/>
+		<antcall target="docs"/>
 	</target>
 	
 </project>
