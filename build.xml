@@ -1,6 +1,27 @@
 <?xml version="1.0"?>
 <project default="concat">
 	
+	<path id="yuicompressor.classpath">
+        <fileset dir="./lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+	
+	<target name="js.minify">
+	    <java jar="./lib/yuicompressor-2.4.2.jar" fork="true" output="${output}">
+	    	<arg value="${input}"/>
+	    	<classpath>
+	            <path refid="yuicompressor.classpath"/>
+	        </classpath>
+	    </java>
+	</target>
+	
+	 <!--taskdef name="yuicompress" classname="com.yahoo.platform.yui.compressor.YUICompressor">
+        <classpath>
+            <path refid="yuicompressor.classpath"/>
+        </classpath>
+    </taskdef-->
+	
 	<!-- ant-contrib taskdefs -->
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 	  <classpath>
@@ -40,6 +61,13 @@
 		</concat>		
 	</target>
 	
+	<target name="minLibrary" depends="concatLibrary">
+		<antcall target="js.minify">
+			<param name="input" value="${dir}/${library}.jsPlumb-${final.version}-all.js"/>
+			<param name="output" value="${dir}/${library}.jsPlumb-${final.version}-all-min.js"/>
+		</antcall>
+	</target>
+	
 	<!-- 
 		concats the three main files together to write final versions for
 		all supported libraries.
@@ -52,6 +80,18 @@
 			<param name="library" value="jquery"/>
 		</antcall>
 		<antcall target="concatLibrary">
+			<param name="library" value="mootools"/>
+		</antcall>
+	</target>
+	
+	<!-- 
+		generates minified and concatenated scripts for supported libraries.
+	--> 
+	<target name="min" depends="check">		
+		<antcall target="minLibrary">
+			<param name="library" value="jquery"/>
+		</antcall>
+		<antcall target="minLibrary">
 			<param name="library" value="mootools"/>
 		</antcall>
 	</target>
