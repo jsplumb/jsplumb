@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project default="concat">
+	
+	<!-- ant-contrib taskdefs -->
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+	  <classpath>
+	    <pathelement location="./lib/ant-contrib-0.6.jar"/>
+	  </classpath>
+	</taskdef>		
+		
+	<!-- 
+		create final version number
+	-->
+	<propertyregex property="final.version"
+	              input="${version}"
+	              regexp="[0-9]+\.[0-9]+\.[0-9]+"
+	              select="\0"
+	              casesensitive="false" />
+	
+	<property name="dir" value="./js/${final.version}/"/>
+
+	<echo>building from version ${version}</echo>
+	<echo>building final version ${final.version} in directory ${dir}</echo>
+	
+	<!--
+		fails the build if no "version" parameter supplied.
+	-->
+	<target name="check" unless="version">
+		<fail message="You must supply the version to bundle, eg. ant -Dversion=x.y.c-RCn"/>
+	</target>
+	
+	<!-- 
+		concats a single library.
+		
+		expects "library" parameter to be set.
+	-->
+	<target name="concatLibrary" depends="check">
+		<concat destfile="${dir}/${library}.jsPlumb-${final.version}-all.js">
+			<filelist dir="${dir}" files="jsPlumb-${version}.js,jsPlumb-defaults-${version}.js,${library}.jsPlumb-${version}.js"/>
+		</concat>		
+	</target>
+	
+	<!-- 
+		concats the three main files together to write final versions for
+		all supported libraries.
+		
+		expects a "-Dversion=x.y.z-RCn" parameter on the Ant call.  strips "-RCn"
+		from the end to derive a final name.
+	-->	
+	<target name="concat" depends="check">		
+		<antcall target="concatLibrary">
+			<param name="library" value="jquery"/>
+		</antcall>
+		<antcall target="concatLibrary">
+			<param name="library" value="mootools"/>
+		</antcall>
+	</target>
+	
+</project>
