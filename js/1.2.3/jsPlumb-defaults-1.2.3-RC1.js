@@ -113,7 +113,18 @@
             ctx.beginPath();
             ctx.moveTo(dimensions[4], dimensions[5]);
             ctx.lineTo(dimensions[6], dimensions[7]);
-            ctx.stroke();
+            ctx.stroke();            
+        };
+        
+        /**
+         * returns the distance the given point is from the curve.  TODO; may not work for straight.  not tested at all yet.
+         */
+        this.distanceFrom = function(point) {
+        	var curve = [ {x:currentPoints[4], y:currentPoints[5]},
+        				  {x:currentPoints[8], y:currentPoints[9]}, 
+        				  {x:currentPoints[10], y:currentPoints[11]}, 
+        				  {x:currentPoints[6], y:currentPoints[7]}];
+        	return (DistanceFromCurve(point, curve));        	        	
         };
     };
                 
@@ -214,41 +225,18 @@
             ctx.beginPath();
             ctx.moveTo(d[4],d[5]);
             ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
-            ctx.stroke();
-            
-            //ctx.fill();
+            ctx.stroke();            
         };
         
         /**
          * returns the distance the given point is from the curve.
          */
         this.distanceFrom = function(point) {
-        	// return [ canvasx, canvasy, canvasWidth, canvasHeight,
-            //          sourceX, sourceY, targetX, targetY,
-            //          controlPoint1_X, controlPoint1_Y, controlPoint2_X, controlPoint2_Y
-        	//BezierUtils.closestPointToBezier(connection1, p);
         	var curve = [ {x:currentPoints[4], y:currentPoints[5]},
         				  {x:currentPoints[8], y:currentPoints[9]}, 
         				  {x:currentPoints[10], y:currentPoints[11]}, 
         				  {x:currentPoints[6], y:currentPoints[7]}];
-        	return (DistanceFromCurve(point, curve));
-        	/*return BezierUtils.closestPointToBezier({
-        		pointAt : function(t) {
-                	var i = 1 - t, x = t * t, y = i * i, a = x * t, b = 3 * x * i, c = 3 * t * y, d = y * i;
-                	return {x:a * currentPoints[4] + b * currentPoints[8] + c * currentPoints[10] + d * currentPoints[6], 
-                			y:a * currentPoints[5] + b * currentPoints[9] + c * currentPoints[11] + d * currentPoints[7]};
-        		},
-        		x0:currentPoints[4],
-        		y0:currentPoints[5],
-        		x1:currentPoints[6],
-        		y1:currentPoints[7],
-        		cx:currentPoints[8],
-        		cy:currentPoints[9],
-        		cx1:currentPoints[10],
-        		cy1:currentPoints[11],
-        		isQuadraticBezier : function() { return false; }
-        	}, point);*/
-        	
+        	return (DistanceFromCurve(point, curve));        	        	
         };
     };
     
