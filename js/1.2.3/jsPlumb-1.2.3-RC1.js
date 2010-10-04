@@ -787,8 +787,23 @@
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
 	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();	        
+	            	            
+	            // if we have a label then the canvas must be at least big enough to draw the label, so we pass that min value into the 
+	            // connector
+	            var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
+	            if (self.label) {
+	            	// we allow label generation by a function here.  you get given the Connection object as an argument.
+	            	labelText = typeof self.label == 'function' ? self.label(self) : self.label;
+	            	if (labelText) {
+			            if (self.labelStyle.font) ctx.font = self.labelStyle.font;			            		           
+			            labelWidth = ctx.measureText(labelText).width;
+						// a fake text height measurement: use the width of lower case m
+						labelHeight = ctx.measureText("m").width;					
+						labelPadding = self.labelStyle.padding || 0.25;
+	            	}
+	            }
 	            
-	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
+	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth, labelWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
 	
 	            var _paintOneStyle = function(ctx, paintStyle) {
@@ -812,28 +827,20 @@
 	            _paintOneStyle(ctx, this.paintStyle);
 	            
 	            // paint the label if it was given	            	            
-	            if (self.label) {
+	            if (labelText) {
 		            var centerX = ctx.canvas.width / 2;
 		            var centerY = ctx.canvas.height / 2;		            
-		            if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            
-		            // we allow label generation by a function here.  you get given the Connection object as an argument.
-		            var _l = typeof self.label == 'function' ? self.label(self) : self.label;		            
-		            var t = ctx.measureText(_l).width;
-					// a fake text height measurement: use the width of lower case m
-					var h = ctx.measureText("m").width;					
-					var padding = self.labelStyle.padding || 0.25;					
-					
+		            if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
 					if (self.labelStyle.background) 
 						ctx.fillStyle = self.labelStyle.background;
 					else 
 						ctx.fillStyle = "rgba(0,0,0,0)";
-					ctx.fillRect(centerX - (t / 2) - (t * padding), centerY - (h / 2) - (h * padding), t + (2 * t * padding), h + (2 * h * padding));
+					ctx.fillRect(centerX - (labelWidth / 2) - (labelWidth * labelPadding), centerY - (labelHeight / 2) - (labelHeight * labelPadding), labelWidth + (2 * labelWidth * labelPadding), labelHeight + (2 * labelHeight * labelPadding));
 					
 					if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
-					//ctx.fillText(_l, centerX - (t.width/2) , centerY + (h / 2));
 					ctx.textBaseline = "middle";
 					ctx.textAlign = "center";
-					ctx.fillText(_l, centerX, centerY);
+					ctx.fillText(labelText, centerX, centerY);
 	            }		                            
 	    	}
 	    };
