@@ -686,7 +686,9 @@
 	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
 	    this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle  || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
-	    	    	    	   
+	    this.labelStyle = params.labelStyle || _currentInstance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;;
+	    this.label = params.label;
+	    
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
 	    
@@ -807,7 +809,31 @@
 	            	_paintOneStyle(ctx, this.backgroundPaintStyle);
 	            }
 	            _paintOneStyle(ctx, this.paintStyle);
-	            	                            
+	            
+	            // paint the label if it was given	            	            
+	            if (self.label) {
+		            var centerX = ctx.canvas.width / 2;
+		            var centerY = ctx.canvas.height / 2;		            
+		            if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            
+		            // we allow label generation by a function here.  you get given the Connection object as an argument.
+		            var _l = typeof self.label == 'function' ? self.label(self) : self.label;		            
+		            var t = ctx.measureText(_l).width;
+					// a fake text height measurement: use the width of lower case m
+					var h = ctx.measureText("m").width;					
+					var padding = self.labelStyle.padding || 0.25;					
+					
+					if (self.labelStyle.background) 
+						ctx.fillStyle = self.labelStyle.background;
+					else 
+						ctx.fillStyle = "rgba(0,0,0,0)";
+					ctx.fillRect(centerX - (t / 2) - (t * padding), centerY - (h / 2) - (h * padding), t + (2 * t * padding), h + (2 * h * padding));
+					
+					if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
+					//ctx.fillText(_l, centerX - (t.width/2) , centerY + (h / 2));
+					ctx.textBaseline = "middle";
+					ctx.textAlign = "center";
+					ctx.fillText(_l, centerX, centerY);
+	            }	            					            	                            
 	    	}
 	    };
 	    
@@ -1285,7 +1311,8 @@
     		EndpointStyles : [ null, null ],
     		MaxConnections : null,
     		PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
-    		Scope : "_jsPlumb_DefaultScope"
+    		Scope : "_jsPlumb_DefaultScope",
+    		LabelStyle : { background:"rgba(0,0,0,0)", color:"black" }
     	};
     	
     	/*
