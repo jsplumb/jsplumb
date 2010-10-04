@@ -51,25 +51,46 @@
 		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-RC1.js"></script>
 		<script type="text/javascript" src="../../js/NearestPoint.js"></script>
 		
+		label.font = "26px sans-serif"
+	            label.background = "rgba(5,105,235,0.3)";
+	            label.text = "hello";
+	            label.padding= 0.5;
+	            label.color = "black";
+	            
+		
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
 				//jsPlumb.Defaults.BackgroundPaintStyle = {lineWidth:17,strokeStyle:'black'};
 
-				// plumb window1 to window2 with a 15 px wide yellow Bezier. endpoints are a slightly lighter shade of yellow. 
+				// 
+				// plumb window1 to window2 with a 15 px wide yellow Bezier, from the BottomCenter of window1 to 3/4 of the way along the top edge
+				// of window2. endpoints are a slightly lighter shade of yellow. the connection is labelled "connection 1" with a 16px sans serif
+				// black font. 
+				// 
 				var connection1 = jsPlumb.connect({source:'window1', 
 												   target:'window2', 
 												   anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], 
 												   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
 												   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'}, 
-												   endpointStyle:{fillStyle:'rgb(243,229,0)'}
+												   endpointStyle:{fillStyle:'rgb(243,229,0)'},
+												   labelStyle : {
+														font : "16px sans-serif",				        
+												        color : "black"												            
+												   	},
+												   	label : "connection 1"
 												  });
 				// temporarily bump it to the top
 				//$(connection1.canvas).css("z-index", 1000);				
 				//$(connection1.canvas).bind("mousemove", function(e) {											
 				
-				// plumb window3 to window4 with a 10px wide blue-ish half transparent Bezier. put endpoints underneath the element they attach to.
-				// the endpoints have a radial gradient. both ways of specifying gradient positioning are shown here.
+				//
+				// plumb the right hand side of window3 to the left hand side of window4 with a 10px wide blue-ish half transparent Bezier. 
+				// put endpoints underneath the element they attach to. the endpoints have a radial gradient. both possible ways of specifying 
+				// gradient positioning are shown here.  this connection is labelled using the default label appearance (black text on transparent
+				// background) by a function that returns the current time.  the argument to the label function is the Connection the label
+				// belongs to. 
+				//
 				var w34Stroke = 'rgba(50, 50, 200, 1)';
 				var w34HlStroke = 'rgba(180, 180, 200, 1)';
 				var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
@@ -78,7 +99,12 @@
 			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
 			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 
 			        				 backgroundPaintStyle:{lineWidth:14,strokeStyle:'#00a1ab'},
-			        				 endpointsOnTop:false});
+			        				 endpointsOnTop:false,
+			        				 label : function(connection) { 
+				        				 var d = new Date();
+				        				 return (d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()); 
+				        			 }
+			        			});
 				 
 		        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
 		        // specified here - this is how you create anchors in locations jsPlumb does not offer shortcuts for.
@@ -93,13 +119,39 @@
 			    			        				 { gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
 			    			        });
 
-		        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
-		        // the endpoints are 125px in radius and spill out from underneath their elements.
-		        var connection4 = jsPlumb.connect({source:'window5', target:'window6', anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, endpointsOnTop:false, endpointStyle:{radius:125, fillStyle:'rgba(0,255,0,0.5)'}});
 
+		        //
+		        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
+		        // the endpoints are 125px in radius and spill out from underneath their elements. the connection is labelled
+		        // "big endpoints" with black text on a green background using the default font style and size.
+		        //
+		        var connection4 = jsPlumb.connect({
+			        						source:'window5', 
+			        						target:'window6', 
+			        						anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], 
+			        						paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, 
+			        						endpointsOnTop:false, 
+			        						endpointStyle:{radius:125, fillStyle:'rgba(0,255,0,0.5)'},
+			        						labelStyle : { background:"rgba(0,255,0, 0.5)", color:"black" },
+			        						label : "big endpoints"
+			        			});
+
+		        //
 		        // plumb window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
-		        // image as the endpoint, placed on top of the element it is connected to.
-		        var connection5 = jsPlumb.connect({source:'window4', target:'window5', anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft], paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true});
+		        // image as the endpoint, placed on top of the element it is connected to.  the connection is labelled "4-5" with text
+		        // of the same color as the connector, on a white background.  note the 'padding' value of 0.4: that instructs jsPlumb to make
+		        // the background (2 * 0.4) times larger than the text in the horizontal and vertical directions.
+		        // 
+		        var connection5 = jsPlumb.connect({
+			        					source:'window4', 
+			        					target:'window5', 
+			        					anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft], 
+			        					paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, 
+			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
+			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,
+										labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },			    			        				 
+				    			        label : "4 - 5"
+			        			  });
 
 
 		        // all the mouse listener stuff
@@ -111,7 +163,7 @@
 						var t = connection.distanceFrom(p);
 						$("#debug").html(t.d + ", " + t.t);
 						if (t.d < 50) {
-							connection.backgroundPaintStyle = {lineWidth:19,strokeStyle:'red'};
+							connection.backgroundPaintStyle = {lineWidth:17,strokeStyle:'black'};
 							jsPlumb.repaint(window);
 							$(connection.source).addClass("hl");
 							$(connection.target).addClass("hl");
