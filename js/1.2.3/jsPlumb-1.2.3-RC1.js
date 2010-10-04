@@ -5,7 +5,8 @@
  * 
  * additions since 1.2.2:
  * 
- * - events when the mouse hovers/clicks a connector.
+ * - labels
+ * - arrows
  * 
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
@@ -27,10 +28,8 @@
 	 */
    var jsPlumbInstance = function() {
 	   
-	   var _currentInstance = this;
-	
-	var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
-	
+	var _currentInstance = this;	
+	var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);	
 	var log = null;
 	
 	var repaintFunction = function() { jsPlumb.repaintEverything(); };
@@ -39,14 +38,14 @@
     	if (automaticRepaint)
     		repaintFunction();
     };
-    var resizeTimer = null;
+    var resizeTimer = null;     
     
-    /**
+        /**
      * helper class for objects that generate events
      */
     var EventGenerator = function() {
     	var _listeners = {};
-    	this.addListener = function(event, listener) {
+    	this.bind = function(event, listener) {
     		var l = _listeners[event];
     		if (!l) {
     			l = [];
@@ -65,6 +64,7 @@
     		}
     	};
     };
+       
 	
 	/**
 	 * map of element id -> endpoint lists.  an element can have an arbitrary number of endpoints on it,
@@ -222,7 +222,7 @@
 	};
 	
 	var cached = {};
-	var _getElementObject = function(el) {
+	var __getElementObject = function(el) {
 		
 		if (typeof(el)=='string') {
 			var e = cached[el];
@@ -242,31 +242,31 @@
 	 * gets the named attribute from the given element (id or element object)
 	 */
 	var _getAttribute = function(el, attName) {
-		var ele = _getElementObject(el);
+		var ele = __getElementObject(el);
 		return jsPlumb.CurrentLibrary.getAttribute(ele, attName);
 	};
 	
 	var _setAttribute = function(el, attName, attValue) {
-		var ele = _getElementObject(el);
+		var ele = __getElementObject(el);
 		jsPlumb.CurrentLibrary.setAttribute(ele, attName, attValue);
 	};
 	
 	var _addClass = function(el, clazz) {
-		var ele = _getElementObject(el);
+		var ele = __getElementObject(el);
 		jsPlumb.CurrentLibrary.addClass(ele, clazz);
 	};
 	
-	/*var _getElementObject = function(elId) {
+	var _getElementObject = function(elId) {
 		return __getElementObject(elId);
-	};*/
+	};
 	
 	var _getOffset = function(el) {
-		var ele = _getElementObject(el);
+		var ele = __getElementObject(el);
 		return jsPlumb.CurrentLibrary.getOffset(ele);
 	};
 	
 	var _getSize = function(el) {
-		var ele = _getElementObject(el);
+		var ele = __getElementObject(el);
 		return jsPlumb.CurrentLibrary.getSize(ele);
 	};									
 	
@@ -631,7 +631,6 @@
 	var Connection = function(params) {
 
 		EventGenerator.apply(this);
-		
 	// ************** get the source and target and register the connection. *******************
 	    var self = this;
 	    var id = new String('_jsplumb_c_' + (new Date()).getTime());
@@ -685,15 +684,15 @@
 	    
 	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
-	    this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle  || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
+		this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle  || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
 	    this.labelStyle = params.labelStyle || _currentInstance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;;
-	    this.label = params.label;
-	    
+	    this.label = params.label;	    	    	    	   
+	    	    	    	   
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
 	    
 	    // functions for mouse hover/select functionality
-	    this.distanceFrom = function(point) { return self.connector.distanceFrom(point); };
+	    this.distanceFrom = function(point) { return self.connector.distanceFrom(point); };	    
 	    
 	    // paint the endpoints
 	    var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];		
@@ -706,52 +705,54 @@
 	// *************** create canvas on which the connection will be drawn ************
 	    var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
 	    this.canvas = canvas;
-	    
-/// ********************************************* new in 1.2.3 - mouse events on the connectors ******************************************	    
-	    
-	// mouse enter/move/leave/click for the connector
-	    // ???
+	     
+	/// ********************************************* new in 1.2.3 - mouse events on the connectors ******************************************	    
 	    jsPlumb.CurrentLibrary.bind(canvas, "mousemove", function(event) {
-	    	/*if (self.mouseover(event)) return;
-	    	else {*/
-	    		for (var scope in connectionsByScope) {
-	    			var c = connectionsByScope[scope];
-	    			for (var i = 0; i < c.length; i++) {
-	    				c[i].mousemove(event);
-	    			}
-	    		}
-	    	//}
-	    });
-	    jsPlumb.CurrentLibrary.bind(canvas, "mouseout", function(event) {
-	    	if (self.mouseout(event)) return;
-	    	else {
-	    		
-	    	}
+	    	for (var scope in connectionsByScope) {
+    			var c = connectionsByScope[scope];
+    			for (var i = 0; i < c.length; i++) {
+    				c[i].mousemove(event);
+    			}
+    		}
 	    });
 	    jsPlumb.CurrentLibrary.bind(canvas, "click", function(event) {
 	    	if (self.click(event)) return;
 	    	else {
-	    		
+	    		for (var scope in connectionsByScope) {
+	    			var c = connectionsByScope[scope];
+	    			for (var i = 0; i < c.length; i++) {
+	    				if (c[i].click(event)) return;
+	    			}
+	    		}
 	    	}
 	    });
 	    
-	    this.mousemove = function(event) {
-	    	self.fireUpdate("mousemove", event)
-	    	
+	    var _withinRange = function(e) {
+	    	var o = jsPlumb.CurrentLibrary.getOffset(_getElementObject(self.canvas));
+			var p = { x:e.pageX - o.left, y:e.pageY - o.top };
+			var t = self.distanceFrom(p);
+			return t.d < 50;
+	    };
+	    var _mouseover = false;
+	    this.mousemove = function(e) {	    
+			if (!_mouseover && _withinRange(e)) {
+				_mouseover = true;
+				self.fireUpdate("mouseenter", self);				
+			}
+			else if (_mouseover && !_withinRange(e)) {
+				_mouseover = false;
+				self.fireUpdate("mouseleave", self);				
+			}
 	    };
 	    
-	    this.mouseout = function(event) {
-	    	
-	    	
-	    };
-	    
-	    this.click = function(event) {
-	    	
-	    	
+	    this.click = function(e) {
+	    	if (_mouseover && _withinRange(e)) 
+	    		self.fireUpdate("click", self);	    	
 	    };
 	
 // ********************************************* / new in 1.2.3 - mouse events on the connectors ******************************************	    
-	    
+	     
+	     
 	    /**
 	     * paints the connection.
 	     * @param elId Id of the element that is in motion
@@ -789,7 +790,7 @@
 	            
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
-	            
+	
 	            var _paintOneStyle = function(ctx, paintStyle) {
 	            	ctx.save();
 	            	jsPlumb.extend(ctx, paintStyle);
@@ -833,7 +834,7 @@
 					ctx.textBaseline = "middle";
 					ctx.textAlign = "center";
 					ctx.fillText(_l, centerX, centerY);
-	            }	            					            	                            
+	            }		                            
 	    	}
 	    };
 	    
@@ -890,7 +891,6 @@
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
-		//var _backgroundStyle = params.backgroundStyle || _currentInstance.Defaults.EndpointBackgroundStyle || jsPlumb.Defaults.EndpointBackgroundStyle;
 		this.connectorStyle = params.connectorStyle;
 		this.connector = params.connector;
 		this.isSource = params.isSource || false;
@@ -964,7 +964,7 @@
 		* private but must be exposed.
 		*/
 		this.makeInPlaceCopy = function() {
-			var e = new Endpoint({anchor:self.anchor, source:_element, style:_style, endpoint:_endpoint/*, container:container*/});
+			var e = new Endpoint({anchor:self.anchor, source:_element, style:_style, endpoint:_endpoint});
 			return e;
 		};
 		
@@ -1050,9 +1050,6 @@
 				}
 				anchorPoint = self.anchor.compute([xy.left, xy.top], wh, self);
 			}
-			/*if (_backgroundStyle)
-				_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _backgroundStyle, _backgroundStyle);
-			*/
 			_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
 		};
 		
@@ -1085,7 +1082,7 @@
 				
 				jpc = connectorSelector();
 				if (self.isFull() && !self.dragAllowedWhenFull) return false;
-
+				
 				_updateOffset(_elementId);
 				inPlaceCopy = self.makeInPlaceCopy();
 				inPlaceCopy.paint();
@@ -1160,8 +1157,6 @@
 			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {				
 				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-				var o = self.container == null ? {x:0,y:0}:_getOffset(_getElementObject(self.container));
-				_ui.left=_ui.left-o.left;_ui.top=_ui.top-o.top;
 				_draw(_getElementObject(n), _ui);
 			});
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
@@ -1202,6 +1197,7 @@
 							}
 						} else {							
 							_removeElement(jpc.canvas, self.container);
+							//if (jpc.endpoints[1]) alert("target set");
 							self.removeConnection(jpc);							
 						}
 					}
@@ -1300,7 +1296,7 @@
     	this.Defaults = {
     		Anchor : null,
     		Anchors : [ null, null ],
-    		BackgroundPaintStyle : null ,
+    		BackgroundPaintStyle : null ,    		
     		Connector : null,
     		Container : null,
     		DragOptions: { },
@@ -2100,5 +2096,4 @@
 			jsPlumb.extend(j.Defaults, _defaults);
 		return j;
 	};
-
 })();
