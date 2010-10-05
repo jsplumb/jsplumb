@@ -57,6 +57,7 @@
     jsPlumb.Connectors.Straight = function() {
 	
 		var self = this;
+		var currentPoints = null;
 
         /**
          * Computes the new size and position of the canvas.
@@ -75,7 +76,7 @@
          * the line it is going to draw.  a more involved implementation, like a Bezier curve,
          * would store the control point info in this array too.
          */
-        this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) {
+        this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth) {
 			var w = Math.abs(sourcePos[0] - targetPos[0]);
             var h = Math.abs(sourcePos[1] - targetPos[1]);
             var widthAdjusted = false, heightAdjusted = false;
@@ -87,15 +88,18 @@
             var x = Math.min(sourcePos[0], targetPos[0]) - xo;
             var y = Math.min(sourcePos[1], targetPos[1]) - yo;
             
-            if (w < 2 * lineWidth) { 
-        		w = 2 * lineWidth; 
-        		x = sourcePos[0]  + ((targetPos[0] - sourcePos[0]) / 2) - lineWidth;
+            // minimum size is 2 * line Width if minWidth was not given.
+            var calculatedMinWidth = Math.max(2 * lineWidth, minWidth);
+            
+            if (w < calculatedMinWidth) { 
+        		w = calculatedMinWidth; 
+        		x = sourcePos[0]  + ((targetPos[0] - sourcePos[0]) / 2) - (calculatedMinWidth / 2);
         		xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;
         	}
-            if (h < 2 * lineWidth) { 
-        		// minimum size is 2 * line Width
-        		h = 2 * lineWidth; 
-        		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - lineWidth;
+            if (h < calculatedMinWidth) { 
+        		
+        		h = calculatedMinWidth; 
+        		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - (calculatedMinWidth / 2);
         		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
         	}
                             
@@ -103,9 +107,9 @@
             var sy = sourcePos[1] < targetPos[1] ? h-yo : yo;
             var tx = sourcePos[0] < targetPos[0] ? xo : w-xo;
             var ty = sourcePos[1] < targetPos[1] ? yo : h-yo;
-            var retVal = [ x, y, w, h, sx, sy, tx, ty ];
+            currentPoints = [ x, y, w, h, sx, sy, tx, ty ];
                              
-            return retVal;
+            return currentPoints;
         };
 
         this.paint = function(dimensions, ctx)
@@ -124,7 +128,7 @@
         				  {x:currentPoints[8], y:currentPoints[9]}, 
         				  {x:currentPoints[10], y:currentPoints[11]}, 
         				  {x:currentPoints[6], y:currentPoints[7]}];
-        	return (DistanceFromCurve(point, curve));        	        	
+        	return (jsPlumb.DistanceFromCurve(point, curve));        	        	
         };
     };
                 
@@ -174,7 +178,7 @@
             return p;                
         };
 
-        this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth)
+        this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth)
         {
         	lineWidth = lineWidth || 0;
             var w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth, h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
@@ -199,6 +203,19 @@
                 canvasY += miny; var oy = Math.abs(miny);
                 h += oy; CP[1] += oy; sy += oy; ty +=oy; CP2[1] += oy;
             }
+            
+            if (minWidth && w < minWidth) {
+            	var adj = minWidth / w, posAdjust = minWidth - w;
+        		w = minWidth; 
+        		//canvasX -= (adj / 2); sx += (adj / 2); tx -= (adj / 2); CP[0] -= (adj / 2); CP2[0] -= (adj / 2);
+        		canvasX -= (posAdjust / 2); sx =sx * adj ; tx = tx * adj ; CP[0] =  CP[0] * adj; CP2[0] = CP2[0] * adj;
+        	}
+            /*if (h < calculatedMinWidth) { 
+        		
+        		h = calculatedMinWidth; 
+        		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - (calculatedMinWidth / 2);
+        		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
+        	}*/
 
             // return [ canvasx, canvasy, canvasWidth, canvasHeight,
             //          sourceX, sourceY, targetX, targetY,
@@ -236,7 +253,7 @@
         				  {x:currentPoints[8], y:currentPoints[9]}, 
         				  {x:currentPoints[10], y:currentPoints[11]}, 
         				  {x:currentPoints[6], y:currentPoints[7]}];
-        	return (DistanceFromCurve(point, curve));        	        	
+        	return (jsPlumb.DistanceFromCurve(point, curve));        	        	
         };
     };
     
