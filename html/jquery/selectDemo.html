@@ -5,21 +5,36 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>	
-		<style type="text/css">/* demo */
+		<style type="text/css">
+		/* demo */
 /* demo */
-.window { border:2px dotted #346789; opacity:0.8; filter:alpha(opacity=80); width:14em; height:12em; z-index:20; position:absolute; color:white;font-family:helvetica;padding:0.5em; font-size:0.8em;}
-#window1 { background-color:#225588; top:2em;left:2em;}
-#window2 { top:16em; left:47em;background-color:#558822;}
-#window3 { top:28em;background-color:#882255;left:2em; }
-#window4 { top:6em; left:26em;background-color:#122704; }
-#window5 {top:34em;left:26em;background-color:#041227;}
-#window6 {top:23em;left:69em;background-color:#333300;}
-#window7 {top:18em;left:40em;background-color:#872431;}
-#window8 {left:63em;top:32em;background-color:#045803;}
+body { font-size:90%; }
+.window { border:3px solid #346789; 
+opacity:0.8; 
+filter:alpha(opacity=80); 
+width:14em; height:12em; 
+z-index:20; position:absolute; 
+background-color:white;
+color:black;
+font-family:helvetica;padding:0.5em; 
+font-size:0.8em;}
+#window1 {  top:2em;left:2em;}
+#window2 { top:14em; left:47em;}
+#window3 { top:28em;left:2em; }
+#window4 { top:6em; left:26em;}
+#window5 {top:34em;left:26em;}
+#window6 {top:23em;left:69em;}
+#window7 {top:18em;left:40em;}
+#window8 {left:63em;top:32em;}
 ._jsPlumb_connector { z-index:4; }
 ._jsPlumb_endpoint { z-index:5; }
-.hl { border:3px dotted red; }
+.hl { border:3px solid red; }
 #debug { position:absolute; background-color:black; color:red; z-index:5000 }
+
+#explanation {
+background-color:white;
+color:#000;
+}
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
@@ -35,7 +50,7 @@
 	    <div id="debug"></div>
 	    
 	    <div id="explanation">
-	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  This page contains a little bit of everything to whet your appetite.</p>
+	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  </p>
 	    	<p>This demonstration uses jsPlumb 1.2.3, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
 	    	<a href="chartDemo.html" class="mplink">Next: Chart demonstration</a>
 	    	<br/><br/>
@@ -61,7 +76,6 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
-				//jsPlumb.Defaults.BackgroundPaintStyle = {lineWidth:17,strokeStyle:'black'};
 
 				// 
 				// plumb window1 to window2 with a 15 px wide yellow Bezier, from the BottomCenter of window1 to 3/4 of the way along the top edge
@@ -97,12 +111,13 @@
 			        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
 			        				 anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle], 
 			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
-			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 
-			        				 backgroundPaintStyle:{lineWidth:14,strokeStyle:'#00a1ab'},
+			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 			        				 
+			        				 backgroundPaintStyle:{lineWidth:12,strokeStyle:'rgba(100,100,100,50)'},
 			        				 endpointsOnTop:false,
 			        				 label : function(connection) { 
 				        				 var d = new Date();
-				        				 return (d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds()); 
+				        				 var fmt = function(n) { return (n < 10 ? "0" : "") + n; }; 
+				        				 return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds())); 
 				        			 }
 			        			});
 				 
@@ -129,12 +144,12 @@
 			        						source:'window5', 
 			        						target:'window6', 
 			        						anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], 
-			        						paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, 
+			        						//paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, 
+			        						paintStyle:{lineWidth:5,strokeStyle:'rgba(46,164,26,0.8)'},
 			        						endpointsOnTop:false, 
-			        						endpointStyle:{radius:125, fillStyle:'rgba(0,255,0,0.5)'},
-			        						labelStyle : { background:"rgba(0,255,0, 0.5)", color:"black" },
-			        						label : "big endpoints"
-			        			});
+			        						endpointStyle:{radius:125, fillStyle:'rgba(46,164,26,0.8)'},
+			        						labelStyle : { background:"rgba(46,164,26, 0.8)", color:"black" },
+			        						label : "big endpoints" });
 
 		        //
 		        // plumb window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
@@ -150,31 +165,26 @@
 			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
 			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,
 										labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },			    			        				 
-				    			        label : "4 - 5"
-			        			  });
-
+				    			        label : "4 - 5" });
 
 		        // all the mouse listener stuff
 		        var c = function(connection, window) {
-			        var bgstyle = connection.backgroundPaintStyle || {};
-					connection.addListener("mousemove", function(e) {
-						var o = $(connection.canvas).offset();
-						var p = { x:e.pageX - o.left, y:e.pageY - o.top };
-						var t = connection.distanceFrom(p);
-						$("#debug").html(t.d + ", " + t.t);
-						if (t.d < 50) {
-							connection.backgroundPaintStyle = {lineWidth:17,strokeStyle:'black'};
-							jsPlumb.repaint(window);
-							$(connection.source).addClass("hl");
-							$(connection.target).addClass("hl");
-						}
-						else {
-							connection.backgroundPaintStyle = bgstyle;
-							jsPlumb.repaint(window);
-							$(connection.source).removeClass("hl");
-							$(connection.target).removeClass("hl");
-						}
+					connection.bind("mouseenter", function(connection) {
+						jsPlumb.extend(connection.backgroundPaintStyle, {strokeStyle:'red'});
+						jsPlumb.repaint(window);
+						$(connection.source).addClass("hl");
+						$(connection.target).addClass("hl");						
 					});
+					connection.bind("mouseleave", function(connection) {
+						jsPlumb.extend(connection.backgroundPaintStyle, {strokeStyle:'black'});
+						jsPlumb.repaint(window);
+						$(connection.source).removeClass("hl");
+						$(connection.target).removeClass("hl");						
+					});
+					connection.bind("click", function(connection) {
+						alert("click");
+					});
+					
 				};
 		        c(connection1, "window1");
 				c(connection2, "window3");
