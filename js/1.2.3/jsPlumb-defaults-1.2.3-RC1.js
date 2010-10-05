@@ -205,10 +205,9 @@
             }
             
             if (minWidth && w < minWidth) {
-            	var adj = minWidth / w, posAdjust = minWidth - w;
-        		w = minWidth; 
-        		//canvasX -= (adj / 2); sx += (adj / 2); tx -= (adj / 2); CP[0] -= (adj / 2); CP2[0] -= (adj / 2);
-        		canvasX -= (posAdjust / 2); sx =sx * adj ; tx = tx * adj ; CP[0] =  CP[0] * adj; CP2[0] = CP2[0] * adj;
+            	var posAdjust = (minWidth - w) / 2;
+        		w = minWidth;        		
+        		canvasX -= posAdjust; sx =sx + posAdjust ; tx = tx + posAdjust; CP[0] =  CP[0] + posAdjust; CP2[0] = CP2[0] + posAdjust;
         	}
             /*if (h < calculatedMinWidth) { 
         		
