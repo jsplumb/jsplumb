@@ -795,11 +795,13 @@
 	            	// we allow label generation by a function here.  you get given the Connection object as an argument.
 	            	labelText = typeof self.label == 'function' ? self.label(self) : self.label;
 	            	if (labelText) {
-			            if (self.labelStyle.font) ctx.font = self.labelStyle.font;			            		           
-			            labelWidth = ctx.measureText(labelText).width;
+			            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
+			            var t = ctx.measureText(labelText).width;			            
 						// a fake text height measurement: use the width of lower case m
-						labelHeight = ctx.measureText("m").width;					
+						var h = ctx.measureText("m").width;					
 						labelPadding = self.labelStyle.padding || 0.25;
+						labelWidth = t + (2 * t * labelPadding);
+						labelHeight = h + (2 * h * labelPadding);
 	            	}
 	            }
 	            
@@ -835,7 +837,7 @@
 						ctx.fillStyle = self.labelStyle.background;
 					else 
 						ctx.fillStyle = "rgba(0,0,0,0)";
-					ctx.fillRect(centerX - (labelWidth / 2) - (labelWidth * labelPadding), centerY - (labelHeight / 2) - (labelHeight * labelPadding), labelWidth + (2 * labelWidth * labelPadding), labelHeight + (2 * labelHeight * labelPadding));
+					ctx.fillRect(centerX - (labelWidth / 2), centerY - (labelHeight / 2) , labelWidth , labelHeight );
 					
 					if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
 					ctx.textBaseline = "middle";
