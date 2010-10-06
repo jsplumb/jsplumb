@@ -49,7 +49,7 @@
 	jsPlumb.Anchors.BottomRight 	= jsPlumb.makeAnchor(1, 1, 0, 1);
 	jsPlumb.Anchors.TopLeft 		= jsPlumb.makeAnchor(0, 0, 0, -1);
 	jsPlumb.Anchors.BottomLeft 		= jsPlumb.makeAnchor(0, 1, 0, 1);
-	
+	jsPlumb.Anchors.AutoDefault     = jsPlumb.makeSelectiveAnchor([jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]);
 	
         /**
          * The Straight connector draws a simple straight line between the two anchor points.
