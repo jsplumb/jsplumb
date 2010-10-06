@@ -155,12 +155,24 @@
 			var myWH = sizes[id];			
 	    	// loop through endpoints for this element
 	    	for (var i = 0; i < endpoints.length; i++) {
-	    		var e = endpoints[i];	    		
+	    		var e = endpoints[i];
+	    		var l = e.connections;
 	    		var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
-	            e.paint(anchorLoc);
-	            var l = e.connections;
-		    	for (var j = 0; j < l.length; j++)
+	    		e.paint(anchorLoc);
+	    		for (var j = 0; j < l.length; j++) {
 		    		l[j].paint(id, ui, false, timestamp);  // ...and paint them.
+		    		var oIdx = l[j].endpoints[0] == e ? 1 : 0;
+		    		// if the other endpoint has a selective anchor then it might need to be repainted, because it may have just moved
+		    		// position. it is possible we could cache the knowledge about that and not run this paint code all the time.
+		    		if (l[j].endpoints[oIdx].anchor.isSelective) {
+			    		var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
+			    		_updateOffset(oId);
+			    		var oOffset = offsets[oId];
+						var oWH = sizes[oId];
+						var anchorLoc = l[j].endpoints[oIdx].anchor.compute([oOffset.left, oOffset.top], oWH, l[j].endpoints[oIdx], [myOffset.left, myOffset.top], myWH, e);
+						l[j].endpoints[oIdx].paint(anchorLoc);
+		    		}
+		    	}
 	    	}
     	}
     };
@@ -172,7 +184,6 @@
 	 */
 	var _elementProxy = function(element, fn) {
 		var retVal = null;
-		// TODO this might be jquery specific. in fact it probably is.
 		if (typeof element == 'object' && element.length) {
 			retVal = [];
     		for (var i = 0; i < element.length; i++) {
@@ -530,14 +541,8 @@
 		var orientation = params.orientation || [0,0];
 		var lastTimestamp = null;
 		var lastReturnValue = null;
-		this.offsets = params.offsets || [0,0];		
-		//TODO: fix this properly.  since Anchors are often static, this timestamping business
-		// does not work at all well.  the timestamp should be inside the Endpoint, because they
-		// are _never_ static.  the method that Connection uses to find an anchor location should
-		// be done through the Endpoint class, which can then deal with the timestamp.
-		// and, in fact, we should find out whether or not we even get a speed enhancement from doing
-		// this.
-		this.compute = function(xy, wh, element) {
+		this.offsets = params.offsets || [0,0];
+		this.compute = function(xy, wh, element, txy, twh, tElement) {
 			lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1]];
 			var container = element? element.container : null;
 			var containerAdjustment = {left:0, top:0 };
@@ -615,6 +620,57 @@
 		 */
 		this.out = function() {
 			orientation = null;
+		};
+	};	
+	
+	/**
+	 * An Anchor that contains a list of other Anchors, and which it cycles through at compute time and finds the one that is located closest to
+	 * the center of the target element, and returns that Anchor's compute method result.  this causes endpoints to follow each other with respect
+	 * to the orientation of their target elements - a useful feature for some applications.
+	 */
+	var SelectiveAnchor = function(anchors) {
+		this.isSelective = true;
+		var _anchors = anchors || [];
+		this.addAnchor = function(anchor) { _anchors.push(anchor); };
+		var _curAnchor = null;
+		
+		//todo set a default anchor?
+		
+		var _distance = function(anchor, cx, cy, xy, wh) {
+			var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]);
+			return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2));
+		};
+		
+		this.compute = function(xy, wh, element, txy, twh, tElement) {	
+			// todo - keep this?
+			if (txy == null || twh == null) {
+				if (_curAnchor != null) return _curAnchor.compute(xy, wh, element, txy, twh, tElement);
+				txy = xy;
+				twh = wh;
+			}
+			var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
+			var minIdx = -1, minDist = Infinity;
+			for (var i = 0; i < _anchors.length; i++) {
+				var d = _distance(_anchors[i], cx, cy, xy, wh);
+				if (d < minDist) {
+					minIdx = i + 0;
+					minDist = d;
+				}
+			}
+			_curAnchor = _anchors[minIdx];
+			return _curAnchor.compute(xy, wh, element, txy, twh, tElement);
+		};
+		
+		this.getOrientation = function() {
+			return _curAnchor != null ? _curAnchor.getOrientation() : [0,0];
+		};
+		
+		this.over = function(anchor) {
+			if (_curAnchor != null) _curAnchor.over(anchor);
+		};
+		
+		this.out = function() {
+			if (_curAnchor != null) _curAnchor.out();
 		};
 	};
 	
@@ -694,12 +750,18 @@
 	    // functions for mouse hover/select functionality
 	    this.distanceFrom = function(point) { return self.connector.distanceFrom(point); };	    
 	    
+	    this.setLabel = function(l) { 
+	    	self.label = l;
+	    	_currentInstance.repaint(self.source);
+	    };
+	    
 	    // paint the endpoints
-	    var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];		
-    	var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[0]);
+	    var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];
+	    var otherOffset = offsets[this.targetId]; otherWH = sizes[this.targetId];
+    	var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[0], [otherOffset.left, otherOffset.top], otherWH, this.endpoints[1]);
     	this.endpoints[0].paint(anchorLoc);    	
-    	myOffset = offsets[this.targetId]; myWH = sizes[this.targetId];		
-    	anchorLoc = this.endpoints[1].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[1]);
+    			
+    	anchorLoc = this.endpoints[1].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[1], [myOffset.left, myOffset.top], myWH, this.endpoints[0]);
     	this.endpoints[1].paint(anchorLoc);
 
 	// *************** create canvas on which the connection will be drawn ************
@@ -761,7 +823,7 @@
 	     */
 	    this.paint = function(elId, ui, recalc, timestamp) {    	
 	    	
-	    	if (log) log.debug("Painting Connection; element in motion is " + elId + "; ui is [" + ui + "]; recalc is [" + recalc + "]");
+	    //	/*if (log) log.debug*/ console.log("Painting Connection; element in motion is " + elId + "; ui is [" + ui + "]; recalc is [" + recalc + "]");
 	    	
 	    	var fai = self.floatingAnchorIndex;
 	    	// if the moving object is not the source we must transpose the two references.
@@ -783,9 +845,9 @@
 	            
 	    		var ctx = canvas.getContext('2d');
 	    		//TODO: why are these calculated again?  they were calculated in the _draw function.
-	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
+	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[sIdx], [otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
+	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx], [myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();	        
 	            	            
 	            // if we have a label then the canvas must be at least big enough to draw the label, so we pass that min value into the 
@@ -1803,6 +1865,10 @@
 	    	var a = new Anchor(params);
 	    	a.clone = function() { return new Anchor(params); };
 	    	return a;
+	    };
+	    
+	    this.makeSelectiveAnchor = function(anchors) {
+	    	return new SelectiveAnchor(anchors);
 	    };
 	        	    
 	    /*
