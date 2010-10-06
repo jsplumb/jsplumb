@@ -52,6 +52,7 @@ color:#000;
 	    <div id="explanation">
 	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  </p>
 	    	<p>This demonstration uses jsPlumb 1.2.3, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
+	    	<form id="frmLabel"><label >label:<input type="text" id="txtLabel"></input></label><input type="submit"></input></form>
 	    	<a href="chartDemo.html" class="mplink">Next: Chart demonstration</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
@@ -65,14 +66,7 @@ color:#000;
 		<script type="text/javascript" src="../../js/1.2.3/jsPlumb-defaults-1.2.3-RC1.js"></script>
 		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-RC1.js"></script>
 		<script type="text/javascript" src="../../js/NearestPoint.js"></script>
-		
-		label.font = "26px sans-serif"
-	            label.background = "rgba(5,105,235,0.3)";
-	            label.text = "hello";
-	            label.padding= 0.5;
-	            label.color = "black";
-	            
-		
+					            		
 		<script type="text/javascript">
 			$(document).ready(function() {
 				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
@@ -80,8 +74,7 @@ color:#000;
 				// 
 				// plumb window1 to window2 with a 15 px wide yellow Bezier, from the BottomCenter of window1 to 3/4 of the way along the top edge
 				// of window2. endpoints are a slightly lighter shade of yellow. the connection is labelled "connection 1" with a 16px sans serif
-				// black font. 
-				// 
+				// black font. 				
 				var connection1 = jsPlumb.connect({source:'window1', 
 												   target:'window2', 
 												   anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], 
@@ -94,10 +87,7 @@ color:#000;
 												   	},
 												   	label : "connection 1"
 												  });
-				// temporarily bump it to the top
-				//$(connection1.canvas).css("z-index", 1000);				
-				//$(connection1.canvas).bind("mousemove", function(e) {											
-				
+												  												  
 				//
 				// plumb the right hand side of window3 to the left hand side of window4 with a 10px wide blue-ish half transparent Bezier. 
 				// put endpoints underneath the element they attach to. the endpoints have a radial gradient. both possible ways of specifying 
@@ -109,7 +99,7 @@ color:#000;
 				var w34HlStroke = 'rgba(180, 180, 200, 1)';
 				var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
 			        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
-			        				 anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle], 
+			        				 anchors:[jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.AutoDefault], 
 			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
 			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 			        				 
 			        				 backgroundPaintStyle:{lineWidth:12,strokeStyle:'rgba(100,100,100,50)'},
@@ -124,6 +114,7 @@ color:#000;
 		        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
 		        // specified here - this is how you create anchors in locations jsPlumb does not offer shortcuts for.
 		        // the endpoints in this example have linear gradients applied.
+		        //
 		        var w23Stroke = 'rgb(189,11,11)'; 
 		        var connection3 = jsPlumb.connect({source:'window2', target:'window3', 
 			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
@@ -156,7 +147,7 @@ color:#000;
 		        // image as the endpoint, placed on top of the element it is connected to.  the connection is labelled "4-5" with text
 		        // of the same color as the connector, on a white background.  note the 'padding' value of 0.4: that instructs jsPlumb to make
 		        // the background (2 * 0.4) times larger than the text in the horizontal and vertical directions.
-		        // 
+		        //
 		        var connection5 = jsPlumb.connect({
 			        					source:'window4', 
 			        					target:'window5', 
@@ -167,6 +158,7 @@ color:#000;
 										labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },			    			        				 
 				    			        label : "4 - 5" });
 
+/*
 		        // all the mouse listener stuff
 		        var c = function(connection, window) {
 					connection.bind("mouseenter", function(connection) {
@@ -191,6 +183,12 @@ color:#000;
 				c(connection3, "window3");
 				c(connection4, "window4");
 				c(connection5, "window5");
+*/
+				// label button
+				$("#frmLabel").submit(function() {
+					connection4.setLabel($("#txtLabel").val());
+					return false;
+				});
 		        
 		});
 		</script>
