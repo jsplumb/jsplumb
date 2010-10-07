@@ -157,8 +157,25 @@
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		var e = endpoints[i];
 	    		var l = e.connections;
-	    		var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
-	    		e.paint(anchorLoc);
+	    		// here we have a little quandary. if an endpoint is connected to some other element, and it
+	    		// has a selective anchor, then we want to know that element's position when we find our
+	    		// anchor. if it has no connections then fine, we use the default anchor in the list we can
+	    		// select from.  but if it has more than one connection, what then?  we need to compute where
+	    		// it is best placed relative to all other elements, and we then want to lock that position
+	    		// for the rest of this paint cycle. if we do not do that, it's possible that an endpoint will
+	    		// be moved by an ensuing connector's paint.
+	    		if (e.anchor.isSelective && l.length > 0) {
+	    			var c = l[0];
+	    			var oIdx = c.endpoints[0] == e ? 1 : 0;
+	    			var oId = oIdx == 0 ? c.sourceId : c.targetId;
+			    	var oOffset = offsets[oId], oWH = sizes[oId];
+			    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e, [oOffset.left, oOffset.top], oWH, c.endpoints[oIdx]);
+		    		e.paint(anchorLoc);
+	    		}
+	    		else {
+		    		var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
+		    		e.paint(anchorLoc);
+	    		}
 	    		for (var j = 0; j < l.length; j++) {
 		    		l[j].paint(id, ui, false, timestamp);  // ...and paint them.
 		    		var oIdx = l[j].endpoints[0] == e ? 1 : 0;
@@ -166,12 +183,10 @@
 		    		// position. it is possible we could cache the knowledge about that and not run this paint code all the time.
 		    		if (l[j].endpoints[oIdx].anchor.isSelective) {
 			    		var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
-			    		_updateOffset(oId);
-			    		var oOffset = offsets[oId];
-						var oWH = sizes[oId];
+			    		var oOffset = offsets[oId], oWH = sizes[oId];
 						var anchorLoc = l[j].endpoints[oIdx].anchor.compute([oOffset.left, oOffset.top], oWH, l[j].endpoints[oIdx], [myOffset.left, myOffset.top], myWH, e);
 						l[j].endpoints[oIdx].paint(anchorLoc);
-		    		}
+					}
 		    	}
 	    	}
     	}
@@ -632,7 +647,7 @@
 		this.isSelective = true;
 		var _anchors = anchors || [];
 		this.addAnchor = function(anchor) { _anchors.push(anchor); };
-		var _curAnchor = null;
+		var _curAnchor = _anchors.length > 0 ? _anchors[0] : null;
 		
 		//todo set a default anchor?
 		
@@ -644,9 +659,9 @@
 		this.compute = function(xy, wh, element, txy, twh, tElement) {	
 			// todo - keep this?
 			if (txy == null || twh == null) {
-				if (_curAnchor != null) return _curAnchor.compute(xy, wh, element, txy, twh, tElement);
-				txy = xy;
-				twh = wh;
+				return _curAnchor.compute(xy, wh, element, txy, twh, tElement);
+			//	txy = xy;
+				//twh = wh;
 			}
 			var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
 			var minIdx = -1, minDist = Infinity;
@@ -848,7 +863,7 @@
 	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[sIdx], [otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
 	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx], [myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
-	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();	        
+	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            	            
 	            // if we have a label then the canvas must be at least big enough to draw the label, so we pass that min value into the 
 	            // connector
@@ -859,8 +874,8 @@
 	            	if (labelText) {
 			            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
 			            var t = ctx.measureText(labelText).width;			            
-						// a fake text height measurement: use the width of lower case m
-						var h = ctx.measureText("m").width;					
+						// a fake text height measurement: use the width of upper case M
+						var h = ctx.measureText("M").width;					
 						labelPadding = self.labelStyle.padding || 0.25;
 						labelWidth = t + (2 * t * labelPadding);
 						labelHeight = h + (2 * h * labelPadding);
@@ -1783,7 +1798,6 @@
 	    			for (var j = 0; j < connectionsByScope[i].length; j++) {
 	    				var c = connectionsByScope[i][j];
 	    				if (filter(sources, c.sourceId) && filter(targets, c.targetId))
-	    					//r[i].push({sourceId:c.sourceId, targetId:c.targetId});
 	    					r[i].push({
 	    						sourceId:c.sourceId, 
 	    						targetId:c.targetId,
