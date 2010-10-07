@@ -648,6 +648,8 @@
 		var _anchors = anchors || [];
 		this.addAnchor = function(anchor) { _anchors.push(anchor); };
 		var _curAnchor = _anchors.length > 0 ? _anchors[0] : null;
+		this.locked = false;
+		var self = this;
 		
 		//todo set a default anchor?
 		
@@ -657,11 +659,10 @@
 		};
 		
 		this.compute = function(xy, wh, element, txy, twh, tElement) {	
-			// todo - keep this?
-			if (txy == null || twh == null) {
+			// if anchor is locked or an opposite element was not given, we maintain our state. anchor will be locked
+			// if it is the source of a drag and drop.
+			if (self.locked || txy == null || twh == null) {
 				return _curAnchor.compute(xy, wh, element, txy, twh, tElement);
-			//	txy = xy;
-				//twh = wh;
 			}
 			var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
 			var minIdx = -1, minDist = Infinity;
@@ -1167,7 +1168,7 @@
 			var start = function() {
 				
 				jpc = connectorSelector();
-				if (self.isFull() && !self.dragAllowedWhenFull) return false;
+				if (self.isFull() && !self.dragAllowedWhenFull) return false;						
 				
 				_updateOffset(_elementId);
 				inPlaceCopy = self.makeInPlaceCopy();
@@ -1190,6 +1191,7 @@
 				floatingEndpoint = new Endpoint({ style:{fillStyle:'rgba(0,0,0,0)'}, endpoint:_endpoint, anchor:floatingAnchor, source:nE });
 								
 				if (jpc == null) {
+					self.anchor.locked = true;
 					// create a connection. one end is this endpoint, the other is a floating endpoint.
 					jpc = new Connection({
 						sourceEndpoint:self, 
@@ -1217,6 +1219,7 @@
 						jpc.targetId = id;
 					}					
 					
+					jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
 					jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
 					jpc.endpoints[anchorIdx] = floatingEndpoint;
 				}
@@ -1246,14 +1249,16 @@
 				_draw(_getElementObject(n), _ui);
 			});
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 
-				function() {	
+				function() {					
 					_removeFromList(endpointsByElement, id, floatingEndpoint);
 					_removeElements([n, floatingEndpoint.canvas], _element); // TODO: clean up the connection canvas (if the user aborted)
 					_removeElement(inPlaceCopy.canvas, _element); 
 					var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+					jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
 					if (jpc.endpoints[idx] == floatingEndpoint) {										
 						// if the connection was an existing one:
 						if (existingJpc && jpc.suspendedEndpoint) {
+							
 							if (_reattach) {
 								jpc.floatingAnchorIndex = null;
 								if (idx == 0) {
@@ -1262,7 +1267,7 @@
 								} else {
 									jpc.target = existingJpcParams[0];
 									jpc.targetId = existingJpcParams[1];
-								}
+								}								
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
 								jpc.suspendedEndpoint.addConnection(jpc);
 								jsPlumb.repaint(existingJpcParams[1]);
@@ -1287,6 +1292,7 @@
 							self.removeConnection(jpc);							
 						}
 					}
+					self.anchor.locked = false;
 					jpc = null;
 					delete floatingEndpoint;
 					delete inPlaceCopy;
