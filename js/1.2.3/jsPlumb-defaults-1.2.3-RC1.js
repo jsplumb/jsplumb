@@ -168,15 +168,7 @@
         	var l = arguments[arguments.length - 1];
         	var y =  l / 2 * Math.sin(_theta2);
 			var x =  l / 2 * Math.cos(_theta2);
-			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]]
-			/*var orientation = (_sx < _tx && _sy > _ty) || (_sx > _tx && _sy > _ty) ? 1 : -1;			
-			var l1 = [_sx -(orientation * x), _sy-(orientation * y)];
-			orientation = -orientation;	
-			var l2 = [_sx -(orientation * x), _sy-(orientation * y)];
-			var b1 = -1 * ((_m * l1[0]) - l1[1]);
-			var b2 = -1 * ((_m * l2[0]) - l2[1]);
-        	var xp1 = l1[0] + (location * _dx), xp2 = l2[0] + (location * _dx);
-			return [[xp1, (_m * xp1) + b1], [xp2, (_m * xp2) + b2]];*/
+			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]];
         };
     };
                 
@@ -226,36 +218,41 @@
             return p;                
         };
 
+        var _CP, _CP2, _sx, _tx, _sx, _sy, _canvasX, _canvasY, _w, _h;
         this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth)
         {
         	lineWidth = lineWidth || 0;
-            var w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth, h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
-            var canvasX = Math.min(sourcePos[0], targetPos[0])-(lineWidth/2), canvasY = Math.min(sourcePos[1], targetPos[1])-(lineWidth/2);
-            var sx = sourcePos[0] < targetPos[0] ? w - (lineWidth/2): (lineWidth/2), sy = sourcePos[1] < targetPos[1] ? h-(lineWidth/2) : (lineWidth/2);
-            var tx = sourcePos[0] < targetPos[0] ? (lineWidth/2) : w-(lineWidth/2), ty = sourcePos[1] < targetPos[1] ? (lineWidth/2) : h-(lineWidth/2);
-            var CP = self._findControlPoint([sx,sy], sourcePos, targetPos, sourceAnchor, targetAnchor);
-            var CP2 = self._findControlPoint([tx,ty], targetPos, sourcePos, targetAnchor, sourceAnchor);                
-            var minx1 = Math.min(sx,tx); var minx2 = Math.min(CP[0], CP2[0]); var minx = Math.min(minx1,minx2);
-            var maxx1 = Math.max(sx,tx); var maxx2 = Math.max(CP[0], CP2[0]); var maxx = Math.max(maxx1,maxx2);
+            _w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth; 
+            _h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
+            _canvasX = Math.min(sourcePos[0], targetPos[0])-(lineWidth/2);
+            _canvasY = Math.min(sourcePos[1], targetPos[1])-(lineWidth/2);
+            _sx = sourcePos[0] < targetPos[0] ? _w - (lineWidth/2): (lineWidth/2);
+            _sy = sourcePos[1] < targetPos[1] ? _h - (lineWidth/2) : (lineWidth/2);
+            _tx = sourcePos[0] < targetPos[0] ? (lineWidth/2) : _w - (lineWidth/2);
+            _ty = sourcePos[1] < targetPos[1] ? (lineWidth/2) : _h - (lineWidth/2);
+            _CP = self._findControlPoint([_sx,_sy], sourcePos, targetPos, sourceAnchor, targetAnchor);
+            _CP2 = self._findControlPoint([_tx,_ty], targetPos, sourcePos, targetAnchor, sourceAnchor);                
+            var minx1 = Math.min(_sx,_tx); var minx2 = Math.min(_CP[0], _CP2[0]); var minx = Math.min(minx1,minx2);
+            var maxx1 = Math.max(_sx,_tx); var maxx2 = Math.max(_CP[0], _CP2[0]); var maxx = Math.max(maxx1,maxx2);
             
-            if (maxx > w) w = maxx;
+            if (maxx > _w) _w = maxx;
             if (minx < 0) {
-                canvasX += minx; var ox = Math.abs(minx);
-                w += ox; CP[0] += ox; sx += ox; tx +=ox; CP2[0] += ox;
+                _canvasX += minx; var ox = Math.abs(minx);
+                _w += ox; _CP[0] += ox; _sx += ox; _tx +=ox; _CP2[0] += ox;
             }                
 
-            var miny1 = Math.min(sy,ty); var miny2 = Math.min(CP[1], CP2[1]); var miny = Math.min(miny1,miny2);
-            var maxy1 = Math.max(sy,ty); var maxy2 = Math.max(CP[1], CP2[1]); var maxy = Math.max(maxy1,maxy2);
-            if (maxy > h) h = maxy;
+            var miny1 = Math.min(_sy,_ty); var miny2 = Math.min(_CP[1], _CP2[1]); var miny = Math.min(miny1,miny2);
+            var maxy1 = Math.max(_sy,_ty); var maxy2 = Math.max(_CP[1], _CP2[1]); var maxy = Math.max(maxy1,maxy2);
+            if (maxy > _h) _h = maxy;
             if (miny < 0) {
-                canvasY += miny; var oy = Math.abs(miny);
-                h += oy; CP[1] += oy; sy += oy; ty +=oy; CP2[1] += oy;
+                _canvasY += miny; var oy = Math.abs(miny);
+                _h += oy; _CP[1] += oy; _sy += oy; _ty +=oy; _CP2[1] += oy;
             }
             
-            if (minWidth && w < minWidth) {
+            if (minWidth && _w < minWidth) {
             	var posAdjust = (minWidth - w) / 2;
-        		w = minWidth;        		
-        		canvasX -= posAdjust; sx =sx + posAdjust ; tx = tx + posAdjust; CP[0] =  CP[0] + posAdjust; CP2[0] = CP2[0] + posAdjust;
+        		_w = minWidth;        		
+        		_canvasX -= posAdjust; _sx = _sx + posAdjust ; _tx = _tx + posAdjust; _CP[0] =  _CP[0] + posAdjust; _CP2[0] = _CP2[0] + posAdjust;
         	}
             /*if (h < calculatedMinWidth) { 
         		
@@ -267,7 +264,7 @@
             // return [ canvasx, canvasy, canvasWidth, canvasHeight,
             //          sourceX, sourceY, targetX, targetY,
             //          controlPoint1_X, controlPoint1_Y, controlPoint2_X, controlPoint2_Y
-            currentPoints = [canvasX, canvasY, w, h, sx, sy, tx, ty, CP[0], CP[1], CP2[0], CP2[1] ];
+            currentPoints = [_canvasX, _canvasY, _w, _h, _sx, _sy, _tx, _ty, _CP[0], _CP[1], _CP2[0], _CP2[1] ];
             return currentPoints;
         };
 
@@ -290,7 +287,7 @@
             ctx.moveTo(d[4],d[5]);
             ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
             ctx.stroke();            
-        };
+        };        
         
         /**
          * returns the distance the given point is from the curve.
@@ -301,6 +298,30 @@
         				  {x:currentPoints[10], y:currentPoints[11]}, 
         				  {x:currentPoints[6], y:currentPoints[7]}];
         	return (jsPlumb.DistanceFromCurve(point, curve));        	        	
+        };
+        
+        /**
+         * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
+         * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
+         */
+        this.pointOnPath = function(location) {        	
+        	function B1(t) { return t*t*t };
+        	function B2(t) { return 3*t*t*(1-t) };
+        	function B3(t) { return 3*t*(1-t)*(1-t) };
+        	function B4(t) { return (1-t)*(1-t)*(1-t) };
+
+        	var percent = location;
+        	var x = _sx*B1(percent) + _CP[0]*B2(percent) + _CP2[0]*B3(percent) + _tx*B4(percent);
+        	var y = _sy*B1(percent) + _CP[1]*B2(percent) + _CP2[1]*B3(percent) + _ty*B4(percent);
+        	return [x,y];			        	
+        };
+        
+        this.pointAlongPathFrom = function(location, distance) {
+        	
+        };
+        
+        this.perpendicularToPath = function(location, length) {
+        	
         };
     };
     
@@ -518,7 +539,7 @@
     	var length = params.length || 20;
     	var width = params.width || 20;
     	var fillStyle = params.fillStyle || "black";
-    	var strokeStyle = params.strokeStyle || "yellow";
+    	var strokeStyle = params.strokeStyle /*|| "yellow"*/;
     	var lineWidth = params.lineWidth || 1;
     	this.location = params.location || 0.5;
     	// how far along the arrow the lines folding back in come to. default is 62.3%. 
