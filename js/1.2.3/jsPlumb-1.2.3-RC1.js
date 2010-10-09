@@ -757,8 +757,19 @@
 	    this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 	    this.paintStyle = this.endpoints[0].connectorStyle  || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
 		this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle  || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
+		
+		// init overlays
+		this.overlays = params.overlays || [];
+		this.addOverlay = function(overlay) {
+			overlays.push(overlay);
+		};
+		
+		// this is a shortcut helper method to let people add a label as overlay.
 	    this.labelStyle = params.labelStyle || _currentInstance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;;
-	    this.label = params.label;	    	    	    	   
+	    this.label = params.label;
+	    if (this.label) {
+	    	this.overlays.push(new jsPlumb.Overlays.Label({labelStyle:this.labelStyle, label:this.label}));
+	    };
 	    	    	    	   
 	    _updateOffset(this.sourceId);
 	    _updateOffset(this.targetId);
@@ -865,10 +876,19 @@
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
 	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx], [myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
-	            	            
+	            
+	            
+	            // paint overlays
+	            var maxSize = 0;
+	            for (var i = 0; i < self.overlays.length; i++) {
+	            	var o = self.overlays[i];
+	            	var s = o.computeMaxSize(self.connector, o.location || 0.5, ctx);
+	            	if (s > maxSize) maxSize = s;
+	            }
+	            
 	            // if we have a label then the canvas must be at least big enough to draw the label, so we pass that min value into the 
 	            // connector
-	            var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
+	            /*var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
 	            if (self.label) {
 	            	// we allow label generation by a function here.  you get given the Connection object as an argument.
 	            	labelText = typeof self.label == 'function' ? self.label(self) : self.label;
@@ -881,9 +901,9 @@
 						labelWidth = t + (2 * t * labelPadding);
 						labelHeight = h + (2 * h * labelPadding);
 	            	}
-	            }
+	            }*/
 	            
-	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth, labelWidth);
+	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth, maxSize);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
 	
 	            var _paintOneStyle = function(ctx, paintStyle) {
@@ -907,7 +927,7 @@
 	            _paintOneStyle(ctx, this.paintStyle);
 	            
 	            // paint the label if it was given	            	            
-	            if (labelText) {
+	            /*if (labelText) {
 		            var centerX = ctx.canvas.width / 2;
 		            var centerY = ctx.canvas.height / 2;		            
 		            if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
@@ -921,7 +941,13 @@
 					ctx.textBaseline = "middle";
 					ctx.textAlign = "center";
 					ctx.fillText(labelText, centerX, centerY);
-	            }		                            
+	            }*/
+	            
+	            // paint overlays
+	            for (var i = 0; i < self.overlays.length; i++) {
+	            	var o = self.overlays[i];
+	            	o.draw(self.connector, o.location || 0.5, ctx);
+	            }
 	    	}
 	    };
 	    
@@ -1437,7 +1463,15 @@
 		 	to form <library>.jsPlumb-all-x.x.x.js.  You can provide your own Endpoints by supplying them in a script that is loaded after jsPlumb, for instance:		 
 		 	> jsPlumb.Endpoints.MyEndpoint = { ....endpoint code here.  see the documentation. }
 		 */
-	    this.Endpoints = {};	    
+	    this.Endpoints = {};
+	    
+	    /*
+	     Property:Overlays
+	       Default jsPlumb Overlays such as Arrows and Labels.  These are supplied in the file jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script
+		 	to form <library>.jsPlumb-all-x.x.x.js.  You can provide your own Overlays by supplying them in a script that is loaded after jsPlumb, for instance:		 
+		 	> jsPlumb.Overlays.MyOverlay = { ....overlay code here.  see the documentation. }
+	     */
+	    this.Overlays = {};
 	      
 	    /*
 	      Function: addEndpoint	     
@@ -1526,6 +1560,36 @@
 	    this.clearCache = function() {
 	    	delete cached;
 	    	cached = {};	    		
+	    };
+	    
+	    this.autoConnect = function() {
+	    	var sources = [], targets = [], endpoint = null, anchors = _currentInstance.Defaults.DynamicAnchors || jsPlumb.Defaults.DynamicAnchors;
+	    	var _addAll = function(s, t) {
+	    		for (var i = 0 ; i < s.length; i++) t.push(s[i]);
+	    	}
+	    	if (arguments.length == 2) {
+	    		// we were given a source and target
+	    		if (typeof arguments[0] == 'string') 
+	    			sources.push(_getElementObject(arguments[0]));
+	    		else {
+	    			_addAll(arguments[0], sources);
+	    		}
+	    		if (typeof arguments[1] == 'string') 
+	    			sources.push(_getElementObject(arguments[1]));
+	    		else {
+	    			_addAll(arguments[1], targets);
+	    		}
+	    		
+	    	}
+	    	
+	    	for (var i = 0; i < sources.length; i++) {
+	    		for (var j = 0; j < targets.length; i++) {
+	    			var da = jsPlumb.makeSelectiveAnchor(anchors);
+	    			var p = { source:sources[i], target:targets[j], anchor:da, endpoint:endpoint };
+		    		_currentInstance.connect(p);
+	    		}
+	    	}
+	    	
 	    };
 	    
 	    /*
