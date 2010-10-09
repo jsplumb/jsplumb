@@ -51,6 +51,8 @@
 	jsPlumb.Anchors.BottomLeft 		= jsPlumb.makeAnchor(0, 1, 0, 1);
 	jsPlumb.Anchors.AutoDefault     = function() { return jsPlumb.makeSelectiveAnchor([jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]); };
 	
+	jsPlumb.Defaults.DynamicAnchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]
+	
         /**
          * The Straight connector draws a simple straight line between the two anchor points.
          */
@@ -58,6 +60,7 @@
 	
 		var self = this;
 		var currentPoints = null;
+		var _m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty;
 
         /**
          * Computes the new size and position of the canvas.
@@ -103,11 +106,16 @@
         		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
         	}
                             
-            var sx = sourcePos[0] < targetPos[0] ? w-xo : xo;
-            var sy = sourcePos[1] < targetPos[1] ? h-yo : yo;
-            var tx = sourcePos[0] < targetPos[0] ? xo : w-xo;
-            var ty = sourcePos[1] < targetPos[1] ? yo : h-yo;
-            currentPoints = [ x, y, w, h, sx, sy, tx, ty ];
+            _sx = sourcePos[0] < targetPos[0] ? w-xo : xo;
+            _sy = sourcePos[1] < targetPos[1] ? h-yo : yo;
+            _tx = sourcePos[0] < targetPos[0] ? xo : w-xo;
+            _ty = sourcePos[1] < targetPos[1] ? yo : h-yo;
+            currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];
+            
+            _dx = _tx - _sx, _dy = _ty - _sy;
+			_m = _dy / _dx, _m2 = -1 / _m;
+			_b = -1 * ((_m * _sx) - _sy);
+			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
                              
             return currentPoints;
         };
@@ -129,6 +137,49 @@
         				  {x:currentPoints[10], y:currentPoints[11]}, 
         				  {x:currentPoints[6], y:currentPoints[7]}];
         	return (jsPlumb.DistanceFromCurve(point, curve));        	        	
+        };
+        
+        /**
+         * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
+         * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
+         */
+        this.pointOnPath = function(location) {
+        	var xp = _sx + (location * _dx);        	
+        	return [xp, (_m * xp) + _b];			        	
+        };
+        
+        /**
+         * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
+         * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
+         */
+        this.pointAlongPathFrom = function(location, distance) {
+        	var p = self.pointOnPath(location);
+        	var orientation = (_sx < _tx && _sy > _ty) || (_sx > _tx && _sy > _ty) ? 1 : -1;
+        	var y =  distance * Math.sin(_theta);
+			var x =  distance * Math.cos(_theta);
+			return [p[0] + (orientation * x), p[1] + (orientation * y)];
+        };
+        
+        /**
+         * Returns the endpoints of a line that is 'length' long and perpendicular to, and centered on, the path at 'location', where
+         * 'location' is a decimal from 0 to 1 inclusive.
+         * 
+         * this method can also be called like this:
+         * 
+         * perpendicularToPath(x, y, length) - when you already know
+         */
+        this.perpendicularToPath = function(location, length) {
+        	//svar p = self.pointOnPath(location);
+        	var y =  length / 2 * Math.sin(_theta2);
+			var x =  length / 2 * Math.cos(_theta2);
+			var orientation = (_sx < _tx && _sy > _ty) || (_sx > _tx && _sy > _ty) ? 1 : -1;			
+			var l1 = [_sx -(orientation * x), _sy-(orientation * y)];
+			orientation = -orientation;	
+			var l2 = [_sx -(orientation * x), _sy-(orientation * y)];
+			var b1 = -1 * ((_m * l1[0]) - l1[1]);
+			var b2 = -1 * ((_m * l2[0]) - l2[1]);
+        	var xp1 = l1[0] + (location * _dx), xp2 = l2[0] + (location * _dx);
+			return [[xp1, (_m * xp1) + b1], [xp2, (_m * xp2) + b2]];
         };
     };
                 
