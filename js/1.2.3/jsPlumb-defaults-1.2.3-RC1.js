@@ -1,13 +1,8 @@
 /*
 * jsPlumb-defaults-1.2.3-RC1
 *
-* This script contains the default Anchors, Endpoints and Connectors for jsPlumb.  It should be used with jsPlumb 1.1.0 and above; 
+* This script contains the default Anchors, Endpoints, Connectors and Overlays for jsPlumb.  It should be used with jsPlumb 1.1.0 and above; 
 * prior to version 1.1.0 of jsPlumb the defaults were included inside the main script.
-*
-* Version 1.1.1 of this script adds the Triangle Endpoint, written by __________ and featured on this demo:
-*
-* http://www.mintdesign.ru/blog/javascript-jsplumb-making-graph
-* http://www.mintdesign.ru/site/samples/jsplumb/jsPlumb-graph-sample.htm
 *
 * NOTE: for production usage you should use jsPlumb-all-x.x.x-min.js, which contains the main jsPlumb script and this script together,
 * in a minified file.
@@ -507,6 +502,17 @@
 		};    		
 	};    		
 	
+	/**
+	 * An arrow overlay.  you can provide:
+	 * 
+	 * length - distance in pixels from head to tail baseline. default 20.
+	 * width - width in pixels of the tail baseline. default 20.
+	 * fillStyle - style to use when filling the arrow.  defaults to "black".
+	 * strokeStyle - style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
+	 * lineWidth - line width to use when stroking the arrow. defaults to 1, but only used if strokeStyle is not null.
+	 * foldback - distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
+	 * location - distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
+	 */
 	jsPlumb.Overlays.Arrow = function(params) {
 		params = params || {};
     	var length = params.length || 20;
@@ -514,6 +520,7 @@
     	var fillStyle = params.fillStyle || "black";
     	var strokeStyle = params.strokeStyle || "yellow";
     	var lineWidth = params.lineWidth || 1;
+    	this.location = params.location || 0.5;
     	// how far along the arrow the lines folding back in come to. default is 62.3%. 
     	var foldback = params.foldback || 0.623;
     	var _getFoldBackPoint = function(connector, location) {
@@ -523,6 +530,8 @@
     			return connector.pointAlongPathFrom(location, length * adj);        			
     		}
     	};
+    	
+    	this.computeMaxSize = function() { return width; }
     	
     	this.draw = function(connector, location, ctx) {
 			// this is the arrow head position
@@ -555,7 +564,7 @@
     /**
 	 * a basic arrow.  this is in fact just one instance of the more generic case in which the tail folds back on itself to some
 	 * point along the length of the arrow: in this case, that foldback point is the full length of the arrow.  so it just does
-	 * a 'call' to Arrow with foldback set appropriately.     
+	 * a 'call' to Arrow with foldback set appropriately.  See Arrow for params.     
 	 */
     jsPlumb.Overlays.PlainArrow = function(params) {
     	params = params || {};
@@ -565,12 +574,74 @@
     
     /**
 	 * a diamond.  like PlainArrow, this is a concrete case of the more generic case of the tail points converging on some point...it just
-	 * happens that in this case, that point is greater than the length of the the arrow.     
+	 * happens that in this case, that point is greater than the length of the the arrow.  See Arrow for params.  
+	 * 
+	 *      this could probably do with some help with positioning...due to the way it reuses the Arrow paint code, what Arrow thinks is the
+	 *      center is actually 1/4 of the way along for this guy.  but we don't have any knowledge of pixels at this point, so we're kind of
+	 *      stuck when it comes to helping out the Arrow class. possibly we could pass in a 'transpose' parameter or something. the value
+	 *      would be -l/4 in this case - move along one quarter of the total length.
 	 */
     jsPlumb.Overlays.Diamond = function(params) {
     	params = params || {};
     	var l = params.length || 40;    	
     	var p = jsPlumb.extend(params, {length:l/2, foldback:2});
     	jsPlumb.Overlays.Arrow.call(this, p);    	
+    };
+    
+    /**
+     * A Label overlay.  Params you can provide:
+     * 
+     * labelStyle - js object containing style instructions for the label. defaults to jsPlumb.Defaults.LabelStyle.
+     * label - the label to paint.  may be a string or a function that returns a string.  nothing will be painted if your label is null or your
+     *         label function returns null.  empty strings _will_ be painted.
+     * location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
+     */
+    jsPlumb.Overlays.Label = function(params) {
+    	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
+	    this.label = params.label;
+    	var self = this;
+    	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
+    	this.location = params.location || 0.5;
+    	this.computeMaxSize = function(connector, location, ctx) {
+    		if (labelText) {
+    			ctx.save();
+	            if (self.labelStyle.font)	            	
+	            	ctx.font = self.labelStyle.font;
+	            var t = ctx.measureText(labelText).width;			            
+				// a fake text height measurement: use the width of upper case M
+				var h = ctx.measureText("M").width;					
+				labelPadding = self.labelStyle.padding || 0.25;
+				labelWidth = t + (2 * t * labelPadding);
+				labelHeight = h + (2 * h * labelPadding);
+				ctx.restore();
+				return Math.max(labelWidth, labelHeight);
+    		}
+    		return 0;
+    	};
+	    this.draw = function(connector, location, ctx) {	    	
+	    	// we allow label generation by a function here.  you get given the Connection object as an argument.
+        	labelText = typeof self.label == 'function' ? self.label(self) : self.label;
+        	if (labelText) {
+	            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
+	            var t = ctx.measureText(labelText).width;			            
+				// a fake text height measurement: use the width of upper case M
+				var h = ctx.measureText("M").width;					
+				labelPadding = self.labelStyle.padding || 0.25;
+				labelWidth = t + (2 * t * labelPadding);
+				labelHeight = h + (2 * h * labelPadding);				
+				var cxy = connector.pointOnPath(location);
+				if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
+				if (self.labelStyle.background) 
+					ctx.fillStyle = self.labelStyle.background;
+				else 
+					ctx.fillStyle = "rgba(0,0,0,0)";
+				ctx.fillRect(cxy[0] - (labelWidth / 2), cxy[1] - (labelHeight / 2) , labelWidth , labelHeight );
+				
+				if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
+				ctx.textBaseline = "middle";
+				ctx.textAlign = "center";
+				ctx.fillText(labelText, cxy[0], cxy[1]);
+        	}
+	    };
     };
 })();
