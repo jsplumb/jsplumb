@@ -102,6 +102,11 @@
 		appendElement : function(child, parent) {
 			jsPlumb.CurrentLibrary.getElementObject(parent).grab(child);			
 		},
+		
+		bind : function(el, event, callback) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el.addEvent(event, callback);
+		},
 
 		/*
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
