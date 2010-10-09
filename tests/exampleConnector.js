@@ -3,8 +3,8 @@
 		var self = this;
 		
 		// variables to use for arrow dimensions
-		var arrowWidth = 10; 		// width of the arrow's baseline
-		var arrowLength = 10;		// distance from baseline to tip of arrow 
+		var arrowWidth = 6; 		// width of the arrow's baseline
+		var arrowLength = 15;		// distance from baseline to tip of arrow 
 		var arrowFill = "black";	// fill color for arrows.
 		
 		/**
@@ -140,27 +140,26 @@
 			var m = dy / dx, m2 = -1 / m;
 			var b = -1 * ((m * x1) - y1);
 			var perpAngle = Math.atan(m2);
-			var width = 10;
-			var y =  width * Math.sin(perpAngle);
-			var x =  width * Math.cos(perpAngle);
+			var y =  arrowWidth * Math.sin(perpAngle);
+			var x =  arrowWidth * Math.cos(perpAngle);
 			
 			console.log("m=" + m + "; b =  " + b + ",dx=" + dx + ",dy=" + dy);
 			
 			var orientation = (x1 < x2 && y1 > y2) || (x1 > x2 && y1 > y2) ? 1 : -1;			
 			var l = {source:{x:x1-(orientation * x),y:y1-(orientation * y)}, target:{x:x2-(orientation * x),y:y2-(orientation * y)}};
 			var dx1 = l.target.x - l.source.x, dy1 = l.target.y - l.source.y;
-			console.log("dx1,dy1:" + dx1 + "," + dy1);
+			/*console.log("dx1,dy1:" + dx1 + "," + dy1);
 			ctx.beginPath();
 			ctx.moveTo(l.source.x, l.source.y);
 			ctx.lineTo(l.target.x, l.target.y);
-			ctx.stroke();
+			ctx.stroke();*/
 			
 			orientation = -orientation;			
 			var l2 = {source:{x:x1-(orientation * x),y:y1-(orientation * y)}, target:{x:x2-(orientation * x),y:y2-(orientation * y)}};			
-			ctx.beginPath();
+			/*ctx.beginPath();
 			ctx.moveTo(l2.source.x, l2.source.y);
 			ctx.lineTo(l2.target.x, l2.target.y);
-			ctx.stroke();
+			ctx.stroke();*/
 			
 			//console.log("x1,y1=[" + x1+ "," + y1 + "], lx1,ly1=[" + l.source.x + "," + l.source.y + "],l2x1,l2y1=[" + l2.source.x +"," + l2.source.y + "]");
 			//console.log("x2,y2=[" + x2+ "," + y2 + "], l2x1,l2y1=[" + l.target.x + "," + l.target.y + "],l2x2,l2y2=[" + l2.target.x +"," + l2.target.y + "]");
