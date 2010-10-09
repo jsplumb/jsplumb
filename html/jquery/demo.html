@@ -77,11 +77,14 @@ font-size:0.8em;}
 												   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
 												   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'}, 
 												   endpointStyle:{fillStyle:'rgb(243,229,0)'},
-												   labelStyle : {
-														font : "16px sans-serif",				        
-												        color : "black"												            
-												   	},
-												   	label : "connection 1"
+												   overlays : [ new jsPlumb.Overlays.Label({
+												   						labelStyle : {
+																		font : "16px sans-serif",				        
+												        				color : "black"												            
+												   						},
+												   						label : "connection 1", 
+												   						location:0.8})]
+												   						
 												  });
 												  												  
 				//
@@ -152,7 +155,15 @@ font-size:0.8em;}
 			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
 			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,
 										labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },			    			        				 
-				    			        label : "4 - 5" });
+				    			        /*label : "4 - 5" */
+									   	overlays:[
+													new jsPlumb.Overlays.Diamond({location:0.2, fillStyle:"rgb(131,8,135)", length:50}),
+													new jsPlumb.Overlays.Label({
+														labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },			    			        				 
+								    			        label : "4 - 5",
+								    			        location:0.8
+													})
+														   	]});
 		        
 /*
 		        // all the mouse listener stuff
