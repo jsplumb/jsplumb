@@ -795,7 +795,8 @@
 	    var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
 	    this.canvas = canvas;
 	     
-	/// ********************************************* new in 1.2.3 - mouse events on the connectors ******************************************	    
+	/// ********************************************* new in 1.2.3 - mouse events on the connectors ******************************************
+	    /*
 	    jsPlumb.CurrentLibrary.bind(canvas, "mousemove", function(event) {
 	    	for (var scope in connectionsByScope) {
     			var c = connectionsByScope[scope];
@@ -838,7 +839,7 @@
 	    	if (_mouseover && _withinRange(e)) 
 	    		self.fireUpdate("click", self);	    	
 	    };
-	
+	*/
 // ********************************************* / new in 1.2.3 - mouse events on the connectors ******************************************	    
 	     
 	     
@@ -882,7 +883,7 @@
 	            var maxSize = 0;
 	            for (var i = 0; i < self.overlays.length; i++) {
 	            	var o = self.overlays[i];
-	            	var s = o.computeMaxSize(self.connector, o.location || 0.5, ctx);
+	            	var s = o.computeMaxSize(self.connector, ctx);
 	            	if (s > maxSize) maxSize = s;
 	            }
 	            
@@ -946,7 +947,7 @@
 	            // paint overlays
 	            for (var i = 0; i < self.overlays.length; i++) {
 	            	var o = self.overlays[i];
-	            	o.draw(self.connector, o.location || 0.5, ctx);
+	            	o.draw(self.connector, ctx);
 	            }
 	    	}
 	    };

@@ -48,11 +48,33 @@
 	
 	jsPlumb.Defaults.DynamicAnchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]
 	
+	jsPlumb.Connectors.Base = function() {
+		var self = this;
+		/**
+         * Returns the endpoints of a line that is 'length' long and perpendicular to, and centered on, the path at 'location', where
+         * 'location' is a decimal from 0 to 1 inclusive.
+         * 
+         * this method can also be called like this:
+         * 
+         * perpendicularToPath(x, y, length) - when you already know the x,y values for location. 
+         */
+        this.perpendicularToPath = function(location, length) {
+        	var p = arguments.length == 2 ? self.pointOnPath(arguments[0]) : [arguments[0], arguments[1]];
+        	var l = arguments[arguments.length - 1];
+        	var m = self.gradientAtPoint(location);
+        	var _theta2 = Math.atan(-1 / m);
+        	var y =  l / 2 * Math.sin(_theta2);
+			var x =  l / 2 * Math.cos(_theta2);
+			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]];
+        };
+	};
+	                                   
         /**
          * The Straight connector draws a simple straight line between the two anchor points.
          */
     jsPlumb.Connectors.Straight = function() {
 	
+    	jsPlumb.Connectors.Base.apply(this); 
 		var self = this;
 		var currentPoints = null;
 		var _m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty;
@@ -144,6 +166,13 @@
         };
         
         /**
+         * returns the gradient of the connector at the given point - which for us is constant.
+         */
+        this.gradientAtPoint = function(location) {
+        	return _m;
+        };	
+        
+        /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
          */
@@ -154,22 +183,7 @@
 			var x =  distance * Math.cos(_theta);
 			return [p[0] + (orientation * x), p[1] + (orientation * y)];
         };
-        
-        /**
-         * Returns the endpoints of a line that is 'length' long and perpendicular to, and centered on, the path at 'location', where
-         * 'location' is a decimal from 0 to 1 inclusive.
-         * 
-         * this method can also be called like this:
-         * 
-         * perpendicularToPath(x, y, length) - when you already know the x,y values for location. 
-         */
-        this.perpendicularToPath = function(location, length) {
-        	var p = arguments.length == 2 ? self.pointOnPath(arguments[0]) : [arguments[0], arguments[1]];
-        	var l = arguments[arguments.length - 1];
-        	var y =  l / 2 * Math.sin(_theta2);
-			var x =  l / 2 * Math.cos(_theta2);
-			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]];
-        };
+                
     };
                 
     /**
@@ -183,7 +197,7 @@
      * than fixing the curve to one basic shape.
      */
     jsPlumb.Connectors.Bezier = function(curviness) {
-    	
+    	jsPlumb.Connectors.Base.apply(this);
     	var self = this;
     	this.majorAnchor = curviness || 150;
         this.minorAnchor = 10;
@@ -304,7 +318,9 @@
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
-        this.pointOnPath = function(location) {        	
+        this.pointOnPath = function(location) {
+        	
+        	// from http://13thparallel.com/archive/bezier-curves/
         	function B1(t) { return t*t*t };
         	function B2(t) { return 3*t*t*(1-t) };
         	function B3(t) { return 3*t*(1-t)*(1-t) };
@@ -316,13 +332,18 @@
         	return [x,y];			        	
         };
         
+        /**
+         * returns the gradient of the connector at the given point - which for us is constant.
+         */
+        this.gradientAtPoint = function(location) {
+        	
+        	// http://bimixual.org/AnimationLibrary/beziertangents.html
+        	return _m;
+        };	
+        
         this.pointAlongPathFrom = function(location, distance) {
         	
-        };
-        
-        this.perpendicularToPath = function(location, length) {
-        	
-        };
+        };        
     };
     
     
@@ -536,33 +557,40 @@
 	 */
 	jsPlumb.Overlays.Arrow = function(params) {
 		params = params || {};
+		var self = this;
     	var length = params.length || 20;
     	var width = params.width || 20;
     	var fillStyle = params.fillStyle || "black";
     	var strokeStyle = params.strokeStyle /*|| "yellow"*/;
     	var lineWidth = params.lineWidth || 1;
-    	this.location = params.location || 0.5;
+    	this.loc = params.location || 0.5;
     	// how far along the arrow the lines folding back in come to. default is 62.3%. 
     	var foldback = params.foldback || 0.623;
-    	var _getFoldBackPoint = function(connector, location) {
-    		if (foldback == 0.5) return connector.pointOnPath(location);
+    	var _getFoldBackPoint = function(connector, loc) {
+    		if (foldback == 0.5) return connector.pointOnPath(loc);
     		else {
     			var adj = 0.5 - foldback; // we calculate relative to the center
-    			return connector.pointAlongPathFrom(location, length * adj);        			
+    			return connector.pointAlongPathFrom(loc, length * adj);        			
     		}
     	};
     	
     	this.computeMaxSize = function() { return width; }
     	
-    	this.draw = function(connector, location, ctx) {
+    	this.draw = function(connector, ctx) {
 			// this is the arrow head position
-			var hxy = connector.pointAlongPathFrom(location, length / 2);		
+			var hxy = connector.pointAlongPathFrom(self.loc, length / 2);		
 			// this is the center of the tail
-			var txy = connector.pointAlongPathFrom(location, -length / 2), tx = txy[0], ty = txy[1];
+			var txy = connector.pointAlongPathFrom(self.loc, -length / 2), tx = txy[0], ty = txy[1];
 			// this is the tail vector
 			var tail = connector.perpendicularToPath(tx, ty, width);
+			/*var m = connector.gradientAtPoint(tx, ty);
+			var y =  width / 2 * Math.sin(-1 / m);
+			var x =  width / 2 * Math.cos(-1 / m);
+			console.log(m,y,x,tail[0], tail[1],[tx + x, ty + y], [tx - x, ty - y]);*/
+			/*var tail = [[tx + x, ty + y], [tx - x, ty - y]];*/
+			
 			// this is the point the tail goes in to
-			var cxy = _getFoldBackPoint(connector, location);
+			var cxy = _getFoldBackPoint(connector, self.loc);
 			
 			ctx.lineWidth = lineWidth;
 			ctx.beginPath();
@@ -623,7 +651,7 @@
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
-    	this.computeMaxSize = function(connector, location, ctx) {
+    	this.computeMaxSize = function(connector, ctx) {
     		if (labelText) {
     			ctx.save();
 	            if (self.labelStyle.font)	            	
@@ -639,7 +667,7 @@
     		}
     		return 0;
     	};
-	    this.draw = function(connector, location, ctx) {	    	
+	    this.draw = function(connector, ctx) {	    	
 	    	// we allow label generation by a function here.  you get given the Connection object as an argument.
         	labelText = typeof self.label == 'function' ? self.label(self) : self.label;
         	if (labelText) {
@@ -650,7 +678,7 @@
 				labelPadding = self.labelStyle.padding || 0.25;
 				labelWidth = t + (2 * t * labelPadding);
 				labelHeight = h + (2 * h * labelPadding);				
-				var cxy = connector.pointOnPath(location);
+				var cxy = connector.pointOnPath(self.location);
 				if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
 				if (self.labelStyle.background) 
 					ctx.fillStyle = self.labelStyle.background;
