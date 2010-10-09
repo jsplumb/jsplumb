@@ -166,20 +166,22 @@
          * 
          * this method can also be called like this:
          * 
-         * perpendicularToPath(x, y, length) - when you already know
+         * perpendicularToPath(x, y, length) - when you already know the x,y values for location. 
          */
         this.perpendicularToPath = function(location, length) {
-        	//svar p = self.pointOnPath(location);
-        	var y =  length / 2 * Math.sin(_theta2);
-			var x =  length / 2 * Math.cos(_theta2);
-			var orientation = (_sx < _tx && _sy > _ty) || (_sx > _tx && _sy > _ty) ? 1 : -1;			
+        	var p = arguments.length == 2 ? self.pointOnPath(arguments[0]) : [arguments[0], arguments[1]];
+        	var l = arguments[arguments.length - 1];
+        	var y =  l / 2 * Math.sin(_theta2);
+			var x =  l / 2 * Math.cos(_theta2);
+			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]]
+			/*var orientation = (_sx < _tx && _sy > _ty) || (_sx > _tx && _sy > _ty) ? 1 : -1;			
 			var l1 = [_sx -(orientation * x), _sy-(orientation * y)];
 			orientation = -orientation;	
 			var l2 = [_sx -(orientation * x), _sy-(orientation * y)];
 			var b1 = -1 * ((_m * l1[0]) - l1[1]);
 			var b2 = -1 * ((_m * l2[0]) - l2[1]);
         	var xp1 = l1[0] + (location * _dx), xp2 = l2[0] + (location * _dx);
-			return [[xp1, (_m * xp1) + b1], [xp2, (_m * xp2) + b2]];
+			return [[xp1, (_m * xp1) + b1], [xp2, (_m * xp2) + b2]];*/
         };
     };
                 
@@ -504,4 +506,71 @@
 				}, 200);
 		};    		
 	};    		
+	
+	jsPlumb.Overlays.Arrow = function(params) {
+		params = params || {};
+    	var length = params.length || 20;
+    	var width = params.width || 20;
+    	var fillStyle = params.fillStyle || "black";
+    	var strokeStyle = params.strokeStyle || "yellow";
+    	var lineWidth = params.lineWidth || 1;
+    	// how far along the arrow the lines folding back in come to. default is 62.3%. 
+    	var foldback = params.foldback || 0.623;
+    	var _getFoldBackPoint = function(connector, location) {
+    		if (foldback == 0.5) return connector.pointOnPath(location);
+    		else {
+    			var adj = 0.5 - foldback; // we calculate relative to the center
+    			return connector.pointAlongPathFrom(location, length * adj);        			
+    		}
+    	};
+    	
+    	this.draw = function(connector, location, ctx) {
+			// this is the arrow head position
+			var hxy = connector.pointAlongPathFrom(location, length / 2);		
+			// this is the center of the tail
+			var txy = connector.pointAlongPathFrom(location, -length / 2), tx = txy[0], ty = txy[1];
+			// this is the tail vector
+			var tail = connector.perpendicularToPath(tx, ty, width);
+			// this is the point the tail goes in to
+			var cxy = _getFoldBackPoint(connector, location);
+			
+			ctx.lineWidth = lineWidth;
+			ctx.beginPath();
+			ctx.moveTo(hxy[0], hxy[1]);
+			ctx.lineTo(tail[0][0], tail[0][1]);
+			ctx.lineTo(cxy[0], cxy[1]);
+			ctx.lineTo(tail[1][0], tail[1][1]);
+			ctx.lineTo(hxy[0], hxy[1]);
+			ctx.closePath();
+			
+			if (strokeStyle) {
+				ctx.strokeStyle = strokeStyle;
+				ctx.stroke();
+			}
+			ctx.fillStyle = fillStyle;			
+			ctx.fill();
+    	}
+    };
+    
+    /**
+	 * a basic arrow.  this is in fact just one instance of the more generic case in which the tail folds back on itself to some
+	 * point along the length of the arrow: in this case, that foldback point is the full length of the arrow.  so it just does
+	 * a 'call' to Arrow with foldback set appropriately.     
+	 */
+    jsPlumb.Overlays.PlainArrow = function(params) {
+    	params = params || {};
+    	var p = jsPlumb.extend(params, {foldback:1});
+    	jsPlumb.Overlays.Arrow.call(this, p);    	
+    };
+    
+    /**
+	 * a diamond.  like PlainArrow, this is a concrete case of the more generic case of the tail points converging on some point...it just
+	 * happens that in this case, that point is greater than the length of the the arrow.     
+	 */
+    jsPlumb.Overlays.Diamond = function(params) {
+    	params = params || {};
+    	var l = params.length || 40;    	
+    	var p = jsPlumb.extend(params, {length:l/2, foldback:2});
+    	jsPlumb.Overlays.Arrow.call(this, p);    	
+    };
 })();
