@@ -80,50 +80,30 @@ filter:alpha(opacity=60);
 	            		
 		<script type="text/javascript">
 		window.addEvent('domready', function() {
-				var exampleColor = '#00f';
-				var exampleDropOptions = {
-						tolerance:'touch',
-						hoverClass:'dropHover',
-						activeClass:'dragActive'
-					};
-				var exampleEndpoint = {
-					endpoint:new jsPlumb.Endpoints.Rectangle(),
-					style:{ width:25, height:21, fillStyle:exampleColor },
-					isSource:false,
-					scope:'blue rectangle',
-					connectorStyle : {
-						gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
-						lineWidth:5,
-						strokeStyle:exampleColor
-					},
-					isTarget:false,
-					dropOptions : exampleDropOptions
+			var exampleColor = '#00f';
+			var exampleDropOptions = {
+					tolerance:'touch',
+					hoverClass:'dropHover',
+					activeClass:'dragActive'
 				};
-				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
-				var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ];
-				var e1 = jsPlumb.addEndpoint('window1', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e11 = jsPlumb.addEndpoint('window1', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e2 = jsPlumb.addEndpoint('window2', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e3 = jsPlumb.addEndpoint('window3', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e31 = jsPlumb.addEndpoint('window3', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e5 = jsPlumb.addEndpoint('window5', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e21 = jsPlumb.addEndpoint('window2', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e51 = jsPlumb.addEndpoint('window5', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e52 = jsPlumb.addEndpoint('window5', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e6 = jsPlumb.addEndpoint('window6', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e12 = jsPlumb.addEndpoint('window1', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e4 = jsPlumb.addEndpoint('window4', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e22 = jsPlumb.addEndpoint('window2', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				var e41 = jsPlumb.addEndpoint('window4', $.extend({ anchor:jsPlumb.makeSelectiveAnchor(anchors) }, exampleEndpoint));
-				
-          		jsPlumb.connect({sourceEndpoint:e1,targetEndpoint:e2});
-          		jsPlumb.connect({sourceEndpoint:e11,targetEndpoint:e3});
-          		jsPlumb.connect({sourceEndpoint:e31,targetEndpoint:e5});
-          		jsPlumb.connect({sourceEndpoint:e21,targetEndpoint:e51});
-          		jsPlumb.connect({sourceEndpoint:e52,targetEndpoint:e6});
-          		jsPlumb.connect({sourceEndpoint:e12,targetEndpoint:e4});
-          		jsPlumb.connect({sourceEndpoint:e41,targetEndpoint:e22});
-						        
+			var exampleEndpoint = {
+				endpoint:new jsPlumb.Endpoints.Rectangle(),
+				style:{ width:25, height:21, fillStyle:exampleColor },
+				connectorStyle : {
+					gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
+					lineWidth:5,
+					strokeStyle:exampleColor
+				}
+			};
+			jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
+			var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ];
+			jsPlumb.autoConnect("window1", "window2", anchors, exampleEndpoint);
+      		jsPlumb.autoConnect("window1", "window3", anchors, exampleEndpoint);
+      		jsPlumb.autoConnect("window3", "window5", anchors, exampleEndpoint);
+      		jsPlumb.autoConnect("window2", "window5", anchors, exampleEndpoint);
+      		jsPlumb.autoConnect("window5", "window6", anchors, exampleEndpoint);
+      		jsPlumb.autoConnect("window1", "window4", anchors, exampleEndpoint);
+      		jsPlumb.autoConnect("window4", "window2", anchors, exampleEndpoint);						        
 		});
 		</script>
 	    
