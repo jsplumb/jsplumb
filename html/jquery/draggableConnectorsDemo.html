@@ -35,7 +35,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 
 		<div id="explanation">
 			<div id="list"></div>
-	    	<p>this demo uses jsPlumb 1.2.2, jQuery 1.4.2 and jQuery UI 1.8.0.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
+	    	<p>this demo uses jsPlumb 1.2.3, jQuery 1.4.2 and jQuery UI 1.8.0.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
 	    	<a id="clear" href="#">clear plumbing</a><br/><br/>	    	
 	    	<a href="dragAnimDemo.html">next: animated dragging demo</a><br/><br/>	    	
 	    </div>
@@ -158,21 +158,16 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				};
 
 				// setup some empty endpoints.  again note the use of '$.extend' to reuse all the parameters except the location
-				/* of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
-				jsPlumb.addEndpoints('window1', [
-					$.extend({ anchor:jsPlumb.makeAnchor(1, 0.25, 1, 0) }, exampleEndpoint),
-					$.extend({ anchor:jsPlumb.makeAnchor(1, 0.75, 0, 1) }, exampleEndpoint),
-					$.extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint2)
-				]);*/
+				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
+				jsPlumb.addEndpoint('window1', $.extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint2));
 
 				//
-				// here's an example of how the SelectiveAnchor stuff added to 1.2.3 does NOT yet work with
+				// here's an example of how the SelectiveAnchor stuff added to 1.2.3 works with
 				// drag and drop connectors.
 				//
-				var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ];
-				var sa = jsPlumb.makeSelectiveAnchor(anchors);
+				var anchors = [jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0), jsPlumb.makeAnchor(0.2, 0, 0, -1) ];
+				var sa = jsPlumb.makeDynamicAnchor(anchors);
 				jsPlumb.addEndpoint('window1', $.extend({ anchor:sa }, exampleEndpoint));
-          		//
 
 				jsPlumb.addEndpoints('window2', [
 					$.extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint),
@@ -196,7 +191,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				jsPlumb.draggable($(".window"));
 
 				// add the third example using the '.window' class.
-				//$(".window").addEndpoint(exampleEndpoint3);
+				$(".window").addEndpoint(exampleEndpoint3);
 
 				$(".hide").click(function() {
 					jsPlumb.toggle($(this).attr("rel"));
