@@ -308,7 +308,7 @@
 				id = uuid;
 			else
 				id = "_jsPlumb_" + new String((new Date()).getTime());
-				_setAttribute(ele, "id", id);
+			_setAttribute(ele, "id", id);
 		}
 		return id;
 	};
@@ -321,13 +321,7 @@
 	};
     
     /**
-     * inits a draggable if it's not already initialised.
-     * 
-     * TODO: we need to hook in each library to this method.  they need to be given the opportunity to
-     * wrap/insert lifecycle functions, because each library does different things.  for instance, jQuery
-     * supports the notion of 'revert', which will clean up a dragged endpoint; MooTools does not.  jQuery
-     * also supports 'opacity' and MooTools does not; jQuery supports z-index of the draggable; MooTools
-     * does not. i could go on.  the point is...oh.  initDraggable can do this.  ok. 
+     * inits a draggable if it's not already initialised. 
      */
 	var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
     	// dragging
@@ -416,7 +410,7 @@
      * helper to remove a list of elements from the DOM.
      */
     var _removeElements = function(elements, parent) {
-    	for (var i in elements)
+    	for (var i = 0; i < elements.length; i++)
     		_removeElement(elements[i], parent);
     };
 	/**
@@ -643,7 +637,7 @@
 	 * the center of the target element, and returns that Anchor's compute method result.  this causes endpoints to follow each other with respect
 	 * to the orientation of their target elements - a useful feature for some applications.
 	 */
-	var SelectiveAnchor = function(anchors) {
+	var DynamicAnchor = function(anchors) {
 		this.isSelective = true;
 		var _anchors = anchors || [];
 		this.addAnchor = function(anchor) { _anchors.push(anchor); };
@@ -1424,10 +1418,12 @@
     		Endpoints : [ null, null ],
     		EndpointStyle : { fillStyle : null },
     		EndpointStyles : [ null, null ],
+    		LabelStyle : { fillStyle:"rgba(0,0,0,0)", color:"black" },
     		MaxConnections : null,
+    		// TODO: should we have OverlayStyle too?
     		PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
     		Scope : "_jsPlumb_DefaultScope",
-    		LabelStyle : { background:"rgba(0,0,0,0)", color:"black" }
+    		
     	};
     	
     	/*
@@ -1563,34 +1559,28 @@
 	    	cached = {};	    		
 	    };
 	    
-	    this.autoConnect = function() {
-	    	var sources = [], targets = [], endpoint = null, anchors = _currentInstance.Defaults.DynamicAnchors || jsPlumb.Defaults.DynamicAnchors;
+	    this.autoConnect = function(params/*source, target, anchors, endpoint*/) {
+	    	var sources = [], targets = [], _endpoint = params.endpoint || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, _anchors = anchors || _currentInstance.Defaults.DynamicAnchors || jsPlumb.Defaults.DynamicAnchors;
 	    	var _addAll = function(s, t) {
 	    		for (var i = 0 ; i < s.length; i++) t.push(s[i]);
-	    	}
-	    	if (arguments.length == 2) {
-	    		// we were given a source and target
-	    		if (typeof arguments[0] == 'string') 
-	    			sources.push(_getElementObject(arguments[0]));
-	    		else {
-	    			_addAll(arguments[0], sources);
-	    		}
-	    		if (typeof arguments[1] == 'string') 
-	    			sources.push(_getElementObject(arguments[1]));
-	    		else {
-	    			_addAll(arguments[1], targets);
-	    		}
-	    		
-	    	}
-	    	
+	    	};
+	    	var source = params.source, target = params.target, anchors = params.anchors;
+	    	if (typeof source == 'string') 
+    			sources.push(_getElementObject(source));
+    		else
+    			_addAll(source, sources);
+    		if (typeof target == 'string') 
+    			targets.push(_getElementObject(target));
+    		else
+    			_addAll(target, targets);    		
+    		var connectOptions = jsPlumb.extend(params, {source:null,target:null,anchors:null});
 	    	for (var i = 0; i < sources.length; i++) {
-	    		for (var j = 0; j < targets.length; i++) {
-	    			var da = jsPlumb.makeSelectiveAnchor(anchors);
-	    			var p = { source:sources[i], target:targets[j], anchor:da, endpoint:endpoint };
-		    		_currentInstance.connect(p);
+	    		for (var j = 0; j < targets.length; j++) {
+	    			var e1 = jsPlumb.addEndpoint(sources[i], jsPlumb.extend({ anchor:jsPlumb.makeDynamicAnchor(_anchors) }, _endpoint));
+	    			var e2 = jsPlumb.addEndpoint(targets[j], jsPlumb.extend({ anchor:jsPlumb.makeDynamicAnchor(_anchors) }, _endpoint));
+	    			_currentInstance.connect(jsPlumb.extend(connectOptions, { sourceEndpoint:e1, targetEndpoint:e2 }));
 	    		}
-	    	}
-	    	
+	    	}	    	
 	    };
 	    
 	    /*
@@ -1952,8 +1942,8 @@
 	    	return a;
 	    };
 	    
-	    this.makeSelectiveAnchor = function(anchors) {
-	    	return new SelectiveAnchor(anchors);
+	    this.makeDynamicAnchor = function(anchors) {
+	    	return new DynamicAnchor(anchors);
 	    };
 	        	    
 	    /*

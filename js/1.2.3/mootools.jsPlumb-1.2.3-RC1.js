@@ -278,7 +278,8 @@
 		},
 		
 
-		removeElement : function(element, parent) {			
+		removeElement : function(element, parent) {
+			
 			jsPlumb.CurrentLibrary.getElementObject(element).dispose();  // ??
 		},
 		

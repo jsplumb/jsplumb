@@ -129,10 +129,17 @@
             _ty = sourcePos[1] < targetPos[1] ? yo : h-yo;
             currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];
             
+            /*if (sourcePos[0] < targetPos[0]) {
+            	var ox = _tx, oy = _ty;
+            	_tx = _sx; _ty = _sy;
+            	_sx = ox; _sy = oy;
+            }*/
+            
             _dx = _tx - _sx, _dy = _ty - _sy;
 			_m = _dy / _dx, _m2 = -1 / _m;
 			_b = -1 * ((_m * _sx) - _sy);
 			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
+			
                              
             return currentPoints;
         };
@@ -279,7 +286,16 @@
             //          sourceX, sourceY, targetX, targetY,
             //          controlPoint1_X, controlPoint1_Y, controlPoint2_X, controlPoint2_Y
             currentPoints = [_canvasX, _canvasY, _w, _h, _sx, _sy, _tx, _ty, _CP[0], _CP[1], _CP2[0], _CP2[1] ];
+            
+            /*if (sourcePos[0] < targetPos[0]) {
+            	var ox = _tx, oy = _ty, ocp = _CP;
+            	_tx = _sx; _ty = _sy;
+            	_sx = ox; _sy = oy;
+            	_CP = _CP2; _CP2 = ocp;
+            }*/
+            
             return currentPoints;
+            
         };
 
         this.paint = function(d, ctx) {
