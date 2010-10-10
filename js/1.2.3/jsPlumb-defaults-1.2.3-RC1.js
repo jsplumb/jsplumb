@@ -44,9 +44,9 @@
 	jsPlumb.Anchors.BottomRight 	= jsPlumb.makeAnchor(1, 1, 0, 1);
 	jsPlumb.Anchors.TopLeft 		= jsPlumb.makeAnchor(0, 0, 0, -1);
 	jsPlumb.Anchors.BottomLeft 		= jsPlumb.makeAnchor(0, 1, 0, 1);
-	jsPlumb.Anchors.AutoDefault     = function() { return jsPlumb.makeSelectiveAnchor([jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]); };
+	jsPlumb.Anchors.AutoDefault     = function() { return jsPlumb.makeDynamicAnchor([jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]); };
 	
-	jsPlumb.Defaults.DynamicAnchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]
+	jsPlumb.Defaults.DynamicAnchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle];
 	
 	jsPlumb.Connectors.Base = function() {
 		var self = this;
@@ -264,7 +264,7 @@
             }
             
             if (minWidth && _w < minWidth) {
-            	var posAdjust = (minWidth - w) / 2;
+            	var posAdjust = (minWidth - _w) / 2;
         		_w = minWidth;        		
         		_canvasX -= posAdjust; _sx = _sx + posAdjust ; _tx = _tx + posAdjust; _CP[0] =  _CP[0] + posAdjust; _CP2[0] = _CP2[0] + posAdjust;
         	}
@@ -680,8 +680,8 @@
 				labelHeight = h + (2 * h * labelPadding);				
 				var cxy = connector.pointOnPath(self.location);
 				if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
-				if (self.labelStyle.background) 
-					ctx.fillStyle = self.labelStyle.background;
+				if (self.labelStyle.fillStyle) 
+					ctx.fillStyle = self.labelStyle.fillStyle;
 				else 
 					ctx.fillStyle = "rgba(0,0,0,0)";
 				ctx.fillRect(cxy[0] - (labelWidth / 2), cxy[1] - (labelHeight / 2) , labelWidth , labelHeight );
