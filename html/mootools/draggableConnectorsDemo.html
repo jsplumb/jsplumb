@@ -160,14 +160,17 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 						dropOptions : exampleDropOptions
 				};
 
-				// setup some empty endpoints.  again note the use of '$extend' to reuse all the parameters except the location
+				// setup some empty endpoints.  again note the use of '$.extend' to reuse all the parameters except the location
 				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
+				jsPlumb.addEndpoint('window1', $extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint2));
 
-				jsPlumb.addEndpoints('window1', [
-					$extend({ anchor:jsPlumb.makeAnchor(1, 0.25, 1, 0) }, exampleEndpoint),
-					$extend({ anchor:jsPlumb.makeAnchor(1, 0.75, 0, 1) }, exampleEndpoint),
-					$extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint2)
-				]);
+				//
+				// here's an example of how the SelectiveAnchor stuff added to 1.2.3 works with
+				// drag and drop connectors.
+				//
+				var anchors = [jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0), jsPlumb.makeAnchor(0.2, 0, 0, -1) ];
+				var sa = jsPlumb.makeDynamicAnchor(anchors);
+				jsPlumb.addEndpoint('window1', $extend({ anchor:sa }, exampleEndpoint));
 
 				jsPlumb.addEndpoints('window2', [
 					$extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint),
