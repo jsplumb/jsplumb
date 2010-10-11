@@ -61,7 +61,7 @@
         this.perpendicularToPath = function(location, length) {
         	var p = arguments.length == 2 ? self.pointOnPath(arguments[0]) : [arguments[0], arguments[1]];
         	var l = arguments[arguments.length - 1];
-        	var m = self.gradientAtPoint(location);
+        	var m = arguments.length == 2 ? self.gradientAtPoint(arguments[0]) : self.gradientAtPoint(arguments[0], arguments[1]);
         	var _theta2 = Math.atan(-1 / m);
         	var y =  l / 2 * Math.sin(_theta2);
 			var x =  l / 2 * Math.cos(_theta2);
@@ -188,7 +188,9 @@
         	var orientation = (_sx < _tx && _sy > _ty) || (_sx > _tx && _sy > _ty) ? 1 : -1;
         	var y =  distance * Math.sin(_theta);
 			var x =  distance * Math.cos(_theta);
-			return [p[0] + (orientation * x), p[1] + (orientation * y)];
+			var point = [p[0] + (orientation * x), p[1] + (orientation * y)];
+			var loc = location + ((orientation * x) / Math.abs(_tx - _sx));
+			return point;//{ point:point, location:loc };
         };
                 
     };
@@ -299,21 +301,7 @@
         };
 
         this.paint = function(d, ctx) {
-        	
-        	/*var img = new Image();
-        	img.src = "../img/pattern.jpg";
-        	ctx.fillStyle = ctx.createPattern(img, 'repeat-y');*/
-
-        	/*ctx.save();  
-        	ctx.strokeStyle = "black";
-        	ctx.lineWidth = ctx.lineWidth + 2;
-            ctx.beginPath();
-            ctx.moveTo(d[4],d[5]);
-            ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
-            ctx.stroke();
-            ctx.restore();*/
-            
-            ctx.beginPath();
+        	ctx.beginPath();
             ctx.moveTo(d[4],d[5]);
             ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
             ctx.stroke();            
@@ -330,6 +318,15 @@
         	return (jsPlumb.DistanceFromCurve(point, curve));        	        	
         };
         
+        var _quadraticPointOnPath = function(location) {
+        	function B1(t) { return t*t; };
+        	function B2(t) { return 2*t*(1-t); };
+        	function B3(t) { return (1-t)*(1-t); };
+        	var x = _sx*B1(location) + _CP[0]*B2(location) + _CP2[0]*B3(location);
+        	var y = _sy*B1(location) + _CP[1]*B2(location) + _CP2[1]*B3(location);
+        	return [x,y];
+        };
+        
         /**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
@@ -342,23 +339,56 @@
         	function B3(t) { return 3*t*(1-t)*(1-t) };
         	function B4(t) { return (1-t)*(1-t)*(1-t) };
 
-        	var percent = location;
-        	var x = _sx*B1(percent) + _CP[0]*B2(percent) + _CP2[0]*B3(percent) + _tx*B4(percent);
-        	var y = _sy*B1(percent) + _CP[1]*B2(percent) + _CP2[1]*B3(percent) + _ty*B4(percent);
+        	var x = _sx*B1(location) + _CP[0]*B2(location) + _CP2[0]*B3(location) + _tx*B4(location);
+        	var y = _sy*B1(location) + _CP[1]*B2(location) + _CP2[1]*B3(location) + _ty*B4(location);
         	return [x,y];			        	
         };
         
         /**
-         * returns the gradient of the connector at the given point - which for us is constant.
+         * returns the gradient of the connector at the given point.
          */
         this.gradientAtPoint = function(location) {
-        	
+        	console.log(location);
+        	var p1 = self.pointOnPath(location);
+        	console.log(p1);
+        	var p2 = _quadraticPointOnPath(location);
+        	console.log(p2[0], p2[1]);
+        	var dy = p2[1] - p1[1], dx = p2[0] - p1[0];
+        	var rtn = Math.atan(dy, dx) ;
+        	//console.log(rtn);
+        	rtn = rtn * (180 / Math.PI);
+        	//console.log(rtn);
+			if (dx < 0 && dy < 0) rtn *= -1;
+			if (dx > 0 && dy < 0) rtn *= -1;
+			if (dx < 0 && dy > 0) rtn = 360.0 - rtn;
+			if (dx > 0 && dy > 0) rtn = 360.0 - rtn;
+			console.log(rtn);
         	// http://bimixual.org/AnimationLibrary/beziertangents.html
-        	return _m;
+        	return rtn;
         };	
         
+        /**
+         * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
+         * this method is iterative, jumping forward .05% of the path at a time and summing the distance between this point and the previous
+         * one, until the sum reaches 'distance'. the method may turn out to be computationally expensive; we'll see.
+         * another drawback of this method is that if the connector gets quite long, .05% of the length of it is not necessarily smaller
+         * than the desired distance, in which case the loop returns immediately and the arrow is mis-shapen. so a better strategy might be to
+         * calculate the step as a function of distance/distance between endpoints.  
+         */
         this.pointAlongPathFrom = function(location, distance) {
-        	
+        	//console.log("for location " + location + " and distance " + distance);
+        	var _dist = function(p1,p2) { return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2)); };
+        	var prev = self.pointOnPath(location), tally = 0, curLoc = location, direction = distance > 0 ? 1 : -1, cur = null;
+        	while (tally < Math.abs(distance)) {
+        		curLoc += (0.005 * direction);
+        		cur = self.pointOnPath(curLoc);
+        		tally += _dist(cur, prev);
+        		//console.log("tally is now " + tally);        		
+        		prev = cur;
+        		//console.log("cur = " + cur[0]+ ',' + cur[1]);
+        	}
+        	//console.log("for location " + location + " and distance " + distance + " we found " + cur[0] + "," + cur[1]);
+        	return cur;//{point:cur, location:curLoc};
         };        
     };
     
@@ -475,56 +505,56 @@
 	
 	jsPlumb.Endpoints.Triangle = function(params) {
 	        	
-	    		params = params || { width:15, height:15 };
-	    		var self = this;
-	    		this.width = params.width;
-	    		this.height = params.height;
-	    		
-		    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) 
-				{    		
-	    			var width = endpointStyle.width || self.width;
-	    			var height = endpointStyle.height || self.height;
-	    			var x = anchorPoint[0] - width/2;
-	    			var y = anchorPoint[1] - height/2;
-					
-					jsPlumb.sizeCanvas(canvas, x, y, width, height);
-					
-	    			var ctx = canvas.getContext('2d');
-					var 
-						offsetX = 0,
-						offsetY = 0,
-						angle = 0;
-					
-					if( orientation[0] == 1 )
-					{
-						offsetX = width;
-						offsetY = height;
-						angle = 180;
-					}
-					if( orientation[1] == -1 )
-					{
-						offsetX = width;
-						angle = 90;
-					}
-					if( orientation[1] == 1 )
-					{
-						offsetY = height;
-						angle = -90;
-					}
-					
-					ctx.fillStyle = endpointStyle.fillStyle;
-					
-					ctx.translate(offsetX, offsetY);
-					ctx.rotate(angle * Math.PI/180);
-	
-					ctx.beginPath();
-					ctx.moveTo(0, 0);
-					ctx.lineTo(width/2, height/2);
-					ctx.lineTo(0, height);
-					ctx.closePath();
-					ctx.fill();
-					
-		    	};
+    		params = params || { width:15, height:15 };
+    		var self = this;
+    		this.width = params.width;
+    		this.height = params.height;
+    		
+	    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) 
+			{    		
+    			var width = endpointStyle.width || self.width;
+    			var height = endpointStyle.height || self.height;
+    			var x = anchorPoint[0] - width/2;
+    			var y = anchorPoint[1] - height/2;
+				
+				jsPlumb.sizeCanvas(canvas, x, y, width, height);
+				
+    			var ctx = canvas.getContext('2d');
+				var 
+					offsetX = 0,
+					offsetY = 0,
+					angle = 0;
+				
+				if( orientation[0] == 1 )
+				{
+					offsetX = width;
+					offsetY = height;
+					angle = 180;
+				}
+				if( orientation[1] == -1 )
+				{
+					offsetX = width;
+					angle = 90;
+				}
+				if( orientation[1] == 1 )
+				{
+					offsetY = height;
+					angle = -90;
+				}
+				
+				ctx.fillStyle = endpointStyle.fillStyle;
+				
+				ctx.translate(offsetX, offsetY);
+				ctx.rotate(angle * Math.PI/180);
+
+				ctx.beginPath();
+				ctx.moveTo(0, 0);
+				ctx.lineTo(width/2, height/2);
+				ctx.lineTo(0, height);
+				ctx.closePath();
+				ctx.fill();
+				
+	    	};
     	};
 	
 	/**
@@ -593,18 +623,12 @@
     	this.computeMaxSize = function() { return width; }
     	
     	this.draw = function(connector, ctx) {
-			// this is the arrow head position
+			// this is the arrow head position    		
 			var hxy = connector.pointAlongPathFrom(self.loc, length / 2);		
 			// this is the center of the tail
 			var txy = connector.pointAlongPathFrom(self.loc, -length / 2), tx = txy[0], ty = txy[1];
 			// this is the tail vector
-			var tail = connector.perpendicularToPath(tx, ty, width);
-			/*var m = connector.gradientAtPoint(tx, ty);
-			var y =  width / 2 * Math.sin(-1 / m);
-			var x =  width / 2 * Math.cos(-1 / m);
-			console.log(m,y,x,tail[0], tail[1],[tx + x, ty + y], [tx - x, ty - y]);*/
-			/*var tail = [[tx + x, ty + y], [tx - x, ty - y]];*/
-			
+			var tail = connector.perpendicularToPath(tx, ty, width);			
 			// this is the point the tail goes in to
 			var cxy = _getFoldBackPoint(connector, self.loc);
 			
