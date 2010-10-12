@@ -706,7 +706,7 @@
 				labelWidth = t + (2 * t * labelPadding);
 				labelHeight = h + (2 * h * labelPadding);
 				ctx.restore();
-				return Math.max(labelWidth, labelHeight) * 1.25;
+				return Math.max(labelWidth, labelHeight) * 1.5;
     		}
     		return 0;
     	};
