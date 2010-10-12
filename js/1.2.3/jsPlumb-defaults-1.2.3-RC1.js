@@ -97,8 +97,7 @@
          * would store the control point info in this array too.
          */
         this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth) {
-        	console.log(sourcePos, targetPos);
-			var w = Math.abs(sourcePos[0] - targetPos[0]);
+        	var w = Math.abs(sourcePos[0] - targetPos[0]);
             var h = Math.abs(sourcePos[1] - targetPos[1]);
             var widthAdjusted = false, heightAdjusted = false;
             // these are padding to ensure the whole connector line appears
@@ -130,12 +129,10 @@
             _ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
             currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];            
             
-            console.log(sourcePos, targetPos);
             _dx = _tx - _sx, _dy = /*-1 * */(_ty - _sy);
 			_m = _dy / _dx, _m2 = -1 / _m;
 			_b = -1 * ((_m * _sx) - _sy);
 			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
-			console.log("sx:" + _sx+",sy:" + _sy + ",tx:" + _tx+",ty:" + _ty + "dx:",+_dx+",dy:" + _dy+"m:"+_m+",b:"+_b+",theta:"+_theta);
                              
             return currentPoints;
         };
@@ -166,8 +163,6 @@
         this.pointOnPath = function(location) {
         	var xp = _sx + (location * _dx);
         	var yp = _m == Infinity ? xp + _b : (_m * xp) + _b;
-        	//console.log("pop:" + xp,  (_m * xp) + _b);
-        	//return [xp, ];
         	return [xp, yp];
         };
         
@@ -349,21 +344,15 @@
          * returns the gradient of the connector at the given point.
          */
         this.gradientAtPoint = function(location) {
-        	console.log(location);
         	var p1 = self.pointOnPath(location);
-        	console.log(p1);
         	var p2 = _quadraticPointOnPath(location);
-        	console.log(p2[0], p2[1]);
         	var dy = p2[1] - p1[1], dx = p2[0] - p1[0];
         	var rtn = Math.atan(dy, dx) ;
-        	//console.log(rtn);
         	rtn = rtn * (180 / Math.PI);
-        	//console.log(rtn);
 			if (dx < 0 && dy < 0) rtn *= -1;
 			if (dx > 0 && dy < 0) rtn *= -1;
 			if (dx < 0 && dy > 0) rtn = 360.0 - rtn;
 			if (dx > 0 && dy > 0) rtn = 360.0 - rtn;
-			console.log(rtn);
         	// http://bimixual.org/AnimationLibrary/beziertangents.html
         	return rtn;
         };	
@@ -377,18 +366,14 @@
          * calculate the step as a function of distance/distance between endpoints.  
          */
         this.pointAlongPathFrom = function(location, distance) {
-        	//console.log("for location " + location + " and distance " + distance);
         	var _dist = function(p1,p2) { return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2)); };
         	var prev = self.pointOnPath(location), tally = 0, curLoc = location, direction = distance > 0 ? 1 : -1, cur = null;
         	while (tally < Math.abs(distance)) {
         		curLoc += (0.005 * direction);
         		cur = self.pointOnPath(curLoc);
-        		tally += _dist(cur, prev);
-        		//console.log("tally is now " + tally);        		
+        		tally += _dist(cur, prev);	
         		prev = cur;
-        		//console.log("cur = " + cur[0]+ ',' + cur[1]);
         	}
-        	//console.log("for location " + location + " and distance " + distance + " we found " + cur[0] + "," + cur[1]);
         	return cur;//{point:cur, location:curLoc};
         };        
     };
@@ -621,7 +606,7 @@
     		}
     	};
     	
-    	this.computeMaxSize = function() { return width; }
+    	this.computeMaxSize = function() { return width * 1.5; }
     	
     	this.draw = function(connector, ctx) {
 			// this is the arrow head position    		
