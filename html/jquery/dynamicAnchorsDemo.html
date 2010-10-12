@@ -100,24 +100,13 @@ filter:alpha(opacity=60);
 				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
 				var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ];
 				var commonConfig = { anchors:anchors, endpoint:exampleEndpoint };
-				//jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window2", overlays:[new jsPlumb.Overlays.Arrow({location:0.3})]}));
 				
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window2", overlays:[new jsPlumb.Overlays.Arrow({location:0.5})]}));
-
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window4", target:"window3", overlays:[new jsPlumb.Overlays.Arrow({location:0.5})]}));
-				
-				/*jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window3", overlays:[new jsPlumb.Overlays.Label({label:'simon'})]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window3", target:"window5", overlays:[new jsPlumb.Overlays.Label({label:'simon'})]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window2", target:"window5", overlays:[new jsPlumb.Overlays.Label({label:'simon'})]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window5", target:"window6", overlays:[new jsPlumb.Overlays.Label({label:'simon'})]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window4", overlays:[new jsPlumb.Overlays.Label({label:'simon'})]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window4", target:"window2", overlays:[new jsPlumb.Overlays.Label({label:'simon'})]}));*/
-          		/*jsPlumb.autoConnect("window1", "window3", anchors, exampleEndpoint);
-          		jsPlumb.autoConnect("window3", "window5", anchors, exampleEndpoint);
-          		jsPlumb.autoConnect("window2", "window5", anchors, exampleEndpoint);
-          		jsPlumb.autoConnect("window5", "window6", anchors, exampleEndpoint);
-          		jsPlumb.autoConnect("window1", "window4", anchors, exampleEndpoint);
-          		jsPlumb.autoConnect("window4", "window2", anchors, exampleEndpoint);*/						       
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window3"}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window3", target:"window5"}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window2", target:"window5"}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window5", target:"window6"}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window4"}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window4", target:"window2"}));						       
 			});
 		</script>
 	    
