@@ -260,6 +260,10 @@ $(window).bind('resize', function() {
 		
 		getScrollTop : function(el) {
 			return el.scrollTop();
+		},
+		
+		setOffset : function(el, o) {
+			jsPlumb.CurrentLibrary.getElementObject(el).offset(o);
 		}
 	};
 })(jQuery);
