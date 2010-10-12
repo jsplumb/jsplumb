@@ -639,9 +639,11 @@
 	 */
 	var DynamicAnchor = function(anchors) {
 		this.isSelective = true;
+		this.isDynamic = true;
 		var _anchors = anchors || [];
 		this.addAnchor = function(anchor) { _anchors.push(anchor); };
 		var _curAnchor = _anchors.length > 0 ? _anchors[0] : null;
+		var _curIndex = _anchors.length > 0 ? 0 : -1;
 		this.locked = false;
 		var self = this;
 		
@@ -666,9 +668,10 @@
 					minIdx = i + 0;
 					minDist = d;
 				}
-			}
+			}		
 			_curAnchor = _anchors[minIdx];
-			return _curAnchor.compute(xy, wh, element, txy, twh, tElement);
+			var pos = _curAnchor.compute(xy, wh, element, txy, twh, tElement);
+			return pos;
 		};
 		
 		this.getOrientation = function() {
@@ -843,10 +846,7 @@
 	     * @param ui current library's event system ui object (present if we came from a drag to get here)
 	     * @param recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
 	     */
-	    this.paint = function(elId, ui, recalc, timestamp) {    	
-	    	
-	    //	/*if (log) log.debug*/ console.log("Painting Connection; element in motion is " + elId + "; ui is [" + ui + "]; recalc is [" + recalc + "]");
-	    	
+	    this.paint = function(elId, ui, recalc, timestamp) {    		    	
 	    	var fai = self.floatingAnchorIndex;
 	    	// if the moving object is not the source we must transpose the two references.
 	    	var swap = false;//!(elId == this.sourceId);
@@ -855,10 +855,8 @@
 	    	var el = swap ? this.target : this.source;
 	    	
 	    	if (this.canvas.getContext) {    		    			    		    	
-	    		//if (recalc) {
-	    			_updateOffset(elId, ui, recalc);
-	    			_updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
-	    		//}
+	    		_updateOffset(elId, ui, recalc);
+	    		_updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
 	    		
 	    		var myOffset = offsets[sId]; 
 	    		var otherOffset = offsets[tId];
@@ -887,7 +885,8 @@
 	            	ctx.save();
 	            	jsPlumb.extend(ctx, paintStyle);
 	            	if (paintStyle.gradient && !ie) { 
-			            var g = swap ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
+			            //var g = (elId == this.sourceId) ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
+	            		var g = ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
 			            for (var i = 0; i < paintStyle.gradient.stops.length; i++)
 			            	g.addColorStop(paintStyle.gradient.stops[i][0],paintStyle.gradient.stops[i][1]);
 			            ctx.strokeStyle = g;
@@ -962,6 +961,7 @@
 	    var id = new String('_jsplumb_e_' + (new Date()).getTime());
 	    this.getId = function() { return id; };
 		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
+		//if (self.anchor.isDynamic) self.anchor.endpoint = self;
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 		this.connectorStyle = params.connectorStyle;
@@ -1232,6 +1232,8 @@
 			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {				
 				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+				//$(n).offset(_ui);
+				jsPlumb.CurrentLibrary.setOffset(n, _ui);
 				_draw(_getElementObject(n), _ui);
 			});
 			dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], 

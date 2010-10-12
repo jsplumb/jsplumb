@@ -46,35 +46,13 @@
 	jsPlumb.Anchors.BottomLeft 		= jsPlumb.makeAnchor(0, 1, 0, 1);
 	jsPlumb.Anchors.AutoDefault     = function() { return jsPlumb.makeDynamicAnchor([jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]); };
 	
-	jsPlumb.Defaults.DynamicAnchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle];
-	
-	jsPlumb.Connectors.Base = function() {
-		var self = this;
-		/**
-         * Returns the endpoints of a line that is 'length' long and perpendicular to, and centered on, the path at 'location', where
-         * 'location' is a decimal from 0 to 1 inclusive.
-         * 
-         * this method can also be called like this:
-         * 
-         * perpendicularToPath(x, y, length) - when you already know the x,y values for location. 
-         */
-        this.perpendicularToPath = function(location, length) {
-        	var p = arguments.length == 2 ? self.pointOnPath(arguments[0]) : [arguments[0], arguments[1]];
-        	var l = arguments[arguments.length - 1];
-        	var m = arguments.length == 2 ? self.gradientAtPoint(arguments[0]) : self.gradientAtPoint(arguments[0], arguments[1]);
-        	var _theta2 = Math.atan(-1 / m);
-        	var y =  l / 2 * Math.sin(_theta2);
-			var x =  l / 2 * Math.cos(_theta2);
-			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]];
-        };
-	};
+	jsPlumb.Defaults.DynamicAnchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle];	
 	                                   
         /**
          * The Straight connector draws a simple straight line between the two anchor points.
          */
     jsPlumb.Connectors.Straight = function() {
-	
-    	jsPlumb.Connectors.Base.apply(this); 
+	 
 		var self = this;
 		var currentPoints = null;
 		var _m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty;
@@ -129,7 +107,7 @@
             _ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
             currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];            
             
-            _dx = _tx - _sx, _dy = /*-1 * */(_ty - _sy);
+            _dx = _tx - _sx, _dy = (_ty - _sy);
 			_m = _dy / _dx, _m2 = -1 / _m;
 			_b = -1 * ((_m * _sx) - _sy);
 			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
@@ -143,18 +121,7 @@
             ctx.moveTo(dimensions[4], dimensions[5]);
             ctx.lineTo(dimensions[6], dimensions[7]);
             ctx.stroke();            
-        };
-        
-        /**
-         * returns the distance the given point is from the curve.  TODO; may not work for straight.  not tested at all yet.
-         */
-        this.distanceFrom = function(point) {
-        	var curve = [ {x:currentPoints[4], y:currentPoints[5]},
-        				  {x:currentPoints[8], y:currentPoints[9]}, 
-        				  {x:currentPoints[10], y:currentPoints[11]}, 
-        				  {x:currentPoints[6], y:currentPoints[7]}];
-        	return (jsPlumb.DistanceFromCurve(point, curve));        	        	
-        };
+        };        
         
         /**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
@@ -169,9 +136,7 @@
         /**
          * returns the gradient of the connector at the given point - which for us is constant.
          */
-        this.gradientAtPoint = function(location) {
-        	return _m;
-        };	
+        this.gradientAtPoint = function(location) { return _m; };	
         
         /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
@@ -184,11 +149,21 @@
         	if (_sy > _ty) y = y * -1;
 			var x =  Math.abs(distance * Math.cos(_theta));
 			if (_sx > _tx) x = x * -1;
-			var point = [p[0] + (orientation * x), p[1] + (orientation * y)];
-			var loc = location + ((orientation * x) / Math.abs(_tx - _sx));
-			return point;//{ point:point, location:loc };
+			return [p[0] + (orientation * x), p[1] + (orientation * y)];
         };
-                
+        
+        /**
+         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
+         * the line is 'length' pixels long.
+         */
+        this.perpendicularToPathAt = function(location, distance, length) {
+        	var p = self.pointAlongPathFrom(location, distance);
+        	var m = self.gradientAtPoint(p.location);
+        	var _theta2 = Math.atan(-1 / m);
+        	var y =  length / 2 * Math.sin(_theta2);
+			var x =  length / 2 * Math.cos(_theta2);
+			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]];
+        };        
     };
                 
     /**
@@ -202,7 +177,6 @@
      * than fixing the curve to one basic shape.
      */
     jsPlumb.Connectors.Bezier = function(curviness) {
-    	jsPlumb.Connectors.Base.apply(this);
     	var self = this;
     	this.majorAnchor = curviness || 150;
         this.minorAnchor = 10;
@@ -273,27 +247,9 @@
         		_w = minWidth;        		
         		_canvasX -= posAdjust; _sx = _sx + posAdjust ; _tx = _tx + posAdjust; _CP[0] =  _CP[0] + posAdjust; _CP2[0] = _CP2[0] + posAdjust;
         	}
-            /*if (h < calculatedMinWidth) { 
-        		
-        		h = calculatedMinWidth; 
-        		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - (calculatedMinWidth / 2);
-        		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
-        	}*/
 
-            // return [ canvasx, canvasy, canvasWidth, canvasHeight,
-            //          sourceX, sourceY, targetX, targetY,
-            //          controlPoint1_X, controlPoint1_Y, controlPoint2_X, controlPoint2_Y
-            currentPoints = [_canvasX, _canvasY, _w, _h, _sx, _sy, _tx, _ty, _CP[0], _CP[1], _CP2[0], _CP2[1] ];
-            
-            /*if (sourcePos[0] < targetPos[0]) {
-            	var ox = _tx, oy = _ty, ocp = _CP;
-            	_tx = _sx; _ty = _sy;
-            	_sx = ox; _sy = oy;
-            	_CP = _CP2; _CP2 = ocp;
-            }*/
-            
-            return currentPoints;
-            
+            currentPoints = [_canvasX, _canvasY, _w, _h, _sx, _sy, _tx, _ty, _CP[0], _CP[1], _CP2[0], _CP2[1] ];            
+            return currentPoints;            
         };
 
         this.paint = function(d, ctx) {
@@ -304,15 +260,15 @@
         };        
         
         /**
-         * returns the distance the given point is from the curve.
-         */
+         * returns the distance the given point is from the curve.  not enabled for 1.2.3.  didnt make the cut.  next time.
+         *
         this.distanceFrom = function(point) {
         	var curve = [ {x:currentPoints[4], y:currentPoints[5]},
         				  {x:currentPoints[8], y:currentPoints[9]}, 
         				  {x:currentPoints[10], y:currentPoints[11]}, 
         				  {x:currentPoints[6], y:currentPoints[7]}];
         	return (jsPlumb.DistanceFromCurve(point, curve));        	        	
-        };
+        };*/
         
         var _quadraticPointOnPath = function(location) {
         	function B1(t) { return t*t; };
@@ -347,16 +303,26 @@
         	var p1 = self.pointOnPath(location);
         	var p2 = _quadraticPointOnPath(location);
         	var dy = p2[1] - p1[1], dx = p2[0] - p1[0];
-        	var rtn = Math.atan(dy, dx) ;
-        	rtn = rtn * (180 / Math.PI);
-			if (dx < 0 && dy < 0) rtn *= -1;
-			if (dx > 0 && dy < 0) rtn *= -1;
-			if (dx < 0 && dy > 0) rtn = 360.0 - rtn;
-			if (dx > 0 && dy > 0) rtn = 360.0 - rtn;
+        	var rtn = Math.atan(dy / dx) ;
         	// http://bimixual.org/AnimationLibrary/beziertangents.html
-			console.log("bezier: gradient at " + location + " is " + rtn);
-        	return rtn;
+			return rtn;
         };	
+        
+        /**
+         * finds the point that is 'distance' along the path from 'location'.  this method returns both the x,y location of the point and also
+         * its 'location' (proportion of travel along the path).
+         */
+        var _pointAlongPath = function(location, distance) {
+        	var _dist = function(p1,p2) { return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2)); };
+        	var prev = self.pointOnPath(location), tally = 0, curLoc = location, direction = distance > 0 ? 1 : -1, cur = null;
+        	while (tally < Math.abs(distance)) {
+        		curLoc += (0.005 * direction);
+        		cur = self.pointOnPath(curLoc);
+        		tally += _dist(cur, prev);	
+        		prev = cur;
+        	}
+        	return {point:cur, location:curLoc};        	
+        };
         
         /**
          * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
@@ -367,16 +333,21 @@
          * calculate the step as a function of distance/distance between endpoints.  
          */
         this.pointAlongPathFrom = function(location, distance) {
-        	var _dist = function(p1,p2) { return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2)); };
-        	var prev = self.pointOnPath(location), tally = 0, curLoc = location, direction = distance > 0 ? 1 : -1, cur = null;
-        	while (tally < Math.abs(distance)) {
-        		curLoc += (0.005 * direction);
-        		cur = self.pointOnPath(curLoc);
-        		tally += _dist(cur, prev);	
-        		prev = cur;
-        	}
-        	return cur;//{point:cur, location:curLoc};
+        	return _pointAlongPath(location, distance).point;
         };        
+        
+        /**
+         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
+         * the line is 'length' pixels long.
+         */
+        this.perpendicularToPathAt = function(location, distance, length) {
+        	var p = _pointAlongPath(location, distance);
+        	var m = self.gradientAtPoint(p.location);
+        	var _theta2 = Math.atan(-1 / m);
+        	var y =  length / 2 * Math.sin(_theta2);
+			var x =  length / 2 * Math.cos(_theta2);
+			return [[p.point[0] + x, p.point[1] + y], [p.point[0] - x, p.point[1] - y]];
+        };
     };
     
     
@@ -454,18 +425,13 @@
 		this.width = params.width;
 		this.height = params.height;
 		
-    		this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {    		
+    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {    		
 			var width = endpointStyle.width || self.width;
 			var height = endpointStyle.height || self.height;
 			var x = anchorPoint[0] - (width/2);
 			var y = anchorPoint[1] - (height/2);
 			jsPlumb.sizeCanvas(canvas, x, y, width, height);
 			var ctx = canvas.getContext('2d');
-			//todo: the fillStyle needs some thought. we want to support a few options:
-			// 1. nothing supplied; use the stroke color or the default if no stroke color.
-			// 2. a fill color supplied - use it
-			// 3. a gradient supplied - use it
-			// 4. setting the endpoint to the same color as the bg of the element it is attached to.
 			var style = jsPlumb.extend({}, endpointStyle);
 			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
 			jsPlumb.extend(ctx, style);
@@ -487,62 +453,58 @@
 			ctx.rect(0, 0, width, height);
 			ctx.closePath();
 			ctx.fill();
-    		};
+    	};
 	};
 	
 	jsPlumb.Endpoints.Triangle = function(params) {
 	        	
-    		params = params || { width:15, height:15 };
-    		var self = this;
-    		this.width = params.width;
-    		this.height = params.height;
-    		
-	    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) 
-			{    		
-    			var width = endpointStyle.width || self.width;
-    			var height = endpointStyle.height || self.height;
-    			var x = anchorPoint[0] - width/2;
-    			var y = anchorPoint[1] - height/2;
-				
-				jsPlumb.sizeCanvas(canvas, x, y, width, height);
-				
-    			var ctx = canvas.getContext('2d');
-				var 
-					offsetX = 0,
-					offsetY = 0,
-					angle = 0;
-				
-				if( orientation[0] == 1 )
-				{
-					offsetX = width;
-					offsetY = height;
-					angle = 180;
-				}
-				if( orientation[1] == -1 )
-				{
-					offsetX = width;
-					angle = 90;
-				}
-				if( orientation[1] == 1 )
-				{
-					offsetY = height;
-					angle = -90;
-				}
-				
-				ctx.fillStyle = endpointStyle.fillStyle;
-				
-				ctx.translate(offsetX, offsetY);
-				ctx.rotate(angle * Math.PI/180);
+		params = params || { width:15, height:15 };
+		var self = this;
+		this.width = params.width;
+		this.height = params.height;
+		
+    	this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) 
+		{    		
+			var width = endpointStyle.width || self.width;
+			var height = endpointStyle.height || self.height;
+			var x = anchorPoint[0] - width/2;
+			var y = anchorPoint[1] - height/2;
+			
+			jsPlumb.sizeCanvas(canvas, x, y, width, height);
+			
+			var ctx = canvas.getContext('2d');
+			var offsetX = 0, offsetY = 0, angle = 0;
+			
+			if( orientation[0] == 1 )
+			{
+				offsetX = width;
+				offsetY = height;
+				angle = 180;
+			}
+			if( orientation[1] == -1 )
+			{
+				offsetX = width;
+				angle = 90;
+			}
+			if( orientation[1] == 1 )
+			{
+				offsetY = height;
+				angle = -90;
+			}
+			
+			ctx.fillStyle = endpointStyle.fillStyle;
+			
+			ctx.translate(offsetX, offsetY);
+			ctx.rotate(angle * Math.PI/180);
 
-				ctx.beginPath();
-				ctx.moveTo(0, 0);
-				ctx.lineTo(width/2, height/2);
-				ctx.lineTo(0, height);
-				ctx.closePath();
-				ctx.fill();
-				
-	    	};
+			ctx.beginPath();
+			ctx.moveTo(0, 0);
+			ctx.lineTo(width/2, height/2);
+			ctx.lineTo(0, height);
+			ctx.closePath();
+			ctx.fill();				
     	};
+	};
 	
 	/**
 	 * Image endpoint - draws an image as the endpoint.  You must provide a 'url' property in the params object..
@@ -594,7 +556,7 @@
     	var length = params.length || 20;
     	var width = params.width || 20;
     	var fillStyle = params.fillStyle || "black";
-    	var strokeStyle = params.strokeStyle /*|| "yellow"*/;
+    	var strokeStyle = params.strokeStyle;
     	var lineWidth = params.lineWidth || 1;
     	this.loc = params.location || 0.5;
     	// how far along the arrow the lines folding back in come to. default is 62.3%. 
@@ -615,7 +577,7 @@
 			// this is the center of the tail
 			var txy = connector.pointAlongPathFrom(self.loc, -length / 2), tx = txy[0], ty = txy[1];
 			// this is the tail vector
-			var tail = connector.perpendicularToPath(tx, ty, width);			
+			var tail = connector.perpendicularToPathAt(self.loc, -length / 2, width);
 			// this is the point the tail goes in to
 			var cxy = _getFoldBackPoint(connector, self.loc);
 			
@@ -683,8 +645,7 @@
     	this.computeMaxSize = function(connector, ctx) {
     		if (labelText) {
     			ctx.save();
-	            if (self.labelStyle.font)	            	
-	            	ctx.font = self.labelStyle.font;
+	            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
 	            var t = ctx.measureText(labelText).width;			            
 				// a fake text height measurement: use the width of upper case M
 				var h = ctx.measureText("M").width;					

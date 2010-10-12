@@ -137,6 +137,10 @@
 			return { left:p.x, top:p.y };
 		},
 		
+		setOffset : function(el, o) {
+			jsPlumb.CurrentLibrary.getElementObject(el).setPosition({x:o.left, y:o.top});
+		},
+		
 		getSize : function(el) {
 			var s = el.getSize();
 			return [s.x, s.y];
