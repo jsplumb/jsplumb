@@ -97,6 +97,7 @@
          * would store the control point info in this array too.
          */
         this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth) {
+        	console.log(sourcePos, targetPos);
 			var w = Math.abs(sourcePos[0] - targetPos[0]);
             var h = Math.abs(sourcePos[1] - targetPos[1]);
             var widthAdjusted = false, heightAdjusted = false;
@@ -123,23 +124,18 @@
         		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
         	}
                             
-            _sx = sourcePos[0] < targetPos[0] ? w-xo : xo;
-            _sy = sourcePos[1] < targetPos[1] ? h-yo : yo;
-            _tx = sourcePos[0] < targetPos[0] ? xo : w-xo;
-            _ty = sourcePos[1] < targetPos[1] ? yo : h-yo;
-            currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];
+            _sx = sourcePos[0] < targetPos[0] ?  xo : w-xo;
+            _sy = sourcePos[1] < targetPos[1] ? yo:h-yo;
+            _tx = sourcePos[0] < targetPos[0] ? w-xo : xo;
+            _ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
+            currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];            
             
-            /*if (sourcePos[0] < targetPos[0]) {
-            	var ox = _tx, oy = _ty;
-            	_tx = _sx; _ty = _sy;
-            	_sx = ox; _sy = oy;
-            }*/
-            
-            _dx = _tx - _sx, _dy = _ty - _sy;
+            console.log(sourcePos, targetPos);
+            _dx = _tx - _sx, _dy = /*-1 * */(_ty - _sy);
 			_m = _dy / _dx, _m2 = -1 / _m;
 			_b = -1 * ((_m * _sx) - _sy);
 			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
-			
+			console.log("sx:" + _sx+",sy:" + _sy + ",tx:" + _tx+",ty:" + _ty + "dx:",+_dx+",dy:" + _dy+"m:"+_m+",b:"+_b+",theta:"+_theta);
                              
             return currentPoints;
         };
@@ -168,8 +164,11 @@
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
         this.pointOnPath = function(location) {
-        	var xp = _sx + (location * _dx);        	
-        	return [xp, (_m * xp) + _b];			        	
+        	var xp = _sx + (location * _dx);
+        	var yp = _m == Infinity ? xp + _b : (_m * xp) + _b;
+        	//console.log("pop:" + xp,  (_m * xp) + _b);
+        	//return [xp, ];
+        	return [xp, yp];
         };
         
         /**
@@ -185,9 +184,11 @@
          */
         this.pointAlongPathFrom = function(location, distance) {
         	var p = self.pointOnPath(location);
-        	var orientation = (_sx < _tx && _sy > _ty) || (_sx > _tx && _sy > _ty) ? 1 : -1;
-        	var y =  distance * Math.sin(_theta);
-			var x =  distance * Math.cos(_theta);
+        	var orientation = distance > 0 ? 1 : -1;
+        	var y =  Math.abs(distance * Math.sin(_theta));
+        	if (_sy > _ty) y = y * -1;
+			var x =  Math.abs(distance * Math.cos(_theta));
+			if (_sx > _tx) x = x * -1;
 			var point = [p[0] + (orientation * x), p[1] + (orientation * y)];
 			var loc = location + ((orientation * x) / Math.abs(_tx - _sx));
 			return point;//{ point:point, location:loc };
