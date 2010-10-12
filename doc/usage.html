@@ -265,9 +265,8 @@ it if you know the supporting library's corresponding method.
 		
 	<a id="dragAndDropScope"><h4>Scope</h4></a>
 		jsPlumb borrowed the concept of 'scope' from jQuery's drag/drop implementation: the notion of
-		which draggables can be dropped on which droppables.  In jsPlumb you can provide a 'scope' entry in the
-		dragOptions and dropOptions you provide when creating an Endpoint.  Here's the example grey
-		Endpoint example with 'scope' added:
+		which draggables can be dropped on which droppables.  In jsPlumb you can provide a 'scope' entry when 
+		creating an Endpoint.  Here's the example grey Endpoint example with 'scope' added:
 		
 <div class="code">
 <pre>
@@ -370,7 +369,7 @@ You can also provide your own function for jsPlumb to execute instead of its def
 jsPlumb.setRepaintFunction(repaint);</pre>
 </div>
 Notice the call to <strong>repaintEverything()</strong> here - a useful method.
-<p>Another example"</p>
+<p>Another example:</p>
 <div class="code">
 <pre>var repaint = function() {
 	// completely start over
@@ -402,10 +401,10 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 			<p>These are the options you can specify on a call to the connect/plumb method:</p>
 			<ul>
 				<li><strong>source</strong>
-					<p>This is a required argument only when using 'connect' (when using 'plumb' the source element is the one on which the plumb method was called).  It identifies the source element for the plumb.  It may be a string representing the element's id, or a selector for the element.</p>
+					<p>This is a required argument only when using 'connect' (when using 'plumb' the source element is the one on which the plumb method was called), or if you have not supplied a value for sourceEndpoint.  It identifies the source element for the plumb.  It may be a string representing the element's id, or a selector for the element.</p>
 				</li>
 				<li><strong>target</strong>
-					<p>This is a required argument.  It identifies the target element for the plumb.  It may be a string representing the element's id, or a selector for the element.</p>
+					<p>This is a required argument, unless you have supplied a value for targetEndpoint. It identifies the target element for the plumb.  It may be a string representing the element's id, or a selector for the element.</p>
 				</li>
 				<li><strong>paintStyle</strong>
 					<p>Optional; if not supplied jsPlumb uses the values defined in jsPlumb.Defaults.PaintStyle (see <a href="#defaults">Defaults</a>). This object allows you to specify five attributes of the connector (note that all of these except 'gradient'
@@ -476,6 +475,7 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 							<li>new jsPlumb.Endpoints.Dot ( optional_params )</li>
 							<li>new jsPlumb.Endpoints.Rectangle ( optional_params ) </li>
 							<li>new jsPlumb.Endpoints.Image (url) </li>
+							<li>new jsPlumb.Endpoints.Triangle ({width:optional, height:optional}) </li>
 						</ul>
 					</p>
 					<p>Similar to Connectors and Anchors, you can provide your own Endpoint implementation; see the <a href="#endpoints">Endpoints</a> section.</p>
@@ -626,7 +626,7 @@ jsPlumb.connect({
 					<p>
 					This optional parameter is a list of objects that implement the Overlay interface, which is discussed in more detail in the
 					<a href="#overlays">Overlays</a> section below.  Here's a brief example, though, that shows the same example we just discussed
-					for labels - but in this case there is also a arrow being painted:</a>
+					for labels - but in this case there is also an arrow being painted:</a>
 					</p>
 <div class="code">
 <pre>
@@ -638,7 +638,9 @@ jsPlumb.connect({
 			fillStyle:"rgba(100,100,100,80)",
 			color:"white",
 			font:"12px sans-serif",
-			label:"Static label"
+			label:"Static label",
+			borderStyle:"black",
+			borderWidth:2
 		}),
 		new jsPlumb.Overlays.Arrow({location:0.2})
 	]
@@ -655,7 +657,7 @@ which is the default.
 		<div class="section">
 			<a id="detachOptions"><h3>jsPlumb.detach Options</h3></a>
 			<p>Both the jsPlumb object and also individual elements have a method called 'detach'. The jsPlumb.detach method is more
-			versatile and allows you to speficy elements, element ids, endpoint uuids or Endpoint objects, whereas the detach method on
+			versatile and allows you to specify elements, element ids, endpoint uuids or Endpoint objects, whereas the detach method on
 			individual elements can only take the id of some element, or that element's selector.  This documentation refers to the
 			jsPlumb.detach method.  It has several similarities with the connect method discussed above.
 			 </p>
@@ -778,8 +780,7 @@ var myAnchor = jsPlumb.makeAnchor( 0.333, 0.5, 0, 1 );
 					<p>
 					For most cases, the jsPlumb.makeAnchor function will probably suffice.  But the method signature of the <em>compute</em> function
 					of an anchor takes the location of <strong>both elements</strong>, meaning it is possible to write an anchor whose position takes
-					into account where the current element is in relation to the one it is plumbed to.  jsPlumb does not natively do this but it
-					seems like something that might be useful.
+					into account where the current element is in relation to the one it is plumbed to.  jsPlumb uses this with Dynamic Anchors.
 					</p>
 					<p>An anchors function consists of two parts - a function that computes the location of the anchor, given the current xy and width/height of the source
 					element and target element, plus an 'orientation' array, which gives jsPlumb hints
@@ -807,7 +808,7 @@ var myAnchor =  {
 									// 1 or -1 means go in this direction in this plane.
 };
 
-$("someWindow").plumb({target:'otherWindow', anchors:[myAnchor, myAnchor]});
+jsPlumb.connect({source:"someWindow", target:"otherWindow", anchors:[myAnchor, myAnchor]});
 </pre>
 			</div>
 			The arguments to the compute function are:
@@ -1019,6 +1020,12 @@ this.draw = function(connector, ctx) {
 	at the given point, with the given width (width is an internal member of Arrow).  At this point, the Arrow object has the three main points it
 	needs in order to draw itself.
 	</p>
+	
+	<h4>Default Overlay Types</h4>
+	These are the possible constructor args for each of the default overlay types supplied with jsPlumb:
+	
+	TODO add constructor args for overay types.
+	
 		</div>
 		<div class="section">
 			<a id="endpoints"><h3>Endpoints</h3></a>
