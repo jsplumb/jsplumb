@@ -898,7 +898,7 @@ endpoint jumps down to a location that is closer to window 3.</p>
 				<li><strong>pointOnPath(location)</strong> - returns an [x,y] point corresponding to the given location</li>
 				<li><strong>pointAlongPathFrom(location, distance)</strong> - returns an [x,y] point corresponding to travelling 'distance' pixels along the connector from 'location'.</li>
 				<li><strong>gradientAtPoint(location)</strong> - returns the connector's gradient at the given location.  For linear connectors such as Straight this is constant, but for Bezier connectors the gradient changes continually.</li>
-				<li><strong>perpendicularToPath(location, length)</strong> - returns a line that is perpendicular to the connector at the given location.</li>
+				<li><strong>perpendicularToPathAt(location, distance, length)</strong> - returns a line that is perpendicular to (and centered on) the connector at 'distance' from the given location, with length 'length'.</li>
 			</ul>
 			
 			
@@ -955,7 +955,7 @@ this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWi
 			</p>
 			<h4>Connector Support</h4>
 			Overlays can only work with Connectors that implement the methods <strong>pointOnPath</strong>, <strong>pointAlongPathFrom</strong>,
-			<strong>gradientAtPoint</strong>, and <strong>perpendicularToPath</strong>.  These are discussed in more detail in the Connectors section above.  Both of the Connectors
+			<strong>gradientAtPoint</strong>, and <strong>perpendicularToPathAt</strong>.  These are discussed in more detail in the Connectors section above.  Both of the Connectors
 			that come with jsPlumb - Straight and Bezier -implement these methods; if you write a custom connector, or have written a custom connector, you will need to supply
 			them.   
 			<h4>Overlay Interface</h4>
@@ -1004,7 +1004,7 @@ this.draw = function(connector, ctx) {
 	// this is the center of the tail
 	var txy = connector.pointAlongPathFrom(self.loc, -length / 2), tx = txy[0], ty = txy[1];
 	// this is the tail vector
-	var tail = connector.perpendicularToPath(tx, ty, width);
+	var tail = connector.perpendicularToPathAt(self.loc, -length / 2, width);
 	
 	...
 </pre>
@@ -1016,15 +1016,11 @@ this.draw = function(connector, ctx) {
 	the connector that mark the head and tail points for the arrow.  
 	</p>		
 	<p>
-	The <strong>connector.perpendicularToPath(tx, ty, width)</strong> call returns a line description of a line that is perpendicular to, and centered on, the connector
-	at the given point, with the given width (width is an internal member of Arrow).  At this point, the Arrow object has the three main points it
+	The <strong>connector.perpendicularToPathAt(self.loc, -length / 2, width)</strong> call returns a line description of a line that is perpendicular to, and centered on, the connector
+	at "-length / 2" pixels from the given point, with the given width (width is an internal member of Arrow).  At this point, the Arrow object has the three main points it
 	needs in order to draw itself.
 	</p>
 	
-	<h4>Default Overlay Types</h4>
-	These are the possible constructor args for each of the default overlay types supplied with jsPlumb:
-	
-	TODO add constructor args for overay types.
 	
 		</div>
 		<div class="section">
