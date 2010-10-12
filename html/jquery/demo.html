@@ -46,8 +46,6 @@ font-size:0.8em;}
 	    <div id="explanation">
 	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  </p>
 	    	<p>This demonstration uses jsPlumb 1.2.3, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
-	    	You can change the green connection's label here:
-	    	<form id="frmLabel"><label ><input type="text" id="txtLabel" value="big endpoints"></input></label><input type="submit" value="change"></input></form><br/>
 	    	<a href="chartDemo.html" class="mplink">Next: Chart demonstration</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
@@ -78,14 +76,13 @@ font-size:0.8em;}
 												   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'}, 
 												   endpointStyle:{fillStyle:'rgb(243,229,0)'},
 												   overlays : [ new jsPlumb.Overlays.Label({
-												   						labelStyle : {
-																		font : "16px sans-serif",				        
+												   					labelStyle : {
+																		font : "15px sans-serif",				        
 												        				color : "black"												            
-												   						},
-												   						label : "connection 1", 
-												   						location:0.8})]
-												   						
-												  });
+												   					},
+												   					label : "Connection One", 
+												   					location:0.7})
+							   					   ]});
 												  												  
 				//
 				// plumb the right hand side of window3 to the left hand side of window4 with a 10px wide blue-ish half transparent Bezier. 
@@ -154,49 +151,18 @@ font-size:0.8em;}
 			        					paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, 
 			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
 			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,
-										/*labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },*/			    			        				 
-				    			        /*label : "4 - 5" */
-									   	overlays:[
-												/*	new jsPlumb.Overlays.Diamond({location:0.2, fillStyle:"rgb(131,8,135)", length:50}),*/
-													new jsPlumb.Overlays.Label({
-														labelStyle : { fillStyle:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)", borderStyle:"rgb(131,8,135)", borderWidth:2 },			    			        				 
+										overlays:[new jsPlumb.Overlays.Label({
+														labelStyle : { 
+															fillStyle:"white", 
+															padding:0.4, 
+															font:"16px sans-serif", 
+															color:"rgb(131,8,135)", 
+															borderStyle:"rgb(131,8,135)", 
+															borderWidth:2 
+														},			    			        				 
 								    			        label : "4 - 5",
-								    			        location:0.3
-													})
-														   	]});
-		        
-/*
-		        // all the mouse listener stuff
-		        var c = function(connection, window) {
-					connection.bind("mouseenter", function(connection) {
-						jsPlumb.extend(connection.backgroundPaintStyle, {strokeStyle:'red'});
-						jsPlumb.repaint(window);
-						$(connection.source).addClass("hl");
-						$(connection.target).addClass("hl");						
-					});
-					connection.bind("mouseleave", function(connection) {
-						jsPlumb.extend(connection.backgroundPaintStyle, {strokeStyle:'black'});
-						jsPlumb.repaint(window);
-						$(connection.source).removeClass("hl");
-						$(connection.target).removeClass("hl");						
-					});
-					connection.bind("click", function(connection) {
-						alert("click");
-					});
-					
-				};
-		        c(connection1, "window1");
-				c(connection2, "window3");
-				c(connection3, "window3");
-				c(connection4, "window4");
-				c(connection5, "window5");
-*/
-				// label button
-				$("#frmLabel").submit(function() {
-					connection4.setLabel($("#txtLabel").val());
-					return false;
-				});
-				$("#txtLabel").select();
+								    			        location:0.3 })
+										]});
 		        
 		});
 		</script>
