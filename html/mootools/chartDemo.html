@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>jsPlumb demo 2 - MooTools</title>
+		<title>jsPlumb Chart Demonstration - MooTools</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>		
@@ -28,7 +28,7 @@
 		<div class="window" id="window6">window six</div>
 		
 		<div id="explanation">
-	    	On this page we set our connectors to gray and specify an endpoint of radius 9. <br/><br/>The Bezier curve used on this page has a 'curviness' of 50; the Bezier connectors are a lot flatter than those on the first demo, which uses the default values.  See the documentation for examples of how to set the Bezier curviness.<br/><br/>The elements of the chart are not draggable.
+	    	On this page we set our connectors to gray and specify an endpoint of radius 9. <br/><br/>The Bezier curve used on this page has a 'curviness' of 50; the Bezier connectors are a lot flatter than those on the first demo, which uses the default values.  See the documentation for examples of how to set the Bezier curviness.<br/>
 	    	<p>This demonstration uses jsPlumb 1.2.3, MooTools 1.2.4, and Drag.Move from MooTools More 1.2.2.4.</p>
 	    	<a href="anchorDemo.html" class="mplink">Next: Anchors demonstration</a>
 	    	<br/><br/>
@@ -44,23 +44,21 @@
 	     	
 		<script type="text/javascript">
 			window.addEvent('domready', function() {
-
 				// notice the 'curviness' argument to this Bezier curve.  the curves on this page are far smoother 
 				// than the curves on the first demo, which use the default curviness value.
 				jsPlumb.Defaults.Connector = new jsPlumb.Connectors.Bezier(50);
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
-				jsPlumb.Defaults.PaintStyle = { strokeStyle:'gray' };
+				jsPlumb.Defaults.PaintStyle = { strokeStyle:'gray', lineWidth:2 };
 				jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:'gray' };
 				jsPlumb.Defaults.Anchors =  [ jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter ];
 
-				jsPlumb.setDraggableByDefault(false);
+				var _makeOverlay = function() { return new jsPlumb.Overlays.Arrow({foldback:0.7, fillStyle:'gray', location:0.6, width:14}); };
 				
-				jsPlumb.connect({source:'window3', target:'window6'}); 
-				jsPlumb.connect({source:'window1', target:'window2'}); 
-				jsPlumb.connect({source:'window1', target:'window3'});
-				jsPlumb.connect({source:'window2', target:'window4'});
-				jsPlumb.connect({source:'window2', target:'window5'});
-				
+				jsPlumb.connect({source:'window3', target:'window6', overlays:[_makeOverlay()]}); 
+				jsPlumb.connect({source:'window1', target:'window2', overlays:[_makeOverlay()]}); 
+				jsPlumb.connect({source:'window1', target:'window3', overlays:[_makeOverlay()]});
+				jsPlumb.connect({source:'window2', target:'window4', overlays:[_makeOverlay()]});
+				jsPlumb.connect({source:'window2', target:'window5', overlays:[_makeOverlay()]});			
 			});
 		</script>
 	    
