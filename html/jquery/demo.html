@@ -154,14 +154,14 @@ font-size:0.8em;}
 			        					paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, 
 			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
 			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,
-										labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },			    			        				 
+										/*labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },*/			    			        				 
 				    			        /*label : "4 - 5" */
 									   	overlays:[
-													new jsPlumb.Overlays.Diamond({location:0.2, fillStyle:"rgb(131,8,135)", length:50}),
+												/*	new jsPlumb.Overlays.Diamond({location:0.2, fillStyle:"rgb(131,8,135)", length:50}),*/
 													new jsPlumb.Overlays.Label({
-														labelStyle : { fillStyle:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },			    			        				 
+														labelStyle : { fillStyle:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)", borderStyle:"rgb(131,8,135)", borderWidth:2 },			    			        				 
 								    			        label : "4 - 5",
-								    			        location:0.8
+								    			        location:0.3
 													})
 														   	]});
 		        
