@@ -849,7 +849,7 @@
 	    	
 	    	var fai = self.floatingAnchorIndex;
 	    	// if the moving object is not the source we must transpose the two references.
-	    	var swap = !(elId == this.sourceId);
+	    	var swap = false;//!(elId == this.sourceId);
 	    	var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
 	    	var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 	    	var el = swap ? this.target : this.source;
@@ -860,9 +860,9 @@
 	    			_updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
 	    		//}
 	    		
-	    		var myOffset = offsets[elId]; 
+	    		var myOffset = offsets[sId]; 
 	    		var otherOffset = offsets[tId];
-	    		var myWH = sizes[elId];
+	    		var myWH = sizes[sId];
 	            var otherWH = sizes[tId];
 	            
 	    		var ctx = canvas.getContext('2d');
@@ -871,8 +871,7 @@
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
 	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx], [myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
-	            
-	            
+	            	            
 	            // paint overlays
 	            var maxSize = 0;
 	            for (var i = 0; i < self.overlays.length; i++) {
@@ -880,24 +879,7 @@
 	            	var s = o.computeMaxSize(self.connector, ctx);
 	            	if (s > maxSize) maxSize = s;
 	            }
-	            
-	            // if we have a label then the canvas must be at least big enough to draw the label, so we pass that min value into the 
-	            // connector
-	            /*var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
-	            if (self.label) {
-	            	// we allow label generation by a function here.  you get given the Connection object as an argument.
-	            	labelText = typeof self.label == 'function' ? self.label(self) : self.label;
-	            	if (labelText) {
-			            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
-			            var t = ctx.measureText(labelText).width;			            
-						// a fake text height measurement: use the width of upper case M
-						var h = ctx.measureText("M").width;					
-						labelPadding = self.labelStyle.padding || 0.25;
-						labelWidth = t + (2 * t * labelPadding);
-						labelHeight = h + (2 * h * labelPadding);
-	            	}
-	            }*/
-	            
+	            	            
 	            var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth, maxSize);
 	            jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
 	
@@ -919,24 +901,7 @@
 	            if (this.backgroundPaintStyle != null) {
 	            	_paintOneStyle(ctx, this.backgroundPaintStyle);
 	            }
-	            _paintOneStyle(ctx, this.paintStyle);
-	            
-	            // paint the label if it was given	            	            
-	            /*if (labelText) {
-		            var centerX = ctx.canvas.width / 2;
-		            var centerY = ctx.canvas.height / 2;		            
-		            if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
-					if (self.labelStyle.background) 
-						ctx.fillStyle = self.labelStyle.background;
-					else 
-						ctx.fillStyle = "rgba(0,0,0,0)";
-					ctx.fillRect(centerX - (labelWidth / 2), centerY - (labelHeight / 2) , labelWidth , labelHeight );
-					
-					if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
-					ctx.textBaseline = "middle";
-					ctx.textAlign = "center";
-					ctx.fillText(labelText, centerX, centerY);
-	            }*/
+	            _paintOneStyle(ctx, this.paintStyle);	            	            
 	            
 	            // paint overlays
 	            for (var i = 0; i < self.overlays.length; i++) {

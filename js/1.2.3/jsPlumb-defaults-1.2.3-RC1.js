@@ -354,6 +354,7 @@
 			if (dx < 0 && dy > 0) rtn = 360.0 - rtn;
 			if (dx > 0 && dy > 0) rtn = 360.0 - rtn;
         	// http://bimixual.org/AnimationLibrary/beziertangents.html
+			console.log("bezier: gradient at " + location + " is " + rtn);
         	return rtn;
         };	
         
