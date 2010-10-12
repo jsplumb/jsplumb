@@ -685,6 +685,8 @@
      * label - the label to paint.  may be a string or a function that returns a string.  nothing will be painted if your label is null or your
      *         label function returns null.  empty strings _will_ be painted.
      * location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
+     * borderWidth - width of a border to paint.  defaults to zero.
+     * borderStyle - strokeStyle to use when painting the border, if necessary.
      */
     jsPlumb.Overlays.Label = function(params) {
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
@@ -704,7 +706,7 @@
 				labelWidth = t + (2 * t * labelPadding);
 				labelHeight = h + (2 * h * labelPadding);
 				ctx.restore();
-				return Math.max(labelWidth, labelHeight);
+				return Math.max(labelWidth, labelHeight) * 1.25;
     		}
     		return 0;
     	};
@@ -731,6 +733,12 @@
 				ctx.textBaseline = "middle";
 				ctx.textAlign = "center";
 				ctx.fillText(labelText, cxy[0], cxy[1]);
+				
+				// border
+				if (self.labelStyle.borderWidth > 0) {
+					ctx.strokeStyle = self.labelStyle.borderStyle || "black";
+					ctx.strokeRect(cxy[0] - (labelWidth / 2), cxy[1] - (labelHeight / 2) , labelWidth , labelHeight );
+				}
         	}
 	    };
     };
