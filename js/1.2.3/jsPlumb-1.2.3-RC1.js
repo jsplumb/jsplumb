@@ -1388,7 +1388,7 @@
     		MaxConnections : null,
     		// TODO: should we have OverlayStyle too?
     		PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
-    		Scope : "_jsPlumb_DefaultScope",
+    		Scope : "_jsPlumb_DefaultScope"
     		
     	};
     	
