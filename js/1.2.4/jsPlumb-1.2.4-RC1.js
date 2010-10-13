@@ -1,12 +1,11 @@
 /*
- * jsPlumb 1.2.3-RC1
+ * jsPlumb 1.2.4-RC1
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
- * additions since 1.2.2:
+ * additions since 1.2.3:
  * 
- * - labels
- * - arrows
+ * - 
  * 
  * http://morrisonpitt.com/jsPlumb/demo.html
  * http://code.google.com/p/jsPlumb
