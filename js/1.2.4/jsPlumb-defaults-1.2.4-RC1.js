@@ -1,5 +1,5 @@
 /*
-* jsPlumb-defaults-1.2.3-RC1
+* jsPlumb-defaults-1.2.4-RC1
 *
 * This script contains the default Anchors, Endpoints, Connectors and Overlays for jsPlumb.  It should be used with jsPlumb 1.1.0 and above; 
 * prior to version 1.1.0 of jsPlumb the defaults were included inside the main script.
@@ -261,7 +261,16 @@
             ctx.moveTo(d[4],d[5]);
             ctx.bezierCurveTo(d[8],d[9],d[10],d[11],d[6],d[7]);	            
             ctx.stroke();            
-        };        
+        };
+        
+        var _makeCurve = function() {
+        	return [	
+        	        	{ x:_sx, y:_sy },
+        	        	{ x:_CP[0], y:_CP[1] },
+        	        	{ x:_CP2[0], y:_CP2[1] },
+        	        	{ x:_tx, y:_ty }
+         	];
+        };
         
         /**
          * returns the distance the given point is from the curve.  not enabled for 1.2.3.  didnt make the cut.  next time.
@@ -271,62 +280,23 @@
         				  {x:currentPoints[8], y:currentPoints[9]}, 
         				  {x:currentPoints[10], y:currentPoints[11]}, 
         				  {x:currentPoints[6], y:currentPoints[7]}];
-        	return (jsPlumb.DistanceFromCurve(point, curve));        	        	
-        };*/
-        
-        var _quadraticPointOnPath = function(location) {
-        	function B1(t) { return t*t; };
-        	function B2(t) { return 2*t*(1-t); };
-        	function B3(t) { return (1-t)*(1-t); };
-        	var x = _sx*B1(location) + _CP[0]*B2(location) + _CP2[0]*B3(location);
-        	var y = _sy*B1(location) + _CP[1]*B2(location) + _CP2[1]*B3(location);
-        	return [x,y];
-        };
+        	return (jsBezier.distanceFromCurve(point, curve));        	        	
+        };*/        
         
         /**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
-        this.pointOnPath = function(location) {
-        	
-        	// from http://13thparallel.com/archive/bezier-curves/
-        	function B1(t) { return t*t*t };
-        	function B2(t) { return 3*t*t*(1-t) };
-        	function B3(t) { return 3*t*(1-t)*(1-t) };
-        	function B4(t) { return (1-t)*(1-t)*(1-t) };
-
-        	var x = _sx*B1(location) + _CP[0]*B2(location) + _CP2[0]*B3(location) + _tx*B4(location);
-        	var y = _sy*B1(location) + _CP[1]*B2(location) + _CP2[1]*B3(location) + _ty*B4(location);
-        	return [x,y];			        	
+        this.pointOnPath = function(location) {        	
+        	return jsBezier.pointOnCurve(_makeCurve(), location);
         };
         
         /**
          * returns the gradient of the connector at the given point.
          */
         this.gradientAtPoint = function(location) {
-        	var p1 = self.pointOnPath(location);
-        	var p2 = _quadraticPointOnPath(location);
-        	var dy = p2[1] - p1[1], dx = p2[0] - p1[0];
-        	var rtn = Math.atan(dy / dx) ;
-        	// http://bimixual.org/AnimationLibrary/beziertangents.html
-			return rtn;
+        	return jsBezier.gradientAtPoint(_makeCurve(), location);        	
         };	
-        
-        /**
-         * finds the point that is 'distance' along the path from 'location'.  this method returns both the x,y location of the point and also
-         * its 'location' (proportion of travel along the path).
-         */
-        var _pointAlongPath = function(location, distance) {
-        	var _dist = function(p1,p2) { return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2)); };
-        	var prev = self.pointOnPath(location), tally = 0, curLoc = location, direction = distance > 0 ? 1 : -1, cur = null;
-        	while (tally < Math.abs(distance)) {
-        		curLoc += (0.005 * direction);
-        		cur = self.pointOnPath(curLoc);
-        		tally += _dist(cur, prev);	
-        		prev = cur;
-        	}
-        	return {point:cur, location:curLoc};        	
-        };
         
         /**
          * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
@@ -336,21 +306,16 @@
          * than the desired distance, in which case the loop returns immediately and the arrow is mis-shapen. so a better strategy might be to
          * calculate the step as a function of distance/distance between endpoints.  
          */
-        this.pointAlongPathFrom = function(location, distance) {
-        	return _pointAlongPath(location, distance).point;
+        this.pointAlongPathFrom = function(location, distance) {        	
+        	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
         };        
         
         /**
          * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
          * the line is 'length' pixels long.
          */
-        this.perpendicularToPathAt = function(location, distance, length) {
-        	var p = _pointAlongPath(location, distance);
-        	var m = self.gradientAtPoint(p.location);
-        	var _theta2 = Math.atan(-1 / m);
-        	var y =  length / 2 * Math.sin(_theta2);
-			var x =  length / 2 * Math.cos(_theta2);
-			return [[p.point[0] + x, p.point[1] + y], [p.point[0] - x, p.point[1] - y]];
+        this.perpendicularToPathAt = function(location, distance, length) {        	
+        	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, distance, length);
         };
         
         this.createGradient = function(dim, ctx, swap) {
