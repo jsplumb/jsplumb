@@ -886,7 +886,8 @@
 	            	jsPlumb.extend(ctx, paintStyle);
 	            	if (paintStyle.gradient && !ie) { 
 			            //var g = (elId == this.sourceId) ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
-	            		var g = ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
+	            		//var g = ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
+	            		var g = self.connector.createGradient(dim, ctx, (elId == this.sourceId));
 			            for (var i = 0; i < paintStyle.gradient.stops.length; i++)
 			            	g.addColorStop(paintStyle.gradient.stops[i][0],paintStyle.gradient.stops[i][1]);
 			            ctx.strokeStyle = g;
@@ -2380,6 +2381,10 @@
 			var x =  length / 2 * Math.cos(_theta2);
 			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]];
         };        
+        
+        this.createGradient = function(dim, ctx) {
+        	return ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
+        };
     };
                 
     /**
@@ -2563,6 +2568,10 @@
         	var y =  length / 2 * Math.sin(_theta2);
 			var x =  length / 2 * Math.cos(_theta2);
 			return [[p.point[0] + x, p.point[1] + y], [p.point[0] - x, p.point[1] - y]];
+        };
+        
+        this.createGradient = function(dim, ctx, swap) {
+        	return (swap) ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
         };
     };
     
