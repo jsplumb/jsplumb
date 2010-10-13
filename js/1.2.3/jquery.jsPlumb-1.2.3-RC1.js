@@ -76,7 +76,6 @@
 		 var e = jsPlumb.addEndpoints($(this).attr("id"), endpoints);
 		 for (var i = 0; i < e.length; i++) addedEndpoints.push(e[i]);
 	  });	  
-	  return addedEndpoints;
   };
   
   /**

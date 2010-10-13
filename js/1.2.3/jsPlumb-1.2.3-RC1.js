@@ -1022,13 +1022,11 @@
 		
 		/**
 		 * returns the DOM element this Endpoint is attached to.
-		 * @returns
 		 */
 		this.getElement = function() { return _element; };
 		
 		/**
 		 * returns the UUID for this Endpoint, if there is one.
-		 * @returns
 		 */
 		this.getUuid= function() { return _uuid; };
 				
