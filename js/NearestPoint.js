@@ -191,7 +191,7 @@ var bezCurve = [
 	{ x:0.0, y:0.0 },
 	{ x:1.0, y:2.0 },
 	{ x:3.0, y:3.0 },
-	{ x:4.0, y:2.0 },
+	{ x:4.0, y:2.0 }
 ];
 var arbPoint = { x:3.5, y:2.0 }; 
 var	pointOnCurve;		 
