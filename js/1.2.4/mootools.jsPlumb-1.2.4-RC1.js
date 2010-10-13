@@ -1,5 +1,5 @@
 /*
- * mootools.jsPlumb 1.2.3-RC1
+ * mootools.jsPlumb 1.2.4-RC1
  * 
  * MooTools specific functionality for jsPlumb.
  * 
