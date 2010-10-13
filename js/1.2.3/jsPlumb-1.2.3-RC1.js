@@ -791,55 +791,7 @@
 	// *************** create canvas on which the connection will be drawn ************
 	    var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
 	    this.canvas = canvas;
-	     
-	/// ********************************************* new in 1.2.3 - mouse events on the connectors ******************************************
-	    /*
-	    jsPlumb.CurrentLibrary.bind(canvas, "mousemove", function(event) {
-	    	for (var scope in connectionsByScope) {
-    			var c = connectionsByScope[scope];
-    			for (var i = 0; i < c.length; i++) {
-    				c[i].mousemove(event);
-    			}
-    		}
-	    });
-	    jsPlumb.CurrentLibrary.bind(canvas, "click", function(event) {
-	    	if (self.click(event)) return;
-	    	else {
-	    		for (var scope in connectionsByScope) {
-	    			var c = connectionsByScope[scope];
-	    			for (var i = 0; i < c.length; i++) {
-	    				if (c[i].click(event)) return;
-	    			}
-	    		}
-	    	}
-	    });
-	    
-	    var _withinRange = function(e) {
-	    	var o = jsPlumb.CurrentLibrary.getOffset(_getElementObject(self.canvas));
-			var p = { x:e.pageX - o.left, y:e.pageY - o.top };
-			var t = self.distanceFrom(p);
-			return t.d < 50;
-	    };
-	    var _mouseover = false;
-	    this.mousemove = function(e) {	    
-			if (!_mouseover && _withinRange(e)) {
-				_mouseover = true;
-				self.fireUpdate("mouseenter", self);				
-			}
-			else if (_mouseover && !_withinRange(e)) {
-				_mouseover = false;
-				self.fireUpdate("mouseleave", self);				
-			}
-	    };
-	    
-	    this.click = function(e) {
-	    	if (_mouseover && _withinRange(e)) 
-	    		self.fireUpdate("click", self);	    	
-	    };
-	*/
-// ********************************************* / new in 1.2.3 - mouse events on the connectors ******************************************	    
-	     
-	     
+	     	     	     
 	    /**
 	     * paints the connection.
 	     * @param elId Id of the element that is in motion

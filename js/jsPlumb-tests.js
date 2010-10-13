@@ -507,6 +507,33 @@ test("detach method, sourceEndpoint and targetEndpoint supplied", function() {
 	assertConnectionCount(e2, 0);
 });
 
+test("auto connect tests", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+	jsPlumb.autoConnect(d1, d2);                // auto connect with default endpoint and anchor set	
+	// assert something!
+	jsPlumb.detach({source:d1, target:d2});
+	
+	var anchors = [ jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter ];
+	jsPlumb.autoConnect(d1, d2, anchors);                // auto connect with default endpoint and provided anchors
+	// assert something!
+	assertEndpointCount(d1, 1);assertEndpointCount(d2, 1);
+	jsPlumb.detach({source:d1, target:d2});
+	
+	var endpoint = { isSource:true };
+	var anchors = [ jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter ];
+	jsPlumb.autoConnect(d1, d2, anchors, endpoint);                // auto connect with default endpoint and provided anchors
+	// assert something!
+	jsPlumb.detach({source:d1, target:d2});
+	
+	var endpoint = { isSource:true };
+	var anchors = [ jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter ];
+	jsPlumb.autoConnect([d1, d2], d3, anchors, endpoint);                // auto connect with default endpoint and provided anchors
+	// assert something!
+	jsPlumb.detach({source:d1, target:d2});
+	
+	
+});
+
 /**
  * leave this test at the bottom!
  */
