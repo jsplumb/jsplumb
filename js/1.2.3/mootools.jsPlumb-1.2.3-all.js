@@ -885,9 +885,7 @@
 	            	ctx.save();
 	            	jsPlumb.extend(ctx, paintStyle);
 	            	if (paintStyle.gradient && !ie) { 
-			            //var g = (elId == this.sourceId) ? ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
-	            		//var g = ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
-	            		var g = self.connector.createGradient(dim, ctx, (elId == this.sourceId));
+			            var g = self.connector.createGradient(dim, ctx, (elId == this.sourceId));
 			            for (var i = 0; i < paintStyle.gradient.stops.length; i++)
 			            	g.addColorStop(paintStyle.gradient.stops[i][0],paintStyle.gradient.stops[i][1]);
 			            ctx.strokeStyle = g;
@@ -1390,7 +1388,7 @@
     		MaxConnections : null,
     		// TODO: should we have OverlayStyle too?
     		PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
-    		Scope : "_jsPlumb_DefaultScope",
+    		Scope : "_jsPlumb_DefaultScope"
     		
     	};
     	
