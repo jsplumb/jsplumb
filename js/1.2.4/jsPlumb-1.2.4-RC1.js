@@ -963,6 +963,7 @@
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 		this.connectorStyle = params.connectorStyle;
+		this.connectorOverlays = params.connectorOverlays;
 		this.connector = params.connector;
 		this.isSource = params.isSource || false;
 		this.isTarget = params.isTarget || false;
@@ -1182,7 +1183,8 @@
 						target:_getElementObject(n),
 						anchors:[self.anchor, floatingAnchor],
 						paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
-						connector: params.connector
+						connector: params.connector,         // this can also be null. Connection will use the default.
+						overlays: self.connectorOverlays
 					});					
 				} else {
 					existingJpc = true;
