@@ -1184,7 +1184,7 @@
 						anchors:[self.anchor, floatingAnchor],
 						paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
 						connector: params.connector,         // this can also be null. Connection will use the default.
-						overlays: self.connectorOverlays
+						overlays: self.connectorOverlays     // new in 1.2.4.
 					});					
 				} else {
 					existingJpc = true;
@@ -1202,8 +1202,9 @@
 						jpc.target = _getElementObject(n);
 						jpc.targetId = id;
 					}					
-					
+					// lock the other endpoint; if it is dynamic it will not move while the drag is occurring.
 					jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
+					// store the original endpoint and assign the new floating endpoint for the drag.
 					jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
 					jpc.endpoints[anchorIdx] = floatingEndpoint;
 				}
@@ -1211,7 +1212,7 @@
 				// register it.
 				floatingConnections[id] = jpc;
 				
-				// todo unregister on stop
+				// TODO unregister on stop? or will floating endpoint's destruction be assured.
 				floatingEndpoint.addConnection(jpc);
 								
 				// only register for the target endpoint; we will not be dragging the source at any time
@@ -1243,18 +1244,20 @@
 					jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
 					if (jpc.endpoints[idx] == floatingEndpoint) {										
 						// if the connection was an existing one:
-						if (existingJpc && jpc.suspendedEndpoint) {
+						if (existingJpc && jpc.suspendedEndpoint) {							
+							// fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the floating endpoint has
+							// been replaced.
+							if (idx == 0) {
+								jpc.source = existingJpcParams[0];
+								jpc.sourceId = existingJpcParams[1];																	
+							} else {
+								jpc.target = existingJpcParams[0];
+								jpc.targetId = existingJpcParams[1];
+							}								
+							jpc.endpoints[idx] = jpc.suspendedEndpoint;
 							
 							if (_reattach) {
-								jpc.floatingAnchorIndex = null;
-								if (idx == 0) {
-									jpc.source = existingJpcParams[0];
-									jpc.sourceId = existingJpcParams[1];																	
-								} else {
-									jpc.target = existingJpcParams[0];
-									jpc.targetId = existingJpcParams[1];
-								}								
-								jpc.endpoints[idx] = jpc.suspendedEndpoint;
+								jpc.floatingAnchorIndex = null;								
 								jpc.suspendedEndpoint.addConnection(jpc);
 								jsPlumb.repaint(existingJpcParams[1]);
 							}
@@ -1830,8 +1833,9 @@
 	    						source:c.source,
 	    						target:c.target,
 	    						sourceEndpoint:c.endpoints[0],
-	    						targetEndpoint:c.endpoints[1]
-	    					});
+	    						targetEndpoint:c.endpoints[1],
+	    						connection:c
+	    				});
 	    			}
 	    		}
 	    	}
@@ -2128,7 +2132,6 @@
 		        canvas.style.height = h + "px"; canvas.height = h;
 		        canvas.style.width = w + "px"; canvas.width = w; 
 		        canvas.style.left = x + "px"; canvas.style.top = y + "px";
-		       // _currentInstance.CurrentLibrary.setPosition(canvas, x, y);
 	    	}
 	    };
 	    
