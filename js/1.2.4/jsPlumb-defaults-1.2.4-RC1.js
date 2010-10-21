@@ -623,24 +623,27 @@
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
-    	this.computeMaxSize = function(connector, ctx) {
+    	var _textDimensions = function(ctx) {
     		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
     		if (labelText) {
     			var lines = labelText.split("\n");
     			ctx.save();
 	            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
-	            //var t = ctx.measureText(labelText).width;
 	            var t = _widestLine(lines, ctx);
 				// a fake text height measurement: use the width of upper case M
 				var h = ctx.measureText("M").width;					
 				labelPadding = self.labelStyle.padding || 0.25;
 				labelWidth = t + (2 * t * labelPadding);
 				labelHeight = (lines.length * h) + (2 * h * labelPadding);
+				var textHeight = lines.length * h;
 				ctx.restore();
-				var m = Math.max(labelWidth, labelHeight) * 1.5;
-				return m;
+				return {width:labelWidth, height:labelHeight, lines:lines, oneLine:h, padding:labelPadding, textHeight:textHeight};
     		}
-    		return 0;
+    		return {};
+    	};
+    	this.computeMaxSize = function(connector, ctx) {
+    		var td = _textDimensions(ctx);
+    		return td.width ? Math.max(td.width, td.height) * 1.5 : 0;
     	};
     	var _widestLine = function(lines, ctx) {
     		var max = 0;
@@ -651,41 +654,28 @@
     		return max;
     	};
     	
-	    this.draw = function(connector, ctx) {	    	
-	    	// we allow label generation by a function here.  you get given the Connection object as an argument.
-        	labelText = typeof self.label == 'function' ? self.label(self) : self.label;
-        	if (labelText) {
-        		var lines = labelText.split("\n");
-	            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
-	            //var t = ctx.measureText(labelText).width;
-	            var t = _widestLine(lines, ctx);
-				// a fake text height measurement: use the width of upper case M
-				var h = ctx.measureText("M").width;
-				labelPadding = self.labelStyle.padding || 0.25;
-				labelWidth = t + (2 * t * labelPadding);
-				labelHeight = (lines.length * h) + (2 * h * labelPadding);
-				var textHeight = lines.length * h;
+	    this.draw = function(connector, ctx) {	
+	    	var td = _textDimensions(ctx);
+	    	if (td.width) {
 				var cxy = connector.pointOnPath(self.location);
 				if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
 				if (self.labelStyle.fillStyle) 
 					ctx.fillStyle = self.labelStyle.fillStyle;
 				else 
 					ctx.fillStyle = "rgba(0,0,0,0)";
-				ctx.fillRect(cxy[0] - (labelWidth / 2), cxy[1] - (labelHeight / 2) , labelWidth , labelHeight );
+				ctx.fillRect(cxy[0] - (td.width / 2), cxy[1] - (td.height / 2) , td.width , td.height );
 				
 				if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
 				ctx.textBaseline = "middle";
 				ctx.textAlign = "center";
-				//ctx.fillText(labelText, cxy[0], cxy[1]);
-				for (i = 0; i < lines.length; i++) {
-			 		ctx.fillText(lines[i],cxy[0], cxy[1] -(textHeight / 2) + (h/2) + (i*h) /*- (lines.length * h /2)*/);
-					//ctx.fillText(lines[i],cxy[0], cxy[1] 
+				for (i = 0; i < td.lines.length; i++) { 
+					ctx.fillText(td.lines[i],cxy[0], cxy[1] - (td.textHeight / 2) + (td.oneLine/2) + (i*td.oneLine));
 				}
 				
 				// border
 				if (self.labelStyle.borderWidth > 0) {
 					ctx.strokeStyle = self.labelStyle.borderStyle || "black";
-					ctx.strokeRect(cxy[0] - (labelWidth / 2), cxy[1] - (labelHeight / 2) , labelWidth , labelHeight );
+					ctx.strokeRect(cxy[0] - (td.width / 2), cxy[1] - (td.height / 2) , td.width , td.height );
 				}
         	}
 	    };
