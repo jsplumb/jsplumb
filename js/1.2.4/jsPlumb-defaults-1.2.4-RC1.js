@@ -251,6 +251,12 @@
         		_w = minWidth;        		
         		_canvasX -= posAdjust; _sx = _sx + posAdjust ; _tx = _tx + posAdjust; _CP[0] =  _CP[0] + posAdjust; _CP2[0] = _CP2[0] + posAdjust;
         	}
+            
+            if (minWidth && _h < minWidth) {
+            	var posAdjust = (minWidth - _h) / 2;
+        		_h = minWidth;        		
+        		_canvasY -= posAdjust; _sy = _sy + posAdjust ; _ty = _ty + posAdjust; _CP[1] =  _CP[1] + posAdjust; _CP2[1] = _CP2[1] + posAdjust;
+        	}
 
             currentPoints = [_canvasX, _canvasY, _w, _h, _sx, _sy, _tx, _ty, _CP[0], _CP[1], _CP2[0], _CP2[1] ];            
             return currentPoints;            
@@ -545,6 +551,8 @@
     	this.computeMaxSize = function() { return width * 1.5; }
     	
     	this.draw = function(connector, ctx) {
+    		//var start = connector.pointOnPath(0), end = connector.pointOnPath(1);
+    		
 			// this is the arrow head position    		
 			var hxy = connector.pointAlongPathFrom(self.loc, length / 2);		
 			// this is the center of the tail
@@ -616,31 +624,47 @@
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
     	this.computeMaxSize = function(connector, ctx) {
+    		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
     		if (labelText) {
+    			var lines = labelText.split("\n");
     			ctx.save();
 	            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
-	            var t = ctx.measureText(labelText).width;			            
+	            //var t = ctx.measureText(labelText).width;
+	            var t = _widestLine(lines, ctx);
 				// a fake text height measurement: use the width of upper case M
 				var h = ctx.measureText("M").width;					
 				labelPadding = self.labelStyle.padding || 0.25;
 				labelWidth = t + (2 * t * labelPadding);
-				labelHeight = h + (2 * h * labelPadding);
+				labelHeight = (lines.length * h) + (2 * h * labelPadding);
 				ctx.restore();
-				return Math.max(labelWidth, labelHeight) * 1.5;
+				var m = Math.max(labelWidth, labelHeight) * 1.5;
+				return m;
     		}
     		return 0;
     	};
+    	var _widestLine = function(lines, ctx) {
+    		var max = 0;
+    		for (var i = 0; i < lines.length; i++) {
+    			var t = ctx.measureText(lines[i]).width;
+    			if (t > max) max = t;
+    		}
+    		return max;
+    	};
+    	
 	    this.draw = function(connector, ctx) {	    	
 	    	// we allow label generation by a function here.  you get given the Connection object as an argument.
         	labelText = typeof self.label == 'function' ? self.label(self) : self.label;
         	if (labelText) {
+        		var lines = labelText.split("\n");
 	            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
-	            var t = ctx.measureText(labelText).width;			            
+	            //var t = ctx.measureText(labelText).width;
+	            var t = _widestLine(lines, ctx);
 				// a fake text height measurement: use the width of upper case M
-				var h = ctx.measureText("M").width;					
+				var h = ctx.measureText("M").width;
 				labelPadding = self.labelStyle.padding || 0.25;
 				labelWidth = t + (2 * t * labelPadding);
-				labelHeight = h + (2 * h * labelPadding);				
+				labelHeight = (lines.length * h) + (2 * h * labelPadding);
+				var textHeight = lines.length * h;
 				var cxy = connector.pointOnPath(self.location);
 				if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
 				if (self.labelStyle.fillStyle) 
@@ -652,7 +676,11 @@
 				if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
 				ctx.textBaseline = "middle";
 				ctx.textAlign = "center";
-				ctx.fillText(labelText, cxy[0], cxy[1]);
+				//ctx.fillText(labelText, cxy[0], cxy[1]);
+				for (i = 0; i < lines.length; i++) {
+			 		ctx.fillText(lines[i],cxy[0], cxy[1] -(textHeight / 2) + (h/2) + (i*h) /*- (lines.length * h /2)*/);
+					//ctx.fillText(lines[i],cxy[0], cxy[1] 
+				}
 				
 				// border
 				if (self.labelStyle.borderWidth > 0) {
