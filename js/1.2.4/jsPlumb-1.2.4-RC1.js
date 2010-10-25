@@ -155,6 +155,7 @@
 	    	// loop through endpoints for this element
 	    	for (var i = 0; i < endpoints.length; i++) {
 	    		var e = endpoints[i];
+	    		e.paint();
 	    		var l = e.connections;
 	    		// here we have a little quandary. if an endpoint is connected to some other element, and it
 	    		// has a selective anchor, then we want to know that element's position when we find our
@@ -163,7 +164,7 @@
 	    		// it is best placed relative to all other elements, and we then want to lock that position
 	    		// for the rest of this paint cycle. if we do not do that, it's possible that an endpoint will
 	    		// be moved by an ensuing connector's paint.
-	    		if (e.anchor.isSelective && l.length > 0) {
+	    		/*if (e.anchor.isSelective && l.length > 0) {
 	    			var c = l[0];
 	    			var oIdx = c.endpoints[0] == e ? 1 : 0;
 	    			var oId = oIdx == 0 ? c.sourceId : c.targetId;
@@ -172,9 +173,11 @@
 		    		e.paint(anchorLoc);
 	    		}
 	    		else {
-		    		var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
-		    		e.paint(anchorLoc);
-	    		}
+		    		//var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
+		    		//e.paint(anchorLoc);
+	    			//e.pain
+	    			e.paint();
+	    		}*/	    		
 	    		for (var j = 0; j < l.length; j++) {
 		    		l[j].paint(id, ui, false, timestamp);  // ...and paint them.
 		    		var oIdx = l[j].endpoints[0] == e ? 1 : 0;
@@ -225,8 +228,7 @@
 				try {
 					l[i][eventType](data);
 				}
-				catch (e) {
-					
+				catch (e) {				
 					_log("while firing event [" + eventType + "]; listener failed like this: " + e);
 				} 
 			}
@@ -234,18 +236,9 @@
 	};
 	
 	var _log = function(msg) {
-	    //if (console) console.log(msg);	
-	    };
-	
-	var _logFnCall = function(fn, args) {
-	    /*if (console) {
-	    	var c = args.callee.caller.toString();
-	    	var i = c.indexOf("{");
-	    	var msg = fn + ' : ' + c.substring(0, i);
-	    	console.log(msg);
-	    }*/
+	    console.log(msg);	
 	};
-	
+		
 	var cached = {};
 	var __getElementObject = function(el) {
 		
@@ -536,7 +529,6 @@
        Constructor for the Anchor class	 
 	  
 	   Parameters:
-	   	params - Anchor parameters. This should contain three values, and may optionally have an 'offsets' argument:
 	  
 	 	- x : the x location of the anchor as a fraction of the total width.
 	    - y : the y location of the anchor as a fraction of the total height.
@@ -553,16 +545,10 @@
 		this.compute = function(xy, wh, element, txy, twh, tElement) {
 			lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1]];
 			var container = element? element.container : null;
-			var containerAdjustment = {left:0, top:0 };
-            if (container != null) {
-            	var eo = _getElementObject(container);
-            	var o = _getOffset(eo);
-            	var sl = jsPlumb.CurrentLibrary.getScrollLeft(eo);
-            	var st = jsPlumb.CurrentLibrary.getScrollTop(eo);
-            	containerAdjustment.left = o.left - sl;
-            	containerAdjustment.top = o.top - st;
-            	lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
-            	lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
+			if (container != null) {
+            	var o = _getOffset(container);
+            	lastReturnValue[0] = lastReturnValue[0] - o.left;
+            	lastReturnValue[1] = lastReturnValue[1] - o.top;
             }
 			return lastReturnValue;
 		};
@@ -596,11 +582,14 @@
 		// temporary member used to store an orientation when the floating anchor is hovering over another anchor.
 		var orientation = null;
 		
-		this.compute = function(xy, wh, txy, twh) {
-			// set these for the getOrientation method to use.
-			xDir = 0;//xy[0] < txy[0] ? -1 : xy[0] == txy[0] ? 0 : 1;
-			yDir = 0;//xy[1] < txy[1] ? -1 : xy[1] == txy[1] ? 0 : 1;
-			return [xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
+		this.compute = function(xy, wh, el, txy, twh, tel) {
+			var result = [xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
+			if (el.container != null) {
+            	var o = _getOffset(el.container);
+            	result[0] = result[0] - o.left;
+            	result[1] = result[1] - o.top;
+			}
+			return result;
 		};
 		
 		this.getOrientation = function() {
@@ -790,55 +779,7 @@
 	// *************** create canvas on which the connection will be drawn ************
 	    var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
 	    this.canvas = canvas;
-	     
-	/// ********************************************* new in 1.2.3 - mouse events on the connectors ******************************************
-	    /*
-	    jsPlumb.CurrentLibrary.bind(canvas, "mousemove", function(event) {
-	    	for (var scope in connectionsByScope) {
-    			var c = connectionsByScope[scope];
-    			for (var i = 0; i < c.length; i++) {
-    				c[i].mousemove(event);
-    			}
-    		}
-	    });
-	    jsPlumb.CurrentLibrary.bind(canvas, "click", function(event) {
-	    	if (self.click(event)) return;
-	    	else {
-	    		for (var scope in connectionsByScope) {
-	    			var c = connectionsByScope[scope];
-	    			for (var i = 0; i < c.length; i++) {
-	    				if (c[i].click(event)) return;
-	    			}
-	    		}
-	    	}
-	    });
-	    
-	    var _withinRange = function(e) {
-	    	var o = jsPlumb.CurrentLibrary.getOffset(_getElementObject(self.canvas));
-			var p = { x:e.pageX - o.left, y:e.pageY - o.top };
-			var t = self.distanceFrom(p);
-			return t.d < 50;
-	    };
-	    var _mouseover = false;
-	    this.mousemove = function(e) {	    
-			if (!_mouseover && _withinRange(e)) {
-				_mouseover = true;
-				self.fireUpdate("mouseenter", self);				
-			}
-			else if (_mouseover && !_withinRange(e)) {
-				_mouseover = false;
-				self.fireUpdate("mouseleave", self);				
-			}
-	    };
-	    
-	    this.click = function(e) {
-	    	if (_mouseover && _withinRange(e)) 
-	    		self.fireUpdate("click", self);	    	
-	    };
-	*/
-// ********************************************* / new in 1.2.3 - mouse events on the connectors ******************************************	    
-	     
-	     
+	     	    	     	     
 	    /**
 	     * paints the connection.
 	     * @param elId Id of the element that is in motion
@@ -864,9 +805,9 @@
 	            
 	    		var ctx = canvas.getContext('2d');
 	    		//TODO: why are these calculated again?  they were calculated in the _draw function.
-	            var sAnchorP = this.endpoints[sIdx].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[sIdx], [otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
+	            var sAnchorP = this.endpoints[sIdx].computeAnchor([myOffset.left, myOffset.top], myWH, this.endpoints[sIdx], [otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-	            var tAnchorP = this.endpoints[tIdx].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx], [myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
+	            var tAnchorP = this.endpoints[tIdx].computeAnchor([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx], [myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            	            
 	            // paint overlays
@@ -981,6 +922,9 @@
 		var inPlaceCopy = null;
 		this.dragAllowedWhenFull = params.dragAllowedWhenFull || true;
 		
+		this.computeAnchor = function(xy,wh,el,txy,twh,tel) {
+			return self.anchor.compute(xy,wh,el,txy,twh,tel);
+		};
 		this.addConnection = function(connection) {			
 			self.connections.push(connection);
 		};		
