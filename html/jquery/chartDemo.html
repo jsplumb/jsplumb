@@ -45,6 +45,9 @@
 		<script type="text/javascript">
 			$(document).ready(function() {
 
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+				
 				// notice the 'curviness' argument to this Bezier curve.  the curves on this page are far smoother 
 				// than the curves on the first demo, which use the default curviness value.
 				jsPlumb.Defaults.Connector = new jsPlumb.Connectors.Bezier(50);

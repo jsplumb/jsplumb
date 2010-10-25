@@ -50,6 +50,10 @@ opacity:0.9;
 		<script type="text/javascript">
 		window.addEvent('domready', function() {
 
+			// chrome fix.
+			document.onselectstart = function () { return false; };
+			
+
 // ********************* jsPlumb instances ******************************************				
 				
 				var jsPlumb1 = jsPlumb.getInstance();								

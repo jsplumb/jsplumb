@@ -46,6 +46,10 @@
 	     
 		<script type="text/javascript">
 			window.addEvent('domready', function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+				
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 				// default to blue at one end and green at the other
 				jsPlumb.Defaults.EndpointStyles = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }];

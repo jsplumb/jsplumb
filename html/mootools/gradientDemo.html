@@ -32,6 +32,10 @@
 			    
 	    <script type="text/javascript"><!--
 			window.addEvent('domready', function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+				
 				// note the default paint style also includes a strokeStyle directive; this is so that in
 				// IE there is something to fall back to.
 				jsPlumb.Defaults.PaintStyle = { gradient:{stops:[[0,'blue'], [1,'green']] }, lineWidth:15, strokeStyle:'green' };

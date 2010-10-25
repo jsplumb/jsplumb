@@ -48,6 +48,10 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 		 
 	    <script type="text/javascript">
 			window.addEvent('domready', function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+				
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
 				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };

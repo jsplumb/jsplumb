@@ -21,12 +21,15 @@ float:left;
 margin-left:3em;
 position:relative;
 margin-top:3em;
-overflow:auto;
+overflow:scroll;
 cursor:move;
 background-color:#eee0fe;
 opacity:0.9;
 }
 .container:hover { border:2px dashed #500; background-color:#fff0fe; }
+.atestdiv {
+width:4em;height:4em; background-color:yellow;margin:2em;
+}
 		</style>
 	</head>
 	<body>
@@ -41,17 +44,21 @@ opacity:0.9;
 		<div id="container" class="container"><button disabled class="clear" rel="1">clear these</button><button disabled class="redo" rel="1">redraw these</button><!-- button class="anim" rel="1">animate these</button--></div>
 		<div id="container2" class="container"><button disabled class="clear" rel="2">clear these</button><button disabled class="redo" rel="2">redraw these</button><!-- button class="anim" rel="2">animate these</button--></div>
 		<div id="container3" class="container"><button disabled class="clear" rel="3">clear these</button><button disabled class="redo" rel="3">redraw these</button><!-- button class="anim" rel="3">animate these</button--></div>
+		<div id="container4" class="container">
+			<div id="c41" class="atestdiv"></div>
+			<div id="c42" class="atestdiv"></div>
+		</div>
 	
 		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jsPlumb-1.2.3-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jsPlumb-defaults-1.2.3-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-RC1.js"></script>
-		<script type="text/javascript" src="../../js/NearestPoint.js"></script>
-				
+		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-all.js"></script>
+								
 		<script type="text/javascript">
 			$(document).ready(function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
 
 // ********************* jsPlumb instances ******************************************				
 				
@@ -168,6 +175,20 @@ opacity:0.9;
 				$(".clear").attr('disabled',false);	
 
 				$(".container").draggable({zIndex:50});
+
+// ** test code for overflow:scroll on parent element
+
+			var eee = jsPlumb.addEndpoint("c41", {
+				isTarget:true,
+				isSource:true,
+				scope:"test"
+			});
+			var eee2 = jsPlumb.addEndpoint("c42", {
+				isTarget:true,
+				isSource:true,
+				scope:"test"
+			});			
+				
 			});
 		</script>
 	</body>

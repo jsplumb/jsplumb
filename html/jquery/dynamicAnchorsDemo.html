@@ -74,6 +74,10 @@ filter:alpha(opacity=60);
 					            		
 		<script type="text/javascript">
 			$(document).ready(function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+				
 				var exampleColor = '#00f';
 				var exampleDropOptions = {
 						tolerance:'touch',

@@ -64,6 +64,10 @@ font-size:0.8em;}
 					            		
 		<script type="text/javascript">
 			$(document).ready(function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+				
 				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
 
 				// 
