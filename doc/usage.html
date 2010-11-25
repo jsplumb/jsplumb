@@ -972,14 +972,15 @@ this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWi
 		<div class="section">
 			<a id="overlays"><h3>Overlays</h3></a>
 			<p>
-			Overlays are new to jsPlumb from version 1.2.3 - they are UI elements that are painted onto connections, such as labels or arrows.
-			jsPlumb comes with four defaults:
+			Overlays are UI elements that are painted onto connections, such as images, labels or arrows.
+			jsPlumb comes with five defaults:
 			<ul>
 				<li>Arrow - a configurable arrow that is painted at some point along the connector.  You can control the length and width of the Arrow,
 				as well as the 'foldback' point - a point the tail points fold back into.</li>
 				<li>Label - a configurable label that is painted at some point along the connector</li>
 				<li>PlainArrow - an Arrow shaped as a triangle, with no foldback.</li>
 				<li>Diamond - as the name suggests, a diamond.</li>
+				<li>Image - an image overlay.</li>
 			</ul> 
 			The last two are actually just configured instances of the generic Arrow overlay (see examples below). 
 			</p>
@@ -1332,7 +1333,7 @@ jsPlumb.connect({
 		lineWidth:8,
 		strokeStyle:w23Stroke
 	},
- 	anchors:[ jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TopCenter ],
+ 	anchors:[ [0.3,1,0,1], "TopCenter" ],
  	endpoint:new jsPlumb.Endpoints.Rectangle(),
  	endpointStyles:[
  		{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] } },
@@ -1554,7 +1555,7 @@ jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
 <pre>jsPlumb.connect({
 	source:'window1',
 	target:'window2',
-	anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)],
+	anchors:["BottomCenter", [0.75,0,0,-1]],
 	paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
 	endpointStyle:{fillStyle:'rgb(243,229,0)'}
 });</pre>
@@ -1584,7 +1585,7 @@ jsPlumb.connect({
 	source:'window2',
 	target:'window3',
 	paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
-	anchors:[jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TopCenter],
+	anchors:[[0.3,1,0,1], "TopCenter"],
 	endpoint:new jsPlumb.Endpoints.Rectangle(),
 	endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
        				{ gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
