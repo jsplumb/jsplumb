@@ -167,6 +167,13 @@
 			el.addClass(clazz);
 		},
 		
+		/**
+		 * removes the given class from the element object.
+		 */
+		removeClass : function(el, clazz) {
+			el.removeClass(clazz);
+		},
+		
 		initDraggable : function(el, options) {
 			var id = jsPlumb.getId(el);
 			var drag = _draggablesById[id];
@@ -281,9 +288,7 @@
 			return eventArgs[0];
 		},
 		
-
-		removeElement : function(element, parent) {
-			
+		removeElement : function(element, parent) {		
 			jsPlumb.CurrentLibrary.getElementObject(element).dispose();  // ??
 		},
 		
