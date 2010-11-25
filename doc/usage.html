@@ -1,4 +1,3 @@
-<!doctype html>
 <html>
 	<head>
 		<title>jsPlumb - documentation</title>
@@ -83,9 +82,11 @@
 		</div>
 		
 		<div class="section">
-			<a id="changes">Changes since version 1.2.2</a>
+			<a id="changes">Changes since version 1.2.3</a>
 			<p>
-			There are two major additions to jsPlumb in 1.2.3:
+			jsPlumb 1.2.4 is mainly focused on performance enhancements.
+			
+			There are two major additions to jsPlumb in 1.2.4:
 			<ul>
 				<li><a href="#dynamicAnchors">Dynamic Anchors</a> - Anchors that choose their best location relative to the other element in a connection from a list of positions</li>
 				<li><a href="#overlays">Overlays</a> - ways to decorate connections with such things as labels, arrows, etc.</li>
@@ -247,8 +248,16 @@ it if you know the supporting library's corresponding method.
 		</ul> 
 	</p>
 	
-	<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable" target="_blank">jQuery</a> or <a href="http://mootools.net/docs/more/Drag/Drag.Move" target="_blank">MooTools</a> docs.
+	<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable" target="_blank">jQuery</a> or <a href="http://mootools.net/docs/more/Drag/Drag.Move" target="_blank">MooTools</a> docs.	
+	</p>
+	<p><strong>NOTE: there is an issue in Chrome that affects the 'cursor' argument to drag options in jQuery. See these links:</strong>
+<a href="http://forum.jquery.com/topic/draggable-cursor-option-does-not-work" target="_blank">http://forum.jquery.com/topic/draggable-cursor-option-does-not-work</a>
+<a href="http://forum.jquery.com/topic/chrome-text-select-cursor-on-drag" target="_blank">http://forum.jquery.com/topic/chrome-text-select-cursor-on-drag</a>
 	
+<div class="code">
+<pre>document.onselectstart = function () { return false; };</pre>
+</div>
+				
 	</p>
 	
 	<a id="dropOptions"><h4>Drop Options</h4></a>
@@ -589,7 +598,8 @@ jsPlumb.connect({
 });	
 	</pre>				
 </div>
-The Connection is passed in as an argument to your label generation function.
+The Connection is passed in as an argument to your label generation function.  Be aware that if you use a function for the label text then jsPlumb will be unable to cache the text, 
+so it will be have to be recomputed every time jsPlumb receives notification of a drag event.  This could lead to UI responsiveness issues in a complex setup.
 	</p>
 				</li>
 				<li>
@@ -2044,7 +2054,13 @@ The array <strong>may be null</strong>.  If you have not registered any connecti
 		should be documented well enough for you to create your own.  If you do this, it would be
 		great to share it with everyone...</p>   
 		</div>
-	
+
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+			<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>	
 
 		<!-- Start of StatCounter Code -->
 <script type="text/javascript">
