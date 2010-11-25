@@ -180,10 +180,17 @@ $(window).bind('resize', function() {
 		},
 		
 		/**
+		 * removes the given class from the element object.
+		 */
+		removeClass : function(el, clazz) {
+			el.removeClass(clazz);
+		},
+		
+		/**
 		 * initialises the given element to be draggable.
 		 */
 		initDraggable : function(el, options) {
-			// remove helper directive if present.  we know what's best!
+			// remove helper directive if present.  
 			options.helper = null;
 			//TODO: if 'revert' is set on the options it causes end points to animate back to
 			// where they came from, if the connection is aborted.  do we care?  probably not.
