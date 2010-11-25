@@ -16,16 +16,7 @@
 
 (function() {
 	
-	/*
-	 Class: jsPlumb 
-	 
-	 This is the main entry point to jsPlumb.  There are a bunch of static methods you can
-	 use to connect/disconnect etc.  Some methods are also added to jQuery's "$.fn" object itself, but
-	 in general jsPlumb is moving away from that model, preferring instead the static class
-	 approach.  One of the reasons for this is that with no methods added to the jQuery $.fn object,
-	 it will be easier to provide support for other libraries such as MooTools. 
-	 */
-   var jsPlumbInstance = function() {
+var jsPlumbInstance = function() {
 	   
 	var _currentInstance = this;	
 	var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);	
@@ -39,7 +30,7 @@
     };
     var resizeTimer = null;     
     
-        /**
+     /**
      * helper class for objects that generate events
      */
     var EventGenerator = function() {
@@ -58,7 +49,9 @@
 	    			try {
 	    				_listeners[event][i](value);
 	    			}
-	    			catch (e) { }
+	    			catch (e) { 
+	    				_log("jsPlumb: fireUpdate failed for event " + event + ";not fatal.");
+	    			}
 	    		}
     		}
     	};
@@ -72,7 +65,8 @@
 	var endpointsByElement = {};
 	var endpointsByUUID = {};
 	var connectionsByScope = {};
-	var offsets = [];
+	var offsets = {};
+	var offsetTimestamps = {};
 	var floatingConnections = {};
 	var draggableStates = {};
 	var _draggableByDefault = true;
@@ -134,74 +128,61 @@
 		return l;
 	};
 	
+	/** 
+	 * appends an element to the given parent, or the document body if no parent given.
+	 */
 	var _appendElement = function(canvas, parent) {
 		if (!parent) document.body.appendChild(canvas);
 		else jsPlumb.CurrentLibrary.appendElement(canvas, parent);		
 	};
 	
+	/**
+	 * creates a timestamp, using milliseconds since 1970, but as a string.
+	 */
+	var _timestamp = function() { return "" + (new Date()).getTime(); };
+	
     /**
-     * Handles the dragging of an element.  
-     * @param element jQuery element
-     * @param ui UI object from current library's event system
+     * Draws an endpoint and its connections.
+     *   
+     * @param element element to draw (of type library specific element object)
+     * @param ui UI object from current library's event system. optional.
+     * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
      */
-    var _draw = function(element, ui) {
+    var _draw = function(element, ui, timestamp) {
     	var id = _getAttribute(element, "id");
     	var endpoints = endpointsByElement[id];
+    	
+    	if (!timestamp) timestamp = _timestamp();
+    	
     	if (endpoints) {
-    		var timestamp = '' + (new Date().getTime());
-    		_updateOffset(id, ui);
-    		var myOffset = offsets[id];
-			var myWH = sizes[id];			
-	    	// loop through endpoints for this element
-	    	for (var i = 0; i < endpoints.length; i++) {
-	    		var e = endpoints[i];
-	    		e.paint();
-	    		var l = e.connections;
-	    		// here we have a little quandary. if an endpoint is connected to some other element, and it
-	    		// has a selective anchor, then we want to know that element's position when we find our
-	    		// anchor. if it has no connections then fine, we use the default anchor in the list we can
-	    		// select from.  but if it has more than one connection, what then?  we need to compute where
-	    		// it is best placed relative to all other elements, and we then want to lock that position
-	    		// for the rest of this paint cycle. if we do not do that, it's possible that an endpoint will
-	    		// be moved by an ensuing connector's paint.
-	    		/*if (e.anchor.isSelective && l.length > 0) {
-	    			var c = l[0];
-	    			var oIdx = c.endpoints[0] == e ? 1 : 0;
-	    			var oId = oIdx == 0 ? c.sourceId : c.targetId;
-			    	var oOffset = offsets[oId], oWH = sizes[oId];
-			    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e, [oOffset.left, oOffset.top], oWH, c.endpoints[oIdx]);
-		    		e.paint(anchorLoc);
-	    		}
-	    		else {
-		    		//var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
-		    		//e.paint(anchorLoc);
-	    			//e.pain
-	    			e.paint();
-	    		}*/	    		
+    		_updateOffset({elId:id, offset:ui, recalc:false, timestamp:timestamp});  // timestamp is checked against last update cache; it is valid for one paint cycle.
+    		var myOffset = offsets[id], myWH = sizes[id];
+			for (var i = 0; i < endpoints.length; i++) {					
+	    		endpoints[i].paint({timestamp:timestamp, offset:myOffset, dimensions:myWH});
+	    		var l = endpoints[i].connections;	    		
 	    		for (var j = 0; j < l.length; j++) {
-		    		l[j].paint(id, ui, false, timestamp);  // ...and paint them.
-		    		var oIdx = l[j].endpoints[0] == e ? 1 : 0;
-		    		// if the other endpoint has a selective anchor then it might need to be repainted, because it may have just moved
-		    		// position. it is possible we could cache the knowledge about that and not run this paint code all the time.
-		    		if (l[j].endpoints[oIdx].anchor.isSelective) {
+		    		l[j].paint({elId:id, ui:ui, recalc:false, timestamp:timestamp});  // ...paint each connection.		    		
+		    		// then, check for dynamic endpoint; need to repaint it.
+		    		var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
+		    		if (l[j].endpoints[oIdx].anchor.isDynamic) {
 			    		var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
 			    		var oOffset = offsets[oId], oWH = sizes[oId];
-						var anchorLoc = l[j].endpoints[oIdx].anchor.compute([oOffset.left, oOffset.top], oWH, l[j].endpoints[oIdx], [myOffset.left, myOffset.top], myWH, e);
-						l[j].endpoints[oIdx].paint(anchorLoc);
+			    		// TODO i still want to make this faster.
+						var anchorLoc = l[j].endpoints[oIdx].anchor.compute({xy:[oOffset.left, oOffset.top], wh:oWH, element:l[j].endpoints[oIdx], txy:[myOffset.left, myOffset.top], twh:myWH, tElement:endpoints[i]});
+						l[j].endpoints[oIdx].paint({anchorLoc:anchorLoc});
 					}
-		    	}
-	    	}
+	    		}
+			}
     	}
     };
     
     /**
-	 * helper function: the second argument is a function taking two args - the first is an id
-	 * ui element from the current library (or list of them), and the second is the function
-	 * to run.
+	 * executes the given function against the given element if the first argument is an object, or the list of elements, if the
+	 * first argument is a list.  the function passed in takes (element, elementId) as arguments.
 	 */
 	var _elementProxy = function(element, fn) {
 		var retVal = null;
-		if (typeof element == 'object' && element.length) {
+		if (typeof element == 'object' && element.length) {  //TODO can probably be replaced with "element.constructor == Array". nicer.
 			retVal = [];
     		for (var i = 0; i < element.length; i++) {
     			var el = _getElementObject(element[i]);
@@ -235,61 +216,46 @@
 		}
 	};
 	
+	/**
+	 * 
+	 */
 	var _log = function(msg) {
-	    console.log(msg);	
+	    if (_currentInstance.logEnabled && console) console.log(msg);	
 	};
-		
-	var cached = {};
-	var __getElementObject = function(el) {
-		
-		if (typeof(el)=='string') {
-			var e = cached[el];
-			if (!e) {
-				e = jsPlumb.CurrentLibrary.getElementObject(el);
-				cached[el] = e;
-			}
-			return e;
-		}
-		else {					
-			return jsPlumb.CurrentLibrary.getElementObject(el);
-		}
-	};
-		
-	
+			
 	/**
 	 * gets the named attribute from the given element (id or element object)
 	 */
 	var _getAttribute = function(el, attName) {
-		var ele = __getElementObject(el);
-		return jsPlumb.CurrentLibrary.getAttribute(ele, attName);
+		return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName);
 	};
 	
 	var _setAttribute = function(el, attName, attValue) {
-		var ele = __getElementObject(el);
-		jsPlumb.CurrentLibrary.setAttribute(ele, attName, attValue);
+		jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue);
 	};
 	
 	var _addClass = function(el, clazz) {
-		var ele = __getElementObject(el);
-		jsPlumb.CurrentLibrary.addClass(ele, clazz);
+		jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz);
 	};
 	
-	var _getElementObject = function(elId) {
-		return __getElementObject(elId);
+	var _removeClass = function(el, clazz) {
+		jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz);
+	};
+	
+	var _getElementObject = function(el) {
+		return jsPlumb.CurrentLibrary.getElementObject(el);
 	};
 	
 	var _getOffset = function(el) {
-		var ele = __getElementObject(el);
-		return jsPlumb.CurrentLibrary.getOffset(ele);
+		return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el));
 	};
 	
 	var _getSize = function(el) {
-		var ele = __getElementObject(el);
-		return jsPlumb.CurrentLibrary.getSize(ele);
+		return jsPlumb.CurrentLibrary.getSize(_getElementObject(el));
 	};									
 	
     /**
-	 * gets an id for the given element, creating and setting one if necessary.
+	 * gets an id for the given element, creating and setting one if necessary.  
 	 */
 	var _getId = function(element, uuid) {
 		var ele = _getElementObject(element);
@@ -299,7 +265,7 @@
 			if(arguments.length == 2)
 				id = uuid;
 			else
-				id = "_jsPlumb_" + new String((new Date()).getTime());
+				id = "_jsPlumb_" + _timestamp();
 			_setAttribute(ele, "id", id);
 		}
 		return id;
@@ -316,17 +282,22 @@
      * inits a draggable if it's not already initialised. 
      */
 	var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
-    	// dragging
 	    var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
 		if (draggable) {    		
 			if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
 		    	var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
 		    	options = jsPlumb.extend({}, options);  // make a copy.
 		    	var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
+		    	var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
 	    		options[dragEvent] = _wrap(options[dragEvent], function() {
 		    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
 		    		_draw(element, ui);	
 		    		_addClass(element, "jsPlumb_dragged");
+		    	});
+	    		options[stopEvent] = _wrap(options[stopEvent], function() {
+		    		var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+		    		_draw(element, ui);
+		    		_removeClass(element, "jsPlumb_dragged");
 		    	});
 	    		var draggable = draggableStates[_getId(element)];
 	    		options.disabled = draggable == null ? false : !draggable;
@@ -424,57 +395,49 @@
      * Sets whether or not the given element(s) should be draggable, regardless of what a particular
      * plumb command may request.
      * 
-     * @param element May be a string, a jQuery elements, or a list of strings/jquery elements.
+     * @param element May be a string, a element objects, or a list of strings/elements.
      * @param draggable Whether or not the given element(s) should be draggable.
      */
 	var _setDraggable = function(element, draggable) {    
-    	var _helper = function(el, id) {
+		return _elementProxy(element, function(el, id) {
     		draggableStates[id] = draggable;
         	if (jsPlumb.CurrentLibrary.isDragSupported(el)) {
         		jsPlumb.CurrentLibrary.setDraggable(el, draggable);
         	}
-    	};       
-    	
-    	return _elementProxy(element, _helper);
+    	});           	    
     };
 	/**
 	 * private method to do the business of hiding/showing.
-	 * @param el either Id of the element in question or a jquery object for the element.
+	 * @param el either Id of the element in question or a library specific object for the element.
 	 * @param state String specifying a value for the css 'display' property ('block' or 'none').
 	 */
 	var _setVisible = function(el, state) {
-		var elId = _getAttribute(el, "id");
-	    var f = function(jpc) {
+		_operation(_getAttribute(el, "id"), function(jpc) {
 	    	jpc.canvas.style.display = state;
-	    };    	
-    	_operation(elId, f);
+	    }); 
     };        
     /**
      * toggles the draggable state of the given element(s).
-     * @param el either an id, or a jquery object, or a list of ids/jquery objects.
+     * @param el either an id, or an element object, or a list of ids/element objects.
      */
     var _toggleDraggable = function(el) {    	
-    	var fn = function(el, elId) {
+    	return _elementProxy(el, function(el, elId) {
     		var state = draggableStates[elId] == null ? _draggableByDefault : draggableStates[elId];
 	    	state = !state;
 	    	draggableStates[elId] = state;
 	    	jsPlumb.CurrentLibrary.setDraggable(el, state);
 	    	return state;
-    	};
-    	return _elementProxy(el, fn);
+    	});
     };
     /**
     * private method to do the business of toggling hiding/showing.
     * @param elId Id of the element in question
     */
 	var _toggleVisible = function(elId) {
-    	var f = function(jpc) {
+		_operation(elId, function(jpc) {
     		var state = ('none' == jpc.canvas.style.display);
     		jpc.canvas.style.display = state ? "block" : "none";
-    	};
-    	
-    	_operation(elId, f);
-    	
+    	});    	    	    	
     	//todo this should call _elementProxy, and pass in the _operation(elId, f) call as a function. cos _toggleDraggable does that.
     };
     /**
@@ -482,13 +445,19 @@
      * if 'offset' is not null we use that (it would have been passed in from a drag call) because it's faster; but if it is null,
      * or if 'recalc' is true in order to force a recalculation, we use the offset, outerWidth and outerHeight methods to get
      * the current values.
-     */
-    var _updateOffset = function(elId, offset, recalc) {    	
+     */    	
+    var _updateOffset = function(params) {
+    	var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId;
+    	if (!recalc) {
+    		if (timestamp && timestamp === offsetTimestamps[elId]) 
+    			return;    			
+    	}
 		if (recalc || offset == null) {  // if forced repaint or no offset available, we recalculate.
     		// get the current size and offset, and store them
     		var s = _getElementObject(elId);
     		sizes[elId] = _getSize(s);
     		offsets[elId] = _getOffset(s);
+    		offsetTimestamps[elId] = timestamp;
 		} else {			 
     		offsets[elId] = offset;
 		}
@@ -542,14 +511,26 @@
 		var lastTimestamp = null;
 		var lastReturnValue = null;
 		this.offsets = params.offsets || [0,0];
-		this.compute = function(xy, wh, element, txy, twh, tElement) {
+		self.timestamp = null;
+		this.compute = function(params) {
+			var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;
+			if (timestamp && timestamp === self.timestamp) {
+				return lastReturnValue;
+			}
 			lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1]];
-			var container = element? element.container : null;
+			var container = element ? element.container : null;
+			var containerAdjustment = {left:0, top:0 };
 			if (container != null) {
-            	var o = _getOffset(container);
-            	lastReturnValue[0] = lastReturnValue[0] - o.left;
-            	lastReturnValue[1] = lastReturnValue[1] - o.top;
+				var eo = _getElementObject(container);
+            	var o = _getOffset(eo);
+            	var sl = jsPlumb.CurrentLibrary.getScrollLeft(eo);
+            	var st = jsPlumb.CurrentLibrary.getScrollTop(eo);
+            	containerAdjustment.left = o.left - sl;
+            	containerAdjustment.top = o.top - st;
+            	lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
+            	lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
             }
+			self.timestamp = timestamp;
 			return lastReturnValue;
 		};
 		
@@ -561,6 +542,8 @@
 			var o = this.getOrientation();
 			return this.x == anchor.x && this.y == anchor.y && this.offsets[0] == anchor.offsets[0] && this.offsets[1] == anchor.offsets[1] && o[0] == ao[0] && o[1] == ao[1];
 		};
+		
+		this.getCurrentLocation = function() { return lastReturnValue; };
 	};
 		 
 	/**
@@ -581,14 +564,17 @@
 		var xDir = 0, yDir = 0; 
 		// temporary member used to store an orientation when the floating anchor is hovering over another anchor.
 		var orientation = null;
+		var _lastResult = null;
 		
-		this.compute = function(xy, wh, el, txy, twh, tel) {
+		this.compute = function(params) {
+			var xy = params.xy, el = params.element;
 			var result = [xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ];  // return origin of the element.  we may wish to improve this so that any object can be the drag proxy.
 			if (el.container != null) {
             	var o = _getOffset(el.container);
             	result[0] = result[0] - o.left;
             	result[1] = result[1] - o.top;
 			}
+			_lastResult = result;
 			return result;
 		};
 		
@@ -618,12 +604,20 @@
 		this.out = function() {
 			orientation = null;
 		};
+		
+		this.getCurrentLocation = function() {
+			return _lastResult; 
+		};
 	};	
 	
-	/**
-	 * An Anchor that contains a list of other Anchors, and which it cycles through at compute time and finds the one that is located closest to
-	 * the center of the target element, and returns that Anchor's compute method result.  this causes endpoints to follow each other with respect
-	 * to the orientation of their target elements - a useful feature for some applications.
+	/*
+	  Class: DynamicAnchor
+	  
+	  An Anchor that contains a list of other Anchors, which it cycles through at compute time to find the one that is located closest to
+	  the center of the target element, and returns that Anchor's compute method result.  this causes endpoints to follow each other with respect
+	  to the orientation of their target elements - a useful feature for some applications.
+	  
+	  there has been a request to make the anchor selection process pluggable: closest centers does not work for everyone.
 	 */
 	var DynamicAnchor = function(anchors) {
 		this.isSelective = true;
@@ -635,19 +629,19 @@
 		this.locked = false;
 		var self = this;
 		
-		//todo set a default anchor?
-		
 		var _distance = function(anchor, cx, cy, xy, wh) {
 			var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]);
 			return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2));
 		};
 		
-		this.compute = function(xy, wh, element, txy, twh, tElement) {	
+		this.compute = function(params) {
+			var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp, txy = params.txy, twh = params.twh, tElement = params.tElement;			
 			// if anchor is locked or an opposite element was not given, we maintain our state. anchor will be locked
 			// if it is the source of a drag and drop.
-			if (self.locked || txy == null || twh == null) {
-				return _curAnchor.compute(xy, wh, element, txy, twh, tElement);
-			}
+			if (self.locked || txy == null || twh == null)
+				return _curAnchor.compute(params);
+			else
+				params.timestamp = null;  // otherwise clear this, i think. we want the anchor to compute.
 			var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
 			var minIdx = -1, minDist = Infinity;
 			for (var i = 0; i < _anchors.length; i++) {
@@ -658,8 +652,13 @@
 				}
 			}		
 			_curAnchor = _anchors[minIdx];
-			var pos = _curAnchor.compute(xy, wh, element, txy, twh, tElement);
+			var pos = _curAnchor.compute(params);
 			return pos;
+		};
+		
+		this.getCurrentLocation = function() {
+			var cl = _curAnchor != null ? _curAnchor.getCurrentLocation() : null;
+			return cl;;
 		};
 		
 		this.getOrientation = function() {
@@ -675,16 +674,12 @@
 		};
 	};
 	
-	// ************** connection
-	// ****************************************
-	/**
-	* allowed params:
-	* source:	source element (string or a jQuery element) (required)
-	* target:	target element (string or a jQuery element) (required)
-	* 
-	* anchors: optional array of anchor placements. defaults to BottomCenter for source
-	*          and TopCenter for target.
-	*/
+	/*
+	 	Class:Connection
+	 	
+	 	The connecting line between two Endpoints.
+	 	
+	 */
 	var Connection = function(params) {
 
 		EventGenerator.apply(this);
@@ -710,6 +705,10 @@
 	    // init endpoints
 	    this.endpoints = [];
 	    this.endpointStyles = [];
+	    // wrapped the main function to return null if no input given.  this lets us cascade defaults properly.
+	    var _makeAnchor = function(anchorParams) {
+	    	if (anchorParams) return jsPlumb.makeAnchor(anchorParams);
+	    };
 	    var prepareEndpoint = function(existing, index, params, element) {
 	    	if (existing) { 
 	    		self.endpoints[index] = existing;
@@ -720,13 +719,9 @@
 			    var ep = params.endpoints[index] || params.endpoint || _currentInstance.Defaults.Endpoints[index] || jsPlumb.Defaults.Endpoints[index] || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || new jsPlumb.Endpoints.Dot();
 			    if (!params.endpointStyles) params.endpointStyles = [null,null];
 			    var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
-			    var a = params.anchors  ? params.anchors[index] : _currentInstance.Defaults.Anchors[index] || jsPlumb.Defaults.Anchors[index] || _currentInstance.Defaults.Anchor || jsPlumb.Defaults.Anchor || jsPlumb.Anchors.BottomCenter;
+			    var a = params.anchors  ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor) || _makeAnchor("BottomCenter");
 			    var u = params.uuids  ? params.uuids[index] : null;
-			    if(params.uuids) 
-			    	var e = new Endpoint({style:es, endpoint:ep, connections:[self], uuid:u, anchor:a, source:element, container:self.container });
-			    else
-			    	var e = new Endpoint({style:es, endpoint:ep, connections:[self], anchor:a, source:element, container:self.container });
-			    
+			    var e = new Endpoint({style:es, endpoint:ep, connections:[self], uuid:u, anchor:a, source:element, container:self.container });			    
 			    self.endpoints[index] = e;
 			    return e;
 		    }
@@ -756,8 +751,8 @@
 	    	this.overlays.push(new jsPlumb.Overlays.Label({labelStyle:this.labelStyle, label:this.label}));
 	    };
 	    	    	    	   
-	    _updateOffset(this.sourceId);
-	    _updateOffset(this.targetId);
+	    _updateOffset({elId:this.sourceId});
+	    _updateOffset({elId:this.targetId});
 	    
 	    // functions for mouse hover/select functionality
 	    this.distanceFrom = function(point) { return self.connector.distanceFrom(point); };	    
@@ -770,23 +765,37 @@
 	    // paint the endpoints
 	    var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];
 	    var otherOffset = offsets[this.targetId]; otherWH = sizes[this.targetId];
-    	var anchorLoc = this.endpoints[0].anchor.compute([myOffset.left, myOffset.top], myWH, this.endpoints[0], [otherOffset.left, otherOffset.top], otherWH, this.endpoints[1]);
-    	this.endpoints[0].paint(anchorLoc);    	
+	    // todo: why not fold this and the paint call that follows into one call?
+    	var anchorLoc = this.endpoints[0].anchor.compute({  xy:[myOffset.left, myOffset.top], 
+	    													wh:myWH, 
+	    													element:this.endpoints[0], 
+	    													txy:[otherOffset.left, otherOffset.top], 
+	    													twh:otherWH, 
+	    													tElement:this.endpoints[1]});
+    	this.endpoints[0].paint({anchorLoc:anchorLoc});    	
     			
-    	anchorLoc = this.endpoints[1].anchor.compute([otherOffset.left, otherOffset.top], otherWH, this.endpoints[1], [myOffset.left, myOffset.top], myWH, this.endpoints[0]);
-    	this.endpoints[1].paint(anchorLoc);
+    	anchorLoc = this.endpoints[1].anchor.compute({  xy:[otherOffset.left, otherOffset.top], 
+    													wh:otherWH, 
+    													element:this.endpoints[1], 
+    													txy:[myOffset.left, myOffset.top], 
+    													twh:myWH, 
+    													tElement:this.endpoints[0]});
+    	this.endpoints[1].paint({anchorLoc:anchorLoc});
 
-	// *************** create canvas on which the connection will be drawn ************
 	    var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
 	    this.canvas = canvas;
 	     	    	     	     
-	    /**
-	     * paints the connection.
-	     * @param elId Id of the element that is in motion
-	     * @param ui current library's event system ui object (present if we came from a drag to get here)
-	     * @param recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
+	    /*
+	      Function: paint 		      
+		      paints the connection.	      
+	      Parameters:
+	      	- elId Id of the element that is in motion
+	      	- ui current library's event system ui object (present if we came from a drag to get here)
+	      	- recalc whether or not to recalculate element sizes. this is true if a repaint caused this to be painted.
 	     */
-	    this.paint = function(elId, ui, recalc, timestamp) {    		    	
+	    this.paint = function(params) {
+	    	params = params || {};
+	    	var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp;
 	    	var fai = self.floatingAnchorIndex;
 	    	// if the moving object is not the source we must transpose the two references.
 	    	var swap = false;//!(elId == this.sourceId);
@@ -795,8 +804,8 @@
 	    	var el = swap ? this.target : this.source;
 	    	
 	    	if (this.canvas.getContext) {    		    			    		    	
-	    		_updateOffset(elId, ui, recalc);
-	    		_updateOffset(tId);  // update the target if this is a forced repaint. otherwise, only the source has been moved.
+	    		_updateOffset({elId:elId, offset:ui, recalc:recalc, timestamp:timestamp});
+	    		_updateOffset({elId:tId, timestamp:timestamp});  // update the target if this is a forced repaint. otherwise, only the source has been moved.
 	    		
 	    		var myOffset = offsets[sId]; 
 	    		var otherOffset = offsets[tId];
@@ -804,10 +813,9 @@
 	            var otherWH = sizes[tId];
 	            
 	    		var ctx = canvas.getContext('2d');
-	    		//TODO: why are these calculated again?  they were calculated in the _draw function.
-	            var sAnchorP = this.endpoints[sIdx].computeAnchor([myOffset.left, myOffset.top], myWH, this.endpoints[sIdx], [otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx]);
+	    		var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();
 	            var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-	            var tAnchorP = this.endpoints[tIdx].computeAnchor([otherOffset.left, otherOffset.top], otherWH, this.endpoints[tIdx], [myOffset.left, myOffset.top], myWH, this.endpoints[sIdx]);
+	            var tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
 	            var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 	            	            
 	            // paint overlays
@@ -832,8 +840,7 @@
 		            }
 	            	self.connector.paint(dim, ctx);
 	            	ctx.restore();
-	            };
-	            	            	                        	           
+	            };	            	            	                        	          
 	            	            
 	            // first check for the background style
 	            if (this.backgroundPaintStyle != null) {
@@ -852,7 +859,7 @@
 	    //TODO: should this take a timestamp?  probably. it reduces the amount of time
 	    // spent figuring out anchor locations.
 	    this.repaint = function() {
-	    	this.paint(this.sourceId, null, true);
+	    	this.paint({elId:this.sourceId, recalc:true});
 	    };
 
 	    _initDraggableIfNecessary(self.source, params.draggable, params.dragOptions);
@@ -894,13 +901,10 @@
 	*/ 
 	var Endpoint = function(params) {
 		params = params || {};
-		// make a copy. then we can use the wrapper function.
-		jsPlumb.extend({}, params);
 		var self = this;
 	    var id = new String('_jsplumb_e_' + (new Date()).getTime());
 	    this.getId = function() { return id; };
-		self.anchor = params.anchor || jsPlumb.Anchors.TopCenter;
-		//if (self.anchor.isDynamic) self.anchor.endpoint = self;
+		self.anchor = jsPlumb.makeAnchor(params.anchor) || jsPlumb.makeAnchor("TopCenter");
 		var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 		var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 		this.connectorStyle = params.connectorStyle;
@@ -908,8 +912,8 @@
 		this.connector = params.connector;
 		this.isSource = params.isSource || false;
 		this.isTarget = params.isTarget || false;
-		var _element = params.source;
-		var _uuid = params.uuid;
+		var _element = params.source, _uuid = params.uuid;
+		var floatingEndpoint = null, inPlaceCopy = null;
 		if (_uuid) endpointsByUUID[_uuid] = self;
 		this.container = params.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 		var _elementId = _getAttribute(_element, "id");
@@ -917,13 +921,12 @@
 		this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, this.container, params.uuid);
 		this.connections = params.connections || [];
 		this.scope = params.scope || DEFAULT_SCOPE;
-		var _reattach = params.reattach || false;
-		var floatingEndpoint = null;
-		var inPlaceCopy = null;
+		this.timestamp = null;
+		var _reattach = params.reattach || false;		
 		this.dragAllowedWhenFull = params.dragAllowedWhenFull || true;
 		
-		this.computeAnchor = function(xy,wh,el,txy,twh,tel) {
-			return self.anchor.compute(xy,wh,el,txy,twh,tel);
+		this.computeAnchor = function(params) {
+			return self.anchor.compute(params);
 		};
 		this.addConnection = function(connection) {			
 			self.connections.push(connection);
@@ -981,8 +984,7 @@
 			var e = new Endpoint({anchor:self.anchor, source:_element, style:_style, endpoint:_endpoint});
 			return e;
 		};
-		
-		
+				
 		/**
 		* returns whether or not this endpoint is connected to the given endpoint.
 		* @param endpoint  Endpoint to test.
@@ -1042,29 +1044,44 @@
 		 * TODO: finish Endpoint.equals
 		 */		
 		this.equals = function(endpoint) {
-			return this.anchor.equals(endpoint.anchor) &&
-			true;
+			return this.anchor.equals(endpoint.anchor);
 		};				
 		
 		/**
 		 * paints the Endpoint, recalculating offset and anchor positions if necessary.
 		 */
-		this.paint = function(anchorPoint, connectorPaintStyle, canvas) {
+		this.paint = function(params) {
 			
-			if (log) log.debug("Painting Endpoint with elementId [" + _elementId + "]; anchorPoint is [" + anchorPoint + "]");
-			
-			if (anchorPoint == null) {
-				// do we always want to force a repaint here?  i dont think so!
-				var xy = offsets[_elementId];
-				var wh = sizes[_elementId];
-				if (xy == null || wh == null) {
-					_updateOffset(_elementId);
-					xy = offsets[_elementId];
-					wh = sizes[_elementId];
+			params = params || {};
+			var timestamp = params.timestamp;
+			if (!timestamp || self.timestamp !== timestamp) {
+				var ap = params.anchorPoint, canvas = params.canvas, connectorPaintStyle = params.connectorPaintStyle;			
+				if (ap == null) {
+					// do we always want to force a repaint here?  i dont think so!
+					var xy = params.offset || offsets[_elementId];
+					var wh = params.dimensions || sizes[_elementId];
+					if (xy == null || wh == null) {
+						_updateOffset({elId:_elementId, timestamp:timestamp});
+						xy = offsets[_elementId];
+						wh = sizes[_elementId];
+					}
+					var anchorParams = {xy:[xy.left, xy.top], wh:wh, element:self, timestamp:timestamp};
+					if(self.anchor.isDynamic) {
+						if(self.connections.length > 0) {							
+							var c = self.connections[0];
+							var oIdx = c.endpoints[0] == self ? 1 : 0;
+							var oId = oIdx == 0 ? c.sourceId : c.targetId;
+				    		var oOffset = offsets[oId], oWH = sizes[oId];
+				    		anchorParams.txy = [oOffset.left, oOffset.top];
+				    		anchorParams.twh = oWH; 
+				    		anchorParams.tElement = c.endpoints[oIdx];
+						}
+					}
+					ap = self.anchor.compute(anchorParams);
 				}
-				anchorPoint = self.anchor.compute([xy.left, xy.top], wh, self);
-			}
-			_endpoint.paint(anchorPoint, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
+				_endpoint.paint(ap, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
+				self.timestamp = timestamp;
+			}			
 		};
 		
 		/**
@@ -1079,25 +1096,12 @@
 			
 			var n = null, id = null, jpc = null, existingJpc = false, existingJpcParams = null;
 			
-			// first the question is, how many connections are on this endpoint?  if it's only one, then excellent.  otherwise we will either need a way
-			// to select one connection from the list, or drag them all. if we had a pluggable 'ConnectorSelector' interface we could probably
-			// provide a way for people to implement their own UI components to do the connector selection.  the question in that particular case would be how much
-			// information the interface needs from jsPlumb at execution time. if, however, we leave out the connector selection, and drag them all,
-			// that wouldn't be too hard to organise. perhaps that behaviour would be on a switch for the endpoint, or perhaps the ConnectorSelector
-			// interface returns a List, with the default implementation just returning everything.  i think i like that.
-			//
-			// let's say for now that there is just one endpoint, cos we need to get this going before we can consider a list of them anyway.
-			// the major difference between that case and the case of a new endpoint is actually quite small - it's a question of where the
-			// Connection comes from.  for a new one, we create a new one. obviously.  otherwise we just get the jpc from the Endpoint
-			// (remember we're only assuming one connection right now).  so all of the UI stuff we do to create the floating endpoint etc
-			// will still be valid, but when we stop dragging, we'll have to do something different.  if we stop with a valid drop i think it will
-			// be the same process.  but if we stop with an invalid drop we have to reset the Connection to how it was when we got it.
 			var start = function() {
 				
 				jpc = connectorSelector();
 				if (self.isFull() && !self.dragAllowedWhenFull) return false;						
 				
-				_updateOffset(_elementId);
+				_updateOffset({elId:_elementId});
 				inPlaceCopy = self.makeInPlaceCopy();
 				inPlaceCopy.paint();
 				
@@ -1106,9 +1110,9 @@
 				_appendElement(n, self.container); //
 				// create and assign an id, and initialize the offset.
 				//TODO can't this be replaced with a _getId call?
-				var id = "" + new String(new Date().getTime());
+				var id = _timestamp();
 				_setAttribute(nE, "id", id);
-				_updateOffset(id);
+				_updateOffset({elId:id});
 				// store the id of the dragging div and the source element. the drop function
 				// will pick these up.
 				_setAttribute(_getElementObject(self.canvas), "dragId", id);
@@ -1175,7 +1179,6 @@
 			dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 			dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {				
 				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-				//$(n).offset(_ui);
 				jsPlumb.CurrentLibrary.setOffset(n, _ui);
 				_draw(_getElementObject(n), _ui);
 			});
@@ -1221,7 +1224,6 @@
 							}
 						} else {							
 							_removeElement(jpc.canvas, self.container);
-							//if (jpc.endpoints[1]) alert("target set");
 							self.removeConnection(jpc);							
 						}
 					}
@@ -1331,12 +1333,14 @@
     		EndpointStyle : { fillStyle : null },
     		EndpointStyles : [ null, null ],
     		LabelStyle : { fillStyle:"rgba(0,0,0,0)", color:"black" },
+    		LogEnabled : true,
     		MaxConnections : null,
     		// TODO: should we have OverlayStyle too?
     		PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
-    		Scope : "_jsPlumb_DefaultScope"
-    		
+    		Scope : "_jsPlumb_DefaultScope"    		
     	};
+    	
+    	this.logEnabled = this.Defaults.LogEnabled;
     	
     	/*
     	 Property: connectorClass    	 
@@ -1349,6 +1353,12 @@
    	 		The CSS class to set on Endpoint canvas elements.  This value is a String and can have multiple classes; the entire String is appended as-is.
 		*/
 		this.endpointClass = '_jsPlumb_endpoint';
+		
+		/*
+   	 	Property: overlayClass   	 
+   	 		The CSS class to set on an Overlay that is an HTML element.  This value is a String and can have multiple classes; the entire String is appended as-is.
+		*/
+		this.overlayClass = '_jsPlumb_overlay';
 		
 		/*
 		 Property: Anchors		 
@@ -1395,16 +1405,16 @@
 	     */
 	    this.addEndpoint = function(target, params) {
 	    	params = jsPlumb.extend({}, params);
-	    	var el = _getElementObject(target);
-	    	var id = _getAttribute(el,"id");
+	    	params.endpoint = params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
+	    	params.endpointStyle = params.endpointStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle; 
+	    	var el = _getElementObject(target), id = _getAttribute(el,"id");
 	    	params.source = el; 
-	    	_updateOffset(id);
+	    	_updateOffset({elId:id});
 	    	var e = new Endpoint(params);
 	    	_addToList(endpointsByElement, id, e);
-    		var myOffset = offsets[id];
-    		var myWH = sizes[id];			
-	    	var anchorLoc = e.anchor.compute([myOffset.left, myOffset.top], myWH, e);
-	    	e.paint(anchorLoc);
+    		var myOffset = offsets[id], myWH = sizes[id];			
+	    	var anchorLoc = e.anchor.compute({xy:[myOffset.left, myOffset.top], wh:myWH, element:e});
+	    	e.paint({anchorLoc:anchorLoc});
 	    	return e;
 	    };
 	    
@@ -1440,39 +1450,25 @@
 	      void
 	    */	      
 	    this.animate = function(el, properties, options) {
-	    	var ele = _getElementObject(el);
-	    	var id = _getAttribute(el,"id");
-	    	//TODO this is not agnostic yet.
+	    	var ele = _getElementObject(el), id = _getAttribute(el,"id");
 	    	options = options || {};
 	    	var stepFunction = jsPlumb.CurrentLibrary.dragEvents['step'];
 	    	var completeFunction = jsPlumb.CurrentLibrary.dragEvents['complete'];
-	    	options[stepFunction] = _wrap(options[stepFunction], function() 
-	    	{
+	    	options[stepFunction] = _wrap(options[stepFunction], function() {
 	    		_currentInstance.repaint(id); 
 	    	});
 	    	
 	    	// you know, probably onComplete should repaint too. that will help keep up
 	    	// with fast animations.
-	    	options[completeFunction] = _wrap(options[completeFunction], function() 
-	    	{
+	    	options[completeFunction] = _wrap(options[completeFunction], function() {
 	    		_currentInstance.repaint(id); 
 	    	});
 	    	
 	    	jsPlumb.CurrentLibrary.animate(ele, properties, options);    	
 	    };
 	    
-	    /**
-	     * clears the cache used to lookup elements by their id.  if you remove any elements
-	     * from the DOM you should call this to ensure that if you add them back in jsPlumb does not
-	     * have a stale handle.
-	     */
-	    this.clearCache = function() {
-	    	delete cached;
-	    	cached = {};	    		
-	    };
-	    
-	    this.autoConnect = function(params/*source, target, anchors, endpoint*/) {
-	    	var sources = [], targets = [], _endpoint = params.endpoint || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, _anchors = anchors || _currentInstance.Defaults.DynamicAnchors || jsPlumb.Defaults.DynamicAnchors;
+	    this.autoConnect = function(params) {
+	    	var sources = [], targets = [], _endpoint = params.endpoint || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, _anchors = anchors || jsPlumb.Defaults.DynamicAnchors();//_currentInstance.Defaults.DynamicAnchors || jsPlumb.Defaults.DynamicAnchors;
 	    	var _addAll = function(s, t) {
 	    		for (var i = 0 ; i < s.length; i++) t.push(s[i]);
 	    	};
@@ -1567,7 +1563,7 @@
 	    */
 	    this.detach = function(sourceId, targetId) {
 	    	if (arguments.length == 2) {
-		    	var f = function(jpc) {
+	    		_operation(sourceId, function(jpc) {
 		    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
 		    			_removeElement(jpc.canvas, jpc.container);
 						jpc.endpoints[0].removeConnection(jpc);
@@ -1576,12 +1572,8 @@
 						fireDetachEvent(jpc);
 	
 			    		return true;
-		    		}
-		    		
-		    	};    	
-		    	
-		    	// todo: how to cleanup the actual storage?  a third arg to _operation?
-		    	_operation(sourceId, f);
+		    		}		    		
+		    	});    			    	
 	    	}
 	    	// this is the new version of the method, taking a JS object like the connect method does.
 	    	else if (arguments.length == 1) {
@@ -1596,21 +1588,16 @@
 		    	else {
 			    	sourceId = _getId(_p.source);
 			    	targetId = _getId(_p.target);
-			    	var f = function(jpc) {
+			    	_operation(sourceId, function(jpc) {
 			    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
 			    			_removeElement(jpc.canvas, jpc.container);
 							jpc.endpoints[0].removeConnection(jpc);
 							jpc.endpoints[1].removeConnection(jpc);
 							_removeFromList(connectionsByScope, jpc.scope, jpc);
-							fireDetachEvent(jpc);
-		
+							fireDetachEvent(jpc);		
 				    		return true;
-			    		}
-			    		
-			    	};    	
-			    	
-			    	// todo: how to cleanup the actual storage?  a third arg to _operation?
-			    	_operation(sourceId, f);
+			    		}			    		
+			    	});    				    	
 		    	}
 		    	
 		    	// fire an event
@@ -1698,16 +1685,14 @@
 	     */
 	    this.draggable = function(el, options) {
 	    	if (typeof el == 'object' && el.length) {
-	    		for (var i = 0; i < el.length; i++)
-	    		{
+	    		for (var i = 0; i < el.length; i++) {
 	    			var ele = _getElementObject(el[i]);
 		    		if (ele) _initDraggableIfNecessary(ele, true, options);
 	    		}
 	    	}	    	
 	    	else {
 	    		var ele = _getElementObject(el);
-	    		if (ele)
-	    			_initDraggableIfNecessary(ele, true, options);
+	    		if (ele) _initDraggableIfNecessary(ele, true, options);
 	    	}
 	    };
 	    
@@ -1738,12 +1723,12 @@
 		 	
 		 	{
 		 		'scope1': [ 
-		 			{sourceId:'window1', targetId:'window2'},
-		 			{sourceId:'window3', targetId:'window4'},
-		 			{sourceId:'window1', targetId:'window3'}
+		 			{sourceId:'window1', targetId:'window2', source:<sourceElement>, target:<targetElement>, sourceEndpoint:<sourceEndpoint>, targetEndpoint:<targetEndpoint>, connection:<connection>},
+		 			{sourceId:'window3', targetId:'window4', source:<sourceElement>, target:<targetElement>, sourceEndpoint:<sourceEndpoint>, targetEndpoint:<targetEndpoint>, connection:<connection>},
+		 			{sourceId:'window1', targetId:'window3', source:<sourceElement>, target:<targetElement>, sourceEndpoint:<sourceEndpoint>, targetEndpoint:<targetEndpoint>, connection:<connection>}
 		 		],
 		 		'scope2': [
-		 			{sourceId:'window1', targetId:'window3'}
+		 			{sourceId:'window1', targetId:'window3', source:<sourceElement>, target:<targetElement>, sourceEndpoint:<sourceEndpoint>, targetEndpoint:<targetEndpoint>, connection:<connection>}
 		 		]
 		 	}
 		 	
@@ -1834,15 +1819,46 @@
 	     	xOrientation - value indicating the general direction a connection from the anchor should go in, in the x direction.
 	     	yOrientation - value indicating the general direction a connection from the anchor should go in, in the y direction.
 	     	xOffset - a fixed offset that should be applied in the x direction that should be applied after the x position has been figured out.  optional. defaults to 0. 
-	     	yOffset - a fixed offset that should be applied in the y direction that should be applied after the y position has been figured out.  optional. defaults to 0.	     	
+	     	yOffset - a fixed offset that should be applied in the y direction that should be applied after the y position has been figured out.  optional. defaults to 0.
+	     	
+	     	-- OR --
+	     	
+	     	params - {x:..., y:..., xOrientation etc }
+	     	
+	     	-- OR FROM 1.2.4 ---
+	     	 
+	     	name - the name of some Anchor in the _currentInstance.Anchors array.
+	     	
+	     	-- OR FROM 1.2.4 ---
+	     	
+	     	coords - a list of coords for the anchor, like you would pass to jsPlumb.makeAnchor (eg [0.5,0.5,0,-1] - an anchor in the center of some element, oriented towards the top of the screen)
+	     	
+	     	-- OR FROM 1.2.4 ---
+	     	
+	     	anchor - an existing anchor.  just gets passed back.  it's handy internally to have this functionality.
+	     	 
 	     Returns:	     
 	     	The newly created Anchor.
 	     */
 	    this.makeAnchor = function(x, y, xOrientation, yOrientation, xOffset, yOffset) {
 	    	// backwards compatibility here.  we used to require an object passed in but that makes the call very verbose.  easier to use
 	    	// by just passing in four/six values.  but for backwards compatibility if we are given only one value we assume it's a call in the old form.
+	    	if (arguments.length == 0) return null;
 	    	var params = {};
-	    	if (arguments.length == 1) jsPlumb.extend(params, x);
+	    	if (arguments.length == 1) {
+	    		var specimen = arguments[0];
+	    		// if it appears to be an anchor already...
+	    		if (specimen.compute && specimen.getOrientation) return specimen;
+	    		// is it the name of an anchor type?
+	    		else if (typeof specimen == "string")
+	    			return _currentInstance.Anchors[arguments[0]]();
+	    		// is it an array of coordinates?
+	    		else if (specimen.constructor == Array)
+	    			return jsPlumb.makeAnchor.apply(this, specimen);
+	    		// last we try the backwards compatibility stuff. 
+	    		else if (typeof arguments[0] == "object")
+	    			jsPlumb.extend(params, x);	    		
+	    	}
 	    	else {
 	    		params = {x:x, y:y};
 	    		if (arguments.length >= 4) {
@@ -1853,6 +1869,16 @@
 	    	var a = new Anchor(params);
 	    	a.clone = function() { return new Anchor(params); };
 	    	return a;
+	    };
+	    
+	    /**
+	     * makes a list of anchors from the given list of types, eg ["TopCenter", "RightMiddle", "BottomCenter"]
+	     */
+	    this.makeAnchors = function(types) {
+	    	var r = [];
+	    	for (var i = 0; i < types.length; i++)
+	    		r.push(_currentInstance.Anchors[types[i]]());
+	    	return r;
 	    };
 	    
 	    this.makeDynamicAnchor = function(anchors) {
@@ -1872,11 +1898,8 @@
 	    this.repaint = function(el) {
 	    	
 	    	var _processElement = function(el) {
-	    		var ele = _getElementObject(el);
-		    	_draw(ele);
+	    		_draw(_getElementObject(el));
 	    	};
-	    	
-	    	// TODO: support a jQuery result object too!
 	    	
 	    	// support both lists...
 	    	if (typeof el =='object') {
@@ -1895,8 +1918,9 @@
 	     	<repaint>
 	     */
 	    this.repaintEverything = function() {
+	    	var timestamp = _timestamp();
 	    	for (var elId in endpointsByElement) {
-	    		_draw(_getElementObject(elId));
+	    		_draw(_getElementObject(elId), null, timestamp);
 	    	}
 	    };
 	    
@@ -1969,7 +1993,6 @@
 	    this.reset = function() {
 	    	this.detachEverything();
 			this.removeEveryEndpoint();
-			this.clearCache();
 	    };
 	    
 	    /*
