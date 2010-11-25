@@ -11,6 +11,8 @@
 */
 
 (function() {
+	
+	var ie = !!!document.createElement('canvas').getContext;
 
     /**
     * Places you can anchor a connection to.  These are helpers for common locations; they all just return an instance
@@ -382,8 +384,7 @@
 			var style = jsPlumb.extend({}, endpointStyle);
 			if (style.fillStyle ==  null) style.fillStyle = connectorPaintStyle.strokeStyle;
 			jsPlumb.extend(ctx, style);
-			
-			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+						
             if (endpointStyle.gradient && !ie) {            	
             	var adjustments = calculateAdjustments(endpointStyle.gradient); 
             	var yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0];
