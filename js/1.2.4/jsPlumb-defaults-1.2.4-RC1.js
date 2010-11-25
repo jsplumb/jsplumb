@@ -34,19 +34,27 @@
     * direction.  so consider a TopCenter anchor: the orientation matrix for it is [0,-1],
     * meaning connections naturally want to go upwards on screen.  in a Bezier implementation, for example, 
     * the curve would start out going in that direction, before bending towards the target anchor.
-    */	
-	jsPlumb.Anchors.TopCenter 		= jsPlumb.makeAnchor(0.5, 0, 0,-1);
-	jsPlumb.Anchors.BottomCenter 	= jsPlumb.makeAnchor(0.5, 1, 0, 1);
-	jsPlumb.Anchors.LeftMiddle 		= jsPlumb.makeAnchor(0, 0.5, -1, 0);
-	jsPlumb.Anchors.RightMiddle 	= jsPlumb.makeAnchor(1, 0.5, 1, 0);
-	jsPlumb.Anchors.Center 			= jsPlumb.makeAnchor(0.5, 0.5, 0, 0);
-	jsPlumb.Anchors.TopRight 		= jsPlumb.makeAnchor(1, 0, 0,-1);
-	jsPlumb.Anchors.BottomRight 	= jsPlumb.makeAnchor(1, 1, 0, 1);
-	jsPlumb.Anchors.TopLeft 		= jsPlumb.makeAnchor(0, 0, 0, -1);
-	jsPlumb.Anchors.BottomLeft 		= jsPlumb.makeAnchor(0, 1, 0, 1);
-	jsPlumb.Anchors.AutoDefault     = function() { return jsPlumb.makeDynamicAnchor([jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle]); };
+    */
+	var _curryAnchor = function(x,y,ox,oy) {
+		return function() {
+			return jsPlumb.makeAnchor(x,y,ox,oy);
+		};
+	};
+	jsPlumb.Anchors["TopCenter"] 		= _curryAnchor(0.5, 0, 0,-1);
+	jsPlumb.Anchors["BottomCenter"] 	= _curryAnchor(0.5, 1, 0, 1);
+	jsPlumb.Anchors["LeftMiddle"] 		= _curryAnchor(0, 0.5, -1, 0);
+	jsPlumb.Anchors["RightMiddle"] 	= _curryAnchor(1, 0.5, 1, 0);
+	jsPlumb.Anchors["Center"] 			= _curryAnchor(0.5, 0.5, 0, 0);
+	jsPlumb.Anchors["TopRight"] 		= _curryAnchor(1, 0, 0,-1);
+	jsPlumb.Anchors["BottomRight"] 	= _curryAnchor(1, 1, 0, 1);
+	jsPlumb.Anchors["TopLeft"] 		= _curryAnchor(0, 0, 0, -1);
+	jsPlumb.Anchors["BottomLeft"] 		= _curryAnchor(0, 1, 0, 1);
 	
-	jsPlumb.Defaults.DynamicAnchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle];	
+	
+	jsPlumb.Defaults.DynamicAnchors = function() {
+		return jsPlumb.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"]);
+	};
+	jsPlumb.Anchors["AutoDefault"]  = function() { return jsPlumb.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors()); };
 	                                   
         /**
          * The Straight connector draws a simple straight line between the two anchor points.
@@ -376,8 +384,7 @@
 			jsPlumb.extend(ctx, style);
 			
 			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
-            if (endpointStyle.gradient && !ie) {
-            	
+            if (endpointStyle.gradient && !ie) {            	
             	var adjustments = calculateAdjustments(endpointStyle.gradient); 
             	var yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0];
             	var xAdjust = orientation[0] == 1 ? adjustments[0] * -1:  adjustments[0];
@@ -486,7 +493,7 @@
 	};
 	
 	/**
-	 * Image endpoint - draws an image as the endpoint.  You must provide a 'url' property in the params object..
+	 * Image endpoint - draws an image as the endpoint.  You must provide a 'url' or, since 1.2.4, a 'src' property in the params object..
 	 */
 	jsPlumb.Endpoints.Image = function(params) {
 		var self = this;
@@ -495,7 +502,7 @@
 		this.img.onload = function() {
 			self.ready = true;
 		};
-		this.img.src = params.url;
+		this.img.src = params.src || params.url;
 		
 		var actuallyPaint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
 			var width = self.img.width || endpointStyle.width;
@@ -551,9 +558,7 @@
     	this.computeMaxSize = function() { return width * 1.5; }
     	
     	this.draw = function(connector, ctx) {
-    		//var start = connector.pointOnPath(0), end = connector.pointOnPath(1);
-    		
-			// this is the arrow head position    		
+    		// this is the arrow head position    		
 			var hxy = connector.pointAlongPathFrom(self.loc, length / 2);		
 			// this is the center of the tail
 			var txy = connector.pointAlongPathFrom(self.loc, -length / 2), tx = txy[0], ty = txy[1];
@@ -623,8 +628,11 @@
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
+    	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it! 
     	var _textDimensions = function(ctx) {
+    		if (self.cachedDimensions) return self.cachedDimensions;   // return cached copy if we can.  if we add a setLabel function remember to clear the cache. 
     		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
+    		var d = {};
     		if (labelText) {
     			var lines = labelText.split("\n");
     			ctx.save();
@@ -637,9 +645,10 @@
 				labelHeight = (lines.length * h) + (2 * h * labelPadding);
 				var textHeight = lines.length * h;
 				ctx.restore();
-				return {width:labelWidth, height:labelHeight, lines:lines, oneLine:h, padding:labelPadding, textHeight:textHeight};
+				d = {width:labelWidth, height:labelHeight, lines:lines, oneLine:h, padding:labelPadding, textHeight:textHeight};
     		}
-    		return {};
+    		if (typeof self.label != 'function') self.cachedDimensions = d;  // cache it if we can. 
+    		return d;
     	};
     	this.computeMaxSize = function(connector, ctx) {
     		var td = _textDimensions(ctx);
@@ -680,4 +689,70 @@
         	}
 	    };
     };
+    
+    /**
+     * an image overlay.  params may contain:
+     * 
+     * location			:			proportion along the connector to draw the image. optional.
+     * src				:			image src.  required.
+     * events			:			map of event names to functions; each event listener will be bound to the img.
+     */
+    jsPlumb.Overlays.Image = function(params) {
+    	var self = this;
+    	this.location = params.location || 0.5;    	
+    	this.img = new Image();
+    	var imgDiv = null;
+    	var notReadyInterval = null;
+    	var notReadyConnector, notReadyContext;
+    	var events = params.events || {};
+    	var _init = function() {
+    		if (self.ready) {
+    			window.clearInterval(notReadyInterval);
+	    		imgDiv = document.createElement("img");
+				imgDiv.src = self.img.src;
+				imgDiv.style.position = "absolute";
+				imgDiv.style.display="none";
+				imgDiv.className = "_jsPlumb_overlay";
+				document.body.appendChild(imgDiv);// HMM
+				// attach events
+				for (var e in events) {
+					jsPlumb.CurrentLibrary.bind(imgDiv, e, events[e]);
+				}
+				if (notReadyConnector && notReadyContext) {
+					_draw(notReadyConnector, notReadyContext);
+					notReadyContext = null;
+					notReadyConnector = null;
+				}
+    		}
+    	};
+		this.img.onload = function() {						
+			self.ready = true;
+		};
+		this.img.src = params.src || params.url;
+		
+		notReadyInterval = window.setInterval(_init, 250);
+    	
+    	this.computeMaxSize = function(connector, ctx) {
+    		return [self.img.width, self.img.height]
+    	};
+    	
+    	var _draw = function(connector, ctx) {
+    		var cxy = connector.pointOnPath(self.location);
+    		var canvas = jsPlumb.CurrentLibrary.getElementObject(ctx.canvas);
+    		var canvasOffset = jsPlumb.CurrentLibrary.getOffset(canvas);    		
+    		var o = {left:canvasOffset.left + cxy[0] - (self.img.width/2), top:canvasOffset.top + cxy[1] - (self.img.height/2)};
+    		jsPlumb.CurrentLibrary.setOffset(imgDiv, o);
+    		imgDiv.style.display = "block";
+    	};
+    	
+    	this.draw = function(connector, ctx) {
+    		if (self.ready)
+	    		_draw(connector, ctx);
+    		else {
+    			notReadyConnector = connector;
+    			notReadyContext = ctx;
+    		}
+    	};
+    };
+    
 })();
