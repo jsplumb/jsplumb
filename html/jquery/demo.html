@@ -152,7 +152,7 @@ font-size:0.8em;}
 		        var connection5 = jsPlumb.connect({
 			        					source:'window4', 
 			        					target:'window5', 
-			        					anchors:["BottomRight","TopLeft"], 
+			        					anchors:["BottomRight",new jsPlumb.Anchors.TopLeft()], //comparison of old way and new way.  i recommend using the string.
 			        					paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, 
 			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
 			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,
