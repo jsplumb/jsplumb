@@ -11,7 +11,7 @@
 			<h3>Index</h3>
 			<ul>
 				<li><a href="#summary">Summary</a></li>
-				<li><a href="#changes">Changes since version 1.2.2</a></li>
+				<li><a href="#changes">Changes since version 1.2.3</a></li>
 				<li><a href="#requirements">Imports</a></li>
 				<li><a href="#jsPlumbBasics">jsPlumb Basic Concepts</a></li>
 				<li><a href="#simpleConnections">jsPlumb Basic Concepts - Simple Connections</a></li>
@@ -42,8 +42,8 @@
 				<li><a href="#developingJsPlumb">Advanced - jsPlumb internals</a></li>
 				<li><a href="#pluggableLibrarySupport">Pluggable Library Support</a></li>
 			</ul>
-			<strong>NOTE: This document refers to release 1.2.3 of jsPlumb.</strong>  
-			<strong>10/10/10</strong>
+			<strong>NOTE: This document refers to release 1.2.4 of jsPlumb.</strong>  
+			<strong>26/11/10</strong>
 		</div>
 
 		<div class="section">
@@ -67,7 +67,7 @@
 			<p>
 			For Canvas support in IE you also need to include Google's <a class="mplink" href="http://excanvas.sourceforge.net/" target="_blank">ExplorerCanvas</a> script.
 			</p>
-			<p>jsPlumb 1.2.2 has been tested on the following browsers:
+			<p>jsPlumb 1.2.4 has been tested on the following browsers:
 				<ul>
 					<li>IE 7 on Windows Vista</li>
 					<li>IE 8 on Windows Vista (we force IE7 standards compatibility mode)</li>
@@ -82,22 +82,14 @@
 		</div>
 		
 		<div class="section">
-			<a id="changes">Changes since version 1.2.3</a>
-			<p>
-			jsPlumb 1.2.4 is mainly focused on performance enhancements.
-			
-			There are two major additions to jsPlumb in 1.2.4:
+			<a id="changes">Changes since version 1.2.3</a>			
 			<ul>
-				<li><a href="#dynamicAnchors">Dynamic Anchors</a> - Anchors that choose their best location relative to the other element in a connection from a list of positions</li>
-				<li><a href="#overlays">Overlays</a> - ways to decorate connections with such things as labels, arrows, etc.</li>
-			</ul>
-			 
-			</p>
-			<ul>
-				<li>added BackgroundPaintStyle to Connectors, allowing you to draw fancier connections.</li>
-				<li>added jsPlumb.Defaults.BackgroundPaintStyle, for supporting background paint style in Connectors.</li>
-				<li>added jsPlumb.autoConnect method, a shortcut to the dynamic anchor functionality</li>
-				<li>added shortcut functionality to set/change a label for a connection (hooks up to the Overlay engine)</li>											
+				<li>major performance enhancements</li>
+				<li><strong>anchors are no longer static</strong> - important. This is an API change.  See the <a href="#anchors">Anchors</a> section.</li>
+				<li>Image overlay type</li>
+				<li>added support for multi line labels</li>
+				<li>added connectorOverlays option to Endpoint</li>
+				<li>added connections to getConnections method output</li>											
 			</ul>
 			<p>
 			</p>
@@ -107,8 +99,8 @@
 			These issues have been fixed:
 			</p>    
 			<ul>
-				<li>issue 24 - jsPlumb reference instead of "_currentInstance" (thanks Sylvain Gizard)</li>
-				<li>issue 25 - removeAllEndpoints and removeEndpoint fail when a parent container is given (thanks Sylvain Gizard)</li>
+				<li>issue 35 - detach event contained wrong source endpoint</li>
+				<li>issue 42 - jsPlumb_dragged class not removed from element after drag</li>
 			</ul>
 		</div>
 
@@ -120,7 +112,7 @@
 			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.2.3-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.2.4-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			
 			<h4>MooTools</h4>
@@ -129,7 +121,7 @@
 			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_2_4_4"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.2.3-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.2.4-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 		</div>
 		
@@ -219,9 +211,9 @@ var exampleGreyEndpointOptions = {
 		Notice there is no 'anchor' set.  Here we apply it to two elements, at a different location in each:
 		<div class="code">
 <pre>
-jsPlumb.addEndpoint('element1', jsPlumb.extend({anchor:jsPlumb.Anchors.BottomCenter}, exampleGreyEndpointOptions)); 
+jsPlumb.addEndpoint('element1', jsPlumb.extend({anchor:"BottomCenter", exampleGreyEndpointOptions)); 
 
-jsPlumb.addEndpoint('element2', jsPlumb.extend({anchor:jsPlumb.Anchors.TopCenter}, exampleGreyEndpointOptions));
+jsPlumb.addEndpoint('element2', jsPlumb.extend({anchor:"TopCenter", exampleGreyEndpointOptions));
 </pre>		
 </div>
 Note: jsPlumb's 'extend' function is just a wrapper around the supporting library's implementation; you don't need to use
@@ -333,7 +325,7 @@ defaults, call the connect method, whatever:
 <pre>
 firstInstance.Defaults.Connector = new jsPlumb.Connectors.Bezier(150);
 firstInstance.Defaults.Container = "container1";
-firstInstance.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter];
+firstInstance.Defaults.Anchors = ["TopCenter", "BottomCenter"];
 
 firstInstance.connect({source:'element1', target:'element2', scope:'someScope'});
 </pre>
@@ -347,7 +339,7 @@ var secondInstance = jsPlumb.getInstance({
 	Connector:new jsPlumb.Connectors.Bezier(30),
 	Endpoint:new jsPlumb.Endpoints.Dot({radius:5}),
 	EndpointStyle : { fillStyle: color3  },
-	Anchor : jsPlumb.makeAnchor(0.5,0.5,1,1),
+	Anchor : [ 0.5, 0.5, 1, 1 ],
 	Container:"container2"
 });
 
@@ -462,20 +454,40 @@ jsPlumb.setRepaintFunction(repaint);</pre>
 					second is the anchor type for the target element.
 					</p>
 					<p>Valid values for this are any Anchor you have created yourself (see the <a href="#anchors">anchors</a> section below), or one
-					of these default anchors provided by jsPlumb:
+					of these default anchors provided by jsPlumb. Strings are shown here; they are shorthand for entries in jsPlumb.Anchors, which you can also
+					use if you want (see below the list for an example of this).
 						<ul>
-							<li>jsPlumb.Anchors.TopCenter</li>
-							<li>jsPlumb.Anchors.TopRight</li>
-							<li>jsPlumb.Anchors.RightMiddle</li>
-							<li>jsPlumb.Anchors.BottomRight</li>
-							<li>jsPlumb.Anchors.BottomCenter</li>
-							<li>jsPlumb.Anchors.BottomLeft</li>
-							<li>jsPlumb.Anchors.LeftMiddle</li>
-							<li>jsPlumb.Anchors.TopLeft</li>
-							<li>jsPlumb.Anchors.Center</li>
+							<li>"TopCenter"</li>
+							<li>"TopRight"</li>
+							<li>"RightMiddle"</li>
+							<li>"BottomRight"</li>
+							<li>"BottomCenter"</li>
+							<li>"BottomLeft"</li>
+							<li>"LeftMiddle"</li>
+							<li>"TopLeft"</li>
+							<li>"Center"</li>
+							<li>"AutoDefault"</li>
 						</ul>
 					</p>
 					<p>The locations of these are hopefully self-explanatory.  You can supply your own Anchor implementations, or use jsPlumb's 'makeAnchor' function to create an Anchor in a custom location, if you need to - see the section on <a href="#anchors">Anchors</a>.</p>
+					<p>As mentioned above, the values given are strings, which are shorthand.  So this:
+<div class="code">
+<pre>anchor:"TopLeft"</pre>
+</div>
+is the same as this:
+<div class="code">
+<pre>anchor:new jsPlumb.Anchors.TopLeft()</pre>
+</div>			
+If you register your own type of Anchor on jsPlumb.Anchors, you can use this shorthand for it too:
+<div class="code">
+<pre>jsPlumb.Anchors.MyAnchor = ....;
+...
+anchor:"myAnchor"
+...
+</pre>
+</div>		
+					</p>
+					<p>The "AutoDefault" Anchor is a Dynamic Anchor that uses four default positions - TopCenter, RightMiddle, BottomCenter and LeftMiddle.</p>
 				</li>
 				<li><strong>endpoint</strong>
 					<p>Defines the appearance of both Endpoints in the Connection. Optional; if not supplied jsPlumb uses <strong>jsPlumb.Endpoints.Dot</strong>, with the default size of 10  (see <a href="#defaults">Defaults</a>).</p>
@@ -704,20 +716,28 @@ which is the default.
 <pre>
 Anchor : null,
 Anchors : [ null, null ],
-BackgroundPaintStyle : null ,    		
+BackgroundPaintStyle : null,
 Connector : null,
 Container : null,
-DragOptions: { },
-DropOptions: { },
-DynamicAnchors : [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.LeftMiddle],
+DragOptions : {},
+DropOptions : {},
 Endpoint : null,
 Endpoints : [ null, null ],
-EndpointStyle : { fillStyle : null },
+EndpointStyle : {
+	fillStyle : null
+},
 EndpointStyles : [ null, null ],
-LabelStyle : { fillStyle:"rgba(0,0,0,0)", color:"black" },
+LabelStyle : {
+	fillStyle : "rgba(0,0,0,0)",
+	color : "black"
+},
+LogEnabled : true,
 MaxConnections : null,
-PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
-Scope : "_jsPlumb_DefaultScope",
+PaintStyle : {
+	lineWidth : 10,
+	strokeStyle : 'red'
+},
+Scope : "_jsPlumb_DefaultScope"
 </pre>
 			</div>
 			<p>
@@ -753,7 +773,7 @@ jsPlumb.Defaults.EndpointStyles = [{ fillStyle:'#225588' }, { fillStyle:'#558822
 		</div>
 
 		<div class="section">
-			<a id="anchors"><h3>Anchors</h3></a>
+			<a id="anchors"><h3>Anchors</h3></a>			
 			<p>An Anchor models the notion of where on an element a plumb line should connect.  jsPlumb has nine default anchor locations you
 			can use to specify where the plumb lines connect to elements: these are the four corners of an element,
 			the center of the element, and the midpoint of each edge of the element.</p>
@@ -2024,7 +2044,7 @@ The array <strong>may be null</strong>.  If you have not registered any connecti
 		<div class="section">
 			<a id="developingJsPlumb"><h3>Advanced: jsPlumb internals</h3></a>
 			<h4><a id="fileBreakdown">Which files are which?</a></h4>
-			In development, jsPlumb is broken up into three main scripts:
+			In development, jsPlumb is broken up into four main scripts:
 				<ul>
 					<li>jsPlumb-X.X.js
 					<p>This is the main jsPlumb engine.  It calls out to the underlying library implementation, and it has no Anchors, Endpoints or Connections specified.</p>					
@@ -2035,13 +2055,16 @@ The array <strong>may be null</strong>.  If you have not registered any connecti
 					<li>&lt;LIBRARY_PREFIX&gt;.jsPlumb-X.X.js
 					<p>This contains library-specific helper methods.  jsPlumb ships with two of these - one for jQuery and one for MooTools. See below for information on how to create a new library implementation.</p>
 					</li>
+					<li>&lt;jsBezier-0.1.js&gt;</li>
+					<p>These are the Bezier curve functions; they are maintained in a separate project (jsBezier)</p>
+					</li>
 				</ul>
-			These three files are packaged together to form the scripts that people use, for example:
+			These four files are packaged together to form the scripts that people use, for example:
 			<ul>
-				<li>jquery.jsPlumb-1.2.2-all.js
-				<p>Contains jsPlumb-1.2.2.js, jsPlumb-defaults-1.2.2.js and jquery.jsPlumb-1.2.2.js</p>
+				<li>jquery.jsPlumb-1.2.4-all.js
+				<p>Contains jsPlumb-1.2.4.js, jsPlumb-defaults-1.2.4.js, jquery.jsPlumb-1.2.4.js and jsBezier-0.1.js</p>
 				</li>
-				<li>jquery.jsPlumb-1.2.2-all-min.js
+				<li>jquery.jsPlumb-1.2.4-all-min.js
 				<p>A minified version of the script above (minified using Google's Closure minifier)</p>
 				</li>
 			</ul>
