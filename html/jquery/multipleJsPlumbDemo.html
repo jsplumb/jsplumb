@@ -38,7 +38,7 @@ width:4em;height:4em; background-color:yellow;margin:2em;
 			<ul>
 				<li>Each rectangle contains a separate jsPlumb instance</li>
 				<li>You can drag each rectangle around the screen independently</li>  
-				<li>This demo uses jsPlumb 1.2.3, jQuery 1.4.2, and jQuery UI 1.8.0.</li>
+				<li>This demo uses jsPlumb 1.2.4, jQuery 1.4.2, and jQuery UI 1.8.0.</li>
 			</ul>
 		</div>
 		<div id="container" class="container"><button disabled class="clear" rel="1">clear these</button><button disabled class="redo" rel="1">redraw these</button><!-- button class="anim" rel="1">animate these</button--></div>
@@ -52,7 +52,10 @@ width:4em;height:4em; background-color:yellow;margin:2em;
 		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-all.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsPlumb-defaults-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jquery.jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsBezier-0.1.js"></script>
 								
 		<script type="text/javascript">
 			$(document).ready(function() {
@@ -69,7 +72,7 @@ width:4em;height:4em; background-color:yellow;margin:2em;
 				jsPlumb1.Defaults.Connector = new jsPlumb.Connectors.Straight();
 				jsPlumb1.Defaults.Endpoint = new jsPlumb.Endpoints.Dot({radius:3});
 				jsPlumb.Defaults.EndpointStyle = { fillStyle: color };
-				jsPlumb1.Defaults.Anchors = [ jsPlumb.Anchors.Center, jsPlumb.Anchors.Center ];
+				jsPlumb1.Defaults.Anchors = [ "Center", "Center" ];
 				jsPlumb1.Defaults.Container = 'container';
 
 				var color2='rgba(31, 46, 61, 0.3)';
@@ -79,7 +82,7 @@ width:4em;height:4em; background-color:yellow;margin:2em;
 					Connector:new jsPlumb.Connectors.Bezier(),
 					Endpoint:new jsPlumb.Endpoints.Dot({radius:17}),
 					EndpointStyle : { fillStyle: color2  },
-					Anchor :  jsPlumb.Anchors.Center,
+					Anchor :  "Center",
 					Container : 'container2'
 				});
 
@@ -90,7 +93,7 @@ width:4em;height:4em; background-color:yellow;margin:2em;
 					Connector:new jsPlumb.Connectors.Bezier(30),
 					Endpoint:new jsPlumb.Endpoints.Dot({radius:5}),
 					EndpointStyle : { fillStyle: color3  },
-					Anchor :  jsPlumb.makeAnchor(0.5,0.5,1,1),
+					Anchor :  [0.5,0.5,1,1],
 					Container : 'container3'
 				});				
 
@@ -191,5 +194,12 @@ width:4em;height:4em; background-color:yellow;margin:2em;
 				
 			});
 		</script>
+		
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+			<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>
 	</body>
 </html>

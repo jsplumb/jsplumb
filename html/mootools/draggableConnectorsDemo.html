@@ -10,8 +10,10 @@
 #window2 { top:6em; right:15%; }
 #window3 { top:24em; left:15%; }
 #window4 { top:24em; right:15%}
-.window {  border:1px solid gray; width:9.7em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
-padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; }
+.window {  border:1px dotted gray; width:9.7em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
+padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white;
+-o-box-shadow: 0px 0px 17px #044;-webkit-box-shadow: 0px 0px 17px #044; -moz-box-shadow: 0px 0px 17px #044;box-shadow: 0px 0px 17px #044;
+}
 .drag-locked { border:1px solid red; }
 ._jsPlumb_endpoint { z-index:50; }
 ._jsPlumb_connector { z-index:1; }
@@ -35,7 +37,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 
 		<div id="explanation">
 			<div id="list"></div>
-	    	<p>this demo uses jsPlumb 1.2.3, MooTools 1.2.4 and Drag.Move from MooTools More 1.2.4.4.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
+	    	<p>this demo uses jsPlumb 1.2.4, MooTools 1.2.4 and Drag.Move from MooTools More 1.2.4.4.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
 	    	<a id="clear" href="#">clear plumbing</a><br/><br/>	    	
 	    	<a href="dragAnimDemo.html">next: animated dragging demo</a><br/><br/>
 	    	see a <a href="../jquery/draggableConnectorsDemo.html">jQuery version</a> of this demo.
@@ -44,7 +46,10 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 		    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
 		<script type="text/javascript" src="../../js/mootools-1.2.4.4-more.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/mootools.jsPlumb-1.2.3-all.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsPlumb-defaults-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/mootools.jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsBezier-0.1.js"></script>
 		 
 	    <script type="text/javascript">
 			window.addEvent('domready', function() {
@@ -56,7 +61,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
 				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
 				jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
-				jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
+				jsPlumb.Defaults.Anchors = ["TopCenter", "TopCenter"];
 
 
 				var showConnections = function() {
@@ -153,7 +158,7 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				var exampleEndpoint3 = {
 						endpoint:new jsPlumb.Endpoints.Dot({radius:17}),
 						reattach:true,
-						anchor:jsPlumb.Anchors.BottomLeft,
+						anchor:"BottomLeft",
 						style:{ strokeStyle:example3Color, opacity:0.5 },
 						isSource:true,
 						scope:'exampleConnection3',
@@ -176,18 +181,18 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 				jsPlumb.addEndpoint('window1', $extend({ anchor:sa }, exampleEndpoint));
 
 				jsPlumb.addEndpoints('window2', [
-					$extend({ anchor:jsPlumb.makeAnchor(0.5, 1, 0, 1) }, exampleEndpoint),
-					$extend({ anchor:jsPlumb.Anchors.RightMiddle }, exampleEndpoint2)
+					$extend({ anchor:[ 0.5, 1, 0, 1 ] }, exampleEndpoint),
+					$extend({ anchor:"RightMiddle" }, exampleEndpoint2)
 				]);
 
 				jsPlumb.addEndpoints('window3', [
-    				$extend({ anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1) }, exampleEndpoint),
-    				$extend({ anchor:jsPlumb.makeAnchor(0.75, 0, 0, -1) }, exampleEndpoint2)
+    				$extend({ anchor:[ 0.25, 0, 0, -1 ] }, exampleEndpoint),
+    				$extend({ anchor:[ 0.75, 0, 0, -1 ] }, exampleEndpoint2)
      			]);
 
 				jsPlumb.addEndpoints('window4', [
-					$extend({ anchor:jsPlumb.makeAnchor(1, 0.5, 1, 0) }, exampleEndpoint),
-					$extend({ anchor:jsPlumb.makeAnchor(0.25, 0, 0, -1) }, exampleEndpoint2)
+					$extend({ anchor:[ 1, 0.5, 1, 0 ] }, exampleEndpoint),
+					$extend({ anchor:[ 0.25, 0, 0, -1 ] }, exampleEndpoint2)
 				]);
 
 				// add the third example using the '.window' class.

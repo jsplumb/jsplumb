@@ -6,10 +6,11 @@
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>
 		<style type="text/css">
+._jsPlumb_overlay { z-index:51; }		
 ._jsPlumb_endpoint { z-index:50; cursor:move; }
 ._jsPlumb_connector { z-index:1; }
-.bigdot { cursor:pointer;width:162px; height:162px; background-image:url(../../img/bigdot.png); z-index:5; position:absolute; }
-.bigdot-hover { border:1px dotted orange; }
+.bigdot { cursor:pointer;width:162px; height:162px; background-image:url(../../img/bigdot.png); z-index:5; position:absolute; border-radius:81px;}
+.bigdot-hover { border:2px dashed orange; }
 .cmd { padding:0.3em; }
 .cmd:hover { background-color:yellow; }
 .dropHover { border:1px dotted orange; }
@@ -20,7 +21,8 @@
 #explanation { width:50%; background-color:transparent;z-index:2;color:gray;border:none;position:relative;left:45%;right:auto;text-align:center;}
 		</style>
 	</head>
-	<body onunload="jsPlumb.unload();">
+	<body onunload="jsPlumb.unload();">		
+		
 		<div class="menu"><a href="../index.html" class="mplink">jsPlumb home</a>&nbsp;|&nbsp;<a href="../../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 
 		<div class="bigdot" id="bd1"></div>
@@ -29,7 +31,7 @@
 		<div class="bigdot" id="bd4"></div>
 
 		<div id="explanation">
-	    	<p>this demo uses jsPlumb 1.2.3, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
+	    	<p>this demo uses jsPlumb 1.2.4, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
 	    	<p>drag orange dots to create connections.</p>
 	    	<p>click on or near blue dots to make them move in that direction.</p>
 	    	<p><a id="add" href="#" class="cmd">add a disc</a></p>
@@ -41,21 +43,24 @@
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-all.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsPlumb-defaults-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jquery.jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsBezier-0.1.js"></script>
 					
 	    <script type="text/javascript">
-			$(document).ready(function() {
-
+			$(document).ready(function() {				
+				
 				// chrome fix.
 				document.onselectstart = function () { return false; };
-				
+	
 				jsPlumb.Defaults.DragOptions = { cursor: 'wait', zIndex:20 };
 
 				// notice there are no dragOptions specified here, which is different from the
 				// draggableConnectors2 demo.  all connections on this page are therefore
 				// implicitly in the default scope. 
 				var endpoint = {
-						anchor:jsPlumb.makeAnchor(0.5,0.5,0,-1),
+						anchor:[0.5,0.5,0,-1],
 						connectorStyle:{lineWidth:7,strokeStyle:'rgba(198,89,30,0.7)'},
 						endpoint:new jsPlumb.Endpoints.Image({url:"../../img/littledot.png"}),
 						connector:new jsPlumb.Connectors.Bezier(90),
@@ -89,9 +94,8 @@
 						t = t + Math.abs(oo[1] * DIST);
 						// notice the easing here.  you can pass any args into this animate call; they
 						// are passed through to jquery as-is by jsPlumb.
-						jsPlumb.animate($(this).attr("id"), 
-										{left:l, top:t}, 
-										{ duration:1400, easing:'easeOutBack' });
+						var id = $(this).attr("id");
+						jsPlumb.animate(id, {left:l, top:t}, { duration:1400, easing:'easeOutBack', step:function() { jsMagnets.update(id); } });
 					});
 					return $("#" + elId).addEndpoint(endpoint);
 				};
@@ -104,7 +108,13 @@
 				$("#clear").bind('click', function() { jsPlumb.detachEverything(); });
 
 				jsPlumb.connect({ source:'bd1', target:'bd2', sourceEndpoint:e1, targetEndpoint:e2 });
-				jsPlumb.connect({ source:'bd1', target:'bd3', sourceEndpoint:e1, targetEndpoint:e3 });
+				jsPlumb.connect({ 
+					source:'bd1', 
+					target:'bd3', 
+					sourceEndpoint:e1, 
+					targetEndpoint:e3
+				});
+				
 				jsPlumb.connect({ source:'bd1', target:'bd4', sourceEndpoint:e1, targetEndpoint:e4 });				
 
 				$("#add").bind('click', function() {
@@ -114,7 +124,6 @@
 					document.body.appendChild(d);
 					var id = '' + ((new Date().getTime()));
 					$(d).attr("id", id);
-					jsPlumb.draggable(id);
 					var w = screen.width - 162, h = screen.height - 162;
 					var x = (0.2 * w) + Math.floor(Math.random()*(0.5 * w));
 					var y = (0.2 * h) + Math.floor(Math.random()*(0.6 * h));
@@ -129,6 +138,13 @@
 				});
 			});
 	</script>
+	
+	<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+		<input type="hidden" name="cmd" value="_s-xclick">
+		<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+		<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+		<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+	</form>
 
 <!-- Start of StatCounter Code -->
 <script type="text/javascript">

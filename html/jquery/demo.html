@@ -32,6 +32,7 @@ font-size:0.8em;}
 		</style>
 	</head>
 	<body onunload="jsPlumb.unload();">
+	
 		<div class="menu"><a href="../../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 	
 		<div class="window" id="window1"><strong>Window 1</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 2.</div>
@@ -56,8 +57,11 @@ font-size:0.8em;}
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-all.js"></script>
-					            		
+		<script type="text/javascript" src="../../js/1.2.4/jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsPlumb-defaults-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jquery.jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsBezier-0.1.js"></script>
+							            	
 		<script type="text/javascript">
 			$(document).ready(function() {
 
@@ -65,7 +69,8 @@ font-size:0.8em;}
 				document.onselectstart = function () { return false; };
 				
 				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
-
+				
+				
 				// 
 				// plumb window1 to window2 with a 15 px wide yellow Bezier, from the BottomCenter of window1 to 3/4 of the way along the top edge
 				// of window2. endpoints are a slightly lighter shade of yellow. the connection is labelled "connection 1" with a 16px sans serif
@@ -73,9 +78,9 @@ font-size:0.8em;}
 				//
 				var connection1 = jsPlumb.connect({source:'window1', 
 												   target:'window2', 
-												   anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], 
+												   anchors:["BottomCenter", jsPlumb.makeAnchor(0.75,0,0,-1)], 
 												   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
-												   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'}, 
+												   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'},  
 												   endpointStyle:{fillStyle:'rgb(243,229,0)'},
 												   overlays : [ new jsPlumb.Overlays.Label({
 												   					labelStyle : {
@@ -85,6 +90,21 @@ font-size:0.8em;}
 												   					label : "Connection One", 
 												   					location:0.7})
 							   					   ]});
+
+		        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
+		        // specified here - this is how you create anchors in locations jsPlumb does not offer shortcuts for.
+		        // the endpoints in this example have linear gradients applied.
+		        //
+		        var w23Stroke = 'rgb(189,11,11)'; 
+		        var connection3 = jsPlumb.connect({source:'window2', target:'window3', 
+			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
+			        				 backgroundPaintStyle:{lineWidth:10,strokeStyle:'black'}, 
+			        				 anchors:[jsPlumb.makeAnchor(0.3,1,0,1), "TopCenter"], 
+			        				 endpoint:new jsPlumb.Endpoints.Rectangle(), 
+			        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
+			    			        				 { gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
+			    			        });
+				
 												  												  
 				//
 				// plumb the right hand side of window3 to the left hand side of window4 with a 10px wide blue-ish half transparent Bezier. 
@@ -97,9 +117,8 @@ font-size:0.8em;}
 				var w34HlStroke = 'rgba(180, 180, 200, 1)';
 				var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
 			        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
-			        				 anchors:[new jsPlumb.Anchors.AutoDefault(), new jsPlumb.Anchors.AutoDefault()], 
+			        				 anchors:["AutoDefault", "AutoDefault"], 
 			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
-			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 			        				 
 			        				 backgroundPaintStyle:{lineWidth:12,strokeStyle:'rgba(100,100,100,50)'},
 			        				 endpointsOnTop:true,
 			        				 label : function(connection) { 
@@ -109,20 +128,6 @@ font-size:0.8em;}
 				        			 }
 			        			});
 				 
-		        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
-		        // specified here - this is how you create anchors in locations jsPlumb does not offer shortcuts for.
-		        // the endpoints in this example have linear gradients applied.
-		        //
-		        var w23Stroke = 'rgb(189,11,11)'; 
-		        var connection3 = jsPlumb.connect({source:'window2', target:'window3', 
-			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
-			        				 backgroundPaintStyle:{lineWidth:10,strokeStyle:'black'}, 
-			        				 anchors:[jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TopCenter], 
-			        				 endpoint:new jsPlumb.Endpoints.Rectangle(), 
-			        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
-			    			        				 { gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
-			    			        });
-
 
 		        //
 		        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
@@ -132,24 +137,22 @@ font-size:0.8em;}
 		        var connection4 = jsPlumb.connect({
 			        						source:'window5', 
 			        						target:'window6', 
-			        						anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], 
-			        						//paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, 
+			        						anchors:["Center", "Center"],  
 			        						paintStyle:{lineWidth:5,strokeStyle:'rgba(46,164,26,0.8)'},
 			        						endpointsOnTop:false, 
 			        						endpointStyle:{radius:125, fillStyle:'rgba(46,164,26,0.8)'},
 			        						labelStyle : { fillStyle:"rgba(46,164,26, 0.8)", color:"black",borderWidth:10 },
 			        						label : "big\nendpoints\nthese are big endpoints.\nthe biggest endpoints that are on this page." });
-
 		        //
 		        // plumb window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
 		        // image as the endpoint, placed on top of the element it is connected to.  the connection is labelled "4-5" with text
-		        // of the same color as the connector, on a white background.  note the 'padding' value of 0.4: that instructs jsPlumb to make
-		        // the background (2 * 0.4) times larger than the text in the horizontal and vertical directions.
+		        // of the same color as the connector, on a white background with a purple border.  note the 'padding' value of 0.4: that 
+		        // instructs jsPlumb to make the background (2 * 0.4) times larger than the text in the horizontal and vertical directions.
 		        //
 		        var connection5 = jsPlumb.connect({
 			        					source:'window4', 
 			        					target:'window5', 
-			        					anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft], 
+			        					anchors:["BottomRight","TopLeft"], 
 			        					paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, 
 			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
 			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,
@@ -166,9 +169,16 @@ font-size:0.8em;}
 								    			        location:0.3 })
 										]});
 		        
+		        
 		});
 		</script>
-	    
+
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+			<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>	    
 	    	    
 	    <!-- Start of StatCounter Code -->
 <script type="text/javascript">

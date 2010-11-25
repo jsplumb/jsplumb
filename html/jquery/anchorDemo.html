@@ -6,7 +6,8 @@
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>
 		<style type="text/css">
-			.window { border:2px dotted #346789; width:14em; height:4em; z-index:20; position:absolute; color:white;font-family:helvetica;padding:0.5em; font-size:0.8em;}
+.window { border:2px dotted #346789; width:14em; height:4em; z-index:20; position:absolute; color:white;font-family:helvetica;padding:0.5em; font-size:0.8em;
+-moz-border-radius:0.6em; border-radius:0.6em; }
 			.smallWindow { background-color:#558822; }
 			#window1 { background-color:#225588; top:4em;left:12em;width:30em;height:6em;}
 			#window2 { top:24em; left:44em;}
@@ -16,7 +17,8 @@
 			#window6 {top:16em;left:56em; }
 		</style>
 	</head>
-	<body onunload="jsPlumb.unload();">
+	<body onunload="jsPlumb.unload();">	
+		
 		<div class="menu"><a href="../../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 
 		<div class="window" id="window1"><strong>Window 1</strong><br/><br/></div>
@@ -31,7 +33,7 @@
 	    	<p>All the green windows are anchored to Window 1 using custom anchor positions on Window 1, except
 	    	Window 4, which uses the BottomCenter anchor provided by jsPlumb.</p>
 	    	<p>Additionally, this page shows the usage of a different endpoint for each end of the connector, and a gradient in the connector.  <strong>If you are using IE,</strong> you will see green connectors with no gradient.  ExplorerCanvas, which jsPlumb uses for IE, does not support gradients.</p>
-	    	<p>This demonstration uses jsPlumb 1.2.3, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
+	    	<p>This demonstration uses jsPlumb 1.2.4, jQuery 1.4.2 and jQuery UI 1.8.0.</p>
 	    	<a href="dynamicAnchorsDemo.html" class="mplink">Dynamic Anchors demonstration</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
@@ -42,7 +44,10 @@
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-all.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsPlumb-defaults-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jquery.jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsBezier-0.1.js"></script>
 				
 		<script type="text/javascript">
 			$(document).ready(function() {
@@ -58,14 +63,21 @@
 				// default to a gradient stroke from blue to green.  for IE provide all green fallback.
 				jsPlumb.Defaults.PaintStyle = { gradient:{stops:[[0,'#225588'], [1, '#558822']] }, strokeStyle:'#558822', lineWidth:10 };
 
-				jsPlumb.connect({source:'window1', target:'window3', anchors:[jsPlumb.makeAnchor( 0.05, 1, 0, 1 ), jsPlumb.Anchors.TopCenter], connector:new jsPlumb.Connectors.Straight()});
-				jsPlumb.connect({source:'window1', target:'window4', anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter]});
-				jsPlumb.connect({source:'window1', target:'window6', anchors:[jsPlumb.makeAnchor( 0.95, 1, 0, 1 ), jsPlumb.Anchors.TopCenter]});
-				jsPlumb.connect({source:'window1', target:'window5', anchors:[jsPlumb.makeAnchor( 0.275, 1, 0, 1 ), jsPlumb.Anchors.TopCenter]});
-				jsPlumb.connect({source:'window1', target:'window2', anchors:[jsPlumb.makeAnchor( 0.725, 1, 0, 1 ), jsPlumb.Anchors.TopCenter]});
+				jsPlumb.connect({source:'window1', target:'window3', anchors:[[ 0.05, 1, 0, 1 ], "TopCenter"], connector:new jsPlumb.Connectors.Straight()});
+				jsPlumb.connect({source:'window1', target:'window4', anchors:["BottomCenter", "TopCenter"]});
+				jsPlumb.connect({source:'window1', target:'window6', anchors:[[ 0.95, 1, 0, 1 ], "TopCenter"]});
+				jsPlumb.connect({source:'window1', target:'window5', anchors:[[ 0.275, 1, 0, 1 ], "TopCenter"]});
+				jsPlumb.connect({source:'window1', target:'window2', anchors:[[0.725, 1, 0, 1 ], "TopCenter"]});
 		});
 		</script>
-
+		
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+			<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>
+		
 	    <!-- Start of StatCounter Code -->
 		<script type="text/javascript">
 		var sc_project=5700644;

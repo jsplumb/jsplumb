@@ -43,7 +43,7 @@ font-size:0.8em;}
 	    
 	    <div id="explanation">
 	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  This page contains a little bit of everything to whet your appetite.</p>
-	    	<p>This demonstration uses jsPlumb 1.2.3, MooTools 1.2.4, and Drag.Move from MooTools More 1.2.2.4.</p>
+	    	<p>This demonstration uses jsPlumb 1.2.4, MooTools 1.2.4, and Drag.Move from MooTools More 1.2.2.4.</p>
 	    	<a href="chartDemo.html" class="mplink">Next: Chart demonstration</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
@@ -54,7 +54,10 @@ font-size:0.8em;}
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
 		<script type="text/javascript" src="../../js/mootools-1.2.4.4-more.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/mootools.jsPlumb-1.2.3-all.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsPlumb-defaults-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/mootools.jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.4/jsBezier-0.1.js"></script>
 
 		<script type="text/javascript">
 			window.addEvent('domready', function() {
@@ -71,7 +74,7 @@ font-size:0.8em;}
 				//
 				var connection1 = jsPlumb.connect({source:'window1', 
 												   target:'window2', 
-												   anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], 
+												   anchors:["BottomCenter", [0.75,0,0,-1]], 
 												   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
 												   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'}, 
 												   endpointStyle:{fillStyle:'rgb(243,229,0)'},
@@ -95,7 +98,7 @@ font-size:0.8em;}
 				var w34HlStroke = 'rgba(180, 180, 200, 1)';
 				var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
 			        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
-			        				 anchors:[new jsPlumb.Anchors.AutoDefault(), new jsPlumb.Anchors.AutoDefault()], 
+			        				 anchors:["AutoDefault", "AutoDefault"], 
 			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
 			        				 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 }, 			        				 
 			        				 backgroundPaintStyle:{lineWidth:12,strokeStyle:'rgba(100,100,100,50)'},
@@ -115,7 +118,7 @@ font-size:0.8em;}
 		        var connection3 = jsPlumb.connect({source:'window2', target:'window3', 
 			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
 			        				 backgroundPaintStyle:{lineWidth:10,strokeStyle:'black'}, 
-			        				 anchors:[jsPlumb.makeAnchor(0.3,1,0,1), jsPlumb.Anchors.TopCenter], 
+			        				 anchors:[[0.3,1,0,1], "TopCenter"], 
 			        				 endpoint:new jsPlumb.Endpoints.Rectangle(), 
 			        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
 			    			        				 { gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
@@ -130,7 +133,7 @@ font-size:0.8em;}
 		        var connection4 = jsPlumb.connect({
 			        						source:'window5', 
 			        						target:'window6', 
-			        						anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center], 
+			        						anchors:["Center", "Center"], 
 			        						//paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'}, 
 			        						paintStyle:{lineWidth:5,strokeStyle:'rgba(46,164,26,0.8)'},
 			        						endpointsOnTop:false, 
@@ -147,7 +150,7 @@ font-size:0.8em;}
 		        var connection5 = jsPlumb.connect({
 			        					source:'window4', 
 			        					target:'window5', 
-			        					anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft], 
+			        					anchors:["BottomRight", "TopLeft"], 
 			        					paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, 
 			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
 			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,

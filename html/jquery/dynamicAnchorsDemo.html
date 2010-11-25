@@ -70,8 +70,11 @@ filter:alpha(opacity=60);
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-all.js"></script>
-					            		
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsPlumb-defaults-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jquery.jsPlumb-1.2.4-RC1.js"></script>
+		<script type="text/javascript" src="http://localhost/programming/jsplumb-google-2/js/1.2.4/jsBezier-0.1.js"></script>
+							            		
 		<script type="text/javascript">
 			$(document).ready(function() {
 
@@ -98,15 +101,21 @@ filter:alpha(opacity=60);
 				var commonConfig = { anchors:anchors, endpoint:exampleEndpoint };
 				var _makeOverlay = function() { return new jsPlumb.Overlays.Diamond({fillStyle:'#09098e', width:15, length:15}); };
 				
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window3", overlays:[_makeOverlay()]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window3", target:"window5", overlays:[_makeOverlay()]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window2", target:"window5", overlays:[_makeOverlay()]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window5", target:"window6", overlays:[_makeOverlay()]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window4", overlays:[_makeOverlay()]}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window4", target:"window2", overlays:[_makeOverlay()]}));						       
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window3", overlays:[_makeOverlay()], anchors:[jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ]}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window3", target:"window5", overlays:[_makeOverlay()], anchors:[jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ]}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window2", target:"window5", overlays:[_makeOverlay()], anchors:[jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ]}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window5", target:"window6", overlays:[_makeOverlay()], anchors:[jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ]}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window4", overlays:[_makeOverlay()], anchors:[jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ]}));
+				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window4", target:"window2", overlays:[_makeOverlay()], anchors:[jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ]}));						       
 			});
 		</script>
 	    
+	    <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----">
+			<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+			<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>
 	    	    
 	    <!-- Start of StatCounter Code -->
 <script type="text/javascript">
