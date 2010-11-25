@@ -25,7 +25,7 @@ border:1px solid blue;
 ._jsPlumb_endpoint {
 border:1px solid green;
 }
+._jsPlumb_overlay {
+border:1px solid yellow;
+}
 */
-
-
-.jsPlumb_dragged {border:1px solid blue; }
