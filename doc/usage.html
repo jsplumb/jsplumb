@@ -101,6 +101,8 @@
 			<ul>
 				<li>issue 35 - detach event contained wrong source endpoint</li>
 				<li>issue 42 - jsPlumb_dragged class not removed from element after drag</li>
+				<li>issue 43 - performance problems causing connections and endpoints to detach when dragging</li>
+				<li>issue 44 - use a proper way of detecting Canvas support (IE9 can then be supported)</li>
 			</ul>
 		</div>
 
@@ -1431,8 +1433,8 @@ The arguments are as follows:
 		
 		<div class="section">
 			<a id="events"><h3>Events</h3></a>
-			As of version 1.2.2, jsPlumb fires an event to registered listeners whenever a connection
-			is made.  We plan to support more events in the future.
+			jsPlumb fires an event to registered listeners whenever a connection
+			is made (we plan to support more events in the future).
 			<h4>Registering Event Listeners</h4>
 			To register an event listener you need to supply the event name and a listener object:
 <div class="code">
@@ -1481,6 +1483,7 @@ jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
 				<tr><th>component</th><th>css class</th></tr>
 				<tr><td>connector</td><td>_jsPlumb_connector</td></tr>
 				<tr><td>endpoint</td><td>_jsPlumb_endpoint</td></tr>
+				<tr><td>image overlays</td><td>_jsPlumb_overlay</td></tr>
 			</table>
 			You would typically use these to establish appropriate z-indices for your UI.
 		</div>
@@ -1532,7 +1535,7 @@ jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
 	source:'window3',
 	target:'window4',
 	paintStyle:{lineWidth:10, strokeStyle:'rgba(0, 0, 200, 0.5)'},
-	anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle],
+	anchors:["RightMiddle", "LeftMiddle"],
 	endpointStyle:{radius:25}
 });</pre>
 					</div>
@@ -1543,7 +1546,7 @@ jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
 	source:'window2',
 	target:'window3',
 	paintStyle:{lineWidth:8, strokeStyle:'rgb(189,11,11)'},
-	anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter],
+	anchors:["BottomCenter", "TopCenter"],
 	endpoint:new jsPlumb.Endpoints.Rectangle()
 });</pre>
 					</div>
@@ -1569,7 +1572,7 @@ jsPlumb.connect( {
 	source:'window3',
 	target:'window4',
 		 paintStyle:{lineWidth:10, strokeStyle:w34Stroke},
-		 anchors:[jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle],
+		 anchors:["RightMiddle", "LeftMiddle"],
 		 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
 		 //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:'78%', innerRadius:'73%'}, radius:35 },
 		 endpointsOnTop:false
@@ -1598,7 +1601,7 @@ jsPlumb.connect({
 <pre>jsPlumb.connect({
 	source:'window5',
 	target:'window6',
-	anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center],
+	anchors:["Center", "Center"],
 	paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'},
 	endpointStyle:{radius:125}
 });</pre>
@@ -1610,7 +1613,7 @@ placed on top of the element it is connected to.
 <pre>jsPlumb.connect({
 	source:'window4',
 	target:'window5',
-	anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft],
+	anchors:["BottomRight","TopLeft"],
 	paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'},
 	endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}),
 	connector:new jsPlumb.Connectors.Straight()
@@ -1623,7 +1626,7 @@ placed on top of the element it is connected to.
 <pre>jsPlumb.connect({
 	source:'window5',
 	target:'window6',
-	anchors:[jsPlumb.Anchors.Center, jsPlumb.Anchors.Center],
+	anchors:["Center", "Center"],
 	paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'},
 	endpointStyle:{radius:125}
 });</pre>
@@ -1635,7 +1638,7 @@ placed on top of the element it is connected to.
 	source:'window7',
 	target:'window8',
 	paintStyle:{lineWidth:10, strokeStyle:'blue'},
-	anchors:[jsPlumb.Anchors.TopLeft, jsPlumb.Anchors.BottomRight]
+	anchors:["TopLeft", "BottomRight"]
 });
 </pre>
 					</div>
@@ -1645,7 +1648,7 @@ placed on top of the element it is connected to.
 <pre>jsPlumb.connect({
 	source:'window4',
 	target:'window5',
-	anchors:[jsPlumb.Anchors.BottomRight,jsPlumb.Anchors.TopLeft],
+	anchors:["BottomRight","TopLeft"],
 	paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'},
 	endpointStyle:{width:40, height:40},
 	endpoint:new jsPlumb.Endpoints.Rectangle(),
@@ -1809,16 +1812,17 @@ placed on top of the element it is connected to.
 				
 				<li>Register that Endpoint on window3, specifying that it should be located in the top center of the element:
 <div class="code">
-<pre>var window3Endpoint = jsPlumb.addEndpoint('window3', jsPlumb.extend({anchor:jsPlumb.Anchors.TopCenter}, endpointOptions}));  
+<pre>var window3Endpoint = jsPlumb.addEndpoint('window3', jsPlumb.extend({anchor:"TopCenter"}, endpointOptions}));  
 </pre>
 </div>
 Notice here the usage of the 'extend' function - we can reuse 'endpointOptions' with a different Anchor for another element.  This is a useful
-practice to get into. 				 				<br/><br/>
+practice to get into/ Note that Anchor positions are cached, so you <em>cannot share</em> an Anchor between two or more Endpoints.  When you use
+the string notation to identify the type of Anchor, jsPlumb creates them as it needs them.<br/><br/>
 				</li>
 				
 				<li>Now register that Endpoint on window4, specifying that it should be located in the bottom center of the element:
 <div class="code">
-<pre>var window4Endpoint = jsPlumb.addEndpoint('window4', jsPlumb.extend({anchor:jsPlumb.Anchors.BottomCenter}, endpointOptions}));  
+<pre>var window4Endpoint = jsPlumb.addEndpoint('window4', jsPlumb.extend({anchor:"BottomCenter"}, endpointOptions}));  
 </pre>
 </div>
 Now we have two Endpoints, both of which support drag and drop of new Connections.  We can use these to make a programmatic Connection, too, though...<br/><br/>
@@ -1946,13 +1950,13 @@ jsPlumb.connect({uuids:["abcdefg", "hijklmn"]});
 <pre>
 {
 	"_jsPlumb_DefaultScope" : [
-		{sourceId:"window1", targetId:"window2"},
-		{sourceId:"window5", targetId:"window3"}
+		{sourceId:"window1", targetId:"window2", source:&lt;sourceElement&gt;, target:&lt;targetElement&gt;, sourceEndpoint:&lt;sourceEndpoint&gt;, targetEndpoint:&lt;targetEndpoint&gt;, connection:&lt;connection&gt; },
+		{sourceId:"window5", targetId:"window3", source:&lt;sourceElement&gt;, target:&lt;targetElement&gt;, sourceEndpoint:&lt;sourceEndpoint&gt;, targetEndpoint:&lt;targetEndpoint&gt;, connection:&lt;connection&gt; }
 	],
 	"someCustomScope": [
-		{sourceId:"window6", targetId:"window2"},
-		{sourceId:"window4", targetId:"window13"},
-		{sourceId:"window2", targetId:"window10"}
+		{sourceId:"window6", targetId:"window2", source:&lt;sourceElement&gt;, target:&lt;targetElement&gt;, sourceEndpoint:&lt;sourceEndpoint&gt;, targetEndpoint:&lt;targetEndpoint&gt;, connection:&lt;connection&gt; },
+		{sourceId:"window4", targetId:"window13", source:&lt;sourceElement&gt;, target:&lt;targetElement&gt;, sourceEndpoint:&lt;sourceEndpoint&gt;, targetEndpoint:&lt;targetEndpoint&gt;, connection:&lt;connection&gt; },
+		{sourceId:"window2", targetId:"window10", source:&lt;sourceElement&gt;, target:&lt;targetElement&gt;, sourceEndpoint:&lt;sourceEndpoint&gt;, targetEndpoint:&lt;targetEndpoint&gt;, connection:&lt;connection&gt; }
 	]
 }
 </pre>
