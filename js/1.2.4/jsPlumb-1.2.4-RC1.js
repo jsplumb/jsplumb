@@ -57,7 +57,8 @@
 		};
 
 		var _currentInstance = this;
-		var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+		//var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
+		var ie = !!!document.createElement('canvas').getContext;
 		var log = null;
 
 		var repaintFunction = function() {
