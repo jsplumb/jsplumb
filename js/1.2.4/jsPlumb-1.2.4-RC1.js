@@ -220,7 +220,7 @@ var jsPlumbInstance = function() {
 	 * 
 	 */
 	var _log = function(msg) {
-	    if (_currentInstance.logEnabled && console) console.log(msg);	
+	    if (_currentInstance.logEnabled && typeof console != "undefined") console.log(msg);	
 	};
 			
 	/**
