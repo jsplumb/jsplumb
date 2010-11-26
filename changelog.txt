@@ -1,3 +1,52 @@
+* 1.2.4
+	
+	- added 'connection' to getConnection method's output.
+	- fix for issue 35 (detach event contained wrong source endpoint)
+	- fix for issue 42 (jsPlumb_dragged class not removed from element after drag) 
+	- fix for issue 43 (performance problems causing connections and endpoints to detach when dragging)
+	- fix for issue 44 (use a proper way of detecting Canvas support)
+	- added connectorOverlays option on Endpoint: specify overlays for Connectors dragged from the Endpoint.
+	- added support for multi line labels (issue 36)
+	- added Image overlay type.
+	
+	- removed the caching in __getElementObject since the performance enhancements have obviated the need for it.
+	
+	- anchors are no longer static. 	  
+	  
+	- makeAnchor now takes anchor names (you can register your own anchors on jsplumb and then refer to them by name), anchor coord lists, other anchors.
+	- connect method and endpoints both support anchors specified by name ("TopCenter") or array ([0.5, 0, 0, -1]); you dont need to do jsPlumb.makeAnchor(...) any longer.
+	  
+	- jsPlumb.Defaults.DynamicAnchors is now a function, not static. 
+
+* 1.2.3
+
+	** DYNAMIC ANCHOR PAINT ENDPOINT AFTER MOVE
+	** GRADIENT TO BEZIER
+	** OVERLAY DOCS
+	** DRAG PROBLEM DRAGGABLE CONNECTORS DEMO MOOTOOLS - DRag from dynamic anchor to some other anchor.  then, drag off the anchor...bee-bow.
+
+
+	
+	- added BackgroundPaintStyle to jsPlumb.Defaults; this, if set, will be the background for connectors (you can do shadows etc)
+	- added BackgroundPaintStyle support to Connector
+	                                                              
+	- several bugfixes for draggable connectors in containers.
+	
+	- added the ability to label connections in an addConnection call
+	- added Connection.setLabel method
+	
+	- added dynamic anchors
+	- added autoConnect method
+	- added jsPlumb.Defaults.DynamicAnchors
+	- added pointOnPath(location) method to Connectors.  needed to support overlays.
+	- added perpendicularToPath(location, length) to Connectors.  needed to support overlays.
+
+	- added jsPlumb.Overlays, a new feature that lets you overlay stuff onto Connectors.
+	- added jsPlumb.Overlays.Arrow, jsPlumb.Overlays.PlainArrow, jsPlumb.Overlays.Diamond.
+	
+	- issue 24 - jsPlumb reference instead of "_currentInstance" (thanks Sylvain Gizard)
+	- issue 25 - removeAllEndpoints and removeEndpoint fail when a parent container is given (thanks Sylvain Gizard) 
+
 * 1.2.2
 
 	- fixed bug where max connections on a target endpoint was ignored
@@ -12,6 +61,11 @@
 	- added getEndpoint method on jsPlumb - retrieves Endpoint by UUID.
 	- added ability to connect two endpoints by their UUID
 	- improved the jsPlumb.detach method to support the same sorts of arguments as jsPlumb.connect
+	- added 'dragAllowedWhenFull' to options of Endpoint, and also as setDragAllowedWhenFull method.
+	- issue 13 - maxConnections doesnt check target connections
+	- issue 11 - add getter function for EndpointsByElement				
+	- issue 15 - maxConnections value of -1 doesnt support infinite connections
+	- issue 16 - pipe from endpoint to endpoint
 
 * 1.2.1
 
