@@ -1152,8 +1152,7 @@
 			this.getId = function() {
 				return id;
 			};
-			self.anchor = jsPlumb.makeAnchor(params.anchor)
-					|| jsPlumb.makeAnchor("TopCenter");
+			self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : jsPlumb.makeAnchor("TopCenter");
 			var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 			var _style = params.style
 					|| _currentInstance.Defaults.EndpointStyle
@@ -1949,6 +1948,48 @@
 
 			return jpc;
 		};
+		
+		/*
+		 Function: deleteEndpoint
+		 
+		 	deletes an endpoint and removes all connections it has (which removes the connections from the other endpoints involved too)
+		  
+		 	You can call this with either a string uuid, or an Endpoint
+		  
+		 */
+		this.deleteEndpoint = function(object) {
+			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
+			if (endpoint) {
+				var uuid = endpoint.getUuid();
+				if (uuid) endpointsByUUID[uuid] = null;				
+				endpoint.detachAll();				
+				_removeElement(endpoint.canvas, endpoint.container);
+				delete endpoint;								
+			}									
+		};
+		
+		/*
+		 * Function: deleteEveryEndpoint
+		 *  
+		 * Deletes every Endpoint in this instance
+		 * of jsPlumb. Use this instead of removeEveryEndpoint now.  
+		 * 
+		 * Returns: void 
+		 */
+		this.deleteEveryEndpoint = function() {
+			for ( var id in endpointsByElement) {
+				var endpoints = endpointsByElement[id];
+				if (endpoints && endpoints.length) {
+					for ( var i = 0; i < endpoints.length; i++) {
+						_currentInstance.deleteEndpoint(endpoints[i]);
+					}
+				}
+			}
+			delete endpointsByElement;
+			endpointsByElement = {};
+			delete endpointsByUUID;
+			endpointsByUUID = {};
+		};
 
 		var fireDetachEvent = function(jpc) {
 			_currentInstance.fireUpdate("jsPlumbConnectionDetached", {
@@ -2361,6 +2402,8 @@
 		 * Function: removeEveryEndpoint Removes every Endpoint in this instance
 		 * of jsPlumb. Returns: void See Also: <removeAllEndpoints>
 		 * <removeEndpoint>
+		 * 
+		 * @deprecated use deleteEveryEndpoint instead
 		 */
 		this.removeEveryEndpoint = function() {
 			for ( var id in endpointsByElement) {
