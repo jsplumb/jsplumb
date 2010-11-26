@@ -405,7 +405,74 @@ test("getting an Endpoint by uuid", function() {
 	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1, uuid:uuid});
 	var e = jsPlumb.getEndpoint(uuid);
 	equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+});
 
+test("deleting an Endpoint by uuid, simple case", function() {
+	var uuid = "14785937583175927504313";
+	var d16 = _addDiv("d16");
+	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1, uuid:uuid});
+	var e = jsPlumb.getEndpoint(uuid);
+	equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+	jsPlumb.deleteEndpoint(uuid);
+	var f = jsPlumb.getEndpoint(uuid);
+	equals(f, null, "endpoint has been deleted");
+});
+
+test("deleting an Endpoint by uuid, connections too", function() {
+	var uuid = "14785937583175927504313";
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1, uuid:uuid});
+	var e17 = $("#d17").addEndpoint({isSource:true,maxConnections:-1});
+	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+	equals(e16.connections.length, 1, "e16 has one connection");
+	equals(e17.connections.length, 1, "e17 has one connection");
+	
+	jsPlumb.deleteEndpoint(uuid);
+	var f = jsPlumb.getEndpoint(uuid);
+	equals(f, null, "endpoint has been deleted");
+	equals(e16.connections.length, 0, "e16 has no connections");
+	equals(e17.connections.length, 0, "e17 has no connections");	
+});
+
+test("deleting an Endpoint by reference, simple case", function() {
+	var uuid = "14785937583175927504313";
+	var d16 = _addDiv("d16");
+	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1, uuid:uuid});
+	var e = jsPlumb.getEndpoint(uuid);
+	equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+	jsPlumb.deleteEndpoint(e16);
+	var f = jsPlumb.getEndpoint(uuid);
+	equals(f, null, "endpoint has been deleted");
+});
+
+test("deleting an Endpoint by reference, connections too", function() {
+	var uuid = "14785937583175927504313";
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1, uuid:uuid});
+	var e17 = $("#d17").addEndpoint({isSource:true,maxConnections:-1});
+	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+	equals(e16.connections.length, 1, "e16 has one connection");
+	equals(e17.connections.length, 1, "e17 has one connection");
+	
+	jsPlumb.deleteEndpoint(e16);
+	var f = jsPlumb.getEndpoint(uuid);
+	equals(f, null, "endpoint has been deleted");
+	equals(e16.connections.length, 0, "e16 has no connections");
+	equals(e17.connections.length, 0, "e17 has no connections");	
+});
+
+test("deleting every Endpoint ", function() {
+	var uuid = "14785937583175927504313";
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1, uuid:uuid});
+	var e17 = $("#d17").addEndpoint({isSource:true,maxConnections:-1});
+	var e = jsPlumb.getEndpoint(uuid);
+	equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+	jsPlumb.deleteEveryEndpoint();
+	var f = jsPlumb.getEndpoint(uuid);
+	equals(f, null, "endpoint e16 has been deleted");
+	var g = jsPlumb.getEndpoint(e17);
+	equals(g, null, "endpoint e17 has been deleted");
 });
 
 test("connecting two Endpoints (that have been already added) by UUID", function() {
