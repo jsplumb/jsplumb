@@ -1746,7 +1746,7 @@ placed on top of the element it is connected to.
 	anchors:["BottomRight","TopLeft"],
 	paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'},
 	endpointStyle:{width:40, height:40},
-	endpoint:new jsPlumb.Endpoints.Rectangle(),
+	endpoint:"Rectangle",
 	connector:new jsPlumb.Connectors.Straight()
 });</pre>
 					</div>
@@ -1806,27 +1806,28 @@ placed on top of the element it is connected to.
 						<pre>jsPlumb.detachEverything();</pre>
 					</div>
 				</li>
-				<li>Remove the given Endpoint from element "window1" 
+				<li>Remove the given Endpoint from element "window1", deleting its Connections. 
 					<div class="code">
 						<pre>jsPlumb.removeEndpoint("window1", someEndpoint);</pre>
 					</div>
 				</li>
-				<li>Remove all Endpoints for the element 'window1'
+				<li>Remove all Endpoints for the element 'window1', deleting their Connections.
 					<div class="code">
 						<pre>jsPlumb.removeAllEndpoints("window1");</pre>
 					</div>
 				</li>	
-				<li>Removes every Endpoint managed by this instance of jsPlumb 
+				<li>Removes every Endpoint managed by this instance of jsPlumb, deleting all Connections.
+				This is the same as jsPlumb.reset(), effectively, but it does not clear out the event listeners list. 
 					<div class="code">
 						<pre>jsPlumb.removeEveryEndpoint();</pre>
 					</div>
 				</li>
-				<li>Clears this jsPlumb instance's cache of elements by id. You should call this if you remove elements from the DOM and then reattach them.  
+				<li>Deletes the given Endpoint and all its Connections. 
 					<div class="code">
-						<pre>jsPlumb.clearCache();</pre>
+						<pre>jsPlumb.deleteEndpoint(endpoint);</pre>
 					</div>
 				</li>
-				<li>Removes every endpoint, detaches every connection, and clears the element cache.  Returns jsPlumb instance to its initial state.  
+				<li>Removes every endpoint, detaches every connection, and clears the event listeners list.  Returns jsPlumb instance to its initial state.  
 					<div class="code">
 						<pre>jsPlumb.reset();</pre>
 					</div>
@@ -1942,7 +1943,7 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 <pre>var endpointOptions = { 
 	isSource:true, 
 	isTarget:true,
-	connector : new jsPlumb.Connectors.StraightLine(),
+	connector : "StraightLine",
 	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
 	scope:"blueline",
 	dragAllowedWhenFull:false	 
