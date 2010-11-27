@@ -1230,8 +1230,9 @@
 			 */
 			this.detachFromConnection = function(connection) {
 				var idx = _findIndex(self.connections, connection);
-				if (idx >= 0)					
+				if (idx >= 0) {
 					self.connections.splice(idx, 1);
+				}
 			};
 
 			/**
@@ -1421,13 +1422,9 @@
 					var nE = _getElementObject(n);
 					_appendElement(n, self.container); //
 					// create and assign an id, and initialize the offset.
-					// TODO can't this be replaced with a _getId call?
-					var id = _timestamp();
-					_setAttribute(nE, "id", id);
+					var id = _getId(nE);
 					_updateOffset( { elId : id });
-					// store the id of the dragging div and the source element.
-					// the drop function
-					// will pick these up.
+					// store the id of the dragging div and the source element. the drop function will pick these up.
 					_setAttribute(_getElementObject(self.canvas), "dragId", id);
 					_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
 					// create a floating anchor
@@ -1468,10 +1465,8 @@
 						existingJpc = true;
 						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;
 						jpc.floatingAnchorIndex = anchorIdx;
-						// probably we should remove the connection? and add it
-						// back if the user
-						// does not drop it somewhere proper.
-						self.removeConnection(jpc);
+						// detach from the connection while dragging is occurring.
+						self.detachFromConnection(jpc);
 						if (anchorIdx == 0) {
 							existingJpcParams = [ jpc.source, jpc.sourceId ];
 							jpc.source = _getElementObject(n);
@@ -1552,11 +1547,12 @@
 									jpc.suspendedEndpoint.addConnection(jpc);
 									jsPlumb.repaint(existingJpcParams[1]);
 								} else {
-									jpc.endpoints[0].removeConnection(jpc);
-									jpc.endpoints[1].removeConnection(jpc);
+									// TODO this looks suspiciously like an Endpoint.detach(..) call to me.
+									// check this.
+									jpc.endpoints[0].detachFromConnection(jpc);
+									jpc.endpoints[1].detachFromConnection(jpc);
 									_removeElement(jpc.canvas, self.container);
-									_removeFromList(connectionsByScope,
-											jpc.scope, jpc);
+									_removeFromList(connectionsByScope, jpc.scope, jpc);
 									_currentInstance.fireUpdate("jsPlumbConnectionDetached", {
 										source : jpc.source,
 										target : jpc.target,
@@ -1565,11 +1561,14 @@
 										sourceEndpoint : jpc.endpoints[0],
 										targetEndpoint : jpc.endpoints[1]
 									});
+									
+									// TODO - delete floating endpoint?
 								}
 							} else {
-								//_removeElement(jpc.canvas, self.container);
-								//self.detachFromConnection(jpc);  // detachFromConnection leaves the connection alive.
-								self.detach(jpc);  
+								// TODO this looks suspiciously like an Endpoint.detach call too.
+								// i wonder if this one should post an event though.  maybe this is good like this.
+								_removeElement(jpc.canvas, self.container);
+								self.detachFromConnection(jpc);  
 							}
 						}
 						self.anchor.locked = false;												
@@ -1615,26 +1614,23 @@
 									jpc.targetId = _elementId;
 								}
 								// todo test that the target is not full.
-						// remove this jpc from the current endpoint
-						//jpc.endpoints[idx].removeConnection(jpc);
-						jpc.endpoints[idx].detachFromConnection(jpc);
-						if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
-						jpc.endpoints[idx] = self;
-						self.addConnection(jpc);
-						// add the jpc to the other endpoint too.
-						jpc.endpoints[oidx].addConnection(jpc);
-						_addToList(connectionsByScope, jpc.scope, jpc);
-						_initDraggableIfNecessary(_element, params.draggable, {});
-						jsPlumb.repaint(elId);
-						_currentInstance.fireUpdate("jsPlumbConnection", {
-							source : jpc.source,
-							target : jpc.target,
-							sourceId : jpc.sourceId,
-							targetId : jpc.targetId,
-							sourceEndpoint : jpc.endpoints[0],
-							targetEndpoint : jpc.endpoints[1]
-						});
-					}
+								// remove this jpc from the current endpoint
+								jpc.endpoints[idx].detachFromConnection(jpc);
+								if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
+								jpc.endpoints[idx] = self;
+								self.addConnection(jpc);
+								_addToList(connectionsByScope, jpc.scope, jpc);
+								_initDraggableIfNecessary(_element, params.draggable, {});
+								jsPlumb.repaint(elId);
+								_currentInstance.fireUpdate("jsPlumbConnection", {
+									source : jpc.source,
+									target : jpc.target,
+									sourceId : jpc.sourceId,
+									targetId : jpc.targetId,
+									sourceEndpoint : jpc.endpoints[0],
+									targetEndpoint : jpc.endpoints[1]
+								});
+							}
 					// else there must be some cleanup required? or not?
 
 					delete floatingConnections[id];
