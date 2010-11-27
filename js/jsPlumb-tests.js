@@ -570,6 +570,24 @@ test("Endpoint.detachFrom", function() {
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 0);  
 });
 
+test("Endpoint.detachFromConnection", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var e16 = jsPlumb.addEndpoint(d16, {isSource:true});
+	ok(e16.anchor, 'endpoint 16 has an anchor');
+	var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
+	var conn = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+	assertConnectionCount(e16, 1);
+	assertConnectionCount(e17, 1);
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	e16.detachFromConnection(conn);	
+	assertContextSize(3);				// all canvases should remain; the connection was not removed.
+	// but endpoint e16 should have no connections now.
+	assertConnectionCount(e16, 0);
+	assertConnectionCount(e17, 1);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);  
+});
+
 test("Endpoint.detachAll", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); d18 = _addDiv("d18");
 	var e16 = $("#d16").addEndpoint({isSource:true,maxConnections:-1});
