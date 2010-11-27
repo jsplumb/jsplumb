@@ -1224,6 +1224,15 @@
 					self.detach(c[i]);
 				}
 			};
+			
+			/**
+			 * detach this Endpoint from the Connection, but leave the Connection alive. used when dragging.
+			 */
+			this.detachFromConnection = function(connection) {
+				var idx = _findIndex(self.connections, connection);
+				if (idx >= 0)					
+					self.connections.splice(idx, 1);
+			};
 
 			/**
 			 * returns the DOM element this Endpoint is attached to.
@@ -1558,8 +1567,9 @@
 									});
 								}
 							} else {
-								_removeElement(jpc.canvas, self.container);
-								self.removeConnection(jpc);
+								//_removeElement(jpc.canvas, self.container);
+								//self.detachFromConnection(jpc);  // detachFromConnection leaves the connection alive.
+								self.detach(jpc);  
 							}
 						}
 						self.anchor.locked = false;												
@@ -1589,15 +1599,11 @@
 				var outEvent = jsPlumb.CurrentLibrary.dragEvents['out'];
 				dropOptions[dropEvent] = _wrap(dropOptions[dropEvent],
 						function() {
-							var draggable = jsPlumb.CurrentLibrary
-									.getDragObject(arguments);
-							var id = _getAttribute(
-									_getElementObject(draggable), "dragId");
-							var elId = _getAttribute(
-									_getElementObject(draggable), "elId");
+							var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+							var id = _getAttribute(_getElementObject(draggable), "dragId");
+							var elId = _getAttribute(_getElementObject(draggable), "elId");
 							var jpc = floatingConnections[id];
-							var idx = jpc.floatingAnchorIndex == null ? 1
-									: jpc.floatingAnchorIndex;
+							var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 							var oidx = idx == 0 ? 1 : 0;
 							if (!self.isFull() && !(idx == 0 && !self.isSource)
 									&& !(idx == 1 && !self.isTarget)) {
@@ -1610,17 +1616,15 @@
 								}
 								// todo test that the target is not full.
 						// remove this jpc from the current endpoint
-						jpc.endpoints[idx].removeConnection(jpc);
-						if (jpc.suspendedEndpoint)
-							jpc.suspendedEndpoint.removeConnection(jpc);
+						//jpc.endpoints[idx].removeConnection(jpc);
+						jpc.endpoints[idx].detachFromConnection(jpc);
+						if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
 						jpc.endpoints[idx] = self;
 						self.addConnection(jpc);
 						// add the jpc to the other endpoint too.
 						jpc.endpoints[oidx].addConnection(jpc);
-
 						_addToList(connectionsByScope, jpc.scope, jpc);
-						_initDraggableIfNecessary(_element, params.draggable,
-								{});
+						_initDraggableIfNecessary(_element, params.draggable, {});
 						jsPlumb.repaint(elId);
 						_currentInstance.fireUpdate("jsPlumbConnection", {
 							source : jpc.source,
@@ -1631,7 +1635,7 @@
 							targetEndpoint : jpc.endpoints[1]
 						});
 					}
-					// else there must be some cleanup required.
+					// else there must be some cleanup required? or not?
 
 					delete floatingConnections[id];
 				});
