@@ -85,8 +85,8 @@
 			<a id="changes">Changes since version 1.2.3</a>			
 			<ul>
 				<li>major performance enhancements</li>
-				<li><strong>anchors are no longer static</strong> - important. This is an API change.  See the <a href="#anchors">Anchors</a> section.</li>
-				<li>Image overlay type</li>
+				<li><strong>anchors are no longer static</strong> - important. This is an API change and affects calls to jsPlumb.addEndpoint as well as jsPlumb.connect.</li>
+				<!-- li>added Image overlay type</li-->
 				<li>added support for multi line labels</li>
 				<li>added connectorOverlays option to Endpoint</li>
 				<li>added connections to getConnections method output</li>											
@@ -99,6 +99,7 @@
 			These issues have been fixed:
 			</p>    
 			<ul>
+				<li>issue 34 - detach* and remove*Endpoint functions are not consistent </li>
 				<li>issue 35 - detach event contained wrong source endpoint</li>
 				<li>issue 42 - jsPlumb_dragged class not removed from element after drag</li>
 				<li>issue 43 - performance problems causing connections and endpoints to detach when dragging</li>
@@ -143,8 +144,7 @@
 				<li>Create an Endpoint for each of these Anchors, and assign them.</li>
 				<li>Join the two Endpoints with a Connector.</li>
 			</ol>			
-			Depending on whether or not you wish to be able drag new Connections, step 2 can be
-			omitted.
+			Depending on whether or not you wish to be able drag new Connections, step 2 can be omitted.
 			<a id="simpleConnections"><h4>Simple Connections</h4></a>
 			This section discusses Connections in which you do not need to support drag and drop.  <br/><br/>The most simple connection you can make looks like this:
 			<div class="code">
@@ -184,7 +184,8 @@ $("#element1").plumb({target:'element2'});
 			<li>connector - the type of Connector to use when dragging a new connection from this Endpoint. Optional.</li>
 			<li>connectorStyle - the Connector's appearance (see above).</li>
 			<li>dragOptions - options to pass to the supporting library's drag engine.</li>
-			<li>dropOptions - options to pass to the supporting library's drop engine.</li>			
+			<li>dropOptions - options to pass to the supporting library's drop engine.</li>
+			<li>connectorOverlays - a list of overlays that should be present on all Connections attached to this Endpoint.</li>			
 		</ul>  
 		
 		Here's a simple example of how to create an Endpoint:
@@ -220,6 +221,22 @@ jsPlumb.addEndpoint('element2', jsPlumb.extend({anchor:"TopCenter", exampleGreyE
 </div>
 Note: jsPlumb's 'extend' function is just a wrapper around the supporting library's implementation; you don't need to use
 it if you know the supporting library's corresponding method.
+<p>
+Here's an example of specifying that you want an Arrow overlay halfway along any Connection dragged from this Endpoint:
+<div class="code">
+<pre>
+var exampleGreyEndpointOptions = {
+	endpoint:new jsPlumb.Endpoints.Rectangle(),
+	style:{ width:25, height:21, fillStyle:'#666' },
+	isSource:true,
+	connectorStyle : { strokeStyle:"#666" },
+	isTarget:true,
+	connectorOverlays: [ new jsPlumb.Overlays.Arrow({location:0.5}) ]
+};
+</pre>
+</div>
+</p>
+
 
 <a id="dragOptions"><h4>Drag Options</h4></a>
 	These are options that will be passed through to the supporting library's drag API.  jsPlumb passes everything you supply here through, inserting
@@ -245,9 +262,11 @@ it if you know the supporting library's corresponding method.
 	<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable" target="_blank">jQuery</a> or <a href="http://mootools.net/docs/more/Drag/Drag.Move" target="_blank">MooTools</a> docs.	
 	</p>
 	<p><strong>NOTE: there is an issue in Chrome that affects the 'cursor' argument to drag options in jQuery. See these links:</strong>
-<a href="http://forum.jquery.com/topic/draggable-cursor-option-does-not-work" target="_blank">http://forum.jquery.com/topic/draggable-cursor-option-does-not-work</a>
+	<p>
+<a href="http://forum.jquery.com/topic/draggable-cursor-option-does-not-work" target="_blank">http://forum.jquery.com/topic/draggable-cursor-option-does-not-work</a><br/>
 <a href="http://forum.jquery.com/topic/chrome-text-select-cursor-on-drag" target="_blank">http://forum.jquery.com/topic/chrome-text-select-cursor-on-drag</a>
-	
+</p>
+You should put this code at the top of your JS to avoid it:	
 <div class="code">
 <pre>document.onselectstart = function () { return false; };</pre>
 </div>
@@ -686,8 +705,11 @@ which is the default.
 			jsPlumb.detach method.  It has several similarities with the connect method discussed above.
 			 </p>
 			 <p>These are the options you can specify on a call to jsPlumb.detach. You don't need to supply them all: jsPlumb needs 
-			 either [source,target] or [sourceEndpoint, targetEndpoint] or uuids. </p>
+			 either [connection], [source,target] or [sourceEndpoint, targetEndpoint] or uuids. </p>
 			<ul>
+				<li><strong>connection</strong>
+				<p>This is a Connection object such as would have been returned from jsPlumb.connect({...})</p>
+				</li>
 				<li><strong>source</strong>
 					<p>Identifies the source element to find and detach connections from.  It may be a string representing the element's id, or a selector for the element.</p>
 				</li>
@@ -778,7 +800,62 @@ jsPlumb.Defaults.EndpointStyles = [{ fillStyle:'#225588' }, { fillStyle:'#558822
 			<a id="anchors"><h3>Anchors</h3></a>			
 			<p>An Anchor models the notion of where on an element a plumb line should connect.  jsPlumb has nine default anchor locations you
 			can use to specify where the plumb lines connect to elements: these are the four corners of an element,
-			the center of the element, and the midpoint of each edge of the element.</p>
+			the center of the element, and the midpoint of each edge of the element.			
+			</p>
+			<p><strong>Important:</strong>prior to version 1.2.4, Anchors retained no state and could therefore be treated as static.  Performance
+			enhancements in 1.2.4 have meant that Anchors can no longer be static, ie. a new Anchor must be created whenever you attach an 
+			Endpoint to some element.  This change impacts two well-used methods in jsPlumb:
+			<h4>jsPlumb.addEndpoint</h4>
+			This is how you might have specified an Endpoint's Anchor prior to 1.2.3:
+<div class="code">
+<pre>
+var endpointOptions = { anchor:new jsPlumb.Anchors.TopCenter(), ... });
+jsPlumb.addEndpoint("someDiv", endpointOptions);
+jsPlumb.addEndpoint("someOtherDiv", endpointOptions);
+</pre>
+</div>			
+Although the same endpointOptions were used for both elements, there was no shared state, so this was safe.  The equivalent in 1.2.4 is:
+<div class="code">
+<pre>
+var endpointOptions = { anchor:"TopCenter", ... });
+jsPlumb.addEndpoint("someDiv", endpointOptions);
+jsPlumb.addEndpoint("someOtherDiv", endpointOptions);
+</pre>
+</div>			
+ie. instead of creating one, you name the Anchor now, where the name refers to a known entry in jsPlumb.Anchors. Aside from helping with caching, this
+syntax is a lot nicer to write.  
+			</p>
+<p>
+For Anchors you want to specify using their coordinates, you just provide a list.  What used to be:
+<div class="code">
+<pre>
+var endpointOptions = { anchor:jsPlumb.makeAnchor(0.5, 0, 0, -1), ... });
+</pre>
+</div>
+becomes:
+<div class="code">
+<pre>
+var endpointOptions = { anchor:[ 0.5, 0, 0, -1 ], ... });
+</pre>
+</div>									
+			</p>
+			
+<h4>jsPlumb.connect</h4>
+
+The same syntax change applies to jsPlumb.connect.  What would have been this in 1.2.3:
+<div class="code">
+<pre>
+jsPlumb.connect({source:"e1", target:"e2", anchors:[new jsPlumb.Anchors.TopCenter(), new jsPlumb.Anchors.BottomCenter() ] }); 
+</pre>
+</div>
+will now be:
+<div class="code">
+<pre>
+jsPlumb.connect({source:"e1", target:"e2", anchors:["TopCenter", "BottomCenter" ] }); 
+</pre>
+</div>						
+	
+<h3>Custom Anchors</h3>		
 			
 			<p>You can provide your own anchor locations if you need to.  jsPlumb supports two ways of doing this:
 				<ul>
@@ -824,23 +901,25 @@ var myAnchor = jsPlumb.makeAnchor( 0.333, 0.5, 0, 1 );
 			To provide your own anchor location you can either set it in amongst the defaults:
 			<div class="code">
 <pre>
-jsPlumb.Anchors.MyAnchor = {
-	compute : function(xy, wh, txy, twh) { 	// do some maths and return an [x,y] location }
-	orientation : [ox, oy]       	// each value can be one of -1, 0 or 1. 0 means dont care,
+jsPlumb.Anchors.MyAnchor = function() {
+	this.compute = function(xy, wh, txy, twh) { 	// do some maths and return an [x,y] location }
+	this. orientation = [ox, oy];       	// each value can be one of -1, 0 or 1. 0 means dont care,
 								 	// 1 or -1 means go in this direction in this plane.
 };
+
+jsPlumb.connect({source:"someWindow", target:"otherWindow", anchors:["MyAnchor", "MyAnchor"]});
 </pre>
 			</div>
 			or you can create it elsewhere and reference it in your calls:
 			<div class="code">
 <pre>
-var myAnchor =  {
-	compute : function(xy, wh, txy, twh) {  	// do some maths and return an [x,y] location }
-	orientation : [ox, oy]       	// each value can be one of -1, 0 or 1. 0 means dont care,
+var MyAnchor =  function() {
+	this.compute = function(xy, wh, txy, twh) {  	// do some maths and return an [x,y] location }
+	this.orientation = [ox, oy];       	// each value can be one of -1, 0 or 1. 0 means dont care,
 									// 1 or -1 means go in this direction in this plane.
 };
 
-jsPlumb.connect({source:"someWindow", target:"otherWindow", anchors:[myAnchor, myAnchor]});
+jsPlumb.connect({source:"someWindow", target:"otherWindow", anchors:[new MyAnchor(), new MyAnchor()]});
 </pre>
 			</div>
 			The arguments to the compute function are:
@@ -876,7 +955,17 @@ var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 
 			   				
 var dynamicAnchor = jsPlumb.makeDynamicAnchor(anchors);
 </pre>
+</div>
+or from 1.2.4 onwards you can use a shorthand syntax:
+<div class="code">
+<pre>
+var anchors = [ [0.2, 0, 0, -1], [1, 0.2, 1, 0], 
+			   [0.8, 1, 0, 1], [0, 0.8, -1, 0] ];
+			   				
+var dynamicAnchor = jsPlumb.makeDynamicAnchor(anchors);
+</pre>
 </div>	
+<br/><br/>	
 You can then use that anchor as you would any other.  But note that you <strong>cannot share</strong> dynamic anchors between connections: dynamic anchors maintain 
 state about the connection they belong to, so if you share one amongst two or more connections you will get unexpected results.
 <h4>Default Dynamic Anchor</h4>
@@ -918,7 +1007,7 @@ endpoint jumps down to a location that is closer to window 3.</p>
 				</p>
 			<p>
 			<h4><a id="connectorOverlays">Connectors and Overlays</a></h4>
-			The section below this discusses Overlays, a new concept introduced in jsPlumb 1.2.3 that allows you to decorate Connectors with
+			The section below this discusses Overlays, which allow you to decorate Connectors with
 			things such as labels or arrows or whatever else you like. Overlays can only work with Connectors that implement a few helper functions.
 			<h4>The concept of <strong>location</strong></h4>
 			Before discussing the helper functions you first must be across the concept of 'location' as used by this mechanism.  The <em>location</em>
@@ -969,20 +1058,25 @@ this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWi
 			<div class="code">
 				<pre>jsPlumb.connect({source:'someWindow', target:'otherWindow', connector:new jsPlumb.Connectors.Straight()});</pre>
 			</div>
+			note that you can use shorthand for connectors if you don't need to specify parameters to it:
+			<div class="code">
+				<pre>jsPlumb.connect({source:'someWindow', target:'otherWindow', connector:"Straight"});</pre>
+			</div>
+			This works in the same way as specifying Anchors as string does.
 		</div>
 		
 		<div class="section">
 			<a id="overlays"><h3>Overlays</h3></a>
 			<p>
-			Overlays are UI elements that are painted onto connections, such as images, labels or arrows.
-			jsPlumb comes with five defaults:
+			Overlays are UI elements that are painted onto connections, such as labels or arrows.
+			jsPlumb comes with four defaults:
 			<ul>
 				<li>Arrow - a configurable arrow that is painted at some point along the connector.  You can control the length and width of the Arrow,
 				as well as the 'foldback' point - a point the tail points fold back into.</li>
 				<li>Label - a configurable label that is painted at some point along the connector</li>
 				<li>PlainArrow - an Arrow shaped as a triangle, with no foldback.</li>
 				<li>Diamond - as the name suggests, a diamond.</li>
-				<li>Image - an image overlay.</li>
+				<!-- li>Image - an image overlay.</li-->
 			</ul> 
 			The last two are actually just configured instances of the generic Arrow overlay (see examples below). 
 			</p>
@@ -1135,7 +1229,8 @@ This creates an Image endpoint with the image at the given url.  You do not need
 This method is <em>deprecated</em>; it has been renamed to <strong>detach</strong>
 </li>
 <li><p>detach</p>
-Removes a Connection from the Endpoint.  The Connection will have been returned from a call to <strong>jsPlumb.connect</strong>.  
+Removes a Connection from the Endpoint.  The Connection will have been returned from a call to <strong>jsPlumb.connect</strong>.  Detaching the
+Connection has the effect of removing the Connection from the display.  
 <div class="code">
 <pre>
 var c = myEndpoint.addConnection({...});
@@ -1149,7 +1244,7 @@ myEndpoint.detach(c);
 </div>
 </li>
 <li><p>detachAll</p>
-Removes all Connections from the Endpoint.  
+Removes all Connections from the Endpoint (and from the display).  
 <div class="code">
 <pre>
 var c = myEndpoint.addConnection({...});
@@ -1164,7 +1259,7 @@ myEndpoint.detachAll();
 </div>
 </li>
 <li><p>detachFrom</p>
-Detaches all Connections from this Endpoint to some other Endpoint.
+Detaches all Connections from this Endpoint to some other Endpoint (from the display too).
 <div class="code">
 <pre>
 var c = myEndpoint.addConnection({...});
@@ -1346,7 +1441,7 @@ jsPlumb.connect({
 </div>
 The first entry in the gradient will be the one that is on the Connector end of the Endpoint.  You can of course have as many color stops as
 you want in this gradient, just like with Connector gradients.
-	<h5>Applying the gradient in Endpoints</h5>
+	<h4>Applying the gradient in Endpoints</h4>
 	Only the Dot and Rectangle endpoints honour the presence of a gradient (and, remember, not in IE). The Image endpoint of course ignores a gradient
 	as it does no painting of its own.
 	<p>The type of gradient you will see depends on the Endpoint type:
@@ -1367,7 +1462,7 @@ jsPlumb.connect({
     	lineWidth:10,
     	strokeStyle:w34Stroke
     },
-    anchors:[ jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle ],
+    anchors:[ "RightMiddle", "LeftMiddle" ],
     endpointStyle:{
     	gradient : {
     		stops:[ [0, w34Stroke], [1, w34HlStroke] ],
@@ -1392,7 +1487,7 @@ jsPlumb.connect({
     	lineWidth:10,
     	strokeStyle:w34Stroke
     },
-	anchors:[ jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.LeftMiddle ],
+	anchors:[ "RightMiddle", "LeftMiddle" ],
 	endpointStyle:{
 		gradient : {
 			stops:[ [0, w34Stroke], [1, w34HlStroke] ],
@@ -1404,7 +1499,7 @@ jsPlumb.connect({
 });
 </pre>
 </div>
-This will give roughly the same output as the example above (the percentages are not entirely exact).
+This will give roughly the same output as the example above (the percentages are not entirely exact).<br/>
 			</li>
 			<li>Rectangle - renders a linear endpoint, with color stop 0 closest to the end of the Connector</li>
 		</ul>
@@ -1439,14 +1534,15 @@ The arguments are as follows:
 			To register an event listener you need to supply the event name and a listener object:
 <div class="code">
 <pre>
-jsPlumb.addListener("jsPlumbConnection", someListener); 
+jsPlumb.bind("jsPlumbConnection", someListener); 
 </pre>
 </div>
+(you can also use 'addListener', but it has been deprecated in 1.2.4. It does the same thing as bind.<br/><br/>
 The listener object - in this case 'someListener' - must have a method with the same name as the event. For example, to define
 a listener inline, you could do a call like this:
 <div class="code">
 <pre>
-jsPlumb.addListener("jsPlumbConnection", {
+jsPlumb.bind("jsPlumbConnection", {
 	jsPlumbConnection:function(data) {
 		alert("a connection was made from " + data.sourceId + " to " + data.targetId);
 	}
@@ -1456,7 +1552,7 @@ jsPlumb.addListener("jsPlumbConnection", {
 It is also possible to register a single listener for multiple event types - just pass in the event types as an array of Strings:
 <div class="code">
 <pre>
-jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
+jsPlumb.bind(["jsPlumbConnection","jsPlumbConnectionDetached"], {
 	jsPlumbConnection:function(data) {
 		alert("a connection was made from " + data.sourceId + " to " + data.targetId);
 	},
@@ -1483,13 +1579,12 @@ jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
 				<tr><th>component</th><th>css class</th></tr>
 				<tr><td>connector</td><td>_jsPlumb_connector</td></tr>
 				<tr><td>endpoint</td><td>_jsPlumb_endpoint</td></tr>
-				<tr><td>image overlays</td><td>_jsPlumb_overlay</td></tr>
+				<!-- tr><td>image overlays</td><td>_jsPlumb_overlay</td></tr-->
 			</table>
 			You would typically use these to establish appropriate z-indices for your UI.
 		</div>
 
-		
-		
+				
 				<div class="section">
 			<a id="examples"><h3>Basic Examples</h3></a>
 			These examples are all for creating a static interface, ie. one in which you cannot
@@ -1547,7 +1642,7 @@ jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
 	target:'window3',
 	paintStyle:{lineWidth:8, strokeStyle:'rgb(189,11,11)'},
 	anchors:["BottomCenter", "TopCenter"],
-	endpoint:new jsPlumb.Endpoints.Rectangle()
+	endpoint:"Rectangle"
 });</pre>
 					</div>
 				</li>
@@ -1616,7 +1711,7 @@ placed on top of the element it is connected to.
 	anchors:["BottomRight","TopLeft"],
 	paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'},
 	endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}),
-	connector:new jsPlumb.Connectors.Straight()
+	connector:"Straight"
 });</pre>
 </div></li>
 
