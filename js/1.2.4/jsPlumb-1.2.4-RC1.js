@@ -765,6 +765,7 @@
 							|| _currentInstance.Defaults.Endpoint
 							|| jsPlumb.Defaults.Endpoint
 							|| new jsPlumb.Endpoints.Dot();
+					if (ep.constructor == String) ep = new jsPlumb.Endpoints[ep]();
 					if (!params.endpointStyles) params.endpointStyles = [ null, null ];
 					var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor) || _makeAnchor("BottomCenter");
@@ -783,6 +784,7 @@
 			if (!this.scope) this.scope = this.endpoints[0].scope;
 
 			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
+			if (this.connector.constructor == String) this.connector = new jsPlumb.Connectors[this.connector](); // lets you use a string as shorthand.
 			this.paintStyle = this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
 			this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
 
@@ -957,6 +959,8 @@
 			this.getId = function() { return id; };
 			self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : jsPlumb.makeAnchor("TopCenter");
 			var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
+			if (_endpoint.constuctor == String) _endpoint = new jsPlumb.Endpoints[_endpoint]();
+			self.endpoint = _endpoint;
 			var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			this.connectorStyle = params.connectorStyle;
 			this.connectorOverlays = params.connectorOverlays;
