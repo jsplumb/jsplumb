@@ -32,15 +32,7 @@
 					for ( var i = 0; i < event.length; i++)
 						doOne(event[i], listener);
 				} else
-					doOne(event, listener);
-				
-				
-				/*var l = _listeners[event];
-				if (!l) {
-					l = [];
-					_listeners[event] = l;
-				}
-				l.push(listener);*/
+					doOne(event, listener);				
 			};
 			this.fireUpdate = function(event, value) {
 				if (_listeners[event]) {
@@ -53,6 +45,10 @@
 						}
 					}
 				}
+			};
+			this.clearListeners = function() {
+				delete _listeners
+				_listeners = {};
 			};
 		};
 
@@ -1037,17 +1033,12 @@
 					}); // update the target if this is a forced repaint.
 						// otherwise, only the source has been moved.
 
-					var myOffset = offsets[sId];
-					var otherOffset = offsets[tId];
-					var myWH = sizes[sId];
-					var otherWH = sizes[tId];
+					var myOffset = offsets[sId], otherOffset = offsets[tId], myWH = sizes[sId], otherWH = sizes[tId];
 
 					var ctx = canvas.getContext('2d');
-					var sAnchorP = this.endpoints[sIdx].anchor
-							.getCurrentLocation();
+					var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();
 					var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-					var tAnchorP = this.endpoints[tIdx].anchor
-							.getCurrentLocation();
+					var tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
 					var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
 
 					// paint overlays
@@ -1190,16 +1181,21 @@
 			};
 			this.addConnection = function(connection) {
 				self.connections.push(connection);
-			};
-			this.detach = function(connection) {
+			};			
+			this.detach = function(connection, ignoreTarget) {
 				var idx = _findIndex(self.connections, connection);
-				if (idx >= 0) {
-					var t = connection.endpoints[0] == self ? connection.endpoints[1]
-							: connection.endpoints[0];
+				if (idx >= 0) {					
 					self.connections.splice(idx, 1);
-					t.detach(connection);
+					// this avoids a circular loop
+					if (!ignoreTarget) {
+						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
+						t.detach(connection, true);
+					}
 				}
-			};
+				_removeElement(connection.canvas, connection.container);
+				_removeFromList(connectionsByScope, connection.scope, connection);
+				fireDetachEvent(connection);
+			};			
 
 			/**
 			 * detaches all connections this Endpoint has
@@ -1225,7 +1221,6 @@
 					}
 				}
 				for ( var i = 0; i < c.length; i++) {
-					targetEndpoint.detach(c[i]);
 					self.detach(c[i]);
 				}
 			};
@@ -1909,14 +1904,8 @@
 			var _p = jsPlumb.extend( {}, params);
 			// test for endpoint uuids to connect
 			if (params.uuids) {
-				var _resolveByUuid = function(idx) {
-					var e = _getEndpoint(params.uuids[idx]);
-					if (!e)
-						throw ("Endpoint with UUID " + params.uuids[idx] + " not found.");
-					return e;
-				};
-				_p.sourceEndpoint = _resolveByUuid(0);
-				_p.targetEndpoint = _resolveByUuid(1);
+				_p.sourceEndpoint = _getEndpoint(params.uuids[0]);
+				_p.targetEndpoint = _getEndpoint(params.uuids[1]);
 			}
 
 			// now ensure that if we do have Endpoints already, they're not
@@ -1964,6 +1953,17 @@
 				if (uuid) endpointsByUUID[uuid] = null;				
 				endpoint.detachAll();				
 				_removeElement(endpoint.canvas, endpoint.container);
+				// remove from endpointsbyElement
+				for (var e in endpointsByElement) {
+					var endpoints = endpointsByElement[e];
+					if (endpoints) {
+						var newEndpoints = [];
+						for (var i = 0; i < endpoints.length; i++)
+							if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
+						
+						endpointsByElement[e] = newEndpoints;
+					}
+				}
 				delete endpoint;								
 			}									
 		};
@@ -2003,75 +2003,94 @@
 		};
 
 		/*
-		 * Function: detach Removes a connection. Parameters: sourceId - Id of
-		 * the first element in the connection. A String. targetId - iI of the
-		 * second element in the connection. A String. Returns: true if
-		 * successful, false if not.
+		 * Function: 
+		 *   detach Removes a connection.  takes either (source, target) (the old way, maintained for backwards compatibility), or a params
+		 *   object with various possible values.
+		 * 
+		 *  
+		 * Parameters: 
+		 *   source - id or element object of the first element in the connection. 
+		 *   target - id or element object of the second element in the connection.
+		 *   
+		 *    OR
+		 *    
+		 *   params:
+		 *     {
+		 *   
+		 *   Returns: true if successful, false if not.
 		 */
-		this.detach = function(sourceId, targetId) {
+		this.detach = function(source, target) {
 			if (arguments.length == 2) {
+				var s = _getElementObject(source), sId = _getId(s);
+				var t = _getElementObject(target), tId = _getId(t);
 				_operation(
-						sourceId,
+						sId,
 						function(jpc) {
-							if ((jpc.sourceId == sourceId && jpc.targetId == targetId)
-									|| (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+							if ((jpc.sourceId == sId && jpc.targetId == tId)
+									|| (jpc.targetId == sId && jpc.sourceId == tId)) {
 								_removeElement(jpc.canvas, jpc.container);
 								jpc.endpoints[0].removeConnection(jpc);
 								jpc.endpoints[1].removeConnection(jpc);
-								_removeFromList(connectionsByScope, jpc.scope,
-										jpc);
+								_removeFromList(connectionsByScope, jpc.scope, jpc);
 								fireDetachEvent(jpc);
-
-								return true;
 							}
 						});
 			}
 			// this is the new version of the method, taking a JS object like
 			// the connect method does.
 			else if (arguments.length == 1) {
-				var _p = jsPlumb.extend( {}, sourceId); // a backwards
-														// compatibility hack:
-														// sourceId should be
-														// thought of as
-														// 'params' in this
-														// case.
-				// test for endpoint uuids to detach
-				if (_p.uuids) {
-					_getEndpoint(_p.uuids[0]).detachFrom(
-							_getEndpoint(_p.uuids[1]));
-				} else if (_p.sourceEndpoint && _p.targetEndpoint) {
-					_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
-				} else {
-					sourceId = _getId(_p.source);
-					targetId = _getId(_p.target);
-					_operation(
-							sourceId,
-							function(jpc) {
-								if ((jpc.sourceId == sourceId && jpc.targetId == targetId)
-										|| (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-									_removeElement(jpc.canvas, jpc.container);
-									jpc.endpoints[0].removeConnection(jpc);
-									jpc.endpoints[1].removeConnection(jpc);
-									_removeFromList(connectionsByScope,
-											jpc.scope, jpc);
-									fireDetachEvent(jpc);
-									return true;
-								}
-							});
+				if (arguments[0].constructor == Connection) {
+					arguments[0].endpoints[0].detachFrom(arguments[0].endpoints[1]);
+					fireDetachEvent(arguments[0]);
 				}
-
-				// fire an event
-				/*
-				 * _currentInstance.fireUpdate("jsPlumbDetach", { source:jpc.source,
-				 * target:jpc.target, sourceId:jpc.sourceId,
-				 * targetId:jpc.targetId, sourceEndpoint:jpc.endpoints[0],
-				 * targetEndpoint:jpc.endpoints[1] });
-				 */
-				/*
-				 * // force a paint _draw(jpc.source);
-				 * 
-				 * return jpc;
-				 */
+				else if (arguments[0].connection) {
+					arguments[0].connection.endpoints[0].detachFrom(arguments[0].connection.endpoints[1]);
+					fireDetachEvent(arguments[0].connection);
+				}
+				else {
+					var _p = jsPlumb.extend( {}, source); // a backwards
+															// compatibility hack:
+															// source should be
+															// thought of as
+															// 'params' in this
+															// case.
+					// test for endpoint uuids to detach
+					if (_p.uuids) {
+						_getEndpoint(_p.uuids[0]).detachFrom(
+								_getEndpoint(_p.uuids[1]));
+					} else if (_p.sourceEndpoint && _p.targetEndpoint) {
+						_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
+					} else {
+						sourceId = _getId(_p.source);
+						targetId = _getId(_p.target);
+						_operation(
+								sourceId,
+								function(jpc) {
+									if ((jpc.sourceId == sourceId && jpc.targetId == targetId)
+											|| (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+										_removeElement(jpc.canvas, jpc.container);
+										jpc.endpoints[0].removeConnection(jpc);
+										jpc.endpoints[1].removeConnection(jpc);
+										_removeFromList(connectionsByScope,
+												jpc.scope, jpc);
+										fireDetachEvent(jpc);
+									}
+								});
+					}
+	
+					// fire an event
+					/*
+					 * _currentInstance.fireUpdate("jsPlumbDetach", { source:jpc.source,
+					 * target:jpc.target, sourceId:jpc.sourceId,
+					 * targetId:jpc.targetId, sourceEndpoint:jpc.endpoints[0],
+					 * targetEndpoint:jpc.endpoints[1] });
+					 */
+					/*
+					 * // force a paint _draw(jpc.source);
+					 * 
+					 * return jpc;
+					 */
+				}
 			}
 		};
 
@@ -2080,7 +2099,7 @@
 		 * el - either the id of the element, or a selector for the element.
 		 * Returns: void
 		 */
-		this.detachAll = function(el) {
+		this.detachAllConnections = function(el) {
 			var id = _getAttribute(el, "id");
 			var endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
@@ -2099,13 +2118,18 @@
 				}
 			}
 		};
+		
+		/**
+		 * @deprecated Use detachAllConnections instead.  this will be removed in jsPlumb 1.3.
+		 */
+		this.detachAll = this.detachAllConnections;
 
 		/*
 		 * Function: detachEverything Remove all Connections from all elements,
 		 * but leaves Endpoints in place. Returns: void See Also:
 		 * <removeEveryEndpoint>
 		 */
-		this.detachEverything = function() {
+		this.detachEveryConnection = function() {
 			for ( var id in endpointsByElement) {
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
@@ -2126,6 +2150,11 @@
 			delete connectionsByScope;
 			connectionsByScope = {};
 		};
+		
+		/**
+		 * @deprecated use detachEveryConnection instead.  this will be removed in jsPlumb 1.3.
+		 */
+		this.detachEverything = this.detachEveryConnection;
 
 		/*
 		 * Function: draggable initialises the draggability of some element or
@@ -2382,66 +2411,58 @@
 		};
 
 		/*
-		 * Function: removeAllEndpoints Removes all Endpoints associated with a
-		 * given element. Also removes all Connections associated with each
-		 * Endpoint it removes. Parameters: el - either an element id, or a
-		 * selector for an element. Returns: void See Also: <removeEndpoint>
+		 * Function: removeAllEndpoints 
+		 * Removes all Endpoints associated with a given element. Also removes all Connections associated with each Endpoint it removes.
+		 * Parameters: el - either an element id, or a selector for an element. 
+		 * Returns: void 
+		 * See Also: <removeEndpoint>
 		 */
 		this.removeAllEndpoints = function(el) {
 			var elId = _getAttribute(el, "id");
 			// first remove all Connections.
-			jsPlumb.detachAll(elId);
+			//jsPlumb.detachAll(elId);
 			var ebe = endpointsByElement[elId];
 			for ( var i in ebe) {
-				_removeElement(ebe[i].canvas, ebe[i].getElement());
+				//_removeElement(ebe[i].canvas, ebe[i].getElement());
+				_currentInstance.deleteEndpoint(ebe[i]);
 			}
 			endpointsByElement[elId] = [];
 		};
 
-		/*
-		 * Function: removeEveryEndpoint Removes every Endpoint in this instance
-		 * of jsPlumb. Returns: void See Also: <removeAllEndpoints>
-		 * <removeEndpoint>
+		/**
+		 * Function: removeEveryEndpoint 
+		 * Removes every Endpoint in this instance
+		 * of jsPlumb. 
+		 * 
+		 * Returns: void 
+		 * 
+		 * See Also: <removeAllEndpoints> <removeEndpoint>
 		 * 
 		 * @deprecated use deleteEveryEndpoint instead
 		 */
-		this.removeEveryEndpoint = function() {
-			for ( var id in endpointsByElement) {
-				var endpoints = endpointsByElement[id];
-				if (endpoints && endpoints.length) {
-					for ( var i = 0; i < endpoints.length; i++) {
-						_removeElement(endpoints[i].canvas,
-								endpoints[i].container);
-					}
-				}
-			}
-			delete endpointsByElement;
-			endpointsByElement = {};
-		};
-
-		/*
+		this.removeEveryEndpoint = this.deleteEveryEndpoint;
+		
+		/**
 		 * Function: removeEndpoint Removes the given Endpoint from the given
 		 * element. Parameters: el - either an element id, or a selector for an
 		 * element. endpoint - Endpoint to remove. this is an Endpoint object,
 		 * such as would have been returned from a call to addEndpoint. Returns:
 		 * void See Also: <removeAllEndpoints> <removeEveryEndpoint>
+		 * 
+		 * @deprecated Use jsPlumb.deleteEndpoint instead (and note you dont need to supply the element. it's irrelevant).
 		 */
 		this.removeEndpoint = function(el, endpoint) {
-			var elId = _getAttribute(el, "id");
-			var ebe = endpointsByElement[elId];
-			if (ebe) {
-				if (_removeFromList(endpointsByElement, elId, endpoint))
-					_removeElement(endpoint.canvas, endpoint.getElement());
-			}
+			_currentInstance.deleteEndpoint(endpoint);
 		};
 
-		/*
-		 * Function:reset removes all endpoints and connections and clears the
-		 * element cache.
+		/**
+		 * Function:reset 
+		 * removes all endpoints and connections and clears the
+		 * listener list. to keep listeners just call jsPlumb.deleteEveryEndpoint.  
 		 */
 		this.reset = function() {
-			this.detachEverything();
-			this.removeEveryEndpoint();
+			this.deleteEveryEndpoint();
+			this.clearListeners();
 		};
 
 		/*
@@ -2544,6 +2565,7 @@
 		 */
 		this.getTestHarness = function() {
 			return {
+				endpointsByElement : endpointsByElement,  
 				endpointCount : function(elId) {
 					var e = endpointsByElement[elId];
 					return e ? e.length : 0;
