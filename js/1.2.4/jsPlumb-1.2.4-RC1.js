@@ -656,9 +656,16 @@
 			this.isSelective = true;
 			this.isDynamic = true;
 			var _anchors = anchors || [];
-			this.addAnchor = function(anchor) {
-				_anchors.push(anchor);
+			var _convert = function(anchor) {
+				return anchor.constructor == Array ? jsPlumb.makeAnchor(anchor) : anchor;
 			};
+			for (var i = 0; i < _anchors.length; i++)
+				_anchors[i] = _convert(_anchors[i]);
+			
+			this.addAnchor = function(anchor) {
+				_anchors.push(_convert(anchor));
+			};
+			this.getAnchors = function() { return _anchors; };
 			var _curAnchor = _anchors.length > 0 ? _anchors[0] : null;
 			var _curIndex = _anchors.length > 0 ? 0 : -1;
 			this.locked = false;
