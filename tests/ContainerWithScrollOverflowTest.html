@@ -39,22 +39,24 @@
 		<script type="text/javascript" src="../js/1.2.4/jsBezier-0.1.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
+				document.onselectstart = function () { return false; };
+				
 				jsPlumb.Defaults.Container = "container";
 				jsPlumb.addEndpoint("window1", {
 					isSource:true, isTarget:true,
-					anchor:jsPlumb.Anchors.RightMiddle					
+					anchor:"RightMiddle"					
 				});
 				jsPlumb.addEndpoint("window2", {
 					isSource:true, isTarget:true,
-					anchor:jsPlumb.Anchors.LeftMiddle					
+					anchor:"LeftMiddle"					
 				});
 				jsPlumb.addEndpoint("window3", {
 					isSource:true, isTarget:true,
-					anchor:jsPlumb.Anchors.TopCenter					
+					anchor:"TopCenter"					
 				});
 				jsPlumb.addEndpoint("window1", {
 					isSource:true, isTarget:true,
-					anchor:jsPlumb.Anchors.LeftMiddle					
+					anchor:"LeftMiddle"					
 				});			
 
 				var container = $("#container"), w4 = $("#window4"), w5 = $("#window5"), debug = $("#debug");
@@ -67,7 +69,8 @@
 						s1.offset(o);
 						s2.offset({left:o.left + w4w, top:o.top+w4h});
 					},
-					scope:"testjquerydrag"
+					scope:"testjquerydrag",
+					cursor:"move"
 				});	
 				w5.droppable({
 					scope:"testjquerydrag",
