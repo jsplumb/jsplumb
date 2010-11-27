@@ -107,21 +107,6 @@ test('create and remove a simple endpoint', function() {
 	assertContextSize(0); // no Endpoint canvases.
 });
 
-test('jsPlumb.connect (between two Endpoints)', function() {
-	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-	var e = jsPlumb.addEndpoint(d1, {});
-	var e2 = jsPlumb.addEndpoint(d2, {});
-	ok(e, 'endpoint e exists');
-	ok(e2, 'endpoint e2 exists');
-	assertContextSize(2);				// should have a canvas for each endpoint now.  
-	assertEndpointCount("d1", 1);
-	assertEndpointCount("d2", 1);
-	jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
-	assertEndpointCount("d1", 1);		// no new endpoint should have been added
-	assertEndpointCount("d2", 1); 		// no new endpoint should have been added
-	assertContextSize(3);				// now we should also have a canvas for the connection.
-});
-
 test('draggable silently ignored when jquery ui not present', function() {
 	var d1 = _addDiv("d1");
 	var e = jsPlumb.addEndpoint(d1, {isSource:true});
@@ -376,15 +361,6 @@ test('jsPlumb.getConnections (filtered by a list of scopes, source ids and targe
 	ok(anEntry.targetEndpoint != null, "Target endpoint is set");
 	equals(anEntry.source.attr("id"), "d11", "Source is div d11");
 	equals(anEntry.target.attr("id"), "d14", "Target is div d14");
-});
-
-test('jsPlumb.connect (by endpoint)', function() {
-	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-	var e16 = jsPlumb.addEndpoint(d16, {isSource:true});
-	ok(e16.anchor, 'endpoint 16 has an anchor');
-	var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
-	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
-	assertContextSize(3);
 });
 
 test('connection event listeners', function() {
@@ -767,6 +743,30 @@ test("jsPlumb.deleteEveryEndpoint (connections too)", function() {
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 0);
 });
 
+test('jsPlumb.connect (between two Endpoints)', function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e = jsPlumb.addEndpoint(d1, {});
+	var e2 = jsPlumb.addEndpoint(d2, {});
+	ok(e, 'endpoint e exists');
+	ok(e2, 'endpoint e2 exists');
+	assertContextSize(2);				// should have a canvas for each endpoint now.  
+	assertEndpointCount("d1", 1);
+	assertEndpointCount("d2", 1);
+	jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
+	assertEndpointCount("d1", 1);		// no new endpoint should have been added
+	assertEndpointCount("d2", 1); 		// no new endpoint should have been added
+	assertContextSize(3);				// now we should also have a canvas for the connection.
+});
+
+test('jsPlumb.connect (by endpoint)', function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var e16 = jsPlumb.addEndpoint(d16, {isSource:true});
+	ok(e16.anchor, 'endpoint 16 has an anchor');
+	var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
+	jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+	assertContextSize(3);
+});
+
 test("jsPlumb.connect (two Endpoints - that have been already added - by UUID)", function() {
 	var srcEndpointUuid = "14785937583175927504313", dstEndpointUuid = "14785937583175927534325";
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
@@ -811,6 +811,79 @@ test("jsPlumb.connect (two elements)", function() {
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
 });
+
+test("jsPlumb.connect (Connector test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, connector:new jsPlumb.Connectors.Straight() });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+});
+
+test("jsPlumb.connect (Connector as string test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Straight" });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+});
+
+test("jsPlumb.connect (Endpoint test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, endpoint:new jsPlumb.Endpoints.Rectangle() });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection source");
+	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection target");
+});
+
+test("jsPlumb.connect (Endpoint as string test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, endpoint:"Rectangle" });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection source");
+	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection target");
+});
+
+test("jsPlumb.connect (Endpoints test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, endpoints:[new jsPlumb.Endpoints.Rectangle(),new jsPlumb.Endpoints.Dot()] });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection source");
+	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.Dot, "Dot endpoint chosen for connection target");
+});
+
+test("jsPlumb.connect (Endpoint as string test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, endpoints:["Rectangle", "Dot" ] });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection source");
+	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.Dot, "Dot endpoint chosen for connection target");
+});
+
+test("jsPlumb.connect (by Endpoints, connector test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoint(d16, {});
+	var e17 = jsPlumb.addEndpoint(d17, {});
+	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:new jsPlumb.Connectors.Straight() });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+});
+
+test("jsPlumb.connect (by Endpoints, connector as string test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoint(d16, {});
+	var e17 = jsPlumb.addEndpoint(d17, {});
+	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+});
+
 
 // this test is for the original detach function; it should stay working after i mess with it
 // a little.
@@ -960,6 +1033,26 @@ test("jsPlumb.autoConnect (testing for connection event callback)", function() {
 	jsPlumb.detach({source:d1, target:d2});
 	assertContextSize(2);
 	ok(detachCallback != null, "detach callback was made");
+});
+
+test("jsPlumb.makeDynamicAnchors (longhand)", function() {
+	var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), 
+				   jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ];				   				
+	var dynamicAnchor = jsPlumb.makeDynamicAnchor(anchors);
+	var a = dynamicAnchor.getAnchors();
+	equals(a.length, 4, "Dynamic Anchors has four anchors");
+	for (var i = 0; i < a.length; i++)
+		ok(a[i].compute.constructor == Function, "anchor " + i + " well formed");
+});
+
+test("jsPlumb.makeDynamicAnchors (shorthand)", function() {
+	var anchors = [[0.2, 0, 0, -1], [1, 0.2, 1, 0], 
+				   [0.8, 1, 0, 1], [0, 0.8, -1, 0] ];				   				
+	var dynamicAnchor = jsPlumb.makeDynamicAnchor(anchors);
+	var a = dynamicAnchor.getAnchors();
+	equals(a.length, 4, "Dynamic Anchors has four anchors");
+	for (var i = 0; i < a.length; i++)
+		ok(a[i].compute.constructor == Function, "anchor " + i + " well formed");
 });
 
 /**
