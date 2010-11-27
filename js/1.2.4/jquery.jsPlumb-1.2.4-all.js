@@ -3485,7 +3485,7 @@ var Bezier = function(V, degree, t, Left, Right) {
     for (var i = 1; i <= degree; i++) {	
 		for (var j =0 ; j <= degree - i; j++) {
 			if (!Vtemp[i]) Vtemp[i] = [];
-			if (!Vtemp[i][j]) Vtemp[i][j] = {};
+			if (!Vtemp[i][j]) Vtemp[i][j] = {};  
 	    	Vtemp[i][j].x = (1.0 - t) * Vtemp[i-1][j].x + t * Vtemp[i-1][j+1].x;
 	    	Vtemp[i][j].y = (1.0 - t) * Vtemp[i-1][j].y + t * Vtemp[i-1][j+1].y;
 		}
