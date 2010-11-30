@@ -972,6 +972,7 @@
 			if (_uuid) endpointsByUUID[_uuid] = self;
 			this.container = params.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 			var _elementId = _getAttribute(_element, "id");
+			this.elementId = _elementId;
 			var _maxConnections = params.maxConnections || 1; // maximum number of connections this endpoint can be the source of.
 			this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, this.container, params.uuid);
 			this.connections = params.connections || [];
@@ -1341,9 +1342,22 @@
 								if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
 								jpc.endpoints[idx] = self;
 								self.addConnection(jpc);
-								_addToList(connectionsByScope, jpc.scope, jpc);
-								_initDraggableIfNecessary(_element, params.draggable, {});
+								if (!jpc.suspendedEndpoint) {  // if a new connection, add it. TODO: move this to a jsPlumb internal method - addConnection or something. doesnt need to be exposed.
+									_addToList(connectionsByScope, jpc.scope, jpc);
+									_initDraggableIfNecessary(_element, params.draggable, {});
+								}
+								else {
+									var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
+									// fire a detach event
+									_currentInstance.fireUpdate("jsPlumbConnectionDetached", {
+										source : idx == 0 ? suspendedElement : jpc.source, target : idx == 1 ? suspendedElement : jpc.target,
+										sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, targetId : idx == 1 ? suspendedElementId : jpc.targetId,
+										sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1]
+									});
+								}
+								
 								jsPlumb.repaint(elId);
+								
 								_currentInstance.fireUpdate("jsPlumbConnection", {
 									source : jpc.source, target : jpc.target,
 									sourceId : jpc.sourceId, targetId : jpc.targetId,
