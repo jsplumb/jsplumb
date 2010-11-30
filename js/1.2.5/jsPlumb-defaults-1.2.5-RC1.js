@@ -635,7 +635,7 @@
     		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
     		var d = {};
     		if (labelText) {
-    			var lines = labelText.split("\n");
+    			var lines = labelText.split(/\n|\r\n/));
     			ctx.save();
 	            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
 	            var t = _widestLine(lines, ctx);
