@@ -652,9 +652,9 @@
 		 * there has been a request to make the anchor selection process
 		 * pluggable: closest centers does not work for everyone.
 		 */
-		var DynamicAnchor = function(anchors) {
+		var DynamicAnchor = function(anchors, anchorSelector) {
 			this.isSelective = true;
-			this.isDynamic = true;
+			this.isDynamic = true;			
 			var _anchors = anchors || [];
 			var _convert = function(anchor) {
 				return anchor.constructor == Array ? jsPlumb.makeAnchor(anchor) : anchor;
@@ -670,22 +670,19 @@
 			var _curIndex = _anchors.length > 0 ? 0 : -1;
 			this.locked = false;
 			var self = this;
-
+			
+			// helper method to calculate the distance between the centers of the two elements.
 			var _distance = function(anchor, cx, cy, xy, wh) {
-				var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1]
-						+ (anchor.y * wh[1]);
+				var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]);
 				return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2));
 			};
-
-			this.compute = function(params) {
-				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp, txy = params.txy, twh = params.twh, tElement = params.tElement;
-				// if anchor is locked or an opposite element was not given, we
-				// maintain our state. anchor will be locked
-				// if it is the source of a drag and drop.
-				if (self.locked || txy == null || twh == null)
-					return _curAnchor.compute(params);
-				else
-					params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
+			// default method uses distance between element centers.  you can provide your own method in the dynamic anchor
+			// constructor (and also to jsPlumb.makeDynamicAnchor). the arguments to it are four arrays: 
+			// xy - xy loc of the anchor's element
+			// wh - anchor's element's dimensions
+			// txy - xy loc of the element of the other anchor in the connection
+			// twh - dimensions of the element of the other anchor in the connection.
+			var _anchorSelector = anchorSelector || function(xy, wh, txy, twh) {
 				var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
 				var minIdx = -1, minDist = Infinity;
 				for ( var i = 0; i < _anchors.length; i++) {
@@ -695,7 +692,19 @@
 						minDist = d;
 					}
 				}
-				_curAnchor = _anchors[minIdx];
+				return _anchors[minIdx];
+			};
+			this.compute = function(params) {
+				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp, txy = params.txy, twh = params.twh, tElement = params.tElement;
+				// if anchor is locked or an opposite element was not given, we
+				// maintain our state. anchor will be locked
+				// if it is the source of a drag and drop.
+				if (self.locked || txy == null || twh == null)
+					return _curAnchor.compute(params);
+				else
+					params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
+				
+				_curAnchor = _anchorSelector(xy, wh, txy, twh);
 				var pos = _curAnchor.compute(params);
 				return pos;
 			};
@@ -1584,8 +1593,8 @@
 			var connectOptions = jsPlumb.extend(params, { source : null, target : null, anchors : null });
 			for ( var i = 0; i < sources.length; i++) {
 				for ( var j = 0; j < targets.length; j++) {
-					var e1 = jsPlumb.addEndpoint(sources[i], jsPlumb.extend( { anchor : jsPlumb.makeDynamicAnchor(_anchors) }, _endpoint));
-					var e2 = jsPlumb.addEndpoint(targets[j], jsPlumb.extend( { anchor : jsPlumb.makeDynamicAnchor(_anchors) }, _endpoint));
+					var e1 = jsPlumb.addEndpoint(sources[i], jsPlumb.extend( { anchor : jsPlumb.makeDynamicAnchor(_anchors, params.anchorSelector) }, _endpoint));
+					var e2 = jsPlumb.addEndpoint(targets[j], jsPlumb.extend( { anchor : jsPlumb.makeDynamicAnchor(_anchors, params.anchorSelector) }, _endpoint));
 					_currentInstance.connect(jsPlumb.extend(connectOptions, { sourceEndpoint : e1, targetEndpoint : e2 }));
 				}
 			}
@@ -2015,8 +2024,13 @@
 			return r;
 		};
 
-		this.makeDynamicAnchor = function(anchors) {
-			return new DynamicAnchor(anchors);
+		/**
+		 * Makes a dynamic anchor from the given list of anchors (which may be in shorthand notation as strings or dimension arrays, or Anchor
+		 * objects themselves) and the given, optional, anchorSelector function (jsPlumb uses a default if this is not provided; most people will
+		 * not need to provide this - i think). 
+		 */
+		this.makeDynamicAnchor = function(anchors, anchorSelector) {
+			return new DynamicAnchor(anchors, anchorSelector);
 		};
 
 		/*
