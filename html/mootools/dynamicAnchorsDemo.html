@@ -99,12 +99,14 @@ filter:alpha(opacity=60);
 			var commonConfig = { anchors:anchors, endpoint:exampleEndpoint };
 			var _makeOverlay = function() { return new jsPlumb.Overlays.Diamond({fillStyle:'#09098e', width:15, length:15}); };
 
-			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window3", overlays:[_makeOverlay()]}));
-			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window3", target:"window5", overlays:[_makeOverlay()]}));
-			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window2", target:"window5", overlays:[_makeOverlay()]}));
-			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window5", target:"window6", overlays:[_makeOverlay()]}));
-			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window4", overlays:[_makeOverlay()]}));
-			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window4", target:"window2", overlays:[_makeOverlay()]}));
+			var anchors = [[0.2, 0, 0, -1], [1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0] ];				
+			
+			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window3", overlays:[_makeOverlay()], anchors:anchors}));
+			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window3", target:"window5", overlays:[_makeOverlay()], anchors:anchors}));
+			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window2", target:"window5", overlays:[_makeOverlay()], anchors:anchors}));
+			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window5", target:"window6", overlays:[_makeOverlay()], anchors:anchors}));
+			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window4", overlays:[_makeOverlay()], anchors:anchors}));
+			jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window4", target:"window2", overlays:[_makeOverlay()], anchors:anchors}));
 		});
 		</script>
 
