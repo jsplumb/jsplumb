@@ -94,18 +94,16 @@ filter:alpha(opacity=60);
 					}
 				};
 				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
-				var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ];
-				var commonConfig = { anchors:anchors, endpoint:exampleEndpoint };
 				var _makeOverlay = function() { return new jsPlumb.Overlays.Diamond({fillStyle:'#09098e', width:15, length:15}); };
 
 				var anchors = [[0.2, 0, 0, -1], [1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0] ];				
 				
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window3", overlays:[_makeOverlay()], anchors:anchors}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window3", target:"window5", overlays:[_makeOverlay()], anchors:anchors}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window2", target:"window5", overlays:[_makeOverlay()], anchors:anchors}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window5", target:"window6", overlays:[_makeOverlay()], anchors:anchors}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window1", target:"window4", overlays:[_makeOverlay()], anchors:anchors}));
-				jsPlumb.autoConnect(jsPlumb.extend(commonConfig, {source:"window4", target:"window2", overlays:[_makeOverlay()], anchors:anchors}));
+				jsPlumb.autoConnect({ source:"window1", target:"window3", endpoint:exampleEndpoint, overlays:[_makeOverlay()], anchors:anchors});
+				jsPlumb.autoConnect({ source:"window3", target:"window5", endpoint:exampleEndpoint, overlays:[_makeOverlay()], anchors:anchors});
+				jsPlumb.autoConnect({ source:"window2", target:"window5", endpoint:exampleEndpoint, overlays:[_makeOverlay()], anchors:anchors});
+				jsPlumb.autoConnect({ source:"window5", target:"window6", endpoint:exampleEndpoint, overlays:[_makeOverlay()], anchors:anchors});
+				jsPlumb.autoConnect({ source:"window1", target:"window4", endpoint:exampleEndpoint, overlays:[_makeOverlay()], anchors:anchors});
+				jsPlumb.autoConnect({ source:"window4", target:"window2", endpoint:exampleEndpoint, overlays:[_makeOverlay()], anchors:anchors});
 			});
 		</script>
 
