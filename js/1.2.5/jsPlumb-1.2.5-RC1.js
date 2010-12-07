@@ -649,15 +649,15 @@
 		 * respect to the orientation of their target elements - a useful
 		 * feature for some applications.
 		 * 
-		 * there has been a request to make the anchor selection process
-		 * pluggable: closest centers does not work for everyone.
+		 * the second argument - anchorSelector - is optional, but when provided should be a function
+		 * that 
 		 */
 		var DynamicAnchor = function(anchors, anchorSelector) {
 			this.isSelective = true;
 			this.isDynamic = true;			
 			var _anchors = anchors || [];
 			var _convert = function(anchor) {
-				return anchor.constructor == Array ? jsPlumb.makeAnchor(anchor) : anchor;
+				return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor);
 			};
 			for (var i = 0; i < _anchors.length; i++)
 				_anchors[i] = _convert(_anchors[i]);
@@ -682,17 +682,18 @@
 			// wh - anchor's element's dimensions
 			// txy - xy loc of the element of the other anchor in the connection
 			// twh - dimensions of the element of the other anchor in the connection.
-			var _anchorSelector = anchorSelector || function(xy, wh, txy, twh) {
+			// anchors - the list of selectable anchors
+			var _anchorSelector = anchorSelector || function(xy, wh, txy, twh, anchors) {
 				var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
 				var minIdx = -1, minDist = Infinity;
-				for ( var i = 0; i < _anchors.length; i++) {
-					var d = _distance(_anchors[i], cx, cy, xy, wh);
+				for ( var i = 0; i < anchors.length; i++) {
+					var d = _distance(anchors[i], cx, cy, xy, wh);
 					if (d < minDist) {
 						minIdx = i + 0;
 						minDist = d;
 					}
 				}
-				return _anchors[minIdx];
+				return anchors[minIdx];
 			};
 			this.compute = function(params) {
 				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp, txy = params.txy, twh = params.twh, tElement = params.tElement;
@@ -704,7 +705,7 @@
 				else
 					params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
 				
-				_curAnchor = _anchorSelector(xy, wh, txy, twh);
+				_curAnchor = _anchorSelector(xy, wh, txy, twh, _anchors);
 				var pos = _curAnchor.compute(params);
 				return pos;
 			};
@@ -966,7 +967,7 @@
 			var self = this;
 			var id = new String('_jsplumb_e_' + (new Date()).getTime());
 			this.getId = function() { return id; };
-			self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : jsPlumb.makeAnchor("TopCenter");
+			self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
 			var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 			if (_endpoint.constuctor == String) _endpoint = new jsPlumb.Endpoints[_endpoint]();
 			self.endpoint = _endpoint;
@@ -1576,11 +1577,14 @@
 		};
 
 		this.autoConnect = function(params) {
-			var sources = [], targets = [], _endpoint = params.endpoint || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, _anchors = anchors || jsPlumb.Defaults.DynamicAnchors();															
+			console.log("params.anchors is ", params.anchors);
+			var sources = [], targets = [], _endpoint = params.endpoint || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, _anchors = params.anchors || jsPlumb.Defaults.DynamicAnchors();
 			var _addAll = function(s, t) {
 				for ( var i = 0; i < s.length; i++)
 					t.push(s[i]);
 			};
+			
+			console.log("_anchors is ", _anchors);
 			var source = params.source, target = params.target, anchors = params.anchors;
 			if (typeof source == 'string')
 				sources.push(_getElementObject(source));
@@ -1998,7 +2002,12 @@
 				// is it the name of an anchor type?
 				else if (typeof specimen == "string") return _currentInstance.Anchors[arguments[0]]();
 				// is it an array of coordinates?
-				else if (specimen.constructor == Array) return jsPlumb.makeAnchor.apply(this, specimen);
+				else if (specimen.constructor == Array) {
+					if (specimen[0].constructor == Array || specimen[0].constructor == String)
+						return new DynamicAnchor(specimen);
+					else
+						return jsPlumb.makeAnchor.apply(this, specimen);
+				}
 				// last we try the backwards compatibility stuff.
 				else if (typeof arguments[0] == "object") jsPlumb.extend(params, x);
 			} else {
@@ -2030,6 +2039,7 @@
 		 * not need to provide this - i think). 
 		 */
 		this.makeDynamicAnchor = function(anchors, anchorSelector) {
+			console.log("making dynamic anchor from ", anchors);
 			return new DynamicAnchor(anchors, anchorSelector);
 		};
 
