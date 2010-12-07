@@ -1,3 +1,25 @@
+* 1.2.5
+
+	- fixed a bug that ignored supplied anchors in jsPlumb.autoConnect
+	- added support for specifying an Endpoint's anchor as a dynamic anchor defined as an array of arrays or array of strings.  like this:
+	
+	    var endpointSpec = { 
+	   		endpoint:new jsPlumb.Endpoints.Rectangle(),
+	   		anchor:[ [0, 0, -1, -1], [1, 1, 1, 1] ]
+	   	};
+	   	
+	   	or
+	   	
+	   	var endpointSpec = {
+	   		endpoint:new jsPlumb.Endpoints.Rectangle(),
+	   		anchor:["TopLeft", "BottomRight"]
+	   	};
+	   	
+	   	jsPlumb will create a DynamicAnchor for each usage of these endpoint specs.
+	   	
+	   	"anchors" works too; i just used "anchor" to keep it consistent with the notion that a dynamic anchor should be treated like
+	   	a 'normal' anchor. it just happens to move around.  but then, "anchors" makes more sense.  hence the fact you can use both.
+
 * 1.2.4
 	
 	- added 'connection' to getConnection method's output.
