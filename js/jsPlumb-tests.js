@@ -875,13 +875,26 @@ test("jsPlumb.connect (by Endpoints, connector test)", function() {
 });
 
 test("jsPlumb.connect (by Endpoints, connector as string test)", function() {
-	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
 	var e16 = jsPlumb.addEndpoint(d16, {});
 	var e17 = jsPlumb.addEndpoint(d17, {});
 	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
 	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+});
+
+test("jsPlumb.connect (by Endpoints, anchors as string test)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var a16 = "TopCenter", a17 = "BottomCenter";
+	var e16 = jsPlumb.addEndpoint(d16, {anchor:a16});
+	var e17 = jsPlumb.addEndpoint(d17, {anchor:a17});
+	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.anchor.x, 0.5, "endpoint 16 is at top center");equals(e16.anchor.y, 0, "endpoint 16 is at top center");
+	equals(e17.anchor.x, 0.5, "endpoint 17 is at bottom center");equals(e17.anchor.y, 1, "endpoint 17 is at bottom center");
 });
 
 test("jsPlumb.connect (by Endpoints, endpoints create anchors)", function() {
