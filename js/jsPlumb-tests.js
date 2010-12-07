@@ -884,6 +884,45 @@ test("jsPlumb.connect (by Endpoints, connector as string test)", function() {
 	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
 });
 
+test("jsPlumb.connect (by Endpoints, endpoints create anchors)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+	var a16 = [0,0.5,0,-1], a17 = [1,0.0,-1,-1];
+	var e16 = jsPlumb.addEndpoint(d16, {anchor:a16});
+	var e17 = jsPlumb.addEndpoint(d17, {anchor:a17});
+	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.anchor.x, a16[0]);equals(e16.anchor.y, a16[1]);
+	equals(e17.anchor.x, a17[0]);equals(e17.anchor.y, a17[1]);
+	equals(e16.anchor.getOrientation()[0], a16[2]); equals(e16.anchor.getOrientation()[1], a16[3]);
+	equals(e17.anchor.getOrientation()[0], a17[2]); equals(e17.anchor.getOrientation()[1], a17[3]);
+});
+
+test("jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchor')", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoint(d16, {anchor:[[0,0.5,0,-1], [1,0.5,0,1]]});
+	var e17 = jsPlumb.addEndpoint(d17, {anchor:["TopCenter", "BottomCenter"]});
+	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+	equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+});
+
+test("jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchors')", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoint(d16, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+	var e17 = jsPlumb.addEndpoint(d17, {anchors:["TopCenter", "BottomCenter"]});
+	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+	equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+});
+
 
 // this test is for the original detach function; it should stay working after i mess with it
 // a little.
@@ -987,12 +1026,14 @@ test("jsPlumb.autoConnect (connect by element, default endpoint and anchors)", f
 
 test("jsPlumb.autoConnect (connect by element, default endpoint, supplied anchors)", function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-	var anchors = [ "TopCenter", "BottomCenter" ];
+	var anchors = [ [0.25, 0, 0, -1], [1, 0.25, 1, 0], [0.75, 1, 0, 1], [0, 0.75, -1, 0] ];
 	jsPlumb.autoConnect({source:d1, target:d2, anchors:anchors});                // auto connect with default endpoint and provided anchors
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
 	assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
 	jsPlumb.detach({source:d1, target:d2});
+	assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
+	assertContextSize(2);
 });
 
 test("jsPlumb.autoConnect (connect by element, supplied endpoint and anchors)", function() {
@@ -1001,8 +1042,10 @@ test("jsPlumb.autoConnect (connect by element, supplied endpoint and anchors)", 
 	var anchors = [ "TopCenter", "BottomCenter" ];
 	jsPlumb.autoConnect({source:d1, target:d2, anchors:anchors, endpoint:endpoint});                // auto connect with default endpoint and provided anchors
 	assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
-	// assert something!
+	assertContextSize(3);
 	jsPlumb.detach({source:d1, target:d2});
+	assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
+	assertContextSize(2);
 });
 
 test("jsPlumb.autoConnect (connect by element, multiple sources to one target, supplied endpoint and anchors)", function() {
