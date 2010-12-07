@@ -1164,7 +1164,7 @@ var myDot = new jsPlumb.Endpoints.Dot({radius:34});
 </div>
 Here we created a dot with a radius of 34 pixels.  You do not need to supply the radius though - if you omit it, jsPlumb will assign a default of 10 pixels.  Note that you can also supply the radius in the endpointStyle object.
 						</p><p>
-						In the <em>endpointStyle</em> option of a <em>plumb</em> call, you can set two values
+						In the <em>endpointStyle</em> option of a <em>connect</em> call, you can set two values
 						that this will pick up:
 							<ul>
 								<li>radius - the radius of the dot (in pixels)</li>
@@ -1951,6 +1951,55 @@ Now we have two Endpoints, both of which support drag and drop of new Connection
 </pre>
 </div>				 				
 				</li>
+				
+				<li>Define an Endpoint that will be anchored to "TopCenter".  It creates Connections that are 20px wide straight lines, that is both a source and target of new Connections,
+				and that has a 'scope' of 'blueline'. Also, this Endpoint mandates that once it is full, Connections can
+				no longer be dragged from it (even if 'reattach' is specified on a Connection):
+<div class="code">
+<pre>var endpointOptions = {
+	anchor:"TopCenter", 
+	isSource:true, 
+	isTarget:true,
+	connector : "StraightLine",
+	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+	scope:"blueline",
+	dragAllowedWhenFull:false	 
+}; 
+</pre>
+</div>				 				
+				</li>
+				
+				<li>Define an Endpoint that will create a dynamic anchor which can be positioned at "TopCenter" or "BottomCenter".  It creates Connections that are 20px wide straight lines, that is both a source and target of new Connections,
+				and that has a 'scope' of 'blueline'. Also, this Endpoint mandates that once it is full, Connections can
+				no longer be dragged from it (even if 'reattach' is specified on a Connection):
+<div class="code">
+<pre>var endpointOptions = {
+	anchor:[ "TopCenter", "BottomCenter" ], 
+	isSource:true, 
+	isTarget:true,
+	connector : "StraightLine",
+	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+	scope:"blueline",
+	dragAllowedWhenFull:false	 
+}; 
+</pre>
+</div>				 				
+				</li>
+				
+				<li>Exactly the same as before, but shows how you can use "anchors" instead of "anchor", if that makes you feel happier:
+<div class="code">
+<pre>var endpointOptions = {
+	anchors:[ "TopCenter", "BottomCenter" ], 
+	isSource:true, 
+	isTarget:true,
+	connector : "StraightLine",
+	connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+	scope:"blueline",
+	dragAllowedWhenFull:false	 
+}; 
+</pre>
+</div>				 				
+				</li>								
 				
 <li>Define an Endpoint that is a 30px blue dot, creates Connections that are 20px wide straight lines, is both a source and target of new Connections,
 				has a 'scope' of 'blueline', and has an event handler that pops up an alert (note: the event handler name means this example is jQuery - MooTools
