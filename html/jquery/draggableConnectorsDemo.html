@@ -48,7 +48,10 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 	<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.4/jquery.jsPlumb-1.2.4-all.js"></script>
+		<script type="text/javascript" src="../../js/1.2.5/jsPlumb-1.2.5-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.5/jsPlumb-defaults-1.2.5-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.5/jquery.jsPlumb-1.2.5-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.5/jsBezier-0.1.js"></script>
 
 	    <script type="text/javascript">
 			$(document).ready(function() {
@@ -214,7 +217,16 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 					jsPlumb.detachAll($(this).attr("rel"));
 				});
 
-				$("#clear").click(function() { jsPlumb.detachEverything(); showConnections(); });
+				$("#clear").click(function() { 
+					jsPlumb.detachEverything(); showConnections(); 
+				});
+
+				jsPlumb.bind("jsPlumbConnectionDetached", {
+					jsPlumbConnectionDetached: function(e1, e2) {
+						console.log("connection detached", arguments);
+					}
+				});
+				
 			});
 		</script>
 
