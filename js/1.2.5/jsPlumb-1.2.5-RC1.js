@@ -1006,10 +1006,12 @@
 						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
 						t.detach(connection, true);
 					}
+					_removeElement(connection.canvas, connection.container);
+					_removeFromList(connectionsByScope, connection.scope, connection);
+					if(!ignoreTarget) fireDetachEvent(connection);
 				}
-				_removeElement(connection.canvas, connection.container);
-				_removeFromList(connectionsByScope, connection.scope, connection);
-				fireDetachEvent(connection);
+				/*else
+					console.log("endpoint asked to detach from non-existent connection");*/
 			};			
 
 			/**
@@ -1299,8 +1301,8 @@
 									jsPlumb.repaint(existingJpcParams[1]);
 								} else {
 									jpc.endpoints[1].detach(jpc);
-									jpc.endpoints[0].detach(jpc);									
-									// TODO - delete floating endpoint?
+									jpc.endpoints[0].detach(jpc, true); // tell the second one not to tell the first one about the detach.
+									                                    // avoids circular calls. issue 52.
 								}
 							} else {
 								// TODO this looks suspiciously kind of like an Endpoint.detach call too.
@@ -1577,14 +1579,12 @@
 		};
 
 		this.autoConnect = function(params) {
-			console.log("params.anchors is ", params.anchors);
 			var sources = [], targets = [], _endpoint = params.endpoint || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, _anchors = params.anchors || jsPlumb.Defaults.DynamicAnchors();
 			var _addAll = function(s, t) {
 				for ( var i = 0; i < s.length; i++)
 					t.push(s[i]);
 			};
 			
-			console.log("_anchors is ", _anchors);
 			var source = params.source, target = params.target, anchors = params.anchors;
 			if (typeof source == 'string')
 				sources.push(_getElementObject(source));
@@ -1781,17 +1781,7 @@
 			var endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
 				for ( var i = 0; i < endpoints.length; i++) {
-					var c = endpoints[i].connections.length;
-					if (c > 0) {
-						for ( var j = 0; j < c; j++) {
-							var jpc = endpoints[i].connections[0];
-							_removeElement(jpc.canvas, jpc.container);
-							jpc.endpoints[0].removeConnection(jpc);
-							jpc.endpoints[1].removeConnection(jpc);
-							_removeFromList(connectionsByScope, jpc.scope, jpc);
-							fireDetachEvent(jpc);
-						}
-					}
+					endpoints[i].detachAll();
 				}
 			}
 		};
@@ -1811,16 +1801,8 @@
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0; i < endpoints.length; i++) {
-						var c = endpoints[i].connections.length;
-						if (c > 0) {
-							for ( var j = 0; j < c; j++) {
-								var jpc = endpoints[i].connections[0];
-								_removeElement(jpc.canvas, jpc.container);
-								jpc.endpoints[0].removeConnection(jpc);
-								jpc.endpoints[1].removeConnection(jpc);
-								fireDetachEvent(jpc);
-							}
-						}
+						//console.log("telling an endpoint to detachAll");
+						endpoints[i].detachAll();
 					}
 				}
 			}
@@ -2039,7 +2021,6 @@
 		 * not need to provide this - i think). 
 		 */
 		this.makeDynamicAnchor = function(anchors, anchorSelector) {
-			console.log("making dynamic anchor from ", anchors);
 			return new DynamicAnchor(anchors, anchorSelector);
 		};
 
