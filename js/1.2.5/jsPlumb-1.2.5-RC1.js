@@ -1193,10 +1193,7 @@
 					if (self.isFull() && !self.dragAllowedWhenFull) return false;
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
-					inPlaceCopy.paint();
-					
-					// test. can we drop back on the source? (issue 51)
-					_initDropTarget(_getElementObject(inPlaceCopy.canvas));
+					inPlaceCopy.paint();										
 					
 					n = document.createElement("div");
 					var nE = _getElementObject(n);
@@ -1227,6 +1224,8 @@
 						});
 					} else {
 						existingJpc = true;
+						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
+						_initDropTarget(_getElementObject(inPlaceCopy.canvas));
 						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;
 						jpc.floatingAnchorIndex = anchorIdx;
 						// detach from the connection while dragging is occurring.
