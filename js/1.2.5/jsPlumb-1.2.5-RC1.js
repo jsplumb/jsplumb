@@ -1357,7 +1357,7 @@
 							self.addConnection(jpc);
 							if (!jpc.suspendedEndpoint) {  // if a new connection, add it. TODO: move this to a jsPlumb internal method - addConnection or something. doesnt need to be exposed.
 								_addToList(connectionsByScope, jpc.scope, jpc);
-								_initDraggableIfNecessary(targetElement, params.draggable, {});
+								_initDraggableIfNecessary(_element, params.draggable, {});
 							}
 							else {
 								var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
