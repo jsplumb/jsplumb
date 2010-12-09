@@ -1010,8 +1010,6 @@
 					_removeFromList(connectionsByScope, connection.scope, connection);
 					if(!ignoreTarget) fireDetachEvent(connection);
 				}
-				/*else
-					console.log("endpoint asked to detach from non-existent connection");*/
 			};			
 
 			/**
@@ -1258,7 +1256,7 @@
 					// dragging the source at any time
 					// before this connection is either discarded or made into a
 					// permanent connection.
-					_addToList(endpointsByElement, id, floatingEndpoint);
+					_addToList(endpointsByElement, id, floatingEndpoint);				
 				};
 
 				var dragOptions = params.dragOptions || {};
@@ -1300,23 +1298,23 @@
 									jpc.suspendedEndpoint.addConnection(jpc);
 									jsPlumb.repaint(existingJpcParams[1]);
 								} else {
-									jpc.endpoints[1].detach(jpc);
-									jpc.endpoints[0].detach(jpc, true); // tell the second one not to tell the first one about the detach.
-									                                    // avoids circular calls. issue 52.
+									jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc); // the main endpoint will inform the floating endpoint
+									// to disconnect, and also post the detached event.
 								}
 							} else {
 								// TODO this looks suspiciously kind of like an Endpoint.detach call too.
 								// i wonder if this one should post an event though.  maybe this is good like this.
 								_removeElement(jpc.canvas, self.container);
 								self.detachFromConnection(jpc);								
-							}
+							}														
 						}
 						self.anchor.locked = false;												
 						self.paint();
 						jpc.repaint();
-						jpc = null;
+						jpc = null;						
+						delete inPlaceCopy;							
+						delete endpointsByElement[floatingEndpoint.elementId];						
 						delete floatingEndpoint;
-						delete inPlaceCopy;
 					});
 				
 				var i = _getElementObject(self.canvas);
@@ -1374,7 +1372,7 @@
 									source : jpc.source, target : jpc.target,
 									sourceId : jpc.sourceId, targetId : jpc.targetId,
 									sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-								});
+								});								
 							}
 					// else there must be some cleanup required? or not?
 
@@ -1801,7 +1799,6 @@
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0; i < endpoints.length; i++) {
-						//console.log("telling an endpoint to detachAll");
 						endpoints[i].detachAll();
 					}
 				}
