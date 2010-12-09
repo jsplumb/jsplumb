@@ -1194,6 +1194,10 @@
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
 					inPlaceCopy.paint();
+					
+					// test. can we drop back on the source? (issue 51)
+					_initDropTarget(_getElementObject(inPlaceCopy.canvas));
+					
 					n = document.createElement("div");
 					var nE = _getElementObject(n);
 					_appendElement(n, self.container); //
@@ -1321,84 +1325,88 @@
 				jsPlumb.CurrentLibrary.initDraggable(i, dragOptions);
 			}
 
-			// connector target
-			if (params.isTarget && jsPlumb.CurrentLibrary.isDropSupported(_element)) {
-				var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
-				dropOptions = jsPlumb.extend( {}, dropOptions);
-				dropOptions.scope = dropOptions.scope || self.scope;
-				var originalAnchor = null;
-				var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'];
-				var overEvent = jsPlumb.CurrentLibrary.dragEvents['over'];
-				var outEvent = jsPlumb.CurrentLibrary.dragEvents['out'];
-				dropOptions[dropEvent] = _wrap(dropOptions[dropEvent],
-						function() {
-							var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
-							var id = _getAttribute(_getElementObject(draggable), "dragId");
-							var elId = _getAttribute(_getElementObject(draggable), "elId");
-							var jpc = floatingConnections[id];
-							var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-							var oidx = idx == 0 ? 1 : 0;
-							if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {
-								if (idx == 0) {
-									jpc.source = _element;
-									jpc.sourceId = _elementId;
-								} else {
-									jpc.target = _element;
-									jpc.targetId = _elementId;
-								}
-								// todo test that the target is not full.
-								// remove this jpc from the current endpoint
-								jpc.endpoints[idx].detachFromConnection(jpc);
-								if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
-								jpc.endpoints[idx] = self;
-								self.addConnection(jpc);
-								if (!jpc.suspendedEndpoint) {  // if a new connection, add it. TODO: move this to a jsPlumb internal method - addConnection or something. doesnt need to be exposed.
-									_addToList(connectionsByScope, jpc.scope, jpc);
-									_initDraggableIfNecessary(_element, params.draggable, {});
-								}
-								else {
-									var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
-									// fire a detach event
-									_currentInstance.fireUpdate("jsPlumbConnectionDetached", {
-										source : idx == 0 ? suspendedElement : jpc.source, target : idx == 1 ? suspendedElement : jpc.target,
-										sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, targetId : idx == 1 ? suspendedElementId : jpc.targetId,
-										sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1]
-									});
-								}
-								
-								jsPlumb.repaint(elId);
-								
-								_currentInstance.fireUpdate("jsPlumbConnection", {
-									source : jpc.source, target : jpc.target,
-									sourceId : jpc.sourceId, targetId : jpc.targetId,
-									sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-								});								
+			// pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
+			// back onto the endpoint you detached it from.
+			var _initDropTarget = function(canvas) {
+				if (params.isTarget && jsPlumb.CurrentLibrary.isDropSupported(_element)) {
+					var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
+					dropOptions = jsPlumb.extend( {}, dropOptions);
+					dropOptions.scope = dropOptions.scope || self.scope;
+					var originalAnchor = null;
+					var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'];
+					var overEvent = jsPlumb.CurrentLibrary.dragEvents['over'];
+					var outEvent = jsPlumb.CurrentLibrary.dragEvents['out'];				
+					var drop = function() {
+						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments));
+						var id = _getAttribute(draggable, "dragId");
+						var elId = _getAttribute(draggable, "elId");
+						var jpc = floatingConnections[id];
+						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
+						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {
+							if (idx == 0) {
+								jpc.source = _element;
+								jpc.sourceId = _elementId;
+							} else {
+								jpc.target = _element;
+								jpc.targetId = _elementId;
 							}
-					// else there must be some cleanup required? or not?
-
-					delete floatingConnections[id];
-				});
-
-				dropOptions[overEvent] = _wrap(dropOptions[overEvent],
-						function() {
-							var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
-							var id = _getAttribute( _getElementObject(draggable), "dragId");
-							var jpc = floatingConnections[id];
-							var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-							jpc.endpoints[idx].anchor.over(self.anchor);
-						});
-
-				dropOptions[outEvent] = _wrap(dropOptions[outEvent],
-						function() {
-							var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
-							var id = _getAttribute(_getElementObject(draggable), "dragId");
-							var jpc = floatingConnections[id];
-							var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-							jpc.endpoints[idx].anchor.out();
-						});
-
-				jsPlumb.CurrentLibrary.initDroppable(_getElementObject(self.canvas), dropOptions);
-			}
+							// todo test that the target is not full.
+							// remove this jpc from the current endpoint
+							jpc.endpoints[idx].detachFromConnection(jpc);
+							if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
+							jpc.endpoints[idx] = self;
+							self.addConnection(jpc);
+							if (!jpc.suspendedEndpoint) {  // if a new connection, add it. TODO: move this to a jsPlumb internal method - addConnection or something. doesnt need to be exposed.
+								_addToList(connectionsByScope, jpc.scope, jpc);
+								_initDraggableIfNecessary(targetElement, params.draggable, {});
+							}
+							else {
+								var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
+								// fire a detach event
+								_currentInstance.fireUpdate("jsPlumbConnectionDetached", {
+									source : idx == 0 ? suspendedElement : jpc.source, target : idx == 1 ? suspendedElement : jpc.target,
+									sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, targetId : idx == 1 ? suspendedElementId : jpc.targetId,
+									sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1]
+								});
+							}
+							
+							jsPlumb.repaint(elId);
+							
+							_currentInstance.fireUpdate("jsPlumbConnection", {
+								source : jpc.source, target : jpc.target,
+								sourceId : jpc.sourceId, targetId : jpc.targetId,
+								sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
+							});								
+						}
+			
+						delete floatingConnections[id];
+					};
+					
+					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
+					dropOptions[overEvent] = _wrap(dropOptions[overEvent],
+							function() {
+								var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+								var id = _getAttribute( _getElementObject(draggable), "dragId");
+								var jpc = floatingConnections[id];
+								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+								jpc.endpoints[idx].anchor.over(self.anchor);
+							});
+	
+					dropOptions[outEvent] = _wrap(dropOptions[outEvent],
+							function() {
+								var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
+								var id = _getAttribute(_getElementObject(draggable), "dragId");
+								var jpc = floatingConnections[id];
+								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+								jpc.endpoints[idx].anchor.out();
+							});
+	
+					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions);
+				}
+			};
+			
+			// initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
+			_initDropTarget(_getElementObject(self.canvas));			
 
 			return self;
 		};
