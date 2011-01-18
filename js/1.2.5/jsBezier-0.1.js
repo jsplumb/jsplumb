@@ -17,58 +17,59 @@
 	var Vectors = {
 		subtract 	: 	function(v1, v2) { return {x:v1.x - v2.x, y:v1.y - v2.y }; },
 		dotProduct	: 	function(v1, v2) { return (v1.x * v2.x)  + (v1.y * v2.y); },
-		square		:	function(v) { return (v.x * v.x) + (v.y * v.y); },
+		square		:	function(v) { return Math.sqrt((v.x * v.x) + (v.y * v.y)); },
 		scale		:	function(v, s) { return {x:v.x * s, y:v.y * s }; }
-	}
+	};
 		
-var	MAXDEPTH = 64, EPSILON	= Math.pow(2.0,-MAXDEPTH-1), DEGREE = 3, W_DEGREE = 5;
+	var	MAXDEPTH = 64, EPSILON	= Math.pow(2.0,-MAXDEPTH-1), DEGREE = 3, W_DEGREE = 5;
 
 /**
- * Calculates the distance that the point P is from the curve V. i think ;)
- * i need to verify that.
+ * Calculates the distance that the point lies from the curve.
+ * 
+ * @param point a point in the form {x:567, y:3342}
+ * @param curve a Bezier curve in the form [{x:..., y:...}, {x:..., y:...}, {x:..., y:...}, {x:..., y:...}].  note that this is currently
+ * hardcoded to assume cubiz beziers, but would be better off supporting any degree. 
+ * @return a JS object literal containing location and distance, for example: {location:0.35, distance:10}.  Location is analogous to the location
+ * argument you pass to the pointOnPath function: it is a ratio of distance travelled along the curve.  Distance is the distance in pixels from
+ * the point to the curve. 
  */
-var _distanceFromCurve = function(P, V) {
-	console.log("distancefromcurve", P, V);
-	var w, n_solutions, t;			
-    var 	t_candidate = new Array(W_DEGREE);     
-    w = _convertToBezierForm(P, V);
-    n_solutions = _findRoots(w, W_DEGREE, t_candidate, 0);
-    var	dist, new_dist, p, v, i;
-	v = Vectors.subtract(P, V[0]);
-	dist = Vectors.square(v);
-    t = 0.0;
-    for (i = 0; i < n_solutions; i++) {
-    	p = Bezier(V, DEGREE, t_candidate[i],
-		null, null);
-		v = Vectors.subtract(P, p);
-    	new_dist = Vectors.square(v);
-    	if (new_dist < dist) {
-            	dist = new_dist;
-        		t = t_candidate[i];
+var _distanceFromCurve = function(point, curve) {
+	var candidates = new Array(W_DEGREE);     
+    var w = _convertToBezier(point, curve);
+    var numSolutions = _findRoots(w, W_DEGREE, candidates, 0);
+	var v = Vectors.subtract(point, curve[0]), dist = Vectors.square(v), t = 0.0;
+    for (var i = 0; i < numSolutions; i++) {
+		v = Vectors.subtract(point, Bezier(curve, DEGREE, candidates[i], null, null));
+    	var newDist = Vectors.square(v);
+    	if (newDist < dist) {
+            dist = newDist;
+        	t = candidates[i];
 	    }
     }
-    v = Vectors.subtract(P, V[DEGREE]);
-	new_dist = Vectors.square(v);
-    	if (new_dist < dist) {
-        	dist = new_dist;
+    v = Vectors.subtract(point, curve[DEGREE]);
+	newDist = Vectors.square(v);
+    if (newDist < dist) {
+        dist = newDist;
     	t = 1.0;
     }
-	return {t:t,d:dist};
+	return {location:t, distance:dist};
 };
-var _nearestPointOnCurve = function(P, V) {    
-	console.log("nearest point", P, V);
-	var td = _distanceFromCurve(P, V);
-    return Bezier(V, DEGREE, td.t, null, null);
+/**
+ * finds the nearest point on the curve to the given point.
+ */
+var _nearestPointOnCurve = function(point, curve) {    
+	var td = _distanceFromCurve(point, curve);
+    return Bezier(curve, DEGREE, td.location, null, null);
 };
-var _convertToBezierForm = function(P, V) {
+var _convertToBezier = function(point, curve) {
     var i, j, k, m, n, ub, lb, w, row, column;
     var c = new Array(DEGREE+1), d = new Array(DEGREE);
     var cdTable = [];
     var z = [ [1.0, 0.6, 0.3, 0.1], [0.4, 0.6, 0.6, 0.4], [0.1, 0.3, 0.6, 1.0] ];	
     for (i = 0; i <= DEGREE; i++)
-		c[i] = Vectors.subtract(V[i], P);
+		c[i] = Vectors.subtract(curve[i], point);
     for (i = 0; i <= DEGREE - 1; i++) { 
-		d[i] = Vectors.subtract(V[i+1], V[i]);
+		d[i] = Vectors.subtract(curve[i+1], curve[i]);
 		d[i] = Vectors.scale(d[i], 3.0);
     }
     for (row = 0; row <= DEGREE - 1; row++) {
