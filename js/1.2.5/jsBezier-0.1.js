@@ -13,38 +13,42 @@
 */
 
 (function() {
+	
+	var Vectors = {
+		subtract 	: 	function(v1, v2) { return {x:v1.x - v2.x, y:v1.y - v2.y }; },
+		dotProduct	: 	function(v1, v2) { return (v1.x * v2.x)  + (v1.y * v2.y); },
+		square		:	function(v) { return (v.x * v.x) + (v.y * v.y); },
+		scale		:	function(v, s) { return {x:v.x * s, y:v.y * s }; }
+	}
 		
 var	MAXDEPTH = 64, EPSILON	= Math.pow(2.0,-MAXDEPTH-1), DEGREE = 3, W_DEGREE = 5;
-var V2Sub = function(from, p) { return {x:from.x - p.x, y:from.y - p.y }; };
-var V2Dot = function(v1, v2) { return (v1.x * v2.x)  + (v1.y * v2.y); };
-var V2SquaredLength = function(v) { return (v.x * v.x) + (v.y * v.y); };
-var V2ScaleII = function(v, s) { return {x:v.x * s, y:v.y * s }; };
 
 /**
  * Calculates the distance that the point P is from the curve V. i think ;)
  * i need to verify that.
  */
 var _distanceFromCurve = function(P, V) {
+	console.log("distancefromcurve", P, V);
 	var w, n_solutions, t;			
     var 	t_candidate = new Array(W_DEGREE);     
     w = _convertToBezierForm(P, V);
     n_solutions = _findRoots(w, W_DEGREE, t_candidate, 0);
     var	dist, new_dist, p, v, i;
-	v = V2Sub(P, V[0]);
-	dist = V2SquaredLength(v);
+	v = Vectors.subtract(P, V[0]);
+	dist = Vectors.square(v);
     t = 0.0;
     for (i = 0; i < n_solutions; i++) {
     	p = Bezier(V, DEGREE, t_candidate[i],
 		null, null);
-		v = V2Sub(P, p);
-    	new_dist = V2SquaredLength(v);
+		v = Vectors.subtract(P, p);
+    	new_dist = Vectors.square(v);
     	if (new_dist < dist) {
             	dist = new_dist;
         		t = t_candidate[i];
 	    }
     }
-    v = V2Sub(P, V[DEGREE]);
-	new_dist = V2SquaredLength(v);
+    v = Vectors.subtract(P, V[DEGREE]);
+	new_dist = Vectors.square(v);
     	if (new_dist < dist) {
         	dist = new_dist;
     	t = 1.0;
@@ -52,6 +56,7 @@ var _distanceFromCurve = function(P, V) {
 	return {t:t,d:dist};
 };
 var _nearestPointOnCurve = function(P, V) {    
+	console.log("nearest point", P, V);
 	var td = _distanceFromCurve(P, V);
     return Bezier(V, DEGREE, td.t, null, null);
 };
@@ -61,15 +66,15 @@ var _convertToBezierForm = function(P, V) {
     var cdTable = [];
     var z = [ [1.0, 0.6, 0.3, 0.1], [0.4, 0.6, 0.6, 0.4], [0.1, 0.3, 0.6, 1.0] ];	
     for (i = 0; i <= DEGREE; i++)
-		c[i] = V2Sub(V[i], P);
+		c[i] = Vectors.subtract(V[i], P);
     for (i = 0; i <= DEGREE - 1; i++) { 
-		d[i] = V2Sub(V[i+1], V[i]);
-		d[i] = V2ScaleII(d[i], 3.0);
+		d[i] = Vectors.subtract(V[i+1], V[i]);
+		d[i] = Vectors.scale(d[i], 3.0);
     }
     for (row = 0; row <= DEGREE - 1; row++) {
 		for (column = 0; column <= DEGREE; column++) {
 			if (!cdTable[row]) cdTable[row] = [];
-	    	cdTable[row][column] = V2Dot(d[row], c[column]);
+	    	cdTable[row][column] = Vectors.dotProduct(d[row], c[column]);
 		}
     }
     w = [];
@@ -112,8 +117,8 @@ var _findRoots = function(w, degree, t, depth) {
        	}
     }
     Bezier(w, degree, 0.5, Left, Right);
-    left_count  = FindRoots(Left,  degree, left_t, depth+1);
-    right_count = FindRoots(Right, degree, right_t, depth+1);
+    left_count  = _findRoots(Left,  degree, left_t, depth+1);
+    right_count = _findRoots(Right, degree, right_t, depth+1);
     for (i = 0; i < left_count; i++) t[i] = left_t[i];
     for (i = 0; i < right_count; i++) t[i+left_count] = right_t[i];    
 	return (left_count+right_count);
@@ -202,7 +207,13 @@ var Bezier = function(V, degree, t, Left, Right) {
     return (Vtemp[degree][0]);
 };
 
+/**
+ * calculates a point on the curve, for a cubic bezier (TODO: fold this and the other function into one). 
+ * @param curve an array of control points, eg [{x:10,y:20}, {x:50,y:50}, {x:100,y:100}, {x:120,y:100}].  For a cubic bezier this should have four points.
+ * @param location a decimal indicating the distance along the curve the point should be located at.  this is the distance along the curve as it travels, taking the way it bends into account.  should be a number from 0 to 1, inclusive.
+ */
 var _pointOnPath = function(curve, location) {
+	console.log("pointonpath", curve, location);
 	// from http://13thparallel.com/archive/bezier-curves/
 	function B1(t) { return t*t*t };
 	function B2(t) { return 3*t*t*(1-t) };
@@ -214,6 +225,11 @@ var _pointOnPath = function(curve, location) {
 	return [x,y];
 };
 
+/**
+ * calculates a point on the curve, for a quadratic bezier (TODO: fold this and the other function into one). 
+ * @param curve an array of control points, eg [{x:10,y:20}, {x:50,y:50}, {x:100,y:100}].  For a quadratic bezier this should have three points.
+ * @param location a decimal indicating the distance along the curve the point should be located at.  this is the distance along the curve as it travels, taking the way it bends into account.  should be a number from 0 to 1, inclusive.
+ */
 var _quadraticPointOnPath = function(curve, location) {
 	function B1(t) { return t*t; };
 	function B2(t) { return 2*t*(1-t); };
@@ -225,9 +241,11 @@ var _quadraticPointOnPath = function(curve, location) {
 
 /**
  * finds the point that is 'distance' along the path from 'location'.  this method returns both the x,y location of the point and also
- * its 'location' (proportion of travel along the path).
+ * its 'location' (proportion of travel along the path); the method below - _pointAlongPathFrom - calls this method and just returns the
+ * point.
  */
 var _pointAlongPath = function(curve, location, distance) {
+	console.log("point along path", curve, location, distance);
 	var _dist = function(p1,p2) { return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2)); };
 	var prev = _pointOnPath(curve, location), tally = 0, curLoc = location, direction = distance > 0 ? 1 : -1, cur = null;
 	while (tally < Math.abs(distance)) {
@@ -239,7 +257,12 @@ var _pointAlongPath = function(curve, location, distance) {
 	return {point:cur, location:curLoc};        	
 };
 
+/**
+ * finds the point that is 'distance' along the path from 'location'.  this method returns both the x,y location of the point and also
+ * its 'location' (proportion of travel along the path).
+ */
 var _pointAlongPathFrom = function(curve, location, distance) {
+	console.log("point along path from", curve, location, distance);
 	return _pointAlongPath(curve, location, distance).point;
 };
 
