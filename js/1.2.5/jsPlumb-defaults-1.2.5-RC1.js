@@ -140,7 +140,7 @@
         this.pointOnPath = function(location) {
         	var xp = _sx + (location * _dx);
         	var yp = _m == Infinity ? xp + _b : (_m * xp) + _b;
-        	return [xp, yp];
+        	return {x:xp, y:yp};
         };
         
         /**
@@ -159,20 +159,20 @@
         	if (_sy > _ty) y = y * -1;
 			var x =  Math.abs(distance * Math.cos(_theta));
 			if (_sx > _tx) x = x * -1;
-			return [p[0] + (orientation * x), p[1] + (orientation * y)];
+			return {x:p.x + (orientation * x), y:p.y + (orientation * y)};
         };
         
         /**
          * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
          * the line is 'length' pixels long.
          */
-        this.perpendicularToPathAt = function(location, distance, length) {
+        this.perpendicularToPathAt = function(location, length, distance) {
         	var p = self.pointAlongPathFrom(location, distance);
         	var m = self.gradientAtPoint(p.location);
         	var _theta2 = Math.atan(-1 / m);
         	var y =  length / 2 * Math.sin(_theta2);
 			var x =  length / 2 * Math.cos(_theta2);
-			return [[p[0] + x, p[1] + y], [p[0] - x, p[1] - y]];
+			return [{x:p.x + x, y:p.y + y}, {x:p.x - x, y:p.y - y}];
         };        
         
         this.createGradient = function(dim, ctx) {
@@ -297,7 +297,16 @@
         				  {x:currentPoints[10], y:currentPoints[11]}, 
         				  {x:currentPoints[6], y:currentPoints[7]}];
         	return (jsBezier.distanceFromCurve(point, curve));        	        	
-        };        
+        }; 
+        
+        this.nearestPointTo = function(point) {
+        	var curve = [ {x:currentPoints[4], y:currentPoints[5]},
+        				  {x:currentPoints[8], y:currentPoints[9]}, 
+        				  {x:currentPoints[10], y:currentPoints[11]}, 
+        				  {x:currentPoints[6], y:currentPoints[7]}];
+        	return (jsBezier.nearestPointOnCurve(point, curve));
+        	
+        };
         
         /**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
@@ -330,8 +339,8 @@
          * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
          * the line is 'length' pixels long.
          */
-        this.perpendicularToPathAt = function(location, distance, length) {        	
-        	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, distance, length);
+        this.perpendicularToPathAt = function(location, length, distance) {        	
+        	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, length, distance);
         };
         
         this.createGradient = function(dim, ctx, swap) {
@@ -562,19 +571,19 @@
     		// this is the arrow head position    		
 			var hxy = connector.pointAlongPathFrom(self.loc, length / 2);		
 			// this is the center of the tail
-			var txy = connector.pointAlongPathFrom(self.loc, -length / 2), tx = txy[0], ty = txy[1];
+			var txy = connector.pointAlongPathFrom(self.loc, -length / 2), tx = txy.x, ty = txy.y;
 			// this is the tail vector
-			var tail = connector.perpendicularToPathAt(self.loc, -length / 2, width);
+			var tail = connector.perpendicularToPathAt(self.loc, width, -length / 2);
 			// this is the point the tail goes in to
 			var cxy = _getFoldBackPoint(connector, self.loc);
 			
 			ctx.lineWidth = lineWidth;
 			ctx.beginPath();
-			ctx.moveTo(hxy[0], hxy[1]);
-			ctx.lineTo(tail[0][0], tail[0][1]);
-			ctx.lineTo(cxy[0], cxy[1]);
-			ctx.lineTo(tail[1][0], tail[1][1]);
-			ctx.lineTo(hxy[0], hxy[1]);
+			ctx.moveTo(hxy.x, hxy.y);
+			ctx.lineTo(tail[0].x, tail[0].y);
+			ctx.lineTo(cxy.x, cxy.y);
+			ctx.lineTo(tail[1].x, tail[1].y);
+			ctx.lineTo(hxy.x, hxy.y);
 			ctx.closePath();
 			
 			if (strokeStyle) {
@@ -673,19 +682,19 @@
 					ctx.fillStyle = self.labelStyle.fillStyle;
 				else 
 					ctx.fillStyle = "rgba(0,0,0,0)";
-				ctx.fillRect(cxy[0] - (td.width / 2), cxy[1] - (td.height / 2) , td.width , td.height );
+				ctx.fillRect(cxy.x - (td.width / 2), cxy.y - (td.height / 2) , td.width , td.height );
 				
 				if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
 				ctx.textBaseline = "middle";
 				ctx.textAlign = "center";
 				for (i = 0; i < td.lines.length; i++) { 
-					ctx.fillText(td.lines[i],cxy[0], cxy[1] - (td.textHeight / 2) + (td.oneLine/2) + (i*td.oneLine));
+					ctx.fillText(td.lines[i],cxy.x, cxy.y - (td.textHeight / 2) + (td.oneLine/2) + (i*td.oneLine));
 				}
 				
 				// border
 				if (self.labelStyle.borderWidth > 0) {
 					ctx.strokeStyle = self.labelStyle.borderStyle || "black";
-					ctx.strokeRect(cxy[0] - (td.width / 2), cxy[1] - (td.height / 2) , td.width , td.height );
+					ctx.strokeRect(cxy.x - (td.width / 2), cxy.y - (td.height / 2) , td.width , td.height );
 				}
         	}
 	    };
@@ -741,7 +750,7 @@
     		var cxy = connector.pointOnPath(self.location);
     		var canvas = jsPlumb.CurrentLibrary.getElementObject(ctx.canvas);
     		var canvasOffset = jsPlumb.CurrentLibrary.getOffset(canvas);    		
-    		var o = {left:canvasOffset.left + cxy[0] - (self.img.width/2), top:canvasOffset.top + cxy[1] - (self.img.height/2)};
+    		var o = {left:canvasOffset.left + cxy.x - (self.img.width/2), top:canvasOffset.top + cxy.y - (self.img.height/2)};
     		jsPlumb.CurrentLibrary.setOffset(imgDiv, o);
     		imgDiv.style.display = "block";
     	};
