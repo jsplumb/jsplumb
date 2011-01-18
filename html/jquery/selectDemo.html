@@ -57,10 +57,11 @@ font-size:0.8em;}
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jsPlumb-1.2.3-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jsPlumb-defaults-1.2.3-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.3/jquery.jsPlumb-1.2.3-RC1.js"></script>
-		<script type="text/javascript" src="../../js/NearestPoint.js"></script>
+		<script type="text/javascript" src="../../js/1.2.5/jsPlumb-1.2.5-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.5/jsPlumb-defaults-1.2.5-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.5/jquery.jsPlumb-1.2.5-RC1.js"></script>
+		<!-- script type="text/javascript" src="../../js/NearestPoint.js"></script-->
+		<script type="text/javascript" src="../../js/1.2.5/jsBezier-0.1.js"></script>
 					            		
 		<script type="text/javascript">
 			$(document).ready(function() {
@@ -158,32 +159,36 @@ font-size:0.8em;}
 										labelStyle : { background:"white", padding:0.4, font:"16px sans-serif", color:"rgb(131,8,135)" },			    			        				 
 				    			        label : "4 - 5" });
 		        
-/*
-		        // all the mouse listener stuff
+
+		     // all the mouse listener stuff
 		        var c = function(connection, window) {
-					connection.bind("mouseenter", function(connection) {
-						jsPlumb.extend(connection.backgroundPaintStyle, {strokeStyle:'red'});
-						jsPlumb.repaint(window);
-						$(connection.source).addClass("hl");
-						$(connection.target).addClass("hl");						
+			        var bgstyle = connection.backgroundPaintStyle || {};
+					$(connection.canvas).bind("mousemove", function(e) {
+						console.log("conn1");
+						var o = $(connection.canvas).offset();
+						var p = { x:e.pageX - o.left, y:e.pageY - o.top };
+						var t = connection.distanceFrom(p);
+						$("#debug").html(t.d + ", " + t.t);
+						if (t.d < 50) {
+							connection.backgroundPaintStyle = {lineWidth:19,strokeStyle:'red'};
+							jsPlumb.repaint(window);
+							$(connection.source).addClass("hl");
+							$(connection.target).addClass("hl");
+						}
+						else {
+							connection.backgroundPaintStyle = bgstyle;
+							jsPlumb.repaint(window);
+							$(connection.source).removeClass("hl");
+							$(connection.target).removeClass("hl");
+						}
 					});
-					connection.bind("mouseleave", function(connection) {
-						jsPlumb.extend(connection.backgroundPaintStyle, {strokeStyle:'black'});
-						jsPlumb.repaint(window);
-						$(connection.source).removeClass("hl");
-						$(connection.target).removeClass("hl");						
-					});
-					connection.bind("click", function(connection) {
-						alert("click");
-					});
-					
 				};
 		        c(connection1, "window1");
 				c(connection2, "window3");
 				c(connection3, "window3");
 				c(connection4, "window4");
 				c(connection5, "window5");
-*/
+
 				// label button
 				$("#frmLabel").submit(function() {
 					connection4.setLabel($("#txtLabel").val());
