@@ -28,7 +28,7 @@
 		},
 		
 		getSize : function(el) {
-			//TODO must be a proper way to get this.
+			//TODO must be a proper way to get this?
 			var bcr = el._node.getBoundingClientRect();
 			return [ bcr.width, bcr.height ];
 		},
@@ -46,7 +46,10 @@
 		isDropSupported : function(el) { return false; },
 		
 		initDraggable : function(el, options) {
-			var drag = options['drag:drag'];
+			var drag = function() {
+				console.log("drag");
+				options['drag:drag'](el);
+			};
 			new YUI().use('dd-drag', function(Y) {
 			    var dd = new Y.DD.Drag({
 			        node: '#' + el.getAttribute('id')
@@ -63,11 +66,11 @@
 			el.removeClass(clazz);
 		},
 		
-		getUIPosition : function(args) {
-			var t = args[0].target.nodeXY;
-			return { left:t[0], top:t[1] };
-		}
-			
-	};
-		
+		getUIPosition : function(args) {		
+			//TODO must be a proper way to get this? args was passed through from the drag function
+			// in initDraggable above - args[0] here is the element that was inited.
+			var bcr = args[0]._node.getBoundingClientRect();
+			return { left:bcr.left, top:bcr.top };
+		}			
+	};		
 })();
