@@ -100,26 +100,72 @@ $(window).bind('resize', function() {
 
 /* 
  * the library agnostic functions, such as find offset, get id, get attribute, extend etc.  
+ * the full list is:
+ * 
+ * addClass				adds a class to the given element
+ * animate				calls the underlying library's animate functionality
+ * appendElement		appends a child element to a parent element.
+ * bind					binds some event to an element
+ * dragEvents			a dictionary of event names
+ * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
+ * getAttribute			gets some attribute from an element
+ * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
+ * getElementObject		turns an id or dom element into an element object of the underlying library's type.
+ * getOffset			gets an element's offset
+ * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
+ * getScrollTop			gets an element's scroll top.  TODO: is this actually used?  will it be?
+ * getSize				gets an element's size.
+ * getUIPosition		gets the position of some element that is currently being dragged, by extracting it from the arguments passed to a drag callback.
+ * initDraggable		initializes an element to be draggable 
+ * initDroppable		initializes an element to be droppable
+ * isDragSupported		returns whether or not drag is supported for some element.
+ * isDropSupported		returns whether or not drop is supported for some element.
+ * removeClass			removes a class from a given element.
+ * removeElement		removes some element completely from the DOM.
+ * setAttribute			sets an attribute on some element.
+ * setDraggable			sets whether or not some element should be draggable.
+ * setOffset			sets the offset of some element.
  */
 (function($) {	
 	
-	jsPlumb.CurrentLibrary = {
-					
-        /**
-         * mapping of drag events for jQuery
-         */
-		dragEvents : {
-			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
-			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
+	jsPlumb.CurrentLibrary = {					        
+		
+		/**
+		 * adds the given class to the element object.
+		 */
+		addClass : function(el, clazz) {
+			el.addClass(clazz);
 		},
 		
+		/**
+		 * animates the given element.
+		 */
+		animate : function(el, properties, options) {
+			el.animate(properties, options);
+		},				
+		
+		/**
+		 * appends the given child to the given parent.
+		 */
+		appendElement : function(child, parent) {
+			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
+		},
+		
+		/**
+		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
+		 * uses 'on'.
+		 */
 		bind : function(el, event, callback) {
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			el.bind(event, callback);
 		},
 		
-		appendElement : function(child, parent) {
-			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
+		/**
+         * mapping of drag events for jQuery
+         */
+		dragEvents : {
+			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
+			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
 				
 		/**
@@ -129,6 +175,20 @@ $(window).bind('resize', function() {
 		 */
 		extend : function(o1, o2) {
 			return $.extend(o1, o2);
+		},
+		
+		/**
+		 * gets the named attribute from the given element object.  
+		 */
+		getAttribute : function(el, attName) {
+			return el.attr(attName);
+		},
+		
+		/**
+		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
+		 */
+		getDragObject : function(eventArgs) {
+			return eventArgs[1].draggable;
 		},
 	
 		/**
@@ -150,6 +210,14 @@ $(window).bind('resize', function() {
 		getOffset : function(el) {
 			return el.offset();
 		},
+														
+		getScrollLeft : function(el) {
+			return el.scrollLeft();
+		},
+		
+		getScrollTop : function(el) {
+			return el.scrollTop();
+		},
 		
 		/**
 		 * gets the size for the element object, in an array : [ width, height ].
@@ -159,32 +227,18 @@ $(window).bind('resize', function() {
 		},
 		
 		/**
-		 * gets the named attribute from the given element object.  
+		 * takes the args passed to an event function and returns you an object that gives the
+		 * position of the object being moved, as a js object with the same params as the result of
+		 * getOffset, ie: { left: xxx, top: xxx }.
+		 * 
+		 * different libraries have different signatures for their event callbacks.  
+		 * see getDragObject as well
 		 */
-		getAttribute : function(el, attName) {
-			return el.attr(attName);
-		},
-		
-		/**
-		 * sets the named attribute on the given element object.  
-		 */
-		setAttribute : function(el, attName, attValue) {
-			el.attr(attName, attValue);
-		},
-		
-		/**
-		 * adds the given class to the element object.
-		 */
-		addClass : function(el, clazz) {
-			el.addClass(clazz);
-		},
-		
-		/**
-		 * removes the given class from the element object.
-		 */
-		removeClass : function(el, clazz) {
-			el.removeClass(clazz);
-		},
+		getUIPosition : function(eventArgs) {
+			var ui = eventArgs[1];
+			//return ui.absolutePosition || ui.offset;
+			return ui.offset || ui.absolutePosition;
+		},		
 		
 		/**
 		 * initialises the given element to be draggable.
@@ -200,20 +254,6 @@ $(window).bind('resize', function() {
 		},
 		
 		/**
-		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
-		 */
-		isDragSupported : function(el, options) {
-			return el.draggable;
-		},
-		
-		/**
-		 * sets the draggable state for the given element
-		 */
-		setDraggable : function(el, draggable) {
-			el.draggable("option", "disabled", !draggable);
-		},
-		
-		/**
 		 * initialises the given element to be droppable.
 		 */
 		initDroppable : function(el, options) {
@@ -222,50 +262,42 @@ $(window).bind('resize', function() {
 		},
 		
 		/**
+		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
+		 */
+		isDragSupported : function(el, options) {
+			return el.draggable;
+		},				
+						
+		/**
 		 * returns whether or not drop is supported (by the library, not whether or not it is disabled) for the given element.
 		 */
 		isDropSupported : function(el, options) {
 			return el.droppable;
-		},
+		},							
 		
 		/**
-		 * animates the given element.
+		 * removes the given class from the element object.
 		 */
-		animate : function(el, properties, options) {
-			el.animate(properties, options);
-		},
-		
-		/**
-		 * takes the args passed to an event function and returns you an object that gives the
-		 * position of the object being moved, as a js object with the same params as the result of
-		 * getOffset, ie: { left: xxx, top: xxx }.
-		 * 
-		 * different libraries have different signatures for their event callbacks.  
-		 * see getDragObject as well
-		 */
-		getUIPosition : function(eventArgs) {
-			var ui = eventArgs[1];
-			//return ui.absolutePosition || ui.offset;
-			return ui.offset || ui.absolutePosition;
-		},
-		
-		/**
-		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
-		 */
-		getDragObject : function(eventArgs) {
-			return eventArgs[1].draggable;
+		removeClass : function(el, clazz) {
+			el.removeClass(clazz);
 		},
 		
 		removeElement : function(element, parent) {			
 			jsPlumb.CurrentLibrary.getElementObject(element).remove();
 		},
 		
-		getScrollLeft : function(el) {
-			return el.scrollLeft();
+		/**
+		 * sets the named attribute on the given element object.  
+		 */
+		setAttribute : function(el, attName, attValue) {
+			el.attr(attName, attValue);
 		},
 		
-		getScrollTop : function(el) {
-			return el.scrollTop();
+		/**
+		 * sets the draggable state for the given element
+		 */
+		setDraggable : function(el, draggable) {
+			el.draggable("option", "disabled", !draggable);
 		},
 		
 		setOffset : function(el, o) {
