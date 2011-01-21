@@ -88,6 +88,9 @@
 		<antcall target="minLibrary">
 			<param name="library" value="mootools"/>
 		</antcall>
+		<antcall target="minLibrary">
+			<param name="library" value="yui"/>
+		</antcall>
 	</target>
 	
 	<target name="docs">
