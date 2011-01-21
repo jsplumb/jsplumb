@@ -39,7 +39,7 @@
 				}
 			};
 			this.clearListeners = function() {
-				delete _listeners
+				delete _listeners;
 				_listeners = {};
 			};
 		};
@@ -1208,7 +1208,7 @@
 					var floatingAnchor = new FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
 					floatingEndpoint = new Endpoint({ style : { fillStyle : 'rgba(0,0,0,0)' }, endpoint : _endpoint, anchor : floatingAnchor, source : nE });
 
-					if (jpc == null) {
+					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
 						// create a connection. one end is this endpoint, the
 						// other is a floating endpoint.
