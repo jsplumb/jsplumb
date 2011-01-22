@@ -90,22 +90,44 @@
 		}
 		l.push(value);
 	};
+	
+	/*
+	 * gets an "element object" from the given input.  this means an object that is used by the
+	 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
+	 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
+	 * function is used to find the element, using the given String as the element's id.
+	 */
+	var _getElementObject = function(el) {
+		return $(el);
+	};
 
 		
-	jsPlumb.CurrentLibrary = {
+	jsPlumb.CurrentLibrary = {					
+		
+		/**
+		 * adds the given class to the element object.
+		 */
+		addClass : function(el, clazz) {
+			el.addClass(clazz);
+		},	
 			
-		dragEvents : {
-			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
-			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
+		animate : function(el, properties, options) {			
+			var m = new jsPlumbMorph(el, options);
+			m.start(properties);
 		},
 		
 		appendElement : function(child, parent) {
-			jsPlumb.CurrentLibrary.getElementObject(parent).grab(child);			
+			_getElementObject(parent).grab(child);			
 		},
 		
 		bind : function(el, event, callback) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el = _getElementObject(el);
 			el.addEvent(event, callback);
+		},
+		
+		dragEvents : {
+			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
+			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
 		},
 
 		/*
@@ -116,16 +138,19 @@
 		extend : function(o1, o2) {
 			return $extend(o1, o2);
 		},
-	
-		/*
-		 * gets an "element object" from the given input.  this means an object that is used by the
-		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
-		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
-		 * function is used to find the element, using the given String as the element's id.
+		
+		/**
+		 * gets the named attribute from the given element object.  
 		 */
-		getElementObject : function(el) {
-			return $(el);
+		getAttribute : function(el, attName) {
+			return el.get(attName);
 		},
+		
+		getDragObject : function(eventArgs) {
+			return eventArgs[0];
+		},
+							
+		getElementObject : _getElementObject,
 		
 		/*
 		  gets the offset for the element object.  this should return a js object like this:
@@ -135,10 +160,14 @@
 		getOffset : function(el) {
 			var p = el.getPosition();
 			return { left:p.x, top:p.y };
+		},								
+		
+		getScrollLeft : function(el) {
+			return null;
 		},
 		
-		setOffset : function(el, o) {
-			jsPlumb.CurrentLibrary.getElementObject(el).setPosition({x:o.left, y:o.top});
+		getScrollTop : function(el) {
+			return null;
 		},
 		
 		getSize : function(el) {
@@ -146,33 +175,15 @@
 			return [s.x, s.y];
 		},
 		
-		/**
-		 * gets the named attribute from the given element object.  
+		/*
+		 * takes the args passed to an event function and returns you an object that gives the
+		 * position of the object being moved, as a js object with the same params as the result of
+		 * getOffset, ie: { left: xxx, top: xxx }.
 		 */
-		getAttribute : function(el, attName) {
-			return el.get(attName);
-		},
-		
-		/**
-		 * sets the named attribute on the given element object.  
-		 */
-		setAttribute : function(el, attName, attValue) {
-			el.set(attName, attValue);
-		},
-		
-		/**
-		 * adds the given class to the element object.
-		 */
-		addClass : function(el, clazz) {
-			el.addClass(clazz);
-		},
-		
-		/**
-		 * removes the given class from the element object.
-		 */
-		removeClass : function(el, clazz) {
-			el.removeClass(clazz);
-		},
+		getUIPosition : function(eventArgs) {
+			var ui = eventArgs[0];
+			return { left: ui.offsetLeft, top: ui.offsetTop };
+		},													
 		
 		initDraggable : function(el, options) {
 			var id = jsPlumb.getId(el);
@@ -233,12 +244,49 @@
 			return drag;
 		},
 		
+		initDroppable : function(el, options) {
+			var scope = options['scope'] || jsPlumb.Defaults.Scope;
+			_add(_droppables, scope, el);
+			var id = jsPlumb.getId(el);
+			_droppableOptions[id] = options;
+			var filterFunc = function(entry) { return entry.element != el; };
+			var draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
+			for (var i = 0; i < draggables.length; i++) {
+				draggables[i].droppables.push(el);
+			}
+		},
+		
 		isAlreadyDraggable : function(el) {
 			return _draggablesById[jsPlumb.getId(el)] != null;
-		},
+		},										
 		
 		isDragSupported : function(el, options) {
 			return typeof Drag != 'undefined' ;
+		},	
+		
+		/*
+		 * you need Drag.Move imported to make drop work.
+		 */
+		isDropSupported : function(el, options) {
+			return (typeof Drag != undefined && typeof Drag.Move != undefined);
+		},
+		
+		/**
+		 * removes the given class from the element object.
+		 */
+		removeClass : function(el, clazz) {
+			el.removeClass(clazz);
+		},
+		
+		removeElement : function(element, parent) {		
+			_getElementObject(element).dispose();  // ??
+		},
+		
+		/**
+		 * sets the named attribute on the given element object.  
+		 */
+		setAttribute : function(el, attName, attValue) {
+			el.set(attName, attValue);
 		},
 		
 		setDraggable : function(el, draggable) {
@@ -250,56 +298,8 @@
 			}
 		},
 		
-		initDroppable : function(el, options) {
-			var scope = options['scope'] || jsPlumb.Defaults.Scope;
-			_add(_droppables, scope, el);
-			var id = jsPlumb.getId(el);
-			_droppableOptions[id] = options;
-			var filterFunc = function(entry) {
-				return entry.element != el;
-			};
-			var draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
-			for (var i = 0; i < draggables.length; i++) {
-				draggables[i].droppables.push(el);
-			}
-		},
-		
-		/*
-		 * you need Drag.Move imported to make drop work.
-		 */
-		isDropSupported : function(el, options) {
-			return (typeof Drag != undefined && typeof Drag.Move != undefined);
-		},
-		
-		animate : function(el, properties, options) {			
-			var m = new jsPlumbMorph(el, options);
-			m.start(properties);
-		},
-		
-		getDragObject : function(eventArgs) {
-			return eventArgs[0];
-		},
-		
-		getScrollLeft : function(el) {
-			return null;
-		},
-		
-		getScrollTop : function(el) {
-			return null;
-		},
-		
-		/*
-		 * takes the args passed to an event function and returns you an object that gives the
-		 * position of the object being moved, as a js object with the same params as the result of
-		 * getOffset, ie: { left: xxx, top: xxx }.
-		 */
-		getUIPosition : function(eventArgs) {
-			var ui = eventArgs[0];
-			return { left: ui.offsetLeft, top: ui.offsetTop };
-		},
-		
-		removeElement : function(element, parent) {		
-			jsPlumb.CurrentLibrary.getElementObject(element).dispose();  // ??
+		setOffset : function(el, o) {
+			_getElementObject(el).setPosition({x:o.left, y:o.top});
 		}
 	};
 })();
