@@ -274,7 +274,6 @@
 		removeElement : function(el) { _getElementObject(el).remove(); },
 		
 		setAttribute : function(el, attributeName, attributeValue) {
-			console.log("set attribute", el.getAttribute("id"), attributeName, attributeValue);
 			el.setAttribute(attributeName, attributeValue);
 		},
 		
