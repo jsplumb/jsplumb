@@ -1,9 +1,9 @@
 /*
- * jsPlumb 1.2.4-RC1
+ * jsPlumb 1.2.5-RC1
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
- * http://morrisonpitt.com/jsPlumb/demo.html
+ * http://jsplumb.org
  * http://code.google.com/p/jsPlumb
  * 
  * Dual licensed under MIT and GPL2.
@@ -20,10 +20,9 @@
 			var _listeners = {};
 			this.bind = function(event, listener) {
 				var doOne = function(e, l) { _addToList(_listeners, e, l); };
-				if (event.constructor == Array) {
-					for ( var i = 0; i < event.length; i++)
-						doOne(event[i], listener);
-				} else
+				if (event.constructor == Array)
+					for ( var i = 0; i < event.length; i++) doOne(event[i], listener);
+				else 
 					doOne(event, listener);				
 			};
 			this.fireUpdate = function(event, value) {
@@ -133,9 +132,7 @@
 		/**
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
 		 */
-		var _timestamp = function() {
-			return "" + (new Date()).getTime();
-		};
+		var _timestamp = function() { return "" + (new Date()).getTime(); };
 
 		/**
 		 * Draws an endpoint and its connections.
@@ -206,38 +203,14 @@
 			if (_currentInstance.logEnabled && typeof console != "undefined")
 				console.log(msg);
 		};
-
-		/**
-		 * gets the named attribute from the given element (id or element
-		 * object)
-		 */
-		var _getAttribute = function(el, attName) {
-			return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName);
-		};
-
-		var _setAttribute = function(el, attName, attValue) {
-			jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue);
-		};
-
-		var _addClass = function(el, clazz) {
-			jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz);
-		};
-
-		var _removeClass = function(el, clazz) {
-			jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz);
-		};
-
-		var _getElementObject = function(el) {
-			return jsPlumb.CurrentLibrary.getElementObject(el);
-		};
-
-		var _getOffset = function(el) {
-			return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el));
-		};
-
-		var _getSize = function(el) {
-			return jsPlumb.CurrentLibrary.getSize(_getElementObject(el));
-		};
+		
+		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); };
+		var _setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); };
+		var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); };
+		var _removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); };
+		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
+		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
+		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };
 
 		/**
 		 * gets an id for the given element, creating and setting one if
@@ -246,7 +219,7 @@
 		var _getId = function(element, uuid) {
 			var ele = _getElementObject(element);
 			var id = _getAttribute(ele, "id");
-			if (!id) {
+			if (!id || id == "undefined") {
 				// check if fixed uuid parameter is given
 				if (arguments.length == 2)
 					id = uuid;
@@ -260,9 +233,7 @@
 		/**
 		 * gets an Endpoint by uuid.
 		 */
-		var _getEndpoint = function(uuid) {
-			return endpointsByUUID[uuid];
-		};
+		var _getEndpoint = function(uuid) { return endpointsByUUID[uuid]; };
 
 		/**
 		 * inits a draggable if it's not already initialised.
@@ -270,7 +241,7 @@
 		var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
 			var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
 			if (draggable) {
-				if (jsPlumb.CurrentLibrary.isDragSupported(element)) {
+				if (jsPlumb.CurrentLibrary.isDragSupported(element) && !jsPlumb.CurrentLibrary.isAlreadyDraggable(element)) {
 					var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
 					options = jsPlumb.extend( {}, options); // make a copy.
 					var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
@@ -371,13 +342,15 @@
 		 * helper method to remove an item from a list.
 		 */
 		var _removeFromList = function(map, key, value) {
-			var l = map[key];
-			if (l != null) {
-				var i = _findIndex(l, value);
-				if (i >= 0) {
-					delete (l[i]);
-					l.splice(i, 1);
-					return true;
+			if (key != null) {
+				var l = map[key];
+				if (l != null) {
+					var i = _findIndex(l, value);
+					if (i >= 0) {
+						delete (l[i]);
+						l.splice(i, 1);
+						return true;
+					}
 				}
 			}
 			return false;
@@ -522,8 +495,7 @@
 			this.x = params.x || 0;
 			this.y = params.y || 0;
 			var orientation = params.orientation || [ 0, 0 ];
-			var lastTimestamp = null;
-			var lastReturnValue = null;
+			var lastTimestamp = null, lastReturnValue = null;
 			this.offsets = params.offsets || [ 0, 0 ];
 			self.timestamp = null;
 			this.compute = function(params) {
@@ -548,9 +520,7 @@
 				return lastReturnValue;
 			};
 
-			this.getOrientation = function() {
-				return orientation;
-			};
+			this.getOrientation = function() { return orientation; };
 
 			this.equals = function(anchor) {
 				if (!anchor) return false;
@@ -562,9 +532,7 @@
 						&& o[0] == ao[0] && o[1] == ao[1];
 			};
 
-			this.getCurrentLocation = function() {
-				return lastReturnValue;
-			};
+			this.getCurrentLocation = function() { return lastReturnValue; };
 		};
 
 		/**
@@ -621,22 +589,16 @@
 			 * over another anchor; we want to assume that anchor's orientation
 			 * for the duration of the hover.
 			 */
-			this.over = function(anchor) {
-				orientation = anchor.getOrientation();
-			};
+			this.over = function(anchor) { orientation = anchor.getOrientation(); };
 
 			/**
 			 * notification the endpoint associated with this anchor is no
 			 * longer hovering over another anchor; we should resume calculating
 			 * orientation as we normally do.
 			 */
-			this.out = function() {
-				orientation = null;
-			};
+			this.out = function() { orientation = null; };
 
-			this.getCurrentLocation = function() {
-				return _lastResult;
-			};
+			this.getCurrentLocation = function() { return _lastResult; };
 		};
 
 		/*
@@ -1309,11 +1271,11 @@
 								// i wonder if this one should post an event though.  maybe this is good like this.
 								_removeElement(jpc.canvas, self.container);
 								self.detachFromConnection(jpc);								
-							}														
+							}																
 						}
 						self.anchor.locked = false;												
 						self.paint();
-						jpc.repaint();
+						//jpc.repaint();
 						jpc = null;						
 						delete inPlaceCopy;							
 						delete endpointsByElement[floatingEndpoint.elementId];						
@@ -1831,7 +1793,15 @@
 					var ele = _getElementObject(el[i]);
 					if (ele) _initDraggableIfNecessary(ele, true, options);
 				}
-			} else {
+			} 
+			else if (el._nodes) { 	// this is YUI specific; really the logic should be forced
+				// into the library adapters (for jquery and mootools aswell)
+				for ( var i = 0; i < el._nodes.length; i++) {
+					var ele = _getElementObject(el._nodes[i]);
+					if (ele) _initDraggableIfNecessary(ele, true, options);
+				}
+			}
+			else {
 				var ele = _getElementObject(el);
 				if (ele) _initDraggableIfNecessary(ele, true, options);
 			}
