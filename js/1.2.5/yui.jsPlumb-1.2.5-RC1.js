@@ -1,4 +1,19 @@
 
+/*
+ * yui.jsPlumb 1.2.5-RC1
+ * 
+ * YUI3 specific functionality for jsPlumb.
+ * 
+ * http://morrisonpitt.com/jsPlumb/demo.html
+ * http://code.google.com/p/jsPlumb
+ * 
+ * NOTE: for production usage you should use yui-all-x.x.x-min.js, which contains the main jsPlumb script and this script together,
+ * in a minified file.
+ * 
+ * Dual licensed under MIT and GPL2.
+ * 
+ */ 
+
 /**
  * addClass				adds a class to the given element
  * animate				calls the underlying library's animate functionality
@@ -77,6 +92,7 @@
 	 */
 	var _attachDDListeners = function(dd, options, el) {
 		// attach event listeners
+	
 	    for (var ev in options) {
 	    	if (ddEvents.indexOf(ev) != -1) {
 	    		var w = _wrapper(options[ev], el);
@@ -112,7 +128,7 @@
 		},
 			
 		dragEvents : {
-			'start':'drag:start', 'stop':'drag:stop', 'drag':'drag:drag', 'step':'step',
+			'start':'drag:start', 'stop':'drag:end', 'drag':'drag:drag', 'step':'step',
 			'over':'drag:over', 'out':'drag:exit', 'drop':'drop:hit'
 		},								
 			
@@ -151,13 +167,13 @@
 		},
 		
 		getSize : function(el) {
-			//TODO must be a proper way to get this?
+			//TODO must be a better way to get this?
 			var bcr = jsPlumb.CurrentLibrary.getElementObject(el)._node.getBoundingClientRect();
 			return [ bcr.width, bcr.height ];
 		},
 		
 		getUIPosition : function(args) {		
-			//TODO must be a proper way to get this? args was passed through from the drag function
+			//TODO must be a better way to get this? args was passed through from the drag function
 			// in initDraggable above - args[0] here is the element that was inited.
 			var bcr = jsPlumb.CurrentLibrary.getElementObject(args[0])._node.getBoundingClientRect();
 			return { left:bcr.left, top:bcr.top };
@@ -165,36 +181,33 @@
 				
 		initDraggable : function(el, options) {
 			var _opts = _getDDOptions(options);
-			_opts.node = "#" + el.getAttribute("id");
+			_opts.node = "#" + jsPlumb.getId(el);
 			YUI().use("dd-drag", function(Y) {
 			    var dd = new Y.DD.Drag(_opts);
-			    _attachDDListeners(dd, options, el);			    
+			    _attachDDListeners(dd, options, el);
 			});
 		},
 		
 		initDroppable : function(el, options) {
 			var _opts = _getDDOptions(options);
-			_opts.node = "#" + el.getAttribute("id");
+			_opts.node = "#" + jsPlumb.getId(el);
 			YUI().use("dd-drop", function(Y) {
 				var dd = new Y.DD.Drop(_opts);
 				_attachDDListeners(dd, options, el);
+				 dd.on("drop:over", function() { alert("hi"); });
+				    dd.on("drop:hit", function() { alert("hi"); });
 			});			
 		},
 		
-		isDragSupported : function(el) { 
-			return true;
-		},
-		
-		isDropSupported : function(el) { 
-			return true;
-		},
+		isDragSupported : function(el) { return true; },		
+		isDropSupported : function(el) { return true; },
 										
 		removeClass : function(el, clazz) {
 			el.removeClass(clazz);
 		},
 		
 		removeElement : function(el) {
-			alert("YUI removeElement not implemented yet");
+			jsPlumb.CurrentLibrary.getElementObject(el).remove();
 		},
 		
 		setAttribute : function(el, attributeName, attributeValue) {
@@ -212,8 +225,6 @@
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			el.set("top", o.top);
 			el.set("left", o.left);
-		}
-		
-					
+		}							
 	};		
 })();
