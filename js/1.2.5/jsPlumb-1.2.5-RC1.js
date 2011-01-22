@@ -221,7 +221,7 @@
 			var id = _getAttribute(ele, "id");
 			if (!id || id == "undefined") {
 				// check if fixed uuid parameter is given
-				if (arguments.length == 2)
+				if (arguments.length == 2 && arguments[1] != undefined)
 					id = uuid;
 				else
 					id = "_jsPlumb_" + _timestamp();
