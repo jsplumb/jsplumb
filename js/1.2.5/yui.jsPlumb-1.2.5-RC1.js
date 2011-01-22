@@ -43,7 +43,7 @@
 	
 	var Y;
 	
-	YUI().use('node', 'dd',  function(_Y) {
+	YUI().use('node', 'dd', 'anim', function(_Y) {
 		Y = _Y;
 	});
 	
@@ -61,34 +61,18 @@
 		l.push(value);
 	};
 	
-	var ddEvents = [
-	     "drag:mouseDown", 
-	     "drag:afterMouseDown", 
-	     "drag:mouseup", 
-	     "drag:align",
-	     "drag:removeHandle",
-	     "drag:addHandle",
-	     "drag:removeInvalid",
-	     "drag:addInvalid",
-	     "drag:start",
-	     "drag:end",
-	     "drag:drag",
-	     "drag:over",
-	     "drag:enter",
-	     "drag:exit",
-	     "drag:drophit",
-	     "drag:dropmiss",
-	     "drop:over",
-	     "drop:enter",
-	     "drop:exit",
-	     "drop:hit"	     	               
+	var ddEvents = [ "drag:mouseDown", "drag:afterMouseDown", "drag:mouseup", 
+	     "drag:align", "drag:removeHandle", "drag:addHandle", "drag:removeInvalid", "drag:addInvalid",
+	     "drag:start", "drag:end", "drag:drag", "drag:over", "drag:enter",
+	     "drag:exit", "drag:drophit", "drag:dropmiss", "drop:over", "drop:enter", "drop:exit", "drop:hit"	     	               
 	];
+	
+	var animEvents = [ "tween" ];
 	
 	/**
 	 * helper function to curry callbacks for some element. 
 	 */
-	var _wrapper = function(fn, el) {
-		//return function() { fn(el); };
+	var _wrapper = function(fn) {
 		return function() { fn.apply(this, arguments); };
 	};
 	
@@ -105,10 +89,10 @@
 	 * attaches all event handlers found in options to the given dragdrop object, and registering
 	 * the given el as the element of interest.
 	 */
-	var _attachDDListeners = function(dd, options, el, log) {	
+	var _attachListeners = function(dd, options, eventList) {	
 	    for (var ev in options) {
-	    	if (ddEvents.indexOf(ev) != -1) {
-	    		var w = _wrapper(options[ev], el);
+	    	if (eventList.indexOf(ev) != -1) {
+	    		var w = _wrapper(options[ev]);
 	    		dd.on(ev, w);
 	    	}
 	    }
@@ -142,6 +126,10 @@
 		return o1;
 	};
 	
+	var _getAttribute = function(el, attributeId) {
+		return el.getAttribute(attributeId);
+	};
+	
 	var _getElementObject = function(el) {
 		return typeof el == 'string' ? Y.one('#' + el) : Y.one(el);
 	};
@@ -156,8 +144,14 @@
 		 * animates the given element.
 		 */
 		animate : function(el, properties, options) {
-			var o = _extend({node:el, to:properties}, options);
-			new Y.Anim(o).run();
+			var o = _extend({node:el, to:properties}, options);			
+			var id = _getAttribute(el, "id");
+			o["tween"] = jsPlumb.wrap(properties["tween"], function() {
+				jsPlumb.repaint(id);
+			});
+			var a = new Y.Anim(o);
+			_attachListeners(a, o, animEvents);
+			a.run();
 		},
 		
 		appendElement : function(child, parent) {
@@ -178,9 +172,7 @@
 			
 		extend : _extend,
 		
-		getAttribute : function(el, attributeId) {
-			return el.getAttribute(attributeId);
-		},				
+		getAttribute : _getAttribute,				
 		
 		/**
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
@@ -234,7 +226,7 @@
 			_draggablesById[id] = dd;
 			_add(_draggablesByScope, scope, dd);
 			
-			_attachDDListeners(dd, options, el);
+			_attachListeners(dd, options, ddEvents);
 		},
 		
 		initDroppable : function(el, options) {
@@ -260,7 +252,7 @@
 				_checkHover(el, false);
 			}, true);
 			
-			_attachDDListeners(dd, options, el, true);
+			_attachListeners(dd, options, ddEvents);
 		},
 		
 		isAlreadyDraggable : function(el) {
