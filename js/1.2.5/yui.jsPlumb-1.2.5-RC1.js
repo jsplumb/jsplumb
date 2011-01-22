@@ -43,7 +43,7 @@
 	
 	var Y;
 	
-	YUI().use('node', function(_Y) {
+	YUI().use('node', 'dd',  function(_Y) {
 		Y = _Y;
 	});
 	
@@ -74,7 +74,8 @@
 	 * helper function to curry callbacks for some element. 
 	 */
 	var _wrapper = function(fn, el) {
-		return function() { fn(el); };
+		//return function() { fn(el); };
+		return function() { fn.apply(this, arguments); };
 	};
 	
 	/**
@@ -90,16 +91,24 @@
 	 * attaches all event handlers found in options to the given dragdrop object, and registering
 	 * the given el as the element of interest.
 	 */
-	var _attachDDListeners = function(dd, options, el) {
+	var _attachDDListeners = function(dd, options, el, log) {
 		// attach event listeners
 	
 	    for (var ev in options) {
 	    	if (ddEvents.indexOf(ev) != -1) {
 	    		var w = _wrapper(options[ev], el);
 	    		dd.on(ev, w);
+	    		if (log) console.log("attached listener to event " + ev);
 	    	}
 	    }
 	};
+	
+	var _droppables = {};
+	var _droppableOptions = {};
+	var _draggablesByScope = {};
+	var _draggablesById = {};
+	
+	var _lastDragObject = null;
 	                	
 	jsPlumb.CurrentLibrary = {
 			
@@ -129,7 +138,7 @@
 			
 		dragEvents : {
 			'start':'drag:start', 'stop':'drag:end', 'drag':'drag:drag', 'step':'step',
-			'over':'drag:over', 'out':'drag:exit', 'drop':'drop:hit'
+			'over':'drop:enter', 'out':'drop:exit', 'drop':'drop:hit'
 		},								
 			
 		extend : function(o1, o2) {
@@ -146,7 +155,11 @@
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
 		 */
 		getDragObject : function(eventArgs) {
-			alert("YUI getDragObject not implemented yet");
+			// this is a workaround for the unfortunate fact that in YUI3, the 'drop:exit' event does
+			// not contain a reference to the drag that just exited.  single-threaded js to the 
+			// rescue: we'll just keep it for ourselves.
+			if (eventArgs[0].drag) _lastDragObject = eventArgs[0].drag.el;
+			return _lastDragObject;
 		},
 		
 		getElementObject : function(el) {
@@ -175,42 +188,39 @@
 		getUIPosition : function(args) {		
 			//TODO must be a better way to get this? args was passed through from the drag function
 			// in initDraggable above - args[0] here is the element that was inited.
-			var bcr = jsPlumb.CurrentLibrary.getElementObject(args[0])._node.getBoundingClientRect();
+			var bcr = jsPlumb.CurrentLibrary.getElementObject(args[0].currentTarget.el)._node.getBoundingClientRect();
 			return { left:bcr.left, top:bcr.top };
 		},
 				
 		initDraggable : function(el, options) {
 			var _opts = _getDDOptions(options);
-			_opts.node = "#" + jsPlumb.getId(el);
-			YUI().use("dd-drag", function(Y) {
-			    var dd = new Y.DD.Drag(_opts);
-			    _attachDDListeners(dd, options, el);
-			});
+			var id = jsPlumb.getId(el);
+			_opts.node = "#" + id;				
+			var dd = new Y.DD.Drag(_opts);
+			dd.el = el;
+			_attachDDListeners(dd, options, el);
+			_draggablesById[id] = dd;
 		},
 		
 		initDroppable : function(el, options) {
 			var _opts = _getDDOptions(options);
-			_opts.node = "#" + jsPlumb.getId(el);
-			YUI().use("dd-drop", function(Y) {
-				var dd = new Y.DD.Drop(_opts);
-				_attachDDListeners(dd, options, el);
-				 dd.on("drop:over", function() { alert("hi"); });
-				    dd.on("drop:hit", function() { alert("hi"); });
-			});			
+			_opts.node = "#" + jsPlumb.getId(el);			
+			var dd = new Y.DD.Drop(_opts);
+			_attachDDListeners(dd, options, el, true);			
+		},
+		
+		isAlreadyDraggable : function(el) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			return el.hasClass("yui3-dd-draggable");
 		},
 		
 		isDragSupported : function(el) { return true; },		
-		isDropSupported : function(el) { return true; },
-										
-		removeClass : function(el, clazz) {
-			el.removeClass(clazz);
-		},
-		
-		removeElement : function(el) {
-			jsPlumb.CurrentLibrary.getElementObject(el).remove();
-		},
+		isDropSupported : function(el) { return true; },										
+		removeClass : function(el, clazz) { el.removeClass(clazz); },		
+		removeElement : function(el) { jsPlumb.CurrentLibrary.getElementObject(el).remove(); },
 		
 		setAttribute : function(el, attributeName, attributeValue) {
+			console.log("set attribute", el.getAttribute("id"), attributeName, attributeValue);
 			el.setAttribute(attributeName, attributeValue);
 		},
 		
@@ -218,7 +228,9 @@
 		 * sets the draggable state for the given element
 		 */
 		setDraggable : function(el, draggable) {
-			alert("YUI setDraggable not implemented yet");
+			var id = jsPlumb.getId(el);
+			var dd = _draggablesById[id];
+			if (dd) dd.set("lock", !draggable);
 		},
 		
 		setOffset : function(el, o) {
