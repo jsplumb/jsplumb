@@ -47,6 +47,20 @@
 		Y = _Y;
 	});
 	
+	/**
+	 * adds the given value to the given list, with the given scope. creates the scoped list
+	 * if necessary.
+	 * used by initDraggable and initDroppable.
+	 */
+	var _add = function(list, scope, value) {
+		var l = list[scope];
+		if (!l) {
+			l = [];
+			list[scope] = l;
+		}
+		l.push(value);
+	};
+	
 	var ddEvents = [
 	     "drag:mouseDown", 
 	     "drag:afterMouseDown", 
@@ -104,6 +118,21 @@
 	var _droppableOptions = {};
 	var _draggablesByScope = {};
 	var _draggablesById = {};
+	
+	var _checkHover = function(el, entering) {
+		if (el) {
+			var id = el.get("id");
+			if (id) {
+				var options = _droppableOptions[id];
+				if (options) {
+					if (options['hoverClass']) {
+						if (entering) el.addClass(options['hoverClass']);
+						else el.removeClass(options['hoverClass']);
+					}
+				}
+			}
+		}
+	};
 	
 	var _lastDragObject = null;
 	
@@ -197,16 +226,41 @@
 			var id = jsPlumb.getId(el);
 			_opts.node = "#" + id;				
 			var dd = new Y.DD.Drag(_opts);
-			dd.el = el;
-			_attachDDListeners(dd, options, el);
+			dd.el = el;			
+			
+			var scope = options['scope'] || jsPlumb.Defaults.Scope;
+			dd.scope = scope;
+			
 			_draggablesById[id] = dd;
+			_add(_draggablesByScope, scope, dd);
+			
+			_attachDDListeners(dd, options, el);
 		},
 		
 		initDroppable : function(el, options) {
 			var _opts = _getDDOptions(options);
-			_opts.node = "#" + jsPlumb.getId(el);			
+			var id = jsPlumb.getId(el);
+			_opts.node = "#" + id;			
 			var dd = new Y.DD.Drop(_opts);
-			_attachDDListeners(dd, options, el, true);			
+				
+			_droppableOptions[id] = options;
+			
+			options = _extend({}, options);
+			var scope = options['scope'] || jsPlumb.Defaults.Scope;					
+			
+			options["drop:enter"] = jsPlumb.wrap(options["drop:enter"], function(e) {
+				if (e.drag.scope !== scope) return true;
+				_checkHover(el, true);
+			}, true);
+			options["drop:exit"] = jsPlumb.wrap(options["drop:exit"], function(e) {
+				_checkHover(el, false);
+			});
+			options["drop:hit"] = jsPlumb.wrap(options["drop:hit"], function(e) {
+				if (e.drag.scope !== scope) return true;
+				_checkHover(el, false);
+			}, true);
+			
+			_attachDDListeners(dd, options, el, true);
 		},
 		
 		isAlreadyDraggable : function(el) {
