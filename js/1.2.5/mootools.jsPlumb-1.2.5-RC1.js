@@ -1,5 +1,5 @@
 /*
- * mootools.jsPlumb 1.2.4-RC1
+ * mootools.jsPlumb 1.2.5-RC1
  * 
  * MooTools specific functionality for jsPlumb.
  * 
@@ -233,6 +233,10 @@
 			return drag;
 		},
 		
+		isAlreadyDraggable : function(el) {
+			return _draggablesById[jsPlumb.getId(el)] != null;
+		},
+		
 		isDragSupported : function(el, options) {
 			return typeof Drag != 'undefined' ;
 		},
@@ -264,14 +268,24 @@
 		 * you need Drag.Move imported to make drop work.
 		 */
 		isDropSupported : function(el, options) {
-			if (typeof Drag != undefined)
-				return typeof Drag.Move != undefined;
-			return false;
+			return (typeof Drag != undefined && typeof Drag.Move != undefined);
 		},
 		
 		animate : function(el, properties, options) {			
 			var m = new jsPlumbMorph(el, options);
 			m.start(properties);
+		},
+		
+		getDragObject : function(eventArgs) {
+			return eventArgs[0];
+		},
+		
+		getScrollLeft : function(el) {
+			return null;
+		},
+		
+		getScrollTop : function(el) {
+			return null;
 		},
 		
 		/*
@@ -284,20 +298,8 @@
 			return { left: ui.offsetLeft, top: ui.offsetTop };
 		},
 		
-		getDragObject : function(eventArgs) {
-			return eventArgs[0];
-		},
-		
 		removeElement : function(element, parent) {		
 			jsPlumb.CurrentLibrary.getElementObject(element).dispose();  // ??
-		},
-		
-		getScrollLeft : function(el) {
-			return null;
-		},
-		
-		getScrollTop : function(el) {
-			return null;
 		}
 	};
 })();
