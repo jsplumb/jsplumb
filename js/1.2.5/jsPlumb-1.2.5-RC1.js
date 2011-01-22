@@ -451,8 +451,14 @@
 		 * important lifecycle events without imposing itself on the user's
 		 * drag/drop functionality. TODO: determine whether or not we should
 		 * support an error handler concept, if one of the functions fails.
+		 * 
+		 * @param wrappedFunction original function to wrap; may be null.
+		 * @param newFunction function to wrap the original with.
+		 * @param returnOnThisValue Optional. Indicates that the wrappedFunction should 
+		 * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
+		 * note that this is a simple comparison and only works for primitives right now.
 		 */
-		var _wrap = function(wrappedFunction, newFunction) {
+		var _wrap = function(wrappedFunction, newFunction, returnOnThisValue) {
 			wrappedFunction = wrappedFunction || function() { };
 			newFunction = newFunction || function() { };
 			return function() {
@@ -462,10 +468,12 @@
 				} catch (e) {
 					_log('jsPlumb function failed : ' + e);
 				}
-				try {
-					wrappedFunction.apply(this, arguments);
-				} catch (e) {
-					_log('wrapped function failed : ' + e);
+				if (returnOnThisValue == null || (r !== returnOnThisValue)) {
+					try {
+						wrappedFunction.apply(this, arguments);
+					} catch (e) {
+						_log('wrapped function failed : ' + e);
+					}
 				}
 				return r;
 			};
