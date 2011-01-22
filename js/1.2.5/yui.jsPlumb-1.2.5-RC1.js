@@ -91,14 +91,11 @@
 	 * attaches all event handlers found in options to the given dragdrop object, and registering
 	 * the given el as the element of interest.
 	 */
-	var _attachDDListeners = function(dd, options, el, log) {
-		// attach event listeners
-	
+	var _attachDDListeners = function(dd, options, el, log) {	
 	    for (var ev in options) {
 	    	if (ddEvents.indexOf(ev) != -1) {
 	    		var w = _wrapper(options[ev], el);
 	    		dd.on(ev, w);
-	    		if (log) console.log("attached listener to event " + ev);
 	    	}
 	    }
 	};
@@ -109,7 +106,17 @@
 	var _draggablesById = {};
 	
 	var _lastDragObject = null;
-	                	
+	
+	var _extend = function(o1, o2) {
+		for (var i in o2)
+			o1[i] = o2[i];
+		return o1;
+	};
+	
+	var _getElementObject = function(el) {
+		return typeof el == 'string' ? Y.one('#' + el) : Y.one(el);
+	};
+	
 	jsPlumb.CurrentLibrary = {
 			
 		addClass : function(el, clazz) {
@@ -120,20 +127,19 @@
 		 * animates the given element.
 		 */
 		animate : function(el, properties, options) {
-			var o = jsPlumb.CurrentLibrary.extend({node:el, to:properties}, options);
+			var o = _extend({node:el, to:properties}, options);
 			new Y.Anim(o).run();
 		},
 		
 		appendElement : function(child, parent) {
-			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
+			_getElementObject (parent).append(child);			
 		},
 		
 		/**
 		 * event binding wrapper.  
 		 */
 		bind : function(el, event, callback) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			el.on(event, callback);
+			_getElementObject(el).on(event, callback);
 		},
 			
 		dragEvents : {
@@ -141,11 +147,7 @@
 			'over':'drop:enter', 'out':'drop:exit', 'drop':'drop:hit'
 		},								
 			
-		extend : function(o1, o2) {
-			for (var i in o2)
-				o1[i] = o2[i];
-			return o1;
-		},
+		extend : _extend,
 		
 		getAttribute : function(el, attributeId) {
 			return el.getAttribute(attributeId);
@@ -162,9 +164,7 @@
 			return _lastDragObject;
 		},
 		
-		getElementObject : function(el) {
-			return typeof el == 'string' ? Y.one('#' + el) : Y.one(el);
-		},
+		getElementObject : _getElementObject,
 		
 		getOffset : function(el) {
 			var bcr = el._node.getBoundingClientRect();
@@ -181,14 +181,14 @@
 		
 		getSize : function(el) {
 			//TODO must be a better way to get this?
-			var bcr = jsPlumb.CurrentLibrary.getElementObject(el)._node.getBoundingClientRect();
+			var bcr = _getElementObject(el)._node.getBoundingClientRect();
 			return [ bcr.width, bcr.height ];
 		},
 		
 		getUIPosition : function(args) {		
 			//TODO must be a better way to get this? args was passed through from the drag function
 			// in initDraggable above - args[0] here is the element that was inited.
-			var bcr = jsPlumb.CurrentLibrary.getElementObject(args[0].currentTarget.el)._node.getBoundingClientRect();
+			var bcr = _getElementObject(args[0].currentTarget.el)._node.getBoundingClientRect();
 			return { left:bcr.left, top:bcr.top };
 		},
 				
@@ -210,14 +210,14 @@
 		},
 		
 		isAlreadyDraggable : function(el) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el = _getElementObject(el);
 			return el.hasClass("yui3-dd-draggable");
 		},
 		
 		isDragSupported : function(el) { return true; },		
 		isDropSupported : function(el) { return true; },										
 		removeClass : function(el, clazz) { el.removeClass(clazz); },		
-		removeElement : function(el) { jsPlumb.CurrentLibrary.getElementObject(el).remove(); },
+		removeElement : function(el) { _getElementObject(el).remove(); },
 		
 		setAttribute : function(el, attributeName, attributeValue) {
 			console.log("set attribute", el.getAttribute("id"), attributeName, attributeValue);
@@ -234,7 +234,7 @@
 		},
 		
 		setOffset : function(el, o) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el = _getElementObject(el);
 			el.set("top", o.top);
 			el.set("left", o.left);
 		}							
