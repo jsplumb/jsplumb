@@ -3191,7 +3191,6 @@ $(window).bind('resize', function() {
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
 		 */
 		getDragObject : function(eventArgs) {
-			console.log("drag object", $(eventArgs[1].draggable).attr("id"), $(eventArgs[1].draggable).attr("dragId"));			
 			return eventArgs[1].draggable;
 		},
 	
@@ -3299,7 +3298,6 @@ $(window).bind('resize', function() {
 		 * sets the named attribute on the given element object.  
 		 */
 		setAttribute : function(el, attName, attValue) {
-			console.log("set attribute", el.attr("id"), attName, attValue);			
 			el.attr(attName, attValue);
 		},
 		
