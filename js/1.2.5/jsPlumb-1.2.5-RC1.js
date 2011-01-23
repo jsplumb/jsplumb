@@ -1266,7 +1266,7 @@
 						}
 						self.anchor.locked = false;												
 						self.paint();
-						//jpc.repaint();
+						jpc.repaint();
 						jpc = null;						
 						delete inPlaceCopy;							
 						delete endpointsByElement[floatingEndpoint.elementId];						
