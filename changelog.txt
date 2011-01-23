@@ -1,6 +1,9 @@
 * 1.2.5
 
-	- fixed a bug that ignored supplied anchors in jsPlumb.autoConnect
+	- added support for YUI3
+	- removed 'html', 'css' directories and moved everything demo-related into "demo".
+	- now using jsBezier-0.2
+	- removed jsPlumb.autoConnect method.  use the 'dynamicAnchors' parameter on a jsPlumb.connect call.
 	- added support for specifying an Endpoint's anchor as a dynamic anchor defined as an array of arrays or array of strings.  like this:
 	
 	    var endpointSpec = { 
