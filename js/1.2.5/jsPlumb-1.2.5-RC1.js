@@ -151,12 +151,12 @@
 				var myOffset = offsets[id], myWH = sizes[id];
 				for ( var i = 0; i < endpoints.length; i++) {
 					endpoints[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
-					var l = endpoints[i].connections;
-					for ( var j = 0; j < l.length; j++) {
+					var l = endpoints[i].connections;					
+					for ( var j = 0; j < l.length; j++) {						
 						l[j].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); // ...paint each connection.
-						// then, check for dynamic endpoint; need to repaint it.
-						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
+						// then, check for dynamic endpoint; need to repaint it.						
 						if (l[j].endpoints[oIdx].anchor.isDynamic && !l[j].endpoints[oIdx].isFloating()) {
+							var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
 							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
 							var oOffset = offsets[oId], oWH = sizes[oId];							
 							// TODO i still want to make this faster.
@@ -224,7 +224,7 @@
 				if (arguments.length == 2 && arguments[1] != undefined)
 					id = uuid;
 				else
-					id = "_jsPlumb_" + _timestamp();
+					id = "jsPlumb_" + _timestamp();
 				_setAttribute(ele, "id", id);
 			}
 			return id;
@@ -571,7 +571,7 @@
 			this.compute = function(params) {
 				var xy = params.xy, el = params.element;
 				var result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-				if (el.container != null) {
+				if (el.container != null) {					
 					var o = _getOffset(el.container);
 					result[0] = result[0] - o.left;
 					result[1] = result[1] - o.top;
@@ -626,15 +626,9 @@
 			this.isSelective = true;
 			this.isDynamic = true;			
 			var _anchors = anchors || [];
-			var _convert = function(anchor) {
-				return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor);
-			};
-			for (var i = 0; i < _anchors.length; i++)
-				_anchors[i] = _convert(_anchors[i]);
-			
-			this.addAnchor = function(anchor) {
-				_anchors.push(_convert(anchor));
-			};
+			var _convert = function(anchor) { return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor); };
+			for (var i = 0; i < _anchors.length; i++) _anchors[i] = _convert(_anchors[i]);			
+			this.addAnchor = function(anchor) { _anchors.push(_convert(anchor)); };
 			this.getAnchors = function() { return _anchors; };
 			var _curAnchor = _anchors.length > 0 ? _anchors[0] : null;
 			var _curIndex = _anchors.length > 0 ? 0 : -1;
@@ -665,8 +659,8 @@
 				}
 				return anchors[minIdx];
 			};
-			this.compute = function(params) {
-				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp, txy = params.txy, twh = params.twh, tElement = params.tElement;
+			this.compute = function(params) {				
+				var xy = params.xy, wh = params.wh, timestamp = params.timestamp, txy = params.txy, twh = params.twh;				
 				// if anchor is locked or an opposite element was not given, we
 				// maintain our state. anchor will be locked
 				// if it is the source of a drag and drop.
@@ -676,6 +670,7 @@
 					params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
 				
 				_curAnchor = _anchorSelector(xy, wh, txy, twh, _anchors);
+				
 				var pos = _curAnchor.compute(params);
 				return pos;
 			};
@@ -685,19 +680,9 @@
 				return cl;				
 			};
 
-			this.getOrientation = function() {
-				return _curAnchor != null ? _curAnchor.getOrientation() : [ 0, 0 ];
-			};
-
-			this.over = function(anchor) {
-				if (_curAnchor != null) 
-					_curAnchor.over(anchor);
-			};
-
-			this.out = function() {
-				if (_curAnchor != null)
-					_curAnchor.out();
-			};
+			this.getOrientation = function() { return _curAnchor != null ? _curAnchor.getOrientation() : [ 0, 0 ]; };
+			this.over = function(anchor) { if (_curAnchor != null) _curAnchor.over(anchor); };
+			this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
 		};
 
 		/*
@@ -770,9 +755,7 @@
 
 			// init overlays
 			this.overlays = params.overlays || [];
-			this.addOverlay = function(overlay) {
-				overlays.push(overlay);
-			};
+			this.addOverlay = function(overlay) { overlays.push(overlay); };
 
 			// this is a shortcut helper method to let people add a label as
 			// overlay.
@@ -789,9 +772,7 @@
 			_updateOffset( { elId : this.targetId });
 
 			// functions for mouse hover/select functionality
-			this.distanceFrom = function(point) {
-				return self.connector.distanceFrom(point);
-			};
+			this.distanceFrom = function(point) { return self.connector.distanceFrom(point); };
 
 			this.setLabel = function(l) {
 				self.label = l;
@@ -820,11 +801,13 @@
 			this.canvas = canvas;
 
 			/*
-			 * Function: paint paints the connection. Parameters: - elId Id of
-			 * the element that is in motion - ui current library's event system
-			 * ui object (present if we came from a drag to get here) - recalc
-			 * whether or not to recalculate element sizes. this is true if a
-			 * repaint caused this to be painted.
+			 * Function: paint 
+			 * 
+			 * paints the connection. 
+			 * 
+			 * Parameters:
+			 * 	elId Id of the element that is in motion 
+			 * 	ui current library's event system ui object (present if we came from a drag to get here) 
 			 */
 			this.paint = function(params) {
 				params = params || {};
@@ -832,7 +815,7 @@
 				var fai = self.floatingAnchorIndex;
 				// if the moving object is not the source we must transpose the
 				// two references.
-				var swap = false;// !(elId == this.sourceId);
+				var swap = false;
 				var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
 				var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 				var el = swap ? this.target : this.source;
@@ -840,13 +823,13 @@
 				if (this.canvas.getContext) {
 					_updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp });
 					_updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
-					var myOffset = offsets[sId], otherOffset = offsets[tId], myWH = sizes[sId], otherWH = sizes[tId];
+				//	var myOffset = offsets[sId], otherOffset = offsets[tId], myWH = sizes[sId], otherWH = sizes[tId];
 					var ctx = canvas.getContext('2d');
-					var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();
+					var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();					
 					var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
 					var tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
 					var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
-
+					
 					// paint overlays
 					var maxSize = 0;
 					for ( var i = 0; i < self.overlays.length; i++) {
@@ -1551,33 +1534,7 @@
 					});
 
 			jsPlumb.CurrentLibrary.animate(ele, properties, options);
-		};
-
-		this.autoConnect = function(params) {
-			var sources = [], targets = [], _endpoint = params.endpoint || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, _anchors = params.anchors || jsPlumb.Defaults.DynamicAnchors();
-			var _addAll = function(s, t) {
-				for ( var i = 0; i < s.length; i++)
-					t.push(s[i]);
-			};
-			
-			var source = params.source, target = params.target, anchors = params.anchors;
-			if (typeof source == 'string')
-				sources.push(_getElementObject(source));
-			else
-				_addAll(source, sources);
-			if (typeof target == 'string')
-				targets.push(_getElementObject(target));
-			else
-				_addAll(target, targets);
-			var connectOptions = jsPlumb.extend(params, { source : null, target : null, anchors : null });
-			for ( var i = 0; i < sources.length; i++) {
-				for ( var j = 0; j < targets.length; j++) {
-					var e1 = jsPlumb.addEndpoint(sources[i], jsPlumb.extend( { anchor : jsPlumb.makeDynamicAnchor(_anchors, params.anchorSelector) }, _endpoint));
-					var e2 = jsPlumb.addEndpoint(targets[j], jsPlumb.extend( { anchor : jsPlumb.makeDynamicAnchor(_anchors, params.anchorSelector) }, _endpoint));
-					_currentInstance.connect(jsPlumb.extend(connectOptions, { sourceEndpoint : e1, targetEndpoint : e2 }));
-				}
-			}
-		};
+		};		
 
 		/*
 		 * Function: connect Establishes a connection between two elements.
@@ -1602,6 +1559,16 @@
 			if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
 				_log("could not add connection; target endpoint is full");
 				return;
+			}
+			
+			// dynamic anchors
+			if (_p.dynamicAnchors) {
+				// these can either be an array of anchor coords, which we will use for both source and target, or an object with {source:[anchors], target:[anchors]}, in which
+				// case we will use a different set for each element.
+				var a = _p.dynamicAnchors.constructor == Array;
+				var sa = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.source));
+				var ta = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.target));
+				_p.anchors = [sa,ta];
 			}
 
 			var jpc = new Connection(_p);
@@ -1987,13 +1954,16 @@
 		};
 
 		/**
-		 * makes a list of anchors from the given list of types, eg
-		 * ["TopCenter", "RightMiddle", "BottomCenter"]
+		 * makes a list of anchors from the given list of types or coords, eg
+		 * ["TopCenter", "RightMiddle", "BottomCenter", [0, 1, -1, -1] ]
 		 */
 		this.makeAnchors = function(types) {
 			var r = [];
 			for ( var i = 0; i < types.length; i++)
-				r.push(_currentInstance.Anchors[types[i]]());
+				if (typeof types[i] == "string")
+					r.push(_currentInstance.Anchors[types[i]]());
+				else if (types[i].constructor == Array)
+					r.push(jsPlumb.makeAnchor(types[i]));
 			return r;
 		};
 
@@ -2013,17 +1983,11 @@
 		 * representing the element. Returns: void See Also: <repaintEverything>
 		 */
 		this.repaint = function(el) {
-
-			var _processElement = function(el) {
-				_draw(_getElementObject(el));
-			};
-
+			var _processElement = function(el) { _draw(_getElementObject(el)); };
 			// support both lists...
-			if (typeof el == 'object') {
-				for ( var i = 0; i < el.length; i++)
-					_processElement(el[i]);
-			} // ...and single strings.
-			else
+			if (typeof el == 'object')
+				for ( var i = 0; i < el.length; i++) _processElement(el[i]);			 
+			else // ...and single strings.
 				_processElement(el);
 		};
 
