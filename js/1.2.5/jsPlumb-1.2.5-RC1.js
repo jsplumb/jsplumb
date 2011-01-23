@@ -925,7 +925,7 @@
 			else 			
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
 			var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
-			if (_endpoint.constuctor == String) _endpoint = new jsPlumb.Endpoints[_endpoint]();
+			if (_endpoint.constructor == String) _endpoint = new jsPlumb.Endpoints[_endpoint]();
 			self.endpoint = _endpoint;
 			var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			this.connectorStyle = params.connectorStyle;
