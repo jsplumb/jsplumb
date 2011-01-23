@@ -155,8 +155,8 @@
 					for ( var j = 0; j < l.length; j++) {						
 						l[j].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); // ...paint each connection.
 						// then, check for dynamic endpoint; need to repaint it.						
-						if (l[j].endpoints[oIdx].anchor.isDynamic && !l[j].endpoints[oIdx].isFloating()) {
-							var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
+						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
+						if (l[j].endpoints[oIdx].anchor.isDynamic && !l[j].endpoints[oIdx].isFloating()) {							
 							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
 							var oOffset = offsets[oId], oWH = sizes[oId];							
 							// TODO i still want to make this faster.
