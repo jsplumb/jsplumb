@@ -920,7 +920,10 @@
 			var self = this;
 			var id = new String('_jsplumb_e_' + (new Date()).getTime());
 			this.getId = function() { return id; };
-			self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
+			if (params.dynamicAnchors)
+				self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors));
+			else 			
+				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
 			var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 			if (_endpoint.constuctor == String) _endpoint = new jsPlumb.Endpoints[_endpoint]();
 			self.endpoint = _endpoint;
@@ -1889,6 +1892,10 @@
 
 		/*
 		 * Function: makeAnchor Creates an anchor with the given params.
+		 * 
+		 * You do not need to use this method.  It is exposed because of the way jsPlumb is
+		 * split into three scripts; this will change in the future. 
+		 * 
 		 * Parameters: x - the x location of the anchor as a fraction of the
 		 * total width. y - the y location of the anchor as a fraction of the
 		 * total height. xOrientation - value indicating the general direction a
@@ -1992,7 +1999,8 @@
 		};
 
 		/*
-		 * Function: repaintEverything Repaints all connections. Returns: void
+		 * Function: repaintEverything Repaints all connections. 
+		 * Returns: void
 		 * See Also: <repaint>
 		 */
 		this.repaintEverything = function() {
@@ -2017,7 +2025,7 @@
 			endpointsByElement[elId] = [];
 		};
 
-		/**
+		/*
 		 * Function: removeEveryEndpoint 
 		 * Removes every Endpoint in this instance
 		 * of jsPlumb. 
@@ -2205,11 +2213,13 @@
 		};
 
 		/*
-		 * Function: wrap Helper method to wrap an existing function with one of
+		 * Function: wrap 
+		 * 
+		 * Helper method to wrap an existing function with one of
 		 * your own. This is used by the various implementations to wrap event
 		 * callbacks for drag/drop etc; it allows jsPlumb to be transparent in
 		 * its handling of these things. If a user supplies their own event
-		 * callback, for anything, it will always be called. Parameters:
+		 * callback, for anything, it will always be called. 
 		 */
 		this.wrap = _wrap;
 		
@@ -2221,8 +2231,7 @@
 	var jsPlumb = window.jsPlumb = new jsPlumbInstance();
 	jsPlumb.getInstance = function(_defaults) {
 		var j = new jsPlumbInstance();
-		if (_defaults)
-			jsPlumb.extend(j.Defaults, _defaults);
+		if (_defaults) jsPlumb.extend(j.Defaults, _defaults);
 		return j;
 	};
 })();
