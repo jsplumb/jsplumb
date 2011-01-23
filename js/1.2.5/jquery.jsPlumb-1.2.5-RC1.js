@@ -149,7 +149,7 @@ $(window).bind('resize', function() {
 		 */
 		appendElement : function(child, parent) {
 			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
-		},
+		},   
 		
 		/**
 		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
