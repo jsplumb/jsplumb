@@ -357,7 +357,7 @@
 			}
 		};
 		
-		var _registerConnection = function(connection) {
+	/*	var _registerConnection = function(connection) {
 			console.log("connection: ", connection.source, connection.target, connection.canvas, connection.endpoints[0].canvas, connection.endpoints[1].canvas );
 			var _listen = function(event, element, connection) {
 				jsPlumb.CurrentLibrary.bind(element, event, function(e) {
@@ -876,12 +876,7 @@
 			
 			/// ********************************************* mouse events on the connectors ******************************************
 		    	
-		    var _withinRange = function(e) {		    	
-		    /*	var os = _getOffset(self.source), ss = _getSize(self.source);		    	
-		    	if (os.left <= e.pageX && (os.left + ss[0]) >= e.pageX && os.top <= e.pageY && (os.top+ss[1]) >= e.pageY) return true;
-		    	var ot = _getOffset(self.target), st = _getSize(self.target);
-		    	if (ot.left <= e.pageX && (ot.left + st[0]) >= e.pageX && ot.top <= e.pageY && (ot.top+st[1]) >= e.pageY) return true;
-		    */			    	
+		    var _withinRange = function(e) {		    			  		    	
 		    	var o = _getOffset(_getElementObject(self.canvas));
 		    	var p = { x:e.pageX - o.left, y:e.pageY - o.top };
 				var t = self.distanceFrom(p);
@@ -892,18 +887,20 @@
 		    this.mousemove = function(e) {	    
 				if (!_mouseover && _withinRange(e)) {
 					_mouseover = true;
-					self.fireUpdate("mouseenter", self);				
+					self.fireUpdate("mouseenter", self, e);				
 				}
 				else if (_mouseover && !_withinRange(e)) {
 					_mouseover = false;
-					self.fireUpdate("mouseexit", self);				
+					self.fireUpdate("mouseexit", self, e);				
 				}
 		    };
 		    
 		    this.click = function(e) {
 		    	if (_mouseover && _withinRange(e)) 
-		    		self.fireUpdate("click", self);	    	
-		    };		    
+		    		self.fireUpdate("click", self, e);	    	
+		    };	
+		    		  
+		    
 
 			/*
 			 * Function: paint 
