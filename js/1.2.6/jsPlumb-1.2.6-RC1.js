@@ -11,7 +11,47 @@
 
 (function() {
 	
-	var jsPlumbInstance = function() {
+	var jsPlumbInstance = function(_defaults) {
+		
+		/*
+		 * Property: Defaults These are the default settings for jsPlumb, that
+		 * is what will be used if you do not supply specific pieces of
+		 * information to the various API calls. A convenient way to implement
+		 * your own look and feel can be to override these defaults by including
+		 * a script somewhere after the jsPlumb include, but before you make any
+		 * calls to jsPlumb, for instance in this example we set the PaintStyle
+		 * to be a blue line of 27 pixels: > jsPlumb.Defaults.PaintStyle = {
+		 * lineWidth:27, strokeStyle:'blue' }
+		 */
+		this.Defaults = {
+			Anchor : null,
+			Anchors : [ null, null ],
+			BackgroundPaintStyle : null,
+			Connector : null,
+			Container : null,
+			DragOptions : {},
+			DropOptions : {},
+			Endpoint : null,
+			Endpoints : [ null, null ],
+			EndpointStyle : {
+				fillStyle : null
+			},
+			EndpointStyles : [ null, null ],
+			LabelStyle : {
+				fillStyle : "rgba(0,0,0,0)",
+				color : "black"
+			},
+			LogEnabled : true,
+			MaxConnections : null,
+			MouseEventsEnabled : false, 
+			// TODO: should we have OverlayStyle too?
+			PaintStyle : {
+				lineWidth : 10,
+				strokeStyle : 'red'
+			},
+			Scope : "_jsPlumb_DefaultScope"
+		};
+		if (_defaults) jsPlumb.extend(Defaults, _defaults);
 				
 		/**
 		 * helper class for objects that generate events
@@ -57,19 +97,21 @@
 		};
 		var resizeTimer = null;		
 
+		var connectionsByScope = {};
 		/**
 		 * map of element id -> endpoint lists. an element can have an arbitrary
 		 * number of endpoints on it, and not all of them have to be connected
 		 * to anything.
 		 */
 		var endpointsByElement = {};
-		var endpointsByUUID = {};
-		var connectionsByScope = {};
+		var endpointsByUUID = {};		
 		var offsets = {};
 		var offsetTimestamps = {};
 		var floatingConnections = {};
 		var draggableStates = {};
+		var _mouseEventsEnabled = this.Defaults.MouseEventsEnabled;
 		var _draggableByDefault = true;
+		var canvasList = [];
 		var sizes = [];
 		var listeners = {}; // a map: keys are event types, values are lists of listeners.
 		var DEFAULT_SCOPE = 'DEFAULT';
@@ -266,17 +308,15 @@
 		/**
 		 * helper to create a canvas.
 		 * 
-		 * @param clazz
-		 *            optional class name for the canvas.
 		 */
-		var _newCanvas = function(clazz, parent, uuid) {
+		var _newCanvas = function(params) {
 			var canvas = document.createElement("canvas");
-			_appendElement(canvas, parent);
+			_appendElement(canvas, params.parent);
 			canvas.style.position = "absolute";
-			if (clazz) canvas.className = clazz;
+			if (params.clazz) canvas.className = params.clazz;
 			// set an id. if no id on the element and if uuid was supplied it
 			// will be used, otherwise we'll create one.
-			_getId(canvas, uuid);
+			_getId(canvas, params.uuid);
 			if (ie) {
 				// for IE we have to set a big canvas size. actually you can
 				// override this, too, if 1200 pixels
@@ -316,6 +356,38 @@
 				_operation(elId, func);
 			}
 		};
+		
+		var _registerConnection = function(connection) {
+			console.log("connection: ", connection.source, connection.target, connection.canvas, connection.endpoints[0].canvas, connection.endpoints[1].canvas );
+			var _listen = function(event, element, connection) {
+				jsPlumb.CurrentLibrary.bind(element, event, function(e) {
+					console.log(event + " event on " + element + " for connection " + connection);
+					
+					if (connection[event](e)) return;
+			    	else {
+			    		for (var scope in connectionsByScope) {
+			    			var c = connectionsByScope[scope];
+			    			for (var i = 0; i < c.length; i++) {
+			    				if (c[i][event](e)) return;
+			    			}
+			    		}
+			    	}
+					
+				});
+			};			
+			var _listenEvent = function(event, connection) {
+				_listen(event, connection.source, connection);
+				_listen(event, connection.target, connection);
+				_listen(event, connection.canvas, connection);
+				_listen(event, connection.endpoints[0].canvas, connection);
+				_listen(event, connection.endpoints[1].canvas, connection);
+			};
+			_listenEvent("click", connection);					// should these not be mapped to the current library?
+			//_listenEvent("mouseenter", connection);
+			//_listenEvent("mouseexit", connection);
+			_listenEvent("mousemove", connection);
+		};
+		
 		/**
 		 * helper to remove an element from the DOM.
 		 */
@@ -477,7 +549,7 @@
 				}
 				return r;
 			};
-		};
+		};				
 
 		/*
 		 * Class: Anchor Models a position relative to the origin of some
@@ -799,37 +871,22 @@
 			});
 			this.endpoints[1].paint({ anchorLoc : anchorLoc });
 
-			var canvas = _newCanvas(jsPlumb.connectorClass, self.container);
+			var canvas = _newCanvas({class:jsPlumb.connectorClass, container:self.container});
 			this.canvas = canvas;
 			
-			/// ********************************************* new in 1.2.3 - mouse events on the connectors ******************************************
-		    
-		    jsPlumb.CurrentLibrary.bind(canvas, "mousemove", function(event) {
-		    	for (var scope in connectionsByScope) {
-	    			var c = connectionsByScope[scope];
-	    			for (var i = 0; i < c.length; i++) {
-	    				c[i].mousemove(event);
-	    			}
-	    		}
-		    });
-		    jsPlumb.CurrentLibrary.bind(canvas, "click", function(event) {
-		    	if (self.click(event)) return;
-		    	else {
-		    		for (var scope in connectionsByScope) {
-		    			var c = connectionsByScope[scope];
-		    			for (var i = 0; i < c.length; i++) {
-		    				if (c[i].click(event)) return;
-		    			}
-		    		}
-		    	}
-		    });
-		    
-		    var _withinRange = function(e) {
+			/// ********************************************* mouse events on the connectors ******************************************
+		    	
+		    var _withinRange = function(e) {		    	
+		    /*	var os = _getOffset(self.source), ss = _getSize(self.source);		    	
+		    	if (os.left <= e.pageX && (os.left + ss[0]) >= e.pageX && os.top <= e.pageY && (os.top+ss[1]) >= e.pageY) return true;
+		    	var ot = _getOffset(self.target), st = _getSize(self.target);
+		    	if (ot.left <= e.pageX && (ot.left + st[0]) >= e.pageX && ot.top <= e.pageY && (ot.top+st[1]) >= e.pageY) return true;
+		    */			    	
 		    	var o = _getOffset(_getElementObject(self.canvas));
-				var p = { x:e.pageX - o.left, y:e.pageY - o.top };
+		    	var p = { x:e.pageX - o.left, y:e.pageY - o.top };
 				var t = self.distanceFrom(p);
 				$("#debug").html(t.distance + "," + t.location);
-				return t.distance < 20;
+				return t.distance < 20;							// TODO: parameterise!
 		    };
 		    var _mouseover = false;
 		    this.mousemove = function(e) {	    
@@ -839,16 +896,14 @@
 				}
 				else if (_mouseover && !_withinRange(e)) {
 					_mouseover = false;
-					self.fireUpdate("mouseleave", self);				
+					self.fireUpdate("mouseexit", self);				
 				}
 		    };
 		    
 		    this.click = function(e) {
 		    	if (_mouseover && _withinRange(e)) 
 		    		self.fireUpdate("click", self);	    	
-		    };
-		
-	// ********************************************* / new in 1.2.3 - mouse events on the connectors ******************************************	
+		    };		    
 
 			/*
 			 * Function: paint 
@@ -936,6 +991,8 @@
 					jsPlumb.repaint(self.sourceId);
 				});
 			}
+			
+			//_registerConnection(self);
 		};
 
 		/*
@@ -990,7 +1047,7 @@
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			var _maxConnections = params.maxConnections || 1; // maximum number of connections this endpoint can be the source of.
-			this.canvas = params.canvas || _newCanvas(jsPlumb.endpointClass, this.container, params.uuid);
+			this.canvas = params.canvas || _newCanvas({class:jsPlumb.endpointClass, container:this.container, uuid:params.uuid});
 			this.connections = params.connections || [];
 			this.scope = params.scope || DEFAULT_SCOPE;
 			this.timestamp = null;
@@ -1414,44 +1471,6 @@
 			_initDropTarget(_getElementObject(self.canvas));			
 
 			return self;
-		};
-
-		/*
-		 * Property: Defaults These are the default settings for jsPlumb, that
-		 * is what will be used if you do not supply specific pieces of
-		 * information to the various API calls. A convenient way to implement
-		 * your own look and feel can be to override these defaults by including
-		 * a script somewhere after the jsPlumb include, but before you make any
-		 * calls to jsPlumb, for instance in this example we set the PaintStyle
-		 * to be a blue line of 27 pixels: > jsPlumb.Defaults.PaintStyle = {
-		 * lineWidth:27, strokeStyle:'blue' }
-		 */
-		this.Defaults = {
-			Anchor : null,
-			Anchors : [ null, null ],
-			BackgroundPaintStyle : null,
-			Connector : null,
-			Container : null,
-			DragOptions : {},
-			DropOptions : {},
-			Endpoint : null,
-			Endpoints : [ null, null ],
-			EndpointStyle : {
-				fillStyle : null
-			},
-			EndpointStyles : [ null, null ],
-			LabelStyle : {
-				fillStyle : "rgba(0,0,0,0)",
-				color : "black"
-			},
-			LogEnabled : true,
-			MaxConnections : null,
-			// TODO: should we have OverlayStyle too?
-			PaintStyle : {
-				lineWidth : 10,
-				strokeStyle : 'red'
-			},
-			Scope : "_jsPlumb_DefaultScope"
 		};
 
 		this.logEnabled = this.Defaults.LogEnabled;
@@ -1939,6 +1958,28 @@
 		this.hide = function(el) {
 			_setVisible(el, "none");
 		};
+		
+		/**
+		 * callback from the current library to tell us to prepare ourselves (attach
+		 * mouse listeners etc; can't do that until the library has provided a bind method)
+		 * @return
+		 */
+		this.init = function() {
+			var _bind = function(event) {
+				jsPlumb.CurrentLibrary.bind(jsPlumb.CurrentLibrary.getDocumentElement(), event, function(e) {
+					if (_mouseEventsEnabled) {						
+						for (var scope in connectionsByScope) {
+			    			var c = connectionsByScope[scope];
+			    			for (var i = 0; i < c.length; i++) {
+			    				if (c[i][event](e)) return;
+			    			}
+			    		}
+					}
+				});
+			};
+			_bind("click");
+			_bind("mousemove");
+		};
 
 		/*
 		 * Function: makeAnchor Creates an anchor with the given params.
@@ -2178,6 +2219,15 @@
 		this.setRepaintFunction = function(f) {
 			repaintFunction = f;
 		};
+		
+		/**
+		 * sets whether or not mouse events are enabled.
+		 * @param enabled
+		 * @return
+		 */
+		this.setMouseEventsEnabled = function(enabled) {
+			_mouseEventsEnabled = enabled;
+		};
 
 		/*
 		 * Function: show Sets an element's connections to be visible.
@@ -2260,6 +2310,7 @@
 			delete sizes;
 			delete floatingConnections;
 			delete draggableStates;
+			delete canvasList;
 		};
 
 		/*
@@ -2280,8 +2331,8 @@
 
 	var jsPlumb = window.jsPlumb = new jsPlumbInstance();
 	jsPlumb.getInstance = function(_defaults) {
-		var j = new jsPlumbInstance();
-		if (_defaults) jsPlumb.extend(j.Defaults, _defaults);
+		var j = new jsPlumbInstance(_defaults);
+		//if (_defaults) jsPlumb.extend(j.Defaults, _defaults);
 		return j;
 	};
 })();

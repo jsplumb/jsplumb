@@ -184,6 +184,8 @@ $(window).bind('resize', function() {
 			return el.attr(attName);
 		},
 		
+		getDocumentElement : function() { return document; },
+		
 		/**
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
 		 */
@@ -309,4 +311,6 @@ $(window).bind('resize', function() {
 			jsPlumb.CurrentLibrary.getElementObject(el).offset(o);
 		}
 	};
+	
+	jsPlumb.init();
 })(jQuery);
