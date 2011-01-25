@@ -1,6 +1,6 @@
 
 /*
- * yui.jsPlumb 1.2.5-RC1
+ * yui.jsPlumb 1.2.6-RC1
  * 
  * YUI3 specific functionality for jsPlumb.
  * 
@@ -44,7 +44,8 @@
 	var Y;
 	
 	YUI().use('node', 'dd', 'anim', function(_Y) {
-		Y = _Y;
+		Y = _Y;	
+		Y.on("domready", function() { jsPlumb.init(); });
 	});
 	
 	/**
@@ -192,6 +193,10 @@
 			return { left:bcr.left, top:bcr.top };
 		},
 		
+		getPageXY : function(eventObject) {
+			return [eventObject.pageX, eventObject.pageY];
+		},
+		
 		getScrollLeft : function(el) {
 			alert("YUI getScrollLeft not implemented yet");
 		},
@@ -283,5 +288,5 @@
 			el.set("top", o.top);
 			el.set("left", o.left);
 		}							
-	};		
+	};				
 })();

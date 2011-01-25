@@ -1,5 +1,5 @@
 /*
-* jsPlumb-defaults-1.2.4-RC1
+* jsPlumb-defaults-1.2.6-RC1
 *
 * This script contains the default Anchors, Endpoints, Connectors and Overlays for jsPlumb.  It should be used with jsPlumb 1.1.0 and above; 
 * prior to version 1.1.0 of jsPlumb the defaults were included inside the main script.
@@ -739,6 +739,7 @@
     	};
 		this.img.onload = function() {						
 			self.ready = true;
+		//	jsPlumb.repaintAll();
 		};
 		this.img.src = params.src || params.url;
 		

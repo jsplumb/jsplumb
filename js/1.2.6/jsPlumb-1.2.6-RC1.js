@@ -1,12 +1,12 @@
 /*
- * jsPlumb 1.2.5-RC1
+ * jsPlumb 1.2.6-RC1
  * 
  * Provides a way to visually connect elements on an HTML page.
  * 
  * http://jsplumb.org
  * http://code.google.com/p/jsPlumb
  * 
- * Dual licensed under MIT and GPL2.
+ * Triple licensed under the MIT, GPL2 and Beer licenses.
  */
 
 (function() {
@@ -878,9 +878,10 @@
 		    	
 		    var _withinRange = function(e) {		    			  		    	
 		    	var o = _getOffset(_getElementObject(self.canvas));
-		    	var p = { x:e.pageX - o.left, y:e.pageY - o.top };
+		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
+		    	var p = { x:pageXY[0] - o.left, y:pageXY[1] - o.top };
 				var t = self.distanceFrom(p);
-				$("#debug").html(t.distance + "," + t.location);
+				//$("#debug").html(t.distance + "," + t.location);
 				return t.distance < 20;							// TODO: parameterise!
 		    };
 		    var _mouseover = false;
@@ -1963,7 +1964,7 @@
 		 */
 		this.init = function() {
 			var _bind = function(event) {
-				jsPlumb.CurrentLibrary.bind(jsPlumb.CurrentLibrary.getDocumentElement(), event, function(e) {
+				jsPlumb.CurrentLibrary.bind(document, event, function(e) {
 					if (_mouseEventsEnabled) {						
 						for (var scope in connectionsByScope) {
 			    			var c = connectionsByScope[scope];

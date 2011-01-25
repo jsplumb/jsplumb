@@ -1,5 +1,5 @@
 /*
- * jquery.jsPlumb 1.2.5-RC1
+ * jquery.jsPlumb 1.2.6-RC1
  * 
  * jQuery specific functionality for jsPlumb.
  * 
@@ -211,6 +211,10 @@ $(window).bind('resize', function() {
 		 */
 		getOffset : function(el) {
 			return el.offset();
+		},
+		
+		getPageXY : function(eventObject) {
+			return [eventObject.pageX, eventObject.pageY];
 		},
 														
 		getScrollLeft : function(el) {

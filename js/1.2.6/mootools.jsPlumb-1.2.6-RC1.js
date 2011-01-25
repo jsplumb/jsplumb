@@ -1,5 +1,5 @@
 /*
- * mootools.jsPlumb 1.2.5-RC1
+ * mootools.jsPlumb 1.2.6-RC1
  * 
  * MooTools specific functionality for jsPlumb.
  * 
@@ -160,7 +160,11 @@
 		getOffset : function(el) {
 			var p = el.getPosition();
 			return { left:p.x, top:p.y };
-		},								
+		},				
+		
+		getPageXY : function(eventObject) {
+			return [eventObject.event.pageX, eventObject.event.pageY];
+		},
 		
 		getScrollLeft : function(el) {
 			return null;
@@ -302,4 +306,6 @@
 			_getElementObject(el).setPosition({x:o.left, y:o.top});
 		}
 	};
+	
+	jsPlumb.init();
 })();
