@@ -851,7 +851,6 @@
 		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
 		    	var p = { x:pageXY[0] - o.left, y:pageXY[1] - o.top };
 				var t = self.distanceFrom(p);
-				//$("#debug").html(t.distance + "," + t.location);
 				return t.distance < 20;							// TODO: parameterise!
 		    };
 		    var _mouseover = false;
@@ -864,7 +863,7 @@
 					_mouseover = true;
 					self.fireUpdate("mouseenter", self, e);				
 				}
-				else if (_mouseover && !_withinRange(e)) {
+				else if (_mouseover && (!_withinRange(e) || !_continue)) {
 					_mouseover = false;
 					self.fireUpdate("mouseexit", self, e);				
 				}
@@ -876,7 +875,6 @@
 		    };	
 		    		  
 		    
-
 			/*
 			 * Function: paint 
 			 * 
