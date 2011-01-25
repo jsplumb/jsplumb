@@ -249,6 +249,7 @@
 		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); };
 		var _setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); };
 		var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); };
+		var _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); };
 		var _removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); };
 		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
 		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
@@ -313,7 +314,7 @@
 			var canvas = document.createElement("canvas");
 			_appendElement(canvas, params.parent);
 			canvas.style.position = "absolute";
-			if (params.clazz) canvas.className = params.clazz;
+			if (params.class) canvas.className = params.class;
 			// set an id. if no id on the element and if uuid was supplied it
 			// will be used, otherwise we'll create one.
 			_getId(canvas, params.uuid);
@@ -355,38 +356,7 @@
 			for ( var elId in endpointsByElement) {
 				_operation(elId, func);
 			}
-		};
-		
-	/*	var _registerConnection = function(connection) {
-			console.log("connection: ", connection.source, connection.target, connection.canvas, connection.endpoints[0].canvas, connection.endpoints[1].canvas );
-			var _listen = function(event, element, connection) {
-				jsPlumb.CurrentLibrary.bind(element, event, function(e) {
-					console.log(event + " event on " + element + " for connection " + connection);
-					
-					if (connection[event](e)) return;
-			    	else {
-			    		for (var scope in connectionsByScope) {
-			    			var c = connectionsByScope[scope];
-			    			for (var i = 0; i < c.length; i++) {
-			    				if (c[i][event](e)) return;
-			    			}
-			    		}
-			    	}
-					
-				});
-			};			
-			var _listenEvent = function(event, connection) {
-				_listen(event, connection.source, connection);
-				_listen(event, connection.target, connection);
-				_listen(event, connection.canvas, connection);
-				_listen(event, connection.endpoints[0].canvas, connection);
-				_listen(event, connection.endpoints[1].canvas, connection);
-			};
-			_listenEvent("click", connection);					// should these not be mapped to the current library?
-			//_listenEvent("mouseenter", connection);
-			//_listenEvent("mouseexit", connection);
-			_listenEvent("mousemove", connection);
-		};
+		};		
 		
 		/**
 		 * helper to remove an element from the DOM.
@@ -886,7 +856,11 @@
 		    };
 		    var _mouseover = false;
 		    this.mousemove = function(e) {	    
-				if (!_mouseover && _withinRange(e)) {
+		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
+				var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
+				var _continue = _hasClass(ee, "_jsPlumb_connector");
+				
+				if (!_mouseover && _continue && _withinRange(e)) {
 					_mouseover = true;
 					self.fireUpdate("mouseenter", self, e);				
 				}
@@ -1964,7 +1938,7 @@
 		 */
 		this.init = function() {
 			var _bind = function(event) {
-				jsPlumb.CurrentLibrary.bind(document, event, function(e) {
+				jsPlumb.CurrentLibrary.bind(document, event, function(e) {					
 					if (_mouseEventsEnabled) {						
 						for (var scope in connectionsByScope) {
 			    			var c = connectionsByScope[scope];

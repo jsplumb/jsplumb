@@ -216,6 +216,10 @@
 			// in initDraggable above - args[0] here is the element that was inited.
 			var bcr = _getElementObject(args[0].currentTarget.el)._node.getBoundingClientRect();
 			return { left:bcr.left, top:bcr.top };
+		},		
+		
+		hasClass : function(el, clazz) {
+			return el.hasClass(clazz);
 		},
 				
 		initDraggable : function(el, options) {

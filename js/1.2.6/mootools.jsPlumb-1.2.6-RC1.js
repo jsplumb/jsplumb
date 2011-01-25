@@ -187,7 +187,11 @@
 		getUIPosition : function(eventArgs) {
 			var ui = eventArgs[0];
 			return { left: ui.offsetLeft, top: ui.offsetTop };
-		},													
+		},		
+		
+		hasClass : function(el, clazz) {
+			return el.hasClass(clazz);
+		},
 		
 		initDraggable : function(el, options) {
 			var id = jsPlumb.getId(el);

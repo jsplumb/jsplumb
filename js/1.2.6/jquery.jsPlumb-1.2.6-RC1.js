@@ -112,10 +112,12 @@ $(window).bind('resize', function() {
  * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
+ * getPageXY			gets the page event's xy location.
  * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
  * getScrollTop			gets an element's scroll top.  TODO: is this actually used?  will it be?
  * getSize				gets an element's size.
  * getUIPosition		gets the position of some element that is currently being dragged, by extracting it from the arguments passed to a drag callback.
+ * hasClass				returns whether or not the given element has the given class.
  * initDraggable		initializes an element to be draggable 
  * initDroppable		initializes an element to be droppable
  * isDragSupported		returns whether or not drag is supported for some element.
@@ -245,6 +247,10 @@ $(window).bind('resize', function() {
 			//return ui.absolutePosition || ui.offset;
 			return ui.offset || ui.absolutePosition;
 		},		
+		
+		hasClass : function(el, clazz) {
+			return el.hasClass(clazz);
+		},
 		
 		/**
 		 * initialises the given element to be draggable.
