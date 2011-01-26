@@ -1027,20 +1027,11 @@ test("jsPlumb.detach (sourceEndpoint and targetEndpoint supplied)", function() {
 	assertContextSize(2);
 });
 
-test("jsPlumb.autoConnect (connect by element, default endpoint and anchors)", function() {
-	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-	jsPlumb.autoConnect({source:d1, target:d2});                // auto connect with default endpoint and anchor set	
-	assertContextSize(3);
-	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
-	jsPlumb.detach({source:d1, target:d2});
-	assertContextSize(2);
-});
 
-test("jsPlumb.autoConnect (connect by element, default endpoint, supplied anchors)", function() {
+test("jsPlumb.connect (connect by element, default endpoint, supplied dynamic anchors)", function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 	var anchors = [ [0.25, 0, 0, -1], [1, 0.25, 1, 0], [0.75, 1, 0, 1], [0, 0.75, -1, 0] ];
-	jsPlumb.autoConnect({source:d1, target:d2, anchors:anchors});                // auto connect with default endpoint and provided anchors
+	jsPlumb.connect({source:d1, target:d2, dynamicAnchors:anchors});                // auto connect with default endpoint and provided anchors
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
 	assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
@@ -1049,11 +1040,13 @@ test("jsPlumb.autoConnect (connect by element, default endpoint, supplied anchor
 	assertContextSize(2);
 });
 
-test("jsPlumb.autoConnect (connect by element, supplied endpoint and anchors)", function() {
+test("jsPlumb.connect (connect by element, supplied endpoint and dynamic anchors)", function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 	var endpoint = { isSource:true };
+	var e1 = jsPlumb.addEndpoint(d1, endpoint);
+	var e2 = jsPlumb.addEndpoint(d2, endpoint);
 	var anchors = [ "TopCenter", "BottomCenter" ];
-	jsPlumb.autoConnect({source:d1, target:d2, anchors:anchors, endpoint:endpoint});                // auto connect with default endpoint and provided anchors
+	jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2, dynamicAnchors:anchors});
 	assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
 	assertContextSize(3);
 	jsPlumb.detach({source:d1, target:d2});
@@ -1061,16 +1054,8 @@ test("jsPlumb.autoConnect (connect by element, supplied endpoint and anchors)", 
 	assertContextSize(2);
 });
 
-test("jsPlumb.autoConnect (connect by element, multiple sources to one target, supplied endpoint and anchors)", function() {
-	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-	var endpoint = { isSource:true };
-	var anchors = [ "TopCenter", "BottomCenter" ];
-	jsPlumb.autoConnect({source:[d1, d2], target:d3, anchors:anchors, endpoint:endpoint});                // auto connect with default endpoint and provided anchors
-	assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);assertEndpointCount("d3", 2);
-	jsPlumb.detach({source:d1, target:d2});		
-});
 
-test("jsPlumb.autoConnect (testing for connection event callback)", function() {
+test("jsPlumb.connect (testing for connection event callback)", function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 	var connectCallback = null, detachCallback = null;
 	jsPlumb.bind(["jsPlumbConnection", "jsPlumbConnectionDetached"], {
@@ -1081,7 +1066,7 @@ test("jsPlumb.autoConnect (testing for connection event callback)", function() {
 			detachCallback = $.extend({}, params);
 		}
 	});
-	jsPlumb.autoConnect({source:d1, target:d2});                // auto connect with default endpoint and anchor set
+	jsPlumb.connect({source:d1, target:d2});                // auto connect with default endpoint and anchor set
 	ok(connectCallback != null, "connect callback was made");
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
