@@ -19,7 +19,7 @@
 
 		<div id="explanation">
 	    	On this page we set our connectors to gray and specify an endpoint of radius 9.  Each connection has an Arrow overlay indicating direction. <br/><br/>The Bezier curve used on this page has a 'curviness' of 50; the Bezier connectors are a lot flatter than those on the first demo, which uses the default values.  See the documentation for examples of how to set the Bezier curviness.<br/>
-	    	<p>This demonstration uses jsPlumb 1.2.5, jQuery 1.4.4 and jQuery UI 1.8.2.</p>
+	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, jQuery 1.4.4 and jQuery UI 1.8.2.</p>
 	    	<a href="anchorDemo.html" class="mplink">next: anchors demonstration</a><br/>
 	    	<a href="demo.html" class="mplink">prev: jsPlumb home</a>
 	    	<br/><br/>
@@ -32,9 +32,13 @@
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="http://jsplumb.googlecode.com/svn/trunk/js/1.2.5/jquery.jsPlumb-1.2.5-all-min.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsBezier-0.2-min.js"></script>	
+		
 		<script type="text/javascript">
-			$(document).ready(function() {
+			$(function() {
 
 				// chrome fix.
 				document.onselectstart = function () { return false; };
