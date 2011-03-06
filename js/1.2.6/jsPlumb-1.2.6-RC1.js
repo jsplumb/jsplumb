@@ -1154,7 +1154,7 @@
 			};
 
 			/**
-			 * sets whether or not connnctions can be dragged from this Endpoint
+			 * sets whether or not connections can be dragged from this Endpoint
 			 * once it is full. you would use this in a UI in which you're going
 			 * to provide some other way of breaking connections, if you need to
 			 * break them at all. this property is by default true; use it in
@@ -1259,19 +1259,37 @@
 						existingJpc = true;
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas));
+						// are we the source or the target?
 						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;
+						// save our anchor index as the connection's floating index.
 						jpc.floatingAnchorIndex = anchorIdx;
 						// detach from the connection while dragging is occurring.
 						self.detachFromConnection(jpc);
+						
+						// store the original scope (issue 57)
+						var c = _getElementObject(self.canvas);
+						var dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
+						_setAttribute(c, "originalScope", dragScope);
+						console.log("originalScope", dragScope);
+						var newScope = dragScope;
+
+						// now we replace ourselves with the temporary div we created above:
 						if (anchorIdx == 0) {
-							existingJpcParams = [ jpc.source, jpc.sourceId ];
+							existingJpcParams = [ jpc.source, jpc.sourceId, i, dragScope ];
 							jpc.source = _getElementObject(n);
-							jpc.sourceId = id;
+							jpc.sourceId = id;					
+							// get a new, temporary scope, to use (issue 57)
+							newScope = jsPlumb.CurrentLibrary.getDragScope(_getElementObject(jpc.endpoints[1].canvas));
 						} else {
-							existingJpcParams = [ jpc.target, jpc.targetId ];
+							existingJpcParams = [ jpc.target, jpc.targetId, i, dragScope ];
 							jpc.target = _getElementObject(n);
 							jpc.targetId = id;
+							newScope = jsPlumb.CurrentLibrary.getDragScope(_getElementObject(jpc.endpoints[0].canvas));
+							// get a new, temporary scope, to use (issue 57)
 						}
+						// set the new, temporary scope (issue 57)
+						console.log("setting new, temporary, scope to " + newScope);
+						jsPlumb.CurrentLibrary.setDragScope(i, newScope);
 						// lock the other endpoint; if it is dynamic it will not
 						// move while the drag is occurring.
 						jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
@@ -1328,6 +1346,10 @@
 									jpc.target = existingJpcParams[0];
 									jpc.targetId = existingJpcParams[1];
 								}
+								
+								// restore the original scope (issue 57)
+								jsPlumb.CurrentLibrary.setDragScope(existingJpcParams[2], existingJpcParams[3]);
+								
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
 								if (_reattach) {
 									jpc.floatingAnchorIndex = null;
@@ -1354,6 +1376,7 @@
 					});
 				
 				var i = _getElementObject(self.canvas);
+				console.log("DRAGGABLE",i.draggable);
 				jsPlumb.CurrentLibrary.initDraggable(i, dragOptions);
 			}
 
@@ -1372,6 +1395,11 @@
 						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments));
 						var id = _getAttribute(draggable, "dragId");
 						var elId = _getAttribute(draggable, "elId");
+						
+						// restore the original scope if necessary (issue 57)
+						var scope = _getAttribute(draggable, "originalScope");
+						if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
+							
 						var jpc = floatingConnections[id];
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
 						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {

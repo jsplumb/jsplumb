@@ -186,6 +186,12 @@
 			return _lastDragObject;
 		},
 		
+		getDragScope : function(el) {
+			var id = jsPlumb.getId(el);
+			var dd = _draggablesById[id];
+			return dd.scope;
+		},
+		
 		getElementObject : _getElementObject,
 		
 		getOffset : function(el) {
@@ -285,6 +291,14 @@
 			var id = jsPlumb.getId(el);
 			var dd = _draggablesById[id];
 			if (dd) dd.set("lock", !draggable);
+		},
+		
+		setDragScope : function(el, scope) {
+			var id = jsPlumb.getId(el);
+			var dd = _draggablesById[id];
+			if (dd) {
+				dd.scope = scope;
+			}
 		},
 		
 		setOffset : function(el, o) {

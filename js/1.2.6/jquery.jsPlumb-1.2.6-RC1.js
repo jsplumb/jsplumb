@@ -194,6 +194,10 @@ $(window).bind('resize', function() {
 		getDragObject : function(eventArgs) {
 			return eventArgs[1].draggable;
 		},
+		
+		getDragScope : function(el) {
+			return el.draggable("option", "scope");
+		},
 	
 		/**
 		 * gets an "element object" from the given input.  this means an object that is used by the
@@ -315,6 +319,15 @@ $(window).bind('resize', function() {
 		 */
 		setDraggable : function(el, draggable) {
 			el.draggable("option", "disabled", !draggable);
+		},
+		
+		/**
+		 * sets the drag scope.  probably time for a setDragOption method (roll this and the one above together)
+		 * @param el
+		 * @param scope
+		 */
+		setDragScope : function(el, scope) {
+			el.draggable("option", "scope", scope);
 		},
 		
 		setOffset : function(el, o) {

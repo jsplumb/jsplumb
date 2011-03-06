@@ -149,6 +149,12 @@
 		getDragObject : function(eventArgs) {
 			return eventArgs[0];
 		},
+		
+		getDragScope : function(el) {
+			var id = jsPlumb.getId(el);
+			var drags = _draggablesById[id];
+			return drags[0].scope;
+		},
 							
 		getElementObject : _getElementObject,
 		
@@ -244,6 +250,8 @@
 				};					
 				
 				drag = new Drag.Move(el, options);
+				drag.scope = scope;
+				//console.log("drag scope initialized to ", scope);
 				_add(_draggablesByScope, scope, drag);
 				_add(_draggablesById, el.get("id"), drag);
 				// test for disabled.
@@ -304,6 +312,15 @@
 					if (draggable) d.attach(); else d.detach();
 				});
 			}
+		},
+		
+		setDragScope : function(el, scope) {
+			var drag = _draggablesById[el.get("id")];
+			var filterFunc = function(entry) {
+				return entry.get("id") != el.get("id");
+			};
+			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
+			drag[0].droppables = droppables;
 		},
 		
 		setOffset : function(el, o) {
