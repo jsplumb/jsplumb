@@ -23,6 +23,7 @@
  * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
  * getAttribute			gets some attribute from an element
  * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
+ * getDragScope			gets the drag scope for a given element.
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
  * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
@@ -37,6 +38,7 @@
  * removeElement		removes some element completely from the DOM.
  * setAttribute			sets an attribute on some element.
  * setDraggable			sets whether or not some element should be draggable.
+ * setDragScope			sets the drag scope for a given element.
  * setOffset			sets the offset of some element.
  */
 (function() {
@@ -296,9 +298,7 @@
 		setDragScope : function(el, scope) {
 			var id = jsPlumb.getId(el);
 			var dd = _draggablesById[id];
-			if (dd) {
-				dd.scope = scope;
-			}
+			if (dd) dd.scope = scope;
 		},
 		
 		setOffset : function(el, o) {
