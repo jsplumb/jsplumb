@@ -1165,6 +1165,14 @@
 			};
 
 			/**
+				sets the paint style of the endpoint.
+			*/
+			this.setStyle = function(style) {
+				_style = style;
+				self.paint();
+			};
+
+			/**
 			 * a deep equals check. everything must match, including the anchor,
 			 * styles, everything. TODO: finish Endpoint.equals
 			 */
@@ -1375,8 +1383,7 @@
 						delete floatingEndpoint;
 					});
 				
-				var i = _getElementObject(self.canvas);
-				console.log("DRAGGABLE",i.draggable);
+				var i = _getElementObject(self.canvas);				
 				jsPlumb.CurrentLibrary.initDraggable(i, dragOptions);
 			}
 
