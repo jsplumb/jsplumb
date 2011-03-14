@@ -12,92 +12,6 @@
  * Dual licensed under MIT and GPL2.
  * 
  */ 
-
-(function($){
-	/**
-	 * plumbs the results of the selector to some target, using the given options if supplied,
-	 * or the defaults otherwise. 
-	 */
-    $.fn.plumb = function(options) {
-        var options = $.extend({}, options);
-
-        return this.each(function()
-        {
-            var params = $.extend({source:$(this)}, options);
-            jsPlumb.connect(params);
-        });
-  };
-  
-  /**
-   * detaches the results of the selector from the given target or list of targets - 'target'
-   * may be a String or a List.
-   */
-  $.fn.detach = function(target) {	  
-	  return this.each(function() {
-		  if (target) {
-			 var id = $(this).attr("id");
-			 if (typeof target == 'string') target = [target];
-			 for (var i = 0; i < target.length; i++)
-				 jsPlumb.detach(id, target[i]);
-		  }
-	  });	  
-  };
-  
-  /**
-   * detaches the results from the selector from all connections. 
-   */
-  $.fn.detachAll = function() {
-	  return this.each(function() 
-	  {
-		 var id = $(this).attr("id");		 
-		 jsPlumb.detachAll(id);
-	  });	  
-  };
-  
-  /**
-   * adds an endpoint to the elements resulting from the selector.  options may be null,
-   * in which case jsPlumb will use the default options. see documentation. 
-   */
-  $.fn.addEndpoint = function(options) {
-	  var addedEndpoints = [];
-	  this.each(function() {
-		  addedEndpoints.push(jsPlumb.addEndpoint($(this).attr("id"), options));
-	  });
-	  return addedEndpoints[0];
-  };
-  
-  /**
-   * adds a list of endpoints to the elements resulting from the selector.  options may be null,
-   * in which case jsPlumb will use the default options. see documentation. 
-   */
-  $.fn.addEndpoints = function(endpoints) {
-	  var addedEndpoints = [];
-	  return this.each(function() {		 
-		 var e = jsPlumb.addEndpoints($(this).attr("id"), endpoints);
-		 for (var i = 0; i < e.length; i++) addedEndpoints.push(e[i]);
-	  });	  
-  };
-  
-  /**
-   * remove the endpoint, if it exists, deleting its UI elements etc. 
-   */
-  $.fn.removeEndpoint = function(endpoint) {
-	  this.each(function() {			  
-		  jsPlumb.removeEndpoint($(this).attr("id"), endpoint);
-	  });
-  };
-  
-})(jQuery);
-
-
-/*TODO: abstract this out from jQuery too!  but how...because jsPlumb is not loaded yet. 
-$(window).bind('resize', function() {
-	if (resizeTimer) clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(repaintEverything, 100);
- });*/
-
-
-
 /* 
  * the library agnostic functions, such as find offset, get id, get attribute, extend etc.  
  * the full list is:
@@ -110,6 +24,7 @@ $(window).bind('resize', function() {
  * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
  * getAttribute			gets some attribute from an element
  * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
+ * getDragScope			gets the drag scope for a given element.
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
  * getPageXY			gets the page event's xy location.
@@ -126,6 +41,7 @@ $(window).bind('resize', function() {
  * removeElement		removes some element completely from the DOM.
  * setAttribute			sets an attribute on some element.
  * setDraggable			sets whether or not some element should be draggable.
+ * setDragScope			sets the drag scope for a given element.
  * setOffset			sets the offset of some element.
  */
 (function($) {	
