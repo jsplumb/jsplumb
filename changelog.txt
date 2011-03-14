@@ -1,3 +1,13 @@
+* 1.2.6
+
+	- removed jquery plugin methods.  they conflict with jquery 1.5.
+
+	- addition of jsPlumb.Overlays.Image
+	
+	- addition of mouse events to connectors/endpoints (mouseenter, mouseexit, click, mousemove)
+
+	- addition of setStyle method to Endpoint.
+
 * 1.2.5
 
 	- added support for YUI3
