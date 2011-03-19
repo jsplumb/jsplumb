@@ -11,6 +11,15 @@
 	- added optional referenceParams argument to jsPlumb.connect; use this to supply shared info between many connections.
 	
 	- added optional referenceParams argument to jsPlumb.addEndpoint; use this to supply shared info between many endpoint additions.
+	
+	- added setPaintStyle method to Connection
+	- added setBackgroundPaintStyle method to Connection
+	
+	- added HoverPaintStyle concept to Connection
+	
+	var hoverPaintStyle = this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle;
+	
+	- arrow overlays derive their paint style from the associated connection if one is not supplied for the overlay.
 
 * 1.2.5
 
