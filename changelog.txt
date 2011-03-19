@@ -7,6 +7,8 @@
 	- addition of mouse events to connectors/endpoints (mouseenter, mouseexit, click, mousemove)
 
 	- addition of setStyle method to Endpoint.
+	
+	- added optional referenceParams argument to jsPlumb.connect; use this to supply shared info between many connections.
 
 * 1.2.5
 
