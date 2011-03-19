@@ -307,7 +307,7 @@
 			var canvas = document.createElement("canvas");
 			_appendElement(canvas, params.container);
 			canvas.style.position = "absolute";
-			if (params.class) canvas.className = params.class;
+			if (params["class"]) canvas.className = params["class"];
 			// set an id. if no id on the element and if uuid was supplied it
 			// will be used, otherwise we'll create one.
 			_getId(canvas, params.uuid);
@@ -830,7 +830,7 @@
 			});
 			this.endpoints[1].paint({ anchorLoc : anchorLoc });
 
-			var canvas = _newCanvas({class:jsPlumb.connectorClass, container:self.container});
+			var canvas = _newCanvas({"class":jsPlumb.connectorClass, container:self.container});
 			this.canvas = canvas;
 			
 			/// ********************************************* mouse events on the connectors ******************************************
@@ -1047,7 +1047,7 @@
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			var _maxConnections = params.maxConnections || 1; // maximum number of connections this endpoint can be the source of.
-			this.canvas = params.canvas || _newCanvas({class:jsPlumb.endpointClass, container:this.container, uuid:params.uuid});
+			this.canvas = params.canvas || _newCanvas({"class":jsPlumb.endpointClass, container:this.container, uuid:params.uuid});
 			this.connections = params.connections || [];
 			this.scope = params.scope || DEFAULT_SCOPE;
 			this.timestamp = null;
