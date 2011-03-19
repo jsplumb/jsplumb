@@ -9,7 +9,7 @@
  * Triple licensed under the MIT, GPL2 and Beer licenses.
  */
 
-(function() {
+;(function() {
 	
 	var jsPlumbInstance = function(_defaults) {
 		
