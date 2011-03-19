@@ -531,9 +531,10 @@
 		var self = this;
     	var length = params.length || 20;
     	var width = params.width || 20;
-    	var fillStyle = params.fillStyle || "black";
+    	/*var fillStyle = params.fillStyle;
     	var strokeStyle = params.strokeStyle;
-    	var lineWidth = params.lineWidth || 1;
+    	var lineWidth = params.lineWidth || 1;*/
+    	var paintStyle = params.paintStyle || { lineWidth:1 };
     	this.loc = params.location || 0.5;
     	// how far along the arrow the lines folding back in come to. default is 62.3%. 
     	var foldback = params.foldback || 0.623;
@@ -545,9 +546,9 @@
     		}
     	};
     	
-    	this.computeMaxSize = function() { return width * 1.5; }
+    	this.computeMaxSize = function() { return width * 1.5; };
     	
-    	this.draw = function(connector, ctx) {
+    	this.draw = function(connector, ctx, currentConnectionPaintStyle) {
     		// this is the arrow head position    		
 			var hxy = connector.pointAlongPathFrom(self.loc, length / 2);		
 			// this is the center of the tail
@@ -557,22 +558,29 @@
 			// this is the point the tail goes in to
 			var cxy = _getFoldBackPoint(connector, self.loc);
 			
-			ctx.lineWidth = lineWidth;
+			ctx.lineWidth = paintStyle.lineWidth;
 			ctx.beginPath();
 			ctx.moveTo(hxy.x, hxy.y);
 			ctx.lineTo(tail[0].x, tail[0].y);
 			ctx.lineTo(cxy.x, cxy.y);
 			ctx.lineTo(tail[1].x, tail[1].y);
 			ctx.lineTo(hxy.x, hxy.y);
-			ctx.closePath();
+			ctx.closePath();						
 			
-			if (strokeStyle) {
-				ctx.strokeStyle = strokeStyle;
+			if (paintStyle.strokeStyle) {
+				ctx.strokeStyle = paintStyle.strokeStyle;
 				ctx.stroke();
 			}
-			ctx.fillStyle = fillStyle;			
+			ctx.fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle;			
 			ctx.fill();
-    	}
+			
+			var minx = Math.min(hxy.x, tail[0].x, tail[1].x);
+			var maxx = Math.max(hxy.x, tail[0].x, tail[1].x);
+			var miny = Math.min(hxy.y, tail[0].y, tail[1].y);
+			var maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
+			
+			return [ minx, maxx, miny, maxy]; 
+    	};
     };
     
     /**
@@ -653,7 +661,7 @@
     		return max;
     	};
     	
-	    this.draw = function(connector, ctx) {	
+	    this.draw = function(connector, ctx, currentConnectionPaintStyle) {	
 	    	var td = _textDimensions(ctx);
 	    	if (td.width) {
 				var cxy = connector.pointOnPath(self.location);
@@ -662,7 +670,11 @@
 					ctx.fillStyle = self.labelStyle.fillStyle;
 				else 
 					ctx.fillStyle = "rgba(0,0,0,0)";
-				ctx.fillRect(cxy.x - (td.width / 2), cxy.y - (td.height / 2) , td.width , td.height );
+				
+				var minx = cxy.x - (td.width / 2);
+				var miny = cxy.y - (td.height / 2);
+				
+				ctx.fillRect(minx, miny , td.width , td.height );
 				
 				if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
 				ctx.textBaseline = "middle";
@@ -674,9 +686,12 @@
 				// border
 				if (self.labelStyle.borderWidth > 0) {
 					ctx.strokeStyle = self.labelStyle.borderStyle || "black";
-					ctx.strokeRect(cxy.x - (td.width / 2), cxy.y - (td.height / 2) , td.width , td.height );
+					ctx.strokeRect(minx, miny, td.width , td.height );
 				}
+				
+				return [minx, minx+td.width, miny, miny+td.height];
         	}
+	    	else return [0,0,0,0];
 	    };
     };
     
@@ -727,21 +742,25 @@
     		return [self.img.width, self.img.height]
     	};
     	
-    	var _draw = function(connector, ctx) {
+    	var _draw = function(connector, ctx, currentConnectionPaintStyle) {
     		var cxy = connector.pointOnPath(self.location);
     		var canvas = jsPlumb.CurrentLibrary.getElementObject(ctx.canvas);
-    		var canvasOffset = jsPlumb.CurrentLibrary.getOffset(canvas);    		
-    		var o = {left:canvasOffset.left + cxy.x - (self.img.width/2), top:canvasOffset.top + cxy.y - (self.img.height/2)};
+    		var canvasOffset = jsPlumb.CurrentLibrary.getOffset(canvas);
+    		var minx = cxy.x - (self.img.width/2);
+    		var miny = cxy.y - (self.img.height/2);
+    		var o = {left:canvasOffset.left + minx, top:canvasOffset.top + miny};
     		jsPlumb.CurrentLibrary.setOffset(imgDiv, o);
     		imgDiv.style.display = "block";
+    		return [minx,minx + self.img.width, miny, miny+self.img.height];
     	};
     	
     	this.draw = function(connector, ctx) {
     		if (self.ready)
-	    		_draw(connector, ctx);
+	    		return _draw(connector, ctx);
     		else {
     			notReadyConnector = connector;
     			notReadyContext = ctx;
+    			return [0,0,0,0];
     		}
     	};
     };       
