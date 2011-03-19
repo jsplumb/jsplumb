@@ -119,6 +119,7 @@
             
             _dx = _tx - _sx, _dy = (_ty - _sy);
 			_m = _dy / _dx, _m2 = -1 / _m;
+			 if (_m == Infinity) _m = 0;						// fix for issue 54, thanks pyotrbzuska.
 			_b = -1 * ((_m * _sx) - _sy);
 			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
                              
