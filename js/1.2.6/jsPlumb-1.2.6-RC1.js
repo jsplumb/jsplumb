@@ -312,7 +312,7 @@
 		 */
 		var _newCanvas = function(params) {
 			var canvas = document.createElement("canvas");
-			_appendElement(canvas, params.parent);
+			_appendElement(canvas, params.container);
 			canvas.style.position = "absolute";
 			if (params.class) canvas.className = params.class;
 			// set an id. if no id on the element and if uuid was supplied it
@@ -1543,11 +1543,13 @@
 		this.Overlays = {};
 
 		/*
-		 * Function: addEndpoint Adds an Endpoint to a given element.
-		 * Parameters: target - Element to add the endpoint to. either an
-		 * element id, or a selector representing some element. params - Object
-		 * containing Endpoint options (more info required) Returns: The newly
-		 * created Endpoint. See Also: <addEndpoints>
+		 * Function: addEndpoint 
+		 * Adds an Endpoint to a given element.
+		 * Parameters: 
+		 * target - Element to add the endpoint to. either an element id, or a selector representing some element. 
+		 * params - Object containing Endpoint options (more info required) 
+		 * Returns: 
+		 * The newly created Endpoint. See Also: <addEndpoints>
 		 */
 		this.addEndpoint = function(target, params) {
 			params = jsPlumb.extend( {}, params);
@@ -1620,6 +1622,10 @@
 		 */
 		this.connect = function(params) {
 			var _p = jsPlumb.extend( {}, params);
+			
+			if (_p.source && _p.source.endpoint) _p.sourceEndpoint = _p.source;
+			if (_p.source && _p.target.endpoint) _p.targetEndpoint = _p.target;
+			
 			// test for endpoint uuids to connect
 			if (params.uuids) {
 				_p.sourceEndpoint = _getEndpoint(params.uuids[0]);
