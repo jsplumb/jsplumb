@@ -1035,6 +1035,7 @@
 			self.endpoint = _endpoint;
 			var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			this.connectorStyle = params.connectorStyle;
+			this.connectorHoverStyle = params.connectorHoverStyle;
 			this.connectorOverlays = params.connectorOverlays;
 			this.connector = params.connector;
 			this.isSource = params.isSource || false;
@@ -1289,6 +1290,7 @@
 							target : _getElementObject(n),
 							anchors : [ self.anchor, floatingAnchor ],
 							paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
+							hoverPaintStyle:params.connectorHoverStyle,
 							connector : params.connector, // this can also be null. Connection will use the default.
 							overlays : self.connectorOverlays // new in 1.2.4.
 						});
@@ -1307,7 +1309,6 @@
 						var c = _getElementObject(self.canvas);
 						var dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
 						_setAttribute(c, "originalScope", dragScope);
-						console.log("originalScope", dragScope);
 						var newScope = dragScope;
 
 						// now we replace ourselves with the temporary div we created above:
@@ -1325,7 +1326,6 @@
 							// get a new, temporary scope, to use (issue 57)
 						}
 						// set the new, temporary scope (issue 57)
-						console.log("setting new, temporary, scope to " + newScope);
 						jsPlumb.CurrentLibrary.setDragScope(i, newScope);
 						// lock the other endpoint; if it is dynamic it will not
 						// move while the drag is occurring.
