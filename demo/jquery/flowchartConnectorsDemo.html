@@ -1,0 +1,102 @@
+<!doctype html>
+
+<!--
+
+current problems with this demo, 03/15/11:
+
+
+	- see window1 to window3: the connector fails when connecting a source with a target that is 90 degree clockwise from it.
+-->
+
+<html>
+	<head>
+		<title>jsPlumb - flowchart connectors demonstration - jQuery</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
+		<link rel="stylesheet" href="../css/flowchartDemo.css"></link>
+	</head>
+	<body onunload="jsPlumb.unload();">
+<div class="window" id="window1"><strong>1</strong><br/><br/></div>
+		<div class="window" id="window2"><strong>2</strong><br/><br/></div>
+	    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
+
+	    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
+
+
+
+            
+	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsBezier-0.2-min.js"></script>
+		<script type="text/javascript" src="../../js/jquery.jsPlumb-flowchart-RC1.js"></script>
+
+
+		<script type="text/javascript">
+			$(document).ready(function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+
+				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+				// default to blue at one end and green at the other
+				jsPlumb.Defaults.EndpointStyles = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }];
+				// blue endpoints 7 px; green endpoints 11.
+				jsPlumb.Defaults.Endpoints = [ new jsPlumb.Endpoints.Dot({radius:7}), new jsPlumb.Endpoints.Dot({radius:11})];
+	
+
+				// this is the paint style for the connecting lines
+				var connectorPaintStyle = {lineWidth:4,strokeStyle:"#deea18"};
+
+				// 
+				var baseConnection = {
+					paintStyle:connectorPaintStyle,
+					backgroundPaintStyle:{lineWidth:6,strokeStyle:"rgba(100,100,100,50)"},
+					connector:"Flowchart"
+				};
+
+				var sourceEndpoint = {
+					endpoint:"Dot",
+					style:{fillStyle:"#225588",radius:7},
+					isSource:true,
+					connector:"Flowchart",
+					connectorStyle:connectorPaintStyle
+				};
+
+				var targetEndpoint = {
+					endpoint:"Dot",
+					style:{fillStyle:"#558822",radius:11},
+					isTarget:true,
+					maxConnections:-1
+				};
+
+				//jsPlumb.connect($.extend({source:'window1', target:'window3',anchors:["BottomCenter","TopCenter"]}, baseConnection));
+		//		jsPlumb.connect($.extend({source:'window2', target:'window3',anchors:["BottomCenter","RightMiddle"]}, baseConnection));
+	//			jsPlumb.connect($.extend({source:'window4', target:'window3',anchors:["RightMiddle","LeftMiddle"]}, baseConnection));
+			//	jsPlumb.connect($.extend({source:'window1', target:'window2',anchors:["RightMiddle","LeftMiddle"]}, baseConnection));
+//				jsPlumb.connect($.extend({source:'window4', target:'window3',anchors:["BottomCenter","RightMiddle"]}, baseConnection));		
+
+				var e11 = jsPlumb.addEndpoint("window1", $.extend({anchor:"RightMiddle"}, sourceEndpoint));
+				var e12 = jsPlumb.addEndpoint("window1", $.extend({anchor:"BottomCenter"}, sourceEndpoint));
+				var e21 = jsPlumb.addEndpoint("window2", $.extend({anchors:["LeftMiddle","TopCenter"]}, targetEndpoint));
+				var e22 = jsPlumb.addEndpoint("window2", $.extend({anchor:"BottomCenter"}, sourceEndpoint));
+
+				var e31 = jsPlumb.addEndpoint("window3", $.extend({anchor:"LeftMiddle"}, targetEndpoint));
+				var e32 = jsPlumb.addEndpoint("window3", $.extend({anchor:"TopCenter"}, targetEndpoint));
+				var e33 = jsPlumb.addEndpoint("window3", $.extend({anchor:"RightMiddle"}, targetEndpoint));
+				var e34 = jsPlumb.addEndpoint("window3", $.extend({anchor:"BottomCenter"}, targetEndpoint));
+
+				var e41 = jsPlumb.addEndpoint("window4", $.extend({anchor:"RightMiddle"}, sourceEndpoint));
+				var e42 = jsPlumb.addEndpoint("window4", $.extend({anchor:"BottomCenter"}, sourceEndpoint));
+
+				jsPlumb.connect({sourceEndpoint:e12,targetEndpoint:e32});
+				jsPlumb.connect({sourceEndpoint:e22,targetEndpoint:e33});
+				jsPlumb.connect({sourceEndpoint:e41,targetEndpoint:e31});
+				jsPlumb.connect({sourceEndpoint:e11,targetEndpoint:e34});
+		});
+		</script>
+	</body>
+</html>
