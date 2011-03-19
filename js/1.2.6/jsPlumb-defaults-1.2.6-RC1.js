@@ -177,9 +177,7 @@
         
         this.createGradient = function(dim, ctx) {
         	return ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
-        };
-        
-        this.distanceFrom = function(point) { return 100; };
+        };        
     };
                 
     /**
@@ -288,27 +286,7 @@
         	        	{ x:_CP2[0], y:_CP2[1] },
         	        	{ x:_tx, y:_ty }
          	];
-        };
-        
-        /**
-         * returns the distance the given point is from the curve.  not enabled for 1.2.3.  didnt make the cut.  next time.
-         */
-        this.distanceFrom = function(point) {
-        	var curve = [ {x:currentPoints[4], y:currentPoints[5]},
-        				  {x:currentPoints[8], y:currentPoints[9]}, 
-        				  {x:currentPoints[10], y:currentPoints[11]}, 
-        				  {x:currentPoints[6], y:currentPoints[7]}];
-        	return (jsBezier.distanceFromCurve(point, curve));        	        	
-        }; 
-        
-        this.nearestPointTo = function(point) {
-        	var curve = [ {x:currentPoints[4], y:currentPoints[5]},
-        				  {x:currentPoints[8], y:currentPoints[9]}, 
-        				  {x:currentPoints[10], y:currentPoints[11]}, 
-        				  {x:currentPoints[6], y:currentPoints[7]}];
-        	return (jsBezier.nearestPointOnCurve(point, curve));
-        	
-        };
+        };     
         
         /**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
