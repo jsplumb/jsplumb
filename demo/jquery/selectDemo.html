@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb demo - jQuery</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<link rel="stylesheet" href="/mp.css"></link>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
+		<link rel="stylesheet" href="../css/selectDemo.css"></link>		
+	</head>
+	<body onunload="jsPlumb.unload();">
+		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+	
+		<div class="window" id="window1">ONE</div>
+		<div class="window" id="window2">TWO</div>
+	    <div class="window" id="window3">THREE</div>
+	    <div class="window" id="window4">FOUR</div>
+	    <div class="window" id="window5">FIVE</div>
+	    <div class="window" id="window6">SIX</div>
+	    
+	    <div id="debug"></div>
+	    
+	    <div id="explanation">
+	    	<p>this is a demonstration of the experimental connection mouse events support to be introduced in 1.2.6.
+	    	 </p>
+	    	 <p>
+	    	 it also shows the Image overlay, which is scheduled for 1.2.6 too.
+	    	 </p>
+	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, jQuery 1.4.4 and jQuery UI 1.8.2.</p>
+	    	<br/><br/>
+	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
+	    	<br/><br/>
+	    </div>
+	    
+	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsBezier-0.2-min.js"></script>
+					            		
+		<script type="text/javascript">
+			$(document).ready(function() {				
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+				
+				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+				jsPlumb.setMouseEventsEnabled(true);
+				
+				var imageEventListener = function(sourceId, targetId) { 
+					return function(e) { alert("you clicked the image on the connection from " + sourceId + " to " + targetId); };
+				};
+				
+				var paintStyle = {lineWidth:15,strokeStyle:'rgb(200,200,200)'};
+				var hoverPaintStyle = {lineWidth:15,strokeStyle:'#EE5500'};
+				
+				var commonData = {
+					paintStyle:paintStyle,
+				   	backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'},
+				   	hoverPaintStyle:hoverPaintStyle,
+				   	endpointStyle:{fillStyle:'rgb(200,200,200)'}
+				};
+				
+				var arrowSpec = {width:40,height:40,location:0.7, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"}};
+				
+				var connection1 = jsPlumb.connect({
+					source:'window1', 
+				   	target:'window2', 
+				   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
+				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window1", "window2")}}),
+								new jsPlumb.Overlays.Label({label:"CONNECTION 1", location:0.3}),
+								new jsPlumb.Overlays.Arrow(arrowSpec) ]
+				 }, commonData);
+
+				var connection2 = jsPlumb.connect({
+					source:'window4', 
+				   	target:'window6', 
+				   	anchors:["RightMiddle", "LeftMiddle"], 				   	
+				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window4", "window6")}}),
+								new jsPlumb.Overlays.Label({label:"CONNECTION 2", location:0.3}),
+								new jsPlumb.Overlays.Arrow(arrowSpec)]
+				 }, commonData);
+
+				var connection3 = jsPlumb.connect({
+					source:'window4', 
+				   	target:'window3', 
+				   	anchors:["LeftMiddle", "RightMiddle"], 
+				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window4", "window3")}}),
+								new jsPlumb.Overlays.Label({label:"CONNECTION 3", location:0.3}),
+								new jsPlumb.Overlays.Arrow(arrowSpec) ]
+				 }, commonData);		
+
+				var connection4 = jsPlumb.connect({
+					source:'window5', 
+				   	target:'window6',
+				   	connector:"Straight", 
+				   	anchors:["Center", "Center"], 
+				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window5", "window6")}}),
+								new jsPlumb.Overlays.Label({label:"CONNECTION 4", location:0.3}),
+								new jsPlumb.Overlays.Arrow(arrowSpec) ]
+				 }, commonData);		 
+			  						
+		        // all the mouse listener stuff
+		        var c = function(connection) {
+					connection.bind(["mouseenter", "mouseexit", "click"], { 
+						"mouseenter":function(connection) {
+							$(connection.source).addClass("hl");
+							$(connection.target).addClass("hl");
+						},
+						"mouseexit" : function(connection) {
+							$(connection.source).removeClass("hl");
+							$(connection.target).removeClass("hl");						
+						},
+						"click": function(c) {
+							alert("click on connection from " + c.sourceId + " to " + c.targetId);
+						}
+					});
+					
+				};
+		        c(connection1);
+		        c(connection2);
+		        c(connection3);			      		        		        
+		        c(connection4);
+		});
+		</script>
+	    
+	    	    
+	    <!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=5700644; 
+var sc_invisible=1; 
+var sc_partition=71; 
+var sc_click_stat=1; 
+var sc_security="1cb90164"; 
+</script>
+
+<script type="text/javascript"
+src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
+class="statcounter"><a title="counter for wordpress"
+href="http://www.statcounter.com/wordpress.org/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/5700644/0/1cb90164/1/"
+alt="counter for wordpress" ></a></div></noscript>
+<!-- End of StatCounter Code -->
+	</body>
+</html>
