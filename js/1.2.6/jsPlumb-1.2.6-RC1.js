@@ -792,6 +792,7 @@
 			
 			// init overlays
 			this.overlays = params.overlays || [];
+			var overlayPlacements = [];
 			this.addOverlay = function(overlay) { overlays.push(overlay); };
 
 			// this is a shortcut helper method to let people add a label as
@@ -808,11 +809,6 @@
 			_updateOffset( { elId : this.sourceId });
 			_updateOffset( { elId : this.targetId });
 
-			/* functions for mouse hover/select functionality
-			this.distanceFrom = function(point) { 
-				return self.connector.distanceFrom(point); 
-			};*/
-
 			this.setLabel = function(l) {
 				self.label = l;
 				_currentInstance.repaint(self.source);
@@ -822,8 +818,6 @@
 			var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];
 			var otherOffset = offsets[this.targetId];
 			otherWH = sizes[this.targetId];
-			// todo: why not fold this and the paint call that follows into one
-			// call?
 			var anchorLoc = this.endpoints[0].anchor.compute( {
 				xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
 				txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1]
@@ -851,6 +845,14 @@
 		    	var o = _getOffset(_getElementObject(self.canvas));
 		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
 		    	var x = pageXY[0] - o.left, y = pageXY[1] - o.top;
+		    	
+		    	// first check overlays
+		    	for ( var i = 0; i < overlayPlacements.length; i++) {
+		    		var p = overlayPlacements[i];
+		    		if (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y) return true;
+		    	}
+		    	
+		    	// then the canvas
 		    	var d = self.canvas.getContext("2d").getImageData(x, y, 1, 1);
 		    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
 		    };
@@ -879,8 +881,7 @@
 		    };
 		    
 		    this.click = function(e) {
-		    	if (_mouseover && _over(e)) 
-		    		self.fireUpdate("click", self, e);	    	
+		    	if (_mouseover && _over(e)) self.fireUpdate("click", self, e);	    	
 		    };			    		
 		    
 		    // set paint style methods
@@ -967,7 +968,7 @@
 					// paint overlays
 					for ( var i = 0; i < self.overlays.length; i++) {
 						var o = self.overlays[i];
-						o.draw(self.connector, ctx);
+						overlayPlacements[i] = o.draw(self.connector, ctx, paintStyleInUse);
 					}
 				}
 			};
