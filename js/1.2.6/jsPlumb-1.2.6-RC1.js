@@ -1617,11 +1617,15 @@
 
 		/*
 		 * Function: connect Establishes a connection between two elements.
-		 * Parameters: params - Object containing setup for the connection. see
-		 * documentation. Returns: The newly created Connection.
+		 * Parameters: 
+		 *   params - Object containing setup for the connection. see documentation.
+		 *   referenceParams - Optional object containing more params for the connection. Typically you would pass in data that a lot of connections are sharing here, such as connector style etc, and then use the main params for data specific to this connection. 
+		 * 
+		 * Returns: The newly created Connection.
 		 */
-		this.connect = function(params) {
+		this.connect = function(params, referenceParams) {
 			var _p = jsPlumb.extend( {}, params);
+			if (referenceParams) jsPlumb.extend(_p, referenceParams);
 			
 			if (_p.source && _p.source.endpoint) _p.sourceEndpoint = _p.source;
 			if (_p.source && _p.target.endpoint) _p.targetEndpoint = _p.target;
