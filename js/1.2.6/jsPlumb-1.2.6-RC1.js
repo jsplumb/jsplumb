@@ -1551,14 +1551,16 @@
 		 * Returns: 
 		 * The newly created Endpoint. See Also: <addEndpoints>
 		 */
-		this.addEndpoint = function(target, params) {
-			params = jsPlumb.extend( {}, params);
-			params.endpoint = params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
-			params.endpointStyle = params.endpointStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+		this.addEndpoint = function(target, params, referenceParams) {
+			referenceParams = referenceParams || {};
+			var p = jsPlumb.extend({}, referenceParams);
+			jsPlumb.extend(p, params);
+			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
+			p.endpointStyle = p.endpointStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			var el = _getElementObject(target), id = _getAttribute(el, "id");
-			params.source = el;
+			p.source = el;
 			_updateOffset({ elId : id });
-			var e = new Endpoint(params);
+			var e = new Endpoint(p);
 			_addToList(endpointsByElement, id, e);
 			var myOffset = offsets[id], myWH = sizes[id];
 			var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e });

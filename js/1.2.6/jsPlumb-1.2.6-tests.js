@@ -729,6 +729,50 @@ test("jsPlumb.deleteEveryEndpoint (connections too)", function() {
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 0);
 });
 
+test("jsPlumb.addEndpoint (simple case)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoint(d16, {anchor:[0,0.5,0,-1]});
+	var e17 = jsPlumb.addEndpoint(d17, {anchor:"TopCenter"});
+	assertContextSize(2);
+	equals(e16.anchor.x, 0);
+	equals(e16.anchor.y, 0.5);
+	equals(e17.anchor.x, 0.5);
+	equals(e17.anchor.y, 0);
+});
+
+test("jsPlumb.addEndpoint (simple case, dynamic anchors)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoint(d16, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+	var e17 = jsPlumb.addEndpoint(d17, {anchors:["TopCenter", "BottomCenter"]});
+	assertContextSize(2);
+	equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+	equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+});
+
+test("jsPlumb.addEndpoint (simple case, two arg method)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchor:[0,0.5,0,-1]});
+	var e17 = jsPlumb.addEndpoint(d17, {isTarget:true, isSource:false}, {anchor:"TopCenter"});
+	assertContextSize(2);
+	equals(e16.anchor.x, 0);
+	equals(e16.anchor.y, 0.5);
+	equals(false, e16.isTarget);
+	equals(true, e16.isSource);
+	equals(e17.anchor.x, 0.5);
+	equals(e17.anchor.y, 0);
+	equals(true, e17.isTarget);
+	equals(false, e17.isSource);
+});
+
+test("jsPlumb.addEndpoint (simple case, dynamic anchors, two arg method)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+	var e17 = jsPlumb.addEndpoint(d17, {isTarget:true, isSource:false}, {anchors:["TopCenter", "BottomCenter"]});
+	assertContextSize(2);
+	equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+	equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+});
+
 test('jsPlumb.connect (between two Endpoints)', function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	var e = jsPlumb.addEndpoint(d1, {});
