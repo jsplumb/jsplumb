@@ -58,8 +58,8 @@
 				var commonData = {
 					paintStyle:paintStyle,
 				   	backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'},
-				   	hoverPaintStyle:hoverPaintStyle,
-				   	endpointStyle:{fillStyle:'rgb(200,200,200)'}
+				   	hoverPaintStyle:hoverPaintStyle,											// new in 1.2.6: a paint style when the mouse is hovering.
+				   	endpointStyle:{fillStyle:"rgb(200,200,200)"}
 				};
 				
 				var arrowSpec = {width:40,height:40,location:0.7, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"}};
@@ -94,8 +94,8 @@
 				var connection4 = jsPlumb.connect({
 					source:'window5', 
 				   	target:'window6',
-				   	connector:"Straight", 
-				   	anchors:["Center", "Center"], 
+				   	connector:"Bezier", 
+				   	anchors:["TopRight", "BottomLeft"], 
 				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window5", "window6")}}),
 								new jsPlumb.Overlays.Label({label:"CONNECTION 4", location:0.3}),
 								new jsPlumb.Overlays.Arrow(arrowSpec) ]
@@ -104,17 +104,28 @@
 		        // all the mouse listener stuff
 		        var c = function(connection) {
 					connection.bind(["mouseenter", "mouseexit", "click"], { 
-						"mouseenter":function(connection) {
-							$(connection.source).addClass("hl");
-							$(connection.target).addClass("hl");
+						"mouseenter":function(c) {
+
+							// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
+							// connection.setPaintStyle(hoverPaintStyle);
+							
+							$(c.source).addClass("hl");
+							$(c.target).addClass("hl");
 						},
-						"mouseexit" : function(connection) {
-							$(connection.source).removeClass("hl");
-							$(connection.target).removeClass("hl");						
+						"mouseexit" : function(c) {
+							
+							// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
+							// connection.setPaintStyle(paintStyle);
+							
+							$(c.source).removeClass("hl");
+							$(c.target).removeClass("hl");						
 						},
 						"click": function(c) {
 							alert("click on connection from " + c.sourceId + " to " + c.targetId);
 						}
+					});
+					connection.bind("click", function(c) {
+						alert("click on connection from " + c.sourceId + " to " + c.targetId);
 					});
 					
 				};
