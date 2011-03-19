@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+     "http://www.w3.org/TR/html4/transitional.dtd">
+<html>
+<head>
+  <meta HTTP-EQUIV=CONTENT-TYPE CONTENT="text/html; charset=utf-8">
+  <title>Slide 1</title>
+  <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/themes/base/jquery-ui.css" type="text/css" media="all" /> 
+			<link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" media="all" /> 
+			<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js" type="text/javascript"></script> 
+			<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/jquery-ui.min.js" type="text/javascript"></script> 
+			<script src="http://jquery-ui.googlecode.com/svn/tags/latest/external/jquery.bgiframe-2.1.2.js" type="text/javascript"></script> 
+			<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.6/i18n/jquery-ui-i18n.min.js" type="text/javascript"></script> 
+			<script src="http://morrisonpitt.com/jsPlumb/js/1.2.3/jquery.jsPlumb-1.2.3-all.js" type="text/javascript"></script> 
+</head>
+<body text="#000000" bgcolor="#E6E6FF" link="#DD4814" vlink="#3C3C3C" alink="#DD4814">
+<style>
+	#sortable, #sortable2 { list-style-type: none; margin: 0; padding: 0; width: 60%; z-index:1;}
+	#sortable div, #sortable2 div { margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em; font-size: 1.4em; height: 18px; z-index:1;}
+	._jsPlumb_connector { z-index:0 }
+	</style>
+	<script>
+	$(function() {
+		$( "#sortable, #sortable2" ).sortable();
+		//jsPlumb.setDraggableByDefault(false);
+		jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
+		
+		var connection1 = jsPlumb.connect({source:'window1', 
+										   target:'window2', 
+										   anchors:[jsPlumb.Anchors.BottomCenter, jsPlumb.makeAnchor(0.75,0,0,-1)], 
+										   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
+										   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'}, 
+										   endpointStyle:{fillStyle:'rgb(243,229,0)'}});
+		});
+	</script>
+
+
+<div class="demo">
+
+<div id="sortable" style="float:left;width:200px;">
+	<div class="ui-state-default" id="window1">Item 1</div>
+	<div class="ui-state-default">Item 2</div>
+	<div class="ui-state-default">Item 3</div>
+	<div class="ui-state-default">Item 4</div>
+	<div class="ui-state-default">tem 5</div>
+	<div class="ui-state-default">Item 6</div>
+	<div class="ui-state-default">Item 7</div>
+</div>
+
+
+<div id="sortable2" style="float:left;margin-left:450px;">
+	<div class="ui-state-default" id="window2">Item 1</div>
+	<div class="ui-state-default">Item 2</div>
+	<div class="ui-state-default">Item 3</div>
+	<div class="ui-state-default">Item 4</div>
+	<div class="ui-state-default">tem 5</div>
+	<div class="ui-state-default">Item 6</div>
+	<div class="ui-state-default">Item 7</div>
+</div>
+
+
+</div><!-- End demo -->
+
+
+
+<div class="demo-description" style="display: none; ">
+</div><!-- End demo-description -->
+</body>
+</html>

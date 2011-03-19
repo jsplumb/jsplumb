@@ -1,0 +1,198 @@
+<! DOCTYPE html> 
+<html> 
+<head> 
+<meta charset="utf-8" /> 
+<title>seas</title> 
+	<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script> 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js"></script> 
+    <script type="text/javascript" src="../js/1.2.2/jsPlumb-1.2.2-RC1.js"></script>
+	<script type="text/javascript" src="../js/1.2.2/jsPlumb-defaults-1.2.2-RC1.js"></script>
+	<script type="text/javascript" src="../js/1.2.2/jquery.jsPlumb-1.2.2-RC1.js"></script> 
+     
+ 
+<style type="text/css"> 
+  body, div, ul, li {
+    padding: 0px;
+    margin: 0px;
+  }
+  #window1 { top:6em;left:15%; }
+  #window2 { top:6em; right:15%; }
+  #window3 { top:24em; left:15%; }
+  #window4 { top:24em; right:15%}
+  .window {  border:1px solid gray; width:250px; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
+  padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white; }
+  .drag-locked { border:1px solid red; }
+  ._jsPlumb_endpoint { z-index:50; }
+  ._jsPlumb_connector { z-index:1; }
+  .dropHover { border:1px dotted red; }
+  .dragActive { border:2px dotted orange; }
+  #explanation { width:30%; background-color:transparent;z-index:2;font-size:1.2em;color:gray;border:none;position:relative;left:35%;right:auto;text-align:center; }
+  .cmdLink { font-size:0.80em;}
+  #clear { padding:0.3em; }
+  #clear:hover { background-color:yellow; }
+  #list { display:none; border-bottom:1px dotted grey; padding-bottom:1.5em; font-size:90%;}
+  #list table { width:100%; text-align:left;}
+  div.inputs {
+    float: left;
+    width: 100px;
+    text-align: left;
+  }
+  ul.inputs {
+    display: block;
+  }
+  li.inputs {
+  	list-style-type: none;
+    margin-left: 5px;
+    border: 1px solid;
+  }
+  div.outputs {
+    float: right;
+    width: 100px;
+    text-align: right;
+  }
+  ul.outputs {
+    display: block;
+  }
+  li.outputs {
+  	list-style-type: none;
+    margin-right: 5px;
+    border: 1px solid;
+  }
+</style> 
+ 
+</head> 
+<body> 
+  <div class="window" id="window1"> 
+    one<br/><br/> 
+    <div class="inputs" id="window1_input"> 
+      <ul class="inputs"> 
+        <li class="inputs" id="window1_input1">1st input</li> 
+        <li class="inputs" id="window1_input2">2nd input</li> 
+        <li class="inputs" id="window1_input3">3rd input</li> 
+      </ul> 
+    </div> 
+    <div class="outputs" id="window1_output"> 
+      <ul class="outputs"> 
+        <li class="outputs" id="window1_output1">1st output</li> 
+        <li class="outputs" id="window1_output2">2nd output</li> 
+        <li class="outputs" id="window1_output3">3rd output</li> 
+      </ul> 
+    </div> 
+ 
+  </div> 
+  <div class="window" id="window2">two<br/><br/> 
+    <div class="inputs" id="window2_input"> 
+      <ul class="inputs"> 
+        <li class="inputs" id="window2_input1">1st input</li> 
+        <li class="inputs" id="window2_input2">2nd input</li> 
+        <li class="inputs" id="window2_input3">3rd input</li> 
+      </ul> 
+    </div> 
+    <div class="outputs" id="window2_output"> 
+      <ul class="outputs"> 
+        <li class="outputs" id="window2_output1">1st output</li> 
+        <li class="outputs" id="window2_output2">2nd output</li> 
+        <li class="outputs" id="window2_output3">3rd output</li> 
+      </ul> 
+    </div> 
+  </div> 
+ 
+  <div class="window" id="window3"> 
+    three<br/><br/> 
+  </div> 
+ 
+  <div class="window" id="window4"> 
+    four<br/><br/> 
+  </div> 
+ 
+  <script type="text/javascript"> 
+	  $(document).ready(function() {
+		  jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+		  jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
+		  jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
+		  jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
+		  jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
+ 
+			var exampleDropOptions = {
+				tolerance:'touch',
+				hoverClass:'dropHover',
+				activeClass:'dragActive'
+			};
+ 
+			var exampleColor = '#00f';
+			var exampleEndpoint = {
+				endpoint:new jsPlumb.Endpoints.Rectangle(),
+				style:{ width:25, height:21, fillStyle:exampleColor },
+				isSource:true,
+				scope:'blue rectangle',
+				connectorStyle : {
+					gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
+					lineWidth:5,
+					strokeStyle:exampleColor
+				},
+				isTarget:true,
+				dropOptions : exampleDropOptions
+			};
+ 
+			var example3Color = "rgba(229,219,61,0.5)";
+ 
+			var inputEndpoint = {
+          anchor: jsPlumb.Anchors.LeftMiddle,
+					endpoint:new jsPlumb.Endpoints.Rectangle({width:34, height: 10}),
+					reattach:true,
+					style:{ strokeStyle:example3Color, opacity:0.5 },
+					connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
+					connector : new jsPlumb.Connectors.Straight(),
+					isSource:true,
+					isTarget:true,
+			};
+			var outputEndpoint = {
+          anchor: jsPlumb.Anchors.RightMiddle,
+					endpoint:new jsPlumb.Endpoints.Rectangle({width:34, height: 10}),
+					reattach:true,
+					style:{ strokeStyle:example3Color, opacity:0.5 },
+					connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
+					connector : new jsPlumb.Connectors.Straight(),
+					isSource:true,
+					isTarget:true,
+			};
+ 
+      $("#window1_input1").addEndpoint(inputEndpoint);
+      $("#window1_input2").addEndpoint(inputEndpoint);
+      $("#window1_input3").addEndpoint(inputEndpoint);
+ 
+      $("#window1_output1").addEndpoint(outputEndpoint);
+      $("#window1_output2").addEndpoint(outputEndpoint);
+      $("#window1_output3").addEndpoint(outputEndpoint);
+ 
+      $("#window2_input1").addEndpoint(inputEndpoint);
+      $("#window2_input2").addEndpoint(inputEndpoint);
+      $("#window2_input3").addEndpoint(inputEndpoint);
+ 
+      $("#window2_output1").addEndpoint(outputEndpoint);
+      $("#window2_output2").addEndpoint(outputEndpoint);
+      $("#window2_output3").addEndpoint(outputEndpoint);
+ 
+ 
+      $("#window3").addEndpoint(inputEndpoint);
+      $("#window3").addEndpoint(outputEndpoint);
+ 
+      $("#window4").addEndpoint(inputEndpoint);
+      $("#window4").addEndpoint(outputEndpoint);
+ 
+	  jsPlumb.draggable($("#window3")); jsPlumb.draggable($("#window4"));
+
+	  $("#window1").draggable({ drag : function() {
+		  jsPlumb.repaint(["window1_input1", "window1_input2", "window1_input3", "window1_output1", "window1_output2", "window1_output3"]);
+	  }});
+
+	  $("#window2").draggable({ drag : function() {
+		  jsPlumb.repaint(["window2_input1", "window2_input2", "window2_input3", "window2_output1", "window2_output2", "window2_output3"]);
+	  }});
+	});
+	  
+  </script> 
+ 
+<script type="text/javascript" src="http://www.bplaced.net/pub/bpa.js"></script></body> 
+</html> 
