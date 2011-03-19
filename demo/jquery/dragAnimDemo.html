@@ -84,7 +84,7 @@
 						var id = $(this).attr("id");
 						jsPlumb.animate(id, {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
 					});
-					return $("#" + elId).addEndpoint(endpoint);
+					return jsPlumb.addEndpoint(elId, endpoint);
 				};
 
 				var e1 = prepare("bd1");
@@ -94,15 +94,9 @@
 
 				$("#clear").bind('click', function() { jsPlumb.detachEverything(); });
 
-				jsPlumb.connect({ source:'bd1', target:'bd2', sourceEndpoint:e1, targetEndpoint:e2 });
-				jsPlumb.connect({
-					source:'bd1',
-					target:'bd3',
-					sourceEndpoint:e1,
-					targetEndpoint:e3
-				});
-
-				jsPlumb.connect({ source:'bd1', target:'bd4', sourceEndpoint:e1, targetEndpoint:e4 });
+				jsPlumb.connect({ source:e1, target:e2 });
+				jsPlumb.connect({ source:e1, target:e3 });
+				jsPlumb.connect({ source:e1, target:e4 });
 
 				$("#add").bind('click', function() {
 					var d = document.createElement("div");

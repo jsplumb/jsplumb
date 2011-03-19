@@ -106,10 +106,10 @@
 
 				Y.one("#clear").on('click', function() { jsPlumb.detachEverything(); });
 
-				jsPlumb.connect({ source:'bd1', target:'bd2', sourceEndpoint:e1, targetEndpoint:e2 });
-				jsPlumb.connect({ source:'bd1', target:'bd3', sourceEndpoint:e1, targetEndpoint:e3 });
-				jsPlumb.connect({ source:'bd1', target:'bd4', sourceEndpoint:e1, targetEndpoint:e4 });
-
+				jsPlumb.connect({ source:e1, target:e2 });
+				jsPlumb.connect({ source:e1, target:e3 });
+				jsPlumb.connect({ source:e1, target:e4 });
+				
 				Y.one("#add").on('click', function() {
 					_addDisc(endpoint);
 				});

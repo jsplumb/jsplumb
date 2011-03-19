@@ -91,10 +91,10 @@
 				
 				$("clear").addEvent('click', function() { jsPlumb.detachEverything(); });
 
-				jsPlumb.connect({source:'bd1', target:'bd2', sourceEndpoint:e1, targetEndpoint:e2 });
-				jsPlumb.connect({source:'bd1', target:'bd3', sourceEndpoint:e1, targetEndpoint:e3});
-				jsPlumb.connect({source:'bd1', target:'bd4', sourceEndpoint:e1, targetEndpoint:e4});
-							
+				jsPlumb.connect({ source:e1, target:e2 });
+				jsPlumb.connect({ source:e1, target:e3 });
+				jsPlumb.connect({ source:e1, target:e4 });
+				
 				$("add").addEvent('click', function() {
 					var d = document.createElement("div");
 					d.className = "bigdot";
