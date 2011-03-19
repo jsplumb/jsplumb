@@ -29,26 +29,19 @@
 			BackgroundPaintStyle : null,
 			Connector : null,
 			Container : null,
-			DragOptions : {},
-			DropOptions : {},
+			DragOptions : { },
+			DropOptions : { },
 			Endpoint : null,
 			Endpoints : [ null, null ],
-			EndpointStyle : {
-				fillStyle : null
-			},
+			EndpointStyle : { fillStyle : null },
 			EndpointStyles : [ null, null ],
-			LabelStyle : {
-				fillStyle : "rgba(0,0,0,0)",
-				color : "black"
-			},
+			HoverPaintStyle : null,
+			LabelStyle : { fillStyle : "rgba(0,0,0,0)", color : "black" },
 			LogEnabled : true,
 			MaxConnections : null,
 			MouseEventsEnabled : false, 
 			// TODO: should we have OverlayStyle too?
-			PaintStyle : {
-				lineWidth : 10,
-				strokeStyle : 'red'
-			},
+			PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
 			Scope : "_jsPlumb_DefaultScope"
 		};
 		if (_defaults) jsPlumb.extend(Defaults, _defaults);
@@ -792,9 +785,11 @@
 
 			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 			if (this.connector.constructor == String) this.connector = new jsPlumb.Connectors[this.connector](); // lets you use a string as shorthand.
-			this.paintStyle = this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
-			this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
-
+			var paintStyle = this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
+			var backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
+			var hoverPaintStyle = this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle;
+			var paintStyleInUse = paintStyle;
+			
 			// init overlays
 			this.overlays = params.overlays || [];
 			this.addOverlay = function(overlay) { overlays.push(overlay); };
@@ -813,10 +808,10 @@
 			_updateOffset( { elId : this.sourceId });
 			_updateOffset( { elId : this.targetId });
 
-			// functions for mouse hover/select functionality
+			/* functions for mouse hover/select functionality
 			this.distanceFrom = function(point) { 
 				return self.connector.distanceFrom(point); 
-			};
+			};*/
 
 			this.setLabel = function(l) {
 				self.label = l;
@@ -846,12 +841,18 @@
 			
 			/// ********************************************* mouse events on the connectors ******************************************
 		    	
-		    var _withinRange = function(e) {		    			  		    	
+			/**
+			 * returns whether or not the given event is over a painted area of the canvas. TODO: use a backing canvas and paint a copy
+			 * of the connector, but not any overlays, into it? right now its all jittery when the mouse is hovering over a label, as it
+			 * hits text and then slips off.  perhaps a better fix would be to have a set of rectangles that define areas over which we 
+			 * always consider the mouse to be hovering - this could be all the overlays, including image overlays etc.
+			 */
+		    var _over = function(e) {		    			  		    	
 		    	var o = _getOffset(_getElementObject(self.canvas));
 		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
-		    	var p = { x:pageXY[0] - o.left, y:pageXY[1] - o.top };
-				var t = self.distanceFrom(p);
-				return t.distance < 20;							// TODO: parameterise!
+		    	var x = pageXY[0] - o.left, y = pageXY[1] - o.top;
+		    	var d = self.canvas.getContext("2d").getImageData(x, y, 1, 1);
+		    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
 		    };
 		    var _mouseover = false;
 		    this.mousemove = function(e) {	    
@@ -859,21 +860,50 @@
 				var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
 				var _continue = _hasClass(ee, "_jsPlumb_connector");
 				
-				if (!_mouseover && _continue && _withinRange(e)) {
+				if (!_mouseover && _continue && _over(e)) {
 					_mouseover = true;
+					if (hoverPaintStyle != null) {
+						paintStyleInUse = hoverPaintStyle;
+						self.repaint();
+					}
 					self.fireUpdate("mouseenter", self, e);				
 				}
-				else if (_mouseover && (!_withinRange(e) || !_continue)) {
+				else if (_mouseover && (!_over(e) || !_continue)) {
 					_mouseover = false;
+					if (hoverPaintStyle != null) {
+						paintStyleInUse = paintStyle;
+						self.repaint();
+					}
 					self.fireUpdate("mouseexit", self, e);				
 				}
 		    };
 		    
 		    this.click = function(e) {
-		    	if (_mouseover && _withinRange(e)) 
+		    	if (_mouseover && _over(e)) 
 		    		self.fireUpdate("click", self, e);	    	
-		    };	
-		    		  
+		    };			    		
+		    
+		    // set paint style methods
+		    this.setPaintStyle = function(newStyle) {
+		    	paintStyle = newStyle;
+		    	paintStyleInUse = paintStyle;
+		    	self.repaint();
+		    };
+		    
+		    this.setBackgroundPaintStyle = function(newStyle) {
+		    	backgroundPaintStyle = newStyle;
+		    	self.repaint();
+		    };
+		    
+		    /**
+		     * Function: setHoverPaintStyle
+		     * 
+		     * sets the paint style to use when the mouse is hovering over the connector.
+		     */
+		    this.setHoverPaintStyle = function(newStyle) {
+		    	hoverPaintStyle = newStyle;
+		    	self.repaint();
+		    };
 		    
 			/*
 			 * Function: paint 
@@ -888,8 +918,7 @@
 				params = params || {};
 				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp;
 				var fai = self.floatingAnchorIndex;
-				// if the moving object is not the source we must transpose the
-				// two references.
+				// if the moving object is not the source we must transpose the two references.
 				var swap = false;
 				var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
 				var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
@@ -898,8 +927,7 @@
 				if (this.canvas.getContext) {
 					_updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp });
 					_updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
-				//	var myOffset = offsets[sId], otherOffset = offsets[tId], myWH = sizes[sId], otherWH = sizes[tId];
-					var ctx = canvas.getContext('2d');
+				    var ctx = canvas.getContext('2d');
 					var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();					
 					var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
 					var tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
@@ -914,16 +942,16 @@
 							maxSize = s;
 					}
 
-					var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, this.paintStyle.lineWidth, maxSize);
+					var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, paintStyleInUse.lineWidth, maxSize);
 					jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
 
-					var _paintOneStyle = function(ctx, paintStyle) {
+					var _paintOneStyle = function(ctx, aStyle) {
 						ctx.save();
-						jsPlumb.extend(ctx, paintStyle);
-						if (paintStyle.gradient && !ie) {
+						jsPlumb.extend(ctx, aStyle);
+						if (aStyle.gradient && !ie) {
 							var g = self.connector.createGradient(dim, ctx, (elId == this.sourceId));
-							for ( var i = 0; i < paintStyle.gradient.stops.length; i++)
-								g.addColorStop(paintStyle.gradient.stops[i][0], paintStyle.gradient.stops[i][1]);
+							for ( var i = 0; i < aStyle.gradient.stops.length; i++)
+								g.addColorStop(aStyle.gradient.stops[i][0], aStyle.gradient.stops[i][1]);
 							ctx.strokeStyle = g;
 						}
 						self.connector.paint(dim, ctx);
@@ -931,10 +959,10 @@
 					};
 
 					// first check for the background style
-					if (this.backgroundPaintStyle != null) {
-						_paintOneStyle(ctx, this.backgroundPaintStyle);
+					if (backgroundPaintStyle != null) {
+						_paintOneStyle(ctx, backgroundPaintStyle);
 					}
-					_paintOneStyle(ctx, this.paintStyle);
+					_paintOneStyle(ctx, paintStyleInUse);
 
 					// paint overlays
 					for ( var i = 0; i < self.overlays.length; i++) {
