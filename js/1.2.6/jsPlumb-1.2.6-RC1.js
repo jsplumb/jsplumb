@@ -2087,12 +2087,24 @@
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			var _maxConnections = params.maxConnections || 1; // maximum number of connections this endpoint can be the source of.
+			/*
+			 * Property: canvas
+			 * The Endpoint's Canvas.
+			 */
 			this.canvas = params.canvas || _newCanvas({"class":jsPlumb.endpointClass, container:this.container, uuid:params.uuid});
+			/*
+			 * Property: connections
+			 * List of Connections this Endpoint is attached to.
+			 */
 			this.connections = params.connections || [];
+			/*
+			 * Property: scope
+			 * Scope descriptor for this Endpoint.
+			 */
 			this.scope = params.scope || DEFAULT_SCOPE;
 			this.timestamp = null;
 			var _reattach = params.reattach || false;
-			this.dragAllowedWhenFull = params.dragAllowedWhenFull || true;
+			var dragAllowedWhenFull = params.dragAllowedWhenFull || true;
 
 			this.computeAnchor = function(params) {
 				return self.anchor.compute(params);
@@ -2100,6 +2112,7 @@
 			/*
 			 * Function: addConnection
 			 *   Adds a Connection to this Endpoint.
+			 *   
 			 * Parameters:
 			 *   connection - the Connection to add.
 			 */
@@ -2109,6 +2122,7 @@
 			/*
 			 * Function: detach
 			 *   Detaches the given Connection from this Endpoint.
+			 *   
 			 * Parameters:
 			 *   connection - the Connection to detach.
 			 *   ignoreTarget - optional; tells the Endpoint to not notify the Connection target that the Connection was detached.  The default behaviour is to notify the target.
@@ -2140,6 +2154,7 @@
 			/*
 			 * Function: detachFrom
 			 *   Removes any connections from this Endpoint that are connected to the given target endpoint.
+			 *   
 			 * Parameters:
 			 *   targetEndpoint - Endpoint from which to detach all Connections from this Endpoint.
 			 */
@@ -2158,6 +2173,7 @@
 			/*
 			 * Function: detachFromConnection
 			 *   Detach this Endpoint from the Connection, but leave the Connection alive. Used when dragging.
+			 *   
 			 * Parameters:
 			 *   connection - Connection to detach from.
 			 */
@@ -2193,6 +2209,7 @@
 			/*
 			 * Function: isConnectedTo
 			 *   Returns whether or not this endpoint is connected to the given Endpoint.
+			 *   
 			 * Parameters:
 			 *   endpoint - Endpoint to test.
 			 */
@@ -2235,15 +2252,17 @@
 			 *   Sets whether or not connections can be dragged from this Endpoint once it is full. You would use this in a UI in 
 			 *   which you're going to provide some other way of breaking connections, if you need to break them at all. This property 
 			 *   is by default true; use it in conjunction with the 'reattach' option on a connect call.
+			 *   
 			 * Parameters:
 			 *   allowed - whether drag is allowed or not when the Endpoint is full.
 			 */
 			this.setDragAllowedWhenFull = function(allowed) {
-				self.dragAllowedWhenFull = allowed;
+				dragAllowedWhenFull = allowed;
 			};
 			/*
 			 * Function: setStyle
 			 *   Sets the paint style of the Endpoint.  This is a JS object of the same form you supply to a jsPlumb.addEndpoint or jsPlumb.connect call.
+			 *   
 			 * Parameters:
 			 *   style - Style object to set, for example {fillStyle:"blue"}.
 			 */
@@ -2263,6 +2282,7 @@
 			/*
 			 * Function: paint
 			 *   Paints the Endpoint, recalculating offset and anchor positions if necessary.
+			 *   
 			 * Parameters:
 			 *   timestamp - optional timestamp advising the Endpoint of the current paint time; if it has painted already once for this timestamp, it will not paint again.
 			 *   canvas - optional Canvas to paint on.  Only used internally by jsPlumb in certain obscure situations.
@@ -2315,7 +2335,7 @@
 				var n = null, id = null, jpc = null, existingJpc = false, existingJpcParams = null;
 				var start = function() {
 					jpc = connectorSelector();
-					if (self.isFull() && !self.dragAllowedWhenFull) return false;
+					if (self.isFull() && !dragAllowedWhenFull) return false;
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
 					inPlaceCopy.paint();										
