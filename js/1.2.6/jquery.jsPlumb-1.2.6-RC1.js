@@ -163,9 +163,12 @@
 		 * see getDragObject as well
 		 */
 		getUIPosition : function(eventArgs) {
-			var ui = eventArgs[1];
-			//return ui.absolutePosition || ui.offset;
-			return ui.offset || ui.absolutePosition;
+			var ui = eventArgs[1], _offset = ui.offset;
+			if (_offset) {
+				_offset.top = _offset.top + parseInt(ui.helper.css('margin-top').slice(0,-2));
+				_offset.left = _offset.left + parseInt(ui.helper.css('margin-left').slice(0,-2))
+			}
+			return _offset || ui.absolutePosition;
 		},		
 		
 		hasClass : function(el, clazz) {
