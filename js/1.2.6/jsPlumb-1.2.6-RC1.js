@@ -1027,11 +1027,8 @@
 		 * its handling of these things. If a user supplies their own event
 		 * callback, for anything, it will always be called. 
 		 */
-		this.wrap = _wrap;
-		
-		EventGenerator.apply(this);
+		this.wrap = _wrap;			
 		this.addListener = this.bind;
-
 				
 		/**
 		 * helper class for objects that generate events
@@ -1062,6 +1059,7 @@
 				_listeners = {};
 			};
 		};
+		EventGenerator.apply(this);
 
 		var _currentInstance = this;
 		var ie = !!!document.createElement('canvas').getContext;
