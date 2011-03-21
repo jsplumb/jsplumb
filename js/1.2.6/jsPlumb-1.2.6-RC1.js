@@ -43,6 +43,59 @@
 		
 		this.logEnabled = this.Defaults.LogEnabled;
 
+/**
+		 * gets an id for the given element, creating and setting one if
+		 * necessary.
+		 */
+		var _getId = function(element, uuid) {
+			var ele = _getElementObject(element);
+			var id = _getAttribute(ele, "id");
+			if (!id || id == "undefined") {
+				// check if fixed uuid parameter is given
+				if (arguments.length == 2 && arguments[1] != undefined)
+					id = uuid;
+				else
+					id = "jsPlumb_" + _timestamp();
+				_setAttribute(ele, "id", id);
+			}
+			return id;
+		};
+
+/**
+		 * wraps one function with another, creating a placeholder for the
+		 * wrapped function if it was null. this is used to wrap the various
+		 * drag/drop event functions - to allow jsPlumb to be notified of
+		 * important lifecycle events without imposing itself on the user's
+		 * drag/drop functionality. TODO: determine whether or not we should
+		 * support an error handler concept, if one of the functions fails.
+		 * 
+		 * @param wrappedFunction original function to wrap; may be null.
+		 * @param newFunction function to wrap the original with.
+		 * @param returnOnThisValue Optional. Indicates that the wrappedFunction should 
+		 * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
+		 * note that this is a simple comparison and only works for primitives right now.
+		 */
+		var _wrap = function(wrappedFunction, newFunction, returnOnThisValue) {
+			wrappedFunction = wrappedFunction || function() { };
+			newFunction = newFunction || function() { };
+			return function() {
+				var r = null;
+				try {
+					r = newFunction.apply(this, arguments);
+				} catch (e) {
+					_log('jsPlumb function failed : ' + e);
+				}
+				if (returnOnThisValue == null || (r !== returnOnThisValue)) {
+					try {
+						wrappedFunction.apply(this, arguments);
+					} catch (e) {
+						_log('wrapped function failed : ' + e);
+					}
+				}
+				return r;
+			};
+		};	
+
 		/*
 		 * Property: connectorClass 
 		 *   The CSS class to set on Connection canvas elements. This value is a String and can have multiple classes; the entire String is appended as-is.
@@ -606,6 +659,8 @@
 			};
 			_bind("click");
 			_bind("mousemove");
+			_bind("mousedown");
+			_bind("mouseup");
 		};
 
 		/*
@@ -1231,25 +1286,7 @@
 		var _removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); };
 		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
 		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
-		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };
-
-		/**
-		 * gets an id for the given element, creating and setting one if
-		 * necessary.
-		 */
-		var _getId = function(element, uuid) {
-			var ele = _getElementObject(element);
-			var id = _getAttribute(ele, "id");
-			if (!id || id == "undefined") {
-				// check if fixed uuid parameter is given
-				if (arguments.length == 2 && arguments[1] != undefined)
-					id = uuid;
-				else
-					id = "jsPlumb_" + _timestamp();
-				_setAttribute(ele, "id", id);
-			}
-			return id;
-		};
+		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };		
 
 		/**
 		 * gets an Endpoint by uuid.
@@ -1464,40 +1501,7 @@
 			}
 		};
 
-		/**
-		 * wraps one function with another, creating a placeholder for the
-		 * wrapped function if it was null. this is used to wrap the various
-		 * drag/drop event functions - to allow jsPlumb to be notified of
-		 * important lifecycle events without imposing itself on the user's
-		 * drag/drop functionality. TODO: determine whether or not we should
-		 * support an error handler concept, if one of the functions fails.
-		 * 
-		 * @param wrappedFunction original function to wrap; may be null.
-		 * @param newFunction function to wrap the original with.
-		 * @param returnOnThisValue Optional. Indicates that the wrappedFunction should 
-		 * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
-		 * note that this is a simple comparison and only works for primitives right now.
-		 */
-		var _wrap = function(wrappedFunction, newFunction, returnOnThisValue) {
-			wrappedFunction = wrappedFunction || function() { };
-			newFunction = newFunction || function() { };
-			return function() {
-				var r = null;
-				try {
-					r = newFunction.apply(this, arguments);
-				} catch (e) {
-					_log('jsPlumb function failed : ' + e);
-				}
-				if (returnOnThisValue == null || (r !== returnOnThisValue)) {
-					try {
-						wrappedFunction.apply(this, arguments);
-					} catch (e) {
-						_log('wrapped function failed : ' + e);
-					}
-				}
-				return r;
-			};
-		};				
+					
 
 		/**
 		 * Anchors model a position on some element at which an Endpoint may be located.  They began as a first class citizen of jsPlumb, ie. a user
@@ -1877,12 +1881,27 @@
 		    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
 		    };
 		    var _mouseover = false;
+		    var _mouseDown = false, _mouseDownAt = null, _posWhenMouseDown = null, _mouseWasDown = false;
 		    this.mousemove = function(e) {	    
 		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
 				var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
 				var _continue = _hasClass(ee, "_jsPlumb_connector");
 				
-				if (!_mouseover && _continue && _over(e)) {
+				if (_mouseDown) {
+					_mouseWasDown = true;
+					var mouseNow = jsPlumb.CurrentLibrary.getPageXY(e);
+					var dx = mouseNow[0] - _mouseDownAt[0];
+					var dy = mouseNow[1] - _mouseDownAt[1];
+					var newPos = {left:_posWhenMouseDown.left + dx, top:_posWhenMouseDown.top + dy};
+					jsPlumb.CurrentLibrary.setOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas), newPos);
+					newPos = {left:srcWhenMouseDown.left + dx, top:srcWhenMouseDown.top + dy};
+					jsPlumb.CurrentLibrary.setOffset(jsPlumb.CurrentLibrary.getElementObject(self.source), newPos);
+					jsPlumb.repaint(self.source);
+					newPos = {left:targetWhenMouseDown.left + dx, top:targetWhenMouseDown.top + dy};
+					jsPlumb.CurrentLibrary.setOffset(jsPlumb.CurrentLibrary.getElementObject(self.target), newPos);
+					jsPlumb.repaint(self.target);
+				}				
+				else if (!_mouseover && _continue && _over(e)) {
 					_mouseover = true;
 					if (hoverPaintStyle != null) {
 						paintStyleInUse = hoverPaintStyle;
@@ -1901,8 +1920,24 @@
 		    };
 		    
 		    this.click = function(e) {
-		    	if (_mouseover && _over(e)) self.fireUpdate("click", self, e);	    	
+		    	if (_mouseover && _over(e) && !_mouseWasDown) self.fireUpdate("click", self, e);
+		    	
+		    	_mouseWasDown = false;
 		    };			    		
+		    
+		    this.mousedown = function(e) {
+		    	if(_over(e) && !_mouseDown) {
+		    		_mouseDown = true;
+		    		_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
+		    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
+		    		srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
+		    		targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
+		    	}
+		    };
+		    
+		    this.mouseup = function() {
+		    	_mouseDown = false;
+		    };
 		    
 		    /*
 		     * Function: setPaintStyle
