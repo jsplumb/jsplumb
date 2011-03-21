@@ -1860,25 +1860,24 @@
 			/// ********************************************* mouse events on the connectors ******************************************
 		    	
 			/**
-			 * returns whether or not the given event is over a painted area of the canvas. TODO: use a backing canvas and paint a copy
-			 * of the connector, but not any overlays, into it? right now its all jittery when the mouse is hovering over a label, as it
-			 * hits text and then slips off.  perhaps a better fix would be to have a set of rectangles that define areas over which we 
-			 * always consider the mouse to be hovering - this could be all the overlays, including image overlays etc.
+			 * returns whether or not the given event is over a painted area of the canvas. 
 			 */
 		    var _over = function(e) {		    			  		    	
 		    	var o = _getOffset(_getElementObject(self.canvas));
 		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
 		    	var x = pageXY[0] - o.left, y = pageXY[1] - o.top;
-		    	
-		    	// first check overlays
-		    	for ( var i = 0; i < overlayPlacements.length; i++) {
-		    		var p = overlayPlacements[i];
-		    		if (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y) return true;
+		    	if (x > 0 && y > 0 && x < self.canvas.width && y < self.canvas.height) {
+			    	// first check overlays
+			    	for ( var i = 0; i < overlayPlacements.length; i++) {
+			    		var p = overlayPlacements[i];
+			    		if (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y) return true;
+			    	}
+			    	
+			    	// then the canvas
+			    	var d = self.canvas.getContext("2d").getImageData(parseInt(x), parseInt(y), 1, 1);
+			    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
 		    	}
-		    	
-		    	// then the canvas
-		    	var d = self.canvas.getContext("2d").getImageData(x, y, 1, 1);
-		    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
+		    	return false;
 		    };
 		    var _mouseover = false;
 		    var _mouseDown = false, _mouseDownAt = null, _posWhenMouseDown = null, _mouseWasDown = false;
