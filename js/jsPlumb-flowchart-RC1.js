@@ -7,11 +7,7 @@ this is NOT FINISHED.  it doesnt support all combinations of anchor orientations
 */
 
 (function() {
-		
-	
-    var perpendicular = function(o1, o2) {
-		
-    };
+			
 	
     var inPhase = function (o1, o2) {
         var r = [o1[0] + o2[0], o1[1] + o2[1]];
@@ -26,7 +22,9 @@ this is NOT FINISHED.  it doesnt support all combinations of anchor orientations
         var _nso = function(o) {
             return Math.abs(o[0]) == Math.abs(o[1]);
         };
-        return _nso(o) || _nso(o2);
+        var nso = _nso(o) || _nso(o2);
+        console.log("not suitable orientations", nso);
+        return nso;
     };
 	
     jsPlumb.Connectors.Flowchart = function(params) {
@@ -53,9 +51,9 @@ this is NOT FINISHED.  it doesnt support all combinations of anchor orientations
             
             
             if (!notSuitableOrientations(so, to)) {                     
-                if (perpendicular(so,to)) {
+              /*  if (perpendicular(so,to)) {
                 }
-                else {
+                else {*/
             
                     var stubLength = h / 2, stubWidth = w / 2;
                     
@@ -317,7 +315,7 @@ this is NOT FINISHED.  it doesnt support all combinations of anchor orientations
                     }
 
                 }
-            }
+           // }
             
             w+=20;
             // first define the basic points - location, width, height, and start/end points.            
