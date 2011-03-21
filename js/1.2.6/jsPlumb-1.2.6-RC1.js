@@ -1891,7 +1891,8 @@
 		    	return false;
 		    };
 		    var _mouseover = false;
-		    var _mouseDown = false, _mouseDownAt = null, _posWhenMouseDown = null, _mouseWasDown = false;
+		    var _mouseDown = false, _mouseDownAt = null, _posWhenMouseDown = null, _mouseWasDown = false, srcWhenMouseDown = null,
+		    targetWhenMouseDown = null;
 		    this.mousemove = function(e) {
 		    	var jpcl = jsPlumb.CurrentLibrary;
 		    	var pageXY = jpcl.getPageXY(e);
@@ -1904,16 +1905,12 @@
 					var mouseNow = jpcl.getPageXY(e);
 					var dx = mouseNow[0] - _mouseDownAt[0];
 					var dy = mouseNow[1] - _mouseDownAt[1];
-					var newPos = {left:_posWhenMouseDown.left + dx, top:_posWhenMouseDown.top + dy};
-					jpcl.setOffset(jpcl.getElementObject(self.canvas), newPos);
-					newPos = {left:srcWhenMouseDown.left + dx, top:srcWhenMouseDown.top + dy};
+					var newPos = {left:srcWhenMouseDown.left + dx, top:srcWhenMouseDown.top + dy};
 					jpcl.setOffset(jpcl.getElementObject(self.source), newPos);
 					jsPlumb.repaint(self.source);
 					newPos = {left:targetWhenMouseDown.left + dx, top:targetWhenMouseDown.top + dy};
 					jpcl.setOffset(jpcl.getElementObject(self.target), newPos);
 					jsPlumb.repaint(self.target);
-					
-					//return [self.source, self.target];
 				}				
 				else if (!_mouseover && _continue && _over(e)) {
 					_mouseover = true;
