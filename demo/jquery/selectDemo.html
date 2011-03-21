@@ -20,10 +20,8 @@
 	    <div id="debug"></div>
 	    
 	    <div id="explanation">
-	    	<p>this is a demonstration of the experimental connection mouse events support to be introduced in 1.2.6.
-	    	 </p>
-	    	 <p>
-	    	 it also shows the Image overlay, which is scheduled for 1.2.6 too.
+	    	<p>this is a demonstration of the experimental connection mouse events support to be introduced in 1.2.6.  each Connection changes appearance when the mouse hovers over it, and pops up an alert on click.  you can
+	    	also drag connections around.
 	    	 </p>
 	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, jQuery 1.4.4 and jQuery UI 1.8.2.</p>
 	    	<br/><br/>
@@ -34,10 +32,12 @@
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>		
+		<script type="text/javascript" src="../../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>
+		<!--script type="text/javascript" src="../../js/1.2.6/jquery.jsPlumb-1.2.6-all-min.js"></script-->		
 					            		
 		<script type="text/javascript">
 			$(document).ready(function() {				
@@ -47,6 +47,7 @@
 				
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 				jsPlumb.setMouseEventsEnabled(true);
+				//jsPlumb.setConnectionsAreDraggable(true); ??????????? should this be configurable, or just follow the setMouseEventsEnabled method?
 				
 				var imageEventListener = function(sourceId, targetId) { 
 					return function(e) { alert("you clicked the image on the connection from " + sourceId + " to " + targetId); };
@@ -103,31 +104,21 @@
 			  						
 		        // all the mouse listener stuff
 		        var c = function(connection) {
-					connection.bind(["mouseenter", "mouseexit", "click"], { 
-						"mouseenter":function(c) {
-
-							// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
-							// connection.setPaintStyle(hoverPaintStyle);
-							
-							$(c.source).addClass("hl");
-							$(c.target).addClass("hl");
-						},
-						"mouseexit" : function(c) {
-							
-							// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
-							// connection.setPaintStyle(paintStyle);
-							
-							$(c.source).removeClass("hl");
-							$(c.target).removeClass("hl");						
-						},
-						"click": function(c) {
-							alert("click on connection from " + c.sourceId + " to " + c.targetId);
-						}
+					connection.bind("mouseenter", function(c) {
+						// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
+						// connection.setPaintStyle(hoverPaintStyle);						
+						$(c.source).addClass("hl");
+						$(c.target).addClass("hl");
+					});					
+					connection.bind("mouseexit", function(c) {							
+						// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
+						// connection.setPaintStyle(paintStyle);							
+						$(c.source).removeClass("hl");
+						$(c.target).removeClass("hl");
 					});
 					connection.bind("click", function(c) {
 						alert("click on connection from " + c.sourceId + " to " + c.targetId);
-					});
-					
+					});					
 				};
 		        c(connection1);
 		        c(connection2);
