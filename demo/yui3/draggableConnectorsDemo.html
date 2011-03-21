@@ -73,10 +73,9 @@
 				};
 
 				// connection listener
-				jsPlumb.addListener(["jsPlumbConnection","jsPlumbConnectionDetached"], {
-					jsPlumbConnection : function(p) { showConnections(); },
-					jsPlumbConnectionDetached : function(p) { showConnections(); }
-				});				
+				var l = function(p) { showConnections(); };
+				jsPlumb.bind("jsPlumbConnection", l);
+				jsPlumb.bind("jsPlumbConnectionDetached", l);				
 
 				var exampleDropOptions = {
 					tolerance:'touch',
