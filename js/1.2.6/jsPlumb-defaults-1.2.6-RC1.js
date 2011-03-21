@@ -507,7 +507,7 @@
 		
 		this.paint = function(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle) {
 			if (self.ready) {
-    			actuallyPaint(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle)
+    			actuallyPaint(anchorPoint, orientation, canvas, endpointStyle, connectorPaintStyle);
 			}
 			else 
 				window.setTimeout(function() {    					
@@ -530,8 +530,8 @@
 	jsPlumb.Overlays.Arrow = function(params) {
 		params = params || {};
 		var self = this;
-    	var length = params.length || 20;
-    	var width = params.width || 20;
+    	this.length = params.length || 20;
+    	this.width = params.width || 20;
     	/*var fillStyle = params.fillStyle;
     	var strokeStyle = params.strokeStyle;
     	var lineWidth = params.lineWidth || 1;*/
@@ -543,19 +543,19 @@
     		if (foldback == 0.5) return connector.pointOnPath(loc);
     		else {
     			var adj = 0.5 - foldback; // we calculate relative to the center
-    			return connector.pointAlongPathFrom(loc, length * adj);        			
+    			return connector.pointAlongPathFrom(loc, self.length * adj);        			
     		}
     	};
     	
-    	this.computeMaxSize = function() { return width * 1.5; };
+    	this.computeMaxSize = function() { return self.width * 1.5; };
     	
     	this.draw = function(connector, ctx, currentConnectionPaintStyle) {
     		// this is the arrow head position    		
-			var hxy = connector.pointAlongPathFrom(self.loc, length / 2);		
+			var hxy = connector.pointAlongPathFrom(self.loc, self.length / 2);		
 			// this is the center of the tail
-			var txy = connector.pointAlongPathFrom(self.loc, -length / 2), tx = txy.x, ty = txy.y;
+			var txy = connector.pointAlongPathFrom(self.loc, -self.length / 2), tx = txy.x, ty = txy.y;
 			// this is the tail vector
-			var tail = connector.perpendicularToPathAt(self.loc, width, -length / 2);
+			var tail = connector.perpendicularToPathAt(self.loc, self.width, -self.length / 2);
 			// this is the point the tail goes in to
 			var cxy = _getFoldBackPoint(connector, self.loc);
 			
