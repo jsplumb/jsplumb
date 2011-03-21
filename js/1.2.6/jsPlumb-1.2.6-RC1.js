@@ -42,6 +42,447 @@
 		if (_defaults) jsPlumb.extend(Defaults, _defaults);
 		
 		this.logEnabled = this.Defaults.LogEnabled;
+		
+		/**
+		 * Class: EventGenerator
+		 * Superclass for objects that generate events
+		 */
+		var EventGenerator = function() {
+			var _listeners = {};
+			/*
+			 * Function: bind
+			 * Binds a listener to an event.
+			 * 
+			 * Parameters:
+			 * 	event		-	name of the event to bind to.
+			 * 	listener	-	function to execute.
+			 */
+			this.bind = function(event, listener) {
+				_addToList(_listeners, event, listener);				
+			};
+			/*
+			 * Function: fireUpdate
+			 * Fires an update for the given event.
+			 * 
+			 * Parameters:
+			 * 	event		-	event to fire
+			 * 	value		-	value to pass to the event listener(s).
+			 */
+			this.fireUpdate = function(event, value) {
+				if (_listeners[event]) {
+					for ( var i = 0; i < _listeners[event].length; i++) {
+						try {
+							_listeners[event][i](value);
+						} catch (e) {
+							_log("jsPlumb: fireUpdate failed for event "
+									+ event + " : " + e + "; not fatal.");
+						}
+					}
+				}
+			};
+			/*
+			 * Function: clearListeners
+			 * Clears either all listeners, or listeners for some specific event.
+			 * 
+			 * Parameters:
+			 * 	event	-	optional. constrains the clear to just listeners for this event.
+			 */
+			this.clearListeners = function(event) {
+				if (event) {
+					delete _listeners[event];
+				} else {
+					delete _listeners;
+					_listeners = {};
+				}
+			};
+		};
+		EventGenerator.apply(this);
+
+		var _currentInstance = this;
+		var ie = !!!document.createElement('canvas').getContext;
+		var log = null;
+
+		var repaintFunction = function() {
+			jsPlumb.repaintEverything();
+		};
+		var automaticRepaint = true;
+		function repaintEverything() {
+			if (automaticRepaint)
+				repaintFunction();
+		};
+		var resizeTimer = null;		
+
+		var connectionsByScope = {};
+		/**
+		 * map of element id -> endpoint lists. an element can have an arbitrary
+		 * number of endpoints on it, and not all of them have to be connected
+		 * to anything.
+		 */
+		var endpointsByElement = {};
+		var endpointsByUUID = {};		
+		var offsets = {};
+		var offsetTimestamps = {};
+		var floatingConnections = {};
+		var draggableStates = {};
+		var _mouseEventsEnabled = this.Defaults.MouseEventsEnabled;
+		var _draggableByDefault = true;
+		var _connectionBeingDragged = null;
+		var canvasList = [];
+		var sizes = [];
+		var listeners = {}; // a map: keys are event types, values are lists of listeners.
+		var DEFAULT_SCOPE = 'DEFAULT';
+		var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
+
+		var _findIndex = function(a, v, b, s) {
+			var _eq = function(o1, o2) {
+				if (o1 === o2)
+					return true;
+				else if (typeof o1 == 'object' && typeof o2 == 'object') {
+					var same = true;
+					for ( var propertyName in o1) {
+						if (!_eq(o1[propertyName], o2[propertyName])) {
+							same = false;
+							break;
+						}
+					}
+					for ( var propertyName in o2) {
+						if (!_eq(o2[propertyName], o1[propertyName])) {
+							same = false;
+							break;
+						}
+					}
+					return same;
+				}
+			};
+
+			for ( var i = +b || 0, l = a.length; i < l; i++) {
+				if (_eq(a[i], v))
+					return i;
+			}
+			return -1;
+		};
+
+		/**
+		 * helper method to add an item to a list, creating the list if it does
+		 * not yet exist.
+		 */
+		var _addToList = function(map, key, value) {
+			var l = map[key];
+			if (l == null) {
+				l = [];
+				map[key] = l;
+			}
+			l.push(value);
+			return l;
+		};
+
+		/**
+		 * appends an element to the given parent, or the document body if no
+		 * parent given.
+		 */
+		var _appendElement = function(canvas, parent) {
+			if (!parent)
+				document.body.appendChild(canvas);
+			else
+				jsPlumb.CurrentLibrary.appendElement(canvas, parent);
+		};
+
+		/**
+		 * creates a timestamp, using milliseconds since 1970, but as a string.
+		 */
+		var _timestamp = function() { return "" + (new Date()).getTime(); };
+
+		/**
+		 * Draws an endpoint and its connections.
+		 * 
+		 * @param element element to draw (of type library specific element object)
+		 * @param ui UI object from current library's event system. optional.
+		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
+		 */
+		var _draw = function(element, ui, timestamp) {
+			var id = _getAttribute(element, "id");
+			var endpoints = endpointsByElement[id];
+			if (!timestamp) timestamp = _timestamp();
+			if (endpoints) {
+				_updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp }); // timestamp is checked against last update cache; it is
+				// valid for one paint cycle.
+				var myOffset = offsets[id], myWH = sizes[id];
+				for ( var i = 0; i < endpoints.length; i++) {
+					endpoints[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+					var l = endpoints[i].connections;					
+					for ( var j = 0; j < l.length; j++) {						
+						l[j].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); // ...paint each connection.
+						// then, check for dynamic endpoint; need to repaint it.						
+						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
+						if (l[j].endpoints[oIdx].anchor.isDynamic && !l[j].endpoints[oIdx].isFloating()) {							
+							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
+							var oOffset = offsets[oId], oWH = sizes[oId];							
+							// TODO i still want to make this faster.
+							var anchorLoc = l[j].endpoints[oIdx].anchor.compute( {
+										xy : [ oOffset.left, oOffset.top ],
+										wh : oWH,
+										element : l[j].endpoints[oIdx],
+										txy : [ myOffset.left, myOffset.top ],
+										twh : myWH,
+										tElement : endpoints[i]
+									});
+							l[j].endpoints[oIdx].paint({ anchorLoc : anchorLoc });
+						}
+					}
+				}
+			}
+		};
+
+		/**
+		 * executes the given function against the given element if the first
+		 * argument is an object, or the list of elements, if the first argument
+		 * is a list. the function passed in takes (element, elementId) as
+		 * arguments.
+		 */
+		var _elementProxy = function(element, fn) {
+			var retVal = null;
+			if (element.constructor == Array) {
+				retVal = [];
+				for ( var i = 0; i < element.length; i++) {
+					var el = _getElementObject(element[i]), id = _getAttribute(el, "id");
+					retVal.push(fn(el, id)); // append return values to what we will return
+				}
+			} else {
+				var el = _getElementObject(element), id = _getAttribute(el, "id");
+				retVal = fn(el, id);
+			}
+			return retVal;
+		};
+
+		/**
+		 * 
+		 */
+		var _log = function(msg) {
+			if (_currentInstance.logEnabled && typeof console != "undefined")
+				console.log(msg);
+		};
+		
+		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); };
+		var _setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); };
+		var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); };
+		var _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); };
+		var _removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); };
+		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
+		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
+		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };		
+
+		/**
+		 * gets an Endpoint by uuid.
+		 */
+		var _getEndpoint = function(uuid) { return endpointsByUUID[uuid]; };
+
+		/**
+		 * inits a draggable if it's not already initialised.
+		 */
+		var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
+			var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
+			if (draggable) {
+				if (jsPlumb.CurrentLibrary.isDragSupported(element) && !jsPlumb.CurrentLibrary.isAlreadyDraggable(element)) {
+					var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
+					options = jsPlumb.extend( {}, options); // make a copy.
+					var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
+					var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
+					options[dragEvent] = _wrap(options[dragEvent], function() {
+						var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+						_draw(element, ui);
+						_addClass(element, "jsPlumb_dragged");
+					});
+					options[stopEvent] = _wrap(options[stopEvent], function() {
+						var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+						_draw(element, ui);
+						_removeClass(element, "jsPlumb_dragged");
+					});
+					var draggable = draggableStates[_getId(element)];
+					options.disabled = draggable == null ? false : !draggable;
+					jsPlumb.CurrentLibrary.initDraggable(element, options);
+				}
+			}
+		};
+
+		/**
+		 * helper to create a canvas.
+		 * 
+		 */
+		var _newCanvas = function(params) {
+			var canvas = document.createElement("canvas");
+			_appendElement(canvas, params.container);
+			canvas.style.position = "absolute";
+			if (params["class"]) canvas.className = params["class"];
+			// set an id. if no id on the element and if uuid was supplied it
+			// will be used, otherwise we'll create one.
+			_getId(canvas, params.uuid);
+			if (ie) {
+				// for IE we have to set a big canvas size. actually you can
+				// override this, too, if 1200 pixels
+				// is not big enough for the biggest connector/endpoint canvas
+				// you have at startup.
+				jsPlumb.sizeCanvas(canvas, 0, 0, DEFAULT_NEW_CANVAS_SIZE, DEFAULT_NEW_CANVAS_SIZE);
+				canvas = G_vmlCanvasManager.initElement(canvas);
+			}
+
+			return canvas;
+		};
+		/**
+		 * performs the given function operation on all the connections found
+		 * for the given element id; this means we find all the endpoints for
+		 * the given element, and then for each endpoint find the connectors
+		 * connected to it. then we pass each connection in to the given
+		 * function.
+		 */
+		var _operation = function(elId, func) {
+			var endpoints = endpointsByElement[elId];
+			if (endpoints && endpoints.length) {
+				for ( var i = 0; i < endpoints.length; i++) {
+					for ( var j = 0; j < endpoints[i].connections.length; j++) {
+						var retVal = func(endpoints[i].connections[j]);
+						// if the function passed in returns true, we exit.
+						// most functions return false.
+						if (retVal) return;
+					}
+				}
+			}
+		};
+		/**
+		 * perform an operation on all elements.
+		 */
+		var _operationOnAll = function(func) {
+			for ( var elId in endpointsByElement) {
+				_operation(elId, func);
+			}
+		};		
+		
+		/**
+		 * helper to remove an element from the DOM.
+		 */
+		var _removeElement = function(element, parent) {
+			if (element != null) {
+				if (!parent) {
+					try {
+						document.body.removeChild(element);
+					} catch (e) {
+					}
+				} else {
+					jsPlumb.CurrentLibrary.removeElement(element, parent);
+				}
+			}
+		};
+		/**
+		 * helper to remove a list of elements from the DOM.
+		 */
+		var _removeElements = function(elements, parent) {
+			for ( var i = 0; i < elements.length; i++)
+				_removeElement(elements[i], parent);
+		};
+		/**
+		 * helper method to remove an item from a list.
+		 */
+		var _removeFromList = function(map, key, value) {
+			if (key != null) {
+				var l = map[key];
+				if (l != null) {
+					var i = _findIndex(l, value);
+					if (i >= 0) {
+						delete (l[i]);
+						l.splice(i, 1);
+						return true;
+					}
+				}
+			}
+			return false;
+		};
+		/**
+		 * Sets whether or not the given element(s) should be draggable,
+		 * regardless of what a particular plumb command may request.
+		 * 
+		 * @param element
+		 *            May be a string, a element objects, or a list of
+		 *            strings/elements.
+		 * @param draggable
+		 *            Whether or not the given element(s) should be draggable.
+		 */
+		var _setDraggable = function(element, draggable) {
+			return _elementProxy(element, function(el, id) {
+				draggableStates[id] = draggable;
+				if (jsPlumb.CurrentLibrary.isDragSupported(el)) {
+					jsPlumb.CurrentLibrary.setDraggable(el, draggable);
+				}
+			});
+		};
+		/**
+		 * private method to do the business of hiding/showing.
+		 * 
+		 * @param el
+		 *            either Id of the element in question or a library specific
+		 *            object for the element.
+		 * @param state
+		 *            String specifying a value for the css 'display' property
+		 *            ('block' or 'none').
+		 */
+		var _setVisible = function(el, state) {
+			_operation(_getAttribute(el, "id"), function(jpc) {
+				jpc.canvas.style.display = state;
+			});
+		};
+		/**
+		 * toggles the draggable state of the given element(s).
+		 * 
+		 * @param el
+		 *            either an id, or an element object, or a list of
+		 *            ids/element objects.
+		 */
+		var _toggleDraggable = function(el) {
+			return _elementProxy(el, function(el, elId) {
+				var state = draggableStates[elId] == null ? _draggableByDefault : draggableStates[elId];
+				state = !state;
+				draggableStates[elId] = state;
+				jsPlumb.CurrentLibrary.setDraggable(el, state);
+				return state;
+			});
+		};
+		/**
+		 * private method to do the business of toggling hiding/showing.
+		 * 
+		 * @param elId
+		 *            Id of the element in question
+		 */
+		var _toggleVisible = function(elId) {
+			_operation(elId, function(jpc) {
+				var state = ('none' == jpc.canvas.style.display);
+				jpc.canvas.style.display = state ? "block" : "none";
+			});
+			// todo this should call _elementProxy, and pass in the
+			// _operation(elId, f) call as a function. cos _toggleDraggable does
+			// that.
+		};
+		/**
+		 * updates the offset and size for a given element, and stores the
+		 * values. if 'offset' is not null we use that (it would have been
+		 * passed in from a drag call) because it's faster; but if it is null,
+		 * or if 'recalc' is true in order to force a recalculation, we use the
+		 * offset, outerWidth and outerHeight methods to get the current values.
+		 */
+		var _updateOffset = function(params) {
+			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId;
+			if (!recalc) {
+				if (timestamp && timestamp === offsetTimestamps[elId])
+					return;
+			}
+			if (recalc || offset == null) { // if forced repaint or no offset
+											// available, we recalculate.
+				// get the current size and offset, and store them
+				var s = _getElementObject(elId);
+				sizes[elId] = _getSize(s);
+				offsets[elId] = _getOffset(s);
+				offsetTimestamps[elId] = timestamp;
+			} else {
+				offsets[elId] = offset;
+			}
+		};
 
 /**
 		 * gets an id for the given element, creating and setting one if
@@ -1094,425 +1535,6 @@
 		 */
 		this.wrap = _wrap;			
 		this.addListener = this.bind;
-				
-		/**
-		 * helper class for objects that generate events
-		 */
-		var EventGenerator = function() {
-			var _listeners = {};
-			this.bind = function(event, listener) {
-				var doOne = function(e, l) { _addToList(_listeners, e, l); };
-				if (event.constructor == Array)
-					for ( var i = 0; i < event.length; i++) doOne(event[i], listener);
-				else 
-					doOne(event, listener);				
-			};
-			this.fireUpdate = function(event, value) {
-				if (_listeners[event]) {
-					for ( var i = 0; i < _listeners[event].length; i++) {
-						try {
-							_listeners[event][i][event](value);
-						} catch (e) {
-							_log("jsPlumb: fireUpdate failed for event "
-									+ event + " : " + e + "; not fatal.");
-						}
-					}
-				}
-			};
-			this.clearListeners = function() {
-				delete _listeners;
-				_listeners = {};
-			};
-		};
-		EventGenerator.apply(this);
-
-		var _currentInstance = this;
-		var ie = !!!document.createElement('canvas').getContext;
-		var log = null;
-
-		var repaintFunction = function() {
-			jsPlumb.repaintEverything();
-		};
-		var automaticRepaint = true;
-		function repaintEverything() {
-			if (automaticRepaint)
-				repaintFunction();
-		};
-		var resizeTimer = null;		
-
-		var connectionsByScope = {};
-		/**
-		 * map of element id -> endpoint lists. an element can have an arbitrary
-		 * number of endpoints on it, and not all of them have to be connected
-		 * to anything.
-		 */
-		var endpointsByElement = {};
-		var endpointsByUUID = {};		
-		var offsets = {};
-		var offsetTimestamps = {};
-		var floatingConnections = {};
-		var draggableStates = {};
-		var _mouseEventsEnabled = this.Defaults.MouseEventsEnabled;
-		var _draggableByDefault = true;
-		var _connectionBeingDragged = null;
-		var canvasList = [];
-		var sizes = [];
-		var listeners = {}; // a map: keys are event types, values are lists of listeners.
-		var DEFAULT_SCOPE = 'DEFAULT';
-		var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
-
-		var _findIndex = function(a, v, b, s) {
-			var _eq = function(o1, o2) {
-				if (o1 === o2)
-					return true;
-				else if (typeof o1 == 'object' && typeof o2 == 'object') {
-					var same = true;
-					for ( var propertyName in o1) {
-						if (!_eq(o1[propertyName], o2[propertyName])) {
-							same = false;
-							break;
-						}
-					}
-					for ( var propertyName in o2) {
-						if (!_eq(o2[propertyName], o1[propertyName])) {
-							same = false;
-							break;
-						}
-					}
-					return same;
-				}
-			};
-
-			for ( var i = +b || 0, l = a.length; i < l; i++) {
-				if (_eq(a[i], v))
-					return i;
-			}
-			return -1;
-		};
-
-		/**
-		 * helper method to add an item to a list, creating the list if it does
-		 * not yet exist.
-		 */
-		var _addToList = function(map, key, value) {
-			var l = map[key];
-			if (l == null) {
-				l = [];
-				map[key] = l;
-			}
-			l.push(value);
-			return l;
-		};
-
-		/**
-		 * appends an element to the given parent, or the document body if no
-		 * parent given.
-		 */
-		var _appendElement = function(canvas, parent) {
-			if (!parent)
-				document.body.appendChild(canvas);
-			else
-				jsPlumb.CurrentLibrary.appendElement(canvas, parent);
-		};
-
-		/**
-		 * creates a timestamp, using milliseconds since 1970, but as a string.
-		 */
-		var _timestamp = function() { return "" + (new Date()).getTime(); };
-
-		/**
-		 * Draws an endpoint and its connections.
-		 * 
-		 * @param element element to draw (of type library specific element object)
-		 * @param ui UI object from current library's event system. optional.
-		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
-		 */
-		var _draw = function(element, ui, timestamp) {
-			var id = _getAttribute(element, "id");
-			var endpoints = endpointsByElement[id];
-			if (!timestamp) timestamp = _timestamp();
-			if (endpoints) {
-				_updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp }); // timestamp is checked against last update cache; it is
-				// valid for one paint cycle.
-				var myOffset = offsets[id], myWH = sizes[id];
-				for ( var i = 0; i < endpoints.length; i++) {
-					endpoints[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
-					var l = endpoints[i].connections;					
-					for ( var j = 0; j < l.length; j++) {						
-						l[j].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); // ...paint each connection.
-						// then, check for dynamic endpoint; need to repaint it.						
-						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
-						if (l[j].endpoints[oIdx].anchor.isDynamic && !l[j].endpoints[oIdx].isFloating()) {							
-							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
-							var oOffset = offsets[oId], oWH = sizes[oId];							
-							// TODO i still want to make this faster.
-							var anchorLoc = l[j].endpoints[oIdx].anchor.compute( {
-										xy : [ oOffset.left, oOffset.top ],
-										wh : oWH,
-										element : l[j].endpoints[oIdx],
-										txy : [ myOffset.left, myOffset.top ],
-										twh : myWH,
-										tElement : endpoints[i]
-									});
-							l[j].endpoints[oIdx].paint({ anchorLoc : anchorLoc });
-						}
-					}
-				}
-			}
-		};
-
-		/**
-		 * executes the given function against the given element if the first
-		 * argument is an object, or the list of elements, if the first argument
-		 * is a list. the function passed in takes (element, elementId) as
-		 * arguments.
-		 */
-		var _elementProxy = function(element, fn) {
-			var retVal = null;
-			if (element.constructor == Array) {
-				retVal = [];
-				for ( var i = 0; i < element.length; i++) {
-					var el = _getElementObject(element[i]), id = _getAttribute(el, "id");
-					retVal.push(fn(el, id)); // append return values to what we will return
-				}
-			} else {
-				var el = _getElementObject(element), id = _getAttribute(el, "id");
-				retVal = fn(el, id);
-			}
-			return retVal;
-		};
-
-		/**
-		 * 
-		 */
-		var _log = function(msg) {
-			if (_currentInstance.logEnabled && typeof console != "undefined")
-				console.log(msg);
-		};
-		
-		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); };
-		var _setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); };
-		var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); };
-		var _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); };
-		var _removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); };
-		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
-		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
-		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };		
-
-		/**
-		 * gets an Endpoint by uuid.
-		 */
-		var _getEndpoint = function(uuid) { return endpointsByUUID[uuid]; };
-
-		/**
-		 * inits a draggable if it's not already initialised.
-		 */
-		var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
-			var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
-			if (draggable) {
-				if (jsPlumb.CurrentLibrary.isDragSupported(element) && !jsPlumb.CurrentLibrary.isAlreadyDraggable(element)) {
-					var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
-					options = jsPlumb.extend( {}, options); // make a copy.
-					var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
-					var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
-					options[dragEvent] = _wrap(options[dragEvent], function() {
-						var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-						_draw(element, ui);
-						_addClass(element, "jsPlumb_dragged");
-					});
-					options[stopEvent] = _wrap(options[stopEvent], function() {
-						var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-						_draw(element, ui);
-						_removeClass(element, "jsPlumb_dragged");
-					});
-					var draggable = draggableStates[_getId(element)];
-					options.disabled = draggable == null ? false : !draggable;
-					jsPlumb.CurrentLibrary.initDraggable(element, options);
-				}
-			}
-		};
-
-		/**
-		 * helper to create a canvas.
-		 * 
-		 */
-		var _newCanvas = function(params) {
-			var canvas = document.createElement("canvas");
-			_appendElement(canvas, params.container);
-			canvas.style.position = "absolute";
-			if (params["class"]) canvas.className = params["class"];
-			// set an id. if no id on the element and if uuid was supplied it
-			// will be used, otherwise we'll create one.
-			_getId(canvas, params.uuid);
-			if (ie) {
-				// for IE we have to set a big canvas size. actually you can
-				// override this, too, if 1200 pixels
-				// is not big enough for the biggest connector/endpoint canvas
-				// you have at startup.
-				jsPlumb.sizeCanvas(canvas, 0, 0, DEFAULT_NEW_CANVAS_SIZE, DEFAULT_NEW_CANVAS_SIZE);
-				canvas = G_vmlCanvasManager.initElement(canvas);
-			}
-
-			return canvas;
-		};
-		/**
-		 * performs the given function operation on all the connections found
-		 * for the given element id; this means we find all the endpoints for
-		 * the given element, and then for each endpoint find the connectors
-		 * connected to it. then we pass each connection in to the given
-		 * function.
-		 */
-		var _operation = function(elId, func) {
-			var endpoints = endpointsByElement[elId];
-			if (endpoints && endpoints.length) {
-				for ( var i = 0; i < endpoints.length; i++) {
-					for ( var j = 0; j < endpoints[i].connections.length; j++) {
-						var retVal = func(endpoints[i].connections[j]);
-						// if the function passed in returns true, we exit.
-						// most functions return false.
-						if (retVal) return;
-					}
-				}
-			}
-		};
-		/**
-		 * perform an operation on all elements.
-		 */
-		var _operationOnAll = function(func) {
-			for ( var elId in endpointsByElement) {
-				_operation(elId, func);
-			}
-		};		
-		
-		/**
-		 * helper to remove an element from the DOM.
-		 */
-		var _removeElement = function(element, parent) {
-			if (element != null) {
-				if (!parent) {
-					try {
-						document.body.removeChild(element);
-					} catch (e) {
-					}
-				} else {
-					jsPlumb.CurrentLibrary.removeElement(element, parent);
-				}
-			}
-		};
-		/**
-		 * helper to remove a list of elements from the DOM.
-		 */
-		var _removeElements = function(elements, parent) {
-			for ( var i = 0; i < elements.length; i++)
-				_removeElement(elements[i], parent);
-		};
-		/**
-		 * helper method to remove an item from a list.
-		 */
-		var _removeFromList = function(map, key, value) {
-			if (key != null) {
-				var l = map[key];
-				if (l != null) {
-					var i = _findIndex(l, value);
-					if (i >= 0) {
-						delete (l[i]);
-						l.splice(i, 1);
-						return true;
-					}
-				}
-			}
-			return false;
-		};
-		/**
-		 * Sets whether or not the given element(s) should be draggable,
-		 * regardless of what a particular plumb command may request.
-		 * 
-		 * @param element
-		 *            May be a string, a element objects, or a list of
-		 *            strings/elements.
-		 * @param draggable
-		 *            Whether or not the given element(s) should be draggable.
-		 */
-		var _setDraggable = function(element, draggable) {
-			return _elementProxy(element, function(el, id) {
-				draggableStates[id] = draggable;
-				if (jsPlumb.CurrentLibrary.isDragSupported(el)) {
-					jsPlumb.CurrentLibrary.setDraggable(el, draggable);
-				}
-			});
-		};
-		/**
-		 * private method to do the business of hiding/showing.
-		 * 
-		 * @param el
-		 *            either Id of the element in question or a library specific
-		 *            object for the element.
-		 * @param state
-		 *            String specifying a value for the css 'display' property
-		 *            ('block' or 'none').
-		 */
-		var _setVisible = function(el, state) {
-			_operation(_getAttribute(el, "id"), function(jpc) {
-				jpc.canvas.style.display = state;
-			});
-		};
-		/**
-		 * toggles the draggable state of the given element(s).
-		 * 
-		 * @param el
-		 *            either an id, or an element object, or a list of
-		 *            ids/element objects.
-		 */
-		var _toggleDraggable = function(el) {
-			return _elementProxy(el, function(el, elId) {
-				var state = draggableStates[elId] == null ? _draggableByDefault : draggableStates[elId];
-				state = !state;
-				draggableStates[elId] = state;
-				jsPlumb.CurrentLibrary.setDraggable(el, state);
-				return state;
-			});
-		};
-		/**
-		 * private method to do the business of toggling hiding/showing.
-		 * 
-		 * @param elId
-		 *            Id of the element in question
-		 */
-		var _toggleVisible = function(elId) {
-			_operation(elId, function(jpc) {
-				var state = ('none' == jpc.canvas.style.display);
-				jpc.canvas.style.display = state ? "block" : "none";
-			});
-			// todo this should call _elementProxy, and pass in the
-			// _operation(elId, f) call as a function. cos _toggleDraggable does
-			// that.
-		};
-		/**
-		 * updates the offset and size for a given element, and stores the
-		 * values. if 'offset' is not null we use that (it would have been
-		 * passed in from a drag call) because it's faster; but if it is null,
-		 * or if 'recalc' is true in order to force a recalculation, we use the
-		 * offset, outerWidth and outerHeight methods to get the current values.
-		 */
-		var _updateOffset = function(params) {
-			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId;
-			if (!recalc) {
-				if (timestamp && timestamp === offsetTimestamps[elId])
-					return;
-			}
-			if (recalc || offset == null) { // if forced repaint or no offset
-											// available, we recalculate.
-				// get the current size and offset, and store them
-				var s = _getElementObject(elId);
-				sizes[elId] = _getSize(s);
-				offsets[elId] = _getOffset(s);
-				offsetTimestamps[elId] = timestamp;
-			} else {
-				offsets[elId] = offset;
-			}
-		};
-
-					
 
 		/**
 		 * Anchors model a position on some element at which an Endpoint may be located.  They began as a first class citizen of jsPlumb, ie. a user
@@ -1812,7 +1834,21 @@
 			 * Property: overlays
 			 * List of Overlays for this Connection.
 			 */
-			this.overlays = params.overlays || [];
+			this.overlays = [];
+			if (params.overlays) {
+				for (var i = 0; i < params.overlays.length; i++) {
+					var o = params.overlays[i];
+					if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+						// there's also a three arg version:
+						// ["Arrow", { width:50 }, {location:0.7}] 
+						// which merges the 3rd arg into the 2nd.
+						var type = o[0];
+						var p = o[1];
+						if (o.length == 3) jsPlumb.CurrentLibrary.extend(p, o[2]);
+						this.overlays.push(new jsPlumb.Overlays[type](p));
+					} else this.overlays.push(o);
+				}
+			}
 			var overlayPlacements = [];
 			/*
 			 * Function: addOverlay

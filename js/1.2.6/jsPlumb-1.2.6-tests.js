@@ -352,12 +352,8 @@ test('jsPlumb.getConnections (filtered by a list of scopes, source ids and targe
 test('connection event listeners', function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	var returnedParams = null/*, returnedParams2 = null*/;
-	jsPlumb.addListener(["jsPlumbConnection"], {
-		// signature of the 'interface' method is jsPlumbConnection.  params
-		// has source, target, sourceId, targetId, sourceEndpoint, targetEndpoint
-		jsPlumbConnection : function(params) {
+	jsPlumb.bind("jsPlumbConnection", function(params) {
 			returnedParams = $.extend({}, params);
-		}
 	});
 	jsPlumb.connect({source:d1, target:d2});
 	ok(returnedParams != null, "new connection listener event was fired");
@@ -374,10 +370,8 @@ test('connection event listeners', function() {
 test('detach event listeners (detach by connection)', function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	var returnedParams = null;
-	jsPlumb.addListener(["jsPlumbConnectionDetached"], {
-		jsPlumbConnectionDetached : function(params) {
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			returnedParams = $.extend({}, params);
-		}
 	});
 	var conn = jsPlumb.connect({source:d1, target:d2});
 	jsPlumb.detach(conn);
@@ -387,10 +381,8 @@ test('detach event listeners (detach by connection)', function() {
 test('detach event listeners (detach by element ids)', function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	var returnedParams = null;
-	jsPlumb.addListener(["jsPlumbConnectionDetached"], {
-		jsPlumbConnectionDetached : function(params) {
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			returnedParams = $.extend({}, params);
-		}
 	});
 	var conn = jsPlumb.connect({source:d1, target:d2});
 	jsPlumb.detach("d1","d2");
@@ -400,11 +392,9 @@ test('detach event listeners (detach by element ids)', function() {
 test('detach event listeners (detach by elements)', function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	var returnedParams = null;
-	jsPlumb.addListener(["jsPlumbConnectionDetached"], {
-		jsPlumbConnectionDetached : function(params) {
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			returnedParams = $.extend({}, params);
-		}
-	});
+		});
 	var conn = jsPlumb.connect({source:d1, target:d2});
 	jsPlumb.detach(d1,d2);
 	ok(returnedParams != null, "removed connection listener event was fired");
@@ -415,11 +405,9 @@ test('detach event listeners (via Endpoint.detach method)', function() {
 	var e1 = jsPlumb.addEndpoint(d1, {});
 	var e2 = jsPlumb.addEndpoint(d2, {});
 	var returnedParams = null;
-	jsPlumb.addListener(["jsPlumbConnectionDetached"], {
-		jsPlumbConnectionDetached : function(params) {
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			returnedParams = $.extend({}, params);
-		}
-	});
+		});
 	var conn = jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2});
 	assertContextSize(3);
 	e1.detach(conn);
@@ -432,11 +420,9 @@ test('detach event listeners (via Endpoint.detachFrom method)', function() {
 	var e1 = jsPlumb.addEndpoint(d1, {});
 	var e2 = jsPlumb.addEndpoint(d2, {});
 	var returnedParams = null;
-	jsPlumb.addListener(["jsPlumbConnectionDetached"], {
-		jsPlumbConnectionDetached : function(params) {
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			returnedParams = $.extend({}, params);
-		}
-	});
+		});
 	jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2});
 	assertContextSize(3);
 	e1.detachFrom(e2);
@@ -449,11 +435,9 @@ test('detach event listeners (via Endpoint.detachAll method)', function() {
 	var e1 = jsPlumb.addEndpoint(d1, {});
 	var e2 = jsPlumb.addEndpoint(d2, {});
 	var returnedParams = null;
-	jsPlumb.addListener(["jsPlumbConnectionDetached"], {
-		jsPlumbConnectionDetached : function(params) {
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			returnedParams = $.extend({}, params);
-		}
-	});
+		});
 	jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2});
 	assertContextSize(3);
 	e1.detachAll();
@@ -466,11 +450,9 @@ test('detach event listeners (via jsPlumb.deleteEndpoint method)', function() {
 	var e1 = jsPlumb.addEndpoint(d1, {});
 	var e2 = jsPlumb.addEndpoint(d2, {});
 	var returnedParams = null;
-	jsPlumb.addListener(["jsPlumbConnectionDetached"], {
-		jsPlumbConnectionDetached : function(params) {
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			returnedParams = $.extend({}, params);
-		}
-	});
+		});
 	jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2});
 	assertContextSize(3);
 	jsPlumb.deleteEndpoint(e1);
@@ -481,11 +463,9 @@ test('detach event listeners (via jsPlumb.deleteEndpoint method)', function() {
 test('detach event listeners (ensure cleared by jsPlumb.reset)', function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	var returnedParams = null;
-	jsPlumb.addListener(["jsPlumbConnectionDetached"], {
-		jsPlumbConnectionDetached : function(params) {
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			returnedParams = $.extend({}, params);
-		}
-	});
+		});
 	var conn = jsPlumb.connect({source:d1, target:d2});
 	jsPlumb.detach(d1,d2);
 	ok(returnedParams != null, "removed connection listener event was fired");
@@ -500,14 +480,10 @@ test('detach event listeners (ensure cleared by jsPlumb.reset)', function() {
 test('connection events that throw errors', function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	var returnedParams = null, returnedParams2 = null;
-	jsPlumb.addListener(["jsPlumbConnection"], {
-		// signature of the 'interface' method is jsPlumbConnection.  params
-		// has source, target, sourceId, targetId, sourceEndpoint, targetEndpoint
-		jsPlumbConnection : function(params) {
+	jsPlumb.bind("jsPlumbConnection", function(params) {
 			returnedParams = $.extend({}, params);
 			throw "oh no!";
-		}
-	});
+		});
 	jsPlumb.connect({source:d1, target:d2});
 	var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 	jsPlumb.connect({source:d3, target:d4});
@@ -1066,14 +1042,12 @@ test("jsPlumb.connect (connect by element, supplied endpoints using 'source' and
 test("jsPlumb.connect (testing for connection event callback)", function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 	var connectCallback = null, detachCallback = null;
-	jsPlumb.bind(["jsPlumbConnection", "jsPlumbConnectionDetached"], {
-		jsPlumbConnection : function(params) {
+	jsPlumb.bind("jsPlumbConnection", function(params) {
 			connectCallback = $.extend({}, params);
-		},
-		jsPlumbConnectionDetached : function(params) {
+		});
+	jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
 			detachCallback = $.extend({}, params);
-		}
-	});
+		});
 	jsPlumb.connect({source:d1, target:d2});                // auto connect with default endpoint and anchor set
 	ok(connectCallback != null, "connect callback was made");
 	assertContextSize(3);
@@ -1082,6 +1056,51 @@ test("jsPlumb.connect (testing for connection event callback)", function() {
 	jsPlumb.detach({source:d1, target:d2});
 	assertContextSize(2);
 	ok(detachCallback != null, "detach callback was made");
+});
+
+test("jsPlumb.connect (overlays, long-hand version)", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+	var imageEventListener = function() { };
+	var arrowSpec = {width:40,length:40,location:0.7, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"}};
+	var connection1 = jsPlumb.connect({
+	source:d1, 
+   	target:d2, 
+   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
+   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window1", "window2")}}),
+				new jsPlumb.Overlays.Label({label:"CONNECTION 1", location:0.3}),
+				new jsPlumb.Overlays.Arrow(arrowSpec) ]
+	});
+	equals(3, connection1.overlays.length);
+	equals(jsPlumb.Overlays.Image, connection1.overlays[0].constructor);
+	equals(jsPlumb.Overlays.Label, connection1.overlays[1].constructor);
+	
+	equals(jsPlumb.Overlays.Arrow, connection1.overlays[2].constructor);
+	equals(0.7, connection1.overlays[2].loc);
+	equals(40, connection1.overlays[2].width);
+	equals(40, connection1.overlays[2].length);
+});
+
+test("jsPlumb.connect (overlays, short-hand version)", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+	var imageEventListener = function() { };
+	var loc = { location:0.7 };
+	var arrowSpec = { width:40,length:40, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"} };
+	var connection1 = jsPlumb.connect({
+	source:d1, 
+   	target:d2, 
+   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
+   	overlays : [ [ "Image", { src:"../img/littledot.png", events:{"click":imageEventListener("window1", "window2")}} ],
+				["Label",  {label:"CONNECTION 1", location:0.3}],
+				["Arrow", arrowSpec, loc] ]
+	});
+	equals(3, connection1.overlays.length);
+	equals(jsPlumb.Overlays.Image, connection1.overlays[0].constructor);
+	equals(jsPlumb.Overlays.Label, connection1.overlays[1].constructor);
+	
+	equals(jsPlumb.Overlays.Arrow, connection1.overlays[2].constructor);
+	equals(0.7, connection1.overlays[2].loc);
+	equals(40, connection1.overlays[2].width);
+	equals(40, connection1.overlays[2].length);
 });
 
 // this test is for the original detach function; it should stay working after i mess with it
