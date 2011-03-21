@@ -647,13 +647,23 @@
 		this.init = function() {
 			var _bind = function(event) {
 				jsPlumb.CurrentLibrary.bind(document, event, function(e) {					
-					if (_mouseEventsEnabled) {						
+					if (_mouseEventsEnabled) {
+						//var affectedElements = [];
 						for (var scope in connectionsByScope) {
 			    			var c = connectionsByScope[scope];
 			    			for (var i = 0; i < c.length; i++) {
 			    				if (c[i][event](e)) return;
+			    			/*	var someElements = c[i][event](e);
+			    				if (someElements && someElements.length) {
+			    					for (var j = 0; j < someElements.length; j++) {
+			    						if (_findIndex(affectedElements, someElements[j]) == -1) affectedElements.push(someElements);
+			    					}
+			    				}*/
 			    			}
 			    		}
+						/*for (var i = 0; i < affectedElements.length; i++) {
+							jsPlumb.repaint(affectedElements[i]);
+						}*/
 					}
 				});
 			};
@@ -1144,6 +1154,7 @@
 		var draggableStates = {};
 		var _mouseEventsEnabled = this.Defaults.MouseEventsEnabled;
 		var _draggableByDefault = true;
+		var _connectionBeingDragged = null;
 		var canvasList = [];
 		var sizes = [];
 		var listeners = {}; // a map: keys are event types, values are lists of listeners.
@@ -1881,24 +1892,28 @@
 		    };
 		    var _mouseover = false;
 		    var _mouseDown = false, _mouseDownAt = null, _posWhenMouseDown = null, _mouseWasDown = false;
-		    this.mousemove = function(e) {	    
-		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
+		    this.mousemove = function(e) {
+		    	var jpcl = jsPlumb.CurrentLibrary;
+		    	var pageXY = jpcl.getPageXY(e);
 				var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
-				var _continue = _hasClass(ee, "_jsPlumb_connector");
+				var _continue = _connectionBeingDragged == null && _hasClass(ee, "_jsPlumb_connector");
 				
 				if (_mouseDown) {
 					_mouseWasDown = true;
-					var mouseNow = jsPlumb.CurrentLibrary.getPageXY(e);
+					_connectionBeingDragged = self;				// _draggingAConnection is an instance-wide variable.
+					var mouseNow = jpcl.getPageXY(e);
 					var dx = mouseNow[0] - _mouseDownAt[0];
 					var dy = mouseNow[1] - _mouseDownAt[1];
 					var newPos = {left:_posWhenMouseDown.left + dx, top:_posWhenMouseDown.top + dy};
-					jsPlumb.CurrentLibrary.setOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas), newPos);
+					jpcl.setOffset(jpcl.getElementObject(self.canvas), newPos);
 					newPos = {left:srcWhenMouseDown.left + dx, top:srcWhenMouseDown.top + dy};
-					jsPlumb.CurrentLibrary.setOffset(jsPlumb.CurrentLibrary.getElementObject(self.source), newPos);
+					jpcl.setOffset(jpcl.getElementObject(self.source), newPos);
 					jsPlumb.repaint(self.source);
 					newPos = {left:targetWhenMouseDown.left + dx, top:targetWhenMouseDown.top + dy};
-					jsPlumb.CurrentLibrary.setOffset(jsPlumb.CurrentLibrary.getElementObject(self.target), newPos);
+					jpcl.setOffset(jpcl.getElementObject(self.target), newPos);
 					jsPlumb.repaint(self.target);
+					
+					//return [self.source, self.target];
 				}				
 				else if (!_mouseover && _continue && _over(e)) {
 					_mouseover = true;
@@ -1919,8 +1934,7 @@
 		    };
 		    
 		    this.click = function(e) {
-		    	if (_mouseover && _over(e) && !_mouseWasDown) self.fireUpdate("click", self, e);
-		    	
+		    	if (_mouseover && _over(e) && !_mouseWasDown) self.fireUpdate("click", self, e);		    	
 		    	_mouseWasDown = false;
 		    };			    		
 		    
@@ -1935,6 +1949,7 @@
 		    };
 		    
 		    this.mouseup = function() {
+		    	if (self == _connectionBeingDragged) _connectionBeingDragged = null;
 		    	_mouseDown = false;
 		    };
 		    
