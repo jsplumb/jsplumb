@@ -527,7 +527,7 @@ test("Endpoint.detachFromConnection", function() {
 });
 
 test("Endpoint.detachAll", function() {
-	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); d18 = _addDiv("d18");
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18");
 	var e16 = jsPlumb.addEndpoint($("#d16"), {isSource:true,maxConnections:-1});
 	ok(e16.anchor, 'endpoint 16 has an anchor');
 	var e17 = jsPlumb.addEndpoint($("#d17"), {isSource:true});
@@ -575,7 +575,7 @@ test("Endpoint.isConnectedTo", function() {
 
 test("setting endpoint uuid", function() {
 	var uuid = "14785937583175927504313";
-	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); d18 = _addDiv("d18");
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18");
 	var e16 = jsPlumb.addEndpoint(d16, {isSource:true,maxConnections:-1, uuid:uuid});
 	equals(e16.getUuid(), uuid, "endpoint's uuid was set correctly");
 });

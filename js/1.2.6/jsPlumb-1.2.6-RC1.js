@@ -857,8 +857,8 @@
 					} else if (_p.sourceEndpoint && _p.targetEndpoint) {
 						_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
 					} else {
-						sourceId = _getId(_p.source);
-						targetId = _getId(_p.target);
+						var sourceId = _getId(_p.source);
+						var targetId = _getId(_p.target);
 						_operation(sourceId, function(jpc) {
 									if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
 										_removeElement(jpc.canvas, jpc.container);
@@ -1888,7 +1888,7 @@
 			// paint the endpoints
 			var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];
 			var otherOffset = offsets[this.targetId];
-			otherWH = sizes[this.targetId];
+			var otherWH = sizes[this.targetId];
 			var anchorLoc = this.endpoints[0].anchor.compute( {
 				xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
 				txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1]

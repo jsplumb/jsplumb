@@ -226,7 +226,7 @@
             return p;                
         };
 
-        var _CP, _CP2, _sx, _tx, _sx, _sy, _canvasX, _canvasY, _w, _h;
+        var _CP, _CP2, _sx, _tx, _ty, _sx, _sy, _canvasX, _canvasY, _w, _h;
         this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth)
         {
         	lineWidth = lineWidth || 0;
@@ -355,7 +355,7 @@
 				if (value.substring(value.length - 1) == '%')
 					return parseInt(value.substring(0, value - 1));
 			}
-		}
+		};
 		
 		var calculateAdjustments = function(gradient) {
 			var offsetAdjustment = defaultOffset;
@@ -740,7 +740,7 @@
 		notReadyInterval = window.setInterval(_init, 250);
     	
     	this.computeMaxSize = function(connector, ctx) {
-    		return [self.img.width, self.img.height]
+    		return [self.img.width, self.img.height];
     	};
     	
     	var _draw = function(connector, ctx, currentConnectionPaintStyle) {
