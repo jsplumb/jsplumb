@@ -2616,9 +2616,13 @@
 								var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
 								// fire a detach event
 								_currentInstance.fireUpdate("jsPlumbConnectionDetached", {
-									source : idx == 0 ? suspendedElement : jpc.source, target : idx == 1 ? suspendedElement : jpc.target,
-									sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, targetId : idx == 1 ? suspendedElementId : jpc.targetId,
-									sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1]
+									source : idx == 0 ? suspendedElement : jpc.source, 
+									target : idx == 1 ? suspendedElement : jpc.target,
+									sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, 
+									targetId : idx == 1 ? suspendedElementId : jpc.targetId,
+									sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
+									targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
+									connection : jpc
 								});
 							}
 							
@@ -2627,7 +2631,9 @@
 							_currentInstance.fireUpdate("jsPlumbConnection", {
 								source : jpc.source, target : jpc.target,
 								sourceId : jpc.sourceId, targetId : jpc.targetId,
-								sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
+								sourceEndpoint : jpc.endpoints[0], 
+								targetEndpoint : jpc.endpoints[1],
+								connection:jpc
 							});								
 						}
 			
