@@ -2280,6 +2280,19 @@
 			this.getElement = function() {
 				return _element;
 			};
+			
+			/*
+			 * Function: getDefaultConnectionType
+			 * 	Returns the default Connection type. Used when someone wants to subclass Connection and have jsPlumb return instances of their subclass.
+			 *  you would make a call like this in your class's constructor:
+			 *    jsPlumb.getDefaultConnectionType().apply(this, arguments);
+			 * 
+			 * Returns:
+			 * 	the default Connection function used by jsPlumb.
+			 */
+			this.getDefaultConnectionType = function() {
+				return Connection;
+			};
 
 			/*
 			 * Function: getUuid
