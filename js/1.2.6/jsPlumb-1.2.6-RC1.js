@@ -327,6 +327,12 @@
 
 			return canvas;
 		};
+		
+		var _newConnection = function(params) {
+			var connectionFunc = jsPlumb.Defaults.ConnectionClass || Connection;
+			return new connectionFunc(params);
+		};
+		
 		/**
 		 * performs the given function operation on all the connections found
 		 * for the given element id; this means we find all the endpoints for
@@ -734,7 +740,8 @@
 				_p.anchors = [sa,ta];
 			}
 
-			var jpc = new Connection(_p);
+			//var jpc = new Connection(_p);
+			var jpc = _newConnection(_p);
 			// add to list of connections (by scope).
 			_addToList(connectionsByScope, jpc.scope, jpc);
 			// fire an event
@@ -2439,7 +2446,8 @@
 						self.anchor.locked = true;
 						// create a connection. one end is this endpoint, the
 						// other is a floating endpoint.
-						jpc = new Connection( {
+						//jpc = new Connection( 
+						jpc = _newConnection({
 							sourceEndpoint : self,
 							targetEndpoint : floatingEndpoint,
 							source : _getElementObject(_element),
