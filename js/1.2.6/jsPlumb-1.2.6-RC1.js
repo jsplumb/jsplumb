@@ -329,7 +329,7 @@
 		};
 		
 		var _newConnection = function(params) {
-			var connectionFunc = jsPlumb.Defaults.ConnectionClass || Connection;
+			var connectionFunc = jsPlumb.Defaults.ConnectionType || Connection;
 			return new connectionFunc(params);
 		};
 		
