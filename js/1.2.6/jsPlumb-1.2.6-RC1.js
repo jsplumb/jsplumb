@@ -333,6 +333,11 @@
 			return new connectionFunc(params);
 		};
 		
+		var _newEndpoint = function(params) {
+			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
+			return new endpointFunc(params);
+		}
+		
 		/**
 		 * performs the given function operation on all the connections found
 		 * for the given element id; this means we find all the endpoints for
@@ -628,7 +633,7 @@
 			var el = _getElementObject(target), id = _getAttribute(el, "id");
 			p.source = el;
 			_updateOffset({ elId : id });
-			var e = new Endpoint(p);
+			var e = _newEndpoint(p);
 			_addToList(endpointsByElement, id, e);
 			var myOffset = offsets[id], myWH = sizes[id];
 			var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e });
@@ -978,6 +983,19 @@
 		 */
 		this.extend = function(o1, o2) {
 			return jsPlumb.CurrentLibrary.extend(o1, o2);
+		};
+		
+		/*
+		 * Function: getDefaultEndpointType
+		 * 	Returns the default Endpoint type. Used when someone wants to subclass Endpoint and have jsPlumb return instances of their subclass.
+		 *  you would make a call like this in your class's constructor:
+		 *    jsPlumb.getDefaultEndpointType().apply(this, arguments);
+		 * 
+		 * Returns:
+		 * 	the default Endpoint function used by jsPlumb.
+		 */
+		this.getDefaultEndpointType = function() {
+			return Endpoint;
 		};
 		
 		/*
@@ -1826,7 +1844,7 @@
 					var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor) || _makeAnchor("BottomCenter");
 					var u = params.uuids ? params.uuids[index] : null;
-					var e = new Endpoint( { style : es, endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element, container : self.container });
+					var e = _newEndpoint( { style : es, endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element, container : self.container });
 					self.endpoints[index] = e;
 					return e;
 				}
@@ -2305,7 +2323,7 @@
 			 * private but must be exposed.
 			 */
 			this.makeInPlaceCopy = function() {
-				var e = new Endpoint( { anchor : self.anchor, source : _element, style : _style, endpoint : _endpoint });
+				var e = _newEndpoint( { anchor : self.anchor, source : _element, style : _style, endpoint : _endpoint });
 				return e;
 			};
 			/*
@@ -2338,7 +2356,7 @@
 			/**
 			 * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
 			 */
-			var connectorSelector = function() {
+			this.connectorSelector = function() {
 				return (self.connections.length < _maxConnections) ? null : self.connections[0];
 			};
 
@@ -2431,12 +2449,11 @@
 			this.removeConnection = this.detach; // backwards compatibility
 
 			// is this a connection source? we make it draggable and have the
-			// drag listener
-			// maintain a connection with a floating endpoint.
+			// drag listener maintain a connection with a floating endpoint.
 			if (params.isSource && jsPlumb.CurrentLibrary.isDragSupported(_element)) {
 				var n = null, id = null, jpc = null, existingJpc = false, existingJpcParams = null;
 				var start = function() {
-					jpc = connectorSelector();
+					jpc = self.connectorSelector();
 					if (self.isFull() && !dragAllowedWhenFull) return false;
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
@@ -2453,7 +2470,7 @@
 					_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
 					// create a floating anchor
 					var floatingAnchor = new FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
-					floatingEndpoint = new Endpoint({ style : { fillStyle : 'rgba(0,0,0,0)' }, endpoint : _endpoint, anchor : floatingAnchor, source : nE });
+					floatingEndpoint = _newEndpoint({ style : { fillStyle : 'rgba(0,0,0,0)' }, endpoint : _endpoint, anchor : floatingAnchor, source : nE });
 
 					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
