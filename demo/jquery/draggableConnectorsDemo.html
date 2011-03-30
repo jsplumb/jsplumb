@@ -37,7 +37,7 @@
 			$(function() {
 
 				// chrome fix.
-				document.onselectstart = function () { return false; };
+				document.onselectstart = function () { return false; };								
 
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
@@ -178,7 +178,9 @@
 				jsPlumb.draggable($(".window"));
 
 				// add the third example using the '.window' class.
-				$(".window").addEndpoint(exampleEndpoint3);
+				$(".window").each(function(i,e) {
+					jsPlumb.addEndpoint(e, exampleEndpoint3);
+				});
 
 				$(".hide").click(function() {
 					jsPlumb.toggle($(this).attr("rel"));
