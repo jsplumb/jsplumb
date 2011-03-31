@@ -740,6 +740,36 @@ test("jsPlumb.addEndpoint (simple case, two arg method)", function() {
 	equals(false, e17.isSource);
 });
 
+
+test("jsPlumb.addEndpoints (simple case)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var e16 = jsPlumb.addEndpoints(d16, [{isSource:true, isTarget:false, anchor:[0,0.5,0,-1] }, { isTarget:true, isSource:false, anchor:"TopCenter" }]);
+	assertContextSize(2);
+	equals(e16[0].anchor.x, 0);
+	equals(e16[0].anchor.y, 0.5);
+	equals(false, e16[0].isTarget);
+	equals(true, e16[0].isSource);
+	equals(e16[1].anchor.x, 0.5);
+	equals(e16[1].anchor.y, 0);
+	equals(true, e16[1].isTarget);
+	equals(false, e16[1].isSource);
+});
+
+test("jsPlumb.addEndpoints (with reference params)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var refParams = {anchor:"RightMiddle"};
+	var e16 = jsPlumb.addEndpoints(d16, [{isSource:true, isTarget:false}, { isTarget:true, isSource:false }], refParams);
+	assertContextSize(2);
+	equals(e16[0].anchor.x, 1);
+	equals(e16[0].anchor.y, 0.5);
+	equals(false, e16[0].isTarget);
+	equals(true, e16[0].isSource);
+	equals(e16[1].anchor.x, 1);
+	equals(e16[1].anchor.y, 0.5);
+	equals(true, e16[1].isTarget);
+	equals(false, e16[1].isSource);
+});
+
 test("jsPlumb.addEndpoint (simple case, dynamic anchors, two arg method)", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 	var e16 = jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
@@ -753,6 +783,21 @@ test('jsPlumb.connect (between two Endpoints)', function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 	var e = jsPlumb.addEndpoint(d1, {});
 	var e2 = jsPlumb.addEndpoint(d2, {});
+	ok(e, 'endpoint e exists');
+	ok(e2, 'endpoint e2 exists');
+	assertContextSize(2);				// should have a canvas for each endpoint now.  
+	assertEndpointCount("d1", 1);
+	assertEndpointCount("d2", 1);
+	jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
+	assertEndpointCount("d1", 1);		// no new endpoint should have been added
+	assertEndpointCount("d2", 1); 		// no new endpoint should have been added
+	assertContextSize(3);				// now we should also have a canvas for the connection.
+});
+
+test('jsPlumb.connect (between two Endpoints, and dont supply any parameters to the Endpoints.)', function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e = jsPlumb.addEndpoint(d1);
+	var e2 = jsPlumb.addEndpoint(d2);
 	ok(e, 'endpoint e exists');
 	ok(e2, 'endpoint e2 exists');
 	assertContextSize(2);				// should have a canvas for each endpoint now.  

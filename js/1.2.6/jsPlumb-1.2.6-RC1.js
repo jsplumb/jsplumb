@@ -647,7 +647,7 @@
 		  
 		  Parameters: 
 		  	target - element to add the endpoint to. either an element id, or a selector representing some element. 
-		  	endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list.
+		  	endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list. 
 		  	 
 		  Returns: 
 		  	List of newly created Endpoints, one for each entry in the 'endpoints' argument. 
@@ -655,10 +655,10 @@
 		  See Also:
 		  	<addEndpoint>
 		 */
-		this.addEndpoints = function(target, endpoints) {
+		this.addEndpoints = function(target, endpoints, referenceParams) {
 			var results = [];
 			for ( var i = 0; i < endpoints.length; i++) {
-				results.push(_currentInstance.addEndpoint(target, endpoints[i]));
+				results.push(_currentInstance.addEndpoint(target, endpoints[i], referenceParams));				
 			}
 			return results;
 		};
