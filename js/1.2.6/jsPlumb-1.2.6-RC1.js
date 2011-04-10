@@ -65,14 +65,15 @@
 			 * Fires an update for the given event.
 			 * 
 			 * Parameters:
-			 * 	event		-	event to fire
-			 * 	value		-	value to pass to the event listener(s).
+			 * 	event				-	event to fire
+			 * 	value				-	value to pass to the event listener(s).
+			 *  o	riginalEvent	- 	the original event from the browser
 			 */
-			this.fireUpdate = function(event, value) {
+			this.fireUpdate = function(event, value, originalEvent) {
 				if (_listeners[event]) {
 					for ( var i = 0; i < _listeners[event].length; i++) {
 						try {
-							_listeners[event][i](value);
+							_listeners[event][i](value, originalEvent);
 						} catch (e) {
 							_log("jsPlumb: fireUpdate failed for event "
 									+ event + " : " + e + "; not fatal.");
@@ -1955,12 +1956,18 @@
 			    	// first check overlays
 			    	for ( var i = 0; i < overlayPlacements.length; i++) {
 			    		var p = overlayPlacements[i];
-			    		if (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y) return true;
+			    		if (p && (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y))
+			    			return true;
 			    	}
 			    	
-			    	// then the canvas
-			    	var d = self.canvas.getContext("2d").getImageData(parseInt(x), parseInt(y), 1, 1);
-			    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
+			    	if (!ie) {
+				    	// then the canvas
+				    	var d = self.canvas.getContext("2d").getImageData(parseInt(x), parseInt(y), 1, 1);
+				    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
+			    	}
+			    	else {
+			    		// need to get fancy with the vml.
+			    	}
 		    	}
 		    	return false;
 		    };
@@ -1975,7 +1982,7 @@
 				
 				if (_mouseDown) {
 					_mouseWasDown = true;
-					_connectionBeingDragged = self;				// _draggingAConnection is an instance-wide variable.
+					_connectionBeingDragged = self;				
 					var mouseNow = jpcl.getPageXY(e);
 					var dx = mouseNow[0] - _mouseDownAt[0];
 					var dy = mouseNow[1] - _mouseDownAt[1];
@@ -2491,13 +2498,10 @@
 					} else {
 						existingJpc = true;
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
-						_initDropTarget(_getElementObject(inPlaceCopy.canvas));
-						// are we the source or the target?
-						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;
-						// save our anchor index as the connection's floating index.
-						jpc.floatingAnchorIndex = anchorIdx;
-						// detach from the connection while dragging is occurring.
-						self.detachFromConnection(jpc);
+						_initDropTarget(_getElementObject(inPlaceCopy.canvas));						
+						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?						
+						jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
+						self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
 						
 						// store the original scope (issue 57)
 						var c = _getElementObject(self.canvas);
@@ -2521,11 +2525,9 @@
 						}
 						// set the new, temporary scope (issue 57)
 						jsPlumb.CurrentLibrary.setDragScope(i, newScope);
-						// lock the other endpoint; if it is dynamic it will not
-						// move while the drag is occurring.
+						// lock the other endpoint; if it is dynamic it will not move while the drag is occurring.
 						jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
-						// store the original endpoint and assign the new
-						// floating endpoint for the drag.
+						// store the original endpoint and assign the new floating endpoint for the drag.
 						jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
 						jpc.endpoints[anchorIdx] = floatingEndpoint;
 					}
