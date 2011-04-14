@@ -488,9 +488,11 @@
 											// available, we recalculate.
 				// get the current size and offset, and store them
 				var s = _getElementObject(elId);
-				sizes[elId] = _getSize(s);
-				offsets[elId] = _getOffset(s);
-				offsetTimestamps[elId] = timestamp;
+				if (s != null) {
+					sizes[elId] = _getSize(s);
+					offsets[elId] = _getOffset(s);
+					offsetTimestamps[elId] = timestamp;
+				}
 			} else {
 				offsets[elId] = offset;
 			}
