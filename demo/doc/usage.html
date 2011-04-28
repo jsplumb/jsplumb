@@ -218,9 +218,9 @@ var exampleGreyEndpointOptions = {
 		Notice there is no 'anchor' set.  Here we apply it to two elements, at a different location in each:
 		<div class="code">
 <pre>
-jsPlumb.addEndpoint('element1', jsPlumb.extend({anchor:"BottomCenter", exampleGreyEndpointOptions)); 
+jsPlumb.addEndpoint('element1', jsPlumb.extend({anchor:"BottomCenter}", exampleGreyEndpointOptions)); 
 
-jsPlumb.addEndpoint('element2', jsPlumb.extend({anchor:"TopCenter", exampleGreyEndpointOptions));
+jsPlumb.addEndpoint('element2', jsPlumb.extend({anchor:"TopCenter"}, exampleGreyEndpointOptions));
 </pre>		
 </div>
 Note: jsPlumb's 'extend' function is just a wrapper around the supporting library's implementation; you don't need to use
