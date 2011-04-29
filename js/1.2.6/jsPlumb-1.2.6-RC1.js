@@ -1791,9 +1791,14 @@
 		var Connection = function(params) {
 
 			EventGenerator.apply(this);
-			// ************** get the source and target and register the
-			// connection. *******************
+			// ************** get the source and target and register the connection. *******************
 			var self = this;
+			var visible = true;
+			this.isVisible = function() { return visible; };
+			this.setVisible = function(v) {
+				visible = v;
+				if (self.canvas) self.canvas.style.display = v ? "block" : "none";
+			};
 			var id = new String('_jsplumb_c_' + (new Date()).getTime());
 			this.getId = function() { return id; };
 			this.container = params.container || _currentInstance.Defaults.Container; // may be null; we will append to the body if so.
@@ -2179,7 +2184,8 @@
 		 * source - element the endpoint is attached to, of type String or element selector. Required.
 		 * canvas - canvas element to use. may be, and most often is, null.
 		 * connections - optional list of connections to configure the endpoint with. 
-		 * isSource - boolean. indicates the endpoint can act as a source of new connections. optional. 
+		 * isSource - boolean. indicates the endpoint can act as a source of new connections. optional.
+		 * maxConnections - integer; defaults to 1.  a value of -1 means no upper limit. 
 		 * dragOptions - if isSource is set to true, you can supply arguments for the underlying library's drag method. optional. 
 		 * connectorStyle - if isSource is set to true, this is the paint style for connections from this endpoint. optional. 
 		 * connectorHoverStyle - if isSource is set to true, this is the hover paint style for connections from this endpoint. optional.
@@ -2193,6 +2199,20 @@
 		var Endpoint = function(params) {
 			params = params || {};
 			var self = this;
+			var visible = true;
+			this.isVisible = function() { return visible; };
+			this.setVisible = function(v, doNotChangeConnections) {
+				visible = v;
+				if (self.canvas) self.canvas.style.display = v ? "block" : "none";
+				for (var i = 0; i < self.connections.length; i++) {
+					self.connections[i].setVisible(v);
+					if (!doNotChangeConnections) {
+						var oIdx = self === self.connections[i].endpoints[0] ? 1 : 0;
+						// only change the other endpoint if this is its only connection.
+						if (self.connections[i].endpoints[oIdx].connections.length == 1) self.connections[i].endpoints[oIdx].setVisible(v, true);
+					}
+				}
+			};
 			var id = new String('_jsplumb_e_' + (new Date()).getTime());
 			this.getId = function() { return id; };
 			if (params.dynamicAnchors)

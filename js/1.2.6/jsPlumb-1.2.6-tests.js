@@ -1258,6 +1258,67 @@ test("jsPlumb.makeDynamicAnchors (shorthand)", function() {
 		ok(a[i].compute.constructor == Function, "anchor " + i + " well formed");
 });
 
+test("Connection.isVisible", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var c1 = jsPlumb.connect({source:d1,target:d2});
+	equals(true, c1.isVisible(), "Connection is visible after creation.");
+	c1.setVisible(false);
+	equals(false, c1.isVisible(), "Connection is not visible after calling setVisible(false).");
+	equals($(c1.canvas).css("display"), "none");
+	c1.setVisible(true);
+	equals(true, c1.isVisible(), "Connection is visible after calling setVisible(true).");
+	equals($(c1.canvas).css("display"), "block");
+});
+
+test("Endpoint.isVisible basic test (no connections)", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e1 = jsPlumb.addEndpoint(d1);
+	equals(true, e1.isVisible(), "Endpoint is visible after creation.");
+	e1.setVisible(false);
+	equals(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
+	equals($(e1.canvas).css("display"), "none");
+	e1.setVisible(true);
+	equals(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
+	equals($(e1.canvas).css("display"), "block");
+});
+
+test("Endpoint.isVisible (one connection, other Endpoint's visibility should track changes in the source, because it has only this connection.)", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+	var e1 = jsPlumb.addEndpoint(d1), e2 = jsPlumb.addEndpoint(d2);
+	equals(true, e1.isVisible(), "Endpoint is visible after creation.");
+	var c1 = jsPlumb.connect({source:e1, target:e2});
+	e1.setVisible(false);
+	equals(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
+	equals(false, e2.isVisible(), "other Endpoint is not visible either.");
+	equals(false, c1.isVisible(), "connection between the two is not visible either.");
+	
+	e1.setVisible(true);
+	equals(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
+	equals(true, e2.isVisible(), "other Endpoint is visible too");
+	equals(true, c1.isVisible(), "connection between the two is visible too.");
+});
+
+test("Endpoint.isVisible (one connection, other Endpoint's visibility should not track changes in the source, because it has another connection.)", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+	var e1 = jsPlumb.addEndpoint(d1), e2 = jsPlumb.addEndpoint(d2, { maxConnections:2 }), e3 = jsPlumb.addEndpoint(d3);
+	equals(true, e1.isVisible(), "Endpoint is visible after creation.");
+	var c1 = jsPlumb.connect({source:e1, target:e2});
+	var c2 = jsPlumb.connect({source:e2, target:e3});
+	
+	e1.setVisible(false);
+	equals(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
+	equals(true, e2.isVisible(), "other Endpoint should still be visible.");
+	equals(true, e3.isVisible(), "third Endpoint should still be visible.");
+	equals(false, c1.isVisible(), "connection between the two is not visible either.");
+	equals(true, c2.isVisible(), "other connection is visible.");
+	
+	e1.setVisible(true);
+	equals(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
+	equals(true, e2.isVisible(), "other Endpoint is visible too");
+	equals(true, c1.isVisible(), "connection between the two is visible too.");
+	equals(true, c2.isVisible(), "other connection is visible.");
+});
+
 /**
  * leave this test at the bottom!
  */
