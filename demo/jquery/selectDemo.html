@@ -19,7 +19,6 @@
 	    
 	    <div id="debug"></div>
 	    
-	    <button id="shapeButton">CLICK> ME></button>
 	    <div id="explanation">
 	    	<p>this is a demonstration of the experimental connection mouse events support to be introduced in 1.2.6.  each Connection changes appearance when the mouse hovers over it, and pops up an alert on click.  you can
 	    	also drag connections around.
@@ -136,20 +135,7 @@
 		        c(connection1);
 		        c(connection2);
 		        c(connection3);			      		        		        
-		        c(connection4);
-		        
-		        $("shape").live("click", function() {
-		        	console.log("RAAAAAAAAAAR");	
-		        });
-		        
-		        $("#shapeButton").click(function() {
-		        	var s= $("shape");
-		        	alert(s);
-		        });
-		        
-		        $("shape").css("border", "2px solid green");
-		        
-		        
+		        c(connection4);		        		        		       		        
 		});
 		</script>
 	</body>
