@@ -19,6 +19,7 @@
 	    
 	    <div id="debug"></div>
 	    
+	    <button id="shapeButton">CLICK> ME></button>
 	    <div id="explanation">
 	    	<p>this is a demonstration of the experimental connection mouse events support to be introduced in 1.2.6.  each Connection changes appearance when the mouse hovers over it, and pops up an alert on click.  you can
 	    	also drag connections around.
@@ -52,57 +53,64 @@
 				var imageEventListener = function(sourceId, targetId) { 
 					return function(e) { alert("you clicked the image on the connection from " + sourceId + " to " + targetId); };
 				};
+
+				var hoverColour = "#EE5500",
+					paintColour = "#69a0bd",
+					backgroundPaintColour = "rgba(100,100,100,50)",
+					paintStyle = {lineWidth:15,strokeStyle:paintColour},
+					hoverPaintStyle = {lineWidth:15,strokeStyle:hoverColour},				
+					commonData = {
+						paintStyle:paintStyle,
+				   		backgroundPaintStyle:{lineWidth:10,strokeStyle:backgroundPaintColour},
+				   		hoverPaintStyle:hoverPaintStyle,											// new in 1.2.6: a paint style when the mouse is hovering.
+				   		endpointStyle:{fillStyle:paintColour},
+				   		endpointHoverStyle:{fillStyle:hoverColour}
+					};
 				
-				var paintStyle = {lineWidth:15,strokeStyle:'rgb(200,200,200)'};
-				var hoverPaintStyle = {lineWidth:15,strokeStyle:'#EE5500'};
-				
-				var commonData = {
-					paintStyle:paintStyle,
-				   	backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'},
-				   	hoverPaintStyle:hoverPaintStyle,											// new in 1.2.6: a paint style when the mouse is hovering.
-				   	endpointStyle:{fillStyle:"rgb(200,200,200)"}
-				};
-				
-				var arrowSpec = {width:40,height:40,location:0.7, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"}};
+				var arrowSpec = {width:40, length:40,location:0.7, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"}};
+				var imageSpec = { src:"../img/littledot.png" };
+				var labelSpec = { location:0.3 };
 				
 				var connection1 = jsPlumb.connect({
 					source:'window1', 
 				   	target:'window2', 
 				   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
-				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window1", "window2")}}),
-								new jsPlumb.Overlays.Label({label:"CONNECTION 1", location:0.3}),
-								new jsPlumb.Overlays.Arrow(arrowSpec) ]
+				   	overlays : [ ["Image", imageSpec],
+								["Label", {label:"CONNECTION 1"}, labelSpec ],
+								[ "Arrow" , arrowSpec] ]
 				 }, commonData);
 
 				var connection2 = jsPlumb.connect({
 					source:'window4', 
 				   	target:'window6', 
 				   	anchors:["RightMiddle", "LeftMiddle"], 				   	
-				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window4", "window6")}}),
-								new jsPlumb.Overlays.Label({label:"CONNECTION 2", location:0.3}),
-								new jsPlumb.Overlays.Arrow(arrowSpec)]
+				   	overlays : [ ["Image", imageSpec],
+				   	          ["Label", {label:"CONNECTION 2"}, labelSpec ],
+								[ "Arrow" , arrowSpec] ]
 				 }, commonData);
 
 				var connection3 = jsPlumb.connect({
 					source:'window4', 
 				   	target:'window3', 
 				   	anchors:["LeftMiddle", "RightMiddle"], 
-				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window4", "window3")}}),
-								new jsPlumb.Overlays.Label({label:"CONNECTION 3", location:0.3}),
-								new jsPlumb.Overlays.Arrow(arrowSpec) ]
+				   	overlays : [ ["Image", imageSpec],
+				   	          	["Label", {label:"CONNECTION 3"}, labelSpec ],
+								[ "Arrow" , arrowSpec] ]
 				 }, commonData);		
 
 				var connection4 = jsPlumb.connect({
 					source:'window5', 
 				   	target:'window6',
-				   	connector:"Bezier", 
 				   	anchors:["TopRight", "BottomLeft"], 
-				   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window5", "window6")}}),
-								new jsPlumb.Overlays.Label({label:"CONNECTION 4", location:0.3}),
-								new jsPlumb.Overlays.Arrow(arrowSpec) ]
+				   	overlays : [ ["Image", imageSpec],
+				   	          	["Label", {label:"CONNECTION 4"}, labelSpec ],
+								[ "Arrow" , arrowSpec] ]
 				 }, commonData);		 
 			  						
-		        // all the mouse listener stuff
+		        // all the mouse listener stuff 
+		        var ee = function(endpoint) {
+			        endpoint.bind("click", function(e) { alert("you clicked on an Endpoint."); });
+		        }; 
 		        var c = function(connection) {
 					connection.bind("mouseenter", function(c) {
 						// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
@@ -116,34 +124,33 @@
 						$(c.source).removeClass("hl");
 						$(c.target).removeClass("hl");
 					});
-					connection.bind("click", function(c) {
+				/*	connection.bind("click", function(c) {
 						alert("click on connection from " + c.sourceId + " to " + c.targetId);
-					});					
+					});*/
+					connection.bind("dblclick", function(c) {
+						alert("double click on connection from " + c.sourceId + " to " + c.targetId);
+					});
+					ee(connection.endpoints[0]);
+					ee(connection.endpoints[1]);							
 				};
 		        c(connection1);
 		        c(connection2);
 		        c(connection3);			      		        		        
 		        c(connection4);
+		        
+		        $("shape").live("click", function() {
+		        	console.log("RAAAAAAAAAAR");	
+		        });
+		        
+		        $("#shapeButton").click(function() {
+		        	var s= $("shape");
+		        	alert(s);
+		        });
+		        
+		        $("shape").css("border", "2px solid green");
+		        
+		        
 		});
 		</script>
-	    
-	    	    
-	    <!-- Start of StatCounter Code -->
-<script type="text/javascript">
-var sc_project=5700644; 
-var sc_invisible=1; 
-var sc_partition=71; 
-var sc_click_stat=1; 
-var sc_security="1cb90164"; 
-</script>
-
-<script type="text/javascript"
-src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
-class="statcounter"><a title="counter for wordpress"
-href="http://www.statcounter.com/wordpress.org/"
-target="_blank"><img class="statcounter"
-src="http://c.statcounter.com/5700644/0/1cb90164/1/"
-alt="counter for wordpress" ></a></div></noscript>
-<!-- End of StatCounter Code -->
 	</body>
 </html>
