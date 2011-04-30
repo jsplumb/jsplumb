@@ -30,6 +30,8 @@
 			Endpoints : [ null, null ],
 			EndpointStyle : { fillStyle : null },
 			EndpointStyles : [ null, null ],
+			EndpointHoverStyle : null,
+			EndpointHoverStyles : [ null, null ],
 			HoverPaintStyle : null,
 			LabelStyle : { fillStyle : "rgba(0,0,0,0)", color : "black" },
 			LogEnabled : true,
@@ -49,6 +51,37 @@
 		 */
 		var EventGenerator = function() {
 			var _listeners = {};
+			var self = this;
+			this.overlayPlacements = [];
+			this.paintStyle = null, this.hoverPaintStyle = null;
+			
+			/**
+			 * returns whether or not the given event is over a painted area of the canvas. 
+			 */
+		    this._over = function(e) {		    			  		    	
+		    	var o = _getOffset(_getElementObject(self.canvas));
+		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
+		    	var x = pageXY[0] - o.left, y = pageXY[1] - o.top;
+		    	if (x > 0 && y > 0 && x < self.canvas.width && y < self.canvas.height) {
+			    	// first check overlays
+			    	for ( var i = 0; i < self.overlayPlacements.length; i++) {
+			    		var p = self.overlayPlacements[i];
+			    		if (p && (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y))
+			    			return true;
+			    	}
+			    	
+			    	if (!ie) {
+				    	// then the canvas
+				    	var d = self.canvas.getContext("2d").getImageData(parseInt(x), parseInt(y), 1, 1);
+				    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
+			    	}
+			    	else {
+			    		// need to get fancy with the vml.
+			    	}
+		    	}
+		    	return false;
+		    };
+		    
 			/*
 			 * Function: bind
 			 * Binds a listener to an event.
@@ -96,6 +129,119 @@
 					_listeners = {};
 				}
 			};
+			
+		    var _mouseover = false;
+		    var _mouseDown = false, _mouseDownAt = null, _posWhenMouseDown = null, _mouseWasDown = false, srcWhenMouseDown = null,
+		    targetWhenMouseDown = null;
+		    this.mousemove = function(e) {		    	
+		    	var jpcl = jsPlumb.CurrentLibrary;
+		    	var pageXY = jpcl.getPageXY(e);
+				var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
+				var _continue = _connectionBeingDragged == null && (_hasClass(ee, "_jsPlumb_endpoint") || _hasClass(ee, "_jsPlumb_connector"));
+				
+				if (_mouseDown) {
+					_mouseWasDown = true;
+					_connectionBeingDragged = self;				
+					var mouseNow = jpcl.getPageXY(e);
+					var dx = mouseNow[0] - _mouseDownAt[0];
+					var dy = mouseNow[1] - _mouseDownAt[1];
+					var newPos = {left:srcWhenMouseDown.left + dx, top:srcWhenMouseDown.top + dy};
+					jpcl.setOffset(jpcl.getElementObject(self.source), newPos);
+					jsPlumb.repaint(self.source);
+					newPos = {left:targetWhenMouseDown.left + dx, top:targetWhenMouseDown.top + dy};
+					jpcl.setOffset(jpcl.getElementObject(self.target), newPos);
+					jsPlumb.repaint(self.target);
+				}				
+				else if (!_mouseover && _continue && self._over(e)) {
+					_mouseover = true;
+					self.setHover(_mouseover);
+					self.fireUpdate("mouseenter", self, e);				
+				}
+				else if (_mouseover && (!self._over(e) || !_continue)) {
+					_mouseover = false;
+				/*	if (self.hoverPaintStyle != null) {
+						self.paintStyleInUse = self.paintStyle;
+						self.repaint();
+						_updateAttachedElements();
+					}*/
+					self.setHover(_mouseover);
+					self.fireUpdate("mouseexit", self, e);				
+				}
+		    };
+		    
+		    /**
+		     * sets/unsets the hover state of this element.
+		     */
+		    this.setHover = function(hover, ignoreAttachedElements) {
+		    	if (self.hoverPaintStyle != null) {
+					self.paintStyleInUse = hover ? self.hoverPaintStyle : self.paintStyle;
+					self.repaint();
+					// get the list of other affected elements. for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
+					if (!ignoreAttachedElements)
+						_updateAttachedElements(hover);
+				}
+		    };
+		    
+		    var _updateAttachedElements = function(state) {
+		    	var affectedElements = self.getAttachedElements();		// implemented in subclasses
+		    	if (affectedElements) {
+		    		for (var i = 0; i < affectedElements.length; i++) {
+		    			affectedElements[i].setHover(state, true);			// tell the attached elements not to inform their own attached elements.
+		    		}
+		    	}
+		    };
+		    
+		    this.click = function(e) {
+		    	if (_mouseover && self._over(e) && !_mouseWasDown) 
+		    		self.fireUpdate("click", self, e);		    	
+		    	_mouseWasDown = false;
+		    };
+		    
+		    this.dblclick = function(e) {
+		    	if (_mouseover && self._over(e) && !_mouseWasDown) 
+		    		self.fireUpdate("dblclick", self, e);		    	
+		    	_mouseWasDown = false;
+		    };
+		    
+		    this.mousedown = function(e) {
+		    	if(self._over(e) && !_mouseDown) {
+		    		_mouseDown = true;
+		    		_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
+		    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
+		    		srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
+		    		targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
+		    	}
+		    };
+		    
+		    this.mouseup = function() {
+		    	if (self == _connectionBeingDragged) _connectionBeingDragged = null;
+		    	_mouseDown = false;
+		    };
+			
+		    /*
+		     * Function: setPaintStyle
+		     * Sets the paint style and then repaints the element.
+		     * 
+		     * Parameters:
+		     * 	style - Style to use.
+		     */
+		    this.setPaintStyle = function(style) {
+		    	self.paintStyle = style;
+		    	self.paintStyleInUse = self.paintStyle;
+		    	self.repaint();
+		    };
+		    
+		    /*
+		     * Function: setHoverPaintStyle
+		     * Sets the paint style to use when the mouse is hovering over the element. This is null by default.
+		     * 
+		     * Parameters:
+		     * 	style - Style to use when the mouse is hovering.
+		     */
+		    this.setHoverPaintStyle = function(style) {
+		    	self.hoverPaintStyle = style;
+		    	self.repaint();
+		    };
 		};
 		EventGenerator.apply(this);
 
@@ -1130,26 +1276,24 @@
 			var _bind = function(event) {
 				jsPlumb.CurrentLibrary.bind(document, event, function(e) {					
 					if (_mouseEventsEnabled) {
-						//var affectedElements = [];
+						// try connections first
 						for (var scope in connectionsByScope) {
 			    			var c = connectionsByScope[scope];
 			    			for (var i = 0; i < c.length; i++) {
-			    				if (c[i][event](e)) return;
-			    			/*	var someElements = c[i][event](e);
-			    				if (someElements && someElements.length) {
-			    					for (var j = 0; j < someElements.length; j++) {
-			    						if (_findIndex(affectedElements, someElements[j]) == -1) affectedElements.push(someElements);
-			    					}
-			    				}*/
+			    				if (c[i][event](e)) return;			    			
 			    			}
 			    		}
-						/*for (var i = 0; i < affectedElements.length; i++) {
-							jsPlumb.repaint(affectedElements[i]);
-						}*/
+						for (var el in endpointsByElement) {
+							var ee = endpointsByElement[el];
+							for (var i = 0; i < ee.length; i++) {
+								if (ee[i][event](e)) return;
+							}
+						}
 					}
 				});
 			};
 			_bind("click");
+			_bind("dblclick");
 			_bind("mousemove");
 			_bind("mousedown");
 			_bind("mouseup");
@@ -1819,6 +1963,11 @@
 			 */
 			this.targetId = _getAttribute(this.target, "id");
 			this.endpointsOnTop = params.endpointsOnTop != null ? params.endpointsOnTop : true;
+			
+			this.getAttachedElements = function() {
+				return self.endpoints;
+			};
+			
 			/*
 			 * Property: scope
 			 * scope descriptor for the connection.
@@ -1849,10 +1998,12 @@
 							|| new jsPlumb.Endpoints.Dot();
 					if (ep.constructor == String) ep = new jsPlumb.Endpoints[ep]();
 					if (!params.endpointStyles) params.endpointStyles = [ null, null ];
+					if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
 					var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+					var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _currentInstance.Defaults.EndpointHoverStyles[index] || jsPlumb.Defaults.EndpointHoverStyles[index] || _currentInstance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
 					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor) || _makeAnchor("BottomCenter");
 					var u = params.uuids ? params.uuids[index] : null;
-					var e = _newEndpoint( { style : es, endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element, container : self.container });
+					var e = _newEndpoint( { paintStyle : es, hoverPaintStyle:ehs, endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element, container : self.container });
 					self.endpoints[index] = e;
 					return e;
 				}
@@ -1871,10 +2022,10 @@
 			 */
 			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
 			if (this.connector.constructor == String) this.connector = new jsPlumb.Connectors[this.connector](); // lets you use a string as shorthand.
-			var paintStyle = this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
+			this.paintStyle = this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
 			var backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
-			var hoverPaintStyle = this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle;
-			var paintStyleInUse = paintStyle;
+			this.hoverPaintStyle = this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle;
+			this.paintStyleInUse = this.paintStyle;
 			
 			/*
 			 * Property: overlays
@@ -1952,36 +2103,11 @@
 			
 			/// ********************************************* mouse events on the connectors ******************************************
 		    	
-			/**
-			 * returns whether or not the given event is over a painted area of the canvas. 
-			 */
-		    var _over = function(e) {		    			  		    	
-		    	var o = _getOffset(_getElementObject(self.canvas));
-		    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
-		    	var x = pageXY[0] - o.left, y = pageXY[1] - o.top;
-		    	if (x > 0 && y > 0 && x < self.canvas.width && y < self.canvas.height) {
-			    	// first check overlays
-			    	for ( var i = 0; i < overlayPlacements.length; i++) {
-			    		var p = overlayPlacements[i];
-			    		if (p && (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y))
-			    			return true;
-			    	}
-			    	
-			    	if (!ie) {
-				    	// then the canvas
-				    	var d = self.canvas.getContext("2d").getImageData(parseInt(x), parseInt(y), 1, 1);
-				    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
-			    	}
-			    	else {
-			    		// need to get fancy with the vml.
-			    	}
-		    	}
-		    	return false;
-		    };
+/*			
 		    var _mouseover = false;
 		    var _mouseDown = false, _mouseDownAt = null, _posWhenMouseDown = null, _mouseWasDown = false, srcWhenMouseDown = null,
 		    targetWhenMouseDown = null;
-		    this.mousemove = function(e) {
+		    this.mousemove = function(e) {		    	
 		    	var jpcl = jsPlumb.CurrentLibrary;
 		    	var pageXY = jpcl.getPageXY(e);
 				var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
@@ -2000,7 +2126,7 @@
 					jpcl.setOffset(jpcl.getElementObject(self.target), newPos);
 					jsPlumb.repaint(self.target);
 				}				
-				else if (!_mouseover && _continue && _over(e)) {
+				else if (!_mouseover && _continue && self._over(e)) {
 					_mouseover = true;
 					if (hoverPaintStyle != null) {
 						paintStyleInUse = hoverPaintStyle;
@@ -2008,7 +2134,7 @@
 					}
 					self.fireUpdate("mouseenter", self, e);				
 				}
-				else if (_mouseover && (!_over(e) || !_continue)) {
+				else if (_mouseover && (!self._over(e) || !_continue)) {
 					_mouseover = false;
 					if (hoverPaintStyle != null) {
 						paintStyleInUse = paintStyle;
@@ -2019,12 +2145,19 @@
 		    };
 		    
 		    this.click = function(e) {
-		    	if (_mouseover && _over(e) && !_mouseWasDown) self.fireUpdate("click", self, e);		    	
+		    	if (_mouseover && self._over(e) && !_mouseWasDown) 
+		    		self.fireUpdate("click", self, e);		    	
 		    	_mouseWasDown = false;
-		    };			    		
+		    };
+		    
+		    this.dblclick = function(e) {
+		    	if (_mouseover && self._over(e) && !_mouseWasDown) 
+		    		self.fireUpdate("dblclick", self, e);		    	
+		    	_mouseWasDown = false;
+		    };
 		    
 		    this.mousedown = function(e) {
-		    	if(_over(e) && !_mouseDown) {
+		    	if(self._over(e) && !_mouseDown) {
 		    		_mouseDown = true;
 		    		_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
 		    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
@@ -2036,20 +2169,9 @@
 		    this.mouseup = function() {
 		    	if (self == _connectionBeingDragged) _connectionBeingDragged = null;
 		    	_mouseDown = false;
-		    };
+		    };*/
 		    
-		    /*
-		     * Function: setPaintStyle
-		     * Sets the Connection's paint style and then repaints the Connection.
-		     * 
-		     * Parameters:
-		     * 	style - Style to use.
-		     */
-		    this.setPaintStyle = function(style) {
-		    	paintStyle = style;
-		    	paintStyleInUse = paintStyle;
-		    	self.repaint();
-		    };
+		    
 		    
 		    /*
 		     * Function: setBackgroundPaintStyle
@@ -2061,19 +2183,7 @@
 		    this.setBackgroundPaintStyle = function(style) {
 		    	backgroundPaintStyle = style;
 		    	self.repaint();
-		    };
-		    
-		    /*
-		     * Function: setHoverPaintStyle
-		     * Sets the paint style to use when the mouse is hovering over the connector. This is null by default.
-		     * 
-		     * Parameters:
-		     * 	style - Style to use when the mouse is hovering.
-		     */
-		    this.setHoverPaintStyle = function(style) {
-		    	hoverPaintStyle = style;
-		    	self.repaint();
-		    };
+		    };		    		    
 		    
 			/*
 			 * Function: paint 
@@ -2113,7 +2223,7 @@
 							maxSize = s;
 					}
 
-					var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, paintStyleInUse.lineWidth, maxSize);
+					var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, maxSize);
 					jsPlumb.sizeCanvas(canvas, dim[0], dim[1], dim[2], dim[3]);
 
 					var _paintOneStyle = function(ctx, aStyle) {
@@ -2133,12 +2243,12 @@
 					if (backgroundPaintStyle != null) {
 						_paintOneStyle(ctx, backgroundPaintStyle);
 					}
-					_paintOneStyle(ctx, paintStyleInUse);
+					_paintOneStyle(ctx, self.paintStyleInUse);
 
 					// paint overlays
 					for ( var i = 0; i < self.overlays.length; i++) {
 						var o = self.overlays[i];
-						overlayPlacements[i] = o.draw(self.connector, ctx, paintStyleInUse);
+						self.overlayPlacements[i] = o.draw(self.connector, ctx, self.paintStyleInUse);
 					}
 				}
 			};
@@ -2197,6 +2307,7 @@
 		 * false: connections dropped in this way will just be deleted.
 		 */
 		var Endpoint = function(params) {
+			EventGenerator.apply(this);
 			params = params || {};
 			var self = this;
 			var visible = true;
@@ -2222,7 +2333,9 @@
 			var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 			if (_endpoint.constructor == String) _endpoint = new jsPlumb.Endpoints[_endpoint]();
 			self.endpoint = _endpoint;
-			var _style = params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+			this.paintStyle = params.paintStyle || params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+			this.hoverPaintStyle = params.hoverPaintStyle || _currentInstance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
+			this.paintStyleInUse = this.paintStyle;
 			this.connectorStyle = params.connectorStyle;
 			this.connectorHoverStyle = params.connectorHoverStyle;
 			this.connectorOverlays = params.connectorOverlays;
@@ -2236,6 +2349,11 @@
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			var _maxConnections = params.maxConnections || 1; // maximum number of connections this endpoint can be the source of.
+			
+			this.getAttachedElements = function() {
+				return self.connections;
+			};
+			
 			/*
 			 * Property: canvas
 			 * The Endpoint's Canvas.
@@ -2352,7 +2470,7 @@
 			 * private but must be exposed.
 			 */
 			this.makeInPlaceCopy = function() {
-				var e = _newEndpoint( { anchor : self.anchor, source : _element, style : _style, endpoint : _endpoint });
+				var e = _newEndpoint( { anchor : self.anchor, source : _element, paintStyle : this.paintStyle, endpoint : _endpoint });
 				return e;
 			};
 			/*
@@ -2411,13 +2529,16 @@
 			/*
 			 * Function: setStyle
 			 *   Sets the paint style of the Endpoint.  This is a JS object of the same form you supply to a jsPlumb.addEndpoint or jsPlumb.connect call.
+			 *   TODO move setStyle into EventGenerator, remove it from here. is Connection's method currently setPaintStyle ? wire that one up to
+			 *   setStyle and deprecate it if so.
 			 *   
 			 * Parameters:
 			 *   style - Style object to set, for example {fillStyle:"blue"}.
+			 *   
+			 *  @deprecated use setPaintStyle instead.
 			 */
 			this.setStyle = function(style) {
-				_style = style;
-				self.paint();
+				self.setPaintStyle(style);
 			};
 
 			/**
@@ -2467,10 +2588,12 @@
 						}
 						ap = self.anchor.compute(anchorParams);
 					}
-					_endpoint.paint(ap, self.anchor.getOrientation(), canvas || self.canvas, _style, connectorPaintStyle || _style);
+					_endpoint.paint(ap, self.anchor.getOrientation(), canvas || self.canvas, self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
 					self.timestamp = timestamp;
 				}
 			};
+			
+			this.repaint = this.paint;
 
 			/**
 			 * @deprecated
@@ -2499,7 +2622,7 @@
 					_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
 					// create a floating anchor
 					var floatingAnchor = new FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
-					floatingEndpoint = _newEndpoint({ style : { fillStyle : 'rgba(0,0,0,0)' }, endpoint : _endpoint, anchor : floatingAnchor, source : nE });
+					floatingEndpoint = _newEndpoint({ paintStyle : { fillStyle : 'rgba(0,0,0,0)' }, endpoint : _endpoint, anchor : floatingAnchor, source : nE });
 
 					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
