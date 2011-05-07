@@ -119,7 +119,7 @@
             
             _dx = _tx - _sx, _dy = (_ty - _sy);
 			_m = _dy / _dx, _m2 = -1 / _m;
-			 if (_m == Infinity) _m = 0;						// fix for issue 54, thanks pyotrbzuska.
+			
 			_b = -1 * ((_m * _sx) - _sy);
 			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
                              
@@ -140,7 +140,7 @@
          */
         this.pointOnPath = function(location) {
         	var xp = _sx + (location * _dx);
-        	var yp = _m == Infinity ? xp + _b : (_m * xp) + _b;
+        	var yp = _m == Infinity  ? _sy + (location * (_ty - _sy)) : (_m * xp) + _b;
         	return {x:xp, y:yp};
         };
         
@@ -156,7 +156,7 @@
         this.pointAlongPathFrom = function(location, distance) {
         	var p = self.pointOnPath(location);
         	var orientation = distance > 0 ? 1 : -1;
-        	var y =  Math.abs(distance * Math.sin(_theta));
+        	var y = Math.abs(distance * Math.sin(_theta));
         	if (_sy > _ty) y = y * -1;
 			var x =  Math.abs(distance * Math.cos(_theta));
 			if (_sx > _tx) x = x * -1;
@@ -435,7 +435,7 @@
 	
 	jsPlumb.Endpoints.Triangle = function(params) {
 	        	
-		params = params || { width:15, height:15 };
+		params = params || { width:55, height:55 };
 		var self = this;
 		this.width = params.width;
 		this.height = params.height;
@@ -744,15 +744,17 @@
     	};
     	
     	var _draw = function(connector, ctx, currentConnectionPaintStyle) {
-    		var cxy = connector.pointOnPath(self.location);
-    		var canvas = jsPlumb.CurrentLibrary.getElementObject(ctx.canvas);
-    		var canvasOffset = jsPlumb.CurrentLibrary.getOffset(canvas);
-    		var minx = cxy.x - (self.img.width/2);
-    		var miny = cxy.y - (self.img.height/2);
-    		var o = {left:canvasOffset.left + minx, top:canvasOffset.top + miny};
-    		jsPlumb.CurrentLibrary.setOffset(imgDiv, o);
-    		imgDiv.style.display = "block";
-    		return [minx,minx + self.img.width, miny, miny+self.img.height];
+    		if (imgDiv != null) {
+	    		var cxy = connector.pointOnPath(self.location);
+	    		var canvas = jsPlumb.CurrentLibrary.getElementObject(ctx.canvas);
+	    		var canvasOffset = jsPlumb.CurrentLibrary.getOffset(canvas);
+	    		var minx = cxy.x - (self.img.width/2);
+	    		var miny = cxy.y - (self.img.height/2);
+	    		var o = {left:canvasOffset.left + minx, top:canvasOffset.top + miny};
+	    		jsPlumb.CurrentLibrary.setOffset(imgDiv, o);
+	    		imgDiv.style.display = "block";
+	    		return [minx,minx + self.img.width, miny, miny+self.img.height];
+    		}
     	};
     	
     	this.draw = function(connector, ctx) {
