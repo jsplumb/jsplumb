@@ -483,7 +483,7 @@
 		var _newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
 			return new endpointFunc(params);
-		}
+		};
 		
 		/**
 		 * performs the given function operation on all the connections found
@@ -2337,7 +2337,10 @@
 			else 			
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
 			var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
-			if (_endpoint.constructor == String) _endpoint = new jsPlumb.Endpoints[_endpoint]();
+			if (_endpoint.constructor == String) 
+				_endpoint = new jsPlumb.Endpoints[_endpoint]();
+			else if (_endpoint.constructor = Array)
+				_endpoint = new jsPlumb.Endpoints[_endpoint[0]](_endpoint[1]);
 			self.endpoint = _endpoint;
 			this.paintStyle = params.paintStyle || params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			this.hoverPaintStyle = params.hoverPaintStyle || _currentInstance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
