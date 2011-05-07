@@ -2312,15 +2312,17 @@
 			var self = this;
 			var visible = true;
 			this.isVisible = function() { return visible; };
-			this.setVisible = function(v, doNotChangeConnections) {
+			this.setVisible = function(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
 				visible = v;
 				if (self.canvas) self.canvas.style.display = v ? "block" : "none";
-				for (var i = 0; i < self.connections.length; i++) {
-					self.connections[i].setVisible(v);
-					if (!doNotChangeConnections) {
-						var oIdx = self === self.connections[i].endpoints[0] ? 1 : 0;
-						// only change the other endpoint if this is its only connection.
-						if (self.connections[i].endpoints[oIdx].connections.length == 1) self.connections[i].endpoints[oIdx].setVisible(v, true);
+				if (!doNotChangeConnections) {
+					for (var i = 0; i < self.connections.length; i++) {
+						self.connections[i].setVisible(v);
+						if (!doNotNotifyOtherEndpoint) {
+							var oIdx = self === self.connections[i].endpoints[0] ? 1 : 0;
+							// only change the other endpoint if this is its only connection.
+							if (self.connections[i].endpoints[oIdx].connections.length == 1) self.connections[i].endpoints[oIdx].setVisible(v, true, true);
+						}
 					}
 				}
 			};
