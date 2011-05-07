@@ -140,7 +140,7 @@
          */
         this.pointOnPath = function(location) {
         	var xp = _sx + (location * _dx);
-        	var yp = _m == Infinity  ? _sy + (location * (_ty - _sy)) : (_m * xp) + _b;
+        	var yp = (_m == Infinity || _m == -Infinity) ? _sy + (location * (_ty - _sy)) : (_m * xp) + _b;
         	return {x:xp, y:yp};
         };
         
@@ -550,12 +550,15 @@
     	this.computeMaxSize = function() { return self.width * 1.5; };
     	
     	this.draw = function(connector, ctx, currentConnectionPaintStyle) {
+    		
+    		var centerAdjust = (self.length / 2);
+    		
     		// this is the arrow head position    		
-			var hxy = connector.pointAlongPathFrom(self.loc, self.length / 2);		
+			var hxy = connector.pointAlongPathFrom(self.loc, (self.length / 2));		
 			// this is the center of the tail
-			var txy = connector.pointAlongPathFrom(self.loc, -self.length / 2), tx = txy.x, ty = txy.y;
+			var txy = connector.pointAlongPathFrom(self.loc, -(self.length / 2)), tx = txy.x, ty = txy.y;
 			// this is the tail vector
-			var tail = connector.perpendicularToPathAt(self.loc, self.width, -self.length / 2);
+			var tail = connector.perpendicularToPathAt(self.loc, self.width, -(self.length / 2));
 			// this is the point the tail goes in to
 			var cxy = _getFoldBackPoint(connector, self.loc);
 			
@@ -674,6 +677,8 @@
 				
 				var minx = cxy.x - (td.width / 2);
 				var miny = cxy.y - (td.height / 2);
+				if (isNaN(minx) || isNaN(miny))
+					var ccxy = connector.pointOnPath(self.location);
 				
 				ctx.fillRect(minx, miny , td.width , td.height );
 				
@@ -740,7 +745,7 @@
 		notReadyInterval = window.setInterval(_init, 250);
     	
     	this.computeMaxSize = function(connector, ctx) {
-    		return [self.img.width, self.img.height];
+    		return [ self.img.width, self.img.height ];
     	};
     	
     	var _draw = function(connector, ctx, currentConnectionPaintStyle) {
