@@ -43,7 +43,8 @@
 
 					// chrome fix.
 					document.onselectstart = function () { return false; };
-	
+
+					var fillColor = "gray";
 					// notice the 'curviness' argument to this Bezier curve.  the curves on this page are far smoother
 					// than the curves on the first demo, which use the default curviness value.
 					jsPlumb.Defaults.Connector = new jsPlumb.Connectors.Bezier(50);
@@ -56,13 +57,21 @@
 					//jsPlumb.Defaults.Anchors =  [ jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter ];
 					jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
 	
-					var _makeOverlay = function() { return new jsPlumb.Overlays.Arrow({foldback:0.7, fillStyle:'gray', location:0.5, width:14}); };
-	
-					jsPlumb.connect({source:'window3', target:'window6', overlays:[_makeOverlay()]});
-					jsPlumb.connect({source:'window1', target:'window2', overlays:[_makeOverlay()]});
-					jsPlumb.connect({source:'window1', target:'window3', overlays:[_makeOverlay()]});
-					jsPlumb.connect({source:'window2', target:'window4', overlays:[_makeOverlay()]});
-					jsPlumb.connect({source:'window2', target:'window5', overlays:[_makeOverlay()]});
+					// I've left this code in here to help illustrate an API improvement that was made in 1.2.6, prior to which jsPlumb expected
+					// you to create Overlays yourself.  From 1.2.6 you can use a shorthand syntax, consisting of an array with two elements - first
+					// the name of the overlay, and then an object containing constructor options ( see below ).
+					//var _makeOverlay = function() { return new jsPlumb.Overlays.Arrow({foldback:0.7, fillStyle:'gray', location:0.5, width:14}); };				
+					// the new, shorthand, syntax introduced in 1.2.6:
+					var overlays = [["Arrow", { foldback:0.7, fillStyle:fillColor, location:0.5, width:14 }]];
+
+					// and this is how the connect call looked prior to 1.2.6:
+					//jsPlumb.connect({source:'window3', target:'window6', overlays:[_makeOverlay()]});
+					
+					jsPlumb.connect({source:'window3', target:'window6', overlays:overlays});
+					jsPlumb.connect({source:'window1', target:'window2', overlays:overlays});
+					jsPlumb.connect({source:'window1', target:'window3', overlays:overlays});
+					jsPlumb.connect({source:'window2', target:'window4', overlays:overlays});
+					jsPlumb.connect({source:'window2', target:'window5', overlays:overlays});
 				});
 			});
 		</script>
