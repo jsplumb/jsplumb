@@ -2040,7 +2040,7 @@
 						// ["Arrow", { width:50 }, {location:0.7}] 
 						// which merges the 3rd arg into the 2nd.
 						var type = o[0];
-						var p = o[1];
+						var p = jsPlumb.CurrentLibrary.extend({}, o[1]);			// make a copy of the object so as not to mess up anyone else's reference...
 						if (o.length == 3) jsPlumb.CurrentLibrary.extend(p, o[2]);
 						this.overlays.push(new jsPlumb.Overlays[type](p));
 					} else this.overlays.push(o);
