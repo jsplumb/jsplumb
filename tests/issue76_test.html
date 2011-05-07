@@ -3,6 +3,7 @@
 	<head>
 		<title>jsPlumb Issue 76 Test Page - jQuery</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../demo/css/jsPlumbDemo.css"></link>
 		<style type="text/css">
 .window { 
@@ -68,7 +69,7 @@
 				jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
 
 				jsPlumb.connect({source:'window1', target:'window2', overlays:[["Arrow", {foldback:0.7, fillStyle:'gray', location:0.5, width:14}]]});
-				jsPlumb.connect({source:'window2', target:'window3', overlays:[["Label", {label:"SIMON"}], ["Arrow", {foldback:0.7, fillStyle:'gray', location:0.75, width:14}]]});
+				jsPlumb.connect({source:'window2', target:'window3', overlays:[["Label", {label:"ceci n'est pas\nune étiquette "}], ["Arrow", {foldback:0.7, fillStyle:'gray', location:0.75, width:14}]]});
 				
 			});
 		</script>
