@@ -3,6 +3,7 @@
 	<head>
 		<title>jsPlumb Dynamic Anchors Demo - MooTools</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<link rel="stylesheet" href="../css/dynamicAnchorsDemo.css"></link>
 	</head>
@@ -63,14 +64,15 @@
 				dynamicAnchors:anchors
 			};
 			jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
-			var _makeOverlay = function() { return new jsPlumb.Overlays.Diamond({fillStyle:'#09098e', width:15, length:15}); };
+			
+			var overlays = [ ["Diamond", { fillStyle:'#09098e', width:15, length:15 } ] ];
 
-			jsPlumb.connect(jsPlumb.extend({ source:"window1", target:"window3", overlays:[_makeOverlay()] }, aConnection));
-			jsPlumb.connect(jsPlumb.extend({ source:"window3", target:"window5", overlays:[_makeOverlay()] }, aConnection));
-			jsPlumb.connect(jsPlumb.extend({ source:"window2", target:"window5", overlays:[_makeOverlay()] }, aConnection));
-			jsPlumb.connect(jsPlumb.extend({ source:"window5", target:"window6", overlays:[_makeOverlay()] }, aConnection));
-			jsPlumb.connect(jsPlumb.extend({ source:"window1", target:"window4", overlays:[_makeOverlay()] }, aConnection));
-			jsPlumb.connect(jsPlumb.extend({ source:"window4", target:"window2", overlays:[_makeOverlay()] }, aConnection));
+			jsPlumb.connect({ source:"window1", target:"window3", overlays:overlays }, aConnection);
+			jsPlumb.connect({ source:"window3", target:"window5", overlays:overlays }, aConnection);
+			jsPlumb.connect({ source:"window2", target:"window5", overlays:overlays }, aConnection);
+			jsPlumb.connect({ source:"window5", target:"window6", overlays:overlays }, aConnection);
+			jsPlumb.connect({ source:"window1", target:"window4", overlays:overlays }, aConnection);
+			jsPlumb.connect({ source:"window4", target:"window2", overlays:overlays }, aConnection);
 		});
 		</script>
 	</body>
