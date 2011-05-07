@@ -3,6 +3,7 @@
 	<head>
 		<title>jsPlumb - draggable connectors experiments - jQuery</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<link rel="stylesheet" href="../css/draggableConnectorsDemo.css"></link>
 	</head>
@@ -42,7 +43,7 @@
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
 				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
-				jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
+				jsPlumb.Defaults.Endpoint = "Rectangle";
 				jsPlumb.Defaults.Anchors = ["TopCenter", "TopCenter"];
 
 				var showConnections = function() {
@@ -91,7 +92,7 @@
 				*/
 				var exampleColor = '#00f';
 				var exampleEndpoint = {
-					endpoint:new jsPlumb.Endpoints.Rectangle(),
+					endpoint:"Rectangle",
 					style:{ width:25, height:21, fillStyle:exampleColor },
 					isSource:true,
 					scope:'blue rectangle',
@@ -110,12 +111,12 @@
 				*/
 				var color2 = '#316b31';
 				var exampleEndpoint2 = {
-						endpoint:new jsPlumb.Endpoints.Dot({radius:15}),
+						endpoint:["Dot", {radius:15}],
 						style:{ strokeStyle:color2 },
 						isSource:true,
 						scope:'green dot',
 						connectorStyle:{ strokeStyle:color2, lineWidth:8 },
-						connector: new jsPlumb.Connectors.Bezier(63),
+						connector: ["Bezier", 63 ],
 						maxConnections:3,
 						isTarget:true,
 						dropOptions : exampleDropOptions
@@ -133,28 +134,28 @@
 				*/
 				var example3Color = "rgba(229,219,61,0.5)";
 				var exampleEndpoint3 = {
-						endpoint:new jsPlumb.Endpoints.Dot({radius:17}),
+						endpoint:["Dot", {radius:17} ],
 						reattach:true,
 						anchor:"BottomLeft",
 						style:{ strokeStyle:example3Color, opacity:0.5 },
 						isSource:true,
 						scope:'yellow dot',
 						connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
-						connector : new jsPlumb.Connectors.Straight(),
+						connector : "Straight",
 						isTarget:true,
 						dropOptions : exampleDropOptions
 				};
 
-				// setup some empty endpoints.  again note the use of '$.extend' to reuse all the parameters except the location
+				// setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
 				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
-				jsPlumb.addEndpoint('window1', $.extend({ anchor:[0.5, 1, 0, 1] }, exampleEndpoint2));
+				jsPlumb.addEndpoint('window1', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint2);
 
 				//
 				// here's an example of how the SelectiveAnchor stuff added to 1.2.3 works with
 				// drag and drop connectors.
 				//
 				var anchors = [[1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0], [0.2, 0, 0, -1] ];
-				jsPlumb.addEndpoint('window1', $.extend({ anchor:anchors }, exampleEndpoint));
+				jsPlumb.addEndpoint('window1', { anchor:anchors }, exampleEndpoint);
 
 				jsPlumb.addEndpoints('window2', [
 					$.extend({ anchor:[0.5, 1, 0, 1] }, exampleEndpoint),
