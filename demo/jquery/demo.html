@@ -74,11 +74,13 @@
 		        // the endpoints in this example have linear gradients applied.
 		        //
 		        var w23Stroke = 'rgb(189,11,11)'; 
-		        var connection3 = jsPlumb.connect({source:'window2', target:'window3', 
-			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
-			        				 backgroundPaintStyle:{lineWidth:10,strokeStyle:'black'}, 
-			        				 anchors:[jsPlumb.makeAnchor(0.3,1,0,1), "TopCenter"], 
-			        				 endpoint:new jsPlumb.Endpoints.Rectangle(), 
+		        var connection3 = jsPlumb.connect({
+			        				 source:'window2', 
+			        				 target:'window3', 
+			        				 paintStyle:{ lineWidth:8,strokeStyle:w23Stroke },
+			        				 backgroundPaintStyle:{ lineWidth:10,strokeStyle:'black' }, 
+			        				 anchors:[[ 0.3 , 1, 0, 1 ], "TopCenter"], 
+			        				 endpoint:"Rectangle", 
 			        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
 			    			        				 { gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
 			    			        });
@@ -128,12 +130,13 @@
 		        // instructs jsPlumb to make the background (2 * 0.4) times larger than the text in the horizontal and vertical directions.
 		        //
 		        var connection5 = jsPlumb.connect({
-			        					source:'window4', 
-			        					target:'window5', 
+			        					source:"window4", 
+			        					target:"window5", 
 			        					anchors:["BottomRight",new jsPlumb.Anchors.TopLeft()], //comparison of old way and new way.  i recommend using the string.
-			        					paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, 
-			        					endpoint:new jsPlumb.Endpoints.Image({url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}), 
-			        					connector:new jsPlumb.Connectors.Straight(), endpointsOnTop:true,
+			        					paintStyle:{ lineWidth:7,strokeStyle:"rgb(131,8,135)" }, 
+			        					endpoint:["Image", {url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}], 
+			        					connector:"Straight", 
+			        					endpointsOnTop:true,
 										overlays:[ ["Label", {
 														labelStyle : { 
 															fillStyle:"white", 
