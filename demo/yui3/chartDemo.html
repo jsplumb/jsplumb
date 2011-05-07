@@ -47,7 +47,7 @@
 					var fillColor = "gray";
 					// notice the 'curviness' argument to this Bezier curve.  the curves on this page are far smoother
 					// than the curves on the first demo, which use the default curviness value.
-					jsPlumb.Defaults.Connector = new jsPlumb.Connectors.Bezier(50);
+					jsPlumb.Defaults.Connector = [ "Bezier", 50 ];
 					jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 					jsPlumb.Defaults.PaintStyle = { strokeStyle:'gray', lineWidth:2 };
 					jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:'gray' };

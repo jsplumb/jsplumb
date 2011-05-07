@@ -44,6 +44,7 @@
 
 				jsPlumb.Defaults.DragOptions = { cursor: 'wait', zIndex:20 };
 				jsPlumb.Defaults.Endpoint = [ "Image", { url:"../img/littledot.png" } ];
+				jsPlumb.Defaults.Connector = [ "Bezier", 90 ];
 				jsPlumb.setMouseEventsEnabled(true);
 
 				// notice there are no dragOptions specified here, which is different from the
@@ -53,7 +54,6 @@
 						anchor:[0.5,0.5,0,-1],
 						connectorStyle:{lineWidth:7,strokeStyle:'rgba(198,89,30,0.7)'},
 						connectorHoverStyle:{lineWidth:9,strokeStyle:'rgba(50,89,30,0.7)'},
-						connector:new jsPlumb.Connectors.Bezier(90),
 						endpointsOnTop:true,
 						isSource:true,
 						maxConnections:10,
