@@ -52,11 +52,11 @@
 				// default to blue at one end and green at the other
 				jsPlumb.Defaults.EndpointStyles = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }];
 				// blue endpoints 7 px; green endpoints 11.
-				jsPlumb.Defaults.Endpoints = [ new jsPlumb.Endpoints.Dot({radius:7}), new jsPlumb.Endpoints.Dot({radius:11})];
+				jsPlumb.Defaults.Endpoints = [ ["Dot", {radius:7} ], [ "Dot", {radius:11} ] ];
 				// default to a gradient stroke from blue to green.  for IE provide all green fallback.
 				jsPlumb.Defaults.PaintStyle = { gradient:{stops:[[0,'#225588'], [1, '#558822']] }, strokeStyle:'#558822', lineWidth:10 };
 
-				jsPlumb.connect({source:'window1', target:'window3', anchors:[[ 0.05, 1, 0, 1 ], "TopCenter"], connector:new jsPlumb.Connectors.Straight()});
+				jsPlumb.connect({source:'window1', target:'window3', anchors:[[ 0.05, 1, 0, 1 ], "TopCenter"], connector:"Straight"});
 				jsPlumb.connect({source:'window1', target:'window4', anchors:["BottomCenter", "TopCenter"]});
 				jsPlumb.connect({source:'window1', target:'window6', anchors:[[ 0.95, 1, 0, 1 ], "TopCenter"]});
 				jsPlumb.connect({source:'window1', target:'window5', anchors:[[ 0.275, 1, 0, 1 ], "TopCenter"]});
