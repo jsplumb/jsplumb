@@ -1996,7 +1996,11 @@
 							|| _currentInstance.Defaults.Endpoint
 							|| jsPlumb.Defaults.Endpoint
 							|| new jsPlumb.Endpoints.Dot();
-					if (ep.constructor == String) ep = new jsPlumb.Endpoints[ep]();
+					if (ep.constructor == String) 
+						ep = new jsPlumb.Endpoints[ep]();
+					else if (ep.constructor == Array) {
+						ep = new jsPlumb.Endpoints[ep[0]](ep[1]);
+					}
 					if (!params.endpointStyles) params.endpointStyles = [ null, null ];
 					if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
 					var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
