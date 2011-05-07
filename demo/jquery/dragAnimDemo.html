@@ -3,6 +3,7 @@
 	<head>
 		<title>jsPlumb - animated draggable connectors demonstration - jQuery</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
 		<link rel="stylesheet" href="../css/dragAnimDemo.css"></link>
 	</head>
@@ -42,6 +43,7 @@
 				document.onselectstart = function () { return false; };
 
 				jsPlumb.Defaults.DragOptions = { cursor: 'wait', zIndex:20 };
+				jsPlumb.setMouseEventsEnabled(true);
 
 				// notice there are no dragOptions specified here, which is different from the
 				// draggableConnectors2 demo.  all connections on this page are therefore
@@ -49,6 +51,7 @@
 				var endpoint = {
 						anchor:[0.5,0.5,0,-1],
 						connectorStyle:{lineWidth:7,strokeStyle:'rgba(198,89,30,0.7)'},
+						connectorHoverStyle:{lineWidth:9,strokeStyle:'rgba(50,89,30,0.7)'},
 						endpoint:new jsPlumb.Endpoints.Image({url:"../img/littledot.png"}),
 						connector:new jsPlumb.Connectors.Bezier(90),
 						endpointsOnTop:true,
