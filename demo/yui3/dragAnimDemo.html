@@ -84,6 +84,7 @@
 	    	Y.on("domready", function() {
 
 				jsPlumb.Defaults.DragOptions = { cursor: 'wait', zIndex:20 };
+				jsPlumb.Defaults.Endpoint = [ "Image", { url:"../img/littledot.png" } ];
 
 				// notice there are no dragOptions specified here, which is different from the
 				// draggableConnectors2 demo.  all connections on this page are therefore
@@ -91,7 +92,6 @@
 				var endpoint = {
 						anchor:[0.5,0.5,0,-1],
 						connectorStyle:{lineWidth:7,strokeStyle:'rgba(198,89,30,0.7)'},
-						endpoint:new jsPlumb.Endpoints.Image({url:"../img/littledot.png"}),
 						connector:new jsPlumb.Connectors.Bezier(90),
 						endpointsOnTop:true,
 						isSource:true,
