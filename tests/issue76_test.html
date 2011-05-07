@@ -69,7 +69,7 @@
 				jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
 
 				jsPlumb.connect({source:'window1', target:'window2', overlays:[["Arrow", {foldback:0.7, fillStyle:'gray', location:0.5, width:14}]]});
-				var conn2 = jsPlumb.connect({source:'window2', target:'window3', overlays:[["Label", {label:"ceci n'est pas\nune étiquette "}], ["Arrow", {foldback:0.7, fillStyle:'gray', location:1, width:14}]]});
+				var conn2 = jsPlumb.connect({source:'window2', target:'window3', overlays:[["Label", {label:"FOO",labelStyle:{color: "black",font:"32px sans-serif"}}], ["Arrow", {foldback:0.7, fillStyle:'gray', location:1, width:14}]]});
 				conn2.endpoints[1].setVisible(false, true);
 				
 			});
