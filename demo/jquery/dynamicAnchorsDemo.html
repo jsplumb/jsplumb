@@ -54,7 +54,7 @@
 
 				var anchors = [[0.2, 0, 0, -1], [1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0] ];
 				var aConnection = {	
-					endpoint:new jsPlumb.Endpoints.Rectangle({width:5, height:5}),				
+					endpoint:["Rectangle", {width:5, height:5} ],				
 					endpointStyle:{ width:25, height:21, fillStyle:exampleColor },
 					paintStyle : {
 						gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
