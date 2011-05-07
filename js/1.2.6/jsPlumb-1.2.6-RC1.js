@@ -2025,7 +2025,10 @@
 			 * The underlying Connector for this Connection (eg. a Bezier connector, straight line connector, flowchart connector etc)
 			 */
 			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors.Bezier();
-			if (this.connector.constructor == String) this.connector = new jsPlumb.Connectors[this.connector](); // lets you use a string as shorthand.
+			if (this.connector.constructor == String) 
+				this.connector = new jsPlumb.Connectors[this.connector](); // lets you use a string as shorthand.
+			else if (this.connector.constructor == Array)
+				this.connector = new jsPlumb.Connectors[this.connector[0]](this.connector[1]);
 			this.paintStyle = this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
 			var backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
 			this.hoverPaintStyle = this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle;
@@ -2339,7 +2342,7 @@
 			var _endpoint = params.endpoint || new jsPlumb.Endpoints.Dot();
 			if (_endpoint.constructor == String) 
 				_endpoint = new jsPlumb.Endpoints[_endpoint]();
-			else if (_endpoint.constructor = Array)
+			else if (_endpoint.constructor == Array)
 				_endpoint = new jsPlumb.Endpoints[_endpoint[0]](_endpoint[1]);
 			self.endpoint = _endpoint;
 			this.paintStyle = params.paintStyle || params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
