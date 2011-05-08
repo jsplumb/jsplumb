@@ -536,7 +536,7 @@
     	var strokeStyle = params.strokeStyle;
     	var lineWidth = params.lineWidth || 1;*/
     	var paintStyle = params.paintStyle || { lineWidth:1 };
-    	this.loc = params.location || 0.5;
+    	this.loc = params.location == null ? 0.5 : params.location;
     	// how far along the arrow the lines folding back in come to. default is 62.3%. 
     	var foldback = params.foldback || 0.623;
     	var _getFoldBackPoint = function(connector, loc) {
@@ -562,6 +562,36 @@
 			// this is the point the tail goes in to
 			var cxy = _getFoldBackPoint(connector, self.loc);
 			
+			// if loc = 1, then hxy should be flush with the element.
+			if (self.loc == 1) {
+				var lxy = connector.pointOnPath(self.loc);
+				var dx = lxy.x - hxy.x, dy = lxy.y - hxy.y;
+				cxy.x += dx; cxy.y += dy;
+				txy.x += dx; txy.y += dy;
+				tail[0].x += dx; tail[0].y += dy;
+				tail[1].x += dx; tail[1].y += dy;
+				hxy.x += dx; hxy.y += dy;
+			}
+			// if loc = 0, then tail midpoint should be flush with the element.
+			if (self.loc == 0) {
+				var lxy = connector.pointOnPath(self.loc);
+				var tailMid = foldback > 1 ? cxy : { 
+						x:tail[0].x + ((tail[1].x - tail[0].x) / 2),
+						y:tail[0].y + ((tail[1].y - tail[0].y) / 2)
+				};
+				var dx = lxy.x - tailMid.x, dy = lxy.y - tailMid.y;
+				cxy.x += dx; cxy.y += dy;
+				txy.x += dx; txy.y += dy;
+				tail[0].x += dx; tail[0].y += dy;
+				tail[1].x += dx; tail[1].y += dy;
+				hxy.x += dx; hxy.y += dy;
+			}
+			
+			var minx = Math.min(hxy.x, tail[0].x, tail[1].x);
+			var maxx = Math.max(hxy.x, tail[0].x, tail[1].x);
+			var miny = Math.min(hxy.y, tail[0].y, tail[1].y);
+			var maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
+			
 			ctx.lineWidth = paintStyle.lineWidth;
 			ctx.beginPath();
 			ctx.moveTo(hxy.x, hxy.y);
@@ -578,10 +608,7 @@
 			ctx.fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle;			
 			ctx.fill();
 			
-			var minx = Math.min(hxy.x, tail[0].x, tail[1].x);
-			var maxx = Math.max(hxy.x, tail[0].x, tail[1].x);
-			var miny = Math.min(hxy.y, tail[0].y, tail[1].y);
-			var maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
+			
 			
 			return [ minx, maxx, miny, maxy]; 
     	};
@@ -677,8 +704,6 @@
 				
 				var minx = cxy.x - (td.width / 2);
 				var miny = cxy.y - (td.height / 2);
-				if (isNaN(minx) || isNaN(miny))
-					var ccxy = connector.pointOnPath(self.location);
 				
 				ctx.fillRect(minx, miny , td.width , td.height );
 				
