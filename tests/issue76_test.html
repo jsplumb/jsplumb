@@ -21,8 +21,8 @@
 	background-color:white;
 }
 #window1 { left:20em;}
-#window2 { left:20em;top:12em;}
-#window3 { left:20em;top:24em;}
+#window2 { left:20em;top:15em;}
+#window3 { left:20em;top:35em;}
 #window4 { left:4em;top:24em;}
 #window5 {left:22em;top:124em;}
 #window6 {left:47em;top:24em;}
@@ -62,16 +62,23 @@
 				// chrome fix.
 				document.onselectstart = function () { return false; };
 
-				jsPlumb.Defaults.Connector = new jsPlumb.Connectors.Straight();
+				jsPlumb.Defaults.Connector = "Straight";
 				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 				jsPlumb.Defaults.PaintStyle = { strokeStyle:'gray', lineWidth:2 };
 				jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:'gray' };
 				jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
 
 				jsPlumb.connect({source:'window1', target:'window2', overlays:[["Arrow", {foldback:0.7, fillStyle:'gray', location:0.5, width:14}]]});
-				var conn2 = jsPlumb.connect({source:'window2', target:'window3', overlays:[["Label", {label:"FOO",labelStyle:{color: "black",font:"32px sans-serif"}}], ["Arrow", {foldback:0.7, fillStyle:'gray', location:1, width:14}]]});
+				var conn2 = jsPlumb.connect({
+					source:'window2', 
+					target:'window3', 
+					overlays:[ 
+						["Label", { label:"FOO",labelStyle:{color: "black",font:"32px sans-serif"}}], 
+						["Arrow", {foldback:0.7, fillStyle:'gray', location:1, width:22, length:25}],
+						["Diamond", {fillStyle:'gray', location:0, width:15, length:20}]
+				]});
 				conn2.endpoints[1].setVisible(false, true);
-				
+				conn2.endpoints[0].setVisible(false, true);
 			});
 		</script>
 	</body>
