@@ -526,12 +526,14 @@
 	 * lineWidth - line width to use when stroking the arrow. defaults to 1, but only used if strokeStyle is not null.
 	 * foldback - distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
 	 * location - distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
+	 * direction - indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
 	 */
 	jsPlumb.Overlays.Arrow = function(params) {
 		params = params || {};
 		var self = this;
     	this.length = params.length || 20;
     	this.width = params.width || 20;
+    	var direction = (params.direction || 1) < 0 ? -1 : 1;
     	/*var fillStyle = params.fillStyle;
     	var strokeStyle = params.strokeStyle;
     	var lineWidth = params.lineWidth || 1;*/
@@ -542,8 +544,8 @@
     	var _getFoldBackPoint = function(connector, loc) {
     		if (foldback == 0.5) return connector.pointOnPath(loc);
     		else {
-    			var adj = 0.5 - foldback; // we calculate relative to the center
-    			return connector.pointAlongPathFrom(loc, self.length * adj);        			
+    			var adj = 0.5 - foldback; // we calculate relative to the center        			
+    			return connector.pointAlongPathFrom(loc, direction * self.length * adj);
     		}
     	};
     	
@@ -551,14 +553,12 @@
     	
     	this.draw = function(connector, ctx, currentConnectionPaintStyle) {
     		
-    		var centerAdjust = (self.length / 2);
-    		
     		// this is the arrow head position    		
-			var hxy = connector.pointAlongPathFrom(self.loc, (self.length / 2));		
-			// this is the center of the tail
-			var txy = connector.pointAlongPathFrom(self.loc, -(self.length / 2)), tx = txy.x, ty = txy.y;
-			// this is the tail vector
-			var tail = connector.perpendicularToPathAt(self.loc, self.width, -(self.length / 2));
+			var hxy = connector.pointAlongPathFrom(self.loc, direction * (self.length / 2));
+			// this is the center of the tail    		    		
+			var txy = connector.pointAlongPathFrom(self.loc, -1 * direction * (self.length / 2)), tx = txy.x, ty = txy.y;
+			// this is the tail vector    		
+			var tail = connector.perpendicularToPathAt(self.loc, self.width, -1 * direction * (self.length / 2));
 			// this is the point the tail goes in to
 			var cxy = _getFoldBackPoint(connector, self.loc);
 			

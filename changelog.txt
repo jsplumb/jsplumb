@@ -4,7 +4,7 @@
 
 	- addition of jsPlumb.Overlays.Image
 	
-	- addition of mouse events to connectors/endpoints (mouseenter, mouseexit, click, mousemove)
+	- addition of mouse events to connectors/endpoints (mouseenter, mouseexit, click)
 
 	- addition of setStyle method to Endpoint.
 	
@@ -14,12 +14,39 @@
 	
 	- added setPaintStyle method to Connection
 	- added setBackgroundPaintStyle method to Connection
+	 
+	- added hoverPaintStyle concept to Connection: paint style when mouse is hovering over the connection.
+	- added support for jsPlumb.Defaults.HoverPaintStyle
 	
-	- added HoverPaintStyle concept to Connection
+	- added connectorHoverStyle to Endpoint: the hoverPaintStyle for Connections from this Endpoint.
 	
-	var hoverPaintStyle = this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle;
+	- arrow overlays derive their paint style from the associated connection if one is not supplied for the overlay (using Connection's strokeStyle as their fillStyle).
 	
-	- arrow overlays derive their paint style from the associated connection if one is not supplied for the overlay.
+	- jsPlumb.bind method does not support array as first argument anymore. it's now bind(event, listener) only.
+	
+	- added the ability to supply a subclass of Connection or Endpoint for your own app (jsPlumb.Defaults.ConnectorType and jsPlumb.Defaults.EndpointType)   	
+
+	- added a version of two-arg method from jsPlumb.addEndpoint to jsPlumb.addEndpoints. takes an array of arrays as the second argument. 
+
+	- TODO: add a shortcut version of the overlay stuff for endpoints. like endpoint:["Rectangle",{width:50,height:50}]
+	
+	- added added double click mouse support to Connection
+	
+	- added mouse events to Endpoint
+	
+	- deprecated 'style' argument to Endpoint options in favour of 'paintStyle', to make it the same as Connection
+	
+	- deprecated 'setStyle' method on Endpoint in favour of 'setPaintStyle', to make it the same as Connection
+	
+	- added hoverPaintStyle option to Endpoint.
+	
+	- added endpointHoverStyle, endpointHoverStyles options to Connection
+	
+	- added jsPlumb.Defaults.EndpointHoverStyle,jsPlumb.Defaults.EndpointHoverStyles 
+	
+	- fix for issue 76 (vertical straight line connectors not painting overlays properly)
+	
+	- added 'direction' parameter for arrow overlay to support arrows that point in the opposite direction to the connection.
 
 * 1.2.5
 
