@@ -187,6 +187,56 @@ test('detach plays nice when no target given', function() {
 	jsPlumb.detach();	
 });
 
+// issue 81
+test('jsPlumb.detach should fire only one detach event (pass Connection as argument)', function() {
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+	var conn = jsPlumb.connect({source:d5, target:d6});
+	var eventCount = 0;
+	jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
+	jsPlumb.detach(conn);
+	equals(eventCount, 1);
+});
+
+// issue 81
+test('jsPlumb.detach should fire only one detach event (pass Connection as param in argument)', function() {
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+	var conn = jsPlumb.connect({source:d5, target:d6});
+	var eventCount = 0;
+	jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
+	jsPlumb.detach({connection:conn});
+	equals(eventCount, 1);
+});
+
+// issue 81
+test('jsPlumb.detach should fire only one detach event (pass source and targets as strings as arguments in params object)', function() {
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+	var conn = jsPlumb.connect({source:d5, target:d6});
+	var eventCount = 0;
+	jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
+	jsPlumb.detach({source:"d5", target:"d6"});
+	equals(eventCount, 1);
+});
+
+// issue 81
+test('jsPlumb.detach should fire only one detach event (pass source and targets as divs as arguments in params object)', function() {
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+	var conn = jsPlumb.connect({source:d5, target:d6});
+	var eventCount = 0;
+	jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
+	jsPlumb.detach({source:d5, target:d6});
+	equals(eventCount, 1);
+});
+
+// issue 81
+test('jsPlumb.detach should fire only one detach event (pass source and targets as divs as arguments)', function() {
+	var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+	var conn = jsPlumb.connect({source:d5, target:d6});
+	var eventCount = 0;
+	jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
+	jsPlumb.detach(d5, d6);
+	equals(eventCount, 1);
+});
+
 //TODO make sure you run this test with a single detach call, to ensure that
 // single detach calls result in the connection being removed. detachEverything can
 // just blow away the connectionsByScope array and recreate it.
