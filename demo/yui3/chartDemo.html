@@ -48,13 +48,9 @@
 					// notice the 'curviness' argument to this Bezier curve.  the curves on this page are far smoother
 					// than the curves on the first demo, which use the default curviness value.
 					jsPlumb.Defaults.Connector = [ "Bezier", 50 ];
-					jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
-					jsPlumb.Defaults.PaintStyle = { strokeStyle:'gray', lineWidth:2 };
-					jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:'gray' };
-	
-					// **
-					// from jsPlumb 1.2.4 Anchors are no longer static: you just need to use the anchor name now.
-					//jsPlumb.Defaults.Anchors =  [ jsPlumb.Anchors.BottomCenter, jsPlumb.Anchors.TopCenter ];
+					jsPlumb.Defaults.DragOptions = { cursor: "pointer", zIndex:2000 };
+					jsPlumb.Defaults.PaintStyle = { strokeStyle:"gray", lineWidth:2 };
+					jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:"gray" };
 					jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
 	
 					// I've left this code in here to help illustrate an API improvement that was made in 1.2.6, prior to which jsPlumb expected
@@ -62,16 +58,21 @@
 					// the name of the overlay, and then an object containing constructor options ( see below ).
 					//var _makeOverlay = function() { return new jsPlumb.Overlays.Arrow({foldback:0.7, fillStyle:'gray', location:0.5, width:14}); };				
 					// the new, shorthand, syntax introduced in 1.2.6:
-					var overlays = [["Arrow", { foldback:0.7, fillStyle:fillColor, location:0.5, width:14 }]];
+					// declare some common values:
+					var arrowCommon = { foldback:0.7, fillStyle:fillColor, width:14 };
+					// use three-arg spec to create two different arrows with the common values:
+					var overlays = [
+						[ "Arrow", { location:0.7 }, arrowCommon ],
+						[ "Arrow", { location:0.3, direction:-1 }, arrowCommon ]
+					];
 
 					// and this is how the connect call looked prior to 1.2.6:
-					//jsPlumb.connect({source:'window3', target:'window6', overlays:[_makeOverlay()]});
-					
-					jsPlumb.connect({source:'window3', target:'window6', overlays:overlays});
-					jsPlumb.connect({source:'window1', target:'window2', overlays:overlays});
-					jsPlumb.connect({source:'window1', target:'window3', overlays:overlays});
-					jsPlumb.connect({source:'window2', target:'window4', overlays:overlays});
-					jsPlumb.connect({source:'window2', target:'window5', overlays:overlays});
+					//jsPlumb.connect({source:'window3', target:'window6', overlays:[_makeOverlay()]});					
+					jsPlumb.connect({source:"window3", target:"window6", overlays:overlays});
+					jsPlumb.connect({source:"window1", target:"window2", overlays:overlays});
+					jsPlumb.connect({source:"window1", target:"window3", overlays:overlays});
+					jsPlumb.connect({source:"window2", target:"window4", overlays:overlays});
+					jsPlumb.connect({source:"window2", target:"window5", overlays:overlays});
 				});
 			});
 		</script>
