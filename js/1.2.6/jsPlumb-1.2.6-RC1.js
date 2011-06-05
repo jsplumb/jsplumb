@@ -995,20 +995,18 @@
 								jpc.endpoints[0].removeConnection(jpc);
 								jpc.endpoints[1].removeConnection(jpc);
 								_removeFromList(connectionsByScope, jpc.scope, jpc);
-								fireDetachEvent(jpc);
 							}
 						});
 			}
 			// this is the new version of the method, taking a JS object like
 			// the connect method does.
 			else if (arguments.length == 1) {
+				// TODO investigate whether or not this code still works when a user has supplied their own subclass of Connection. i suspect it may not.
 				if (arguments[0].constructor == Connection) {
 					arguments[0].endpoints[0].detachFrom(arguments[0].endpoints[1]);
-					fireDetachEvent(arguments[0]);
 				}
 				else if (arguments[0].connection) {
 					arguments[0].connection.endpoints[0].detachFrom(arguments[0].connection.endpoints[1]);
-					fireDetachEvent(arguments[0].connection);
 				}
 				else {
 					var _p = jsPlumb.extend( {}, source); // a backwards compatibility hack: source should be thought of as 'params' in this case.
@@ -1026,7 +1024,6 @@
 										jpc.endpoints[0].removeConnection(jpc);
 										jpc.endpoints[1].removeConnection(jpc);
 										_removeFromList(connectionsByScope, jpc.scope, jpc);
-										fireDetachEvent(jpc);
 									}
 								});
 					}
