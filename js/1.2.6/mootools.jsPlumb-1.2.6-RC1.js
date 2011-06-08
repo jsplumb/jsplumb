@@ -36,9 +36,7 @@
 			this.parent(now);
 			if (this.onStep) { 
 				try { this.onStep(); } 
-				catch(e) {
-					console.log(e);
-				 } 
+				catch(e) { } 
 			}
 		}
 	});
