@@ -10,7 +10,7 @@
 			<ul>
 				<li>Each rectangle contains a separate jsPlumb instance</li>
 				<li>You can drag each rectangle around the screen independently</li>
-				<li>This demo uses jsPlumb 1.2.6-RC1, jQuery 1.4.4, and jQuery UI 1.8.2.</li>
+				<li>This demo uses jsPlumb 1.2.6-RC1, jQuery 1.6.0, and jQuery UI 1.8.13.</li>
 			</ul>
 		</div>
 		<div id="container" class="container"><button disabled class="clear" rel="1">clear these</button><button disabled class="redo" rel="1">redraw these</button><!-- button class="anim" rel="1">animate these</button--></div>
@@ -18,8 +18,8 @@
 		<div id="container3" class="container"><button disabled class="clear" rel="3">clear these</button><button disabled class="redo" rel="3">redraw these</button><!-- button class="anim" rel="3">animate these</button--></div>
 
 		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
@@ -37,8 +37,8 @@
 				var color = '#550';
 				// note here we set defaults on this instance, not the static jsPlumb instance.
 				jsPlumb1.Defaults.PaintStyle = { lineWidth:1, strokeStyle:color};
-				jsPlumb1.Defaults.Connector = new jsPlumb.Connectors.Straight();
-				jsPlumb1.Defaults.Endpoint = new jsPlumb.Endpoints.Dot({radius:3});
+				jsPlumb1.Defaults.Connector = "Straight";
+				jsPlumb1.Defaults.Endpoint = [ "Dot", { radius:3 } ];
 				jsPlumb.Defaults.EndpointStyle = { fillStyle: color };
 				jsPlumb1.Defaults.Anchors = [ "Center", "Center" ];
 				jsPlumb1.Defaults.Container = 'container';
@@ -47,22 +47,22 @@
 				// in this example we pass the defaults in to the jsPlumb instance.
 				var jsPlumb2 = jsPlumb.getInstance({
 					PaintStyle:{lineWidth:5, strokeStyle:color2},
-					Connector:new jsPlumb.Connectors.Bezier(),
-					Endpoint:new jsPlumb.Endpoints.Dot({radius:17}),
+					Connector:"Bezier",
+					Endpoint:[ "Dot", { radius:17 } ],
 					EndpointStyle : { fillStyle: color2  },
 					Anchor :  "Center",
-					Container : 'container2'
+					Container : "container2"
 				});
 
 				var color3='green';
 				// in this example we pass the defaults in to the jsPlumb instance.
 				var jsPlumb3 = jsPlumb.getInstance({
-					PaintStyle:{lineWidth:3, strokeStyle:color3},
-					Connector:new jsPlumb.Connectors.Bezier(30),
-					Endpoint:new jsPlumb.Endpoints.Dot({radius:5}),
+					PaintStyle:{ lineWidth:3, strokeStyle:color3 },
+					Connector:[ "Bezier", 30 ],
+					Endpoint:[ "Dot", { radius:5 } ],
 					EndpointStyle : { fillStyle: color3  },
-					Anchor :  [0.5,0.5,1,1],
-					Container : 'container3'
+					Anchor :  [ 0.5, 0.5, 1, 1 ],
+					Container : "container3"
 				});
 
 // *************************** blips to draw, drawing functions etc *****************************

@@ -17,7 +17,7 @@
 		<div class="bigdot" id="bd4"></div>
 
 		<div id="explanation">
-	    	<p>this demo uses jsPlumb 1.2.6-RC1, jQuery 1.4.4 and jQuery UI 1.8.2.</p>
+	    	<p>this demo uses jsPlumb 1.2.6-RC1, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
 	    	<p>drag orange dots to create connections.</p>
 	    	<p>click on or near blue dots to make them move in that direction.</p>
 	    	<p><a id="add" href="#" class="cmd">add a disc</a></p>
@@ -29,8 +29,8 @@
 	    </div>
 
 	   	<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
@@ -45,7 +45,6 @@
 				jsPlumb.Defaults.DragOptions = { cursor: 'wait', zIndex:20 };
 				jsPlumb.Defaults.Endpoint = [ "Image", { url:"../img/littledot.png" } ];
 				jsPlumb.Defaults.Connector = [ "Bezier", 90 ];
-				jsPlumb.setMouseEventsEnabled(true);
 
 				// notice there are no dragOptions specified here, which is different from the
 				// draggableConnectors2 demo.  all connections on this page are therefore

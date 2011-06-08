@@ -20,7 +20,7 @@
 
 		<div id="explanation">
 	    	On this page we set our connectors to gray and specify an endpoint of radius 9.  Each connection has an Arrow overlay indicating direction. <br/><br/>The Bezier curve used on this page has a 'curviness' of 50; the Bezier connectors are a lot flatter than those on the first demo, which uses the default values.  See the documentation for examples of how to set the Bezier curviness.<br/>
-	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, jQuery 1.4.4 and jQuery UI 1.8.2.</p>
+	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
 	    	<a href="anchorDemo.html" class="mplink">next: anchors demonstration</a><br/>
 	    	<a href="demo.html" class="mplink">prev: jsPlumb home</a>
 	    	<br/><br/>
@@ -31,8 +31,8 @@
 	    </div>
 
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
@@ -52,12 +52,7 @@
 					jsPlumb.Defaults.PaintStyle = { strokeStyle:"gray", lineWidth:2 };
 					jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:"gray" };
 					jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
-	
-					// I've left this code in here to help illustrate an API improvement that was made in 1.2.6, prior to which jsPlumb expected
-					// you to create Overlays yourself.  From 1.2.6 you can use a shorthand syntax, consisting of an array with two elements - first
-					// the name of the overlay, and then an object containing constructor options ( see below ).
-					//var _makeOverlay = function() { return new jsPlumb.Overlays.Arrow({foldback:0.7, fillStyle:'gray', location:0.5, width:14}); };				
-					// the new, shorthand, syntax introduced in 1.2.6:
+						
 					// declare some common values:
 					var arrowCommon = { foldback:0.7, fillStyle:fillColor, width:14 };
 					// use three-arg spec to create two different arrows with the common values:
@@ -65,9 +60,7 @@
 						[ "Arrow", { location:0.7 }, arrowCommon ],
 						[ "Arrow", { location:0.3, direction:-1 }, arrowCommon ]
 					];
-
-					// and this is how the connect call looked prior to 1.2.6:
-					//jsPlumb.connect({source:'window3', target:'window6', overlays:[_makeOverlay()]});					
+				
 					jsPlumb.connect({source:"window3", target:"window6", overlays:overlays});
 					jsPlumb.connect({source:"window1", target:"window2", overlays:overlays});
 					jsPlumb.connect({source:"window1", target:"window3", overlays:overlays});

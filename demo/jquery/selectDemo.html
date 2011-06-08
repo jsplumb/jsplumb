@@ -56,8 +56,8 @@
 				var hoverColour = "#EE5500",
 					paintColour = "#69a0bd",
 					backgroundPaintColour = "rgba(100,100,100,50)",
-					paintStyle = {lineWidth:15,strokeStyle:paintColour},
-					hoverPaintStyle = {lineWidth:15,strokeStyle:hoverColour},				
+					paintStyle = {lineWidth:7,strokeStyle:paintColour},
+					hoverPaintStyle = {lineWidth:7,strokeStyle:hoverColour},				
 					commonData = {
 						paintStyle:paintStyle,
 				   		backgroundPaintStyle:{lineWidth:10,strokeStyle:backgroundPaintColour},
@@ -66,7 +66,6 @@
 				   		endpointHoverStyle:{fillStyle:hoverColour}
 					};
 				
-				var arrowSpec = {width:40, length:40,location:0.7, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"}};
 				var imageSpec = { src:"../img/littledot.png" };
 				var labelSpec = { location:0.3 };
 				
@@ -74,36 +73,28 @@
 					source:'window1', 
 				   	target:'window2', 
 				   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
-				   	overlays : [ ["Image", imageSpec],
-								["Label", {label:"CONNECTION 1"}, labelSpec ],
-								[ "Arrow" , arrowSpec] ]
+				   	overlays : [["Label", {label:"CONNECTION 1"}, labelSpec ]]
 				 }, commonData);
 
 				var connection2 = jsPlumb.connect({
 					source:'window4', 
 				   	target:'window6', 
 				   	anchors:["RightMiddle", "LeftMiddle"], 				   	
-				   	overlays : [ ["Image", imageSpec],
-				   	          ["Label", {label:"CONNECTION 2"}, labelSpec ],
-								[ "Arrow" , arrowSpec] ]
+				   	overlays : [["Label", {label:"CONNECTION 2"}, labelSpec ]]
 				 }, commonData);
 
 				var connection3 = jsPlumb.connect({
 					source:'window4', 
 				   	target:'window3', 
 				   	anchors:["LeftMiddle", "RightMiddle"], 
-				   	overlays : [ ["Image", imageSpec],
-				   	          	["Label", {label:"CONNECTION 3"}, labelSpec ],
-								[ "Arrow" , arrowSpec] ]
+				   	overlays : [["Label", {label:"CONNECTION 3"}, labelSpec ]]
 				 }, commonData);		
 
 				var connection4 = jsPlumb.connect({
 					source:'window5', 
 				   	target:'window6',
 				   	anchors:["TopRight", "BottomLeft"], 
-				   	overlays : [ ["Image", imageSpec],
-				   	          	["Label", {label:"CONNECTION 4"}, labelSpec ],
-								[ "Arrow" , arrowSpec] ]
+				   	overlays : [["Label", {label:"CONNECTION 4"}, labelSpec ]]
 				 }, commonData);		 
 			  						
 		        // all the mouse listener stuff 
@@ -112,14 +103,10 @@
 		        }; 
 		        var c = function(connection) {
 					connection.bind("mouseenter", function(c) {
-						// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
-						// connection.setPaintStyle(hoverPaintStyle);						
 						$(c.source).addClass("hl");
 						$(c.target).addClass("hl");
 					});					
 					connection.bind("mouseexit", function(c) {							
-						// two ways to do this: use the setPaintStyle method, or use 'hoverPaintStyle' in the connection options.
-						// connection.setPaintStyle(paintStyle);							
 						$(c.source).removeClass("hl");
 						$(c.target).removeClass("hl");
 					});

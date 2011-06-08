@@ -23,7 +23,7 @@
 	    
 	    <div id="explanation">
 	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  </p>
-	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, jQuery 1.4.4 and jQuery UI 1.8.2.</p>
+	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
 	    	<a href="chartDemo.html" class="mplink">Next: Chart demonstration</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
@@ -33,8 +33,8 @@
 	    </div>
 	    
 	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
 		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
@@ -95,7 +95,9 @@
 				//
 				var w34Stroke = 'rgba(50, 50, 200, 1)';
 				var w34HlStroke = 'rgba(180, 180, 200, 1)';
-				var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
+				var connection2 = jsPlumb.connect({
+									 source:'window3', 
+									 target:'window4', 
 			        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
 			        				 anchors:["AutoDefault", "AutoDefault"], 
 			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
@@ -132,7 +134,7 @@
 		        var connection5 = jsPlumb.connect({
 			        					source:"window4", 
 			        					target:"window5", 
-			        					anchors:["BottomRight",new jsPlumb.Anchors.TopLeft()], //comparison of old way and new way.  i recommend using the string.
+			        					anchors:[ "BottomRight", "TopLeft" ], 
 			        					paintStyle:{ lineWidth:7,strokeStyle:"rgb(131,8,135)" }, 
 			        					endpoint:["Image", {url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}], 
 			        					connector:"Straight", 
