@@ -32,11 +32,13 @@
 				this.onStep = options['onStep'];
 			}
 		},
-		step : function() {
-			this.parent();
+		step : function(now) {
+			this.parent(now);
 			if (this.onStep) { 
 				try { this.onStep(); } 
-				catch(e) { } 
+				catch(e) {
+					console.log(e);
+				 } 
 			}
 		}
 	});
@@ -113,6 +115,7 @@
 			
 		animate : function(el, properties, options) {			
 			var m = new jsPlumbMorph(el, options);
+			//var m = new Fx.Morph(el, options);
 			m.start(properties);
 		},
 		
