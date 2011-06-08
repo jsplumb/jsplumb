@@ -47,6 +47,8 @@
 				// chrome fix.
 				document.onselectstart = function () { return false; };
 
+				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };				
+
 				var exampleColor = '#00f';
 				var exampleDropOptions = {
 						tolerance:'touch',
@@ -63,18 +65,16 @@
 						lineWidth:5,
 						strokeStyle:exampleColor
 					},
-					dynamicAnchors:anchors
+					dynamicAnchors:anchors,
+					overlays : [ ["Diamond", { fillStyle:'#09098e', width:15, length:15 } ] ]
 				};
-				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
-				
-				var overlays = [ ["Diamond", { fillStyle:'#09098e', width:15, length:15 } ] ];
 
-				jsPlumb.connect({ source:"window1", target:"window3", overlays:overlays }, aConnection);
-				jsPlumb.connect({ source:"window3", target:"window5", overlays:overlays }, aConnection);
-				jsPlumb.connect({ source:"window2", target:"window5", overlays:overlays }, aConnection);
-				jsPlumb.connect({ source:"window5", target:"window6", overlays:overlays }, aConnection);
-				jsPlumb.connect({ source:"window1", target:"window4", overlays:overlays }, aConnection);
-				jsPlumb.connect({ source:"window4", target:"window2", overlays:overlays }, aConnection);
+				jsPlumb.connect({ source:"window1", target:"window3" }, aConnection);
+				jsPlumb.connect({ source:"window3", target:"window5" }, aConnection);
+				jsPlumb.connect({ source:"window2", target:"window5" }, aConnection);
+				jsPlumb.connect({ source:"window5", target:"window6" }, aConnection);
+				jsPlumb.connect({ source:"window1", target:"window4" }, aConnection);
+				jsPlumb.connect({ source:"window4", target:"window2" }, aConnection);
 			});
 		});
 		</script>
