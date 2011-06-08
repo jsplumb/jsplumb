@@ -93,13 +93,14 @@
 		</antcall>
 	</target>
 	
-	<target name="docs">
+	<target name="docs" depends="min">
 		<mkdir dir="js/TEMP"/>
 		<copy todir="js/TEMP">
 			<fileset dir="js/${final.version}">
 				<include name="jquery.jsPlumb-${final.version}-all.js"/>
 			</fileset>
 		</copy>
+		<mkdir dir="apidocs"/>
 	    <exec executable="naturaldocs">
 	        <arg line="-i"/>
 	        <arg path="js/TEMP"/>
@@ -114,7 +115,6 @@
 	
 	<target name="build">
 		<antcall target="min"/>
-		<antcall target="docs"/>
 	</target>
 	
 </project>
