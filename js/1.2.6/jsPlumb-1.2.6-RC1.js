@@ -122,7 +122,7 @@
 				var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
 				var _continue = _connectionBeingDragged == null && (_hasClass(ee, "_jsPlumb_endpoint") || _hasClass(ee, "_jsPlumb_connector"));
 				
-				if (_mouseDown) {
+				if (_mouseDown && srcWhenMouseDown) {
 					_mouseWasDown = true;
 					_connectionBeingDragged = self;				
 					var mouseNow = jpcl.getPageXY(e);
@@ -2295,7 +2295,8 @@ about the parameters allowed in the params object.
 		 * isSource - boolean. indicates the endpoint can act as a source of new connections. Optional; defaults to false.
 		 * maxConnections - integer; defaults to 1.  a value of -1 means no upper limit. 
 		 * dragOptions - if isSource is set to true, you can supply arguments for the underlying library's drag method. Optional; defaults to null. 
-		 * connectorStyle - if isSource is set to true, this is the paint style for Connections from this Endpoint. Optional; defaults to null. 
+		 * connectorStyle - if isSource is set to true, this is the paint style for Connections from this Endpoint. Optional; defaults to null.
+		 * connectorBackgroundStyle - if isSource is set to true, this is the background paint style for Connections from this Endpoint. Optional; defaults to null. 
 		 * connectorHoverStyle - if isSource is set to true, this is the hover paint style for Connections from this Endpoint. Optional; defaults to null.
 		 * connector - optional Connector type to use.  Like 'endpoint', this may be either a single string nominating a known Connector type (eg. "Bezier", "Straight"), or an array containing [name, params], eg. [ "Bezier", 160 ].
 		 * connectorOverlays - optional array of Overlay definitions that will be applied to any Connection from this Endpoint. 
@@ -2352,6 +2353,7 @@ about the parameters allowed in the params object.
 			this.hoverPaintStyle = params.hoverPaintStyle || _currentInstance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
 			this.paintStyleInUse = this.paintStyle;
 			this.connectorStyle = params.connectorStyle;
+			this.connectorBackgroundStyle = params.connectorBackgroundStyle;
 			this.connectorHoverStyle = params.connectorHoverStyle;
 			this.connectorOverlays = params.connectorOverlays;
 			this.connector = params.connector;
@@ -2654,7 +2656,6 @@ about the parameters allowed in the params object.
 						self.anchor.locked = true;
 						// create a connection. one end is this endpoint, the
 						// other is a floating endpoint.
-						//jpc = new Connection( 
 						jpc = _newConnection({
 							sourceEndpoint : self,
 							targetEndpoint : floatingEndpoint,
@@ -2663,8 +2664,9 @@ about the parameters allowed in the params object.
 							anchors : [ self.anchor, floatingAnchor ],
 							paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
 							hoverPaintStyle:params.connectorHoverStyle,
+							backgroundPaintStyle:params.connectorBackgroundStyle,
 							connector : params.connector, // this can also be null. Connection will use the default.
-							overlays : self.connectorOverlays // new in 1.2.4.
+							overlays : self.connectorOverlays 
 						});
 					} else {
 						existingJpc = true;
