@@ -2039,7 +2039,10 @@ about the parameters allowed in the params object.
 						var p = jsPlumb.CurrentLibrary.extend({}, o[1]);			// make a copy of the object so as not to mess up anyone else's reference...
 						if (o.length == 3) jsPlumb.CurrentLibrary.extend(p, o[2]);
 						this.overlays.push(new jsPlumb.Overlays[type](p));
-					} else this.overlays.push(o);
+					} else if (o.constructor == String) {
+						this.overlays.push(new jsPlumb.Overlays[o](p));
+					}
+					else this.overlays.push(o);
 				}
 			}
 			var overlayPlacements = [];

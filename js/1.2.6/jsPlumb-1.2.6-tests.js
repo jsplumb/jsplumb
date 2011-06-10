@@ -1198,6 +1198,12 @@ test("jsPlumb.connect (overlays, short-hand version)", function() {
 	equals(40, connection1.overlays[2].length);
 });
 
+test("jsPlumb.connect, specify arrow overlay using string identifier only", function() {
+	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+	var conn = jsPlumb.connect({source:d1,target:d2,overlays:["Arrow"]});
+	equals(jsPlumb.Overlays.Arrow, conn.overlays[0].constructor);
+});
+
 // this test is for the original detach function; it should stay working after i mess with it
 // a little.
 test("jsPlumb.detach (by element ids)", function() {
