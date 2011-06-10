@@ -615,8 +615,7 @@
 		 * updates the offset and size for a given element, and stores the
 		 * values. if 'offset' is not null we use that (it would have been
 		 * passed in from a drag call) because it's faster; but if it is null,
-		 * or if 'recalc' is true in order to force a recalculation, we use the
-		 * offset, outerWidth and outerHeight methods to get the current values.
+		 * or if 'recalc' is true in order to force a recalculation, we get the current values.
 		 */
 		var _updateOffset = function(params) {
 			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId;
@@ -888,7 +887,6 @@
 				_p.anchors = [sa,ta];
 			}
 
-			//var jpc = new Connection(_p);
 			var jpc = _newConnection(_p);
 			// add to list of connections (by scope).
 			_addToList(connectionsByScope, jpc.scope, jpc);
@@ -999,9 +997,11 @@ about the parameters allowed in the params object.
 			else if (arguments.length == 1) {
 				// TODO investigate whether or not this code still works when a user has supplied their own subclass of Connection. i suspect it may not.
 				if (arguments[0].constructor == Connection) {
+					//arguments[0].setHover(false);
 					arguments[0].endpoints[0].detachFrom(arguments[0].endpoints[1]);
 				}
 				else if (arguments[0].connection) {
+					//arguments[0].connection.setHover(false);
 					arguments[0].connection.endpoints[0].detachFrom(arguments[0].connection.endpoints[1]);
 				}
 				else {
@@ -1098,7 +1098,7 @@ about the parameters allowed in the params object.
 					if (ele) _initDraggableIfNecessary(ele, true, options);
 				}
 			} 
-			else if (el._nodes) { 	// this is YUI specific; really the logic should be forced
+			else if (el._nodes) { 	// TODO this is YUI specific; really the logic should be forced
 				// into the library adapters (for jquery and mootools aswell)
 				for ( var i = 0; i < el._nodes.length; i++) {
 					var ele = _getElementObject(el._nodes[i]);
@@ -2449,6 +2449,7 @@ about the parameters allowed in the params object.
 					}
 				}
 				for ( var i = 0; i < c.length; i++) {
+					c[i].setHover(false);
 					self.detach(c[i]);
 				}
 			};			
