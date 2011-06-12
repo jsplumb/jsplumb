@@ -2036,11 +2036,11 @@ about the parameters allowed in the params object.
 						// ["Arrow", { width:50 }, {location:0.7}] 
 						// which merges the 3rd arg into the 2nd.
 						var type = o[0];
-						var p = jsPlumb.CurrentLibrary.extend({}, o[1]);			// make a copy of the object so as not to mess up anyone else's reference...
+						var p = jsPlumb.CurrentLibrary.extend({connection:self}, o[1]);			// make a copy of the object so as not to mess up anyone else's reference...
 						if (o.length == 3) jsPlumb.CurrentLibrary.extend(p, o[2]);
 						this.overlays.push(new jsPlumb.Overlays[type](p));
 					} else if (o.constructor == String) {
-						this.overlays.push(new jsPlumb.Overlays[o](p));
+						this.overlays.push(new jsPlumb.Overlays[o]({connection:self}));
 					}
 					else this.overlays.push(o);
 				}
@@ -2062,7 +2062,8 @@ about the parameters allowed in the params object.
 			if (this.label) {
 				this.overlays.push(new jsPlumb.Overlays.Label( {
 					labelStyle : this.labelStyle,
-					label : this.label
+					label : this.label,
+					connection:self
 				}));
 			}
 
@@ -2594,7 +2595,7 @@ about the parameters allowed in the params object.
 							hoverPaintStyle:params.connectorHoverStyle,
 							backgroundPaintStyle:params.connectorBackgroundStyle,
 							connector : params.connector, // this can also be null. Connection will use the default.
-							overlays : self.connectorOverlays 
+							overlays : params.connectorOverlays 
 						});
 						// TODO determine whether or not we wish to do de-select hover when dragging a connection.
 						// it may be the case that we actually want to set it, since it provides a good
