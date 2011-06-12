@@ -1,0 +1,117 @@
+<!doctype html>
+
+<html>
+	<head>
+		<title>jsPlumb - flowchart connectors demonstration - MooTools</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
+		<link rel="stylesheet" href="../css/flowchartDemo.css"></link>
+	</head>
+	<body onunload="jsPlumb.unload();">
+		<div class="window" id="window1"><strong>1</strong><br/><br/></div>
+		<div class="window" id="window2"><strong>2</strong><br/><br/></div>
+	    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
+	    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
+	    
+	    <div id="explanation">
+	    	<p>This page shows the Flowchart connectors introduced in jsPlumb 1.2.6.</p>
+	    	<p>Mouse events are enabled in this demo (not in IE&lt;9): hover over connections to highlight them, and click and hold to drag. </p>
+	    	<p>Drag new connections from blue dots to green dots.</p>
+	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, MooTools 1.3.2, and Drag.Move from MooTools More 1.3.2.1.</p>
+	    	<a href="chartDemo.html" class="mplink">Next: Chart demonstration</a>
+	    	<br/><br/>
+	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
+	    	<br/><br/>
+	    	See a <a href="../jquery/flowchartConnectorsDemo.html">jQuery version</a> of this demo.<br/>
+	    	See a <a href="../yui3/flowchartConnectorsDemo.html">YUI3 version</a> of this demo.
+	    </div>
+
+	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
+		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-flowchart-0.1-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.2.6/yui.jsPlumb-1.2.6-RC1.js"></script>		
+		
+		<script type="text/javascript">
+		YUI().use('node', function(Y) {
+
+			Y.on("domready", function() {
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+	
+				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+				// default to blue at one end and green at the other
+				jsPlumb.Defaults.EndpointStyles = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }];
+				// blue endpoints 7 px; green endpoints 11.
+				jsPlumb.Defaults.Endpoints = [ [ "Dot", {radius:7} ], [ "Dot", { radius:11 } ]];
+				// enable mouse events
+				jsPlumb.setMouseEventsEnabled(true);	
+	
+				// this is the paint style for the connecting lines
+				var connectorPaintStyle = {lineWidth:5,strokeStyle:"#deea18"};
+				var connectorHoverStyle = {lineWidth:7,strokeStyle:"#2e2aF8"};
+	
+				var sourceEndpoint = {
+					endpoint:"Dot",
+					paintStyle:{fillStyle:"#225588",radius:7},
+					isSource:true,
+					connector:"FlowchartNew",
+					connectorStyle:connectorPaintStyle,
+					connectorHoverStyle:connectorHoverStyle
+				};
+	
+				var targetEndpoint = {
+					endpoint:"Dot",
+					hoverPaintStyle:connectorHoverStyle,
+					paintStyle:{fillStyle:"#558822",radius:11},
+					isTarget:true,
+					maxConnections:-1
+				};	
+	
+				// add endpoints. note these calls use the 
+				var e11 = jsPlumb.addEndpoint("window1", {anchor:"RightMiddle"}, sourceEndpoint);
+				var e12 = jsPlumb.addEndpoint("window1", {anchor:"BottomCenter"}, sourceEndpoint);
+				//var e21 = jsPlumb.addEndpoint("window2", {anchors:["LeftMiddle","TopCenter"]}, targetEndpoint);
+				var e21 = jsPlumb.addEndpoint("window2", {anchor:"LeftMiddle"}, targetEndpoint);
+				var e22 = jsPlumb.addEndpoint("window2", {anchor:"BottomCenter"}, sourceEndpoint);
+	
+				var e31 = jsPlumb.addEndpoint("window3", {anchor:"LeftMiddle"}, targetEndpoint);
+				var e32 = jsPlumb.addEndpoint("window3", {anchor:"TopCenter"}, targetEndpoint);
+				var e33 = jsPlumb.addEndpoint("window3", {anchor:"RightMiddle"}, targetEndpoint);
+				var e34 = jsPlumb.addEndpoint("window3", {anchor:"BottomCenter"}, targetEndpoint);
+	
+				var e41 = jsPlumb.addEndpoint("window4", {anchor:"RightMiddle"}, sourceEndpoint);
+				var e42 = jsPlumb.addEndpoint("window4", {anchor:"BottomCenter"}, sourceEndpoint);
+	
+				var overlays = { overlays:[["Arrow",{location:0.9 }], ["Arrow",{location:0.1,direction:-1 }] ]};
+	
+				var init = function(conn) {
+					conn.bind("click", function(conn) {
+						if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
+							jsPlumb.detach(conn); 
+					}); 
+					conn.bind("mouseenter", function(conn) { conn.setLabel("click to delete"); });
+					conn.bind("mouseexit", function(conn) { conn.setLabel(""); });
+				};
+					
+				var connect = function(s,t) {
+					var c = jsPlumb.connect({source:s,target:t}, overlays);
+					if (c) init(c);
+				};
+					
+				connect(e12, e32);
+				connect(e41, e21);
+				connect(e22, e33);
+				connect(e41, e31);
+				connect(e11, e34);
+	
+				jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
+					init(connInfo.connection);
+				});
+			});
+		});
+		</script>
+	</body>
+</html>
