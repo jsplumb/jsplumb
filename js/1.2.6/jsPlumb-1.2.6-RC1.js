@@ -1266,8 +1266,8 @@ about the parameters allowed in the params object.
 		 */
 		this.init = function() {
 			var _bind = function(event) {
-				jsPlumb.CurrentLibrary.bind(document, event, function(e) {					
-					if (_mouseEventsEnabled) {
+				jsPlumb.CurrentLibrary.bind(document, event, function(e) {
+					if (!_currentInstance.currentlyDragging && _mouseEventsEnabled) {
 						// try connections first
 						for (var scope in connectionsByScope) {
 			    			var c = connectionsByScope[scope];
@@ -2098,80 +2098,8 @@ about the parameters allowed in the params object.
 			this.endpoints[1].paint({ anchorLoc : anchorLoc });
 
 			var canvas = _newCanvas({"class":jsPlumb.connectorClass, container:self.container});
-			this.canvas = canvas;
-			
-			/// ********************************************* mouse events on the connectors ******************************************
-		    	
-/*			
-		    var _mouseover = false;
-		    var _mouseDown = false, _mouseDownAt = null, _posWhenMouseDown = null, _mouseWasDown = false, srcWhenMouseDown = null,
-		    targetWhenMouseDown = null;
-		    this.mousemove = function(e) {		    	
-		    	var jpcl = jsPlumb.CurrentLibrary;
-		    	var pageXY = jpcl.getPageXY(e);
-				var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
-				var _continue = _connectionBeingDragged == null && _hasClass(ee, "_jsPlumb_connector");
-				
-				if (_mouseDown) {
-					_mouseWasDown = true;
-					_connectionBeingDragged = self;				
-					var mouseNow = jpcl.getPageXY(e);
-					var dx = mouseNow[0] - _mouseDownAt[0];
-					var dy = mouseNow[1] - _mouseDownAt[1];
-					var newPos = {left:srcWhenMouseDown.left + dx, top:srcWhenMouseDown.top + dy};
-					jpcl.setOffset(jpcl.getElementObject(self.source), newPos);
-					jsPlumb.repaint(self.source);
-					newPos = {left:targetWhenMouseDown.left + dx, top:targetWhenMouseDown.top + dy};
-					jpcl.setOffset(jpcl.getElementObject(self.target), newPos);
-					jsPlumb.repaint(self.target);
-				}				
-				else if (!_mouseover && _continue && self._over(e)) {
-					_mouseover = true;
-					if (hoverPaintStyle != null) {
-						paintStyleInUse = hoverPaintStyle;
-						self.repaint();
-					}
-					self.fireUpdate("mouseenter", self, e);				
-				}
-				else if (_mouseover && (!self._over(e) || !_continue)) {
-					_mouseover = false;
-					if (hoverPaintStyle != null) {
-						paintStyleInUse = paintStyle;
-						self.repaint();
-					}
-					self.fireUpdate("mouseexit", self, e);				
-				}
-		    };
-		    
-		    this.click = function(e) {
-		    	if (_mouseover && self._over(e) && !_mouseWasDown) 
-		    		self.fireUpdate("click", self, e);		    	
-		    	_mouseWasDown = false;
-		    };
-		    
-		    this.dblclick = function(e) {
-		    	if (_mouseover && self._over(e) && !_mouseWasDown) 
-		    		self.fireUpdate("dblclick", self, e);		    	
-		    	_mouseWasDown = false;
-		    };
-		    
-		    this.mousedown = function(e) {
-		    	if(self._over(e) && !_mouseDown) {
-		    		_mouseDown = true;
-		    		_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
-		    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
-		    		srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
-		    		targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
-		    	}
-		    };
-		    
-		    this.mouseup = function() {
-		    	if (self == _connectionBeingDragged) _connectionBeingDragged = null;
-		    	_mouseDown = false;
-		    };*/
-		    
-		    
-		    
+			this.canvas = canvas;			
+		    		    
 		    /*
 		     * Function: setBackgroundPaintStyle
 		     * Sets the Connection's background paint style and then repaints the Connection.
@@ -2366,7 +2294,7 @@ about the parameters allowed in the params object.
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			var _maxConnections = params.maxConnections || 1; // maximum number of connections this endpoint can be the source of.
-			
+						
 			this.getAttachedElements = function() {
 				return self.connections;
 			};
@@ -2668,8 +2596,16 @@ about the parameters allowed in the params object.
 							connector : params.connector, // this can also be null. Connection will use the default.
 							overlays : self.connectorOverlays 
 						});
+						// TODO determine whether or not we wish to do de-select hover when dragging a connection.
+						// it may be the case that we actually want to set it, since it provides a good
+						// visual cue.
+						jpc.setHover(false);
 					} else {
 						existingJpc = true;
+						// TODO determine whether or not we wish to do de-select hover when dragging a connection.
+						// it may be the case that we actually want to set it, since it provides a good
+						// visual cue.
+						jpc.setHover(false);
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas));						
 						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?						
@@ -2716,7 +2652,10 @@ about the parameters allowed in the params object.
 					// dragging the source at any time
 					// before this connection is either discarded or made into a
 					// permanent connection.
-					_addToList(endpointsByElement, id, floatingEndpoint);				
+					_addToList(endpointsByElement, id, floatingEndpoint);
+					
+					// tell jsplumb about it
+					_currentInstance.currentlyDragging = true;
 				};
 
 				var dragOptions = params.dragOptions || {};
@@ -2779,6 +2718,8 @@ about the parameters allowed in the params object.
 						delete inPlaceCopy;							
 						delete endpointsByElement[floatingEndpoint.elementId];						
 						delete floatingEndpoint;
+						
+						_currentInstance.currentlyDragging = false;
 					});
 				
 				var i = _getElementObject(self.canvas);				
@@ -2847,10 +2788,11 @@ about the parameters allowed in the params object.
 								sourceEndpoint : jpc.endpoints[0], 
 								targetEndpoint : jpc.endpoints[1],
 								connection:jpc
-							});								
+							});														
 						}
 			
-						delete floatingConnections[id];
+						_currentInstance.currentlyDragging = false;
+						delete floatingConnections[id];						
 					};
 					
 					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
