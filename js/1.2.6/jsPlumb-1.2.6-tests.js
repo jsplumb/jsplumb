@@ -913,12 +913,39 @@ test("jsPlumb.connect (two elements)", function() {
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
 });
 
-test("jsPlumb.connect (Connector test)", function() {
+test("jsPlumb.connect (Connector test, straight)", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
-	var conn = jsPlumb.connect({ source:d16, target:d17, connector:new jsPlumb.Connectors.Straight() });
+	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
 	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+});
+
+test("jsPlumb.connect (Connector test, bezier, no params)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Bezier" });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.connector.constructor, jsPlumb.Connectors.Bezier, "Bezier connector chosen for connection");
+	equals(conn.connector.majorAnchor, 150, "Bezier connector chose 150 curviness");
+});
+
+test("jsPlumb.connect (Connector test, bezier, curviness as int)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", 200] });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.connector.constructor, jsPlumb.Connectors.Bezier, "Bezier connector chosen for connection");
+	equals(conn.connector.majorAnchor, 200, "Bezier connector chose 200 curviness");
+});
+
+test("jsPlumb.connect (Connector test, bezier, curviness as named option)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", {curviness:300}] });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.connector.constructor, jsPlumb.Connectors.Bezier, "Bezier connector chosen for connection");
+	equals(conn.connector.majorAnchor, 300, "Bezier connector chose 300 curviness");
 });
 
 test("jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)", function() {
