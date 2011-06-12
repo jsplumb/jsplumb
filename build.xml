@@ -51,7 +51,7 @@
 	-->
 	<target name="concatLibrary" depends="check">
 		<concat destfile="${dir}/${library}.jsPlumb-${final.version}-all.js">
-			<filelist dir="${dir}" files="jsPlumb-${version}.js,jsPlumb-defaults-${version}.js,${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.2-min.js"/>
+			<filelist dir="${dir}" files="jsPlumb-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-flowchart-0.1-RC1.js,${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.2-min.js"/>
 		</concat>		
 	</target>
 	
