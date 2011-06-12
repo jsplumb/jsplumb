@@ -72,7 +72,7 @@
 			return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
 		};
 		
-		this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth) {
+		this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth) {
     	
 			segments = [];
 			segmentGradients = [];
@@ -84,14 +84,22 @@
             swapY = targetPos[1] < sourcePos[1];
 			
 			var lw = lineWidth || 1,
-            offx = (lw / 2) + minStubLength, 
-            offy = (lw / 2) + minStubLength,
+            offx = (lw / 2) + (minStubLength * 2), 
+            offy = (lw / 2) + (minStubLength * 2),
             so = sourceAnchor.orientation || sourceAnchor.getOrientation(), 
             to = targetAnchor.orientation || targetAnchor.getOrientation(),
             x = swapX ? targetPos[0] : sourcePos[0], 
             y = swapY ? targetPos[1] : sourcePos[1],
             w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx, 
-            h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy,
+            h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
+            if (w < minWidth) {            	
+            	offx += (minWidth - w) /2;
+            	w = minWidth;
+            }
+            if (h < minWidth) {            	
+            	offy += (minWidth - h) /2;
+            	h = minWidth;
+            }
             sx = swapX ? w-offx  : offx, 
             sy = swapY ? h-offy  : offy, 
             tx = swapX ? offx : w-offx ,
