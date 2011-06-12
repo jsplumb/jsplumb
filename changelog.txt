@@ -1,52 +1,131 @@
+* upcoming in 1.3
+
+	- SVG where supported
+	- mouse events in all browsers
+	- ability to register a mouse listener on jsPlumb, rather than on each Connection individually.  surely much more convenient.
+	- addition of jsPlumb.Overlays.Image
+
+
 * 1.2.6
 
-	- removed jquery plugin methods.  they conflict with jquery 1.5.
+	General Changes
+	
+	- added Flowchart connector type.
 
-	- addition of jsPlumb.Overlays.Image
-	
-	- addition of mouse events to connectors/endpoints (mouseenter, mouseexit, click)
+	- removed jquery plugin methods.  support for them had fallen behind anyway, and then jquery 1.5 introduced 'detach', which clashed with jsPlumb. so, they got the chop.	
 
-	- addition of setStyle method to Endpoint.
-	
-	- added optional referenceParams argument to jsPlumb.connect; use this to supply shared info between many connections.
-	
-	- added optional referenceParams argument to jsPlumb.addEndpoint; use this to supply shared info between many endpoint additions.
-	
-	- added setPaintStyle method to Connection
-	- added setBackgroundPaintStyle method to Connection
-	 
-	- added hoverPaintStyle concept to Connection: paint style when mouse is hovering over the connection.
-	- added support for jsPlumb.Defaults.HoverPaintStyle
-	
-	- added connectorHoverStyle to Endpoint: the hoverPaintStyle for Connections from this Endpoint.
-	
-	- arrow overlays derive their paint style from the associated connection if one is not supplied for the overlay (using Connection's strokeStyle as their fillStyle).
-	
-	- jsPlumb.bind method does not support array as first argument anymore. it's now bind(event, listener) only.
-	
+	- the jsPlumb.bind method does not support array as first argument anymore. it's now bind(event, listener) only.
+
 	- added the ability to supply a subclass of Connection or Endpoint for your own app (jsPlumb.Defaults.ConnectorType and jsPlumb.Defaults.EndpointType)   	
 
 	- added a version of two-arg method from jsPlumb.addEndpoint to jsPlumb.addEndpoints. takes an array of arrays as the second argument. 
 
-	- TODO: add a shortcut version of the overlay stuff for endpoints. like endpoint:["Rectangle",{width:50,height:50}]
+	- added optional referenceParams argument to jsPlumb.connect; use this to supply shared info between many connections:
+
+		var commonValues = { paintStyle:{ strokeStyle:"red", lineWidth:5 } };
+		jsPlumb.connect({ source:someDiv, target:someOtherDiv }, commonValues);
+		jsPlumb.connect({ source:aThirdDiv, target:yetAnotherDiv }, commonValues);
+
+	- added optional referenceParams argument to jsPlumb.addEndpoint; use this to supply shared info between many endpoint additions:
+
+		var commonValues = { paintStyle:{ fillStyle:"red" } };
+		jsPlumb.addEndpoint(someDiv, { anchor:[ 1.0, 0, 0, -1 ] }, commonValues);
+		jsPlumb.addEndpoint(someOtherDiv { anchor:[ 0, 1.0, -1, 0 ] }, commonValues);
+
+
+	Paint Styles
 	
-	- added added double click mouse support to Connection
-	
-	- added mouse events to Endpoint
-	
-	- deprecated 'style' argument to Endpoint options in favour of 'paintStyle', to make it the same as Connection
-	
-	- deprecated 'setStyle' method on Endpoint in favour of 'setPaintStyle', to make it the same as Connection
-	
-	- added hoverPaintStyle option to Endpoint.
-	
+	- added setPaintStyle method to Connection and Endpoint. 
+	- deprecated 'style' argument to Endpoint options in favour of 'paintStyle', to make it the same as Connection.		
+	- added setBackgroundPaintStyle method to Connection (note: not Endpoint)	 
+	- arrow overlays derive their paint style from the associated connection if one is not supplied for the overlay (using Connection's strokeStyle as their fillStyle).
+
+
+	Mouse Support
+
+	note: this only works when using a Canvas, ie. not in IE using excanvas.  Full mouse support is slated for the next release - 2.0.
+
+	- added single click mouse support to Connection/Endpoint
+	- added double click mouse support to Connection/Endpoint
+	- added mouseenter mouse support to Connection/Endpoint
+	- added mouseleave mouse support to Connection/Endpoint
+
+	- added hoverPaintStyle concept to Connection and Endpoint: paint style when mouse is hovering over the connection.
 	- added endpointHoverStyle, endpointHoverStyles options to Connection
-	
-	- added jsPlumb.Defaults.EndpointHoverStyle,jsPlumb.Defaults.EndpointHoverStyles 
-	
-	- fix for issue 76 (vertical straight line connectors not painting overlays properly)
-	
+	- added support for jsPlumb.Defaults.HoverPaintStyle	
+	- added connectorHoverStyle to Endpoint: the hoverPaintStyle for Connections from this Endpoint.
+	- added jsPlumb.Defaults.EndpointHoverStyle, jsPlumb.Defaults.EndpointHoverStyles	
+
+			
+	Overlays
+
 	- added 'direction' parameter for arrow overlay to support arrows that point in the opposite direction to the connection.
+	
+	- added overlay definitions:
+
+		prior to 1.2.6 you would write something like this:
+
+			jsPlumb.connect({
+					source:d1, 
+					target:d2, 
+					overlays:[ new jsPlumb.Overlays.Arrow({foldback:0.7, fillStyle:'gray', location:0.5, width:14}) ]
+			});
+
+		you can now do this:
+
+			jsPlumb.connect({
+					source:d1, 
+					target:d2, 
+					overlays:[ [ "Arrow", { foldback:0.7, fillStyle:'gray', location:0.5, width:14} ] ]
+			});
+
+		this becomes more useful when you want to add one or more similar overlays to multiple connections, using a three arg array to hold common options:
+				
+			var arrowCommon = { foldback:0.7, fillStyle:fillColor, width:14 };
+			var overlays = [
+						[ "Arrow", { location:0.7 }, arrowCommon ],
+						[ "Arrow", { location:0.3, direction:-1 }, arrowCommon ]
+			];
+			
+			jsPlumb.connect({
+					source:d1, 
+					target:d2, 
+					overlays:overlays
+			});
+
+	Endpoints
+
+	- added setVisible(boolean) method.
+	- added new endpoint definition syntax.  
+
+		prior to 1.2.6:
+
+			jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle({width:50,height:50});
+
+		1.2.6:
+
+			jsPlumb.Defaults.Endpoint = [ "Rectangle", { width:50,height:50 } ];
+
+		as with the overlay definitions discussed above, you can specify a three arg array to reuse common values:
+
+			var common = { width:50, height:50 };
+			var endpoint1 = jsPlumb.addEndpoint(someDiv, { anchor:[ 0, 1.0, 0,-1 ] }, common); 
+			var endpoint2 = jsPlumb.addEndpoint(someOtherDiv, { anchor:[ 1.0, 0, 0, 1 ] }, common); 
+
+	Issues
+
+	- issue 54: crash on vertical straight connectors
+	- issue 57: wrong scope chosen for detached draggable connection
+	- issue 58: changing one connector's style changes others.
+	- issue 63: add access to the Connector in event API
+	- issue 65: expose Connection so it can be extended
+	- issue 70: right click on Connections
+	- issue 72: toggle visibility of endpoints
+	- issue 74: mootools drag error
+	- issue 76: arrow overlays flip and disappear with vertical straight connectors
+	- issue 80: support for setting an arrow overlay's direction
+	- issue 81: detach event fired twice
+
 
 * 1.2.5
 
