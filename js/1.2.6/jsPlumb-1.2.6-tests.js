@@ -986,7 +986,7 @@ test("jsPlumb.connect (anchors registered correctly; source and target anchors g
 
 
 test("jsPlumb.connect (two argument method in which some data is reused across connections)", function() {
-	var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d17 = _addDiv("d18"), d17 = _addDiv("d19");
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18"), d19 = _addDiv("d19");
 	var sharedData = { connector:"Straight", anchors:[[0.3,0.3,1,0], [0.7,0.7,0,1]] };
 	var conn = jsPlumb.connect({ source:d16, target:d17}, sharedData);
 	var conn2 = jsPlumb.connect({ source:d18, target:d19}, sharedData);
