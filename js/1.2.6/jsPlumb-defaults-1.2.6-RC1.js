@@ -533,6 +533,7 @@
 		var self = this;
     	this.length = params.length || 20;
     	this.width = params.width || 20;
+    	this.connection = params.connection;
     	var direction = (params.direction || 1) < 0 ? -1 : 1;
     	/*var fillStyle = params.fillStyle;
     	var strokeStyle = params.strokeStyle;
@@ -654,6 +655,7 @@
     jsPlumb.Overlays.Label = function(params) {
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
 	    this.label = params.label;
+	    this.connection = params.connection;
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
@@ -737,6 +739,7 @@
     	var self = this;
     	this.location = params.location || 0.5;    	
     	this.img = new Image();
+    	this.connection = params.connection;
     	var imgDiv = null;
     	var notReadyInterval = null;
     	var notReadyConnector, notReadyContext;
