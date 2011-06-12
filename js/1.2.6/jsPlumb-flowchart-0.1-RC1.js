@@ -1,6 +1,6 @@
 ;(function() {					
 	
-	jsPlumb.Connectors.FlowchartNew = function(params) {
+	jsPlumb.Connectors.Flowchart = function(params) {
 		params = params || {};
 		var self = this, 
 		minStubLength = params.minStubLength || 30, 
@@ -33,11 +33,6 @@
 				segmentProportionalLengths[i] = segmentLengths[i] / total;
 				segmentProportions[i] = [curLoc, (curLoc += (segmentLengths[i] / total)) ];
 			}
-			/*console.log("start, startY", startX, startY, "endX,endY", endX, endY, "swapX", swapX, "swapY", swapY);
-			console.log("Segments:  Total length is ", total);
-			for (var i = 0; i < segments.length; i++) {
-				console.log(segments[i], "m", segmentGradients[i], "l", segmentLengths[i], "pl", segmentProportionalLengths[i], "p", segmentProportions[i]);
-			}*/
 		},
 		appendSegmentsToPoints = function() {
 			points.push(segments.length);
@@ -52,7 +47,6 @@
 		addSegment = function(x, y, sx, sy, tx, ty) {
 			var lx = segments.length == 0 ? sx : segments[segments.length - 1][0];
 			var ly = segments.length == 0 ? sy : segments[segments.length - 1][1];
-	//		console.log("adding segment ", x, y, lx, ly);
 			segments.push([x, y, lx, ly]);
 		},
 		/**
@@ -92,12 +86,12 @@
             y = swapY ? targetPos[1] : sourcePos[1],
             w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx, 
             h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
-            if (w < minWidth) {            	
-            	offx += (minWidth - w) /2;
+            if (w < minWidth) {      
+            	offx += (minWidth - w) / 2;
             	w = minWidth;
             }
             if (h < minWidth) {            	
-            	offy += (minWidth - h) /2;
+            	offy += (minWidth - h) / 2;
             	h = minWidth;
             }
             sx = swapX ? w-offx  : offx, 
