@@ -62,3 +62,34 @@ border:1px solid green;
 border:1px solid yellow;
 }
 */
+
+.index {
+width:20em;
+font-size:80%;
+float:left;
+background-color:#e4eeee;
+overflow:auto;
+}
+
+.index li {
+list-style-type:none;
+}
+
+.index ul, .index h3 {
+padding-left:1.5em;
+
+}
+.section li {
+list-style-type:none;
+}
+
+.content {
+margin-left:17em;
+
+}
+.section {
+padding-left:2em;
+}
+.index.section {
+padding-left:0;
+}
