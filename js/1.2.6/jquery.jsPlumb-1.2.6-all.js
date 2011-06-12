@@ -37,6 +37,14 @@
 		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
 		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
 		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };
+		
+		/**
+		 * 
+		 */
+		var _log = function(jsp, msg) {
+			if (jsp.logEnabled && typeof console != "undefined")
+				console.log(msg);
+		};			
 	
 		var EventGenerator = function() {
 			var _listeners = {};
@@ -93,7 +101,7 @@
 						try {
 							_listeners[event][i](value, originalEvent);
 						} catch (e) {
-							_log("jsPlumb: fireUpdate failed for event "
+							_log(self, "jsPlumb: fireUpdate failed for event "
 									+ event + " : " + e + "; not fatal.");
 						}
 					}
@@ -402,15 +410,7 @@
 				retVal = fn(el, id);
 			}
 			return retVal;
-		};
-
-		/**
-		 * 
-		 */
-		var _log = function(msg) {
-			if (_currentInstance.logEnabled && typeof console != "undefined")
-				console.log(msg);
-		};						
+		};				
 
 		/**
 		 * gets an Endpoint by uuid.
@@ -677,13 +677,13 @@
 				try {
 					r = newFunction.apply(this, arguments);
 				} catch (e) {
-					_log('jsPlumb function failed : ' + e);
+					_log(_currentInstance, 'jsPlumb function failed : ' + e);
 				}
 				if (returnOnThisValue == null || (r !== returnOnThisValue)) {
 					try {
 						wrappedFunction.apply(this, arguments);
 					} catch (e) {
-						_log('wrapped function failed : ' + e);
+						_log(_currentInstance, 'wrapped function failed : ' + e);
 					}
 				}
 				return r;
@@ -867,12 +867,12 @@
 			// now ensure that if we do have Endpoints already, they're not
 			// full.
 			if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
-				_log("could not add connection; source endpoint is full");
+				_log(_currentInstance, "could not add connection; source endpoint is full");
 				return;
 			}
 
 			if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
-				_log("could not add connection; target endpoint is full");
+				_log(_currentInstance, "could not add connection; target endpoint is full");
 				return;
 			}
 			
@@ -3018,17 +3018,27 @@ about the parameters allowed in the params object.
                 
     /**
      * This Connector draws a Bezier curve with two control points.
+     * 
      * @param curviness How 'curvy' you want the curve to be! This is a directive for the
      * placement of control points, not endpoints of the curve, so your curve does not 
      * actually touch the given point, but it has the tendency to lean towards it.  the larger
      * this value, the greater the curve is pulled from a straight line.
      * 
+     * note that the method signature changed in 1.2.6 to take a params object, so the method
+     * argument was renamed.  you can still provide just an integer to this constructor, though the
+     * preferred method is to use {curviness:XXX}.
+     * 
      * a future implementation of this could take the control points as arguments, rather
      * than fixing the curve to one basic shape.
      */
-    jsPlumb.Connectors.Bezier = function(curviness) {
+    jsPlumb.Connectors.Bezier = function(params) {
     	var self = this;
-    	this.majorAnchor = curviness || 150;
+    	this.majorAnchor = 150;
+    	// backwards compatibility (ideally we'd just use params.curviness || 150).
+    	if (params) {
+    		if (params.constructor == Number) this.majorAnchor = params;
+    		else if (params.curviness) this.majorAnchor = params.curviness;
+    	}
         this.minorAnchor = 10;
         var currentPoints = null;
         
