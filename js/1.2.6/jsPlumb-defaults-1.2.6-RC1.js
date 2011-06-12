@@ -183,17 +183,27 @@
                 
     /**
      * This Connector draws a Bezier curve with two control points.
+     * 
      * @param curviness How 'curvy' you want the curve to be! This is a directive for the
      * placement of control points, not endpoints of the curve, so your curve does not 
      * actually touch the given point, but it has the tendency to lean towards it.  the larger
      * this value, the greater the curve is pulled from a straight line.
      * 
+     * note that the method signature changed in 1.2.6 to take a params object, so the method
+     * argument was renamed.  you can still provide just an integer to this constructor, though the
+     * preferred method is to use {curviness:XXX}.
+     * 
      * a future implementation of this could take the control points as arguments, rather
      * than fixing the curve to one basic shape.
      */
-    jsPlumb.Connectors.Bezier = function(curviness) {
+    jsPlumb.Connectors.Bezier = function(params) {
     	var self = this;
-    	this.majorAnchor = curviness || 150;
+    	this.majorAnchor = 150;
+    	// backwards compatibility (ideally we'd just use params.curviness || 150).
+    	if (params) {
+    		if (params.constructor == Number) this.majorAnchor = params;
+    		else if (params.curviness) this.majorAnchor = params.curviness;
+    	}
         this.minorAnchor = 10;
         var currentPoints = null;
         
