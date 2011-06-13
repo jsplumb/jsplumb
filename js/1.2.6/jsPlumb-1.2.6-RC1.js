@@ -271,6 +271,11 @@
 		
 		
 		EventGenerator.apply(this);
+		var _bb = this.bind;
+		this.bind = function(event, fn) {
+			if ("ready" === event && initialized) fn();
+			else _bb(event, fn);
+		};
 
 		var _currentInstance = this;		
 		var log = null;
@@ -285,6 +290,7 @@
 		};
 		var resizeTimer = null;		
 
+		var initialized = false;
 		var connectionsByScope = {};
 		/**
 		 * map of element id -> endpoint lists. an element can have an arbitrary
@@ -1289,6 +1295,9 @@ about the parameters allowed in the params object.
 			_bind("mousemove");
 			_bind("mousedown");
 			_bind("mouseup");
+			
+			initialized = true;
+			_currentInstance.fireUpdate("ready");
 		};
 
 		/*
