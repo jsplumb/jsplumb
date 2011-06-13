@@ -329,5 +329,5 @@
 		}
 	};
 	
-	jsPlumb.init();
+	window.addEvent('domready', jsPlumb.init);
 })();
