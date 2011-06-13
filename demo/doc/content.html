@@ -90,6 +90,47 @@
 		</div>
 		
 		<div class="section">
+			<a id="init"><h3>Initializing jsPlumb</h3></a>
+			You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  With YUI, though, the asynchronous
+			nature of the script loading process means that you are not guaranteed that jsPlumb is ready as soon as the DOM is.  To handle this,
+			you should bind to the "ready" event on jsPlumb (or the instance of jsPlumb you are working with):
+			<div class="code">
+			<pre>jsPlumb.bind("ready", function() {
+...	
+		
+// your jsPlumb related init code goes here
+
+...
+
+});						
+			</pre>
+			</div>
+			<p>
+			For jQuery and MooTools you should not actually need to do this; by the time the DOM ready event is fired in each of those libraries you can be sure 
+			all the JS we need has been loaded.  But in terms of explicitly calling out that you are waiting for jsPlumb, it seems like a good practice to bind to the "ready" event.
+			</p>
+			<p>
+			If you bind to the "ready" event after jsPlumb has already been initialized, your callback will be executed immediately.
+			</p>
+			
+		</div>
+		
+		<div class="section">
+			<a id="unload"><h3>Unloading jsPlumb</h3></a>
+			jsPlumb offers a method you can call when your page is unloading.  You should do this to insure
+			against memory leaks.  You configure it like this:
+				<div class="code">
+<pre>
+&lt;body onunload="jsPlumb.unload();"&gt;
+
+...
+
+&lt;/body&gt;
+</pre>
+				</div>
+		</div>
+		
+		<div class="section">
 			<a id="jsPlumbBasics"><h3>jsPlumb Basic Concepts</h3></a>
 
 			jsPlumb provides two ways of establishing connections between elements: programmatically, via Javascript, and interactively, with drag and drop. To support this, jsPlumb has these five core concepts:
@@ -365,22 +406,7 @@ Notice the call to <strong>repaintEverything()</strong> here - a useful method.
 
 jsPlumb.setRepaintFunction(repaint);</pre>
 </div>
-		</div>
-		
-				<div class="section">
-			<a id="unload"><h3>Unloading jsPlumb</h3></a>
-			jsPlumb offers a method you can call when your page is unloading.  You should do this to insure
-			against memory leaks.  You configure it like this:
-				<div class="code">
-<pre>
-&lt;body onunload="jsPlumb.unload();"&gt;
-
-...
-
-&lt;/body&gt;
-</pre>
-				</div>
-		</div>
+		</div>						
 
 		<div class="section">
 			<a id="options"><h3>jsPlumb.connect Options</h3></a>
