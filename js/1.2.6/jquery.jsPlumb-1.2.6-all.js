@@ -198,9 +198,12 @@
 		    	if(self._over(e) && !_mouseDown) {
 		    		_mouseDown = true;
 		    		_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
-		    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
-		    		srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
-		    		targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
+		    		if (self.canvas) _posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
+		    		if (self.source) 
+		    			srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
+		    		else
+		    			console.log("oh");
+		    		if (self.target) targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
 		    	}
 		    };
 		    
@@ -271,6 +274,11 @@
 		
 		
 		EventGenerator.apply(this);
+		var _bb = this.bind;
+		this.bind = function(event, fn) {
+			if ("ready" === event && initialized) fn();
+			else _bb(event, fn);
+		};
 
 		var _currentInstance = this;		
 		var log = null;
@@ -285,6 +293,7 @@
 		};
 		var resizeTimer = null;		
 
+		var initialized = false;
 		var connectionsByScope = {};
 		/**
 		 * map of element id -> endpoint lists. an element can have an arbitrary
@@ -1289,6 +1298,9 @@ about the parameters allowed in the params object.
 			_bind("mousemove");
 			_bind("mousedown");
 			_bind("mouseup");
+			
+			initialized = true;
+			_currentInstance.fireUpdate("ready");
 		};
 
 		/*
@@ -2617,21 +2629,18 @@ about the parameters allowed in the params object.
 						var c = _getElementObject(self.canvas);
 						var dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
 						_setAttribute(c, "originalScope", dragScope);
-						var newScope = dragScope;
+						// get a new, temporary scope, to use (issue 57)
+						var newScope = "scope_" + (new Date()).getTime();
 
 						// now we replace ourselves with the temporary div we created above:
 						if (anchorIdx == 0) {
 							existingJpcParams = [ jpc.source, jpc.sourceId, i, dragScope ];
 							jpc.source = _getElementObject(n);
-							jpc.sourceId = id;					
-							// get a new, temporary scope, to use (issue 57)
-							newScope = jsPlumb.CurrentLibrary.getDragScope(_getElementObject(jpc.endpoints[1].canvas));
+							jpc.sourceId = id;
 						} else {
 							existingJpcParams = [ jpc.target, jpc.targetId, i, dragScope ];
 							jpc.target = _getElementObject(n);
 							jpc.targetId = id;
-							newScope = jsPlumb.CurrentLibrary.getDragScope(_getElementObject(jpc.endpoints[0].canvas));
-							// get a new, temporary scope, to use (issue 57)
 						}
 						// set the new, temporary scope (issue 57)
 						jsPlumb.CurrentLibrary.setDragScope(i, newScope);
@@ -4117,7 +4126,7 @@ about the parameters allowed in the params object.
 		}
 	};
 	
-	jsPlumb.init();
+	$(jsPlumb.init);
 })(jQuery);
 (function(){if(typeof Math.sgn=="undefined")Math.sgn=function(a){return a==0?0:a>0?1:-1};var p={subtract:function(a,b){return{x:a.x-b.x,y:a.y-b.y}},dotProduct:function(a,b){return a.x*b.x+a.y*b.y},square:function(a){return Math.sqrt(a.x*a.x+a.y*a.y)},scale:function(a,b){return{x:a.x*b,y:a.y*b}}},y=Math.pow(2,-65),u=function(a,b){for(var g=[],d=b.length-1,h=2*d-1,f=[],c=[],l=[],k=[],i=[[1,0.6,0.3,0.1],[0.4,0.6,0.6,0.4],[0.1,0.3,0.6,1]],e=0;e<=d;e++)f[e]=p.subtract(b[e],a);for(e=0;e<=d-1;e++){c[e]=
 p.subtract(b[e+1],b[e]);c[e]=p.scale(c[e],3)}for(e=0;e<=d-1;e++)for(var m=0;m<=d;m++){l[e]||(l[e]=[]);l[e][m]=p.dotProduct(c[e],f[m])}for(e=0;e<=h;e++){k[e]||(k[e]=[]);k[e].y=0;k[e].x=parseFloat(e)/h}h=d-1;for(f=0;f<=d+h;f++){c=Math.min(f,d);for(e=Math.max(0,f-h);e<=c;e++){j=f-e;k[e+j].y+=l[j][e]*i[j][e]}}d=b.length-1;k=s(k,2*d-1,g,0);h=p.subtract(a,b[0]);l=p.square(h);for(e=i=0;e<k;e++){h=p.subtract(a,t(b,d,g[e],null,null));h=p.square(h);if(h<l){l=h;i=g[e]}}h=p.subtract(a,b[d]);h=p.square(h);if(h<

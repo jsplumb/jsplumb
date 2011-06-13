@@ -198,9 +198,12 @@
 		    	if(self._over(e) && !_mouseDown) {
 		    		_mouseDown = true;
 		    		_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
-		    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
-		    		srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
-		    		targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
+		    		if (self.canvas) _posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
+		    		if (self.source) 
+		    			srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
+		    		else
+		    			console.log("oh");
+		    		if (self.target) targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
 		    	}
 		    };
 		    
@@ -271,6 +274,11 @@
 		
 		
 		EventGenerator.apply(this);
+		var _bb = this.bind;
+		this.bind = function(event, fn) {
+			if ("ready" === event && initialized) fn();
+			else _bb(event, fn);
+		};
 
 		var _currentInstance = this;		
 		var log = null;
@@ -285,6 +293,7 @@
 		};
 		var resizeTimer = null;		
 
+		var initialized = false;
 		var connectionsByScope = {};
 		/**
 		 * map of element id -> endpoint lists. an element can have an arbitrary
@@ -1289,6 +1298,9 @@ about the parameters allowed in the params object.
 			_bind("mousemove");
 			_bind("mousedown");
 			_bind("mouseup");
+			
+			initialized = true;
+			_currentInstance.fireUpdate("ready");
 		};
 
 		/*
@@ -2617,21 +2629,18 @@ about the parameters allowed in the params object.
 						var c = _getElementObject(self.canvas);
 						var dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
 						_setAttribute(c, "originalScope", dragScope);
-						var newScope = dragScope;
+						// get a new, temporary scope, to use (issue 57)
+						var newScope = "scope_" + (new Date()).getTime();
 
 						// now we replace ourselves with the temporary div we created above:
 						if (anchorIdx == 0) {
 							existingJpcParams = [ jpc.source, jpc.sourceId, i, dragScope ];
 							jpc.source = _getElementObject(n);
-							jpc.sourceId = id;					
-							// get a new, temporary scope, to use (issue 57)
-							newScope = jsPlumb.CurrentLibrary.getDragScope(_getElementObject(jpc.endpoints[1].canvas));
+							jpc.sourceId = id;
 						} else {
 							existingJpcParams = [ jpc.target, jpc.targetId, i, dragScope ];
 							jpc.target = _getElementObject(n);
 							jpc.targetId = id;
-							newScope = jsPlumb.CurrentLibrary.getDragScope(_getElementObject(jpc.endpoints[0].canvas));
-							// get a new, temporary scope, to use (issue 57)
 						}
 						// set the new, temporary scope (issue 57)
 						jsPlumb.CurrentLibrary.setDragScope(i, newScope);
@@ -3910,11 +3919,22 @@ about the parameters allowed in the params object.
  */
 (function() {
 	
+	if (!Array.prototype.indexOf) {
+		Array.prototype.indexOf = function( v, b, s ) {
+			for( var i = +b || 0, l = this.length; i < l; i++ ) {
+	  			if( this[i]===v || s && this[i]==v ) { return i; }
+	 		}
+	 		return -1;
+		};
+	}
+	
 	var Y;
 	
 	YUI().use('node', 'dd', 'anim', function(_Y) {
 		Y = _Y;	
-		Y.on("domready", function() { jsPlumb.init(); });
+		Y.on("domready", function() { 
+			jsPlumb.init(); 
+		});
 	});
 	
 	/**
@@ -4083,7 +4103,7 @@ about the parameters allowed in the params object.
 		getSize : function(el) {
 			//TODO must be a better way to get this?
 			var bcr = _getElementObject(el)._node.getBoundingClientRect();
-			return [ bcr.width, bcr.height ];
+			return [ bcr.right - bcr.left, bcr.bottom - bcr.top];		// for some reason, in IE, the bounding rect does not always have width,height precomputed.
 		},
 		
 		getUIPosition : function(args) {		
