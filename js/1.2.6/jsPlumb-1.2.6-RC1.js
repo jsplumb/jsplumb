@@ -198,9 +198,12 @@
 		    	if(self._over(e) && !_mouseDown) {
 		    		_mouseDown = true;
 		    		_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
-		    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
-		    		srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
-		    		targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
+		    		if (self.canvas) _posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
+		    		if (self.source) 
+		    			srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
+		    		else
+		    			console.log("oh");
+		    		if (self.target) targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
 		    	}
 		    };
 		    
@@ -2626,21 +2629,18 @@ about the parameters allowed in the params object.
 						var c = _getElementObject(self.canvas);
 						var dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
 						_setAttribute(c, "originalScope", dragScope);
-						var newScope = dragScope;
+						// get a new, temporary scope, to use (issue 57)
+						var newScope = "scope_" + (new Date()).getTime();
 
 						// now we replace ourselves with the temporary div we created above:
 						if (anchorIdx == 0) {
 							existingJpcParams = [ jpc.source, jpc.sourceId, i, dragScope ];
 							jpc.source = _getElementObject(n);
-							jpc.sourceId = id;					
-							// get a new, temporary scope, to use (issue 57)
-							newScope = jsPlumb.CurrentLibrary.getDragScope(_getElementObject(jpc.endpoints[1].canvas));
+							jpc.sourceId = id;
 						} else {
 							existingJpcParams = [ jpc.target, jpc.targetId, i, dragScope ];
 							jpc.target = _getElementObject(n);
 							jpc.targetId = id;
-							newScope = jsPlumb.CurrentLibrary.getDragScope(_getElementObject(jpc.endpoints[0].canvas));
-							// get a new, temporary scope, to use (issue 57)
 						}
 						// set the new, temporary scope (issue 57)
 						jsPlumb.CurrentLibrary.setDragScope(i, newScope);
