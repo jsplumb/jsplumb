@@ -43,11 +43,22 @@
  */
 (function() {
 	
+	if (!Array.prototype.indexOf) {
+		Array.prototype.indexOf = function( v, b, s ) {
+			for( var i = +b || 0, l = this.length; i < l; i++ ) {
+	  			if( this[i]===v || s && this[i]==v ) { return i; }
+	 		}
+	 		return -1;
+		};
+	}
+	
 	var Y;
 	
 	YUI().use('node', 'dd', 'anim', function(_Y) {
 		Y = _Y;	
-		Y.on("domready", function() { jsPlumb.init(); });
+		Y.on("domready", function() { 
+			jsPlumb.init(); 
+		});
 	});
 	
 	/**
@@ -216,7 +227,7 @@
 		getSize : function(el) {
 			//TODO must be a better way to get this?
 			var bcr = _getElementObject(el)._node.getBoundingClientRect();
-			return [ bcr.width, bcr.height ];
+			return [ bcr.right - bcr.left, bcr.bottom - bcr.top];		// for some reason, in IE, the bounding rect does not always have width,height precomputed.
 		},
 		
 		getUIPosition : function(args) {		
