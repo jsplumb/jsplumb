@@ -199,10 +199,7 @@
 		    		_mouseDown = true;
 		    		_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
 		    		if (self.canvas) _posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
-		    		if (self.source) 
-		    			srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
-		    		else
-		    			console.log("oh");
+		    		if (self.source) srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
 		    		if (self.target) targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));		    		
 		    	}
 		    };
@@ -4041,8 +4038,6 @@ about the parameters allowed in the params object.
 		  { left:xxx, top: xxx}
 		 */
 		getOffset : function(el) {
-			if (el == null)
-				alert("OI");
 			var p = el.getPosition();
 			return { left:p.x, top:p.y };
 		},				
