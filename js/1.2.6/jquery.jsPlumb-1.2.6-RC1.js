@@ -250,5 +250,5 @@
 		}
 	};
 	
-	$(jsPlumb.init);
+	$(document).ready(jsPlumb.init);
 })(jQuery);
