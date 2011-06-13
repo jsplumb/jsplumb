@@ -81,7 +81,7 @@
 				jsPlumb.draggable(id);
 		    };
 		    
-	    	Y.on("domready", function() {
+			jsPlumb.bind('ready', function() {
 
 				jsPlumb.Defaults.DragOptions = { cursor: 'wait', zIndex:20 };
 				jsPlumb.Defaults.Endpoint = [ "Image", { url:"../img/littledot.png" } ];

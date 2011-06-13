@@ -40,7 +40,7 @@
 		<!--script type="text/javascript" src="../../js/1.2.6/jquery.jsPlumb-1.2.6-all-min.js"></script-->		
 					            		
 		<script type="text/javascript">
-			$(document).ready(function() {				
+			jsPlumb.bind('ready', function() {				
 
 				// chrome fix.
 				document.onselectstart = function () { return false; };

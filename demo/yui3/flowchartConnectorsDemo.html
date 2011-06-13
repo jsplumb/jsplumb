@@ -38,7 +38,7 @@
 		<script type="text/javascript">
 		YUI().use('node', function(Y) {
 
-			Y.on("domready", function() {
+			jsPlumb.bind('ready', function() {
 
 				// chrome fix.
 				document.onselectstart = function () { return false; };
