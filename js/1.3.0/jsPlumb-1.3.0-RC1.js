@@ -15,6 +15,12 @@
 	
 	var ie = !!!document.createElement('canvas').getContext;
 	
+	var canvasAvailable = !!document.createElement('canvas').getContext;
+	var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1");
+	// TODO what is a good test for VML availability? aside from just assuming its there because nothing else is.
+	var vmlAvailable = !(canvasAvailable | svgAvailable);
+	
+	//console.log("canvas", canvasAvailable, "svg", svgAvailable, "vml", vmlAvailable);
 	
 	
 	/**
@@ -274,8 +280,8 @@
 		var listeners = {}; // a map: keys are event types, values are lists of listeners.
 		var DEFAULT_SCOPE = 'DEFAULT';
 		var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
-		var renderMode = this.Defaults.RenderMode;
-
+		var renderMode = null;  // will be set in init()
+				
 		var _findIndex = function(a, v, b, s) {
 			var _eq = function(o1, o2) {
 				if (o1 === o2)
@@ -1266,33 +1272,37 @@ about the parameters allowed in the params object.
 		 * @return
 		 */
 		this.init = function() {
-			var _bind = function(event) {
-				jsPlumb.CurrentLibrary.bind(document, event, function(e) {					
-					if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
-						// try connections first
-						for (var scope in connectionsByScope) {
-			    			var c = connectionsByScope[scope];
-			    			for (var i = 0; i < c.length; i++) {
-			    				if (c[i].connector[event](e)) return;			    			
-			    			}
-			    		}
-						for (var el in endpointsByElement) {
-							var ee = endpointsByElement[el];
-							for (var i = 0; i < ee.length; i++) {
-								if (ee[i].endpoint[event](e)) return;
+			if (!initialized) {
+				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
+				
+				var _bind = function(event) {
+					jsPlumb.CurrentLibrary.bind(document, event, function(e) {					
+						if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
+							// try connections first
+							for (var scope in connectionsByScope) {
+				    			var c = connectionsByScope[scope];
+				    			for (var i = 0; i < c.length; i++) {
+				    				if (c[i].connector[event](e)) return;			    			
+				    			}
+				    		}
+							for (var el in endpointsByElement) {
+								var ee = endpointsByElement[el];
+								for (var i = 0; i < ee.length; i++) {
+									if (ee[i].endpoint[event](e)) return;
+								}
 							}
 						}
-					}
-				});
-			};
-			_bind("click");
-			_bind("dblclick");
-			_bind("mousemove");
-			_bind("mousedown");
-			_bind("mouseup");
-			
-			initialized = true;
-			_currentInstance.fire("ready");
+					});
+				};
+				_bind("click");
+				_bind("dblclick");
+				_bind("mousemove");
+				_bind("mousedown");
+				_bind("mouseup");
+				
+				initialized = true;
+				_currentInstance.fire("ready");
+			}
 		};
 		
 		this.jsPlumbUIComponent = jsPlumbUIComponent;
@@ -1596,13 +1606,31 @@ about the parameters allowed in the params object.
 		
 		/*
 		 * Function: setRenderMode
-		 * Sets render mode: jsPlumb.CANVAS or jsPlumb.SVG
+		 * Sets render mode: jsPlumb.CANVAS, jsPlumb.SVG or jsPlumb.VML.  jsPlumb will fall back to VML if it determines that
+		 * what you asked for is not supported (and that VML is).  If you asked for VML but the browser does
+		 * not support it, jsPlumb uses SVG.  
+		 * 
+		 * Returns:
+		 * the render mode that jsPlumb set, which of course may be different from that requested.
 		 */
 		this.setRenderMode = function(mode) {
-			if (mode) mode = mode.toLowerCase();
-			if (mode !== jsPlumb.CANVAS && mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new Error("render mode must be one of jsPlumb.CANVAS or jsPlumb.SVG");
-			renderMode = mode;
+			if (mode) 
+				mode = mode.toLowerCase();
+			else 
+				return;
+			if (mode !== jsPlumb.CANVAS && mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new Error("render mode must be one of jsPlumb.CANVAS, jsPlumb.SVG or jsPlumb.VML");
+			// now test we actually have the capability to do this.
+			if (mode === jsPlumb.CANVAS && canvasAvailable) 
+				renderMode = jsPlumb.CANVAS;
+			else if (mode === jsPlumb.SVG && svgAvailable)
+				renderMode = jsPlumb.SVG;
+			else if (vmlAvailable)
+				renderMode = jsPlumb.VML;		
+			
+			return renderMode;
 		};
+		
+		this.getRenderMode = function() { return renderMode; };
 
 		/*
 		 * Function: show 
@@ -2039,12 +2067,8 @@ about the parameters allowed in the params object.
 							|| jsPlumb.Defaults.Endpoints[index]
 							|| _currentInstance.Defaults.Endpoint
 							|| jsPlumb.Defaults.Endpoint
-							|| new jsPlumb.Endpoints[renderMode].Dot();
-					if (ep.constructor == String) 
-						ep = new jsPlumb.Endpoints[renderMode][ep]();
-					else if (ep.constructor == Array) {
-						ep = new jsPlumb.Endpoints[renderMode][ep[0]](ep[1]);
-					}
+							|| "Dot";
+
 					if (!params.endpointStyles) params.endpointStyles = [ null, null ];
 					if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
 					var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
@@ -2248,7 +2272,6 @@ about the parameters allowed in the params object.
 					var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, maxSize);
 					//var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, 0);
 					// TODO CanvasComponent must do this now.  the dimensions array will have to be passed in to the connector's paint method.
-					jsPlumb.sizeCanvas(this.canvas, dim[0], dim[1], dim[2], dim[3]);
 
 					self.connector.paint(dim, self.paintStyleInUse);
 
