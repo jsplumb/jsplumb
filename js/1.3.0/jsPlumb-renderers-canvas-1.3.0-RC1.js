@@ -153,9 +153,11 @@
 		self.canvas = _newCanvas({"class":jsPlumb.connectorClass, container:self.container});	
 		self.ctx = self.canvas.getContext("2d");
 		
-		self.paint = function(dim, style) {
-			if (style != null)
+		self.paint = function(dim, style) {						
+			if (style != null) {
+				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3])
 				_paintOneStyle(dim, style);
+			}
 		};
 	};		
 	
