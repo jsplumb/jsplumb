@@ -1,17 +1,20 @@
 ;(function() {
 	
-	document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);border:1px solid red;position:absolute;");
-	document.namespaces.add("jsplumb", "urn:schemas-microsoft-com:vml");
+	if (document.createStyleSheet) {	
+		document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);position:absolute;");
+		document.namespaces.add("jsplumb", "urn:schemas-microsoft-com:vml");
+	}
 	
 	var scale = 1000,
 	_atts = function(o, atts) {
 		for (var i in atts) o.setAttribute(i, atts[i]);
 	},
 	_node = function(name, d, atts) {
+		atts = atts || {};
 		var o = document.createElement("jsplumb:" + name);
-		o.className = "jsplumb_vml";
+		o.className = (atts["class"] ? atts["class"] + " " : "") + "jsplumb_vml";
 		_pos(o, d);
-		atts["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
+		//atts["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);  //unsure about whether or not to include this.
 		_atts(o, atts);
 		document.body.appendChild(o);		
 		return o;
@@ -21,48 +24,52 @@
 		o.style.top =  d[1] + "px";
 		o.style.width= d[2] + "px";
 		o.style.height= d[3] + "px";
-		/*
-		o.left = d[0];
-		o.top = d[1];
-		o.width = d[2];
-		o.height = d[3];
-		*/
 	},
 	_conv = function(v) {
 		return Math.floor(v * scale);
 	},
-	_toHex = function(n) {
-		var _n = function(k) {
-			var h = Number(k).toString(16);
-			return k < 16 ? "0" + h : "" + h;
-		};
-		var o = "#" + _n(n[0]) + _n(n[1]) + _n(n[2]);
-		if (n.length == 4) o = o + _n(n[3]);
+	_convertStyle = function(s, ignoreAlpha) {
+		var o = s,
+		pad = function(n) { return n.length == 1 ? "0" + n : n; },
+		hex = function(k) { return pad(Number(k).toString(16)); },
+		pattern = /(rgb[a]?\()(.*)(\))/;
+		if (s.match(pattern)) {
+			var parts = s.match(pattern)[2].split(",");
+			o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
+			if (!ignoreAlpha && parts.length == 4) 
+				o = o + hex(parts[3]);
+		}
+		
 		return o;
 	},
-	_convertStyle = function(s) {
-		var p = /(rgb[a]?\()(.*)(\))/;
-		if (s.match(p)) {
-			var parts = s.match(p)[2].split(",");
-			return _toHex(parts);
+	_attachListeners = function(o, c) {
+		var jpcl = jsPlumb.CurrentLibrary,
+		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup" ],
+		eventFilters = { "mouseout":"mouseexit" },
+		bindOne = function(evt) {
+			var filteredEvent = eventFilters[evt] || evt;
+			jpcl.bind(o, evt, function(ee) {
+				c.fire(filteredEvent, ee);
+			});
+		};
+		for (var i = 0; i < events.length; i++) {
+			bindOne(events[i]); 			
 		}
-		else return s;
-	};
-	
+	},
 	/*
 	 * Class: VmlComponent
 	 * base class for Vml endpoints and connectors. 
 	 */
-	var VmlComponent = function() {				
+	VmlComponent = function() {				
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);		
-	};
-	
+	},	
 	/*
 	 * Class: VmlConnector
 	 * base class for Vml connectors. extends VmlComponent.
 	 */
-	var VmlConnector = function() {
-		var self = this, vml = null;
+	VmlConnector = function() {
+		var self = this;
+		self.canvas = null;
 		VmlComponent.apply(this, arguments);
 		this.paint = function(d, style, anchor) {
 			if (style != null) {				
@@ -79,24 +86,24 @@
 				}
 				else p["filled"] = "false";
 				p["path"] = path;
-				if (vml == null) {
-					vml = _node("shape", d, p);
-				//	console.log("c init at " + d[0] + "," + d[1] + "," +d[2] + "," + d[3] + "," + d[4] + "," + d[5]+ "," + d[6] + "," + d[7]);
+				if (self.canvas == null) {
+					p["class"] = jsPlumb.connectorClass;
+					self.canvas = _node("shape", d, p);					
+					_attachListeners(self.canvas, self);
 				}
 				else {
-					//console.log("c set pos " + d[0] + "," + d[1] + "," +d[2] + "," + d[3] + "," + d[4] + "," + d[5]+ "," + d[6] + "," + d[7]);
-					_pos(vml, d);
-					_atts(vml, p);
+					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
+					_pos(self.canvas, d);
+					_atts(self.canvas, p);
 				}
 			}
 		};
-	};
-		
+	},		
 	/*
 	 * Class: VmlEndpoint
 	 * base class for Vml endpoints. extends VmlComponent.
 	 */
-	var VmlEndpoint = function() {
+	VmlEndpoint = function() {
 		VmlComponent.apply(this, arguments);
 		var vml = null, self = this;
 		this.paint = function(d, style, anchor) {
@@ -110,15 +117,15 @@
 				p["filled"] = "true";
 				p["fillcolor"] = style.fillStyle;
 			}
-			//d[2] = _conv(d[2]);d[3] = _conv(d[3]);
 			if (vml == null) {
-				vml = self.getVml(d, p, anchor);
-				//console.log("e init at " + d[0] + "," + d[1] + "," +d[2] + "," + d[3] + "," + d[4] );
+				p["class"] = jsPlumb.endpointClass;
+				vml = self.getVml(d, p, anchor);				
+				_attachListeners(vml, self);
 			}
 			else {
+				//p["coordsize"] = "1,1";//(d[2] * scale) + "," + (d[3] * scale); again, unsure.
 				_pos(vml, d);
 				_atts(vml, p);
-				//console.log("e set pos " + d[0] + "," + d[1] + "," +d[2] + "," + d[3] + "," + d[4] );
 			}
 		};
 	};
@@ -127,7 +134,8 @@
 		jsPlumb.Connectors.Bezier.apply(this, arguments);	
 		VmlConnector.apply(this, arguments);
 		this.getPath = function(d) {
-			return "M" + _conv(d[4]) + "," + _conv(d[5]) + " C" + _conv(d[8]) + "," + _conv(d[9]) + "," + _conv(d[10]) + "," + _conv(d[11]) + "," + _conv(d[6]) + "," + _conv(d[7]) + " e";
+			return "m" + _conv(d[4]) + "," + _conv(d[5]) + 
+				   " c" + _conv(d[8]) + "," + _conv(d[9]) + "," + _conv(d[10]) + "," + _conv(d[11]) + "," + _conv(d[6]) + "," + _conv(d[7]) + " e";
 		};
 	};
 	
@@ -135,7 +143,14 @@
 		jsPlumb.Connectors.Straight.apply(this, arguments);	
 		VmlConnector.apply(this, arguments);
 		this.getPath = function(d) {
-			return " m" + _conv(d[4]) + "," + _conv(d[5]) + " l" + _conv(d[6]) + "," + _conv(d[7]) + " e";
+			return "m" + _conv(d[4]) + "," + _conv(d[5]) + " l" + _conv(d[6]) + "," + _conv(d[7]) + " e";
+		};
+	};
+	jsPlumb.Connectors.vml.Flowchart = function() {
+		jsPlumb.Connectors.Flowchart.apply(this, arguments);	
+		VmlConnector.apply(this, arguments);
+		this.getPath = function(d) {
+			return "m" + _conv(d[4]) + "," + _conv(d[5]) + " l" + _conv(d[6]) + "," + _conv(d[7]) + " e";
 		};
 	};
 	
@@ -150,4 +165,93 @@
 		VmlEndpoint.apply(this, arguments);
 		this.getVml = function(d, atts, anchor) { return _node("rect", d, atts); };
 	};
+	
+	/*
+	 * VML Image Endpoint.  Currently extends the canvas implementation; shouldn't.
+	 */
+	jsPlumb.Endpoints.vml.Image = function() {
+		jsPlumb.Endpoints.canvas.Image.apply(this, arguments);		
+	};
+	
+	jsPlumb.Overlays.vml.Label = function(params) {
+		var self = this, lines = [];
+		jsPlumb.Overlays.Label.apply(this, arguments);
+		this.paint = function(connector, d) {
+			/*if(self.group == null) {
+				self.group = _node("g");
+				connector.canvas.appendChild(self.group);									
+			}
+			_drawBox(d);
+			_drawText(d);*/
+		};
+		this.getTextDimensions = function(connector) {
+			return {};
+		};
+	};
+	
+	var AbstractVmlArrowOverlay = function(superclass, originalArgs) {
+    	superclass.apply(this, originalArgs);
+    	var self = this, canvas = null, path =null;
+    	var getPath = function(d) {
+    		return "m " + d.hxy.x + "," + d.hxy.y +
+    		       " l " + d.tail[0].x + "," + d.tail[0].y + 
+    		       " " + d.cxy.x + "," + d.cxy.y + 
+    		       " " + d.tail[1].x + "," + d.tail[1].y + 
+    		       " x e";
+    	};
+    	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
+    		var p = {};
+			if (strokeStyle) {
+				p["stroked"] = "true";
+				p["strokecolor"] =_convertStyle(strokeStyle);    				
+			}
+			if (lineWidth) p["strokeweight"] = lineWidth + "px";
+			if (fillStyle) {
+				p["filled"] = "true";
+				p["fillcolor"] = fillStyle;
+			}
+			var xmin = Math.min(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
+			ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
+			xmax = Math.max(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
+			ymax = Math.max(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
+			w = Math.abs(xmax - xmin),
+			h = Math.abs(ymax - ymin),
+			dim = [xmin, ymin, w, h];
+			/*
+			 * <v:shape style='width:250;height:250' strokecolor="red" strokeweight="1.5pt"
+fillcolor="blue" coordorigin="0 0" coordsize="200 200">
+<v:path v="m 8,65 l 72,65, 92,11, 112,65, 174,65, 122,100, 142,155,
+92,121, 42,155, 60,100 x e"/>
+</v:shape>
+
+			 */
+			p["path"] = getPath(d);
+    		
+    		if (canvas == null) {
+				canvas = _node("shape", dim, p);
+				connector.canvas.parentNode.appendChild(canvas);
+				//_attachListeners(self.canvas, self);
+			}
+			else {
+				//p["coordsize"] = (w * scale) + "," + (h * scale);
+				_pos(canvas, dim);
+				_atts(canvas, p);
+			}    		
+    	};
+    	var makePath=function(d) {
+    		return "m" + d.hxy.x+","+ d.hxy.y+" l" + d.tail[0].x+","+ d.tail[0].y+" l" + d.cxy.x+","+  d.cxy.y+" l" + d.tail[1].x+","+ d.tail[1].y + " l" + d.hxy.x+","+ d.hxy.y;
+    	};
+    };
+	
+	jsPlumb.Overlays.vml.Arrow = function() {
+    	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	
+    };
+    
+    jsPlumb.Overlays.vml.PlainArrow = function() {
+    	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.PlainArrow, arguments]);    	
+    };
+    
+    jsPlumb.Overlays.vml.Diamond = function() {
+    	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);    	
+    };
 })();
