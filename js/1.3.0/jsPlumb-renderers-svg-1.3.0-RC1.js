@@ -68,47 +68,45 @@
 		return {size:bits[1], font:bits[2]};		
 	}, 
 	_attachListeners = function(o, c) {
-		var jpcl = jsPlumb.CurrentLibrary;
-	/*	["click","dblclick","mouseenter","mouseexit", "mousemove", "mousedown","mouseup"].forEach(function(e) {
-			jpcl.bind(o, e, function(ee) {
-				c.fire(e, c, ee);
+		var jpcl = jsPlumb.CurrentLibrary,
+		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup" ],
+		eventFilters = { "mouseout":"mouseexit" },
+		bindOne = function(evt) {
+			var filteredEvent = eventFilters[evt] || evt;
+			jpcl.bind(o, evt, function(ee) {
+				c.fire(filteredEvent, ee);
 			});
-		});*/
-		jpcl.bind(o, "click", function() { alert("click"); });
+		};
+		for (var i = 0; i < events.length; i++) {
+			bindOne(events[i]); 			
+		}
 	};
 	
 	/*
 	 * Base class for SVG components.
 	 */
-	var SvgComponent = function() {
+	var SvgComponent = function(cssClass, originalArgs) {
 		var self = this;
-		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
-		jsPlumb.EventGenerator.apply(this, arguments);
+		jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
+		jsPlumb.EventGenerator.apply(this, originalArgs);
 		self.canvas = null, self.path = null;
 		
 		self.canvas = _node("svg", {
 			"style":"",
 			"width":0,
-			"height":0
+			"height":0,
+			"pointer-events":"none",
+			"class":cssClass 
 		});
 		document.body.appendChild(self.canvas);		
 		
 		this.paint = function(d, style, anchor) {	   
 			if (style != null) {		    	
-		    	if (!self.canvas) {
-		    		self.canvas = _node("svg", {
-		    			"style":_pos(d),
-		    			"width":d[2],
-		    			"height":d[3]
-		    		});
-		    		document.body.appendChild(self.canvas);				//TODO use jsplumb to add this, and respect the parent.  	    		
-		    	} else {
-		    		_attr(self.canvas, {
-		    			"style":_pos(d),
-		    			"width": d[2],
-		    			"height": d[3]
-		    		});	    		
-		    	}
+		    	_attr(self.canvas, {
+	    			"style":_pos(d),
+	    			"width": d[2],
+	    			"height": d[3]
+	    		});
 		    	self._paint.apply(this, arguments);		    			    	
 			}
 	    };	
@@ -119,7 +117,7 @@
 	 */
 	var SvgConnector = function() {
 		var self = this;
-		SvgComponent.apply(this, arguments);
+		SvgComponent.apply(this, [ jsPlumb.connectorClass, arguments ]);
 		this._paint = function(d, style) {
 			var p = self.getPath(d), a = {
 				"d":p
@@ -131,6 +129,7 @@
 			if (style.fillStyle) {
         		a["fill"]=_convertStyle(style.fillStyle, true);
 			} else a["fill"] = "none";
+			a["pointer-events"] = "all";
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
 	    		self.canvas.appendChild(self.path);
@@ -147,7 +146,7 @@
 	 */
 	var SvgEndpoint = function() {
 		var self = this;
-		SvgComponent.apply(this, arguments);		
+		SvgComponent.apply(this, [ jsPlumb.endpointClass, arguments ]);		
 	};
 
 	/*
@@ -258,7 +257,7 @@
 						"font-size":font.size, 
 						"fill":params.labelStyle.color
 					});
-					lines[i].tn.innerHTML = l[i];
+					lines[i].tn.textContent = l[i];
 				}
 			}
 		};
