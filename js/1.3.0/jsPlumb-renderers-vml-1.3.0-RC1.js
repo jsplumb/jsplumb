@@ -146,13 +146,29 @@
 			return "m" + _conv(d[4]) + "," + _conv(d[5]) + " l" + _conv(d[6]) + "," + _conv(d[7]) + " e";
 		};
 	};
+	
 	jsPlumb.Connectors.vml.Flowchart = function() {
+    	jsPlumb.Connectors.Flowchart.apply(this, arguments);
+		VmlConnector.apply(this, arguments);
+    	this.getPath = function(dimensions) {
+    		var p = "m " + _conv(dimensions[4]) + "," + _conv(dimensions[5]) + " l";
+	        // loop through extra points
+	        for (var i = 0; i < dimensions[8]; i++) {
+	        	p = p + " " + _conv(dimensions[9 + (i*2)]) + "," + _conv(dimensions[10 + (i*2)]);
+	        }
+	        // finally draw a line to the end
+	        p = p  + " " + _conv(dimensions[6]) + "," +  _conv(dimensions[7]) + " e";
+	        return p;
+    	};
+    };
+	
+	/*jsPlumb.Connectors.vml.Flowchart = function() {
 		jsPlumb.Connectors.Flowchart.apply(this, arguments);	
 		VmlConnector.apply(this, arguments);
 		this.getPath = function(d) {
 			return "m" + _conv(d[4]) + "," + _conv(d[5]) + " l" + _conv(d[6]) + "," + _conv(d[7]) + " e";
 		};
-	};
+	};*/
 	
 	jsPlumb.Endpoints.vml.Dot = function() {
 		jsPlumb.Endpoints.Dot.apply(this, arguments);

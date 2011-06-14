@@ -167,6 +167,22 @@
 	    this.getPath = function(d) { return "M " + d[4] + " " + d[5] + " L " + d[6] + " " + d[7]; };	    
 	};
 	
+	jsPlumb.Connectors.svg.Flowchart = function() {
+    	var self = this;
+    	jsPlumb.Connectors.Flowchart.apply(this, arguments);
+		SvgConnector.apply(this, arguments);
+    	this.getPath = function(dimensions) {
+    		var p = "M " + dimensions[4] + "," + dimensions[5];
+	        // loop through extra points
+	        for (var i = 0; i < dimensions[8]; i++) {
+	        	p = p + " L " + dimensions[9 + (i*2)] + " " + dimensions[10 + (i*2)];
+	        }
+	        // finally draw a line to the end
+	        p = p  + " " + dimensions[6] + "," +  dimensions[7];
+	        return p;
+    	};
+    };
+	
 	/*
 	 * SVG Dot Endpoint
 	 * TODO: some refactoring with this, the other svg Endpoints, and SvgEndpoint.

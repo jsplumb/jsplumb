@@ -355,6 +355,23 @@
 	    };
     };
     
+    jsPlumb.Connectors.canvas.Flowchart = function() {
+    	var self = this;
+    	jsPlumb.Connectors.Flowchart.apply(this, arguments);
+		CanvasConnector.apply(this, arguments);
+    	this._paint = function(dimensions) {
+	        self.ctx.beginPath();
+	        self.ctx.moveTo(dimensions[4], dimensions[5]);
+	        // loop through extra points
+	        for (var i = 0; i < dimensions[8]; i++) {
+	        	self.ctx.lineTo(dimensions[9 + (i*2)], dimensions[10 + (i*2)]);
+	        }
+	        // finally draw a line to the end
+	        self.ctx.lineTo(dimensions[6], dimensions[7]);
+	        self.ctx.stroke();
+    	};
+    };
+    
 // ********************************* END OF CANVAS RENDERERS *******************************************************************
     
     jsPlumb.Overlays.canvas.Image = function(params) {
