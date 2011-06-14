@@ -50,6 +50,10 @@ a:hover {text-decoration:underline;}
    -moz-box-shadow: 2px 2px 19px #aaa;
 }
 
+.selected {
+	color:rgb(189,11,11);
+}
+
 
 /*  these styles are what jsPlumb attaches to the various elements it creates.
 ._jsPlumb_connector {
