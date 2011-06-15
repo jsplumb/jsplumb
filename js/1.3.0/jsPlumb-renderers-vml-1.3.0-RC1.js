@@ -29,7 +29,6 @@
 		return Math.floor(v * scale);
 	},
 	_convertStyle = function(s, ignoreAlpha) {
-		console.log("converting style " + s);
 		var o = s,
 		pad = function(n) { return n.length == 1 ? "0" + n : n; },
 		hex = function(k) { return pad(Number(k).toString(16)); },
@@ -39,9 +38,7 @@
 			o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
 			if (!ignoreAlpha && parts.length == 4) 
 				o = o + hex(parts[3]);
-		}
-		
-		console.log("converted style to " + o);
+		}		
 		
 		return o;
 	},
