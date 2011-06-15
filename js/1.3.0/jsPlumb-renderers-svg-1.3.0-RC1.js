@@ -6,6 +6,7 @@
  * gradients:  https://developer.mozilla.org/en/svg_in_html_introduction
  * css:http://tutorials.jenkov.com/svg/svg-and-css.html
  * text on a path: http://www.w3.org/TR/SVG/text.html#TextOnAPath
+ * pointer events: https://developer.mozilla.org/en/css/pointer-events
  * 
  */
 ;(function() {
