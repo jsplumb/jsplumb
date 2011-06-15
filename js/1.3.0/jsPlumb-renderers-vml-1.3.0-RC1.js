@@ -115,7 +115,7 @@
 			}
 			if (style.fillStyle) {
 				p["filled"] = "true";
-				p["fillcolor"] = style.fillStyle;
+				p["fillcolor"] = _convertStyle(style.fillStyle, true);
 			}
 			if (vml == null) {
 				p["class"] = jsPlumb.endpointClass;
@@ -186,8 +186,9 @@
 		jsPlumb.Overlays.Label.apply(this, arguments);
 		var labelText = null;
 		div = document.createElement("div");	
-		div.style.position = "absolute";
-		div.style.display="none";
+		div.style["position"] 	= 	"absolute";
+		div.style["display"] 	=	"none";
+		div.style["textAlign"] 	= 	"center";		
 		// initially, put these on the body, so the first pass at getTextDimensions can work.
 		// after the first paint, we remove from body and append to the textbox.
 		document.body.appendChild(div);
@@ -205,15 +206,14 @@
 				_pos(textbox, connectorDimensions.slice(0, 4));
 			}
 			_pos(div, loc);
-			div.innerHTML = labelText;
+			div.innerHTML = labelText.replace(/\n/g, "<br/>");
 			// TODO draw the background/border etc. maybe extract out a drawBox and drawText methods.
 			div.style["font"] = self.labelStyle.font;
 			div.style["color"] = self.labelStyle.color || "black";
-
 		};
 		this.getTextDimensions = function(connector) {
 			labelText = typeof self.label == 'function' ? self.label(self) : self.label;
-			div.innerHTML = labelText;
+			div.innerHTML = labelText.replace(/\r\n/g, "<br/>");
 			var de = jsPlumb.CurrentLibrary.getElementObject(div),
 			s = jsPlumb.CurrentLibrary.getSize(de);
 			// TODO implement this properly.
