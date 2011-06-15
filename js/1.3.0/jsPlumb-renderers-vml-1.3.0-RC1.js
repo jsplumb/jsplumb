@@ -29,6 +29,7 @@
 		return Math.floor(v * scale);
 	},
 	_convertStyle = function(s, ignoreAlpha) {
+		console.log("converting style " + s);
 		var o = s,
 		pad = function(n) { return n.length == 1 ? "0" + n : n; },
 		hex = function(k) { return pad(Number(k).toString(16)); },
@@ -39,6 +40,8 @@
 			if (!ignoreAlpha && parts.length == 4) 
 				o = o + hex(parts[3]);
 		}
+		
+		console.log("converted style to " + o);
 		
 		return o;
 	},
@@ -76,13 +79,13 @@
 				var path = self.getPath(d), p = {};
 				if (style.strokeStyle) {
 					p["stroked"] = "true";
-					p["strokecolor"] =_convertStyle(style.strokeStyle);
+					p["strokecolor"] =_convertStyle(style.strokeStyle, true);
 					p["strokeweight"] = style.lineWidth + "px";
 				}
 				else p["stroked"] = "false";
 				if (style.fillStyle) {
 					p["filled"] = "true";
-					p["fillcolor"] = _convertStyle(style.fillStyle);
+					p["fillcolor"] = _convertStyle(style.fillStyle, true);
 				}
 				else p["filled"] = "false";
 				p["path"] = path;
@@ -110,7 +113,7 @@
 			var p = {};
 			if (style.strokeStyle) {
 				p["stroked"] = "true";
-				p["strokecolor"] =_convertStyle(style.strokeStyle);
+				p["strokecolor"] =_convertStyle(style.strokeStyle, true);
 				p["strokeweight"] = style.lineWidth + "px";
 			}
 			if (style.fillStyle) {
@@ -162,14 +165,6 @@
     	};
     };
 	
-	/*jsPlumb.Connectors.vml.Flowchart = function() {
-		jsPlumb.Connectors.Flowchart.apply(this, arguments);	
-		VmlConnector.apply(this, arguments);
-		this.getPath = function(d) {
-			return "m" + _conv(d[4]) + "," + _conv(d[5]) + " l" + _conv(d[6]) + "," + _conv(d[7]) + " e";
-		};
-	};*/
-	
 	jsPlumb.Endpoints.vml.Dot = function() {
 		jsPlumb.Endpoints.Dot.apply(this, arguments);
 		VmlEndpoint.apply(this, arguments);
@@ -219,7 +214,7 @@
     		var p = {};
 			if (strokeStyle) {
 				p["stroked"] = "true";
-				p["strokecolor"] =_convertStyle(strokeStyle);    				
+				p["strokecolor"] =_convertStyle(strokeStyle, true);    				
 			}
 			if (lineWidth) p["strokeweight"] = lineWidth + "px";
 			if (fillStyle) {
