@@ -644,7 +644,7 @@
     	
     	this.computeMaxSize = function() { return self.width * 1.5; };
     	
-    	this.draw = function(connector, currentConnectionPaintStyle) {
+    	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
     		
     		// this is the arrow head position    		
 			var hxy = connector.pointAlongPathFrom(self.loc, direction * (self.length / 2));
@@ -660,7 +660,7 @@
 				var lxy = connector.pointOnPath(self.loc);
 				// TODO determine why the 1.2.6 released version does not
 				// use 'direction' in the two equations below, yet both 
-				// that and still paint the arrows correctly.
+				// that and 1.3.0 still paint the arrows correctly.
 				var dx = (lxy.x - hxy.x) * direction, dy = (lxy.y - hxy.y) * direction;
 				cxy.x += dx; cxy.y += dy;
 				txy.x += dx; txy.y += dy;
@@ -693,7 +693,7 @@
 			fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
 			lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
 			
-			self.paint(connector, d, lineWidth, strokeStyle, fillStyle);							
+			self.paint(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions);							
 			
 			return [ minx, maxx, miny, maxy]; 
     	};
@@ -753,7 +753,7 @@
     		return td.width ? Math.max(td.width, td.height) * 1.5 : 0;
     	};    	
     	
-	    this.draw = function(connector, currentConnectionPaintStyle) {
+	    this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
 	    	var td = self.getTextDimensions(connector);
 	    	if (td.width !=  null) {
 				var cxy = connector.pointOnPath(self.location);								
@@ -766,7 +766,7 @@
 					miny:miny,
 					td:td,
 					cxy:cxy
-				});
+				}, connectorDimensions);
 				
 				return [minx, minx+td.width, miny, miny+td.height];
         	}
