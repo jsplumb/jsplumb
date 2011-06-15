@@ -2278,7 +2278,7 @@ about the parameters allowed in the params object.
 					/* paint overlays*/
 					for ( var i = 0; i < self.overlays.length; i++) {
 						var o = self.overlays[i];
-						self.connector.overlayPlacements[i] = o.draw(self.connector,/* self,*/ self.paintStyleInUse);
+						self.connector.overlayPlacements[i] = o.draw(self.connector,self.paintStyleInUse, dim);
 					}
 				//}
 			};
