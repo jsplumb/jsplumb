@@ -432,7 +432,7 @@
     		if (typeof self.label != 'function') self.cachedDimensions = d;  // cache it if we can. 
     		return d;
     	};
-    	this.paint = function(connector, d) {
+    	this.paint = function(connector, d, connectorDimensions) {
     		var ctx = connector.ctx;
     		if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
 			if (self.labelStyle.fillStyle) 
@@ -465,6 +465,9 @@
     	CanvasOverlay.apply(this, arguments);
     	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		var ctx = connector.ctx;
+    		
+    		//console.log("drawing arrow at ", d.hxy.x + "," + d.hxy.y, d.tail[0].x + "," + d.tail[0].y, d.cxy.x + "," + d.cxy.y, d.tail[1].x + "," + d.tail[1].y);
+    		
 			ctx.lineWidth = lineWidth;
 			ctx.beginPath();
 			ctx.moveTo(d.hxy.x, d.hxy.y);
