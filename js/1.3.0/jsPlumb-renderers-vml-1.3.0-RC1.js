@@ -133,7 +133,7 @@
 	jsPlumb.Connectors.vml.Bezier = function() {
 		jsPlumb.Connectors.Bezier.apply(this, arguments);	
 		VmlConnector.apply(this, arguments);
-		this.getPath = function(d) {
+		this.getPath = function(d) {			
 			return "m" + _conv(d[4]) + "," + _conv(d[5]) + 
 				   " c" + _conv(d[8]) + "," + _conv(d[9]) + "," + _conv(d[10]) + "," + _conv(d[11]) + "," + _conv(d[6]) + "," + _conv(d[7]) + " e";
 		};
@@ -182,32 +182,56 @@
 	};
 	
 	jsPlumb.Overlays.vml.Label = function(params) {
-		var self = this, lines = [];
+		var self = this, textbox = null, div = null, lines = [];
 		jsPlumb.Overlays.Label.apply(this, arguments);
-		this.paint = function(connector, d) {
-			/*if(self.group == null) {
-				self.group = _node("g");
-				connector.canvas.appendChild(self.group);									
+		var labelText = null;
+		div = document.createElement("div");	
+		div.style.position = "absolute";
+		div.style.display="none";
+		// initially, put these on the body, so the first pass at getTextDimensions can work.
+		// after the first paint, we remove from body and append to the textbox.
+		document.body.appendChild(div);
+		jsPlumb.getId(div);		
+		this.paint = function(connector, d, connectorDimensions) {
+			var loc = [d.minx, d.miny, d.td.width , d.td.height];			
+			if (textbox == null) {
+				textbox = _node("textbox", loc);
+				connector.canvas.parentNode.appendChild(textbox);	
+				document.body.removeChild(div);				
+				textbox.appendChild(div);
+				div.style.display="block";
 			}
-			_drawBox(d);
-			_drawText(d);*/
+			else {
+				_pos(textbox, connectorDimensions.slice(0, 4));
+			}
+			_pos(div, loc);
+			div.innerHTML = labelText;
+			// TODO draw the background/border etc. maybe extract out a drawBox and drawText methods.
+			div.style["font"] = self.labelStyle.font;
+			div.style["color"] = self.labelStyle.color || "black";
+
 		};
 		this.getTextDimensions = function(connector) {
-			return {};
+			labelText = typeof self.label == 'function' ? self.label(self) : self.label;
+			div.innerHTML = labelText;
+			var de = jsPlumb.CurrentLibrary.getElementObject(div),
+			s = jsPlumb.CurrentLibrary.getSize(de);
+			// TODO implement this properly.
+			return {width:s[0], height:s[1], lines:["fff", "ddd" ], oneLine:10, padding:34, textHeight:56};
 		};
 	};
 	
 	var AbstractVmlArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
     	var self = this, canvas = null, path =null;
-    	var getPath = function(d) {
-    		return "m " + d.hxy.x + "," + d.hxy.y +
-    		       " l " + d.tail[0].x + "," + d.tail[0].y + 
-    		       " " + d.cxy.x + "," + d.cxy.y + 
-    		       " " + d.tail[1].x + "," + d.tail[1].y + 
+    	var getPath = function(d, connectorDimensions) {    		
+    		return "m " + _conv(d.hxy.x) + "," + _conv(d.hxy.y) +
+    		       " l " + _conv(d.tail[0].x) + "," + _conv(d.tail[0].y) + 
+    		       " " + _conv(d.cxy.x) + "," + _conv(d.cxy.y) + 
+    		       " " + _conv(d.tail[1].x) + "," + _conv(d.tail[1].y) + 
     		       " x e";
     	};
-    	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
+    	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions) {
     		var p = {};
 			if (strokeStyle) {
 				p["stroked"] = "true";
@@ -225,29 +249,26 @@
 			w = Math.abs(xmax - xmin),
 			h = Math.abs(ymax - ymin),
 			dim = [xmin, ymin, w, h];
-			/*
-			 * <v:shape style='width:250;height:250' strokecolor="red" strokeweight="1.5pt"
-fillcolor="blue" coordorigin="0 0" coordsize="200 200">
-<v:path v="m 8,65 l 72,65, 92,11, 112,65, 174,65, 122,100, 142,155,
-92,121, 42,155, 60,100 x e"/>
-</v:shape>
-
-			 */
-			p["path"] = getPath(d);
-    		
+			
+			// for VML, we create overlays using shapes that have the same dimensions and
+			// coordsize as their connector - overlays calculate themselves relative to the
+			// connector (it's how it's been done since the original canvas implementation, because
+			// for canvas that makes sense).
+			p["path"] = getPath(d, connectorDimensions);
+			p["coordsize"] = (connectorDimensions[2] * scale) + "," + (connectorDimensions[3] * scale);
+			dim[0] = connectorDimensions[0];
+			dim[1] = connectorDimensions[1];
+			dim[2] = connectorDimensions[2];
+			dim[3] = connectorDimensions[3];
     		if (canvas == null) {
 				canvas = _node("shape", dim, p);
 				connector.canvas.parentNode.appendChild(canvas);
 				//_attachListeners(self.canvas, self);
 			}
-			else {
-				//p["coordsize"] = (w * scale) + "," + (h * scale);
+			else {				
 				_pos(canvas, dim);
 				_atts(canvas, p);
 			}    		
-    	};
-    	var makePath=function(d) {
-    		return "m" + d.hxy.x+","+ d.hxy.y+" l" + d.tail[0].x+","+ d.tail[0].y+" l" + d.cxy.x+","+  d.cxy.y+" l" + d.tail[1].x+","+ d.tail[1].y + " l" + d.hxy.x+","+ d.hxy.y;
     	};
     };
 	
