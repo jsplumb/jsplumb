@@ -106,6 +106,11 @@
 	VmlEndpoint = function() {
 		VmlComponent.apply(this, arguments);
 		var vml = null, self = this;
+		self.canvas = document.createElement("div");
+		self.canvas.style["position"] = "absolute";
+		document.body.appendChild(self.canvas);
+		self.canvas.style.zIndex = 5000;
+		
 		this.paint = function(d, style, anchor) {
 			var p = {};
 			if (style.strokeStyle) {
@@ -117,14 +122,16 @@
 				p["filled"] = "true";
 				p["fillcolor"] = _convertStyle(style.fillStyle, true);
 			}
+			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 			if (vml == null) {
 				p["class"] = jsPlumb.endpointClass;
-				vml = self.getVml(d, p, anchor);				
+				vml = self.getVml([0,0, d[2], d[3]], p, anchor);
+				self.canvas.appendChild(vml);
 				_attachListeners(vml, self);
 			}
 			else {
 				//p["coordsize"] = "1,1";//(d[2] * scale) + "," + (d[3] * scale); again, unsure.
-				_pos(vml, d);
+				_pos(vml, [0,0, d[2], d[3]]);
 				_atts(vml, p);
 			}
 		};
