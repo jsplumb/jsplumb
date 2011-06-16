@@ -107,15 +107,10 @@
 		});
 		
 		document.body.appendChild(self.canvas);
-		self.canvas.appendChild(self.svg);
+		self.canvas.appendChild(self.svg);		
 		
 		this.paint = function(d, style, anchor) {	   
 			if (style != null) {
-			/*	_attr(self.canvas, {
-	    			"style":_pos(d),
-	    			"width": d[2],
-	    			"height": d[3]
-	    		});*/
 				jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 		    	_attr(self.svg, {
 	    			"style":_pos([0,0,d[2], d[3]]),//_pos(d),
@@ -134,20 +129,20 @@
 		var self = this;
 		SvgComponent.apply(this, [ jsPlumb.connectorClass, arguments, "none" ]);
 		this._paint = function(d, style) {
-			var p = self.getPath(d), a = {
-				"d":p
-			};
+			var p = self.getPath(d), a = { "d":p };
+			
 			if (style.strokeStyle) {
         		a["stroke"]=_convertStyle(style.strokeStyle, true);						
-         		a["stroke-width"]=style.lineWidth;
-			} else a["stroke"] = "none";
-			if (style.fillStyle) {
-        		a["fill"]=_convertStyle(style.fillStyle, true);
-			} else a["fill"] = "none";
+         		a["stroke-width"] = style.lineWidth;
+			} 
+			else 
+				a["stroke"] = "none";
+			
+        	a["fill"] = style.fillStyle ? _convertStyle(style.fillStyle, true) : "none";
+			
 			a["pointer-events"] = "all";
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
-	    		//self.canvas.appendChild(self.path);
 		    	self.svg.appendChild(self.path);
 	    		_attachListeners(self.path, self);
 	    	}
@@ -210,9 +205,9 @@
 		this._paint = function(d, style) { 
 			if (self.node == null) {
 				self.node = _node("circle", {
-					"cx":d[2] / 2,
-					"cy":d[3] / 2,
-					"r":d[2] /2
+					"cx"	:	d[2] / 2,
+					"cy"	:	d[3] / 2,
+					"r"		:	d[2] / 2
 				});
 				self.svg.appendChild(self.node);
 			}
@@ -240,7 +235,6 @@
 				self.svg.appendChild(self.node);
 			}
 			_applyStyles(self.svg, self.node, style);
-			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 			_pos(self.node, d);
 		};		
 	};		
@@ -313,22 +307,20 @@
     	var self = this, path =null;
     	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		if (path == null) {
-    			path = _node("shape");
+    			path = _node("path");
     			connector.svg.appendChild(path);
     		}
-    		var o = {
-    			"d":makePath(d)
+    		
+    		var o = { 
+    			"d"		:	makePath(d),
+    			stroke 	: 	strokeStyle ? strokeStyle : null,
+    			fill 	: 	fillStyle ? fillStyle : null
     		};
-    		if (strokeStyle) {
-				o.stroke = strokeStyle;
-			}
-			if (fillStyle) {
-				o.fill= fillStyle;
-			}
+    		
     		_attr(path, o);    		
     	};
-    	var makePath=function(d) {
-    		return "m" + d.hxy.x+","+ d.hxy.y+" l" + d.tail[0].x+","+ d.tail[0].y+" l" + d.cxy.x+","+  d.cxy.y+" l" + d.tail[1].x+","+ d.tail[1].y + " l" + d.hxy.x+","+ d.hxy.y;
+    	var makePath = function(d) {
+    		return "M" + d.hxy.x + "," + d.hxy.y+" L" + d.tail[0].x + "," + d.tail[0].y + " L" + d.cxy.x + "," + d.cxy.y + " L" + d.tail[1].x + "," + d.tail[1].y + " L" + d.hxy.x + "," + d.hxy.y;
     	};
     };
     
