@@ -2617,8 +2617,6 @@ about the parameters allowed in the params object.
 				if (!timestamp || self.timestamp !== timestamp) {
 					var ap = params.anchorPoint, canvas = params.canvas, connectorPaintStyle = params.connectorPaintStyle/*, connectorBackgroundPaintStyle = params.connectorBackgroundPaintStyle*/;
 					if (ap == null) {
-						// do we always want to force a repaint here? i dont
-						// think so!
 						var xy = params.offset || offsets[_elementId];
 						var wh = params.dimensions || sizes[_elementId];
 						if (xy == null || wh == null) {
@@ -2673,12 +2671,11 @@ about the parameters allowed in the params object.
 					_updateOffset( { elId : id });
 					
 					// store the id of the dragging div and the source element. the drop function will pick these up.					
-					// TODO CANVAS references. move to canvas specific code  
 					_setAttribute(_getElementObject(self.canvas), "dragId", id);
 					_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
 					// create a floating anchor
 					var floatingAnchor = new FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
-					floatingEndpoint = _newEndpoint({ paintStyle : { fillStyle : 'rgba(0,0,0,0)' }, endpoint : _endpoint, anchor : floatingAnchor, source : nE });
+					floatingEndpoint = _newEndpoint({ paintStyle : self.paintStyle, endpoint : _endpoint, anchor : floatingAnchor, source : nE });
 
 					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
