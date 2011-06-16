@@ -1,0 +1,175 @@
+<!doctype html>
+
+<html>
+	<head>
+		<title>jsPlumb - flowchart connectors demonstration - jQuery</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>
+		<link rel="stylesheet" href="../../css/flowchartDemo.css"></link>
+	</head>
+	<body onunload="jsPlumb.unload();">
+		<div class="window" id="window1"><strong>1</strong><br/><br/></div>
+		<div class="window" id="window2"><strong>2</strong><br/><br/></div>
+	    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
+	    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
+	    
+	    <div id="explanation">
+	    	<p>This is a demonstration of flowchart connectors and mouse events (which do not work in IE &lt; 9).</p>
+	    	<p>Hover over connections to highlight them, click and hold to drag, click to delete. </p>
+	    	<p>Drag new connections from blue dots to green dots.</p>
+	    	<p>This demonstration uses jsPlumb 1.3.0-RC1, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
+	    	<a href="chartDemo.html" class="mplink">next: chart demonstration</a><br/>
+	    	<a href="demo.html" class="mplink">prev: jsPlumb home</a>
+	    	<br/><br/>
+	    	render mode:&nbsp;<a href="#" class="rmode" mode="svg">SVG</a>&nbsp;|&nbsp;<a href="#" class="selected rmode" mode="canvas">Canvas</a>&nbsp;|&nbsp;<a href="#" class="rmode" mode="vml">VML</a>
+	    	<br/><br/>
+	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
+	    	<br/><br/>
+	    	See a <a href="../../mootools/1.3.0/flowchartConnectorsDemo.html">MooTools version</a> of this demo.<br/>
+	    	See a <a href="../../yui3/1.3.0/flowchartConnectorsDemo.html">YUI3 version</a> of this demo.
+	    </div>
+
+	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+		
+		<!-- support lib for bezier stuff -->
+		<script type="text/javascript" src="../../../js/lib/jsBezier-0.2-min.js"></script>
+		<!-- main jsplumb engine -->
+		<script type="text/javascript" src="../../../js/1.3.0/jsPlumb-1.3.0-RC1.js"></script>
+		<!-- connectors, endpoint and overlays  -->
+		<script type="text/javascript" src="../../../js/1.3.0/jsPlumb-defaults-1.3.0-RC1.js"></script>
+		<!-- SVG renderer -->
+		<script type="text/javascript" src="../../../js/1.3.0/jsPlumb-renderers-svg-1.3.0-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script type="text/javascript" src="../../../js/1.3.0/jsPlumb-renderers-canvas-1.3.0-RC1.js"></script>
+		<!-- vml renderer -->
+		<script type="text/javascript" src="../../../js/1.3.0/jsPlumb-renderers-vml-1.3.0-RC1.js"></script>
+		<!-- jquery adapter -->
+		<script type="text/javascript" src="../../../js/1.3.0/jquery.jsPlumb-1.3.0-RC1.js"></script>
+		
+		<script type="text/javascript">
+			jsPlumb.bind('ready', function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+
+				var init = function() {
+				
+					// default drag options
+					jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+					// default to blue at one end and green at the other
+					jsPlumb.Defaults.EndpointStyles = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }];
+					// blue endpoints 7 px; green endpoints 11.
+					jsPlumb.Defaults.Endpoints = [ [ "Dot", {radius:7} ], [ "Dot", { radius:11 } ]];
+					// enable mouse events
+					jsPlumb.setMouseEventsEnabled(true);	
+	
+					// this is the paint style and hover style for the connecting lines
+					var connectorPaintStyle = {lineWidth:5,strokeStyle:"#deea18"};
+					var connectorHoverStyle = {lineWidth:7,strokeStyle:"#2e2aF8"};
+	
+					// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
+					// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
+					var overlays = [
+						[ "Arrow", { location:0.9 } ], 
+						[ "Label", { 
+							location:0.1,
+							label:function(c) { 
+								return c.labelText || ""; 
+							},
+							labelStyle : { 
+								fillStyle:"#deea18", 
+								padding:0.4, 
+								font:"12px sans-serif", 
+								color:"#444" 
+							}
+						}] 
+					];
+	
+					// the definition of source endpoints (the small blue ones)
+					var sourceEndpoint = {
+						endpoint:"Dot",
+						paintStyle:{fillStyle:"#225588",radius:7},
+						isSource:true,
+						connector:"Flowchart",
+						connectorStyle:connectorPaintStyle,
+						hoverPaintStyle:connectorHoverStyle,
+						connectorHoverStyle:connectorHoverStyle,
+						connectorOverlays: overlays					
+					};
+	
+					// the definition of target endpoints (the larger green ones)
+					var targetEndpoint = {
+						endpoint:"Dot",					
+						paintStyle:{fillStyle:"#558822",radius:11},
+						hoverPaintStyle:connectorHoverStyle,
+						isTarget:true,
+						maxConnections:-1,
+						dropOptions:{hoverClass:"hover"}
+					};	
+	
+					// add endpoints to the various elements
+					var e11 = jsPlumb.addEndpoint("window1", {anchor:"RightMiddle"}, targetEndpoint);
+					var e12 = jsPlumb.addEndpoint("window1", {anchor:"BottomCenter"}, sourceEndpoint);
+					var e21 = jsPlumb.addEndpoint("window2", {anchor:"LeftMiddle"}, targetEndpoint);
+					var e22 = jsPlumb.addEndpoint("window2", {anchor:"BottomCenter"}, sourceEndpoint);
+					var e31 = jsPlumb.addEndpoint("window3", {anchor:"LeftMiddle"}, targetEndpoint);
+					var e32 = jsPlumb.addEndpoint("window3", {anchor:"TopCenter"}, targetEndpoint);
+					var e33 = jsPlumb.addEndpoint("window3", {anchor:"RightMiddle"}, targetEndpoint);
+					var e34 = jsPlumb.addEndpoint("window3", {anchor:"BottomCenter"}, sourceEndpoint);
+					var e41 = jsPlumb.addEndpoint("window4", {anchor:"RightMiddle"}, sourceEndpoint);
+					var e42 = jsPlumb.addEndpoint("window4", {anchor:"BottomCenter"}, sourceEndpoint);				
+	
+					// helper method to set mouse handlers and the labelText member on connections.
+					var init = function(conn) {
+						conn.connector.labelText = conn.sourceId.substring(6) + " - " + conn.targetId.substring(6);
+						conn.bind("click", function(conn) {
+							if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
+								jsPlumb.detach(conn); 
+						}); 
+						conn.bind("mouseenter", function(conn) { conn.setLabel("click to delete"); });
+						conn.bind("mouseexit", function(conn) { conn.setLabel(""); });
+						conn.repaint();
+					};
+	
+					// connect two elements.  calls the init function to register mouse handlers etc.
+					var connect = function(s,t) {
+						var c = jsPlumb.connect({source:s,target:t, overlays:overlays});
+						if (c) init(c);
+					};
+	
+					// connect, by Endpoint.
+					connect(e12, e32);
+					connect(e41, e21 );
+					connect(e22, e33);
+					connect(e42, e31);
+					connect(e34, e11);
+	
+					// listen for new connections; initialise them the same way we initialise the connections at startup.
+					jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
+						init(connInfo.connection);
+					});
+				};
+
+				// render mode
+				var resetRenderMode = function(desiredMode) {
+					var newMode = jsPlumb.setRenderMode(desiredMode);
+					$(".rmode").removeClass("selected");
+					$(".rmode[mode='" + newMode + "']").addClass("selected");
+					var disableList = (newMode === jsPlumb.VML) ? ".rmode[mode='canvas'],.rmode[mode='svg']" : ".rmode[mode='vml']"; 
+					$(disableList).attr("disabled", true);				
+					init();
+				};
+			     
+				$(".rmode").bind("click", function() {
+					var desiredMode = $(this).attr("mode");
+					jsPlumb.reset();
+					resetRenderMode(desiredMode);					
+				});
+
+				resetRenderMode(jsPlumb.CANVAS);
+			});
+		</script>
+	</body>
+</html>
