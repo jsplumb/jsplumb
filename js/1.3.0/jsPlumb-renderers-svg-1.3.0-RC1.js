@@ -86,25 +86,39 @@
 	/*
 	 * Base class for SVG components.
 	 */
-	var SvgComponent = function(cssClass, originalArgs) {
+	var SvgComponent = function(cssClass, originalArgs, pointerEventsSpec) {
 		var self = this;
+		pointerEventsSpec = pointerEventsSpec || "all";
 		jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
 		jsPlumb.EventGenerator.apply(this, originalArgs);
-		self.canvas = null, self.path = null;
+		self.canvas = null, self.path = null, self.svg = null; 
+	
+		self.canvas = document.createElement("div");
+		self.canvas.style["position"] = "absolute";
+		jsPlumb.sizeCanvas(self.canvas, 0,0,1,1);
 		
-		self.canvas = _node("svg", {
+		//self.canvas = _node("svg", {
+		self.svg = _node("svg", {
 			"style":"",
 			"width":0,
 			"height":0,
-			"pointer-events":"none",
+			"pointer-events":pointerEventsSpec,
 			"class":cssClass 
 		});
-		document.body.appendChild(self.canvas);		
+		
+		document.body.appendChild(self.canvas);
+		self.canvas.appendChild(self.svg);
 		
 		this.paint = function(d, style, anchor) {	   
-			if (style != null) {		    	
-		    	_attr(self.canvas, {
+			if (style != null) {
+			/*	_attr(self.canvas, {
 	    			"style":_pos(d),
+	    			"width": d[2],
+	    			"height": d[3]
+	    		});*/
+				jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
+		    	_attr(self.svg, {
+	    			"style":_pos([0,0,d[2], d[3]]),//_pos(d),
 	    			"width": d[2],
 	    			"height": d[3]
 	    		});
@@ -118,7 +132,7 @@
 	 */
 	var SvgConnector = function() {
 		var self = this;
-		SvgComponent.apply(this, [ jsPlumb.connectorClass, arguments ]);
+		SvgComponent.apply(this, [ jsPlumb.connectorClass, arguments, "none" ]);
 		this._paint = function(d, style) {
 			var p = self.getPath(d), a = {
 				"d":p
@@ -133,7 +147,8 @@
 			a["pointer-events"] = "all";
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
-	    		self.canvas.appendChild(self.path);
+	    		//self.canvas.appendChild(self.path);
+		    	self.svg.appendChild(self.path);
 	    		_attachListeners(self.path, self);
 	    	}
 	    	else {
@@ -147,7 +162,7 @@
 	 */
 	var SvgEndpoint = function() {
 		var self = this;
-		SvgComponent.apply(this, [ jsPlumb.endpointClass, arguments ]);		
+		SvgComponent.apply(this, [ jsPlumb.endpointClass, arguments, "all" ]);		
 	};
 
 	/*
@@ -199,9 +214,9 @@
 					"cy":d[3] / 2,
 					"r":d[2] /2
 				});
-				self.canvas.appendChild(self.node);
+				self.svg.appendChild(self.node);
 			}
-			_applyStyles(self.canvas, self.node, style);
+			_applyStyles(self.svg, self.node, style);
 			_pos(self.node, d);
 		};	
 	};
@@ -222,9 +237,10 @@
 					"width":d[2],
 					"height":d[3]
 				});				
-				self.canvas.appendChild(self.node);
+				self.svg.appendChild(self.node);
 			}
-			_applyStyles(self.canvas, self.node, style);
+			_applyStyles(self.svg, self.node, style);
+			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 			_pos(self.node, d);
 		};		
 	};		
@@ -243,8 +259,8 @@
 		var _drawBox = function(d) {
 			self.group.fillStyle="red";
 		};
-		var _drawText = function(d) {
-			var t = params.label.constructor == Function ? params.label() : params.label;
+		var _drawText = function(conn, d) {
+			var t = params.label.constructor == Function ? params.label(conn) : params.label;
 			var l = t.split("\n");
 			var font = _decodeFont(params.labelStyle.font);
 			if (lines.length != l.length) {
@@ -284,10 +300,10 @@
 		this.paint = function(connector, d) {
 			if(self.group == null) {
 				self.group = _node("g");
-				connector.canvas.appendChild(self.group);									
+				connector.svg.appendChild(self.group);									
 			}
-			_drawBox(d);
-			_drawText(d);
+			_drawBox(connector, d);
+			_drawText(connector, d);
 		};
 			
 	};
@@ -298,7 +314,7 @@
     	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		if (path == null) {
     			path = _node("shape");
-    			connector.canvas.appendChild(path);
+    			connector.svg.appendChild(path);
     		}
     		var o = {
     			"d":makePath(d)

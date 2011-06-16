@@ -2375,7 +2375,7 @@ about the parameters allowed in the params object.
 			else 			
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
 				// TODO why does this not go all the way up to the jsplumb defaults object?
-			var _endpoint = params.endpoint || new jsPlumb.Endpoints[renderMode].Dot();
+			var _endpoint = params.endpoint || "Dot";
 			if (_endpoint.constructor == String) 
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint]();
 			else if (_endpoint.constructor == Array)

@@ -1,14 +1,8 @@
 ;(function() {
 	
 // ********************************* CANVAS RENDERERS FOR CONNECTORS AND ENDPOINTS *******************************************************************
-	
-	/*
-	 * Class:CanvasMouseAdapter
-	 * Mixin that provides support for mouse events on canvases/vml.  When the renderMode is set to SVG, modern browsers will render
-	 * SVG and jsPlumb will use the SVGMouseAdapter class instead.  Of course IE<9 cannot use SVG, and in that case we use VML, as if the
-	 * renderMode had been set to canvas (what jsPlumb actually does right now is set the renderMode to canvas if it detects old IE; what it
-	 * will do in the future is actually render its own VML. there are many reasons to do this internally and not rely on excanvas).  
-	 */
+		
+	// TODO refactor to renderer common script.  put a ref to jsPlumb.sizeCanvas in there too.
 	var _connectionBeingDragged = null;
 	var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); };
 	var _setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); };
@@ -19,6 +13,13 @@
 	var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
 	var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };		
 
+	/*
+	 * Class:CanvasMouseAdapter
+	 * Mixin that provides support for mouse events on canvases/vml.  When the renderMode is set to SVG, modern browsers will render
+	 * SVG and jsPlumb will use the SVGMouseAdapter class instead.  Of course IE<9 cannot use SVG, and in that case we use VML, as if the
+	 * renderMode had been set to canvas (what jsPlumb actually does right now is set the renderMode to canvas if it detects old IE; what it
+	 * will do in the future is actually render its own VML. there are many reasons to do this internally and not rely on excanvas).  
+	 */
 	var CanvasMouseAdapter = function() {
 		var self = this;
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
