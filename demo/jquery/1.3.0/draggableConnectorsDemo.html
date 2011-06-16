@@ -106,7 +106,7 @@
 				var exampleColor = '#00f';
 				var exampleEndpoint = {
 					endpoint:"Rectangle",
-					style:{ width:25, height:21, fillStyle:exampleColor },
+					paintStyle:{ width:25, height:21, fillStyle:exampleColor },
 					isSource:true,
 					scope:'blue rectangle',
 					connectorStyle : {
@@ -125,7 +125,7 @@
 				var color2 = '#316b31';
 				var exampleEndpoint2 = {
 						endpoint:["Dot", {radius:15}],
-						style:{ strokeStyle:color2 },
+						paintStyle:{ fillStyle:color2 },
 						isSource:true,
 						scope:'green dot',
 						connectorStyle:{ strokeStyle:color2, lineWidth:8 },
@@ -150,7 +150,7 @@
 						endpoint:["Dot", {radius:17} ],
 						reattach:true,
 						anchor:"BottomLeft",
-						style:{ strokeStyle:example3Color, opacity:0.5 },
+						paintStyle:{ fillStyle:example3Color, opacity:0.5 },
 						isSource:true,
 						scope:'yellow dot',
 						connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
