@@ -150,15 +150,7 @@
 	    		_attr(self.path, a);
 	    	}
 		};
-	};
-	
-	/*
-	 * Base class for SVG endpoints (needs things to be pulled up into here)
-	 */
-	var SvgEndpoint = function() {
-		var self = this;
-		SvgComponent.apply(this, [ jsPlumb.endpointClass, arguments, "all" ]);		
-	};
+	};		
 
 	/*
 	 * SVG Bezier Connector
@@ -193,50 +185,50 @@
 	        return p;
     	};
     };
-	
-	/*
-	 * SVG Dot Endpoint
-	 * TODO: some refactoring with this, the other svg Endpoints, and SvgEndpoint.
+    
+    /*
+	 * Base class for SVG endpoints (needs things to be pulled up into here)
 	 */
-	jsPlumb.Endpoints.svg.Dot = function() {
+	var SvgEndpoint = function() {
 		var self = this;
-		jsPlumb.Endpoints.Dot.apply(this, arguments);
-		SvgEndpoint.apply(this, arguments);		
+		SvgComponent.apply(this, [ jsPlumb.endpointClass, arguments, "all" ]);
 		this._paint = function(d, style) { 
 			if (self.node == null) {
-				self.node = _node("circle", {
-					"cx"	:	d[2] / 2,
-					"cy"	:	d[3] / 2,
-					"r"		:	d[2] / 2
-				});
+				self.node = self.makeNode(d, style);
 				self.svg.appendChild(self.node);
 			}
 			_applyStyles(self.svg, self.node, style);
 			_pos(self.node, d);
-		};	
+		};
 	};
 	
 	/*
-	 * SVG Rectangle Endpoint
-	 * 
-	 * TODO: some refactoring with this, the other svg Endpoints, and SvgEndpoint.
+	 * SVG Dot Endpoint
+	 */
+	jsPlumb.Endpoints.svg.Dot = function() {
+		jsPlumb.Endpoints.Dot.apply(this, arguments);
+		SvgEndpoint.apply(this, arguments);		
+		this.makeNode = function(d, style) { 
+			return _node("circle", {
+					"cx"	:	d[2] / 2,
+					"cy"	:	d[3] / 2,
+					"r"		:	d[2] / 2
+				});			
+		};
+	};
+	
+	/*
+	 * SVG Rectangle Endpoint 
 	 */
 	jsPlumb.Endpoints.svg.Rectangle = function() {
-		var self = this;
-		self.node = null;
 		jsPlumb.Endpoints.Rectangle.apply(this, arguments);
 		SvgEndpoint.apply(this, arguments);		
-		this._paint = function(d, style) { 
-			if (self.node == null) {
-				self.node = _node("rect", {
-					"width":d[2],
-					"height":d[3]
-				});				
-				self.svg.appendChild(self.node);
-			}
-			_applyStyles(self.svg, self.node, style);
-			_pos(self.node, d);
-		};		
+		this.makeNode = function(d, style) {
+			return _node("rect", {
+				"width":d[2],
+				"height":d[3]
+			});
+		};			
 	};		
 	
 	/*
@@ -311,16 +303,18 @@
     			connector.svg.appendChild(path);
     		}
     		
-    		var o = { 
+    		_attr(path, { 
     			"d"		:	makePath(d),
     			stroke 	: 	strokeStyle ? strokeStyle : null,
     			fill 	: 	fillStyle ? fillStyle : null
-    		};
-    		
-    		_attr(path, o);    		
+    		});    		
     	};
     	var makePath = function(d) {
-    		return "M" + d.hxy.x + "," + d.hxy.y+" L" + d.tail[0].x + "," + d.tail[0].y + " L" + d.cxy.x + "," + d.cxy.y + " L" + d.tail[1].x + "," + d.tail[1].y + " L" + d.hxy.x + "," + d.hxy.y;
+    		return "M" + d.hxy.x + "," + d.hxy.y +
+    				" L" + d.tail[0].x + "," + d.tail[0].y + 
+    				" L" + d.cxy.x + "," + d.cxy.y + 
+    				" L" + d.tail[1].x + "," + d.tail[1].y + 
+    				" L" + d.hxy.x + "," + d.hxy.y;
     	};
     };
     
