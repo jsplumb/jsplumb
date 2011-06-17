@@ -239,47 +239,92 @@
 	};
 	
 	jsPlumb.Overlays.svg.Label = function(params) {
-		var self = this, lines = [];
+		var self = this, lines = [], bg = null, initialized = null;
 		jsPlumb.Overlays.Label.apply(this, arguments);
-		//TODO i need text dimensions here i think.oh actually maybe i can just set atts of the group.
-		var _drawBox = function(d) {
-			self.group.fillStyle="red";
+		var _drawBox = function(conn, d, textDimensions) {
+			// TODO take padding into account.
+			// TODO paint border, if required.
+			var labelPadding = self.labelStyle.padding || 0.25;
+			var y = textDimensions.cy - (textDimensions.aLineHeight * textDimensions.lineCount / 2) - labelPadding;
+			var atts = {
+				"x":textDimensions.cx - (textDimensions.xmax / 2) - (labelPadding * textDimensions.xmax),
+				"y":y,
+				"width":textDimensions.xmax + (2 * labelPadding * textDimensions.xmax),
+				"height":textDimensions.ymax + (2 * labelPadding * textDimensions.ymax),
+				"fill":self.labelStyle.fillStyle ? _convertStyle(self.labelStyle.fillStyle, true) : "none"
+			};
+			if (self.labelStyle.borderWidth > 0) {
+				atts["stroke"] = self.labelStyle.borderStyle ? _convertStyle(self.labelStyle.borderStyle, true) : "black";
+				atts["stroke-width"] = self.labelStyle.borderWidth;
+			}
+			if (bg == null) {
+				bg = _node("rect", atts);
+				self.group.appendChild(bg);
+			} else {
+				_attr(bg, atts);
+			}
 		};
-		var _drawText = function(conn, d) {
+		var _drawText = function(conn, d, doNotRecalculate) {
 			var t = params.label.constructor == Function ? params.label(conn) : params.label;
 			var l = t.split("\n");
 			var font = _decodeFont(params.labelStyle.font);
+			var lineLengths = [], y = d.cxy.y, aLineHeight = 0;
 			if (lines.length != l.length) {
 				self.group.innerHTML = "";			// must be a nice way to clear child nodes.
-				lines.splice(0, lines.length);
+				lines.splice(0, lines.length);								
 				for (var i = 0; i < l.length; i++) {
 					var ln = _node("text", {
 						"x":d.cxy.x,
-						"y":d.cxy.y,
+						"y":y,
 						"text-anchor":"middle",
 						"font-family":font.font, 
 						"font-size":font.size, 
 						"fill":params.labelStyle.color
 					});
-					self.group.appendChild(ln);
+				//	self.group.appendChild(ln);
 					var tn = document.createTextNode(l[i]);
 					ln.appendChild(tn);
+					lineLengths[i] = ln.getComputedTextLength();
 					lines.push({ln:ln, tn:tn});
-				}
+					aLineHeight = ln.offsetHeight;
+					y += ln.offsetHeight;
+				}												
 			}
 			else {
-				for (var i = 0; i < l.length; i++) {
+				for (var i = 0; i < lines.length; i++) {					
 					_attr(lines[i].ln, {
 						"x":d.cxy.x,
-						"y":d.cxy.y,
+						"y":y,
 						"font-family":font.font, 
 						"font-size":font.size, 
 						"fill":params.labelStyle.color
 					});
-					lines[i].tn.textContent = l[i];
+					lines[i].tn.textContent = l[i];					
+					lineLengths[i] = lines[i].ln.getComputedTextLength();
+					aLineHeight = lines[i].ln.offsetHeight;
+					y += lines[i].ln.offsetHeight;
 				}
 			}
+			
+			return { cx:d.cxy.x, cy:d.cxy.y, 
+					 xmax:lineLengths.sort().reverse()[0], 
+					 ymax:y - d.cxy.y,
+					 aLineHeight : aLineHeight,
+					 lineCount:lines.length
+			};
 		};
+		// TODO this method should do all of the work that is currently in the drawText method. It is
+		// called before _drawText, and is used by jsPlumb to determine how big each connector's
+		// surface needs to be. just need to be careful to ensure everything is ready in the UI
+		// when this gets called; different technologies behave differently: what we need to do is
+		// pre-render the content and then ask it how big it was.  the VML implementation does this
+		// and nothing untoward happens; hopefully the svg implementation will too.
+		//
+		// a further complication (for both this and VML) is that to paint the background you must
+		// know how big the text will be, but the first time the overlay is painted, if you append
+		// the text nodes to the UI before the background, the background appears on top. so we need
+		// to put a check in the code on the append stuff.
+		// 
 		this.getTextDimensions = function(connector) {
 			return {width:0, height:0, lines:0, oneLine:0, padding:0, textHeight:0};
 		};
@@ -288,8 +333,15 @@
 				self.group = _node("g");
 				connector.svg.appendChild(self.group);									
 			}
-			_drawBox(connector, d);
-			_drawText(connector, d);
+			var dim = _drawText(connector, d);
+			_drawBox(connector,d, dim);
+			if (!initialized) {
+				for (var i in lines) {
+					self.group.appendChild(lines[i].ln);
+				}
+				initialized = true;
+			}
+		//	_drawText(connector, d, true);  
 		};
 			
 	};
