@@ -23,10 +23,10 @@ mouse events, not to mention running a whole lot quicker.
 		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>
 		<link rel="stylesheet" href="../../css/demo.css"></link>		
 		
-		<!-- style type="text/css">
-		._jsPlumb_connector { border :1px solid blue; }
-		._jsPlumb_endpoint { border :1px solid green; }
-		</style-->
+		<style type="text/css">
+		/*._jsPlumb_connector { z-index:0; }
+		._jsPlumb_endpoint { z-index:1 }*/
+		</style>
 		
 	</head>
 	<body onunload="jsPlumb.unload();">
@@ -97,7 +97,7 @@ mouse events, not to mention running a whole lot quicker.
 													   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
 													   hoverPaintStyle:{lineWidth:17,strokeStyle:'rgb(243,30,218)'},
 													//   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'},  
-													   endpointStyle:{fillStyle:'rgb(243,229,0)'},
+													   //endpointStyle:{fillStyle:'rgb(243,229,0)'},
 												//	   endpointBackgroundStyle:{radius:17,fillStyle:'rgba(100,100,100,50)'},
 													   overlays : [ ["Label", {
 													   					labelStyle : {
@@ -108,7 +108,9 @@ mouse events, not to mention running a whole lot quicker.
 													   					location:0.7 } ],
 													   				["Arrow", {location:0.2, width:50}]
 								   					   ]});
-					 connection1.bind("click", function() { alert("click on connection one."); });
+					 connection1.bind("dblclick", function() { alert("double click on connection one."); });
+					 connection1.endpoints[0].bind("click", function() { alert("click on connection one source endpoint"); });
+					 connection1.endpoints[1].bind("click", function() { alert("click on connection one target endpoint"); });
 	
 			        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
 			        // specified here - this is how you create anchors in locations jsPlumb does not offer shortcuts for.
@@ -119,13 +121,18 @@ mouse events, not to mention running a whole lot quicker.
 				        				 source:"window2", 
 				        				 target:"window3", 
 				        				 paintStyle:{ lineWidth:8,strokeStyle:w23Stroke },
+										 hoverPaintStyle:{ lineWidth:17, strokeStyle:"rgb(243,30,218)" },
 				        		//		 backgroundPaintStyle:{ lineWidth:10,strokeStyle:'black' }, 
-				        				 anchors:[[ 0.3 , 1, 0, 1 ], "TopCenter"], 
+				        				 anchors:[ [ 0.3 , 1, 0, 1 ], "TopCenter" ], 
 				        				 endpoint:"Rectangle", 
 				        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, "#558822"]] }},
 				    			        				 { gradient : {stops:[[0, w23Stroke], [1, "#882255"]] }}]//,
 								//		 endpointBackgroundStyle:{fillStyle:'rgba(100,100,100,50)'},
 				    			        });
+
+			        connection3.bind("dblclick", function() { alert("double click on connection three."); });
+					connection3.endpoints[0].bind("click", function() { alert("click on connection three source endpoint"); });
+					connection3.endpoints[1].bind("click", function() { alert("click on connection three target endpoint"); });
 					
 													  												  
 					//
@@ -138,9 +145,17 @@ mouse events, not to mention running a whole lot quicker.
 					var w34Stroke = 'rgba(50, 50, 200, 1)';
 					var w34HlStroke = 'rgba(180, 180, 200, 1)';
 					var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
-				        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
+				        				 paintStyle:{ lineWidth:10, strokeStyle:w34Stroke },
+										 hoverPaintStyle:{ lineWidth:17,strokeStyle:"rgb(243,30,218)" }, 
 				        				 anchors:["AutoDefault", "AutoDefault"], 
-				        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},				        				
+				        				 endpointStyle:{ 
+					        				 	gradient : { 
+					        				 		stops:[[0, w34Stroke], [1, w34HlStroke]], 
+					        				 		offset:17.5, 
+					        				 		innerRadius:15 
+					        				 	}, 
+					        				 	radius:35
+					        			 },				        				
 				        			//	 backgroundPaintStyle:{lineWidth:12,strokeStyle:'rgba(100,100,100,50)'},
 				        				 endpointsOnTop:true,
 				        				 label : function(connection) { 
@@ -149,24 +164,33 @@ mouse events, not to mention running a whole lot quicker.
 					        				 return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds())); 
 					        			 }
 				        			});
-					 
-	
+					connection2.bind("dblclick", function() { alert("double click on connection two."); });
+					connection2.endpoints[0].bind("click", function() { alert("click on connection two source endpoint"); });
+					connection2.endpoints[1].bind("click", function() { alert("click on connection two target endpoint"); });
+					 	
 			        //
 			        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
 			        // the endpoints are 125px in radius and spill out from underneath their elements. the connection is labelled
 			        // "big endpoints" with black text on a green background using the default font style and size.
 			        //
+			        var conn4Color = "rgba(46,164,26,0.8)";
 			        var connection4 = jsPlumb.connect({  
 				        						source:'window5', 
 				        						target:'window6', 
 				        						connector:"Flowchart",
 				        						anchors:["Center", "Center"],  
-				        						paintStyle:{lineWidth:9,strokeStyle:'rgba(46,164,26,0.8)'},
+				        						paintStyle:{ lineWidth:9, strokeStyle:conn4Color },
+												hoverPaintStyle:{ lineWidth:17, strokeStyle:"rgb(243,30,218)" },
 				        						endpointsOnTop:false, 
-				        						endpointStyle:{radius:95, fillStyle:'rgba(46,164,26,0.8)'},
-				        						labelStyle : { fillStyle:"rgba(46,164,26, 0.8)", color:"black",borderWidth:10 },
+				        						endpointStyle:{ radius:95, fillStyle:conn4Color },
+				        						labelStyle : { fillStyle:conn4Color, color:"black", borderWidth:10 },
 				        						label : "big\nendpoints"
 				        				});
+
+			        connection4.bind("dblclick", function() { alert("double click on connection four."); });
+					connection4.endpoints[0].bind("click", function() { alert("click on connection four source endpoint"); });
+					connection4.endpoints[1].bind("click", function() { alert("click on connection four target endpoint"); });
+					
 			        //
 			        // connect window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
 			        // image as the endpoint, placed on top of the element it is connected to.  the connection is labelled "4-5" with text
@@ -176,8 +200,9 @@ mouse events, not to mention running a whole lot quicker.
 			        var connection5 = jsPlumb.connect({
 				        					source:"window4", 
 				        					target:"window5", 
-				        					anchors:["BottomRight",new jsPlumb.Anchors.TopLeft()], //comparison of old way and new way.  i recommend using the string.
-				        					paintStyle:{ lineWidth:7,strokeStyle:"rgb(131,8,135)" }, 
+				        					anchors:["BottomRight", "TopLeft"], 
+				        					paintStyle:{ lineWidth:7,strokeStyle:"rgb(131,8,135)" },
+											hoverPaintStyle:{ lineWidth:17, strokeStyle:"rgb(243,30,218)" }, 
 				        					endpoint:["Image", {url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}], 
 				        					connector:"Straight", 
 				        					endpointsOnTop:true,
@@ -193,6 +218,10 @@ mouse events, not to mention running a whole lot quicker.
 									    			        label : "4 - 5",
 									    			        location:0.3 } ]
 											]});
+
+			        connection5.bind("dblclick", function() { alert("double click on connection five."); });
+					connection5.endpoints[0].bind("click", function() { alert("click on connection five source endpoint"); });
+					connection5.endpoints[1].bind("click", function() { alert("click on connection five target endpoint"); });
 				};
 
 				
