@@ -15,10 +15,7 @@
 
 	/*
 	 * Class:CanvasMouseAdapter
-	 * Mixin that provides support for mouse events on canvases/vml.  When the renderMode is set to SVG, modern browsers will render
-	 * SVG and jsPlumb will use the SVGMouseAdapter class instead.  Of course IE<9 cannot use SVG, and in that case we use VML, as if the
-	 * renderMode had been set to canvas (what jsPlumb actually does right now is set the renderMode to canvas if it detects old IE; what it
-	 * will do in the future is actually render its own VML. there are many reasons to do this internally and not rely on excanvas).  
+	 * Provides support for mouse events on canvases.  
 	 */
 	var CanvasMouseAdapter = function() {
 		var self = this;
@@ -38,45 +35,26 @@
 		    			return true;
 		    	}
 		    	
-		    	if (!ie) {
-			    	// then the canvas
-			    	var d = self.canvas.getContext("2d").getImageData(parseInt(x), parseInt(y), 1, 1);
-			    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;
-		    	}
-		    	else {
-		    		// we would need to get fancy with the vml.
-		    	}
+		    	// then the canvas
+		    	var d = self.canvas.getContext("2d").getImageData(parseInt(x), parseInt(y), 1, 1);
+		    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;		  
 	    	}
 	    	return false;
 	    };
 	    
 	    var _mouseover = false;
-	    var _mouseDown = false, /*_mouseDownAt = null, */_posWhenMouseDown = null, _mouseWasDown = false;
-	    this.mousemove = function(e) {	
-	    	
+	    var _mouseDown = false, _posWhenMouseDown = null, _mouseWasDown = false;
+	    this.mousemove = function(e) {		    	
 	    	var jpcl = jsPlumb.CurrentLibrary;
 	    	var pageXY = jpcl.getPageXY(e);
 			var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
 			var _continue = _connectionBeingDragged == null && (_hasClass(ee, "_jsPlumb_endpoint") || _hasClass(ee, "_jsPlumb_connector"));
-			
-			/*if (_mouseDown) {
-				_mouseWasDown = true;
-				_connectionBeingDragged = self;				
-				var mouseNow = jpcl.getPageXY(e);
-				var dx = mouseNow[0] - _mouseDownAt[0];
-				var dy = mouseNow[1] - _mouseDownAt[1];
-				
-				if (self.movePositionBy) self.movePositionBy(dx, dy);										
-			}*/				
-			//else 
-				if (!_mouseover && _continue && self._over(e)) {
+			if (!_mouseover && _continue && self._over(e)) {
 				_mouseover = true;
-			//	self.setHover(_mouseover);
 				self.fire("mouseenter", self, e);				
 			}
 			else if (_mouseover && (!self._over(e) || !_continue)) {
 				_mouseover = false;
-				//self.setHover(_mouseover);
 				self.fire("mouseexit", self, e);				
 			}
 			self.fire("mousemove", self, e);
@@ -96,10 +74,8 @@
 	    
 	    this.mousedown = function(e) {
 	    	if(self._over(e) && !_mouseDown) {
-	    		_mouseDown = true;
-	    		
-	    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));
-	    			
+	    		_mouseDown = true;	    		
+	    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));	    			
 	    		self.fire("mousedown", self, e);
 	    	}
 	    };
@@ -111,27 +87,22 @@
 	    };					    
 	};
 	
-	var ie = !!!document.createElement('canvas').getContext;
 	var _newCanvas = function(params) {
 		var canvas = document.createElement("canvas");
-		jsPlumb.appendElement(canvas, params.container);
+		jsPlumb.appendElement(canvas, document.body);
 		canvas.style.position = "absolute";
 		if (params["class"]) canvas.className = params["class"];
 		// set an id. if no id on the element and if uuid was supplied it
 		// will be used, otherwise we'll create one.
 		jsPlumb.getId(canvas, params.uuid);
-		if (ie) {
-			// for IE we have to set a big canvas size. actually you can
-			// override this, too, if 1200 pixels
-			// is not big enough for the biggest connector/endpoint canvas
-			// you have at startup.
-			jsPlumb.sizeCanvas(canvas, 0, 0, 1200,1200);
-			canvas = G_vmlCanvasManager.initElement(canvas);
-		}
 
 		return canvas;
 	};	
 	
+	/**
+	 * Class:CanvasConnector
+	 * Superclass for Canvas Connector renderers.
+	 */
 	var CanvasConnector = jsPlumb.CanvasConnector = function(params) {
 		
 		CanvasMouseAdapter.apply(this, arguments);
@@ -139,8 +110,8 @@
 		var _paintOneStyle = function(dim, aStyle) {
 			self.ctx.save();
 			jsPlumb.extend(self.ctx, aStyle);
-			if (aStyle.gradient && !ie) {
-				var g = self.createGradient(dim, self.ctx/*, false/*(elId == this.sourceId)*/);
+			if (aStyle.gradient) {
+				var g = self.createGradient(dim, self.ctx);
 				for ( var i = 0; i < aStyle.gradient.stops.length; i++)
 					g.addColorStop(aStyle.gradient.stops[i][0], aStyle.gradient.stops[i][1]);
 				self.ctx.strokeStyle = g;
@@ -156,12 +127,16 @@
 		
 		self.paint = function(dim, style) {						
 			if (style != null) {
-				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3])
+				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);
 				_paintOneStyle(dim, style);
 			}
 		};
 	};		
 	
+	/**
+	 * Class:CanvasEndpoint
+	 * Superclass for Canvas Endpoint renderers.
+	 */
 	var CanvasEndpoint = function(params) {
 		var self = this;				
 		CanvasMouseAdapter.apply(this, arguments);		
@@ -171,7 +146,7 @@
 		
 		this.paint = function(d, style, anchor) {
 			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
-			this._paint.apply(this, arguments);
+			self._paint.apply(this, arguments);
 		};
 	};
 	
@@ -198,7 +173,7 @@
 			if (style != null) {			
 				var ctx = self.canvas.getContext('2d'), orientation = anchor.getOrientation();
 				jsPlumb.extend(ctx, style);						
-	            if (style.gradient && !ie) {            	
+	            if (style.gradient) {            	
 	            	var adjustments = calculateAdjustments(style.gradient); 
 	            	var yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0];
 	            	var xAdjust = orientation[0] == 1 ? adjustments[0] * -1:  adjustments[0];
@@ -210,7 +185,7 @@
 				ctx.beginPath();    		
 				ctx.arc(d[4], d[4], d[4], 0, Math.PI*2, true);
 				ctx.closePath();				
-				if (style.fillStyle || (style.gradient && !ie)) ctx.fill();
+				if (style.fillStyle || style.gradient) ctx.fill();
 				if (style.strokeStyle) ctx.stroke();
 			}
     	};
@@ -224,13 +199,11 @@
 		
     	this._paint = function(d, style, anchor) {
 				
-			// canvas specific 
 			var ctx = self.canvas.getContext("2d"), orientation = anchor.getOrientation();
 			jsPlumb.extend(ctx, style);
 			
 			/* canvas gradient */
-			var ie = (/MSIE/.test(navigator.userAgent) && !window.opera);
-		    if (style.gradient && !ie) {
+		    if (style.gradient) {
 		    	// first figure out which direction to run the gradient in (it depends on the orientation of the anchors)
 		    	var y1 = orientation[1] == 1 ? d[3] : orientation[1] == 0 ? d[3] / 2 : 0;
 				var y2 = orientation[1] == -1 ? d[3] : orientation[1] == 0 ? d[3] / 2 : 0;
@@ -245,7 +218,7 @@
 			ctx.beginPath();
 			ctx.rect(0, 0, d[2], d[3]);
 			ctx.closePath();				
-			if (style.fillStyle || (style.gradient && !ie)) ctx.fill();
+			if (style.fillStyle || style.gradient) ctx.fill();
 			if (style.strokeStyle) ctx.stroke();
     	};
 	};		
@@ -290,41 +263,15 @@
 			ctx.lineTo(width/2, height/2);
 			ctx.lineTo(0, height);
 			ctx.closePath();
-			if (style.fillStyle || (style.gradient && !ie)) ctx.fill();
+			if (style.fillStyle || style.gradient) ctx.fill();
 			if (style.strokeStyle) ctx.stroke();				
     	};
 	};	
 	
 	/*
-	 * Canvas Image Endpoint.  Draws the image into a Canvas element.
+	 * Canvas Image Endpoint: uses the default version, which creates an <img> tag.
 	 */
-	jsPlumb.Endpoints.canvas.Image = function(params) {
-		
-		var self = this;
-		jsPlumb.Endpoints.Image.apply(this, arguments);
-		CanvasEndpoint.apply(this, arguments);				
-		
-		var actuallyPaint = function(d, style, anchor) {
-			var width = self.img.width;
-			var height = self.img.height;
-			var x = self.anchorPoint[0] - (width/2);
-			var y = self.anchorPoint[1] - (height/2);
-			jsPlumb.sizeCanvas(self.canvas, x, y, width, height);
-			var ctx = self.canvas.getContext('2d');
-			ctx.drawImage(self.img,0,0);
-		};
-		
-		this._paint = function(d, style) {
-			if (self.ready) {
-    			actuallyPaint(d, style);
-			}
-			else { 
-				window.setTimeout(function() {    					
-					self._paint(d, style);
-				}, 200);
-			}
-		};    		
-	};
+	jsPlumb.Endpoints.canvas.Image = jsPlumb.Endpoints.Image;
 	
 	/*
      * Canvas Bezier Connector. Draws a Bezier curve onto a Canvas element.
@@ -499,7 +446,5 @@
     
     jsPlumb.Overlays.canvas.Diamond = function() {
     	AbstractCanvasArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);    	
-    };
-	
-	
+    };		
 })();
