@@ -43,12 +43,11 @@
 		return o;
 	},
 	_applyStyles = function(parent, node, style) {
-		if (style.fillStyle) {
-			node.setAttribute("fill", _convertStyle(style.fillStyle, true));
-		}
-		if (style.strokeStyle) {
+		node.setAttribute("fill", style.fillStyle ? _convertStyle(style.fillStyle, true) : "none");
+		node.setAttribute("stroke", style.strokeStyle ? _convertStyle(style.strokeStyle, true) : "none");
+		/*if (style.strokeStyle) {
 			node.setAttribute("stroke", _convertStyle(style.strokeStyle, true));
-		}
+		}*/
 		if (style.lineWidth) {
 			node.setAttribute("stroke-width", style.lineWidth);
 		}
@@ -62,6 +61,10 @@
 			}
 			node.setAttribute("style", "fill:url(#" + id + ")");
 		}
+		if(style["stroke-dasharray"] || style["dashstyle"]) {
+			node.setAttribute("stroke-dasharray", style["stroke-dasharray"] || style["dashstyle"]);
+		}
+		
 	},
 	_decodeFont = function(f) {
 		var r = /([0-9].)(p[xt])\s(.*)/;
@@ -75,7 +78,7 @@
 		bindOne = function(evt) {
 			var filteredEvent = eventFilters[evt] || evt;
 			jpcl.bind(o, evt, function(ee) {
-				c.fire(filteredEvent, ee);
+				c.fire(filteredEvent, c, ee);
 			});
 		};
 		for (var i = 0; i < events.length; i++) {
@@ -95,15 +98,15 @@
 	
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
-		jsPlumb.sizeCanvas(self.canvas, 0,0,1,1);
+		//self.canvas.className = cssClass; 
+		jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
 		
-		//self.canvas = _node("svg", {
 		self.svg = _node("svg", {
 			"style":"",
 			"width":0,
 			"height":0,
 			"pointer-events":pointerEventsSpec,
-			"class":cssClass 
+			"class": cssClass
 		});
 		
 		document.body.appendChild(self.canvas);
@@ -113,7 +116,7 @@
 			if (style != null) {
 				jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 		    	_attr(self.svg, {
-	    			"style":_pos([0,0,d[2], d[3]]),//_pos(d),
+	    			"style":_pos([0,0,d[2], d[3]]),
 	    			"width": d[2],
 	    			"height": d[3]
 	    		});
@@ -131,15 +134,13 @@
 		this._paint = function(d, style) {
 			var p = self.getPath(d), a = { "d":p };
 			
-			if (style.strokeStyle) {
-        		a["stroke"]=_convertStyle(style.strokeStyle, true);						
-         		a["stroke-width"] = style.lineWidth;
-			} 
-			else 
-				a["stroke"] = "none";
-			
-        	a["fill"] = style.fillStyle ? _convertStyle(style.fillStyle, true) : "none";
-			
+			/*
+        	//testing
+        	//a["stroke-dashoffset"] = "50%";
+        	
+        	// testing
+        //	a["stroke-linejoin"] = "round";*/
+        							
 			a["pointer-events"] = "all";
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
@@ -149,6 +150,8 @@
 	    	else {
 	    		_attr(self.path, a);
 	    	}
+	    	
+	    	_applyStyles(self.svg, self.path, style);
 		};
 	};		
 
@@ -196,6 +199,7 @@
 			if (self.node == null) {
 				self.node = self.makeNode(d, style);
 				self.svg.appendChild(self.node);
+				_attachListeners(self.node, self);
 			}
 			_applyStyles(self.svg, self.node, style);
 			_pos(self.node, d);
@@ -235,22 +239,22 @@
 	 * SVG Image Endpoint.  Currently extends the canvas implementation; shouldn't.
 	 */
 	jsPlumb.Endpoints.svg.Image = function() {
-		jsPlumb.Endpoints.canvas.Image.apply(this, arguments);		
+		jsPlumb.Endpoints.Image.apply(this, arguments);		
 	};
 	
 	jsPlumb.Overlays.svg.Label = function(params) {
 		var self = this, lines = [], bg = null, initialized = null;
 		jsPlumb.Overlays.Label.apply(this, arguments);
 		var _drawBox = function(conn, d, textDimensions) {
-			// TODO take padding into account.
-			// TODO paint border, if required.
 			var labelPadding = self.labelStyle.padding || 0.25;
-			var y = textDimensions.cy - (textDimensions.aLineHeight * textDimensions.lineCount / 2) - labelPadding;
+			var height = textDimensions.aLineHeight * textDimensions.lineCount;
+			height += (2 * labelPadding * height);
+			var y = textDimensions.cy -  (height/ 2);
 			var atts = {
 				"x":textDimensions.cx - (textDimensions.xmax / 2) - (labelPadding * textDimensions.xmax),
 				"y":y,
 				"width":textDimensions.xmax + (2 * labelPadding * textDimensions.xmax),
-				"height":textDimensions.ymax + (2 * labelPadding * textDimensions.ymax),
+				"height":height,
 				"fill":self.labelStyle.fillStyle ? _convertStyle(self.labelStyle.fillStyle, true) : "none"
 			};
 			if (self.labelStyle.borderWidth > 0) {
