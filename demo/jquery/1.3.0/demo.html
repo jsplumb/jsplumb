@@ -93,8 +93,9 @@ mouse events, not to mention running a whole lot quicker.
 					var connection1 = jsPlumb.connect({source:'window1', 
 													   target:'window2', 
 													   connector:"Bezier",
+													   //,dashstyle:"2 2"
 													   anchors:["BottomCenter", [ 0.75, 0, 0, -1 ]], 
-													   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
+													   paintStyle:{ lineWidth:15,strokeStyle:"rgb(243,230,18)" },
 													   hoverPaintStyle:{lineWidth:17,strokeStyle:'rgb(243,30,218)'},
 													//   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'},  
 													   //endpointStyle:{fillStyle:'rgb(243,229,0)'},
@@ -203,7 +204,7 @@ mouse events, not to mention running a whole lot quicker.
 				        					anchors:["BottomRight", "TopLeft"], 
 				        					paintStyle:{ lineWidth:7,strokeStyle:"rgb(131,8,135)" },
 											hoverPaintStyle:{ lineWidth:17, strokeStyle:"rgb(243,30,218)" }, 
-				        					endpoint:["Image", {url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"}], 
+				        					endpoint:["Image", {url:"../../../img/endpointTest1.png"}], 
 				        					connector:"Straight", 
 				        					endpointsOnTop:true,
 											overlays:[ ["Label", {
