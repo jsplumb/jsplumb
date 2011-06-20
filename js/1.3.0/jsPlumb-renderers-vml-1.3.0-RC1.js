@@ -16,7 +16,6 @@
 		_pos(o, d);
 		//atts["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);  //unsure about whether or not to include this.
 		_atts(o, atts);
-		document.body.appendChild(o);		
 		return o;
 	},
 	_pos = function(o,d) {
@@ -49,7 +48,7 @@
 		bindOne = function(evt) {
 			var filteredEvent = eventFilters[evt] || evt;
 			jpcl.bind(o, evt, function(ee) {
-				c.fire(filteredEvent, ee);
+				c.fire(filteredEvent, c, ee);
 			});
 		};
 		for (var i = 0; i < events.length; i++) {
@@ -68,7 +67,7 @@
 	 * base class for Vml connectors. extends VmlComponent.
 	 */
 	VmlConnector = function() {
-		var self = this;
+		var self = this, strokeNode = null;
 		self.canvas = null;
 		VmlComponent.apply(this, arguments);
 		this.paint = function(d, style, anchor) {
@@ -89,6 +88,12 @@
 				if (self.canvas == null) {
 					p["class"] = jsPlumb.connectorClass;
 					self.canvas = _node("shape", d, p);					
+					document.body.appendChild(self.canvas);
+					// a test
+					if(style["stroke-dasharray"] || style["dashstyle"]) {
+						strokeNode = _node("stroke", [0,0,0,0], {dashstyle:style["stroke-dasharray"] || style["dashstyle"]});
+						self.canvas.appendChild(strokeNode);
+					}					
 					_attachListeners(self.canvas, self);
 				}
 				else {
@@ -102,6 +107,12 @@
 	/*
 	 * Class: VmlEndpoint
 	 * base class for Vml endpoints. extends VmlComponent.
+	 * 
+	 * TODO VML supports a bunch of attributes that SVG and Canvas do not - such as dashed connectors, shadows, etc.  it seems like a good idea
+	 * to support this notion of extra attributes (and in the svg connector too).  how, though?  possibly a 'vml' section inside a style
+	 * definition?  it seems better to sandbox the stuff on a per tech basis: we wouldn't want to be arbitrarily setting attributes that a certain
+	 * rendering mechanism does not support.  well, probably.  you could also argue that it doesn't hurt.  but i wonder if Firefox would agree: the
+	 * SVG in that browser seems a little brittle. 
 	 */
 	VmlEndpoint = function() {
 		VmlComponent.apply(this, arguments);
@@ -185,7 +196,7 @@
 	 * VML Image Endpoint.  Currently extends the canvas implementation; shouldn't.
 	 */
 	jsPlumb.Endpoints.vml.Image = function() {
-		jsPlumb.Endpoints.canvas.Image.apply(this, arguments);		
+		jsPlumb.Endpoints.Image.apply(this, arguments);		
 	};
 	
 	jsPlumb.Overlays.vml.Label = function(params) {
@@ -196,6 +207,7 @@
 		div.style["position"] 	= 	"absolute";
 		div.style["display"] 	=	"none";
 		div.style["textAlign"] 	= 	"center";		
+		//div.className			=	jsPlumb.overlayClass; // TODO currentInstance? 
 		// initially, put these on the body, so the first pass at getTextDimensions can work.
 		// after the first paint, we remove from body and append to the textbox.
 		document.body.appendChild(div);
@@ -263,12 +275,15 @@
 			// for canvas that makes sense).
 			p["path"] = getPath(d, connectorDimensions);
 			p["coordsize"] = (connectorDimensions[2] * scale) + "," + (connectorDimensions[3] * scale);
+			
 			dim[0] = connectorDimensions[0];
 			dim[1] = connectorDimensions[1];
 			dim[2] = connectorDimensions[2];
 			dim[3] = connectorDimensions[3];
+			
     		if (canvas == null) {
-				canvas = _node("shape", dim, p);
+    			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
+				canvas = _node("shape", dim, p);				
 				connector.canvas.parentNode.appendChild(canvas);
 				//_attachListeners(self.canvas, self);
 			}
