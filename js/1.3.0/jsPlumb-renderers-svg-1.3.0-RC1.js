@@ -10,6 +10,11 @@
  * 
  */
 ;(function() {
+	
+	var svgAttributeMap = {
+		"stroke-linejoin":"stroke-linejoin",
+		"joinstyle":"stroke-linejoin"
+	};
 
 	var ns = {
 		svg:"http://www.w3.org/2000/svg",
@@ -44,10 +49,7 @@
 	},
 	_applyStyles = function(parent, node, style) {
 		node.setAttribute("fill", style.fillStyle ? _convertStyle(style.fillStyle, true) : "none");
-		node.setAttribute("stroke", style.strokeStyle ? _convertStyle(style.strokeStyle, true) : "none");
-		/*if (style.strokeStyle) {
-			node.setAttribute("stroke", _convertStyle(style.strokeStyle, true));
-		}*/
+		node.setAttribute("stroke", style.strokeStyle ? _convertStyle(style.strokeStyle, true) : "none");		
 		if (style.lineWidth) {
 			node.setAttribute("stroke-width", style.lineWidth);
 		}
@@ -61,10 +63,26 @@
 			}
 			node.setAttribute("style", "fill:url(#" + id + ")");
 		}
-		if(style["stroke-dasharray"] || style["dashstyle"]) {
-			node.setAttribute("stroke-dasharray", style["stroke-dasharray"] || style["dashstyle"]);
+		// in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
+		// the syntax in VML but is actually kind of nasty: values are given in the pixel
+		// coordinate space, whereas in VML they are multiples of the width of the stroked
+		// line, which makes a lot more sense.  for that reason, jsPlumb is supporting both
+		// the native svg 'stroke-dasharray' attribute, and also the 'dashstyle' concept from
+		// VML, which will be the preferred method.  the code below this converts a dashstyle
+		// attribute given in terms of stroke width into a pixel representation, by using the
+		// stroke's lineWidth.
+		if(style["stroke-dasharray"]) {
+			node.setAttribute("stroke-dasharray", style["stroke-dasharray"]);
 		}
-		
+		if (style["dashstyle"] && style["lineWidth"]) {
+			var sep = style["dashstyle"].indexOf(",") == -1 ? " " : ",",
+			parts = style["dashstyle"].split(sep),
+			styleToUse = "";
+			parts.forEach(function(p) {
+				styleToUse += (Math.floor(p * style.lineWidth) + sep);
+			});
+			node.setAttribute("stroke-dasharray", styleToUse);
+		}		
 	},
 	_decodeFont = function(f) {
 		var r = /([0-9].)(p[xt])\s(.*)/;
