@@ -51,12 +51,33 @@
 	jsPlumb.Anchors["BottomRight"] 	= _curryAnchor(1, 1, 0, 1);
 	jsPlumb.Anchors["TopLeft"] 		= _curryAnchor(0, 0, 0, -1);
 	jsPlumb.Anchors["BottomLeft"] 		= _curryAnchor(0, 1, 0, 1);
-	
-	
+		
 	jsPlumb.Defaults.DynamicAnchors = function() {
 		return jsPlumb.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"]);
 	};
 	jsPlumb.Anchors["AutoDefault"]  = function() { return jsPlumb.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors()); };
+	
+	var _attachListeners = function(o, c) {
+		var jpcl = jsPlumb.CurrentLibrary,
+		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup" ],
+		eventFilters = { "mouseout":"mouseexit" },
+		bindOne = function(evt) {
+			var filteredEvent = eventFilters[evt] || evt;
+			jpcl.bind(o, evt, function(ee) {
+				c.fire(filteredEvent, ee);
+			});
+		};
+		for (var i = 0; i < events.length; i++) {
+			bindOne(events[i]); 			
+		}
+	};
+	
+	jsPlumb.DOMElementComponent = function(params) {
+		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+		// when render mode is canvas, these functions can be called by the canvas mouse handler.  this component is safe to pipe this
+		// stuff to /dev/null.
+		this.mousemove = this.dblclick  = this.click = this.mousedown = this.mouseup = function(e) { };					
+	};
 	                                   
         /**
          * The Straight connector draws a simple straight line between the two anchor points.
@@ -578,9 +599,13 @@
 	
 	/**
 	 * Image endpoint - draws an image as the endpoint.  You must provide a 'url' or, since 1.2.4, a 'src' property in the params object..
+	 * 
 	 */
 	jsPlumb.Endpoints.Image = function(params) {
-		var self = this;
+				
+		jsPlumb.DOMElementComponent.apply(this, arguments);
+		
+		var self = this, initialized = false;
 		this.img = new Image();
 		self.ready = false;
 		this.img.onload = function() {
@@ -592,6 +617,41 @@
 			if (self.ready) return [anchorPoint[0] - self.img.width / 2, anchorPoint[1] - self.img.height/ 2, self.img.width, self.img.height];
 			else return [0,0,0,0];
 		};
+		
+		self.canvas = document.createElement("img"), initialized = false;
+		self.canvas.style["margin"] = 0;
+		self.canvas.style["padding"] = 0;
+		self.canvas.style["outline"] = 0;
+		self.canvas.style["position"] = "absolute";
+		self.canvas.className = jsPlumb.endpointClass;
+		document.body.appendChild(self.canvas);
+		_attachListeners(self.canvas, self);
+		
+		var actuallyPaint = function(d, style, anchor) {
+			if (!initialized) {
+				self.canvas.setAttribute("src", self.img.src);
+				initialized = true;
+			}
+			var width = self.img.width;
+			var height = self.img.height;
+			var x = self.anchorPoint[0] - (width/2);
+			var y = self.anchorPoint[1] - (height/2);
+			jsPlumb.sizeCanvas(self.canvas, x, y, width, height);
+			//jsPlumb.sizeCanvas(self.canvas, x, y, width, height);
+			//var ctx = self.canvas.getContext('2d');
+			//ctx.drawImage(self.img,0,0);
+		};
+		
+		this.paint = function(d, style, anchor) {
+			if (self.ready) {
+    			actuallyPaint(d, style, anchor);
+			}
+			else { 
+				window.setTimeout(function() {    					
+					self.paint(d, style, anchor);
+				}, 200);
+			}
+		};				
 	};
 	
 	jsPlumb.Endpoints.Triangle = function(params) {
