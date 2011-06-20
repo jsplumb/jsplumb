@@ -1962,7 +1962,8 @@ about the parameters allowed in the params object.
 		 */
 		var Connection = function(params) {
 
-			EventGenerator.apply(this);
+			//EventGenerator.apply(this);
+			jsPlumbUIComponent.apply(this, arguments);
 			// ************** get the source and target and register the connection. *******************
 			var self = this;
 			var visible = true;
@@ -2101,21 +2102,24 @@ about the parameters allowed in the params object.
 			this.canvas = this.connector.canvas;
 			var _mouseDown = false, _mouseWasDown = false, _mouseDownAt = null;
 			// add mouse events
-			this.connector.bind("click", function(con, e) { _mouseWasDown = false; self.fire("click", self); });
-			this.connector.bind("dblclick", function(con, e) { _mouseWasDown = false;self.fire("dblclick", self); });
+			this.connector.bind("click", function(con, e) {
+				_mouseWasDown = false; 
+				self.fire("click", self, e);
+			});
+			this.connector.bind("dblclick", function(con, e) { _mouseWasDown = false;self.fire("dblclick", self, e); });
 			this.connector.bind("mouseenter", function(con, e) {
 				if (_connectionBeingDragged == null) {
 					self.paintStyleInUse = self.hoverPaintStyle; 
 					self.paint(); 				
 				}
-				self.fire("mouseenter", self);
+				self.fire("mouseenter", self, e);
 			});
 			this.connector.bind("mouseexit", function(con, e) { 
 				if (_connectionBeingDragged == null) {
 					self.paintStyleInUse = self.paintStyle; 
 					self.paint();
 				}
-				self.fire("mouseexit", self); 
+				self.fire("mouseexit", self, e); 
 			});
 		/*	this.connector.bind("mouseover", function(con, e) {
 				if (_connectionBeingDragged == null) {
@@ -2282,6 +2286,11 @@ about the parameters allowed in the params object.
 					}
 				//}
 			};
+			
+			/*this.setPaintStyle = function(style) {
+				self.connector.setPaintStyle(style);
+				self.repaint();
+			};*/
 
 			/*
 			 * Function: repaint
@@ -2638,6 +2647,18 @@ about the parameters allowed in the params object.
 						}
 						ap = self.anchor.compute(anchorParams);
 					}
+					
+					// TODO the endpoint should use the connection's paint style (using its stroke style for our fill style) if the endpoint
+					// does not have one.  actually, should we allow strokeStyle and fillStyle for connections?  the stroke Style would
+					// end up being the outline of the path (we'd have to convert it to a background style, taking lineWidth into account).
+					// this would break backwards compatibility a little, as people will be used to specifying strokeStyle for the color 
+					// that connectors paint themselves with.  we could allow for this by wiring strokeStyle to fillStyle if fillStyle is not
+					// specified.
+					//
+					// this inheritance of the paint style should be implemented for the hover paint style too.
+					//
+					// and we need to decide what to do about backgroundPaintStyle: throw it away?  probably.
+					
 					var d = _endpoint.compute(ap, self.anchor.getOrientation(), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
 					_endpoint.paint(d, self.paintStyleInUse, self.anchor);
 					
