@@ -131,6 +131,16 @@
 			};
 			
 			this.overlayPlacements = [], this.paintStyle = null, this.hoverPaintStyle = null/*, this.backgroundPaintStyle = null*/;
+			
+			// helper method to update the hover style whenever it, or paintStyle, changes.
+			var _updateHoverStyle = function() {
+				if (self.paintStyle && self.hoverPaintStyle) {
+					for (var i in self.paintStyle) {
+						if (!self.hoverPaintStyle.hasOwnProperty(i)) self.hoverPaintStyle[i] = self.paintStyle[i];
+					}
+				}
+			};
+			
 			/*
 		     * Function: setPaintStyle
 		     * Sets the paint style and then repaints the element.
@@ -138,22 +148,27 @@
 		     * Parameters:
 		     * 	style - Style to use.
 		     */
-		    this.setPaintStyle = function(style) {
+		    this.setPaintStyle = function(style, doNotRepaint) {
 		    	self.paintStyle = style;
 		    	self.paintStyleInUse = self.paintStyle;
-		    	self.repaint();
+		    	_updateHoverStyle();
+		    	if (!doNotRepaint) self.repaint();
 		    };
 		    
 		    /*
 		     * Function: setHoverPaintStyle
 		     * Sets the paint style to use when the mouse is hovering over the element. This is null by default.
+		     * The hover paint style is applied as extensions to the paintStyle; it does not entirely replace
+		     * it.  This is because people will most likely want to change just one thing when hovering, say the
+		     * color for example, but leave the rest of the appearance the same.
 		     * 
 		     * Parameters:
 		     * 	style - Style to use when the mouse is hovering.
 		     */
-		    this.setHoverPaintStyle = function(style) {
+		    this.setHoverPaintStyle = function(style, doNotRepaint) {		    	
 		    	self.hoverPaintStyle = style;
-		    	self.repaint();
+		    	_updateHoverStyle();
+		    	if (!doNotRepaint) self.repaint()
 		    };
 		    
 		    /*
@@ -2056,14 +2071,14 @@ about the parameters allowed in the params object.
 				if (anchorParams)
 					return jsPlumb.makeAnchor(anchorParams);
 			};
-			var prepareEndpoint = function(existing, index, params, element) {
+			var prepareEndpoint = function(existing, index, params, element, connectorPaintStyle, connectorHoverPaintStyle) {
 				if (existing) {
 					self.endpoints[index] = existing;
 					existing.addConnection(self);
 				} else {
 					if (!params.endpoints) params.endpoints = [ null, null ];
-					var ep = params.endpoints[index] || params.endpoint
-					//TODO this is a good example of why we need to split out the renderers.
+					var ep = params.endpoints[index] 
+					        || params.endpoint
 							|| _currentInstance.Defaults.Endpoints[index]
 							|| jsPlumb.Defaults.Endpoints[index]
 							|| _currentInstance.Defaults.Endpoint
@@ -2073,8 +2088,18 @@ about the parameters allowed in the params object.
 					if (!params.endpointStyles) params.endpointStyles = [ null, null ];
 					if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
 					var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+					// Endpoints derive their fillStyle from the connector's strokeStyle, if no fillStyle was specified.
+					if (es.fillStyle == null && connectorPaintStyle != null) 
+						es.fillStyle = connectorPaintStyle.strokeStyle;
 					//var bes = params.endpointBackgroundStyle;
 					var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _currentInstance.Defaults.EndpointHoverStyles[index] || jsPlumb.Defaults.EndpointHoverStyles[index] || _currentInstance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
+					// endpoint hover fill style is derived from connector's hover stroke style.  TODO: do we want to do this by default? for sure?
+					if (connectorHoverPaintStyle != null) {
+						if (ehs == null) ehs = {};
+						if (ehs.fillStyle == null) {
+							ehs.fillStyle = connectorHoverPaintStyle.strokeStyle;
+						}
+					}
 					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor) || _makeAnchor("BottomCenter");
 					var u = params.uuids ? params.uuids[index] : null;
 					var e = _newEndpoint( { paintStyle : es, hoverPaintStyle:ehs,/* backgroundPaintStyle:bes,*/ endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element, container : self.container });
@@ -2083,9 +2108,9 @@ about the parameters allowed in the params object.
 				}
 			};
 
-			var eS = prepareEndpoint(params.sourceEndpoint, 0, params, self.source);
+			var eS = prepareEndpoint(params.sourceEndpoint, 0, params, self.source, params.paintStyle, params.hoverPaintStyle);
 			if (eS) _addToList(endpointsByElement, this.sourceId, eS);
-			var eT = prepareEndpoint(params.targetEndpoint, 1, params, self.target);
+			var eT = prepareEndpoint(params.targetEndpoint, 1, params, self.target, params.paintStyle, params.hoverPaintStyle);
 			if (eT) _addToList(endpointsByElement, this.targetId, eT);
 			// if scope not set, set it to be the scope for the source endpoint.
 			if (!this.scope) this.scope = this.endpoints[0].scope;
@@ -2109,32 +2134,20 @@ about the parameters allowed in the params object.
 			this.connector.bind("dblclick", function(con, e) { _mouseWasDown = false;self.fire("dblclick", self, e); });
 			this.connector.bind("mouseenter", function(con, e) {
 				if (_connectionBeingDragged == null) {
-					self.paintStyleInUse = self.hoverPaintStyle; 
-					self.paint(); 				
+			//		self.paintStyleInUse = self.hoverPaintStyle; 
+			//		self.paint();
+					self.setHover(true);
 				}
 				self.fire("mouseenter", self, e);
 			});
 			this.connector.bind("mouseexit", function(con, e) { 
 				if (_connectionBeingDragged == null) {
-					self.paintStyleInUse = self.paintStyle; 
-					self.paint();
+				//	self.paintStyleInUse = self.paintStyle; 
+					//self.paint();
+					self.setHover(false);
 				}
 				self.fire("mouseexit", self, e); 
 			});
-		/*	this.connector.bind("mouseover", function(con, e) {
-				if (_connectionBeingDragged == null) {
-					self.paintStyleInUse = self.hoverPaintStyle; 
-					self.paint(); 				
-				}
-				self.fire("mouseover", self);
-			});
-			this.connector.bind("mouseout", function(con, e) { 
-				if (_connectionBeingDragged == null) {
-					self.paintStyleInUse = self.paintStyle; 
-					self.paint();
-				}
-				self.fire("mouseout", self); 
-			});*/
 			this.connector.bind("mousedown", function(con, e) { 
 				_mouseDown = true;
 				_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
@@ -2156,9 +2169,20 @@ about the parameters allowed in the params object.
 				}
 			});
 			
-			this.paintStyle = this.endpoints[0].connectorStyle || this.endpoints[1].connectorStyle || params.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle;
+			this.setPaintStyle(this.endpoints[0].connectorStyle || 
+							   this.endpoints[1].connectorStyle || 
+							   params.paintStyle || 
+							   _currentInstance.Defaults.PaintStyle || 
+							   jsPlumb.Defaults.PaintStyle, true);
+			
 			//this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
-			this.hoverPaintStyle = this.endpoints[0].connectorHoverStyle || this.endpoints[1].connectorHoverStyle || params.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle;
+			
+			this.setHoverPaintStyle(this.endpoints[0].connectorHoverStyle || 
+									this.endpoints[1].connectorHoverStyle || 
+									params.hoverPaintStyle || 
+									_currentInstance.Defaults.HoverPaintStyle || 
+									jsPlumb.Defaults.HoverPaintStyle, true);
+			
 			this.paintStyleInUse = this.paintStyle;
 			
 			/*
@@ -2345,7 +2369,7 @@ about the parameters allowed in the params object.
 		 * reattach - optional boolean that determines whether or not the Connections reattach after they have been dragged off an Endpoint and left floating. defaults to false: Connections dropped in this way will just be deleted.
 		 */
 		var Endpoint = function(params) {
-			EventGenerator.apply(this);
+			jsPlumb.jsPlumbUIComponent.apply(this);
 			params = params || {};
 			var self = this;
 			var visible = true;
@@ -2393,8 +2417,13 @@ about the parameters allowed in the params object.
 			self.endpoint = _endpoint;
 			this.endpoint.bind("click", function(e) { self.fire("click", self); });
 			this.endpoint.bind("dblclick", function(e) { self.fire("dblclick", self); });
-			this.paintStyle = params.paintStyle || params.style || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
-			this.hoverPaintStyle = params.hoverPaintStyle || _currentInstance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
+			this.setPaintStyle(params.paintStyle || 
+							   params.style || 
+							   _currentInstance.Defaults.EndpointStyle || 
+							   jsPlumb.Defaults.EndpointStyle, true);
+			this.setHoverPaintStyle(params.hoverPaintStyle || 
+									_currentInstance.Defaults.EndpointHoverStyle || 
+									jsPlumb.Defaults.EndpointHoverStyle, true);
 		//	this.backgroundPaintStyle = params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;			
 			this.paintStyleInUse = this.paintStyle;
 			this.connectorStyle = params.connectorStyle;
