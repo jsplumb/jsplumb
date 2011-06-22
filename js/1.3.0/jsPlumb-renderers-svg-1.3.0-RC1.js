@@ -13,7 +13,8 @@
 	
 	var svgAttributeMap = {
 		"stroke-linejoin":"stroke-linejoin",
-		"joinstyle":"stroke-linejoin"
+		"joinstyle":"stroke-linejoin",		
+		"stroke-dashoffset":"stroke-dashoffset"
 	};
 
 	var ns = {
@@ -83,6 +84,13 @@
 			});
 			node.setAttribute("stroke-dasharray", styleToUse);
 		}		
+		
+		// extra attributes such as join type, dash offset.
+		for (var i in svgAttributeMap) {
+			if (style[i]) {
+				node.setAttribute(svgAttributeMap[i], style[i]);
+			}
+		}
 	},
 	_decodeFont = function(f) {
 		var r = /([0-9].)(p[xt])\s(.*)/;
