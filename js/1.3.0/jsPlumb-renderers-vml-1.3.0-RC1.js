@@ -1,5 +1,12 @@
 ;(function() {
 	
+	var vmlAttributeMap = {
+		"stroke-linejoin":"joinstyle",
+		"joinstyle":"joinstyle",		
+		"endcap":"endcap",
+		"miterlimit":"miterlimit"
+	};
+	
 	if (document.createStyleSheet) {	
 		document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);position:absolute;");
 		document.namespaces.add("jsplumb", "urn:schemas-microsoft-com:vml");
@@ -55,6 +62,24 @@
 			bindOne(events[i]); 			
 		}
 	},
+	_applyStyles = function(node, style) {
+		var styleToWrite = {};
+		// TODO implement me! extract the code from endpoint and connector.
+		if (style.strokeStyle) {
+			styleToWrite["stroked"] = "true";
+			styleToWrite["strokecolor"] =_convertStyle(style.strokeStyle, true);
+			styleToWrite["strokeweight"] = style.lineWidth + "px";
+		}
+		else styleToWrite["stroked"] = "false";
+		
+		if (style.fillStyle) {
+			styleToWrite["filled"] = "true";
+			styleToWrite["fillcolor"] = _convertStyle(style.fillStyle, true);
+		}
+		else styleToWrite["filled"] = "false";
+		
+		_atts(node, styleToWrite);
+	},
 	/*
 	 * Class: VmlComponent
 	 * base class for Vml endpoints and connectors. 
@@ -72,28 +97,28 @@
 		VmlComponent.apply(this, arguments);
 		this.paint = function(d, style, anchor) {
 			if (style != null) {				
-				var path = self.getPath(d), p = {};
-				if (style.strokeStyle) {
-					p["stroked"] = "true";
-					p["strokecolor"] =_convertStyle(style.strokeStyle, true);
-					p["strokeweight"] = style.lineWidth + "px";
-				}
-				else p["stroked"] = "false";
-				if (style.fillStyle) {
-					p["filled"] = "true";
-					p["fillcolor"] = _convertStyle(style.fillStyle, true);
-				}
-				else p["filled"] = "false";
+				var path = self.getPath(d), p = {};								
+				
 				p["path"] = path;
 				if (self.canvas == null) {
 					p["class"] = jsPlumb.connectorClass;
 					self.canvas = _node("shape", d, p);					
 					document.body.appendChild(self.canvas);
-					// a test
-					if(style["stroke-dasharray"] || style["dashstyle"]) {
-						strokeNode = _node("stroke", [0,0,0,0], {dashstyle:style["stroke-dasharray"] || style["dashstyle"]});
+					if(style["dashstyle"]) {
+						strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] });
 						self.canvas.appendChild(strokeNode);
 					}					
+					else if (style["stroke-dasharray"] && style["lineWidth"]) {
+						var sep = style["stroke-dasharray"].indexOf(",") == -1 ? " " : ",",
+						parts = style["stroke-dasharray"].split(sep),
+						styleToUse = "";
+						for(var i = 0; i < parts.length; i++) {
+							styleToUse += (Math.floor(parts[i] / style.lineWidth) + sep);
+						}
+						strokeNode = _node("stroke", [0,0,0,0], { dashstyle:styleToUse });
+						self.canvas.appendChild(strokeNode);
+					}
+					
 					_attachListeners(self.canvas, self);
 				}
 				else {
@@ -101,6 +126,8 @@
 					_pos(self.canvas, d);
 					_atts(self.canvas, p);
 				}
+				
+				_applyStyles(self.canvas, style);
 			}
 		};
 	},		
@@ -123,20 +150,12 @@
 		self.canvas.style.zIndex = 5000;
 		
 		this.paint = function(d, style, anchor) {
-			var p = {};
-			if (style.strokeStyle) {
-				p["stroked"] = "true";
-				p["strokecolor"] =_convertStyle(style.strokeStyle, true);
-				p["strokeweight"] = style.lineWidth + "px";
-			}
-			if (style.fillStyle) {
-				p["filled"] = "true";
-				p["fillcolor"] = _convertStyle(style.fillStyle, true);
-			}
+			var p = {};						
+			
 			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 			if (vml == null) {
 				p["class"] = jsPlumb.endpointClass;
-				vml = self.getVml([0,0, d[2], d[3]], p, anchor);
+				vml = self.getVml([0,0, d[2], d[3]], p, anchor);				
 				self.canvas.appendChild(vml);
 				_attachListeners(vml, self);
 			}
@@ -145,6 +164,8 @@
 				_pos(vml, [0,0, d[2], d[3]]);
 				_atts(vml, p);
 			}
+			
+			_applyStyles(vml, style);
 		};
 	};
 	
