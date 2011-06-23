@@ -133,11 +133,15 @@
 			this.overlayPlacements = [], this.paintStyle = null, this.hoverPaintStyle = null/*, this.backgroundPaintStyle = null*/;
 			
 			// helper method to update the hover style whenever it, or paintStyle, changes.
+			// we use paintStyle as the foundation and merge hoverPaintStyle over the
+			// top.
 			var _updateHoverStyle = function() {
 				if (self.paintStyle && self.hoverPaintStyle) {
-					for (var i in self.paintStyle) {
-						if (!self.hoverPaintStyle.hasOwnProperty(i)) self.hoverPaintStyle[i] = self.paintStyle[i];
-					}
+					var mergedHoverStyle = {};
+					jsPlumb.extend(mergedHoverStyle, self.paintStyle);
+					jsPlumb.extend(mergedHoverStyle, self.hoverPaintStyle);
+					delete self.hoverPaintStyle;
+					self.hoverPaintStyle = mergedHoverStyle;
 				}
 			};
 			
@@ -164,6 +168,7 @@
 		     * 
 		     * Parameters:
 		     * 	style - Style to use when the mouse is hovering.
+		     *  doNotRepaint - if true, the component will not be repainted.  useful when setting things up initially.
 		     */
 		    this.setHoverPaintStyle = function(style, doNotRepaint) {		    	
 		    	self.hoverPaintStyle = style;
