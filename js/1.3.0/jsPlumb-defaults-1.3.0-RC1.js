@@ -209,12 +209,8 @@
      */
     jsPlumb.Connectors.Bezier = function(params) {
     	var self = this;
-    	this.majorAnchor = 150;
-    	// backwards compatibility (ideally we'd just use params.curviness || 150).
-    	if (params) {
-    		if (params.constructor == Number) this.majorAnchor = params;
-    		else if (params.curviness) this.majorAnchor = params.curviness;
-    	}
+    	params = params || {};
+    	this.majorAnchor = params.curviness || 150;
         this.minorAnchor = 10;
         var currentPoints = null;
         
@@ -566,8 +562,8 @@
 	 */
 	jsPlumb.Endpoints.Dot = function(params) {	
 		var self = this;
-		params = params || { radius:10 };			
-		this.radius = params.radius;
+		params = params || {};				
+		this.radius = params.radius || 10;
 		this.defaultOffset = 0.5 * this.radius;
 		this.defaultInnerRadius = this.radius / 3;			
 		
@@ -584,9 +580,9 @@
 	 */
 	jsPlumb.Endpoints.Rectangle = function(params) {
 		var self = this;
-		params = params || { width:20, height:20 };
-		this.width = params.width;
-		this.height = params.height;
+		params = params || {};
+		this.width = params.width || 20;
+		this.height = params.height || 20;
 		
 		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			var width = endpointStyle.width || self.width;

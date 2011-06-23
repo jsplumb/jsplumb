@@ -12,20 +12,24 @@
 	var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
 	var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
 	var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };		
-
+	var _pageXY = function(el) { return jsPlumb.CurrentLibrary.getPageXY(el); };
+	var _setOffset = function(el, o) { jsPlumb.CurrentLibrary.setOffset(el, o); };
+	
 	/*
 	 * Class:CanvasMouseAdapter
 	 * Provides support for mouse events on canvases.  
 	 */
 	var CanvasMouseAdapter = function() {
 		var self = this;
+		self.overlayPlacements = [];
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+		jsPlumb.EventGenerator.apply(this, arguments);
 		/**
-		 * returns whether or not the given event is over a painted area of the canvas. 
+		 * returns whether or not the given event is ojver a painted area of the canvas. 
 		 */
 	    this._over = function(e) {		    			  		    	
 	    	var o = _getOffset(_getElementObject(self.canvas));
-	    	var pageXY = jsPlumb.CurrentLibrary.getPageXY(e);
+	    	var pageXY = _pageXY(e);
 	    	var x = pageXY[0] - o.left, y = pageXY[1] - o.top;
 	    	if (x > 0 && y > 0 && x < self.canvas.width && y < self.canvas.height) {
 		    	// first check overlays
@@ -44,9 +48,8 @@
 	    
 	    var _mouseover = false;
 	    var _mouseDown = false, _posWhenMouseDown = null, _mouseWasDown = false;
-	    this.mousemove = function(e) {		    	
-	    	var jpcl = jsPlumb.CurrentLibrary;
-	    	var pageXY = jpcl.getPageXY(e);
+	    this.mousemove = function(e) {		    
+	    	var pageXY = _pageXY(e);
 			var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
 			var _continue = _connectionBeingDragged == null && (_hasClass(ee, "_jsPlumb_endpoint") || _hasClass(ee, "_jsPlumb_connector"));
 			if (!_mouseover && _continue && self._over(e)) {
@@ -75,7 +78,7 @@
 	    this.mousedown = function(e) {
 	    	if(self._over(e) && !_mouseDown) {
 	    		_mouseDown = true;	    		
-	    		_posWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.canvas));	    			
+	    		_posWhenMouseDown = _getOffset(_getElementObject(self.canvas));	    			
 	    		self.fire("mousedown", self, e);
 	    	}
 	    };
@@ -94,7 +97,7 @@
 		if (params["class"]) canvas.className = params["class"];
 		// set an id. if no id on the element and if uuid was supplied it
 		// will be used, otherwise we'll create one.
-		jsPlumb.getId(canvas, params.uuid);
+		params["_jsPlumb"].getId(canvas, params.uuid);
 
 		return canvas;
 	};	
@@ -122,7 +125,7 @@
 
 		var self = this;
 		//TODO change jsPlumb ref to _currentInstance; fix container.
-		self.canvas = _newCanvas({"class":jsPlumb.connectorClass, container:self.container});	
+		self.canvas = _newCanvas({ "class":self._jsPlumb.connectorClass, _jsPlumb:self._jsPlumb });	
 		self.ctx = self.canvas.getContext("2d");
 		
 		self.paint = function(dim, style) {						
@@ -141,7 +144,7 @@
 		var self = this;				
 		CanvasMouseAdapter.apply(this, arguments);		
 		//TODO change jsPlumb ref to _currentInstance; fix container.
-		self.canvas = _newCanvas({"class":jsPlumb.endpointClass, container:self.container});	
+		self.canvas = _newCanvas({ "class":self._jsPlumb.endpointClass, _jsPlumb:self._jsPlumb });	
 		self.ctx = self.canvas.getContext("2d");
 		
 		this.paint = function(d, style, anchor) {
@@ -336,14 +339,14 @@
     	this.paint = function(connector, d){
     		var ctx = connector.ctx;
     		var cxy = connector.pointOnPath(self.location);
-    		var canvas = jsPlumb.CurrentLibrary.getElementObject(ctx.canvas);
-    		var canvasOffset = jsPlumb.CurrentLibrary.getOffset(canvas);
+    		var canvas = _getElementObject(ctx.canvas);
+    		var canvasOffset = _getOffset(canvas);
     		var minx = cxy.x - (self.img.width/2);
     		var miny = cxy.y - (self.img.height/2);
     		var o = {left:canvasOffset.left + minx, top:canvasOffset.top + miny};
-    		jsPlumb.CurrentLibrary.setOffset(imgDiv, o);
+    		_setOffset(imgDiv, o);
     		imgDiv.style.display = "block";
-    		return [minx,minx + self.img.width, miny, miny+self.img.height];
+    		return [ minx,minx + self.img.width, miny, miny+self.img.height ];
     	};
     };
     

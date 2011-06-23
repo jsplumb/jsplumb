@@ -119,8 +119,9 @@
 		 * Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle/backgroundPaintStyle,
 		 * and also extends EventGenerator to provide the bind and fire methods.
 		 */
-		var jsPlumbUIComponent = function() {
+		var jsPlumbUIComponent = function(params) {
 			var self = this, a = arguments;
+			self._jsPlumb = params["_jsPlumb"];			
 			// all components can generate events
 			EventGenerator.apply(this);
 			// all components get this clone function.
@@ -173,7 +174,7 @@
 		    this.setHoverPaintStyle = function(style, doNotRepaint) {		    	
 		    	self.hoverPaintStyle = style;
 		    	_updateHoverStyle();
-		    	if (!doNotRepaint) self.repaint()
+		    	if (!doNotRepaint) self.repaint();
 		    };
 		    
 		    /*
@@ -221,10 +222,10 @@
 		/*
 		 * Class: SVGMouseAdapter
 		 * handles mouse events when we're using the jsPlumb.SVG render mode.
-		 */
+		 *
 		var SVGMouseAdapter = function() {
 			jsPlumbUIComponent.apply(this);
-		};
+		};*/
 		
 		var jsPlumbInstance = function(_defaults) {
 		
@@ -482,11 +483,13 @@
 		
 		var _newConnection = function(params) {
 			var connectionFunc = jsPlumb.Defaults.ConnectionType || Connection;
+			params["_jsPlumb"] = _currentInstance;
 			return new connectionFunc(params);
 		};
 		
 		var _newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
+			params["_jsPlumb"] = _currentInstance;
 			return new endpointFunc(params);
 		};
 		
@@ -2124,11 +2127,11 @@ about the parameters allowed in the params object.
 			 * Property: connector
 			 * The underlying Connector for this Connection (eg. a Bezier connector, straight line connector, flowchart connector etc)
 			 */
-			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || new jsPlumb.Connectors[renderMode].Bezier();
+			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || "Bezier";
 			if (this.connector.constructor == String) 
-				this.connector = new jsPlumb.Connectors[renderMode][this.connector](); // lets you use a string as shorthand.
+				this.connector = new jsPlumb.Connectors[renderMode][this.connector]({_jsPlumb:self._jsPlumb}); // lets you use a string as shorthand.
 			else if (this.connector.constructor == Array)
-				this.connector = new jsPlumb.Connectors[renderMode][this.connector[0]](this.connector[1]);
+				this.connector = new jsPlumb.Connectors[renderMode][this.connector[0]](jsPlumb.extend(this.connector[1], {_jsPlumb:self._jsPlumb}));
 			this.canvas = this.connector.canvas;
 			var _mouseDown = false, _mouseWasDown = false, _mouseDownAt = null;
 			// add mouse events
@@ -2284,42 +2287,34 @@ about the parameters allowed in the params object.
 				var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 				var el = swap ? this.target : this.source;
 
-					_updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp });
-					_updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
-					var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();					
-					var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-					var tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
-					var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
-					
-					/* paint overlays*/
-					var maxSize = 0;
-					for ( var i = 0; i < self.overlays.length; i++) {
-						var o = self.overlays[i];
-						var s = o.computeMaxSize(self.connector);
-						if (s > maxSize)
-							maxSize = s;
-					}
+				_updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp });
+				_updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
+				var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();					
+				var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
+				var tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
+				var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
+				
+				/* paint overlays*/
+				var maxSize = 0;
+				for ( var i = 0; i < self.overlays.length; i++) {
+					var o = self.overlays[i];
+					var s = o.computeMaxSize(self.connector);
+					if (s > maxSize)
+						maxSize = s;
+				}
 
-					//TODO maxsize has been removed here;l needs to be reinstated somehow.  but i suspect the overlay stuff will move in to
-					// the canvas/svg/vml connector classes
-					var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, maxSize);
-					//var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, 0);
-					// TODO CanvasComponent must do this now.  the dimensions array will have to be passed in to the connector's paint method.
+				//TODO maxsize has been removed here;l needs to be reinstated somehow.  but i suspect the overlay stuff will move in to
+				// the canvas/svg/vml connector classes
+				var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, maxSize);
+				
+				self.connector.paint(dim, self.paintStyleInUse);
 
-					self.connector.paint(dim, self.paintStyleInUse);
-
-					/* paint overlays*/
-					for ( var i = 0; i < self.overlays.length; i++) {
-						var o = self.overlays[i];
-						self.connector.overlayPlacements[i] = o.draw(self.connector,self.paintStyleInUse, dim);
-					}
-				//}
-			};
-			
-			/*this.setPaintStyle = function(style) {
-				self.connector.setPaintStyle(style);
-				self.repaint();
-			};*/
+				/* paint overlays*/
+				for ( var i = 0; i < self.overlays.length; i++) {
+					var o = self.overlays[i];
+					self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
+				}
+			};			
 
 			/*
 			 * Function: repaint
@@ -2374,7 +2369,7 @@ about the parameters allowed in the params object.
 		 * reattach - optional boolean that determines whether or not the Connections reattach after they have been dragged off an Endpoint and left floating. defaults to false: Connections dropped in this way will just be deleted.
 		 */
 		var Endpoint = function(params) {
-			jsPlumb.jsPlumbUIComponent.apply(this);
+			jsPlumb.jsPlumbUIComponent.apply(this, arguments);
 			params = params || {};
 			var self = this;
 			var visible = true;
@@ -2415,9 +2410,9 @@ about the parameters allowed in the params object.
 				// TODO why does this not go all the way up to the jsplumb defaults object?
 			var _endpoint = params.endpoint || "Dot";
 			if (_endpoint.constructor == String) 
-				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint]();
+				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint]({ _jsPlumb:self._jsPlumb });
 			else if (_endpoint.constructor == Array)
-				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](_endpoint[1]);
+				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](jsPlumb.extend(_endpoint[1], { _jsPlumb:self._jsPlumb } ));
 			else _endpoint = _endpoint.clone();
 			self.endpoint = _endpoint;
 			this.endpoint.bind("click", function(e) { self.fire("click", self); });
@@ -2681,18 +2676,7 @@ about the parameters allowed in the params object.
 						}
 						ap = self.anchor.compute(anchorParams);
 					}
-					
-					// TODO the endpoint should use the connection's paint style (using its stroke style for our fill style) if the endpoint
-					// does not have one.  actually, should we allow strokeStyle and fillStyle for connections?  the stroke Style would
-					// end up being the outline of the path (we'd have to convert it to a background style, taking lineWidth into account).
-					// this would break backwards compatibility a little, as people will be used to specifying strokeStyle for the color 
-					// that connectors paint themselves with.  we could allow for this by wiring strokeStyle to fillStyle if fillStyle is not
-					// specified.
-					//
-					// this inheritance of the paint style should be implemented for the hover paint style too.
-					//
-					// and we need to decide what to do about backgroundPaintStyle: throw it away?  probably.
-					
+										
 					var d = _endpoint.compute(ap, self.anchor.getOrientation(), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
 					_endpoint.paint(d, self.paintStyleInUse, self.anchor);
 					
@@ -2911,7 +2895,7 @@ about the parameters allowed in the params object.
 							if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
 							jpc.endpoints[idx] = self;
 							self.addConnection(jpc);
-							if (!jpc.suspendedEndpoint) {  // if a new connection, add it. TODO: move this to a jsPlumb internal method - addConnection or something. doesnt need to be exposed.
+							if (!jpc.suspendedEndpoint) {  
 								_addToList(connectionsByScope, jpc.scope, jpc);
 								_initDraggableIfNecessary(_element, params.draggable, {});
 							}

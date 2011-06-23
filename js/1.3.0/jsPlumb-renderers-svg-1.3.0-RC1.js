@@ -118,7 +118,7 @@
 	var SvgComponent = function(cssClass, originalArgs, pointerEventsSpec) {
 		var self = this;
 		pointerEventsSpec = pointerEventsSpec || "all";
-		jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
+		//jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
 		jsPlumb.EventGenerator.apply(this, originalArgs);
 		self.canvas = null, self.path = null, self.svg = null; 
 	
@@ -154,9 +154,9 @@
 	/*
 	 * Base class for SVG connectors.
 	 */
-	var SvgConnector = function() {
+	var SvgConnector = function(params) {
 		var self = this;
-		SvgComponent.apply(this, [ jsPlumb.connectorClass, arguments, "none" ]);
+		SvgComponent.apply(this, [ params["_jsPlumb"].connectorClass, arguments, "none" ]);
 		this._paint = function(d, style) {
 			var p = self.getPath(d), a = { "d":p };
 			
@@ -184,7 +184,7 @@
 	/*
 	 * SVG Bezier Connector
 	 */
-	jsPlumb.Connectors.svg.Bezier = function(curviness) {	
+	jsPlumb.Connectors.svg.Bezier = function(params) {	
 		jsPlumb.Connectors.Bezier.apply(this, arguments);
 		SvgConnector.apply(this, arguments);	
 		this.getPath = function(d) { return "M " + d[4] + " " + d[5] + " C " + d[8] + " " + d[9] + " " + d[10] + " " + d[11] + " " + d[6] + " " + d[7]; };	    	    
@@ -216,11 +216,11 @@
     };
     
     /*
-	 * Base class for SVG endpoints (needs things to be pulled up into here)
+	 * Base class for SVG endpoints.
 	 */
-	var SvgEndpoint = function() {
+	var SvgEndpoint = function(params) {
 		var self = this;
-		SvgComponent.apply(this, [ jsPlumb.endpointClass, arguments, "all" ]);
+		SvgComponent.apply(this, [ params["_jsPlumb"].endpointClass, arguments, "all" ]);
 		this._paint = function(d, style) { 
 			if (self.node == null) {
 				self.node = self.makeNode(d, style);
