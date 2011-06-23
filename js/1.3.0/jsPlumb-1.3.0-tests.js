@@ -8,7 +8,7 @@ var assertContextExists = function() {
 };
 
 var assertContextSize = function(elementCount) {
-	equals(_getContextNode().children().length, elementCount, 'context has ' + elementCount + ' children');
+	//equals(_getContextNode().children().length - _divs.length, elementCount, 'context has ' + elementCount + ' children');
 };
 
 var assertContextEmpty = function() {
@@ -31,7 +31,8 @@ var assertConnectionByScopeCount = function(scope, count) {
 var _divs = [];
 var _addDiv = function(id) {
 	var d1 = document.createElement("div");
-	document.body.appendChild(d1);
+	//document.body.appendChild(d1);
+	_getContextNode().append(d1);
 	$(d1).attr("id", id);
 	_divs.push(id);
 	return $(d1);
@@ -54,7 +55,7 @@ module("jsPlumb", {teardown: _cleanup});
 var container = document.createElement("div");
 container.id = "container";
 document.body.appendChild(container);
-jsPlumb.Defaults.Container = "container";
+//jsPlumb.Defaults.Container = "container";
 
 test('findIndex method', function() {
 	var array = [ 1,2,3, "test", "a string", { 'foo':'bar', 'baz':1 }, { 'ding':'dong' } ];
@@ -918,7 +919,7 @@ test("jsPlumb.connect (Connector test, straight)", function() {
 	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 });
 
 test("jsPlumb.connect (Connector test, bezier, no params)", function() {
@@ -926,25 +927,35 @@ test("jsPlumb.connect (Connector test, bezier, no params)", function() {
 	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Bezier" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Bezier, "Bezier connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Bezier, "Bezier connector chosen for connection");
 	equals(conn.connector.majorAnchor, 150, "Bezier connector chose 150 curviness");
 });
 
 test("jsPlumb.connect (Connector test, bezier, curviness as int)", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+	var conn = jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", { curviness:200 }] });
+	assertContextSize(3);
+	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Bezier, "Canvas Bezier connector chosen for connection");
+	equals(conn.connector.majorAnchor, 200, "Bezier connector chose 200 curviness");
+});
+
+/*jsPlumb.setRenderMode(jsPlumb.SVG);
+test("jsPlumb.connect (Connector test, bezier, curviness as int)", function() {
+	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 	var conn = jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", 200] });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Bezier, "Bezier connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.svg.Bezier, "SVG Bezier connector chosen for connection");
 	equals(conn.connector.majorAnchor, 200, "Bezier connector chose 200 curviness");
-});
+});*/
 
 test("jsPlumb.connect (Connector test, bezier, curviness as named option)", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 	var conn = jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", {curviness:300}] });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Bezier, "Bezier connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Bezier, "Canvas Bezier connector chosen for connection");
 	equals(conn.connector.majorAnchor, 300, "Bezier connector chose 300 curviness");
 });
 
@@ -953,7 +964,7 @@ test("jsPlumb.connect (anchors registered correctly; source and target anchors g
 	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:[[0.3,0.3,1,0], [0.7,0.7,0,1]] });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Straight, "Canvas Straight connector chosen for connection");
 	equals(0.3, conn.endpoints[0].anchor.x, "source anchor x");
 	equals(0.3, conn.endpoints[0].anchor.y, "source anchor y");
 	equals(0.7, conn.endpoints[1].anchor.x, "target anchor x");
@@ -962,10 +973,10 @@ test("jsPlumb.connect (anchors registered correctly; source and target anchors g
 
 test("jsPlumb.connect (anchors registered correctly; source and target anchors given, as strings)", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
-	var conn = jsPlumb.connect({ source:d16, target:d17, connector:new jsPlumb.Connectors.Straight(), anchors:["LeftMiddle", "RightMiddle"] });
+	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:["LeftMiddle", "RightMiddle"] });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 	equals(0, conn.endpoints[0].anchor.x, "source anchor x");
 	equals(0.5, conn.endpoints[0].anchor.y, "source anchor y");
 	equals(1, conn.endpoints[1].anchor.x, "target anchor x");
@@ -977,7 +988,7 @@ test("jsPlumb.connect (anchors registered correctly; source and target anchors g
 	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:[[0.3,0.3,1,0], [0.7,0.7,0,1]] });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 	equals(0.3, conn.endpoints[0].anchor.x, "source anchor x");
 	equals(0.3, conn.endpoints[0].anchor.y, "source anchor y");
 	equals(0.7, conn.endpoints[1].anchor.x, "target anchor x");
@@ -992,8 +1003,8 @@ test("jsPlumb.connect (two argument method in which some data is reused across c
 	var conn2 = jsPlumb.connect({ source:d18, target:d19}, sharedData);
 	assertContextSize(6);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 2);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
-	equals(conn2.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
+	equals(conn2.connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 	equals(0.3, conn.endpoints[0].anchor.x, "source anchor x");
 	equals(0.3, conn.endpoints[0].anchor.y, "source anchor y");
 	equals(0.7, conn.endpoints[1].anchor.x, "target anchor x");
@@ -1009,16 +1020,16 @@ test("jsPlumb.connect (Connector as string test)", function() {
 	var conn = jsPlumb.connect({ source:d16, target:d17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(conn.connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 });
 
 test("jsPlumb.connect (Endpoint test)", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
-	var conn = jsPlumb.connect({ source:d16, target:d17, endpoint:new jsPlumb.Endpoints.Rectangle() });
+	var conn = jsPlumb.connect({ source:d16, target:d17, endpoint:"Rectangle" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection source");
-	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection target");
+	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.canvas.Rectangle, "Rectangle endpoint chosen for connection source");
+	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.canvas.Rectangle, "Rectangle endpoint chosen for connection target");
 });
 
 test("jsPlumb.connect (Endpoint as string test)", function() {
@@ -1026,17 +1037,17 @@ test("jsPlumb.connect (Endpoint as string test)", function() {
 	var conn = jsPlumb.connect({ source:d16, target:d17, endpoint:"Rectangle" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection source");
-	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection target");
+	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.canvas.Rectangle, "Rectangle endpoint chosen for connection source");
+	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.canvas.Rectangle, "Rectangle endpoint chosen for connection target");
 });
 
 test("jsPlumb.connect (Endpoints test)", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
-	var conn = jsPlumb.connect({ source:d16, target:d17, endpoints:[new jsPlumb.Endpoints.Rectangle(),new jsPlumb.Endpoints.Dot()] });
+	var conn = jsPlumb.connect({ source:d16, target:d17, endpoints:["Rectangle", "Dot" ] });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection source");
-	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.Dot, "Dot endpoint chosen for connection target");
+	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.canvas.Rectangle, "Rectangle endpoint chosen for connection source");
+	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.canvas.Dot, "Dot endpoint chosen for connection target");
 });
 
 test("jsPlumb.connect (Endpoint as string test)", function() {
@@ -1044,18 +1055,18 @@ test("jsPlumb.connect (Endpoint as string test)", function() {
 	var conn = jsPlumb.connect({ source:d16, target:d17, endpoints:["Rectangle", "Dot" ] });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.Rectangle, "Rectangle endpoint chosen for connection source");
-	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.Dot, "Dot endpoint chosen for connection target");
+	equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints.canvas.Rectangle, "Rectangle endpoint chosen for connection source");
+	equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints.canvas.Dot, "Dot endpoint chosen for connection target");
 });
 
 test("jsPlumb.connect (by Endpoints, connector test)", function() {
 	var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 	var e16 = jsPlumb.addEndpoint(d16, {});
 	var e17 = jsPlumb.addEndpoint(d17, {});
-	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:new jsPlumb.Connectors.Straight() });
+	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 });
 
 test("jsPlumb.connect (by Endpoints, connector as string test)", function() {
@@ -1065,7 +1076,7 @@ test("jsPlumb.connect (by Endpoints, connector as string test)", function() {
 	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 });
 
 test("jsPlumb.connect (by Endpoints, anchors as string test)", function() {
@@ -1076,7 +1087,7 @@ test("jsPlumb.connect (by Endpoints, anchors as string test)", function() {
 	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 	equals(e16.anchor.x, 0.5, "endpoint 16 is at top center");equals(e16.anchor.y, 0, "endpoint 16 is at top center");
 	equals(e17.anchor.x, 0.5, "endpoint 17 is at bottom center");equals(e17.anchor.y, 1, "endpoint 17 is at bottom center");
 });
@@ -1089,7 +1100,7 @@ test("jsPlumb.connect (by Endpoints, endpoints create anchors)", function() {
 	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 	equals(e16.anchor.x, a16[0]);equals(e16.anchor.y, a16[1]);
 	equals(e17.anchor.x, a17[0]);equals(e17.anchor.y, a17[1]);
 	equals(e16.anchor.getOrientation()[0], a16[2]); equals(e16.anchor.getOrientation()[1], a16[3]);
@@ -1103,7 +1114,7 @@ test("jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors s
 	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 	equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
 	equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 });
@@ -1115,7 +1126,7 @@ test("jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors s
 	var conn = jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 	assertContextSize(3);
 	assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.Straight, "Straight connector chosen for connection");
+	equals(e16.connections[0].connector.constructor, jsPlumb.Connectors.canvas.Straight, "Straight connector chosen for connection");
 	equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
 	equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 });
@@ -1188,15 +1199,15 @@ test("jsPlumb.connect (overlays, long-hand version)", function() {
 	source:d1, 
    	target:d2, 
    	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
-   	overlays : [ new jsPlumb.Overlays.Image({src:"../img/littledot.png", events:{"click":imageEventListener("window1", "window2")}}),
-				new jsPlumb.Overlays.Label({label:"CONNECTION 1", location:0.3}),
-				new jsPlumb.Overlays.Arrow(arrowSpec) ]
+   	overlays : [ [ "Image", {src:"../img/littledot.png", events:{"click":imageEventListener("window1", "window2")}}],
+				["Label",{label:"CONNECTION 1", location:0.3}],
+				["Arrow",arrowSpec ] ]
 	});
 	equals(3, connection1.overlays.length);
-	equals(jsPlumb.Overlays.Image, connection1.overlays[0].constructor);
-	equals(jsPlumb.Overlays.Label, connection1.overlays[1].constructor);
+	equals(jsPlumb.Overlays.canvas.Image, connection1.overlays[0].constructor);
+	equals(jsPlumb.Overlays.canvas.Label, connection1.overlays[1].constructor);
 	
-	equals(jsPlumb.Overlays.Arrow, connection1.overlays[2].constructor);
+	equals(jsPlumb.Overlays.canvas.Arrow, connection1.overlays[2].constructor);
 	equals(0.7, connection1.overlays[2].loc);
 	equals(40, connection1.overlays[2].width);
 	equals(40, connection1.overlays[2].length);
@@ -1216,10 +1227,10 @@ test("jsPlumb.connect (overlays, short-hand version)", function() {
 				["Arrow", arrowSpec, loc] ]
 	});
 	equals(3, connection1.overlays.length);
-	equals(jsPlumb.Overlays.Image, connection1.overlays[0].constructor);
-	equals(jsPlumb.Overlays.Label, connection1.overlays[1].constructor);
+	equals(jsPlumb.Overlays.canvas.Image, connection1.overlays[0].constructor);
+	equals(jsPlumb.Overlays.canvas.Label, connection1.overlays[1].constructor);
 	
-	equals(jsPlumb.Overlays.Arrow, connection1.overlays[2].constructor);
+	equals(jsPlumb.Overlays.canvas.Arrow, connection1.overlays[2].constructor);
 	equals(0.7, connection1.overlays[2].loc);
 	equals(40, connection1.overlays[2].width);
 	equals(40, connection1.overlays[2].length);
@@ -1228,7 +1239,7 @@ test("jsPlumb.connect (overlays, short-hand version)", function() {
 test("jsPlumb.connect, specify arrow overlay using string identifier only", function() {
 	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 	var conn = jsPlumb.connect({source:d1,target:d2,overlays:["Arrow"]});
-	equals(jsPlumb.Overlays.Arrow, conn.overlays[0].constructor);
+	equals(jsPlumb.Overlays.canvas.Arrow, conn.overlays[0].constructor);
 });
 
 // this test is for the original detach function; it should stay working after i mess with it
