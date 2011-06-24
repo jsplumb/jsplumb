@@ -78,10 +78,14 @@
 					} else $("#list").fadeOut({complete:function() { jsPlumb.repaintEverything(); }});
 				};
 
-				// connection listener
-				var l = function(p) { showConnections(); };
-				jsPlumb.bind("jsPlumbConnection", l);
-				jsPlumb.bind("jsPlumbConnectionDetached", l);
+				jsPlumb.bind("jsPlumbConnection", function(e) {
+					alert("connection established between " + e.connection.sourceId + " and " + e.connection.targetId);
+					showConnections();
+				});
+				jsPlumb.bind("jsPlumbConnectionDetached", function(e) {
+					alert("connection detached between " + e.connection.sourceId + " and " + e.connection.targetId);
+					showConnections();
+				});
 
 				var exampleDropOptions = {
 					tolerance:'touch',
