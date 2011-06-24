@@ -93,3 +93,10 @@ padding-left:2em;
 .index.section {
 padding-left:0;
 }
+
+#demo {
+width:80%;
+height:50em;
+margin-left:3em;
+margin-top:3em;
+}
