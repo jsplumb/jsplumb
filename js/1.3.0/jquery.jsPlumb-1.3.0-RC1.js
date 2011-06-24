@@ -28,6 +28,7 @@
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
  * getPageXY			gets the page event's xy location.
+ * getParent			gets the parent of some element.
  * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
  * getScrollTop			gets an element's scroll top.  TODO: is this actually used?  will it be?
  * getSize				gets an element's size.
@@ -137,6 +138,10 @@
 		
 		getPageXY : function(eventObject) {
 			return [eventObject.pageX, eventObject.pageY];
+		},
+		
+		getParent : function(el) {
+			return jsPlumb.CurrentLibrary.getElementObject(el).parent();
 		},
 														
 		getScrollLeft : function(el) {
