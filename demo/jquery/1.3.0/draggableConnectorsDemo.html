@@ -58,33 +58,33 @@
 				jsPlumb.Defaults.Endpoint = "Rectangle";
 				jsPlumb.Defaults.Anchors = ["TopCenter", "TopCenter"];
 
-				var showConnections = function() {
-					var c = jsPlumb.getConnections();
-					var foundSome = false;
-					var s = "<span>current connections</span><br/><br/><table><tr><th>scope</th><th>source</th><th>target</th></tr>";
-					for (var i in c) {
-						var l = c[i];
-						if (l && l.length > 0) {
-							foundSome = true;
-							for (var j = 0; j < l.length; j++) {
-								s = s + "<tr><td>" + i + "</td>" + "<td>" + l[j].sourceId + "</td><td>" + l[j].targetId + "</td></tr>";
+				var connections = [];
+				var updateConnections = function(conn, remove) {
+					if (!remove) connections.push(conn);
+					else {
+						var idx = -1;
+						for (var i = 0; i < connections.length; i++) {
+							if (connections[i] == conn) {
+								idx = i; break;
 							}
 						}
+						if (idx != -1) connections.splice(idx, 1);
 					}
-					s = s + "</table>";
-					if (foundSome) {
+					if (connections.length > 0) {
+						var s = "<span>current connections</span><br/><br/><table><tr><th>scope</th><th>source</th><th>target</th></tr>";
+						for (var j = 0; j < connections.length; j++) {
+							s = s + "<tr><td>" + connections[j].scope + "</td>" + "<td>" + connections[j].sourceId + "</td><td>" + connections[j].targetId + "</td></tr>";
+						}
 						$("#list").html(s);
 						$("#list").fadeIn({complete:function() { jsPlumb.repaintEverything(); }});
 					} else $("#list").fadeOut({complete:function() { jsPlumb.repaintEverything(); }});
-				};
+				};				
 
 				jsPlumb.bind("jsPlumbConnection", function(e) {
-					alert("connection established between " + e.connection.sourceId + " and " + e.connection.targetId);
-					showConnections();
+					updateConnections(e.connection);
 				});
 				jsPlumb.bind("jsPlumbConnectionDetached", function(e) {
-					alert("connection detached between " + e.connection.sourceId + " and " + e.connection.targetId);
-					showConnections();
+					updateConnections(e.connection, true);
 				});
 
 				var exampleDropOptions = {
