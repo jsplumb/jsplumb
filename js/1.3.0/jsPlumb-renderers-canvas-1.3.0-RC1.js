@@ -54,7 +54,8 @@
 			var _continue = _connectionBeingDragged == null && (_hasClass(ee, "_jsPlumb_endpoint") || _hasClass(ee, "_jsPlumb_connector"));
 			if (!_mouseover && _continue && self._over(e)) {
 				_mouseover = true;
-				self.fire("mouseenter", self, e);				
+				self.fire("mouseenter", self, e);		
+				return true;
 			}
 			else if (_mouseover && (!self._over(e) || !_continue)) {
 				_mouseover = false;
@@ -92,7 +93,7 @@
 	
 	var _newCanvas = function(params) {
 		var canvas = document.createElement("canvas");
-		jsPlumb.appendElement(canvas, document.body);
+		jsPlumb.appendElement(canvas, params.parent);
 		canvas.style.position = "absolute";
 		if (params["class"]) canvas.className = params["class"];
 		// set an id. if no id on the element and if uuid was supplied it
@@ -124,8 +125,13 @@
 		};
 
 		var self = this;
+		var clazz = self._jsPlumb.connectorClass + " " + (params.cssClass || "");
 		//TODO change jsPlumb ref to _currentInstance; fix container.
-		self.canvas = _newCanvas({ "class":self._jsPlumb.connectorClass, _jsPlumb:self._jsPlumb });	
+		self.canvas = _newCanvas({ 
+			"class":clazz, 
+			_jsPlumb:self._jsPlumb,
+			parent:params.parent
+		});	
 		self.ctx = self.canvas.getContext("2d");
 		
 		self.paint = function(dim, style) {						
@@ -143,8 +149,12 @@
 	var CanvasEndpoint = function(params) {
 		var self = this;				
 		CanvasMouseAdapter.apply(this, arguments);		
-		//TODO change jsPlumb ref to _currentInstance; fix container.
-		self.canvas = _newCanvas({ "class":self._jsPlumb.endpointClass, _jsPlumb:self._jsPlumb });	
+		var clazz = self._jsPlumb.endpointClass + " " + (params.cssClass || "");
+		self.canvas = _newCanvas({ 
+			"class":clazz, 
+			_jsPlumb:self._jsPlumb,
+			parent:params.parent
+		});	
 		self.ctx = self.canvas.getContext("2d");
 		
 		this.paint = function(d, style, anchor) {
@@ -175,7 +185,7 @@
 		this._paint = function(d, style, anchor) {
 			if (style != null) {			
 				var ctx = self.canvas.getContext('2d'), orientation = anchor.getOrientation();
-				jsPlumb.extend(ctx, style);						
+				jsPlumb.extend(ctx, style);							
 	            if (style.gradient) {            	
 	            	var adjustments = calculateAdjustments(style.gradient); 
 	            	var yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0];
