@@ -2,15 +2,14 @@
 <html>
 	<head>
 		<title>jsPlumb - draggable connectors experiments - jQuery</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=7">
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>
-		<link rel="stylesheet" href="../../css/draggableConnectorsDemo.css"></link>
+		<link rel="stylesheet" href="../../css/jsPlumbDemo.css">
+		<link rel="stylesheet" href="../../css/draggableConnectorsDemo.css">
 	</head>
 	<body onunload="jsPlumb.unload();">
 
 		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
-
+<div id="demo">
 		<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window1">detach all</a></div>
 		<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window2">detach all</a></div>
 		<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a></div>
@@ -27,7 +26,7 @@
 	    	see a <a href="../mootools/draggableConnectorsDemo.html">MooTools version</a> of this demo.<br/>
 	    	see a <a href="../yui3/draggableConnectorsDemo.html">YUI3 version</a> of this demo.
 	    </div>
-
+</div>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 		
@@ -129,7 +128,7 @@
 						isSource:true,
 						scope:'green dot',
 						connectorStyle:{ strokeStyle:color2, lineWidth:8 },
-						connector: ["Bezier", 63 ],
+						connector: ["Bezier", { curviness:63 } ],
 						maxConnections:3,
 						isTarget:true,
 						dropOptions : exampleDropOptions
@@ -161,7 +160,7 @@
 
 				// setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
 				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
-				jsPlumb.addEndpoint('window1', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint2);
+				var e1 = jsPlumb.addEndpoint('window1', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint2);
 
 				//
 				// here's an example of how the SelectiveAnchor stuff added to 1.2.3 works with
@@ -169,6 +168,7 @@
 				//
 				var anchors = [[1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0], [0.2, 0, 0, -1] ];
 				jsPlumb.addEndpoint('window1', { anchor:anchors }, exampleEndpoint);
+
 
 				jsPlumb.addEndpoints('window2', [
 					$.extend({ anchor:[0.5, 1, 0, 1] }, exampleEndpoint),

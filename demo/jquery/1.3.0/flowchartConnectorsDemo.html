@@ -3,15 +3,17 @@
 <html>
 	<head>
 		<title>jsPlumb - flowchart connectors demonstration - jQuery</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=7">
-		<link rel="stylesheet" href="../../css/jsPlumbDemo.css"></link>
-		<link rel="stylesheet" href="../../css/flowchartDemo.css"></link>
+		<link rel="stylesheet" href="../../css/jsPlumbDemo.css">
+		<link rel="stylesheet" href="../../css/flowchartDemo.css">
 	</head>
 	<body onunload="jsPlumb.unload();">
-		<div class="window" id="window1"><strong>1</strong><br/><br/></div>
-		<div class="window" id="window2"><strong>2</strong><br/><br/></div>
-	    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
-	    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
+	
+		<div id="demo">
+			<div class="window" id="window1"><strong>1</strong><br/><br/></div>
+			<div class="window" id="window2"><strong>2</strong><br/><br/></div>
+		    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
+		    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
+		</div>
 	    
 	    <div id="explanation">
 	    	<p>This is a demonstration of flowchart connectors and mouse events</p>
@@ -95,7 +97,7 @@
 						connectorStyle:connectorPaintStyle,
 						hoverPaintStyle:connectorHoverStyle,
 						connectorHoverStyle:connectorHoverStyle,
-						connectorOverlays: overlays					
+						connectorOverlays: overlays				
 					};
 	
 					// the definition of target endpoints (the larger green ones)
@@ -167,7 +169,7 @@
 					resetRenderMode(desiredMode);					
 				});
 
-				resetRenderMode(jsPlumb.CANVAS);
+				resetRenderMode(jsPlumb.CANVAS);				
 			});
 		</script>
 	</body>
