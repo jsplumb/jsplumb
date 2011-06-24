@@ -72,11 +72,21 @@
 		}
 	};
 	
+	/**
+	 * Class: jsPlumb.DOMElementComponent
+	 * Helper class to consume unused mouse events by components that are DOM elements and
+	 * are used by all of the different rendering modes.
+	 * 
+	 */
 	jsPlumb.DOMElementComponent = function(params) {
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
-		// when render mode is canvas, these functions can be called by the canvas mouse handler.  this component is safe to pipe this
-		// stuff to /dev/null.
-		this.mousemove = this.dblclick  = this.click = this.mousedown = this.mouseup = function(e) { };					
+		// when render mode is canvas, these functions may be called by the canvas mouse handler.  
+		// this component is safe to pipe this stuff to /dev/null.
+		this.mousemove = 
+		this.dblclick  = 
+		this.click = 
+		this.mousedown = 
+		this.mouseup = function(e) { };					
 	};
 	                                   
         /**
@@ -389,8 +399,10 @@
 			segments.push([x, y, lx, ly]);
 		},
 		/**
-		 * returns [segment, proportion of travel in segment, segment index] for the segment that contains the point which is 'location' distance along the entire path, where 'location' is
-		 * a decimal between 0 and 1 inclusive. in this connector type paths are made up of a list of segments, each of which contributes some fraction to
+		 * returns [segment, proportion of travel in segment, segment index] for the segment 
+		 * that contains the point which is 'location' distance along the entire path, where 
+		 * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths 
+		 * are made up of a list of segments, each of which contributes some fraction to
 		 * the total length.  
 		 */
 		findSegmentForLocation = function(location) {
@@ -620,7 +632,7 @@
 		self.canvas.style["outline"] = 0;
 		self.canvas.style["position"] = "absolute";
 		self.canvas.className = jsPlumb.endpointClass;
-		document.body.appendChild(self.canvas);
+		jsPlumb.appendElement(self.canvas, params.parent);
 		_attachListeners(self.canvas, self);
 		
 		var actuallyPaint = function(d, style, anchor) {
