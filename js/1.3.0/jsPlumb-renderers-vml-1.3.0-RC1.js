@@ -1,5 +1,9 @@
 ;(function() {
 	
+	// http://ajaxian.com/archives/the-vml-changes-in-ie-8
+	// http://www.nczonline.net/blog/2010/01/19/internet-explorer-8-document-and-browser-modes/
+	// http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
+	
 	var vmlAttributeMap = {
 		"stroke-linejoin":"joinstyle",
 		"joinstyle":"joinstyle",		
@@ -7,21 +11,46 @@
 		"miterlimit":"miterlimit"
 	};
 	
-	if (document.createStyleSheet) {	
-		document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);position:absolute;");
-		document.namespaces.add("jsplumb", "urn:schemas-microsoft-com:vml");
+	if (document.createStyleSheet) {			
+		
+		// this is the style rule for IE7/6: it uses a CSS class, tidy.
+		document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);position:absolute;");			
+		
+		// these are for VML in IE8.  you have to explicitly call out which elements
+		// you're going to expect to support VML!  
+		// 
+		// try to avoid IE8.  it is recommended you set X-UA-Compatible="IE=7" if you can.
+		//
+		document.createStyleSheet().addRule("jsplumb\\:textbox", "behavior:url(#default#VML);position:absolute;");
+		document.createStyleSheet().addRule("jsplumb\\:oval", "behavior:url(#default#VML);position:absolute;");
+		document.createStyleSheet().addRule("jsplumb\\:rect", "behavior:url(#default#VML);position:absolute;");
+		document.createStyleSheet().addRule("jsplumb\\:stroke", "behavior:url(#default#VML);position:absolute;");
+		document.createStyleSheet().addRule("jsplumb\\:shape", "behavior:url(#default#VML);position:absolute;");
+		
+		// in this page it is also mentioned that IE requires the extra arg to the namespace
+		// http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
+		// but someone commented saying they didn't need it, and it seems jsPlumb doesnt need it either.
+		// var iev = document.documentMode;
+		//if (!iev || iev < 8)
+			document.namespaces.add("jsplumb", "urn:schemas-microsoft-com:vml");
+		//else
+		//	document.namespaces.add("jsplumb", "urn:schemas-microsoft-com:vml", "#default#VML");
 	}
 	
 	var scale = 1000,
 	_atts = function(o, atts) {
-		for (var i in atts) o.setAttribute(i, atts[i]);
+		for (var i in atts) { 
+			// IE8 fix: setattribute does not work after an element has been add to the dom!
+			// http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
+			//o.setAttribute(i, atts[i]);
+			o[i] = atts[i];
+		}
 	},
 	_node = function(name, d, atts) {
 		atts = atts || {};
 		var o = document.createElement("jsplumb:" + name);
 		o.className = (atts["class"] ? atts["class"] + " " : "") + "jsplumb_vml";
 		_pos(o, d);
-		//atts["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);  //unsure about whether or not to include this.
 		_atts(o, atts);
 		return o;
 	},
@@ -30,6 +59,7 @@
 		o.style.top =  d[1] + "px";
 		o.style.width= d[2] + "px";
 		o.style.height= d[3] + "px";
+		o.style.position = "absolute";
 	},
 	_conv = function(v) {
 		return Math.floor(v * scale);
@@ -64,7 +94,6 @@
 	},
 	_applyStyles = function(node, style) {
 		var styleToWrite = {};
-		// TODO implement me! extract the code from endpoint and connector.
 		if (style.strokeStyle) {
 			styleToWrite["stroked"] = "true";
 			styleToWrite["strokecolor"] =_convertStyle(style.strokeStyle, true);
@@ -91,7 +120,7 @@
 	 * Class: VmlConnector
 	 * base class for Vml connectors. extends VmlComponent.
 	 */
-	VmlConnector = function() {
+	VmlConnector = function(params) {
 		var self = this, strokeNode = null;
 		self.canvas = null;
 		VmlComponent.apply(this, arguments);
@@ -102,8 +131,10 @@
 				p["path"] = path;
 				if (self.canvas == null) {
 					p["class"] = jsPlumb.connectorClass;
-					self.canvas = _node("shape", d, p);					
-					document.body.appendChild(self.canvas);
+					self.canvas = _node("shape", d, p);
+					//console.log(params.parent);
+					jsPlumb.appendElement(self.canvas, params.parent);
+					//document.body.appendChild(self.canvas);
 					if(style["dashstyle"]) {
 						strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] });
 						self.canvas.appendChild(strokeNode);
@@ -141,16 +172,17 @@
 	 * rendering mechanism does not support.  well, probably.  you could also argue that it doesn't hurt.  but i wonder if Firefox would agree: the
 	 * SVG in that browser seems a little brittle. 
 	 */
-	VmlEndpoint = function() {
+	VmlEndpoint = function(params) {
 		VmlComponent.apply(this, arguments);
 		var vml = null, self = this;
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
-		document.body.appendChild(self.canvas);
+		//document.body.appendChild(self.canvas);
+		jsPlumb.appendElement(self.canvas, params.parent);
 		self.canvas.style.zIndex = 5000;
 		
 		this.paint = function(d, style, anchor) {
-			var p = {};						
+			var p = { };						
 			
 			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 			if (vml == null) {
