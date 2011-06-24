@@ -195,11 +195,7 @@
         	var y =  length / 2 * Math.sin(_theta2);
 			var x =  length / 2 * Math.cos(_theta2);
 			return [{x:p.x + x, y:p.y + y}, {x:p.x - x, y:p.y - y}];
-        };        
-        
-        this.createGradient = function(dim, ctx) {
-        	return ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
-        };        
+        };                               
     };
                 
     /**
@@ -343,10 +339,7 @@
         this.perpendicularToPathAt = function(location, length, distance) {        	
         	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, length, distance);
         };
-        
-        this.createGradient = function(dim, ctx, swap) {
-        	return /*(swap) ? self.ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : */self.ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
-        };
+               
     };        
     
     jsPlumb.Connectors.Flowchart = function(params) {

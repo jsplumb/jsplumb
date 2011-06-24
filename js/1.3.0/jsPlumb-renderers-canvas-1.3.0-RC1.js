@@ -139,7 +139,7 @@
 				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);
 				_paintOneStyle(dim, style);
 			}
-		};
+		};				
 	};		
 	
 	/**
@@ -299,6 +299,11 @@
         	self.ctx.bezierCurveTo(dimensions[8], dimensions[9], dimensions[10], dimensions[11], dimensions[6], dimensions[7]);	            
         	self.ctx.stroke();            
         };
+        
+        // TODO i doubt this handles the case that source and target are swapped.
+        this.createGradient = function(dim, ctx, swap) {
+        	return /*(swap) ? self.ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : */self.ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
+        };
     };
     
     /*
@@ -314,6 +319,11 @@
 	        self.ctx.lineTo(dimensions[6], dimensions[7]);
 	        self.ctx.stroke();            
 	    };
+	    
+	    // TODO this does not handle the case that src and target are swapped.
+	    this.createGradient = function(dim, ctx) {
+        	return ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
+        };
     };
     
     jsPlumb.Connectors.canvas.Flowchart = function() {
@@ -347,13 +357,13 @@
 			document.body.appendChild(imgDiv);// HMM
     	};
     	this.paint = function(connector, d){
-    		var ctx = connector.ctx;
-    		var cxy = connector.pointOnPath(self.location);
-    		var canvas = _getElementObject(ctx.canvas);
-    		var canvasOffset = _getOffset(canvas);
-    		var minx = cxy.x - (self.img.width/2);
-    		var miny = cxy.y - (self.img.height/2);
-    		var o = {left:canvasOffset.left + minx, top:canvasOffset.top + miny};
+    		var ctx = connector.ctx,
+    		cxy = connector.pointOnPath(self.location),
+    		canvas = _getElementObject(ctx.canvas),
+    		canvasOffset = _getOffset(canvas),
+    		minx = cxy.x - (self.img.width/2),
+    		miny = cxy.y - (self.img.height/2),
+    		o = {left:canvasOffset.left + minx, top:canvasOffset.top + miny};
     		_setOffset(imgDiv, o);
     		imgDiv.style.display = "block";
     		return [ minx,minx + self.img.width, miny, miny+self.img.height ];
