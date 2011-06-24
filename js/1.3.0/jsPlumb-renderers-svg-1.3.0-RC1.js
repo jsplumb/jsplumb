@@ -47,22 +47,50 @@
 		}
 		
 		return o;
+	},	
+	_updateGradient = function(parent, node, style, dimensions) {
+		var id = "jsplumb_gradient_" + (new Date()).getTime();
+		// first clear out any existing gradient
+		for (var i = 0; i < parent.childNodes.length; i++) {
+			if (parent.childNodes[i].tagName == "linearGradient" || parent.childNodes[i].tagName == "radialGradient")
+				parent.removeChild(parent.childNodes[i]);
+		}
+		// this checks for an 'offset' property in the gradient, and in the absence of it, assumes
+		// we want a linear gradient. if it's there, we create a radial gradient.
+		// it is possible that a more explicit means of defining the gradient type would be
+		// better. relying on 'offset' means that we can never have a radial gradient that uses
+		// some default offset, for instance.
+		if (!style.gradient.offset) {
+			var g = _node("linearGradient", {id:id});
+			parent.appendChild(g);
+		}
+		else {
+			var g = _node("radialGradient", {
+				id:id
+			});
+			parent.appendChild(g);
+		}
+		
+		// the svg radial gradient seems to treat stops in the reverse 
+		// order to how canvas does it.  so we want to keep all the maths the same, but
+		// iterate the actual style declarations in reverse order.
+		for (var i = 0; i < style.gradient.stops.length; i++) {
+			var styleToUse = style.gradient.stops.length - 1 - i;
+			var stopColor = _convertStyle(style.gradient.stops[styleToUse][1], true)
+			var s = _node("stop", {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
+			g.appendChild(s);
+		}
+		var applyGradientTo = style.strokeStyle ? "stroke" : "fill";
+		node.setAttribute("style", applyGradientTo + ":url(#" + id + ")");
 	},
-	_applyStyles = function(parent, node, style) {
+	_applyStyles = function(parent, node, style, dimensions) {
 		node.setAttribute("fill", style.fillStyle ? _convertStyle(style.fillStyle, true) : "none");
 		node.setAttribute("stroke", style.strokeStyle ? _convertStyle(style.strokeStyle, true) : "none");		
 		if (style.lineWidth) {
 			node.setAttribute("stroke-width", style.lineWidth);
 		}
 		if (style.gradient) {
-			var id = "jsplumb_gradient_" + (new Date()).getTime();
-			var g = _node("linearGradient", {id:id});
-			parent.appendChild(g);
-			for (var i = 0; i < style.gradient.stops.length; i++) {
-				var s = _node("stop", {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":_convertStyle(style.gradient.stops[i][1], true)});
-				g.appendChild(s);
-			}
-			node.setAttribute("style", "fill:url(#" + id + ")");
+			_updateGradient(parent, node, style, dimensions);			
 		}
 		// in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
 		// the syntax in VML but is actually kind of nasty: values are given in the pixel
@@ -95,7 +123,7 @@
 	_decodeFont = function(f) {
 		var r = /([0-9].)(p[xt])\s(.*)/;
 		var bits = f.match(r);
-		return {size:bits[1], font:bits[2]};		
+		return {size:bits[1] + bits[2], font:bits[3]};		
 	}, 
 	_attachListeners = function(o, c) {
 		var jpcl = jsPlumb.CurrentLibrary,
@@ -118,10 +146,11 @@
 	var SvgComponent = function(cssClass, originalArgs, pointerEventsSpec) {
 		var self = this;
 		pointerEventsSpec = pointerEventsSpec || "all";
-		//jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
-		jsPlumb.EventGenerator.apply(this, originalArgs);
+		jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
 		self.canvas = null, self.path = null, self.svg = null; 
 	
+		this.setHover = function() { };
+		
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
 		//self.canvas.className = cssClass; 
@@ -135,7 +164,8 @@
 			"class": cssClass
 		});
 		
-		document.body.appendChild(self.canvas);
+		//document.body.appendChild(self.canvas);
+		jsPlumb.appendElement(self.canvas, originalArgs[0]["parent"]);
 		self.canvas.appendChild(self.svg);		
 		
 		this.paint = function(d, style, anchor) {	   
@@ -177,7 +207,7 @@
 	    		_attr(self.path, a);
 	    	}
 	    	
-	    	_applyStyles(self.svg, self.path, style);
+	    	_applyStyles(self.svg, self.path, style, d);
 		};
 	};		
 
@@ -227,7 +257,7 @@
 				self.svg.appendChild(self.node);
 				_attachListeners(self.node, self);
 			}
-			_applyStyles(self.svg, self.node, style);
+			_applyStyles(self.svg, self.node, style, d);
 			_pos(self.node, d);
 		};
 	};
@@ -264,9 +294,8 @@
 	/*
 	 * SVG Image Endpoint.  Currently extends the canvas implementation; shouldn't.
 	 */
-	jsPlumb.Endpoints.svg.Image = function() {
-		jsPlumb.Endpoints.Image.apply(this, arguments);		
-	};
+	jsPlumb.Endpoints.svg.Image = jsPlumb.Endpoints.Image;
+	
 	
 	jsPlumb.Overlays.svg.Label = function(params) {
 		var self = this, lines = [], bg = null, initialized = null;
