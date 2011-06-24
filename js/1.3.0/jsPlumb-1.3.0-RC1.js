@@ -92,7 +92,8 @@
 							_listeners[event][i](value, originalEvent);
 						} catch (e) {
 							_log("jsPlumb: fire failed for event "
-									+ event + " : " + e + "; not fatal.");
+									+ event + " : " + e);
+							throw(e);
 						}
 					}
 				}
@@ -292,21 +293,21 @@
 		 * number of endpoints on it, and not all of them have to be connected
 		 * to anything.
 		 */
-		var endpointsByElement = {};
-		var endpointsByUUID = {};	
-		var offsets = {};
-		var offsetTimestamps = {};
-		var floatingConnections = {};
-		var draggableStates = {};
-		var _mouseEventsEnabled = this.Defaults.MouseEventsEnabled;
-		var _draggableByDefault = true;		
-		var canvasList = [];
-		var sizes = [];
-		var listeners = {}; // a map: keys are event types, values are lists of listeners.
-		var DEFAULT_SCOPE = "DEFAULT";
-		var renderMode = null;  // will be set in init()
+		var endpointsByElement = {},
+		endpointsByUUID = {},
+		offsets = {},
+		offsetTimestamps = {},
+		floatingConnections = {},
+		draggableStates = {},
+		_mouseEventsEnabled = this.Defaults.MouseEventsEnabled,
+		_draggableByDefault = true,		
+		canvasList = [],
+		sizes = [],
+		listeners = {}, // a map: keys are event types, values are lists of listeners.
+		DEFAULT_SCOPE = "DEFAULT",
+		renderMode = null,  // will be set in init()
 				
-		var _findIndex = function(a, v, b, s) {
+		_findIndex = function(a, v, b, s) {
 			var _eq = function(o1, o2) {
 				if (o1 === o2)
 					return true;
@@ -333,13 +334,13 @@
 					return i;
 			}
 			return -1;
-		};		
+		},		
 
 		/**
 		 * helper method to add an item to a list, creating the list if it does
 		 * not yet exist.
 		 */
-		var _addToList = function(map, key, value) {
+		_addToList = function(map, key, value) {
 			var l = map[key];
 			if (l == null) {
 				l = [];
@@ -347,23 +348,23 @@
 			}
 			l.push(value);
 			return l;
-		};
+		},
 
 		/**
 		 * appends an element to the given parent, or the document body if no
 		 * parent given.
 		 */
-		var _appendElement = function(el, parent) {
+		_appendElement = function(el, parent) {
 			if (!parent)
 				document.body.appendChild(el);
 			else
 				jsPlumb.CurrentLibrary.appendElement(el, parent);
-		};
+		},
 
 		/**
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
 		 */
-		var _timestamp = function() { return "" + (new Date()).getTime(); };
+		_timestamp = function() { return "" + (new Date()).getTime(); },
 
 		/**
 		 * Draws an endpoint and its connections.
@@ -372,7 +373,7 @@
 		 * @param ui UI object from current library's event system. optional.
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
-		var _draw = function(element, ui, timestamp) {
+		_draw = function(element, ui, timestamp) {
 			var id = _getAttribute(element, "id");
 			var endpoints = endpointsByElement[id];
 			if (!timestamp) timestamp = _timestamp();
@@ -404,7 +405,7 @@
 					}
 				}
 			}
-		};
+		},
 
 		/**
 		 * executes the given function against the given element if the first
@@ -412,7 +413,7 @@
 		 * is a list. the function passed in takes (element, elementId) as
 		 * arguments.
 		 */
-		var _elementProxy = function(element, fn) {
+		_elementProxy = function(element, fn) {
 			var retVal = null;
 			if (element.constructor == Array) {
 				retVal = [];
@@ -425,17 +426,17 @@
 				retVal = fn(el, id);
 			}
 			return retVal;
-		};				
+		},				
 
 		/**
 		 * gets an Endpoint by uuid.
 		 */
-		var _getEndpoint = function(uuid) { return endpointsByUUID[uuid]; };
+		_getEndpoint = function(uuid) { return endpointsByUUID[uuid]; },
 
 		/**
 		 * inits a draggable if it's not already initialised.
 		 */
-		var _initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
+		_initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
 			var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
 			if (draggable) {
 				if (jsPlumb.CurrentLibrary.isDragSupported(element) && !jsPlumb.CurrentLibrary.isAlreadyDraggable(element)) {
@@ -458,9 +459,9 @@
 					jsPlumb.CurrentLibrary.initDraggable(element, options);
 				}
 			}
-		};
+		},
 		
-		var _newConnection = function(params) {
+		_newConnection = function(params) {
 			var connectionFunc = jsPlumb.Defaults.ConnectionType || Connection,
 			endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint,
 			parent = jsPlumb.CurrentLibrary.getParent;
@@ -473,14 +474,14 @@
 			
 			params["_jsPlumb"] = _currentInstance;
 			return new connectionFunc(params);
-		};
+		},
 		
-		var _newEndpoint = function(params) {
+		_newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
 			params["parent"] = jsPlumb.CurrentLibrary.getParent(params.source);
 			params["_jsPlumb"] = _currentInstance;
 			return new endpointFunc(params);
-		};
+		},
 		
 		/**
 		 * performs the given function operation on all the connections found
@@ -489,7 +490,7 @@
 		 * connected to it. then we pass each connection in to the given
 		 * function.
 		 */
-		var _operation = function(elId, func) {
+		_operation = function(elId, func) {
 			var endpoints = endpointsByElement[elId];
 			if (endpoints && endpoints.length) {
 				for ( var i = 0; i < endpoints.length; i++) {
@@ -501,20 +502,20 @@
 					}
 				}
 			}
-		};
+		},
 		/**
 		 * perform an operation on all elements.
 		 */
-		var _operationOnAll = function(func) {
+		_operationOnAll = function(func) {
 			for ( var elId in endpointsByElement) {
 				_operation(elId, func);
 			}
-		};		
+		},		
 		
 		/**
 		 * helper to remove an element from the DOM.
 		 */
-		var _removeElement = function(element, parent) {
+		_removeElement = function(element, parent) {
 			if (element != null) {
 				if (!parent) {
 					try {
@@ -525,18 +526,18 @@
 					jsPlumb.CurrentLibrary.removeElement(element, parent);
 				}
 			}
-		};
+		},
 		/**
 		 * helper to remove a list of elements from the DOM.
 		 */
-		var _removeElements = function(elements, parent) {
+		_removeElements = function(elements, parent) {
 			for ( var i = 0; i < elements.length; i++)
 				_removeElement(elements[i], parent);
-		};
+		},
 		/**
 		 * helper method to remove an item from a list.
 		 */
-		var _removeFromList = function(map, key, value) {
+		_removeFromList = function(map, key, value) {
 			if (key != null) {
 				var l = map[key];
 				if (l != null) {
@@ -549,7 +550,7 @@
 				}
 			}
 			return false;
-		};
+		},
 		/**
 		 * Sets whether or not the given element(s) should be draggable,
 		 * regardless of what a particular plumb command may request.
@@ -560,14 +561,14 @@
 		 * @param draggable
 		 *            Whether or not the given element(s) should be draggable.
 		 */
-		var _setDraggable = function(element, draggable) {
+		_setDraggable = function(element, draggable) {
 			return _elementProxy(element, function(el, id) {
 				draggableStates[id] = draggable;
 				if (jsPlumb.CurrentLibrary.isDragSupported(el)) {
 					jsPlumb.CurrentLibrary.setDraggable(el, draggable);
 				}
 			});
-		};
+		},
 		/**
 		 * private method to do the business of hiding/showing.
 		 * 
@@ -578,11 +579,11 @@
 		 *            String specifying a value for the css 'display' property
 		 *            ('block' or 'none').
 		 */
-		var _setVisible = function(el, state) {
+		_setVisible = function(el, state) {
 			_operation(_getAttribute(el, "id"), function(jpc) {
 				jpc.canvas.style.display = state;
 			});
-		};
+		},
 		/**
 		 * toggles the draggable state of the given element(s).
 		 * 
@@ -590,7 +591,7 @@
 		 *            either an id, or an element object, or a list of
 		 *            ids/element objects.
 		 */
-		var _toggleDraggable = function(el) {
+		_toggleDraggable = function(el) {
 			return _elementProxy(el, function(el, elId) {
 				var state = draggableStates[elId] == null ? _draggableByDefault : draggableStates[elId];
 				state = !state;
@@ -598,14 +599,14 @@
 				jsPlumb.CurrentLibrary.setDraggable(el, state);
 				return state;
 			});
-		};
+		},
 		/**
 		 * private method to do the business of toggling hiding/showing.
 		 * 
 		 * @param elId
 		 *            Id of the element in question
 		 */
-		var _toggleVisible = function(elId) {
+		_toggleVisible = function(elId) {
 			_operation(elId, function(jpc) {
 				var state = ('none' == jpc.canvas.style.display);
 				jpc.canvas.style.display = state ? "block" : "none";
@@ -613,14 +614,14 @@
 			// todo this should call _elementProxy, and pass in the
 			// _operation(elId, f) call as a function. cos _toggleDraggable does
 			// that.
-		};
+		},
 		/**
 		 * updates the offset and size for a given element, and stores the
 		 * values. if 'offset' is not null we use that (it would have been
 		 * passed in from a drag call) because it's faster; but if it is null,
 		 * or if 'recalc' is true in order to force a recalculation, we get the current values.
 		 */
-		var _updateOffset = function(params) {
+		_updateOffset = function(params) {
 			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId;
 			if (!recalc) {
 				if (timestamp && timestamp === offsetTimestamps[elId])
@@ -638,13 +639,13 @@
 			} else {
 				offsets[elId] = offset;
 			}
-		};
+		},
 
 /**
 		 * gets an id for the given element, creating and setting one if
 		 * necessary.
 		 */
-		var _getId = function(element, uuid) {
+		_getId = function(element, uuid) {
 			var ele = _getElementObject(element);
 			var id = _getAttribute(ele, "id");
 			if (!id || id == "undefined") {
@@ -656,7 +657,7 @@
 				_setAttribute(ele, "id", id);
 			}
 			return id;
-		};
+		},
 
 /**
 		 * wraps one function with another, creating a placeholder for the
@@ -672,7 +673,7 @@
 		 * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
 		 * note that this is a simple comparison and only works for primitives right now.
 		 */
-		var _wrap = function(wrappedFunction, newFunction, returnOnThisValue) {
+		_wrap = function(wrappedFunction, newFunction, returnOnThisValue) {
 			wrappedFunction = wrappedFunction || function() { };
 			newFunction = newFunction || function() { };
 			return function() {
@@ -2075,6 +2076,9 @@ about the parameters allowed in the params object.
 					var u = params.uuids ? params.uuids[index] : null;
 					var e = _newEndpoint( { paintStyle : es, hoverPaintStyle:ehs,/* backgroundPaintStyle:bes,*/ endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element, container : self.container });
 					self.endpoints[index] = e;
+					
+					if (params.drawEndpoints === false) e.setVisible(false, true, true);
+					
 					return e;
 				}
 			};
