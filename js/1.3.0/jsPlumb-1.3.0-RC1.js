@@ -1,9 +1,12 @@
 /*
  * Class:jsPlumb
  * 
- * Provides a way to visually connect elements on an HTML page.
+ * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
+ * elements, or VML.  
+ * 
+ * This file contains the jsPlumb core code.
  *
- * Copyright (c) 2011 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2011 Simon Porritt (http://jsplumb.org)
  * 
  * http://jsplumb.org
  * http://code.google.com/p/jsPlumb
@@ -108,11 +111,8 @@
 					delete _listeners;
 					_listeners = {};
 				}
-			};
-			
-		    
-		};
-		
+			};					    
+		};		
 		
 		/*
 		 * Class:jsPlumbUIComponent
@@ -121,7 +121,8 @@
 		 */
 		var jsPlumbUIComponent = function(params) {
 			var self = this, a = arguments;
-			self._jsPlumb = params["_jsPlumb"];			
+			self._jsPlumb = params["_jsPlumb"];	
+			//self.parent = params["parent"];
 			// all components can generate events
 			EventGenerator.apply(this);
 			// all components get this clone function.
@@ -142,6 +143,9 @@
 					jsPlumb.extend(mergedHoverStyle, self.paintStyle);
 					jsPlumb.extend(mergedHoverStyle, self.hoverPaintStyle);
 					delete self.hoverPaintStyle;
+					// we want the fillStyle of paintStyle to override a gradient, if possible.
+					if (mergedHoverStyle.gradient && self.paintStyle.fillStyle)
+						delete mergedHoverStyle.gradient;
 					self.hoverPaintStyle = mergedHoverStyle;
 				}
 			};
@@ -299,15 +303,14 @@
 		var canvasList = [];
 		var sizes = [];
 		var listeners = {}; // a map: keys are event types, values are lists of listeners.
-		var DEFAULT_SCOPE = 'DEFAULT';
-		var DEFAULT_NEW_CANVAS_SIZE = 1200; // only used for IE; a canvas needs a size before the init call to excanvas (for some reason. no idea why.)
+		var DEFAULT_SCOPE = "DEFAULT";
 		var renderMode = null;  // will be set in init()
 				
 		var _findIndex = function(a, v, b, s) {
 			var _eq = function(o1, o2) {
 				if (o1 === o2)
 					return true;
-				else if (typeof o1 == 'object' && typeof o2 == 'object') {
+				else if (typeof o1 == "object" && typeof o2 == "object") {
 					var same = true;
 					for ( var propertyName in o1) {
 						if (!_eq(o1[propertyName], o2[propertyName])) {
@@ -456,39 +459,25 @@
 				}
 			}
 		};
-
-		/**
-		 * helper to create a canvas.
-		 * 
-		 */
-		var _newCanvas = function(params) {
-			var canvas = document.createElement("canvas");
-			_appendElement(canvas, params.container);
-			canvas.style.position = "absolute";
-			if (params["class"]) canvas.className = params["class"];
-			// set an id. if no id on the element and if uuid was supplied it
-			// will be used, otherwise we'll create one.
-			_getId(canvas, params.uuid);
-			if (ie) {
-				// for IE we have to set a big canvas size. actually you can
-				// override this, too, if 1200 pixels
-				// is not big enough for the biggest connector/endpoint canvas
-				// you have at startup.
-				jsPlumb.sizeCanvas(canvas, 0, 0, DEFAULT_NEW_CANVAS_SIZE, DEFAULT_NEW_CANVAS_SIZE);
-				canvas = G_vmlCanvasManager.initElement(canvas);
-			}
-
-			return canvas;
-		};
 		
 		var _newConnection = function(params) {
-			var connectionFunc = jsPlumb.Defaults.ConnectionType || Connection;
+			var connectionFunc = jsPlumb.Defaults.ConnectionType || Connection,
+			endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint,
+			parent = jsPlumb.CurrentLibrary.getParent;
+			
+			if (params.sourceEndpoint)
+				params["parent"] = params.sourceEndpoint.parent;
+			else if (params.source.constructor == endpointFunc)
+				params["parent"] = params.source.parent;
+			else params["parent"] = parent(params.source);
+			
 			params["_jsPlumb"] = _currentInstance;
 			return new connectionFunc(params);
 		};
 		
 		var _newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
+			params["parent"] = jsPlumb.CurrentLibrary.getParent(params.source);
 			params["_jsPlumb"] = _currentInstance;
 			return new endpointFunc(params);
 		};
@@ -944,7 +933,7 @@
 				var uuid = endpoint.getUuid();
 				if (uuid) endpointsByUUID[uuid] = null;				
 				endpoint.detachAll();				
-				_removeElement(endpoint.canvas, endpoint.container);
+				_removeElement(endpoint.canvas, endpoint.parent);
 				// remove from endpointsbyElement
 				for (var e in endpointsByElement) {
 					var endpoints = endpointsByElement[e];
@@ -1011,7 +1000,7 @@ about the parameters allowed in the params object.
 				var t = _getElementObject(target), tId = _getId(t);
 				_operation(sId, function(jpc) {
 							if ((jpc.sourceId == sId && jpc.targetId == tId) || (jpc.targetId == sId && jpc.sourceId == tId)) {
-								_removeElement(jpc.canvas, jpc.container);
+								_removeElement(jpc.canvas, jpc.parent);
 								jpc.endpoints[0].removeConnection(jpc);
 								jpc.endpoints[1].removeConnection(jpc);
 								_removeFromList(connectionsByScope, jpc.scope, jpc);
@@ -1040,7 +1029,7 @@ about the parameters allowed in the params object.
 						var targetId = _getId(_p.target);
 						_operation(sourceId, function(jpc) {
 									if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-										_removeElement(jpc.canvas, jpc.container);
+										_removeElement(jpc.canvas, jpc.parent);
 										jpc.endpoints[0].removeConnection(jpc);
 										jpc.endpoints[1].removeConnection(jpc);
 										_removeFromList(connectionsByScope, jpc.scope, jpc);
@@ -1305,7 +1294,8 @@ about the parameters allowed in the params object.
 							for (var scope in connectionsByScope) {
 				    			var c = connectionsByScope[scope];
 				    			for (var i = 0; i < c.length; i++) {
-				    				if (c[i].connector[event](e)) return;			    			
+				    				var t = c[i].connector[event](e);
+				    				if (t) return;			    			
 				    			}
 				    		}
 							for (var el in endpointsByElement) {
@@ -1518,26 +1508,6 @@ about the parameters allowed in the params object.
 		 */
 		this.setAutomaticRepaint = function(value) {
 			automaticRepaint = value;
-		};
-
-		/*
-		 * Function: setDefaultNewCanvasSize 
-		 * Sets the default size jsPlumb will use for a new canvas (we create a square canvas so one value is all
-		 * that is required). This is a hack for IE, because ExplorerCanvas
-		 * seems to need for a canvas to be larger than what you are going to
-		 * draw on it at initialisation time. The default value of this is 1200
-		 * pixels, which is quite large, but if for some reason you're drawing
-		 * connectors that are bigger, you should adjust this value
-		 * appropriately.
-		 *  
-		 * Parameters: 
-		 * 	size - The default size to use. jsPlumb will use a square canvas so you need only supply one value.
-		 *  
-		 * Returns:
-		 * 	void
-		 */
-		this.setDefaultNewCanvasSize = function(size) {
-			DEFAULT_NEW_CANVAS_SIZE = size;
 		};
 
 		/*
@@ -1792,7 +1762,8 @@ about the parameters allowed in the params object.
 					return lastReturnValue;
 				}
 				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
-				var container = element ? element.container : null;
+				//var container = element ? element.container : null;
+				var container = element ? element.parent : null;
 				var containerAdjustment = { left : 0, top : 0 };
 				if (container != null) {
 					var eo = _getElementObject(container);
@@ -1801,8 +1772,8 @@ about the parameters allowed in the params object.
 					var st = jsPlumb.CurrentLibrary.getScrollTop(eo);
 					containerAdjustment.left = o.left - sl;
 					containerAdjustment.top = o.top - st;
-					lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
-					lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
+				//	lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
+				//	lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
 				}
 				self.timestamp = timestamp;
 				return lastReturnValue;
@@ -2008,6 +1979,7 @@ about the parameters allowed in the params object.
 			};
 			var id = new String('_jsplumb_c_' + (new Date()).getTime());
 			this.getId = function() { return id; };
+			this.parent = params.parent;
 			this.container = params.container || _currentInstance.Defaults.Container; // may be null; we will append to the body if so.
 			// get source and target as jQuery objects
 			/**
@@ -2050,18 +2022,7 @@ about the parameters allowed in the params object.
 			this.savePosition = function() {
 				srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
 				targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));
-			};
-			/**
-			 * implementation of abstract method in EventGenerator
-			 */
-			this.movePositionBy = function(dx, dy) {
-				var newPos = {left:srcWhenMouseDown.left + dx, top:srcWhenMouseDown.top + dy};
-				jsPlumb.CurrentLibrary.setOffset(jsPlumb.CurrentLibrary.getElementObject(self.source), newPos);
-				_currentInstance.repaint(self.source);
-				newPos = {left:targetWhenMouseDown.left + dx, top:targetWhenMouseDown.top + dy};
-				jsPlumb.CurrentLibrary.setOffset(jsPlumb.CurrentLibrary.getElementObject(self.target), newPos);
-				_currentInstance.repaint(self.target);
-			};
+			};			
 			
 			/*
 			 * Property: scope
@@ -2128,10 +2089,11 @@ about the parameters allowed in the params object.
 			 * The underlying Connector for this Connection (eg. a Bezier connector, straight line connector, flowchart connector etc)
 			 */
 			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || "Bezier";
+			var connectorArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, cssClass:params.cssClass };
 			if (this.connector.constructor == String) 
-				this.connector = new jsPlumb.Connectors[renderMode][this.connector]({_jsPlumb:self._jsPlumb}); // lets you use a string as shorthand.
+				this.connector = new jsPlumb.Connectors[renderMode][this.connector](connectorArgs); // lets you use a string as shorthand.
 			else if (this.connector.constructor == Array)
-				this.connector = new jsPlumb.Connectors[renderMode][this.connector[0]](jsPlumb.extend(this.connector[1], {_jsPlumb:self._jsPlumb}));
+				this.connector = new jsPlumb.Connectors[renderMode][this.connector[0]](jsPlumb.extend(this.connector[1], connectorArgs));
 			this.canvas = this.connector.canvas;
 			var _mouseDown = false, _mouseWasDown = false, _mouseDownAt = null;
 			// add mouse events
@@ -2164,17 +2126,6 @@ about the parameters allowed in the params object.
 			this.connector.bind("mouseup", function(con, e) { 
 				_mouseDown = false;
 				if (self.connector == _connectionBeingDragged) _connectionBeingDragged = null;
-			});
-			this.connector.bind("mousemove", function(con, e) {
-				if (_mouseDown) {
-					_mouseWasDown = true;
-					_connectionBeingDragged = self.connector;				
-					var mouseNow = jsPlumb.CurrentLibrary.getPageXY(e);
-					var dx = mouseNow[0] - _mouseDownAt[0];
-					var dy = mouseNow[1] - _mouseDownAt[1];
-					
-					self.movePositionBy(dx, dy);										
-				}
 			});
 			
 			this.setPaintStyle(this.endpoints[0].connectorStyle || 
@@ -2409,10 +2360,11 @@ about the parameters allowed in the params object.
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
 				// TODO why does this not go all the way up to the jsplumb defaults object?
 			var _endpoint = params.endpoint || "Dot";
+			var endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent };
 			if (_endpoint.constructor == String) 
-				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint]({ _jsPlumb:self._jsPlumb });
+				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
 			else if (_endpoint.constructor == Array)
-				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](jsPlumb.extend(_endpoint[1], { _jsPlumb:self._jsPlumb } ));
+				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](jsPlumb.extend(_endpoint[1], endpointArgs ));
 			else _endpoint = _endpoint.clone();
 			self.endpoint = _endpoint;
 			this.endpoint.bind("click", function(e) { self.fire("click", self); });
@@ -2431,6 +2383,7 @@ about the parameters allowed in the params object.
 			this.connectorHoverStyle = params.connectorHoverStyle;
 			this.connectorOverlays = params.connectorOverlays;
 			this.connector = params.connector;
+			this.parent = params.parent;
 			this.isSource = params.isSource || false;
 			this.isTarget = params.isTarget || false;
 			var _element = params.source, _uuid = params.uuid;
@@ -2494,7 +2447,7 @@ about the parameters allowed in the params object.
 						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
 						t.detach(connection, true);
 					}
-					_removeElement(connection.canvas, connection.container);
+					_removeElement(connection.canvas, connection.parent);
 					_removeFromList(connectionsByScope, connection.scope, connection);
 					if(!ignoreTarget) fireDetachEvent(connection);
 				}
@@ -2704,7 +2657,8 @@ about the parameters allowed in the params object.
 					
 					n = document.createElement("div");
 					var nE = _getElementObject(n);
-					_appendElement(n, self.container); //
+					//_appendElement(n, self.container); //
+					_appendElement(n, self.parent);
 					// create and assign an id, and initialize the offset.
 					var id = _getId(nE);
 					_updateOffset( { elId : id });
@@ -2840,7 +2794,7 @@ about the parameters allowed in the params object.
 							} else {
 								// TODO this looks suspiciously kind of like an Endpoint.detach call too.
 								// i wonder if this one should post an event though.  maybe this is good like this.
-								_removeElement(jpc.canvas, self.container);
+								_removeElement(jpc.canvas, self.parent);
 								self.detachFromConnection(jpc);								
 							}																
 						}
