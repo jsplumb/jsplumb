@@ -907,6 +907,7 @@
 			_addToList(connectionsByScope, jpc.scope, jpc);
 			// fire an event
 			_currentInstance.fire("jsPlumbConnection", {
+				connection:jpc,
 				source : jpc.source, target : jpc.target,
 				sourceId : jpc.sourceId, targetId : jpc.targetId,
 				sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
@@ -974,6 +975,7 @@ between this method and jsPlumb.reset).
 
 		var fireDetachEvent = function(jpc) {
 			_currentInstance.fire("jsPlumbConnectionDetached", {
+				connection:jpc,
 				source : jpc.source, target : jpc.target,
 				sourceId : jpc.sourceId, targetId : jpc.targetId,
 				sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
