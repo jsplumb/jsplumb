@@ -784,7 +784,7 @@
 		  			  
 		  Parameters:
 		   
-		  	target - Element to add the endpoint to. either an element id, or a selector representing some element. 
+		  	el - Element to add the endpoint to. either an element id, or a selector representing some element. 
 		  	params - Object containing Endpoint options.  For more information, see the docs for Endpoint's constructor.
 		  	referenceParams - Object containing more Endpoint options; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.
 		  	 
@@ -794,13 +794,13 @@
 		  See Also: 
 		  	<addEndpoints>
 		 */
-		this.addEndpoint = function(target, params, referenceParams) {
+		this.addEndpoint = function(el, params, referenceParams) {
 			referenceParams = referenceParams || {};
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
 			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
-			var el = _getElementObject(target), id = _getId(el);
+			el = _getElementObject(el), id = _getId(el);
 			p.source = el;
 			_updateOffset({ elId : id });
 			var e = _newEndpoint(p);
@@ -1437,47 +1437,55 @@ about the parameters allowed in the params object.
 		 * Endpoint (the default will be used if you do not provide one).
 		 * 
 		 * Parameters:
+		 *  el		-	string id or element selector for the element to make a target.
 		 * 	params	-	JS object containing parameters:
-		 * 				element 	required.   either an id, or a selector, for some element.
-		 * 				endpoint	optional.	specification of an endpoint to create when a connection is created.
-		 * 				anchor		optional.	anchor for the endpoint. may be a single anchor spec, 
-		 * 										or a list of them, in which case jsPlumb creates a DynamicAnchor.
+		 * 	  endpoint	optional.	specification of an endpoint to create when a connection is created.
+		 * 	  scope		optional.   scope for the drop zone.
+		 * 	  dropOptions optional. same stuff as you would pass to dropOptions of an Endpoint definition.
+		 * 	  deleteEndpointsOnDetach  optional, defaults to false. whether or not to delete
+		 *                             any Endpoints created by a connection to this target if
+		 *                             the connection is subsequently detached. this will not 
+		 *                             remove Endpoints that have had more Connections attached
+		 *                             to them after they were created.
+		 *                   	
+		 * 
 		 */
-		this.makeTarget = function(el, params) {
+		this.makeTarget = function(el, params, referenceParams) {
+			var p = jsPlumb.extend({}, referenceParams);
+			jsPlumb.extend(p, params);
 			var jpcl = jsPlumb.CurrentLibrary,
 			el = jpcl.getElementObject(el),
-			endpoint = params.endpoint || _currentInstance.Defaults.Endpoint,
-			scope = params.scope || _currentInstance.Defaults.Scope,
-			dropOptions = params.dropOptions || {};
+			scope = p.scope || _currentInstance.Defaults.Scope,
+			dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
+			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false,
+			_drop = function() {
+				var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments));
+				var id = _getAttribute(draggable, "dragId");
+				
+				// restore the original scope if necessary (issue 57)
+				var scope = _getAttribute(draggable, "originalScope");
+				if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
+				
+				// get the connection, to then get its endpoint
+				var jpc = floatingConnections[id],
+				source = jpc.endpoints[0],
+				// make a new Endpoint
+				newEndpoint = jsPlumb.addEndpoint(el, p.endpoint);
+				
+				var c = jsPlumb.connect({
+					source:source,
+					target:newEndpoint,
+					scope:scope
+				});
+				if (deleteEndpointsOnDetach) 
+					c.endpointToDeleteOnDetach = newEndpoint;
+			};
 			
-			jpcl.initDroppable(el, {
-				scope:scope,
-				drop:function() {
-					var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments));
-					var id = _getAttribute(draggable, "dragId");
-					var elId = _getAttribute(draggable, "elId");
-					
-					// restore the original scope if necessary (issue 57)
-					var scope = _getAttribute(draggable, "originalScope");
-					if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
-					//alert(elId);
-					// get the connection, to then get its endpoint
-					var jpc = floatingConnections[id],
-					//idx = jpc.floatingAnchorIndex == null ? 0 : jpc.floatingAnchorIndex,//, oidx = idx == 0 ? 1 : 0;
-					source = jpc.endpoints[0];
-					
-					// make a new Endpoint
-					var newEndpoint = jsPlumb.addEndpoint(el, endpoint);
-					
-					jsPlumb.connect({
-						source:source,
-						target:newEndpoint,
-						scope:scope
-					});
-					
-				},
-				hoverClass:"hover"
-			});			
+			var dropEvent = jpcl.dragEvents['drop'];
+			dropOptions["scope"] = dropOptions["scope"] || scope;
+			dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], _drop);
+			
+			jpcl.initDroppable(el, dropOptions);			
 		};
 
 		/*
@@ -2455,8 +2463,10 @@ about the parameters allowed in the params object.
 			this.parent = params.parent;
 			this.isSource = params.isSource || false;
 			this.isTarget = params.isTarget || false;
-			var _element = params.source, _uuid = params.uuid;
-			var floatingEndpoint = null, inPlaceCopy = null;
+			var _element = params.source, 
+			_uuid = params.uuid,
+			floatingEndpoint = null, 
+			inPlaceCopy = null;
 			if (_uuid) endpointsByUUID[_uuid] = self;
 			this.container = params.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 			var _elementId = _getAttribute(_element, "id");
@@ -2510,11 +2520,21 @@ about the parameters allowed in the params object.
 			this.detach = function(connection, ignoreTarget) {
 				var idx = _findIndex(self.connections, connection);
 				if (idx >= 0) {					
-					self.connections.splice(idx, 1);
+					self.connections.splice(idx, 1);										
+					
 					// this avoids a circular loop
 					if (!ignoreTarget) {
 						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
 						t.detach(connection, true);
+						// check connection to see if we want to delete the other endpoint.
+						// if the user uses makeTarget to make some element a target for connections,
+						// it is possible that they will have set 'endpointToDeleteOnDetach': when
+						// you make a connection to an element that acts as a target (note: NOT an
+						// Endpoint; just some div as a target), Endpoints are created for that
+						// connection. so if you then delete that Connection, it is feasible you 
+						// will want these auto-generated endpoints to be removed.
+						if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length == 1) 
+							jsPlumb.deleteEndpoint(connection.endpointToDeleteOnDetach);							
 					}
 					_removeElement(connection.canvas, connection.parent);
 					_removeFromList(connectionsByScope, connection.scope, connection);
@@ -2548,7 +2568,7 @@ about the parameters allowed in the params object.
 				}
 				for ( var i = 0; i < c.length; i++) {
 					c[i].setHover(false);
-					self.detach(c[i]);
+					self.detach(c[i]);					
 				}
 			};			
 			/*
@@ -2584,8 +2604,7 @@ about the parameters allowed in the params object.
 			 * private but must be exposed.
 			 */
 			this.makeInPlaceCopy = function() {
-				var e = _newEndpoint( { anchor : self.anchor, source : _element, paintStyle : this.paintStyle, endpoint : _endpoint });
-				return e;
+				return _newEndpoint( { anchor : self.anchor, source : _element, paintStyle : this.paintStyle, endpoint : _endpoint });
 			};
 			/*
 			 * Function: isConnectedTo
