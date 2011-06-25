@@ -2547,7 +2547,7 @@ about the parameters allowed in the params object.
 					}
 				}
 				for ( var i = 0; i < c.length; i++) {
-					c[i].connector.setHover(false);
+					c[i].setHover(false);
 					self.detach(c[i]);
 				}
 			};			
