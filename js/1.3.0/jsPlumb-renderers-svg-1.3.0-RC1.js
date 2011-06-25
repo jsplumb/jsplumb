@@ -166,7 +166,6 @@
 			"class": clazz
 		});
 		
-		//document.body.appendChild(self.canvas);
 		jsPlumb.appendElement(self.canvas, originalArgs[0]["parent"]);
 		self.canvas.appendChild(self.svg);		
 		
@@ -190,15 +189,7 @@
 		var self = this;
 		SvgComponent.apply(this, [ params["_jsPlumb"].connectorClass, arguments, "none" ]);
 		this._paint = function(d, style) {
-			var p = self.getPath(d), a = { "d":p };
-			
-			/*
-        	//testing
-        	//a["stroke-dashoffset"] = "50%";
-        	
-        	// testing
-        //	a["stroke-linejoin"] = "round";*/
-        							
+			var p = self.getPath(d), a = { "d":p };									
 			a["pointer-events"] = "all";
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
@@ -294,11 +285,18 @@
 	};		
 	
 	/*
-	 * SVG Image Endpoint.  Currently extends the canvas implementation; shouldn't.
+	 * SVG Image Endpoint is the default image endpoint.
 	 */
 	jsPlumb.Endpoints.svg.Image = jsPlumb.Endpoints.Image;
+	/*
+	 * Blank endpoint in svg renderer is the default Blank endpoint.
+	 */
+	jsPlumb.Endpoints.svg.Blank = jsPlumb.Endpoints.Blank;
 	
 	
+	/**
+	 * SVG Label overlay renderer.
+	 */
 	jsPlumb.Overlays.svg.Label = function(params) {
 		var self = this, lines = [], bg = null, initialized = null;
 		jsPlumb.Overlays.Label.apply(this, arguments);

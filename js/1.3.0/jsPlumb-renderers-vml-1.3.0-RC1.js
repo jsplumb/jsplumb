@@ -126,15 +126,13 @@
 		VmlComponent.apply(this, arguments);
 		this.paint = function(d, style, anchor) {
 			if (style != null) {				
-				var path = self.getPath(d), p = {};								
-				
+				var path = self.getPath(d), p = {};												
 				p["path"] = path;
 				if (self.canvas == null) {
+					// TODO custom css classes
 					p["class"] = jsPlumb.connectorClass;
 					self.canvas = _node("shape", d, p);
-					//console.log(params.parent);
 					jsPlumb.appendElement(self.canvas, params.parent);
-					//document.body.appendChild(self.canvas);
 					if(style["dashstyle"]) {
 						strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] });
 						self.canvas.appendChild(strokeNode);
@@ -246,12 +244,19 @@
 	};
 	
 	/*
-	 * VML Image Endpoint.  Currently extends the canvas implementation; shouldn't.
+	 * VML Image Endpoint is the same as the default image endpoint.
 	 */
-	jsPlumb.Endpoints.vml.Image = function() {
-		jsPlumb.Endpoints.Image.apply(this, arguments);		
-	};
+	jsPlumb.Endpoints.vml.Image = jsPlumb.Endpoints.Image;
 	
+	/**
+	 * placeholder for Blank endpoint in vml renderer.
+	 */
+	jsPlumb.Endpoints.vml.Blank = jsPlumb.Endpoints.Blank;
+	
+	/**
+	 * VML Label renderer. Creates a VML 'textnode' and appends a div to it;
+	 * the div has the font and border/background properties applied via CSS.
+	 */
 	jsPlumb.Overlays.vml.Label = function(params) {
 		var self = this, textbox = null, div = null, lines = [];
 		jsPlumb.Overlays.Label.apply(this, arguments);

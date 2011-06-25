@@ -655,6 +655,16 @@
 		};				
 	};
 	
+	jsPlumb.Endpoints.Blank = function() {		
+		jsPlumb.DOMElementComponent.apply(this, arguments);		
+		this.compute = function() {
+			return [0,0,0,0];
+		};
+		
+		self.canvas = document.createElement("div");		
+		this.paint = function() { };				
+	};
+	
 	jsPlumb.Endpoints.Triangle = function(params) {
 		params = params || { width:55, height:55 };
 		this.width = params.width;

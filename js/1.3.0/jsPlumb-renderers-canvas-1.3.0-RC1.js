@@ -287,6 +287,11 @@
 	jsPlumb.Endpoints.canvas.Image = jsPlumb.Endpoints.Image;
 	
 	/*
+	 * Blank endpoint in all renderers is just the default Blank endpoint.
+	 */
+	jsPlumb.Endpoints.canvas.Blank = jsPlumb.Endpoints.Blank;
+	
+	/*
      * Canvas Bezier Connector. Draws a Bezier curve onto a Canvas element.
      */
     jsPlumb.Connectors.canvas.Bezier = function() {
