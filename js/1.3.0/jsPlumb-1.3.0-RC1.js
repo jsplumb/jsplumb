@@ -23,6 +23,35 @@
 	// TODO what is a good test for VML availability? aside from just assuming its there because nothing else is.
 	var vmlAvailable = !(canvasAvailable | svgAvailable);
 	
+	var _findIndex = function(a, v, b, s) {
+		var _eq = function(o1, o2) {
+			if (o1 === o2)
+				return true;
+			else if (typeof o1 == "object" && typeof o2 == "object") {
+				var same = true;
+				for ( var propertyName in o1) {
+					if (!_eq(o1[propertyName], o2[propertyName])) {
+						same = false;
+						break;
+					}
+				}
+				for ( var propertyName in o2) {
+					if (!_eq(o2[propertyName], o1[propertyName])) {
+						same = false;
+						break;
+					}
+				}
+				return same;
+			}
+		};
+
+		for ( var i = +b || 0, l = a.length; i < l; i++) {
+			if (_eq(a[i], v))
+				return i;
+		}
+		return -1;
+	};
+	
 	//console.log("canvas", canvasAvailable, "svg", svgAvailable, "vml", vmlAvailable);
 	
 	
@@ -97,7 +126,7 @@
 					for ( var i = 0; i < _listeners[event].length; i++) {
 						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
 						// method will have the whole call stack available in the debugger.
-						if (eventsToDieOn.indexOf(event) != -1)
+						if (_findIndex(eventsToDieOn, event) != -1)
 							_listeners[event][i](value, originalEvent);
 						else {
 							// for events we don't want to die on, catch and log.
@@ -268,6 +297,7 @@
 			HoverPaintStyle : null,
 			LabelStyle : { fillStyle : "rgba(0,0,0,0)", color : "black" },
 			LogEnabled : true,
+			Overlays : [ ],
 			MaxConnections : null,
 			MouseEventsEnabled : false, 
 			// TODO: should we have OverlayStyle too?
@@ -317,36 +347,7 @@
 		sizes = [],
 		listeners = {}, // a map: keys are event types, values are lists of listeners.
 		DEFAULT_SCOPE = this.Defaults.Scope,
-		renderMode = null,  // will be set in init()
-				
-		_findIndex = function(a, v, b, s) {
-			var _eq = function(o1, o2) {
-				if (o1 === o2)
-					return true;
-				else if (typeof o1 == "object" && typeof o2 == "object") {
-					var same = true;
-					for ( var propertyName in o1) {
-						if (!_eq(o1[propertyName], o2[propertyName])) {
-							same = false;
-							break;
-						}
-					}
-					for ( var propertyName in o2) {
-						if (!_eq(o2[propertyName], o1[propertyName])) {
-							same = false;
-							break;
-						}
-					}
-					return same;
-				}
-			};
-
-			for ( var i = +b || 0, l = a.length; i < l; i++) {
-				if (_eq(a[i], v))
-					return i;
-			}
-			return -1;
-		},		
+		renderMode = null,  // will be set in init()							
 
 		/**
 		 * helper method to add an item to a list, creating the list if it does
@@ -2240,9 +2241,10 @@ about the parameters allowed in the params object.
 			 * List of Overlays for this Connection.
 			 */
 			this.overlays = [];
-			if (params.overlays) {
-				for (var i = 0; i < params.overlays.length; i++) {
-					var o = params.overlays[i];
+			var _overlays = params.overlays || _currentInstance.Defaults.Overlays;
+			if (_overlays) {
+				for (var i = 0; i < _overlays.length; i++) {
+					var o = _overlays[i];
 					if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
 						// there's also a three arg version:
 						// ["Arrow", { width:50 }, {location:0.7}] 

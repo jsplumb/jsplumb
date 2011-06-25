@@ -291,8 +291,7 @@
 	/*
 	 * Blank endpoint in svg renderer is the default Blank endpoint.
 	 */
-	jsPlumb.Endpoints.svg.Blank = jsPlumb.Endpoints.Blank;
-	
+	jsPlumb.Endpoints.svg.Blank = jsPlumb.Endpoints.Blank;	
 	
 	/**
 	 * SVG Label overlay renderer.

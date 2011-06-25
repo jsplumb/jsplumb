@@ -682,6 +682,31 @@
 
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
 	
+	/*jsPlumb.Overlays.Image = function(params) {
+    	var self = this, imgDiv = null;
+    	jsPlumb.Overlays.Image.apply(this, arguments);
+    	this.init = function() {
+    		imgDiv = document.createElement("img");
+			imgDiv.src = self.img.src;
+			imgDiv.style.position = "absolute";
+			imgDiv.style.display="none";
+			imgDiv.className = "_jsPlumb_overlay";
+			document.body.appendChild(imgDiv);// HMM
+    	};
+    	this.paint = function(connector, d){
+    		var ctx = connector.ctx,
+    		cxy = connector.pointOnPath(self.location),
+    		canvas = _getElementObject(ctx.canvas),
+    		canvasOffset = _getOffset(canvas),
+    		minx = cxy.x - (self.img.width/2),
+    		miny = cxy.y - (self.img.height/2),
+    		o = {left:canvasOffset.left + minx, top:canvasOffset.top + miny};
+    		_setOffset(imgDiv, o);
+    		imgDiv.style.display = "block";
+    		return [ minx,minx + self.img.width, miny, miny+self.img.height ];
+    	};
+    };*/
+	
 	/**
 	 * An arrow overlay.  you can provide:
 	 * 
@@ -844,70 +869,6 @@
 	    	else return [0,0,0,0];
 	    };
     };
-    
-    
-    
-    /**
-     * an image overlay.  params may contain:
-     * 
-     * location			:			proportion along the connector to draw the image. optional.
-     * src				:			image src.  required.
-     * events			:			map of event names to functions; each event listener will be bound to the img.
-     */
-    jsPlumb.Overlays.Image = function(params) {
-    	var self = this;
-    	this.location = params.location || 0.5;    	
-    	this.img = new Image();
-    	this.connection = params.connection;
-    	var imgDiv = null;
-    	var notReadyInterval = null;
-    	var notReadyConnector, notReadyPaintStyle;
-    	var events = params.events || {};
-    	var _init = function() {
-    		if (self.ready) {
-    			window.clearInterval(notReadyInterval);
-	    		imgDiv = self.init();
-				// attach events
-				for (var e in events) {
-					jsPlumb.CurrentLibrary.bind(imgDiv, e, events[e]);
-				}
-				if (notReadyConnector) {
-					_draw(notReadyConnector, notReadyPaintStyle);
-					notReadyContext = null;
-					notReadyPaintStyle = null;
-				}
-    		}
-    	};
-		this.img.onload = function() {						
-			self.ready = true;
-		//	jsPlumb.repaintAll();
-		};
-		this.img.src = params.src || params.url;
-		
-		notReadyInterval = window.setInterval(_init, 250);
-    	
-    	this.computeMaxSize = function(connector) {
-    		return [ self.img.width, self.img.height ];
-    	};
-    	
-    	var _draw = function(connector, currentConnectionPaintStyle) {
-    		if (self.ready) {    			
-    			self.paint(connector,{});
-    		}
-    	};
-    	
-    	this.draw = function(connector, currentConnectionPaintStyle) {
-    		if (self.ready)
-	    		return _draw(connector, currentConnectionPaintStyle);
-    		else {
-    			notReadyConnector = connector;
-    			notReadyPaintStyle = currentConnectionPaintStyle;
-    			return [0,0,0,0];
-    		}
-    	};
-    };
-    
-    
     
  // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************
     
