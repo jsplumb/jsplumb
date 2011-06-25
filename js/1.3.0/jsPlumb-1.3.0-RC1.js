@@ -1457,9 +1457,9 @@ about the parameters allowed in the params object.
 			el = jpcl.getElementObject(el),
 			scope = p.scope || _currentInstance.Defaults.Scope,
 			dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
-			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false,
+			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false;			
 			_drop = function() {
-				var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments));
+				var draggable = _getElementObject(jpcl.getDragObject(arguments));
 				var id = _getAttribute(draggable, "dragId");
 				
 				// restore the original scope if necessary (issue 57)
@@ -1469,8 +1469,9 @@ about the parameters allowed in the params object.
 				// get the connection, to then get its endpoint
 				var jpc = floatingConnections[id],
 				source = jpc.endpoints[0],
+				_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : null,
 				// make a new Endpoint
-				newEndpoint = jsPlumb.addEndpoint(el, p.endpoint);
+				newEndpoint = jsPlumb.addEndpoint(el, _endpoint);
 				
 				var c = jsPlumb.connect({
 					source:source,
@@ -1946,9 +1947,9 @@ about the parameters allowed in the params object.
 		var DynamicAnchor = function(anchors, anchorSelector) {
 			this.isSelective = true;
 			this.isDynamic = true;			
-			var _anchors = anchors || [];
+			var _anchors = [];
 			var _convert = function(anchor) { return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor); };
-			for (var i = 0; i < _anchors.length; i++) _anchors[i] = _convert(_anchors[i]);			
+			for (var i = 0; i < anchors.length; i++) _anchors[i] = _convert(anchors[i]);			
 			this.addAnchor = function(anchor) { _anchors.push(_convert(anchor)); };
 			this.getAnchors = function() { return _anchors; };
 			var _curAnchor = _anchors.length > 0 ? _anchors[0] : null;
@@ -2533,7 +2534,7 @@ about the parameters allowed in the params object.
 						// Endpoint; just some div as a target), Endpoints are created for that
 						// connection. so if you then delete that Connection, it is feasible you 
 						// will want these auto-generated endpoints to be removed.
-						if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length == 1) 
+						if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length < 2) 
 							jsPlumb.deleteEndpoint(connection.endpointToDeleteOnDetach);							
 					}
 					_removeElement(connection.canvas, connection.parent);
