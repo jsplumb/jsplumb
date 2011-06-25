@@ -1058,6 +1058,24 @@ var testSuite = function(renderMode) {
 		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Dot, "Dot endpoint chosen for connection target");
 	});
 	
+	test(renderMode + ": jsPlumb.connect (Blank Endpoint specified via 'endpoint' param)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var conn = jsPlumb.connect({ source:d16, target:d17, endpoint:"Blank" });
+		assertContextSize(3);
+		assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+		equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection source");
+		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection target");
+	});
+	
+	test(renderMode + ": jsPlumb.connect (Blank Endpoint specified via 'endpoints' param)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var conn = jsPlumb.connect({ source:d16, target:d17, endpoints:["Blank", "Blank" ] });
+		assertContextSize(3);
+		assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+		equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection source");
+		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection target");
+	});
+	
 	test(renderMode + ": jsPlumb.connect (Endpoint as string test)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var conn = jsPlumb.connect({ source:d16, target:d17, endpoints:["Rectangle", "Dot" ] });
