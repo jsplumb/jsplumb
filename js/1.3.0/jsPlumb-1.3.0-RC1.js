@@ -1488,6 +1488,19 @@ about the parameters allowed in the params object.
 			
 			jpcl.initDroppable(el, dropOptions);			
 		};
+		
+		/**
+		 * helper method to make a list of elements drop targets.
+		 * @param els
+		 * @param params
+		 * @param referenceParams
+		 * @return
+		 */
+		this.makeTargets = function(els, params, referenceParams) {
+			for ( var i = 0; i < els.length; i++) {
+				_currentInstance.makeTarget(els[i], params, referenceParams);				
+			}
+		};
 
 		/*
 		  Function: repaint 
@@ -2534,7 +2547,7 @@ about the parameters allowed in the params object.
 						// Endpoint; just some div as a target), Endpoints are created for that
 						// connection. so if you then delete that Connection, it is feasible you 
 						// will want these auto-generated endpoints to be removed.
-						if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length < 2) 
+						if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length == 0) 
 							jsPlumb.deleteEndpoint(connection.endpointToDeleteOnDetach);							
 					}
 					_removeElement(connection.canvas, connection.parent);
