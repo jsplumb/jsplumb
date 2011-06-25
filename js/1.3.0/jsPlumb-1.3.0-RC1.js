@@ -63,7 +63,14 @@
 		};			
 	
 		var EventGenerator = function() {
-			var _listeners = {}, self = this;			
+			var _listeners = {}, self = this;
+			
+			// this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
+			// jsPlumb, but it seems feasible that people might want to manipulate this list.  the thinking is that we don't want event
+			// listeners to bring down jsPlumb - or do we.  i can't make up my mind about this, but i know i want to hear about it if the "ready"
+			// event fails, because then my page has most likely not initialised.  so i have this halfway-house solution.  it will be interesting
+			// to hear what other people think.
+			var eventsToDieOn = [ "ready" ];
 								    
 			/*
 			 * Function: bind
@@ -84,16 +91,21 @@
 			 * 	event				-	event to fire
 			 * 	value				-	value to pass to the event listener(s).
 			 *  o	riginalEvent	- 	the original event from the browser
-			 */
+			 */			
 			this.fire = function(event, value, originalEvent) {
 				if (_listeners[event]) {
 					for ( var i = 0; i < _listeners[event].length; i++) {
-						try {
+						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
+						// method will have the whole call stack available in the debugger.
+						if (eventsToDieOn.indexOf(event) != -1)
 							_listeners[event][i](value, originalEvent);
-						} catch (e) {
-							_log("jsPlumb: fire failed for event "
-									+ event + " : " + e);
-							throw(e);
+						else {
+							// for events we don't want to die on, catch and log.
+							try {
+								_listeners[event][i](value, originalEvent);
+							} catch (e) {
+								_log("jsPlumb: fire failed for event " + event + " : " + e);
+							}
 						}
 					}
 				}
