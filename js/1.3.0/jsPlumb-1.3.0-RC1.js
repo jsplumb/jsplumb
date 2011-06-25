@@ -316,7 +316,7 @@
 		canvasList = [],
 		sizes = [],
 		listeners = {}, // a map: keys are event types, values are lists of listeners.
-		DEFAULT_SCOPE = "DEFAULT",
+		DEFAULT_SCOPE = this.Defaults.Scope,
 		renderMode = null,  // will be set in init()
 				
 		_findIndex = function(a, v, b, s) {
@@ -1427,6 +1427,57 @@ about the parameters allowed in the params object.
 		 */
 		this.makeDynamicAnchor = function(anchors, anchorSelector) {
 			return new DynamicAnchor(anchors, anchorSelector);
+		};
+		
+		/**
+		 * Function: makeTarget
+		 * Makes some DOM element a Connection target, allowing you to drag connections to it
+		 * without having to register any Endpoints on it first.  When a Connection is established,
+		 * the endpoint spec that was passed in to this method is used to create a suitable 
+		 * Endpoint (the default will be used if you do not provide one).
+		 * 
+		 * Parameters:
+		 * 	params	-	JS object containing parameters:
+		 * 				element 	required.   either an id, or a selector, for some element.
+		 * 				endpoint	optional.	specification of an endpoint to create when a connection is created.
+		 * 				anchor		optional.	anchor for the endpoint. may be a single anchor spec, 
+		 * 										or a list of them, in which case jsPlumb creates a DynamicAnchor.
+		 */
+		this.makeTarget = function(el, params) {
+			var jpcl = jsPlumb.CurrentLibrary,
+			el = jpcl.getElementObject(el),
+			endpoint = params.endpoint || _currentInstance.Defaults.Endpoint,
+			scope = params.scope || _currentInstance.Defaults.Scope,
+			dropOptions = params.dropOptions || {};
+			
+			jpcl.initDroppable(el, {
+				scope:scope,
+				drop:function() {
+					var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments));
+					var id = _getAttribute(draggable, "dragId");
+					var elId = _getAttribute(draggable, "elId");
+					
+					// restore the original scope if necessary (issue 57)
+					var scope = _getAttribute(draggable, "originalScope");
+					if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
+					//alert(elId);
+					// get the connection, to then get its endpoint
+					var jpc = floatingConnections[id],
+					//idx = jpc.floatingAnchorIndex == null ? 0 : jpc.floatingAnchorIndex,//, oidx = idx == 0 ? 1 : 0;
+					source = jpc.endpoints[0];
+					
+					// make a new Endpoint
+					var newEndpoint = jsPlumb.addEndpoint(el, endpoint);
+					
+					jsPlumb.connect({
+						source:source,
+						target:newEndpoint,
+						scope:scope
+					});
+					
+				},
+				hoverClass:"hover"
+			});			
 		};
 
 		/*
@@ -2575,7 +2626,7 @@ about the parameters allowed in the params object.
 			 *   Returns whether or not the Endpoint can accept any more Connections.
 			 */
 			this.isFull = function() {
-				return _maxConnections < 1 ? false : (self.connections.length >= _maxConnections);
+				return !(self.isFloating() || _maxConnections < 1 || self.connections.length < _maxConnections);				
 			};
 			/*
 			 * Function: setDragAllowedWhenFull
@@ -2763,13 +2814,15 @@ about the parameters allowed in the params object.
 					_currentInstance.currentlyDragging = true;
 				};
 
-				var dragOptions = params.dragOptions || {};
-				var defaultOpts = jsPlumb.extend( {}, jsPlumb.CurrentLibrary.defaultDragOptions);
+				var jpcl = jsPlumb.CurrentLibrary,
+				dragOptions = params.dragOptions || {},
+				defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
+				startEvent = jpcl.dragEvents['start'],
+				stopEvent = jpcl.dragEvents['stop'],
+				dragEvent = jpcl.dragEvents['drag'];
+				
 				dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
 				dragOptions.scope = dragOptions.scope || self.scope;
-				var startEvent = jsPlumb.CurrentLibrary.dragEvents['start'];
-				var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
-				var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
 				dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent],
 					function() {
@@ -2818,7 +2871,7 @@ about the parameters allowed in the params object.
 						}
 						self.anchor.locked = false;												
 						self.paint();
-						jpc.repaint();
+						jpc.setHover(false);
 						jpc = null;						
 						delete inPlaceCopy;							
 						delete endpointsByElement[floatingEndpoint.elementId];						
