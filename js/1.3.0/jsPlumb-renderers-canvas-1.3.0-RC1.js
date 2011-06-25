@@ -134,6 +134,8 @@
 		});	
 		self.ctx = self.canvas.getContext("2d");
 		
+		this.getDisplayElements = function() { return [ self.canvas ]; };
+		
 		self.paint = function(dim, style) {						
 			if (style != null) {
 				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);

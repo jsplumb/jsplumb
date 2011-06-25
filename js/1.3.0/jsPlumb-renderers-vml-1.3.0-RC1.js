@@ -159,6 +159,8 @@
 				_applyStyles(self.canvas, style);
 			}
 		};
+		
+		this.getDisplayElements = function() { return [ self.canvas ]; };
 	},		
 	/*
 	 * Class: VmlEndpoint

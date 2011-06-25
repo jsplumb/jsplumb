@@ -928,6 +928,16 @@
 			});
 			// force a paint
 			_draw(jpc.source);
+			
+			// jsplumb registers for click and dblclick on these, and fires an event
+			// this is some helper functionality to prevent you from having to register
+			// click listeners all the time
+			jpc.bind("click", function(c) {
+				_currentInstance.fire("click", c);
+			});
+			jpc.bind("dblclick", function(c) {
+				_currentInstance.fire("dblclick", c);
+			});
 
 			return jpc;
 		};
@@ -1016,7 +1026,7 @@ about the parameters allowed in the params object.
 				var t = _getElementObject(target), tId = _getId(t);
 				_operation(sId, function(jpc) {
 							if ((jpc.sourceId == sId && jpc.targetId == tId) || (jpc.targetId == sId && jpc.sourceId == tId)) {
-								_removeElement(jpc.canvas, jpc.parent);
+								_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
 								jpc.endpoints[0].removeConnection(jpc);
 								jpc.endpoints[1].removeConnection(jpc);
 								_removeFromList(connectionsByScope, jpc.scope, jpc);
@@ -1045,7 +1055,7 @@ about the parameters allowed in the params object.
 						var targetId = _getId(_p.target);
 						_operation(sourceId, function(jpc) {
 									if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-										_removeElement(jpc.canvas, jpc.parent);
+										_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
 										jpc.endpoints[0].removeConnection(jpc);
 										jpc.endpoints[1].removeConnection(jpc);
 										_removeFromList(connectionsByScope, jpc.scope, jpc);
@@ -2552,7 +2562,7 @@ about the parameters allowed in the params object.
 						if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length == 0) 
 							jsPlumb.deleteEndpoint(connection.endpointToDeleteOnDetach);							
 					}
-					_removeElement(connection.canvas, connection.parent);
+					_removeElements(connection.connector.getDisplayElements(), connection.parent);
 					_removeFromList(connectionsByScope, connection.scope, connection);
 					if(!ignoreTarget) fireDetachEvent(connection);
 				}
@@ -2900,7 +2910,7 @@ about the parameters allowed in the params object.
 							} else {
 								// TODO this looks suspiciously kind of like an Endpoint.detach call too.
 								// i wonder if this one should post an event though.  maybe this is good like this.
-								_removeElement(jpc.canvas, self.parent);
+								_removeElements(jpc.connector.getDisplayElements(), self.parent);
 								self.detachFromConnection(jpc);								
 							}																
 						}

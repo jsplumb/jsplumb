@@ -169,6 +169,8 @@
 		jsPlumb.appendElement(self.canvas, originalArgs[0]["parent"]);
 		self.canvas.appendChild(self.svg);		
 		
+		this.getDisplayElements = function() { return [ self.canvas ]; };
+		
 		this.paint = function(d, style, anchor) {	   
 			if (style != null) {
 				jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
