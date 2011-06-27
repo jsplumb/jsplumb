@@ -124,9 +124,8 @@
 			self.ctx.restore();
 		};
 
-		var self = this;
-		var clazz = self._jsPlumb.connectorClass + " " + (params.cssClass || "");
-		//TODO change jsPlumb ref to _currentInstance; fix container.
+		var self = this,
+		clazz = self._jsPlumb.connectorClass + " " + (params.cssClass || "");
 		self.canvas = _newCanvas({ 
 			"class":clazz, 
 			_jsPlumb:self._jsPlumb,
@@ -134,7 +133,9 @@
 		});	
 		self.ctx = self.canvas.getContext("2d");
 		
-		this.getDisplayElements = function() { return [ self.canvas ]; };
+		this.getDisplayElements = function() { 
+			return [ self.canvas ]; 
+		};
 		
 		self.paint = function(dim, style) {						
 			if (style != null) {

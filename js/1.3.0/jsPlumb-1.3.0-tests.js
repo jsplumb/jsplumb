@@ -38,13 +38,14 @@ var _addDiv = function(id) {
 	return $(d1);
 };
 
-var _cleanup = function() {
+var _cleanup = function() {	
+	
+	jsPlumb.reset();
+	
 	for (var i in _divs) {
 		$("#" + _divs[i]).remove();		
 	}	
 	_divs.splice(0, _divs.length - 1);
-	
-	jsPlumb.reset();
 };
 
 var testSuite = function(renderMode) {
@@ -86,11 +87,13 @@ var testSuite = function(renderMode) {
 		var d1 = _addDiv("d1");
 		var ee = jsPlumb.addEndpoint(d1, {uuid:"78978597593"});
 		ok(ee != null, "endpoint exists");
+		var e = jsPlumb.getEndpoint("78978597593");
+		ok(e != null, "the endpoint could be retrieved by UUID");
 		assertEndpointCount("d1", 1);
 		assertContextSize(1); // one Endpoint canvas.
 		jsPlumb.removeEndpoint(d1, ee);	 
 		assertEndpointCount("d1", 0);
-		var e = jsPlumb.getEndpoint("78978597593");
+		e = jsPlumb.getEndpoint("78978597593");
 		equals(e, null, "the endpoint has been deleted");
 		assertContextSize(0); // no Endpoint canvases.
 	});
@@ -399,6 +402,20 @@ var testSuite = function(renderMode) {
 		ok(anEntry.targetEndpoint != null, "Target endpoint is set");
 		equals(anEntry.source.attr("id"), "d11", "Source is div d11");
 		equals(anEntry.target.attr("id"), "d14", "Target is div d14");
+	});
+	
+	test(renderMode + ': getEndpoints, one Endpoint added by addEndpoint, get Endpoints by selector', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		jsPlumb.addEndpoint(d1);
+		var e = jsPlumb.getEndpoints(d1);
+		equals(e.length, 1, "there is one endpoint for element d1");
+	});
+	
+	test(renderMode + ': getEndpoints, one Endpoint added by addEndpoint, get Endpoints by id', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		jsPlumb.addEndpoint(d1);
+		var e = jsPlumb.getEndpoints("d1");
+		equals(e.length, 1, "there is one endpoint for element d1");
 	});
 	
 	test(renderMode + ': connection event listeners', function() {

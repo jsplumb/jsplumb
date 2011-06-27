@@ -129,10 +129,11 @@
 				var path = self.getPath(d), p = {};												
 				p["path"] = path;
 				if (self.canvas == null) {
-					// TODO custom css classes
-					p["class"] = jsPlumb.connectorClass;
+					var clazz = self._jsPlumb.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
+					p["class"] = clazz;
 					self.canvas = _node("shape", d, p);
 					jsPlumb.appendElement(self.canvas, params.parent);
+					displayElements.push(self.canvas);
 					if(style["dashstyle"]) {
 						strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] });
 						self.canvas.appendChild(strokeNode);
@@ -160,24 +161,25 @@
 			}
 		};
 		
-		this.getDisplayElements = function() { return [ self.canvas ]; };
+		var displayElements = [  ];
+		this.appendOverlay = function(el) {
+			self.canvas.parentNode.appendChild(el);
+			displayElements.push(el);
+		};
+		this.getDisplayElements = function() { 
+			return displayElements; 
+		};
 	},		
 	/*
 	 * Class: VmlEndpoint
-	 * base class for Vml endpoints. extends VmlComponent.
+	 * Base class for Vml Endpoints. extends VmlComponent.
 	 * 
-	 * TODO VML supports a bunch of attributes that SVG and Canvas do not - such as dashed connectors, shadows, etc.  it seems like a good idea
-	 * to support this notion of extra attributes (and in the svg connector too).  how, though?  possibly a 'vml' section inside a style
-	 * definition?  it seems better to sandbox the stuff on a per tech basis: we wouldn't want to be arbitrarily setting attributes that a certain
-	 * rendering mechanism does not support.  well, probably.  you could also argue that it doesn't hurt.  but i wonder if Firefox would agree: the
-	 * SVG in that browser seems a little brittle. 
 	 */
 	VmlEndpoint = function(params) {
 		VmlComponent.apply(this, arguments);
 		var vml = null, self = this;
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
-		//document.body.appendChild(self.canvas);
 		jsPlumb.appendElement(self.canvas, params.parent);
 		self.canvas.style.zIndex = 5000;
 		
@@ -276,7 +278,8 @@
 			var loc = [d.minx, d.miny, d.td.width , d.td.height];			
 			if (textbox == null) {
 				textbox = _node("textbox", loc);
-				connector.canvas.parentNode.appendChild(textbox);	
+				//connector.canvas.parentNode.appendChild(textbox);
+				connector.appendOverlay(textbox);
 				document.body.removeChild(div);				
 				textbox.appendChild(div);
 				div.style.display="block";
@@ -344,7 +347,8 @@
     		if (canvas == null) {
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
 				canvas = _node("shape", dim, p);				
-				connector.canvas.parentNode.appendChild(canvas);
+				//connector.canvas.parentNode.appendChild(canvas);
+				connector.appendOverlay(canvas);
 				//_attachListeners(self.canvas, self);
 			}
 			else {				

@@ -530,14 +530,17 @@
 		 */
 		_removeElement = function(element, parent) {
 			if (element != null) {
-				if (!parent) {
+				/*if (!parent) {
 					try {
 						document.body.removeChild(element);
 					} catch (e) {
 					}
 				} else {
-					jsPlumb.CurrentLibrary.removeElement(element, parent);
-				}
+					//jsPlumb.CurrentLibrary.removeElement(element, parent);
+					parent.removeChild(element);
+				}*/
+				if (element.parentNode != null)
+					element.parentNode.removeChild(element);
 			}
 		},
 		/**
@@ -1276,6 +1279,12 @@ about the parameters allowed in the params object.
 		 */
 		this.getEndpoint = _getEndpoint;
 		
+		/**
+		 * Function:getEndpoints
+		 * Gets the list of Endpoints for a given selector, or element id.
+		 * @param el
+		 * @return
+		 */
 		this.getEndpoints = function(el) {
 			return endpointsByElement[_getId(el)];
 		};
