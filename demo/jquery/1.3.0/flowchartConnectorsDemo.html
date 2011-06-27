@@ -64,15 +64,11 @@
 					// blue endpoints 7 px; green endpoints 11.
 					jsPlumb.Defaults.Endpoints = [ [ "Dot", {radius:7} ], [ "Dot", { radius:11 } ]];
 					// enable mouse events
-					jsPlumb.setMouseEventsEnabled(true);	
-	
-					// this is the paint style and hover style for the connecting lines
-					var connectorPaintStyle = {lineWidth:5,strokeStyle:"#deea18"};
-					var connectorHoverStyle = {lineWidth:7,strokeStyle:"#2e2aF8"};
+					jsPlumb.setMouseEventsEnabled(true);						
 	
 					// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
 					// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
-					var overlays = [
+					jsPlumb.Defaults.Overlays = [
 						[ "Arrow", { location:0.9 } ], 
 						[ "Label", { 
 							location:0.1,
@@ -87,6 +83,10 @@
 							}
 						}] 
 					];
+
+					// this is the paint style and hover style for the connecting lines
+					var connectorPaintStyle = {lineWidth:5,strokeStyle:"#deea18",joinstyle:"round"};
+					var connectorHoverStyle = {lineWidth:7,strokeStyle:"#2e2aF8"};
 	
 					// the definition of source endpoints (the small blue ones)
 					var sourceEndpoint = {
@@ -96,8 +96,8 @@
 						connector:"Flowchart",
 						connectorStyle:connectorPaintStyle,
 						hoverPaintStyle:connectorHoverStyle,
-						connectorHoverStyle:connectorHoverStyle,
-						connectorOverlays: overlays				
+						connectorHoverStyle:connectorHoverStyle/*,
+						connectorOverlays: overlays				*/
 					};
 	
 					// the definition of target endpoints (the larger green ones)
@@ -124,11 +124,7 @@
 	
 					// helper method to set mouse handlers and the labelText member on connections.
 					var init = function(conn) {
-						conn.connector.labelText = conn.sourceId.substring(6) + " - " + conn.targetId.substring(6);
-						conn.bind("click", function(conn) {
-							if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
-								jsPlumb.detach(conn); 
-						}); 
+						conn.connector.labelText = conn.sourceId.substring(6) + " - " + conn.targetId.substring(6);						
 						conn.bind("mouseenter", function(conn) { conn.setLabel("click to delete"); });
 						conn.bind("mouseexit", function(conn) { conn.setLabel(""); });
 						conn.repaint();
@@ -136,20 +132,33 @@
 	
 					// connect two elements.  calls the init function to register mouse handlers etc.
 					var connect = function(s,t) {
-						var c = jsPlumb.connect({source:s,target:t, overlays:overlays});
+						var c = jsPlumb.connect({ source:s,target:t });
 						if (c) init(c);
 					};
 	
 					// connect, by Endpoint.
 					connect(e12, e32);
-					connect(e41, e21 );
+				//	connect(e41, e21 );
 					connect(e22, e33);
 					connect(e42, e31);
 					connect(e34, e11);
+
+					// a little test 
+					var anchors = [[1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0], [0.2, 0, 0, -1] ];					
+					jsPlumb.makeTarget("window2", {
+						endpoint:jsPlumb.extend(targetEndpoint, {anchor:anchors}),
+						dropOptions:{ hoverClass:"hover" },
+						deleteEndpointsOnDetach:true
+					});
 	
 					// listen for new connections; initialise them the same way we initialise the connections at startup.
 					jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
 						init(connInfo.connection);
+					});
+
+					jsPlumb.bind("click", function(conn) {
+						if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
+							jsPlumb.detach(conn); 
 					});
 				};
 
