@@ -97,6 +97,7 @@ mouse events, not to mention running a whole lot quicker.
 													   target:'window2', 
 													   connector:"Bezier",
 													   cssClass:"c1",
+													   //drawEndpoints:false,
 													   endpointClass:"c1Endpoint",
 													   //,dashstyle:"2 2"
 													   anchors:["BottomCenter", [ 0.75, 0, 0, -1 ]], 
@@ -114,7 +115,6 @@ mouse events, not to mention running a whole lot quicker.
 													   					location:0.7 } ]/*,
 													   				["Arrow", {location:0.2, width:50}]*/
 								   					   ]});
-					 connection1.bind("dblclick", function() { alert("double click on connection one."); });
 					 connection1.endpoints[0].bind("click", function() { alert("click on connection one source endpoint"); });
 					 connection1.endpoints[1].bind("click", function() { alert("click on connection one target endpoint"); });
 	
@@ -134,9 +134,8 @@ mouse events, not to mention running a whole lot quicker.
 				        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, "#558822"]] }},
 				    			        				 { gradient : {stops:[[0, w23Stroke], [1, "#882255"]] }}]//,
 								//		 endpointBackgroundStyle:{fillStyle:'rgba(100,100,100,50)'},
-				    			        });
+				    			      });
 
-			        connection3.bind("dblclick", function() { alert("double click on connection three."); });
 					connection3.endpoints[0].bind("click", function() { alert("click on connection three source endpoint"); });
 					connection3.endpoints[1].bind("click", function() { alert("click on connection three target endpoint"); });
 					
@@ -169,7 +168,6 @@ mouse events, not to mention running a whole lot quicker.
 					        				 return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds())); 
 					        			 }
 				        			});
-					connection2.bind("dblclick", function() { alert("double click on connection two."); });
 					connection2.endpoints[0].bind("click", function() { alert("click on connection two source endpoint"); });
 					connection2.endpoints[1].bind("click", function() { alert("click on connection two target endpoint"); });
 					 	
@@ -188,11 +186,10 @@ mouse events, not to mention running a whole lot quicker.
 												hoverPaintStyle:{ lineWidth:17, strokeStyle:"rgb(243,30,218)" },
 				        						endpointsOnTop:false, 
 				        						endpointStyle:{ radius:95, fillStyle:conn4Color },
-				        						labelStyle : { fillStyle:conn4Color, color:"black", borderWidth:10 },
+				        						labelStyle : { fillStyle:"white", color:"black", borderWidth:2, padding:"5px" },
 				        						label : "big\nendpoints"
 				        				});
 
-			        connection4.bind("dblclick", function() { alert("double click on connection four."); });
 					connection4.endpoints[0].bind("click", function() { alert("click on connection four source endpoint"); });
 					connection4.endpoints[1].bind("click", function() { alert("click on connection four target endpoint"); });
 					
@@ -214,7 +211,7 @@ mouse events, not to mention running a whole lot quicker.
 											overlays:[ ["Label", {
 															labelStyle : { 
 																fillStyle:"white", 
-																padding:0.4, 
+																padding:"4px", 
 																font:"16px sans-serif", 
 																color:"rgb(131,8,135)", 
 																borderStyle:"rgb(131,8,135)", 
@@ -224,10 +221,10 @@ mouse events, not to mention running a whole lot quicker.
 									    			        location:0.3 } ]
 											]});
 
-			        connection5.bind("dblclick", function() { alert("double click on connection five."); });
 					connection5.endpoints[0].bind("click", function() { alert("click on connection five source endpoint"); });
 					connection5.endpoints[1].bind("click", function() { alert("click on connection five target endpoint"); });
-					 
+
+					jsPlumb.bind("dblclick", function(conn) { alert("double click on connection from " + conn.sourceId + " to " + conn.targetId); });
 				};
 
 				
