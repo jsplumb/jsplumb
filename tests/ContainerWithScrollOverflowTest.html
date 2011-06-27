@@ -31,33 +31,11 @@
 		
 		<div id="debug"></div>
 		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../js/1.2.4/jsPlumb-1.2.4-RC1.js"></script>
-		<script type="text/javascript" src="../js/1.2.4/jsPlumb-defaults-1.2.4-RC1.js"></script>
-		<script type="text/javascript" src="../js/1.2.4/jquery.jsPlumb-1.2.4-RC1.js"></script>
-		<script type="text/javascript" src="../js/1.2.4/jsBezier-0.1.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
-				document.onselectstart = function () { return false; };
-				
-				jsPlumb.Defaults.Container = "container";
-				jsPlumb.addEndpoint("window1", {
-					isSource:true, isTarget:true,
-					anchor:"RightMiddle"					
-				});
-				jsPlumb.addEndpoint("window2", {
-					isSource:true, isTarget:true,
-					anchor:"LeftMiddle"					
-				});
-				jsPlumb.addEndpoint("window3", {
-					isSource:true, isTarget:true,
-					anchor:"TopCenter"					
-				});
-				jsPlumb.addEndpoint("window1", {
-					isSource:true, isTarget:true,
-					anchor:"LeftMiddle"					
-				});			
+				document.onselectstart = function () { return false; };				
 
 				var container = $("#container"), w4 = $("#window4"), w5 = $("#window5"), debug = $("#debug");
 				var s1 = $("#spot1"), s2 = $("#spot2"), w4w = w4.outerWidth(), w4h = w4.outerHeight();
