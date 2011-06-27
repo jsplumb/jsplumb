@@ -1,42 +1,13 @@
 /*
 * jsPlumb-defaults-1.3.0-RC1
 *
-* This script contains the default Anchors, Endpoints, Connectors and Overlays for jsPlumb.  It should be used with jsPlumb 1.1.0 and above; 
-* prior to version 1.1.0 of jsPlumb the defaults were included inside the main script.
-*
-* NOTE: for production usage you should use jsPlumb-all-x.x.x-min.js, which contains the main jsPlumb script and this script together,
-* in a minified file.
+* Copyright 2010 - 2011 Simon Porritt  http://jsplumb.org
 * 
-* Dual licensed under MIT and GPL2.
+* Triple licensed under the MIT, GPL2 and Beer licenses.
 */
 
-(function() {
-	
-	var ie = !!!document.createElement('canvas').getContext;
+(function() {	
 
-    /**
-    * Places you can anchor a connection to.  These are helpers for common locations; they all just return an instance
-    * of Anchor that has been configured appropriately.  
-    * 
-    * You can write your own one of these; you
-    * just need to provide a 'compute' method and an 'orientation'.  so you'd say something like this:
-    * 
-    * jsPlumb.Anchors.MY_ANCHOR = {
-    * 	compute : function(xy, wh, txy, twh) { return some mathematics on those variables; },
-    *   getOrientation : function() { return [ox, oy]; }
-    * };
-    *
-    * compute takes the [x,y] position of the top left corner of the anchored element,
-    * and the element's [width,height] (all in pixels), as well as the location and dimension of the element it's plumbed to,
-    * and returns where the anchor should be located.
-    *
-    * the 'orientation' array (returned here as [ox,oy]) indicates the general direction a connection from the anchor
-    * should go in, if possible.  it is an [x,y] matrix where a value of 0 means no preference,
-    * -1 means go in a negative direction for the given axis, and 1 means go in a positive
-    * direction.  so consider a TopCenter anchor: the orientation matrix for it is [0,-1],
-    * meaning connections naturally want to go upwards on screen.  in a Bezier implementation, for example, 
-    * the curve would start out going in that direction, before bending towards the target anchor.
-    */
 	var _curryAnchor = function(x,y,ox,oy) {
 		return function() {
 			return jsPlumb.makeAnchor(x,y,ox,oy);
@@ -45,11 +16,11 @@
 	jsPlumb.Anchors["TopCenter"] 		= _curryAnchor(0.5, 0, 0,-1);
 	jsPlumb.Anchors["BottomCenter"] 	= _curryAnchor(0.5, 1, 0, 1);
 	jsPlumb.Anchors["LeftMiddle"] 		= _curryAnchor(0, 0.5, -1, 0);
-	jsPlumb.Anchors["RightMiddle"] 	= _curryAnchor(1, 0.5, 1, 0);
+	jsPlumb.Anchors["RightMiddle"] 		= _curryAnchor(1, 0.5, 1, 0);
 	jsPlumb.Anchors["Center"] 			= _curryAnchor(0.5, 0.5, 0, 0);
 	jsPlumb.Anchors["TopRight"] 		= _curryAnchor(1, 0, 0,-1);
-	jsPlumb.Anchors["BottomRight"] 	= _curryAnchor(1, 1, 0, 1);
-	jsPlumb.Anchors["TopLeft"] 		= _curryAnchor(0, 0, 0, -1);
+	jsPlumb.Anchors["BottomRight"] 		= _curryAnchor(1, 1, 0, 1);
+	jsPlumb.Anchors["TopLeft"] 			= _curryAnchor(0, 0, 0, -1);
 	jsPlumb.Anchors["BottomLeft"] 		= _curryAnchor(0, 1, 0, 1);
 		
 	jsPlumb.Defaults.DynamicAnchors = function() {
