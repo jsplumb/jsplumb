@@ -354,9 +354,8 @@
     		if (canvas == null) {
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
 				canvas = _node("shape", dim, p);				
-				//connector.canvas.parentNode.appendChild(canvas);
 				connector.appendOverlay(canvas);
-				//_attachListeners(self.canvas, self);
+				_attachListeners(self.canvas, connector);
 			}
 			else {				
 				_pos(canvas, dim);
