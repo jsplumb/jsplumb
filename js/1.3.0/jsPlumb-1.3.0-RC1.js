@@ -295,7 +295,7 @@
 			EndpointHoverStyle : null,
 			EndpointHoverStyles : [ null, null ],
 			HoverPaintStyle : null,
-			LabelStyle : { fillStyle : "rgba(0,0,0,0)", color : "black" },
+			LabelStyle : { color : "black" },
 			LogEnabled : true,
 			Overlays : [ ],
 			MaxConnections : null,
@@ -714,19 +714,19 @@
 		 * Property: connectorClass 
 		 *   The CSS class to set on Connection canvas elements. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
-		this.connectorClass = '_jsPlumb_connector';
+		this.connectorClass = "_jsPlumb_connector";
 
 		/*
 		 * Property: endpointClass 
 		 *   The CSS class to set on Endpoint canvas elements. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
-		this.endpointClass = '_jsPlumb_endpoint';
+		this.endpointClass = "_jsPlumb_endpoint";
 
 		/*
 		 * Property: overlayClass 
 		 * The CSS class to set on an Overlay that is an HTML element. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
-		this.overlayClass = '_jsPlumb_overlay';
+		this.overlayClass = "_jsPlumb_overlay";
 
 		/*
 		 * Property: Anchors 
@@ -737,12 +737,7 @@
 
 		/*
 		 * Property: Connectors 
-		 *   Default jsPlumb Connectors. These are supplied
-		 * in the file jsPlumb-defaults-x.x.x.js, which is merged in with the
-		 * main jsPlumb script to form <library>.jsPlumb-all-x.x.x.js. You can
-		 * provide your own Connectors by supplying them in a script that is
-		 * loaded after jsPlumb, for instance: > jsPlumb.Connectors.MyConnector = {
-		 * ....connector code here. see the documentation. }
+		 *   Default jsPlumb Connectors. 
 		 */
 		this.Connectors = { 
 				"canvas":{},
@@ -752,12 +747,7 @@
 
 		/*
 		 * Property: Endpoints 
-		 *   Default jsPlumb Endpoints. These are supplied in
-		 * the file jsPlumb-defaults-x.x.x.js, which is merged in with the main
-		 * jsPlumb script to form <library>.jsPlumb-all-x.x.x.js. You can
-		 * provide your own Endpoints by supplying them in a script that is
-		 * loaded after jsPlumb, for instance: > jsPlumb.Endpoints.MyEndpoint = {
-		 * ....endpoint code here. see the documentation. }
+		 *   Default jsPlumb Endpoints. 
 		 */
 		this.Endpoints = {
 				"canvas":{},
@@ -2269,7 +2259,7 @@ about the parameters allowed in the params object.
 						// ["Arrow", { width:50 }, {location:0.7}] 
 						// which merges the 3rd arg into the 2nd.
 						var type = o[0];
-						var p = jsPlumb.CurrentLibrary.extend({connection:self}, o[1]);			// make a copy of the object so as not to mess up anyone else's reference...
+						var p = jsPlumb.CurrentLibrary.extend({connection:self, _jsPlumb:_currentInstance}, o[1]);			// make a copy of the object so as not to mess up anyone else's reference...
 						if (o.length == 3) jsPlumb.CurrentLibrary.extend(p, o[2]);
 						this.overlays.push(new jsPlumb.Overlays[renderMode][type](p));
 					} else if (o.constructor == String) {
@@ -2295,7 +2285,8 @@ about the parameters allowed in the params object.
 				this.overlays.push(new jsPlumb.Overlays[renderMode].Label( {
 					labelStyle : this.labelStyle,
 					label : this.label,
-					connection:self
+					connection:self,
+					_jsPlumb:_currentInstance
 				}));
 			}
 
