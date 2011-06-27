@@ -17,4 +17,5 @@ font-size:0.8em;}
 #window8 {left:63em;top:32em;}
 ._jsPlumb_connector { z-index:4; }
 ._jsPlumb_endpoint { z-index:5; }
+._jsPlumb_overlay { z-index:6; }
 .hl { border:3px solid red; }
