@@ -40,7 +40,7 @@
 	var scale = 1000,
 	_atts = function(o, atts) {
 		for (var i in atts) { 
-			// IE8 fix: setattribute does not work after an element has been add to the dom!
+			// IE8 fix: setattribute does not work after an element has been added to the dom!
 			// http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
 			//o.setAttribute(i, atts[i]);
 			o[i] = atts[i];
@@ -181,7 +181,6 @@
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
 		jsPlumb.appendElement(self.canvas, params.parent);
-		self.canvas.style.zIndex = 5000;
 		
 		this.paint = function(d, style, anchor) {
 			var p = { };						
@@ -267,9 +266,18 @@
 		var labelText = null;
 		div = document.createElement("div");	
 		div.style["position"] 	= 	"absolute";
-		div.style["display"] 	=	"none";
-		div.style["textAlign"] 	= 	"center";		
-		//div.className			=	jsPlumb.overlayClass; // TODO currentInstance? 
+		//div.style["display"] 	=	"none";
+		div.style["textAlign"] 	= 	"center";
+		div.style["cursor"] 	= 	"pointer";
+		div.style["font"] = self.labelStyle.font;
+		div.style["color"] = self.labelStyle.color || "black";
+		if (self.labelStyle.fillStyle) div.style["background"] = _convertStyle(self.labelStyle.fillStyle, true);
+		if (self.labelStyle.borderWidth > 0) {
+			var dStyle = self.labelStyle.borderStyle ? _convertStyle(self.labelStyle.borderStyle, true) : "black";
+			div.style["border"] = self.labelStyle.borderWidth  + "px solid " + dStyle;
+		}
+		if (self.labelStyle.padding) div.style["padding"] = self.labelStyle.padding;
+		div.className			=	params["_jsPlumb"].overlayClass;  
 		// initially, put these on the body, so the first pass at getTextDimensions can work.
 		// after the first paint, we remove from body and append to the textbox.
 		document.body.appendChild(div);
@@ -277,22 +285,21 @@
 		this.paint = function(connector, d, connectorDimensions) {
 			var loc = [d.minx, d.miny, d.td.width , d.td.height];			
 			if (textbox == null) {
-				textbox = _node("textbox", loc);
-				//connector.canvas.parentNode.appendChild(textbox);
+				textbox = _node("textbox", loc);				
 				connector.appendOverlay(textbox);
 				document.body.removeChild(div);				
 				textbox.appendChild(div);
-				div.style.display="block";
+				_attachListeners(div, connector);
 			}
-			else {
+			//else {
 				_pos(textbox, connectorDimensions.slice(0, 4));
-			}
-			_pos(div, loc);
-			div.innerHTML = labelText.replace(/\n/g, "<br/>");
-			// TODO draw the background/border etc. maybe extract out a drawBox and drawText methods.
-			div.style["font"] = self.labelStyle.font;
-			div.style["color"] = self.labelStyle.color || "black";
+			//}
+			//_pos(div, loc);
+				div.style.left = d.minx + "px";
+				div.style.top = d.miny + "px";
+			//div.innerHTML = labelText.replace(/\n/g, "<br/>");			
 		};
+		
 		this.getTextDimensions = function(connector) {
 			labelText = typeof self.label == 'function' ? self.label(self) : self.label;
 			div.innerHTML = labelText.replace(/\r\n/g, "<br/>");
