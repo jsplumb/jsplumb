@@ -75,7 +75,7 @@
 		// order to how canvas does it.  so we want to keep all the maths the same, but
 		// iterate the actual style declarations in reverse order, if the x indexes are not in order.
 		for (var i = 0; i < style.gradient.stops.length; i++) {
-			var styleToUse = dimensions[4] < dimensions[6] ? style.gradient.stops.length - 1 - i : style.gradient.stops[i];
+			var styleToUse = dimensions[4] < dimensions[6] ? style.gradient.stops.length - 1 - i : i;
 			var stopColor = _convertStyle(style.gradient.stops[styleToUse][1], true);
 			var s = _node("stop", {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
 			g.appendChild(s);
