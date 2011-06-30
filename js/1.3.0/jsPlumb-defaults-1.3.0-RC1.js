@@ -653,31 +653,6 @@
 
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
 	
-	/*jsPlumb.Overlays.Image = function(params) {
-    	var self = this, imgDiv = null;
-    	jsPlumb.Overlays.Image.apply(this, arguments);
-    	this.init = function() {
-    		imgDiv = document.createElement("img");
-			imgDiv.src = self.img.src;
-			imgDiv.style.position = "absolute";
-			imgDiv.style.display="none";
-			imgDiv.className = "_jsPlumb_overlay";
-			document.body.appendChild(imgDiv);// HMM
-    	};
-    	this.paint = function(connector, d){
-    		var ctx = connector.ctx,
-    		cxy = connector.pointOnPath(self.location),
-    		canvas = _getElementObject(ctx.canvas),
-    		canvasOffset = _getOffset(canvas),
-    		minx = cxy.x - (self.img.width/2),
-    		miny = cxy.y - (self.img.height/2),
-    		o = {left:canvasOffset.left + minx, top:canvasOffset.top + miny};
-    		_setOffset(imgDiv, o);
-    		imgDiv.style.display = "block";
-    		return [ minx,minx + self.img.width, miny, miny+self.img.height ];
-    	};
-    };*/
-	
 	/**
 	 * An arrow overlay.  you can provide:
 	 * 
