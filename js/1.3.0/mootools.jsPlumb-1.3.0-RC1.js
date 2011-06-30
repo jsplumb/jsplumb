@@ -173,6 +173,10 @@
 			return [eventObject.event.pageX, eventObject.event.pageY];
 		},
 		
+		getParent : function(el) {
+			return jsPlumb.CurrentLibrary.getElementObject(el).getParent();
+		},
+		
 		getScrollLeft : function(el) {
 			return null;
 		},
