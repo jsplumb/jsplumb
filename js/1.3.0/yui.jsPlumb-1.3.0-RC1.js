@@ -110,12 +110,11 @@
 	    }
 	};
 	
-	var _droppables = {};
-	var _droppableOptions = {};
-	var _draggablesByScope = {};
-	var _draggablesById = {};
-	
-	var _checkHover = function(el, entering) {
+	var _droppables = {},
+	_droppableOptions = {},
+	_draggablesByScope = {},
+	_draggablesById = {},
+	_checkHover = function(el, entering) {
 		if (el) {
 			var id = el.get("id");
 			if (id) {
@@ -128,21 +127,17 @@
 				}
 			}
 		}
-	};
-	
-	var _lastDragObject = null;
-	
-	var _extend = function(o1, o2) {
+	},
+	_lastDragObject = null,
+	_extend = function(o1, o2) {
 		for (var i in o2)
 			o1[i] = o2[i];
 		return o1;
-	};
-	
-	var _getAttribute = function(el, attributeId) {
+	},
+	_getAttribute = function(el, attributeId) {
 		return el.getAttribute(attributeId);
-	};
-	
-	var _getElementObject = function(el) {
+	},
+	_getElementObject = function(el) {
 		return typeof el == 'string' ? Y.one('#' + el) : Y.one(el);
 	};
 	
@@ -216,12 +211,16 @@
 			return [eventObject.pageX, eventObject.pageY];
 		},
 		
+		getParent : function(el) {
+			return jsPlumb.CurrentLibrary.getElementObject(el).get("parentNode");
+		},
+		
 		getScrollLeft : function(el) {
-			alert("YUI getScrollLeft not implemented yet");
+			return 0; //alert("YUI getScrollLeft not implemented yet");
 		},
 		
 		getScrollTop : function(el) {
-			alert("YUI getScrollTop not implemented yet");
+			return 0;//alert("YUI getScrollTop not implemented yet");
 		},
 		
 		getSize : function(el) {
