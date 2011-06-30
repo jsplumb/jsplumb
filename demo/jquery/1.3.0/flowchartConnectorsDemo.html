@@ -85,7 +85,12 @@
 					];
 
 					// this is the paint style and hover style for the connecting lines
-					var connectorPaintStyle = {lineWidth:5,strokeStyle:"#deea18",joinstyle:"round"};
+					var connectorPaintStyle = {
+							/*gradient:{stops:[[0, "#deea18"], [0.5, '#09098e'], [1, "#deea18"]]},*/
+							lineWidth:5,
+							strokeStyle:"#deea18",
+							joinstyle:"round"
+					};
 					var connectorHoverStyle = {lineWidth:7,strokeStyle:"#2e2aF8"};
 	
 					// the definition of source endpoints (the small blue ones)
