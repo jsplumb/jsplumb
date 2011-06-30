@@ -73,10 +73,10 @@
 		
 		// the svg radial gradient seems to treat stops in the reverse 
 		// order to how canvas does it.  so we want to keep all the maths the same, but
-		// iterate the actual style declarations in reverse order.
+		// iterate the actual style declarations in reverse order, if the x indexes are not in order.
 		for (var i = 0; i < style.gradient.stops.length; i++) {
-			var styleToUse = style.gradient.stops.length - 1 - i;
-			var stopColor = _convertStyle(style.gradient.stops[styleToUse][1], true)
+			var styleToUse = dimensions[4] < dimensions[6] ? style.gradient.stops.length - 1 - i : style.gradient.stops[i];
+			var stopColor = _convertStyle(style.gradient.stops[styleToUse][1], true);
 			var s = _node("stop", {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
 			g.appendChild(s);
 		}
