@@ -491,18 +491,11 @@
          */
         this.pointAlongPathFrom = function(location, distance) {
         	var s = findSegmentForLocation(location), seg = s.segment, p = s.proportion, sl = segmentLengths[s.index], m = segmentGradients[s.index];        	
-        	var e = { 
-        		//x 	: m == Infinity ? seg[2] : /*swapX ? seg[2] - (p * sl) - distance : */seg[2] + (p * sl) + distance,
-        		
+        	var e = {         		
         		x 	: m == Infinity ? seg[2] : seg[2] > seg[0] ? seg[0] + ((1 - p) * sl) - distance : seg[2] + (p * sl) + distance,
-        			
-        			
-        		//y 	: m == 0 ? seg[3] : /*swapY ? seg[3] - (p * sl) - distance : */seg[3] + (p * sl) + distance,
-        				y 	: m == 0 ? seg[3] : seg[3] > seg[1] ? seg[1] + ((1 - p) * sl) - distance  : seg[3] + (p * sl) + distance,
+        		y 	: m == 0 ? seg[3] : seg[3] > seg[1] ? seg[1] + ((1 - p) * sl) - distance  : seg[3] + (p * sl) + distance,
         		segmentInfo : s
         	};
-        	
-        	//console.log("pointalongpath, swapX =" + swapX + ",swapY=" + swapY, "loc", location, "travel", (p * sl), "dist", distance, e.x, e.y, "seg", seg, "len", sl, "prop.", p);
         	
         	return e;
         };
@@ -805,7 +798,10 @@
     	}
     	if (self.labelStyle.padding) div.style["padding"] = self.labelStyle.padding;
     	
-    	var clazz = params["_jsPlumb"].overlayClass + " " + (params.cssClass ? params.cssClass : "");
+    	var clazz = params["_jsPlumb"].overlayClass + " " + 
+    		(self.labelStyle.cssClass ? self.labelStyle.cssClass : 
+    		params.cssClass ? params.cssClass : "");
+    	
     	div.className			=	clazz;
     	
     	jsPlumb.appendElement(div, params.connection.parent);
@@ -860,61 +856,3 @@
     
  // ********************************* END OF OVERLAY CANVAS RENDERERS ***********************************************************************
 })();
-
-
-
-/*
-**
- * VML Label renderer. Creates a VML 'textnode' and appends a div to it;
- * the div has the font and border/background properties applied via CSS.
- *
-jsPlumb.Overlays.vml.Label = function(params) {
-	var self = this, textbox = null, div = null, lines = [];
-	jsPlumb.Overlays.Label.apply(this, arguments);
-	var labelText = null;
-	div = document.createElement("div");	
-	div.style["position"] 	= 	"absolute";
-	//div.style["display"] 	=	"none";
-	div.style["textAlign"] 	= 	"center";
-	div.style["cursor"] 	= 	"pointer";
-	div.style["font"] = self.labelStyle.font;
-	div.style["color"] = self.labelStyle.color || "black";
-	if (self.labelStyle.fillStyle) div.style["background"] = _convertStyle(self.labelStyle.fillStyle, true);
-	if (self.labelStyle.borderWidth > 0) {
-		var dStyle = self.labelStyle.borderStyle ? _convertStyle(self.labelStyle.borderStyle, true) : "black";
-		div.style["border"] = self.labelStyle.borderWidth  + "px solid " + dStyle;
-	}
-	if (self.labelStyle.padding) div.style["padding"] = self.labelStyle.padding;
-	div.className			=	params["_jsPlumb"].overlayClass;  
-	// initially, put these on the body, so the first pass at getTextDimensions can work.
-	// after the first paint, we remove from body and append to the textbox.
-	document.body.appendChild(div);
-	jsPlumb.getId(div);		
-	this.paint = function(connector, d, connectorDimensions) {
-		var loc = [d.minx, d.miny, d.td.width , d.td.height];			
-		if (textbox == null) {
-			textbox = _node("textbox", loc);				
-			connector.appendOverlay(textbox);
-			document.body.removeChild(div);				
-			textbox.appendChild(div);
-			_attachListeners(div, connector);
-		}
-		//else {
-			_pos(textbox, connectorDimensions.slice(0, 4));
-		//}
-		//_pos(div, loc);
-			div.style.left = d.minx + "px";
-			div.style.top = d.miny + "px";
-		//div.innerHTML = labelText.replace(/\n/g, "<br/>");			
-	};
-	
-	this.getTextDimensions = function(connector) {
-		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
-		div.innerHTML = labelText.replace(/\r\n/g, "<br/>");
-		var de = jsPlumb.CurrentLibrary.getElementObject(div),
-		s = jsPlumb.CurrentLibrary.getSize(de);
-		// TODO implement this properly.
-		return {width:s[0], height:s[1], lines:["fff", "ddd" ], oneLine:10, padding:34, textHeight:56};
-	};
-};
-*/

@@ -49,15 +49,19 @@
 	    var _mouseover = false;
 	    var _mouseDown = false, _posWhenMouseDown = null, _mouseWasDown = false;
 	    this.mousemove = function(e) {		    
-	    	var pageXY = _pageXY(e);
-			var ee = document.elementFromPoint(pageXY[0], pageXY[1]);
+	    	var pageXY = _pageXY(e),	    	
+	    	ee = document.elementFromPoint(pageXY[0], pageXY[1]),
+	    	eventSourceWasOverlay = _hasClass(ee, "_jsPlumb_overlay");	    	
 			var _continue = _connectionBeingDragged == null && (_hasClass(ee, "_jsPlumb_endpoint") || _hasClass(ee, "_jsPlumb_connector"));
 			if (!_mouseover && _continue && self._over(e)) {
 				_mouseover = true;
 				self.fire("mouseenter", self, e);		
 				return true;
 			}
-			else if (_mouseover && (!self._over(e) || !_continue)) {
+			// TODO here there is a remote chance that the overlay the mouse moved onto
+			// is actually not an overlay for the current component. a more thorough check would
+			// be to ensure the overlay belonged to the current component.  
+			else if (_mouseover && (!self._over(e) || !_continue) && !eventSourceWasOverlay) {
 				_mouseover = false;
 				self.fire("mouseexit", self, e);				
 			}
@@ -374,8 +378,6 @@
     	CanvasOverlay.apply(this, arguments);
     	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		var ctx = connector.ctx;
-    		
-    		//console.log("drawing arrow at ", d.hxy.x + "," + d.hxy.y, d.tail[0].x + "," + d.tail[0].y, d.cxy.x + "," + d.cxy.y, d.tail[1].x + "," + d.tail[1].y);
     		
 			ctx.lineWidth = lineWidth;
 			ctx.beginPath();

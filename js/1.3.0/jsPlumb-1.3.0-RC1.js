@@ -162,7 +162,7 @@
 		 * and also extends EventGenerator to provide the bind and fire methods.
 		 */
 		var jsPlumbUIComponent = function(params) {
-			var self = this, a = arguments;
+			var self = this, a = arguments, _hover = false;
 			self._jsPlumb = params["_jsPlumb"];	
 			//self.parent = params["parent"];
 			// all components can generate events
@@ -244,6 +244,7 @@
 		     * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
 		     */
 		    this.setHover = function(hover, ignoreAttachedElements) {
+		    	_hover = hover;
 		    	if (self.hoverPaintStyle != null) {
 					self.paintStyleInUse = hover ? self.hoverPaintStyle : self.paintStyle;
 					self.repaint();
@@ -251,6 +252,10 @@
 					if (!ignoreAttachedElements)
 						_updateAttachedElements(hover);
 				}
+		    };
+		    
+		    this.isHover = function() { 
+		    	return _hover; 
 		    };
 		    
 		    var _updateAttachedElements = function(state) {
@@ -315,27 +320,25 @@
 			if ("ready" === event && initialized) fn();
 			else _bb(event, fn);
 		};
-		var _currentInstance = this;
-		var log = null;
-
-		var repaintFunction = function() {
+		var _currentInstance = this,
+		log = null,
+		repaintFunction = function() {
 			jsPlumb.repaintEverything();
-		};
-		var automaticRepaint = true;
-		function repaintEverything() {
+		},
+		automaticRepaint = true,
+		repaintEverything = function() {
 			if (automaticRepaint)
 				repaintFunction();
-		};
-		var resizeTimer = null;		
-
-		var initialized = false;
-		var connectionsByScope = {};
+		},
+		resizeTimer = null,
+		initialized = false,
+		connectionsByScope = {},
 		/**
 		 * map of element id -> endpoint lists. an element can have an arbitrary
 		 * number of endpoints on it, and not all of them have to be connected
 		 * to anything.
 		 */
-		var endpointsByElement = {},
+		endpointsByElement = {},
 		endpointsByUUID = {},
 		offsets = {},
 		offsetTimestamps = {},
@@ -402,10 +405,10 @@
 						// then, check for dynamic endpoint; need to repaint it.						
 						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
 						if (l[j].endpoints[oIdx].anchor.isDynamic && !l[j].endpoints[oIdx].isFloating()) {							
-							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
-							var oOffset = offsets[oId], oWH = sizes[oId];							
+							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId,
+							oOffset = offsets[oId], oWH = sizes[oId],							
 							// TODO i still want to make this faster.
-							var anchorLoc = l[j].endpoints[oIdx].anchor.compute( {
+							anchorLoc = l[j].endpoints[oIdx].anchor.compute( {
 										xy : [ oOffset.left, oOffset.top ],
 										wh : oWH,
 										element : l[j].endpoints[oIdx],
@@ -489,11 +492,20 @@
 			return new connectionFunc(params);
 		},
 		
+		_eventFireProxy = function(event, proxyEvent, obj) {
+			obj.bind(event, function(e) {
+				_currentInstance.fire(proxyEvent, obj, e);
+			});
+		},
+		
 		_newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
 			params["parent"] = jsPlumb.CurrentLibrary.getParent(params.source);
-			params["_jsPlumb"] = _currentInstance;
-			return new endpointFunc(params);
+			params["_jsPlumb"] = _currentInstance,
+			ep = new endpointFunc(params);
+			_eventFireProxy("click", "endpointClick", ep);
+			_eventFireProxy("dblclick", "endpointDblClick", ep);
+			return ep;
 		},
 		
 		/**
@@ -2204,20 +2216,20 @@ about the parameters allowed in the params object.
 			});
 			this.connector.bind("dblclick", function(con, e) { _mouseWasDown = false;self.fire("dblclick", self, e); });
 			this.connector.bind("mouseenter", function(con, e) {
-				if (_connectionBeingDragged == null) {
-			//		self.paintStyleInUse = self.hoverPaintStyle; 
-			//		self.paint();
-					self.setHover(true);
+				if (!self.isHover()) {
+					if (_connectionBeingDragged == null) {
+						self.setHover(true);
+					}
+					self.fire("mouseenter", self, e);
 				}
-				self.fire("mouseenter", self, e);
 			});
-			this.connector.bind("mouseexit", function(con, e) { 
-				if (_connectionBeingDragged == null) {
-				//	self.paintStyleInUse = self.paintStyle; 
-					//self.paint();
-					self.setHover(false);
+			this.connector.bind("mouseexit", function(con, e) {
+				if (self.isHover()) {
+					if (_connectionBeingDragged == null) {
+						self.setHover(false);
+					}
+					self.fire("mouseexit", self, e);
 				}
-				self.fire("mouseexit", self, e); 
 			});
 			this.connector.bind("mousedown", function(con, e) { 
 				_mouseDown = true;
@@ -2283,6 +2295,7 @@ about the parameters allowed in the params object.
 			this.label = params.label;
 			if (this.label) {
 				this.overlays.push(new jsPlumb.Overlays[renderMode].Label( {
+					cssClass:params.cssClass,
 					labelStyle : this.labelStyle,
 					label : this.label,
 					connection:self,
@@ -2470,8 +2483,8 @@ about the parameters allowed in the params object.
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](jsPlumb.extend(_endpoint[1], endpointArgs ));
 			else _endpoint = _endpoint.clone();
 			self.endpoint = _endpoint;
-			this.endpoint.bind("click", function(e) { self.fire("click", self); });
-			this.endpoint.bind("dblclick", function(e) { self.fire("dblclick", self); });
+			this.endpoint.bind("click", function(e) { self.fire("click", self, e); });
+			this.endpoint.bind("dblclick", function(e) { self.fire("dblclick", self, e); });
 			this.setPaintStyle(params.paintStyle || 
 							   params.style || 
 							   _currentInstance.Defaults.EndpointStyle || 
@@ -2497,6 +2510,7 @@ about the parameters allowed in the params object.
 			this.container = params.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
+			this.element = _element;
 			var _maxConnections = params.maxConnections || 1; // maximum number of connections this endpoint can be the source of.
 						
 			this.getAttachedElements = function() {
