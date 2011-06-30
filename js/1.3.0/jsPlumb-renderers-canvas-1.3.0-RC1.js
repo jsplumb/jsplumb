@@ -133,8 +133,13 @@
 		});	
 		self.ctx = self.canvas.getContext("2d");
 		
+		var displayElements = [ self.canvas ];
 		this.getDisplayElements = function() { 
-			return [ self.canvas ]; 
+			return displayElements; 
+		};
+		
+		this.appendDisplayElement = function(el) {
+			displayElements.push(el);
 		};
 		
 		self.paint = function(dim, style) {						

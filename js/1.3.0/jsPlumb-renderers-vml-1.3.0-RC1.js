@@ -161,13 +161,14 @@
 			}
 		};
 		
-		var displayElements = [  ];
-		this.appendOverlay = function(el) {
-			self.canvas.parentNode.appendChild(el);
-			displayElements.push(el);
-		};
+		var displayElements = [ self.canvas ];
 		this.getDisplayElements = function() { 
 			return displayElements; 
+		};
+		
+		this.appendDisplayElement = function(el) {
+			self.canvas.parentNode.appendChild(el);
+			displayElements.push(el);
 		};
 	},		
 	/*
@@ -305,7 +306,7 @@
     		if (canvas == null) {
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
 				canvas = _node("shape", dim, p);				
-				connector.appendOverlay(canvas);
+				connector.addDisplayElement(canvas);
 				_attachListeners(self.canvas, connector);
 			}
 			else {				

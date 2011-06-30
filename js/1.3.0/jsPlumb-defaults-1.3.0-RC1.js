@@ -836,8 +836,8 @@
     	jsPlumb.appendElement(div, params.connection.parent);
     	jsPlumb.getId(div);		
     	this.paint = function(connector, d, connectorDimensions) {
-			if (!initialised) {
-				//connector.appendOverlay(div);
+			if (!initialised) {	
+				connector.appendDisplayElement(div);
 				_attachListeners(div, connector);
 				initialised = true;
 			}
