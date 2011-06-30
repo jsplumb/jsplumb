@@ -306,7 +306,7 @@
     		if (canvas == null) {
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
 				canvas = _node("shape", dim, p);				
-				connector.addDisplayElement(canvas);
+				connector.appendDisplayElement(canvas);
 				_attachListeners(self.canvas, connector);
 			}
 			else {				
