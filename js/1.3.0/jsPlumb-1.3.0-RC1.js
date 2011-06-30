@@ -2890,7 +2890,7 @@ about the parameters allowed in the params object.
 						_draw(_getElementObject(n), _ui);
 					});
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
-					function() {
+					function() {						
 						_removeFromList(endpointsByElement, id, floatingEndpoint);
 						_removeElements( [ n, floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
 						_removeElement(inPlaceCopy.canvas, _element);
@@ -2931,7 +2931,8 @@ about the parameters allowed in the params object.
 						self.anchor.locked = false;												
 						self.paint();
 						jpc.setHover(false);
-						jpc = null;						
+						jpc = null;
+						floatingEndpoint = null;
 						delete inPlaceCopy;							
 						delete endpointsByElement[floatingEndpoint.elementId];						
 						delete floatingEndpoint;
