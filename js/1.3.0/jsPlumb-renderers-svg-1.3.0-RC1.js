@@ -75,7 +75,14 @@
 		// order to how canvas does it.  so we want to keep all the maths the same, but
 		// iterate the actual style declarations in reverse order, if the x indexes are not in order.
 		for (var i = 0; i < style.gradient.stops.length; i++) {
-			var styleToUse = dimensions[4] < dimensions[6] ? style.gradient.stops.length - 1 - i : i;
+			// Straight Connectors and Bezier connectors act slightly differently; this code is a bit of a kludge.  but next version of
+			// jsplumb will be replacing both Straight and Bezier to be generic instances of 'Connector', which has a list of segments.
+			// so, not too concerned about leaving this in for now.
+			var styleToUse = i;
+			if (dimensions.length == 8) 
+				styleToUse = dimensions[4] < dimensions[6] ? i: style.gradient.stops.length - 1 - i;
+			else
+				styleToUse = dimensions[4] < dimensions[6] ? style.gradient.stops.length - 1 - i : i;
 			var stopColor = _convertStyle(style.gradient.stops[styleToUse][1], true);
 			var s = _node("stop", {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
 			g.appendChild(s);
