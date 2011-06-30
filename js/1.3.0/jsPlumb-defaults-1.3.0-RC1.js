@@ -409,7 +409,7 @@
             	offy += (minWidth - h) / 2;
             	h = minWidth;
             }
-            sx = swapX ? w-offx  : offx, 
+            var sx = swapX ? w-offx  : offx, 
             sy = swapY ? h-offy  : offy, 
             tx = swapX ? offx : w-offx ,
             ty = swapY ? offy : h-offy,
@@ -804,6 +804,7 @@
      * location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
      * borderWidth - width of a border to paint.  defaults to zero.
      * borderStyle - strokeStyle to use when painting the border, if necessary.
+     * cssClass - optional css class string to append to css class.
      */
     jsPlumb.Overlays.Label = function(params) {
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
@@ -813,7 +814,44 @@
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
-    	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it! 
+    	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!
+    	var initialised = false,
+    	labelText = null,
+    	div = document.createElement("div");	
+    	div.style["position"] 	= 	"absolute";
+    	div.style["textAlign"] 	= 	"center";
+    	div.style["cursor"] 	= 	"pointer";
+    	div.style["font"] = self.labelStyle.font;
+    	div.style["color"] = self.labelStyle.color || "black";
+    	if (self.labelStyle.fillStyle) div.style["background"] = self.labelStyle.fillStyle;//_convertStyle(self.labelStyle.fillStyle, true);
+    	if (self.labelStyle.borderWidth > 0) {
+    		var dStyle = self.labelStyle.borderStyle ? self.labelStyle.borderStyle/*_convertStyle(self.labelStyle.borderStyle, true)*/ : "black";
+    		div.style["border"] = self.labelStyle.borderWidth  + "px solid " + dStyle;
+    	}
+    	if (self.labelStyle.padding) div.style["padding"] = self.labelStyle.padding;
+    	
+    	var clazz = params["_jsPlumb"].overlayClass + " " + (params.cssClass ? params.cssClass : "");
+    	div.className			=	clazz;
+    	
+    	jsPlumb.appendElement(div, params.connection.parent);
+    	jsPlumb.getId(div);		
+    	this.paint = function(connector, d, connectorDimensions) {
+			if (!initialised) {
+				//connector.appendOverlay(div);
+				_attachListeners(div, connector);
+				initialised = true;
+			}
+			div.style.left = (connectorDimensions[0] + d.minx) + "px";
+			div.style.top = (connectorDimensions[1] + d.miny) + "px";			
+    	};
+    	
+    	this.getTextDimensions = function(connector) {
+    		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
+    		div.innerHTML = labelText.replace(/\r\n/g, "<br/>");
+    		var de = jsPlumb.CurrentLibrary.getElementObject(div),
+    		s = jsPlumb.CurrentLibrary.getSize(de);
+    		return {width:s[0], height:s[1]};
+    	};
     	
     	this.computeMaxSize = function(connector) {
     		var td = self.getTextDimensions(connector);
@@ -847,3 +885,61 @@
     
  // ********************************* END OF OVERLAY CANVAS RENDERERS ***********************************************************************
 })();
+
+
+
+/*
+**
+ * VML Label renderer. Creates a VML 'textnode' and appends a div to it;
+ * the div has the font and border/background properties applied via CSS.
+ *
+jsPlumb.Overlays.vml.Label = function(params) {
+	var self = this, textbox = null, div = null, lines = [];
+	jsPlumb.Overlays.Label.apply(this, arguments);
+	var labelText = null;
+	div = document.createElement("div");	
+	div.style["position"] 	= 	"absolute";
+	//div.style["display"] 	=	"none";
+	div.style["textAlign"] 	= 	"center";
+	div.style["cursor"] 	= 	"pointer";
+	div.style["font"] = self.labelStyle.font;
+	div.style["color"] = self.labelStyle.color || "black";
+	if (self.labelStyle.fillStyle) div.style["background"] = _convertStyle(self.labelStyle.fillStyle, true);
+	if (self.labelStyle.borderWidth > 0) {
+		var dStyle = self.labelStyle.borderStyle ? _convertStyle(self.labelStyle.borderStyle, true) : "black";
+		div.style["border"] = self.labelStyle.borderWidth  + "px solid " + dStyle;
+	}
+	if (self.labelStyle.padding) div.style["padding"] = self.labelStyle.padding;
+	div.className			=	params["_jsPlumb"].overlayClass;  
+	// initially, put these on the body, so the first pass at getTextDimensions can work.
+	// after the first paint, we remove from body and append to the textbox.
+	document.body.appendChild(div);
+	jsPlumb.getId(div);		
+	this.paint = function(connector, d, connectorDimensions) {
+		var loc = [d.minx, d.miny, d.td.width , d.td.height];			
+		if (textbox == null) {
+			textbox = _node("textbox", loc);				
+			connector.appendOverlay(textbox);
+			document.body.removeChild(div);				
+			textbox.appendChild(div);
+			_attachListeners(div, connector);
+		}
+		//else {
+			_pos(textbox, connectorDimensions.slice(0, 4));
+		//}
+		//_pos(div, loc);
+			div.style.left = d.minx + "px";
+			div.style.top = d.miny + "px";
+		//div.innerHTML = labelText.replace(/\n/g, "<br/>");			
+	};
+	
+	this.getTextDimensions = function(connector) {
+		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
+		div.innerHTML = labelText.replace(/\r\n/g, "<br/>");
+		var de = jsPlumb.CurrentLibrary.getElementObject(div),
+		s = jsPlumb.CurrentLibrary.getSize(de);
+		// TODO implement this properly.
+		return {width:s[0], height:s[1], lines:["fff", "ddd" ], oneLine:10, padding:34, textHeight:56};
+	};
+};
+*/

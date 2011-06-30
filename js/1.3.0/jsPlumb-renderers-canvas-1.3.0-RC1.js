@@ -349,70 +349,20 @@
 	        self.ctx.lineTo(dimensions[6], dimensions[7]);
 	        self.ctx.stroke();
     	};
+    	
+    	this.createGradient = function(dim, ctx) {
+        	return ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
+        };
     };
     
 // ********************************* END OF CANVAS RENDERERS *******************************************************************    
     
-    jsPlumb.Overlays.canvas.Label = function(params) {
-    	var self = this;
-    	jsPlumb.Overlays.Label.apply(this, arguments);
-    	var _widestLine = function(lines, ctx) {
-    		var max = 0;
-    		for (var i = 0; i < lines.length; i++) {
-    			var t = ctx.measureText(lines[i]).width;
-    			if (t > max) max = t;
-    		}
-    		return max;
-    	};
-    	this.getTextDimensions = function(connector) {
-    		var ctx = connector.ctx;
-    		if (self.cachedDimensions) return self.cachedDimensions;   // return cached copy if we can.  if we add a setLabel function remember to clear the cache. 
-    		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
-    		var d = {};
-    		if (labelText) {
-    			var lines = labelText.split(/\n|\r\n/);
-    			ctx.save();
-	            if (self.labelStyle.font) ctx.font = self.labelStyle.font;
-	            var t = _widestLine(lines, ctx);
-				// a fake text height measurement: use the width of upper case M
-				var h = ctx.measureText("M").width;					
-				labelPadding = self.labelStyle.padding || 0.25;
-				labelWidth = t + (2 * t * labelPadding);
-				labelHeight = (lines.length * h) + (2 * h * labelPadding);
-				var textHeight = lines.length * h;
-				ctx.restore();
-				d = {width:labelWidth, height:labelHeight, lines:lines, oneLine:h, padding:labelPadding, textHeight:textHeight};
-    		}
-    		if (typeof self.label != 'function') self.cachedDimensions = d;  // cache it if we can. 
-    		return d;
-    	};
-    	this.paint = function(connector, d, connectorDimensions) {
-    		var ctx = connector.ctx;
-    		if (self.labelStyle.font) ctx.font = self.labelStyle.font;		            		            		           
-			if (self.labelStyle.fillStyle) 
-				ctx.fillStyle = self.labelStyle.fillStyle;
-			else 
-				ctx.fillStyle = "rgba(0,0,0,0)";
-			ctx.fillRect(d.minx, d.miny , d.td.width , d.td.height );
-			
-			if (self.labelStyle.color) ctx.fillStyle = self.labelStyle.color;					
-			ctx.textBaseline = "middle";
-			ctx.textAlign = "center";
-			for (i = 0; i < d.td.lines.length; i++) { 
-				ctx.fillText(d.td.lines[i],d.cxy.x, d.cxy.y - (d.td.textHeight / 2) + (d.td.oneLine/2) + (i*d.td.oneLine));
-			}
-			
-			// border
-			if (self.labelStyle.borderWidth > 0) {
-				ctx.strokeStyle = self.labelStyle.borderStyle || "black";
-				ctx.strokeRect(d.minx, d.miny, d.td.width , d.td.height );
-			}
-    	};    	
-    };
+    jsPlumb.Overlays.canvas.Label = jsPlumb.Overlays.Label;
     
-    var CanvasOverlay = function() {
-    	
-    };
+    /**
+     * a placeholder right now, really just exists to mirror the fact that there are SVG and VML versions of this. 
+     */
+    var CanvasOverlay = function() {  };
     
     var AbstractCanvasArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
