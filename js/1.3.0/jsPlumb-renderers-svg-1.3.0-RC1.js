@@ -48,13 +48,16 @@
 		
 		return o;
 	},	
-	_updateGradient = function(parent, node, style, dimensions) {
-		var id = "jsplumb_gradient_" + (new Date()).getTime();
-		// first clear out any existing gradient
+	_clearGradient = function(parent) {
 		for (var i = 0; i < parent.childNodes.length; i++) {
 			if (parent.childNodes[i].tagName == "linearGradient" || parent.childNodes[i].tagName == "radialGradient")
 				parent.removeChild(parent.childNodes[i]);
 		}
+	},		
+	_updateGradient = function(parent, node, style, dimensions) {
+		var id = "jsplumb_gradient_" + (new Date()).getTime();
+		// first clear out any existing gradient
+		_clearGradient(parent);
 		// this checks for an 'offset' property in the gradient, and in the absence of it, assumes
 		// we want a linear gradient. if it's there, we create a radial gradient.
 		// it is possible that a more explicit means of defining the gradient type would be
@@ -91,14 +94,22 @@
 		node.setAttribute("style", applyGradientTo + ":url(#" + id + ")");
 	},
 	_applyStyles = function(parent, node, style, dimensions) {
+		
+		if (style.gradient) {
+		_updateGradient(parent, node, style, dimensions);			
+		}
+		else {
+			// make sure we clear any existing gradient
+			_clearGradient(parent);
+			node.setAttribute("style", "");
+		}
+		
 		node.setAttribute("fill", style.fillStyle ? _convertStyle(style.fillStyle, true) : "none");
 		node.setAttribute("stroke", style.strokeStyle ? _convertStyle(style.strokeStyle, true) : "none");		
 		if (style.lineWidth) {
 			node.setAttribute("stroke-width", style.lineWidth);
 		}
-		if (style.gradient) {
-			_updateGradient(parent, node, style, dimensions);			
-		}
+	
 		// in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
 		// the syntax in VML but is actually kind of nasty: values are given in the pixel
 		// coordinate space, whereas in VML they are multiples of the width of the stroked
@@ -160,7 +171,6 @@
 		
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
-		//self.canvas.className = cssClass; 
 		jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
 		
 		var clazz = cssClass + " " + (originalArgs[0].cssClass || "");
@@ -176,6 +186,8 @@
 		jsPlumb.appendElement(self.canvas, originalArgs[0]["parent"]);
 		self.canvas.appendChild(self.svg);		
 		
+		// TODO this displayElement stuff is common between all components, across all
+		// renderers.  would be best moved to jsPlumbUIComponent.
 		var displayElements = [ self.canvas ];
 		this.getDisplayElements = function() { 
 			return displayElements; 
