@@ -1263,6 +1263,82 @@ var testSuite = function(renderMode) {
 		equals(40, connection1.overlays[1].length);
 	});
 	
+	test(renderMode + ": jsPlumb.connect (overlays, long-hand version, IDs specified)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		var imageEventListener = function() { };
+		var arrowSpec = { 
+				width:40,
+				length:40,
+				location:0.7, 
+				foldback:0, 
+				paintStyle:{lineWidth:1, strokeStyle:"#000000"},
+				id:"anArrow"
+		};
+		var connection1 = jsPlumb.connect({
+		source:d1, 
+	   	target:d2, 
+	   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
+	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
+					["Arrow",arrowSpec ] ]
+		});
+		equals(2, connection1.overlays.length);
+		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		equals("aLabel", connection1.overlays[0].id);
+		
+		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
+		equals(0.7, connection1.overlays[1].loc);
+		equals(40, connection1.overlays[1].width);
+		equals(40, connection1.overlays[1].length);
+		equals("anArrow", connection1.overlays[1].id);
+	});
+	
+	test(renderMode + ": jsPlumb.connect (remover single overlay by id)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		var imageEventListener = function() { };
+		var arrowSpec = { 
+				width:40,
+				length:40,
+				location:0.7, 
+				foldback:0, 
+				paintStyle:{lineWidth:1, strokeStyle:"#000000"},
+				id:"anArrow"
+		};
+		var connection1 = jsPlumb.connect({
+		source:d1, 
+	   	target:d2, 
+	   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
+	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
+					["Arrow",arrowSpec ] ]
+		});
+		equals(2, connection1.overlays.length);
+		connection1.removeOverlay("aLabel");
+		equals(1, connection1.overlays.length);
+		equals("anArrow", connection1.overlays[0].id);
+	});
+	
+	test(renderMode + ": jsPlumb.connect (remove multiple overlays by id)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		var imageEventListener = function() { };
+		var arrowSpec = { 
+				width:40,
+				length:40,
+				location:0.7, 
+				foldback:0, 
+				paintStyle:{lineWidth:1, strokeStyle:"#000000"},
+				id:"anArrow"
+		};
+		var connection1 = jsPlumb.connect({
+		source:d1, 
+	   	target:d2, 
+	   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
+	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
+					["Arrow",arrowSpec ] ]
+		});
+		equals(2, connection1.overlays.length);
+		connection1.removeOverlays("aLabel", "anArrow");
+		equals(0, connection1.overlays.length);
+	});
+	
 	test(renderMode + ": jsPlumb.connect (overlays, short-hand version)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 		var imageEventListener = function() { };
