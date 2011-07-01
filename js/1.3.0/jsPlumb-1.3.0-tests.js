@@ -1251,18 +1251,16 @@ var testSuite = function(renderMode) {
 		source:d1, 
 	   	target:d2, 
 	   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
-	   	overlays : [ [ "Image", {src:"../img/littledot.png", events:{"click":imageEventListener("window1", "window2")}}],
-					["Label",{label:"CONNECTION 1", location:0.3}],
+	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3}],
 					["Arrow",arrowSpec ] ]
 		});
-		equals(3, connection1.overlays.length);
-		equals(jsPlumb.Overlays[renderMode].Image, connection1.overlays[0].constructor);
-		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[1].constructor);
+		equals(2, connection1.overlays.length);
+		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
 		
-		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[2].constructor);
-		equals(0.7, connection1.overlays[2].loc);
-		equals(40, connection1.overlays[2].width);
-		equals(40, connection1.overlays[2].length);
+		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
+		equals(0.7, connection1.overlays[1].loc);
+		equals(40, connection1.overlays[1].width);
+		equals(40, connection1.overlays[1].length);
 	});
 	
 	test(renderMode + ": jsPlumb.connect (overlays, short-hand version)", function() {
@@ -1274,18 +1272,40 @@ var testSuite = function(renderMode) {
 		source:d1, 
 	   	target:d2, 
 	   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
-	   	overlays : [ [ "Image", { src:"../img/littledot.png", events:{"click":imageEventListener("window1", "window2")}} ],
-					["Label",  {label:"CONNECTION 1", location:0.3}],
+	   	overlays : [ ["Label",  {label:"CONNECTION 1", location:0.3}],
 					["Arrow", arrowSpec, loc] ]
 		});
-		equals(3, connection1.overlays.length);
-		equals(jsPlumb.Overlays[renderMode].Image, connection1.overlays[0].constructor);
-		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[1].constructor);
+		equals(2, connection1.overlays.length);
+		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
 		
-		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[2].constructor);
-		equals(0.7, connection1.overlays[2].loc);
-		equals(40, connection1.overlays[2].width);
-		equals(40, connection1.overlays[2].length);
+		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
+		equals(0.7, connection1.overlays[1].loc);
+		equals(40, connection1.overlays[1].width);
+		equals(40, connection1.overlays[1].length);
+	});
+	
+	test(renderMode + ": jsPlumb.connect (removeAllOverlays)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		var imageEventListener = function() { };
+		var loc = { location:0.7 };
+		var arrowSpec = { width:40,length:40, foldback:0, paintStyle:{lineWidth:1, strokeStyle:"#000000"} };
+		var connection1 = jsPlumb.connect({
+		source:d1, 
+	   	target:d2, 
+	   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
+	   	overlays : [ ["Label",  {label:"CONNECTION 1", location:0.3}],
+					["Arrow", arrowSpec, loc] ]
+		});
+		equals(2, connection1.overlays.length);
+		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		
+		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
+		equals(0.7, connection1.overlays[1].loc);
+		equals(40, connection1.overlays[1].width);
+		equals(40, connection1.overlays[1].length);
+		
+		connection1.removeAllOverlays();
+		equals(0, connection1.overlays.length);
 	});
 	
 	test(renderMode + ": jsPlumb.connect, specify arrow overlay using string identifier only", function() {
