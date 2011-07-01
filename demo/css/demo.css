@@ -1,12 +1,37 @@
-.window { border:3px solid #346789; 
-opacity:0.8; 
-filter:alpha(opacity=80); 
-width:14em; height:12em; 
-z-index:20; position:absolute; 
-background-color:white;
-color:black;
-font-family:helvetica;padding:0.5em; 
-font-size:0.8em;}
+.component {
+	
+	opacity:0.8; 
+	filter:alpha(opacity=80);
+	background-color:white;
+	color:black;
+	font-family:helvetica;
+	padding:0.5em; 
+	
+}
+
+.window { 
+	border:2px solid #346789; 
+ 	width:14em; 
+ 	height:12em; 
+	z-index:20; 
+	position:absolute; 
+	font-size:0.8em;
+}
+
+.label {
+	border:1px solid #346789; 
+	padding:8px;
+	padding:8px;
+}
+.label:hover {
+border-color:#5d94a6;	
+}
+
+.l1 { 
+	font-size:13px;
+	 
+}
+
 #window1 {  top:2em;left:2em;}
 #window2 { top:14em; left:47em;}
 #window3 { top:28em;left:2em; }
@@ -19,3 +44,4 @@ font-size:0.8em;}
 ._jsPlumb_endpoint { z-index:5; }
 ._jsPlumb_overlay { z-index:6; }
 .hl { border:3px solid red; }
+

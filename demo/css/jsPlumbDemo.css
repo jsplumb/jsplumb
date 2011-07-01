@@ -20,7 +20,7 @@ body {
 
 a {text-decoration:none;color:#05f;font-weight:bold;font-family:helvetica;}
 a:hover {text-decoration:underline;}
-.window { 
+.window, .label { 
 	cursor:pointer;
 	box-shadow: 2px 2px 19px #aaa;
    -o-box-shadow: 2px 2px 19px #aaa;
