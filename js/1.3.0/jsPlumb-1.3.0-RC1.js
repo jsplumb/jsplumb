@@ -2286,6 +2286,34 @@ about the parameters allowed in the params object.
 				self.overlays.splice(0, self.overlays.length);
 				self.repaint();
 			};
+			
+			/**
+			 * Function:removeOverlay
+			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Parameters:
+			 * overlayId - id of the overlay to remove.
+			 */
+			this.removeOverlay = function(overlayId) {
+				var idx = -1;
+				for (var i = 0; i < self.overlays.length; i++) {
+					if (overlayId === self.overlays[i].id) {
+						idx = i;
+						break;
+					}
+				}
+				if (idx != -1) self.overlays.splice(idx, 1);
+			};
+			
+			/**
+			 * Function:removeOverlay
+			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Parameters:
+			 * overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
+			 */
+			this.removeOverlays = function() {
+				for (var i = 0; i < arguments.length; i++)
+					self.removeOverlay(arguments[i]);
+			};
 
 			// this is a shortcut helper method to let people add a label as
 			// overlay.
