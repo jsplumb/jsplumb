@@ -149,6 +149,16 @@
 		self.paint = function(dim, style) {						
 			if (style != null) {
 				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);
+				
+				if (style.outlineColor != null) {
+					var outlineWidth = style.outlineWidth || 1,
+					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+					var outlineStyle = {
+						strokeStyle:style.outlineColor,
+						lineWidth:outlineStrokeWidth
+					};
+					_paintOneStyle(dim, outlineStyle);
+				}
 				_paintOneStyle(dim, style);
 			}
 		};				
@@ -171,6 +181,17 @@
 		
 		this.paint = function(d, style, anchor) {
 			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
+			
+			if (style.outlineColor != null) {
+				var outlineWidth = style.outlineWidth || 1,
+				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+				var outlineStyle = {
+					strokeStyle:style.outlineColor,
+					lineWidth:outlineStrokeWidth
+				};
+				_paintOneStyle(dim, outlineStyle);
+			}
+			
 			self._paint.apply(this, arguments);
 		};
 	};
@@ -199,10 +220,10 @@
 				var ctx = self.canvas.getContext('2d'), orientation = anchor.getOrientation();
 				jsPlumb.extend(ctx, style);							
 	            if (style.gradient) {            	
-	            	var adjustments = calculateAdjustments(style.gradient); 
-	            	var yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0];
-	            	var xAdjust = orientation[0] == 1 ? adjustments[0] * -1:  adjustments[0];
-	            	var g = ctx.createRadialGradient(d[4], d[4], d[4], d[4] + xAdjust, d[4] + yAdjust, adjustments[1]);
+	            	var adjustments = calculateAdjustments(style.gradient), 
+	            	yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0],
+	            	xAdjust = orientation[0] == 1 ? adjustments[0] * -1:  adjustments[0],
+	            	g = ctx.createRadialGradient(d[4], d[4], d[4], d[4] + xAdjust, d[4] + yAdjust, adjustments[1]);
 		            for (var i = 0; i < style.gradient.stops.length; i++)
 		            	g.addColorStop(style.gradient.stops[i][0], style.gradient.stops[i][1]);
 		            ctx.fillStyle = g;
