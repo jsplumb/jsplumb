@@ -663,6 +663,7 @@
 		var self = this;
     	this.length = params.length || 20;
     	this.width = params.width || 20;
+    	this.id = params.id;
     	this.connection = params.connection;
     	var direction = (params.direction || 1) < 0 ? -1 : 1;
     	var paintStyle = params.paintStyle || { lineWidth:1 };
@@ -779,6 +780,7 @@
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
 	    this.label = params.label;
 	    this.connection = params.connection;
+	    this.id = params.id;
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
