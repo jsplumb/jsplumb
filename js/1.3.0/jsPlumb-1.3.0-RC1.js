@@ -174,7 +174,9 @@
 				return o;
 			};
 			
-			this.overlayPlacements = [], this.paintStyle = null, this.hoverPaintStyle = null/*, this.backgroundPaintStyle = null*/;
+			this.overlayPlacements = [], 
+			this.paintStyle = null, 
+			this.hoverPaintStyle = null;
 			
 			// helper method to update the hover style whenever it, or paintStyle, changes.
 			// we use paintStyle as the foundation and merge hoverPaintStyle over the
@@ -222,18 +224,6 @@
 		    	_updateHoverStyle();
 		    	if (!doNotRepaint) self.repaint();
 		    };
-		    
-		    /*
-		     * Function: setBackgroundPaintStyle
-		     * Sets the Connection's background paint style and then repaints the Connection.
-		     * 
-		     * Parameters:
-		     * 	style - Style to use.
-		     *
-		    this.setBackgroundPaintStyle = function(style) {
-		    	self.backgroundPaintStyle = style;
-		    	self.repaint();
-		    };*/	
 		    
 		    /*
 		     * Function: setHover
@@ -2279,7 +2269,6 @@ about the parameters allowed in the params object.
 					} else this.overlays.push(o);
 				}
 			}
-	//		var overlayPlacements = [];
 			/*
 			 * Function: addOverlay
 			 * Adds an Overlay to the Connection.
@@ -2287,7 +2276,16 @@ about the parameters allowed in the params object.
 			 * Parameters:
 			 * 	overlay - Overlay to add.
 			 */
-			this.addOverlay = function(overlay) { overlays.push(overlay); };
+			this.addOverlay = function(overlay) { self.overlays.push(overlay); };
+			
+			/**
+			 * Function: removeAllOverlays
+			 * Removes all overlays from the Connection, and then repaints.
+			 */
+			this.removeAllOverlays = function() {
+				self.overlays.splice(0, self.overlays.length);
+				self.repaint();
+			};
 
 			// this is a shortcut helper method to let people add a label as
 			// overlay.
