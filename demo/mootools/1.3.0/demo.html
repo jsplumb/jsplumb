@@ -33,12 +33,12 @@ mouse events, not to mention running a whole lot quicker.
 		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 	
 		<div id="demo">
-			<div class="window" id="window1"><strong>Window 1</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 2.</div>
-			<div class="window" id="window2"><strong>Window 2</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 1, and a Bezier connector with square endpoints to Window 3</div>
-		    <div class="window" id="window3"><strong>Window 3</strong><br/><br/>i am plumbed with a Bezier connector and square endpoints to Window 2, and a Bezier connector with custom style to Window 4. My blue endpoint tracks Window 4.</div>
-		    <div class="window" id="window4"><strong>Window 4</strong><br/><br/>i am plumbed with a Bezier connector with custom style to Window 3, and with a straight line connector with image endpoints to Window 5. My blue endpoint tracks Window 3.</div>
-		    <div class="window" id="window5"><strong>Window 5</strong><br/><br/>i am plumbed with a flowchart connector to Window 6, between our two centerpoints, which are drawn below, and larger than, the window element; i am also plumbed to Window 4.</div>
-		    <div class="window" id="window6"><strong>Window 6</strong><br/><br/>i am plumbed with a flowchart connector to Window 5, between our two centerpoints, which are drawn below, and larger than, the window element.</div>
+			<div class="component window" id="window1"><strong>Window 1</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 2.</div>
+			<div class="component window" id="window2"><strong>Window 2</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 1, and a Bezier connector with square endpoints to Window 3</div>
+		    <div class="component window" id="window3"><strong>Window 3</strong><br/><br/>i am plumbed with a Bezier connector and square endpoints to Window 2, and a Bezier connector with custom style to Window 4. My blue endpoint tracks Window 4.</div>
+		    <div class="component window" id="window4"><strong>Window 4</strong><br/><br/>i am plumbed with a Bezier connector with custom style to Window 3, and with a straight line connector with image endpoints to Window 5. My blue endpoint tracks Window 3.</div>
+		    <div class="component window" id="window5"><strong>Window 5</strong><br/><br/>i am plumbed with a flowchart connector to Window 6, between our two centerpoints, which are drawn below, and larger than, the window element; i am also plumbed to Window 4.</div>
+		    <div class="component window" id="window6"><strong>Window 6</strong><br/><br/>i am plumbed with a flowchart connector to Window 5, between our two centerpoints, which are drawn below, and larger than, the window element.</div>
 		 </div>	
 	    
 	    <div id="debug"></div>
@@ -81,12 +81,13 @@ mouse events, not to mention running a whole lot quicker.
 				document.onselectstart = function () { return false; };
 
 				var init = function() {
-				
-					jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };	
+					
+					jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
 					jsPlumb.setMouseEventsEnabled(true);
 
-					var connectorStrokeColor = "rgba(50, 50, 200, 1)";
-					var connectorHighlightStrokeColor = "rgba(180, 180, 200, 1)";			
+					var connectorStrokeColor = "rgba(50, 50, 200, 1)",
+					connectorHighlightStrokeColor = "rgba(180, 180, 200, 1)",
+					hoverPaintStyle = { lineWidth:13,strokeStyle:"#7ec3d9" };			
 					
 					// 
 					// plumb window1 to window2 with a 15 px wide yellow Bezier, from the BottomCenter of window1 to 3/4 of the way along the top edge
@@ -101,23 +102,23 @@ mouse events, not to mention running a whole lot quicker.
 													   endpointClass:"c1Endpoint",
 													   //,dashstyle:"2 2"
 													   anchors:["BottomCenter", [ 0.75, 0, 0, -1 ]], 
-													   paintStyle:{ lineWidth:15,strokeStyle:"rgb(243,230,18)" },
-													   hoverPaintStyle:{lineWidth:17,strokeStyle:'rgb(243,30,218)'},
+													   paintStyle:{ 
+						   									lineWidth:15,
+						   									strokeStyle:"#a7b04b",
+						   									outlineWidth:1,
+						   									outlineColor:"black" 
+							   						   },
+													   hoverPaintStyle:hoverPaintStyle,
 													//   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'},  
 													   //endpointStyle:{fillStyle:'rgb(243,229,0)'},
 												//	   endpointBackgroundStyle:{radius:17,fillStyle:'rgba(100,100,100,50)'},
-													   overlays : [ ["Label", {
-													   					labelStyle : {
-																			font : "15px sans-serif",				        
-													        				color : "black"												            
-													   					},
+													   overlays : [ ["Label", {													   					
+													   					cssClass:"l1 component label",
 													   					label : "Connection One", 
 													   					location:0.7 } ],
 													   				["Arrow", {location:0.2, width:50}]
 								   					   ]});
-					connection1.endpoints[0].bind("click", function() { alert("click on connection one source endpoint"); });
-					 connection1.endpoints[1].bind("click", function() { alert("click on connection one target endpoint"); });
-	
+					
 			        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
 			        // specified here - this is how you create anchors in locations jsPlumb does not offer shortcuts for.
 			        // the endpoints in this example have linear gradients applied.
@@ -127,18 +128,14 @@ mouse events, not to mention running a whole lot quicker.
 				        				 source:"window2", 
 				        				 target:"window3", 
 				        				 paintStyle:{ lineWidth:8,strokeStyle:w23Stroke },
-										 hoverPaintStyle:{ lineWidth:17, strokeStyle:"rgb(243,30,218)" },
+				        				 hoverPaintStyle:hoverPaintStyle,
 				        		//		 backgroundPaintStyle:{ lineWidth:10,strokeStyle:'black' }, 
 				        				 anchors:[ [ 0.3 , 1, 0, 1 ], "TopCenter" ], 
 				        				 endpoint:"Rectangle", 
 				        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, "#558822"]] }},
 				    			        				 { gradient : {stops:[[0, w23Stroke], [1, "#882255"]] }}]//,
 								//		 endpointBackgroundStyle:{fillStyle:'rgba(100,100,100,50)'},
-				    			      });
-
-					connection3.endpoints[0].bind("click", function() { alert("click on connection three source endpoint"); });
-					connection3.endpoints[1].bind("click", function() { alert("click on connection three target endpoint"); });
-					
+				    			      });					
 													  												  
 					//
 					// plumb the right hand side of window3 to the left hand side of window4 with a 10px wide blue-ish half transparent Bezier. 
@@ -150,7 +147,7 @@ mouse events, not to mention running a whole lot quicker.
 					
 					var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
 				        				 paintStyle:{ lineWidth:10, strokeStyle:connectorStrokeColor },
-										 hoverPaintStyle:{ lineWidth:17,strokeStyle:"rgb(243,30,218)" }, 
+				        				 hoverPaintStyle:hoverPaintStyle, 
 				        				 anchors:["AutoDefault", "AutoDefault"], 
 				        				 endpointStyle:{ 
 					        				 	gradient : { 
@@ -166,12 +163,13 @@ mouse events, not to mention running a whole lot quicker.
 					        				 var d = new Date();
 					        				 var fmt = function(n) { return (n < 10 ? "0" : "") + n; }; 
 					        				 return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds())); 
+					        			 },
+					        			 labelStyle:{
+					        				 cssClass:"component label"
 					        			 }
 				        			});
-					connection2.endpoints[0].bind("click", function() { alert("click on connection two source endpoint"); });
-					connection2.endpoints[1].bind("click", function() { alert("click on connection two target endpoint"); });
-					 	
-			        //
+
+					//
 			        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
 			        // the endpoints are 125px in radius and spill out from underneath their elements. the connection is labelled
 			        // "big endpoints" with black text on a green background using the default font style and size.
@@ -183,16 +181,14 @@ mouse events, not to mention running a whole lot quicker.
 				        						connector:"Flowchart",
 				        						anchors:["Center", "Center"],  
 				        						paintStyle:{ lineWidth:9, strokeStyle:conn4Color },
-												hoverPaintStyle:{ lineWidth:17, strokeStyle:"rgb(243,30,218)" },
+				        						hoverPaintStyle:hoverPaintStyle,
 				        						endpointsOnTop:false, 
 				        						endpointStyle:{ radius:95, fillStyle:conn4Color },
-				        						labelStyle : { fillStyle:"white", color:"black", borderWidth:2, padding:"5px" },
+				        						//labelStyle : { fillStyle:"white", color:"black", borderWidth:2, padding:"5px" },
+				        						labelStyle : { cssClass:"component label" },
 				        						label : "big\nendpoints"
 				        				});
 
-					connection4.endpoints[0].bind("click", function() { alert("click on connection four source endpoint"); });
-					connection4.endpoints[1].bind("click", function() { alert("click on connection four target endpoint"); });
-					
 			        //
 			        // connect window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
 			        // image as the endpoint, placed on top of the element it is connected to.  the connection is labelled "4-5" with text
@@ -204,28 +200,26 @@ mouse events, not to mention running a whole lot quicker.
 				        					target:"window5", 
 				        					anchors:["BottomRight", "TopLeft"], 
 				        					paintStyle:{ lineWidth:7,strokeStyle:"rgb(131,8,135)" },
-											hoverPaintStyle:{ lineWidth:17, strokeStyle:"rgb(243,30,218)" }, 
+				        					hoverPaintStyle:hoverPaintStyle, 
 				        					endpoint:["Image", {url:"../../../img/endpointTest1.png"}], 
 				        					connector:"Straight", 
 				        					endpointsOnTop:true,
 											overlays:[ ["Label", {
-															labelStyle : { 
+															/*labelStyle : { 
 																fillStyle:"white", 
 																padding:"4px", 
 																font:"16px sans-serif", 
 																color:"rgb(131,8,135)", 
 																borderStyle:"rgb(131,8,135)", 
 																borderWidth:2 
-															},			    			        				 
+															},	*/
+															cssClass:"component label",		    			        				 
 									    			        label : "4 - 5",
 									    			        location:0.3 } ]
 											]});
 
-					connection5.endpoints[0].bind("click", function() { alert("click on connection five source endpoint"); });
-					connection5.endpoints[1].bind("click", function() { alert("click on connection five target endpoint"); });
-					
-
-					jsPlumb.bind("dblclick", function(conn) { alert("double click on connection from " + conn.sourceId + " to " + conn.targetId); });
+					jsPlumb.bind("dblclick", function(connection, originalEvent) { alert("double click on connection from " + connection.sourceId + " to " + connection.targetId); });
+					jsPlumb.bind("endpointClick", function(endpoint, originalEvent) { alert("click on endpoint on element " + endpoint.elementId); });
 				};
 
 				
