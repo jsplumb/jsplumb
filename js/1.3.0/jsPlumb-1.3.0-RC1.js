@@ -158,7 +158,7 @@
 		
 		/*
 		 * Class:jsPlumbUIComponent
-		 * Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle/backgroundPaintStyle,
+		 * Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
 		 * and also extends EventGenerator to provide the bind and fire methods.
 		 */
 		var jsPlumbUIComponent = function(params) {
@@ -278,9 +278,7 @@
 		this.Defaults = {
 			Anchor : null,
 			Anchors : [ null, null ],
-	//		BackgroundPaintStyle : null,
 			Connector : null,
-			Container : null,
 			DragOptions : { },
 			DropOptions : { },
 			Endpoint : null,
@@ -295,8 +293,7 @@
 			Overlays : [ ],
 			MaxConnections : null,
 			MouseEventsEnabled : false, 
-			// TODO: should we have OverlayStyle too?
-			PaintStyle : { lineWidth : 10, strokeStyle : 'red' },
+			PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
 			RenderMode : "canvas",
 			Scope : "_jsPlumb_DefaultScope"
 		};
@@ -1862,8 +1859,7 @@ about the parameters allowed in the params object.
 					return lastReturnValue;
 				}
 				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
-				//var container = element ? element.container : null;
-				var container = element ? element.parent : null;
+				/*var container = element ? element.parent : null;
 				var containerAdjustment = { left : 0, top : 0 };
 				if (container != null) {
 					var eo = _getElementObject(container);
@@ -1872,9 +1868,9 @@ about the parameters allowed in the params object.
 					var st = jsPlumb.CurrentLibrary.getScrollTop(eo);
 					containerAdjustment.left = o.left - sl;
 					containerAdjustment.top = o.top - st;
-				//	lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
-				//	lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
-				}
+					lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
+					lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
+				}*/
 				self.timestamp = timestamp;
 				return lastReturnValue;
 			};
@@ -1922,11 +1918,11 @@ about the parameters allowed in the params object.
 			this.compute = function(params) {
 				var xy = params.xy, el = params.element;
 				var result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-				if (el.container != null) {					
+				/*if (el.container != null) {					
 					var o = _getOffset(el.container);
 					result[0] = result[0] - o.left;
 					result[1] = result[1] - o.top;
-				}
+				}*/
 				_lastResult = result;
 				return result;
 			};
@@ -2044,13 +2040,11 @@ about the parameters allowed in the params object.
 		 * 	source 	- either an element id, a selector for an element, or an Endpoint.
 		 * 	target	- either an element id, a selector for an element, or an Endpoint
 		 * 	scope	- scope descriptor for this connection. optional.
-		 * 	container	- id of the containing div for this connection. optional; jsPlumb uses the default (which you can set, but which is the body by default) otherwise.
 		 *  endpoint - Optional. Endpoint definition to use for both ends of the connection.
 		 *  endpoints - Optional. Array of two Endpoint definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
 		 *  endpointStyle - Optional. Endpoint style definition to use for both ends of the Connection.
 		 *  endpointStyles - Optional. Array of two Endpoint style definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
 		 *  paintStyle - Parameters defining the appearance of the Connection. Optional; jsPlumb will use the defaults if you supply nothing here.
-		 *  backgroundPaintStyle - Parameters defining the appearance of the background of the Connection. Optional; jsPlumb will use the defaults if you supply nothing here.
 		 *  hoverPaintStyle - Parameters defining the appearance of the Connection when the mouse is hovering over it. Optional; jsPlumb will use the defaults if you supply nothing here (note that the default hoverPaintStyle is null).
 		 *  overlays - Optional array of Overlay definitions to appear on this Connection.
 		 */
@@ -2080,7 +2074,7 @@ about the parameters allowed in the params object.
 			var id = new String('_jsplumb_c_' + (new Date()).getTime());
 			this.getId = function() { return id; };
 			this.parent = params.parent;
-			this.container = params.container || _currentInstance.Defaults.Container; // may be null; we will append to the body if so.
+			//this.container = params.container || _currentInstance.Defaults.Container; // may be null; we will append to the body if so.
 			// get source and target as jQuery objects
 			/**
 				Property: source
@@ -2158,9 +2152,17 @@ about the parameters allowed in the params object.
 					if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
 					var es = params.endpointStyles[index] || params.endpointStyle || _currentInstance.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 					// Endpoints derive their fillStyle from the connector's strokeStyle, if no fillStyle was specified.
-					if (es.fillStyle == null && connectorPaintStyle != null) 
+					if (es.fillStyle == null && connectorPaintStyle != null)
 						es.fillStyle = connectorPaintStyle.strokeStyle;
-					//var bes = params.endpointBackgroundStyle;
+					
+					// TODO: decide if the endpoint should derive the connection's outline width and color.
+					/*
+					if (es.outlineColor == null && connectorPaintStyle != null) 
+						es.outlineColor = connectorPaintStyle.outlineColor;
+					if (es.outlineWidth == null && connectorPaintStyle != null) 
+						es.outlineWidth = connectorPaintStyle.outlineWidth;
+					*/
+					
 					var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _currentInstance.Defaults.EndpointHoverStyles[index] || jsPlumb.Defaults.EndpointHoverStyles[index] || _currentInstance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
 					// endpoint hover fill style is derived from connector's hover stroke style.  TODO: do we want to do this by default? for sure?
 					if (connectorHoverPaintStyle != null) {
@@ -2171,7 +2173,7 @@ about the parameters allowed in the params object.
 					}
 					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor) || _makeAnchor("BottomCenter");
 					var u = params.uuids ? params.uuids[index] : null;
-					var e = _newEndpoint( { paintStyle : es, hoverPaintStyle:ehs,/* backgroundPaintStyle:bes,*/ endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element, container : self.container });
+					var e = _newEndpoint( { paintStyle : es, hoverPaintStyle:ehs, endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element });
 					self.endpoints[index] = e;
 					
 					if (params.drawEndpoints === false) e.setVisible(false, true, true);
@@ -2236,9 +2238,7 @@ about the parameters allowed in the params object.
 							   params.paintStyle || 
 							   _currentInstance.Defaults.PaintStyle || 
 							   jsPlumb.Defaults.PaintStyle, true);
-			
-			//this.backgroundPaintStyle = this.endpoints[0].connectorBackgroundStyle || this.endpoints[1].connectorBackgroundStyle || params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;
-			
+						
 			this.setHoverPaintStyle(this.endpoints[0].connectorHoverStyle || 
 									this.endpoints[1].connectorHoverStyle || 
 									params.hoverPaintStyle || 
@@ -2427,6 +2427,9 @@ about the parameters allowed in the params object.
 					jsPlumb.repaint(self.sourceId);
 				});
 			}
+			
+			// just to make sure the UI gets initialised fully on all browsers.
+			self.repaint();
 		};
 
 		/*
@@ -2448,12 +2451,10 @@ about the parameters allowed in the params object.
 		 * source - element the Endpoint is attached to, of type String (an element id) or element selector. Required.
 		 * canvas - canvas element to use. may be, and most often is, null.
 		 * connections - optional list of Connections to configure the Endpoint with. 
-		 * container - optional element (as a string id) to use as the container for the canvas associated with this Endpoint.  If not supplied, jsPlumb uses the default, which is the document body.  A better way to use this container functionality is to set it on the defaults (jsPlumb.Defaults.Container="someElement").
 		 * isSource - boolean. indicates the endpoint can act as a source of new connections. Optional; defaults to false.
 		 * maxConnections - integer; defaults to 1.  a value of -1 means no upper limit. 
 		 * dragOptions - if isSource is set to true, you can supply arguments for the underlying library's drag method. Optional; defaults to null. 
 		 * connectorStyle - if isSource is set to true, this is the paint style for Connections from this Endpoint. Optional; defaults to null.
-		 * connectorBackgroundStyle - if isSource is set to true, this is the background paint style for Connections from this Endpoint. Optional; defaults to null. 
 		 * connectorHoverStyle - if isSource is set to true, this is the hover paint style for Connections from this Endpoint. Optional; defaults to null.
 		 * connector - optional Connector type to use.  Like 'endpoint', this may be either a single string nominating a known Connector type (eg. "Bezier", "Straight"), or an array containing [name, params], eg. [ "Bezier", 160 ].
 		 * connectorOverlays - optional array of Overlay definitions that will be applied to any Connection from this Endpoint. 
@@ -2518,10 +2519,8 @@ about the parameters allowed in the params object.
 			this.setHoverPaintStyle(params.hoverPaintStyle || 
 									_currentInstance.Defaults.EndpointHoverStyle || 
 									jsPlumb.Defaults.EndpointHoverStyle, true);
-		//	this.backgroundPaintStyle = params.backgroundPaintStyle || _currentInstance.Defaults.BackgroundPaintStyle || jsPlumb.Defaults.BackgroundPaintStyle;			
 			this.paintStyleInUse = this.paintStyle;
 			this.connectorStyle = params.connectorStyle;
-			this.connectorBackgroundStyle = params.connectorBackgroundStyle;
 			this.connectorHoverStyle = params.connectorHoverStyle;
 			this.connectorOverlays = params.connectorOverlays;
 			this.connector = params.connector;
@@ -2533,7 +2532,6 @@ about the parameters allowed in the params object.
 			floatingEndpoint = null, 
 			inPlaceCopy = null;
 			if (_uuid) endpointsByUUID[_uuid] = self;
-			this.container = params.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			this.element = _element;
@@ -2760,7 +2758,7 @@ about the parameters allowed in the params object.
 				params = params || {};
 				var timestamp = params.timestamp;
 				if (!timestamp || self.timestamp !== timestamp) {
-					var ap = params.anchorPoint, canvas = params.canvas, connectorPaintStyle = params.connectorPaintStyle/*, connectorBackgroundPaintStyle = params.connectorBackgroundPaintStyle*/;
+					var ap = params.anchorPoint, canvas = params.canvas, connectorPaintStyle = params.connectorPaintStyle;
 					if (ap == null) {
 						var xy = params.offset || offsets[_elementId];
 						var wh = params.dimensions || sizes[_elementId];
@@ -2811,7 +2809,6 @@ about the parameters allowed in the params object.
 					
 					n = document.createElement("div");
 					var nE = _getElementObject(n);
-					//_appendElement(n, self.container); //
 					_appendElement(n, self.parent);
 					// create and assign an id, and initialize the offset.
 					var id = _getId(nE);
@@ -2836,7 +2833,6 @@ about the parameters allowed in the params object.
 							anchors : [ self.anchor, floatingAnchor ],
 							paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
 							hoverPaintStyle:params.connectorHoverStyle,
-							backgroundPaintStyle:params.connectorBackgroundStyle,
 							connector : params.connector, // this can also be null. Connection will use the default.
 							overlays : params.connectorOverlays 
 						});
