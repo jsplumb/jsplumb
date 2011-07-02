@@ -245,7 +245,10 @@
 			var id = jsPlumb.getId(el);
 			_opts.node = "#" + id;				
 			var dd = new Y.DD.Drag(_opts);
-			dd.el = el;			
+			dd.el = el;	
+			// required to prevent the shim - a massive red rectangle - from appearing.
+			// i don't know why it decides to show itself in IE but not in any other browser.
+			dd.set('useShim', false);
 			
 			var scope = options['scope'] || jsPlumb.Defaults.Scope;
 			dd.scope = scope;
