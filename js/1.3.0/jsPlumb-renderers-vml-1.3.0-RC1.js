@@ -92,7 +92,7 @@
 			bindOne(events[i]); 			
 		}
 	},
-	_applyStyles = function(node, style) {
+	_applyStyles = function(node, style, component) {
 		var styleToWrite = {};
 		if (style.strokeStyle) {
 			styleToWrite["stroked"] = "true";
@@ -106,6 +106,29 @@
 			styleToWrite["fillcolor"] = _convertStyle(style.fillStyle, true);
 		}
 		else styleToWrite["filled"] = "false";
+		
+		if(style["dashstyle"]) {
+			if (component.strokeNode == null) {
+				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] });
+				node.appendChild(component.strokeNode);
+			}
+			else
+				component.strokeNode.dashstyle = style["dashstyle"];
+		}					
+		else if (style["stroke-dasharray"] && style["lineWidth"]) {
+			var sep = style["stroke-dasharray"].indexOf(",") == -1 ? " " : ",",
+			parts = style["stroke-dasharray"].split(sep),
+			styleToUse = "";
+			for(var i = 0; i < parts.length; i++) {
+				styleToUse += (Math.floor(parts[i] / style.lineWidth) + sep);
+			}
+			if (component.strokeNode == null) {
+				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:styleToUse });
+				node.appendChild(component.strokeNode);
+			}
+			else
+				component.strokeNode.dashstyle = styleToUse;
+		}
 		
 		_atts(node, styleToWrite);
 	},
@@ -121,33 +144,43 @@
 	 * base class for Vml connectors. extends VmlComponent.
 	 */
 	VmlConnector = function(params) {
-		var self = this, strokeNode = null;
+		var self = this;
+		self.strokeNode = null;
 		self.canvas = null;
 		VmlComponent.apply(this, arguments);
+		clazz = self._jsPlumb.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
 		this.paint = function(d, style, anchor) {
 			if (style != null) {				
-				var path = self.getPath(d), p = {};												
-				p["path"] = path;
-				if (self.canvas == null) {
-					var clazz = self._jsPlumb.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
+				var path = self.getPath(d), p = { "path":path };				
+				
+				if (style.outlineColor) {
+					var outlineWidth = style.outlineWidth || 1,
+					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+					outlineStyle = {
+						strokeStyle:_convertStyle(style.outlineColor),
+						lineWidth:outlineStrokeWidth
+					};
+					
+					if (self.bgCanvas == null) {						
+						p["class"] = clazz;
+						self.bgCanvas = _node("shape", d, p);
+						jsPlumb.appendElement(self.bgCanvas, params.parent);
+						displayElements.push(self.bgCanvas);	
+					}
+					else {
+						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
+						_pos(self.bgCanvas, d);
+						_atts(self.bgCanvas, p);
+					}
+					
+					_applyStyles(self.bgCanvas, outlineStyle, self);
+				}
+				
+				if (self.canvas == null) {										
 					p["class"] = clazz;
 					self.canvas = _node("shape", d, p);
 					jsPlumb.appendElement(self.canvas, params.parent);
-					displayElements.push(self.canvas);
-					if(style["dashstyle"]) {
-						strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] });
-						self.canvas.appendChild(strokeNode);
-					}					
-					else if (style["stroke-dasharray"] && style["lineWidth"]) {
-						var sep = style["stroke-dasharray"].indexOf(",") == -1 ? " " : ",",
-						parts = style["stroke-dasharray"].split(sep),
-						styleToUse = "";
-						for(var i = 0; i < parts.length; i++) {
-							styleToUse += (Math.floor(parts[i] / style.lineWidth) + sep);
-						}
-						strokeNode = _node("stroke", [0,0,0,0], { dashstyle:styleToUse });
-						self.canvas.appendChild(strokeNode);
-					}
+					displayElements.push(self.canvas);					
 					
 					_attachListeners(self.canvas, self);
 				}
@@ -157,7 +190,7 @@
 					_atts(self.canvas, p);
 				}
 				
-				_applyStyles(self.canvas, style);
+				_applyStyles(self.canvas, style, self);
 			}
 		};
 		
@@ -307,7 +340,7 @@
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
 				canvas = _node("shape", dim, p);				
 				connector.appendDisplayElement(canvas);
-				_attachListeners(self.canvas, connector);
+				_attachListeners(canvas, connector);
 			}
 			else {				
 				_pos(canvas, dim);
