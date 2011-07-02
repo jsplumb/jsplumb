@@ -189,7 +189,7 @@
 					strokeStyle:style.outlineColor,
 					lineWidth:outlineStrokeWidth
 				};
-				_paintOneStyle(dim, outlineStyle);
+			//	_paintOneStyle(d, outlineStyle);
 			}
 			
 			self._paint.apply(this, arguments);

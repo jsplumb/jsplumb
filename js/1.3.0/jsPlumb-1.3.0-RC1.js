@@ -248,6 +248,21 @@
 		    	return _hover; 
 		    };
 		    
+		    this.attachListeners = function(o, c) {
+				var jpcl = jsPlumb.CurrentLibrary,
+				events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup" ],
+				eventFilters = { "mouseout":"mouseexit" },
+				bindOne = function(evt) {
+					var filteredEvent = eventFilters[evt] || evt;
+					jpcl.bind(o, evt, function(ee) {
+						c.fire(filteredEvent, c, ee);
+					});
+				};
+				for (var i = 0; i < events.length; i++) {
+					bindOne(events[i]); 			
+				}
+			};
+		    
 		    var _updateAttachedElements = function(state) {
 		    	var affectedElements = self.getAttachedElements();		// implemented in subclasses
 		    	if (affectedElements) {
@@ -2156,12 +2171,12 @@ about the parameters allowed in the params object.
 						es.fillStyle = connectorPaintStyle.strokeStyle;
 					
 					// TODO: decide if the endpoint should derive the connection's outline width and color.
-					/*
+					//*
 					if (es.outlineColor == null && connectorPaintStyle != null) 
 						es.outlineColor = connectorPaintStyle.outlineColor;
 					if (es.outlineWidth == null && connectorPaintStyle != null) 
 						es.outlineWidth = connectorPaintStyle.outlineWidth;
-					*/
+					//*/
 					
 					var ehs = params.endpointHoverStyles[index] || params.endpointHoverStyle || _currentInstance.Defaults.EndpointHoverStyles[index] || jsPlumb.Defaults.EndpointHoverStyles[index] || _currentInstance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle;
 					// endpoint hover fill style is derived from connector's hover stroke style.  TODO: do we want to do this by default? for sure?
@@ -2255,7 +2270,7 @@ about the parameters allowed in the params object.
 			var _overlays = params.overlays || _currentInstance.Defaults.Overlays;
 			if (_overlays) {
 				for (var i = 0; i < _overlays.length; i++) {
-					var o = _overlays[i];
+					var o = _overlays[i], _newOverlay = null, _overlayEvents = null;
 					if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
 						// there's also a three arg version:
 						// ["Arrow", { width:50 }, {location:0.7}] 
@@ -2263,10 +2278,21 @@ about the parameters allowed in the params object.
 						var type = o[0];
 						var p = jsPlumb.CurrentLibrary.extend({connection:self, _jsPlumb:_currentInstance}, o[1]);			// make a copy of the object so as not to mess up anyone else's reference...
 						if (o.length == 3) jsPlumb.CurrentLibrary.extend(p, o[2]);
-						this.overlays.push(new jsPlumb.Overlays[renderMode][type](p));
+						_newOverlay = new jsPlumb.Overlays[renderMode][type](p);
+						if (p.events) {
+							for (var evt in p.events) {
+								_newOverlay.bind(evt, p.events[evt]);
+							}
+						}
 					} else if (o.constructor == String) {
-						this.overlays.push(new jsPlumb.Overlays[renderMode][o]({connection:self}));
-					} else this.overlays.push(o);
+						_newOverlay = new jsPlumb.Overlays[renderMode][o]({connection:self, _jsPlumb:_currentInstance});
+					} else {
+						_newOverlay = o;
+					}
+					
+					
+					
+					this.overlays.push(_newOverlay);
 				}
 			}
 			/*

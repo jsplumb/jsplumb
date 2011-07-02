@@ -77,21 +77,7 @@
 		}		
 		
 		return o;
-	},
-	_attachListeners = function(o, c) {
-		var jpcl = jsPlumb.CurrentLibrary,
-		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup" ],
-		eventFilters = { "mouseout":"mouseexit" },
-		bindOne = function(evt) {
-			var filteredEvent = eventFilters[evt] || evt;
-			jpcl.bind(o, evt, function(ee) {
-				c.fire(filteredEvent, c, ee);
-			});
-		};
-		for (var i = 0; i < events.length; i++) {
-			bindOne(events[i]); 			
-		}
-	},
+	},	
 	_applyStyles = function(node, style, component) {
 		var styleToWrite = {};
 		if (style.strokeStyle) {
@@ -182,7 +168,7 @@
 					jsPlumb.appendElement(self.canvas, params.parent);
 					displayElements.push(self.canvas);					
 					
-					_attachListeners(self.canvas, self);
+					self.attachListeners(self.canvas, self);
 				}
 				else {
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
@@ -224,7 +210,7 @@
 				p["class"] = jsPlumb.endpointClass;
 				vml = self.getVml([0,0, d[2], d[3]], p, anchor);				
 				self.canvas.appendChild(vml);
-				_attachListeners(vml, self);
+				self.attachListeners(vml, self);
 			}
 			else {
 				//p["coordsize"] = "1,1";//(d[2] * scale) + "," + (d[3] * scale); again, unsure.
@@ -297,6 +283,7 @@
 	
 	var AbstractVmlArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
+    	VmlComponent.apply(this, arguments);
     	var self = this, canvas = null, path =null;
     	var getPath = function(d, connectorDimensions) {    		
     		return "m " + _conv(d.hxy.x) + "," + _conv(d.hxy.y) +
@@ -340,7 +327,7 @@
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
 				canvas = _node("shape", dim, p);				
 				connector.appendDisplayElement(canvas);
-				_attachListeners(canvas, connector);
+				self.attachListeners(canvas, connector);
 			}
 			else {				
 				_pos(canvas, dim);

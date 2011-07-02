@@ -26,22 +26,7 @@
 	jsPlumb.Defaults.DynamicAnchors = function() {
 		return jsPlumb.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"]);
 	};
-	jsPlumb.Anchors["AutoDefault"]  = function() { return jsPlumb.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors()); };
-	
-	var _attachListeners = function(o, c) {
-		var jpcl = jsPlumb.CurrentLibrary,
-		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup" ],
-		eventFilters = { "mouseout":"mouseexit" },
-		bindOne = function(evt) {
-			var filteredEvent = eventFilters[evt] || evt;
-			jpcl.bind(o, evt, function(ee) {
-				c.fire(filteredEvent, ee);
-			});
-		};
-		for (var i = 0; i < events.length; i++) {
-			bindOne(events[i]); 			
-		}
-	};
+	jsPlumb.Anchors["AutoDefault"]  = function() { return jsPlumb.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors()); };		
 	
 	/**
 	 * Class: jsPlumb.DOMElementComponent
@@ -590,7 +575,7 @@
 		self.canvas.style["position"] = "absolute";
 		self.canvas.className = jsPlumb.endpointClass;
 		jsPlumb.appendElement(self.canvas, params.parent);
-		_attachListeners(self.canvas, self);
+		self.attachListeners(self.canvas, self);
 		
 		var actuallyPaint = function(d, style, anchor) {
 			if (!initialized) {
@@ -776,6 +761,7 @@
      * cssClass - optional css class string to append to css class.
      */
     jsPlumb.Overlays.Label = function(params) {
+    	jsPlumb.DOMElementComponent.apply(this, arguments);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
 	    this.label = params.label;
@@ -808,10 +794,11 @@
     	
     	jsPlumb.appendElement(div, params.connection.parent);
     	jsPlumb.getId(div);		
+    	self.attachListeners(div, self);
     	this.paint = function(connector, d, connectorDimensions) {
 			if (!initialised) {	
 				connector.appendDisplayElement(div);
-				_attachListeners(div, connector);
+				self.attachListeners(div, connector);
 				initialised = true;
 			}
 			div.style.left = (connectorDimensions[0] + d.minx) + "px";

@@ -117,7 +117,7 @@
 		// the native svg 'stroke-dasharray' attribute, and also the 'dashstyle' concept from
 		// VML, which will be the preferred method.  the code below this converts a dashstyle
 		// attribute given in terms of stroke width into a pixel representation, by using the
-		// stroke's lineWidth.
+		// stroke's lineWidth. 
 		if(style["stroke-dasharray"]) {
 			node.setAttribute("stroke-dasharray", style["stroke-dasharray"]);
 		}
@@ -142,20 +142,6 @@
 		var r = /([0-9].)(p[xt])\s(.*)/;
 		var bits = f.match(r);
 		return {size:bits[1] + bits[2], font:bits[3]};		
-	}, 
-	_attachListeners = function(o, c) {
-		var jpcl = jsPlumb.CurrentLibrary,
-		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup" ],
-		eventFilters = { "mouseout":"mouseexit" },
-		bindOne = function(evt) {
-			var filteredEvent = eventFilters[evt] || evt;
-			jpcl.bind(o, evt, function(ee) {
-				c.fire(filteredEvent, c, ee);
-			});
-		};
-		for (var i = 0; i < events.length; i++) {
-			bindOne(events[i]); 			
-		}
 	};
 	
 	/*
@@ -232,7 +218,7 @@
 				if (self.bgPath == null) {
 					self.bgPath = _node("path", a);
 			    	self.svg.appendChild(self.bgPath);
-		    		_attachListeners(self.bgPath, self);
+		    		self.attachListeners(self.bgPath, self);
 				}
 				else {
 					_attr(self.bgPath, a);
@@ -245,7 +231,7 @@
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
 		    	self.svg.appendChild(self.path);
-	    		_attachListeners(self.path, self);
+	    		self.attachListeners(self.path, self);
 	    	}
 	    	else {
 	    		_attr(self.path, a);
@@ -305,7 +291,7 @@
 			if (self.node == null) {
 				self.node = self.makeNode(d, s);
 				self.svg.appendChild(self.node);
-				_attachListeners(self.node, self);
+				self.attachListeners(self.node, self);
 			}
 			_applyStyles(self.svg, self.node, s, d);
 			_pos(self.node, d);
