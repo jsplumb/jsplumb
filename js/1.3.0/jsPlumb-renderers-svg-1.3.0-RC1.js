@@ -217,8 +217,31 @@
 		var self = this;
 		SvgComponent.apply(this, [ params["_jsPlumb"].connectorClass, arguments, "none" ]);
 		this._paint = function(d, style) {
-			var p = self.getPath(d), a = { "d":p };									
+			var p = self.getPath(d), a = { "d":p }, outlineStyle = null;									
 			a["pointer-events"] = "all";
+			
+			// outline style.  actually means drawing an svg object underneath the main one.
+			if (style.outlineColor) {
+				var outlineWidth = style.outlineWidth || 1,
+				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+				outlineStyle = {
+					strokeStyle:_convertStyle(style.outlineColor),
+					lineWidth:outlineStrokeWidth
+				};
+				
+				if (self.bgPath == null) {
+					self.bgPath = _node("path", a);
+			    	self.svg.appendChild(self.bgPath);
+		    		_attachListeners(self.bgPath, self);
+				}
+				else {
+					_attr(self.bgPath, a);
+				}
+				
+				_applyStyles(self.svg, self.bgPath, outlineStyle, d);
+			}
+			
+			
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
 		    	self.svg.appendChild(self.path);
@@ -227,7 +250,7 @@
 	    	else {
 	    		_attr(self.path, a);
 	    	}
-	    	
+	    		    	
 	    	_applyStyles(self.svg, self.path, style, d);
 		};
 	};		
@@ -272,13 +295,19 @@
 	var SvgEndpoint = function(params) {
 		var self = this;
 		SvgComponent.apply(this, [ params["_jsPlumb"].endpointClass, arguments, "all" ]);
-		this._paint = function(d, style) { 
+		this._paint = function(d, style) {
+			var s = jsPlumb.extend({}, style);
+			if (s.outlineColor) {
+				s.strokeWidth = s.outlineWidth;
+				s.strokeStyle = _convertStyle(s.outlineColor, true);
+			}
+			
 			if (self.node == null) {
-				self.node = self.makeNode(d, style);
+				self.node = self.makeNode(d, s);
 				self.svg.appendChild(self.node);
 				_attachListeners(self.node, self);
 			}
-			_applyStyles(self.svg, self.node, style, d);
+			_applyStyles(self.svg, self.node, s, d);
 			_pos(self.node, d);
 		};
 	};
