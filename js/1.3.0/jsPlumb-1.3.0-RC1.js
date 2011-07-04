@@ -792,7 +792,7 @@
 		  			  
 		  Parameters:
 		   
-		  	el - Element to add the endpoint to. either an element id, or a selector representing some element. 
+		  	el - Element to add the endpoint to. either an element id, or a selector representing some element(s), or an array of either of these. 
 		  	params - Object containing Endpoint options.  For more information, see the docs for Endpoint's constructor.
 		  	referenceParams - Object containing more Endpoint options; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.
 		  	 
@@ -808,15 +808,21 @@
 			jsPlumb.extend(p, params);
 			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
 			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
-			el = _getElementObject(el), id = _getId(el);
-			p.source = el;
-			_updateOffset({ elId : id });
-			var e = _newEndpoint(p);
-			_addToList(endpointsByElement, id, e);
-			var myOffset = offsets[id], myWH = sizes[id];
-			var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e });
-			e.paint({ anchorLoc : anchorLoc });
-			return e;
+			
+			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+			for (var i = 0; i < inputs.length; i++) {
+				var _el = _getElementObject(inputs[i]), id = _getId(_el);
+				p.source = _el;
+				_updateOffset({ elId : id });
+				var e = _newEndpoint(p);
+				_addToList(endpointsByElement, id, e);
+				var myOffset = offsets[id], myWH = sizes[id];
+				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e });
+				e.paint({ anchorLoc : anchorLoc });
+				results.push(e);
+			}
+			
+			return results.length == 1 ? results[0] : results;
 		};
 		
 		/*
@@ -824,7 +830,7 @@
 		  Adds a list of Endpoints to a given element.
 		  
 		  Parameters: 
-		  	target - element to add the endpoint to. either an element id, or a selector representing some element. 
+		  	target - element to add the endpoint to. either an element id, or a selector representing some element(s), or an array of either of these. 
 		  	endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list. 
 			referenceParams - Object containing more Endpoint options; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.		  	 
 
