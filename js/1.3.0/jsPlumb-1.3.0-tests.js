@@ -4,7 +4,7 @@ var _getContextNode = function() {
 };
 
 var assertContextExists = function() {
-	ok(_getContextNode().length == 1, 'context node exists');
+	ok(_getContextNode().length == 1, "context node exists");
 };
 
 var assertContextSize = function(elementCount) {
@@ -12,7 +12,7 @@ var assertContextSize = function(elementCount) {
 };
 
 var assertContextEmpty = function() {
-	equals(_getContextNode().children.length, 0, 'context empty');
+	equals(_getContextNode().children.length, 0, "context empty");
 };
 
 var assertEndpointCount = function(elId, count) {
@@ -31,11 +31,11 @@ var assertConnectionByScopeCount = function(scope, count) {
 var _divs = [];
 var _addDiv = function(id) {
 	var d1 = document.createElement("div");
-	//document.body.appendChild(d1);
 	_getContextNode().append(d1);
-	$(d1).attr("id", id);
+	d1 = jsPlumb.CurrentLibrary.getElementObject(d1);
+	jsPlumb.CurrentLibrary.setAttribute(d1, "id", id);
 	_divs.push(id);
-	return $(d1);
+	return d1;
 };
 
 var _cleanup = function() {	
@@ -96,6 +96,24 @@ var testSuite = function(renderMode) {
 		e = jsPlumb.getEndpoint("78978597593");
 		equals(e, null, "the endpoint has been deleted");
 		assertContextSize(0); // no Endpoint canvases.
+	});
+	
+	test(renderMode + ': create two simple endpoints, registered using a selector', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		d1.addClass("window");d2.addClass("window");
+		var endpoints = jsPlumb.addEndpoint($(".window"), {});
+		equals(endpoints.length, 2, "endpoint added to both windows");  
+		assertEndpointCount("d1", 1);
+		assertEndpointCount("d2", 1);
+	});
+	
+	test(renderMode + ': create two simple endpoints, registered using an array of element ids', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		d1.addClass("window");d2.addClass("window");
+		var endpoints = jsPlumb.addEndpoint(["d1", "d2"], {});
+		equals(endpoints.length, 2, "endpoint added to both windows");  
+		assertEndpointCount("d1", 1);
+		assertEndpointCount("d2", 1);
 	});
 	
 	test(renderMode + ': draggable silently ignored when jquery ui not present', function() {
