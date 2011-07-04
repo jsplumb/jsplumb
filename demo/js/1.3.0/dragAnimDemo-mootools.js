@@ -13,16 +13,11 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 		});
 	};
 	
-	jsPlumbDemo.showDisc = function(id, div, endpoint) {
-	//	endpoint.canvas.style.display = 'none';
-//		$(div).set('opacity', '0');
-		//$(endpoint.canvas).set("opacity","0");
-		div.style.display = "block";
-		//endpoint.canvas.style.display = 'block';
-	//	$(div).tween('opacity', '1');
-		//$(endpoint.canvas).tween("opacity","1");
-	//	endpoint.repaint();
-	};
+	/*jsPlumbDemo.showDisc = function(id, div, endpoint) {
+		// nothing special for MooTools. jquery has a little animation, just because it
+		// is easy to do that in jquery.
+	};*/
+	
 	
 	jsPlumbDemo.initHover = function(elId) {
 		$(elId).addEvents({

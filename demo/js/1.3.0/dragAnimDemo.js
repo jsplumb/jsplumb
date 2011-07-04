@@ -46,7 +46,6 @@
 		createDisc : function() {
 			var d = document.createElement("div");
 			d.className = "bigdot";
-			d.style.display = 'none';
 			document.body.appendChild(d);
 			var id = '' + ((new Date().getTime())), _d = jsPlumb.CurrentLibrary.getElementObject(d);
 			jsPlumb.CurrentLibrary.setAttribute(_d, "id", id);
@@ -60,8 +59,7 @@
 		
 		addDisc : function() {
 			var info = jsPlumbDemo.createDisc();
-			var e = prepare(info.id);
-			jsPlumbDemo.showDisc(info.id, info.d, e);	
+			var e = prepare(info.id);	
 			jsPlumb.draggable(info.id);
 		}
 	};
