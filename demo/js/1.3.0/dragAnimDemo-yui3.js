@@ -4,17 +4,13 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 ;(function() {
 	
 	jsPlumbDemo.initClearButton = function() {
-		Y.one("#clear").on('click', function() { jsPlumb.detachEverything(); });
+		Y.one("#clear").detach("click", jsPlumb.detachEverything );
+		Y.one("#clear").on("click", jsPlumb.detachEverything );
 	};
 	
 	jsPlumbDemo.initAddButton = function() {
-		Y.one("#add").on('click', function() {
-			jsPlumbDemo.addDisc();
-		});
-	};
-	
-	jsPlumbDemo.showDisc = function(id, div, endpoint) {
-		// nothing fancy in YUI demo.
+		Y.one("#add").detach("click", jsPlumbDemo.addDisc );
+		Y.one("#add").on("click", jsPlumbDemo.addDisc );
 	};
 	
 	jsPlumbDemo.initHover = function(elId) {

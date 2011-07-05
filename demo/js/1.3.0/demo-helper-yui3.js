@@ -25,6 +25,7 @@ YUI().use("node", function(Y) {
 		Y.all(".rmode").each(function(r) {
 			r.on("click", function() {
 				var desiredMode = r.getAttribute("mode");
+				if (jsPlumbDemo.reset) jsPlumbDemo.reset();
 				jsPlumb.reset();
 				resetRenderMode(desiredMode);					
 			});

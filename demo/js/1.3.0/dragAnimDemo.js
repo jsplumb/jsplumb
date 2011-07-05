@@ -18,7 +18,9 @@
 		jsPlumbDemo.initAnimation(elId);
 		
 		return jsPlumb.addEndpoint(elId, endpoint);
-	};
+	},
+	
+	discs = [];
 	
 
 	window.jsPlumbDemo = {
@@ -61,6 +63,15 @@
 			var info = jsPlumbDemo.createDisc();
 			var e = prepare(info.id);	
 			jsPlumb.draggable(info.id);
+			discs.push(info.id);
+		},
+		
+		reset : function() {
+			for (var i = 0; i < discs.length; i++) {
+				var d = document.getElementById(discs[i]);
+				if (d) d.parentNode.removeChild(d);
+			}
+			discs = [];
 		}
 	};
 	

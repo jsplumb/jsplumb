@@ -4,20 +4,14 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 ;(function() {
 	
 	jsPlumbDemo.initClearButton = function() {
-		$("clear").addEvent('click', function() { jsPlumb.detachEverything(); });
+		$("clear").removeEvent("click", jsPlumb.detachEverything);
+		$("clear").addEvent("click", jsPlumb.detachEverything );
 	};
 	
 	jsPlumbDemo.initAddButton = function() {
-		$("add").addEvent('click', function() {
-			jsPlumbDemo.addDisc();
-		});
-	};
-	
-	/*jsPlumbDemo.showDisc = function(id, div, endpoint) {
-		// nothing special for MooTools. jquery has a little animation, just because it
-		// is easy to do that in jquery.
-	};*/
-	
+		$("add").removeEvent("click", jsPlumbDemo.addDisc);
+		$("add").addEvent("click", jsPlumbDemo.addDisc);
+	};	
 	
 	jsPlumbDemo.initHover = function(elId) {
 		$(elId).addEvents({

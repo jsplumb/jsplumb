@@ -23,6 +23,7 @@ jsPlumb.bind("ready", function() {
 	$$(".rmode").each(function(r) {
 		r.addEvent("click", function() {
 			var desiredMode = $(this).get("mode");
+			if (jsPlumbDemo.reset) jsPlumbDemo.reset();
 			jsPlumb.reset();
 			resetRenderMode(desiredMode);					
 		});

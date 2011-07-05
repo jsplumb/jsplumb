@@ -4,13 +4,13 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 ;(function() {
 	
 	jsPlumbDemo.initClearButton = function() {
-		$("#clear").bind('click', function() { jsPlumb.detachEverything(); });
+		$("#clear").unbind("click", jsPlumb.detachEverything);
+		$("#clear").bind("click", jsPlumb.detachEverything );
 	};
 	
 	jsPlumbDemo.initAddButton = function() {
-		$("#add").bind('click', function() {
-			jsPlumbDemo.addDisc();
-		});
+		$("#add").unbind("click", jsPlumbDemo.addDisc );
+		$("#add").bind('click', jsPlumbDemo.addDisc );
 	};	
 	
 	jsPlumbDemo.initHover = function(elId) {
