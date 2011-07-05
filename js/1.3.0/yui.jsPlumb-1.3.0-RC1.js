@@ -85,7 +85,14 @@
 	 * helper function to curry callbacks for some element. 
 	 */
 	var _wrapper = function(fn) {
-		return function() { fn.apply(this, arguments); };
+		return function() { 
+			try {
+				fn.apply(this, arguments); 
+			}
+			catch (e) {
+				console.log("wrap fail", e);
+			}
+		};
 	};
 	
 	/**
@@ -225,15 +232,19 @@
 		
 		getSize : function(el) {
 			//TODO must be a better way to get this?
-			var bcr = _getElementObject(el)._node.getBoundingClientRect();
-			return [ bcr.right - bcr.left, bcr.bottom - bcr.top];		// for some reason, in IE, the bounding rect does not always have width,height precomputed.
+			//console.log("getSize");
+			/*var bcr = _getElementObject(el)._node.getBoundingClientRect();
+			return [ bcr.right - bcr.left, bcr.bottom - bcr.top];		// for some reason, in IE, the bounding rect does not always have width,height precomputed.*/
+			return [ el._node.offsetWidth, el._node.offsetHeight ];
 		},
 		
 		getUIPosition : function(args) {		
 			//TODO must be a better way to get this? args was passed through from the drag function
 			// in initDraggable above - args[0] here is the element that was inited.
-			var bcr = _getElementObject(args[0].currentTarget.el)._node.getBoundingClientRect();
-			return { left:bcr.left, top:bcr.top };
+			/*var bcr = _getElementObject(args[0].currentTarget.el)._node.getBoundingClientRect();
+			return { left:bcr.left, top:bcr.top };*/
+			var n = args[0].currentTarget.el._node;
+			return {left:n.offsetLeft, top:n.offsetTop};
 		},		
 		
 		hasClass : function(el, clazz) {
@@ -243,12 +254,9 @@
 		initDraggable : function(el, options) {
 			var _opts = _getDDOptions(options);
 			var id = jsPlumb.getId(el);
-			_opts.node = "#" + id;				
+			_opts.node = "#" + id;		
 			var dd = new Y.DD.Drag(_opts);
 			dd.el = el;	
-			// required to prevent the shim - a massive red rectangle - from appearing.
-			// i don't know why it decides to show itself in IE but not in any other browser.
-			dd.set('useShim', false);
 			
 			var scope = options['scope'] || jsPlumb.Defaults.Scope;
 			dd.scope = scope;
@@ -264,7 +272,7 @@
 			var id = jsPlumb.getId(el);
 			_opts.node = "#" + id;			
 			var dd = new Y.DD.Drop(_opts);
-				
+			
 			_droppableOptions[id] = options;
 			
 			options = _extend({}, options);

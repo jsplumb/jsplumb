@@ -383,6 +383,15 @@
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
 		 */
 		_timestamp = function() { return "" + (new Date()).getTime(); },
+		
+		/**
+		 * YUI, for some reason, put the result of a Y.all call into an object that contains
+		 * a '_nodes' array, instead of handing back an array-like object like the other
+		 * libraries do.
+		 */
+		_convertYUICollection = function(c) {
+			return c._nodes ? c._nodes : c;
+		},
 
 		/**
 		 * Draws an endpoint and its connections.
@@ -809,7 +818,11 @@
 			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
 			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
 			
+			// YUI wrapper
+			el = _convertYUICollection(el);			
+			
 			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+						
 			for (var i = 0; i < inputs.length; i++) {
 				var _el = _getElementObject(inputs[i]), id = _getId(_el);
 				p.source = _el;
@@ -1245,10 +1258,11 @@ about the parameters allowed in the params object.
 				}
 				return r;
 			};
-			var scopes = prepareList(options.scope);
-			var sources = prepareList(options.source);
-			var targets = prepareList(options.target);
-			var filter = function(list, value) {
+			var scope = option.scope || jsPlumb.getDefaultScope(),
+			scopes = prepareList(scope),
+			sources = prepareList(options.source),
+			targets = prepareList(options.target),
+			filter = function(list, value) {
 				return list.length > 0 ? _findIndex(list, value) != -1 : true;
 			};
 			for ( var i in connectionsByScope) {
@@ -2985,10 +2999,10 @@ about the parameters allowed in the params object.
 						self.anchor.locked = false;												
 						self.paint();
 						jpc.setHover(false);
-						jpc = null;
-						floatingEndpoint = null;
+						jpc = null;						
 						delete inPlaceCopy;							
-						delete endpointsByElement[floatingEndpoint.elementId];						
+						delete endpointsByElement[floatingEndpoint.elementId];
+						floatingEndpoint = null;
 						delete floatingEndpoint;
 						
 						_currentInstance.currentlyDragging = false;

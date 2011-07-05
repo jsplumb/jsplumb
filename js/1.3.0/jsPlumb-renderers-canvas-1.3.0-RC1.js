@@ -392,7 +392,9 @@
     /**
      * a placeholder right now, really just exists to mirror the fact that there are SVG and VML versions of this. 
      */
-    var CanvasOverlay = function() {  };
+    var CanvasOverlay = function() { 
+    	jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+    };
     
     var AbstractCanvasArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);

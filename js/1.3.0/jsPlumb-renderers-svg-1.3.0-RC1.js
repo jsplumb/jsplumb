@@ -343,11 +343,14 @@
 	
 	var AbstractSvgArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
+    	jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
     	var self = this, path =null;
     	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		if (path == null) {
     			path = _node("path");
     			connector.svg.appendChild(path);
+    			self.attachListeners(path, connector);
+    			self.attachListeners(path, self);
     		}
     		
     		_attr(path, { 
