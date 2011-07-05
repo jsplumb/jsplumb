@@ -500,7 +500,10 @@
 			else params["parent"] = parent(params.source);
 			
 			params["_jsPlumb"] = _currentInstance;
-			return new connectionFunc(params);
+			var con = new connectionFunc(params);
+			_eventFireProxy("click", "click", con);
+			_eventFireProxy("dblclick", "dblclick", con);
+			return con;
 		},
 		
 		_eventFireProxy = function(event, proxyEvent, obj) {
@@ -953,17 +956,7 @@
 				sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
 			});
 			// force a paint
-			_draw(jpc.source);
-			
-			// jsplumb registers for click and dblclick on these, and fires an event
-			// this is some helper functionality to prevent you from having to register
-			// click listeners all the time
-			jpc.bind("click", function(c) {
-				_currentInstance.fire("click", c);
-			});
-			jpc.bind("dblclick", function(c) {
-				_currentInstance.fire("dblclick", c);
-			});
+			_draw(jpc.source);						
 
 			return jpc;
 		};
