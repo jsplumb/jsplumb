@@ -52,9 +52,6 @@
 		return -1;
 	};
 	
-	//console.log("canvas", canvasAvailable, "svg", svgAvailable, "vml", vmlAvailable);
-	
-	
 	/**
 		 * helper method to add an item to a list, creating the list if it does
 		 * not yet exist.
@@ -1251,7 +1248,7 @@ about the parameters allowed in the params object.
 				}
 				return r;
 			};
-			var scope = option.scope || jsPlumb.getDefaultScope(),
+			var scope = options.scope || jsPlumb.getDefaultScope(),
 			scopes = prepareList(scope),
 			sources = prepareList(options.source),
 			targets = prepareList(options.target),
@@ -1340,7 +1337,7 @@ about the parameters allowed in the params object.
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
 				
 				var _bind = function(event) {
-					jsPlumb.CurrentLibrary.bind(document, event, function(e) {					
+					jsPlumb.CurrentLibrary.bind(document, event, function(e) {
 						if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
 							// try connections first
 							for (var scope in connectionsByScope) {
@@ -2887,7 +2884,8 @@ about the parameters allowed in the params object.
 						jpc.connector.setHover(false);
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas));						
-						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?						
+						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?
+						
 						jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
 						self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
 						
@@ -2954,7 +2952,7 @@ about the parameters allowed in the params object.
 					function() {						
 						_removeFromList(endpointsByElement, id, floatingEndpoint);
 						_removeElements( [ n, floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
-						_removeElement(inPlaceCopy.canvas, _element);
+						_removeElement(inPlaceCopy.canvas, _element);						
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 						jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
 						if (jpc.endpoints[idx] == floatingEndpoint) {
@@ -2975,6 +2973,7 @@ about the parameters allowed in the params object.
 								
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
 								if (_reattach) {
+									
 									jpc.floatingAnchorIndex = null;
 									jpc.suspendedEndpoint.addConnection(jpc);
 									jsPlumb.repaint(existingJpcParams[1]);
@@ -3026,6 +3025,7 @@ about the parameters allowed in the params object.
 						if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
 							
 						var jpc = floatingConnections[id];
+						
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
 						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {
 							if (idx == 0) {
@@ -3080,17 +3080,21 @@ about the parameters allowed in the params object.
 								var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
 								var id = _getAttribute( _getElementObject(draggable), "dragId");
 								var jpc = floatingConnections[id];
-								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-								jpc.endpoints[idx].anchor.over(self.anchor);
+								if (jpc != null) {
+									var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+									jpc.endpoints[idx].anchor.over(self.anchor);
+								}
 							});
 	
 					dropOptions[outEvent] = _wrap(dropOptions[outEvent],
 							function() {
-								var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
-								var id = _getAttribute(_getElementObject(draggable), "dragId");
-								var jpc = floatingConnections[id];
-								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-								jpc.endpoints[idx].anchor.out();
+								var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
+								id = _getAttribute(_getElementObject(draggable), "dragId"),
+								jpc = floatingConnections[id];
+								if (jpc != null) {
+									var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+									jpc.endpoints[idx].anchor.out();
+								}
 							});
 	
 					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions);
