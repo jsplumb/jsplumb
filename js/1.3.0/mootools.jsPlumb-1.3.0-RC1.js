@@ -13,7 +13,7 @@
  * 
  */ 
 
-(function() {
+;(function() {
 	
 	/*
 	 * overrides the FX class to inject 'step' functionality, which MooTools does not
@@ -41,10 +41,10 @@
 		}
 	});
 	
-	var _droppables = {};
-	var _droppableOptions = {};
-	var _draggablesByScope = {};
-	var _draggablesById = {};
+	var _droppables = {},
+	_droppableOptions = {},
+	_draggablesByScope = {},
+	_draggablesById = {};
 	/*
 	 * 
 	 */
@@ -145,6 +145,10 @@
 		 */
 		getAttribute : function(el, attName) {
 			return el.get(attName);
+		},
+		
+		getClientXY : function(eventObject) {
+			return [eventObject.event.clientX, eventObject.event.clientY];
 		},
 		
 		getDragObject : function(eventArgs) {
