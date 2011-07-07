@@ -2,6 +2,13 @@
 
 	*** Backwards compatibility breakages ***
 	
+	- you cannot create Endpoints/Connectors/Overlays directly anymore.  You must supply jsPlumb with a definition of what you want and it creates
+	  the actual object.  For example:
+	  	  
+	  	OLD: 	jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Dot(45);
+	  	NEW:	jsPlumb.Defaults.Endpoint = [ "Dot", { radius:45 } ];
+	  	
+	
 	- Bezier connection requires a js object as argument now, instead of a single int:
 	
 		OLD:  	connector: [ "Bezier", 150 ]
