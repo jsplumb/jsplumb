@@ -115,9 +115,8 @@
 	    		dd.on(ev, w);
 	    	}
 	    }
-	};
-	
-	var _droppables = {},
+	},
+	_droppables = {},
 	_droppableOptions = {},
 	_draggablesByScope = {},
 	_draggablesById = {},
@@ -186,7 +185,11 @@
 			
 		extend : _extend,
 		
-		getAttribute : _getAttribute,				
+		getAttribute : _getAttribute,
+		
+		getClientXY : function(eventObject) {
+			return [eventObject.clientX, eventObject.clientY];
+		},
 		
 		/**
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
@@ -207,11 +210,9 @@
 		
 		getElementObject : _getElementObject,
 		
-		getOffset : function(el) {
-			if(el == null)
-				console.log('foo');
-			var bcr = el._node.getBoundingClientRect();
-			return { left:bcr.left, top:bcr.top };
+		getOffset : function(el) {			
+			var o = Y.DOM.getXY(el._node);
+			return {left:o[0], top:o[1]};
 		},
 		
 		getPageXY : function(eventObject) {
@@ -223,11 +224,11 @@
 		},
 		
 		getScrollLeft : function(el) {
-			return 0; //alert("YUI getScrollLeft not implemented yet");
+			return 0; 
 		},
 		
 		getScrollTop : function(el) {
-			return 0;//alert("YUI getScrollTop not implemented yet");
+			return 0;
 		},
 		
 		getSize : function(el) {
