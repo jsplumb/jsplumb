@@ -1,9 +1,51 @@
-* upcoming in 1.3
+* 1.3.0
 
-	- SVG where supported
+	*** Backwards compatibility breakages ***
+	
+	- Bezier connection requires a js object as argument now, instead of a single int:
+	
+		OLD:  	connector: [ "Bezier", 150 ]
+		NEW: 	connector: [ "Bezier", { curviness:150 } ]
+	
+	- Dot Endpoint requires a js object as argument now, instead of a single int:
+	
+		OLD:	endpoint: [ "Dot", 10 ]
+		NEW:	endpoint: [ "Dot", { radius:10 } ] 
+		
+	- setDefaultNewCanvasSize method has been removed.  jsPlumb no longer uses excanvas to render
+	  VML; this method was there to support edge cases of VML usage.
+	  
+	- the 'container' concept, as an argument to addEndpoint or connect, and in the jsPlumb
+	  defaults, has been removed.  created elements are now appended to the parent of the source
+	  element of a connection.
+	  
+	- backgroundPaintStyle has been replaced with 'outlineColor' and 'outlineWidth' members in
+	   paint definitions. 
+	   
+  	- drag entire connection, introduced for some browsers in 1.2.6, has been removed.
+	  
+	General Changes
+	-------------- 
+
+	- jsPlumb can now use SVG where supported
 	- mouse events in all browsers
 	- ability to register a mouse listener on jsPlumb, rather than on each Connection individually.  surely much more convenient.
-	- addition of jsPlumb.Overlays.Image
+	  this is "click" and "dblclick" events for Connections, and "endpointClick" and "endpointDblClick" for Endpoints.	
+	- ability to specify class names for endpoints/overlays/connections, using 'cssClass' param.
+	- added "Blank" endpoint type: paints nothing and adds no element to the DOM.
+	- reinstated the 'drawEndpoints' parameter on jsPlumb.connect. 
+	- added makeTarget/makeTargets method; allow you to specify an entire element as drop target for a connection
+	- added jsPlumb.Defaults.Overlays
+	- all Label overlays are painted with a styled div now (they used to be drawn on the canvases), and each renderer type uses this.
+	- added removeAllOverlays, removeOverlay and removeOverlays methods to Connection.
+	- addEndpoint and addEndpoints methods now take a selector or array for the first argument, so
+	you can do things like  jsPlumb.addEndpoint($(".someClass"), { endpoint options });
+	
+	Bugfixes/Enhancements
+	--------		
+
+	- issue 90
+	- issue 95
 
 
 * 1.2.6
