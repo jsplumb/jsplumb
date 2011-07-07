@@ -3,17 +3,18 @@
 // ********************************* CANVAS RENDERERS FOR CONNECTORS AND ENDPOINTS *******************************************************************
 		
 	// TODO refactor to renderer common script.  put a ref to jsPlumb.sizeCanvas in there too.
-	var _connectionBeingDragged = null;
-	var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); };
-	var _setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); };
-	var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); };
-	var _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); };
-	var _removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); };
-	var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
-	var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
-	var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };		
-	var _pageXY = function(el) { return jsPlumb.CurrentLibrary.getPageXY(el); };
-	var _setOffset = function(el, o) { jsPlumb.CurrentLibrary.setOffset(el, o); };
+	var _connectionBeingDragged = null,
+	_getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
+	_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); },
+	_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); },
+	_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
+	_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); },
+	_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
+	_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
+	_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },		
+	_pageXY = function(el) { return jsPlumb.CurrentLibrary.getPageXY(el); },
+	_clientXY = function(el) { return jsPlumb.CurrentLibrary.getClientXY(el); },
+	_setOffset = function(el, o) { jsPlumb.CurrentLibrary.setOffset(el, o); };
 	
 	/*
 	 * Class:CanvasMouseAdapter
@@ -28,9 +29,9 @@
 		 * returns whether or not the given event is ojver a painted area of the canvas. 
 		 */
 	    this._over = function(e) {		    			  		    	
-	    	var o = _getOffset(_getElementObject(self.canvas));
-	    	var pageXY = _pageXY(e);
-	    	var x = pageXY[0] - o.left, y = pageXY[1] - o.top;
+	    	var o = _getOffset(_getElementObject(self.canvas)),
+	    	pageXY = _pageXY(e),
+	    	x = pageXY[0] - o.left, y = pageXY[1] - o.top;
 	    	if (x > 0 && y > 0 && x < self.canvas.width && y < self.canvas.height) {
 		    	// first check overlays
 		    	for ( var i = 0; i < self.overlayPlacements.length; i++) {
@@ -49,8 +50,9 @@
 	    var _mouseover = false;
 	    var _mouseDown = false, _posWhenMouseDown = null, _mouseWasDown = false;
 	    this.mousemove = function(e) {		    
-	    	var pageXY = _pageXY(e),	    	
-	    	ee = document.elementFromPoint(pageXY[0], pageXY[1]),
+	    	var pageXY = _pageXY(e), clientXY = _clientXY(e),	    	
+	    	//ee = document.elementFromPoint(pageXY[0], pageXY[1]),
+	    	ee = document.elementFromPoint(clientXY[0], clientXY[1]),
 	    	eventSourceWasOverlay = _hasClass(ee, "_jsPlumb_overlay");	    	
 			var _continue = _connectionBeingDragged == null && (_hasClass(ee, "_jsPlumb_endpoint") || _hasClass(ee, "_jsPlumb_connector"));
 			if (!_mouseover && _continue && self._over(e)) {
@@ -147,7 +149,8 @@
 		};
 		
 		self.paint = function(dim, style) {						
-			if (style != null) {
+			if (style != null) {																
+				
 				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);
 				
 				if (style.outlineColor != null) {
