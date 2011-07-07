@@ -103,6 +103,10 @@
 			return el.attr(attName);
 		},
 		
+		getClientXY : function(eventObject) {
+			return [eventObject.clientX, eventObject.clientY];
+		},
+		
 		getDocumentElement : function() { return document; },
 		
 		/**
