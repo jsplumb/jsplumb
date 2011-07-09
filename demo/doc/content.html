@@ -1,8 +1,8 @@
 <html>
 	<head>
-		<title>jsPlumb 1.2.6 - documentation</title>
+		<title>jsPlumb 1.3.0 - documentation</title>
 		<link rel="stylesheet" href="/mp.css"></link>
-		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>	
 	</head>
 	<body>
 
@@ -11,96 +11,135 @@
 <div class="content">
 		<div class="section">
 			<a id="summary"><h3>Summary</h3></a>
-			jsPlumb allows you to connect elements on the screen with "plumbing", using a Canvas
-			element when supported, and Google's <a class="mplink" href="http://excanvas.sourceforge.net/" target="_blank">ExplorerCanvas</a> script to support older browsers.
+			jsPlumb allows you to connect elements on the screen using SVG, Canvas or VML, depending on the capabilities of the browser.
 			<p>
-			It can be used with jQuery, MooTools or YUI3 (or another library of your choice if you
-			feel like implementing a plugin for it).  Required versions are as follows:
-			<h4>jQuery</h4>
+				It can be used with jQuery, MooTools or YUI3 (or another library of your choice if you
+				feel like implementing an adapter for it).
+			</p>  
+
+			<h5>Browser Compatibility</h5>
+			<p>jsPlumb 1.3.0 has been tested on the following browsers:
 				<ul>
-					<li>jQuery 1.3.x or higher.</li>
-					<li>jQuery UI 1.7.x or 1.8.x (if you wish to support drag and drop). jsPlumb has been tested on 1.7.2, 1.8.0 and 1.8.13.</li>
-				</ul>
-			<h4>MooTools</h4>
-				<ul>
-					<li>MooTools Core 1.2.4 or higher. jsPlumb has been tested with 1.2.4 and 1.3.2.</li>
-					<li>Drag.Move from MooTools More 1.2.4.4 or higher (if you wish to support drag and drop). jsPlumb has been tested with versions 1.2.4.4 and 1.3.2.1.</li>
-				</ul>
-			<h4>YUI3</h4>
-				<ul>
-					<li>YUI 3.3.x.  jsPlumb has been tested on 3.3.0 only; it is possible other 3.x.x versions will work.</li>
-				</ul>
-			</p>
-			<p>
-			For Canvas support in IE you also need to include Google's <a class="mplink" href="http://excanvas.sourceforge.net/" target="_blank">ExplorerCanvas</a> script.
-			</p>
-			<p>jsPlumb 1.2.6 has been tested on the following browsers:
-				<ul>
-					<li>IE 7 on Windows Vista</li>
-					<li>IE 8 on Windows Vista (we force IE7 standards compatibility mode)</li>
-					<li>Firefox 3.5.8 on Windows Vista</li>
-					<li>Firefox 3.6.3 on Ubuntu 10.04</li>
-					<li>Chrome on Ubuntu 10.04</li>
-					<li>Safari 4 on Mac Tiger</li>
-					<li>Safari 4 on Windows Vista</li>
-					<li>Opera 10.54 on Windows Vista</li>
+					<li class="bullet">IE 7 on Windows XP</li>
+					<li class="bullet">IE 8 on Windows XP</li>
+					<li class="bullet">IE 9 on Windows 7</li>
+					<li class="bullet">Firefox 3.5.8 on Windows XP</li>
+					<li class="bullet">Firefox 3.5.8 on Windows 7</li>
+					<li class="bullet">Firefox 3.6.3 on Ubuntu 10.04</li>
+					<li class="bullet">Chrome on Ubuntu 10.04</li>
+					<li class="bullet">Safari 4 on Mac Tiger</li>
+					<li class="bullet">Safari 4 on Windows Vista</li>
+					<li class="bullet">Opera 10.54 on Windows XP</li>
 				</ul>
 			</p>
 		</div>
 		
 		<div class="section">
-			<a id="changes">Changes since version 1.2.5</a>			
+			<a id="changes">Changes since version 1.2.6</a>
+			<p>
+			Version 1.3.0 is a major new release of jsPlumb, containing several important new features, and a few changes that break backwards compatibility.
+			</p>
+			<p>
+			Major new features include:
+			</p>			
 			<ul>
-				<li>introduced support for mouse events (click/doubleclick/enter/exit) when using Canvas </li>
-				<li>introduced shorthand syntax for specifying Endpointds and Overlays</li>
-				<li>added Flowchart connector type</li>
+				<li>- introduced support for using SVG</li>
+				<li>- removed dependency on Excanvas script for IE&lt;9. Jsplumb draws VML directly now.</li>
+				<li>- introduced support for mouse events (click/doubleclick/enter/exit) for all browsers</li>
+				<li>- introduced support for turning an entire element into a drag target for new connections</li>
+			</ul>
+			<p>
+			Backwards Compatibility Issues:			
+			</p>
+			<ul>
+				<li>
+					<p>- you cannot create Endpoints/Connectors/Overlays directly anymore.  You must supply jsPlumb with a definition of what you
+					 want, and it creates the actual object.  For example:</p>
+	  				<pre>
+OLD: 	jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Dot(45);
+NEW:	jsPlumb.Defaults.Endpoint = [ "Dot", { radius:45 } ];
+	  				</pre>	
+				</li>					  	  	  	
+			
+				<li>
+					<p>- Bezier connection requires a js object as argument now, instead of a single int</p>
+					<pre>
+OLD:  	connector: [ "Bezier", 150 ]
+NEW: 	connector: [ "Bezier", { curviness:150 } ]
+					</pre>
+				</li>
+				<li>
+					<p>- Dot Endpoint requires a js object as argument now, instead of a single int</p>
+					<pre>
+OLD:	endpoint: [ "Dot", 10 ]
+NEW:	endpoint: [ "Dot", { radius:10 } ]
+					</pre>		
+				</li>
+				<li>
+				<p>- The 'container' concept, as an argument to addEndpoint or connect, and in the jsPlumb defaults, has been 
+				removed.  Created elements are now appended to the parent of the source element of a connection, or the parent of an element
+				to which you are adding an Endpoint.
+				</p>  
+				</li>
+				<li>
+					<p>- The 'backgroundPaintStyle' concept has been replaced with 'outlineColor' and 'outlineWidth' members in paint style definitions.
+					To use these, you must supply at least 'outlineWidth'; if 'outlineColor' is not supplied, jsPlumb will use black by default.
+					</p>
+				</li>
+				<li>
+					<p>- Functionality to drag an entire connection, by clicking and dragging the connector line, which was introduced for some browsers 
+					in 1.2.6, has been removed.  I had several requests for a way to disable this, and got the distinct impression it was not
+					very popular.
+					</p>		
+				</li>
+				<li>
+					<p>- The 'setDefaultNewCanvasSize' method on jsPlumb has been removed.  jsPlumb no longer uses excanvas to render
+	  				VML; this method was there to support edge cases of VML usage. You probably were not even aware of this method's existence.
+	  				</p>		
+				</li>		
 			</ul>
 			<p>
 			These issues have been resolved:
 			</p>    
 			<ul>								
-				<li>issue 54: crash on vertical straight connectors</li>
-				<li>issue 57: wrong scope chosen for detached draggable connection</li>
-				<li>issue 58: changing one connector's style changes others.</li>
-				<li>issue 63: add access to the Connector in event API</li>
-				<li>issue 65: expose Connection so it can be extended</li>
-				<li>issue 70: right click on Connections</li>
-				<li>issue 72: toggle visibility of endpoints</li>
-				<li>issue 74: mootools drag error</li>
-				<li>issue 76: arrow overlays flip and disappear with vertical straight connectors</li>
-				<li>issue 80: support for setting an arrow overlay's direction</li>
-				<li>issue 81: detach event fired twice</li>
+				<li></li>
 			</ul>
-		</div>
-
-		<div class="section">
-			<a id="requirements"><h3>Imports</h3></a>
-			<h4>jQuery</h4>
-			<div class="code">
-			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.2.6-all-min.js "&gt;&lt;/script&gt;</pre>
-			</div>
-			
-			<h4>MooTools</h4>
-			<div class="code">
-			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.2.6-all-min.js "&gt;&lt;/script&gt;</pre>
-			</div>
-			
-			<h4>YUI3</h4>
-			<div class="code">
-			<pre>&lt;script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.2.6-all-min.js "&gt;&lt;/script&gt;</pre>
-			</div>			
 		</div>
 		
 		<div class="section">
-			<a id="init"><h3>Initializing jsPlumb</h3></a>
+			<a id="init"><h3>Basic Setup</h3></a>
+
+<h5><a id="imports">Required Imports</a></h5>	
+							<h4>jQuery</h4>
+			<ul>
+				<li class="bullet">jQuery 1.3.x or higher.</li>
+				<li class="bullet">jQuery UI 1.7.x or 1.8.x (if you wish to support drag and drop).</li>
+			</ul>
+			<div class="code">
+				<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.0-all-min.js "&gt;&lt;/script&gt;</pre>
+			</div>
+			<h4>MooTools</h4>
+				<ul>
+					<li class="bullet">MooTools Core 1.2.4 or higher. jsPlumb has been tested with 1.2.4 and 1.3.2.</li>
+					<li class="bullet">Drag.Move from MooTools More 1.2.4.4 or higher (if you wish to support drag and drop).</li>
+				</ul>
+			<div class="code">
+			<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.0-all-min.js "&gt;&lt;/script&gt;</pre>
+			</div>
+			<h4>YUI3</h4>
+			<ul>
+				<li class="bullet">YUI 3.3.x.  jsPlumb has been tested on 3.3.0 only; it is possible other 3.x.x versions will work.</li>
+			</ul>
+			<div class="code">
+			<pre>&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.0-all-min.js "&gt;&lt;/script&gt;</pre>
+			</div>
+			
+			<h5><a href="initializing">Initializing</a></h5>
 			You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  With YUI, though, the asynchronous
 			nature of the script loading process means that you are not guaranteed that jsPlumb is ready as soon as the DOM is.  To handle this,
 			you should bind to the "ready" event on jsPlumb (or the instance of jsPlumb you are working with):
@@ -116,17 +155,13 @@
 			</pre>
 			</div>
 			<p>
-			For jQuery and MooTools you should not actually need to do this; by the time the DOM ready event is fired in each of those libraries you can be sure 
+			For jQuery and MooTools you do not actually need to do this; by the time the DOM ready event is fired in each of those libraries you can be sure 
 			all the JS we need has been loaded.  But in terms of explicitly calling out that you are waiting for jsPlumb, it seems like a good practice to bind to the "ready" event.
 			</p>
 			<p>
 			If you bind to the "ready" event after jsPlumb has already been initialized, your callback will be executed immediately.
-			</p>
-			
-		</div>
-		
-		<div class="section">
-			<a id="unload"><h3>Unloading jsPlumb</h3></a>
+			</p>			
+			<h5><a id="unload">Unloading jsPlumb</a></h5>
 			jsPlumb offers a method you can call when your page is unloading.  You should do this to insure
 			against memory leaks.  You configure it like this:
 				<div class="code">
@@ -138,57 +173,161 @@
 &lt;/body&gt;
 </pre>
 				</div>
+<h5><a id="multipleInstances">Multiple jsPlumb instances</a></h5>
+			jsPlumb is registered on the browser's Window by default, providing one static instance
+			for the whole page to use.  Should you need to, though, you can instantiate independent
+			instances of jsPlumb, using the <strong>getInstance</strong> method, for example:
+<div class="code">
+<pre>
+var firstInstance = jsPlumb.getInstance();
+</pre>
+</div>
+The variable 'firstInstance' can now be treated exactly as you would treat the 'jsPlumb' variable - you can set
+defaults, call the connect method, whatever:
+<div class="code">
+<pre>
+firstInstance.Defaults.Connector = [ "Bezier", { curviness: 150 } ];
+firstInstance.Defaults.Anchors = [ "TopCenter", "BottomCenter" ];
+
+firstInstance.connect({source:"element1", target:"element2", scope:"someScope" });
+</pre>
+</div>
+
+<strong>getInstance</strong> optionally takes an object that provides the defaults:
+<div class="code">
+<pre>
+var secondInstance = jsPlumb.getInstance({
+	PaintStyle:{ lineWidth:6, strokeStyle:"#567567", outlineColor:"black", outlineWidth:1 },
+	Connector:[ "Bezier", { curviness: 30 } ],
+	Endpoint:[ "Dot", { radius:5 } ],
+	EndpointStyle : { fillStyle: "#567567"  },
+	Anchor : [ 0.5, 0.5, 1, 1 ]
+});
+
+secondInstance.connect({ source:"element4", target:"element3", scope:"someScope" });
+</pre>
+</div>  
+										
 		</div>
 		
 		<div class="section">
-			<a id="jsPlumbBasics"><h3>jsPlumb Basic Concepts</h3></a>
-
-			jsPlumb provides two ways of establishing connections between elements: programmatically, via Javascript, and interactively, with drag and drop. To support this, jsPlumb has these five core concepts:
+			<h3><a id="jsPlumbBasics">Basic Concepts</a></h3>
+	
+			jsPlumb is all about connecting things together, so the core abstraction in jsPlumb is the <strong>Connection</strong> object, which is itself
+			broken down into these four concepts:
 
 			<ul>
-				<li>Endpoint - the visual representation of one end of a Connection.  You can create and attach these to elements yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection programmatically using jsPlumb.connect(...).  You can also join two Endpoints programmatically, by passing them as arguments to jsPlumb.connect(...). This class, and Connection, discussed below, are the main objects you will interact with in jsPlumb.<br/><br/></li>
-				<li>Anchor - a location, relative to an element's origin, at which an Endpoint can exist. You do not create these yourself; you supply hints to the various jsPlumb functions, which create them as needed.  They have no visual representation; they are a logical position only. Anchors can be referenced by name, for the Anchors that jsPlumb ships with, or a four element array describing [ x, y, x orientation, y orientation ]. See the <a href="#anchors">anchors</a> section for more detail.<br/><br/></li>
-				<li>Connector - the visual representation of the line connecting two elements in the page.  jsPlumb has two types of these available as defaults - a Bezier curve, and a straight line. You do not interact with the Connector object.<br/><br/></li>
-				<li>Overlay - a UI component that is used to decorate a Connector, such as a label, arrow, etc.<br/><br/></li>
-				<li>Connection - an instance of Endpoints and a Connector with zero or more Overlays working together to join two elements. This, and Endpoint, discussed above, are the main objects you will interact with in jsPlumb.<br/><br/></li>
+				<li><strong>Endpoint</strong> - the visual representation of one end of a Connection.  You can create and attach these to elements 
+				yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection 
+				programmatically using jsPlumb.connect(...).  You can also join two Endpoints programmatically, by passing them as arguments to 
+				jsPlumb.connect(...).<br/><br/></li>
+				<li><strong>Anchor</strong> - a location, relative to an element's origin, at which an Endpoint can exist. You do not create these yourself; you supply hints to the various jsPlumb functions, which create them as needed.  They have no visual representation; they are a logical position only. Anchors can be referenced by name, for the Anchors that jsPlumb ships with, or a four element array describing [ x, y, x orientation, y orientation ]. See the <a href="#anchors">anchors</a> section for more detail.<br/><br/></li>
+				<li><strong>Connector</strong> - the visual representation of the line connecting two elements in the page.  jsPlumb has three types of these available as defaults - a Bezier curve, a straight line, and 'flowchart' connectors. You do not interact with the Connector object.<br/><br/></li>
+				<li><strong>Overlay</strong> - a UI component that is used to decorate a Connector, such as a label, arrow, etc.<br/><br/></li>
 			</ul>
+						
+			<p>One Connection is made up of two Endpoints, a Connector, and zero or more Overlays working together to join two elements.</p>
+			<p>jsPlumb's public API exposes only Connection and Endpoint, handling the creation and configuration of everything else internally.
+			But you still need to be across the concepts encapsulated by Anchor, Connector and Overlay.
+			</p> 					
 
-			<a id="simpleConnections"><h4>Programmatic API</h4></a>
-			This section discusses Connections made programmatically.  <br/><br/>
-The most simple connection you can make looks like this:
+
+			<h4><a id="simpleConnections">Basic Connections</a></h4>
+The most simple connection you can make with jsPlumb looks like this:
 			<div class="code">
 <pre>
-jsPlumb.connect({source:'element1', target:'element2'});
+jsPlumb.connect({source:"element1", target:"element2"});
 </pre>			
 			</div>
 
-		In this example we have created a Connection from 'element1' to 'element2'.  Everything has a default value in jsPlumb and does not necessarily need to be supplied, so in this example, behind the scenes jsPlumb used default values for all of these things:
+		In this example we have created a Connection from 'element1' to 'element2'.  Remember that a Connection in jsPlumb consists of two Endpoints,
+		a Connector, and zero or more Overlays.  But this call to 'connect' supplied none of those things, so jsPlumb uses the default values wherever it needs to.
+		In this case, default values have been used for the following: 
 		<ul>
-			<li>the Anchors that define where the connection's Endpoints appear on each element</li>
-			<li>the type and appearance of each Endpoint in the Connection</li>
-			<li>whether or not each Endpoint can be a source or target for new Connections</li>
-			<li>the type and appearance of the Connection's Connector</li>
+			<li>- The type and appearance of each Endpoint in the Connection. jsPlumb's default for this is the "Dot" endpoint, of radius 10, with fill color "#456".</li>
+			<li>- The Anchors that define where the connection's Endpoints appear on each element. The jsPlumb default is "BottomCenter"</li>			
+			<li>- Whether or not each Endpoint can be a source or target for new Connections. The default is false.</li>
+			<li>- The type and appearance of the Connection's Connector. The default is a "Bezier" connector of line width 8, and color "#456".</li>
 		</ul>
-		Default values are discussed in detail in the <a href="#defaults">Defaults</a> section below.<br/><br/>
-		The <a href="#examples">Basic Examples</a> section below contains many more examples of how to create simple Connections.
+		<p>
+		So this call will result in an 8px Bezier, colored "#456", from the bottom center of 'element1' to the bottom center of 'element2', and each
+		Endpoint will be a 10px radius Dot Endpoint, colored "#456".
+		</p>
+		<p>
+		Let's beef up this call a little and tell jsPlumb what sort of Endpoints we want, and where we want them:		
+		</p>
+		<div class="code">
+<pre>
+jsPlumb.connect({
+	source:"element1", 
+	target:"element2",
+	anchors:["RightMiddle", "LeftMiddle" ],
+	endpoint:"Rectangle",
+	endpointStyle:{ fillStyle: "yellow" }
+});
+</pre>			
+			</div>
+			
+		<p>This is what we have told jsPlumb we want this time:</p>
+		<ul>
+			<li><strong>anchors</strong> - this array tells jsPlumb where the source and target Endpoints should be located on their parent elements. In this case,
+			we use the shorthand syntax to name one of jsPlumb's default anchors; you can also specify custom locations (see <a href="#anchors">anchors</a>).
+			Instead of <strong>anchors</strong> you can use <strong>anchor</strong>, if you want the source and target Endpoints to be located at the
+			same place on their parent elements.			<br/>
+			</li>
+			<li>
+				<strong>endpoint</strong>  - this tells jsPlumb to use the "Rectangle" Endpoint for both the source and target of the Connection.  As with anchors, 
+				<strong>endpoint</strong> has a plural version that allows you to specify a different Endpoint for each end of the Connection.<br/>  
+			</li>
+			<li>
+				<strong>endpointStyle</strong> - this is the definition of the appearance of the Endpoint you specified above.  Again, there is a
+				plural equivalent of this that allows you to specify a different style for each end of the Connection. For more information about
+				allowed values for this value, see <a href="#endpointStyles">Endpoint Styles</a>. 
+			</li>
+		</ul>		
 		
-		<a id="draggableConnections"><h4>Draggable Connections</h4></a>
+		<h5>Reusing common settings between jsPlumb.connect calls</h5>
+		<p>
+			A fairly common situation you will find yourself in is wanting to create a bunch of Connections that have only minor differences
+			between them.  To support that, <strong>jsPlumb.connect</strong> takes an optional second argument. For example:			 
+		</p>
+		<div class="code">
+<pre>
+var common = {
+	anchors:[ "BottomCenter", "TopCenter" ],
+	endpoints:["Dot", "Blank" ]
+};
+
+jsPlumb.connect({ source:"someElement", target:"someOtherElement" }, common);
+
+jsPlumb.connect({ source:"aThirdElement", target:"yetAnotherElement" }, common);
+
+</pre>			
+			</div>
+			
+		<h4>jsPlumb.connect options</h4>
+		<ul>
+			<li></li>
+		
+		</ul>			
+		
+		<h4><a id="draggableConnections">Connections using Drag and Drop</a></h4>
 		To support draggable Connections, you are required to first create Endpoints, as it is Endpoints
 		that the user drags to create new Connections.  Endpoints are created by making an <strong>addEndpoint</strong> call,
 		passing in the target element's id and an options object. There are quite a few things that can be set on the options object; all
 		of these parameters are optional.
 		<ul>
-			<li>endpoint - the type of Endpoint, eg. Dot, Rectangle, Image.</li>
-			<li>anchor - the Endpoint's Anchor, ie. where it will be located. this may be a string - "TopCenter", for example, or an array of coordinates - [ 0.5, 0, 0, -1 ], or
+			<li><strong>endpoint</strong> - the type of Endpoint, eg. Dot, Rectangle, Image, Blank.</li>
+			<li><strong>anchor</strong> - the Endpoint's Anchor, ie. where it will be located. this may be a string - "TopCenter", for example, or an array of coordinates - [ 0.5, 0, 0, -1 ], or
 			an array of individual anchor specifications, in which case jsPlumb will make a 'dynamic' anchor for the Endpoint.</li>
-			<li>paintStyle - the Endpoint's appearance</li>			
-			<li>isSource - a boolean indicating whether or not the Endpoint can be a source for new Connections. Default is false.</li>
-			<li>isTarget - a boolean indicating whether or not the Endpoint can be a target for new Connections. Default is false.</li>
-			<li>connector - Optional. The type of Connector to use when dragging a new connection from this Endpoint. see <a href="#connectors">Connectors</a></li>
-			<li>connectorStyle - the Connector's appearance (see above).</li>
-			<li>dragOptions - options to pass to the supporting library's drag engine.</li>
-			<li>dropOptions - options to pass to the supporting library's drop engine.</li>
-			<li>connectorOverlays - a list of overlays that should be present on all Connections attached to this Endpoint.</li>			
+			<li><strong>paintStyle</strong> - the Endpoint's appearance</li>			
+			<li><strong>isSource</strong> - a boolean indicating whether or not the Endpoint can be a source for new Connections. Default is false.</li>
+			<li><strong>isTarget</strong> - a boolean indicating whether or not the Endpoint can be a target for new Connections. Default is false.</li>
+			<li><strong>connector</strong> - Optional. The type of Connector to use when dragging a new connection from this Endpoint. see <a href="#connectors">Connectors</a></li>
+			<li><strong>connectorStyle</strong> - the Connector's appearance (see above).</li>
+			<li><strong>dragOptions</strong> - options to pass to the supporting library's drag engine.</li>
+			<li><strong>dropOptions</strong> - options to pass to the supporting library's drop engine.</li>
+			<li><strong>connectorOverlays</strong> - a list of overlays that should be present on all Connections attached to this Endpoint.</li>			
 		</ul>  
 		
 		Here's a simple example of how to create an Endpoint:
@@ -345,48 +484,6 @@ var exampleGreyEndpointOptions = {
 			
 	</div>
 
-		<div class="section">
-			<a id="multipleInstances"><h3>Multiple jsPlumb instances</h3></a>
-			jsPlumb is registered on the browser's Window by default, providing one static instance
-			for the whole page to use.  Should you need to, though, you can instantiate independent
-			instances of jsPlumb, using the <strong>getInstance</strong> method, for example:
-<div class="code">
-<pre>
-var firstInstance = jsPlumb.getInstance();
-</pre>
-</div>
-The variable 'firstInstance' can now be treated exactly as you would treat the 'jsPlumb' variable - you can set
-defaults, call the connect method, whatever:
-<div class="code">
-<pre>
-firstInstance.Defaults.Connector = [ "Bezier", 150 ];
-firstInstance.Defaults.Container = "container1";
-firstInstance.Defaults.Anchors = [ "TopCenter", "BottomCenter" ];
-
-firstInstance.connect({source:'element1', target:'element2', scope:'someScope'});
-</pre>
-</div>
-
-<strong>getInstance</strong> optionally takes an object that provides the defaults:
-<div class="code">
-<pre>
-var secondInstance = jsPlumb.getInstance({
-	PaintStyle:{lineWidth:3, strokeStyle:color3},
-	Connector:[ "Bezier", 30 ],
-	Endpoint:[ "Dot", {radius:5} ],
-	EndpointStyle : { fillStyle: color3  },
-	Anchor : [ 0.5, 0.5, 1, 1 ],
-	Container:"container2"
-});
-
-secondInstance.connect({source:'element4', target:'element3', scope:'someScope'});
-</pre>
-</div>
-Notice the <strong>container</strong> directives that are set on the defaults.  This tells jsPlumb
-to draw everything inside the container with the given id, giving you cleaner separation between
-instances.  While not actually required in order to make multiple instances work together, you might
-find it easier.  Using this concept you can, for example, drag an entire drawing area around as one.  
-		</div>
 
 		<div class="section">
 			<a id="repaint"><h3>Automatic Repaint</h3></a>
