@@ -119,15 +119,13 @@
 		_atts(node, styleToWrite);
 	},
 	/*
-	 * Class: VmlComponent
-	 * base class for Vml endpoints and connectors. 
+	 * Base class for Vml endpoints and connectors. Extends jsPlumbUIComponent. 
 	 */
 	VmlComponent = function() {				
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);		
 	},	
 	/*
-	 * Class: VmlConnector
-	 * base class for Vml connectors. extends VmlComponent.
+	 * Base class for Vml connectors. extends VmlComponent.
 	 */
 	VmlConnector = function(params) {
 		var self = this;
@@ -191,7 +189,7 @@
 		};
 	},		
 	/*
-	 * Class: VmlEndpoint
+	 * 
 	 * Base class for Vml Endpoints. extends VmlComponent.
 	 * 
 	 */

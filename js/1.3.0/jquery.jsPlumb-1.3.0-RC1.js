@@ -1,4 +1,6 @@
 /*
+ * jsPlumb
+ * 
  * jquery.jsPlumb 1.3.0-RC1
  * 
  * jQuery specific functionality for jsPlumb.

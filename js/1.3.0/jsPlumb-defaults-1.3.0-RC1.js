@@ -8,28 +8,10 @@
 
 (function() {	
 
-	var _curryAnchor = function(x,y,ox,oy) {
-		return function() {
-			return jsPlumb.makeAnchor(x,y,ox,oy);
-		};
-	};
-	jsPlumb.Anchors["TopCenter"] 		= _curryAnchor(0.5, 0, 0,-1);
-	jsPlumb.Anchors["BottomCenter"] 	= _curryAnchor(0.5, 1, 0, 1);
-	jsPlumb.Anchors["LeftMiddle"] 		= _curryAnchor(0, 0.5, -1, 0);
-	jsPlumb.Anchors["RightMiddle"] 		= _curryAnchor(1, 0.5, 1, 0);
-	jsPlumb.Anchors["Center"] 			= _curryAnchor(0.5, 0.5, 0, 0);
-	jsPlumb.Anchors["TopRight"] 		= _curryAnchor(1, 0, 0,-1);
-	jsPlumb.Anchors["BottomRight"] 		= _curryAnchor(1, 1, 0, 1);
-	jsPlumb.Anchors["TopLeft"] 			= _curryAnchor(0, 0, 0, -1);
-	jsPlumb.Anchors["BottomLeft"] 		= _curryAnchor(0, 1, 0, 1);
-		
-	jsPlumb.Defaults.DynamicAnchors = function() {
-		return jsPlumb.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"]);
-	};
-	jsPlumb.Anchors["AutoDefault"]  = function() { return jsPlumb.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors()); };		
+			
 	
 	/**
-	 * Class: jsPlumb.DOMElementComponent
+	 * 
 	 * Helper class to consume unused mouse events by components that are DOM elements and
 	 * are used by all of the different rendering modes.
 	 * 
@@ -45,9 +27,10 @@
 		this.mouseup = function(e) { };					
 	};
 	                                   
-        /**
-         * The Straight connector draws a simple straight line between the two anchor points.
-         */
+    /**
+     * Class: Connectors.Straight
+     * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
+     */
     jsPlumb.Connectors.Straight = function() {
 	 
 		var self = this;
@@ -154,20 +137,20 @@
         };                               
     };
                 
+    
     /**
-     * This Connector draws a Bezier curve with two control points.
+     * Class:Connectors.Bezier
+     * This Connector draws a Bezier curve with two control points.  You can provide a 'curviness' value which gets applied to jsPlumb's
+     * internal voodoo machine and ends up generating locations for the two control points.  See the constructor documentation below.
+     */
+    /**
+     * Function:Constructor
      * 
-     * @param curviness How 'curvy' you want the curve to be! This is a directive for the
-     * placement of control points, not endpoints of the curve, so your curve does not 
-     * actually touch the given point, but it has the tendency to lean towards it.  the larger
-     * this value, the greater the curve is pulled from a straight line.
+     * Parameters:
+     * 	curviness - How 'curvy' you want the curve to be! This is a directive for the placement of control points, not endpoints of the curve, so your curve does not 
+     * actually touch the given point, but it has the tendency to lean towards it.  The larger this value, the greater the curve is pulled from a straight line.
+     * Optional; defaults to 150.
      * 
-     * note that the method signature changed in 1.2.6 to take a params object, so the method
-     * argument was renamed.  you can still provide just an integer to this constructor, though the
-     * preferred method is to use {curviness:XXX}.
-     * 
-     * a future implementation of this could take the control points as arguments, rather
-     * than fixing the curve to one basic shape.
      */
     jsPlumb.Connectors.Bezier = function(params) {
     	var self = this;
@@ -298,10 +281,21 @@
                
     };        
     
+    
+    /**
+     * Class: Connectors.Flowchart
+     * Provides 'flowchart' connectors, consisting of vertical and horizontal line segments.
+     */
+    /**
+     * Function: Constructor
+     * 
+     * Parameters:
+     * 	stub - minimum length for the stub at each end of the connector. defaults to 30 pixels. 
+     */
     jsPlumb.Connectors.Flowchart = function(params) {
     	params = params || {};
 		var self = this, 
-		minStubLength = params.minStubLength || 30, 
+		minStubLength = params.stub || params.minStubLength /* bwds compat. */ || 30, 
 		segments = [], 
 		segmentGradients = [], 
 		segmentProportions = [], 
@@ -506,13 +500,16 @@
  // ********************************* ENDPOINT TYPES *******************************************************************
     
     /**
-     * Types of endpoint UIs.  we supply four - a circle of default radius 10px, a rectangle of
-     * default size 20x20, an image (with no default), and a Triangle, of default size 15.  
-     * you can supply others of these if you want to - see the documentation for a howto.
+     * Class: Endpoints.Dot
+     * A round endpoint, with default radius 10 pixels.
      */    	
     	
 	/**
-	 * a round endpoint, with default radius 10 pixels.
+	 * Function: Constructor
+	 * 
+	 * Parameters:
+	 * 
+	 * 	radius	-	radius of the endpoint.  defaults to 10 pixels.
 	 */
 	jsPlumb.Endpoints.Dot = function(params) {	
 		var self = this;
@@ -530,7 +527,16 @@
 	};
 	
 	/**
-	 * A Rectangular endpoint, with default size 20x20.
+	 * Class: Endpoints.Rectangle
+	 * A Rectangular Endpoint, with default size 20x20.
+	 */
+	/**
+	 * Function: Constructor
+	 * 
+	 * Parameters:
+	 * 
+	 * 	width	- width of the endpoint. defaults to 20 pixels.
+	 * 	height	- height of the endpoint. defaults to 20 pixels.	
 	 */
 	jsPlumb.Endpoints.Rectangle = function(params) {
 		var self = this;
@@ -548,8 +554,15 @@
 	};
 	
 	/**
-	 * Image endpoint - draws an image as the endpoint.  You must provide a 'url' or, since 1.2.4, a 'src' property in the params object..
+	 * Class: Endpoints.Image
+	 * Draws an image as the Endpoint.
+	 */
+	/**
+	 * Function: Constructor
 	 * 
+	 * Parameters:
+	 * 
+	 * 	src	-	location of the image to use.
 	 */
 	jsPlumb.Endpoints.Image = function(params) {
 				
@@ -582,14 +595,11 @@
 				self.canvas.setAttribute("src", self.img.src);
 				initialized = true;
 			}
-			var width = self.img.width;
-			var height = self.img.height;
-			var x = self.anchorPoint[0] - (width/2);
-			var y = self.anchorPoint[1] - (height/2);
+			var width = self.img.width,
+			height = self.img.height,
+			x = self.anchorPoint[0] - (width/2),
+			y = self.anchorPoint[1] - (height/2);
 			jsPlumb.sizeCanvas(self.canvas, x, y, width, height);
-			//jsPlumb.sizeCanvas(self.canvas, x, y, width, height);
-			//var ctx = self.canvas.getContext('2d');
-			//ctx.drawImage(self.img,0,0);
 		};
 		
 		this.paint = function(d, style, anchor) {
@@ -604,6 +614,10 @@
 		};				
 	};
 	
+	/**
+	 * Class: Endpoints.Blank
+	 * An Endpoint that paints nothing on the screen, and cannot be interacted with using the mouse.  There are no constructor parameters for this Endpoint.
+	 */
 	jsPlumb.Endpoints.Blank = function() {		
 		jsPlumb.DOMElementComponent.apply(this, arguments);		
 		this.compute = function() {
@@ -614,8 +628,22 @@
 		this.paint = function() { };				
 	};
 	
+	/**
+	 * Class: Endpoints.Triangle
+	 * A triangular Endpoint.  
+	 */
+	/**
+	 * Function: Constructor
+	 * 
+	 * Parameters:
+	 * 
+	 * 	width	-	width of the triangle's base.  defaults to 55 pixels.
+	 * 	height	-	height of the triangle from base to apex.  defaults to 55 pixels.
+	 */
 	jsPlumb.Endpoints.Triangle = function(params) {
-		params = params || { width:55, height:55 };
+		params = params || {  };
+		params.width = params.width || 55;
+		param.height = params.height || 55;
 		this.width = params.width;
 		this.height = params.height;
 		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
@@ -632,16 +660,26 @@
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
 	
 	/**
-	 * An arrow overlay.  you can provide:
+	 * Class: Overlays.Arrow
 	 * 
-	 * length - distance in pixels from head to tail baseline. default 20.
-	 * width - width in pixels of the tail baseline. default 20.
-	 * fillStyle - style to use when filling the arrow.  defaults to "black".
-	 * strokeStyle - style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
-	 * lineWidth - line width to use when stroking the arrow. defaults to 1, but only used if strokeStyle is not null.
-	 * foldback - distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
-	 * location - distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
-	 * direction - indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
+	 * An arrow overlay, defined by four points: the head, the two sides of the tail, and a 'foldback' point at some distance along the length
+	 * of the arrow that lines from each tail point converge into.  The foldback point is defined using a decimal that indicates some fraction
+	 * of the length of the arrow and has a default value of 0.623.  A foldback point value of 1 would mean that the arrow had a straight line
+	 * across the tail.  
+	 */
+	/**
+	 * Function: Constructor
+	 * 
+	 * Parameters:
+	 * 
+	 * 	length - distance in pixels from head to tail baseline. default 20.
+	 * 	width - width in pixels of the tail baseline. default 20.
+	 * 	fillStyle - style to use when filling the arrow.  defaults to "black".
+	 * 	strokeStyle - style to use when stroking the arrow. defaults to null, which means the arrow is not stroked.
+	 * 	lineWidth - line width to use when stroking the arrow. defaults to 1, but only used if strokeStyle is not null.
+	 * 	foldback - distance (as a decimal from 0 to 1 inclusive) along the length of the arrow marking the point the tail points should fold back to.  defaults to 0.623.
+	 * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the arrow should sit on the connector. defaults to 0.5.
+	 * 	direction - indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
 	 */
 	jsPlumb.Overlays.Arrow = function(params) {
 		params = params || {};
@@ -721,10 +759,16 @@
     };          
     
     /**
-	 * a basic arrow.  this is in fact just one instance of the more generic case in which the tail folds back on itself to some
+     * Class: Overlays.PlainArrow
+	 * 
+	 * A basic arrow.  This is in fact just one instance of the more generic case in which the tail folds back on itself to some
 	 * point along the length of the arrow: in this case, that foldback point is the full length of the arrow.  so it just does
-	 * a 'call' to Arrow with foldback set appropriately.  See Arrow for params.     
+	 * a 'call' to Arrow with foldback set appropriately.       
 	 */
+    /**
+     * Function: Constructor
+     * See <Overlays.Arrow> for allowed parameters for this overlay.
+     */
     jsPlumb.Overlays.PlainArrow = function(params) {
     	params = params || {};
     	var p = jsPlumb.extend(params, {foldback:1});
@@ -732,14 +776,20 @@
     };
         
     /**
-	 * a diamond.  like PlainArrow, this is a concrete case of the more generic case of the tail points converging on some point...it just
-	 * happens that in this case, that point is greater than the length of the the arrow.  See Arrow for params.  
+     * Class: Overlays.Diamond
+     * 
+	 * A diamond. Like PlainArrow, this is a concrete case of the more generic case of the tail points converging on some point...it just
+	 * happens that in this case, that point is greater than the length of the the arrow.    
 	 * 
 	 *      this could probably do with some help with positioning...due to the way it reuses the Arrow paint code, what Arrow thinks is the
 	 *      center is actually 1/4 of the way along for this guy.  but we don't have any knowledge of pixels at this point, so we're kind of
 	 *      stuck when it comes to helping out the Arrow class. possibly we could pass in a 'transpose' parameter or something. the value
 	 *      would be -l/4 in this case - move along one quarter of the total length.
 	 */
+    /**
+     * Function: Constructor
+     * See <Overlays.Arrow> for allowed parameters for this overlay.
+     */
     jsPlumb.Overlays.Diamond = function(params) {
     	params = params || {};
     	var l = params.length || 40;    	
@@ -750,15 +800,25 @@
     
     
     /**
-     * A Label overlay.  Params you can provide:
+     * Class: Overlays.Label
+     * A Label overlay. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  Version 1.3.0 of jsPlumb
+     * introduced the ability to set css classes on the label; this is now the preferred way for you to style a label.  The 'labelStyle' parameter
+     * is still supported in 1.3.0 but its usage is deprecated.  Under the hood, jsPlumb just turns that object into a bunch of CSS directive that it 
+     * puts on the Label's 'style' attribute, so the end result is the same. 
+     */
+    /**
+     * Function: Constructor
      * 
-     * labelStyle - js object containing style instructions for the label. defaults to jsPlumb.Defaults.LabelStyle.
-     * label - the label to paint.  may be a string or a function that returns a string.  nothing will be painted if your label is null or your
+     * Parameters:
+     * 	cssClass - optional css class string to append to css class. This string is appended "as-is", so you can of course have multiple classes
+     *             defined.  This parameter is preferred to using labelStyle, borderWidth and borderStyle.
+     * 	label - the label to paint.  May be a string or a function that returns a string.  Nothing will be painted if your label is null or your
      *         label function returns null.  empty strings _will_ be painted.
-     * location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
-     * borderWidth - width of a border to paint.  defaults to zero.
-     * borderStyle - strokeStyle to use when painting the border, if necessary.
-     * cssClass - optional css class string to append to css class.
+     * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
+     *	labelStyle - (deprecated) js object containing style instructions for the label. defaults to jsPlumb.Defaults.LabelStyle. 
+     * 	borderWidth - (deprecated) width of a border to paint.  defaults to zero.
+     * 	borderStyle - (deprecated) strokeStyle to use when painting the border, if necessary.
+     * 	
      */
     jsPlumb.Overlays.Label = function(params) {
     	jsPlumb.DOMElementComponent.apply(this, arguments);

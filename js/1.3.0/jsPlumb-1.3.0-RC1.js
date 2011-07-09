@@ -1,5 +1,7 @@
 /*
- * Class:jsPlumb
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.3.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -15,6 +17,12 @@
  */
 
 ;(function() {
+	
+	/**
+	 * Class:jsPlumb
+	 * The jsPlumb engine, registered as a static object in the window.  This object contains all of the methods you will use to
+	 * create and maintain Connections and Endpoints.
+	 */
 	
 	var ie = !!!document.createElement('canvas').getContext;
 	
@@ -78,16 +86,16 @@
 		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
 		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
 		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };
-		
-		/**
-		 * Class: EventGenerator
-		 * Superclass for objects that generate events - jsPlumb extends this, as do the Endpoint and Connection classes.
-		 */
 		var _log = function(jsp, msg) {
 			if (jsp.logEnabled && typeof console != "undefined")
 				console.log(msg);
-		};			
-	
+		};	
+		
+		
+		/**
+		 * EventGenerator
+		 * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
+		 */
 		var EventGenerator = function() {
 			var _listeners = {}, self = this;
 			
@@ -99,8 +107,7 @@
 			var eventsToDieOn = [ "ready" ];
 								    
 			/*
-			 * Function: bind
-			 * Binds a listener to an event.
+			 * Binds a listener to an event.  
 			 * 
 			 * Parameters:
 			 * 	event		-	name of the event to bind to.
@@ -110,7 +117,6 @@
 				_addToList(_listeners, event, listener);				
 			};
 			/*
-			 * Function: fire
 			 * Fires an update for the given event.
 			 * 
 			 * Parameters:
@@ -137,7 +143,6 @@
 				}
 			};
 			/*
-			 * Function: clearListeners
 			 * Clears either all listeners, or listeners for some specific event.
 			 * 
 			 * Parameters:
@@ -150,7 +155,8 @@
 					delete _listeners;
 					_listeners = {};
 				}
-			};					    
+			};
+			
 		};		
 		
 		/*
@@ -192,7 +198,6 @@
 			};
 			
 			/*
-		     * Function: setPaintStyle
 		     * Sets the paint style and then repaints the element.
 		     * 
 		     * Parameters:
@@ -206,7 +211,6 @@
 		    };
 		    
 		    /*
-		     * Function: setHoverPaintStyle
 		     * Sets the paint style to use when the mouse is hovering over the element. This is null by default.
 		     * The hover paint style is applied as extensions to the paintStyle; it does not entirely replace
 		     * it.  This is because people will most likely want to change just one thing when hovering, say the
@@ -223,7 +227,6 @@
 		    };
 		    
 		    /*
-		     * Function: setHover
 		     * sets/unsets the hover state of this element.
 		     * 
 		     * Parameters:
@@ -268,32 +271,47 @@
 		    		}
 		    	}
 		    };
-		};
-		
-						
-		
-		/*
-		 * Class: SVGMouseAdapter
-		 * handles mouse events when we're using the jsPlumb.SVG render mode.
-		 *
-		var SVGMouseAdapter = function() {
-			jsPlumbUIComponent.apply(this);
-		};*/
+		};		
 		
 		var jsPlumbInstance = function(_defaults) {
 		
 		/*
 		 * Property: Defaults 
 		 * 
-		 * These are the default settings for jsPlumb.  They are what will be used if you do not supply specific pieces of information to the various API calls. A convenient way to implement your own look and feel can be to override these defaults by including a script somewhere after the jsPlumb include, but before you make any calls to jsPlumb, for instance in this example we set the PaintStyle to be a blue line of 27 pixels: > jsPlumb.Defaults.PaintStyle = { lineWidth:27, strokeStyle:'blue' }
+		 * These are the default settings for jsPlumb.  They are what will be used if you do not supply specific pieces of information 
+		 * to the various API calls. A convenient way to implement your own look and feel can be to override these defaults 
+		 * by including a script somewhere after the jsPlumb include, but before you make any calls to jsPlumb.
+		 * 
+		 * Properties:
+		 * 	-	*Anchor*				The default anchor to use for all connections (both source and target). Default is "BottomCenter".
+		 * 	-	*Anchors*				The default anchors to use ([source, target]) for all connections. Defaults are ["BottomCenter", "BottomCenter"].
+		 * 	-	*Connector*			The default connector definition to use for all connections.  Default is "Bezier".
+		 * 	-	*DragOptions*			The default drag options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
+		 * 	-	*DropOptions*			The default drop options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
+		 * 	-	*Endpoint*			The default endpoint definition to use for all connections (both source and target).  Default is "Dot".
+		 * 	-	*Endpoints*			The default endpoint definitions ([ source, target ]) to use for all connections.  Defaults are ["Dot", "Dot"].
+		 * 	-	*EndpointStyle*		The default style definition to use for all endpoints. Default is empty.
+		 * 	-	*EndpointStyles*		The default style definitions ([ source, target ]) to use for all endpoints.  Defaults are empty.
+		 * 	-	*EndpointHoverStyle*	The default hover style definition to use for all endpoints. Default is null.
+		 * 	-	*EndpointHoverStyles*	The default hover style definitions ([ source, target ]) to use for all endpoints. Defaults are null.
+		 * 	-	*HoverPaintStyle*		The default hover style definition to use for all connections. Defaults are null.
+		 * 	-	*LabelStyle*			The default style to use for label overlays on connections.
+		 * 	-	*LogEnabled*			Whether or not the jsPlumb log is enabled. defaults to false.
+		 * 	-	*Overlays*			The default overlay definitions. Defaults to an empty list.
+		 * 	-	*MaxConnections*		The default maximum number of connections for an Endpoint.  Defaults to 1.
+		 * 	-	*MouseEventsEnabled*	Whether or not mouse events are enabled when using the canvas renderer.  Defaults to true.  
+		 * 							The idea of this is just to give people a way to prevent all the mouse listeners from activating if they know they won't need mouse events.
+		 * 	-	*PaintStyle*			The default paint style for a connection. Default is line width of 8 pixels, with color "#456".
+		 * 	-	*RenderMode*			What mode to use to paint with.  If you're on IE<9, you don't really get to choose this.  You'll just get VML.  Otherwise, the jsPlumb default is to use Canvas elements.
+		 * 	-	*Scope*				The default "scope" to use for connections. Scope lets you assign connections to different categories. 
 		 */
 		this.Defaults = {
-			Anchor : null,
+			Anchor : "BottomCenter",
 			Anchors : [ null, null ],
-			Connector : null,
+			Connector : "Bezier",
 			DragOptions : { },
 			DropOptions : { },
-			Endpoint : null,
+			Endpoint : "Dot",
 			Endpoints : [ null, null ],
 			EndpointStyle : { fillStyle : null },
 			EndpointStyles : [ null, null ],
@@ -301,10 +319,10 @@
 			EndpointHoverStyles : [ null, null ],
 			HoverPaintStyle : null,
 			LabelStyle : { color : "black" },
-			LogEnabled : true,
+			LogEnabled : false,
 			Overlays : [ ],
-			MaxConnections : null,
-			MouseEventsEnabled : false, 
+			MaxConnections : 1,
+			MouseEventsEnabled : true, 
 			PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
 			RenderMode : "canvas",
 			Scope : "_jsPlumb_DefaultScope"
@@ -552,18 +570,8 @@
 		 * helper to remove an element from the DOM.
 		 */
 		_removeElement = function(element, parent) {
-			if (element != null) {
-				/*if (!parent) {
-					try {
-						document.body.removeChild(element);
-					} catch (e) {
-					}
-				} else {
-					//jsPlumb.CurrentLibrary.removeElement(element, parent);
-					parent.removeChild(element);
-				}*/
-				if (element.parentNode != null)
-					element.parentNode.removeChild(element);
+			if (element != null && element.parentNode != null) {
+				element.parentNode.removeChild(element);
 			}
 		},
 		/**
@@ -698,7 +706,7 @@
 			return id;
 		},
 
-/**
+		/**
 		 * wraps one function with another, creating a placeholder for the
 		 * wrapped function if it was null. this is used to wrap the various
 		 * drag/drop event functions - to allow jsPlumb to be notified of
@@ -735,13 +743,13 @@
 
 		/*
 		 * Property: connectorClass 
-		 *   The CSS class to set on Connection canvas elements. This value is a String and can have multiple classes; the entire String is appended as-is.
+		 *   The CSS class to set on Connection elements. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.connectorClass = "_jsPlumb_connector";
 
 		/*
 		 * Property: endpointClass 
-		 *   The CSS class to set on Endpoint canvas elements. This value is a String and can have multiple classes; the entire String is appended as-is.
+		 *   The CSS class to set on Endpoint elements. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.endpointClass = "_jsPlumb_endpoint";
 
@@ -750,63 +758,69 @@
 		 * The CSS class to set on an Overlay that is an HTML element. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.overlayClass = "_jsPlumb_overlay";
-
-		/*
-		 * Property: Anchors 
-		 *   Default jsPlumb Anchors. These are supplied in the file jsPlumb-defaults-x.x.x.js, which is merged in with the main jsPlumb script to form <library>.jsPlumb-all-x.x.x.js. You can
-		 * provide your own Anchors by supplying them in a script that is loaded after jsPlumb, for instance: > jsPlumb.Anchors.MyAnchor = { ....anchor code here. see the documentation. }
-		 */
+		
 		this.Anchors = {};
-
-		/*
-		 * Property: Connectors 
-		 *   Default jsPlumb Connectors. 
-		 */
+		
 		this.Connectors = { 
-				"canvas":{},
-				"svg":{},
-				"vml":{}
+			"canvas":{},
+			"svg":{},
+			"vml":{}
 		};
 
-		/*
-		 * Property: Endpoints 
-		 *   Default jsPlumb Endpoints. 
-		 */
 		this.Endpoints = {
-				"canvas":{},
-				"svg":{},
-				"vml":{}
+			"canvas":{},
+			"svg":{},
+			"vml":{}
 		};
 
-		/*
-		 * Property:Overlays 
-		 *   Default jsPlumb Overlays such as Arrows and Labels.
-		 * These are supplied in the file jsPlumb-defaults-x.x.x.js, which is
-		 * merged in with the main jsPlumb script to form
-		 * <library>.jsPlumb-all-x.x.x.js. You can provide your own Overlays by
-		 * supplying them in a script that is loaded after jsPlumb, for
-		 * instance: > jsPlumb.Overlays.MyOverlay = { ....overlay code here. see
-		 * the documentation. }
-		 */
 		this.Overlays = {
-				"canvas":{},
-				"svg":{},
-				"vml":{}
+			"canvas":{},
+			"svg":{},
+			"vml":{}
 		};
+		
+// ************************ PLACEHOLDER DOC ENTRIES FOR NATURAL DOCS *****************************************
+		/*
+		 * Function: bind
+		 * Bind to an event on jsPlumb.  
+		 * 
+		 * Parameters:
+		 * 	event - the event to bind.  Available events on jsPlumb are:
+		 *         - *jsPlumbConnection* 			: 	notification that a new Connection was established.  jsPlumb passes the new Connection to the callback.
+		 *         - *jsPlumbConnectionDetached* 	: 	notification that a Connection was detached.  jsPlumb passes the detached Connection to the callback.
+		 *         - *click*						:	notification that a Connection was clicked.  jsPlumb passes the Connection that was clicked to the callback.
+		 *         - *dblclick*						:	notification that a Connection was double clicked.  jsPlumb passes the Connection that was double clicked to the callback.
+		 *         - *endpointClick*				:	notification that an Endpoint was clicked.  jsPlumb passes the Endpoint that was clicked to the callback.
+		 *         - *endpointDblClick*				:	notification that an Endpoint was double clicked.  jsPlumb passes the Endpoint that was double clicked to the callback.
+		 *         
+		 *  callback - function to callback. This function will be passed the Connection/Endpoint that caused the event, and also the original event.    
+		 */
+		
+		/*
+		 * Function: clearListeners
+		 * Clears either all listeners, or listeners for some specific event.
+		 * 
+		 * Parameters:
+		 * 	event	-	optional. constrains the clear to just listeners for this event.
+		 */				
+		
+// *************** END OF PLACEHOLDER DOC ENTRIES FOR NATURAL DOCS ***********************************************************		
 		
 		/*
 		  Function: addEndpoint 
 		  	
-		  Adds an Endpoint to a given element.
+		  Adds an <Endpoint> to a given element or elements.
 		  			  
 		  Parameters:
 		   
-		  	el - Element to add the endpoint to. either an element id, or a selector representing some element(s), or an array of either of these. 
-		  	params - Object containing Endpoint options.  For more information, see the docs for Endpoint's constructor.
-		  	referenceParams - Object containing more Endpoint options; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.
+		  	el - Element to add the endpoint to. Either an element id, a selector representing some element(s), or an array of either of these. 
+		  	params - Object containing Endpoint options.  For more information, see <Endpoint>.
+		  	referenceParams - Object containing more Endpoint options; it will be merged with params by jsPlumb.  You would use this if you had some 
+		  					  shared parameters that you wanted to reuse when you added Endpoints to a number of elements. The allowed values in
+		  					  this object are anything that 'params' can contain.  See <Endpoint>.
 		  	 
 		  Returns: 
-		  	The newly created Endpoint. 
+		  	The newly created <Endpoint>, if el referred to a single element.  Otherwise, an array of newly created <Endpoint>s. 
 		  	
 		  See Also: 
 		  	<addEndpoints>
@@ -840,32 +854,32 @@
 		
 		/*
 		  Function: addEndpoints 
-		  Adds a list of Endpoints to a given element.
+		  Adds a list of <Endpoint>s to a given element or elements.
 		  
 		  Parameters: 
-		  	target - element to add the endpoint to. either an element id, or a selector representing some element(s), or an array of either of these. 
-		  	endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list. 
+		  	target - element to add the Endpoint to. Either an element id, a selector representing some element(s), or an array of either of these. 
+		  	endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list.  See <Endpoint>'s constructor documentation. 
 			referenceParams - Object containing more Endpoint options; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.		  	 
 
 		  Returns: 
-		  	List of newly created Endpoints, one for each entry in the 'endpoints' argument. 
+		  	List of newly created <Endpoint>s, one for each entry in the 'endpoints' argument. 
 		  	
 		  See Also:
 		  	<addEndpoint>
 		 */
-		this.addEndpoints = function(target, endpoints, referenceParams) {
+		this.addEndpoints = function(el, endpoints, referenceParams) {
 			var results = [];
 			for ( var i = 0; i < endpoints.length; i++) {
-				results.push(_currentInstance.addEndpoint(target, endpoints[i], referenceParams));				
+				results.push(_currentInstance.addEndpoint(el, endpoints[i], referenceParams));				
 			}
 			return results;
 		};
 
 		/*
 		  Function: animate 
-		  Wrapper around supporting library's animate function; injects a call to jsPlumb in the 'step' function (creating
-		  it if necessary). This only supports the two-arg version of the animate call in jQuery, the one that takes an 'options' object as
-		  the second arg. MooTools has only one method, a two arg one. Which is handy.
+		  This is a wrapper around the supporting library's animate function; it injects a call to jsPlumb in the 'step' function (creating
+		  the 'step' function if necessary). This only supports the two-arg version of the animate call in jQuery, the one that takes an 'options' object as
+		  the second arg. MooTools has only one method, a two arg one. Which is handy.  YUI has a one-arg method, so jsPlumb merges 'properties' and 'options' together for YUI.
 		   
 		  Parameters: 
 		  	el - Element to animate. Either an id, or a selector representing the element. 
@@ -884,9 +898,7 @@
 				_currentInstance.repaint(id);
 			});
 
-			// probably, onComplete should repaint too. that will help
-			// keep up
-			// with fast animations.
+			// onComplete repaints, just to make sure everything looks good at the end of the animation.
 			options[completeFunction] = _wrap(options[completeFunction],
 					function() {
 						_currentInstance.repaint(id);
@@ -897,14 +909,15 @@
 
 		/*
 		  Function: connect 
-		  Establishes a connection between two elements (or Endpoints, which are themselves registered to elements).
+		  Establishes a <Connection> between two elements (or <Endpoint>s, which are themselves registered to elements).
 		  
 		  Parameters: 
-		    params - Object containing setup for the connection. See docs for Connection's constructor.
-		    referenceParams - Optional object containing more params for the connection. Typically you would pass in data that a lot of connections are sharing here, such as connector style etc, and then use the main params for data specific to this connection.
+		    params - Object containing setup for the Connection. See <Connection>'s constructor documentation.
+		    referenceParams - Optional object containing more params for the Connection. Typically you would pass in data that a lot of 
+		    Connections are sharing here, such as connector style etc, and then use the main params for data specific to this Connection.
 		     
 		  Returns: 
-		  	The newly created Connection.
+		  	The newly created <Connection>.
 		 */
 		this.connect = function(params, referenceParams) {
 			var _p = jsPlumb.extend( {}, params);
@@ -919,8 +932,7 @@
 				_p.targetEndpoint = _getEndpoint(params.uuids[1]);
 			}
 
-			// now ensure that if we do have Endpoints already, they're not
-			// full.
+			// now ensure that if we do have Endpoints already, they're not full.
 			if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
 				_log(_currentInstance, "could not add connection; source endpoint is full");
 				return;
@@ -960,10 +972,10 @@
 		
 		/*
 		 Function: deleteEndpoint		 
-		 Deletes an endpoint and removes all connections it has (which removes the connections from the other endpoints involved too)
+		 Deletes an Endpoint and removes all Connections it has (which removes the Connections from the other Endpoints involved too)
 		 
 		 Parameters:
-		 	object - either an Endpoint object (such as from an addEndpoint call), or a String UUID.
+		 	object - either an <Endpoint> object (such as from an addEndpoint call), or a String UUID.
 		 	
 		 Returns:
 		 	void		  
@@ -992,7 +1004,7 @@
 		
 		/*
 		 Function: deleteEveryEndpoint
-		  Deletes every Endpoint, and their associated Connections, in this instance of jsPlumb. Do not unregister event listener (this is the only difference
+		  Deletes every <Endpoint>, and their associated <Connection>s, in this instance of jsPlumb. Does not unregister any event listeners (this is the only difference
 between this method and jsPlumb.reset).  
 		  
 		 Returns: 
@@ -1024,14 +1036,14 @@ between this method and jsPlumb.reset).
 
 		/*
 		  Function: detach 
-		  Removes a connection.  takes either (source, target) (the old way, maintained for backwards compatibility), or a params
+		  Detaches and then removes a <Connection>.  Takes either (source, target) (the old way, maintained for backwards compatibility), or a params
 		    object with various possible values.
 		  		   
 		  Parameters: 
-		    source - id or element object of the first element in the connection. 
-		    target - id or element object of the second element in the connection.		    
+		    source - id or element object of the first element in the Connection. 
+		    target - id or element object of the second element in the Connection.		    
 		    params - a JS object containing the same parameters as you pass to jsPlumb.connect. If this is present then neither source nor
-		             target should be present; it should be the only argument to the method. See the docs for Connection's constructor for information
+		             target should be present; it should be the only argument to the method. See the docs for <Connection>'s constructor for information
 about the parameters allowed in the params object.
 		    Returns: 
 		    	true if successful, false if not.
@@ -1694,8 +1706,7 @@ about the parameters allowed in the params object.
 		
 		/*
 		 * Function: setMouseEventsEnabled
-		 * Sets whether or not mouse events are enabled.  By default they are not; this is just because jsPlumb has to add mouse listeners
-		 * to the document, which may result in a performance hit a user does not need.
+		 * Sets whether or not mouse events are enabled.  Default is true.
 		 *  
 		 * Parameters:
 		 * 	enabled - whether or not mouse events should be enabled.
@@ -1802,7 +1813,9 @@ about the parameters allowed in the params object.
 					return c ? c.length : 0;
 				},
 				findIndex : _findIndex,
-				getId : _getId
+				getId : _getId,
+				makeAnchor:self.makeAnchor,
+				makeDynamicAnchor:self.makeDynamicAnchor
 			};
 		};
 
@@ -2075,7 +2088,6 @@ about the parameters allowed in the params object.
 		 */
 		var Connection = function(params) {
 
-			//EventGenerator.apply(this);
 			jsPlumbUIComponent.apply(this, arguments);
 			// ************** get the source and target and register the connection. *******************
 			var self = this;
@@ -2170,8 +2182,7 @@ about the parameters allowed in the params object.
 							|| _currentInstance.Defaults.Endpoints[index]
 							|| jsPlumb.Defaults.Endpoints[index]
 							|| _currentInstance.Defaults.Endpoint
-							|| jsPlumb.Defaults.Endpoint
-							|| "Dot";
+							|| jsPlumb.Defaults.Endpoint;
 
 					if (!params.endpointStyles) params.endpointStyles = [ null, null ];
 					if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
@@ -2196,7 +2207,7 @@ about the parameters allowed in the params object.
 							ehs.fillStyle = connectorHoverPaintStyle.strokeStyle;
 						}
 					}
-					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor) || _makeAnchor("BottomCenter");
+					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor);
 					var u = params.uuids ? params.uuids[index] : null;
 					var e = _newEndpoint( { paintStyle : es, hoverPaintStyle:ehs, endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element });
 					self.endpoints[index] = e;
@@ -2218,7 +2229,7 @@ about the parameters allowed in the params object.
 			 * Property: connector
 			 * The underlying Connector for this Connection (eg. a Bezier connector, straight line connector, flowchart connector etc)
 			 */
-			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector || "Bezier";
+			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector;
 			var connectorArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, cssClass:params.cssClass };
 			if (this.connector.constructor == String) 
 				this.connector = new jsPlumb.Connectors[renderMode][this.connector](connectorArgs); // lets you use a string as shorthand.
@@ -2305,6 +2316,53 @@ about the parameters allowed in the params object.
 					this.overlays.push(_newOverlay);
 				}
 			}
+			
+// ***************************** PLACEHOLDERS FOR NATURAL DOCS *************************************************
+			/*
+			 * Function: bind
+			 * Bind to an event on the Connection.  
+			 * 
+			 * Parameters:
+			 * 	event - the event to bind.  Available events on a Connection are:
+			 *         - *click*						:	notification that a Connection was clicked.  
+			 *         - *dblclick*						:	notification that a Connection was double clicked.
+			 *         - *mouseenter*					:	notification that the mouse is over a Connection. 
+			 *         - *mouseexit*					:	notification that the mouse exited a Connection.
+			 *         
+			 *  callback - function to callback. This function will be passed the Connection that caused the event, and also the original event.    
+			 */
+			
+			/*
+		     * Function: setPaintStyle
+		     * Sets the Connection's paint style and then repaints the Connection.
+		     * 
+		     * Parameters:
+		     * 	style - Style to use.
+		     */
+			
+			/*
+		     * Function: setHoverPaintStyle
+		     * Sets the paint style to use when the mouse is hovering over the Connection. This is null by default.
+		     * The hover paint style is applied as extensions to the paintStyle; it does not entirely replace
+		     * it.  This is because people will most likely want to change just one thing when hovering, say the
+		     * color for example, but leave the rest of the appearance the same.
+		     * 
+		     * Parameters:
+		     * 	style - Style to use when the mouse is hovering.
+		     *  doNotRepaint - if true, the Connection will not be repainted.  useful when setting things up initially.
+		     */
+			
+			/*
+		     * Function: setHover
+		     * Sets/unsets the hover state of this Connection.
+		     * 
+		     * Parameters:
+		     * 	hover - hover state boolean
+		     * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
+		     */
+			
+// ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************			
+			
 			/*
 			 * Function: addOverlay
 			 * Adds an Overlay to the Connection.
@@ -2397,8 +2455,7 @@ about the parameters allowed in the params object.
 			this.endpoints[1].paint({ anchorLoc : anchorLoc });										    		  		    	    		  
 		    
 			/*
-			 * Function: paint 
-			 * Paints the connection. 
+			 * Paints the Connection.  Not exposed for public usage. 
 			 * 
 			 * Parameters:
 			 * 	elId - Id of the element that is in motion.
@@ -2432,8 +2489,6 @@ about the parameters allowed in the params object.
 						maxSize = s;
 				}
 
-				//TODO maxsize has been removed here;l needs to be reinstated somehow.  but i suspect the overlay stuff will move in to
-				// the canvas/svg/vml connector classes
 				var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, maxSize);
 				
 				self.connector.paint(dim, self.paintStyleInUse);
@@ -2471,7 +2526,13 @@ about the parameters allowed in the params object.
 		/*
 		 * Class: Endpoint 
 		 * 
-		 * Models an endpoint. Can have one to N connections emanating from it (although how to handle that in the UI is a very good question). also has a Canvas and paint style.
+		 * Models an endpoint. Can have 1 to 'maxConnections' Connections emanating from it (set maxConnections to -1 
+		 * to allow unlimited).  Typically, if you use 'jsPlumb.connect' to programmatically connect two elements, you won't
+		 * actually deal with the underlying Endpoint objects.  But if you wish to support drag and drop Connections, one of the ways you
+		 * do so is by creating and registering Endpoints using 'jsPlumb.addEndpoint', and marking these Endpoints as 'source' and/or
+		 * 'target' Endpoints for Connections.  
+		 * 
+		 * 
 		 */
 
 		/*
@@ -2492,7 +2553,7 @@ about the parameters allowed in the params object.
 		 * dragOptions - if isSource is set to true, you can supply arguments for the underlying library's drag method. Optional; defaults to null. 
 		 * connectorStyle - if isSource is set to true, this is the paint style for Connections from this Endpoint. Optional; defaults to null.
 		 * connectorHoverStyle - if isSource is set to true, this is the hover paint style for Connections from this Endpoint. Optional; defaults to null.
-		 * connector - optional Connector type to use.  Like 'endpoint', this may be either a single string nominating a known Connector type (eg. "Bezier", "Straight"), or an array containing [name, params], eg. [ "Bezier", 160 ].
+		 * connector - optional Connector type to use.  Like 'endpoint', this may be either a single string nominating a known Connector type (eg. "Bezier", "Straight"), or an array containing [name, params], eg. [ "Bezier", { curviness:160 } ].
 		 * connectorOverlays - optional array of Overlay definitions that will be applied to any Connection from this Endpoint. 
 		 * isTarget - boolean. indicates the endpoint can act as a target of new connections. Optional; defaults to false.
 		 * dropOptions - if isTarget is set to true, you can supply arguments for the underlying library's drop method with this parameter. Optional; defaults to null. 
@@ -2502,6 +2563,52 @@ about the parameters allowed in the params object.
 			jsPlumb.jsPlumbUIComponent.apply(this, arguments);
 			params = params || {};
 			var self = this;
+// ***************************** PLACEHOLDERS FOR NATURAL DOCS *************************************************
+			/*
+			 * Function: bind
+			 * Bind to an event on the Endpoint.  
+			 * 
+			 * Parameters:
+			 * 	event - the event to bind.  Available events on an Endpoint are:
+			 *         - *click*						:	notification that a Endpoint was clicked.  
+			 *         - *dblclick*						:	notification that a Endpoint was double clicked.
+			 *         - *mouseenter*					:	notification that the mouse is over a Endpoint. 
+			 *         - *mouseexit*					:	notification that the mouse exited a Endpoint.
+			 *         
+			 *  callback - function to callback. This function will be passed the Endpoint that caused the event, and also the original event.    
+			 */
+			
+			/*
+		     * Function: setPaintStyle
+		     * Sets the Endpoint's paint style and then repaints the Endpoint.
+		     * 
+		     * Parameters:
+		     * 	style - Style to use.
+		     */
+			
+			/*
+		     * Function: setHoverPaintStyle
+		     * Sets the paint style to use when the mouse is hovering over the Endpoint. This is null by default.
+		     * The hover paint style is applied as extensions to the paintStyle; it does not entirely replace
+		     * it.  This is because people will most likely want to change just one thing when hovering, say the
+		     * color for example, but leave the rest of the appearance the same.
+		     * 
+		     * Parameters:
+		     * 	style - Style to use when the mouse is hovering.
+		     *  doNotRepaint - if true, the Endpoint will not be repainted.  useful when setting things up initially.
+		     */
+			
+			/*
+		     * Function: setHover
+		     * Sets/unsets the hover state of this Endpoint.
+		     * 
+		     * Parameters:
+		     * 	hover - hover state boolean
+		     * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
+		     */
+			
+// ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************
+			
 			var visible = true;
 			/*
 				Function: isVisible
@@ -2537,9 +2644,8 @@ about the parameters allowed in the params object.
 				self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors));
 			else 			
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
-				// TODO why does this not go all the way up to the jsplumb defaults object?
-			var _endpoint = params.endpoint || "Dot";
-			var endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent };
+			var _endpoint = params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot",
+			endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent };
 			if (_endpoint.constructor == String) 
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
 			else if (_endpoint.constructor == Array)
@@ -2571,7 +2677,7 @@ about the parameters allowed in the params object.
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			this.element = _element;
-			var _maxConnections = params.maxConnections || 1; // maximum number of connections this endpoint can be the source of.
+			var _maxConnections = params.maxConnections || _currentInstance.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.
 						
 			this.getAttachedElements = function() {
 				return self.connections;
@@ -3106,7 +3212,7 @@ about the parameters allowed in the params object.
 
 			return self;
 		};					
-	};
+	};		
 
 	var jsPlumb = window.jsPlumb = new jsPlumbInstance();
 	jsPlumb.getInstance = function(_defaults) {
@@ -3114,4 +3220,26 @@ about the parameters allowed in the params object.
 		//if (_defaults) jsPlumb.extend(j.Defaults, _defaults);
 		return j;
 	};
+	
+	var _curryAnchor = function(x,y,ox,oy) {
+		return function() {
+			return jsPlumb.makeAnchor(x,y,ox,oy);
+		};
+	};
+	jsPlumb.Anchors["TopCenter"] 		= _curryAnchor(0.5, 0, 0,-1);
+	jsPlumb.Anchors["BottomCenter"] 	= _curryAnchor(0.5, 1, 0, 1);
+	jsPlumb.Anchors["LeftMiddle"] 		= _curryAnchor(0, 0.5, -1, 0);
+	jsPlumb.Anchors["RightMiddle"] 		= _curryAnchor(1, 0.5, 1, 0);
+	jsPlumb.Anchors["Center"] 			= _curryAnchor(0.5, 0.5, 0, 0);
+	jsPlumb.Anchors["TopRight"] 		= _curryAnchor(1, 0, 0,-1);
+	jsPlumb.Anchors["BottomRight"] 		= _curryAnchor(1, 1, 0, 1);
+	jsPlumb.Anchors["TopLeft"] 			= _curryAnchor(0, 0, 0, -1);
+	jsPlumb.Anchors["BottomLeft"] 		= _curryAnchor(0, 1, 0, 1);
+		
+	jsPlumb.Defaults.DynamicAnchors = function() {
+		return jsPlumb.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"]);
+	};
+	jsPlumb.Anchors["AutoDefault"]  = function() { return jsPlumb.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors()); };
+	
+	
 })();
