@@ -172,26 +172,30 @@ test('noEndpointMaxConnections', function() {
 });
 
 test('anchors equal', function() {
-	var a1 = jsPlumb.makeAnchor(0, 1, 1, 1);
-	var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+	var jp = jsPlumb.getTestHarness();
+	var a1 = jp.makeAnchor(0, 1, 1, 1);
+	var a2 = jp.makeAnchor(0, 1, 1, 1);
 	ok(a1.equals(a2), "anchors are the same");
 });
 
 test('anchors equal with offsets', function() {
-	var a1 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
-	var a2 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
+	var jp = jsPlumb.getTestHarness();
+	var a1 = jp.makeAnchor(0, 1, 1, 1, 10, 13);
+	var a2 = jp.makeAnchor(0, 1, 1, 1, 10, 13);
 	ok(a1.equals(a2), "anchors are the same");
 });
 
 test('anchors not equal', function() {
-	var a1 = jsPlumb.makeAnchor(0, 1, 0, 1);
-	var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+	var jp = jsPlumb.getTestHarness();
+	var a1 = jp.makeAnchor(0, 1, 0, 1);
+	var a2 = jp.makeAnchor(0, 1, 1, 1);
 	ok(!a1.equals(a2), "anchors are different");
 });
 
 test('anchor not equal with offsets', function() {
-	var a1 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
-	var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+	var jp = jsPlumb.getTestHarness();
+	var a1 = jp.makeAnchor(0, 1, 1, 1, 10, 13);
+	var a2 = jp.makeAnchor(0, 1, 1, 1);
 	ok(!a1.equals(a2), "anchors are different");
 });
 
@@ -1077,9 +1081,12 @@ test("jsPlumb.connect (testing for connection event callback)", function() {
 });
 
 test("jsPlumb.makeDynamicAnchors (longhand)", function() {
-	var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), 
-				   jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ];				   				
-	var dynamicAnchor = jsPlumb.makeDynamicAnchor(anchors);
+	
+	var jp = jsPlumb.getTestHarness();
+	
+	var anchors = [jp.makeAnchor(0.2, 0, 0, -1), jp.makeAnchor(1, 0.2, 1, 0), 
+				   jp.makeAnchor(0.8, 1, 0, 1), jp.makeAnchor(0, 0.8, -1, 0) ];				   				
+	var dynamicAnchor = jp.makeDynamicAnchor(anchors);
 	var a = dynamicAnchor.getAnchors();
 	equals(a.length, 4, "Dynamic Anchors has four anchors");
 	for (var i = 0; i < a.length; i++)
@@ -1087,9 +1094,10 @@ test("jsPlumb.makeDynamicAnchors (longhand)", function() {
 });
 
 test("jsPlumb.makeDynamicAnchors (shorthand)", function() {
+	var jp = jsPlumb.getTestHarness();
 	var anchors = [[0.2, 0, 0, -1], [1, 0.2, 1, 0], 
 				   [0.8, 1, 0, 1], [0, 0.8, -1, 0] ];				   				
-	var dynamicAnchor = jsPlumb.makeDynamicAnchor(anchors);
+	var dynamicAnchor = jp.makeDynamicAnchor(anchors);
 	var a = dynamicAnchor.getAnchors();
 	equals(a.length, 4, "Dynamic Anchors has four anchors");
 	for (var i = 0; i < a.length; i++)
