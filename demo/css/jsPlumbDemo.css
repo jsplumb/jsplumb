@@ -87,6 +87,11 @@ padding-left:1.5em;
 list-style-type:none;
 }
 
+li.bullet {
+	list-style-type:circle;
+	}
+
+
 .section {
 padding-left:2em;
 }
@@ -95,7 +100,7 @@ padding-left:0;
 }
 
 #demo {
-width:80%;
+width:3000px;
 height:50em;
 margin-left:3em;
 margin-top:3em;
