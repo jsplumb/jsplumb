@@ -11,9 +11,10 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
 ._jsPlumb_connector { z-index:1; }
 .dropHover { border:1px dotted red; }
 .dragActive { border:2px dotted orange; }
-#explanation { width:30%;
+#explanation { width:50%;
 background-color:white;
-z-index:0;font-size:1.2em;color:gray;
+z-index:0;color:gray;
+margin-top:0;
 border:none;position:relative;left:35%;right:auto;text-align:center;
 }
 .cmdLink { font-size:0.80em;}
