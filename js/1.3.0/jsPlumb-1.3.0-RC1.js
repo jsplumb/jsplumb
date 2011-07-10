@@ -681,6 +681,8 @@
 				if (s != null) {
 					sizes[elId] = _getSize(s);
 					offsets[elId] = _getOffset(s);
+					if (elId.indexOf("jsPlumb") != -1)
+						console.log(elId, offsets[elId].left, offsets[elId].top);
 					offsetTimestamps[elId] = timestamp;
 				}
 			} else {
@@ -1499,6 +1501,8 @@ about the parameters allowed in the params object.
 		this.makeTarget = function(el, params, referenceParams) {
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
+			// TODO makeTarget should do the same input stuff as addEndpoint.
+			//el = _convertYUICollection(el);
 			var jpcl = jsPlumb.CurrentLibrary,
 			el = jpcl.getElementObject(el),
 			scope = p.scope || _currentInstance.Defaults.Scope,
@@ -2950,10 +2954,18 @@ about the parameters allowed in the params object.
 					inPlaceCopy.paint();										
 					
 					n = document.createElement("div");
+					n.style.position = "absolute";
 					var nE = _getElementObject(n);
-					_appendElement(n, self.parent);
+					_appendElement(n, self.parent);					
 					// create and assign an id, and initialize the offset.
 					var id = _getId(nE);
+					
+					// set the offset of this div to be where 'inPlaceCopy' is, to start with.
+					var ipcoel = _getElementObject(inPlaceCopy.canvas),
+					ipco = jsPlumb.CurrentLibrary.getOffset(ipcoel),
+					ipcs = jsPlumb.CurrentLibrary.getSize(ipcoel);
+					jsPlumb.CurrentLibrary.setOffset(n, ipco);
+					
 					_updateOffset( { elId : id });
 					
 					// store the id of the dragging div and the source element. the drop function will pick these up.					
