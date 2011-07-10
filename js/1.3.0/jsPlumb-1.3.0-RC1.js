@@ -3109,6 +3109,7 @@ about the parameters allowed in the params object.
 						self.anchor.locked = false;												
 						self.paint();
 						jpc.setHover(false);
+						jpc.repaint();
 						jpc = null;						
 						delete inPlaceCopy;							
 						delete endpointsByElement[floatingEndpoint.elementId];
