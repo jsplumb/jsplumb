@@ -881,6 +881,28 @@ var testSuite = function(renderMode) {
 		jsPlumb.makeTarget(d17, { isTarget:true,anchor:"TopCenter"  });
 		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 	});
+
+	test(renderMode + ": jsPlumb.makeTarget (specify two divs in an array)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		jsPlumb.makeTarget([d16, d17], { isTarget:true,anchor:"TopCenter"  });
+		equals(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
+		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+	});
+	
+	test(renderMode + ": jsPlumb.makeTarget (specify two divs by id in an array)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		jsPlumb.makeTarget(["d16", "d17"], { isTarget:true,anchor:"TopCenter"  });
+		equals(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
+		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+	});
+	
+	test(renderMode + ": jsPlumb.makeTarget (specify divs by selector)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		d16.addClass("FOO");d17.addClass("FOO");
+		jsPlumb.makeTarget($(".FOO"), { isTarget:true,anchor:"TopCenter"  });
+		equals(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
+		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+	});
 	
 	test(renderMode + ': jsPlumb.connect (between two Endpoints)', function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
