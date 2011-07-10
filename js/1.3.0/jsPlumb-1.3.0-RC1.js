@@ -870,7 +870,7 @@
 		this.addEndpoints = function(el, endpoints, referenceParams) {
 			var results = [];
 			for ( var i = 0; i < endpoints.length; i++) {
-				results.push(_currentInstance.addEndpoint(el, endpoints[i], referenceParams));				
+				Array.prototype.push.apply(results, _currentInstance.addEndpoint(el, endpoints[i], referenceParams));				
 			}
 			return results;
 		};
@@ -2242,48 +2242,66 @@ about the parameters allowed in the params object.
 			if (!this.scope) this.scope = this.endpoints[0].scope;
 
 			/*
+			 * Function: setConnector
+			 * Sets the Connection's connector (eg "Bezier", "Flowchart", etc).  You pass a Connector definition into this method - the same
+			 * thing that you would set as the 'connector' property on a jsPlumb.connect call.
+			 * 
+			 * Parameters:
+			 * 	connector		-	Connector definition
+			 */
+			this.setConnector = function(connector, doNotRepaint) {
+				if (self.connector != null) _removeElements(self.connector.getDisplayElements(), self.parent);
+				var connectorArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, cssClass:params.cssClass };
+				if (connector.constructor == String) 
+					this.connector = new jsPlumb.Connectors[renderMode][connector](connectorArgs); // lets you use a string as shorthand.
+				else if (connector.constructor == Array)
+					this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
+				this.canvas = this.connector.canvas;
+				var _mouseDown = false, _mouseWasDown = false, _mouseDownAt = null;
+				// add mouse events
+				this.connector.bind("click", function(con, e) {
+					_mouseWasDown = false; 
+					self.fire("click", self, e);
+				});
+				this.connector.bind("dblclick", function(con, e) { _mouseWasDown = false;self.fire("dblclick", self, e); });
+				this.connector.bind("mouseenter", function(con, e) {
+					if (!self.isHover()) {
+						if (_connectionBeingDragged == null) {
+							self.setHover(true);
+						}
+						self.fire("mouseenter", self, e);
+					}
+				});
+				this.connector.bind("mouseexit", function(con, e) {
+					if (self.isHover()) {
+						if (_connectionBeingDragged == null) {
+							self.setHover(false);
+						}
+						self.fire("mouseexit", self, e);
+					}
+				});
+				this.connector.bind("mousedown", function(con, e) { 
+					_mouseDown = true;
+					_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
+					self.savePosition();
+				});
+				this.connector.bind("mouseup", function(con, e) { 
+					_mouseDown = false;
+					if (self.connector == _connectionBeingDragged) _connectionBeingDragged = null;
+				});
+				
+				if (!doNotRepaint) self.repaint();
+			};
+			/*
 			 * Property: connector
 			 * The underlying Connector for this Connection (eg. a Bezier connector, straight line connector, flowchart connector etc)
-			 */
-			this.connector = this.endpoints[0].connector || this.endpoints[1].connector || params.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector;
-			var connectorArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, cssClass:params.cssClass };
-			if (this.connector.constructor == String) 
-				this.connector = new jsPlumb.Connectors[renderMode][this.connector](connectorArgs); // lets you use a string as shorthand.
-			else if (this.connector.constructor == Array)
-				this.connector = new jsPlumb.Connectors[renderMode][this.connector[0]](jsPlumb.extend(this.connector[1], connectorArgs));
-			this.canvas = this.connector.canvas;
-			var _mouseDown = false, _mouseWasDown = false, _mouseDownAt = null;
-			// add mouse events
-			this.connector.bind("click", function(con, e) {
-				_mouseWasDown = false; 
-				self.fire("click", self, e);
-			});
-			this.connector.bind("dblclick", function(con, e) { _mouseWasDown = false;self.fire("dblclick", self, e); });
-			this.connector.bind("mouseenter", function(con, e) {
-				if (!self.isHover()) {
-					if (_connectionBeingDragged == null) {
-						self.setHover(true);
-					}
-					self.fire("mouseenter", self, e);
-				}
-			});
-			this.connector.bind("mouseexit", function(con, e) {
-				if (self.isHover()) {
-					if (_connectionBeingDragged == null) {
-						self.setHover(false);
-					}
-					self.fire("mouseexit", self, e);
-				}
-			});
-			this.connector.bind("mousedown", function(con, e) { 
-				_mouseDown = true;
-				_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
-				self.savePosition();
-			});
-			this.connector.bind("mouseup", function(con, e) { 
-				_mouseDown = false;
-				if (self.connector == _connectionBeingDragged) _connectionBeingDragged = null;
-			});
+			 */			
+						
+			self.setConnector(this.endpoints[0].connector || 
+							  this.endpoints[1].connector || 
+							  params.connector || 
+							  _currentInstance.Defaults.Connector || 
+							  jsPlumb.Defaults.Connector, true);
 			
 			this.setPaintStyle(this.endpoints[0].connectorStyle || 
 							   this.endpoints[1].connectorStyle || 
