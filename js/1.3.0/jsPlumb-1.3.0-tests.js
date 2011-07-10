@@ -418,8 +418,8 @@ var testSuite = function(renderMode) {
 		equals(c['testScope3'], null, 'there are no connections in testScope3');
 		equals(c['testScope2'], null, 'there are no connections in testScope2');
 		var anEntry = c['testScope'][0];
-		ok(anEntry.sourceEndpoint != null, "Source endpoint is set");
-		ok(anEntry.targetEndpoint != null, "Target endpoint is set");
+		ok(anEntry.endpoints[0] != null, "Source endpoint is set");
+		ok(anEntry.endpoints[1] != null, "Target endpoint is set");
 		equals(anEntry.source.attr("id"), "d11", "Source is div d11");
 		equals(anEntry.target.attr("id"), "d14", "Target is div d14");
 	});
