@@ -1504,54 +1504,56 @@ about the parameters allowed in the params object.
 		 *                   	
 		 * 
 		 */
-		this.makeTarget = function(el, params, referenceParams) {
-			
-			/*
-			 * el = _convertYUICollection(el);			
-			
-			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
-						
-			for (var i = 0; i < inputs.length; i++) {
-			 */
+		this.makeTarget = function(el, params, referenceParams) {						
 			
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			// TODO makeTarget should do the same input stuff as addEndpoint.
 			//el = _convertYUICollection(el);
 			var jpcl = jsPlumb.CurrentLibrary,
-			el = jpcl.getElementObject(el),
+			/*el = jpcl.getElementObject(el),*/
 			scope = p.scope || _currentInstance.Defaults.Scope,
 			dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
-			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false;			
-			_drop = function() {
-				var draggable = _getElementObject(jpcl.getDragObject(arguments));
-				var id = _getAttribute(draggable, "dragId");
+			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false,			
+			_doOne = function(_el) {
+				var _drop = function() {
+					var draggable = _getElementObject(jpcl.getDragObject(arguments)),
+					id = _getAttribute(draggable, "dragId"),				
+					// restore the original scope if necessary (issue 57)
+					scope = _getAttribute(draggable, "originalScope");
+					
+					if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
+					
+					// get the connection, to then get its endpoint
+					var jpc = floatingConnections[id],
+					source = jpc.endpoints[0],
+					_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : null,
+					// make a new Endpoint
+					newEndpoint = jsPlumb.addEndpoint(_el, _endpoint);
+					
+					var c = jsPlumb.connect({
+						source:source,
+						target:newEndpoint,
+						scope:scope
+					});
+					if (deleteEndpointsOnDetach) 
+						c.endpointToDeleteOnDetach = newEndpoint;
+				};
 				
-				// restore the original scope if necessary (issue 57)
-				var scope = _getAttribute(draggable, "originalScope");
-				if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
+				var dropEvent = jpcl.dragEvents['drop'];
+				dropOptions["scope"] = dropOptions["scope"] || scope;
+				dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], _drop);
 				
-				// get the connection, to then get its endpoint
-				var jpc = floatingConnections[id],
-				source = jpc.endpoints[0],
-				_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : null,
-				// make a new Endpoint
-				newEndpoint = jsPlumb.addEndpoint(el, _endpoint);
-				
-				var c = jsPlumb.connect({
-					source:source,
-					target:newEndpoint,
-					scope:scope
-				});
-				if (deleteEndpointsOnDetach) 
-					c.endpointToDeleteOnDetach = newEndpoint;
+				jpcl.initDroppable(_el, dropOptions);
 			};
 			
-			var dropEvent = jpcl.dragEvents['drop'];
-			dropOptions["scope"] = dropOptions["scope"] || scope;
-			dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], _drop);
+			el = _convertYUICollection(el);			
 			
-			jpcl.initDroppable(el, dropOptions);			
+			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+						
+			for (var i = 0; i < inputs.length; i++) {			
+				_doOne(_getElementObject(inputs[i]));
+			}
 		};
 		
 		/**
