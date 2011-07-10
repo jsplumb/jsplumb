@@ -2104,7 +2104,7 @@ about the parameters allowed in the params object.
 			*/
 			this.setVisible = function(v) {
 				visible = v;
-				if (self.canvas) self.canvas.style.display = v ? "block" : "none";
+				if (self.connector && self.connector.canvas) self.connector.canvas.style.display = v ? "block" : "none";
 			};
 			var id = new String('_jsplumb_c_' + (new Date()).getTime());
 			this.getId = function() { return id; };
