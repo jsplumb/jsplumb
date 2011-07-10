@@ -1257,11 +1257,12 @@ var testSuite = function(renderMode) {
 	test(renderMode + ": jsPlumb.connect (setting cssClass on Connector)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = jsPlumb.connect({source:d1,target:d2,cssClass:"CSS"});
-		
 		var has = renderMode == jsPlumb.SVG ? function(clazz) {
 			return c.canvas.childNodes[0].className.baseVal.indexOf(clazz) != -1;
-		} : function(clazz) {
+		} : renderMode == jsPlumb.CANVAS ? function(clazz) {
 			return $(c.canvas).hasClass(clazz);
+		} : function(clazz) {
+			return $(c.connector.canvas).hasClass(clazz);
 		};
 		
 		ok(has("CSS"), "custom cssClass set correctly");
@@ -1531,10 +1532,10 @@ var testSuite = function(renderMode) {
 		equals(true, c1.isVisible(), "Connection is visible after creation.");
 		c1.setVisible(false);
 		equals(false, c1.isVisible(), "Connection is not visible after calling setVisible(false).");
-		equals($(c1.canvas).css("display"), "none");
+		equals($(c1.connector.canvas).css("display"), "none");
 		c1.setVisible(true);
 		equals(true, c1.isVisible(), "Connection is visible after calling setVisible(true).");
-		equals($(c1.canvas).css("display"), "block");
+		equals($(c1.connector.canvas).css("display"), "block");
 	});
 	
 	test(renderMode + ": Endpoint.isVisible/setVisible basic test (no connections)", function() {
