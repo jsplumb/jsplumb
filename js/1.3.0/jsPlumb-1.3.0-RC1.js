@@ -814,8 +814,8 @@
 		  Parameters:
 		   
 		  	el - Element to add the endpoint to. Either an element id, a selector representing some element(s), or an array of either of these. 
-		  	params - Object containing Endpoint options.  For more information, see <Endpoint>.
-		  	referenceParams - Object containing more Endpoint options; it will be merged with params by jsPlumb.  You would use this if you had some 
+		  	params - Object containing Endpoint constructor arguments.  For more information, see <Endpoint>.
+		  	referenceParams - Object containing more Endpoint constructor arguments; it will be merged with params by jsPlumb.  You would use this if you had some 
 		  					  shared parameters that you wanted to reuse when you added Endpoints to a number of elements. The allowed values in
 		  					  this object are anything that 'params' can contain.  See <Endpoint>.
 		  	 
@@ -858,8 +858,8 @@
 		  
 		  Parameters: 
 		  	target - element to add the Endpoint to. Either an element id, a selector representing some element(s), or an array of either of these. 
-		  	endpoints - List of objects containing Endpoint options. one Endpoint is created for each entry in this list.  See <Endpoint>'s constructor documentation. 
-			referenceParams - Object containing more Endpoint options; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.		  	 
+		  	endpoints - List of objects containing Endpoint constructor arguments. one Endpoint is created for each entry in this list.  See <Endpoint>'s constructor documentation. 
+			referenceParams - Object containing more Endpoint constructor arguments; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.		  	 
 
 		  Returns: 
 		  	List of newly created <Endpoint>s, one for each entry in the 'endpoints' argument. 
@@ -912,8 +912,8 @@
 		  Establishes a <Connection> between two elements (or <Endpoint>s, which are themselves registered to elements).
 		  
 		  Parameters: 
-		    params - Object containing setup for the Connection. See <Connection>'s constructor documentation.
-		    referenceParams - Optional object containing more params for the Connection. Typically you would pass in data that a lot of 
+		    params - Object containing constructor arguments for the Connection. See <Connection>'s constructor documentation.
+		    referenceParams - Optional object containing more constructor arguments for the Connection. Typically you would pass in data that a lot of 
 		    Connections are sharing here, such as connector style etc, and then use the main params for data specific to this Connection.
 		     
 		  Returns: 
@@ -1221,8 +1221,18 @@ about the parameters allowed in the params object.
 
 		/*
 		 * Function: getConnections 
-		 * Gets all or a subset of connections currently managed by this jsPlumb instance. 
+		 * Gets all or a subset of connections currently managed by this jsPlumb instance.  If only one scope is passed in to this method,
+		 * the result will be a list of connections having that scope (passing in no scope at all will result in jsPlumb assuming you want the
+		 * default scope).  If multiple scopes are passed in, the return value will be a map of { scope -> [ connection... ] }.
 		 * 
+		 *  Parameters
+		 *  	scope	-	if the only argument to getConnections is a string, jsPlumb will treat that string as a scope filter, and return a list
+		 *                  of connections that are in the given scope.
+		 *      options	-	if the argument is a JS object, you can specify a finer-grained filter:
+		 *      
+		 *      		-	*scope* may be a string specifying a single scope, or an array of strings, specifying multiple scopes.
+		 *      		-	*source* either a string representing an element id, or a selector.  constrains the result to connections having this source.
+		 *      		-	*target* either a string representing an element id, or a selector.  constrains the result to connections having this target.
 		 * 
 		 */
 		this.getConnections = function(options) {
@@ -1260,18 +1270,20 @@ about the parameters allowed in the params object.
 			};
 			for ( var i in connectionsByScope) {
 				if (filter(scopes, i)) {
-			//		r[i] = [];
 					for ( var j = 0; j < connectionsByScope[i].length; j++) {
 						var c = connectionsByScope[i][j];
 						if (filter(sources, c.sourceId) && filter(targets, c.targetId))
-							//r[i].push({ sourceId : c.sourceId, targetId : c.targetId, source : c.source, target : c.target, sourceEndpoint : c.endpoints[0], targetEndpoint : c.endpoints[1], connection : c });
-							_addOne(i, { scope:i, sourceId : c.sourceId, targetId : c.targetId, source : c.source, target : c.target, sourceEndpoint : c.endpoints[0], targetEndpoint : c.endpoints[1], connection : c });
+							_addOne(i, c);
 					}
 				}
 			}
 			return results;
 		};
-		
+
+		/*
+		 * Function: getAllConnections
+		 * Gets all connections, as a map of { scope -> [ connection... ] }. 
+		 */
 		this.getAllConnections = function() {
 			return connectionsByScope;
 		};
@@ -1493,6 +1505,15 @@ about the parameters allowed in the params object.
 		 * 
 		 */
 		this.makeTarget = function(el, params, referenceParams) {
+			
+			/*
+			 * el = _convertYUICollection(el);			
+			
+			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+						
+			for (var i = 0; i < inputs.length; i++) {
+			 */
+			
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			// TODO makeTarget should do the same input stuff as addEndpoint.
@@ -2109,8 +2130,6 @@ about the parameters allowed in the params object.
 			var id = new String('_jsplumb_c_' + (new Date()).getTime());
 			this.getId = function() { return id; };
 			this.parent = params.parent;
-			//this.container = params.container || _currentInstance.Defaults.Container; // may be null; we will append to the body if so.
-			// get source and target as jQuery objects
 			/**
 				Property: source
 				The source element for this Connection.
@@ -2189,7 +2208,7 @@ about the parameters allowed in the params object.
 					if (es.fillStyle == null && connectorPaintStyle != null)
 						es.fillStyle = connectorPaintStyle.strokeStyle;
 					
-					// TODO: decide if the endpoint should derive the connection's outline width and color.
+					// TODO: decide if the endpoint should derive the connection's outline width and color.  currently it does:
 					//*
 					if (es.outlineColor == null && connectorPaintStyle != null) 
 						es.outlineColor = connectorPaintStyle.outlineColor;
