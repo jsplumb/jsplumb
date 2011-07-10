@@ -1508,20 +1508,17 @@ about the parameters allowed in the params object.
 			
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
-			// TODO makeTarget should do the same input stuff as addEndpoint.
-			//el = _convertYUICollection(el);
 			var jpcl = jsPlumb.CurrentLibrary,
-			/*el = jpcl.getElementObject(el),*/
 			scope = p.scope || _currentInstance.Defaults.Scope,
-			dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
 			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false,			
 			_doOne = function(_el) {
+				var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 				var _drop = function() {
 					var draggable = _getElementObject(jpcl.getDragObject(arguments)),
 					id = _getAttribute(draggable, "dragId"),				
 					// restore the original scope if necessary (issue 57)
 					scope = _getAttribute(draggable, "originalScope");
-					
+										
 					if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
 					
 					// get the connection, to then get its endpoint
