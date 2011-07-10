@@ -267,8 +267,8 @@ var testSuite = function(renderMode) {
 		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
 		jsPlumb.connect({source:d5, target:d6});
 		assertContextSize(3);
-		var c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 1, "there is one connection");
+		var c = jsPlumb.getConnections();  // will get all connections in the default scope.
+		equals(c.length, 1, "there is one connection");
 	});
 	
 	test(renderMode + ': jsPlumb.getConnections (simple case, default scope; detach by element id)', function() {
@@ -276,11 +276,11 @@ var testSuite = function(renderMode) {
 		jsPlumb.connect({source:d5, target:d6});
 		jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
-		var c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 2, "there are two connections initially");
+		var c = jsPlumb.getConnections();  // will get all connections in the default scope
+		equals(c.length, 2, "there are two connections initially");
 		jsPlumb.detach('d5', 'd6');
 		c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 1, "after detaching one, there is now one connection.");
+		equals(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
 	
@@ -290,10 +290,10 @@ var testSuite = function(renderMode) {
 		jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 2, "there are two connections initially");
+		equals(c.length, 2, "there are two connections initially");
 		jsPlumb.detach({source:'d5', target:'d6'});
 		c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 1, "after detaching one, there is now one connection.");
+		equals(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
 	
@@ -303,10 +303,10 @@ var testSuite = function(renderMode) {
 		jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 2, "there are two connections initially");
+		equals(c.length, 2, "there are two connections initially");
 		jsPlumb.detach(d5, d6);
 		c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 1, "after detaching one, there is now one connection.");
+		equals(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
 	
@@ -316,10 +316,10 @@ var testSuite = function(renderMode) {
 		jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 2, "there are two connections initially");
+		equals(c.length, 2, "there are two connections initially");
 		jsPlumb.detach({source:d5, target:d6});
 		c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 1, "after detaching one, there is now one connection.");
+		equals(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
 	
@@ -329,34 +329,37 @@ var testSuite = function(renderMode) {
 		var c67 = jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 2, "there are two connections initially");
+		equals(c.length, 2, "there are two connections initially");
 		jsPlumb.detach(c56);
 		assertContextSize(5);		// check that the connection canvas was removed.
 		c = jsPlumb.getConnections();  // will get all connections
-		equals(c[jsPlumb.getDefaultScope()].length, 1, "after detaching one, there is now one connection.");
+		equals(c.length, 1, "after detaching one, there is now one connection.");
 		
 	});
 	
 	test(renderMode + ': jsPlumb.getConnections (scope testScope)', function() {
 		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
 		jsPlumb.connect({source:d5, target:d6, scope:'testScope'});
-		var c = jsPlumb.getConnections();  // will get all connections	
-		equals(c['testScope'].length, 1, "there is one connection");
-		equals(c['testScope'][0].sourceId, 'd5', "the connection's source is d5");
-		equals(c['testScope'][0].targetId, 'd6', "the connection's source is d6");
+		var c = jsPlumb.getConnections("testScope");  // will get all connections in testScope	
+		equals(c.length, 1, "there is one connection");
+		equals(c[0].sourceId, 'd5', "the connection's source is d5");
+		equals(c[0].targetId, 'd6', "the connection's source is d6");
+		c = jsPlumb.getConnections();  // will get all connections in default scope; should be none.
+		equals(c.length, 0, "there are no connections in the default scope");
 	});
 	
-	test(renderMode + ': jsPlumb.getConnections (filtered by scope)', function() {
+	test(renderMode + ': jsPlumb.getAllConnections (filtered by scope)', function() {
 		var d8 = _addDiv("d8"), d9 = _addDiv("d9"), d10 = _addDiv('d10');
 		jsPlumb.connect({source:d8, target:d9, scope:'testScope'});
 		jsPlumb.connect({source:d9, target:d10}); // default scope
-		var c = jsPlumb.getConnections({scope:'testScope'});  // will get all connections	
-		equals(c[jsPlumb.getDefaultScope()], null);
+		var c = jsPlumb.getAllConnections();  // will get all connections	
+		equals(c[jsPlumb.getDefaultScope()].length, 1);
 		equals(c['testScope'].length, 1);	
 		// now supply a list of scopes
-		c = jsPlumb.getConnections({scope:[jsPlumb.getDefaultScope(),'testScope']});  // will get all connections	
-		equals(c[jsPlumb.getDefaultScope()].length, 1);
-		equals(c['testScope'].length, 1, "there is one connection in 'testScope'");
+		c = jsPlumb.getConnections();  	
+		equals(c.length, 1);
+		c = jsPlumb.getConnections("testScope");
+		equals(c.length, 1, "there is one connection in 'testScope'");
 	});
 	
 	test(renderMode + ': jsPlumb.getConnections (filtered by scope and sourceId)', function() {
@@ -365,8 +368,7 @@ var testSuite = function(renderMode) {
 		jsPlumb.connect({source:d9, target:d8, scope:'testScope'});
 		jsPlumb.connect({source:d9, target:d10}); // default scope
 		var c = jsPlumb.getConnections({scope:'testScope', source:'d8'});  // will get all connections with sourceId 'd8'	
-		equals(c[jsPlumb.getDefaultScope()], null);
-		equals(c['testScope'].length, 1, "there is one connection in 'testScope' from d8");	
+		equals(c.length, 1, "there is one connection in 'testScope' from d8");	
 	});
 	
 	test(renderMode + ': jsPlumb.getConnections (filtered by scope, source id and target id)', function() {
@@ -375,7 +377,7 @@ var testSuite = function(renderMode) {
 		jsPlumb.connect({source:d12, target:d13, scope:'testScope'});
 		jsPlumb.connect({source:d11, target:d13, scope:'testScope'});
 		var c = jsPlumb.getConnections({scope:'testScope', source:'d11', target:'d13'});  
-		equals(c['testScope'].length, 1, "there is one connection from d11 to d13");	
+		equals(c.length, 1, "there is one connection from d11 to d13");	
 	});
 	
 	test(renderMode + ': jsPlumb.getConnections (filtered by a list of scopes)', function() {
@@ -413,7 +415,7 @@ var testSuite = function(renderMode) {
 		assertContextSize(18);
 		var c = jsPlumb.getConnections({scope:['testScope','testScope3'], source:['d11'], target:['d14', 'd15']});  
 		equals(c['testScope'].length, 2, 'there are two connections in testScope');
-		equals(c['testScope3'].length, 0, 'there is no connections in testScope3');
+		equals(c['testScope3'], null, 'there are no connections in testScope3');
 		equals(c['testScope2'], null, 'there are no connections in testScope2');
 		var anEntry = c['testScope'][0];
 		ok(anEntry.sourceEndpoint != null, "Source endpoint is set");

@@ -1222,34 +1222,15 @@ about the parameters allowed in the params object.
 		/*
 		 * Function: getConnections 
 		 * Gets all or a subset of connections currently managed by this jsPlumb instance. 
-		 * Parameters: 
-		 * 	options - a JS object that holds options defining what sort of connections you're
-		 * looking for. Valid values are: scope this may be a String or a list
-		 * of Strings. jsPlumb will only return Connections whose scope matches
-		 * what this option defines. If you omit it, you will be given
-		 * Connections of every scope. source may be a string or a list of
-		 * strings; constraints results to have only Connections whose source is
-		 * this object. target may be a string or a list of strings; constraints
-		 * results to have only Connections whose target is this object.
 		 * 
-		 * The return value is a dictionary in this format:
-		 *  { 'scope1': [ {sourceId:'window1', targetId:'window2', source:<sourceElement>,
-		 * target:<targetElement>, sourceEndpoint:<sourceEndpoint>,
-		 * targetEndpoint:<targetEndpoint>, connection:<connection>},
-		 * {sourceId:'window3', targetId:'window4', source:<sourceElement>,
-		 * target:<targetElement>, sourceEndpoint:<sourceEndpoint>,
-		 * targetEndpoint:<targetEndpoint>, connection:<connection>},
-		 * {sourceId:'window1', targetId:'window3', source:<sourceElement>,
-		 * target:<targetElement>, sourceEndpoint:<sourceEndpoint>,
-		 * targetEndpoint:<targetEndpoint>, connection:<connection>} ],
-		 * 'scope2': [ {sourceId:'window1', targetId:'window3', source:<sourceElement>,
-		 * target:<targetElement>, sourceEndpoint:<sourceEndpoint>,
-		 * targetEndpoint:<targetEndpoint>, connection:<connection>} ] }
 		 * 
 		 */
 		this.getConnections = function(options) {
-			var r = {};
-			options = options || {};
+			if (!options) {
+				options = {};
+			} else if (options.constructor == String) {
+				options = { "scope": options };
+			}
 			var prepareList = function(input) {
 				var r = [];
 				if (input) {
@@ -1266,18 +1247,33 @@ about the parameters allowed in the params object.
 			targets = prepareList(options.target),
 			filter = function(list, value) {
 				return list.length > 0 ? _findIndex(list, value) != -1 : true;
+			},
+			results = scopes.length > 1 ? {} : [],
+			_addOne = function(scope, obj) {
+				if (scopes.length > 1) {
+					var ss = results[scope];
+					if (ss == null) {
+						ss = []; results[scope] = ss;
+					}
+					ss.push(obj);
+				} else results.push(obj);
 			};
 			for ( var i in connectionsByScope) {
 				if (filter(scopes, i)) {
-					r[i] = [];
+			//		r[i] = [];
 					for ( var j = 0; j < connectionsByScope[i].length; j++) {
 						var c = connectionsByScope[i][j];
 						if (filter(sources, c.sourceId) && filter(targets, c.targetId))
-							r[i].push({ sourceId : c.sourceId, targetId : c.targetId, source : c.source, target : c.target, sourceEndpoint : c.endpoints[0], targetEndpoint : c.endpoints[1], connection : c });
+							//r[i].push({ sourceId : c.sourceId, targetId : c.targetId, source : c.source, target : c.target, sourceEndpoint : c.endpoints[0], targetEndpoint : c.endpoints[1], connection : c });
+							_addOne(i, { scope:i, sourceId : c.sourceId, targetId : c.targetId, source : c.source, target : c.target, sourceEndpoint : c.endpoints[0], targetEndpoint : c.endpoints[1], connection : c });
 					}
 				}
 			}
-			return r;
+			return results;
+		};
+		
+		this.getAllConnections = function() {
+			return connectionsByScope;
 		};
 
 		/*
