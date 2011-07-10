@@ -681,8 +681,6 @@
 				if (s != null) {
 					sizes[elId] = _getSize(s);
 					offsets[elId] = _getOffset(s);
-					if (elId.indexOf("jsPlumb") != -1)
-						console.log(elId, offsets[elId].left, offsets[elId].top);
 					offsetTimestamps[elId] = timestamp;
 				}
 			} else {
