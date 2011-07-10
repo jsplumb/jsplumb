@@ -1257,10 +1257,15 @@ var testSuite = function(renderMode) {
 	test(renderMode + ": jsPlumb.connect (setting cssClass on Connector)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = jsPlumb.connect({source:d1,target:d2,cssClass:"CSS"});
-		var canvasHas = $(c.canvas).hasClass("CSS"), svgHas = $(c.svg).hasClass("CSS");
-		ok(canvasHas || svgHas, "custom cssClass set correctly");
-		canvasHas = $(c.canvas).hasClass(jsPlumb.connectorClass), svgHas = $(c.svg).hasClass(jsPlumb.connectorClass);
-		ok(canvasHas || svgHas, "basic connector class set correctly");
+		
+		var has = renderMode == jsPlumb.SVG ? function(clazz) {
+			return c.canvas.childNodes[0].className.baseVal.indexOf(clazz) != -1;
+		} : function(clazz) {
+			return $(c.canvas).hasClass(clazz);
+		};
+		
+		ok(has("CSS"), "custom cssClass set correctly");
+		ok(has(jsPlumb.connectorClass), "basic connector class set correctly");
 	});
 	
 	test(renderMode + ": jsPlumb.connect (overlays, long-hand version)", function() {
