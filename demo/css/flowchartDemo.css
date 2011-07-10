@@ -16,7 +16,7 @@ color:black;
 font-family:helvetica;padding:0.5em;
 font-size:0.9em;}
 .window:hover {
-border:1px solid #123456;
+
 box-shadow: 2px 2px 19px #444;
    -o-box-shadow: 2px 2px 19px #444;
    -webkit-box-shadow: 2px 2px 19px #444;
@@ -26,8 +26,11 @@ filter:alpha(opacity=60);
 
 }
 
+.active {
+	border:1px dotted green;
+}
 .hover {
-	border:1px dotted orange;
+	border:1px dotted red;
 }
 
 #window1 { top:14em;left:2em;}

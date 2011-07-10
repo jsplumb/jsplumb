@@ -11,7 +11,6 @@
 			jsPlumb.Defaults.Endpoints = [ [ "Dot", {radius:7} ], [ "Dot", { radius:11 } ]];
 			// enable mouse events
 			jsPlumb.setMouseEventsEnabled(true);						
-
 			// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
 			// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
 			jsPlumb.Defaults.Overlays = [
@@ -30,17 +29,19 @@
 				}] 
 			];
 
-			// this is the paint style and hover style for the connecting lines
+			// this is the paint style for the connecting lines..
 			var connectorPaintStyle = {
-					/*gradient:{stops:[[0, "#deea18"], [0.5, '#09098e'], [1, "#deea18"]]},*/
-					lineWidth:5,
-					strokeStyle:"#deea18",
-					joinstyle:"round"
-			};
-			var connectorHoverStyle = {lineWidth:7,strokeStyle:"#2e2aF8"};
-
+				lineWidth:5,
+				strokeStyle:"#deea18",
+				joinstyle:"round"
+			},
+			// .. and this is the hover style. 
+			connectorHoverStyle = {
+				lineWidth:7,
+				strokeStyle:"#2e2aF8"
+			},
 			// the definition of source endpoints (the small blue ones)
-			var sourceEndpoint = {
+			sourceEndpoint = {
 				endpoint:"Dot",
 				paintStyle:{fillStyle:"#225588",radius:7},
 				isSource:true,
@@ -49,56 +50,35 @@
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle/*,
 				connectorOverlays: overlays				*/
-			};
-
-			// the definition of target endpoints (the larger green ones)
-			var targetEndpoint = {
+			},
+			// a source endpoint that sits at BottomCenter
+			bottomSource = jsPlumb.extend( { anchor:"BottomCenter" }, sourceEndpoint),
+			// a source endpoint that sits at TopCenter
+			topSource = jsPlumb.extend( { anchor:"TopCenter" }, sourceEndpoint),
+			// the definition of target endpoints (will appear when the user drags a connection) 
+			targetEndpoint = {
 				endpoint:"Dot",					
-				paintStyle:{fillStyle:"#558822",radius:11},
+				paintStyle:{ fillStyle:"#558822",radius:11 },
 				hoverPaintStyle:connectorHoverStyle,
-				isTarget:true,
 				maxConnections:-1,
-				dropOptions:{hoverClass:"hover"}
-			};	
+				anchor:[ "LeftMiddle", "RightMiddle" ]
+			},
+			windows = ["window1", "window2", "window3", "window4"];
 
-			// add endpoints to the various elements
-			var e11 = jsPlumb.addEndpoint("window1", {anchor:"RightMiddle"}, targetEndpoint);
-			var e12 = jsPlumb.addEndpoint("window1", {anchor:"BottomCenter"}, sourceEndpoint);
-			var e21 = jsPlumb.addEndpoint("window2", {anchor:"LeftMiddle"}, targetEndpoint);
-			var e22 = jsPlumb.addEndpoint("window2", {anchor:"BottomCenter"}, sourceEndpoint);
-			var e31 = jsPlumb.addEndpoint("window3", {anchor:"LeftMiddle"}, targetEndpoint);
-			var e32 = jsPlumb.addEndpoint("window3", {anchor:"TopCenter"}, targetEndpoint);
-			var e33 = jsPlumb.addEndpoint("window3", {anchor:"RightMiddle"}, targetEndpoint);
-			var e34 = jsPlumb.addEndpoint("window3", {anchor:"BottomCenter"}, sourceEndpoint);
-			var e41 = jsPlumb.addEndpoint("window4", {anchor:"RightMiddle"}, sourceEndpoint);
-			var e42 = jsPlumb.addEndpoint("window4", {anchor:"BottomCenter"}, sourceEndpoint);				
-
-			// helper method to set mouse handlers and the labelText member on connections.
-			var init = function(conn) {
-				conn.connector.labelText = conn.sourceId.substring(6) + " - " + conn.targetId.substring(6);						
-				conn.bind("mouseenter", function(conn) { conn.setLabel("click to delete"); });
-				conn.bind("mouseexit", function(conn) { conn.setLabel(""); });
-				conn.repaint();
-			};
-
-			// connect two elements.  calls the init function to register mouse handlers etc.
-			var connect = function(s,t) {
-				var c = jsPlumb.connect({ source:s,target:t });
-				if (c) init(c);
-			};
-
-			// connect, by Endpoint.
-			connect(e12, e32);
-		//	connect(e41, e21 );
-			connect(e22, e33);
-			connect(e42, e31);
-			connect(e34, e11);
-
-			// a little test 
-			var anchors = [[1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0], [0.2, 0, 0, -1] ];					
-			jsPlumb.makeTarget("window2", {
-				endpoint:jsPlumb.extend(targetEndpoint, {anchor:anchors}),
-				dropOptions:{ hoverClass:"hover" },
+			// 
+			// add endpoints to all windows. note here we use a string array; that's just because this demo is framework-agnostic.  you'd
+			// probably use a selector in the real world, eg.
+			//
+			// jsPlumb.addEndpoints($(".window"), [ topSource, bottomSource ]);
+			//
+			jsPlumb.addEndpoints(windows, [ topSource, bottomSource ]);
+								
+			//
+			// make all windows drop targets.  again note the string array vs selector issue.
+			//
+			jsPlumb.makeTarget(windows, {
+				endpoint:targetEndpoint,
+				dropOptions:{ hoverClass:"hover", activeClass:"active" },
 				deleteEndpointsOnDetach:true
 			});
 
@@ -107,12 +87,13 @@
 				init(connInfo.connection);
 			});
 
+			//
+			// listen for clicks on connections, and offer to delete connections on click.
+			//
 			jsPlumb.bind("click", function(conn) {
 				if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
 					jsPlumb.detach(conn); 
 			});
 		}
 	};
-
-
 })();
