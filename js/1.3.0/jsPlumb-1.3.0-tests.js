@@ -875,6 +875,13 @@ var testSuite = function(renderMode) {
 		equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 	});
 	
+	test(renderMode + ": jsPlumb.makeTarget (simple case)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		jsPlumb.makeTarget(d17, { isTarget:true,anchor:"TopCenter"  });
+		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+	});
+	
 	test(renderMode + ': jsPlumb.connect (between two Endpoints)', function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var e = jsPlumb.addEndpoint(d1, {});
