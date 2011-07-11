@@ -3,7 +3,12 @@ body {
 	background-image:url(../img/dynamicAnchorBg.jpg); 
 }
 /* docs */
-.code { background-color:#e4eeee; border:1px solid black; margin:1em; padding:0.5em; font-family:courier; }
+.code { background-color:#e4e5ef; 
+border:1px solid black; margin:1em; padding:0.8em; 
+overflow:auto;
+font-family:courier; 
+font-size:8pt;
+}
 .section { border-bottom: 1px dotted black; padding:1em;font-family:helvetica;background-color:white;color:#333;}
 .menu { 
 	position:fixed; 
@@ -67,22 +72,7 @@ border:1px solid yellow;
 }
 */
 
-.index {
-width:20em;
-font-size:80%;
-float:left;
-background-color:#e4eeee;
-overflow:auto;
-}
 
-.index li {
-list-style-type:none;
-}
-
-.index ul, .index h3 {
-padding-left:1.5em;
-
-}
 .section li {
 list-style-type:none;
 }
@@ -94,9 +84,28 @@ li.bullet {
 
 .section {
 padding-left:2em;
+font-size:10pt;
 }
 .index.section {
 padding-left:0;
+}
+
+.index {
+width:20em;
+font-size:9pt;
+float:left;
+background-color:#e4eeee;
+overflow:auto;
+padding-left:0.5em;
+}
+
+.index li {
+list-style-type:none;
+}
+
+.index ul, .index h3 {
+padding-left:1.5em;
+
 }
 
 #demo {
@@ -104,4 +113,12 @@ width:80%;
 height:50em;
 margin-left:3em;
 margin-top:3em;
+}
+
+.sub {
+margin-left:1em;
+}
+
+.table td {
+	text-align:center;
 }
