@@ -53,6 +53,8 @@
 				paintStyle:{ fillStyle:"#558822",radius:11 },
 				hoverPaintStyle:connectorHoverStyle,
 				maxConnections:-1,
+				dropOptions:{ hoverClass:"hover", activeClass:"active" },
+				isTarget:true,
 				anchor:[ "LeftMiddle", "RightMiddle" ]
 			},
 			windows = ["window1", "window2", "window3", "window4"],
@@ -64,9 +66,10 @@
 			// add endpoints to all windows. note here we use a string array; that's just because this demo is framework-agnostic.  you'd
 			// probably use a selector in the real world, eg.
 			//
-			// jsPlumb.addEndpoints($(".window"), [ bottomSource ]);
+			// jsPlumb.addEndpoint($(".window"), [ bottomSource ]);
 			//
-			var endpoints = jsPlumb.addEndpoints(windows, [ bottomSource ]);
+			var sourceEndpoints = jsPlumb.addEndpoint(windows, bottomSource),
+			targetEndpoints = jsPlumb.addEndpoint(windows, targetEndpoint); 
 			
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
 			jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
@@ -76,24 +79,22 @@
 			//
 			// make all windows drop targets.  again note the string array vs selector issue.
 			//
-			jsPlumb.makeTarget(windows, {
+			/*jsPlumb.makeTarget(windows, {
 				endpoint:targetEndpoint,
 				dropOptions:{ hoverClass:"hover", activeClass:"active" },
 				deleteEndpointsOnDetach:true
-			});
+			});*/
 			
 			// make a couple of connections. note that the return value of addEndpoints is an array of Endpoints, 
 			jsPlumb.connect({
-				source:endpoints[0],
-				target:"window2",
-				anchors:[ null, [ "LeftMiddle", "RightMiddle" ] ]
+				source:sourceEndpoints[0],
+				target:targetEndpoints[1]
 			});
 			
 			jsPlumb.connect({
-				source:endpoints[3],
-				target:"window3",
-				anchors:[ null, [ "LeftMiddle", "RightMiddle" ] ]
-			});			
+				source:sourceEndpoints[3],
+				target:targetEndpoints[2]
+			});		
 
 			//
 			// listen for clicks on connections, and offer to delete connections on click.

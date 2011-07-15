@@ -16,6 +16,8 @@
 	z-index:20; 
 	position:absolute; 
 	font-size:0.8em;
+	
+	/*margin:1em;*/
 }
 
 .label {

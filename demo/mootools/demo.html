@@ -1,26 +1,33 @@
 <!doctype html>
 <html>
 	<head>
-		<title>jsPlumb demo - MooTools</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<title>jsPlumb 1.3.0 demo - MooTools</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
-		<link rel="stylesheet" href="../css/demo.css"></link>	
+		<link rel="stylesheet" href="/mp.css"></link>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
+		<link rel="stylesheet" href="../css/demo.css">				
 	</head>
 	<body onunload="jsPlumb.unload();">
-		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 	
-		<div class="window" id="window1"><strong>Window 1</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 2.</div>
-		<div class="window" id="window2"><strong>Window 2</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 1, and a Bezier connector with square endpoints to Window 3</div>
-	    <div class="window" id="window3"><strong>Window 3</strong><br/><br/>i am plumbed with a Bezier connector and square endpoints to Window 2, and a Bezier connector with custom style to Window 4</div>
-	    <div class="window" id="window4"><strong>Window 4</strong><br/><br/>i am plumbed with a Bezier connector with custom style to Window 3, and with a straight line connector with image endpoints to Window 5.</div>
-	    <div class="window" id="window5"><strong>Window 5</strong><br/><br/>i am plumbed with a flowchart connector to Window 6, between our two centerpoints, which are drawn below, and larger than, the window element; i am also plumbed to Window 4.</div>
-	    <div class="window" id="window6"><strong>Window 6</strong><br/><br/>i am plumbed with a flowchart connector to Window 5, between our two centerpoints, which are drawn below, and larger than, the window element.</div>
+		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="../../apidocs">view api docs</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+	
+		<div id="demo">
+			<div class="component window" id="window1"><strong>Window 1</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 2.</div>
+			<div class="component window" id="window2"><strong>Window 2</strong><br/><br/>i am plumbed with a yellow Bezier connector to Window 1, and a Bezier connector with square endpoints to Window 3</div>
+		    <div class="component window" id="window3"><strong>Window 3</strong><br/><br/>i am plumbed with a Bezier connector and square endpoints to Window 2, and a Bezier connector with custom style to Window 4. My blue endpoint tracks Window 4.</div>
+		    <div class="component window" id="window4"><strong>Window 4</strong><br/><br/>i am plumbed with a Bezier connector with custom style to Window 3, and with a straight line connector with image endpoints to Window 5. My blue endpoint tracks Window 3.</div>
+		    <div class="component window" id="window5"><strong>Window 5</strong><br/><br/>i am plumbed with a flowchart connector to Window 6, between our two centerpoints, which are drawn below, and larger than, the window element; i am also plumbed to Window 4.</div>
+		    <div class="component window" id="window6"><strong>Window 6</strong><br/><br/>i am plumbed with a flowchart connector to Window 5, between our two centerpoints, which are drawn below, and larger than, the window element.</div>
+		 </div>	
+	    
+	    <div id="debug"></div>
 	    
 	    <div id="explanation">
-	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  This page contains a little bit of everything to whet your appetite.</p>
-	    	<p>This demonstration uses jsPlumb 1.2.6-RC1, MooTools 1.3.2, and Drag.Move from MooTools More 1.3.2.1.</p>
+	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  </p>
+	    	<p>This demonstration uses jsPlumb 1.3.0, MooTools 1.3.2, and Drag.Move from MooTools More 1.3.2.1.</p>
 	    	<a href="flowchartConnectorsDemo.html" class="mplink">next: flowchart connectors demonstration</a>
+	    	<br/><br/>
+	    	render mode:&nbsp;<a href="#" class="rmode" mode="svg">SVG</a>&nbsp;|&nbsp;<a href="#" class="selected rmode" mode="canvas">Canvas</a>&nbsp;|&nbsp;<a href="#" class="rmode" mode="vml">VML</a>
 	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
 	    	<br/><br/>
@@ -28,122 +35,29 @@
 	    	See a <a href="../yui3/demo.html">YUI3 version</a> of this demo.
 	    </div>
 	    
-	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"></script>
+	    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"></script>
 		<script type="text/javascript" src="../../js/lib/mootools-1.3.2.1-more.js"></script>
+				
+		<!-- support lib for bezier stuff -->
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-flowchart-0.1-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.6/mootools.jsPlumb-1.2.6-RC1.js"></script>
+		<!-- main jsplumb engine -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-1.3.0-RC1.js"></script>
+		<!-- connectors, endpoint and overlays  -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-defaults-1.3.0-RC1.js"></script>
+		<!-- SVG renderer -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-renderers-svg-1.3.0-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-renderers-canvas-1.3.0-RC1.js"></script>
+		<!-- vml renderer -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-renderers-vml-1.3.0-RC1.js"></script>
+		<!-- mootools jsplumb adapter -->
+		<script type="text/javascript" src="../../js/1.3.0/mootools.jsPlumb-1.3.0-RC1.js"></script>
 		
-		<script type="text/javascript">
-			jsPlumb.bind('ready', function() {
-				// chrome fix.
-				document.onselectstart = function () { return false; };
-				
-				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
+		<!--  demo code -->
+		<script type="text/javascript" src="../js/1.3.0/demo.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/1.3.0/demo-helper-mootools.js"></script>							            	
 
-				// 
-				// plumb window1 to window2 with a 15 px wide yellow Bezier, from the BottomCenter of window1 to 3/4 of the way along the top edge
-				// of window2. endpoints are a slightly lighter shade of yellow. the connection is labelled "connection 1" with a 16px sans serif
-				// black font. 				
-				//
-				var connection1 = jsPlumb.connect({source:'window1', 
-												   target:'window2', 
-												   anchors:["BottomCenter", [ 0.75, 0, 0, -1 ]], 
-												   paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
-												   backgroundPaintStyle:{lineWidth:17,strokeStyle:'rgba(100,100,100,50)'},  
-												   endpointStyle:{fillStyle:'rgb(243,229,0)'},
-												   overlays : [ ["Label", {
-												   					labelStyle : {
-																		font : "15px sans-serif",				        
-												        				color : "black"												            
-												   					},
-												   					label : "Connection One", 
-												   					location:0.7 } ]
-							   					   ]});
-
-		        // plumb window2 to window3 with an 8px red Bezier and default rectangular endpoints.  see also how the first anchor is 
-		        // specified here - this is how you create anchors in locations jsPlumb does not offer shortcuts for.
-		        // the endpoints in this example have linear gradients applied.
-		        //
-		        var w23Stroke = 'rgb(189,11,11)'; 
-		        var connection3 = jsPlumb.connect({source:'window2', target:'window3', 
-			        				 paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
-			        				 backgroundPaintStyle:{lineWidth:10,strokeStyle:'black'}, 
-			        				 anchors:[ [ 0.3, 1, 0, 1 ], "TopCenter"], 
-			        				 endpoint:"Rectangle", 
-			        				 endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, '#558822']] }},
-			    			        				 { gradient : {stops:[[0, w23Stroke], [1, '#882255']] }}]
-			    			        });
-				
-												  												  
-				//
-				// plumb the right hand side of window3 to the left hand side of window4 with a 10px wide blue-ish half transparent Bezier. 
-				// put endpoints underneath the element they attach to. the endpoints have a radial gradient. both possible ways of specifying 
-				// gradient positioning are shown here.  this connection is labelled using the default label appearance (black text on transparent
-				// background) by a function that returns the current time.  the argument to the label function is the Connection the label
-				// belongs to. 
-				//
-				var w34Stroke = 'rgba(50, 50, 200, 1)';
-				var w34HlStroke = 'rgba(180, 180, 200, 1)';
-				var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
-			        				 paintStyle:{lineWidth:10, strokeStyle:w34Stroke}, 
-			        				 anchors:["AutoDefault", "AutoDefault"], 
-			        				 endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:17.5, innerRadius:15 }, radius:35},
-			        				 backgroundPaintStyle:{lineWidth:12,strokeStyle:'rgba(100,100,100,50)'},
-			        				 endpointsOnTop:true,
-			        				 label : function(connection) { 
-				        				 var d = new Date();
-				        				 var fmt = function(n) { return (n < 10 ? "0" : "") + n; }; 
-				        				 return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds())); 
-				        			 }
-			        			});
-				 
-
-		        //
-		        // plumb window5 to window6 from center to center, 5px wide line that is green and half transparent. 
-		        // the endpoints are 125px in radius and spill out from underneath their elements. the connection is labelled
-		        // "big endpoints" with black text on a green background using the default font style and size.
-		        //
-		        var connection4 = jsPlumb.connect({
-			        						source:"window5", 
-			        						target:"window6", 
-			        						anchors:["Center", "Center"],
-			        						connector:"Flowchart",  
-			        						paintStyle:{lineWidth:9,strokeStyle:'rgba(46,164,26,0.8)'},
-			        						endpointsOnTop:false, 
-			        						endpointStyle:{radius:95, fillStyle:'rgba(46,164,26,0.8)'},
-			        						labelStyle : { fillStyle:"rgba(46,164,26, 0.8)", color:"black",borderWidth:10 },
-			        						label : "big\nendpoints" });
-		        //
-		        // plumb window4 to window5 from bottom right to top left, with a 7px straight line purple connector, and an 
-		        // image as the endpoint, placed on top of the element it is connected to.  the connection is labelled "4-5" with text
-		        // of the same color as the connector, on a white background with a purple border.  note the 'padding' value of 0.4: that 
-		        // instructs jsPlumb to make the background (2 * 0.4) times larger than the text in the horizontal and vertical directions.
-		        //
-		        var connection5 = jsPlumb.connect({
-			        					source:"window4", 
-			        					target:"window5", 
-			        					anchors:[ "BottomRight", "TopLeft" ], 
-			        					paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'}, 
-			        					endpoint:["Image", {url:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png"} ], 
-			        					connector:"Straight", 
-										endpointsOnTop:true,
-										overlays:[ ["Label", {
-														labelStyle : { 
-															fillStyle:"white", 
-															padding:0.4, 
-															font:"16px sans-serif", 
-															color:"rgb(131,8,135)", 
-															borderStyle:"rgb(131,8,135)", 
-															borderWidth:2 
-														},			    			        				 
-								    			        label : "4 - 5",
-								    			        location:0.3 } ]
-										]});		             		       
-		});
-		</script>
 	</body>
 </html>

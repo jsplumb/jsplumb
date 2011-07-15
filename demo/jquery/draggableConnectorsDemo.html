@@ -1,207 +1,58 @@
 <!doctype html>
 <html>
 	<head>
-		<title>jsPlumb - draggable connectors experiments - jQuery</title>
-		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<title>jsPlumb 1.3.0 - draggable connectors experiments - jQuery</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>
-		<link rel="stylesheet" href="../css/draggableConnectorsDemo.css"></link>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
+		<link rel="stylesheet" href="../css/draggableConnectorsDemo.css">
 	</head>
 	<body onunload="jsPlumb.unload();">
 
-		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
-
-		<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window1">detach all</a></div>
-		<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window2">detach all</a></div>
-		<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a></div>
-		<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>
-
-		<div id="explanation">
-			<div id="list"></div>
-	    	<p>this demo uses jsPlumb 1.2.6-RC1, jQuery 1.6.0 and jQuery UI 1.8.13.</p><p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
-	    	<a id="clear" href="#">clear plumbing</a><br/><br/>
-	    	<a href="dragAnimDemo.html">next: animated dragging demo</a><br/>
-	    	<a href="dynamicAnchorsDemo.html" class="mplink">prev: dynamic anchors demonstration</a><br/><br/>
-	    	see a <a href="../mootools/draggableConnectorsDemo.html">MooTools version</a> of this demo.<br/>
-	    	see a <a href="../yui3/draggableConnectorsDemo.html">YUI3 version</a> of this demo.
-	    </div>
-
-		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="../../apidocs">view api docs</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+		
+		<div id="demo">
+			<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window1">detach all</a></div>
+			<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window2">detach all</a></div>
+			<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a></div>
+			<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>
+	
+			<div id="explanation">
+				<div id="list"></div>
+		    	<p>this demo uses jsPlumb 1.3.0, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
+		    	<p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
+		    	<a id="clear" href="#">clear plumbing</a><br/><br/>	    	
+		    	render mode:&nbsp;<a href="#" class="rmode" mode="svg">SVG</a>&nbsp;|&nbsp;<a href="#" class="selected rmode" mode="canvas">Canvas</a>&nbsp;|&nbsp;<a href="#" class="rmode" mode="vml">VML</a>
+		    	<br/><br/>
+		    	<a href="dragAnimDemo.html">next: animated dragging demo</a><br/>
+		    	<a href="dynamicAnchorsDemo.html" class="mplink">prev: dynamic anchors demonstration</a><br/><br/>
+		    	see a <a href="../mootools/draggableConnectorsDemo.html">MooTools version</a> of this demo.<br/>
+		    	see a <a href="../yui3/draggableConnectorsDemo.html">YUI3 version</a> of this demo.
+		    </div>
+		</div>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
-		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
-		<script type="text/javascript" src="../../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>
 		
-		<script type="text/javascript">
-			jsPlumb.bind('ready', function() {
-
-				// chrome fix.
-				document.onselectstart = function () { return false; };								
-
-				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
-				jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
-				jsPlumb.Defaults.EndpointStyle = { width:20, height:16, strokeStyle:'#666' };
-				jsPlumb.Defaults.Endpoint = "Rectangle";
-				jsPlumb.Defaults.Anchors = ["TopCenter", "TopCenter"];
-
-				var showConnections = function() {
-					var c = jsPlumb.getConnections();
-					var foundSome = false;
-					var s = "<span>current connections</span><br/><br/><table><tr><th>scope</th><th>source</th><th>target</th></tr>";
-					for (var i in c) {
-						var l = c[i];
-						if (l && l.length > 0) {
-							foundSome = true;
-							for (var j = 0; j < l.length; j++) {
-								s = s + "<tr><td>" + i + "</td>" + "<td>" + l[j].sourceId + "</td><td>" + l[j].targetId + "</td></tr>";
-							}
-						}
-					}
-					s = s + "</table>";
-					if (foundSome) {
-						$("#list").html(s);
-						$("#list").fadeIn({complete:function() { jsPlumb.repaintEverything(); }});
-					} else $("#list").fadeOut({complete:function() { jsPlumb.repaintEverything(); }});
-				};
-
-				// connection listener
-				var l = function(p) { showConnections(); };
-				jsPlumb.bind("jsPlumbConnection", l);
-				jsPlumb.bind("jsPlumbConnectionDetached", l);
-
-				var exampleDropOptions = {
-					tolerance:'touch',
-					hoverClass:'dropHover',
-					activeClass:'dragActive'
-				};
-
-				/**
-					first example endpoint.  it's a 25x21 rectangle (the size is provided in the 'style' arg to the Endpoint), and it's both a source
-					and target.  the 'scope' of this Endpoint is 'exampleConnection', meaning any connection starting from this Endpoint is of type
-					'exampleConnection' and can only be dropped on an Endpoint target that declares 'exampleEndpoint' as its drop scope, and also that
-					only 'exampleConnection' types can be dropped here.
-
-					the connection style for this endpoint is a Bezier curve (we didn't provide one, so we use the default), with a lineWidth of
-					5 pixels, and a gradient.
-
-					note the use of the '$.extend' function to setup generic connection types.  this will save you a lot of typing, and probably
-					errors.
-
-				*/
-				var exampleColor = '#00f';
-				var exampleEndpoint = {
-					endpoint:"Rectangle",
-					style:{ width:25, height:21, fillStyle:exampleColor },
-					isSource:true,
-					scope:'blue rectangle',
-					connectorStyle : {
-						gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
-						lineWidth:5,
-						strokeStyle:exampleColor
-					},
-					isTarget:true,
-					dropOptions : exampleDropOptions
-				};
-
-				/**
-					the second example uses a Dot of radius 15 as the endpoint marker, is both a source and target, and has scope
-					'exampleConnection2'.
-				*/
-				var color2 = '#316b31';
-				var exampleEndpoint2 = {
-						endpoint:["Dot", {radius:15}],
-						style:{ strokeStyle:color2 },
-						isSource:true,
-						scope:'green dot',
-						connectorStyle:{ strokeStyle:color2, lineWidth:8 },
-						connector: ["Bezier", 63 ],
-						maxConnections:3,
-						isTarget:true,
-						dropOptions : exampleDropOptions
-				};
-
-				/**
-				the third example uses a Dot of radius 17 as the endpoint marker, is both a source and target, and has scope
-				'exampleConnection3'.  it uses a Straight connector, and the Anchor is created here (bottom left corner) and never
-				overriden, so it appears in the same place on every element.
-
-				this example also sets the 'reattach' flag for the Endpoint, meaning that when you drag a
-				connection off an endpoint and release it, it snaps back.  the default behaviour in this case
-				is to delete the connection.
-
-				*/
-				var example3Color = "rgba(229,219,61,0.5)";
-				var exampleEndpoint3 = {
-						endpoint:["Dot", {radius:17} ],
-						reattach:true,
-						anchor:"BottomLeft",
-						style:{ strokeStyle:example3Color, opacity:0.5 },
-						isSource:true,
-						scope:'yellow dot',
-						connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
-						connector : "Straight",
-						isTarget:true,
-						dropOptions : exampleDropOptions
-				};
-
-				// setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
-				// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
-				jsPlumb.addEndpoint('window1', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint2);
-
-				//
-				// here's an example of how the SelectiveAnchor stuff added to 1.2.3 works with
-				// drag and drop connectors.
-				//
-				var anchors = [[1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0], [0.2, 0, 0, -1] ];
-				jsPlumb.addEndpoint('window1', { anchor:anchors }, exampleEndpoint);
-
-				jsPlumb.addEndpoints('window2', [
-					$.extend({ anchor:[0.5, 1, 0, 1] }, exampleEndpoint),
-					$.extend({ anchor:"RightMiddle" }, exampleEndpoint2)
-				]);
-
-				jsPlumb.addEndpoints('window3', [
-    				$.extend({ anchor:[0.25, 0, 0, -1] }, exampleEndpoint),
-    				$.extend({ anchor:[0.75, 0, 0, -1] }, exampleEndpoint2)
-     			]);
-
-				jsPlumb.addEndpoints('window4', [
-					$.extend({ anchor:[1, 0.5, 1, 0] }, exampleEndpoint),
-					$.extend({ anchor:[0.25, 0, 0, -1] }, exampleEndpoint2)
-				]);
-
-				// three ways to do this - an id, a list of ids, or a selector (note the two different types of selectors shown here...anything that is valid jquery will work of course)
-				//jsPlumb.draggable("window1");
-				//jsPlumb.draggable(["window1", "window2"]);
-				//jsPlumb.draggable($("#window1"));
-				jsPlumb.draggable($(".window"));
-
-				// add the third example using the '.window' class.
-				$(".window").each(function(i,e) {
-					jsPlumb.addEndpoint(e, exampleEndpoint3);
-				});
-
-				$(".hide").click(function() {
-					jsPlumb.toggle($(this).attr("rel"));
-				});
-
-				$(".drag").click(function() {
-					var s = jsPlumb.toggleDraggable($(this).attr("rel"));
-					$(this).html(s ? 'disable dragging' : 'enable dragging');
-					if (!s) $("#" + $(this).attr("rel")).addClass('drag-locked'); else $("#" + $(this).attr("rel")).removeClass('drag-locked');
-					$("#" + $(this).attr("rel")).css("cursor", s ? "pointer" : "default");
-				});
-
-				$(".detach").click(function() {
-					jsPlumb.detachAll($(this).attr("rel"));
-				});
-
-				$("#clear").click(function() { 
-					jsPlumb.detachEverything(); showConnections(); 
-				});				
-			});
-		</script>
+		<!-- support lib for bezier stuff -->
+		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
+		<!-- main jsplumb engine -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-1.3.0-RC1.js"></script>
+		<!-- connectors, endpoint and overlays  -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-defaults-1.3.0-RC1.js"></script>
+		<!-- SVG renderer -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-renderers-svg-1.3.0-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-renderers-canvas-1.3.0-RC1.js"></script>
+		<!-- vml renderer -->
+		<script type="text/javascript" src="../../js/1.3.0/jsPlumb-renderers-vml-1.3.0-RC1.js"></script>
+		<!-- jquery jsPlumb adapter -->
+		<script type="text/javascript" src="../../js/1.3.0/jquery.jsPlumb-1.3.0-RC1.js"></script>
+		
+		<!--  demo code -->
+		<script type="text/javascript" src="../js/1.3.0/draggableConnectorsDemo.js"></script>
+		<script type="text/javascript" src="../js/1.3.0/draggableConnectorsDemo-jquery.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/1.3.0/demo-helper-jquery.js"></script>
+		
 	</body>
 </html>
