@@ -5,17 +5,14 @@
  * 
  * jQuery specific functionality for jsPlumb.
  * 
- * http://morrisonpitt.com/jsPlumb/demo.html
- * http://code.google.com/p/jsPlumb
+ * http://jsplumb.org
+ * http://code.google.com/p/jsplumb
  * 
- * NOTE: for production usage you should use jsPlumb-all-x.x.x-min.js, which contains the main jsPlumb script and this script together,
- * in a minified file.
- * 
- * Dual licensed under MIT and GPL2.
+ * Triple licensed under MIT, GPL2 and Beer licenses.
  * 
  */ 
 /* 
- * the library agnostic functions, such as find offset, get id, get attribute, extend etc.  
+ * the library specific functions, such as find offset, get id, get attribute, extend etc.  
  * the full list is:
  * 
  * addClass				adds a class to the given element
@@ -48,6 +45,8 @@
  * setOffset			sets the offset of some element.
  */
 (function($) {	
+	
+	//var getBoundingClientRectSupported = "getBoundingClientRect" in document.documentElement;
 	
 	jsPlumb.CurrentLibrary = {					        
 		
@@ -174,8 +173,19 @@
 		 * see getDragObject as well
 		 */
 		getUIPosition : function(eventArgs) {
-			var ui = eventArgs[1], _offset = ui.offset;			
-			return _offset || ui.absolutePosition;
+			
+			// this code is a workaround for the case that the element being dragged has a margin set on it. jquery UI passes
+			// in the wrong offset if the element has a margin (it doesn't take the margin into account).  the getBoundingClientRect
+			// method, which is in pretty much all browsers now, reports the right numbers.  but it introduces a noticeable lag, which
+			// i don't like.
+			
+			/*if ( getBoundingClientRectSupported ) {
+				var r = eventArgs[1].helper[0].getBoundingClientRect();
+				return { left : r.left, top: r.top };
+			} else {*/
+				var ui = eventArgs[1], _offset = ui.offset;			
+				return _offset || ui.absolutePosition;
+			//}
 		},		
 		
 		hasClass : function(el, clazz) {
@@ -188,9 +198,6 @@
 		initDraggable : function(el, options) {
 			// remove helper directive if present.  
 			options.helper = null;
-			//TODO: if 'revert' is set on the options it causes end points to animate back to
-			// where they came from, if the connection is aborted.  do we care?  probably not.
-			// the todo is to decide whether we care or not.
 			options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
 			el.draggable(options);
 		},
@@ -262,4 +269,5 @@
 	};
 	
 	$(document).ready(jsPlumb.init);
+	
 })(jQuery);
