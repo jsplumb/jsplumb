@@ -17,15 +17,10 @@
 				[ "Arrow", { location:0.9 } ], 
 				[ "Label", { 
 					location:0.1,
-					label:function(c) { 
-						return c.labelText || ""; 
+					label:function(label) {
+						return label.connection.labelText || ""; 
 					},
-					labelStyle : { 
-						fillStyle:"#deea18", 
-						padding:0.4, 
-						font:"12px sans-serif", 
-						color:"#444" 
-					}
+					cssClass:"aLabel"
 				}] 
 			];
 
@@ -43,18 +38,15 @@
 			// the definition of source endpoints (the small blue ones)
 			sourceEndpoint = {
 				endpoint:"Dot",
-				paintStyle:{fillStyle:"#225588",radius:7},
+				paintStyle:{ fillStyle:"#225588",radius:7 },
 				isSource:true,
-				connector:"Flowchart",
+				connector:[ "Flowchart", { stub:40 } ],
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
-				connectorHoverStyle:connectorHoverStyle/*,
-				connectorOverlays: overlays				*/
+				connectorHoverStyle:connectorHoverStyle
 			},
 			// a source endpoint that sits at BottomCenter
 			bottomSource = jsPlumb.extend( { anchor:"BottomCenter" }, sourceEndpoint),
-			// a source endpoint that sits at TopCenter
-			topSource = jsPlumb.extend( { anchor:"TopCenter" }, sourceEndpoint),
 			// the definition of target endpoints (will appear when the user drags a connection) 
 			targetEndpoint = {
 				endpoint:"Dot",					
@@ -63,15 +55,23 @@
 				maxConnections:-1,
 				anchor:[ "LeftMiddle", "RightMiddle" ]
 			},
-			windows = ["window1", "window2", "window3", "window4"];
+			windows = ["window1", "window2", "window3", "window4"],
+			init = function(connection) {
+				connection.labelText = connection.sourceId + "-" + connection.targetId;
+			};
 
 			// 
 			// add endpoints to all windows. note here we use a string array; that's just because this demo is framework-agnostic.  you'd
 			// probably use a selector in the real world, eg.
 			//
-			// jsPlumb.addEndpoints($(".window"), [ topSource, bottomSource ]);
+			// jsPlumb.addEndpoints($(".window"), [ bottomSource ]);
 			//
-			jsPlumb.addEndpoints(windows, [ topSource, bottomSource ]);
+			var endpoints = jsPlumb.addEndpoints(windows, [ bottomSource ]);
+			
+			// listen for new connections; initialise them the same way we initialise the connections at startup.
+			jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
+				init(connInfo.connection);
+			});
 								
 			//
 			// make all windows drop targets.  again note the string array vs selector issue.
@@ -81,11 +81,19 @@
 				dropOptions:{ hoverClass:"hover", activeClass:"active" },
 				deleteEndpointsOnDetach:true
 			});
-
-			// listen for new connections; initialise them the same way we initialise the connections at startup.
-			jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
-				init(connInfo.connection);
+			
+			// make a couple of connections. note that the return value of addEndpoints is an array of Endpoints, 
+			jsPlumb.connect({
+				source:endpoints[0],
+				target:"window2",
+				anchors:[ null, [ "LeftMiddle", "RightMiddle" ] ]
 			});
+			
+			jsPlumb.connect({
+				source:endpoints[3],
+				target:"window3",
+				anchors:[ null, [ "LeftMiddle", "RightMiddle" ] ]
+			});			
 
 			//
 			// listen for clicks on connections, and offer to delete connections on click.
