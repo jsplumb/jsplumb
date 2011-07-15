@@ -16,6 +16,7 @@ font-size:8pt;
 	background-color:white;
 	padding:0.3em;
 	opacity:0.8;
+	z-index:5000;
 	filter:alpha(opacity=80);
 		box-shadow: 2px 2px 19px #aaa;
    -o-box-shadow: 2px 2px 19px #aaa;
