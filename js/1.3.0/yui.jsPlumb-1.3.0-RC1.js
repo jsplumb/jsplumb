@@ -71,20 +71,17 @@
 			list[scope] = l;
 		}
 		l.push(value);
-	};
-	
-	var ddEvents = [ "drag:mouseDown", "drag:afterMouseDown", "drag:mouseup", 
+	},	
+	ddEvents = [ "drag:mouseDown", "drag:afterMouseDown", "drag:mouseup", 
 	     "drag:align", "drag:removeHandle", "drag:addHandle", "drag:removeInvalid", "drag:addInvalid",
 	     "drag:start", "drag:end", "drag:drag", "drag:over", "drag:enter",
 	     "drag:exit", "drag:drophit", "drag:dropmiss", "drop:over", "drop:enter", "drop:exit", "drop:hit"	     	               
-	];
-	
-	var animEvents = [ "tween" ];
-	
+	],	
+	animEvents = [ "tween" ],	
 	/**
 	 * helper function to curry callbacks for some element. 
 	 */
-	var _wrapper = function(fn) {
+	_wrapper = function(fn) {
 		return function() { 
 			try {
 				fn.apply(this, arguments); 
@@ -93,22 +90,20 @@
 				console.log("wrap fail", e);
 			}
 		};
-	};
-	
+	},	
 	/**
 	 * extracts options from the given options object, leaving out event handlers.
 	 */
-	var _getDDOptions = function(options) {
+	_getDDOptions = function(options) {
 		var o = {};
 		for (var i in options) if (ddEvents.indexOf(i) == -1) o[i] = options[i];
 		return o;
-	};
-	
+	},	
 	/**
 	 * attaches all event handlers found in options to the given dragdrop object, and registering
 	 * the given el as the element of interest.
 	 */
-	var _attachListeners = function(dd, options, eventList) {	
+	_attachListeners = function(dd, options, eventList) {	
 	    for (var ev in options) {
 	    	if (eventList.indexOf(ev) != -1) {
 	    		var w = _wrapper(options[ev]);
@@ -179,8 +174,8 @@
 		},
 			
 		dragEvents : {
-			'start':'drag:start', 'stop':'drag:end', 'drag':'drag:drag', 'step':'step',
-			'over':'drop:enter', 'out':'drop:exit', 'drop':'drop:hit'
+			"start":"drag:start", "stop":"drag:end", "drag":"drag:drag", "step":"step",
+			"over":"drop:enter", "out":"drop:exit", "drop":"drop:hit"
 		},								
 			
 		extend : _extend,
@@ -240,12 +235,9 @@
 		},
 		
 		getUIPosition : function(args) {		
-			//TODO must be a better way to get this? args was passed through from the drag function
-			// in initDraggable above - args[0] here is the element that was inited.
-			/*var bcr = _getElementObject(args[0].currentTarget.el)._node.getBoundingClientRect();
-			return { left:bcr.left, top:bcr.top };*/
-			var n = args[0].currentTarget.el._node;
-			return {left:n.offsetLeft, top:n.offsetTop};
+			var n = args[0].currentTarget.el._node,
+			o = Y.DOM.getXY(n);
+			return {left:o[0], top:o[1]};
 		},		
 		
 		hasClass : function(el, clazz) {

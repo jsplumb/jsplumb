@@ -113,7 +113,6 @@
 			
 		animate : function(el, properties, options) {			
 			var m = new jsPlumbMorph(el, options);
-			//var m = new Fx.Morph(el, options);
 			m.start(properties);
 		},
 		
@@ -200,8 +199,9 @@
 		 * getOffset, ie: { left: xxx, top: xxx }.
 		 */
 		getUIPosition : function(eventArgs) {
-			var ui = eventArgs[0];
-			return { left: ui.offsetLeft, top: ui.offsetTop };
+			var ui = eventArgs[0],
+			p = jsPlumb.CurrentLibrary.getElementObject(ui).getPosition();
+			return { left:p.x, top:p.y };
 		},		
 		
 		hasClass : function(el, clazz) {
