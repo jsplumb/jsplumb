@@ -49,12 +49,14 @@
 	    
 	    var _mouseover = false;
 	    var _mouseDown = false, _posWhenMouseDown = null, _mouseWasDown = false;
+	    var _nullSafeHasClass = function(el, clazz) {
+	    	return el != null && _hasClass(el, clazz);
+	    };
 	    this.mousemove = function(e) {		    
-	    	var pageXY = _pageXY(e), clientXY = _clientXY(e),	    	
-	    	//ee = document.elementFromPoint(pageXY[0], pageXY[1]),
+	    	var pageXY = _pageXY(e), clientXY = _clientXY(e),	   
 	    	ee = document.elementFromPoint(clientXY[0], clientXY[1]),
-	    	eventSourceWasOverlay = _hasClass(ee, "_jsPlumb_overlay");	    	
-			var _continue = _connectionBeingDragged == null && (_hasClass(ee, "_jsPlumb_endpoint") || _hasClass(ee, "_jsPlumb_connector"));
+	    	eventSourceWasOverlay = _nullSafeHasClass(ee, "_jsPlumb_overlay");	    	
+			var _continue = _connectionBeingDragged == null && (_nullSafeHasClass(ee, "_jsPlumb_endpoint") || _nullSafeHasClass(ee, "_jsPlumb_connector"));
 			if (!_mouseover && _continue && self._over(e)) {
 				_mouseover = true;
 				self.fire("mouseenter", self, e);		
