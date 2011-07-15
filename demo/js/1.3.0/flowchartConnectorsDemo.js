@@ -59,7 +59,7 @@
 			},
 			windows = ["window1", "window2", "window3", "window4"],
 			init = function(connection) {
-				connection.labelText = connection.sourceId + "-" + connection.targetId;
+				connection.labelText = connection.sourceId.substring(6) + "-" + connection.targetId.substring(6);
 			};
 
 			// 
