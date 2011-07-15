@@ -1915,18 +1915,18 @@ about the parameters allowed in the params object.
 					return lastReturnValue;
 				}
 				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
-				/*var container = element ? element.parent : null;
-				var containerAdjustment = { left : 0, top : 0 };
+				//*
+				var container = element ? element.parent : null;
 				if (container != null) {
-					var eo = _getElementObject(container);
-					var o = _getOffset(eo);
-					var sl = jsPlumb.CurrentLibrary.getScrollLeft(eo);
-					var st = jsPlumb.CurrentLibrary.getScrollTop(eo);
-					containerAdjustment.left = o.left - sl;
-					containerAdjustment.top = o.top - st;
-					lastReturnValue[0] = lastReturnValue[0] - containerAdjustment.left;
-					lastReturnValue[1] = lastReturnValue[1] - containerAdjustment.top;
-				}*/
+					var parentPosition = element.canvas.parentNode.style.position;
+					var parentIsPositioned = parentPosition != null && parentPosition != "static";
+					if (parentIsPositioned) {		
+						var o = _getOffset(element.canvas.parentNode);
+						lastReturnValue[0] = lastReturnValue[0] - o.left;
+						lastReturnValue[1] = lastReturnValue[1] - o.top;
+					}
+				}
+				//*/
 				self.timestamp = timestamp;
 				return lastReturnValue;
 			};
@@ -1950,6 +1950,8 @@ about the parameters allowed in the params object.
 		 * An Anchor that floats. its orientation is computed dynamically from
 		 * its position relative to the anchor it is floating relative to.  It is used when creating 
 		 * a connection through drag and drop.
+		 * 
+		 * TODO FloatingAnchor could totally be refactored to extend Anchor just slightly.
 		 */
 		var FloatingAnchor = function(params) {
 
@@ -1972,13 +1974,21 @@ about the parameters allowed in the params object.
 			var _lastResult = null;
 
 			this.compute = function(params) {
-				var xy = params.xy, el = params.element;
-				var result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-				/*if (el.container != null) {					
-					var o = _getOffset(el.container);
-					result[0] = result[0] - o.left;
-					result[1] = result[1] - o.top;
-				}*/
+				var xy = params.xy, element = params.element;
+				var result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.				
+				//*
+				var container = element ? element.parent : null;
+				if (container != null) {
+					var parentPosition = element.canvas.parentNode.style.position;
+					var parentIsPositioned = parentPosition != null && parentPosition != "static";
+					if (parentIsPositioned) {		
+						var o = _getOffset(element.canvas.parentNode);
+						result[0] = result[0] - o.left;
+						result[1] = result[1] - o.top;
+					}
+				}
+				//*/
+				
 				_lastResult = result;
 				return result;
 			};
