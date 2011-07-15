@@ -30,6 +30,11 @@
 	   paint definitions. 
 	   
   	- drag entire connection, introduced for some browsers in 1.2.6, has been removed.
+  	
+  	- getConnections now returns a list of connections for the scope you asked for, unless
+  		you didn't specify a scope, in which case you get the list of connections for the default scope. see the API docs.
+  		getAllConnections, introduced in 1.3.0, does what getConnections used to do, but does
+  		not take any scope parameter.
 	  
 	General Changes
 	-------------- 
