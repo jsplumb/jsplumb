@@ -1919,8 +1919,9 @@ about the parameters allowed in the params object.
 				var container = element ? element.parent : null;
 				if (container != null) {
 					var parentPosition = element.canvas.parentNode.style.position;
-					var parentIsPositioned = parentPosition != null && parentPosition != "static";
+					var parentIsPositioned = parentPosition != null && parentPosition != "" && parentPosition != "static";
 					if (parentIsPositioned) {		
+						console.log("positioning");
 						var o = _getOffset(element.canvas.parentNode);
 						lastReturnValue[0] = lastReturnValue[0] - o.left;
 						lastReturnValue[1] = lastReturnValue[1] - o.top;
@@ -1980,7 +1981,7 @@ about the parameters allowed in the params object.
 				var container = element ? element.parent : null;
 				if (container != null) {
 					var parentPosition = element.canvas.parentNode.style.position;
-					var parentIsPositioned = parentPosition != null && parentPosition != "static";
+					var parentIsPositioned = parentPosition != null && parentPosition != "" && parentPosition != "static";
 					if (parentIsPositioned) {		
 						var o = _getOffset(element.canvas.parentNode);
 						result[0] = result[0] - o.left;
