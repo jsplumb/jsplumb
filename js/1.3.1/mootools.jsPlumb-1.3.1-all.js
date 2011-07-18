@@ -871,7 +871,10 @@
 		this.addEndpoints = function(el, endpoints, referenceParams) {
 			var results = [];
 			for ( var i = 0; i < endpoints.length; i++) {
-				Array.prototype.push.apply(results, _currentInstance.addEndpoint(el, endpoints[i], referenceParams));				
+				var e = _currentInstance.addEndpoint(el, endpoints[i], referenceParams);
+				if (e.constructor == Array)
+					Array.prototype.push.apply(results, e);
+				else results.push(e);
 			}
 			return results;
 		};
@@ -1916,9 +1919,11 @@ about the parameters allowed in the params object.
 					return lastReturnValue;
 				}
 				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
-				var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
-				lastReturnValue[0] = lastReturnValue[0] - po.left;
-				lastReturnValue[1] = lastReturnValue[1] - po.top;
+				if (element.canvas) {
+					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
+					lastReturnValue[0] = lastReturnValue[0] - po.left;
+					lastReturnValue[1] = lastReturnValue[1] - po.top;
+				}
 				
 				self.timestamp = timestamp;
 				return lastReturnValue;
@@ -1969,10 +1974,12 @@ about the parameters allowed in the params object.
 			this.compute = function(params) {
 				var xy = params.xy, element = params.element;
 				var result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-								
-				var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
-				result[0] = result[0] - po.left;
-				result[1] = result[1] - po.top;				
+							
+				if (element.canvas) {
+					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
+					result[0] = result[0] - po.left;
+					result[1] = result[1] - po.top;
+				}
 				
 				_lastResult = result;
 				return result;
