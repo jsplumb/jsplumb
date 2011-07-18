@@ -2988,8 +2988,8 @@ about the parameters allowed in the params object.
 					// set the offset of this div to be where 'inPlaceCopy' is, to start with.
 					var ipcoel = _getElementObject(inPlaceCopy.canvas),
 					ipco = jsPlumb.CurrentLibrary.getOffset(ipcoel),
-					ipcs = jsPlumb.CurrentLibrary.getSize(ipcoel);
-					jsPlumb.CurrentLibrary.setOffset(n, ipco);
+					po = inPlaceCopy.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(inPlaceCopy.canvas.offsetParent);					
+					jsPlumb.CurrentLibrary.setOffset(n, {left:ipco.left - po.left, top:ipco.top-po.top});					
 					
 					_updateOffset( { elId : id });
 					
