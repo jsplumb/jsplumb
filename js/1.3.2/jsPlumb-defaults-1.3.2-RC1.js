@@ -17,9 +17,7 @@
  */
 
 (function() {	
-
-			
-	
+				
 	/**
 	 * 
 	 * Helper class to consume unused mouse events by components that are DOM elements and
@@ -42,7 +40,7 @@
      * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
      */
     jsPlumb.Connectors.Straight = function() {
-	 
+    	this.type = "Straight";
 		var self = this;
 		var currentPoints = null;
 		var _m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty;
@@ -168,6 +166,7 @@
     	this.majorAnchor = params.curviness || 150;
         this.minorAnchor = 10;
         var currentPoints = null;
+        this.type = "Bezier";
         
         this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceAnchor, targetAnchor) {
         	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
@@ -303,6 +302,7 @@
      * 	stub - minimum length for the stub at each end of the connector. defaults to 30 pixels. 
      */
     jsPlumb.Connectors.Flowchart = function(params) {
+    	this.type = "Flowchart";
     	params = params || {};
 		var self = this, 
 		minStubLength = params.stub || params.minStubLength /* bwds compat. */ || 30, 
@@ -521,7 +521,8 @@
 	 * 
 	 * 	radius	-	radius of the endpoint.  defaults to 10 pixels.
 	 */
-	jsPlumb.Endpoints.Dot = function(params) {	
+	jsPlumb.Endpoints.Dot = function(params) {
+		this.type = "Dot";
 		var self = this;
 		params = params || {};				
 		this.radius = params.radius || 10;
@@ -549,6 +550,7 @@
 	 * 	height	- height of the endpoint. defaults to 20 pixels.	
 	 */
 	jsPlumb.Endpoints.Rectangle = function(params) {
+		this.type = "Rectangle";
 		var self = this;
 		params = params || {};
 		this.width = params.width || 20;
@@ -576,6 +578,7 @@
 	 */
 	jsPlumb.Endpoints.Image = function(params) {
 				
+		this.type = "Image";
 		jsPlumb.DOMElementComponent.apply(this, arguments);
 		
 		var self = this, initialized = false;
@@ -628,7 +631,8 @@
 	 * Class: Endpoints.Blank
 	 * An Endpoint that paints nothing on the screen, and cannot be interacted with using the mouse.  There are no constructor parameters for this Endpoint.
 	 */
-	jsPlumb.Endpoints.Blank = function() {		
+	jsPlumb.Endpoints.Blank = function() {
+		this.type = "Blank";
 		jsPlumb.DOMElementComponent.apply(this, arguments);		
 		this.compute = function() {
 			return [0,0,0,0];
@@ -651,6 +655,7 @@
 	 * 	height	-	height of the triangle from base to apex.  defaults to 55 pixels.
 	 */
 	jsPlumb.Endpoints.Triangle = function(params) {
+		this.type = "Triangle";
 		params = params || {  };
 		params.width = params.width || 55;
 		param.height = params.height || 55;
@@ -692,6 +697,7 @@
 	 * 	direction - indicates the direction the arrow points in. valid values are -1 and 1; 1 is default.
 	 */
 	jsPlumb.Overlays.Arrow = function(params) {
+		this.type = "Arrow";
 		params = params || {};
 		var self = this;
     	this.length = params.length || 20;
@@ -781,6 +787,7 @@
      */
     jsPlumb.Overlays.PlainArrow = function(params) {
     	params = params || {};
+    	this.type = "PlainArrow";
     	var p = jsPlumb.extend(params, {foldback:1});
     	jsPlumb.Overlays.Arrow.call(this, p);    	
     };
@@ -802,6 +809,7 @@
      */
     jsPlumb.Overlays.Diamond = function(params) {
     	params = params || {};
+    	this.type = "Diamond";
     	var l = params.length || 40;    	
     	var p = jsPlumb.extend(params, {length:l/2, foldback:2});
     	jsPlumb.Overlays.Arrow.call(this, p);    	
@@ -831,6 +839,7 @@
      * 	
      */
     jsPlumb.Overlays.Label = function(params) {
+    	this.type = "Label";
     	jsPlumb.DOMElementComponent.apply(this, arguments);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
@@ -845,8 +854,6 @@
     	labelText = null,
     	div = document.createElement("div");	
     	div.style["position"] 	= 	"absolute";
-    	div.style["textAlign"] 	= 	"center";
-    	div.style["cursor"] 	= 	"pointer";
     	div.style["font"] = self.labelStyle.font;
     	div.style["color"] = self.labelStyle.color || "black";
     	if (self.labelStyle.fillStyle) div.style["background"] = self.labelStyle.fillStyle;//_convertStyle(self.labelStyle.fillStyle, true);
