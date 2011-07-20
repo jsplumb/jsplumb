@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+	<head>
+		<!-- a test for issue 37 (and part of 23)-->
+		<style type="text/css">
+			#container { position:relative; overflow:scroll; width:30em; height:30em; border:1px dotted red; margin-top:4em;}			
+			.window { position:absolute; width:5em; height:5em; background-color:blue; z-index:2;}
+			.oWindow { background-color:red; }
+			.oWindow2 { background-color:yellow; }
+			#window1 { left:5em; top:5em; }
+			#window2 { left:15em; top:15em; }
+			#window3 { left:25em; top:25em; }
+			#window4 { left:20em; top:20em; z-index:10;}
+			#window5 { left:10em; top:6em; }
+			.spot { width:1em; height:1em; background-color:green; position:absolute;z-index:13;}
+			.testHover { border:1px dotted black; }
+			#debug { overflow:auto; width:20em; position:absolute; right:0; border:1px dotted blue;height:30em;z-index:10;top:0;margin-top:4em;}			
+		</style>
+	</head>
+	<body>	
+		<div id="container">
+			<div id="window1" class="window"></div>
+			<div id="window2" class="window"></div>
+			<div id="window3" class="window"></div>
+			
+			<div id="window4" class="window oWindow">drop me on the yellow square.</div>
+			<div id="window5" class="window oWindow2">drop the red square on me.</div>
+			<div id="spot1" class="spot"></div>
+			<div id="spot2" class="spot"></div>
+		</div>
+		
+		<div id="debug"></div>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"></script>
+		<script type="text/javascript" src="../js/lib/mootools-more-1.3.2.1.js"></script>
+		<script type="text/javascript">
+			window.addEvent('domready', function() {
+				document.onselectstart = function () { return false; };				
+
+				var container = $$("#container"), w4 = $$("#window4"), w5 = $$("#window5"), debug = $$("#debug");
+				var s1 = $$("#spot1"), s2 = $$("#spot2"), w4w = w4.getSize().x, w4h = w4.getSize().h;
+				/*var w4drag = new Drag.Move(w4, {
+					start : function() { debug.html(""); },
+					drag : function(e, ui) {
+						var o = w4.offset()
+						// now attempt to position the spots at the tl and br corners of w4.
+						s1.offset(o);
+						s2.offset({left:o.left + w4w, top:o.top+w4h});
+					},
+					scope:"testjquerydrag",
+					cursor:"move"
+				});	
+				var w5drag = new Drag.Move(w5, {
+					scope:"testjquerydrag",
+					hoverClass:"testHover",
+					drop : function() { debug.html("red square dropped."); },
+				});*/
+		
+				new Drag.Move(document.getElementById("window4"));	
+			});
+		</script>
+	
+	</body>
+
+
+</html>

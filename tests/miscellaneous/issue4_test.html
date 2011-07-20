@@ -1,0 +1,58 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg-flat.dtd">
+	<html xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg">	
+	  <head>	  	 
+	  
+	  <!-- 
+			test page for issue 4, submitted by aazaharov81.		
+	  -->
+	  
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+		<title>jsPlumb testing</title>
+		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.3.js"></script>
+		<style>
+			p {text-align: center; margin: 10em}
+			span { padding: 5em; border: 1px solid red}
+			#third { position:absolute; left:54%; }
+			#second { position:absolute; left:20%; }
+			.box { z-index:5;}
+		</style>
+	  </head>
+	  <body onunload="jsPlumb.unload();">
+      <div>
+      
+		<p><span id = "first" class="box">A</span></p>
+
+		<div><span id = "second" class="box">B</span></div>
+		<div><span id = "third" class="box">C</span></div>
+
+		</div>
+	</body>
+	
+	<script>
+
+		$( document ).ready( function() {
+			$( "#second" ).plumb( {
+					target: "first",
+					draggable: true,
+					anchors:[ jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter,  ] 
+				} );
+
+			$( "#third" ).plumb( {
+				target: "first",
+				draggable: true,
+				anchors:[ jsPlumb.Anchors.LeftMiddle, jsPlumb.Anchors.BottomCenter,  ]
+			} );
+
+			$( "#third" ).plumb( {
+				target: "first",
+				draggable: true,
+				anchors:[ jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.BottomCenter,  ]
+			} );
+		} )
+		
+	</script>
+</html>

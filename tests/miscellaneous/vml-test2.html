@@ -1,0 +1,51 @@
+<html>
+ <!--style>v\:*{behavior:url(#default#VML);position:absolute}</style-->
+<body>
+ <!--v:oval style="left:0;top:0;width:100;height:50" fillcolor="blue" stroked="f"/-->
+
+ <!--rvml:oval style="left:200;top:200;width:100;height:50" fillcolor="#456" stroked="f" class="rvml"/-->
+
+<!--v:shape style="POSITION: absolute; WIDTH: 10px; HEIGHT: 10px" coordsize = "100,100" filled = "false" stroked = "true" strokecolor = "#646464" strokeweight = "12.75pt" path = " m5733,1495 c5833,-5,-5,3175,95,1675 e"-->
+
+
+
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+
+	<script type="text/javascript">
+		$(function() {
+
+        document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);border:1px solid red;position:absolute;");
+		document.namespaces.add("jsplumb", "urn:schemas-microsoft-com:vml");
+
+//			document.createStyleSheet().addRule("v\:*", "behavior:url(#default#VML)");
+			var node = function(name, left, top, width, height, atts) {
+				var o = document.createElement("jsplumb:" + name);
+			o.className = "jsplumb_vml";
+			o.style.left= left + "px";
+			o.style.top =  top + "px";
+			o.style.width= width + "px";
+			o.style.height= height + "px"; 
+			for (var i in atts)
+				o.setAttribute(i, atts[i]);
+			document.body.appendChild(o);
+
+			};
+
+			node("oval", 0, 0, 100, 50, {"fillcolor":"blue", "filled":"true", "strokecolor":"red", "stroked":"true"});
+			node("shape", 100,100, 700,645, {"coordsize":"700,645","filled":"false", "stroked":"true", "strokecolor":"#636363","strokeweight":"12.75pt",
+"path":"m0.0 c50,450,650,245,700,645"});
+//												"path":" m5733,1495 c5833,-5,-5,3175,95,1675 e"});
+												//"path":" m573,149 c583,-5,-5,317,95,167 e"});
+												//"path":"m0,0 c583,-5,-5,317,500,500 e"});
+//												"path":"m635.9999,150 c645.99998,0,0,291.8000,10,141.8000 e"});
+						//"path":"m935.9999847412109,150 c945.9999847412109,0,0,291.8000030517578,10,141.8000030517578 e"});
+
+			$(".jsplumb_vml").bind("click", function() {
+				alert($(this).outerWidth() + "," + $(this).outerHeight());
+			});
+		});
+	</script>
+
+</body>
+</html>
+

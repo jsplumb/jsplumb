@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+	<head>
+		<style type="text/css">
+			.d {
+				width:5em;
+				height:5em;
+				line-height:5em;
+				border:0.3em dotted blue;
+				position:absolute;
+				text-align:center;
+			}
+			#d1 { top:10em;left:20em; }
+			#d2 { top:11em;left:55em; }
+		</style>
+	</head>
+
+	<body>
+		Test page for issue 80: arrows that point in the opposite direction to the travel of the connection.<br/>
+		the left arrow should point to div 1.
+		<div class="d" id="d1">1</div>
+		<div class="d" id="d2">2</div>
+				
+		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../js/lib/jsBezier-0.2-min.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>
+		
+		<script type="text/javascript">
+			$(function() {
+				jsPlumb.connect({
+					source:$("#d1"), 
+					target:$("#d2"), 
+					overlays:[["Arrow", { location:0.3, direction:-1 }], ["Arrow", { location:0.7 }]],
+					anchors:["RightMiddle","LeftMiddle"], 
+					paintStyle:{lineWidth:5}
+				});
+			});
+		</script>
+		
+	</body>
+	
+</html>

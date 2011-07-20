@@ -1,0 +1,238 @@
+<html> 
+  <head> 
+    <title></title> 
+    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script> 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script> 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/jquery-ui.min.js"></script> 
+    <script type="text/javascript" src="../js/1.2.2/jsPlumb-1.2.2-RC1.js"></script>
+	<script type="text/javascript" src="../js/1.2.2/jsPlumb-defaults-1.2.2-RC1.js"></script>
+	<script type="text/javascript" src="../js/1.2.2/jquery.jsPlumb-1.2.2-RC1.js"></script> 
+    <style> 
+      li {
+        margin-bottom: 20px;
+      }
+      #option1 {
+        float: left;
+      }
+      #option2 {
+        border-color: blue;
+        float: left;
+      }
+      #option3 {
+        border-color: green;
+        float: left;
+      }
+      #option4 {
+        border-color: purple;
+        float: left;
+      }
+      #option5 {
+        border-color: black;
+        float: left;
+      }
+      #propositions {
+        float: left;
+        width: 80px;
+      }
+      #choices {
+        margin-left: 500px;
+        width: 80px;
+      }
+      ._jsPlumb_endpoint {
+      z-index:50;
+      }
+      ._jsPlumb_connector {
+      z-index:1;
+      }
+      .dropHover {
+      border:1px dotted red;
+      }
+      .dragActive {
+      border:2px dotted orange;
+      }
+      .cmdLink {
+      font-size:0.8em;
+      }
+      #clear {
+      padding:0.3em;
+      }
+      #clear:hover {
+      background-color:yellow;
+      }
+      
+    </style> 
+  </head> 
+  <body> 
+    <ul id="propositions"> 
+      <li id="option1" class="prop">Option 1</li> 
+      <li id="option2" class="prop">Option 2</li> 
+      <li id="option3" class="prop">Option 3</li> 
+      <li id="option4" class="prop">Option 4</li> 
+    </ul> 
+    <ul id="choices"> 
+      <li id="choice1">Choice 1</li> 
+      <li id="choice2">Choice 2</li> 
+      <li id="choice3">Choice 3</li> 
+      <li id="choice4">Choice 4</li> 
+    </ul> 
+    <script type="text/javascript"> 
+      $(document).ready(function() {
+        
+        jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+        jsPlumb.Defaults.PaintStyle = { strokeStyle:'#666' };
+        jsPlumb.Defaults.EndpointStyle = { width:5, height:5, strokeStyle:'#666' };
+        jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Rectangle();
+        jsPlumb.Defaults.Anchors = [jsPlumb.Anchors.TopCenter, jsPlumb.Anchors.TopCenter];
+        
+        var exampleGreyEndpoint = {
+        endpoint:new jsPlumb.Endpoints.Rectangle(),
+        anchor:jsPlumb.Anchors.TopCenter,
+        style:{ width:10, height:10, fillStyle:'#666' },
+        isSource:true,
+        dragOptions : { scope:'exampleGreyConnection' },
+        connectionStyle : {
+        strokeStyle:"#666"
+        },
+        isTarget:true,
+        dropOptions : $.extend({scope:'exampleGreyConnection'}, exampleDropOptions)
+        };
+        var exampleDropOptions = {
+        tolerance:'touch',
+        hoverClass:'dropHover',
+        drop : function(e, ui) {
+            //console.log(e);
+//            var $caller = ui.draggable[0].id;
+//            var $caller_id = $('#' + $caller).attr('elid');
+//            console.log($('#' + $caller_id)[0].parentNode);
+//            if ($('#' + $caller_id)[0].parentNode.id == "propositions") {
+//                console.log('ok');
+//            }
+//            else {
+//                console.log('ko');
+//            }
+        },
+        activeClass:'dragActive'
+        };
+ 
+        //rop:function(e, ui) { alert('drop!'); }
+        /**
+        first example endpoint. it's a 25x21 rectangle (the size is provided in the 'style' arg to the Endpoint), and it's both a source
+        and target. the 'scope' of this Endpoint is 'questionConnection', meaning any connection starting from this Endpoint is of type
+        'questionConnection' and can only be dropped on an Endpoint target that declares 'answerEndpoint' as its drop scope, and also that
+        only 'questionConnection' types can be dropped here.
+        
+        the connection style for this endpoint is a Bezier curve (we didn't provide one, so we use the default), with a lineWidth of
+        5 pixels, and a gradient.
+        
+        note the use of the '$.extend' function to setup generic connection types. this will save you a lot of typing, and probably
+        errors.
+        
+        */
+        var answerEndpoint = {
+        endpoint:new jsPlumb.Endpoints.Rectangle(),
+        style:{ width:10, height:10, fillStyle:'#00f' },
+         maxConnections:1,
+        isSource:false,
+        dragOptions : { scope:'answerConnection' },
+        connectionStyle : {
+        gradient:{stops:[[0,'#00f'], [0.5, '#09098e'], [1,'#00f']]},
+        lineWidth:5,
+        strokeStyle:"#00f"
+         },
+         isTarget:true,
+         dropOptions : $.extend({scope:'questionConnection'}, exampleDropOptions)
+         };
+        
+         /**
+         the second example uses a Dot of radius 15 as the endpoint marker, is both a source and target, and has scope
+         'answerConnection'.
+         */
+         var questionEndpoint = {
+         endpoint:new jsPlumb.Endpoints.Dot({radius:5}),
+         style:{ strokeStyle:'#316b31' },
+         isSource:true,
+          reattach:true,
+         dragOptions : { scope:'questionConnection' },
+         connectionStyle:{ strokeStyle:'#316b31', lineWidth:8 },
+         connector: new jsPlumb.Connectors.Bezier(63),
+         maxConnections:1,
+         isTarget:false,
+         dropOptions : $.extend({scope:'answerConnection'}, exampleDropOptions)
+         };
+        
+         /**
+         the third example uses a Dot of radius 17 as the endpoint marker, is both a source and target, and has scope
+         'questionConnection3'. it uses a Straight connector, and the Anchor is created here (bottom left corner) and never
+         overriden, so it appears in the same place on every element.
+        
+         this example also sets the 'reattach' flag for the Endpoint, meaning that when you drag a
+         connection off an endpoint and release it, it snaps back. the default behaviour in this case
+         is to delete the connection.
+        
+         */
+         var example3Color = "rgba(229,219,61,0.5)";
+         var answerEndpoint3 = {
+         endpoint:new jsPlumb.Endpoints.Dot({radius:3}),
+         reattach:true,
+         anchor:jsPlumb.Anchors.BottomLeft,
+         style:{ strokeStyle:example3Color, opacity:0.5 },
+         isSource:true,
+         dragOptions : { scope:'questionConnection3' },
+         connectionStyle:{ strokeStyle:example3Color, lineWidth:4 },
+         connector : new jsPlumb.Connectors.Straight(),
+         isTarget:true,
+         dropOptions : $.extend({scope:'questionConnection3'}, exampleDropOptions)
+         };
+        
+         // setup some empty endpoints. again note the use of '$.extend' to reuse all the parameters except the location
+         // of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
+        
+         $("#option1").addEndpoints([
+         $.extend({ anchor:jsPlumb.makeAnchor(1, 0.5, 0, 0, 10, 0) }, questionEndpoint)
+         ]);
+         $("#option2").addEndpoints([
+         $.extend({ anchor:jsPlumb.makeAnchor(1, 0.5, 0, 0, 10, 0) }, questionEndpoint)
+         ]);
+         $("#option3").addEndpoints([
+         $.extend({ anchor:jsPlumb.makeAnchor(1, 0.5, 0, 0, 10, 0) }, questionEndpoint)
+         ]);
+         $("#option4").addEndpoints([
+         $.extend({ anchor:jsPlumb.makeAnchor(1, 0.5, 0, 0, 10, 0) }, questionEndpoint)
+         ]);
+         
+          $("#choice1").addEndpoints([
+          $.extend({ anchor:jsPlumb.makeAnchor(0, 0.5, 0, 0, -10, 0) }, answerEndpoint),
+          ]);
+          $("#choice2").addEndpoints([
+          $.extend({ anchor:jsPlumb.makeAnchor(0, 0.5, 0, 0, -10, 0) }, answerEndpoint),
+          ]);
+          $("#choice3").addEndpoints([
+          $.extend({ anchor:jsPlumb.makeAnchor(0, 0.5, 0, 0, -10, 0) }, answerEndpoint),
+          ]);
+          $("#choice4").addEndpoints([
+          $.extend({ anchor:jsPlumb.makeAnchor(0, 0.5, 0, 0, -10, 0) }, answerEndpoint),
+          ]);
+        
+         // add the third example using the '.option' class.
+         $(".option").addEndpoint(answerEndpoint3);
+        
+         $(".hide").click(function() {
+         jsPlumb.toggle($(this).attr("rel"));
+         });
+        
+         $(".drag").click(function() {
+         var s = jsPlumb.toggleDraggable($(this).attr("rel"));
+         $(this).html(s ? 'disable dragging' : 'enable dragging');
+         if (!s) $("#" + $(this).attr("rel")).addClass('drag-locked'); else $("#" + $(this).attr("rel")).removeClass('drag-locked');
+         $("#" + $(this).attr("rel")).css("cursor", s ? "pointer" : "default");
+         });
+        
+         $(".detach").click(function() {
+         jsPlumb.detachAll($(this).attr("rel"));
+         });
+        
+         $("#clear").click(function() { jsPlumb.detachEverything(); });
+      });
+    </script> 
+  </body> 
+</html> 

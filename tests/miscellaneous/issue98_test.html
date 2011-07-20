@@ -1,0 +1,32 @@
+<html>
+<head>
+<title>Test</title>
+<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+<script type="text/javascript" src="../js/1.2.6/jquery.jsPlumb-1.2.6-all-min.js "></script>
+</head>
+<body>
+
+<div class="box" style="position:absolute;width:100px;height:100px;">
+    text
+    <div id="point-1"></div>
+    
+</div>
+<div class="box" style="position:absolute;top:200px;width:100px;height:100px;">
+text
+<div id="point-2"></div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        jsPlumb.bind('ready', function () {
+            var e1 = jsPlumb.addEndpoint('point-1',{"container":"point-1"});
+            var e2 = jsPlumb.addEndpoint('point-2',{"container":"point-2"});
+            jsPlumb.draggable($('.box'));
+            jsPlumb.connect({source:e1,target:e2});
+        });
+    });
+</script>
+</body>
+</html>

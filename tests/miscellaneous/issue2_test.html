@@ -1,0 +1,48 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN" "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg-flat.dtd">
+	<html xmlns="http://www.w3.org/1999/xhtml" xmlns:svg="http://www.w3.org/2000/svg">	
+	  <head>	  	 
+	  
+	  <!-- 
+			test page for issue 2.  jsPlumb should not throw an error if dragging is not available (ie. jQuery UI
+			has not been included), even if the user asks for dragging.		
+	  -->
+	  
+		<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+		<title>jsPlumb testing</title>
+		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+		<script type="text/javascript" src="../js/jquery.jsPlumb-1.0.3-RC1.js"></script>
+		<style>
+			.box { padding: 5em; border: 1px solid red}
+			#first { position:absolute; left:40%; }
+			#third { position:absolute; left:60%; top:10em; }
+			#second { position:absolute; left:20%;top:10em; }
+		</style>
+	  </head>
+	  <body onunload="jsPlumb.unload();">
+      <div>
+		<div class="box" id = "first" >A</div>
+		<div class="box"  id = "second">B</div>
+		<div class="box"  id = "third">C</div>
+		</div>
+	</body>
+	
+	<script>
+
+		$( document ).ready( function() {
+			$( "#second" ).plumb( {
+					target: "first",
+					draggable:true,
+					anchors:[ jsPlumb.Anchors.RightMiddle, jsPlumb.Anchors.BottomCenter  ] 
+				} );
+
+			$( "#third" ).plumb( {
+				target: "first",
+				draggable:true,
+				anchors:[ jsPlumb.Anchors.LeftMiddle, jsPlumb.Anchors.BottomCenter  ]
+			} );
+		} )
+		
+	</script>
+</html>

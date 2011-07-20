@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)http://jsplumb.org/jquery/chartDemo.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-2">
+		<title>Workflow 2</title>
+		<script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../js/lib/jsBezier-0.2-min.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src='jquery.mockjax.js'></script>
+		<style type="text/css">
+		workflow {
+			width:800px;
+			display:block;
+			position:relative;
+		}
+		
+		wfdiagram {
+			width:100%;
+			position:absolute;
+			display:block;
+			z-index:200;
+		}
+		wfbox {
+			display:block;
+			position:absolute;
+			top:50%;
+			left:50%;
+			margin:3em 0 0 3em;
+			width:6em;
+			height:4em; 
+			padding-top:2em;
+			z-index:300; 
+			color:black;
+			font-family:helvetica, sans;
+			font-size:0.9em;
+			text-align:center;
+			background-color:#eedd33;
+			opacity:0.8; 
+			filter:alpha(opacity=80);
+			cursor: pointer;
+			box-shadow: 2px 2px 19px #AAA;
+			-o-box-shadow: 2px 2px 19px #AAA;
+			-webkit-box-shadow: 2px 2px 19px #AAA;
+			-moz-box-shadow: 2px 2px 19px #AAA;
+		}
+		wfblock {
+			width: 100%;
+			min-height: 150px;
+			display: block;
+			vertical-align: middle;
+			text-align: center;
+			position: relative;
+			clear:both;
+			float:left;
+		}
+		wfchilddiagram {
+			display: block;
+			float:left;
+		}
+		._2kids{
+			width:50%;
+		}
+		._3kids{
+			width:33%;
+		}
+		._4kids{
+			width:25%;
+		}
+		._5kids{
+			width:19.9%;
+		}
+		._6kids{
+			width:16.6%;
+		}
+		._7kids{
+			width:14.28%;
+		}
+		._8kids{
+			width:12.5%;
+		}
+		
+		wfblock.oneFirst {
+			border: 1px dashed gray;
+		}
+		
+		/* Templates */
+		.menu_template {
+			display:none;
+		}
+		
+		/* Workflow Block Menu */
+		wfblockmenu {
+			position: absolute;
+			top: 0px;
+			right: 0px;
+			width: 15px;
+			height: 15px;
+			background-color: #1B1B1B;
+			z-index: 500;
+			opacity: 0.8;
+			filter: alpha(opacity=80);
+			-webkit-border-bottom-left-radius: 10px;
+			border-bottom-left-radius: 10px 10px;
+		}
+		wfmenupanel {
+			position: absolute;
+			top: 0px;
+			right: -106px;
+			width: 100px;
+			min-height: 35px;
+			padding: 3px 3px;
+			-webkit-border-top-right-radius: 5px;
+			-webkit-border-bottom-left-radius: 5px;
+			-webkit-border-top-right-radius: 5px;
+			-moz-border-radius-topright: 5px;
+			-moz-border-radius-bottomleft: 5px;
+			-moz-border-radius-bottomright: 5px;
+			border-top-right-radius: 5px;
+			border-bottom-left-radius: 5px;
+			border-bottom-right-radius: 5px;
+			
+			background-color: black;
+			box-shadow: 2px 2px 19px #AAA;
+			-o-box-shadow: 2px 2px 19px #AAA;
+			-webkit-box-shadow: 2px 2px 19px #AAA;
+			-moz-box-shadow: 2px 2px 19px #AAA;
+			overflow: visible;
+		}
+		wfmenubutton {
+			display: block;
+			width: 100%;
+			height: 20px;
+			margin: 2px 0px;
+			-webkit-border-radius: 4px;
+			-moz-border-radius: 4px;
+			border-radius: 4px;
+			font-size: 15px;
+			font-weight: bold;
+			color: #FC3;
+			
+		}
+		wfmenubutton.hover {
+			-webkit-border-radius: 4px;
+			-moz-border-radius: 4px;
+			border-radius: 4px;
+			background-color: rgba(240, 230, 40, 0.65);
+			-webkit-box-shadow: 0 0 1em rgba(240, 230, 40, 1);
+			-moz-box-shadow: 0 0 1em rgba(0, 0, 0, 1.0);
+			box-shadow: 0 0 1em rgba(0, 0, 0, 1.0);
+		}
+		wfmenubutton.on {
+			background-color : rgba(0, 0, 0, 0.40);
+		}
+		</style>
+		
+		<script type="text/javascript">
+		var rand = function(n){	return ( Math.floor ( Math.random ( ) * n + 1 ) );	}
+		var BoxTypes = {"wf_box" : 0, "wf_end" : 1, "wf_child" : 2};
+		////////////////
+		
+		
+		var diag1 = function(){
+			return [
+				{type:BoxTypes.wf_box,name:'box1',id:1},
+				{type:BoxTypes.wf_box,name:'box2',id:2},
+				{type:BoxTypes.wf_box,name:'box3',id:3},
+				{type:BoxTypes.wf_end,name:'',id:1}
+			];
+		}
+		var diag2 = function(){
+			return [
+				{type:BoxTypes.wf_box,name:'box1',id:1},
+					{type:BoxTypes.wf_child,name:'',id:1},
+						{type:BoxTypes.wf_box,name:'box2',id:2},
+						{type:BoxTypes.wf_box,name:'box3',id:3},
+					{type:BoxTypes.wf_end,name:'',id:2},
+					{type:BoxTypes.wf_child,name:'',id:1},
+						{type:BoxTypes.wf_box,name:'box4',id:4},
+					{type:BoxTypes.wf_end,name:'',id:4},
+				{type:BoxTypes.wf_box,name:'box5',id:5},
+				{type: BoxTypes.wf_end,name:'',id:1}
+			];
+		}
+		var diag3 = function(){
+			return [
+				{type: BoxTypes.wf_box,name:'box1',id:1},
+					{type: BoxTypes.wf_child,name:'',id:1},
+						{type: BoxTypes.wf_box,name:'box2',id:2},
+						{type: BoxTypes.wf_box,name:'box3',id:3},
+					{type: BoxTypes.wf_end,name:'',id:2},
+					{type: BoxTypes.wf_child,name:'',id:1},
+						{type: BoxTypes.wf_box,name:'box4',id:4},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box5',id:5},
+							{type: BoxTypes.wf_end,name:'',id:5},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box6',id:6},
+							{type: BoxTypes.wf_end,name:'',id:6},
+						{type: BoxTypes.wf_end,name:'',id:4},
+				{type: BoxTypes.wf_box,name:'box7',id:7},
+				{type: BoxTypes.wf_end,name:'',id:1},
+			]
+		}
+		var diag4 = function(){
+			return [
+				{type: BoxTypes.wf_box,name:'box1',id:1},
+					{type: BoxTypes.wf_child,name:'',id:1},
+						{type: BoxTypes.wf_box,name:'box2',id:2},
+						{type: BoxTypes.wf_box,name:'box3',id:3},
+					{type: BoxTypes.wf_end,name:'',id:2},
+					{type: BoxTypes.wf_child,name:'',id:1},
+						{type: BoxTypes.wf_box,name:'box4',id:4},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box5',id:5},
+								{type: BoxTypes.wf_box,name:'box5A',id:56},
+							{type: BoxTypes.wf_end,name:'',id:5},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box6',id:6},
+							{type: BoxTypes.wf_end,name:'',id:6},
+						{type: BoxTypes.wf_end,name:'',id:4},
+				{type: BoxTypes.wf_box,name:'box7',id:7},
+				{type: BoxTypes.wf_end,name:'',id:1},
+			]
+		}
+		var diag5 = function(){
+			return [
+				{type: BoxTypes.wf_box,name:'box1',id:1},
+					{type: BoxTypes.wf_child,name:'',id:1},
+						{type: BoxTypes.wf_box,name:'box2',id:2},
+						{type: BoxTypes.wf_box,name:'box3',id:3},
+						{type: BoxTypes.wf_box,name:'box31',id:31},
+						{type: BoxTypes.wf_box,name:'box32',id:32},
+						{type: BoxTypes.wf_box,name:'box33',id:33},
+					{type: BoxTypes.wf_end,name:'',id:2},
+					{type: BoxTypes.wf_child,name:'',id:1},
+						{type: BoxTypes.wf_box,name:'box4',id:4,attr:'oneFirst'},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box5',id:5},
+								{type: BoxTypes.wf_box,name:'box5A',id:56},
+							{type: BoxTypes.wf_end,name:'',id:5},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box6',id:6},
+								{type: BoxTypes.wf_box,name:'box62',id:62},
+								{type: BoxTypes.wf_box,name:'box63',id:63},
+							{type: BoxTypes.wf_end,name:'',id:6},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box4_3',id:43},
+								{type: BoxTypes.wf_box,name:'box4_32',id:432},
+							{type: BoxTypes.wf_end,name:'',id:43},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box4_4',id:44},
+								{type: BoxTypes.wf_box,name:'box4_42',id:442},
+							{type: BoxTypes.wf_end,name:'',id:44},
+							{type: BoxTypes.wf_child,name:'',id:4},
+								{type: BoxTypes.wf_box,name:'box4_5',id:45},
+								{type: BoxTypes.wf_box,name:'box4_52',id:452},
+							{type: BoxTypes.wf_end,name:'',id:45},
+							{type: BoxTypes.wf_box,name:'box4_2',id:42},
+						{type: BoxTypes.wf_end,name:'',id:4},
+				{type: BoxTypes.wf_box,name:'box7',id:7},
+				{type: BoxTypes.wf_end,name:'',id:1}
+			]
+		}
+		
+		$.mockjax({
+			url: '/api/load_workflow',
+			status: 200,
+			responseTime: 100,
+			contentType: 'text/json',
+			dataType: 'json',
+			response: function(){
+				this.responseText = diag1();
+			}
+		});
+		//////////////
+
+		$(document).ready( function(){
+			document.onselectstart = function () { return false; };
+			PrepereWorkFlowBlockMenu();
+			$.getJSON('/api/load_workflow', function(data) {
+				CreateWorkflow(data);
+			});
+		});
+		var LastBox = function(index,elem){
+			var a = $(elem).children('wfblock:last').children('wfbox');
+			if (a.size() >= 1){
+				return a.last().attr('id');
+			}
+			else
+			{
+				return $(elem).children('wfblock:last').children('wfchilddiagram').map(LastBox).get();
+			}
+		}
+		var FindConnectors = function(json_data,i){
+			var connectors = [];
+			if (json_data[parseInt(i)-1].type == BoxTypes.wf_end){
+				var child_end = json_data[parseInt(i)-1];
+				var child_start = child_end.id;
+				var j = parseInt(i);
+				return $('#wf_box'+json_data[i].id).parent('wfblock').prev().children('wfchilddiagram').map(LastBox).get();
+			}
+			
+			else
+				connectors.push('wf_box'+json_data[i-1].id);
+			return connectors;
+		}
+		var FindChildren = function(json_data,i){
+			i = parseInt(i);
+			var children = [];
+			var this_box = json_data[i];
+			if (json_data.length >= i && json_data[i+1].type == BoxTypes.wf_child)
+			{
+				var child_i=i+1;
+				var child_box =  json_data[child_i];
+				while (child_box.type != BoxTypes.wf_end || child_box.id != this_box.id){
+					if (child_box.type == BoxTypes.wf_child && child_box.id == this_box.id){
+						children.push(
+							{
+								id:'wf_child_diag'+json_data[child_i+1].id
+								//attr:(json_data[child_i].attr || '').split(',')
+							}
+						);
+					}
+					child_i++;
+					child_box =  json_data[child_i];
+				}
+			}
+			
+			return children;
+		}
+		var PrepereWorkFlowBlockMenu = function(){
+			$('wfblockmenu.menu_template').hover(
+				function(){
+					$(this).children('wfmenupanel').show();
+				},
+				function(){
+					$(this).children('wfmenupanel').hide();
+				}
+			)
+			.children('wfmenupanel').hide();
+			$('wfblockmenu.menu_template').find('wfmenubutton')
+				.hover(
+					function(){
+						$(this).addClass('hover')
+					},
+					function(){
+						$(this).removeClass('hover')
+					}
+				)
+		}
+		
+		var CreateWorkflow = function(json_data){
+			jsPlumb.Defaults.Connector = new jsPlumb.Connectors.Straight();
+			//jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+			jsPlumb.Defaults.PaintStyle = { strokeStyle:'gray', lineWidth:2 };
+			jsPlumb.Defaults.EndpointStyle = { radius:5, fillStyle:'gray' };
+
+			jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
+
+			var _makeOverlay = function() { return new jsPlumb.Overlays.Arrow({foldback:0.5, fillStyle:'gray', location:0.5, width:10}); };
+			
+			var wfdiag = $('wfdiagram');
+			for (var i in json_data){
+				if (json_data[i].type == BoxTypes.wf_box){
+					var elemID = 'wf_box'+json_data[i].id;
+					var block = $("<wfblock></wfblock>").appendTo(wfdiag);
+					var elem = $("<wfbox></wfbox>")
+						.attr('id',elemID)
+						.text(json_data[i].name)
+						.appendTo(block);
+					if (i > 0){
+						var conns = FindConnectors(json_data,i);
+						for (var j in conns){
+							jsPlumb.connect({source:conns[j], target:elemID, overlays:[_makeOverlay()]});
+						}
+						
+					}
+					var kids = FindChildren(json_data,i);
+					if (kids.length > 0){
+						var block = $("<wfblock></wfblock>")
+							.addClass(json_data[i].attr)
+							.hover(
+								function(){
+									//$('wfblockmenu').hide();
+									$(this).children('wfblockmenu').show();
+								},
+								function(){
+									$(this).children('wfblockmenu').hide();
+								}
+							)
+							.appendTo(wfdiag);
+							
+						var wfb_menu = $('wfblockmenu.menu_template').clone(true,true)
+							.removeClass('menu_template')
+							.hide()
+							.appendTo(block);
+						//CreateWorkFlowBlockMenu(wfb_menu);
+						for (var j in kids){
+							var elem = $("<wfchilddiagram></wfchilddiagram>")
+								.addClass('_'+kids.length+'kids')
+								.attr('id',kids[j].id)
+								.attr('parent_diag',wfdiag.attr('id'))
+								.appendTo(block);
+								
+						}
+					}
+					
+				}
+				if (json_data[i].type == BoxTypes.wf_child){
+					wfdiag = $('#wf_child_diag'+json_data[parseInt(i)+1].id);
+				}
+				if (json_data.length >= i && json_data[i].type == BoxTypes.wf_end){
+					wfdiag = $('#'+wfdiag.attr('parent_diag'));
+				}
+			}
+
+		}
+	</script>
+		
+		
+	</head>
+	<body onunload="jsPlumb.unload();">
+		<workflow><wfdiagram id='wf_main_diag'></wfdiagram></workflow>
+		<wfblockmenu class='menu_template'>
+			<wfmenupanel>
+				<wfmenubutton></wfmenubutton>
+				<wfmenubutton></wfmenubutton>
+				<wfmenubutton></wfmenubutton>
+			</wfmenupanel>
+		</wfblockmenu>
+	<pre style='border:2px dashed #9683a4; background-color:#b9acc2; position:absolute;left:550px;' id='wf_code'>
+	
+	</pre>
+</body>
+</html>

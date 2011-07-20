@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Issue 76 Test Page - jQuery</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<link rel="stylesheet" href="../demo/css/jsPlumbDemo.css"></link>
+		<style type="text/css">
+.window { 
+	border:0.1em dotted #d4e06b; 
+	opacity:0.8; 
+	filter:alpha(opacity=80); 
+	width:14em; height:4em; 
+	z-index:20; 
+	position:absolute; 
+	color:black;
+	font-family:helvetica, sans;
+	padding-top:0.9em; 
+	font-size:0.9em;
+	text-align:center;
+	background-color:white;
+}
+#window1 { left:20em;}
+#window2 { left:20em;top:15em;}
+#window3 { left:20em;top:35em;}
+#window4 { left:4em;top:24em;}
+#window5 {left:22em;top:124em;}
+#window6 {left:47em;top:24em;}
+#window7 {top:18em;left:40em;}
+#window8 {left:63em;top:32em;}		
+		
+		</style>
+	</head>
+	<body onunload="jsPlumb.unload();">
+
+		<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+
+		<div class="window" id="window1">window one</div>
+		<div class="window" id="window2">window two</div>
+		<div class="window" id="window3">window three</div>
+		<div class="window" id="window4">window four</div>
+		<div class="window" id="window5">window five</div>
+		<div class="window" id="window6">window six</div>
+
+		<div id="explanation">
+	    	This is a test page for issue 76.  Arrow overlays on perfectly vertical Straight connectors were disappearing, and sometimes
+	    	'flipping'.  Also, Labels were throwing an error in the console.  I didn't have a test page for the label stuff but i suspect it was
+	    	caused by the same error, which should now be fixed.
+	    </div>
+
+	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../js/lib/jsBezier-0.2-min.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jquery.jsPlumb-1.2.6-RC1.js"></script>
+		
+		<script type="text/javascript">
+			$(function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+
+				jsPlumb.Defaults.Connector = "Straight";
+				jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
+				jsPlumb.Defaults.PaintStyle = { strokeStyle:'gray', lineWidth:2 };
+				jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:'gray' };
+				jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
+
+				jsPlumb.connect({source:'window1', target:'window2', overlays:[["Arrow", {foldback:0.7, fillStyle:'gray', location:0.5, width:14}]]});
+				var conn2 = jsPlumb.connect({
+					source:'window2', 
+					target:'window3', 
+					overlays:[ 
+						["Label", { label:"FOO",labelStyle:{color: "black",font:"32px sans-serif"}}], 
+						["Arrow", {foldback:0.7, fillStyle:'gray', location:1, width:22, length:25}],
+						["Diamond", {fillStyle:'gray', location:0, width:15, length:20}]
+				]});
+				conn2.endpoints[1].setVisible(false, true);
+				conn2.endpoints[0].setVisible(false, true);
+			});
+		</script>
+	</body>
+</html>

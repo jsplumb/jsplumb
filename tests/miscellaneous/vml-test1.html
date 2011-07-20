@@ -1,0 +1,157 @@
+<!doctype html>
+<html xmlns:vml="urn:schemas-microsoft-com:vml">
+	<head>
+<style>vml\: * { behavior:url(#default#VML); display:inline-block }</style>
+
+
+	</head>
+	<body>
+	<a href="#">CLICK THIS</a>
+
+<vml:oval style="width:100pt;height:50pt" fillcolor="red">
+</vml:oval>
+
+
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+
+	<script type="text/javascript">
+		$(function() {
+
+		var createNode;
+
+        //document.createStyleSheet().addRule(".vml", "behavior:url(#default#VML)");
+	 	try {
+            !document.namespaces.jvml && document.namespaces.add("vml", "urn:schemas-microsoft-com:vml");
+            createNode = function (tagName) {
+                return document.createElement("<vml:" + tagName + " class=\"vml\">");
+            };
+        } catch (e) {
+            createNode = function (tagName) {
+                return document.createElement("<" + tagName + " xmlns=\"urn:schemas-microsoft.com:vml\" class=\"vml\">");
+            };
+        }
+
+	    var renderMode = (window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1") ? "SVG" : "VML");
+
+		var path = function (pathString, vml) {
+/*            var g = createNode("group");
+            g.style.cssText = "position:absolute;left:0;top:0;width:500px;height:500px";
+            g.setAttribute("coordsize", "100,100");*/
+            //g.coordorigin = vml.coordorigin;
+            var el = createNode("shape"), ol = el.style;
+            ol.width = "500px";
+            ol.height = "500px";
+            el.setAttribute("coordsize","100,100");
+//            el.coordorigin = vml.coordorigin;
+			el.setAttribute("fill", "false");
+			el.setAttribute("stroke", "true");
+			el.setAttribute("path", pathString);
+
+			el.setAttribute("strokecolor", "#646464"); 
+			el.setAttribute("strokeweight","12.75pt");
+
+
+//<g_vml_:stroke opacity = "50" miterlimit = "10" joinstyle = "miter" endcap = "flat"></g_vml_:stroke>
+
+			var sel = createNode("stroke");
+			sel.setAttribute("opacity", "50");
+			sel.setAttribute("miterlimit", "10");
+			sel.setAttribute("joinstyle", "miter");
+			sel.setAttribute("endcap", "flat");
+			el.appendChild(sel);
+
+
+vml.appendChild(el);
+
+//            g[appendChild](el);
+  
+/*          var p = new Element(el, g, vml),
+                attr = {fill: "none", stroke: "#000"};
+            pathString && (attr.path = pathString);
+            p.type = "path";
+            p.path = [];
+            p.Path = E;
+//            setFillAndStroke(p, attr); */
+			
+/*			var stroke = createNode("stroke");
+			stroke.setAttribute("opacity", "50");
+			stroke.setAttribute("miterlimit", "10");
+			stroke.setAttribute("joinstyle", "miter");
+			stroke.setAttribute("endcap", "flat");*/
+
+//            vml.canvas[appendChild](g);
+//            return p;
+        };
+
+/*
+var v = document.createElement("div");
+v.style.width = "500px";v.style.height = "500px";
+$(v).css("border", "1px solid red");
+document.body.appendChild(v);
+//path(" m5733,1495 c5833,-5,-5,3175,95,1675 e", v);
+path("m935.9999847412109,150 c945.9999847412109,0,0,291.8000030517578,10,141.8000030517578 e", v);
+*/
+
+/*
+		<g_vml_:shape style="POSITION: absolute; WIDTH: 10px; HEIGHT: 10px" coordsize = "100,100" filled = "f" stroked = "t" strokecolor = "#646464" strokeweight = "12.75pt" path = " m5733,1495 c5833,-5,-5,3175,95,1675 e">
+			<g_vml_:stroke opacity = "50" miterlimit = "10" joinstyle = "miter" endcap = "flat"></g_vml_:stroke>
+		</g_vml_:shape>
+
+*/
+
+/*
+			$("a").bind("click", function() {
+				$("#path1").attr("d", "M935.9999847412109,150C945.9999847412109,0,0,291.8000030517578,10,141.8000030517578");
+			});
+
+			var ns = {
+				svg:"http://www.w3.org/2000/svg",
+				xhtml:"http://www.w3.org/1999/xhtml"
+			};
+
+<g_vml_:shape style="POSITION: absolute; WIDTH: 10px; HEIGHT: 10px" coordsize = "100,100" filled = "f" stroked = "t" strokecolor = "#646464" strokeweight = "12.75pt" path = " m5733,1495 c5833,-5,-5,3175,95,1675 e">
+			<g_vml_:stroke opacity = "50" miterlimit = "10" joinstyle = "miter" endcap = "flat"></g_vml_:stroke>
+		</g_vml_:shape>
+
+			var vmlNode = function(name, attributes) {
+				var n = document.createElementNS(ns.svg, name);
+				attributes = attributes || {};
+				attributes["version"] = "1.1";
+				attributes["xmnls"] = ns.xhtml;
+				for (var i in attributes) {
+					n.setAttribute(i, "" + attributes[i]);
+				}
+				return n;
+			};
+
+			var s = svgNode("svg", {
+				height:700,
+				width:645			
+			});
+
+			
+			s.appendChild(svgNode("path", {
+				d:"M635.9999847412109,150C645.9999847412109,0,0,291.8000030517578,10,141.8000030517578",
+				"stroke-width":15,
+				"stroke":"blue",
+				"fill":"none",
+				id:"path1"
+			}));
+
+			s.appendChild(svgNode("path", {
+				d:"M235.9999847412109,150L550,500",
+				"stroke-width":15,
+				"stroke":"red",
+				"fill":"none",
+				id:"path2"
+			}));
+
+			document.body.appendChild(s);
+*/
+		});
+
+	</script>
+	
+	</body>
+</html>
+

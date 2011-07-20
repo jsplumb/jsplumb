@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+	<head>
+		<title>detached scope problem</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=7">
+		<link rel="stylesheet" href="/mp.css"></link>
+		<link rel="stylesheet" href="../demo/css/jsPlumbDemo.css"></link>
+		<link rel="stylesheet" href="../demo/css/demo.css"></link>		
+		<style type="text/css">
+		.dropHover { border:1px dotted red; }
+.dragActive { border:2px dotted orange; }
+._jsPlumb_endpoint { z-index:100; }
+#window1 { left:2em; top:2em; }
+#window2 { left:40em; top:2em; }
+#window3 { left:2em; top:26em; }
+#window4 { left:40em; top:26em; }
+		</style>
+	</head>
+	<body onunload="jsPlumb.unload();">
+	
+		<div class="window" id="window1">WINDOW 1</div>
+		<div class="window" id="window2">WINDOW 2</div>
+		<div class="window" id="window3">WINDOW 3</div>
+		<div class="window" id="window4">WINDOW 4</div>	
+	    
+	    <script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.2.4/mootools-yui-compressed.js"></script>
+		<script type="text/javascript" src="../js/mootools-1.2.4.4-more.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsPlumb-defaults-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/mootools.jsPlumb-1.2.6-RC1.js"></script>
+		<script type="text/javascript" src="../js/1.2.6/jsBezier-0.2-min.js"></script>					            	
+		<script type="text/javascript">
+		window.addEvent('domready', function() {
+
+				// chrome fix.
+				document.onselectstart = function () { return false; };
+				
+				jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
+				
+				var e1 = {
+					anchor:[1,0.5,1,0],
+					isSource:true,
+					isTarget:true,					
+					dragOptions:{ scope:"dragType1" },
+					dropOptions:{
+						scope:"dragType2",
+						hoverClass:'dropHover',
+						activeClass:'dragActive'
+					},
+					connectorStyle:{strokeStyle:"rgb(145,145,145)", lineWidth:7}
+				};
+				
+				var e2 = {
+					anchor:[0,0.5,-1,0],
+					isSource:true,
+					isTarget:true,
+					dragOptions:{
+						scope:"dragType2"
+					},
+					dropOptions:{
+						scope:"dragType1",
+						hoverClass:"dropHover",
+						activeClass:'dragActive'
+					},
+					connectorStyle:{strokeStyle:"rgb(145,145,145)", lineWidth:7}
+				};
+				
+				jsPlumb.addEndpoint("window1", e1);
+				jsPlumb.addEndpoint("window3", e1);
+				jsPlumb.addEndpoint("window2", e2);
+				jsPlumb.addEndpoint("window4", e2);
+				
+			});
+				
+		</script>
+
+	</body>
+</html>

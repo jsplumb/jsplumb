@@ -1,0 +1,38 @@
+<html>
+<head>
+<body>
+<DIV class=menu><A class=mplink href="../doc/usage.html">view documentation</A>&nbsp;|&nbsp;<A class=mplink href="mailto:simon.porritt@gmail.com">contact me</A>&nbsp;|&nbsp;<A class=mplink href="http://code.google.com/p/jsplumb/">jsPlumb on Google code</A></DIV>
+<DIV style="TOP: -20px; LEFT: 171px" id=window1 class="window ui-draggable" jQuery1603696284151158764="8"><STRONG>Window 1</STRONG><BR><BR>i am plumbed with a yellow Bezier connector to Window 2.</DIV>
+<DIV style="TOP: 223px; LEFT: 412px" id=window2 class="window ui-draggable" jQuery1603696284151158764="9"><STRONG>Window 2</STRONG><BR><BR>i am plumbed with a yellow Bezier connector to Window 1, and a Bezier connector with square endpoints to Window 3</DIV>
+<DIV id=window3 class=window><STRONG>Window 3</STRONG><BR><BR>i am plumbed with a Bezier connector and square endpoints to Window 2, and a Bezier connector with custom style to Window 4. My blue endpoint tracks Window 4.</DIV>
+<DIV id=window4 class=window><STRONG>Window 4</STRONG><BR><BR>i am plumbed with a Bezier connector with custom style to Window 3, and with a straight line connector with image endpoints to Window 5. My blue endpoint tracks Window 3.</DIV>
+<DIV id=window5 class=window><STRONG>Window 5</STRONG><BR><BR>i am plumbed with a flowchart connector to Window 6, between our two centerpoints, which are drawn below, and larger than, the window element; i am also plumbed to Window 4.</DIV>
+<DIV id=window6 class=window><STRONG>Window 6</STRONG><BR><BR>i am plumbed with a flowchart connector to Window 5, between our two centerpoints, which are drawn below, and larger than, the window element.</DIV>
+<DIV id=debug></DIV>
+<DIV id=explanation>
+<P>jsPlumb provides a way to "plumb" elements of a UI together. </P>
+<P>This demonstration uses jsPlumb 1.3.0-RC1, jQuery 1.6.0 and jQuery UI 1.8.13.</P><A class=mplink href="flowchartConnectorsDemo.html">next: flowchart connectors demonstration</A> <BR><BR>render mode:&nbsp;<A class=rmode disabled href="#" mode="svg" jQuery1603696284151158764="3">SVG</A>&nbsp;|&nbsp;<A class=rmode disabled href="#" mode="canvas" jQuery1603696284151158764="4">Canvas</A>&nbsp;|&nbsp;<A class="rmode selected" href="#" mode="vml" jQuery1603696284151158764="5">VML</A> <BR><BR>You also might like to check out <A class=mplink href="http://tweetplumb.com?q=#jquery" target=_blank>TweetPlumb</A>, a Twitter visualisation built with jsPlumb. <BR><BR>See a <A href="../mootools/demo.html">MooTools version</A> of this demo.<BR>See a <A href="../yui3/demo.html">YUI3 version</A> of this demo. </DIV><!-- script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/trunk/excanvas.js"></script-->
+<SCRIPT type=text/javascript src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></SCRIPT>
+
+<SCRIPT type=text/javascript src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></SCRIPT>
+<!-- support lib for bezier stuff -->
+<SCRIPT type=text/javascript src="../../js/lib/jsBezier-0.2-min.js"></SCRIPT>
+<!-- main jsplumb engine -->
+<SCRIPT type=text/javascript src="../../js/1.3.0/jsPlumb-1.3.0-RC1.js"></SCRIPT>
+<!-- connectors, endpoint and overlays  -->
+<SCRIPT type=text/javascript src="../../js/1.3.0/jsPlumb-defaults-1.3.0-RC1.js"></SCRIPT>
+<!-- SVG renderer -->
+<SCRIPT type=text/javascript src="../../js/1.3.0/jsPlumb-renderers-svg-1.3.0-RC1.js"></SCRIPT>
+<!-- canvas renderer -->
+<SCRIPT type=text/javascript src="../../js/1.3.0/jsPlumb-renderers-canvas-1.3.0-RC1.js"></SCRIPT>
+<!-- vml renderer -->
+<SCRIPT type=text/javascript src="../../js/1.3.0/jsPlumb-renderers-vml-1.3.0-RC1.js"></SCRIPT>
+<!-- jquery adapter -->
+<SCRIPT type=text/javascript src="../../js/1.3.0/jquery.jsPlumb-1.3.0-RC1.js"></SCRIPT>
+
+<?xml:namespace prefix = jsplumb ns = "urn:schemas-microsoft-com:vml" /><jsplumb:oval style="WIDTH: 20px; HEIGHT: 20px; TOP: 126px; LEFT: 250px" class="_jsPlumb_endpoint jsplumb_vml" class="_jsPlumb_endpoint" jQuery1603696284151158764="6" coordsize = "21600,21600" filled = "t" fillcolor = "#f3e500"></jsplumb:oval><jsplumb:oval style="WIDTH: 20px; HEIGHT: 20px; TOP: 213px; LEFT: 536px" class="_jsPlumb_endpoint jsplumb_vml" class="_jsPlumb_endpoint" jQuery1603696284151158764="7" coordsize = "21600,21600" filled = "t" fillcolor = "#f3e500"></jsplumb:oval><jsplumb:shape style="WIDTH: 305px; HEIGHT: 213px; TOP: 73px; LEFT: 250px" class="_jsPlumb_connector jsplumb_vml" class="_jsPlumb_connector" jQuery1603696284151158764="10" coordsize = "305750,213000" filled = "f" stroked = "t" strokecolor = "#f3e612" strokeweight = "11.25pt" path = " m295750,150000 c305750,0,0,213000,10000,63000 e"></jsplumb:shape><jsplumb:textbox style="WIDTH: 100px; HEIGHT: 100px; TOP: 43px; LEFT: 186px" class=jsplumb_vml>
+<DIV>Connection One</DIV></jsplumb:textbox><jsplumb:shape style="WIDTH: 28px; HEIGHT: 25px; TOP: 97px; LEFT: 19px" class=jsplumb_vml coordsize = "28023,25601" filled = "t" fillcolor = "#f3e612" stroked = "t" strokecolor = "#f3e612" strokeweight = ".75pt" path = " m47066,118031 l34682,97294,34164,114166,19043,122895 xe"></jsplumb:shape>
+
+</body>
+</html>
+
