@@ -290,7 +290,7 @@
 		 * 	-	*DropOptions*			The default drop options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*Endpoint*			The default endpoint definition to use for all connections (both source and target).  Default is "Dot".
 		 * 	-	*Endpoints*			The default endpoint definitions ([ source, target ]) to use for all connections.  Defaults are ["Dot", "Dot"].
-		 * 	-	*EndpointStyle*		The default style definition to use for all endpoints. Default is empty.
+		 * 	-	*EndpointStyle*		The default style definition to use for all endpoints. Default is fillStyle:"#456".
 		 * 	-	*EndpointStyles*		The default style definitions ([ source, target ]) to use for all endpoints.  Defaults are empty.
 		 * 	-	*EndpointHoverStyle*	The default hover style definition to use for all endpoints. Default is null.
 		 * 	-	*EndpointHoverStyles*	The default hover style definitions ([ source, target ]) to use for all endpoints. Defaults are null.
@@ -313,7 +313,7 @@
 			DropOptions : { },
 			Endpoint : "Dot",
 			Endpoints : [ null, null ],
-			EndpointStyle : { fillStyle : null },
+			EndpointStyle : { fillStyle : "#456" },
 			EndpointStyles : [ null, null ],
 			EndpointHoverStyle : null,
 			EndpointHoverStyles : [ null, null ],
@@ -2879,7 +2879,7 @@ about the parameters allowed in the params object.
 			 * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
 			 */
 			this.connectorSelector = function() {
-				return (self.connections.length < _maxConnections) ? null : self.connections[0];
+				return (self.connections.length < _maxConnections) || _maxConnections == -1 ? null : self.connections[0];
 			};
 
 			/*
