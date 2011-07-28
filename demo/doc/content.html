@@ -236,7 +236,30 @@ var secondInstance = jsPlumb.getInstance({
 
 secondInstance.connect({ source:"element4", target:"element3", scope:"someScope" });
 </pre>
-</div>  
+</div>
+
+		<h4><a id="zIndex">Z-index Considerations</a></h4>
+		<p>
+			You need to pay attention to the z-indices of the various parts of your UI when
+			using jsPlumb, in particular to ensure that the elements that jsPlumb adds to
+			the DOM do not overlay other parts of the interface. 
+		</p>  
+		<p>
+			jsPlumb adds an element to the DOM for each Endpoint, Connector and Overlay. So
+			for a connection having visible Endpoints at each end and a label in the middle,
+			jsPlumb adds four elements to the DOM.  The actual elements it adds depend on the 
+			renderer in use (Canvas/SVG/VML).  			
+		</p>
+		<p>
+			To help you organise z-indices correctly, jsPlumb adds a CSS class to each type of
+			element it adds. They are as follows:			
+		</p>
+		<table style="color:black;width:70%;font-size:90%;">
+			<tr><td><strong>type of element</strong></td><td><strong>class added</strong></td></tr>
+			<tr><td>Endpoint</td><td>_jsPlumb_endpoint</td></tr>
+			<tr><td>Connector</td><td>_jsPlumb_connector</td></tr>
+			<tr><td>Overlay</td><td>_jsPlumb_overlay</td></tr>
+		</table>
 
 		<h4><a id="containerDefault">Where does jsPlumb add elements?</a></h4>
 		<p>
