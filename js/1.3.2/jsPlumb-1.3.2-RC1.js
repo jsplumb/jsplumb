@@ -945,6 +945,19 @@
 			if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
 				_log(_currentInstance, "could not add connection; target endpoint is full");
 				return;
+			}			
+			
+			if (_p.target && !_p.target.endpoint) {
+				var tid = _getId(_p.target),
+				tep =_targetEndpointDefinitions[tid];
+				if (tep) {
+					if (_p.endpoints) _p.endpoints[1] = tep;
+					else if (_p.endpoint) {
+						_p.endpoints = [ _p.endpoint, tep ];
+						_p.endpoint = null;
+					}
+					else _p.endpoints = [ null, "Rectangle" ];
+				}
 			}
 			
 			// dynamic anchors. backwards compatibility here: from 1.2.6 onwards you don't need to specify "dynamicAnchors".  the fact that some anchor consists
@@ -1508,14 +1521,21 @@ about the parameters allowed in the params object.
 		 *                   	
 		 * 
 		 */
+		var _targetEndpointDefinitions = {};
 		this.makeTarget = function(el, params, referenceParams) {						
 			
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			var jpcl = jsPlumb.CurrentLibrary,
 			scope = p.scope || _currentInstance.Defaults.Scope,
-			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false,			
+			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false,						
 			_doOne = function(_el) {
+				
+				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+				// and use the endpoint definition if found.
+				var elid = _getId(_el);
+				_targetEndpointDefinitions[elid] = p.endpoint;
+				
 				var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 				var _drop = function() {
 					var draggable = _getElementObject(jpcl.getDragObject(arguments)),
