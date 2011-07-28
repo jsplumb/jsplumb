@@ -3262,7 +3262,7 @@ about the parameters allowed in the params object.
 	var jsPlumb = window.jsPlumb = new jsPlumbInstance();
 	jsPlumb.getInstance = function(_defaults) {
 		var j = new jsPlumbInstance(_defaults);
-		//if (_defaults) jsPlumb.extend(j.Defaults, _defaults);
+		j.init();
 		return j;
 	};
 	
