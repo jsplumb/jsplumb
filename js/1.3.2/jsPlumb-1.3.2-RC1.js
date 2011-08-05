@@ -2712,6 +2712,18 @@ about the parameters allowed in the params object.
 			self.endpoint = _endpoint;
 			this.endpoint.bind("click", function(e) { self.fire("click", self, e); });
 			this.endpoint.bind("dblclick", function(e) { self.fire("dblclick", self, e); });
+			this.endpoint.bind("mouseenter", function(con, e) {
+				if (!self.isHover()) {
+					self.setHover(true);
+					self.fire("mouseenter", self, e);
+				}
+			});
+			this.endpoint.bind("mouseexit", function(con, e) {
+				if (self.isHover()) {
+					self.setHover(false);
+					self.fire("mouseexit", self, e);
+				}
+			});
 			this.setPaintStyle(params.paintStyle || 
 							   params.style || 
 							   _currentInstance.Defaults.EndpointStyle || 
