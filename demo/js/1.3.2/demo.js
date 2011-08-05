@@ -38,6 +38,7 @@
 					outlineColor:"#666"/*,
 					dashstyle:"2 2"*/
 				},
+				endpointStyle:{ fillStyle:"#a7b04b" },
 			   	hoverPaintStyle:hoverPaintStyle,
 			   	overlays : [ ["Label", {													   					
 			   					cssClass:"l1 component label",
