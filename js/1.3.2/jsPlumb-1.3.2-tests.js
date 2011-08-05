@@ -41,6 +41,7 @@ var _addDiv = function(id) {
 var _cleanup = function() {	
 	
 	jsPlumb.reset();
+	jsPlumb.Defaults.Container = null;
 	
 	for (var i in _divs) {
 		$("#" + _divs[i]).remove();		
@@ -1616,7 +1617,75 @@ var testSuite = function(renderMode) {
 		equals(true, c2.isVisible(), "other connection is visible.");
 	});
 	
+	// tests of the functionality that allows a user to specify that they want elements appended to the document body
+	test(renderMode + " jsPlumb.Defaults.Container, specified with a selector", function() {
+		jsPlumb.Defaults.Container = $("body");
+		equals(0, $("#container")[0].childNodes.length);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		equals(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
+		// but we have told jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
+		jsPlumb.connect({source:d1, target:d2});
+		equals(2, $("#container")[0].childNodes.length);
+	});
 	
+	// tests of the functionality that allows a user to specify that they want elements appended to some specific container.
+	test(renderMode + " jsPlumb.Defaults.Container, specified with DOM element", function() {		
+		jsPlumb.Defaults.Container = document.getElementsByTagName("body")[0];
+		equals(0, $("#container")[0].childNodes.length);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");		
+		equals(2, $("#container")[0].childNodes.length, "two divs added to the container");  // the divs we added have been added to the 'container' div.
+		// but we have told jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
+		var bodyElementCount = $("body")[0].childNodes.length;
+		jsPlumb.connect({source:d1, target:d2});
+		equals(2, $("#container")[0].childNodes.length, "still only two children in container; elements were added to the body by jsPlumb");
+		// test to see if 3 elements have been added
+		equals(bodyElementCount + 3, $("body")[0].childNodes.length, "3 new elements added to the document body");
+	});
+	
+	test(renderMode + " container specified to connect call, with a selector", function() {
+		equals(0, $("#container")[0].childNodes.length);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		equals(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
+		var bodyElementCount = $("body")[0].childNodes.length;
+		// but here we tell jsPlumb to add its elements to the body, so this connect call should not add another few elements to the container:
+		jsPlumb.connect({source:d1, target:d2, container:$("body")});
+		equals(2, $("#container")[0].childNodes.length);
+		equals(bodyElementCount + 3, $("body")[0].childNodes.length, "3 new elements added to the document body");
+	});
+	
+	test(renderMode + " container specified to connect call, with a string ID", function() {
+		equals(0, $("#container")[0].childNodes.length);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		equals(3, $("#container")[0].childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
+		var d3ElementCount = $("#d3")[0].childNodes.length;
+		// but here we tell jsPlumb to add its elements to "d3", so this connect call should not add another few elements to the container:
+		jsPlumb.connect({source:d1, target:d2, container:"d3"});
+		equals(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
+		equals(d3ElementCount + 3, $("#d3")[0].childNodes.length, "3 new elements added to div d3");
+	});	
+	
+	test(renderMode + " container specified to addEndpoint call, with a selector", function() {
+		equals(0, $("#container")[0].childNodes.length);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		equals(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
+		var bodyElementCount = $("body")[0].childNodes.length;
+		// but here we tell jsPlumb to add its elements to the body, so this connect call should not add another few elements to the container:
+		jsPlumb.addEndpoint(d1, {container:$("body")});
+		equals(2, $("#container")[0].childNodes.length);
+		equals(bodyElementCount + 1, $("body")[0].childNodes.length, "1 new element added to the document body");
+	});
+	
+	test(renderMode + " container specified to addEndpoint call, with a string ID", function() {
+		equals(0, $("#container")[0].childNodes.length);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		equals(3, $("#container")[0].childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
+		var d3ElementCount = $("#d3")[0].childNodes.length;
+		// but here we tell jsPlumb to add its elements to "d3", so this connect call should not add another few elements to the container:
+		jsPlumb.addEndpoint(d1, { container:"d3" });
+		equals(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
+		equals(d3ElementCount + 1, $("#d3")[0].childNodes.length, "1 new element added to div d3");
+	});
+		
 	/**
 	 * leave this test at the bottom!
 	 */

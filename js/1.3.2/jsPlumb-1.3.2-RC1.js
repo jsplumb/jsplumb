@@ -384,11 +384,17 @@
 		},
 
 		/**
-		 * appends an element to the given parent, or the document body if no
-		 * parent given.
+		 * appends an element to some other element, which is calculated as follows:
+		 * 
+		 * 1. if jsPlumb.Defaults.Container exists, use that element.
+		 * 2. if the 'parent' parameter exists, use that.
+		 * 3. otherwise just use the document body.
+		 * 
 		 */
 		_appendElement = function(el, parent) {
-			if (!parent)
+			if (_currentInstance.Defaults.Container)
+				jsPlumb.CurrentLibrary.appendElement(el, _currentInstance.Defaults.Container);
+			else if (!parent)
 				document.body.appendChild(el);
 			else
 				jsPlumb.CurrentLibrary.appendElement(el, parent);
@@ -508,11 +514,15 @@
 			endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint,
 			parent = jsPlumb.CurrentLibrary.getParent;
 			
-			if (params.sourceEndpoint)
-				params["parent"] = params.sourceEndpoint.parent;
-			else if (params.source.constructor == endpointFunc)
-				params["parent"] = params.source.parent;
-			else params["parent"] = parent(params.source);
+			if (params.container)
+				params["parent"] = params.container;
+			else {
+				if (params.sourceEndpoint)
+					params["parent"] = params.sourceEndpoint.parent;
+				else if (params.source.constructor == endpointFunc)
+					params["parent"] = params.source.parent;
+				else params["parent"] = parent(params.source);
+			}
 			
 			params["_jsPlumb"] = _currentInstance;
 			var con = new connectionFunc(params);
@@ -529,7 +539,10 @@
 		
 		_newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
-			params["parent"] = jsPlumb.CurrentLibrary.getParent(params.source);
+			if (params.container)
+				params.parent = params.container;
+			else
+				params["parent"] = jsPlumb.CurrentLibrary.getParent(params.source);
 			params["_jsPlumb"] = _currentInstance,
 			ep = new endpointFunc(params);
 			_eventFireProxy("click", "endpointClick", ep);
@@ -2249,7 +2262,16 @@ about the parameters allowed in the params object.
 					}
 					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor);
 					var u = params.uuids ? params.uuids[index] : null;
-					var e = _newEndpoint( { paintStyle : es, hoverPaintStyle:ehs, endpoint : ep, connections : [ self ], uuid : u, anchor : a, source : element });
+					var e = _newEndpoint({ 
+						paintStyle : es, 
+						hoverPaintStyle:ehs, 
+						endpoint : ep, 
+						connections : [ self ], 
+						uuid : u, 
+						anchor : a, 
+						source : element,
+						container:params.container
+					});
 					self.endpoints[index] = e;
 					
 					if (params.drawEndpoints === false) e.setVisible(false, true, true);
@@ -2275,7 +2297,7 @@ about the parameters allowed in the params object.
 			 */
 			this.setConnector = function(connector, doNotRepaint) {
 				if (self.connector != null) _removeElements(self.connector.getDisplayElements(), self.parent);
-				var connectorArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, cssClass:params.cssClass };
+				var connectorArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, cssClass:params.cssClass, container:params.container };
 				if (connector.constructor == String) 
 					this.connector = new jsPlumb.Connectors[renderMode][connector](connectorArgs); // lets you use a string as shorthand.
 				else if (connector.constructor == Array)
@@ -2703,13 +2725,15 @@ about the parameters allowed in the params object.
 			else 			
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor) : params.anchors ? jsPlumb.makeAnchor(params.anchors) : jsPlumb.makeAnchor("TopCenter");
 			var _endpoint = params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot",
-			endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent };
+			endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, container:params.container };
 			if (_endpoint.constructor == String) 
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
 			else if (_endpoint.constructor == Array)
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](jsPlumb.extend(_endpoint[1], endpointArgs ));
 			else _endpoint = _endpoint.clone();
 			self.endpoint = _endpoint;
+			
+			// TODO this event listener registration code is identical to what Connection does: it should be refactored.
 			this.endpoint.bind("click", function(e) { self.fire("click", self, e); });
 			this.endpoint.bind("dblclick", function(e) { self.fire("dblclick", self, e); });
 			this.endpoint.bind("mouseenter", function(con, e) {
@@ -2724,6 +2748,8 @@ about the parameters allowed in the params object.
 					self.fire("mouseexit", self, e);
 				}
 			});
+			// TODO this event listener registration code above is identical to what Connection does: it should be refactored.
+			
 			this.setPaintStyle(params.paintStyle || 
 							   params.style || 
 							   _currentInstance.Defaults.EndpointStyle || 
