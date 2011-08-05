@@ -628,7 +628,7 @@
 		 */
 		_setVisible = function(el, state) {
 			_operation(_getAttribute(el, "id"), function(jpc) {
-				jpc.canvas.style.display = state;
+				jpc.connector.canvas.style.display = state;
 			});
 		},
 		/**
@@ -655,8 +655,8 @@
 		 */
 		_toggleVisible = function(elId) {
 			_operation(elId, function(jpc) {
-				var state = ('none' == jpc.canvas.style.display);
-				jpc.canvas.style.display = state ? "block" : "none";
+				var state = ('none' == jpc.connector.canvas.style.display);
+				jpc.connector.canvas.style.display = state ? "block" : "none";
 			});
 			// todo this should call _elementProxy, and pass in the
 			// _operation(elId, f) call as a function. cos _toggleDraggable does
@@ -1939,7 +1939,8 @@ about the parameters allowed in the params object.
 					return lastReturnValue;
 				}
 				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
-				if (element.canvas) {
+				// adjust loc if there is an offsetParent
+				if (element.canvas && element.canvas.offsetParent) {
 					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
 					lastReturnValue[0] = lastReturnValue[0] - po.left;
 					lastReturnValue[1] = lastReturnValue[1] - po.top;
@@ -1995,7 +1996,8 @@ about the parameters allowed in the params object.
 				var xy = params.xy, element = params.element;
 				var result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
 							
-				if (element.canvas) {
+				// adjust loc if there is an offsetParent
+				if (element.canvas && element.canvas.offsetParent) {
 					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
 					result[0] = result[0] - po.left;
 					result[1] = result[1] - po.top;
@@ -3077,7 +3079,7 @@ about the parameters allowed in the params object.
 							jpc.targetId = id;
 						}
 						// set the new, temporary scope (issue 57)
-						jsPlumb.CurrentLibrary.setDragScope(i, newScope);
+			//			jsPlumb.CurrentLibrary.setDragScope(i, newScope);
 						// lock the other endpoint; if it is dynamic it will not move while the drag is occurring.
 						jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
 						// store the original endpoint and assign the new floating endpoint for the drag.
