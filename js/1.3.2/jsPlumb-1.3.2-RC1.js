@@ -3115,9 +3115,11 @@ about the parameters allowed in the params object.
 						var c = _getElementObject(self.canvas);
 						var dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
 						_setAttribute(c, "originalScope", dragScope);
-						// get a new, temporary scope, to use (issue 57)
-						var newScope = "scope_" + (new Date()).getTime();
-
+						// now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
+						// that have our drop scope (issue 57).
+						var dropScope = jsPlumb.CurrentLibrary.getDropScope(c);//jpc.endpoints[anchorIdx == 0 ? 1 : 0].getDropScope();
+						jsPlumb.CurrentLibrary.setDragScope(c, dropScope);
+				
 						// now we replace ourselves with the temporary div we created above:
 						if (anchorIdx == 0) {
 							existingJpcParams = [ jpc.source, jpc.sourceId, i, dragScope ];
@@ -3128,8 +3130,7 @@ about the parameters allowed in the params object.
 							jpc.target = _getElementObject(n);
 							jpc.targetId = id;
 						}
-						// set the new, temporary scope (issue 57)
-			//			jsPlumb.CurrentLibrary.setDragScope(i, newScope);
+
 						// lock the other endpoint; if it is dynamic it will not move while the drag is occurring.
 						jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
 						// store the original endpoint and assign the new floating endpoint for the drag.
