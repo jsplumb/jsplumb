@@ -166,11 +166,17 @@
 		 */
 		var jsPlumbUIComponent = function(params) {
 			var self = this, a = arguments, _hover = false;
+			//console.log("ui args", a);
 			self._jsPlumb = params["_jsPlumb"];	
 			//self.parent = params["parent"];
 			// all components can generate events
 			EventGenerator.apply(this);
 			// all components get this clone function.
+			// TODO issue 116 showed a problem with this - it seems 'a' that is in
+			// the clone function's scope is shared by all invocations of it, the classic
+			// JS closure problem.  for now, jsPlumb does a version of this inline where 
+			// it used to call clone.  but it would be nice to find some time to look
+			// further at this.
 			this.clone = function() {
 				var o = new Object();
 				self.constructor.apply(o, a);
@@ -2730,7 +2736,12 @@ about the parameters allowed in the params object.
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
 			else if (_endpoint.constructor == Array)
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](jsPlumb.extend(_endpoint[1], endpointArgs ));
-			else _endpoint = _endpoint.clone();
+			else {
+				// "clone" the endpoint.
+				var o = new Object();
+				_endpoint.constructor.apply(o, [endpointArgs]);
+				_endpoint = o;
+			}
 			self.endpoint = _endpoint;
 			
 			// TODO this event listener registration code is identical to what Connection does: it should be refactored.
