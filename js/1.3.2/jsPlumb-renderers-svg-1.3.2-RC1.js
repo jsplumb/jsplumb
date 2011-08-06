@@ -178,13 +178,14 @@
 		jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
 		
 		var clazz = cssClass + " " + (originalArgs[0].cssClass || "");
+		self.canvas.className = clazz;
 		
 		self.svg = _node("svg", {
 			"style":"",
 			"width":0,
 			"height":0,
-			"pointer-events":pointerEventsSpec,
-			"class": clazz
+			"pointer-events":pointerEventsSpec/*,
+			"class": clazz*/
 		});
 		
 		jsPlumb.appendElement(self.canvas, originalArgs[0]["parent"]);
