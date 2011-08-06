@@ -2743,6 +2743,7 @@ about the parameters allowed in the params object.
 				_endpoint = o;
 			}
 			self.endpoint = _endpoint;
+			self.type = self.endpoint.type;
 			
 			// TODO this event listener registration code is identical to what Connection does: it should be refactored.
 			this.endpoint.bind("click", function(e) { self.fire("click", self, e); });
