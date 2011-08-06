@@ -786,10 +786,10 @@
      * See <Overlays.Arrow> for allowed parameters for this overlay.
      */
     jsPlumb.Overlays.PlainArrow = function(params) {
-    	params = params || {};
-    	this.type = "PlainArrow";
+    	params = params || {};    	
     	var p = jsPlumb.extend(params, {foldback:1});
-    	jsPlumb.Overlays.Arrow.call(this, p);    	
+    	jsPlumb.Overlays.Arrow.call(this, p);
+    	this.type = "PlainArrow";
     };
         
     /**
@@ -808,11 +808,11 @@
      * See <Overlays.Arrow> for allowed parameters for this overlay.
      */
     jsPlumb.Overlays.Diamond = function(params) {
-    	params = params || {};
-    	this.type = "Diamond";
+    	params = params || {};    	
     	var l = params.length || 40;    	
     	var p = jsPlumb.extend(params, {length:l/2, foldback:2});
-    	jsPlumb.Overlays.Arrow.call(this, p);    	
+    	jsPlumb.Overlays.Arrow.call(this, p);
+    	this.type = "Diamond";
     };
     
     
@@ -843,7 +843,7 @@
     	jsPlumb.DOMElementComponent.apply(this, arguments);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
-	    this.label = params.label;
+	    this.label = params.label || "banana";
 	    this.connection = params.connection;
 	    this.id = params.id;
     	var self = this;
