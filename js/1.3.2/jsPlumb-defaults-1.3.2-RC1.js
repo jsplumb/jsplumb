@@ -631,14 +631,22 @@
 	 * Class: Endpoints.Blank
 	 * An Endpoint that paints nothing on the screen, and cannot be interacted with using the mouse.  There are no constructor parameters for this Endpoint.
 	 */
-	jsPlumb.Endpoints.Blank = function() {
+	jsPlumb.Endpoints.Blank = function(params) {
+		var self = this;
 		this.type = "Blank";
 		jsPlumb.DOMElementComponent.apply(this, arguments);		
 		this.compute = function() {
-			return [0,0,0,0];
+			return [0,0,10,0];
 		};
 		
-		self.canvas = document.createElement("div");		
+		self.canvas = document.createElement("div");
+		self.canvas.style.display = "block";
+		self.canvas.style.width = "1px";
+		self.canvas.style.height = "1px";
+		self.canvas.style.background = "transparent";
+		self.canvas.style.position = "absolute";
+		jsPlumb.appendElement(self.canvas, params.parent);
+		
 		this.paint = function() { };				
 	};
 	
