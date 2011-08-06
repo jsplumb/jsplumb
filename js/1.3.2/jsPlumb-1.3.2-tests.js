@@ -1685,6 +1685,44 @@ var testSuite = function(renderMode) {
 		equals(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
 		equals(d3ElementCount + 1, $("#d3")[0].childNodes.length, "1 new element added to div d3");
 	});
+	
+	test(renderMode + " Connector has 'type' member set", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		
+		var c = jsPlumb.connect({source:d1, target:d2});
+		equals(c.connector.type, "Bezier", "Bezier connector has type set");
+		
+		var c2 = jsPlumb.connect({source:d1, target:d2, connector:"Straight"});
+		equals(c2.connector.type, "Straight", "Straight connector has type set");
+		
+		var c3 = jsPlumb.connect({source:d1, target:d2, connector:"Flowchart"});
+		equals(c3.connector.type, "Flowchart", "Flowchart connector has type set");
+	});
+	
+	test(renderMode + " Endpoints have 'type' member set", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		
+		var c = jsPlumb.connect({source:d1, target:d2});
+		equals(c.endpoints[0].type, "Dot", "Dot endpoint has type set");
+		
+		var c2 = jsPlumb.connect({source:d1, target:d2, endpoints:["Rectangle", "Blank"]});
+		equals(c2.endpoints[1].type, "Blank", "Blank endpoint has type set");
+		equals(c2.endpoints[0].type, "Rectangle", "Rectangle endpoint has type set");		
+	});
+	
+	test(renderMode + " Overlays have 'type' member set", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		
+		var c = jsPlumb.connect({
+			source:d1, 
+			target:d2,
+			overlays:[ "Arrow", "Label", "PlainArrow", "Diamond" ]
+		});
+		equals(c.overlays[0].type, "Arrow", "Arrow overlay has type set");
+		equals(c.overlays[1].type, "Label", "Label overlay has type set");
+		equals(c.overlays[2].type, "PlainArrow", "PlainArrow overlay has type set");
+		equals(c.overlays[3].type, "Diamond", "Diamond overlay has type set");		
+	});
 		
 	/**
 	 * leave this test at the bottom!
