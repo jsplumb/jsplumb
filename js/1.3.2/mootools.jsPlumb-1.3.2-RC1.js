@@ -47,7 +47,8 @@
 	var _droppables = {},
 	_droppableOptions = {},
 	_draggablesByScope = {},
-	_draggablesById = {};
+	_draggablesById = {},
+	_droppableScopesById = {};
 	/*
 	 * 
 	 */
@@ -161,6 +162,11 @@
 			var id = jsPlumb.getId(el);
 			var drags = _draggablesById[id];
 			return drags[0].scope;
+		},
+		
+		getDropScope : function(el) {
+			var id = jsPlumb.getId(el);
+			return _droppableScopesById[id];
 		},
 							
 		getElementObject : _getElementObject,
@@ -277,6 +283,7 @@
 			_add(_droppables, scope, el);
 			var id = jsPlumb.getId(el);
 			_droppableOptions[id] = options;
+			_droppableScopesById[id] = scope;
 			var filterFunc = function(entry) { return entry.element != el; };
 			var draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
 			for (var i = 0; i < draggables.length; i++) {

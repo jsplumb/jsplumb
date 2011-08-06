@@ -28,6 +28,7 @@
  * getAttribute			gets some attribute from an element
  * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
  * getDragScope			gets the drag scope for a given element.
+ * getDropScope			gets the drop scope for a given element.
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
  * getPageXY			gets the page event's xy location.
@@ -123,6 +124,10 @@
 		
 		getDragScope : function(el) {
 			return el.draggable("option", "scope");
+		},
+		
+		getDropScope : function(el) {
+			return el.droppable("option", "scope");		
 		},
 	
 		/**

@@ -117,6 +117,7 @@
 	_droppableOptions = {},
 	_draggablesByScope = {},
 	_draggablesById = {},
+	_droppableScopesById = {},
 	_checkHover = function(el, entering) {
 		if (el) {
 			var id = el.get("id");
@@ -205,6 +206,11 @@
 			return dd.scope;
 		},
 		
+		getDropScope : function(el) {
+			var id = jsPlumb.getId(el);
+			return _droppableScopesById[id];
+		},
+		
 		getElementObject : _getElementObject,
 		
 		getOffset : function(el) {			
@@ -229,10 +235,6 @@
 		},
 		
 		getSize : function(el) {
-			//TODO must be a better way to get this?
-			//console.log("getSize");
-			/*var bcr = _getElementObject(el)._node.getBoundingClientRect();
-			return [ bcr.right - bcr.left, bcr.bottom - bcr.top];		// for some reason, in IE, the bounding rect does not always have width,height precomputed.*/
 			return [ el._node.offsetWidth, el._node.offsetHeight ];
 		},
 		
@@ -272,6 +274,7 @@
 			
 			options = _extend({}, options);
 			var scope = options['scope'] || jsPlumb.Defaults.Scope;					
+			_droppableScopesById[id] = scope;
 			
 			options["drop:enter"] = jsPlumb.wrap(options["drop:enter"], function(e) {
 				if (e.drag.scope !== scope) return true;
