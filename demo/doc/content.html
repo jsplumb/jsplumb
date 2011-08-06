@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>jsPlumb 1.3.1 - documentation</title>
+		<title>jsPlumb 1.3.2 - documentation</title>
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css"></link>	
 	</head>
@@ -18,7 +18,7 @@
 			</p>  
 
 			<h5>Browser Compatibility</h5>
-			<p>jsPlumb 1.3.1 has been tested on the following browsers:
+			<p>jsPlumb 1.3.2 has been tested on the following browsers:
 				<ul>
 					<li class="bullet">IE 6 on Windows XP</li>
 					<li class="bullet">IE 7 on Windows XP</li>
@@ -41,9 +41,28 @@
 		</div>
 		
 		<div class="section">
-			<h3><a id="changes">Changes since version 1.2.6</a></h3>
+			<h3><a id="changes">Changes since version 1.3.1</a></h3>
 			<p>
-			Version 1.3.1 is a major new release of jsPlumb, containing several important new features, and a few changes that break backwards compatibility.
+			Version 1.3.2 contains several bugfixes and sees the reintroduction of the 'container' concept, allowing you to control where in the
+			DOM jsPlumb adds elements (see <a href="#containerDefault">here</a>).  Since a few 1.3.x versions have been released in a short amount
+			of time, I've left in the notes from 1.3.1, as there are a few backwards compatibility issues you may need to know about.		
+			</p>
+			<h5>Issues Resolved</h5>
+			<ul>
+				<li><strong>102</strong> - FF5 requires a default paint style for endpoints</li>
+				<li><strong>103</strong> - add 'type' member to connectors, endpoints and overlays</li>
+				<li><strong>104</strong> - do not set label overlay cursor style by default</li>
+				<li><strong>105</strong> - hoverPaintStyle for endpoints stopped working</li>
+				<li><strong>107</strong> - binding 'mouseenter' and 'mouseexit' on endpoints doesn't work</li>
+				<li><strong>109</strong> - maxConnections:-1 does not allow using endpoint as source</li>
+				<li><strong>112</strong> - add class to SVG container div</li>
+				<li><strong>113</strong> - render mode not set for extra instances of jsPlumb</li>
+				<li><strong>115</strong> - reinstate 'container' concept</li>
+				<li><strong>116</strong> - endpoint clone problem</li>
+				<li><strong>117</strong> - jsPlumb.hide() issue in IE7 and IE8</li>
+			</ul>
+			<p>
+			Version 1.3.1 was a major new release of jsPlumb, containing several important new features, and a few changes that break backwards compatibility.
 			</p>
 			<p>
 			Major new features include:
@@ -106,12 +125,6 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 	  				VML; this method was there to support edge cases of VML usage. You probably were not even aware of this method's existence.
 	  				</p>		
 				</li>		
-			</ul>
-			<p>
-			These issues have been resolved:
-			</p>    
-			<ul>								
-				<li></li>
 			</ul>
 		</div>
 		
@@ -276,16 +289,17 @@ secondInstance.connect({ source:"element4", target:"element3", scope:"someScope"
 			on the body, this does not happen!   
 		</p>
 		<p>
-			For this reason, from 1.3.0 onwards, jsPlumb attaches Endpoint elements to the parent
+			For this reason, from 1.3.0 onwards, jsPlumb's default behaviour is to attach Endpoint elements to the parent
 			of the element the Endpoint is attached to (<strong>not</strong> the actual element
-			the Endpoint is attached to), and it attaches Connector elements to the parent of
+			the Endpoint is attached to), and to attach Connector elements to the parent of
 			the source Endpoint in the Connection. This results in all the elements of the
 			Connection being siblings inside the same parent node, which jsPlumb requires, for
 			various reasons arising from the trade off between doing lots of maths and the
 			performance of the whole thing.
 		</p>
+		
 		<p>
-			In general, this means that you cannot do things like this:
+			In general, the default behaviour means that you cannot do things like this:
 		</p>
 		<div class="code">
 <pre>
@@ -335,7 +349,50 @@ register the Endpoints on the 'container' divs (and then quite possibly throw aw
 	<p>Remember that you can use the <strong>anchor</strong> parameter to an <strong>addEndpoint</strong>
 	call to specify where on an element you want an Endpoint to appear.  Used in conjunction with
 	CSS classes (discussed below), you can have an Endpoint on top of some element wherever you like. 
-	</p>										
+	</p>									
+	
+	<h5>Overriding the default behaviour</h5>
+	<p>
+		From version 1.3.2, the <strong>container</strong> concept was reintroduced into jsPlumb, because there are use cases
+		in which the default behaviour makes it difficult or impossible to build the UI you want. You can instruct jsPlumb to use some
+		element as the parent of everything jsPlumb adds to the UI through usage of the <strong>jsPlumb.Defaults.Container</strong> property,
+		or you can set a <strong>container</strong> parameter on calls to <strong>addEndpoint</strong> or <strong>connect</strong> (if this is set
+		and a default is also set, this parameter's value will be the one used). Some examples:
+	</p>
+		
+		Set a container to use as the default container, using a jQuery selector (you can supply MooTools/YUI selectors if that's the library you're using),
+		and then add an Endpoint.  The canvas (or SVG/VML element) created will be a child of the document body:
+		<div class="code">
+<pre>
+jsPlumb.Defaults.Container = $("body");
+...
+jsPlumb.addEndpoint(someDiv, { endpoint options });
+</pre>		
+		</div>
+		
+			Set a container to use as the default container, using an element id,
+		and then connect two elements.  The canvases (or SVG/VML elements) created in this example will be children of the element with id "containerId":
+		<div class="code">
+<pre>
+jsPlumb.Defaults.Container = "containerId";
+...
+jsPlumb.connect({ source:someDiv, target:someOtherDiv });
+</pre>		
+		</div>
+		
+		Pass a container to use into a jsPlumb.connect call, using a selector.  The canvases (or SVG/VML elements) created in this example will be children of the element with id "containerId":
+		<div class="code">
+<pre>
+jsPlumb.connect({ source:someDiv, target:someOtherDiv, container:$("#containerId") });
+</pre>		
+		</div>
+				Pass a container to use into a jsPlumb.addEndpoint call, using an element id. The canvas (or SVG/VML element) created in this example will be a child of the element with id "containerId":
+		<div class="code">
+<pre>
+jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
+</pre>		
+		</div>
+		
 		</div>
 				
 		<div class="section">
@@ -636,6 +693,7 @@ jsPlumb.connect({
 <pre>
 Anchor : "BottomCenter",
 Anchors : [ null, null ],
+AppendElementsToBody : false,
 Connector : "Bezier",
 DragOptions : { },
 DropOptions : { },
