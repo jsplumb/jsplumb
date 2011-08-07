@@ -76,15 +76,15 @@
 				the second example uses a Dot of radius 15 as the endpoint marker, is both a source and target, and has scope
 				'exampleConnection2'.
 			*/
-			var color2 = '#316b31';
+			var color2 = "#316b31";
 			var exampleEndpoint2 = {
-					endpoint:["Dot", {radius:15}],
+					endpoint:["Dot", { radius:15 }],
 					paintStyle:{ fillStyle:color2 },
 					isSource:true,
-					scope:'green dot',
+					scope:"green dot",
 					connectorStyle:{ strokeStyle:color2, lineWidth:8 },
 					connector: ["Bezier", { curviness:63 } ],
-					maxConnections:-1,
+					maxConnections:3,
 					isTarget:true,
 					dropOptions : exampleDropOptions
 			};
