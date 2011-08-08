@@ -24,7 +24,7 @@
 	 * create and maintain Connections and Endpoints.
 	 */
 	
-	var ie = !!!document.createElement('canvas').getContext;
+	//var ie = !!!document.createElement('canvas').getContext;
 	
 	var canvasAvailable = !!document.createElement('canvas').getContext;
 	var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1");
@@ -166,9 +166,7 @@
 		 */
 		var jsPlumbUIComponent = function(params) {
 			var self = this, a = arguments, _hover = false;
-			//console.log("ui args", a);
-			self._jsPlumb = params["_jsPlumb"];	
-			//self.parent = params["parent"];
+			self._jsPlumb = params["_jsPlumb"];
 			// all components can generate events
 			EventGenerator.apply(this);
 			// all components get this clone function.
@@ -1608,6 +1606,14 @@ about the parameters allowed in the params object.
 				_currentInstance.makeTarget(els[i], params, referenceParams);				
 			}
 		};
+		
+		/*
+		  Function: ready
+		  Helper method to bind a function to jsPlumb's ready event.
+		 */
+		this.ready = function(fn) {
+			_currentInstance.bind("ready", fn);
+		},
 
 		/*
 		  Function: repaint 
@@ -2734,14 +2740,21 @@ about the parameters allowed in the params object.
 			endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, container:params.container };
 			if (_endpoint.constructor == String) 
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
-			else if (_endpoint.constructor == Array)
-				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](jsPlumb.extend(_endpoint[1], endpointArgs ));
-			else {
-				// "clone" the endpoint.
+			else if (_endpoint.constructor == Array) {
+				endpointArgs = jsPlumb.extend(_endpoint[1], endpointArgs);
+				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](endpointArgs);
+			}
+			else 
+				_endpoint = _endpoint.clone();
+			
+			// assign a clone function using our derived endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
+			// and the clone is left in its place while the original one goes off on a magical journey. 
+			this.clone = function() {
 				var o = new Object();
 				_endpoint.constructor.apply(o, [endpointArgs]);
-				_endpoint = o;
-			}
+				return o;
+			};
+			
 			self.endpoint = _endpoint;
 			self.type = self.endpoint.type;
 			
@@ -3067,7 +3080,9 @@ about the parameters allowed in the params object.
 					// set the offset of this div to be where 'inPlaceCopy' is, to start with.
 					var ipcoel = _getElementObject(inPlaceCopy.canvas),
 					ipco = jsPlumb.CurrentLibrary.getOffset(ipcoel),
-					po = inPlaceCopy.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(inPlaceCopy.canvas.offsetParent);					
+					po = inPlaceCopy.canvas.offsetParent != null ? 
+							inPlaceCopy.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(inPlaceCopy.canvas.offsetParent)
+							: { left:0, top: 0};
 					jsPlumb.CurrentLibrary.setOffset(n, {left:ipco.left - po.left, top:ipco.top-po.top});					
 					
 					_updateOffset( { elId : id });
@@ -3138,17 +3153,12 @@ about the parameters allowed in the params object.
 						jpc.endpoints[anchorIdx] = floatingEndpoint;
 					}
 
-					// register it.
+					// register it and register connection on it.
 					floatingConnections[id] = jpc;
-
-					// TODO unregister on stop? or will floating endpoint's
-					// destruction be assured.
 					floatingEndpoint.addConnection(jpc);
 
-					// only register for the target endpoint; we will not be
-					// dragging the source at any time
-					// before this connection is either discarded or made into a
-					// permanent connection.
+					// only register for the target endpoint; we will not be dragging the source at any time
+					// before this connection is either discarded or made into a permanent connection.
 					_addToList(endpointsByElement, id, floatingEndpoint);
 					
 					// tell jsplumb about it
