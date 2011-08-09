@@ -350,6 +350,12 @@ register the Endpoints on the 'container' divs (and then quite possibly throw aw
 	call to specify where on an element you want an Endpoint to appear.  Used in conjunction with
 	CSS classes (discussed below), you can have an Endpoint on top of some element wherever you like. 
 	</p>									
+	<p><strong>Note regarding the drawEndpoints option on jsPlumb.connect</strong>: with the default behaviour, jsPlumb uses the offsetParent of
+	the source endpoint in a connection to make final adjustments to the position of a connector. When drawEndpoints is set to false, there is no
+	offsetParent of the source endpoint because it is not visible.  If your connection lies inside some container other than the document body,
+	the connector will not be able to take that container's offset into account, and will most likely not be in the right place.  You should either
+	use the "Blank" endpoint when you don't want to see one, or instruct jsPlumb to attach everything to the document body (see below). 
+	</p>
 	
 	<h5>Overriding the default behaviour</h5>
 	<p>
@@ -1943,11 +1949,22 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 						<pre>jsPlumb.hide("window5");</pre>
 					</div>
 				</li>
+				<li>Hide all window5's connections endpoints
+					<div class="code">
+						<pre>jsPlumb.hide("window5", true);</pre>
+					</div>
+				</li>
 				<li>Show all window5's connections
 					<div class="code">
 						<pre>jsPlumb.show("window5");</pre>
 					</div>
 				</li>
+				<li>Show all window5's connections and endpoints.  Note that in the case that you call jsPlumb.show with two arguments, jsPlumb
+				will also not make a connection visible if it determines that the other endpoint in the connection is not visible.
+					<div class="code">
+						<pre>jsPlumb.show("window5", hide);</pre>
+					</div>
+				</li>				
 				<li>Toggle the visibility of window5's connections
 					<div class="code">
 						<pre>jsPlumb.toggle("window5");</pre>
