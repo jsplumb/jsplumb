@@ -684,11 +684,18 @@
 		 * @param elId
 		 *            Id of the element in question
 		 */
-		_toggleVisible = function(elId) {
+		_toggleVisible = function(elId, changeEndpoints) {
+			var endpointFunc = null;
+			if (changeEndpoints) {
+				endpointFunc = function(ep) {
+					var state = ep.isVisible();
+					ep.setVisible(!state);
+				};
+			}
 			_operation(elId, function(jpc) {
-				var state = ('none' == jpc.connector.canvas.style.display);
-				jpc.connector.canvas.style.display = state ? "block" : "none";
-			});
+				var state = jpc.isVisible();
+				jpc.setVisible(!state);				
+			}, endpointFunc);
 			// todo this should call _elementProxy, and pass in the
 			// _operation(elId, f) call as a function. cos _toggleDraggable does
 			// that.
@@ -1915,6 +1922,7 @@ about the parameters allowed in the params object.
 		 *  
 		 * Parameters: 
 		 * 	el - either the element's id, or a selector representing the element.
+		 *  changeEndpoints - whether or not to also toggle the endpoints on the element.
 		 *  
 		 * Returns: 
 		 * 	void, but should be updated to return the current state
@@ -2164,6 +2172,7 @@ about the parameters allowed in the params object.
 		 * 	source 	- either an element id, a selector for an element, or an Endpoint.
 		 * 	target	- either an element id, a selector for an element, or an Endpoint
 		 * 	scope	- scope descriptor for this connection. optional.
+		 *  container - optional id or selector instructing jsPlumb where to attach all the elements it creates for this connection.  you should read the documentation for a full discussion of this.
 		 *  endpoint - Optional. Endpoint definition to use for both ends of the connection.
 		 *  endpoints - Optional. Array of two Endpoint definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
 		 *  endpointStyle - Optional. Endpoint style definition to use for both ends of the Connection.
@@ -2171,6 +2180,7 @@ about the parameters allowed in the params object.
 		 *  paintStyle - Parameters defining the appearance of the Connection. Optional; jsPlumb will use the defaults if you supply nothing here.
 		 *  hoverPaintStyle - Parameters defining the appearance of the Connection when the mouse is hovering over it. Optional; jsPlumb will use the defaults if you supply nothing here (note that the default hoverPaintStyle is null).
 		 *  overlays - Optional array of Overlay definitions to appear on this Connection.
+		 *  drawEndpoints - if false, instructs jsPlumb to not draw the endpoints for this Connection.  Be careful with this: it only really works when you tell jsPlumb to attach elements to the document body. Read the documentation for a full discussion of this. 
 		 */
 		var Connection = function(params) {
 
@@ -2658,6 +2668,7 @@ about the parameters allowed in the params object.
 		 * hoverPaintStyle - style to use when the mouse is hovering over the Endpoint. A js object. may be null; defaults to null. 
 		 * source - element the Endpoint is attached to, of type String (an element id) or element selector. Required.
 		 * canvas - canvas element to use. may be, and most often is, null.
+		 * container - optional id or selector instructing jsPlumb where to attach the element it creates for this endpoint.  you should read the documentation for a full discussion of this.
 		 * connections - optional list of Connections to configure the Endpoint with. 
 		 * isSource - boolean. indicates the endpoint can act as a source of new connections. Optional; defaults to false.
 		 * maxConnections - integer; defaults to 1.  a value of -1 means no upper limit. 
