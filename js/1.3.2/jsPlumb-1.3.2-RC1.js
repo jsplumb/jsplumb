@@ -556,7 +556,7 @@
 		 * connected to it. then we pass each connection in to the given
 		 * function.
 		 */
-		_operation = function(elId, func) {
+		_operation = function(elId, func, endpointFunc) {
 			var endpoints = endpointsByElement[elId];
 			if (endpoints && endpoints.length) {
 				for ( var i = 0; i < endpoints.length; i++) {
@@ -566,6 +566,7 @@
 						// most functions return false.
 						if (retVal) return;
 					}
+					if (endpointFunc) endpointFunc(endpoints[i]);
 				}
 			}
 		},
@@ -638,10 +639,29 @@
 		 *            String specifying a value for the css 'display' property
 		 *            ('block' or 'none').
 		 */
-		_setVisible = function(el, state) {
-			_operation(_getAttribute(el, "id"), function(jpc) {
-				jpc.connector.canvas.style.display = state;
-			});
+		_setVisible = function(el, state, alsoChangeEndpoints) {
+			state = state === "block";
+			var endpointFunc = null;
+			if (alsoChangeEndpoints) {
+				if (state) endpointFunc = function(ep) {
+					ep.setVisible(true, true, true);
+				};
+				else endpointFunc = function(ep) {
+					ep.setVisible(false, true, true);
+				};
+			}
+			var id = _getAttribute(el, "id");
+			_operation(id, function(jpc) {
+				if (state && alsoChangeEndpoints) {		
+					// this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
+					// this block will only set a connection to be visible if the other endpoint in the connection is also visible.
+					var oidx = jpc.sourceId === id ? 1 : 0;
+					console.log(oidx);
+					if (jpc.endpoints[oidx].isVisible()) jpc.setVisible(true);
+				}
+				else  // the default behaviour for show, and what always happens for hide, is to just set the visibility without getting clever.
+					jpc.setVisible(state);
+			}, endpointFunc);
 		},
 		/**
 		 * toggles the draggable state of the given element(s).
@@ -1368,12 +1388,13 @@ about the parameters allowed in the params object.
 		  
 		  Parameters: 
 		  	el - either the id of the element, or a selector for the element.
+		  	changeEndpoints - whether not to also hide endpoints on the element. by default this is false.  
 		  	 
 		  Returns: 
 		  	void
 		 */
-		this.hide = function(el) {
-			_setVisible(el, "none");
+		this.hide = function(el, changeEndpoints) {
+			_setVisible(el, "none", changeEndpoints);
 		};
 		
 		/**
@@ -1826,12 +1847,14 @@ about the parameters allowed in the params object.
 		 * 
 		 * Parameters: 
 		 * 	el - either the id of the element, or a selector for the element.
+		 *  changeEndpoints - whether or not to also change the visible state of the endpoints on the element.  this also has a bearing on
+		 *  other connections on those endpoints: if their other endpoint is also visible, the connections are made visible.  
 		 *  
 		 * Returns: 
 		 * 	void
 		 */
-		this.show = function(el) {
-			_setVisible(el, "block");
+		this.show = function(el, changeEndpoints) {
+			_setVisible(el, "block", changeEndpoints);
 		};
 
 		/*
