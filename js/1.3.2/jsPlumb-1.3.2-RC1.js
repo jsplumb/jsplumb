@@ -656,7 +656,6 @@
 					// this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
 					// this block will only set a connection to be visible if the other endpoint in the connection is also visible.
 					var oidx = jpc.sourceId === id ? 1 : 0;
-					console.log(oidx);
 					if (jpc.endpoints[oidx].isVisible()) jpc.setVisible(true);
 				}
 				else  // the default behaviour for show, and what always happens for hide, is to just set the visibility without getting clever.
