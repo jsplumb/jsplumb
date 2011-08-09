@@ -1716,6 +1716,127 @@ var testSuite = function(renderMode) {
 		equals(c.overlays[2].type, "PlainArrow", "PlainArrow overlay has type set");
 		equals(c.overlays[3].type, "Diamond", "Diamond overlay has type set");		
 	});
+	
+	test(renderMode + " jsPlumb.hide, original one-arg version", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+		e = { isSource:true, isTarget:true, maxConnections:-1 },
+		e1 = jsPlumb.addEndpoint(d1, e),
+		e2 = jsPlumb.addEndpoint(d2, e),
+		c1 = jsPlumb.connect({source:e1, target:e2});
+		
+		equals(true, c1.isVisible(), "Connection 1 is visible after creation.");
+		equals(true, e1.isVisible(), "endpoint 1 is visible after creation.");
+		equals(true, e2.isVisible(), "endpoint 2 is visible after creation.");
+		
+		jsPlumb.hide(d1);
+		
+		equals(false, c1.isVisible(), "Connection 1 is no longer visible.");
+		equals(true, e1.isVisible(), "endpoint 1 is still visible.");
+		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		
+		jsPlumb.show(d1);
+		
+		equals(true, c1.isVisible(), "Connection 1 is visible again.");
+	});
+	
+	test(renderMode + " jsPlumb.hide, two-arg version, endpoints should also be hidden", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+		e = { isSource:true, isTarget:true, maxConnections:-1 },
+		e1 = jsPlumb.addEndpoint(d1, e),
+		e2 = jsPlumb.addEndpoint(d2, e),
+		c1 = jsPlumb.connect({source:e1, target:e2});
+		
+		equals(true, c1.isVisible(), "Connection 1 is visible after creation.");
+		equals(true, e1.isVisible(), "endpoint 1 is visible after creation.");
+		equals(true, e2.isVisible(), "endpoint 2 is visible after creation.");
+		
+		jsPlumb.hide("d1", true);
+		
+		equals(false, c1.isVisible(), "Connection 1 is no longer visible.");
+		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		
+		jsPlumb.show(d1);  // now show d1, but do not alter the endpoints. e1 should still be hidden
+		
+		equals(true, c1.isVisible(), "Connection 1 is visible again.");
+		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+	});
+	
+	test(renderMode + " jsPlumb.show, two-arg version, endpoints should become visible", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+		e = { isSource:true, isTarget:true, maxConnections:-1 },
+		e1 = jsPlumb.addEndpoint(d1, e),
+		e2 = jsPlumb.addEndpoint(d2, e),
+		c1 = jsPlumb.connect({source:e1, target:e2});
+				
+		jsPlumb.hide("d1", true);
+		
+		equals(false, c1.isVisible(), "Connection 1 is no longer visible.");
+		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		
+		jsPlumb.show(d1, true);  // now show d1, and alter the endpoints. e1 should be visible.
+		
+		equals(true, c1.isVisible(), "Connection 1 is visible again.");
+		equals(true, e1.isVisible(), "endpoint 1 is visible again.");
+		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+	});
+	
+	test(renderMode + " jsPlumb.show, two-arg version, endpoints should become visible, but not all connections, because some other endpoints are  not visible.", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
+		e = { isSource:true, isTarget:true, maxConnections:-1 },
+		e1 = jsPlumb.addEndpoint(d1, e),
+		e11 = jsPlumb.addEndpoint(d1, e),
+		e2 = jsPlumb.addEndpoint(d2, e),
+		e3 = jsPlumb.addEndpoint(d3, e),
+		c1 = jsPlumb.connect({source:e1, target:e2});
+		c2 = jsPlumb.connect({source:e11, target:e3});
+			
+		// we now have d1 connected to both d3 and d2.  we'll hide d1, and everything on d1 should be hidden.
+		
+		jsPlumb.hide("d1", true);
+		
+		equals(false, c1.isVisible(), "connection 1 is no longer visible.");
+		equals(false, c2.isVisible(), "connection 2 is no longer visible.");
+		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equals(false, e11.isVisible(), "endpoint 1 is no longer visible.");
+		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equals(true, e3.isVisible(), "endpoint 3 is still visible.");
+		
+		// now, we will also hide d3. making d1 visible again should NOT result in c2 becoming visible, because the other endpoint
+		// for c2 is e3, which is not visible.
+		jsPlumb.hide(d3, true);
+		equals(false, e3.isVisible(), "endpoint 3 is no longer visible.");
+		
+		jsPlumb.show(d1, true);  // now show d1, and alter the endpoints. e1 should be visible, c1 should be visible, but c2 should not.
+		
+		equals(true, c1.isVisible(), "Connection 1 is visible again.");
+		equals(false, c2.isVisible(), "Connection 2 is not visible.");
+		equals(true, e1.isVisible(), "endpoint 1 is visible again.");
+		equals(true, e11.isVisible(), "endpoint 11 is visible again.");
+		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equals(false, e3.isVisible(), "endpoint 3 is still not visible.");
+	});
+	
+	/*
+	test(renderMode + " jsPlumb.hide, two-arg version, endpoints should also be hidden", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+		e = { isSource:true, isTarget:true, maxConnections:-1 },
+		e1 = jsPlumb.addEndpoint(d1, e),
+		e2 = jsPlumb.addEndpoint(d2, e),
+		c1 = jsPlumb.connect({source:e1, target:e2});
+		
+		equals(true, c1.isVisible(), "Connection 1 is visible after creation.");
+		equals(true, e1.isVisible(), "endpoint 1 is visible after creation.");
+		equals(true, e2.isVisible(), "endpoint 2 is visible after creation.");
+		
+		jsPlumb.hide("d1", true);
+		
+		equals(false, c1.isVisible(), "Connection 1 is no longer visible.");
+		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+	});
 		
 	/**
 	 * leave this test at the bottom!
