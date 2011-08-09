@@ -439,20 +439,29 @@
 					for ( var j = 0; j < l.length; j++) {						
 						l[j].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); // ...paint each connection.
 						// then, check for dynamic endpoint; need to repaint it.						
-						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0;
-						if (l[j].endpoints[oIdx].anchor.isDynamic && !l[j].endpoints[oIdx].isFloating()) {							
-							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId,
-							oOffset = offsets[oId], oWH = sizes[oId],							
+						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0,
+							otherEndpoint = l[j].endpoints[oIdx];
+						if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {							
+							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
+							
+							var oOffset = offsets[oId];
+							var oWH = sizes[oId];							
 							// TODO i still want to make this faster.
-							anchorLoc = l[j].endpoints[oIdx].anchor.compute( {
+							var anchorLoc = otherEndpoint.anchor.compute( {
 										xy : [ oOffset.left, oOffset.top ],
 										wh : oWH,
-										element : l[j].endpoints[oIdx],
+										element : otherEndpoint,
 										txy : [ myOffset.left, myOffset.top ],
 										twh : myWH,
 										tElement : endpoints[i]
 									});
-							l[j].endpoints[oIdx].paint({ anchorLoc : anchorLoc });
+							otherEndpoint.paint({ anchorLoc : anchorLoc, 
+								elementWithPrecedence:id });
+							// all the connections for the other endpoint now need to be repainted
+							for (var k = 0; k < otherEndpoint.connections.length; k++) {
+								if (otherEndpoint.connections[k] !== l)
+									otherEndpoint.connections[k].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); 
+							}
 						}
 					}
 				}
@@ -2073,21 +2082,22 @@ about the parameters allowed in the params object.
 		var DynamicAnchor = function(anchors, anchorSelector) {
 			this.isSelective = true;
 			this.isDynamic = true;			
-			var _anchors = [];
-			var _convert = function(anchor) { return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor); };
+			var _anchors = [],
+			_convert = function(anchor) { return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor); };
 			for (var i = 0; i < anchors.length; i++) _anchors[i] = _convert(anchors[i]);			
 			this.addAnchor = function(anchor) { _anchors.push(_convert(anchor)); };
 			this.getAnchors = function() { return _anchors; };
-			var _curAnchor = _anchors.length > 0 ? _anchors[0] : null;
-			var _curIndex = _anchors.length > 0 ? 0 : -1;
 			this.locked = false;
-			var self = this;
+			var _curAnchor = _anchors.length > 0 ? _anchors[0] : null,
+			_curIndex = _anchors.length > 0 ? 0 : -1,
+			self = this,
 			
 			// helper method to calculate the distance between the centers of the two elements.
-			var _distance = function(anchor, cx, cy, xy, wh) {
+			_distance = function(anchor, cx, cy, xy, wh) {
 				var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]);
 				return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2));
-			};
+			},
+			
 			// default method uses distance between element centers.  you can provide your own method in the dynamic anchor
 			// constructor (and also to jsPlumb.makeDynamicAnchor). the arguments to it are four arrays: 
 			// xy - xy loc of the anchor's element
@@ -2095,7 +2105,7 @@ about the parameters allowed in the params object.
 			// txy - xy loc of the element of the other anchor in the connection
 			// twh - dimensions of the element of the other anchor in the connection.
 			// anchors - the list of selectable anchors
-			var _anchorSelector = anchorSelector || function(xy, wh, txy, twh, anchors) {
+			_anchorSelector = anchorSelector || function(xy, wh, txy, twh, anchors) {
 				var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
 				var minIdx = -1, minDist = Infinity;
 				for ( var i = 0; i < anchors.length; i++) {
@@ -2107,6 +2117,7 @@ about the parameters allowed in the params object.
 				}
 				return anchors[minIdx];
 			};
+			
 			this.compute = function(params) {				
 				var xy = params.xy, wh = params.wh, timestamp = params.timestamp, txy = params.txy, twh = params.twh;				
 				// if anchor is locked or an opposite element was not given, we
@@ -3006,6 +3017,22 @@ about the parameters allowed in the params object.
 			this.equals = function(endpoint) {
 				return this.anchor.equals(endpoint.anchor);
 			};
+			
+			// a helper function that tries to find a connection to the given element, and returns it if so. if elementWithPrecedence is null,
+			// or no connection to it is found, we return the first connection in our list.
+			var findConnectionToUseForDynamicAnchor = function(elementWithPrecedence) {
+				var idx = 0;
+				if (elementWithPrecedence != null) {
+					for (var i = 0; i < self.connections.length; i++) {
+						if (self.connections[i].sourceId == elementWithPrecedence || self.connections[i].targetId == elementWithPrecedence) {
+							idx = i;
+							break;
+						}
+					}
+				}
+				
+				return self.connections[idx];
+			};
 
 			/*
 			 * Function: paint
@@ -3033,7 +3060,8 @@ about the parameters allowed in the params object.
 						var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
 						if (self.anchor.isDynamic) {
 							if (self.connections.length > 0) {
-								var c = self.connections[0];
+								//var c = self.connections[0];
+								var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence);
 								var oIdx = c.endpoints[0] == self ? 1 : 0;
 								var oId = oIdx == 0 ? c.sourceId : c.targetId;
 								var oOffset = offsets[oId], oWH = sizes[oId];
