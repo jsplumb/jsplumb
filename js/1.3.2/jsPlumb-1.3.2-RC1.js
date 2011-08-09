@@ -441,22 +441,8 @@
 						// then, check for dynamic endpoint; need to repaint it.						
 						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0,
 							otherEndpoint = l[j].endpoints[oIdx];
-						if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {							
-							var oId = oIdx == 0 ? l[j].sourceId : l[j].targetId;
-							
-							var oOffset = offsets[oId];
-							var oWH = sizes[oId];							
-							// TODO i still want to make this faster.
-							var anchorLoc = otherEndpoint.anchor.compute( {
-										xy : [ oOffset.left, oOffset.top ],
-										wh : oWH,
-										element : otherEndpoint,
-										txy : [ myOffset.left, myOffset.top ],
-										twh : myWH,
-										tElement : endpoints[i]
-									});
-							otherEndpoint.paint({ anchorLoc : anchorLoc, 
-								elementWithPrecedence:id });
+						if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {														
+							otherEndpoint.paint({ elementWithPrecedence:id });
 							// all the connections for the other endpoint now need to be repainted
 							for (var k = 0; k < otherEndpoint.connections.length; k++) {
 								if (otherEndpoint.connections[k] !== l)
