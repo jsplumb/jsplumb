@@ -56,10 +56,12 @@
 				<li><strong>107</strong> - binding 'mouseenter' and 'mouseexit' on endpoints doesn't work</li>
 				<li><strong>109</strong> - maxConnections:-1 does not allow using endpoint as source</li>
 				<li><strong>112</strong> - add class to SVG container div</li>
+				<li><strong>114</strong> - 'drawEndpoints:false' can cause connection paint errors.</li>
 				<li><strong>113</strong> - render mode not set for extra instances of jsPlumb</li>
 				<li><strong>115</strong> - reinstate 'container' concept</li>
 				<li><strong>116</strong> - endpoint clone problem</li>
 				<li><strong>117</strong> - jsPlumb.hide() issue in IE7 and IE8</li>
+				<li><strong>119</strong> - inconsistent behaviour of dynamic anchors when multiple connections share an anchor.</li>
 			</ul>
 			<p>
 			Version 1.3.1 was a major new release of jsPlumb, containing several important new features, and a few changes that break backwards compatibility.
@@ -188,6 +190,18 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 			you should bind to the "ready" event on jsPlumb (or the instance of jsPlumb you are working with):
 			<div class="code">
 			<pre>jsPlumb.bind("ready", function() {
+...	
+		
+// your jsPlumb related init code goes here
+
+...
+
+});						
+			</pre>
+			</div>
+			In 1.3.2 a helper method was added that can save you approximately 9 (count them!) characters:
+			<div class="code">
+			<pre>jsPlumb.ready(function() {
 ...	
 		
 // your jsPlumb related init code goes here
@@ -363,7 +377,8 @@ register the Endpoints on the 'container' divs (and then quite possibly throw aw
 		in which the default behaviour makes it difficult or impossible to build the UI you want. You can instruct jsPlumb to use some
 		element as the parent of everything jsPlumb adds to the UI through usage of the <strong>jsPlumb.Defaults.Container</strong> property,
 		or you can set a <strong>container</strong> parameter on calls to <strong>addEndpoint</strong> or <strong>connect</strong> (if this is set
-		and a default is also set, this parameter's value will be the one used). Some examples:
+		and a default is also set, this default value is actually used.  This may seem counter-intuitive, and could of course be changed if
+		there is feedback from the community that this would be a good idea). Some examples:
 	</p>
 		
 		Set a container to use as the default container, using a jQuery selector (you can supply MooTools/YUI selectors if that's the library you're using),
