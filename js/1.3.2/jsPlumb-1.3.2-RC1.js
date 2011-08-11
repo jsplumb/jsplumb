@@ -289,19 +289,20 @@
 		 * Properties:
 		 * 	-	*Anchor*				The default anchor to use for all connections (both source and target). Default is "BottomCenter".
 		 * 	-	*Anchors*				The default anchors to use ([source, target]) for all connections. Defaults are ["BottomCenter", "BottomCenter"].
-		 * 	-	*Connector*			The default connector definition to use for all connections.  Default is "Bezier".
+		 * 	-	*Connector*				The default connector definition to use for all connections.  Default is "Bezier".
+		 *  -   *Container*				Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element. 
 		 * 	-	*DragOptions*			The default drag options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*DropOptions*			The default drop options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
-		 * 	-	*Endpoint*			The default endpoint definition to use for all connections (both source and target).  Default is "Dot".
-		 * 	-	*Endpoints*			The default endpoint definitions ([ source, target ]) to use for all connections.  Defaults are ["Dot", "Dot"].
-		 * 	-	*EndpointStyle*		The default style definition to use for all endpoints. Default is fillStyle:"#456".
+		 * 	-	*Endpoint*				The default endpoint definition to use for all connections (both source and target).  Default is "Dot".
+		 * 	-	*Endpoints*				The default endpoint definitions ([ source, target ]) to use for all connections.  Defaults are ["Dot", "Dot"].
+		 * 	-	*EndpointStyle*			The default style definition to use for all endpoints. Default is fillStyle:"#456".
 		 * 	-	*EndpointStyles*		The default style definitions ([ source, target ]) to use for all endpoints.  Defaults are empty.
 		 * 	-	*EndpointHoverStyle*	The default hover style definition to use for all endpoints. Default is null.
 		 * 	-	*EndpointHoverStyles*	The default hover style definitions ([ source, target ]) to use for all endpoints. Defaults are null.
 		 * 	-	*HoverPaintStyle*		The default hover style definition to use for all connections. Defaults are null.
 		 * 	-	*LabelStyle*			The default style to use for label overlays on connections.
 		 * 	-	*LogEnabled*			Whether or not the jsPlumb log is enabled. defaults to false.
-		 * 	-	*Overlays*			The default overlay definitions. Defaults to an empty list.
+		 * 	-	*Overlays*				The default overlay definitions. Defaults to an empty list.
 		 * 	-	*MaxConnections*		The default maximum number of connections for an Endpoint.  Defaults to 1.
 		 * 	-	*MouseEventsEnabled*	Whether or not mouse events are enabled when using the canvas renderer.  Defaults to true.  
 		 * 							The idea of this is just to give people a way to prevent all the mouse listeners from activating if they know they won't need mouse events.
