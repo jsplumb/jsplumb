@@ -1342,8 +1342,7 @@ var testSuite = function(renderMode) {
 	});
 	
 	test(renderMode + ": jsPlumb.connect (remove single overlay by id)", function() {
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-		var imageEventListener = function() { };
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var arrowSpec = { 
 				width:40,
 				length:40,
@@ -1366,8 +1365,7 @@ var testSuite = function(renderMode) {
 	});
 	
 	test(renderMode + ": jsPlumb.connect (remove multiple overlays by id)", function() {
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-		var imageEventListener = function() { };
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var arrowSpec = { 
 				width:40,
 				length:40,
@@ -1451,6 +1449,17 @@ var testSuite = function(renderMode) {
 		var conn = jsPlumb.connect({source:d1,target:d2,overlays:[ [ "Arrow", { id:"arrowOverlay" } ] ] });
 		var overlay = conn.getOverlay("IDONTEXIST");
 		ok(overlay == null);
+	});
+	
+	test(renderMode + ": Overlay.setVisible method", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var conn = jsPlumb.connect({source:d1,target:d2,overlays:[ [ "Arrow", { id:"arrowOverlay" } ] ] });
+		var overlay = conn.getOverlay("arrowOverlay");
+		ok(overlay.isVisible());
+		overlay.setVisible(false);
+		ok(!overlay.isVisible());
+		overlay.setVisible(true);
+		ok(overlay.isVisible());
 	});
 	
 	// this test is for the original detach function; it should stay working after i mess with it
