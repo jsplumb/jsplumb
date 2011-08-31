@@ -71,20 +71,18 @@
 			l.push(value);
 			return l;
 		};
-		
-		
 
 		var _connectionBeingDragged = null;
 
-		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); };
-		var _setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); };
-		var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); };
-		var _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); };
-		var _removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); };
-		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
-		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
-		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };
-		var _log = function(jsp, msg) {
+		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
+		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); },
+		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); },
+		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
+		_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); },
+		_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
+		_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
+		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
+		_log = function(jsp, msg) {
 			if (jsp.logEnabled && typeof console != "undefined")
 				console.log(msg);
 		};	
@@ -530,8 +528,8 @@
 		},
 		
 		_eventFireProxy = function(event, proxyEvent, obj) {
-			obj.bind(event, function(e) {
-				_currentInstance.fire(proxyEvent, obj, e);
+			obj.bind(event, function(originalObject, originalEvent) {
+				_currentInstance.fire(proxyEvent, obj, originalEvent);
 			});
 		},
 		
@@ -2251,7 +2249,6 @@ about the parameters allowed in the params object.
 			/**
 			 * implementation of abstract method in EventGenerator
 			 */
-			var srcWhenMouseDown = null, targetWhenMouseDown = null;
 			this.savePosition = function() {
 				srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
 				targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));
@@ -2309,9 +2306,9 @@ about the parameters allowed in the params object.
 							ehs.fillStyle = connectorHoverPaintStyle.strokeStyle;
 						}
 					}
-					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor);
-					var u = params.uuids ? params.uuids[index] : null;
-					var e = _newEndpoint({ 
+					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor),
+					u = params.uuids ? params.uuids[index] : null,
+					e = _newEndpoint({ 
 						paintStyle : es, 
 						hoverPaintStyle:ehs, 
 						endpoint : ep, 
@@ -2352,7 +2349,6 @@ about the parameters allowed in the params object.
 				else if (connector.constructor == Array)
 					this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
 				this.canvas = this.connector.canvas;
-				var _mouseDown = false, _mouseWasDown = false, _mouseDownAt = null;
 				// add mouse events
 				this.connector.bind("click", function(con, e) {
 					_mouseWasDown = false; 
