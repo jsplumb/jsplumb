@@ -1,3 +1,41 @@
+
+* 1.3.3
+
+	- added getOverlay(id) to Connection
+	- added hideOverlay(id) to Connection
+	- added showOverlay(id) to Connection
+	- added hide() to Overlay
+	- added show() to Overlay
+	- added setVisible(state) to Overlay
+	
+	- fixed issue 127 (original event was lost in the jsPlumb shortcut bind methods)
+
+* 1.3.2
+
+	- reinstated the container concept on jsPlumb.Defaults and on calls to addEndpoint and connect.
+	- updated jsPlumb.hide and jsPlumb.show to optionally work their magic on Endpoints as well as Connections.
+	- added jsPlumb.ready convenience function.
+	- issues resolved:
+	
+	102 - FF5 requires a default paint style for endpoints
+	103 - add 'type' member to connectors, endpoints and overlays
+	104 - do not set label overlay cursor style by default
+	105 - hoverPaintStyle for endpoints stopped working
+	107 - binding 'mouseenter' and 'mouseexit' on endpoints doesn't work
+	109 - maxConnections:-1 does not allow using endpoint as source
+	112 - add class to SVG container div
+	113 - render mode not set for extra instances of jsPlumb
+	114 - 'drawEndpoints:false' can cause connection paint errors.
+	115 - reinstate 'container' concept
+	116 - endpoint clone problem
+	117 - jsPlumb.hide() issue in IE7 and IE8
+	119 - inconsistent behaviour of dynamic anchors when multiple connections share an anchor. 
+	
+
+* 1.3.1
+
+	bugfix release for element positioning bug. use this instead of 1.3.0.
+
 * 1.3.0
 
 	*** Backwards compatibility breakages ***
