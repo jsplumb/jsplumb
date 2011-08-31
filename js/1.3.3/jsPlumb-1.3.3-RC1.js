@@ -2416,7 +2416,7 @@ about the parameters allowed in the params object.
 			var _overlays = params.overlays || _currentInstance.Defaults.Overlays;
 			if (_overlays) {
 				for (var i = 0; i < _overlays.length; i++) {
-					var o = _overlays[i], _newOverlay = null, _overlayEvents = null;
+					var o = _overlays[i], _newOverlay = null;
 					if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
 						// there's also a three arg version:
 						// ["Arrow", { width:50 }, {location:0.7}] 
@@ -2520,6 +2520,24 @@ about the parameters allowed in the params object.
 				return idx >= 0 ? self.overlays[idx] : null;
 			};
 			
+			/*
+			 * Function: hideOverlay
+			 * Hides the overlay specified by the given id.
+			 */
+			this.hideOverlay = function(id) {
+				var o = self.getOverlay(id);
+				if (o) o.hide();
+			};
+			
+			/*
+			 * Function: showOverlay
+			 * Shows the overlay specified by the given id.
+			 */
+			this.showOverlay = function(id) {
+				var o = self.getOverlay(id);
+				if (o) o.show();
+			};
+			
 			/**
 			 * Function: removeAllOverlays
 			 * Removes all overlays from the Connection, and then repaints.
@@ -2607,28 +2625,27 @@ about the parameters allowed in the params object.
 			 */
 			this.paint = function(params) {
 				params = params || {};
-				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp;
-				var fai = self.floatingAnchorIndex;
+				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
 				// if the moving object is not the source we must transpose the two references.
-				var swap = false;
-				var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
-				var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
-				var el = swap ? this.target : this.source;
+				swap = false,
+				tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
+				tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
 				_updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp });
 				_updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
-				var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();					
-				var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-				var tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
-				var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
+				
+				var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation(),				
+				tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
 				
 				/* paint overlays*/
 				var maxSize = 0;
 				for ( var i = 0; i < self.overlays.length; i++) {
 					var o = self.overlays[i];
-					var s = o.computeMaxSize(self.connector);
-					if (s > maxSize)
-						maxSize = s;
+					if (o.isVisible()) {
+						var s = o.computeMaxSize(self.connector);
+						if (s > maxSize)
+							maxSize = s;
+					}
 				}
 
 				var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, maxSize);
@@ -2638,7 +2655,8 @@ about the parameters allowed in the params object.
 				/* paint overlays*/
 				for ( var i = 0; i < self.overlays.length; i++) {
 					var o = self.overlays[i];
-					self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
+					if (o.isVisible)
+						self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
 				}
 			};			
 
