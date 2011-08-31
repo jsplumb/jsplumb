@@ -681,6 +681,18 @@
 	
 
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
+
+	var AbstractOverlay = function() {
+		var visible = true, self = this;
+		this.setVisible = function(val) { 
+			visible = val;
+			self.connection.repaint();
+		};
+    	this.isVisible = function() { return visible; };
+    	this.hide = function() { self.setVisible(false); };
+    	this.show = function() { self.setVisible(true); };
+	};
+	
 	
 	/**
 	 * Class: Overlays.Arrow
@@ -706,8 +718,10 @@
 	 */
 	jsPlumb.Overlays.Arrow = function(params) {
 		this.type = "Arrow";
+		AbstractOverlay.apply(this);
 		params = params || {};
 		var self = this;
+		
     	this.length = params.length || 20;
     	this.width = params.width || 20;
     	this.id = params.id;
@@ -724,7 +738,7 @@
     			return connector.pointAlongPathFrom(loc, direction * self.length * adj);
     		}
     	};
-    	
+    	    	
     	this.computeMaxSize = function() { return self.width * 1.5; };
     	
     	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
@@ -849,6 +863,7 @@
     jsPlumb.Overlays.Label = function(params) {
     	this.type = "Label";
     	jsPlumb.DOMElementComponent.apply(this, arguments);
+    	AbstractOverlay.apply(this);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
 	    this.label = params.label || "banana";
@@ -857,7 +872,7 @@
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
-    	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!
+    	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!    	
     	var initialised = false,
     	labelText = null,
     	div = document.createElement("div");	
