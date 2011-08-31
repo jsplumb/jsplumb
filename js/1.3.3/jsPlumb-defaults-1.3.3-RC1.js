@@ -895,6 +895,14 @@
     	jsPlumb.appendElement(div, params.connection.parent);
     	jsPlumb.getId(div);		
     	self.attachListeners(div, self);
+    	
+    	//override setVisible
+    	var osv = self.setVisible;
+    	self.setVisible = function(state) {
+    		osv(state); // call superclass
+    		div.style.display = state ? "block" : "none";
+    	};
+    	
     	this.paint = function(connector, d, connectorDimensions) {
 			if (!initialised) {	
 				connector.appendDisplayElement(div);
