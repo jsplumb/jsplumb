@@ -142,7 +142,7 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 			<div class="code">
 				<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.1-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.2-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>MooTools</h4>
 				<ul>
@@ -152,7 +152,7 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.1-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.2-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>YUI3</h4>
 			<ul>
@@ -160,7 +160,7 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 			</ul>
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.1-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.2-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			
 			<h4><a id="renderMode">Render Mode</a></h4>
@@ -1517,25 +1517,95 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 		<div class="section">
 			<h3><a id="events">Events</a></h3>
 			jsPlumb supports binding to several different events, both on Connections, Endpoints and Overlays, and also on the jsPlumb
-			object itself.  To bind events on any of these objects you use the <strong>jsPlumb.bind(object, event, callback)</strong> method, 
-			<strong>except</strong> in the case of Overlays, in which you provide the event listeners in the Overlay's constructor arguments (example below). 
+			object itself.  To bind events on any of these objects you use the <strong>bind(event, callback)</strong> method on the object you
+			wish to listen for events on, <strong>except</strong> in the case of Overlays, in which you provide the event listeners 
+			in the Overlay's constructor arguments (example below). 
 			
 			<h4><a id="jsPlumbEvents">jsPlumb Events</a></h4>
 			<ul>
-				<li class="bullet"><strong>jsPlumbConnection</strong> - notification a Connection was established.  The callback is passed the new Connection as argument.</li>
-				<li class="bullet"><strong>jsPlumbConnectionDetached</strong> - notification a Connection was detached.  The callback is passed the detached Connection as argument.</li>
+				<li class="bullet"><strong>jsPlumbConnection</strong> - notification a Connection was established.  The callback is passed a JS object 
+				containing the following values:
+				<br/><br/>
+					<ul>
+						<li><strong>connection</strong> - the Connection that was just established. </li>
+						<li><strong>source</strong> - the source element in the connection, as a selector for the current underlying library.</li>
+						<li><strong>target</strong> - the source element in the connection, as a selector for the current underlying library.</li>
+						<li><strong>sourceId</strong> - the id of the source element in the connection</li>
+						<li><strong>targetId</strong> - the id of the target element in the connection.</li>
+						<li><strong>sourceEndpoint</strong> - the source Endpoint in the connection</li>
+						<li><strong>targetEndpoint</strong> - the target Endpoint in the connection</li>
+					</ul>
+					<br/><br/>				
+					<strong>Note:</strong> 'connection' was not added to this event's callback payload until quite recently, but is now the preferred
+					method of usage. All of the other parameters - which you can extract directly from the Connection - are not really required, and
+					so I am tempted to deprecate them.  But see the note below about the jsPlumbConnectionDetached event.
+					<br/><br/>
+				</li>
+				<li class="bullet"><strong>jsPlumbConnectionDetached</strong> - notification a Connection was detached.  The callback is passed a JS object 
+				containing the following values:
+				<br/><br/>
+					<ul>
+						<li><strong>connection</strong> - the Connection that was just detached. </li>
+						<li><strong>source</strong> - the source element in the connection, as a selector for the current underlying library.</li>
+						<li><strong>target</strong> - the source element in the connection, as a selector for the current underlying library.</li>
+						<li><strong>sourceId</strong> - the id of the source element in the connection</li>
+						<li><strong>targetId</strong> - the id of the target element in the connection.</li>
+						<li><strong>sourceEndpoint</strong> - the source Endpoint in the connection</li>
+						<li><strong>targetEndpoint</strong> - the target Endpoint in the connection</li>
+					</ul>
+					<br/><br/>				
+					<strong>Note:</strong> unlike the "jsPlumbConnection" event, there is one scenario in which the values inside the 'connection'
+					parameter do not exactly match the rest of the values in the callback's payload. When an existing Connection is dragged off
+					some element and attached to a different one, you will get a detach event in which one set of [id, element, endpoint] - source 
+					or target - refers to an element the Connection was previously attached to, while the Connection itself will have already
+					been updated (jsPlumb also then fires a "jsPlumbConnection" event with the updated information).  It is for this reason that
+					I am wary of deprecating the extra parameters in the jsPlumbConnection callback: keeping the same parameters for both allows
+					a user to handle both types of events in a more even fashion.   
+					<br/><br/>
+				</li>
+				<li><strong>Shortcut event listeners:</strong> (see discussion below)<li>
 				<li class="bullet"><strong>click</strong> - notification a Connection was clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>dblclick</strong> - notification a Connection was double-clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>endpointClick</strong> - notification an Endpoint was clicked.  The callback is passed the Endpoint and the original mouse event.</li>
 				<li class="bullet"><strong>endpointDblClick</strong> - notification an Endpoint was double-clicked.  The callback is passed the Endpoint and the original mouse event.</li>
 			</ul>
+			<h5>Shortcut event listeners</h5>
+			The last four events in the list above are there for convenience; "click" and "dblclick" listeners registered on jsPlumb are automatically
+			registered on every Connection that is created; "endpointClick" and "endpointDblClick" are registered on any created Endpoints.  So as an example:
+			<div class="code">
+<pre>
+jsPlumb.bind("click", function(connection, event) {
+	alert("you clicked on the connection from " + connection.sourceId + " to " + connection.targetId);
+});
+</pre>			
+			</div>
+			is equivalent to doing this:
+			<div class="code">
+<pre>
+jsPlumb.bind("jsPlumbConnection", function(data) {
+	data.connection.bind("click", function(connection, event) {
+		alert("you clicked on the connection from " + connection.sourceId + " to " + connection.targetId);
+	});
+});
+</pre>			
+			</div>			
+			
 			<h4><a id="connectionEvents">Connection Events</a></h4>			
 			<ul>
 				<li class="bullet"><strong>click</strong> - notification a Connection was clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>dblclick</strong> - notification a Connection was double-clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>mouseenter</strong> - notification the mouse entered the Connection's path.  The callback is passed the Connection and the original mouse event.</li>
-				<li class="bullet"><strong>mouseexit</strong> - notification the mouse exited the Connection's.  The callback is passed the Connection and the original mouse event.</li>
+				<li class="bullet"><strong>mouseexit</strong> - notification the mouse exited the Connection's.  The callback is passed the Connection and the original mouse event.</li>	
 			</ul>
+			Example usage:
+						<div class="code">
+<pre>
+var connection = jsPlumb.connect({source..., target:...});
+connection.bind("click", function(conn, originalEvent) {
+	// here 'conn' is the Connection, and originalEvent is the event posted by the underlying library.
+});
+</pre>								
+</div>
 			<h4><a id="endpointEvents">Endpoint Events</a></h4>			
 			<ul>
 				<li class="bullet"><strong>click</strong> - notification an Endpoint was clicked.  The callback is passed the Endpoint and the original mouse event.</li>
@@ -1543,6 +1613,16 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 				<li class="bullet"><strong>mouseenter</strong> - notification the mouse entered the Endpoint.  The callback is passed the Endpoint and the original mouse event.</li>
 				<li class="bullet"><strong>mouseexit</strong> - notification the mouse exited the Endpoint.  The callback is passed the Endpoint and the original mouse event.</li>
 			</ul>
+			Example usage:
+						<div class="code">
+<pre>
+var endpoint = jsPlumb.addEndpoint("someDiv", {...options...});
+endpoint.bind("click", function(ep, originalEvent) {
+	// here 'ep' is the Endpoint, and originalEvent is the event posted by the underlying library.
+});
+</pre>								
+</div>			
+			
 			<h4><a id="overlayEvents">Overlay Events</a></h4>
 			Registering event listeners on an Overlay is a slightly different procedure - you provide them as arguments to the Overlay's 
 			constructor.  This is because you never actually act on an 'Overlay' object.  Here's how to register a click listener on an Overlay:
@@ -2286,6 +2366,7 @@ this.draw = function(connector, ctx) {
 	needs in order to draw itself.
 	</p>
 		</div-->
+</div>
 </div>
 
 </body>
