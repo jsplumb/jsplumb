@@ -27,7 +27,7 @@
 		init : function() {
 
 			jsPlumb.Defaults.DragOptions = { cursor: 'wait', zIndex:20 };
-			jsPlumb.Defaults.Endpoint = [ "Image", { url:"../../img/littledot.png" } ];
+			jsPlumb.Defaults.Endpoint = [ "Image", { url:"../img/littledot.png" } ];
 			jsPlumb.Defaults.Connector = [ "Bezier", { curviness: 90 } ];				
 				
 			var e1 = prepare("bd1");
