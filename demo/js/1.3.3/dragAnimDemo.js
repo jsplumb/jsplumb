@@ -48,7 +48,7 @@
 		createDisc : function() {
 			var d = document.createElement("div");
 			d.className = "bigdot";
-			document.body.appendChild(d);
+			document.getElementById("demo").appendChild(d);
 			var id = '' + ((new Date().getTime())), _d = jsPlumb.CurrentLibrary.getElementObject(d);
 			jsPlumb.CurrentLibrary.setAttribute(_d, "id", id);
 			var w = screen.width - 162, h = screen.height - 162;
