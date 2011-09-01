@@ -71,20 +71,18 @@
 			l.push(value);
 			return l;
 		};
-		
-		
 
 		var _connectionBeingDragged = null;
 
-		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); };
-		var _setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); };
-		var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); };
-		var _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); };
-		var _removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); };
-		var _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); };
-		var _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); };
-		var _getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); };
-		var _log = function(jsp, msg) {
+		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
+		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); },
+		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); },
+		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
+		_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); },
+		_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
+		_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
+		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
+		_log = function(jsp, msg) {
 			if (jsp.logEnabled && typeof console != "undefined")
 				console.log(msg);
 		};	
@@ -440,7 +438,8 @@
 						// then, check for dynamic endpoint; need to repaint it.						
 						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0,
 							otherEndpoint = l[j].endpoints[oIdx];
-						if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {														
+						if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {
+							_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 							
 							otherEndpoint.paint({ elementWithPrecedence:id });
 							// all the connections for the other endpoint now need to be repainted
 							for (var k = 0; k < otherEndpoint.connections.length; k++) {
@@ -530,8 +529,8 @@
 		},
 		
 		_eventFireProxy = function(event, proxyEvent, obj) {
-			obj.bind(event, function(e) {
-				_currentInstance.fire(proxyEvent, obj, e);
+			obj.bind(event, function(originalObject, originalEvent) {
+				_currentInstance.fire(proxyEvent, obj, originalEvent);
 			});
 		},
 		
@@ -2251,7 +2250,6 @@ about the parameters allowed in the params object.
 			/**
 			 * implementation of abstract method in EventGenerator
 			 */
-			var srcWhenMouseDown = null, targetWhenMouseDown = null;
 			this.savePosition = function() {
 				srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
 				targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));
@@ -2309,9 +2307,9 @@ about the parameters allowed in the params object.
 							ehs.fillStyle = connectorHoverPaintStyle.strokeStyle;
 						}
 					}
-					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor);
-					var u = params.uuids ? params.uuids[index] : null;
-					var e = _newEndpoint({ 
+					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor),
+					u = params.uuids ? params.uuids[index] : null,
+					e = _newEndpoint({ 
 						paintStyle : es, 
 						hoverPaintStyle:ehs, 
 						endpoint : ep, 
@@ -2352,7 +2350,6 @@ about the parameters allowed in the params object.
 				else if (connector.constructor == Array)
 					this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
 				this.canvas = this.connector.canvas;
-				var _mouseDown = false, _mouseWasDown = false, _mouseDownAt = null;
 				// add mouse events
 				this.connector.bind("click", function(con, e) {
 					_mouseWasDown = false; 
@@ -2420,7 +2417,7 @@ about the parameters allowed in the params object.
 			var _overlays = params.overlays || _currentInstance.Defaults.Overlays;
 			if (_overlays) {
 				for (var i = 0; i < _overlays.length; i++) {
-					var o = _overlays[i], _newOverlay = null, _overlayEvents = null;
+					var o = _overlays[i], _newOverlay = null;
 					if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
 						// there's also a three arg version:
 						// ["Arrow", { width:50 }, {location:0.7}] 
@@ -2492,6 +2489,18 @@ about the parameters allowed in the params object.
 			
 // ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************			
 			
+			// overlay finder helper method
+			var _getOverlayIndex = function(id) {
+				var idx = -1;
+				for (var i = 0; i < self.overlays.length; i++) {
+					if (id === self.overlays[i].id) {
+						idx = i;
+						break;
+					}
+				}
+				return idx;
+			};
+			
 			/*
 			 * Function: addOverlay
 			 * Adds an Overlay to the Connection.
@@ -2500,6 +2509,35 @@ about the parameters allowed in the params object.
 			 * 	overlay - Overlay to add.
 			 */
 			this.addOverlay = function(overlay) { self.overlays.push(overlay); };
+			
+			/*
+			 * Function: getOverlay
+			 * Gets an overlay, by ID. Note: by ID.  You would pass an 'id' parameter
+			 * in to the Overlay's constructor arguments, and then use that to retrieve
+			 * it via this method.
+			 */
+			this.getOverlay = function(id) {
+				var idx = _getOverlayIndex(id);
+				return idx >= 0 ? self.overlays[idx] : null;
+			};
+			
+			/*
+			 * Function: hideOverlay
+			 * Hides the overlay specified by the given id.
+			 */
+			this.hideOverlay = function(id) {
+				var o = self.getOverlay(id);
+				if (o) o.hide();
+			};
+			
+			/*
+			 * Function: showOverlay
+			 * Shows the overlay specified by the given id.
+			 */
+			this.showOverlay = function(id) {
+				var o = self.getOverlay(id);
+				if (o) o.show();
+			};
 			
 			/**
 			 * Function: removeAllOverlays
@@ -2517,19 +2555,13 @@ about the parameters allowed in the params object.
 			 * overlayId - id of the overlay to remove.
 			 */
 			this.removeOverlay = function(overlayId) {
-				var idx = -1;
-				for (var i = 0; i < self.overlays.length; i++) {
-					if (overlayId === self.overlays[i].id) {
-						idx = i;
-						break;
-					}
-				}
+				var idx = _getOverlayIndex(overlayId);
 				if (idx != -1) self.overlays.splice(idx, 1);
 			};
 			
 			/**
-			 * Function:removeOverlay
-			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Function:removeOverlays
+			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
 			 * Parameters:
 			 * overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
 			 */
@@ -2594,28 +2626,27 @@ about the parameters allowed in the params object.
 			 */
 			this.paint = function(params) {
 				params = params || {};
-				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp;
-				var fai = self.floatingAnchorIndex;
+				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
 				// if the moving object is not the source we must transpose the two references.
-				var swap = false;
-				var tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId;
-				var tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
-				var el = swap ? this.target : this.source;
+				swap = false,
+				tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
+				tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
 				_updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp });
 				_updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
-				var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation();					
-				var sAnchorO = this.endpoints[sIdx].anchor.getOrientation();
-				var tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
-				var tAnchorO = this.endpoints[tIdx].anchor.getOrientation();
+				
+				var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation(),				
+				tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
 				
 				/* paint overlays*/
 				var maxSize = 0;
 				for ( var i = 0; i < self.overlays.length; i++) {
 					var o = self.overlays[i];
-					var s = o.computeMaxSize(self.connector);
-					if (s > maxSize)
-						maxSize = s;
+					if (o.isVisible()) {
+						var s = o.computeMaxSize(self.connector);
+						if (s > maxSize)
+							maxSize = s;
+					}
 				}
 
 				var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, maxSize);
@@ -2625,7 +2656,8 @@ about the parameters allowed in the params object.
 				/* paint overlays*/
 				for ( var i = 0; i < self.overlays.length; i++) {
 					var o = self.overlays[i];
-					self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
+					if (o.isVisible)
+						self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
 				}
 			};			
 
@@ -4109,6 +4141,18 @@ about the parameters allowed in the params object.
 	
 
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
+
+	var AbstractOverlay = function() {
+		var visible = true, self = this;
+		this.setVisible = function(val) { 
+			visible = val;
+			self.connection.repaint();
+		};
+    	this.isVisible = function() { return visible; };
+    	this.hide = function() { self.setVisible(false); };
+    	this.show = function() { self.setVisible(true); };
+	};
+	
 	
 	/**
 	 * Class: Overlays.Arrow
@@ -4134,8 +4178,10 @@ about the parameters allowed in the params object.
 	 */
 	jsPlumb.Overlays.Arrow = function(params) {
 		this.type = "Arrow";
+		AbstractOverlay.apply(this);
 		params = params || {};
 		var self = this;
+		
     	this.length = params.length || 20;
     	this.width = params.width || 20;
     	this.id = params.id;
@@ -4152,7 +4198,7 @@ about the parameters allowed in the params object.
     			return connector.pointAlongPathFrom(loc, direction * self.length * adj);
     		}
     	};
-    	
+    	    	
     	this.computeMaxSize = function() { return self.width * 1.5; };
     	
     	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
@@ -4277,6 +4323,7 @@ about the parameters allowed in the params object.
     jsPlumb.Overlays.Label = function(params) {
     	this.type = "Label";
     	jsPlumb.DOMElementComponent.apply(this, arguments);
+    	AbstractOverlay.apply(this);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
 	    this.label = params.label || "banana";
@@ -4285,7 +4332,7 @@ about the parameters allowed in the params object.
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
     	this.location = params.location || 0.5;
-    	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!
+    	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!    	
     	var initialised = false,
     	labelText = null,
     	div = document.createElement("div");	
@@ -4308,6 +4355,14 @@ about the parameters allowed in the params object.
     	jsPlumb.appendElement(div, params.connection.parent);
     	jsPlumb.getId(div);		
     	self.attachListeners(div, self);
+    	
+    	//override setVisible
+    	var osv = self.setVisible;
+    	self.setVisible = function(state) {
+    		osv(state); // call superclass
+    		div.style.display = state ? "block" : "none";
+    	};
+    	
     	this.paint = function(connector, d, connectorDimensions) {
 			if (!initialised) {	
 				connector.appendDisplayElement(div);

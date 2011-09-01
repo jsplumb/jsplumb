@@ -439,7 +439,7 @@
 						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0,
 							otherEndpoint = l[j].endpoints[oIdx];
 						if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {
-							_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 
+							_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 							
 							otherEndpoint.paint({ elementWithPrecedence:id });
 							// all the connections for the other endpoint now need to be repainted
 							for (var k = 0; k < otherEndpoint.connections.length; k++) {
