@@ -452,8 +452,14 @@ jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
 				<li class="bullet">TopLeft</li>
 			</ul>
 			
-			Each of these string representations is just a wrapper around
-			the underlying array-based syntax, for example: 	
+			Each of these string representations is just a wrapper around the underlying array-based syntax  [x, y, dx, dy], where x and y are
+coordinates in the interval [0,1] specifying the position of the
+anchor, and dx and dy are coordinates in the interval [-1, 1]
+specifying the orientation of the curve incident to the anchor. For
+example, [0, 0.5, -1, 0] defines a "LeftCenter" anchor with a
+connector curve that emanates leftward from the anchor. Similarly,
+[0.5, 0, 0, -1] defines a "CenterTop" anchor with a connector curve
+emanating upwards. 	
 <div class="code">
 <pre>
 jsPlumb.connect({...., anchor:"BottomCenter", ... }); 
