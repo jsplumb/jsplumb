@@ -2800,6 +2800,19 @@ about the parameters allowed in the params object.
 			// just to make sure the UI gets initialised fully on all browsers.
 			self.repaint();
 		};
+		
+// ENDPOINT HELPER FUNCTIONS
+		var _makeConnectionDragHandler = function(el) {
+			return function() {
+				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+				jsPlumb.CurrentLibrary.setOffset(el, _ui);
+				_draw(_getElementObject(el), _ui);
+			};
+		};
+		
+		var _makeConnectionDragStopHandler = function(el) {
+			
+		};
 
 		/*
 		 * Class: Endpoint 
@@ -3372,19 +3385,15 @@ about the parameters allowed in the params object.
 				var jpcl = jsPlumb.CurrentLibrary,
 				dragOptions = params.dragOptions || {},
 				defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
-				startEvent = jpcl.dragEvents['start'],
-				stopEvent = jpcl.dragEvents['stop'],
-				dragEvent = jpcl.dragEvents['drag'];
+				startEvent = jpcl.dragEvents["start"],
+				stopEvent = jpcl.dragEvents["stop"],
+				dragEvent = jpcl.dragEvents["drag"];
 				
 				dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
 				dragOptions.scope = dragOptions.scope || self.scope;
 				dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
-				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent],
-					function() {
-						var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
-						jsPlumb.CurrentLibrary.setOffset(n, _ui);
-						_draw(_getElementObject(n), _ui);
-					});
+				// extracted drag handler function so can be used by makeSource
+				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _makeConnectionDragHandler(n));
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
 					function() {						
 						_removeFromList(endpointsByElement, id, floatingEndpoint);
