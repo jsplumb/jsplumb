@@ -363,7 +363,9 @@
 		floatingConnections = {},
 		draggableStates = {},
 		_mouseEventsEnabled = this.Defaults.MouseEventsEnabled,
-		_draggableByDefault = true,		
+		_draggableByDefault = true,			// TODO change to false in 1.3.4.  the number of use cases in which having this default to true is painful, and is increasing.
+		              // in conjunction with this change, the connect addEndpoint calls should support a flag that indicates
+						// the user wishes to make the div draggable.
 		canvasList = [],
 		sizes = [],
 		listeners = {}, // a map: keys are event types, values are lists of listeners.
@@ -1590,8 +1592,8 @@ about the parameters allowed in the params object.
 				var elid = _getId(_el);
 				_targetEndpointDefinitions[elid] = p.endpoint;
 				
-				var dropOptions = jsPlumb.extend({}, p.dropOptions || {});
-				var _drop = function() {
+				var dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
+				_drop = function() {
 					var draggable = _getElementObject(jpcl.getDragObject(arguments)),
 					id = _getAttribute(draggable, "dragId"),				
 					// restore the original scope if necessary (issue 57)
@@ -1607,17 +1609,17 @@ about the parameters allowed in the params object.
 					newEndpoint = jsPlumb.addEndpoint(_el, _endpoint);
 					
 					var anchorPositionFinders = {
-							"Fixed": function(dp, ep, es, a) {
-								return [ (dp.left - ep.left) / es[0],
-								         (dp.top - ep.top) / es[1] ];	
-							},
-							"Grid":function(dp, ep, es, a) {
-								var dx = dp.left - ep.left, dy = dp.top - ep.top,
-								gx = es[0] / (a.grid[0]), gy = es[1] / (a.grid[1]),
-								mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
-								return [ ((mx * gx) + (gx / 2)) / es[0],
-								         ((my * gy) + (gy / 2)) / es[1] ];
-							}
+						"Fixed": function(dp, ep, es, a) {
+							return [ (dp.left - ep.left) / es[0],
+							         (dp.top - ep.top) / es[1] ];	
+						},
+						"Grid":function(dp, ep, es, a) {
+							var dx = dp.left - ep.left, dy = dp.top - ep.top,
+							gx = es[0] / (a.grid[0]), gy = es[1] / (a.grid[1]),
+							mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
+							return [ ((mx * gx) + (gx / 2)) / es[0],
+							         ((my * gy) + (gy / 2)) / es[1] ];
+						}
 					};
 					
 					// fixed/grid anchors will now need to be instructed where to place themselves
@@ -1670,6 +1672,83 @@ about the parameters allowed in the params object.
 		this.makeTargets = function(els, params, referenceParams) {
 			for ( var i = 0; i < els.length; i++) {
 				_currentInstance.makeTarget(els[i], params, referenceParams);				
+			}
+		};
+		
+		/**
+		 * Function: makeSource
+		 * Makes some DOM element a Connection source, allowing you to drag connections from it
+		 * without having to register any Endpoints on it first.  When a Connection is established,
+		 * the endpoint spec that was passed in to this method is used to create a suitable 
+		 * Endpoint (the default will be used if you do not provide one).
+		 * 
+		 * Parameters:
+		 *  el		-	string id or element selector for the element to make a source.
+		 * 	params	-	JS object containing parameters:
+		 * 	  endpoint	optional.	specification of an endpoint to create when a connection is created.
+		 * 	  parent	optional.   the element to add Endpoints to when a Connection is established.  if you omit this, 
+		 *                          Endpoints will be added to 'el'.
+		 * 	  scope		optional.   scope for the connections dragged from this element.
+		 * 	  dragOptions optional. same stuff as you would pass to dragOptions of an Endpoint definition.
+		 * 	  deleteEndpointsOnDetach  optional, defaults to false. whether or not to delete
+		 *                             any Endpoints created by a connection from this source if
+		 *                             the connection is subsequently detached. this will not 
+		 *                             remove Endpoints that have had more Connections attached
+		 *                             to them after they were created.
+		 *                   	
+		 * 
+		 */
+		var _sourceEndpointDefinitions = {}, _sourceEndpointParents = {};
+		this.makeSource = function(el, params, referenceParams) {
+			var p = jsPlumb.extend({}, referenceParams);
+			jsPlumb.extend(p, params);
+			var jpcl = jsPlumb.CurrentLibrary,
+			scope = p.scope || _currentInstance.Defaults.Scope,
+			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false,						
+			_doOne = function(_el) {
+				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+				// and use the endpoint definition if found.
+				var elid = _getId(_el);
+				_sourceEndpointDefinitions[elid] = p.endpoint,
+				_sourceEndpointParents[elid] = p.parent || _el;
+				
+				// TODO here we want to reuse all the drag start/move/stop methods that are
+				// currently defined in Endpoint. need to expose those first.  or, make this an endpoint, and whenever
+				// a connection is made, if it's one of these special endpoints then we detach the connection from
+				// here and create a new one according to the spec.
+				
+				var dragOptions = jsPlumb.extend({}, p.dragOptions || {}),
+				_drag = function() {
+					console.log("dragging");
+				};
+				
+				var dragEvent = jpcl.dragEvents["drag"];
+				dragOptions["scope"] = dragOptions["scope"] || scope;
+				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _drag);
+				
+				//jpcl.initDraggable(_el, dragOptions);
+				
+			};
+			
+			el = _convertYUICollection(el);			
+			
+			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+						
+			for (var i = 0; i < inputs.length; i++) {			
+				_doOne(_getElementObject(inputs[i]));
+			}
+		};
+		
+		/**
+		 * helper method to make a list of elements connection sources.
+		 * @param els
+		 * @param params
+		 * @param referenceParams
+		 * @return
+		 */
+		this.makeSources = function(els, params, referenceParams) {
+			for ( var i = 0; i < els.length; i++) {
+				_currentInstance.makeSource(els[i], params, referenceParams);				
 			}
 		};
 		
@@ -2037,8 +2116,8 @@ about the parameters allowed in the params object.
 				// adjust loc if there is an offsetParent
 				if (element.canvas && element.canvas.offsetParent) {
 					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
-					lastReturnValue[0] = lastReturnValue[0] - po.left;
-					lastReturnValue[1] = lastReturnValue[1] - po.top;
+					lastReturnValue[0] = lastReturnValue[0] - po.left  + element.canvas.offsetParent.scrollLeft;
+					lastReturnValue[1] = lastReturnValue[1] - po.top  + element.canvas.offsetParent.scrollTop;
 				}
 				
 				self.timestamp = timestamp;
