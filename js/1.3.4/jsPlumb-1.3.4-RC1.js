@@ -1709,30 +1709,63 @@ about the parameters allowed in the params object.
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
 				var elid = _getId(_el);
-				_sourceEndpointDefinitions[elid] = p.endpoint,
-				_sourceEndpointParents[elid] = p.parent || _el;
+				_sourceEndpointDefinitions[elid] = p.endpoint || {},
+				_sourceEndpointParents[elid] = p.parent || _el,
+				paintStyle = _sourceEndpointDefinitions[elid].paintStyle || _currentInstance.Defaults.endpointStyle,
+				docEl = jpcl.getElementObject(document);																	
 				
-				// TODO here we want to reuse all the drag start/move/stop methods that are
-				// currently defined in Endpoint. need to expose those first.  or, make this an endpoint, and whenever
-				// a connection is made, if it's one of these special endpoints then we detach the connection from
-				// here and create a new one according to the spec.
-				
-				var dragOptions = jsPlumb.extend({}, p.dragOptions || {}),
-				_drag = function() {
-					console.log("dragging");
+				// when the user presses the mouse, add an Endpoint
+				var stopEvent = jpcl.dragEvents["stop"];
+				var dragOptions = { };
+				dragOptions[stopEvent] = function() { 
+					// here we need to do a couple of things;
+					// first determine whether or not a connection was dragged. if not, just delete this endpoint.
+					// ...if so, though, then we need to check to see if a 'parent' was specified in the 
+					// options to makeSource.  a 'parent' is a reference to an element other than the one from
+					// which the connection is dragged, and it indicates that after a successful connection, the
+					// endpoint should be moved off of this element and onto 'parent', using all of the
+					// options passed in to the makeSource call.  
+					//
+					// one thing that occurs to me right now is that we dont really want the first 
+					// connection to have fired a connection event.  but how can we prevent it from doing so?
+					//
 				};
+				jpcl.bind(_el, "mousedown", function(e) {										
+					_updateOffset({elId:elid});				
+					var myOffset = offsets[elid], 
+					myWH = sizes[elid], 
+					x = (e.pageX - myOffset.left) / myWH[0], 
+					y = (e.pageY - myOffset.top) / myWH[1],  
+					ep = jsPlumb.addEndpoint(elid, {
+						anchor:[x,y,0,0],// TODO is it possible to be clever about the orientation of this anchor?
+										// possibly not. but we would want to set the anchor to be whatever the user
+										// asked for once a connection is established.
+						isSource:true,
+						scope:scope,
+						deleteEndpointsOnDetach:deleteEndpointsOnDetach,
+						dragOptions:dragOptions
+						
+					});
+					
+					jpcl.bind(ep.canvas, "mouseup", function() {
+						// this mouseup event seems to be fired only if no dragging occurred, which is handy (except i have
+						// only tested jquery so far so lets not get too excited).  anyway, since no dragging has occurred,
+						// we know we can safely just delete the endpoint we just created.
+						jsPlumb.deleteEndpoint(ep);
+					});
+					
+					// and then trigger its mousedown event, which will kick off a drag, which will start dragging
+					// a new connection from this endpoint.
+					jpcl.trigger(ep.canvas, "mousedown", e);									
+				});
 				
-				var dragEvent = jpcl.dragEvents["drag"];
-				dragOptions["scope"] = dragOptions["scope"] || scope;
-				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _drag);
 				
-				//jpcl.initDraggable(_el, dragOptions);
 				
 			};
 			
 			el = _convertYUICollection(el);			
 			
-			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
 			for (var i = 0; i < inputs.length; i++) {			
 				_doOne(_getElementObject(inputs[i]));
@@ -2099,7 +2132,6 @@ about the parameters allowed in the params object.
 		 * creation of Anchors without user intervention.
 		 */
 		var Anchor = function(params) {
-			console.log(params);
 			var self = this;
 			this.x = params.x || 0;
 			this.y = params.y || 0;
@@ -2802,9 +2834,10 @@ about the parameters allowed in the params object.
 		};
 		
 // ENDPOINT HELPER FUNCTIONS
-		var _makeConnectionDragHandler = function(el) {
+		var _makeConnectionDragHandler = function(placeholder) {
 			return function() {
-				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
+				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments),
+				el = placeholder.element;
 				jsPlumb.CurrentLibrary.setOffset(el, _ui);
 				_draw(_getElementObject(el), _ui);
 			};
@@ -2812,6 +2845,28 @@ about the parameters allowed in the params object.
 		
 		var _makeConnectionDragStopHandler = function(el) {
 			
+		};
+		
+		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
+			var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
+			return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement });
+		};
+		
+		/**
+		 * creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset. then returns
+		 * both the element id and a selector for the element.
+		 */
+		var _makeDraggablePlaceholder = function(placeholder, parent) {
+			var n = document.createElement("div");
+			n.style.position = "absolute";
+			var placeholderDragElement = _getElementObject(n);
+			_appendElement(n, parent);
+			var id = _getId(placeholderDragElement);
+			_updateOffset( { elId : id });
+			// create and assign an id, and initialize the offset.
+			//return { id:id, getElement:function() { return placeholderDragElement; } };
+			placeholder.id = id;
+			placeholder.element = placeholderDragElement;
 		};
 
 		/*
@@ -3279,7 +3334,10 @@ about the parameters allowed in the params object.
 			// is this a connection source? we make it draggable and have the
 			// drag listener maintain a connection with a floating endpoint.
 			if (params.isSource && jsPlumb.CurrentLibrary.isDragSupported(_element)) {
-				var n = null, id = null, jpc = null, existingJpc = false, existingJpcParams = null;
+				var placeholderInfo = {
+						id:null,
+						element:null
+				}, jpc = null, existingJpc = false, existingJpcParams = null;
 				var start = function() {
 					jpc = self.connectorSelector();
 					if (self.isFull() && !dragAllowedWhenFull) return false;
@@ -3287,12 +3345,7 @@ about the parameters allowed in the params object.
 					inPlaceCopy = self.makeInPlaceCopy();
 					inPlaceCopy.paint();										
 					
-					n = document.createElement("div");
-					n.style.position = "absolute";
-					var nE = _getElementObject(n);
-					_appendElement(n, self.parent);					
-					// create and assign an id, and initialize the offset.
-					var id = _getId(nE);
+					_makeDraggablePlaceholder(placeholderInfo, self.parent);
 					
 					// set the offset of this div to be where 'inPlaceCopy' is, to start with.
 					var ipcoel = _getElementObject(inPlaceCopy.canvas),
@@ -3300,17 +3353,14 @@ about the parameters allowed in the params object.
 					po = inPlaceCopy.canvas.offsetParent != null ? 
 							inPlaceCopy.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(inPlaceCopy.canvas.offsetParent)
 							: { left:0, top: 0};
-					jsPlumb.CurrentLibrary.setOffset(n, {left:ipco.left - po.left, top:ipco.top-po.top});					
-					
-					_updateOffset( { elId : id });
+					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:ipco.left - po.left, top:ipco.top-po.top});															
 					
 					// store the id of the dragging div and the source element. the drop function will pick these up.					
-					_setAttribute(_getElementObject(self.canvas), "dragId", id);
+					_setAttribute(_getElementObject(self.canvas), "dragId", placeholderInfo.id);
 					_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
 					// create a floating anchor
-					var floatingAnchor = new FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
-					floatingEndpoint = _newEndpoint({ paintStyle : self.paintStyle, endpoint : _endpoint, anchor : floatingAnchor, source : nE });
-
+					floatingEndpoint = _makeFloatingEndpoint(self.paintStyle, self.anchor, _endpoint, self.canvas, placeholderInfo.element);
+					
 					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
 						// create a connection. one end is this endpoint, the
@@ -3319,8 +3369,8 @@ about the parameters allowed in the params object.
 							sourceEndpoint : self,
 							targetEndpoint : floatingEndpoint,
 							source : _getElementObject(_element),
-							target : _getElementObject(n),
-							anchors : [ self.anchor, floatingAnchor ],
+							target : placeholderInfo.element,
+							anchors : [ self.anchor, floatingEndpoint.anchor ],
 							paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
 							hoverPaintStyle:params.connectorHoverStyle,
 							connector : params.connector, // this can also be null. Connection will use the default.
@@ -3355,12 +3405,12 @@ about the parameters allowed in the params object.
 						// now we replace ourselves with the temporary div we created above:
 						if (anchorIdx == 0) {
 							existingJpcParams = [ jpc.source, jpc.sourceId, i, dragScope ];
-							jpc.source = _getElementObject(n);
-							jpc.sourceId = id;
+							jpc.source = placeholderInfo.element;
+							jpc.sourceId = placeholderInfo.id;
 						} else {
 							existingJpcParams = [ jpc.target, jpc.targetId, i, dragScope ];
-							jpc.target = _getElementObject(n);
-							jpc.targetId = id;
+							jpc.target = placeholderInfo.element;
+							jpc.targetId = placeholderInfo.id;
 						}
 
 						// lock the other endpoint; if it is dynamic it will not move while the drag is occurring.
@@ -3371,12 +3421,12 @@ about the parameters allowed in the params object.
 					}
 
 					// register it and register connection on it.
-					floatingConnections[id] = jpc;
+					floatingConnections[placeholderInfo.id] = jpc;
 					floatingEndpoint.addConnection(jpc);
 
 					// only register for the target endpoint; we will not be dragging the source at any time
 					// before this connection is either discarded or made into a permanent connection.
-					_addToList(endpointsByElement, id, floatingEndpoint);
+					_addToList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
 					
 					// tell jsplumb about it
 					_currentInstance.currentlyDragging = true;
@@ -3393,11 +3443,11 @@ about the parameters allowed in the params object.
 				dragOptions.scope = dragOptions.scope || self.scope;
 				dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 				// extracted drag handler function so can be used by makeSource
-				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _makeConnectionDragHandler(n));
+				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _makeConnectionDragHandler(placeholderInfo));
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
 					function() {						
-						_removeFromList(endpointsByElement, id, floatingEndpoint);
-						_removeElements( [ n, floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
+						_removeFromList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
+						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
 						_removeElement(inPlaceCopy.canvas, _element);						
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 						jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
