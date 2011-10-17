@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+	<head>
+		<title>create an element and make it instantly draggable test</title>
+		<style>
+			.testDiv {
+				width:5em;
+				height:5em;
+				background-color:red;
+				border:1px solid #465;
+			}
+		</style>
+	</head>
+	<body>
+		
+
+
+		<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
+		<script type="text/javascript">
+		var Y;
+		YUI().use('node', 'dd', 'anim', 'node-event-simulate', function(_Y) {
+			Y = _Y;	
+			Y.on("domready", function() { 		
+				Y.one(document).on("mousedown", function(e) {
+					var d = document.createElement("div");
+					d.className = "testDiv";
+					d.style.position = "absolute";
+					document.body.appendChild(d);
+					var n = Y.one(d)._node,
+					w = n.offsetWidth, h = n.offsetHeight;
+					d.style.left = (e.pageX - (w/2)) + "px";
+					d.style.top = (e.pageY - (h/2)) + "px";
+					
+					var dd = new Y.DD.Drag({
+						node:d						
+					});
+					dd.on("drag:end", function() { alert("stopped!");});
+					
+					e.stopPropagation();
+					Y.one(d).simulate("mousedown", {pageX:e.pageX, pageY:e.pageY, clientX:e.clientX, clientY:e.clientY});
+					
+				});
+			});
+		});
+		</script> 
+	</body>
+</html>

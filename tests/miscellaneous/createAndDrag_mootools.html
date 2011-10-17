@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+	<head>
+		<title>create an element and make it instantly draggable test</title>
+		<style>
+			.testDiv {
+				width:5em;
+				height:5em;
+				background-color:red;
+				border:1px solid #465;
+			}
+		</style>
+	</head>
+	<body>
+		
+
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"></script> 
+		<script type="text/javascript" src="../../js/lib/mootools-1.3.2.1-more.js"></script> <script type="text/javascript">
+		window.addEvent('domready', function() {
+				$(document).addEvent("mousedown", function(e) {
+					var d = document.createElement("div");
+					d.className = "testDiv";
+					d.style.position = "absolute";
+					document.body.appendChild(d);
+					var s = $(d).getSize(), w = s.x, h = s.y,
+					o = $(d).getPosition();
+				
+					$(d).setPosition({x:e.event.pageX - (w/2), y:e.event.pageY - (h/2)});
+					
+					new Drag.Move($(d), {
+						onComplete:function() { alert("stopped!"); }
+					});
+					e.stopPropagation();
+					$(d).fireEvent("mousedown", e);
+				});
+
+			});
+		</script> 
+	</body>
+</html>
