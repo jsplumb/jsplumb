@@ -56,7 +56,7 @@
 	
 	var Y;
 	
-	YUI().use('node', 'dd', 'anim', function(_Y) {
+	YUI().use('node', 'dd', 'anim', 'node-event-simulate', function(_Y) {
 		Y = _Y;	
 		Y.on("domready", function() { jsPlumb.init(); });
 	});
@@ -324,6 +324,23 @@
 			el = _getElementObject(el);
 			el.set("top", o.top);
 			el.set("left", o.left);
-		}							
+		},
+		
+		trigger : function(el, event, originalEvent) {
+			originalEvent.stopPropagation();
+			_getElementObject(el).simulate(event, {
+				pageX:originalEvent.pageX, 
+				pageY:originalEvent.pageY, 
+				clientX:originalEvent.clientX, 
+				clientY:originalEvent.clientY
+			});			
+		},
+		
+		/**
+		 * event unbinding wrapper.  
+		 */
+		unbind : function(el, event, callback) {
+			_getElementObject(el).removeListener(event, callback);
+		}
 	};				
 })();

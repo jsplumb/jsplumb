@@ -48,6 +48,8 @@
  * setDraggable			sets whether or not some element should be draggable.
  * setDragScope			sets the drag scope for a given element.
  * setOffset			sets the offset of some element.
+ * trigger				triggers some event on an element.
+ * unbind				unbinds some listener from some element.
  */
 (function($) {	
 	
@@ -192,9 +194,13 @@
 				var r = eventArgs[1].helper[0].getBoundingClientRect();
 				return { left : r.left, top: r.top };
 			} else {*/
+			if (eventArgs.length == 1) {
+				return { left: eventArgs[0].pageX, top:eventArgs[0].pageY };
+			}
+			else {
 				var ui = eventArgs[1], _offset = ui.offset;			
 				return _offset || ui.absolutePosition;
-			//}
+			}
 		},		
 		
 		hasClass : function(el, clazz) {
@@ -205,6 +211,7 @@
 		 * initialises the given element to be draggable.
 		 */
 		initDraggable : function(el, options) {
+			options = options || {};
 			// remove helper directive if present.  
 			options.helper = null;
 			options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
@@ -274,6 +281,28 @@
 		
 		setOffset : function(el, o) {
 			jsPlumb.CurrentLibrary.getElementObject(el).offset(o);
+		},
+		
+		/**
+		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
+		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
+		 * from the originalEvent to put in an options object for YUI. 
+		 * @param el
+		 * @param event
+		 * @param originalEvent
+		 */
+		trigger : function(el, event, originalEvent) {
+			originalEvent.stopPropagation();
+			jsPlumb.CurrentLibrary.getElementObject(el).trigger(originalEvent);
+		},
+		
+		/**
+		 * event unbinding wrapper.  it just so happens that jQuery uses 'unbind' also.  yui3, for example,
+		 * uses..something else.
+		 */
+		unbind : function(el, event, callback) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el.unbind(event, callback);
 		}
 	};
 	

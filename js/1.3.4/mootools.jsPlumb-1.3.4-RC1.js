@@ -344,6 +344,24 @@
 		
 		setOffset : function(el, o) {
 			_getElementObject(el).setPosition({x:o.left, y:o.top});
+		},
+		
+		/**
+		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
+		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
+		 * from the originalEvent to put in an options object for YUI. 
+		 * @param el
+		 * @param event
+		 * @param originalEvent
+		 */
+		trigger : function(el, event, originalEvent) {
+			originalEvent.stopPropagation();
+			_getElementObject(el).$(d).fire(event, originalEvent);
+		},
+		
+		unbind : function(el, event, callback) {
+			el = _getElementObject(el);
+			el.removeEvent(event, callback);
 		}
 	};
 	
