@@ -9,6 +9,7 @@ border-radius:0.4em;
 z-index:1;
 opacity:0.8;
 filter:alpha(opacity=80);
+text-align:center;
 }
 ._jsPlumb_connection {
 	z-index:0;
@@ -23,7 +24,7 @@ top:1em;
 }
 
 #window2 {
-top:16em;
+top:14em;
 left:6em;
 }
 
@@ -42,6 +43,22 @@ height:2em;
 top:18em;
 left:46em;
 }
+
+#window5 {
+	top:26em;
+	left:15em;
+}
+#w5Source {
+	background-color:blue;
+	border:1px dotted #888;
+	position:absolute;
+	z-index:2;
+	width:3em;
+	height:3em;
+	left:11em;
+	top:7em;
+}
+
 
 .active {
 	box-shadow: 2px 2px 19px green;
