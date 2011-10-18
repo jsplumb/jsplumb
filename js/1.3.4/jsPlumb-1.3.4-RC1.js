@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.3
+ * Title:jsPlumb 1.3.4
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -363,7 +363,7 @@
 		floatingConnections = {},
 		draggableStates = {},
 		_mouseEventsEnabled = this.Defaults.MouseEventsEnabled,
-		_draggableByDefault = true,			// TODO change to false in 1.3.4.  the number of use cases in which having this default to true is painful, and is increasing.
+		_draggableByDefault = false,			// TODO change to false in 1.3.4.  the number of use cases in which having this default to true is painful, and is increasing.
 		              // in conjunction with this change, the connect addEndpoint calls should support a flag that indicates
 						// the user wishes to make the div draggable.
 		canvasList = [],
@@ -536,12 +536,23 @@
 			});
 		},
 		
+		/**
+		 * for the given endpoint params, returns an appropriate parent element for the UI elements that will be added.
+		 * this function is used by _newEndpoint (directly below), and also in the makeSource function in jsPlumb.
+		 * 
+		 *   the logic is to first look for a "container" member of params, and pass that back if found.  otherwise we
+		 *   handoff to the 'getParent' function in the current library.
+		 */
+		_getParentFromParams = function(params) {
+			if (params.container)
+				return params.container;
+			else
+				return jsPlumb.CurrentLibrary.getParent(params.source);
+		},
+		
 		_newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
-			if (params.container)
-				params.parent = params.container;
-			else
-				params["parent"] = jsPlumb.CurrentLibrary.getParent(params.source);
+			params.parent = _getParentFromParams(params);
 			params["_jsPlumb"] = _currentInstance,
 			ep = new endpointFunc(params);
 			_eventFireProxy("click", "endpointClick", ep);
@@ -1698,25 +1709,22 @@ about the parameters allowed in the params object.
 		 *                   	
 		 * 
 		 */
-		var _sourceEndpointDefinitions = {}, _sourceEndpointParents = {};
+		var _sourceEndpointDefinitions = {};
 		this.makeSource = function(el, params, referenceParams) {
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
-			var jpcl = jsPlumb.CurrentLibrary,
-			scope = p.scope || _currentInstance.Defaults.Scope,
-			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || false,						
+			var jpcl = jsPlumb.CurrentLibrary,						
 			_doOne = function(_el) {
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
 				var elid = _getId(_el);
 				_sourceEndpointDefinitions[elid] = p.endpoint || {},
-				_sourceEndpointParents[elid] = p.parent || _el,
-				paintStyle = _sourceEndpointDefinitions[elid].paintStyle || _currentInstance.Defaults.endpointStyle,
+				paintStyle = _sourceEndpointDefinitions[elid].paintStyle || _currentInstance.Defaults.EndpointStyles[0] || _currentInstance.Defaults.EndpointStyle,
 				docEl = jpcl.getElementObject(document);																	
 				
 				// when the user presses the mouse, add an Endpoint
 				var stopEvent = jpcl.dragEvents["stop"];
-				var dragOptions = { };
+				var dragOptions = jsPlumb.extend({ }, _sourceEndpointDefinitions[elid].dragOptions || {}), ep = null;
 				dragOptions[stopEvent] = function() { 
 					// here we need to do a couple of things;
 					// first determine whether or not a connection was dragged. if not, just delete this endpoint.
@@ -1729,38 +1737,77 @@ about the parameters allowed in the params object.
 					// one thing that occurs to me right now is that we dont really want the first 
 					// connection to have fired a connection event.  but how can we prevent it from doing so?
 					//
+					//
+					if (ep.connections.length == 0)
+						jsPlumb.deleteEndpoint(ep);
+					else {
+						
+						jpcl.unbind(ep.canvas, "mousedown");  // HMM. has this messed up the drag and drop?
+								
+						// reset the anchor to the anchor that was initially provided. the one we were using to drag
+						// the connection was just a placeholder that was located at the place the user pressed the
+						// mouse button to initiate the drag.
+						var anchorDef = _sourceEndpointDefinitions[elid].anchor || _currentInstance.Defaults.Anchor;
+						ep.anchor = jsPlumb.makeAnchor(anchorDef);
+						
+						if (p.parent) {						
+							var parent = jpcl.getElementObject(p.parent);
+							if (parent) {
+								var parentId = _getId(parent);
+								// remove the endpoint from the list for the current endpoint's element
+								_removeFromList(endpointsByElement, elid, ep);
+								ep.element = parent;
+								ep.elementId = parentId;					
+
+								// need to get the new parent now
+								var newParentElement = _getParentFromParams({container:_sourceEndpointDefinitions[elid]["container"], source:parentId}),
+								epElement = ep.canvas,
+								curParent = jpcl.getParent(epElement);
+								jpcl.removeElement(epElement, curParent);
+								jpcl.appendElement(epElement, newParentElement);
+								// now move connection(s)...i would expect there to be only one but we will iterate.
+								for (var i = 0; i < ep.connections.length; i++) {
+									jpcl.removeElement(ep.connections[i].canvas, curParent);
+									jpcl.appendElement(ep.connections[i].canvas, newParentElement);
+								}	
+													
+								_addToList(endpointsByElement, parentId, ep);
+								_currentInstance.repaint(parentId);
+							}
+						}
+						else _currentInstance.repaint(elid);												
+					}
 				};
 				jpcl.bind(_el, "mousedown", function(e) {										
 					_updateOffset({elId:elid});				
 					var myOffset = offsets[elid], 
 					myWH = sizes[elid], 
 					x = (e.pageX - myOffset.left) / myWH[0], 
-					y = (e.pageY - myOffset.top) / myWH[1],  
-					ep = jsPlumb.addEndpoint(elid, {
-						anchor:[x,y,0,0],// TODO is it possible to be clever about the orientation of this anchor?
-										// possibly not. but we would want to set the anchor to be whatever the user
-										// asked for once a connection is established.
-						isSource:true,
-						scope:scope,
-						deleteEndpointsOnDetach:deleteEndpointsOnDetach,
-						dragOptions:dragOptions
-						
-					});
+					y = (e.pageY - myOffset.top) / myWH[1];
+					
+					// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+					// the params passed in, because after a connection is established we're going to reset the endpoint
+					// to have the anchor we were given.
+					var tempEndpointParams = {};
+					jsPlumb.extend(tempEndpointParams, _sourceEndpointDefinitions[elid]);
+					tempEndpointParams.isSource = true;
+					tempEndpointParams.anchor = [x,y,0,0];
+					tempEndpointParams.dragOptions = dragOptions;
+					
+					ep = jsPlumb.addEndpoint(elid, tempEndpointParams);
 					
 					jpcl.bind(ep.canvas, "mouseup", function() {
 						// this mouseup event seems to be fired only if no dragging occurred, which is handy (except i have
 						// only tested jquery so far so lets not get too excited).  anyway, since no dragging has occurred,
 						// we know we can safely just delete the endpoint we just created.
-						jsPlumb.deleteEndpoint(ep);
+						jsPlumb.deleteEndpoint(ep);						
 					});
 					
 					// and then trigger its mousedown event, which will kick off a drag, which will start dragging
 					// a new connection from this endpoint.
-					jpcl.trigger(ep.canvas, "mousedown", e);									
-				});
-				
-				
-				
+					jpcl.trigger(ep.canvas, "mousedown", e);
+					jpcl.trigger(document, "click", e);
+				});												
 			};
 			
 			el = _convertYUICollection(el);			
@@ -3339,6 +3386,9 @@ about the parameters allowed in the params object.
 						element:null
 				}, jpc = null, existingJpc = false, existingJpcParams = null;
 				var start = function() {
+					
+					console.log("START ENDPOINT DRAG");
+					
 					jpc = self.connectorSelector();
 					if (self.isFull() && !dragAllowedWhenFull) return false;
 					_updateOffset( { elId : _elementId });
