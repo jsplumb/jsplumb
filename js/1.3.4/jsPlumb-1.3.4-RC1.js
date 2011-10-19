@@ -1756,8 +1756,7 @@ about the parameters allowed in the params object.
 								var parentId = _getId(parent);
 								// remove the endpoint from the list for the current endpoint's element
 								_removeFromList(endpointsByElement, elid, ep);
-								ep.element = parent;
-								ep.elementId = parentId;					
+								ep.setElement(parent);				
 
 								// need to get the new parent now
 								var newParentElement = _getParentFromParams({container:_sourceEndpointDefinitions[elid]["container"], source:parentId}),
@@ -1769,6 +1768,8 @@ about the parameters allowed in the params object.
 								for (var i = 0; i < ep.connections.length; i++) {
 									jpcl.removeElement(ep.connections[i].canvas, curParent);
 									jpcl.appendElement(ep.connections[i].canvas, newParentElement);
+									ep.connections[i].sourceId = parentId;
+									ep.connections[i].source = parent;
 								}	
 													
 								_addToList(endpointsByElement, parentId, ep);
@@ -3220,7 +3221,21 @@ about the parameters allowed in the params object.
 			 */
 			this.getElement = function() {
 				return _element;
-			};						
+			};		
+			
+			/*
+			 * Function: setElement
+			 * Sets the DOM element this Endpoint is attached to.  
+			 */
+			this.setElement = function(el) {
+				// TODO possibly have this object take charge of moving the UI components into the appropriate
+				// parent.  this is used only by makeSource right now, and that function takes care of
+				// moving the UI bits and pieces.  however it would seem to me that this is a better place for it.
+				// need to ensure if we do that, though, that we honour the 'container' parameter the endpoint
+				// was constructed with.
+				_element = _getElementObject(el);
+				_elementId = _getId(_element);
+			};
 
 			/*
 			 * Function: getUuid
@@ -3339,7 +3354,7 @@ about the parameters allowed in the params object.
 				params = params || {};
 				var timestamp = params.timestamp;
 				if (!timestamp || self.timestamp !== timestamp) {
-					var ap = params.anchorPoint, canvas = params.canvas, connectorPaintStyle = params.connectorPaintStyle;
+					var ap = params.anchorPoint, connectorPaintStyle = params.connectorPaintStyle;
 					if (ap == null) {
 						var xy = params.offset || offsets[_elementId];
 						var wh = params.dimensions || sizes[_elementId];
@@ -3385,10 +3400,7 @@ about the parameters allowed in the params object.
 						id:null,
 						element:null
 				}, jpc = null, existingJpc = false, existingJpcParams = null;
-				var start = function() {
-					
-					console.log("START ENDPOINT DRAG");
-					
+				var start = function() {										
 					jpc = self.connectorSelector();
 					if (self.isFull() && !dragAllowedWhenFull) return false;
 					_updateOffset( { elId : _elementId });
