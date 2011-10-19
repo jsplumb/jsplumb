@@ -1033,12 +1033,14 @@
 			// add to list of connections (by scope).
 			_addToList(connectionsByScope, jpc.scope, jpc);
 			// fire an event
-			_currentInstance.fire("jsPlumbConnection", {
-				connection:jpc,
-				source : jpc.source, target : jpc.target,
-				sourceId : jpc.sourceId, targetId : jpc.targetId,
-				sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-			});
+			if (!params.doNotFireConnectionEvent) {
+				_currentInstance.fire("jsPlumbConnection", {
+					connection:jpc,
+					source : jpc.source, target : jpc.target,
+					sourceId : jpc.sourceId, targetId : jpc.targetId,
+					sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
+				});
+			}
 			// force a paint
 			_draw(jpc.source);						
 
@@ -1651,7 +1653,13 @@ about the parameters allowed in the params object.
 					var c = jsPlumb.connect({
 						source:source,
 						target:newEndpoint,
-						scope:scope
+						scope:scope,
+						// 'endpointWillMoveAfterConnection' is set by the makeSource function, and it indicates that the
+						// given endpoint will actually transfer from the element it is currently attached to to some other
+						// element after a connection has been established.  in that case, we do not want to fire the
+						// connection event, since it will have the wrong data in it; makeSource will do it for us.
+						// this is controlled by the 'parent' parameter on a makeSource call.
+						doNotFireConnectionEvent:source.endpointWillMoveAfterConnection
 					});
 					if (deleteEndpointsOnDetach) 
 						c.endpointToDeleteOnDetach = newEndpoint;
@@ -1753,27 +1761,14 @@ about the parameters allowed in the params object.
 						if (p.parent) {						
 							var parent = jpcl.getElementObject(p.parent);
 							if (parent) {
-								var parentId = _getId(parent);
-								// remove the endpoint from the list for the current endpoint's element
-								_removeFromList(endpointsByElement, elid, ep);
-								ep.setElement(parent);				
-
-								// need to get the new parent now
-								var newParentElement = _getParentFromParams({container:_sourceEndpointDefinitions[elid]["container"], source:parentId}),
-								epElement = ep.canvas,
-								curParent = jpcl.getParent(epElement);
-								jpcl.removeElement(epElement, curParent);
-								jpcl.appendElement(epElement, newParentElement);
-								// now move connection(s)...i would expect there to be only one but we will iterate.
-								for (var i = 0; i < ep.connections.length; i++) {
-									jpcl.removeElement(ep.connections[i].canvas, curParent);
-									jpcl.appendElement(ep.connections[i].canvas, newParentElement);
-									ep.connections[i].sourceId = parentId;
-									ep.connections[i].source = parent;
-								}	
-													
-								_addToList(endpointsByElement, parentId, ep);
-								_currentInstance.repaint(parentId);
+								ep.setElement(parent);
+								var jpc = ep.connections[0]; // TODO will this always be correct?
+								_currentInstance.fire("jsPlumbConnection", {
+									connection:jpc,
+									source : jpc.source, target : jpc.target,
+									sourceId : jpc.sourceId, targetId : jpc.targetId,
+									sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
+								});
 							}
 						}
 						else _currentInstance.repaint(elid);												
@@ -1796,6 +1791,9 @@ about the parameters allowed in the params object.
 					tempEndpointParams.dragOptions = dragOptions;
 					
 					ep = jsPlumb.addEndpoint(elid, tempEndpointParams);
+					// we set this to prevent connections from firing attach events before this function has had a chance
+					// to move the endpoint.
+					ep.endpointWillMoveAfterConnection = p.parent != null;
 					
 					jpcl.bind(ep.canvas, "mouseup", function() {
 						// this mouseup event seems to be fired only if no dragging occurred, which is handy (except i have
@@ -3230,11 +3228,29 @@ about the parameters allowed in the params object.
 			this.setElement = function(el) {
 				// TODO possibly have this object take charge of moving the UI components into the appropriate
 				// parent.  this is used only by makeSource right now, and that function takes care of
-				// moving the UI bits and pieces.  however it would seem to me that this is a better place for it.
-				// need to ensure if we do that, though, that we honour the 'container' parameter the endpoint
-				// was constructed with.
+				// moving the UI bits and pieces.  however it would s			
+				var parentId = _getId(el);
+				// remove the endpoint from the list for the current endpoint's element
+				_removeFromList(endpointsByElement, _elementId, self);	
 				_element = _getElementObject(el);
 				_elementId = _getId(_element);
+				
+				// need to get the new parent now
+				var newParentElement = _getParentFromParams({source:parentId}),
+				curParent = jpcl.getParent(self.canvas);
+				jpcl.removeElement(self.canvas, curParent);
+				jpcl.appendElement(self.canvas, newParentElement);								
+				
+				// now move connection(s)...i would expect there to be only one but we will iterate.
+				for (var i = 0; i < self.connections.length; i++) {
+					jpcl.removeElement(self.connections[i].canvas, curParent);
+					jpcl.appendElement(self.connections[i].canvas, newParentElement);
+					self.connections[i].sourceId = _elementId;
+					self.connections[i].source = _element;
+				}	
+									
+				_addToList(endpointsByElement, parentId, self);
+				_currentInstance.repaint(parentId);
 			};
 
 			/*
