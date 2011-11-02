@@ -904,6 +904,10 @@
     		div.style.display = state ? "block" : "none";
     	};
     	
+    	this.getElement = function() {
+    		return div;
+    	}
+    	
     	this.cleanup = function() {
     		if (div != null) jsPlumb.CurrentLibrary.removeElement(div);
     	}

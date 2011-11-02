@@ -1884,6 +1884,14 @@ var testSuite = function(renderMode) {
 		c.removeOverlay("arrow");
 		ok(c.getOverlay("arrow") == null, "arrow overlay has been removed");
 	});
+	
+	test(renderMode + " label overlay provides access to created element", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {id:"label"}]                                                    		    
+		]});
+		ok(c.getOverlay("label").getElement() != null, "arrow overlay exposes element via getElement method");
+	});
 		
 	/**
 	 * leave this test at the bottom!
