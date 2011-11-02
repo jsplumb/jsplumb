@@ -1023,9 +1023,9 @@
 			if (_p.dynamicAnchors) {
 				// these can either be an array of anchor coords, which we will use for both source and target, or an object with {source:[anchors], target:[anchors]}, in which
 				// case we will use a different set for each element.
-				var a = _p.dynamicAnchors.constructor == Array;
-				var sa = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.source));
-				var ta = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.target));
+				var a = _p.dynamicAnchors.constructor == Array,
+				sa = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.source)),
+				ta = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.target));
 				_p.anchors = [sa,ta];
 			}
 
@@ -2751,7 +2751,11 @@ about the parameters allowed in the params object.
 			 */
 			this.removeOverlay = function(overlayId) {
 				var idx = _getOverlayIndex(overlayId);
-				if (idx != -1) self.overlays.splice(idx, 1);
+				if (idx != -1) {
+					var o = self.overlays[idx];
+					o.cleanup();
+					self.overlays.splice(idx, 1);
+				}
 			};
 			
 			/**

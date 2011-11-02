@@ -1860,6 +1860,30 @@ var testSuite = function(renderMode) {
 		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
 		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
 	});
+	
+	/**
+	 * test for issue 132: label leaves its element in the DOM after it has been 
+	 * removed from a connection. 
+	 */
+	test(renderMode + " label cleans itself up properly", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {id:"label", cssClass:"foo"}]                                                    		    
+		]});
+		ok($(".foo").length == 1, "label element exists in DOM");
+		c.removeOverlay("label");
+		ok($(".foo").length == 0, "label element does not exist in DOM");
+	});
+	
+	test(renderMode + " arrow cleans itself up properly", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Arrow", {id:"arrow"}]                                                    		    
+		]});
+		ok(c.getOverlay("arrow") != null, "arrow overlay exists");
+		c.removeOverlay("arrow");
+		ok(c.getOverlay("arrow") == null, "arrow overlay has been removed");
+	});
 		
 	/**
 	 * leave this test at the bottom!

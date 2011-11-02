@@ -63,11 +63,10 @@
          * would store the control point info in this array too.
          */
         this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth) {
-        	var w = Math.abs(sourcePos[0] - targetPos[0]);
-            var h = Math.abs(sourcePos[1] - targetPos[1]);
-            var widthAdjusted = false, heightAdjusted = false;
+        	var w = Math.abs(sourcePos[0] - targetPos[0]),
+            h = Math.abs(sourcePos[1] - targetPos[1]),
             // these are padding to ensure the whole connector line appears
-            var xo = 0.45 * w, yo = 0.45 * h;
+            xo = 0.45 * w, yo = 0.45 * h;
             // these are padding to ensure the whole connector line appears
             w *= 1.9; h *=1.9;
             
@@ -741,6 +740,8 @@
     	    	
     	this.computeMaxSize = function() { return self.width * 1.5; };
     	
+    	this.cleanup = function() { };  // nothing to clean up for Arrows
+    	
     	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
     		
     		// this is the arrow head position    		
@@ -902,6 +903,10 @@
     		osv(state); // call superclass
     		div.style.display = state ? "block" : "none";
     	};
+    	
+    	this.cleanup = function() {
+    		if (div != null) jsPlumb.CurrentLibrary.removeElement(div);
+    	}
     	
     	this.paint = function(connector, d, connectorDimensions) {
 			if (!initialised) {	
