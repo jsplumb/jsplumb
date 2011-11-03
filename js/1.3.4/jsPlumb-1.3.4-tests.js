@@ -1909,6 +1909,66 @@ var testSuite = function(renderMode) {
 		ok(e.innerHTML == "aFunction", "label text is set to new value from Function");
 		ok(o.getLabel() === aFunction, "getLabel function works correctly with Function");
 	});
+	
+	test(renderMode + " parameters object works for Endpoint", function() {
+		var d1 = _addDiv("d1"),
+		f = function() { alert("FOO!"); },
+		e = jsPlumb.addEndpoint(d1, {
+			isSource:true,
+			parameters:{
+				"string":"param1",
+				"int":4,
+				"function":f
+			}
+		});
+		ok(e.getParameter("string") === "param1", "getParameter(String) works correctly");
+		ok(e.getParameter("int") === 4, "getParameter(int) works correctly");
+		ok(e.getParameter("function") == f, "getParameter(Function) works correctly");
+	});
+	
+	test(renderMode + " parameters object works for Connection", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+		f = function() { alert("FOO!"); };
+		var c = jsPlumb.connect({
+			source:d1,
+			target:d2,
+			parameters:{
+				"string":"param1",
+				"int":4,
+				"function":f
+			}
+		});
+		ok(c.getParameter("string") === "param1", "getParameter(String) works correctly");
+		ok(c.getParameter("int") === 4, "getParameter(int) works correctly");
+		ok(c.getParameter("function") == f, "getParameter(Function) works correctly");
+	});
+	
+	test(renderMode + " parameters set on Endpoints and Connections are all merged, and merged correctly at that.", function() {
+		var d1 = _addDiv("d1"),
+		d2 = _addDiv("d2"),
+		e = jsPlumb.addEndpoint(d1, {
+			isSource:true,
+			parameters:{
+				"string":"sourceEndpoint",
+				"int":0,
+				"function":function() { return "sourceEndpoint"; }
+			}
+		}),
+		e2 = jsPlumb.addEndpoint(d2, {
+			isTarget:true,
+			parameters:{
+				"int":1,
+				"function":function() { return "targetEndpoint"; }
+			}
+		}),
+		c = jsPlumb.connect({source:e, target:e2, parameters:{
+			"function":function() { return "connection"; }
+		}});
+		
+		ok(c.getParameter("string") === "sourceEndpoint", "getParameter(String) works correctly");
+		ok(c.getParameter("int") === 1, "getParameter(int) works correctly");
+		ok(c.getParameter("function")() == "connection", "getParameter(Function) works correctly");
+	});
 		
 	/**
 	 * leave this test at the bottom!

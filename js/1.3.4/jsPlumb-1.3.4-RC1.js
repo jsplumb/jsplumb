@@ -161,8 +161,9 @@
 		 * and also extends EventGenerator to provide the bind and fire methods.
 		 */
 		var jsPlumbUIComponent = function(params) {
-			var self = this, a = arguments, _hover = false;
+			var self = this, a = arguments, _hover = false, parameters = params.parameters || {};
 			self._jsPlumb = params["_jsPlumb"];
+			
 			// all components can generate events
 			EventGenerator.apply(this);
 			// all components get this clone function.
@@ -176,6 +177,11 @@
 				self.constructor.apply(o, a);
 				return o;
 			};
+			
+			this.getParameter = function(name) { return parameters[name]; };
+			this.getParameters = function() { return parameters; };
+			this.setParameter = function(name, value) { parameters[name] = value; };
+			this.setParameters = function(p) { parameters = p; };
 			
 			this.overlayPlacements = [], 
 			this.paintStyle = null, 
@@ -2528,6 +2534,14 @@ about the parameters allowed in the params object.
 			if (eT) _addToList(endpointsByElement, this.targetId, eT);
 			// if scope not set, set it to be the scope for the source endpoint.
 			if (!this.scope) this.scope = this.endpoints[0].scope;
+			
+			// merge all the parameters objects into the connection.  parameters set
+			// on the connection take precedence; then target endpoint params, then
+			// finally source endpoint params.
+			var _p = jsPlumb.CurrentLibrary.extend({}, this.endpoints[0].getParameters());
+			jsPlumb.CurrentLibrary.extend(_p, this.endpoints[1].getParameters());
+			jsPlumb.CurrentLibrary.extend(_p, self.getParameters());
+			self.setParameters(_p);
 
 			/*
 			 * Function: setConnector
