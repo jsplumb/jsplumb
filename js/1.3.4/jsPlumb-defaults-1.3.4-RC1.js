@@ -867,7 +867,7 @@
     	AbstractOverlay.apply(this);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
-	    this.label = params.label || "banana";
+	    var label = params.label || "banana";
 	    this.connection = params.connection;
 	    this.id = params.id;
     	var self = this;
@@ -906,11 +906,27 @@
     	
     	this.getElement = function() {
     		return div;
-    	}
+    	};
     	
     	this.cleanup = function() {
     		if (div != null) jsPlumb.CurrentLibrary.removeElement(div);
-    	}
+    	};
+    	
+    	/*
+    	 * Function: setLabel
+    	 * sets the label's, um, label.  you would think i'd call this function
+    	 * 'setText', but you can pass either a Function or a String to this, so
+    	 * it makes more sense as 'setLabel'.
+    	 */
+    	this.setLabel = function(l) {
+    		label = l;
+    		labelText = null;
+    		self.connection.repaint();
+    	};
+    	
+    	this.getLabel = function() {
+    		return label;
+    	};
     	
     	this.paint = function(connector, d, connectorDimensions) {
 			if (!initialised) {	
@@ -923,8 +939,16 @@
     	};
     	
     	this.getTextDimensions = function(connector) {
-    		labelText = typeof self.label == 'function' ? self.label(self) : self.label;
-    		div.innerHTML = labelText.replace(/\r\n/g, "<br/>");
+    		if (typeof label == "function") {
+    			var lt = label(self);
+    			div.innerHTML = lt.replace(/\r\n/g, "<br/>");
+    		}
+    		else {
+    			if (labelText == null) {
+    				labelText = label;
+    				div.innerHTML = labelText.replace(/\r\n/g, "<br/>");
+    			}
+    		}
     		var de = jsPlumb.CurrentLibrary.getElementObject(div),
     		s = jsPlumb.CurrentLibrary.getSize(de);
     		return {width:s[0], height:s[1]};
