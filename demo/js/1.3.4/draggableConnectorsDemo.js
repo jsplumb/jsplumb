@@ -60,13 +60,14 @@
 				paintStyle:{ width:25, height:21, fillStyle:exampleColor },
 				isSource:true,
 				scope:'blue rectangle',
-				beforeDetach:function(conn) { return true; },
+//				beforeDetach:function(conn) { return true; },
 				connectorStyle : {
 					gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
 					lineWidth:5,
 					strokeStyle:exampleColor
 				},
 				isTarget:true,
+//				beforeDrop:function(conn) { return false; },				
 				dropOptions : exampleDropOptions
 			};
 

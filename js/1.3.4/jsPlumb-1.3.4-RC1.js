@@ -204,6 +204,20 @@
 				return r;
 			};
 			
+			// user can supply a beforeDrop callback, which will be executed before a dropped
+			// connection is confirmed. user can return false to reject connection.
+			var beforeDrop = params.beforeDrop;
+			this.isDropAllowed = function(connection) {
+				var r = self._jsPlumb.checkCondition("beforeDrop", connection);
+				if (beforeDrop) {
+					try { 
+						r = beforeDrop(connection); 
+					}
+					catch (e) { _log("beforeDrop callback failed", e); }
+				}
+				return r;
+			};
+			
 			// helper method to update the hover style whenever it, or paintStyle, changes.
 			// we use paintStyle as the foundation and merge hoverPaintStyle over the
 			// top.
@@ -3660,17 +3674,16 @@ about the parameters allowed in the params object.
 					var overEvent = jsPlumb.CurrentLibrary.dragEvents['over'];
 					var outEvent = jsPlumb.CurrentLibrary.dragEvents['out'];				
 					var drop = function() {
-						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments));
-						var id = _getAttribute(draggable, "dragId");
-						var elId = _getAttribute(draggable, "elId");
+						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
+						id = _getAttribute(draggable, "dragId"),
+						elId = _getAttribute(draggable, "elId"),						
+						scope = _getAttribute(draggable, "originalScope"),
+						jpc = floatingConnections[id],
+						idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
 						
-						// restore the original scope if necessary (issue 57)
-						var scope = _getAttribute(draggable, "originalScope");
-						if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);
-							
-						var jpc = floatingConnections[id];
+						// restore the original scope if necessary (issue 57)						
+						if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);							
 						
-						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
 						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {
 						
 							var _doContinue = true;
@@ -3678,6 +3691,13 @@ about the parameters allowed in the params object.
 								if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
 									_doContinue = false;								
 							}
+							
+							// now check beforeDrop.  this will be available only on Endpoints that are setup to
+							// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
+							// the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
+							// it only makes sense to have it on a target endpoint.
+							_doContinue = _doContinue && self.isDropAllowed(jpc);
+							
 						
 							if (_doContinue) {
 								if (idx == 0) {

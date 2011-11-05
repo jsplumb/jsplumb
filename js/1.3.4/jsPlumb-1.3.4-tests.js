@@ -476,6 +476,8 @@ var testSuite = function(renderMode) {
 		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAllConnections was called");
 	});
 	
+// ******** end of beforeDetach tests **************	
+	
 	test(renderMode + ': jsPlumb.getConnections (scope testScope)', function() {
 		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
 		jsPlumb.connect({source:d5, target:d6, scope:'testScope'});

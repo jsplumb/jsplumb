@@ -1,4 +1,7 @@
-	- added beforeDetach option to Connection, Endpoint, and on jsPlumb as a bind.
+	- added beforeDetach option to Connection, Endpoint, and on jsPlumb as a bind. this works both
+	  programmatically and with drag and drop.
+	  
+	- added beforeDrop option to Endpoints that have isTarget:true.
 
 
 * 1.3.3
