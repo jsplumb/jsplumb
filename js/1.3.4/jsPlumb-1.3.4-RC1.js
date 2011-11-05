@@ -2256,8 +2256,8 @@ about the parameters allowed in the params object.
 				// adjust loc if there is an offsetParent
 				if (element.canvas && element.canvas.offsetParent) {
 					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
-					lastReturnValue[0] = lastReturnValue[0] - po.left  /*- element.canvas.offsetParent.scrollLeft*/;
-					lastReturnValue[1] = lastReturnValue[1] - po.top  /*- element.canvas.offsetParent.scrollTop*/;
+					lastReturnValue[0] = lastReturnValue[0] - po.left + element.canvas.offsetParent.scrollLeft;
+					lastReturnValue[1] = lastReturnValue[1] - po.top + element.canvas.offsetParent.scrollTop;
 				}
 				
 				self.timestamp = timestamp;
@@ -2290,31 +2290,31 @@ about the parameters allowed in the params object.
 
 			// this is the anchor that this floating anchor is referenced to for
 			// purposes of calculating the orientation.
-			var ref = params.reference;
+			var ref = params.reference,
 			// the canvas this refers to.
-			var refCanvas = params.referenceCanvas;
-			var size = _getSize(_getElementObject(refCanvas));
+			refCanvas = params.referenceCanvas,
+			size = _getSize(_getElementObject(refCanvas)),
 
 			// these are used to store the current relative position of our
 			// anchor wrt the reference anchor. they only indicate
 			// direction, so have a value of 1 or -1 (or, very rarely, 0). these
 			// values are written by the compute method, and read
 			// by the getOrientation method.
-			var xDir = 0, yDir = 0;
+			xDir = 0, yDir = 0,
 			// temporary member used to store an orientation when the floating
 			// anchor is hovering over another anchor.
-			var orientation = null;
-			var _lastResult = null;
+			orientation = null,
+			_lastResult = null;
 
 			this.compute = function(params) {
-				var xy = params.xy, element = params.element;
-				var result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+				var xy = params.xy, element = params.element,
+				result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
 							
 				// adjust loc if there is an offsetParent
 				if (element.canvas && element.canvas.offsetParent) {
 					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
-					result[0] = result[0] - po.left;
-					result[1] = result[1] - po.top;
+					result[0] = result[0] - po.left + element.canvas.offsetParent.scrollLeft;
+					result[1] = result[1] - po.top + element.canvas.offsetParent.scrollTop;
 				}
 				
 				_lastResult = result;
@@ -3697,8 +3697,7 @@ about the parameters allowed in the params object.
 							// the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
 							// it only makes sense to have it on a target endpoint.
 							_doContinue = _doContinue && self.isDropAllowed(jpc);
-							
-						
+													
 							if (_doContinue) {
 								if (idx == 0) {
 									jpc.source = _element;
