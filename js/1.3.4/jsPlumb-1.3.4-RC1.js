@@ -440,12 +440,14 @@
 				jsPlumb.CurrentLibrary.appendElement(el, parent);
 		},
 
+		
+		_curIdStamp = 1,
+		_idstamp = function() { return "" + _curIdStamp++; },
+		
 		/**
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
 		 */
-		_curTimestamp = 1,
-		//_timestamp = function() { return "" + (new Date()).getTime(); },
-		_timestamp = function() { return "" + _curTimestamp++; },
+		_timestamp = function() { return "" + (new Date()).getTime(); },		
 		
 		/**
 		 * YUI, for some reason, put the result of a Y.all call into an object that contains
@@ -1496,32 +1498,28 @@ about the parameters allowed in the params object.
 			if (!initialized) {
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
 				
-				var _bind = function(event) {
-					jsPlumb.CurrentLibrary.bind(document, event, function(e) {
-						if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
-							// try connections first
-							for (var scope in connectionsByScope) {
-				    			var c = connectionsByScope[scope];
-				    			for (var i = 0; i < c.length; i++) {
-				    				var t = c[i].connector[event](e);
-				    				if (t) return;			    			
+				var _bind = function() {
+					for (var a = 0; a < arguments.length; a++) {
+						jsPlumb.CurrentLibrary.bind(document, arguments[a], function(e) {
+							if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
+								// try connections first
+								for (var scope in connectionsByScope) {
+					    			var c = connectionsByScope[scope];
+					    			for (var i = 0; i < c.length; i++) {
+					    				if (c[i].connector[arguments[a]](e)) return;	
+					    			}
 				    			}
-				    		}
-							for (var el in endpointsByElement) {
-								var ee = endpointsByElement[el];
-								for (var i = 0; i < ee.length; i++) {
-									if (ee[i].endpoint[event](e)) return;
+								for (var el in endpointsByElement) {
+									var ee = endpointsByElement[el];
+									for (var i = 0; i < ee.length; i++) {
+										if (ee[i].endpoint[arguments[a]](e)) return;
+									}
 								}
 							}
-						}
-					});
+						});
+					}
 				};
-				_bind("click");
-				_bind("dblclick");
-				_bind("mousemove");
-				_bind("mousedown");
-				_bind("mouseup");
-				
+				_bind("click", "dblclick", "mousemove", "mousedown", "mouseup");				
 				initialized = true;
 				_currentInstance.fire("ready");
 			}
@@ -2249,6 +2247,11 @@ about the parameters allowed in the params object.
 			self.timestamp = null;
 			this.compute = function(params) {
 				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;
+				
+				
+console.log("timestamp", timestamp, "element", $(element.canvas).attr("id"));
+
+				
 				if (timestamp && timestamp === self.timestamp) {
 					return lastReturnValue;
 				}
@@ -3452,31 +3455,28 @@ about the parameters allowed in the params object.
 			 *   connectorPaintStyle - paint style of the Connector attached to this Endpoint. Used to get a fillStyle if nothing else was supplied.
 			 */
 			this.paint = function(params) {
-
 				params = params || {};
 				var timestamp = params.timestamp;
 				if (!timestamp || self.timestamp !== timestamp) {
+					_updateOffset({ elId:_elementId, timestamp:timestamp });
 					var ap = params.anchorPoint, connectorPaintStyle = params.connectorPaintStyle;
 					if (ap == null) {
-						var xy = params.offset || offsets[_elementId];
-						var wh = params.dimensions || sizes[_elementId];
+						var xy = params.offset || offsets[_elementId],
+						wh = params.dimensions || sizes[_elementId];
 						if (xy == null || wh == null) {
 							_updateOffset( { elId : _elementId, timestamp : timestamp });
 							xy = offsets[_elementId];
 							wh = sizes[_elementId];
 						}
 						var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
-						if (self.anchor.isDynamic) {
-							if (self.connections.length > 0) {
-								//var c = self.connections[0];
-								var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence);
-								var oIdx = c.endpoints[0] == self ? 1 : 0;
-								var oId = oIdx == 0 ? c.sourceId : c.targetId;
-								var oOffset = offsets[oId], oWH = sizes[oId];
-								anchorParams.txy = [ oOffset.left, oOffset.top ];
-								anchorParams.twh = oWH;
-								anchorParams.tElement = c.endpoints[oIdx];
-							}
+						if (self.anchor.isDynamic && self.connections.length > 0) {
+							var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
+							oIdx = c.endpoints[0] == self ? 1 : 0,
+							oId = oIdx == 0 ? c.sourceId : c.targetId,
+							oOffset = offsets[oId], oWH = sizes[oId];
+							anchorParams.txy = [ oOffset.left, oOffset.top ];
+							anchorParams.twh = oWH;
+							anchorParams.tElement = c.endpoints[oIdx];
 						}
 						ap = self.anchor.compute(anchorParams);
 					}
@@ -3558,8 +3558,8 @@ about the parameters allowed in the params object.
 						self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
 						
 						// store the original scope (issue 57)
-						var c = _getElementObject(self.canvas);
-						var dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
+						var c = _getElementObject(self.canvas),
+						dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
 						_setAttribute(c, "originalScope", dragScope);
 						// now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
 						// that have our drop scope (issue 57).
@@ -3669,11 +3669,11 @@ about the parameters allowed in the params object.
 					var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
 					dropOptions = jsPlumb.extend( {}, dropOptions);
 					dropOptions.scope = dropOptions.scope || self.scope;
-					var originalAnchor = null;
-					var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'];
-					var overEvent = jsPlumb.CurrentLibrary.dragEvents['over'];
-					var outEvent = jsPlumb.CurrentLibrary.dragEvents['out'];				
-					var drop = function() {
+					var originalAnchor = null,
+					dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'],
+					overEvent = jsPlumb.CurrentLibrary.dragEvents['over'],
+					outEvent = jsPlumb.CurrentLibrary.dragEvents['out'],				
+					drop = function() {
 						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
 						id = _getAttribute(draggable, "dragId"),
 						elId = _getAttribute(draggable, "elId"),						
@@ -3747,28 +3747,24 @@ about the parameters allowed in the params object.
 					};
 					
 					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
+					
+					var overOrOut = function(commandToRun) {
+						return function() {
+							var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
+							id = _getAttribute( _getElementObject(draggable), "dragId"),
+							jpc = floatingConnections[id];
+							if (jpc != null) {
+								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+								commandToRun(idx, self.anchor);
+							}
+						};
+					};
+							
 					dropOptions[overEvent] = _wrap(dropOptions[overEvent],
-							function() {
-								var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments);
-								var id = _getAttribute( _getElementObject(draggable), "dragId");
-								var jpc = floatingConnections[id];
-								if (jpc != null) {
-									var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-									jpc.endpoints[idx].anchor.over(self.anchor);
-								}
-							});
-	
+							overOrOut(function(idx, anchor) { jpc.endpoints[idx].anchor.over(anchor); }));	
 					dropOptions[outEvent] = _wrap(dropOptions[outEvent],
-							function() {
-								var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
-								id = _getAttribute(_getElementObject(draggable), "dragId"),
-								jpc = floatingConnections[id];
-								if (jpc != null) {
-									var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-									jpc.endpoints[idx].anchor.out();
-								}
-							});
-	
+							overOrOut(function(idx, anchor) { jpc.endpoints[idx].anchor.out(); }));		
+									
 					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions);
 				}
 			};
