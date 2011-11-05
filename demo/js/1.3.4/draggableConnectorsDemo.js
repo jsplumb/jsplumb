@@ -51,10 +51,7 @@
 				only 'exampleConnection' types can be dropped here.
 
 				the connection style for this endpoint is a Bezier curve (we didn't provide one, so we use the default), with a lineWidth of
-				5 pixels, and a gradient.
-
-				note the use of the '$.extend' function to setup generic connection types.  this will save you a lot of typing, and probably
-				errors.
+				5 pixels, and a gradient.		
 
 			*/
 			var exampleColor = '#00f';
@@ -63,6 +60,7 @@
 				paintStyle:{ width:25, height:21, fillStyle:exampleColor },
 				isSource:true,
 				scope:'blue rectangle',
+				beforeDetach:function(conn) { return true; },
 				connectorStyle : {
 					gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
 					lineWidth:5,

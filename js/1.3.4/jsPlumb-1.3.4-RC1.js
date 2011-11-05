@@ -153,6 +153,9 @@
 				}
 			};
 			
+			this.getListener = function(forEvent) {
+				return _listeners[forEvent];
+			};		
 		};		
 		
 		/*
@@ -186,6 +189,20 @@
 			this.overlayPlacements = [], 
 			this.paintStyle = null, 
 			this.hoverPaintStyle = null;
+			
+			// user can supply a beforeDetach callback, which will be executed before a detach
+			// is performed; returning false prevents the detach.
+			var beforeDetach = params.beforeDetach;
+			this.isDetachAllowed = function(connection) {
+				var r = self._jsPlumb.checkCondition("beforeDetach", connection);
+				if (beforeDetach) {
+					try { 
+						r = beforeDetach(connection); 
+					}
+					catch (e) { _log("beforeDetach callback failed", e); }
+				}
+				return r;
+			};
 			
 			// helper method to update the hover style whenever it, or paintStyle, changes.
 			// we use paintStyle as the foundation and merge hoverPaintStyle over the
@@ -967,6 +984,27 @@
 
 			jsPlumb.CurrentLibrary.animate(ele, properties, options);
 		};		
+		
+		/**
+		* checks for a listener for the given condition, executing it if found, passing in the given value.
+		* condition listeners would have been attached using "bind" (which is, you could argue, now overloaded, since
+		* firing click events etc is a bit different to what this does).  i thought about adding a "bindCondition"
+		* or something, but decided against it, for the sake of simplicity. jsPlumb will never fire one of these
+		* condition events anyway.
+		*/
+		this.checkCondition = function(conditionName, value) {
+			var l = _currentInstance.getListener(conditionName);
+			var r = true;
+			if (l && l.length > 0) {
+				try {
+					for (var i = 0 ; i < l.length; i++) {
+						r = r && l[i](value); 
+					}
+				}
+				catch (e) { _log(_currentInstance, "cannot check condition [" + conditionName + "]" + e); }
+			}
+			return r;
+		};
 
 		/*
 		  Function: connect 
@@ -1139,10 +1177,12 @@ about the parameters allowed in the params object.
 				var t = _getElementObject(target), tId = _getId(t);
 				_operation(sId, function(jpc) {
 							if ((jpc.sourceId == sId && jpc.targetId == tId) || (jpc.targetId == sId && jpc.sourceId == tId)) {
-								_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
-								jpc.endpoints[0].removeConnection(jpc);
-								jpc.endpoints[1].removeConnection(jpc);
-								_removeFromList(connectionsByScope, jpc.scope, jpc);
+								if (jpc.isDetachAllowed()) {
+									_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
+									jpc.endpoints[0].removeConnection(jpc);
+									jpc.endpoints[1].removeConnection(jpc);
+									_removeFromList(connectionsByScope, jpc.scope, jpc);
+								}
 							}
 						});
 			}
@@ -1173,7 +1213,7 @@ about the parameters allowed in the params object.
 										jpc.endpoints[1].removeConnection(jpc);
 										_removeFromList(connectionsByScope, jpc.scope, jpc);
 									}
-								});
+						});
 					}
 				}
 			}
@@ -2202,8 +2242,8 @@ about the parameters allowed in the params object.
 				// adjust loc if there is an offsetParent
 				if (element.canvas && element.canvas.offsetParent) {
 					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
-					lastReturnValue[0] = lastReturnValue[0] - po.left  + element.canvas.offsetParent.scrollLeft;
-					lastReturnValue[1] = lastReturnValue[1] - po.top  + element.canvas.offsetParent.scrollTop;
+					lastReturnValue[0] = lastReturnValue[0] - po.left  /*- element.canvas.offsetParent.scrollLeft*/;
+					lastReturnValue[1] = lastReturnValue[1] - po.top  /*- element.canvas.offsetParent.scrollTop*/;
 				}
 				
 				self.timestamp = timestamp;
@@ -2456,7 +2496,7 @@ about the parameters allowed in the params object.
 			this.savePosition = function() {
 				srcWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.source));
 				targetWhenMouseDown = jsPlumb.CurrentLibrary.getOffset(jsPlumb.CurrentLibrary.getElementObject(self.target));
-			};			
+			};				
 			
 			/*
 			 * Property: scope
@@ -3165,29 +3205,41 @@ about the parameters allowed in the params object.
 			 *   connection - the Connection to detach.
 			 *   ignoreTarget - optional; tells the Endpoint to not notify the Connection target that the Connection was detached.  The default behaviour is to notify the target.
 			 */
-			this.detach = function(connection, ignoreTarget) {
-				var idx = _findIndex(self.connections, connection);
-				if (idx >= 0) {					
-					self.connections.splice(idx, 1);										
-					
-					// this avoids a circular loop
-					if (!ignoreTarget) {
+			this.detach = function(connection, ignoreTarget, forceDetach) {
+				var idx = _findIndex(self.connections, connection), actuallyDetached = false;
+				if (idx >= 0) {		
+					// 1. does the connection have a before detach (note this also checks jsPlumb's bound
+					// detach handlers; but then Endpoint's check will, too, hmm.)
+					if (forceDetach || connection.isDetachAllowed(connection)) {
+						// get the target endpoint
 						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
-						t.detach(connection, true);
-						// check connection to see if we want to delete the other endpoint.
-						// if the user uses makeTarget to make some element a target for connections,
-						// it is possible that they will have set 'endpointToDeleteOnDetach': when
-						// you make a connection to an element that acts as a target (note: NOT an
-						// Endpoint; just some div as a target), Endpoints are created for that
-						// connection. so if you then delete that Connection, it is feasible you 
-						// will want these auto-generated endpoints to be removed.
-						if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length == 0) 
-							jsPlumb.deleteEndpoint(connection.endpointToDeleteOnDetach);							
+						// check with both endpoints that it is ok to detach
+						if (forceDetach || (self.isDetachAllowed(connection) && t.isDetachAllowed(connection))) {
+					
+							self.connections.splice(idx, 1);										
+					
+							// this avoids a circular loop
+							if (!ignoreTarget) {
+							
+								t.detach(connection, true, forceDetach);
+								// check connection to see if we want to delete the other endpoint.
+								// if the user uses makeTarget to make some element a target for connections,
+								// it is possible that they will have set 'endpointToDeleteOnDetach': when
+								// you make a connection to an element that acts as a target (note: NOT an
+								// Endpoint; just some div as a target), Endpoints are created for that
+								// connection. so if you then delete that Connection, it is feasible you 
+								// will want these auto-generated endpoints to be removed.
+								if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length == 0) 
+									jsPlumb.deleteEndpoint(connection.endpointToDeleteOnDetach);							
+							}
+							_removeElements(connection.connector.getDisplayElements(), connection.parent);
+							_removeFromList(connectionsByScope, connection.scope, connection);
+							actuallyDetached = true;
+							if(!ignoreTarget) fireDetachEvent(connection);
+						}
 					}
-					_removeElements(connection.connector.getDisplayElements(), connection.parent);
-					_removeFromList(connectionsByScope, connection.scope, connection);
-					if(!ignoreTarget) fireDetachEvent(connection);
 				}
+				return actuallyDetached;
 			};			
 
 			/*
@@ -3196,7 +3248,7 @@ about the parameters allowed in the params object.
 			 */
 			this.detachAll = function() {
 				while (self.connections.length > 0) {
-					self.detach(self.connections[0]);
+					self.detach(self.connections[0], false, true);
 				}
 			};
 			/*
@@ -3215,8 +3267,8 @@ about the parameters allowed in the params object.
 					}
 				}
 				for ( var i = 0; i < c.length; i++) {
-					c[i].setHover(false);
-					self.detach(c[i]);					
+					if (self.detach(c[i])) 
+						c[i].setHover(false);					
 				}
 			};			
 			/*
@@ -3566,15 +3618,12 @@ about the parameters allowed in the params object.
 								jsPlumb.CurrentLibrary.setDragScope(existingJpcParams[2], existingJpcParams[3]);
 								
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
-								if (_reattach) {
 									
+								if (_reattach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc)) {									
 									jpc.floatingAnchorIndex = null;
 									jpc.suspendedEndpoint.addConnection(jpc);
 									jsPlumb.repaint(existingJpcParams[1]);
-								} else {
-									jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc); // the main endpoint will inform the floating endpoint
-									// to disconnect, and also post the detached event.
-								}
+								} 
 							} else {
 								// TODO this looks suspiciously kind of like an Endpoint.detach call too.
 								// i wonder if this one should post an event though.  maybe this is good like this.
@@ -3623,46 +3672,55 @@ about the parameters allowed in the params object.
 						
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
 						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {
-							if (idx == 0) {
-								jpc.source = _element;
-								jpc.sourceId = _elementId;
-							} else {
-								jpc.target = _element;
-								jpc.targetId = _elementId;
+						
+							var _doContinue = true;
+							if (jpc.suspendedEndpoint) {
+								if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
+									_doContinue = false;								
 							}
-							// todo test that the target is not full.
-							// remove this jpc from the current endpoint
-							jpc.endpoints[idx].detachFromConnection(jpc);
-							if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
-							jpc.endpoints[idx] = self;
-							self.addConnection(jpc);
-							if (!jpc.suspendedEndpoint) {  
-								_addToList(connectionsByScope, jpc.scope, jpc);
-								_initDraggableIfNecessary(_element, params.draggable, {});
-							}
-							else {
-								var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
-								// fire a detach event
-								_currentInstance.fire("jsPlumbConnectionDetached", {
-									source : idx == 0 ? suspendedElement : jpc.source, 
-									target : idx == 1 ? suspendedElement : jpc.target,
-									sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, 
-									targetId : idx == 1 ? suspendedElementId : jpc.targetId,
-									sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
-									targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
-									connection : jpc
-								});
-							}
+						
+							if (_doContinue) {
+								if (idx == 0) {
+									jpc.source = _element;
+									jpc.sourceId = _elementId;
+								} else {
+									jpc.target = _element;
+									jpc.targetId = _elementId;
+								}
+								// todo test that the target is not full.
+								// remove this jpc from the current endpoint
+								jpc.endpoints[idx].detachFromConnection(jpc);
+								if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
+								jpc.endpoints[idx] = self;
+								self.addConnection(jpc);
+								if (!jpc.suspendedEndpoint) {  
+									_addToList(connectionsByScope, jpc.scope, jpc);
+									_initDraggableIfNecessary(_element, params.draggable, {});
+								}
+								else {
+									var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
+									// fire a detach event
+									_currentInstance.fire("jsPlumbConnectionDetached", {
+										source : idx == 0 ? suspendedElement : jpc.source, 
+										target : idx == 1 ? suspendedElement : jpc.target,
+										sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, 
+										targetId : idx == 1 ? suspendedElementId : jpc.targetId,
+										sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
+										targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
+										connection : jpc
+									});
+								}
 							
-							jsPlumb.repaint(elId);
+								jsPlumb.repaint(elId);
 							
-							_currentInstance.fire("jsPlumbConnection", {
-								source : jpc.source, target : jpc.target,
-								sourceId : jpc.sourceId, targetId : jpc.targetId,
-								sourceEndpoint : jpc.endpoints[0], 
-								targetEndpoint : jpc.endpoints[1],
-								connection:jpc
-							});														
+								_currentInstance.fire("jsPlumbConnection", {
+									source : jpc.source, target : jpc.target,
+									sourceId : jpc.sourceId, targetId : jpc.targetId,
+									sourceEndpoint : jpc.endpoints[0], 
+									targetEndpoint : jpc.endpoints[1],
+									connection:jpc
+								});														
+							}
 						}
 			
 						_currentInstance.currentlyDragging = false;

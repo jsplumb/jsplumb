@@ -334,8 +334,146 @@ var testSuite = function(renderMode) {
 		jsPlumb.detach(c56);
 		assertContextSize(5);		// check that the connection canvas was removed.
 		c = jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 1, "after detaching one, there is now one connection.");
-		
+		equals(c.length, 1, "after detaching one, there is now one connection.");		
+	});
+
+// beforeDetach functionality
+	
+	test(renderMode + ": jsPlumb.detach; beforeDetach on connect call returns false", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { return false; }});
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
+	});
+	
+	test(renderMode + ": jsPlumb.detach; beforeDetach on connect call returns true", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { return true; }});
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+	});
+
+	test(renderMode + ": jsPlumb.detach; beforeDetach on connect call throws an exception; we treat it with the contempt it deserves and pretend it said the detach was ok.", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { throw "i am badly coded"; }});
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+	});
+	
+	test(renderMode + ": jsPlumb.detach; beforeDetach on addEndpoint call to source Endpoint returns false", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true, beforeDetach:function(conn) { return false; } }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
+	});
+	
+	test(renderMode + ": jsPlumb.detach; beforeDetach on addEndpoint call to source Endpoint returns true", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true, beforeDetach:function(conn) { return true; } }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+	});
+	
+
+	test(renderMode + ": Endpoint.detach; beforeDetach on addEndpoint call to source Endpoint returns false; Endpoint.detach returns false too (the UI needs it to)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true, beforeDetach:function(conn) { return false; } }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		var success = e1.detach(c);
+		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
+		ok(!success, "Endpoint reported detach did not execute");
+	});
+
+	
+	test(renderMode + ": jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
+	});
+	
+	test(renderMode + ": jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns true", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return true; } });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was allowed");
+	});
+	
+	test(renderMode + ": jsPlumb.detach; beforeDetach bound to jsPlumb returns false", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		jsPlumb.bind("beforeDetach", function(connection) {
+			ok(connection.sourceId === "d1", "connection is provided and configured with correct source");
+			ok(connection.targetId === "d2", "connection is provided and configured with correct target");
+			return false;
+		});
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
+	});
+	
+	test(renderMode + ": jsPlumb.detach; beforeDetach bound to jsPlumb returns true", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		jsPlumb.bind("beforeDetach", function(connection) {
+			ok(connection.sourceId === "d1", "connection is provided and configured with correct source");
+			ok(connection.targetId === "d2", "connection is provided and configured with correct target");
+			return true;
+		});
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		jsPlumb.detach(c);
+		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was denied");
+	});
+	
+	test(renderMode + ": jsPlumb.detachAllConnections ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		jsPlumb.detachAllConnections(d1);
+		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAll was called");
+	});
+
+	test(renderMode + ": jsPlumb.detachEverything ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		jsPlumb.detachEverything();
+		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachEverything was called");
+	});
+
+	test(renderMode + ": Endpoint.detachAll ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		e1.detachAll();
+		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAllConnections was called");
 	});
 	
 	test(renderMode + ': jsPlumb.getConnections (scope testScope)', function() {

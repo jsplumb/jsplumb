@@ -1,3 +1,5 @@
+	- added beforeDetach option to Connection, Endpoint, and on jsPlumb as a bind.
+
 
 * 1.3.3
 
