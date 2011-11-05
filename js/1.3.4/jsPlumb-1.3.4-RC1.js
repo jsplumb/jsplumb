@@ -1498,7 +1498,7 @@ about the parameters allowed in the params object.
 			if (!initialized) {
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
 				
-				var _bind = function() {
+				var _bind = function(event) {
 					jsPlumb.CurrentLibrary.bind(document, event, function(e) {
 						if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
 							// try connections first
