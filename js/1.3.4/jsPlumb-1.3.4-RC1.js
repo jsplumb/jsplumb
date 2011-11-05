@@ -1499,27 +1499,30 @@ about the parameters allowed in the params object.
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
 				
 				var _bind = function() {
-					for (var a = 0; a < arguments.length; a++) {
-						jsPlumb.CurrentLibrary.bind(document, arguments[a], function(e) {
-							if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
-								// try connections first
-								for (var scope in connectionsByScope) {
-					    			var c = connectionsByScope[scope];
-					    			for (var i = 0; i < c.length; i++) {
-					    				if (c[i].connector[arguments[a]](e)) return;	
-					    			}
+					jsPlumb.CurrentLibrary.bind(document, event, function(e) {
+						if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
+							// try connections first
+							for (var scope in connectionsByScope) {
+				    			var c = connectionsByScope[scope];
+				    			for (var i = 0; i < c.length; i++) {
+				    				if (c[i].connector[event](e)) return;	
 				    			}
-								for (var el in endpointsByElement) {
-									var ee = endpointsByElement[el];
-									for (var i = 0; i < ee.length; i++) {
-										if (ee[i].endpoint[arguments[a]](e)) return;
-									}
+				    		}
+							for (var el in endpointsByElement) {
+								var ee = endpointsByElement[el];
+								for (var i = 0; i < ee.length; i++) {
+									if (ee[i].endpoint[event](e)) return;
 								}
 							}
-						});
-					}
+						}
+					});
 				};
-				_bind("click", "dblclick", "mousemove", "mousedown", "mouseup");				
+				_bind("click");
+				_bind("dblclick");
+				_bind("mousemove");
+				_bind("mousedown");
+				_bind("mouseup");
+				
 				initialized = true;
 				_currentInstance.fire("ready");
 			}
