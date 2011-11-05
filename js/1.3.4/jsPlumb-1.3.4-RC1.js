@@ -1505,7 +1505,8 @@ about the parameters allowed in the params object.
 							for (var scope in connectionsByScope) {
 				    			var c = connectionsByScope[scope];
 				    			for (var i = 0; i < c.length; i++) {
-				    				if (c[i].connector[event](e)) return;	
+				    				var t = c[i].connector[event](e);
+				    				if (t) return;	
 				    			}
 				    		}
 							for (var el in endpointsByElement) {
@@ -2250,10 +2251,6 @@ about the parameters allowed in the params object.
 			self.timestamp = null;
 			this.compute = function(params) {
 				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;
-				
-				
-console.log("timestamp", timestamp, "element", $(element.canvas).attr("id"));
-
 				
 				if (timestamp && timestamp === self.timestamp) {
 					return lastReturnValue;
