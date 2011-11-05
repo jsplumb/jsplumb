@@ -412,7 +412,9 @@
 		/**
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
 		 */
-		_timestamp = function() { return "" + (new Date()).getTime(); },
+		_curTimestamp = 1,
+		//_timestamp = function() { return "" + (new Date()).getTime(); },
+		_timestamp = function() { return "" + _curTimestamp++; },
 		
 		/**
 		 * YUI, for some reason, put the result of a Y.all call into an object that contains
