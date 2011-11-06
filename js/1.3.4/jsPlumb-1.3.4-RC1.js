@@ -3746,24 +3746,26 @@ about the parameters allowed in the params object.
 						delete floatingConnections[id];						
 					};
 					
-					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
-					
-					var overOrOut = function(commandToRun) {
-						return function() {
-							var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
+					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);					
+							
+					dropOptions[overEvent] = _wrap(dropOptions[overEvent], function() {
+						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
 							id = _getAttribute( _getElementObject(draggable), "dragId"),
 							jpc = floatingConnections[id];
 							if (jpc != null) {
 								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-								commandToRun(idx, self.anchor);
+								jpc.endpoints[idx].anchor.over(self.anchor);
 							}
-						};
-					};
-							
-					dropOptions[overEvent] = _wrap(dropOptions[overEvent],
-							overOrOut(function(idx, anchor) { jpc.endpoints[idx].anchor.over(anchor); }));	
-					dropOptions[outEvent] = _wrap(dropOptions[outEvent],
-							overOrOut(function(idx, anchor) { jpc.endpoints[idx].anchor.out(); }));		
+					});	
+					dropOptions[outEvent] = _wrap(dropOptions[outEvent], function() {
+						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
+							id = _getAttribute( _getElementObject(draggable), "dragId"),
+							jpc = floatingConnections[id];
+							if (jpc != null) {
+								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+								jpc.endpoints[idx].anchor.out();
+							}
+					});	
 									
 					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions);
 				}
