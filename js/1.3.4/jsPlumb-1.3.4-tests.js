@@ -82,6 +82,7 @@ var testSuite = function(renderMode) {
 		var e = jsPlumb.addEndpoint($("#d1"), {});
 		ok(e, 'endpoint exists');  
 		assertEndpointCount("d1", 1);
+		ok(e.id != null, "endpoint has had an id assigned");
 	});
 	
 	test(renderMode + ': create and remove a simple endpoint', function() {
@@ -90,6 +91,7 @@ var testSuite = function(renderMode) {
 		ok(ee != null, "endpoint exists");
 		var e = jsPlumb.getEndpoint("78978597593");
 		ok(e != null, "the endpoint could be retrieved by UUID");
+		ok(e.id != null, "the endpoint has had an id assigned to it");
 		assertEndpointCount("d1", 1);
 		assertContextSize(1); // one Endpoint canvas.
 		jsPlumb.removeEndpoint(d1, ee);	 
@@ -1054,10 +1056,11 @@ var testSuite = function(renderMode) {
 		assertContextSize(2);				// should have a canvas for each endpoint now.  
 		assertEndpointCount("d1", 1);
 		assertEndpointCount("d2", 1);
-		jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
+		var c = jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
 		assertEndpointCount("d1", 1);		// no new endpoint should have been added
 		assertEndpointCount("d2", 1); 		// no new endpoint should have been added
 		assertContextSize(3);				// now we should also have a canvas for the connection.
+		ok(c.id != null, "connection has had an id assigned");
 	});
 	
 	test(renderMode + ': jsPlumb.connect (between two Endpoints, and dont supply any parameters to the Endpoints.)', function() {
