@@ -1,0 +1,299 @@
+
+<!doctype html>
+<html>
+	<head>
+		<style>
+			.w { 
+				width:5em;
+				padding:1em;
+				position:absolute;
+				border: 1px solid black;
+				z-index:4;
+			}
+			
+			._jsPlumb_endpoint {
+				z-index:3;
+			}
+			
+			#opened {
+				left:10em;
+				top:5em;
+			}
+			
+			#olga {
+				left:10em;
+				top:12em;
+				width:7em;
+			}
+			#nicola {
+				left:13em;
+				top:25em;
+			}
+			#inperson {
+				left:27em;
+				top:22em;
+			}
+			#rejected {
+				left:10em;
+				top:35em;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="debug"></div>
+		<div id="anchorDebug"></div>
+		<button id="new">new connection</button>
+		<button id="repaint">repaint everything</button>
+	
+		<div class="w" id="opened">opened</div>
+		<div class="w" id="olga">telephone interview with olga</div>
+		<div class="w" id="nicola">telephone interview with nicola</div>
+		<div class="w" id="inperson">in person</div>
+		<div class="w" id="rejected">rejected</div>
+	
+	 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
+		<!-- main jsplumb engine -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-1.3.4-RC1.js"></script>
+		<!-- connectors, endpoint and overlays  -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-defaults-1.3.4-RC1.js"></script>
+		<!-- SVG renderer -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-renderers-svg-1.3.4-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-renderers-canvas-1.3.4-RC1.js"></script>
+		<!-- vml renderer -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-renderers-vml-1.3.4-RC1.js"></script>
+		<!-- jquery jsPlumb adapter -->
+		<script type="text/javascript" src="../../js/1.3.4/jquery.jsPlumb-1.3.4-RC1.js"></script>					            	
+		
+		
+		<script>
+		
+		
+		var curColourIndex = 1, maxColourIndex = 24, nextColour = function() {
+			var R,G,B;
+			R = parseInt(128+Math.sin((curColourIndex*3+0)*1.3)*128);
+			G = parseInt(128+Math.sin((curColourIndex*3+1)*1.3)*128);
+			B = parseInt(128+Math.sin((curColourIndex*3+2)*1.3)*128);
+			curColourIndex = curColourIndex + 1;
+			if (curColourIndex > maxColourIndex) curColourIndex = 1;
+			return "rgb(" + R + "," + G + "," + B + ")";
+		};
+		
+			jsPlumb.ready(function() {
+				
+				//jsPlumb.Defaults.UniqueAnchor = true; ??
+						
+				jsPlumb.Defaults.Connector = "Bezier";
+				jsPlumb.Defaults.Anchor = [
+				  [0.25,0,0,-1], [0.75,0,0,-1],
+				  [0.25,1,0,1], [0.75,1,0,1]
+				];
+				
+				jsPlumb.draggable($(".w"));
+								
+				jsPlumb.connect({
+					source:"opened",
+					target:"olga",
+					uniqueAnchor:true,
+					//endpointStyle:{fillStyle:"white"},
+					paintStyle:{strokeStyle:nextColour(),lineWidth:2}
+				});
+				
+				jsPlumb.connect({
+					source:"opened",
+					target:"olga",
+					uniqueAnchor:true,
+					//endpointStyle:{fillStyle:"white"},				
+					paintStyle:{strokeStyle:nextColour(),lineWidth:2}
+				});
+				
+				jsPlumb.connect({
+					source:"opened",
+					target:"olga",
+					uniqueAnchor:true,
+				//	endpointStyle:{fillStyle:"white"},
+					paintStyle:{strokeStyle:nextColour(),lineWidth:2}
+				});
+				
+				$("#new").bind("click", function() {
+					jsPlumb.connect({
+						source:"opened",
+						target:"olga",
+						uniqueAnchor:true,
+						endpointStyle:{fillStyle:"#465"},
+						paintStyle:{strokeStyle:nextColour(),lineWidth:2}
+					});									
+				});
+				
+				$("#repaint").bind("click", jsPlumb.repaintEverything);
+				
+				jsPlumb.bind("click", function(c) { jsPlumb.detach(c); });
+			});
+		</script>
+	</body>
+</html>
+
+<!--
+/*
+
+var Orientation = {
+					HORIZONTAL : "horizontal",
+					VERTICAL : "vertical",
+					DIAGONAL : "diagonal"
+				},
+				// TODO this method should return the orientation and the faces involved (or the vertices).
+				// these values should be expressed in the common jsplumb anchor syntax.
+				calculateOrientation = function(e1, e2) {
+					var o1 = e1.offset(), o2 = e2.offset(), o1w = e1.outerWidth(), o1h = e1.outerHeight(),
+					o2w = e2.outerWidth(), o2h = e2.outerHeight();
+					o1.right = o1.left + o1w;
+					o1.bottom = o1.top + o1h;
+					o2.right = o2.left + o2w; 
+					o2.bottom = o2.top + o2h;
+					
+					// TODO it might be the case that the definition of diagonal should be altered to 
+					// allow for some space between the two elements.  it kicks in when, visually, it would
+					// appear that you could still treat them as vertically or horizontally aligned.
+					var h = (
+						(o1.left < o2.left && o1.right > o2.left) || 
+						(o1.left < o2.right && o1.right > o2.right) ||
+						(o1.left < o2.left && o1.right > o2.right) ||
+						(o2.left < o1.left && o2.right > o1.right)
+					),
+					v = (
+						 (o1.top < o2.top && o1.bottom > o2.top) || 
+						 (o1.top < o2.bottom && o1.bottom > o2.bottom) ||
+						 (o1.top < o2.top && o1.bottom > o2.bottom) ||
+						 (o2.top < o1.top && o2.bottom > o1.bottom)
+				    );
+					
+					if (! (h || v)) {
+						var a = null;
+						if (o2.left > o1.left && o2.top > o1.top) a = [[1,1],[0,0], o1w, o2w, o1h, o2h];
+						else if (o2.left > o1.left && o1.top > o2.top) a = [[1,0],[0,1], o1w, o2w, o1h, o2h];
+						else if (o2.left < o1.left && o2.top < o1.top) a = [[0,0], [1,1], o1w, o2w, o1h, o2h];
+						else if (o2.left < o1.left && o2.top > o1.top) a = [[0,1], [1, 0], o1w, o2w, o1h, o2h];
+						return { o:Orientation.DIAGONAL, a:a };
+					}
+					else if (h) return {
+						o:Orientation.HORIZONTAL,
+						a:o1.top < o2.top ? [1,0, o1w, o2w, o1h, o2h] : [0,1, o1w, o2w, o1h, o2h]
+					}
+					else return {
+						o:Orientation.VERTICAL,
+						a:o1.left < o2.left ? [1,0, o1w, o2w, o1h, o2h] : [0,1, o1w, o2w, o1h, o2h]
+					}
+					
+				},
+				/**
+				For a vertex in the form [x,y], where x and y are 0 or 1, find the left and right edges that
+				connect to the given vertex.  i'm going to do this clockwise only at first, and i envisage that
+				what will happen is all the connections will be crossed over.  i think you have to do source as
+				clockwise and target as anticlockwise, or vice versa, or it will get screwy.  we'll see.
+				*/
+				findLeftAndRightEdges = function(vertex) {
+					if (vertex[0] == 1 && vertex[1] == 1) return {left:[1,0], right:[0,1]};
+					else if (vertex[0] == 1 && vertex[1] == 0) return {left:[0,0], right:[1,1]};
+					else if (vertex[0] == 0 && vertex[1] == 1) return {left:[1,1], right:[0,0]};
+					else return {left:[0,1], right:[1,0]};
+				},
+				/**
+				returns whether the line from the 'from' vertex to the 'to' vertex is horizontal, and also
+				the 'multiplier' for the other axis.  so if the line is horizontal, multiplier will be the Y
+				value (which will be the same in both 'from' and 'to'). it will have a value of 0 or 1, and means either 
+				"the top of the element" or "the bottom of the element".
+				*/
+				lineInfo = function(from, to) {
+					var yes = from[0] !== to[0], other = yes ? from[1] : from[0];
+					return {horizontal:yes, otherMultiplier:other};
+				};
+				connectionList = ["foo", "bar", "baz", "dib", "dob"];
+				
+				var placeAnchorsOnLine = function(elementDimensions, connections, horizontal, otherMultiplier) {
+					var a = [],
+						step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+						
+					for (var i = 0; i < connections.length; i++) {
+						var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
+						a.push([ horizontal ? val : other, horizontal ? other : val ]);
+					}
+					
+					return a;
+				};
+
+jsPlumb.draggable($(".w"), {
+					drag:function(e, ui) {
+						// 1. calculate orientation
+						var o = calculateOrientation($("#opened"), $("#olga"));
+						var info = o.o + " " + o.a;
+						// 2. using dummy list, calculate anchor placements.
+						var pSource = [], pTarget = [];
+						// if horizontal or vertical, get the appropriate multiplier
+						if (o.o == Orientation.HORIZONTAL || o.o == Orientation.VERTICAL) {
+						
+							// here we know these things:
+							//
+							// o.o 		the orientation of the line along which the anchors are located
+							// o.a[0]   the proportion in the y direction of the source element of the line on which
+							//          the anchors are located.  this will be 0 or 1.
+							// o.a[1]   same as above, but for target element.
+							// o.a[2]   width of source
+							// o.a[3]   width of target
+							// o.a[4]   height of source
+							// o.a[5]   height of target
+							// connectionList	list of connections to place on this line							
+							pSource = placeAnchorsOnLine([ o.a[2], o.a[4] ], connectionList, o.o == Orientation.HORIZONTAL , o.a[0]);
+							pTarget = placeAnchorsOnLine([ o.a[3], o.a[5] ], connectionList, o.o == Orientation.HORIZONTAL , o.a[1]);							
+						}
+						else if (o.o == Orientation.DIAGONAL) {
+							var midPoint = Math.floor(connectionList.length / 2);
+							if (connectionList.length > 0) {
+								if (connectionList.length == 1) {
+									// push the first one
+									pSource.push([o.a[0][0] * o.a[2], o.a[0][1] * o.a[4]]);
+									pTarget.push([o.a[1][0] * o.a[3], o.a[1][1] * o.a[5]]);
+								}
+								else {
+									var isOdd = connectionList.length % 2 != 0;
+									var leftIndices = connectionList.slice(0, midPoint),
+									vertex = isOdd ? midPoint : null,
+									rightStart = midPoint + isOdd ? 1 : 0,
+									rightIndices = connectionList.slice(rightStart, rightStart + midPoint),
+									sourceEdges = findLeftAndRightEdges(o.a[0]),
+									targetEdges = findLeftAndRightEdges(o.a[1]);
+									
+									// now we have a possible index for the vertex, and we have indices for
+									// each connection, mapping them to a certain position on the left and right
+									// edges.  so this test has 5 connections.  the left and right edges will 
+									// each have two connections, and these need to be spaced along each
+									// edge, exactly as if that set of connections was the set we were using in
+									// the horizontal and vertical cases.
+
+									var sourceLeftInfo = lineInfo(sourceEdges.left, o.a[0]),
+									targetLeftInfo = lineInfo(targetEdges.left, o.a[1]),
+									sourceRightInfo = lineInfo(sourceEdges.right, o.a[0]),
+									targetRightInfo = lineInfo(targetEdges.right, o.a[1]);
+									
+								//	console.log("horizontalness", sourceLeftInfo, sourceRightInfo,
+									//targetLeftInfo, targetRightInfo);
+									
+									var sourceLeftAnchors = placeAnchorsOnLine([ o.a[2], o.a[4] ], leftIndices, sourceLeftInfo.horizontal, sourceLeftInfo.otherMultiplier),
+									sourceRightAnchors = placeAnchorsOnLine([ o.a[2], o.a[4] ], rightIndices, sourceRightInfo.horizontal, sourceRightInfo.otherMultiplier),
+									targetLeftAnchors = placeAnchorsOnLine([ o.a[3], o.a[5] ], leftIndices, targetLeftInfo.horizontal, targetLeftInfo.otherMultiplier),
+									targetRightAnchors = placeAnchorsOnLine([ o.a[3], o.a[5] ], rightIndices, targetRightInfo.horizontal, targetRightInfo.otherMultiplier);
+									
+									// if vertex was set, create a location for it
+									
+									pSource = sourceLeftAnchors.concat(sourceRightAnchors);
+									pTarget = targetLeftAnchors.concat(targetRightAnchors);									
+								}
+							}
+						}
+						
+						//$("#debug").html(info);
+						$("#anchorDebug").html("" + pSource + "<br/>" + pTarget);
+					}
+				});*/
+	-->			
