@@ -199,7 +199,7 @@
 					try { 
 						r = beforeDetach(connection); 
 					}
-					catch (e) { _log("beforeDetach callback failed", e); }
+					catch (e) { _log("jsPlumb: beforeDetach callback failed", e); }
 				}
 				return r;
 			};
@@ -213,7 +213,7 @@
 					try { 
 						r = beforeDrop(connection); 
 					}
-					catch (e) { _log("beforeDrop callback failed", e); }
+					catch (e) { _log("jsPlumb: beforeDrop callback failed", e); }
 				}
 				return r;
 			};
@@ -394,6 +394,7 @@
 		 * to anything.
 		 */
 		endpointsByElement = {},
+		connectionManagingAnchors = {},
 		endpointsByUUID = {},
 		offsets = {},
 		offsetTimestamps = {},
@@ -549,6 +550,68 @@
 			}
 		},
 		
+		/*
+		* prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
+		*/
+		_prepareConnectionParams = function(params, referenceParams) {
+			var _p = jsPlumb.extend( {}, params);
+			if (referenceParams) jsPlumb.extend(_p, referenceParams);
+			
+			if (_p.source && _p.source.endpoint) _p.sourceEndpoint = _p.source;
+			if (_p.source && _p.target.endpoint) _p.targetEndpoint = _p.target;
+			
+			// test for endpoint uuids to connect
+			if (params.uuids) {
+				_p.sourceEndpoint = _getEndpoint(params.uuids[0]);
+				_p.targetEndpoint = _getEndpoint(params.uuids[1]);
+			}
+
+			// now ensure that if we do have Endpoints already, they're not full.
+			if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
+				_log(_currentInstance, "could not add connection; source endpoint is full");
+				return;
+			}
+
+			if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
+				_log(_currentInstance, "could not add connection; target endpoint is full");
+				return;
+			}			
+			
+			if (_p.target && !_p.target.endpoint) {
+				var tid = _getId(_p.target),
+				tep =_targetEndpointDefinitions[tid];
+
+				var overrideOne = function(singlePropertyName, pluralPropertyName, tepProperty, tep) {
+					if (tep[tepProperty]) {
+						if (_p[pluralPropertyName]) _p[pluralPropertyName][1] = tep[tepProperty];
+						else if (_p[singlePropertyName]) {
+							_p[pluralPropertyName] = [ _p[singlePropertyName], tep[tepProperty] ];
+							_p[singlePropertyName] = null;
+						}
+						else _p[pluralPropertyName] = [ null, tep[tepProperty] ];
+					}
+				};
+
+				if (tep) {
+					overrideOne("endpoint", "endpoints", "endpoint", tep);
+					overrideOne("endpointStyle", "endpointStyles", "paintStyle", tep);
+					overrideOne("endpointHoverStyle", "endpointHoverStyles", "hoverPaintStyle", tep);
+				}
+			}
+			
+			// dynamic anchors. backwards compatibility here: from 1.2.6 onwards you don't need to specify "dynamicAnchors".  the fact that some anchor consists
+			// of multiple definitions is enough to tell jsPlumb you want it to be dynamic.
+			if (_p.dynamicAnchors) {
+				// these can either be an array of anchor coords, which we will use for both source and target, or an object with {source:[anchors], target:[anchors]}, in which
+				// case we will use a different set for each element.
+				var a = _p.dynamicAnchors.constructor == Array,
+				sa = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.source)),
+				ta = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.target));
+				_p.anchors = [sa,ta];
+			}
+			return _p;
+		},
+		
 		_newConnection = function(params) {
 			var connectionFunc = jsPlumb.Defaults.ConnectionType || Connection,
 			endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint,
@@ -566,9 +629,29 @@
 			
 			params["_jsPlumb"] = _currentInstance;
 			var con = new connectionFunc(params);
+			con.id = "con_" + _idstamp();
 			_eventFireProxy("click", "click", con);
 			_eventFireProxy("dblclick", "dblclick", con);
 			return con;
+		},
+		
+		/**
+		* adds the connection to the backing model, fires an event if necessary and then redraws
+		*/
+		_finaliseConnection = function(jpc, params) {
+			// add to list of connections (by scope).
+			_addToList(connectionsByScope, jpc.scope, jpc);
+			// fire an event
+			if (!params.doNotFireConnectionEvent) {
+				_currentInstance.fire("jsPlumbConnection", {
+					connection:jpc,
+					source : jpc.source, target : jpc.target,
+					sourceId : jpc.sourceId, targetId : jpc.targetId,
+					sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
+				});
+			}
+			// force a paint
+			_draw(jpc.source);
 		},
 		
 		_eventFireProxy = function(event, proxyEvent, obj) {
@@ -591,11 +674,16 @@
 				return jsPlumb.CurrentLibrary.getParent(params.source);
 		},
 		
+		/**
+			factory method to prepare a new endpoint.  this should always be used instead of creating Endpoints
+			manually, since this method attaches event listeners and an id.
+		*/
 		_newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
 			params.parent = _getParentFromParams(params);
 			params["_jsPlumb"] = _currentInstance,
 			ep = new endpointFunc(params);
+			ep.id = "ep_" + _idstamp();
 			_eventFireProxy("click", "endpointClick", ep);
 			_eventFireProxy("dblclick", "endpointDblClick", ep);
 			return ep;
@@ -1035,78 +1123,18 @@
 		  	The newly created <Connection>.
 		 */
 		this.connect = function(params, referenceParams) {
-			var _p = jsPlumb.extend( {}, params);
-			if (referenceParams) jsPlumb.extend(_p, referenceParams);
-			
-			if (_p.source && _p.source.endpoint) _p.sourceEndpoint = _p.source;
-			if (_p.source && _p.target.endpoint) _p.targetEndpoint = _p.target;
-			
-			// test for endpoint uuids to connect
-			if (params.uuids) {
-				_p.sourceEndpoint = _getEndpoint(params.uuids[0]);
-				_p.targetEndpoint = _getEndpoint(params.uuids[1]);
+			// prepare a final set of parameters to create connection with
+			var _p = _prepareConnectionParams(params, referenceParams);
+			// TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
+			// will return null (and log something) if either endpoint was full.  what would be nicer is to 
+			// create a dedicated 'error' object.
+			if (_p) {
+				// create the connection.  it is not yet registered 
+				jpc = _newConnection(_p);
+				// now add it the model, fire an event, and redraw
+				_finaliseConnection(jpc, _p);						
+				return jpc;
 			}
-
-			// now ensure that if we do have Endpoints already, they're not full.
-			if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
-				_log(_currentInstance, "could not add connection; source endpoint is full");
-				return;
-			}
-
-			if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
-				_log(_currentInstance, "could not add connection; target endpoint is full");
-				return;
-			}			
-			
-			if (_p.target && !_p.target.endpoint) {
-				var tid = _getId(_p.target),
-				tep =_targetEndpointDefinitions[tid];
-
-				var overrideOne = function(singlePropertyName, pluralPropertyName, tepProperty, tep) {
-					if (tep[tepProperty]) {
-						if (_p[pluralPropertyName]) _p[pluralPropertyName][1] = tep[tepProperty];
-						else if (_p[singlePropertyName]) {
-							_p[pluralPropertyName] = [ _p[singlePropertyName], tep[tepProperty] ];
-							_p[singlePropertyName] = null;
-						}
-						else _p[pluralPropertyName] = [ null, tep[tepProperty] ];
-					}
-				};
-
-				if (tep) {
-					overrideOne("endpoint", "endpoints", "endpoint", tep);
-					overrideOne("endpointStyle", "endpointStyles", "paintStyle", tep);
-					overrideOne("endpointHoverStyle", "endpointHoverStyles", "hoverPaintStyle", tep);
-				}
-			}
-			
-			// dynamic anchors. backwards compatibility here: from 1.2.6 onwards you don't need to specify "dynamicAnchors".  the fact that some anchor consists
-			// of multiple definitions is enough to tell jsPlumb you want it to be dynamic.
-			if (_p.dynamicAnchors) {
-				// these can either be an array of anchor coords, which we will use for both source and target, or an object with {source:[anchors], target:[anchors]}, in which
-				// case we will use a different set for each element.
-				var a = _p.dynamicAnchors.constructor == Array,
-				sa = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.source)),
-				ta = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.target));
-				_p.anchors = [sa,ta];
-			}
-
-			var jpc = _newConnection(_p);
-			// add to list of connections (by scope).
-			_addToList(connectionsByScope, jpc.scope, jpc);
-			// fire an event
-			if (!params.doNotFireConnectionEvent) {
-				_currentInstance.fire("jsPlumbConnection", {
-					connection:jpc,
-					source : jpc.source, target : jpc.target,
-					sourceId : jpc.sourceId, targetId : jpc.targetId,
-					sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-				});
-			}
-			// force a paint
-			_draw(jpc.source);						
-
-			return jpc;
 		};
 		
 		/*
@@ -1681,52 +1709,62 @@ about the parameters allowed in the params object.
 					// get the connection, to then get its endpoint
 					var jpc = floatingConnections[id],
 					source = jpc.endpoints[0],
-					_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : null,
-					// make a new Endpoint
-					newEndpoint = jsPlumb.addEndpoint(_el, _endpoint);
+					_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : null;
 					
-					var anchorPositionFinders = {
-						"Fixed": function(dp, ep, es, a) {
-							return [ (dp.left - ep.left) / es[0],
-							         (dp.top - ep.top) / es[1] ];	
-						},
-						"Grid":function(dp, ep, es, a) {
-							var dx = dp.left - ep.left, dy = dp.top - ep.top,
-							gx = es[0] / (a.grid[0]), gy = es[1] / (a.grid[1]),
-							mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
-							return [ ((mx * gx) + (gx / 2)) / es[0],
-							         ((my * gy) + (gy / 2)) / es[1] ];
+					// set the correct target/targetId values on the connection
+					jpc.target = _el;
+					jpc.targetId = _getId(_el);
+					
+					// ok so here we need to ensure the connection is droppable.
+					var _continue = jpc.isDropAllowed(jpc);
+					if (_continue) {
+					
+						// make a new Endpoint
+						var newEndpoint = jsPlumb.addEndpoint(_el, _endpoint);
+					
+						var anchorPositionFinders = {
+							"Fixed": function(dp, ep, es, a) {
+								return [ (dp.left - ep.left) / es[0],
+								         (dp.top - ep.top) / es[1] ];	
+							},
+							"Grid":function(dp, ep, es, a) {
+								var dx = dp.left - ep.left, dy = dp.top - ep.top,
+								gx = es[0] / (a.grid[0]), gy = es[1] / (a.grid[1]),
+								mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
+								return [ ((mx * gx) + (gx / 2)) / es[0],
+								         ((my * gy) + (gy / 2)) / es[1] ];
+							}
+						};
+					
+						// fixed/grid anchors will now need to be instructed where to place themselves
+						if (newEndpoint.anchor.type === "Fixed" || newEndpoint.anchor.type === "Grid") {
+							var dropPosition = jpcl.getUIPosition(arguments),
+							elPosition = jpcl.getOffset(_el),
+							elSize = jpcl.getSize(_el),
+							ap = anchorPositionFinders[newEndpoint.anchor.type](dropPosition, elPosition, elSize, newEndpoint.anchor);
+							newEndpoint.anchor.x = ap[0];
+							newEndpoint.anchor.y = ap[1];
+							// now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
+							// support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation 
+							// be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
+							// specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
+							// the target is furthest away from the source.
 						}
-					};
 					
-					// fixed/grid anchors will now need to be instructed where to place themselves
-					if (newEndpoint.anchor.type === "Fixed" || newEndpoint.anchor.type === "Grid") {
-						var dropPosition = jpcl.getUIPosition(arguments),
-						elPosition = jpcl.getOffset(_el),
-						elSize = jpcl.getSize(_el),
-						ap = anchorPositionFinders[newEndpoint.anchor.type](dropPosition, elPosition, elSize, newEndpoint.anchor);
-						newEndpoint.anchor.x = ap[0];
-						newEndpoint.anchor.y = ap[1];
-						// now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
-						// support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation 
-						// be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
-						// specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
-						// the target is furthest away from the source.
+						var c = jsPlumb.connect({
+							source:source,
+							target:newEndpoint,
+							scope:scope,
+							// 'endpointWillMoveAfterConnection' is set by the makeSource function, and it indicates that the
+							// given endpoint will actually transfer from the element it is currently attached to to some other
+							// element after a connection has been established.  in that case, we do not want to fire the
+							// connection event, since it will have the wrong data in it; makeSource will do it for us.
+							// this is controlled by the 'parent' parameter on a makeSource call.
+							doNotFireConnectionEvent:source.endpointWillMoveAfterConnection
+						});
+						if (deleteEndpointsOnDetach) 
+							c.endpointsToDeleteOnDetach = [ newEndpoint ];
 					}
-					
-					var c = jsPlumb.connect({
-						source:source,
-						target:newEndpoint,
-						scope:scope,
-						// 'endpointWillMoveAfterConnection' is set by the makeSource function, and it indicates that the
-						// given endpoint will actually transfer from the element it is currently attached to to some other
-						// element after a connection has been established.  in that case, we do not want to fire the
-						// connection event, since it will have the wrong data in it; makeSource will do it for us.
-						// this is controlled by the 'parent' parameter on a makeSource call.
-						doNotFireConnectionEvent:source.endpointWillMoveAfterConnection
-					});
-					if (deleteEndpointsOnDetach) 
-						c.endpointToDeleteOnDetach = newEndpoint;
 				};
 				
 				var dropEvent = jpcl.dragEvents['drop'];
@@ -2258,9 +2296,11 @@ about the parameters allowed in the params object.
 				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
 				// adjust loc if there is an offsetParent
 				if (element.canvas && element.canvas.offsetParent) {
-					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
-					lastReturnValue[0] = lastReturnValue[0] - po.left + element.canvas.offsetParent.scrollLeft;
-					lastReturnValue[1] = lastReturnValue[1] - po.top + element.canvas.offsetParent.scrollTop;
+					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent),
+					so = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:element.canvas.offsetParent.scrollLeft, top:element.canvas.offsetParent.scrollTop};
+					
+					lastReturnValue[0] = lastReturnValue[0] - po.left + so.left;
+					lastReturnValue[1] = lastReturnValue[1] - po.top + so.top;
 				}
 				
 				self.timestamp = timestamp;
@@ -2315,9 +2355,11 @@ about the parameters allowed in the params object.
 							
 				// adjust loc if there is an offsetParent
 				if (element.canvas && element.canvas.offsetParent) {
-					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent);
-					result[0] = result[0] - po.left + element.canvas.offsetParent.scrollLeft;
-					result[1] = result[1] - po.top + element.canvas.offsetParent.scrollTop;
+					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent),
+					so = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:element.canvas.offsetParent.scrollLeft, top:element.canvas.offsetParent.scrollTop};
+					
+					result[0] = result[0] - po.left + so.left;
+					result[1] = result[1] - po.top + so.top;
 				}
 				
 				_lastResult = result;
@@ -2425,6 +2467,291 @@ about the parameters allowed in the params object.
 			this.getOrientation = function() { return _curAnchor != null ? _curAnchor.getOrientation() : [ 0, 0 ]; };
 			this.over = function(anchor) { if (_curAnchor != null) _curAnchor.over(anchor); };
 			this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
+		};
+		
+// -------------------- CONNECTION MANAGING ANCHORS ---------------------------		
+		
+		/*
+		 an anchor that manages all the connections between two elements.  when a new paint is called (where
+		"new" means having a different timestamp to the current timestamp), it computes the positions of 
+		the source and target endpoints for all connections between sourceElement and targetElement.
+		*/
+		var ConnectionManagingAnchor = function(params) {
+			var source = params.source,
+			target = params.target,
+			sourceId = params.sourceId,
+			targetId = params.targetId,
+			currentTimestamp = null,
+			connections = params.connections || [],
+			anchorLocations = {},
+			anchorOrientations = {};
+			
+			this.isDynamic = true;
+			
+			var Orientation = {
+				HORIZONTAL : "horizontal",
+				VERTICAL : "vertical",
+				DIAGONAL : "diagonal"
+			},
+			// TODO this functions uses a crude method of determining orientation between two elements.
+			// 'diagonal' should be chosen when the angle of the line between the two centers is around
+			// one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
+			calculateOrientation = function(o1, wh, o2, twh) {
+				var  
+				o1w = wh[0], o1h = wh[1],
+				o2w = twh[0], o2h = twh[1];
+				o1.right = o1.left + o1w;
+				o1.bottom = o1.top + o1h;
+				o2.right = o2.left + o2w; 
+				o2.bottom = o2.top + o2h;
+					
+				// TODO it might be the case that the definition of diagonal should be altered to 
+				// allow for some space between the two elements.  it kicks in when, visually, it would
+				// appear that you could still treat them as vertically or horizontally aligned.
+				var h = (
+					(o1.left <= o2.left && o1.right >= o2.left) || 
+					(o1.left <= o2.right && o1.right >= o2.right) ||
+					(o1.left <= o2.left && o1.right >= o2.right) ||
+					(o2.left <= o1.left && o2.right >= o1.right)
+				),
+				v = (
+					 (o1.top <= o2.top && o1.bottom >= o2.top) || 
+					 (o1.top <= o2.bottom && o1.bottom >= o2.bottom) ||
+					 (o1.top <= o2.top && o1.bottom >= o2.bottom) ||
+					 (o2.top <= o1.top && o2.bottom >= o1.bottom)
+				);
+					
+				if (! (h || v)) {
+					var a = null;
+					if (o2.left > o1.left && o2.top > o1.top)
+						a = [[1,1],[0,0], o1w, o2w, o1h, o2h];
+					else if (o2.left > o1.left && o1.top > o2.top)
+						a = [[1,0],[0,1], o1w, o2w, o1h, o2h];
+					else if (o2.left < o1.left && o2.top < o1.top)
+						a = [[0,0], [1,1], o1w, o2w, o1h, o2h];
+					else if (o2.left < o1.left && o2.top > o1.top)
+						a = [[0,1], [1, 0], o1w, o2w, o1h, o2h];
+						
+					return { o:Orientation.DIAGONAL, a:a };
+				}
+				else if (h) return {
+					o:Orientation.HORIZONTAL,
+					a:o1.top < o2.top ? [1,0, o1w, o2w, o1h, o2h] : [0,1, o1w, o2w, o1h, o2h],
+					reverse:!(o1.top < o2.top)
+				}
+				else return {
+					o:Orientation.VERTICAL,
+					a:o1.left < o2.left ? [1,0, o1w, o2w, o1h, o2h] : [0,1, o1w, o2w, o1h, o2h],
+					reverse:(o1.left < o2.left)					
+				}
+					
+			},
+			/**
+			For a vertex in the form [x,y], where x and y are 0 or 1, find the left and right edges that
+			connect to the given vertex.  i'm going to do this clockwise only at first, and i envisage that
+			what will happen is all the connections will be crossed over.  i think you have to do source as
+			clockwise and target as anticlockwise, or vice versa, or it will get screwy.  we'll see.
+			*/
+			findLeftAndRightEdges = function(vertex) {
+				var e = null;
+				if (vertex[0] == 1 && vertex[1] == 1) e = {right:[1,0], left:[0,1]};
+				else if (vertex[0] == 1 && vertex[1] == 0) e = {right:[0,0], left:[1,1]};
+				else if (vertex[0] == 0 && vertex[1] == 1) e = {right:[1,1], left:[0,0]};
+				else e = {right:[0,1], left:[1,0]};				
+				
+				return e;
+			},
+			/**
+			returns whether the line from the 'from' vertex to the 'to' vertex is horizontal, and also
+			the 'multiplier' for the other axis.  so if the line is horizontal, multiplier will be the Y
+			value (which will be the same in both 'from' and 'to'). it will have a value of 0 or 1, and means either 
+			"the top of the element" or "the bottom of the element".
+			*/
+			lineInfo = function(from, to) {
+				var yes = from[0] !== to[0], other = yes ? from[1] : from[0];
+				return {horizontal:yes, otherMultiplier:other};
+			},
+			placeAnchorsOnLine = function(elementDimensions, elementPosition, 
+					connections, horizontal, otherMultiplier, reverse) {
+				var a = [],
+					step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+						
+				for (var i = 0; i < connections.length; i++) {
+					var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
+					if (reverse) {
+					  val = elementDimensions[horizontal ? 0 : 1] - val;
+					}
+					a.push([ elementPosition[0] + (horizontal ? val : other), 
+						elementPosition[1] + (horizontal ? other : val) ]);
+				}
+					
+				return a;
+			},
+			// recalculates where everything should be, storing anchors logs against endpoint ids.
+			recalc = function() {
+								// calculate everything.
+					//
+					// 1. find the orientation of each element wrt to each other.  by this i mean 
+					// try to find which faces are pointing at each other, to decide where to place
+					// anchors.  this will result in either horizontal facing, vertical facing, or diagonal.
+					// two elements are considered horizontally facing if they overlap in X but not in Y; 
+					// vertically facing if they overlap in Y but not in X, and diagonal if they either do
+					// not overlap at all, or overlap in both.
+					//
+					// 2. decide where to place anchors
+					// for horizontal and vertical, we will array the anchors along each face.  for diagonal,
+					// we'll put the first connection from corner to corner, and then run anchors down each
+					// face that meets the vertex.  
+					// the general algorithm is to space the anchors along each face so that they are equidistant
+					// from each other.  for a single connection, it will appear in the middle of the element.
+					// two connections will be at location 0.3333 and 0.6666; 3 will be at 0.25, 0.5 and 0.75.
+					// for the diagonal case the concept is the same, you just have to think of the two edges that meet 
+					// the vertex as a flat surface that has been folded at the center point.  let's assume the corner in 
+					// question is the top right of some element. in the case of one connection this will be at the 
+					// corner. with two connections, one will be [0.75, 0] (on the top edge), and the other will
+					// be [1, 0.25] (on the right edge). this algorithm should support an arbitrary number of
+					// connections, just dividing the space up as it needs to.
+
+				var sO = offsets[sourceId], tO = offsets[targetId], sS = sizes[sourceId], tS = sizes[targetId],
+				o = calculateOrientation(sO, sS, tO, tS),
+				connectionList = _currentInstance.getConnections({source:sourceId, target:targetId}),
+				sourceAnchors = [], targetAnchors = [];
+				// if horizontal or vertical, get the appropriate multiplier
+				if (o.o == Orientation.HORIZONTAL || o.o == Orientation.VERTICAL) {
+					sourceAnchors = placeAnchorsOnLine(
+						[ o.a[2], o.a[4] ], 
+						[ sO.left, sO.top ],
+						connectionList, 
+						o.o == Orientation.HORIZONTAL, 
+						o.a[0],
+						o.reverse);
+						
+					targetAnchors = placeAnchorsOnLine(
+						[ o.a[3], o.a[5] ], 
+						[ tO.left, tO.top ],
+						connectionList, 
+						o.o == Orientation.HORIZONTAL, 
+						o.a[1],
+						o.reverse);							
+				}
+				else if (o.o == Orientation.DIAGONAL) {
+					var midPoint = Math.floor(connectionList.length / 2);
+					if (connectionList.length > 0) {
+						if (connectionList.length == 1) {
+							// push the first one
+							sourceAnchors.push([sO.left + (o.a[0][0] * o.a[2]), sO.top + (o.a[0][1] * o.a[4])]);
+							targetAnchors.push([tO.left + (o.a[1][0] * o.a[3]), tO.top + (o.a[1][1] * o.a[5])]);
+						}
+						else {
+							var isOdd = connectionList.length % 2 != 0,
+								leftIndices = connectionList.slice(0, midPoint),
+								vertex = isOdd ? midPoint : null,
+								rightStart = midPoint + isOdd ? 1 : 0,
+								rightIndices = connectionList.slice(rightStart, rightStart + midPoint),
+								sourceEdges = findLeftAndRightEdges(o.a[0], o.reverse),
+								targetEdges = findLeftAndRightEdges(o.a[1], o.reverse);
+									
+							// now we have a possible index for the vertex, and we have indices for
+							// each connection, mapping them to a certain position on the left and right
+							// edges.  so this test has 5 connections.  the left and right edges will 
+							// each have two connections, and these need to be spaced along each
+							// edge, exactly as if that set of connections was the set we were using in
+							// the horizontal and vertical cases.
+
+							var sourceLeftInfo = lineInfo(sourceEdges.left, o.a[0]),
+								targetLeftInfo = lineInfo(targetEdges.left, o.a[1]),
+								sourceRightInfo = lineInfo(sourceEdges.right, o.a[0]),
+								targetRightInfo = lineInfo(targetEdges.right, o.a[1]);
+									
+							var sourceLeftAnchors = placeAnchorsOnLine(
+									[ o.a[2], o.a[4] ], 
+									[ sO.left, sO.top ],
+									leftIndices, 
+									sourceLeftInfo.horizontal, 
+									sourceLeftInfo.otherMultiplier),
+									
+								sourceRightAnchors = placeAnchorsOnLine(
+									[ o.a[2], o.a[4] ], 
+									[ sO.left, sO.top ],
+									rightIndices, 
+									sourceRightInfo.horizontal, 
+									sourceRightInfo.otherMultiplier),
+									
+								targetLeftAnchors = placeAnchorsOnLine(
+									[ o.a[3], o.a[5] ], 
+									[ tO.left, tO.top ],
+									leftIndices, 
+									targetLeftInfo.horizontal, 
+									targetLeftInfo.otherMultiplier),
+									
+								targetRightAnchors = placeAnchorsOnLine(
+									[ o.a[3], o.a[5] ], 
+									[ tO.left, tO.top ],
+									rightIndices, 
+									targetRightInfo.horizontal, 
+									targetRightInfo.otherMultiplier);
+									
+							// if vertex was set, create a location for it
+							if (isOdd) {
+								sourceLeftAnchors.push([sO.left + (o.a[0][0] * o.a[2]), sO.top + (o.a[0][1] * o.a[4])]);
+								targetRightAnchors.push([tO.left + (o.a[1][0] * o.a[3]), tO.top + (o.a[1][1] * o.a[5])]);
+							}
+									
+							sourceAnchors = sourceLeftAnchors.concat(sourceRightAnchors);
+							targetAnchors = targetRightAnchors.concat(targetLeftAnchors);									
+						}
+					}
+				}
+				// now assign these anchors to the endpoints for each connection
+				for (var i = 0; i < connectionList.length; i++) {
+					var c = connectionList[i], se = c.endpoints[0], te = c.endpoints[1];
+					anchorLocations[se.id] = sourceAnchors[i];
+				//	anchorOrientations[se.id] = [0,-1];  // but figure it out for real
+					anchorLocations[te.id] = targetAnchors[i];
+					//anchorOrientations[te.id] = [0,1];//WHAT DOES IT EQUAL.
+				}
+			};
+		
+			this.compute = function(params) {	
+				var xy = params.xy, wh = params.wh, 
+				timestamp = params.timestamp, txy = params.txy, twh = params.twh,
+				endpoint = params.element, endpointId = endpoint.id;				
+				
+				if (timestamp !== currentTimestamp) {
+					recalc();					
+					currentTimestamp = timestamp;
+				}		
+				
+				return anchorLocations[endpointId] || [0,0];
+			};
+			
+			this.getCurrentLocation = function(endpoint) {
+				return anchorLocations[endpoint.id] || [0,0];
+			};
+
+			this.getOrientation = function(endpoint) {  
+				return anchorOrientations[endpoint.id] || [ 0, 0 ]; 
+			};
+			this.over = function(anchor) {  };
+			this.out = function() { };
+		};
+		
+		/*
+			Gets a connection managing anchor for the given source/target pair, creating one if necessary.
+		*/
+		var _getConnectionManagingAnchor = function(source, target, sourceId, targetId) {
+			var key = sourceId + "_" + targetId,
+			existing = connectionManagingAnchors[key] || connectionManagingAnchors[targetId + "_" + sourceId];
+			if (! existing) {
+				existing = new ConnectionManagingAnchor({
+					source:source,
+					target:target,
+					sourceId:sourceId,
+					targetId:targetId
+				});
+				_addToList(connectionManagingAnchors, key, existing);
+			}
+			return existing;
 		};
 
 		/*
@@ -2567,7 +2894,7 @@ about the parameters allowed in the params object.
 							ehs.fillStyle = connectorHoverPaintStyle.strokeStyle;
 						}
 					}
-					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor),
+					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor),					
 					u = params.uuids ? params.uuids[index] : null,
 					e = _newEndpoint({ 
 						paintStyle : es, 
@@ -2586,6 +2913,14 @@ about the parameters allowed in the params object.
 					return e;
 				}
 			};
+			
+			// SP test 
+			//var a = new ConnectionManagingAnchor({ source:self.source, target:self.target, connections:[self] });
+			if (params.uniqueAnchor) {
+				var a = _getConnectionManagingAnchor(self.source, self.target, self.sourceId, self.targetId);
+				params.anchors = [a, a];
+				
+			}
 
 			var eS = prepareEndpoint(params.sourceEndpoint, 0, params, self.source, params.paintStyle, params.hoverPaintStyle);
 			if (eS) _addToList(endpointsByElement, this.sourceId, eS);
@@ -2593,6 +2928,13 @@ about the parameters allowed in the params object.
 			if (eT) _addToList(endpointsByElement, this.targetId, eT);
 			// if scope not set, set it to be the scope for the source endpoint.
 			if (!this.scope) this.scope = this.endpoints[0].scope;
+			
+			if (params.uniqueAnchor) {
+				var etdd = [];
+				if (eS) etdd.push(eS);
+				if (eT) etdd.push(eT);				
+				self.endpointsToDeleteOnDetach = etdd;
+			}
 			
 			// merge all the parameters objects into the connection.  parameters set
 			// on the connection take precedence; then target endpoint params, then
@@ -2872,10 +3214,10 @@ about the parameters allowed in the params object.
 			};
 
 			// paint the endpoints
-			var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId];
-			var otherOffset = offsets[this.targetId];
-			var otherWH = sizes[this.targetId];
-			var anchorLoc = this.endpoints[0].anchor.compute( {
+			var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId],
+			otherOffset = offsets[this.targetId],
+			otherWH = sizes[this.targetId],
+			anchorLoc = this.endpoints[0].anchor.compute( {
 				xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
 				txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1]
 			});
@@ -2907,8 +3249,8 @@ about the parameters allowed in the params object.
 				_updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp });
 				_updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
 				
-				var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation(),				
-				tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation();
+				var sAnchorP = this.endpoints[sIdx].anchor.getCurrentLocation(this.endpoints[sIdx]),				
+				tAnchorP = this.endpoints[tIdx].anchor.getCurrentLocation(this.endpoints[tIdx]);
 				
 				/* paint overlays*/
 				var maxSize = 0;
@@ -2921,7 +3263,10 @@ about the parameters allowed in the params object.
 					}
 				}
 
-				var dim = this.connector.compute(sAnchorP, tAnchorP, this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, self.paintStyleInUse.lineWidth, maxSize);
+				var dim = this.connector.compute(sAnchorP, tAnchorP, 
+				this.endpoints[sIdx], this.endpoints[tIdx],
+				this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, 
+				self.paintStyleInUse.lineWidth, maxSize);
 				
 				self.connector.paint(dim, self.paintStyleInUse);
 
@@ -3241,13 +3586,17 @@ about the parameters allowed in the params object.
 								t.detach(connection, true, forceDetach);
 								// check connection to see if we want to delete the other endpoint.
 								// if the user uses makeTarget to make some element a target for connections,
-								// it is possible that they will have set 'endpointToDeleteOnDetach': when
+								// it is possible that they will have set 'endpointsToDeleteOnDetach': when
 								// you make a connection to an element that acts as a target (note: NOT an
 								// Endpoint; just some div as a target), Endpoints are created for that
 								// connection. so if you then delete that Connection, it is feasible you 
 								// will want these auto-generated endpoints to be removed.
-								if (connection.endpointToDeleteOnDetach && connection.endpointToDeleteOnDetach.connections.length == 0) 
-									jsPlumb.deleteEndpoint(connection.endpointToDeleteOnDetach);							
+								if (connection.endpointsToDeleteOnDetach){
+									for (var i = 0; i < connection.endpointsToDeleteOnDetach.length; i++) {
+										if (connection.endpointsToDeleteOnDetach[i].connections.length == 0) 
+											jsPlumb.deleteEndpoint(connection.endpointsToDeleteOnDetach[i]);							
+									}
+								}
 							}
 							_removeElements(connection.connector.getDisplayElements(), connection.parent);
 							_removeFromList(connectionsByScope, connection.scope, connection);
@@ -3469,6 +3818,7 @@ about the parameters allowed in the params object.
 							wh = sizes[_elementId];
 						}
 						var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
+					//	console.log("anchor is dynamic ", self.anchor.isDynamic);
 						if (self.anchor.isDynamic && self.connections.length > 0) {
 							var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
 							oIdx = c.endpoints[0] == self ? 1 : 0,
@@ -3481,7 +3831,7 @@ about the parameters allowed in the params object.
 						ap = self.anchor.compute(anchorParams);
 					}
 										
-					var d = _endpoint.compute(ap, self.anchor.getOrientation(), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
+					var d = _endpoint.compute(ap, self.anchor.getOrientation(_endpoint), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
 					_endpoint.paint(d, self.paintStyleInUse, self.anchor);
 					
 					self.timestamp = timestamp;
@@ -3691,6 +4041,15 @@ about the parameters allowed in the params object.
 								if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
 									_doContinue = false;								
 							}
+			
+							// these have to be set before testing for beforeDrop.
+							if (idx == 0) {
+								jpc.source = _element;
+								jpc.sourceId = _elementId;
+							} else {
+								jpc.target = _element;
+								jpc.targetId = _elementId;
+							}
 							
 							// now check beforeDrop.  this will be available only on Endpoints that are setup to
 							// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
@@ -3699,14 +4058,6 @@ about the parameters allowed in the params object.
 							_doContinue = _doContinue && self.isDropAllowed(jpc);
 													
 							if (_doContinue) {
-								if (idx == 0) {
-									jpc.source = _element;
-									jpc.sourceId = _elementId;
-								} else {
-									jpc.target = _element;
-									jpc.targetId = _elementId;
-								}
-								// todo test that the target is not full.
 								// remove this jpc from the current endpoint
 								jpc.endpoints[idx].detachFromConnection(jpc);
 								if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
