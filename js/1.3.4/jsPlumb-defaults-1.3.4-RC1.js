@@ -62,7 +62,7 @@
          * the line it is going to draw.  a more involved implementation, like a Bezier curve,
          * would store the control point info in this array too.
          */
-        this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth) {
+        this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
         	var w = Math.abs(sourcePos[0] - targetPos[0]),
             h = Math.abs(sourcePos[1] - targetPos[1]),
             // these are padding to ensure the whole connector line appears
@@ -167,10 +167,10 @@
         var currentPoints = null;
         this.type = "Bezier";
         
-        this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceAnchor, targetAnchor) {
+        this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor) {
         	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
         	// points around if so (code could be tightened up)
-        	var soo = sourceAnchor.getOrientation(), too = targetAnchor.getOrientation();
+        	var soo = sourceAnchor.getOrientation(sourceEndpoint), too = targetAnchor.getOrientation(targetEndpoint);
         	var perpendicular = soo[0] != too[0] || soo[1] == too[1]; 
             var p = [];            
             var ma = self.majorAnchor, mi = self.minorAnchor;                
@@ -197,7 +197,7 @@
         };
 
         var _CP, _CP2, _sx, _tx, _ty, _sx, _sy, _canvasX, _canvasY, _w, _h;
-        this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth)
+        this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth)
         {
         	lineWidth = lineWidth || 0;
             _w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth; 
@@ -208,8 +208,8 @@
             _sy = sourcePos[1] < targetPos[1] ? _h - (lineWidth/2) : (lineWidth/2);
             _tx = sourcePos[0] < targetPos[0] ? (lineWidth/2) : _w - (lineWidth/2);
             _ty = sourcePos[1] < targetPos[1] ? (lineWidth/2) : _h - (lineWidth/2);
-            _CP = self._findControlPoint([_sx,_sy], sourcePos, targetPos, sourceAnchor, targetAnchor);
-            _CP2 = self._findControlPoint([_tx,_ty], targetPos, sourcePos, targetAnchor, sourceAnchor);                
+            _CP = self._findControlPoint([_sx,_sy], sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor);
+            _CP2 = self._findControlPoint([_tx,_ty], targetPos, sourcePos, sourceEndpoint, targetEndpoint, targetAnchor, sourceAnchor);                
             var minx1 = Math.min(_sx,_tx); var minx2 = Math.min(_CP[0], _CP2[0]); var minx = Math.min(minx1,minx2);
             var maxx1 = Math.max(_sx,_tx); var maxx2 = Math.max(_CP[0], _CP2[0]); var maxx = Math.max(maxx1,maxx2);
             
@@ -369,7 +369,7 @@
 			return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
 		};
 		
-		this.compute = function(sourcePos, targetPos, sourceAnchor, targetAnchor, lineWidth, minWidth) {
+		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
 	    	
 			segments = [];
 			segmentGradients = [];
@@ -383,8 +383,8 @@
 			var lw = lineWidth || 1,
             offx = (lw / 2) + (minStubLength * 2), 
             offy = (lw / 2) + (minStubLength * 2),
-            so = sourceAnchor.orientation || sourceAnchor.getOrientation(), 
-            to = targetAnchor.orientation || targetAnchor.getOrientation(),
+            so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
+            to = targetAnchor.orientation || targetAnchor.getOrientation(targetEndpoint),
             x = swapX ? targetPos[0] : sourcePos[0], 
             y = swapY ? targetPos[1] : sourcePos[1],
             w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx, 
@@ -665,14 +665,14 @@
 		this.type = "Triangle";
 		params = params || {  };
 		params.width = params.width || 55;
-		param.height = params.height || 55;
+		params.height = params.height || 55;
 		this.width = params.width;
 		this.height = params.height;
 		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
-			var width = endpointStyle.width || self.width;
-			var height = endpointStyle.height || self.height;
-			var x = anchorPoint[0] - (width/2);
-			var y = anchorPoint[1] - (height/2);
+			var width = endpointStyle.width || self.width,
+			height = endpointStyle.height || self.height,
+			x = anchorPoint[0] - (width/2),
+			y = anchorPoint[1] - (height/2);
 			return [ x, y, width, height ];
 		};
 	};
@@ -725,12 +725,12 @@
     	this.width = params.width || 20;
     	this.id = params.id;
     	this.connection = params.connection;
-    	var direction = (params.direction || 1) < 0 ? -1 : 1;
-    	var paintStyle = params.paintStyle || { lineWidth:1 };
+    	var direction = (params.direction || 1) < 0 ? -1 : 1,
+    	paintStyle = params.paintStyle || { lineWidth:1 };
     	this.loc = params.location == null ? 0.5 : params.location;
     	// how far along the arrow the lines folding back in come to. default is 62.3%. 
-    	var foldback = params.foldback || 0.623;
-    	var _getFoldBackPoint = function(connector, loc) {
+    	var foldback = params.foldback || 0.623,
+    	_getFoldBackPoint = function(connector, loc) {
     		if (foldback == 0.5) return connector.pointOnPath(loc);
     		else {
     			var adj = 0.5 - foldback; // we calculate relative to the center        			
