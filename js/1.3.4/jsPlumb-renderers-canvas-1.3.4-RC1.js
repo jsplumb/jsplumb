@@ -242,7 +242,7 @@
 		};
 		this._paint = function(d, style, anchor) {
 			if (style != null) {			
-				var ctx = self.canvas.getContext('2d'), orientation = anchor.getOrientation();
+				var ctx = self.canvas.getContext('2d'), orientation = anchor.getOrientation(self);
 				jsPlumb.extend(ctx, style);							
 	            if (style.gradient) {            	
 	            	var adjustments = calculateAdjustments(style.gradient), 
@@ -270,7 +270,7 @@
 		
     	this._paint = function(d, style, anchor) {
 				
-			var ctx = self.canvas.getContext("2d"), orientation = anchor.getOrientation();
+			var ctx = self.canvas.getContext("2d"), orientation = anchor.getOrientation(self);
 			jsPlumb.extend(ctx, style);
 			
 			/* canvas gradient */
@@ -302,13 +302,12 @@
 		
     	this._paint = function(d, style, anchor)
 		{    		
-			var width = d[2], height = d[3], x = d[0], y = d[1];
+			var width = d[2], height = d[3], x = d[0], y = d[1],			
+			ctx = self.canvas.getContext('2d'),
+			offsetX = 0, offsetY = 0, angle = 0,
+			orientation = anchor.getOrientation(self);
 			
-			var ctx = self.canvas.getContext('2d');
-			var offsetX = 0, offsetY = 0, angle = 0;
-			
-			if( orientation[0] == 1 )
-			{
+			if( orientation[0] == 1 ) {
 				offsetX = width;
 				offsetY = height;
 				angle = 180;
