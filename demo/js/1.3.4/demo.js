@@ -35,8 +35,8 @@
 					lineWidth:13,
 					strokeStyle:"#a7b04b",
 					outlineWidth:1,
-					outlineColor:"#666"/*,
-					dashstyle:"2 2"*/
+					outlineColor:"#666",
+					dashstyle:"2 2"
 				},
 				endpointStyle:{ fillStyle:"#a7b04b" },
 			   	hoverPaintStyle:hoverPaintStyle,
