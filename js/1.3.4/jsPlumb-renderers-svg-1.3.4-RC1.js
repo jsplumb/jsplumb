@@ -33,9 +33,20 @@
 		"stroke-linejoin":"stroke-linejoin",
 		"joinstyle":"stroke-linejoin",		
 		"stroke-dashoffset":"stroke-dashoffset"
-	};
-
-	var ns = {
+	},
+	STROKE_DASHARRAY = "stroke-dasharray",
+	DASHSTYLE = "dashstyle",
+	LINEAR_GRADIENT = "linearGradient",
+	RADIAL_GRADIENT = "radialGradient",
+	FILL = "fill",
+	STOP = "stop",
+	STROKE = "stroke",
+	STROKE_WIDTH = "stroke-width",
+	STYLE = "style",
+	NONE = "none",
+	JSPLUMB_GRADIENT = "jsplumb_gradient_",
+	LINE_WIDTH = "lineWidth",
+	ns = {
 		svg:"http://www.w3.org/2000/svg",
 		xhtml:"http://www.w3.org/1999/xhtml"
 	},
@@ -68,12 +79,12 @@
 	},	
 	_clearGradient = function(parent) {
 		for (var i = 0; i < parent.childNodes.length; i++) {
-			if (parent.childNodes[i].tagName == "linearGradient" || parent.childNodes[i].tagName == "radialGradient")
+			if (parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
 				parent.removeChild(parent.childNodes[i]);
 		}
 	},		
 	_updateGradient = function(parent, node, style, dimensions) {
-		var id = "jsplumb_gradient_" + (new Date()).getTime();
+		var id = JSPLUMB_GRADIENT + (new Date()).getTime();
 		// first clear out any existing gradient
 		_clearGradient(parent);
 		// this checks for an 'offset' property in the gradient, and in the absence of it, assumes
@@ -82,11 +93,11 @@
 		// better. relying on 'offset' means that we can never have a radial gradient that uses
 		// some default offset, for instance.
 		if (!style.gradient.offset) {
-			var g = _node("linearGradient", {id:id});
+			var g = _node(LINEAR_GRADIENT, {id:id});
 			parent.appendChild(g);
 		}
 		else {
-			var g = _node("radialGradient", {
+			var g = _node(RADIAL_GRADIENT, {
 				id:id
 			});
 			parent.appendChild(g);
@@ -105,11 +116,11 @@
 			else
 				styleToUse = dimensions[4] < dimensions[6] ? style.gradient.stops.length - 1 - i : i;
 			var stopColor = _convertStyle(style.gradient.stops[styleToUse][1], true);
-			var s = _node("stop", {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
+			var s = _node(STOP, {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
 			g.appendChild(s);
 		}
-		var applyGradientTo = style.strokeStyle ? "stroke" : "fill";
-		node.setAttribute("style", applyGradientTo + ":url(#" + id + ")");
+		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
+		node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
 	},
 	_applyStyles = function(parent, node, style, dimensions) {
 		
@@ -119,13 +130,13 @@
 		else {
 			// make sure we clear any existing gradient
 			_clearGradient(parent);
-			node.setAttribute("style", "");
+			node.setAttribute(STYLE, "");
 		}
 		
-		node.setAttribute("fill", style.fillStyle ? _convertStyle(style.fillStyle, true) : "none");
-		node.setAttribute("stroke", style.strokeStyle ? _convertStyle(style.strokeStyle, true) : "none");		
+		node.setAttribute(FILL, style.fillStyle ? _convertStyle(style.fillStyle, true) : NONE);
+		node.setAttribute(STROKE, style.strokeStyle ? _convertStyle(style.strokeStyle, true) : NONE);		
 		if (style.lineWidth) {
-			node.setAttribute("stroke-width", style.lineWidth);
+			node.setAttribute(STROKE_WIDTH, style.lineWidth);
 		}
 	
 		// in SVG there is a stroke-dasharray attribute we can set, and its syntax looks like
@@ -136,17 +147,17 @@
 		// VML, which will be the preferred method.  the code below this converts a dashstyle
 		// attribute given in terms of stroke width into a pixel representation, by using the
 		// stroke's lineWidth. 
-		if(style["stroke-dasharray"]) {
-			node.setAttribute("stroke-dasharray", style["stroke-dasharray"]);
+		if(style[STROKE_DASHARRAY]) {
+			node.setAttribute(STROKE_DASHARRAY, style[STROKE_DASHARRAY]);
 		}
-		if (style["dashstyle"] && style["lineWidth"]) {
-			var sep = style["dashstyle"].indexOf(",") == -1 ? " " : ",",
-			parts = style["dashstyle"].split(sep),
+		if (style[DASHSTYLE] && style[LINE_WIDTH]) {
+			var sep = style[DASHSTYLE].indexOf(",") == -1 ? " " : ",",
+			parts = style[DASHSTYLE].split(sep),
 			styleToUse = "";
 			parts.forEach(function(p) {
 				styleToUse += (Math.floor(p * style.lineWidth) + sep);
 			});
-			node.setAttribute("stroke-dasharray", styleToUse);
+			node.setAttribute(STROKE_DASHARRAY, styleToUse);
 		}		
 		
 		// extra attributes such as join type, dash offset.
@@ -173,23 +184,27 @@
 	
 		this.setHover = function() { };
 		
-		self.canvas = document.createElement("div");
+		/*self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
-		jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
-		
-		var clazz = cssClass + " " + (originalArgs[0].cssClass || "");
-		self.canvas.className = clazz;
-		
-		self.svg = _node("svg", {
+		jsPlumb.sizeCanvas(self.canvas,0,0,1,1);*/
+
+		var clazz = cssClass + " " + (originalArgs[0].cssClass || "");		
+		//self.svg = _node("svg", {
+		self.canvas = _node("svg", {
 			"style":"",
 			"width":0,
 			"height":0,
-			"pointer-events":pointerEventsSpec/*,
-			"class": clazz*/
+			"pointer-events":pointerEventsSpec,
+			"class": clazz,
+			"position":"absolute"
 		});
+		self.svg = self.canvas;
+
+
+//		self.canvas.className = clazz;
 		
 		jsPlumb.appendElement(self.canvas, originalArgs[0]["parent"]);
-		self.canvas.appendChild(self.svg);		
+		//self.canvas.appendChild(self.svg);		
 		
 		// TODO this displayElement stuff is common between all components, across all
 		// renderers.  would be best moved to jsPlumbUIComponent.
@@ -204,9 +219,10 @@
 		
 		this.paint = function(d, style, anchor) {	   
 			if (style != null) {
-				jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
+			//	jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 		    	_attr(self.svg, {
-	    			"style":_pos([0,0,d[2], d[3]]),
+//	    			"style":_pos([0,0,d[2], d[3]]),
+	    			"style":_pos([d[0], d[1],d[2], d[3]]),
 	    			"width": d[2],
 	    			"height": d[3]
 	    		});
@@ -218,7 +234,7 @@
 	/*
 	 * Base class for SVG connectors.
 	 */
-	var SvgConnector = function(params) {
+	var SvgConnector = jsPlumb.SvgConnector = function(params) {
 		var self = this;
 		SvgComponent.apply(this, [ params["_jsPlumb"].connectorClass, arguments, "none" ]);
 		this._paint = function(d, style) {
