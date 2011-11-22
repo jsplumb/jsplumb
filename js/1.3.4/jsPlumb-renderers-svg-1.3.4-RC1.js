@@ -32,7 +32,8 @@
 	var svgAttributeMap = {
 		"joinstyle":"stroke-linejoin",
 		"stroke-linejoin":"stroke-linejoin",		
-		"stroke-dashoffset":"stroke-dashoffset"
+		"stroke-dashoffset":"stroke-dashoffset",
+		"stroke-linecap":"stroke-linecap"
 	},
 	STROKE_DASHARRAY = "stroke-dasharray",
 	DASHSTYLE = "dashstyle",
@@ -176,25 +177,37 @@
 	/*
 	 * Base class for SVG components.
 	 */
-	var SvgComponent = function(cssClass, originalArgs, pointerEventsSpec) {
-		var self = this;
-		pointerEventsSpec = pointerEventsSpec || "all";
-		jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
+	//var SvgComponent = function(cssClass, originalArgs, pointerEventsSpec) {
+	var SvgComponent = function(params) {
+		var self = this,
+		pointerEventsSpec = params.pointerEventsSpec || "all";
+		jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
 		self.canvas = null, self.path = null, self.svg = null; 
 	
 		this.setHover = function() { };
 		
-		var clazz = cssClass + " " + (originalArgs[0].cssClass || "");		
-		self.canvas = _node("svg", {
+		var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || "");		
+		self.svg = _node("svg", {
 			"style":"",
 			"width":0,
 			"height":0,
 			"pointer-events":pointerEventsSpec,
-			"class": clazz,
+		//	"class": clazz,
 			"position":"absolute"
 		});
-		self.svg = self.canvas;
-		jsPlumb.appendElement(self.canvas, originalArgs[0]["parent"]);
+		if (params.useDivWrapper) {
+			self.canvas = document.createElement("div");
+			self.canvas.style["position"] = "absolute";
+			jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
+			self.canvas.className = clazz;
+		}
+		else {
+			_attr(self.svg, { "class":clazz });
+			self.canvas = self.svg;
+		}
+			
+		jsPlumb.appendElement(self.canvas, params.originalArgs[0]["parent"]);
+		if (params.useDivWrapper) self.canvas.appendChild(self.svg);
 		
 		// TODO this displayElement stuff is common between all components, across all
 		// renderers.  would be best moved to jsPlumbUIComponent.
@@ -209,8 +222,13 @@
 		
 		this.paint = function(d, style, anchor) {	   
 			if (style != null) {
+				var x = d[0], y = d[1];
+				if (params.useDivWrapper) {
+					jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
+					x = 0, y = 0;
+				}
 		    	_attr(self.svg, {
-	    			"style":_pos([d[0], d[1],d[2], d[3]]),
+	    			"style":_pos([x, y, d[2], d[3]]),
 	    			"width": d[2],
 	    			"height": d[3]
 	    		});
@@ -224,7 +242,7 @@
 	 */
 	var SvgConnector = jsPlumb.SvgConnector = function(params) {
 		var self = this;
-		SvgComponent.apply(this, [ params["_jsPlumb"].connectorClass, arguments, "none" ]);
+		SvgComponent.apply(this, [ { cssClass:params["_jsPlumb"].connectorClass, originalArgs:arguments, pointerEventsSpec:"none" } ]);
 		this._paint = function(d, style) {
 			var p = self.getPath(d), a = { "d":p }, outlineStyle = null;									
 			a["pointer-events"] = "all";
@@ -250,10 +268,25 @@
 			}
 			
 			
+			// test - see below
+	    	//	a["clip-path"]= "url(#testClip)"; 
+			
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
 		    	self.svg.appendChild(self.path);
 	    		self.attachListeners(self.path, self);
+	    		
+	    		/*
+	    		this is a test of a clip path.  i'm looking into using one of these to animate a jsplumb connection.
+	    		you could do this by walking along the line, stepping along a little at a time, and setting the clip
+	    		path to extend as far as that point.
+	    		
+	    		self.clip = _node("clipPath", {id:"testClip", clipPathUnits:"objectBoundingBox"});
+	    		self.svg.appendChild(self.clip);
+	    		self.clip.appendChild(_node("rect", {
+	    			x:"0",y:"0",width:"0.5",height:"1" 
+	    		}));
+	    		*/
 	    	}
 	    	else {
 	    		_attr(self.path, a);
@@ -302,7 +335,12 @@
 	 */
 	var SvgEndpoint = function(params) {
 		var self = this;
-		SvgComponent.apply(this, [ params["_jsPlumb"].endpointClass, arguments, "all" ]);
+		SvgComponent.apply(this, [ {
+			cssClass:params["_jsPlumb"].endpointClass, 
+			originalArgs:arguments, 
+			pointerEventsSpec:"all",
+			useDivWrapper:true
+		} ]);
 		this._paint = function(d, style) {
 			var s = jsPlumb.extend({}, style);
 			if (s.outlineColor) {
@@ -374,9 +412,11 @@
     			self.attachListeners(path, connector);
     			self.attachListeners(path, self);
     		}
+    		var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "";
     		
     		_attr(path, { 
     			"d"		:	makePath(d),
+    			"class" :	clazz,
     			stroke 	: 	strokeStyle ? strokeStyle : null,
     			fill 	: 	fillStyle ? fillStyle : null
     		});    		
