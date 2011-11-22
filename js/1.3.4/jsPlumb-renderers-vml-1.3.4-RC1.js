@@ -55,6 +55,8 @@
 		//	document.namespaces.add("jsplumb", "urn:schemas-microsoft-com:vml", "#default#VML");
 	}
 	
+	jsPlumb.vml = {};
+	
 	var scale = 1000,
 	_atts = function(o, atts) {
 		for (var i in atts) { 
@@ -79,7 +81,7 @@
 		o.style.height= d[3] + "px";
 		o.style.position = "absolute";
 	},
-	_conv = function(v) {
+	_conv = jsPlumb.vml.convertValue = function(v) {
 		return Math.floor(v * scale);
 	},
 	_convertStyle = function(s, ignoreAlpha) {
@@ -145,7 +147,7 @@
 	/*
 	 * Base class for Vml connectors. extends VmlComponent.
 	 */
-	VmlConnector = function(params) {
+	VmlConnector = jsPlumb.VmlConnector = function(params) {
 		var self = this;
 		self.strokeNode = null;
 		self.canvas = null;
@@ -303,7 +305,8 @@
 	var AbstractVmlArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
     	VmlComponent.apply(this, arguments);
-    	var self = this, canvas = null, path =null;
+    	var self = this, path = null;
+    	self.canvas = null; 
     	var getPath = function(d, connectorDimensions) {    		
     		return "m " + _conv(d.hxy.x) + "," + _conv(d.hxy.y) +
     		       " l " + _conv(d.tail[0].x) + "," + _conv(d.tail[0].y) + 
@@ -342,15 +345,15 @@
 			dim[2] = connectorDimensions[2];
 			dim[3] = connectorDimensions[3];
 			
-    		if (canvas == null) {
+    		if (self.canvas == null) {
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
-				canvas = _node("shape", dim, p);				
-				connector.appendDisplayElement(canvas);
-				self.attachListeners(canvas, connector);
+				self.canvas = _node("shape", dim, p);				
+				connector.appendDisplayElement(self.canvas);
+				self.attachListeners(self.canvas, connector);
 			}
 			else {				
-				_pos(canvas, dim);
-				_atts(canvas, p);
+				_pos(self.canvas, dim);
+				_atts(self.canvas, p);
 			}    		
     	};
     };
