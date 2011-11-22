@@ -70,11 +70,9 @@
 			}
 			l.push(value);
 			return l;
-		};
-
-		var _connectionBeingDragged = null;
-
-		var _getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
+		},
+		_connectionBeingDragged = null,
+		_getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
 		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); },
 		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); },
 		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
@@ -83,16 +81,40 @@
 		_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
 		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
 		_log = function(jsp, msg) {
-			if (jsp.logEnabled && typeof console != "undefined")
-				console.log(msg);
-		};	
-		
+			if (jsp.logEnabled) {
+			//	if (jsp.log) jsp.log(msg);
+				//else {
+					if (typeof console != "undefined") console.log(msg);
+				//}
+			}
+		},
+		_perf = function(name) {
+			var entries = [], start = [], end = [], first = null, last = null;
+			return {
+				start:function(task) {
+					entries.push(name);
+					var s = (new Date()).getTime();
+					start.push(s);
+					if (first == null) first = s;
+				},
+				end:function(task) {
+					end[start.indexOf(task)] = (new Date()).getTime();
+				},
+				finalise:function() { last = (new Date()).getTime(); },
+				dump:function() {
+					console.log("performance for task set [" + name + "] Total time:" + (last - first));
+					console.log("  tasks  ");
+					for (var i = 0; i < entries.length; i++)
+						console.log("  " + entries[i] + " : " + (end[i] - start[i]));
+				}
+			};			
+		},
 		
 		/**
 		 * EventGenerator
 		 * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
 		 */
-		var EventGenerator = function() {
+		EventGenerator = function() {
 			var _listeners = {}, self = this;
 			
 			// this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
@@ -281,9 +303,7 @@
 				}
 		    };
 		    
-		    this.isHover = function() { 
-		    	return _hover; 
-		    };
+		    this.isHover = function() { return _hover; };
 		    
 		    this.attachListeners = function(o, c) {
 				var jpcl = jsPlumb.CurrentLibrary,
@@ -1557,6 +1577,7 @@ about the parameters allowed in the params object.
 			}
 		};
 		
+		this.log = log;
 		this.jsPlumbUIComponent = jsPlumbUIComponent;
 		this.EventGenerator = EventGenerator;
 
@@ -2476,17 +2497,19 @@ about the parameters allowed in the params object.
 		"new" means having a different timestamp to the current timestamp), it computes the positions of 
 		the source and target endpoints for all connections between sourceElement and targetElement.
 		*/
-		var ConnectionManagingAnchor = function(params) {
+		var ContinuousAnchor = function(params) {
 			var source = params.source,
-			target = params.target,
-			sourceId = params.sourceId,
-			targetId = params.targetId,
+			sourceId = params.id,
 			currentTimestamp = null,
 			connections = params.connections || [],
 			anchorLocations = {},
-			anchorOrientations = {};
+			anchorOrientations = {},
+			anchorProportionalLocations = {},
+			self = this;
 			
+			this.type = "Continuous";
 			this.isDynamic = true;
+			this.anchorLists = { top:[], right:[], bottom:[], left:[] };
 			
 			var Orientation = {
 				HORIZONTAL : "horizontal",
@@ -2497,18 +2520,8 @@ about the parameters allowed in the params object.
 			// 'diagonal' should be chosen when the angle of the line between the two centers is around
 			// one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
 			calculateOrientation = function(o1, wh, o2, twh) {
-				var  
-				o1w = wh[0], o1h = wh[1],
-				o2w = twh[0], o2h = twh[1];
-				o1.right = o1.left + o1w;
-				o1.bottom = o1.top + o1h;
-				o2.right = o2.left + o2w; 
-				o2.bottom = o2.top + o2h;
-					
-				// TODO it might be the case that the definition of diagonal should be altered to 
-				// allow for some space between the two elements.  it kicks in when, visually, it would
-				// appear that you could still treat them as vertically or horizontally aligned.
-				var h = (
+				var o1w = wh[0], o1h = wh[1], o2w = twh[0], o2h = twh[1],					
+				h = (
 					(o1.left <= o2.left && o1.right >= o2.left) || 
 					(o1.left <= o2.right && o1.right >= o2.right) ||
 					(o1.left <= o2.left && o1.right >= o2.right) ||
@@ -2522,27 +2535,45 @@ about the parameters allowed in the params object.
 				);
 					
 				if (! (h || v)) {
-					var a = null;
-					if (o2.left > o1.left && o2.top > o1.top)
-						a = [[1,1],[0,0], o1w, o2w, o1h, o2h];
-					else if (o2.left > o1.left && o1.top > o2.top)
-						a = [[1,0],[0,1], o1w, o2w, o1h, o2h];
-					else if (o2.left < o1.left && o2.top < o1.top)
-						a = [[0,0], [1,1], o1w, o2w, o1h, o2h];
-					else if (o2.left < o1.left && o2.top > o1.top)
-						a = [[0,1], [1, 0], o1w, o2w, o1h, o2h];
+					var a = null, rls = false, rrs = false, sortValue = null;
+					if (o2.left > o1.left && o2.top > o1.top) {
+						a = [[1,1],[0,0]];
+						rrs = true;
+						sortValue = o2.right;
+						otherSortValue = o1.left;
+					}
+					else if (o2.left > o1.left && o1.top > o2.top) {
+						a = [[1,0],[0,1]];
+						sortValue = o2.left;
+						otherSortValue = o1.right;						
+					}
+					else if (o2.left < o1.left && o2.top < o1.top) {
+						a = [[0,0], [1,1]];
+						rls = true;
+						sortValue = o2.left;
+						otherSortValue = o1.right;						
+					}
+					else if (o2.left < o1.left && o2.top > o1.top) {
+						a = [[0,1], [1, 0]];
+						sortValue = o2.right;
+						otherSortValue = o1.left;						
+					}
 						
-					return { o:Orientation.DIAGONAL, a:a };
+					return { orientation:Orientation.DIAGONAL, a:a, rls:rls, rrs:rrs, sortValue:sortValue };
 				}
 				else if (h) return {
-					o:Orientation.HORIZONTAL,
-					a:o1.top < o2.top ? [1,0, o1w, o2w, o1h, o2h] : [0,1, o1w, o2w, o1h, o2h],
-					reverse:!(o1.top < o2.top)
+					orientation:Orientation.HORIZONTAL,
+					a:o1.top < o2.top ? [1,0] : [0,1],
+					reverse:!(o1.top < o2.top),
+					sortValue:o1.top < o2.top ? o2.right : o2.left,
+					otherSortValue:o1.top < o2.top ? o1.left : o1.right
 				}
 				else return {
-					o:Orientation.VERTICAL,
-					a:o1.left < o2.left ? [1,0, o1w, o2w, o1h, o2h] : [0,1, o1w, o2w, o1h, o2h],
-					reverse:(o1.left < o2.left)					
+					orientation:Orientation.VERTICAL,
+					a:o1.left < o2.left ? [1,0] : [0,1],
+					reverse:(o1.left < o2.left),
+					sortValue:o1.left < o2.left ? o2.top : o2.bottom,
+					otherSortValue:o1.left < o2.left ? o1.bottom : o2.top
 				}
 					
 			},
@@ -2571,83 +2602,69 @@ about the parameters allowed in the params object.
 				var yes = from[0] !== to[0], other = yes ? from[1] : from[0];
 				return {horizontal:yes, otherMultiplier:other};
 			},
-			placeAnchorsOnLine = function(elementDimensions, elementPosition, 
+			placeAnchorsOnLine = function(desc, elementDimensions, elementPosition, 
 					connections, horizontal, otherMultiplier, reverse) {
-				var a = [],
-					step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+				var a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+						
+			//	_log(_currentInstance, "for " + sourceId + " : edge is " + desc + "; num connections is " + connections.length);	
 						
 				for (var i = 0; i < connections.length; i++) {
 					var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
-					if (reverse) {
+					if (reverse)
 					  val = elementDimensions[horizontal ? 0 : 1] - val;
-					}
-					a.push([ elementPosition[0] + (horizontal ? val : other), 
-						elementPosition[1] + (horizontal ? other : val) ]);
+					
+					var dx = (horizontal ? val : other), x = elementPosition[0] + dx,  xp = dx / elementDimensions[0],
+					 dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
+					
+					a.push([ x, y, xp, yp, connections[i] ]);
 				}
 					
 				return a;
 			},
 			// recalculates where everything should be, storing anchors logs against endpoint ids.
-			recalc = function() {
-								// calculate everything.
-					//
-					// 1. find the orientation of each element wrt to each other.  by this i mean 
-					// try to find which faces are pointing at each other, to decide where to place
-					// anchors.  this will result in either horizontal facing, vertical facing, or diagonal.
-					// two elements are considered horizontally facing if they overlap in X but not in Y; 
-					// vertically facing if they overlap in Y but not in X, and diagonal if they either do
-					// not overlap at all, or overlap in both.
-					//
-					// 2. decide where to place anchors
-					// for horizontal and vertical, we will array the anchors along each face.  for diagonal,
-					// we'll put the first connection from corner to corner, and then run anchors down each
-					// face that meets the vertex.  
-					// the general algorithm is to space the anchors along each face so that they are equidistant
-					// from each other.  for a single connection, it will appear in the middle of the element.
-					// two connections will be at location 0.3333 and 0.6666; 3 will be at 0.25, 0.5 and 0.75.
-					// for the diagonal case the concept is the same, you just have to think of the two edges that meet 
-					// the vertex as a flat surface that has been folded at the center point.  let's assume the corner in 
-					// question is the top right of some element. in the case of one connection this will be at the 
-					// corner. with two connections, one will be [0.75, 0] (on the top edge), and the other will
-					// be [1, 0.25] (on the right edge). this algorithm should support an arbitrary number of
-					// connections, just dividing the space up as it needs to.
-
-				var sO = offsets[sourceId], tO = offsets[targetId], sS = sizes[sourceId], tS = sizes[targetId],
-				o = calculateOrientation(sO, sS, tO, tS),
-				connectionList = _currentInstance.getConnections({source:sourceId, target:targetId}),
+			//
+			// TODO this method takes a target element; the source element is known. what it should do is simply
+			// populate the lists of anchors required for each face.
+			
+			recalcElement = function(targetElement, otherManager, weAreSource) {
+	
+				var targetId = _getId(targetElement), sO = offsets[sourceId], tO = offsets[targetId], sS = sizes[sourceId], tS = sizes[targetId];
+				sO.right = sO.left + sS[0];
+				sO.bottom = sO.top + sS[1];
+				tO.right = tO.left + tS[0];
+				tO.bottom = tO.top + tS[1];
+				var o = calculateOrientation(sO, sS, tO, tS),
+				connectionList = _currentInstance.getConnections({source:sourceId, target:targetId}).concat
+								(_currentInstance.getConnections({source:targetId, target:sourceId})),
+				
 				sourceAnchors = [], targetAnchors = [];
+				
 				// if horizontal or vertical, get the appropriate multiplier
-				if (o.o == Orientation.HORIZONTAL || o.o == Orientation.VERTICAL) {
-					sourceAnchors = placeAnchorsOnLine(
-						[ o.a[2], o.a[4] ], 
-						[ sO.left, sO.top ],
-						connectionList, 
-						o.o == Orientation.HORIZONTAL, 
-						o.a[0],
-						o.reverse);
-						
-					targetAnchors = placeAnchorsOnLine(
-						[ o.a[3], o.a[5] ], 
-						[ tO.left, tO.top ],
-						connectionList, 
-						o.o == Orientation.HORIZONTAL, 
-						o.a[1],
-						o.reverse);							
+				if (o.orientation == Orientation.HORIZONTAL) {
+					var edgeList = o.a[0] == 0 ? self.anchorLists.top : self.anchorLists.bottom,
+					otherEdgeList = o.a[0] == 0 ? otherManager.anchorLists.bottom : otherManager.anchorLists.top;
+					edgeList.push([ o.sortValue, connectionList ]);
+					otherEdgeList.push([ o.otherSortValue, connectionList ]);
 				}
-				else if (o.o == Orientation.DIAGONAL) {
+				else if (o.orientation == Orientation.VERTICAL) {
+					var edgeList = o.a[0] == 0 ? self.anchorLists.left : self.anchorLists.right,
+					otherEdgeList = o.a[0] == 0 ? otherManager.anchorLists.right : otherManager.anchorLists.left;
+					edgeList.push([ o.sortValue, connectionList ]);
+					otherEdgeList.push([ o.otherSortValue, connectionList ]);					
+				}
+				else if (o.orientation == Orientation.DIAGONAL) {
 					var midPoint = Math.floor(connectionList.length / 2);
 					if (connectionList.length > 0) {
-						if (connectionList.length == 1) {
+						/*if (connectionList.length == 1) {
 							// push the first one
-							sourceAnchors.push([sO.left + (o.a[0][0] * o.a[2]), sO.top + (o.a[0][1] * o.a[4])]);
-							targetAnchors.push([tO.left + (o.a[1][0] * o.a[3]), tO.top + (o.a[1][1] * o.a[5])]);
+							sourceAnchors.push([sO.left + (o.a[0][0] * sS[0]), sO.top + (o.a[0][1] * sS[1])]);
+							targetAnchors.push([tO.left + (o.a[1][0] * tS[0]), tO.top + (o.a[1][1] * tS[1])]);
 						}
-						else {
+						else {*/
 							var isOdd = connectionList.length % 2 != 0,
 								leftIndices = connectionList.slice(0, midPoint),
 								vertex = isOdd ? midPoint : null,
-								rightStart = midPoint + isOdd ? 1 : 0,
-								rightIndices = connectionList.slice(rightStart, rightStart + midPoint),
+								rightIndices = connectionList.slice(midPoint, connectionList.length),
 								sourceEdges = findLeftAndRightEdges(o.a[0], o.reverse),
 								targetEdges = findLeftAndRightEdges(o.a[1], o.reverse);
 									
@@ -2662,54 +2679,113 @@ about the parameters allowed in the params object.
 								targetLeftInfo = lineInfo(targetEdges.left, o.a[1]),
 								sourceRightInfo = lineInfo(sourceEdges.right, o.a[0]),
 								targetRightInfo = lineInfo(targetEdges.right, o.a[1]);
-									
-							var sourceLeftAnchors = placeAnchorsOnLine(
-									[ o.a[2], o.a[4] ], 
-									[ sO.left, sO.top ],
-									leftIndices, 
-									sourceLeftInfo.horizontal, 
-									sourceLeftInfo.otherMultiplier),
-									
-								sourceRightAnchors = placeAnchorsOnLine(
-									[ o.a[2], o.a[4] ], 
-									[ sO.left, sO.top ],
-									rightIndices, 
-									sourceRightInfo.horizontal, 
-									sourceRightInfo.otherMultiplier),
-									
-								targetLeftAnchors = placeAnchorsOnLine(
-									[ o.a[3], o.a[5] ], 
-									[ tO.left, tO.top ],
-									leftIndices, 
-									targetLeftInfo.horizontal, 
-									targetLeftInfo.otherMultiplier),
-									
-								targetRightAnchors = placeAnchorsOnLine(
-									[ o.a[3], o.a[5] ], 
-									[ tO.left, tO.top ],
-									rightIndices, 
-									targetRightInfo.horizontal, 
-									targetRightInfo.otherMultiplier);
-									
-							// if vertex was set, create a location for it
-							if (isOdd) {
-								sourceLeftAnchors.push([sO.left + (o.a[0][0] * o.a[2]), sO.top + (o.a[0][1] * o.a[4])]);
-								targetRightAnchors.push([tO.left + (o.a[1][0] * o.a[3]), tO.top + (o.a[1][1] * o.a[5])]);
-							}
-									
-							sourceAnchors = sourceLeftAnchors.concat(sourceRightAnchors);
-							targetAnchors = targetRightAnchors.concat(targetLeftAnchors);									
+								
+							var pushSomeAnchors = function(anchors, info) {
+								var listToAddTo = null;
+								if (info.horizontal) {
+									listToAddTo = info.otherMultiplier == 0 ? self.anchorLists.top : self.anchorLists.bottom;
+								} else {
+									listToAddTo = info.otherMultiplier == 0 ? self.anchorLists.left : self.anchorLists.right;
+								}
+								listToAddTo.push([ o.sortValue, anchors ]);
+							};
+								
+							// push to the appropriate anchor lists by face for the source element.
+							pushSomeAnchors(leftIndices, sourceLeftInfo);
+							pushSomeAnchors(rightIndices, sourceRightInfo);															
+					}
+				}
+				
+			},
+			
+			// TODO debug code; remove
+			_dumpEls = function(els) {
+				var s = "";
+				for (var i in els)
+					s += (i + ", ");
+				return s;
+			
+			},
+			/**
+				runs a recalc on this anchor and any of this sort of anchor that target elements are using.
+				elementsProcessed is a dictionary of elements that have been processed by some other instance of this
+				anchor, and exists to avoid infinite loops.
+			*/
+			recalc = function(elementsProcessed, resetAnchorLists) {
+				_log(_currentInstance, "recalc called on " + sourceId + "; resetAnchorLists is " + resetAnchorLists + " elements processed are " + _dumpEls(elementsProcessed));
+				elementsProcessed = elementsProcessed || {};
+				if (resetAnchorLists === true) {
+					self.anchorLists = { top:[], right:[], bottom:[], left:[] };
+				}
+				var sS = sizes[sourceId], sO = offsets[sourceId],
+				
+				// TODO shouldn't the connection list only have connections that have a Continuous Anchor at one of the 
+				// ends?
+				
+				connectionList = _currentInstance.getConnections({source:sourceId}),
+				elementIdsToProcess = [];
+
+				//connectionList = connectionList.concat(_currentInstance.getConnections({target:sourceId}));
+				
+				if (connectionList.length > 0) {
+				console.log("num connections is " + connectionList.length);
+					// process all the connections that are attached to this element.
+					for (var i = 0; i < connectionList.length; i++) {
+						var thisConn = connectionList[i], weAreSource = thisConn.sourceId == sourceId,
+						otherId = thisConn[weAreSource ? "targetId" : "sourceId"],
+						otherElement = thisConn[weAreSource ? "target" : "source"],
+						otherManager = _getConnectionManagingAnchor({id:otherId});
+						if (!elementsProcessed[otherId]) {
+							otherManager.anchorLists = { top:[], right:[], bottom:[], left:[] };
+							_updateOffset({elId:otherId});
+						
+							
+							recalcElement(otherElement, otherManager, weAreSource);	
+					//		if (!elementsProcessed[otherId]) {
+						//	if (elementIdsToProcess.indexOf(otherId) == -1)
+								elementIdsToProcess.push(otherId);
+					//		}							
+						}
+					}
+					elementsProcessed[sourceId] = true;
+				
+					console.log("elements to process are ", elementIdsToProcess);
+					for (var i = 0; i < elementIdsToProcess.length; i++) {
+						var cma = _getConnectionManagingAnchor({id:elementIdsToProcess[i]});
+						if (cma) {
+							console.log("got manager for element " + elementIdsToProcess[i]);
+							cma.recalc(elementsProcessed);
+						}
+						else {
+							console.log("couldnt get manager for element " + elementIdsToProcess[i]);
 						}
 					}
 				}
-				// now assign these anchors to the endpoints for each connection
-				for (var i = 0; i < connectionList.length; i++) {
-					var c = connectionList[i], se = c.endpoints[0], te = c.endpoints[1];
-					anchorLocations[se.id] = sourceAnchors[i];
-				//	anchorOrientations[se.id] = [0,-1];  // but figure it out for real
-					anchorLocations[te.id] = targetAnchors[i];
-					//anchorOrientations[te.id] = [0,1];//WHAT DOES IT EQUAL.
-				}
+				
+				return elementsProcessed;
+			};
+			
+			var placeAnchors = function() {
+				var sS = sizes[sourceId], sO = offsets[sourceId];
+				var placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, reverse) {
+					var sc = unsortedConnections.sort(), // puts them in order based on the target element's pos on screen
+					conns = [];
+					for (var i = 0; i < sc.length; i++) {
+						for (var j = 0; j < sc[i][1].length; j++)
+							conns.push(sc[i][1][j]);
+					}
+					var anchors = placeAnchorsOnLine(desc, elementDimensions, elementPosition, conns, isHorizontal, otherMultiplier );
+					
+					for (var i = 0; i < anchors.length; i++) {
+						var c = anchors[i][4], ourIndex = c.endpoints[0].elementId === sourceId ? 0 : 1, se = c.endpoints[ourIndex];
+						anchorLocations[se.id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+					}
+				};
+				
+				placeSomeAnchors("bottom", sS, [sO.left,sO.top], self.anchorLists.bottom, true, 1);
+				placeSomeAnchors("top", sS, [sO.left,sO.top], self.anchorLists.top, true, 0);
+				placeSomeAnchors("left", sS, [sO.left,sO.top], self.anchorLists.left, false, 0);
+				placeSomeAnchors("right", sS, [sO.left,sO.top], self.anchorLists.right, false, 1);
 			};
 		
 			this.compute = function(params) {	
@@ -2718,8 +2794,13 @@ about the parameters allowed in the params object.
 				endpoint = params.element, endpointId = endpoint.id;				
 				
 				if (timestamp !== currentTimestamp) {
-					recalc();					
+					var elementsProcessed = recalc(null, true);					
+					placeAnchors();
 					currentTimestamp = timestamp;
+					for (var i in elementsProcessed) {
+						if (i !== sourceId)
+							_getConnectionManagingAnchor({id:i}).placeAnchors();
+					}
 				}		
 				
 				return anchorLocations[endpointId] || [0,0];
@@ -2727,29 +2808,33 @@ about the parameters allowed in the params object.
 			
 			this.getCurrentLocation = function(endpoint) {
 				return anchorLocations[endpoint.id] || [0,0];
-			};
+			};			
 
 			this.getOrientation = function(endpoint) {  
 				return anchorOrientations[endpoint.id] || [ 0, 0 ]; 
 			};
+			
 			this.over = function(anchor) {  };
 			this.out = function() { };
+			
+			this.recalc = recalc;
+			this.placeAnchors = placeAnchors;
 		};
 		
 		/*
-			Gets a connection managing anchor for the given source/target pair, creating one if necessary.
+			Gets a continuous anchor for the given element, creating one if necessary.
 		*/
-		var _getConnectionManagingAnchor = function(source, target, sourceId, targetId) {
-			var key = sourceId + "_" + targetId,
-			existing = connectionManagingAnchors[key] || connectionManagingAnchors[targetId + "_" + sourceId];
+		var _getConnectionManagingAnchor = function(params) {
+			var key = params.id,
+			source = _getElementObject(key),
+			existing = connectionManagingAnchors[key];
 			if (! existing) {
-				existing = new ConnectionManagingAnchor({
+				existing = new ContinuousAnchor({
 					source:source,
-					target:target,
-					sourceId:sourceId,
-					targetId:targetId
+					id:params.id
 				});
-				_addToList(connectionManagingAnchors, key, existing);
+				existing.timestamp = _idstamp();
+				connectionManagingAnchors[key] = existing;
 			}
 			return existing;
 		};
@@ -2894,7 +2979,9 @@ about the parameters allowed in the params object.
 							ehs.fillStyle = connectorHoverPaintStyle.strokeStyle;
 						}
 					}
-					var a = params.anchors ? params.anchors[index] : _makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor),					
+					var a = params.anchors ? params.anchors[index] : 
+						params.anchor ? params.anchor :
+						_makeAnchor(_currentInstance.Defaults.Anchors[index]) || _makeAnchor(jsPlumb.Defaults.Anchors[index]) || _makeAnchor(_currentInstance.Defaults.Anchor) || _makeAnchor(jsPlumb.Defaults.Anchor),					
 					u = params.uuids ? params.uuids[index] : null,
 					e = _newEndpoint({ 
 						paintStyle : es, 
@@ -2917,8 +3004,9 @@ about the parameters allowed in the params object.
 			// SP test 
 			//var a = new ConnectionManagingAnchor({ source:self.source, target:self.target, connections:[self] });
 			if (params.uniqueAnchor) {
-				var a = _getConnectionManagingAnchor(self.source, self.target, self.sourceId, self.targetId);
-				params.anchors = [a, a];
+				var a = _getConnectionManagingAnchor({source:self.source, id:self.sourceId}),
+				b = _getConnectionManagingAnchor({source:self.target, id:self.targetId});
+				params.anchors = [a, b];
 				
 			}
 
@@ -3818,7 +3906,6 @@ about the parameters allowed in the params object.
 							wh = sizes[_elementId];
 						}
 						var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
-					//	console.log("anchor is dynamic ", self.anchor.isDynamic);
 						if (self.anchor.isDynamic && self.connections.length > 0) {
 							var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
 							oIdx = c.endpoints[0] == self ? 1 : 0,
@@ -4165,5 +4252,11 @@ about the parameters allowed in the params object.
 	
 	jsPlumb.Anchors["Fixed"] = _curryAnchor(0, 0, 0, 0, "Fixed");
 	jsPlumb.Anchors["Grid"] = _curryAnchor(0, 0, 0, 0, "Grid", function(anchor,params) { anchor.grid = params.grid; });	
+	
+	jsPlumb.Anchors["Continuous"] = function(params) {
+		return {
+			compute:function() { }
+		};
+	};
 	
 })();
