@@ -30,8 +30,8 @@
 ;(function() {
 	
 	var svgAttributeMap = {
-		"stroke-linejoin":"stroke-linejoin",
-		"joinstyle":"stroke-linejoin",		
+		"joinstyle":"stroke-linejoin",
+		"stroke-linejoin":"stroke-linejoin",		
 		"stroke-dashoffset":"stroke-dashoffset"
 	},
 	STROKE_DASHARRAY = "stroke-dasharray",
@@ -147,10 +147,7 @@
 		// VML, which will be the preferred method.  the code below this converts a dashstyle
 		// attribute given in terms of stroke width into a pixel representation, by using the
 		// stroke's lineWidth. 
-		if(style[STROKE_DASHARRAY]) {
-			node.setAttribute(STROKE_DASHARRAY, style[STROKE_DASHARRAY]);
-		}
-		if (style[DASHSTYLE] && style[LINE_WIDTH]) {
+		if (style[DASHSTYLE] && style[LINE_WIDTH] && !style[STROKE_DASHARRAY]) {
 			var sep = style[DASHSTYLE].indexOf(",") == -1 ? " " : ",",
 			parts = style[DASHSTYLE].split(sep),
 			styleToUse = "";
@@ -159,6 +156,9 @@
 			});
 			node.setAttribute(STROKE_DASHARRAY, styleToUse);
 		}		
+		else if(style[STROKE_DASHARRAY]) {
+			node.setAttribute(STROKE_DASHARRAY, style[STROKE_DASHARRAY]);
+		}
 		
 		// extra attributes such as join type, dash offset.
 		for (var i in svgAttributeMap) {
@@ -184,12 +184,7 @@
 	
 		this.setHover = function() { };
 		
-		/*self.canvas = document.createElement("div");
-		self.canvas.style["position"] = "absolute";
-		jsPlumb.sizeCanvas(self.canvas,0,0,1,1);*/
-
 		var clazz = cssClass + " " + (originalArgs[0].cssClass || "");		
-		//self.svg = _node("svg", {
 		self.canvas = _node("svg", {
 			"style":"",
 			"width":0,
@@ -199,12 +194,7 @@
 			"position":"absolute"
 		});
 		self.svg = self.canvas;
-
-
-//		self.canvas.className = clazz;
-		
 		jsPlumb.appendElement(self.canvas, originalArgs[0]["parent"]);
-		//self.canvas.appendChild(self.svg);		
 		
 		// TODO this displayElement stuff is common between all components, across all
 		// renderers.  would be best moved to jsPlumbUIComponent.
@@ -219,9 +209,7 @@
 		
 		this.paint = function(d, style, anchor) {	   
 			if (style != null) {
-			//	jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 		    	_attr(self.svg, {
-//	    			"style":_pos([0,0,d[2], d[3]]),
 	    			"style":_pos([d[0], d[1],d[2], d[3]]),
 	    			"width": d[2],
 	    			"height": d[3]
@@ -244,11 +232,10 @@
 			// outline style.  actually means drawing an svg object underneath the main one.
 			if (style.outlineColor) {
 				var outlineWidth = style.outlineWidth || 1,
-				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
-				outlineStyle = {
-					strokeStyle:_convertStyle(style.outlineColor),
-					lineWidth:outlineStrokeWidth
-				};
+				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
+				outlineStyle = jsPlumb.CurrentLibrary.extend({}, style);
+				outlineStyle.strokeStyle = _convertStyle(style.outlineColor);
+				outlineStyle.lineWidth = outlineStrokeWidth;
 				
 				if (self.bgPath == null) {
 					self.bgPath = _node("path", a);
