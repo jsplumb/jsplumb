@@ -2293,6 +2293,31 @@ about the parameters allowed in the params object.
 		 */
 		this.wrap = _wrap;			
 		this.addListener = this.bind;
+		
+		var adjustForParentOffsetAndScroll = function(xy, el) {
+			var offsetParent = null, result = xy;
+			if (el.tagName.toLowerCase() === "svg" && el.parentNode) {
+				offsetParent = el.parentNode;
+			}
+			else if (el.offsetParent) {
+				offsetParent = el.offsetParent;					
+			}
+			if (offsetParent != null) {
+				var po = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(offsetParent),
+					so = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:offsetParent.scrollLeft, top:offsetParent.scrollTop};					
+						
+				// i thought it might be cool to do this:
+				//	lastReturnValue[0] = lastReturnValue[0] - offsetParent.offsetLeft + offsetParent.scrollLeft;
+				//	lastReturnValue[1] = lastReturnValue[1] - offsetParent.offsetTop + offsetParent.scrollTop;					
+				// but i think it ignores margins.  my reasoning was that it's quicker to not hand off to some underlying					
+				// library.
+				
+				result[0] = xy[0] - po.left + so.left;
+				result[1] = xy[1] - po.top + so.top;
+			}
+		
+			return result;
+		};
 
 		/**
 		 * Anchors model a position on some element at which an Endpoint may be located.  They began as a first class citizen of jsPlumb, ie. a user
@@ -2315,14 +2340,9 @@ about the parameters allowed in the params object.
 					return lastReturnValue;
 				}
 				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
+				
 				// adjust loc if there is an offsetParent
-				if (element.canvas && element.canvas.offsetParent) {
-					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent),
-					so = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:element.canvas.offsetParent.scrollLeft, top:element.canvas.offsetParent.scrollTop};
-					
-					lastReturnValue[0] = lastReturnValue[0] - po.left + so.left;
-					lastReturnValue[1] = lastReturnValue[1] - po.top + so.top;
-				}
+				lastReturnValue = adjustForParentOffsetAndScroll(lastReturnValue, element.canvas);
 				
 				self.timestamp = timestamp;
 				return lastReturnValue;
@@ -2375,13 +2395,7 @@ about the parameters allowed in the params object.
 				result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
 							
 				// adjust loc if there is an offsetParent
-				if (element.canvas && element.canvas.offsetParent) {
-					var po = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(element.canvas.offsetParent),
-					so = element.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:element.canvas.offsetParent.scrollLeft, top:element.canvas.offsetParent.scrollTop};
-					
-					result[0] = result[0] - po.left + so.left;
-					result[1] = result[1] - po.top + so.top;
-				}
+				result = adjustForParentOffsetAndScroll(result, element.canvas);
 				
 				_lastResult = result;
 				return result;
@@ -3152,6 +3166,18 @@ about the parameters allowed in the params object.
 				}
 			}
 			
+			this.moveParent = function(newParent) {
+				var jpcl = jsPlumb.CurrentLibrary, curParent = jpcl.getParent(self.connector.canvas);				
+				jpcl.removeElement(self.connector.canvas, curParent);
+				jpcl.appendElement(self.connector.canvas, newParent);
+				jpcl.removeElement(self.connector.bgCanvas, curParent);
+				jpcl.appendElement(self.connector.bgCanvas, newParent);
+				for (var i = 0; i < self.overlays.length; i++) {
+					jpcl.removeElement(self.overlays[i].canvas, curParent);
+					jpcl.appendElement(self.overlays[i].canvas, newParent);					
+				}
+			};
+			
 // ***************************** PLACEHOLDERS FOR NATURAL DOCS *************************************************
 			/*
 			 * Function: bind
@@ -3780,10 +3806,10 @@ about the parameters allowed in the params object.
 				
 				// now move connection(s)...i would expect there to be only one but we will iterate.
 				for (var i = 0; i < self.connections.length; i++) {
-					jpcl.removeElement(self.connections[i].canvas, curParent);
-					jpcl.appendElement(self.connections[i].canvas, newParentElement);
+					self.connections[i].moveParent(newParentElement);
 					self.connections[i].sourceId = _elementId;
 					self.connections[i].source = _element;
+					
 				}	
 									
 				_addToList(endpointsByElement, parentId, self);
@@ -3960,12 +3986,12 @@ about the parameters allowed in the params object.
 					_makeDraggablePlaceholder(placeholderInfo, self.parent);
 					
 					// set the offset of this div to be where 'inPlaceCopy' is, to start with.
+					// TODO merge this code with the code in both Anchor and FloatingAnchor, because it
+					// does the same stuff.
 					var ipcoel = _getElementObject(inPlaceCopy.canvas),
 					ipco = jsPlumb.CurrentLibrary.getOffset(ipcoel),
-					po = inPlaceCopy.canvas.offsetParent != null ? 
-							inPlaceCopy.canvas.offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(inPlaceCopy.canvas.offsetParent)
-							: { left:0, top: 0};
-					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:ipco.left - po.left, top:ipco.top-po.top});															
+					po = adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
+					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
 					
 					// store the id of the dragging div and the source element. the drop function will pick these up.					
 					_setAttribute(_getElementObject(self.canvas), "dragId", placeholderInfo.id);
@@ -3975,8 +4001,7 @@ about the parameters allowed in the params object.
 					
 					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
-						// create a connection. one end is this endpoint, the
-						// other is a floating endpoint.
+						// create a connection. one end is this endpoint, the other is a floating endpoint.
 						jpc = _newConnection({
 							sourceEndpoint : self,
 							targetEndpoint : floatingEndpoint,
