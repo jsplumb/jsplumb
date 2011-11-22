@@ -2621,25 +2621,25 @@ about the parameters allowed in the params object.
 					
 				return a;
 			},
-			// recalculates where everything should be, storing anchors logs against endpoint ids.
-			//
-			// TODO this method takes a target element; the source element is known. what it should do is simply
-			// populate the lists of anchors required for each face.
 			
-			recalcElement = function(targetElement, otherManager, weAreSource) {
+			// recalculates where everything should be, storing anchors logs against endpoint ids.			
+			recalcElement = function(targetElement, otherManager) {
 	
-				var targetId = _getId(targetElement), sO = offsets[sourceId], tO = offsets[targetId], sS = sizes[sourceId], tS = sizes[targetId];
+				var targetId = _getId(targetElement), sO = offsets[sourceId], 
+				tO = offsets[targetId], sS = sizes[sourceId], tS = sizes[targetId];
 				sO.right = sO.left + sS[0];
 				sO.bottom = sO.top + sS[1];
 				tO.right = tO.left + tS[0];
 				tO.bottom = tO.top + tS[1];
+				// find the orientation between the two elements
 				var o = calculateOrientation(sO, sS, tO, tS),
-				connectionList = _currentInstance.getConnections({source:sourceId, target:targetId}).concat
-								(_currentInstance.getConnections({source:targetId, target:sourceId})),
+				// then get all the connections from the current source to this target.
+				connectionList = _currentInstance.getConnections({source:sourceId, target:targetId});//.concat
+//								(_currentInstance.getConnections({source:targetId, target:sourceId}));
 				
-				sourceAnchors = [], targetAnchors = [];
 				
-				// if horizontal or vertical, get the appropriate multiplier
+				// now we find the appropriate faces to add anchors to, for both source and target, and we push the connection
+				// list to each. 
 				if (o.orientation == Orientation.HORIZONTAL) {
 					var edgeList = o.a[0] == 0 ? self.anchorLists.top : self.anchorLists.bottom,
 					otherEdgeList = o.a[0] == 0 ? otherManager.anchorLists.bottom : otherManager.anchorLists.top;
@@ -2681,13 +2681,16 @@ about the parameters allowed in the params object.
 								targetRightInfo = lineInfo(targetEdges.right, o.a[1]);
 								
 							var pushSomeAnchors = function(anchors, info) {
-								var listToAddTo = null;
+								var listToAddTo = null, otherListToAddTo = null;
 								if (info.horizontal) {
-									listToAddTo = info.otherMultiplier == 0 ? self.anchorLists.top : self.anchorLists.bottom;
+									listToAddTo = info.otherMultiplier == 0 ? "top" : "bottom";
+									otherListToAddTo = info.otherMultiplier == 0 ? "bottom" : "top";									
 								} else {
-									listToAddTo = info.otherMultiplier == 0 ? self.anchorLists.left : self.anchorLists.right;
+									listToAddTo = info.otherMultiplier == 0 ? "left" : "right";
+									otherListToAddTo = info.otherMultiplier == 0 ? "right" : "left";																		
 								}
-								listToAddTo.push([ o.sortValue, anchors ]);
+								self.anchorLists[listToAddTo].push([ o.sortValue, anchors ]);
+								otherManager.anchorLists[otherListToAddTo].push([ o.otherSortValue, anchors ]);
 							};
 								
 							// push to the appropriate anchor lists by face for the source element.
@@ -2714,9 +2717,10 @@ about the parameters allowed in the params object.
 			recalc = function(elementsProcessed, resetAnchorLists) {
 				_log(_currentInstance, "recalc called on " + sourceId + "; resetAnchorLists is " + resetAnchorLists + " elements processed are " + _dumpEls(elementsProcessed));
 				elementsProcessed = elementsProcessed || {};
-				if (resetAnchorLists === true) {
+/*				if (resetAnchorLists === true) {
 					self.anchorLists = { top:[], right:[], bottom:[], left:[] };
-				}
+					self.targetAnchorLists = { top:[], right:[], bottom:[], left:[] };					
+				}*/
 				var sS = sizes[sourceId], sO = offsets[sourceId],
 				
 				// TODO shouldn't the connection list only have connections that have a Continuous Anchor at one of the 
@@ -2725,44 +2729,48 @@ about the parameters allowed in the params object.
 				connectionList = _currentInstance.getConnections({source:sourceId}),
 				elementIdsToProcess = [];
 
-				//connectionList = connectionList.concat(_currentInstance.getConnections({target:sourceId}));
-				
-				if (connectionList.length > 0) {
-				console.log("num connections is " + connectionList.length);
 					// process all the connections that are attached to this element.
-					for (var i = 0; i < connectionList.length; i++) {
-						var thisConn = connectionList[i], weAreSource = thisConn.sourceId == sourceId,
-						otherId = thisConn[weAreSource ? "targetId" : "sourceId"],
-						otherElement = thisConn[weAreSource ? "target" : "source"],
-						otherManager = _getConnectionManagingAnchor({id:otherId});
-						if (!elementsProcessed[otherId]) {
-							otherManager.anchorLists = { top:[], right:[], bottom:[], left:[] };
-							_updateOffset({elId:otherId});
-						
-							
-							recalcElement(otherElement, otherManager, weAreSource);	
-					//		if (!elementsProcessed[otherId]) {
-						//	if (elementIdsToProcess.indexOf(otherId) == -1)
-								elementIdsToProcess.push(otherId);
-					//		}							
-						}
+				for (var i = 0; i < connectionList.length; i++) {
+					var thisConn = connectionList[i],
+					otherId = thisConn["targetId"],
+					otherElement = thisConn["target"],
+					otherManager = _getConnectionManagingAnchor({id:otherId});
+					// elementsProcessed contains a map of ids for elements that have already acted as the source.
+					// if the target element has not yet acted as source we clear its anchor lists and update its
+					// offset. down below this block we loop through all the target elements and treat them as
+					// the source, but of course they have already had some anchors added by dint of being targets of
+					// this one.
+					if (!elementsProcessed[otherId]) {
+						//otherManager.anchorLists = { top:[], right:[], bottom:[], left:[] };
+						_updateOffset({elId:otherId});
 					}
-					elementsProcessed[sourceId] = true;
-				
-					console.log("elements to process are ", elementIdsToProcess);
-					for (var i = 0; i < elementIdsToProcess.length; i++) {
-						var cma = _getConnectionManagingAnchor({id:elementIdsToProcess[i]});
-						if (cma) {
-							console.log("got manager for element " + elementIdsToProcess[i]);
-							cma.recalc(elementsProcessed);
-						}
-						else {
-							console.log("couldnt get manager for element " + elementIdsToProcess[i]);
-						}
+					// if the other element is not in the list of elements we have already looked at, look at it, and
+					// add it to the list.  this avoids running through the code multiple times if there are multiple
+					// connections between two elements.
+					if (elementIdsToProcess.indexOf(otherId) == -1) {
+						// calculate the target	element's orientation to the current source, and ..OH
+						// ok here we should check if that element has already been done!
+						recalcElement(otherElement, otherManager);	
+						elementIdsToProcess.push(otherId);
 					}
 				}
+				// now that this element has been the source, set it so it wont be done again this time through.
+				elementsProcessed[sourceId] = true;
+				// get connections for which this element is a target
+				var targetConns = _currentInstance.getConnections({target:sourceId});
+				for (var i = 0; i < targetConns.length; i++) {
+					if (elementsProcessed[targetConns[i].sourceId] == null && elementIdsToProcess.indexOf(targetConns[i].sourceId) == -1)
+						elementIdsToProcess.push(targetConns[i].sourceId);
+				}
+			
+				// now loop through the set of other elements we need to process, and
+				// call recalc on each one.
+				for (var i = 0; i < elementIdsToProcess.length; i++) {
+					var cma = _getConnectionManagingAnchor({id:elementIdsToProcess[i]});
+					if (cma) cma.recalc(elementsProcessed);
+				}
 				
-				return elementsProcessed;
+				return elementIdsToProcess;
 			};
 			
 			var placeAnchors = function() {
@@ -2786,6 +2794,9 @@ about the parameters allowed in the params object.
 				placeSomeAnchors("top", sS, [sO.left,sO.top], self.anchorLists.top, true, 0);
 				placeSomeAnchors("left", sS, [sO.left,sO.top], self.anchorLists.left, false, 0);
 				placeSomeAnchors("right", sS, [sO.left,sO.top], self.anchorLists.right, false, 1);
+				
+				// clear anchors. this method was called last in a paint cycle.
+				self.anchorLists = { top:[], right:[], bottom:[], left:[] };
 			};
 		
 			this.compute = function(params) {	
@@ -2797,9 +2808,9 @@ about the parameters allowed in the params object.
 					var elementsProcessed = recalc(null, true);					
 					placeAnchors();
 					currentTimestamp = timestamp;
-					for (var i in elementsProcessed) {
-						if (i !== sourceId)
-							_getConnectionManagingAnchor({id:i}).placeAnchors();
+					for (var i = 0 ; i < elementsProcessed.length; i++) {
+						if (elementsProcessed[i] !== sourceId)
+							_getConnectionManagingAnchor({id:elementsProcessed[i]}).placeAnchors();
 					}
 				}		
 				
