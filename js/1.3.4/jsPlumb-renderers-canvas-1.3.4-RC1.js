@@ -65,9 +65,8 @@
 	    	return false;
 	    };
 	    
-	    var _mouseover = false;
-	    var _mouseDown = false, _posWhenMouseDown = null, _mouseWasDown = false;
-	    var _nullSafeHasClass = function(el, clazz) {
+	    var _mouseover = false, _mouseDown = false, _posWhenMouseDown = null, _mouseWasDown = false,
+	    _nullSafeHasClass = function(el, clazz) {
 	    	return el != null && _hasClass(el, clazz);
 	    };
 	    this.mousemove = function(e) {		    
@@ -113,7 +112,6 @@
 	    };
 	    
 	    this.mouseup = function(e) {
-	    	//if (self == _connectionBeingDragged) _connectionBeingDragged = null;
 	    	_mouseDown = false;
 	    	self.fire("mouseup", self, e);
 	    };					    
@@ -162,23 +160,16 @@
 		self.ctx = self.canvas.getContext("2d");
 		
 		var displayElements = [ self.canvas ];
-		this.getDisplayElements = function() { 
-			return displayElements; 
-		};
-		
-		this.appendDisplayElement = function(el) {
-			displayElements.push(el);
-		};
+		this.getDisplayElements = function() { return displayElements; };
+		this.appendDisplayElement = function(el) { displayElements.push(el); };
 		
 		self.paint = function(dim, style) {						
-			if (style != null) {																
-				
-				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);
-				
+			if (style != null) {																				
+				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);				
 				if (style.outlineColor != null) {
 					var outlineWidth = style.outlineWidth || 1,
-					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
-					var outlineStyle = {
+					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
+					outlineStyle = {
 						strokeStyle:style.outlineColor,
 						lineWidth:outlineStrokeWidth
 					};
@@ -205,8 +196,7 @@
 		self.ctx = self.canvas.getContext("2d");
 		
 		this.paint = function(d, style, anchor) {
-			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
-			
+			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);			
 			if (style.outlineColor != null) {
 				var outlineWidth = style.outlineWidth || 1,
 				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
@@ -214,27 +204,24 @@
 					strokeStyle:style.outlineColor,
 					lineWidth:outlineStrokeWidth
 				};
-			//	_paintOneStyle(d, outlineStyle);
 			}
 			
 			self._paint.apply(this, arguments);
 		};
 	};
 	
-	jsPlumb.Endpoints.canvas.Dot = function(params) {
-		var self = this;		
+	jsPlumb.Endpoints.canvas.Dot = function(params) {		
 		jsPlumb.Endpoints.Dot.apply(this, arguments);
 		CanvasEndpoint.apply(this, arguments);
-		var parseValue = function(value) {
-			try {
-				return parseInt(value); 
-			}
+		var self = this,		
+		parseValue = function(value) {
+			try { return parseInt(value); }
 			catch(e) {
 				if (value.substring(value.length - 1) == '%')
 					return parseInt(value.substring(0, value - 1));
 			}
-		};					    	
-		var calculateAdjustments = function(gradient) {
+		},					    	
+		calculateAdjustments = function(gradient) {
 			var offsetAdjustment = self.defaultOffset, innerRadius = self.defaultInnerRadius;
 			gradient.offset && (offsetAdjustment = parseValue(gradient.offset));
         	gradient.innerRadius && (innerRadius = parseValue(gradient.innerRadius));
@@ -312,13 +299,11 @@
 				offsetY = height;
 				angle = 180;
 			}
-			if( orientation[1] == -1 )
-			{
+			if( orientation[1] == -1 ) {
 				offsetX = width;
 				angle = 90;
 			}
-			if( orientation[1] == 1 )
-			{
+			if( orientation[1] == 1 ) {
 				offsetY = height;
 				angle = -90;
 			}
