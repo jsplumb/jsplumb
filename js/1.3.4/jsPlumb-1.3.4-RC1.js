@@ -490,7 +490,7 @@
 		_draw = function(element, ui, timestamp) {
 			var id = _getAttribute(element, "id"), endpoints = endpointsByElement[id];
 			if (!timestamp) timestamp = _timestamp();
-			console.log("_draw; timestamp is " + timestamp);
+//			console.log("_draw; timestamp is " + timestamp);
 			if (endpoints) {
 				_updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp }); // timestamp is checked against last update cache; it is
 				// valid for one paint cycle.
@@ -2473,367 +2473,7 @@ about the parameters allowed in the params object.
 			this.over = function(anchor) { if (_curAnchor != null) _curAnchor.over(anchor); };
 			this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
 		};
-		
-// -------------------- CONNECTION MANAGING ANCHORS ---------------------------		
-		
-		/*
-		 an anchor that manages all the connections between two elements.  when a new paint is called (where
-		"new" means having a different timestamp to the current timestamp), it computes the positions of 
-		the source and target endpoints for all connections between sourceElement and targetElement.
-		*/
-		var ContinuousAnchor = function(params) {
-			var source = params.source,
-			sourceId = params.id,
-			currentTimestamp = null,
-			connections = params.connections || [],
-			anchorLocations = {},
-			anchorOrientations = {},
-			anchorProportionalLocations = {},
-			self = this;
-			
-			this.type = "Continuous";
-			this.isDynamic = true;
-			this.anchorLists = { top:[], right:[], bottom:[], left:[] };
-			
-			var Orientation = {
-				HORIZONTAL : "horizontal",
-				VERTICAL : "vertical",
-				DIAGONAL : "diagonal"
-			},
-			// TODO this functions uses a crude method of determining orientation between two elements.
-			// 'diagonal' should be chosen when the angle of the line between the two centers is around
-			// one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
-			calculateOrientation = function(o1, wh, o2, twh) {
-				var o1w = wh[0], o1h = wh[1], o2w = twh[0], o2h = twh[1],					
-				h = (
-					(o1.left <= o2.left && o1.right >= o2.left) || 
-					(o1.left <= o2.right && o1.right >= o2.right) ||
-					(o1.left <= o2.left && o1.right >= o2.right) ||
-					(o2.left <= o1.left && o2.right >= o1.right)
-				),
-				v = (
-					 (o1.top <= o2.top && o1.bottom >= o2.top) || 
-					 (o1.top <= o2.bottom && o1.bottom >= o2.bottom) ||
-					 (o1.top <= o2.top && o1.bottom >= o2.bottom) ||
-					 (o2.top <= o1.top && o2.bottom >= o1.bottom)
-				);
-					
-				if (! (h || v)) {
-					var a = null, rls = false, rrs = false, sortValue = null;
-					if (o2.left > o1.left && o2.top > o1.top) {
-						a = [[1,1],[0,0]];
-						rrs = true;
-						sortValue = o2.right;
-						otherSortValue = o1.left;
-					}
-					else if (o2.left > o1.left && o1.top > o2.top) {
-						a = [[1,0],[0,1]];
-						sortValue = o2.left;
-						otherSortValue = o1.right;						
-					}
-					else if (o2.left < o1.left && o2.top < o1.top) {
-						a = [[0,0], [1,1]];
-						rls = true;
-						sortValue = o2.left;
-						otherSortValue = o1.right;						
-					}
-					else if (o2.left < o1.left && o2.top > o1.top) {
-						a = [[0,1], [1, 0]];
-						sortValue = o2.right;
-						otherSortValue = o1.left;						
-					}
-						
-					return { orientation:Orientation.DIAGONAL, a:a, rls:rls, rrs:rrs, sortValue:sortValue };
-				}
-				else if (h) return {
-					orientation:Orientation.HORIZONTAL,
-					a:o1.top < o2.top ? [1,0] : [0,1],
-					reverse:!(o1.top < o2.top),
-					sortValue:o1.top < o2.top ? o2.right : o2.left,
-					otherSortValue:o1.top < o2.top ? o1.left : o1.right
-				}
-				else return {
-					orientation:Orientation.VERTICAL,
-					a:o1.left < o2.left ? [1,0] : [0,1],
-					reverse:(o1.left < o2.left),
-					sortValue:o1.left < o2.left ? o2.top : o2.bottom,
-					otherSortValue:o1.left < o2.left ? o1.bottom : o2.top
-				}
-					
-			},
-			/**
-			For a vertex in the form [x,y], where x and y are 0 or 1, find the left and right edges that
-			connect to the given vertex.  i'm going to do this clockwise only at first, and i envisage that
-			what will happen is all the connections will be crossed over.  i think you have to do source as
-			clockwise and target as anticlockwise, or vice versa, or it will get screwy.  we'll see.
-			*/
-			findLeftAndRightEdges = function(vertex) {
-				var e = null;
-				if (vertex[0] == 1 && vertex[1] == 1) e = {right:[1,0], left:[0,1]};
-				else if (vertex[0] == 1 && vertex[1] == 0) e = {right:[0,0], left:[1,1]};
-				else if (vertex[0] == 0 && vertex[1] == 1) e = {right:[1,1], left:[0,0]};
-				else e = {right:[0,1], left:[1,0]};				
 				
-				return e;
-			},
-			/**
-			returns whether the line from the 'from' vertex to the 'to' vertex is horizontal, and also
-			the 'multiplier' for the other axis.  so if the line is horizontal, multiplier will be the Y
-			value (which will be the same in both 'from' and 'to'). it will have a value of 0 or 1, and means either 
-			"the top of the element" or "the bottom of the element".
-			*/
-			lineInfo = function(from, to) {
-				var yes = from[0] !== to[0], other = yes ? from[1] : from[0];
-				return {horizontal:yes, otherMultiplier:other};
-			},
-			placeAnchorsOnLine = function(desc, elementDimensions, elementPosition, 
-					connections, horizontal, otherMultiplier, reverse) {
-				var a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
-						
-			//	_log(_currentInstance, "for " + sourceId + " : edge is " + desc + "; num connections is " + connections.length);	
-						
-				for (var i = 0; i < connections.length; i++) {
-					var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
-					if (reverse)
-					  val = elementDimensions[horizontal ? 0 : 1] - val;
-					
-					var dx = (horizontal ? val : other), x = elementPosition[0] + dx,  xp = dx / elementDimensions[0],
-					 dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
-					
-					a.push([ x, y, xp, yp, connections[i] ]);
-				}
-					
-				return a;
-			},
-			
-			// recalculates where everything should be, storing anchors logs against endpoint ids.			
-			recalcElement = function(targetElement, otherManager) {
-	
-				var targetId = _getId(targetElement), sO = offsets[sourceId], 
-				tO = offsets[targetId], sS = sizes[sourceId], tS = sizes[targetId];
-				sO.right = sO.left + sS[0];
-				sO.bottom = sO.top + sS[1];
-				tO.right = tO.left + tS[0];
-				tO.bottom = tO.top + tS[1];
-				// find the orientation between the two elements
-				var o = calculateOrientation(sO, sS, tO, tS),
-				// then get all the connections from the current source to this target.
-				connectionList = _currentInstance.getConnections({source:sourceId, target:targetId});//.concat
-//								(_currentInstance.getConnections({source:targetId, target:sourceId}));
-				
-				
-				// now we find the appropriate faces to add anchors to, for both source and target, and we push the connection
-				// list to each. 
-				if (o.orientation == Orientation.HORIZONTAL) {
-					var edgeList = o.a[0] == 0 ? self.anchorLists.top : self.anchorLists.bottom,
-					otherEdgeList = o.a[0] == 0 ? otherManager.anchorLists.bottom : otherManager.anchorLists.top;
-					edgeList.push([ o.sortValue, connectionList ]);
-					otherEdgeList.push([ o.otherSortValue, connectionList ]);
-				}
-				else if (o.orientation == Orientation.VERTICAL) {
-					var edgeList = o.a[0] == 0 ? self.anchorLists.left : self.anchorLists.right,
-					otherEdgeList = o.a[0] == 0 ? otherManager.anchorLists.right : otherManager.anchorLists.left;
-					edgeList.push([ o.sortValue, connectionList ]);
-					otherEdgeList.push([ o.otherSortValue, connectionList ]);					
-				}
-				else if (o.orientation == Orientation.DIAGONAL) {
-					var midPoint = Math.floor(connectionList.length / 2);
-					if (connectionList.length > 0) {
-						/*if (connectionList.length == 1) {
-							// push the first one
-							sourceAnchors.push([sO.left + (o.a[0][0] * sS[0]), sO.top + (o.a[0][1] * sS[1])]);
-							targetAnchors.push([tO.left + (o.a[1][0] * tS[0]), tO.top + (o.a[1][1] * tS[1])]);
-						}
-						else {*/
-							var isOdd = connectionList.length % 2 != 0,
-								leftIndices = connectionList.slice(0, midPoint),
-								vertex = isOdd ? midPoint : null,
-								rightIndices = connectionList.slice(midPoint, connectionList.length),
-								sourceEdges = findLeftAndRightEdges(o.a[0], o.reverse),
-								targetEdges = findLeftAndRightEdges(o.a[1], o.reverse);
-									
-							// now we have a possible index for the vertex, and we have indices for
-							// each connection, mapping them to a certain position on the left and right
-							// edges.  so this test has 5 connections.  the left and right edges will 
-							// each have two connections, and these need to be spaced along each
-							// edge, exactly as if that set of connections was the set we were using in
-							// the horizontal and vertical cases.
-
-							var sourceLeftInfo = lineInfo(sourceEdges.left, o.a[0]),
-								targetLeftInfo = lineInfo(targetEdges.left, o.a[1]),
-								sourceRightInfo = lineInfo(sourceEdges.right, o.a[0]),
-								targetRightInfo = lineInfo(targetEdges.right, o.a[1]);
-								
-							var pushSomeAnchors = function(anchors, info) {
-								var listToAddTo = null, otherListToAddTo = null;
-								if (info.horizontal) {
-									listToAddTo = info.otherMultiplier == 0 ? "top" : "bottom";
-									otherListToAddTo = info.otherMultiplier == 0 ? "bottom" : "top";									
-								} else {
-									listToAddTo = info.otherMultiplier == 0 ? "left" : "right";
-									otherListToAddTo = info.otherMultiplier == 0 ? "right" : "left";																		
-								}
-								self.anchorLists[listToAddTo].push([ o.sortValue, anchors ]);
-								otherManager.anchorLists[otherListToAddTo].push([ o.otherSortValue, anchors ]);
-							};
-								
-							// push to the appropriate anchor lists by face for the source element.
-							pushSomeAnchors(leftIndices, sourceLeftInfo);
-							pushSomeAnchors(rightIndices, sourceRightInfo);															
-					}
-				}
-				
-			},
-			
-			// TODO debug code; remove
-			_dumpEls = function(els) {
-				var s = "";
-				for (var i in els)
-					s += (i + ", ");
-				return s;
-			
-			},
-			/**
-				runs a recalc on this anchor and any of this sort of anchor that target elements are using.
-				elementsProcessed is a dictionary of elements that have been processed by some other instance of this
-				anchor, and exists to avoid infinite loops.
-			*/
-			recalc = function(elementsProcessed, resetAnchorLists) {
-				_log(_currentInstance, "recalc called on " + sourceId + "; resetAnchorLists is " + resetAnchorLists + " elements processed are " + _dumpEls(elementsProcessed));
-				elementsProcessed = elementsProcessed || {};
-/*				if (resetAnchorLists === true) {
-					self.anchorLists = { top:[], right:[], bottom:[], left:[] };
-					self.targetAnchorLists = { top:[], right:[], bottom:[], left:[] };					
-				}*/
-				var sS = sizes[sourceId], sO = offsets[sourceId],
-				
-				// TODO shouldn't the connection list only have connections that have a Continuous Anchor at one of the 
-				// ends?
-				
-				connectionList = _currentInstance.getConnections({source:sourceId}),
-				elementIdsToProcess = [];
-
-					// process all the connections that are attached to this element.
-				for (var i = 0; i < connectionList.length; i++) {
-					var thisConn = connectionList[i],
-					otherId = thisConn["targetId"],
-					otherElement = thisConn["target"],
-					otherManager = _getConnectionManagingAnchor({id:otherId});
-					// elementsProcessed contains a map of ids for elements that have already acted as the source.
-					// if the target element has not yet acted as source we clear its anchor lists and update its
-					// offset. down below this block we loop through all the target elements and treat them as
-					// the source, but of course they have already had some anchors added by dint of being targets of
-					// this one.
-					if (!elementsProcessed[otherId]) {
-						//otherManager.anchorLists = { top:[], right:[], bottom:[], left:[] };
-						_updateOffset({elId:otherId});
-					}
-					// if the other element is not in the list of elements we have already looked at, look at it, and
-					// add it to the list.  this avoids running through the code multiple times if there are multiple
-					// connections between two elements.
-					if (elementIdsToProcess.indexOf(otherId) == -1) {
-						// calculate the target	element's orientation to the current source, and ..OH
-						// ok here we should check if that element has already been done!
-						recalcElement(otherElement, otherManager);	
-						elementIdsToProcess.push(otherId);
-					}
-				}
-				// now that this element has been the source, set it so it wont be done again this time through.
-				elementsProcessed[sourceId] = true;
-				// get connections for which this element is a target
-				var targetConns = _currentInstance.getConnections({target:sourceId});
-				for (var i = 0; i < targetConns.length; i++) {
-					if (elementsProcessed[targetConns[i].sourceId] == null && elementIdsToProcess.indexOf(targetConns[i].sourceId) == -1)
-						elementIdsToProcess.push(targetConns[i].sourceId);
-				}
-			
-				// now loop through the set of other elements we need to process, and
-				// call recalc on each one.
-				for (var i = 0; i < elementIdsToProcess.length; i++) {
-					var cma = _getConnectionManagingAnchor({id:elementIdsToProcess[i]});
-					if (cma) cma.recalc(elementsProcessed);
-				}
-				
-				return elementIdsToProcess;
-			};
-			
-			var placeAnchors = function() {
-				var sS = sizes[sourceId], sO = offsets[sourceId];
-				var placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, reverse) {
-					var sc = unsortedConnections.sort(), // puts them in order based on the target element's pos on screen
-					conns = [];
-					for (var i = 0; i < sc.length; i++) {
-						for (var j = 0; j < sc[i][1].length; j++)
-							conns.push(sc[i][1][j]);
-					}
-					var anchors = placeAnchorsOnLine(desc, elementDimensions, elementPosition, conns, isHorizontal, otherMultiplier );
-					
-					for (var i = 0; i < anchors.length; i++) {
-						var c = anchors[i][4], ourIndex = c.endpoints[0].elementId === sourceId ? 0 : 1, se = c.endpoints[ourIndex];
-						anchorLocations[se.id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
-					}
-				};
-				
-				placeSomeAnchors("bottom", sS, [sO.left,sO.top], self.anchorLists.bottom, true, 1);
-				placeSomeAnchors("top", sS, [sO.left,sO.top], self.anchorLists.top, true, 0);
-				placeSomeAnchors("left", sS, [sO.left,sO.top], self.anchorLists.left, false, 0);
-				placeSomeAnchors("right", sS, [sO.left,sO.top], self.anchorLists.right, false, 1);
-				
-				// clear anchors. this method was called last in a paint cycle.
-				self.anchorLists = { top:[], right:[], bottom:[], left:[] };
-			};
-		
-			this.compute = function(params) {	
-				var xy = params.xy, wh = params.wh, 
-				timestamp = params.timestamp, txy = params.txy, twh = params.twh,
-				endpoint = params.element, endpointId = endpoint.id;				
-				
-				if (timestamp !== currentTimestamp) {
-					var elementsProcessed = recalc(null, true);					
-					placeAnchors();
-					currentTimestamp = timestamp;
-					for (var i = 0 ; i < elementsProcessed.length; i++) {
-						if (elementsProcessed[i] !== sourceId)
-							_getConnectionManagingAnchor({id:elementsProcessed[i]}).placeAnchors();
-					}
-				}		
-				
-				return anchorLocations[endpointId] || [0,0];
-			};
-			
-			this.getCurrentLocation = function(endpoint) {
-				return anchorLocations[endpoint.id] || [0,0];
-			};			
-
-			this.getOrientation = function(endpoint) {  
-				return anchorOrientations[endpoint.id] || [ 0, 0 ]; 
-			};
-			
-			this.over = function(anchor) {  };
-			this.out = function() { };
-			
-			this.recalc = recalc;
-			this.placeAnchors = placeAnchors;
-		};
-		
-		/*
-			Gets a continuous anchor for the given element, creating one if necessary.
-		*/
-		var _getConnectionManagingAnchor = function(params) {
-			var key = params.id,
-			source = _getElementObject(key),
-			existing = connectionManagingAnchors[key];
-			if (! existing) {
-				existing = new ContinuousAnchor({
-					source:source,
-					id:params.id
-				});
-				existing.timestamp = _idstamp();
-				connectionManagingAnchors[key] = existing;
-			}
-			return existing;
-		};
-		
 	// "continous" anchors: anchors that pick their location based on how many connections the given element has.
 	// this requires looking at a lot more elements than normal - anything that has had a Continuous anchor applied has
 	// to be recalculated.  so this manager is used as a reference point.  the first time, with a new timestamp, that
@@ -2842,11 +2482,7 @@ about the parameters allowed in the params object.
 	// be called as few times as possible.  
 	var continuousAnchors = {}, lastContinuousAnchorsTimestamp = null, continuousAnchorLocations = {},
 	continuousAnchorOrientations = {},
-	Orientation = {
-		HORIZONTAL : "horizontal",
-		VERTICAL : "vertical",
-		DIAGONAL : "diagonal"
-	},
+	Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal" },
 	// TODO this functions uses a crude method of determining orientation between two elements.		
 	// 'diagonal' should be chosen when the angle of the line between the two centers is around
 	// one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
@@ -2859,41 +2495,27 @@ about the parameters allowed in the params object.
 					
 		if (! (h || v)) {
 			var a = null, rls = false, rrs = false, sortValue = null;
-			if (o2.left > o1.left && o2.top > o1.top) {
-				a = [[1,1],[0,0]];
-				rrs = true;
-				sortValue = o2.right;
-				otherSortValue = o1.left;
-			}
-			else if (o2.left > o1.left && o1.top > o2.top) {
-				a = [[1,0],[0,1]];
-				sortValue = o2.left;
-				otherSortValue = o1.right;						
-			}
-			else if (o2.left < o1.left && o2.top < o1.top) {
-				a = [[0,0], [1,1]];
-				rls = true;
-				sortValue = o2.left;
-				otherSortValue = o1.right;						
-			}
-			else if (o2.left < o1.left && o2.top > o1.top) {
-				a = [[0,1], [1, 0]];
-				sortValue = o2.right;
-				otherSortValue = o1.left;						
-			}
+			if (o2.left > o1.left && o2.top > o1.top)
+				a = ["bottom", "left"], rrs = true, sortValue = o2.right, otherSortValue = o1.left;
+			else if (o2.left > o1.left && o1.top > o2.top)
+				a = [ "right", "bottom"], sortValue = o2.left, otherSortValue = o1.right;						
+			else if (o2.left < o1.left && o2.top < o1.top)
+				a = [ "top", "right"], rls = true, sortValue = o2.left, otherSortValue = o1.right;						
+			else if (o2.left < o1.left && o2.top > o1.top)
+				a = ["left", "top" ], sortValue = o2.right, otherSortValue = o1.left;						
 						
 			return { orientation:Orientation.DIAGONAL, a:a, rls:rls, rrs:rrs, sortValue:sortValue };
 		}
 		else if (h) return {
 			orientation:Orientation.HORIZONTAL,
-			a:o1.top < o2.top ? [1,0] : [0,1],
+			a:o1.top < o2.top ? ["bottom", "top"] : ["top", "bottom"],
 			reverse:!(o1.top < o2.top),
 			sortValue:o1.top < o2.top ? o2.right : o2.left,
 			otherSortValue:o1.top < o2.top ? o1.left : o1.right
 		}
 		else return {
 			orientation:Orientation.VERTICAL,
-			a:o1.left < o2.left ? [1,0] : [0,1],
+			a:o1.left < o2.left ? ["right", "left"] : ["left", "right"],
 			reverse:(o1.left < o2.left),
 			sortValue:o1.left < o2.left ? o2.top : o2.bottom,
 			otherSortValue:o1.left < o2.left ? o1.bottom : o2.top
@@ -2935,35 +2557,32 @@ about the parameters allowed in the params object.
 		placeSomeAnchors("bottom", sS, [sO.left,sO.top], anchorLists.bottom, true, 1);
 		placeSomeAnchors("top", sS, [sO.left,sO.top], anchorLists.top, true, 0);
 		placeSomeAnchors("left", sS, [sO.left,sO.top], anchorLists.left, false, 0);
-		placeSomeAnchors("right", sS, [sO.left,sO.top], anchorLists.right, false, 1);
-				
-		// clear anchors. this method was called last in a paint cycle.
-		self.anchorLists = { top:[], right:[], bottom:[], left:[] };
+		placeSomeAnchors("right", sS, [sO.left,sO.top], anchorLists.right, false, 1);				
 	},
 	continuousAnchorManager = {
 		get:function(params) {
 			var existing = continuousAnchors[params.elementId];
 			if (!existing) {
-			// TODO this will be replaced; we dont need it once we are doing the compute properly.
-				var existing = jsPlumb.makeAnchor([0, 0, 0, 0, 0, 0], params.elementId, params.jsPlumbInstance);
-				existing.type = "Continuous";
-				var b = existing.compute;
-				existing.compute = function(params) {
-					if (params.timestamp != lastContinuousAnchorsTimestamp)
-						continuousAnchorManager.recalc(params.timestamp, params.elementId, params._jsPlumb);
-		
-					return continuousAnchorLocations[params.element.id] || [0,0];
+				var existing = {
+					type:"Continuous",
+					compute : function(params) {
+						if (params.timestamp != lastContinuousAnchorsTimestamp)
+							continuousAnchorManager.recalc(params.timestamp, params.elementId, params._jsPlumb);
+						return continuousAnchorLocations[params.element.id] || [0,0];
+					},
+					getCurrentLocation : function(endpoint) {
+						return continuousAnchorLocations[endpoint.id] || [0,0];
+					},
+					getOrientation : function(endpoint) {
+						return continuousAnchorOrientations[endpoint.id] || [0,0];
+					}
 				};
-				existing.getCurrentLocation = function(endpoint) {
-					return continuousAnchorLocations[endpoint.id] || [0,0];
-				}
 				continuousAnchors[params.elementId] = existing;
 			}
 			return existing;
 		},
 		recalc:function(timestamp, focusedElement, _jsPlumb) {
 			lastContinuousAnchorsTimestamp = timestamp;
-			console.log("continuous anchor manager recalculating at timestamp " + timestamp);
 			// caches of elements we've processed already.
 			var processedAsSource = {}, processedAsTarget = {}, anchorLists = {}, sourceConns = {}, targetConns = {};
 			for (var anElement in continuousAnchors) {
@@ -2977,89 +2596,17 @@ about the parameters allowed in the params object.
 						var targetId = sourceConns[i].targetId, sO = offsets[anElement], 
 							tO = offsets[targetId], sS = sizes[anElement], tS = sizes[targetId];
 						if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };						
-						sO.right = sO.left + sS[0];
-						sO.bottom = sO.top + sS[1];
-						tO.right = tO.left + tS[0];
-						tO.bottom = tO.top + tS[1];
+						sO.right = sO.left + sS[0], sO.bottom = sO.top + sS[1], tO.right = tO.left + tS[0], tO.bottom = tO.top + tS[1];
 						// find the orientation between the two elements
-						var o = calculateOrientation(sO, sS, tO, tS);
-						console.log("processed source ", anElement, "->", targetId, "orientation is ", o);
-						// now we find the appropriate faces to add anchors to, for both source and target, and we push the connection
-						// list to each. 
-						if (o.orientation == Orientation.HORIZONTAL) {
-							var edgeList = o.a[0] == 0 ? anchorLists[anElement].top : anchorLists[anElement].bottom,
-							otherEdgeList = o.a[0] == 0 ? anchorLists[targetId].bottom : anchorLists[targetId].top;
+						var o = calculateOrientation(sO, sS, tO, tS),
+						edgeList = anchorLists[anElement][o.a[0]],
+							otherEdgeList = anchorLists[targetId][o.a[1]];
 							edgeList.push([ o.sortValue, sourceConns[i] ]);
 							otherEdgeList.push([ o.otherSortValue, sourceConns[i] ]);
-						}
-						else if (o.orientation == Orientation.VERTICAL) {
-							var edgeList = o.a[0] == 0 ? anchorLists[targetId].left : anchorLists[targetId].right,
-							otherEdgeList = o.a[0] == 0 ? anchorLists[targetId].right : anchorLists[targetId].left;
-							edgeList.push([ o.sortValue, sourceConns[i] ]);
-							otherEdgeList.push([ o.otherSortValue, sourceConns[i] ]);					
-						}
-						else if (o.orientation == Orientation.DIAGONAL) {
-						
-						}
-						/*else if (o.orientation == Orientation.DIAGONAL) {
-							var midPoint = Math.floor(connectionList.length / 2);
-							if (connectionList.length > 0) {								
-								var isOdd = connectionList.length % 2 != 0,
-									leftIndices = connectionList.slice(0, midPoint),
-									vertex = isOdd ? midPoint : null,
-									rightIndices = connectionList.slice(midPoint, connectionList.length),
-									sourceEdges = findLeftAndRightEdges(o.a[0], o.reverse),
-									targetEdges = findLeftAndRightEdges(o.a[1], o.reverse);
-									
-								// now we have a possible index for the vertex, and we have indices for
-								// each connection, mapping them to a certain position on the left and right
-								// edges.  so this test has 5 connections.  the left and right edges will 
-								// each have two connections, and these need to be spaced along each
-								// edge, exactly as if that set of connections was the set we were using in
-								// the horizontal and vertical cases.
-
-								var sourceLeftInfo = lineInfo(sourceEdges.left, o.a[0]),
-									targetLeftInfo = lineInfo(targetEdges.left, o.a[1]),
-									sourceRightInfo = lineInfo(sourceEdges.right, o.a[0]),
-									targetRightInfo = lineInfo(targetEdges.right, o.a[1]);
-								
-								var pushSomeAnchors = function(anchors, info) {
-									var listToAddTo = null, otherListToAddTo = null;
-									if (info.horizontal) {
-										listToAddTo = info.otherMultiplier == 0 ? "top" : "bottom";
-										otherListToAddTo = info.otherMultiplier == 0 ? "bottom" : "top";									
-									} else {
-										listToAddTo = info.otherMultiplier == 0 ? "left" : "right";
-										otherListToAddTo = info.otherMultiplier == 0 ? "right" : "left";																		
-									}
-									anchorLists[anElement][listToAddTo].push([ o.sortValue, anchors ]);
-									anchorLists[targetId][otherListToAddTo].push([ o.otherSortValue, anchors ]);
-								};
-								
-								// push to the appropriate anchor lists by face for the source element.
-								pushSomeAnchors(leftIndices, sourceLeftInfo);
-								pushSomeAnchors(rightIndices, sourceRightInfo);															
-							}
-						}*/
 					}
 				}
-				// for each element, there are four faces.  each face will have N anchors on it, whose ordering is
-				// determined by the position of the other element in the connection.  so for every element we want to
-				// go through and figure out, for source anchors of type Continuous, how many anchors go on each face.
-				// at the same time, we can figure out anchors for the connection's target, if it is also of type Continuous.
-				// so we 
 			}
-			// now do targets.  of course some of these will have already been figured out.
-	/*		for (var anElement in continuousAnchors) {
-				var targetConns = _currentInstance.getConnections({target:anElement});
-				// now if the source anchor for this connection was Continuous, we know it has already been done.
-				for (var i = 0; i < targetConns.length; i++) {
-					if (targetConns[i].endpoints[0].anchor.type !== "Continuous") {
-						// ok so this is one that has not been done.
-					}
-				}
-
-			}*/
+				
 			// now place anchors
 			for (var anElement in continuousAnchors) {
 				placeAnchors(anElement, anchorLists[anElement]);
@@ -3571,7 +3118,7 @@ about the parameters allowed in the params object.
 			 *  timestamp - timestamp of this paint.  If the Connection was last painted with the same timestamp, it does not paint again.
 			 */
 			this.paint = function(params) {
-				console.log("connection paint; timestamp is " + params.timestamp);
+//				console.log("connection paint; timestamp is " + params.timestamp);
 				params = params || {};
 				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
 				// if the moving object is not the source we must transpose the two references.
@@ -3616,7 +3163,7 @@ about the parameters allowed in the params object.
 			 * Repaints the Connection.
 			 */
 			this.repaint = function() {
-				console.log("connection repaint");
+//				console.log("connection repaint");
 				this.paint({ elId : this.sourceId, recalc : true });
 			};
 
@@ -4141,7 +3688,7 @@ about the parameters allowed in the params object.
 				params = params || {};
 				var timestamp = params.timestamp;
 				if (!timestamp || self.timestamp !== timestamp) {
-				console.log("endpoint paint; timestamp is " + params.timestamp);				
+//				console.log("endpoint paint; timestamp is " + params.timestamp);				
 					_updateOffset({ elId:_elementId, timestamp:timestamp });
 					var ap = params.anchorPoint, connectorPaintStyle = params.connectorPaintStyle;
 					if (ap == null) {
