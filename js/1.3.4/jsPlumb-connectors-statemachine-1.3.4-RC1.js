@@ -24,7 +24,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 		_m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty, _controlX, _controlY,
 		curviness = params.curviness || 50,
 		margin = params.margin || 5,
-		proximityLimit = params.proximityLimit || 70;
+		proximityLimit = params.proximityLimit || 80;
 
 		this.type = "StateMachine";
 		params = params || {};		
@@ -89,26 +89,29 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
             // or stupid, and may indeed only work in a way that is so subtle as to have been a waste of time.
             //
 
-			var _findMultipliers = function(anchorX, anchorY, otherAnchorX, otherAnchorY) {
-				return [
-					anchorX < 0.5 ? -1 : (anchorX == 0.5 && otherAnchorX == 0.5) ? 0 : 1,
-					anchorY < 0.5 ? -1 : (anchorY == 0.5 && otherAnchorY == 0.5) ? 0 : 1
-				];					
+			var _segment = function(x1, y1, x2, y2) {
+				if (x1 < x2 && y2 < y1) return 1;
+				else if (x1 < x2 && y1 < y2) return 2;
+				else if (x2 < x1 && y2 > y1) return 3;
+				return 4;
+			};
+
+			var _findMultipliers = function(anchorX, anchorY, otherAnchorX, otherAnchorY, theta2, segment) {			
+				var m = 1, n = 1;
+				if (segment == 1 && otherAnchorY == 1) m = -1;
+				if (segment == 4 && otherAnchorY == 1) n = -1;				
+				if (segment == 3 && otherAnchorY == 0) n = -1;								
+				// TODO other cases?
+				return [ n * Math.cos(theta2), m * Math.sin(theta2) ];
 			},
             _midx = (_sx + _tx) / 2, _midy = (_sy + _ty) / 2, 
             m2 = (-1 * _midx) / _midy, theta2 = Math.atan(m2),            
             dy =  Math.abs(curviness / 2 * Math.sin(m2)),
 			dx =  Math.abs(curviness / 2 * Math.cos(m2)),
-			multz = _findMultipliers(sourcePos[2], sourcePos[3], targetPos[2], targetPos[3]),
+			segment = _segment(_sx, _sy, _tx, _ty),			
+			multz = _findMultipliers(sourcePos[2], sourcePos[3], targetPos[2], targetPos[3], theta2, segment),
 			distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));
-
-            // TODO reinstate this code, which should alter the curviness based on the anchor's distance from the center of the edge
-            // on which it is located.  also
-            /*if (sourcePos[2] > 0 && sourcePos[2] < 1)
-            	_midx += (sourcePos[2] - 0.5) * maxControlChange;
-            if (sourcePos[3] > 0 && sourcePos[3] < 1)
-            	_midy += (sourcePos[3] - 0.5) * maxControlChange;*/
-            	            	
+			
             // calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
             // will work by extending the control point to force the curve to be, um, curvier.
             _controlX = _midx + ((distance > proximityLimit) ? (multz[0] * dx) : 0);
