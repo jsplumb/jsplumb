@@ -58,6 +58,13 @@
 		return -1;
 	};
 	
+	Array.prototype.find = Array.prototype.find || function(f) {
+  		for (var i = 0; i < this.length; i++) {
+    		if (f(this[i])) return i;
+		}
+		return -1;
+	};
+	
 	/**
 		 * helper method to add an item to a list, creating the list if it does
 		 * not yet exist.
@@ -2401,7 +2408,7 @@ about the parameters allowed in the params object.
 		};
 
 		/* 
-		 * A DynamicAnchors is an Anchor that contains a list of other Anchors, which it cycles
+		 * A DynamicAnchor is an Anchor that contains a list of other Anchors, which it cycles
 		 * through at compute time to find the one that is located closest to
 		 * the center of the target element, and returns that Anchor's compute
 		 * method result. this causes endpoints to follow each other with
@@ -2460,13 +2467,11 @@ about the parameters allowed in the params object.
 				
 				_curAnchor = _anchorSelector(xy, wh, txy, twh, _anchors);
 				
-				var pos = _curAnchor.compute(params);
-				return pos;
+				return _curAnchor.compute(params);
 			};
 
 			this.getCurrentLocation = function() {
-				var cl = _curAnchor != null ? _curAnchor.getCurrentLocation() : null;
-				return cl;				
+				return _curAnchor != null ? _curAnchor.getCurrentLocation() : null;
 			};
 
 			this.getOrientation = function() { return _curAnchor != null ? _curAnchor.getOrientation() : [ 0, 0 ]; };
@@ -2487,7 +2492,11 @@ about the parameters allowed in the params object.
 	// 'diagonal' should be chosen when the angle of the line between the two centers is around
 	// one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
 	calculateOrientation = function(o1, wh, o2, twh) {
-		var o1w = wh[0], o1h = wh[1], o2w = twh[0], o2h = twh[1],					
+		var o1w = wh[0], o1h = wh[1], o2w = twh[0], o2h = twh[1],
+		center1 = [ (o1.left + o1.right) / 2, (o1.top + o1.bottom) / 2],
+		center2 = [ (o2.left + o2.right) / 2, (o2.top + o2.bottom) / 2],
+		theta = Math.atan((center2[1] - center1[1]) / (center2[0] - center1[0])),
+		theta2 = Math.atan2((center2[1] - center1[1]) , (center2[0] - center1[0])),		
 		h = ((o1.left <= o2.left && o1.right >= o2.left) || (o1.left <= o2.right && o1.right >= o2.right) ||
 			(o1.left <= o2.left && o1.right >= o2.right) || (o2.left <= o1.left && o2.right >= o1.right)),
 		v = ((o1.top <= o2.top && o1.bottom >= o2.top) || (o1.top <= o2.bottom && o1.bottom >= o2.bottom) ||
@@ -2504,21 +2513,21 @@ about the parameters allowed in the params object.
 			else if (o2.left < o1.left && o2.top > o1.top)
 				a = ["left", "top" ], sortValue = o2.right, otherSortValue = o1.left;						
 						
-			return { orientation:Orientation.DIAGONAL, a:a, rls:rls, rrs:rrs, sortValue:sortValue };
+			return { orientation:Orientation.DIAGONAL, a:a, rls:rls, rrs:rrs, sortValue:sortValue, theta2:theta2 };
 		}
 		else if (h) return {
 			orientation:Orientation.HORIZONTAL,
 			a:o1.top < o2.top ? ["bottom", "top"] : ["top", "bottom"],
-			reverse:!(o1.top < o2.top),
 			sortValue:o1.top < o2.top ? o2.right : o2.left,
-			otherSortValue:o1.top < o2.top ? o1.left : o1.right
+			otherSortValue:o1.top < o2.top ? o1.left : o1.right, 
+			theta:theta,theta2:theta2
 		}
 		else return {
 			orientation:Orientation.VERTICAL,
 			a:o1.left < o2.left ? ["right", "left"] : ["left", "right"],
-			reverse:(o1.left < o2.left),
 			sortValue:o1.left < o2.left ? o2.top : o2.bottom,
-			otherSortValue:o1.left < o2.left ? o1.bottom : o2.top
+			otherSortValue:o1.left < o2.left ? o1.bottom : o2.top, 
+			theta:theta,theta2:theta2
 		}					
 	},
 	placeAnchorsOnLine = function(desc, elementDimensions, elementPosition, 
@@ -2531,22 +2540,33 @@ about the parameters allowed in the params object.
 			  val = elementDimensions[horizontal ? 0 : 1] - val;
 					
 			var dx = (horizontal ? val : other), x = elementPosition[0] + dx,  xp = dx / elementDimensions[0],
-			 dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
+			 	dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
 					
 			a.push([ x, y, xp, yp, connections[i] ]);
 		}
 					
 		return a;
 	},
+	standardEdgeSort = function(a, b) { return a > b; },
+	reverseEdgeSort = function(a, b) { return a < b; },
+	edgeSortFunctions = {
+		"top":standardEdgeSort,
+		"right":reverseEdgeSort,
+		"bottom":reverseEdgeSort,
+		"left":standardEdgeSort
+	},
 	placeAnchors = function(elementId, anchorLists) {
 		var sS = sizes[elementId], sO = offsets[elementId],
-		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, reverse) {
-			var sc = unsortedConnections.sort(), // puts them in order based on the target element's pos on screen
+		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier) {
+			var sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
 			conns = [];
 			for (var i = 0; i < sc.length; i++) {
 				conns.push(sc[i][1]);
 			}
-			var anchors = placeAnchorsOnLine(desc, elementDimensions, elementPosition, conns, isHorizontal, otherMultiplier );
+			var reverse = desc === "bottom" || desc === "left",
+				anchors = placeAnchorsOnLine(desc, elementDimensions, 
+											 elementPosition, conns, 
+											 isHorizontal, otherMultiplier, reverse );
 					
 			for (var i = 0; i < anchors.length; i++) {
 				var c = anchors[i][4], ourIndex = c.endpoints[0].elementId === elementId ? 0 : 1, se = c.endpoints[ourIndex];
@@ -2584,7 +2604,7 @@ about the parameters allowed in the params object.
 		recalc:function(timestamp, focusedElement, _jsPlumb) {
 			lastContinuousAnchorsTimestamp = timestamp;
 			// caches of elements we've processed already.
-			var processedAsSource = {}, processedAsTarget = {}, anchorLists = {}, sourceConns = {}, targetConns = {};
+			var anchorLists = {}, sourceConns = {}, targetConns = {};
 			for (var anElement in continuousAnchors) {
 				// get all source connections for this element
 				var sourceConns = _currentInstance.getConnections({source:anElement});
@@ -2599,16 +2619,26 @@ about the parameters allowed in the params object.
 						sO.right = sO.left + sS[0], sO.bottom = sO.top + sS[1], tO.right = tO.left + tS[0], tO.bottom = tO.top + tS[1];
 						// find the orientation between the two elements
 						var o = calculateOrientation(sO, sS, tO, tS),
-						edgeList = anchorLists[anElement][o.a[0]],
+							edgeList = anchorLists[anElement][o.a[0]],
 							otherEdgeList = anchorLists[targetId][o.a[1]];
-							edgeList.push([ o.sortValue, sourceConns[i] ]);
-							otherEdgeList.push([ o.otherSortValue, sourceConns[i] ]);
+							edgeList.push([ o.theta2, sourceConns[i], false ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
+							//otherEdgeList.push([ o.otherSortValue, sourceConns[i], true ]);
+//							otherEdgeList.push([ o.theta, sourceConns[i], true ]);
+							//otherEdgeList.splice(0,0[ o.otherSortValue, sourceConns[i], true ]);
+							var curIdx = otherEdgeList.find(function(f) { return f[0] == o.theta2; });
+							if (curIdx == -1)
+								otherEdgeList.push([ o.theta2, sourceConns[i], true ]);
+							else
+								otherEdgeList.splice(curIdx, 0, [ o.theta2, sourceConns[i], true ]);
 					}
 				}
 			}
 				
 			// now place anchors
 			for (var anElement in continuousAnchors) {
+			if (anElement == "nicola")
+				console.log("nicola");
+				
 				placeAnchors(anElement, anchorLists[anElement]);
 			}
 		}
