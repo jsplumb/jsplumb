@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.2
+ * Title:jsPlumb 1.3.4
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -36,8 +36,6 @@
 		
 		// these are for VML in IE8.  you have to explicitly call out which elements
 		// you're going to expect to support VML!  
-		// 
-		// try to avoid IE8.  it is recommended you set X-UA-Compatible="IE=7" if you can.
 		//
 		document.createStyleSheet().addRule("jsplumb\\:textbox", "behavior:url(#default#VML);position:absolute;");
 		document.createStyleSheet().addRule("jsplumb\\:oval", "behavior:url(#default#VML);position:absolute;");
@@ -159,11 +157,12 @@
 				
 				if (style.outlineColor) {
 					var outlineWidth = style.outlineWidth || 1,
-					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
 					outlineStyle = {
-						strokeStyle:_convertStyle(style.outlineColor),
-						lineWidth:outlineStrokeWidth
+						strokeStyle : _convertStyle(style.outlineColor),
+						lineWidth : outlineStrokeWidth
 					};
+					for (var aa in vmlAttributeMap) outlineStyle[aa] = style[aa];
 					
 					if (self.bgCanvas == null) {						
 						p["class"] = clazz;
