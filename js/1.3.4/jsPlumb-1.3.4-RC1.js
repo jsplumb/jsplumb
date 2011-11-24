@@ -95,27 +95,6 @@
 				//}
 			}
 		},
-		_perf = function(name) {
-			var entries = [], start = [], end = [], first = null, last = null;
-			return {
-				start:function(task) {
-					entries.push(name);
-					var s = (new Date()).getTime();
-					start.push(s);
-					if (first == null) first = s;
-				},
-				end:function(task) {
-					end[start.indexOf(task)] = (new Date()).getTime();
-				},
-				finalise:function() { last = (new Date()).getTime(); },
-				dump:function() {
-					console.log("performance for task set [" + name + "] Total time:" + (last - first));
-					console.log("  tasks  ");
-					for (var i = 0; i < entries.length; i++)
-						console.log("  " + entries[i] + " : " + (end[i] - start[i]));
-				}
-			};			
-		},
 		
 		/**
 		 * EventGenerator
@@ -497,7 +476,6 @@
 		_draw = function(element, ui, timestamp) {
 			var id = _getAttribute(element, "id"), endpoints = endpointsByElement[id];
 			if (!timestamp) timestamp = _timestamp();
-//			console.log("_draw; timestamp is " + timestamp);
 			if (endpoints) {
 				_updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp }); // timestamp is checked against last update cache; it is
 				// valid for one paint cycle.
@@ -2311,8 +2289,6 @@ about the parameters allowed in the params object.
 			this.compute = function(params) {
 				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;
 				
-//				console.log("anchor compute; timestamp is " + timestamp + "; element is " + self.elementId);
-				
 				if (timestamp && timestamp === self.timestamp) {
 					return lastReturnValue;
 				}
@@ -2486,7 +2462,7 @@ about the parameters allowed in the params object.
 	// and compute only ever returns pre-computed values.  either way, this is the central point, and we want it to
 	// be called as few times as possible.  
 	var continuousAnchors = {}, lastContinuousAnchorsTimestamp = null, continuousAnchorLocations = {},
-	continuousAnchorOrientations = {},
+	continuousAnchorOrientations = {}, continuousAnchorConnections = {},
 	Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal" },
 	// TODO this functions uses a crude method of determining orientation between two elements.		
 	// 'diagonal' should be chosen when the angle of the line between the two centers is around
@@ -2495,8 +2471,8 @@ about the parameters allowed in the params object.
 		var o1w = wh[0], o1h = wh[1], o2w = twh[0], o2h = twh[1],
 		center1 = [ (o1.left + o1.right) / 2, (o1.top + o1.bottom) / 2],
 		center2 = [ (o2.left + o2.right) / 2, (o2.top + o2.bottom) / 2],
-		theta = Math.atan((center2[1] - center1[1]) / (center2[0] - center1[0])),
-		theta2 = Math.atan2((center2[1] - center1[1]) , (center2[0] - center1[0])),		
+		theta = Math.atan2((center2[1] - center1[1]) , (center2[0] - center1[0])),	
+		theta2 = Math.atan2((center1[1] - center2[1]) , (center1[0] - center2[0])),
 		h = ((o1.left <= o2.left && o1.right >= o2.left) || (o1.left <= o2.right && o1.right >= o2.right) ||
 			(o1.left <= o2.left && o1.right >= o2.right) || (o2.left <= o1.left && o2.right >= o1.right)),
 		v = ((o1.top <= o2.top && o1.bottom >= o2.top) || (o1.top <= o2.bottom && o1.bottom >= o2.bottom) ||
@@ -2505,29 +2481,25 @@ about the parameters allowed in the params object.
 		if (! (h || v)) {
 			var a = null, rls = false, rrs = false, sortValue = null;
 			if (o2.left > o1.left && o2.top > o1.top)
-				a = ["bottom", "left"], rrs = true, sortValue = o2.right, otherSortValue = o1.left;
+				a = ["right", "top"];
 			else if (o2.left > o1.left && o1.top > o2.top)
-				a = [ "right", "bottom"], sortValue = o2.left, otherSortValue = o1.right;						
+				a = [ "right", "bottom"];
 			else if (o2.left < o1.left && o2.top < o1.top)
-				a = [ "top", "right"], rls = true, sortValue = o2.left, otherSortValue = o1.right;						
+				a = [ "top", "right"];
 			else if (o2.left < o1.left && o2.top > o1.top)
-				a = ["left", "top" ], sortValue = o2.right, otherSortValue = o1.left;						
+				a = ["left", "top" ];
 						
-			return { orientation:Orientation.DIAGONAL, a:a, rls:rls, rrs:rrs, sortValue:sortValue, theta2:theta2 };
+			return { orientation:Orientation.DIAGONAL, a:a, theta:theta, theta2:theta2 };
 		}
 		else if (h) return {
 			orientation:Orientation.HORIZONTAL,
 			a:o1.top < o2.top ? ["bottom", "top"] : ["top", "bottom"],
-			sortValue:o1.top < o2.top ? o2.right : o2.left,
-			otherSortValue:o1.top < o2.top ? o1.left : o1.right, 
-			theta:theta,theta2:theta2
+			theta:theta, theta2:theta2
 		}
 		else return {
 			orientation:Orientation.VERTICAL,
 			a:o1.left < o2.left ? ["right", "left"] : ["left", "right"],
-			sortValue:o1.left < o2.left ? o2.top : o2.bottom,
-			otherSortValue:o1.left < o2.left ? o1.bottom : o2.top, 
-			theta:theta,theta2:theta2
+			theta:theta, theta2:theta2
 		}					
 	},
 	placeAnchorsOnLine = function(desc, elementDimensions, elementPosition, 
@@ -2542,7 +2514,7 @@ about the parameters allowed in the params object.
 			var dx = (horizontal ? val : other), x = elementPosition[0] + dx,  xp = dx / elementDimensions[0],
 			 	dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
 					
-			a.push([ x, y, xp, yp, connections[i] ]);
+			a.push([ x, y, xp, yp, connections[i][1] ]);
 		}
 					
 		return a;
@@ -2559,15 +2531,11 @@ about the parameters allowed in the params object.
 		var sS = sizes[elementId], sO = offsets[elementId],
 		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier) {
 			var sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
-			conns = [];
-			for (var i = 0; i < sc.length; i++) {
-				conns.push(sc[i][1]);
-			}
-			var reverse = desc === "bottom" || desc === "left",
+				reverse = false;//desc === "bottom" || desc === "left",
 				anchors = placeAnchorsOnLine(desc, elementDimensions, 
-											 elementPosition, conns, 
-											 isHorizontal, otherMultiplier, reverse );
-					
+											 elementPosition, sc, 
+											 isHorizontal, otherMultiplier, reverse );											 
+				
 			for (var i = 0; i < anchors.length; i++) {
 				var c = anchors[i][4], ourIndex = c.endpoints[0].elementId === elementId ? 0 : 1, se = c.endpoints[ourIndex];
 				continuousAnchorLocations[se.id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
@@ -2604,13 +2572,17 @@ about the parameters allowed in the params object.
 		recalc:function(timestamp, focusedElement, _jsPlumb) {
 			lastContinuousAnchorsTimestamp = timestamp;
 			// caches of elements we've processed already.
-			var anchorLists = {}, sourceConns = {}, targetConns = {};
+			var anchorLists = {}, sourceConns = {}, targetConns = {}, connectionsToRepaint = [];
 			for (var anElement in continuousAnchors) {
 				// get all source connections for this element
 				var sourceConns = _currentInstance.getConnections({source:anElement});
+				//var sourceConns = continuousAnchorConnections[anElement] || [];
 				if (!anchorLists[anElement]) anchorLists[anElement] = { top:[], right:[], bottom:[], left:[] };
 				for (var i = 0; i < sourceConns.length; i++) {
-					if (sourceConns[i].endpoints[0].anchor.type === "Continuous") {
+				//	if (sourceConns[i].endpoints[0].anchor.type === "Continuous") {
+						if (anElement != focusedElement) connectionsToRepaint.push(sourceConns[i]); // only add connections that do not come from 
+																									// the element that kicked off the whole paint. that 
+																									// element's connections will get repainted automatically.
 						// calculate orientation to target
 						// check if target is Continuous too, and give it values if so.
 						var targetId = sourceConns[i].targetId, sO = offsets[anElement], 
@@ -2621,29 +2593,46 @@ about the parameters allowed in the params object.
 						var o = calculateOrientation(sO, sS, tO, tS),
 							edgeList = anchorLists[anElement][o.a[0]],
 							otherEdgeList = anchorLists[targetId][o.a[1]];
-							edgeList.push([ o.theta2, sourceConns[i], false ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
+							edgeList.push([ [ o.theta, 0 ], sourceConns[i], false ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
 							//otherEdgeList.push([ o.otherSortValue, sourceConns[i], true ]);
 //							otherEdgeList.push([ o.theta, sourceConns[i], true ]);
 							//otherEdgeList.splice(0,0[ o.otherSortValue, sourceConns[i], true ]);
-							var curIdx = otherEdgeList.find(function(f) { return f[0] == o.theta2; });
-							if (curIdx == -1)
-								otherEdgeList.push([ o.theta2, sourceConns[i], true ]);
-							else
-								otherEdgeList.splice(curIdx, 0, [ o.theta2, sourceConns[i], true ]);
+					//		var curIdx = otherEdgeList.find(function(f) { return f[0] == o.theta2; });
+					//		if (curIdx == -1)
+								otherEdgeList.push([ [ o.theta2, -1 ], sourceConns[i], true ]);
+					//		else
+					//			otherEdgeList.splice(curIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true ]);
 					}
-				}
+				//}
 			}
 				
 			// now place anchors
 			for (var anElement in continuousAnchors) {
-			if (anElement == "nicola")
-				console.log("nicola");
-				
 				placeAnchors(anElement, anchorLists[anElement]);
 			}
+			
+			// and now repaint all connections that we need to
+			for (var i = 0; i < connectionsToRepaint.length; i++)
+				connectionsToRepaint[i].repaint({timestamp:timestamp});
+		},
+		connectionEvent : function(conn) {
+			// keep a record of connections locally; we dont have to go off and ask jsPlumb every time
+			// for the current connection list.  i thought this would be faster but it does not seem to have been 
+			// overly effective.
+			if (conn.sourceEndpoint.anchor.type === "Continuous") {
+				_addToList(continuousAnchorConnections, conn.sourceEndpoint.elementId, conn.connection);
+			}
+		},
+		connectionDetachedEvent : function(conn) {
+			if (conn.sourceEndpoint.anchor.type === "Continuous") {
+				_removeFromList(continuousAnchorConnections, conn.sourceEndpoint.elementId, conn.connection);
+				continuousAnchorManager.recalc(_timestamp(), conn.sourceEndpoint.elementId, _currentInstance);
+			}		
 		}
 	};
 	_currentInstance.continuousAnchorManager = continuousAnchorManager;
+	_currentInstance.bind("jsPlumbConnection", continuousAnchorManager.connectionEvent);
+	_currentInstance.bind("jsPlumbConnectionDetached", continuousAnchorManager.connectionDetachedEvent);
 
 		/*
 		 * Class: Connection
@@ -3148,7 +3137,6 @@ about the parameters allowed in the params object.
 			 *  timestamp - timestamp of this paint.  If the Connection was last painted with the same timestamp, it does not paint again.
 			 */
 			this.paint = function(params) {
-//				console.log("connection paint; timestamp is " + params.timestamp);
 				params = params || {};
 				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
 				// if the moving object is not the source we must transpose the two references.
@@ -3192,9 +3180,9 @@ about the parameters allowed in the params object.
 			 * Function: repaint
 			 * Repaints the Connection.
 			 */
-			this.repaint = function() {
-//				console.log("connection repaint");
-				this.paint({ elId : this.sourceId, recalc : true });
+			this.repaint = function(params) {
+				params = params || {};
+				this.paint({ elId : this.sourceId, recalc : true, timestamp:params.timestamp });
 			};
 
 			_initDraggableIfNecessary(self.source, params.draggable, params.dragOptions);
@@ -3717,8 +3705,7 @@ about the parameters allowed in the params object.
 			this.paint = function(params) {
 				params = params || {};
 				var timestamp = params.timestamp;
-				if (!timestamp || self.timestamp !== timestamp) {
-//				console.log("endpoint paint; timestamp is " + params.timestamp);				
+				if (!timestamp || self.timestamp !== timestamp) {			
 					_updateOffset({ elId:_elementId, timestamp:timestamp });
 					var ap = params.anchorPoint, connectorPaintStyle = params.connectorPaintStyle;
 					if (ap == null) {
