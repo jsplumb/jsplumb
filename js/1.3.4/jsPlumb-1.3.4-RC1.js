@@ -2396,7 +2396,7 @@ about the parameters allowed in the params object.
 			this.isSelective = true;
 			this.isDynamic = true;			
 			var _anchors = [],
-			_convert = function(anchor) { return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor, elementId); };
+			_convert = function(anchor) { return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor, elementId, _currentInstance); };
 			for (var i = 0; i < anchors.length; i++) _anchors[i] = _convert(anchors[i]);			
 			this.addAnchor = function(anchor) { _anchors.push(_convert(anchor)); };
 			this.getAnchors = function() { return _anchors; };
@@ -2463,11 +2463,17 @@ about the parameters allowed in the params object.
 	// be called as few times as possible.  
 	var continuousAnchors = {}, lastContinuousAnchorsTimestamp = null, continuousAnchorLocations = {},
 	continuousAnchorOrientations = {}, continuousAnchorConnections = {},
-	Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal" },
+	Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
 	// TODO this functions uses a crude method of determining orientation between two elements.		
 	// 'diagonal' should be chosen when the angle of the line between the two centers is around
 	// one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
-	calculateOrientation = function(o1, wh, o2, twh) {
+	calculateOrientation = function(sourceId, targetId, o1, wh, o2, twh) {
+		
+		if (sourceId === targetId) return {
+			orientation:Orientation.IDENTITY,
+			a:["top", "top"]
+		};
+		
 		var o1w = wh[0], o1h = wh[1], o2w = twh[0], o2h = twh[1],
 		center1 = [ (o1.left + o1.right) / 2, (o1.top + o1.bottom) / 2],
 		center2 = [ (o2.left + o2.right) / 2, (o2.top + o2.bottom) / 2],
@@ -2514,31 +2520,51 @@ about the parameters allowed in the params object.
 			var dx = (horizontal ? val : other), x = elementPosition[0] + dx,  xp = dx / elementDimensions[0],
 			 	dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
 					
-			a.push([ x, y, xp, yp, connections[i][1] ]);
+			a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ]);
 		}
 					
 		return a;
 	},
 	standardEdgeSort = function(a, b) { return a > b; },
 	reverseEdgeSort = function(a, b) { return a < b; },
+	currySort = function(transformFunction, sortFunction) {
+		return function(a, b) {
+			var cd = transformFunction(a, b);
+			return sortFunction(cd[0], cd[1]);
+		}
+	},
 	edgeSortFunctions = {
 		"top":standardEdgeSort,
-		"right":reverseEdgeSort,
-		"bottom":reverseEdgeSort,
+		//"right":currySort(function(a,b) { return [-(Math.PI / 2) - a, -(Math.PI/2) - b ]; }, reverseEdgeSort),
+		"right":standardEdgeSort,//currySort(function(a,b) { return [-1 * a, -1 * b ]; }, reverseEdgeSort),
+		"bottom":standardEdgeSort,
 		"left":standardEdgeSort
 	},
 	placeAnchors = function(elementId, anchorLists) {
 		var sS = sizes[elementId], sO = offsets[elementId],
 		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier) {
 			var sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
-				reverse = false;//desc === "bottom" || desc === "left",
+				reverse = desc === "right" || desc === "top",
 				anchors = placeAnchorsOnLine(desc, elementDimensions, 
 											 elementPosition, sc, 
 											 isHorizontal, otherMultiplier, reverse );											 
 				
 			for (var i = 0; i < anchors.length; i++) {
-				var c = anchors[i][4], ourIndex = c.endpoints[0].elementId === elementId ? 0 : 1, se = c.endpoints[ourIndex];
-				continuousAnchorLocations[se.id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+				var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
+				
+				if (weAreSource && weAreTarget) {
+					// handle this in a special way. basically we will populate the source one if it is not yet
+					// populated, or the target one otherwise.  i guess here is where we would able to setup the anchors in
+					// such a way that the connection could go anticlockwise or clockwise - need to keep that in mind.
+					if (!continuousAnchorLocations[c.endpoints[0].id])
+						continuousAnchorLocations[c.endpoints[0].id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+					else
+						continuousAnchorLocations[c.endpoints[1].id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+				}
+				else if (weAreSource)
+					continuousAnchorLocations[c.endpoints[0].id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+				else if (weAreTarget)
+					continuousAnchorLocations[c.endpoints[1].id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
 			}
 		};
 				
@@ -2563,7 +2589,8 @@ about the parameters allowed in the params object.
 					},
 					getOrientation : function(endpoint) {
 						return continuousAnchorOrientations[endpoint.id] || [0,0];
-					}
+					},
+					isDynamic : true
 				};
 				continuousAnchors[params.elementId] = existing;
 			}
@@ -2579,7 +2606,7 @@ about the parameters allowed in the params object.
 				//var sourceConns = continuousAnchorConnections[anElement] || [];
 				if (!anchorLists[anElement]) anchorLists[anElement] = { top:[], right:[], bottom:[], left:[] };
 				for (var i = 0; i < sourceConns.length; i++) {
-				//	if (sourceConns[i].endpoints[0].anchor.type === "Continuous") {
+					if (sourceConns[i].endpoints[0].anchor.type === "Continuous") {
 						if (anElement != focusedElement) connectionsToRepaint.push(sourceConns[i]); // only add connections that do not come from 
 																									// the element that kicked off the whole paint. that 
 																									// element's connections will get repainted automatically.
@@ -2590,20 +2617,17 @@ about the parameters allowed in the params object.
 						if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };						
 						sO.right = sO.left + sS[0], sO.bottom = sO.top + sS[1], tO.right = tO.left + tS[0], tO.bottom = tO.top + tS[1];
 						// find the orientation between the two elements
-						var o = calculateOrientation(sO, sS, tO, tS),
+						var o = calculateOrientation(anElement, targetId, sO, sS, tO, tS),
 							edgeList = anchorLists[anElement][o.a[0]],
 							otherEdgeList = anchorLists[targetId][o.a[1]];
-							edgeList.push([ [ o.theta, 0 ], sourceConns[i], false ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
-							//otherEdgeList.push([ o.otherSortValue, sourceConns[i], true ]);
-//							otherEdgeList.push([ o.theta, sourceConns[i], true ]);
-							//otherEdgeList.splice(0,0[ o.otherSortValue, sourceConns[i], true ]);
-					//		var curIdx = otherEdgeList.find(function(f) { return f[0] == o.theta2; });
-					//		if (curIdx == -1)
-								otherEdgeList.push([ [ o.theta2, -1 ], sourceConns[i], true ]);
-					//		else
-					//			otherEdgeList.splice(curIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true ]);
+							edgeList.push([ [ o.theta, 0 ], sourceConns[i], false, targetId ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
+							// target connections need to be inserted in the opposite order
+//							var tIdx = otherEdgeList.find(function(f) { return f[0][0] == o.theta2; });
+							var tIdx = otherEdgeList.find(function(f) { return f[3] == anElement; });
+							if (tIdx == -1) tIdx = otherEdgeList.length;
+							otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true, anElement ]);
 					}
-				//}
+				}
 			}
 				
 			// now place anchors
