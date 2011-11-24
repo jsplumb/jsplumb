@@ -41,9 +41,9 @@
      */
     jsPlumb.Connectors.Straight = function() {
     	this.type = "Straight";
-		var self = this;
-		var currentPoints = null;
-		var _m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty;
+		var self = this,
+		currentPoints = null,
+		_m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty;
 
         /**
          * Computes the new size and position of the canvas.
@@ -121,11 +121,11 @@
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
          */
         this.pointAlongPathFrom = function(location, distance) {
-        	var p = self.pointOnPath(location);
-        	var orientation = distance > 0 ? 1 : -1;
-        	var y = Math.abs(distance * Math.sin(_theta));
+        	var p = self.pointOnPath(location),
+        	orientation = distance > 0 ? 1 : -1,
+        	y = Math.abs(distance * Math.sin(_theta)),
+			x =  Math.abs(distance * Math.cos(_theta));        	
         	if (_sy > _ty) y = y * -1;
-			var x =  Math.abs(distance * Math.cos(_theta));
 			if (_sx > _tx) x = x * -1;
 			return {x:p.x + (orientation * x), y:p.y + (orientation * y)};
         };
@@ -135,11 +135,11 @@
          * the line is 'length' pixels long.
          */
         this.perpendicularToPathAt = function(location, length, distance) {
-        	var p = self.pointAlongPathFrom(location, distance);
-        	var m = self.gradientAtPoint(p.location);
-        	var _theta2 = Math.atan(-1 / m);
-        	var y =  length / 2 * Math.sin(_theta2);
-			var x =  length / 2 * Math.cos(_theta2);
+        	var p = self.pointAlongPathFrom(location, distance),
+        	m = self.gradientAtPoint(p.location),
+        	_theta2 = Math.atan(-1 / m),
+        	y =  length / 2 * Math.sin(_theta2),
+			x =  length / 2 * Math.cos(_theta2);
 			return [{x:p.x + x, y:p.y + y}, {x:p.x - x, y:p.y - y}];
         };                               
     };
@@ -493,11 +493,11 @@
          * the line is 'length' pixels long.
          */
         this.perpendicularToPathAt = function(location, length, distance) {
-        	var p = self.pointAlongPathFrom(location, distance);
-        	var m = segmentGradients[p.segmentInfo.index];
-        	var _theta2 = Math.atan(-1 / m);
-        	var y =  length / 2 * Math.sin(_theta2);
-			var x =  length / 2 * Math.cos(_theta2);
+        	var p = self.pointAlongPathFrom(location, distance),
+        	m = segmentGradients[p.segmentInfo.index],
+        	_theta2 = Math.atan(-1 / m),
+        	y =  length / 2 * Math.sin(_theta2),
+			x =  length / 2 * Math.cos(_theta2);
 			return [{x:p.x + x, y:p.y + y}, {x:p.x - x, y:p.y - y}];
         	
         };
