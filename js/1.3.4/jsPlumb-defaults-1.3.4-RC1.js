@@ -681,8 +681,10 @@
 
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
 
-	var AbstractOverlay = function() {
+	var AbstractOverlay = function(params) {
 		var visible = true, self = this;
+		this.connection = params.connection;
+		this.loc = params.location == null ? 0.5 : params.location;
 		this.setVisible = function(val) { 
 			visible = val;
 			self.connection.repaint();
@@ -690,6 +692,18 @@
     	this.isVisible = function() { return visible; };
     	this.hide = function() { self.setVisible(false); };
     	this.show = function() { self.setVisible(true); };
+    	
+    	this.incrementLocation = function(amount) {
+    		self.loc += amount;
+    		self.connection.repaint();
+    	};
+    	this.setLocation = function(l) {
+    		self.loc = l;
+    		self.connection.repaint();
+    	};
+    	this.getLocation = function() {
+    		return self.loc;
+    	};
 	};
 	
 	
@@ -717,17 +731,15 @@
 	 */
 	jsPlumb.Overlays.Arrow = function(params) {
 		this.type = "Arrow";
-		AbstractOverlay.apply(this);
+		AbstractOverlay.apply(this, arguments);
 		params = params || {};
 		var self = this;
 		
     	this.length = params.length || 20;
     	this.width = params.width || 20;
     	this.id = params.id;
-    	this.connection = params.connection;
     	var direction = (params.direction || 1) < 0 ? -1 : 1,
     	paintStyle = params.paintStyle || { lineWidth:1 };
-    	this.loc = params.location == null ? 0.5 : params.location;
     	// how far along the arrow the lines folding back in come to. default is 62.3%. 
     	var foldback = params.foldback || 0.623,
     	_getFoldBackPoint = function(connector, loc) {
@@ -864,15 +876,14 @@
     jsPlumb.Overlays.Label = function(params) {
     	this.type = "Label";
     	jsPlumb.DOMElementComponent.apply(this, arguments);
-    	AbstractOverlay.apply(this);
+    	AbstractOverlay.apply(this, arguments);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
 	    var label = params.label || "banana";
-	    this.connection = params.connection;
+
 	    this.id = params.id;
     	var self = this;
     	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
-    	this.location = params.location || 0.5;
     	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!    	
     	var initialised = false,
     	labelText = null,
@@ -962,10 +973,9 @@
 	    this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
 	    	var td = self.getTextDimensions(connector);
 	    	if (td.width !=  null) {
-				var cxy = connector.pointOnPath(self.location);								
-				
-				var minx = cxy.x - (td.width / 2);
-				var miny = cxy.y - (td.height / 2);
+				var cxy = connector.pointOnPath(self.loc),												
+				minx = cxy.x - (td.width / 2),
+				miny = cxy.y - (td.height / 2);
 				
 				self.paint(connector, {
 					minx:minx,
