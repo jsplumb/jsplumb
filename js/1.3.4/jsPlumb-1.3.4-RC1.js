@@ -2489,7 +2489,7 @@ about the parameters allowed in the params object.
 			if (o2.left > o1.left && o2.top > o1.top)
 				a = ["right", "top"];
 			else if (o2.left > o1.left && o1.top > o2.top)
-				a = [ "right", "bottom"];
+				a = [ "top", "left"];
 			else if (o2.left < o1.left && o2.top < o1.top)
 				a = [ "top", "right"];
 			else if (o2.left < o1.left && o2.top > o1.top)
