@@ -2527,12 +2527,6 @@ about the parameters allowed in the params object.
 	},
 	standardEdgeSort = function(a, b) { return a > b; },
 	reverseEdgeSort = function(a, b) { return a < b; },
-	currySort = function(transformFunction, sortFunction) {
-		return function(a, b) {
-			var cd = transformFunction(a, b);
-			return sortFunction(cd[0], cd[1]);
-		}
-	},
 	currySort2 = function(reverseAngles) {
 		return function(a,b) {
 			if (reverseAngles) {
@@ -2551,8 +2545,6 @@ about the parameters allowed in the params object.
 	},
 	edgeSortFunctions = {
 		"top":standardEdgeSort,
-		//"right":currySort(function(a,b) { return [-(Math.PI / 2) - a, -(Math.PI/2) - b ]; }, reverseEdgeSort),
-//		"right":reverseEdgeSort,//currySort(function(a,b) { return [-1 * a, -1 * b ]; }, reverseEdgeSort),
 		"right":currySort2(true),
 		"bottom":currySort2(true),//standardEdgeSort,
 		"left":standardEdgeSort
@@ -2565,15 +2557,6 @@ about the parameters allowed in the params object.
 				anchors = placeAnchorsOnLine(desc, elementDimensions, 
 											 elementPosition, sc, 
 											 isHorizontal, otherMultiplier, reverse );		
-											 
-			if (elementId === "opened") {
-				var s = "";
-				for (var i = 0; i < sc.length; i++) {
-					s += sc[i][0][0];
-					s += "<br/>"
-				}
-				$("#debug").html(s);
-			}
 				
 			for (var i = 0; i < anchors.length; i++) {
 				var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
@@ -2648,7 +2631,6 @@ about the parameters allowed in the params object.
 							otherEdgeList = anchorLists[targetId][o.a[1]];
 							edgeList.push([ [ o.theta, 0 ], sourceConns[i], false, targetId ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
 							// target connections need to be inserted in the opposite order
-//							var tIdx = otherEdgeList.find(function(f) { return f[0][0] == o.theta2; });
 							var tIdx = otherEdgeList.find(function(f) { return f[3] == anElement; });
 							if (tIdx == -1) tIdx = otherEdgeList.length;
 							otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true, anElement ]);
