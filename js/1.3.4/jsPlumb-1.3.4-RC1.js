@@ -2533,11 +2533,28 @@ about the parameters allowed in the params object.
 			return sortFunction(cd[0], cd[1]);
 		}
 	},
+	currySort2 = function(reverseAngles) {
+		return function(a,b) {
+			if (reverseAngles) {
+				if (a[0][0] < b[0][0]) 
+					return true;
+				else 
+					return a[0][1] > b[0][1];
+			}
+			else {
+				if (a[0][0] > b[0][0]) 
+					return true;
+				else 
+					return a[0][1] > b[0][1];
+			}
+		};
+	},
 	edgeSortFunctions = {
 		"top":standardEdgeSort,
 		//"right":currySort(function(a,b) { return [-(Math.PI / 2) - a, -(Math.PI/2) - b ]; }, reverseEdgeSort),
-		"right":standardEdgeSort,//currySort(function(a,b) { return [-1 * a, -1 * b ]; }, reverseEdgeSort),
-		"bottom":standardEdgeSort,
+//		"right":reverseEdgeSort,//currySort(function(a,b) { return [-1 * a, -1 * b ]; }, reverseEdgeSort),
+		"right":currySort2(true),
+		"bottom":currySort2(true),//standardEdgeSort,
 		"left":standardEdgeSort
 	},
 	placeAnchors = function(elementId, anchorLists) {
@@ -2547,7 +2564,16 @@ about the parameters allowed in the params object.
 				reverse = desc === "right" || desc === "top",
 				anchors = placeAnchorsOnLine(desc, elementDimensions, 
 											 elementPosition, sc, 
-											 isHorizontal, otherMultiplier, reverse );											 
+											 isHorizontal, otherMultiplier, reverse );		
+											 
+			if (elementId === "opened") {
+				var s = "";
+				for (var i = 0; i < sc.length; i++) {
+					s += sc[i][0][0];
+					s += "<br/>"
+				}
+				$("#debug").html(s);
+			}
 				
 			for (var i = 0; i < anchors.length; i++) {
 				var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
