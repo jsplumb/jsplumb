@@ -65,6 +65,16 @@
 		return -1;
 	};
 	
+	if (!window.console) {
+		window.console = {
+			time:function(){},
+			timeEnd:function(){},
+			group:function(){},
+			groupEnd:function(){},
+			log:function(){}
+		};
+	}
+	
 	/**
 		 * helper method to add an item to a list, creating the list if it does
 		 * not yet exist.
@@ -474,32 +484,44 @@
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
 		_draw = function(element, ui, timestamp) {
+			
+			console.group("DRAW");
+			console.time("DRAW TOTAL");
+			
 			var id = _getAttribute(element, "id"), endpoints = endpointsByElement[id];
 			if (!timestamp) timestamp = _timestamp();
 			if (endpoints) {
 				_updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp }); // timestamp is checked against last update cache; it is
 				// valid for one paint cycle.
-				var myOffset = offsets[id], myWH = sizes[id];
+				var myOffset = offsets[id], myWH = sizes[id], repaintContinous = false;
 				for ( var i = 0; i < endpoints.length; i++) {
-					endpoints[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
-					var l = endpoints[i].connections;					
-					for ( var j = 0; j < l.length; j++) {						
-						l[j].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); // ...paint each connection.
-						// then, check for dynamic endpoint; need to repaint it.						
-						var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0,
-							otherEndpoint = l[j].endpoints[oIdx];
-						if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {
-							_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 							
-							otherEndpoint.paint({ elementWithPrecedence:id });
-							// all the connections for the other endpoint now need to be repainted
-							for (var k = 0; k < otherEndpoint.connections.length; k++) {
-								if (otherEndpoint.connections[k] !== l)
-									otherEndpoint.connections[k].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); 
+					if (endpoints[i].anchor.type != "Continuous") {// TODO see note below - merge all this code together.
+						endpoints[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+						var l = endpoints[i].connections;					
+						for ( var j = 0; j < l.length; j++) {						
+							l[j].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); // ...paint each connection.
+							// then, check for dynamic endpoint; need to repaint it.						
+							var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0,
+								otherEndpoint = l[j].endpoints[oIdx];
+							if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {
+								_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 							
+								otherEndpoint.paint({ elementWithPrecedence:id });
+								// all the connections for the other endpoint now need to be repainted
+								for (var k = 0; k < otherEndpoint.connections.length; k++) {
+									if (otherEndpoint.connections[k] !== l)
+										otherEndpoint.connections[k].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); 
+								}
 							}
 						}
 					}
+					else repaintContinuous = true;
 				}
+				// we need to merge this in with the other paint code, really.  like this ends up repainting everything; why not just
+				// do that on a normal drag?
+				/*if (repaintContinous) */_currentInstance.continuousAnchorManager.recalc();
 			}
+			console.timeEnd("DRAW TOTAL");
+			console.groupEnd("DRAW");
 		},
 
 		/**
@@ -1505,6 +1527,15 @@ about the parameters allowed in the params object.
 		 * a static call. i just don't want to expose it to the public API).
 		 */
 		this.getId = _getId;
+		this.getOffset = function(id) { 
+			var o = offsets[id]; 
+			return _updateOffset({elId:id});
+		};
+		this.getSize = function(id) { 
+			var s = sizes[id]; 
+			if (!s) _updateOffset({elId:id});
+			return sizes[id];
+		};		
 		
 		this.appendElement = _appendElement;
 
@@ -2543,11 +2574,18 @@ about the parameters allowed in the params object.
 			}
 		};
 	},
+	leftSort = function(a,b) {
+		// first get adjusted values
+		var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
+		p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
+		if (p1 > p2) return true;
+		else return a[0][1] > b[0][1];
+	},
 	edgeSortFunctions = {
 		"top":standardEdgeSort,
 		"right":currySort2(true),
 		"bottom":currySort2(true),//standardEdgeSort,
-		"left":standardEdgeSort
+		"left":leftSort//standardEdgeSort
 	},
 	placeAnchors = function(elementId, anchorLists) {
 		var sS = sizes[elementId], sO = offsets[elementId],
@@ -2558,6 +2596,12 @@ about the parameters allowed in the params object.
 											 elementPosition, sc, 
 											 isHorizontal, otherMultiplier, reverse );		
 				
+			// takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.	
+			var _setAnchorLocation = function(endpoint, anchorPos) {
+				var a = adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
+				continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
+			};
+				
 			for (var i = 0; i < anchors.length; i++) {
 				var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
 				
@@ -2566,14 +2610,14 @@ about the parameters allowed in the params object.
 					// populated, or the target one otherwise.  i guess here is where we would able to setup the anchors in
 					// such a way that the connection could go anticlockwise or clockwise - need to keep that in mind.
 					if (!continuousAnchorLocations[c.endpoints[0].id])
-						continuousAnchorLocations[c.endpoints[0].id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+						_setAnchorLocation(c.endpoints[0], anchors[i]);
 					else
-						continuousAnchorLocations[c.endpoints[1].id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+						_setAnchorLocation(c.endpoints[1], anchors[i]);
 				}
 				else if (weAreSource)
-					continuousAnchorLocations[c.endpoints[0].id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+					_setAnchorLocation(c.endpoints[0], anchors[i]);
 				else if (weAreTarget)
-					continuousAnchorLocations[c.endpoints[1].id] = [ anchors[i][0], anchors[i][1], anchors[i][2], anchors[i][3] ];
+					_setAnchorLocation(c.endpoints[1], anchors[i]);
 			}
 		};
 				
@@ -2594,7 +2638,9 @@ about the parameters allowed in the params object.
 						return continuousAnchorLocations[params.element.id] || [0,0];
 					},
 					getCurrentLocation : function(endpoint) {
-						return continuousAnchorLocations[endpoint.id] || [0,0];
+						return continuousAnchorLocations[endpoint.id] || [0,0]					
+//						var o = continuousAnchorLocations[endpoint.id];
+//						return (!o) ? [0,0] : adjustForParentOffsetAndScroll(o, endpoint.canvas);
 					},
 					getOrientation : function(endpoint) {
 						return continuousAnchorOrientations[endpoint.id] || [0,0];
@@ -2606,9 +2652,15 @@ about the parameters allowed in the params object.
 			return existing;
 		},
 		recalc:function(timestamp, focusedElement, _jsPlumb) {
+		
+			console.group("RECALC");
+			console.time("RECALC");
+		
 			lastContinuousAnchorsTimestamp = timestamp;
 			// caches of elements we've processed already.
 			var anchorLists = {}, sourceConns = {}, targetConns = {}, connectionsToRepaint = [];
+			var sd = new Date().getTime();
+			console.time("calculating anchors");							
 			for (var anElement in continuousAnchors) {
 				// get all source connections for this element
 				var sourceConns = _currentInstance.getConnections({source:anElement});
@@ -2629,23 +2681,37 @@ about the parameters allowed in the params object.
 						var o = calculateOrientation(anElement, targetId, sO, sS, tO, tS),
 							edgeList = anchorLists[anElement][o.a[0]],
 							otherEdgeList = anchorLists[targetId][o.a[1]];
-							edgeList.push([ [ o.theta, 0 ], sourceConns[i], false, targetId ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
-							// target connections need to be inserted in the opposite order
-							var tIdx = otherEdgeList.find(function(f) { return f[3] == anElement; });
-							if (tIdx == -1) tIdx = otherEdgeList.length;
-							otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true, anElement ]);
+						edgeList.push([ [ o.theta, 0 ], sourceConns[i], false, targetId ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
+						// target connections need to be inserted in the opposite order
+						var tIdx = otherEdgeList.find(function(f) { return f[3] == anElement; });
+						if (tIdx == -1) tIdx = otherEdgeList.length;
+						otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true, anElement ]);
 					}
 				}
 			}
-				
+			
+			console.timeEnd("calculating anchors");										
+			console.log((new Date().getTime()) - sd);
+
+			console.time("place anchors");				
 			// now place anchors
 			for (var anElement in continuousAnchors) {
 				placeAnchors(anElement, anchorLists[anElement]);
 			}
+
+			console.timeEnd("place anchors");
 			
+			console.time("repaint other connections");
 			// and now repaint all connections that we need to
+			// TODO only repaint the ones whose anchors have moved.  how to determine this though?
 			for (var i = 0; i < connectionsToRepaint.length; i++)
 				connectionsToRepaint[i].repaint({timestamp:timestamp});
+				
+			console.timeEnd("repaint other connections");				
+			
+			console.timeEnd("RECALC");
+			console.groupEnd("RECALC");			
+			
 		},
 		connectionEvent : function(conn) {
 			// keep a record of connections locally; we dont have to go off and ask jsPlumb every time
@@ -3169,6 +3235,9 @@ about the parameters allowed in the params object.
 			 *  timestamp - timestamp of this paint.  If the Connection was last painted with the same timestamp, it does not paint again.
 			 */
 			this.paint = function(params) {
+				console.group("CONNECTION PAINT");
+				console.log("ID:", self.id);
+				console.time("TOTAL");
 				params = params || {};
 				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
 				// if the moving object is not the source we must transpose the two references.
@@ -3206,6 +3275,9 @@ about the parameters allowed in the params object.
 					if (o.isVisible)
 						self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
 				}
+				
+				console.timeEnd("TOTAL");
+				console.groupEnd("CONNECTION PAINT");
 			};			
 
 			/*
