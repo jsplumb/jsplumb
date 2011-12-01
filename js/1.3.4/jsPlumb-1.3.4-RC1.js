@@ -174,6 +174,7 @@
 			id = idPrefix + (new Date()).getTime();
 			self._jsPlumb = params["_jsPlumb"];			
 			self.getId = function() { return id; };
+			self.tooltip = params.tooltip;
 			
 			// all components can generate events
 			EventGenerator.apply(this);
@@ -3475,7 +3476,7 @@ about the parameters allowed in the params object.
 			else 			
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? jsPlumb.makeAnchor(params.anchors, _elementId, _currentInstance) : jsPlumb.makeAnchor("TopCenter", _elementId, _currentInstance);
 			var _endpoint = params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot",
-			endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, container:params.container };
+			endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, container:params.container, tooltip:params.tooltip, connectorTooltip:params.connectorTooltip };
 			if (_endpoint.constructor == String) 
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
 			else if (_endpoint.constructor == Array) {

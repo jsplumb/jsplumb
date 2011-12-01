@@ -170,6 +170,7 @@
 				if (self.canvas == null) {										
 					p["class"] = clazz;
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
+					if (self.tooltip) p["label"] = self.tooltip;
 					self.canvas = _node("shape", d, p);
 					jsPlumb.appendElement(self.canvas, params.parent);
 					displayElements.push(self.canvas);					
@@ -211,6 +212,7 @@
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
 		jsPlumb.appendElement(self.canvas, params.parent);
+		if (self.tooltip) self.canvas.setAttribute("label", self.tooltip);
 		
 		this.paint = function(d, style, anchor) {
 			var p = { };						

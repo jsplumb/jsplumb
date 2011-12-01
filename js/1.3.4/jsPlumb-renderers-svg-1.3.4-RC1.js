@@ -172,20 +172,22 @@
 	
 		this.setHover = function() { };
 		
-		var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || "");		
-		self.svg = _node("svg", {
-			"style":"",
-			"width":0,
-			"height":0,
-			"pointer-events":pointerEventsSpec,
-		//	"class": clazz,
-			"position":"absolute"
-		});
+		var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || ""),		
+			svgParams = {
+				"style":"",
+				"width":0,
+				"height":0,
+				"pointer-events":pointerEventsSpec,
+				"position":"absolute"
+			};
+		if (self.tooltip) svgParams["label"] = self.tooltip;	
+		self.svg = _node("svg", svgParams);
 		if (params.useDivWrapper) {
 			self.canvas = document.createElement("div");
 			self.canvas.style["position"] = "absolute";
 			jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
 			self.canvas.className = clazz;
+			if (self.tooltip) self.canvas.setAttribute("label", self.tooltip);
 		}
 		else {
 			_attr(self.svg, { "class":clazz });

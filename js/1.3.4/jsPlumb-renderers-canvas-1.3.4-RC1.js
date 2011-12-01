@@ -125,6 +125,7 @@
 		// set an id. if no id on the element and if uuid was supplied it
 		// will be used, otherwise we'll create one.
 		params["_jsPlumb"].getId(canvas, params.uuid);
+		if (params.tooltip) canvas.setAttribute("label", params.tooltip);
 
 		return canvas;
 	};	
@@ -187,12 +188,14 @@
 	var CanvasEndpoint = function(params) {
 		var self = this;				
 		CanvasMouseAdapter.apply(this, arguments);		
-		var clazz = self._jsPlumb.endpointClass + " " + (params.cssClass || "");
-		self.canvas = _newCanvas({ 
+		var clazz = self._jsPlumb.endpointClass + " " + (params.cssClass || ""),
+			canvasParams = { 
 			"class":clazz, 
 			_jsPlumb:self._jsPlumb,
-			parent:params.parent
-		});	
+			parent:params.parent,
+			tooltip:self.tooltip
+		};
+		self.canvas = _newCanvas(canvasParams);	
 		self.ctx = self.canvas.getContext("2d");
 		
 		this.paint = function(d, style, anchor) {
