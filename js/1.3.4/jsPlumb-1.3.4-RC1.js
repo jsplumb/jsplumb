@@ -607,6 +607,15 @@
 				return;
 			}			
 			
+			// copy in any connectorOverlays that were specified on the source endpoint.
+			// it doesnt copy target endpoint overlays.  i'm not sure if we want it to or not.
+			if (_p.sourceEndpoint && _p.sourceEndpoint.connectorOverlays) {
+				_p.overlays = _p.overlays || [];
+				for (var i = 0; i < _p.sourceEndpoint.connectorOverlays.length; i++) {
+					_p.overlays.push(_p.sourceEndpoint.connectorOverlays[i]);
+				}
+			}
+			
 			if (_p.target && !_p.target.endpoint) {
 				var tid = _getId(_p.target),
 				tep =_targetEndpointDefinitions[tid];
