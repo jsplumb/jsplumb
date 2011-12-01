@@ -13,8 +13,8 @@
 				iterations		-	optional.  number of times to iterate in the quest for the perfect layout.  defaults to 50.
 		*/
 		"Fruchterman-Reingold" : function(params) {
-			var w = params.w || 500,
-				h = params.h || 500,
+			var w = params.width || 500,
+				h = params.height || 500,
 				margins = params.margins || [0,0],
 				nodeSelector = params.nodeSelector,
 				maxDimension = Math.max(w, h),
