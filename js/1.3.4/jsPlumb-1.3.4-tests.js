@@ -184,26 +184,26 @@ var testSuite = function(renderMode) {
 	});
 	
 	test(renderMode + ': anchors equal', function() {
-		var a1 = jsPlumb.makeAnchor(0, 1, 1, 1);
-		var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+		var a1 = jsPlumb.makeAnchor([0, 1, 1, 1], null, jsPlumb);
+		var a2 = jsPlumb.makeAnchor([0, 1, 1, 1], null, jsPlumb);
 		ok(a1.equals(a2), "anchors are the same");
 	});
 	
 	test(renderMode + ': anchors equal with offsets', function() {
-		var a1 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
-		var a2 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
+		var a1 = jsPlumb.makeAnchor([0, 1, 1, 1, 10, 13], null, jsPlumb);
+		var a2 = jsPlumb.makeAnchor([0, 1, 1, 1, 10, 13], null, jsPlumb);
 		ok(a1.equals(a2), "anchors are the same");
 	});
 	
 	test(renderMode + ': anchors not equal', function() {
-		var a1 = jsPlumb.makeAnchor(0, 1, 0, 1);
-		var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+		var a1 = jsPlumb.makeAnchor([0, 1, 0, 1], null, jsPlumb);
+		var a2 = jsPlumb.makeAnchor([0, 1, 1, 1], null, jsPlumb);
 		ok(!a1.equals(a2), "anchors are different");
 	});
 	
 	test(renderMode + ': anchor not equal with offsets', function() {
-		var a1 = jsPlumb.makeAnchor(0, 1, 1, 1, 10, 13);
-		var a2 = jsPlumb.makeAnchor(0, 1, 1, 1);
+		var a1 = jsPlumb.makeAnchor([0, 1, 1, 1, 10, 13], null, jsPlumb);
+		var a2 = jsPlumb.makeAnchor([0, 1, 1, 1], null, jsPlumb);
 		ok(!a1.equals(a2), "anchors are different");
 	});
 	
@@ -955,6 +955,15 @@ var testSuite = function(renderMode) {
 		equals(e17.anchor.y, 0);
 	});
 	
+	test(renderMode + ": jsPlumb.addEndpoint (tooltip)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"), 
+			e16 = jsPlumb.addEndpoint(d16, {tooltip:"FOO"}),
+			e17 = jsPlumb.addEndpoint(d17, {tooltip:"BAZ"});
+		assertContextSize(2);
+		equals(e16.canvas.getAttribute("label"), "FOO");
+		equals(e17.canvas.getAttribute("label"), "BAZ");		
+	});
+	
 	test(renderMode + ": jsPlumb.addEndpoint (simple case, dynamic anchors)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = jsPlumb.addEndpoint(d16, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
@@ -1430,7 +1439,12 @@ var testSuite = function(renderMode) {
 	test(renderMode + ": jsPlumb.connect (setting cssClass on Connector)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = jsPlumb.connect({source:d1,target:d2,cssClass:"CSS"});
-		var has = function(clazz) { return $(c.connector.canvas).hasClass(clazz); };		
+		var has = function(clazz) { 
+			var cn = c.connector.canvas.className,
+				cns = cn.constructor == String ? cn : cn.baseVal; 
+			
+			return cns.indexOf(clazz) != -1; 
+		};		
 		ok(has("CSS"), "custom cssClass set correctly");
 		ok(has(jsPlumb.connectorClass), "basic connector class set correctly");
 	});
@@ -1696,8 +1710,8 @@ var testSuite = function(renderMode) {
 	});
 	
 	test(renderMode + ": jsPlumb.makeDynamicAnchors (longhand)", function() {
-		var anchors = [jsPlumb.makeAnchor(0.2, 0, 0, -1), jsPlumb.makeAnchor(1, 0.2, 1, 0), 
-					   jsPlumb.makeAnchor(0.8, 1, 0, 1), jsPlumb.makeAnchor(0, 0.8, -1, 0) ];				   				
+		var anchors = [jsPlumb.makeAnchor([0.2, 0, 0, -1], null, jsPlumb), jsPlumb.makeAnchor([1, 0.2, 1, 0], null, jsPlumb), 
+					   jsPlumb.makeAnchor([0.8, 1, 0, 1], null, jsPlumb), jsPlumb.makeAnchor([0, 0.8, -1, 0], null, jsPlumb) ];				   				
 		var dynamicAnchor = jsPlumb.makeDynamicAnchor(anchors);
 		var a = dynamicAnchor.getAnchors();
 		equals(a.length, 4, "Dynamic Anchors has four anchors");
