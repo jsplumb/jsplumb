@@ -1,6 +1,18 @@
 ;(function() {
 
-	jsPlumb.Layout = {
+	var AbstractLayout = function(params) {
+		var self = this;
+		params = params || {};
+		self.animate = params.animate;
+	};
+
+	// TODO turn these into functions.
+	jsPlumb.Layout = function(layoutType, params) {
+		new layouts[layoutType](params);
+		
+	};
+	
+	var layouts = {
 		/**
 			Fruchterman-Reingold layout.  Parameters are:
 			
@@ -13,7 +25,9 @@
 				iterations		-	optional.  number of times to iterate in the quest for the perfect layout.  defaults to 50.
 		*/
 		"Fruchterman-Reingold" : function(params) {
-			var w = params.width || 500,
+			AbstractLayout.apply(this, arguments);
+			var self = this,
+				w = params.width || 500,
 				h = params.height || 500,
 				margins = params.margins || [0,0],
 				nodeSelector = params.nodeSelector,
@@ -66,13 +80,15 @@
 						el = jsPlumb.CurrentLibrary.getElementObject(fromEl),
 						s = jsPlumb.CurrentLibrary.getSize(el), p = getPosition(id),
 						clampedX = ( (p[0] - boundingBox[0][0]) / boundingBox[2]) * (w - (2 * margins[0])),
-						clampedY = ( (p[1] - boundingBox[0][1]) / boundingBox[3]) * (h - (2 * margins[1]));
-					jsPlumb.CurrentLibrary.setOffset(el, {
-						/*left:p[0] - (s[0] / 2), 
-						top:p[1] - (s[1] / 2)*/
-						left:margins[0] + clampedX - (s[0] / 2), 
-						top:margins[1] + clampedY - (s[1] / 2)
-					});	
+						clampedY = ( (p[1] - boundingBox[0][1]) / boundingBox[3]) * (h - (2 * margins[1])),
+						newPos = {
+							left:margins[0] + clampedX - (s[0] / 2), 
+							top:margins[1] + clampedY - (s[1] / 2)
+						};
+					if (self.animate) 
+						jsPlumb.animate(el, newPos);
+					else
+						jsPlumb.CurrentLibrary.setOffset(el, newPos);
 				},
 				step = function() {
 					currentIteration++;
@@ -123,10 +139,33 @@
 				while (!done()) step();							
 				// position ui components
 				var computedBoundingBox = getComputedBoundingBox();
+				
 				for (var i = 0; i < nodeSelector.length; i++) 
 					updateUIPosition(nodeSelector[i], computedBoundingBox, margins);
 				// repaint jsPlumb
 				jsPlumb.repaintEverything();						
+			},
+			
+			"Kamada-Kawai":function(params) {
+				var iterations = params.iterations || 200,
+					w = params.width || 500,
+					h = params.height || 500,
+					currentIteration = 0,
+					adjustForGravity = (params.adjustForGravity != null) ? params.adjustForGravity : true,
+					exchangeVertices = (params.exchangeVertices != null) ? params.exchangeVertices : true,
+					lengthFactor = params.lengthFactor || 0.9,
+					disconnectedMultiplier = params.disconnectedMultiplier || 0.5,
+					done = function() { return currentIteration > iterations; },
+					step = function() {
+						currentIteration++;
+					};
+					
+				// assign IDs (we probably dont need to do that; we have div ids)
+				// assign initial distances etc
+				//
+				while(!done()) step();
+					
+				throw "kamada kawai is not implemented yet";
 			},
 				
 			"Tree":function(params) {
