@@ -81,33 +81,19 @@
 	},
 	_conv = jsPlumb.vml.convertValue = function(v) {
 		return Math.floor(v * scale);
-	},
-	_convertStyle = function(s, ignoreAlpha) {
-		var o = s,
-		pad = function(n) { return n.length == 1 ? "0" + n : n; },
-		hex = function(k) { return pad(Number(k).toString(16)); },
-		pattern = /(rgb[a]?\()(.*)(\))/;
-		if (s.match(pattern)) {
-			var parts = s.match(pattern)[2].split(",");
-			o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
-			if (!ignoreAlpha && parts.length == 4) 
-				o = o + hex(parts[3]);
-		}		
-		
-		return o;
 	},	
 	_applyStyles = function(node, style, component) {
 		var styleToWrite = {};
 		if (style.strokeStyle) {
 			styleToWrite["stroked"] = "true";
-			styleToWrite["strokecolor"] =_convertStyle(style.strokeStyle, true);
+			styleToWrite["strokecolor"] = jsPlumb.util.convertStyle(style.strokeStyle, true);
 			styleToWrite["strokeweight"] = style.lineWidth + "px";
 		}
 		else styleToWrite["stroked"] = "false";
 		
 		if (style.fillStyle) {
 			styleToWrite["filled"] = "true";
-			styleToWrite["fillcolor"] = _convertStyle(style.fillStyle, true);
+			styleToWrite["fillcolor"] = jsPlumb.util.convertStyle(style.fillStyle, true);
 		}
 		else styleToWrite["filled"] = "false";
 		
@@ -159,7 +145,7 @@
 					var outlineWidth = style.outlineWidth || 1,
 					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
 					outlineStyle = {
-						strokeStyle : _convertStyle(style.outlineColor),
+						strokeStyle : jsPlumb.util.convertStyle(style.outlineColor),
 						lineWidth : outlineStrokeWidth
 					};
 					for (var aa in vmlAttributeMap) outlineStyle[aa] = style[aa];
@@ -209,6 +195,10 @@
 			self.canvas.parentNode.appendChild(el);
 			displayElements.push(el);
 		};
+		
+		this.reattachListeners = function() {
+			if (self.canvas) self.reattachListenersForElement(self.canvas, self);
+		};
 	},		
 	/*
 	 * 
@@ -239,6 +229,10 @@
 			}
 			
 			_applyStyles(vml, style);
+		};
+		
+		this.reattachListeners = function() {
+			if (vml) self.reattachListenersForElement(vml, self);
 		};
 	};
 	
@@ -317,7 +311,7 @@
     		var p = {};
 			if (strokeStyle) {
 				p["stroked"] = "true";
-				p["strokecolor"] =_convertStyle(strokeStyle, true);    				
+				p["strokecolor"] = jsPlumb.util.convertStyle(strokeStyle, true);    				
 			}
 			if (lineWidth) p["strokeweight"] = lineWidth + "px";
 			if (fillStyle) {
@@ -355,6 +349,10 @@
 				_atts(self.canvas, p);
 			}    		
     	};
+    	
+    	this.reattachListeners = function() {
+			if (self.canvas) self.reattachListenersForElement(self.canvas, self);
+		};
     };
 	
 	jsPlumb.Overlays.vml.Arrow = function() {

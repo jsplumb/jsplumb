@@ -63,21 +63,7 @@
 		_attr(n, attributes);
 		return n;
 	},
-	_pos = function(d) { return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px"; },
-	_convertStyle = function(s, ignoreAlpha) {
-		var o = s,
-		pad = function(n) { return n.length == 1 ? "0" + n : n; },
-		hex = function(k) { return pad(Number(k).toString(16)); },
-		pattern = /(rgb[a]?\()(.*)(\))/;
-		if (s.match(pattern)) {
-			var parts = s.match(pattern)[2].split(",");
-			o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
-			if (!ignoreAlpha && parts.length == 4) 
-				o = o + hex(parts[3]);
-		}
-		
-		return o;
-	},	
+	_pos = function(d) { return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px"; },	
 	_clearGradient = function(parent) {
 		for (var i = 0; i < parent.childNodes.length; i++) {
 			if (parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
@@ -116,7 +102,7 @@
 				styleToUse = dimensions[4] < dimensions[6] ? i: style.gradient.stops.length - 1 - i;
 			else
 				styleToUse = dimensions[4] < dimensions[6] ? style.gradient.stops.length - 1 - i : i;
-			var stopColor = _convertStyle(style.gradient.stops[styleToUse][1], true);
+			var stopColor = jsPlumb.util.convertStyle(style.gradient.stops[styleToUse][1], true);
 			var s = _node(STOP, {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
 			g.appendChild(s);
 		}
@@ -126,7 +112,7 @@
 	_applyStyles = function(parent, node, style, dimensions) {
 		
 		if (style.gradient) {
-		_updateGradient(parent, node, style, dimensions);			
+			_updateGradient(parent, node, style, dimensions);			
 		}
 		else {
 			// make sure we clear any existing gradient
@@ -134,8 +120,8 @@
 			node.setAttribute(STYLE, "");
 		}
 		
-		node.setAttribute(FILL, style.fillStyle ? _convertStyle(style.fillStyle, true) : NONE);
-		node.setAttribute(STROKE, style.strokeStyle ? _convertStyle(style.strokeStyle, true) : NONE);		
+		node.setAttribute(FILL, style.fillStyle ? jsPlumb.util.convertStyle(style.fillStyle, true) : NONE);
+		node.setAttribute(STROKE, style.strokeStyle ? jsPlumb.util.convertStyle(style.strokeStyle, true) : NONE);		
 		if (style.lineWidth) {
 			node.setAttribute(STROKE_WIDTH, style.lineWidth);
 		}
@@ -252,7 +238,7 @@
 				var outlineWidth = style.outlineWidth || 1,
 				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
 				outlineStyle = jsPlumb.CurrentLibrary.extend({}, style);
-				outlineStyle.strokeStyle = _convertStyle(style.outlineColor);
+				outlineStyle.strokeStyle = jsPlumb.util.convertStyle(style.outlineColor);
 				outlineStyle.lineWidth = outlineStrokeWidth;
 				
 				if (self.bgPath == null) {
@@ -294,6 +280,12 @@
 	    		    	
 	    	_applyStyles(self.svg, self.path, style, d);
 		};
+		
+		this.reattachListeners = function() {
+			if (self.bgPath) self.reattachListenersForElement(self.bgPath, self);
+			if (self.path) self.reattachListenersForElement(self.path, self);
+		};
+			
 	};		
 
 	/*
@@ -345,7 +337,7 @@
 			var s = jsPlumb.extend({}, style);
 			if (s.outlineColor) {
 				s.strokeWidth = s.outlineWidth;
-				s.strokeStyle = _convertStyle(s.outlineColor, true);
+				s.strokeStyle = jsPlumb.util.convertStyle(s.outlineColor, true);
 			}
 			
 			if (self.node == null) {
@@ -355,6 +347,10 @@
 			}
 			_applyStyles(self.svg, self.node, s, d);
 			_pos(self.node, d);
+		};
+		
+		this.reattachListeners = function() {
+			if (self.node) self.reattachListenersForElement(self.node, self);
 		};
 	};
 	
@@ -428,6 +424,9 @@
     				" L" + d.tail[1].x + "," + d.tail[1].y + 
     				" L" + d.hxy.x + "," + d.hxy.y;
     	};
+    	this.reattachListeners = function() {
+			if (path) self.reattachListenersForElement(path, self);
+		};
     };
     
     jsPlumb.Overlays.svg.Arrow = function() {
