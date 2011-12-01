@@ -988,6 +988,10 @@
         	}
 	    	else return [0,0,0,0];
 	    };
+	    
+	    this.reattachListeners = function() {
+	    	if (div) self.reattachListenersForElement(div, self);
+	    };
     };
     
  // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************
