@@ -76,8 +76,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 		params = params || {};		
 		
 		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
-		
-		//	if (sourceEndpoint.elementId != targetEndpoint.elementId) {
+
 				var w = Math.abs(sourcePos[0] - targetPos[0]),
    	 	        	h = Math.abs(sourcePos[1] - targetPos[1]),
 	   	   	      	// these are padding to ensure the whole connector line appears
@@ -101,6 +100,9 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
         			y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - (calculatedMinWidth / 2);
         			yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
         		}
+		
+			if (sourceEndpoint.elementId != targetEndpoint.elementId) {
+
                             
         		_sx = sourcePos[0] < targetPos[0] ?  xo : w-xo;
             	_sy = sourcePos[1] < targetPos[1] ? yo:h-yo;
@@ -148,19 +150,20 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 					// y = 1 is bottom, x=0 left, x=1 right.
 					var xm = 1, ym = 1, flip = false;
 					if (sourceAnchorPos[3] == 0) {
-						ym = -1, xm = sourceAnchorPos[2] < 0.5 ? -1 : sourceAnchorPos[2] == 0.5 ? 0 : 1, flip = (targetAnchorPos[3] != 0 && targetAnchorPos[3] != 1);
+						ym = -1, xm = sourceAnchorPos[2] < 0.5 ? -1 : /*sourceAnchorPos[2] == 0.5 ? 0 :*/ 1, flip = targetAnchorPos[3] != 1;
 					}
 					else if (sourceAnchorPos[3] == 1) {
-						ym = 1, xm = sourceAnchorPos[2] < 0.5 ? -1 : sourceAnchorPos[2] == 0.5 ? 0 : 1, flip = (targetAnchorPos[3] != 0 && targetAnchorPos[3] != 1);					
+						ym = 1, xm = sourceAnchorPos[2] < 0.5 ? -1 : /*sourceAnchorPos[2] == 0.5 ? 0 :*/ 1, flip = targetAnchorPos[3] != 0;					
 					}
 					else if (sourceAnchorPos[2] == 0) {
-						xm = -1, ym = sourceAnchorPos[3] < 0.5 ? -1 : sourceAnchorPos[3] == 0.5 ? 0 : 1, flip = (targetAnchorPos[2] != 0 && targetAnchorPos[2] != 1);					
+						xm = -1, ym = sourceAnchorPos[3] < 0.5 ? -1 : /*sourceAnchorPos[3] == 0.5 ? 0 :*/ 1, flip = targetAnchorPos[2] != 1;					
 					}
 					else if (sourceAnchorPos[2] == 1) {
-						xm = 1, ym = sourceAnchorPos[3] < 0.5 ? -1 : sourceAnchorPos[3] == 0.5 ? 0 : 1, flip = (targetAnchorPos[2] != 0 && targetAnchorPos[2] != 1);					
+						xm = 1, ym = sourceAnchorPos[3] < 0.5 ? -1 : /*sourceAnchorPos[3] == 0.5 ? 0 :*/ 1, flip = targetAnchorPos[2] != 0;					
 					}
 					
-					return [xm, ym];
+					var ff = flip ? -1 : 1;
+					return [xm * ff, ym * ff];
 				},
             	_midx = (_sx + _tx) / 2, _midy = (_sy + _ty) / 2, 
             	m2 = (-1 * _midx) / _midy, theta2 = Math.atan(m2),            
@@ -183,34 +186,55 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 				}
 				
 				// now for a rudimentary avoidance scheme. TODO: how to set this in a cross-library way?  
-		/*		var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
-				var sel = $(".w");
-				sel.each(function(i,e) {
-					var id = jsPlumb.getId(e);
-					if (id != sourceEndpoint.elementId && id != targetEndpoint.elementId) {
-						o = jsPlumb.getOffset(id), s = jsPlumb.getSize(id);
-
-						if (o && s) {
-							var collision = testLine.rectIntersect(o.left,o.top,s[0],s[1]);
-							if (collision) {
+		//		var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
+		//		var sel = $(".w");
+		//		sel.each(function(i,e) {
+		//			var id = jsPlumb.getId(e);
+		//			if (id != sourceEndpoint.elementId && id != targetEndpoint.elementId) {
+		//				o = jsPlumb.getOffset(id), s = jsPlumb.getSize(id);
+//
+//						if (o && s) {
+//							var collision = testLine.rectIntersect(o.left,o.top,s[0],s[1]);
+//							if (collision) {
 								// set the control point to be a certain distance from the midpoint of the two points that
 								// the line crosses on the rectangle.
 								// TODO where will this 75 number come from?
 					//			_controlX = collision[2][0] + (75 * collision[3][0]);
 				//	/			_controlY = collision[2][1] + (75 * collision[3][1]);							
-							}
-						}
-					}
-				});*/
+//							}
+//						}/
+					//}
+	//			});
             
             	currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty, _controlX, _controlY ];                        
                 
-     //       }
-      //      else {
+            }
+            else {
             	// a loopback connector.  draw an arc from one anchor to the other.
             	// i guess we'll do this the same way as the others.  just the control point will be a fair distance away.
-            	
-        //    }
+        		var x1 = sourcePos[0], x2 = targetPos[0], y1 = sourcePos[1], y2 = targetPos[1], 
+				q = Math.sqrt(
+					Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)	
+				),
+				clockwise = x1 > x2,
+				r = q,//q * 1.5,   // should be computed from their distance, or maybe it
+	            // can be constant.
+				x3 = (x1 + x2) / 2, 
+				y3 = (y1 + y2) / 2,
+				// TODO these are '+' because its on the top line.  it would be different if we could place them elsewhere.
+				cx = x3 + Math.sqrt(Math.pow(r, 2) - Math.pow(q/2, 2)) * (y1 - y2) / q,
+				cy = y3 + Math.sqrt(Math.pow(r, 2) - Math.pow(q/2, 2)) * (x2 - x1) / q;  
+				
+				// now we need the angle from the center to each point.  the arc will start at the first angle and go to the second.
+				var m1 = (cy - y1) / (cx - x1), theta1 = Math.atan(m1), m2 = (cy - y2) / (cx - x2), theta2 = Math.atan(m2);
+				
+				// canvas sizing stuff, to ensure the whole painted area is visible.
+				w = (2 * lineWidth) + (2 * r), h = (2 * lineWidth) + (2 * r);
+				calculatedMinWidth = Math.min(w,h);
+				x = cx - r, y = cy - r;
+				
+				currentPoints = [ x, y, w, h, cx-x, cy-y, r, clockwise, x1-x, y1-y, x2-x, y2-y];
+            }
                 
             return currentPoints;
         };
@@ -295,6 +319,15 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 			}
 			else {
 				// a loopback connector
+				self.ctx.save();
+				self.ctx.beginPath();        	
+	        	var startAngle = 0,                     // Starting point on circle
+	        	endAngle   = 2 * Math.PI, // End point on circle
+	        	clockwise  = dimensions[7]; // clockwise or anticlockwise 
+	        	self.ctx.arc(dimensions[4],dimensions[5],dimensions[6],0, endAngle, clockwise);
+				self.ctx.stroke();
+				self.ctx.closePath();
+				self.ctx.restore();
 			}
 	    };	    
 	    
@@ -315,6 +348,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 				return "M " + d[4] + " " + d[5] + " C " + d[8] + " " + d[9] + " " + d[8] + " " + d[9] + " " + d[6] + " " + d[7]; 
 			else {
 				// loopback
+				return "M" + d[8] + " " + d[9] + " A" + d[6] + " " + d[6] + " 0 1,0 " + d[10] + "," + d[11];
 			}
 		};	    	    
     };
@@ -333,6 +367,9 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 			}
 			else {
 				// loopback
+				var l = d[4] - d[6], t = d[5] - d[6], r = d[4] + d[6], b = d[4] + d[6];
+				return "m" + _conv(d[8]) + "," + _conv(d[9]) +
+				" ar " + l + "," + t + "," + r + "," + b + "," + d[8] + "," + d[9] + "," + d[10] + "," + d[11] + " e";
 			}
 		};
 	};
