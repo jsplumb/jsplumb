@@ -617,6 +617,11 @@
 				}
 			}
 			
+			// tooltip.  params.tooltip takes precedence, then sourceEndpoint.connectorTooltip.
+			_p.tooltip = params.tooltip;
+			if (!_p.tooltip && _p.sourceEndpoint && _p.sourceEndpoint.connectorTooltip)
+				_p.tooltip = _p.sourceEndpoint.connectorTooltip;
+			
 			if (_p.target && !_p.target.endpoint) {
 				var tid = _getId(_p.target),
 				tep =_targetEndpointDefinitions[tid];
@@ -2968,7 +2973,13 @@ about the parameters allowed in the params object.
 			 */
 			this.setConnector = function(connector, doNotRepaint) {
 				if (self.connector != null) _removeElements(self.connector.getDisplayElements(), self.parent);
-				var connectorArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, cssClass:params.cssClass, container:params.container };
+				var connectorArgs = { 
+					_jsPlumb:self._jsPlumb, 
+					parent:params.parent, 
+					cssClass:params.cssClass, 
+					container:params.container,
+					tooltip:self.tooltip
+				};
 				if (connector.constructor == String) 
 					this.connector = new jsPlumb.Connectors[renderMode][connector](connectorArgs); // lets you use a string as shorthand.
 				else if (connector.constructor == Array)
@@ -3526,6 +3537,7 @@ about the parameters allowed in the params object.
 			this.connectorHoverStyle = params.connectorHoverStyle;
 			this.connectorOverlays = params.connectorOverlays;
 			this.connector = params.connector;
+			this.connectorTooltip = params.connectorTooltip;
 			this.parent = params.parent;
 			this.isSource = params.isSource || false;
 			this.isTarget = params.isTarget || false;
