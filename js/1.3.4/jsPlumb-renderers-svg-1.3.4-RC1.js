@@ -230,7 +230,7 @@
 	 */
 	var SvgConnector = jsPlumb.SvgConnector = function(params) {
 		var self = this;
-		SvgComponent.apply(this, [ { cssClass:params["_jsPlumb"].connectorClass, originalArgs:arguments, pointerEventsSpec:"none" } ]);
+		SvgComponent.apply(this, [ { cssClass:params["_jsPlumb"].connectorClass, originalArgs:arguments, pointerEventsSpec:"none", tooltip:params.tooltip } ]);
 		this._paint = function(d, style) {
 			var p = self.getPath(d), a = { "d":p }, outlineStyle = null;									
 			a["pointer-events"] = "all";

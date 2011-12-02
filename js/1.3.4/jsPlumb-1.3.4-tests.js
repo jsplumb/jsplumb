@@ -1072,6 +1072,22 @@ var testSuite = function(renderMode) {
 		ok(c.id != null, "connection has had an id assigned");
 	});
 	
+	test(renderMode + ': jsPlumb.connect (Endpoint connectorTooltip parameter)', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e = jsPlumb.addEndpoint(d1, {connectorTooltip:"FOO"});
+		var e2 = jsPlumb.addEndpoint(d2, {});
+		var c = jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
+		equals(c.connector.canvas.getAttribute("label"), "FOO", "connector canvas has label attribute set");
+	});
+	
+	test(renderMode + ': jsPlumb.connect (tooltip parameter)', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e = jsPlumb.addEndpoint(d1, {});
+		var e2 = jsPlumb.addEndpoint(d2, {});
+		var c = jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2, tooltip:"FOO"});
+		equals(c.connector.canvas.getAttribute("label"), "FOO", "connector canvas has label attribute set");
+	});
+	
 	test(renderMode + ': jsPlumb.connect (between two Endpoints, and dont supply any parameters to the Endpoints.)', function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var e = jsPlumb.addEndpoint(d1);

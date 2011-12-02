@@ -156,7 +156,8 @@
 		self.canvas = _newCanvas({ 
 			"class":clazz, 
 			_jsPlumb:self._jsPlumb,
-			parent:params.parent
+			parent:params.parent,
+			tooltip:params.tooltip
 		});	
 		self.ctx = self.canvas.getContext("2d");
 		
