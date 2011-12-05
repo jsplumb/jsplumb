@@ -518,11 +518,11 @@
 			//console.log("anchors for ", id, _currentInstance.anchorManager.get(id));
 			
 			if (!timestamp) timestamp = _timestamp();
-			//if (endpoints) {
+			if (endpoints) {
 			// TODO this needs refactoring.  it must be possible to calculate all the endpoints in
 			// one go, and then paint affected connections. like i want to merge the continuous anchor
 			// manager with the standard/dynamic anchor manager.
-			if (anchors) {
+			//if (anchors) {
 				_updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp }); // timestamp is checked against last update cache; it is
 				// valid for one paint cycle.
 				var myOffset = offsets[id], myWH = sizes[id], repaintContinous = false;
@@ -2630,6 +2630,10 @@ about the parameters allowed in the params object.
 			else
 				_removeFromList(_amEndpoints, endpoint.elementId, endpoint);		
 		};
+		this.clearFor = function(elementId) {
+			delete _amEndpoints[elementId];
+			_amEndpoints[elementId] = [];
+		};
 		this.redraw = function(elementId, ui, timestamp) {
 			// get all the endpoints for this element
 			var ep = _amEndpoints[elementId] || [],
@@ -2642,14 +2646,20 @@ about the parameters allowed in the params object.
 			// valid for one paint cycle.
 			var myOffset = offsets[elementId], myWH = sizes[elementId], connectionsToPaint = [];
 			// first paint all the endpoints for this element
-			for (var i = 0; i < ep.length; i++) {
+			for (var i = 0; i < ep.length; i++) {				
 				ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+				/*if (ep[i].anchor.isFloating) {
+					for (var j = 0; j < ep[i].connections.length; j++)
+						//floatingConnections[floatingConnections.length] = ep[i].connections[j];
+						ep[i].connections[j].paint({timestamp:timestamp, recalc:false});
+				}*/
 			}
 			// then paint all the "standard connections", which are connections whose other anchor is
 			// static and therefore does not need to be recomputed.
 			for (var i = 0; i < standardAnchorConnections.length; i++) {
 				standardAnchorConnections[i].paint({timestamp:timestamp, recalc:false});
 			}
+			
 			// then paint all the "dynamic connections", which are connections whose other anchor is
 			// static and therefore does need to be recomputed; we make sure that happens only one time.
 			for (var i = 0; i < dynamicAnchorConnections.length; i++) {
@@ -2663,6 +2673,10 @@ about the parameters allowed in the params object.
 					otherEndpoint.connections[k].paint( { elId : elementId, ui : ui, recalc : false, timestamp : timestamp }); 
 				}
 			}
+			// paint current floating connection for this element, if there is one.
+			var fc = floatingConnections[elementId];
+			if (fc) fc.paint({timestamp:timestamp, recalc:false});
+			
 			// and lastly, have the continuous anchor manager repaint itself.
 			if (continuousAnchorConnections.length > 0) {
 				_currentInstance.continuousAnchorManager.recalc(timestamp);
@@ -4157,7 +4171,7 @@ about the parameters allowed in the params object.
 						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
 						_removeElement(inPlaceCopy.canvas, _element);	
 						
-						_currentInstance.anchorManager.clearAnchorsFor(placeholderInfo.id);
+						_currentInstance.anchorManager.clearFor(placeholderInfo.id);
 						
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 						jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
