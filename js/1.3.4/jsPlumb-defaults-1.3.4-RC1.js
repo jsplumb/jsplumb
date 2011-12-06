@@ -634,8 +634,8 @@
 		var self = this;
 		this.type = "Blank";
 		jsPlumb.DOMElementComponent.apply(this, arguments);		
-		this.compute = function() {
-			return [0,0,10,0];
+		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
+			return [anchorPoint[0], anchorPoint[1],10,0];
 		};
 		
 		self.canvas = document.createElement("div");
@@ -646,7 +646,9 @@
 		self.canvas.style.position = "absolute";
 		jsPlumb.appendElement(self.canvas, params.parent);
 		
-		this.paint = function() { };				
+		this.paint = function(d, style, anchor) {
+			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);	
+		};
 	};
 	
 	/**
