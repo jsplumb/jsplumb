@@ -303,22 +303,27 @@
 		     * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
 		     */
 		    this.setHover = function(hover, ignoreAttachedElements, timestamp) {
-		    	_hover = hover;
-				if (self.hoverClass != null && self.canvas != null) {
-					if (hover) 
-						jpcl.addClass(self.canvas, self.hoverClass);						
-					else
-						jpcl.removeClass(self.canvas, self.hoverClass);
+		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
+		    	// swishing and whatevering.
+		    	if (!self._jsPlumb.currentlyDragging) {
+		    
+			    	_hover = hover;
+					if (self.hoverClass != null && self.canvas != null) {
+						if (hover) 
+							jpcl.addClass(self.canvas, self.hoverClass);						
+						else
+							jpcl.removeClass(self.canvas, self.hoverClass);
+					}
+		   		 	if (self.hoverPaintStyle != null) {
+						self.paintStyleInUse = hover ? self.hoverPaintStyle : self.paintStyle;
+						timestamp = timestamp || _timestamp();
+						self.repaint({timestamp:timestamp});					
+					}
+					// get the list of other affected elements, if supported by this component.
+					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
+					if (self.getAttachedElements && !ignoreAttachedElements)
+						_updateAttachedElements(hover);
 				}
-		    	if (self.hoverPaintStyle != null) {
-					self.paintStyleInUse = hover ? self.hoverPaintStyle : self.paintStyle;
-					timestamp = timestamp || _timestamp();
-					self.repaint({timestamp:timestamp});					
-				}
-				// get the list of other affected elements, if supported by this component.
-				// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
-				if (self.getAttachedElements && !ignoreAttachedElements)
-					_updateAttachedElements(hover);
 		    };
 		    
 		    this.isHover = function() { return _hover; };
@@ -3970,7 +3975,11 @@ about the parameters allowed in the params object.
 			 * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
 			 */
 			this.connectorSelector = function() {
-				return (self.connections.length < _maxConnections) || _maxConnections == -1 ? null : self.connections[0];
+				var candidate = self.connections[0];
+				if (self.isTarget && candidate) return candidate;
+				else {
+					return (self.connections.length < _maxConnections) || _maxConnections == -1 ? null : candidate;
+				}
 			};
 
 			/*
@@ -4081,14 +4090,19 @@ about the parameters allowed in the params object.
 
 			// is this a connection source? we make it draggable and have the
 			// drag listener maintain a connection with a floating endpoint.
-			if (params.isSource && jsPlumb.CurrentLibrary.isDragSupported(_element)) {
+			if (/*params.isSource && */jsPlumb.CurrentLibrary.isDragSupported(_element)) {
 				var placeholderInfo = {
 						id:null,
 						element:null
 				}, jpc = null, existingJpc = false, existingJpcParams = null;
-				var start = function() {										
+				var start = function() {	
+				// drag might have started on an endpoint that is not actually a source, but which has
+				// one or more connections.
 					jpc = self.connectorSelector();
-					if (self.isFull() && !dragAllowedWhenFull) return false;
+					// if no connection and we're not a source, return.
+					if (jpc == null && !params.isSource) return false;
+					// otherwise if we're full and not allowed to drag, also return false.
+					if (params.iSource && self.isFull() && !dragAllowedWhenFull) return false;
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
 					inPlaceCopy.paint();										
