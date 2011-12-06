@@ -61,6 +61,15 @@
 		 * adds the given class to the element object.
 		 */
 		addClass : function(el, clazz) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			try {
+				if (el[0].className.constructor == SVGAnimatedString) {
+					jsPlumb.util.svg.addClass(el[0], clazz);
+				}
+			}
+			catch (e) {
+				// SVGAnimatedString not supported; no problem.
+			}
 			el.addClass(clazz);
 		},
 		
@@ -249,6 +258,15 @@
 		 * removes the given class from the element object.
 		 */
 		removeClass : function(el, clazz) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			try {
+				if (el[0].className.constructor == SVGAnimatedString) {
+					jsPlumb.util.svg.removeClass(el[0], clazz);
+				}
+			}
+			catch (e) {
+				// SVGAnimatedString not supported; no problem.
+			}
 			el.removeClass(clazz);
 		},
 		
