@@ -82,18 +82,30 @@
 	_conv = jsPlumb.vml.convertValue = function(v) {
 		return Math.floor(v * scale);
 	},	
+	// tests if the given style is "transparent" and then sets the opacity attribute to 0 if so.  this
+	// is to support strokeStyle="transparent" or fillStyle="transparent", both of which work in Canvas
+	// and SVG. a future incarnation of jsPlumb should directly support "opacity" as a member of
+	// the endpoint or connector style objects.
+	_maybeSetOpacity = function(styleToWrite, styleToCheck) {
+		if ("transparent" === styleToCheck)
+			styleToWrite["opacity"] = 0.0;
+	},
 	_applyStyles = function(node, style, component) {
 		var styleToWrite = {};
 		if (style.strokeStyle) {
 			styleToWrite["stroked"] = "true";
-			styleToWrite["strokecolor"] = jsPlumb.util.convertStyle(style.strokeStyle, true);
+			var strokeColor = jsPlumb.util.convertStyle(style.strokeStyle, true);
+			styleToWrite["strokecolor"] = strokeColor;
+			_maybeSetOpacity(styleToWrite, strokeColor);
 			styleToWrite["strokeweight"] = style.lineWidth + "px";
 		}
 		else styleToWrite["stroked"] = "false";
 		
 		if (style.fillStyle) {
 			styleToWrite["filled"] = "true";
-			styleToWrite["fillcolor"] = jsPlumb.util.convertStyle(style.fillStyle, true);
+			var fillColor = jsPlumb.util.convertStyle(style.fillStyle, true);
+			styleToWrite["fillcolor"] = fillColor;
+			_maybeSetOpacity(styleToWrite, fillColor);
 		}
 		else styleToWrite["filled"] = "false";
 		
