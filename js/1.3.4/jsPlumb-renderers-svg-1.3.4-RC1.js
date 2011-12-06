@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.2
+ * Title:jsPlumb 1.3.4
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -158,6 +158,40 @@
 		var r = /([0-9].)(p[xt])\s(.*)/;
 		var bits = f.match(r);
 		return {size:bits[1] + bits[2], font:bits[3]};		
+	},
+	_classManip = function(el, add, clazz) {
+		el = jsPlumb.CurrentLibrary.getElementObject(el);
+		var classesToAddOrRemove = clazz.split(" "),
+			className = el[0].className,
+			curClasses = className.baseVal.split(" ");
+			
+		for (var i = 0; i < classesToAddOrRemove.length; i++) {
+			if (add) {
+				if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
+					curClasses.push(classesToAddOrRemove[i]);
+			}
+			else {
+				var idx = curClasses.indexOf(classesToAddOrRemove[i]);
+				if (idx != -1)
+					curClasses.splice(idx, 1);
+			}
+		}
+		
+		el[0].className.baseVal = curClasses.join(" ");
+	},
+	_addClass = function(el, clazz) {
+		_classManip(el, true, clazz);
+	},
+	_removeClass = function(el, clazz) {
+		_classManip(el, false, clazz);
+	};
+	
+	/**
+		utility methods for other objects to use.
+	*/
+	jsPlumb.util.svg = {
+		addClass:_addClass,
+		removeClass:_removeClass
 	};
 	
 	/*
@@ -170,8 +204,6 @@
 		jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
 		self.canvas = null, self.path = null, self.svg = null; 
 	
-		this.setHover = function() { };
-		
 		var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || ""),		
 			svgParams = {
 				"style":"",
