@@ -61,6 +61,7 @@
 			// IE8 fix: setattribute does not work after an element has been added to the dom!
 			// http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
 			//o.setAttribute(i, atts[i]);
+			
 			o[i] = atts[i];
 		}
 	},
@@ -82,13 +83,13 @@
 	_conv = jsPlumb.vml.convertValue = function(v) {
 		return Math.floor(v * scale);
 	},	
-	// tests if the given style is "transparent" and then sets the opacity attribute to 0 if so.  this
-	// is to support strokeStyle="transparent" or fillStyle="transparent", both of which work in Canvas
-	// and SVG. a future incarnation of jsPlumb should directly support "opacity" as a member of
-	// the endpoint or connector style objects.
-	_maybeSetOpacity = function(styleToWrite, styleToCheck) {
+	// tests if the given style is "transparent" and then sets the appropriate opacity node to 0 if so,
+	// or 1 if not.  TODO in the future, support variable opacity.
+	_maybeSetOpacity = function(styleToWrite, styleToCheck, type, component) {
 		if ("transparent" === styleToCheck)
-			styleToWrite["opacity"] = 0.0;
+			component.setOpacity(type, "0.0");
+		else
+			component.setOpacity(type, "1.0");
 	},
 	_applyStyles = function(node, style, component) {
 		var styleToWrite = {};
@@ -96,7 +97,7 @@
 			styleToWrite["stroked"] = "true";
 			var strokeColor = jsPlumb.util.convertStyle(style.strokeStyle, true);
 			styleToWrite["strokecolor"] = strokeColor;
-			_maybeSetOpacity(styleToWrite, strokeColor);
+			_maybeSetOpacity(styleToWrite, strokeColor, "stroke", component);
 			styleToWrite["strokeweight"] = style.lineWidth + "px";
 		}
 		else styleToWrite["stroked"] = "false";
@@ -105,7 +106,7 @@
 			styleToWrite["filled"] = "true";
 			var fillColor = jsPlumb.util.convertStyle(style.fillStyle, true);
 			styleToWrite["fillcolor"] = fillColor;
-			_maybeSetOpacity(styleToWrite, fillColor);
+			_maybeSetOpacity(styleToWrite, fillColor, "fill", component);
 		}
 		else styleToWrite["filled"] = "false";
 		
@@ -138,7 +139,21 @@
 	 * Base class for Vml endpoints and connectors. Extends jsPlumbUIComponent. 
 	 */
 	VmlComponent = function() {				
+		var self = this;
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);		
+		this.opacityNodes = {
+			"stroke":null,
+			"fill":null
+		};
+		this.initOpacityNodes = function(vml) {
+			self.opacityNodes["stroke"] = _node("stroke", [0,0,1,1], {opacity:"0.0"});
+			self.opacityNodes["fill"] = _node("fill", [0,0,1,1], {opacity:"0.0"});				
+			vml.appendChild(self.opacityNodes["stroke"]);
+			vml.appendChild(self.opacityNodes["fill"]);	
+		};
+		this.setOpacity = function(type, value) {
+			self.opacityNodes[type]["opacity"] = "" + value;
+		};
 	},	
 	/*
 	 * Base class for Vml connectors. extends VmlComponent.
@@ -188,6 +203,8 @@
 					displayElements.push(self.canvas);					
 					
 					self.attachListeners(self.canvas, self);
+					
+					self.initOpacityNodes(self.canvas);		
 				}
 				else {
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
@@ -220,7 +237,7 @@
 	 */
 	VmlEndpoint = function(params) {
 		VmlComponent.apply(this, arguments);
-		var vml = null, self = this;
+		var vml = null, self = this, opacityStrokeNode = null, opacityFillNode = null;
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
 		jsPlumb.appendElement(self.canvas, params.parent);
@@ -235,6 +252,8 @@
 				vml = self.getVml([0,0, d[2], d[3]], p, anchor);				
 				self.canvas.appendChild(vml);
 				self.attachListeners(vml, self);
+				
+				self.initOpacityNodes(vml);			
 			}
 			else {
 				//p["coordsize"] = "1,1";//(d[2] * scale) + "," + (d[3] * scale); again, unsure.
@@ -242,7 +261,7 @@
 				_atts(vml, p);
 			}
 			
-			_applyStyles(vml, style);
+			_applyStyles(vml, style, self);
 		};
 		
 		this.reattachListeners = function() {
