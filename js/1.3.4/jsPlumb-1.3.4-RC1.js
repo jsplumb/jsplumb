@@ -96,7 +96,7 @@
 		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
 		_logEnabled = false,
 		_log = function(jsp, msg) {
-			if (jsp.logEnabled && typeof console != "undefined")
+		if (jsp.logEnabled && typeof console != "undefined")
 				console.log(msg);
 		},
 		_group = function(g) {
@@ -515,24 +515,22 @@
 		 */
 		_draw = function(element, ui, timestamp) {
 					
-			//_group("DRAW");
-			//_time("DRAW TOTAL");
+			_group("DRAW");
+			_time("DRAW TOTAL");
 			
 			var id = _getAttribute(element, "id"), endpoints = endpointsByElement[id];
 			
 			if (true) {
 			_currentInstance.anchorManager.redraw(id, ui, timestamp);
 			}
-			else {
-			
-			//console.log("anchors for ", id, _currentInstance.anchorManager.get(id));
+			else {			
 			
 			if (!timestamp) timestamp = _timestamp();
 			if (endpoints) {
 			// TODO this needs refactoring.  it must be possible to calculate all the endpoints in
 			// one go, and then paint affected connections. like i want to merge the continuous anchor
 			// manager with the standard/dynamic anchor manager.
-			//if (anchors) {
+
 				_updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp }); // timestamp is checked against last update cache; it is
 				// valid for one paint cycle.
 				var myOffset = offsets[id], myWH = sizes[id], repaintContinous = false;
@@ -567,8 +565,8 @@
 			// TODO this doesn't reposition Endpoints!
 				//if (repaintContinous)
 		//		_currentInstance.continuousAnchorManager.recalc();
-			//_timeEnd("DRAW TOTAL");
-			//_groupEnd("DRAW");
+			_timeEnd("DRAW TOTAL");
+			_groupEnd("DRAW");
 		},
 
 		/**
@@ -704,7 +702,7 @@
 		},
 		
 		_newConnection = function(params) {
-			var connectionFunc = jsPlumb.Defaults.ConnectionType || Connection,
+			var connectionFunc = jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType(),
 			endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint,
 			parent = jsPlumb.CurrentLibrary.getParent;
 			
@@ -1217,15 +1215,16 @@
 		this.connect = function(params, referenceParams) {
 			// prepare a final set of parameters to create connection with
 			var _p = _prepareConnectionParams(params, referenceParams);
-			// a connect call will delete its created endpoints on detach, unless otherwise specified.
-			// this is because the endpoints belong to this connection only, and are no use to
-			// anyone else, so they hang around like a bad smell.
-			if (_p.deleteEndpointsOnDetach == null)
-				_p.deleteEndpointsOnDetach = true;
 			// TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
 			// will return null (and log something) if either endpoint was full.  what would be nicer is to 
 			// create a dedicated 'error' object.
 			if (_p) {
+				// a connect call will delete its created endpoints on detach, unless otherwise specified.
+				// this is because the endpoints belong to this connection only, and are no use to
+				// anyone else, so they hang around like a bad smell.
+				if (_p.deleteEndpointsOnDetach == null)
+					_p.deleteEndpointsOnDetach = true;
+
 				// create the connection.  it is not yet registered 
 				jpc = _newConnection(_p);
 				// now add it the model, fire an event, and redraw
@@ -1335,8 +1334,9 @@ about the parameters allowed in the params object.
 			// this is the new version of the method, taking a JS object like
 			// the connect method does.
 			else if (arguments.length == 1) {
-				// TODO investigate whether or not this code still works when a user has supplied their own subclass of Connection. i suspect it may not.
-				if (arguments[0].constructor == Connection) {
+				var connType =  jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType();
+				// allow for user to have subclassed Connection here.
+				if (arguments[0].constructor == connType) {
 					arguments[0].endpoints[0].detachFrom(arguments[0].endpoints[1]);
 				}
 				else if (arguments[0].connection) {
@@ -1420,7 +1420,9 @@ about the parameters allowed in the params object.
 
 		/*
 		  Function: draggable 
-		  Initialises the draggability of some element or elements.  You should use this instead of you library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your underlying library's drag method is always called from this method.
+		  Initialises the draggability of some element or elements.  You should use this instead of y
+		  our library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your 
+		  underlying library's drag method is always called from this method.
 		  
 		  Parameters: 
 		  	el - either an element id, a list of element ids, or a selector. 
@@ -1637,32 +1639,30 @@ about the parameters allowed in the params object.
 			if (!initialized) {
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
 				
-				var _bind = function(event) {
-					jsPlumb.CurrentLibrary.bind(document, event, function(e) {
-						if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
-							// try connections first
-							for (var scope in connectionsByScope) {
-				    			var c = connectionsByScope[scope];
-				    			for (var i = 0; i < c.length; i++) {
-				    				var t = c[i].connector[event](e);
-				    				if (t) return;	
-				    			}
-				    		}
-							for (var el in endpointsByElement) {
-								var ee = endpointsByElement[el];
-								for (var i = 0; i < ee.length; i++) {
-									if (ee[i].endpoint[event](e)) return;
+				(function() {
+					for (var i = 0; i < arguments.length; i++) {
+						var event = arguments[i];
+						jsPlumb.CurrentLibrary.bind(document, event, function(e) {
+							if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
+								// try connections first
+								for (var scope in connectionsByScope) {
+					    			var c = connectionsByScope[scope];
+					    			for (var i = 0; i < c.length; i++) {
+					    				var t = c[i].connector[event](e);
+					    				if (t) return;	
+					    			}
+					    		}
+								for (var el in endpointsByElement) {
+									var ee = endpointsByElement[el];
+									for (var i = 0; i < ee.length; i++) {
+										if (ee[i].endpoint[event](e)) return;
+									}
 								}
 							}
-						}
-					});
-				};
-				_bind("click");
-				_bind("dblclick");
-				_bind("mousemove");
-				_bind("mousedown");
-				_bind("mouseup");
-				
+						});
+					}
+				})("click","dblclick","mousemove","mousedown","mouseup");
+			
 				initialized = true;
 				_currentInstance.fire("ready");
 			}
@@ -1715,7 +1715,6 @@ about the parameters allowed in the params object.
 			}
 			
 			if (!newAnchor.id) newAnchor.id = "anchor_" + _idstamp();
-			//jsPlumbInstance.anchorManager.add(newAnchor, elementId);
 			return newAnchor;
 		};
 
@@ -1725,11 +1724,12 @@ about the parameters allowed in the params object.
 		 */
 		this.makeAnchors = function(types, elementId, jsPlumbInstance) {
 			var r = [];
-			for ( var i = 0; i < types.length; i++)
+			for ( var i = 0; i < types.length; i++) {
 				if (typeof types[i] == "string")
 					r.push(_currentInstance.Anchors[types[i]]({elementId:elementId, jsPlumbInstance:jsPlumbInstance}));
 				else if (types[i].constructor == Array)
 					r.push(jsPlumb.makeAnchor(types[i], elementId, jsPlumbInstance));
+			}
 			return r;
 		};
 
@@ -1844,7 +1844,7 @@ about the parameters allowed in the params object.
 							doNotFireConnectionEvent:source.endpointWillMoveAfterConnection
 						});
 						if (deleteEndpointsOnDetach) 
-							c.endpointsToDeleteOnDetach = [ newEndpoint ];
+							c.endpointsToDeleteOnDetach = [ source, newEndpoint ];
 					}
 					
 					_currentInstance.detach(jpc, false, true, true);
@@ -1915,7 +1915,6 @@ about the parameters allowed in the params object.
 				paintStyle = _sourceEndpointDefinitions[elid].paintStyle || _currentInstance.Defaults.EndpointStyles[0] || _currentInstance.Defaults.EndpointStyle,
 				docEl = jpcl.getElementObject(document);																	
 				
-				// when the user presses the mouse, add an Endpoint
 				var stopEvent = jpcl.dragEvents["stop"],
 					dragOptions = jsPlumb.extend({ }, _sourceEndpointDefinitions[elid].dragOptions || {}), 
 					ep = null;
@@ -1944,7 +1943,6 @@ about the parameters allowed in the params object.
 						// mouse button to initiate the drag.
 						var anchorDef = _sourceEndpointDefinitions[elid].anchor || _currentInstance.Defaults.Anchor;
 						ep.anchor = jsPlumb.makeAnchor(anchorDef, elid, _currentInstance);
-						// TODO ADD TO ANCHOR MANAGER
 						
 						if (p.parent) {						
 							var parent = jpcl.getElementObject(p.parent);
@@ -1961,11 +1959,11 @@ about the parameters allowed in the params object.
 								});
 								_currentInstance.repaintEverything();
 							}
-						}
-						/*else*/ 
+						}				
 						_currentInstance.repaint(elid);												
 					}
 				};
+				// when the user presses the mouse, add an Endpoint
 				jpcl.bind(_el, "mousedown", function(e) {										
 					_updateOffset({elId:elid});				
 					var myOffset = offsets[elid], 
@@ -1981,6 +1979,8 @@ about the parameters allowed in the params object.
 					tempEndpointParams.isSource = true;
 					tempEndpointParams.anchor = [x,y,0,0];
 					tempEndpointParams.dragOptions = dragOptions;
+					tempEndpointParams.container = p.parent ? (jsPlumb.Defaults.Container || document.body) : null;   // for safety, put these on the body.
+					                                      
 					
 					ep = jsPlumb.addEndpoint(elid, tempEndpointParams);
 					// we set this to prevent connections from firing attach events before this function has had a chance
@@ -2398,14 +2398,10 @@ about the parameters allowed in the params object.
 			this.compute = function(params) {
 				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;
 				
-				if (timestamp && timestamp === self.timestamp) {
-//					console.count("already computed anchor");
+				if (timestamp && timestamp === self.timestamp)
 					return lastReturnValue;
-				}
-//				else
-//					console.count("recomputed anchor");
 	
-	lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
+				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
 				
 				// adjust loc if there is an offsetParent
 				lastReturnValue = adjustForParentOffsetAndScroll(lastReturnValue, element.canvas);
@@ -2580,10 +2576,11 @@ about the parameters allowed in the params object.
 			
  		this.connectionListener = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
-				sourceAnchor = conn.connection.endpoints[0].anchor,
-				targetAnchor = conn.connection.endpoints[1].anchor,
-				sourceEndpoint = conn.sourceEndpoint,
-				targetEndpoint = conn.targetEndpoint,
+				ep = conn.connection.endpoints,
+//				sourceAnchor = conn.connection.endpoints[0].anchor,
+//				targetAnchor = conn.connection.endpoints[1].anchor,
+//				sourceEndpoint = conn.sourceEndpoint,
+//				targetEndpoint = conn.targetEndpoint,
 			    registerConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if (otherAnchor.constructor == DynamicAnchor) {
 						_addToList(dynamicAnchorConnectionsByElementId, elId, [c, otherEndpoint]);
@@ -2595,15 +2592,16 @@ about the parameters allowed in the params object.
 						_addToList(continuousAnchorConnectionsByElementId, elId, c);
 					}
 			    };
-			registerConnection(1, targetEndpoint, targetAnchor, sourceId, conn.connection);	
-			registerConnection(0, sourceEndpoint, sourceAnchor, targetId, conn.connection);				
+			registerConnection(1, ep[1], ep[1].anchor, sourceId, conn.connection);	
+			registerConnection(0, ep[0], ep[0].anchor, targetId, conn.connection);				
 		};
 		this.connectionDetachedListener = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
-				sourceAnchor = conn.connection.endpoints[0].anchor,
-				targetAnchor = conn.connection.endpoints[1].anchor,
-				sourceEndpoint = conn.sourceEndpoint,
-				targetEndpoint = conn.targetEndpoint,
+				ep = conn.connection.endpoints,
+				//sourceAnchor = conn.connection.endpoints[0].anchor,
+				//targetAnchor = conn.connection.endpoints[1].anchor,
+				//sourceEndpoint = conn.sourceEndpoint,
+				//targetEndpoint = conn.targetEndpoint,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if (otherAnchor.constructor == FloatingAnchor) {
 						// no-op
@@ -2619,8 +2617,8 @@ about the parameters allowed in the params object.
 					}				
 				};
 				
-			removeConnection(1, targetEndpoint, targetAnchor, sourceId, conn.connection);	
-			removeConnection(0, sourceEndpoint, sourceAnchor, targetId, conn.connection);									
+			removeConnection(1, ep[1], ep[1].anchor, sourceId, conn.connection);	
+			removeConnection(0, ep[0], ep[0].anchor, targetId, conn.connection);									
 		};
 		this.add = function(endpoint, elementId) {
 			if (!endpoint.anchor.isContinuous)
@@ -2647,6 +2645,7 @@ about the parameters allowed in the params object.
 		this.clearFor = function(elementId) {
 			delete _amEndpoints[elementId];
 			_amEndpoints[elementId] = [];
+			_currentInstance.continuousAnchorManager.clearFor(elementId);
 		};
 		this.redraw = function(elementId, ui, timestamp) {
 			// get all the endpoints for this element
@@ -2708,6 +2707,10 @@ about the parameters allowed in the params object.
 				self.add(eps[i], elementId);
 			}
 			eps.splice(0, eps.length);
+			// prime the continuous anchor manager, just in case it doesn't know about it yet.
+			_currentInstance.continuousAnchorManager.get({elementId:elementId});
+			// and clear out the old element's lists
+			_currentInstance.continuousAnchorManager.clearFor(currentId);
 //*/			
 		};
 	};
@@ -2813,8 +2816,8 @@ about the parameters allowed in the params object.
 	edgeSortFunctions = {
 		"top":standardEdgeSort,
 		"right":currySort2(true),
-		"bottom":currySort2(true),//standardEdgeSort,
-		"left":leftSort//standardEdgeSort
+		"bottom":currySort2(true),
+		"left":leftSort
 	},
 	placeAnchors = function(elementId, anchorLists) {
 		var sS = sizes[elementId], sO = offsets[elementId],
@@ -2834,7 +2837,7 @@ about the parameters allowed in the params object.
 			for (var i = 0; i < anchors.length; i++) {
 				var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
 				
-				if (weAreSource && weAreTarget) {
+			/*	if (weAreSource && weAreTarget) {
 					// handle this in a special way. basically we will populate the source one if it is not yet
 					// populated, or the target one otherwise.  i guess here is where we would able to setup the anchors in
 					// such a way that the connection could go anticlockwise or clockwise - need to keep that in mind.
@@ -2843,7 +2846,7 @@ about the parameters allowed in the params object.
 					else
 						_setAnchorLocation(c.endpoints[1], anchors[i]);
 				}
-				else if (weAreSource)
+				else*/ if (weAreSource)
 					_setAnchorLocation(c.endpoints[0], anchors[i]);
 				else if (weAreTarget)
 					_setAnchorLocation(c.endpoints[1], anchors[i]);
@@ -2905,15 +2908,28 @@ about the parameters allowed in the params object.
 							tO = offsets[targetId], sS = sizes[anElement], tS = sizes[targetId];
 						if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };						
 						sO.right = sO.left + sS[0], sO.bottom = sO.top + sS[1], tO.right = tO.left + tS[0], tO.bottom = tO.top + tS[1];
-						// find the orientation between the two elements
-						var o = calculateOrientation(anElement, targetId, sO, sS, tO, tS),
-							edgeList = anchorLists[anElement][o.a[0]],
-							otherEdgeList = anchorLists[targetId][o.a[1]];
-						edgeList.push([ [ o.theta, 0 ], sourceConns[i], false, targetId ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
-						// target connections need to be inserted in the opposite order
-						var tIdx = otherEdgeList.find(function(f) { return f[3] == anElement; });
-						if (tIdx == -1) tIdx = otherEdgeList.length;
-						otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true, anElement ]);
+						
+						// if source == target, add only one anchor, to the source list.
+						if (targetId == anElement) {
+							// here we may want to improve this by somehow determining the face we'd like
+							// to put the connector on.  ideally, when drawing, the face should be calculated
+							// by determining which face is closest to the point at which the mouse button
+							// was released.  for now, we're putting it on the top face.
+							var edgeList = anchorLists[anElement]["top"];
+							edgeList.push([ [0, 0], sourceConns[i], false, anElement ]);
+						}
+						else {
+							// otherwise, find the orientation between the two elements, and push anchors
+							// to the appropriate face for each element.
+							var o = calculateOrientation(anElement, targetId, sO, sS, tO, tS),
+								edgeList = anchorLists[anElement][o.a[0]],
+								otherEdgeList = anchorLists[targetId][o.a[1]];
+							edgeList.push([ [ o.theta, 0 ], sourceConns[i], false, targetId ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
+							// target connections need to be inserted in the opposite order
+							var tIdx = otherEdgeList.find(function(f) { return f[3] == anElement; });
+							if (tIdx == -1) tIdx = otherEdgeList.length;
+							otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true, anElement ]);
+						}
 					}
 				}
 			}
@@ -2952,8 +2968,10 @@ about the parameters allowed in the params object.
 				_removeFromList(continuousAnchorConnections, conn.sourceEndpoint.elementId, conn.connection);
 				continuousAnchorManager.recalc(_timestamp(), conn.sourceEndpoint.elementId, _currentInstance);
 			}		
-		}
-		
+		},
+		clearFor : function(elementId) {
+			delete continuousAnchors[elementId];
+		}		
 	};
 	_currentInstance.continuousAnchorManager = continuousAnchorManager;
 	_currentInstance.bind("jsPlumbConnection", continuousAnchorManager.connectionEvent);
@@ -3818,17 +3836,16 @@ about the parameters allowed in the params object.
 							if (!ignoreTarget) {
 							
 								t.detach(connection, true, forceDetach);
-								// check connection to see if we want to delete the other endpoint.
-								// if the user uses makeTarget to make some element a target for connections,
-								// it is possible that they will have set 'endpointsToDeleteOnDetach': when
-								// you make a connection to an element that acts as a target (note: NOT an
-								// Endpoint; just some div as a target), Endpoints are created for that
-								// connection. so if you then delete that Connection, it is feasible you 
-								// will want these auto-generated endpoints to be removed.
+								// check connection to see if we want to delete the endpoints associated with it.
+								// we only detach those that have just this connection; this scenario is most
+								// likely if we got to this bit of code because it is set by the methods that
+								// create their own endpoints, like .connect or .makeTarget. the user is
+								// not likely to have interacted with those endpoints.
 								if (connection.endpointsToDeleteOnDetach){
 									for (var i = 0; i < connection.endpointsToDeleteOnDetach.length; i++) {
-										if (connection.endpointsToDeleteOnDetach[i].connections.length == 0) 
-											jsPlumb.deleteEndpoint(connection.endpointsToDeleteOnDetach[i]);							
+										var cde = connection.endpointsToDeleteOnDetach[i];
+										if (cde && cde.connections.length == 0) 
+											jsPlumb.deleteEndpoint(cde);							
 									}
 								}
 							}
