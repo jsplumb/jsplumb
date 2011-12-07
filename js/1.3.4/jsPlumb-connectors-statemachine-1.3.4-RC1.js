@@ -59,50 +59,38 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 			curviness 		-	measure of how "curvy" the connectors will be.  this is translated as the distance that the
 								Bezier curve's control point is from the midpoint of the straight line connecting the two
 								endpoints, and does not mean that the connector is this wide.  The Bezier curve never reaches
-								its control points; they act as gravitational masses. defaults to 50.
+								its control points; they act as gravitational masses. defaults to 10.
 			margin			-	distance from element to start and end connectors, in pixels.  defaults to 5.
 			proximityLimit  -   sets the distance beneath which the elements are consider too close together to bother with fancy
-			                    curves. by default this is 70 pixels.
+			                    curves. by default this is 80 pixels.
 	*/
 	jsPlumb.Connectors.StateMachine = function(params) {
 		var self = this,
 		currentPoints = null,
 		_m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty, _controlX, _controlY,
-		curviness = params.curviness || 50,
+		curviness = params.curviness || 10,
 		margin = params.margin || 5,
-		proximityLimit = params.proximityLimit || 80;
+		proximityLimit = params.proximityLimit || 80,
+		clockwise = params.orientation && params.orientation == "clockwise",
+		isLoopback = false;
 
 		this.type = "StateMachine";
 		params = params || {};		
 		
 		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
 
-				var w = Math.abs(sourcePos[0] - targetPos[0]),
-   	 	        	h = Math.abs(sourcePos[1] - targetPos[1]),
-	   	   	      	// these are padding to ensure the whole connector line appears
-   	   	      		xo = 0.45 * w, yo = 0.45 * h;
-   	         		// these are padding to ensure the whole connector line appears
-            		w *= 1.9; h *= 1.9,
-            
-            		x = Math.min(sourcePos[0], targetPos[0]) - xo,
-            		y = Math.min(sourcePos[1], targetPos[1]) - yo,
-            
-            		// minimum size is 2 * line Width if minWidth was not given.
-            		calculatedMinWidth = Math.max(2 * lineWidth, minWidth);
-            
-            	if (w < calculatedMinWidth) { 
-        			w = calculatedMinWidth; 
-        			x = sourcePos[0]  + ((targetPos[0] - sourcePos[0]) / 2) - (calculatedMinWidth / 2);
-        			xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;
-        		}
-            	if (h < calculatedMinWidth) {         
-        			h = calculatedMinWidth; 
-        			y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - (calculatedMinWidth / 2);
-        			yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
-        		}
+			var w = Math.abs(sourcePos[0] - targetPos[0]),
+   	 	       	h = Math.abs(sourcePos[1] - targetPos[1]),
+	   	     	// these are padding to ensure the whole connector line appears
+   	   	   		xo = 0.45 * w, yo = 0.45 * h;
+   		   		// these are padding to ensure the whole connector line appears
+            	w *= 1.9; h *= 1.9,            
+            	x = Math.min(sourcePos[0], targetPos[0]) - xo,
+        		y = Math.min(sourcePos[1], targetPos[1]) - yo;            
 		
 			if (sourceEndpoint.elementId != targetEndpoint.elementId) {
-
+                            
+                isLoopback = false;
                             
         		_sx = sourcePos[0] < targetPos[0] ?  xo : w-xo;
             	_sy = sourcePos[1] < targetPos[1] ? yo:h-yo;
@@ -140,51 +128,59 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
             	//
 
 				var _segment = function(x1, y1, x2, y2) {
-					if (x1 < x2 && y2 < y1) return 1;
-					else if (x1 < x2 && y1 < y2) return 2;
-					else if (x2 < x1 && y2 > y1) return 3;
+					if (x1 <= x2 && y2 <= y1) return 1;
+					else if (x1 <= x2 && y1 <= y2) return 2;
+					else if (x2 <= x1 && y2 >= y1) return 3;
 					return 4;
 				},
-				findMultz = function(sourceAnchorPos, targetAnchorPos, theta2) {
-					// find the pos that is marked as "1" or "0", meaning it lies on that edge. y = 0 is top,
-					// y = 1 is bottom, x=0 left, x=1 right.
-					var xm = 1, ym = 1, flip = false;
-					if (sourceAnchorPos[3] == 0) {
-						ym = -1, xm = sourceAnchorPos[2] < 0.5 ? -1 : /*sourceAnchorPos[2] == 0.5 ? 0 :*/ 1, flip = targetAnchorPos[3] != 1;
+				_multzBySegment = function(seg, sPos, tPos) {
+					if (seg == 1) {
+						if (sPos[3] == 0 && tPos[2] == 0) return [-1,-1]; // top + left
+						else if (sPos[3] == 0 && tPos[3] == 1) return [1,0];
+						else if (sPos[2] == 1 && tPos[2] == 0) return [0,-1];
+						else return [1,1];						
 					}
-					else if (sourceAnchorPos[3] == 1) {
-						ym = 1, xm = sourceAnchorPos[2] < 0.5 ? -1 : /*sourceAnchorPos[2] == 0.5 ? 0 :*/ 1, flip = targetAnchorPos[3] != 0;					
+					else if (seg == 2) {
+						if (sPos[2] == 1 && tPos[3] == 0) return [1, -1];
+						else if (sPos[2] == 1 && tPos[2] == 0) return [-1, 1];
+						else if (sPos[3] == 1 && tPos[3] == 0) return [1, -1];
+						else return [-1,1];
 					}
-					else if (sourceAnchorPos[2] == 0) {
-						xm = -1, ym = sourceAnchorPos[3] < 0.5 ? -1 : /*sourceAnchorPos[3] == 0.5 ? 0 :*/ 1, flip = targetAnchorPos[2] != 1;					
+					else if (seg == 3) {
+						if (sPos[3] == 1 && tPos[3]== 0) return [-1,-1];
+						else if (sPos[2] == 0 && tPos[3] == 0) return [-1,0];
+						else if (sPos[2] == 0 && tPos[2] == 1) return [1,1];
+						else return [1,-1];
 					}
-					else if (sourceAnchorPos[2] == 1) {
-						xm = 1, ym = sourceAnchorPos[3] < 0.5 ? -1 : /*sourceAnchorPos[3] == 0.5 ? 0 :*/ 1, flip = targetAnchorPos[2] != 0;					
+					else if (seg == 4) {
+						if (sPos[2] == 0 && tPos[2] == 1) return [1,-1];
+						else if (sPos[3] == 0 && tPos[2] == 1) return [1,-1];
+						else if (sPos[3] == 0 && tPos[3] == 1) return [-1,1];
 					}
-					
-					var ff = flip ? -1 : 1;
-					return [xm * ff, ym * ff];
+					return [0,0];
 				},
             	_midx = (_sx + _tx) / 2, _midy = (_sy + _ty) / 2, 
             	m2 = (-1 * _midx) / _midy, theta2 = Math.atan(m2),            
-            	dy =  Math.abs(curviness / 2 * Math.sin(m2)),
-				dx =  Math.abs(curviness / 2 * Math.cos(m2)),
+            	dy =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.sin(theta2)),
+				dx =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.cos(theta2)),
 				segment = _segment(_sx, _sy, _tx, _ty),			
-				multz = findMultz(sourcePos, targetPos),
-				distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));
+				multz = _multzBySegment(segment, sourcePos, targetPos),
+				distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));					
 			
             	// calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
             	// will work by extending the control point to force the curve to be, um, curvier.
-            	if (sourceEndpoint.elementId != targetEndpoint.elementId) {
-	            	_controlX = _midx + ((distance > proximityLimit) ? (multz[0] * dx) : 0);
-					_controlY = _midy + ((distance > proximityLimit) ? (multz[1] * dy) : 0);
-				}
-				else {
-					// the loopback case.  needs work.
-					_controlY = _midy - 100;
-					_controlX = _midx;
-				}
-				
+				_controlX = _midx + ((distance > proximityLimit) ? (multz[0] * dx) : 0);
+				_controlY = _midy + ((distance > proximityLimit) ? (multz[1] * dy) : 0);				
+
+			/*	console.log("segment", segment, "sourcePos", 
+				sourcePos[2], sourcePos[3], "source ep", sourceEndpoint.id,
+				"midx",_midx,"midy",_midy,
+				"m2",m2,
+				"theta2", theta2,
+				"dx",dx,
+				"dy",dy,
+				"cx", _controlX, "cy", _controlY);
+				*/
 				// now for a rudimentary avoidance scheme. TODO: how to set this in a cross-library way?  
 		//		var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
 		//		var sel = $(".w");
@@ -205,34 +201,41 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 //						}/
 					//}
 	//			});
-            
-            	currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty, _controlX, _controlY ];                        
-                
+	            	
+            	var requiredWidth = Math.max(Math.abs(_controlX - _sx) * 3, Math.abs(_controlX - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, minWidth),
+            		requiredHeight = Math.max(Math.abs(_controlY - _sy) * 3, Math.abs(_controlY - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, minWidth);
+            		
+            	if (w < requiredWidth) {      	
+            		var dw = requiredWidth - w;            		
+            		x -= (dw / 2);
+            		_sx += (dw / 2);
+            		_tx  += (dw / 2);
+            		w = requiredWidth;
+            	}
+            	
+            	if (h < requiredHeight) {
+            		var dh = requiredHeight - h;
+            		y -= (dh / 2);
+            		_sy += (dh / 2);
+            		_ty += (dh / 2);
+            		h = requiredHeight;
+            	}
+            	currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty, _controlX, _controlY ];                                        
             }
             else {
+            	isLoopback = true;
             	// a loopback connector.  draw an arc from one anchor to the other.
             	// i guess we'll do this the same way as the others.  just the control point will be a fair distance away.
-        		var x1 = sourcePos[0], x2 = targetPos[0], y1 = sourcePos[1], y2 = targetPos[1], 
-				q = Math.sqrt(
-					Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)	
-				),
-				clockwise = x1 > x2,
-				r = q,//q * 1.5,   // should be computed from their distance, or maybe it
-	            // can be constant.
-				x3 = (x1 + x2) / 2, 
-				y3 = (y1 + y2) / 2,
-				// TODO these are '+' because its on the top line.  it would be different if we could place them elsewhere.
-				cx = x3 + Math.sqrt(Math.pow(r, 2) - Math.pow(q/2, 2)) * (y1 - y2) / q,
-				cy = y3 + Math.sqrt(Math.pow(r, 2) - Math.pow(q/2, 2)) * (x2 - x1) / q;  
+        		var x1 = sourcePos[0], x2 = sourcePos[0], y1 = sourcePos[1], y2 = sourcePos[1], 
+				r = 25,//  TODO SHOULD BE COMPUTED SOMEHOW 
+				cx = x1, cy = y1 - r;
 				
 				// now we need the angle from the center to each point.  the arc will start at the first angle and go to the second.
 				var m1 = (cy - y1) / (cx - x1), theta1 = Math.atan(m1), m2 = (cy - y2) / (cx - x2), theta2 = Math.atan(m2);
 				
 				// canvas sizing stuff, to ensure the whole painted area is visible.
-				w = (2 * lineWidth) + (2 * r), h = (2 * lineWidth) + (2 * r);
-				calculatedMinWidth = Math.min(w,h);
-				x = cx - r, y = cy - r;
-				
+				w = ((2 * lineWidth) + (2 * r)), h = ((2 * lineWidth) + (2 * r));
+				x = cx - r - lineWidth, y = cy - r - lineWidth;
 				currentPoints = [ x, y, w, h, cx-x, cy-y, r, clockwise, x1-x, y1-y, x2-x, y2-y];
             }
                 
@@ -260,7 +263,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
          * returns the gradient of the connector at the given point.
          */
         this.gradientAtPoint = function(location) {
-        	return jsBezier.gradientAtPoint(_makeCurve(), location);        	
+        	return isLoopback ? 1 : jsBezier.gradientAtPoint(_makeCurve(), location);        	
         };	
         
         /**
@@ -306,7 +309,6 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 				
 				// draw the guideline
 				if (drawGuideline) {
-//					var midx = (dimensions[0] + dimensions[2]) / 2, midy = (dimensions[1] + dimensions[3]) / 2;
 					self.ctx.save();
 					self.ctx.beginPath();
 					self.ctx.strokeStyle = "silver";
@@ -344,17 +346,18 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 		jsPlumb.Connectors.StateMachine.apply(this, arguments);
 		jsPlumb.SvgConnector.apply(this, arguments);
 		this.getPath = function(d) { 	
+				
 			if (d.length == 10) 
 				return "M " + d[4] + " " + d[5] + " C " + d[8] + " " + d[9] + " " + d[8] + " " + d[9] + " " + d[6] + " " + d[7]; 
 			else {
 				// loopback
-				return "M" + d[8] + " " + d[9] + " A" + d[6] + " " + d[6] + " 0 1,0 " + d[10] + "," + d[11];
+				return "M" + (d[8] + 4) + " " + d[9] + " A " + d[6] + " " + d[6] + " 0 1,0 " + (d[8]-4) + " " + d[9];			
 			}
 		};	    	    
     };
     
     /*
-     * VML state macine renderer
+     * VML state machine renderer
      */
     jsPlumb.Connectors.vml.StateMachine = function() {
 		jsPlumb.Connectors.StateMachine.apply(this, arguments);	
