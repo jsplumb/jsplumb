@@ -112,7 +112,17 @@
 		 * adds the given class to the element object.
 		 */
 		addClass : function(el, clazz) {
-			el.addClass(clazz);
+			el = jsPlumb.CurrentLibrary.getElementObject(el)						
+			try {
+				if (el.className.constructor == SVGAnimatedString) {
+					jsPlumb.util.svg.addClass(el, clazz);
+				}
+				else el.addClass(clazz);
+			}
+			catch (e) {				
+				// SVGAnimatedString not supported; no problem.
+				el.addClass(clazz);
+			}						
 		},	
 			
 		animate : function(el, properties, options) {			
@@ -310,7 +320,17 @@
 		 * removes the given class from the element object.
 		 */
 		removeClass : function(el, clazz) {
-			el.removeClass(clazz);
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			try {
+				if (el.className.constructor == SVGAnimatedString) {
+					jsPlumb.util.svg.removeClass(el, clazz);
+				}
+				else el.removeClass(clazz);
+			}
+			catch (e) {				
+				// SVGAnimatedString not supported; no problem.
+				el.removeClass(clazz);
+			}
 		},
 		
 		removeElement : function(element, parent) {		
