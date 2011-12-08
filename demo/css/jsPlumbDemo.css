@@ -124,3 +124,5 @@ margin-left:1em;
 .table td {
 	text-align:center;
 }
+
+path, ._jsPlumb_endpoint { cursor:pointer; }

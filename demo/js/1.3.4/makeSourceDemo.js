@@ -4,12 +4,12 @@
 			
 		init : function() {
 			
-		//	jsPlumb.Defaults.Container = $("body");
+			jsPlumb.Defaults.Container = $("body");
 			jsPlumb.bind("click", function(conn) { 
 				jsPlumb.detach(conn);
 				jsPlumb.removeEndpoint(conn.target, conn.endpoints[1]);
 			});
-			//jsPlumb.setRenderMode(jsPlumb.SVG);
+			jsPlumb.setRenderMode(jsPlumb.SVG);
 			
 			jsPlumb.draggable($("#window1,#window3,#window4,#window5"));
 			
@@ -21,6 +21,14 @@
 				strokeStyle:"#E5E529", 
 				outlineColor:"#FFFFD1", 
 				outlineWidth:2
+			};
+			jsPlumb.Defaults.HoverPaintStyle = {
+				lineWidth:4,
+				strokeStyle:"pink"
+			};
+
+			jsPlumb.Defaults.EndpointHoverStyle = {
+				fillStyle:"pink"
 			};
 			
 			//
@@ -88,14 +96,7 @@
 			//
 			jsPlumb.makeSource($("#w5Source"), {
 				endpoint:{
-					endpoint:["Dot", { radius:50 }],
-					anchor:"AutoDefault",
-					connectorStyle:{
-						strokeStyle:"red",
-						outlineColor:"#555",
-						outlineWidth:1,
-						lineWidth:5
-					}
+					anchor:"AutoDefault"
 				},
 				parent:"window5"
 			});

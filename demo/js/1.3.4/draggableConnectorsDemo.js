@@ -64,7 +64,8 @@
 				connectorStyle : {
 					gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
 					lineWidth:5,
-					strokeStyle:exampleColor
+					strokeStyle:exampleColor,
+					dashstyle:"2 2"
 				},
 				isTarget:true,
 //				beforeDrop:function(conn) { return false; },				
