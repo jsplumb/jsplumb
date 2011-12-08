@@ -152,7 +152,8 @@
 			vml.appendChild(self.opacityNodes["fill"]);	
 		};
 		this.setOpacity = function(type, value) {
-			self.opacityNodes[type]["opacity"] = "" + value;
+			var node = self.opacityNodes[type];
+			if (node) node["opacity"] = "" + value;
 		};
 	},	
 	/*
@@ -204,7 +205,7 @@
 					
 					self.attachListeners(self.canvas, self);
 					
-					self.initOpacityNodes(self.canvas);		
+					self.initOpacityNodes(self.canvas, ["stroke"]);		
 				}
 				else {
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
@@ -253,7 +254,7 @@
 				self.canvas.appendChild(vml);
 				self.attachListeners(vml, self);
 				
-				self.initOpacityNodes(vml);			
+				self.initOpacityNodes(vml, ["fill"]);			
 			}
 			else {
 				//p["coordsize"] = "1,1";//(d[2] * scale) + "," + (d[3] * scale); again, unsure.
