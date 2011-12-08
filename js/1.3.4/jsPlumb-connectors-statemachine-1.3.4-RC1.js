@@ -226,7 +226,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
             	isLoopback = true;
             	// a loopback connector.  draw an arc from one anchor to the other.
             	// i guess we'll do this the same way as the others.  just the control point will be a fair distance away.
-        		var x1 = sourcePos[0], x2 = sourcePos[0], y1 = sourcePos[1], y2 = sourcePos[1], 
+        		var x1 = sourcePos[0], x2 = sourcePos[0], y1 = sourcePos[1] - margin, y2 = sourcePos[1] - margin, 
 				r = 25,//  TODO SHOULD BE COMPUTED SOMEHOW 
 				cx = x1, cy = y1 - r;
 				
@@ -234,8 +234,8 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 				var m1 = (cy - y1) / (cx - x1), theta1 = Math.atan(m1), m2 = (cy - y2) / (cx - x2), theta2 = Math.atan(m2);
 				
 				// canvas sizing stuff, to ensure the whole painted area is visible.
-				w = ((2 * lineWidth) + (2 * r)), h = ((2 * lineWidth) + (2 * r));
-				x = cx - r - lineWidth, y = cy - r - lineWidth;
+				w = ((2 * lineWidth) + (4 * r)), h = ((2 * lineWidth) + (4 * r));
+				x = cx - r - lineWidth - r, y = cy - r - lineWidth - r;
 				currentPoints = [ x, y, w, h, cx-x, cy-y, r, clockwise, x1-x, y1-y, x2-x, y2-y];
             }
                 
@@ -255,15 +255,46 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
-        this.pointOnPath = function(location) {        	
-        	return jsBezier.pointOnCurve(_makeCurve(), location);
+        this.pointOnPath = function(location) {   
+			if (isLoopback) {
+				
+// current points are [ x, y, width, height, center x, center y, radius, clockwise, startx, starty, endx, endy ]				
+				// so the path length is the circumference of the circle
+				//var len = 2 * Math.PI * currentPoints[6],
+				// map 'location' to an angle. 0 is PI/2 when the connector is on the top face; if we
+				// support other faces it will have to be calculated for each one. 1 is also PI/2.
+				// 0.5 is -PI/2.
+				var startAngle = (location * 2 * Math.PI) + (Math.PI / 2),
+					startX = currentPoints[4] + (currentPoints[6] * Math.cos(startAngle)),
+					startY = currentPoints[5] + (currentPoints[6] * Math.sin(startAngle));					
+	//console.log("loopback point along path from",location,startAngle, startX, startY, currentPoints[4], currentPoints[5], currentPoints[6]);    
+				
+				return { x:currentPoints[8], y:currentPoints[9] };
+					
+			}
+        	else return jsBezier.pointOnCurve(_makeCurve(), location);
         };
         
         /**
          * returns the gradient of the connector at the given point.
          */
         this.gradientAtPoint = function(location) {
-        	return isLoopback ? 1 : jsBezier.gradientAtPoint(_makeCurve(), location);        	
+			if (isLoopback) {
+	//			console.log("loopback gradient at point", location);        
+				return Math.atan(location * 2 * Math.PI);
+			}
+        	else return jsBezier.gradientAtPoint(_makeCurve(), location);        	
+        };	
+        
+        /**
+         * returns the gradient of the connector at the point which is distance from location.
+         */
+        this.gradientAtPointAlongPathFrom = function(location, distance) {
+			if (isLoopback) {
+	//			console.log("loopback gradient at point along path from",location,distance);        
+				return 1;
+			}
+        	else return jsBezier.gradientAtPointAlongCurveFrom(_makeCurve(), location, distance);        	
         };	
         
         /**
@@ -274,7 +305,25 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
          * than the desired distance, in which case the loop returns immediately and the arrow is mis-shapen. so a better strategy might be to
          * calculate the step as a function of distance/distance between endpoints.  
          */
+         // TODO we shouldn't need this method.  it's for overlays, but it has become apparent that an overlay
+         // should assume the head point's gradient for its entirety, or things look weird.
+         // or perhaps certain overlays want to support it and others do not.  the Arrow overlay, for
+         // example, probably does not.
         this.pointAlongPathFrom = function(location, distance) {        	
+			if (isLoopback) {
+			
+				var circumference = 2 * Math.PI * currentPoints[6],
+					arcSpan = distance / circumference * 2 * Math.PI,
+					startAngle = (location * 2 * Math.PI) - arcSpan + (Math.PI / 2),	
+					
+					startX = currentPoints[4] + (currentPoints[6] * Math.cos(startAngle)),
+					startY = currentPoints[5] + (currentPoints[6] * Math.sin(startAngle));	
+					
+				//var diff = distance < 0 ? -5 : 5;
+//				return {x:currentPoints[8] - diff, y:currentPoints[9] - diff };
+//	console.log("loopback point along path from",location,distance, startAngle, startX, startY, currentPoints[4], currentPoints[5]);    
+				return {x:startX, y:startY};
+			}
         	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
         };        
         
@@ -282,7 +331,28 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
          * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
          * the line is 'length' pixels long.
          */
-        this.perpendicularToPathAt = function(location, length, distance) {        	
+        this.perpendicularToPathAt = function(location, length, distance) {    
+        	if (isLoopback) {
+				
+				var g = self.gradientAtPoint(location),
+					theta2 = Math.atan(-1 / g),
+				
+				//var theta2 = -1 / Math.atan(((location * 2 * Math.PI) + (Math.PI / 2))),
+					xy = self.pointAlongPathFrom(location, distance),
+					p1 = {
+						x: xy.x + ((length / 2) * Math.cos(theta2)),
+						y: xy.y + ((length / 2) * Math.sin(theta2))
+					},
+					p2 = {
+						x: xy.x - ((length / 2) * Math.cos(theta2)),
+						y: xy.y - ((length / 2) * Math.sin(theta2))
+					};					
+					
+		//		console.log("loopback perpendicular to path at",location,length,distance, p1, p2, xy);
+				
+				return [p1, p2];
+				//return [ {x:xy.x, y:xy.y - 10}, {x:xy.x, y:xy.y + 10}];
+			}
         	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, length, distance);
         };
 	
