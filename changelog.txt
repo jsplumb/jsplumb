@@ -1,8 +1,36 @@
+* 1.3.4
+
 	- added beforeDetach option to Connection, Endpoint, and on jsPlumb as a bind. this works both
 	  programmatically and with drag and drop.
 	  
 	- added beforeDrop option to Endpoints that have isTarget:true.
-
+	
+	- removed the notion of jsplumb making everything draggable by default.  it is now the user's responsibility
+	to ensure everything is draggable.  use jsPlumb.draggable for this, still, of course, or jsPlumb won't
+	know about your draggable elements.
+	
+	- added jsPlumb.makeSource method
+	- finished jsPlumb.makeTarget method properly.
+	
+	- added getLocation/setLocation to AbstractOverlay (so all Overlays derive these methods)
+	
+	- removed endpointsOnTop parameter from Connection
+	
+	- added ContinuousAnchors
+	- added StateMachine connectors
+	
+	- reinstated the 'tooltip' parameter on jsPlumb.connect and jsPlumb.addEndpoint, and 'connectorTooltip' on jsPlumb.addEndpoint.
+	
+	- added 'hoverClass' to endpoints and connections.  this is supported in the individual connector
+	and endpoint definitions, NOT the main args you pass to addEndpoint or connect.
+	
+	- added jsPlumb.util.svg; currently contains addClass/removeClass methods.  jQuery fails to set a class
+	correctly using addClass/removeClass on an SVG element because its value is an SVGAnimatedString.
+	
+	- now allows "transparent" as a fillStyle or strokeStyle.  each renderer handles it appropriately.
+	
+	- jsPlumb.addEndpoint and jsPlumb.connect now both support a "parameters" object, which lets you set
+	specific values that you can then retrieve using getParameter on Endpoint and Connection.
 
 * 1.3.3
 
