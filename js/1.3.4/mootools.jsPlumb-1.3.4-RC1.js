@@ -207,6 +207,10 @@
 			return null;
 		},
 		
+		getSelector : function(spec) {
+			return $$(spec);
+		},
+		
 		getSize : function(el) {
 			var s = el.getSize();
 			return [s.x, s.y];

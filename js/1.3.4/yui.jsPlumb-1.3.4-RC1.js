@@ -234,6 +234,10 @@
 			return 0;
 		},
 		
+		getSelector : function(spec) {
+			return Y.all(spec);
+		},
+		
 		getSize : function(el) {
 			return [ el._node.offsetWidth, el._node.offsetHeight ];
 		},

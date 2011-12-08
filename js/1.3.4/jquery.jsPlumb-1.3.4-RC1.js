@@ -177,6 +177,10 @@
 			return el.scrollTop();
 		},
 		
+		getSelector : function(spec) {
+			return $(spec);
+		},
+		
 		/**
 		 * gets the size for the element object, in an array : [ width, height ].
 		 */
