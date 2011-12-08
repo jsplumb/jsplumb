@@ -148,7 +148,7 @@
 	jsPlumb.CurrentLibrary = {
 			
 		addClass : function(el, clazz) {
-			el.addClass(clazz);
+			jsPlumb.CurrentLibrary.getElementObject(el).addClass(clazz);
 		},	
 		
 		/**
@@ -298,7 +298,9 @@
 		
 		isDragSupported : function(el) { return true; },		
 		isDropSupported : function(el) { return true; },										
-		removeClass : function(el, clazz) { el.removeClass(clazz); },		
+		removeClass : function(el, clazz) { 
+			jsPlumb.CurrentLibrary.getElementObject(el).removeClass(clazz); 
+		},		
 		removeElement : function(el) { _getElementObject(el).remove(); },
 		
 		setAttribute : function(el, attributeName, attributeValue) {
