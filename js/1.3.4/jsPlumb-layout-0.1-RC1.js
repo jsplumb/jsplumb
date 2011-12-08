@@ -1,3 +1,17 @@
+/*
+	improvements to this.
+	
+	this should register as a listener on jsPlumb and maintain a Graph object in the background (like the
+	KK algorithm does now; it should just happen automatically for everyone).
+	
+	the KK algorithm will use the backing Graph, of course.  but we will also be able to do things like
+	shortest path, distance between two elements etc.  for full support we would introduce the notion of
+	the "cost" of a connection (and also traversing between two Endpoints in a node, ideally).
+	
+	once we have all that, we'll be able to add support for animating an overlay along some given path,
+	and lots of other cool stuff.
+*/
+
 ;(function() {
 
 	var AbstractLayout = function(params) {
@@ -27,9 +41,8 @@
 	};
 
 	// TODO turn these into functions.
-	jsPlumb.Layout = function(layoutType, params) {
-		new layouts[layoutType](params);
-		
+	jsPlumb.Layout = function(params) {
+		new layouts[params.layout](params);		
 	};
 	
 	var layouts = {
@@ -387,7 +400,8 @@
 					
 				// assign initial distances etc
 				for (var i = 0; i < nodeCount - 1; i++) {
-					xyData[i] = {left:Math.floor(Math.random()*(w+1)), top:Math.floor(Math.random()*(h+1))};//jsPlumb.getOffset(jsPlumb.getId(nodeSelector[i]));
+//					xyData[i] = {left:Math.floor(Math.random()*(w+1)), top:Math.floor(Math.random()*(h+1))};//jsPlumb.getOffset(jsPlumb.getId(nodeSelector[i]));
+					xyData[i] = {left:Math.floor(Math.random()*(self.width)), top:Math.floor(Math.random()*(self.height))};
     				for (var j = i + 1; j < nodeCount; j++) {
     					var d_ij = graph.getDistance(nodeSelector[i].vertex, nodeSelector[j].vertex),
     						d_ji = graph.getDistance(nodeSelector[j].vertex, nodeSelector[i].vertex),
@@ -418,7 +432,83 @@
 			},
 				
 			"Tree":function(params) {
-				throw "tree is not implemented yet";
+				
+				AbstractLayout.apply(this, arguments);
+				
+				var self = this,
+					jpcl = jsPlumb.CurrentLibrary, 
+					_jsPlumb = params.jsPlumb || jsPlumb,
+					root = jpcl.getElementObject(params.root),
+					horizontalSpacing = params.horizontalSpacing || 50,
+					verticalSpacing = params.verticalSpacing || 100,
+					margins = params.margins || [0,0],
+					orientation = params.orientation || "horizontal",
+					horizontal = orientation === "horizontal",
+					levels = [],
+					levelWidths = [],
+					levelHeights = [],					
+					levelNodeWidths = [],
+					levelNodeHeights = [],					
+					treeDepth = 0,					
+					_addNode = function(depth, node) {
+						levels[depth] = levels[depth] || [];
+						levelNodeWidths[depth] = levelNodeWidths[depth] || [];					
+						levelNodeHeights[depth] = levelNodeHeights[depth] || [];										
+						levelWidths[depth] = levelWidths[depth] || 0;					
+						levelHeights[depth] = levelHeights[depth] || 0;							
+						levels[depth].push(node);
+						var size = jpcl.getSize(node);
+						levelNodeWidths[depth].push(size[0]);
+						levelNodeHeights[depth].push(size[1]);	
+						if (horizontal) {
+							levelWidths[depth] += (size[0] + horizontalSpacing);
+							levelHeights[depth] = Math.max(levelHeights[depth], size[1]);
+						}
+						else {
+							levelWidths[depth] = Math.max(levelWidths[depth], size[0])
+							levelHeights[depth] += (size[1] + verticalSpacing);						
+						}
+					},
+					// this is recursive.  should probably not be run on huge trees.
+					_level = function(depth, node) {
+						treeDepth = Math.max(treeDepth, depth + 1);
+						_addNode(depth, node);
+						var conns = _jsPlumb.getConnections({source:jsPlumb.getId(node)});
+						for (var i = 0; i < conns.length; i++) {
+							_level(1 + depth, conns[i].target);
+						}
+					};
+				
+				_level(0, root);
+				var maxWidth = Math.max.apply(null, levelWidths),
+					maxHeight = Math.max.apply(null, levelHeights),
+					curLevelPosition = 0; 
+				
+				for (var i = 0; i < treeDepth; i++) {
+					var offset = horizontal ? (maxWidth - levelWidths[i]) / 2 : (maxHeight - levelHeights[i]) / 2, 
+						curLinePosition = offset,
+						maxSizeOfLine = horizontal ? Math.max.apply(null, levelNodeHeights[i]) : Math.max.apply(null, levelNodeWidths[i]);
+						
+					for (var j = 0; j < levels[i].length; j++) {
+						var inLinePos = margins[horizontal ? 0 : 1] + curLinePosition,
+							inLevelPos = curLevelPosition + margins[horizontal ? 1 : 0] + ((maxSizeOfLine - (horizontal ? levelNodeHeights[i][j] : levelNodeWidths[i][j])) / 2);
+						var newPos = {
+							left:horizontal ? inLinePos : inLevelPos, //margins[0] + curLinePosition, 
+							top:horizontal ? inLevelPos : inLinePos//margins[1] + curLevelPosition + ((maxSizeOfLine - levelNodeHeights[i][j]) / 2)
+						};
+						
+						if (self.animate)
+							jsPlumb.animate(levels[i][j], newPos);
+						else
+							jsPlumb.CurrentLibrary.setOffset(levels[i][j], newPos);
+							
+						curLinePosition += horizontal ? (levelNodeWidths[i][j] + horizontalSpacing) : (levelNodeHeights[i][j] + verticalSpacing);
+					}
+					
+					curLevelPosition += maxSizeOfLine + horizontal ? verticalSpacing :  horizontalSpacing;
+				}
+				
+				jsPlumb.repaintEverything();
 			}
 		};
 
