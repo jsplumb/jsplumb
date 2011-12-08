@@ -1,24 +1,27 @@
 <html>
 	<head>
-		<title>jsPlumb 1.3.3 - documentation</title>
+		<title>jsPlumb 1.3.4 - documentation</title>
 		<link rel="stylesheet" href="/mp.css"></link>
 		<link rel="stylesheet" href="jsPlumbDoc.css"></link>	
 	</head>
 	<body>
 
-<div class="menu"><a href="http://jsplumb.org" class="mplink" target="_top">view demo</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a></div>
+<div class="menu">
+	<a href="http://jsplumb.org" class="mplink" target="_top">view demo</a>
+	&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>
+	&nbsp;|&nbsp;<a href="http://jsplumb.tumblr.com" class="mplink">jsPlumb on Tumblr</a>	
+</div>
 
 <div class="content">
 		<div class="section">
 			<h3><a id="summary">Summary</a></h3>
 			jsPlumb allows you to connect elements on the screen using SVG, Canvas or VML, depending on the capabilities of the browser.
 			<p>
-				It can be used with jQuery, MooTools or YUI3 (or another library of your choice if you
-				feel like implementing an adapter for it).
+				It can be used with jQuery, MooTools or YUI3 (or another library of your choice if you feel like implementing an adapter for it).
 			</p>  
 
 			<h5>Browser Compatibility</h5>
-			<p>jsPlumb 1.3.3 has been tested on the following browsers:
+			<p>jsPlumb 1.3.4 has been tested on the following browsers:
 				<ul>
 					<li class="bullet">IE 6 on Windows XP</li>
 					<li class="bullet">IE 7 on Windows XP</li>
@@ -30,102 +33,99 @@
 					<li class="bullet">Firefox 3.5.8 on Windows 7</li>
 					
 					<li class="bullet">Firefox 3.6.3 on Ubuntu 10.04</li>
-					<li class="bullet">Chrome on Ubuntu 10.04</li>
+					<li class="bullet">Chrome on Ubuntu 11.04</li>
 					
-					<li class="bullet">Safari 4 on Mac Tiger</li>
+					<li class="bullet">Safari 4 on Mac Leopard</li>
+					<li class="bullet">Chrome on Mac Leopard</li>					
 					<li class="bullet">Safari 4 on Windows Vista</li>
 					<li class="bullet">Safari 5.0.5 on Windows 7</li>
+					
 					<li class="bullet">Opera 10.54 on Windows XP</li>
 				</ul>
 			</p>
 		</div>
 		
 		<div class="section">
-			<h3><a id="changes">Changes since version 1.3.1</a></h3>
+			<h3><a id="changes">Changes since version 1.3.3</a></h3>
 			<p>
-			Version 1.3.3 contains a few new methods for working with Overlays, and a couple of bug fixes.  Since a few 1.3.x versions have been released in a short amount
-			of time, I've left in the notes from 1.3.1, as there are a few backwards compatibility issues you may need to know about.		
+			Version 1.3.4 is a fairly significant release, containing several bugfixes relating to positioning
+			when elements with scrollbars or 'overflow:auto' are involved, a new type of connector, "Continuous"
+			anchors, which are like Dynamic anchors on steroids, beforeDrag/beforeDrop interceptors, and a bunch
+			of other bits and pieces such as the ability to make an entire div a connection source or target.
 			</p>
+			<h5>Backwards Compatibility</h5>
+			<ul>
+			<li class="bullet">Starting with this release, jsPlumb <strong>no longer automatically initialises any elements to be
+			draggable</strong>.
+			<p>I thought about this long and hard and decided that it was too invasive for jsPlumb to assume that
+			you wanted every connected element to be draggable.  There were other complications, too, such as the
+			fact that dragging was not initialised until you had at least one connection to an element - you could
+			start out with a UI in which some elements were draggable, and others were not, and there did not seem,
+			to the user, to be a decent reason for that.</p>
+			<p>You should use the <strong>jsPlumb.draggable(some selector)</strong> method to initialise elements
+			as draggable now.  It is still imperative that you use this method and not your underlying library's
+			drag method, because otherwise jsPlumb will not know what's going on.  Valid values for that
+			selector are whatever your underlying library can support: $("someSelector") for jQuery, $$("someSelector") for MooTools, and
+			Y.all("someSelector") for YUI3.</p>
+			</li>
+			<li class="bullet"><strong>The default renderer is now SVG</strong>, where supported, and VML elsewhere.
+			<p>I'm of the opinion that SVG is a better option for almost every application using jsPlumb: it
+			uses far less memory, has native mouse event support so is faster, and can be styled using CSS.</p>
+			<p>If you really want to use Canvas, call <strong>jsPlumb.setRenderMode(jsPlumb.CANVAS);</strong>.
+			</li>
+			</ul>			
 			<h5>New Features</h5>
 				<ul>
-					<li>added getOverlay(id) to Connection</li>
-					<li>added hideOverlay(id) to Connection</li>
-					<li>added showOverlay(id) to Connection</li>
-					<li>added hide() to Overlay</li>
-					<li>added show() to Overlay</li>
-					<li>added setVisible(state) to Overlay</li>
+					<li class="bullet">
+						<p>StateMachine Connectors<p>
+						These connectors look like the state machine connectors you might have seen in 
+						software like GraphViz.  Support for "loopback" connections is included.
+					</li>
+					<li class="bullet">
+						<p>Continuous Anchors<p>
+						Continuous anchors are anchors whose position is dynamically dependent on every connection
+						that is attached to some element.  If you're familiar with the existing Dynamic 
+						anchors in jsPlumb, these operate in pretty much the same way, with the exception that
+						you do not need to nominate any specific locations yourself.  They choose their position
+						based on an element's orientation to the other element in a connection, and everything
+						is ordered to keep the number of crossed connections to a minimum.  
+						<p>For more information, see the <a href="#anchors">anchors</a> section.</p>
+					</li>
+					<li class="bullet">
+						<p>beforeDrag/beforeDrop interceptors<p>
+						These interceptors allow you to decide whether or not to allow a new connection to be
+						dragged or dropped before jsPlumb goes ahead with the action. They are documented in 
+						full in the <a href="#interceptors">interceptors</a> section of the documentation.
+					</li>
+					<li class="bullet">
+						<p>makeSource/makeTarget methods</p>
+						makeSource and makeTarget provide a means for you to nominate some entire element as
+						a connection source or target.  There are many applications in which this functionality
+						makes more sense than having to register a dedicated Endpoint.  Read more about these
+						in the <a href="#connections">connections</a> section below.
+					</li>
+					<li class="bullet">'transparent' is now supported as a fillStyle or strokeStyle.</li>
+					<li class="bullet">Endpoint and Connector definitions now support a <strong>hoverClass</strong> parameter.
+					This is the hover equivalent of the existing <strong>cssClass</strong> parameter.
+					</li>
+
+				</ul>			
+			
+			<h5>Bugfixes for which there were not issues raised</h5>
+				<ul>
+					<li class="bullet">A mouse event bug with the SVG renderer was fixed; it was preventing mouse events from
+					reaching SVG elements that were underneath other SVG elements</li>
 				</ul>
 			
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li><strong>120</strong> - dynamic anchors get confused by scrolled div</li>
-				<li><strong>127</strong> - original event was lost in the jsPlumb shortcut bind methods</li>
-			</ul>
-			<p>
-			Version 1.3.1 was a major new release of jsPlumb, containing several important new features, and a few changes that break backwards compatibility.
-			</p>
-			<p>
-			Major new features include:
-			</p>			
-			<ul>
-				<li>- introduced support for using SVG</li>
-				<li>- removed dependency on Excanvas script for IE&lt;9. Jsplumb draws VML directly now.</li>
-				<li>- introduced support for mouse events (click/doubleclick/enter/exit) for all browsers</li>
-				<li>- introduced support for turning an entire element into a drag target for new connections</li>
-			</ul>
-			<p>
-			Backwards Compatibility Issues:			
-			</p>
-			<ul>
-				<li>
-					<p>- you cannot create Endpoints/Connectors/Overlays directly anymore.  You must supply jsPlumb with a definition of what you
-					 want, and it creates the actual object.  For example:</p>
-	  				<pre>
-OLD: 	jsPlumb.Defaults.Endpoint = new jsPlumb.Endpoints.Dot(45);
-NEW:	jsPlumb.Defaults.Endpoint = [ "Dot", { radius:45 } ];
-	  				</pre>	
-				</li>					  	  	  	
-			
-				<li>
-					<p>- Bezier connection requires a js object as argument now, instead of a single int</p>
-					<pre>
-OLD:  	connector: [ "Bezier", 150 ]
-NEW: 	connector: [ "Bezier", { curviness:150 } ]
-					</pre>
-				</li>
-				<li>
-					<p>- Dot Endpoint requires a js object as argument now, instead of a single int</p>
-					<pre>
-OLD:	endpoint: [ "Dot", 10 ]
-NEW:	endpoint: [ "Dot", { radius:10 } ]
-					</pre>		
-				</li>
-				<li>
-					<p>- getConnections has been reworked a little to make it easier to use.  See the API documentation.</p>
-				</li>
-				<li>
-				<p>- The 'container' concept, as an argument to addEndpoint or connect, and in the jsPlumb defaults, has been 
-				removed.  Created elements are now appended to the parent of the source element of a connection, or the parent of an element
-				to which you are adding an Endpoint.
-				</p>  
-				</li>
-				<li>
-					<p>- The 'backgroundPaintStyle' concept has been replaced with 'outlineColor' and 'outlineWidth' members in paint style definitions.
-					To use these, you must supply at least 'outlineWidth'; if 'outlineColor' is not supplied, jsPlumb will use black by default.
-					</p>
-				</li>
-				<li>
-					<p>- Functionality to drag an entire connection, by clicking and dragging the connector line, which was introduced for some browsers 
-					in 1.2.6, has been removed.  I had several requests for a way to disable this, and got the distinct impression it was not
-					very popular.
-					</p>		
-				</li>
-				<li>
-					<p>- The 'setDefaultNewCanvasSize' method on jsPlumb has been removed.  jsPlumb no longer uses excanvas to render
-	  				VML; this method was there to support edge cases of VML usage. You probably were not even aware of this method's existence.
-	  				</p>		
-				</li>		
-			</ul>
+				<li><strong>154</strong> - reinstate the 'tooltip' and 'connectorTooltip' parameters</li>
+				<li><strong>145</strong> - add getLabel/setLabel methods to Overlays</li>
+				<li><strong>142</strong> - document jsPlumb.connectionDetached event properly</li>				
+				<li><strong>139</strong> - duplicate ids are sometimes given to Endpoints and Connections</li>
+				<li><strong>132</strong> - moving a Label Overlay does not remove its associated element</li>
+				<li><strong>130</strong> - positioning issues when in div with overflow:scroll</li>
+			</ul>						
 		</div>
 		
 		<div class="section">
@@ -140,7 +140,7 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 			<div class="code">
 				<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.3-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.4-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>MooTools</h4>
 				<ul>
@@ -150,7 +150,7 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.3/mootools-yui-compressed.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.3-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.4-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>YUI3</h4>
 			<ul>
@@ -158,21 +158,21 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 			</ul>
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.3-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.4-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			
 			<h4><a id="renderMode">Render Mode</a></h4>
 			jsPlumb can use SVG, HTML5 Canvas elements or VML to render the various objects it adds to the display.  Most modern browsers support
 			Canvas and SVG; IE&lt;9 browsers support neither.
 			<p>
-				By default, jsPlumb attempts to use <strong>jsPlumb.CANVAS</strong> as the render mode, falling back to <strong>jsPlumb.VML</strong> if the 
+				By default, jsPlumb attempts to use <strong>jsPlumb.SVG</strong> as the render mode (prior to 1.3.4, the default renderer was Canvas), falling back to <strong>jsPlumb.VML</strong> if the 
 				browser is IE&lt;9.  You can change the render mode by making this call:  
 			</p>
 			<div class="code">
-<pre>jsPlumb.setRenderMode(jsPlumb.SVG);</pre>			
+<pre>jsPlumb.setRenderMode(jsPlumb.CANVAS);</pre>			
 			</div>
 			if, for some reason, you set the render mode to be <strong>jsPlumb.VML</strong> but you're in any browser other than IE&lt;9, jsPlumb
-			will use Canvas.
+			will use SVG.
 			<p>
 			The <strong>jsPlumb.setRenderMode</strong> method returns you the render mode that jsPlumb actually ended up setting.  Valid values for setRenderMode are:
 			</p>
@@ -181,6 +181,11 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 				<li class="bullet">jsPlumb.SVG</li>
 				<li class="bullet">jsPlumb.VML</li>
 			</ul>			
+			<h5>Performance Considerations</h5>
+			<p>
+			SVG uses less memory than Canvas and has support for mouse events built in, so I recommend using
+			SVG unless you have a really good reason for wanting Canvas.
+			</p>
 			
 			<h4><a id="initializing">Initializing jsPlumb</a></h4>
 			You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  With YUI, though, the asynchronous
@@ -197,7 +202,7 @@ NEW:	endpoint: [ "Dot", { radius:10 } ]
 });						
 			</pre>
 			</div>
-			In 1.3.3 a helper method was added that can save you approximately 9 (count them!) characters:
+			There's a helper method that can save you approximately 9 (count them!) characters:
 			<div class="code">
 			<pre>jsPlumb.ready(function() {
 ...	
@@ -390,7 +395,7 @@ jsPlumb.addEndpoint(someDiv, { endpoint options });
 		</div>
 		
 			Set a container to use as the default container, using an element id,
-		and then connect two elements.  The canvases (or SVG/VML elements) created in this example will be children of the element with id "containerId":
+		and then connect two elements.  The elements created in this example will be children of the element with id "containerId":
 		<div class="code">
 <pre>
 jsPlumb.Defaults.Container = "containerId";
@@ -399,13 +404,13 @@ jsPlumb.connect({ source:someDiv, target:someOtherDiv });
 </pre>		
 		</div>
 		
-		Pass a container to use into a jsPlumb.connect call, using a selector.  The canvases (or SVG/VML elements) created in this example will be children of the element with id "containerId":
+		Pass a container to use into a jsPlumb.connect call, using a selector.  The elements created in this example will be children of the element with id "containerId":
 		<div class="code">
 <pre>
 jsPlumb.connect({ source:someDiv, target:someOtherDiv, container:$("#containerId") });
 </pre>		
 		</div>
-				Pass a container to use into a jsPlumb.addEndpoint call, using an element id. The canvas (or SVG/VML element) created in this example will be a child of the element with id "containerId":
+				Pass a container to use into a jsPlumb.addEndpoint call, using an element id. The element created in this example will be a child of the element with id "containerId":
 		<div class="code">
 <pre>
 jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
@@ -421,13 +426,18 @@ jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
 			broken down into these four concepts:
 
 			<ul>
-				<li><strong>Anchor</strong> - a location, relative to an element's origin, at which an Endpoint can exist. You do not create these yourself; you supply hints to the various jsPlumb functions, which create them as needed.  They have no visual representation; they are a logical position only. Anchors can be referenced by name, for the Anchors that jsPlumb ships with, or a four element array describing [ x, y, x orientation, y orientation ]. See the <a href="#anchors">anchors</a> section for more detail.<br/><br/></li>
+				<li><strong>Anchor</strong> - a location, relative to an element's origin, at which an Endpoint can exist. You do not create these yourself; you 
+				supply hints to the various jsPlumb functions, which create them as needed.  They have no visual representation; they are a logical position only. 
+				Anchors can be referenced by name, for the Anchors that jsPlumb ships with, or a four element array describing [ x, y, x orientation, y orientation ]. 
+				See the <a href="#anchors">anchors</a> section for more detail.<br/><br/></li>
 				<li><strong>Endpoint</strong> - the visual representation of one end of a Connection.  You can create and attach these to elements 
 				yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection 
 				programmatically using jsPlumb.connect(...).  You can also join two Endpoints programmatically, by passing them as arguments to 
 				jsPlumb.connect(...).<br/><br/></li>				
-				<li><strong>Connector</strong> - the visual representation of the line connecting two elements in the page.  jsPlumb has three types of these available as defaults - a Bezier curve, a straight line, and 'flowchart' connectors. You do not interact with Connectors; you just specify definitions of them when you need to - see <a href="#definitions">Connector, Endpoint & Overlay Definitions</a> <br/><br/></li>
-				<li><strong>Overlay</strong> - a UI component that is used to decorate a Connector, such as a label, arrow, etc.<br/><br/></li>
+				<li><strong>Connector</strong> - the visual representation of the line connecting two elements in the page.  jsPlumb has four types of these 
+				available as defaults - a Bezier curve, a straight line, 'flowchart' connectors and 'state machine connectors. You do not interact with Connectors; 
+				you just specify definitions of them when you need to - see <a href="#definitions">Connector, Endpoint &amp; Overlay Definitions</a> <br/><br/></li>
+				<li><strong>Overlay</strong> - a UI component that is used to decorate a Connector, such as a Label, Arrow, etc.<br/><br/></li>
 			</ul>
 						
 			<p>One Connection is made up of two Endpoints, a Connector, and zero or more Overlays working together to join two elements.</p>
@@ -438,8 +448,23 @@ jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
 			
 			<div class="section">
 			<h3><a id="anchors">Anchors</a></h3>			
-			<p>An Anchor models the notion of where on an element a Connector should connect.  jsPlumb has nine default anchor locations you
-			can use to specify where the Connectors connect to elements: these are the four corners of an element,
+	
+					An Anchor models the notion of where on an element a Connector should connect.  There are three main types of Anchors:
+					<ul>
+						<li class="bullet">'Static' anchors - these are fixed to some point on an element and do not move.  They can be specified using a string to
+						identify one of the defaults that jsPlumb ships with, or an array describing the location (see below)</li>
+						<li class="bullet">'Dynamic' anchors - these are lists of Static anchors from which jsPlumb picks the most appropriate one each time a Connection
+						is painted.  The algorithm used to determine the most appropriate anchor picks the one that is closest to the center of the other element in
+						the Connection. A future version of jsPlumb might support a pluggable algorithm to make this decision.</li>
+						<li class="bullet">'Continuous' anchors - These anchors, introduced in 1.3.4, are not fixed to any specific loction; they are assigned to one of
+						the four faces of an element depending on that element's orientation to the other element in the associated Connection.  Continuous anchors are
+						slightly more computationally intensive than Static or Dynamic anchors because jsPlumb is required to calculate the position of every Connection
+						during a paint cycle, rather than just Connections belonging to the element in motion.  These anchors were designed for use with the StateMachine
+						connector that was also introduced in 1.3.4, but will work with any combination of Connector and Endpoint.</li> 
+					</ul>  
+					
+			<h4><a id="staticAnchors">Static Anchors</a></h4>		
+			jsPlumb has nine default anchor locations you can use to specify where the Connectors connect to elements: these are the four corners of an element,
 			the center of the element, and the midpoint of each edge of the element:  
 			<ul>
 				<li class="bullet">TopCenter</li>
@@ -472,10 +497,10 @@ jsPlumb.connect({...., anchor:[ 0.5, 1, 0, 1 ], ... });
 </pre>
 </div>			
 
-		<h3><a id="dynamicAnchors">Dynamic Anchors</a></h3>
+		<h4><a id="dynamicAnchors">Dynamic Anchors</a></h4>
 	These are Anchors that can be positioned in one of a number of locations, choosing the one that is most appropriate each time something moves or is painted in the UI.
 	<p>
-	There is no special syntax to creating a DynamicAnchor; you just provide an array of individual Anchor specifications, eg:
+	There is no special syntax to creating a DynamicAnchor; you just provide an array of individual Static Anchor specifications, eg:
 	</p>
 <div class="code">
 <pre>
@@ -497,11 +522,55 @@ Dynamic Anchors and Draggable Connections can interoperate: jsPlumb locks the po
 and unlocks it once the connection is either established or abandoned. At that point you may see the position of the dynamic anchor change, as jsPlumb
 optimises the connection.  <p>You can see this behaviour in the <a href="../html/jquery/draggableConnectorsDemo.html" target="_blank">draggable connections</a> demonstration, when
 you drag a connection from the blue endpoint on window 1 to the blue endpoint on window 3 - the connection is established and then window 1's blue
-endpoint jumps down to a location that is closer to window 3.</p> 	  
+endpoint jumps down to a location that is closer to window 3.</p>
+
+
+	<h4><a id="continuousAnchors">Continuous Anchors</a></h4>
+	As discussed above, these are anchors whose positions are calculated by jsPlumb according to the orientation between elements in a Connection, and also how
+	many other Continuous anchors happen to be sharing the element.  You specify that you want to use Continuous anchors using the string syntax you would use
+	to specify one of the default Static Anchors, for example:
+	
+<div class="code">
+<pre>
+jsPlumb.connect({
+	source:someDiv,
+	target:someOtherDiv,
+	anchor:"Continuous"
+});
+</pre>
+</div>
+
+Note in this example I specified only "anchor", rather than "anchors" - jsPlumb will use the same spec for both anchors.  But I could have said this:
+<div class="code">
+<pre>
+jsPlumb.connect({
+	source:someDiv,
+	target:someOtherDiv,
+	anchors:["BottomCenter", "Continuous"]
+});
+</pre>
+</div>	 	  
+..which would have resulted in the source element having a Static Anchor at BottomCenter.  In practise, though, it seems the Continuous Anchors work best if both 
+elements in a Connection are using them.
+<p>Note also that Continuous Anchors can be specified on <strong>addEndpoint</strong> calls:</p>
+<div class="code">
+<pre>
+jsPlumb.addEndpoint(someDiv, {
+	anchor:"Continuous",
+	paintStyle:{ fillStyle:"red" }
+});
+</pre>
+</div>	 	
+... and in the jsPlumb defaults:
+<div class="code">
+<pre>
+jsPlumb.Defaults.Anchor = "Continuous";
+</pre>
+</div>  
 					</div>		
 												
 <div class="section">
-		<h4><a id="definitions">Connector, Endpoint & Overlay Definitions</a></h4>
+		<h4><a id="definitions">Connector, Endpoint &amp; Overlay Definitions</a></h4>
 		Before we discuss Connector, Endpoints and Overlays, a quick word on definitions:  whenever you need to define a Connector, Endpoint or Overlay, you must use a "definition" of it, rather than constructing one
 		directly.  This definition can be either a string that nominates the artifact you want to create:
 		<div class="code">
@@ -525,7 +594,8 @@ endpoint jumps down to a location that is closer to window 3.</p>
 		behind this is that you will often want to define common characteristics somewhere and reuse them across a bunch of different calls:
 		<div class="code">
 <pre>var common = {
-	cssClass:"myCssClass"
+	cssClass	:	"myCssClass",
+	hoverClass	:	"myHoverClass"
 };
 jsPlumb.connect({
 	source:"someDiv",
@@ -542,7 +612,7 @@ jsPlumb.connect({
 jsPlumb.connect({
 	source:"someDiv",
 	target:"someOtherDiv",
-	endpoint:[ "Dot", { radius:5 }, common ],
+	endpoint:[ "Dot", { radius:5, hoverClass:"myEndpointHover" }, common ],
 	connector:[ "Bezier", { curviness:100 }, common ],
 	overlays: [
 		[ "Arrow", { foldback:0.2 }, common ],
@@ -561,11 +631,11 @@ jsPlumb.connect({
 
 		<div class="section">
 			<h3><a id="connectors">Connectors</a></h3>
-			<p>Connectors are the lines that actually join elements of the UI.  jsPlumb has three connector implementations - a straight line, a Bezier curve, and
-			"flowchart" connectors.  The default connector is the Bezier curve.  </p>
-			<p>You optionally specify a Connector by setting the 'connector' property on a call to jsPlumb.connect or jsPlumb.addEndpoint(s). If you do not
-			supply a value for 'connector', the default will be used (see <a href="#defaults">defaults</a>).</p>
-			<p>You specify Connectors using the syntax described above in <a href="#definitions">Connector, Endpoint & Overlay Definitions.</a>Allowed 
+			<p>Connectors are the lines that actually join elements of the UI.  jsPlumb has four connector implementations - a straight line, a Bezier curve, 
+			"flowchart", and "state machine".  The default connector is the Bezier curve.  </p>
+			<p>You optionally specify a Connector by setting the 'connector' property on a call to jsPlumb.connect, jsPlumb.addEndpoint(s), jsPlumb.makeSource or
+			jsPlumb.makeTarget. If you do not supply a value for 'connector', the default will be used (see <a href="#defaults">defaults</a>).</p>
+			<p>You specify Connectors using the syntax described above in <a href="#definitions">Connector, Endpoint &amp; Overlay Definitions.</a>Allowed 
 			constructor values for each Connector type are described below:</p>
 			
 			<h4><a id="bezierConnector">Bezier Connector</a></h4>
@@ -584,22 +654,44 @@ jsPlumb.connect({
 			<h4><a id="flowchartConnector">Flowchart Connector</a></h4>
 			<p>This type of Connector draws a connection that consists of a series of vertical or horizontal segments - the classic flowchart look. A single constructor argument is supported:</p>
 			<strong>stub</strong> - this is the minimum length, in pixels, of the initial stub that emanates from an Endpoint.  This parameter is optional, and defaults to 30 pixels.
+			<h4><a id="stateMachineConnector">State Machine Connector</a></h4>
+			<p>This Connector draws slightly curved lines (they are actually quadratic Bezier curves), similar to the State Machine connectors you may have 
+			seen in software like GraphViz.  Connections in which some element is both the source and the target (so-called 'loopback') are supported by these 
+			Connectors, in which case you get a circle.  These are the only Connectors for which the loopback case is supported. Supported parameters are:
+			</p>
+			<p>
+			<strong>margin</strong> - Optional; defaults to 5.  Defines the distance from the element that the connector begins/ends.
+			</p>
+			<p>
+			<strong>curviness</strong> - Optional, defaults to 10.  This has a similar effect to the curviness parameter on Bezier curves.
+			</p>
+			<p>
+			<strong>proximityLimit</strong> - Optional, defaults to 80.  The minimum distance between the two ends of the Connector before it paints itself as 
+			a straight line rather than a quadratic Bezier curve.
+			</p>    
 			
 		</div>
 		
 			<div class="section">
 			<h3><a id="endpoints">Endpoint Types</a></h3>
 			<p>An Endpoint is the UI component that marks the location of an Anchor, ie. the place where a Connector joins an
-			element.  jsPlumb comes with three Endpoint implementations - Dot, Rectangle and Image. You optionally specify Endpoint properties using the
-			<strong>endpoint</strong> parameter in a call to jsPlumb.connect, jsPlumb.addEndpoint or jsPlumb.makeTarget.
+			element.  jsPlumb comes with four Endpoint implementations - Dot, Rectangle, Blank and Image. You optionally specify Endpoint properties using the
+			<strong>endpoint</strong> parameter in a call to jsPlumb.connect, jsPlumb.addEndpoint, jsPlumb.makeSource or jsPlumb.makeTarget.
 			</p>  
-				<p>As with Connectors and Overlays, you specify Endpoints using the syntax described above in <a href="#definitions">Connector, Endpoint & Overlay Definitions.</a></p>
+				<p>As with Connectors and Overlays, you specify Endpoints using the syntax described above in <a href="#definitions">Connector, Endpoint &amp; Overlay Definitions.</a></p>
 			
-			The three available Endpoint types, and their constructor arguments, are as follows:
+			The four available Endpoint types, and their constructor arguments, are as follows:
 					<h4><a id="dotEndpoint">Dot Endpoint</a></h4>
-					This Endpoint draw a dot on the screen. It supports a single constructor parameter:
+					This Endpoint draw a dot on the screen. It supports three constructor parameters:
 					<p>
 						<strong>radius</strong> - Optional; defaults to 10 pixels. Defines the radius of the dot.
+					</p>
+					<p>
+						<strong>cssClass</strong> - Optional.  A CSS class to attach to the element the Endpoint creates.
+					</p>
+					<p>
+						<strong>hoverClass</strong> - Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the 
+						element or an attached Connection.
 					</p>
 					<h4><a id="rectangleEndpoint">Rectangle Endpoint</a></h4>
 						Draws a rectangle. Supported constructor parameters are:
@@ -609,16 +701,35 @@ jsPlumb.connect({
 					<p>
 						<strong>height</strong> - Optional; defaults to 20 pixels. Defines the height of the rectangle.
 					</p>
-					
+					<p>
+						<strong>cssClass</strong> - Optional.  A CSS class to attach to the element the Endpoint creates.
+					</p>
+					<p>
+						<strong>hoverClass</strong> - Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the 
+						element or an attached Connection.
+					</p>
 					<h4><a id="imageEndpoint">Image Endpoint</a></h4>
-						Draws an image from a given URL.  This Endpoint supports one constructor parameter:  
+						Draws an image from a given URL.  This Endpoint supports three constructor parameters:  
 					<p>
 						<strong>src</strong> - Required.  Specifies the URL of the image to use.
 					</p>
-					
-									
-			
-			
+					<p>
+						<strong>cssClass</strong> - Optional.  A CSS class to attach to the element the Endpoint creates.
+					</p>
+					<p>
+						<strong>hoverClass</strong> - Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the 
+						element or an attached Connection.
+					</p>
+					<h4><a id="blankEndpoint">Blank Endpoint</a></h4>
+						Does not draw anything visible to the user.  However, a div element is added to the UI and so this Endpoint also support the css parameters:
+					<p>
+						<strong>cssClass</strong> - Optional.  A CSS class to attach to the element the Endpoint creates.
+					</p>
+					<p>
+						<strong>hoverClass</strong> - Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the 
+						element or an attached Connection.
+					</p>
+																			
 		</div>
 		
 		<div class="section">
@@ -635,8 +746,15 @@ jsPlumb.connect({
 			</ul> 
 			The last two are actually just configured instances of the generic Arrow overlay (see examples). 
 			
-			<p>You can specify one or more overlays when making a call to jsPlumb.connect or jsPlumb.addEndpoint (but not jsPlumb.makeTarget; overlays
-			are always derived from what the source of a Connection defines)  The two cases are discussed below:</p>
+			<p>All Overlays support these two methods for getting/setting their location (location is a number between 0 and 1 inclusive, indicating some point along the path
+			inscribed by the associated Connector):</p>
+			<ul>
+				<li class="bullet"><strong>getLocation</strong> - returns the current location</li>
+				<li class="bullet"><strong>setLocation</strong> - sets the current location; valid values are decimals in the range 0-1 inclusive</li> 
+			</ul>
+			
+			<p>You can specify one or more overlays when making a call to jsPlumb.connect, jsPlumb.addEndpoint or jsPlumb.makeSource (but not jsPlumb.makeTarget; overlays
+			are always derived from what the source of a Connection defines)  The three cases are discussed below:</p>
 			1. Specifying one or more overlays on a jsPlumb.connect call. In this example we'll create an Arrow with the default options for an Arrow, and
 			a label with the text "foo":
 			<div class="code">
@@ -662,6 +780,23 @@ jsPlumb.connect({
 		[ "Arrow", { width:10, length:30, location:1, id:"arrow" } ], 
 		[ "Label", { label:"foo", id:"label" } ]
 	],
+	...
+});</pre>
+			</div>	
+			This connection will have a 10x30 Arrow located right at the head of the connection, and the label "foo" located at the halfway point. Again,
+			note that <strong>id</strong> parameter passed in to each Overlay spec.<br/><br/>
+			
+			3. Specifying one or more overlays on a jsPlumb.makeSource call.  Note in this example that we again use the parameter 'connectorOverlays' and not
+			'overlays'.  The 'endpoint' parameter to jsPlumb.makeSource supports everything you might pass to the second argument of a jsPlumb.addEndpoint call:
+			<div class="code">
+			<pre>jsPlumb.makeSource("someDiv", {
+	...
+	endpoint:{
+		connectorOverlays:[ 
+			[ "Arrow", { width:10, length:30, location:1, id:"arrow" } ], 
+			[ "Label", { label:"foo", id:"label" } ]
+		]
+	}
 	...
 });</pre>
 			</div>	
@@ -787,7 +922,6 @@ connection.removeOverlay("myLabel");
 <pre>
 Anchor : "BottomCenter",
 Anchors : [ null, null ],
-AppendElementsToBody : false,
 Connector : "Bezier",
 DragOptions : { },
 DropOptions : { },
@@ -804,7 +938,7 @@ Overlays : [ ],
 MaxConnections : 1,
 MouseEventsEnabled : true,
 PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
-RenderMode : "canvas",
+RenderMode : "svg",
 Scope : "_jsPlumb_DefaultScope"
 </pre>
 			</div>
@@ -911,7 +1045,25 @@ jsPlumb.connect({ source:"someElement", target:"someOtherElement" }, common);
 jsPlumb.connect({ source:"aThirdElement", target:"yetAnotherElement" }, common);
 
 </pre>			
-			</div>							
+			</div>		
+			
+		<h5>Endpoints created by jsPlumb.connect</h5>
+		<p>If you supply an element id or selector for either the source or target , jsPlumb.connect will automatically create an Endpoint on the 
+		given element.  These automatically created Endpoints are not marked as drag source or targets, and cannot
+		be interacted with.  For some situations this behaviour is perfectly fine, but for more interactive UIs you should set things up using the drag and drop
+		method discussed below.</p>
+		<p>Given that jsPlumb.connect creates its own Endpoints in some circumstances, in order to avoid leaving orphaned Endpoints around the place, if the Connection is subsequently
+		deleted, these created Endpoints are deleted too.  Should you want to, you can override this behaviour by setting <strong>deleteEndpointsOnDetach</strong> to
+		false in the connect call:</p>
+		<div class="code">
+<pre>
+jsPlumb.connect({ 
+	source:"aThirdElement", 
+	target:"yetAnotherElement",
+	deleteEndpointsOnDetach:false 
+});
+</pre>
+</div>								
 					
 		<h4><a id="draggableConnections">Connections using Drag and Drop</a></h4>
 		To support drag and drop connections, you first need to set a few things up.  Every drag and drop connection needs at least a source
@@ -961,7 +1113,12 @@ var endpoint = jsPlumb.addEndpoint("otherElementId", endpointOptions);
 		This Endpoint, a gray rectangle, has declared that it can act as a drop target for Connections. 
 </p>
 <p>
-Your other option for creating a drag and drop target is to make an entire element a drop target, using the <strong>jsPlumb.makeTarget</strong> method.
+jsPlumb also supports marking entire elements as drag sources or drag targets, using the <strong>makeSource</strong> and <strong>makeTarget</strong> methods.  This
+is a useful function for certain applications.  Each of these methods takes an Endpoint declaration which defines the Endpoint that jsPlumb will create after a Connection
+has been attached.  Let's take a look at makeTarget first:
+</p>
+<h5>jsPlumb.makeTarget</h5>
+<p>
 This method takes two arguments, the first of which specifies some element (or list of elements); the second specifies the Endpoint you wish to create on 
 that element whenever a Connection is established on it.  In this example we will use the exact same target Endpoint we used before - the gray
 rectangle - but we will tell jsPlumb that the element "aTargetDiv" will be the drop target:
@@ -974,8 +1131,43 @@ jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 <p>
 	The allowed values in 'endpointOptions' are identical for both the <strong>jsPlumb.addEndpoint</strong> and <strong>jsPlumb.makeTarget</strong> methods.
 </p>		
-		
-		
+<h5>jsPlumb.makeSource</h5>
+There are two use cases supported by this method.  The first is the case that you want to drag a Connection from the element itself and have an Endpoint attached to
+the element when a Connection is established.  The second is a more specialised case: you want to drag a Connection from the element, but once the Connection is
+established you want jsPlumb to move it so that its source is on some other element.  For an example of this second case, check out the <a href="">WHERE IS THIS State Machine Connectors Demo</a>
+<p>Here's an example code snippet for the basic use case of makeSource:</p>
+<div class="code">
+<pre>
+	jsPlumb.makeSource(someDiv, {
+		paintStyle:{ fillStyle:"yellow" },
+		endpoint:"Blank",
+		anchor:"BottomCenter"
+	});
+</pre>
+</div>
+<p>
+Notice again that the second argument is the same as the second argument to an addEndpoint call.  makeSource is, essentially, a type of addEndpoint call.  In this example 
+we have told jsPlumb that we will support dragging Connections directly from 'someDiv'.  Whenever a Connection is established between 'someDiv' and some other element,
+jsPlumb assigns an Endpoint at BottomCenter of 'someDiv', fills it yellow, and sets that Endpoint as the newly created Connection's source. 
+</p>		
+<p>Configuring an element to be an entire Connection source using makeSource means that the element cannnot itself be draggable.  There would be no way for jsPlumb to distinguish
+between the user attempting to drag the element and attempting to drag a Connection from the element.  If your UI works in such a way that that is acceptable then you'll
+be fine to use this method.  But if you want to drag Connections from some element but also have the element be draggable itself, you might want to consider the second
+use case.  First, a code snippet:</p>
+<div class="code">
+<pre>
+	jsPlumb.makeSource("someConnectionSourceDiv", {
+		paintStyle:{ fillStyle:"yellow" },
+		endpoint:"Blank",
+		anchor:"BottomCenter",
+		parent:"someDiv"
+	});
+</pre>
+</div>
+<p>The only difference here is the inclusion of the 'parent' parameter.  It instructs jsPlumb to configure the source Endpoint on the element specified - in this case,
+"someDiv" (the value of this parameter may be a String id or a selector).</p>
+<p>Again, I'd suggest taking a look at the <a href="../demo/jquery/stateMachineDemo.html">State Machine Connectors demonstration</a> for an example of this.</p>
+
 <p>
 There are many things you can set in an Endpoint options object; for a thorough list see the API documentation for Endpoint.  
 </p>
@@ -1023,9 +1215,9 @@ var exampleGreyEndpointOptions = {
 	Given that the options here are library-specific, and they are all well-documented, we're going to discuss just the three drag options
 	that behave the same way in all (see below for hoverClass):
 		<ul>
-		<li>opacity - the opacity of an element that is being dragged.  Should be a fraction between 0 and 1 inclusive.</li>
-		<li>zIndex - the zIndex of an element that is being dragged.</li>
-		<li>scope - the scope of the draggable.  can only be dropped on a droppable with the same scope.  this is discussed below.</li>
+		<li><strong>opacity</strong> - the opacity of an element that is being dragged.  Should be a fraction between 0 and 1 inclusive.</li>
+		<li><strong>zIndex</strong> - the zIndex of an element that is being dragged.</li>
+		<li><strong>scope</strong> - the scope of the draggable.  can only be dropped on a droppable with the same scope.  this is discussed below.</li>
 		</ul> 
 	</p>
 	
@@ -1047,9 +1239,9 @@ You should put something like this at the top of your JS to avoid it (perhaps no
 	that fact, and treat droppables like you would in jQuery or YUI3.  jsPlumb wires everything up for you under the hood.
 	<p>There are three jQuery droppable options that jsPlumb treats as shortcuts in MooTools and YUI3, for the sake of consistency:</p>
 		<ul>
-			<li>hoverClass - the CSS class to attach to the droppable when a draggable is hovering over it.</li>
-			<li>activeClass - the CSS class to attach to the droppable when a draggable is, um, being dragged.</li>
-			<li>scope - the scope of the draggable.  The draggable can only be dropped on a droppable with the same scope.  This is discussed below.</li>
+			<li><strong>hoverClass</strong> - the CSS class to attach to the droppable when a draggable is hovering over it.</li>
+			<li><strong>activeClass</strong> - the CSS class to attach to the droppable when a draggable is, um, being dragged.</li>
+			<li><strong>scope</strong> - the scope of the draggable.  The draggable can only be dropped on a droppable with the same scope.  This is discussed below.</li>
 		</ul>   
 	<p>For more information about drop options when using jQuery, see <a href="http://docs.jquery.com/UI/Droppable" target="_blank">here</a>.</p>
 		
@@ -1097,11 +1289,36 @@ var exampleGreyEndpointOptions = {
 </div>  
 			
 	</div>	
+	
+	<div class="section">
+		<h3><a id="beforeDrop">Interceptors</a></h3>
+		<p>
+		Interceptors are new to jsPlumb 1.3.4.  They are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that
+		it was doing.  There are currently two interceptors supported - <strong>beforeDrop</strong>, which is called when the user has dropped a Connection onto some target, 
+		and <strong>beforeDetach</strong>, which is called when the user is attempting to detach a Connection. 
+		</p>
+		<p>Interceptors can be registered via the <strong>bind</strong> method on jsPlumb just like any other event listeners, and they can also be passed in to
+		the <strong>jsPlumb.addEndpoint</strong>, <strong>jsPlumb.makeSource</strong> and <strong>jsPlumb.makeTarget</strong>
+		methods.  A future version of jsPlumb will support registering interceptors on Endpoints using the <strong>bind</strong> method as you can now with the jsPlumb object.
+		Note that binding 'beforeDrop' (as an example) on jsPlumb itself is like a catch-all: it will be called every time a Connection is dropped on _any_ 
+		Endpoint.  But passing a 'beforeDrop' callback into an Endpoint (and in the future, registering one using 'bind') constrains that callback to just the
+		Endpoint in question.  		
+		<h4><a id="beforeDrop">Before Drop</a></h4>
+		This is called when the user has released the mouse button over a Connection target.  Your callback is passed the
+		Connection object that has been created; the source/target elements and Endpoints will all be correctly set, allowing you to decide what you want to do.
+		<p>Returning false - or nothing - from this callback will cause the drag to be abandoned, and the new Connection removed from the UI.</p>
+		<h4><a id="beforeDetach">Before Detach</a></h4>
+		This is called when the user has detached a Connection, which can happen for a number of reasons: by default, jsPlumb allows users to drag Connections
+		off of target Endpoints, but this can also result from a programmatic 'detach' call.  Every case is treated the same by jsPlumb, so in fact it is possible
+		for you to write code that attempts to detach a Connection but then denies itself!  You might want to be careful with that. 
+		<p>Returning false - or nothing - from this callback will cause the detach to be abandoned, and the Connection will be reinstated/left on its current target.</p>
+			
+	</div>
 
 		<div class="section">
 			<h3><a id="paintstyles">Paint Styles</a></h3>
 			Defining the appearance of Connectors, Endpoints (and Overlays, but this is deprecated in favour of using CSS classes) is achieved through a 'paintStyle' (or a quite similar name...keep reading)
-			object passed as a parameter to one of jsPlumb.connect, jsPlumb.addEndpoint or jsPlumb.makeTarget. Depending on the method you are
+			object passed as a parameter to one of jsPlumb.connect, jsPlumb.addEndpoint, jsPlumb.makeSource or jsPlumb.makeTarget. Depending on the method you are
 			calling, the parameter names vary.
 			<h5>Connector Paint Styles</h5>
 			These are specified in a <em>paintStyle</em> parameter on a call to <strong>jsPlumb.connect</strong>:
@@ -1113,18 +1330,24 @@ var exampleGreyEndpointOptions = {
 });
 </pre>			
 			</div>
-			or in the <em>connectorPaintStyle</em> parameter on a call to <strong>jsPlumb.addEndpoint</strong>:
+			or in the <em>connectorPaintStyle</em> parameter on a call to <strong>jsPlumb.addEndpoint</strong> or <strong>jsPlumb.makeSource</strong>:
 			<div class="code">
-<pre>jsPlumb.addEndpoint({
-	source:"el1",
-	target:"el2",
+<pre>jsPlumb.addEndpoint("el1", {
 	paintStyle:{ fillStyle:"blue", outlineColor:"black", outlineWidth:1 },
 	connectorPaintStyle:{ strokeStyle:"blue", lineWidth:10 }
 });
 </pre>			
-			</div> 
+			</div>
+			<div class="code">
+<pre>jsPlumb.makeSource("el1", {
+	paintStyle:{ fillStyle:"blue", outlineColor:"black", outlineWidth:1 },
+	connectorPaintStyle:{ strokeStyle:"blue", lineWidth:10 }
+});
+</pre>			
+			</div> 			
+			 
 
-Notice the <em>paintStyle</em> parameter in that example: it is the paint style for the Endpoint, which we'll discuss below.
+Notice the <em>paintStyle</em> parameter in those examples: it is the paint style for the Endpoint, which we'll discuss below.
 
 			<h5>Endpoint Paint Styles</h5>
 			These are specified in a <em>paintStyle</em> parameter on a call to <strong>jsPlumb.addEndpoint</strong>. This is the example from
@@ -1136,7 +1359,7 @@ Notice the <em>paintStyle</em> parameter in that example: it is the paint style 
 });
 </pre>			
 			</div> 
-			...or as the <em>endpointStyle</em> parameter to a jsPlumb.connect call:		
+			...or as the <em>endpointStyle</em> parameter to a <strong>jsPlumb.connect</strong> call:		
 			<div class="code">
 <pre>jsPlumb.connect({
 	source:"el1",
@@ -1146,7 +1369,7 @@ Notice the <em>paintStyle</em> parameter in that example: it is the paint style 
 });
 </pre>			
 			</div>
-			... or as an entry in the <em>endpointStyles</em> array passed to a jsPlumb.connect call:
+			... or as an entry in the <em>endpointStyles</em> array passed to a <strong>jsPlumb.connect</strong> call:
 					<div class="code">
 <pre>jsPlumb.connect({
 	source:"el1",
@@ -1159,7 +1382,7 @@ Notice the <em>paintStyle</em> parameter in that example: it is the paint style 
 });
 </pre>			
 			</div>
-			or as the <em>paintStyle</em> entry in an <em>endpoint</em> parameter passed to a jsPlumb.makeTarget call:
+			or as the <em>paintStyle</em> entry in an <em>endpoint</em> parameter passed to a <strong>jsPlumb.makeTarget</strong> or <strong>jsPlumb.makeSource</strong> call:
 					<div class="code">
 <pre>jsPlumb.makeTarget("el1", {
 	endpoint: {
@@ -1167,9 +1390,19 @@ Notice the <em>paintStyle</em> parameter in that example: it is the paint style 
 	}
 });
 </pre>			
-			</div>			
-	In this example we've made "el1" into a drop target, and defined a paint style for the Endpoint jsPlumb will create when a Connection is
-	established.
+			</div>
+							<div class="code">
+<pre>jsPlumb.makeSource("el1", {
+	endpoint: {
+		paintStyle:{ fillStyle:"blue", outlineColor:"black", outlineWidth:1 }
+	},
+	parent:"someOtherDivIJustPutThisHereToRemindYouYouCanDoThis"
+});
+</pre>			
+			</div>						
+	In the first example we  made "el1" into a drop target, and defined a paint style for the Endpoint jsPlumb will create when a Connection is
+	established.  In the second we made "el1" a connection source and assigned the same values for the Endpoint jsPlumb will create when a Connection
+	is dragged from that element.
 	
 	<h5>Overlay Paint Styles</h5>
 	The preferred way to set paint styles for Overlays is to use the <em>cssClass</em> parameter in the constructor arguments of an Overlay definition.
@@ -1435,6 +1668,13 @@ This will give roughly the same output as the example above (the percentages are
 			</li>
 			<li><strong>Rectangle</strong> - renders a linear endpoint, with color stop 0 closest to the end of the Connector</li>
 		</ul>
+		
+<h4><a id="svgvmlcss">Styling SVG/VML using CSS</a></h4>
+	A nice way of controlling your UI's appearance is to make use of the fact that both SVG and VML can be styled using CSS.
+	<p>This section will be expanded in the next few weeks to give some decent examples of how to do so</p>
+			
+		
+		
 		</div>
 
 		<div class="section">
@@ -1656,6 +1896,16 @@ in when dragging, and do not reflect static reality), and so the source/target p
 				<li class="bullet"><strong>dblclick</strong> - notification a Connection was double-clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>endpointClick</strong> - notification an Endpoint was clicked.  The callback is passed the Endpoint and the original mouse event.</li>
 				<li class="bullet"><strong>endpointDblClick</strong> - notification an Endpoint was double-clicked.  The callback is passed the Endpoint and the original mouse event.</li>
+				<li class="bullet"><strong>beforeDrag</strong>
+					This event is fired when a new connection is about to be dragged.  Your callback function
+					is passed the Connection that jsPlumb has just created.  If you return false (or nothing) 
+					from this callback, the new Connection is aborted.
+				</li>
+				<li class="bullet"><strong>beforeDrop</strong>
+					This event is fired when a new connection has been dropped.  Your callback function
+					is passed the Connection that jsPlumb has just created.  If you return false (or nothing) 
+					from this callback, the new Connection is aborted and removed from the UI.
+				</li>				
 			</ul>
 			<h4><a id="connectionEvents">Connection Events</a></h4>		
 			<p>To bind to an event on a Connection, you also use the <strong>bind</strong> method:</p>
@@ -2241,10 +2491,7 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 				</div>
 				</li>
 			</ul>
-		</div>
-		
-	
-		
+		</div>					
 		
 		<div class="section">
 			<h3><a id="developingJsPlumb">Advanced Topics</a></h3>
@@ -2266,19 +2513,22 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 					<li>- jsPlumb-renderers-vml-x.x.x.js
 					<p>This contains the VML render code.</p>
 					</li>
+					<li>- jsPlumb-connectors-statemachine-x.x.x.js
+					<p>This State Machine connector.</p>
+					</li>
 					<li>- &lt;LIBRARY_PREFIX&gt;.jsPlumb-x.x.x.js
 					<p>This contains library-specific helper methods.  jsPlumb ships with three of these - one each for jQuery, MooTools and YUI3. See below for information on how to create a new library implementation.</p>
 					</li>
-					<li>- jsBezier-0.2-min.js
+					<li>- jsBezier-0.3-min.js
 					<p>These are the Bezier curve functions; they are maintained in a separate project called <a href="http://code.google.com/p/jsbezier/">jsBezier</a></p>
 					</li>
 				</ul>
 			These seven files are packaged together to form the scripts that people use, for example:
 			<ul>
-				<li>jquery.jsPlumb-1.3.3-all.js
-				<p>Contains jsPlumb-1.3.3.js, jsPlumb-defaults-1.3.3.js, jsPlumb-renderers-canvas-1.3.3.js, jsPlumb-renderers-svg-1.3.3.js, jsPlumb-renderers-vml-1.3.3.js, jquery.jsPlumb-1.3.3.js and jsBezier-0.2-min.js</p>
+				<li>jquery.jsPlumb-1.3.4-all.js
+				<p>Contains jsPlumb-1.3.4.js, jsPlumb-defaults-1.3.4.js, jsPlumb-renderers-canvas-1.3.4.js, jsPlumb-renderers-svg-1.3.4.js, jsPlumb-renderers-vml-1.3.4.js, jsPlumb-connectors-statemachine-1.3.4.js, jquery.jsPlumb-1.3.4.js and jsBezier-0.3-min.js</p>
 				</li>
-				<li>jquery.jsPlumb-1.3.3-all-min.js
+				<li>jquery.jsPlumb-1.3.4-all-min.js
 				<p>A minified version of the script above (minified using the YUI Compressor)</p>
 				</li>
 			</ul>
@@ -2290,6 +2540,7 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 		then your own script containing your library specific functionality.  The existing implementations
 		may be documented well enough for you to create your own, but contact me if you need assistance.  If you do this, it would be
 		great to share it with everyone...</p>   
+		<p>There is a group of people working on an ExtJS adapter currently.  There is no schedule for when this will be completed though.</p>
 
 			<!-- h4><a id="customConnectors">Custom Connectors</a></h4>			
 					
