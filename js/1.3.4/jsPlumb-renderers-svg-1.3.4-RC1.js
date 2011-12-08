@@ -70,8 +70,8 @@
 				parent.removeChild(parent.childNodes[i]);
 		}
 	},		
-	_updateGradient = function(parent, node, style, dimensions) {
-		var id = JSPLUMB_GRADIENT + (new Date()).getTime();
+	_updateGradient = function(parent, node, style, dimensions, uiComponent) {
+		var id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.idstamp();
 		// first clear out any existing gradient
 		_clearGradient(parent);
 		// this checks for an 'offset' property in the gradient, and in the absence of it, assumes
@@ -109,10 +109,10 @@
 		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
 		node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
 	},
-	_applyStyles = function(parent, node, style, dimensions) {
+	_applyStyles = function(parent, node, style, dimensions, uiComponent) {
 		
 		if (style.gradient) {
-			_updateGradient(parent, node, style, dimensions);			
+			_updateGradient(parent, node, style, dimensions, uiComponent);			
 		}
 		else {
 			// make sure we clear any existing gradient
@@ -284,7 +284,7 @@
 					_attr(self.bgPath, a);
 				}
 				
-				_applyStyles(self.svg, self.bgPath, outlineStyle, d);
+				_applyStyles(self.svg, self.bgPath, outlineStyle, d, self);
 			}
 			
 			
@@ -312,7 +312,7 @@
 	    		_attr(self.path, a);
 	    	}
 	    		    	
-	    	_applyStyles(self.svg, self.path, style, d);
+	    	_applyStyles(self.svg, self.path, style, d, self);
 		};
 		
 		this.reattachListeners = function() {
@@ -379,7 +379,7 @@
 				self.svg.appendChild(self.node);
 				self.attachListeners(self.node, self);
 			}
-			_applyStyles(self.svg, self.node, s, d);
+			_applyStyles(self.svg, self.node, s, d, self);
 			_pos(self.node, d);
 		};
 		

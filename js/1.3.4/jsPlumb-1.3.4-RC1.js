@@ -1632,6 +1632,9 @@ about the parameters allowed in the params object.
 			_setVisible(el, "none", changeEndpoints);
 		};
 		
+		// exposed for other objects to use to get a unique id.
+		this.idstamp = _idstamp;
+		
 		/**
 		 * callback from the current library to tell us to prepare ourselves (attach
 		 * mouse listeners etc; can't do that until the library has provided a bind method)
