@@ -162,7 +162,7 @@
 	_classManip = function(el, add, clazz) {
 		el = jsPlumb.CurrentLibrary.getElementObject(el);
 		var classesToAddOrRemove = clazz.split(" "),
-			className = el[0].className,
+			className = el.className,
 			curClasses = className.baseVal.split(" ");
 			
 		for (var i = 0; i < classesToAddOrRemove.length; i++) {
@@ -177,7 +177,7 @@
 			}
 		}
 		
-		el[0].className.baseVal = curClasses.join(" ");
+		el.className.baseVal = curClasses.join(" ");
 	},
 	_addClass = function(el, clazz) {
 		_classManip(el, true, clazz);
