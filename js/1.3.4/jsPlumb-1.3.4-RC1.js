@@ -2916,7 +2916,7 @@ about the parameters allowed in the params object.
 							// by determining which face is closest to the point at which the mouse button
 							// was released.  for now, we're putting it on the top face.
 							var edgeList = anchorLists[anElement]["top"];
-							edgeList.push([ [0, 0], sourceConns[i], false, anElement ]);
+							edgeList.push([ [-Math.PI / 2, 0], sourceConns[i], false, anElement ]);
 						}
 						else {
 							// otherwise, find the orientation between the two elements, and push anchors
@@ -4419,7 +4419,30 @@ about the parameters allowed in the params object.
 			}
 		
 			return o;
-		}	
+		},
+		gradient : function(p1, p2) {
+			p1 = p1.constructor == Array ? p1 : [p1.x, p1.y];
+			p2 = p2.constructor == Array ? p2 : [p2.x, p2.y];			
+			return (p2[1] - p1[1]) / (p2[0] - p1[0]);		
+		},
+		normal : function(p1, p2) {
+			return -1 / jsPlumb.util.gradient(p1,p2);
+		},
+		pointOnLine : function(fromPoint, gradient, distance, flipX, flipY) {
+			var orientation = distance > 0 ? 1 : -1,
+				theta = Math.atan(gradient),
+        		y = Math.abs(distance * Math.sin(theta)),
+				x =  Math.abs(distance * Math.cos(theta));        	
+        	if (flipY) y = y * -1;
+			if (flipX) x = x * -1;
+			return {x:fromPoint.x + (orientation * x), y:fromPoint.y + (orientation * y)};
+		},
+		perpendicularLineTo : function(point, gradient, length) {
+			var _theta2 = Math.atan(-1 / gradient),
+        		y =  length / 2 * Math.sin(_theta2),
+				x =  length / 2 * Math.cos(_theta2);
+			return [{x:point.x + x, y:point.y + y}, {x:point.x - x, y:point.y - y}];
+		}
 	};
 	
 	var _curryAnchor = function(x, y, ox, oy, type, fnInit) {
