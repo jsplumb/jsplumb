@@ -1400,6 +1400,27 @@ var testSuite = function(renderMode) {
 		assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
 		assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
 		jsPlumb.detach({source:d1, target:d2});
+		// this changed in 1.3.4, because auto generated endpoints are now removed by detach.  so i added the test below this one
+		// to check that the deleteEndpointsOnDetach flag is honoured.
+		assertEndpointCount("d1", 0);assertEndpointCount("d2", 0);
+		assertContextSize(2);
+	});
+	
+	test(renderMode + ": jsPlumb.connect (connect by element, default endpoint, supplied dynamic anchors, delete on detach false)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		var anchors = [ [0.25, 0, 0, -1], [1, 0.25, 1, 0], [0.75, 1, 0, 1], [0, 0.75, -1, 0] ];
+		jsPlumb.connect({
+			source:d1, 
+			target:d2, 
+			dynamicAnchors:anchors,
+			deleteEndpointsOnDetach:false
+		});                // auto connect with default endpoint and provided anchors
+		assertContextSize(3);
+		assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+		assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
+		jsPlumb.detach({source:d1, target:d2});
+		// this changed in 1.3.4, because auto generated endpoints are now removed by detach.  so i added this test
+		// to check that the deleteEndpointsOnDetach flag is honoured.
 		assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
 		assertContextSize(2);
 	});
@@ -2196,7 +2217,21 @@ var testSuite = function(renderMode) {
 		jsPlumb.reset();
 		equals(jsPlumb.anchorManager.get("d4")["continuousAnchorEndpoints"].length, 0);	
 	});
-		
+	
+// ------------- utility functions - math stuff, mostly --------------------------
+	test(renderMode + " jsPlumb.util.gradient", function() {
+		var p1 = [0,0], p2 = [2,3], m = jsPlumb.util.gradient(p1,p2);
+		equals(m, 3/2, "gradient calculated correctly for simple case");	
+	});
+	test(renderMode + " jsPlumb.util.normal", function() {
+		var p1 = [0,0], p2 = [2,3], m = jsPlumb.util.normal(p1,p2);
+		equals(m, -2/3, "normal calculated correctly for simple case");	
+	});
+	/*test(renderMode + " jsPlumb.util.atan", function() {
+		var p1 = [0,0], p2 = [2,3], m = jsPlumb.util.atan(p1,p2);
+		equals(m, -2/3, "atan segment calculated correctly for simple case");	
+	});*/
+	
 	/**
 	 * leave this test at the bottom!
 	 */
