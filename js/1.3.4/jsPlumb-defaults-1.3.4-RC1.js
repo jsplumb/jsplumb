@@ -117,18 +117,23 @@
         this.gradientAtPoint = function(location) { return _m; };	
         
         /**
+         * returns the gradient of the connector at the point which is 'distance' from location, which for us is constant.
+         */
+        this.gradientAtPointAlongPathFrom = function(location) { return self.gradientAtPoint(location); };	        
+        
+        /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
+         * this hands off to jsPlumb.util to do the maths, supplying our gradient and position and whether or
+         * not the coords should be flipped
          */
         this.pointAlongPathFrom = function(location, distance) {
-        	var p = self.pointOnPath(location),
-        	orientation = distance > 0 ? 1 : -1,
-        	y = Math.abs(distance * Math.sin(_theta)),
-			x =  Math.abs(distance * Math.cos(_theta));        	
-        	if (_sy > _ty) y = y * -1;
-			if (_sx > _tx) x = x * -1;
-			return {x:p.x + (orientation * x), y:p.y + (orientation * y)};
+        	var p = self.pointOnPath(location);
+			return jsPlumb.util.pointOnLine(p, _m, distance, self.isFlipX(), self.isFlipY());
         };
+        
+        this.isFlipX = function() { return _sx > _tx; };
+        this.isFlipY = function() { return _sy > _ty; };        
         
         /**
          * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
@@ -136,11 +141,8 @@
          */
         this.perpendicularToPathAt = function(location, length, distance) {
         	var p = self.pointAlongPathFrom(location, distance),
-        	m = self.gradientAtPoint(p.location),
-        	_theta2 = Math.atan(-1 / m),
-        	y =  length / 2 * Math.sin(_theta2),
-			x =  length / 2 * Math.cos(_theta2);
-			return [{x:p.x + x, y:p.y + y}, {x:p.x - x, y:p.y - y}];
+        	m = self.gradientAtPoint(p.location);
+        	return jsPlumb.util.perpendicularLineTo(p, m, length);        
         };                               
     };
                 
@@ -170,16 +172,18 @@
         this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor) {
         	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
         	// points around if so (code could be tightened up)
-        	var soo = sourceAnchor.getOrientation(sourceEndpoint), too = targetAnchor.getOrientation(targetEndpoint);
-        	var perpendicular = soo[0] != too[0] || soo[1] == too[1]; 
-            var p = [];            
-            var ma = self.majorAnchor, mi = self.minorAnchor;                
+        	var soo = sourceAnchor.getOrientation(sourceEndpoint), 
+        		too = targetAnchor.getOrientation(targetEndpoint),
+        		perpendicular = soo[0] != too[0] || soo[1] == too[1],
+            	p = [],            
+            	ma = self.majorAnchor, mi = self.minorAnchor;                
+            	
             if (!perpendicular) {
-                  if (soo[0] == 0) // X
+                if (soo[0] == 0) // X
                     p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + mi : point[0] - mi);
                 else p.push(point[0] - (ma * soo[0]));
                                  
-                 if (soo[1] == 0) // Y
+                if (soo[1] == 0) // Y
                 	p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + mi : point[1] - mi);
                 else p.push(point[1] + (ma * too[1]));
             }
@@ -195,6 +199,8 @@
 
             return p;                
         };
+        
+//        this.isFlipX = function() { return 
 
         var _CP, _CP2, _sx, _tx, _ty, _sx, _sy, _canvasX, _canvasY, _w, _h;
         this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth)
@@ -210,8 +216,8 @@
             _ty = sourcePos[1] < targetPos[1] ? (lineWidth/2) : _h - (lineWidth/2);
             _CP = self._findControlPoint([_sx,_sy], sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor);
             _CP2 = self._findControlPoint([_tx,_ty], targetPos, sourcePos, sourceEndpoint, targetEndpoint, targetAnchor, sourceAnchor);                
-            var minx1 = Math.min(_sx,_tx); var minx2 = Math.min(_CP[0], _CP2[0]); var minx = Math.min(minx1,minx2);
-            var maxx1 = Math.max(_sx,_tx); var maxx2 = Math.max(_CP[0], _CP2[0]); var maxx = Math.max(maxx1,maxx2);
+            var minx1 = Math.min(_sx,_tx), minx2 = Math.min(_CP[0], _CP2[0]), minx = Math.min(minx1,minx2),
+            	maxx1 = Math.max(_sx,_tx), maxx2 = Math.max(_CP[0], _CP2[0]), maxx = Math.max(maxx1,maxx2);
             
             if (maxx > _w) _w = maxx;
             if (minx < 0) {
@@ -219,8 +225,9 @@
                 _w += ox; _CP[0] += ox; _sx += ox; _tx +=ox; _CP2[0] += ox;
             }                
 
-            var miny1 = Math.min(_sy,_ty); var miny2 = Math.min(_CP[1], _CP2[1]); var miny = Math.min(miny1,miny2);
-            var maxy1 = Math.max(_sy,_ty); var maxy2 = Math.max(_CP[1], _CP2[1]); var maxy = Math.max(maxy1,maxy2);
+            var miny1 = Math.min(_sy,_ty), miny2 = Math.min(_CP[1], _CP2[1]), miny = Math.min(miny1,miny2),
+            	maxy1 = Math.max(_sy,_ty), maxy2 = Math.max(_CP[1], _CP2[1]), maxy = Math.max(maxy1,maxy2);
+            	
             if (maxy > _h) _h = maxy;
             if (miny < 0) {
                 _canvasY += miny; var oy = Math.abs(miny);
@@ -266,6 +273,13 @@
         this.gradientAtPoint = function(location) {
         	return jsBezier.gradientAtPoint(_makeCurve(), location);        	
         };	
+        
+        /**
+         * returns the gradient of the connector at the given point.
+         */
+        this.gradientAtPointAlongPathFrom = function(location, distance) {
+        	return jsBezier.gradientAtPointAlongCurveFrom(_makeCurve(), location, distance);        	
+        };	        
         
         /**
          * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
@@ -467,6 +481,15 @@
         };
         
         /**
+         * returns the gradient of the connector at the point which is distance from the point at location; the gradient will be either 0 or Infinity, depending on the direction of the
+         * segment the point falls in. segment gradients are calculated in the compute method.  
+         */
+        this.gradientAtPointAlongPathFrom = function(location, distance) { 
+        	var pointAlongPath = self.pointAlongPathFrom(location, distance);
+        	return segmentGradients[pointAlongPath.segmentInfo["index"]];
+        };
+        
+        /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.  when you consider this concept from the point of view
          * of this connector, it starts to become clear that there's a problem with the overlay paint code: given that this connector makes several
@@ -529,9 +552,9 @@
 		this.defaultInnerRadius = this.radius / 3;			
 		
 		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
-			var r = endpointStyle.radius || self.radius;
-			var x = anchorPoint[0] - r;
-			var y = anchorPoint[1] - r;
+			var r = endpointStyle.radius || self.radius,
+				x = anchorPoint[0] - r,
+				y = anchorPoint[1] - r;
 			return [ x, y, r * 2, r * 2, r ];
 		};
 	};
@@ -556,10 +579,10 @@
 		this.height = params.height || 20;
 		
 		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
-			var width = endpointStyle.width || self.width;
-			var height = endpointStyle.height || self.height;
-			var x = anchorPoint[0] - (width/2);
-			var y = anchorPoint[1] - (height/2);
+			var width = endpointStyle.width || self.width,
+				height = endpointStyle.height || self.height,
+				x = anchorPoint[0] - (width/2),
+				y = anchorPoint[1] - (height/2);
 			return [ x, y, width, height];
 		};
 	};
@@ -628,7 +651,7 @@
 	
 	/**
 	 * Class: Endpoints.Blank
-	 * An Endpoint that paints nothing on the screen, and cannot be interacted with using the mouse.  There are no constructor parameters for this Endpoint.
+	 * An Endpoint that paints nothing (visible) on the screen.  Supports cssClass and hoverClass parameters like all Endpoints.
 	 */
 	jsPlumb.Endpoints.Blank = function(params) {
 		var self = this;
@@ -759,21 +782,29 @@
     	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
     		
     		// this is the arrow head position    		
-			var hxy = connector.pointAlongPathFrom(self.loc, direction * (self.length / 2));
-			// this is the center of the tail    		    		
-			var txy = connector.pointAlongPathFrom(self.loc, -1 * direction * (self.length / 2)), tx = txy.x, ty = txy.y;
-			// this is the tail vector    		
-			var tail = connector.perpendicularToPathAt(self.loc, self.width, -1 * direction * (self.length / 2));
-			// this is the point the tail goes in to
-			var cxy = _getFoldBackPoint(connector, self.loc);
-			
+			var hxy = connector.pointAlongPathFrom(self.loc, direction * (self.length / 2)),
+				// this is the center of the tail    		    		
+				txy = connector.pointAlongPathFrom(self.loc, -1 * direction * (self.length / 2)), tx = txy.x, ty = txy.y,
+				// this is the tail vector    		
+				tail = connector.perpendicularToPathAt(self.loc, self.width, -1 * direction * (self.length / 2)),
+				// this is the point the tail goes in to
+				cxy = _getFoldBackPoint(connector, self.loc);
+				
+			/*	var m = connector.gradientAtPoint(self.loc);
+				console.log("PSSS");
+				console.log(txy.x, txy.y, cxy.x, cxy.y);
+				txy = jsPlumb.util.pointOnLine(hxy, m, self.length, connector.isFlipX(), connector.isFlipY());
+				tail = jsPlumb.util.perpendicularLineTo(txy, m, self.width);
+//				cxy = jsPlumb.util.pointOnLine(hxy, m, (foldback) * self.length, false, false);				
+				console.log(txy.x, txy.y, cxy.x, cxy.y);		*/		
+				
+//				console.log("arrow draw.  head is at ", hxy.x, hxy.y, "tail is at ",txy.x,txy.y,
+//							"folback is at",cxy.x, cxy.y);
+
 			// if loc = 1, then hxy should be flush with the element, or if direction == -1, the tail midpoint.
 			if (self.loc == 1) {
-				var lxy = connector.pointOnPath(self.loc);
-				// TODO determine why the 1.2.6 released version does not
-				// use 'direction' in the two equations below, yet both 
-				// that and 1.3.0 still paint the arrows correctly.
-				var dx = (lxy.x - hxy.x) * direction, dy = (lxy.y - hxy.y) * direction;
+				var lxy = connector.pointOnPath(self.loc),
+					dx = (lxy.x - hxy.x) * direction, dy = (lxy.y - hxy.y) * direction;
 				cxy.x += dx; cxy.y += dy;
 				txy.x += dx; txy.y += dy;
 				tail[0].x += dx; tail[0].y += dy;
@@ -782,12 +813,13 @@
 			}
 			// if loc = 0, then tail midpoint should be flush with the element, or, if direction == -1, hxy should be.
 			if (self.loc == 0) {
-				var lxy = connector.pointOnPath(self.loc);
-				var tailMid = foldback > 1 ? cxy : { 
+				var lxy = connector.pointOnPath(self.loc),
+					tailMid = foldback > 1 ? cxy : { 
 						x:tail[0].x + ((tail[1].x - tail[0].x) / 2),
 						y:tail[0].y + ((tail[1].y - tail[0].y) / 2)
-				};
-				var dx = (lxy.x - tailMid.x) * direction, dy = (lxy.y - tailMid.y) * direction;
+					};
+					dx = (lxy.x - tailMid.x) * direction, dy = (lxy.y - tailMid.y) * direction;
+					
 				cxy.x += dx; cxy.y += dy;
 				txy.x += dx; txy.y += dy;
 				tail[0].x += dx; tail[0].y += dy;
@@ -795,10 +827,10 @@
 				hxy.x += dx; hxy.y += dy;
 			}
 			
-			var minx = Math.min(hxy.x, tail[0].x, tail[1].x);
-			var maxx = Math.max(hxy.x, tail[0].x, tail[1].x);
-			var miny = Math.min(hxy.y, tail[0].y, tail[1].y);
-			var maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
+			var minx = Math.min(hxy.x, tail[0].x, tail[1].x),
+				maxx = Math.max(hxy.x, tail[0].x, tail[1].x),
+				miny = Math.min(hxy.y, tail[0].y, tail[1].y),
+				maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
 			
 			var d = { hxy:hxy, tail:tail, cxy:cxy },
 			strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
