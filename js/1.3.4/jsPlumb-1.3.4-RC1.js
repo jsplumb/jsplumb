@@ -64,7 +64,7 @@
 		return -1;
 	};
 	
-	// for thos browsers that dont have it.
+	// for those browsers that dont have it.  they still don't have it! but at least they won't crash.
 	if (!window.console)
 		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
 	
@@ -79,11 +79,6 @@
 			}
 			l.push(value);
 			return l;
-		},
-		_clearLists = function(listsToClear) {
-			for (var i in listsToClear) {
-				if (listsToClear[i] != null) listsToClear[i].splice(0,0,listsToClear[i].length);
-			}
 		},
 		_connectionBeingDragged = null,
 		_getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
@@ -226,7 +221,8 @@
 			// is performed; returning false prevents the detach.
 			var beforeDetach = params.beforeDetach;
 			this.isDetachAllowed = function(connection) {
-				var r = self._jsPlumb.checkCondition("beforeDetach", connection);
+			//	var r = self._jsPlumb.checkCondition("beforeDetach", connection);
+				var r = true;
 				if (beforeDetach) {
 					try { 
 						r = beforeDetach(connection); 
@@ -1318,11 +1314,13 @@ about the parameters allowed in the params object.
 		 */
 		this.detach = function(source, target) {
 			if (arguments.length == 2) {
-				var s = _getElementObject(source), sId = _getId(s);
-				var t = _getElementObject(target), tId = _getId(t);
+				var s = _getElementObject(source), sId = _getId(s),
+					t = _getElementObject(target), tId = _getId(t);
 				_operation(sId, function(jpc) {
 							if ((jpc.sourceId == sId && jpc.targetId == tId) || (jpc.targetId == sId && jpc.sourceId == tId)) {
-								if (jpc.isDetachAllowed()) {
+								//if (jpc.isDetachAllowed()) {
+								if (_currentInstance.checkCondition("beforeDetach", jpc))
+								{
 									_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
 									jpc.endpoints[0].removeConnection(jpc);
 									jpc.endpoints[1].removeConnection(jpc);
@@ -1337,10 +1335,12 @@ about the parameters allowed in the params object.
 				var connType =  jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType();
 				// allow for user to have subclassed Connection here.
 				if (arguments[0].constructor == connType) {
-					arguments[0].endpoints[0].detachFrom(arguments[0].endpoints[1]);
+					if (_currentInstance.checkCondition("beforeDetach", arguments[0]))
+						arguments[0].endpoints[0].detach(arguments[0]);
 				}
 				else if (arguments[0].connection) {
-					arguments[0].connection.endpoints[0].detachFrom(arguments[0].connection.endpoints[1]);
+					if (_currentInstance.checkCondition("beforeDetach", arguments[0].connection))				
+						arguments[0].connection.endpoints[0].detach(arguments[0].connection);
 				}
 				else {
 					var _p = jsPlumb.extend( {}, source); // a backwards compatibility hack: source should be thought of as 'params' in this case.
@@ -1354,10 +1354,12 @@ about the parameters allowed in the params object.
 						var targetId = _getId(_p.target);
 						_operation(sourceId, function(jpc) {
 									if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-										_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
-										jpc.endpoints[0].removeConnection(jpc);
-										jpc.endpoints[1].removeConnection(jpc);
-										_removeFromList(connectionsByScope, jpc.scope, jpc);
+										if (_currentInstance.checkCondition("beforeDetach", jpc)) {
+											_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
+											jpc.endpoints[0].removeConnection(jpc);
+											jpc.endpoints[1].removeConnection(jpc);
+											_removeFromList(connectionsByScope, jpc.scope, jpc);
+										}
 									}
 						});
 					}
