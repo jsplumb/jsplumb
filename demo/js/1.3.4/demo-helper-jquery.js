@@ -23,7 +23,9 @@ jsPlumb.bind("ready", function() {
 		jsPlumb.reset();
 		resetRenderMode(desiredMode);					
 	});
+	
+	jsPlumb.draggable($(".window"));
 
-	resetRenderMode(jsPlumb.CANVAS);
+	resetRenderMode(jsPlumb.SVG);
        
 });

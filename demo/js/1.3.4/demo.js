@@ -9,11 +9,11 @@
 		init : function() {
 			
 			jsPlumb.DefaultDragOptions = { cursor: "pointer", zIndex:2000 };
-			jsPlumb.setMouseEventsEnabled(true);
 	
 			var connectorStrokeColor = "rgba(50, 50, 200, 1)",
 			connectorHighlightStrokeColor = "rgba(180, 180, 200, 1)",
-			hoverPaintStyle = { lineWidth:13,strokeStyle:"#7ec3d9" };			
+			hoverPaintStyle = { strokeStyle:"#7ec3d9" };			// hover paint style is merged on normal style, so you 
+			                                                        // don't necessarily need to specify a lineWidth
 			
 			// 
 			// connect window1 to window2 with a 13 px wide olive colored Bezier, from the BottomCenter of 
@@ -25,18 +25,18 @@
 			// connection a 'hoverPaintStyle', which defines the appearance when the mouse is hovering over it. 
 			//
 			var connection1 = jsPlumb.connect({
-				source:'window1', 
-			   	target:'window2', 
+				source:"window1", 
+			   	target:"window2", 
 			   	connector:"Bezier",
 			   	cssClass:"c1",
+			   	endpoint:"Blank",
 			   	endpointClass:"c1Endpoint",													   
 			   	anchors:["BottomCenter", [ 0.75, 0, 0, -1 ]], 
 			   	paintStyle:{ 
-					lineWidth:13,
+					lineWidth:6,
 					strokeStyle:"#a7b04b",
 					outlineWidth:1,
-					outlineColor:"#666",
-					dashstyle:"2 2"
+					outlineColor:"#666"
 				},
 				endpointStyle:{ fillStyle:"#a7b04b" },
 			   	hoverPaintStyle:hoverPaintStyle,
@@ -52,7 +52,8 @@
 			   					}
 			   				  } ],
 			   				["Arrow", {
-				   				location:0.2, width:50,
+			   					cssClass:"l1arrow",
+				   				location:0.5, width:30,
 			   					events : {
 									"click":function(arrow, evt) {
 										alert("clicked on arrow for connection 1");
@@ -60,7 +61,7 @@
 		   						}
 	   						}]
 			]});
-						        
+					        
 	        var w23Stroke = "rgb(189,11,11)"; 
 	        var connection3 = jsPlumb.connect({
 					source:"window2", 
@@ -88,7 +89,7 @@
 	    				 							outlineWidth:1
 	    				 					},
 		        				 hoverPaintStyle:hoverPaintStyle, 
-		        				 anchors:["AutoDefault", "AutoDefault"], 
+		        				 anchor:"AutoDefault", 
 		        				 endpointStyle:{ 
 			        				 	gradient : { 
 			        				 		stops:[[0, connectorStrokeColor], [1, connectorHighlightStrokeColor]],
@@ -99,8 +100,8 @@
 			        			 },				        					        			
 		        				 label : function(connection) { 
 			        				 var d = new Date();
-			        				 var fmt = function(n) { return (n < 10 ? "0" : "") + n; }; 
-			        				 return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds())); 
+			        				 var fmt = function(n, m) { m = m || 10;  return (n < m ? new Array(("" + m).length - (""+n).length + 1).join("0") : "") + n; }; 
+			        				 return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds(), 100)); 
 			        			 },
 			        			 labelStyle:{
 			        				 cssClass:"component label"
@@ -118,7 +119,8 @@
 											lineWidth:9, 
 											strokeStyle:conn4Color, 
 											outlineColor:"#666",
-					 						outlineWidth:1
+					 						outlineWidth:1,
+					 						joinstyle:"round"
 					 					},
 		        						hoverPaintStyle:hoverPaintStyle,
 		        						endpointsOnTop:false, 
@@ -127,7 +129,6 @@
 		        						label : "big\nendpoints"
 		        				});
 	
-	        
 	        var connection5 = jsPlumb.connect({
 		        					source:"window4", 
 		        					target:"window5", 
@@ -135,8 +136,10 @@
 		        					paintStyle:{ 
 										lineWidth:7,
 										strokeStyle:"rgb(131,8,135)",
-										outlineColor:"#666",
-						 				outlineWidth:1 
+//										outlineColor:"#666",
+//						 				outlineWidth:1,
+						 				dashstyle:"4 2",
+						 				joinstyle:"miter"
 	   								},
 		        					hoverPaintStyle:hoverPaintStyle, 
 		        					endpoint:["Image", {url:"../../img/endpointTest1.png"}], 
@@ -145,8 +148,37 @@
 									overlays:[ ["Label", {
 													cssClass:"component label",		    			        				 
 							    			        label : "4 - 5",
-							    			        location:0.3 } ]
+							    			        location:0.3 } 
+							    			    ],
+							    			    "Arrow"
+							    			    
 									]});
+									
+			var stateMachineConnector = {				
+				connector:"StateMachine",
+				paintStyle:{lineWidth:3,strokeStyle:"#056"},
+				hoverPaintStyle:{strokeStyle:"#dbe300"},
+				endpoint:"Blank",
+				anchor:"Continuous",
+				overlays:[ ["Arrow", {location:1} ]]
+			};
+			
+			jsPlumb.connect({
+				source:"window3",
+				target:"window7"
+			}, stateMachineConnector);
+			
+			jsPlumb.connect({
+				source:"window7",
+				target:"window3"
+			}, stateMachineConnector);
+			
+			jsPlumb.connect({
+				source:"window7",
+				target:"window7"
+			}, stateMachineConnector);
+			
+		
 	
 			jsPlumb.bind("dblclick", function(connection, originalEvent) { alert("double click on connection from " + connection.sourceId + " to " + connection.targetId); });
 			jsPlumb.bind("endpointClick", function(endpoint, originalEvent) { alert("click on endpoint on element " + endpoint.elementId); });

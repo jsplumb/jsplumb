@@ -1,6 +1,7 @@
 /*
  *  This file contains the JS that handles the first init of each MooTools demonstration, and also switching
- *  between render modes.
+ *  between render modes. it also initialises ".window" elements to be draggable.  from jsPlumb 1.3.4 
+ *  elements are no longer initialised as draggable automatically.
  */
 jsPlumb.bind("ready", function() {
 
@@ -28,7 +29,9 @@ jsPlumb.bind("ready", function() {
 			resetRenderMode(desiredMode);					
 		});
 	});
+	
+	jsPlumb.draggable($$(".window"));
 
-	resetRenderMode(jsPlumb.CANVAS);
+	resetRenderMode(jsPlumb.SVG);
        
 });

@@ -30,8 +30,10 @@ YUI().use("node", function(Y) {
 				resetRenderMode(desiredMode);					
 			});
 		});
+						
+		jsPlumb.draggable(Y.all(".window"));
 	
-		resetRenderMode(jsPlumb.CANVAS);
+		resetRenderMode(jsPlumb.SVG);
        
 	});
 });
