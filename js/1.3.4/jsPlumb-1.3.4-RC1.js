@@ -401,6 +401,7 @@
 			Anchor : "BottomCenter",
 			Anchors : [ null, null ],
 			Connector : "Bezier",
+			Container : null,
 			DragOptions : { },
 			DropOptions : { },
 			Endpoint : "Dot",
@@ -416,7 +417,7 @@
 			MaxConnections : 1,
 			MouseEventsEnabled : true, 
 			PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
-			RenderMode : "canvas",
+			RenderMode : "svg",
 			Scope : "_jsPlumb_DefaultScope"
 		};
 		if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
@@ -599,7 +600,7 @@
 		 * inits a draggable if it's not already initialised.
 		 */
 		_initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
-			var draggable = isDraggable == null ? _draggableByDefault : isDraggable;
+			var draggable = isDraggable == null ? false : isDraggable;
 			if (draggable) {
 				if (jsPlumb.CurrentLibrary.isDragSupported(element) && !jsPlumb.CurrentLibrary.isAlreadyDraggable(element)) {
 					var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
@@ -900,7 +901,6 @@
 		 */
 		_toggleDraggable = function(el) {
 			return _elementProxy(el, function(el, elId) {
-				//var state = draggableStates[elId] == null ? _draggableByDefault : draggableStates[elId];
 				var state = draggableStates[elId] == null ? false : draggableStates[elId];
 				state = !state;
 				draggableStates[elId] = state;
