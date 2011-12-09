@@ -440,9 +440,16 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 			}
 			else {
 				// loopback
-				var l = d[4] - d[6], t = d[5] - d[6], r = d[4] + d[6], b = d[4] + d[6];
-				return "m" + _conv(d[8]) + "," + _conv(d[9]) +
-				" ar " + l + "," + t + "," + r + "," + b + "," + d[8] + "," + d[9] + "," + d[10] + "," + d[11] + " e";
+				var left = _conv(d[8] - d[6]),
+					top = _conv(d[9] - (2 * d[6])),
+					right = left + _conv(2 * d[6]),
+					bottom = top + _conv(2 * d[6]),
+					posString = left + "," + top + "," + right + "," + bottom;
+					
+				var o = "ar " + posString + "," + _conv(d[8]) + ","
+						+ _conv(d[9]) + "," + _conv(d[8]) + "," + _conv(d[9]) + " e";
+				
+				 return o;
 			}
 		};
 	};
