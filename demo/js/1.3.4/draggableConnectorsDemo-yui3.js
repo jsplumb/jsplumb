@@ -9,11 +9,6 @@
 		Y.one('#list').setStyle("display","none");
 	};
 	
-	jsPlumbDemo.getSelector = function(spec) {
-		return Y.all(spec);
-	};
-
-	
 	jsPlumbDemo.attachBehaviour = function() {
 		Y.all(".hide").each(function(h) {
 			h.on('click', function() {
@@ -38,7 +33,12 @@
 			});
 		});
 
-		Y.one("#clear").on('click', function() { jsPlumb.detachEverything(); showConnections(); });
+		Y.one("#clear").on('click', function() { 
+			jsPlumb.detachEverything(); 
+			jsPlumbDemo.showConnectionInfo(); 
+		});
+		
+		new Y.DD.Drag({node:"#explanation"});
 	};
 
 })();

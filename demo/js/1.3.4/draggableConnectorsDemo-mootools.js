@@ -8,12 +8,7 @@
 	jsPlumbDemo.hideConnectionInfo = function() {
 		$("list").setStyle("display","none");
 	};
-	
-	jsPlumbDemo.getSelector = function(spec) {
-		return $$(spec);
-	};
 
-	
 	jsPlumbDemo.attachBehaviour = function() {
 		$$(".hide").each(function(h) {
 			h.addEvent('click', function() {
@@ -38,7 +33,7 @@
 			});
 		});
 
-		$("clear").addEvent('click', function() { jsPlumb.detachEverything(); showConnections(); });
+		$("clear").addEvent('click', function() { jsPlumb.detachEverything(); jsPlumbDemo.showConnectionInfo(); });
 	};
 
 })();

@@ -137,7 +137,7 @@
 			//jsPlumb.draggable("window1");
 			//jsPlumb.draggable(["window1", "window2"]);
 			//jsPlumb.draggable($("#window1"));
-			var divsWithWindowClass = jsPlumbDemo.getSelector(".window");
+			var divsWithWindowClass = jsPlumb.CurrentLibrary.getSelector(".window");
 			jsPlumb.draggable(divsWithWindowClass);
 
 			// add the third example using the '.window' class.				

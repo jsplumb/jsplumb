@@ -6,8 +6,10 @@
 jsPlumb.bind("ready", function() {
 
 	// chrome fix.
-	document.onselectstart = function () { return false; };				
-
+	document.onselectstart = function () { return false; };		
+	
+	jsPlumb.DemoList.init();
+	
      // render mode
 	var resetRenderMode = function(desiredMode) {
 		var newMode = jsPlumb.setRenderMode(desiredMode);
@@ -28,9 +30,7 @@ jsPlumb.bind("ready", function() {
 			jsPlumb.reset();
 			resetRenderMode(desiredMode);					
 		});
-	});
-	
-	jsPlumb.draggable($$(".window"));
+	});	
 
 	resetRenderMode(jsPlumb.SVG);
        

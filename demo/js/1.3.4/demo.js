@@ -176,12 +176,12 @@
 			jsPlumb.connect({
 				source:"window7",
 				target:"window7"
-			}, stateMachineConnector);
-			
-		
+			}, stateMachineConnector);					
 	
 			jsPlumb.bind("dblclick", function(connection, originalEvent) { alert("double click on connection from " + connection.sourceId + " to " + connection.targetId); });
 			jsPlumb.bind("endpointClick", function(endpoint, originalEvent) { alert("click on endpoint on element " + endpoint.elementId); });
+			
+			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 		}
 	};	
 })();

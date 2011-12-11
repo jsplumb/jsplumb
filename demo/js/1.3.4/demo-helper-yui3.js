@@ -8,7 +8,9 @@ YUI().use("node", function(Y) {
 
 		// chrome fix.
 		document.onselectstart = function () { return false; };
-
+		
+		jsPlumb.DemoList.init();
+		
 	     // render mode
 		var resetRenderMode = function(desiredMode) {
 			var newMode = jsPlumb.setRenderMode(desiredMode);
@@ -31,8 +33,6 @@ YUI().use("node", function(Y) {
 			});
 		});
 						
-		jsPlumb.draggable(Y.all(".window"));
-	
 		resetRenderMode(jsPlumb.SVG);
        
 	});

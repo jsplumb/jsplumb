@@ -7,9 +7,7 @@
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
 		<link rel="stylesheet" href="../css/demo.css">				
 	</head>
-	<body onunload="jsPlumb.unload();">
-	
-		<div class="menu"><a href="../../doc/1.3.4/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="../../apidocs">view api docs</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+	<body onunload="jsPlumb.unload();" data-demo-id="demo" data-library="jquery">
 	
 		<div style="position:absolute">
 		<div id="demo">
@@ -23,19 +21,9 @@
 		 </div>	
 		 </div>
 	    
-	    <div id="debug"></div>
-	    
 	    <div id="explanation">
-	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.  </p>
-	    	<p>This demonstration uses jsPlumb 1.3.3, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
-	    	<a href="flowchartConnectorsDemo.html" class="mplink">next: flowchart connectors demonstration</a>
-	    	<br/><br/>
-	    	render mode:&nbsp;<a href="#" class="rmode" mode="svg">SVG</a>&nbsp;|&nbsp;<a href="#" class="selected rmode" mode="canvas">Canvas</a>&nbsp;|&nbsp;<a href="#" class="rmode" mode="vml">VML</a>
-	    	<br/><br/>
-	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
-	    	<br/><br/>
-	    	See a <a href="../mootools/demo.html">MooTools version</a> of this demo.<br/>
-	    	See a <a href="../yui3/demo.html">YUI3 version</a> of this demo.
+	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.</p>
+	    	<p>This demonstration uses jsPlumb 1.3.4, jQuery 1.6.0 and jQuery UI 1.8.13.</p>	    
 	    </div>
 	    
 	    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
@@ -62,6 +50,7 @@
 		<script type="text/javascript" src="../js/1.3.4/demo.js"></script>
 		
 		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/1.3.4/demo-list.js"></script>				
 		<script type="text/javascript" src="../js/1.3.4/demo-helper-jquery.js"></script>			
 
 	</body>

@@ -3,7 +3,8 @@
 	window.jsPlumbDemo = {
 		init : function() {
 
-			var anchors = [[0.2, 0, 0, -1], [1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0] ],
+			var sourceAnchors = [[0.2, 0, 0, -1], [1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0] ],
+				targetAnchors = [[0.6, 0, 0, -1], [1, 0.6, 1, 0], [0.4, 1, 0, 1], [0, 0.4, -1, 0] ],
 			exampleColor = '#00f',
 			exampleDropOptions = {
 					tolerance:'touch',
@@ -12,7 +13,7 @@
 			}, 
 			connector = [ "Bezier", { cssClass:"connectorClass", hoverClass:"connectorHoverClass" } ],
 			connectorStyle = {
-			//	gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
+				gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
 				lineWidth:5,
 				strokeStyle:exampleColor
 			},
@@ -28,37 +29,70 @@
 				hoverPaintStyle:{ fillStyle:"#449999" },
 				isSource:true, 
 				isTarget:true, 
-				anchor:anchors, 
 				maxConnections:-1, 
 				connector:connector,
 				connectorStyle:connectorStyle,
 				connectorHoverStyle:hoverStyle,
 				connectorOverlays:overlays
-			},
-			aConnection = {	
-				endpoint:endpoint,				
-				endpointStyle:endpointStyle,
-				paintStyle : connectorStyle,
-				dynamicAnchors:anchors,
-				overlays:overlays,
-				hoverPaintStyle:hoverStyle,
-				connector:connector
 			};
 			
 			jsPlumb.DefaultDragOptions = { cursor: 'pointer', zIndex:2000 };
-			jsPlumb.connect({ source:"window1", target:"window3" }, aConnection);
-			jsPlumb.connect({ source:"window3", target:"window5" }, aConnection);
-			jsPlumb.connect({ source:"window5", target:"window6" }, aConnection);
-			jsPlumb.connect({ source:"window1", target:"window4" }, aConnection);
+		
+			var connections = {
+				"window1":["window4"],
+				"window3":["window1"],
+				"window5":["window3"],
+				"window6":["window5"],
+				"window2":["window6"],
+				"window4":["window2"]
+				
+			},
+			endpoints = {},			
+			// ask jsPlumb for a selector for the window class
+			divsWithWindowClass = jsPlumb.CurrentLibrary.getSelector(".window");
 			
-			// here we first create endpoints and then connect them.  notice how window2 behaves slightly differently to the others when
-			// you drag it around, since its endpoint has more than one connection going to it.
-			var e1 = jsPlumb.addEndpoint("window2", anEndpoint), 
-			e2 = jsPlumb.addEndpoint("window5", anEndpoint),
-			e3 = jsPlumb.addEndpoint("window4", anEndpoint);
+			// add endpoints to all of these - one for source, and one for target, configured so they don't sit
+			// on top of each other.
+			for (var i = 0 ; i < divsWithWindowClass.length; i++) {
+				var id = jsPlumb.getId(divsWithWindowClass[i]);
+				endpoints[id] = [
+					// note the three-arg version of addEndpoint; lets you re-use some common settings easily.
+					jsPlumb.addEndpoint(id, anEndpoint, {anchor:sourceAnchors}),
+					jsPlumb.addEndpoint(id, anEndpoint, {anchor:targetAnchors})
+				];
+			}
+			// then connect everything using the connections map declared above.
+			for (var e in endpoints) {
+				if (connections[e]) {
+					for (var j = 0; j < connections[e].length; j++) {					
+						jsPlumb.connect({
+							source:endpoints[e][0],
+							target:endpoints[connections[e][j]][1]
+						});						
+					}
+				}	
+			}
 			
-			jsPlumb.connect({source:e1,target:e2});
-			jsPlumb.connect({source:e3,target:e1});
+			// bind click listener; delete connections on click			
+			jsPlumb.bind("click", function(conn) {
+				jsPlumb.detach(conn);
+			});
+			
+			// bind beforeDetach interceptor: will be fired when the click handler above calls detach, and the user
+			// will be prompted to confirm deletion.
+			jsPlumb.bind("beforeDetach", function(conn) {
+				return confirm("Delete connection?");
+			});
+			
+			//
+			// configure ".window" to be draggable. 'getSelector' is a jsPlumb convenience method that allows you to
+			// write library-agnostic selectors; you could use your library's selector instead, eg.
+			//
+			// $(".window")  		jquery
+			// $$(".window") 		mootools
+			// Y.all(".window")		yui3
+			//
+			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 		}
 	};
 	

@@ -1,14 +1,12 @@
 <!doctype html>
 <html>
 	<head>
-		<title>jsPlumb 1.3.4 - anchors, gradients and endpoints demonstration - jQuery</title>
+		<title>jsPlumb 1.3.4 - Connection Sources and Targets Demonstration - jQuery</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
 		<link rel="stylesheet" href="../css/anchorDemo.css">
 	</head>
-	<body onunload="jsPlumb.unload();">	
-		
-		<div class="menu"><a href="../../doc/1.3.4/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="../../apidocs">view api docs</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
+	<body onunload="jsPlumb.unload();" data-demo-id="anchorDemo" data-library="jquery">							
 		
 		<div id="demo">
 			<div class="window" id="window1"><strong>Window 1</strong><br/><br/></div>
@@ -19,20 +17,43 @@
 		    <div class="window smallWindow" id="window6"><strong>Window 6</strong><br/><br/></div>
 		</div>
 	    <div id="explanation">
-	    	<p>This page provides a demonstration of how to work with Anchors.</p>
-	    	<p>All the green windows are anchored to Window 1 using custom anchor positions on Window 1, except
-	    	Window 4, which uses the BottomCenter anchor provided by jsPlumb.</p>
-	    	<p>Additionally, this page shows the usage of a different endpoint for each end of the connector, and a gradient in the connector.  <strong>If you are using IE&lt;9,</strong> you will see green connectors with no gradient.  VML, which jsPlumb uses for older IE, does not support stroking gradients.</p>
+	    	<p>This page provides a demonstration of the makeSource and makeTarget functions.  Drag Connections from the
+	    	big blue element to any of the small green ones.</p>
+	    	<p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor
+	    	locations:</p>
+	    	<div class="code">
+<pre>
+var sourceAnchors = [ 
+	[ 0, 1, 0, 1 ],
+	[ 0.25, 1, 0, 1 ],
+	[ 0.5, 1, 0, 1 ],
+	[ 0.75, 1, 0, 1 ],
+	[ 1, 1, 0, 1 ]				
+];
+jsPlumb.makeSource("window1", {
+	endpoint:{
+	    anchor:sourceAnchors
+	}
+});</pre>
+	    	</div>
+	    	The green elements are configured as Connection targets, with a "TopCenter" anchor, and are draggable:
+<div class="code">
+<pre>
+var smallWindows = jsPlumb.getSelector(".smallWindow");
+for (var i = 0; i < smallWindows.length; i++) {	
+  jsPlumb.draggable(smallWindows[i]);
+  jsPlumb.makeTarget(smallWindows[i], {
+    endpoint:{
+      paintStyle: { fillStyle:'#558822' },
+      anchor:"TopCenter"      
+    },
+    dropOptions:{ hoverClass:"hover" }
+  });
+}
+</pre>
+</div>
 	    	<p>This demonstration uses jsPlumb 1.3.4, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
-	    	<a href="dynamicAnchorsDemo.html" class="mplink">next: dynamic anchors demonstration</a><br/>
-	    	<a href="chartDemo.html" class="mplink">prev: chart demonstration</a>
-	    	<br/><br/>
-	    	render mode:&nbsp;<a href="#" class="rmode" mode="svg">SVG</a>&nbsp;|&nbsp;<a href="#" class="selected rmode" mode="canvas">Canvas</a>&nbsp;|&nbsp;<a href="#" class="rmode" mode="vml">VML</a>
-	    	<br/><br/>
 	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
-	    	<br/><br/>	    	
-	    	See a <a href="../mootools/anchorDemo.html">MooTools version</a> of this demo.<br/>
-	    	See a <a href="../yui3/anchorDemo.html">YUI3 version</a> of this demo.
 	    </div>
 	    
 	    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
@@ -57,6 +78,7 @@
 		<script type="text/javascript" src="../js/1.3.4/anchorDemo.js"></script>
 		
 		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/1.3.4/demo-list.js"></script>	
 		<script type="text/javascript" src="../js/1.3.4/demo-helper-jquery.js"></script>	
 		
 	</body>

@@ -10,4 +10,4 @@
 #bd2 { top:3em;left:3em;}
 #bd3 { top:19em;left:4.5em;}
 #bd4 { top:19em;left:46em;}
-#explanation { width:50%; background-color:white;z-index:0;color:gray;border:none;position:relative;left:45%;right:auto;text-align:center;}
+#explanation { text-align:center; }

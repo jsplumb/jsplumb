@@ -1,6 +1,7 @@
 body { 
 	background-color:white; font-size:90%;
 	background-image:url(../img/dynamicAnchorBg.jpg); 
+font-family:Helvetica;
 }
 /* docs */
 .code { background-color:#e4e5ef; 
@@ -10,10 +11,11 @@ font-family:courier;
 font-size:8pt;
 }
 .section { border-bottom: 1px dotted black; padding:1em;font-family:helvetica;background-color:white;color:#333;}
-.menu { 
+.menu,.renderMode { 
+border-radius:0.5em;
 	position:fixed; 
-	right:10em; top:1em;
-	background-color:white;
+	right:1em; top:1em;
+	background-color:#fff;
 	padding:0.3em;
 	opacity:0.8;
 	z-index:5000;
@@ -22,10 +24,46 @@ font-size:8pt;
    -o-box-shadow: 2px 2px 19px #aaa;
    -webkit-box-shadow: 2px 2px 19px #aaa;
    -moz-box-shadow: 2px 2px 19px #aaa;
+
 }
 
-a {text-decoration:none;color:#05f;font-weight:bold;font-family:helvetica;}
-a:hover {text-decoration:underline;}
+.renderMode {
+left:1em;
+top:1em;
+width:13em;
+padding-top:0.1em;
+padding-bottom:0.5em;
+
+}
+.renderMode ul {
+padding-left:1em;
+}
+.renderMode ul li {
+list-style-type:none;
+}
+.renderMode h5 {
+margin-top:1em;
+margin-bottom:0.7em;
+}
+
+a {text-decoration:none;
+color:#01a3c6;
+font-weight:bold;
+font-family:helvetica;
+padding:0.3em;
+border-radius:0.2em;
+
+}
+a:hover {
+color:#1b911b;
+background-color:#f0f0f0;
+}
+#explanation a {
+background-color:transparent;
+}
+#explanation a:hover {
+text-decoration:underline;
+}
 .window, .label { 
 	cursor:pointer;
 	box-shadow: 2px 2px 19px #aaa;
@@ -35,14 +73,15 @@ a:hover {text-decoration:underline;}
 }
 
 #explanation { 
+	cursor:drag;
 	background-color:white;
 	color:black;
 	border:0.25em solid #ddd; 
 	position:absolute;
-	right:3.5em;
-	top:5em;
-	width:22em;
-	font-size:100%;
+	right:1em;
+	top:4em;
+	width:32em;
+	font-size:90%;
 	-moz-border-radius:1em;
 	border-radius:1em;
 	padding:1em;
@@ -126,3 +165,10 @@ margin-left:1em;
 }
 
 path, ._jsPlumb_endpoint { cursor:pointer; }
+
+.hover {
+	box-shadow: 2px 2px 19px red;
+   -o-box-shadow: 2px 2px 19px red;
+   -webkit-box-shadow: 2px 2px 19px red;
+   -moz-box-shadow: 2px 2px 19px red;
+}

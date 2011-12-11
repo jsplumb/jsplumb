@@ -4,6 +4,8 @@
  */
 jsPlumb.bind("ready", function() {
 
+	jsPlumb.DemoList.init();
+
 	// chrome fix.
 	document.onselectstart = function () { return false; };				
 
@@ -24,7 +26,8 @@ jsPlumb.bind("ready", function() {
 		resetRenderMode(desiredMode);					
 	});
 	
-	jsPlumb.draggable($(".window"));
+	// explanation div is draggable
+	$("#explanation,.renderMode").draggable();
 
 	resetRenderMode(jsPlumb.SVG);
        

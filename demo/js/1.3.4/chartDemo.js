@@ -11,6 +11,8 @@
 			jsPlumb.Defaults.DragOptions = { cursor: "pointer", zIndex:2000 };
 			jsPlumb.Defaults.PaintStyle = { strokeStyle:"gray", lineWidth:2 };
 			jsPlumb.Defaults.EndpointStyle = { radius:9, fillStyle:"gray" };
+			jsPlumb.Defaults.HoverPaintStyle = {strokeStyle:"#ec9f2e" };
+			jsPlumb.Defaults.EndpointHoverStyle = {fillStyle:"#ec9f2e" };			
 			jsPlumb.Defaults.Anchors =  [ "BottomCenter", "TopCenter" ];
 				
 			// declare some common values:
@@ -26,6 +28,8 @@
 			jsPlumb.connect({source:"window1", target:"window3", overlays:overlays});
 			jsPlumb.connect({source:"window2", target:"window4", overlays:overlays});
 			jsPlumb.connect({source:"window2", target:"window5", overlays:overlays});
+			
+			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 		}
 	};
 	

@@ -6,28 +6,25 @@
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
 		<link rel="stylesheet" href="../css/draggableConnectorsDemo.css">
 	</head>
-	<body onunload="jsPlumb.unload();">
+	<body onunload="jsPlumb.unload();" data-demo-id="draggableConnectorsDemo" data-library="mootools">
 
-		<div class="menu"><a href="../../doc/1.3.4/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="../../apidocs">view api docs</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
 		<div id="demo">
 			<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window1">detach all</a></div>
 			<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window2">detach all</a></div>
 			<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a></div>
-			<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>
-	
-			<div id="explanation">
-				<div id="list"></div>
-		    	<p>This demonstration uses jsPlumb 1.3.4, MooTools 1.3.2, and Drag.Move from MooTools More 1.3.2.1.</p>
-		    	<p>drag between similar endpoints to create connections.</p><p>upon disconnection, yellow connections automatically reattach</p><p>the others are removed.</p><p>green endpoints support up to three connections.</p>
-		    	<a id="clear" href="#">clear plumbing</a><br/><br/>	    	
-		    	render mode:&nbsp;<a href="#" class="rmode" mode="svg">SVG</a>&nbsp;|&nbsp;<a href="#" class="selected rmode" mode="canvas">Canvas</a>&nbsp;|&nbsp;<a href="#" class="rmode" mode="vml">VML</a>
-		    	<br/><br/>
-		    	<a href="dragAnimDemo.html">next: animated dragging demo</a><br/>
-		    	<a href="dynamicAnchorsDemo.html" class="mplink">prev: dynamic anchors demonstration</a><br/><br/>
-		    	see a <a href="../jquery/draggableConnectorsDemo.html">jQuery version</a> of this demo.<br/>
-		    	see a <a href="../yui3/draggableConnectorsDemo.html">YUI3 version</a> of this demo.
-		    </div>
+			<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>	
 		</div>
+	
+	<div id="explanation">
+			<div id="list"></div>
+			<p>This is a demonstration of draggable connections.  Drag from any Endpoint to similar Endpoints
+			on other elements to create Connections.</p>
+			<p>Upon disconnection, yellow Connections automatically reattach; green and blue Connections are removed.</p>
+			<p>Green endpoints support up to three Connections.</p>
+	    	<a id="clear" href="#">clear plumbing</a>	   
+	    	<p>This demonstration uses jsPlumb 1.3.4, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
+	    </div>
+	    
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"></script>
 		<script type="text/javascript" src="../../js/lib/mootools-1.3.2.1-more.js"></script>
 		
@@ -51,6 +48,7 @@
 		<script type="text/javascript" src="../js/1.3.4/draggableConnectorsDemo-mootools.js"></script>
 		
 		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/1.3.4/demo-list.js"></script>		
 		<script type="text/javascript" src="../js/1.3.4/demo-helper-mootools.js"></script>
 		
 	</body>

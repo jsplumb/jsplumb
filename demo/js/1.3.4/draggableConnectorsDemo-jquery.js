@@ -9,11 +9,6 @@
 		$("#list").fadeOut({complete:function() { jsPlumb.repaintEverything(); }});
 	};
 	
-	jsPlumbDemo.getSelector = function(spec) {
-		return $(spec);
-	};
-
-	
 	jsPlumbDemo.attachBehaviour = function() {
 		$(".hide").click(function() {
 			jsPlumb.toggle($(this).attr("rel"));
@@ -31,7 +26,7 @@
 		});
 
 		$("#clear").click(function() { 
-			jsPlumb.detachEverything(); showConnections(); 
+			jsPlumb.detachEverything(); jsPlumbDemo.showConnectionInfo(); 
 		});
 	};
 

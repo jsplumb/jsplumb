@@ -8,9 +8,7 @@
 			// default to blue at one end and green at the other
 			jsPlumb.Defaults.EndpointStyles = [{ fillStyle:'#225588' }, { fillStyle:'#558822' }];
 			// blue endpoints 7 px; green endpoints 11.
-			jsPlumb.Defaults.Endpoints = [ [ "Dot", {radius:7} ], [ "Dot", { radius:11 } ]];
-			// enable mouse events
-			jsPlumb.setMouseEventsEnabled(true);						
+			jsPlumb.Defaults.Endpoints = [ [ "Dot", {radius:7} ], [ "Dot", { radius:11 } ]];				
 			// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
 			// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
 			jsPlumb.Defaults.Overlays = [
@@ -75,15 +73,6 @@
 			jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
 				init(connInfo.connection);
 			});
-								
-			//
-			// make all windows drop targets.  again note the string array vs selector issue.
-			//
-			/*jsPlumb.makeTarget(windows, {
-				endpoint:targetEndpoint,
-				dropOptions:{ hoverClass:"hover", activeClass:"active" },
-				deleteEndpointsOnDetach:true
-			});*/
 			
 			// make a couple of connections. note that the return value of addEndpoints is an array of Endpoints, 
 			jsPlumb.connect({
@@ -95,6 +84,8 @@
 				source:sourceEndpoints[3],
 				target:targetEndpoints[2]
 			});		
+			
+			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 
 			//
 			// listen for clicks on connections, and offer to delete connections on click.

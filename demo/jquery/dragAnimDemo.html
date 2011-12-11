@@ -6,29 +6,22 @@
 		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
 		<link rel="stylesheet" href="../css/dragAnimDemo.css">
 	</head>
-	<body onunload="jsPlumb.unload();">
+	<body onunload="jsPlumb.unload();" data-demo-id="dragAnimDemo" data-library="jquery">
 
-		<div class="menu"><a href="../../doc/1.3.4/usage.html" class="mplink">view documentation</a>&nbsp;|&nbsp;<a href="../../apidocs">view api docs</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a></div>
-		
 		<div id="demo">
 			<div class="bigdot" id="bd1"></div>
 			<div class="bigdot" id="bd2"></div>
 			<div class="bigdot" id="bd3"></div>
-			<div class="bigdot" id="bd4"></div>
-	
-			<div id="explanation">
-		    	<p>this demo uses jsPlumb 1.3.4, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
-		    	<p>drag orange dots to create connections.</p>
-		    	<p>click on or near blue dots to make them move in that direction.</p>
-		    	<p><a id="add" href="#" class="cmd">add a disc</a></p>
-		    	<p><a id="clear" href="#" class="cmd">remove all connections</a></p>	    	
-		    	render mode:&nbsp;<a href="#" class="rmode" mode="svg">SVG</a>&nbsp;|&nbsp;<a href="#" class="selected rmode" mode="canvas">Canvas</a>&nbsp;|&nbsp;<a href="#" class="rmode" mode="vml">VML</a>
-		    	<br/><br/>
-		    	<a href="draggableConnectorsDemo.html" class="mplink">prev: draggable connectors demo</a></p>
-		    	see a <a href="../mootools/dragAnimDemo.html">MooTools version</a> of this demo.<br/>
-		    	see a <a href="../yui3/dragAnimDemo.html">YUI3 version</a> of this demo.
-		    </div>
+			<div class="bigdot" id="bd4"></div>				
 		</div>
+		<div id="explanation">
+		   	<p>this demo uses jsPlumb 1.3.4, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
+		   	<p>drag orange dots to create connections.</p>
+	    	<p>click on or near blue dots to make them move in that direction.</p>
+	    	<p><a id="add" href="#" class="cmd">add a disc</a></p>
+	   		<p><a id="clear" href="#" class="cmd">remove all connections</a></p>	    		    	
+		</div>
+		    
 	   	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 		
@@ -54,6 +47,7 @@
 		<script type="text/javascript" src="../js/1.3.4/dragAnimDemo-jquery.js"></script>
 		
 		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/1.3.4/demo-list.js"></script>				
 		<script type="text/javascript" src="../js/1.3.4/demo-helper-jquery.js"></script>			
 		
 	</body>
