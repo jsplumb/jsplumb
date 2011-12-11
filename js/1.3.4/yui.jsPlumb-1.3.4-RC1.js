@@ -235,7 +235,8 @@
 		},
 		
 		getSelector : function(spec) {
-			return Y.all(spec);
+			var s = Y.all(spec);
+			return s && s ._nodes ? s._nodes : [];
 		},
 		
 		getSize : function(el) {
@@ -346,7 +347,7 @@
 		 * event unbinding wrapper.  
 		 */
 		unbind : function(el, event, callback) {
-			_getElementObject(el).removeListener(event, callback);
+			_getElementObject(el).detach(event, callback);
 		}
 	};				
 })();

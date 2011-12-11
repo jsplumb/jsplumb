@@ -380,7 +380,7 @@
 		 */
 		trigger : function(el, event, originalEvent) {
 			originalEvent.stopPropagation();
-			_getElementObject(el).$(d).fire(event, originalEvent);
+			_getElementObject(el).fireEvent(event, originalEvent);
 		},
 		
 		unbind : function(el, event, callback) {
