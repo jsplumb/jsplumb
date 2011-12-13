@@ -628,7 +628,8 @@
 		self.canvas.style["padding"] = 0;
 		self.canvas.style["outline"] = 0;
 		self.canvas.style["position"] = "absolute";
-		self.canvas.className = jsPlumb.endpointClass;
+		var clazz = params.cssClass ? " " + params.cssClass : "";
+		self.canvas.className = jsPlumb.endpointClass + clazz;
 		if (widthToUse) self.canvas.setAttribute("width", widthToUse);
 		if (heightToUse) self.canvas.setAttribute("height", heightToUse);		
 		jsPlumb.appendElement(self.canvas, params.parent);
