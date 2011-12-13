@@ -922,7 +922,7 @@
     	AbstractOverlay.apply(this, arguments);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
-	    var label = params.label || "banana";
+	    var label = params.label || "";
 
 	    this.id = params.id;
     	var self = this;
