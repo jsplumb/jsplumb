@@ -603,16 +603,23 @@
 		this.type = "Image";
 		jsPlumb.DOMElementComponent.apply(this, arguments);
 		
-		var self = this, initialized = false;
+		var self = this, 
+			initialized = false,
+			widthToUse = params.width,
+			heightToUse = params.height;
+			
 		this.img = new Image();
 		self.ready = false;
 		this.img.onload = function() {
 			self.ready = true;
+			widthToUse = widthToUse || self.img.width;
+			heightToUse = heightToUse || self.img.height;			
 		};
 		this.img.src = params.src || params.url;
 		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			self.anchorPoint = anchorPoint;
-			if (self.ready) return [anchorPoint[0] - self.img.width / 2, anchorPoint[1] - self.img.height/ 2, self.img.width, self.img.height];
+			if (self.ready) return [anchorPoint[0] - widthToUse / 2, anchorPoint[1] - heightToUse / 2, 
+									widthToUse, heightToUse];
 			else return [0,0,0,0];
 		};
 		
@@ -622,6 +629,8 @@
 		self.canvas.style["outline"] = 0;
 		self.canvas.style["position"] = "absolute";
 		self.canvas.className = jsPlumb.endpointClass;
+		if (widthToUse) self.canvas.setAttribute("width", widthToUse);
+		if (heightToUse) self.canvas.setAttribute("height", heightToUse);		
 		jsPlumb.appendElement(self.canvas, params.parent);
 		self.attachListeners(self.canvas, self);
 		
@@ -630,11 +639,9 @@
 				self.canvas.setAttribute("src", self.img.src);
 				initialized = true;
 			}
-			var width = self.img.width,
-			height = self.img.height,
-			x = self.anchorPoint[0] - (width/2),
-			y = self.anchorPoint[1] - (height/2);
-			jsPlumb.sizeCanvas(self.canvas, x, y, width, height);
+			var x = self.anchorPoint[0] - (widthToUse / 2),
+				y = self.anchorPoint[1] - (heightToUse / 2);
+			jsPlumb.sizeCanvas(self.canvas, x, y, widthToUse, heightToUse);
 		};
 		
 		this.paint = function(d, style, anchor) {
@@ -667,6 +674,7 @@
 		self.canvas.style.height = "1px";
 		self.canvas.style.background = "transparent";
 		self.canvas.style.position = "absolute";
+		self.canvas.className = self._jsPlumb.endpointClass;
 		jsPlumb.appendElement(self.canvas, params.parent);
 		
 		this.paint = function(d, style, anchor) {
