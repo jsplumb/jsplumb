@@ -160,7 +160,6 @@
 		return {size:bits[1] + bits[2], font:bits[3]};		
 	},
 	_classManip = function(el, add, clazz) {
-		el = jsPlumb.CurrentLibrary.getElementObject(el);
 		var classesToAddOrRemove = clazz.split(" "),
 			className = el.className,
 			curClasses = className.baseVal.split(" ");
