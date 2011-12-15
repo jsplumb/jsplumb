@@ -15,14 +15,21 @@
 			<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>	
 		</div>
 	
-	<div id="explanation">
+		<div id="explanation">
 			<div id="list"></div>
 			<p>This is a demonstration of draggable connections.  Drag from any Endpoint to similar Endpoints
 			on other elements to create Connections.</p>
-			<p>Upon disconnection, yellow Connections automatically reattach; green and blue Connections are removed.</p>
+			<p>Blue endpoints are configured to use a <strong>beforeDrop</strong> interceptor, which is a new
+			addition to jsPlumb in 1.3.4.  This enables
+			you to intercept a new connection and decide whether or not you wish to allow it to proceed. They are 
+			also configured to automatically reattach if you drag a connection off and drop it on
+			the background.  In SVG and VML you will see a dashed line for blue connections; this is set via CSS. </p>
+			<p>Yellow endpoints are configured to use a <strong>beforeDetach</strong> interceptor, which provides
+			a way to programmatically override a connection detach. Yellow connections are painted with the
+			Straight connector</p>			
 			<p>Green endpoints support up to three Connections.</p>
 	    	<a id="clear" href="#">clear plumbing</a>	   
-	    	<p>This demonstration uses jsPlumb 1.3.4, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
+	    	<p>This demo uses jsPlumb 1.3.4, jQuery 1.6.0 and jQuery UI 1.8.13.</p>
 	    </div>
 	    
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js"></script>
