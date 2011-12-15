@@ -2072,6 +2072,7 @@ about the parameters allowed in the params object.
 					if (p.parent) {
 						var pEl = jsPlumb.CurrentLibrary.getElementObject(p.parent),
 							pId = _getId(pEl);
+						_updateOffset({elId:pId});
 						myOffset = offsets[pId];
 						myWH = sizes[pId];
 					}
