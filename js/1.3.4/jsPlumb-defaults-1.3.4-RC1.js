@@ -950,6 +950,7 @@
     	jsPlumb.appendElement(div, params.connection.parent);
     	jsPlumb.getId(div);		
     	self.attachListeners(div, self);
+    	self.canvas = div;
     	
     	//override setVisible
     	var osv = self.setVisible;
