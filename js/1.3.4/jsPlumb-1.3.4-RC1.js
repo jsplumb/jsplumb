@@ -1829,23 +1829,16 @@ about the parameters allowed in the params object.
 						source = jpc.endpoints[0],
 						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : null;
 						
+					// unlock the source anchor to allow it to refresh its position if necessary
+					source.anchor.locked = false;							
+						
 				//	if (!jpcl.hasClass(draggable, _currentInstance.endpointClass)) return;
 										
 					if (scope) jpcl.setDragScope(draggable, scope);				
 					
-					// here we need to ensure the connection is droppable.  this is kind of chicken and egg,
-					// unfortunately.  a typical test for allowed connections will be the pre-existence of 
-					// another connection between the two elements, 
-					jpc.isExisting = true;				
-					// now set the correct target/targetId values on the connection before checking that it will
-					// ok to make the connection.
-					//jpc.target = _el;
-					//jpc.targetId = _getId(_el);					
-					// if this is an existing connection we need to check if drop is allowed here.
-					// the other drag method does not in this case.
-					var _continue = /*jpc.suspendedEndpoint ?*/ jpc.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope) ;//: true;		
+					// check if drop is allowed here.					
+					var _continue = jpc.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope);		
 					
-																									
 					// regardless of whether the connection is ok, reconfigure the existing connection to 
 					// point at the current info. we need this to be correct for the detach event that will follow.
 					// clear the source endpoint from the list to detach. we will detach this connection at this
@@ -1866,20 +1859,19 @@ about the parameters allowed in the params object.
 						jpc.targetId = jpc.suspendedEndpoint.elementId;
 						jpc.target = jpcl.getElementObject(jpc.suspendedEndpoint.elementId);
 						jpc.endpoints[1] = jpc.suspendedEndpoint;
-					}
-					// now detach this connection from the source. we can do this regardless of whether or not
-					// the connection is droppable (which we calculate immediately below). we do it here because we
-					// havent yet reset the target id; this might be an existing connection.
-					source.detach(jpc, false, true, source.endpointWillMoveAfterConnection);
-				
-					// unlock the source anchor to allow it to refresh its position if necessary
-					source.anchor.locked = false;																							
+					}																										
 					
 					if (_continue) {
+					
+						// detach this connection from the source.
+						source.detach(jpc, false, true, source.endpointWillMoveAfterConnection);
 				
 						// make a new Endpoint for the target
 						var newEndpoint = jsPlumb.addEndpoint(_el, _endpoint);
 					
+						// TODO the anchors should have this 'positionFinder' member (optionally). if it
+						// exists, here we should defer to it to get the [x,y] position of the anchor, which 
+						// will be the proportional x and proportional y values, NOT absolute values.
 						var anchorPositionFinders = {
 							"Fixed": function(dp, ep, es, a) {
 								return [ (dp.left - ep.left) / es[0],
@@ -1923,18 +1915,20 @@ about the parameters allowed in the params object.
 						if (deleteEndpointsOnDetach) 
 							c.endpointsToDeleteOnDetach = [ source, newEndpoint ];
 					}				
-					// if not allowed to drop, and this is an existing connection, see about whether or not we
-					// need to reattach.
-					else if (jpc.suspendedEndpoint) {
-						if (source.isReattach) {
-							jpc.setHover(false);
-							jpc.floatingAnchorIndex = null;
-							jpc.suspendedEndpoint.addConnection(jpc);
-							jsPlumb.repaint(source.elementId);
-//							source.repaint();
-							// fire event! but i dont want to fire the event. i dont want to have even fired a disconnect
-							// event, which happens above.
+					// if not allowed to drop...
+					else {
+						// is this an existing connection, and will we reattach?
+						if (jpc.suspendedEndpoint) {
+							if (source.isReattach) {
+								jpc.setHover(false);
+								jpc.floatingAnchorIndex = null;
+								jpc.suspendedEndpoint.addConnection(jpc);
+								jsPlumb.repaint(source.elementId);
+							}
+							else
+								source.detach(jpc, false, true, true);  // otherwise, detach the connection and tell everyone about it.
 						}
+						
 					}														
 				};
 				
@@ -2037,7 +2031,7 @@ about the parameters allowed in the params object.
 						jsPlumb.deleteEndpoint(ep);
 					else {
 						
-						jpcl.unbind(ep.canvas, "mousedown");  // HMM. has this messed up the drag and drop?
+						jpcl.unbind(ep.canvas, "mousedown"); 
 								
 						// reset the anchor to the anchor that was initially provided. the one we were using to drag
 						// the connection was just a placeholder that was located at the place the user pressed the
@@ -2068,10 +2062,21 @@ about the parameters allowed in the params object.
 				};
 				// when the user presses the mouse, add an Endpoint
 				jpcl.bind(_el, "mousedown", function(e) {										
+					// make sure we have the latest offset for this div 
 					_updateOffset({elId:elid});				
-					var myOffset = offsets[elid], 
-					myWH = sizes[elid], 
-					x = ((e.pageX || e.page.x) - myOffset.left) / myWH[0], 
+					// and get it, and the div's size
+					var myOffset = offsets[elid],  myWH = sizes[elid];
+					// if there is a parent, the endpoint will actually be added to it now, rather than the div
+					// that was the source.  in that case, we have to adjust the anchor position so it refers to
+					// the parent.
+					if (p.parent) {
+						var pEl = jsPlumb.CurrentLibrary.getElementObject(p.parent),
+							pId = _getId(pEl);
+						myOffset = offsets[pId];
+						myWH = sizes[pId];
+					}
+							
+					var x = ((e.pageX || e.page.x) - myOffset.left) / myWH[0], 
 					y = ((e.pageY || e.page.y) - myOffset.top) / myWH[1];
 					
 					// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -4266,7 +4271,7 @@ about the parameters allowed in the params object.
 
 			// is this a connection source? we make it draggable and have the
 			// drag listener maintain a connection with a floating endpoint.
-			if (/*params.isSource && */jsPlumb.CurrentLibrary.isDragSupported(_element)) {
+			if (jsPlumb.CurrentLibrary.isDragSupported(_element)) {
 				var placeholderInfo = {
 						id:null,
 						element:null
@@ -4384,7 +4389,8 @@ about the parameters allowed in the params object.
 				// extracted drag handler function so can be used by makeSource
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _makeConnectionDragHandler(placeholderInfo));
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
-					function() {						
+					function() {	
+						_currentInstance.currentlyDragging = false;
 						_removeFromList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
 						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
 						_removeElement(inPlaceCopy.canvas, _element);	
@@ -4411,7 +4417,7 @@ about the parameters allowed in the params object.
 								
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
 									
-								if (self.isReattach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc)) {		
+								if (self.isReattach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc)) {	
 									jpc.setHover(false);
 									jpc.floatingAnchorIndex = null;
 									jpc.suspendedEndpoint.addConnection(jpc);
