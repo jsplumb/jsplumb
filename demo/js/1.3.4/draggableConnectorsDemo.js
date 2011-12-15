@@ -54,21 +54,21 @@
 				5 pixels, and a gradient.		
 
 			*/
-			var exampleColor = '#00f';
+			var exampleColor = "#00f";
 			var exampleEndpoint = {
 				endpoint:"Rectangle",
 				paintStyle:{ width:25, height:21, fillStyle:exampleColor },
 				isSource:true,
-				scope:'blue rectangle',
-//				beforeDetach:function(conn) { return true; },
+				reattach:true,
+				scope:"blue rectangle",
 				connectorStyle : {
-					gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
+					gradient:{stops:[[0, exampleColor], [0.5, "#09098e"], [1, exampleColor]]},
 					lineWidth:5,
 					strokeStyle:exampleColor,
 					dashstyle:"2 2"
 				},
 				isTarget:true,
-//				beforeDrop:function(conn) { return false; },				
+				beforeDrop:function(params) { return confirm("Connect " + params.sourceId + " to " + params.targetId + "?"); },				
 				dropOptions : exampleDropOptions
 			};
 
@@ -94,15 +94,13 @@
 			'exampleConnection3'.  it uses a Straight connector, and the Anchor is created here (bottom left corner) and never
 			overriden, so it appears in the same place on every element.
 
-			this example also sets the 'reattach' flag for the Endpoint, meaning that when you drag a
-			connection off an endpoint and release it, it snaps back.  the default behaviour in this case
-			is to delete the connection.
+			this example also demonstrates the beforeDetach interceptor, which allows you to intercept 
+			a connection detach and decide whether or not you wish to allow it to proceed.
 
 			*/
 			var example3Color = "rgba(229,219,61,0.5)";
 			var exampleEndpoint3 = {
 					endpoint:["Dot", {radius:17} ],
-					reattach:true,
 					anchor:"BottomLeft",
 					paintStyle:{ fillStyle:example3Color, opacity:0.5 },
 					isSource:true,
@@ -110,7 +108,10 @@
 					connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
 					connector : "Straight",
 					isTarget:true,
-					dropOptions : exampleDropOptions
+					dropOptions : exampleDropOptions,
+					beforeDetach:function(conn) { 
+						return confirm("Detach connection?"); 
+					},
 			};
 
 			// setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
