@@ -1723,6 +1723,13 @@ The arguments are as follows:
 		<li><strong>options</strong> - options for the animation, such as callbacks etc.</li>
 	</ul>
 	
+		<h4>jQuery and the 'revert' option</h4>
+		jQuery offers a 'revert' option that you can use to instruct it to revert a drag under some condition. This is
+		rendered in the UI as an animation that returns the drag object from its current location to wherever it started
+		out.  It's a nice feature.  Unfortunately, the animation that runs the revert does not offer any lifecycle
+		callback methods - no 'step', no 'complete' - so its not possible for jsPlumb to know that the revert 
+		animation is taking place.
+	
 		</div>
 		
 			<div class="section">
