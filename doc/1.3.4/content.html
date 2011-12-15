@@ -12,6 +12,13 @@
 	&nbsp;|&nbsp;<a href="http://jsplumb.tumblr.com" class="mplink">jsPlumb on Tumblr</a>	
 </div>
 
+<!--
+GWT
+
+http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?spref=tw
+
+-->
+
 <div class="content">
 		<div class="section">
 			<h3><a id="summary">Summary</a></h3>
@@ -1305,12 +1312,20 @@ var exampleGreyEndpointOptions = {
 		Endpoint in question.  		
 		<h4><a id="beforeDrop">Before Drop</a></h4>
 		This is called when the user has released the mouse button over a Connection target.  Your callback is passed the
-		Connection object that has been created; the source/target elements and Endpoints will all be correctly set, allowing you to decide what you want to do.
+		a JS object containing these fields:
+		<ul>
+			<li>sourceId</li>
+			<li>targetId</li>
+			<li>scope</li>
+		</ul>
 		<p>Returning false - or nothing - from this callback will cause the drag to be abandoned, and the new Connection removed from the UI.</p>
 		<h4><a id="beforeDetach">Before Detach</a></h4>
 		This is called when the user has detached a Connection, which can happen for a number of reasons: by default, jsPlumb allows users to drag Connections
 		off of target Endpoints, but this can also result from a programmatic 'detach' call.  Every case is treated the same by jsPlumb, so in fact it is possible
 		for you to write code that attempts to detach a Connection but then denies itself!  You might want to be careful with that. 
+		<p>Note that this interceptor is passed the actual Connection object; this is different from the beforeDrop
+		interceptor discussed above: in this case, we've already got a Connection, but with beforeDrop we are yet 
+		to confirm that a Connection should be created.</p>
 		<p>Returning false - or nothing - from this callback will cause the detach to be abandoned, and the Connection will be reinstated/left on its current target.</p>
 			
 	</div>
