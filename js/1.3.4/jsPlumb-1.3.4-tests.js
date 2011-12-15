@@ -2184,16 +2184,15 @@ var testSuite = function(renderMode) {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		var c = jsPlumb.connect({source:d3, target:d4, anchors:["AutoDefault", "AutoDefault"]});
 
-		equals(jsPlumb.anchorManager.get("d3")["standard"].length, 0);
-		equals(jsPlumb.anchorManager.get("d3")["dynamic"].length, 1);
+		equals(jsPlumb.anchorManager.get("d3")["standard"].length, 1);
 		
 		var c2 = jsPlumb.connect({source:d3, target:d4});
-		equals(jsPlumb.anchorManager.get("d3")["standard"].length, 1);
-		equals(jsPlumb.anchorManager.get("d4")["standard"].length, 1);		
+		equals(jsPlumb.anchorManager.get("d3")["standard"].length, 2);
+		equals(jsPlumb.anchorManager.get("d4")["standard"].length, 2);		
 
 		equals(jsPlumb.anchorManager.get("d3")["endpoints"].length, 2);			
 		jsPlumb.detach(c);
-		equals(jsPlumb.anchorManager.get("d3")["dynamic"].length, 0);						
+		equals(jsPlumb.anchorManager.get("d3")["standard"].length, 1);						
 	});
 	
 	// anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.4
@@ -2202,10 +2201,8 @@ var testSuite = function(renderMode) {
 		var c = jsPlumb.connect({source:d3, target:d4, anchors:["Continuous", "Continuous"]});
 
 		equals(jsPlumb.anchorManager.get("d3")["standard"].length, 0);
-		equals(jsPlumb.anchorManager.get("d3")["dynamic"].length, 0);
 		equals(jsPlumb.anchorManager.get("d3")["continuous"].length, 1);		
 		equals(jsPlumb.anchorManager.get("d4")["standard"].length, 0);
-		equals(jsPlumb.anchorManager.get("d4")["dynamic"].length, 0);
 		equals(jsPlumb.anchorManager.get("d4")["continuous"].length, 1);		
 		
 		equals(jsPlumb.anchorManager.get("d4")["continuousAnchorEndpoints"].length, 2);	
