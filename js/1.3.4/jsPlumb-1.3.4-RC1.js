@@ -1917,6 +1917,8 @@ about the parameters allowed in the params object.
 					}				
 					// if not allowed to drop...
 					else {
+						// TODO this code is identical (pretty much) to what happens when a connection
+						// dragged from a normal endpoint is in this situation. refactor.
 						// is this an existing connection, and will we reattach?
 						if (jpc.suspendedEndpoint) {
 							if (source.isReattach) {
@@ -3992,8 +3994,14 @@ about the parameters allowed in the params object.
 					if (forceDetach || connection.isDetachAllowed(connection)) {
 						// get the target endpoint
 						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
-						// check with both endpoints that it is ok to detach
-						if (forceDetach || (self.isDetachAllowed(connection) && t.isDetachAllowed(connection))) {
+						// it would be nice to check with both endpoints that it is ok to detach. but 
+						// for this we'll have to get a bit fancier: right now if you use the same beforeDetach
+						// interceptor for two endpoints (which is kind of common, because it's part of the
+						// endpoint definition), then it gets fired twice.  so in fact we need to loop through
+						// each beforeDetach and see if it returns false, at which point we exit.  but if it
+						// returns true, we have to check the next one.  however we need to track which ones
+						// have already been run, and not run them again.
+						if (forceDetach || (self.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {
 					
 							self.connections.splice(idx, 1);										
 					
@@ -4529,7 +4537,17 @@ about the parameters allowed in the params object.
 							}
 							else {
 								// perhaps reattach
-								alert("perhaps reattach normal target");
+//								alert("perhaps reattach normal target");
+								if (jpc.suspendedEndpoint) {
+									if (source.isReattach) {
+										jpc.setHover(false);
+										jpc.floatingAnchorIndex = null;
+										jpc.suspendedEndpoint.addConnection(jpc);
+										jsPlumb.repaint(jpc.source.elementId);
+									}
+									else
+										jpc.source.detach(jpc, false, true, true);  // otherwise, detach the connection and tell everyone about it.
+								}
 							}
 						}
 			
