@@ -2842,7 +2842,7 @@ about the parameters allowed in the params object.
 	_currentInstance.bind("jsPlumbConnection", _currentInstance.anchorManager.connectionListener);
 	_currentInstance.bind("jsPlumbConnectionDetached", _currentInstance.anchorManager.connectionDetachedListener);	
 				
-	// "continous" anchors: anchors that pick their location based on how many connections the given element has.
+	// "continuous" anchors: anchors that pick their location based on how many connections the given element has.
 	// this requires looking at a lot more elements than normal - anything that has had a Continuous anchor applied has
 	// to be recalculated.  so this manager is used as a reference point.  the first time, with a new timestamp, that
 	// a continuous anchor is asked to compute, it calls this guy.  or maybe, even, this guy gets called somewhere else
@@ -2960,17 +2960,7 @@ about the parameters allowed in the params object.
 				
 			for (var i = 0; i < anchors.length; i++) {
 				var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
-				
-			/*	if (weAreSource && weAreTarget) {
-					// handle this in a special way. basically we will populate the source one if it is not yet
-					// populated, or the target one otherwise.  i guess here is where we would able to setup the anchors in
-					// such a way that the connection could go anticlockwise or clockwise - need to keep that in mind.
-					if (!continuousAnchorLocations[c.endpoints[0].id])
-						_setAnchorLocation(c.endpoints[0], anchors[i]);
-					else
-						_setAnchorLocation(c.endpoints[1], anchors[i]);
-				}
-				else*/ if (weAreSource)
+				if (weAreSource)
 					_setAnchorLocation(c.endpoints[0], anchors[i]);
 				else if (weAreTarget)
 					_setAnchorLocation(c.endpoints[1], anchors[i]);
