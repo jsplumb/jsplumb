@@ -1868,30 +1868,14 @@ about the parameters allowed in the params object.
 				
 						// make a new Endpoint for the target
 						var newEndpoint = jsPlumb.addEndpoint(_el, _endpoint);
-					
-						// TODO the anchors should have this 'positionFinder' member (optionally). if it
-						// exists, here we should defer to it to get the [x,y] position of the anchor, which 
-						// will be the proportional x and proportional y values, NOT absolute values.
-						var anchorPositionFinders = {
-							"Fixed": function(dp, ep, es, a) {
-								return [ (dp.left - ep.left) / es[0],
-								         (dp.top - ep.top) / es[1] ];	
-							},
-							"Grid":function(dp, ep, es, a) {
-								var dx = dp.left - ep.left, dy = dp.top - ep.top,
-								gx = es[0] / (a.grid[0]), gy = es[1] / (a.grid[1]),
-								mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
-								return [ ((mx * gx) + (gx / 2)) / es[0],
-								         ((my * gy) + (gy / 2)) / es[1] ];
-							}
-						};
-					
-						// fixed/grid anchors will now need to be instructed where to place themselves
-						if (newEndpoint.anchor.type === "Fixed" || newEndpoint.anchor.type === "Grid") {
+																
+						// if the anchor has a 'positionFinder' set, then delegate to that function to find
+						// out where to locate the anchor.
+						if (newEndpoint.anchor.positionFinder != null) {
 							var dropPosition = jpcl.getUIPosition(arguments),
 							elPosition = jpcl.getOffset(_el),
 							elSize = jpcl.getSize(_el),
-							ap = anchorPositionFinders[newEndpoint.anchor.type](dropPosition, elPosition, elSize, newEndpoint.anchor);
+							ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor);
 							newEndpoint.anchor.x = ap[0];
 							newEndpoint.anchor.y = ap[1];
 							// now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
@@ -4654,11 +4638,31 @@ about the parameters allowed in the params object.
 		return a;
 	};
 	
-	jsPlumb.Anchors["Fixed"] = _curryAnchor(0, 0, 0, 0, "Fixed");
-	jsPlumb.Anchors["Grid"] = _curryAnchor(0, 0, 0, 0, "Grid", function(anchor,params) { anchor.grid = params.grid; });	
+	jsPlumb.Anchors["Assign"] = _curryAnchor(0,0,0,0,"Assign", function(anchor, params) {
+		// find what to use as the "position finder". the user may have supplied a String which represents
+		// the id of a position finder in jsPlumb.AnchorPositionFinders, or the user may have supplied the
+		// position finder as a function.  we find out what to use and then set it on the anchor.
+		var pf = params.position || "Fixed";
+		anchor.positionFinder = pf.constructor == String ? jsPlumb.AnchorPositionFinders[pf] : pf;
+		// always set the constructor params; the position finder might need them later (the Grid one does,
+		// for example)
+		anchor.constructorParams = params;
+	});
 	
 	jsPlumb.Anchors["Continuous"] = function(params) {
 		return params.jsPlumbInstance.continuousAnchorManager.get(params);
+	};
+	
+	jsPlumb.AnchorPositionFinders = {
+		"Fixed": function(dp, ep, es, a) {
+			return [ (dp.left - ep.left) / es[0], (dp.top - ep.top) / es[1] ];	
+		},
+		"Grid":function(dp, ep, es, a) {
+			var dx = dp.left - ep.left, dy = dp.top - ep.top,
+				gx = es[0] / (a.constructorParams.grid[0]), gy = es[1] / (a.constructorParams.grid[1]),
+				mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
+			return [ ((mx * gx) + (gx / 2)) / es[0], ((my * gy) + (gy / 2)) / es[1] ];
+		}
 	};
 	
 })();
