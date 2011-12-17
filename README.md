@@ -50,6 +50,7 @@ The Bezier curve functions used by jsPlumb have been extracted to a separate pro
 between Google Code and GitHub):
 
 [http://code.google.com/p/jsbezier](http://code.google.com/p/jsbezier)
+
 [https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
 
 ## Tests
@@ -61,7 +62,7 @@ The Twitter account I use for this project is [jsplumblib](http://twitter.com/js
 ..but of course things fall through the cracks with Twitter. So maybe use this instead:
 
 ## Mailing List
-Sign up for the jsPlumb announcements mailing list here
+Sign up for the jsPlumb announcements mailing list [here](http://eepurl.com/bMuD9).
 
 ## License
 All 1.x.x versions of jsPlumb are dual-licensed under both MIT and GPL version 2. 
