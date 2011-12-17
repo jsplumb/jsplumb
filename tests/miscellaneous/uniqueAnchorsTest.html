@@ -44,7 +44,7 @@ cursor:move;
 			._jsPlumb_endpoint {
 				z-index:3;
 			}
-			._jsPlumb_connector { border:1px solid red; }
+		/*	._jsPlumb_connector { border:1px solid red; }*/
 			
 			#opened {
 				left:10em;
@@ -86,7 +86,7 @@ cursor:move;
 	
 	 	<script type="text/javascript" src="jquery-1.6.3.js"></script>
 		<script type="text/javascript" src="jqueryui-1.8.13.js"></script>
-		<script type="text/javascript" src="../../js/lib/jsBezier-0.2-min.js"></script>
+		<script type="text/javascript" src="../../js/lib/jsBezier-0.3-min.js"></script>
 		<!-- main jsplumb engine -->
 		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-1.3.4-RC1.js"></script>
 		<!-- connectors, endpoint and overlays  -->
@@ -133,7 +133,7 @@ cursor:move;
 				jsPlumb.Defaults.HoverPaintStyle = {strokeStyle:"yellow", lineWidth:2 };	
 				jsPlumb.Defaults.Overlays = [
 							[ "Arrow", { 
-								location:0.25, 
+								location:1, 
 								id:"arrow"
 							} ]/*,
 							[ "Arrow", { 
@@ -142,60 +142,10 @@ cursor:move;
 							} ]	*/		
 				];
 				
-				jsPlumb.draggable($(".w"));
-				
-				var connectCount = 0;
-				var connect = function(from, to, connector) {
-					var unique = connector == null;
-					var i = connectCount + 1;
-					jsPlumb.connect({
-						source:from,
-						target:to,
-						anchor:"Continuous",
-						paintStyle:{ strokeStyle:nextColour(),lineWidth:2 },
-						overlays:[
-					/*		[ "Arrow", { 
-								location:1, 
-								id:"arrow"/*,
-								animate:{
-									loop:true
-								} */
-//							} ],
-							[ "Label", { 
-								label:"c " + i, 
-								cssClass:"aLabel", 
-								location:0.5, 
-								id:"label"
-							} ]
-						]
-					});
-					connectCount++;
-				};
-						
-				// opened -> olga
-		//	connect("opened", "olga");
-		/*		connect("opened", "olga");
-				connect("opened", "nicola");
-			
-		//		connect("opened", "opened");
-			
-				connect("olga", "opened");
-				connect("opened", "olga");
-				//
-				connect("opened", "rejected");	
-			connect("opened", "inperson");			
-				
-				// olga -> nicola
-				connect("olga", "nicola");
-				connect("olga", "rejected");
-				connect("olga", "inperson");			
-				
-				connect("nicola", "inperson");*/
-			
-				
+				jsPlumb.draggable(jsPlumb.CurrentLibrary.getSelector(".w"));
+											
 				jsPlumb.bind("click", function(c) { 
 					jsPlumb.detach(c); 
-//					c.animateOverlay({overlayId:"arrow", loop:true});
 				});
 				
 				// make each ".ep" div a source and give it some parameters to work with.  here we tell it
