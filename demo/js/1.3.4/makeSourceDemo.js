@@ -53,7 +53,10 @@
 			//
 			jsPlumb.makeTarget("window3", {
 				endpoint:{
-					anchor:[ "Fixed", { orientation:[0, 1] } ]
+					anchor:[ "Assign", { 
+						orientation:[0, 1],
+						position:"Fixed"
+					} ]
 				},
 				dropOptions:dropOptions
 			});
@@ -68,7 +71,11 @@
 			//
 			jsPlumb.makeTarget("window4", {
 				endpoint:{
-					anchor:[ "Grid", { grid:[2,3], orientation:[0, 1] } ]
+					anchor:[ "Assign", { 
+						position:"Grid",
+						grid:[2,3], 
+						orientation:[0, 1] 
+					} ]
 				},
 				dropOptions:dropOptions
 			});			
