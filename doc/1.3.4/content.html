@@ -138,14 +138,14 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 		<div class="section">
 			<h3><a id="init">Setup</a></h3>
 
-<h4><a id="imports">Required Imports</a></h4>	
-							<h4>jQuery</h4>
-			<ul>
-				<li class="bullet">jQuery 1.3.x or higher.</li>
-				<li class="bullet">jQuery UI 1.7.x or 1.8.x (if you wish to support drag and drop).</li>
-			</ul>
-			<div class="code">
-				<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"&gt;&lt;/script&gt;
+            <h4><a id="imports">Required Imports</a></h4>
+			<h4>jQuery</h4>
+			    <ul>
+				    <li class="bullet">jQuery 1.3.x or higher.</li>
+				    <li class="bullet">jQuery UI 1.7.x or 1.8.x (if you wish to support drag and drop).</li>
+			    </ul>
+			    <div class="code">
+<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.4-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
@@ -1131,13 +1131,60 @@ that element whenever a Connection is established on it.  In this example we wil
 rectangle - but we will tell jsPlumb that the element "aTargetDiv" will be the drop target:
 </p>
 		<div class="code">
-<pre>var endpointOptions = { isTarget:true, endpoint:"Rectangle", paintStyle:{ fillStyle:"gray" } };
+<pre>var endpointOptions = { 
+  isTarget:true, 
+  endpoint:"Rectangle", 
+  paintStyle:{ fillStyle:"gray" } 
+};
 jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 </pre>		
 		</div>
 <p>
-	The allowed values in 'endpointOptions' are identical for both the <strong>jsPlumb.addEndpoint</strong> and <strong>jsPlumb.makeTarget</strong> methods.
+	The allowed values in 'endpointOptions' are identical for both the <strong>jsPlumb.addEndpoint</strong> and <strong>jsPlumb.makeTarget</strong> methods, but makeTarget supports an extended 
+	anchor syntax that allows you more control over the location of the target endpoint.  This is discussed below.	
 </p>		
+
+<h5>Target Anchors positions with makeTarget</h5>
+<p>When using the makeTarget method, jsPlumb allows you to provide a callback function to be used to determine
+the appropriate location of a target anchor for every new Connection dropped on the given target.  It may be the
+case that you want to take some special action rather than just relying on one of the standard anchor mechanisms.
+</p>
+<p>This is achieved through an extended anchor syntax (note that this syntax is <strong>not supported</strong> in
+the <strong>jsPlumb.addEndpoint</strong> method) that supplies a "positionFinder" to the anchor specification.  jsPlumb 
+provides two of these by default; you can register your own on jsPlumb and refer to them by name, or just 
+supply a function.  Here's a few examples:</p>
+Instruct jsPlumb to place the target anchor at the exact location at which the mouse button was released on the
+target element. Note that you tell jsPlumb the anchor is of type "Assign", and you then provide a "position"
+parameter, which can be the name of some position finder, or a position finder function itself:
+<div class="code">
+<pre>
+jsPlumb.makeTarget("someElement", {
+  endpoint:{
+    anchor:[ "Assign", { 
+	  position:"Fixed"
+	}]
+  }
+});
+</pre>
+</div>
+<p><strong>Fixed</strong> is one of the two default position finders provided by jsPlumb. The other is <strong>Grid</strong>:
+<div class="code">
+<pre>
+jsPlumb.makeTarget("someElement", {
+  endpoint:{
+    anchor:[ "Assign", { 
+	  position:"Grid",
+	  grid:[3,3]
+	}]
+  }
+});
+</pre>
+</div>
+The Grid position finder takes a "grid" parameter that defines the size of the grid required. [3,3] means
+3 rows and 3 columns.
+<p>To supply your own position finder to jsPlumb you first need to create the callback function. It takes
+N arguments and does stuff. This paragraph obviously needs to be finished.</p>
+
 <h5>jsPlumb.makeSource</h5>
 There are two use cases supported by this method.  The first is the case that you want to drag a Connection from the element itself and have an Endpoint attached to
 the element when a Connection is established.  The second is a more specialised case: you want to drag a Connection from the element, but once the Connection is
