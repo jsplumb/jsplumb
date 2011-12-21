@@ -4593,20 +4593,40 @@ about the parameters allowed in the params object.
 		normal : function(p1, p2) {
 			return -1 / jsPlumb.util.gradient(p1,p2);
 		},
-		pointOnLine : function(fromPoint, gradient, distance, flipX, flipY) {
-			var orientation = distance > 0 ? 1 : -1,
-				theta = Math.atan(gradient),
-        		y = Math.abs(distance * Math.sin(theta)),
-				x =  Math.abs(distance * Math.cos(theta));        	
-        	if (flipY) y = y * -1;
-			if (flipX) x = x * -1;
-			return {x:fromPoint.x + (orientation * x), y:fromPoint.y + (orientation * y)};
+        segment : function(p1, p2) {
+            p1 = p1.constructor == Array ? p1 : [p1.x, p1.y];
+            p2 = p2.constructor == Array ? p2 : [p2.x, p2.y];
+            if (p2[0] > p1[0]) {
+                return (p2[1] > p1[1]) ? 2 : 1;
+            }
+            else {
+                return (p2[1] > p1[1]) ? 3 : 4;
+            }
+        },
+        segmentMultipliers : [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ],
+        inverseSegmentMultipliers : [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ],
+		pointOnLine : function(fromPoint, toPoint, distance) {
+            var m = jsPlumb.util.gradient(fromPoint, toPoint),
+                s = jsPlumb.util.segment(fromPoint, toPoint),
+			    segmentMultiplier = distance > 0 ? jsPlumb.util.segmentMultipliers[s] : jsPlumb.util.inverseSegmentMultipliers[s],
+				theta = Math.atan(m),
+        		y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
+				x =  Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
+
+			return { x:fromPoint.x + x, y:fromPoint.y + y };
 		},
-		perpendicularLineTo : function(point, gradient, length) {
-			var _theta2 = Math.atan(-1 / gradient),
-        		y =  length / 2 * Math.sin(_theta2),
-				x =  length / 2 * Math.cos(_theta2);
-			return [{x:point.x + x, y:point.y + y}, {x:point.x - x, y:point.y - y}];
+        /**
+         * calculates a perpendicular to the line fromPoint->toPoint, that passes through toPoint and is 'length' long.
+         * @param fromPoint
+         * @param toPoint
+         * @param length
+         */
+		perpendicularLineTo : function(fromPoint, toPoint, length) {
+			var m = jsPlumb.util.gradient(fromPoint, toPoint),
+                theta2 = Math.atan(-1 / m),
+        		y =  length / 2 * Math.sin(theta2),
+				x =  length / 2 * Math.cos(theta2);
+			return [{x:toPoint.x + x, y:toPoint.y + y}, {x:toPoint.x - x, y:toPoint.y - y}];
 		}
 	};
 	
