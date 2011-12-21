@@ -2216,19 +2216,109 @@ var testSuite = function(renderMode) {
 	});
 	
 // ------------- utility functions - math stuff, mostly --------------------------
-	test(renderMode + " jsPlumb.util.gradient", function() {
-		var p1 = [0,0], p2 = [2,3], m = jsPlumb.util.gradient(p1,p2);
-		equals(m, 3/2, "gradient calculated correctly for simple case");	
+
+    var tolerance = 0.00000005, withinTolerance = function(v1, v2, msg) {
+        if (Math.abs(v1 - v2) < tolerance) ok(true, msg + "; expected " + v1 + " and got it");
+        else {
+            ok(false, msg + "; expected " + v1 + " got " + v2);
+        }
+    };
+    test(renderMode + " jsPlumb.util.gradient, segment 1", function() {
+		var p1 = [2,2], p2 = [3,1], m = jsPlumb.util.gradient(p1,p2);
+		equals(m, -1, "gradient calculated correctly for simple case");
 	});
-	test(renderMode + " jsPlumb.util.normal", function() {
-		var p1 = [0,0], p2 = [2,3], m = jsPlumb.util.normal(p1,p2);
-		equals(m, -2/3, "normal calculated correctly for simple case");	
+	test(renderMode + " jsPlumb.util.normal, segment 1", function() {
+		var p1 = [2,2], p2 = [3,1], m = jsPlumb.util.normal(p1,p2);
+		equals(m, 1, "normal calculated correctly for simple case");
 	});
-	/*test(renderMode + " jsPlumb.util.atan", function() {
-		var p1 = [0,0], p2 = [2,3], m = jsPlumb.util.atan(p1,p2);
-		equals(m, -2/3, "atan segment calculated correctly for simple case");	
-	});*/
-	
+	test(renderMode + " jsPlumb.util.gradient, segment 2", function() {
+		var p1 = [2,2], p2 = [3,3], m = jsPlumb.util.gradient(p1,p2);
+		equals(m, 1, "gradient calculated correctly for simple case");
+	});
+	test(renderMode + " jsPlumb.util.normal, segment 2", function() {
+		var p1 = [2,2], p2 = [3,3], m = jsPlumb.util.normal(p1,p2);
+		equals(m, -1, "normal calculated correctly for simple case");
+	});
+    test(renderMode + " jsPlumb.util.gradient, segment 3", function() {
+		var p1 = [2,2], p2 = [1,3], m = jsPlumb.util.gradient(p1,p2);
+		equals(m, -1, "gradient calculated correctly for simple case");
+	});
+	test(renderMode + " jsPlumb.util.normal, segment 3", function() {
+		var p1 = [2,2], p2 = [1,3], m = jsPlumb.util.normal(p1,p2);
+		equals(m, 1, "normal calculated correctly for simple case");
+	});
+    test(renderMode + " jsPlumb.util.gradient, segment 4", function() {
+		var p1 = [2,2], p2 = [1,1], m = jsPlumb.util.gradient(p1,p2);
+		equals(m, 1, "gradient calculated correctly for simple case");
+	});
+	test(renderMode + " jsPlumb.util.normal, segment 4", function() {
+		var p1 = [2,2], p2 = [1,1], m = jsPlumb.util.normal(p1,p2);
+		equals(m, -1, "normal calculated correctly for simple case");
+	});
+    test(renderMode + "jsPlumb.util.pointOnLine, segment 1", function() {
+       var p1 = {x:2,y:2}, p2={x:3, y:1},
+           target = jsPlumb.util.pointOnLine(p1, p2, Math.sqrt(2));
+        withinTolerance(p2.x, target.x, "x is calculated correctly");
+        withinTolerance(p2.y, target.y, "y is calculated correctly");
+    });
+    test(renderMode + "jsPlumb.util.pointOnLine, segment 2", function() {
+       var p1 = {x:2,y:2}, p2={x:3, y:3},
+           target = jsPlumb.util.pointOnLine(p1, p2, Math.sqrt(2));
+        withinTolerance(p2.x, target.x, "x is calculated correctly");
+        withinTolerance(p2.y, target.y, "y is calculated correctly");
+    });
+    test(renderMode + "jsPlumb.util.pointOnLine, segment 3", function() {
+       var p1 = {x:2,y:2}, p2={x:1, y:3},
+           target = jsPlumb.util.pointOnLine(p1, p2, Math.sqrt(2));
+        withinTolerance(p2.x, target.x, "x is calculated correctly");
+        withinTolerance(p2.y, target.y, "y is calculated correctly");
+    });
+    test(renderMode + "jsPlumb.util.pointOnLine, segment 4", function() {
+       var p1 = {x:2,y:2}, p2={x:1, y:1},
+           target = jsPlumb.util.pointOnLine(p1, p2, Math.sqrt(2));
+        withinTolerance(p2.x, target.x, "x is calculated correctly");
+        withinTolerance(p2.y, target.y, "y is calculated correctly");
+    });
+    test(renderMode + "jsPlumb.util.perpendicularLineTo, segment 1", function() {
+        var p1 = {x:2, y:2}, p2={x:3, y:1}, m = jsPlumb.util.gradient(p1, p2),
+            l = jsPlumb.util.perpendicularLineTo(p1, p2, 2 * Math.sqrt(2));
+
+        withinTolerance(4, l[0].x, "point 1 x is correct");
+        withinTolerance(2, l[0].y, "point 1 y is correct");
+
+        withinTolerance(2, l[1].x, "point 2 x is correct");
+        withinTolerance(0, l[1].y, "point 2 y is correct");
+    });
+	test(renderMode + "jsPlumb.util.perpendicularLineTo, segment 2", function() {
+        var p1 = {x:2, y:2}, p2={x:3, y:3}, m = jsPlumb.util.gradient(p1, p2),
+            l = jsPlumb.util.perpendicularLineTo(p1, p2, 2 * Math.sqrt(2));
+
+        withinTolerance(4, l[0].x, "point 1 x is correct");
+        withinTolerance(2, l[0].y, "point 1 y is correct");
+
+        withinTolerance(2, l[1].x, "point 2 x is correct");
+        withinTolerance(4, l[1].y, "point 2 y is correct");
+    });
+    test(renderMode + "jsPlumb.util.perpendicularLineTo, segment 3", function() {
+        var p1 = {x:2, y:2}, p2={x:1, y:3}, m = jsPlumb.util.gradient(p1, p2),
+            l = jsPlumb.util.perpendicularLineTo(p1, p2, 2 * Math.sqrt(2));
+
+        withinTolerance(2, l[0].x, "point 1 x is correct");
+        withinTolerance(4, l[0].y, "point 1 y is correct");
+
+        withinTolerance(0, l[1].x, "point 2 x is correct");
+        withinTolerance(2, l[1].y, "point 2 y is correct");
+    });
+    test(renderMode + "jsPlumb.util.perpendicularLineTo, segment 4", function() {
+        var p1 = {x:2, y:2}, p2={x:1, y:1}, m = jsPlumb.util.gradient(p1, p2),
+            l = jsPlumb.util.perpendicularLineTo(p1, p2, 2 * Math.sqrt(2));
+
+        withinTolerance(2, l[0].x, "point 1 x is correct");
+        withinTolerance(0, l[0].y, "point 1 y is correct");
+
+        withinTolerance(0, l[1].x, "point 2 x is correct");
+        withinTolerance(2, l[1].y, "point 2 y is correct");
+    });
 	/**
 	 * leave this test at the bottom!
 	 */
