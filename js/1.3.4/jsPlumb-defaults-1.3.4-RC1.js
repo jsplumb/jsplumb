@@ -43,7 +43,7 @@
     	this.type = "Straight";
 		var self = this,
 		currentPoints = null,
-		_m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty;
+		_m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty, _segment, _length;
 
         /**
          * Computes the new size and position of the canvas.
@@ -92,10 +92,13 @@
             _tx = sourcePos[0] < targetPos[0] ? w-xo : xo;
             _ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
             currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];                        
-            _dx = _tx - _sx, _dy = (_ty - _sy);
-			_m = _dy / _dx, _m2 = -1 / _m;			
+            _dx = _tx - _sx, _dy = _ty - _sy;
+			//_m = _dy / _dx, _m2 = -1 / _m;
+            _m = jsPlumb.util.gradient({x:_sx, y:_sy}, {x:_tx, y:_ty}), _m2 = -1 / _m;
 			_b = -1 * ((_m * _sx) - _sy);
 			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
+            //_segment = jsPlumb.util.segment({x:_sx, y:_sy}, {x:_tx, y:_ty});
+            _length = Math.sqrt((_dx * _dx) + (_dy * _dy));
                              
             return currentPoints;
         };
@@ -106,15 +109,20 @@
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
         this.pointOnPath = function(location) {
-        	var xp = _sx + (location * _dx);
-        	var yp = (_m == Infinity || _m == -Infinity) ? _sy + (location * (_ty - _sy)) : (_m * xp) + _b;
-        	return {x:xp, y:yp};
+        	if (location == 0)
+                return { x:_sx, y:_sy };
+            else if (location == 1)
+                return { x:_tx, y:_ty };
+            else
+                return jsPlumb.util.pointOnLine({x:_sx, y:_sy}, {x:_tx, y:_ty}, location * _length);
         };
         
         /**
          * returns the gradient of the connector at the given point - which for us is constant.
          */
-        this.gradientAtPoint = function(location) { return _m; };	
+        this.gradientAtPoint = function(location) {
+            return _m;
+        };
         
         /**
          * returns the gradient of the connector at the point which is 'distance' from location, which for us is constant.
@@ -129,20 +137,18 @@
          */
         this.pointAlongPathFrom = function(location, distance) {
         	var p = self.pointOnPath(location);
-			return jsPlumb.util.pointOnLine(p, _m, distance, self.isFlipX(), self.isFlipY());
+			return jsPlumb.util.pointOnLine(p, {x:_tx,y:_ty}, distance);
         };
-        
-        this.isFlipX = function() { return _sx > _tx; };
-        this.isFlipY = function() { return _sy > _ty; };        
-        
+
         /**
          * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
          * the line is 'length' pixels long.
          */
         this.perpendicularToPathAt = function(location, length, distance) {
-        	var p = self.pointAlongPathFrom(location, distance),
-        	m = self.gradientAtPoint(p.location);
-        	return jsPlumb.util.perpendicularLineTo(p, m, length);        
+        	var p1 = self.pointOnPath(location),
+                p2 = self.pointAlongPathFrom(location, distance);
+
+        	return jsPlumb.util.perpendicularLineTo(p1, p1, length);
         };                               
     };
                 
@@ -319,34 +325,22 @@
     	params = params || {};
 		var self = this, 
 		minStubLength = params.stub || params.minStubLength /* bwds compat. */ || 30, 
-		segments = [], 
-		segmentGradients = [], 
-		segmentProportions = [], 
-		segmentLengths = [],
+		segments = [],
+        totalLength = 0,
+		segmentProportions = [],
 		segmentProportionalLengths = [],
 		points = [],
 		swapX, 
 		swapY,
 		/**
-		 * recalculates the gradients of each segment, and the points at which the segments begin, proportional to the total length travelled 
-		 * by all the segments that constitute the connector.   
+		 * recalculates the points at which the segments begin and end, proportional to the total length travelled
+		 * by all the segments that constitute the connector.   we use this to help with pointOnPath calculations.
 		 */
-		updateSegmentGradientsAndProportions = function(startX, startY, endX, endY) {
-			var total = 0;
-			for (var i = 0; i < segments.length; i++) {
-				var sx = i == 0 ? startX : segments[i][2], 
-					sy = i == 0 ? startY : segments[i][3],
-					ex = segments[i][0], 
-					ey = segments[i][1];
-				
-				segmentGradients[i] = sx == ex ? Infinity : 0;
-				segmentLengths[i] = Math.abs(sx == ex ? ey - sy : ex - sx); 
-				total += segmentLengths[i];
-			}
+		updateSegmentProportions = function(startX, startY, endX, endY) {
 			var curLoc = 0;
 			for (var i = 0; i < segments.length; i++) {
-				segmentProportionalLengths[i] = segmentLengths[i] / total;
-				segmentProportions[i] = [curLoc, (curLoc += (segmentLengths[i] / total)) ];
+				segmentProportionalLengths[i] = segments[i][5] / totalLength;
+				segmentProportions[i] = [curLoc, (curLoc += (segments[i][5] / totalLength)) ];
 			}
 		},
 		appendSegmentsToPoints = function() {
@@ -360,9 +354,12 @@
 		 * helper method to add a segment.
 		 */
 		addSegment = function(x, y, sx, sy, tx, ty) {
-			var lx = segments.length == 0 ? sx : segments[segments.length - 1][0];
-			var ly = segments.length == 0 ? sy : segments[segments.length - 1][1];
-			segments.push([x, y, lx, ly]);
+			var lx = segments.length == 0 ? sx : segments[segments.length - 1][0],
+			    ly = segments.length == 0 ? sy : segments[segments.length - 1][1],
+                m = x == lx ? Infinity : 0,
+				l = Math.abs(x == lx ? y - ly : x - lx);
+			segments.push([x, y, lx, ly, m, l]);
+            totalLength += l;
 		},
 		/**
 		 * returns [segment, proportion of travel in segment, segment index] for the segment 
@@ -386,10 +383,8 @@
 		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
 	    	
 			segments = [];
-			segmentGradients = [];
+            totalLength = 0;
 			segmentProportionalLengths = [];
-			segmentLengths = [];
-			segmentProportionals = [];
 			
             swapX = targetPos[0] < sourcePos[0]; 
             swapY = targetPos[1] < sourcePos[1];
@@ -458,7 +453,7 @@
             addSegment(tx, ty, sx, sy, tx, ty);
             
             appendSegmentsToPoints();
-            updateSegmentGradientsAndProportions(sx, sy, tx, ty);
+            updateSegmentProportions(sx, sy, tx, ty);
             
 			return points;
 		};
@@ -477,7 +472,7 @@
          * segment the point falls in. segment gradients are calculated in the compute method.  
          */
         this.gradientAtPoint = function(location) { 
-        	return segmentGradients[findSegmentForLocation(location)["index"]];
+        	return segments[findSegmentForLocation(location)["index"]][4];
         };
         
         /**
@@ -486,7 +481,7 @@
          */
         this.gradientAtPointAlongPathFrom = function(location, distance) { 
         	var pointAlongPath = self.pointAlongPathFrom(location, distance);
-        	return segmentGradients[pointAlongPath.segmentInfo["index"]];
+        	return segments[pointAlongPath.segmentInfo["index"]][4];
         };
         
         /**
@@ -501,7 +496,7 @@
          * advantage is, of course, that there's less computation involved doing it that way. 
          */
         this.pointAlongPathFrom = function(location, distance) {
-        	var s = findSegmentForLocation(location), seg = s.segment, p = s.proportion, sl = segmentLengths[s.index], m = segmentGradients[s.index];        	
+        	var s = findSegmentForLocation(location), seg = s.segment, p = s.proportion, sl = segments[s.index][5], m = segments[s.index][4];
         	var e = {         		
         		x 	: m == Infinity ? seg[2] : seg[2] > seg[0] ? seg[0] + ((1 - p) * sl) - distance : seg[2] + (p * sl) + distance,
         		y 	: m == 0 ? seg[3] : seg[3] > seg[1] ? seg[1] + ((1 - p) * sl) - distance  : seg[3] + (p * sl) + distance,
@@ -517,7 +512,7 @@
          */
         this.perpendicularToPathAt = function(location, length, distance) {
         	var p = self.pointAlongPathFrom(location, distance),
-        	m = segmentGradients[p.segmentInfo.index],
+        	m = segments[p.segmentInfo.index][4],
         	_theta2 = Math.atan(-1 / m),
         	y =  length / 2 * Math.sin(_theta2),
 			x =  length / 2 * Math.cos(_theta2);
@@ -789,26 +784,12 @@
     	this.cleanup = function() { };  // nothing to clean up for Arrows
     	
     	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
-    		
-    		// this is the arrow head position    		
-			var hxy = connector.pointAlongPathFrom(self.loc, direction * (self.length / 2)),
-				// this is the center of the tail    		    		
-				txy = connector.pointAlongPathFrom(self.loc, -1 * direction * (self.length / 2)), tx = txy.x, ty = txy.y,
-				// this is the tail vector    		
-				tail = connector.perpendicularToPathAt(self.loc, self.width, -1 * direction * (self.length / 2)),
-				// this is the point the tail goes in to
-				cxy = _getFoldBackPoint(connector, self.loc);
 				
-			/*	var m = connector.gradientAtPoint(self.loc);
-				console.log("PSSS");
-				console.log(txy.x, txy.y, cxy.x, cxy.y);
-				txy = jsPlumb.util.pointOnLine(hxy, m, self.length, connector.isFlipX(), connector.isFlipY());
-				tail = jsPlumb.util.perpendicularLineTo(txy, m, self.width);
-//				cxy = jsPlumb.util.pointOnLine(hxy, m, (foldback) * self.length, false, false);				
-				console.log(txy.x, txy.y, cxy.x, cxy.y);		*/		
-				
-//				console.log("arrow draw.  head is at ", hxy.x, hxy.y, "tail is at ",txy.x,txy.y,
-//							"folback is at",cxy.x, cxy.y);
+			var hxy = connector.pointAlongPathFrom(self.loc, direction * self.length / 2),
+                mid = connector.pointOnPath(self.loc),
+                txy = jsPlumb.util.pointOnLine(hxy, mid, self.length),
+                tail = jsPlumb.util.perpendicularLineTo(hxy, txy, self.width),
+                cxy = foldback == 0.5 ? mid : connector.pointAlongPathFrom(self.loc, direction * self.length * (0.5 - foldback));
 
 			// if loc = 1, then hxy should be flush with the element, or if direction == -1, the tail midpoint.
 			if (self.loc == 1) {
@@ -1037,7 +1018,33 @@
 	    	if (div) self.reattachListenersForElement(div, self);
 	    };
     };
-    
+
+    // this is really just a test overlay, so its undocumented and doesnt take any parameters. but i was loth to delete it.
+    jsPlumb.Overlays.GuideLines = function() {
+        var self = this;
+        self.length = 50;
+        self.lineWidth = 5;
+        this.type = "GuideLines";
+		AbstractOverlay.apply(this, arguments);
+        jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+        this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
+
+            var head = connector.pointAlongPathFrom(self.loc, self.length / 2),
+                mid = connector.pointOnPath(self.loc),
+                tail = jsPlumb.util.pointOnLine(head, mid, self.length),
+                tailLine = jsPlumb.util.perpendicularLineTo(head, tail, 40),
+                headLine = jsPlumb.util.perpendicularLineTo(tail, head, 20);
+
+            self.paint(connector, [head, tail, tailLine, headLine], self.lineWidth, "red", null, connectorDimensions);
+
+            return [Math.min(head.x, tail.x), Math.min(head.y, tail.y), Math.max(head.x, tail.x), Math.max(head.y,tail.y)];
+        };
+
+        this.computeMaxSize = function() { return 50; };
+
+    	this.cleanup = function() { };  // nothing to clean up for GuideLines
+    };
+
  // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************
     
  // ********************************* OVERLAY CANVAS RENDERERS***********************************************************************
