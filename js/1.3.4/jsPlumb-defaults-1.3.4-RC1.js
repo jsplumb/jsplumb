@@ -768,64 +768,47 @@
     	this.width = params.width || 20;
     	this.id = params.id;
     	var direction = (params.direction || 1) < 0 ? -1 : 1,
-    	paintStyle = params.paintStyle || { lineWidth:1 };
-    	// how far along the arrow the lines folding back in come to. default is 62.3%. 
-    	var foldback = params.foldback || 0.623,
-    	_getFoldBackPoint = function(connector, loc) {
-    		if (foldback == 0.5) return connector.pointOnPath(loc);
-    		else {
-    			var adj = 0.5 - foldback; // we calculate relative to the center        			
-    			return connector.pointAlongPathFrom(loc, direction * self.length * adj);
-    		}
-    	};
+    	    paintStyle = params.paintStyle || { lineWidth:1 },
+    	    // how far along the arrow the lines folding back in come to. default is 62.3%.
+    	    foldback = params.foldback || 0.623;
+
     	    	
     	this.computeMaxSize = function() { return self.width * 1.5; };
     	
     	this.cleanup = function() { };  // nothing to clean up for Arrows
     	
     	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
-				
-			var hxy = connector.pointAlongPathFrom(self.loc, direction * self.length / 2),
-                mid = connector.pointOnPath(self.loc),
-                txy = jsPlumb.util.pointOnLine(hxy, mid, self.length),
-                tail = jsPlumb.util.perpendicularLineTo(hxy, txy, self.width),
-                cxy = foldback == 0.5 ? mid : connector.pointAlongPathFrom(self.loc, direction * self.length * (0.5 - foldback));
 
-			// if loc = 1, then hxy should be flush with the element, or if direction == -1, the tail midpoint.
-			if (self.loc == 1) {
-				var lxy = connector.pointOnPath(self.loc),
-					dx = (lxy.x - hxy.x) * direction, dy = (lxy.y - hxy.y) * direction;
-				cxy.x += dx; cxy.y += dy;
-				txy.x += dx; txy.y += dy;
-				tail[0].x += dx; tail[0].y += dy;
-				tail[1].x += dx; tail[1].y += dy;
-				hxy.x += dx; hxy.y += dy;
-			}
-			// if loc = 0, then tail midpoint should be flush with the element, or, if direction == -1, hxy should be.
-			if (self.loc == 0) {
-				var lxy = connector.pointOnPath(self.loc),
-					tailMid = foldback > 1 ? cxy : { 
-						x:tail[0].x + ((tail[1].x - tail[0].x) / 2),
-						y:tail[0].y + ((tail[1].y - tail[0].y) / 2)
-					};
-					dx = (lxy.x - tailMid.x) * direction, dy = (lxy.y - tailMid.y) * direction;
-					
-				cxy.x += dx; cxy.y += dy;
-				txy.x += dx; txy.y += dy;
-				tail[0].x += dx; tail[0].y += dy;
-				tail[1].x += dx; tail[1].y += dy;
-				hxy.x += dx; hxy.y += dy;
-			}
-			
+            var hxy, mid, txy, tail, cxy;
+
+            if (self.loc == 1) {
+                hxy = connector.pointOnPath(self.loc);
+                mid = connector.pointAlongPathFrom(self.loc, -1);
+                txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
+            }
+            else if (self.loc == 0) {
+                txy = connector.pointOnPath(self.loc);
+                mid = connector.pointAlongPathFrom(self.loc, 1);
+                hxy = jsPlumb.util.pointOnLine(txy, mid, self.length);
+            }
+            else {
+			    hxy = connector.pointAlongPathFrom(self.loc, direction * self.length / 2),
+                mid = connector.pointOnPath(self.loc),
+                txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
+            }
+
+            tail = jsPlumb.util.perpendicularLineTo(hxy, txy, self.width);
+            cxy = jsPlumb.util.pointOnLine(hxy, txy, foldback * self.length);
+
 			var minx = Math.min(hxy.x, tail[0].x, tail[1].x),
 				maxx = Math.max(hxy.x, tail[0].x, tail[1].x),
 				miny = Math.min(hxy.y, tail[0].y, tail[1].y),
 				maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
 			
 			var d = { hxy:hxy, tail:tail, cxy:cxy },
-			strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
-			fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
-			lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
+			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
+			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
+			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
 			
 			self.paint(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions);							
 			
@@ -868,8 +851,8 @@
      */
     jsPlumb.Overlays.Diamond = function(params) {
     	params = params || {};    	
-    	var l = params.length || 40;    	
-    	var p = jsPlumb.extend(params, {length:l/2, foldback:2});
+    	var l = params.length || 40,
+    	    p = jsPlumb.extend(params, {length:l/2, foldback:2});
     	jsPlumb.Overlays.Arrow.call(this, p);
     	this.type = "Diamond";
     };
@@ -903,15 +886,13 @@
     	AbstractOverlay.apply(this, arguments);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
     	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
-	    var label = params.label || "";
-
-	    this.id = params.id;
-    	var self = this;
-    	var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
-    	this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!    	
-    	var initialised = false,
-    	labelText = null,
-    	div = document.createElement("div");	
+        this.id = params.id;
+        this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!
+	    var label = params.label || "",
+            self = this,
+    	    initialised = false,
+    	    div = document.createElement("div"),
+            labelText = null;
     	div.style["position"] 	= 	"absolute";
     	div.style["font"] = self.labelStyle.font;
     	div.style["color"] = self.labelStyle.color || "black";
@@ -926,7 +907,7 @@
     		(self.labelStyle.cssClass ? self.labelStyle.cssClass : 
     		params.cssClass ? params.cssClass : "");
     	
-    	div.className			=	clazz;
+    	div.className =	clazz;
     	
     	jsPlumb.appendElement(div, params.connection.parent);
     	jsPlumb.getId(div);		
