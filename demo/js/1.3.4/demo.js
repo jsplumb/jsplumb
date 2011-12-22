@@ -160,7 +160,7 @@
 				hoverPaintStyle:{strokeStyle:"#dbe300"},
 				endpoint:"Blank",
 				anchor:"Continuous",
-				overlays:[ ["Arrow", {location:1} ]]
+				overlays:[ ["PlainArrow", {location:1, width:20, length:12} ]]
 			};
 			
 			jsPlumb.connect({
