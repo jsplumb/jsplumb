@@ -16,20 +16,20 @@
 				
 			jsPlumb.Defaults.Connector = [ "StateMachine", { avoidSelector:$(".w") } ];
 			jsPlumb.Defaults.Endpoint = ["Dot", {radius:2}];				
-			jsPlumb.Defaults.HoverPaintStyle = {strokeStyle:"yellow", lineWidth:2 };	
+			jsPlumb.Defaults.HoverPaintStyle = {strokeStyle:"#42a62c", lineWidth:2 };
 			jsPlumb.Defaults.Overlays = [
 				[ "Arrow", { 
 					location:1, 
-						id:"arrow"
-				} ]/*,
-							[ "Arrow", { 
-								location:0.5, 
-								id:"arrow2"
-							} ]	*/		
+					id:"arrow",
+                    length:14,
+                    foldback:0.8
+				} ]
 			];
-				
+
+            // initialise draggable elements.  note: jsPlumb does not do this by default from version 1.3.4 onwards.
 			jsPlumb.draggable(jsPlumb.getSelector(".w"));
-											
+
+            // bind a click listener to each connection; the connection is deleted.
 			jsPlumb.bind("click", function(c) { 
 				jsPlumb.detach(c); 
 			});
