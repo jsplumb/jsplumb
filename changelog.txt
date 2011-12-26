@@ -1,5 +1,9 @@
 * 1.3.4
 
+    - added getImage method to Image endpoint
+
+    - added 'onload' parameter to Endpoint (for use when constructing an Image endpoint)
+
 	- added getSelector method to jsPlumb library adapters; exposes the ability to abstract out a list 
 	of elements you want to work with.
 
@@ -41,6 +45,7 @@
 	- allowed for empty labels.  prior to this version, you would see "banana"...for some reason.
 	
 	- added addClass, removeClass and hasClass helper methods to jsPlumb.
+
 
 * 1.3.3
 
