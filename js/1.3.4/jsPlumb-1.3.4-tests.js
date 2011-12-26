@@ -2319,6 +2319,29 @@ var testSuite = function(renderMode) {
         withinTolerance(0, l[1].x, "point 2 x is correct");
         withinTolerance(2, l[1].y, "point 2 y is correct");
     });
+    test(renderMode + "jsPlumb.util.setImage on Endpoint", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+        e = {
+            endpoint:[ "Image", { src:"../../img/endpointTest1.png" } ]
+        },
+        ep = jsPlumb.addEndpoint(d1, e);
+        ep.setImage("../../img/littledot.png");
+    });
+    test(renderMode + "jsPlumb.util.setImage on Endpoint, with supplied onload", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+        e = {
+            endpoint:[ "Image", {
+                src:"../../img/endpointTest1.png",
+                onload:function(imgEp) {
+                    equals("../../img/endpointTest1.png", imgEp.img.src);
+                }
+            } ]
+        },
+        ep = jsPlumb.addEndpoint(d1, e);
+        ep.setImage("../../img/littledot.png", function(imgEp) {
+            equals("../../img/littledot.png", imgEp.img.src);
+        });
+    });
 	/**
 	 * leave this test at the bottom!
 	 */
