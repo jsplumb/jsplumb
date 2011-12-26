@@ -759,8 +759,13 @@
 		_getParentFromParams = function(params) {
 			if (params.container)
 				return params.container;
-			else
-				return jsPlumb.CurrentLibrary.getParent(params.source);
+			else {
+                var tag = jsPlumb.CurrentLibrary.getTagName(params.source),
+                    p = jsPlumb.CurrentLibrary.getParent(params.source);
+                if (tag.toLowerCase() === "td")
+                    return jsPlumb.CurrentLibrary.getParent(p);
+                else return p;
+            }
 		},
 		
 		/**
@@ -770,8 +775,8 @@
 		_newEndpoint = function(params) {
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
 			params.parent = _getParentFromParams(params);
-			params["_jsPlumb"] = _currentInstance,
-			ep = new endpointFunc(params);
+			params["_jsPlumb"] = _currentInstance;
+			var ep = new endpointFunc(params);
 			ep.id = "ep_" + _idstamp();
 			_eventFireProxy("click", "endpointClick", ep);
 			_eventFireProxy("dblclick", "endpointDblClick", ep);

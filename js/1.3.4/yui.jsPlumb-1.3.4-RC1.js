@@ -242,6 +242,11 @@
 		getSize : function(el) {
 			return [ el._node.offsetWidth, el._node.offsetHeight ];
 		},
+
+        getTagName : function(el) {
+            var e = jsPlumb.CurrentLibrary.getElementObject(el);
+            return e != null && e._node != null ? e._node.tagName : null;
+        },
 		
 		getUIPosition : function(args) {		
 			var n = args[0].currentTarget.el._node,
