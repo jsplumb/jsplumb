@@ -3853,12 +3853,13 @@ about the parameters allowed in the params object.
 				_currentInstance.anchorManager.add(self, _elementId);
 			 
 			var _endpoint = params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot",
-			endpointArgs = { _jsPlumb:self._jsPlumb,
-                             parent:params.parent,
-                             container:params.container,
-                             tooltip:params.tooltip,
-                             connectorTooltip:params.connectorTooltip,
-                             endpoint:self
+			endpointArgs = {
+                _jsPlumb:self._jsPlumb,
+                parent:params.parent,
+                container:params.container,
+                tooltip:params.tooltip,
+                connectorTooltip:params.connectorTooltip,
+                endpoint:self
             };
 			if (_endpoint.constructor == String) 
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
@@ -3885,23 +3886,31 @@ about the parameters allowed in the params object.
 				self.endpoint.setHover.apply(self.endpoint, arguments);
 				_sh.apply(self, arguments);
 			};
+            // endpoint delegates to first connection for hover, if there is one.
+            var internalHover = function(state) {
+              if (self.connections.length > 0)
+                self.connections[0].setHover(state, false);
+              else
+                self.setHover(state);
+            };
 			
 			// TODO this event listener registration code is identical to what Connection does: it should be refactored.
 			this.endpoint.bind("click", function(e) { self.fire("click", self, e); });
 			this.endpoint.bind("dblclick", function(e) { self.fire("dblclick", self, e); });
-			this.endpoint.bind("mouseenter", function(con, e) {
+			// this method is different; endpoint delegates hover to the first connection if there is one.
+            this.endpoint.bind("mouseenter", function(con, e) {
 				if (!self.isHover()) {
-					self.setHover(true, false);
+                    internalHover(true, false);
 					self.fire("mouseenter", self, e);
 				}
 			});
+            // this method is different; endpoint delegates hover to the first connection if there is one.
 			this.endpoint.bind("mouseexit", function(con, e) {
 				if (self.isHover()) {
-					self.setHover(false, false);
+                    internalHover(false, false);
 					self.fire("mouseexit", self, e);
 				}
 			});
-			// TODO this event listener registration code above is identical to what Connection does: it should be refactored.
 			
 			this.setPaintStyle(params.paintStyle || 
 							   params.style || 
