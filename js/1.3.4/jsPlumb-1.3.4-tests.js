@@ -2342,6 +2342,17 @@ var testSuite = function(renderMode) {
             equals("../../img/littledot.png", imgEp.img.src);
         });
     });
+    test(renderMode + "attach endpoint to table when desired element was td", function() {
+        var table = document.createElement("table"),
+            tr = document.createElement("tr"),
+            td = document.createElement("td");
+        table.appendChild(tr); tr.appendChild(td);
+        document.body.appendChild(table);
+        var ep = jsPlumb.addEndpoint(td);
+        equals(ep.canvas.parentNode.tagName.toLowerCase(), "table");
+    });
+
+
 	/**
 	 * leave this test at the bottom!
 	 */
