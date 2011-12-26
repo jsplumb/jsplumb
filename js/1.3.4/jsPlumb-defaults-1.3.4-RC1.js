@@ -601,16 +601,30 @@
 		var self = this, 
 			initialized = false,
 			widthToUse = params.width,
-			heightToUse = params.height;
+			heightToUse = params.height,
+            _onload = null,
+            _endpoint = params.endpoint;
 			
 		this.img = new Image();
 		self.ready = false;
+
 		this.img.onload = function() {
 			self.ready = true;
 			widthToUse = widthToUse || self.img.width;
-			heightToUse = heightToUse || self.img.height;			
+			heightToUse = heightToUse || self.img.height;
+            if (_onload) {
+                _onload(this);
+            }
 		};
-		this.img.src = params.src || params.url;
+
+        _endpoint.setImage = function(img, onload) {
+            var s = img.constructor == String ? img : img.src;
+            _onload = onload;
+            self.img.src = img;
+        };
+
+        _endpoint.setImage(params.src || params.url, params.onload);
+
 		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			self.anchorPoint = anchorPoint;
 			if (self.ready) return [anchorPoint[0] - widthToUse / 2, anchorPoint[1] - heightToUse / 2, 
