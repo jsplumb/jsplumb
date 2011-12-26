@@ -187,6 +187,11 @@
 		getSize : function(el) {
 			return [el.outerWidth(), el.outerHeight()];
 		},
+
+        getTagName : function(el) {
+            var e = jsPlumb.CurrentLibrary.getElementObject(el);
+            return e.length > 0 ? e[0].tagName : null;
+        },
 		
 		/**
 		 * takes the args passed to an event function and returns you an object that gives the
