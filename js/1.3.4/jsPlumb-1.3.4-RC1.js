@@ -3853,7 +3853,13 @@ about the parameters allowed in the params object.
 				_currentInstance.anchorManager.add(self, _elementId);
 			 
 			var _endpoint = params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot",
-			endpointArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, container:params.container, tooltip:params.tooltip, connectorTooltip:params.connectorTooltip };
+			endpointArgs = { _jsPlumb:self._jsPlumb,
+                             parent:params.parent,
+                             container:params.container,
+                             tooltip:params.tooltip,
+                             connectorTooltip:params.connectorTooltip,
+                             endpoint:self
+            };
 			if (_endpoint.constructor == String) 
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
 			else if (_endpoint.constructor == Array) {
