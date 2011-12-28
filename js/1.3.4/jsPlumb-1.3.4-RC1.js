@@ -56,13 +56,12 @@
 				return i;
 		}
 		return -1;
-	};
-	
-	// for those browsers that dont have it, Array.find using a function.
-	Array.prototype.find = Array.prototype.find || function(f) {
-  		for (var i = 0; i < this.length; i++) if (f(this[i])) return i;
+	},
+    _findWithFunction = function(a, f) {
+  		for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
 		return -1;
-	};
+	}; 
+
 	
 	// for those browsers that dont have it.  they still don't have it! but at least they won't crash.
 	if (!window.console)
@@ -2772,11 +2771,6 @@ about the parameters allowed in the params object.
 			// first paint all the endpoints for this element
 			for (var i = 0; i < ep.length; i++) {				
 				ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
-				/*if (ep[i].anchor.isFloating) {
-					for (var j = 0; j < ep[i].connections.length; j++)
-						//floatingConnections[floatingConnections.length] = ep[i].connections[j];
-						ep[i].connections[j].paint({timestamp:timestamp, recalc:false});
-				}*/
 			}
 			// paint all the standard and "dynamic connections", which are connections whose other anchor is
 			// static and therefore does need to be recomputed; we make sure that happens only one time.
@@ -2806,8 +2800,6 @@ about the parameters allowed in the params object.
 			if (foundContinuousAnchorEndpoints.length > 0 || continuousAnchorConnections.length > 0) {
 				_currentInstance.continuousAnchorManager.recalc(timestamp);
 				// and draw all the endpoints
-//				for (var i = 0; i < foundContinuousAnchorEndpoints.length; i++)
-//					foundContinuousAnchorEndpoints[i].repaint({timestamp:timestamp, recalc:false});
 				for (var i = 0; i < continuousAnchorEndpoints.length; i++)
 					continuousAnchorEndpoints[i].paint({timestamp:timestamp, recalc:false});
 			}			
@@ -2902,7 +2894,6 @@ about the parameters allowed in the params object.
 		return a;
 	},
 	standardEdgeSort = function(a, b) { return a > b; },
-	reverseEdgeSort = function(a, b) { return a < b; },
 	currySort2 = function(reverseAngles) {
 		return function(a,b) {
 			if (reverseAngles) {
@@ -2987,20 +2978,15 @@ about the parameters allowed in the params object.
 		},
 		recalc:function(timestamp) {
 		
-			_group("RECALC");
-			_time("RECALC");
-		
 			lastContinuousAnchorsTimestamp = timestamp;
 			// caches of elements we've processed already.
 			var anchorLists = {}, sourceConns = {}, targetConns = {}, connectionsToRepaint = [];
-			var sd = new Date().getTime();
-			_time("calculating anchors");							
-			// TODO this should be merged with the other anchor manager; it should not be necessary to be asking 
+			// TODO this should ideally be merged with the other anchor manager; it should not be necessary to be asking
 			// jsPlumb for the connections at this point. we already know, for each element id, the list of
 			// connections that have a continuous anchor at one or more ends.
 			for (var anElement in continuousAnchors) {
 				// get all source connections for this element
-				var sourceConns = _currentInstance.getConnections({source:anElement});
+				sourceConns = _currentInstance.getConnections({source:anElement});
 				if (!anchorLists[anElement]) anchorLists[anElement] = { top:[], right:[], bottom:[], left:[] };
 				for (var i = 0; i < sourceConns.length; i++) {
 					if (sourceConns[i].endpoints[0].anchor.type === "Continuous") {
@@ -3029,34 +3015,23 @@ about the parameters allowed in the params object.
 								otherEdgeList = anchorLists[targetId][o.a[1]];
 							edgeList.push([ [ o.theta, 0 ], sourceConns[i], false, targetId ]);				//here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
 							// target connections need to be inserted in the opposite order
-							var tIdx = otherEdgeList.find(function(f) { return f[3] == anElement; });
+							var tIdx = _findWithFunction(otherEdgeList, function(f) { return f[3] == anElement; });
 							if (tIdx == -1) tIdx = otherEdgeList.length;
 							otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], sourceConns[i], true, anElement ]);
 						}
 					}
 				}
 			}
-			
-			_timeEnd("calculating anchors");										
 
-			_time("place anchors");				
 			// now place anchors
 			for (var anElement in continuousAnchors) {
 				placeAnchors(anElement, anchorLists[anElement]);
 			}
 
-			_timeEnd("place anchors");
-			
-			_time("repaint other connections");
 			// and now repaint all connections that we need to
 			// TODO only repaint the ones whose anchors have moved.  how to determine this though?
 			for (var i = 0; i < connectionsToRepaint.length; i++)
-				connectionsToRepaint[i].repaint({timestamp:timestamp});			
-		
-			_timeEnd("repaint other connections");				
-			
-			_timeEnd("RECALC");
-			_groupEnd("RECALC");						
+				connectionsToRepaint[i].repaint({timestamp:timestamp});
 		},
 		connectionEvent : function(conn) {
 			// keep a record of connections locally; we dont have to go off and ask jsPlumb every time
@@ -4286,7 +4261,7 @@ about the parameters allowed in the params object.
 					// if no connection and we're not a source, return.
 					if (jpc == null && !params.isSource) return false;
 					// otherwise if we're full and not allowed to drag, also return false.
-					if (params.iSource && self.isFull() && !dragAllowedWhenFull) return false;
+					if (params.isSource && self.isFull() && !dragAllowedWhenFull) return false;
 					// if we're not full but there was connection, make it null. we'll create a new one.
 					if (jpc && !self.isFull()) jpc = null;
 					_updateOffset( { elId : _elementId });
