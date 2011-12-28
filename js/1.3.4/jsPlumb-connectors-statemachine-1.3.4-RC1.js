@@ -284,18 +284,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 				return Math.atan(location * 2 * Math.PI);
 			}
         	else return jsBezier.gradientAtPoint(_makeCurve(), location);        	
-        };	
-        
-        /**
-         * returns the gradient of the connector at the point which is distance from location.
-         */
-        this.gradientAtPointAlongPathFrom = function(location, distance) {
-			if (isLoopback) {
-	//			console.log("loopback gradient at point along path from",location,distance);        
-				return 1;
-			}
-        	else return jsBezier.gradientAtPointAlongCurveFrom(_makeCurve(), location, distance);        	
-        };	
+        };	        
         
         /**
          * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
@@ -325,37 +314,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 				return {x:startX, y:startY};
 			}
         	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
-        };        
-        
-        /**
-         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
-         * the line is 'length' pixels long.
-         */
-        this.perpendicularToPathAt = function(location, length, distance) {    
-        	if (isLoopback) {
-				
-				var g = self.gradientAtPoint(location),
-					theta2 = Math.atan(-1 / g),
-				
-				//var theta2 = -1 / Math.atan(((location * 2 * Math.PI) + (Math.PI / 2))),
-					xy = self.pointAlongPathFrom(location, distance),
-					p1 = {
-						x: xy.x + ((length / 2) * Math.cos(theta2)),
-						y: xy.y + ((length / 2) * Math.sin(theta2))
-					},
-					p2 = {
-						x: xy.x - ((length / 2) * Math.cos(theta2)),
-						y: xy.y - ((length / 2) * Math.sin(theta2))
-					};					
-					
-		//		console.log("loopback perpendicular to path at",location,length,distance, p1, p2, xy);
-				
-				return [p1, p2];
-				//return [ {x:xy.x, y:xy.y - 10}, {x:xy.x, y:xy.y + 10}];
-			}
-        	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, length, distance);
-        };
-	
+        };                       
 	
 	};
 	
