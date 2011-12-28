@@ -125,11 +125,6 @@
         };
         
         /**
-         * returns the gradient of the connector at the point which is 'distance' from location, which for us is constant.
-         */
-        this.gradientAtPointAlongPathFrom = function(location) { return self.gradientAtPoint(location); };	        
-        
-        /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
          * this hands off to jsPlumb.util to do the maths, supplying our gradient and position and whether or
@@ -139,17 +134,6 @@
         	var p = self.pointOnPath(location);
 			return jsPlumb.util.pointOnLine(p, {x:_tx,y:_ty}, distance);
         };
-
-        /**
-         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
-         * the line is 'length' pixels long.
-         */
-        this.perpendicularToPathAt = function(location, length, distance) {
-        	var p1 = self.pointOnPath(location),
-                p2 = self.pointAlongPathFrom(location, distance);
-
-        	return jsPlumb.util.perpendicularLineTo(p1, p1, length);
-        };                               
     };
                 
     
@@ -278,14 +262,7 @@
          */
         this.gradientAtPoint = function(location) {
         	return jsBezier.gradientAtPoint(_makeCurve(), location);        	
-        };	
-        
-        /**
-         * returns the gradient of the connector at the given point.
-         */
-        this.gradientAtPointAlongPathFrom = function(location, distance) {
-        	return jsBezier.gradientAtPointAlongCurveFrom(_makeCurve(), location, distance);        	
-        };	        
+        };	              
         
         /**
          * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
@@ -297,16 +274,7 @@
          */
         this.pointAlongPathFrom = function(location, distance) {        	
         	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
-        };        
-        
-        /**
-         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
-         * the line is 'length' pixels long.
-         */
-        this.perpendicularToPathAt = function(location, length, distance) {        	
-        	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, length, distance);
-        };
-               
+        };           
     };        
     
     
@@ -476,15 +444,6 @@
         };
         
         /**
-         * returns the gradient of the connector at the point which is distance from the point at location; the gradient will be either 0 or Infinity, depending on the direction of the
-         * segment the point falls in. segment gradients are calculated in the compute method.  
-         */
-        this.gradientAtPointAlongPathFrom = function(location, distance) { 
-        	var pointAlongPath = self.pointAlongPathFrom(location, distance);
-        	return segments[pointAlongPath.segmentInfo["index"]][4];
-        };
-        
-        /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.  when you consider this concept from the point of view
          * of this connector, it starts to become clear that there's a problem with the overlay paint code: given that this connector makes several
@@ -505,21 +464,6 @@
         	
         	return e;
         };
-        
-        /**
-         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
-         * the line is 'length' pixels long.
-         */
-        this.perpendicularToPathAt = function(location, length, distance) {
-        	var p = self.pointAlongPathFrom(location, distance),
-        	m = segments[p.segmentInfo.index][4],
-        	_theta2 = Math.atan(-1 / m),
-        	y =  length / 2 * Math.sin(_theta2),
-			x =  length / 2 * Math.cos(_theta2);
-			return [{x:p.x + x, y:p.y + y}, {x:p.x - x, y:p.y - y}];
-        	
-        };
-    	
     };
 
  // ********************************* END OF CONNECTOR TYPES *******************************************************************
