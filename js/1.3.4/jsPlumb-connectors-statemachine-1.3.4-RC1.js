@@ -6,51 +6,100 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 */
 ;(function() {
 
-
 	var Line = function(x1, y1, x2, y2) {
 
-	this.m = (y2 - y1) / (x2 - x1);
-	this.b = -1 * ((this.m * x1) - y1);
+		this.m = (y2 - y1) / (x2 - x1);
+		this.b = -1 * ((this.m * x1) - y1);
 	
-	this.rectIntersect = function(x,y,w,h) {
+		this.rectIntersect = function(x,y,w,h) {
+			var results = [];
+		
+			// 	try top face
+			// 	the equation of the top face is y = (0 * x) + b; y = b.
+			var xInt = (y - this.b) / this.m;
+			// test that the X value is in the line's range.
+			if (xInt >= x && xInt <= (x + w)) results.push([ xInt, (this.m * xInt) + this.b ]);
+		
+			// try right face
+			var yInt = (this.m * (x + w)) + this.b;
+			if (yInt >= y && yInt <= (y + h)) results.push([ (yInt - this.b) / this.m, yInt ]);
+		
+			// 	bottom face
+			var xInt = ((y + h) - this.b) / this.m;
+			// test that the X value is in the line's range.
+			if (xInt >= x && xInt <= (x + w)) results.push([ xInt, (this.m * xInt) + this.b ]);
+		
+			// try left face
+			var yInt = (this.m * x) + this.b;
+			if (yInt >= y && yInt <= (y + h)) results.push([ (yInt - this.b) / this.m, yInt ]);
 
-		// so y = b
-		var results = [];
-		// try top face
-		// the equation of the top face is y = (0 * x) + b; y = b.
-//		y = this.m * X + this.b
-//		y - this.b = this.m * X
-		var xInt = (y - this.b) / this.m;
-		// test that the X value is in the line's range.
-		if (xInt >= x && xInt <= (x + w)) results.push([ xInt, (this.m * xInt) + this.b ]);
+			if (results.length == 2) {
+				var midx = (results[0][0] + results[1][0]) / 2, midy = (results[0][1] + results[1][1]) / 2;
+				results.push([ midx,midy ]);
+				// now calculate the segment inside the rectangle where the midpoint lies.
+				var xseg = midx <= x + (w / 2) ? -1 : 1,
+					yseg = midy <= y + (h / 2) ? -1 : 1;
+				results.push([xseg, yseg]);
+				return results;
+			}
 		
-		// try right face
-		var yInt = (this.m * (x + w)) + this.b;
-		if (yInt >= y && yInt <= (y + h)) results.push([ (yInt - this.b) / this.m, yInt ]);
-		
-		// bottom face
-		var xInt = ((y + h) - this.b) / this.m;
-		// test that the X value is in the line's range.
-		if (xInt >= x && xInt <= (x + w)) results.push([ xInt, (this.m * xInt) + this.b ]);
-		
-		// try left face
-		var yInt = (this.m * x) + this.b;
-		if (yInt >= y && yInt <= (y + h)) results.push([ (yInt - this.b) / this.m, yInt ]);
+			return null;
 
-		if (results.length == 2) {
-			var midx = (results[0][0] + results[1][0]) / 2, midy = (results[0][1] + results[1][1]) / 2;
-			results.push([ midx,midy ]);
-			// now calculate the segment inside the rectangle where the midpoint lies.
-			var xseg = midx <= x + (w / 2) ? -1 : 1,
-			yseg = midy <= y + (h / 2) ? -1 : 1;
-			results.push([xseg, yseg]);
-			return results;
+		};
+	},
+	_segment = function(x1, y1, x2, y2) {
+		if (x1 <= x2 && y2 <= y1) return 1;
+		else if (x1 <= x2 && y1 <= y2) return 2;
+		else if (x2 <= x1 && y2 >= y1) return 3;
+		return 4;
+	},
+	_multzBySegment = function(seg, sPos, tPos) {
+		
+		// the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
+		// two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
+		// are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
+		// center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
+		// direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
+		// lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
+		//
+		// sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
+		//
+		// 0 - absolute x
+		// 1 - absolute y
+		// 2 - proportional x in element (0 is left edge, 1 is right edge)
+		// 3 - proportional y in element (0 is top edge, 1 is bottom edge)
+		// 
+		
+		if (seg == 1) {
+			if (sPos[3] == 0 && tPos[2] == 0) return [-1,-1]; // top + left
+			else if (sPos[3] == 0 && tPos[3] == 1) return [1,0];
+			else if (sPos[2] == 1 && tPos[2] == 0) return [0,-1];
+			else return [1,1];						
 		}
-		
-		return null;
-
+		else if (seg == 2) {
+			if (sPos[2] == 1 && tPos[3] == 0) return [1, -1];
+			else if (sPos[2] == 1 && tPos[2] == 0) return [-1, 1];
+			else if (sPos[3] == 1 && tPos[3] == 0) return [1, -1];
+			else return [-1,1];
+		}
+		else if (seg == 3) {
+			if (sPos[3] == 1 && tPos[3]== 0) return [-1,-1];
+			else if (sPos[2] == 0 && tPos[3] == 0) return [-1,0];
+			else if (sPos[2] == 0 && tPos[2] == 1) return [1,1];
+			else return [1,-1];
+		}
+		else if (seg == 4) {
+			if (sPos[2] == 0 && tPos[2] == 1) return [1,-1];
+			else if (sPos[3] == 0 && tPos[2] == 1) return [1,-1];
+			else if (sPos[3] == 0 && tPos[3] == 1) return [-1,1];
+		}
+		return [0,0];
+	},
+	_findControlPoint = function(midx, midy, segment, sourceEdge, targetEdge, multipliers, dx, dy, distance, proximityLimit) {
+								
+		return [ midx + ((distance > proximityLimit) ? (multipliers[0] * dx) : 0), 
+          midy + ((distance > proximityLimit) ? (multipliers[1] * dy) : 0) ];
 	};
-};
 
 	/*
 		Function: StateMachine constructor
@@ -63,15 +112,17 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 			margin			-	distance from element to start and end connectors, in pixels.  defaults to 5.
 			proximityLimit  -   sets the distance beneath which the elements are consider too close together to bother with fancy
 			                    curves. by default this is 80 pixels.
+			loopbackRadius	-	the radius of a loopback connector.  optional; defaults to 25.
 	*/
 	jsPlumb.Connectors.StateMachine = function(params) {
 		var self = this,
 		currentPoints = null,
-		_m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty, _controlX, _controlY,
+		_sx, _sy, _tx, _ty, _controlPoint = [],
 		curviness = params.curviness || 10,
 		margin = params.margin || 5,
 		proximityLimit = params.proximityLimit || 80,
 		clockwise = params.orientation && params.orientation == "clockwise",
+		loopbackRadius = params.loopbackRadius || 25,
 		isLoopback = false;
 
 		this.type = "StateMachine";
@@ -124,42 +175,10 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
             	// decrease the 'curviness' as the distance between the anchors decreases; start tailing it off to 0 at some
             	// point (which should be configurable).  secondly, we might slightly increase the 'curviness' for connectors
             	// with respect to how far their anchor is from the center of its respective face. this could either look cool,
-            	// or stupid, and may indeed only work in a way that is so subtle as to have been a waste of time.
+            	// or stupid, and may indeed work only in a way that is so subtle as to have been a waste of time.
             	//
 
-				var _segment = function(x1, y1, x2, y2) {
-					if (x1 <= x2 && y2 <= y1) return 1;
-					else if (x1 <= x2 && y1 <= y2) return 2;
-					else if (x2 <= x1 && y2 >= y1) return 3;
-					return 4;
-				},
-				_multzBySegment = function(seg, sPos, tPos) {
-					if (seg == 1) {
-						if (sPos[3] == 0 && tPos[2] == 0) return [-1,-1]; // top + left
-						else if (sPos[3] == 0 && tPos[3] == 1) return [1,0];
-						else if (sPos[2] == 1 && tPos[2] == 0) return [0,-1];
-						else return [1,1];						
-					}
-					else if (seg == 2) {
-						if (sPos[2] == 1 && tPos[3] == 0) return [1, -1];
-						else if (sPos[2] == 1 && tPos[2] == 0) return [-1, 1];
-						else if (sPos[3] == 1 && tPos[3] == 0) return [1, -1];
-						else return [-1,1];
-					}
-					else if (seg == 3) {
-						if (sPos[3] == 1 && tPos[3]== 0) return [-1,-1];
-						else if (sPos[2] == 0 && tPos[3] == 0) return [-1,0];
-						else if (sPos[2] == 0 && tPos[2] == 1) return [1,1];
-						else return [1,-1];
-					}
-					else if (seg == 4) {
-						if (sPos[2] == 0 && tPos[2] == 1) return [1,-1];
-						else if (sPos[3] == 0 && tPos[2] == 1) return [1,-1];
-						else if (sPos[3] == 0 && tPos[3] == 1) return [-1,1];
-					}
-					return [0,0];
-				},
-            	_midx = (_sx + _tx) / 2, _midy = (_sy + _ty) / 2, 
+				var _midx = (_sx + _tx) / 2, _midy = (_sy + _ty) / 2, 
             	m2 = (-1 * _midx) / _midy, theta2 = Math.atan(m2),            
             	dy =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.sin(theta2)),
 				dx =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.cos(theta2)),
@@ -169,18 +188,8 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 			
             	// calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
             	// will work by extending the control point to force the curve to be, um, curvier.
-				_controlX = _midx + ((distance > proximityLimit) ? (multz[0] * dx) : 0);
-				_controlY = _midy + ((distance > proximityLimit) ? (multz[1] * dy) : 0);				
-
-			/*	console.log("segment", segment, "sourcePos", 
-				sourcePos[2], sourcePos[3], "source ep", sourceEndpoint.id,
-				"midx",_midx,"midy",_midy,
-				"m2",m2,
-				"theta2", theta2,
-				"dx",dx,
-				"dy",dy,
-				"cx", _controlX, "cy", _controlY);
-				*/
+				_controlPoint = _findControlPoint(_midx, _midy, segment, sourcePos, targetPos, multz, dx, dy, distance, proximityLimit);				
+			
 				// now for a rudimentary avoidance scheme. TODO: how to set this in a cross-library way?  
 		//		var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
 		//		var sel = $(".w");
@@ -202,8 +211,8 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 					//}
 	//			});
 	            	
-            	var requiredWidth = Math.max(Math.abs(_controlX - _sx) * 3, Math.abs(_controlX - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, minWidth),
-            		requiredHeight = Math.max(Math.abs(_controlY - _sy) * 3, Math.abs(_controlY - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, minWidth);
+            	var requiredWidth = Math.max(Math.abs(_controlPoint[0] - _sx) * 3, Math.abs(_controlPoint[0] - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, minWidth),
+            		requiredHeight = Math.max(Math.abs(_controlPoint[1] - _sy) * 3, Math.abs(_controlPoint[1] - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, minWidth);
             		
             	if (w < requiredWidth) {      	
             		var dw = requiredWidth - w;            		
@@ -220,23 +229,22 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
             		_ty += (dh / 2);
             		h = requiredHeight;
             	}
-            	currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty, _controlX, _controlY ];                                        
+            	currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty, _controlPoint[0], _controlPoint[1] ];                                        
             }
             else {
             	isLoopback = true;
             	// a loopback connector.  draw an arc from one anchor to the other.
             	// i guess we'll do this the same way as the others.  just the control point will be a fair distance away.
-        		var x1 = sourcePos[0], x2 = sourcePos[0], y1 = sourcePos[1] - margin, y2 = sourcePos[1] - margin, 
-				r = 25,//  TODO SHOULD BE COMPUTED SOMEHOW 
-				cx = x1, cy = y1 - r;
+        		var x1 = sourcePos[0], x2 = sourcePos[0], y1 = sourcePos[1] - margin, y2 = sourcePos[1] - margin, 				
+					cx = x1, cy = y1 - loopbackRadius;
 				
 				// now we need the angle from the center to each point.  the arc will start at the first angle and go to the second.
-				var m1 = (cy - y1) / (cx - x1), theta1 = Math.atan(m1), m2 = (cy - y2) / (cx - x2), theta2 = Math.atan(m2);
+				//var m1 = (cy - y1) / (cx - x1), theta1 = Math.atan(m1), m2 = (cy - y2) / (cx - x2), theta2 = Math.atan(m2);
 				
 				// canvas sizing stuff, to ensure the whole painted area is visible.
-				w = ((2 * lineWidth) + (4 * r)), h = ((2 * lineWidth) + (4 * r));
-				x = cx - r - lineWidth - r, y = cy - r - lineWidth - r;
-				currentPoints = [ x, y, w, h, cx-x, cy-y, r, clockwise, x1-x, y1-y, x2-x, y2-y];
+				w = ((2 * lineWidth) + (4 * loopbackRadius)), h = ((2 * lineWidth) + (4 * loopbackRadius));
+				x = cx - loopbackRadius - lineWidth - loopbackRadius, y = cy - loopbackRadius - lineWidth - loopbackRadius;
+				currentPoints = [ x, y, w, h, cx-x, cy-y, loopbackRadius, clockwise, x1-x, y1-y, x2-x, y2-y];
             }
                 
             return currentPoints;
@@ -245,8 +253,8 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
         var _makeCurve = function() {
         	return [	
 	        	{ x:_tx, y:_ty },
-	        	{ x:_controlX, y:_controlY },
-	        	{ x:_controlX + 1, y:_controlY + 1},	        	
+	        	{ x:_controlPoint[0], y:_controlPoint[1] },
+	        	{ x:_controlPoint[0] + 1, y:_controlPoint[1] + 1},	        	
 	        	{ x:_sx, y:_sy }
          	];
         };     
@@ -284,18 +292,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 				return Math.atan(location * 2 * Math.PI);
 			}
         	else return jsBezier.gradientAtPoint(_makeCurve(), location);        	
-        };	
-        
-        /**
-         * returns the gradient of the connector at the point which is distance from location.
-         */
-        this.gradientAtPointAlongPathFrom = function(location, distance) {
-			if (isLoopback) {
-	//			console.log("loopback gradient at point along path from",location,distance);        
-				return 1;
-			}
-        	else return jsBezier.gradientAtPointAlongCurveFrom(_makeCurve(), location, distance);        	
-        };	
+        };	        
         
         /**
          * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
@@ -325,37 +322,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 				return {x:startX, y:startY};
 			}
         	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
-        };        
-        
-        /**
-         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
-         * the line is 'length' pixels long.
-         */
-        this.perpendicularToPathAt = function(location, length, distance) {    
-        	if (isLoopback) {
-				
-				var g = self.gradientAtPoint(location),
-					theta2 = Math.atan(-1 / g),
-				
-				//var theta2 = -1 / Math.atan(((location * 2 * Math.PI) + (Math.PI / 2))),
-					xy = self.pointAlongPathFrom(location, distance),
-					p1 = {
-						x: xy.x + ((length / 2) * Math.cos(theta2)),
-						y: xy.y + ((length / 2) * Math.sin(theta2))
-					},
-					p2 = {
-						x: xy.x - ((length / 2) * Math.cos(theta2)),
-						y: xy.y - ((length / 2) * Math.sin(theta2))
-					};					
-					
-		//		console.log("loopback perpendicular to path at",location,length,distance, p1, p2, xy);
-				
-				return [p1, p2];
-				//return [ {x:xy.x, y:xy.y - 10}, {x:xy.x, y:xy.y + 10}];
-			}
-        	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, length, distance);
-        };
-	
+        };                       
 	
 	};
 	
