@@ -2752,6 +2752,7 @@ about the parameters allowed in the params object.
 			}
 		};
 		this.get = function(elementId) {
+		// FOFOFOFOFOFOFO
 			return {
 				"standard":endpointConnectionsByElementId[elementId] || [],
 				"continuous":continuousAnchorConnectionsByElementId[elementId] || [],
