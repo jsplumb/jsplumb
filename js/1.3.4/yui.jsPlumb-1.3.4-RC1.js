@@ -85,12 +85,13 @@
 	 * helper function to curry callbacks for some element. 
 	 */
 	_wrapper = function(fn) {
-		return function() { 
+		return function() {
 			try {
-				fn.apply(this, arguments); 
+				return fn.apply(this, arguments);
 			}
 			catch (e) {
-				console.log("wrap fail", e);
+                alert("YYYYY");
+				//console.log("wrap fail", e);
 			}
 		};
 	},	
@@ -338,6 +339,8 @@
 			el.set("top", o.top);
 			el.set("left", o.left);
 		},
+
+        stopDrag : Y.DD.DDM.stopDrag,
 		
 		trigger : function(el, event, originalEvent) {
 			originalEvent.stopPropagation();

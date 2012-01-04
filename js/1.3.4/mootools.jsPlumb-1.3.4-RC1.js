@@ -380,6 +380,13 @@
 		setOffset : function(el, o) {
 			_getElementObject(el).setPosition({x:o.left, y:o.top});
 		},
+
+        stopDrag : function() {
+            for (var i in _draggablesById) {
+                for (var j = 0; j < _draggablesById[i].length; j++)
+                    _draggablesById[i][j].stop();
+            }
+        },
 		
 		/**
 		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
