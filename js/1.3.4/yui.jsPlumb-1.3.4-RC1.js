@@ -340,7 +340,7 @@
 			el.set("left", o.left);
 		},
 
-        stopDrag : Y.DD.DDM.stopDrag,
+        stopDrag : function() { Y.DD.DDM.stopDrag(); },
 		
 		trigger : function(el, event, originalEvent) {
 			originalEvent.stopPropagation();
