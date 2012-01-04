@@ -2054,7 +2054,7 @@ var testSuite = function(renderMode) {
 		e11 = jsPlumb.addEndpoint(d1, e),
 		e2 = jsPlumb.addEndpoint(d2, e),
 		e3 = jsPlumb.addEndpoint(d3, e),
-		c1 = jsPlumb.connect({source:e1, target:e2});
+		c1 = jsPlumb.connect({source:e1, target:e2}),
 		c2 = jsPlumb.connect({source:e11, target:e3});
 			
 		// we now have d1 connected to both d3 and d2.  we'll hide d1, and everything on d1 should be hidden.
