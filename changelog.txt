@@ -1,5 +1,17 @@
 * 1.3.4
 
+    - added 'detachable' parameter to jsPlumb.connect, to indicate whether or not a connection should be allowed to be
+      dragged off its endpoints (and possibly discarded; use this in conjunction with 'reattach'). defaults to false.
+
+    - added 'connectionsDetachable' parameter to jsPlumb.addEndpoint/jsPlumb.makeSource/jsPlumb.makeTarget.  does the
+      same thing as 'detachable' on jsPlumb.connect, discussed above.
+
+    - added isDetachable/setDetachable methods to Connection.
+
+	- added previousConnection to a connection that has been moved.
+
+	- removed labelStyle from Label overlay.  to set fonts/border/background, use a cssClass now.
+
     - added getImage method to Image endpoint
 
     - added 'onload' parameter to Endpoint (for use when constructing an Image endpoint)
