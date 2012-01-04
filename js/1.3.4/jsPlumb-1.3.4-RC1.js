@@ -2787,13 +2787,62 @@ about the parameters allowed in the params object.
 				
 			_updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }); 
 			// valid for one paint cycle.
-			var myOffset = offsets[elementId], myWH = sizes[elementId], connectionsToPaint = [], foundContinuousAnchorEndpoints = [];
+			var myOffset = offsets[elementId],
+                myWH = sizes[elementId],
+                connectionsToPaint = [],
+                orientationCache = {},
+            anchorLists = {},
+                foundContinuousAnchorEndpoints = [];
 			
 			// actually, first we should compute the orientation of this element to all other elements to which
 			// this element is connected with a continuous anchor (whether both ends of the connection have
 			// a continuous anchor or just one)
+            for (var i = 0; i < continuousAnchorConnections.length; i++) {
+                console.log("connection from " + continuousAnchorConnections[i].sourceId + " to " + continuousAnchorConnections[i].targetId);
+                var sourceId = continuousAnchorConnections[i].sourceId,
+                    targetId = continuousAnchorConnections[i].targetId,
+                    oKey = sourceId + "_" + targetId,
+                    oKey2 = targetId + "_" + sourceId,
+                    o = orientationCache[oKey],
+					td = _getCachedData(targetId),
+					sd = _getCachedData(sourceId);
+
+                if (!anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
+                if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
+
+                if (!o) {
+                    o = _currentInstance.continuousAnchorManager.calculateOrientation(sourceId, targetId, sd.o, td.o);
+                    orientationCache[oKey] = o;
+                    orientationCache[oKey2] = {
+                        orientation:o.orientation,
+                        a:[o.a[1], o.a[0]],
+                        theta:o.theta + Math.PI,
+                        theta2:o.theta2 + Math.PI
+                    };
+            //        console.log("had to compute orientation");
+                }
+
+          //      console.log("orientation is " + o);
+                var edgeList = anchorLists[sourceId][o.a[0]],
+					otherEdgeList = anchorLists[targetId][o.a[1]];
+
+                //here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
+				edgeList.push([ [ o.theta, 0 ], continuousAnchorConnections[i], false, targetId ]);
+				// target connections need to be inserted in the opposite order
+				var tIdx = _findWithFunction(otherEdgeList, function(f) { return f[3] == sourceId; });
+				if (tIdx == -1) tIdx = otherEdgeList.length;
+				otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], continuousAnchorConnections[i], true, sourceId ]);
+
+                connectionsToPaint.push(continuousAnchorConnections[i]);
+            }
+
+            // now place all the continuous anchors;
+            for (var anElement in anchorLists) {
+				_currentInstance.continuousAnchorManager.placeAnchors(anElement, anchorLists[anElement]);
+				// and all the target elements.
+			}
 			
-			// first paint all the endpoints for this element
+			// now that continuous anchors have been placed, paint all the endpoints for this element
 			for (var i = 0; i < ep.length; i++) {				
 				ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
 			}
@@ -2879,22 +2928,13 @@ about the parameters allowed in the params object.
 			a:["top", "top"]
 		};
 		
-/*		var o1w = wh[0], o1h = wh[1], o2w = twh[0], o2h = twh[1],
-		center1 = [ (sd.left + sd.right) / 2, (o1.top + o1.bottom) / 2],
-		center2 = [ (o2.left + o2.right) / 2, (o2.top + o2.bottom) / 2],
-		theta = Math.atan2((center2[1] - center1[1]) , (center2[0] - center1[0])),	
-		theta2 = Math.atan2((center1[1] - center2[1]) , (center1[0] - center2[0])),
-		h = ((o1.left <= o2.left && o1.right >= o2.left) || (o1.left <= o2.right && o1.right >= o2.right) ||
-			(o1.left <= o2.left && o1.right >= o2.right) || (o2.left <= o1.left && o2.right >= o1.right)),
-		v = ((o1.top <= o2.top && o1.bottom >= o2.top) || (o1.top <= o2.bottom && o1.bottom >= o2.bottom) ||
-			(o1.top <= o2.top && o1.bottom >= o2.bottom) || (o2.top <= o1.top && o2.bottom >= o1.bottom));
-*/					
 		var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),	
-		theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx)),
-		h = ((sd.left <= td.left && sd.right >= td.left) || (sd.left <= td.right && sd.right >= td.right) ||
-			(sd.left <= td.left && sd.right >= td.right) || (td.left <= sd.left && td.right >= sd.right)),
-		v = ((sd.top <= td.top && sd.bottom >= td.top) || (sd.top <= td.bottom && sd.bottom >= td.bottom) ||
-			(sd.top <= td.top && sd.bottom >= td.bottom) || (td.top <= sd.top && td.bottom >= sd.bottom));
+		    theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx)),
+		    h = ((sd.left <= td.left && sd.right >= td.left) || (sd.left <= td.right && sd.right >= td.right) ||
+			    (sd.left <= td.left && sd.right >= td.right) || (td.left <= sd.left && td.right >= sd.right)),
+		    v = ((sd.top <= td.top && sd.bottom >= td.top) || (sd.top <= td.bottom && sd.bottom >= td.bottom) ||
+			    (sd.top <= td.top && sd.bottom >= td.bottom) || (td.top <= sd.top && td.bottom >= sd.bottom));
+        
 		if (! (h || v)) {
 			var a = null, rls = false, rrs = false, sortValue = null;
 			if (td.left > sd.left && td.top > sd.top)
@@ -3002,8 +3042,8 @@ about the parameters allowed in the params object.
 				existing = {
 					type:"Continuous",
 					compute : function(params) {
-						if (params.timestamp != lastContinuousAnchorsTimestamp)
-							continuousAnchorManager.recalc(params.timestamp, params.elementId, params._jsPlumb);
+						//if (params.timestamp != lastContinuousAnchorsTimestamp)
+						//	continuousAnchorManager.recalc(params.timestamp, params.elementId, params._jsPlumb);
 						return continuousAnchorLocations[params.element.id] || [0,0];
 					},
 					getCurrentLocation : function(endpoint) {
@@ -3019,6 +3059,9 @@ about the parameters allowed in the params object.
 			}
 			return existing;
 		},
+        // TODO move calculateorientation and placeAnchors to shared closure
+        calculateOrientation:calculateOrientation,
+        placeAnchors:placeAnchors,
 		recalcConnections : function(timestamp, elementId, _currentInstance, connections) {
 			_time("recalc connections");
 			lastContinuousAnchorsTimestamp = timestamp;
