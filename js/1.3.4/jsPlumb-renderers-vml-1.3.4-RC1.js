@@ -8,12 +8,13 @@
  * 
  * This file contains the VML renderers.
  *
- * Copyright (c) 2010 - 2011 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2012 Simon Porritt (http://jsplumb.org)
  * 
  * http://jsplumb.org
+ * http://github.com/sporritt/jsplumb
  * http://code.google.com/p/jsplumb
  * 
- * Triple licensed under the MIT, GPL2 and Beer licenses.
+ * Dual licensed under the MIT and GPL2 licenses.
  */
 
 ;(function() {
