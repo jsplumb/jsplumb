@@ -99,10 +99,10 @@
 		},
 		_groupEnd = function(g) {
 			if (_logEnabled && typeof console != "undefined") console.groupEnd(g);
-		}
+		},
 		_time = function(t) {
 			if (_logEnabled && typeof console != "undefined") console.time(t);
-		}
+		},
 		_timeEnd = function(t) {
 			if (_logEnabled && typeof console != "undefined") console.timeEnd(t);
 		};
@@ -348,7 +348,6 @@
 		    	var affectedElements = self.getAttachedElements();		// implemented in subclasses
 		    	if (affectedElements) {
 		    		for (var i = 0; i < affectedElements.length; i++) {
-		    			var updateOthers = sourceElement != null;
 		    			if (!sourceElement || sourceElement != affectedElements[i])
 		    				affectedElements[i].setHover(state, true, timestamp);			// tell the attached elements not to inform their own attached elements.
 		    		}
@@ -374,7 +373,6 @@
 		 * Properties:
 		 * 	-	*Anchor*				    The default anchor to use for all connections (both source and target). Default is "BottomCenter".
 		 * 	-	*Anchors*				    The default anchors to use ([source, target]) for all connections. Defaults are ["BottomCenter", "BottomCenter"].
-		 *  -   *ConnectionsDetachable*     Sets whether or not Connections are, by default, detachable via the mouse.  Defaults to false.
 		 * 	-	*Connector*				The default connector definition to use for all connections.  Default is "Bezier".
 		 *  -   *Container*				Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element.
 		 * 	-	*DragOptions*			The default drag options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
@@ -399,8 +397,7 @@
 		this.Defaults = {
 			Anchor : "BottomCenter",
 			Anchors : [ null, null ],
-            ConnectionsDetachable : false,
-			Connector : "Bezier",
+            Connector : "Bezier",
 			Container : null,
 			DragOptions : { },
 			DropOptions : { },
@@ -417,8 +414,9 @@
 			MaxConnections : 1,
 			MouseEventsEnabled : true, 
 			PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
+            //Reattach:false,
 			RenderMode : "svg",
-			Scope : "_jsPlumb_DefaultScope"
+			Scope : "jsPlumb_DefaultScope"
 		};
 		if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 		
@@ -772,6 +770,8 @@
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
 			params.parent = _getParentFromParams(params);
 			params["_jsPlumb"] = _currentInstance;
+        //    params.scope="f";
+         //   alert(params.scope);
 			var ep = new endpointFunc(params);
 			ep.id = "ep_" + _idstamp();
 			_eventFireProxy("click", "endpointClick", ep);
@@ -1147,7 +1147,8 @@
 			jsPlumb.extend(p, params);
 			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
 			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
-			
+            //p.scope="_jsPlumb_DefaultScope";
+            //p.scope="fff";
 			// YUI wrapper
 			el = _convertYUICollection(el);			
 			
@@ -1156,6 +1157,7 @@
 			for (var i = 0; i < inputs.length; i++) {
 				var _el = _getElementObject(inputs[i]), id = _getId(_el);
 				p.source = _el;
+                //p.scope="f";
 				_updateOffset({ elId : id });
 				var e = _newEndpoint(p);
 				_addToList(endpointsByElement, id, e);
@@ -1275,7 +1277,7 @@
 					_p.deleteEndpointsOnDetach = true;
 
 				// create the connection.  it is not yet registered 
-				jpc = _newConnection(_p);
+				var jpc = _newConnection(_p);
 				// now add it the model, fire an event, and redraw
 				_finaliseConnection(jpc, _p);						
 				return jpc;
@@ -1828,8 +1830,8 @@ about the parameters allowed in the params object.
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			var jpcl = jsPlumb.CurrentLibrary,
-			scope = p.scope || _currentInstance.Defaults.Scope,
-			deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || true,						
+			    targetScope = p.scope || _currentInstance.Defaults.Scope,
+			    deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || true,
 			_doOne = function(_el) {
 				
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -1846,7 +1848,7 @@ about the parameters allowed in the params object.
 						scope = _getAttribute(draggable, "originalScope"),
 						jpc = floatingConnections[id],
 						source = jpc.endpoints[0],
-						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : null;
+						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};
 
                     // use defaults for endpoint style, if not present..this either uses EndpointStyle, or EndpointStyles[1],
                     // if it is present, since this is a target endpoint.
@@ -1960,7 +1962,7 @@ about the parameters allowed in the params object.
 				};
 				
 				var dropEvent = jpcl.dragEvents['drop'];
-				dropOptions["scope"] = dropOptions["scope"] || scope;
+				dropOptions["scope"] = dropOptions["scope"] || targetScope;
 				dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], _drop);
 				
 				jpcl.initDroppable(_el, dropOptions);
@@ -2872,7 +2874,8 @@ about the parameters allowed in the params object.
 		
 			continuousAnchorConnectionsByElementId = {},
 			continuousAnchorEndpoints = [],
-			self = this;
+			self = this,
+        anchorLists = {};
 			
  		this.connectionListener = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
@@ -2944,6 +2947,47 @@ about the parameters allowed in the params object.
 			delete _amEndpoints[elementId];
 			_amEndpoints[elementId] = [];
 		};
+        var _updateAnchorList = function(lists, theta, order, conn, aBoolean, elId, idx, reverse, edgeId) {
+            //list.push([ [ theta, order ], conn, aBoolean, elId, conn.endpoints[idx].id ]);
+            // first try to find the exact match, but keep track of the last index of a matching element id along the way.s
+            var exactIdx = -1,
+                firstMatchingElIdx = -1,
+                endpoint = conn.endpoints[idx],
+                endpointId = endpoint.id,
+                values = [ [ theta, order ], conn, aBoolean, elId, endpointId ],
+                listToAddTo = lists[edgeId],
+                listToRemoveFrom = endpoint._continuousAnchorEdge && endpoint._continuousAnchorEdge != edgeId ? lists[endpoint._continuousAnchorEdge] : null;
+
+            if (listToRemoveFrom) {
+                var rIdx = _findWithFunction(listToRemoveFrom, function(e) { return e[4] == endpointId });
+                if (rIdx != -1) {
+                    listToRemoveFrom.splice(rIdx, 1);
+                }
+            }
+
+            console.log("updating list for endpoint ", idx, " there are " + listToAddTo.length + " anchors");
+
+            for (var i = 0; i < listToAddTo.length; i++) {
+                if (listToAddTo[i][4] === endpointId) {
+                    exactIdx = i;
+                    console.log("found existing");
+                    break;
+                }
+                else if (listToAddTo[i][3] === elId && firstMatchingElIdx == -1) {
+                    firstMatchingElIdx = i;
+                }
+            }
+            if (exactIdx != -1) {
+                listToAddTo[exactIdx] = values;
+            }
+            else {
+                var insertIdx = reverse ? firstMatchingElIdx != -1 ? firstMatchingElIdx : listToAddTo.length : 0; // of course we will get this from having looked through the array shortly.
+                listToAddTo.splice(insertIdx, 0, values);
+            }
+
+            // store this for next time.
+            endpoint._continuousAnchorEdge = edgeId;
+        };
 		this.redraw = function(elementId, ui, timestamp) {
 			// get all the endpoints for this element
 			var ep = _amEndpoints[elementId] || [],
@@ -2958,7 +3002,7 @@ about the parameters allowed in the params object.
 			var myOffset = offsets[elementId],
                 myWH = sizes[elementId],
                 orientationCache = {},
-                anchorLists = {},  // TODO these should be constant across repaints. that way we can adjust existing
+                //anchorLists = {},  // TODO these should be constant across repaints. that way we can adjust existing
             // connections too, without having to do much computation.  so it will be a case of looking for the
             // anchor that pertains to some connection, and updating its value.  also, any connections in this list
             // will have to be added to connectionsToPaint.
@@ -2969,13 +3013,16 @@ about the parameters allowed in the params object.
 			// this element is connected with a continuous anchor (whether both ends of the connection have
 			// a continuous anchor or just one)
             for (var i = 0; i < continuousAnchorConnections.length; i++) {
-                var sourceId = continuousAnchorConnections[i].sourceId,
-                    targetId = continuousAnchorConnections[i].targetId,
+                var conn = continuousAnchorConnections[i],
+                    sourceId = conn.sourceId,
+                    targetId = conn.targetId,
                     oKey = sourceId + "_" + targetId,
                     oKey2 = targetId + "_" + sourceId,
                     o = orientationCache[oKey],
 					td = _getCachedData(targetId),
-					sd = _getCachedData(sourceId);
+					sd = _getCachedData(sourceId),
+                    oIdx = conn.sourceId == elementId ? 1 : 0,
+                    idx = [1, 0][oIdx];
 
                 if (!anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
                 if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
@@ -2991,20 +3038,23 @@ about the parameters allowed in the params object.
                     };
                 }
 
-                var edgeList = anchorLists[sourceId][o.a[0]],
-					otherEdgeList = anchorLists[targetId][o.a[1]];
+                //var edgeList = anchorLists[sourceId][o.a[0]],
+				//	otherEdgeList = anchorLists[targetId][o.a[1]];
 
                 // TODO instead of pushing, we should look to update an existing value.  this will allow us to
                 // keep anchorLists constants across all invocations of redraw, meaning that we can update the edges
                 // of all target elements without having to go through and do too much computation.
                 //here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
-				edgeList.push([ [ o.theta, 0 ], continuousAnchorConnections[i], false, targetId ]);
+				//edgeList.push([ [ o.theta, 0 ], conn, false, targetId, conn.endpoints[0].id ]);
+                _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, idx, false, o.a[0]);
 				// target connections need to be inserted in the opposite order
-				var tIdx = _findWithFunction(otherEdgeList, function(f) { return f[3] == sourceId; });
-				if (tIdx == -1) tIdx = otherEdgeList.length;
-				otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], continuousAnchorConnections[i], true, sourceId ]);
+				//var tIdx = _findWithFunction(otherEdgeList, function(f) { return f[3] == sourceId; });
+				//if (tIdx == -1) tIdx = otherEdgeList.length;
+				//otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], conn, true, sourceId, conn.endpoints[1].id ]);
+                _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, oIdx, true, o.a[1]);
 
-                connectionsToPaint.push(continuousAnchorConnections[i]);
+                connectionsToPaint.push(conn);
+                endpointsToPaint.push(conn.endpoints[oIdx]);
             }
 
             // now place all the continuous anchors;
@@ -3016,6 +3066,11 @@ about the parameters allowed in the params object.
 			for (var i = 0; i < ep.length; i++) {				
 				ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
 			}
+            // ... and any other endpoints we came across as a result of the continuous anchors.
+            for (var i = 0; i < endpointsToPaint.length; i++) {
+				endpointsToPaint[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+			}
+
 			// paint all the standard and "dynamic connections", which are connections whose other anchor is
 			// static and therefore does need to be recomputed; we make sure that happens only one time.
 			for (var i = 0; i < endpointConnections.length; i++) {
@@ -3320,10 +3375,10 @@ about the parameters allowed in the params object.
 			var _bindConnectorEvents = function() {
 				// add mouse events
 				self.connector.bind("click", function(con, e) {
-					_mouseWasDown = false; 
 					self.fire("click", self, e);
 				});
-				self.connector.bind("dblclick", function(con, e) { _mouseWasDown = false;self.fire("dblclick", self, e); });
+				self.connector.bind("dblclick", function(con, e) {
+                    self.fire("dblclick", self, e); });
 				self.connector.bind("mouseenter", function(con, e) {
 					if (!self.isHover()) {
 						if (_connectionBeingDragged == null) {
@@ -3339,14 +3394,6 @@ about the parameters allowed in the params object.
 						}
 						self.fire("mouseexit", self, e);
 					}
-				});
-				self.connector.bind("mousedown", function(con, e) { 
-					_mouseDown = true;
-					_mouseDownAt = jsPlumb.CurrentLibrary.getPageXY(e);
-				});
-				self.connector.bind("mouseup", function(con, e) { 
-					_mouseDown = false;
-					if (self.connector == _connectionBeingDragged) _connectionBeingDragged = null;
 				});
 			
 			};
@@ -4498,7 +4545,7 @@ about the parameters allowed in the params object.
 						self.anchor.locked = false;												
 						self.paint();
 						jpc.setHover(false, false);
-						jpc.repaint();
+						//jpc.repaint();  
 						jpc = null;						
 						inPlaceCopy = null;							
 						delete endpointsByElement[floatingEndpoint.elementId];
@@ -4519,10 +4566,9 @@ about the parameters allowed in the params object.
 					var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
 					dropOptions = jsPlumb.extend( {}, dropOptions);
 					dropOptions.scope = dropOptions.scope || self.scope;
-					var originalAnchor = null,
-					dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'],
-					overEvent = jsPlumb.CurrentLibrary.dragEvents['over'],
-					outEvent = jsPlumb.CurrentLibrary.dragEvents['out'],				
+					var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'],
+					    overEvent = jsPlumb.CurrentLibrary.dragEvents['over'],
+					    outEvent = jsPlumb.CurrentLibrary.dragEvents['out'],
 					drop = function() {
 						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
 						id = _getAttribute(draggable, "dragId"),
