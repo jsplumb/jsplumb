@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+    <head>
+        <title>scroll/auto overflow + relative position container sanity test page</title>
+        <style type="text/css">
+            #scroll, #auto {
+                position:relative;
+                margin-top:5em;
+                margin-left:5em;
+                border: 1px solid red;
+                width:30em;
+                height:20em;
+                overflow: scroll;
+            }
+            .d {
+                width:2em;
+                height:2em;
+                border: 1px dotted silver;
+                position:absolute;
+                z-index:5;
+            }
+            ._jsPlumb_connector { z-index:4; }
+            ._jsPlumb_endpoint { z-index:6; }
+
+        </style>
+    </head>
+    <body>
+        <a href="ScrollOverflowCheckPage.html">jquery</a>
+        <a href="ScrollOverflowCheckPageMooTools.html">mootools</a>
+        <div id="scroll">
+            <div id="w1" class="d"></div>
+            <div id="w2" class="d"></div>
+        </div>
+
+        <div id="auto">
+            <div id="w3" class="d"></div>
+            <div id="w4" class="d"></div>
+        </div>
+
+
+        <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
+
+		<!-- support lib for bezier stuff -->
+		<script type="text/javascript" src="../../js/lib/jsBezier-0.3-min.js"></script>
+		<!-- main jsplumb engine -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-1.3.4-RC1.js"></script>
+		<!-- connectors, endpoint and overlays  -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-defaults-1.3.4-RC1.js"></script>
+		<!-- state machine connectors -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-connectors-statemachine-1.3.4-RC1.js"></script>
+		<!-- SVG renderer -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-renderers-svg-1.3.4-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-renderers-canvas-1.3.4-RC1.js"></script>
+		<!-- vml renderer -->
+		<script type="text/javascript" src="../../js/1.3.4/jsPlumb-renderers-vml-1.3.4-RC1.js"></script>
+		<!-- jquery jsPlumb adapter -->
+		<script type="text/javascript" src="../../js/1.3.4/yui.jsPlumb-1.3.4-RC1.js"></script>
+
+        <script type="text/javascript">
+            jsPlumb.bind("ready", function() {
+
+                jsPlumb.draggable(Y.all(".d"));
+
+                jsPlumb.addEndpoint("w1", {
+                    anchor:"RightMiddle",
+                    isSource:true
+                });
+
+                jsPlumb.addEndpoint("w2", {
+                    anchor:"LeftMiddle",
+                    isTarget:true
+                });
+
+                jsPlumb.addEndpoint("w3", {
+                    anchor:"RightMiddle",
+                    isSource:true
+                });
+
+                jsPlumb.addEndpoint("w4", {
+                    anchor:"LeftMiddle",
+                    isTarget:true
+                });
+
+                jsPlumb.bind("click", function(c) { jsPlumb.detach(c); });
+            });
+        </script>
+
+    </body>
+</html>
