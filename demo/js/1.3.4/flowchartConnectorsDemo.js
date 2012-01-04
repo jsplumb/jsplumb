@@ -41,7 +41,8 @@
 				connector:[ "Flowchart", { stub:40 } ],
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
-				connectorHoverStyle:connectorHoverStyle
+				connectorHoverStyle:connectorHoverStyle,
+                dragOptions:{}
 			},
 			// a source endpoint that sits at BottomCenter
 			bottomSource = jsPlumb.extend( { anchor:"BottomCenter" }, sourceEndpoint),
@@ -67,7 +68,7 @@
 			// jsPlumb.addEndpoint($(".window"), [ bottomSource ]);
 			//
 			var sourceEndpoints = jsPlumb.addEndpoint(windows, bottomSource),
-			targetEndpoints = jsPlumb.addEndpoint(windows, targetEndpoint); 
+			    targetEndpoints = jsPlumb.addEndpoint(windows, targetEndpoint);
 			
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
 			jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
