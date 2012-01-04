@@ -1183,16 +1183,6 @@ var testSuite = function(renderMode) {
 		equals(conn.connector.majorAnchor, 200, "Bezier connector chose 200 curviness");
 	});
 	
-	/*jsPlumb.setRenderMode(jsPlumb.SVG);
-	test(renderMode + ": jsPlumb.connect (Connector test, bezier, curviness as int)", function() {
-		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
-		var conn = jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", 200] });
-		assertContextSize(3);
-		assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
-		equals(conn.connector.constructor, jsPlumb.Connectors.svg.Bezier, "SVG Bezier connector chosen for connection");
-		equals(conn.connector.majorAnchor, 200, "Bezier connector chose 200 curviness");
-	});*/
-	
 	test(renderMode + ": jsPlumb.connect (Connector test, bezier, curviness as named option)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var conn = jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", {curviness:300}] });
@@ -1452,6 +1442,34 @@ var testSuite = function(renderMode) {
 		assertEndpointCount("d1", 1);assertEndpointCount("d2", 1);
 		assertContextSize(2);
 	});
+
+    test(renderMode + " detachable parameter defaults to false on jsPlumb.connect", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = jsPlumb.connect({source:d1, target:d2});
+        equals(c.isDetachable(), false, "connections not detachable by default");
+    });
+
+    test(renderMode + " detachable parameter set to true on jsPlumb.connect", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = jsPlumb.connect({source:d1, target:d2, detachable:true});
+        equals(c.isDetachable(), true, "connection detachable");
+    });
+
+    test(renderMode + " setDetachable on initially non-detachable connection", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = jsPlumb.connect({source:d1, target:d2});
+        equals(c.isDetachable(), false, "connection not initially detachable");
+        c.setDetachable(true);
+        equals(c.isDetachable(), true, "connection now detachable");
+    });
+
+    test(renderMode + " setDetachable on initially detachable connection", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = jsPlumb.connect({source:d1, target:d2, detachable:true});
+        equals(c.isDetachable(), true, "connection initially detachable");
+        c.setDetachable(false);
+        equals(c.isDetachable(), false, "connection no longer detachable");
+    });
 	
 	
 	test(renderMode + ": jsPlumb.connect (testing for connection event callback)", function() {
@@ -1895,6 +1913,27 @@ var testSuite = function(renderMode) {
 		equals(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
 		equals(d3ElementCount + 1, $("#d3")[0].childNodes.length, "1 new element added to div d3");
 	});
+
+    test(renderMode + " detachable defaults to false when connection made between two endpoints", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = jsPlumb.addEndpoint(d1), e2 = jsPlumb.addEndpoint(d2),
+            c = jsPlumb.connect({source:e1, target:e2});
+        equals(c.isDetachable(), false, "connection not detachable");
+    });
+
+    test(renderMode + " connection detachable when target endpoint has connectionsDetachable set to true", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = jsPlumb.addEndpoint(d1), e2 = jsPlumb.addEndpoint(d2, {connectionsDetachable:true}),
+            c = jsPlumb.connect({source:e1, target:e2});
+        equals(c.isDetachable(), true, "connection detachable because connectionsDetachable was set on target endpoint");
+    });
+
+    test(renderMode + " connection detachable when source endpoint has connectionsDetachable set to true", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            e1 = jsPlumb.addEndpoint(d1, {connectionsDetachable:true}), e2 = jsPlumb.addEndpoint(d2),
+            c = jsPlumb.connect({source:e1, target:e2});
+        equals(c.isDetachable(), true, "connection detachable because connectionsDetachable was set on source endpoint");
+    });
 	
 	test(renderMode + " Connector has 'type' member set", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
@@ -2352,6 +2391,8 @@ var testSuite = function(renderMode) {
         var ep = jsPlumb.addEndpoint(td);
         equals(ep.canvas.parentNode.tagName.toLowerCase(), "table");
     });
+
+    
 
 	/**
 	 * leave this test at the bottom!
