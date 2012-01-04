@@ -23,8 +23,8 @@
 					id:"arrow",
                     length:14,
                     foldback:0.8
-				} ],
-                [ "Label", { label:"FOOOOOOOOOOOOOOOOOOOOO" }]
+				} ]//,
+                //[ "Label", { label:"FOOOOOOOOOOOOOOOOOOOOO" }]
 			];
 
             // initialise draggable elements.  note: jsPlumb does not do this by default from version 1.3.4 onwards.
@@ -44,9 +44,9 @@
 			// would recommend you do.
 			jsPlumbDemo.initEndpoints(nextColour);
 
-/*			jsPlumb.connect({source:"opened", target:"olga",anchor:"Continuous"});
-			jsPlumb.connect({source:"olga", target:"inperson",anchor:"Continuous"});
-			jsPlumb.connect({source:"nicola", target:"inperson",anchor:"Continuous"});			
+			jsPlumb.connect({source:"opened", target:"olga",anchor:"Continuous"});
+		//	jsPlumb.connect({source:"olga", target:"inperson",anchor:"Continuous"});
+/*			jsPlumb.connect({source:"nicola", target:"inperson",anchor:"Continuous"});
 			jsPlumb.connect({source:"olga", target:"nicola",anchor:"Continuous"});						
 			jsPlumb.connect({source:"inperson", target:"rejected",anchor:"Continuous"});*/
 		}
