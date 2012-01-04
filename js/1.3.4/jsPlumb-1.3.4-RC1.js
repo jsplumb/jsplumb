@@ -61,7 +61,12 @@
     _findWithFunction = function(a, f) {
   		for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
 		return -1;
-	}; 
+	},
+    _removeWithFunction = function(a, f) {
+        var idx = _findWithFunction(a, f);
+        if (idx > -1) a.splice(idx, 1);
+        return idx != -1;
+    };
 
 	
 	// for those browsers that dont have it.  they still don't have it! but at least they won't crash.
@@ -89,9 +94,9 @@
 		_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
 		_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },		
 		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
-		_logEnabled = true,
+		_logEnabled = false,
 		_log = function(jsp, msg) {
-		//if (jsp.logEnabled && typeof console != "undefined")
+		if (jsp.logEnabled && typeof console != "undefined")
 				console.log(msg);
 		},
 		_group = function(g) {
@@ -2744,13 +2749,14 @@ about the parameters allowed in the params object.
 	// a continuous anchor is asked to compute, it calls this guy.  or maybe, even, this guy gets called somewhere else
 	// and compute only ever returns pre-computed values.  either way, this is the central point, and we want it to
 	// be called as few times as possible.
-	var continuousAnchors = {}, lastContinuousAnchorsTimestamp = null, continuousAnchorLocations = {},
-	continuousAnchorOrientations = {}, continuousAnchorConnections = {},
-	Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
+	var continuousAnchors = {},
+        continuousAnchorLocations = {},
+	    continuousAnchorOrientations = {},
+	    Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
+    
 	// TODO this functions uses a crude method of determining orientation between two elements.
 	// 'diagonal' should be chosen when the angle of the line between the two centers is around
 	// one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
-//	calculateOrientation = function(sourceId, targetId, o1, wh, o2, twh) {
 	calculateOrientation = function(sourceId, targetId, sd, td) {
 
 		if (sourceId === targetId) return {
@@ -2806,21 +2812,23 @@ about the parameters allowed in the params object.
 
 		return a;
 	},
-	standardEdgeSort = function(a, b) { return a > b; },
-	currySort2 = function(reverseAngles) {
+	standardEdgeSort = function(a, b) { return a[0] > b[0]; },
+	currySort = function(reverseAngles) {
 		return function(a,b) {
+            var r = true;
 			if (reverseAngles) {
 				if (a[0][0] < b[0][0])
-					return true;
+					r = true;
 				else
-					return a[0][1] > b[0][1];
+					r = a[0][1] > b[0][1];
 			}
 			else {
 				if (a[0][0] > b[0][0])
-					return true;
+					r= true;
 				else
-					return a[0][1] > b[0][1];
+					r =a[0][1] > b[0][1];
 			}
+            return r;
 		};
 	},
 	leftSort = function(a,b) {
@@ -2832,49 +2840,48 @@ about the parameters allowed in the params object.
 	},
 	edgeSortFunctions = {
 		"top":standardEdgeSort,
-		"right":currySort2(true),
-		"bottom":currySort2(true),
+		"right":currySort(true),
+		"bottom":currySort(true),
 		"left":leftSort
 	},
-	placeAnchors = function(elementId, anchorLists) {
+	placeAnchors = function(elementId, _anchorLists) {
 		var sS = sizes[elementId], sO = offsets[elementId],
 		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier) {
-			var sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
-				reverse = desc === "right" || desc === "top",
-				anchors = placeAnchorsOnLine(desc, elementDimensions,
+            if (unsortedConnections.length > 0) {
+			    var sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
+				    reverse = desc === "right" || desc === "top",
+				    anchors = placeAnchorsOnLine(desc, elementDimensions,
 											 elementPosition, sc,
 											 isHorizontal, otherMultiplier, reverse );
 
-			// takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-			var _setAnchorLocation = function(endpoint, anchorPos) {
-				var a = adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
-				continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
-			};
+			    // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
+			    var _setAnchorLocation = function(endpoint, anchorPos) {
+				    var a = adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
+				    continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
+			    };
 
-			for (var i = 0; i < anchors.length; i++) {
-				var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
-				if (weAreSource)
-					_setAnchorLocation(c.endpoints[0], anchors[i]);
-				else if (weAreTarget)
-					_setAnchorLocation(c.endpoints[1], anchors[i]);
-			}
+			    for (var i = 0; i < anchors.length; i++) {
+				    var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
+				    if (weAreSource)
+					    _setAnchorLocation(c.endpoints[0], anchors[i]);
+				    else if (weAreTarget)
+					    _setAnchorLocation(c.endpoints[1], anchors[i]);
+			    }
+            }
 		};
 
-		placeSomeAnchors("bottom", sS, [sO.left,sO.top], anchorLists.bottom, true, 1);
-		placeSomeAnchors("top", sS, [sO.left,sO.top], anchorLists.top, true, 0);
-		placeSomeAnchors("left", sS, [sO.left,sO.top], anchorLists.left, false, 0);
-		placeSomeAnchors("right", sS, [sO.left,sO.top], anchorLists.right, false, 1);
+		placeSomeAnchors("bottom", sS, [sO.left,sO.top], _anchorLists.bottom, true, 1);
+		placeSomeAnchors("top", sS, [sO.left,sO.top], _anchorLists.top, true, 0);
+		placeSomeAnchors("left", sS, [sO.left,sO.top], _anchorLists.left, false, 0);
+		placeSomeAnchors("right", sS, [sO.left,sO.top], _anchorLists.right, false, 1);
 	},
     AnchorManager = function() {
 		var _amEndpoints = {},
-			endpointConnectionsByElementId = {},  // for each element id, a list of connections 
-														// for which the other end of the connection is 
-														// a dynamic or static anchor.
-		
+			endpointConnectionsByElementId = {}, 
 			continuousAnchorConnectionsByElementId = {},
 			continuousAnchorEndpoints = [],
 			self = this,
-        anchorLists = {};
+            anchorLists = {};
 			
  		this.connectionListener = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
@@ -2895,20 +2902,34 @@ about the parameters allowed in the params object.
 			var sourceId = conn.sourceId, targetId = conn.targetId,
 				ep = conn.connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
+                    // todo remove from anchor lists!
 					if (otherAnchor.constructor == FloatingAnchor) {
 						// no-op
 					}
-					else if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor) {
+					else if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor)
 						_removeFromList(endpointConnectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == DynamicAnchor]);
-					}
-					else {
-						// continuous.
+					else // continuous.
 						_removeFromList(continuousAnchorConnectionsByElementId, elId, c);
-					}				
 				};
 				
 			removeConnection(1, ep[1], ep[1].anchor, sourceId, conn.connection);	
-			removeConnection(0, ep[0], ep[0].anchor, targetId, conn.connection);									
+			removeConnection(0, ep[0], ep[0].anchor, targetId, conn.connection);
+
+            // remove from anchorLists
+            var sEl = conn.connection.sourceId,
+                tEl = conn.connection.targetId,
+                sE =  conn.connection.endpoints[0].id,
+                tE = conn.connection.endpoints[1].id,
+                _remove = function(list, eId) {
+                    var f = function(e) { return e[4] == eId; };
+                    _removeWithFunction(list["top"], f);
+                    _removeWithFunction(list["left"], f);
+                    _removeWithFunction(list["bottom"], f);
+                    _removeWithFunction(list["right"], f);
+                };
+            
+            _remove(anchorLists[sEl], sE);_remove(anchorLists[tEl], tE);
+            self.redraw(sEl);self.redraw(tEl);
 		};
 		this.add = function(endpoint, elementId) {
 			_addToList(_amEndpoints, elementId, endpoint);
@@ -2932,9 +2953,13 @@ about the parameters allowed in the params object.
 			delete _amEndpoints[elementId];
 			_amEndpoints[elementId] = [];
 		};
+        // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
+        // also removes the anchor from its previous list, if the edge it is on has changed.
+        // all connections found along the way (those that are connected to one of the faces this function
+        // operates on) are added to the connsToPaint list, as are their endpoints. in this way we know to repaint
+        // them wthout having to calculate anything else about them.
         var _updateAnchorList = function(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, elId, connsToPaint, endpointsToPaint) {
             // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
-           // console.log("update anchor list ", edgeId, " for ", elId, " other is ", otherElId);
             var exactIdx = -1,
                 firstMatchingElIdx = -1,
                 endpoint = conn.endpoints[idx],
@@ -2942,13 +2967,11 @@ about the parameters allowed in the params object.
                 oIdx = [1,0][idx],
                 values = [ [ theta, order ], conn, aBoolean, otherElId, endpointId ],
                 listToAddTo = lists[edgeId],
-                listToRemoveFrom = endpoint._continuousAnchorEdge && endpoint._continuousAnchorEdge != edgeId ? lists[endpoint._continuousAnchorEdge] : null;
-
+                listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null;
 
             if (listToRemoveFrom) {
                 var rIdx = _findWithFunction(listToRemoveFrom, function(e) { return e[4] == endpointId });
                 if (rIdx != -1) {
-              //      console.log("  removed anchor from " + endpoint._continuousAnchorEdge);
                     listToRemoveFrom.splice(rIdx, 1);
                     // get all connections from this list
                     for (var i = 0; i < listToRemoveFrom.length; i++) {
@@ -2958,28 +2981,18 @@ about the parameters allowed in the params object.
                 }
             }
 
-            //console.log("updating list for endpoint ", idx, " with id", endpointId, "; there are already " + listToAddTo.length + " anchors");
-
             for (var i = 0; i < listToAddTo.length; i++) {
-                if (listToAddTo[i][4] === endpointId) {
-                    exactIdx = i;
-                    //break;
+                if (idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1) {
+                    firstMatchingElIdx = i;
                 }
-                else {
-                    if (idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1) {
-                        firstMatchingElIdx = i;
-                    }
-                    connsToPaint.push(listToAddTo[i][1]);
-                    endpointsToPaint.push(listToAddTo[i][1].endpoints[idx]);
-                }
+                connsToPaint.push(listToAddTo[i][1]);
+                endpointsToPaint.push(listToAddTo[i][1].endpoints[idx]);
             }
             if (exactIdx != -1) {
                 listToAddTo[exactIdx] = values;
-                //console.log("found existing - updating");
             }
             else {
-                //console.log("adding new anchor");
-                var insertIdx = reverse ? firstMatchingElIdx != -1 ? firstMatchingElIdx : listToAddTo.length : 0; // of course we will get this from having looked through the array shortly.
+                var insertIdx = reverse ? firstMatchingElIdx != -1 ? firstMatchingElIdx : 0 : listToAddTo.length; // of course we will get this from having looked through the array shortly.
                 listToAddTo.splice(insertIdx, 0, values);
             }
 
@@ -3014,10 +3027,7 @@ about the parameters allowed in the params object.
                     o = orientationCache[oKey],
 					td = _getCachedData(targetId),
 					sd = _getCachedData(sourceId),
-                    oIdx = conn.sourceId == elementId ? 1 : 0,
-                    idx = [1, 0][oIdx];
-
-                //console.log("elementid is ", elementId, "idx is ", idx, "oIdx is ", oIdx, "conn source is ", conn.sourceId);
+                    oIdx = conn.sourceId == elementId ? 1 : 0;
 
                 if (!anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
                 if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
@@ -3025,12 +3035,14 @@ about the parameters allowed in the params object.
                 if (!o) {
                     o = calculateOrientation(sourceId, targetId, sd.o, td.o);
                     orientationCache[oKey] = o;
-                    orientationCache[oKey2] = {
+                    // this would be a performance enhancement, but the computed angles need to be clamped to
+                    //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
+                  /*  orientationCache[oKey2] = {
                         orientation:o.orientation,
                         a:[o.a[1], o.a[0]],
                         theta:o.theta + Math.PI,
                         theta2:o.theta2 + Math.PI
-                    };
+                    };*/
                 }
 
                 _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
@@ -3082,33 +3094,25 @@ about the parameters allowed in the params object.
 			}
 		};
 		this.rehomeEndpoint = function(currentId, element) {
-//*
 			var eps = _amEndpoints[currentId] || [], //, 
 				elementId = _currentInstance.getId(element);
 			for (var i = 0; i < eps.length; i++) {
 				self.add(eps[i], elementId);
 			}
 			eps.splice(0, eps.length);
-			// prime the continuous anchor manager, just in case it doesn't know about it yet.
-			//_currentInstance.continuousAnchorManager.get({elementId:elementId});
-			// and clear out the old element's lists
-			//_currentInstance.continuousAnchorManager.clearFor(currentId);
-//*/			
 		};
 	};
 	_currentInstance.anchorManager = new AnchorManager();
 	_currentInstance.bind("jsPlumbConnection", _currentInstance.anchorManager.connectionListener);
 	_currentInstance.bind("jsPlumbConnectionDetached", _currentInstance.anchorManager.connectionDetachedListener);	
 				
-	var continuousAnchorManager = {
+	_currentInstance.continuousAnchorFactory = {
 		get:function(params) {
 			var existing = continuousAnchors[params.elementId];
 			if (!existing) {
 				existing = {
 					type:"Continuous",
 					compute : function(params) {
-						//if (params.timestamp != lastContinuousAnchorsTimestamp)
-						//	continuousAnchorManager.recalc(params.timestamp, params.elementId, params._jsPlumb);
 						return continuousAnchorLocations[params.element.id] || [0,0];
 					},
 					getCurrentLocation : function(endpoint) {
@@ -3123,14 +3127,9 @@ about the parameters allowed in the params object.
 				continuousAnchors[params.elementId] = existing;
 			}
 			return existing;
-		}/*,
-        // TODO move calculateorientation and placeAnchors to shared closure
-        calculateOrientation:calculateOrientation,
-        placeAnchors:placeAnchors*/
+		}
 	};
-	_currentInstance.continuousAnchorManager = continuousAnchorManager;
-//	_currentInstance.bind("jsPlumbConnection", continuousAnchorManager.connectionEvent);
-//	_currentInstance.bind("jsPlumbConnectionDetached", continuousAnchorManager.connectionDetachedEvent);
+
 
 		/*
 		 * Class: Connection
@@ -4781,11 +4780,14 @@ about the parameters allowed in the params object.
 	});
 
 	// Continuous anchor is just curried through to the 'get' method of the continuous anchor
-	// manager. 
+	// factory.
 	jsPlumb.Anchors["Continuous"] = function(params) {
-		return params.jsPlumbInstance.continuousAnchorManager.get(params);
+		return params.jsPlumbInstance.continuousAnchorFactory.get(params);
 	};
-	
+
+    // these are the default anchor positions finders, which are used by the makeTarget function.  supply
+    // a position finder argument to that function allows you to specify where the resulting anchor will
+    // be located
 	jsPlumb.AnchorPositionFinders = {
 		"Fixed": function(dp, ep, es, a) {
 			return [ (dp.left - ep.left) / es[0], (dp.top - ep.top) / es[1] ];	
