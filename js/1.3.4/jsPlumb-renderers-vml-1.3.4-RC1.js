@@ -165,7 +165,7 @@
 		self.strokeNode = null;
 		self.canvas = null;
 		VmlComponent.apply(this, arguments);
-		clazz = self._jsPlumb.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
+		var clazz = self._jsPlumb.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
 		this.paint = function(d, style, anchor) {
 			if (style != null) {				
 				var path = self.getPath(d), p = { "path":path };				
