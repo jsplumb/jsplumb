@@ -8,12 +8,13 @@
  * 
  * This file contains the SVG renderers.
  *
- * Copyright (c) 2010 - 2011 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2012 Simon Porritt (http://jsplumb.org)
  * 
  * http://jsplumb.org
+ * http://github.com/sporritt/jsplumb
  * http://code.google.com/p/jsplumb
  * 
- * Triple licensed under the MIT, GPL2 and Beer licenses.
+ * Dual licensed under the MIT and GPL2 licenses.
  */
 
 /**
@@ -432,6 +433,7 @@
 	var AbstractSvgArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
     	jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
+        this.isAppendedAtTopLevel = false;
     	var self = this, path =null;
     	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		if (path == null) {
