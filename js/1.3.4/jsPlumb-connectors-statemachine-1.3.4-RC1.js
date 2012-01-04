@@ -1,9 +1,24 @@
 /*
-state machine connectors
+ * jsPlumb
+ *
+ * Title:jsPlumb 1.3.4
+ *
+ * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
+ * elements, or VML.
+ *
+ * This file contains the state machine connectors.
+ *
+ * Thanks to Brainstorm Mobile Solutions for supporting the development of these.
+ *
+ * Copyright (c) 2010 - 2012 Simon Porritt (simon.porritt@gmail.com)
+ *
+ * http://jsplumb.org
+ * http://github.com/sporritt/jsplumb
+ * http://code.google.com/p/jsplumb
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 
-thanks to Brainstorm Mobile Solutions for supporting the development of these.
-
-*/
 ;(function() {
 
 	var Line = function(x1, y1, x2, y2) {
@@ -135,8 +150,8 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 	   	     	// these are padding to ensure the whole connector line appears
    	   	   		xo = 0.45 * w, yo = 0.45 * h;
    		   		// these are padding to ensure the whole connector line appears
-            	w *= 1.9; h *= 1.9,            
-            	x = Math.min(sourcePos[0], targetPos[0]) - xo,
+            	w *= 1.9; h *= 1.9;
+            	var x = Math.min(sourcePos[0], targetPos[0]) - xo,
         		y = Math.min(sourcePos[1], targetPos[1]) - yo;            
 		
 			if (sourceEndpoint.elementId != targetEndpoint.elementId) {
@@ -213,13 +228,14 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
 	            	
             	var requiredWidth = Math.max(Math.abs(_controlPoint[0] - _sx) * 3, Math.abs(_controlPoint[0] - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, minWidth),
             		requiredHeight = Math.max(Math.abs(_controlPoint[1] - _sy) * 3, Math.abs(_controlPoint[1] - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, minWidth);
-            		
+
             	if (w < requiredWidth) {      	
             		var dw = requiredWidth - w;            		
             		x -= (dw / 2);
             		_sx += (dw / 2);
             		_tx  += (dw / 2);
             		w = requiredWidth;
+                    _controlPoint[0] += (dw / 2);
             	}
             	
             	if (h < requiredHeight) {
@@ -228,6 +244,7 @@ thanks to Brainstorm Mobile Solutions for supporting the development of these.
             		_sy += (dh / 2);
             		_ty += (dh / 2);
             		h = requiredHeight;
+                    _controlPoint[1] += (dh / 2);
             	}
             	currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty, _controlPoint[0], _controlPoint[1] ];                                        
             }
