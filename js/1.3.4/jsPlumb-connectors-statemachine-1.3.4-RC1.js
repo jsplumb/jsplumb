@@ -67,7 +67,7 @@
 		else if (x1 <= x2 && y1 <= y2) return 2;
 		else if (x2 <= x1 && y2 >= y1) return 3;
 		return 4;
-	},
+	}/*,
 	_multzBySegment = function(seg, sPos, tPos) {
 		
 		// the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
@@ -109,11 +109,36 @@
 			else if (sPos[3] == 0 && tPos[3] == 1) return [-1,1];
 		}
 		return [0,0];
-	},
-	_findControlPoint = function(midx, midy, segment, sourceEdge, targetEdge, multipliers, dx, dy, distance, proximityLimit) {
-								
-		return [ midx + ((distance > proximityLimit) ? (multipliers[0] * dx) : 0), 
-          midy + ((distance > proximityLimit) ? (multipliers[1] * dy) : 0) ];
+	}*/,
+	_findControlPoint = function(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
+
+        // TODO
+
+        // - take proximityLimit into account and just draw straight lines if within that limit.
+        // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
+
+
+
+        if (segment == 1) {
+            if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+            else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+            else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+        }
+        else if (segment == 2) {
+            if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+            else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+            else return [ midx + (1 * dx) , midy + (-1 * dy) ];
+        }
+        else if (segment == 3) {
+            if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+            else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+            else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
+        }
+        else if (segment == 4) {
+            if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
+            else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
+            else return [ midx + (1 * dx) , midy + (-1 * dy) ];
+        }
 	};
 
 	/*
@@ -151,8 +176,10 @@
    	   	   		xo = 0.45 * w, yo = 0.45 * h;
    		   		// these are padding to ensure the whole connector line appears
             	w *= 1.9; h *= 1.9;
+                //ensure at least one pixel width
+                lineWidth = lineWidth || 1;
             	var x = Math.min(sourcePos[0], targetPos[0]) - xo,
-        		y = Math.min(sourcePos[1], targetPos[1]) - yo;            
+        		    y = Math.min(sourcePos[1], targetPos[1]) - yo;
 		
 			if (sourceEndpoint.elementId != targetEndpoint.elementId) {
                             
@@ -194,37 +221,47 @@
             	//
 
 				var _midx = (_sx + _tx) / 2, _midy = (_sy + _ty) / 2, 
-            	m2 = (-1 * _midx) / _midy, theta2 = Math.atan(m2),            
-            	dy =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.sin(theta2)),
-				dx =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.cos(theta2)),
-				segment = _segment(_sx, _sy, _tx, _ty),			
-				multz = _multzBySegment(segment, sourcePos, targetPos),
-				distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));					
+            	    m2 = (-1 * _midx) / _midy, theta2 = Math.atan(m2),
+            	    dy =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.sin(theta2)),
+				    dx =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.cos(theta2)),
+				    segment = _segment(_sx, _sy, _tx, _ty),
+				 //   multz = _multzBySegment(segment, sourcePos, targetPos),
+				    distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));
 			
             	// calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
             	// will work by extending the control point to force the curve to be, um, curvier.
-				_controlPoint = _findControlPoint(_midx, _midy, segment, sourcePos, targetPos, multz, dx, dy, distance, proximityLimit);				
+				_controlPoint = _findControlPoint(_midx,
+                                                  _midy,
+                                                  segment,
+                                                  sourcePos,
+                                                  targetPos,
+                                                  //dx, dy,
+                                                    curviness, curviness,
+                                                  distance,
+                                                  proximityLimit);
 			
-				// now for a rudimentary avoidance scheme. TODO: how to set this in a cross-library way?  
-		//		var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
-		//		var sel = $(".w");
-		//		sel.each(function(i,e) {
-		//			var id = jsPlumb.getId(e);
-		//			if (id != sourceEndpoint.elementId && id != targetEndpoint.elementId) {
-		//				o = jsPlumb.getOffset(id), s = jsPlumb.getSize(id);
+				// now for a rudimentary avoidance scheme. TODO: how to set this in a cross-library way?
+        //      if (avoidSelector) {
+		//		    var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
+		//		    var sel = jsPlumb.getSelector(avoidSelector);
+		//		    for (var i = 0; i < sel.length; i++) {
+		//			    var id = jsPlumb.getId(sel[i]);
+		//			    if (id != sourceEndpoint.elementId && id != targetEndpoint.elementId) {
+		//				    o = jsPlumb.getOffset(id), s = jsPlumb.getSize(id);
 //
-//						if (o && s) {
-//							var collision = testLine.rectIntersect(o.left,o.top,s[0],s[1]);
-//							if (collision) {
-								// set the control point to be a certain distance from the midpoint of the two points that
-								// the line crosses on the rectangle.
-								// TODO where will this 75 number come from?
-					//			_controlX = collision[2][0] + (75 * collision[3][0]);
-				//	/			_controlY = collision[2][1] + (75 * collision[3][1]);							
-//							}
-//						}/
-					//}
-	//			});
+//						    if (o && s) {
+//							    var collision = testLine.rectIntersect(o.left,o.top,s[0],s[1]);
+//							    if (collision) {
+								    // set the control point to be a certain distance from the midpoint of the two points that
+								    // the line crosses on the rectangle.
+								    // TODO where will this 75 number come from?
+					//			    _controlX = collision[2][0] + (75 * collision[3][0]);
+				//	/			    _controlY = collision[2][1] + (75 * collision[3][1]);
+//							    }
+//						    }
+					//  }
+	//			    }
+              //}
 	            	
             	var requiredWidth = Math.max(Math.abs(_controlPoint[0] - _sx) * 3, Math.abs(_controlPoint[0] - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, minWidth),
             		requiredHeight = Math.max(Math.abs(_controlPoint[1] - _sy) * 3, Math.abs(_controlPoint[1] - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, minWidth);
@@ -319,10 +356,6 @@
          * than the desired distance, in which case the loop returns immediately and the arrow is mis-shapen. so a better strategy might be to
          * calculate the step as a function of distance/distance between endpoints.  
          */
-         // TODO we shouldn't need this method.  it's for overlays, but it has become apparent that an overlay
-         // should assume the head point's gradient for its entirety, or things look weird.
-         // or perhaps certain overlays want to support it and others do not.  the Arrow overlay, for
-         // example, probably does not.
         this.pointAlongPathFrom = function(location, distance) {        	
 			if (isLoopback) {
 			
