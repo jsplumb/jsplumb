@@ -13,8 +13,7 @@
 	window.jsPlumbDemo = { 
 	
 		init :function() {
-				
-			jsPlumb.Defaults.Connector = [ "StateMachine", { avoidSelector:$(".w") } ];
+							
 			jsPlumb.Defaults.Endpoint = ["Dot", {radius:2}];				
 			jsPlumb.Defaults.HoverPaintStyle = {strokeStyle:"#42a62c", lineWidth:2 };
 			jsPlumb.Defaults.Overlays = [
@@ -24,7 +23,7 @@
                     length:14,
                     foldback:0.8
 				} ],
-                [ "Label", { label:"FOO" }]
+                [ "Label", { label:"FOO", id:"label" }]
 			];
 
             // initialise draggable elements.  note: jsPlumb does not do this by default from version 1.3.4 onwards.
@@ -43,6 +42,11 @@
 			// which prevents us from just setting a jsPlumb.Defaults.PaintStyle.  but that is what i
 			// would recommend you do.
 			jsPlumbDemo.initEndpoints(nextColour);
+
+            jsPlumb.bind("jsPlumbConnection", function(conn) {
+                conn.connection.setPaintStyle({strokeStyle:nextColour()});
+                conn.connection.getOverlay("label").setLabel(conn.connection.id);
+            });
 
 		//	jsPlumb.connect({source:"opened", target:"olga",anchor:"Continuous"});
 		//	jsPlumb.connect({source:"olga", target:"inperson",anchor:"Continuous"});
