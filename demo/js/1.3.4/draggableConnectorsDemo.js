@@ -111,7 +111,7 @@
 					dropOptions : exampleDropOptions,
 					beforeDetach:function(conn) { 
 						return confirm("Detach connection?"); 
-					},
+					}
 			};
 
 			// setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
