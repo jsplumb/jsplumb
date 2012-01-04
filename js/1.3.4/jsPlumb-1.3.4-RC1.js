@@ -4363,22 +4363,22 @@ about the parameters allowed in the params object.
 				// drag might have started on an endpoint that is not actually a source, but which has
 				// one or more connections.
 					jpc = self.connectorSelector();
+                    var _continue = true;
 					// if no connection and we're not a source, return.
-                    // HOW WILL WE DRAG AN EXISTING CONNECTION USING THIS?
-					if (jpc == null && !params.isSource) return false;
+					if (jpc == null && !params.isSource) _continue = false;
                     // otherwise if we're full and not allowed to drag, also return false.
-                    if (params.isSource && self.isFull() && !dragAllowedWhenFull) return false;
-                    /*// if we had a connection but it is not detachable, return false.
-					if (jpc != null && self.isFull() && !jpc.isDetachable()) return false;*/
+                    if (params.isSource && self.isFull() && !dragAllowedWhenFull) _continue = false;
+
+                    if (_continue === false) {
+                        // this is for mootools and yui. returning false from this causes jquery to stop drag.
+                        // the events are wrapped in both mootools and yui anyway, but i don't think returning
+                        // false from the start callback would stop a drag.
+                        if (jsPlumb.CurrentLibrary.stopDrag) jsPlumb.CurrentLibrary.stopDrag();
+                        return false;
+                    }
+
 					// if we're not full but there was a connection, make it null. we'll create a new one.
 					if (jpc && !self.isFull() && params.isSource) jpc = null;
-
-                    //if (self.isFull()) {
-             //           if (jpc && !jpc.isDetachable()) return false;
-                    //}
-                    //else {
-                      //  if (jpc) jpc == null;
-                    //}
 
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
