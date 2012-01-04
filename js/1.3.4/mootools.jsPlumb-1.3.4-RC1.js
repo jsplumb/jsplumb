@@ -87,11 +87,11 @@
 	 * if necessary.
 	 * used by initDraggable and initDroppable.
 	 */
-	var _add = function(list, scope, value) {
-		var l = list[scope];
+	var _add = function(list, _scope, value) {
+		var l = list[_scope];
 		if (!l) {
 			l = [];
-			list[scope] = l;
+			list[_scope] = l;
 		}
 		l.push(value);
 	};
@@ -170,8 +170,8 @@
 		},
 		
 		getDragScope : function(el) {
-			var id = jsPlumb.getId(el);
-			var drags = _draggablesById[id];
+			var id = jsPlumb.getId(el),
+			    drags = _draggablesById[id];
 			return drags[0].scope;
 		},
 		
@@ -262,11 +262,14 @@
 				});
 				
 				// DROPPABLES:
-				var scope = options['scope'] || jsPlumb.Defaults.Scope;
-				var filterFunc = function(entry) {
-					return entry.get("id") != el.get("id");
-				};
-				var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
+				var scope = "" + (options["scope"] || jsPlumb.Defaults.Scope),
+				    filterFunc = function(entry) {
+					    return entry.get("id") != el.get("id");
+				    },
+				    droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
+                
+                console.log("draggable scope", scope);
+
 				options['droppables'] = droppables;
 				options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
 					if (dr) {
@@ -299,13 +302,14 @@
 		},
 		
 		initDroppable : function(el, options) {
-			var scope = options['scope'] || jsPlumb.Defaults.Scope;
+			var scope = "" + options["scope"];
+            console.log("droppable scope", scope);
 			_add(_droppables, scope, el);
 			var id = jsPlumb.getId(el);
 			_droppableOptions[id] = options;
 			_droppableScopesById[id] = scope;
-			var filterFunc = function(entry) { return entry.element != el; };
-			var draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
+			var filterFunc = function(entry) { return entry.element != el; },
+			    draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
 			for (var i = 0; i < draggables.length; i++) {
 				draggables[i].droppables.push(el);
 			}
