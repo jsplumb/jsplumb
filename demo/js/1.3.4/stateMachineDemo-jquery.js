@@ -7,7 +7,7 @@
 				parent:p,
 				endpoint:{
 					anchor:"Continuous",
-					connector:"StateMachine",
+					connector:[ "StateMachine", { curviness:20 } ],
 					connectorStyle:{ strokeStyle:nextColour(),lineWidth:2 },
 					maxConnections:-1
 				}
