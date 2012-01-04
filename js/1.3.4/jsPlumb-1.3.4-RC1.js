@@ -2105,8 +2105,7 @@ about the parameters allowed in the params object.
 								});
 								_currentInstance.repaintEverything();
 							}
-						}				
-						_currentInstance.anchorManager.updateAnchorType(ep);
+						}										
 						_currentInstance.repaint(elid);												
 					}
 				};
@@ -2914,20 +2913,6 @@ about the parameters allowed in the params object.
 		this.add = function(endpoint, elementId) {
 			_addToList(_amEndpoints, elementId, endpoint);
 		};
-		this.updateAnchorType = function(ep) {
-		/*
-			var idx = _findIndex(continuousAnchorEndpoints, ep);
-			if (ep.type == "Continuous") {			
-					_removeFromList(_amEndpoints, ep.elementId, ep);
-				if (idx == -1) 
-					continuousAnchorEndpoints.push(ep);
-			}
-			else {
-				if (idx > -1) continuousAnchorEndpoints.splice(idx2,1);
-				_addToList(_amEndpoints, ep.elementId, ep);
-			}
-		//*/
-		};
 		this.get = function(elementId) {
 			return {
 				"standard":endpointConnectionsByElementId[elementId] || [],
@@ -2947,40 +2932,53 @@ about the parameters allowed in the params object.
 			delete _amEndpoints[elementId];
 			_amEndpoints[elementId] = [];
 		};
-        var _updateAnchorList = function(lists, theta, order, conn, aBoolean, elId, idx, reverse, edgeId) {
-            //list.push([ [ theta, order ], conn, aBoolean, elId, conn.endpoints[idx].id ]);
-            // first try to find the exact match, but keep track of the last index of a matching element id along the way.s
+        var _updateAnchorList = function(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, elId, connsToPaint, endpointsToPaint) {
+            // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
+           // console.log("update anchor list ", edgeId, " for ", elId, " other is ", otherElId);
             var exactIdx = -1,
                 firstMatchingElIdx = -1,
                 endpoint = conn.endpoints[idx],
                 endpointId = endpoint.id,
-                values = [ [ theta, order ], conn, aBoolean, elId, endpointId ],
+                oIdx = [1,0][idx],
+                values = [ [ theta, order ], conn, aBoolean, otherElId, endpointId ],
                 listToAddTo = lists[edgeId],
                 listToRemoveFrom = endpoint._continuousAnchorEdge && endpoint._continuousAnchorEdge != edgeId ? lists[endpoint._continuousAnchorEdge] : null;
+
 
             if (listToRemoveFrom) {
                 var rIdx = _findWithFunction(listToRemoveFrom, function(e) { return e[4] == endpointId });
                 if (rIdx != -1) {
+              //      console.log("  removed anchor from " + endpoint._continuousAnchorEdge);
                     listToRemoveFrom.splice(rIdx, 1);
+                    // get all connections from this list
+                    for (var i = 0; i < listToRemoveFrom.length; i++) {
+                        connsToPaint.push(listToRemoveFrom[i][1]);
+                        endpointsToPaint.push(listToRemoveFrom[i][1].endpoints[idx]);
+                    }
                 }
             }
 
-            console.log("updating list for endpoint ", idx, " there are " + listToAddTo.length + " anchors");
+            //console.log("updating list for endpoint ", idx, " with id", endpointId, "; there are already " + listToAddTo.length + " anchors");
 
             for (var i = 0; i < listToAddTo.length; i++) {
                 if (listToAddTo[i][4] === endpointId) {
                     exactIdx = i;
-                    console.log("found existing");
-                    break;
+                    //break;
                 }
-                else if (listToAddTo[i][3] === elId && firstMatchingElIdx == -1) {
-                    firstMatchingElIdx = i;
+                else {
+                    if (idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1) {
+                        firstMatchingElIdx = i;
+                    }
+                    connsToPaint.push(listToAddTo[i][1]);
+                    endpointsToPaint.push(listToAddTo[i][1].endpoints[idx]);
                 }
             }
             if (exactIdx != -1) {
                 listToAddTo[exactIdx] = values;
+                //console.log("found existing - updating");
             }
             else {
+                //console.log("adding new anchor");
                 var insertIdx = reverse ? firstMatchingElIdx != -1 ? firstMatchingElIdx : listToAddTo.length : 0; // of course we will get this from having looked through the array shortly.
                 listToAddTo.splice(insertIdx, 0, values);
             }
@@ -2995,19 +2993,14 @@ about the parameters allowed in the params object.
 				continuousAnchorConnections = continuousAnchorConnectionsByElementId[elementId] || [],
 				connectionsToPaint = [],
 				endpointsToPaint = [];
+            
 			timestamp = timestamp || _timestamp();
 				
 			_updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }); 
 			// valid for one paint cycle.
 			var myOffset = offsets[elementId],
                 myWH = sizes[elementId],
-                orientationCache = {},
-                //anchorLists = {},  // TODO these should be constant across repaints. that way we can adjust existing
-            // connections too, without having to do much computation.  so it will be a case of looking for the
-            // anchor that pertains to some connection, and updating its value.  also, any connections in this list
-            // will have to be added to connectionsToPaint.
-            
-                foundContinuousAnchorEndpoints = [];
+                orientationCache = {};
 			
 			// actually, first we should compute the orientation of this element to all other elements to which
 			// this element is connected with a continuous anchor (whether both ends of the connection have
@@ -3024,6 +3017,8 @@ about the parameters allowed in the params object.
                     oIdx = conn.sourceId == elementId ? 1 : 0,
                     idx = [1, 0][oIdx];
 
+                //console.log("elementid is ", elementId, "idx is ", idx, "oIdx is ", oIdx, "conn source is ", conn.sourceId);
+
                 if (!anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
                 if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
 
@@ -3038,20 +3033,8 @@ about the parameters allowed in the params object.
                     };
                 }
 
-                //var edgeList = anchorLists[sourceId][o.a[0]],
-				//	otherEdgeList = anchorLists[targetId][o.a[1]];
-
-                // TODO instead of pushing, we should look to update an existing value.  this will allow us to
-                // keep anchorLists constants across all invocations of redraw, meaning that we can update the edges
-                // of all target elements without having to go through and do too much computation.
-                //here we push a sort value (soon to be replaced), the connection, and whether or not this is the source
-				//edgeList.push([ [ o.theta, 0 ], conn, false, targetId, conn.endpoints[0].id ]);
-                _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, idx, false, o.a[0]);
-				// target connections need to be inserted in the opposite order
-				//var tIdx = _findWithFunction(otherEdgeList, function(f) { return f[3] == sourceId; });
-				//if (tIdx == -1) tIdx = otherEdgeList.length;
-				//otherEdgeList.splice(tIdx, 0, [ [ o.theta2, -1 ], conn, true, sourceId, conn.endpoints[1].id ]);
-                _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, oIdx, true, o.a[1]);
+                _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
+                _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
 
                 connectionsToPaint.push(conn);
                 endpointsToPaint.push(conn.endpoints[oIdx]);
