@@ -387,7 +387,8 @@
             midy = startStubY + ((endStubY - startStubY) / 2);
             
             x -= offx; y -= offy;
-            points = [x, y, w, h, sx, sy, tx, ty], extraPoints = [];            
+            points = [x, y, w, h, sx, sy, tx, ty];
+            var extraPoints = [];
       
             addSegment(startStubX, startStubY, sx, sy, tx, ty);                        
             
