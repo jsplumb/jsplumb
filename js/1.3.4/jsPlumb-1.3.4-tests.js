@@ -1470,6 +1470,14 @@ var testSuite = function(renderMode) {
         c.setDetachable(false);
         equals(c.isDetachable(), false, "connection no longer detachable");
     });
+
+    test(renderMode + " jsPlumb.Defaults.ConnectionsDetachable", function() {
+        jsPlumb.Defaults.ConnectionsDetachable = true;
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = jsPlumb.connect({source:d1, target:d2});
+        equals(c.isDetachable(), true, "connections detachable by default");
+        jsPlumb.Defaults.ConnectionsDetachable = false;
+    });
 	
 	
 	test(renderMode + ": jsPlumb.connect (testing for connection event callback)", function() {

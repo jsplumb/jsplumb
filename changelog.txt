@@ -8,6 +8,8 @@
 
     - added isDetachable/setDetachable methods to Connection.
 
+    - added jsPlumb.Defaults.ConnectionsDetachable
+
 	- added previousConnection to a connection that has been moved.
 
 	- removed labelStyle from Label overlay.  to set fonts/border/background, use a cssClass now.

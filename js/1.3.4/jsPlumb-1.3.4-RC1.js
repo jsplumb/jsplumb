@@ -371,10 +371,11 @@
 		 * by including a script somewhere after the jsPlumb include, but before you make any calls to jsPlumb.
 		 * 
 		 * Properties:
-		 * 	-	*Anchor*				The default anchor to use for all connections (both source and target). Default is "BottomCenter".
-		 * 	-	*Anchors*				The default anchors to use ([source, target]) for all connections. Defaults are ["BottomCenter", "BottomCenter"].
+		 * 	-	*Anchor*				    The default anchor to use for all connections (both source and target). Default is "BottomCenter".
+		 * 	-	*Anchors*				    The default anchors to use ([source, target]) for all connections. Defaults are ["BottomCenter", "BottomCenter"].
+		 *  -   *ConnectionsDetachable*     Sets whether or not Connections are, by default, detachable via the mouse.  Defaults to false.
 		 * 	-	*Connector*				The default connector definition to use for all connections.  Default is "Bezier".
-		 *  -   *Container*				Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element. 
+		 *  -   *Container*				Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element.
 		 * 	-	*DragOptions*			The default drag options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*DropOptions*			The default drop options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*Endpoint*				The default endpoint definition to use for all connections (both source and target).  Default is "Dot".
@@ -397,6 +398,7 @@
 		this.Defaults = {
 			Anchor : "BottomCenter",
 			Anchors : [ null, null ],
+            ConnectionsDetachable : false,
 			Connector : "Bezier",
 			Container : null,
 			DragOptions : { },
@@ -3348,7 +3350,10 @@ about the parameters allowed in the params object.
 			if (params.deleteEndpointsOnDetach)
 				self.endpointsToDeleteOnDetach = [eS, eT];
 
-            var _detachable = params.detachable || self.endpoints[0].connectionsDetachable || self.endpoints[1].connectionsDetachable || false;
+            var _detachable = params.detachable ||
+                              self.endpoints[0].connectionsDetachable ||
+                              self.endpoints[1].connectionsDetachable ||
+                              _currentInstance.Defaults.ConnectionsDetachable;
             /*
                 Function: isDetachable
                 Returns whether or not this connection can be detached from its target/source endpoint.  by default this
