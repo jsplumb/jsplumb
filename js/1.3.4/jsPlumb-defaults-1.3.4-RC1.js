@@ -125,11 +125,6 @@
         };
         
         /**
-         * returns the gradient of the connector at the point which is 'distance' from location, which for us is constant.
-         */
-        this.gradientAtPointAlongPathFrom = function(location) { return self.gradientAtPoint(location); };	        
-        
-        /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
          * this hands off to jsPlumb.util to do the maths, supplying our gradient and position and whether or
@@ -139,17 +134,6 @@
         	var p = self.pointOnPath(location);
 			return jsPlumb.util.pointOnLine(p, {x:_tx,y:_ty}, distance);
         };
-
-        /**
-         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
-         * the line is 'length' pixels long.
-         */
-        this.perpendicularToPathAt = function(location, length, distance) {
-        	var p1 = self.pointOnPath(location),
-                p2 = self.pointAlongPathFrom(location, distance);
-
-        	return jsPlumb.util.perpendicularLineTo(p1, p1, length);
-        };                               
     };
                 
     
@@ -278,14 +262,7 @@
          */
         this.gradientAtPoint = function(location) {
         	return jsBezier.gradientAtPoint(_makeCurve(), location);        	
-        };	
-        
-        /**
-         * returns the gradient of the connector at the given point.
-         */
-        this.gradientAtPointAlongPathFrom = function(location, distance) {
-        	return jsBezier.gradientAtPointAlongCurveFrom(_makeCurve(), location, distance);        	
-        };	        
+        };	              
         
         /**
          * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
@@ -297,16 +274,7 @@
          */
         this.pointAlongPathFrom = function(location, distance) {        	
         	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
-        };        
-        
-        /**
-         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
-         * the line is 'length' pixels long.
-         */
-        this.perpendicularToPathAt = function(location, length, distance) {        	
-        	return jsBezier.perpendicularToCurveAt(_makeCurve(), location, length, distance);
-        };
-               
+        };           
     };        
     
     
@@ -476,15 +444,6 @@
         };
         
         /**
-         * returns the gradient of the connector at the point which is distance from the point at location; the gradient will be either 0 or Infinity, depending on the direction of the
-         * segment the point falls in. segment gradients are calculated in the compute method.  
-         */
-        this.gradientAtPointAlongPathFrom = function(location, distance) { 
-        	var pointAlongPath = self.pointAlongPathFrom(location, distance);
-        	return segments[pointAlongPath.segmentInfo["index"]][4];
-        };
-        
-        /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.  when you consider this concept from the point of view
          * of this connector, it starts to become clear that there's a problem with the overlay paint code: given that this connector makes several
@@ -505,21 +464,6 @@
         	
         	return e;
         };
-        
-        /**
-         * calculates a line that is perpendicular to, and centered on, the path at 'distance' pixels from the given location.
-         * the line is 'length' pixels long.
-         */
-        this.perpendicularToPathAt = function(location, length, distance) {
-        	var p = self.pointAlongPathFrom(location, distance),
-        	m = segments[p.segmentInfo.index][4],
-        	_theta2 = Math.atan(-1 / m),
-        	y =  length / 2 * Math.sin(_theta2),
-			x =  length / 2 * Math.cos(_theta2);
-			return [{x:p.x + x, y:p.y + y}, {x:p.x - x, y:p.y - y}];
-        	
-        };
-    	
     };
 
  // ********************************* END OF CONNECTOR TYPES *******************************************************************
@@ -889,9 +833,6 @@
      * 	label - the label to paint.  May be a string or a function that returns a string.  Nothing will be painted if your label is null or your
      *         label function returns null.  empty strings _will_ be painted.
      * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
-     *	labelStyle - (deprecated) js object containing style instructions for the label. defaults to jsPlumb.Defaults.LabelStyle. 
-     * 	borderWidth - (deprecated) width of a border to paint.  defaults to zero.
-     * 	borderStyle - (deprecated) strokeStyle to use when painting the border, if necessary.
      * 	
      */
     jsPlumb.Overlays.Label = function(params) {
@@ -899,7 +840,6 @@
     	jsPlumb.DOMElementComponent.apply(this, arguments);
     	AbstractOverlay.apply(this, arguments);
     	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
-    	this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
         this.id = params.id;
         this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!
 	    var label = params.label || "",
@@ -907,15 +847,7 @@
     	    initialised = false,
     	    div = document.createElement("div"),
             labelText = null;
-    	div.style["position"] 	= 	"absolute";
-    	div.style["font"] = self.labelStyle.font;
-    	div.style["color"] = self.labelStyle.color || "black";
-    	if (self.labelStyle.fillStyle) div.style["background"] = self.labelStyle.fillStyle;//_convertStyle(self.labelStyle.fillStyle, true);
-    	if (self.labelStyle.borderWidth > 0) {
-    		var dStyle = self.labelStyle.borderStyle ? self.labelStyle.borderStyle/*_convertStyle(self.labelStyle.borderStyle, true)*/ : "black";
-    		div.style["border"] = self.labelStyle.borderWidth  + "px solid " + dStyle;
-    	}
-    	if (self.labelStyle.padding) div.style["padding"] = self.labelStyle.padding;
+    	div.style["position"] 	= 	"absolute";    	
     	
     	var clazz = params["_jsPlumb"].overlayClass + " " + 
     		(self.labelStyle.cssClass ? self.labelStyle.cssClass : 
