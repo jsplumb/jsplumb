@@ -19,7 +19,7 @@
 			jsPlumb.Defaults.HoverPaintStyle = {strokeStyle:"#42a62c", lineWidth:2 };
 			jsPlumb.Defaults.Overlays = [
 				[ "Arrow", { 
-					location:1, 
+					location:0, 
 					id:"arrow",
                     length:14,
                     foldback:0.8
@@ -58,6 +58,12 @@
 					anchor:"Continuous"
 				}
 			});
+
+			jsPlumb.connect({source:"opened", target:"olga",anchor:"Continuous"});			
+			jsPlumb.connect({source:"olga", target:"inperson",anchor:"Continuous"});
+			jsPlumb.connect({source:"nicola", target:"inperson",anchor:"Continuous"});			
+			jsPlumb.connect({source:"olga", target:"nicola",anchor:"Continuous"});						
+			jsPlumb.connect({source:"inperson", target:"rejected",anchor:"Continuous"});
 		}
 	};
 })();

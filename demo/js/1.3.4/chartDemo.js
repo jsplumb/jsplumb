@@ -23,7 +23,7 @@
 				[ "Arrow", { location:0.3, direction:-1 }, arrowCommon ]
 			];
 		
-			jsPlumb.connect({source:"window3", target:"window6", overlays:overlays});
+			jsPlumb.connect({source:"window3", target:"window6", overlays:overlays, detachable:true, reattach:true});
 			jsPlumb.connect({source:"window1", target:"window2", overlays:overlays});
 			jsPlumb.connect({source:"window1", target:"window3", overlays:overlays});
 			jsPlumb.connect({source:"window2", target:"window4", overlays:overlays});
