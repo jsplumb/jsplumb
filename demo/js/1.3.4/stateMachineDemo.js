@@ -23,7 +23,8 @@
 					id:"arrow",
                     length:14,
                     foldback:0.8
-				} ]
+				} ],
+                [ "Label", { label:"FOOOOOOOOOOOOOOOOOOOOO" }]
 			];
 
             // initialise draggable elements.  note: jsPlumb does not do this by default from version 1.3.4 onwards.
@@ -34,36 +35,20 @@
 				jsPlumb.detach(c); 
 			});
 				
-			// make each ".ep" div a source and give it some parameters to work with.  here we tell it
+			// hand off to the library specific demo code here.  not my ideal, but to write common code
+            // is less helpful for everyone, because all developers just like to copy stuff, right?
+            // make each ".ep" div a source and give it some parameters to work with.  here we tell it
 			// to use a Continuous anchor and the StateMachine connectors, and also we give it the
 			// connector's paint style.  note that in this demo the strokeStyle is dynamically generated,
-			// which prevents us from just setting a jsPlumb.Defaults.PaintStyle.  but that is what i 
+			// which prevents us from just setting a jsPlumb.Defaults.PaintStyle.  but that is what i
 			// would recommend you do.
-			$(".ep").each(function(i,e) {
-				var p = $(e).parent();
-				jsPlumb.makeSource($(e), {
-					parent:p,
-					endpoint:{
-						anchor:"Continuous",
-						connector:"StateMachine",
-						connectorStyle:{ strokeStyle:nextColour(),lineWidth:2 },
-						maxConnections:-1
-					}						
-				});
-			});
-				
-			jsPlumb.makeTarget($(".w"), {
-				dropOptions:{ hoverClass:"dragHover" },
-				endpoint:{
-					anchor:"Continuous"
-				}
-			});
+			jsPlumbDemo.initEndpoints(nextColour);
 
-			jsPlumb.connect({source:"opened", target:"olga",anchor:"Continuous"});			
+/*			jsPlumb.connect({source:"opened", target:"olga",anchor:"Continuous"});
 			jsPlumb.connect({source:"olga", target:"inperson",anchor:"Continuous"});
 			jsPlumb.connect({source:"nicola", target:"inperson",anchor:"Continuous"});			
 			jsPlumb.connect({source:"olga", target:"nicola",anchor:"Continuous"});						
-			jsPlumb.connect({source:"inperson", target:"rejected",anchor:"Continuous"});
+			jsPlumb.connect({source:"inperson", target:"rejected",anchor:"Continuous"});*/
 		}
 	};
 })();
