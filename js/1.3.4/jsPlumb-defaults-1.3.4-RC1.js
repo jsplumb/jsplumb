@@ -1,19 +1,20 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.2
+ * Title:jsPlumb 1.3.4
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
  * 
  * This file contains the default Connectors, Endpoint and Overlay definitions.
  *
- * Copyright (c) 2010 - 2011 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2012 Simon Porritt (http://jsplumb.org)
  * 
  * http://jsplumb.org
+ * http://github.com/sporritt/jsplumb
  * http://code.google.com/p/jsplumb
  * 
- * Triple licensed under the MIT, GPL2 and Beer licenses.
+ * Dual licensed under the MIT and GPL2 licenses.
  */
 
 (function() {	
@@ -670,6 +671,7 @@
 
 	var AbstractOverlay = function(params) {
 		var visible = true, self = this;
+        this.isAppendedAtTopLevel = true;
 		this.connection = params.connection;
 		this.loc = params.location == null ? 0.5 : params.location;
 		this.setVisible = function(val) { 
