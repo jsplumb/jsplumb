@@ -939,7 +939,7 @@
 				if (timestamp && timestamp === offsetTimestamps[elId])
 					return offsets[elId];
 			}
-			if (recalc || offset == null) { // if forced repaint or no offset
+			if (recalc || !offset) { // if forced repaint or no offset
 											// available, we recalculate.
 				// get the current size and offset, and store them
 				var s = _getElementObject(elId);
@@ -951,7 +951,8 @@
 			} else {
 				offsets[elId] = offset;
 			}
-			if(!offsets[elId].right) {
+			
+			if(offsets[elId] && !offsets[elId].right) {
 				offsets[elId].right = offsets[elId].left + sizes[elId][0];
 				offsets[elId].bottom = offsets[elId].top + sizes[elId][1];	
 				offsets[elId].width = sizes[elId][0];
@@ -2731,15 +2732,16 @@ about the parameters allowed in the params object.
 			removeConnection(0, ep[0], ep[0].anchor, targetId, conn.connection);									
 		};
 		this.add = function(endpoint, elementId) {
-			if (!endpoint.anchor.isContinuous)
+		//	if (!endpoint.anchor.isContinuous)
 				_addToList(_amEndpoints, elementId, endpoint);	
-			else {
+		//	else {
 			//	console.log("adding continuous anchor endpoint");
 			//	var ca = _currentInstance.continuousAnchorManager.get(elementId);
-				continuousAnchorEndpoints.push(endpoint);
-			}
+		//		continuousAnchorEndpoints.push(endpoint);
+		//	}
 		};
 		this.updateAnchorType = function(ep) {
+		/*
 			var idx = _findIndex(continuousAnchorEndpoints, ep);
 			if (ep.type == "Continuous") {			
 					_removeFromList(_amEndpoints, ep.elementId, ep);
@@ -2750,9 +2752,9 @@ about the parameters allowed in the params object.
 				if (idx > -1) continuousAnchorEndpoints.splice(idx2,1);
 				_addToList(_amEndpoints, ep.elementId, ep);
 			}
+		//*/
 		};
 		this.get = function(elementId) {
-		// FOFOFOFOFOFOFO
 			return {
 				"standard":endpointConnectionsByElementId[elementId] || [],
 				"continuous":continuousAnchorConnectionsByElementId[elementId] || [],
@@ -2776,12 +2778,19 @@ about the parameters allowed in the params object.
 			// get all the endpoints for this element
 			var ep = _amEndpoints[elementId] || [],
 				endpointConnections = endpointConnectionsByElementId[elementId] || [],
-				continuousAnchorConnections = continuousAnchorConnectionsByElementId[elementId] || [];
+				continuousAnchorConnections = continuousAnchorConnectionsByElementId[elementId] || [],
+				connectionsToPaint = [],
+				endpointsToPaint = [];
 			timestamp = timestamp || _timestamp();
 				
 			_updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }); 
 			// valid for one paint cycle.
 			var myOffset = offsets[elementId], myWH = sizes[elementId], connectionsToPaint = [], foundContinuousAnchorEndpoints = [];
+			
+			// actually, first we should compute the orientation of this element to all other elements to which
+			// this element is connected with a continuous anchor (whether both ends of the connection have
+			// a continuous anchor or just one)
+			
 			// first paint all the endpoints for this element
 			for (var i = 0; i < ep.length; i++) {				
 				ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
@@ -2791,33 +2800,41 @@ about the parameters allowed in the params object.
 			for (var i = 0; i < endpointConnections.length; i++) {
 				var otherEndpoint = endpointConnections[i][1];
 				if (otherEndpoint.anchor.constructor == DynamicAnchor) {
-					_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 							
-					otherEndpoint.paint({ elementWithPrecedence:elementId });
-					endpointConnections[i][0].paint({timestamp:timestamp, recalc:false});
+			//		_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 							
+					otherEndpoint.paint({ elementWithPrecedence:elementId });			
+					connectionsToPaint.push(endpointConnections[i][0]);
+					//endpointConnections[i][0].paint({timestamp:timestamp, recalc:false});
 					// all the connections for the other endpoint now need to be repainted
 					for (var k = 0; k < otherEndpoint.connections.length; k++) {
 						if (otherEndpoint.connections[k] !== endpointConnections[i][0])
-						otherEndpoint.connections[k].paint( { elId : elementId, ui : ui, recalc : false, timestamp : timestamp }); 
+							//otherEndpoint.connections[k].paint( { elId : elementId, ui : ui, recalc : false, timestamp : timestamp }); 
+							connectionsToPaint.push(otherEndpoint.connections[k]);
 					}
 				} else if (otherEndpoint.anchor.constructor == Anchor) {
-					endpointConnections[i][0].paint({timestamp:timestamp, recalc:false});
+				//	endpointConnections[i][0].paint({timestamp:timestamp, recalc:false, elId:elementId});
+					connectionsToPaint.push(endpointConnections[i][0]);
 				}
-				else 
-					foundContinuousAnchorEndpoints.push(otherEndpoint);
+				//else 
+					//foundContinuousAnchorEndpoints.push(otherEndpoint);
 			}
 			// paint current floating connection for this element, if there is one.
 			var fc = floatingConnections[elementId];
 			if (fc) 
-				fc.paint({timestamp:timestamp, recalc:false});
+				fc.paint({timestamp:timestamp, recalc:false, elId:elementId});
+				
+			// paint all the connections
+			for (var i = 0; i < connectionsToPaint.length; i++) {
+				connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false});
+			}
 									
 			// and lastly, have the continuous anchor manager repaint itself.
-			if (foundContinuousAnchorEndpoints.length > 0 || continuousAnchorConnections.length > 0) {
-				_currentInstance.continuousAnchorManager.recalc(timestamp, elementId, _currentInstance);
+		//	if (foundContinuousAnchorEndpoints.length > 0 || continuousAnchorConnections.length > 0) {
+		//		_currentInstance.continuousAnchorManager.recalc(timestamp, elementId, _currentInstance);
 				// and draw all the endpoints
 				// TODO is this necessary?
-				for (var i = 0; i < continuousAnchorEndpoints.length; i++)
-					continuousAnchorEndpoints[i].paint({timestamp:timestamp, recalc:false});
-			}			
+		//		for (var i = 0; i < continuousAnchorEndpoints.length; i++)
+		//			continuousAnchorEndpoints[i].paint({timestamp:timestamp, recalc:false});
+		//	}			
 			
 			//_currentInstance.continuousAnchorManager.recalcConnections(timestamp, elementId, _currentInstance, continuousAnchorConnections); 
 		};
@@ -3292,7 +3309,8 @@ about the parameters allowed in the params object.
 						anchor : a, 
 						source : element,
 						container:params.container,
-						reattach:params.reattach
+						reattach:params.reattach,
+                        detachable:params.detachable
 					});
 					self.endpoints[index] = e;
 					
@@ -3309,8 +3327,7 @@ about the parameters allowed in the params object.
 									 self.source, 
 									 self.sourceId, 
 									 params.paintStyle, 
-									 params.hoverPaintStyle,
-									 params.reattach);
+									 params.hoverPaintStyle);
 			if (eS) _addToList(endpointsByElement, this.sourceId, eS);
 			
 			// if there were no endpoints supplied and the source element is the target element, we will reuse the source
@@ -3322,8 +3339,7 @@ about the parameters allowed in the params object.
 									 self.target, 
 									 self.targetId, 
 									 params.paintStyle, 
-									 params.hoverPaintStyle,
-									 params.reattach);
+									 params.hoverPaintStyle);
 			if (eT) _addToList(endpointsByElement, this.targetId, eT);
 			// if scope not set, set it to be the scope for the source endpoint.
 			if (!this.scope) this.scope = this.endpoints[0].scope;		
@@ -3331,6 +3347,24 @@ about the parameters allowed in the params object.
 			// if delete endpoints on detach, keep a record of just exactly which endpoints they are.
 			if (params.deleteEndpointsOnDetach)
 				self.endpointsToDeleteOnDetach = [eS, eT];
+
+            var _detachable = params.detachable || self.endpoints[0].connectionsDetachable || self.endpoints[1].connectionsDetachable || false;
+            /*
+                Function: isDetachable
+                Returns whether or not this connection can be detached from its target/source endpoint.  by default this
+                is false; use it in conjunction with the 'reattach' parameter.
+             */
+            this.isDetachable = function() {
+                return _detachable === true;
+            };
+
+            /*
+                Function: setDetachable
+                Sets whether or not this connection is detachable.
+             */
+            this.setDetachable = function(detachable) {
+              _detachable = detachable === true;
+            };
 			
 			// merge all the parameters objects into the connection.  parameters set
 			// on the connection take precedence; then target endpoint params, then
@@ -4025,6 +4059,7 @@ about the parameters allowed in the params object.
 			this.scope = params.scope || DEFAULT_SCOPE;
 			this.timestamp = null;
 			self.isReattach = params.reattach || false;
+            self.connectionsDetachable = params.connectionsDetachable || params.detachable || false;
 			var dragAllowedWhenFull = params.dragAllowedWhenFull || true;
 
 			this.computeAnchor = function(params) {
@@ -4353,9 +4388,11 @@ about the parameters allowed in the params object.
 					jpc = self.connectorSelector();
 					// if no connection and we're not a source, return.
 					if (jpc == null && !params.isSource) return false;
-					// otherwise if we're full and not allowed to drag, also return false.
-					if (params.isSource && self.isFull() && !dragAllowedWhenFull) return false;
-					// if we're not full but there was connection, make it null. we'll create a new one.
+					// if we had a connection but it is not detachable, return false.
+					if (jpc != null && !jpc.isDetachable()) return false;
+                    // otherwise if we're full and not allowed to drag, also return false.
+                    if (params.isSource && self.isFull() && !dragAllowedWhenFull) return false;
+					// if we're not full but there was a connection, make it null. we'll create a new one.
 					if (jpc && !self.isFull()) jpc = null;
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
