@@ -144,7 +144,7 @@
 		return el.getAttribute(attributeId);
 	},
 	_getElementObject = function(el) {
-		return typeof el == 'string' ? Y.one('#' + el) : Y.one(el);
+		return typeof el == 'string' ? Y.one('#' + el) : el._node ? el : Y.one(el);
 	};
 	
 	jsPlumb.CurrentLibrary = {

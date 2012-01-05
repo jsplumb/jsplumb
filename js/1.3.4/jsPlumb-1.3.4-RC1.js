@@ -95,9 +95,14 @@
 		_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },		
 		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
 		_logEnabled = false,
-		_log = function(jsp, msg) {
-		if (jsp.logEnabled && typeof console != "undefined")
-				console.log(msg);
+		_log = function() {
+		    if (_logEnabled && typeof console != "undefined") {
+                try {
+                    var msg = arguments[arguments.length - 1];
+				    console.log(msg);
+                }
+                catch (e) {} 
+            }
 		},
 		_group = function(g) {
 			if (_logEnabled && typeof console != "undefined") console.group(g);
@@ -2921,11 +2926,13 @@ about the parameters allowed in the params object.
                 sE =  conn.connection.endpoints[0].id,
                 tE = conn.connection.endpoints[1].id,
                 _remove = function(list, eId) {
-                    var f = function(e) { return e[4] == eId; };
-                    _removeWithFunction(list["top"], f);
-                    _removeWithFunction(list["left"], f);
-                    _removeWithFunction(list["bottom"], f);
-                    _removeWithFunction(list["right"], f);
+                    if (list) {  // transient anchors dont get entries in this list.
+                        var f = function(e) { return e[4] == eId; };
+                        _removeWithFunction(list["top"], f);
+                        _removeWithFunction(list["left"], f);
+                        _removeWithFunction(list["bottom"], f);
+                        _removeWithFunction(list["right"], f);
+                    }
                 };
             
             _remove(anchorLists[sEl], sE);_remove(anchorLists[tEl], tE);
@@ -4065,7 +4072,7 @@ about the parameters allowed in the params object.
 				if (idx >= 0) {		
 					// 1. does the connection have a before detach (note this also checks jsPlumb's bound
 					// detach handlers; but then Endpoint's check will, too, hmm.)
-					if (forceDetach || connection.isDetachAllowed(connection)) {
+					if (forceDetach || connection._forceDetach || connection.isDetachAllowed(connection)) {
 						// get the target endpoint
 						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
 						// it would be nice to check with both endpoints that it is ok to detach. but 
@@ -4075,7 +4082,7 @@ about the parameters allowed in the params object.
 						// each beforeDetach and see if it returns false, at which point we exit.  but if it
 						// returns true, we have to check the next one.  however we need to track which ones
 						// have already been run, and not run them again.
-						if (forceDetach || (self.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {
+						if (forceDetach || connection._forceDetach || (self.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {
 					
 							self.connections.splice(idx, 1);										
 					
@@ -4205,7 +4212,8 @@ about the parameters allowed in the params object.
 					source : _element, 
 					paintStyle : this.paintStyle, 
 					endpoint : _endpoint,
-					transient:true
+					transient:true,
+                    scope:self.scope
 				});
 			};
 			/*
@@ -4455,6 +4463,7 @@ about the parameters allowed in the params object.
 						jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
 						// store the original endpoint and assign the new floating endpoint for the drag.
 						jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
+                        jpc.suspendedEndpoint.setHover(false);
 						jpc.endpoints[anchorIdx] = floatingEndpoint;
 					}
 
@@ -4496,6 +4505,13 @@ about the parameters allowed in the params object.
 						if (jpc.endpoints[idx] == floatingEndpoint) {
 							// if the connection was an existing one:
 							if (existingJpc && jpc.suspendedEndpoint) {
+
+                                // this will be set if we are forcing the connection back to
+                                // where it came from - a beforeDetach interceptor prevent the move.
+                                if (jpc._forceDetach) {
+                                    jpc.endpoints[idx == 0 ? 1 : 0].detachFromConnection(jpc);
+                                }
+
 								// fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
 								// floating endpoint has been replaced.
 								if (idx == 0) {
@@ -4511,12 +4527,13 @@ about the parameters allowed in the params object.
 								
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
 									
-								if (self.isReattach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc)) {	
+								if (self.isReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc)) {
 									jpc.setHover(false);
 									jpc.floatingAnchorIndex = null;
 									jpc.suspendedEndpoint.addConnection(jpc);
 									jsPlumb.repaint(existingJpcParams[1]);
-								} 
+								}
+                                jpc._forceDetach = false;
 							} else {
 								// TODO this looks suspiciously kind of like an Endpoint.detach call too.
 								// i wonder if this one should post an event though.  maybe this is good like this.
@@ -4527,6 +4544,8 @@ about the parameters allowed in the params object.
 						self.anchor.locked = false;												
 						self.paint();
 						jpc.setHover(false, false);
+                        jpc.endpoints[0].setHover(false);
+                        jpc.endpoints[1].setHover(false);
 						//jpc.repaint();  
 						jpc = null;						
 						inPlaceCopy = null;							
@@ -4565,7 +4584,9 @@ about the parameters allowed in the params object.
 						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {
 						
 							var _doContinue = true;
-							if (jpc.suspendedEndpoint) {
+                            // the second check here is for the case that the user is dropping it back
+                            // where it came from.
+							if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.elementId != _elementId) {
 								if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
 									_doContinue = false;								
 							}
@@ -4623,14 +4644,14 @@ about the parameters allowed in the params object.
 								// perhaps reattach
 //								alert("perhaps reattach normal target");
 								if (jpc.suspendedEndpoint) {
-									if (source.isReattach) {
+								//	if (jpc.source.isReattach) {
 										jpc.setHover(false);
-										jpc.floatingAnchorIndex = null;
+                                        jpc._forceDetach = true;
 										jpc.suspendedEndpoint.addConnection(jpc);
 										jsPlumb.repaint(jpc.source.elementId);
-									}
-									else
-										jpc.source.detach(jpc, false, true, true);  // otherwise, detach the connection and tell everyone about it.
+								//	}
+								//	else
+								//		jpc.source.detach(jpc, false, true, true);  // otherwise, detach the connection and tell everyone about it.
 								}
 							}
 						}

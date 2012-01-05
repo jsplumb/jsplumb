@@ -1,4 +1,4 @@
-(function() {
+;(function() {
 
    jsPlumbDemo.initEndpoints = function(nextColour) {
         $(".ep").each(function(i,e) {
