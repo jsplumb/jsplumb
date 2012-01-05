@@ -457,7 +457,6 @@
 		 * to anything.
 		 */
 		endpointsByElement = {},
-		connectionManagingAnchors = {},
 		endpointsByUUID = {},
 		offsets = {},
 		offsetTimestamps = {},
@@ -466,7 +465,7 @@
 		_mouseEventsEnabled = this.Defaults.MouseEventsEnabled,
 		canvasList = [],
 		sizes = [],
-		listeners = {}, // a map: keys are event types, values are lists of listeners.
+		//listeners = {}, // a map: keys are event types, values are lists of listeners.
 		DEFAULT_SCOPE = this.Defaults.Scope,
 		renderMode = null,  // will be set in init()							
 
@@ -487,7 +486,7 @@
 		/**
 		 * appends an element to some other element, which is calculated as follows:
 		 * 
-		 * 1. if jsPlumb.Defaults.Container exists, use that element.
+		 * 1. if _currentInstance.Defaults.Container exists, use that element.
 		 * 2. if the 'parent' parameter exists, use that.
 		 * 3. otherwise just use the document body.
 		 * 
@@ -501,7 +500,6 @@
 				jsPlumb.CurrentLibrary.appendElement(el, parent);
 		},
 
-		
 		_curIdStamp = 1,
 		_idstamp = function() { return "" + _curIdStamp++; },		
 		
@@ -523,53 +521,8 @@
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
 		_draw = function(element, ui, timestamp) {
-					
-		//	_group("DRAW");
-		//	_time("DRAW TOTAL");
-			
-			var id = _getAttribute(element, "id"), endpoints = endpointsByElement[id];
-			
-			if (true) {
+			var id = _getAttribute(element, "id");
 			_currentInstance.anchorManager.redraw(id, ui, timestamp);
-			}
-			else {			
-			
-			if (!timestamp) timestamp = _timestamp();
-			if (endpoints) {
-			// TODO this needs refactoring.  it must be possible to calculate all the endpoints in
-			// one go, and then paint affected connections. like i want to merge the continuous anchor
-			// manager with the standard/dynamic anchor manager.
-
-				_updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp }); // timestamp is checked against last update cache; it is
-				// valid for one paint cycle.
-				var myOffset = offsets[id], myWH = sizes[id], repaintContinous = false;
-				for ( var i = 0; i < endpoints.length; i++) {
-						endpoints[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
-						var l = endpoints[i].connections;					
-						for ( var j = 0; j < l.length; j++) {						
-							l[j].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); // ...paint each connection.
-							// then, check for dynamic endpoint; need to repaint it.						
-							var oIdx = l[j].endpoints[0] == endpoints[i] ? 1 : 0,
-								otherEndpoint = l[j].endpoints[oIdx];
-							if (otherEndpoint.anchor.isDynamic && !otherEndpoint.isFloating()) {
-								_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 							
-								otherEndpoint.paint({ elementWithPrecedence:id });
-								// all the connections for the other endpoint now need to be repainted
-								for (var k = 0; k < otherEndpoint.connections.length; k++) {
-									if (otherEndpoint.connections[k] !== l)
-										otherEndpoint.connections[k].paint( { elId : id, ui : ui, recalc : false, timestamp : timestamp }); 
-								}
-							}
-						}
-				//	}
-					//else repaintContinuous = true;
-				}
-				// we need to merge this in with the other paint code, really.  like this ends up repainting everything; why not just
-				// do that on a normal drag?
-								
-			}
-			
-			}
 		},
 
 		/**
@@ -3039,21 +2992,29 @@ about the parameters allowed in the params object.
                 if (!anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
                 if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
 
-                if (!o) {
-                    o = calculateOrientation(sourceId, targetId, sd.o, td.o);
-                    orientationCache[oKey] = o;
-                    // this would be a performance enhancement, but the computed angles need to be clamped to
-                    //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
-                  /*  orientationCache[oKey2] = {
-                        orientation:o.orientation,
-                        a:[o.a[1], o.a[0]],
-                        theta:o.theta + Math.PI,
-                        theta2:o.theta2 + Math.PI
-                    };*/
+                if (targetId == sourceId) {
+                    // here we may want to improve this by somehow determining the face we'd like
+				    // to put the connector on.  ideally, when drawing, the face should be calculated
+				    // by determining which face is closest to the point at which the mouse button
+					// was released.  for now, we're putting it on the top face.
+                    _updateAnchorList(anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", sourceId, connectionsToPaint, endpointsToPaint)
+				}
+                else {
+                    if (!o) {
+                        o = calculateOrientation(sourceId, targetId, sd.o, td.o);
+                        orientationCache[oKey] = o;
+                        // this would be a performance enhancement, but the computed angles need to be clamped to
+                        //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
+                    /*  orientationCache[oKey2] = {
+                            orientation:o.orientation,
+                            a:[o.a[1], o.a[0]],
+                            theta:o.theta + Math.PI,
+                            theta2:o.theta2 + Math.PI
+                        };*/
+                    }
+                    _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
+                    _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
                 }
-
-                _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
-                _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
 
                 connectionsToPaint.push(conn);
                 endpointsToPaint.push(conn.endpoints[oIdx]);
@@ -4398,8 +4359,8 @@ about the parameters allowed in the params object.
 					// TODO merge this code with the code in both Anchor and FloatingAnchor, because it
 					// does the same stuff.
 					var ipcoel = _getElementObject(inPlaceCopy.canvas),
-					ipco = jsPlumb.CurrentLibrary.getOffset(ipcoel),
-					po = adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
+					    ipco = jsPlumb.CurrentLibrary.getOffset(ipcoel),
+					    po = adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
 					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
 					
 					// store the id of the dragging div and the source element. the drop function will pick these up.					
@@ -4422,15 +4383,9 @@ about the parameters allowed in the params object.
 							connector : params.connector, // this can also be null. Connection will use the default.
 							overlays : params.connectorOverlays 
 						});
-						// TODO determine whether or not we wish to do de-select hover when dragging a connection.
-						// it may be the case that we actually want to set it, since it provides a good
-						// visual cue.
 						jpc.connector.setHover(false, false);
 					} else {
 						existingJpc = true;
-						// TODO determine whether or not we wish to do de-select hover when dragging a connection.
-						// it may be the case that we actually want to set it, since it provides a good
-						// visual cue.
 						jpc.connector.setHover(false, false);
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas));						
@@ -4441,11 +4396,11 @@ about the parameters allowed in the params object.
 						
 						// store the original scope (issue 57)
 						var c = _getElementObject(self.canvas),
-						dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
+						    dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
 						_setAttribute(c, "originalScope", dragScope);
 						// now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
 						// that have our drop scope (issue 57).
-						var dropScope = jsPlumb.CurrentLibrary.getDropScope(c);//jpc.endpoints[anchorIdx == 0 ? 1 : 0].getDropScope();
+						var dropScope = jsPlumb.CurrentLibrary.getDropScope(c);
 						jsPlumb.CurrentLibrary.setDragScope(c, dropScope);
 				
 						// now we replace ourselves with the temporary div we created above:
@@ -4466,25 +4421,22 @@ about the parameters allowed in the params object.
                         jpc.suspendedEndpoint.setHover(false);
 						jpc.endpoints[anchorIdx] = floatingEndpoint;
 					}
-
 					// register it and register connection on it.
 					floatingConnections[placeholderInfo.id] = jpc;
 					floatingEndpoint.addConnection(jpc);
-
 					// only register for the target endpoint; we will not be dragging the source at any time
 					// before this connection is either discarded or made into a permanent connection.
 					_addToList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
-					
 					// tell jsplumb about it
 					_currentInstance.currentlyDragging = true;
 				};
 
 				var jpcl = jsPlumb.CurrentLibrary,
-				dragOptions = params.dragOptions || {},
-				defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
-				startEvent = jpcl.dragEvents["start"],
-				stopEvent = jpcl.dragEvents["stop"],
-				dragEvent = jpcl.dragEvents["drag"];
+				    dragOptions = params.dragOptions || {},
+				    defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
+				    startEvent = jpcl.dragEvents["start"],
+				    stopEvent = jpcl.dragEvents["stop"],
+				    dragEvent = jpcl.dragEvents["drag"];
 				
 				dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
 				dragOptions.scope = dragOptions.scope || self.scope;
@@ -4496,10 +4448,8 @@ about the parameters allowed in the params object.
 						_currentInstance.currentlyDragging = false;
 						_removeFromList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
 						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
-						_removeElement(inPlaceCopy.canvas, _element);	
-						
+						_removeElement(inPlaceCopy.canvas, _element);
 						_currentInstance.anchorManager.clearFor(placeholderInfo.id);
-						
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 						jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
 						if (jpc.endpoints[idx] == floatingEndpoint) {
@@ -4524,9 +4474,7 @@ about the parameters allowed in the params object.
 								
 								// restore the original scope (issue 57)
 								jsPlumb.CurrentLibrary.setDragScope(existingJpcParams[2], existingJpcParams[3]);
-								
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
-									
 								if (self.isReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc)) {
 									jpc.setHover(false);
 									jpc.floatingAnchorIndex = null;
@@ -4546,13 +4494,11 @@ about the parameters allowed in the params object.
 						jpc.setHover(false, false);
                         jpc.endpoints[0].setHover(false);
                         jpc.endpoints[1].setHover(false);
-						//jpc.repaint();  
 						jpc = null;						
 						inPlaceCopy = null;							
 						delete endpointsByElement[floatingEndpoint.elementId];
 						floatingEndpoint.anchor = null;
-						floatingEndpoint = null;
-						
+                        floatingEndpoint = null;
 						_currentInstance.currentlyDragging = false;
 					});
 				
@@ -4629,9 +4575,7 @@ about the parameters allowed in the params object.
 										connection : jpc
 									});
 								}
-							
 								jsPlumb.repaint(elId);
-							
 								_currentInstance.fire("jsPlumbConnection", {
 									source : jpc.source, target : jpc.target,
 									sourceId : jpc.sourceId, targetId : jpc.targetId,
@@ -4641,27 +4585,20 @@ about the parameters allowed in the params object.
 								});														
 							}
 							else {
-								// perhaps reattach
-//								alert("perhaps reattach normal target");
+                                // otherwise just put it back on the endpoint it was on before the drag.
 								if (jpc.suspendedEndpoint) {
-								//	if (jpc.source.isReattach) {
-										jpc.setHover(false);
-                                        jpc._forceDetach = true;
-										jpc.suspendedEndpoint.addConnection(jpc);
-										jsPlumb.repaint(jpc.source.elementId);
-								//	}
-								//	else
-								//		jpc.source.detach(jpc, false, true, true);  // otherwise, detach the connection and tell everyone about it.
+									jpc.setHover(false);
+                                    jpc._forceDetach = true;
+								    jpc.suspendedEndpoint.addConnection(jpc);
+									jsPlumb.repaint(jpc.source.elementId);
 								}
 							}
 						}
-			
 						_currentInstance.currentlyDragging = false;
 						delete floatingConnections[id];						
 					};
 					
-					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);					
-							
+					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
 					dropOptions[overEvent] = _wrap(dropOptions[overEvent], function() {
 						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
 							id = _getAttribute( _getElementObject(draggable), "dragId"),
@@ -4679,8 +4616,7 @@ about the parameters allowed in the params object.
 								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 								jpc.endpoints[idx].anchor.out();
 							}
-					});	
-									
+					});
 					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions);
 				}
 			};
@@ -4702,18 +4638,16 @@ about the parameters allowed in the params object.
 		convertStyle : function(s, ignoreAlpha) {
 			// TODO: jsPlumb should support a separate 'opacity' style member.
 			if ("transparent" === s) return s;
-			
 			var o = s,
-			pad = function(n) { return n.length == 1 ? "0" + n : n; },
-			hex = function(k) { return pad(Number(k).toString(16)); },
-			pattern = /(rgb[a]?\()(.*)(\))/;
+			    pad = function(n) { return n.length == 1 ? "0" + n : n; },
+			    hex = function(k) { return pad(Number(k).toString(16)); },
+			    pattern = /(rgb[a]?\()(.*)(\))/;
 			if (s.match(pattern)) {
 				var parts = s.match(pattern)[2].split(",");
 				o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
 				if (!ignoreAlpha && parts.length == 4) 
 					o = o + hex(parts[3]);
 			}
-		
 			return o;
 		},
 		gradient : function(p1, p2) {
@@ -4743,7 +4677,6 @@ about the parameters allowed in the params object.
 				theta = Math.atan(m),
         		y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
 				x =  Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-
 			return { x:fromPoint.x + x, y:fromPoint.y + y };
 		},
         /**
@@ -4820,5 +4753,4 @@ about the parameters allowed in the params object.
 			return [ ((mx * gx) + (gx / 2)) / es[0], ((my * gy) + (gy / 2)) / es[1] ];
 		}
 	};
-	
 })();
