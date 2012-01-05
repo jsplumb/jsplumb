@@ -67,8 +67,7 @@
 		else if (x1 <= x2 && y1 <= y2) return 2;
 		else if (x2 <= x1 && y2 >= y1) return 3;
 		return 4;
-	}/*,
-	_multzBySegment = function(seg, sPos, tPos) {
+	},
 		
 		// the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
 		// two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
@@ -83,41 +82,12 @@
 		// 1 - absolute y
 		// 2 - proportional x in element (0 is left edge, 1 is right edge)
 		// 3 - proportional y in element (0 is top edge, 1 is bottom edge)
-		// 
-		
-		if (seg == 1) {
-			if (sPos[3] == 0 && tPos[2] == 0) return [-1,-1]; // top + left
-			else if (sPos[3] == 0 && tPos[3] == 1) return [1,0];
-			else if (sPos[2] == 1 && tPos[2] == 0) return [0,-1];
-			else return [1,1];						
-		}
-		else if (seg == 2) {
-			if (sPos[2] == 1 && tPos[3] == 0) return [1, -1];
-			else if (sPos[2] == 1 && tPos[2] == 0) return [-1, 1];
-			else if (sPos[3] == 1 && tPos[3] == 0) return [1, -1];
-			else return [-1,1];
-		}
-		else if (seg == 3) {
-			if (sPos[3] == 1 && tPos[3]== 0) return [-1,-1];
-			else if (sPos[2] == 0 && tPos[3] == 0) return [-1,0];
-			else if (sPos[2] == 0 && tPos[2] == 1) return [1,1];
-			else return [1,-1];
-		}
-		else if (seg == 4) {
-			if (sPos[2] == 0 && tPos[2] == 1) return [1,-1];
-			else if (sPos[3] == 0 && tPos[2] == 1) return [1,-1];
-			else if (sPos[3] == 0 && tPos[3] == 1) return [-1,1];
-		}
-		return [0,0];
-	}*/,
+		// 	
 	_findControlPoint = function(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
 
-        // TODO
-
-        // - take proximityLimit into account and just draw straight lines if within that limit.
+        // TODO (maybe)
         // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
-
-
+        if (distance <= proximityLimit) return [midx, midy];
 
         if (segment == 1) {
             if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
@@ -225,7 +195,6 @@
             	    dy =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.sin(theta2)),
 				    dx =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.cos(theta2)),
 				    segment = _segment(_sx, _sy, _tx, _ty),
-				 //   multz = _multzBySegment(segment, sourcePos, targetPos),
 				    distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));
 			
             	// calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
@@ -235,33 +204,10 @@
                                                   segment,
                                                   sourcePos,
                                                   targetPos,
-                                                  //dx, dy,
-                                                    curviness, curviness,
+                                                  curviness, curviness,
                                                   distance,
                                                   proximityLimit);
-			
-				// now for a rudimentary avoidance scheme. TODO: how to set this in a cross-library way?
-        //      if (avoidSelector) {
-		//		    var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
-		//		    var sel = jsPlumb.getSelector(avoidSelector);
-		//		    for (var i = 0; i < sel.length; i++) {
-		//			    var id = jsPlumb.getId(sel[i]);
-		//			    if (id != sourceEndpoint.elementId && id != targetEndpoint.elementId) {
-		//				    o = jsPlumb.getOffset(id), s = jsPlumb.getSize(id);
-//
-//						    if (o && s) {
-//							    var collision = testLine.rectIntersect(o.left,o.top,s[0],s[1]);
-//							    if (collision) {
-								    // set the control point to be a certain distance from the midpoint of the two points that
-								    // the line crosses on the rectangle.
-								    // TODO where will this 75 number come from?
-					//			    _controlX = collision[2][0] + (75 * collision[3][0]);
-				//	/			    _controlY = collision[2][1] + (75 * collision[3][1]);
-//							    }
-//						    }
-					//  }
-	//			    }
-              //}
+
 	            	
             	var requiredWidth = Math.max(Math.abs(_controlPoint[0] - _sx) * 3, Math.abs(_controlPoint[0] - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, minWidth),
             		requiredHeight = Math.max(Math.abs(_controlPoint[1] - _sy) * 3, Math.abs(_controlPoint[1] - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, minWidth);
@@ -292,9 +238,6 @@
         		var x1 = sourcePos[0], x2 = sourcePos[0], y1 = sourcePos[1] - margin, y2 = sourcePos[1] - margin, 				
 					cx = x1, cy = y1 - loopbackRadius;
 				
-				// now we need the angle from the center to each point.  the arc will start at the first angle and go to the second.
-				//var m1 = (cy - y1) / (cx - x1), theta1 = Math.atan(m1), m2 = (cy - y2) / (cx - x2), theta2 = Math.atan(m2);
-				
 				// canvas sizing stuff, to ensure the whole painted area is visible.
 				w = ((2 * lineWidth) + (4 * loopbackRadius)), h = ((2 * lineWidth) + (4 * loopbackRadius));
 				x = cx - loopbackRadius - lineWidth - loopbackRadius, y = cy - loopbackRadius - lineWidth - loopbackRadius;
@@ -319,7 +262,9 @@
          */
         this.pointOnPath = function(location) {   
 			if (isLoopback) {
-				
+
+                if (location > 0 && location < 1) location = 1- location;
+                
 // current points are [ x, y, width, height, center x, center y, radius, clockwise, startx, starty, endx, endy ]				
 				// so the path length is the circumference of the circle
 				//var len = 2 * Math.PI * currentPoints[6],
@@ -329,9 +274,8 @@
 				var startAngle = (location * 2 * Math.PI) + (Math.PI / 2),
 					startX = currentPoints[4] + (currentPoints[6] * Math.cos(startAngle)),
 					startY = currentPoints[5] + (currentPoints[6] * Math.sin(startAngle));					
-	//console.log("loopback point along path from",location,startAngle, startX, startY, currentPoints[4], currentPoints[5], currentPoints[6]);    
-				
-				return { x:currentPoints[8], y:currentPoints[9] };
+
+                return {x:startX, y:startY};
 					
 			}
         	else return jsBezier.pointOnCurve(_makeCurve(), location);
@@ -341,11 +285,10 @@
          * returns the gradient of the connector at the given point.
          */
         this.gradientAtPoint = function(location) {
-			if (isLoopback) {
-	//			console.log("loopback gradient at point", location);        
+			if (isLoopback)
 				return Math.atan(location * 2 * Math.PI);
-			}
-        	else return jsBezier.gradientAtPoint(_makeCurve(), location);        	
+        	else
+                return jsBezier.gradientAtPoint(_makeCurve(), location);
         };	        
         
         /**
@@ -358,17 +301,16 @@
          */
         this.pointAlongPathFrom = function(location, distance) {        	
 			if (isLoopback) {
-			
+
+                if (location > 0 && location < 1) location = 1- location;
+
 				var circumference = 2 * Math.PI * currentPoints[6],
 					arcSpan = distance / circumference * 2 * Math.PI,
 					startAngle = (location * 2 * Math.PI) - arcSpan + (Math.PI / 2),	
 					
 					startX = currentPoints[4] + (currentPoints[6] * Math.cos(startAngle)),
 					startY = currentPoints[5] + (currentPoints[6] * Math.sin(startAngle));	
-					
-				//var diff = distance < 0 ? -5 : 5;
-//				return {x:currentPoints[8] - diff, y:currentPoints[9] - diff };
-//	console.log("loopback point along path from",location,distance, startAngle, startX, startY, currentPoints[4], currentPoints[5]);    
+
 				return {x:startX, y:startY};
 			}
         	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
@@ -472,3 +414,28 @@
 	};
 
 })();
+
+/*
+    	// now for a rudimentary avoidance scheme. TODO: how to set this in a cross-library way?
+        //      if (avoidSelector) {
+		//		    var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
+		//		    var sel = jsPlumb.getSelector(avoidSelector);
+		//		    for (var i = 0; i < sel.length; i++) {
+		//			    var id = jsPlumb.getId(sel[i]);
+		//			    if (id != sourceEndpoint.elementId && id != targetEndpoint.elementId) {
+		//				    o = jsPlumb.getOffset(id), s = jsPlumb.getSize(id);
+//
+//						    if (o && s) {
+//							    var collision = testLine.rectIntersect(o.left,o.top,s[0],s[1]);
+//							    if (collision) {
+								    // set the control point to be a certain distance from the midpoint of the two points that
+								    // the line crosses on the rectangle.
+								    // TODO where will this 75 number come from?
+					//			    _controlX = collision[2][0] + (75 * collision[3][0]);
+				//	/			    _controlY = collision[2][1] + (75 * collision[3][1]);
+//							    }
+//						    }
+					//  }
+	//			    }
+              //}
+    */
