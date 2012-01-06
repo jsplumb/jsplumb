@@ -107,6 +107,7 @@
 	},
 
     _removeNonPermanentDroppables = function(drag) {
+        /*
         // remove non-permanent droppables from all arrays
         var dbs = _droppables[drag.scope], d = [];
         if (dbs) {
@@ -126,6 +127,7 @@
         }
         drag.droppables.splice(0, drag.droppables.length);  // release old ones
         drag.droppables = d;
+        //*/
     };
 
 		
