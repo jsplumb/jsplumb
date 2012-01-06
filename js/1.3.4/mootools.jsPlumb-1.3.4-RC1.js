@@ -106,7 +106,7 @@
 		return $(el);
 	},
 
-    _removeNonPermanentDroppables = function(drag) {
+    _removeNonPermanentDroppables = function(drag) {  
         /*
         // remove non-permanent droppables from all arrays
         var dbs = _droppables[drag.scope], d = [];
