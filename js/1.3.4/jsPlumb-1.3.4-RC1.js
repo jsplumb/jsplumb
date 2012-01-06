@@ -575,7 +575,7 @@
 					draggableStates[_getId(element)] = true;
 					var draggable = draggableStates[_getId(element)];
 					options.disabled = draggable == null ? false : !draggable;
-					jsPlumb.CurrentLibrary.initDraggable(element, options);
+					jsPlumb.CurrentLibrary.initDraggable(element, options, false);
 				}
 			}
 		},
@@ -1928,12 +1928,12 @@ about the parameters allowed in the params object.
 				dropOptions["scope"] = dropOptions["scope"] || targetScope;
 				dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], _drop);
 				
-				jpcl.initDroppable(_el, dropOptions);
+				jpcl.initDroppable(_el, dropOptions, true);
 			};
 			
 			el = _convertYUICollection(el);			
 			
-			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
 			for (var i = 0; i < inputs.length; i++) {			
 				_doOne(_getElementObject(inputs[i]));
@@ -3752,7 +3752,7 @@ about the parameters allowed in the params object.
 		
 		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
 			var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
-			return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement });
+			return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
 		};
 		
 		/**
@@ -3901,7 +3901,7 @@ about the parameters allowed in the params object.
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? jsPlumb.makeAnchor(params.anchors, _elementId, _currentInstance) : jsPlumb.makeAnchor("TopCenter", _elementId, _currentInstance);
 				
 			// ANCHOR MANAGER
-			if (!params.transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
+			if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
 				_currentInstance.anchorManager.add(self, _elementId);
 			 
 			var _endpoint = params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot",
@@ -4173,7 +4173,7 @@ about the parameters allowed in the params object.
 					source : _element, 
 					paintStyle : this.paintStyle, 
 					endpoint : _endpoint,
-					transient:true,
+					_transient:true,
                     scope:self.scope
 				});
 			};
@@ -4388,7 +4388,7 @@ about the parameters allowed in the params object.
 						existingJpc = true;
 						jpc.connector.setHover(false, false);
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
-						_initDropTarget(_getElementObject(inPlaceCopy.canvas));						
+						_initDropTarget(_getElementObject(inPlaceCopy.canvas), false, true);
 						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?
 						
 						jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
@@ -4503,12 +4503,12 @@ about the parameters allowed in the params object.
 					});
 				
 				var i = _getElementObject(self.canvas);				
-				jsPlumb.CurrentLibrary.initDraggable(i, dragOptions);
+				jsPlumb.CurrentLibrary.initDraggable(i, dragOptions, true);
 			}
 
 			// pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
 			// back onto the endpoint you detached it from.
-			var _initDropTarget = function(canvas, forceInit) {
+			var _initDropTarget = function(canvas, forceInit, isTransient) {
 				if ((params.isTarget || forceInit) && jsPlumb.CurrentLibrary.isDropSupported(_element)) {
 					var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
 					dropOptions = jsPlumb.extend( {}, dropOptions);
@@ -4617,12 +4617,12 @@ about the parameters allowed in the params object.
 								jpc.endpoints[idx].anchor.out();
 							}
 					});
-					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions);
+					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions, true, isTransient);
 				}
 			};
 			
 			// initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
-			_initDropTarget(_getElementObject(self.canvas), true);			
+			_initDropTarget(_getElementObject(self.canvas), true, !(params._transient || self.anchor.isFloating));
 
 			return self;
 		};					
