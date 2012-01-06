@@ -104,7 +104,29 @@
 	 */
 	var _getElementObject = function(el) {
 		return $(el);
-	};
+	},
+
+    _removeNonPermanentDroppables = function(drag) {
+        // remove non-permanent droppables from all arrays
+        var dbs = _droppables[drag.scope], d = [];
+        if (dbs) {
+            var d = [];
+            for (var i=0; i < dbs.length; i++) {
+                var isPermanent = dbs[i].getAttribute("_isPermanentDroppable");
+                if (isPermanent === "true") d.push(dbs[i]);
+            }
+            dbs.splice(0, dbs.length);
+            _droppables[drag.scope] = d;
+        }
+        d = [];
+        // clear out transient droppables from the drag itself
+        for(var i = 0; i < drag.droppables.length; i++) {
+            var isPermanent = drag.droppables[i].getAttribute("_isPermanentDroppable");
+            if (isPermanent === "true") d.push(drag.droppables[i]);
+        }
+        drag.droppables.splice(0, drag.droppables.length);  // release old ones
+        drag.droppables = d;
+    };
 
 		
 	jsPlumb.CurrentLibrary = {					
@@ -237,75 +259,86 @@
 			return el.hasClass(clazz);
 		},
 		
-		initDraggable : function(el, options) {
+		initDraggable : function(el, options, isPlumbedComponent) {
 			var id = jsPlumb.getId(el);
 			var drag = _draggablesById[id];
 			if (!drag) {
-				var originalZIndex = 0, originalCursor = null;
-				var dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
-				options['onStart'] = jsPlumb.wrap(options['onStart'], function()
-			    {
-					originalZIndex = this.element.getStyle('z-index'); 
+				var originalZIndex = 0,
+                    originalCursor = null,
+				    dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
+                
+				options['onStart'] = jsPlumb.wrap(options['onStart'], function() {
+                    originalZIndex = this.element.getStyle('z-index');
 					this.element.setStyle('z-index', dragZIndex);
+                    drag.originalZIndex = originalZIndex;
 					if (jsPlumb.Defaults.DragOptions.cursor) {
 						originalCursor = this.element.getStyle('cursor');
 						this.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
 					}
 				});
 				
-				options['onComplete'] = jsPlumb.wrap(options['onComplete'], function()
-			    {
+				options['onComplete'] = jsPlumb.wrap(options['onComplete'], function() {
 					this.element.setStyle('z-index', originalZIndex);
 					if (originalCursor) {
 						this.element.setStyle('cursor', originalCursor);
 					}
+
+                    _removeNonPermanentDroppables(drag);                                        
 				});
 				
-				// DROPPABLES:
+				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element
+                // draggable.  this is the only library adapter that has to care about this parameter.
 				var scope = "" + (options["scope"] || jsPlumb.Defaults.Scope),
 				    filterFunc = function(entry) {
 					    return entry.get("id") != el.get("id");
 				    },
 				    droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
-                
-                console.log("draggable scope", scope);
 
-				options['droppables'] = droppables;
-				options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
-					if (dr) {
-						_checkHover(dr, false);
-						_executeDroppableOption(el, dr, 'onLeave');						
-					}
-				});
-				options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
-					if (dr) {
-						_checkHover(dr, true);
-						_executeDroppableOption(el, dr, 'onEnter');							
-					}
-				});
-				options['onDrop'] = function(el, dr) {
-					if (dr) {
-						_checkHover(dr, false);
-						_executeDroppableOption(el, dr, 'onDrop');						
-					}
-				};					
+                if (isPlumbedComponent) {
+
+				    options['droppables'] = droppables;
+				    options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
+		    			if (dr) {
+			    			_checkHover(dr, false);
+				    		_executeDroppableOption(el, dr, 'onLeave');
+					    }
+				    });
+				    options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
+					    if (dr) {
+						    _checkHover(dr, true);
+						    _executeDroppableOption(el, dr, 'onEnter');
+					    }
+				    });
+				    options['onDrop'] = function(el, dr) {
+					    if (dr) {
+						    _checkHover(dr, false);
+						    _executeDroppableOption(el, dr, 'onDrop');
+					    }
+				    };
+                }
+                else
+                    options["droppables"] = [];
 				
 				drag = new Drag.Move(el, options);
 				drag.scope = scope;
-				//console.log("drag scope initialized to ", scope);
-				_add(_draggablesByScope, scope, drag);
-				_add(_draggablesById, el.get("id"), drag);
+                drag.originalZIndex = originalZIndex;
+                _add(_draggablesById, el.get("id"), drag);
+				// again, only keep a record of this for scope stuff if this is a plumbed component (an endpoint)
+                if (isPlumbedComponent) {
+				    _add(_draggablesByScope, scope, drag);
+                }
 				// test for disabled.
 				if (options.disabled) drag.detach();
 			}
 			return drag;
 		},
 		
-		initDroppable : function(el, options) {
-			var scope = "" + options["scope"];
-            console.log("droppable scope", scope);
-			_add(_droppables, scope, el);
+		initDroppable : function(el, options, isPlumbedComponent, isPermanent) {
+			var scope = options["scope"];
+            _add(_droppables, scope, el);
 			var id = jsPlumb.getId(el);
+
+            el.setAttribute("_isPermanentDroppable", isPermanent);  // we use this to clear out droppables on drag complete.
 			_droppableOptions[id] = options;
 			_droppableScopesById[id] = scope;
 			var filterFunc = function(entry) { return entry.element != el; },
@@ -383,8 +416,12 @@
 
         stopDrag : function() {
             for (var i in _draggablesById) {
-                for (var j = 0; j < _draggablesById[i].length; j++)
-                    _draggablesById[i][j].stop();
+                for (var j = 0; j < _draggablesById[i].length; j++) {
+                    var d = _draggablesById[i][j];
+                    d.stop();
+                    if (d.originalZIndex != 0)
+                        d.element.setStyle("z-index", d.originalZIndex);
+                }
             }
         },
 		
