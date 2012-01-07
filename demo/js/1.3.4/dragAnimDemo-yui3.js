@@ -50,7 +50,7 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 		var style="top:" + y + "px;left:" + x + "px;";
 		
 		var d = Y.Node.create('<div id="' + id + '" style="' + style + '" class="bigdot"></div>');
-		Y.one("body").append(d);
+		Y.one("#demo").append(d);
 		return {d:d, id:id};
 	};
 
