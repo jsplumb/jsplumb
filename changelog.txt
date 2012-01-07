@@ -1,5 +1,12 @@
 * 1.3.4
 
+    - detachEverything method removed from jsPlumb. use detachEveryConnection instead.
+
+    - detachAll method removed. use detachAllConnections instead.
+
+    - detachEveryConnection and detachAllConnections supports a parameter object now; valid values on this release
+      are 'fireEvent', the default for which is true.
+
     - added 'detachable' parameter to jsPlumb.connect, to indicate whether or not a connection should be allowed to be
       dragged off its endpoints (and possibly discarded; use this in conjunction with 'reattach'). defaults to false.
 
