@@ -1,3 +1,4 @@
+// jsplumb qunit tests.
 
 var _getContextNode = function() {
 	return $("#container");
@@ -207,10 +208,40 @@ var testSuite = function(renderMode) {
 		ok(!a1.equals(a2), "anchors are different");
 	});
 	
-	test(renderMode + ': detach plays nice when no target given', function() {
+	test(renderMode + ': detach does not fail when no arguments are provided', function() {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		jsPlumb.connect({source:d3, target:d4});
 		jsPlumb.detach();	
+	});
+
+    // test that detach does not fire an event by default
+	test(renderMode + ': jsPlumb.detach should fire detach event by default', function() {
+		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+		var conn = jsPlumb.connect({source:d5, target:d6});
+		var eventCount = 0;
+		jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
+		jsPlumb.detach(conn);
+		equals(eventCount, 1);
+	});
+
+    // test that detach does not fire an event by default
+	test(renderMode + ': jsPlumb.detach should fire detach event by default, using params object', function() {
+		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+		var conn = jsPlumb.connect({source:d5, target:d6});
+		var eventCount = 0;
+		jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
+		jsPlumb.detach({connection:conn});
+		equals(eventCount, 1);
+	});
+
+    // test that detach fires an event when instructed to do so
+	test(renderMode + ': jsPlumb.detach should not fire detach event when instructed to not do so', function() {
+		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
+		var conn = jsPlumb.connect({source:d5, target:d6});
+		var eventCount = 0;
+		jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
+		jsPlumb.detach(conn, {fireEvent:false});
+		equals(eventCount, 0);
 	});
 	
 	// issue 81
@@ -249,22 +280,12 @@ var testSuite = function(renderMode) {
 		var conn = jsPlumb.connect({source:d5, target:d6});
 		var eventCount = 0;
 		jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
-		jsPlumb.detach({source:d5, target:d6});
-		equals(eventCount, 1);
-	});
-	
-	// issue 81
-	test(renderMode + ': jsPlumb.detach should fire only one detach event (pass source and targets as divs as arguments)', function() {
-		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
-		var conn = jsPlumb.connect({source:d5, target:d6});
-		var eventCount = 0;
-		jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
-		jsPlumb.detach(d5, d6);
+		jsPlumb.detach({source:d5, target:d6, fireEvent:true});
 		equals(eventCount, 1);
 	});
 	
 	//TODO make sure you run this test with a single detach call, to ensure that
-	// single detach calls result in the connection being removed. detachEverything can
+	// single detach calls result in the connection being removed. detachEveryConnection can
 	// just blow away the connectionsByScope array and recreate it.
 	test(renderMode + ': jsPlumb.getConnections (simple case, default scope)', function() {
 		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
@@ -272,19 +293,6 @@ var testSuite = function(renderMode) {
 		assertContextSize(3);
 		var c = jsPlumb.getConnections();  // will get all connections in the default scope.
 		equals(c.length, 1, "there is one connection");
-	});
-	
-	test(renderMode + ': jsPlumb.getConnections (simple case, default scope; detach by element id)', function() {
-		var d5 = _addDiv("d5"), d6 = _addDiv("d6"), d7 = _addDiv("d7");
-		jsPlumb.connect({source:d5, target:d6});
-		jsPlumb.connect({source:d6, target:d7});
-		assertContextSize(6);
-		var c = jsPlumb.getConnections();  // will get all connections in the default scope
-		equals(c.length, 2, "there are two connections initially");
-		jsPlumb.detach('d5', 'd6');
-		c = jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 1, "after detaching one, there is now one connection.");
-		assertContextSize(5);
 	});
 	
 	test(renderMode + ': jsPlumb.getConnections (simple case, default scope; detach by element id using params object)', function() {
@@ -299,20 +307,20 @@ var testSuite = function(renderMode) {
 		equals(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
-	
-	test(renderMode + ': jsPlumb.getConnections (simple case, default scope; detach by element object)', function() {
+
+    test(renderMode + ': jsPlumb.getConnections (simple case, default scope; detach by id using params object)', function() {
 		var d5 = _addDiv("d5"), d6 = _addDiv("d6"), d7 = _addDiv("d7");
 		jsPlumb.connect({source:d5, target:d6});
 		jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = jsPlumb.getConnections();  // will get all connections
 		equals(c.length, 2, "there are two connections initially");
-		jsPlumb.detach(d5, d6);
+		jsPlumb.detach({source:"d5", target:"d6"});
 		c = jsPlumb.getConnections();  // will get all connections
 		equals(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
-	
+
 	test(renderMode + ': jsPlumb.getConnections (simple case, default scope; detach by element object using params object)', function() {
 		var d5 = _addDiv("d5"), d6 = _addDiv("d6"), d7 = _addDiv("d7");
 		jsPlumb.connect({source:d5, target:d6});
@@ -397,7 +405,6 @@ var testSuite = function(renderMode) {
 		ok(!success, "Endpoint reported detach did not execute");
 	});
 
-	
 	test(renderMode + ": jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
@@ -406,6 +413,17 @@ var testSuite = function(renderMode) {
 		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		jsPlumb.detach(c);
 		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
+	});
+
+    test(renderMode + ": jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false but detach is forced", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
+		e2 = jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
+		var c = jsPlumb.connect({source:e1,target:e2});
+		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		jsPlumb.detach(c, {forceDetach:true});
+        equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was denied but forced anyway");
+		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was denied but forced anyway");
 	});
 	
 	test(renderMode + ": jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns true", function() {
@@ -458,14 +476,14 @@ var testSuite = function(renderMode) {
 		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAll was called");
 	});
 
-	test(renderMode + ": jsPlumb.detachEverything ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
+	test(renderMode + ": jsPlumb.detachEveryConnection ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var e1 = jsPlumb.addEndpoint(d1, { isSource:true }),
 		e2 = jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
 		var c = jsPlumb.connect({source:e1,target:e2});
 		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
-		jsPlumb.detachEverything();
-		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachEverything was called");
+		jsPlumb.detachEveryConnection();
+		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachEveryConnection was called");
 	});
 
 	test(renderMode + ": Endpoint.detachAll ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
@@ -478,7 +496,55 @@ var testSuite = function(renderMode) {
 		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAllConnections was called");
 	});
 	
-// ******** end of beforeDetach tests **************	
+// ******** end of beforeDetach tests **************
+
+// detachEveryConnection/detachAllConnections fireEvent overrides tests
+
+    test(renderMode + ": jsPlumb.detachEveryConnection fires events", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0;
+        jsPlumb.bind("jsPlumbConnection", function() { connCount++; });
+        jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
+        jsPlumb.connect({source:d1, target:d2});
+        jsPlumb.connect({source:d1, target:d2});
+        equals(connCount, 2, "two connections registered");
+        jsPlumb.detachEveryConnection();
+        equals(connCount, 0, "no connections registered");
+    });
+
+    test(renderMode + ": jsPlumb.detachEveryConnection doesn't fire events when instructed not to", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0;
+        jsPlumb.bind("jsPlumbConnection", function() { connCount++; });
+        jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
+        jsPlumb.connect({source:d1, target:d2});
+        jsPlumb.connect({source:d1, target:d2});
+        equals(connCount, 2, "two connections registered");
+        jsPlumb.detachEveryConnection({fireEvent:false});
+        equals(connCount, 2, "two connections registered");
+    });
+
+     test(renderMode + ": jsPlumb.detachAllConnections fires events", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0,
+            e1 = jsPlumb.addEndpoint(d1), e2 = jsPlumb.addEndpoint(d2);
+        jsPlumb.bind("jsPlumbConnection", function() { connCount++; });
+        jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
+        jsPlumb.connect({source:d1, target:d2});
+        jsPlumb.connect({source:d1, target:d2});
+        equals(connCount, 2, "two connections registered");
+        jsPlumb.detachAllConnections("d1");
+        equals(connCount, 0, "no connections registered");
+    });
+
+    test(renderMode + ": jsPlumb.detachAllConnections doesn't fire events when instructed not to", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0,
+            e1 = jsPlumb.addEndpoint(d1), e2 = jsPlumb.addEndpoint(d2);
+        jsPlumb.bind("jsPlumbConnection", function() { connCount++; });
+        jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
+        jsPlumb.connect({source:d1, target:d2});
+        jsPlumb.connect({source:d1, target:d2});
+        equals(connCount, 2, "two connections registered");
+        jsPlumb.detachAllConnections("d1", {fireEvent:false});
+        equals(connCount, 2, "two connections registered");
+    });
 	
 	test(renderMode + ': jsPlumb.getConnections (scope testScope)', function() {
 		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
@@ -547,7 +613,7 @@ var testSuite = function(renderMode) {
 	});
 	
 	test(renderMode + ': jsPlumb.getConnections (filtered by a list of scopes, source ids and target ids)', function() {
-		jsPlumb.detachEverything();
+		jsPlumb.detachEveryConnection();
 		var d11 = _addDiv("d11"), d12 = _addDiv("d12"), d13 = _addDiv('d13'), d14=_addDiv("d14"), d15=_addDiv("d15");
 		jsPlumb.connect({source:d11, target:d12, scope:'testScope'});
 		jsPlumb.connect({source:d13, target:d12, scope:'testScope'});
@@ -624,7 +690,7 @@ var testSuite = function(renderMode) {
 				returnedParams = $.extend({}, params);
 		});
 		var conn = jsPlumb.connect({source:d1, target:d2});
-		jsPlumb.detach("d1","d2");
+		jsPlumb.detach({source:"d1",target:"d2"});
 		ok(returnedParams != null, "removed connection listener event was fired");
 	});
 	
@@ -635,7 +701,7 @@ var testSuite = function(renderMode) {
 				returnedParams = $.extend({}, params);
 			});
 		var conn = jsPlumb.connect({source:d1, target:d2});
-		jsPlumb.detach(d1,d2);
+		jsPlumb.detach({source:d1,target:d2});
 		ok(returnedParams != null, "removed connection listener event was fired");
 	});
 	
@@ -706,7 +772,7 @@ var testSuite = function(renderMode) {
 				returnedParams = $.extend({}, params);
 			});
 		var conn = jsPlumb.connect({source:d1, target:d2});
-		jsPlumb.detach(d1,d2);
+		jsPlumb.detach({source:d1,target:d2, fireEvent:true});
 		ok(returnedParams != null, "removed connection listener event was fired");
 		returnedParams = null;
 		
@@ -1697,7 +1763,7 @@ var testSuite = function(renderMode) {
 		assertConnectionCount(e3, 1);
 		assertConnectionCount(e4, 1);
 		
-		jsPlumb.detach("d1", "d2");
+		jsPlumb.detach({source:"d1", target:"d2"});
 		
 		assertConnectionCount(e1, 0);
 		assertConnectionCount(e2, 0);

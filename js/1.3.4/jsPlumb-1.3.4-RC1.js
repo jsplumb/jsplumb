@@ -685,10 +685,11 @@
 		* adds the connection to the backing model, fires an event if necessary and then redraws
 		*/
 		_finaliseConnection = function(jpc, params) {
+            params = params || {};
 			// add to list of connections (by scope).
 			_addToList(connectionsByScope, jpc.scope, jpc);
 			// fire an event
-			if (!params.doNotFireConnectionEvent) {
+			if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
 				_currentInstance.fire("jsPlumbConnection", {
 					connection:jpc,
 					source : jpc.source, target : jpc.target,
@@ -696,6 +697,8 @@
 					sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
 				});
 			}
+            // always inform the anchor manager
+            _currentInstance.anchorManager.newConnection(jpc);
 			// force a paint
 			_draw(jpc.source);
 		},
@@ -1304,112 +1307,111 @@ between this method and jsPlumb.reset).
 			endpointsByUUID = {};
 		};
 
-		var fireDetachEvent = function(jpc) {
-			_currentInstance.fire("jsPlumbConnectionDetached", {
-				connection:jpc,
-				source : jpc.source, target : jpc.target,
-				sourceId : jpc.sourceId, targetId : jpc.targetId,
-				sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-			});
+		var fireDetachEvent = function(jpc, doFireEvent) {
+            // may have been given a connection, or in special cases, an object
+            var connType =  jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType(),
+                argIsConnection = jpc.constructor == connType,
+                params = argIsConnection ? {
+                    connection:jpc,
+				    source : jpc.source, target : jpc.target,
+				    sourceId : jpc.sourceId, targetId : jpc.targetId,
+				    sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
+                } : jpc;
+
+			if (doFireEvent) _currentInstance.fire("jsPlumbConnectionDetached", params);
+            _currentInstance.anchorManager.connectionDetached(params);
 		};
 
 		/*
 		  Function: detach 
-		  Detaches and then removes a <Connection>.  Takes either (source, target) (the old way, maintained for backwards compatibility), or a params
-		    object with various possible values.
+		  Detaches and then removes a <Connection>.  From 1.3.4 this method has been altered to remove support for
+		  specifying Connections by various parameters; you can now pass in a Connection as the first argument and
+		  an optional parameters object as a second argument.  If you need the functionality this method provided
+		  before 1.3.4 then you should use the getConnections method to get the list of Connections to detach, and
+		  then iterate through them, calling this for each one.
 		  		   
 		  Parameters: 
-		    source - id or element object of the first element in the Connection. 
-		    target - id or element object of the second element in the Connection.		    
-		    params - a JS object containing the same parameters as you pass to jsPlumb.connect. If this is present then neither source nor
-		             target should be present; it should be the only argument to the method. See the docs for <Connection>'s constructor for information
-about the parameters allowed in the params object.
+		    connection  -   the <Connection> to detach
+		    params      -   optional parameters to the detach call.  valid values here are
+		                    fireEvent   :   defaults to false; indicates you want jsPlumb to fire a connection
+		                                    detached event. The thinking behind this is that if you made a programmatic
+		                                    call to detach an event, you probably don't need the callback.
+		                    forceDetach :   defaults to false. allows you to override any beforeDetach listeners that may be registered.
+
 		    Returns: 
 		    	true if successful, false if not.
 		 */
-		this.detach = function(source, target) {
-			if (arguments.length == 2) {
-				var s = _getElementObject(source), sId = _getId(s),
-					t = _getElementObject(target), tId = _getId(t);
-				_operation(sId, function(jpc) {
-							if ((jpc.sourceId == sId && jpc.targetId == tId) || (jpc.targetId == sId && jpc.sourceId == tId)) {
-								//if (jpc.isDetachAllowed()) {
-								if (_currentInstance.checkCondition("beforeDetach", jpc))
-								{
-									_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
-									jpc.endpoints[0].removeConnection(jpc);
-									jpc.endpoints[1].removeConnection(jpc);
-									_removeFromList(connectionsByScope, jpc.scope, jpc);
-								}
-							}
-						});
-			}
-			// this is the new version of the method, taking a JS object like
-			// the connect method does.
-			else if (arguments.length == 1) {
-				var connType =  jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType();
-				// allow for user to have subclassed Connection here.
-				if (arguments[0].constructor == connType) {
-					if (_currentInstance.checkCondition("beforeDetach", arguments[0]))
-						arguments[0].endpoints[0].detach(arguments[0]);
-				}
-				else if (arguments[0].connection) {
-					if (_currentInstance.checkCondition("beforeDetach", arguments[0].connection))				
-						arguments[0].connection.endpoints[0].detach(arguments[0].connection);
-				}
-				else {
-					var _p = jsPlumb.extend( {}, source); // a backwards compatibility hack: source should be thought of as 'params' in this case.
+		this.detach = function() {
+
+            if (arguments.length == 0) return;
+            var connType =  jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType(),
+                firstArgIsConnection = arguments[0].constructor == connType,
+                params = arguments.length == 2 ? firstArgIsConnection ? (arguments[1] || {}) : arguments[0] : arguments[0],
+                fireEvent = (params.fireEvent !== false),
+                forceDetach = params.forceDetach,
+                connection = firstArgIsConnection ? arguments[0] : params.connection;
+
+				if (connection) {
+                    if (forceDetach || (connection.isDetachAllowed(connection)
+                                        && connection.endpoints[0].isDetachAllowed(connection)
+                                        && connection.endpoints[1].isDetachAllowed(connection))) {
+                        if (forceDetach || _currentInstance.checkCondition("beforeDetach", connection))
+						    connection.endpoints[0].detach(connection, false, true, fireEvent); // TODO check this param iscorrect for endpoint's detach method
+                    }
+                }
+                else {
+					var _p = jsPlumb.extend( {}, params); // a backwards compatibility hack: source should be thought of as 'params' in this case.
 					// test for endpoint uuids to detach
 					if (_p.uuids) {
-						_getEndpoint(_p.uuids[0]).detachFrom(_getEndpoint(_p.uuids[1]));
+						_getEndpoint(_p.uuids[0]).detachFrom(_getEndpoint(_p.uuids[1]), fireEvent);
 					} else if (_p.sourceEndpoint && _p.targetEndpoint) {
 						_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
 					} else {
-						var sourceId = _getId(_p.source);
-						var targetId = _getId(_p.target);
+						var sourceId = _getId(_p.source),
+						    targetId = _getId(_p.target);
 						_operation(sourceId, function(jpc) {
-									if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-										if (_currentInstance.checkCondition("beforeDetach", jpc)) {
-											_removeElements(jpc.connector.getDisplayElements(), jpc.parent);
-											jpc.endpoints[0].removeConnection(jpc);
-											jpc.endpoints[1].removeConnection(jpc);
-											_removeFromList(connectionsByScope, jpc.scope, jpc);
-										}
-									}
+						    if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+							    if (_currentInstance.checkCondition("beforeDetach", jpc)) {
+                                    jpc.endpoints[0].detach(jpc, false, true, fireEvent);
+								}
+							}
 						});
 					}
 				}
-			}
 		};
 
 		/*
-		  Function: detachAll 
+		  Function: detachAllConnections
 		  Removes all an element's Connections.
 		   
 		  Parameters:
 		  	el - either the id of the element, or a selector for the element.
+		  	params - optional parameters.  alowed values:
+		  	        fireEvent : defaults to true, whether or not to fire the detach event.
 		  	
 		  Returns: 
 		  	void
 		 */
-		this.detachAllConnections = function(el) {
-			var id = _getAttribute(el, "id");
-			var endpoints = endpointsByElement[id];
+		this.detachAllConnections = function(el, params) {
+            params = params || {};
+            el = _getElementObject(el);
+			var id = _getAttribute(el, "id"),
+                endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
 				for ( var i = 0; i < endpoints.length; i++) {
-					endpoints[i].detachAll();
+					endpoints[i].detachAll(params.fireEvent);
 				}
 			}
 		};
-		
-		/**
-		 * @deprecated Use detachAllConnections instead.  this will be removed in jsPlumb 1.3.
-		 */
-		this.detachAll = this.detachAllConnections;
 
 		/*
 		  Function: detachEveryConnection 
 		  Remove all Connections from all elements, but leaves Endpoints in place.
+
+		  Parameters:
+		    params  - optional params object containing:
+		            fireEvent : whether or not to fire detach events. defaults to true.
+
 		   
 		  Returns: 
 		  	void
@@ -1417,23 +1419,20 @@ about the parameters allowed in the params object.
 		  See Also:
 		  	<removeEveryEndpoint>
 		 */
-		this.detachEveryConnection = function() {
+		this.detachEveryConnection = function(params) {
+            params = params || {};
 			for ( var id in endpointsByElement) {
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0; i < endpoints.length; i++) {
-						endpoints[i].detachAll();
+						endpoints[i].detachAll(params.fireEvent);
 					}
 				}
 			}
 			delete connectionsByScope;
 			connectionsByScope = {};
 		};
-		
-		/**
-		 * @deprecated use detachEveryConnection instead.  this will be removed in jsPlumb 1.3.
-		 */
-		this.detachEverything = this.detachEveryConnection;
+
 
 		/*
 		  Function: draggable 
@@ -2060,12 +2059,7 @@ about the parameters allowed in the params object.
 								ep.endpointWillMoveAfterConnection = false;
 								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);
 								var jpc = ep.connections[0]; // TODO will this always be correct?
-								_currentInstance.fire("jsPlumbConnection", {
-									connection:jpc,
-									source : jpc.source, target : jpc.target,
-									sourceId : jpc.sourceId, targetId : jpc.targetId,
-									sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-								});
+								_finaliseConnection(jpc);
 								_currentInstance.repaintEverything();
 							}
 						}										
@@ -2250,8 +2244,8 @@ about the parameters allowed in the params object.
 			// contunous? or is it merged with the normal one?
 			this.clearListeners();
 			// reattach the anchor manager listeners
-			this.bind("jsPlumbConnection", _currentInstance.anchorManager.connectionListener);
-			this.bind("jsPlumbConnectionDetached", _currentInstance.anchorManager.connectionDetachedListener);	
+			//this.bind("jsPlumbConnection", _currentInstance.anchorManager.connectionListener);
+			//this.bind("jsPlumbConnectionDetached", _currentInstance.anchorManager.connectionDetachedListener);
 		};
 
 		/*
@@ -2841,9 +2835,9 @@ about the parameters allowed in the params object.
 			self = this,
             anchorLists = {};
 			
- 		this.connectionListener = function(conn) {
+ 		this.newConnection = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
-				ep = conn.connection.endpoints,
+				ep = conn.endpoints,
 			    registerConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor) {
 						_addToList(endpointConnectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == DynamicAnchor]);
@@ -2853,12 +2847,13 @@ about the parameters allowed in the params object.
 						_addToList(continuousAnchorConnectionsByElementId, elId, c);
 					}
 			    };
-			registerConnection(1, ep[1], ep[1].anchor, sourceId, conn.connection);	
-			registerConnection(0, ep[0], ep[0].anchor, targetId, conn.connection);				
+			registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
+			registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
 		};
-		this.connectionDetachedListener = function(conn) {
-			var sourceId = conn.sourceId, targetId = conn.targetId,
-				ep = conn.connection.endpoints,
+		this.connectionDetached = function(connInfo) {
+			var sourceId = connInfo.sourceId,
+                targetId = connInfo.targetId,
+				ep = connInfo.connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
                     // todo remove from anchor lists!
 					if (otherAnchor.constructor == FloatingAnchor) {
@@ -2870,14 +2865,14 @@ about the parameters allowed in the params object.
 						_removeFromList(continuousAnchorConnectionsByElementId, elId, c);
 				};
 				
-			removeConnection(1, ep[1], ep[1].anchor, sourceId, conn.connection);	
-			removeConnection(0, ep[0], ep[0].anchor, targetId, conn.connection);
+			removeConnection(1, ep[1], ep[1].anchor, sourceId, connInfo.connection);
+			removeConnection(0, ep[0], ep[0].anchor, targetId, connInfo.connection);
 
             // remove from anchorLists
-            var sEl = conn.connection.sourceId,
-                tEl = conn.connection.targetId,
-                sE =  conn.connection.endpoints[0].id,
-                tE = conn.connection.endpoints[1].id,
+            var sEl = connInfo.connection.sourceId,
+                tEl = connInfo.connection.targetId,
+                sE =  connInfo.connection.endpoints[0].id,
+                tE = connInfo.connection.endpoints[1].id,
                 _remove = function(list, eId) {
                     if (list) {  // transient anchors dont get entries in this list.
                         var f = function(e) { return e[4] == eId; };
@@ -3071,8 +3066,8 @@ about the parameters allowed in the params object.
 		};
 	};
 	_currentInstance.anchorManager = new AnchorManager();
-	_currentInstance.bind("jsPlumbConnection", _currentInstance.anchorManager.connectionListener);
-	_currentInstance.bind("jsPlumbConnectionDetached", _currentInstance.anchorManager.connectionDetachedListener);	
+	//_currentInstance.bind("jsPlumbConnection", _currentInstance.anchorManager.connectionListener);
+	//_currentInstance.bind("jsPlumbConnectionDetached", _currentInstance.anchorManager.connectionDetachedListener);
 				
 	_currentInstance.continuousAnchorFactory = {
 		get:function(params) {
@@ -3752,6 +3747,10 @@ about the parameters allowed in the params object.
 		
 		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
 			var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
+
+            //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
+            // adding the floating endpoint as a droppable.  that makes more sense anyway!
+            
 			return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
 		};
 		
@@ -4028,8 +4027,9 @@ about the parameters allowed in the params object.
 			 *   connection - the Connection to detach.
 			 *   ignoreTarget - optional; tells the Endpoint to not notify the Connection target that the Connection was detached.  The default behaviour is to notify the target.
 			 */
-			this.detach = function(connection, ignoreTarget, forceDetach, doNotFireEvent) {
+			this.detach = function(connection, ignoreTarget, forceDetach, fireEvent) {
 				var idx = _findIndex(self.connections, connection), actuallyDetached = false;
+                fireEvent = (fireEvent !== false);
 				if (idx >= 0) {		
 					// 1. does the connection have a before detach (note this also checks jsPlumb's bound
 					// detach handlers; but then Endpoint's check will, too, hmm.)
@@ -4067,7 +4067,8 @@ about the parameters allowed in the params object.
 							_removeElements(connection.connector.getDisplayElements(), connection.parent);
 							_removeFromList(connectionsByScope, connection.scope, connection);
 							actuallyDetached = true;
-							if(!ignoreTarget && !doNotFireEvent) fireDetachEvent(connection);
+                            var doFireEvent = (!ignoreTarget && fireEvent)
+							fireDetachEvent(connection, doFireEvent);
 						}
 					}
 				}
@@ -4077,10 +4078,13 @@ about the parameters allowed in the params object.
 			/*
 			 * Function: detachAll
 			 *   Detaches all Connections this Endpoint has.
+			 *
+			 * Parameters:
+			 *  fireEvent   -   whether or not to fire the detach event.  defaults to false.
 			 */
-			this.detachAll = function() {
+			this.detachAll = function(fireEvent) {
 				while (self.connections.length > 0) {
-					self.detach(self.connections[0], false, true);
+					self.detach(self.connections[0], false, true, fireEvent);
 				}
 			};
 			/*
@@ -4088,9 +4092,10 @@ about the parameters allowed in the params object.
 			 *   Removes any connections from this Endpoint that are connected to the given target endpoint.
 			 *   
 			 * Parameters:
-			 *   targetEndpoint - Endpoint from which to detach all Connections from this Endpoint.
+			 *   targetEndpoint     - Endpoint from which to detach all Connections from this Endpoint.
+			 *   fireEvent          - whether or not to fire the detach event. defaults to false.
 			 */
-			this.detachFrom = function(targetEndpoint) {
+			this.detachFrom = function(targetEndpoint, fireEvent) {
 				var c = [];
 				for ( var i = 0; i < self.connections.length; i++) {
 					if (self.connections[i].endpoints[1] == targetEndpoint
@@ -4099,7 +4104,7 @@ about the parameters allowed in the params object.
 					}
 				}
 				for ( var i = 0; i < c.length; i++) {
-					if (self.detach(c[i])) 
+					if (self.detach(c[i], false, true, fireEvent))
 						c[i].setHover(false, false);					
 				}
 			};			
@@ -4565,7 +4570,7 @@ about the parameters allowed in the params object.
 								else {
 									var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
 									// fire a detach event
-									_currentInstance.fire("jsPlumbConnectionDetached", {
+									fireDetachEvent({
 										source : idx == 0 ? suspendedElement : jpc.source, 
 										target : idx == 1 ? suspendedElement : jpc.target,
 										sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, 
@@ -4573,16 +4578,9 @@ about the parameters allowed in the params object.
 										sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
 										targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
 										connection : jpc
-									});
+									}, true);
 								}
-								jsPlumb.repaint(elId);
-								_currentInstance.fire("jsPlumbConnection", {
-									source : jpc.source, target : jpc.target,
-									sourceId : jpc.sourceId, targetId : jpc.targetId,
-									sourceEndpoint : jpc.endpoints[0], 
-									targetEndpoint : jpc.endpoints[1],
-									connection:jpc
-								});														
+                                _finaliseConnection(jpc);
 							}
 							else {
                                 // otherwise just put it back on the endpoint it was on before the drag.
