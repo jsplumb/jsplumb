@@ -4,8 +4,8 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 ;(function() {
 	
 	jsPlumbDemo.initClearButton = function() {
-		Y.one("#clear").detach("click", jsPlumb.detachEverything );
-		Y.one("#clear").on("click", jsPlumb.detachEverything );
+		Y.one("#clear").detach("click", jsPlumb.detachEveryConnection );
+		Y.one("#clear").on("click", jsPlumb.detachEveryConnection );
 	};
 	
 	jsPlumbDemo.initAddButton = function() {
@@ -30,24 +30,25 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 				this.removeClass("jsPlumb_dragged");
 				return;
 			}
-			var o = this._node.getBoundingClientRect();
-			var w = o.width;
-			var h = o.height;
-			var c = [o.left + (w/2) - e.pageX, o.top + (h/2) - e.pageY];
-			var oo = [c[0] / w, c[1] / h];
-			var DIST = 450;
-			var l = o.left - (oo[0] * DIST);
-			var t = o.top - (oo[1] * DIST);
+			var o = this._node.getBoundingClientRect(),
+			    w = o.width,
+			    h = o.height,
+			    c = [o.left + (w/2) - e.pageX, o.top + (h/2) - e.pageY],
+			    oo = [c[0] / w, c[1] / h],
+			    DIST = 450,
+			    l = o.left - (oo[0] * DIST),
+			    t = o.top - (oo[1] * DIST);
+            
 			jsPlumb.animate(elId, {left:l, top:t}, {duration:0.9});
 		});
 	};
 	
 	jsPlumbDemo.createDisc = function() {
-		var id = 'disc_' + ((new Date().getTime()));
-		var w = screen.width - 162, h = screen.height - 162;
-		var x = (0.2 * w) + Math.floor(Math.random()*(0.5 * w));
-		var y = (0.2 * h) + Math.floor(Math.random()*(0.6 * h));
-		var style="top:" + y + "px;left:" + x + "px;";
+		var id = 'disc_' + ((new Date().getTime())),
+		    w = screen.width - 162, h = screen.height - 162,
+            x = (0.2 * w) + Math.floor(Math.random()*(0.5 * w)),
+		    y = (0.2 * h) + Math.floor(Math.random()*(0.6 * h)),
+		    style="top:" + y + "px;left:" + x + "px;";
 		
 		var d = Y.Node.create('<div id="' + id + '" style="' + style + '" class="bigdot"></div>');
 		Y.one("#demo").append(d);

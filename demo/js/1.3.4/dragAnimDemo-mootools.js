@@ -4,8 +4,8 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 ;(function() {
 	
 	jsPlumbDemo.initClearButton = function() {
-		$("clear").removeEvent("click", jsPlumb.detachEverything);
-		$("clear").addEvent("click", jsPlumb.detachEverything );
+		$("clear").removeEvent("click", jsPlumb.detachEveryConnection);
+		$("clear").addEvent("click", jsPlumb.detachEveryConnection );
 	};
 	
 	jsPlumbDemo.initAddButton = function() {
