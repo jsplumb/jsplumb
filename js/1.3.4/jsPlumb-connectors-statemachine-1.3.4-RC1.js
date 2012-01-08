@@ -336,7 +336,7 @@
 				self.ctx.quadraticCurveTo(dimensions[8], dimensions[9], dimensions[6], dimensions[7]);
 				self.ctx.stroke();            
 				
-				// draw the guideline
+				/*/ draw the guideline
 				if (drawGuideline) {
 					self.ctx.save();
 					self.ctx.beginPath();
@@ -347,6 +347,7 @@
 					self.ctx.stroke();            
 					self.ctx.restore();
 				}
+				//*/
 			}
 			else {
 				// a loopback connector
