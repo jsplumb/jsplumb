@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+	<head>
+		<title>create an element and make it instantly draggable test</title>
+		<style>
+			.testDiv {
+				width:5em;
+				height:5em;
+				background-color:red;
+				border:1px solid #465;
+			}
+		</style>
+	</head>
+	<body>
+		<p>
+            this works in all jQuery versions prior to 1.7.x.  when you press the left mouse button,
+            on the blue div below, it creates a div, makes it
+            draggable, and delegates the mousedown event to it, which causes a drag to begin. then without
+            letting go of the mouse button you can drag that div around.
+		</p>
+        <p><a href="createAndDrag_jquery-1.7.1.html">see the 1.7.1 version</a></p>
+        <p>
+            in 1.7.x, though, there's some stuff in the trigger method that causes it to fail. First
+            there is the problem that it tests for e.isPropagationStopped(), which it is, of course,
+            since we really want to consume the event.  Second, it uses a regex called 'rfocusMorph'
+            to determine which element to look for event handlers for, the result of which being that
+            it decides to look on the parent of the element on which we need the event to fire! in the case
+            of this page, that's the document body, which of course already has a mousedown handler. so if
+            e.stopPropagation() is called, then you'd get into an infinite loop (except for the fact that
+            it tests against e.isPropagationStopped(), which returns true, so it never tries to execute).
+        </p>
+        <p>the rfocusMorph regex looks like this:</p>
+        <pre>rfocusMorph = /^(?:focusinfocus|focusoutblur)$/</pre>
+        <p>at the point that it is called, our value is "mousedownmousedown", so it fails:</p>
+        <pre>cur = rfocusMorph.test( bubbleType + type ) ? elem : elem.parentNode;</pre>
+
+        <div id="workspace" style="background-color:blue;width:100%;height:40em"></div>
+
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				$("#workspace").bind("mousedown", function(e) {
+
+					var d = document.createElement("div");
+					d.className = "testDiv";
+					$("#workspace").append(d);
+					var w = $(d).outerWidth(), h = $(d).outerHeight();
+					$(d).offset({left:e.pageX - (w/2), top:e.pageY - (h/2)});
+					$(d).draggable({
+						stop:function() { alert("stopped!"); }
+					});
+
+                    e.stopPropagation();
+                    //$(d).trigger(e);
+
+                    var h = jQuery._data(d, "handle");
+                    h(e);
+				});
+
+			});
+		</script> 
+	</body>
+</html>
