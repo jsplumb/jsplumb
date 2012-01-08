@@ -722,6 +722,7 @@
 	jsPlumb.Overlays.Arrow = function(params) {
 		this.type = "Arrow";
 		AbstractOverlay.apply(this, arguments);
+        this.isAppendedAtTopLevel = false;
 		params = params || {};
 		var self = this;
 		

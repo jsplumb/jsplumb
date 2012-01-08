@@ -323,7 +323,7 @@
 		   		 	if (self.hoverPaintStyle != null) {
 						self.paintStyleInUse = hover ? self.hoverPaintStyle : self.paintStyle;
 						timestamp = timestamp || _timestamp();
-						self.repaint({timestamp:timestamp});					
+						self.repaint({timestamp:timestamp, recalc:false});
 					}
 					// get the list of other affected elements, if supported by this component.
 					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
@@ -660,8 +660,8 @@
 		
 		_newConnection = function(params) {
 			var connectionFunc = jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType(),
-			endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint,
-			parent = jsPlumb.CurrentLibrary.getParent;
+			    endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint,
+			    parent = jsPlumb.CurrentLibrary.getParent;
 			
 			if (params.container)
 				params["parent"] = params.container;
@@ -2084,7 +2084,7 @@ between this method and jsPlumb.reset).
 					}
 							
 					var x = ((e.pageX || e.page.x) - myOffset.left) / myWH[0], 
-					y = ((e.pageY || e.page.y) - myOffset.top) / myWH[1];
+					    y = ((e.pageY || e.page.y) - myOffset.top) / myWH[1];
 					
 					// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
 					// the params passed in, because after a connection is established we're going to reset the endpoint
@@ -2125,7 +2125,11 @@ between this method and jsPlumb.reset).
 					// and then trigger its mousedown event, which will kick off a drag, which will start dragging
 					// a new connection from this endpoint.
 					jpcl.trigger(ep.canvas, "mousedown", e);
-					jpcl.trigger(document, "click", e);
+                    // trigger a click to help things reset a little bit.
+                /*    if (p.parent)
+                        jpcl.trigger(ep.canvas, "click", e);
+                    else
+					    jpcl.trigger(document, "click", e);*/
 				});		
 			};
 			
@@ -2241,11 +2245,8 @@ between this method and jsPlumb.reset).
 		 */
 		this.reset = function() {
 			this.deleteEveryEndpoint();
-			// contunous? or is it merged with the normal one?
 			this.clearListeners();
-			// reattach the anchor manager listeners
-			//this.bind("jsPlumbConnection", _currentInstance.anchorManager.connectionListener);
-			//this.bind("jsPlumbConnectionDetached", _currentInstance.anchorManager.connectionDetachedListener);
+            this.anchorManager.reset();
 		};
 
 		/*
@@ -2834,6 +2835,13 @@ between this method and jsPlumb.reset).
 			continuousAnchorEndpoints = [],
 			self = this,
             anchorLists = {};
+
+        this.reset = function() {
+            endpointConnectionsByElementId = {};
+			continuousAnchorConnectionsByElementId = {};
+			continuousAnchorEndpoints = [];
+            anchorLists = {};
+        };
 			
  		this.newConnection = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
@@ -3651,9 +3659,6 @@ between this method and jsPlumb.reset).
 			 *  timestamp - timestamp of this paint.  If the Connection was last painted with the same timestamp, it does not paint again.
 			 */
 			this.paint = function(params) {
-				/*_group("CONNECTION PAINT");
-				_log("ID:", self.id);
-				_time("TOTAL");*/
 				params = params || {};
 				var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
 				// if the moving object is not the source we must transpose the two references.
@@ -3666,30 +3671,7 @@ between this method and jsPlumb.reset).
 				
 				var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx],
 					sAnchorP = sE.anchor.getCurrentLocation(sE),				
-					tAnchorP = tE.anchor.getCurrentLocation(tE);					
-				
-			/*	if (sAnchorP == null) {	
-					var os = offsets[elId], ot = offsets[tId];
-					sE.anchor.compute({
-						xy:[os.left, os.top],
-						wh:sizes[elId],
-						txy:[ot.left, ot.top],
-						twh:sizes[tId],
-						element:sE.element
-					});
-					sourceAnchorP = sE.anchor.getCurrentLocation(this.endpoints[sIdx]);
-				}
-				if (tAnchorP == null) {	
-					var os = offsets[elId], ot = offsets[tId];
-					tE.anchor.compute({
-						xy:[ot.left, ot.top],
-						wh:sizes[elId],
-						txy:[os.left, os.top],
-						twh:sizes[tId],
-						element:tE.element
-					});
-					targetAnchorP =  tE.anchor.getCurrentLocation(this.endpoints[tIdx]);
-				}		*/		
+					tAnchorP = tE.anchor.getCurrentLocation(tE);												
 				
 				/* paint overlays*/
 				var maxSize = 0;
@@ -3710,9 +3692,6 @@ between this method and jsPlumb.reset).
 					var o = self.overlays[i];
 					if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
 				}
-				
-				//_timeEnd("TOTAL");
-				//_groupEnd("CONNECTION PAINT");
 			};			
 
 			/*
@@ -3721,7 +3700,8 @@ between this method and jsPlumb.reset).
 			 */
 			this.repaint = function(params) {
 				params = params || {};
-				this.paint({ elId : this.sourceId, recalc : true, timestamp:params.timestamp });
+                var recalc = !(params.recalc === false);
+				this.paint({ elId : this.sourceId, recalc : recalc, timestamp:params.timestamp });
 			};
 			// resizing (using the jquery.ba-resize plugin). todo: decide
 			// whether to include or not.
@@ -3949,16 +3929,18 @@ between this method and jsPlumb.reset).
 			this.endpoint.bind("click", function(e) { self.fire("click", self, e); });
 			this.endpoint.bind("dblclick", function(e) { self.fire("dblclick", self, e); });
 			// this method is different; endpoint delegates hover to the first connection if there is one.
+            // that allows the connection to notify all its endpoint and avoids a circular loop
             this.endpoint.bind("mouseenter", function(con, e) {
 				if (!self.isHover()) {
-                    internalHover(true, false);
+                    internalHover(true);
 					self.fire("mouseenter", self, e);
 				}
 			});
             // this method is different; endpoint delegates hover to the first connection if there is one.
+            // that allows the connection to notify all its endpoint and avoids a circular loop
 			this.endpoint.bind("mouseexit", function(con, e) {
 				if (self.isHover()) {
-                    internalHover(false, false);
+                    internalHover(false);
 					self.fire("mouseexit", self, e);
 				}
 			});
@@ -4288,9 +4270,10 @@ between this method and jsPlumb.reset).
 			 */
 			this.paint = function(params) {
 				params = params || {};
-				var timestamp = params.timestamp;
+				var timestamp = params.timestamp,
+                    recalc = !(params.recalc === false);
 				if (!timestamp || self.timestamp !== timestamp) {			
-					_updateOffset({ elId:_elementId, timestamp:timestamp });
+					_updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
 					var ap = params.anchorPoint, connectorPaintStyle = params.connectorPaintStyle;
 					if (ap == null) {
 						var xy = params.offset || offsets[_elementId],
@@ -4301,7 +4284,7 @@ between this method and jsPlumb.reset).
 							wh = sizes[_elementId];
 						}
 						var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
-						if (self.anchor.isDynamic && self.connections.length > 0) {
+						if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
 							var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
 							oIdx = c.endpoints[0] == self ? 1 : 0,
 							oId = oIdx == 0 ? c.sourceId : c.targetId,
@@ -4319,7 +4302,13 @@ between this method and jsPlumb.reset).
 				}
 			};
 			
-			this.repaint = this.paint;
+			/*this.repaint = function() {
+                self.paint();
+                for (var i = 0; i < self.connections.length; i++)
+                    self.connections[i].repaint();
+            }*/
+
+            this.repaint = this.paint;
 
 			/**
 			 * @deprecated
@@ -4376,6 +4365,9 @@ between this method and jsPlumb.reset).
 					
 					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
+                        self.setHover(false, false);
+                        // TODO the hover call above does not reset any target endpoint's hover
+                        // states.
 						// create a connection. one end is this endpoint, the other is a floating endpoint.
 						jpc = _newConnection({
 							sourceEndpoint : self,
@@ -4388,10 +4380,12 @@ between this method and jsPlumb.reset).
 							connector : params.connector, // this can also be null. Connection will use the default.
 							overlays : params.connectorOverlays 
 						});
-						jpc.connector.setHover(false, false);
+
 					} else {
 						existingJpc = true;
 						jpc.connector.setHover(false, false);
+                       // jpc.endpoints[0].setHover(false, false);
+                        //jpc.endpoints[1].setHover(false, false);
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas), false, true);
 						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?
@@ -4495,10 +4489,8 @@ between this method and jsPlumb.reset).
 							}																
 						}
 						self.anchor.locked = false;												
-						self.paint();
+						self.paint({recalc:false});
 						jpc.setHover(false, false);
-                        jpc.endpoints[0].setHover(false);
-                        jpc.endpoints[1].setHover(false);
 						jpc = null;						
 						inPlaceCopy = null;							
 						delete endpointsByElement[floatingEndpoint.elementId];
@@ -4581,6 +4573,7 @@ between this method and jsPlumb.reset).
 									}, true);
 								}
                                 _finaliseConnection(jpc);
+                                //jpc.endpoints[0].repaint();
 							}
 							else {
                                 // otherwise just put it back on the endpoint it was on before the drag.

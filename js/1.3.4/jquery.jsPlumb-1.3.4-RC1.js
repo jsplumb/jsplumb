@@ -320,8 +320,11 @@
 		 * @param originalEvent
 		 */
 		trigger : function(el, event, originalEvent) {
-			originalEvent.stopPropagation();
-			jsPlumb.CurrentLibrary.getElementObject(el).trigger(originalEvent);
+			//originalEvent.stopPropagation();
+			//jsPlumb.CurrentLibrary.getElementObject(el).trigger(originalEvent);
+            var h = jQuery._data(jsPlumb.CurrentLibrary.getElementObject(el)[0], "handle");
+            h(originalEvent);
+            //originalEvent.stopPropagation();
 		},
 		
 		/**
