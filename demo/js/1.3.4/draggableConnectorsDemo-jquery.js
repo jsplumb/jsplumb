@@ -22,11 +22,11 @@
 		});
 
 		$(".detach").click(function() {
-			jsPlumb.detachAll($(this).attr("rel"));
+			jsPlumb.detachAllConnections($(this).attr("rel"));
 		});
 
 		$("#clear").click(function() { 
-			jsPlumb.detachEverything(); jsPlumbDemo.showConnectionInfo(); 
+			jsPlumb.detachEveryConnection(); jsPlumbDemo.showConnectionInfo();
 		});
 	};
 

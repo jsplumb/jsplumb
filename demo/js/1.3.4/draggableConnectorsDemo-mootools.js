@@ -29,11 +29,11 @@
 
 		$$(".detach").each(function(d) {
 			d.addEvent('click', function() {
-				jsPlumb.detachAll(d.get("rel"));
+				jsPlumb.detachAllConnections(d.get("rel"));
 			});
 		});
 
-		$("clear").addEvent('click', function() { jsPlumb.detachEverything(); jsPlumbDemo.showConnectionInfo(); });
+		$("clear").addEvent('click', function() { jsPlumb.detachEveryConnection(); jsPlumbDemo.showConnectionInfo(); });
 	};
 
 })();

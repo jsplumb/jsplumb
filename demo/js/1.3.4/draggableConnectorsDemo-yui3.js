@@ -29,12 +29,12 @@
 
 		Y.all(".detach").each(function(d) {
 			d.on('click', function() {
-				jsPlumb.detachAll(d.getAttribute("rel"));
+				jsPlumb.detachAllConnections(d.getAttribute("rel"));
 			});
 		});
 
 		Y.one("#clear").on('click', function() { 
-			jsPlumb.detachEverything(); 
+			jsPlumb.detachEveryConnection();
 			jsPlumbDemo.showConnectionInfo(); 
 		});
 		
