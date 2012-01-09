@@ -43,6 +43,7 @@ var _cleanup = function() {
 	
 	jsPlumb.reset();
 	jsPlumb.Defaults.Container = null;
+    jsPlumb.Defaults.ConnectionsDetachable = true;
 	
 	for (var i in _divs) {
 		$("#" + _divs[i]).remove();		
@@ -1509,40 +1510,40 @@ var testSuite = function(renderMode) {
 		assertContextSize(2);
 	});
 
-    test(renderMode + " detachable parameter defaults to false on jsPlumb.connect", function() {
+    test(renderMode + " detachable parameter defaults to true on jsPlumb.connect", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = jsPlumb.connect({source:d1, target:d2});
-        equals(c.isDetachable(), false, "connections not detachable by default");
+        equals(c.isDetachable(), true, "connections detachable by default");
     });
 
-    test(renderMode + " detachable parameter set to true on jsPlumb.connect", function() {
+    test(renderMode + " detachable parameter set to false on jsPlumb.connect", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
-            c = jsPlumb.connect({source:d1, target:d2, detachable:true});
-        equals(c.isDetachable(), true, "connection detachable");
+            c = jsPlumb.connect({source:d1, target:d2, detachable:false});
+        equals(c.isDetachable(), false, "connection detachable");
     });
 
-    test(renderMode + " setDetachable on initially non-detachable connection", function() {
+    test(renderMode + " setDetachable on initially detachable connection", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = jsPlumb.connect({source:d1, target:d2});
+        equals(c.isDetachable(), true, "connection initially detachable");
+        c.setDetachable(false);
+        equals(c.isDetachable(), false, "connection not detachable");
+    });
+
+    test(renderMode + " setDetachable on initially not detachable connection", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+            c = jsPlumb.connect({source:d1, target:d2, detachable:false });
         equals(c.isDetachable(), false, "connection not initially detachable");
         c.setDetachable(true);
         equals(c.isDetachable(), true, "connection now detachable");
     });
 
-    test(renderMode + " setDetachable on initially detachable connection", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
-            c = jsPlumb.connect({source:d1, target:d2, detachable:true});
-        equals(c.isDetachable(), true, "connection initially detachable");
-        c.setDetachable(false);
-        equals(c.isDetachable(), false, "connection no longer detachable");
-    });
-
     test(renderMode + " jsPlumb.Defaults.ConnectionsDetachable", function() {
-        jsPlumb.Defaults.ConnectionsDetachable = true;
+        jsPlumb.Defaults.ConnectionsDetachable = false;
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = jsPlumb.connect({source:d1, target:d2});
-        equals(c.isDetachable(), true, "connections detachable by default");
-        jsPlumb.Defaults.ConnectionsDetachable = false;
+        equals(c.isDetachable(), false, "connections not detachable by default (overrode the defaults)");
+        jsPlumb.Defaults.ConnectionsDetachable = true;
     });
 	
 	
@@ -1988,11 +1989,11 @@ var testSuite = function(renderMode) {
 		equals(d3ElementCount + 1, $("#d3")[0].childNodes.length, "1 new element added to div d3");
 	});
 
-    test(renderMode + " detachable defaults to false when connection made between two endpoints", function() {
+    test(renderMode + " detachable defaults to true when connection made between two endpoints", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = jsPlumb.addEndpoint(d1), e2 = jsPlumb.addEndpoint(d2),
             c = jsPlumb.connect({source:e1, target:e2});
-        equals(c.isDetachable(), false, "connection not detachable");
+        equals(c.isDetachable(), true, "connection not detachable");
     });
 
     test(renderMode + " connection detachable when target endpoint has connectionsDetachable set to true", function() {
@@ -2316,9 +2317,7 @@ var testSuite = function(renderMode) {
 		equals(jsPlumb.anchorManager.get("d3")["standard"].length, 0);
 		equals(jsPlumb.anchorManager.get("d3")["continuous"].length, 1);		
 		equals(jsPlumb.anchorManager.get("d4")["standard"].length, 0);
-		equals(jsPlumb.anchorManager.get("d4")["continuous"].length, 1);		
-		
-		equals(jsPlumb.anchorManager.get("d4")["continuousAnchorEndpoints"].length, 2);	
+		equals(jsPlumb.anchorManager.get("d4")["continuous"].length, 1);							
 	
 		jsPlumb.detach(c);
 		equals(jsPlumb.anchorManager.get("d3")["continuous"].length, 0);		
