@@ -53,12 +53,7 @@
 			   				  } ],
 			   				["Arrow", {
 			   					cssClass:"l1arrow",
-				   				location:0.5, width:30,
-			   					events : {
-									"click":function(arrow, evt) {
-										alert("clicked on arrow for connection 1");
-		   							}
-		   						}
+				   				location:0.5, width:30
 	   						}]
 			]});
 					        
@@ -72,6 +67,7 @@
 							outlineColor:"#666",
 							outlineWidth:1 
 						},
+                        detachable:false,
 	      				hoverPaintStyle:hoverPaintStyle, 
 	      				anchors:[ [ 0.3 , 1, 0, 1 ], "TopCenter" ], 
 	      				endpoint:"Rectangle", 
@@ -83,13 +79,14 @@
 				
 			var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
 		        				 paintStyle:{ 
-	    				 							lineWidth:10, 
-	    				 							strokeStyle:connectorStrokeColor,
-	    				 							outlineColor:"#666",
-	    				 							outlineWidth:1
-	    				 					},
+	    				 		    lineWidth:10,
+	    				 			strokeStyle:connectorStrokeColor,
+	    				 			outlineColor:"#666",
+	    				 			outlineWidth:1
+	    				 		 },
 		        				 hoverPaintStyle:hoverPaintStyle, 
-		        				 anchor:"AutoDefault", 
+		        				 anchor:"AutoDefault",
+                                 detachable:false,
 		        				 endpointStyle:{ 
 			        				 	gradient : { 
 			        				 		stops:[[0, connectorStrokeColor], [1, connectorHighlightStrokeColor]],
@@ -108,7 +105,13 @@
 			        			 }
 		        			});
 	
-			
+
+            /*
+            this connects window5 with window6 using a Flowchart connector that is painted green,
+            with large Dot endpoints that are placed in the center of each element.  there is a
+            label at the default location of 0.5, and the connection is marked as not being
+            detachable.
+             */
 	        var conn4Color = "rgba(46,164,26,0.8)";
 	        var connection4 = jsPlumb.connect({  
 		        						source:'window5', 
@@ -123,6 +126,7 @@
 					 						joinstyle:"round"
 					 					},
 		        						hoverPaintStyle:hoverPaintStyle,
+                                        detachable:false,
 		        						endpointsOnTop:false, 
 		        						endpointStyle:{ radius:95, fillStyle:conn4Color },
 		        						labelStyle : { cssClass:"component label" },
