@@ -740,8 +740,6 @@
 			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
 			params.parent = _getParentFromParams(params);
 			params["_jsPlumb"] = _currentInstance;
-        //    params.scope="f";
-         //   alert(params.scope);
 			var ep = new endpointFunc(params);
 			ep.id = "ep_" + _idstamp();
 			_eventFireProxy("click", "endpointClick", ep);
@@ -4510,13 +4508,6 @@ between this method and jsPlumb.reset).
 						if (jpc.endpoints[idx] == floatingEndpoint) {
 							// if the connection was an existing one:
 							if (existingJpc && jpc.suspendedEndpoint) {
-
-                                // this will be set if we are forcing the connection back to
-                                // where it came from - a beforeDetach interceptor prevent the move.
-                          //      if (jpc._forceDetach) {
-                            //        jpc.endpoints[idx == 0 ? 1 : 0].detachFromConnection(jpc);
-                              //  }
-
 								// fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
 								// floating endpoint has been replaced.
 								if (idx == 0) {
@@ -4636,12 +4627,23 @@ between this method and jsPlumb.reset).
 							else {
                                 // otherwise just put it back on the endpoint it was on before the drag.
 								if (jpc.suspendedEndpoint) {
+                            //        self.detachFrom(jpc);
+                                    jpc.endpoints[idx] = jpc.suspendedEndpoint;
 									jpc.setHover(false);
                                     jpc._forceDetach = true;
+                                    if (idx == 0) {
+								        jpc.source = jpc.suspendedEndpoint.element;
+								        jpc.sourceId = jpc.suspendedEndpoint.elementId;
+							        } else {
+								        jpc.target = jpc.suspendedEndpoint.element;
+								        jpc.targetId = jpc.suspendedEndpoint.elementId;;
+							        }
 								    jpc.suspendedEndpoint.addConnection(jpc);
 
+                                    jpc.endpoints[0].repaint();
+                                    jpc.repaint();
 									jsPlumb.repaint(jpc.source.elementId);
-                                    //jpc._forceDetach = null;
+                                    jpc._forceDetach = false;
 								}
 							}
 
