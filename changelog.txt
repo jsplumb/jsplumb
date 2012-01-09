@@ -1,9 +1,21 @@
 * 1.3.4
 
+    backwards compatibility :
+
 
     - detachEverything method removed from jsPlumb. use detachEveryConnection instead.
 
     - detachAll method removed. use detachAllConnections instead.
+
+    - removed labelStyle from Label overlay.  to set fonts/border/background, use a cssClass now.
+
+    - removed the notion of jsplumb making everything draggable by default.  it is now the user's responsibility
+	to ensure everything is draggable.  use jsPlumb.draggable for this, still, of course, or jsPlumb won't
+	know about your draggable elements.
+
+	- removed endpointsOnTop parameter from Connection. You can achieve this effect through cssClass.
+
+    new functionality :
 
     - detachEveryConnection and detachAllConnections supports a parameter object now; valid values on this release
       are 'fireEvent', the default for which is true.
@@ -22,10 +34,6 @@
 	jsPlumbConnectionDetached method, that connection passed in will have this member
 	set, if it was an existing connection that was just moved.
 
-	- removed labelStyle from Label overlay.  to set fonts/border/background, use a cssClass now.
-
-    - added getImage method to Image endpoint
-
     - added 'onload' parameter to Endpoint (for use when constructing an Image endpoint)
 
 	- added getSelector method to jsPlumb library adapters; exposes the ability to abstract out a list 
@@ -35,23 +43,17 @@
 	  programmatically and with drag and drop.
 	  
 	- added beforeDrop option to Endpoints that have isTarget:true.
-	
-	- removed the notion of jsplumb making everything draggable by default.  it is now the user's responsibility
-	to ensure everything is draggable.  use jsPlumb.draggable for this, still, of course, or jsPlumb won't
-	know about your draggable elements.
-	
+
 	- added jsPlumb.makeSource method
-	- finished jsPlumb.makeTarget method properly.
+
+	- finished jsPlumb.makeTarget method.
 	
 	- added getLocation/setLocation to AbstractOverlay (so all Overlays derive these methods)
 	
-	- removed endpointsOnTop parameter from Connection
-	
 	- added ContinuousAnchors
+
 	- added StateMachine connectors
-	
-	- reinstated the 'tooltip' parameter on jsPlumb.connect and jsPlumb.addEndpoint, and 'connectorTooltip' on jsPlumb.addEndpoint.
-	
+
 	- added 'hoverClass' to endpoints and connections.  this is supported in the individual connector
 	and endpoint definitions, NOT the main args you pass to addEndpoint or connect.
 	
@@ -62,7 +64,9 @@
 	
 	- jsPlumb.addEndpoint and jsPlumb.connect now both support a "parameters" object, which lets you set
 	specific values that you can then retrieve using getParameter on Endpoint and Connection.
-	
+
+	- added getImage method to Image endpoint
+
 	- added 'width' and 'height' parameters to Image endpoint; you can override the width and height of the image
 	with these. prior to this version, jsplumb would set the image to be the size of the image itself.
 	
