@@ -35,7 +35,7 @@
 
 		Y.one("#clear").on('click', function() { 
 			jsPlumb.detachEveryConnection();
-			jsPlumbDemo.showConnectionInfo(); 
+			jsPlumbDemo.showConnectionInfo("");
 		});
 		
 		new Y.DD.Drag({node:"#explanation"});

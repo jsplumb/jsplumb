@@ -33,7 +33,7 @@
 			});
 		});
 
-		$("clear").addEvent('click', function() { jsPlumb.detachEveryConnection(); jsPlumbDemo.showConnectionInfo(); });
+		$("clear").addEvent('click', function() { jsPlumb.detachEveryConnection(); jsPlumbDemo.showConnectionInfo(""); });
 	};
 
 })();

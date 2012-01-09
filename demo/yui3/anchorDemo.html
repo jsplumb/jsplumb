@@ -17,8 +17,13 @@
 		</div>
 	    <div id="explanation">
 	    	<p>This page provides a demonstration of the makeSource and makeTarget functions.  Drag Connections from the
-	    	big blue element to any of the small green ones.</p>
-	    	<p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor
+	    	big blue element to any of the small green ones. You can also drag Connections from one green element to another, because Connections in jsPlumb
+            are, by default, detachable (this behaviour can be overridden at the default level, or on a per-call basis).</p>
+            <p>These functions provide an alternative means of setting up your UI to support draggable connections - in the other demos you will see Endpoints
+            being created and assigned to elements, which are then used as the sources and targets for Connections.  But in this demonstration we treat entire
+            elements as sources and targets, and only when Connections are established do we assign Endpoints for them, according to the parameters specified in
+            the makeSource and makeTarget method calls.</p>
+            <p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor
 	    	locations:</p>
 	    	<div class="code">
 <pre>
@@ -48,7 +53,7 @@ for (var i = 0; i < smallWindows.length; i++) {
 </pre>
 </div>
 	    	<p>This demonstration uses jsPlumb 1.3.4 and YUI 3.3.0.</p>
-	    	You also might like to check out <a class="mplink" href="http://tweetplumb.com?q=#jquery" target="_blank">TweetPlumb</a>, a Twitter visualisation built with jsPlumb.
+	 
 	    </div>
 	    
 	    <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>

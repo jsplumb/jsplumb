@@ -26,7 +26,7 @@
 		});
 
 		$("#clear").click(function() { 
-			jsPlumb.detachEveryConnection(); jsPlumbDemo.showConnectionInfo();
+			jsPlumb.detachEveryConnection(); jsPlumbDemo.showConnectionInfo("");
 		});
 	};
 
