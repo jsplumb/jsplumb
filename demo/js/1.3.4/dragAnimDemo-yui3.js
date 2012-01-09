@@ -31,8 +31,8 @@ unavoidable separate file for jquery specific parts of the dragAnimDemo.
 				return;
 			}
 			var o = this._node.getBoundingClientRect(),
-			    w = o.width,
-			    h = o.height,
+			    w = o.right - o.left,
+			    h = o.bottom - o.top,
 			    c = [o.left + (w/2) - e.pageX, o.top + (h/2) - e.pageY],
 			    oo = [c[0] / w, c[1] / h],
 			    DIST = 450,
