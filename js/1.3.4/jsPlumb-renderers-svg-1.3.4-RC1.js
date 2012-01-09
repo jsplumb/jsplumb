@@ -26,7 +26,9 @@
  * css:http://tutorials.jenkov.com/svg/svg-and-css.html
  * text on a path: http://www.w3.org/TR/SVG/text.html#TextOnAPath
  * pointer events: https://developer.mozilla.org/en/css/pointer-events
- * 
+ *
+ * IE9 hover jquery: http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events
+ *
  */
 ;(function() {
 	

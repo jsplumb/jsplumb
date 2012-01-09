@@ -94,7 +94,7 @@
 		_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
 		_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },		
 		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
-		_logEnabled = false,
+		_logEnabled = true,
 		_log = function() {
 		    if (_logEnabled && typeof console != "undefined") {
                 try {
@@ -231,7 +231,6 @@
 			// is performed; returning false prevents the detach.
 			var beforeDetach = params.beforeDetach;
 			this.isDetachAllowed = function(connection) {
-			//	var r = self._jsPlumb.checkCondition("beforeDetach", connection);
 				var r = true;
 				if (beforeDetach) {
 					try { 
@@ -407,6 +406,7 @@
 		this.Defaults = {
 			Anchor : "BottomCenter",
 			Anchors : [ null, null ],
+            ConnectionsDetachable : true,
             Connector : "Bezier",
 			Container : null,
 			DragOptions : { },
@@ -1984,11 +1984,7 @@ between this method and jsPlumb.reset).
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
 				var elid = _getId(_el);
-				    _sourceEndpointDefinitions[elid] = p.endpoint || {};
-				
-				    var paintStyle = _sourceEndpointDefinitions[elid].paintStyle || _currentInstance.Defaults.EndpointStyles[0] || _currentInstance.Defaults.EndpointStyle,
-				        docEl = jpcl.getElementObject(document);
-				
+				_sourceEndpointDefinitions[elid] = p.endpoint || {};
 				var stopEvent = jpcl.dragEvents["stop"],
 					dragEvent = jpcl.dragEvents["drag"],
 					dragOptions = jsPlumb.extend({ }, _sourceEndpointDefinitions[elid].dragOptions || {}), 
@@ -2018,7 +2014,6 @@ between this method and jsPlumb.reset).
                                                           jsPlumb.Defaults.Anchors[0] ||
                                                           jsPlumb.Defaults.Anchor;
 
-				
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {
 					endpointAddedButNoDragYet = false;
 				});
@@ -2036,7 +2031,8 @@ between this method and jsPlumb.reset).
 					// connection to have fired a connection event.  but how can we prevent it from doing so?
 					//
 					//
-					
+
+                    //_currentlyDown = false;
 					_currentInstance.currentlyDragging = false;
 					
 					if (ep.connections.length == 0)
@@ -2067,7 +2063,7 @@ between this method and jsPlumb.reset).
 					}
 				};
 				// when the user presses the mouse, add an Endpoint
-				jpcl.bind(_el, "mousedown", function(e) {										
+				var mouseDownListener = function(e) {
 					// make sure we have the latest offset for this div 
 					_updateOffset({elId:elid});				
 					// and get it, and the div's size
@@ -2107,30 +2103,34 @@ between this method and jsPlumb.reset).
 					}
 					
 					ep = jsPlumb.addEndpoint(elid, tempEndpointParams);
+
 					endpointAddedButNoDragYet = true;
 					// we set this to prevent connections from firing attach events before this function has had a chance
 					// to move the endpoint.
 					ep.endpointWillMoveAfterConnection = p.parent != null;
 					ep.endpointWillMoveTo = p.parent ? jpcl.getElementObject(p.parent) : null;
-					
-					jpcl.bind(ep.canvas, "mouseup", function() {
+
+                    var _delTempEndpoint = function() {
 						// this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
 						// it is fired even if dragging has occurred, in which case we would blow away a perfectly
 						// legitimate endpoint, were it not for this check.  the flag is set after adding an
 						// endpoint and cleared in a drag listener we set in the dragOptions above.
-						if(endpointAddedButNoDragYet)
-							jsPlumb.deleteEndpoint(ep);		
-					});
+						if(endpointAddedButNoDragYet) {
+							jsPlumb.deleteEndpoint(ep);
+                        }
+					};
+
+					_currentInstance.registerListener(ep.canvas, "mouseup", _delTempEndpoint);
+                    _currentInstance.registerListener(_el, "mouseup", _delTempEndpoint);
 					
 					// and then trigger its mousedown event, which will kick off a drag, which will start dragging
 					// a new connection from this endpoint.
 					jpcl.trigger(ep.canvas, "mousedown", e);
-                    // trigger a click to help things reset a little bit.
-                /*    if (p.parent)
-                        jpcl.trigger(ep.canvas, "click", e);
-                    else
-					    jpcl.trigger(document, "click", e);*/
-				});		
+				};
+
+               // jpcl.bind(_el, "mousedown", mouseDownListener);
+                // register this on jsPlumb so that it can be cleared by a reset.
+                _currentInstance.registerListener(_el, "mousedown", mouseDownListener);
 			};
 			
 			el = _convertYUICollection(el);			
@@ -2239,6 +2239,24 @@ between this method and jsPlumb.reset).
 			_currentInstance.deleteEndpoint(endpoint);
 		};
 
+        var _registeredListeners = {},
+            _unbindRegisteredListeners = function() {
+                for (var i in _registeredListeners) {
+                    for (var j = 0; j < _registeredListeners[i].length; j++) {
+                        var info = _registeredListeners[i][j];
+                        jsPlumb.CurrentLibrary.unbind(info.el, info.event, info.listener);
+                    }
+                }
+                _registeredListeners = {};
+            };
+
+        // internal register listener method.  gives us a hook to clean things up
+        // with if the user calls jsPlumb.reset.
+        this.registerListener = function(el, type, listener) {
+            jsPlumb.CurrentLibrary.bind(el, type, listener);
+            _addToList(_registeredListeners, type, {el:el, event:type, listener:listener});
+        };
+
 		/*
 		  Function:reset 
 		  Removes all endpoints and connections and clears the listener list. To keep listeners call jsPlumb.deleteEveryEndpoint instead of this.
@@ -2246,6 +2264,7 @@ between this method and jsPlumb.reset).
 		this.reset = function() {
 			this.deleteEveryEndpoint();
 			this.clearListeners();
+            _unbindRegisteredListeners();
             this.anchorManager.reset();
 		};
 
@@ -2846,17 +2865,25 @@ between this method and jsPlumb.reset).
  		this.newConnection = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
 				ep = conn.endpoints,
+                doRegisterTarget = true,
 			    registerConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor) {
 						_addToList(endpointConnectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == DynamicAnchor]);
 					}
 					else {
-						// continuous.
+						// continuous.  if they are the same element, just assign the same anchor
+                        // to both.
+                        if (sourceId == targetId) {
+                           // remove the target endpoint's canvas.  we dont need it.
+                            jsPlumb.CurrentLibrary.removeElement(ep[1].canvas);
+                            doRegisterTarget = false;
+                        }
 						_addToList(continuousAnchorConnectionsByElementId, elId, c);
 					}
 			    };
-			registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
 			registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
+             if (doRegisterTarget)
+                registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
 		};
 		this.connectionDetached = function(connInfo) {
 			var sourceId = connInfo.sourceId,
@@ -2945,9 +2972,8 @@ between this method and jsPlumb.reset).
             }
 
             for (var i = 0; i < listToAddTo.length; i++) {
-                if (idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1) {
+                if (idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1)
                     firstMatchingElIdx = i;
-                }
                 connsToPaint.push(listToAddTo[i][1]);
                 endpointsToPaint.push(listToAddTo[i][1].endpoints[idx]);
             }
@@ -3296,10 +3322,11 @@ between this method and jsPlumb.reset).
 			if (params.deleteEndpointsOnDetach)
 				self.endpointsToDeleteOnDetach = [eS, eT];
 
-            var _detachable = params.detachable ||
-                              self.endpoints[0].connectionsDetachable ||
-                              self.endpoints[1].connectionsDetachable ||
-                              _currentInstance.Defaults.ConnectionsDetachable;
+            var _detachable = _currentInstance.Defaults.ConnectionsDetachable;
+            if (params.detachable === false) _detachable = false;
+            if(self.endpoints[0].connectionsDetachable === false) _detachable = false;
+            if(self.endpoints[1].connectionsDetachable === false) _detachable = false;
+            
             /*
                 Function: isDetachable
                 Returns whether or not this connection can be detached from its target/source endpoint.  by default this
@@ -3671,7 +3698,7 @@ between this method and jsPlumb.reset).
 				
 				var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx],
 					sAnchorP = sE.anchor.getCurrentLocation(sE),				
-					tAnchorP = tE.anchor.getCurrentLocation(tE);												
+					tAnchorP = tE.anchor.getCurrentLocation(tE);
 				
 				/* paint overlays*/
 				var maxSize = 0;
@@ -3985,7 +4012,9 @@ between this method and jsPlumb.reset).
 			this.scope = params.scope || DEFAULT_SCOPE;
 			this.timestamp = null;
 			self.isReattach = params.reattach || false;
-            self.connectionsDetachable = params.connectionsDetachable || params.detachable || false;
+            self.connectionsDetachable = _currentInstance.Defaults.ConnectionsDetachable;
+            if (params.connectionsDetachable === false || params.detachable === false)
+                self.connectionsDetachable = false;
 			var dragAllowedWhenFull = params.dragAllowedWhenFull || true;
 
 			this.computeAnchor = function(params) {
@@ -4015,7 +4044,7 @@ between this method and jsPlumb.reset).
 				if (idx >= 0) {		
 					// 1. does the connection have a before detach (note this also checks jsPlumb's bound
 					// detach handlers; but then Endpoint's check will, too, hmm.)
-					if (forceDetach || connection._forceDetach || connection.isDetachAllowed(connection)) {
+					if (forceDetach || connection._forceDetach || connection.isDetachable() || connection.isDetachAllowed(connection)) {
 						// get the target endpoint
 						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
 						// it would be nice to check with both endpoints that it is ok to detach. but 
@@ -4301,12 +4330,6 @@ between this method and jsPlumb.reset).
 					self.timestamp = timestamp;
 				}
 			};
-			
-			/*this.repaint = function() {
-                self.paint();
-                for (var i = 0; i < self.connections.length; i++)
-                    self.connections[i].repaint();
-            }*/
 
             this.repaint = this.paint;
 
@@ -4331,6 +4354,11 @@ between this method and jsPlumb.reset).
 					if (jpc == null && !params.isSource) _continue = false;
                     // otherwise if we're full and not allowed to drag, also return false.
                     if (params.isSource && self.isFull() && !dragAllowedWhenFull) _continue = false;
+
+                    // if the connection was setup as not detachable (or one of its endpoints
+                    // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
+                    // is set to false...
+                    if (jpc != null && !jpc.isDetachable()) _continue = false;
 
                     if (_continue === false) {
                         // this is for mootools and yui. returning false from this causes jquery to stop drag.
@@ -4389,7 +4417,7 @@ between this method and jsPlumb.reset).
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas), false, true);
 						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?
-						
+						//var anchorIdx = jpc.endpoints[0].id == self.id ? 0 : 1;
 						jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
 						self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
 						
@@ -4572,6 +4600,8 @@ between this method and jsPlumb.reset).
 										connection : jpc
 									}, true);
 								}
+
+                                //
                                 _finaliseConnection(jpc);
                                 //jpc.endpoints[0].repaint();
 							}
@@ -4584,6 +4614,8 @@ between this method and jsPlumb.reset).
 									jsPlumb.repaint(jpc.source.elementId);
 								}
 							}
+
+                            jpc.floatingAnchorIndex = null;
 						}
 						_currentInstance.currentlyDragging = false;
 						delete floatingConnections[id];						
@@ -4744,4 +4776,7 @@ between this method and jsPlumb.reset).
 			return [ ((mx * gx) + (gx / 2)) / es[0], ((my * gy) + (gy / 2)) / es[1] ];
 		}
 	};
+
+
+    alert(Sizzle.contains);
 })();

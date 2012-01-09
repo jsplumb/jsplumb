@@ -23,17 +23,11 @@
 		
 	// TODO refactor to renderer common script.  put a ref to jsPlumb.sizeCanvas in there too.
 	var _connectionBeingDragged = null,
-	_getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
-	_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); },
-	_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); },
-	_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
-	_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); },
-	_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
-	_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
-	_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },		
-	_pageXY = function(el) { return jsPlumb.CurrentLibrary.getPageXY(el); },
-	_clientXY = function(el) { return jsPlumb.CurrentLibrary.getClientXY(el); },
-	_setOffset = function(el, o) { jsPlumb.CurrentLibrary.setOffset(el, o); };
+	    _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
+	    _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
+	    _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
+	    _pageXY = function(el) { return jsPlumb.CurrentLibrary.getPageXY(el); },
+	    _clientXY = function(el) { return jsPlumb.CurrentLibrary.getClientXY(el); };
 	
 	/*
 	 * Class:CanvasMouseAdapter
@@ -107,7 +101,7 @@
 	    this.mousedown = function(e) {
 	    	if(self._over(e) && !_mouseDown) {
 	    		_mouseDown = true;	    		
-	    		_posWhenMouseDown = _getOffset(_getElementObject(self.canvas));	    			
+	    		_posWhenMouseDown = _getOffset(_getElementObject(self.canvas));
 	    		self.fire("mousedown", self, e);
 	    	}
 	    };
