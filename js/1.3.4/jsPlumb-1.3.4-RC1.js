@@ -2788,7 +2788,7 @@ between this method and jsPlumb.reset).
 
 		return a;
 	},
-	standardEdgeSort = function(a, b) { return a[0] > b[0]; },
+	standardEdgeSort = function(a, b) { return a[0] > b[0] ? 1 : -1 },
 	currySort = function(reverseAngles) {
 		return function(a,b) {
             var r = true;
@@ -2804,15 +2804,15 @@ between this method and jsPlumb.reset).
 				else
 					r =a[0][1] > b[0][1];
 			}
-            return r;
+            return r === false ? -1 : 1;
 		};
 	},
 	leftSort = function(a,b) {
 		// first get adjusted values
 		var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
 		p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
-		if (p1 > p2) return true;
-		else return a[0][1] > b[0][1];
+		if (p1 > p2) return 1;
+		else return a[0][1] > b[0][1] ? 1 : -1;
 	},
 	edgeSortFunctions = {
 		"top":standardEdgeSort,
@@ -2820,11 +2820,15 @@ between this method and jsPlumb.reset).
 		"bottom":currySort(true),
 		"left":leftSort
 	},
+    _sortHelper = function(_array, _fn) {
+      return _array.sort(_fn);
+    },
 	placeAnchors = function(elementId, _anchorLists) {
 		var sS = sizes[elementId], sO = offsets[elementId],
 		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier) {
             if (unsortedConnections.length > 0) {
-			    var sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
+			    var sc = _sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
+			    //sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
 				    reverse = desc === "right" || desc === "top",
 				    anchors = placeAnchorsOnLine(desc, elementDimensions,
 											 elementPosition, sc,
