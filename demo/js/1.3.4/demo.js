@@ -145,6 +145,7 @@
 						 				dashstyle:"4 2",
 						 				joinstyle:"miter"
 	   								},
+                                    tooltip:"This connection will appear dashed when using SVG or VML.  This effect is achieved through CSS - see the accompanying stylesheet for this demo",
 		        					hoverPaintStyle:hoverPaintStyle, 
 		        					endpoint:["Image", {url:"../../img/endpointTest1.png"}], 
 		        					connector:"Straight", 
@@ -152,8 +153,8 @@
 									overlays:[ ["Label", {
 													cssClass:"component label",		    			        				 
 							    			        label : "4 - 5",
-							    			        location:0.3 } 
-							    			    ],
+							    			        location:0.3
+                                                }],
 							    			    "Arrow"
 							    			    
 									]});
@@ -176,11 +177,6 @@
 				source:"window7",
 				target:"window3"
 			}, stateMachineConnector);
-			
-			jsPlumb.connect({
-				source:"window7",
-				target:"window7"
-			}, stateMachineConnector);					
 	
 			jsPlumb.bind("dblclick", function(connection, originalEvent) { alert("double click on connection from " + connection.sourceId + " to " + connection.targetId); });
 			jsPlumb.bind("endpointClick", function(endpoint, originalEvent) { alert("click on endpoint on element " + endpoint.elementId); });
