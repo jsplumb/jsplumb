@@ -687,7 +687,8 @@
 		_finaliseConnection = function(jpc, params) {
             params = params || {};
 			// add to list of connections (by scope).
-			_addToList(connectionsByScope, jpc.scope, jpc);
+            if (!jpc.suspendedEndpoint)
+			    _addToList(connectionsByScope, jpc.scope, jpc);
 			// fire an event
 			if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
 				_currentInstance.fire("jsPlumbConnection", {
@@ -698,6 +699,9 @@
 				});
 			}
             // always inform the anchor manager
+            // except that if jpc has a suspended endpoint it's not true to say the
+            // connection is new; it has just (possibly) moved. the question is whether
+            // to make that call here or in the anchor manager.  i think perhaps here.
             _currentInstance.anchorManager.newConnection(jpc);
 			// force a paint
 			_draw(jpc.source);
@@ -2890,12 +2894,15 @@ between this method and jsPlumb.reset).
                 targetId = connInfo.targetId,
 				ep = connInfo.connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
-                    // todo remove from anchor lists!
 					if (otherAnchor.constructor == FloatingAnchor) {
 						// no-op
 					}
-					else if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor)
-						_removeFromList(endpointConnectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == DynamicAnchor]);
+					else if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor) {
+                        var _conns = endpointConnectionsByElementId[elId];
+                        if (_conns) {
+                            _removeWithFunction(_conns, function(e) { return e[0].id == c.id; });
+                        }
+                    }
 					else // continuous.
 						_removeFromList(continuousAnchorConnectionsByElementId, elId, c);
 				};
@@ -2918,8 +2925,10 @@ between this method and jsPlumb.reset).
                     }
                 };
             
-            _remove(anchorLists[sEl], sE);_remove(anchorLists[tEl], tE);
-            self.redraw(sEl);self.redraw(tEl);
+            _remove(anchorLists[sEl], sE);
+            _remove(anchorLists[tEl], tE);
+            self.redraw(sEl);
+            self.redraw(tEl);
 		};
 		this.add = function(endpoint, elementId) {
 			_addToList(_amEndpoints, elementId, endpoint);
@@ -3744,11 +3753,19 @@ between this method and jsPlumb.reset).
 		
 // ENDPOINT HELPER FUNCTIONS
 		var _makeConnectionDragHandler = function(placeholder) {
+            var stopped = false;
 			return function() {
+                if (stopped) return true;
 				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments),
 				el = placeholder.element;
-				jsPlumb.CurrentLibrary.setOffset(el, _ui);
-				_draw(_getElementObject(el), _ui);
+                if (el) {
+				    jsPlumb.CurrentLibrary.setOffset(el, _ui);
+				    _draw(_getElementObject(el), _ui);
+                }
+
+                this.stopDrag = function() {
+                    stopped = true;
+                };
 			};
 		};		
 		
@@ -4344,7 +4361,12 @@ between this method and jsPlumb.reset).
 				var placeholderInfo = {
 						id:null,
 						element:null
-				}, jpc = null, existingJpc = false, existingJpcParams = null;
+				    },
+                    jpc = null,
+                    existingJpc = false,
+                    existingJpcParams = null,
+                    _dragHandler = _makeConnectionDragHandler(placeholderInfo);
+
 				var start = function() {	
 				// drag might have started on an endpoint that is not actually a source, but which has
 				// one or more connections.
@@ -4365,6 +4387,7 @@ between this method and jsPlumb.reset).
                         // the events are wrapped in both mootools and yui anyway, but i don't think returning
                         // false from the start callback would stop a drag.
                         if (jsPlumb.CurrentLibrary.stopDrag) jsPlumb.CurrentLibrary.stopDrag();
+                        _dragHandler.stopDrag();
                         return false;
                     }
 
@@ -4416,8 +4439,9 @@ between this method and jsPlumb.reset).
                         //jpc.endpoints[1].setHover(false, false);
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas), false, true);
-						var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?
-						//var anchorIdx = jpc.endpoints[0].id == self.id ? 0 : 1;
+						//var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?
+                        // new anchor idx
+						var anchorIdx = jpc.endpoints[0].id == self.id ? 0 : 1;
 						jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
 						self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
 						
@@ -4469,7 +4493,7 @@ between this method and jsPlumb.reset).
 				dragOptions.scope = dragOptions.scope || self.scope;
 				dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 				// extracted drag handler function so can be used by makeSource
-				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _makeConnectionDragHandler(placeholderInfo));
+				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _dragHandler);
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
 					function() {	
 						_currentInstance.currentlyDragging = false;
@@ -4485,9 +4509,9 @@ between this method and jsPlumb.reset).
 
                                 // this will be set if we are forcing the connection back to
                                 // where it came from - a beforeDetach interceptor prevent the move.
-                                if (jpc._forceDetach) {
-                                    jpc.endpoints[idx == 0 ? 1 : 0].detachFromConnection(jpc);
-                                }
+                          //      if (jpc._forceDetach) {
+                            //        jpc.endpoints[idx == 0 ? 1 : 0].detachFromConnection(jpc);
+                              //  }
 
 								// fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
 								// floating endpoint has been replaced.
@@ -4508,7 +4532,7 @@ between this method and jsPlumb.reset).
 									jpc.suspendedEndpoint.addConnection(jpc);
 									jsPlumb.repaint(existingJpcParams[1]);
 								}
-                                jpc._forceDetach = false;
+                                jpc._forceDetach = null;
 							} else {
 								// TODO this looks suspiciously kind of like an Endpoint.detach call too.
 								// i wonder if this one should post an event though.  maybe this is good like this.
@@ -4557,7 +4581,7 @@ between this method and jsPlumb.reset).
 							var _doContinue = true;
                             // the second check here is for the case that the user is dropping it back
                             // where it came from.
-							if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.elementId != _elementId) {
+							if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != self.id) {
 								if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
 									_doContinue = false;								
 							}
@@ -4584,7 +4608,7 @@ between this method and jsPlumb.reset).
 								jpc.endpoints[idx] = self;
 								self.addConnection(jpc);
 								if (!jpc.suspendedEndpoint) {  
-									_addToList(connectionsByScope, jpc.scope, jpc);
+									//_addToList(connectionsByScope, jpc.scope, jpc);
 									_initDraggableIfNecessary(_element, params.draggable, {});
 								}
 								else {
@@ -4601,9 +4625,9 @@ between this method and jsPlumb.reset).
 									}, true);
 								}
 
-                                //
+                                // finalise will inform the anchor manager and also add to
+                                // connectionsByScope if necessary.
                                 _finaliseConnection(jpc);
-                                //jpc.endpoints[0].repaint();
 							}
 							else {
                                 // otherwise just put it back on the endpoint it was on before the drag.
@@ -4611,7 +4635,9 @@ between this method and jsPlumb.reset).
 									jpc.setHover(false);
                                     jpc._forceDetach = true;
 								    jpc.suspendedEndpoint.addConnection(jpc);
+
 									jsPlumb.repaint(jpc.source.elementId);
+                                    //jpc._forceDetach = null;
 								}
 							}
 
@@ -4776,7 +4802,4 @@ between this method and jsPlumb.reset).
 			return [ ((mx * gx) + (gx / 2)) / es[0], ((my * gy) + (gy / 2)) / es[1] ];
 		}
 	};
-
-
-    alert(Sizzle.contains);
 })();

@@ -75,7 +75,7 @@
 		}
 		l.push(value);
 	},	
-	ddEvents = [ "drag:mouseDown", "drag:afterMouseDown", "drag:mouseup", 
+	ddEvents = [ "drag:mouseDown", "drag:afterMouseDown", "drag:mouseup",
 	     "drag:align", "drag:removeHandle", "drag:addHandle", "drag:removeInvalid", "drag:addInvalid",
 	     "drag:start", "drag:end", "drag:drag", "drag:over", "drag:enter",
 	     "drag:exit", "drag:drophit", "drag:dropmiss", "drop:over", "drop:enter", "drop:exit", "drop:hit"	     	               
@@ -144,7 +144,14 @@
 		return el.getAttribute(attributeId);
 	},
 	_getElementObject = function(el) {
-		return typeof el == 'string' ? Y.one('#' + el) : el._node ? el : Y.one(el);
+		var eee = null;
+        try {
+            eee = typeof el == 'string' ? Y.one('#' + el) : el._node ? el : Y.one(el);
+        }
+        catch(eeee) {
+            console.log(eeee);
+        }
+        return eee;
 	};
 	
 	jsPlumb.CurrentLibrary = {
@@ -340,7 +347,10 @@
 			el.set("left", o.left);
 		},
 
-        stopDrag : function() { Y.DD.DDM.stopDrag(); },
+        stopDrag : function() {
+     //       console.log("stop drag!");
+            Y.DD.DDM.stopDrag();
+        },
 		
 		trigger : function(el, event, originalEvent) {
 			originalEvent.stopPropagation();
