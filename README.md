@@ -1,9 +1,9 @@
 # jsPlumb
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or 
-Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.3.
+Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.4.
 
 The project started out life on Google Code and has been hosted there for the last two years; from version 
-1.3.4 (which is still in development) onwards it also lives here on GitHub. The source repo is now being synchronised between the two.  I did 
+1.3.4 onwards it also lives here on GitHub. The source repo is now being synchronised between the two.  I did
 this because I didn't want to lose the project history (issues etc), and I know some people checkout the 
 source from Google Code.
 
@@ -16,6 +16,8 @@ There are a few integration issues that you should be aware of: z-index needs sp
 - jQuery:
 
 jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.2, 1.4.3, 1.4.4, 1.5.0 and 1.6.0. To support dragging, you will need jQueryUI 1.7.x or 1.8.x. I've tested both.
+
+There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9 which means that hover events do not get posted. This is quite a bummer since the default renderer for jsPlumb, from 1.3.4 onwards, is SVG, and I was hoping to encourage everyone to make use of the fact that you can use CSS with SVG to style your plumbing rather than rely on the old-skool paintStyle stuff.
 
 - MooTools:
 
@@ -54,7 +56,7 @@ between Google Code and GitHub):
 [https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
 
 ## Tests
-The qUnit test suite can be found [here](http://jsplumb.org/tests/1.3.3/qunit-all.html)
+The qUnit test suite can be found [here](http://jsplumb.org/tests/1.3.4/qunit-all.html)
 
 ## Twitter
 The Twitter account I use for this project is [jsplumblib](http://twitter.com/jsplumblib)
