@@ -1,5 +1,6 @@
 * 1.3.4
 
+
     - detachEverything method removed from jsPlumb. use detachEveryConnection instead.
 
     - detachAll method removed. use detachAllConnections instead.
@@ -17,7 +18,9 @@
 
     - added jsPlumb.Defaults.ConnectionsDetachable
 
-	- added previousConnection to a connection that has been moved.
+	- added 'previousConnection' to a connection that has been moved. when you get a
+	jsPlumbConnectionDetached method, that connection passed in will have this member
+	set, if it was an existing connection that was just moved.
 
 	- removed labelStyle from Label overlay.  to set fonts/border/background, use a cssClass now.
 
