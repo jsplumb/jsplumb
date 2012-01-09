@@ -1,8 +1,8 @@
 <html>
 	<head>
 		<title>jsPlumb 1.3.4 - documentation</title>
-		<link rel="stylesheet" href="/mp.css"></link>
-		<link rel="stylesheet" href="jsPlumbDoc.css"></link>	
+		<link rel="stylesheet" href="/mp.css">
+		<link rel="stylesheet" href="jsPlumbDoc.css">
 	</head>
 	<body>
 
@@ -78,8 +78,16 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<li class="bullet"><strong>The default renderer is now SVG</strong>, where supported, and VML elsewhere.
 			<p>I'm of the opinion that SVG is a better option for almost every application using jsPlumb: it
 			uses far less memory, has native mouse event support so is faster, and can be styled using CSS.</p>
-			<p>If you really want to use Canvas, call <strong>jsPlumb.setRenderMode(jsPlumb.CANVAS);</strong>.
+			<p>If you really want to use Canvas, call <strong>jsPlumb.setRenderMode(jsPlumb.CANVAS);</strong>.</p>
+                <p>Be aware that there is a jQuery bug with SVG in IE9 for all jQuery version from 1.6.x to 1.7.2: the hover events
+                are not properly reported.
+            </p>
 			</li>
+            <li class="bullet">The <strong>detachEverything</strong> method, which was deprecated in 1.3.2, has been removed from jsPlumb. Use detachEveryConnection instead.
+                It does the same thing.</li>
+            <li class="bullet">The <strong>detachAll</strong> method, which was deprecated in 1.3.2, has been removed. Use detachAllConnections instead. It does the same thing.
+            </li>
+                <li class="bullet">The <strong>labelStyle</strong> parameter has been removed from the Label overlay.  You should use the <strong>cssClass</strong> parameter to set a class, and then control the appearance in your stylesheets.</li>
 			</ul>			
 			<h5>New Features</h5>
 				<ul>
@@ -111,11 +119,15 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 						makes more sense than having to register a dedicated Endpoint.  Read more about these
 						in the <a href="#connections">connections</a> section below.
 					</li>
-					<li class="bullet">'transparent' is now supported as a fillStyle or strokeStyle.</li>
-					<li class="bullet">Endpoint and Connector definitions now support a <strong>hoverClass</strong> parameter.
-					This is the hover equivalent of the existing <strong>cssClass</strong> parameter.
+					<li class="bullet"><p>'transparent' is now supported as a fillStyle or strokeStyle.</p></li>
+					<li class="bullet"><p>Endpoint and Connector definitions now support a <strong>hoverClass</strong> parameter.
+					This is the hover equivalent of the existing <strong>cssClass</strong> parameter.</p>
 					</li>
-
+                    <li class="bullet"><p>The Image Endpoint now has an <strong>onload</strong> parameter, allowing you to supply a callback to run once the image has loaded</p></li>
+                    <li class="bullet"><p>The Image Endpoint now has a <strong>setImage</strong> method, which also takes an optional onload parameter.  See the API docs.</p></li>
+                    <li class="bullet"><p>The Image Endpoint now has optional <strong>width</strong>  and <strong>height</strong> parameters, allowing you to override the displayed size of the endpoint.</p></li>
+                    <li class="bullet"><p>You can supply a <strong>parameters</strong> object to connect, addEndpoint, makeSource and makeTarget calls.  This specifies an object literal of parameter values which will be present
+                    on resulting connections, available via the <strong>getParameter(String)</strong>method</p></li>
 				</ul>			
 			
 			<h5>Bugfixes for which there were not issues raised</h5>
@@ -126,7 +138,10 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li><strong>154</strong> - reinstate the 'tooltip' and 'connectorTooltip' parameters</li>
+				<!--li><strong>154</strong> - reinstate the 'tooltip' and 'connectorTooltip' parameters</li-->
+                <li><strong>159</strong> - do not add methods to the Array prototype</li>
+                <li><strong>158</strong> - use enclosing table element if an Endpoint is added to a table cell.</li>
+                <li><strong>150</strong> - hover over one Endpoint does not send the event to the other Endpoint in a Connection</li>
 				<li><strong>145</strong> - add getLabel/setLabel methods to Overlays</li>
 				<li><strong>142</strong> - document jsPlumb.connectionDetached event properly</li>				
 				<li><strong>139</strong> - duplicate ids are sometimes given to Endpoints and Connections</li>
