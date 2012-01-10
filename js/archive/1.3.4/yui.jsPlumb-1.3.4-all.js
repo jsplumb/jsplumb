@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.4
+ * Title:jsPlumb 1.3.5
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -1326,10 +1326,10 @@ between this method and jsPlumb.reset).
 
 		/*
 		  Function: detach 
-		  Detaches and then removes a <Connection>.  From 1.3.4 this method has been altered to remove support for
+		  Detaches and then removes a <Connection>.  From 1.3.5 this method has been altered to remove support for
 		  specifying Connections by various parameters; you can now pass in a Connection as the first argument and
 		  an optional parameters object as a second argument.  If you need the functionality this method provided
-		  before 1.3.4 then you should use the getConnections method to get the list of Connections to detach, and
+		  before 1.3.5 then you should use the getConnections method to get the list of Connections to detach, and
 		  then iterate through them, calling this for each one.
 		  		   
 		  Parameters: 
@@ -4812,7 +4812,7 @@ between this method and jsPlumb.reset).
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.4
+ * Title:jsPlumb 1.3.5
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -5795,7 +5795,7 @@ between this method and jsPlumb.reset).
 })();/*
  * jsPlumb
  *
- * Title:jsPlumb 1.3.4
+ * Title:jsPlumb 1.3.5
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -6236,7 +6236,7 @@ between this method and jsPlumb.reset).
     *//*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.4
+ * Title:jsPlumb 1.3.5
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -6639,7 +6639,7 @@ between this method and jsPlumb.reset).
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.4
+ * Title:jsPlumb 1.3.5
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -7166,7 +7166,7 @@ between this method and jsPlumb.reset).
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.4
+ * Title:jsPlumb 1.3.5
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -7609,7 +7609,7 @@ between this method and jsPlumb.reset).
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.4
+ * Title:jsPlumb 1.3.5
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
