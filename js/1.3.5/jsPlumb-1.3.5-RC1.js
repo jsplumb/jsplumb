@@ -3977,12 +3977,12 @@ between this method and jsPlumb.reset).
             };
 			
 			// TODO this event listener registration code is identical to what Connection does: it should be refactored.
-			this.endpoint.bind("click", function(e) { self.fire("click", self, e); });
-			this.endpoint.bind("dblclick", function(e) { self.fire("dblclick", self, e); });
-            this.endpoint.bind("contextmenu", function(e) { self.fire("contextmenu", self, e); });
+			this.endpoint.bind("click", function(ep, e) { self.fire("click", self, e); });
+			this.endpoint.bind("dblclick", function(ep, e) { self.fire("dblclick", self, e); });
+            this.endpoint.bind("contextmenu", function(ep, e) { self.fire("contextmenu", self, e); });
 			// this method is different; endpoint delegates hover to the first connection if there is one.
             // that allows the connection to notify all its endpoint and avoids a circular loop
-            this.endpoint.bind("mouseenter", function(con, e) {
+            this.endpoint.bind("mouseenter", function(ep, e) {
 				if (!self.isHover()) {
                     internalHover(true);
 					self.fire("mouseenter", self, e);
@@ -3990,7 +3990,7 @@ between this method and jsPlumb.reset).
 			});
             // this method is different; endpoint delegates hover to the first connection if there is one.
             // that allows the connection to notify all its endpoint and avoids a circular loop
-			this.endpoint.bind("mouseexit", function(con, e) {
+			this.endpoint.bind("mouseexit", function(ep, e) {
 				if (self.isHover()) {
                     internalHover(false);
 					self.fire("mouseexit", self, e);
