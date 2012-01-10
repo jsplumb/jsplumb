@@ -126,7 +126,7 @@
 		// set an id. if no id on the element and if uuid was supplied it
 		// will be used, otherwise we'll create one.
 		params["_jsPlumb"].getId(canvas, params.uuid);
-		if (params.tooltip) canvas.setAttribute("label", params.tooltip);
+		if (params.tooltip) canvas.setAttribute("title", params.tooltip);
 
 		return canvas;
 	};	
