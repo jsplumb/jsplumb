@@ -2562,7 +2562,7 @@ between this method and jsPlumb.reset).
 				return lastReturnValue;
 			};
 
-			this.getOrientation = function() { return orientation; };
+			this.getOrientation = function(_endpoint) { return orientation; };
 
 			this.equals = function(anchor) {
 				if (!anchor) return false;
@@ -2615,10 +2615,10 @@ between this method and jsPlumb.reset).
 				return result;
 			};
 
-			this.getOrientation = function() {
+			this.getOrientation = function(_endpoint) {
 				if (orientation) return orientation;
 				else {
-					var o = ref.getOrientation();
+					var o = ref.getOrientation(_endpoint);
 					// here we take into account the orientation of the other
 					// anchor: if it declares zero for some direction, we declare zero too. this might not be the most awesome. perhaps we can come
 					// up with a better way. it's just so that the line we draw looks like it makes sense. maybe this wont make sense.
@@ -2711,7 +2711,7 @@ between this method and jsPlumb.reset).
 				return _curAnchor != null ? _curAnchor.getCurrentLocation() : null;
 			};
 
-			this.getOrientation = function() { return _curAnchor != null ? _curAnchor.getOrientation() : [ 0, 0 ]; };
+			this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };
 			this.over = function(anchor) { if (_curAnchor != null) _curAnchor.over(anchor); };
 			this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
 		};
