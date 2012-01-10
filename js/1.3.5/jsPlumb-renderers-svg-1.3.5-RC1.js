@@ -214,14 +214,14 @@
 				"pointer-events":pointerEventsSpec,
 				"position":"absolute"
 			};
-		if (self.tooltip) svgParams["label"] = self.tooltip;	
+		if (self.tooltip) svgParams["title"] = self.tooltip;
 		self.svg = _node("svg", svgParams);
 		if (params.useDivWrapper) {
 			self.canvas = document.createElement("div");
 			self.canvas.style["position"] = "absolute";
 			jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
 			self.canvas.className = clazz;
-			if (self.tooltip) self.canvas.setAttribute("label", self.tooltip);
+			if (self.tooltip) self.canvas.setAttribute("title", self.tooltip);
 		}
 		else {
 			_attr(self.svg, { "class":clazz });
