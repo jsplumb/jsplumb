@@ -1,0 +1,23 @@
+body {
+ 	text-align:center;
+}
+
+#container {
+  width:30em;
+  height:30em;
+  border:4px dotted silver;
+  overflow:scroll;
+  position:relative;
+  margin-left:auto;
+  margin-right:auto;
+    background-color:yellow;
+}
+
+.w { width:3em; height:3em; position:absolute; border:1px dotted black; z-index:5;}
+#w1 { left:3em; top:3em }
+#w2 { left:23em; top:23em }
+
+._jsPlumb_connector { z-index:4; }
+._jsPlumb_endpoint { z-index:3; }
+
+#controls { position:absolute; z-index:1000; }
