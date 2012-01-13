@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+	<head>
+		<title>container with css scale transform test</title>
+		<link rel="stylesheet" href="cssTransformTest.css">
+
+	</head>
+	<body>
+
+	<a href="cssTransformTestsMootools.html">mootools version</a>
+    <a href="cssTransformTestsYUI.html">yui version</a>
+    
+	<div id="controls">
+        <button class="in">+</button>
+        <button class="out">-</button>
+        <span>Current Zoom:</span>
+        <span id="curZoom">100</span>
+        <span>%</span>
+	</div>
+
+	<div id="container">
+		<div id="w1" class="w">one</div>
+		<div id="w2" class="w">two</div>
+	</div>
+
+
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+
+		<!-- support lib for bezier stuff -->
+		<script type="text/javascript" src="../../js/lib/jsBezier-0.3-min.js"></script>
+		<!-- main jsplumb engine -->
+		<script type="text/javascript" src="../../js/1.3.5/jsPlumb-1.3.5-RC1.js"></script>
+		<!-- connectors, endpoint and overlays  -->
+		<script type="text/javascript" src="../../js/1.3.5/jsPlumb-defaults-1.3.5-RC1.js"></script>
+		<!-- SVG renderer -->
+		<script type="text/javascript" src="../../js/1.3.5/jsPlumb-renderers-svg-1.3.5-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script type="text/javascript" src="../../js/1.3.5/jsPlumb-renderers-canvas-1.3.5-RC1.js"></script>
+		<!-- vml renderer -->
+		<script type="text/javascript" src="../../js/1.3.5/jsPlumb-renderers-vml-1.3.5-RC1.js"></script>
+		<!-- jquery jsPlumb adapter -->
+		<script type="text/javascript" src="../../js/1.3.5/jquery.jsPlumb-1.3.5-RC1.js"></script>
+
+		<script>
+			jsPlumb.ready(function() {
+				var e1 = jsPlumb.addEndpoint("w1", { isSource:true, anchor:"BottomCenter" }),
+				    e2 = jsPlumb.addEndpoint("w2", { isTarget:true, anchor:"TopCenter" });
+                
+				jsPlumb.draggable($(".w"));
+				jsPlumb.connect({source:e1,target:e2});
+				jsPlumb.bind("click", function(c) { jsPlumb.detach(c); });
+
+                var zl = [25,50,100,200,400],
+                    z = 2,
+                    zoom = function(to) {
+                        z = to;
+                        if (z == zl.length) z = 0;
+                        if (z < 0) z = zl.length - 1;
+                        $("#container").css("transform", "scale(" + (zl[z] / 100) + ")");
+                        $("#container").css("-webkit-transform", "scale(" + (zl[z] / 100) + ")");
+                        $("#container").css("-moz-transform", "scale(" + (zl[z] / 100) + ")");
+                        $("#container").css("-o-transform", "scale(" + (zl[z] / 100) + ")");
+                        $("#curZoom").html(zl[z]);
+                    },
+                    cz = function(inc) {
+                        return function() {
+                            zoom(z + inc);
+                        };
+                    };
+
+                $(".in").click(cz(1));
+                $(".out").click(cz(-1));
+
+			});
+		</script>
+
+	</body>
+</html>
