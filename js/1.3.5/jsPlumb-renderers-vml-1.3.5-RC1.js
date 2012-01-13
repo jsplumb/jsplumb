@@ -33,7 +33,7 @@
 	if (document.createStyleSheet) {			
 		
 		// this is the style rule for IE7/6: it uses a CSS class, tidy.
-		document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);position:absolute;");			
+		document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);position:absolute;");
 		
 		// these are for VML in IE8.  you have to explicitly call out which elements
 		// you're going to expect to support VML!  
@@ -43,6 +43,7 @@
 		document.createStyleSheet().addRule("jsplumb\\:rect", "behavior:url(#default#VML);position:absolute;");
 		document.createStyleSheet().addRule("jsplumb\\:stroke", "behavior:url(#default#VML);position:absolute;");
 		document.createStyleSheet().addRule("jsplumb\\:shape", "behavior:url(#default#VML);position:absolute;");
+        document.createStyleSheet().addRule("jsplumb\\:group", "behavior:url(#default#VML);position:absolute;");
 		
 		// in this page it is also mentioned that IE requires the extra arg to the namespace
 		// http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
@@ -57,6 +58,22 @@
 	jsPlumb.vml = {};
 	
 	var scale = 1000,
+
+    _groupMap = {},
+    _getGroup = function(container, connectorClass) {
+        var id = jsPlumb.getId(container),
+            g = _groupMap[id];
+        if(!g) {
+            g = _node("group", [0,0,scale, scale], {"class":connectorClass});
+            //g.style.position=absolute;
+            //g["coordsize"] = "1000,1000";
+            g.style.backgroundColor="red";
+            _groupMap[id] = g;
+            //jsPlumb.appendElement(g, container);
+            document.body.appendChild(g);
+        }
+        return g;
+    },
 	_atts = function(o, atts) {
 		for (var i in atts) { 
 			// IE8 fix: setattribute does not work after an element has been added to the dom!
@@ -169,7 +186,8 @@
 		this.paint = function(d, style, anchor) {
 			if (style != null) {				
 				var path = self.getPath(d), p = { "path":path };				
-				
+
+                //*
 				if (style.outlineColor) {
 					var outlineWidth = style.outlineWidth || 1,
 					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
@@ -195,13 +213,18 @@
 					
 					_applyStyles(self.bgCanvas, outlineStyle, self);
 				}
+				//*/
 				
 				if (self.canvas == null) {										
 					p["class"] = clazz;
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
 					if (self.tooltip) p["label"] = self.tooltip;
 					self.canvas = _node("shape", d, p);
-					jsPlumb.appendElement(self.canvas, params.parent);
+                    
+                  //  var group = _getGroup(params.parent);                   // test of append everything to a group
+                    //group.appendChild(self.canvas);                           // sort of works but not exactly;
+					jsPlumb.appendElement(self.canvas, params.parent);    //before introduction of groups
+
 					displayElements.push(self.canvas);					
 					
 					self.attachListeners(self.canvas, self);
@@ -242,8 +265,12 @@
 		var vml = null, self = this, opacityStrokeNode = null, opacityFillNode = null;
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
+
+		//var group = _getGroup(params.parent);
+        //group.appendChild(self.canvas);
 		jsPlumb.appendElement(self.canvas, params.parent);
-		if (self.tooltip) self.canvas.setAttribute("label", self.tooltip);
+
+        if (self.tooltip) self.canvas.setAttribute("label", self.tooltip);
 		
 		this.paint = function(d, style, anchor) {
 			var p = { };						
