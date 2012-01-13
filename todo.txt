@@ -1,0 +1,14 @@
+1.3.5
+
+    - draggable by parent issue from google code
+    - importDefaults({ some defaults })  method on jsPlumb (like a bulk import)
+    - refactor assigning endpoint styles into a common helper method
+    - performance
+    - make AnchorManager the source of knowledge about connections (remove connections by scope etc)
+    - image overlay?
+    - oncontextmenu event bind
+    
+1.3.6
+
+    - single SVG element/single VML group/single Canvas per page?
+    - qunit: add helper methods to simulate mousedown and drag.  then write some functional tests.
