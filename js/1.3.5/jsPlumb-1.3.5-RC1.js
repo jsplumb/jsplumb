@@ -66,6 +66,9 @@
         var idx = _findWithFunction(a, f);
         if (idx > -1) a.splice(idx, 1);
         return idx != -1;
+    },
+    _addWithFunction = function(list, item, hashFunction) {
+        if (_findWithFunction(list, hashFunction) == -1) list.push(item);
     };
 
 	
@@ -512,6 +515,16 @@
 			return c._nodes ? c._nodes : c;
 		},
 
+        _suspendDrawing = false,
+        /*
+        sets whether or not to suspend drawing.  you should use this if you need to connect a whole load of things in one go.
+        it will save you a lot of time.
+         */
+        _setSuspendDrawing = function(val, repaintAfterwards) {
+            _suspendDrawing = val;
+            if (repaintAfterwards) _currentInstance.repaintEverything();
+        },
+
 		/**
 		 * Draws an endpoint and its connections. this is the main entry point into drawing connections as well
 		 * as endpoints, since jsPlumb is endpoint-centric under the hood.
@@ -521,8 +534,10 @@
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
 		_draw = function(element, ui, timestamp) {
-			var id = _getAttribute(element, "id");
-			_currentInstance.anchorManager.redraw(id, ui, timestamp);
+            if (!_suspendDrawing) {
+			    var id = _getAttribute(element, "id");
+			    _currentInstance.anchorManager.redraw(id, ui, timestamp);
+            }
 		},
 
 		/**
@@ -940,10 +955,11 @@
 			}
 			return offsets[elId];
 		},
-		
+
+		// TODO comparison performance
 		_getCachedData = function(elId) {
 			var o = offsets[elId];
-			if (!o) o = _updateOffset(elId);
+			if (!o) o = _updateOffset({elId:elId});
 			return {o:o, s:sizes[elId]};
 		},
 
@@ -2344,6 +2360,13 @@ between this method and jsPlumb.reset).
 		this.setMouseEventsEnabled = function(enabled) {
 			_mouseEventsEnabled = enabled;
 		};
+
+        /*
+         * Function: setSuspendDrawing
+         * Suspends drawing operations.  This can be used when you have a lot of connections to make or endpoints to register;
+         * it will save you a lot of time.
+         */
+        this.setSuspendDrawing = _setSuspendDrawing;
 		
 		/*
 		 * Constant for use with the setRenderMode method
@@ -2508,6 +2531,7 @@ between this method and jsPlumb.reset).
 		this.addListener = this.bind;
 		
 		var adjustForParentOffsetAndScroll = function(xy, el) {
+
 			var offsetParent = null, result = xy;
 			if (el.tagName.toLowerCase() === "svg" && el.parentNode) {
 				offsetParent = el.parentNode;
@@ -2518,7 +2542,8 @@ between this method and jsPlumb.reset).
 			if (offsetParent != null) {
 				var po = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(offsetParent),
 					so = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:offsetParent.scrollLeft, top:offsetParent.scrollTop};					
-						
+
+
 				// i thought it might be cool to do this:
 				//	lastReturnValue[0] = lastReturnValue[0] - offsetParent.offsetLeft + offsetParent.scrollLeft;
 				//	lastReturnValue[1] = lastReturnValue[1] - offsetParent.offsetTop + offsetParent.scrollTop;					
@@ -2530,6 +2555,7 @@ between this method and jsPlumb.reset).
 			}
 		
 			return result;
+			
 		};
 
 		/**
@@ -2978,8 +3004,8 @@ between this method and jsPlumb.reset).
                     listToRemoveFrom.splice(rIdx, 1);
                     // get all connections from this list
                     for (var i = 0; i < listToRemoveFrom.length; i++) {
-                        connsToPaint.push(listToRemoveFrom[i][1]);
-                        endpointsToPaint.push(listToRemoveFrom[i][1].endpoints[idx]);
+                        _addWithFunction(connsToPaint, listToRemoveFrom[i][1], function(c) { return c.id == listToRemoveFrom[i][1].id });
+                        _addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[idx].id });
                     }
                 }
             }
@@ -2987,8 +3013,8 @@ between this method and jsPlumb.reset).
             for (var i = 0; i < listToAddTo.length; i++) {
                 if (idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1)
                     firstMatchingElIdx = i;
-                connsToPaint.push(listToAddTo[i][1]);
-                endpointsToPaint.push(listToAddTo[i][1].endpoints[idx]);
+                _addWithFunction(connsToPaint, listToAddTo[i][1], function(c) { return c.id == listToAddTo[i][1].id });                
+                _addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function(e) { return e.id == listToAddTo[i][1].endpoints[idx].id });
             }
             if (exactIdx != -1) {
                 listToAddTo[exactIdx] = values;
@@ -3007,7 +3033,8 @@ between this method and jsPlumb.reset).
 				endpointConnections = endpointConnectionsByElementId[elementId] || [],
 				continuousAnchorConnections = continuousAnchorConnectionsByElementId[elementId] || [],
 				connectionsToPaint = [],
-				endpointsToPaint = [];
+				endpointsToPaint = [],
+                anchorsToUpdate = [];
             
 			timestamp = timestamp || _timestamp();
 				
@@ -3058,16 +3085,20 @@ between this method and jsPlumb.reset).
                     _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
                 }
 
-                connectionsToPaint.push(conn);
-                endpointsToPaint.push(conn.endpoints[oIdx]);
+                _addWithFunction(anchorsToUpdate, sourceId, function(a) { return a === sourceId; });
+                _addWithFunction(anchorsToUpdate, targetId, function(a) { return a === targetId; });
+                _addWithFunction(connectionsToPaint, conn, function(c) { return c.id == conn.id; });
+                _addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
             }
 
-            // now place all the continuous anchors;
-            for (var anElement in anchorLists) {
-				placeAnchors(anElement, anchorLists[anElement]);
+            // now place all the continuous anchors we need to;
+            for (var i = 0; i < anchorsToUpdate.length; i++) {
+				placeAnchors(anchorsToUpdate[i], anchorLists[anchorsToUpdate[i]]);
 			}
 			
 			// now that continuous anchors have been placed, paint all the endpoints for this element
+            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
+            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
 			for (var i = 0; i < ep.length; i++) {				
 				ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
 			}
@@ -3080,17 +3111,16 @@ between this method and jsPlumb.reset).
 			// static and therefore does need to be recomputed; we make sure that happens only one time.
 			for (var i = 0; i < endpointConnections.length; i++) {
 				var otherEndpoint = endpointConnections[i][1];
-				if (otherEndpoint.anchor.constructor == DynamicAnchor) {
-			//		_updateOffset( { elId : otherEndpoint.elementId, timestamp : timestamp }); 							
-					otherEndpoint.paint({ elementWithPrecedence:elementId });			
-					connectionsToPaint.push(endpointConnections[i][0]);
+				if (otherEndpoint.anchor.constructor == DynamicAnchor) {			 							
+					otherEndpoint.paint({ elementWithPrecedence:elementId });								
+                    _addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 					// all the connections for the other endpoint now need to be repainted
 					for (var k = 0; k < otherEndpoint.connections.length; k++) {
-						if (otherEndpoint.connections[k] !== endpointConnections[i][0])
-							connectionsToPaint.push(otherEndpoint.connections[k]);
+						if (otherEndpoint.connections[k] !== endpointConnections[i][0])							
+                            _addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function(c) { return c.id == otherEndpoint.connections[k].id; });
 					}
-				} else if (otherEndpoint.anchor.constructor == Anchor) {
-					connectionsToPaint.push(endpointConnections[i][0]);
+				} else if (otherEndpoint.anchor.constructor == Anchor) {					
+                    _addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 				}
 			}
 			// paint current floating connection for this element, if there is one.
@@ -3112,10 +3142,7 @@ between this method and jsPlumb.reset).
 			eps.splice(0, eps.length);
 		};
 	};
-	_currentInstance.anchorManager = new AnchorManager();
-	//_currentInstance.bind("jsPlumbConnection", _currentInstance.anchorManager.connectionListener);
-	//_currentInstance.bind("jsPlumbConnectionDetached", _currentInstance.anchorManager.connectionDetachedListener);
-				
+	_currentInstance.anchorManager = new AnchorManager();				
 	_currentInstance.continuousAnchorFactory = {
 		get:function(params) {
 			var existing = continuousAnchors[params.elementId];
