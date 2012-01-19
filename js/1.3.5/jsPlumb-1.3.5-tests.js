@@ -1027,8 +1027,8 @@ var testSuite = function(renderMode) {
 			e16 = jsPlumb.addEndpoint(d16, {tooltip:"FOO"}),
 			e17 = jsPlumb.addEndpoint(d17, {tooltip:"BAZ"});
 		assertContextSize(2);
-		equals(e16.canvas.getAttribute("label"), "FOO");
-		equals(e17.canvas.getAttribute("label"), "BAZ");		
+		equals(e16.canvas.getAttribute("title"), "FOO");
+		equals(e17.canvas.getAttribute("title"), "BAZ");
 	});
 	
 	test(renderMode + ": jsPlumb.addEndpoint (simple case, dynamic anchors)", function() {
@@ -1144,7 +1144,7 @@ var testSuite = function(renderMode) {
 		var e = jsPlumb.addEndpoint(d1, {connectorTooltip:"FOO"});
 		var e2 = jsPlumb.addEndpoint(d2, {});
 		var c = jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
-		equals(c.connector.canvas.getAttribute("label"), "FOO", "connector canvas has label attribute set");
+		equals(c.connector.canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
 	});
 	
 	test(renderMode + ': jsPlumb.connect (tooltip parameter)', function() {
@@ -1152,7 +1152,7 @@ var testSuite = function(renderMode) {
 		var e = jsPlumb.addEndpoint(d1, {});
 		var e2 = jsPlumb.addEndpoint(d2, {});
 		var c = jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2, tooltip:"FOO"});
-		equals(c.connector.canvas.getAttribute("label"), "FOO", "connector canvas has label attribute set");
+		equals(c.connector.canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
 	});
 	
 	test(renderMode + ': jsPlumb.connect (between two Endpoints, and dont supply any parameters to the Endpoints.)', function() {
@@ -1177,6 +1177,48 @@ var testSuite = function(renderMode) {
 		var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
 		jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
+	});
+	
+	test(renderMode + ': jsPlumb.connect (cost)', function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+		var e16 = jsPlumb.addEndpoint(d16, {isSource:true});
+		ok(e16.anchor, 'endpoint 16 has an anchor');
+		var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
+		var c = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17, cost:567});
+		assertContextSize(3);
+		equals(c.getCost(), 567, "connection cost is 567");
+	});
+	
+	test(renderMode + ': jsPlumb.connect (default cost)', function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+		var e16 = jsPlumb.addEndpoint(d16, {isSource:true});
+		ok(e16.anchor, 'endpoint 16 has an anchor');
+		var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
+		var c = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+		assertContextSize(3);
+		equals(c.getCost(), 1, "default connection cost is 1");
+	});
+	
+	test(renderMode + ': jsPlumb.connect (set cost)', function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+		var e16 = jsPlumb.addEndpoint(d16, {isSource:true});
+		ok(e16.anchor, 'endpoint 16 has an anchor');
+		var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
+		var c = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+		assertContextSize(3);
+		equals(c.getCost(), 1, "default connection cost is 1");
+		c.setCost(8989);
+		equals(c.getCost(), 8989, "connection cost is 8989");
+	});
+	
+	test(renderMode + ': jsPlumb.connect two endpoints (connectionCost)', function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+		var e16 = jsPlumb.addEndpoint(d16, {isSource:true, connectionCost:567});
+		ok(e16.anchor, 'endpoint 16 has an anchor');
+		var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
+		var c = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+		assertContextSize(3);
+		equals(c.getCost(), 567, "connection cost is 567");
 	});
 	
 	test(renderMode + ": jsPlumb.connect (two Endpoints - that have been already added - by UUID)", function() {
@@ -1788,7 +1830,24 @@ var testSuite = function(renderMode) {
 		assertConnectionCount(e2, 0);
 		assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 0);
 	});
-	
+/*
+    test(renderMode + ": jsPlumb.detach (params object, using target only)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
+		    e1 = jsPlumb.addEndpoint(d1, {maxConnections:2}),
+		    e2 = jsPlumb.addEndpoint(d2),
+            e3 = jsPlumb.addEndpoint(d3);
+		jsPlumb.connect({ sourceEndpoint:e1, targetEndpoint:e2 });
+        jsPlumb.connect({ sourceEndpoint:e1, targetEndpoint:e3 });
+		assertConnectionCount(e1, 2);
+		assertConnectionCount(e2, 1);
+        assertConnectionCount(e3, 1);
+		jsPlumb.detach({target:"d2"});
+		assertConnectionCount(e1, 1);
+		assertConnectionCount(e2, 0);
+        assertConnectionCount(e3, 1);
+		assertConnectionByScopeCount(jsPlumb.getDefaultScope(), 1);
+	});
+*/
 	test(renderMode + ": jsPlumb.detach (params object, using element objects)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var e1 = jsPlumb.addEndpoint(d1);

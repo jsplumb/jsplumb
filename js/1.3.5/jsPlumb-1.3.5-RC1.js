@@ -2282,10 +2282,10 @@ between this method and jsPlumb.reset).
 		  Removes all endpoints and connections and clears the listener list. To keep listeners call jsPlumb.deleteEveryEndpoint instead of this.
 		 */
 		this.reset = function() {
-			this.deleteEveryEndpoint();
-			this.clearListeners();
+			_currentInstance.deleteEveryEndpoint();
+			_currentInstance.clearListeners();
             _unbindRegisteredListeners();
-            this.anchorManager.reset();
+            _currentInstance.anchorManager.reset();
 		};
 
 		/*
@@ -3236,6 +3236,10 @@ between this method and jsPlumb.reset).
 			// member and take action if they need to.
 			self.previousConnection = params.previousConnection;
 			
+			var _cost = params.cost;
+			self.getCost = function() { return _cost; };
+			self.setCost = function(c) { _cost = c; };
+			
 			/*
 			 * Property: sourceId
 			 * Id of the source element in the connection.
@@ -3366,6 +3370,9 @@ between this method and jsPlumb.reset).
             if (params.detachable === false) _detachable = false;
             if(self.endpoints[0].connectionsDetachable === false) _detachable = false;
             if(self.endpoints[1].connectionsDetachable === false) _detachable = false;
+            
+            // inherit connectin cost if it was set on source endpoint
+            if (_cost == null) _cost = self.endpoints[0].getConnectionCost();
             
             /*
                 Function: isDetachable
@@ -3951,6 +3958,10 @@ between this method and jsPlumb.reset).
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			this.element = _element;
+			
+			var _connectionCost = params.connectionCost;
+			this.getConnectionCost = function() { return _connectionCost; };
+			this.setConnectionCost = function(c) { _connectionCost = c; };
 			
 			if (params.dynamicAnchors)
 				self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors));
