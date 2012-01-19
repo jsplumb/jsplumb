@@ -9,7 +9,6 @@
 				jsPlumb.detach(conn);
 				jsPlumb.removeEndpoint(conn.target, conn.endpoints[1]);
 			});
-			jsPlumb.setRenderMode(jsPlumb.SVG);
 			
 			jsPlumb.draggable($("#window1,#window3,#window4,#window5"));
 			
@@ -103,7 +102,7 @@
 			//
 			jsPlumb.makeSource($("#w5Source"), {
 				endpoint:{
-					anchor:"AutoDefault"
+					anchor:"Continuous"
 				},
 				parent:"window5"
 			});

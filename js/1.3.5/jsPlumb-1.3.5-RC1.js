@@ -4377,31 +4377,33 @@ between this method and jsPlumb.reset).
                     recalc = !(params.recalc === false);
 				if (!timestamp || self.timestamp !== timestamp) {			
 					_updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
-					var ap = params.anchorPoint, connectorPaintStyle = params.connectorPaintStyle;
-					if (ap == null) {
-						var xy = params.offset || offsets[_elementId],
-						wh = params.dimensions || sizes[_elementId];
-						if (xy == null || wh == null) {
-							_updateOffset( { elId : _elementId, timestamp : timestamp });
-							xy = offsets[_elementId];
-							wh = sizes[_elementId];
+					var xy = params.offset || offsets[_elementId];
+					if(xy) {
+						var ap = params.anchorPoint,connectorPaintStyle = params.connectorPaintStyle;
+						if (ap == null) {
+							var wh = params.dimensions || sizes[_elementId];
+							if (xy == null || wh == null) {
+								_updateOffset( { elId : _elementId, timestamp : timestamp });
+								xy = offsets[_elementId];
+								wh = sizes[_elementId];
+							}
+							var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
+							if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
+								var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
+								oIdx = c.endpoints[0] == self ? 1 : 0,
+								oId = oIdx == 0 ? c.sourceId : c.targetId,
+								oOffset = offsets[oId], oWH = sizes[oId];
+								anchorParams.txy = [ oOffset.left, oOffset.top ];
+								anchorParams.twh = oWH;
+								anchorParams.tElement = c.endpoints[oIdx];
+							}
+							ap = self.anchor.compute(anchorParams);
 						}
-						var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
-						if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
-							var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
-							oIdx = c.endpoints[0] == self ? 1 : 0,
-							oId = oIdx == 0 ? c.sourceId : c.targetId,
-							oOffset = offsets[oId], oWH = sizes[oId];
-							anchorParams.txy = [ oOffset.left, oOffset.top ];
-							anchorParams.twh = oWH;
-							anchorParams.tElement = c.endpoints[oIdx];
-						}
-						ap = self.anchor.compute(anchorParams);
+											
+						var d = _endpoint.compute(ap, self.anchor.getOrientation(_endpoint), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
+						_endpoint.paint(d, self.paintStyleInUse, self.anchor);					
+						self.timestamp = timestamp;
 					}
-										
-					var d = _endpoint.compute(ap, self.anchor.getOrientation(_endpoint), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
-					_endpoint.paint(d, self.paintStyleInUse, self.anchor);					
-					self.timestamp = timestamp;
 				}
 			};
 
