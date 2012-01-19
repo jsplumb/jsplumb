@@ -2074,9 +2074,9 @@ between this method and jsPlumb.reset).
 								ep.setElement(parent);
 								ep.endpointWillMoveAfterConnection = false;
 								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);
-								var jpc = ep.connections[0]; // TODO will this always be correct?
+								var jpc = ep.connections[0];
+								jpc.previousConnection = null;
 								_finaliseConnection(jpc);
-								_currentInstance.repaintEverything();
 							}
 						}										
 						_currentInstance.repaint(elid);												
