@@ -3240,6 +3240,9 @@ between this method and jsPlumb.reset).
 			self.getCost = function() { return _cost; };
 			self.setCost = function(c) { _cost = c; };
 			
+			var _bidirectional = params.bidirectional === true;
+			self.isBidirectional = function() { return _bidirectional; };
+			
 			/*
 			 * Property: sourceId
 			 * Id of the source element in the connection.
@@ -3373,6 +3376,8 @@ between this method and jsPlumb.reset).
             
             // inherit connectin cost if it was set on source endpoint
             if (_cost == null) _cost = self.endpoints[0].getConnectionCost();
+            // inherit bidirectional flag if set no source endpoint
+            if (params.bidirectional == null) _bidirectional = self.endpoints[0].areConnectionsBidirectional();
             
             /*
                 Function: isDetachable
@@ -3961,7 +3966,13 @@ between this method and jsPlumb.reset).
 			
 			var _connectionCost = params.connectionCost;
 			this.getConnectionCost = function() { return _connectionCost; };
-			this.setConnectionCost = function(c) { _connectionCost = c; };
+			this.setConnectionCost = function(c) {
+				_connectionCost = c; 
+			};
+			
+			var _connectionsBidirectional = params.connectionsBidirectional === true;
+			this.areConnectionsBidirectional = function() { return _connectionsBidirectional; };
+			this.setConnectionsBidirectional = function(b) { _connectionsBidirectional = b; };
 			
 			if (params.dynamicAnchors)
 				self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors));
