@@ -1196,7 +1196,7 @@ var testSuite = function(renderMode) {
 		var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
 		var c = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.getCost(), 1, "default connection cost is 1");
+		equals(c.getCost(), undefined, "default connection cost is 1");
 	});
 	
 	test(renderMode + ': jsPlumb.connect (set cost)', function() {
@@ -1206,7 +1206,7 @@ var testSuite = function(renderMode) {
 		var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
 		var c = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.getCost(), 1, "default connection cost is 1");
+		equals(c.getCost(), undefined, "default connection cost is 1");
 		c.setCost(8989);
 		equals(c.getCost(), 8989, "connection cost is 8989");
 	});
@@ -1219,6 +1219,19 @@ var testSuite = function(renderMode) {
 		var c = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
 		equals(c.getCost(), 567, "connection cost is 567");
+	});
+	
+	test(renderMode + ': jsPlumb.connect two endpoints (change connectionCost)', function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17");
+		var e16 = jsPlumb.addEndpoint(d16, {isSource:true, connectionCost:567});
+		ok(e16.anchor, 'endpoint 16 has an anchor');
+		var e17 = jsPlumb.addEndpoint(d17, {isSource:true});
+		var c = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+		assertContextSize(3);
+		equals(c.getCost(), 567, "connection cost is 567");
+		e16.setConnectionCost(23);
+		var c2 = jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
+		equals(c.getCost(), 567, "connection cost is 23 after change on endpoint");
 	});
 	
 	test(renderMode + ": jsPlumb.connect (two Endpoints - that have been already added - by UUID)", function() {
