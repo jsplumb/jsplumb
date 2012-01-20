@@ -2,6 +2,8 @@
 
     - added support for "contextmenu" event bind, on jsPlumb, Connection and Endpoint.
     - added setSuspendDrawing method: use it to suspend drawing while you bulk connect etc.
+    - added setHoverSuspended method: lets you tell jsPlumb to ignore hover events.
+    - added isHoverSuspended method: lets you find out from jsPlumb what it will do about hover events.
 
 * 1.3.4
 

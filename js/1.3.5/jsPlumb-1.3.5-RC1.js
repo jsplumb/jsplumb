@@ -313,7 +313,7 @@
 		    this.setHover = function(hover, ignoreAttachedElements, timestamp) {
 		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
 		    	// swishing and whatevering.
-		    	if (!self._jsPlumb.currentlyDragging) {
+				if (!self._jsPlumb.currentlyDragging && !self._jsPlumb.isHoverSuspended()) {
 		    
 			    	_hover = hover;
 					if (self.hoverClass != null && self.canvas != null) {
@@ -366,10 +366,13 @@
 		    	}
 		    };
 		    
-		    this.reattachListenersForElement = function(o, c) {
-		    	for (var i = 0; i < events.length; i++)
-		    		unbindOne(o, events[i]);
-		    	self.attachListeners(o, c);
+		    this.reattachListenersForElement = function(o) {
+			    if (arguments.length > 1) {
+		    		for (var i = 0; i < events.length; i++)
+		    			unbindOne(o, events[i]);
+			    	for (var i = 1; i < arguments.length; i++)
+		    			self.attachListeners(o, arguments[i]);
+		    	}
 		    };
 		};		
 		
@@ -575,8 +578,8 @@
 				if (jsPlumb.CurrentLibrary.isDragSupported(element) && !jsPlumb.CurrentLibrary.isAlreadyDraggable(element)) {
 					var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
 					options = jsPlumb.extend( {}, options); // make a copy.
-					var dragEvent = jsPlumb.CurrentLibrary.dragEvents['drag'];
-					var stopEvent = jsPlumb.CurrentLibrary.dragEvents['stop'];
+					var dragEvent = jsPlumb.CurrentLibrary.dragEvents["drag"],
+						stopEvent = jsPlumb.CurrentLibrary.dragEvents["stop"];
 					options[dragEvent] = _wrap(options[dragEvent], function() {
 						var ui = jsPlumb.CurrentLibrary.getUIPosition(arguments);
 						_draw(element, ui);
@@ -1656,6 +1659,10 @@ between this method and jsPlumb.reset).
 		};		
 		
 		this.appendElement = _appendElement;
+		
+		var _hoverSuspended = false;
+		this.isHoverSuspended = function() { return _hoverSuspended; };
+		this.setHoverSuspended = function(s) { _hoverSuspended = s; };
 
 		/*
 		  Function: hide 
@@ -2007,7 +2014,10 @@ between this method and jsPlumb.reset).
 				_sourceEndpointDefinitions[elid] = p.endpoint || {};
 				var stopEvent = jpcl.dragEvents["stop"],
 					dragEvent = jpcl.dragEvents["drag"],
-					dragOptions = jsPlumb.extend({ }, _sourceEndpointDefinitions[elid].dragOptions || {}), 
+					//dragOptions = jsPlumb.extend({ }, _sourceEndpointDefinitions[elid].dragOptions || {}), 
+					dragOptions = jsPlumb.extend({ }, p.dragOptions || _sourceEndpointDefinitions[elid].dragOptions || {}),
+					existingDrag = dragOptions.drag,
+					existingStop = dragOptions.stop,
 					ep = null,
 					endpointAddedButNoDragYet = false;
 
@@ -2035,10 +2045,14 @@ between this method and jsPlumb.reset).
                                                           jsPlumb.Defaults.Anchor;
 
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {
+					if (existingDrag) existingDrag.apply(this, arguments);
 					endpointAddedButNoDragYet = false;
 				});
 					
 				dragOptions[stopEvent] = function() { 
+				
+					if (existingStop) existingStop.apply(this, arguments);
+				
 					// here we need to do a couple of things;
 					// first determine whether or not a connection was dragged. if not, just delete this endpoint.
 					// ...if so, though, then we need to check to see if a 'parent' was specified in the 
@@ -3540,7 +3554,8 @@ between this method and jsPlumb.reset).
                     if (self.overlays[i].isAppendedAtTopLevel) {
 					    jpcl.removeElement(self.overlays[i].canvas, curParent);
 					    jpcl.appendElement(self.overlays[i].canvas, newParent);
-					    if (self.overlays[i].reattachListeners) self.overlays[i].reattachListeners();
+					    if (self.overlays[i].reattachListeners) 
+					    	self.overlays[i].reattachListeners(self.connector);
                     }
 				}
 				if (self.connector.reattachListeners)		// this is for SVG/VML; change an element's parent and you have to reinit its listeners.

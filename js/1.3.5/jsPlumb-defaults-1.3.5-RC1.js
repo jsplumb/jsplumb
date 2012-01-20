@@ -945,8 +945,10 @@
 	    	else return [0,0,0,0];
 	    };
 	    
-	    this.reattachListeners = function() {
-	    	if (div) self.reattachListenersForElement(div, self);
+	    this.reattachListeners = function(connector) {
+	    	if (div) {
+	    		self.reattachListenersForElement(div, self, connector);
+	    	}
 	    };
     };
 
