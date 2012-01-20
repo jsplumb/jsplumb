@@ -190,7 +190,7 @@
 			};		
 		},
 		
-				/**
+		/**
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
 		 */
 		_timestamp = function() { return "" + (new Date()).getTime(); },
