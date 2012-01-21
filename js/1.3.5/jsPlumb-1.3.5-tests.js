@@ -44,6 +44,9 @@ var _cleanup = function() {
 	jsPlumb.reset();
 	jsPlumb.Defaults.Container = null;
     jsPlumb.Defaults.ConnectionsDetachable = true;
+    jsPlumb.Defaults.Overlays = null;
+    jsPlumb.Defaults.ConnectionOverlays = null;
+    jsPlumb.Defaults.EndpointOverlays = null;
 	
 	for (var i in _divs) {
 		$("#" + _divs[i]).remove();		
@@ -1721,6 +1724,84 @@ var testSuite = function(renderMode) {
 		equals(40, connection1.overlays[1].length);
 		equals("anArrow", connection1.overlays[1].id);
 	});
+
+	test(renderMode + ": jsPlumb.connect (default overlays)", function() {
+		jsPlumb.Defaults.Overlays = [
+			["Arrow",{ location:0.1, id:"arrow" }]
+		];
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({source:d1, target:d2});
+
+		ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
+	});
+
+	test(renderMode + ": jsPlumb.connect (default overlays + overlays specified in connect call)", function() {
+		jsPlumb.Defaults.Overlays = [
+			["Arrow",{ location:0.1, id:"arrow" }]
+		];
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({source:d1, target:d2, overlays:[
+				["Label", {id:"label"}]
+			]});
+
+		ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
+		ok(c.getOverlay("label") != null, "Label overlay created from connect call");
+	});
+
+	test(renderMode + ": jsPlumb.connect (default connection overlays)", function() {
+		jsPlumb.Defaults.ConnectionOverlays = [
+			["Arrow",{ location:0.1, id:"arrow" }]
+		];
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({source:d1, target:d2});
+
+		ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
+	});
+
+	test(renderMode + ": jsPlumb.connect (default connection overlays + overlays specified in connect call)", function() {
+		jsPlumb.Defaults.ConnectionOverlays = [
+			["Arrow",{ location:0.1, id:"arrow" }]
+		];
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({source:d1, target:d2, overlays:[
+				["Label", {id:"label"}]
+			]});
+
+		ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
+		ok(c.getOverlay("label") != null, "Label overlay created from connect call");
+	});
+
+	test(renderMode + ": jsPlumb.connect (default overlays + default connection overlays)", function() {
+		jsPlumb.Defaults.ConnectionOverlays = [
+			["Arrow",{ location:0.1, id:"arrow" }]
+		];
+		jsPlumb.Defaults.Overlays = [
+			["Arrow",{ location:0.1, id:"arrow2" }]
+		];
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({source:d1, target:d2});
+
+		ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
+		ok(c.getOverlay("arrow2") != null, "Arrow overlay created from connection defaults");
+	});
+
+	test(renderMode + ": jsPlumb.connect (default overlays + default connection overlays)", function() {
+		jsPlumb.Defaults.ConnectionOverlays = [
+			["Arrow",{ location:0.1, id:"arrow" }]
+		];
+		jsPlumb.Defaults.Overlays = [
+			["Arrow",{ location:0.1, id:"arrow2" }]
+		];
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({source:d1, target:d2, overlays:[
+					["Label", {id:"label"}]
+				]});
+
+		ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
+		ok(c.getOverlay("arrow2") != null, "Arrow overlay created from connection defaults");
+		ok(c.getOverlay("label") != null, "Label overlay created from connect call");
+	});
+	
 	
 	test(renderMode + ": jsPlumb.connect (remove single overlay by id)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");

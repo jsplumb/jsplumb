@@ -150,7 +150,7 @@
 			 * Parameters:
 			 * 	event				-	event to fire
 			 * 	value				-	value to pass to the event listener(s).
-			 *  o	riginalEvent	- 	the original event from the browser
+			 *  originalEvent	 	- 	the original event from the browser
 			 */			
 			this.fire = function(event, value, originalEvent) {
 				if (_listeners[event]) {
@@ -373,7 +373,182 @@
 			    	for (var i = 1; i < arguments.length; i++)
 		    			self.attachListeners(o, arguments[i]);
 		    	}
-		    };
+		    };			
+		},
+
+		overlayCapableJsPlumbUIComponent = function(params) {
+			jsPlumbUIComponent.apply(this, arguments);
+			var self = this;
+			/*
+			 * Property: overlays
+			 * List of Overlays for this component.
+			 */
+			this.overlays = [];
+
+			var processOverlay = function(o) {
+				var _newOverlay = null;
+				if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+					// there's also a three arg version:
+					// ["Arrow", { width:50 }, {location:0.7}] 
+					// which merges the 3rd arg into the 2nd.
+					var type = o[0],
+						// make a copy of the object so as not to mess up anyone else's reference...
+						p = jsPlumb.extend({component:self, _jsPlumb:self._jsPlumb}, o[1]);
+					if (o.length == 3) jsPlumb.extend(p, o[2]);
+					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.getRenderMode()][type](p);
+					if (p.events) {
+						for (var evt in p.events) {
+							_newOverlay.bind(evt, p.events[evt]);
+						}
+					}
+				} else if (o.constructor == String) {
+					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.getRenderMode()][o]({component:self, _jsPlumb:self._jsPlumb});
+				} else {
+					_newOverlay = o;
+				}										
+					
+				self.overlays.push(_newOverlay);
+			},
+			calculateOverlaysToAdd = function(params) {
+				var defaultKeys = self.defaultOverlayKeys || [],
+					o = params.overlays,
+					checkKey = function(k) {
+						return self._jsPlumb.Defaults[k] || jsPlumb.Defaults[k] || [];
+					};
+				
+				if (!o) o = [];
+
+				for (var i = 0; i < defaultKeys.length; i++)
+					o.unshift.apply(o, checkKey(defaultKeys[i]));
+				
+				return o;
+			}
+
+			var _overlays = calculateOverlaysToAdd(params);//params.overlays || self._jsPlumb.Defaults.Overlays;
+			if (_overlays) {
+				for (var i = 0; i < _overlays.length; i++) {
+					processOverlay(_overlays[i]);
+				}
+			}
+
+		    // overlay finder helper method
+			var _getOverlayIndex = function(id) {
+				var idx = -1;
+				for (var i = 0; i < self.overlays.length; i++) {
+					if (id === self.overlays[i].id) {
+						idx = i;
+						break;
+					}
+				}
+				return idx;
+			};
+			
+			/*
+			 * Function: addOverlay
+			 * Adds an Overlay to the Connection.
+			 * 
+			 * Parameters:
+			 * 	overlay - Overlay to add.
+			 */
+			this.addOverlay = function(overlay) { 
+				processOverlay(overlay); 
+				self.repaint();
+			};
+			
+			/*
+			 * Function: getOverlay
+			 * Gets an overlay, by ID. Note: by ID.  You would pass an 'id' parameter
+			 * in to the Overlay's constructor arguments, and then use that to retrieve
+			 * it via this method.
+			 */
+			this.getOverlay = function(id) {
+				var idx = _getOverlayIndex(id);
+				return idx >= 0 ? self.overlays[idx] : null;
+			};
+			
+			/*
+			 * Function: hideOverlay
+			 * Hides the overlay specified by the given id.
+			 */
+			this.hideOverlay = function(id) {
+				var o = self.getOverlay(id);
+				if (o) o.hide();
+			};
+			
+			/*
+			 * Function: showOverlay
+			 * Shows the overlay specified by the given id.
+			 */
+			this.showOverlay = function(id) {
+				var o = self.getOverlay(id);
+				if (o) o.show();
+			};
+			
+			/**
+			 * Function: removeAllOverlays
+			 * Removes all overlays from the Connection, and then repaints.
+			 */
+			this.removeAllOverlays = function() {
+				self.overlays.splice(0, self.overlays.length);
+				self.repaint();
+			};
+			
+			/**
+			 * Function:removeOverlay
+			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Parameters:
+			 * overlayId - id of the overlay to remove.
+			 */
+			this.removeOverlay = function(overlayId) {
+				var idx = _getOverlayIndex(overlayId);
+				if (idx != -1) {
+					var o = self.overlays[idx];
+					o.cleanup();
+					self.overlays.splice(idx, 1);
+				}
+			};
+			
+			/**
+			 * Function:removeOverlays
+			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Parameters:
+			 * overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
+			 */
+			this.removeOverlays = function() {
+				for (var i = 0; i < arguments.length; i++)
+					self.removeOverlay(arguments[i]);
+			};
+
+			// this is a shortcut helper method to let people add a label as
+			// overlay.
+			this.labelStyle = params.labelStyle || self._jsPlumb.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
+			if (params.label) {
+				var loc = self.defaultLabelLocation || params.labelLocation || 0.5;
+				this.overlays.push(new jsPlumb.Overlays[self._jsPlumb.getRenderMode()].Label( {
+					cssClass:params.cssClass,
+					labelStyle : this.labelStyle,
+					label : params.label,
+					location:loc,
+					id:"__label",
+					component:self,
+					_jsPlumb:self._jsPlumb
+				}));
+			}
+
+			/*
+			 * Function: setLabel
+			 * Sets the Connection's label.  
+			 * 
+			 * Parameters:
+			 * 	l	- label to set. May be a String or a Function that returns a String.
+			 */
+			this.setLabel = function(l) {
+				var lo = self.getOverlay("__label");
+				if (lo) {
+					lo.setLabel(l);
+					self.repaint();
+				}
+			};
 		},
 		
 		_bindListeners = function(obj, _self, _hoverFunction) {
@@ -833,23 +1008,6 @@
 		_removeElements = function(elements, parent) {
 			for ( var i = 0; i < elements.length; i++)
 				_removeElement(elements[i], parent);
-		},
-		/**
-		 * helper method to remove an item from a list.
-		 */
-		_removeFromList = function(map, key, value) {
-			if (key != null) {
-				var l = map[key];
-				if (l != null) {
-					var i = _findIndex(l, value);
-					if (i >= 0) {
-						delete (l[i]);
-						l.splice(i, 1);
-						return true;
-					}
-				}
-			}
-			return false;
 		},
 		/**
 		 * Sets whether or not the given element(s) should be draggable,
@@ -2940,7 +3098,10 @@ between this method and jsPlumb.reset).
                         }
                     }
 					else // continuous.
-						_removeFromList(continuousAnchorConnectionsByElementId, elId, c);
+						//_removeFromList(continuousAnchorConnectionsByElementId, elId, c);
+						_removeWithFunction(continuousAnchorConnectionsByElementId[elId], function(_c) {
+							return _c.id == c.id;
+						});
 				};
 				
 			removeConnection(1, ep[1], ep[1].anchor, sourceId, connInfo.connection);
@@ -2982,7 +3143,10 @@ between this method and jsPlumb.reset).
 			if (cIdx > -1)
 				continuousAnchorEndpoints.splice(cIdx, 1);
 			else
-				_removeFromList(_amEndpoints, endpoint.elementId, endpoint);		
+				//_removeFromList(_amEndpoints, endpoint.elementId, endpoint);		
+				_removeWithFunction(_amEndpoints[endpoint.elementId], function(e) {
+					return e.id == endpoint.id;
+				});
 		};
 		this.clearFor = function(elementId) {
 			delete _amEndpoints[elementId];
@@ -3200,7 +3364,10 @@ between this method and jsPlumb.reset).
 		var Connection = function(params) {
 			var self = this, visible = true;
 			self.idPrefix = "_jsplumb_c_";
-			jsPlumbUIComponent.apply(this, arguments);
+			self.defaultLabelLocation = 0.5;
+			self.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
+			this.parent = params.parent;
+			overlayCapableJsPlumbUIComponent.apply(this, arguments);
 			// ************** get the source and target and register the connection. *******************
 			
 			/**
@@ -3219,7 +3386,7 @@ between this method and jsPlumb.reset).
 				visible = v;
 				if (self.connector && self.connector.canvas) self.connector.canvas.style.display = v ? "block" : "none";
 			};
-			this.parent = params.parent;
+			
 			/**
 				Property: source
 				The source element for this Connection.
@@ -3478,42 +3645,7 @@ between this method and jsPlumb.reset).
 									jsPlumb.Defaults.HoverPaintStyle, true);
 			
 			this.paintStyleInUse = this.paintStyle;
-			
-			/*
-			 * Property: overlays
-			 * List of Overlays for this Connection.
-			 */
-			this.overlays = [];
-			var processOverlay = function(o) {
-				var _newOverlay = null;
-				if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
-					// there's also a three arg version:
-					// ["Arrow", { width:50 }, {location:0.7}] 
-					// which merges the 3rd arg into the 2nd.
-					var type = o[0],
-						// make a copy of the object so as not to mess up anyone else's reference...
-						p = jsPlumb.extend({connection:self, _jsPlumb:_currentInstance}, o[1]);
-					if (o.length == 3) jsPlumb.extend(p, o[2]);
-					_newOverlay = new jsPlumb.Overlays[renderMode][type](p);
-					if (p.events) {
-						for (var evt in p.events) {
-							_newOverlay.bind(evt, p.events[evt]);
-						}
-					}
-				} else if (o.constructor == String) {
-					_newOverlay = new jsPlumb.Overlays[renderMode][o]({connection:self, _jsPlumb:_currentInstance});
-				} else {
-					_newOverlay = o;
-				}										
-					
-				self.overlays.push(_newOverlay);
-			};
-			var _overlays = params.overlays || _currentInstance.Defaults.Overlays;
-			if (_overlays) {
-				for (var i = 0; i < _overlays.length; i++) {
-					processOverlay(_overlays[i]);
-				}
-			}
+								
 			
 			this.moveParent = function(newParent) {
 				var jpcl = jsPlumb.CurrentLibrary, curParent = jpcl.getParent(self.connector.canvas);				
@@ -3580,125 +3712,11 @@ between this method and jsPlumb.reset).
 		     * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
 		     */
 			
-// ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************			
-			
-			// overlay finder helper method
-			var _getOverlayIndex = function(id) {
-				var idx = -1;
-				for (var i = 0; i < self.overlays.length; i++) {
-					if (id === self.overlays[i].id) {
-						idx = i;
-						break;
-					}
-				}
-				return idx;
-			};
-			
-			/*
-			 * Function: addOverlay
-			 * Adds an Overlay to the Connection.
-			 * 
-			 * Parameters:
-			 * 	overlay - Overlay to add.
-			 */
-			this.addOverlay = function(overlay) { 
-				processOverlay(overlay); 
-				self.repaint();
-			};
-			
-			/*
-			 * Function: getOverlay
-			 * Gets an overlay, by ID. Note: by ID.  You would pass an 'id' parameter
-			 * in to the Overlay's constructor arguments, and then use that to retrieve
-			 * it via this method.
-			 */
-			this.getOverlay = function(id) {
-				var idx = _getOverlayIndex(id);
-				return idx >= 0 ? self.overlays[idx] : null;
-			};
-			
-			/*
-			 * Function: hideOverlay
-			 * Hides the overlay specified by the given id.
-			 */
-			this.hideOverlay = function(id) {
-				var o = self.getOverlay(id);
-				if (o) o.hide();
-			};
-			
-			/*
-			 * Function: showOverlay
-			 * Shows the overlay specified by the given id.
-			 */
-			this.showOverlay = function(id) {
-				var o = self.getOverlay(id);
-				if (o) o.show();
-			};
-			
-			/**
-			 * Function: removeAllOverlays
-			 * Removes all overlays from the Connection, and then repaints.
-			 */
-			this.removeAllOverlays = function() {
-				self.overlays.splice(0, self.overlays.length);
-				self.repaint();
-			};
-			
-			/**
-			 * Function:removeOverlay
-			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
-			 * Parameters:
-			 * overlayId - id of the overlay to remove.
-			 */
-			this.removeOverlay = function(overlayId) {
-				var idx = _getOverlayIndex(overlayId);
-				if (idx != -1) {
-					var o = self.overlays[idx];
-					o.cleanup();
-					self.overlays.splice(idx, 1);
-				}
-			};
-			
-			/**
-			 * Function:removeOverlays
-			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
-			 * Parameters:
-			 * overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
-			 */
-			this.removeOverlays = function() {
-				for (var i = 0; i < arguments.length; i++)
-					self.removeOverlay(arguments[i]);
-			};
-
-			// this is a shortcut helper method to let people add a label as
-			// overlay.
-			this.labelStyle = params.labelStyle || _currentInstance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;
-			this.label = params.label;
-			if (this.label) {
-				this.overlays.push(new jsPlumb.Overlays[renderMode].Label( {
-					cssClass:params.cssClass,
-					labelStyle : this.labelStyle,
-					label : this.label,
-					connection:self,
-					_jsPlumb:_currentInstance
-				}));
-			}
+// ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************												
 
 			_updateOffset( { elId : this.sourceId });
 			_updateOffset( { elId : this.targetId });
-
-			/*
-			 * Function: setLabel
-			 * Sets the Connection's label.  
-			 * 
-			 * Parameters:
-			 * 	l	- label to set. May be a String or a Function that returns a String.
-			 */
-			this.setLabel = function(l) {
-				self.label = l;
-				_currentInstance.repaint(self.source);
-			};
-
+			
 			// paint the endpoints
 			var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId],
 			otherOffset = offsets[this.targetId],
@@ -3868,8 +3886,10 @@ between this method and jsPlumb.reset).
 		 */
 		var Endpoint = function(params) {
 			var self = this;
-			self.idPrefix = "_jsplumb_e_";
-			jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+			self.idPrefix = "_jsplumb_e_";			
+			self.defaultLabelLocation = [ 0.5, 0.5 ];
+			self.defaultOverlayKeys = ["EndpointOverlays"];
+			overlayCapableJsPlumbUIComponent.apply(this, arguments);
 			params = params || {};
 
 // ***************************** PLACEHOLDERS FOR NATURAL DOCS *************************************************
@@ -4121,7 +4141,10 @@ between this method and jsPlumb.reset).
 								}
 							}
 							_removeElements(connection.connector.getDisplayElements(), connection.parent);
-							_removeFromList(connectionsByScope, connection.scope, connection);
+							//_removeFromList(connectionsByScope, connection.scope, connection);
+							_removeWithFunction(connectionsByScope[connection.scope], function(c) {
+								return c.id == connection.id;
+							});
 							actuallyDetached = true;
                             var doFireEvent = (!ignoreTarget && fireEvent)
 							fireDetachEvent(connection, doFireEvent);
@@ -4196,7 +4219,10 @@ between this method and jsPlumb.reset).
 				// moving the UI bits and pieces.  however it would s			
 				var parentId = _getId(el);
 				// remove the endpoint from the list for the current endpoint's element
-				_removeFromList(endpointsByElement, _elementId, self);	
+				//_removeFromList(endpointsByElement, _elementId, self);	
+				_removeWithFunction(endpointsByElement[_elementId], function(e) {
+					return e.id == self.id;
+				});
 				_element = _getElementObject(el);
 				_elementId = _getId(_element);
 				self.elementId = _elementId;
@@ -4527,7 +4553,10 @@ between this method and jsPlumb.reset).
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
 					function() {	
 						_currentInstance.currentlyDragging = false;
-						_removeFromList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
+						//_removeFromList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
+						_removeWithFunction(endpointsByElement[placeholderInfo.id], function(e) {
+							return e.id == floatingEndpoint.id;
+						});
 						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
 						_removeElement(inPlaceCopy.canvas, _element);
 						_currentInstance.anchorManager.clearFor(placeholderInfo.id);

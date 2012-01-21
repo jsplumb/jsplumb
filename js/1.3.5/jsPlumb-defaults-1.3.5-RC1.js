@@ -673,11 +673,11 @@
 	var AbstractOverlay = function(params) {
 		var visible = true, self = this;
         this.isAppendedAtTopLevel = true;
-		this.connection = params.connection;
+		this.component = params.component;
 		this.loc = params.location == null ? 0.5 : params.location;
 		this.setVisible = function(val) { 
 			visible = val;
-			self.connection.repaint();
+			self.component.repaint();
 		};
     	this.isVisible = function() { return visible; };
     	this.hide = function() { self.setVisible(false); };
@@ -685,11 +685,11 @@
     	
     	this.incrementLocation = function(amount) {
     		self.loc += amount;
-    		self.connection.repaint();
+    		self.component.repaint();
     	};
     	this.setLocation = function(l) {
     		self.loc = l;
-    		self.connection.repaint();
+    		self.component.repaint();
     	};
     	this.getLocation = function() {
     		return self.loc;
@@ -859,7 +859,7 @@
     	
     	div.className =	clazz;
     	
-    	jsPlumb.appendElement(div, params.connection.parent);
+    	jsPlumb.appendElement(div, params.component.parent);
     	jsPlumb.getId(div);		
     	self.attachListeners(div, self);
     	self.canvas = div;
@@ -888,7 +888,7 @@
     	this.setLabel = function(l) {
     		label = l;
     		labelText = null;
-    		self.connection.repaint();
+    		self.component.repaint();
     	};
     	
     	this.getLabel = function() {
