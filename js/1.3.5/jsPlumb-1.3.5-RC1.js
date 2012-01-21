@@ -3888,7 +3888,8 @@ between this method and jsPlumb.reset).
 			var self = this;
 			self.idPrefix = "_jsplumb_e_";			
 			self.defaultLabelLocation = [ 0.5, 0.5 ];
-			self.defaultOverlayKeys = ["EndpointOverlays"];
+			self.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
+			this.parent = params.parent;
 			overlayCapableJsPlumbUIComponent.apply(this, arguments);
 			params = params || {};
 
@@ -4049,8 +4050,7 @@ between this method and jsPlumb.reset).
 			this.connectorHoverStyle = params.connectorHoverStyle;
 			this.connectorOverlays = params.connectorOverlays;
 			this.connector = params.connector;
-			this.connectorTooltip = params.connectorTooltip;
-			this.parent = params.parent;
+			this.connectorTooltip = params.connectorTooltip;			
 			this.isSource = params.isSource || false;
 			this.isTarget = params.isTarget || false;
 			
@@ -4400,6 +4400,13 @@ between this method and jsPlumb.reset).
 						var d = _endpoint.compute(ap, self.anchor.getOrientation(_endpoint), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
 						_endpoint.paint(d, self.paintStyleInUse, self.anchor);					
 						self.timestamp = timestamp;
+
+
+						/* paint overlays*/
+						for ( var i = 0; i < self.overlays.length; i++) {
+							var o = self.overlays[i];
+							if (o.isVisible) self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse, d);
+						}
 					}
 				}
 			};

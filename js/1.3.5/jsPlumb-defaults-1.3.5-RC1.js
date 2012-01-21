@@ -675,6 +675,7 @@
         this.isAppendedAtTopLevel = true;
 		this.component = params.component;
 		this.loc = params.location == null ? 0.5 : params.location;
+        this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
 		this.setVisible = function(val) { 
 			visible = val;
 			self.component.repaint();
@@ -742,39 +743,42 @@
     	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
 
             var hxy, mid, txy, tail, cxy;
+            if (connector.pointAlongPathFrom) {
 
-            if (self.loc == 1) {
-                hxy = connector.pointOnPath(self.loc);
-                mid = connector.pointAlongPathFrom(self.loc, -1);
-                txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
-            }
-            else if (self.loc == 0) {
-                txy = connector.pointOnPath(self.loc);
-                mid = connector.pointAlongPathFrom(self.loc, 1);
-                hxy = jsPlumb.util.pointOnLine(txy, mid, self.length);
-            }
-            else {
-			    hxy = connector.pointAlongPathFrom(self.loc, direction * self.length / 2),
-                mid = connector.pointOnPath(self.loc),
-                txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
-            }
+                if (self.loc == 1) {
+                    hxy = connector.pointOnPath(self.loc);
+                    mid = connector.pointAlongPathFrom(self.loc, -1);
+                    txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
+                }
+                else if (self.loc == 0) {
+                    txy = connector.pointOnPath(self.loc);
+                    mid = connector.pointAlongPathFrom(self.loc, 1);
+                    hxy = jsPlumb.util.pointOnLine(txy, mid, self.length);
+                }
+                else {
+    			    hxy = connector.pointAlongPathFrom(self.loc, direction * self.length / 2),
+                    mid = connector.pointOnPath(self.loc),
+                    txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
+                }
 
-            tail = jsPlumb.util.perpendicularLineTo(hxy, txy, self.width);
-            cxy = jsPlumb.util.pointOnLine(hxy, txy, foldback * self.length);
+                tail = jsPlumb.util.perpendicularLineTo(hxy, txy, self.width);
+                cxy = jsPlumb.util.pointOnLine(hxy, txy, foldback * self.length);
 
-			var minx = Math.min(hxy.x, tail[0].x, tail[1].x),
-				maxx = Math.max(hxy.x, tail[0].x, tail[1].x),
-				miny = Math.min(hxy.y, tail[0].y, tail[1].y),
-				maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
+    			var minx = Math.min(hxy.x, tail[0].x, tail[1].x),
+    				maxx = Math.max(hxy.x, tail[0].x, tail[1].x),
+    				miny = Math.min(hxy.y, tail[0].y, tail[1].y),
+    				maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
+    			
+    			var d = { hxy:hxy, tail:tail, cxy:cxy },
+    			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
+    			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
+    			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
+    			
+    			self.paint(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions);							
 			
-			var d = { hxy:hxy, tail:tail, cxy:cxy },
-			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
-			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
-			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
-			
-			self.paint(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions);							
-			
-			return [ minx, maxx, miny, maxy]; 
+			    return [ minx, maxx, miny, maxy]; 
+            }
+            else return [0,0,0,0];
     	};
     };          
     
@@ -895,17 +899,17 @@
     		return label;
     	};
     	
-    	this.paint = function(connector, d, connectorDimensions) {
+    	this.paint = function(component, d, componentDimensions) {
 			if (!initialised) {	
-				connector.appendDisplayElement(div);
-				self.attachListeners(div, connector);
+				component.appendDisplayElement(div);
+				self.attachListeners(div, component);
 				initialised = true;
 			}
-			div.style.left = (connectorDimensions[0] + d.minx) + "px";
-			div.style.top = (connectorDimensions[1] + d.miny) + "px";			
+			div.style.left = (componentDimensions[0] + d.minx) + "px";
+			div.style.top = (componentDimensions[1] + d.miny) + "px";			
     	};
     	
-    	this.getTextDimensions = function(connector) {
+    	this.getTextDimensions = function() {
     		if (typeof label == "function") {
     			var lt = label(self);
     			div.innerHTML = lt.replace(/\r\n/g, "<br/>");
@@ -926,19 +930,27 @@
     		return td.width ? Math.max(td.width, td.height) * 1.5 : 0;
     	};    	
     	
-	    this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
-	    	var td = self.getTextDimensions(connector);
+	    this.draw = function(component, currentConnectionPaintStyle, componentDimensions) {
+	    	var td = self.getTextDimensions(component);
 	    	if (td.width !=  null) {
-				var cxy = connector.pointOnPath(self.loc),												
+				var cxy = {x:0,y:0};
+                if (component.pointOnPath)
+                    cxy = component.pointOnPath(self.loc);  // a connection
+                else {
+                    var locToUse = self.loc.constructor == Array ? self.loc : self.endpointLoc;
+                    cxy = { x:locToUse[0] * componentDimensions[2],
+                            y:locToUse[1] * componentDimensions[3] };      
+                } 
+                           
 				minx = cxy.x - (td.width / 2),
 				miny = cxy.y - (td.height / 2);
 				
-				self.paint(connector, {
+				self.paint(component, {
 					minx:minx,
 					miny:miny,
 					td:td,
 					cxy:cxy
-				}, connectorDimensions);
+				}, componentDimensions);
 				
 				return [minx, minx+td.width, miny, miny+td.height];
         	}

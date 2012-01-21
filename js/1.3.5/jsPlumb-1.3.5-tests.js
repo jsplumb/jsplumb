@@ -1096,6 +1096,33 @@ var testSuite = function(renderMode) {
 		equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
 		equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 	});
+
+	test(renderMode + ": jsPlumb.addEndpoints (default overlays)", function() {
+		jsPlumb.Defaults.Overlays = [
+			[ "Label", { id:"label" } ]
+		];
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
+			e1 = jsPlumb.addEndpoint(d16),
+			e2 = jsPlumb.addEndpoint(d17);
+
+		ok(e1.getOverlay("label") != null, "endpoint 1 has overlay from defaults");
+	});
+
+	test(renderMode + ": jsPlumb.addEndpoints (default overlays)", function() {
+		jsPlumb.Defaults.Overlays = [
+			[ "Label", { id:"label" } ]
+		];
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
+			e1 = jsPlumb.addEndpoint(d16, {
+				overlays:[
+					["Label", { id:"label2", location:[ 0.5, 1 ] } ]
+				]
+			}),
+			e2 = jsPlumb.addEndpoint(d17);
+
+		ok(e1.getOverlay("label") != null, "endpoint 1 has overlay from defaults");
+		ok(e1.getOverlay("label2") != null, "endpoint 1 has overlay from addEndpoint call");
+	});
 	
 	test(renderMode + ": jsPlumb.makeTarget (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
