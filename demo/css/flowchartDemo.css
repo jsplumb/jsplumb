@@ -38,8 +38,7 @@ filter:alpha(opacity=60);
 #window3 { top:37em;left:38em; }
 #window4 { top:5em; left:28em;}
 ._jsPlumb_connector { z-index:4; }
-._jsPlumb_endpoint, .endpointTargetLabel { z-index:21;cursor:pointer; }
-.endpointSourceLabel { cursor:pointer; }
+._jsPlumb_endpoint, .endpointTargetLabel, .endpointSourceLabel{ z-index:21;cursor:pointer; }
 .hl { border:3px solid red; }
 #debug { position:absolute; background-color:black; color:red; z-index:5000 }
 

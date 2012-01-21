@@ -44,7 +44,7 @@
                 overlays:[
                 	[ "Label", { 
 	                	location:[0.5, 1.5], 
-	                	label:"Drag from here",
+	                	label:"Drag",
 	                	cssClass:"endpointSourceLabel" 
 	                } ]
                 ]
@@ -61,7 +61,7 @@
 				isTarget:true,
 				anchor:[ "LeftMiddle", "RightMiddle" ],
                 overlays:[
-                	[ "Label", { location:[0.5, -0.5], label:"Drop on here", cssClass:"endpointTargetLabel" } ]
+                	[ "Label", { location:[0.5, -0.5], label:"Drop", cssClass:"endpointTargetLabel" } ]
                 ]
 			},
 			windows = ["window1", "window2", "window3", "window4"],
