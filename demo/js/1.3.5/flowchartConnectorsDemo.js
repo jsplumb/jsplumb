@@ -11,13 +11,13 @@
 			jsPlumb.Defaults.Endpoints = [ [ "Dot", {radius:7} ], [ "Dot", { radius:11 } ]];				
 			// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
 			// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
-			jsPlumb.Defaults.Overlays = [
-				[ "Arrow", { location:0.9 } ], 
+			jsPlumb.Defaults.ConnectionOverlays = [
+				[ "Arrow", { location:0.9 } ],
 				[ "Label", { 
 					location:0.1,
 					id:"label",
 					cssClass:"aLabel"
-				}] 
+				}]
 			];
 
 			// this is the paint style for the connecting lines..
@@ -40,7 +40,14 @@
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
-                dragOptions:{}
+                dragOptions:{},
+                overlays:[
+                	[ "Label", { 
+	                	location:[0.5, 1.5], 
+	                	label:"Drag from here",
+	                	cssClass:"endpointSourceLabel" 
+	                } ]
+                ]
 			},
 			// a source endpoint that sits at BottomCenter
 			bottomSource = jsPlumb.extend( { anchor:"BottomCenter" }, sourceEndpoint),
@@ -52,7 +59,10 @@
 				maxConnections:-1,
 				dropOptions:{ hoverClass:"hover", activeClass:"active" },
 				isTarget:true,
-				anchor:[ "LeftMiddle", "RightMiddle" ]
+				anchor:[ "LeftMiddle", "RightMiddle" ],
+                overlays:[
+                	[ "Label", { location:[0.5, -0.5], label:"Drop on here", cssClass:"endpointTargetLabel" } ]
+                ]
 			},
 			windows = ["window1", "window2", "window3", "window4"],
 			init = function(connection) {
@@ -93,6 +103,7 @@
 				if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
 					jsPlumb.detach(conn); 
 			});
+			
 		}
 	};
 })();
