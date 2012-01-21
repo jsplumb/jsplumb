@@ -374,7 +374,29 @@
 		    			self.attachListeners(o, arguments[i]);
 		    	}
 		    };
-		};		
+		},
+		
+		_bindListeners = function(obj, _self, _hoverFunction) {
+        	obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
+			obj.bind("dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
+	        obj.bind("contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
+			// this method is different; endpoint delegates hover to the first connection if there is one.
+	        // that allows the connection to notify all its endpoint and avoids a circular loop
+	        obj.bind("mouseenter", function(ep, e) {
+				if (!_self.isHover()) {
+	                _hoverFunction(true);
+					_self.fire("mouseenter", _self, e);
+				}
+			});
+	        // this method is different; endpoint delegates hover to the first connection if there is one.
+	        // that allows the connection to notify all its endpoint and avoids a circular loop
+			obj.bind("mouseexit", function(ep, e) {
+				if (_self.isHover()) {
+	                _hoverFunction(false);
+					_self.fire("mouseexit", self, e);
+				}
+			});	
+        };	
 		
 		var jsPlumbInstance = function(_defaults) {
 		
@@ -3384,39 +3406,26 @@ between this method and jsPlumb.reset).
 			// merge all the parameters objects into the connection.  parameters set
 			// on the connection take precedence; then target endpoint params, then
 			// finally source endpoint params.
-			var _p = jsPlumb.CurrentLibrary.extend({}, this.endpoints[0].getParameters());
-			jsPlumb.CurrentLibrary.extend(_p, this.endpoints[1].getParameters());
-			jsPlumb.CurrentLibrary.extend(_p, self.getParameters());
+			// TODO jsPlumb.extend could be made to take more than two args, and it would
+			// apply the second through nth args in order.
+			var _p = jsPlumb.extend({}, this.endpoints[0].getParameters());
+			jsPlumb.extend(_p, this.endpoints[1].getParameters());
+			jsPlumb.extend(_p, self.getParameters());
 			self.setParameters(_p);
 			
-			var _bindConnectorEvents = function() {
-				// add mouse events
-				self.connector.bind("click", function(con, e) {
-					self.fire("click", self, e);
-				});
-				self.connector.bind("dblclick", function(con, e) {
-                    self.fire("dblclick", self, e); });
-				self.connector.bind("mouseenter", function(con, e) {
-					if (!self.isHover()) {
-						if (_connectionBeingDragged == null) {
-							self.setHover(true, false);
-						}
-						self.fire("mouseenter", self, e);
-					}
-				});
-				self.connector.bind("mouseexit", function(con, e) {
-					if (self.isHover()) {
-						if (_connectionBeingDragged == null) {
-							self.setHover(false, false);
-						}
-						self.fire("mouseexit", self, e);
-					}
-				});
-                self.connector.bind("contextmenu", function(con, e) {
-                    self.fire("contextmenu", self, e);
-                })
-			
+			// override setHover to pass it down to the underlying connector
+			var _sh = self.setHover;
+
+			self.setHover = function() {
+				self.connector.setHover.apply(self.connector, arguments);
+				_sh.apply(self, arguments);
 			};
+			
+			var _internalHover = function(state) {
+				if (_connectionBeingDragged == null) {
+					self.setHover(state, false);
+				}
+			};						
 
 			/*
 			 * Function: setConnector
@@ -3440,7 +3449,8 @@ between this method and jsPlumb.reset).
 				else if (connector.constructor == Array)
 					this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
 				self.canvas = self.connector.canvas;
-				_bindConnectorEvents();				
+				// binds mouse listeners to the current connector.
+				_bindListeners(self.connector, self, _internalHover);				
 				if (!doNotRepaint) self.repaint();
 			};
 			/*
@@ -3453,14 +3463,7 @@ between this method and jsPlumb.reset).
 							  params.connector || 
 							  _currentInstance.Defaults.Connector || 
 							  jsPlumb.Defaults.Connector, true);
-							  
-							  
-			// override setHover to pass it down to the underlying connector
-			var _sh = self.setHover;
-			self.setHover = function() {
-				self.connector.setHover.apply(self.connector, arguments);
-				_sh.apply(self, arguments);
-			};
+							  							  			
 			
 			this.setPaintStyle(this.endpoints[0].connectorStyle || 
 							   this.endpoints[1].connectorStyle || 
@@ -3489,8 +3492,8 @@ between this method and jsPlumb.reset).
 					// which merges the 3rd arg into the 2nd.
 					var type = o[0],
 						// make a copy of the object so as not to mess up anyone else's reference...
-						p = jsPlumb.CurrentLibrary.extend({connection:self, _jsPlumb:_currentInstance}, o[1]);
-					if (o.length == 3) jsPlumb.CurrentLibrary.extend(p, o[2]);
+						p = jsPlumb.extend({connection:self, _jsPlumb:_currentInstance}, o[1]);
+					if (o.length == 3) jsPlumb.extend(p, o[2]);
 					_newOverlay = new jsPlumb.Overlays[renderMode][type](p);
 					if (p.events) {
 						for (var evt in p.events) {
@@ -4011,26 +4014,8 @@ between this method and jsPlumb.reset).
                 self.setHover(state);
             };
 			
-			// TODO this event listener registration code is identical to what Connection does: it should be refactored.
-			this.endpoint.bind("click", function(ep, e) { self.fire("click", self, e); });
-			this.endpoint.bind("dblclick", function(ep, e) { self.fire("dblclick", self, e); });
-            this.endpoint.bind("contextmenu", function(ep, e) { self.fire("contextmenu", self, e); });
-			// this method is different; endpoint delegates hover to the first connection if there is one.
-            // that allows the connection to notify all its endpoint and avoids a circular loop
-            this.endpoint.bind("mouseenter", function(ep, e) {
-				if (!self.isHover()) {
-                    internalHover(true);
-					self.fire("mouseenter", self, e);
-				}
-			});
-            // this method is different; endpoint delegates hover to the first connection if there is one.
-            // that allows the connection to notify all its endpoint and avoids a circular loop
-			this.endpoint.bind("mouseexit", function(ep, e) {
-				if (self.isHover()) {
-                    internalHover(false);
-					self.fire("mouseexit", self, e);
-				}
-			});
+			// bind listeners from endpoint to self, with the internal hover function defined above.
+            _bindListeners(self.endpoint, self, internalHover);
 			
 			this.setPaintStyle(params.paintStyle || 
 							   params.style || 
