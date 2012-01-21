@@ -6,9 +6,10 @@
     - added isHoverSuspended method: lets you find out from jsPlumb what it will do about hover events.
 
     - fixed the setLabel method for Connections, and added it to the superclass, so Endpoint has it too.
+    - added getLabel method to Connection and Endpoint
     - added support for 'labelLocation' param for endpoint and connection. default for endpoint
       is [0.5, 0.5]; default for connection is 0.5.
-    - adde support for overlays on Endpoint (only Label overlays)
+    - added support for overlays on Endpoint (only Label overlays)
     - added jsPlumb.Defaults.ConnectionOverlays
     - added jsPlumb.Defaults.EndpointOverlays
     - jsPlumb.Defaults.Overlays is now applied to both Endpoints and Connections: backwards compat issue.
