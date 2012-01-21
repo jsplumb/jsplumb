@@ -15,9 +15,7 @@
 				[ "Arrow", { location:0.9 } ], 
 				[ "Label", { 
 					location:0.1,
-					label:function(label) {
-						return label.connection.labelText || ""; 
-					},
+					id:"label",
 					cssClass:"aLabel"
 				}] 
 			];
@@ -58,7 +56,7 @@
 			},
 			windows = ["window1", "window2", "window3", "window4"],
 			init = function(connection) {
-				connection.labelText = connection.sourceId.substring(6) + "-" + connection.targetId.substring(6);
+				connection.getOverlay("label").setLabel(connection.sourceId.substring(6) + "-" + connection.targetId.substring(6));
 			};
 
 			// 
