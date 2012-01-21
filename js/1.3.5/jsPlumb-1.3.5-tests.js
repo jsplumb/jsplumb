@@ -1,5 +1,7 @@
 // jsplumb qunit tests.
 
+QUnit.config.reorder = false;
+
 var _getContextNode = function() {
 	return $("#container");
 };
@@ -52,6 +54,8 @@ var _cleanup = function() {
 		$("#" + _divs[i]).remove();		
 	}	
 	_divs.splice(0, _divs.length - 1);
+
+	$("#container").empty();
 };
 
 var testSuite = function(renderMode) {
@@ -1123,6 +1127,32 @@ var testSuite = function(renderMode) {
 		ok(e1.getOverlay("label") != null, "endpoint 1 has overlay from defaults");
 		ok(e1.getOverlay("label2") != null, "endpoint 1 has overlay from addEndpoint call");
 	});
+
+	test(renderMode + ": jsPlumb.addEndpoints (end point set label)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
+			e1 = jsPlumb.addEndpoint(d16),
+			e2 = jsPlumb.addEndpoint(d17);
+
+		e1.setLabel("FOO");
+		equals(e1.getLabel(), "FOO", "endpoint's label is correct");
+	});
+
+	test(renderMode + ": jsPlumb.addEndpoints (end point set label in constructor, as string)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
+			e1 = jsPlumb.addEndpoint(d16, {label:"FOO"}),
+			e2 = jsPlumb.addEndpoint(d17);
+
+		equals(e1.getLabel(), "FOO", "endpoint's label is correct");
+	});
+
+	test(renderMode + ": jsPlumb.addEndpoints (end point set label in constructor, as function)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
+			e1 = jsPlumb.addEndpoint(d16, {label:function() { return "BAZ"; }, labelLocation:0.1}),
+			e2 = jsPlumb.addEndpoint(d17);
+
+		equals(e1.getLabel(), "BAZ", "endpoint's label is correct");
+		equals(e1.getLabelOverlay().getLocation(), 0.1, "endpoint's label's location is correct");
+	});
 	
 	test(renderMode + ": jsPlumb.makeTarget (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
@@ -1828,6 +1858,106 @@ var testSuite = function(renderMode) {
 		ok(c.getOverlay("arrow2") != null, "Arrow overlay created from connection defaults");
 		ok(c.getOverlay("label") != null, "Label overlay created from connect call");
 	});
+
+	test(renderMode + ": jsPlumb.connect (label overlay set using 'label')", function() {		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({
+				source:d1, 
+				target:d2, 
+				label:"FOO"
+			});
+
+		equals(c.getLabel(), "FOO", "label is set correctly");
+	});
+
+	test(renderMode + ": jsPlumb.connect (set label after construction, with string)", function() {		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({
+				source:d1, 
+				target:d2});
+
+		c.setLabel("FOO");
+		equals(c.getLabel(), "FOO", "label is set correctly");
+	});
+
+	test(renderMode + ": jsPlumb.connect (set label after construction, with function)", function() {		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({
+				source:d1, 
+				target:d2});
+
+		c.setLabel(function() { return "BAR"; });
+		equals(c.getLabel()(), "BAR", "label is set correctly");
+	});
+
+	test(renderMode + ": jsPlumb.connect (set label after construction, with params object)", function() {		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({
+				source:d1, 
+				target:d2});
+
+		c.setLabel({
+			label:"BAZ",
+			cssClass:"CLASSY",
+			location:0.9
+		});
+		var lo = c.getLabelOverlay();
+		ok(lo != null, "label overlay exists");
+		equals(lo.getLabel(), "BAZ", "label overlay has correct value");
+		equals(lo.getLocation(), 0.9, "label overlay has correct location");
+	});
+
+	test(renderMode + ": jsPlumb.connect (set label after construction with existing label set, with params object)", function() {		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({
+				source:d1, 
+				target:d2,
+				label:"FOO",
+				labelLocation:0.2
+			});
+
+		var lo = c.getLabelOverlay();
+		equals(lo.getLocation(), 0.2, "label overlay has correct location");
+
+		c.setLabel({
+			label:"BAZ",
+			cssClass:"CLASSY",
+			location:0.9
+		});
+		
+		ok(lo != null, "label overlay exists");
+		equals(lo.getLabel(), "BAZ", "label overlay has correct value");
+		equals(lo.getLocation(), 0.9, "label overlay has correct location");
+	});
+
+	test(renderMode + ": jsPlumb.connect (getLabelOverlay, label on connect call)", function() {		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({
+				source:d1, 
+				target:d2, 
+				label:"FOO"
+			}),
+			lo = c.getLabelOverlay();
+
+		ok(lo != null, "label overlay exists");
+		equals(lo.getLabel(), "FOO", "label overlay has correct value");
+		equals(lo.getLocation(), 0.5, "label overlay has correct location");
+	});
+
+	test(renderMode + ": jsPlumb.connect (getLabelOverlay, label on connect call, location set)", function() {		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = jsPlumb.connect({
+				source:d1, 
+				target:d2, 
+				label:"FOO",
+				labelLocation:0.2
+			}),
+			lo = c.getLabelOverlay();
+
+		ok(lo != null, "label overlay exists");
+		equals(lo.getLabel(), "FOO", "label overlay has correct value");
+		equals(lo.getLocation(), 0.2, "label overlay has correct location");
+	});
 	
 	
 	test(renderMode + ": jsPlumb.connect (remove single overlay by id)", function() {
@@ -2142,12 +2272,12 @@ var testSuite = function(renderMode) {
 	// tests of the functionality that allows a user to specify that they want elements appended to the document body
 	test(renderMode + " jsPlumb.Defaults.Container, specified with a selector", function() {
 		jsPlumb.Defaults.Container = $("body");
-		equals(0, $("#container")[0].childNodes.length);
+		equals($("#container")[0].childNodes.length, 0, "container has no nodes");
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		equals(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
+		equals($("#container")[0].childNodes.length, 2, "container has two div elements");  // the divs we added have been added to the 'container' div.
 		// but we have told jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
 		jsPlumb.connect({source:d1, target:d2});
-		equals(2, $("#container")[0].childNodes.length);
+		equals($("#container")[0].childNodes.length, 2, "container still has two div elements");
 	});
 	
 	// tests of the functionality that allows a user to specify that they want elements appended to some specific container.

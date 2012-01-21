@@ -522,16 +522,25 @@
 			// this is a shortcut helper method to let people add a label as
 			// overlay.
 			this.labelStyle = params.labelStyle || self._jsPlumb.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
-			if (params.label) {
-				var loc = self.defaultLabelLocation || params.labelLocation || 0.5;
-				this.overlays.push(new jsPlumb.Overlays[self._jsPlumb.getRenderMode()].Label( {
+			var _internalLabelOverlayId = "__label",
+			_makeLabelOverlay = function(params) {
+
+				var _params = {
 					cssClass:params.cssClass,
-					labelStyle : this.labelStyle,
-					label : params.label,
-					location:loc,
-					id:"__label",
+					labelStyle : this.labelStyle,					
+					id:_internalLabelOverlayId,
 					component:self,
 					_jsPlumb:self._jsPlumb
+				},
+				mergedParams = jsPlumb.extend(_params, params);
+
+				return new jsPlumb.Overlays[self._jsPlumb.getRenderMode()].Label( mergedParams );
+			};
+			if (params.label) {
+				var loc = params.labelLocation || self.defaultLabelLocation || 0.5;
+				this.overlays.push(_makeLabelOverlay({
+					label:params.label,
+					location:loc
 				}));
 			}
 
@@ -540,15 +549,47 @@
 			 * Sets the Connection's label.  
 			 * 
 			 * Parameters:
-			 * 	l	- label to set. May be a String or a Function that returns a String.
+			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }
 			 */
 			this.setLabel = function(l) {
-				var lo = self.getOverlay("__label");
-				if (lo) {
-					lo.setLabel(l);
-					self.repaint();
+				var lo = self.getOverlay(_internalLabelOverlayId);
+				if (!lo) {
+					var params = l.constructor == String || l.constructor == Function ? { label:l } : l;
+					lo = _makeLabelOverlay(params);	
+					this.overlays.push(lo);
 				}
+				else {
+					if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
+					else {
+						if (l.label) lo.setLabel(l.label);
+						if (l.location) lo.setLocation(l.location;
+					}
+				}
+				
+				self.repaint();
 			};
+
+			/*
+				Function:getLabel
+				Returns the label text for this component (or a function if you are labelling with a function).
+				This does not return the overlay itself; this is a convenience method which is a pair with
+				setLabel; together they allow you to add and access a Label Overlay without having to create the
+				Overlay object itself.  For access to the underlying label overlay that jsPlumb has created,
+				use getLabelOverlay.
+			*/
+			this.getLabel = function() {
+				var lo = self.getOverlay(_internalLabelOverlayId);
+				return lo != null ? lo.getLabel() : null;
+			};
+
+			/*
+				Function:getLabelOverlay
+				Returns the underlying internal label overlay, which will exist if you specified a label on
+				a connect or addEndpoint call, or have called setLabel at any stage.   
+			*/
+			this.getLabelOverlay = function() {
+				return self.getOverlay(_internalLabelOverlayId);
+			}
 		},
 		
 		_bindListeners = function(obj, _self, _hoverFunction) {
