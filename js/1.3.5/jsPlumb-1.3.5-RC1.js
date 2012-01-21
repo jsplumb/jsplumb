@@ -1814,6 +1814,25 @@ between this method and jsPlumb.reset).
 		 * 
 		 */
 		var _targetEndpointDefinitions = {};
+		var _setEndpointPaintStylesAndAnchor = function(ep, epIndex) {
+			ep.paintStyle = ep.paintStyle ||
+			 				_currentInstance.Defaults.EndpointStyles[epIndex] ||
+                            _currentInstance.Defaults.EndpointStyle ||
+                            jsPlumb.Defaults.EndpointStyles[epIndex] ||
+                            jsPlumb.Defaults.EndpointStyle;
+			ep.hoverPaintStyle = ep.hoverPaintStyle ||
+                           _currentInstance.Defaults.EndpointHoverStyles[epIndex] ||
+                           _currentInstance.Defaults.EndpointHoverStyle ||
+                           jsPlumb.Defaults.EndpointHoverStyles[epIndex] ||
+                           jsPlumb.Defaults.EndpointHoverStyle;                            
+
+			ep.anchor = ep.anchor ||
+                      	_currentInstance.Defaults.Anchors[epIndex] ||
+                      	_currentInstance.Defaults.Anchor ||
+                      	jsPlumb.Defaults.Anchors[epIndex] ||
+                      	jsPlumb.Defaults.Anchor;                           
+				
+		};
 		this.makeTarget = function(el, params, referenceParams) {						
 			
 			var p = jsPlumb.extend({}, referenceParams);
@@ -1842,28 +1861,10 @@ between this method and jsPlumb.reset).
                     // use defaults for endpoint style, if not present..this either uses EndpointStyle, or EndpointStyles[1],
                     // if it is present, since this is a target endpoint.
                     // TODO - this should be a helper method.  makeTarget should use it too.  give it an endpoint
-                    _endpoint.paintStyle = _endpoint.paintStyle ||
-                                           _currentInstance.Defaults.EndpointStyles[1] ||
-                                           _currentInstance.Defaults.EndpointStyle ||
-                                           jsPlumb.Defaults.EndpointStyles[1] ||
-                                           jsPlumb.Defaults.EndpointStyle;
-
-                    _endpoint.hoverPaintStyle = _endpoint.hoverPaintStyle ||
-                                           _currentInstance.Defaults.EndpointHoverStyles[1] ||
-                                           _currentInstance.Defaults.EndpointHoverStyle ||
-                                           jsPlumb.Defaults.EndpointHoverStyles[1] ||
-                                           jsPlumb.Defaults.EndpointHoverStyle;
-
-                    _endpoint.anchor = _endpoint.anchor ||
-                                       _currentInstance.Defaults.Anchors[1] ||
-                                       _currentInstance.Defaults.Anchor ||
-                                       jsPlumb.Defaults.Anchors[1] ||
-                                       jsPlumb.Defaults.Anchor;
+                    _setEndpointPaintStylesAndAnchor(_endpoint, 1);                                                    
 
 					// unlock the source anchor to allow it to refresh its position if necessary
-					source.anchor.locked = false;							
-						
-				//	if (!jpcl.hasClass(draggable, _currentInstance.endpointClass)) return;
+					source.anchor.locked = false;					
 										
 					if (scope) jpcl.setDragScope(draggable, scope);				
 					
@@ -2024,25 +2025,9 @@ between this method and jsPlumb.reset).
 				// make sure this method honours whatever defaults have been set for Endpoint.				
 				_sourceEndpointDefinitions[elid].endpoint = _sourceEndpointDefinitions[elid].endpoint || _currentInstance.Defaults.Endpoints[0] || _currentInstance.Defaults.Endpoint;
 
-                // TODO this, and the makeTarget equivalent, and probably elsewhere, should all be handed off to
-                // some helper method that can make this decision for us.
-                _sourceEndpointDefinitions[elid].paintStyle = _sourceEndpointDefinitions[elid].paintStyle ||
-                                       _currentInstance.Defaults.EndpointStyles[0] ||
-                                       _currentInstance.Defaults.EndpointStyle ||
-                                       jsPlumb.Defaults.EndpointStyles[0] ||
-                                       jsPlumb.Defaults.EndpointStyle;
-
-                _sourceEndpointDefinitions[elid].hoverPaintStyle = _sourceEndpointDefinitions[elid].hoverPaintStyle ||
-                                       _currentInstance.Defaults.EndpointHoverStyles[0] ||
-                                       _currentInstance.Defaults.EndpointHoverStyle ||
-                                       jsPlumb.Defaults.EndpointHoverStyles[0] ||
-                                       jsPlumb.Defaults.EndpointHoverStyle;
-
-                _sourceEndpointDefinitions[elid].anchor = _sourceEndpointDefinitions[elid].anchor ||
-                                                          _currentInstance.Defaults.Anchors[0] ||
-                                                          _currentInstance.Defaults.Anchor ||
-                                                          jsPlumb.Defaults.Anchors[0] ||
-                                                          jsPlumb.Defaults.Anchor;
+                // set endpoint paint styles and anchor, using either styles that are set or defaults.
+                _setEndpointPaintStylesAndAnchor(_sourceEndpointDefinitions[elid], 0);
+                
 
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {
 					if (existingDrag) existingDrag.apply(this, arguments);
@@ -2051,20 +2036,7 @@ between this method and jsPlumb.reset).
 					
 				dragOptions[stopEvent] = function() { 
 				
-					if (existingStop) existingStop.apply(this, arguments);
-				
-					// here we need to do a couple of things;
-					// first determine whether or not a connection was dragged. if not, just delete this endpoint.
-					// ...if so, though, then we need to check to see if a 'parent' was specified in the 
-					// options to makeSource.  a 'parent' is a reference to an element other than the one from
-					// which the connection is dragged, and it indicates that after a successful connection, the
-					// endpoint should be moved off of this element and onto 'parent', using all of the
-					// options passed in to the makeSource call.  
-					//
-					// one thing that occurs to me right now is that we dont really want the first 
-					// connection to have fired a connection event.  but how can we prevent it from doing so?
-					//
-					//
+					if (existingStop) existingStop.apply(this, arguments);								
 
                     //_currentlyDown = false;
 					_currentInstance.currentlyDragging = false;
@@ -2088,9 +2060,8 @@ between this method and jsPlumb.reset).
 								ep.setElement(parent);
 								ep.endpointWillMoveAfterConnection = false;
 								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);
-								var jpc = ep.connections[0];
-								jpc.previousConnection = null;
-								_finaliseConnection(jpc);
+								ep.connections[0].previousConnection = null;
+								_finaliseConnection(ep.connections[0]);
 							}
 						}										
 						_currentInstance.repaint(elid);												
@@ -2161,8 +2132,7 @@ between this method and jsPlumb.reset).
 					// a new connection from this endpoint.
 					jpcl.trigger(ep.canvas, "mousedown", e);
 				};
-
-               // jpcl.bind(_el, "mousedown", mouseDownListener);
+               
                 // register this on jsPlumb so that it can be cleared by a reset.
                 _currentInstance.registerListener(_el, "mousedown", mouseDownListener);
 			};
@@ -2738,7 +2708,7 @@ between this method and jsPlumb.reset).
 				// maintain our state. anchor will be locked
 				// if it is the source of a drag and drop.
 				if (self.locked || txy == null || twh == null)
-					return _curAnchor.compute(params);
+					return _curAnchor.compute(params);				
 				else
 					params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
 				
@@ -3120,6 +3090,7 @@ between this method and jsPlumb.reset).
             for (var i = 0; i < endpointsToPaint.length; i++) {
 				endpointsToPaint[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
 			}
+
 
 			// paint all the standard and "dynamic connections", which are connections whose other anchor is
 			// static and therefore does need to be recomputed; we make sure that happens only one time.
