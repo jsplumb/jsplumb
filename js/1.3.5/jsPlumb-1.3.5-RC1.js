@@ -562,7 +562,7 @@
 					if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
 					else {
 						if (l.label) lo.setLabel(l.label);
-						if (l.location) lo.setLocation(l.location;
+						if (l.location) lo.setLocation(l.location);
 					}
 				}
 				

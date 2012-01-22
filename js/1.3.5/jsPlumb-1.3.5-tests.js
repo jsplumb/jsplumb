@@ -1150,7 +1150,7 @@ var testSuite = function(renderMode) {
 			e1 = jsPlumb.addEndpoint(d16, {label:function() { return "BAZ"; }, labelLocation:0.1}),
 			e2 = jsPlumb.addEndpoint(d17);
 
-		equals(e1.getLabel(), "BAZ", "endpoint's label is correct");
+		equals(e1.getLabel()(), "BAZ", "endpoint's label is correct");
 		equals(e1.getLabelOverlay().getLocation(), 0.1, "endpoint's label's location is correct");
 	});
 	
