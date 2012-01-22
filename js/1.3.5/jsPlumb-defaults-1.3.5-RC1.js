@@ -349,24 +349,26 @@
 			return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
 		};
 		
-		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
+		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, 
+            sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
 	    	
 			segments = [];
             totalLength = 0;
-			segmentProportionalLengths = [];
+			segmentProportionalLengths = [];                    
 			
             swapX = targetPos[0] < sourcePos[0]; 
             swapY = targetPos[1] < sourcePos[1];
 			
 			var lw = lineWidth || 1,
-            offx = (lw / 2) + (minStubLength * 2), 
-            offy = (lw / 2) + (minStubLength * 2),
-            so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
-            to = targetAnchor.orientation || targetAnchor.getOrientation(targetEndpoint),
-            x = swapX ? targetPos[0] : sourcePos[0], 
-            y = swapY ? targetPos[1] : sourcePos[1],
-            w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx, 
-            h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
+                offx = (lw / 2) + (minStubLength * 2), 
+                offy = (lw / 2) + (minStubLength * 2),
+                so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
+                to = targetAnchor.orientation || targetAnchor.getOrientation(targetEndpoint),
+                x = swapX ? targetPos[0] : sourcePos[0], 
+                y = swapY ? targetPos[1] : sourcePos[1],
+                w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx, 
+                h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
+
             if (w < minWidth) {      
             	offx += (minWidth - w) / 2;
             	w = minWidth;
@@ -375,50 +377,77 @@
             	offy += (minWidth - h) / 2;
             	h = minWidth;
             }
+
             var sx = swapX ? w-offx  : offx, 
-            sy = swapY ? h-offy  : offy, 
-            tx = swapX ? offx : w-offx ,
-            ty = swapY ? offy : h-offy,
-            startStubX = sx + (so[0] * minStubLength), 
-            startStubY = sy + (so[1] * minStubLength),
-            endStubX = tx + (to[0] * minStubLength), 
-            endStubY = ty + (to[1] * minStubLength),
-            midx = startStubX + ((endStubX - startStubX) / 2),
-            midy = startStubY + ((endStubY - startStubY) / 2);
+                sy = swapY ? h-offy  : offy, 
+                tx = swapX ? offx : w-offx ,
+                ty = swapY ? offy : h-offy,
+                startStubX = sx + (so[0] * minStubLength), 
+                startStubY = sy + (so[1] * minStubLength),
+                endStubX = tx + (to[0] * minStubLength), 
+                endStubY = ty + (to[1] * minStubLength),
+                midx = startStubX + ((endStubX - startStubX) / 2),
+                midy = startStubY + ((endStubY - startStubY) / 2);
             
             x -= offx; y -= offy;
             points = [x, y, w, h, sx, sy, tx, ty];
             var extraPoints = [];
       
             addSegment(startStubX, startStubY, sx, sy, tx, ty);                        
-            
-            if (so[0] == 0) {        		
-        		var startStubIsBeforeEndStub = startStubY < endStubY;             		        	
-        		// when start point's stub is less than endpoint's stub
-        		if (startStubIsBeforeEndStub) {
-        			addSegment(startStubX, midy, sx, sy, tx, ty);
-        			addSegment(midx, midy, sx, sy, tx, ty);
-        			addSegment(endStubX, midy, sx, sy, tx, ty);
-        		} else {
-        			// when start point's stub is greater than endpoint's stub
-        			addSegment(midx, startStubY, sx, sy, tx, ty);
-        			addSegment(midx, endStubY, sx, sy, tx, ty);
-        		}
-        	}
-        	else {
-        		var startStubIsBeforeEndStub = startStubX < endStubX;
-        		// when start point's stub is less than endpoint's stub
-        		if (startStubIsBeforeEndStub) { 
-        			addSegment(midx, startStubY, sx, sy, tx, ty);
-        			addSegment(midx, midy, sx, sy, tx, ty);
-        			addSegment(midx, endStubY, sx, sy, tx, ty);
-        		} else {
-        			// when start point's stub is greater than endpoint's stub        			
-        			addSegment(startStubX, midy, sx, sy, tx, ty);
-        			addSegment(endStubX, midy, sx, sy, tx, ty);
-        		}
-        	}            
-            
+
+            if(sourceEndpoint.elementId == targetEndpoint.elementId) {
+                
+                var perpendicular = ((so[0] * to[0]) + (so[1] * to[1])) == 0;                
+                if (perpendicular) {
+                    var mx = so[0] == 0 ? endStubX : startStubX,
+                        my = so[1] == 0 ? endStubY : startStubY;
+                        
+                    addSegment(mx, my, sx, sy, tx, ty);
+                }
+                else {                    
+
+                    var //mx = so[0] == 0 ? startStubX + someNumberXS : startStubX,
+                        mx = so[0] == 0 ? startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + minStubLength : startStubX,
+                        //my = so[1] == 0 ? startStubY + someNumberYS : startStubY,
+                        my = so[1] == 0 ? startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + minStubLength : startStubY,
+                        //mx2 = to[0] == 0 ? endStubX + someNumberXT : endStubX,
+                        mx2 = to[0] == 0 ? endStubX + ((1 - targetAnchor.x) * sourceInfo.width) + minStubLength : endStubX,
+                        //my2 = to[1] == 0 ? endStubY + someNumberYT : endStubY;
+                        my2 = to[1] == 0 ? endStubY + ((1 - targetAnchor.y) * sourceInfo.height) + minStubLength : endStubY;
+                    
+                    addSegment(mx, my, sx, sy, tx, ty);
+                    addSegment(mx2, my2, sx, sy, tx, ty);
+                }
+            }
+            else {            
+                if (so[0] == 0) {        		
+            		var startStubIsBeforeEndStub = startStubY < endStubY;             		        	
+            		// when start point's stub is less than endpoint's stub
+            		if (startStubIsBeforeEndStub) {
+            			addSegment(startStubX, midy, sx, sy, tx, ty);
+            			addSegment(midx, midy, sx, sy, tx, ty);
+            			addSegment(endStubX, midy, sx, sy, tx, ty);
+            		} else {
+            			// when start point's stub is greater than endpoint's stub
+            			addSegment(midx, startStubY, sx, sy, tx, ty);
+            			addSegment(midx, endStubY, sx, sy, tx, ty);
+            		}
+            	}
+            	else {
+            		var startStubIsBeforeEndStub = startStubX < endStubX;
+            		// when start point's stub is less than endpoint's stub
+            		if (startStubIsBeforeEndStub) { 
+            			addSegment(midx, startStubY, sx, sy, tx, ty);
+            			addSegment(midx, midy, sx, sy, tx, ty);
+            			addSegment(midx, endStubY, sx, sy, tx, ty);
+            		} else {
+            			// when start point's stub is greater than endpoint's stub        			
+            			addSegment(startStubX, midy, sx, sy, tx, ty);
+            			addSegment(endStubX, midy, sx, sy, tx, ty);
+            		}
+            	}            
+            }
+
             addSegment(endStubX, endStubY, sx, sy, tx, ty);
             addSegment(tx, ty, sx, sy, tx, ty);
             
