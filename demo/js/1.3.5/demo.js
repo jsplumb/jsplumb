@@ -55,13 +55,7 @@
 			   					cssClass:"l1arrow",
 				   				location:0.5, width:30
 	   						}]
-			]});
-
-            jsPlumb.bind("contextmenu", function(conn, originalEvent) {
-                alert("context menu on connection " + conn.id);
-                originalEvent.preventDefault();
-                return false;
-            });
+			]});            
 					        
 	        var w23Stroke = "rgb(189,11,11)"; 
 	        var connection3 = jsPlumb.connect({
@@ -183,9 +177,16 @@
 				source:"window7",
 				target:"window3"
 			}, stateMachineConnector);
+
+			// jsplumb event handlers
 	
 			jsPlumb.bind("dblclick", function(connection, originalEvent) { alert("double click on connection from " + connection.sourceId + " to " + connection.targetId); });
 			jsPlumb.bind("endpointClick", function(endpoint, originalEvent) { alert("click on endpoint on element " + endpoint.elementId); });
+			jsPlumb.bind("contextmenu", function(component, originalEvent) {
+                alert("context menu on component " + component.id);
+                originalEvent.preventDefault();
+                return false;
+            });
 			
 			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 
