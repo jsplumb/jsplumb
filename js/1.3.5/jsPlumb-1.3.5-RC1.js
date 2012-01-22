@@ -520,8 +520,7 @@
 			};
 
 			// this is a shortcut helper method to let people add a label as
-			// overlay.
-			this.labelStyle = params.labelStyle || self._jsPlumb.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
+			// overlay.			
 			var _internalLabelOverlayId = "__label",
 			_makeLabelOverlay = function(params) {
 
@@ -537,10 +536,12 @@
 				return new jsPlumb.Overlays[self._jsPlumb.getRenderMode()].Label( mergedParams );
 			};
 			if (params.label) {
-				var loc = params.labelLocation || self.defaultLabelLocation || 0.5;
+				var loc = params.labelLocation || self.defaultLabelLocation || 0.5,
+					labelStyle = params.labelStyle || self._jsPlumb.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
 				this.overlays.push(_makeLabelOverlay({
 					label:params.label,
-					location:loc
+					location:loc,
+					labelStyle:labelStyle
 				}));
 			}
 
@@ -2863,7 +2864,9 @@ between this method and jsPlumb.reset).
 			 * over another anchor; we want to assume that anchor's orientation
 			 * for the duration of the hover.
 			 */
-			this.over = function(anchor) { orientation = anchor.getOrientation(); };
+			this.over = function(anchor) { 
+				orientation = anchor.getOrientation(); 
+			};
 
 			/**
 			 * notification the endpoint associated with this anchor is no
@@ -4760,22 +4763,26 @@ between this method and jsPlumb.reset).
 					
 					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
 					dropOptions[overEvent] = _wrap(dropOptions[overEvent], function() {
-						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
-							id = _getAttribute( _getElementObject(draggable), "dragId"),
-							jpc = floatingConnections[id];
+						if (self.isTarget) {
+							var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
+								id = _getAttribute( _getElementObject(draggable), "dragId"),
+								jpc = floatingConnections[id];
 							if (jpc != null) {
 								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 								jpc.endpoints[idx].anchor.over(self.anchor);
 							}
+						}
 					});	
 					dropOptions[outEvent] = _wrap(dropOptions[outEvent], function() {
-						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
-							id = _getAttribute( _getElementObject(draggable), "dragId"),
-							jpc = floatingConnections[id];
+						if (self.isTarget) {
+							var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
+								id = _getAttribute( _getElementObject(draggable), "dragId"),
+								jpc = floatingConnections[id];
 							if (jpc != null) {
 								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 								jpc.endpoints[idx].anchor.out();
 							}
+						}
 					});
 					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions, true, isTransient);
 				}
