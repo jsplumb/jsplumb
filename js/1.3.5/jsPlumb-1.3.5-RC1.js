@@ -2836,6 +2836,11 @@ between this method and jsPlumb.reset).
 			orientation = null,
 			_lastResult = null;
 
+			// set these to 0 each; they are used by certain types of connectors in the loopback case,
+			// when the connector is trying to clear the element it is on. but for floating anchor it's not
+			// very important.
+			this.x = 0; this.y = 0;
+
 			this.compute = function(params) {
 				var xy = params.xy, element = params.element,
 				result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
@@ -2890,9 +2895,12 @@ between this method and jsPlumb.reset).
 		var DynamicAnchor = function(anchors, anchorSelector, elementId) {
 			this.isSelective = true;
 			this.isDynamic = true;			
-			var _anchors = [],
-			_convert = function(anchor) { return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor, elementId, _currentInstance); };
-			for (var i = 0; i < anchors.length; i++) _anchors[i] = _convert(anchors[i]);			
+			var _anchors = [], self = this,
+			_convert = function(anchor) { 
+				return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor, elementId, _currentInstance); 
+			};
+			for (var i = 0; i < anchors.length; i++) 
+				_anchors[i] = _convert(anchors[i]);			
 			this.addAnchor = function(anchor) { _anchors.push(_convert(anchor)); };
 			this.getAnchors = function() { return _anchors; };
 			this.locked = false;
@@ -2937,6 +2945,8 @@ between this method and jsPlumb.reset).
 					params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
 				
 				_curAnchor = _anchorSelector(xy, wh, txy, twh, _anchors);
+				self.x = _curAnchor.x;
+				self.y = _curAnchor.y;
 				
 				return _curAnchor.compute(params);
 			};
@@ -3799,13 +3809,13 @@ between this method and jsPlumb.reset).
 				tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
 				tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
-				_updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp });
-				_updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
+				var sourceInfo = _updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }),
+					targetInfo = _updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
 				
 				var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx],
 					sAnchorP = sE.anchor.getCurrentLocation(sE),				
 					tAnchorP = tE.anchor.getCurrentLocation(tE);
-				
+
 				/* paint overlays*/
 				var maxSize = 0;
 				for ( var i = 0; i < self.overlays.length; i++) {
@@ -3816,7 +3826,9 @@ between this method and jsPlumb.reset).
 				var dim = this.connector.compute(sAnchorP, tAnchorP, 
 				this.endpoints[sIdx], this.endpoints[tIdx],
 				this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, 
-				self.paintStyleInUse.lineWidth, maxSize);
+				self.paintStyleInUse.lineWidth, maxSize,
+				sourceInfo,
+				targetInfo);
 				
 				self.connector.paint(dim, self.paintStyleInUse);
 
