@@ -130,6 +130,14 @@
 
 		return canvas;
 	};	
+
+	var CanvasComponent = function(params) {
+		CanvasMouseAdapter.apply(this, arguments);
+
+		var displayElements = [ ];
+		this.getDisplayElements = function() { return displayElements; };
+		this.appendDisplayElement = function(el) { displayElements.push(el); };
+	}
 	
 	/**
 	 * Class:CanvasConnector
@@ -137,7 +145,7 @@
 	 */
 	var CanvasConnector = jsPlumb.CanvasConnector = function(params) {
 		
-		CanvasMouseAdapter.apply(this, arguments);
+		CanvasComponent.apply(this, arguments);
 		
 		var _paintOneStyle = function(dim, aStyle) {
 			self.ctx.save();
@@ -162,9 +170,7 @@
 		});	
 		self.ctx = self.canvas.getContext("2d");
 		
-		var displayElements = [ self.canvas ];
-		this.getDisplayElements = function() { return displayElements; };
-		this.appendDisplayElement = function(el) { displayElements.push(el); };
+		self.appendDisplayElement(self.canvas);
 		
 		self.paint = function(dim, style) {						
 			if (style != null) {																				
@@ -189,7 +195,7 @@
 	 */
 	var CanvasEndpoint = function(params) {
 		var self = this;				
-		CanvasMouseAdapter.apply(this, arguments);		
+		CanvasComponent.apply(this, arguments);		
 		var clazz = self._jsPlumb.endpointClass + " " + (params.cssClass || ""),
 			canvasParams = { 
 			"class":clazz, 
@@ -199,6 +205,8 @@
 		};
 		self.canvas = _newCanvas(canvasParams);	
 		self.ctx = self.canvas.getContext("2d");
+
+		self.appendDisplayElement(self.canvas);
 		
 		this.paint = function(d, style, anchor) {
 			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);			
