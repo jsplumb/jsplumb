@@ -69,8 +69,8 @@
             //g["coordsize"] = "1000,1000";
             g.style.backgroundColor="red";
             _groupMap[id] = g;
-            //jsPlumb.appendElement(g, container);
-            document.body.appendChild(g);
+            jsPlumb.appendElement(g, container);
+            //document.body.appendChild(g);
         }
         return g;
     },
@@ -173,6 +173,15 @@
 			var node = self.opacityNodes[type];
 			if (node) node["opacity"] = "" + value;
 		};
+		var displayElements = [ ];
+		this.getDisplayElements = function() { 
+			return displayElements; 
+		};
+		
+		this.appendDisplayElement = function(el, doNotAppendToCanvas) {
+			if (!doNotAppendToCanvas) self.canvas.parentNode.appendChild(el);
+			displayElements.push(el);
+		};
 	},	
 	/*
 	 * Base class for Vml connectors. extends VmlComponent.
@@ -203,7 +212,7 @@
 						self.bgCanvas = _node("shape", d, p);
 						jsPlumb.appendElement(self.bgCanvas, params.parent);
 						_pos(self.bgCanvas, d);
-						displayElements.push(self.bgCanvas);	
+						self.appendDisplayElement(self.bgCanvas, true);	
 					}
 					else {
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
@@ -221,11 +230,11 @@
 					if (self.tooltip) p["label"] = self.tooltip;
 					self.canvas = _node("shape", d, p);
                     
-                  //  var group = _getGroup(params.parent);                   // test of append everything to a group
+                    //var group = _getGroup(params.parent);                   // test of append everything to a group
                     //group.appendChild(self.canvas);                           // sort of works but not exactly;
 					jsPlumb.appendElement(self.canvas, params.parent);    //before introduction of groups
 
-					displayElements.push(self.canvas);					
+					self.appendDisplayElement(self.canvas, true);					
 					
 					self.attachListeners(self.canvas, self);
 					
@@ -241,15 +250,7 @@
 			}
 		};
 		
-		var displayElements = [ self.canvas ];
-		this.getDisplayElements = function() { 
-			return displayElements; 
-		};
-		
-		this.appendDisplayElement = function(el) {
-			self.canvas.parentNode.appendChild(el);
-			displayElements.push(el);
-		};
+		//self.appendDisplayElement(self.canvas);
 		
 		this.reattachListeners = function() {
 			if (self.canvas) self.reattachListenersForElement(self.canvas, self);
