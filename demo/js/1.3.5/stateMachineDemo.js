@@ -16,7 +16,7 @@
 							
 			jsPlumb.Defaults.Endpoint = ["Dot", {radius:2}];				
 			jsPlumb.Defaults.HoverPaintStyle = {strokeStyle:"#42a62c", lineWidth:2 };
-			jsPlumb.Defaults.Overlays = [
+			jsPlumb.Defaults.ConnectionOverlays = [
 				[ "Arrow", { 
 					location:1,
 					id:"arrow",
