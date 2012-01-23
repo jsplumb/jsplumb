@@ -67,7 +67,26 @@ var testSuite = function(renderMode) {
 	container.id = "container";
 	document.body.appendChild(container);
 
+	var jpcl = jsPlumb.CurrentLibrary;
+
 	jsPlumb.setRenderMode(renderMode);
+
+	test(renderMode + " : getElementObject", function() {
+		var e = document.createElement("div");
+		e.id = "FOO";
+		document.body.appendChild(e);
+		var el = jpcl.getElementObject(e);
+		equals(jpcl.getAttribute(el, "id"), "FOO");
+	});
+
+	test(renderMode + " : getDOMElement", function() {
+		var e = document.createElement("div");
+		e.id = "FOO";
+		document.body.appendChild(e);
+		var el = jpcl.getElementObject(e);
+		var e2 = jpcl.getDOMElement(el);
+		equals(e2.id, "FOO");
+	});
 
 	test(renderMode + ': findIndex method', function() {
 		var array = [ 1,2,3, "test", "a string", { 'foo':'bar', 'baz':1 }, { 'ding':'dong' } ];

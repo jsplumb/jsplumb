@@ -219,6 +219,14 @@
 			var id = jsPlumb.getId(el);
 			return _droppableScopesById[id];
 		},
+
+		getDOMElement : function(el) { 			
+			if (typeof(el) == "String") 
+				return document.getElementById(el);
+			else if (el._node) 
+				return el._node;
+			else return el;
+		},
 		
 		getElementObject : _getElementObject,
 		
