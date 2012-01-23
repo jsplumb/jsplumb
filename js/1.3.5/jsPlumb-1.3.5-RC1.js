@@ -59,7 +59,8 @@
 		return -1;
 	},
     _findWithFunction = function(a, f) {
-  		for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
+    	if (a)
+  			for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
 		return -1;
 	},
     _removeWithFunction = function(a, f) {
@@ -67,6 +68,7 @@
         if (idx > -1) a.splice(idx, 1);
         return idx != -1;
     },
+    // TODO support insert index
     _addWithFunction = function(list, item, hashFunction) {
         if (_findWithFunction(list, hashFunction) == -1) list.push(item);
     };
@@ -4160,7 +4162,9 @@ between this method and jsPlumb.reset).
 			 *   ignoreTarget - optional; tells the Endpoint to not notify the Connection target that the Connection was detached.  The default behaviour is to notify the target.
 			 */
 			this.detach = function(connection, ignoreTarget, forceDetach, fireEvent) {
-				var idx = _findIndex(self.connections, connection), actuallyDetached = false;
+				//var idx = _findIndex(self.connections, connection), actuallyDetached = false;
+				var idx = _findWithFunction(self.connections, function(c) { return c.id == connection.id}), 
+					actuallyDetached = false;
                 fireEvent = (fireEvent !== false);
 				if (idx >= 0) {		
 					// 1. does the connection have a before detach (note this also checks jsPlumb's bound
