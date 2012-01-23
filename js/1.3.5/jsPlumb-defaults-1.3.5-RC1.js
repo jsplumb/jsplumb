@@ -557,6 +557,15 @@
 		};
 	};
 	
+
+    var DOMElementEndpoint = function(params) {
+        jsPlumb.DOMElementComponent.apply(this, arguments);
+        var self = this;
+        
+        self.appendDisplayElement = function() {
+            // not implemented yet.
+        };   
+    };
 	/**
 	 * Class: Endpoints.Image
 	 * Draws an image as the Endpoint.
@@ -571,7 +580,7 @@
 	jsPlumb.Endpoints.Image = function(params) {
 				
 		this.type = "Image";
-		jsPlumb.DOMElementComponent.apply(this, arguments);
+		DOMElementEndpoint.apply(this, arguments);
 		
 		var self = this, 
 			initialized = false,
@@ -648,7 +657,7 @@
 	jsPlumb.Endpoints.Blank = function(params) {
 		var self = this;
 		this.type = "Blank";
-		jsPlumb.DOMElementComponent.apply(this, arguments);		
+		DOMElementEndpoint.apply(this, arguments);		
 		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			return [anchorPoint[0], anchorPoint[1],10,0];
 		};
