@@ -203,6 +203,11 @@
 			var id = jsPlumb.getId(el);
 			return _droppableScopesById[id];
 		},
+		
+		getDOMElement : function(el) { 
+			// MooTools just decorates the DOM elements. so we have either an ID or an Element here.
+			return typeof(el) == "String" ? document.getElementById(el) : el; 
+		},
 							
 		getElementObject : _getElementObject,
 		

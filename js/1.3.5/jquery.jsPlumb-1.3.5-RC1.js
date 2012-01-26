@@ -141,6 +141,17 @@
 		getDropScope : function(el) {
 			return el.droppable("option", "scope");		
 		},
+
+		/**
+		* gets a DOM element from the given input, which might be a string (in which case we just do document.getElementById),
+		* a selector (in which case we return el[0]), or a DOM element already (we assume this if it's not either of the other
+		* two cases).  this is the opposite of getElementObject below.
+		*/
+		getDOMElement : function(el) {
+			if (typeof(el) == "string") return document.getElementById(el);
+			else if (el.context) return el[0];
+			else return el;
+		},
 	
 		/**
 		 * gets an "element object" from the given input.  this means an object that is used by the
@@ -150,7 +161,7 @@
 		 * 
 		 */		
 		getElementObject : function(el) {			
-			return typeof(el)=='string' ? $("#" + el) : $(el);
+			return typeof(el) == "string" ? $("#" + el) : $(el);
 		},
 		
 		/**
