@@ -4043,7 +4043,7 @@ between this method and jsPlumb.reset).
 			this.setConnectionsBidirectional = function(b) { _connectionsBidirectional = b; };
 			
 			if (params.dynamicAnchors)
-				self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors));
+				self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors, _elementId, _currentInstance));
 			else 			
 				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? jsPlumb.makeAnchor(params.anchors, _elementId, _currentInstance) : jsPlumb.makeAnchor("TopCenter", _elementId, _currentInstance);
 				
