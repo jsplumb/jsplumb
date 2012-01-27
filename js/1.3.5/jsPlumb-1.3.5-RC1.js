@@ -1961,7 +1961,7 @@ between this method and jsPlumb.reset).
 			if (specimen.compute && specimen.getOrientation) return specimen;  //TODO hazy here about whether it should be added or is already added somehow.
 			// is it the name of an anchor type?
 			else if (typeof specimen == "string") {
-				newAnchor = _currentInstance.Anchors[arguments[0]]({elementId:elementId, jsPlumbInstance:_currentInstance});
+				newAnchor = jsPlumb.Anchors[arguments[0]]({elementId:elementId, jsPlumbInstance:_currentInstance});
 			}
 			// is it an array? it will be one of:
 			// 		an array of [name, params] - this defines a single anchor
@@ -1971,7 +1971,7 @@ between this method and jsPlumb.reset).
 				if (specimen[0].constructor == Array || specimen[0].constructor == String) {
 					if (specimen.length == 2 && specimen[0].constructor == String && specimen[1].constructor == Object) {
 						var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
-						newAnchor = _currentInstance.Anchors[specimen[0]](pp);
+						newAnchor = jsPlumb.Anchors[specimen[0]](pp);
 					}
 					else
 						newAnchor = new DynamicAnchor(specimen, null, elementId);
@@ -2000,7 +2000,7 @@ between this method and jsPlumb.reset).
 			var r = [];
 			for ( var i = 0; i < types.length; i++) {
 				if (typeof types[i] == "string")
-					r.push(_currentInstance.Anchors[types[i]]({elementId:elementId, jsPlumbInstance:jsPlumbInstance}));
+					r.push(jsPlumb.Anchors[types[i]]({elementId:elementId, jsPlumbInstance:jsPlumbInstance}));
 				else if (types[i].constructor == Array)
 					r.push(jsPlumb.makeAnchor(types[i], elementId, jsPlumbInstance));
 			}
