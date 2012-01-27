@@ -920,7 +920,7 @@
 		_newConnection = function(params) {
 			var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
 			    endpointFunc = _currentInstance.Defaults.EndpointType || Endpoint,
-			    parent = _currentInstance.CurrentLibrary.getParent;
+			    parent = jsPlumb.CurrentLibrary.getParent;
 			
 			if (params.container)
 				params["parent"] = params.container;
