@@ -3154,7 +3154,6 @@ between this method and jsPlumb.reset).
                         }
                     }
 					else // continuous.
-						//_removeFromList(continuousAnchorConnectionsByElementId, elId, c);
 						_removeWithFunction(continuousAnchorConnectionsByElementId[elId], function(_c) {
 							return _c.id == c.id;
 						});
@@ -3199,7 +3198,6 @@ between this method and jsPlumb.reset).
 			if (cIdx > -1)
 				continuousAnchorEndpoints.splice(cIdx, 1);
 			else
-				//_removeFromList(_amEndpoints, endpoint.elementId, endpoint);		
 				_removeWithFunction(_amEndpoints[endpoint.elementId], function(e) {
 					return e.id == endpoint.id;
 				});
@@ -3865,18 +3863,19 @@ between this method and jsPlumb.reset).
 // ENDPOINT HELPER FUNCTIONS
 		var _makeConnectionDragHandler = function(placeholder) {
             var stopped = false;
-			return function() {
-                if (stopped) return true;
-				var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments),
-				el = placeholder.element;
-                if (el) {
-				    jsPlumb.CurrentLibrary.setOffset(el, _ui);
-				    _draw(_getElementObject(el), _ui);
-                }
-
-                this.stopDrag = function() {
+			return {
+				drag : function() {
+                	if (stopped) return true;
+					var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments),
+					el = placeholder.element;
+                	if (el) {
+				    	jsPlumb.CurrentLibrary.setOffset(el, _ui);
+				    	_draw(_getElementObject(el), _ui);
+                	}
+                },
+                stopDrag : function() {
                     stopped = true;
-                };
+                }
 			};
 		};		
 		
@@ -4203,7 +4202,6 @@ between this method and jsPlumb.reset).
 								}
 							}
 							_removeElements(connection.connector.getDisplayElements(), connection.parent);
-							//_removeFromList(connectionsByScope, connection.scope, connection);
 							_removeWithFunction(connectionsByScope[connection.scope], function(c) {
 								return c.id == connection.id;
 							});
@@ -4281,7 +4279,6 @@ between this method and jsPlumb.reset).
 				// moving the UI bits and pieces.  however it would s			
 				var parentId = _getId(el);
 				// remove the endpoint from the list for the current endpoint's element
-				//_removeFromList(endpointsByElement, _elementId, self);	
 				_removeWithFunction(endpointsByElement[_elementId], function(e) {
 					return e.id == self.id;
 				});
@@ -4618,11 +4615,10 @@ between this method and jsPlumb.reset).
 				dragOptions.scope = dragOptions.scope || self.scope;
 				dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
 				// extracted drag handler function so can be used by makeSource
-				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _dragHandler);
+				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _dragHandler.drag);
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
 					function() {	
-						_currentInstance.currentlyDragging = false;
-						//_removeFromList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
+						_currentInstance.currentlyDragging = false;						
 						_removeWithFunction(endpointsByElement[placeholderInfo.id], function(e) {
 							return e.id == floatingEndpoint.id;
 						});
