@@ -918,9 +918,9 @@
 		},
 		
 		_newConnection = function(params) {
-			var connectionFunc = jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType(),
-			    endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint,
-			    parent = jsPlumb.CurrentLibrary.getParent;
+			var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
+			    endpointFunc = _currentInstance.Defaults.EndpointType || Endpoint,
+			    parent = _currentInstance.CurrentLibrary.getParent;
 			
 			if (params.container)
 				params["parent"] = params.container;
@@ -4042,10 +4042,12 @@ between this method and jsPlumb.reset).
 			this.areConnectionsBidirectional = function() { return _connectionsBidirectional; };
 			this.setConnectionsBidirectional = function(b) { _connectionsBidirectional = b; };
 			
-			if (params.dynamicAnchors)
-				self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors, _elementId, _currentInstance));
-			else 			
-				self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? jsPlumb.makeAnchor(params.anchors, _elementId, _currentInstance) : jsPlumb.makeAnchor("TopCenter", _elementId, _currentInstance);
+			// removed in 1.3.5.  use 'anchor' instead.
+			//if (params.dynamicAnchors)
+				//self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors, _elementId, _currentInstance));
+			//else 			
+			//self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? jsPlumb.makeAnchor(params.anchors, _elementId, _currentInstance) : jsPlumb.makeAnchor("TopCenter", _elementId, _currentInstance);
+			self.anchor = params.anchor ? _currentInstance.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? _currentInstance.makeAnchor(params.anchors, _elementId, _currentInstance) : _currentInstance.makeAnchor("TopCenter", _elementId, _currentInstance);
 				
 			// ANCHOR MANAGER
 			if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
@@ -4880,7 +4882,8 @@ between this method and jsPlumb.reset).
 	var _curryAnchor = function(x, y, ox, oy, type, fnInit) {
 		return function(params) {
 			params = params || {};
-			var a = jsPlumb.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
+			//var a = jsPlumb.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
+			var a = params.jsPlumbInstance.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
 			a.type = type;
 			if (fnInit) fnInit(a, params);
 			return a;
@@ -4896,11 +4899,12 @@ between this method and jsPlumb.reset).
 	jsPlumb.Anchors["TopLeft"] 			= _curryAnchor(0, 0, 0, -1, "TopLeft");
 	jsPlumb.Anchors["BottomLeft"] 		= _curryAnchor(0, 1, 0, 1, "BottomLeft");
 		
+	// TODO test that this does not break with the current instance idea
 	jsPlumb.Defaults.DynamicAnchors = function(params) {
 		return jsPlumb.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"], params.elementId, params.jsPlumbInstance);
 	};
 	jsPlumb.Anchors["AutoDefault"]  = function(params) { 
-		var a = jsPlumb.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors(params));
+		var a = params.jsPlumbInstance.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors(params));
 		a.type = "AutoDefault";
 		return a;
 	};
@@ -4910,7 +4914,7 @@ between this method and jsPlumb.reset).
 		// the id of a position finder in jsPlumb.AnchorPositionFinders, or the user may have supplied the
 		// position finder as a function.  we find out what to use and then set it on the anchor.
 		var pf = params.position || "Fixed";
-		anchor.positionFinder = pf.constructor == String ? jsPlumb.AnchorPositionFinders[pf] : pf;
+		anchor.positionFinder = pf.constructor == String ? params.jsPlumbInstance.AnchorPositionFinders[pf] : pf;
 		// always set the constructor params; the position finder might need them later (the Grid one does,
 		// for example)
 		anchor.constructorParams = params;
