@@ -33,10 +33,10 @@ filter:alpha(opacity=60);
 	border:1px dotted red;
 }
 
-#window1 { top:14em;left:2em;}
-#window2 { top:15em; left:63em;}
-#window3 { top:37em;left:38em; }
-#window4 { top:5em; left:28em;}
+#window1 { top:30em;left:10em;}
+#window2 { top:-2em; left:36em;}
+#window3 { top:20em;left:45em; }
+#window4 { top:17em; left:22em;}
 ._jsPlumb_connector { z-index:4; }
 ._jsPlumb_endpoint, .endpointTargetLabel, .endpointSourceLabel{ z-index:21;cursor:pointer; }
 .hl { border:3px solid red; }
