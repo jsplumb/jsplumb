@@ -144,13 +144,9 @@
 		return el.getAttribute(attributeId);
 	},
 	_getElementObject = function(el) {
+		if (el == null) return null;
 		var eee = null;
-        try {
-            eee = typeof el == 'string' ? Y.one('#' + el) : el._node ? el : Y.one(el);
-        }
-        catch(eeee) {
-            console.log(eeee);
-        }
+        eee = typeof el == 'string' ? Y.one('#' + el) : el._node ? el : Y.one(el);        
         return eee;
 	};
 	
