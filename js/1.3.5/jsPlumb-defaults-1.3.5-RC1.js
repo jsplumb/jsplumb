@@ -369,6 +369,11 @@
                 w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx, 
                 h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
 
+            // for floating anchors (drag and drop), we will set the orientation to be the opposite to the source
+            // orientation
+            if (targetAnchor.isFloating && to[0] == 0 && to[1] == 0)
+                to = [ so[0] * -1, so[1] * -1];
+
             if (w < minWidth) {      
                 offx += (minWidth - w) / 2;
                 w = minWidth;
@@ -428,9 +433,7 @@
                 }        
                 
             if (flipSourceSegments)                
-                segment = flipSegments[sourceAxis][segment];            
-            
-            console.log(sourceAxis, anchorOrientation, segment);         
+                segment = flipSegments[sourceAxis][segment];                                    
 
             var findClearedLine = function(start, mult, anchorPos, dimension) {
                 return start + (mult * (( 1 - anchorPos) * dimension) + minStubLength);

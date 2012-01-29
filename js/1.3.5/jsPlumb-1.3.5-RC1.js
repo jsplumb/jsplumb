@@ -2843,6 +2843,8 @@ between this method and jsPlumb.reset).
 			// very important.
 			this.x = 0; this.y = 0;
 
+			this.isFloating = true;
+
 			this.compute = function(params) {
 				var xy = params.xy, element = params.element,
 				result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
