@@ -69,23 +69,37 @@
 
 			var allSourceEndpoints = [], allTargetEndpoints = [];
 				_addEndpoints = function(toId, sourceAnchors, targetAnchors) {
-					for (var i = 0; i < sourceAnchors.length; i++)
-						allSourceEndpoints.push(jsPlumb.addEndpoint(toId, sourceEndpoint, {anchor:sourceAnchors[i]}));
-					for (var j = 0; j < targetAnchors.length; j++)
-						allTargetEndpoints.push(jsPlumb.addEndpoint(toId, targetEndpoint, {anchor:targetAnchors[j]}));
+					for (var i = 0; i < sourceAnchors.length; i++) {
+						var sourceUUID = toId + sourceAnchors[i];
+						allSourceEndpoints.push(jsPlumb.addEndpoint(toId, sourceEndpoint, { anchor:sourceAnchors[i], uuid:sourceUUID }));
+					}
+					for (var j = 0; j < targetAnchors.length; j++) {
+						var targetUUID = toId + targetAnchors[j];
+						allTargetEndpoints.push(jsPlumb.addEndpoint(toId, targetEndpoint, { anchor:targetAnchors[j], uuid:targetUUID }));
+					}
 				};
 
 			_addEndpoints("window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);
 			_addEndpoints("window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
 			_addEndpoints("window3", ["RightMiddle", "BottomCenter"], ["LeftMiddle", "TopCenter"]);
 			_addEndpoints("window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
+
 						
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
 			jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
 				init(connInfo.connection);
 			});
 						
+			// make all the window divs draggable						
 			jsPlumb.draggable(jsPlumb.getSelector(".window"));
+
+			// connect a few up
+			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"]});
+			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"]});
+			jsPlumb.connect({uuids:["window4TopCenter", "window4RightMiddle"]});
+			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"]});
+			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"]});
+			jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"]});
 
 			//
 			// listen for clicks on connections, and offer to delete connections on click.
