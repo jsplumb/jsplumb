@@ -902,18 +902,6 @@
 				}
 			}
 			
-			// dynamic anchors. backwards compatibility here: from 1.2.6 onwards you don't need to specify "dynamicAnchors".  the fact that some anchor consists
-			// of multiple definitions is enough to tell jsPlumb you want it to be dynamic.
-			if (_p.dynamicAnchors) {
-				// these can either be an array of anchor coords, which we will use for both source and target, or an object with {source:[anchors], target:[anchors]}, in which
-				// case we will use a different set for each element.
-				var a = _p.dynamicAnchors.constructor == Array,
-				sourceId = _p.sourceEndpoint ? _p.sourceEndpoint.elementId : _getId(_p.source),
-				targetId = _p.targetEndpoint ? _p.targetEndpoint.elementId : _getId(_p.target),				
-				sa = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors, sourceId, _currentInstance)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.source, sourceId, _currentInstance)),
-				ta = a ? new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors, targetId, _currentInstance)) : new DynamicAnchor(jsPlumb.makeAnchors(_p.dynamicAnchors.target, targetId, _currentInstance));
-				_p.anchors = [sa,ta];
-			}
 			return _p;
 		},
 		
@@ -986,7 +974,7 @@
 			else {
                 var tag = jsPlumb.CurrentLibrary.getTagName(params.source),
                     p = jsPlumb.CurrentLibrary.getParent(params.source);
-                if (tag.toLowerCase() === "td")
+                if (tag && tag.toLowerCase() === "td")
                     return jsPlumb.CurrentLibrary.getParent(p);
                 else return p;
             }
@@ -1360,9 +1348,7 @@
 			jsPlumb.extend(p, params);
 			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
 			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
-            //p.scope="_jsPlumb_DefaultScope";
-            //p.scope="fff";
-			// YUI wrapper
+            // YUI wrapper
 			el = _convertYUICollection(el);			
 			
 			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
@@ -1370,8 +1356,7 @@
 			for (var i = 0; i < inputs.length; i++) {
 				var _el = _getElementObject(inputs[i]), id = _getId(_el);
 				p.source = _el;
-                //p.scope="f";
-				_updateOffset({ elId : id });
+                _updateOffset({ elId : id });
 				var e = _newEndpoint(p);
 				_addToList(endpointsByElement, id, e);
 				var myOffset = offsets[id], myWH = sizes[id];
@@ -1513,9 +1498,7 @@
 				var uuid = endpoint.getUuid();
 				if (uuid) endpointsByUUID[uuid] = null;				
 				endpoint.detachAll();				
-				_removeElement(endpoint.canvas, endpoint.parent);
-				// remove from endpointsbyElement
-				// DEPRECATED.  SHOULD NOT BE NECESSARY ONCE THE ANCHOR MANAGER IS WORKING PROPERLY.
+				_removeElements(endpoint.endpoint.getDisplayElements());
 				_currentInstance.anchorManager.deleteEndpoint(endpoint);
 				for (var e in endpointsByElement) {
 					var endpoints = endpointsByElement[e];
@@ -1787,8 +1770,8 @@ between this method and jsPlumb.reset).
 						r = input;
 				}
 				return r;
-			};
-			var scope = options.scope || jsPlumb.getDefaultScope(),
+			},
+			scope = options.scope || _currentInstance.getDefaultScope(),
 			scopes = prepareList(scope),
 			sources = prepareList(options.source),
 			targets = prepareList(options.target),
