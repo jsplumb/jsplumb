@@ -1,18 +1,46 @@
 * 1.3.5
 
-    - added support for "contextmenu" event bind, on jsPlumb, Connection and Endpoint.
+	BACKWARDS COMPAT
+
+	- removed 'dynamicAnchors' parameter from connect/addEndpoint calls.  using an array as the anchor
+	arg (or one of the values in the 'anchors' parameter on connect) is sufficient to indicate you want
+	dynamic anchors.
+	- jsPlumb.Defaults.Overlays is now applied to both Endpoints and Connections: see below.
+
+	Events
+    
+    - added support for "contextmenu" event bind, on jsPlumb, Connection and Endpoint (issue 166)
+
+    Miscellaneous
+
     - added setSuspendDrawing method: use it to suspend drawing while you bulk connect etc.
     - added setHoverSuspended method: lets you tell jsPlumb to ignore hover events.
     - added isHoverSuspended method: lets you find out from jsPlumb what it will do about hover events.
 
+    Overlays
+
     - fixed the setLabel method for Connections, and added it to the superclass, so Endpoint has it too.
-    - added getLabel method to Connection and Endpoint
+    - added getLabel method to Connection and Endpoint 
     - added support for 'labelLocation' param for endpoint and connection. default for endpoint
       is [0.5, 0.5]; default for connection is 0.5.
-    - added support for overlays on Endpoint (only Label overlays)
+    - added support for overlays on Endpoint (only Label overlays)  (issue 178)
     - added jsPlumb.Defaults.ConnectionOverlays
     - added jsPlumb.Defaults.EndpointOverlays
-    - jsPlumb.Defaults.Overlays is now applied to both Endpoints and Connections: backwards compat issue.
+
+    Connectors
+
+    - state machine connectors performance boost
+    - flowchart connectors now support loopback connections (issue 184)
+
+    Bugs Fixed
+
+    - several closure problems with getInstance were causing it to not work properly in 1.3.4 (issue 190)
+    - continuous anchors do not track when existing connection dragged (issue 169)
+    - getCachedData was effectively being bypassed (issue 173)
+    - flowchart not symmetric (issue 187)
+    - dynamic anchors broken on Endpoint (issue 188)
+    - endpoints draggable when they should not be (issue 189)
+    
 
 * 1.3.4
 
