@@ -351,15 +351,15 @@
 		
 		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, 
             sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
-	    	
-			segments = [];
+            
+            segments = [];
             totalLength = 0;
-			segmentProportionalLengths = [];                    
-			
+            segmentProportionalLengths = [];                    
+            
             swapX = targetPos[0] < sourcePos[0]; 
             swapY = targetPos[1] < sourcePos[1];
-			
-			var lw = lineWidth || 1,
+            
+            var lw = lineWidth || 1,
                 offx = (lw / 2) + (minStubLength * 2), 
                 offy = (lw / 2) + (minStubLength * 2),
                 so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
@@ -370,12 +370,12 @@
                 h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
 
             if (w < minWidth) {      
-            	offx += (minWidth - w) / 2;
-            	w = minWidth;
+                offx += (minWidth - w) / 2;
+                w = minWidth;
             }
-            if (h < minWidth) {            	
-            	offy += (minWidth - h) / 2;
-            	h = minWidth;
+            if (h < minWidth) {             
+                offy += (minWidth - h) / 2;
+                h = minWidth;
             }
 
             var sx = swapX ? w-offx  : offx, 
@@ -386,67 +386,163 @@
                 startStubY = sy + (so[1] * minStubLength),
                 endStubX = tx + (to[0] * minStubLength), 
                 endStubY = ty + (to[1] * minStubLength),
+                isXGreaterThanStubTimes2 = Math.abs(sx - tx) > 2 * minStubLength,
+                isYGreaterThanStubTimes2 = Math.abs(sy - ty) > 2 * minStubLength,
                 midx = startStubX + ((endStubX - startStubX) / 2),
-                midy = startStubY + ((endStubY - startStubY) / 2);
+                midy = startStubY + ((endStubY - startStubY) / 2),
+                oProduct = ((so[0] * to[0]) + (so[1] * to[1])),
+                opposite = oProduct == -1,
+                perpendicular = oProduct == 0,
+                orthogonal = oProduct == 1; 
             
             x -= offx; y -= offy;
             points = [x, y, w, h, sx, sy, tx, ty];
             var extraPoints = [];
       
-            addSegment(startStubX, startStubY, sx, sy, tx, ty);                        
+            addSegment(startStubX, startStubY, sx, sy, tx, ty);       
+            
+            // there are two points between start and end stub.s this is the matrix:
 
-            if(sourceEndpoint.elementId == targetEndpoint.elementId) {
+            // SEGMENT      ORIENTATION     DIST        X/Y ?           P1              P2
+            //    1               OPP       > 2 STUB     X           MX, SY           MX, TY
+            //    2               OPP       > 2 STUB     X           MX, SY           MX, TY
+            //    1               OPP       < 2 STUB     X           SSX, MY         ESX, MY
+            //    2               OPP       < 2 STUB     X           SSX, MY         ESX, MY
+            //    3               OPP       n/a          X           SSX, Y1         ESX, Y1, y1 = target bottom + Stub
+            //    4               OPP       n/a          X           SSX, Y1         ESX, Y1, y1 = target bottom - Stub
+            //    1               OPP       > 2 STUB     Y           SX, MY           TX, MY
+            //    2               OPP       > 2 STUB     Y           SX, MY           TX, MY
+            //    1               OPP       < 2 STUB     Y           MX, SSY         MX, ESY
+            //    2               OPP       < 2 STUB     Y           SSX, MY         MX, ESY
+            //    3               OPP       n/a          Y           X1, SSY         X1, ESY, x1 = target right + Stub
+            //    4               OPP       n/a          Y           X1, SSY         X1, ESY, x1 = target right - Stub
+                      
+                      
+            var sourceAxis = so[0] == 0 ? "y" : "x",
+                anchorOrientation = opposite ? "opposite" : orthogonal ? "orthogonal" : "perpendicular",
+                segment = jsPlumb.util.segment([sx, sy], [tx, ty]),
+                flipSourceSegments = sourceAxis == "x" ? so[0] == -1 : to[0] == -1;        
                 
-                var perpendicular = ((so[0] * to[0]) + (so[1] * to[1])) == 0;                
-                if (perpendicular) {
-                    var mx = so[0] == 0 ? endStubX : startStubX,
-                        my = so[1] == 0 ? endStubY : startStubY;
-                        
-                    addSegment(mx, my, sx, sy, tx, ty);
-                }
-                else {                    
+            if (flipSourceSegments) {
+                console.log("flipped segment from ", segment);
+                segment = 5 - segment;
+            }
+            
+            console.log(sourceAxis, anchorOrientation, segment);         
 
-                    var //mx = so[0] == 0 ? startStubX + someNumberXS : startStubX,
-                        mx = so[0] == 0 ? startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + minStubLength : startStubX,
-                        //my = so[1] == 0 ? startStubY + someNumberYS : startStubY,
-                        my = so[1] == 0 ? startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + minStubLength : startStubY,
-                        //mx2 = to[0] == 0 ? endStubX + someNumberXT : endStubX,
-                        mx2 = to[0] == 0 ? endStubX + ((1 - targetAnchor.x) * sourceInfo.width) + minStubLength : endStubX,
-                        //my2 = to[1] == 0 ? endStubY + someNumberYT : endStubY;
-                        my2 = to[1] == 0 ? endStubY + ((1 - targetAnchor.y) * sourceInfo.height) + minStubLength : endStubY;
-                    
-                    addSegment(mx, my, sx, sy, tx, ty);
-                    addSegment(mx2, my2, sx, sy, tx, ty);
+            var findClearedLine = function(start, mult, anchorPos, dimension) {
+                return start + (mult * (( 1 - anchorPos) * dimension) + minStubLength);
+                //mx = so[0] == 0 ? startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + minStubLength : startStubX,
+            },
+
+            oppositeX = function() {
+                if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
+                    return [[ midx, sy ], [ midx, ty ]];
+                }    
+                else {
+                    return [[ startStubX, midy ], [endStubX, midy ]];                
                 }
-            }
-            else {            
-                if (so[0] == 0) {        		
-            		var startStubIsBeforeEndStub = startStubY < endStubY;             		        	
-            		// when start point's stub is less than endpoint's stub
-            		if (startStubIsBeforeEndStub) {
-            			addSegment(startStubX, midy, sx, sy, tx, ty);
-            			addSegment(midx, midy, sx, sy, tx, ty);
-            			addSegment(endStubX, midy, sx, sy, tx, ty);
-            		} else {
-            			// when start point's stub is greater than endpoint's stub
-            			addSegment(midx, startStubY, sx, sy, tx, ty);
-            			addSegment(midx, endStubY, sx, sy, tx, ty);
-            		}
-            	}
-            	else {
-            		var startStubIsBeforeEndStub = startStubX < endStubX;
-            		// when start point's stub is less than endpoint's stub
-            		if (startStubIsBeforeEndStub) { 
-            			addSegment(midx, startStubY, sx, sy, tx, ty);
-            			addSegment(midx, midy, sx, sy, tx, ty);
-            			addSegment(midx, endStubY, sx, sy, tx, ty);
-            		} else {
-            			// when start point's stub is greater than endpoint's stub        			
-            			addSegment(startStubX, midy, sx, sy, tx, ty);
-            			addSegment(endStubX, midy, sx, sy, tx, ty);
-            		}
-            	}            
-            }
+            },
+            orthogonalX = function() {
+                if (segment == 1 || segment == 2) {
+                    return [ [ endStubX, startStubY  ]];
+                }
+                else {
+                    return [ [ startStubX, endStubY ]];
+                }
+            },
+            perpendicularX = function() {                
+                var my = (ty + sy) / 2;
+                if ((segment == 1 && to[1] == 1) || (segment == 2 && to[1] == -1)) {                  
+                    if (Math.abs(tx - sx) > minStubLength)
+                        return [ [endStubX, startStubY ]];            
+                    else
+                        return [ [startStubX, startStubY ], [ startStubX, my ], [ endStubX, my ]];                                
+                }  
+                else if ((segment == 3 && to[1] == -1) || (segment == 4 && to[1] == 1)) {                    
+                    return [ [ startStubX, my ], [ endStubX, my ]];
+                }
+                else if ((segment == 3 && to[1] == 1) || (segment == 4 && to[1] == -1)) {                
+                    return [ [ startStubX, endStubY ]];
+                }
+                else if ((segment == 1 && to[1] == -1) || (segment == 2 && to[1] == 1)) {                
+                    if (Math.abs(tx - sx) > minStubLength)                    
+                        return [ [ midx, startStubY ], [ midx, endStubY ]];                    
+                    else
+                        return [ [ startStubX, endStubY ]];                                        
+                }
+            },
+            oppositeY = function() {
+                if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
+                    return [[ sx, midy ], [ tx, midy ]];
+                }    
+                else {
+                    return [[ midx, startStubY ], [midx, endStubY ]];                
+                }
+            },
+            orthogonalY = function() {
+                if (segment == 2 || segment == 3) {
+                    return [ [ startStubX, endStubY  ]];
+                }
+                else {
+                    return [ [ endStubX, startStubY ]];
+                }
+            },
+            perpendicularY = function() {                
+              if ((segment == 2 && to[0] == -1) || (segment == 3 && to[0] == 1)) {
+                  
+                      if (Math.abs(ty - sy) > minStubLength) {                          
+                            return [ [startStubX, endStubY ]];
+                      }
+                      else {
+                            var mx = (tx + sx) / 2;
+                            return [ [startStubX, startStubY ], [ mx, startStubY ], [ mx, endStubY ]];
+                      }
+                  
+              }  
+              else if ((segment == 1 && to[0] == -1) || (segment == 4 && to[0] == 1)) {
+                var mx = (tx + sx) / 2;
+                  return [ [ mx, startStubY ], [ mx, endStubY ]];
+              }
+              else if ((segment == 1 && to[0] == 1) || (segment == 4 && to[0] == -1)) {
+                
+                  return [ [ endStubX, startStubY ]];
+              }
+              else if ((segment == 1 && to[0] == 1) || (segment == 4 && to[0] == -1)) {                
+                  if (Math.abs(ty - sy) > minStubLength) {
+                    
+                    return [ [ startStubX, midy ], [ endStubX, midy ]];
+                  }
+                  else {               
+                    return [ [ endStubX, startStubY ]];                    
+                  }
+              }
+            };
+
+            var pointFinders = {
+                "x" : {
+                    "opposite" : oppositeX,
+                    "orthogonal":  orthogonalX,
+                    "perpendicular":perpendicularX
+                },
+                "y" : {
+                    "opposite" : oppositeY,
+                    "orthogonal": orthogonalY,
+                    "perpendicular":perpendicularY
+                }
+
+            };     
+                    
+            
+
+            var pointFinder = pointFinders[sourceAxis][anchorOrientation];
+            var p = pointFinder();
+            if (p) {
+                for (var i = 0; i < p.length; i++) {
+                    addSegment(p[i][0], p[i][1], sx, sy, tx, ty);
+                }
+            }                       
+                             
 
             addSegment(endStubX, endStubY, sx, sy, tx, ty);
             addSegment(tx, ty, sx, sy, tx, ty);
@@ -454,8 +550,8 @@
             appendSegmentsToPoints();
             updateSegmentProportions(sx, sy, tx, ty);
             
-			return points;
-		};
+            return points;
+        };
 		
 		/**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
