@@ -58,42 +58,33 @@
 				hoverPaintStyle:connectorHoverStyle,
 				maxConnections:-1,
 				dropOptions:{ hoverClass:"hover", activeClass:"active" },
-				isTarget:true,
-				anchor:[ "LeftMiddle", "RightMiddle" ],
+				isTarget:true,			
                 overlays:[
                 	[ "Label", { location:[0.5, -0.5], label:"Drop", cssClass:"endpointTargetLabel" } ]
                 ]
-			},
-			windows = ["window1", "window2", "window3", "window4"],
+			},			
 			init = function(connection) {
 				connection.getOverlay("label").setLabel(connection.sourceId.substring(6) + "-" + connection.targetId.substring(6));
-			};
+			};			
 
-			// 
-			// add endpoints to all windows. note here we use a string array; that's just because this demo is framework-agnostic.  you'd
-			// probably use a selector in the real world, eg.
-			//
-			// jsPlumb.addEndpoint($(".window"), [ bottomSource ]);
-			//
-			var sourceEndpoints = jsPlumb.addEndpoint(windows, bottomSource),
-			    targetEndpoints = jsPlumb.addEndpoint(windows, targetEndpoint);
-			
+			var allSourceEndpoints = [], allTargetEndpoints = [];
+				_addEndpoints = function(toId, sourceAnchors, targetAnchors) {
+					for (var i = 0; i < sourceAnchors.length; i++)
+						allSourceEndpoints.push(jsPlumb.addEndpoint(toId, sourceEndpoint, {anchor:sourceAnchors[i]}));
+					for (var j = 0; j < targetAnchors.length; j++)
+						allTargetEndpoints.push(jsPlumb.addEndpoint(toId, targetEndpoint, {anchor:targetAnchors[j]}));
+				};
+
+			_addEndpoints("window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);
+			_addEndpoints("window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
+			_addEndpoints("window3", ["RightMiddle", "BottomCenter"], ["LeftMiddle", "TopCenter"]);
+			_addEndpoints("window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
+						
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
 			jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
 				init(connInfo.connection);
 			});
-			
-			// make a couple of connections. note that the return value of addEndpoints is an array of Endpoints, 
-			jsPlumb.connect({
-				source:sourceEndpoints[0],
-				target:targetEndpoints[1]
-			});
-			
-			jsPlumb.connect({
-				source:sourceEndpoints[3],
-				target:targetEndpoints[2]
-			});		
-			
+						
 			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 
 			//
