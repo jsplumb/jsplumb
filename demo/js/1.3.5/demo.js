@@ -180,18 +180,19 @@
 
 			// jsplumb event handlers
 	
+			// double click on any connection 
 			jsPlumb.bind("dblclick", function(connection, originalEvent) { alert("double click on connection from " + connection.sourceId + " to " + connection.targetId); });
+			// single click on any endpoint
 			jsPlumb.bind("endpointClick", function(endpoint, originalEvent) { alert("click on endpoint on element " + endpoint.elementId); });
+			// context menu (right click) on any component.
 			jsPlumb.bind("contextmenu", function(component, originalEvent) {
                 alert("context menu on component " + component.id);
                 originalEvent.preventDefault();
                 return false;
             });
 			
+			// make all .window divs draggable
 			jsPlumb.draggable(jsPlumb.getSelector(".window"));
-
-
-            //$(document).bind("contextmenu", function() { alert("CTX"); return false; });
             
 		}
 	};	
