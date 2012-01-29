@@ -421,12 +421,14 @@
             var sourceAxis = so[0] == 0 ? "y" : "x",
                 anchorOrientation = opposite ? "opposite" : orthogonal ? "orthogonal" : "perpendicular",
                 segment = jsPlumb.util.segment([sx, sy], [tx, ty]),
-                flipSourceSegments = sourceAxis == "x" ? so[0] == -1 : to[0] == -1;        
+                flipSourceSegments = so[sourceAxis == "x" ? 0 : 1] == -1,
+                flipSegments = {
+                    "x":[null, 4, 3, 2, 1],
+                    "y":[null, 2, 1, 4, 3]
+                }        
                 
-            if (flipSourceSegments) {
-                console.log("flipped segment from ", segment);
-                segment = 5 - segment;
-            }
+            if (flipSourceSegments)                
+                segment = flipSegments[sourceAxis][segment];            
             
             console.log(sourceAxis, anchorOrientation, segment);         
 
@@ -435,107 +437,87 @@
                 //mx = so[0] == 0 ? startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + minStubLength : startStubX,
             },
 
-            oppositeX = function() {
-                if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
-                    return [[ midx, sy ], [ midx, ty ]];
-                }    
-                else {
-                    return [[ startStubX, midy ], [endStubX, midy ]];                
-                }
-            },
-            orthogonalX = function() {
-                if (segment == 1 || segment == 2) {
-                    return [ [ endStubX, startStubY  ]];
-                }
-                else {
-                    return [ [ startStubX, endStubY ]];
-                }
-            },
-            perpendicularX = function() {                
-                var my = (ty + sy) / 2;
-                if ((segment == 1 && to[1] == 1) || (segment == 2 && to[1] == -1)) {                  
-                    if (Math.abs(tx - sx) > minStubLength)
-                        return [ [endStubX, startStubY ]];            
-                    else
-                        return [ [startStubX, startStubY ], [ startStubX, my ], [ endStubX, my ]];                                
-                }  
-                else if ((segment == 3 && to[1] == -1) || (segment == 4 && to[1] == 1)) {                    
-                    return [ [ startStubX, my ], [ endStubX, my ]];
-                }
-                else if ((segment == 3 && to[1] == 1) || (segment == 4 && to[1] == -1)) {                
-                    return [ [ startStubX, endStubY ]];
-                }
-                else if ((segment == 1 && to[1] == -1) || (segment == 2 && to[1] == 1)) {                
-                    if (Math.abs(tx - sx) > minStubLength)                    
-                        return [ [ midx, startStubY ], [ midx, endStubY ]];                    
-                    else
-                        return [ [ startStubX, endStubY ]];                                        
-                }
-            },
-            oppositeY = function() {
-                if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
-                    return [[ sx, midy ], [ tx, midy ]];
-                }    
-                else {
-                    return [[ midx, startStubY ], [midx, endStubY ]];                
-                }
-            },
-            orthogonalY = function() {
-                if (segment == 2 || segment == 3) {
-                    return [ [ startStubX, endStubY  ]];
-                }
-                else {
-                    return [ [ endStubX, startStubY ]];
-                }
-            },
-            perpendicularY = function() {                
-              if ((segment == 2 && to[0] == -1) || (segment == 3 && to[0] == 1)) {
-                  
-                      if (Math.abs(ty - sy) > minStubLength) {                          
-                            return [ [startStubX, endStubY ]];
-                      }
-                      else {
-                            var mx = (tx + sx) / 2;
-                            return [ [startStubX, startStubY ], [ mx, startStubY ], [ mx, endStubY ]];
-                      }
-                  
-              }  
-              else if ((segment == 1 && to[0] == -1) || (segment == 4 && to[0] == 1)) {
-                var mx = (tx + sx) / 2;
-                  return [ [ mx, startStubY ], [ mx, endStubY ]];
-              }
-              else if ((segment == 1 && to[0] == 1) || (segment == 4 && to[0] == -1)) {
-                
-                  return [ [ endStubX, startStubY ]];
-              }
-              else if ((segment == 1 && to[0] == 1) || (segment == 4 && to[0] == -1)) {                
-                  if (Math.abs(ty - sy) > minStubLength) {
-                    
-                    return [ [ startStubX, midy ], [ endStubX, midy ]];
-                  }
-                  else {               
-                    return [ [ endStubX, startStubY ]];                    
-                  }
-              }
-            };
-
-            var pointFinders = {
-                "x" : {
-                    "opposite" : oppositeX,
-                    "orthogonal":  orthogonalX,
-                    "perpendicular":perpendicularX
+            lineCalculators = {
+                oppositex : function() {
+                    if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
+                        return [[ midx, sy ], [ midx, ty ]];
+                    }    
+                    else {
+                        return [[ startStubX, midy ], [endStubX, midy ]];                
+                    }
                 },
-                "y" : {
-                    "opposite" : oppositeY,
-                    "orthogonal": orthogonalY,
-                    "perpendicular":perpendicularY
+                orthogonalx : function() {
+                    if (segment == 1 || segment == 2) {
+                        return [ [ endStubX, startStubY  ]];
+                    }
+                    else {
+                        return [ [ startStubX, endStubY ]];
+                    }
+                },
+                perpendicularx : function() {                
+                    var my = (ty + sy) / 2;
+                    if ((segment == 1 && to[1] == 1) || (segment == 2 && to[1] == -1)) {                  
+                        if (Math.abs(tx - sx) > minStubLength)
+                            return [ [endStubX, startStubY ]];            
+                        else
+                            return [ [startStubX, startStubY ], [ startStubX, my ], [ endStubX, my ]];                                
+                    }  
+                    else if ((segment == 3 && to[1] == -1) || (segment == 4 && to[1] == 1)) {                    
+                        return [ [ startStubX, my ], [ endStubX, my ]];
+                    }
+                    else if ((segment == 3 && to[1] == 1) || (segment == 4 && to[1] == -1)) {                
+                        return [ [ startStubX, endStubY ]];
+                    }
+                    else if ((segment == 1 && to[1] == -1) || (segment == 2 && to[1] == 1)) {                
+                        if (Math.abs(tx - sx) > minStubLength)                    
+                            return [ [ midx, startStubY ], [ midx, endStubY ]];                    
+                        else
+                            return [ [ startStubX, endStubY ]];                                        
+                    }
+                },
+                oppositey : function() {
+                    if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
+                        return [[ sx, midy ], [ tx, midy ]];
+                    }    
+                    else {
+                        return [[ midx, startStubY ], [midx, endStubY ]];                
+                    }
+                },
+                orthogonaly : function() {
+                    if (segment == 2 || segment == 3) {
+                        return [ [ startStubX, endStubY  ]];
+                    }
+                    else {
+                        return [ [ endStubX, startStubY ]];
+                    }
+                },
+                perpendiculary : function() {                
+                    var mx = (tx + sx) / 2;
+                    if ((segment == 2 && to[0] == -1) || (segment == 3 && to[0] == 1)) {                    
+                        if (Math.abs(tx - sx) > minStubLength)
+                            return [ [startStubX, endStubY ]];                    
+                        else
+                            return [ [startStubX, midy ], [ endStubX, midy ]];                                        
+                    }  
+                    else if ((segment == 1 && to[0] == -1) || (segment == 4 && to[0] == 1)) {
+                        var mx = (tx + sx) / 2;
+                        return [ [ mx, startStubY ], [ mx, endStubY ]];
+                    }
+                    else if ((segment == 1 && to[0] == 1) || (segment == 4 && to[0] == -1)) {                
+                        return [ [ endStubX, startStubY ]];
+                    }
+                    else if ((segment == 2 && to[0] == 1) || (segment == 3 && to[0] == -1)) {                
+                        if (Math.abs(ty - sy) > minStubLength)                    
+                            return [ [ startStubX, midy ], [ endStubX, midy ]];                  
+                        else
+                            return [ [ endStubX, startStubY ]];                                    
+                    }
                 }
-
-            };     
-                    
+            };
+                                     
             
 
-            var pointFinder = pointFinders[sourceAxis][anchorOrientation];
+            var pointFinder = lineCalculators[anchorOrientation + sourceAxis];
             var p = pointFinder();
             if (p) {
                 for (var i = 0; i < p.length; i++) {
