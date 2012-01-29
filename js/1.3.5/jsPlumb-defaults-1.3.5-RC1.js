@@ -425,7 +425,11 @@
 
             lineCalculators = {
                 oppositex : function() {
-                    if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
+                    if (sourceEndpoint.elementId == targetEndpoint.elementId) {
+                        var _y = startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + minStubLength;
+                        return [ [ startStubX, _y ], [ endStubX, _y ]];
+                    }
+                    else if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
                         return [[ midx, sy ], [ midx, ty ]];
                     }    
                     else {
@@ -462,7 +466,11 @@
                     }
                 },
                 oppositey : function() {
-                    if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
+                    if (sourceEndpoint.elementId == targetEndpoint.elementId) {
+                        var _x = startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + minStubLength;
+                        return [ [ _x, startStubY ], [ _x, endStubY ]];
+                    }
+                    else if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
                         return [[ sx, midy ], [ tx, midy ]];
                     }    
                     else {
