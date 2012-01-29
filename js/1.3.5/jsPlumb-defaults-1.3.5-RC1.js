@@ -404,24 +404,7 @@
             points = [x, y, w, h, sx, sy, tx, ty];
             var extraPoints = [];
       
-            addSegment(startStubX, startStubY, sx, sy, tx, ty);       
-            
-            // there are two points between start and end stub.s this is the matrix:
-
-            // SEGMENT      ORIENTATION     DIST        X/Y ?           P1              P2
-            //    1               OPP       > 2 STUB     X           MX, SY           MX, TY
-            //    2               OPP       > 2 STUB     X           MX, SY           MX, TY
-            //    1               OPP       < 2 STUB     X           SSX, MY         ESX, MY
-            //    2               OPP       < 2 STUB     X           SSX, MY         ESX, MY
-            //    3               OPP       n/a          X           SSX, Y1         ESX, Y1, y1 = target bottom + Stub
-            //    4               OPP       n/a          X           SSX, Y1         ESX, Y1, y1 = target bottom - Stub
-            //    1               OPP       > 2 STUB     Y           SX, MY           TX, MY
-            //    2               OPP       > 2 STUB     Y           SX, MY           TX, MY
-            //    1               OPP       < 2 STUB     Y           MX, SSY         MX, ESY
-            //    2               OPP       < 2 STUB     Y           SSX, MY         MX, ESY
-            //    3               OPP       n/a          Y           X1, SSY         X1, ESY, x1 = target right + Stub
-            //    4               OPP       n/a          Y           X1, SSY         X1, ESY, x1 = target right - Stub
-                      
+            addSegment(startStubX, startStubY, sx, sy, tx, ty);                   
                       
             var sourceAxis = so[0] == 0 ? "y" : "x",
                 anchorOrientation = opposite ? "opposite" : orthogonal ? "orthogonal" : "perpendicular",
