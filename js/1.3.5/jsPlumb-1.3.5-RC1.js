@@ -997,7 +997,7 @@
 			manually, since this method attaches event listeners and an id.
 		*/
 		_newEndpoint = function(params) {
-			var endpointFunc = jsPlumb.Defaults.EndpointType || Endpoint;
+			var endpointFunc = _currentInstance.Defaults.EndpointType || Endpoint;
 			params.parent = _getParentFromParams(params);
 			params["_jsPlumb"] = _currentInstance;
 			var ep = new endpointFunc(params);
@@ -1556,7 +1556,7 @@ between this method and jsPlumb.reset).
 
 		var fireDetachEvent = function(jpc, doFireEvent) {
             // may have been given a connection, or in special cases, an object
-            var connType =  jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType(),
+            var connType =  _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
                 argIsConnection = jpc.constructor == connType,
                 params = argIsConnection ? {
                     connection:jpc,
@@ -1591,7 +1591,7 @@ between this method and jsPlumb.reset).
 		this.detach = function() {
 
             if (arguments.length == 0) return;
-            var connType =  jsPlumb.Defaults.ConnectionType || jsPlumb.getDefaultConnectionType(),
+            var connType =  _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
                 firstArgIsConnection = arguments[0].constructor == connType,
                 params = arguments.length == 2 ? firstArgIsConnection ? (arguments[1] || {}) : arguments[0] : arguments[0],
                 fireEvent = (params.fireEvent !== false),
@@ -2123,7 +2123,7 @@ between this method and jsPlumb.reset).
 						source.detach(jpc, false, true, true);//source.endpointWillMoveAfterConnection);
 				
 						// make a new Endpoint for the target
-						var newEndpoint = jsPlumb.addEndpoint(_el, _endpoint);
+						var newEndpoint = _currentInstance.addEndpoint(_el, _endpoint);
 																
 						// if the anchor has a 'positionFinder' set, then delegate to that function to find
 						// out where to locate the anchor.
@@ -2140,7 +2140,7 @@ between this method and jsPlumb.reset).
 							// specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
 							// the target is furthest away from the source.
 						}
-						var c = jsPlumb.connect({
+						var c = _currentInstance.connect({
 							source:source,
 							target:newEndpoint,
 							scope:scope,
@@ -2166,7 +2166,7 @@ between this method and jsPlumb.reset).
 								jpc.setHover(false);
 								jpc.floatingAnchorIndex = null;
 								jpc.suspendedEndpoint.addConnection(jpc);
-								jsPlumb.repaint(source.elementId);
+								_currentInstance.repaint(source.elementId);
 							}
 							else
 								source.detach(jpc, false, true, true);  // otherwise, detach the connection and tell everyone about it.
@@ -2266,7 +2266,7 @@ between this method and jsPlumb.reset).
 					_currentInstance.currentlyDragging = false;
 					
 					if (ep.connections.length == 0)
-						jsPlumb.deleteEndpoint(ep);
+						_currentInstance.deleteEndpoint(ep);
 					else {
 						
 						jpcl.unbind(ep.canvas, "mousedown"); 
@@ -2275,7 +2275,7 @@ between this method and jsPlumb.reset).
 						// the connection was just a placeholder that was located at the place the user pressed the
 						// mouse button to initiate the drag.
 						var anchorDef = _sourceEndpointDefinitions[elid].anchor || _currentInstance.Defaults.Anchor;
-						ep.anchor = jsPlumb.makeAnchor(anchorDef, elid, _currentInstance);
+						ep.anchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance);
 						
 						if (p.parent) {						
 							var parent = jpcl.getElementObject(p.parent);
@@ -2324,14 +2324,14 @@ between this method and jsPlumb.reset).
 					// the user has specified a 'container' on the endpoint definition or on 
 					// the defaults, we should use that.
 					if (p.parent) {
-						var potentialParent = tempEndpointParams.container || jsPlumb.Defaults.Container;
+						var potentialParent = tempEndpointParams.container || _currentInstance.Defaults.Container;
 						if (potentialParent)
 							tempEndpointParams.container = potentialParent;
 						else
 							tempEndpointParams.container = jsPlumb.CurrentLibrary.getParent(p.parent);
 					}
 					
-					ep = jsPlumb.addEndpoint(elid, tempEndpointParams);
+					ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
 
 					endpointAddedButNoDragYet = true;
 					// we set this to prevent connections from firing attach events before this function has had a chance
@@ -2345,7 +2345,7 @@ between this method and jsPlumb.reset).
 						// legitimate endpoint, were it not for this check.  the flag is set after adding an
 						// endpoint and cleared in a drag listener we set in the dragOptions above.
 						if(endpointAddedButNoDragYet) {
-							jsPlumb.deleteEndpoint(ep);
+							_currentInstance.deleteEndpoint(ep);
                         }
 					};
 
