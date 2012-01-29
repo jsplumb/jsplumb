@@ -1,4 +1,6 @@
 ;(function() {
+
+	var _initialised = false;
 	
 	jsPlumbDemo.showConnectionInfo = function(s) {
 		$("#list").html(s);
@@ -10,24 +12,28 @@
 	};
 	
 	jsPlumbDemo.attachBehaviour = function() {
-		$(".hide").click(function() {
-			jsPlumb.toggle($(this).attr("rel"));
-		});
+		if (!_initialised) {
+			$(".hide").click(function() {
+				jsPlumb.toggle($(this).attr("rel"));
+			});
 
-		$(".drag").click(function() {
-			var s = jsPlumb.toggleDraggable($(this).attr("rel"));
-			$(this).html(s ? 'disable dragging' : 'enable dragging');
-			if (!s) $("#" + $(this).attr("rel")).addClass('drag-locked'); else $("#" + $(this).attr("rel")).removeClass('drag-locked');
-			$("#" + $(this).attr("rel")).css("cursor", s ? "pointer" : "default");
-		});
+			$(".drag").click(function() {
+				var s = jsPlumb.toggleDraggable($(this).attr("rel"));
+				$(this).html(s ? 'disable dragging' : 'enable dragging');
+				if (!s) $("#" + $(this).attr("rel")).addClass('drag-locked'); else $("#" + $(this).attr("rel")).removeClass('drag-locked');
+				$("#" + $(this).attr("rel")).css("cursor", s ? "pointer" : "default");
+			});
 
-		$(".detach").click(function() {
-			jsPlumb.detachAllConnections($(this).attr("rel"));
-		});
+			$(".detach").click(function() {
+				jsPlumb.detachAllConnections($(this).attr("rel"));
+			});
 
-		$("#clear").click(function() { 
-			jsPlumb.detachEveryConnection(); jsPlumbDemo.showConnectionInfo("");
-		});
+			$("#clear").click(function() { 
+				jsPlumb.detachEveryConnection(); jsPlumbDemo.showConnectionInfo("");
+			});
+			
+			_initialised = true;
+		}
 	};
 
 })();
