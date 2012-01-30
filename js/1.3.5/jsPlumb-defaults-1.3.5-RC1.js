@@ -624,10 +624,15 @@
     var DOMElementEndpoint = function(params) {
         jsPlumb.DOMElementComponent.apply(this, arguments);
         var self = this;
+
+        var displayElements = [  ];
+        this.getDisplayElements = function() { 
+            return displayElements; 
+        };
         
-        self.appendDisplayElement = function() {
-            // not implemented yet.
-        };   
+        this.appendDisplayElement = function(el) {
+            displayElements.push(el);
+        };            
     };
 	/**
 	 * Class: Endpoints.Image
