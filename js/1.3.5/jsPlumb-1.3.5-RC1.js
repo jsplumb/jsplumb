@@ -2228,6 +2228,9 @@ between this method and jsPlumb.reset).
 					ep = null,
 					endpointAddedButNoDragYet = false;
 
+				// set scope if its not set in dragOptions but was passed in in params
+				dragOptions["scope"] = dragOptions["scope"] || p.scope;
+
 				// make sure this method honours whatever defaults have been set for Endpoint.				
 				_sourceEndpointDefinitions[elid].endpoint = _sourceEndpointDefinitions[elid].endpoint || _currentInstance.Defaults.Endpoints[0] || _currentInstance.Defaults.Endpoint;
 
