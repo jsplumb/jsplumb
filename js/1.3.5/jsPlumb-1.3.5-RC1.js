@@ -1985,7 +1985,7 @@ between this method and jsPlumb.reset).
 				if (typeof types[i] == "string")
 					r.push(jsPlumb.Anchors[types[i]]({elementId:elementId, jsPlumbInstance:jsPlumbInstance}));
 				else if (types[i].constructor == Array)
-					r.push(jsPlumb.makeAnchor(types[i], elementId, jsPlumbInstance));
+					r.push(_currentInstance.makeAnchor(types[i], elementId, jsPlumbInstance));
 			}
 			return r;
 		};
@@ -2222,7 +2222,6 @@ between this method and jsPlumb.reset).
 				_sourceEndpointDefinitions[elid] = p.endpoint || {};
 				var stopEvent = jpcl.dragEvents["stop"],
 					dragEvent = jpcl.dragEvents["drag"],
-					//dragOptions = jsPlumb.extend({ }, _sourceEndpointDefinitions[elid].dragOptions || {}), 
 					dragOptions = jsPlumb.extend({ }, p.dragOptions || _sourceEndpointDefinitions[elid].dragOptions || {}),
 					existingDrag = dragOptions.drag,
 					existingStop = dragOptions.stop,
@@ -2884,7 +2883,7 @@ between this method and jsPlumb.reset).
 			this.isDynamic = true;			
 			var _anchors = [], self = this,
 			_convert = function(anchor) { 
-				return anchor.constructor == Anchor ? anchor: jsPlumb.makeAnchor(anchor, elementId, _currentInstance); 
+				return anchor.constructor == Anchor ? anchor: _currentInstance.makeAnchor(anchor, elementId, _currentInstance); 
 			};
 			for (var i = 0; i < anchors.length; i++) 
 				_anchors[i] = _convert(anchors[i]);			
@@ -3489,7 +3488,7 @@ between this method and jsPlumb.reset).
 			// wrapped the main function to return null if no input given. this lets us cascade defaults properly.
 			var _makeAnchor = function(anchorParams, elementId) {
 				if (anchorParams)
-					return jsPlumb.makeAnchor(anchorParams, elementId, _currentInstance);
+					return _currentInstance.makeAnchor(anchorParams, elementId, _currentInstance);
 			},
 			prepareEndpoint = function(existing, index, params, element, elementId, connectorPaintStyle, connectorHoverPaintStyle) {
 				if (existing) {
@@ -3832,14 +3831,7 @@ between this method and jsPlumb.reset).
 				params = params || {};
                 var recalc = !(params.recalc === false);
 				this.paint({ elId : this.sourceId, recalc : recalc, timestamp:params.timestamp });
-			};
-			// resizing (using the jquery.ba-resize plugin). todo: decide
-			// whether to include or not.
-			if (this.source.resize) {
-				this.source.resize(function(e) {
-					jsPlumb.repaint(self.sourceId);
-				});
-			}
+			};			
 			
 			// just to make sure the UI gets initialised fully on all browsers.
 			self.repaint();
@@ -4026,11 +4018,6 @@ between this method and jsPlumb.reset).
 			this.areConnectionsBidirectional = function() { return _connectionsBidirectional; };
 			this.setConnectionsBidirectional = function(b) { _connectionsBidirectional = b; };
 			
-			// removed in 1.3.5.  use 'anchor' instead.
-			//if (params.dynamicAnchors)
-				//self.anchor = new DynamicAnchor(jsPlumb.makeAnchors(params.dynamicAnchors, _elementId, _currentInstance));
-			//else 			
-			//self.anchor = params.anchor ? jsPlumb.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? jsPlumb.makeAnchor(params.anchors, _elementId, _currentInstance) : jsPlumb.makeAnchor("TopCenter", _elementId, _currentInstance);
 			self.anchor = params.anchor ? _currentInstance.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? _currentInstance.makeAnchor(params.anchors, _elementId, _currentInstance) : _currentInstance.makeAnchor("TopCenter", _elementId, _currentInstance);
 				
 			// ANCHOR MANAGER
@@ -4182,7 +4169,7 @@ between this method and jsPlumb.reset).
 									for (var i = 0; i < connection.endpointsToDeleteOnDetach.length; i++) {
 										var cde = connection.endpointsToDeleteOnDetach[i];
 										if (cde && cde.connections.length == 0) 
-											jsPlumb.deleteEndpoint(cde);							
+											_currentInstance.deleteEndpoint(cde);							
 									}
 								}
 							}
@@ -4632,7 +4619,7 @@ between this method and jsPlumb.reset).
 									jpc.setHover(false);
 									jpc.floatingAnchorIndex = null;
 									jpc.suspendedEndpoint.addConnection(jpc);
-									jsPlumb.repaint(existingJpcParams[1]);
+									_currentInstance.repaint(existingJpcParams[1]);
 								}
                                 jpc._forceDetach = null;
 							} else {
@@ -4749,7 +4736,7 @@ between this method and jsPlumb.reset).
 
                                     jpc.endpoints[0].repaint();
                                     jpc.repaint();
-									jsPlumb.repaint(jpc.source.elementId);
+									_currentInstance.repaint(jpc.source.elementId);
                                     jpc._forceDetach = false;
 								}
 							}
@@ -4882,7 +4869,7 @@ between this method and jsPlumb.reset).
 		
 	// TODO test that this does not break with the current instance idea
 	jsPlumb.Defaults.DynamicAnchors = function(params) {
-		return jsPlumb.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"], params.elementId, params.jsPlumbInstance);
+		return params.jsPlumbInstance.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"], params.elementId, params.jsPlumbInstance);
 	};
 	jsPlumb.Anchors["AutoDefault"]  = function(params) { 
 		var a = params.jsPlumbInstance.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors(params));
