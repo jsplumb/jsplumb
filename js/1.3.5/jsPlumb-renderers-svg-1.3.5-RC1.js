@@ -228,7 +228,7 @@
 			self.canvas = self.svg;
 		}
 			
-		jsPlumb.appendElement(self.canvas, params.originalArgs[0]["parent"]);
+		params._jsPlumb.appendElement(self.canvas, params.originalArgs[0]["parent"]);
 		if (params.useDivWrapper) self.canvas.appendChild(self.svg);
 		
 		// TODO this displayElement stuff is common between all components, across all
@@ -264,7 +264,13 @@
 	 */
 	var SvgConnector = jsPlumb.SvgConnector = function(params) {
 		var self = this;
-		SvgComponent.apply(this, [ { cssClass:params["_jsPlumb"].connectorClass, originalArgs:arguments, pointerEventsSpec:"none", tooltip:params.tooltip } ]);
+		SvgComponent.apply(this, [ { 
+			cssClass:params["_jsPlumb"].connectorClass, 
+			originalArgs:arguments, 
+			pointerEventsSpec:"none", 
+			tooltip:params.tooltip,
+			_jsPlumb:params["_jsPlumb"] 
+		} ]);
 		this._paint = function(d, style) {
 			var p = self.getPath(d), a = { "d":p }, outlineStyle = null;									
 			a["pointer-events"] = "all";
@@ -367,7 +373,8 @@
 			cssClass:params["_jsPlumb"].endpointClass, 
 			originalArgs:arguments, 
 			pointerEventsSpec:"all",
-			useDivWrapper:true
+			useDivWrapper:true,
+			_jsPlumb:params["_jsPlumb"]
 		} ]);
 		this._paint = function(d, style) {
 			var s = jsPlumb.extend({}, style);
