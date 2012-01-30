@@ -47,21 +47,7 @@
 		_m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty, _segment, _length;
 
         /**
-         * Computes the new size and position of the canvas.
-         * @param sourceAnchor Absolute position on screen of the source object's anchor.
-         * @param targetAnchor Absolute position on screen of the target object's anchor.
-         * @param positionMatrix  Indicates the relative positions of the left,top of the
-         *  two plumbed objects.  so [0,0] indicates that the source is to the left of, and
-         *  above, the target.  [1,0] means the source is to the right and above.  [0,1] means
-         *  the source is to the left and below.  [1,1] means the source is to the right
-         *  and below.  this is used to figure out which direction to draw the connector in.
-         * @returns an array of positioning information.  the first two values are
-         * the [left, top] absolute position the canvas should be placed on screen.  the
-         * next two values are the [width,height] the canvas should be.  after that each
-         * Connector can put whatever it likes into the array:it will be passed back in
-         * to the paint call.  This particular function stores the origin and destination of
-         * the line it is going to draw.  a more involved implementation, like a Bezier curve,
-         * would store the control point info in this array too.
+         * Computes the new size and position of the canvas.         
          */
         this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
         	var w = Math.abs(sourcePos[0] - targetPos[0]),
@@ -189,13 +175,11 @@
              }
 
             return p;                
-        };
-        
-//        this.isFlipX = function() { return 
+        };        
 
         var _CP, _CP2, _sx, _tx, _ty, _sx, _sy, _canvasX, _canvasY, _w, _h;
-        this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth)
-        {
+
+        this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
         	lineWidth = lineWidth || 0;
             _w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth; 
             _h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
@@ -369,10 +353,17 @@
                 w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx, 
                 h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
 
-            // for floating anchors (drag and drop), we will set the orientation to be the opposite to the source
-            // orientation
-            if (targetAnchor.isFloating && to[0] == 0 && to[1] == 0)
-                to = [ so[0] * -1, so[1] * -1];
+            // if either anchor does not have an orientation set, we derive one from their relative
+            // positions.  we fix the axis to be the one in which the two elements are further apart, and
+            // point each anchor at the other element.  this is also used when dragging a new connection.
+            if (so[0] == 0 && so[1] == 0 || to[0] == 0 && to[1] == 0) {
+                var index = w > h ? 0 : 1, oIndex = [1,0][index];
+                so = []; to = [];
+                so[index] = sourcePos[index] > targetPos[index] ? -1 : 1;
+                to[index] = sourcePos[index] > targetPos[index] ? 1 : -1;
+                so[oIndex] = 0;
+                to[oIndex] = 0;
+            }
 
             if (w < minWidth) {      
                 offx += (minWidth - w) / 2;
