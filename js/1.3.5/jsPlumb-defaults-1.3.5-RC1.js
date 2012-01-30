@@ -665,7 +665,7 @@
 			widthToUse = widthToUse || self.img.width;
 			heightToUse = heightToUse || self.img.height;
             if (_onload) {
-                _onload(this);
+                _onload(self);
             }
 		};
 
