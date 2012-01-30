@@ -395,7 +395,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 	test(renderMode + ": detach; beforeDetach on connect call throws an exception; we treat it with the contempt it deserves and pretend it said the detach was ok.", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		var c = _jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { throw "i am badly coded"; }});
+		var c = _jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { throw "i am an example of badly coded beforeDetach, but i don't break jsPlumb "; }});
 		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
 		equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
@@ -2844,6 +2844,48 @@ var testSuite = function(renderMode, _jsPlumb) {
         equals(ep.canvas.parentNode.tagName.toLowerCase(), "table");
     });
 
+// issue 190 - regressions with getInstance.  these tests ensure that generated ids are unique across
+// instances.    
+
+    test(renderMode + " id clashes between instances", function() {
+    	var d1 = document.createElement("div"),
+    		d2 = document.createElement("div"),
+    		_jsp2 = jsPlumb.getInstance();
+    	
+    	document.body.appendChild(d1);
+    	document.body.appendChild(d2);
+
+    	_jsPlumb.addEndpoint(d1);
+    	_jsp2.addEndpoint(d2);
+
+    	var id1 = d1.getAttribute("id"),
+    		id2 = d2.getAttribute("id");
+
+    	var idx = id1.indexOf("_"), idx2 = id1.lastIndexOf("_"), v1 = id1.substring(idx, idx2);
+    	var idx3 = id2.indexOf("_"), idx4 = id2.lastIndexOf("_"), v2 = id2.substring(idx3, idx4);
+
+    	ok (v1 != v2, "instance versions are different : " + v1 + " : " + v2);
+    });
+
+    test(renderMode + " id clashes between instances", function() {
+    	var d1 = document.createElement("div"),
+    		d2 = document.createElement("div"),
+    		_jsp2 = jsPlumb.getInstance();
+    	
+    	document.body.appendChild(d1);
+    	document.body.appendChild(d2);
+
+    	_jsPlumb.addEndpoint(d1);
+    	_jsPlumb.addEndpoint(d2);
+
+    	var id1 = d1.getAttribute("id"),
+    		id2 = d2.getAttribute("id");
+
+    	var idx = id1.indexOf("_"), idx2 = id1.lastIndexOf("_"), v1 = id1.substring(idx, idx2);
+    	var idx3 = id2.indexOf("_"), idx4 = id2.lastIndexOf("_"), v2 = id2.substring(idx3, idx4);
+
+    	ok (v1 == v2, "instance versions are the same : " + v1 + " : " + v2);
+    });
     
 
 	/**

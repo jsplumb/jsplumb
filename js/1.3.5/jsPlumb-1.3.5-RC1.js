@@ -617,6 +617,13 @@
 			});	
         };	
 		
+		var _jsPlumbInstanceIndex = 0,
+			getInstanceIndex = function() {
+				var i = _jsPlumbInstanceIndex + 1;
+				_jsPlumbInstanceIndex++;
+				return i;
+			};
+
 		var jsPlumbInstance = function(_defaults) {
 		
 		/*
@@ -686,6 +693,8 @@
 			else _bb(event, fn);
 		};
 		var _currentInstance = this,
+			_instanceIndex = getInstanceIndex(),
+
 		log = null,
 		repaintFunction = function() {
 			jsPlumb.repaintEverything();
@@ -1178,9 +1187,15 @@
 			return {o:o, s:sizes[elId]};
 		},
 
-/**
+		/**
 		 * gets an id for the given element, creating and setting one if
-		 * necessary.
+		 * necessary.  the id is of the form
+		 *
+		 *	jsPlumb_<instance index>_<index in instance>
+		 *
+		 * where "index in instance" is a monotonically increasing integer that starts at 0,
+		 * for each instance.  this method is used not only to assign ids to elements that do not
+		 * have them but also to connections and endpoints.
 		 */
 		_getId = function(element, uuid) {
 			var ele = _getElementObject(element);
@@ -1190,7 +1205,7 @@
 				if (arguments.length == 2 && arguments[1] != undefined)
 					id = uuid;
 				else
-					id = "jsPlumb_" + _idstamp();
+					id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
 				_setAttribute(ele, "id", id);
 			}
 			return id;
@@ -2704,13 +2719,8 @@ between this method and jsPlumb.reset).
 		 * 	void
 		 */
 		this.unload = function() {
-			delete endpointsByElement;
-			delete endpointsByUUID;
-			delete offsets;
-			delete sizes;
-			delete floatingConnections;
-			delete draggableStates;
-			delete canvasList;
+			// this used to do something, but it turns out that what it did was nothing.
+			// now it exists only for backwards compatibility.
 		};
 
 		/*
