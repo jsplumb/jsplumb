@@ -4056,14 +4056,18 @@ between this method and jsPlumb.reset).
 				endpointArgs = jsPlumb.extend(_endpoint[1], endpointArgs);
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](endpointArgs);
 			}
-			else 
+			else {
 				_endpoint = _endpoint.clone();
-			
-			// assign a clone function using our derived endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
+			}
+
+			// assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
 			// and the clone is left in its place while the original one goes off on a magical journey. 
-			this.clone = function() {
+			// the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
+			// the whole world.
+			var argsForClone = jsPlumb.extend({}, endpointArgs);						
+			_endpoint.clone = function() {
 				var o = new Object();
-				_endpoint.constructor.apply(o, [endpointArgs]);
+				_endpoint.constructor.apply(o, [argsForClone]);
 				return o;
 			};
 			
