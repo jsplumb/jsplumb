@@ -1373,6 +1373,7 @@
 				p.source = _el;
                 _updateOffset({ elId : id });
 				var e = _newEndpoint(p);
+				if (p.parentAnchor) e.parentAnchor = p.parentAnchor;
 				_addToList(endpointsByElement, id, e);
 				var myOffset = offsets[id], myWH = sizes[id];
 				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e });
@@ -2294,22 +2295,24 @@ between this method and jsPlumb.reset).
 				// when the user presses the mouse, add an Endpoint
 				var mouseDownListener = function(e) {
 					// make sure we have the latest offset for this div 
-					_updateOffset({elId:elid});				
-					// and get it, and the div's size
-					var myOffset = offsets[elid],  myWH = sizes[elid];
+					var myOffsetInfo = _updateOffset({elId:elid});		
+
+					var x = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
+					    y = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height,
+					    parentX = x, 
+					    parentY = y;
+					
+							
 					// if there is a parent, the endpoint will actually be added to it now, rather than the div
 					// that was the source.  in that case, we have to adjust the anchor position so it refers to
 					// the parent.
 					if (p.parent) {
 						var pEl = jsPlumb.CurrentLibrary.getElementObject(p.parent),
 							pId = _getId(pEl);
-						_updateOffset({elId:pId});
-						myOffset = offsets[pId];
-						myWH = sizes[pId];
-					}
-							
-					var x = ((e.pageX || e.page.x) - myOffset.left) / myWH[0], 
-					    y = ((e.pageY || e.page.y) - myOffset.top) / myWH[1];
+						myOffsetInfo = _updateOffset({elId:pId});
+						parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
+					    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height;
+					}											
 					
 					// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
 					// the params passed in, because after a connection is established we're going to reset the endpoint
@@ -2318,6 +2321,7 @@ between this method and jsPlumb.reset).
 					jsPlumb.extend(tempEndpointParams, _sourceEndpointDefinitions[elid]);
 					tempEndpointParams.isSource = true;
 					tempEndpointParams.anchor = [x,y,0,0];
+					tempEndpointParams.parentAnchor = [ parentX, parentY, 0, 0 ];
 					tempEndpointParams.dragOptions = dragOptions;
 					// if a parent was given we need to turn that into a "container" argument.  this is, by default,
 					// the parent of the element we will move to, so parent of p.parent in this case.  however, if
@@ -4515,6 +4519,12 @@ between this method and jsPlumb.reset).
 					    po = adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
 					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
 					
+					// when using makeSource and a parent, we first draw the source anchor on the source element, then
+					// move it to the parent.  note that this happens after drawing the placeholder for the
+					// first time.
+					if (self.parentAnchor) self.anchor = _currentInstance.makeAnchor(self.parentAnchor, self.elementId, _currentInstance);
+
+
 					// store the id of the dragging div and the source element. the drop function will pick these up.					
 					_setAttribute(_getElementObject(self.canvas), "dragId", placeholderInfo.id);
 					_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
