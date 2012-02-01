@@ -86,7 +86,7 @@
 
 						
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
-			jsPlumb.bind("jsPlumbConnection", function(connInfo) { 
+			jsPlumb.bind("jsPlumbConnection", function(connInfo, originalEvent) { 
 				init(connInfo.connection);
 			});
 						
@@ -104,7 +104,7 @@
 			//
 			// listen for clicks on connections, and offer to delete connections on click.
 			//
-			jsPlumb.bind("click", function(conn) {
+			jsPlumb.bind("click", function(conn, originalEvent) {
 				if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
 					jsPlumb.detach(conn); 
 			});
