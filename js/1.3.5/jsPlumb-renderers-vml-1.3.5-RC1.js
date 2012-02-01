@@ -282,6 +282,9 @@
 				vml = self.getVml([0,0, d[2], d[3]], p, anchor);				
 				self.canvas.appendChild(vml);
 				self.attachListeners(vml, self);
+
+				self.appendDisplayElement(vml, true);
+				self.appendDisplayElement(self.canvas, true);
 				
 				self.initOpacityNodes(vml, ["fill"]);			
 			}
