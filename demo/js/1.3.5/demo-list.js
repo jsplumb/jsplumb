@@ -1,6 +1,6 @@
 ;(function() {
 
-	var version = "1.3.4",
+	var version = "1.3.5",
 	entries = [
 		{ id:"demo", name:"jsPlumb Home", about:"Main jsPlumb demo page.  Contains a bit of everything" },
 		{ id:"flowchartConnectorsDemo", name:"Flowchart Connectors", about:"Demonstration of the Flowchart connectors" },
