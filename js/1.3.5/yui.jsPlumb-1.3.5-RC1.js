@@ -89,10 +89,7 @@
 			try {
 				return fn.apply(this, arguments);
 			}
-			catch (e) {
-                alert("YYYYY");
-				//console.log("wrap fail", e);
-			}
+			catch (e) { }
 		};
 	},	
 	/**
@@ -352,7 +349,6 @@
 		},
 
         stopDrag : function() {
-     //       console.log("stop drag!");
             Y.DD.DDM.stopDrag();
         },
 		

@@ -84,9 +84,7 @@
 			self.fire("mousemove", self, e);
 	    };
 	    		    		    
-	    this.click = function(e) {
-	    		// to filter right click in FF, i could compare e.button.  0 means left mouse button; 1 middle, 2 right.
-	    	    //console.log(e.button);
+	    this.click = function(e) {	    		
 	    	if (_mouseover && self._over(e) && !_mouseWasDown) 
 	    		self.fire("click", self, e);		    	
 	    	_mouseWasDown = false;
