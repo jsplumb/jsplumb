@@ -10,6 +10,8 @@
 	Events
     
     - added support for "contextmenu" event bind, on jsPlumb, Connection and Endpoint (issue 166)
+    - jsPlumbConnection event callback now passes in originalEvent as the second parameter.
+    	this does not work in MooTools.  only YUI and jQuery.
 
     Miscellaneous
 
@@ -40,6 +42,7 @@
     - flowchart not symmetric (issue 187)
     - dynamic anchors broken on Endpoint (issue 188)
     - endpoints draggable when they should not be (issue 189)
+    - connection drag offset problem when using tabs (issue 191)
     
 
 * 1.3.4
