@@ -941,7 +941,7 @@
 		/**
 		* adds the connection to the backing model, fires an event if necessary and then redraws
 		*/
-		_finaliseConnection = function(jpc, params) {
+		_finaliseConnection = function(jpc, params, originalEvent) {
             params = params || {};
 			// add to list of connections (by scope).
             if (!jpc.suspendedEndpoint)
@@ -953,7 +953,7 @@
 					source : jpc.source, target : jpc.target,
 					sourceId : jpc.sourceId, targetId : jpc.targetId,
 					sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-				});
+				}, originalEvent);
 			}
             // always inform the anchor manager
             // except that if jpc has a suspended endpoint it's not true to say the
@@ -4681,7 +4681,7 @@ between this method and jsPlumb.reset).
 					var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'],
 					    overEvent = jsPlumb.CurrentLibrary.dragEvents['over'],
 					    outEvent = jsPlumb.CurrentLibrary.dragEvents['out'],
-					drop = function() {
+					drop = function(originalEvent) {
 						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
 						id = _getAttribute(draggable, "dragId"),
 						elId = _getAttribute(draggable, "elId"),						
@@ -4743,7 +4743,7 @@ between this method and jsPlumb.reset).
 
                                 // finalise will inform the anchor manager and also add to
                                 // connectionsByScope if necessary.
-                                _finaliseConnection(jpc);
+                                _finaliseConnection(jpc, null, originalEvent);
 							}
 							else {
                                 // otherwise just put it back on the endpoint it was on before the drag.
