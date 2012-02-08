@@ -144,8 +144,7 @@
     	params = params || {};
     	this.majorAnchor = params.curviness || 150;        
         this.minorAnchor = 10;
-        var currentPoints = null,
-            stub = params.stub || 0;
+        var currentPoints = null;
         this.type = "Bezier";
         
         this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor) {
@@ -187,20 +186,11 @@
             _h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
             _canvasX = Math.min(sourcePos[0], targetPos[0])-(lineWidth/2);
             _canvasY = Math.min(sourcePos[1], targetPos[1])-(lineWidth/2);
-            _sStubX = sourcePos[0] < targetPos[0] ? _w - (lineWidth/2): (lineWidth/2);
-            _sStubY = sourcePos[1] < targetPos[1] ? _h - (lineWidth/2) : (lineWidth/2);
-            _tStubX = sourcePos[0] < targetPos[0] ? (lineWidth/2) : _w - (lineWidth/2);
-            _tStubY = sourcePos[1] < targetPos[1] ? (lineWidth/2) : _h - (lineWidth/2);
-            
-            
-            var soo = sourceAnchor.getOrientation(sourceEndpoint), 
-        		too = targetAnchor.getOrientation(targetEndpoint);            
-            
-            _sx = _sStubX - (soo[0] * stub);
-            _sy = _sStubY - (soo[1] * stub);
-            _tx = _tStubX - (too[0] * stub);
-            _ty = _tStubY - (too[1] * stub);
-            
+            _sx = sourcePos[0] < targetPos[0] ? _w - (lineWidth/2): (lineWidth/2);
+            _sy = sourcePos[1] < targetPos[1] ? _h - (lineWidth/2) : (lineWidth/2);
+            _tx = sourcePos[0] < targetPos[0] ? (lineWidth/2) : _w - (lineWidth/2);
+            _ty = sourcePos[1] < targetPos[1] ? (lineWidth/2) : _h - (lineWidth/2);
+                        
             _CP = self._findControlPoint([_sx,_sy], sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor);
             _CP2 = self._findControlPoint([_tx,_ty], targetPos, sourcePos, sourceEndpoint, targetEndpoint, targetAnchor, sourceAnchor);                
             var minx1 = Math.min(_sx,_tx), minx2 = Math.min(_CP[0], _CP2[0]), minx = Math.min(minx1,minx2),
@@ -209,8 +199,7 @@
             if (maxx > _w) _w = maxx;
             if (minx < 0) {
                 _canvasX += minx; var ox = Math.abs(minx);
-                _w += ox; _CP[0] += ox; _sx += ox; _tx +=ox; _CP2[0] += ox;
-                _sStubX += ox; _tStubX += ox;
+                _w += ox; _CP[0] += ox; _sx += ox; _tx +=ox; _CP2[0] += ox;                
             }                
 
             var miny1 = Math.min(_sy,_ty), miny2 = Math.min(_CP[1], _CP2[1]), miny = Math.min(miny1,miny2),
@@ -219,8 +208,7 @@
             if (maxy > _h) _h = maxy;
             if (miny < 0) {
                 _canvasY += miny; var oy = Math.abs(miny);
-                _h += oy; _CP[1] += oy; _sy += oy; _ty +=oy; _CP2[1] += oy;
-                _sStubY += oy; _tStubY += oy;
+                _h += oy; _CP[1] += oy; _sy += oy; _ty +=oy; _CP2[1] += oy;                
             }
             
             if (minWidth && _w < minWidth) {
@@ -237,8 +225,7 @@
 
             currentPoints = [_canvasX, _canvasY, _w, _h,
                              _sx, _sy, _tx, _ty,
-                             _CP[0], _CP[1], _CP2[0], _CP2[1],
-                             _sStubX, _sStubY, _tStubX, _tStubY ];
+                             _CP[0], _CP[1], _CP2[0], _CP2[1] ];
             
             return currentPoints;            
         };        
@@ -257,20 +244,14 @@
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
         this.pointOnPath = function(location) {
-            if (stub > 0) {
-                // see if its on one of the stubs.
-            }
-        	return jsBezier.pointOnCurve(_makeCurve(), location);
+            return jsBezier.pointOnCurve(_makeCurve(), location);
         };
         
         /**
          * returns the gradient of the connector at the given point.
          */
         this.gradientAtPoint = function(location) {
-            if (stub > 0) {
-                // see if its on one of the stubs; return stub's gradient if so.
-            }
-        	return jsBezier.gradientAtPoint(_makeCurve(), location);        	
+            return jsBezier.gradientAtPoint(_makeCurve(), location);        	
         };	              
         
         /**
@@ -282,10 +263,7 @@
          * calculate the step as a function of distance/distance between endpoints.  
          */
         this.pointAlongPathFrom = function(location, distance) {
-            if (stub > 0) {
-                // see if its on one of the stubs?
-            }
-        	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
+            return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
         };           
     };        
     

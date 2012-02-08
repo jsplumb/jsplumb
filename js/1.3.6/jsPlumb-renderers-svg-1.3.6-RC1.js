@@ -337,20 +337,8 @@
 		jsPlumb.Connectors.Bezier.apply(this, arguments);
 		SvgConnector.apply(this, arguments);	
 		this.getPath = function(d) {
-			var _p = "";
-			// stub, maybe.
-			if (d[12] == d[4] && d[13] == d[5])
-				_p += "M " + d[4] + " " + d[5];			
-			else {
-				//console.log("drawing stub");
-				_p += "M " + d[12] + " " + d[13] + " L " + d[4] + " " + d[5];										
-			}
-			_p += (" C " + d[8] + " " + d[9] + " " + d[10] + " " + d[11] + " " + d[6] + " " + d[7]);
-			if (d[14] != d[6] && d[15] != d[7]) {
-				console.log("drawing STUV");
-				_p += " L " + d[14] + " " + d[15];
-			}
-				
+			var _p = "M " + d[4] + " " + d[5];						
+			_p += (" C " + d[8] + " " + d[9] + " " + d[10] + " " + d[11] + " " + d[6] + " " + d[7]);			
 			return _p;
 		};
 	};
