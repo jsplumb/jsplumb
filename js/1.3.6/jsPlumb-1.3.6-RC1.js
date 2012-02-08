@@ -2298,6 +2298,11 @@ between this method and jsPlumb.reset).
 								ep.endpointWillMoveAfterConnection = false;
 								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);
 								ep.connections[0].previousConnection = null;
+								_currentInstance.anchorManager.connectionDetached({
+									sourceId:ep.connections[0].sourceId,
+									targetId:ep.connections[0].targetId,
+									connection:ep.connections[0]
+								});
 								_finaliseConnection(ep.connections[0]);
 							}
 						}										
@@ -3291,12 +3296,16 @@ between this method and jsPlumb.reset).
                     oKey = sourceId + "_" + targetId,
                     oKey2 = targetId + "_" + sourceId,
                     o = orientationCache[oKey],
-					td = _getCachedData(targetId),
-					sd = _getCachedData(sourceId),
                     oIdx = conn.sourceId == elementId ? 1 : 0;
 
                 if (!anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
                 if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
+
+                if (elementId != targetId) _updateOffset( { elId : targetId, timestamp : timestamp }); 
+                if (elementId != sourceId) _updateOffset( { elId : sourceId, timestamp : timestamp }); 
+
+                var td = _getCachedData(targetId),
+					sd = _getCachedData(sourceId);
 
                 if (targetId == sourceId) {
                     // here we may want to improve this by somehow determining the face we'd like
