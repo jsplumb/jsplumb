@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.5
+ * Title:jsPlumb 1.3.6
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -1567,6 +1567,18 @@ between this method and jsPlumb.reset).
 			if (doFireEvent) _currentInstance.fire("jsPlumbConnectionDetached", params);
             _currentInstance.anchorManager.connectionDetached(params);
 		};
+
+		/**
+			fires an event to indicate an existing connection is being dragged.
+		*/
+		var fireConnectionDraggingEvent = function(jpc) {
+			_currentInstance.fire("connectionDrag", jpc);	
+		};
+
+		var fireConnectionDragStopEvent = function(jpc) {
+			_currentInstance.fire("connectionDragStop", jpc);
+		}
+
 
 		/*
 		  Function: detach 
@@ -4473,10 +4485,7 @@ between this method and jsPlumb.reset).
 			// is this a connection source? we make it draggable and have the
 			// drag listener maintain a connection with a floating endpoint.
 			if (jsPlumb.CurrentLibrary.isDragSupported(_element)) {
-				var placeholderInfo = {
-						id:null,
-						element:null
-				    },
+				var placeholderInfo = { id:null, element:null },
                     jpc = null,
                     existingJpc = false,
                     existingJpcParams = null,
@@ -4491,8 +4500,7 @@ between this method and jsPlumb.reset).
 					if (jpc == null && !params.isSource) _continue = false;
                     // otherwise if we're full and not allowed to drag, also return false.
                     if (params.isSource && self.isFull() && !dragAllowedWhenFull) _continue = false;
-
-                    // if the connection was setup as not detachable (or one of its endpoints
+                    // if the connection was setup as not detachable or one of its endpoints
                     // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
                     // is set to false...
                     if (jpc != null && !jpc.isDetachable()) _continue = false;
@@ -4556,12 +4564,9 @@ between this method and jsPlumb.reset).
 					} else {
 						existingJpc = true;
 						jpc.connector.setHover(false, false);
-                       // jpc.endpoints[0].setHover(false, false);
-                        //jpc.endpoints[1].setHover(false, false);
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas), false, true);
-						//var anchorIdx = jpc.sourceId == _elementId ? 0 : 1;  	// are we the source or the target?
-                        // new anchor idx
+						// new anchor idx
 						var anchorIdx = jpc.endpoints[0].id == self.id ? 0 : 1;
 						jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
 						self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
@@ -4592,6 +4597,10 @@ between this method and jsPlumb.reset).
 						jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
                         jpc.suspendedEndpoint.setHover(false);
 						jpc.endpoints[anchorIdx] = floatingEndpoint;
+
+						// fire an event that informs that a connection is being dragged
+						fireConnectionDraggingEvent(jpc);
+
 					}
 					// register it and register connection on it.
 					floatingConnections[placeholderInfo.id] = jpc;
@@ -4659,12 +4668,17 @@ between this method and jsPlumb.reset).
 						self.anchor.locked = false;												
 						self.paint({recalc:false});
 						jpc.setHover(false, false);
+
+						fireConnectionDragStopEvent(jpc);
+
 						jpc = null;						
 						inPlaceCopy = null;							
 						delete endpointsByElement[floatingEndpoint.elementId];
 						floatingEndpoint.anchor = null;
                         floatingEndpoint = null;
 						_currentInstance.currentlyDragging = false;
+
+
 					});
 				
 				var i = _getElementObject(self.canvas);				

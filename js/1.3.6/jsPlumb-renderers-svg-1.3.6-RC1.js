@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.5
+ * Title:jsPlumb 1.3.6
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -336,7 +336,23 @@
 	jsPlumb.Connectors.svg.Bezier = function(params) {	
 		jsPlumb.Connectors.Bezier.apply(this, arguments);
 		SvgConnector.apply(this, arguments);	
-		this.getPath = function(d) { return "M " + d[4] + " " + d[5] + " C " + d[8] + " " + d[9] + " " + d[10] + " " + d[11] + " " + d[6] + " " + d[7]; };	    	    
+		this.getPath = function(d) {
+			var _p = "";
+			// stub, maybe.
+			if (d[12] == d[4] && d[13] == d[5])
+				_p += "M " + d[4] + " " + d[5];			
+			else {
+				//console.log("drawing stub");
+				_p += "M " + d[12] + " " + d[13] + " L " + d[4] + " " + d[5];										
+			}
+			_p += (" C " + d[8] + " " + d[9] + " " + d[10] + " " + d[11] + " " + d[6] + " " + d[7]);
+			if (d[14] != d[6] && d[15] != d[7]) {
+				console.log("drawing STUV");
+				_p += " L " + d[14] + " " + d[15];
+			}
+				
+			return _p;
+		};
 	};
 	
 	/*
