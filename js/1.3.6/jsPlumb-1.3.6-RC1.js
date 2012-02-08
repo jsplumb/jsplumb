@@ -3570,6 +3570,7 @@ between this method and jsPlumb.reset).
 						uuid : u, 
 						anchor : a, 
 						source : element,
+						scope  : params.scope,
 						container:params.container,
 						reattach:params.reattach,
                         detachable:params.detachable
