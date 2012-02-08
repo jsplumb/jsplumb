@@ -26,9 +26,8 @@
 			//
 			var connection1 = jsPlumb.connect({
 				source:"window1", 
-			   	target:"window2", 
-			   	connector:[ "Bezier", { stub:20 } ],
-				//connector:"Bezier",
+			   	target:"window2", 			   	
+				connector:"Bezier",
 			   	cssClass:"c1",
 			   	endpoint:"Blank",
 			   	endpointClass:"c1Endpoint",													   
