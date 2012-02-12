@@ -62,7 +62,7 @@
 		var n = document.createElementNS(ns.svg, name);
 		attributes = attributes || {};
 		attributes["version"] = "1.1";
-		attributes["xmnls"] = ns.xhtml;
+		attributes["xmlns"] = ns.xhtml;
 		_attr(n, attributes);
 		return n;
 	},
