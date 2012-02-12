@@ -599,20 +599,16 @@
         	obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
 			obj.bind("dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
 	        obj.bind("contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
-			// this method is different; endpoint delegates hover to the first connection if there is one.
-	        // that allows the connection to notify all its endpoint and avoids a circular loop
-	        obj.bind("mouseenter", function(ep, e) {
+			obj.bind("mouseenter", function(ep, e) {
 				if (!_self.isHover()) {
 	                _hoverFunction(true);
 					_self.fire("mouseenter", _self, e);
 				}
 			});
-	        // this method is different; endpoint delegates hover to the first connection if there is one.
-	        // that allows the connection to notify all its endpoint and avoids a circular loop
 			obj.bind("mouseexit", function(ep, e) {
 				if (_self.isHover()) {
 	                _hoverFunction(false);
-					_self.fire("mouseexit", self, e);
+					_self.fire("mouseexit", _self, e);
 				}
 			});	
         };	
