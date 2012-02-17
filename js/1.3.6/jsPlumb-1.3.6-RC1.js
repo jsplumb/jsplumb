@@ -4049,7 +4049,7 @@ between this method and jsPlumb.reset).
 				_connectionCost = c; 
 			};
 			
-			var _connectionsBidirectional = params.connectionsBidirectional === true;
+			var _connectionsBidirectional = params.connectionsBidirectional === false ? false : true;
 			this.areConnectionsBidirectional = function() { return _connectionsBidirectional; };
 			this.setConnectionsBidirectional = function(b) { _connectionsBidirectional = b; };
 			
