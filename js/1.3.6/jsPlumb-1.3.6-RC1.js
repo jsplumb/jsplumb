@@ -3486,7 +3486,7 @@ between this method and jsPlumb.reset).
 			self.getCost = function() { return _cost; };
 			self.setCost = function(c) { _cost = c; };
 			
-			var _bidirectional = params.bidirectional === true;
+			var _bidirectional = params.bidirectional === false ? false : true;
 			self.isBidirectional = function() { return _bidirectional; };
 			
 			/*
