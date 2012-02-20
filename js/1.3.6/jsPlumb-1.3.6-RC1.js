@@ -680,18 +680,18 @@
 		};
 		if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 		
-		this.logEnabled = this.Defaults.LogEnabled;
+		this.logEnabled = this.Defaults.LogEnabled;		
 
 		EventGenerator.apply(this);
-		var _bb = this.bind;
-		this.bind = function(event, fn) {
-			if ("ready" === event && initialized) fn();
-			else _bb(event, fn);
-		};
 		var _currentInstance = this,
 			_instanceIndex = getInstanceIndex(),
+			_bb = _currentInstance.bind;
+		this.bind = function(event, fn) {		
+			if ("ready" === event && initialized) fn();
+			else _bb.apply(_currentInstance,[event, fn]);
+		};
 
-		log = null,
+		var log = null,
 		repaintFunction = function() {
 			jsPlumb.repaintEverything();
 		},
