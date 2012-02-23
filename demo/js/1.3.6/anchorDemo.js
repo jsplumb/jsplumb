@@ -2,19 +2,7 @@
 	
 	window.jsPlumbDemo = {
 			
-		init : function() {
-
-			jsPlumb.Defaults.DragOptions = { cursor: "pointer", zIndex:2000 };
-			// default to blue at source and green at target
-			jsPlumb.Defaults.EndpointStyles = [{ fillStyle:"#225588" }, { fillStyle:"#558822" }];
-			// blue endpoints 7 px; green endpoints 11.
-			jsPlumb.Defaults.Endpoints = [ ["Dot", { radius:7 } ], [ "Dot", { radius:11 } ] ];
-			// default to a gradient stroke from blue to green.  for IE provide all green fallback.
-			jsPlumb.Defaults.PaintStyle = {
-                gradient:{ stops:[ [ 0, "#225588" ], [ 1, "#558822" ] ] },
-                strokeStyle:"#558822",
-                lineWidth:10
-            };
+		init : function() {			
 
 			// list of possible anchor locations for the blue source element
 			var sourceAnchors = [
@@ -26,15 +14,24 @@
 			];
 
             // set default anchors.  the 'connect' calls below will pick these up, and in fact setting these means
-            // that you do not need to supply anchor definitions to the makeSource or makeTarget functions. but
-            // i left those parameters in just to show what you can do.
+            // that you also do not need to supply anchor definitions to the makeSource or makeTarget functions. 
             jsPlumb.Defaults.Anchors = [ sourceAnchors, "TopCenter" ];
+            // drag options
+            jsPlumb.Defaults.DragOptions = { cursor: "pointer", zIndex:2000 };
+			// default to blue at source and green at target
+			jsPlumb.Defaults.EndpointStyles = [{ fillStyle:"#225588" }, { fillStyle:"#558822" }];
+			// blue endpoints 7 px; green endpoints 11.
+			jsPlumb.Defaults.Endpoints = [ ["Dot", { radius:7 } ], [ "Dot", { radius:11 } ] ];
+			// default to a gradient stroke from blue to green.  for IE provide all green fallback.
+			jsPlumb.Defaults.PaintStyle = {
+                gradient:{ stops:[ [ 0, "#225588" ], [ 1, "#558822" ] ] },
+                strokeStyle:"#558822",
+                lineWidth:10
+            };
 
             // make 'window1' a connection source.
 			jsPlumb.makeSource("window1", {
-				endpoint:{
-					anchor:sourceAnchors
-				}
+				//anchor:sourceAnchors		// you could supply this if you want, but it was set in the defaults above.							
 			});
 
             // get the list of ".smallWindow" elements.  getSelector is just a helper method that abstracts out the underlying
@@ -45,10 +42,8 @@
 			for (var i = 0; i < smallWindows.length; i++) {	
 				jsPlumb.draggable(smallWindows[i]);
 				jsPlumb.makeTarget(smallWindows[i], {
-					endpoint:{
-						paintStyle: { fillStyle:'#558822' },
-						anchor:"TopCenter"
-					},
+					paintStyle: { fillStyle:'red' },
+					//anchor:"TopCenter",				// you could supply this if you want, but it was set in the defaults above.					
 					dropOptions:{ hoverClass:"hover" }
 				});
 			}
