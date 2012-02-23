@@ -1,6 +1,47 @@
+* 1.3.6
+
+	BACKWARDS COMPATIBILITY
+
+
+	- makeSource and makeTarget calls are now honoured by subsquent calls to jsPlumb.connect.  So if you call makeTarget on some element, providing an endpoint spec, and then later on call jsPlumb.connect with that element as the target, jsPlumb will use the endpoint spec you provided to makeTarget.  The thinking behind this is that typically you will want to setup some target for interactive connections, but then possibly load some initial state for the UI. Prior to this change you would have to provide the same information twice.  The same principle applies to makeSource.  note that with the "parent" parameter on makeSource, it is the parent against which the endpoint spec is stored. For example:
+
+	  jsPlumb.makeSource("someElement", {
+	  	paintStyle:"red",
+	  	anchor:"TopMiddle",
+	  	parent:"someOtherElement"
+	  });
+
+	  followed by:
+
+	  jsPlumb.connect({source:"someElement", target:"yetAnotherElement"});
+
+	  will _fail_. This is because the source endpoint was registered against "someOtherElement", which is the one it will appear on when the user creates a new connection with drag and drop.  So this will work:
+
+	  jsPlumb.connect({source:"someOtherElement", target:"yetAnotherElement"});
+
+
+	  If, for some reason, you want jsPlumb.connect to ignore previous makeSource/makeTarget calls, you can supply a 'newConnection' parameter:
+
+		jsPlumb.connect({source:"someOtherElement", target:"yetAnotherElement", newConnection:true});	  
+
+
+	One last parameter that is now supported is 'uniqueEndpoint' - this instructs makeSource and makeTarget to only ever create one associated endpoint.  Remember if you do this and you expect the endpoint to be reused, you need to ensure you set maxConnections appropriately:
+
+	jsPlumb.makeSource("someElement", {
+	  	paintStyle:"red",
+	  	anchor:"TopMiddle",
+	  	parent:"someOtherElement",
+	  	uniqueEndpoint:true
+	  });
+
+
+	- the second argument to makeSource and makeTarget no longer requires the nested 'endpoint' parameter - they take the exact same object that you would pass to the second argument to addEndpoint.  Of course that object can itself have an 'endpoint' parameter, which is used to specify the type of endpoint (Dot, Rectangle etc) - and that was kind of confusing, and yet another reason to unify the API a little.
+
+
+
 * 1.3.5
 
-	BACKWARDS COMPAT
+	BACKWARDS COMPATIBILITY
 
 	- removed 'dynamicAnchors' parameter from connect/addEndpoint calls.  using an array as the anchor
 	arg (or one of the values in the 'anchors' parameter on connect) is sufficient to indicate you want
