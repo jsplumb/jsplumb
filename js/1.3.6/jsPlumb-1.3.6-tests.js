@@ -41,14 +41,11 @@ var _addDiv = function(id, parent) {
 	return d1;
 };
 
-var _cleanup = function(_jsPlumb) {	
+var defaults = null,
+	_cleanup = function(_jsPlumb) {	
 	
 	_jsPlumb.reset();
-	_jsPlumb.Defaults.Container = null;
-    _jsPlumb.Defaults.ConnectionsDetachable = true;
-    _jsPlumb.Defaults.Overlays = null;
-    _jsPlumb.Defaults.ConnectionOverlays = null;
-    _jsPlumb.Defaults.EndpointOverlays = null;
+	_jsPlumb.Defaults = defaults;
 	
 	for (var i in _divs) {
 		$("#" + _divs[i]).remove();		
@@ -61,7 +58,14 @@ var _cleanup = function(_jsPlumb) {
 var testSuite = function(renderMode, _jsPlumb) {
 	
 
-	module("jsPlumb", {teardown: function() { _cleanup(_jsPlumb); } });
+	module("jsPlumb", {
+		teardown: function() { 
+			_cleanup(_jsPlumb); 
+		},
+		setup:function() {
+			defaults = jsPlumb.extend({}, _jsPlumb.Defaults);
+		}
+	});
 	
 	// setup the container
 	var container = document.createElement("div");
@@ -3008,6 +3012,56 @@ var testSuite = function(renderMode, _jsPlumb) {
     	var idx3 = id2.indexOf("_"), idx4 = id2.lastIndexOf("_"), v2 = id2.substring(idx3, idx4);
 
     	ok (v1 == v2, "instance versions are the same : " + v1 + " : " + v2);
+    });
+
+    test(renderMode + " importDefaults", function() {
+    	_jsPlumb.Defaults.Anchors = ["LeftMiddle", "RightMiddle"];
+    	var d1 = _addDiv("d1"), 
+    		d2 = _addDiv(d2), 
+    		c = jsPlumb.connect({source:d1, target:d2}),
+    		e = c.endpoints[0];
+
+    	equals(e.anchor.x, 0, "left middle anchor");
+    	equals(e.anchor.y, 0.5, "left middle anchor");
+
+    	_jsPlumb.importDefaults({
+    		Anchors:["TopLeft", "TopRight"]
+    	});
+
+    	var conn = jsPlumb.connect({source:d1, target:d2}),
+    		e1 = conn.endpoints[0], e2 = conn.endpoints[1];
+    	
+    	equals(e1.anchor.x, 0, "top leftanchor");
+    	equals(e2.anchor.y, 0, "top left anchor");
+    	equals(e2.anchor.x, 1, "top right anchor");
+    	equals(e2.anchor.y, 0, "top right anchor");
+
+    });
+
+    test(renderMode + " restoreDefaults", function() {
+    	_jsPlumb.importDefaults({
+    		Anchors:["TopLeft", "TopRight"]
+    	});
+
+    	var conn = jsPlumb.connect({source:d1, target:d2}),
+    		e1 = conn.endpoints[0], e2 = conn.endpoints[1];
+    	
+    	equals(e1.anchor.x, 0, "top leftanchor");
+    	equals(e2.anchor.y, 0, "top left anchor");
+    	equals(e2.anchor.x, 1, "top right anchor");
+    	equals(e2.anchor.y, 0, "top right anchor");
+
+    	_jsPlumb.restoreDefaults();
+    	
+    	var conn2 = jsPlumb.connect({source:d1, target:d2}),
+    		e3 = conn2.endpoints[0], e4 = conn2.endpoints[1];
+    	
+    	equals(e3.anchor.x, 0.5, "bottom center anchor");
+    	equals(e3.anchor.y, 1, "bottom center anchor");
+    	equals(e4.anchor.x, 0.5, "bottom center anchor");
+    	equals(e5.anchor.y, 1, "bottom center anchor");
+    	
+
     });
     
 

@@ -37,7 +37,12 @@
 
 	- the second argument to makeSource and makeTarget no longer requires the nested 'endpoint' parameter - they take the exact same object that you would pass to the second argument to addEndpoint.  Of course that object can itself have an 'endpoint' parameter, which is used to specify the type of endpoint (Dot, Rectangle etc) - and that was kind of confusing, and yet another reason to unify the API a little.
 
+	- added importDefaults and restoreDefaults methods.
 
+
+	Issues
+
+	204 - add importDefaults method
 
 * 1.3.5
 

@@ -685,10 +685,30 @@
 		EventGenerator.apply(this);
 		var _currentInstance = this,
 			_instanceIndex = getInstanceIndex(),
-			_bb = _currentInstance.bind;
+			_bb = _currentInstance.bind,
+			_initialDefaults = jsPlumb.extend({}, this.Defaults);
+
 		this.bind = function(event, fn) {		
 			if ("ready" === event && initialized) fn();
 			else _bb.apply(_currentInstance,[event, fn]);
+		};
+
+		/*
+			Function: importDefaults
+			Imports all the given defaults into this instance of jsPlumb.
+		*/
+		_currentInstance.importDefaults = function(d) {
+			for (var i in d) {
+				_currentInstance.Defaults[i] = d[i];
+			}	
+		};
+
+		/*
+			Function:restoreDefaults
+			Restores the default settings to "factory" values.
+		*/
+		_currentInstance.restoreDefaults = function() {
+			_currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
 		};
 
 		var log = null,
