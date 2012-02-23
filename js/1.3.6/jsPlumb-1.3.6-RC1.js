@@ -2101,6 +2101,11 @@ between this method and jsPlumb.reset).
                       	jsPlumb.Defaults.Anchors[epIndex] ||
                       	jsPlumb.Defaults.Anchor;                           
 				
+			ep.endpoint = ep.endpoint ||
+						  _currentInstance.Defaults.Endpoints[epIndex] ||
+						  _currentInstance.Defaults.Endpoint ||
+						  jsPlumb.Defaults.Endpoints[epIndex] ||
+						  jsPlumb.Defaults.Endpoint;
 		};
 		this.makeTarget = function(el, params, referenceParams) {						
 			
