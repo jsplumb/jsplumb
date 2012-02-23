@@ -686,7 +686,10 @@
 		var _currentInstance = this,
 			_instanceIndex = getInstanceIndex(),
 			_bb = _currentInstance.bind,
-			_initialDefaults = jsPlumb.extend({}, this.Defaults);
+			_initialDefaults = {};
+
+		for (var i in this.Defaults)
+			_initialDefaults[i] = this.Defaults[i];
 
 		this.bind = function(event, fn) {		
 			if ("ready" === event && initialized) fn();
@@ -2106,7 +2109,7 @@ between this method and jsPlumb.reset).
 			_setEndpointPaintStylesAndAnchor(p, 1);                                                    
 			var jpcl = jsPlumb.CurrentLibrary,
 			    targetScope = p.scope || _currentInstance.Defaults.Scope,
-			    deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || true,
+			    deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
 			_doOne = function(_el) {
 				
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -2124,13 +2127,7 @@ between this method and jsPlumb.reset).
 						scope = _getAttribute(draggable, "originalScope"),
 						jpc = floatingConnections[id],
 						source = jpc.endpoints[0],
-						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};
-
-                    // use defaults for endpoint style, if not present..this either uses EndpointStyle, or EndpointStyles[1],
-                    // if it is present, since this is a target endpoint.
-                    // TODO - this should be a helper method.  makeTarget should use it too.  give it an endpoint
-                    //_setEndpointPaintStylesAndAnchor(_endpoint, 1);                                                    
-                   // _setEndpointPaintStylesAndAnchor(_endpoint, 1);                                                    
+						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};                                              
 
 					// unlock the source anchor to allow it to refresh its position if necessary
 					source.anchor.locked = false;					
@@ -2194,6 +2191,7 @@ between this method and jsPlumb.reset).
 							scope:scope,
 							previousConnection:jpc,
 							container:jpc.parent,
+							deleteEndpointsOnDetach:deleteEndpointsOnDetach,
 							// 'endpointWillMoveAfterConnection' is set by the makeSource function, and it indicates that the
 							// given endpoint will actually transfer from the element it is currently attached to to some other
 							// element after a connection has been established.  in that case, we do not want to fire the
@@ -2290,11 +2288,7 @@ between this method and jsPlumb.reset).
 				var elid = _getId(_el),
 					parent = p.parent,
 					idToRegisterAgainst = parent != null ? _currentInstance.getId(jpcl.getElementObject(parent)) : elid;
-
 				
-				//_sourceEndpointDefinitions[elid] = p.endpoint || {};
-				//_sourceEndpointDefinitions[elid] = p;
-				//_sourceEndpointsUnique[elid] = p.uniqueEndpoint;
 				_sourceEndpointDefinitions[idToRegisterAgainst] = p;
 				_sourceEndpointsUnique[idToRegisterAgainst] = p.uniqueEndpoint;
 
@@ -2308,13 +2302,6 @@ between this method and jsPlumb.reset).
 
 				// set scope if its not set in dragOptions but was passed in in params
 				dragOptions["scope"] = dragOptions["scope"] || p.scope;
-
-				// make sure this method honours whatever defaults have been set for Endpoint.				
-			//	_sourceEndpointDefinitions[elid].endpoint = _sourceEndpointDefinitions[elid].endpoint || _currentInstance.Defaults.Endpoints[0] || _currentInstance.Defaults.Endpoint;
-
-                // set endpoint paint styles and anchor, using either styles that are set or defaults.
-              //  _setEndpointPaintStylesAndAnchor(_sourceEndpointDefinitions[elid], 0);
-                
 
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {
 					if (existingDrag) existingDrag.apply(this, arguments);

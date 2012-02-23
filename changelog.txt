@@ -43,6 +43,7 @@
 	Issues
 
 	204 - add importDefaults method
+	195 - deleteEndpointsOnDetach ignored by makeTarget method
 
 * 1.3.5
 

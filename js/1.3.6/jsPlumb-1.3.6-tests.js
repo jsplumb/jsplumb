@@ -3043,7 +3043,7 @@ var testSuite = function(renderMode, _jsPlumb) {
     		Anchors:["TopLeft", "TopRight"]
     	});
 
-    	var conn = jsPlumb.connect({source:d1, target:d2}),
+    	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), conn = jsPlumb.connect({source:d1, target:d2}),
     		e1 = conn.endpoints[0], e2 = conn.endpoints[1];
     	
     	equals(e1.anchor.x, 0, "top leftanchor");
@@ -3059,7 +3059,7 @@ var testSuite = function(renderMode, _jsPlumb) {
     	equals(e3.anchor.x, 0.5, "bottom center anchor");
     	equals(e3.anchor.y, 1, "bottom center anchor");
     	equals(e4.anchor.x, 0.5, "bottom center anchor");
-    	equals(e5.anchor.y, 1, "bottom center anchor");
+    	equals(e4.anchor.y, 1, "bottom center anchor");
     	
 
     });
