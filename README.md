@@ -7,6 +7,8 @@ The project started out life on Google Code and has been hosted there for the la
 this because I didn't want to lose the project history (issues etc), and I know some people checkout the 
 source from Google Code.
 
+__All issues should be reported on Google Code until I can import everything from there at once__
+
 For users upgrading from earlier versions to 1.3.x - there are a few minor backwards incompatibilities. Please see the changelog
 
 if you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc/usage.html). 
