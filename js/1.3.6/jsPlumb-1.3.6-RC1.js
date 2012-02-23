@@ -851,6 +851,7 @@
 			var _p = jsPlumb.extend( {}, params);
 			if (referenceParams) jsPlumb.extend(_p, referenceParams);
 			
+			// hotwire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
 			if (_p.source && _p.source.endpoint) _p.sourceEndpoint = _p.source;
 			if (_p.source && _p.target.endpoint) _p.targetEndpoint = _p.target;
 			
@@ -861,11 +862,13 @@
 			}
 
 			// now ensure that if we do have Endpoints already, they're not full.
+			// source:
 			if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
 				_log(_currentInstance, "could not add connection; source endpoint is full");
 				return;
 			}
 
+			// target:
 			if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
 				_log(_currentInstance, "could not add connection; target endpoint is full");
 				return;
@@ -885,10 +888,20 @@
 			if (!_p.tooltip && _p.sourceEndpoint && _p.sourceEndpoint.connectorTooltip)
 				_p.tooltip = _p.sourceEndpoint.connectorTooltip;
 			
-			if (_p.target && !_p.target.endpoint) {
+			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {
 				var tid = _getId(_p.target),
-				tep =_targetEndpointDefinitions[tid];
+					tep =_targetEndpointDefinitions[tid],
+					existingUniqueEndpoint = _targetEndpoints[tid];
 
+				if (tep) {
+				
+					var newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
+					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
+					 _p.targetEndpoint = newEndpoint;
+				}
+			
+
+				/*
 				var overrideOne = function(singlePropertyName, pluralPropertyName, tepProperty, tep) {
 					if (tep[tepProperty]) {
 						if (_p[pluralPropertyName]) _p[pluralPropertyName][1] = tep[tepProperty];
@@ -904,7 +917,7 @@
 					overrideOne("endpoint", "endpoints", "endpoint", tep);
 					overrideOne("endpointStyle", "endpointStyles", "paintStyle", tep);
 					overrideOne("endpointHoverStyle", "endpointHoverStyles", "hoverPaintStyle", tep);
-				}
+				}*/
 			}
 			
 			return _p;
@@ -2044,7 +2057,9 @@ between this method and jsPlumb.reset).
 		 *                   	
 		 * 
 		 */
-		var _targetEndpointDefinitions = {};
+		var _targetEndpointDefinitions = {},
+			_targetEndpoints = {},
+			_targetEndpointsUnique = {};
 		var _setEndpointPaintStylesAndAnchor = function(ep, epIndex) {
 			ep.paintStyle = ep.paintStyle ||
 			 				_currentInstance.Defaults.EndpointStyles[epIndex] ||
@@ -2068,6 +2083,7 @@ between this method and jsPlumb.reset).
 			
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
+			_setEndpointPaintStylesAndAnchor(p, 1);                                                    
 			var jpcl = jsPlumb.CurrentLibrary,
 			    targetScope = p.scope || _currentInstance.Defaults.Scope,
 			    deleteEndpointsOnDetach = p.deleteEndpointsOnDetach || true,
@@ -2076,7 +2092,8 @@ between this method and jsPlumb.reset).
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
 				var elid = _getId(_el);
-				_targetEndpointDefinitions[elid] = p.endpoint;
+				_targetEndpointDefinitions[elid] = p;
+				_targetEndpointsUnique[elid] = p.uniqueEndpoint;
 				
 				var dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
 				_drop = function() {
@@ -2092,7 +2109,8 @@ between this method and jsPlumb.reset).
                     // use defaults for endpoint style, if not present..this either uses EndpointStyle, or EndpointStyles[1],
                     // if it is present, since this is a target endpoint.
                     // TODO - this should be a helper method.  makeTarget should use it too.  give it an endpoint
-                    _setEndpointPaintStylesAndAnchor(_endpoint, 1);                                                    
+                    //_setEndpointPaintStylesAndAnchor(_endpoint, 1);                                                    
+                   // _setEndpointPaintStylesAndAnchor(_endpoint, 1);                                                    
 
 					// unlock the source anchor to allow it to refresh its position if necessary
 					source.anchor.locked = false;					
@@ -2130,7 +2148,10 @@ between this method and jsPlumb.reset).
 						source.detach(jpc, false, true, true);//source.endpointWillMoveAfterConnection);
 				
 						// make a new Endpoint for the target
-						var newEndpoint = _currentInstance.addEndpoint(_el, _endpoint);
+						//var newEndpoint = _currentInstance.addEndpoint(_el, _endpoint);
+						
+						var newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
+						if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
 																
 						// if the anchor has a 'positionFinder' set, then delegate to that function to find
 						// out where to locate the anchor.
@@ -2234,16 +2255,23 @@ between this method and jsPlumb.reset).
 		 *                   	
 		 * 
 		 */
-		var _sourceEndpointDefinitions = {};
+			var _sourceEndpointDefinitions = {},
+			_sourceEndpoints = {},
+			_sourceEndpointsUnique = {};
+
 		this.makeSource = function(el, params, referenceParams) {
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
+			_setEndpointPaintStylesAndAnchor(p, 0);   
 			var jpcl = jsPlumb.CurrentLibrary,						
 			_doOne = function(_el) {
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
 				var elid = _getId(_el);
 				_sourceEndpointDefinitions[elid] = p.endpoint || {};
+				//_sourceEndpointDefinitions[elid] = p;
+				//_sourceEndpointsUnique[elid] = p.uniqueEndpoint;
+
 				var stopEvent = jpcl.dragEvents["stop"],
 					dragEvent = jpcl.dragEvents["drag"],
 					dragOptions = jsPlumb.extend({ }, p.dragOptions || _sourceEndpointDefinitions[elid].dragOptions || {}),
@@ -2509,6 +2537,8 @@ between this method and jsPlumb.reset).
 		this.reset = function() {
 			_currentInstance.deleteEveryEndpoint();
 			_currentInstance.clearListeners();
+			_targetEndpointDefinitions = {};
+			_targetEndpoints = {};
             _unbindRegisteredListeners();
             _currentInstance.anchorManager.reset();
 		};
