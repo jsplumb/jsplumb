@@ -888,6 +888,11 @@
 			if (!_p.tooltip && _p.sourceEndpoint && _p.sourceEndpoint.connectorTooltip)
 				_p.tooltip = _p.sourceEndpoint.connectorTooltip;
 			
+			// if there's a target specified (which of course there should be), and there is no
+			// target endpoint specified, and 'newConnection' was not set to true, then we check to
+			// see if a prior call to makeTarget has provided us with the specs for the target endpoint, and
+			// we use those if so.  additionally, if the makeTarget call was specified with 'uniqueEndpoint' set
+			// to true, then if that target endpoint has already been created, we re-use it.
 			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {
 				var tid = _getId(_p.target),
 					tep =_targetEndpointDefinitions[tid],
@@ -899,25 +904,20 @@
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
 				}
-			
+			}
 
-				/*
-				var overrideOne = function(singlePropertyName, pluralPropertyName, tepProperty, tep) {
-					if (tep[tepProperty]) {
-						if (_p[pluralPropertyName]) _p[pluralPropertyName][1] = tep[tepProperty];
-						else if (_p[singlePropertyName]) {
-							_p[pluralPropertyName] = [ _p[singlePropertyName], tep[tepProperty] ];
-							_p[singlePropertyName] = null;
-						}
-						else _p[pluralPropertyName] = [ null, tep[tepProperty] ];
-					}
-				};
+			// same thing, but for source.
+			if (_p.source && !_p.source.endpoint && !_p.sourceEndpoint && !_p.newConnection) {
+				var tid = _getId(_p.source),
+					tep = _sourceEndpointDefinitions[tid],
+					existingUniqueEndpoint = _sourceEndpoints[tid];
 
 				if (tep) {
-					overrideOne("endpoint", "endpoints", "endpoint", tep);
-					overrideOne("endpointStyle", "endpointStyles", "paintStyle", tep);
-					overrideOne("endpointHoverStyle", "endpointHoverStyles", "hoverPaintStyle", tep);
-				}*/
+				
+					var newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.source, tep);
+					if (_sourceEndpointsUnique[tid]) _sourceEndpoints[tid] = newEndpoint;
+					 _p.sourceEndpoint = newEndpoint;
+				}
 			}
 			
 			return _p;
@@ -2267,14 +2267,20 @@ between this method and jsPlumb.reset).
 			_doOne = function(_el) {
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
-				var elid = _getId(_el);
-				_sourceEndpointDefinitions[elid] = p.endpoint || {};
+				var elid = _getId(_el),
+					parent = p.parent,
+					idToRegisterAgainst = parent != null ? _currentInstance.getId(jpcl.getElementObject(parent)) : elid;
+
+				
+				//_sourceEndpointDefinitions[elid] = p.endpoint || {};
 				//_sourceEndpointDefinitions[elid] = p;
 				//_sourceEndpointsUnique[elid] = p.uniqueEndpoint;
+				_sourceEndpointDefinitions[idToRegisterAgainst] = p;
+				_sourceEndpointsUnique[idToRegisterAgainst] = p.uniqueEndpoint;
 
 				var stopEvent = jpcl.dragEvents["stop"],
 					dragEvent = jpcl.dragEvents["drag"],
-					dragOptions = jsPlumb.extend({ }, p.dragOptions || _sourceEndpointDefinitions[elid].dragOptions || {}),
+					dragOptions = jsPlumb.extend({ }, p.dragOptions || {}),
 					existingDrag = dragOptions.drag,
 					existingStop = dragOptions.stop,
 					ep = null,
@@ -2284,10 +2290,10 @@ between this method and jsPlumb.reset).
 				dragOptions["scope"] = dragOptions["scope"] || p.scope;
 
 				// make sure this method honours whatever defaults have been set for Endpoint.				
-				_sourceEndpointDefinitions[elid].endpoint = _sourceEndpointDefinitions[elid].endpoint || _currentInstance.Defaults.Endpoints[0] || _currentInstance.Defaults.Endpoint;
+			//	_sourceEndpointDefinitions[elid].endpoint = _sourceEndpointDefinitions[elid].endpoint || _currentInstance.Defaults.Endpoints[0] || _currentInstance.Defaults.Endpoint;
 
                 // set endpoint paint styles and anchor, using either styles that are set or defaults.
-                _setEndpointPaintStylesAndAnchor(_sourceEndpointDefinitions[elid], 0);
+              //  _setEndpointPaintStylesAndAnchor(_sourceEndpointDefinitions[elid], 0);
                 
 
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {
@@ -2311,7 +2317,7 @@ between this method and jsPlumb.reset).
 						// reset the anchor to the anchor that was initially provided. the one we were using to drag
 						// the connection was just a placeholder that was located at the place the user pressed the
 						// mouse button to initiate the drag.
-						var anchorDef = _sourceEndpointDefinitions[elid].anchor || _currentInstance.Defaults.Anchor;
+						var anchorDef = p.anchor || _currentInstance.Defaults.Anchor;
 						ep.anchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance);
 						
 						if (p.parent) {						
@@ -2359,7 +2365,7 @@ between this method and jsPlumb.reset).
 					// the params passed in, because after a connection is established we're going to reset the endpoint
 					// to have the anchor we were given.
 					var tempEndpointParams = {};
-					jsPlumb.extend(tempEndpointParams, _sourceEndpointDefinitions[elid]);
+					jsPlumb.extend(tempEndpointParams, p);
 					tempEndpointParams.isSource = true;
 					tempEndpointParams.anchor = [x,y,0,0];
 					tempEndpointParams.parentAnchor = [ parentX, parentY, 0, 0 ];
@@ -2539,6 +2545,10 @@ between this method and jsPlumb.reset).
 			_currentInstance.clearListeners();
 			_targetEndpointDefinitions = {};
 			_targetEndpoints = {};
+			_targetEndpointsUnique = {};
+			_sourceEndpointDefinitions = {};
+			_sourceEndpoints = {};
+			_sourceEndpointsUnique = {};
             _unbindRegisteredListeners();
             _currentInstance.anchorManager.reset();
 		};
