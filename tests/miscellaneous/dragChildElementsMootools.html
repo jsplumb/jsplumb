@@ -50,8 +50,8 @@
 		to jsPlumb 1.3.6.
 		</p>
 		<p>
+			<a href="dragChildElements.html">jQuery</a>
 			<a href="dragChildElementsYUI.html">YUI3</a>
-			<a href="dragChildElementsMootools.html">MooTools</a>
 		</p>
 		<div id="demo">
 			<div id="p1" class="p p-existing">
@@ -78,8 +78,9 @@
 
 		</div>
 	
-	 	<script type="text/javascript" src="../../js/lib/jquery-1.6.3-min.js"></script>
-		<script type="text/javascript" src="../../js/lib/jquery-ui-1.8.13-min.js"></script>
+	 	 <script type="text/javascript" src="../../js/lib/mootools-1.3.2-yui-compressed.js"></script>
+		<script type="text/javascript" src="../../js/lib/mootools-1.3.2.1-more.js"></script>
+
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.3-min.js"></script>
 		<!-- main jsplumb engine -->
 		<script type="text/javascript" src="../../js/1.3.6/jsPlumb-1.3.6-RC1.js"></script>
@@ -94,18 +95,18 @@
 		<!-- vml renderer -->
 		<script type="text/javascript" src="../../js/1.3.6/jsPlumb-renderers-vml-1.3.6-RC1.js"></script>
 		<!-- jquery jsPlumb adapter -->
-		<script type="text/javascript" src="../../js/1.3.6/jquery.jsPlumb-1.3.6-RC1.js"></script>					            			
+		<script type="text/javascript" src="../../js/1.3.6/mootools.jsPlumb-1.3.6-RC1.js"></script>					            			
 		
 		<script>				
 			jsPlumb.ready(function() {
 				jsPlumb.importDefaults({
-					Container:$("body")
+					Container:document.body
 				});	
 
 				// make the parent draggable.  jsplumb needs to remember this, and then when endpoints are added below
 				// it needs to register them against that draggable, by looking up the parent hierarchy for elements for
 				// which it has a draggable registered.
-				jsPlumb.draggable($(".p-existing"));
+				jsPlumb.draggable($$(".p-existing"));
 
 				// delete on click
 				jsPlumb.bind("click", jsPlumb.detach);
@@ -113,11 +114,11 @@
 				var e = {
 					endpoint:["Dot", {radius:7}]
 				};
-				jsPlumb.addEndpoint($(".cs"), e, { isSource:true, anchor:"RightMiddle", paintStyle:{fillStyle:"green"}});
-				jsPlumb.addEndpoint($(".ct"), e, { isTarget:true, anchor:"LeftMiddle", paintStyle:{fillStyle:"blue"}});
+				jsPlumb.addEndpoint($$(".cs"), e, { isSource:true, anchor:"RightMiddle", paintStyle:{fillStyle:"green"}});
+				jsPlumb.addEndpoint($$(".ct"), e, { isTarget:true, anchor:"LeftMiddle", paintStyle:{fillStyle:"blue"}});
 				
 				// now make p3 draggable. it should discover child endpoints and register them.
-				jsPlumb.draggable($("#p3"));
+				jsPlumb.draggable($("p3"));
 				
 			});
 		</script>
