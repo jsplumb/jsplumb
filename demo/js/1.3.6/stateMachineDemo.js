@@ -14,17 +14,19 @@
 	
 		init :function() {
 							
-			jsPlumb.Defaults.Endpoint = ["Dot", {radius:2}];				
-			jsPlumb.Defaults.HoverPaintStyle = {strokeStyle:"#42a62c", lineWidth:2 };
-			jsPlumb.Defaults.ConnectionOverlays = [
-				[ "Arrow", { 
-					location:1,
-					id:"arrow",
-                    length:14,
-                    foldback:0.8
-				} ],
-                [ "Label", { label:"FOO", id:"label" }]
-			];
+			jsPlumb.importDefaults({
+				Endpoint : ["Dot", {radius:2}],
+				HoverPaintStyle : {strokeStyle:"#42a62c", lineWidth:2 },
+				ConnectionOverlays : [
+					[ "Arrow", { 
+						location:1,
+						id:"arrow",
+	                    length:14,
+	                    foldback:0.8
+					} ],
+	                [ "Label", { label:"FOO", id:"label" }]
+				]
+			});
 
             // initialise draggable elements.  note: jsPlumb does not do this by default from version 1.3.4 onwards.
 			jsPlumb.draggable(jsPlumb.getSelector(".w"));
@@ -48,11 +50,10 @@
                 conn.connection.getOverlay("label").setLabel(conn.connection.id);
             });
 
-		//	jsPlumb.connect({source:"opened", target:"olga",anchor:"Continuous"});
-		//	jsPlumb.connect({source:"olga", target:"inperson",anchor:"Continuous"});
-/*			jsPlumb.connect({source:"nicola", target:"inperson",anchor:"Continuous"});
-			jsPlumb.connect({source:"olga", target:"nicola",anchor:"Continuous"});						
-			jsPlumb.connect({source:"inperson", target:"rejected",anchor:"Continuous"});*/
+            jsPlumb.makeTarget(jsPlumb.getSelector(".w"), {
+				dropOptions:{ hoverClass:"dragHover" },
+				anchor:"Continuous"			
+			});
 		}
 	};
 })();
