@@ -30,49 +30,36 @@
 	// TODO what is a good test for VML availability? aside from just assuming its there because nothing else is.
 		vmlAvailable = !(canvasAvailable | svgAvailable);
 	
-	// finds the index of some value in an array, using a deep equals test.
-	var _findIndex = function(a, v, b, s) {
-		var _eq = function(o1, o2) {
-			if (o1 === o2) return true;
-			else if (typeof o1 == "object" && typeof o2 == "object") {
-				var same = true;
-				for ( var propertyName in o1) {
-					if (!_eq(o1[propertyName], o2[propertyName])) {
-						same = false;
-						break;
-					}
-				}
-				for ( var propertyName in o2) {
-					if (!_eq(o2[propertyName], o1[propertyName])) {
-						same = false;
-						break;
-					}
-				}
-				return same;
-			}
-		};
-
-		for ( var i = +b || 0, l = a.length; i < l; i++) {
-			if (_eq(a[i], v))
-				return i;
-		}
-		return -1;
-	},
-    _findWithFunction = function(a, f) {
+    var _findWithFunction = function(a, f) {
     	if (a)
   			for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
 		return -1;
+	},
+	_indexOf = function(l, v) {
+		return _findWithFunction(l, function(_v) { return _v == v; });	
 	},
     _removeWithFunction = function(a, f) {
         var idx = _findWithFunction(a, f);
         if (idx > -1) a.splice(idx, 1);
         return idx != -1;
     },
+    _remove = function(l, v) {
+    	var idx = _indexOf(l, v);	
+    	if (idx > -1) l.splice(idx, 1);
+        return idx != -1;
+    },
     // TODO support insert index
     _addWithFunction = function(list, item, hashFunction) {
         if (_findWithFunction(list, hashFunction) == -1) list.push(item);
-    };
-
+    },
+    _addToList = function(map, key, value) {
+		var l = map[key];
+		if (l == null) {
+			l = [], map[key] = l;
+		}
+		l.push(value);
+		return l;
+	};
 	
 	// for those browsers that dont have it.  they still don't have it! but at least they won't crash.
 	if (!window.console)
@@ -82,15 +69,7 @@
 		 * helper method to add an item to a list, creating the list if it does
 		 * not yet exist.
 		 */
-		var _addToList = function(map, key, value) {
-			var l = map[key];
-			if (l == null) {
-				l = [], map[key] = l;
-			}
-			l.push(value);
-			return l;
-		},
-		_connectionBeingDragged = null,
+		var _connectionBeingDragged = null,
 		_getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
 		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); },
 		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); },
@@ -109,18 +88,10 @@
                 catch (e) {} 
             }
 		},
-		_group = function(g) {
-			if (_logEnabled && typeof console != "undefined") console.group(g);
-		},
-		_groupEnd = function(g) {
-			if (_logEnabled && typeof console != "undefined") console.groupEnd(g);
-		},
-		_time = function(t) {
-			if (_logEnabled && typeof console != "undefined") console.time(t);
-		},
-		_timeEnd = function(t) {
-			if (_logEnabled && typeof console != "undefined") console.timeEnd(t);
-		};
+		_group = function(g) { if (_logEnabled && typeof console != "undefined") console.group(g); },
+		_groupEnd = function(g) { if (_logEnabled && typeof console != "undefined") console.groupEnd(g); },
+		_time = function(t) { if (_logEnabled && typeof console != "undefined") console.time(t); },
+		_timeEnd = function(t) { if (_logEnabled && typeof console != "undefined") console.timeEnd(t); };
 		
 		/**
 		 * EventGenerator
@@ -159,7 +130,8 @@
 					for ( var i = 0; i < _listeners[event].length; i++) {
 						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
 						// method will have the whole call stack available in the debugger.
-						if (_findIndex(eventsToDieOn, event) != -1)
+						//if (_findIndex(eventsToDieOn, event) != -1)
+						if (_findWithFunction(eventsToDieOn, function(e) { return e === event}) != -1)
 							_listeners[event][i](value, originalEvent);
 						else {
 							// for events we don't want to die on, catch and log.
@@ -632,11 +604,14 @@
 		 * Properties:
 		 * 	-	*Anchor*				    The default anchor to use for all connections (both source and target). Default is "BottomCenter".
 		 * 	-	*Anchors*				    The default anchors to use ([source, target]) for all connections. Defaults are ["BottomCenter", "BottomCenter"].
+		 *  -   *ConnectionsDetachable*		Whether or not connections are detachable by default (using the mouse). Defults to true.
+		 *  -   *ConnectionOverlays*		The default overlay definitions for Connections. Defaults to an empty list.
 		 * 	-	*Connector*				The default connector definition to use for all connections.  Default is "Bezier".
 		 *  -   *Container*				Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element.
 		 * 	-	*DragOptions*			The default drag options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*DropOptions*			The default drop options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*Endpoint*				The default endpoint definition to use for all connections (both source and target).  Default is "Dot".
+		 *  -   *EndpointOverlays*		The default overlay definitions for Endpoints. Defaults to an empty list.
 		 * 	-	*Endpoints*				The default endpoint definitions ([ source, target ]) to use for all connections.  Defaults are ["Dot", "Dot"].
 		 * 	-	*EndpointStyle*			The default style definition to use for all endpoints. Default is fillStyle:"#456".
 		 * 	-	*EndpointStyles*		The default style definitions ([ source, target ]) to use for all endpoints.  Defaults are empty.
@@ -645,23 +620,23 @@
 		 * 	-	*HoverPaintStyle*		The default hover style definition to use for all connections. Defaults are null.
 		 * 	-	*LabelStyle*			The default style to use for label overlays on connections.
 		 * 	-	*LogEnabled*			Whether or not the jsPlumb log is enabled. defaults to false.
-		 * 	-	*Overlays*				The default overlay definitions. Defaults to an empty list.
-		 * 	-	*MaxConnections*		The default maximum number of connections for an Endpoint.  Defaults to 1.
-		 * 	-	*MouseEventsEnabled*	Whether or not mouse events are enabled when using the canvas renderer.  Defaults to true.  
-		 * 							The idea of this is just to give people a way to prevent all the mouse listeners from activating if they know they won't need mouse events.
+		 * 	-	*Overlays*				The default overlay definitions (for both Connections and Endpoint). Defaults to an empty list.
+		 * 	-	*MaxConnections*		The default maximum number of connections for an Endpoint.  Defaults to 1.		 
 		 * 	-	*PaintStyle*			The default paint style for a connection. Default is line width of 8 pixels, with color "#456".
-		 * 	-	*RenderMode*			What mode to use to paint with.  If you're on IE<9, you don't really get to choose this.  You'll just get VML.  Otherwise, the jsPlumb default is to use Canvas elements.
+		 * 	-	*RenderMode*			What mode to use to paint with.  If you're on IE<9, you don't really get to choose this.  You'll just get VML.  Otherwise, the jsPlumb default is to use SVG.
 		 * 	-	*Scope*				The default "scope" to use for connections. Scope lets you assign connections to different categories. 
 		 */
 		this.Defaults = {
 			Anchor : "BottomCenter",
 			Anchors : [ null, null ],
             ConnectionsDetachable : true,
+            ConnectionOverlays : [ ],
             Connector : "Bezier",
 			Container : null,
 			DragOptions : { },
 			DropOptions : { },
 			Endpoint : "Dot",
+			EndpointOverlays : [ ],
 			Endpoints : [ null, null ],
 			EndpointStyle : { fillStyle : "#456" },
 			EndpointStyles : [ null, null ],
@@ -671,8 +646,7 @@
 			LabelStyle : { color : "black" },
 			LogEnabled : false,
 			Overlays : [ ],
-			MaxConnections : 1,
-			MouseEventsEnabled : true, 
+			MaxConnections : 1, 
 			PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
             //Reattach:false,
 			RenderMode : "svg",
@@ -736,8 +710,7 @@
 		offsets = {},
 		offsetTimestamps = {},
 		floatingConnections = {},
-		draggableStates = {},
-		_mouseEventsEnabled = this.Defaults.MouseEventsEnabled,
+		draggableStates = {},		
 		canvasList = [],
 		sizes = [],
 		//listeners = {}, // a map: keys are event types, values are lists of listeners.
@@ -1849,7 +1822,7 @@ between this method and jsPlumb.reset).
 			sources = prepareList(options.source),
 			targets = prepareList(options.target),
 			filter = function(list, value) {
-				return list.length > 0 ? _findIndex(list, value) != -1 : true;
+				return list.length > 0 ? _indexOf(list, value) != -1 : true;
 			},
 			results = scopes.length > 1 ? {} : [],
 			_addOne = function(scope, obj) {
@@ -1973,7 +1946,7 @@ between this method and jsPlumb.reset).
 				
 				var bindOne = function(event) {
 						jsPlumb.CurrentLibrary.bind(document, event, function(e) {
-							if (!_currentInstance.currentlyDragging && _mouseEventsEnabled && renderMode == jsPlumb.CANVAS) {
+							if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
 								// try connections first
 								for (var scope in connectionsByScope) {
 					    			var c = connectionsByScope[scope];
@@ -2219,6 +2192,8 @@ between this method and jsPlumb.reset).
 						});
 						if (deleteEndpointsOnDetach) 
 							c.endpointsToDeleteOnDetach = [ source, newEndpoint ];
+
+						c.repaint();
 					}				
 					// if not allowed to drop...
 					else {
@@ -2342,8 +2317,10 @@ between this method and jsPlumb.reset).
 						// reset the anchor to the anchor that was initially provided. the one we were using to drag
 						// the connection was just a placeholder that was located at the place the user pressed the
 						// mouse button to initiate the drag.
-						var anchorDef = p.anchor || _currentInstance.Defaults.Anchor;
-						ep.anchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance);
+						var anchorDef = p.anchor || _currentInstance.Defaults.Anchor,
+							oldAnchor = ep.anchor;
+
+						ep.anchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance);											
 						
 						if (p.parent) {						
 							var parent = jpcl.getElementObject(p.parent);
@@ -2360,8 +2337,17 @@ between this method and jsPlumb.reset).
 								});
 								_finaliseConnection(ep.connections[0]);
 							}
-						}										
-						_currentInstance.repaint(elid);												
+						}	
+						else {
+							/*if (ep.anchor.isContinuous && !oldAnchor.isContinuous) {
+								_currentInstance.anchorManager.migrateConnectionType(ep.connections[0].targetId, ep.connections[0]);
+							//_currentInstance.anchorManager.migrateConnectionType(ep.connections[0].targetId, ep.connections[0]);
+							}*/
+						}						
+
+						ep.repaint();			
+						_currentInstance.repaint(ep.elementId);																		
+						_currentInstance.repaint(ep.connections[0].targetId);
 					}
 				};
 				// when the user presses the mouse, add an Endpoint
@@ -2636,21 +2622,7 @@ between this method and jsPlumb.reset).
 		 */
 		this.setRepaintFunction = function(f) {
 			repaintFunction = f;
-		};
-		
-		/*
-		 * Function: setMouseEventsEnabled
-		 * Sets whether or not mouse events are enabled.  Default is true.
-		 *  
-		 * Parameters:
-		 * 	enabled - whether or not mouse events should be enabled.
-		 * 
-		 * Returns: 
-		 * 	void
-		 */
-		this.setMouseEventsEnabled = function(enabled) {
-			_mouseEventsEnabled = enabled;
-		};
+		};				
 
         /*
          * Function: setSuspendDrawing
@@ -2755,7 +2727,7 @@ between this method and jsPlumb.reset).
 					var c = connectionsByScope[scope];
 					return c ? c.length : 0;
 				},
-				findIndex : _findIndex,
+				//findIndex : _findIndex,
 				getId : _getId,
 				makeAnchor:self.makeAnchor,
 				makeDynamicAnchor:self.makeDynamicAnchor
@@ -3274,7 +3246,8 @@ between this method and jsPlumb.reset).
 			};
 		};
 		this.deleteEndpoint = function(endpoint) {
-			var cIdx = _findIndex(continuousAnchorEndpoints, endpoint);
+			//var cIdx = _findIndex(continuousAnchorEndpoints, endpoint);
+			var cIdx = _indexOf(continuousAnchorEndpoints, endpoint);
 			if (cIdx > -1)
 				continuousAnchorEndpoints.splice(cIdx, 1);
 			else
@@ -3460,6 +3433,19 @@ between this method and jsPlumb.reset).
 			}
 			eps.splice(0, eps.length);
 		};
+		/*
+		this.migrateConnectionType = function(elId, connection) {
+			var match = function(c) { return c[0].id === connection.id; },
+				stdIndex = _findWithFunction(endpointConnectionsByElementId[elId], match);
+
+			if (stdIndex > -1) {
+				continuousAnchorConnectionsByElementId[elId] = continuousAnchorConnectionsByElementId[elId] || [];	
+				continuousAnchorConnectionsByElementId[elId].push(
+					endpointConnectionsByElementId[elId].splice(stdIndex, 1)[0]
+				);
+			}
+		}
+		*/
 	};
 	_currentInstance.anchorManager = new AnchorManager();				
 	_currentInstance.continuousAnchorFactory = {
@@ -4118,6 +4104,7 @@ between this method and jsPlumb.reset).
 		 * Parameters: 
 		 * anchor - definition of the Anchor for the endpoint.  You can include one or more Anchor definitions here; if you include more than one, jsPlumb creates a 'dynamic' Anchor, ie. an Anchor which changes position relative to the other elements in a Connection.  Each Anchor definition can be either a string nominating one of the basic Anchors provided by jsPlumb (eg. "TopCenter"), or a four element array that designates the Anchor's location and orientation (eg, and this is equivalent to TopCenter, [ 0.5, 0, 0, -1 ]).  To provide more than one Anchor definition just put them all in an array. You can mix string definitions with array definitions.
 		 * endpoint - optional Endpoint definition. This takes the form of either a string nominating one of the basic Endpoints provided by jsPlumb (eg. "Rectangle"), or an array containing [name,params] for those cases where you don't wish to use the default values, eg. [ "Rectangle", { width:5, height:10 } ].
+		 * enabled - optional, defaults to true. Indicates whether or not the Endpoint should be enabled for mouse events (drag/drop).
 		 * paintStyle - endpoint style, a js object. may be null. 
 		 * hoverPaintStyle - style to use when the mouse is hovering over the Endpoint. A js object. may be null; defaults to null. 
 		 * source - element the Endpoint is attached to, of type String (an element id) or element selector. Required.
@@ -4190,7 +4177,7 @@ between this method and jsPlumb.reset).
 			
 // ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************
 			
-			var visible = true;
+			var visible = true, enabled = !(params.enabled === false);
 			/*
 				Function: isVisible
 				Returns whether or not the Endpoint is currently visible.
@@ -4219,6 +4206,19 @@ between this method and jsPlumb.reset).
 					}
 				}
 			};			
+
+			/*
+				Function: isEnabled
+				Returns whether or not the Endpoint is enabled for drag/drop connections.
+			*/
+			this.isEnabled = function() { return enabled; };
+
+			/*
+				Function: setEnabled
+				Sets whether or not the Endpoint is enabled for drag/drop connections.
+			*/
+			this.setEnabled = function(e) { enabled = e; };
+
 			var _element = params.source,  _uuid = params.uuid, floatingEndpoint = null,  inPlaceCopy = null;
 			if (_uuid) endpointsByUUID[_uuid] = self;
 			var _elementId = _getAttribute(_element, "id");
@@ -4356,7 +4356,6 @@ between this method and jsPlumb.reset).
 			 *   ignoreTarget - optional; tells the Endpoint to not notify the Connection target that the Connection was detached.  The default behaviour is to notify the target.
 			 */
 			this.detach = function(connection, ignoreTarget, forceDetach, fireEvent) {
-				//var idx = _findIndex(self.connections, connection), actuallyDetached = false;
 				var idx = _findWithFunction(self.connections, function(c) { return c.id == connection.id}), 
 					actuallyDetached = false;
                 fireEvent = (fireEvent !== false);
@@ -4448,7 +4447,7 @@ between this method and jsPlumb.reset).
 			 *   connection - Connection to detach from.
 			 */
 			this.detachFromConnection = function(connection) {
-				var idx = _findIndex(self.connections, connection);
+				var idx =  _findWithFunction(self.connections, function(c) { return c.id == connection.id});
 				if (idx >= 0) {
 					self.connections.splice(idx, 1);
 				}
@@ -4684,6 +4683,8 @@ between this method and jsPlumb.reset).
 				// one or more connections.
 					jpc = self.connectorSelector();
                     var _continue = true;
+                    // if not enabled, return
+                    if (!enabled) _continue = false;
 					// if no connection and we're not a source, return.
 					if (jpc == null && !params.isSource) _continue = false;
                     // otherwise if we're full and not allowed to drag, also return false.
@@ -4875,7 +4876,7 @@ between this method and jsPlumb.reset).
 
 			// pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
 			// back onto the endpoint you detached it from.
-			var _initDropTarget = function(canvas, forceInit, isTransient) {
+			var _initDropTarget = function(canvas, forceInit, isTransient, endpoint) {
 				if ((params.isTarget || forceInit) && jsPlumb.CurrentLibrary.isDropSupported(_element)) {
 					var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
 					dropOptions = jsPlumb.extend( {}, dropOptions);
@@ -4894,7 +4895,9 @@ between this method and jsPlumb.reset).
 						// restore the original scope if necessary (issue 57)						
 						if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);							
 						
-						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget)) {
+						var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
+
+						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
 						
 							var _doContinue = true;
                             // the second check here is for the case that the user is dropping it back
@@ -5004,7 +5007,7 @@ between this method and jsPlumb.reset).
 			};
 			
 			// initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
-			_initDropTarget(_getElementObject(self.canvas), true, !(params._transient || self.anchor.isFloating));
+			_initDropTarget(_getElementObject(self.canvas), true, !(params._transient || self.anchor.isFloating), self);
 
 			return self;
 		};					
