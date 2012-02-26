@@ -92,14 +92,6 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e2 = jpcl.getDOMElement(el);
 		equals(e2.id, "FOO");
 	});
-
-	test(renderMode + ': findIndex method', function() {
-		var array = [ 1,2,3, "test", "a string", { 'foo':'bar', 'baz':1 }, { 'ding':'dong' } ];
-		equals(_jsPlumb.getTestHarness().findIndex(array, 1), 0, "find works for integers");
-		equals(_jsPlumb.getTestHarness().findIndex(array, "test"), 3, "find works for strings");
-		equals(_jsPlumb.getTestHarness().findIndex(array, { 'foo':'bar', 'baz':1 }), 5, "find works for objects");
-		equals(_jsPlumb.getTestHarness().findIndex(array, { 'ding':'dong', 'baz':1 }), -1, "find works properly for objects (objects have different length but some same properties)");
-	});
 	
 	test(renderMode + ': _jsPlumb setup', function() {
 		ok(_jsPlumb, "loaded");
