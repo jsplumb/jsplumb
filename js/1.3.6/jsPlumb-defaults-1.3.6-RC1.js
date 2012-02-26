@@ -114,12 +114,16 @@
         /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
-         * this hands off to jsPlumb.util to do the maths, supplying our gradient and position and whether or
-         * not the coords should be flipped
+         * this hands off to jsPlumb.util to do the maths, supplying two points and the distance.
          */
-        this.pointAlongPathFrom = function(location, distance) {
-        	var p = self.pointOnPath(location);
-			return jsPlumb.util.pointOnLine(p, {x:_tx,y:_ty}, distance);
+        this.pointAlongPathFrom = function(location, distance) {            
+        	var p = self.pointOnPath(location),
+                farAwayPoint = {
+                    x:_sx + ((_tx - _sx) * 10),
+                    y:_sy + ((_sy - _ty) * 10)
+                };
+
+            return jsPlumb.util.pointOnLine(p, farAwayPoint, distance);
         };
     };
                 
@@ -864,7 +868,7 @@
 
                 if (self.loc == 1) {
                     hxy = connector.pointOnPath(self.loc);
-                    mid = connector.pointAlongPathFrom(self.loc, -1);
+                    mid = connector.pointAlongPathFrom(self.loc, -1);                    
                     txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
                 }
                 else if (self.loc == 0) {
