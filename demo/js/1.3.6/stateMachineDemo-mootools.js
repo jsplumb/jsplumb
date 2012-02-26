@@ -10,12 +10,7 @@
 				connectorStyle:{ strokeStyle:nextColour(),lineWidth:2 },
 				maxConnections:-1
 			});
-		});
-
-		jsPlumb.makeTarget($$(".w"), {
-			dropOptions:{ hoverClass:"dragHover" },
-			anchor:"Continuous"			
-		});
+		});		
     };
 
 })();

@@ -11,11 +11,6 @@
 				maxConnections:-1
 			});
 		});
-
-		jsPlumb.makeTarget(Y.all(".w"), {
-			dropOptions:{ hoverClass:"dragHover" },
-			anchor:"Continuous"
-		});
     };
 
 })();
