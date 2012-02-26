@@ -42,7 +42,6 @@
 			for (var i = 0; i < smallWindows.length; i++) {	
 				jsPlumb.draggable(smallWindows[i]);
 				jsPlumb.makeTarget(smallWindows[i], {
-					paintStyle: { fillStyle:'red' },
 					//anchor:"TopCenter",				// you could supply this if you want, but it was set in the defaults above.					
 					dropOptions:{ hoverClass:"hover" }
 				});
