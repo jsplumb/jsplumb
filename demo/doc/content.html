@@ -585,35 +585,40 @@ jsPlumb.connect({
 		
 			<div class="section">
 			<h3><a id="endpoints">Endpoint Types</a></h3>
-			<p>An Endpoint is the UI component that marks the location of an Anchor, ie. the place where a Connector joins an
-			element.  jsPlumb comes with three Endpoint implementations - Dot, Rectangle and Image. You optionally specify Endpoint properties using the
-			<strong>endpoint</strong> parameter in a call to jsPlumb.connect, jsPlumb.addEndpoint or jsPlumb.makeTarget.
+			<p>An Endpoint is the UI component that marks the location of an Anchor, ie. the place where a Connector joins an element.  jsPlumb comes with four Endpoint implementations - Dot, Rectangle, Image, and Blank. You optionally specify Endpoint properties using the <strong>endpoint</strong> parameter in a call to jsPlumb.connect, jsPlumb.addEndpoint, jsPlumb.makeSource or jsPlumb.makeTarget.
 			</p>  
-				<p>As with Connectors and Overlays, you specify Endpoints using the syntax described above in <a href="#definitions">Connector, Endpoint & Overlay Definitions.</a></p>
+				<p>As with Connectors and Overlays, you specify Endpoints using the syntax described above in <a href="#definitions">Connector, Endpoint &amp; Overlay Definitions.</a></p>
 			
-			The three available Endpoint types, and their constructor arguments, are as follows:
-					<h4><a id="dotEndpoint">Dot Endpoint</a></h4>
-					This Endpoint draw a dot on the screen. It supports a single constructor parameter:
-					<p>
-						<strong>radius</strong> - Optional; defaults to 10 pixels. Defines the radius of the dot.
-					</p>
-					<h4><a id="rectangleEndpoint">Rectangle Endpoint</a></h4>
-						Draws a rectangle. Supported constructor parameters are:
-					<p>
-						<strong>width</strong> - Optional; defaults to 20 pixels. Defines the width of the rectangle.
-					</p>
-					<p>
-						<strong>height</strong> - Optional; defaults to 20 pixels. Defines the height of the rectangle.
-					</p>
-					
-					<h4><a id="imageEndpoint">Image Endpoint</a></h4>
-						Draws an image from a given URL.  This Endpoint supports one constructor parameter:  
-					<p>
-						<strong>src</strong> - Required.  Specifies the URL of the image to use.
-					</p>
-					
-									
+			The four available Endpoint types, and their constructor arguments, are as follows:
+			<h4><a id="dotEndpoint">Dot Endpoint</a></h4>
+			This Endpoint draws a dot on the screen. It supports a single constructor parameter:
+			<p>
+				<strong>radius</strong> - Optional; defaults to 10 pixels. Defines the radius of the dot.
+			</p>
+			<p>
+				<strong>cssClass</strong> - Optional. A CSS class to assign to the Endpoint's containing div element.
+			</p>
+			<h4><a id="rectangleEndpoint">Rectangle Endpoint</a></h4>
+				Draws a rectangle. Supported constructor parameters are:
+			<p>
+				<strong>width</strong> - Optional; defaults to 20 pixels. Defines the width of the rectangle.
+			</p>
+			<p>
+				<strong>height</strong> - Optional; defaults to 20 pixels. Defines the height of the rectangle.
+			</p>
+			<p>
+				<strong>cssClass</strong> - Optional. A CSS class to assign to the Endpoint's containing div element.
+			</p>
 			
+			<h4><a id="imageEndpoint">Image Endpoint</a></h4>
+				Draws an image from a given URL.  This Endpoint supports one constructor parameter:  
+			<p>
+				<strong>src</strong> - Required.  Specifies the URL of the image to use.
+			</p>
+			<h4><a id="blankEndpoint">Blank Endpoint</a></h4>
+			<p>
+				This Endpoint draws nothing on the screen.  Note that if you want Connections that have no visible Endpoints but you would still like the user to be able to drag and move existing Connections, this Endpoint is probably not the one for you.  In that case you should use either Dot or Rectangle, and assign a CSS class to the Endpoint which makes it transparent, and possibly which assigns a border on hover, as a prompt for your users.
+			</p>
 			
 		</div>
 		
@@ -631,8 +636,7 @@ jsPlumb.connect({
 			</ul> 
 			The last two are actually just configured instances of the generic Arrow overlay (see examples). 
 			
-			<p>You can specify one or more overlays when making a call to jsPlumb.connect or jsPlumb.addEndpoint (but not jsPlumb.makeTarget; overlays
-			are always derived from what the source of a Connection defines)  The two cases are discussed below:</p>
+			<p>You can specify one or more overlays when making a call to jsPlumb.connect, jsPlumb.addEndpoint or jsPlumb.makeSource (but not jsPlumb.makeTarget; overlays are always derived from what the source of a Connection defines)  The two cases are discussed below:</p>
 			1. Specifying one or more overlays on a jsPlumb.connect call. In this example we'll create an Arrow with the default options for an Arrow, and
 			a label with the text "foo":
 			<div class="code">
@@ -648,7 +652,7 @@ jsPlumb.connect({
 			</div>
 			This connection will have an arrow located halfway along it, and the label "foo" one quarter of the way along.<br/><br/> 
 			
-			2. Specifying one or more overlays on a jsPlumb.addEndpoint call.  Note in this example that we use the parameter 'connectorOverlays' and not
+			2. Specifying one or more overlays on a jsPlumb.addEndpoint/jsPlumb.makeSource call.  Note in this example that we use the parameter 'connectorOverlays' and not
 			'overlays' as in the last example.  This is because 'overlays' will one day be used to support Endpoint Overlays:
 			<div class="code">
 			<pre>jsPlumb.addEndpoint("someDiv", {
@@ -660,53 +664,49 @@ jsPlumb.connect({
 	...
 });</pre>
 			</div>	
-			This connection will have a 10x30 Arrow located right at the head of the connection, and the label "foo" located at the halfway point.<br/><br/>
-			
-			 
-	
-					<h4><a id="arrowOverlay">Arrow Overlay</a></h4>
-					<p>This overlay draws an arrow, using four points: the head and two tail points, and a 'foldback' point, which permits the tail
-					of the arrow to be indented. Available constructor arguments for this Overlay are </p>
+			This connection will have a 10x30 Arrow located right at the head of the connection, and the label "foo" located at the halfway point.  Remember, the same syntax will work with jsPlumb.makeSource.<br/><br/>
+						 	
+			<h4><a id="arrowOverlay">Arrow Overlay</a></h4>
+			<p>This overlay draws an arrow, using four points: the head and two tail points, and a 'foldback' point, which permits the tail
+			of the arrow to be indented. Available constructor arguments for this Overlay are </p>
+			<ul>
+			<li><strong>width</strong> - width of the tail of the arrow</li>
+			<li><strong>length</strong> - distance from the tail of the arrow to the head</li>
+			<li><strong>location</strong> - where, as a proportional value from 0 to 1 inclusive, the Arrow should appear on the Connector</li>
+			<li><strong>direction</strong> - which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards </li>
+			<li><strong>foldback</strong> - how far along the axis of the arrow the tail points foldback in to. Default is 0.623.</li>
+			<li><strong>paintStyle</strong> - a style object in the form used for paintStyle values for Endpoints and Connectors</li>
+			</ul>
+			<h4><a id="plainArrowOverlay">PlainArrow Overlay</a></h4>
+			<p>This is just a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 1, meaning the tail of the Arrow is a flat edge.  All of the constructor parameters from Arrow apply for PlainArrow.</p>
+			<h4><a id="diamondOverlay">Diamond Overlay</a></h4>
+			<p>This is a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 2, meaning the Arrow turns into a Diamond.  All of the constructor parameters from Arrow apply for PlainArrow.</p>
+			<h4><a id="labelOverlay">Label Overlay</a></h4>
+			This provides a text label to decorate Connectors with.  The available constructor arguments are:
+			<ul>
+				<li><strong>label</strong> - The text to display.  You can provide a function here instead of plain text: it is passed the Connection as an argument, and it should return a String.</li>
+				<li><strong>cssClass</strong> - Optional css class to use for the Label.  This is now preferred over using the 'labelStyle' parameter.</li>
+				<li><strong>labelStyle</strong> - (deprecated, use cssClass instead) Optional arguments for the label's appearance.  Valid entries in this JS object are:
 					<ul>
-					<li><strong>width</strong> - width of the tail of the arrow</li>
-					<li><strong>length</strong> - distance from the tail of the arrow to the head</li>
-					<li><strong>location</strong> - where, as a proportional value from 0 to 1 inclusive, the Arrow should appear on the Connector</li>
-					<li><strong>direction</strong> - which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards </li>
-					<li><strong>foldback</strong> - how far along the axis of the arrow the tail points foldback in to. Default is 0.623.</li>
-					<li><strong>paintStyle</strong> - a style object in the form used for paintStyle values for Endpoints and Connectors</li>
-					</ul>
-					<h4><a id="plainArrowOverlay">PlainArrow Overlay</a></h4>
-					<p>This is just a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 1, meaning the tail of the Arrow is a flat edge.  All of the constructor parameters from Arrow apply for PlainArrow.</p>
-					<h4><a id="diamondOverlay">Diamond Overlay</a></h4>
-					<p>This is a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 2, meaning the Arrow turns into a Diamond.  All of the constructor parameters from Arrow apply for PlainArrow.</p>
-					<h4><a id="labelOverlay">Label Overlay</a></h4>
-					This provides a text label to decorate Connectors with.  The available constructor arguments are:
-					<ul>
-						<li><strong>label</strong> - The text to display.  You can provide a function here instead of plain text: it is passed the Connection as an argument, and it should return a String.</li>
-						<li><strong>cssClass</strong> - Optional css class to use for the Label.  This is now preferred over using the 'labelStyle' parameter.</li>
-						<li><strong>labelStyle</strong> - (deprecated, use cssClass instead) Optional arguments for the label's appearance.  Valid entries in this JS object are:
-							<ul>
-								<li><em>font</em> - a font string in a format suitable for the Canvas element</li>
-								<li><em>fillStyle</em> - the color to fill the label's background with. Optional.</li>
-								<li><em>color</em> - the color of the label's text. Optional.</li>
-								<li><em>padding</em> - optional padding for the label. This is expressed as a proportion of the width of the label, not in pixels or ems.</li>
-								<li><em>borderWidth</em> - optional width in pixels for the label's border. Defaults to 0.</li>
-								<li><em>borderStyle</em> - optional. The color to paint the border, if there is one.</li>
-								
-							</ul>
+						<li><em>font</em> - a font string in a format suitable for the Canvas element</li>
+						<li><em>fillStyle</em> - the color to fill the label's background with. Optional.</li>
+						<li><em>color</em> - the color of the label's text. Optional.</li>
+						<li><em>padding</em> - optional padding for the label. This is expressed as a proportion of the width of the label, not in pixels or ems.</li>
+						<li><em>borderWidth</em> - optional width in pixels for the label's border. Defaults to 0.</li>
+						<li><em>borderStyle</em> - optional. The color to paint the border, if there is one.</li>
 						
-						</li>
-						<li><strong>location</strong> - As for Arrow Overlay.  Where, proportionally from 0 to 1 inclusive, the label should appear.</li>
 					</ul>
+				
+				</li>
+				<li><strong>location</strong> - As for Arrow Overlay.  Where, proportionally from 0 to 1 inclusive, the label should appear.</li>
+			</ul>
 	
 		</div>
 	
 			
 			<div class="section">
 			<h3><a id="defaults">Defaults</a></h3>
-			The easiest way to set a look and feel for your plumbing is to override the defaults that jsPlumb uses. If you
-			do not do this you are forced to provide your overridden values on every call.  Every argument to the connect and addEndpoint methods has an
-			associated default value in jsPlumb.<br/><br/>
+			The easiest way to set a look and feel for your plumbing is to override the defaults that jsPlumb uses. If you do not do this you are forced to provide your overridden values on every call.  Every argument to the connect and addEndpoint methods has an associated default value in jsPlumb.<br/><br/>
 
 			The defaults that ship with jsPlumb are stored in <em>jsPlumb.Defaults</em>, which is a Javascript object.  Valid entries, and their initial values, are:
 
@@ -714,13 +714,14 @@ jsPlumb.connect({
 <pre>
 Anchor : "BottomCenter",
 Anchors : [ null, null ],
-AppendElementsToBody : false,
+ConnectionsDetachable : true,
 Connector : "Bezier",
+Container : null,
 DragOptions : { },
 DropOptions : { },
 Endpoint : "Dot",
 Endpoints : [ null, null ],
-EndpointStyle : { fillStyle : null },
+EndpointStyle : { fillStyle : "#456" },
 EndpointStyles : [ null, null ],
 EndpointHoverStyle : null,
 EndpointHoverStyles : [ null, null ],
@@ -729,20 +730,20 @@ LabelStyle : { color : "black" },
 LogEnabled : false,
 Overlays : [ ],
 MaxConnections : 1,
-MouseEventsEnabled : true,
+MouseEventsEnabled : true, 
 PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
-RenderMode : "canvas",
-Scope : "_jsPlumb_DefaultScope"
+RenderMode : "svg",
+Scope : "jsPlumb_DefaultScope"
 </pre>
 			</div>
 			<p>
-			Note that in EndpointStyle, the default fillStyle is 'null'.  This instructs jsPlumb to use the strokeStyle
+Note that in EndpointStyle, the default fillStyle is 'null'.  This instructs jsPlumb to use the strokeStyle
 from the attached connector to fill the endpoint.</p>
-<p>Note also that you can specify either or both (or neither) of 'EndpointStyle' and 'EndpointStyles'.  This allows you to specify a different
-end point for each end of a connection.  'Endpoint' and 'Endpoints' use the same concept.  jsPlumb will look first in the
-individual endpoint/endpoint style arrays, and then fall back to the single default version.</p>
+<p>
+Note also that you can specify either or both (or neither) of 'EndpointStyle' and 'EndpointStyles'.  This allows you to specify a different end point for each end of a connection.  'Endpoint' and 'Endpoints' use the same concept. jsPlumb will look first in the individual endpoint/endpoint style arrays, and then fall back to the single default version.
+</p>
 
-			you can override these defaults by including this in a script somewhere:
+You can override these defaults by including this in a script somewhere:
 			<div class="code">
 <pre>
 jsPlumb.Defaults.PaintStyle = {
@@ -756,13 +757,28 @@ jsPlumb.Default.Endpoints = [ [ "Dot", 7 ], [ "Dot", 11 ] ];
 
 jsPlumb.Defaults.EndpointStyles = [{ fillStyle:"#225588" }, { fillStyle:"#558822" }];</pre>
 			</div>
-			after the jsPlumb script has been loaded of course!  Here we have specified the following default behaviour:
+...after the jsPlumb script has been loaded of course!  Here we have specified the following default behaviour:
 			<ul>
 				<li>- connectors are 13 pixels wide and painted with a semi-transparent red line</li>
 				<li>- when dragging an element the crosshair cursor is used</li>
 				<li>- the source endpoint is a dot of radius 7; the target endpoint is a dot of radius 11</li>
 				<li>- the source endpoint is blue; the target endpoint is green</li>
 			</ul>
+
+<h5>jsPlumb.importDefaults</h5>
+From version 1.3.6 onwards there is a helper method called <strong>importDefaults</strong> that allows you to import a set of values with just one call to jsPlumb.  Here's the previous example using importDefaults:
+			<div class="code">
+<pre>
+jsPlumb.importDefaults({
+	PaintStyle : {
+		lineWidth:13,
+		strokeStyle: 'rgba(200,0,0,100)'
+	},
+	DragOptions : { cursor: "crosshair" },
+	Endpoints : [ [ "Dot", 7 ], [ "Dot", 11 ] ],
+	EndpointStyles : [{ fillStyle:"#225588" }, { fillStyle:"#558822" }]
+});</pre>
+			</div>
 
 		</div> 					
 
