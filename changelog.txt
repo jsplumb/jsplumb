@@ -37,13 +37,22 @@
 
 	- the second argument to makeSource and makeTarget no longer requires the nested 'endpoint' parameter - they take the exact same object that you would pass to the second argument to addEndpoint.  Of course that object can itself have an 'endpoint' parameter, which is used to specify the type of endpoint (Dot, Rectangle etc) - and that was kind of confusing, and yet another reason to unify the API a little.
 
+	- Mouse events are always enabled from 1.3.6 onwards.  The default setting "MouseEventsEnabled" has been removed, and the method setMouseEventsEnabled has also been removed.
+
+
+	New features
+	-------------
+
 	- added importDefaults and restoreDefaults methods.
+	- jsPlumb.draggable(..) now supports nested elements (issue 98).  So if you have endpoints on some element and you make its parent draggable, they will now be adjusted appropriately as the parent is dragged.
+	- added 'enabled' as a parameter to Endpoints, and setEnabled/isEnabled methods on Endpoints.  This controls whether or not the user can interact with the Endpoint using the mouse.  A programmatic connect call using an Endpoint that is disabled will still succeed.
 
 
 	Issues
 
 	204 - add importDefaults method
 	195 - deleteEndpointsOnDetach ignored by makeTarget method
+	98  - endpoints do not refresh when nested in a draggable element
 
 * 1.3.5
 
