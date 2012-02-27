@@ -169,8 +169,14 @@
 	<!-- copies the jsPlumb documentation into the build area -->
 	<target name="copy-documentation">
 		<echo>Copying documentation...</echo>
-		<copy todir="${output.dir}/doc">
-			<fileset dir="./doc">
+		<copy todir="${output.dir}/demo/doc">
+			<fileset dir="./demo/doc">
+				<include name="*.html"/>
+				<include name="*.css"/>
+			</fileset>
+		</copy>
+		<copy todir="${output.dir}/demo/doc">
+			<fileset dir="./demo/doc">
 				<include name="*.html"/>
 				<include name="*.css"/>
 			</fileset>
