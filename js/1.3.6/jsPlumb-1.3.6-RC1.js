@@ -831,8 +831,9 @@
 				if (jpcl.isDragSupported(element) && !jpcl.isAlreadyDraggable(element)) {
 					var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
 					options = jsPlumb.extend( {}, options); // make a copy.
-					var dragEvent = jsPlumb.CurrentLibrary.dragEvents["drag"],
-						stopEvent = jsPlumb.CurrentLibrary.dragEvents["stop"];
+					var dragEvent = jpcl.dragEvents["drag"],
+						stopEvent = jpcl.dragEvents["stop"],
+						startEvent = jpcl.dragEvents["start"];
 					options[dragEvent] = _wrap(options[dragEvent], function() {
 						var ui = jpcl.getUIPosition(arguments);
 						_draw(element, ui);
@@ -4821,7 +4822,7 @@ between this method and jsPlumb.reset).
 						});
 						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
 						_removeElement(inPlaceCopy.canvas, _element);
-						_currentInstance.anchorManager.clearFor(placeholderInfo.id);
+						_currentInstance.anchorManager.clearFor(placeholderInfo.id);						
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 						jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
 						if (jpc.endpoints[idx] == floatingEndpoint) {
@@ -4889,94 +4890,97 @@ between this method and jsPlumb.reset).
 						id = _getAttribute(draggable, "dragId"),
 						elId = _getAttribute(draggable, "elId"),						
 						scope = _getAttribute(draggable, "originalScope"),
-						jpc = floatingConnections[id],
-						idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
-						
-						// restore the original scope if necessary (issue 57)						
-						if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);							
-						
-						var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
+						jpc = floatingConnections[id];
 
-						if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
-						
-							var _doContinue = true;
-                            // the second check here is for the case that the user is dropping it back
-                            // where it came from.
-							if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != self.id) {
-								if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
-									_doContinue = false;								
-							}
-			
-							// these have to be set before testing for beforeDrop.
-							if (idx == 0) {
-								jpc.source = _element;
-								jpc.sourceId = _elementId;
-							} else {
-								jpc.target = _element;
-								jpc.targetId = _elementId;
-							}
+						if (jpc != null) {
+							var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
 							
-							// now check beforeDrop.  this will be available only on Endpoints that are setup to
-							// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
-							// the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
-							// it only makes sense to have it on a target endpoint.
-							_doContinue = _doContinue && self.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope);
-													
-							if (_doContinue) {
-								// remove this jpc from the current endpoint
-								jpc.endpoints[idx].detachFromConnection(jpc);
-								if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
-								jpc.endpoints[idx] = self;
-								self.addConnection(jpc);
-								if (!jpc.suspendedEndpoint) {  
-									//_addToList(connectionsByScope, jpc.scope, jpc);
-									_initDraggableIfNecessary(_element, params.draggable, {});
+							// restore the original scope if necessary (issue 57)						
+							if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);							
+							
+							var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
+
+							if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
+							
+								var _doContinue = true;
+	                            // the second check here is for the case that the user is dropping it back
+	                            // where it came from.
+								if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != self.id) {
+									if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
+										_doContinue = false;								
+								}
+				
+								// these have to be set before testing for beforeDrop.
+								if (idx == 0) {
+									jpc.source = _element;
+									jpc.sourceId = _elementId;
+								} else {
+									jpc.target = _element;
+									jpc.targetId = _elementId;
+								}
+								
+								// now check beforeDrop.  this will be available only on Endpoints that are setup to
+								// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
+								// the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
+								// it only makes sense to have it on a target endpoint.
+								_doContinue = _doContinue && self.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope);
+														
+								if (_doContinue) {
+									// remove this jpc from the current endpoint
+									jpc.endpoints[idx].detachFromConnection(jpc);
+									if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
+									jpc.endpoints[idx] = self;
+									self.addConnection(jpc);
+									if (!jpc.suspendedEndpoint) {  
+										//_addToList(connectionsByScope, jpc.scope, jpc);
+										_initDraggableIfNecessary(_element, params.draggable, {});
+									}
+									else {
+										var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
+										// fire a detach event
+										fireDetachEvent({
+											source : idx == 0 ? suspendedElement : jpc.source, 
+											target : idx == 1 ? suspendedElement : jpc.target,
+											sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, 
+											targetId : idx == 1 ? suspendedElementId : jpc.targetId,
+											sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
+											targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
+											connection : jpc
+										}, true);
+									}
+
+	                                // finalise will inform the anchor manager and also add to
+	                                // connectionsByScope if necessary.
+	                                _finaliseConnection(jpc, null, originalEvent);
 								}
 								else {
-									var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
-									// fire a detach event
-									fireDetachEvent({
-										source : idx == 0 ? suspendedElement : jpc.source, 
-										target : idx == 1 ? suspendedElement : jpc.target,
-										sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, 
-										targetId : idx == 1 ? suspendedElementId : jpc.targetId,
-										sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
-										targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
-										connection : jpc
-									}, true);
+	                                // otherwise just put it back on the endpoint it was on before the drag.
+									if (jpc.suspendedEndpoint) {
+	                            //        self.detachFrom(jpc);
+	                                    jpc.endpoints[idx] = jpc.suspendedEndpoint;
+										jpc.setHover(false);
+	                                    jpc._forceDetach = true;
+	                                    if (idx == 0) {
+									        jpc.source = jpc.suspendedEndpoint.element;
+									        jpc.sourceId = jpc.suspendedEndpoint.elementId;
+								        } else {
+									        jpc.target = jpc.suspendedEndpoint.element;
+									        jpc.targetId = jpc.suspendedEndpoint.elementId;;
+								        }
+									    jpc.suspendedEndpoint.addConnection(jpc);
+
+	                                    jpc.endpoints[0].repaint();
+	                                    jpc.repaint();
+										_currentInstance.repaint(jpc.source.elementId);
+	                                    jpc._forceDetach = false;
+									}
 								}
 
-                                // finalise will inform the anchor manager and also add to
-                                // connectionsByScope if necessary.
-                                _finaliseConnection(jpc, null, originalEvent);
+	                            jpc.floatingAnchorIndex = null;
 							}
-							else {
-                                // otherwise just put it back on the endpoint it was on before the drag.
-								if (jpc.suspendedEndpoint) {
-                            //        self.detachFrom(jpc);
-                                    jpc.endpoints[idx] = jpc.suspendedEndpoint;
-									jpc.setHover(false);
-                                    jpc._forceDetach = true;
-                                    if (idx == 0) {
-								        jpc.source = jpc.suspendedEndpoint.element;
-								        jpc.sourceId = jpc.suspendedEndpoint.elementId;
-							        } else {
-								        jpc.target = jpc.suspendedEndpoint.element;
-								        jpc.targetId = jpc.suspendedEndpoint.elementId;;
-							        }
-								    jpc.suspendedEndpoint.addConnection(jpc);
-
-                                    jpc.endpoints[0].repaint();
-                                    jpc.repaint();
-									_currentInstance.repaint(jpc.source.elementId);
-                                    jpc._forceDetach = false;
-								}
-							}
-
-                            jpc.floatingAnchorIndex = null;
+							_currentInstance.currentlyDragging = false;
+							delete floatingConnections[id];						
 						}
-						_currentInstance.currentlyDragging = false;
-						delete floatingConnections[id];						
 					};
 					
 					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
