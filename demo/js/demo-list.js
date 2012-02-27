@@ -1,7 +1,6 @@
 ;(function() {
 
-	var version = "1.3.5",
-	entries = [
+	var entries = [
 		{ id:"demo", name:"jsPlumb Home", about:"Main jsPlumb demo page.  Contains a bit of everything" },
 		{ id:"flowchartConnectorsDemo", name:"Flowchart Connectors", about:"Demonstration of the Flowchart connectors" },
 		{ id:"draggableConnectorsDemo", name:"Draggable Connections", about:"Demonstration of drag and drop connections" },
@@ -61,7 +60,7 @@
 			if (demoInfo) {
 				var prevString = '<h5>Previous:</h5><a href="' + demoInfo.prev.id + '">' + demoInfo.prev.name + '</a>',
 					nextString = '<h5>Next:</h5><a href="' + demoInfo.next.id + '">' + demoInfo.next.name + '</a>',
-					menuString = '<div class="menu"><a href="../../doc/' + version + '/usage.html" class="mplink">view documentation</a>' +
+					menuString = '<div class="menu"><a href="../../doc/usage.html" class="mplink">view documentation</a>' +
 							 '&nbsp;|&nbsp;<a href="../../apidocs">view api docs</a>' +
 							 '&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>' +
                              '&nbsp;|&nbsp;<a href="http://github.com/sporritt/jsplumb/" class="mplink">jsPlumb on GitHub</a>' +

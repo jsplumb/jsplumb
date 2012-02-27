@@ -1312,7 +1312,7 @@ jsPlumb.makeTarget("someElement", {
 </div>
 
 <h5><a id="makeSource">jsPlumb.makeSource</a></h5>
-There are two use cases supported by this method.  The first is the case that you want to drag a Connection from the element itself and have an Endpoint attached to the element when a Connection is established.  The second is a more specialised case: you want to drag a Connection from the element, but once the Connection is established you want jsPlumb to move it so that its source is on some other element.  For an example of this second case, check out the <a href="../../demo/jquery/stateMachineDemo.html">State Machine Connectors</a> demonstration.
+There are two use cases supported by this method.  The first is the case that you want to drag a Connection from the element itself and have an Endpoint attached to the element when a Connection is established.  The second is a more specialised case: you want to drag a Connection from the element, but once the Connection is established you want jsPlumb to move it so that its source is on some other element.  For an example of this second case, check out the <a href="../demo/jquery/stateMachineDemo.html">State Machine Connectors</a> demonstration.
 <p>Here's an example code snippet for the basic use case of makeSource:</p>
 <div class="code">
 <pre>
@@ -1338,7 +1338,7 @@ jsPlumb.makeSource("someConnectionSourceDiv", {
 </pre>
 </div>
 <p>The only difference here is the inclusion of the 'parent' parameter.  It instructs jsPlumb to configure the source Endpoint on the element specified - in this case, "someDiv" (the value of this parameter may be a String id or a selector).</p>
-<p>Again, I'd suggest taking a look at the <a href="../../demo/jquery/stateMachineDemo.html">State Machine Connectors demonstration</a> for an example of this.</p>
+<p>Again, I'd suggest taking a look at the <a href="../demo/jquery/stateMachineDemo.html">State Machine Connectors demonstration</a> for an example of this.</p>
 
 <p>
 There are many things you can set in an Endpoint options object; for a thorough list see the API documentation for Endpoint.  

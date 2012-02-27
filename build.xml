@@ -71,6 +71,7 @@
 		specified the '-Dforce=true' argument on the command line -->
 		<delete dir="${output.dir}"/>
 		<mkdir dir="${output.dir}"/>	
+		<mkdir dir="${output.dir}/doc"/>	
 		<mkdir dir="${output.js.dir}"/>	
 		<mkdir dir="${output.demo.dir}"/>						
 		<echo/>
@@ -113,6 +114,7 @@
 		</antcall>
 	</target>
 
+	<!-- replaces JS imports in HTML files with minified versions and with production links to dependencies -->
 	<target name="html">
 		<echo>Replacing Javascript imports for ${library}</echo>
 
@@ -163,6 +165,17 @@
 			<param name="library" value="yui"/>
 		</antcall>
 	</target>
+
+	<!-- copies the jsPlumb documentation into the build area -->
+	<target name="copy-documentation">
+		<echo>Copying documentation...</echo>
+		<copy todir="${output.dir}/doc">
+			<fileset dir="./doc">
+				<include name="*.html"/>
+				<include name="*.css"/>
+			</fileset>
+		</copy>
+	</target>
 	
 	<!-- generates the API docs -->
 	<target name="docs" depends="minAll">
@@ -188,6 +201,7 @@
 	<target name="build" depends="init">
 		<antcall target="minAll"/>
 		<antcall target="demo"/>
+		<antcall target="copy-documentation"/>
 	</target>
 	
 </project>
