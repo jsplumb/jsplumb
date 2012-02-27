@@ -1251,13 +1251,13 @@
 				try {
 					r = newFunction.apply(this, arguments);
 				} catch (e) {
-					_log(_currentInstance, 'jsPlumb function failed : ' + e);
+					_log(_currentInstance, "jsPlumb function failed : " + e);
 				}
 				if (returnOnThisValue == null || (r !== returnOnThisValue)) {
 					try {
 						wrappedFunction.apply(this, arguments);
 					} catch (e) {
-						_log(_currentInstance, 'wrapped function failed : ' + e);
+						_log(_currentInstance, "wrapped function failed : " + e);
 					}
 				}
 				return r;
@@ -2153,9 +2153,9 @@ between this method and jsPlumb.reset).
 					
 					if (_continue) {
 					
-						// detach this connection from the source.
+						// detach this connection from the source.						
 						source.detach(jpc, false, true, true);//source.endpointWillMoveAfterConnection);
-				
+					
 						// make a new Endpoint for the target
 						//var newEndpoint = _currentInstance.addEndpoint(_el, _endpoint);
 						
@@ -2302,8 +2302,7 @@ between this method and jsPlumb.reset).
 					endpointAddedButNoDragYet = false;
 				});
 					
-				dragOptions[stopEvent] = function() { 
-				
+				dragOptions[stopEvent] = function() { 							
 					if (existingStop) existingStop.apply(this, arguments);								
 
                     //_currentlyDown = false;
@@ -2323,33 +2322,29 @@ between this method and jsPlumb.reset).
 
 						ep.anchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance);											
 						
+						
 						if (p.parent) {						
 							var parent = jpcl.getElementObject(p.parent);
 							if (parent) {	
-								var currentId = ep.elementId;
+								var currentId = ep.elementId;							
 								ep.setElement(parent);
-								ep.endpointWillMoveAfterConnection = false;
-								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);
-								ep.connections[0].previousConnection = null;
+								ep.endpointWillMoveAfterConnection = false;														
+								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);													
+								ep.connections[0].previousConnection = null;										
 								_currentInstance.anchorManager.connectionDetached({
 									sourceId:ep.connections[0].sourceId,
 									targetId:ep.connections[0].targetId,
 									connection:ep.connections[0]
-								});
-								_finaliseConnection(ep.connections[0]);
+								});											
+								_finaliseConnection(ep.connections[0]);					
 							}
-						}	
-						else {
-							/*if (ep.anchor.isContinuous && !oldAnchor.isContinuous) {
-								_currentInstance.anchorManager.migrateConnectionType(ep.connections[0].targetId, ep.connections[0]);
-							//_currentInstance.anchorManager.migrateConnectionType(ep.connections[0].targetId, ep.connections[0]);
-							}*/
 						}						
-
+						
 						ep.repaint();			
 						_currentInstance.repaint(ep.elementId);																		
 						_currentInstance.repaint(ep.connections[0].targetId);
-					}
+
+					}				
 				};
 				// when the user presses the mouse, add an Endpoint
 				var mouseDownListener = function(e) {
@@ -3156,16 +3151,15 @@ between this method and jsPlumb.reset).
 	},
     AnchorManager = function() {
 		var _amEndpoints = {},
+			connectionsByElementId = {},
 			endpointConnectionsByElementId = {}, 
 			continuousAnchorConnectionsByElementId = {},
-			continuousAnchorEndpoints = [],
 			self = this,
             anchorLists = {};
 
         this.reset = function() {
-            endpointConnectionsByElementId = {};
-			continuousAnchorConnectionsByElementId = {};
-			continuousAnchorEndpoints = [];
+        	_amEndpoints = {};
+        	connectionsByElementId = {};
             anchorLists = {};
         };
 			
@@ -3174,23 +3168,18 @@ between this method and jsPlumb.reset).
 				ep = conn.endpoints,
                 doRegisterTarget = true,
 			    registerConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
-					if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor) {
-						_addToList(endpointConnectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == DynamicAnchor]);
-					}
-					else {
-						// continuous.  if they are the same element, just assign the same anchor
-                        // to both.
-                        if (sourceId == targetId) {
-                           // remove the target endpoint's canvas.  we dont need it.
-                            jsPlumb.CurrentLibrary.removeElement(ep[1].canvas);
-                            doRegisterTarget = false;
-                        }
-						_addToList(continuousAnchorConnectionsByElementId, elId, c);
-					}
+
+					if ((sourceId == targetId) && otherAnchor.isContinuous){
+                       // remove the target endpoint's canvas.  we dont need it.
+                        jsPlumb.CurrentLibrary.removeElement(ep[1].canvas);
+                        doRegisterTarget = false;
+                    }
+					_addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == DynamicAnchor]);
 			    };
+
 			registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
-             if (doRegisterTarget)
-                registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
+            if (doRegisterTarget)
+            	registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
 		};
 		this.connectionDetached = function(connInfo) {
 			var sourceId = connInfo.sourceId,
@@ -3200,7 +3189,12 @@ between this method and jsPlumb.reset).
 					if (otherAnchor.constructor == FloatingAnchor) {
 						// no-op
 					}
-					else if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor) {
+					else {
+						_removeWithFunction(connectionsByElementId[elId], function(_c) {
+							return _c[0].id == c.id;
+						});
+					}
+					/*else if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor) {
                         var _conns = endpointConnectionsByElementId[elId];
                         if (_conns) {
                             _removeWithFunction(_conns, function(e) { return e[0].id == c.id; });
@@ -3209,7 +3203,7 @@ between this method and jsPlumb.reset).
 					else // continuous.
 						_removeWithFunction(continuousAnchorConnectionsByElementId[elId], function(_c) {
 							return _c.id == c.id;
-						});
+						});*/
 				};
 				
 			removeConnection(1, ep[1], ep[1].anchor, sourceId, connInfo.connection);
@@ -3238,20 +3232,20 @@ between this method and jsPlumb.reset).
 		this.add = function(endpoint, elementId) {
 			_addToList(_amEndpoints, elementId, endpoint);
 		};
-		this.get = function(elementId) {
+		/*this.get = function(elementId) {
 			return {
 				"standard":endpointConnectionsByElementId[elementId] || [],
 				"continuous":continuousAnchorConnectionsByElementId[elementId] || [],
 				"endpoints":_amEndpoints[elementId],
 				"continuousAnchorEndpoints":continuousAnchorEndpoints
 			};
-		};
+		};*/
 		this.deleteEndpoint = function(endpoint) {
 			//var cIdx = _findIndex(continuousAnchorEndpoints, endpoint);
-			var cIdx = _indexOf(continuousAnchorEndpoints, endpoint);
+			/*var cIdx = _indexOf(continuousAnchorEndpoints, endpoint);
 			if (cIdx > -1)
 				continuousAnchorEndpoints.splice(cIdx, 1);
-			else
+			else*/
 				_removeWithFunction(_amEndpoints[endpoint.elementId], function(e) {
 					return e.id == endpoint.id;
 				});
@@ -3308,8 +3302,9 @@ between this method and jsPlumb.reset).
 		this.redraw = function(elementId, ui, timestamp, offsetToUI) {
 			// get all the endpoints for this element
 			var ep = _amEndpoints[elementId] || [],
-				endpointConnections = endpointConnectionsByElementId[elementId] || [],
-				continuousAnchorConnections = continuousAnchorConnectionsByElementId[elementId] || [],
+				endpointConnections = connectionsByElementId[elementId] || [],
+				//endpointConnections = endpointConnectionsByElementId[elementId] || [],
+				//continuousAnchorConnections = continuousAnchorConnectionsByElementId[elementId] || [],
 				connectionsToPaint = [],
 				endpointsToPaint = [],
                 anchorsToUpdate = [];
@@ -3335,52 +3330,59 @@ between this method and jsPlumb.reset).
 			// actually, first we should compute the orientation of this element to all other elements to which
 			// this element is connected with a continuous anchor (whether both ends of the connection have
 			// a continuous anchor or just one)
-            for (var i = 0; i < continuousAnchorConnections.length; i++) {
-                var conn = continuousAnchorConnections[i],
-                    sourceId = conn.sourceId,
+            //for (var i = 0; i < continuousAnchorConnections.length; i++) {
+            for (var i = 0; i < endpointConnections.length; i++) {
+                var conn = endpointConnections[i][0],
+					sourceId = conn.sourceId,
                     targetId = conn.targetId,
-                    oKey = sourceId + "_" + targetId,
-                    oKey2 = targetId + "_" + sourceId,
-                    o = orientationCache[oKey],
-                    oIdx = conn.sourceId == elementId ? 1 : 0;
+                    sourceContinuous = conn.endpoints[0].anchor.isContinuous,
+                    targetContinuous = conn.endpoints[1].anchor.isContinuous;
 
-                if (!anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
-                if (!anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
+                if (sourceContinuous || targetContinuous) {
+	                var oKey = sourceId + "_" + targetId,
+	                    oKey2 = targetId + "_" + sourceId,
+	                    o = orientationCache[oKey],
+	                    oIdx = conn.sourceId == elementId ? 1 : 0;
 
-                if (elementId != targetId) _updateOffset( { elId : targetId, timestamp : timestamp }); 
-                if (elementId != sourceId) _updateOffset( { elId : sourceId, timestamp : timestamp }); 
+	                if (sourceContinuous && !anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
+	                if (targetContinuous && !anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
 
-                var td = _getCachedData(targetId),
-					sd = _getCachedData(sourceId);
+	                if (elementId != targetId) _updateOffset( { elId : targetId, timestamp : timestamp }); 
+	                if (elementId != sourceId) _updateOffset( { elId : sourceId, timestamp : timestamp }); 
 
-                if (targetId == sourceId) {
-                    // here we may want to improve this by somehow determining the face we'd like
-				    // to put the connector on.  ideally, when drawing, the face should be calculated
-				    // by determining which face is closest to the point at which the mouse button
-					// was released.  for now, we're putting it on the top face.
-                    _updateAnchorList(anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", sourceId, connectionsToPaint, endpointsToPaint)
-				}
-                else {
-                    if (!o) {
-                        o = calculateOrientation(sourceId, targetId, sd.o, td.o);
-                        orientationCache[oKey] = o;
-                        // this would be a performance enhancement, but the computed angles need to be clamped to
-                        //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
-                    /*  orientationCache[oKey2] = {
-                            orientation:o.orientation,
-                            a:[o.a[1], o.a[0]],
-                            theta:o.theta + Math.PI,
-                            theta2:o.theta2 + Math.PI
-                        };*/
-                    }
-                    _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
-                    _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
-                }
+	                var td = _getCachedData(targetId),
+						sd = _getCachedData(sourceId);
 
-                _addWithFunction(anchorsToUpdate, sourceId, function(a) { return a === sourceId; });
-                _addWithFunction(anchorsToUpdate, targetId, function(a) { return a === targetId; });
-                _addWithFunction(connectionsToPaint, conn, function(c) { return c.id == conn.id; });
-                _addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
+	                if (targetId == sourceId && (sourceContinuous || targetContinuous)) {
+	                    // here we may want to improve this by somehow determining the face we'd like
+					    // to put the connector on.  ideally, when drawing, the face should be calculated
+					    // by determining which face is closest to the point at which the mouse button
+						// was released.  for now, we're putting it on the top face.
+	                    _updateAnchorList(anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", sourceId, connectionsToPaint, endpointsToPaint)
+					}
+	                else {
+	                    if (!o) {
+	                        o = calculateOrientation(sourceId, targetId, sd.o, td.o);
+	                        orientationCache[oKey] = o;
+	                        // this would be a performance enhancement, but the computed angles need to be clamped to
+	                        //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
+	                    /*  orientationCache[oKey2] = {
+	                            orientation:o.orientation,
+	                            a:[o.a[1], o.a[0]],
+	                            theta:o.theta + Math.PI,
+	                            theta2:o.theta2 + Math.PI
+	                        };*/
+	                    }
+	                    if (sourceContinuous) _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
+	                    if (targetContinuous) _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
+	                }
+
+	                if (sourceContinuous) _addWithFunction(anchorsToUpdate, sourceId, function(a) { return a === sourceId; });
+	                if (targetContinuous) _addWithFunction(anchorsToUpdate, targetId, function(a) { return a === targetId; });
+	                _addWithFunction(connectionsToPaint, conn, function(c) { return c.id == conn.id; });
+	                if ((sourceContinuous && oIdx == 0) || (targetContinuous && oIdx == 1))
+	                	_addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
+	            }
             }
 
             // now place all the continuous anchors we need to;
@@ -3434,19 +3436,6 @@ between this method and jsPlumb.reset).
 			}
 			eps.splice(0, eps.length);
 		};
-		/*
-		this.migrateConnectionType = function(elId, connection) {
-			var match = function(c) { return c[0].id === connection.id; },
-				stdIndex = _findWithFunction(endpointConnectionsByElementId[elId], match);
-
-			if (stdIndex > -1) {
-				continuousAnchorConnectionsByElementId[elId] = continuousAnchorConnectionsByElementId[elId] || [];	
-				continuousAnchorConnectionsByElementId[elId].push(
-					endpointConnectionsByElementId[elId].splice(stdIndex, 1)[0]
-				);
-			}
-		}
-		*/
 	};
 	_currentInstance.anchorManager = new AnchorManager();				
 	_currentInstance.continuousAnchorFactory = {
@@ -4467,6 +4456,7 @@ between this method and jsPlumb.reset).
 			 * Sets the DOM element this Endpoint is attached to.  
 			 */
 			this.setElement = function(el) {
+
 				// TODO possibly have this object take charge of moving the UI components into the appropriate
 				// parent.  this is used only by makeSource right now, and that function takes care of
 				// moving the UI bits and pieces.  however it would s			
@@ -4478,7 +4468,6 @@ between this method and jsPlumb.reset).
 				_element = _getElementObject(el);
 				_elementId = _getId(_element);
 				self.elementId = _elementId;
-				
 				// need to get the new parent now
 				var newParentElement = _getParentFromParams({source:parentId}),
 				curParent = jpcl.getParent(self.canvas);
@@ -4491,9 +4480,9 @@ between this method and jsPlumb.reset).
 					self.connections[i].sourceId = _elementId;
 					self.connections[i].source = _element;					
 				}	
-									
 				_addToList(endpointsByElement, parentId, self);
-				_currentInstance.repaint(parentId);
+				//_currentInstance.repaint(parentId);			
+			
 			};
 
 			/*
