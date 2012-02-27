@@ -1204,10 +1204,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
 		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
-		jsPlumb.connect({source:e16, target:"d17"});
+		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");
+		var e = _jsPlumb.getEndpoints("d17");
 		equals(e.length, 1, "d17 has one endpoint");
 		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
@@ -1218,11 +1218,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
 		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
-		jsPlumb.connect({source:e16, target:"d17"});
-		jsPlumb.connect({source:e16, target:"d17"});
+		_jsPlumb.connect({source:e16, target:"d17"});
+		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 2, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");		
+		var e = _jsPlumb.getEndpoints("d17");		
 		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
@@ -1232,11 +1232,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true, anchor:"LeftMiddle", uniqueEndpoint:true, maxConnections:-1  }); // give it a non-default anchor, we will check this below.
 		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
-		jsPlumb.connect({source:e16, target:"d17"});
-		jsPlumb.connect({source:e16, target:"d17"});
+		_jsPlumb.connect({source:e16, target:"d17"});
+		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");		
+		var e = _jsPlumb.getEndpoints("d17");		
 		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].connections.length, 2, "endpoint on d17 has two connections");
@@ -1247,10 +1247,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
 		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
-		jsPlumb.connect({source:e16, target:"d17", newConnection:true});
+		_jsPlumb.connect({source:e16, target:"d17", newConnection:true});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");		
+		var e = _jsPlumb.getEndpoints("d17");		
 		equals(e[0].anchor.x, 0.5, "anchor is BottomCenter"); //here we should be seeing the default anchor
 		equals(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
 	});
@@ -1260,10 +1260,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		jsPlumb.connect({source:"d17", target:e16});
+		_jsPlumb.connect({source:"d17", target:e16});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");		
+		var e = _jsPlumb.getEndpoints("d17");		
 		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
@@ -1272,11 +1272,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.		
-		jsPlumb.connect({source:"d17", target:e16});
-		jsPlumb.connect({source:"d17", target:e16});
+		_jsPlumb.connect({source:"d17", target:e16});
+		_jsPlumb.connect({source:"d17", target:e16});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 2, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");		
+		var e = _jsPlumb.getEndpoints("d17");		
 		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
@@ -1285,11 +1285,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeSource(d17, { isSource:true, anchor:"LeftMiddle", uniqueEndpoint:true, maxConnections:-1  }); // give it a non-default anchor, we will check this below.		
-		jsPlumb.connect({source:"d17", target:e16});
-		jsPlumb.connect({source:"d17", target:e16});
+		_jsPlumb.connect({source:"d17", target:e16});
+		_jsPlumb.connect({source:"d17", target:e16});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");		
+		var e = _jsPlumb.getEndpoints("d17");		
 		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].connections.length, 2, "endpoint on d17 has two connections");
@@ -1299,10 +1299,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.		
-		jsPlumb.connect({source:"d17", target:e16, newConnection:true});
+		_jsPlumb.connect({source:"d17", target:e16, newConnection:true});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");		
+		var e = _jsPlumb.getEndpoints("d17");		
 		equals(e[0].anchor.x, 0.5, "anchor is BottomCenter"); //here we should be seeing the default anchor
 		equals(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
 	});
@@ -1311,11 +1311,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18", d17);
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeSource(d18, { isSource:true,anchor:"LeftMiddle", parent:d17  }); // give it a non-default anchor, we will check this below.
-		jsPlumb.connect({source:"d17", target:e16});
+		_jsPlumb.connect({source:"d17", target:e16});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
 		assertEndpointCount("d18", 0, _jsPlumb);
-		var e = jsPlumb.getEndpoints("d17");		
+		var e = _jsPlumb.getEndpoints("d17");		
 		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
@@ -2780,15 +2780,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 	test(renderMode + " anchorManager registers standard connection", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = _jsPlumb.connect({source:d1, target:d2});
-		equals(_jsPlumb.anchorManager.get("d1")["standard"].length, 1);
-		equals(_jsPlumb.anchorManager.get("d1")["endpoints"].length, 1);		
-		equals(_jsPlumb.anchorManager.get("d2")["standard"].length, 1);
-		equals(_jsPlumb.anchorManager.get("d2")["endpoints"].length, 1);				
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1);
+		equals(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 1);		
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1);
+		equals(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 1);				
 		var c2 = _jsPlumb.connect({source:d1, target:d2});
-		equals(_jsPlumb.anchorManager.get("d1")["standard"].length, 2);
-		equals(_jsPlumb.anchorManager.get("d2")["standard"].length, 2);
-		equals(_jsPlumb.anchorManager.get("d1")["endpoints"].length, 2);
-		equals(_jsPlumb.anchorManager.get("d2")["endpoints"].length, 2);				
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 2);
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 2);
+		equals(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 2);
+		equals(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 2);				
 	});
 	
 	// anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
@@ -2796,15 +2796,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		var c = _jsPlumb.connect({source:d3, target:d4, anchors:["AutoDefault", "AutoDefault"]});
 
-		equals(_jsPlumb.anchorManager.get("d3")["standard"].length, 1);
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
 		
 		var c2 = _jsPlumb.connect({source:d3, target:d4});
-		equals(_jsPlumb.anchorManager.get("d3")["standard"].length, 2);
-		equals(_jsPlumb.anchorManager.get("d4")["standard"].length, 2);		
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 2);
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 2);		
 
-		equals(_jsPlumb.anchorManager.get("d3")["endpoints"].length, 2);			
+		equals(_jsPlumb.anchorManager.getEndpointsFor("d3").length, 2);			
 		_jsPlumb.detach(c);
-		equals(_jsPlumb.anchorManager.get("d3")["standard"].length, 1);						
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);						
 	});
 	
 	// anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
@@ -2812,17 +2812,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		var c = _jsPlumb.connect({source:d3, target:d4, anchors:["Continuous", "Continuous"]});
 
-		equals(_jsPlumb.anchorManager.get("d3")["standard"].length, 0);
-		equals(_jsPlumb.anchorManager.get("d3")["continuous"].length, 1);		
-		equals(_jsPlumb.anchorManager.get("d4")["standard"].length, 0);
-		equals(_jsPlumb.anchorManager.get("d4")["continuous"].length, 1);							
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 1);							
 	
 		_jsPlumb.detach(c);
-		equals(_jsPlumb.anchorManager.get("d3")["continuous"].length, 0);		
-		equals(_jsPlumb.anchorManager.get("d4")["continuous"].length, 0);	
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0);		
+		equals(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 0);	
 		
 		_jsPlumb.reset();
-		equals(_jsPlumb.anchorManager.get("d4")["continuousAnchorEndpoints"].length, 0);	
+		equals(_jsPlumb.anchorManager.getEndpointsFor("d4"), null);	
 	});
 	
 // ------------- utility functions - math stuff, mostly --------------------------
@@ -3010,7 +3008,7 @@ var testSuite = function(renderMode, _jsPlumb) {
     	_jsPlumb.Defaults.Anchors = ["LeftMiddle", "RightMiddle"];
     	var d1 = _addDiv("d1"), 
     		d2 = _addDiv(d2), 
-    		c = jsPlumb.connect({source:d1, target:d2}),
+    		c = _jsPlumb.connect({source:d1, target:d2}),
     		e = c.endpoints[0];
 
     	equals(e.anchor.x, 0, "left middle anchor");
@@ -3020,7 +3018,7 @@ var testSuite = function(renderMode, _jsPlumb) {
     		Anchors:["TopLeft", "TopRight"]
     	});
 
-    	var conn = jsPlumb.connect({source:d1, target:d2}),
+    	var conn = _jsPlumb.connect({source:d1, target:d2}),
     		e1 = conn.endpoints[0], e2 = conn.endpoints[1];
     	
     	equals(e1.anchor.x, 0, "top leftanchor");
@@ -3035,7 +3033,7 @@ var testSuite = function(renderMode, _jsPlumb) {
     		Anchors:["TopLeft", "TopRight"]
     	});
 
-    	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), conn = jsPlumb.connect({source:d1, target:d2}),
+    	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), conn = _jsPlumb.connect({source:d1, target:d2}),
     		e1 = conn.endpoints[0], e2 = conn.endpoints[1];
     	
     	equals(e1.anchor.x, 0, "top leftanchor");
@@ -3045,7 +3043,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 
     	_jsPlumb.restoreDefaults();
     	
-    	var conn2 = jsPlumb.connect({source:d1, target:d2}),
+    	var conn2 = _jsPlumb.connect({source:d1, target:d2}),
     		e3 = conn2.endpoints[0], e4 = conn2.endpoints[1];
     	
     	equals(e3.anchor.x, 0.5, "bottom center anchor");
