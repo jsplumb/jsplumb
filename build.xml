@@ -44,6 +44,8 @@
 	<property name="output.demo.dir" value="${build.dir}/${final.version}/demo"/>
 	<!-- output demo js directory -->
 	<property name="output.demo.js.dir" value="${build.dir}/${final.version}/demo/js"/>
+	<!-- output tests directory -->
+	<property name="output.tests.dir" value="${build.dir}/${final.version}/tests"/>
 
 	<!--
 		fails the build if no "version" parameter supplied.
@@ -73,7 +75,8 @@
 		<mkdir dir="${output.dir}"/>	
 		<mkdir dir="${output.dir}/doc"/>	
 		<mkdir dir="${output.js.dir}"/>	
-		<mkdir dir="${output.demo.dir}"/>						
+		<mkdir dir="${output.demo.dir}"/>		
+		<mkdir dir="${output.tests.dir}"/>				
 		<echo/>
 		<echo>Building Version         :    ${final.version} into directory ${output.dir}</echo>			
 	</target>
@@ -182,6 +185,59 @@
 			</fileset>
 		</copy>			
 	</target>
+
+	<target name="update-tests-js">
+		<replaceregexp>						
+			<regexp pattern="(&lt;!-- JS.*&gt;.*\n)(.*\n)*(.*/JS --&gt;)"/>
+			<substitution expression="&lt;script type='text/javascript' src='../js/${library}.jsPlumb-${final.version}-all-min.js'&gt;&lt;/script&gt;"/>
+			<fileset dir="${output.tests.dir}">
+				<include name="*${library}.html"/>
+				<include name="*${library}-instance.html"/>
+			</fileset>
+		</replaceregexp>		
+
+		<replaceregexp>						
+			<regexp pattern="(&lt;!-- TEST.*&gt;.*\n)(.*\n)*(.*/TEST --&gt;)"/>
+			<substitution expression="&lt;script type='text/javascript' src='../js/jsPlumb-${final.version}-tests.js'&gt;&lt;/script&gt;"/>
+			<fileset dir="${output.tests.dir}">
+				<include name="*${library}.html"/>
+				<include name="*${library}-instance.html"/>
+			</fileset>
+		</replaceregexp>
+
+	</target>
+
+	<!-- copies the tests directory into the build dir -->
+	<target name="copy-tests">
+		<copy todir="${output.js.dir}">
+			<fileset dir="js/${final.version}">
+				<include name="jsPlumb-${final.version}-tests.js"/>
+			</fileset>
+		</copy>
+		<copy todir="${output.tests.dir}">
+			<fileset dir="tests">
+				<include name="*.html"/>
+				<include name="*.css"/>
+			</fileset>
+		</copy>
+		<mkdir dir="${output.js.dir}/lib"/>
+		<copy todir="${output.js.dir}/lib">
+			<fileset dir="js/lib">
+				<include name="qunit.js"/>
+			</fileset>
+		</copy>
+		<!-- now replace the JS with minified ones! -->
+		<antcall target="update-tests-js">
+			<param name="library" value="jquery"/>
+		</antcall>
+		<antcall target="update-tests-js">
+			<param name="library" value="mootools"/>
+		</antcall>
+		<antcall target="update-tests-js">
+			<param name="library" value="yui"/>
+		</antcall>
+		
+	</target>
 	
 	<target name="doc-version" unless="final.version">
 		<fail message="You must supply the final version to build api docs from"/>
@@ -239,6 +295,7 @@
 		<antcall target="minAll"/>		
 		<antcall target="demo"/>
 		<antcall target="copy-documentation"/>
+		<antcall target="copy-tests"/>
 	</target>
 
 	<target name="build-all" depends="build">
