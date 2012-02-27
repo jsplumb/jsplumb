@@ -118,7 +118,7 @@
 	
 	var _newCanvas = function(params) {
 		var canvas = document.createElement("canvas");
-		jsPlumb.appendElement(canvas, params.parent);
+		params["_jsPlumb"].appendElement(canvas, params.parent);
 		canvas.style.position = "absolute";
 		if (params["class"]) canvas.className = params["class"];
 		// set an id. if no id on the element and if uuid was supplied it
