@@ -2154,7 +2154,7 @@ between this method and jsPlumb.reset).
 					if (_continue) {
 					
 						// detach this connection from the source.						
-						source.detach(jpc, false, true, true);//source.endpointWillMoveAfterConnection);
+						source.detach(jpc, false, true, false);//source.endpointWillMoveAfterConnection);
 					
 						// make a new Endpoint for the target
 						//var newEndpoint = _currentInstance.addEndpoint(_el, _endpoint);
@@ -2547,7 +2547,7 @@ between this method and jsPlumb.reset).
 		  Function:reset 
 		  Removes all endpoints and connections and clears the listener list. To keep listeners call jsPlumb.deleteEveryEndpoint instead of this.
 		 */
-		this.reset = function() {
+		this.reset = function() {			
 			_currentInstance.deleteEveryEndpoint();
 			_currentInstance.clearListeners();
 			_targetEndpointDefinitions = {};
@@ -3182,9 +3182,10 @@ between this method and jsPlumb.reset).
             	registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
 		};
 		this.connectionDetached = function(connInfo) {
-			var sourceId = connInfo.sourceId,
-                targetId = connInfo.targetId,
-				ep = connInfo.connection.endpoints,
+			var connection = connInfo.connection || connInfo;
+			var sourceId = connection.sourceId,
+                targetId = connection.targetId,
+				ep = connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if (otherAnchor.constructor == FloatingAnchor) {
 						// no-op
@@ -3194,26 +3195,16 @@ between this method and jsPlumb.reset).
 							return _c[0].id == c.id;
 						});
 					}
-					/*else if (otherAnchor.constructor == DynamicAnchor || otherAnchor.constructor == Anchor) {
-                        var _conns = endpointConnectionsByElementId[elId];
-                        if (_conns) {
-                            _removeWithFunction(_conns, function(e) { return e[0].id == c.id; });
-                        }
-                    }
-					else // continuous.
-						_removeWithFunction(continuousAnchorConnectionsByElementId[elId], function(_c) {
-							return _c.id == c.id;
-						});*/
 				};
 				
-			removeConnection(1, ep[1], ep[1].anchor, sourceId, connInfo.connection);
-			removeConnection(0, ep[0], ep[0].anchor, targetId, connInfo.connection);
+			removeConnection(1, ep[1], ep[1].anchor, sourceId, connection);
+			removeConnection(0, ep[0], ep[0].anchor, targetId, connection);
 
             // remove from anchorLists
-            var sEl = connInfo.connection.sourceId,
-                tEl = connInfo.connection.targetId,
-                sE =  connInfo.connection.endpoints[0].id,
-                tE = connInfo.connection.endpoints[1].id,
+            var sEl = connection.sourceId,
+                tEl = connection.targetId,
+                sE =  connection.endpoints[0].id,
+                tE = connection.endpoints[1].id,
                 _remove = function(list, eId) {
                     if (list) {  // transient anchors dont get entries in this list.
                         var f = function(e) { return e[4] == eId; };
@@ -3232,14 +3223,12 @@ between this method and jsPlumb.reset).
 		this.add = function(endpoint, elementId) {
 			_addToList(_amEndpoints, elementId, endpoint);
 		};
-		/*this.get = function(elementId) {
-			return {
-				"standard":endpointConnectionsByElementId[elementId] || [],
-				"continuous":continuousAnchorConnectionsByElementId[elementId] || [],
-				"endpoints":_amEndpoints[elementId],
-				"continuousAnchorEndpoints":continuousAnchorEndpoints
-			};
-		};*/
+		this.getConnectionsFor = function(elementId) {
+			return connectionsByElementId[elementId];
+		};
+		this.getEndpointsFor = function(elementId) {
+			return _amEndpoints[elementId];
+		};
 		this.deleteEndpoint = function(endpoint) {
 			//var cIdx = _findIndex(continuousAnchorEndpoints, endpoint);
 			/*var cIdx = _indexOf(continuousAnchorEndpoints, endpoint);
