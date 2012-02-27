@@ -63,17 +63,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<h5>New Features</h5>
 			The following new features have been added:
 			<ul>
-				<li class="bullet">support for the <strong>contextmenu</strong> event has been added to the jsPlumb object, Connections and Endpoints. See <a href="#events">Events</a> for more information.</li>
-				<li class="bullet">A new method, <strong>setSuspendDrawing</strong>, was added to jsPlumb.  This allows you to instruct jsPlumb to not paint anything until you call this method again; it is useful for situations where you are adding a lot of connections at once but don't need to see them painted until everything has been added</li>
-				<li class="bullet">A new method, <strong>setHoverSuspended</strong>, was added to jsPlumb.  This method allows you to instruct jsPlumb to not post hover events until you tell it to again.  It can be useful when you're working with a lot of connections, because the occasional stray mouse event can creep through and cause your UI to flash like a 1970s disco.</li>
-				<li class="bullet"><strong>isHoverSuspended</strong> was also added.</li>
-				<li class="bullet"><strong>setLabel</strong> was re-implemented, properly this time.  This is available on both Connections and Endpoints.</li>
-				<li class="bullet"><strong>getLabel</strong> was also re-implemented, correctly.</li>
-				<li class="bullet"><strong>labelLocation</strong> was added as a parameter on the setLabel function, for both Connections and Endpoints.  For Connections the allowed values are a decimal between 0 and 1 inclusive, for Endpoints the allowed value is an array of two of these decimals, one for each axis</li>
-				<li class="bullet">Support for label overlays on Endpoints was added</li>
-				<li class="bullet"><strong>jsPlumb.Defaults.ConnectionOverlays</strong> default setting added</li>
-				<li class="bullet"><strong>jsPlumb.Defaults.EndpointOverlays</strong> default setting added</li>
-				<li class="bullet">Flowchart connectors now support the loopback case (in fact they received an overhaul in 1.3.5 and work better in all situations now)</li>
+				
 			</ul>
 			<h5>Issues Resolved</h5>
 			<ul>
@@ -1155,7 +1145,45 @@ var endpoint = jsPlumb.addEndpoint("otherElementId", endpointOptions);
 <p>
 jsPlumb also supports marking entire elements as drag sources or drag targets, using the <strong>makeSource</strong> and <strong>makeTarget</strong> methods.  This is a useful function for certain applications.  Each of these methods takes an Endpoint declaration which defines the Endpoint that jsPlumb will create after a Connection has been attached.  Let's take a look at makeTarget first:
 </p>
-<h5>jsPlumb.makeTarget</h5>
+<h4><a id="sourcesAndTargets">Elements as sources &amp; targets</a></h4>
+jsPlumb also supports turning entire elements into Connection sources and targets, using the methods <strong>makeSource</strong> and <strong>makeTarget</strong>.  With these methods you mark an element as a source or target, and provide an Endpoint specification for jsPlumb to use when a Connection is established.  makeSource also gives you the ability to mark some child element as the place from which you wish to drag Connections, but still have the Connection on the main element after it has been established.
+<p>These methods honour the jsPlumb defaults - if, for example you set up the default Anchors to be this:</p>
+<div class="code">
+<pre>
+jsPlumb.Defaults.Anchors = [ "LeftMiddle", "BottomRight" ];
+</pre>
+</div>
+... and then used makeSource and makeTarget without specifying Anchor locations, jsPlumb would use "LeftMiddle" for the makeSource element and "BottomRight" for the makeTarget element.
+<p>
+A further thing to note about makeSource and makeTarget is that from 1.3.6 onwards any prior calls to one of these methods is honoured by subsequent calls to jsPlumb.connect. This helps when you're building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created connections (obviously quite a common use case).  
+<p>For example:</p>
+<div class="code">
+<pre>
+jsPlumb.makeSource("el1", {
+	anchor:"Continuous",
+	endpoint:["Rectangle", { width:40, height:20 }]
+});
+
+...
+
+jsPlumb.connect({source:"el1", target:"el2"});
+</pre>
+</div>
+In this example, the source of the connection will be a Rectangle of size 40x20, having a Continuous Anchor.
+<p>You can override this behaviour by setting a <strong>newConnection</strong> parameter on the connect call:</p>
+<div class="code">
+<pre>
+jsPlumb.makeSource("el1", {
+	anchor:"Continuous",
+	endpoint:["Rectangle", { width:40, height:20 }]
+});
+
+...
+
+jsPlumb.connect({ source:"el1", target:"el2", newConnection:true });
+</pre>
+</div>
+<h5><a id="makeTarget">jsPlumb.makeTarget</a></h5>
 <p>
 This method takes two arguments, the first of which specifies some element (or list of elements); the second specifies the Endpoint you wish to create on that element whenever a Connection is established on it.  In this example we will use the exact same target Endpoint we used before - the gray rectangle - but we will tell jsPlumb that the element "aTargetDiv" will be the drop target:
 </p>
@@ -1283,7 +1311,7 @@ jsPlumb.makeTarget("someElement", {
 </pre>
 </div>
 
-<h5>jsPlumb.makeSource</h5>
+<h5><a id="makeSource">jsPlumb.makeSource</a></h5>
 There are two use cases supported by this method.  The first is the case that you want to drag a Connection from the element itself and have an Endpoint attached to the element when a Connection is established.  The second is a more specialised case: you want to drag a Connection from the element, but once the Connection is established you want jsPlumb to move it so that its source is on some other element.  For an example of this second case, check out the <a href="../../demo/jquery/stateMachineDemo.html">State Machine Connectors</a> demonstration.
 <p>Here's an example code snippet for the basic use case of makeSource:</p>
 <div class="code">
@@ -2597,7 +2625,12 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 					<div class="code">
 						<pre>jsPlumb.reset();</pre>
 					</div>
-				</li>				
+				</li>	
+				<li>Library-agnostic method to get a selector from the given selector specification.  This function is used mostly by the jsPlumb demos, to cut down on repeating code across the different libraries.  But perhaps you are writing something with jsPlumb that you also wisht to be library agnostic - this function can help you. The returned object, in each of jQuery, MooTools and YUI, has a ".each" iterator.
+					<div class="code">
+						<pre>var selector = jsPlumb.getSelector(".someSelector .spec");</pre>
+					</div>					
+				</li>
 				<li>Set window1 to be not draggable, no matter what some jsPlumb command may request.
 					<div class="code">
 						<pre>jsPlumb.setDraggable("window1", false);</pre>
