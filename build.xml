@@ -180,10 +180,10 @@
 				<include name="*.html"/>
 				<include name="*.css"/>
 			</fileset>
-		</copy>
+		</copy>			
 	</target>
 	
-	<target name="doc-version" unless="version">
+	<target name="doc-version" unless="final.version">
 		<fail message="You must supply the final version to build api docs from"/>
 	</target>
 	<!-- generates the API docs -->
@@ -191,8 +191,8 @@
 		<mkdir dir="js/TEMP"/>
 		<mkdir dir="js/TEMPOUT"/>
 		<copy todir="js/TEMP">
-			<fileset dir="build/${version}/js">
-				<include name="jquery.jsPlumb-${version}-all.js"/>
+			<fileset dir="build/${final.version}/js">
+				<include name="jquery.jsPlumb-${final.version}-all.js"/>
 			</fileset>
 		</copy>
 		<mkdir dir="apidocs"/>
@@ -208,11 +208,11 @@
 
 	    <!-- replace the jquery.blah title stuff that apidocs comes up with -->
 	    <replace dir="js/TEMPOUT" token="&lt;wbr&gt;"/>
-	    <replace dir="js/TEMPOUT" token="jquery.jsPlumb-${version}-all.js" value="jsPlumb ${version}"/>
+	    <replace dir="js/TEMPOUT" token="jquery.jsPlumb-${final.version}-all.js" value="jsPlumb ${final.version}"/>
 
 	    <!-- get a copy of the version number with dashes not dots -->
 	    <propertyregex property="version.with.dashes"
-              input="${version}"
+              input="${final.version}"
               regexp="([0-9])\.([0-9])\.([0-9])"
               replace="\1-\2-\3"/>
 
@@ -227,13 +227,22 @@
 				<include name="**/*"/>
 			</fileset>
 		</copy>
+		<copy todir="build/${final.version}/demo/apidocs">
+			<fileset dir="demo/apidocs">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
 		<delete dir="js/TEMPOUT"/>
 	</target>
 	
-	<target name="build" depends="init">
-		<antcall target="minAll"/>
+	<target name="build" depends="init">		
+		<antcall target="minAll"/>		
 		<antcall target="demo"/>
 		<antcall target="copy-documentation"/>
+	</target>
+
+	<target name="build-all" depends="build">
+		<antcall target="docs"/>
 	</target>
 	
 </project>
