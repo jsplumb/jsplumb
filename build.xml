@@ -183,12 +183,16 @@
 		</copy>
 	</target>
 	
+	<target name="doc-version" unless="version">
+		<fail message="You must supply the final version to build api docs from"/>
+	</target>
 	<!-- generates the API docs -->
-	<target name="docs" depends="minAll">
+	<target name="docs" depends="doc-version">
 		<mkdir dir="js/TEMP"/>
+		<mkdir dir="js/TEMPOUT"/>
 		<copy todir="js/TEMP">
-			<fileset dir="js/${final.version}">
-				<include name="jquery.jsPlumb-${final.version}-all.js"/>
+			<fileset dir="build/${version}/js">
+				<include name="jquery.jsPlumb-${version}-all.js"/>
 			</fileset>
 		</copy>
 		<mkdir dir="apidocs"/>
@@ -197,11 +201,33 @@
 	        <arg path="js/TEMP"/>
 	        <arg line="-o"/>
 	    	<arg line="HTML"/>
-	    	<arg line="apidocs"/>
+	    	<arg line="js/TEMPOUT"/>
 	    	<arg line="-p"/>
 	    	<arg line="."/>
 	    </exec>
+
+	    <!-- replace the jquery.blah title stuff that apidocs comes up with -->
+	    <replace dir="js/TEMPOUT" token="&lt;wbr&gt;"/>
+	    <replace dir="js/TEMPOUT" token="jquery.jsPlumb-${version}-all.js" value="jsPlumb ${version}"/>
+
+	    <!-- get a copy of the version number with dashes not dots -->
+	    <propertyregex property="version.with.dashes"
+              input="${version}"
+              regexp="([0-9])\.([0-9])\.([0-9])"
+              replace="\1-\2-\3"/>
+
+	    <!-- write the index file -->
+	    <echo file="js/TEMPOUT/index.html" append="false">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv="Refresh" CONTENT="0; URL=./files/jquery-jsPlumb-${version.with.dashes}-all-js.html"&gt;&lt;/head&gt;&lt;/html&gt;</echo>
+
 		<delete dir="js/TEMP"/>
+		<delete dir="demo/apidocs"/>
+		<mkdir dir="demo/apidocs"/>
+		<copy todir="demo/apidocs">
+			<fileset dir="js/TEMPOUT">
+				<include name="**/*"/>
+			</fileset>
+		</copy>
+		<delete dir="js/TEMPOUT"/>
 	</target>
 	
 	<target name="build" depends="init">
