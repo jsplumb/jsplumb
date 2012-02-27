@@ -208,7 +208,7 @@
 			// is performed; returning false prevents the detach.
 			var beforeDetach = params.beforeDetach;
 			this.isDetachAllowed = function(connection) {
-				var r = true;
+				var r = self._jsPlumb.checkCondition("beforeDetach", connection );
 				if (beforeDetach) {
 					try { 
 						r = beforeDetach(connection); 
