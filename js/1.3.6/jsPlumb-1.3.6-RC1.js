@@ -2167,7 +2167,7 @@ between this method and jsPlumb.reset).
 							var dropPosition = jpcl.getUIPosition(arguments),
 							elPosition = jpcl.getOffset(_el),
 							elSize = jpcl.getSize(_el),
-							ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor);
+							ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
 							newEndpoint.anchor.x = ap[0];
 							newEndpoint.anchor.y = ap[1];
 							// now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
@@ -5130,12 +5130,12 @@ between this method and jsPlumb.reset).
     // a position finder argument to that function allows you to specify where the resulting anchor will
     // be located
 	jsPlumb.AnchorPositionFinders = {
-		"Fixed": function(dp, ep, es, a) {
+		"Fixed": function(dp, ep, es, params) {
 			return [ (dp.left - ep.left) / es[0], (dp.top - ep.top) / es[1] ];	
 		},
-		"Grid":function(dp, ep, es, a) {
+		"Grid":function(dp, ep, es, params) {
 			var dx = dp.left - ep.left, dy = dp.top - ep.top,
-				gx = es[0] / (a.constructorParams.grid[0]), gy = es[1] / (a.constructorParams.grid[1]),
+				gx = es[0] / (params.grid[0]), gy = es[1] / (params.grid[1]),
 				mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
 			return [ ((mx * gx) + (gx / 2)) / es[0], ((my * gy) + (gy / 2)) / es[1] ];
 		}
