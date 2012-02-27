@@ -32,10 +32,8 @@ var smallWindows = jsPlumb.getSelector(".smallWindow");
 for (var i = 0; i < smallWindows.length; i++) {	
   jsPlumb.draggable(smallWindows[i]);
   jsPlumb.makeTarget(smallWindows[i], {
-    endpoint:{
-      paintStyle: { fillStyle:'#558822' },
-      anchor:"TopCenter"
-    },
+    paintStyle: { fillStyle:'#558822' },
+    anchor:"TopCenter"
     dropOptions:{ hoverClass:"hover" }
   });
 }
@@ -57,9 +55,12 @@ for (var i = 0; i < smallWindows.length; i++) {
 	    
 	    </div>
 	    
+	    <!-- DEP -->
 	    <script type="text/javascript" src="../../js/lib/mootools-1.3.2-yui-compressed.js"></script>
-		<script type="text/javascript" src="../../js/lib/mootools-1.3.2.1-more.js"></script>
+	    <!-- /DEP -->
+		<script type="text/javascript" src="../js/mootools-1.3.2.1-more.js"></script>				
 		
+		<!-- JS -->
 		<!-- support lib for bezier stuff -->
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.3-min.js"></script>
 		<!-- main jsplumb engine -->
@@ -74,6 +75,7 @@ for (var i = 0; i < smallWindows.length; i++) {
 		<script type="text/javascript" src="../../js/1.3.6/jsPlumb-renderers-vml-1.3.6-RC1.js"></script>
 		<!-- mootools jsplumb adapter -->
 		<script type="text/javascript" src="../../js/1.3.6/mootools.jsPlumb-1.3.6-RC1.js"></script>
+		<!-- /JS -->
 				
 		<!--  demo code -->
 		<script type="text/javascript" src="../js/1.3.6/anchorDemo.js"></script>

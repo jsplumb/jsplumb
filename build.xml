@@ -7,7 +7,7 @@
         </fileset>
     </path>
 	
-	<target name="js.minify">
+	<target name="yui.minify">
 	    <java jar="./lib/yuicompressor-2.4.2.jar" fork="true" output="${output}">
 	    	<arg value="${input}"/>
 	    	<classpath>
@@ -22,26 +22,59 @@
 	    <pathelement location="./lib/ant-contrib-0.6.jar"/>
 	  </classpath>
 	</taskdef>		
-		
-	<!-- 
-		create final version number
-	-->
+
+
+	<!-- main build dir, inside which we have one dir per build number -->
+	<property name="build.dir" value="./build"/>		
+	<!--  create final version number -->
 	<propertyregex property="final.version"
 	              input="${version}"
 	              regexp="[0-9]+\.[0-9]+\.[0-9]+"
 	              select="\0"
 	              casesensitive="false" />
-	
+	<!-- js input directory -->
 	<property name="dir" value="./js/${final.version}/"/>
+	<!-- input demo directory -->
+	<property name="demo.dir" value="./demo"/>
+	<!-- output directory -->
+	<property name="output.dir" value="${build.dir}/${final.version}"/>
+	<!-- output JS directory -->
+	<property name="output.js.dir" value="${build.dir}/${final.version}/js"/>
+	<!-- output demo directory -->
+	<property name="output.demo.dir" value="${build.dir}/${final.version}/demo"/>
+	<!-- output demo js directory -->
+	<property name="output.demo.js.dir" value="${build.dir}/${final.version}/demo/js"/>
 
-	<echo>building from version ${version}</echo>
-	<echo>building final version ${final.version} in directory ${dir}</echo>
-	
 	<!--
 		fails the build if no "version" parameter supplied.
 	-->
-	<target name="check" unless="version">
+	<target name="checkForVersion" unless="version">
 		<fail message="You must supply the version to bundle, eg. ant -Dversion=x.y.c-RCn"/>
+	</target>
+
+	<!-- fails if the desired build dir already exists and force was not specified on the command line. -->
+	<target name="checkForExistingBuildDir" unless="force">
+		<if>
+			<available file="${output.dir}" type="dir"/>
+			<then>
+				<echo>Output directory already exists and "-Dforce=true" was not specified - exiting.</echo>
+				<fail message="output directory already exists"/>
+			</then>
+    	</if>
+    </target>
+
+    <!-- creates the output dir, if necessary -->
+	<target name="init" depends="checkForExistingBuildDir,checkForVersion">
+		<!-- this will fail silently if the dir already exists; that's ok. it's because this is the first build this user has run. -->
+		<mkdir dir="${build.dir}"/>	
+		<!-- but these should not already exist; we will have bailed before here if that's the case, unless the user 
+		specified the '-Dforce=true' argument on the command line -->
+		<delete dir="${output.dir}"/>
+		<mkdir dir="${output.dir}"/>	
+		<mkdir dir="${output.js.dir}"/>	
+		<mkdir dir="${output.demo.dir}"/>						
+		<echo/>
+		<echo>Building Version         :    ${final.version} into directory ${output.dir}</echo>			
 	</target>
 	
 	<!-- 
@@ -49,39 +82,26 @@
 		
 		expects "library" parameter to be set.
 	-->
-	<target name="concatLibrary" depends="check">
-		<concat destfile="${dir}/${library}.jsPlumb-${final.version}-all.js">
+	<target name="concatLibrary">
+		<echo>Concatenating ${library}</echo>
+		<concat destfile="${output.js.dir}/${library}.jsPlumb-${final.version}-all.js">
 			<filelist dir="${dir}" files="jsPlumb-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-connectors-statemachine-${version}.js, jsPlumb-renderers-vml-${version}.js, jsPlumb-renderers-svg-${version}.js, jsPlumb-renderers-canvas-${version}.js, ${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.3-min.js"/>
 		</concat>		
 	</target>
 	
+	<!-- minifies a concatenated library -->
 	<target name="minLibrary" depends="concatLibrary">
-		<antcall target="js.minify">
+		<echo>Minifying ${library}</echo>
+		<antcall target="yui.minify">
 			<param name="input" value="${dir}/${library}.jsPlumb-${final.version}-all.js"/>
-			<param name="output" value="${dir}/${library}.jsPlumb-${final.version}-all-min.js"/>
-		</antcall>
-	</target>
-	
-	<!-- 
-		concats the three main files together to write final versions for
-		all supported libraries.
-		
-		expects a "-Dversion=x.y.z-RCn" parameter on the Ant call.  strips "-RCn"
-		from the end to derive a final name.
-	-->	
-	<target name="concat" depends="check">		
-		<antcall target="concatLibrary">
-			<param name="library" value="jquery"/>
-		</antcall>
-		<antcall target="concatLibrary">
-			<param name="library" value="mootools"/>
+			<param name="output" value="${output.js.dir}/${library}.jsPlumb-${final.version}-all-min.js"/>
 		</antcall>
 	</target>
 	
 	<!-- 
 		generates minified and concatenated scripts for supported libraries.
 	--> 
-	<target name="min" depends="check">		
+	<target name="minAll">		
 		<antcall target="minLibrary">
 			<param name="library" value="jquery"/>
 		</antcall>
@@ -92,8 +112,60 @@
 			<param name="library" value="yui"/>
 		</antcall>
 	</target>
+
+	<target name="html">
+		<echo>Replacing Javascript imports for ${library}</echo>
+
+		<!-- replace JS dependency with the prod version -->
+		<replaceregexp>
+			<regexp pattern="(&lt;!-- DEP.*&gt;.*\n)(.*\n)*(.*/DEP --&gt;)"/>
+			<substitution expression="${dependencies}"/>
+			<fileset dir="${output.demo.dir}/${libraryDir}">
+				<include name="*.html"/>
+			</fileset>
+		</replaceregexp>
+
+		<!-- replace all JS with the minified file -->
+		<replaceregexp>						
+			<regexp pattern="(&lt;!-- JS.*&gt;.*\n)(.*\n)*(.*/JS --&gt;)"/>
+			<substitution expression="&lt;script type='text/javascript' src='../js/${library}.jsPlumb-${final.version}-all-min.js'&gt;&lt;/script&gt;"/>
+			<fileset dir="${output.demo.dir}/${libraryDir}">
+				<include name="*.html"/>
+			</fileset>
+		</replaceregexp>
+	</target>
+
+	<!-- copies the demos and replaces their JS imports with final versions -->
+	<target name="demo">
+		<echo>Processing demo code...</echo>
+		<copy todir="${output.demo.dir}">
+			<fileset dir="${demo.dir}"/>
+		</copy>
+		<!-- copy built JS -->
+		<copy todir="${output.demo.js.dir}">
+			<fileset dir="${output.js.dir}"/>
+		</copy>
+		<!-- replace dev JS imports with final versions -->
+		<antcall target="html">
+			<param name="libraryDir" value="jquery"/>
+			<param name="library" value="jquery"/>
+			<param name="dependencies" value="&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'&gt;&lt;/script&gt;&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js'&gt;&lt;/script&gt;"/>
+		</antcall>
+
+		<antcall target="html">			
+			<param name="libraryDir" value="mootools"/>
+			<param name="library" value="mootools"/>
+			<param name="dependencies" value="&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'&gt;&lt;/script&gt;"/>
+		</antcall>
+
+		<antcall target="html">
+			<param name="libraryDir" value="yui3"/>
+			<param name="library" value="yui"/>
+		</antcall>
+	</target>
 	
-	<target name="docs" depends="min">
+	<!-- generates the API docs -->
+	<target name="docs" depends="minAll">
 		<mkdir dir="js/TEMP"/>
 		<copy todir="js/TEMP">
 			<fileset dir="js/${final.version}">
@@ -113,8 +185,9 @@
 		<delete dir="js/TEMP"/>
 	</target>
 	
-	<target name="build">
-		<antcall target="min"/>
+	<target name="build" depends="init">
+		<antcall target="minAll"/>
+		<antcall target="demo"/>
 	</target>
 	
 </project>
