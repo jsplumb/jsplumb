@@ -1484,9 +1484,7 @@ var exampleGreyEndpointOptions = {
 		</ul>
 		<p>Returning false - or nothing - from this callback will cause the drag to be abandoned, and the new Connection removed from the UI.</p>
 		<h4><a id="beforeDetach">Before Detach</a></h4>
-		This is called when the user has detached a Connection, which can happen for a number of reasons: by default, jsPlumb allows users to drag Connections
-		off of target Endpoints, but this can also result from a programmatic 'detach' call.  Every case is treated the same by jsPlumb, so in fact it is possible
-		for you to write code that attempts to detach a Connection but then denies itself!  You might want to be careful with that. 
+		This is called when the user has detached a Connection, which can happen for a number of reasons: by default, jsPlumb allows users to drag Connections off of target Endpoints, but this can also result from a programmatic 'detach' call.  Every case is treated the same by jsPlumb, so in fact it is possible for you to write code that attempts to detach a Connection but then denies itself!  You might want to be careful with that. 
 		<p>Note that this interceptor is passed the actual Connection object; this is different from the beforeDrop
 		interceptor discussed above: in this case, we've already got a Connection, but with beforeDrop we are yet 
 		to confirm that a Connection should be created.</p>
@@ -2085,17 +2083,19 @@ in when dragging, and do not reflect static reality), and so the source/target p
 				<li class="bullet"><strong>dblclick</strong> - notification a Connection was double-clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>endpointClick</strong> - notification an Endpoint was clicked.  The callback is passed the Endpoint and the original mouse event.</li>
 				<li class="bullet"><strong>endpointDblClick</strong> - notification an Endpoint was double-clicked.  The callback is passed the Endpoint and the original mouse event.</li>
-				<li class="bullet"><strong>contextmenu</strong> - a right-click on some given component.  jsPlumb will report right clicks on both Connections and Endpoints; the callback is passed the component that received the right-click.
-				<li class="bullet"><strong>beforeDrag</strong>
+				<li class="bullet"><strong>contextmenu</strong> - a right-click on some given component.  jsPlumb will report right clicks on both Connections and Endpoints; the callback is passed the component that received the right-click.				
+				<li class="bullet"><strong>beforeDrop</strong>
+					This event is fired when a new connection has been dropped. Your callback is passed a JS object with sourceId, targetId and scope in it. If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.
+				</li>					
+				<!--li class="bullet"><strong>beforeDrag</strong>
 					This event is fired when a new connection is about to be dragged.  Your callback function
 					is passed the Connection that jsPlumb has just created.  If you return false (or nothing) 
 					from this callback, the new Connection is aborted.
+				</li-->
+				<li class="bullet"><strong>beforeDetach</strong>
+					This event is fired when a Connection is about to be detached, for whatever reason. Your callback function is passed the Connection that jsPlumb has just created. Returning false from this interceptor aborts the Connection detach.
 				</li>
-				<li class="bullet"><strong>beforeDrop</strong>
-					This event is fired when a new connection has been dropped.  Your callback function
-					is passed the Connection that jsPlumb has just created.  If you return false (or nothing) 
-					from this callback, the new Connection is aborted and removed from the UI.
-				</li>								
+							
 			</ul>
 			<h4><a id="connectionEvents">Connection Events</a></h4>		
 			<p>To bind to an event on a Connection, you also use the <strong>bind</strong> method:</p>
