@@ -94,7 +94,7 @@
 	<target name="minLibrary" depends="concatLibrary">
 		<echo>Minifying ${library}</echo>
 		<antcall target="yui.minify">
-			<param name="input" value="${dir}/${library}.jsPlumb-${final.version}-all.js"/>
+			<param name="input" value="${output.js.dir}/${library}.jsPlumb-${final.version}-all.js"/>
 			<param name="output" value="${output.js.dir}/${library}.jsPlumb-${final.version}-all-min.js"/>
 		</antcall>
 	</target>
