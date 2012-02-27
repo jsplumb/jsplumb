@@ -53,6 +53,7 @@
             jsPlumb.makeTarget(jsPlumb.getSelector(".w"), {
 				dropOptions:{ hoverClass:"dragHover" },
 				anchor:"Continuous"			
+				//anchor:"TopCenter"			
 			});
 		}
 	};

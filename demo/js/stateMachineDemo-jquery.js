@@ -5,6 +5,7 @@
 			var p = $(e).parent();
 			jsPlumb.makeSource($(e), {
 				parent:p,
+				//anchor:"BottomCenter",
 				anchor:"Continuous",
 				connector:[ "StateMachine", { curviness:20 } ],
 				connectorStyle:{ strokeStyle:nextColour(), lineWidth:2 },
