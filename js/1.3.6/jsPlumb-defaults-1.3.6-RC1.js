@@ -334,11 +334,11 @@
 		 * the total length.  
 		 */
 		findSegmentForLocation = function(location) {
-			var idx = segmentProportions.length - 1, inSegmentProportion = 0;
+			var idx = segmentProportions.length - 1, inSegmentProportion = 1;
 			for (var i = 0; i < segmentProportions.length; i++) {
 				if (segmentProportions[i][1] >= location) {
 					idx = i;
-					inSegmentProportion = (location - segmentProportions[i][0]) / segmentProportionalLengths[i];
+					inSegmentProportion = (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
  					break;
 				}
 			}
@@ -540,7 +540,7 @@
          * 0 to 1 inclusive. for this connector we must first figure out which segment the given point lies in, and then compute the x,y position
          * from our knowledge of the segment's start and end points.
          */
-        this.pointOnPath = function(location) {
+        this.pointOnPath = function(location) {            
         	return self.pointAlongPathFrom(location, 0);
         };
         
