@@ -118,10 +118,10 @@
          */
         this.pointAlongPathFrom = function(location, distance) {            
         	var p = self.pointOnPath(location),
-                farAwayPoint = {
+                farAwayPoint = location == 1 ? {
                     x:_sx + ((_tx - _sx) * 10),
                     y:_sy + ((_sy - _ty) * 10)
-                };
+                } : {x:_tx, y:_ty };
 
             return jsPlumb.util.pointOnLine(p, farAwayPoint, distance);
         };
