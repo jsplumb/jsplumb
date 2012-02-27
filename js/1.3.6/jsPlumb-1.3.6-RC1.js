@@ -3119,7 +3119,7 @@ between this method and jsPlumb.reset).
     },
 	placeAnchors = function(elementId, _anchorLists) {
 		var sS = sizes[elementId], sO = offsets[elementId],
-		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier) {
+		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
             if (unsortedConnections.length > 0) {
 			    var sc = _sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
 			    //sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
@@ -3132,6 +3132,7 @@ between this method and jsPlumb.reset).
 			    var _setAnchorLocation = function(endpoint, anchorPos) {
 				    var a = adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
 				    continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
+				    continuousAnchorOrientations[endpoint.id] = orientation;
 			    };
 
 			    for (var i = 0; i < anchors.length; i++) {
@@ -3141,13 +3142,15 @@ between this method and jsPlumb.reset).
 				    else if (weAreTarget)
 					    _setAnchorLocation(c.endpoints[1], anchors[i]);
 			    }
+
+
             }
 		};
 
-		placeSomeAnchors("bottom", sS, [sO.left,sO.top], _anchorLists.bottom, true, 1);
-		placeSomeAnchors("top", sS, [sO.left,sO.top], _anchorLists.top, true, 0);
-		placeSomeAnchors("left", sS, [sO.left,sO.top], _anchorLists.left, false, 0);
-		placeSomeAnchors("right", sS, [sO.left,sO.top], _anchorLists.right, false, 1);
+		placeSomeAnchors("bottom", sS, [sO.left,sO.top], _anchorLists.bottom, true, 1, [0,1]);
+		placeSomeAnchors("top", sS, [sO.left,sO.top], _anchorLists.top, true, 0, [0,-1]);
+		placeSomeAnchors("left", sS, [sO.left,sO.top], _anchorLists.left, false, 0, [-1,0]);
+		placeSomeAnchors("right", sS, [sO.left,sO.top], _anchorLists.right, false, 1, [1,0]);
 	},
     AnchorManager = function() {
 		var _amEndpoints = {},
@@ -3292,8 +3295,6 @@ between this method and jsPlumb.reset).
 			// get all the endpoints for this element
 			var ep = _amEndpoints[elementId] || [],
 				endpointConnections = connectionsByElementId[elementId] || [],
-				//endpointConnections = endpointConnectionsByElementId[elementId] || [],
-				//continuousAnchorConnections = continuousAnchorConnectionsByElementId[elementId] || [],
 				connectionsToPaint = [],
 				endpointsToPaint = [],
                 anchorsToUpdate = [];
