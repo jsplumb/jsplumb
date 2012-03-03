@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>jsPlumb 1.3.6 - documentation</title>
+		<title>jsPlumb 1.3.7 - documentation</title>
 		<link rel="stylesheet" href="/mp.css">
 		<link rel="stylesheet" href="jsPlumbDoc.css">
 	</head>
@@ -28,7 +28,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			</p>  
 
 			<h5>Browser Compatibility</h5>
-			<p>jsPlumb 1.3.6 has been tested on the following browsers:
+			<p>jsPlumb 1.3.7 has been tested on the following browsers:
 				<ul>
 					<li class="bullet">IE 6 on Windows XP</li>
 					<li class="bullet">IE 7 on Windows XP</li>
@@ -53,44 +53,44 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 		</div>
 		
 		<div class="section">		
-			<h3><a id="changes">Changes between 1.3.6 and 1.3.5</a></h3>
+			<h3><a id="changes">Changes between 1.3.7 and 1.3.6</a></h3>
 			<h5>Backwards Compatibility</h5>
-			<ul>
-				<li class="bullet"><strong>makeSource</strong> and <strong>makeTarget</strong> calls are now honoured by subsquent calls to jsPlumb.connect.  So if you call makeTarget on some element, providing an endpoint spec, and then later on call jsPlumb.connect with that element as the target, jsPlumb will use the endpoint spec you provided to makeTarget.  The thinking behind this is that typically you will want to setup some sources and/or targets for interactive connections, but then possibly load some initial state for the UI. Prior to this change you would have to provide the same information twice.<br/></li>
-				<li class="bullet">The second argument to <strong>makeSource</strong> and <strong>makeTarget</strong> no longer requires the nested 'endpoint' parameter - they take the exact same object that you would pass to the second argument to addEndpoint.  Of course that object can itself have an 'endpoint' parameter, which is used to specify the type of endpoint (Dot, Rectangle etc) - kind of confusing, and yet another reason to unify the API a little.<br/></li>
-				<li class="bullet">- Mouse events are always enabled from 1.3.6 onwards.  The default setting <strong>MouseEventsEnabled</strong> and the method <strong>setMouseEventsEnabled</strong> have both been removed.
-			</ul>
+			There are no backwards compatibility issues between 1.3.7 and 1.3.6.
 			<h5>New Features</h5>
 			The following new features have been added:
-			<ul>
-				
+			<ul>				
+				<li class="bullet">new method <strong>jsPlumb.select</strong> provides a fluid interface to working with lists of Connections.  This is similar to the existing getConnections method, but the return value of jsPlumb.select supports all of the setter/getter operations that are available on Connection, executing that method on each Connection in the returned list. The method is also chainable. So you can now do things like this:
+					<div class="code">
+<pre>
+jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
+</pre>
+</div>
+				Read more about this method <a href="#selectConnections">here</a>	
+				<br/><br/>				
+				</li>
+				<li class="bullet"><strong>makeTarget</strong> now supports a beforeDrop interceptor</li>
+				<li class="bullet"><strong>getOverlays</strong> method added to Connection and Endpoint</li>
+				<li class="bullet"><strong>showOverlays</strong>/<strong>hideOverlays</strong> methods added to Connection and Endpoint</li>
+				<li class="bullet"><strong>getConnections</strong> now support an optional second argument that returns results as a flat array instead of an object with scopes as keys.  But if you're going to use this you might want to just use <strong>select</strong> instead...</li>
+				<li class="bullet">getConnections now supports a value of '*' for any of source, target or scope - a wildcard, meaning "any value".</li>
+				<li class="bullet">new methods <strong>setId</strong> and <strong>setIdChanged</strong> let you either tell jsPlumb to change an element's id, or that an element's id has changed.  You should use these methods if you need to change element ids as jsPlumb uses element id internally.</li>
 			</ul>
 			<h5>Issues Resolved</h5>
 			<ul>
 				<li class="bullet">
-					<strong>98</strong> - Endpoints nested inside draggable element are not refreshed on drag
+					<strong>207</strong> - pass original event back in connection detached callback
 				</li>
 				<li class="bullet">
-					<strong>195</strong> - deleteEndpointsOnDetach was being ignored by makeTarget method
+					<strong>210</strong> - overlays not being hidden when setVisible(false) called
 				</li>
 				
 				<li class="bullet">
-					<strong>204</strong> - add importDefaults method
+					<strong>211</strong> - IE8 JS error with overlays and continuous anchors
 				</li>
 
-				<!--li class="bullet">
-					<strong>187</strong> - dynamic anchors broken for Endpoints
-				</li>
 				<li class="bullet">
-					<strong>189</strong> - Endpoints draggable when they should not be
+					<strong>212</strong> - change the id of an element
 				</li>
-				<li class="bullet">
-					<strong>190</strong> - getInstance regressions
-				</li>
-				<li class="bullet">
-					<strong>191</strong> - offsets calculated wrongly in certain situations
-				</li-->
-
 			</ul>
 
 
@@ -109,7 +109,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			    <div class="code">
 <pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.6-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.7-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>MooTools</h4>
 				<ul>
@@ -119,7 +119,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.3/mootools-yui-compressed.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.6-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.7-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>YUI3</h4>
 			<ul>
@@ -127,7 +127,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			</ul>
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.6-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.7-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			
 			<h4><a id="renderMode">Render Mode</a></h4>
@@ -987,7 +987,7 @@ jsPlumb.Defaults.EndpointStyles = [{ fillStyle:"#225588" }, { fillStyle:"#558822
 			</ul>
 
 			<h5>jsPlumb.importDefaults</h5>
-From version 1.3.6 onwards there is a helper method called <strong>importDefaults</strong> that allows you to import a set of values with just one call to jsPlumb.  Here's the previous example using importDefaults:
+From version 1.3.7 onwards there is a helper method called <strong>importDefaults</strong> that allows you to import a set of values with just one call to jsPlumb.  Here's the previous example using importDefaults:
 			<div class="code">
 <pre>
 jsPlumb.importDefaults({
@@ -1155,7 +1155,7 @@ jsPlumb.Defaults.Anchors = [ "LeftMiddle", "BottomRight" ];
 </div>
 ... and then used makeSource and makeTarget without specifying Anchor locations, jsPlumb would use "LeftMiddle" for the makeSource element and "BottomRight" for the makeTarget element.
 <p>
-A further thing to note about makeSource and makeTarget is that from 1.3.6 onwards any prior calls to one of these methods is honoured by subsequent calls to jsPlumb.connect. This helps when you're building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created connections (obviously quite a common use case).  
+A further thing to note about makeSource and makeTarget is that from 1.3.7 onwards any prior calls to one of these methods is honoured by subsequent calls to jsPlumb.connect. This helps when you're building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created connections (obviously quite a common use case).  
 <p>For example:</p>
 <div class="code">
 <pre>
@@ -1899,8 +1899,8 @@ The arguments are as follows:
 		
 			<div class="section">
 			<h3><a id="connectionInfo">Retrieving Connection Information</a></h3>
-			jsPlumb offers one fairly versatile method - <strong>getConnections</strong> - to retrieve information about the
-			currently managed connections.  
+			There are two ways of retrieving connection information from jsPlumb. <strong>getConnections</strong>is the original method; from 1.3.7 onwards this method is supplemented by <a href="#selectConnections">jsPlumb.select</a>, a much more versatile variant.
+			<h5>getConnections</h5>
 			<p>Before you use this method you should understand jsPlumb's notion of 'scope' - documentation
 			is <a href="#dragAndDropScope">here</a> </p>
 			
@@ -1923,11 +1923,9 @@ The arguments are as follows:
 				<li>source - limits the returned connections to those that have this source id</li>
 				<li>target - limits the returned connections to those that have this target id</li>
 			</ul>			
-			Each of these three parameters may be supplied as a string, or a list of strings - see the examples below.
+			Each of these three parameters may be supplied as a string, which for source and target is an element id and for scope is the name of the scope, or a list of strings.  Also from 1.3.7 you can pass "*" in as the value for any of these - a wildcard, meaning any value.  See the examples below.
 			<p>
-			The return value of a call to getConnection using a JS object as parameter varies on how many scopes you defined.  If you defined only
-			a single scope then jsPlumb returns you a list of Connections in that scope.  Otherwise the return value is a dictionary whose keys are 
-			scope names, and whose values are lists of Connections. For example, the following call:
+			The return value of a call to getConnection using a JS object as parameter varies on how many scopes you defined.  If you defined only a single scope then jsPlumb returns you a list of Connections in that scope.  Otherwise the return value is a dictionary whose keys are  scope names, and whose values are lists of Connections. For example, the following call:
 			</p>
 			<div class="code">
 <pre>
@@ -1942,7 +1940,21 @@ would result in this output:
 	"someCustomScope": [ 1..m Connections ]
 }
 </pre>
-</div>			
+</div>	
+
+There is an optional second parameter that tells getConnections to flatten its output and just return you an array.  The previous example with this parameter would look like this:
+			<div class="code">
+<pre>
+	jsPlumb.getConnections({scope:["someScope", "someCustomScope"]}, true);
+</pre>
+</div>
+would result in this output:			
+<div class="code">
+<pre>
+[ 1..n Connections ]
+</pre>
+</div>	
+		
 		The following examples show the various ways you can get connection information:
 	<ul>
 		<li>Get all connections:
@@ -2013,11 +2025,109 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 	</ul>	
 
 		</div>
+
+		<div class="section">
+			<h3><a id="selectConnections">Selecting Connections</a></h3>
+			Introduced in 1.3.7, <strong>jsPlumb.select</strong> provides a fluid interface for working with lists of Connections.  The syntax used to specify which Connections you want is identical to that which you use for getConnections, but the return value is an object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Connections in the selection along with the return value for that Connection.
+			<p>
+			This is the full list of setter operations supported by jsPlumb.select:
+			<ul>
+				<li class="bullet">addOverlay</li>
+				<li class="bullet">removeOverlay</li>
+				<li class="bullet">removeOverlays</li>
+				<li class="bullet">showOverlay</li>
+				<li class="bullet">hideOverlay</li>
+				<li class="bullet">showOverlays</li>
+				<li class="bullet">hideOverlays</li>
+				<li class="bullet">removeAllOverlays</li>
+				<li class="bullet">setLabel</li>
+				<li class="bullet">setPaintStyle</li>
+				<li class="bullet">setHoverPaintStyle</li>
+				<li class="bullet">setDetachable</li>
+				<li class="bullet">setConnector</li>
+				<li class="bullet">setParameter</li>
+				<li class="bullet">setParameters</li>
+				<li class="bullet">detach</li>
+			</ul>
+
+			Each of these operations returns a selector that can be chained.
+			</p>
+			These is the full list of getter operations supported by jsPlumb.select:
+			<p>
+				<ul>
+				<li class="bullet">getLabel</li>
+				<li class="bullet">getOverlay</li>
+				<li class="bullet">isHover</li>
+				<li class="bullet">isDetachable</li>
+				<li class="bullet">getParameter</li>
+				<li class="bullet">getParameters</li>
+			</ul>
+
+			Each of these operations returns an array whose entries are [ value, Connection ] arrays, where 'value' is the return value from the given Connection.  Remember that the return values from a getter are not chainable, but a getter may be called at the end of a chain of setters.
+			</p>
+
+			<p>Some examples:</p>
+			Select all Connections and set their hover state to be false:
+
+<div class="code">
+<pre>
+jsPlumb.select().setHover(false);
+</pre>
+</div>
+			Select all Connections from "d1" and remove all Overlays:
+
+<div class="code">
+<pre>
+jsPlumb.select({source:"d1"}).removeAllOverlays();
+</pre>
+</div>
+
+Select all connections in scope "foo" and set their paint style to be a thick blue line:
+<div class="code">
+<pre>
+jsPlumb.select({scope:"foo"}).setPaintStyle({ strokeStyle:"blue", lineWidth:5 });
+</pre>
+</div>
+Select all Connections from "d1" and detach them:
+<div class="code">
+<pre>
+jsPlumb.select({source:"d1"}).detach();
+</pre>
+</div>
+<h5>.each iterator</h5>
+The return value of jsPlumb.select has a <strong>.each</strong> function that allows you to iterate through the list, performing an operation on each one:
+<div class="code">
+<pre>
+jsPlumb.select({scope:"foo"}).each(function(connection) {
+	
+		// do something 
+});
+</pre>
+</div>
+.each is itself chainable:
+<div class="code">
+<pre>
+jsPlumb.select({scope:"foo"}).each(function(connection) {
+	
+		// do something 
+
+}).setHover(true);
+</pre>
+</div>
+
+
+<h5>Other properties/functions</h5>
+<ul>
+	<li class="bullet"><strong>length</strong> - this member reports the number of Connections in the selection</li>
+	<li class="bullet"><strong>get(idx)</strong> - this function allows you to retrieve a Connection from the selection</li>
+</ul>
+
+
+		</div>
 		
 		<div class="section">
 			<h3><a id="events">Events</a></h3>
-			jsPlumb supports binding to several different events on Connections, Endpoints and Overlays, and also on the jsPlumb
-			object itself.  
+			jsPlumb supports binding to several different events on Connections, Endpoints and Overlays, and also on the jsPlumb object itself.  
 			
 			<h4><a id="jsPlumbEvents">jsPlumb Events</a></h4>
 			<p>To bind an event to jsPlumb itself, use <strong>jsPlumb.bind(event, callback)</strong>:</p>
@@ -2032,44 +2142,47 @@ jsPlumb.bind("jsPlumbConnection", function(info) {
 			<ul>
 				<li class="bullet"><strong>jsPlumbConnection</strong> - notification a Connection was established.
 					<p>
-						The callback is passed an object with the following properties:					
+						The first argument to the callback is an object with the following properties:					
 					</p>
 					<div class="code">
 <pre>
 {
-  connection		: 	the new Connection.  you can register listeners on this etc.
-  sourceId			:	id of the source element in the Connection
-  targetId			:	id of the target element in the Connection
-  source			:	the source element in the Connection
-  target			:	the target element in the Connection
+  connection 		: 	the new Connection.  you can register listeners on this etc.
+  sourceId 		:	id of the source element in the Connection
+  targetId		:	id of the target element in the Connection
+  source		:	the source element in the Connection
+  target		:	the target element in the Connection
   sourceEndpoint	:	the source Endpoint in the Connection
   targetEndpoint	:	the targetEndpoint in the Connection
 }
 </pre>
 					</div>
+The second argument is the original mouse event that caused the Connection, if any.
+
 					<p>
-All of the source/target properties are actually available inside the Connection object, but - for one of those rubbish historical
-reasons - are provided separately because of a vagary of the <em>jsPlumbConnectionDetached</em> callback, which is discussed below.
+All of the source/target properties are actually available inside the Connection object, but - for one of those rubbish historical reasons - are provided separately because of a vagary of the <em>jsPlumbConnectionDetached</em> callback, which is discussed below.
 </p>
 				</li>
 				<li class="bullet"><strong>jsPlumbConnectionDetached</strong> - notification a Connection was detached.  
 					<p>
-						As with <em>jsPlumbConnection</em>, the callback is passed an object with the following properties:					
+						As with <em>jsPlumbConnection</em>, the first argument to the callback is an object with the following properties:					
 					</p>
 					<div class="code">
 <pre>
 {
   connection		: 	the Connection that was detached.  
-  sourceId			:	id of the source element in the Connection <em>before it was detached</em>
-  targetId			:	id of the target element in the Connection before it was detached
-  source			:	the source element in the Connection before it was detached
-  target			:	the target element in the Connection before it was detached
+  sourceId		:	id of the source element in the Connection <em>before it was detached</em>
+  targetId		:	id of the target element in the Connection before it was detached
+  source		:	the source element in the Connection before it was detached
+  target		:	the target element in the Connection before it was detached
   sourceEndpoint	:	the source Endpoint in the Connection before it was detached
   targetEndpoint	:	the targetEndpoint in the Connection before it was detached
 }
 </pre>
 
-					</div>				
+					</div>	
+The second argument is the original mouse event that caused the disconnection, if any. 					
+								
 					<p>
 As mentioned above, the source/target properties are provided separately from the Connection, because this event is fired whenever
 a Connection is either detached and abandoned, or detached from some Endpoint and attached to another.  In the latter case, the
@@ -2727,10 +2840,10 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 				</ul>
 			These seven files are packaged together to form the scripts that people use, for example:
 			<ul>
-				<li>jquery.jsPlumb-1.3.6-all.js
-				<p>Contains jsPlumb-1.3.6.js, jsPlumb-defaults-1.3.6.js, jsPlumb-renderers-canvas-1.3.6.js, jsPlumb-renderers-svg-1.3.6.js, jsPlumb-renderers-vml-1.3.6.js, jsPlumb-connectors-statemachine-1.3.6.js, jquery.jsPlumb-1.3.6.js and jsBezier-0.3-min.js</p>
+				<li>jquery.jsPlumb-1.3.7-all.js
+				<p>Contains jsPlumb-1.3.7.js, jsPlumb-defaults-1.3.7.js, jsPlumb-renderers-canvas-1.3.7.js, jsPlumb-renderers-svg-1.3.7.js, jsPlumb-renderers-vml-1.3.7.js, jsPlumb-connectors-statemachine-1.3.7.js, jquery.jsPlumb-1.3.7.js and jsBezier-0.3-min.js</p>
 				</li>
-				<li>jquery.jsPlumb-1.3.6-all-min.js
+				<li>jquery.jsPlumb-1.3.7-all-min.js
 				<p>A minified version of the script above (minified using the YUI Compressor)</p>
 				</li>
 			</ul>
