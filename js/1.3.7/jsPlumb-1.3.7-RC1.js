@@ -5032,10 +5032,10 @@ between this method and jsPlumb.reset).
 						var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments);
 
 						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
-						id = _getAttribute(draggable, "dragId"),
-						elId = _getAttribute(draggable, "elId"),						
-						scope = _getAttribute(draggable, "originalScope"),
-						jpc = floatingConnections[id];
+							id = _getAttribute(draggable, "dragId"),
+							elId = _getAttribute(draggable, "elId"),						
+							scope = _getAttribute(draggable, "originalScope"),
+							jpc = floatingConnections[id];
 
 						if (jpc != null) {
 							var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
@@ -5048,9 +5048,18 @@ between this method and jsPlumb.reset).
 							if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
 							
 								var _doContinue = true;
+
 	                            // the second check here is for the case that the user is dropping it back
 	                            // where it came from.
 								if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != self.id) {
+									if (idx == 0) {
+										jpc.source = jpc.suspendedEndpoint.element;
+										jpc.sourceId = jpc.suspendedEndpoint.elementId;
+									} else {
+										jpc.target = jpc.suspendedEndpoint.element;
+										jpc.targetId = jpc.suspendedEndpoint.elementId;
+									}
+
 									if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
 										_doContinue = false;								
 								}
@@ -5063,6 +5072,7 @@ between this method and jsPlumb.reset).
 									jpc.target = self.element;
 									jpc.targetId = self.elementId;
 								}
+								
 								
 								// now check beforeDrop.  this will be available only on Endpoints that are setup to
 								// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
