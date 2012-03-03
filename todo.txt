@@ -11,7 +11,7 @@
 	- importDefaults({ some defaults })  method on jsPlumb (like a bulk import) DONE
     - draggable by parent issue from google code DONE
 
-possible future enhncements
+possible future enhancements
 
     - beforeDrag interceptor
     - straight connector with continuous anchors disappears when horizontal or vertical
