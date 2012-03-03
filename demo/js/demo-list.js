@@ -58,8 +58,8 @@
 				demoInfo = jsPlumb.DemoList.find(demoId);
 				
 			if (demoInfo) {
-				var prevString = '<h5>Previous:</h5><a href="' + demoInfo.prev.id + '">' + demoInfo.prev.name + '</a>',
-					nextString = '<h5>Next:</h5><a href="' + demoInfo.next.id + '">' + demoInfo.next.name + '</a>',
+				var prevString = '<h5>Previous:</h5><a href="' + demoInfo.prev.id + '.html">' + demoInfo.prev.name + '</a>',
+					nextString = '<h5>Next:</h5><a href="' + demoInfo.next.id + '.html">' + demoInfo.next.name + '</a>',
 					menuString = '<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>' +
 							 '&nbsp;|&nbsp;<a href="../apidocs">view api docs</a>' +
 							 '&nbsp;|&nbsp;<a href="../../tests/qunit-all.html">qUnit tests</a>' +
