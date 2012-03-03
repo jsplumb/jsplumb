@@ -1,0 +1,20 @@
+#window1 { top:6em;left:15%; }
+#window2 { top:6em; right:25%; }
+#window3 { top:24em; left:15%; }
+#window4 { top:24em; right:25%}
+.window {  border:1px dotted gray; width:9.7em; height:8em; z-index:20; position:absolute; color:gray;font-family:serif;font-style:italic;
+padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color:white;
+-o-box-shadow: 0px 0px 17px #044;-webkit-box-shadow: 0px 0px 17px #044; -moz-box-shadow: 0px 0px 17px #044;box-shadow: 0px 0px 17px #044;
+}
+.demo { position:relative; }
+.drag-locked { border:1px solid red; }
+._jsPlumb_endpoint { z-index:50; }
+._jsPlumb_connector { z-index:1; }
+.dropHover { border:1px dotted red; }
+.dragActive { border:2px dotted orange; }
+.cmdLink { font-size:0.80em;}
+#clear { padding:0.3em; }
+#clear:hover { background-color:yellow; }
+#list { display:none; border-bottom:1px dotted grey; padding-bottom:1.5em; font-size:90%;}
+#list table { width:100%; text-align:left;}
+#explanation { text-align:center; }

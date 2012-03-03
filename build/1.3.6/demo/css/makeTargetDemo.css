@@ -1,0 +1,82 @@
+.window {
+width:25em;
+height:5.5em;
+position:absolute;
+background-color:#FEFEFE;
+padding:0.5em;
+color:black;
+border-radius:0.4em;
+z-index:1;
+opacity:0.8;
+filter:alpha(opacity=80);
+text-align:center;
+font-family:Tahoma;
+}
+._jsPlumb_connection {
+	z-index:0;
+}
+._jsPlumb_endpoint {
+	z-index:2;
+	cursor:pointer;
+}
+
+#window1 {
+top:4em;
+left:4em;
+}
+
+#window2 {
+top:24em;
+left:4em;
+}
+
+
+#window3 {
+top:4em;
+left:46em;
+}
+
+#window3Target {
+background-color:blue;
+height:2em;
+}
+
+#window4 {
+top:39em;
+left:46em;
+}
+
+#window5 {
+	top:20em;
+	left:35em;
+}
+#w5Source {
+	background-color:#056;
+	border:1px dotted #bbb;
+	position:absolute;
+	z-index:2;
+	width:1.5em;
+	height:1.5em;
+	left:11.75em;
+	top:6em;
+	box-shadow: 2px 2px 19px #456;
+   -o-box-shadow: 2px 2px 19px #456;
+   -webkit-box-shadow: 2px 2px 19px #456;
+   -moz-box-shadow: 2px 2px 19px #456;
+
+}
+
+
+.active {
+	box-shadow: 2px 2px 19px green;
+   -o-box-shadow: 2px 2px 19px green;
+   -webkit-box-shadow: 2px 2px 19px green;
+   -moz-box-shadow: 2px 2px 19px green;
+}
+
+.hover {
+	box-shadow: 2px 2px 19px red;
+   -o-box-shadow: 2px 2px 19px red;
+   -webkit-box-shadow: 2px 2px 19px red;
+   -moz-box-shadow: 2px 2px 19px red;
+}
