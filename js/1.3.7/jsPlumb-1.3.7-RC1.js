@@ -4182,8 +4182,12 @@ between this method and jsPlumb.reset).
 		var _makeConnectionDragHandler = function(placeholder) {
             var stopped = false;
 			return {
+
 				drag : function() {
-                	if (stopped) return true;
+                	if (stopped) {
+                		stopped = false;
+	                	return true;
+	                }
 					var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments),
 					el = placeholder.element;
                 	if (el) {
