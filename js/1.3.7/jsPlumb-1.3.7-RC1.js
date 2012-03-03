@@ -1862,6 +1862,50 @@ between this method and jsPlumb.reset).
 			return results;
 		};
 
+		var _selectOperation = function(list, func, args) {
+				for (var i = 0; i < list.length; i++) {
+					list[i][func].apply(list[i], args);
+				}	
+				return _makeSelectHandler(list);
+			},
+			_makeSelectHandler = function(list) {
+				var handler = function(func) {
+					return function() {
+						return _selectOperation(list, func, arguments);
+					}
+				};
+				return {
+					length:list.length,
+					setHover:handler(list, "setHover"),
+					addOverlay:handler(list, "addOverlay"),
+					getOverlay:handler(list, "getOverlay"),
+					removeAllOverlays:handler(list, "removeAllOverlays"),
+					setLabel:handler(list, "setLabel"),
+					showOverlay:handler(list, "showOverlay"),
+					hideOverlay:handler(list, "hideOverlay"),
+					showOverlays:handler(list, "showOverlays"),
+					hideOverlays:handler(list, "hideOverlays"),
+					setPaintStyle:handler(list, "setPaintStyle"),
+					setHoverPaintStyle:handler(list, "setHoverPaintStyle"),
+					isDetachable:handler(list, "isDetachable"),
+					setDetachable:handler(list, "setDetachable"),
+					setConnector:handler(list, "setConnector"),					
+					each:function(f) {
+						for (var i = 0; i < list.length; i++) {
+							list[i](f);
+						}
+					},
+					get:function(idx) {
+						return list[idx];
+					}
+				};
+			};
+				
+		this.select = function(params) {
+			var c = _currentInstance.getConnections(params, true);
+			return _makeSelectHandler(c);							
+		};
+
 		/*
 		 * Function: getAllConnections
 		 * Gets all connections, as a map of { scope -> [ connection... ] }. 
@@ -2111,7 +2155,7 @@ between this method and jsPlumb.reset).
 			};
 		this.makeTarget = function(el, params, referenceParams) {						
 			
-			var p = jsPlumb.extend({}, referenceParams);
+			var p = jsPlumb.extend({_jsPlumb:_currentInstance}, referenceParams);
 			jsPlumb.extend(p, params);
 			_setEndpointPaintStylesAndAnchor(p, 1);                                                    
 			var jpcl = jsPlumb.CurrentLibrary,
@@ -2122,8 +2166,9 @@ between this method and jsPlumb.reset).
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
 				var elid = _getId(_el);
-				_targetEndpointDefinitions[elid] = p;
-				_targetEndpointsUnique[elid] = p.uniqueEndpoint;
+					_targetEndpointDefinitions[elid] = p;
+					_targetEndpointsUnique[elid] = p.uniqueEndpoint,
+					proxyComponent = new jsPlumbUIComponent(p);
 				
 				var dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
 				_drop = function() {
@@ -2145,7 +2190,8 @@ between this method and jsPlumb.reset).
 					if (scope) jpcl.setDragScope(draggable, scope);				
 					
 					// check if drop is allowed here.					
-					var _continue = jpc.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope);		
+					//var _continue = jpc.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope);		
+					var _continue = proxyComponent.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope);		
 					
 					// regardless of whether the connection is ok, reconfigure the existing connection to 
 					// point at the current info. we need this to be correct for the detach event that will follow.

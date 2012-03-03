@@ -3332,8 +3332,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(o.isVisible(), "overlay is initially visible");
 		jsPlumb.hide("d1", true);
 		ok(!o.isVisible(), "overlay is no longer visible");
+	});
 
+	test(renderMode + " select, basic test", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2"}),
+			s = _jsPlumb.select({source:"d1"});
 
+		equals(s.length, 1, "one connection selected");
+		equals(s.get(0).sourceId, "d1", "d1 is connection source");
 	});
 
 	/**
