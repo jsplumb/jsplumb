@@ -53,14 +53,14 @@
 	/*
 	 * 
 	 */
-	var _executeDroppableOption = function(el, dr, event) {
+	var _executeDroppableOption = function(el, dr, event, originalEvent) {
 		if (dr) {
 			var id = dr.get("id");
 			if (id) {
 				var options = _droppableOptions[id];
 				if (options) {
 					if (options[event]) {
-						options[event](el, dr);
+						options[event](el, dr, originalEvent);
 					}
 				}
 			}
@@ -198,11 +198,9 @@
 			    drags = _draggablesById[id];
 			return drags[0].scope;
 		},
-
-		// TODO how to get the actual event from MooTools?
-		getDropEvent : function(args) {
-			//console.log(args);
-			return null;
+	
+		getDropEvent : function(args) {			
+			return args[2];
 		},
 		
 		getDropScope : function(el) {
@@ -322,10 +320,10 @@
 						    _executeDroppableOption(el, dr, 'onEnter');
 					    }
 				    });
-				    options['onDrop'] = function(el, dr) {
+				    options['onDrop'] = function(el, dr, event) {
 					    if (dr) {
 						    _checkHover(dr, false);
-						    _executeDroppableOption(el, dr, 'onDrop');
+						    _executeDroppableOption(el, dr, 'onDrop', event);
 					    }
 				    };
                 }
