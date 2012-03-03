@@ -12,6 +12,14 @@
 
 	- added showOverlays/hideOverlays functions to Connection and Endpoint
 
+	- added getOverlays method to Connection and Endpoint.
+
+	- added 'select' method.  this is a more useful version of getConnections, supporting the same syntax as getConnections but offering a fluid interface that allows you to perform an operation on all the returned connections. These operations can be chained:
+
+	jsPlumb.select({source:"someId"}).setHover(false).showOverlays();
+
+	Certain 'get' operations are also supported but are not, of course, chainable - instead they return an array of [value, connection] for each connection, where value is the return value of the get method you called.
+
 	Issues
 	------
 
