@@ -59,7 +59,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<h5>New Features</h5>
 			The following new features have been added:
 			<ul>				
-				<li class="bullet">new method <strong>jsPlumb.select</strong> provides a fluid interface to working with lists of Connections.  This is similar to the existing getConnections method, but the return value of jsPlumb.select supports all of the setter/getter operations that are available on Connection, executing that method on each Connection in the returned list. The method is also chainable. So you can now do things like this:
+				<li class="bullet">new method <strong>jsPlumb.select</strong> provides a fluid interface to work with lists of Connections.  This is similar to the existing getConnections method, but the return value of jsPlumb.select supports all of the setter/getter operations that are available on Connection, executing that method on each Connection in the returned list. The method is also chainable. So you can now do things like this:
 					<div class="code">
 <pre>
 jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
@@ -81,6 +81,10 @@ jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
 					<strong>207</strong> - pass original event back in connection detached callback
 				</li>
 				<li class="bullet">
+					<strong>209</strong> - endpoint drag not creating connection after setEnabled(false) and then setEnabled(true)
+				</li>
+				
+				<li class="bullet">
 					<strong>210</strong> - overlays not being hidden when setVisible(false) called
 				</li>
 				
@@ -90,6 +94,9 @@ jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
 
 				<li class="bullet">
 					<strong>212</strong> - change the id of an element
+				</li>
+				<li class="bullet">
+					<strong>214</strong> - beforeDetach gives wrong targetId when being reattached
 				</li>
 			</ul>
 
