@@ -20,6 +20,9 @@
 
 	Certain 'get' operations are also supported but are not, of course, chainable - instead they return an array of [value, connection] for each connection, where value is the return value of the get method you called.
 
+
+	- makeTarget now supports a beforeDrop interceptor
+
 	Issues
 	------
 
