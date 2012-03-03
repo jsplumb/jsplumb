@@ -3305,7 +3305,36 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(c2.targetId, "d3", "connection's targetId has changed");
 		equals(c2.target.attr("id"), "d3", "connection's target has changed");
 	});  
+
+	test(renderMode + " endpoint hide/show should hide/show overlays", function() {
+		_addDiv("d1");
+		var e1 = _jsPlumb.addEndpoint("d1", {
+			overlays:[
+				[ "Label", { id:"label", label:"foo" } ]
+			]
+		}),
+		o = e1.getOverlay("label");
+
+		ok(o.isVisible(), "overlay is initially visible");
+		jsPlumb.hide("d1", true);
+		ok(!o.isVisible(), "overlay is no longer visible");
+	});
     
+    test(renderMode + " connection hide/show should hide/show overlays", function() {
+		_addDiv("d1");_addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2", 
+			overlays:[
+				[ "Label", { id:"label", label:"foo" } ]
+			]
+		}),
+		o = c.getOverlay("label");
+
+		ok(o.isVisible(), "overlay is initially visible");
+		jsPlumb.hide("d1", true);
+		ok(!o.isVisible(), "overlay is no longer visible");
+
+
+	});
 
 	/**
 	 * leave this test at the bottom!

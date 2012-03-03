@@ -448,6 +448,11 @@
 				var o = self.getOverlay(id);
 				if (o) o.hide();
 			};
+
+			this.hideOverlays = function() {
+				for (var i = 0; i < self.overlays.length; i++)
+					self.overlays[i].hide();
+			};
 			
 			/*
 			 * Function: showOverlay
@@ -456,6 +461,11 @@
 			this.showOverlay = function(id) {
 				var o = self.getOverlay(id);
 				if (o) o.show();
+			};
+
+			this.showOverlays = function() {
+				for (var i = 0; i < self.overlays.length; i++)
+					self.overlays[i].show();
 			};
 			
 			/**
@@ -3662,6 +3672,7 @@ between this method and jsPlumb.reset).
 			*/
 			this.setVisible = function(v) {
 				visible = v;
+				self[v ? "showOverlays" : "hideOverlays"]();
 				if (self.connector && self.connector.canvas) self.connector.canvas.style.display = v ? "block" : "none";
 			};
 			
@@ -4231,6 +4242,7 @@ between this method and jsPlumb.reset).
 			this.setVisible = function(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
 				visible = v;
 				if (self.canvas) self.canvas.style.display = v ? "block" : "none";
+				self[v ? "showOverlays" : "hideOverlays"]();
 				if (!doNotChangeConnections) {
 					for (var i = 0; i < self.connections.length; i++) {
 						self.connections[i].setVisible(v);
