@@ -1329,6 +1329,9 @@
 		
 // *************** END OF PLACEHOLDER DOC ENTRIES FOR NATURAL DOCS ***********************************************************		
 		
+
+// --------------------------- jsPLumbInstance public API ---------------------------------------------------------
+
 		/*
 		 Function: addClass
 		 
@@ -1585,18 +1588,16 @@ between this method and jsPlumb.reset).
 
 			if (doFireEvent) _currentInstance.fire("jsPlumbConnectionDetached", params);
             _currentInstance.anchorManager.connectionDetached(params);
-		};
-
+		},
 		/**
 			fires an event to indicate an existing connection is being dragged.
 		*/
-		var fireConnectionDraggingEvent = function(jpc) {
+		fireConnectionDraggingEvent = function(jpc) {
 			_currentInstance.fire("connectionDrag", jpc);	
-		};
-
-		var fireConnectionDragStopEvent = function(jpc) {
+		},
+		fireConnectionDragStopEvent = function(jpc) {
 			_currentInstance.fire("connectionDragStop", jpc);
-		}
+		};
 
 
 		/*
@@ -1794,15 +1795,16 @@ between this method and jsPlumb.reset).
 		 * 
 		 *  Parameters
 		 *  	scope	-	if the only argument to getConnections is a string, jsPlumb will treat that string as a scope filter, and return a list
-		 *                  of connections that are in the given scope.
+		 *                  of connections that are in the given scope. use '*' for all scopes.
 		 *      options	-	if the argument is a JS object, you can specify a finer-grained filter:
 		 *      
 		 *      		-	*scope* may be a string specifying a single scope, or an array of strings, specifying multiple scopes.
 		 *      		-	*source* either a string representing an element id, or a selector.  constrains the result to connections having this source.
 		 *      		-	*target* either a string representing an element id, or a selector.  constrains the result to connections having this target.
+		 *		flat    -	return results in a flat array (don't return an object whose keys are scopes and whose values are lists per scope).
 		 * 
 		 */
-		this.getConnections = function(options) {
+		this.getConnections = function(options, flat) {
 			if (!options) {
 				options = {};
 			} else if (options.constructor == String) {
@@ -1811,8 +1813,10 @@ between this method and jsPlumb.reset).
 			var prepareList = function(input) {
 				var r = [];
 				if (input) {
-					if (typeof input == 'string')
+					if (typeof input == 'string') {
+						if (input === "*") return input;
 						r.push(input);
+					}
 					else
 						r = input;
 				}
@@ -1823,11 +1827,12 @@ between this method and jsPlumb.reset).
 			sources = prepareList(options.source),
 			targets = prepareList(options.target),
 			filter = function(list, value) {
+				if (list === "*") return true;
 				return list.length > 0 ? _indexOf(list, value) != -1 : true;
 			},
-			results = scopes.length > 1 ? {} : [],
+			results = (!flat && scopes.length > 1) ? {} : [],
 			_addOne = function(scope, obj) {
-				if (scopes.length > 1) {
+				if (!flat && scopes.length > 1) {
 					var ss = results[scope];
 					if (ss == null) {
 						ss = []; results[scope] = ss;
@@ -2069,31 +2074,31 @@ between this method and jsPlumb.reset).
 		 */
 		var _targetEndpointDefinitions = {},
 			_targetEndpoints = {},
-			_targetEndpointsUnique = {};
-		var _setEndpointPaintStylesAndAnchor = function(ep, epIndex) {
-			ep.paintStyle = ep.paintStyle ||
-			 				_currentInstance.Defaults.EndpointStyles[epIndex] ||
-                            _currentInstance.Defaults.EndpointStyle ||
-                            jsPlumb.Defaults.EndpointStyles[epIndex] ||
-                            jsPlumb.Defaults.EndpointStyle;
-			ep.hoverPaintStyle = ep.hoverPaintStyle ||
-                           _currentInstance.Defaults.EndpointHoverStyles[epIndex] ||
-                           _currentInstance.Defaults.EndpointHoverStyle ||
-                           jsPlumb.Defaults.EndpointHoverStyles[epIndex] ||
-                           jsPlumb.Defaults.EndpointHoverStyle;                            
+			_targetEndpointsUnique = {},
+			_setEndpointPaintStylesAndAnchor = function(ep, epIndex) {
+				ep.paintStyle = ep.paintStyle ||
+				 				_currentInstance.Defaults.EndpointStyles[epIndex] ||
+	                            _currentInstance.Defaults.EndpointStyle ||
+	                            jsPlumb.Defaults.EndpointStyles[epIndex] ||
+	                            jsPlumb.Defaults.EndpointStyle;
+				ep.hoverPaintStyle = ep.hoverPaintStyle ||
+	                           _currentInstance.Defaults.EndpointHoverStyles[epIndex] ||
+	                           _currentInstance.Defaults.EndpointHoverStyle ||
+	                           jsPlumb.Defaults.EndpointHoverStyles[epIndex] ||
+	                           jsPlumb.Defaults.EndpointHoverStyle;                            
 
-			ep.anchor = ep.anchor ||
-                      	_currentInstance.Defaults.Anchors[epIndex] ||
-                      	_currentInstance.Defaults.Anchor ||
-                      	jsPlumb.Defaults.Anchors[epIndex] ||
-                      	jsPlumb.Defaults.Anchor;                           
-				
-			ep.endpoint = ep.endpoint ||
-						  _currentInstance.Defaults.Endpoints[epIndex] ||
-						  _currentInstance.Defaults.Endpoint ||
-						  jsPlumb.Defaults.Endpoints[epIndex] ||
-						  jsPlumb.Defaults.Endpoint;
-		};
+				ep.anchor = ep.anchor ||
+	                      	_currentInstance.Defaults.Anchors[epIndex] ||
+	                      	_currentInstance.Defaults.Anchor ||
+	                      	jsPlumb.Defaults.Anchors[epIndex] ||
+	                      	jsPlumb.Defaults.Anchor;                           
+					
+				ep.endpoint = ep.endpoint ||
+							  _currentInstance.Defaults.Endpoints[epIndex] ||
+							  _currentInstance.Defaults.Endpoint ||
+							  jsPlumb.Defaults.Endpoints[epIndex] ||
+							  jsPlumb.Defaults.Endpoint;
+			};
 		this.makeTarget = function(el, params, referenceParams) {						
 			
 			var p = jsPlumb.extend({}, referenceParams);
@@ -2267,7 +2272,7 @@ between this method and jsPlumb.reset).
 		 *                   	
 		 * 
 		 */
-			var _sourceEndpointDefinitions = {},
+		var _sourceEndpointDefinitions = {},
 			_sourceEndpoints = {},
 			_sourceEndpointsUnique = {};
 
@@ -2569,10 +2574,10 @@ between this method and jsPlumb.reset).
 		  	value - whether or not to automatically repaint when the window is resized.
 		  	 
 		  Returns: void
-		 */
+		 *
 		this.setAutomaticRepaint = function(value) {
 			automaticRepaint = value;
-		};
+		};*/
 
 		/*
 		 * Function: setDefaultScope 
@@ -2602,6 +2607,58 @@ between this method and jsPlumb.reset).
 		 * 	void
 		 */
 		this.setDraggable = _setDraggable;
+
+		/*
+		* Function: setId
+		* Changes the id of some element, adjusting all connections and endpoints
+		*
+		* Parameters:
+		* el - a selector, a DOM element, or a string. 
+		* newId - string.
+		*/
+		this.setId = function(el, newId, doNotSetAttribute) {
+		
+			var id = el.constructor == String ? el : _currentInstance.getId(el),
+				sConns = _currentInstance.getConnections({source:id, scope:'*'}, true),
+				tConns = _currentInstance.getConnections({target:id, scope:'*'}, true);
+							
+			if (!doNotSetAttribute) {
+				el = jsPlumb.CurrentLibrary.getElementObject(id);
+				jsPlumb.CurrentLibrary.setAttribute(el, "id", newId);
+			}
+			else {
+				el = jsPlumb.CurrentLibrary.getElementObject(newId);
+			}
+
+			endpointsByElement[newId] = endpointsByElement[id];
+			for (var i in endpointsByElement[newId]) {
+				endpointsByElement[newId][i].elementId = newId;
+				endpointsByElement[newId][i].element = el;
+				endpointsByElement[newId][i].anchor.elementId = newId;
+			}
+			delete endpointsByElement[id];
+
+			_currentInstance.anchorManager.changeId(id, newId);
+
+			var _conns = function(list, epIdx, type) {
+				for (var i = 0; i < list.length; i++) {
+					list[i].endpoints[epIdx].elementId = newId;
+					list[i].endpoints[epIdx].element = el;
+					list[i][type + "Id"] = newId;
+					list[i][type] = el;
+				}
+			};
+			_conns(sConns, 0, "source");
+			_conns(sConns, 1, "target");
+		};
+
+		/*
+		* Function: setIdChanged
+		* Notify jsPlumb that the element with oldId has had its id changed to newId.
+		*/
+		this.setIdChanged = function(oldId, newId) {
+			_currentInstance.setId(oldId, newId, true);
+		};
 
 		this.setDebugLog = function(debugLog) {
 			log = debugLog;
@@ -3121,8 +3178,7 @@ between this method and jsPlumb.reset).
 		var sS = sizes[elementId], sO = offsets[elementId],
 		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
             if (unsortedConnections.length > 0) {
-			    var sc = _sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
-			    //sc = unsortedConnections.sort(edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen
+			    var sc = _sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen			    
 				    reverse = desc === "right" || desc === "top",
 				    anchors = placeAnchorsOnLine(desc, elementDimensions,
 											 elementPosition, sc,
@@ -3142,8 +3198,6 @@ between this method and jsPlumb.reset).
 				    else if (weAreTarget)
 					    _setAnchorLocation(c.endpoints[1], anchors[i]);
 			    }
-
-
             }
 		};
 
@@ -3155,8 +3209,6 @@ between this method and jsPlumb.reset).
     AnchorManager = function() {
 		var _amEndpoints = {},
 			connectionsByElementId = {},
-			endpointConnectionsByElementId = {}, 
-			continuousAnchorConnectionsByElementId = {},
 			self = this,
             anchorLists = {};
 
@@ -3164,8 +3216,7 @@ between this method and jsPlumb.reset).
         	_amEndpoints = {};
         	connectionsByElementId = {};
             anchorLists = {};
-        };
-			
+        };			
  		this.newConnection = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
 				ep = conn.endpoints,
@@ -3226,21 +3277,22 @@ between this method and jsPlumb.reset).
 		this.add = function(endpoint, elementId) {
 			_addToList(_amEndpoints, elementId, endpoint);
 		};
+		this.changeId = function(oldId, newId) {
+			connectionsByElementId[newId] = connectionsByElementId[oldId];
+			_amEndpoints[newId] = _amEndpoints[oldId];
+			delete connectionsByElementId[oldId];
+			delete _amEndpoints[oldId];	
+		};
 		this.getConnectionsFor = function(elementId) {
-			return connectionsByElementId[elementId];
+			return connectionsByElementId[elementId] || [];
 		};
 		this.getEndpointsFor = function(elementId) {
-			return _amEndpoints[elementId];
+			return _amEndpoints[elementId] || [];
 		};
 		this.deleteEndpoint = function(endpoint) {
-			//var cIdx = _findIndex(continuousAnchorEndpoints, endpoint);
-			/*var cIdx = _indexOf(continuousAnchorEndpoints, endpoint);
-			if (cIdx > -1)
-				continuousAnchorEndpoints.splice(cIdx, 1);
-			else*/
-				_removeWithFunction(_amEndpoints[endpoint.elementId], function(e) {
-					return e.id == endpoint.id;
-				});
+			_removeWithFunction(_amEndpoints[endpoint.elementId], function(e) {
+				return e.id == endpoint.id;
+			});
 		};
 		this.clearFor = function(elementId) {
 			delete _amEndpoints[elementId];
@@ -3391,9 +3443,10 @@ between this method and jsPlumb.reset).
 				endpointsToPaint[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
 			}
 
-
 			// paint all the standard and "dynamic connections", which are connections whose other anchor is
 			// static and therefore does need to be recomputed; we make sure that happens only one time.
+
+			// TODO we could have compiled a list of these in the first pass through connections; might save some time.
 			for (var i = 0; i < endpointConnections.length; i++) {
 				var otherEndpoint = endpointConnections[i][1];
 				if (otherEndpoint.anchor.constructor == DynamicAnchor) {			 							

@@ -1,3 +1,16 @@
+* 1.3.7
+
+	- added a setId function.  This takes care of regorganising the jsPlumb internals when you wish to change the id of some element.  call it with a selector, a DOM element, or a string as first arg, and the new id as the second.
+
+	- added setIdChanged function.  this lets you inform jsPlumb of an id change after the fact.
+
+	- connectionDrag/connectionDragStop events
+
+	- getConnections takes an optional second argument that tells jsPlumb to return connections as an array, not as an object with scopes as keys
+
+	- you can pass '*' to getConnections for any of source/target/scope.
+
+
 * 1.3.6
 
 	BACKWARDS COMPATIBILITY

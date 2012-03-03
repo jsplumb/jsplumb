@@ -20,6 +20,7 @@ var assertContextEmpty = function() {
 
 var assertEndpointCount = function(elId, count, _jsPlumb) {
 	equals(_jsPlumb.getTestHarness().endpointCount(elId), count, elId + " has " + count + (count > 1) ? "endpoints" : "endpoint");
+	equals(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + (count > 1) ? "endpoints" : "endpoint");
 };
 
 var assertConnectionCount = function(endpoint, count) {
@@ -2820,7 +2821,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 0);	
 		
 		_jsPlumb.reset();
-		equals(_jsPlumb.anchorManager.getEndpointsFor("d4"), null);	
+		equals(_jsPlumb.anchorManager.getEndpointsFor("d4").length, 0);	
 	});
 	
 // ------------- utility functions - math stuff, mostly --------------------------
@@ -3073,10 +3074,230 @@ var testSuite = function(renderMode, _jsPlumb) {
     	equals(e3.anchor.x, 0.5, "bottom center anchor");
     	equals(e3.anchor.y, 1, "bottom center anchor");
     	equals(e4.anchor.x, 0.5, "bottom center anchor");
-    	equals(e4.anchor.y, 1, "bottom center anchor");
-    	
-
+    	equals(e4.anchor.y, 1, "bottom center anchor");    	
     });
+
+// setId function
+
+	test(renderMode + " setId, taking two strings, only default scope", function() {
+		_addDiv("d1"); _addDiv("d2");
+
+		var e1 = _jsPlumb.addEndpoint("d1"),
+			e2 = _jsPlumb.addEndpoint("d2"),
+			e3 = _jsPlumb.addEndpoint("d1");
+
+		assertEndpointCount("d1", 2, _jsPlumb);
+		equals(e1.elementId, "d1", "endpoint has correct element id");
+		equals(e3.elementId, "d1", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+
+		var c = _jsPlumb.connect({source:e1, target:e2}),
+			c2 = _jsPlumb.connect({source:e2, target:e1});
+
+		_jsPlumb.setId("d1", "d3");
+		assertEndpointCount("d3", 2, _jsPlumb);		
+		assertEndpointCount("d1", 0, _jsPlumb);
+
+		equals(e1.elementId, "d3", "endpoint has correct element id");
+		equals(e3.elementId, "d3", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+
+		equals(c.sourceId, "d3", "connection's sourceId has changed");
+		equals(c.source.attr("id"), "d3", "connection's source has changed");
+		equals(c.targetId, "d3", "connection's targetId has changed");
+		equals(c.target.attr("id"), "d3", "connection's target has changed");
+	});   
+	
+	test(renderMode + " setId, taking a selector and a string, only default scope", function() {
+		_addDiv("d1"); _addDiv("d2");
+
+		var e1 = _jsPlumb.addEndpoint("d1"),
+			e2 = _jsPlumb.addEndpoint("d2"),
+			e3 = _jsPlumb.addEndpoint("d1");
+		
+		assertEndpointCount("d1", 2, _jsPlumb);
+		equals(e1.elementId, "d1", "endpoint has correct element id");
+		equals(e3.elementId, "d1", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+
+		var c = _jsPlumb.connect({source:e1, target:e2}),
+			c2 = _jsPlumb.connect({source:e2, target:e1});
+
+		_jsPlumb.setId($("#d1"), "d3");
+		assertEndpointCount("d3", 2, _jsPlumb);
+		assertEndpointCount("d1", 0, _jsPlumb);
+
+		equals(e1.elementId, "d3", "endpoint has correct element id");
+		equals(e3.elementId, "d3", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+
+		equals(c.sourceId, "d3", "connection's sourceId has changed");
+		equals(c.source.attr("id"), "d3", "connection's source has changed");
+		equals(c.targetId, "d3", "connection's targetId has changed");
+		equals(c.target.attr("id"), "d3", "connection's target has changed");
+	});   
+
+	test(renderMode + " setId, taking a DOM element and a string, only default scope", function() {
+		_addDiv("d1"); _addDiv("d2");
+
+		var e1 = _jsPlumb.addEndpoint("d1"),
+			e2 = _jsPlumb.addEndpoint("d2"),
+			e3 = _jsPlumb.addEndpoint("d1");
+
+		assertEndpointCount("d1", 2, _jsPlumb);
+		equals(e1.elementId, "d1", "endpoint has correct element id");
+		equals(e3.elementId, "d1", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+
+		var c = _jsPlumb.connect({source:e1, target:e2}),
+			c2 = _jsPlumb.connect({source:e2, target:e1});
+
+		_jsPlumb.setId($("#d1")[0], "d3");
+		assertEndpointCount("d3", 2, _jsPlumb);
+		assertEndpointCount("d1", 0, _jsPlumb);
+
+		equals(e1.elementId, "d3", "endpoint has correct element id");
+		equals(e3.elementId, "d3", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+
+		equals(c.sourceId, "d3", "connection's sourceId has changed");
+		equals(c.source.attr("id"), "d3", "connection's source has changed");
+		equals(c.targetId, "d3", "connection's targetId has changed");
+		equals(c.target.attr("id"), "d3", "connection's target has changed");
+	}); 
+
+	test(renderMode + " setId, taking two strings, mix of scopes", function() {
+		_addDiv("d1"); _addDiv("d2");
+
+		var e1 = _jsPlumb.addEndpoint("d1"),
+			e2 = _jsPlumb.addEndpoint("d2"),
+			e3 = _jsPlumb.addEndpoint("d1");
+
+		assertEndpointCount("d1", 2, _jsPlumb);
+		equals(e1.elementId, "d1", "endpoint has correct element id");
+		equals(e3.elementId, "d1", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+
+		var c = _jsPlumb.connect({source:e1, target:e2, scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:e2, target:e1});
+
+		_jsPlumb.setId("d1", "d3");
+		assertEndpointCount("d3", 2, _jsPlumb);
+		assertEndpointCount("d1", 0, _jsPlumb);
+
+		equals(e1.elementId, "d3", "endpoint has correct element id");
+		equals(e3.elementId, "d3", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+
+		equals(c.sourceId, "d3", "connection's sourceId has changed");
+		equals(c.source.attr("id"), "d3", "connection's source has changed");
+		equals(c.targetId, "d3", "connection's targetId has changed");
+		equals(c.target.attr("id"), "d3", "connection's target has changed");
+	});   
+	
+	test(renderMode + " setId, taking a selector and a string, mix of scopes", function() {
+		_addDiv("d1"); _addDiv("d2");
+
+		var e1 = _jsPlumb.addEndpoint("d1"),
+			e2 = _jsPlumb.addEndpoint("d2"),
+			e3 = _jsPlumb.addEndpoint("d1");
+
+		assertEndpointCount("d1", 2, _jsPlumb);
+		equals(e1.elementId, "d1", "endpoint has correct element id");
+		equals(e3.elementId, "d1", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+
+		var c = _jsPlumb.connect({source:e1, target:e2, scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:e2, target:e1});
+
+		_jsPlumb.setId($("#d1"), "d3");
+		assertEndpointCount("d3", 2, _jsPlumb);
+		assertEndpointCount("d1", 0, _jsPlumb);
+
+		equals(e1.elementId, "d3", "endpoint has correct element id");
+		equals(e3.elementId, "d3", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+
+		equals(c.sourceId, "d3", "connection's sourceId has changed");
+		equals(c.source.attr("id"), "d3", "connection's source has changed");
+		equals(c.targetId, "d3", "connection's targetId has changed");
+		equals(c.target.attr("id"), "d3", "connection's target has changed");
+	});   
+
+	test(renderMode + " setId, taking a DOM element and a string, mix of scopes", function() {
+		_addDiv("d1"); _addDiv("d2");
+
+		var e1 = _jsPlumb.addEndpoint("d1"),
+			e2 = _jsPlumb.addEndpoint("d2"),
+			e3 = _jsPlumb.addEndpoint("d1");
+
+		assertEndpointCount("d1", 2, _jsPlumb);
+		equals(e1.elementId, "d1", "endpoint has correct element id");
+		equals(e3.elementId, "d1", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+
+		var c = _jsPlumb.connect({source:e1, target:e2, scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:e2, target:e1});
+
+		_jsPlumb.setId($("#d1")[0], "d3");
+		assertEndpointCount("d3", 2, _jsPlumb);
+		assertEndpointCount("d1", 0, _jsPlumb);
+
+		equals(e1.elementId, "d3", "endpoint has correct element id");
+		equals(e3.elementId, "d3", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+
+		equals(c.sourceId, "d3", "connection's sourceId has changed");
+		equals(c.source.attr("id"), "d3", "connection's source has changed");
+		equals(c.targetId, "d3", "connection's targetId has changed");
+		equals(c.target.attr("id"), "d3", "connection's target has changed");
+	});
+
+	test(renderMode + " setIdChanged, ", function() {
+		_addDiv("d1"); _addDiv("d2");
+
+		var e1 = _jsPlumb.addEndpoint("d1"),
+			e2 = _jsPlumb.addEndpoint("d2"),
+			e3 = _jsPlumb.addEndpoint("d1");
+
+		assertEndpointCount("d1", 2, _jsPlumb);
+		equals(e1.elementId, "d1", "endpoint has correct element id");
+		equals(e3.elementId, "d1", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+
+		var c = _jsPlumb.connect({source:e1, target:e2}),
+			c2 = _jsPlumb.connect({source:e2, target:e1});
+
+		$("#d1").attr("id", "d3");
+
+		_jsPlumb.setIdChanged("d1", "d3");
+		
+		assertEndpointCount("d3", 2, _jsPlumb);		
+		assertEndpointCount("d1", 0, _jsPlumb);
+
+		equals(e1.elementId, "d3", "endpoint has correct element id");
+		equals(e3.elementId, "d3", "endpoint has correct element id");
+		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+
+		equals(c.sourceId, "d3", "connection's sourceId has changed");
+		equals(c.source.attr("id"), "d3", "connection's source has changed");
+		equals(c.targetId, "d3", "connection's targetId has changed");
+		equals(c.target.attr("id"), "d3", "connection's target has changed");
+	});  
     
 
 	/**
