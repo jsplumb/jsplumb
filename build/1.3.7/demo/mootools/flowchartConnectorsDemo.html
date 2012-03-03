@@ -1,0 +1,40 @@
+<!doctype html>
+
+<html>
+	<head>
+		<title>jsPlumb 1.3.7 - flowchart connectors demonstration - MooTools</title>
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
+		<link rel="stylesheet" href="../css/flowchartDemo.css">
+	</head>
+	<body onunload="jsPlumb.unload();" data-demo-id="flowchartConnectorsDemo" data-library="mootools">
+	
+		<div style="position:relative;margin-top:100px;">
+		<div id="demo">
+			<div class="window" id="window1"><strong>1</strong><br/><br/></div>
+			<div class="window" id="window2"><strong>2</strong><br/><br/></div>
+		    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
+		    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
+		</div>
+	    </div>
+	    
+	    <div id="explanation">
+	    	<p>This is a demonstration of Flowchart connectors and mouse events.</p>
+	    	<p>Hover over connections to highlight them, click to delete. </p>
+	    	<p>Drag new connections from blue dots to green dots. You can also drag connections from green dots onto other green dots or back onto themselves.</p>
+            <p>This demonstration uses jsPlumb 1.3.7, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
+	    </div>
+
+	    <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>
+		<script type="text/javascript" src="../js/mootools-1.3.2.1-more.js"></script>		
+		
+		<script type='text/javascript' src='../js/mootools.jsPlumb-1.3.7-all-min.js'></script>
+		
+		<!--  demo code -->
+		<script type="text/javascript" src="../js/flowchartConnectorsDemo.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-mootools.js"></script>
+		
+	</body>
+</html>
