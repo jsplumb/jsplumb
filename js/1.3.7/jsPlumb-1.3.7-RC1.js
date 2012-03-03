@@ -439,6 +439,14 @@
 				var idx = _getOverlayIndex(id);
 				return idx >= 0 ? self.overlays[idx] : null;
 			};
+
+			/*
+			* Function:getOverlays
+			* Gets all the overlays for this component.
+			*/
+			this.getOverlays = function() {
+				return self.overlays;
+			};
 			
 			/*
 			 * Function: hideOverlay
@@ -1862,37 +1870,61 @@ between this method and jsPlumb.reset).
 			return results;
 		};
 
-		var _selectOperation = function(list, func, args) {
+		var _setOperation = function(list, func, args) {
 				for (var i = 0; i < list.length; i++) {
 					list[i][func].apply(list[i], args);
 				}	
 				return _makeSelectHandler(list);
 			},
+			_getOperation = function(list, func, args) {
+				var out = [];
+				for (var i = 0; i < list.length; i++) {
+					//out.push(list[i][func].apply(list[i], args));
+					out.push([ list[i][func].apply(list[i], args), list[i] ]);
+				}	
+				return out;
+			},
 			_makeSelectHandler = function(list) {
-				var handler = function(func) {
-					return function() {
-						return _selectOperation(list, func, arguments);
+				var setter = function(list, func) {
+						return function() {
+							return _setOperation(list, func, arguments);
+						};
+					},
+					getter = function(list, func) {
+						return function() {
+							return _getOperation(list, func, arguments);
+						};	
 					}
-				};
 				return {
+					// setters
+					setHover:setter(list, "setHover"),
+					addOverlay:setter(list, "addOverlay"),					
+					removeAllOverlays:setter(list, "removeAllOverlays"),
+					setLabel:setter(list, "setLabel"),
+					showOverlay:setter(list, "showOverlay"),
+					hideOverlay:setter(list, "hideOverlay"),
+					showOverlays:setter(list, "showOverlays"),
+					hideOverlays:setter(list, "hideOverlays"),
+					setPaintStyle:setter(list, "setPaintStyle"),
+					setHoverPaintStyle:setter(list, "setHoverPaintStyle"),					
+					setDetachable:setter(list, "setDetachable"),
+					setConnector:setter(list, "setConnector"),		
+					setParameter:setter(list, "setParameter"),		
+					setParameters:setter(list, "setParameters"),		
+
+					// getters
+					getLabel:getter(list, "getLabel"),
+					getOverlay:getter(list, "getOverlay"),
+					isHover:getter(list, "isHover"),
+					isDetachable:getter(list, "isDetachable"),
+					getParameter:getter(list, "getParameter"),		
+					getParameters:getter(list, "getParameters"),		
+
+					// util
 					length:list.length,
-					setHover:handler(list, "setHover"),
-					addOverlay:handler(list, "addOverlay"),
-					getOverlay:handler(list, "getOverlay"),
-					removeAllOverlays:handler(list, "removeAllOverlays"),
-					setLabel:handler(list, "setLabel"),
-					showOverlay:handler(list, "showOverlay"),
-					hideOverlay:handler(list, "hideOverlay"),
-					showOverlays:handler(list, "showOverlays"),
-					hideOverlays:handler(list, "hideOverlays"),
-					setPaintStyle:handler(list, "setPaintStyle"),
-					setHoverPaintStyle:handler(list, "setHoverPaintStyle"),
-					isDetachable:handler(list, "isDetachable"),
-					setDetachable:handler(list, "setDetachable"),
-					setConnector:handler(list, "setConnector"),					
 					each:function(f) {
 						for (var i = 0; i < list.length; i++) {
-							list[i](f);
+							f(list[i]);
 						}
 					},
 					get:function(idx) {

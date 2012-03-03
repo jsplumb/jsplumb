@@ -3316,7 +3316,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		o = e1.getOverlay("label");
 
 		ok(o.isVisible(), "overlay is initially visible");
-		jsPlumb.hide("d1", true);
+		_jsPlumb.hide("d1", true);
 		ok(!o.isVisible(), "overlay is no longer visible");
 	});
     
@@ -3330,7 +3330,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		o = c.getOverlay("label");
 
 		ok(o.isVisible(), "overlay is initially visible");
-		jsPlumb.hide("d1", true);
+		_jsPlumb.hide("d1", true);
 		ok(!o.isVisible(), "overlay is no longer visible");
 	});
 
@@ -3341,6 +3341,130 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		equals(s.length, 1, "one connection selected");
 		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "connection has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "connection has had hover set to false");
+	});
+
+	test(renderMode + " select, two connections, with overlays", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({
+				source:"d1", 
+				target:"d2",
+				overlays:[
+					["Label", {id:"l"}]
+				]
+			}),
+			c2 = _jsPlumb.connect({
+				source:"d1", 
+				target:"d2",
+				overlays:[
+					["Label", {id:"l"}]
+				]
+			}),
+			s = _jsPlumb.select({source:"d1"});
+		
+		equals(s.length, 2, "two connections selected");
+		ok(s.get(0).getOverlay("l") != null, "connection has overlay");
+		ok(s.get(1).getOverlay("l") != null, "connection has overlay");
+	});
+
+	test(renderMode + " select, chaining with setHover and hideOverlay", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({
+				source:"d1", 
+				target:"d2",
+				overlays:[
+					["Label", {id:"l"}]
+				]
+			});
+			s = _jsPlumb.select({source:"d1"});
+		
+		s.setHover(false).hideOverlay("l");
+
+		ok(!(s.get(0).isHover()), "connection is not hover");
+		ok(!(s.get(0).getOverlay("l").isVisible()), "overlay is not visible");
+	});
+
+	test(renderMode + " select, .each function", function() {
+		for (var i = 1; i < 6; i++) {
+			_addDiv("d" + i); 	_addDiv("d" + (i * 10));
+			_jsPlumb.connect({
+				source:"d" + i, 
+				target:"d" + (i*10)
+			});
+		}
+				
+		var s = _jsPlumb.select();
+		equals(s.length, 5, "there are five connections");
+
+		var t = "";
+		s.each(function(connection) {
+			t += "f";
+		});
+		equals("fffff", t, ".each is working");
+	});
+
+	test(renderMode + " select, multiple connections + chaining", function() {
+		for (var i = 1; i < 6; i++) {
+			_addDiv("d" + i); 	_addDiv("d" + (i * 10));
+			_jsPlumb.connect({
+				source:"d" + i, 
+				target:"d" + (i*10),
+				overlays:[
+					["Arrow", {location:0.3}],
+					["Arrow", {location:0.7}]
+				]
+			});
+		}
+				
+		var s = _jsPlumb.select().removeAllOverlays().setParameter("foo", "bar").setHover(false).setLabel("baz");
+		equals(s.length, 5, "there are five connections");
+
+		for (var j = 0; j < 5; j++) {
+			equals(s.get(j).getOverlays().length, 1, "one overlay: the label");
+			equals(s.get(j).getParameter("foo"), "bar", "parameter foo has value 'bar'");
+			ok(!(s.get(j).isHover()), "hover is set to false");
+			equals(s.get(j).getLabel(), "baz", "label is set to 'baz'");
+		}			
+	});
+
+	test(renderMode + " select, simple getter", function() {
+		for (var i = 1; i < 6; i++) {
+			_addDiv("d" + i); 	_addDiv("d" + (i * 10));
+			_jsPlumb.connect({
+				source:"d" + i, 
+				target:"d" + (i*10),
+				label:"FOO"
+			});
+		}
+				
+		var lbls = _jsPlumb.select().getLabel();
+		equals(lbls.length, 5, "there are five labels");
+
+		for (var j = 0; j < 5; j++) {
+			equals(lbls[j][0], "FOO", "label has value 'FOO'");
+		}			
+	});
+
+	test(renderMode + " select, getter + chaining", function() {
+		for (var i = 1; i < 6; i++) {
+			_addDiv("d" + i); 	_addDiv("d" + (i * 10));
+			_jsPlumb.connect({
+				source:"d" + i, 
+				target:"d" + (i*10),
+				label:"FOO"
+			});
+		}
+				
+		var params = _jsPlumb.select().removeAllOverlays().setParameter("foo", "bar").getParameter("foo");
+		equals(params.length, 5, "there are five params");
+
+		for (var j = 0; j < 5; j++) {
+			equals(params[j][0], "bar", "parameter has value 'bar'");
+		}			
 	});
 
 	/**
