@@ -10,6 +10,16 @@
 
 	- you can pass '*' to getConnections for any of source/target/scope.
 
+	- added showOverlays/hideOverlays functions to Connection and Endpoint
+
+	Issues
+	------
+
+	207 - pass original event back in connection detached callback
+	210 - overlays not being hidden when setVisible(false) called
+	211 - IE8 JS error with overlays and continuous anchors
+	212 - change the id of an element
+
 
 * 1.3.6
 
