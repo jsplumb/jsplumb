@@ -207,6 +207,10 @@
 			var dd = _draggablesById[id];
 			return dd.scope;
 		},
+
+		getDropEvent : function(args) {
+			return args[0];
+		},
 		
 		getDropScope : function(el) {
 			var id = jsPlumb.getId(el);

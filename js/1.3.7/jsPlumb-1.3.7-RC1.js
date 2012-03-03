@@ -1575,7 +1575,7 @@ between this method and jsPlumb.reset).
 			endpointsByUUID = {};
 		};
 
-		var fireDetachEvent = function(jpc, doFireEvent) {
+		var fireDetachEvent = function(jpc, doFireEvent, originalEvent) {
             // may have been given a connection, or in special cases, an object
             var connType =  _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
                 argIsConnection = jpc.constructor == connType,
@@ -1586,7 +1586,7 @@ between this method and jsPlumb.reset).
 				    sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
                 } : jpc;
 
-			if (doFireEvent) _currentInstance.fire("jsPlumbConnectionDetached", params);
+			if (doFireEvent) _currentInstance.fire("jsPlumbConnectionDetached", params, originalEvent);
             _currentInstance.anchorManager.connectionDetached(params);
 		},
 		/**
@@ -2117,6 +2117,9 @@ between this method and jsPlumb.reset).
 				
 				var dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
 				_drop = function() {
+
+					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments);
+
 					_currentInstance.currentlyDragging = false;
 					var draggable = _getElementObject(jpcl.getDragObject(arguments)),
 						id = _getAttribute(draggable, "dragId"),				
@@ -2214,7 +2217,7 @@ between this method and jsPlumb.reset).
 								_currentInstance.repaint(source.elementId);
 							}
 							else
-								source.detach(jpc, false, true, true);  // otherwise, detach the connection and tell everyone about it.
+								source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
 						}
 						
 					}														
@@ -4388,7 +4391,7 @@ between this method and jsPlumb.reset).
 			 *   connection - the Connection to detach.
 			 *   ignoreTarget - optional; tells the Endpoint to not notify the Connection target that the Connection was detached.  The default behaviour is to notify the target.
 			 */
-			this.detach = function(connection, ignoreTarget, forceDetach, fireEvent) {
+			this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent) {
 				var idx = _findWithFunction(self.connections, function(c) { return c.id == connection.id}), 
 					actuallyDetached = false;
                 fireEvent = (fireEvent !== false);
@@ -4432,7 +4435,7 @@ between this method and jsPlumb.reset).
 							});
 							actuallyDetached = true;
                             var doFireEvent = (!ignoreTarget && fireEvent)
-							fireDetachEvent(connection, doFireEvent);
+							fireDetachEvent(connection, doFireEvent, originalEvent);
 						}
 					}
 				}
@@ -4446,9 +4449,9 @@ between this method and jsPlumb.reset).
 			 * Parameters:
 			 *  fireEvent   -   whether or not to fire the detach event.  defaults to false.
 			 */
-			this.detachAll = function(fireEvent) {
+			this.detachAll = function(fireEvent, originalEvent) {
 				while (self.connections.length > 0) {
-					self.detach(self.connections[0], false, true, fireEvent);
+					self.detach(self.connections[0], false, true, fireEvent, originalEvent);
 				}
 			};
 			/*
@@ -4459,7 +4462,7 @@ between this method and jsPlumb.reset).
 			 *   targetEndpoint     - Endpoint from which to detach all Connections from this Endpoint.
 			 *   fireEvent          - whether or not to fire the detach event. defaults to false.
 			 */
-			this.detachFrom = function(targetEndpoint, fireEvent) {
+			this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
 				var c = [];
 				for ( var i = 0; i < self.connections.length; i++) {
 					if (self.connections[i].endpoints[1] == targetEndpoint
@@ -4468,7 +4471,7 @@ between this method and jsPlumb.reset).
 					}
 				}
 				for ( var i = 0; i < c.length; i++) {
-					if (self.detach(c[i], false, true, fireEvent))
+					if (self.detach(c[i], false, true, fireEvent, originalEvent))
 						c[i].setHover(false, false);					
 				}
 			};			
@@ -4917,7 +4920,10 @@ between this method and jsPlumb.reset).
 					var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'],
 					    overEvent = jsPlumb.CurrentLibrary.dragEvents['over'],
 					    outEvent = jsPlumb.CurrentLibrary.dragEvents['out'],
-					drop = function(originalEvent) {
+					drop = function() {
+
+						var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments);
+
 						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
 						id = _getAttribute(draggable, "dragId"),
 						elId = _getAttribute(draggable, "elId"),						
@@ -4978,7 +4984,7 @@ between this method and jsPlumb.reset).
 											sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
 											targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
 											connection : jpc
-										}, true);
+										}, true, originalEvent);
 									}
 
 	                                // finalise will inform the anchor manager and also add to

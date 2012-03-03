@@ -198,6 +198,12 @@
 			    drags = _draggablesById[id];
 			return drags[0].scope;
 		},
+
+		// TODO how to get the actual event from MooTools?
+		getDropEvent : function(args) {
+			//console.log(args);
+			return null;
+		},
 		
 		getDropScope : function(el) {
 			var id = jsPlumb.getId(el);

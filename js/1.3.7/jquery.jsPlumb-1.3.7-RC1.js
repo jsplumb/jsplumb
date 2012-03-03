@@ -137,6 +137,10 @@
 		getDragScope : function(el) {
 			return el.draggable("option", "scope");
 		},
+
+		getDropEvent : function(args) {
+			return args[0];
+		},
 		
 		getDropScope : function(el) {
 			return el.droppable("option", "scope");		
