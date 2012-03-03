@@ -27,9 +27,11 @@
 	------
 
 	207 - pass original event back in connection detached callback
+	209 - endpoint drag not creating connection after setEnabled(false) and then setEnabled(true)
 	210 - overlays not being hidden when setVisible(false) called
 	211 - IE8 JS error with overlays and continuous anchors
 	212 - change the id of an element
+	214 - beforeDetach gives wrong targetId when being reattached
 
 
 * 1.3.6
