@@ -3082,6 +3082,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 	test(renderMode + " setId, taking two strings, only default scope", function() {
 		_addDiv("d1"); _addDiv("d2");
 
+		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
 			e2 = _jsPlumb.addEndpoint("d2"),
 			e3 = _jsPlumb.addEndpoint("d1");
@@ -3106,13 +3107,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		equals(c.sourceId, "d3", "connection's sourceId has changed");
 		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c.targetId, "d3", "connection's targetId has changed");
-		equals(c.target.attr("id"), "d3", "connection's target has changed");
+		equals(c2.targetId, "d3", "connection's targetId has changed");
+		equals(c2.target.attr("id"), "d3", "connection's target has changed");
 	});   
 	
 	test(renderMode + " setId, taking a selector and a string, only default scope", function() {
 		_addDiv("d1"); _addDiv("d2");
 
+		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
 			e2 = _jsPlumb.addEndpoint("d2"),
 			e3 = _jsPlumb.addEndpoint("d1");
@@ -3137,13 +3139,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		equals(c.sourceId, "d3", "connection's sourceId has changed");
 		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c.targetId, "d3", "connection's targetId has changed");
-		equals(c.target.attr("id"), "d3", "connection's target has changed");
+		equals(c2.targetId, "d3", "connection's targetId has changed");
+		equals(c2.target.attr("id"), "d3", "connection's target has changed");
 	});   
 
 	test(renderMode + " setId, taking a DOM element and a string, only default scope", function() {
 		_addDiv("d1"); _addDiv("d2");
 
+		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
 			e2 = _jsPlumb.addEndpoint("d2"),
 			e3 = _jsPlumb.addEndpoint("d1");
@@ -3168,13 +3171,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		equals(c.sourceId, "d3", "connection's sourceId has changed");
 		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c.targetId, "d3", "connection's targetId has changed");
-		equals(c.target.attr("id"), "d3", "connection's target has changed");
+		equals(c2.targetId, "d3", "connection's targetId has changed");
+		equals(c2.target.attr("id"), "d3", "connection's target has changed");
 	}); 
 
 	test(renderMode + " setId, taking two strings, mix of scopes", function() {
 		_addDiv("d1"); _addDiv("d2");
 
+		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
 			e2 = _jsPlumb.addEndpoint("d2"),
 			e3 = _jsPlumb.addEndpoint("d1");
@@ -3199,17 +3203,18 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		equals(c.sourceId, "d3", "connection's sourceId has changed");
 		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c.targetId, "d3", "connection's targetId has changed");
-		equals(c.target.attr("id"), "d3", "connection's target has changed");
+		equals(c2.targetId, "d3", "connection's targetId has changed");
+		equals(c2.target.attr("id"), "d3", "connection's target has changed");
 	});   
 	
 	test(renderMode + " setId, taking a selector and a string, mix of scopes", function() {
 		_addDiv("d1"); _addDiv("d2");
 
+		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
 			e2 = _jsPlumb.addEndpoint("d2"),
 			e3 = _jsPlumb.addEndpoint("d1");
-
+		
 		assertEndpointCount("d1", 2, _jsPlumb);
 		equals(e1.elementId, "d1", "endpoint has correct element id");
 		equals(e3.elementId, "d1", "endpoint has correct element id");
@@ -3230,13 +3235,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		equals(c.sourceId, "d3", "connection's sourceId has changed");
 		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c.targetId, "d3", "connection's targetId has changed");
-		equals(c.target.attr("id"), "d3", "connection's target has changed");
+		equals(c2.targetId, "d3", "connection's targetId has changed");
+		equals(c2.target.attr("id"), "d3", "connection's target has changed");
 	});   
 
 	test(renderMode + " setId, taking a DOM element and a string, mix of scopes", function() {
 		_addDiv("d1"); _addDiv("d2");
 
+		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
 			e2 = _jsPlumb.addEndpoint("d2"),
 			e3 = _jsPlumb.addEndpoint("d1");
@@ -3261,13 +3267,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		equals(c.sourceId, "d3", "connection's sourceId has changed");
 		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c.targetId, "d3", "connection's targetId has changed");
-		equals(c.target.attr("id"), "d3", "connection's target has changed");
+		equals(c2.targetId, "d3", "connection's targetId has changed");
+		equals(c2.target.attr("id"), "d3", "connection's target has changed");
 	});
 
 	test(renderMode + " setIdChanged, ", function() {
 		_addDiv("d1"); _addDiv("d2");
 
+		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
 			e2 = _jsPlumb.addEndpoint("d2"),
 			e3 = _jsPlumb.addEndpoint("d1");
@@ -3295,8 +3302,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		equals(c.sourceId, "d3", "connection's sourceId has changed");
 		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c.targetId, "d3", "connection's targetId has changed");
-		equals(c.target.attr("id"), "d3", "connection's target has changed");
+		equals(c2.targetId, "d3", "connection's targetId has changed");
+		equals(c2.target.attr("id"), "d3", "connection's target has changed");
 	});  
     
 

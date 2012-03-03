@@ -2624,17 +2624,19 @@ between this method and jsPlumb.reset).
 			var id = el.constructor == String ? el : _currentInstance.getId(el),
 				sConns = _currentInstance.getConnections({source:id, scope:'*'}, true),
 				tConns = _currentInstance.getConnections({target:id, scope:'*'}, true);
+
+			newId = "" + newId;
 							
 			if (!doNotSetAttribute) {
 				el = jsPlumb.CurrentLibrary.getElementObject(id);
 				jsPlumb.CurrentLibrary.setAttribute(el, "id", newId);
 			}
-			else {
-				el = jsPlumb.CurrentLibrary.getElementObject(newId);
-			}
+			
+			el = jsPlumb.CurrentLibrary.getElementObject(newId);
+			
 
-			endpointsByElement[newId] = endpointsByElement[id];
-			for (var i in endpointsByElement[newId]) {
+			endpointsByElement[newId] = endpointsByElement[id] || [];
+			for (var i = 0; i < endpointsByElement[newId].length; i++) {
 				endpointsByElement[newId][i].elementId = newId;
 				endpointsByElement[newId][i].element = el;
 				endpointsByElement[newId][i].anchor.elementId = newId;
@@ -2652,7 +2654,7 @@ between this method and jsPlumb.reset).
 				}
 			};
 			_conns(sConns, 0, "source");
-			_conns(sConns, 1, "target");
+			_conns(tConns, 1, "target");
 		};
 
 		/*
@@ -4948,11 +4950,11 @@ between this method and jsPlumb.reset).
 				
 								// these have to be set before testing for beforeDrop.
 								if (idx == 0) {
-									jpc.source = _element;
-									jpc.sourceId = _elementId;
+									jpc.source = self.element;
+									jpc.sourceId = self.elementId;
 								} else {
-									jpc.target = _element;
-									jpc.targetId = _elementId;
+									jpc.target = self.element;
+									jpc.targetId = self.elementId;
 								}
 								
 								// now check beforeDrop.  this will be available only on Endpoints that are setup to
@@ -4969,7 +4971,7 @@ between this method and jsPlumb.reset).
 									self.addConnection(jpc);
 									if (!jpc.suspendedEndpoint) {  
 										//_addToList(connectionsByScope, jpc.scope, jpc);
-										_initDraggableIfNecessary(_element, params.draggable, {});
+										_initDraggableIfNecessary(self.element, params.draggable, {});
 									}
 									else {
 										var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
