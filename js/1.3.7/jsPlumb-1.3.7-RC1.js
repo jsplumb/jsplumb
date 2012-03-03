@@ -4072,8 +4072,6 @@ between this method and jsPlumb.reset).
 				this.paint({ elId : this.sourceId, recalc : recalc, timestamp:params.timestamp });
 			};			
 			
-			// just to make sure the UI gets initialised fully on all browsers.
-			self.repaint();
 		};
 		
 // ENDPOINT HELPER FUNCTIONS
