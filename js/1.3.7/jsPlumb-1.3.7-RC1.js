@@ -1805,6 +1805,31 @@ between this method and jsPlumb.reset).
 			return Connection;
 		};
 
+		// helpers for select/selectEndpoints
+		var _setOperation = function(list, func, args, selector) {
+				for (var i = 0; i < list.length; i++) {
+					list[i][func].apply(list[i], args);
+				}	
+				return selector(list);
+			},
+			_getOperation = function(list, func, args) {
+				var out = [];
+				for (var i = 0; i < list.length; i++) {					
+					out.push([ list[i][func].apply(list[i], args), list[i] ]);
+				}	
+				return out;
+			},
+			setter = function(list, func, selector) {
+				return function() {
+					return _setOperation(list, func, arguments, selector);
+				};
+			},
+			getter = function(list, func) {
+				return function() {
+					return _getOperation(list, func, arguments);
+				};	
+			};
+
 		/*
 		 * Function: getConnections 
 		 * Gets all or a subset of connections currently managed by this jsPlumb instance.  If only one scope is passed in to this method,
@@ -1869,73 +1894,61 @@ between this method and jsPlumb.reset).
 			}
 			return results;
 		};
-
-		var _setOperation = function(list, func, args) {
-				for (var i = 0; i < list.length; i++) {
-					list[i][func].apply(list[i], args);
-				}	
-				return _makeSelectHandler(list);
-			},
-			_getOperation = function(list, func, args) {
-				var out = [];
-				for (var i = 0; i < list.length; i++) {
-					//out.push(list[i][func].apply(list[i], args));
-					out.push([ list[i][func].apply(list[i], args), list[i] ]);
-				}	
-				return out;
-			},
-			_makeSelectHandler = function(list) {
-				var setter = function(list, func) {
-						return function() {
-							return _setOperation(list, func, arguments);
-						};
-					},
-					getter = function(list, func) {
-						return function() {
-							return _getOperation(list, func, arguments);
-						};	
-					}
-				return {
-					// setters
-					setHover:setter(list, "setHover"),
-					addOverlay:setter(list, "addOverlay"),					
-					removeAllOverlays:setter(list, "removeAllOverlays"),
-					setLabel:setter(list, "setLabel"),
-					showOverlay:setter(list, "showOverlay"),
-					hideOverlay:setter(list, "hideOverlay"),
-					showOverlays:setter(list, "showOverlays"),
-					hideOverlays:setter(list, "hideOverlays"),
-					setPaintStyle:setter(list, "setPaintStyle"),
-					setHoverPaintStyle:setter(list, "setHoverPaintStyle"),					
-					setDetachable:setter(list, "setDetachable"),
-					setConnector:setter(list, "setConnector"),		
-					setParameter:setter(list, "setParameter"),		
-					setParameters:setter(list, "setParameters"),		
-
-					// getters
-					getLabel:getter(list, "getLabel"),
-					getOverlay:getter(list, "getOverlay"),
-					isHover:getter(list, "isHover"),
-					isDetachable:getter(list, "isDetachable"),
-					getParameter:getter(list, "getParameter"),		
-					getParameters:getter(list, "getParameters"),		
-
-					// util
-					length:list.length,
-					each:function(f) {
-						for (var i = 0; i < list.length; i++) {
-							f(list[i]);
-						}
-					},
-					get:function(idx) {
-						return list[idx];
-					}
-				};
-			};
+		
+		var	_makeConnectionSelectHandler = function(list) {
+			//var 
+			return {
+				// setters
+				setHover:setter(list, "setHover", _makeConnectionSelectHandler),								
+				removeAllOverlays:setter(list, "removeAllOverlays", _makeConnectionSelectHandler),
+				setLabel:setter(list, "setLabel", _makeConnectionSelectHandler),
+				addOverlay:setter(list, "addOverlay", _makeConnectionSelectHandler),
+				removeOverlay:setter(list, "removeOverlay", _makeConnectionSelectHandler),
+				removeOverlays:setter(list, "removeOverlays", _makeConnectionSelectHandler),
+				showOverlay:setter(list, "showOverlay", _makeConnectionSelectHandler),
+				hideOverlay:setter(list, "hideOverlay", _makeConnectionSelectHandler),
+				showOverlays:setter(list, "showOverlays", _makeConnectionSelectHandler),
+				hideOverlays:setter(list, "hideOverlays", _makeConnectionSelectHandler),
+				setPaintStyle:setter(list, "setPaintStyle", _makeConnectionSelectHandler),
+				setHoverPaintStyle:setter(list, "setHoverPaintStyle", _makeConnectionSelectHandler),					
+				setDetachable:setter(list, "setDetachable", _makeConnectionSelectHandler),
+				setConnector:setter(list, "setConnector", _makeConnectionSelectHandler),		
+				setParameter:setter(list, "setParameter", _makeConnectionSelectHandler),		
+				setParameters:setter(list, "setParameters", _makeConnectionSelectHandler),	
 				
+				detach:function() {
+					for (var i = 0; i < list.length; i++)
+						_currentInstance.detach(list[i]);
+				},				
+
+				// getters
+				getLabel:getter(list, "getLabel"),
+				getOverlay:getter(list, "getOverlay"),
+				isHover:getter(list, "isHover"),
+				isDetachable:getter(list, "isDetachable"),
+				getParameter:getter(list, "getParameter"),		
+				getParameters:getter(list, "getParameters"),		
+
+				// util
+				length:list.length,
+				each:function(f) {
+					for (var i = 0; i < list.length; i++) {
+						f(list[i]);
+					}
+					return _makeConnectionSelectHandler(list);
+				},
+				get:function(idx) {
+					return list[idx];
+				}
+
+			};
+		};
+			
 		this.select = function(params) {
+			params = params || {};
+			params.scope = params.scope || "*";
 			var c = _currentInstance.getConnections(params, true);
-			return _makeSelectHandler(c);							
+			return _makeConnectionSelectHandler(c);							
 		};
 
 		/*
@@ -1970,7 +1983,7 @@ between this method and jsPlumb.reset).
 		  	Endpoint with the given UUID, null if nothing found.
 		 */
 		this.getEndpoint = _getEndpoint;
-		
+				
 		/**
 		 * Function:getEndpoints
 		 * Gets the list of Endpoints for a given selector, or element id.
@@ -4302,7 +4315,7 @@ between this method and jsPlumb.reset).
 			
 // ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************
 			
-			var visible = true, enabled = !(params.enabled === false);
+			var visible = true, __enabled = !(params.enabled === false);
 			/*
 				Function: isVisible
 				Returns whether or not the Endpoint is currently visible.
@@ -4337,13 +4350,13 @@ between this method and jsPlumb.reset).
 				Function: isEnabled
 				Returns whether or not the Endpoint is enabled for drag/drop connections.
 			*/
-			this.isEnabled = function() { return enabled; };
+			this.isEnabled = function() { return __enabled; };
 
 			/*
 				Function: setEnabled
 				Sets whether or not the Endpoint is enabled for drag/drop connections.
 			*/
-			this.setEnabled = function(e) { enabled = e; };
+			this.setEnabled = function(e) { __enabled = e; };
 
 			var _element = params.source,  _uuid = params.uuid, floatingEndpoint = null,  inPlaceCopy = null;
 			if (_uuid) endpointsByUUID[_uuid] = self;
@@ -4810,7 +4823,7 @@ between this method and jsPlumb.reset).
 					jpc = self.connectorSelector();
                     var _continue = true;
                     // if not enabled, return
-                    if (!enabled) _continue = false;
+                    if (!self.isEnabled()) _continue = false;
 					// if no connection and we're not a source, return.
 					if (jpc == null && !params.isSource) _continue = false;
                     // otherwise if we're full and not allowed to drag, also return false.

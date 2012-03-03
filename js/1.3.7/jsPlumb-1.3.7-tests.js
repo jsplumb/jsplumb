@@ -3348,6 +3348,116 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(!(s.get(0).isHover()), "connection has had hover set to false");
 	});
 
+	test(renderMode + " select, basic test with multiple scopes; dont filter on scope.", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2", scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
+			s = _jsPlumb.select({source:"d1"});
+
+		equals(s.length, 2, "two connections selected");
+		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "connection has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "connection has had hover set to false");
+	});
+
+	test(renderMode + " select, basic test with multiple scopes; filter on scope", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2", scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
+			s = _jsPlumb.select({source:"d1", scope:"FOO"});
+
+		equals(s.length, 1, "one connection selected");
+		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "connection has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "connection has had hover set to false");
+	});
+
+	test(renderMode + " select, basic test with multiple scopes; filter on scopes", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2", scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
+			c3 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAZ"})
+			s = _jsPlumb.select({source:"d1", scope:["FOO","BAR"]});
+
+		equals(s.length, 2, "two connections selected");
+		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "connection has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "connection has had hover set to false");
+	});
+
+	test(renderMode + " select, basic test with multiple scopes; scope but no scope filter; single source id", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2", scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
+			c3 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAZ"}),
+			c4 = _jsPlumb.connect({source:"d2", target:"d1", scope:"BOZ"}),
+			s = _jsPlumb.select({source:"d1"});
+
+		equals(s.length, 3, "three connections selected");
+		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "connection has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "connection has had hover set to false");
+	});
+
+	test(renderMode + " select, basic test with multiple scopes; filter on scopes; single source id", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2", scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
+			c3 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAZ"}),
+			c4 = _jsPlumb.connect({source:"d2", target:"d1", scope:"BOZ"}),
+			s = _jsPlumb.select({source:"d1", scope:["FOO","BAR", "BOZ"]});
+
+		equals(s.length, 2, "two connections selected");
+		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "connection has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "connection has had hover set to false");
+	});
+
+	test(renderMode + " select, basic test with multiple scopes; filter on scope; dont supply sourceid", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2", scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
+			s = _jsPlumb.select({ scope:"FOO" });
+
+		equals(s.length, 1, "two connections selected");
+		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "connection has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "connection has had hover set to false");
+	});
+
+	test(renderMode + " select, basic test with multiple scopes; filter on scope; dont supply sourceid", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var c = _jsPlumb.connect({source:"d1", target:"d2", scope:"FOO"}),
+			c2 = _jsPlumb.connect({source:"d2", target:"d1", scope:"BAR"}),
+			s = _jsPlumb.select({ scope:"FOO" });
+
+		equals(s.length, 1, "two connections selected");
+		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "connection has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "connection has had hover set to false");
+	});
+
 	test(renderMode + " select, two connections, with overlays", function() {
 		_addDiv("d1"); _addDiv("d2");
 		var c = _jsPlumb.connect({
@@ -3466,6 +3576,37 @@ var testSuite = function(renderMode, _jsPlumb) {
 			equals(params[j][0], "bar", "parameter has value 'bar'");
 		}			
 	});
+
+
+	test(renderMode + " select, detach method", function() {
+		for (var i = 1; i < 6; i++) {
+			_addDiv("d" + i); 	_addDiv("d" + (i * 10));
+			_jsPlumb.connect({
+				source:"d" + i, 
+				target:"d" + (i*10),
+				label:"FOO"
+			});
+		}
+				
+		var params = _jsPlumb.select().detach();
+
+		equals(jsPlumb.select().length, 0, "there are no connections");
+	});	
+
+// ******************* getEndpoints ************************************************
+
+	test(renderMode + " getEndpoints", function() {
+		_addDiv("d1");_addDiv("d2");
+		
+		_jsPlumb.addEndpoint("d1");
+		_jsPlumb.addEndpoint("d2");
+		_jsPlumb.addEndpoint("d1");
+
+		var e = _jsPlumb.getEndpoints("d1"),
+			e2 = _jsPlumb.getEndpoints("d2");
+		equals(e.length, 2, "two endpoints on d1");
+		equals(e2.length, 1, "one endpoint on d2");
+	});	
 
 	/**
 	 * leave this test at the bottom!
