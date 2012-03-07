@@ -349,6 +349,7 @@
             sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
             
             segments = [];
+            segmentProportions = [];
             totalLength = 0;
             segmentProportionalLengths = [];
             maxX = maxY = 0;
