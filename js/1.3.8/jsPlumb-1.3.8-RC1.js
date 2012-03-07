@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.7
+ * Title:jsPlumb 1.3.8
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -4957,7 +4957,8 @@ between this method and jsPlumb.reset).
 				// extracted drag handler function so can be used by makeSource
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _dragHandler.drag);
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
-					function() {	
+					function() {
+						var originalEvent = jpcl.getDropEvent(arguments);
 						_currentInstance.currentlyDragging = false;						
 						_removeWithFunction(endpointsByElement[placeholderInfo.id], function(e) {
 							return e.id == floatingEndpoint.id;
@@ -4983,7 +4984,7 @@ between this method and jsPlumb.reset).
 								// restore the original scope (issue 57)
 								jsPlumb.CurrentLibrary.setDragScope(existingJpcParams[2], existingJpcParams[3]);
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
-								if (self.isReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc)) {
+								if (self.isReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
 									jpc.setHover(false);
 									jpc.floatingAnchorIndex = null;
 									jpc.suspendedEndpoint.addConnection(jpc);
