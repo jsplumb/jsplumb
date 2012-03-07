@@ -33,11 +33,11 @@
 					jsPlumbDemo.hideConnectionInfo();
 			};				
 
-			jsPlumb.bind("jsPlumbConnection", function(e) {
-				updateConnections(e.connection);
+			jsPlumb.bind("jsPlumbConnection", function(info, originalEvent) {
+				updateConnections(info.connection);
 			});
-			jsPlumb.bind("jsPlumbConnectionDetached", function(e) {
-				updateConnections(e.connection, true);
+			jsPlumb.bind("jsPlumbConnectionDetached", function(info, originalEvent) {
+				updateConnections(info.connection, true);
 			});
 
 			var exampleDropOptions = {
