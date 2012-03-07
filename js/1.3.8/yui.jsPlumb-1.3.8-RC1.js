@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.7
+ * Title:jsPlumb 1.3.8
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -157,9 +157,10 @@
 		 * animates the given element.
 		 */
 		animate : function(el, properties, options) {
-			var o = _extend({node:el, to:properties}, options);			
-			var id = _getAttribute(el, "id");
+			var o = _extend({node:el, to:properties}, options),			
+				id = _getAttribute(el, "id");
 			o["tween"] = jsPlumb.wrap(properties["tween"], function() {
+				// TODO should use a current instance.
 				jsPlumb.repaint(id);
 			});
 			var a = new Y.Anim(o);
@@ -203,8 +204,8 @@
 		},
 		
 		getDragScope : function(el) {
-			var id = jsPlumb.getId(el);
-			var dd = _draggablesById[id];
+			var id = jsPlumb.getId(el),
+				dd = _draggablesById[id];
 			return dd.scope;
 		},
 
@@ -273,8 +274,8 @@
 		},
 				
 		initDraggable : function(el, options) {
-			var _opts = _getDDOptions(options);
-			var id = jsPlumb.getId(el);
+			var _opts = _getDDOptions(options),
+				id = jsPlumb.getId(el);
 			_opts.node = "#" + id;		
 			var dd = new Y.DD.Drag(_opts);
 			dd.el = el;	
@@ -289,8 +290,8 @@
 		},
 		
 		initDroppable : function(el, options) {
-			var _opts = _getDDOptions(options);
-			var id = jsPlumb.getId(el);
+			var _opts = _getDDOptions(options),
+				id = jsPlumb.getId(el);
 			_opts.node = "#" + id;			
 			var dd = new Y.DD.Drop(_opts);
 			
@@ -335,14 +336,14 @@
 		 * sets the draggable state for the given element
 		 */
 		setDraggable : function(el, draggable) {
-			var id = jsPlumb.getId(el);
-			var dd = _draggablesById[id];
+			var id = jsPlumb.getId(el),
+				dd = _draggablesById[id];
 			if (dd) dd.set("lock", !draggable);
 		},
 		
 		setDragScope : function(el, scope) {
-			var id = jsPlumb.getId(el);
-			var dd = _draggablesById[id];
+			var id = jsPlumb.getId(el),
+				dd = _draggablesById[id];
 			if (dd) dd.scope = scope;
 		},
 		
