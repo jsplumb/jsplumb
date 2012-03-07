@@ -28,23 +28,22 @@
 		"joinstyle":"joinstyle",		
 		"endcap":"endcap",
 		"miterlimit":"miterlimit"
-	};
+	},
+	jsPlumbStylesheet = null;
 	
 	if (document.createStyleSheet) {			
 		
-		// this is the style rule for IE7/6: it uses a CSS class, tidy.
-		document.createStyleSheet().addRule(".jsplumb_vml", "behavior:url(#default#VML);position:absolute;");
-		
-		// these are for VML in IE8.  you have to explicitly call out which elements
-		// you're going to expect to support VML!  
-		//
-		document.createStyleSheet().addRule("jsplumb\\:textbox", "behavior:url(#default#VML);position:absolute;");
-		document.createStyleSheet().addRule("jsplumb\\:oval", "behavior:url(#default#VML);position:absolute;");
-		document.createStyleSheet().addRule("jsplumb\\:rect", "behavior:url(#default#VML);position:absolute;");
-		document.createStyleSheet().addRule("jsplumb\\:stroke", "behavior:url(#default#VML);position:absolute;");
-		document.createStyleSheet().addRule("jsplumb\\:shape", "behavior:url(#default#VML);position:absolute;");
-        document.createStyleSheet().addRule("jsplumb\\:group", "behavior:url(#default#VML);position:absolute;");
-		
+		var ruleClasses = [
+				".jsplumb_vml", "jsplumb\\:textbox", "jsplumb\\:oval", "jsplumb\\:rect", 
+				"jsplumb\\:stroke", "jsplumb\\:shape", "jsplumb\\:group"
+			],
+			rule = "behavior:url(#default#VML);position:absolute;";
+
+		jsPlumbStylesheet = document.createStyleSheet();
+
+		for (var i = 0; i < ruleClasses.length; i++)
+			jsPlumbStylesheet.addRule(ruleClasses[i], rule);
+
 		// in this page it is also mentioned that IE requires the extra arg to the namespace
 		// http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
 		// but someone commented saying they didn't need it, and it seems jsPlumb doesnt need it either.
