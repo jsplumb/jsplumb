@@ -2411,7 +2411,7 @@ between this method and jsPlumb.reset).
 					endpointAddedButNoDragYet = false;
 				});
 					
-				dragOptions[stopEvent] = function() { 							
+				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], function() { 							
 					if (existingStop) existingStop.apply(this, arguments);								
 
                     //_currentlyDown = false;
@@ -2454,7 +2454,7 @@ between this method and jsPlumb.reset).
 						_currentInstance.repaint(ep.connections[0].targetId);
 
 					}				
-				};
+				});
 				// when the user presses the mouse, add an Endpoint
 				var mouseDownListener = function(e) {
 					// make sure we have the latest offset for this div 
