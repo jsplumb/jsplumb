@@ -186,6 +186,7 @@
 		</copy>			
 	</target>
 
+	<!-- writes the final version of JS into the copies of test html, files replacing the dev imports -->
 	<target name="update-tests-js">
 		<replaceregexp>						
 			<regexp pattern="(&lt;!-- JS.*&gt;.*\n)(.*\n)*(.*/JS --&gt;)"/>
@@ -291,6 +292,7 @@
 		<delete dir="js/TEMPOUT"/>
 	</target>
 	
+	<!-- builds a version of jsplumb -->
 	<target name="build" depends="init">		
 		<antcall target="minAll"/>		
 		<antcall target="demo"/>
@@ -298,8 +300,72 @@
 		<antcall target="copy-tests"/>
 	</target>
 
+	<!-- builds a version of jsplumb and generates apidocs -->
 	<target name="build-all" depends="build">
 		<antcall target="docs"/>
+	</target>
+
+	<target name="new" unless="new">
+		<fail message="You must supply the new version, eg: ant -Dold=1.3.7 -Dnew=1.3.8"/>
+	</target>
+	<target name="old" unless="old">
+		<fail message="You must supply the old version, eg: ant -Dold=1.3.7 -Dnew=1.3.8"/>
+	</target>
+	<!-- creates/copies all the files needed for a new version -->
+	<target name="newversion" depends="old,new">
+
+		<propertyregex property="new.escaped"
+              input="${new}"
+              regexp="\."
+              replace="\\."/>
+
+        <propertyregex property="old.escaped"
+              input="${old}"
+              regexp="\."
+              replace="\\\."/>
+
+        <echo>${new.escaped}</echo>
+
+		<!-- create new js dir and copy previous version js into it -->
+		<mkdir dir="js/${new}"/>
+		<copy todir="js/${new}">
+			<fileset dir="js/${old}">
+				<include name="*.js"/>
+			</fileset>
+			<mapper type="regexp" from="(.*)${old.escaped}(.*)" to="\1${new.escaped}\2"/>
+		</copy>
+
+		<!-- create new dir in tests/archive and copy test html files in there -->
+		<mkdir dir="tests/archive/${old}"/>
+		<copy todir="tests/archive/${old}">
+			<fileset dir="tests">
+				<include name="*.html"/>
+				<include name="*.css"/>
+			</fileset>
+		</copy>
+
+		<!-- replace refs to old version in test html to new version -->
+		<replace dir="tests" token="${old}" value="${new}"/>
+
+		<!-- create new archive dir for docs -->
+		<mkdir dir="demo/doc/archive/${old}"/>
+		<copy todir="demo/doc/archive/${old}">
+			<fileset dir="demo/doc">
+				<include name="*.html"/>
+				<include name="*.css"/>
+			</fileset>
+		</copy>
+
+		<replace dir="demo/doc" token="${old}" value="${new}"/>		
+		
+		<!-- replace refs to old version in demo html to new version -->
+		<replace dir="demo/jquery" token="${old}" value="${new}"/>
+		<replace dir="demo/yui3" token="${old}" value="${new}"/>
+		<replace dir="demo/mootools" token="${old}" value="${new}"/>
+
+		<!-- replace in README -->
+		<replace file="README.md" token="latest version is ${old}" value="latest version is ${new}"/>
+
 	</target>
 	
 </project>
