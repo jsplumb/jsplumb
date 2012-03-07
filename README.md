@@ -1,6 +1,6 @@
 # jsPlumb
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or 
-Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.5.
+Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.7.
 
 The project started out life on Google Code and has been hosted there for the last two years; from version 
 1.3.4 onwards it also lives here on GitHub. The source repo is now being synchronised between the two.  I did
@@ -58,7 +58,7 @@ between Google Code and GitHub):
 [https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
 
 ## Tests
-The qUnit test suite can be found [here](http://jsplumb.org/tests/1.3.4/qunit-all.html)
+qUnit test suite can be found [here](http://jsplumb.org/tests/qunit-all.html)
 
 ## Twitter
 The Twitter account I use for this project is [jsplumblib](http://twitter.com/jsplumblib)
