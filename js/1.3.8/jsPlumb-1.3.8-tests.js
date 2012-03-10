@@ -2940,11 +2940,23 @@ var testSuite = function(renderMode, _jsPlumb) {
 
     	ok(!jsPlumb.util.intersects(r1, r2), "r1 and r2 do not intersect");
     });
-    test(renderMode + "jsPlumb.util.intersects, corners touch but no intersection", function() {
+    test(renderMode + "jsPlumb.util.intersects, with intersection, equal Y", function() {
+    	var r1 = { x: 2, y:2, w:4, h:6},
+    		r2 = { x: 1, y:2, w:3, h:6};
+
+    	ok(jsPlumb.util.intersects(r1, r2), "r1 and r2 intersect");
+    });
+    test(renderMode + "jsPlumb.util.intersects, with intersection, equal X", function() {
+    	var r1 = { x: 2, y:2, w:4, h:6},
+    		r2 = { x: 2, y:1, w:4, h:6};
+
+    	ok(jsPlumb.util.intersects(r1, r2), "r1 and r2 intersect");
+    });
+    test(renderMode + "jsPlumb.util.intersects, corners touch (intersection)", function() {
     	var r1 = { x: 2, y:2, w:4, h:6},
     		r2 = { x: 6, y:8, w:3, h:3};
 
-    	ok(!jsPlumb.util.intersects(r1, r2), "r1 and r2 do not intersect");
+    	ok(jsPlumb.util.intersects(r1, r2), "r1 and r2 intersect");
     });
     test(renderMode + "jsPlumb.util.intersects, one rectangle contained within the other", function() {
     	var r1 = { x: 2, y:2, w:4, h:6},
