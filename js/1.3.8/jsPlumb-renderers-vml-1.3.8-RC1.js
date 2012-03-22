@@ -266,6 +266,8 @@
 		self.canvas = document.createElement("div");
 		self.canvas.style["position"] = "absolute";
 
+		var clazz = self._jsPlumb.endpointClass + (params.cssClass ? (" " + params.cssClass) : "");
+
 		//var group = _getGroup(params.parent);
         //group.appendChild(self.canvas);
 		params["_jsPlumb"].appendElement(self.canvas, params.parent);
@@ -277,7 +279,7 @@
 			
 			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 			if (vml == null) {
-				p["class"] = jsPlumb.endpointClass;
+				p["class"] = clazz;
 				vml = self.getVml([0,0, d[2], d[3]], p, anchor);				
 				self.canvas.appendChild(vml);
 				self.attachListeners(vml, self);
