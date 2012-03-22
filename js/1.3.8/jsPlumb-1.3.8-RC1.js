@@ -1233,14 +1233,14 @@
 		 * for each instance.  this method is used not only to assign ids to elements that do not
 		 * have them but also to connections and endpoints.
 		 */
-		_getId = function(element, uuid) {
+		_getId = function(element, uuid, doNotCreateIfNotFound) {
 			var ele = _getElementObject(element);
 			var id = _getAttribute(ele, "id");
 			if (!id || id == "undefined") {
 				// check if fixed uuid parameter is given
 				if (arguments.length == 2 && arguments[1] != undefined)
 					id = uuid;
-				else
+				else if (arguments.length == 1 || (arguments.length == 3 && arguments[2]))
 					id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
 				_setAttribute(ele, "id", id);
 			}
@@ -1732,8 +1732,8 @@ between this method and jsPlumb.reset).
 
 		/*
 		  Function: draggable 
-		  Initialises the draggability of some element or elements.  You should use this instead of y
-		  our library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your 
+		  Initialises the draggability of some element or elements.  You should use this instead of your 
+		  library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your 
 		  underlying library's drag method is always called from this method.
 		  
 		  Parameters: 
@@ -1742,8 +1742,7 @@ between this method and jsPlumb.reset).
 		  	 
 		  Returns: 
 		  	void
-		 */
-		 // TODO it would be nice if this supported a selector string, instead of an id.
+		 */		 
 		this.draggable = function(el, options) {
 			if (typeof el == 'object' && el.length) {
 				for ( var i = 0; i < el.length; i++) {
@@ -2088,9 +2087,7 @@ between this method and jsPlumb.reset).
 		 */
 		this.makeAnchor = function() {
 			if (arguments.length == 0) return null;
-			var specimen = arguments[0], elementId = arguments[1], jsPlumbInstance = arguments[2], newAnchor = null;
-			if (!jsPlumbInstance) 
-				throw "NO JSPLUMB SET";
+			var specimen = arguments[0], elementId = arguments[1], jsPlumbInstance = arguments[2], newAnchor = null;			
 			// if it appears to be an anchor already...
 			if (specimen.compute && specimen.getOrientation) return specimen;  //TODO hazy here about whether it should be added or is already added somehow.
 			// is it the name of an anchor type?
@@ -3280,7 +3277,7 @@ between this method and jsPlumb.reset).
     _sortHelper = function(_array, _fn) {
       return _array.sort(_fn);
     },
-	placeAnchors = function(elementId, _anchorLists) {
+	placeAnchors = function(elementId, _anchorLists) {		
 		var sS = sizes[elementId], sO = offsets[elementId],
 		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
             if (unsortedConnections.length > 0) {
@@ -3641,8 +3638,8 @@ between this method and jsPlumb.reset).
 				for (var i = 0; i < p.childNodes.length; i++) {
 					if (p.childNodes[i].nodeType != 3) {
 						var cEl = jsPlumb.CurrentLibrary.getElementObject(p.childNodes[i]),
-							cid = _currentInstance.getId(cEl);
-						if (_elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+							cid = _currentInstance.getId(cEl, null, true);
+						if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
 							var cOff = jsPlumb.CurrentLibrary.getOffset(cEl);
 							_delements[id][cid] = {
 								id:cid,
@@ -4615,7 +4612,7 @@ between this method and jsPlumb.reset).
 				// moving the UI bits and pieces.  however it would s			
 				var parentId = _getId(el);
 				// remove the endpoint from the list for the current endpoint's element
-				_removeWithFunction(endpointsByElement[elementId], function(e) {
+				_removeWithFunction(endpointsByElement[self.elementId], function(e) {
 					return e.id == self.id;
 				});
 				_element = _getElementObject(el);
