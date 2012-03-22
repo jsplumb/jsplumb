@@ -691,9 +691,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			returnedParams = $.extend({}, params);
 		});
 		_jsPlumb.detach(c);
-		ok(returnedParams.connection != null, 'connection is set');
-		//_jsPlumb.detachAll("d1");
-		//ok(returnedParams2 != null, "removed connection listener event was fired");
+		ok(returnedParams.connection != null, 'connection is set');		
 	});
 	
 	test(renderMode + ': detach event listeners (detach by connection)', function() {
@@ -902,6 +900,28 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		equals(e16.isConnectedTo(e17), true, "e16 and e17 are connected");  
 	});
+
+	asyncTest(renderMode + "jsPlumb.util.setImage on Endpoint, with supplied onload", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+        e = {
+            endpoint:[ "Image", {
+                src:"../img/endpointTest1.png",
+                onload:function(imgEp) {                	
+                	_jsPlumb.repaint("d1");
+                    ok(imgEp.img.src.indexOf("endpointTest1.png") != -1, "image source is correct");                                        
+                    ok(imgEp.img.src.indexOf("endpointTest1.png") != -1, "image elementsource is correct");                                        
+                    
+                    imgEp.canvas.setAttribute("id", "iwilllookforthis");
+
+                    ok(document.getElementById("iwilllookforthis") != null, "image element is present");
+                    _jsPlumb.removeAllEndpoints("d1");
+                    ok(document.getElementById("iwilllookforthis") == null, "image element was removed after remove endpoint");
+                }
+            } ]
+        };
+        start();
+        _jsPlumb.addEndpoint(d1, e);
+    });
 	
 	test(renderMode + ": setting endpoint uuid", function() {
 		var uuid = "14785937583175927504313";
