@@ -726,6 +726,7 @@
 		var actuallyPaint = function(d, style, anchor) {
 			if (!initialized) {
 				self.canvas.setAttribute("src", self.img.src);
+                self.appendDisplayElement(self.canvas);
 				initialized = true;
 			}
 			var x = self.anchorPoint[0] - (widthToUse / 2),
