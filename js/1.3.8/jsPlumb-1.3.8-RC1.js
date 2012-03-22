@@ -29,15 +29,16 @@
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
 		vmlAvailable = function() {		    
-			var vml = false,
-	        	a = document.body.appendChild(document.createElement('div'));
-	        a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
-	        var b = a.firstChild;
-	        b.style.behavior = "url(#default#VML)";
-	        vml = b ? typeof b.adj == "object": true;
-	        a.parentNode.removeChild(a);
-		    return vml;
-		}();
+			if(vmlAvailable.vml == undefined) { 
+				var a = document.body.appendChild(document.createElement('div'));
+		        a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
+		        var b = a.firstChild;
+		        b.style.behavior = "url(#default#VML)";
+		        vmlAvailable.vml = b ? typeof b.adj == "object": true;
+		        a.parentNode.removeChild(a);
+			}
+			return vmlAvailable.vml;
+		};
 	
     var _findWithFunction = function(a, f) {
     	if (a)
@@ -2833,7 +2834,7 @@ between this method and jsPlumb.reset).
 				renderMode = jsPlumb.CANVAS;
 			else if (mode === jsPlumb.SVG && svgAvailable)
 				renderMode = jsPlumb.SVG;
-			else if (vmlAvailable)
+			else if (vmlAvailable())
 				renderMode = jsPlumb.VML;		
 			
 			return renderMode;
