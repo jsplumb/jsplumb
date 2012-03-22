@@ -87,6 +87,15 @@
 		appendElement : function(child, parent) {
 			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
 		},   
+
+		/**
+		* executes ana ajax call.
+		*/
+		ajax : function(params) {
+			params = params || {};
+			params.type = params.type || "get";
+			$.ajax(params);
+		},
 		
 		/**
 		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
