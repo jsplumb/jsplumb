@@ -27,8 +27,17 @@
 	
 	var canvasAvailable = !!document.createElement('canvas').getContext,
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-	// TODO what is a good test for VML availability? aside from just assuming its there because nothing else is.
-		vmlAvailable = !(canvasAvailable | svgAvailable);
+		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
+		vmlAvailable = function() {		    
+			var vml = false,
+	        	a = document.body.appendChild(document.createElement('div'));
+	        a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
+	        var b = a.firstChild;
+	        b.style.behavior = "url(#default#VML)";
+	        vml = b ? typeof b.adj == "object": true;
+	        a.parentNode.removeChild(a);
+		    return vml;
+		}();
 	
     var _findWithFunction = function(a, f) {
     	if (a)
@@ -2424,31 +2433,36 @@ between this method and jsPlumb.reset).
 						// the connection was just a placeholder that was located at the place the user pressed the
 						// mouse button to initiate the drag.
 						var anchorDef = p.anchor || _currentInstance.Defaults.Anchor,
-							oldAnchor = ep.anchor;
+							oldAnchor = ep.anchor,
+							oldConnection = ep.connections[0];
 
-						ep.anchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance);											
-						
+						ep.anchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance);																							
 						
 						if (p.parent) {						
 							var parent = jpcl.getElementObject(p.parent);
 							if (parent) {	
-								var currentId = ep.elementId;							
+								var currentId = ep.elementId;
+																
 								ep.setElement(parent);
 								ep.endpointWillMoveAfterConnection = false;														
 								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);													
-								ep.connections[0].previousConnection = null;										
+								oldConnection.previousConnection = null;
+								// remove from connectionsByScope
+								_removeWithFunction(connectionsByScope[oldConnection.scope], function(c) {
+									return c.id === oldConnection.id;
+								});										
 								_currentInstance.anchorManager.connectionDetached({
-									sourceId:ep.connections[0].sourceId,
-									targetId:ep.connections[0].targetId,
-									connection:ep.connections[0]
+									sourceId:oldConnection.sourceId,
+									targetId:oldConnection.targetId,
+									connection:oldConnection
 								});											
-								_finaliseConnection(ep.connections[0]);					
+								_finaliseConnection(oldConnection);					
 							}
 						}						
 						
 						ep.repaint();			
 						_currentInstance.repaint(ep.elementId);																		
-						_currentInstance.repaint(ep.connections[0].targetId);
+						_currentInstance.repaint(oldConnection.targetId);
 
 					}				
 				});
