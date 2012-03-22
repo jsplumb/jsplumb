@@ -685,10 +685,21 @@
             }
 		};
 
+        /*
+            Function: setImage
+            Sets the Image to use in this Endpoint.  
+
+            Parameters:
+            img         -   may be a URL or an Image object
+            onload      -   optional; a callback to execute once the image has loaded.
+        */
         _endpoint.setImage = function(img, onload) {
             var s = img.constructor == String ? img : img.src;
             _onload = onload;
             self.img.src = img;
+
+            if (self.canvas != null)
+                self.canvas.setAttribute("src", img);
         };
 
         _endpoint.setImage(params.src || params.url, params.onload);

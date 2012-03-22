@@ -2952,6 +2952,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 
     	ok(jsPlumb.util.intersects(r1, r2), "r1 and r2 intersect");
     });
+    test(renderMode + "jsPlumb.util.intersects, identical rectangles", function() {
+    	var r1 = { x: 2, y:2, w:4, h:6},
+    		r2 = { x: 2, y:2, w:4, h:6};
+
+    	ok(jsPlumb.util.intersects(r1, r2), "r1 and r2 intersect");
+    });
     test(renderMode + "jsPlumb.util.intersects, corners touch (intersection)", function() {
     	var r1 = { x: 2, y:2, w:4, h:6},
     		r2 = { x: 6, y:8, w:3, h:3};
@@ -2966,11 +2972,11 @@ var testSuite = function(renderMode, _jsPlumb) {
     });
     test(renderMode + "jsPlumb.util.setImage on Endpoint", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+        originalUrl = "../../img/endpointTest1.png",
         e = {
-            endpoint:[ "Image", { src:"../../img/endpointTest1.png" } ]
+            endpoint:[ "Image", { src:originalUrl } ]
         },
-        ep = _jsPlumb.addEndpoint(d1, e);
-        ep.setImage("../../img/littledot.png");
+        ep = _jsPlumb.addEndpoint(d1, e);        
     });
     test(renderMode + "jsPlumb.util.setImage on Endpoint, with supplied onload", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
@@ -2979,12 +2985,14 @@ var testSuite = function(renderMode, _jsPlumb) {
                 src:"../../img/endpointTest1.png",
                 onload:function(imgEp) {
                     equals("../../img/endpointTest1.png", imgEp.img.src);
+                    equals(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
                 }
             } ]
         },
         ep = _jsPlumb.addEndpoint(d1, e);
         ep.setImage("../../img/littledot.png", function(imgEp) {
             equals("../../img/littledot.png", imgEp.img.src);
+            equals(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
         });
     });
     
