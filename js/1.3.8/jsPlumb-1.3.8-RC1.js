@@ -953,7 +953,8 @@
 					tep =_targetEndpointDefinitions[tid],
 					existingUniqueEndpoint = _targetEndpoints[tid];
 
-				if (tep) {				
+				if (tep) {			
+					// check for max connections??						
 					var newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
@@ -2019,7 +2020,7 @@ between this method and jsPlumb.reset).
 		 */
 		this.getEndpoints = function(el) {
 			return endpointsByElement[_getId(el)];
-		};
+		};		
 
 		/*
 		 * Gets an element's id, creating one if necessary. really only exposed
@@ -2203,6 +2204,7 @@ between this method and jsPlumb.reset).
 		var _targetEndpointDefinitions = {},
 			_targetEndpoints = {},
 			_targetEndpointsUnique = {},
+			_targetMaxConnections = {},
 			_setEndpointPaintStylesAndAnchor = function(ep, epIndex) {
 				ep.paintStyle = ep.paintStyle ||
 				 				_currentInstance.Defaults.EndpointStyles[epIndex] ||
@@ -2235,6 +2237,7 @@ between this method and jsPlumb.reset).
 			var jpcl = jsPlumb.CurrentLibrary,
 			    targetScope = p.scope || _currentInstance.Defaults.Scope,
 			    deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
+			    maxConnections = p.maxConnections || -1,
 			_doOne = function(_el) {
 				
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -2242,12 +2245,19 @@ between this method and jsPlumb.reset).
 				var elid = _getId(_el);
 					_targetEndpointDefinitions[elid] = p;
 					_targetEndpointsUnique[elid] = p.uniqueEndpoint,
-					proxyComponent = new jsPlumbUIComponent(p);
+					_targetMaxConnections[elid] = maxConnections,
+					proxyComponent = new jsPlumbUIComponent(p);								
 				
 				var dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
 				_drop = function() {
 
-					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments);
+					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
+						targetCount = _currentInstance.select({target:elid}).length;
+						
+					if (_targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
+						console.log("target element " + elid + " is full.");
+						return false;
+					}												
 
 					_currentInstance.currentlyDragging = false;
 					var draggable = _getElementObject(jpcl.getDragObject(arguments)),
@@ -2702,6 +2712,7 @@ between this method and jsPlumb.reset).
 			_targetEndpointDefinitions = {};
 			_targetEndpoints = {};
 			_targetEndpointsUnique = {};
+			_targetMaxConnections = {};
 			_sourceEndpointDefinitions = {};
 			_sourceEndpoints = {};
 			_sourceEndpointsUnique = {};
