@@ -26,9 +26,7 @@
 			var connectorPaintStyle = {
 				lineWidth:5,
 				strokeStyle:"#deea18",
-				joinstyle:"round",
-				outlineColor:"white",
-				outlineWidth:6
+				joinstyle:"round"
 			},
 			// .. and this is the hover style. 
 			connectorHoverStyle = {
