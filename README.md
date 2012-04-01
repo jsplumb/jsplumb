@@ -28,6 +28,8 @@ dragging in MooTools, you will need Drag.Move from MooTools More. jsPlumb has be
 More 1.3.2.1 and 1.2.4.4, but I would recommend using 1.3.2.1 as there were bugs on IE with the getPosition() 
 function of MooTools, which the Drag.Move class uses.
 
+__Firefox 11 and MooTools 1.3.x do not play well together in SVG mode__ - see [this issue](https://github.com/mootools/mootools-core/issues/2331)
+
 - YUI3:
 
 jsPlumb requires YUI 3.3.x (tested on 3.3.0; it actually might work on other versions). You do not need to 
