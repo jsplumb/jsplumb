@@ -69,17 +69,29 @@
 		}
 		l.push(value);
 		return l;
+	},
+	/**
+		an isArray function that even works across iframes...see here:
+		
+		http://tobyho.com/2011/01/28/checking-types-in-javascript/
+
+		i was originally using "a.constructor == Array" as a test.
+	*/
+	_isArray = function(a) {
+		return Object.prototype.toString.call(a) === "[object Array]";	
+	},
+	_isString = function(s) {
+		return typeof s === "string";
+	},
+	_isObject = function(o) {
+		return Object.prototype.toString.call(o) === "[object Object]";	
 	};
 	
 	// for those browsers that dont have it.  they still don't have it! but at least they won't crash.
 	if (!window.console)
 		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
-	
-	/**
-		 * helper method to add an item to a list, creating the list if it does
-		 * not yet exist.
-		 */
-		var _connectionBeingDragged = null,
+		
+	var _connectionBeingDragged = null,
 		_getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
 		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); },
 		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); },
@@ -371,7 +383,8 @@
 
 			var processOverlay = function(o) {
 				var _newOverlay = null;
-				if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+				//if (o.constructor == Array) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+				if (_isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
 					// there's also a three arg version:
 					// ["Arrow", { width:50 }, {location:0.7}] 
 					// which merges the 3rd arg into the 2nd.
@@ -831,7 +844,8 @@
 		 */
 		_elementProxy = function(element, fn) {
 			var retVal = null;
-			if (element.constructor == Array) {
+			//if (element.constructor == Array) {
+			if (_isArray(element)) {
 				retVal = [];
 				for ( var i = 0; i < element.length; i++) {
 					var el = _getElementObject(element[i]), id = _getAttribute(el, "id");
@@ -1255,7 +1269,7 @@
 				_setAttribute(ele, "id", id);
 			}
 			return id;
-		},
+		},		
 
 		/**
 		 * wraps one function with another, creating a placeholder for the
@@ -1453,7 +1467,8 @@
 			var results = [];
 			for ( var i = 0; i < endpoints.length; i++) {
 				var e = _currentInstance.addEndpoint(el, endpoints[i], referenceParams);
-				if (e.constructor == Array)
+				//if (e.constructor == Array)
+				if (_isArray(e))
 					Array.prototype.push.apply(results, e);
 				else results.push(e);
 			}
@@ -2108,9 +2123,12 @@ between this method and jsPlumb.reset).
 			// 		an array of [name, params] - this defines a single anchor
 			//		an array of arrays - this defines some dynamic anchors
 			//		an array of numbers - this defines a single anchor.				
-			else if (specimen.constructor == Array) {					
-				if (specimen[0].constructor == Array || specimen[0].constructor == String) {
-					if (specimen.length == 2 && specimen[0].constructor == String && specimen[1].constructor == Object) {
+			//else if (specimen.constructor == Array) {					
+			else if (_isArray(specimen)) {
+				//if (specimen[0].constructor == Array || specimen[0].constructor == String) {
+				if (_isArray(specimen[0]) || _isString(specimen[0])) {
+					//if (specimen.length == 2 && specimen[0].constructor == String && specimen[1].constructor == Object) {
+					if (specimen.length == 2 && _isString(specimen[0]) && _isObject(specimen[1])) {
 						var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
 						newAnchor = jsPlumb.Anchors[specimen[0]](pp);
 					}
@@ -2142,7 +2160,8 @@ between this method and jsPlumb.reset).
 			for ( var i = 0; i < types.length; i++) {
 				if (typeof types[i] == "string")
 					r.push(jsPlumb.Anchors[types[i]]({elementId:elementId, jsPlumbInstance:jsPlumbInstance}));
-				else if (types[i].constructor == Array)
+				//else if (types[i].constructor == Array)
+				else if (_isArray(types[i]))
 					r.push(_currentInstance.makeAnchor(types[i], elementId, jsPlumbInstance));
 			}
 			return r;
@@ -4010,9 +4029,11 @@ between this method and jsPlumb.reset).
 					container:params.container,
 					tooltip:self.tooltip
 				};
-				if (connector.constructor == String) 
+				//if (connector.constructor == String) 
+				if (_isString(connector)) 
 					this.connector = new jsPlumb.Connectors[renderMode][connector](connectorArgs); // lets you use a string as shorthand.
-				else if (connector.constructor == Array)
+				//else if (connector.constructor == Array)
+				else if (_isArray(connector))
 					this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
 				self.canvas = self.connector.canvas;
 				// binds mouse listeners to the current connector.
@@ -4028,8 +4049,7 @@ between this method and jsPlumb.reset).
 							  this.endpoints[1].connector || 
 							  params.connector || 
 							  _currentInstance.Defaults.Connector || 
-							  jsPlumb.Defaults.Connector, true);
-							  							  			
+							  jsPlumb.Defaults.Connector, true);							  							  		
 			
 			this.setPaintStyle(this.endpoints[0].connectorStyle || 
 							   this.endpoints[1].connectorStyle || 
@@ -4411,9 +4431,11 @@ between this method and jsPlumb.reset).
                 connectorTooltip:params.connectorTooltip,
                 endpoint:self
             };
-			if (_endpoint.constructor == String) 
+			//if (_endpoint.constructor == String) 
+			if (_isString(_endpoint)) 
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint](endpointArgs);
-			else if (_endpoint.constructor == Array) {
+			//else if (_endpoint.constructor == Array) {
+			else if (_isArray(_endpoint)) {
 				endpointArgs = jsPlumb.extend(_endpoint[1], endpointArgs);
 				_endpoint = new jsPlumb.Endpoints[renderMode][_endpoint[0]](endpointArgs);
 			}
@@ -5224,16 +5246,20 @@ between this method and jsPlumb.reset).
 			return o;
 		},
 		gradient : function(p1, p2) {
-			p1 = p1.constructor == Array ? p1 : [p1.x, p1.y];
-			p2 = p2.constructor == Array ? p2 : [p2.x, p2.y];			
+			//p1 = p1.constructor == Array ? p1 : [p1.x, p1.y];
+			//p2 = p2.constructor == Array ? p2 : [p2.x, p2.y];			
+			p1 = _isArray(p1) ? p1 : [p1.x, p1.y];
+			p2 = _isArray(p2) ? p2 : [p2.x, p2.y];			
 			return (p2[1] - p1[1]) / (p2[0] - p1[0]);		
 		},
 		normal : function(p1, p2) {
 			return -1 / jsPlumb.util.gradient(p1,p2);
 		},
         segment : function(p1, p2) {
-            p1 = p1.constructor == Array ? p1 : [p1.x, p1.y];
-            p2 = p2.constructor == Array ? p2 : [p2.x, p2.y];
+            //p1 = p1.constructor == Array ? p1 : [p1.x, p1.y];
+            //p2 = p2.constructor == Array ? p2 : [p2.x, p2.y];
+            p1 = _isArray(p1) ? p1 : [p1.x, p1.y];
+            p2 = _isArray(p2) ? p2 : [p2.x, p2.y];
             if (p2[0] > p1[0]) {
                 return (p2[1] > p1[1]) ? 2 : 1;
             }
