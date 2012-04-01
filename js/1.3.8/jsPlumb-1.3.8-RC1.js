@@ -935,11 +935,11 @@
 					tep =_targetEndpointDefinitions[tid],
 					existingUniqueEndpoint = _targetEndpoints[tid];
 
-				if (tep) {
-				
+				if (tep) {				
 					var newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
+					 newEndpoint._makeTargetCreator = true;
 				}
 			}
 
@@ -2277,6 +2277,7 @@ between this method and jsPlumb.reset).
 						
 						var newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
 						if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
+						newEndpoint._makeTargetCreator = true;
 																
 						// if the anchor has a 'positionFinder' set, then delegate to that function to find
 						// out where to locate the anchor.
@@ -2307,6 +2308,12 @@ between this method and jsPlumb.reset).
 							// this is controlled by the 'parent' parameter on a makeSource call.
 							doNotFireConnectionEvent:source.endpointWillMoveAfterConnection
 						});
+
+						// delete the original target endpoint.  but only want to do this if the endpoint was created
+						// automatically and has no other connections.
+						if (jpc.endpoints[1]._makeTargetCreator && jpc.endpoints[1].connections.length < 2)
+							_currentInstance.deleteEndpoint(jpc.endpoints[1]);
+
 						if (deleteEndpointsOnDetach) 
 							c.endpointsToDeleteOnDetach = [ source, newEndpoint ];
 
@@ -2603,9 +2610,8 @@ between this method and jsPlumb.reset).
 		  	<repaint>
 		 */
 		this.repaintEverything = function() {
-			var timestamp = _timestamp();
 			for ( var elId in endpointsByElement) {
-				_draw(_getElementObject(elId), null, timestamp);
+				_draw(_getElementObject(elId), null, null);
 			}
 		};
 
@@ -4661,8 +4667,16 @@ between this method and jsPlumb.reset).
 			 * private but must be exposed.
 			 */
 			this.makeInPlaceCopy = function() {
+				var loc = self.anchor.getCurrentLocation(self),
+					o = self.anchor.getOrientation(self),
+					inPlaceAnchor = {
+						compute:function() { return [ loc[0], loc[1] ]},
+						getCurrentLocation : function() { return [ loc[0], loc[1] ]},
+						getOrientation:function() { return o; }
+					};
+
 				return _newEndpoint( { 
-					anchor : self.anchor, 
+					anchor : inPlaceAnchor, 
 					source : _element, 
 					paintStyle : this.paintStyle, 
 					endpoint : _endpoint,
@@ -4863,7 +4877,9 @@ between this method and jsPlumb.reset).
 
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
-					inPlaceCopy.paint();										
+					inPlaceCopy.paint();	
+					
+					$(inPlaceCopy.canvas).attr("FOO", true);									
 					
 					_makeDraggablePlaceholder(placeholderInfo, self.parent);
 					
