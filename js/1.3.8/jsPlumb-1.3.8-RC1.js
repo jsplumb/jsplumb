@@ -4912,9 +4912,7 @@ between this method and jsPlumb.reset).
 
 					_updateOffset( { elId : _elementId });
 					inPlaceCopy = self.makeInPlaceCopy();
-					inPlaceCopy.paint();	
-					
-					$(inPlaceCopy.canvas).attr("FOO", true);									
+					inPlaceCopy.paint();																
 					
 					_makeDraggablePlaceholder(placeholderInfo, self.parent);
 					
