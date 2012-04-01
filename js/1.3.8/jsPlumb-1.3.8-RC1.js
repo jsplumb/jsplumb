@@ -219,7 +219,9 @@
 			};
 			
 			this.getParameter = function(name) { return parameters[name]; },
-			this.getParameters = function() { return parameters; },
+			this.getParameters = function() { 
+				return parameters; 
+			},
 			this.setParameter = function(name, value) { parameters[name] = value; },
 			this.setParameters = function(p) { parameters = p; },			
 			this.overlayPlacements = [], 
@@ -4150,15 +4152,16 @@ between this method and jsPlumb.reset).
 			
 			// paint the endpoints
 			var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId],
-			otherOffset = offsets[this.targetId],
-			otherWH = sizes[this.targetId],
-			initialTimestamp = _timestamp(),
-			anchorLoc = this.endpoints[0].anchor.compute( {
-				xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
-				elementId:this.endpoints[0].elementId,
-				txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1],
-				timestamp:initialTimestamp
-			});
+				otherOffset = offsets[this.targetId],
+				otherWH = sizes[this.targetId],
+				initialTimestamp = _timestamp(),
+				anchorLoc = this.endpoints[0].anchor.compute( {
+					xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
+					elementId:this.endpoints[0].elementId,
+					txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1],
+					timestamp:initialTimestamp
+				});
+
 			this.endpoints[0].paint( { anchorLoc : anchorLoc, timestamp:initialTimestamp });
 
 			anchorLoc = this.endpoints[1].anchor.compute( {
@@ -5090,9 +5093,8 @@ between this method and jsPlumb.reset).
 					    outEvent = jsPlumb.CurrentLibrary.dragEvents['out'],
 					drop = function() {
 
-						var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments);
-
-						var draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
+						var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
+							draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
 							id = _getAttribute(draggable, "dragId"),
 							elId = _getAttribute(draggable, "elId"),						
 							scope = _getAttribute(draggable, "originalScope"),
@@ -5147,6 +5149,12 @@ between this method and jsPlumb.reset).
 									if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
 									jpc.endpoints[idx] = self;
 									self.addConnection(jpc);
+									
+									// copy our parameters in to the connection:
+									var params = self.getParameters();
+									for (var aParam in params)
+										jpc.setParameter(aParam, params[aParam]);
+
 									if (!jpc.suspendedEndpoint) {  
 										//_addToList(connectionsByScope, jpc.scope, jpc);
 										_initDraggableIfNecessary(self.element, params.draggable, {});
