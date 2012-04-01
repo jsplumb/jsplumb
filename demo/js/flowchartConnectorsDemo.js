@@ -87,7 +87,6 @@
 			_addEndpoints("window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
 			_addEndpoints("window3", ["RightMiddle", "BottomCenter"], ["LeftMiddle", "TopCenter"]);
 			_addEndpoints("window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
-
 						
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
 			jsPlumb.bind("jsPlumbConnection", function(connInfo, originalEvent) { 
@@ -111,8 +110,7 @@
 			jsPlumb.bind("click", function(conn, originalEvent) {
 				if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
 					jsPlumb.detach(conn); 
-			});
-			
+			});			
 		}
 	};
 })();

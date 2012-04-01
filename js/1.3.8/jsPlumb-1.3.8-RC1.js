@@ -874,6 +874,11 @@
 					var dragEvent = jpcl.dragEvents["drag"],
 						stopEvent = jpcl.dragEvents["stop"],
 						startEvent = jpcl.dragEvents["start"];
+
+					options[startEvent] = _wrap(options[startEvent], function() {
+						_currentInstance.setHoverSuspended(true);
+					});
+
 					options[dragEvent] = _wrap(options[dragEvent], function() {
 						var ui = jpcl.getUIPosition(arguments);
 						_draw(element, ui);
@@ -883,6 +888,7 @@
 						var ui = jpcl.getUIPosition(arguments);
 						_draw(element, ui);
 						_removeClass(element, "jsPlumb_dragged");
+						_currentInstance.setHoverSuspended(false);
 					});
 					draggableStates[_getId(element)] = true;
 					var draggable = draggableStates[_getId(element)];
@@ -2042,6 +2048,10 @@ between this method and jsPlumb.reset).
 		var _hoverSuspended = false;
 		this.isHoverSuspended = function() { return _hoverSuspended; };
 		this.setHoverSuspended = function(s) { _hoverSuspended = s; };
+
+		this.isCanvasAvailable = function() { return canvasAvailable; };
+		this.isSVGAvailable = function() { return svgAvailable; };
+		this.isVMLAvailable = vmlAvailable;
 
 		/*
 		  Function: hide 

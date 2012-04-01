@@ -1,5 +1,11 @@
 * 1.3.8
 
+
+	Improvements
+	------------
+
+	- hover mode is suspended while something is being dragged. this prevents a lot of random flashes as the mouse moves around the screen.
+
 	Bugs for which no issue was raised
 	----------------------------------
 

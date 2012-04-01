@@ -88,14 +88,13 @@
 			}
 			*/
 
-
-			
 			o[i] = atts[i];
 		}
 	},
-	_node = function(name, d, atts) {
+	_node = function(name, d, atts, parent, _jsPlumb) {
 		atts = atts || {};
-		var o = document.createElement("jsplumb:" + name);
+		var o = document.createElement("jsplumb:" + name);				
+		_jsPlumb.appendElement(o, parent);
 		o.className = (atts["class"] ? atts["class"] + " " : "") + "jsplumb_vml";
 		_pos(o, d);
 		_atts(o, atts);
@@ -119,7 +118,7 @@
 		else
 			component.setOpacity(type, "1.0");
 	},
-	_applyStyles = function(node, style, component) {
+	_applyStyles = function(node, style, component, _jsPlumb) {
 		var styleToWrite = {};
 		if (style.strokeStyle) {
 			styleToWrite["stroked"] = "true";
@@ -140,8 +139,7 @@
 		
 		if(style["dashstyle"]) {
 			if (component.strokeNode == null) {
-				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] });
-				node.appendChild(component.strokeNode);
+				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] }, node, _jsPlumb);				
 			}
 			else
 				component.strokeNode.dashstyle = style["dashstyle"];
@@ -154,8 +152,8 @@
 				styleToUse += (Math.floor(parts[i] / style.lineWidth) + sep);
 			}
 			if (component.strokeNode == null) {
-				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:styleToUse });
-				node.appendChild(component.strokeNode);
+				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:styleToUse }, node, _jsPlumb);
+				//node.appendChild(component.strokeNode);
 			}
 			else
 				component.strokeNode.dashstyle = styleToUse;
@@ -167,17 +165,15 @@
 	 * Base class for Vml endpoints and connectors. Extends jsPlumbUIComponent. 
 	 */
 	VmlComponent = function() {				
-		var self = this;
+		var self = this;		
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);		
 		this.opacityNodes = {
 			"stroke":null,
 			"fill":null
 		};
 		this.initOpacityNodes = function(vml) {
-			self.opacityNodes["stroke"] = _node("stroke", [0,0,1,1], {opacity:"0.0"});
-			self.opacityNodes["fill"] = _node("fill", [0,0,1,1], {opacity:"0.0"});				
-			vml.appendChild(self.opacityNodes["stroke"]);
-			vml.appendChild(self.opacityNodes["fill"]);	
+			self.opacityNodes["stroke"] = _node("stroke", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb);
+			self.opacityNodes["fill"] = _node("fill", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb);							
 		};
 		this.setOpacity = function(type, value) {
 			var node = self.opacityNodes[type];
@@ -219,8 +215,7 @@
 					if (self.bgCanvas == null) {						
 						p["class"] = clazz;
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-						self.bgCanvas = _node("shape", d, p);
-						params["_jsPlumb"].appendElement(self.bgCanvas, params.parent);
+						self.bgCanvas = _node("shape", d, p, params.parent, self._jsPlumb);						
 						_pos(self.bgCanvas, d);
 						self.appendDisplayElement(self.bgCanvas, true);	
 						self.attachListeners(self.bgCanvas, self);					
@@ -240,11 +235,10 @@
 					p["class"] = clazz;
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
 					if (self.tooltip) p["label"] = self.tooltip;
-					self.canvas = _node("shape", d, p);
-                    
+					self.canvas = _node("shape", d, p, params.parent, self._jsPlumb);					                
                     //var group = _getGroup(params.parent);                   // test of append everything to a group
                     //group.appendChild(self.canvas);                           // sort of works but not exactly;
-					params["_jsPlumb"].appendElement(self.canvas, params.parent);    //before introduction of groups
+					//params["_jsPlumb"].appendElement(self.canvas, params.parent);    //before introduction of groups
 
 					self.appendDisplayElement(self.canvas, true);										
 					self.attachListeners(self.canvas, self);					
@@ -256,7 +250,7 @@
 					_atts(self.canvas, p);
 				}
 				
-				_applyStyles(self.canvas, style, self);
+				_applyStyles(self.canvas, style, self, self._jsPlumb);
 			}
 		};
 		
@@ -286,13 +280,12 @@
         if (self.tooltip) self.canvas.setAttribute("label", self.tooltip);
 		
 		this.paint = function(d, style, anchor) {
-			var p = { };						
+			var p = { };					
 			
 			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 			if (vml == null) {
 				p["class"] = clazz;
-				vml = self.getVml([0,0, d[2], d[3]], p, anchor);				
-				self.canvas.appendChild(vml);
+				vml = self.getVml([0,0, d[2], d[3]], p, anchor, self.canvas, self._jsPlumb);				
 				self.attachListeners(vml, self);
 
 				self.appendDisplayElement(vml, true);
@@ -300,8 +293,7 @@
 				
 				self.initOpacityNodes(vml, ["fill"]);			
 			}
-			else {
-				//p["coordsize"] = "1,1";//(d[2] * scale) + "," + (d[3] * scale); again, unsure.
+			else {				
 				_pos(vml, [0,0, d[2], d[3]]);
 				_atts(vml, p);
 			}
@@ -349,13 +341,13 @@
 	jsPlumb.Endpoints.vml.Dot = function() {
 		jsPlumb.Endpoints.Dot.apply(this, arguments);
 		VmlEndpoint.apply(this, arguments);
-		this.getVml = function(d, atts, anchor) { return _node("oval", d, atts); };
+		this.getVml = function(d, atts, anchor, parent, _jsPlumb) { return _node("oval", d, atts, parent, _jsPlumb); };
 	};
 	
 	jsPlumb.Endpoints.vml.Rectangle = function() {
 		jsPlumb.Endpoints.Rectangle.apply(this, arguments);
 		VmlEndpoint.apply(this, arguments);
-		this.getVml = function(d, atts, anchor) { return _node("rect", d, atts); };
+		this.getVml = function(d, atts, anchor, parent, _jsPlumb) { return _node("rect", d, atts, parent, _jsPlumb); };
 	};
 	
 	/*
@@ -418,8 +410,8 @@
 			
     		if (self.canvas == null) {
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
-				self.canvas = _node("shape", dim, p);				
-				connector.appendDisplayElement(self.canvas);
+				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb);								
+				connector.appendDisplayElement(self.canvas, true);
 				self.attachListeners(self.canvas, connector);
 			}
 			else {				
