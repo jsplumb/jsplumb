@@ -1,13 +1,13 @@
 # jsPlumb
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or 
-Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.7.
+Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.8.
 
 The project started out life on Google Code and has been hosted there for the last two years; from version 
 1.3.4 onwards it also lives here on GitHub. The source repo is now being synchronised between the two.  I did
 this because I didn't want to lose the project history (issues etc), and I know some people checkout the 
 source from Google Code.
 
-__All issues should be reported on Google Code until I can import everything from there at once__
+__All issues should be reported on Google Code until I can import everything from there at once. Thanks!__
 
 For users upgrading from earlier versions to 1.3.x - there are a few minor backwards incompatibilities. Please see the changelog
 
@@ -19,7 +19,7 @@ There are a few integration issues that you should be aware of: z-index needs sp
 
 jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.2, 1.4.3, 1.4.4, 1.5.0 and 1.6.0. To support dragging, you will need jQueryUI 1.7.x or 1.8.x. I've tested both.
 
-__There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9__ which means that hover events do not get posted. This is quite a bummer since the default renderer for jsPlumb, from 1.3.4 onwards, is SVG, and I was hoping to encourage everyone to make use of the fact that you can use CSS with SVG to style your plumbing rather than rely on the old-skool paintStyle stuff.
+__There is [a bug](http://bugs.jquery.com/ticket/10832) in jQuery 1.6.x and 1.7.x's SVG support for IE9__ which means that hover events do not get posted. This is quite a bummer since the default renderer for jsPlumb, from 1.3.4 onwards, is SVG, and I was hoping to encourage everyone to make use of the fact that you can use CSS with SVG to style your plumbing rather than rely on the old-skool paintStyle stuff. There is another discussion of the issue [here](http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events)
 
 - MooTools:
 
