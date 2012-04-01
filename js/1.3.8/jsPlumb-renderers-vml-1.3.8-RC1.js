@@ -78,6 +78,17 @@
 			// IE8 fix: setattribute does not work after an element has been added to the dom!
 			// http://www.louisremi.com/2009/03/30/changes-in-vml-for-ie8-or-what-feature-can-the-ie-dev-team-break-for-you-today/
 			//o.setAttribute(i, atts[i]);
+
+			/*There is an additional problem when accessing VML elements by using get/setAttribute. The simple solution is following:
+
+			if (document.documentMode==8) {
+			ele.opacity=1;
+			} else {
+			ele.setAttribute(‘opacity’,1);
+			}
+			*/
+
+
 			
 			o[i] = atts[i];
 		}
@@ -212,6 +223,8 @@
 						params["_jsPlumb"].appendElement(self.bgCanvas, params.parent);
 						_pos(self.bgCanvas, d);
 						self.appendDisplayElement(self.bgCanvas, true);	
+						self.attachListeners(self.canvas, self);					
+						self.initOpacityNodes(self.canvas, ["stroke"]);		
 					}
 					else {
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
@@ -233,10 +246,8 @@
                     //group.appendChild(self.canvas);                           // sort of works but not exactly;
 					params["_jsPlumb"].appendElement(self.canvas, params.parent);    //before introduction of groups
 
-					self.appendDisplayElement(self.canvas, true);					
-					
-					self.attachListeners(self.canvas, self);
-					
+					self.appendDisplayElement(self.canvas, true);										
+					self.attachListeners(self.canvas, self);					
 					self.initOpacityNodes(self.canvas, ["stroke"]);		
 				}
 				else {
