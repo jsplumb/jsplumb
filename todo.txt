@@ -19,3 +19,9 @@ possible future enhancements
     - qunit: add helper methods to simulate mousedown and drag.  then write some functional tests.
     - image overlay?
     - make AnchorManager the source of knowledge about connections (remove connections by scope etc)   
+
+    - z-index: make a highlighted connection or one which is connected to an element that is being dragged come to the top over other connections.  have a toFront and toBack method available on Connection (and on return value from jsPlumb.select method)
+
+    - jsPlumb should handle scope, dragActive etc. then can support multiple scopes.
+
+    - paint style "profiles": labelled paint styles, with inheritance. so hover, as an example, could extend from some normal state, and just override a couple of values.  or you might have different "types" of connections, the paint styles for which could extend some default.
