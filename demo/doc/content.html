@@ -28,75 +28,68 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			</p>  
 
 			<h5>Browser Compatibility</h5>
-			<p>jsPlumb 1.3.8 has been tested on the following browsers:
+			<p>jsPlumb 1.3.8 runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:
 				<ul>
-					<li class="bullet">IE 6 on Windows XP</li>
-					<li class="bullet">IE 7 on Windows XP</li>
-					<li class="bullet">IE 8 on Windows XP</li>
-					<li class="bullet">Firefox 3.5.8 on Windows XP</li>
-					
-					<li class="bullet">IE 9 on Windows 7</li>
-					<li class="bullet">Chrome 12 on Windows 7</li>
-					<li class="bullet">Firefox 3.5.8 on Windows 7</li>
-					
-					<li class="bullet">Firefox 3.6.3 on Ubuntu 10.04</li>
-					<li class="bullet">Chrome on Ubuntu 11.04</li>
-					
-					<li class="bullet">Safari 4 on Mac Leopard</li>
-					<li class="bullet">Chrome on Mac Leopard</li>					
-					<li class="bullet">Safari 4 on Windows Vista</li>
-					<li class="bullet">Safari 5.0.5 on Windows 7</li>
-					
-					<li class="bullet">Opera 10.54 on Windows XP</li>
-				</ul>
+					<li class="bullet">jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.
+					<li class="bullet">Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element</li>
+					<li class="bullet">MooTools has a bug when using SVG in Firefox 11</li>
+				<ul>
+				
 			</p>
 		</div>
 		
 		<div class="section">		
-			<h3><a id="changes">Changes between 1.3.8 and 1.3.6</a></h3>
+			<h3><a id="changes">Changes between 1.3.8 and 1.3.7</a></h3>
+			1.3.8 is mostly a bugfix release, but it is notable for the fact that VML is now enabled for IE9.
 			<h5>Backwards Compatibility</h5>
-			There are no backwards compatibility issues between 1.3.8 and 1.3.6.
+			There are no backwards compatibility issues between 1.3.8 and 1.3.7, but note that now that VML is supported in IE9, there is a different algorithm in the setRenderMode method. For each requested type, jsPlumb will attempt to use that type, trying others if it is not available, in the following order:
+			<p>
+				<ul>
+					<li>CANVAS : Canvas, SVG, VML</li>
+					<li>SVG : SVG, Canvas, VML   (remains the default)</li>
+					<li>VML : VML, SVG, Canvas</li>
+				</ul>
+			</p>
 			<h5>New Features</h5>
-			The following new features have been added:
-			<ul>				
-				<li class="bullet">new method <strong>jsPlumb.select</strong> provides a fluid interface to work with lists of Connections.  This is similar to the existing getConnections method, but the return value of jsPlumb.select supports all of the setter/getter operations that are available on Connection, executing that method on each Connection in the returned list. The method is also chainable. So you can now do things like this:
-					<div class="code">
-<pre>
-jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
-</pre>
-</div>
-				Read more about this method <a href="#selectConnections">here</a>	
-				<br/><br/>				
-				</li>
-				<li class="bullet"><strong>makeTarget</strong> now supports a beforeDrop interceptor</li>
-				<li class="bullet"><strong>getOverlays</strong> method added to Connection and Endpoint</li>
-				<li class="bullet"><strong>showOverlays</strong>/<strong>hideOverlays</strong> methods added to Connection and Endpoint</li>
-				<li class="bullet"><strong>getConnections</strong> now support an optional second argument that returns results as a flat array instead of an object with scopes as keys.  But if you're going to use this you might want to just use <strong>select</strong> instead...</li>
-				<li class="bullet">getConnections now supports a value of '*' for any of source, target or scope - a wildcard, meaning "any value".</li>
-				<li class="bullet">new methods <strong>setId</strong> and <strong>setIdChanged</strong> let you either tell jsPlumb to change an element's id, or that an element's id has changed.  You should use these methods if you need to change element ids as jsPlumb uses element id internally.</li>
-			</ul>
+				<ul>
+					<li class="bullet">VML renderer is now supported in IE9</li>
+					<li class="bullet">Hover mode is suspended whenever an element is being dragged. This prevents a lot of random flashing in the UI when the user is dragging quickly.</li>
+				</ul>
+
 			<h5>Issues Resolved</h5>
 			<ul>
 				<li class="bullet">
 					<strong>207</strong> - pass original event back in connection detached callback
 				</li>
 				<li class="bullet">
-					<strong>209</strong> - endpoint drag not creating connection after setEnabled(false) and then setEnabled(true)
+					<strong>215</strong> - dragged connection did not get parameters from target endpoint
 				</li>
 				
 				<li class="bullet">
-					<strong>210</strong> - overlays not being hidden when setVisible(false) called
+					<strong>217</strong> - makeSource's onComplete callback does not get fired
 				</li>
 				
 				<li class="bullet">
-					<strong>211</strong> - IE8 JS error with overlays and continuous anchors
+					<strong>218</strong> - IE max stylesheet limit
 				</li>
 
 				<li class="bullet">
-					<strong>212</strong> - change the id of an element
+					<strong>219</strong> - connections made with makeSource and parent option were duplicated internally, skewing results from "select" and causing duplicate mouse events with the canvas renderer.
 				</li>
 				<li class="bullet">
-					<strong>214</strong> - beforeDetach gives wrong targetId when being reattached
+					<strong>222</strong> - allow VML in IE9
+				</li>
+				<li class="bullet">
+					<strong>223</strong> - extraneous IDs being created and assigned
+				</li>
+				<li class="bullet">
+					<strong>226</strong> - image endpoint does not clean up image element from DOM on destroy.
+				</li>
+				<li class="bullet">
+					<strong>227</strong> - maxConnections ignored by makeTarget method
+				</li>
+				<li class="bullet">
+					<strong>230</strong> - array test fails when jsPlumb called from GWT
 				</li>
 			</ul>
 
@@ -138,8 +131,7 @@ jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
 			</div>
 			
 			<h4><a id="renderMode">Render Mode</a></h4>
-			jsPlumb can use SVG, HTML5 Canvas elements or VML to render the various objects it adds to the display.  Most modern browsers support
-			Canvas and SVG; IE&lt;9 browsers support neither.
+			jsPlumb can use SVG, HTML5 Canvas elements or VML to render the various objects it adds to the display.  Most modern browsers support Canvas and SVG; IE&lt;9 browsers support neither.
 			<p>
 				By default, jsPlumb attempts to use <strong>jsPlumb.SVG</strong> as the render mode (prior to 1.3.4, the default renderer was Canvas), falling back to <strong>jsPlumb.VML</strong> if the 
 				browser is IE&lt;9.  You can change the render mode by making this call:  
@@ -147,8 +139,7 @@ jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
 			<div class="code">
 <pre>jsPlumb.setRenderMode(jsPlumb.CANVAS);</pre>			
 			</div>
-			if, for some reason, you set the render mode to be <strong>jsPlumb.VML</strong> but you're in any browser other than IE&lt;9, jsPlumb
-			will use SVG.
+			if, for some reason, you set the render mode to be <strong>jsPlumb.VML</strong> but you're in any browser other than IE, jsPlumb will use SVG.
 			<p>
 			The <strong>jsPlumb.setRenderMode</strong> method returns you the render mode that jsPlumb actually ended up setting.  Valid values for setRenderMode are:
 			</p>
@@ -160,7 +151,7 @@ jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
 			<h5>Performance Considerations</h5>
 			<p>
 			SVG uses less memory than Canvas and has support for mouse events built in, so I recommend using
-			SVG unless you have a really good reason for wanting Canvas.
+			SVG unless you have a really good reason for wanting Canvas. Of course, you might consider that horrendous Safari bug a really good reason for wanting Canvas.
 			</p>
 			
 			<h4><a id="initializing">Initializing jsPlumb</a></h4>
@@ -197,18 +188,8 @@ jsPlumb.select({source:"d1"}).setHover(true).showOverlays();
 			<p>
 			If you bind to the "ready" event after jsPlumb has already been initialized, your callback will be executed immediately.
 			</p>			
-			<h4><a id="unload">Unloading jsPlumb</a></h4>
-			jsPlumb offers a method you can call when your page is unloading.  You should do this to insure
-			against memory leaks.  You configure it like this:
-				<div class="code">
-<pre>
-&lt;body onunload="jsPlumb.unload();"&gt;
 
-...
-
-&lt;/body&gt;
-</pre>
-				</div>
+				
 <h4><a id="multipleInstances">Multiple jsPlumb instances</a></h4>
 			jsPlumb is registered on the browser's Window by default, providing one static instance
 			for the whole page to use.  Should you need to, though, you can instantiate independent
@@ -222,8 +203,10 @@ The variable 'firstInstance' can now be treated exactly as you would treat the '
 defaults, call the connect method, whatever:
 <div class="code">
 <pre>
-firstInstance.Defaults.Connector = [ "Bezier", { curviness: 150 } ];
-firstInstance.Defaults.Anchors = [ "TopCenter", "BottomCenter" ];
+firstInstance.importDefaults({
+  Connector : [ "Bezier", { curviness: 150 } ],
+  Anchors : [ "TopCenter", "BottomCenter" ]
+});
 
 firstInstance.connect({source:"element1", target:"element2", scope:"someScope" });
 </pre>
@@ -386,19 +369,57 @@ jsPlumb.connect({ source:someDiv, target:someOtherDiv, container:$("#containerId
 jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
 </pre>		
 		</div>
-		
+
+		<h4><a id="elementDragging">Element Dragging</a></h4>
+		A common feature of interfaces using jsPlumb is that the elements are draggable.  Unless you absolutely need to configure this behaviour using your library's underlying method, you should use <strong>jsPlumb.draggable(...)</strong>:
+<div class="code">
+<pre>jsPlumb.draggable("elementId");</pre>
+</div>
+You can also pass a selector from your library in to this method:
+<div class="code">
+<pre>jsPlumb.draggable($(".someClass");</pre>
+</div>
+This method is just a wrapper for the underlying library's draggable functionality, and there is a two-argument version in which the second argument is passed down to the underlying library.  A common requirement when using jQuery, for instance, is to set the containment of elements that you are making draggable.  Here's how you would tell jsPlumb to initialise some set of elements to be draggable but only inside their parent:
+<div class="code">
+<pre>jsPlumb.draggable($(".someClass", {
+	containment:"parent"
+});</pre>
+</div>
+		<h5>Dragging nested elements</h5>
+jsPlumb takes nesting into account when handling draggable elements. For example, say you have this markup:
+<div class="code">
+<pre>
+&lt;div id="container"&gt;
+  &lt;div class="childType1"&gt;&lt;/div&gt;
+  &lt;div class="childType2"&gt;&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+</div>
+..and then you connect one of those child divs to something, and make "container" draggable:
+<div class="code">
+<pre>
+jsPlumb.connect({
+	source:$("#container .childType1"),
+	target:"somehere else"
+});
+
+jsPlumb.draggable("container");
+</pre>
+</div>
+Now when you drag "container", jsPlumb will have noticed that there are nested elements that have connections, and they will be updated.  Note that the order of operations is not important here: if "container" was already draggable when you connected one of its children to something, you would get the same result.
+
+
 		</div>
 				
 		<div class="section">
-			<h3><a id="jsPlumbBasics">Basic Concepts</a></h3>
+			<h3><a id="jsPlumbBasics">Basic Concepts</a></h3>			
 	
 			jsPlumb is all about connecting things together, so the core abstraction in jsPlumb is the <strong>Connection</strong> object, which is itself
 			broken down into these four concepts:
 
 			<ul>
 				<li><strong>Anchor</strong> - a location, relative to an element's origin, at which an Endpoint can exist. You do not create these yourself; you 
-				supply hints to the various jsPlumb functions, which create them as needed.  They have no visual representation; they are a logical position only. 
-				Anchors can be referenced by name, for the Anchors that jsPlumb ships with, or a four element array describing [ x, y, x orientation, y orientation ]. 
+				supply hints to the various jsPlumb functions, which create them as needed.  They have no visual representation; they are a logical position only. Anchors can be referenced by name, for the Anchors that jsPlumb ships with, or a four element array describing [ x, y, x orientation, y orientation ]. 
 				See the <a href="#anchors">anchors</a> section for more detail.<br/><br/></li>
 				<li><strong>Endpoint</strong> - the visual representation of one end of a Connection.  You can create and attach these to elements yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection programmatically using jsPlumb.connect(...).  You can also join two Endpoints programmatically, by passing them as arguments to jsPlumb.connect(...).<br/><br/></li>				
 				<li><strong>Connector</strong> - the visual representation of the line connecting two elements in the page.  jsPlumb has four types of these 
@@ -408,27 +429,23 @@ jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
 			</ul>
 						
 			<p>One Connection is made up of two Endpoints, a Connector, and zero or more Overlays working together to join two elements.</p>
-			<p>jsPlumb's public API exposes only Connection and Endpoint, handling the creation and configuration of everything else internally.
-			But you still need to be across the concepts encapsulated by Anchor, Connector and Overlay.
+			<p>jsPlumb's public API exposes only Connection and Endpoint, handling the creation and configuration of everything else internally. But you still need to be across the concepts encapsulated by Anchor, Connector and Overlay.
 			</p>
 			</div>
 			
 			<div class="section">
 			<h3><a id="anchors">Anchors</a></h3>			
 	
-					An Anchor models the notion of where on an element a Connector should connect.  There are three main types of Anchors:
-					<ul>
-						<li class="bullet">'Static' anchors - these are fixed to some point on an element and do not move.  They can be specified using a string to
-						identify one of the defaults that jsPlumb ships with, or an array describing the location (see below)</li>
-						<li class="bullet">'Dynamic' anchors - these are lists of Static anchors from which jsPlumb picks the most appropriate one each time a Connection
-						is painted.  The algorithm used to determine the most appropriate anchor picks the one that is closest to the center of the other element in
-						the Connection. A future version of jsPlumb might support a pluggable algorithm to make this decision.</li>
-						<li class="bullet">'Continuous' anchors - These anchors, introduced in 1.3.4, are not fixed to any specific loction; they are assigned to one of
-						the four faces of an element depending on that element's orientation to the other element in the associated Connection.  Continuous anchors are
-						slightly more computationally intensive than Static or Dynamic anchors because jsPlumb is required to calculate the position of every Connection
-						during a paint cycle, rather than just Connections belonging to the element in motion.  These anchors were designed for use with the StateMachine
-						connector that was also introduced in 1.3.4, but will work with any combination of Connector and Endpoint.</li> 
-					</ul>  
+			An Anchor models the notion of where on an element a Connector should connect.  There are three main types of Anchors:
+			<ul>
+				<li class="bullet">'Static' anchors - these are fixed to some point on an element and do not move.  They can be specified using a string to
+				identify one of the defaults that jsPlumb ships with, or an array describing the location (see below)</li>
+				<li class="bullet">'Dynamic' anchors - these are lists of Static anchors from which jsPlumb picks the most appropriate one each time a Connection
+				is painted.  The algorithm used to determine the most appropriate anchor picks the one that is closest to the center of the other element in
+				the Connection. A future version of jsPlumb might support a pluggable algorithm to make this decision.</li>
+				<li class="bullet">'Continuous' anchors - These anchors, introduced in 1.3.4, are not fixed to any specific loction; they are assigned to one of
+				the four faces of an element depending on that element's orientation to the other element in the associated Connection.  Continuous anchors are slightly more computationally intensive than Static or Dynamic anchors because jsPlumb is required to calculate the position of every Connection during a paint cycle, rather than just Connections belonging to the element in motion.  These anchors were designed for use with the StateMachine connector that was also introduced in 1.3.4, but will work with any combination of Connector and Endpoint.</li> 
+			</ul>  
 					
 			<h4><a id="staticAnchors">Static Anchors</a></h4>		
 			jsPlumb has nine default anchor locations you can use to specify where the Connectors connect to elements: these are the four corners of an element,
