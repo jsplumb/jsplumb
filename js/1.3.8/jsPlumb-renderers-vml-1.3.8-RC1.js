@@ -223,8 +223,8 @@
 						params["_jsPlumb"].appendElement(self.bgCanvas, params.parent);
 						_pos(self.bgCanvas, d);
 						self.appendDisplayElement(self.bgCanvas, true);	
-						self.attachListeners(self.canvas, self);					
-						self.initOpacityNodes(self.canvas, ["stroke"]);		
+						self.attachListeners(self.bgCanvas, self);					
+						self.initOpacityNodes(self.bgCanvas, ["stroke"]);		
 					}
 					else {
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
