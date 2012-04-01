@@ -1,9 +1,7 @@
 * 1.3.8
 
 
-	- hover mode is suspended while something is being dragged. this prevents a lot of random flashes as the mouse moves around the screen.
-
-	- VML is now supported in IE9
+	- hover mode is suspended while something is being dragged. this prevents a lot of random flashes as the mouse moves around the screen.	
 
 	- VML endpoint was not assigning custom CSS class if it was given one. it is now.
 
@@ -12,10 +10,15 @@
 	------
 
 	207 - pass back original event in connected detached callback
+	215 - dragged connection did not get parameters from target endpoint
+	217 - makeSource's onComplete callback does not get fired
+	218 - IE max stylesheet limit
 	219 - connections made with makeSource and parent option were duplicated internally, skewing results from "select" and causing duplicate mouse events with the canvas renderer.
 	222 - allow VML in IE9
 	223 - extraneous IDs being created and assigned
 	226 - image endpoint does not clean up image element from DOM on destroy.
+	227 - maxConnections ignored by makeTarget method
+	230 - array test fails when jsPlumb called from GWT
 
 
 * 1.3.7
