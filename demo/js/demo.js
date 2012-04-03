@@ -7,6 +7,8 @@
 	window.jsPlumbDemo = {
 			
 		init : function() {
+
+			jsPlumb.setRenderMode(jsPlumb.CANVAS);
 			
 			jsPlumb.DefaultDragOptions = { cursor: "pointer", zIndex:2000 };
 	
