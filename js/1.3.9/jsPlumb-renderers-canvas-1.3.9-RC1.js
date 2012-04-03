@@ -392,6 +392,18 @@
 					curPos = [dimensions[4], dimensions[5]];
 
 				
+				// TODO: the question here is why could we not support this in all connector types? it's really
+				// just a case of going along and asking jsPlumb for the next point on the path a few times, until it
+				// reaches the end. every type of connector supports that method, after all.  but right now its only the
+				// bezier connector that gives you back the new location on the path along with the x,y coordinates, which
+				// we would need. we'd start out at loc=0 and ask for the point along the path that is dss[0] pixels away.
+				// we then ask for the point that is (dss[0] + dss[1]) pixels away; and from that one we need not just the
+				// x,y but the location, cos we're gonna plug that location back in in order to find where that dash ends.
+				//
+				// it also strikes me that it should be trivial to support arbitrary dash styles (having more or less than two
+				// entries). you'd just iterate that array using a step size of 2, and generify the (rss[0] + rss[1])
+				// computation to be sum(rss[0]..rss[n]).
+
 				for (var i = 0; i < repeats; i++) {
 					self.ctx.moveTo(curPos[0], curPos[1]);
 
@@ -405,10 +417,8 @@
 				}
 
 				// now draw the last bit
-
-				//self.ctx.moveTo(curPos[0], curPos[1]);
-
-				//var pos = self.pointAlongPathFrom()
+				self.ctx.moveTo(curPos[0], curPos[1]);
+				self.ctx.lineTo(dimensions[6], dimensions[7]);		
 
 			}	        
 	        else {
