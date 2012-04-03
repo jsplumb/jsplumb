@@ -4082,12 +4082,12 @@ between this method and jsPlumb.reset).
 			
 			this.moveParent = function(newParent) {
 				var jpcl = jsPlumb.CurrentLibrary, curParent = jpcl.getParent(self.connector.canvas);				
-				jpcl.removeElement(self.connector.canvas, curParent);
-				jpcl.appendElement(self.connector.canvas, newParent);
-                if (self.connector.bgCanvas) {
+				if (self.connector.bgCanvas) {
 				    jpcl.removeElement(self.connector.bgCanvas, curParent);
 				    jpcl.appendElement(self.connector.bgCanvas, newParent);
                 }
+				jpcl.removeElement(self.connector.canvas, curParent);
+				jpcl.appendElement(self.connector.canvas, newParent);                
                 // this only applies for DOMOverlays
 				for (var i = 0; i < self.overlays.length; i++) {
                     if (self.overlays[i].isAppendedAtTopLevel) {
