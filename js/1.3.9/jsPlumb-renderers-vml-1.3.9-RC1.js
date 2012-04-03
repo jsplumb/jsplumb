@@ -370,6 +370,7 @@
     	VmlComponent.apply(this, arguments);
     	var self = this, path = null;
     	self.canvas = null; 
+    	self.isAppendedAtTopLevel = true;
     	var getPath = function(d, connectorDimensions) {    		
     		return "m " + _conv(d.hxy.x) + "," + _conv(d.hxy.y) +
     		       " l " + _conv(d.tail[0].x) + "," + _conv(d.tail[0].y) + 
