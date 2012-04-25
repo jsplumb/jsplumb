@@ -1873,8 +1873,8 @@ between this method and jsPlumb.reset).
 		 *      options	-	if the argument is a JS object, you can specify a finer-grained filter:
 		 *      
 		 *      		-	*scope* may be a string specifying a single scope, or an array of strings, specifying multiple scopes.
-		 *      		-	*source* either a string representing an element id, or a selector.  constrains the result to connections having this source.
-		 *      		-	*target* either a string representing an element id, or a selector.  constrains the result to connections having this target.
+		 *      		-	*source* either a string representing an element id, a selector, or an array of ids.  constrains the result to connections having this/these element(s) as source.
+		 *      		-	*target* either a string representing an element id, a selector, or an array of ids.  constrains the result to connections having this/these element(s) as target.		 
 		 *		flat    -	return results in a flat array (don't return an object whose keys are scopes and whose values are lists per scope).
 		 * 
 		 */
