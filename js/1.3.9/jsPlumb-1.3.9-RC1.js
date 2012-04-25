@@ -137,7 +137,8 @@
 			 * 	listener	-	function to execute.
 			 */
 			this.bind = function(event, listener) {
-				_addToList(_listeners, event, listener);				
+				_addToList(_listeners, event, listener);		
+				return self;		
 			};
 			/*
 			 * Fires an update for the given event.
@@ -165,6 +166,7 @@
 						}
 					}
 				}
+				return self;
 			};
 			/*
 			 * Clears either all listeners, or listeners for some specific event.
@@ -179,6 +181,7 @@
 					delete _listeners;
 					_listeners = {};
 				}
+				return self;
 			};
 			
 			this.getListener = function(forEvent) {
