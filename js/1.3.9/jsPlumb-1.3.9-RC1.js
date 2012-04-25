@@ -892,8 +892,9 @@
 						_removeClass(element, "jsPlumb_dragged");
 						_currentInstance.setHoverSuspended(false);
 					});
-					draggableStates[_getId(element)] = true;
-					var draggable = draggableStates[_getId(element)];
+					var elId = _getId(element); // need ID
+					draggableStates[elId] = true;  
+					var draggable = draggableStates[elId];
 					options.disabled = draggable == null ? false : !draggable;
 					jpcl.initDraggable(element, options, false);
 					_currentInstance.dragManager.register(element);
@@ -1271,7 +1272,7 @@
 				// check if fixed uuid parameter is given
 				if (arguments.length == 2 && arguments[1] != undefined)
 					id = uuid;
-				else if (arguments.length == 1 || (arguments.length == 3 && arguments[2]))
+				else if (arguments.length == 1 || (arguments.length == 3 && !arguments[2]))
 					id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
 				_setAttribute(ele, "id", id);
 			}
@@ -3677,9 +3678,10 @@ between this method and jsPlumb.reset).
 			possible that will continue to be the case.
 		*/
 		this.register = function(el) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			var jpcl = jsPlumb.CurrentLibrary;
+			el = jpcl.getElementObject(el);
 			var id = _currentInstance.getId(el),
-				domEl = jsPlumb.CurrentLibrary.getDOMElement(el);
+				domEl = jpcl.getDOMElement(el);
 			if (!_draggables[id]) {
 				_draggables[id] = el;
 				_dlist.push(el);
@@ -3688,15 +3690,15 @@ between this method and jsPlumb.reset).
 				
 			// look for child elements that have endpoints and register them against this draggable.
 			var _oneLevel = function(p) {
-				var pEl = jsPlumb.CurrentLibrary.getElementObject(p),
-					pOff = jsPlumb.CurrentLibrary.getOffset(pEl);
+				var pEl = jpcl.getElementObject(p),
+					pOff = jpcl.getOffset(pEl);
 
 				for (var i = 0; i < p.childNodes.length; i++) {
 					if (p.childNodes[i].nodeType != 3) {
-						var cEl = jsPlumb.CurrentLibrary.getElementObject(p.childNodes[i]),
+						var cEl = jpcl.getElementObject(p.childNodes[i]),
 							cid = _currentInstance.getId(cEl, null, true);
 						if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-							var cOff = jsPlumb.CurrentLibrary.getOffset(cEl);
+							var cOff = jpcl.getOffset(cEl);
 							_delements[id][cid] = {
 								id:cid,
 								offset:{
@@ -3726,7 +3728,7 @@ between this method and jsPlumb.reset).
 			while (p != b) {
 				var pid = _currentInstance.getId(p);
 				if (_draggables[pid]) {
-					var idx = -1, pEl = jpcl.getElementObject(p), pLoc = jsPlumb.CurrentLibrary.getOffset(pEl);
+					var idx = -1, pEl = jpcl.getElementObject(p), pLoc = jpcl.getOffset(pEl);
 					
 					if (_delements[pid][id] == null) {
 						var cLoc = jsPlumb.CurrentLibrary.getOffset(el);
@@ -5154,7 +5156,6 @@ between this method and jsPlumb.reset).
 										jpc.setParameter(aParam, params[aParam]);
 
 									if (!jpc.suspendedEndpoint) {  
-										//_addToList(connectionsByScope, jpc.scope, jpc);
 										_initDraggableIfNecessary(self.element, params.draggable, {});
 									}
 									else {
