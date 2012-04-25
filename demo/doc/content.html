@@ -2177,6 +2177,19 @@ in when dragging, and do not reflect static reality), and so the source/target p
 <p> Like I said above, this is really just for rubbish historical reasons.  I'm attempting to document my way out of it!</p>
 				
 				</li>
+
+				<li class="bullet"><strong>connectionDrag</strong> - notification a Connection is being dragged.
+				
+					TODO!
+				
+				</li> 
+
+				<li class="bullet"><strong>connectionDragStop</strong> - notification a Connection drag has stopped.
+				
+					TODO!
+				
+				</li> 
+
 				<li class="bullet"><strong>click</strong> - notification a Connection was clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>dblclick</strong> - notification a Connection was double-clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>endpointClick</strong> - notification an Endpoint was clicked.  The callback is passed the Endpoint and the original mouse event.</li>
@@ -2241,7 +2254,7 @@ endpoint.bind("click", function(endpoint) {
 	overlays:[
 		[ "Label", {
 			events:{
-				click:function(labelOverlay, originalEvent) { alert("you clicked on the label overlay for this connection :" + labelOverlay.component) }
+				click:function(labelOverlay, originalEvent) { console.log("you clicked on the label overlay for this component :" + labelOverlay.component) }
 			}
 		}] 	
 	]
