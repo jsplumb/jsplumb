@@ -40,36 +40,13 @@
 			return vmlAvailable.vml;
 		};
 	
-    var _findWithFunction = function(a, f) {
-    	if (a)
-  			for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
-		return -1;
-	},
-	_indexOf = function(l, v) {
-		return _findWithFunction(l, function(_v) { return _v == v; });	
-	},
-    _removeWithFunction = function(a, f) {
-        var idx = _findWithFunction(a, f);
-        if (idx > -1) a.splice(idx, 1);
-        return idx != -1;
-    },
-    _remove = function(l, v) {
-    	var idx = _indexOf(l, v);	
-    	if (idx > -1) l.splice(idx, 1);
-        return idx != -1;
-    },
+    var _findWithFunction = jsPlumbUtil.findWithFunction,
+	_indexOf = jsPlumbUtil.indexOf,
+    _removeWithFunction = jsPlumbUtil.removeWithFunction,
+    _remove = jsPlumbUtil.remove,
     // TODO support insert index
-    _addWithFunction = function(list, item, hashFunction) {
-        if (_findWithFunction(list, hashFunction) == -1) list.push(item);
-    },
-    _addToList = function(map, key, value) {
-		var l = map[key];
-		if (l == null) {
-			l = [], map[key] = l;
-		}
-		l.push(value);
-		return l;
-	},
+    _addWithFunction = jsPlumbUtil.addWithFunction,
+    _addToList = jsPlumbUtil.addToList,
 	/**
 		an isArray function that even works across iframes...see here:
 		
@@ -107,81 +84,7 @@
 		_group = function(g) { if (_logEnabled && typeof console != "undefined") console.group(g); },
 		_groupEnd = function(g) { if (_logEnabled && typeof console != "undefined") console.groupEnd(g); },
 		_time = function(t) { if (_logEnabled && typeof console != "undefined") console.time(t); },
-		_timeEnd = function(t) { if (_logEnabled && typeof console != "undefined") console.timeEnd(t); };
-		
-		/**
-		 * EventGenerator
-		 * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
-		 */
-		EventGenerator = function() {
-			var _listeners = {}, self = this;
-			
-			// this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
-			// jsPlumb, but it seems feasible that people might want to manipulate this list.  the thinking is that we don't want event
-			// listeners to bring down jsPlumb - or do we.  i can't make up my mind about this, but i know i want to hear about it if the "ready"
-			// event fails, because then my page has most likely not initialised.  so i have this halfway-house solution.  it will be interesting
-			// to hear what other people think.
-			var eventsToDieOn = [ "ready" ];
-								    
-			/*
-			 * Binds a listener to an event.  
-			 * 
-			 * Parameters:
-			 * 	event		-	name of the event to bind to.
-			 * 	listener	-	function to execute.
-			 */
-			this.bind = function(event, listener) {
-				_addToList(_listeners, event, listener);		
-				return self;		
-			};
-			/*
-			 * Fires an update for the given event.
-			 * 
-			 * Parameters:
-			 * 	event				-	event to fire
-			 * 	value				-	value to pass to the event listener(s).
-			 *  originalEvent	 	- 	the original event from the browser
-			 */			
-			this.fire = function(event, value, originalEvent) {
-				if (_listeners[event]) {
-					for ( var i = 0; i < _listeners[event].length; i++) {
-						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
-						// method will have the whole call stack available in the debugger.
-						//if (_findIndex(eventsToDieOn, event) != -1)
-						if (_findWithFunction(eventsToDieOn, function(e) { return e === event}) != -1)
-							_listeners[event][i](value, originalEvent);
-						else {
-							// for events we don't want to die on, catch and log.
-							try {
-								_listeners[event][i](value, originalEvent);
-							} catch (e) {
-								_log("jsPlumb: fire failed for event " + event + " : " + e);
-							}
-						}
-					}
-				}
-				return self;
-			};
-			/*
-			 * Clears either all listeners, or listeners for some specific event.
-			 * 
-			 * Parameters:
-			 * 	event	-	optional. constrains the clear to just listeners for this event.
-			 */
-			this.clearListeners = function(event) {
-				if (event)
-					delete _listeners[event];
-				else {
-					delete _listeners;
-					_listeners = {};
-				}
-				return self;
-			};
-			
-			this.getListener = function(forEvent) {
-				return _listeners[forEvent];
-			};		
-		},
+		_timeEnd = function(t) { if (_logEnabled && typeof console != "undefined") console.timeEnd(t); };				
 		
 		/**
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
@@ -191,7 +94,7 @@
 		/*
 		 * Class:jsPlumbUIComponent
 		 * Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
-		 * and also extends EventGenerator to provide the bind and fire methods.
+		 * and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
 		 */
 		jsPlumbUIComponent = function(params) {
 			var self = this, a = arguments, _hover = false, parameters = params.parameters || {}, idPrefix = self.idPrefix,
@@ -202,7 +105,7 @@
 			self.hoverClass = params.hoverClass;				
 			
 			// all components can generate events
-			EventGenerator.apply(this);
+			jsPlumbUtil.EventGenerator.apply(this);
 			// all components get this clone function.
 			// TODO issue 116 showed a problem with this - it seems 'a' that is in
 			// the clone function's scope is shared by all invocations of it, the classic
@@ -695,7 +598,7 @@
 		
 		this.logEnabled = this.Defaults.LogEnabled;		
 
-		EventGenerator.apply(this);
+		jsPlumbUtil.EventGenerator.apply(this);
 		var _currentInstance = this,
 			_instanceIndex = getInstanceIndex(),
 			_bb = _currentInstance.bind,
@@ -2109,8 +2012,7 @@ between this method and jsPlumb.reset).
 		};
 		
 		this.log = log;
-		this.jsPlumbUIComponent = jsPlumbUIComponent;
-		this.EventGenerator = EventGenerator;
+		this.jsPlumbUIComponent = jsPlumbUIComponent;		
 
 		/*
 		 * Creates an anchor with the given params.
@@ -3861,7 +3763,7 @@ between this method and jsPlumb.reset).
 			this.targetId = _getAttribute(this.target, "id");
 			
 			/**
-			 * implementation of abstract method in EventGenerator
+			 * implementation of abstract method in jsPlumbUtil.EventGenerator
 			 * @return list of attached elements. in our case, a list of Endpoints.
 			 */
 			this.getAttachedElements = function() {

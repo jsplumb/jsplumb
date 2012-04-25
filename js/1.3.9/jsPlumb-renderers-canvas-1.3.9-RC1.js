@@ -37,7 +37,7 @@
 		var self = this;
 		self.overlayPlacements = [];
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
-		jsPlumb.EventGenerator.apply(this, arguments);
+		jsPlumbUtil.EventGenerator.apply(this, arguments);
 		/**
 		 * returns whether or not the given event is ojver a painted area of the canvas. 
 		 */
