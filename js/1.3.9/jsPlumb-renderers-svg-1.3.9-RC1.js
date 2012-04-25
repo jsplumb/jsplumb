@@ -105,7 +105,7 @@
 				styleToUse = dimensions[4] < dimensions[6] ? i: style.gradient.stops.length - 1 - i;
 			else
 				styleToUse = dimensions[4] < dimensions[6] ? style.gradient.stops.length - 1 - i : i;
-			var stopColor = jsPlumb.util.convertStyle(style.gradient.stops[styleToUse][1], true);
+			var stopColor = jsPlumbUtil.convertStyle(style.gradient.stops[styleToUse][1], true);
 			var s = _node(STOP, {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
 			g.appendChild(s);
 		}
@@ -123,8 +123,8 @@
 			node.setAttribute(STYLE, "");
 		}
 		
-		node.setAttribute(FILL, style.fillStyle ? jsPlumb.util.convertStyle(style.fillStyle, true) : NONE);
-		node.setAttribute(STROKE, style.strokeStyle ? jsPlumb.util.convertStyle(style.strokeStyle, true) : NONE);		
+		node.setAttribute(FILL, style.fillStyle ? jsPlumbUtil.convertStyle(style.fillStyle, true) : NONE);
+		node.setAttribute(STROKE, style.strokeStyle ? jsPlumbUtil.convertStyle(style.strokeStyle, true) : NONE);		
 		if (style.lineWidth) {
 			node.setAttribute(STROKE_WIDTH, style.lineWidth);
 		}
@@ -191,7 +191,7 @@
 	/**
 		utility methods for other objects to use.
 	*/
-	jsPlumb.util.svg = {
+	jsPlumbUtil.svg = {
 		addClass:_addClass,
 		removeClass:_removeClass
 	};
@@ -280,7 +280,7 @@
 				var outlineWidth = style.outlineWidth || 1,
 				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
 				outlineStyle = jsPlumb.CurrentLibrary.extend({}, style);
-				outlineStyle.strokeStyle = jsPlumb.util.convertStyle(style.outlineColor);
+				outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
 				outlineStyle.lineWidth = outlineStrokeWidth;
 				
 				if (self.bgPath == null) {
@@ -384,7 +384,7 @@
 			var s = jsPlumb.extend({}, style);
 			if (s.outlineColor) {
 				s.strokeWidth = s.outlineWidth;
-				s.strokeStyle = jsPlumb.util.convertStyle(s.outlineColor, true);
+				s.strokeStyle = jsPlumbUtil.convertStyle(s.outlineColor, true);
 			}
 			
 			if (self.node == null) {

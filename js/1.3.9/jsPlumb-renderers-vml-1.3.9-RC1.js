@@ -122,7 +122,7 @@
 		var styleToWrite = {};
 		if (style.strokeStyle) {
 			styleToWrite["stroked"] = "true";
-			var strokeColor = jsPlumb.util.convertStyle(style.strokeStyle, true);
+			var strokeColor = jsPlumbUtil.convertStyle(style.strokeStyle, true);
 			styleToWrite["strokecolor"] = strokeColor;
 			_maybeSetOpacity(styleToWrite, strokeColor, "stroke", component);
 			styleToWrite["strokeweight"] = style.lineWidth + "px";
@@ -131,7 +131,7 @@
 		
 		if (style.fillStyle) {
 			styleToWrite["filled"] = "true";
-			var fillColor = jsPlumb.util.convertStyle(style.fillStyle, true);
+			var fillColor = jsPlumbUtil.convertStyle(style.fillStyle, true);
 			styleToWrite["fillcolor"] = fillColor;
 			_maybeSetOpacity(styleToWrite, fillColor, "fill", component);
 		}
@@ -207,7 +207,7 @@
 					var outlineWidth = style.outlineWidth || 1,
 					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
 					outlineStyle = {
-						strokeStyle : jsPlumb.util.convertStyle(style.outlineColor),
+						strokeStyle : jsPlumbUtil.convertStyle(style.outlineColor),
 						lineWidth : outlineStrokeWidth
 					};
 					for (var aa in vmlAttributeMap) outlineStyle[aa] = style[aa];
@@ -382,7 +382,7 @@
     		var p = {};
 			if (strokeStyle) {
 				p["stroked"] = "true";
-				p["strokecolor"] = jsPlumb.util.convertStyle(strokeStyle, true);    				
+				p["strokecolor"] = jsPlumbUtil.convertStyle(strokeStyle, true);    				
 			}
 			if (lineWidth) p["strokeweight"] = lineWidth + "px";
 			if (fillStyle) {

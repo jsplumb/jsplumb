@@ -384,7 +384,7 @@
 				if (ds.length != 2) ds = [2, 2];
 				var dss = [ ds[0] * style.lineWidth, ds[1] * style.lineWidth ],
 					m = (dimensions[6] - dimensions[4]) / (dimensions[7] - dimensions[5]),
-					s = jsPlumb.util.segment([dimensions[4], dimensions[5]], [ dimensions[6], dimensions[7] ]),
+					s = jsPlumbUtil.segment([dimensions[4], dimensions[5]], [ dimensions[6], dimensions[7] ]),
 					sm = segmentMultipliers[s],
 					theta = Math.atan(m),
 					l = Math.sqrt(Math.pow(dimensions[6] - dimensions[4], 2) + Math.pow(dimensions[7] - dimensions[5], 2)),

@@ -81,10 +81,10 @@
             currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];                        
             _dx = _tx - _sx, _dy = _ty - _sy;
 			//_m = _dy / _dx, _m2 = -1 / _m;
-            _m = jsPlumb.util.gradient({x:_sx, y:_sy}, {x:_tx, y:_ty}), _m2 = -1 / _m;
+            _m = jsPlumbUtil.gradient({x:_sx, y:_sy}, {x:_tx, y:_ty}), _m2 = -1 / _m;
 			_b = -1 * ((_m * _sx) - _sy);
 			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
-            //_segment = jsPlumb.util.segment({x:_sx, y:_sy}, {x:_tx, y:_ty});
+            //_segment = jsPlumbUtil.segment({x:_sx, y:_sy}, {x:_tx, y:_ty});
             _length = Math.sqrt((_dx * _dx) + (_dy * _dy));
                              
             return currentPoints;
@@ -101,7 +101,7 @@
             else if (location == 1)
                 return { x:_tx, y:_ty };
             else
-                return jsPlumb.util.pointOnLine({x:_sx, y:_sy}, {x:_tx, y:_ty}, location * _length);
+                return jsPlumbUtil.pointOnLine({x:_sx, y:_sy}, {x:_tx, y:_ty}, location * _length);
         };
         
         /**
@@ -114,7 +114,7 @@
         /**
          * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
-         * this hands off to jsPlumb.util to do the maths, supplying two points and the distance.
+         * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
          */
         this.pointAlongPathFrom = function(location, distance) {            
         	var p = self.pointOnPath(location),
@@ -123,7 +123,7 @@
                     y:_sy + ((_sy - _ty) * 10)
                 } : {x:_tx, y:_ty };
 
-            return jsPlumb.util.pointOnLine(p, farAwayPoint, distance);
+            return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
         };
     };
                 
@@ -413,7 +413,7 @@
                       
             var sourceAxis = so[0] == 0 ? "y" : "x",
                 anchorOrientation = opposite ? "opposite" : orthogonal ? "orthogonal" : "perpendicular",
-                segment = jsPlumb.util.segment([sx, sy], [tx, ty]),
+                segment = jsPlumbUtil.segment([sx, sy], [tx, ty]),
                 flipSourceSegments = so[sourceAxis == "x" ? 0 : 1] == -1,
                 flipSegments = {
                     "x":[null, 4, 3, 2, 1],
@@ -882,21 +882,21 @@
                 if (self.loc == 1) {
                     hxy = connector.pointOnPath(self.loc);
                     mid = connector.pointAlongPathFrom(self.loc, -1);                    
-                    txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
+                    txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
                 }
                 else if (self.loc == 0) {
                     txy = connector.pointOnPath(self.loc);
                     mid = connector.pointAlongPathFrom(self.loc, 1);
-                    hxy = jsPlumb.util.pointOnLine(txy, mid, self.length);
+                    hxy = jsPlumbUtil.pointOnLine(txy, mid, self.length);
                 }
                 else {
     			    hxy = connector.pointAlongPathFrom(self.loc, direction * self.length / 2),
                     mid = connector.pointOnPath(self.loc),
-                    txy = jsPlumb.util.pointOnLine(hxy, mid, self.length);
+                    txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
                 }
 
-                tail = jsPlumb.util.perpendicularLineTo(hxy, txy, self.width);
-                cxy = jsPlumb.util.pointOnLine(hxy, txy, foldback * self.length);
+                tail = jsPlumbUtil.perpendicularLineTo(hxy, txy, self.width);
+                cxy = jsPlumbUtil.pointOnLine(hxy, txy, foldback * self.length);
 
     			var minx = Math.min(hxy.x, tail[0].x, tail[1].x),
     				maxx = Math.max(hxy.x, tail[0].x, tail[1].x),
@@ -1110,9 +1110,9 @@
 
             var head = connector.pointAlongPathFrom(self.loc, self.length / 2),
                 mid = connector.pointOnPath(self.loc),
-                tail = jsPlumb.util.pointOnLine(head, mid, self.length),
-                tailLine = jsPlumb.util.perpendicularLineTo(head, tail, 40),
-                headLine = jsPlumb.util.perpendicularLineTo(tail, head, 20);
+                tail = jsPlumbUtil.pointOnLine(head, mid, self.length),
+                tailLine = jsPlumbUtil.perpendicularLineTo(head, tail, 40),
+                headLine = jsPlumbUtil.perpendicularLineTo(tail, head, 20);
 
             self.paint(connector, [head, tail, tailLine, headLine], self.lineWidth, "red", null, connectorDimensions);
 
