@@ -193,7 +193,10 @@
 	*/
 	jsPlumbUtil.svg = {
 		addClass:_addClass,
-		removeClass:_removeClass
+		removeClass:_removeClass,
+		node:_node,
+		attr:_attr,
+		pos:_pos
 	};
 	
 	/*
