@@ -333,21 +333,8 @@
 			if (dimensions.length == 10) {
 		        self.ctx.beginPath();
 				self.ctx.moveTo(dimensions[4], dimensions[5]);
-				self.ctx.quadraticCurveTo(dimensions[8], dimensions[9], dimensions[6], dimensions[7]);
-				self.ctx.stroke();            
-				
-				/*/ draw the guideline
-				if (drawGuideline) {
-					self.ctx.save();
-					self.ctx.beginPath();
-					self.ctx.strokeStyle = "silver";
-					self.ctx.lineWidth = 1;
-					self.ctx.moveTo(dimensions[4], dimensions[5]);
-					self.ctx.lineTo(dimensions[6], dimensions[7]);
-					self.ctx.stroke();            
-					self.ctx.restore();
-				}
-				//*/
+				self.ctx.bezierCurveTo(dimensions[8], dimensions[9], dimensions[8], dimensions[9], dimensions[6], dimensions[7]);
+				self.ctx.stroke();            				
 			}
 			else {
 				// a loopback connector
