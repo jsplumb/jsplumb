@@ -110,7 +110,15 @@
 			jsPlumb.bind("click", function(conn, originalEvent) {
 				if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
 					jsPlumb.detach(conn); 
-			});			
+			});	
+			
+			jsPlumb.bind("connectionDrag", function(connection) {
+				console.log("connection " + connection.id + " is being dragged");
+			});		
+			
+			jsPlumb.bind("connectionDragStop", function(connection) {
+				console.log("connection " + connection.id + " was dragged");
+			});
 		}
 	};
 })();
