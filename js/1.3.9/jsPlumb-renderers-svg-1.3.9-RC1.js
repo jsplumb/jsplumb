@@ -82,8 +82,10 @@
 		// it is possible that a more explicit means of defining the gradient type would be
 		// better. relying on 'offset' means that we can never have a radial gradient that uses
 		// some default offset, for instance.
+		// issue 244 suggested the 'gradientUnits' attribute; without this, straight/flowchart connectors with gradients would
+		// not show gradients when the line was perfectly horizontal or vertical.
 		if (!style.gradient.offset) {
-			var g = _node(LINEAR_GRADIENT, {id:id});
+			var g = _node(LINEAR_GRADIENT, {id:id, gradientUnits:"userSpaceOnUse"});
 			parent.appendChild(g);
 		}
 		else {
@@ -305,7 +307,7 @@
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
 		    	self.svg.appendChild(self.path);
-	    		self.attachListeners(self.path, self);
+	    		self.attachListeners(self.path, self);	    	
 	    		
 	    		/*
 	    		this is a test of a clip path.  i'm looking into using one of these to animate a jsplumb connection.
@@ -374,7 +376,7 @@
     /*
 	 * Base class for SVG endpoints.
 	 */
-	var SvgEndpoint = function(params) {
+	var SvgEndpoint = window.SvgEndpoint = function(params) {
 		var self = this;
 		SvgComponent.apply(this, [ {
 			cssClass:params["_jsPlumb"].endpointClass, 
@@ -450,11 +452,14 @@
     	superclass.apply(this, originalArgs);
     	jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
         this.isAppendedAtTopLevel = false;
-    	var self = this, path =null;
+    	var self = this, path = null;
     	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		if (path == null) {
-    			path = _node("path");
+    			path = _node("path", {
+    				"pointer-events":"all"	
+    			});
     			connector.svg.appendChild(path);
+    			
     			self.attachListeners(path, connector);
     			self.attachListeners(path, self);
     		}
