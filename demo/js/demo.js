@@ -7,10 +7,11 @@
 	window.jsPlumbDemo = {
 			
 		init : function() {
-
-			jsPlumb.setRenderMode(jsPlumb.CANVAS);
 			
-			jsPlumb.DefaultDragOptions = { cursor: "pointer", zIndex:2000 };
+			jsPlumb.importDefaults({
+				DragOptions : { cursor: "pointer", zIndex:2000 },
+				HoverClass:"connector-hover"
+			});
 	
 			var connectorStrokeColor = "rgba(50, 50, 200, 1)",
 				connectorHighlightStrokeColor = "rgba(180, 180, 200, 1)",
@@ -41,7 +42,7 @@
 					outlineColor:"#666"
 				},
 				endpointStyle:{ fillStyle:"#a7b04b" },
-			   	hoverPaintStyle:hoverPaintStyle,
+			   	hoverPaintStyle:hoverPaintStyle,			   
 			   	overlays : [ ["Label", {													   					
 			   					cssClass:"l1 component label",
 			   					label : "Connection One", 
@@ -49,13 +50,18 @@
 			   					id:"label",
 			   					events:{
 									"click":function(label, evt) {
-										alert("clicked on label for connection 1");
+										alert("clicked on label for connection " + label.component.id);
 			   						}
 			   					}
 			   				  } ],
 			   				["Arrow", {
 			   					cssClass:"l1arrow",
-				   				location:0.5, width:30
+				   				location:0.5, width:40,
+				   				events:{
+				   					"click":function(arrow, evt) {
+				   						alert("clicked on arrow for connection " + arrow.component.id);
+				   					}
+				   				}
 	   						}]
 			]});            
 					        
