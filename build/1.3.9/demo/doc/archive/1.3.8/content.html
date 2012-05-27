@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>jsPlumb 1.3.9 - documentation</title>
+		<title>jsPlumb 1.3.8 - documentation</title>
 		<link rel="stylesheet" href="/mp.css">
 		<link rel="stylesheet" href="jsPlumbDoc.css">
 	</head>
@@ -28,7 +28,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			</p>  
 
 			<h5>Browser Compatibility</h5>
-			<p>jsPlumb 1.3.9 runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:
+			<p>jsPlumb 1.3.8 runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:
 				<ul>
 					<li class="bullet">jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.
 					<li class="bullet">Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element</li>
@@ -39,57 +39,61 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 		</div>
 		
 		<div class="section">		
-			<h3><a id="changes">Changes between 1.3.9 and 1.3.8</a></h3>
-			
+			<h3><a id="changes">Changes between 1.3.8 and 1.3.7</a></h3>
+			1.3.8 is mostly a bugfix release, but it is notable for the fact that VML is now enabled for IE9.
 			<h5>Backwards Compatibility</h5>
-			Just a couple of minor points in this release:
-			<ul>
-				<li><strong>paintStyle</strong> and <strong>hoverPaintStyle</strong> are no longer exposed on Endpoint or Connection. Use <strong>setPaintStyle</strong>, <strong>getPaintStyle</strong>, <strong>setHoverPaintStyle</strong> and <strong>setHoverPaintStyle</strong> instead.</li>
-			</ul>
-			
+			There are no backwards compatibility issues between 1.3.8 and 1.3.7, but note that now that VML is supported in IE9, there is a different algorithm in the setRenderMode method. For each requested type, jsPlumb will attempt to use that type, trying others if it is not available, in the following order:
+			<p>
+				<ul>
+					<li>CANVAS : Canvas, SVG, VML</li>
+					<li>SVG : SVG, Canvas, VML   (remains the default)</li>
+					<li>VML : VML, SVG, Canvas</li>
+				</ul>
+			</p>
 			<h5>New Features</h5>
-			<ul>
-				<li class="bullet">Straight connector in Canvas renderer now supports simple dashstyle</li>	
-				<li class="bullet">clearListeners, fire and bind methods in jsPlumb, Connection and Endpoint now return themselves, so you can use them in a 'fluent' style.</li>
-				<li class="bullet">paintStyle and hoverPaintStyle are no longer exposed on Endpoint or Connection.</li>
-				<li class="bullet">getPaintStyle and getHoverPaintStyle methods added to Endpoint and Connection.</li>
-				<li class="bullet">HoverClass added to jsPlumb defaults.</li> 
-				<li class="bullet">Several new methods added for working with targets and sources:
-					<ul>
-						<li>setTargetEnabled</li>
-						<li>setSourceEnabled</li>
-						<li>isTarget</li>
-						<li>isSource</li>
-						<li>toggleTargetEnabled</li>
-						<li>toggleSourceEnabled</li>
-						<li>isTargetEnabled</li>
-						<li>isSourceEnabled</li>
-						<li>unmakeSource</li>
-						<li>unmakeTarget</li>
-						<li>unmakeEverySource</li>
-						<li>unmakeEveryTarget</li>
-					</ul>
-					<br/>
-				</li>
-				<li class="bullet">makeSource and makeTarget now return the current jsPlumb instance.</li>
-				<li class="bullet">added optional 'gap' parameter to Flowchart connector params. Lets you leave a gap between the end of the connector and the element to which it is connected.</li>
-				<li class="bullet">SvgEndpoint and VmlEndpoint classes are now exposed on the DOM window, which allows for subclassing (eg. when you want to make your own Endpoints)</li>
-				<li class="bullet">removeAllOverlays was not cleaning up elements from the DOM properly. now fixed.</li>
-				<li class="bullet">added connectionDrag and connectionDragStop events to the jsPlumb object. These events are fired when an existing connection is dragged, and when that drag stops.  The only argument passed to a listener on these events is the Connection that is being or has just been dragged.</li>
-			</ul>
+				<ul>
+					<li class="bullet">VML renderer is now supported in IE9</li>
+					<li class="bullet">Hover mode is suspended whenever an element is being dragged. This prevents a lot of random flashing in the UI when the user is dragging quickly.</li>
+				</ul>
 
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li class="bullet"><strong>136</strong> - diamond/arrow overlays do not fire mouse events (SVG/VML renderers only)</li>
-				<li class="bullet"><strong>223</strong> - extraneous IDs being created throughout the DOM</li>
-				<li class="bullet"><strong>235</strong> - add setTargetEnabled and related methods</li>
-				<li class="bullet"><strong>233</strong> - add getPaintStyle and getHoverPaintStyle to Connection and Endpoint.</li>
-				<li class="bullet"><strong>238</strong> - overlays in canvas renderer for state machine connectors not appearing in the correct position.</li>
-				<li class="bullet"><strong>239</strong> - document detachable/connectionsDetachable properly</li>
-				<li class="bullet"><strong>242</strong> - typo in docs about diamond overlay</li>
-				<li class="bullet"><strong>244</strong> - straight gradients rendered black or transparent</li>
-				<li class="bullet"><strong>245</strong> - should not set scope on nodes when making them draggable via jsPlumb.draggable.</li>		
+				<li class="bullet">
+					<strong>207</strong> - pass original event back in connection detached callback
+				</li>
+				<li class="bullet">
+					<strong>215</strong> - dragged connection did not get parameters from target endpoint
+				</li>
+				
+				<li class="bullet">
+					<strong>217</strong> - makeSource's onComplete callback does not get fired
+				</li>
+				
+				<li class="bullet">
+					<strong>218</strong> - IE max stylesheet limit
+				</li>
+
+				<li class="bullet">
+					<strong>219</strong> - connections made with makeSource and parent option were duplicated internally, skewing results from "select" and causing duplicate mouse events with the canvas renderer.
+				</li>
+				<li class="bullet">
+					<strong>222</strong> - allow VML in IE9
+				</li>
+				<li class="bullet">
+					<strong>223</strong> - extraneous IDs being created and assigned
+				</li>
+				<li class="bullet">
+					<strong>226</strong> - image endpoint does not clean up image element from DOM on destroy.
+				</li>
+				<li class="bullet">
+					<strong>227</strong> - maxConnections ignored by makeTarget method
+				</li>
+				<li class="bullet">
+					<strong>230</strong> - array test fails when jsPlumb called from GWT
+				</li>
 			</ul>
+
+
 			
 		</div>
 		
@@ -105,7 +109,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			    <div class="code">
 <pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.9-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.8-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>MooTools</h4>
 				<ul>
@@ -115,7 +119,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.3/mootools-yui-compressed.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.9-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.8-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>YUI3</h4>
 			<ul>
@@ -123,7 +127,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			</ul>
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.9-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.8-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			
 			<h4><a id="renderMode">Render Mode</a></h4>
@@ -434,14 +438,13 @@ Now when you drag "container", jsPlumb will have noticed that there are nested e
 	
 			An Anchor models the notion of where on an element a Connector should connect.  There are three main types of Anchors:
 			<ul>
-			<li/>
 				<li class="bullet">'Static' anchors - these are fixed to some point on an element and do not move.  They can be specified using a string to
-				identify one of the defaults that jsPlumb ships with, or an array describing the location (see below)<br/><br/></li>				
+				identify one of the defaults that jsPlumb ships with, or an array describing the location (see below)</li>
 				<li class="bullet">'Dynamic' anchors - these are lists of Static anchors from which jsPlumb picks the most appropriate one each time a Connection
 				is painted.  The algorithm used to determine the most appropriate anchor picks the one that is closest to the center of the other element in
-				the Connection. A future version of jsPlumb might support a pluggable algorithm to make this decision.<br/><br/></li>
+				the Connection. A future version of jsPlumb might support a pluggable algorithm to make this decision.</li>
 				<li class="bullet">'Continuous' anchors - These anchors, introduced in 1.3.4, are not fixed to any specific loction; they are assigned to one of
-				the four faces of an element depending on that element's orientation to the other element in the associated Connection.  Continuous anchors are slightly more computationally intensive than Static or Dynamic anchors because jsPlumb is required to calculate the position of every Connection during a paint cycle, rather than just Connections belonging to the element in motion.  These anchors were designed for use with the StateMachine connector that was also introduced in 1.3.4, but will work with any combination of Connector and Endpoint.<br/><br/></li> 
+				the four faces of an element depending on that element's orientation to the other element in the associated Connection.  Continuous anchors are slightly more computationally intensive than Static or Dynamic anchors because jsPlumb is required to calculate the position of every Connection during a paint cycle, rather than just Connections belonging to the element in motion.  These anchors were designed for use with the StateMachine connector that was also introduced in 1.3.4, but will work with any combination of Connector and Endpoint.</li> 
 			</ul>  
 					
 			<h4><a id="staticAnchors">Static Anchors</a></h4>		
@@ -640,9 +643,8 @@ The allowed constructor parameters are different for each artifact you create, b
 			<p>The Straight Connector draws a straight line between the two endpoints. No constructor arguments are supported; use the <strong>endpointStyle</strong> and/or <strong>cssClass</strong>/<strong>connectorClass</strong> to a <strong>connect</strong>, <strong>addEndpoint</strong>, <strong>makeSource</strong> or <strong>makeTarget</strong> call to control the appearance of one of these Connectors.  
 			</p>
 			<h4><a id="flowchartConnector">Flowchart Connector</a></h4>
-			<p>This type of Connector draws a connection that consists of a series of vertical or horizontal segments - the classic flowchart look. Two constructor arguments are supported:</p>
-			<strong>stub</strong> - this is the minimum length, in pixels, of the initial stub that emanates from an Endpoint.  This parameter is optional, and defaults to 30 pixels.<br/>
-			<strong>gap</strong> - optional, defaults to 0 pixels. Lets you specify a gap between the end of the connector and the elements to which it is attached.
+			<p>This type of Connector draws a connection that consists of a series of vertical or horizontal segments - the classic flowchart look. A single constructor argument is supported:</p>
+			<strong>stub</strong> - this is the minimum length, in pixels, of the initial stub that emanates from an Endpoint.  This parameter is optional, and defaults to 30 pixels.
 			<p>This Connector supports Connection that start and end on the same element.</p>
 			<h4><a id="stateMachineConnector">State Machine Connector</a></h4>
 			<p>This Connector draws slightly curved lines (they are actually quadratic Bezier curves), similar to the State Machine connectors you may have seen in software like GraphViz.  Connections in which some element is both the source and the target (so-called 'loopback') are supported by these Connectors (as they are with Flowchart Connectors); in this case you get a circle. Supported parameters are:
@@ -799,7 +801,7 @@ The allowed constructor parameters are different for each artifact you create, b
 					<h4><a id="plainArrowOverlay">PlainArrow Overlay</a></h4>
 					<p>This is just a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 1, meaning the tail of the Arrow is a flat edge.  All of the constructor parameters from Arrow apply for PlainArrow.</p>
 					<h4><a id="diamondOverlay">Diamond Overlay</a></h4>
-					<p>This is a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 2, meaning the Arrow turns into a Diamond.  All of the constructor parameters from Arrow apply for Diamond.</p>
+					<p>This is a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 2, meaning the Arrow turns into a Diamond.  All of the constructor parameters from Arrow apply for PlainArrow.</p>
 					<h4><a id="labelOverlay">Label Overlay</a></h4>
 					This provides a text label to decorate Connectors with.  The available constructor arguments are:
 					<ul>
@@ -1009,7 +1011,7 @@ jsPlumb.Defaults.EndpointStyles = [{ fillStyle:"#225588" }, { fillStyle:"#558822
 			</ul>
 
 			<h5>jsPlumb.importDefaults</h5>
-From version 1.3.9 onwards there is a helper method called <strong>importDefaults</strong> that allows you to import a set of values with just one call to jsPlumb.  Here's the previous example using importDefaults:
+From version 1.3.8 onwards there is a helper method called <strong>importDefaults</strong> that allows you to import a set of values with just one call to jsPlumb.  Here's the previous example using importDefaults:
 			<div class="code">
 <pre>
 jsPlumb.importDefaults({
@@ -1115,32 +1117,7 @@ jsPlumb.connect({
 	deleteEndpointsOnDetach:false 
 });
 </pre>
-</div>	
-
-	<h5>Detaching Connections</h5>
-	By default, connections made with jsPlumb.connect will be detachable via the mouse.  You can prevent this by either setting an appropriate default value:
-
-		<div class="code">
-<pre>
-jsPlumb.importDefaults({ 
-	...
-	ConnectionsDetachable:false
-	...
-});
-</pre>
-</div>	
-
-	Or by specifying it on the connect call like this:
-		<div class="code">
-<pre>
-jsPlumb.connect({ 
-	source:"aThirdElement", 
-	target:"yetAnotherElement",
-	detachable:false
-});
-</pre>
-</div>		
-								
+</div>								
 					
 		<h4><a id="draggableConnections">Connections using Drag and Drop</a></h4>
 		To support drag and drop connections, you first need to set a few things up.  Every drag and drop connection needs at least a source
@@ -1202,7 +1179,7 @@ jsPlumb.Defaults.Anchors = [ "LeftMiddle", "BottomRight" ];
 </div>
 ... and then used makeSource and makeTarget without specifying Anchor locations, jsPlumb would use "LeftMiddle" for the makeSource element and "BottomRight" for the makeTarget element.
 <p>
-A further thing to note about makeSource and makeTarget is that from 1.3.9 onwards any prior calls to one of these methods is honoured by subsequent calls to jsPlumb.connect. This helps when you're building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created connections (obviously quite a common use case).  
+A further thing to note about makeSource and makeTarget is that from 1.3.8 onwards any prior calls to one of these methods is honoured by subsequent calls to jsPlumb.connect. This helps when you're building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created connections (obviously quite a common use case).  
 <p>For example:</p>
 <div class="code">
 <pre>
@@ -1279,41 +1256,6 @@ jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 </pre>		
 		</div>
 In this setup we have told jsPlumb to create an Endpoint the first time "aTargetElement" is connected to, and to not delete it even if there are no longer any Connections to it.  The created Endpoint will be reused for subsequent Connections, and can support a maximum of 5.
-
-<h5>Detaching connections made with the mouse</h5>
-As with jsPlumb.connect, connections made with the mouse after setting up Endpoints with one of the functions we've just covered will be, by default, detachable.  You can prevent this in the jsPlumb defaults, as previously mentioned:
-		<div class="code">
-<pre>jsPlumb.importDefaults({ 
-	...
-	ConnectionsDetachable:false,
-	...
-});
-</pre>		
-		</div>
-
-	And you can also set this on a per-endpoint (or source/target) level, like in these examples:
-
-		<div class="code">
-<pre>jsPlumb.addEndpoint("someElementId", { 
-	connectionsDetachable:false	
-});
-
-jsPlumb.makeSource("someOtherElement", {
-	...
-	connectionsDetachable:false,
-	...
-});
-
-jsPlumb.makeTarget("yetAnotherElement", {
-	...
-	connectionsDetachable:false,
-	...
-});
-</pre>		
-		</div>
-
-Note that in the jsPlumb defaults, by convention each word in a parameter is capitalised ("ConnectionsDetachable"), whereas for a call to one of these methods, we use camel case ("connectionsDetachable").
-
 
 <h5>Target Anchors positions with makeTarget</h5>
 <p>When using the makeTarget method, jsPlumb allows you to provide a callback function to be used to determine
@@ -1452,47 +1394,6 @@ var exampleGreyEndpointOptions = {
 };
 </pre>
 </div>
-<h5><a id="targetSourceTest">Testing if an element is a target or source</a></h5>
-You can test if some element has been made a connection source or target using these methods:
-<ul>
-<li class="bullet">isTarget</li>
-<li class="bullet">isSource</li>
-</ul>
-<p>The return value is a boolean.</p>
-<h5><a id="targetSourceToggle">Toggling an element as connection target or source</a></h5>
-You can toggle the state of some source or target using these methods:
-<ul>
-<li class="bullet">setTargetEnabled</li>
-<li class="bullet">setSourceEnabled</li>
-</ul>
-<p>The return value from these methods is the current jsPlumb instance, allowing you to chain them:</p>
-<div class="code">
-<pre>
-jsPlumb.setTargetEnabled("aDivId").setSourceEnabled($(".aSelector"));
-</pre>
-</div>
-<p>Note that if you call either of these methods on an element that was not originally configured as a target or source, nothing will happen.</p>
-<p>You can check the enabled state of some target or source using these methods:
-<ul>
-<li class="bullet">isTargetEnabled</li>
-<li class="bullet">isSourceEnabled</li>
-</ul>
-<h5><a id="targetSourceCancel">Canceling previous makeTarget and/or makeSource calls</a></h5>
-jsPlumb offers four methods to let you cancel previous makeTarget or makeSource calls. Each of these methods returns the current jsPlumb instance, and so can be chained:
-<ul>
-<li class="bullet">unmakeTarget</li>
-<li class="bullet">unmakeSource</li>
-<li class="bullet">unmakeEveryTarget</li>
-<li class="bullet">unmakeEverySource</li>
-</ul>
-<p>These last two are analogous to the <strong>removeEveryConnection</strong> and <strong>removeEveryEndpoint</strong> methods that have been in jsPlumb for a while now.</p>
-<p>unmakeTarget and unmakeSource both take as argument the same sorts of values that makeTarget and makeSource accept - a string id, or a selector, or an array of either of these:</p>
-<div class="code">
-<pre>
-jsPlumb.unmakeTarget("aDivId").unmakeSource($(".aSelector"));
-</pre>
-</div>
-
 
 <h5><a id="dragOptions">Drag Options</a></h5>
 	These are options that will be passed through to the supporting library's drag API.  jsPlumb passes everything you supply here through, inserting
@@ -1583,78 +1484,6 @@ var exampleGreyEndpointOptions = {
 </div>  
 			
 	</div>	
-
-	<div class="section">
-		<h3><a id="parameters">Connection Parameters</a></h3>
-		jsPlumb has a mechanism that allows you to set parameters on a per-connection basis.  This can be achieved in a few different ways:
-
-		<ul>
-			<li class="bullet">Providing parameters to a jsPlumb.connect call</li>
-			<li class="bullet">Providing parameters to an addEndpoint call to/from which a connection is subsequently established using the mouse</li>
-			<li class="bullet">using the <strong>setParameter</strong> or <strong>setParameters</strong> method on a Connection</li>
-		</ul>
-		Getting parameters is achieved through either the <strong>getParameter(key)</strong> or <strong>getParameters</strong> method on a Connection.
-		<h4><a id="connectParameters">jsPlumb.connect</a></h4>
-		Parameters can be passed in via an object literal to a jsPlumb.connect call:
-		<div class="code">
-<pre>var myConnection = jsPlumb.connect({
-	source:"foo",
-	target:"bar",
-	parameters:{
-		"p1":34,
-		"p2":new Date(),
-		"p3":function() { console.log("i am p3"); }
-	}
-});
-</pre>
-</div>
-Note that they can be any valid Javascript objects - it's just an object literal.  You then access them like this:
-		<div class="code">
-<pre>myConnection.getParameter("p3")();     // prints 'i am p3' to the console.
-</pre>
-</div>
-
-<h4><a id="addEndpointParameters">jsPlumb.addEndpoint</a></h4>
-<p>The information in this section also applies to the <strong>makeSource</strong> and <strong>makeTarget</strong> functions</p>
-<p>Using jsPlumb.addEndpoint, you can set parameters that will be copied in to any Connections that are established from or to the given Endpoint using the mouse.  (If you set parameters on both a source and target Endpoints and then connect them, the parameters set on the target Endpoint are copied in first, followed by those on the source. So the source Endpoint's parameters take precedence if they happen to have one or more with the same keys as those in the target).</p>
-Consider this example:
-		<div class="code">
-<pre>var e1 = jsPlumb.addEndpoint("d1", {
-	isSource:true,
-	parameters:{
-		"p1":34,
-		"p2":new Date(),
-		"p3":function() { console.log("i am p3"); }
-	}
-});
-
-var e2 = jsPlumb.addEndpoint("d2", {
-	isTarget:true,
-	parameters:{
-		"p5":343,
-		"p3":function() { console.log("FOO FOO FOO"); }
-	}
-});
-
-var conn = jsPlumb.connect({source:e1, target:e2});
-
-
-</pre>
-</div>
-
-'conn' will have four parameters set on it, with the value for "p3" coming from the source Endpoint:
-		<div class="code">
-<pre>var params = conn.getParameters();
-console.log(params.p1);   	// 34
-console.log(params.p2);   	// Mon May 14 2012 12:57:12 GMT+1000 (EST) (or however your console prints out a Date)
-console.log((params.p3)()); // "i am p3"  (note: we executed the function after retrieving it)
-console.log(params.p5);   	// 343
-
-</pre>
-</div>
-
-
-</div> <!-- /section -->
 	
 	<div class="section">
 		<h3><a id="beforeDrop">Interceptors</a></h3>
@@ -1669,30 +1498,29 @@ console.log(params.p5);   	// 343
 		Note that binding 'beforeDrop' (as an example) on jsPlumb itself is like a catch-all: it will be called every time a Connection is dropped on _any_ 
 		Endpoint.  But passing a 'beforeDrop' callback into an Endpoint (and in the future, registering one using 'bind') constrains that callback to just the
 		Endpoint in question.  		
-		<h4><a id="beforeDrop">beforeDrop</a></h4>
-		This event is fired when a new or existing connection has been dropped. Your callback is passed a JS object with these fields:
+		<h4><a id="beforeDrop">Before Drop</a></h4>
+		This is called when the user has released the mouse button over a Connection target.  Your callback is passed the
+		a JS object containing these fields:
 		<ul>
-			<li><strong>sourceId</strong> - the id of the source element in the connection</li>
-			<li><strong>targetId</strong> - the id of the target element in the connection</li>
-			<li><strong>scope</strong> - the scope of the connection</li>
-			<li><strong>connection</strong> - the actual Connection object.  You can access the 'endpoints' array in a Connection to get the Endpoints involved in the Connection, but be aware that when a Connection is being dragged, one of these Endpoints will always be a transient Endpoint that exists only for the life of the drag. To get the Endpoint on which the Connection is being dropped, use the 'dropEndpoint' member.</li>
-			<li><strong>dropEndpoint</strong> - this is the actual Endpoint on which the Connection is being dropped.  This <strong>may be null</strong>, because it will not be set if the Connection is being dropped on an element on which makeTarget has been called. </li>
+			<li>sourceId</li>
+			<li>targetId</li>
+			<li>scope</li>
 		</ul>
-
-		If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.
-		<h4><a id="beforeDetach">beforeDetach</a></h4>
+		<p>Returning false - or nothing - from this callback will cause the drag to be abandoned, and the new Connection removed from the UI.</p>
+		<h4><a id="beforeDetach">Before Detach</a></h4>
 		This is called when the user has detached a Connection, which can happen for a number of reasons: by default, jsPlumb allows users to drag Connections off of target Endpoints, but this can also result from a programmatic 'detach' call.  Every case is treated the same by jsPlumb, so in fact it is possible for you to write code that attempts to detach a Connection but then denies itself!  You might want to be careful with that. 
 		<p>Note that this interceptor is passed the actual Connection object; this is different from the beforeDrop
 		interceptor discussed above: in this case, we've already got a Connection, but with beforeDrop we are yet 
 		to confirm that a Connection should be created.</p>
-		<p>Returning false - or nothing - from this callback will cause the detach to be abandoned, and the Connection will be reinstated or left on its current target.</p>
+		<p>Returning false - or nothing - from this callback will cause the detach to be abandoned, and the Connection will be reinstated/left on its current target.</p>
 			
 	</div>
 
 		<div class="section">
 			<h3><a id="paintstyles">Paint Styles</a></h3>
-			Defining the appearance of Connectors, Endpoints (and Overlays, but this is deprecated in favour of using CSS classes) is achieved through a 'paintStyle' (or a quite similar name)
-			object passed as a parameter to one of jsPlumb.connect, jsPlumb.addEndpoint, jsPlumb.makeSource or jsPlumb.makeTarget. Depending on the method you are calling, the parameter names vary.
+			Defining the appearance of Connectors, Endpoints (and Overlays, but this is deprecated in favour of using CSS classes) is achieved through a 'paintStyle' (or a quite similar name...keep reading)
+			object passed as a parameter to one of jsPlumb.connect, jsPlumb.addEndpoint, jsPlumb.makeSource or jsPlumb.makeTarget. Depending on the method you are
+			calling, the parameter names vary.
 			<h5>Connector Paint Styles</h5>
 			These are specified in a <em>paintStyle</em> parameter on a call to <strong>jsPlumb.connect</strong>:
 			<div class="code">
@@ -2095,7 +1923,7 @@ The arguments are as follows:
 		
 			<div class="section">
 			<h3><a id="connectionInfo">Retrieving Connection Information</a></h3>
-			There are two ways of retrieving connection information from jsPlumb. <strong>getConnections</strong>is the original method; from 1.3.9 onwards this method is supplemented by <a href="#selectConnections">jsPlumb.select</a>, a much more versatile variant.
+			There are two ways of retrieving connection information from jsPlumb. <strong>getConnections</strong>is the original method; from 1.3.8 onwards this method is supplemented by <a href="#selectConnections">jsPlumb.select</a>, a much more versatile variant.
 			<h5>getConnections</h5>
 			<p>Before you use this method you should understand jsPlumb's notion of 'scope' - documentation
 			is <a href="#dragAndDropScope">here</a> </p>
@@ -2119,7 +1947,7 @@ The arguments are as follows:
 				<li>source - limits the returned connections to those that have this source id</li>
 				<li>target - limits the returned connections to those that have this target id</li>
 			</ul>			
-			Each of these three parameters may be supplied as a string, which for source and target is an element id and for scope is the name of the scope, or a list of strings.  Also from 1.3.9 you can pass "*" in as the value for any of these - a wildcard, meaning any value.  See the examples below.
+			Each of these three parameters may be supplied as a string, which for source and target is an element id and for scope is the name of the scope, or a list of strings.  Also from 1.3.8 you can pass "*" in as the value for any of these - a wildcard, meaning any value.  See the examples below.
 			<p>
 			The return value of a call to getConnection using a JS object as parameter varies on how many scopes you defined.  If you defined only a single scope then jsPlumb returns you a list of Connections in that scope.  Otherwise the return value is a dictionary whose keys are  scope names, and whose values are lists of Connections. For example, the following call:
 			</p>
@@ -2224,7 +2052,7 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 
 		<div class="section">
 			<h3><a id="selectConnections">Selecting Connections</a></h3>
-			Introduced in 1.3.9, <strong>jsPlumb.select</strong> provides a fluid interface for working with lists of Connections.  The syntax used to specify which Connections you want is identical to that which you use for getConnections, but the return value is an object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Connections in the selection along with the return value for that Connection.
+			Introduced in 1.3.8, <strong>jsPlumb.select</strong> provides a fluid interface for working with lists of Connections.  The syntax used to specify which Connections you want is identical to that which you use for getConnections, but the return value is an object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Connections in the selection along with the return value for that Connection.
 			<p>
 			This is the full list of setter operations supported by jsPlumb.select:
 			<ul>
@@ -2388,29 +2216,13 @@ in when dragging, and do not reflect static reality), and so the source/target p
 <p> Like I said above, this is really just for rubbish historical reasons.  I'm attempting to document my way out of it!</p>
 				
 				</li>
-
-				<li class="bullet"><strong>connectionDrag</strong> - notification an existing Connection is being dragged. The callback is passed the Connection.
-				</li> 
-
-				<li class="bullet"><strong>connectionDragStop</strong> - notification a Connection drag has stopped. This is only fired for existing Connections. The callback is passed the Connection that was just dragged.
-				</li> 
-
 				<li class="bullet"><strong>click</strong> - notification a Connection was clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>dblclick</strong> - notification a Connection was double-clicked.  The callback is passed the Connection and the original mouse event.</li>
 				<li class="bullet"><strong>endpointClick</strong> - notification an Endpoint was clicked.  The callback is passed the Endpoint and the original mouse event.</li>
 				<li class="bullet"><strong>endpointDblClick</strong> - notification an Endpoint was double-clicked.  The callback is passed the Endpoint and the original mouse event.</li>
 				<li class="bullet"><strong>contextmenu</strong> - a right-click on some given component.  jsPlumb will report right clicks on both Connections and Endpoints; the callback is passed the component that received the right-click.				
 				<li class="bullet"><strong>beforeDrop</strong>
-					This event is fired when a new or existing connection has been dropped. Your callback is passed a JS object with these fields:
-					<ul>
-						<li><strong>sourceId</strong> - the id of the source element in the connection</li>
-						<li><strong>targetId</strong> - the id of the target element in the connection</li>
-						<li><strong>scope</strong> - the scope of the connection</li>
-						<li><strong>connection</strong> - the actual Connection object.  You can access the 'endpoints' array in a Connection to get the Endpoints involved in the Connection, but be aware that when a Connection is being dragged, one of these Endpoints will always be a transient Endpoint that exists only for the life of the drag. To get the Endpoint on which the Connection is being dropped, use the 'dropEndpoint' member.</li>
-						<li><strong>dropEndpoint</strong> - this is the actual Endpoint on which the Connection is being dropped.  This <strong>may be null</strong>, because it will not be set if the Connection is being dropped on an element on which makeTarget has been called. </li>
-					</ul>
-
-					If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.
+					This event is fired when a new connection has been dropped. Your callback is passed a JS object with sourceId, targetId and scope in it. If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.
 				</li>					
 				<!--li class="bullet"><strong>beforeDrag</strong>
 					This event is fired when a new connection is about to be dragged.  Your callback function
@@ -2418,7 +2230,7 @@ in when dragging, and do not reflect static reality), and so the source/target p
 					from this callback, the new Connection is aborted.
 				</li-->
 				<li class="bullet"><strong>beforeDetach</strong>
-					This event is fired when a Connection is about to be detached, for whatever reason. Your callback function is passed the Connection that the user has just detached. Returning false from this interceptor aborts the Connection detach.
+					This event is fired when a Connection is about to be detached, for whatever reason. Your callback function is passed the Connection that jsPlumb has just created. Returning false from this interceptor aborts the Connection detach.
 				</li>
 							
 			</ul>
@@ -2463,28 +2275,18 @@ endpoint.bind("click", function(endpoint) {
 			constructor.  This is because you never actually act on an 'Overlay' object.  Here's how to register a click listener on an Overlay:
 			<div class="code">
 <pre>jsPlumb.connect({
-  source:"el1",
-  target:"el2",
-  overlays:[
-    [ "Label", {
-      events:{
-        click:function(labelOverlay, originalEvent) { 
-          console.log("click on label overlay for :" + labelOverlay.component); 
-        }
-      }
-    }],
-    [ "Diamond", {
-      events:{
-        dblclick:function(diamondOverlay, originalEvent) { 
-          console.log("double click on diamond overlay for : " + diamondOverlay.component); 
-        }
-      }
-    }] 	
-  ]
+	source:"el1",
+	target:"el2",
+	overlays:[
+		[ "Label", {
+			events:{
+				click:function(labelOverlay, originalEvent) { alert("you clicked on the label overlay for this connection :" + labelOverlay.connection) }
+			}
+		}] 	
+	]
 });
 </pre>			
 			</div>		
-		Note that events registered on Diamond, Arrow or PlainArrow overlays will not fire with the Canvas renderer - they work only with the SVG and VML renderers. 
 		</div>
 
 				<div class="section">
@@ -3033,11 +2835,8 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 		<div class="section">
 			<h3><a id="developingJsPlumb">Advanced Topics</a></h3>
 			<h4><a id="which">Which files are which?</a></h4>
-			In development, jsPlumb is broken up into nine scripts:
+			In development, jsPlumb is broken up into seven scripts:
 				<ul>
-					<li>- jsPlumb-util-x.x.x.js
-					<p>There are the jsPlumb utility functions (and some base classes).</p>					
-					</li>
 					<li>- jsPlumb-x.x.x.js
 					<p>This is the main jsPlumb engine.</p>					
 					</li>
@@ -3065,10 +2864,10 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 				</ul>
 			These seven files are packaged together to form the scripts that people use, for example:
 			<ul>
-				<li>jquery.jsPlumb-1.3.9-all.js
-				<p>Contains jsPlumb-1.3.9.js, jsPlumb-defaults-1.3.9.js, jsPlumb-renderers-canvas-1.3.9.js, jsPlumb-renderers-svg-1.3.9.js, jsPlumb-renderers-vml-1.3.9.js, jsPlumb-connectors-statemachine-1.3.9.js, jquery.jsPlumb-1.3.9.js and jsBezier-0.3-min.js</p>
+				<li>jquery.jsPlumb-1.3.8-all.js
+				<p>Contains jsPlumb-1.3.8.js, jsPlumb-defaults-1.3.8.js, jsPlumb-renderers-canvas-1.3.8.js, jsPlumb-renderers-svg-1.3.8.js, jsPlumb-renderers-vml-1.3.8.js, jsPlumb-connectors-statemachine-1.3.8.js, jquery.jsPlumb-1.3.8.js and jsBezier-0.3-min.js</p>
 				</li>
-				<li>jquery.jsPlumb-1.3.9-all-min.js
+				<li>jquery.jsPlumb-1.3.8-all-min.js
 				<p>A minified version of the script above (minified using the YUI Compressor)</p>
 				</li>
 			</ul>
