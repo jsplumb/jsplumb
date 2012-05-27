@@ -254,11 +254,12 @@
 		/**
 		 * initialises the given element to be draggable.
 		 */
-		initDraggable : function(el, options) {
+		initDraggable : function(el, options, isPlumbedComponent) {
 			options = options || {};
 			// remove helper directive if present.  
 			options.helper = null;
-			options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
+			if (isPlumbedComponent)
+				options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
 			el.draggable(options);
 		},
 		

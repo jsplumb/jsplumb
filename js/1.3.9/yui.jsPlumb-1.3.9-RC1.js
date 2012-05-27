@@ -273,18 +273,20 @@
 			return el.hasClass(clazz);
 		},
 				
-		initDraggable : function(el, options) {
+		initDraggable : function(el, options, isPlumbedComponent) {
 			var _opts = _getDDOptions(options),
 				id = jsPlumb.getId(el);
 			_opts.node = "#" + id;		
 			var dd = new Y.DD.Drag(_opts);
 			dd.el = el;	
 			
-			var scope = options['scope'] || jsPlumb.Defaults.Scope;
-			dd.scope = scope;
+			if (isPlumbedComponent) {
+				var scope = options['scope'] || jsPlumb.Defaults.Scope;
+				dd.scope = scope;
+				_add(_draggablesByScope, scope, dd);
+			}
 			
-			_draggablesById[id] = dd;
-			_add(_draggablesByScope, scope, dd);
+			_draggablesById[id] = dd;			
 			
 			_attachListeners(dd, options, ddEvents);
 		},
