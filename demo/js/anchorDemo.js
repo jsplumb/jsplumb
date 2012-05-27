@@ -34,7 +34,7 @@
             // make 'window1' a connection source.
 			jsPlumb.makeSource("window1", {
 				//anchor:sourceAnchors		// you could supply this if you want, but it was set in the defaults above.							
-			});
+			});			
 
             // get the list of ".smallWindow" elements.  getSelector is just a helper method that abstracts out the underlying
             // library; you don't need to use it - you could use $(".smallWindow") in jquery, $$(".smallWindow") in
@@ -49,10 +49,12 @@
 				});
 			}
 
-            // and finally connect a couple of small windows, just so the demo doesnt look broken when it loads.
-            // note that
+            // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           
             jsPlumb.connect({ source:"window1", target:"window5" });
             jsPlumb.connect({ source:"window1", target:"window2" });
+
+            // hand off to the library specific versions to attach listeners to the demo (anchorDemo-jquery.js etc)
+            jsPlumbDemo.attachListeners();
 		}
 	};	
 })();
