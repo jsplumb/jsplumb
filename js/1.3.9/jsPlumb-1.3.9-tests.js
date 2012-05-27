@@ -1190,6 +1190,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(e1.getLabel()(), "BAZ", "endpoint's label is correct");
 		equals(e1.getLabelOverlay().getLocation(), 0.1, "endpoint's label's location is correct");
 	});
+
+// ******************  makeTarget (and associated methods) tests ********************************************	
 	
 	test(renderMode + ": _jsPlumb.makeTarget (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
@@ -1341,7 +1343,132 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
 
-// *********************************************** 
+	// makeSource, then disable it. should not be able to make a connection from it.
+	test(renderMode + ": _jsPlumb.connect after makeSource and setSourceEnabled(false) (string id as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.setSourceEnabled(d17, false);
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+	});
+
+	// makeSource, then disable it. should not be able to make a connection from it.
+	test(renderMode + ": _jsPlumb.connect after makeSource and setSourceEnabled(false) (selector as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.setSourceEnabled($("div"), false);
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+	});
+
+	// makeSource, then toggle its enabled state. should not be able to make a connection from it.
+	test(renderMode + ": _jsPlumb.connect after makeSource and toggleSourceEnabled() (string id as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.toggleSourceEnabled(d17);
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+
+		_jsPlumb.toggleSourceEnabled(d17);
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);		
+	});
+
+	// makeSource, then disable it. should not be able to make a connection from it.
+	test(renderMode + ": _jsPlumb.connect after makeSource and toggleSourceEnabled() (selector as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.toggleSourceEnabled($("div"));
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+		_jsPlumb.toggleSourceEnabled($("div"));
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);		
+	});
+		
+	test(renderMode + ": jsPlumb.isSource and jsPlumb.isSourceEnabled", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		ok(_jsPlumb.isSource(d17) == true, "d17 is recognised as connection source");
+		ok(_jsPlumb.isSourceEnabled(d17) == true, "d17 is recognised as enabled");
+		_jsPlumb.setSourceEnabled(d17, false);
+		ok(_jsPlumb.isSourceEnabled(d17) == false, "d17 is recognised as disabled");
+	});
+
+	// makeSource, then disable it. should not be able to make a connection to it.
+	test(renderMode + ": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (string id as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeTarget(d17, { anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.setTargetEnabled(d17, false);
+		_jsPlumb.connect({source:e16, target:"d17"});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+	});
+
+	// makeTarget, then disable it. should not be able to make a connection to it.
+	test(renderMode + ": _jsPlumb.connect after makeTarget and setTargetEnabled(false) (selector as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeTarget(d17, { anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.setTargetEnabled($("div"), false);
+		_jsPlumb.connect({source:e16, target:"d17"});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+	});
+
+	// makeTarget, then toggle its enabled state. should not be able to make a connection to it.
+	test(renderMode + ": _jsPlumb.connect after makeTarget and toggleTargetEnabled() (string id as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeTarget(d17, { anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.toggleTargetEnabled(d17);
+		_jsPlumb.connect({source:e16, target:"d17"});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+
+		_jsPlumb.toggleTargetEnabled(d17);
+		_jsPlumb.connect({source:e16, target:"d17"});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);		
+	});
+
+	// makeTarget, then disable it. should not be able to make a connection to it.
+	test(renderMode + ": _jsPlumb.connect after makeTarget and toggleTargetEnabled() (selector as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeTarget(d17, { anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.toggleTargetEnabled($("div"));
+		_jsPlumb.connect({source:e16, target:"d17"});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+		_jsPlumb.toggleTargetEnabled($("div"));
+		_jsPlumb.connect({source:e16, target:"d17"});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);		
+	});
+		
+	test(renderMode + ": jsPlumb.isTarget and jsPlumb.isTargetEnabled", function() {
+		var d17 = _addDiv("d17"); 
+		_jsPlumb.makeTarget(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		ok(_jsPlumb.isTarget(d17) == true, "d17 is recognised as connection target");
+		ok(_jsPlumb.isTargetEnabled(d17) == true, "d17 is recognised as enabled");
+		_jsPlumb.setTargetEnabled(d17, false);
+		ok(_jsPlumb.isTargetEnabled(d17) == false, "d17 is recognised as disabled");
+	});
+
+// *********************** end of makeTarget (and associated methods) tests ************************ 
 	
 	test(renderMode + ': _jsPlumb.connect (between two Endpoints)', function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
