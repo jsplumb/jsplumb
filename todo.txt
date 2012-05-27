@@ -1,3 +1,13 @@
+future
+
+    - have a toFront and toBack method available on Connection (and on return value from jsPlumb.select method).
+    would require some notion of what the default zindex was. how best to do that?
+    - expose "rehomeEndpoint" method on jsPlumb (and 'rehome' on Endpoint); this takes an Endpoint and moves it
+    to a different parent. should take an optional second method to provide the Container to use.
+
+1.3.9
+    - do not set jsplumb scope on draggables when it's just some div you are making draggable. (issue 245) DONE
+
 1.3.5
        
     - refactor assigning endpoint styles into a common helper method    DONE    
@@ -14,7 +24,7 @@
 possible future enhancements
 
     - beforeDrag interceptor
-    - straight connector with continuous anchors disappears when horizontal or vertical
+    - straight connector with continuous anchors disappears when horizontal or vertical (fixed?)
     - single SVG element/single VML group/single Canvas per page?
     - qunit: add helper methods to simulate mousedown and drag.  then write some functional tests.
     - image overlay?
