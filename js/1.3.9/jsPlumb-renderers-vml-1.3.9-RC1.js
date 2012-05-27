@@ -367,7 +367,7 @@
 	
 	var AbstractVmlArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
-    	VmlComponent.apply(this, arguments);
+    	VmlComponent.apply(this, originalArgs);
     	var self = this, path = null;
     	self.canvas = null; 
     	self.isAppendedAtTopLevel = true;
@@ -414,6 +414,7 @@
 				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb);								
 				connector.appendDisplayElement(self.canvas, true);
 				self.attachListeners(self.canvas, connector);
+				self.attachListeners(self.canvas, self);
 			}
 			else {				
 				_pos(self.canvas, dim);
