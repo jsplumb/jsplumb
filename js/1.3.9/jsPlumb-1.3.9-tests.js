@@ -2381,7 +2381,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		source:d1, 
 	   	target:d2, 
 	   	anchors:["BottomCenter", [ 0.75,0,0,-1 ]], 
-	   	overlays : [ ["Label",  {label:"CONNECTION 1", location:0.3}],
+	   	overlays : [ ["Label",  {label:"CONNECTION 1", location:0.3, cssClass:"PPPP"}],
 					["Arrow", arrowSpec, loc] ]
 		});
 		equals(2, connection1.overlays.length);
@@ -2394,6 +2394,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		connection1.removeAllOverlays();
 		equals(0, connection1.overlays.length);
+		equals(0, $(".PPPP").length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect, specify arrow overlay using string identifier only", function() {
