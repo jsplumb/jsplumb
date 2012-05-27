@@ -196,7 +196,7 @@
             _ty = sourcePos[1] < targetPos[1] ? (lineWidth/2) : _h - (lineWidth/2);
                         
             _CP = self._findControlPoint([_sx,_sy], sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor);
-            _CP2 = self._findControlPoint([_tx,_ty], targetPos, sourcePos, sourceEndpoint, targetEndpoint, targetAnchor, sourceAnchor);                
+            _CP2 = self._findControlPoint([_tx,_ty], targetPos, sourcePos, targetEndpoint, sourceEndpoint, targetAnchor, sourceAnchor);                
             var minx1 = Math.min(_sx,_tx), minx2 = Math.min(_CP[0], _CP2[0]), minx = Math.min(minx1,minx2),
             	maxx1 = Math.max(_sx,_tx), maxx2 = Math.max(_CP[0], _CP2[0]), maxx = Math.max(maxx1,maxx2);
             
