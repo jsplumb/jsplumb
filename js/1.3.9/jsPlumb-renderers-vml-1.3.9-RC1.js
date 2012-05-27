@@ -425,6 +425,10 @@
     	this.reattachListeners = function() {
 			if (self.canvas) self.reattachListenersForElement(self.canvas, self);
 		};
+
+		this.cleanup = function() {
+    		if (self.canvas != null) jsPlumb.CurrentLibrary.removeElement(self.canvas);
+    	};
     };
 	
 	jsPlumb.Overlays.vml.Arrow = function() {

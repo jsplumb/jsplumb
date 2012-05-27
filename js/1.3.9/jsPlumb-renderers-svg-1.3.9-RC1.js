@@ -482,6 +482,9 @@
     	this.reattachListeners = function() {
 			if (path) self.reattachListenersForElement(path, self);
 		};
+		this.cleanup = function() {
+    		if (path != null) jsPlumb.CurrentLibrary.removeElement(path);
+    	};
     };
     
     jsPlumb.Overlays.svg.Arrow = function() {
