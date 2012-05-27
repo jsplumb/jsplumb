@@ -469,7 +469,7 @@
     
     var AbstractCanvasArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
-    	CanvasOverlay.apply(this, arguments);
+    	CanvasOverlay.apply(this, originalArgs);
     	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		var ctx = connector.ctx;
     		
