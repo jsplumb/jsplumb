@@ -159,7 +159,7 @@ jsPlumbUtil = {
 						try {
 							_listeners[event][i](value, originalEvent);
 						} catch (e) {
-							_log("jsPlumb: fire failed for event " + event + " : " + e);
+							jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
 						}
 					}
 				}
@@ -185,5 +185,19 @@ jsPlumbUtil = {
 		this.getListener = function(forEvent) {
 			return _listeners[forEvent];
 		};		
-	}
+	},
+	logEnabled : true,
+	log : function() {
+	    if (jsPlumbUtil.logEnabled && typeof console != "undefined") {
+            try {
+                var msg = arguments[arguments.length - 1];
+			    console.log(msg);
+            }
+            catch (e) {} 
+        }
+	},
+	group : function(g) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.group(g); },
+	groupEnd : function(g) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.groupEnd(g); },
+	time : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.time(t); },
+	timeEnd : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.timeEnd(t); }
 };
