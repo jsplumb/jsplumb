@@ -1468,6 +1468,55 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(_jsPlumb.isTargetEnabled(d17) == false, "d17 is recognised as disabled");
 	});
 
+	// makeSource, then unmake it. should not be able to make a connection from it. then connect to it, which should succeed,
+	// because jsPlumb will just add a new endpoint.
+	test(renderMode + ": jsPlumb.unmakeSource (string id as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		ok(_jsPlumb.isSource(d17) == true, "d17 is currently a source");
+		// unmake source
+		_jsPlumb.unmakeSource(d17);		
+		ok(_jsPlumb.isSource(d17) == false, "d17 is no longer a source");
+
+		// this should succeed, because d17 is no longer a source and so jsPlumb will just create and add a new endpoint to d17.
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);				
+	});
+
+	// maketarget, then unmake it. should not be able to make a connection to it. 
+	test(renderMode + ": jsPlumb.unmakeTarget (string id as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeTarget(d17, { isSource:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
+		ok(_jsPlumb.isTarget(d17) == true, "d17 is currently a target");
+		// unmake target
+		_jsPlumb.unmakeTarget(d17);		
+		ok(_jsPlumb.isTarget(d17) == false, "d17 is no longer a target");
+
+		// this should succeed, because d17 is no longer a target and so jsPlumb will just create and add a new endpoint to d17.
+		_jsPlumb.connect({source:e16, target:"d17"});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);				
+	});
+
+
+	test(renderMode + ": jsPlumb.removeEverySource and removeEveryTarget (string id as argument)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18");
+		_jsPlumb.makeSource(d16).makeTarget(d17).makeSource(d18);
+		ok(_jsPlumb.isSource(d16) == true, "d16 is a source");
+		ok(_jsPlumb.isTarget(d17) == true, "d17 is a target");
+		ok(_jsPlumb.isSource(d18) == true, "d18 is a source");
+
+		_jsPlumb.unmakeEverySource();
+		_jsPlumb.unmakeEveryTarget();
+
+		ok(_jsPlumb.isSource(d16) == false, "d16 is no longer a source");
+		ok(_jsPlumb.isTarget(d17) == false, "d17 is no longer a target");
+		ok(_jsPlumb.isSource(d18) == false, "d18 is no longer a source");
+	});
+
 // *********************** end of makeTarget (and associated methods) tests ************************ 
 	
 	test(renderMode + ': _jsPlumb.connect (between two Endpoints)', function() {
