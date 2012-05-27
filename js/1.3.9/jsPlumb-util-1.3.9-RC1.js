@@ -1,3 +1,21 @@
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.3.9
+ * 
+ * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
+ * elements, or VML.  
+ * 
+ * This file contains the util functions
+ *
+ * Copyright (c) 2010 - 2012 Simon Porritt (http://jsplumb.org)
+ * 
+ * http://jsplumb.org
+ * http://github.com/sporritt/jsplumb
+ * http://code.google.com/p/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 jsPlumbUtil = {
 	isArray : function(a) {
 		return Object.prototype.toString.call(a) === "[object Array]";	
