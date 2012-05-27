@@ -902,8 +902,7 @@
 					existingUniqueEndpoint = _sourceEndpoints[tid];				
 
 				if (tep) {
-
-					// if source not enabled, return.
+					// if source not enabled, return.					
 					if (!_sourcesEnabled[tid]) return;
 				
 					var newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.source, tep);
@@ -2368,6 +2367,24 @@ between this method and jsPlumb.reset).
 			for (var i = 0; i < inputs.length; i++) {			
 				_doOne(_getElementObject(inputs[i]));
 			}
+
+			return _currentInstance;
+		};
+
+		this.unmakeTarget = function(el, doNotClearArrays) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			var elid = _getId(el);			
+
+			// TODO this is not an exhaustive unmake of a target, since it does not remove the droppable stuff from
+			// the element.  the effect will be to prevent it form behaving as a target, but it's not completely purged.
+			if (!doNotClearArrays) {
+				delete _targetEndpointDefinitions[elid];
+				delete _targetEndpointsUnique[elid];
+				delete _targetMaxConnections[elid];
+				delete _targetsEnabled[elid];
+			}
+
+			return _currentInstance;
 		};
 		
 		/**
@@ -2410,6 +2427,7 @@ between this method and jsPlumb.reset).
 			_sourceEndpoints = {},
 			_sourceEndpointsUnique = {},
 			_sourcesEnabled = {},
+			_sourceTriggers = {},		
 			_targetsEnabled = {};
 
 		this.makeSource = function(el, params, referenceParams) {
@@ -2426,7 +2444,7 @@ between this method and jsPlumb.reset).
 				
 				_sourceEndpointDefinitions[idToRegisterAgainst] = p;
 				_sourceEndpointsUnique[idToRegisterAgainst] = p.uniqueEndpoint;
-				_sourcesEnabled[elid] = true;
+				_sourcesEnabled[idToRegisterAgainst] = true;
 
 				var stopEvent = jpcl.dragEvents["stop"],
 					dragEvent = jpcl.dragEvents["drag"],
@@ -2566,6 +2584,7 @@ between this method and jsPlumb.reset).
                
                 // register this on jsPlumb so that it can be cleared by a reset.
                 _currentInstance.registerListener(_el, "mousedown", mouseDownListener);
+                _sourceTriggers[elid] = mouseDownListener;
 			};
 			
 			el = _convertYUICollection(el);			
@@ -2575,19 +2594,87 @@ between this method and jsPlumb.reset).
 			for (var i = 0; i < inputs.length; i++) {			
 				_doOne(_getElementObject(inputs[i]));
 			}
+
+			return _currentInstance;
+		};
+
+		/**
+			Function:unmakeSource
+			Sets the given element to no longer be a connection source.
+			Parameters:
+			el - either a string id or a selector representing the element.
+			Returns:
+			The current jsPlumb instance.
+		*/
+		this.unmakeSource = function(el, doNotClearArrays) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			var id = _getId(el),
+				mouseDownListener = _sourceTriggers[id];
+			
+			if (mouseDownListener) 
+				_currentInstance.unregisterListener(_el, "mousedown", mouseDownListener);
+
+			if (!doNotClearArrays) {
+				delete _sourceEndpointDefinitions[id];
+				delete _sourceEndpointsUnique[id];
+				delete _sourcesEnabled[id];
+				delete _sourceTriggers[id];
+			}
+
+			return _currentInstance;
+		};
+
+		/**
+			Function: unmakeEverySource
+			Resets all elements in this instance of jsPlumb so that none of them are connection sources.
+			Returns:
+			The current jsPlumb instance.
+		*/
+		this.unmakeEverySource = function() {
+			for (var i in _sourcesEnabled)
+				_currentInstance.unmakeSource(i, true);
+
+			_sourceEndpointDefinitions = {};
+			_sourceEndpointsUnique = {};
+			_sourcesEnabled = {};
+			_sourceTriggers = {};
+		};
+
+		/**
+			Function: unmakeEveryTarget
+			Resets all elements in this instance of jsPlumb so that none of them are connection targets.
+			Returns:
+			The current jsPlumb instance.
+		*/
+		this.unmakeEveryTarget = function() {
+			for (var i in _targetsEnabled)
+				_currentInstance.unmakeTarget(i, true);
+			
+			_targetEndpointDefinitions = {};
+			_targetEndpointsUnique = {};
+			_targetMaxConnections = {};
+			_targetsEnabled = {};
+
+			return _currentInstance;
 		};
 		
 		/**
-		 * helper method to make a list of elements connection sources.
-		 * @param els
-		 * @param params
-		 * @param referenceParams
-		 * @return
+		 * Function: makeSources
+		 * Makes all elements in some array or a selector connection sources.
+		 * Parameters:
+		 * 	els 	- 	either an array of ids or a selector
+		 *  params  -   parameters to configure each element as a source with
+		 *  referenceParams - extra parameters to configure each element as a source with.
+		 *
+		 * Returns:
+		 * The current jsPlumb instance.
 		 */
 		this.makeSources = function(els, params, referenceParams) {
 			for ( var i = 0; i < els.length; i++) {
 				_currentInstance.makeSource(els[i], params, referenceParams);				
 			}
+
+			return _currentInstance;
 		};
 
 		// does the work of setting a source enabled or disabled.
@@ -2828,6 +2915,13 @@ between this method and jsPlumb.reset).
         this.registerListener = function(el, type, listener) {
             jsPlumb.CurrentLibrary.bind(el, type, listener);
             _addToList(_registeredListeners, type, {el:el, event:type, listener:listener});
+        };
+
+        this.unregisterListener = function(el, type, listener) {
+        	jsPlumb.CurrentLibrary.unbind(el, type, listener);
+        	_removeWithFunction(_registeredListeners, function(rl) {
+        		return rl.type == type && rl.listener == listener;
+        	});
         };
 
 		/*
