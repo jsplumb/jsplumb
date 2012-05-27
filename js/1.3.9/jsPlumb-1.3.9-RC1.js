@@ -71,20 +71,11 @@
 		_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
 		_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },		
 		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
-		_logEnabled = true,
-		_log = function() {
-		    if (_logEnabled && typeof console != "undefined") {
-                try {
-                    var msg = arguments[arguments.length - 1];
-				    console.log(msg);
-                }
-                catch (e) {} 
-            }
-		},
-		_group = function(g) { if (_logEnabled && typeof console != "undefined") console.group(g); },
-		_groupEnd = function(g) { if (_logEnabled && typeof console != "undefined") console.groupEnd(g); },
-		_time = function(t) { if (_logEnabled && typeof console != "undefined") console.time(t); },
-		_timeEnd = function(t) { if (_logEnabled && typeof console != "undefined") console.timeEnd(t); };				
+		_log = jsPlumbUtil.log,
+		_group = jsPlumbUtil.group,
+		_groupEnd = jsPlumbUtil.groupEnd,
+		_time = jsPlumbUtil.time,
+		_timeEnd = jsPlumbUtil.timeEnd,
 		
 		/**
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
@@ -131,9 +122,7 @@
 			},
 			this.setParameter = function(name, value) { parameters[name] = value; },
 			this.setParameters = function(p) { parameters = p; },			
-			this.overlayPlacements = [];
-			//this.paintStyle = null, 
-			//this.hoverPaintStyle = null;
+			this.overlayPlacements = [];			
 			
 			// user can supply a beforeDetach callback, which will be executed before a detach
 			// is performed; returning false prevents the detach.
@@ -434,7 +423,7 @@
 			this.removeAllOverlays = function() {
 				for (var i in self.overlays)
 					self.overlays[i].cleanup();
-					
+
 				self.overlays.splice(0, self.overlays.length);
 				self.repaint();
 			};
@@ -2517,7 +2506,7 @@ between this method and jsPlumb.reset).
 				// when the user presses the mouse, add an Endpoint, if we are enabled.
 				var mouseDownListener = function(e) {
 
-					if (!_sourcesEnabled[elid]) return;
+					if (!_sourcesEnabled[idToRegisterAgainst]) return;
 
 					// make sure we have the latest offset for this div 
 					var myOffsetInfo = _updateOffset({elId:elid});		
