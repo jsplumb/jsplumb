@@ -605,8 +605,9 @@ The allowed constructor parameters are different for each artifact you create, b
 			<p>The Straight Connector draws a straight line between the two endpoints. No constructor arguments are supported; use the <strong>endpointStyle</strong> and/or <strong>cssClass</strong>/<strong>connectorClass</strong> to a <strong>connect</strong>, <strong>addEndpoint</strong>, <strong>makeSource</strong> or <strong>makeTarget</strong> call to control the appearance of one of these Connectors.  
 			</p>
 			<h4><a id="flowchartConnector">Flowchart Connector</a></h4>
-			<p>This type of Connector draws a connection that consists of a series of vertical or horizontal segments - the classic flowchart look. A single constructor argument is supported:</p>
-			<strong>stub</strong> - this is the minimum length, in pixels, of the initial stub that emanates from an Endpoint.  This parameter is optional, and defaults to 30 pixels.
+			<p>This type of Connector draws a connection that consists of a series of vertical or horizontal segments - the classic flowchart look. Two constructor arguments are supported:</p>
+			<strong>stub</strong> - this is the minimum length, in pixels, of the initial stub that emanates from an Endpoint.  This parameter is optional, and defaults to 30 pixels.<br/>
+			<strong>gap</strong> - optional, defaults to 0 pixels. Lets you specify a gap between the end of the connector and the elements to which it is attached.
 			<p>This Connector supports Connection that start and end on the same element.</p>
 			<h4><a id="stateMachineConnector">State Machine Connector</a></h4>
 			<p>This Connector draws slightly curved lines (they are actually quadratic Bezier curves), similar to the State Machine connectors you may have seen in software like GraphViz.  Connections in which some element is both the source and the target (so-called 'loopback') are supported by these Connectors (as they are with Flowchart Connectors); in this case you get a circle. Supported parameters are:

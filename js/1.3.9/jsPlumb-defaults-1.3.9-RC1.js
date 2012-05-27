@@ -281,12 +281,14 @@
      * 
      * Parameters:
      * 	stub - minimum length for the stub at each end of the connector. defaults to 30 pixels. 
+     *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  defaults to 0 pixels.
      */
     jsPlumb.Connectors.Flowchart = function(params) {
     	this.type = "Flowchart";
     	params = params || {};
         var self = this, 
         	minStubLength = params.stub || params.minStubLength /* bwds compat. */ || 30, 
+            gap = params.gap || 0,
         	segments = [],
             totalLength = 0,
         	segmentProportions = [],
@@ -388,10 +390,10 @@
                 h = minWidth;
             }
 
-            var sx = swapX ? w-offx  : offx, 
-                sy = swapY ? h-offy  : offy, 
-                tx = swapX ? offx : w-offx ,
-                ty = swapY ? offy : h-offy,
+            var sx = swapX ? (w - offx) +( gap * so[0])  : offx + (gap * so[0]), 
+                sy = swapY ? (h - offy) + (gap * so[1])  : offy + (gap * so[1]), 
+                tx = swapX ? offx + (gap * to[0]) : (w - offx) + (gap * to[0]),
+                ty = swapY ? offy + (gap * to[1]) : (h - offy) + (gap * to[1]),
                 startStubX = sx + (so[0] * minStubLength), 
                 startStubY = sy + (so[1] * minStubLength),
                 endStubX = tx + (to[0] * minStubLength), 
@@ -409,7 +411,7 @@
             points = [x, y, w, h, sx, sy, tx, ty];
             var extraPoints = [];
       
-            addSegment(startStubX, startStubY, sx, sy, tx, ty);                   
+            addSegment(startStubX, startStubY, sx, sy, tx, ty);                               
                       
             var sourceAxis = so[0] == 0 ? "y" : "x",
                 anchorOrientation = opposite ? "opposite" : orthogonal ? "orthogonal" : "perpendicular",

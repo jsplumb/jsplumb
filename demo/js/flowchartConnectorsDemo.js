@@ -26,7 +26,9 @@
 			var connectorPaintStyle = {
 				lineWidth:5,
 				strokeStyle:"#deea18",
-				joinstyle:"round"
+				joinstyle:"round",
+				outlineColor:"white",
+				outlineWidth:7
 			},
 			// .. and this is the hover style. 
 			connectorHoverStyle = {
@@ -38,7 +40,7 @@
 				endpoint:"Dot",
 				paintStyle:{ fillStyle:"#225588",radius:7 },
 				isSource:true,
-				connector:[ "Flowchart", { stub:40 } ],
+				connector:[ "Flowchart", { stub:40, gap:10 } ],
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
