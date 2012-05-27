@@ -141,11 +141,23 @@
 			// user can supply a beforeDrop callback, which will be executed before a dropped
 			// connection is confirmed. user can return false to reject connection.
 			var beforeDrop = params.beforeDrop;
-			this.isDropAllowed = function(sourceId, targetId, scope) {
-				var r = self._jsPlumb.checkCondition("beforeDrop", { sourceId:sourceId, targetId:targetId, scope:scope });
+			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint) {
+				var r = self._jsPlumb.checkCondition("beforeDrop", { 
+					sourceId:sourceId, 
+					targetId:targetId, 
+					scope:scope,
+					connection:connection,
+					dropEndpoint:dropEndpoint 
+				});
 				if (beforeDrop) {
 					try { 
-						r = beforeDrop({ sourceId:sourceId, targetId:targetId, scope:scope }); 
+						r = beforeDrop({ 
+							sourceId:sourceId, 
+							targetId:targetId, 
+							scope:scope, 
+							connection:connection,
+							dropEndpoint:dropEndpoint
+						}); 
 					}
 					catch (e) { _log("jsPlumb: beforeDrop callback failed", e); }
 				}
@@ -1289,6 +1301,10 @@
 		 *         - *dblclick*						:	notification that a Connection was double clicked.  jsPlumb passes the Connection that was double clicked to the callback.
 		 *         - *endpointClick*				:	notification that an Endpoint was clicked.  jsPlumb passes the Endpoint that was clicked to the callback.
 		 *         - *endpointDblClick*				:	notification that an Endpoint was double clicked.  jsPlumb passes the Endpoint that was double clicked to the callback.
+		 *         - *beforeDrop*					: 	notification that a Connection is about to be dropped. Returning false from this method cancels the drop. jsPlumb passes { sourceId, targetId, scope, connection, dropEndpoint } to your callback. For more information, refer to the jsPlumb documentation.
+		 *         - *beforeDetach*					: 	notification that a Connection is about to be detached. Returning false from this method cancels the detach. jsPlumb passes the Connection to your callback. For more information, refer to the jsPlumb documentation.
+		 *		   - *connectionDrag* 				:   notification that an existing Connection is being dragged. jsPlumb passes the Connection to your callback function.
+		 *         - *connectionDragEnd*            :   notification that the drag of an existing Connection has ended.  jsPlumb passes the Connection to your callback function.
 		 *         
 		 *  callback - function to callback. This function will be passed the Connection/Endpoint that caused the event, and also the original event.    
 		 */
@@ -2250,7 +2266,7 @@ between this method and jsPlumb.reset).
 					
 					// check if drop is allowed here.					
 					//var _continue = jpc.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope);		
-					var _continue = proxyComponent.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope);		
+					var _continue = proxyComponent.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope, jpc, null);		
 					
 					// regardless of whether the connection is ok, reconfigure the existing connection to 
 					// point at the current info. we need this to be correct for the detach event that will follow.
@@ -2277,11 +2293,9 @@ between this method and jsPlumb.reset).
 					if (_continue) {
 					
 						// detach this connection from the source.						
-						source.detach(jpc, false, true, false);//source.endpointWillMoveAfterConnection);
+						source.detach(jpc, false, true, false);
 					
-						// make a new Endpoint for the target
-						//var newEndpoint = _currentInstance.addEndpoint(_el, _endpoint);
-						
+						// make a new Endpoint for the target												
 						var newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
 						if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
 						newEndpoint._makeTargetCreator = true;
@@ -2363,6 +2377,14 @@ between this method and jsPlumb.reset).
 			return _currentInstance;
 		};
 
+		/*
+		*	Function: unmakeTarget
+		*	Sets the given element to no longer be a connection target.
+		*	Parameters:
+		*	el - either a string id or a selector representing the element.
+		*	Returns:
+		*	The current jsPlumb instance.
+		*/
 		this.unmakeTarget = function(el, doNotClearArrays) {
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			var elid = _getId(el);			
@@ -2591,12 +2613,12 @@ between this method and jsPlumb.reset).
 		};
 
 		/**
-			Function:unmakeSource
-			Sets the given element to no longer be a connection source.
-			Parameters:
-			el - either a string id or a selector representing the element.
-			Returns:
-			The current jsPlumb instance.
+		*	Function: unmakeSource
+		*	Sets the given element to no longer be a connection source.
+		*	Parameters:
+		*	el - either a string id or a selector representing the element.
+		*	Returns:
+		*	The current jsPlumb instance.
 		*/
 		this.unmakeSource = function(el, doNotClearArrays) {
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
@@ -2616,11 +2638,11 @@ between this method and jsPlumb.reset).
 			return _currentInstance;
 		};
 
-		/**
-			Function: unmakeEverySource
-			Resets all elements in this instance of jsPlumb so that none of them are connection sources.
-			Returns:
-			The current jsPlumb instance.
+		/*
+		*	Function: unmakeEverySource
+		*	Resets all elements in this instance of jsPlumb so that none of them are connection sources.
+		*	Returns:
+		*	The current jsPlumb instance.
 		*/
 		this.unmakeEverySource = function() {
 			for (var i in _sourcesEnabled)
@@ -2632,11 +2654,11 @@ between this method and jsPlumb.reset).
 			_sourceTriggers = {};
 		};
 
-		/**
-			Function: unmakeEveryTarget
-			Resets all elements in this instance of jsPlumb so that none of them are connection targets.
-			Returns:
-			The current jsPlumb instance.
+		/*
+		*	Function: unmakeEveryTarget
+		*	Resets all elements in this instance of jsPlumb so that none of them are connection targets.
+		*	Returns:
+		*	The current jsPlumb instance.
 		*/
 		this.unmakeEveryTarget = function() {
 			for (var i in _targetsEnabled)
@@ -2650,7 +2672,7 @@ between this method and jsPlumb.reset).
 			return _currentInstance;
 		};
 		
-		/**
+		/*
 		 * Function: makeSources
 		 * Makes all elements in some array or a selector connection sources.
 		 * Parameters:
@@ -2684,7 +2706,7 @@ between this method and jsPlumb.reset).
 			return _currentInstance;
 		};
 
-		/**
+		/*
 			Function: setSourceEnabled
 			Sets the enabled state of one or more elements that were previously made a connection source with the makeSource
 			method.
@@ -2700,85 +2722,85 @@ between this method and jsPlumb.reset).
 			return _setEnabled("source", el, state);
 		};
 
-		/**
-			Function:toggleSourceEnabled
-			Toggles the source enabled state of the given element or elements.
-
-			Parameters:
-				el 	- 	either a string representing some element's id, or an array of ids, or a selector.
-				state - true to enable the element(s), false to disable it.
-
-			Returns:
-			The current enabled state of the source.
+		/*
+		*	Function: toggleSourceEnabled
+		*	Toggles the source enabled state of the given element or elements.
+		*
+		* 	Parameters:
+		*		el 	- 	either a string representing some element's id, or an array of ids, or a selector.
+		*		state - true to enable the element(s), false to disable it.
+		*
+		*	Returns:
+		*	The current enabled state of the source.
 		*/	
 		this.toggleSourceEnabled = function(el) {
 			_setEnabled("source", el, null, true);	
 			return _currentInstance.isSourceEnabled(el);
 		};
 
-		/**
-			Function: isSource
-			Returns whether or not the given element is registered as a connection source.
-
-			Parameters:
-				el 	- 	either a string id, or a selector representing a single element.
-
-			Returns:
-			True if source, false if not.
+		/*
+		*	Function: isSource
+		*	Returns whether or not the given element is registered as a connection source.
+		*
+		*	Parameters:
+		*		el 	- 	either a string id, or a selector representing a single element.
+		*
+		*	Returns:
+		*	True if source, false if not.
 		*/
 		this.isSource = function(el) {
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			return _sourcesEnabled[_getId(el)] != null;
 		};
 
-		/**
-			Function: isSourceEnabled
-			Returns whether or not the given connection source is enabled.
-
-			Parameters:
-				el 	- 	either a string id, or a selector representing a single element.
-
-			Returns:
-			True if enabled, false if not.
+		/*
+		*	Function: isSourceEnabled
+		*	Returns whether or not the given connection source is enabled.
+		*
+		*	Parameters:
+		*	el 	- 	either a string id, or a selector representing a single element.
+		*
+		*	Returns:
+		*	True if enabled, false if not.
 		*/
 		this.isSourceEnabled = function(el) {
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			return _sourcesEnabled[_getId(el)] === true;
 		};
 
-		/**
-			Function: setTargetEnabled
-			Sets the enabled state of one or more elements that were previously made a connection target with the makeTarget method.
-			method.
-
-			Parameters:
-				el 	- 	either a string representing some element's id, or an array of ids, or a selector.
-				state - true to enable the element(s), false to disable it.
-
-			Returns:
-			The current jsPlumb instance.
+		/*
+		*	Function: setTargetEnabled
+		*	Sets the enabled state of one or more elements that were previously made a connection target with the makeTarget method.
+		*	method.
+		*
+		*	Parameters:
+		*		el 	- 	either a string representing some element's id, or an array of ids, or a selector.
+		*		state - true to enable the element(s), false to disable it.
+		*
+		*	Returns:
+		*	The current jsPlumb instance.
 		*/
 		this.setTargetEnabled = function(el, state) {
 			return _setEnabled("target", el, state);
 		};
 
-		/**
-			Function:toggleTargetEnabled
-			Toggles the target enabled state of the given element or elements.
-
-			Parameters:
-				el 	- 	either a string representing some element's id, or an array of ids, or a selector.
-				state - true to enable the element(s), false to disable it.
-
-			Returns:
-			The current enabled state of the target.
+		/*
+		*	Function: toggleTargetEnabled
+		*	Toggles the target enabled state of the given element or elements.
+		*
+		*	Parameters:
+		*		el 	- 	either a string representing some element's id, or an array of ids, or a selector.
+		*		state - true to enable the element(s), false to disable it.
+		*
+		*	Returns:
+		*	The current enabled state of the target.
 		*/	
 		this.toggleTargetEnabled = function(el) {
 			return _setEnabled("target", el, null, true);	
 			return _currentInstance.isTargetEnabled(el);
 		};
 
-		/**
+		/*
 			Function: isTarget
 			Returns whether or not the given element is registered as a connection target.
 
@@ -2793,7 +2815,7 @@ between this method and jsPlumb.reset).
 			return _targetsEnabled[_getId(el)] != null;
 		};
 
-		/**
+		/*
 			Function: isTargetEnabled
 			Returns whether or not the given connection target is enabled.
 
@@ -4327,6 +4349,7 @@ between this method and jsPlumb.reset).
 			 *         - *dblclick*						:	notification that a Connection was double clicked.
 			 *         - *mouseenter*					:	notification that the mouse is over a Connection. 
 			 *         - *mouseexit*					:	notification that the mouse exited a Connection.
+			 * 		   - *contextmenu*                  :   notification that the user right-clicked on the Connection.
 			 *         
 			 *  callback - function to callback. This function will be passed the Connection that caused the event, and also the original event.    
 			 */
@@ -4337,6 +4360,12 @@ between this method and jsPlumb.reset).
 		     * 
 		     * Parameters:
 		     * 	style - Style to use.
+		     */
+
+		     /*
+		     * Function: getPaintStyle
+		     * Gets the Connection's paint style. This is not necessarily the paint style in use at the time;
+		     * this is the paint style for the connection when the mouse it not hovering over it.
 		     */
 			
 			/*
@@ -4571,6 +4600,7 @@ between this method and jsPlumb.reset).
 			 *         - *dblclick*						:	notification that a Endpoint was double clicked.
 			 *         - *mouseenter*					:	notification that the mouse is over a Endpoint. 
 			 *         - *mouseexit*					:	notification that the mouse exited a Endpoint.
+			 * 		   - *contextmenu*                  :   notification that the user right-clicked on the Endpoint.
 			 *         
 			 *  callback - function to callback. This function will be passed the Endpoint that caused the event, and also the original event.    
 			 */
@@ -4581,6 +4611,12 @@ between this method and jsPlumb.reset).
 		     * 
 		     * Parameters:
 		     * 	style - Style to use.
+		     */
+
+		     /*
+		     * Function: getPaintStyle
+		     * Gets the Endpoint's paint style. This is not necessarily the paint style in use at the time;
+		     * this is the paint style for the Endpoint when the mouse it not hovering over it.
 		     */
 			
 			/*
@@ -5417,13 +5453,12 @@ between this method and jsPlumb.reset).
 									jpc.target = self.element;
 									jpc.targetId = self.elementId;
 								}
-								
-								
+																
 								// now check beforeDrop.  this will be available only on Endpoints that are setup to
 								// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
 								// the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
 								// it only makes sense to have it on a target endpoint.
-								_doContinue = _doContinue && self.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope);
+								_doContinue = _doContinue && self.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, self);
 														
 								if (_doContinue) {
 									// remove this jpc from the current endpoint
@@ -5438,7 +5473,9 @@ between this method and jsPlumb.reset).
 										jpc.setParameter(aParam, params[aParam]);
 
 									if (!jpc.suspendedEndpoint) {  
-										_initDraggableIfNecessary(self.element, params.draggable, {});
+										//_initDraggableIfNecessary(self.element, params.draggable, {});
+										if (params.draggable)
+											jsPlumb.CurrentLibrary.initDraggable(self.element, dragOptions, true);
 									}
 									else {
 										var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
