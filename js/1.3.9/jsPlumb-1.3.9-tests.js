@@ -3633,6 +3633,23 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(jsPlumb.select().length, 0, "there are no connections");
 	});	
 
+// setPaintStyle/getPaintStyle tests
+
+	test(renderMode + " setPaintStyle", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), c = _jsPlumb.connect({source:d1, target:d2});
+		c.setPaintStyle({strokeStyle:"FOO", lineWidth:999});
+		equals(c.paintStyleInUse.strokeStyle, "FOO", "strokeStyle was set");
+		equals(c.paintStyleInUse.lineWidth, 999, "lineWidth was set");
+
+		c.setHoverPaintStyle({strokeStyle:"BAZ",  lineWidth:444});
+		c.setHover(true);
+		equals(c.paintStyleInUse.strokeStyle, "BAZ", "strokeStyle was set");
+		equals(c.paintStyleInUse.lineWidth, 444, "lineWidth was set");
+
+		equals(c.getPaintStyle().strokeStyle, "FOO", "getPaintStyle returns correct value");
+		equals(c.getHoverPaintStyle().strokeStyle, "BAZ", "getHoverPaintStyle returns correct value");
+	});	
+
 // ******************* getEndpoints ************************************************
 
 	test(renderMode + " getEndpoints", function() {
