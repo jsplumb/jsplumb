@@ -265,7 +265,7 @@
 	 * Base class for Vml Endpoints. extends VmlComponent.
 	 * 
 	 */
-	VmlEndpoint = function(params) {
+	VmlEndpoint = window.VmlEndpoint = function(params) {
 		VmlComponent.apply(this, arguments);
 		var vml = null, self = this, opacityStrokeNode = null, opacityFillNode = null;
 		self.canvas = document.createElement("div");
