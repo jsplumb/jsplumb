@@ -6,6 +6,54 @@
 	- clearListeners, fire and bind methods in jsPlumb, Connection and Endpoint now return themselves, so you
 	can use them in a 'fluent' style.
 
+	- paintStyle and hoverPaintStyle are no longer exposed on Endpoint or Connection.
+	- getPaintStyle and getHoverPaintStyle methods added to Endpoint and Connection.
+
+	- HoverClass added to jsPlumb defaults. 
+
+	- Several new methods added for working with targets and sources:
+
+		setTargetEnabled
+		setSourceEnabled
+
+		isTarget
+		isSource
+
+		toggleTargetEnabled
+		toggleSourceEnabled
+
+		isTargetEnabled
+		isSourceEnabled
+
+		unmakeSource 				(returns current jsPlumb instance)
+		unmakeTarget 				(returns current jsPlumb instance)
+
+		unmakeEverySource			(returns current jsPlumb instance)
+		unmakeEveryTarget			(returns current jsPlumb instance)
+
+	- makeSource and makeTarget now return the current jsPlumb instance.
+
+	- added optional 'gap' parameter to Flowchart connector params. Lets you leave a gap between the end of the connector and the element to which it is connected.
+
+	- SvgEndpoint and VmlEndpoint classes are now exposed on the DOM window, which allows for subclassing (eg. when you want to make your own Endpoints)
+
+	- removeAllOverlays was not cleaning up elements from the DOM properly. now fixed.
+
+	- added connectionDrag and connectionDragStop events to the jsPlumb object. These events are fired when an existing connection is dragged, and when that drag stops.  The only argument passed to a listener on these events is the Connection that is being or has just been dragged.
+
+	Issues
+
+	136 - diamond/arrow overlays do not fire mouse events (SVG/VML renderers only)
+	223 - extraneous IDs being created throughout the DOM
+	235 - add setTargetEnabled and related methods (see above)
+	233 - add getPaintStyle and getHoverPaintStyle to Connection and Endpoint.
+	238 - overlays in canvas renderer for state machine connectors not appearing in the correct position.
+	239 - document detachable/connectionsDetachable properly
+	242 - typo in docs about diamond overlay
+	244 - straight gradients rendered black or transparent
+	245 - should not set scope on nodes when making them draggable via jsPlumb.draggable.
+
+
 * 1.3.8
 
 
@@ -23,7 +71,7 @@
 	218 - IE max stylesheet limit
 	219 - connections made with makeSource and parent option were duplicated internally, skewing results from "select" and causing duplicate mouse events with the canvas renderer.
 	222 - allow VML in IE9
-	223 - extraneous IDs being created and assigned
+	223 - extraneous IDs being created and assigned (edit: was not fixed in 1.3.8.  in 1.3.9 instead.)
 	226 - image endpoint does not clean up image element from DOM on destroy.
 	227 - maxConnections ignored by makeTarget method
 	230 - array test fails when jsPlumb called from GWT
