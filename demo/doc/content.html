@@ -399,13 +399,14 @@ Now when you drag "container", jsPlumb will have noticed that there are nested e
 	
 			An Anchor models the notion of where on an element a Connector should connect.  There are three main types of Anchors:
 			<ul>
+			<li/>
 				<li class="bullet">'Static' anchors - these are fixed to some point on an element and do not move.  They can be specified using a string to
-				identify one of the defaults that jsPlumb ships with, or an array describing the location (see below)</li>
+				identify one of the defaults that jsPlumb ships with, or an array describing the location (see below)<br/><br/></li>				
 				<li class="bullet">'Dynamic' anchors - these are lists of Static anchors from which jsPlumb picks the most appropriate one each time a Connection
 				is painted.  The algorithm used to determine the most appropriate anchor picks the one that is closest to the center of the other element in
-				the Connection. A future version of jsPlumb might support a pluggable algorithm to make this decision.</li>
+				the Connection. A future version of jsPlumb might support a pluggable algorithm to make this decision.<br/><br/></li>
 				<li class="bullet">'Continuous' anchors - These anchors, introduced in 1.3.4, are not fixed to any specific loction; they are assigned to one of
-				the four faces of an element depending on that element's orientation to the other element in the associated Connection.  Continuous anchors are slightly more computationally intensive than Static or Dynamic anchors because jsPlumb is required to calculate the position of every Connection during a paint cycle, rather than just Connections belonging to the element in motion.  These anchors were designed for use with the StateMachine connector that was also introduced in 1.3.4, but will work with any combination of Connector and Endpoint.</li> 
+				the four faces of an element depending on that element's orientation to the other element in the associated Connection.  Continuous anchors are slightly more computationally intensive than Static or Dynamic anchors because jsPlumb is required to calculate the position of every Connection during a paint cycle, rather than just Connections belonging to the element in motion.  These anchors were designed for use with the StateMachine connector that was also introduced in 1.3.4, but will work with any combination of Connector and Endpoint.<br/><br/></li> 
 			</ul>  
 					
 			<h4><a id="staticAnchors">Static Anchors</a></h4>		
