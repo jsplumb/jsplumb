@@ -432,6 +432,9 @@
 			 * Removes all overlays from the Connection, and then repaints.
 			 */
 			this.removeAllOverlays = function() {
+				for (var i in self.overlays)
+					self.overlays[i].cleanup();
+					
 				self.overlays.splice(0, self.overlays.length);
 				self.repaint();
 			};
