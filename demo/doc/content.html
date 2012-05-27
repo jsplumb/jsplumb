@@ -1594,8 +1594,7 @@ console.log(params.p5);   	// 343
 		Endpoint.  But passing a 'beforeDrop' callback into an Endpoint (and in the future, registering one using 'bind') constrains that callback to just the
 		Endpoint in question.  		
 		<h4><a id="beforeDrop">Before Drop</a></h4>
-		This is called when the user has released the mouse button over a Connection target.  Your callback is passed the
-		a JS object containing these fields:
+		This is called when the user has released the mouse button over a Connection target.  Your callback is passed a JS object containing these fields:
 		<ul>
 			<li>sourceId</li>
 			<li>targetId</li>
@@ -1607,15 +1606,14 @@ console.log(params.p5);   	// 343
 		<p>Note that this interceptor is passed the actual Connection object; this is different from the beforeDrop
 		interceptor discussed above: in this case, we've already got a Connection, but with beforeDrop we are yet 
 		to confirm that a Connection should be created.</p>
-		<p>Returning false - or nothing - from this callback will cause the detach to be abandoned, and the Connection will be reinstated/left on its current target.</p>
+		<p>Returning false - or nothing - from this callback will cause the detach to be abandoned, and the Connection will be reinstated or left on its current target.</p>
 			
 	</div>
 
 		<div class="section">
 			<h3><a id="paintstyles">Paint Styles</a></h3>
-			Defining the appearance of Connectors, Endpoints (and Overlays, but this is deprecated in favour of using CSS classes) is achieved through a 'paintStyle' (or a quite similar name...keep reading)
-			object passed as a parameter to one of jsPlumb.connect, jsPlumb.addEndpoint, jsPlumb.makeSource or jsPlumb.makeTarget. Depending on the method you are
-			calling, the parameter names vary.
+			Defining the appearance of Connectors, Endpoints (and Overlays, but this is deprecated in favour of using CSS classes) is achieved through a 'paintStyle' (or a quite similar name)
+			object passed as a parameter to one of jsPlumb.connect, jsPlumb.addEndpoint, jsPlumb.makeSource or jsPlumb.makeTarget. Depending on the method you are calling, the parameter names vary.
 			<h5>Connector Paint Styles</h5>
 			These are specified in a <em>paintStyle</em> parameter on a call to <strong>jsPlumb.connect</strong>:
 			<div class="code">
@@ -2383,18 +2381,28 @@ endpoint.bind("click", function(endpoint) {
 			constructor.  This is because you never actually act on an 'Overlay' object.  Here's how to register a click listener on an Overlay:
 			<div class="code">
 <pre>jsPlumb.connect({
-	source:"el1",
-	target:"el2",
-	overlays:[
-		[ "Label", {
-			events:{
-				click:function(labelOverlay, originalEvent) { console.log("you clicked on the label overlay for this component :" + labelOverlay.component) }
-			}
-		}] 	
-	]
+  source:"el1",
+  target:"el2",
+  overlays:[
+    [ "Label", {
+      events:{
+        click:function(labelOverlay, originalEvent) { 
+          console.log("click on label overlay for :" + labelOverlay.component); 
+        }
+      }
+    }],
+    [ "Diamond", {
+      events:{
+        dblclick:function(diamondOverlay, originalEvent) { 
+          console.log("double click on diamond overlay for : " + diamondOverlay.component); 
+        }
+      }
+    }] 	
+  ]
 });
 </pre>			
 			</div>		
+		Note that events registered on Diamond, Arrow or PlainArrow overlays will not fire with the Canvas renderer - they work only with the SVG and VML renderers. 
 		</div>
 
 				<div class="section">
