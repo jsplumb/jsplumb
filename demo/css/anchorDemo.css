@@ -12,10 +12,15 @@
 	border-radius:0.6em; 
 }
 .smallWindow { background-color:#558822; }
+#enableDisableSource {
+	position:absolute;
+	top:1em;
+	left:15em;
+}
 #window1 { 
 	background-color:#225588; 
 	top:4em;
-	left:12em;
+	left:14em;
 	width:30em;
 	height:6em;
 }
