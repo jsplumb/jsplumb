@@ -45,15 +45,46 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			
 			
 			<h5>New Features</h5>
-				<ul>
-					<li class="bullet">Straight connector in Canvas renderer now supports simple dashstyle</li>
-				</ul>
+			<ul>
+				<li class="bullet">Straight connector in Canvas renderer now supports simple dashstyle</li>	
+				<li class="bullet">clearListeners, fire and bind methods in jsPlumb, Connection and Endpoint now return themselves, so you can use them in a 'fluent' style.</li>
+				<li class="bullet">paintStyle and hoverPaintStyle are no longer exposed on Endpoint or Connection.</li>
+				<li class="bullet">getPaintStyle and getHoverPaintStyle methods added to Endpoint and Connection.</li>
+				<li class="bullet">HoverClass added to jsPlumb defaults.</li> 
+				<li class="bullet">Several new methods added for working with targets and sources:
+					<ul>
+						<li>setTargetEnabled</li>
+						<li>setSourceEnabled</li>
+						<li>isTarget</li>
+						<li>isSource</li>
+						<li>toggleTargetEnabled</li>
+						<li>toggleSourceEnabled</li>
+						<li>isTargetEnabled</li>
+						<li>isSourceEnabled</li>
+						<li>unmakeSource</li>
+						<li>unmakeTarget</li>
+						<li>unmakeEverySource</li>
+						<li>unmakeEveryTarget</li>
+					</ul>
+				</li>
+				<li class="bullet">makeSource and makeTarget now return the current jsPlumb instance.</li>
+				<li class="bullet">added optional 'gap' parameter to Flowchart connector params. Lets you leave a gap between the end of the connector and the element to which it is connected.</li>
+				<li class="bullet">SvgEndpoint and VmlEndpoint classes are now exposed on the DOM window, which allows for subclassing (eg. when you want to make your own Endpoints)</li>
+				<li class="bullet">removeAllOverlays was not cleaning up elements from the DOM properly. now fixed.</li>
+				<li class="bullet">added connectionDrag and connectionDragStop events to the jsPlumb object. These events are fired when an existing connection is dragged, and when that drag stops.  The only argument passed to a listener on these events is the Connection that is being or has just been dragged.</li>
+			</ul>
 
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li class="bullet">
-					<strong></strong>
-				</li>
+				<li class="bullet"><strong>136</strong> - diamond/arrow overlays do not fire mouse events (SVG/VML renderers only)</li>
+				<li class="bullet"><strong>223</strong> - extraneous IDs being created throughout the DOM</li>
+				<li class="bullet"><strong>235</strong> - add setTargetEnabled and related methods</li>
+				<li class="bullet"><strong>233</strong> - add getPaintStyle and getHoverPaintStyle to Connection and Endpoint.</li>
+				<li class="bullet"><strong>238</strong> - overlays in canvas renderer for state machine connectors not appearing in the correct position.</li>
+				<li class="bullet"><strong>239</strong> - document detachable/connectionsDetachable properly</li>
+				<li class="bullet"><strong>242</strong> - typo in docs about diamond overlay</li>
+				<li class="bullet"><strong>244</strong> - straight gradients rendered black or transparent</li>
+				<li class="bullet"><strong>245</strong> - should not set scope on nodes when making them draggable via jsPlumb.draggable.</li>		
 			</ul>
 			
 		</div>
@@ -1417,6 +1448,47 @@ var exampleGreyEndpointOptions = {
 };
 </pre>
 </div>
+<h5><a id="targetSourceTest">Testing if an element is a target or source</a></h5>
+You can test if some element has been made a connection source or target using these methods:
+<ul>
+<li class="bullet">isTarget</li>
+<li class="bullet">isSource</li>
+</ul>
+<p>The return value is a boolean.</p>
+<h5><a id="targetSourceToggle">Toggling an element as connection target or source</a></h5>
+You can toggle the state of some source or target using these methods:
+<ul>
+<li class="bullet">setTargetEnabled</li>
+<li class="bullet">setSourceEnabled</li>
+</ul>
+<p>The return value from these methods is the current jsPlumb instance, allowing you to chain them:</p>
+<div class="code">
+<pre>
+jsPlumb.setTargetEnabled("aDivId").setSourceEnabled($(".aSelector"));
+</pre>
+</div>
+<p>Note that if you call either of these methods on an element that was not originally configured as a target or source, nothing will happen.</p>
+<p>You can check the enabled state of some target or source using these methods:
+<ul>
+<li class="bullet">isTargetEnabled</li>
+<li class="bullet">isSourceEnabled</li>
+</ul>
+<h5><a id="targetSourceCancel">Canceling previous makeTarget and/or makeSource calls</a></h5>
+jsPlumb offers four methods to let you cancel previous makeTarget or makeSource calls. Each of these methods returns the current jsPlumb instance, and so can be chained:
+<ul>
+<li class="bullet">unmakeTarget</li>
+<li class="bullet">unmakeSource</li>
+<li class="bullet">unmakeEveryTarget</li>
+<li class="bullet">unmakeEverySource</li>
+</ul>
+<p>These last two are analogous to the <strong>removeEveryConnection</strong> and <strong>removeEveryEndpoint</strong> methods that have been in jsPlumb for a while now.</p>
+<p>unmakeTarget and unmakeSource both take as argument the same sorts of values that makeTarget and makeSource accept - a string id, or a selector, or an array of either of these:</p>
+<div class="code">
+<pre>
+jsPlumb.unmakeTarget("aDivId").unmakeSource($(".aSelector"));
+</pre>
+</div>
+
 
 <h5><a id="dragOptions">Drag Options</a></h5>
 	These are options that will be passed through to the supporting library's drag API.  jsPlumb passes everything you supply here through, inserting
@@ -1593,15 +1665,18 @@ console.log(params.p5);   	// 343
 		Note that binding 'beforeDrop' (as an example) on jsPlumb itself is like a catch-all: it will be called every time a Connection is dropped on _any_ 
 		Endpoint.  But passing a 'beforeDrop' callback into an Endpoint (and in the future, registering one using 'bind') constrains that callback to just the
 		Endpoint in question.  		
-		<h4><a id="beforeDrop">Before Drop</a></h4>
-		This is called when the user has released the mouse button over a Connection target.  Your callback is passed a JS object containing these fields:
+		<h4><a id="beforeDrop">beforeDrop</a></h4>
+		This event is fired when a new or existing connection has been dropped. Your callback is passed a JS object with these fields:
 		<ul>
-			<li>sourceId</li>
-			<li>targetId</li>
-			<li>scope</li>
+			<li><strong>sourceId</strong> - the id of the source element in the connection</li>
+			<li><strong>targetId</strong> - the id of the target element in the connection</li>
+			<li><strong>scope</strong> - the scope of the connection</li>
+			<li><strong>connection</strong> - the actual Connection object.  You can access the 'endpoints' array in a Connection to get the Endpoints involved in the Connection, but be aware that when a Connection is being dragged, one of these Endpoints will always be a transient Endpoint that exists only for the life of the drag. To get the Endpoint on which the Connection is being dropped, use the 'dropEndpoint' member.</li>
+			<li><strong>dropEndpoint</strong> - this is the actual Endpoint on which the Connection is being dropped.  This <strong>may be null</strong>, because it will not be set if the Connection is being dropped on an element on which makeTarget has been called. </li>
 		</ul>
-		<p>Returning false - or nothing - from this callback will cause the drag to be abandoned, and the new Connection removed from the UI.</p>
-		<h4><a id="beforeDetach">Before Detach</a></h4>
+
+		If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.
+		<h4><a id="beforeDetach">beforeDetach</a></h4>
 		This is called when the user has detached a Connection, which can happen for a number of reasons: by default, jsPlumb allows users to drag Connections off of target Endpoints, but this can also result from a programmatic 'detach' call.  Every case is treated the same by jsPlumb, so in fact it is possible for you to write code that attempts to detach a Connection but then denies itself!  You might want to be careful with that. 
 		<p>Note that this interceptor is passed the actual Connection object; this is different from the beforeDrop
 		interceptor discussed above: in this case, we've already got a Connection, but with beforeDrop we are yet 
@@ -2310,16 +2385,10 @@ in when dragging, and do not reflect static reality), and so the source/target p
 				
 				</li>
 
-				<li class="bullet"><strong>connectionDrag</strong> - notification a Connection is being dragged.
-				
-					TODO!
-				
+				<li class="bullet"><strong>connectionDrag</strong> - notification an existing Connection is being dragged. The callback is passed the Connection.
 				</li> 
 
-				<li class="bullet"><strong>connectionDragStop</strong> - notification a Connection drag has stopped.
-				
-					TODO!
-				
+				<li class="bullet"><strong>connectionDragStop</strong> - notification a Connection drag has stopped. This is only fired for existing Connections. The callback is passed the Connection that was just dragged.
 				</li> 
 
 				<li class="bullet"><strong>click</strong> - notification a Connection was clicked.  The callback is passed the Connection and the original mouse event.</li>
@@ -2328,7 +2397,16 @@ in when dragging, and do not reflect static reality), and so the source/target p
 				<li class="bullet"><strong>endpointDblClick</strong> - notification an Endpoint was double-clicked.  The callback is passed the Endpoint and the original mouse event.</li>
 				<li class="bullet"><strong>contextmenu</strong> - a right-click on some given component.  jsPlumb will report right clicks on both Connections and Endpoints; the callback is passed the component that received the right-click.				
 				<li class="bullet"><strong>beforeDrop</strong>
-					This event is fired when a new connection has been dropped. Your callback is passed a JS object with sourceId, targetId and scope in it. If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.
+					This event is fired when a new or existing connection has been dropped. Your callback is passed a JS object with these fields:
+					<ul>
+						<li><strong>sourceId</strong> - the id of the source element in the connection</li>
+						<li><strong>targetId</strong> - the id of the target element in the connection</li>
+						<li><strong>scope</strong> - the scope of the connection</li>
+						<li><strong>connection</strong> - the actual Connection object.  You can access the 'endpoints' array in a Connection to get the Endpoints involved in the Connection, but be aware that when a Connection is being dragged, one of these Endpoints will always be a transient Endpoint that exists only for the life of the drag. To get the Endpoint on which the Connection is being dropped, use the 'dropEndpoint' member.</li>
+						<li><strong>dropEndpoint</strong> - this is the actual Endpoint on which the Connection is being dropped.  This <strong>may be null</strong>, because it will not be set if the Connection is being dropped on an element on which makeTarget has been called. </li>
+					</ul>
+
+					If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.
 				</li>					
 				<!--li class="bullet"><strong>beforeDrag</strong>
 					This event is fired when a new connection is about to be dragged.  Your callback function
@@ -2336,7 +2414,7 @@ in when dragging, and do not reflect static reality), and so the source/target p
 					from this callback, the new Connection is aborted.
 				</li-->
 				<li class="bullet"><strong>beforeDetach</strong>
-					This event is fired when a Connection is about to be detached, for whatever reason. Your callback function is passed the Connection that jsPlumb has just created. Returning false from this interceptor aborts the Connection detach.
+					This event is fired when a Connection is about to be detached, for whatever reason. Your callback function is passed the Connection that the user has just detached. Returning false from this interceptor aborts the Connection detach.
 				</li>
 							
 			</ul>
