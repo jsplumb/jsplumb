@@ -762,7 +762,7 @@ The allowed constructor parameters are different for each artifact you create, b
 					<h4><a id="plainArrowOverlay">PlainArrow Overlay</a></h4>
 					<p>This is just a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 1, meaning the tail of the Arrow is a flat edge.  All of the constructor parameters from Arrow apply for PlainArrow.</p>
 					<h4><a id="diamondOverlay">Diamond Overlay</a></h4>
-					<p>This is a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 2, meaning the Arrow turns into a Diamond.  All of the constructor parameters from Arrow apply for PlainArrow.</p>
+					<p>This is a specialized instance of Arrow in which jsPlumb hardcodes 'foldback' to 2, meaning the Arrow turns into a Diamond.  All of the constructor parameters from Arrow apply for Diamond.</p>
 					<h4><a id="labelOverlay">Label Overlay</a></h4>
 					This provides a text label to decorate Connectors with.  The available constructor arguments are:
 					<ul>
@@ -1078,7 +1078,32 @@ jsPlumb.connect({
 	deleteEndpointsOnDetach:false 
 });
 </pre>
-</div>								
+</div>	
+
+	<h5>Detaching Connections</h5>
+	By default, connections made with jsPlumb.connect will be detachable via the mouse.  You can prevent this by either setting an appropriate default value:
+
+		<div class="code">
+<pre>
+jsPlumb.importDefaults({ 
+	...
+	ConnectionsDetachable:false
+	...
+});
+</pre>
+</div>	
+
+	Or by specifying it on the connect call like this:
+		<div class="code">
+<pre>
+jsPlumb.connect({ 
+	source:"aThirdElement", 
+	target:"yetAnotherElement",
+	detachable:false
+});
+</pre>
+</div>		
+								
 					
 		<h4><a id="draggableConnections">Connections using Drag and Drop</a></h4>
 		To support drag and drop connections, you first need to set a few things up.  Every drag and drop connection needs at least a source
@@ -1217,6 +1242,41 @@ jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 </pre>		
 		</div>
 In this setup we have told jsPlumb to create an Endpoint the first time "aTargetElement" is connected to, and to not delete it even if there are no longer any Connections to it.  The created Endpoint will be reused for subsequent Connections, and can support a maximum of 5.
+
+<h5>Detaching connections made with the mouse</h5>
+As with jsPlumb.connect, connections made with the mouse after setting up Endpoints with one of the functions we've just covered will be, by default, detachable.  You can prevent this in the jsPlumb defaults, as previously mentioned:
+		<div class="code">
+<pre>jsPlumb.importDefaults({ 
+	...
+	ConnectionsDetachable:false,
+	...
+});
+</pre>		
+		</div>
+
+	And you can also set this on a per-endpoint (or source/target) level, like in these examples:
+
+		<div class="code">
+<pre>jsPlumb.addEndpoint("someElementId", { 
+	connectionsDetachable:false	
+});
+
+jsPlumb.makeSource("someOtherElement", {
+	...
+	connectionsDetachable:false,
+	...
+});
+
+jsPlumb.makeTarget("yetAnotherElement", {
+	...
+	connectionsDetachable:false,
+	...
+});
+</pre>		
+		</div>
+
+Note that in the jsPlumb defaults, by convention each word in a parameter is capitalised ("ConnectionsDetachable"), whereas for a call to one of these methods, we use camel case ("connectionsDetachable").
+
 
 <h5>Target Anchors positions with makeTarget</h5>
 <p>When using the makeTarget method, jsPlumb allows you to provide a callback function to be used to determine
@@ -1445,6 +1505,78 @@ var exampleGreyEndpointOptions = {
 </div>  
 			
 	</div>	
+
+	<div class="section">
+		<h3><a id="parameters">Connection Parameters</a></h3>
+		jsPlumb has a mechanism that allows you to set parameters on a per-connection basis.  This can be achieved in a few different ways:
+
+		<ul>
+			<li class="bullet">Providing parameters to a jsPlumb.connect call</li>
+			<li class="bullet">Providing parameters to an addEndpoint call to/from which a connection is subsequently established using the mouse</li>
+			<li class="bullet">using the <strong>setParameter</strong> or <strong>setParameters</strong> method on a Connection</li>
+		</ul>
+		Getting parameters is achieved through either the <strong>getParameter(key)</strong> or <strong>getParameters</strong> method on a Connection.
+		<h4><a id="connectParameters">jsPlumb.connect</a></h4>
+		Parameters can be passed in via an object literal to a jsPlumb.connect call:
+		<div class="code">
+<pre>var myConnection = jsPlumb.connect({
+	source:"foo",
+	target:"bar",
+	parameters:{
+		"p1":34,
+		"p2":new Date(),
+		"p3":function() { console.log("i am p3"); }
+	}
+});
+</pre>
+</div>
+Note that they can be any valid Javascript objects - it's just an object literal.  You then access them like this:
+		<div class="code">
+<pre>myConnection.getParameter("p3")();     // prints 'i am p3' to the console.
+</pre>
+</div>
+
+<h4><a id="addEndpointParameters">jsPlumb.addEndpoint</a></h4>
+<p>The information in this section also applies to the <strong>makeSource</strong> and <strong>makeTarget</strong> functions</p>
+<p>Using jsPlumb.addEndpoint, you can set parameters that will be copied in to any Connections that are established from or to the given Endpoint using the mouse.  (If you set parameters on both a source and target Endpoints and then connect them, the parameters set on the target Endpoint are copied in first, followed by those on the source. So the source Endpoint's parameters take precedence if they happen to have one or more with the same keys as those in the target).</p>
+Consider this example:
+		<div class="code">
+<pre>var e1 = jsPlumb.addEndpoint("d1", {
+	isSource:true,
+	parameters:{
+		"p1":34,
+		"p2":new Date(),
+		"p3":function() { console.log("i am p3"); }
+	}
+});
+
+var e2 = jsPlumb.addEndpoint("d2", {
+	isTarget:true,
+	parameters:{
+		"p5":343,
+		"p3":function() { console.log("FOO FOO FOO"); }
+	}
+});
+
+var conn = jsPlumb.connect({source:e1, target:e2});
+
+
+</pre>
+</div>
+
+'conn' will have four parameters set on it, with the value for "p3" coming from the source Endpoint:
+		<div class="code">
+<pre>var params = conn.getParameters();
+console.log(params.p1);   	// 34
+console.log(params.p2);   	// Mon May 14 2012 12:57:12 GMT+1000 (EST) (or however your console prints out a Date)
+console.log((params.p3)()); // "i am p3"  (note: we executed the function after retrieving it)
+console.log(params.p5);   	// 343
+
+</pre>
+</div>
+
+
+</div> <!-- /section -->
 	
 	<div class="section">
 		<h3><a id="beforeDrop">Interceptors</a></h3>
