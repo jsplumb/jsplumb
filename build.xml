@@ -368,8 +368,8 @@
 		<replace dir="demo/yui3" token="${old}" value="${new}"/>
 		<replace dir="demo/mootools" token="${old}" value="${new}"/>
 
-		<!-- replace in README -->
-		<replace file="README.md" token="latest version is ${old}" value="latest version is ${new}"/>
+		<!-- replace in README >
+		<replace file="README.md" token="latest version is ${old}" value="latest version is ${new}"/-->
 
 	</target>
 	
