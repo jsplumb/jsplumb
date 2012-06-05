@@ -2501,8 +2501,10 @@ between this method and jsPlumb.reset).
 							var parent = jpcl.getElementObject(p.parent);
 							if (parent) {	
 								var currentId = ep.elementId;
+											
+								var potentialParent = p.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;			
 																
-								ep.setElement(parent);
+								ep.setElement(parent, potentialParent);
 								ep.endpointWillMoveAfterConnection = false;														
 								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);													
 								oldConnection.previousConnection = null;
@@ -2563,7 +2565,7 @@ between this method and jsPlumb.reset).
 					// the user has specified a 'container' on the endpoint definition or on 
 					// the defaults, we should use that.
 					if (p.parent) {
-						var potentialParent = tempEndpointParams.container || _currentInstance.Defaults.Container;
+						var potentialParent = tempEndpointParams.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 						if (potentialParent)
 							tempEndpointParams.container = potentialParent;
 						else
@@ -4955,7 +4957,7 @@ between this method and jsPlumb.reset).
 			 * Function: setElement
 			 * Sets the DOM element this Endpoint is attached to.  
 			 */
-			this.setElement = function(el) {
+			this.setElement = function(el, container) {
 
 				// TODO possibly have this object take charge of moving the UI components into the appropriate
 				// parent.  this is used only by makeSource right now, and that function takes care of
@@ -4969,7 +4971,7 @@ between this method and jsPlumb.reset).
 				_elementId = _getId(_element);
 				self.elementId = _elementId;
 				// need to get the new parent now
-				var newParentElement = _getParentFromParams({source:parentId}),
+				var newParentElement = _getParentFromParams({source:parentId, container:container}),
 				curParent = jpcl.getParent(self.canvas);
 				jpcl.removeElement(self.canvas, curParent);
 				jpcl.appendElement(self.canvas, newParentElement);								
