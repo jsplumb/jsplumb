@@ -1,6 +1,6 @@
 # jsPlumb
 jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or 
-Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.8.
+Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.9.
 
 The project started out life on Google Code and has been hosted there for the last two years; from version 
 1.3.4 onwards it also lives here on GitHub. The source repo is now being synchronised between the two.  I did
