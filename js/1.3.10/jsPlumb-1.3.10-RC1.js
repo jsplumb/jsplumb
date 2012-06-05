@@ -3106,14 +3106,15 @@ between this method and jsPlumb.reset).
 			else 
 				return;
 			if (mode !== jsPlumb.CANVAS && mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new Error("render mode must be one of jsPlumb.CANVAS, jsPlumb.SVG or jsPlumb.VML");
-			// now test we actually have the capability to do this.
-			if (mode === jsPlumb.CANVAS && canvasAvailable) 
-				renderMode = jsPlumb.CANVAS;
-			else if (mode === jsPlumb.SVG && svgAvailable)
-				renderMode = jsPlumb.SVG;
-			else if (vmlAvailable())
-				renderMode = jsPlumb.VML;		
-			
+			// now test we actually have the capability to do this.						
+			if (mode === jsPlumb.SVG) {
+				if (svgAvailable) renderMode = jsPlumb.SVG
+				else if (canvasAvailable) renderMode = jsPlumb.CANVAS
+				else if (vmlAvailable()) renderMode = jsPlumb.VML
+			}
+			else if (mode === jsPlumb.CANVAS && canvasAvailable) renderMode = jsPlumb.CANVAS;
+			else if (vmlAvailable()) renderMode = jsPlumb.VML;
+
 			return renderMode;
 		};
 		
