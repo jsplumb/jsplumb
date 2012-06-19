@@ -190,7 +190,7 @@ jsPlumbUtil = {
 		 * Parameters:
 		 * 	event	-	optional. constrains the clear to just listeners for this event.
 		 */
-		this.clearListeners = function(event) {
+		this.unbind = function(event) {
 			if (event)
 				delete _listeners[event];
 			else {

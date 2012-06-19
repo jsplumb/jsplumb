@@ -2485,6 +2485,28 @@ endpoint.bind("click", function(endpoint) {
 </pre>			
 			</div>		
 		Note that events registered on Diamond, Arrow or PlainArrow overlays will not fire with the Canvas renderer - they work only with the SVG and VML renderers. 
+
+
+		<h4><a id="jsPlumbEvents">Unbinding Events</a></h4>
+		<p>On the jsPlumb object and on Connections and Endpoints, you can use the <strong>unbind</strong> method to remove a listener.  This method either takes the name of the event to unbind:
+		<div class="code">
+<pre>
+jsPlumb.unbind("click");
+</pre>
+</div>		
+...or no argument, meaning unbind all events:
+	<div class="code">
+<pre>
+var e = jsPlumb.addEndpoint("someDiv");
+e.bind("click", function() { ... });
+e.bind("dblclick", function() { ... });
+
+...
+
+e.unbind("click");
+</pre>
+</div>
+
 		</div>
 
 				<div class="section">
@@ -2975,13 +2997,7 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 					<div class="code">
 						<pre>jsPlumb.setDraggable(["window1","window2"], false);</pre>
 					</div>
-				</li>
-				<li>Sets whether or not elements that are connected are draggable by default.
-				The default for this is true.
-					<div class="code">
-						<pre>jsPlumb.setDraggableByDefault(false);</pre>
-					</div>
-				</li>
+				</li>				
 				<li>Initialises window1 as a draggable element (all libraries). Passes in an on drag callback
 				<div class="code">
 					<pre>jsPlumb.draggable("window1");</pre>

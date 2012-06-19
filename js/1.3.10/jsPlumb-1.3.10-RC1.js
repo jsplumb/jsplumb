@@ -1310,7 +1310,7 @@
 		 */
 		
 		/*
-		 * Function: clearListeners
+		 * Function: unbind
 		 * Clears either all listeners, or listeners for some specific event.
 		 * 
 		 * Parameters:
@@ -2946,7 +2946,7 @@ between this method and jsPlumb.reset).
 		 */
 		this.reset = function() {			
 			_currentInstance.deleteEveryEndpoint();
-			_currentInstance.clearListeners();
+			_currentInstance.unbind();
 			_targetEndpointDefinitions = {};
 			_targetEndpoints = {};
 			_targetEndpointsUnique = {};
