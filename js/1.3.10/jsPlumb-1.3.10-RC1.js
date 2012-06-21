@@ -497,7 +497,8 @@
 			 * Sets the Connection's label.  
 			 * 
 			 * Parameters:
-			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }
+			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep
+         * that in mind if you need escaped HTML.
 			 */
 			this.setLabel = function(l) {
 				var lo = self.getOverlay(_internalLabelOverlayId);

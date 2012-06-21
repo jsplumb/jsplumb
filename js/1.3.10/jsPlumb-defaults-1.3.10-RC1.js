@@ -1023,7 +1023,8 @@
     	 * Function: setLabel
     	 * sets the label's, um, label.  you would think i'd call this function
     	 * 'setText', but you can pass either a Function or a String to this, so
-    	 * it makes more sense as 'setLabel'.
+    	 * it makes more sense as 'setLabel'. This uses innerHTML on the label div, so keep
+         * that in mind if you need escaped HTML.
     	 */
     	this.setLabel = function(l) {
     		label = l;
