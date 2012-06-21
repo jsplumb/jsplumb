@@ -817,6 +817,76 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d3, target:d4});
 		ok(returnedParams != null, "new connection listener event was fired; we threw an error, _jsPlumb survived.");
 	});
+
+	test(renderMode + ': unbinding connection event listeners, connection', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var count = 0;
+		_jsPlumb.bind("jsPlumbConnection", function(params) {
+			count++;
+		});
+		var c = _jsPlumb.connect({source:d1, target:d2});
+		ok(count == 1, "received one event");
+		_jsPlumb.unbind("jsPlumbConnection");
+		var c2 = _jsPlumb.connect({source:d1, target:d2});
+		ok(count == 1, "still received only one event");
+		
+		_jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
+			count--;
+		});
+		_jsPlumb.detach(c);
+		ok(count == 0, "count of events is now zero");		
+	});
+
+	test(renderMode + ': unbinding connection event listeners, detach', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var count = 0;
+		_jsPlumb.bind("jsPlumbConnection", function(params) {
+			count++;
+		});
+		var c = _jsPlumb.connect({source:d1, target:d2});
+		ok(count == 1, "received one event");		
+		var c2 = _jsPlumb.connect({source:d1, target:d2});
+		ok(count == 2, "received two events");
+		
+		_jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
+			count--;
+		});
+		_jsPlumb.detach(c);
+		ok(count == 1, "count of events is now one");		
+		_jsPlumb.unbind("jsPlumbConnectionDetached");
+		_jsPlumb.detach(c2);
+		ok(count == 1, "count of events is still one");		
+	});
+
+	test(renderMode + ': unbinding connection event listeners, all listeners', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var count = 0;
+		_jsPlumb.bind("jsPlumbConnection", function(params) {
+			count++;
+		});
+		var c = _jsPlumb.connect({source:d1, target:d2}),
+			c2 = _jsPlumb.connect({source:d1, target:d2}),
+			c3 = _jsPlumb.connect({source:d1, target:d2});
+
+		ok(count == 3, "received three events");					
+		
+		_jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
+			count--;
+		});
+		_jsPlumb.detach(c);
+		ok(count == 2, "count of events is now two");	
+			
+		_jsPlumb.unbind();  // unbind everything
+
+		_jsPlumb.detach(c2);
+		_jsPlumb.detach(c3);
+		_jsPlumb.connect({source:d1, target:d2})
+		_jsPlumb.connect({source:d1, target:d2})
+		_jsPlumb.connect({source:d1, target:d2})
+		_jsPlumb.connect({source:d1, target:d2})
+
+		ok(count == 2, "count of events is still two");		
+	});
 	
 	test(renderMode + ": Endpoint.detachFrom", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17");
