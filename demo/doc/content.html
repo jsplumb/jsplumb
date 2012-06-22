@@ -727,11 +727,10 @@ The allowed constructor parameters are different for each artifact you create, b
 			</ul> 
 			The last two are actually just configured instances of the generic Arrow overlay (see examples). 
 			
-			<p>All Overlays support these two methods for getting/setting their location (location is a number between 0 and 1 inclusive, indicating some point along the path
-			inscribed by the associated Connector):</p>
+			<p>All Overlays support these two methods for getting/setting their location (location is either a number between 0 and 1 inclusive, indicating some point along the path inscribed by the associated Connector, or an absolute number of pixels, where negative values mean distance from the target of the connection):</p>
 			<ul>
 				<li class="bullet"><strong>getLocation</strong> - returns the current location</li>
-				<li class="bullet"><strong>setLocation</strong> - sets the current location; valid values are decimals in the range 0-1 inclusive</li> 
+				<li class="bullet"><strong>setLocation</strong> - sets the current location; valid values are decimals in the range 0-1 inclusive, or an integer less than 0 (to express distance from the target), or an integer greater than 1 (to express distance from the source)</li> 
 			</ul>
 			
 			<p>You can specify one or more overlays when making a call to jsPlumb.connect, jsPlumb.addEndpoint or jsPlumb.makeSource (but not jsPlumb.makeTarget; overlays
@@ -751,6 +750,18 @@ The allowed constructor parameters are different for each artifact you create, b
 			</div>
 			This connection will have an arrow located halfway along it, and the label "foo" one quarter of the way along.  Notice the <strong>id</strong>
 			parameter; it can be used later if you wish to remove the Overlay or change its visibility (see below).<br/><br/> 
+			Another example, this time with an absolute location of 50 pixels from the source:
+			<div class="code">
+			<pre>jsPlumb.connect({
+	...
+	overlays:[ 
+		"Arrow", 
+		[ "Label", { label:"foo", location:50 }, id:"myLabel" ]
+	],
+	...
+});			
+</pre>
+			</div>
 			
 			2. Specifying one or more overlays on a jsPlumb.addEndpoint call.  Note in this example that we use the parameter 'connectorOverlays' and not
 			'overlays' as in the last example.  This is because 'overlays' would refer to Endpoint Overlays:
@@ -791,7 +802,7 @@ The allowed constructor parameters are different for each artifact you create, b
 					<ul>
 					<li><strong>width</strong> - width of the tail of the arrow</li>
 					<li><strong>length</strong> - distance from the tail of the arrow to the head</li>
-					<li><strong>location</strong> - where, as a proportional value from 0 to 1 inclusive, the Arrow should appear on the Connector</li>
+					<li><strong>location</strong> - where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the Arrow should appear on the Connector</li>
 					<li><strong>direction</strong> - which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards </li>
 					<li><strong>foldback</strong> - how far along the axis of the arrow the tail points foldback in to. Default is 0.623.</li>
 					<li><strong>paintStyle</strong> - a style object in the form used for paintStyle values for Endpoints and Connectors</li>
@@ -817,7 +828,7 @@ The allowed constructor parameters are different for each artifact you create, b
 							</ul>
 						
 						</li>
-						<li><strong>location</strong> - As for Arrow Overlay.  Where, proportionally from 0 to 1 inclusive, the label should appear.</li>
+						<li><strong>location</strong> - As for Arrow Overlay.  Where, either proportionally from 0 to 1 inclusive, or as an absolute offset from either source or target, the label should appear.</li>
 					</ul>
 
 					The Label overlay offers two methods - getLabel and setLabel - for accessing/manipulating its content dynamically:
@@ -906,7 +917,7 @@ overlay.hide();
 	...
 	overlays:[ 
 		"Arrow", 
-		[ "Label", { label:"foo", location:0.25 }, id:"myLabel" ]
+		[ "Label", { label:"foo", location:-30 }, id:"myLabel" ]
 	],
 	...
 });		
