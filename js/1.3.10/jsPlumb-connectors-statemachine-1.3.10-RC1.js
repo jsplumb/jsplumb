@@ -257,15 +257,26 @@
 	        	{ x:_sx, y:_sy }
          	];
         };     
+
+        var _translateLocation = function(curve, location, absolute) {
+            if (absolute)
+                location = jsBezier.locationAlongCurveFrom(curve, location > 0 ? 0 : 1, location);
+
+            return location;
+        };
         
         /**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
-        this.pointOnPath = function(location) {   
+        this.pointOnPath = function(location, absolute) {   
 			if (isLoopback) {
+				if (absolute) {
+					var circumference = Math.PI * 2 * loopbackRadius;
+					location = location / circumference;
+				}
 
-                if (location > 0 && location < 1) location = 1- location;
+                if (location > 0 && location < 1) location = 1 - location;
                 
 // current points are [ x, y, width, height, center x, center y, radius, clockwise, startx, starty, endx, endy ]				
 				// so the path length is the circumference of the circle
@@ -280,17 +291,31 @@
                 return {x:startX, y:startY};
 					
 			}
-        	else return jsBezier.pointOnCurve(_makeCurve(), location);
+        	else {
+        		var c = _makeCurve();
+        		location = _translateLocation(c, location, absolute);
+	        	return jsBezier.pointOnCurve(c, location);
+	        }
         };
         
         /**
          * returns the gradient of the connector at the given point.
          */
-        this.gradientAtPoint = function(location) {
-			if (isLoopback)
+        this.gradientAtPoint = function(location, absolute) {
+			if (isLoopback) {
+				// todo if absolute, location is a proportion of circumference
+				if (absolute) {
+					var circumference = Math.PI * 2 * loopbackRadius;
+					location = location / circumference;
+				}
+
 				return Math.atan(location * 2 * Math.PI);
-        	else
-                return jsBezier.gradientAtPoint(_makeCurve(), location);
+			}
+        	else {
+        		var c = _makeCurve();
+        		location = _translateLocation(c, location, absolute);
+                return jsBezier.gradientAtPoint(c, location);
+            }
         };	        
         
         /**
@@ -301,10 +326,15 @@
          * than the desired distance, in which case the loop returns immediately and the arrow is mis-shapen. so a better strategy might be to
          * calculate the step as a function of distance/distance between endpoints.  
          */
-        this.pointAlongPathFrom = function(location, distance) {        	
+        this.pointAlongPathFrom = function(location, distance, absolute) {        	
 			if (isLoopback) {
 
-                if (location > 0 && location < 1) location = 1- location;
+				if (absolute) {
+					var circumference = Math.PI * 2 * loopbackRadius;
+					location = location / circumference;
+				}
+
+                if (location > 0 && location < 1) location = 1 - location;
 
 				var circumference = 2 * Math.PI * currentPoints[6],
 					arcSpan = distance / circumference * 2 * Math.PI,
@@ -315,7 +345,11 @@
 
 				return {x:startX, y:startY};
 			}
-        	return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
+			else {
+				var c = _makeCurve();
+        		location = _translateLocation(c, location, absolute);
+        		return jsBezier.pointAlongCurveFrom(c, location, distance);
+        	}
         };                       
 	
 	};

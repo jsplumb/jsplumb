@@ -95,13 +95,15 @@
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
-        this.pointOnPath = function(location) {
-        	if (location == 0)
+        this.pointOnPath = function(location, absolute) {
+        	if (location == 0 && !absolute)
                 return { x:_sx, y:_sy };
-            else if (location == 1)
+            else if (location == 1 && !absolute)
                 return { x:_tx, y:_ty };
-            else
-                return jsPlumbUtil.pointOnLine({x:_sx, y:_sy}, {x:_tx, y:_ty}, location * _length);
+            else {
+                var l = absolute ? location > 0 ? location : _length + location : location * _length;
+                return jsPlumbUtil.pointOnLine({x:_sx, y:_sy}, {x:_tx, y:_ty}, l);
+            }
         };
         
         /**
@@ -116,8 +118,8 @@
          * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
          * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
          */
-        this.pointAlongPathFrom = function(location, distance) {            
-        	var p = self.pointOnPath(location),
+        this.pointAlongPathFrom = function(location, distance, absolute) {            
+        	var p = self.pointOnPath(location, absolute),
                 farAwayPoint = location == 1 ? {
                     x:_sx + ((_tx - _sx) * 10),
                     y:_sy + ((_sy - _ty) * 10)
@@ -242,20 +244,31 @@
 	        	{ x:_tx, y:_ty }
          	];
         };     
+
+        var _translateLocation = function(curve, location, absolute) {
+            if (absolute)
+                location = jsBezier.locationAlongCurveFrom(curve, location > 0 ? 0 : 1, location);
+
+            return location;
+        };
         
         /**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
          * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
          */
-        this.pointOnPath = function(location) {
-            return jsBezier.pointOnCurve(_makeCurve(), location);
+        this.pointOnPath = function(location, absolute) {
+            var c = _makeCurve();
+            location = _translateLocation(c, location, absolute);
+            return jsBezier.pointOnCurve(c, location);
         };
         
         /**
          * returns the gradient of the connector at the given point.
          */
-        this.gradientAtPoint = function(location) {
-            return jsBezier.gradientAtPoint(_makeCurve(), location);        	
+        this.gradientAtPoint = function(location, absolute) {
+            var c = _makeCurve();
+            location = _translateLocation(c, location, absolute);
+            return jsBezier.gradientAtPoint(c, location);        	
         };	              
         
         /**
@@ -266,8 +279,10 @@
          * than the desired distance, in which case the loop returns immediately and the arrow is mis-shapen. so a better strategy might be to
          * calculate the step as a function of distance/distance between endpoints.  
          */
-        this.pointAlongPathFrom = function(location, distance) {
-            return jsBezier.pointAlongCurveFrom(_makeCurve(), location, distance);
+        this.pointAlongPathFrom = function(location, distance, absolute) {
+            var c = _makeCurve();
+            location = _translateLocation(c, location, absolute);
+            return jsBezier.pointAlongCurveFrom(c, location, distance);
         };           
     };        
     
@@ -339,9 +354,15 @@
 		 * that contains the point which is 'location' distance along the entire path, where 
 		 * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths 
 		 * are made up of a list of segments, each of which contributes some fraction to
-		 * the total length.  
+		 * the total length. 
+         * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
+         * as the absolute distance in pixels, rather than a proportion of the total path. 
 		 */
-		findSegmentForLocation = function(location) {
+		findSegmentForLocation = function(location, absolute) {
+            if (absolute) {
+                location = location > 0 ? location / totalLength : (totalLength + location) / totalLength;
+            }
+
 			var idx = segmentProportions.length - 1, inSegmentProportion = 1;
 			for (var i = 0; i < segmentProportions.length; i++) {
 				if (segmentProportions[i][1] >= location) {
@@ -563,16 +584,16 @@
          * 0 to 1 inclusive. for this connector we must first figure out which segment the given point lies in, and then compute the x,y position
          * from our knowledge of the segment's start and end points.
          */
-        this.pointOnPath = function(location) {            
-        	return self.pointAlongPathFrom(location, 0);
+        this.pointOnPath = function(location, absolute) {            
+        	return self.pointAlongPathFrom(location, 0, absolute);
         };
         
         /**
          * returns the gradient of the connector at the given point; the gradient will be either 0 or Infinity, depending on the direction of the
          * segment the point falls in. segment gradients are calculated in the compute method.  
          */
-        this.gradientAtPoint = function(location) { 
-        	return segments[findSegmentForLocation(location)["index"]][4];
+        this.gradientAtPoint = function(location, absolute) { 
+        	return segments[findSegmentForLocation(location, absolute)["index"]][4];
         };
         
         /**
@@ -586,8 +607,8 @@
          * tangent to a straight line is the line itself, which is what we want; for this connector, and for beziers, the results would probably be better.  an additional
          * advantage is, of course, that there's less computation involved doing it that way. 
          */
-        this.pointAlongPathFrom = function(location, distance) {
-        	var s = findSegmentForLocation(location), seg = s.segment, p = s.proportion, sl = segments[s.index][5], m = segments[s.index][4];
+        this.pointAlongPathFrom = function(location, distance, absolute) {
+        	var s = findSegmentForLocation(location, absolute), seg = s.segment, p = s.proportion, sl = segments[s.index][5], m = segments[s.index][4];
         	var e = {         		
         		x 	: m == Infinity ? seg[2] : seg[2] > seg[0] ? seg[0] + ((1 - p) * sl) - distance : seg[2] + (p * sl) + distance,
         		y 	: m == 0 ? seg[3] : seg[3] > seg[1] ? seg[1] + ((1 - p) * sl) - distance  : seg[3] + (p * sl) + distance,
@@ -901,7 +922,13 @@
             var hxy, mid, txy, tail, cxy;
             if (connector.pointAlongPathFrom) {
 
-                if (self.loc == 1) {
+                if (jsPlumbUtil.isString(self.loc) || self.loc > 1 || self.loc < 0) {
+                    var l = parseInt(self.loc);
+                    hxy = connector.pointAlongPathFrom(l, direction * self.length / 2, true),
+                    mid = connector.pointOnPath(l, true),
+                    txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
+                }
+                else if (self.loc == 1) {
                     hxy = connector.pointOnPath(self.loc);
                     mid = connector.pointAlongPathFrom(self.loc, -1);                    
                     txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
@@ -1091,8 +1118,14 @@
 	    	var td = self.getTextDimensions(component);
 	    	if (td.width !=  null) {
 				var cxy = {x:0,y:0};
-                if (component.pointOnPath)
-                    cxy = component.pointOnPath(self.loc);  // a connection
+                if (component.pointOnPath) {
+                    var loc = self.loc, absolute = false;
+                    if (jsPlumbUtil.isString(self.loc) || self.loc < 0 || self.loc > 1) {
+                        loc = parseInt(self.loc);
+                        absolute = true;
+                    }
+                    cxy = component.pointOnPath(loc, absolute);  // a connection
+                }
                 else {
                     var locToUse = self.loc.constructor == Array ? self.loc : self.endpointLoc;
                     cxy = { x:locToUse[0] * componentDimensions[2],
