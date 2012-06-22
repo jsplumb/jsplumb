@@ -223,7 +223,11 @@
 		getOffset : function(el) {
 			var p = el.getPosition();
 			return { left:p.x, top:p.y };
-		},				
+		},	
+		
+		getOriginalEvent : function(e) {
+			return e.event;
+		},			
 		
 		getPageXY : function(eventObject) {
 			return [eventObject.event.pageX, eventObject.event.pageY];

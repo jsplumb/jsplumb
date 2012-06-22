@@ -29,6 +29,7 @@
  * getDragScope			gets the drag scope for a given element.
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
+ * getOriginalEvent     gets the original browser event from some wrapper event.
  * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
  * getScrollTop			gets an element's scroll top.  TODO: is this actually used?  will it be?
  * getSize				gets an element's size.
@@ -231,6 +232,10 @@
 		getOffset : function(el) {			
 			var o = Y.DOM.getXY(el._node);
 			return {left:o[0], top:o[1]};
+		},
+
+		getOriginalEvent : function(e) {
+			return e._event;
 		},
 		
 		getPageXY : function(eventObject) {

@@ -2539,7 +2539,8 @@ between this method and jsPlumb.reset).
 
 					// if a filter was given, run it, and return if it says no.
 					if (params.filter) {
-						var r = params.filter(e, _el);
+						// pass the original event to the user: 
+						var r = params.filter(jpcl.getOriginalEvent(e), _el);
 						if (r === false) return;
 					}
 
@@ -2555,7 +2556,7 @@ between this method and jsPlumb.reset).
 					// that was the source.  in that case, we have to adjust the anchor position so it refers to
 					// the parent.
 					if (p.parent) {
-						var pEl = jsPlumb.CurrentLibrary.getElementObject(p.parent),
+						var pEl = jpcl.getElementObject(p.parent),
 							pId = _getId(pEl);
 						myOffsetInfo = _updateOffset({elId:pId});
 						parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
