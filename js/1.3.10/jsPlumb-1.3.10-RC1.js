@@ -2435,6 +2435,9 @@ between this method and jsPlumb.reset).
 		 *                             the connection is subsequently detached. this will not 
 		 *                             remove Endpoints that have had more Connections attached
 		 *                             to them after they were created.
+		 * filter - optional function to call when the user presses the mouse button to start a drag. This function is passed the original 
+		 * event and the element on which the associated makeSource call was made.  If it returns anything other than false,
+		 * the drag begins as usual. But if it returns false (the boolean false, not something falsey), the drag is aborted.
 		 *                   	
 		 * 
 		 */
@@ -2531,7 +2534,14 @@ between this method and jsPlumb.reset).
 				// when the user presses the mouse, add an Endpoint, if we are enabled.
 				var mouseDownListener = function(e) {
 
+					// if disabled, return.
 					if (!_sourcesEnabled[idToRegisterAgainst]) return;
+
+					// if a filter was given, run it, and return if it says no.
+					if (params.filter) {
+						var r = params.filter(e, _el);
+						if (r === false) return;
+					}
 
 					// make sure we have the latest offset for this div 
 					var myOffsetInfo = _updateOffset({elId:elid});		
