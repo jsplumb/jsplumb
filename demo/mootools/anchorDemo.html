@@ -31,17 +31,23 @@
 	    	locations:</p>
 	    	<div class="code">
 <pre>
-var smallWindows = jsPlumb.getSelector(".smallWindow");
-for (var i = 0; i < smallWindows.length; i++) {	
-  jsPlumb.draggable(smallWindows[i]);
-  jsPlumb.makeTarget(smallWindows[i], {
-    paintStyle: { fillStyle:'#558822' },
-    anchor:"TopCenter"
-    dropOptions:{ hoverClass:"hover" }
-  });
-}
-</pre>	    	
-</div>
+var sourceAnchors = [ 
+	[ 0, 1, 0, 1 ],
+	[ 0.25, 1, 0, 1 ],
+	[ 0.5, 1, 0, 1 ],
+	[ 0.75, 1, 0, 1 ],
+	[ 1, 1, 0, 1 ]				
+];
+jsPlumb.makeSource("window1", {
+	anchor:sourceAnchors,
+	filter:function(evt, el) {
+		return evt.target.tagName !== "A";
+	}
+});</pre>
+	    	</div>
+	    	<p>
+	    	The 'disable' link on the blue element is excluded from being a drag source through the use of the 'filter' parameter on the makeSource call (shown in the code snippet above)
+	    	</p>
 	    	The green elements are configured as Connection targets, with a "TopCenter" anchor, and are draggable:
 <div class="code">
 <pre>
