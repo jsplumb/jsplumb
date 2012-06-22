@@ -280,14 +280,17 @@
      * Function: Constructor
      * 
      * Parameters:
-     * 	stub - minimum length for the stub at each end of the connector. defaults to 30 pixels. 
-     *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  defaults to 0 pixels.
+     * 	stub - minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
+     * or an array of two integers, giving separate values for each end. The default is an integer with value 30 (pixels). 
+     *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  defaults to 0 pixels.     
      */
     jsPlumb.Connectors.Flowchart = function(params) {
     	this.type = "Flowchart";
     	params = params || {};
         var self = this, 
-        	minStubLength = params.stub || params.minStubLength /* bwds compat. */ || 30, 
+        	stub = params.stub || params.minStubLength /* bwds compat. */ || 30, 
+            sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
+            targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
             gap = params.gap || 0,
         	segments = [],
             totalLength = 0,
@@ -295,7 +298,8 @@
         	segmentProportionalLengths = [],
         	points = [],
         	swapX, swapY,
-            maxX = 0, maxY = 0,
+            maxX = -Infinity, maxY = -Infinity,
+            minX = Infinity, minY = Infinity,
 		/**
 		 * recalculates the points at which the segments begin and end, proportional to the total length travelled
 		 * by all the segments that constitute the connector.   we use this to help with pointOnPath calculations.
@@ -327,6 +331,8 @@
             
             maxX = Math.max(maxX, x);
             maxY = Math.max(maxY, y);
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
 		},
 		/**
 		 * returns [segment, proportion of travel in segment, segment index] for the segment 
@@ -354,20 +360,23 @@
             segmentProportions = [];
             totalLength = 0;
             segmentProportionalLengths = [];
-            maxX = maxY = 0;
+            maxX = maxY = -Infinity;
+            minX = minY = Infinity;
             
             swapX = targetPos[0] < sourcePos[0]; 
             swapY = targetPos[1] < sourcePos[1];
             
-            var lw = lineWidth || 1,
-                offx = (lw / 2) + (minStubLength * 2), 
-                offy = (lw / 2) + (minStubLength * 2),
+            var lw = lineWidth || 1,                
+                sourceOffx = (lw / 2) + (sourceStub + targetStub), 
+                targetOffx = (lw / 2) + (targetStub + sourceStub),                 
+                sourceOffy = (lw / 2) + (sourceStub + targetStub),
+                targetOffy = (lw / 2) + (targetStub + sourceStub),
                 so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
                 to = targetAnchor.orientation || targetAnchor.getOrientation(targetEndpoint),
                 x = swapX ? targetPos[0] : sourcePos[0], 
                 y = swapY ? targetPos[1] : sourcePos[1],
-                w = Math.abs(targetPos[0] - sourcePos[0]) + 2*offx, 
-                h = Math.abs(targetPos[1] - sourcePos[1]) + 2*offy;
+                w = Math.abs(targetPos[0] - sourcePos[0]) + sourceOffx + targetOffx, 
+                h = Math.abs(targetPos[1] - sourcePos[1]) + sourceOffy + targetOffy;
 
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
@@ -380,26 +389,26 @@
                 so[oIndex] = 0;
                 to[oIndex] = 0;
             }
-
+            
             if (w < minWidth) {      
-                offx += (minWidth - w) / 2;
+                sourceOffx += (minWidth - w) / 2;
                 w = minWidth;
             }
             if (h < minWidth) {             
-                offy += (minWidth - h) / 2;
+                sourceOffy += (minWidth - h) / 2;
                 h = minWidth;
             }
 
-            var sx = swapX ? (w - offx) +( gap * so[0])  : offx + (gap * so[0]), 
-                sy = swapY ? (h - offy) + (gap * so[1])  : offy + (gap * so[1]), 
-                tx = swapX ? offx + (gap * to[0]) : (w - offx) + (gap * to[0]),
-                ty = swapY ? offy + (gap * to[1]) : (h - offy) + (gap * to[1]),
-                startStubX = sx + (so[0] * minStubLength), 
-                startStubY = sy + (so[1] * minStubLength),
-                endStubX = tx + (to[0] * minStubLength), 
-                endStubY = ty + (to[1] * minStubLength),
-                isXGreaterThanStubTimes2 = Math.abs(sx - tx) > 2 * minStubLength,
-                isYGreaterThanStubTimes2 = Math.abs(sy - ty) > 2 * minStubLength,
+            var sx = swapX ? (w - targetOffx) +( gap * so[0])  : sourceOffx + (gap * so[0]), 
+                sy = swapY ? (h - targetOffy) + (gap * so[1])  : sourceOffy + (gap * so[1]), 
+                tx = swapX ? sourceOffx + (gap * to[0]) : (w - targetOffx) + (gap * to[0]),
+                ty = swapY ? sourceOffy + (gap * to[1]) : (h - targetOffy) + (gap * to[1]),
+                startStubX = sx + (so[0] * sourceStub), 
+                startStubY = sy + (so[1] * sourceStub),
+                endStubX = tx + (to[0] * targetStub), 
+                endStubY = ty + (to[1] * targetStub),
+                isXGreaterThanStubTimes2 = Math.abs(sx - tx) > (sourceStub + targetStub),
+                isYGreaterThanStubTimes2 = Math.abs(sy - ty) > (sourceStub + targetStub),
                 midx = startStubX + ((endStubX - startStubX) / 2),
                 midy = startStubY + ((endStubY - startStubY) / 2),
                 oProduct = ((so[0] * to[0]) + (so[1] * to[1])),
@@ -407,11 +416,9 @@
                 perpendicular = oProduct == 0,
                 orthogonal = oProduct == 1; 
             
-            x -= offx; y -= offy;
+            x -= sourceOffx; y -= sourceOffy;
             points = [x, y, w, h, sx, sy, tx, ty];
-            var extraPoints = [];
-      
-            addSegment(startStubX, startStubY, sx, sy, tx, ty);                               
+            var extraPoints = [];                                        
                       
             var sourceAxis = so[0] == 0 ? "y" : "x",
                 anchorOrientation = opposite ? "opposite" : orthogonal ? "orthogonal" : "perpendicular",
@@ -425,15 +432,29 @@
             if (flipSourceSegments)                
                 segment = flipSegments[sourceAxis][segment];                                    
 
+            /*if (segment == 1 || segment == 2) {
+                if (sourceAxis == "x")
+                    addSegment(Math.max(startStubX, endStubX), startStubY, sx, sy, tx, ty);
+                else
+                    addSegment(startStubX, Math.max(startStubY, endStubY), sx, sy, tx, ty);
+            }
+            else {
+                if (sourceAxis == "x")
+                    addSegment(Math.min(startStubX, endStubX), startStubY, sx, sy, tx, ty);
+                else
+                    addSegment(startStubX, Math.min(startStubY, endStubY), sx, sy, tx, ty);
+            }*/
+            addSegment(startStubX, startStubY, sx, sy, tx, ty);
+
             var findClearedLine = function(start, mult, anchorPos, dimension) {
-                return start + (mult * (( 1 - anchorPos) * dimension) + minStubLength);
-                //mx = so[0] == 0 ? startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + minStubLength : startStubX,
+                return start + (mult * (( 1 - anchorPos) * dimension) + Math.max(sourceStub, targetStub));
+                //mx = so[0] == 0 ? startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + stub : startStubX,
             },
 
             lineCalculators = {
                 oppositex : function() {
                     if (sourceEndpoint.elementId == targetEndpoint.elementId) {
-                        var _y = startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + minStubLength;
+                        var _y = startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + Math.max(sourceStub, targetStub);
                         return [ [ startStubX, _y ], [ endStubX, _y ]];
                     }
                     else if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
@@ -454,7 +475,7 @@
                 perpendicularx : function() {                
                     var my = (ty + sy) / 2;
                     if ((segment == 1 && to[1] == 1) || (segment == 2 && to[1] == -1)) {                  
-                        if (Math.abs(tx - sx) > minStubLength)
+                        if (Math.abs(tx - sx) > Math.max(sourceStub, targetStub))
                             return [ [endStubX, startStubY ]];            
                         else
                             return [ [startStubX, startStubY ], [ startStubX, my ], [ endStubX, my ]];                                
@@ -466,7 +487,7 @@
                         return [ [ startStubX, endStubY ]];
                     }
                     else if ((segment == 1 && to[1] == -1) || (segment == 2 && to[1] == 1)) {                
-                        if (Math.abs(tx - sx) > minStubLength)                    
+                        if (Math.abs(tx - sx) > Math.max(sourceStub, targetStub))                    
                             return [ [ midx, startStubY ], [ midx, endStubY ]];                    
                         else
                             return [ [ startStubX, endStubY ]];                                        
@@ -474,7 +495,7 @@
                 },
                 oppositey : function() {
                     if (sourceEndpoint.elementId == targetEndpoint.elementId) {
-                        var _x = startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + minStubLength;
+                        var _x = startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + Math.max(sourceStub, targetStub);
                         return [ [ _x, startStubY ], [ _x, endStubY ]];
                     }
                     else if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
@@ -495,7 +516,7 @@
                 perpendiculary : function() {                
                     var mx = (tx + sx) / 2;
                     if ((segment == 2 && to[0] == -1) || (segment == 3 && to[0] == 1)) {                    
-                        if (Math.abs(tx - sx) > minStubLength)
+                        if (Math.abs(tx - sx) > Math.max(sourceStub, targetStub))
                             return [ [startStubX, endStubY ]];                    
                         else
                             return [ [startStubX, midy ], [ endStubX, midy ]];                                        
@@ -508,7 +529,7 @@
                         return [ [ endStubX, startStubY ]];
                     }
                     else if ((segment == 2 && to[0] == 1) || (segment == 3 && to[0] == -1)) {                
-                        if (Math.abs(ty - sy) > minStubLength)                    
+                        if (Math.abs(ty - sy) > Math.max(sourceStub, targetStub))                    
                             return [ [ startStubX, midy ], [ endStubX, midy ]];                  
                         else
                             return [ [ endStubX, startStubY ]];                                    
@@ -521,8 +542,7 @@
                 for (var i = 0; i < p.length; i++) {
                     addSegment(p[i][0], p[i][1], sx, sy, tx, ty);
                 }
-            }                       
-                             
+            }                                                    
 
             addSegment(endStubX, endStubY, sx, sy, tx, ty);
             addSegment(tx, ty, sx, sy, tx, ty);
@@ -532,7 +552,7 @@
             
             // adjust the max values of the canvas if we have a value that is larger than what we previously set.
             // 
-            if (maxY > points[3]) points[3] = maxY + (lineWidth * 2);
+            if (maxY > points[3]) points[3] = maxY + (lineWidth * 2);            
             if (maxX > points[2]) points[2] = maxX + (lineWidth * 2);
             
             return points;
