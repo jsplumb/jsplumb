@@ -39,7 +39,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 		</div>
 		
 		<div class="section">		
-			<h3><a id="changes">Changes between 1.3.10 and 1.3.8</a></h3>
+			<h3><a id="changes">Changes between 1.3.10 and 1.3.9</a></h3>
 			
 			<h5>Backwards Compatibility</h5>
 			Just a couple of minor points in this release:
@@ -1202,7 +1202,7 @@ jsPlumb.Defaults.Anchors = [ "LeftMiddle", "BottomRight" ];
 </div>
 ... and then used makeSource and makeTarget without specifying Anchor locations, jsPlumb would use "LeftMiddle" for the makeSource element and "BottomRight" for the makeTarget element.
 <p>
-A further thing to note about makeSource and makeTarget is that from 1.3.10 onwards any prior calls to one of these methods is honoured by subsequent calls to jsPlumb.connect. This helps when you're building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created connections (obviously quite a common use case).  
+A further thing to note about makeSource and makeTarget is that any prior calls to one of these methods is honoured by subsequent calls to jsPlumb.connect. This helps when you're building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created connections (obviously quite a common use case).  
 <p>For example:</p>
 <div class="code">
 <pre>
@@ -1422,6 +1422,29 @@ jsPlumb.makeSource("someConnectionSourceDiv", {
 <p>The only difference here is the inclusion of the 'parent' parameter.  It instructs jsPlumb to configure the source Endpoint on the element specified - in this case, "someDiv" (the value of this parameter may be a String id or a selector).</p>
 <p>Again, I'd suggest taking a look at the <a href="../demo/jquery/stateMachineDemo.html">State Machine Connectors demonstration</a> for an example of this.</p>
 
+<h5>Filtering drag start based on element</h5>
+You can supply a 'filter' parameter to the makeSource call in order to get a little more fine-grained control over which parts of the element will respond to a mousedown and start a drag. Consider this markup:
+<div class="code">
+<pre>
+&lt;div id="foo"&gt;
+  FOO
+  &lt;button&gt;click me&lt;/button&gt;
+&lt;/div&gt;
+</pre>
+</div>
+Suppose we do not want to interfere with the operation of the 'click me' button. We can supply a filter to the makeSource call to do so:
+<div class="code">
+<pre>
+jsPlumb.makeSource("foo", {
+  filter:function(event, element) {
+    return event.target.tagName !== "BUTTON";
+  }
+});
+</pre>
+</div>
+If the filter returns anything other than a boolean false, the drag will begin. It's important to note that only boolean false will prevent a drag. False-y values will not.
+
+<h5>Endpoint options with makeSource</h5>
 <p>
 There are many things you can set in an Endpoint options object; for a thorough list see the API documentation for Endpoint.  
 </p>
