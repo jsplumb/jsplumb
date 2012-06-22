@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.9
+ * Title:jsPlumb 1.3.10
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -31,7 +31,7 @@
 	},
 	jsPlumbStylesheet = null;
 	
-	if (document.createStyleSheet) {			
+	if (document.createStyleSheet && document.namespaces) {			
 		
 		var ruleClasses = [
 				".jsplumb_vml", "jsplumb\\:textbox", "jsplumb\\:oval", "jsplumb\\:rect", 
