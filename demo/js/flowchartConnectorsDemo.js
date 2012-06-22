@@ -40,7 +40,7 @@
 				endpoint:"Dot",
 				paintStyle:{ fillStyle:"#225588",radius:7 },
 				isSource:true,
-				connector:[ "Flowchart", { stub:40, gap:10 } ],
+				connector:[ "Flowchart", { stub:[40, 60], gap:10 } ],
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
@@ -83,7 +83,7 @@
 					}
 				};
 
-			_addEndpoints("window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);
+			_addEndpoints("window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);			
 			_addEndpoints("window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
 			_addEndpoints("window3", ["RightMiddle", "BottomCenter"], ["LeftMiddle", "TopCenter"]);
 			_addEndpoints("window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
