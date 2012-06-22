@@ -42,53 +42,28 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<h3><a id="changes">Changes between 1.3.10 and 1.3.9</a></h3>
 			
 			<h5>Backwards Compatibility</h5>
-			Just a couple of minor points in this release:
+			One issue in this release:
 			<ul>
-				<li><strong>paintStyle</strong> and <strong>hoverPaintStyle</strong> are no longer exposed on Endpoint or Connection. Use <strong>setPaintStyle</strong>, <strong>getPaintStyle</strong>, <strong>setHoverPaintStyle</strong> and <strong>setHoverPaintStyle</strong> instead.</li>
+				<li>The 'clearListeners' method on Connection, Endpoint and jsPlumb has been renamed to 'unbind'</li>
 			</ul>
 			
 			<h5>New Features</h5>
 			<ul>
-				<li class="bullet">Straight connector in Canvas renderer now supports simple dashstyle</li>	
-				<li class="bullet">clearListeners, fire and bind methods in jsPlumb, Connection and Endpoint now return themselves, so you can use them in a 'fluent' style.</li>
-				<li class="bullet">paintStyle and hoverPaintStyle are no longer exposed on Endpoint or Connection.</li>
-				<li class="bullet">getPaintStyle and getHoverPaintStyle methods added to Endpoint and Connection.</li>
-				<li class="bullet">HoverClass added to jsPlumb defaults.</li> 
-				<li class="bullet">Several new methods added for working with targets and sources:
-					<ul>
-						<li>setTargetEnabled</li>
-						<li>setSourceEnabled</li>
-						<li>isTarget</li>
-						<li>isSource</li>
-						<li>toggleTargetEnabled</li>
-						<li>toggleSourceEnabled</li>
-						<li>isTargetEnabled</li>
-						<li>isSourceEnabled</li>
-						<li>unmakeSource</li>
-						<li>unmakeTarget</li>
-						<li>unmakeEverySource</li>
-						<li>unmakeEveryTarget</li>
-					</ul>
-					<br/>
-				</li>
-				<li class="bullet">makeSource and makeTarget now return the current jsPlumb instance.</li>
-				<li class="bullet">added optional 'gap' parameter to Flowchart connector params. Lets you leave a gap between the end of the connector and the element to which it is connected.</li>
-				<li class="bullet">SvgEndpoint and VmlEndpoint classes are now exposed on the DOM window, which allows for subclassing (eg. when you want to make your own Endpoints)</li>
-				<li class="bullet">removeAllOverlays was not cleaning up elements from the DOM properly. now fixed.</li>
-				<li class="bullet">added connectionDrag and connectionDragStop events to the jsPlumb object. These events are fired when an existing connection is dragged, and when that drag stops.  The only argument passed to a listener on these events is the Connection that is being or has just been dragged.</li>
+				<li class="bullet">makeSource can now be called with a 'filter' parameter which allows you to respond to mouse events only on the parts of the element you want to.</li>	
+				<li class="bullet">Flowchart connector supports a different length stub at each end (supply an array of two integers instead of just a single integer)</li>
+				<li class="bullet">The position of Connector overlays can now be specified as an absolute value, with positive values meaning distance from source and negative values meaning distance from target</li>
 			</ul>
 
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li class="bullet"><strong>136</strong> - diamond/arrow overlays do not fire mouse events (SVG/VML renderers only)</li>
-				<li class="bullet"><strong>223</strong> - extraneous IDs being created throughout the DOM</li>
-				<li class="bullet"><strong>235</strong> - add setTargetEnabled and related methods</li>
-				<li class="bullet"><strong>233</strong> - add getPaintStyle and getHoverPaintStyle to Connection and Endpoint.</li>
-				<li class="bullet"><strong>238</strong> - overlays in canvas renderer for state machine connectors not appearing in the correct position.</li>
-				<li class="bullet"><strong>239</strong> - document detachable/connectionsDetachable properly</li>
-				<li class="bullet"><strong>242</strong> - typo in docs about diamond overlay</li>
-				<li class="bullet"><strong>244</strong> - straight gradients rendered black or transparent</li>
-				<li class="bullet"><strong>245</strong> - should not set scope on nodes when making them draggable via jsPlumb.draggable.</li>		
+				<li class="bullet"><strong>224</strong> - 'absolute' overlay position</li>
+				<li class="bullet"><strong>247</strong> - support non-loopback connections between endpoints on the same element (StateMachine connectors)</li>
+				<li class="bullet"><strong>248</strong> - 'container' ignored when using parent with makeSource</li>
+				<li class="bullet"><strong>250</strong> - SVG does not work in Android &lt; 3, but jsPlumb thinks it should</li>
+				<li class="bullet"><strong>252</strong> - rename 'clearListeners' to 'unbind'</li>
+				<li class="bullet"><strong>253</strong> - allow makeSource to ignore mouseclicks on selected elements and not start a drag</li>
+				<li class="bullet"><strong>254</strong> - different stub lengths for each end of a flowchart connector</li>
+				<li class="bullet"><strong>257</strong> - clarified setLabel documentation to point out that it uses innerHTML</li>
 			</ul>
 			
 		</div>
