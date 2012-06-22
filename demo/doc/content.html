@@ -641,7 +641,7 @@ The allowed constructor parameters are different for each artifact you create, b
 			</p>
 			<h4><a id="flowchartConnector">Flowchart Connector</a></h4>
 			<p>This type of Connector draws a connection that consists of a series of vertical or horizontal segments - the classic flowchart look. Two constructor arguments are supported:</p>
-			<strong>stub</strong> - this is the minimum length, in pixels, of the initial stub that emanates from an Endpoint.  This parameter is optional, and defaults to 30 pixels.<br/>
+			<strong>stub</strong> - this is the minimum length, in pixels, of the initial stub that emanates from an Endpoint.  This is an optional parameter, and can be either an integer, which specifies the stub fo each end of the connector, or an array of two integers, specifying the stub for the [source, target] endpoints in the connection.  This parameter is optional, and defaults to an integer with value 30 pixels.<br/>
 			<strong>gap</strong> - optional, defaults to 0 pixels. Lets you specify a gap between the end of the connector and the elements to which it is attached.
 			<p>This Connector supports Connection that start and end on the same element.</p>
 			<h4><a id="stateMachineConnector">State Machine Connector</a></h4>
