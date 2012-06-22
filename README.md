@@ -9,15 +9,15 @@ source from Google Code.
 
 __All issues should be reported on Google Code until I can import everything from there at once. Thanks!__
 
-For users upgrading from earlier versions to 1.3.x - there are a few minor backwards incompatibilities. Please see the changelog
+For users upgrading from earlier versions to 1.3.x - there are a few minor backwards incompatibilities. Please see the changelog.
 
-if you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc/usage.html). 
+If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc/usage.html). 
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.
 
 ## Requirements
 - jQuery:
 
-jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.2, 1.4.3, 1.4.4, 1.5.0 and 1.6.0. To support dragging, you will need jQueryUI 1.7.x or 1.8.x. I've tested both.
+jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.2, 1.4.3, 1.4.4, 1.5.0, 1.6.0 and 1.7.1. To support dragging, you will need jQueryUI 1.7.x or 1.8.x. I've tested both.
 
 __There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9__ - see [this issue](http://bugs.jquery.com/ticket/10832). It means that mouse events do not get posted. This is quite a bummer since the default renderer for jsPlumb, from 1.3.4 onwards, is SVG, and I was hoping to encourage everyone to make use of the fact that you can use CSS with SVG to style your plumbing rather than rely on the old-skool paintStyle stuff. There is another discussion of the issue [here](http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events)
 
@@ -52,10 +52,7 @@ Documentation can be found in the doc folder of the project, or you can view it 
 
 API documentation is in the apidoc folder of the project, and online [here](http://jsplumb.org/apidocs/).
 
-The Bezier curve functions used by jsPlumb have been extracted to a separate project (which is also dual-hosted
-between Google Code and GitHub):
-
-[http://code.google.com/p/jsbezier](http://code.google.com/p/jsbezier)
+The Bezier curve functions used by jsPlumb have been extracted to a separate project:
 
 [https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
 
