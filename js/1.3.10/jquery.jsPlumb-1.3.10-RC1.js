@@ -32,6 +32,7 @@
  * getDropScope			gets the drop scope for a given element.
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
+ * getOriginalEvent     gets the original browser event from some wrapper event
  * getPageXY			gets the page event's xy location.
  * getParent			gets the parent of some element.
  * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
@@ -184,6 +185,10 @@
 		 */
 		getOffset : function(el) {
 			return el.offset();
+		},
+
+		getOriginalEvent : function(e) {
+			return e.originalEvent;
 		},
 		
 		getPageXY : function(eventObject) {
