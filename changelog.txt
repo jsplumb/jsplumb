@@ -5,14 +5,28 @@
 
 	- The 'clearListeners' method on Connection, Endpoint and jsPlumb has been renamed to 'unbind'.
 
+	
+	NEW FUNCTIONALITY
+
+
+	- makeSource can now be called with a 'filter' parameter which allows you to respond to mouse events only on the parts of the element you want to.
+	- Flowchart connector supports a different length stub at each end
+
+
+	ISSUES RESOLVED
 
 	247 - support non-loopback connections between endpoints on the same element (StateMachine connectors)
 	248 - 'container' ignored when using parent with makeSource
 	250 - SVG does not work in Android < 3, but jsPlumb thinks it should
 	252 - rename 'clearListeners' to 'unbind'
+	253 - allow makeSource to ignore mouseclicks on selected elements and not start a drag
+	254 - different stub lengths for each end of a flowchart connector
 	257 - clarified setLabel documentation to point out that it uses innerHTML
 
 
+	FIXES WITHOUT ISSUES
+
+	- updated the VML renderer to perform a check for document.namespaces before attempting to do anything; I noticed in IE10 that this would throw an error since document.namespaces is not defined.
 
 
 * 1.3.9
