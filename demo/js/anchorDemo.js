@@ -33,7 +33,10 @@
 
             // make 'window1' a connection source.
 			jsPlumb.makeSource("window1", {
-				//anchor:sourceAnchors		// you could supply this if you want, but it was set in the defaults above.							
+				//anchor:sourceAnchors,		// you could supply this if you want, but it was set in the defaults above.							
+				filter:function(evt, el) {
+					return evt.target.tagName !== "A";
+				}
 			});			
 
             // get the list of ".smallWindow" elements.  getSelector is just a helper method that abstracts out the underlying

@@ -8,11 +8,10 @@
 	</head>
 	<body onunload="jsPlumb.unload();" data-demo-id="anchorDemo" data-library="jquery">							
 		
-		<div id="demo">
-			<a href="#" id="enableDisableSource">disable</a>
-			<div class="window" id="window1">
+		<div id="demo">			
+		<div class="window" id="window1">			
 				<strong>Window 1</strong>
-				<br/><br/>			
+				<a href="#" id="enableDisableSource">disable</a>				
 			</div>
 			<div class="window smallWindow" id="window2"><strong>Window 2</strong><br/><br/></div>
 		    <div class="window smallWindow" id="window3"><strong>Window 3</strong><br/><br/></div>
@@ -21,15 +20,9 @@
 		    <div class="window smallWindow" id="window6"><strong>Window 6</strong><br/><br/></div>
 		</div>
 	    <div id="explanation">
-	    	<p>This page provides a demonstration of the makeSource and makeTarget functions.  Drag Connections from the
-	    	big blue element to any of the small green ones. You can also drag Connections from one green element to another, because Connections in jsPlumb
-            are, by default, detachable (this behaviour can be overridden at the default level, or on a per-call basis).</p>
-            <p>These functions provide an alternative means of setting up your UI to support draggable connections - in the other demos you will see Endpoints
-            being created and assigned to elements, which are then used as the sources and targets for Connections.  But in this demonstration we treat entire
-            elements as sources and targets, and only when Connections are established do we assign Endpoints for them, according to the parameters specified in
-            the makeSource and makeTarget method calls.</p>
-	    	<p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor
-	    	locations:</p>
+	    	<p>This page provides a demonstration of the makeSource and makeTarget functions.  Drag Connections from the big blue element to any of the small green ones. You can also drag Connections from one green element to another, because Connections in jsPlumb are, by default, detachable (this behaviour can be overridden at the default level, or on a per-call basis).</p>
+            <p>These functions provide an alternative means of setting up your UI to support draggable connections - in the other demos you will see Endpoints being created and assigned to elements, which are then used as the sources and targets for Connections.  But in this demonstration we treat entire elements as sources and targets, and only when Connections are established do we assign Endpoints for them, according to the parameters specified in the makeSource and makeTarget method calls.</p>
+	    	<p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations:</p>
 	    	<div class="code">
 <pre>
 var sourceAnchors = [ 
@@ -40,9 +33,15 @@ var sourceAnchors = [
 	[ 1, 1, 0, 1 ]				
 ];
 jsPlumb.makeSource("window1", {
-	anchor:sourceAnchors
+	anchor:sourceAnchors,
+	filter:function(evt, el) {
+		return evt.target.tagName !== "A";
+	}
 });</pre>
 	    	</div>
+	    	<p>
+	    	The 'disable' link on the blue element is excluded from being a drag source through the use of the 'filter' parameter on the makeSource call (shown in the code snippet above)
+	    	</p>
 	    	The green elements are configured as Connection targets, with a "TopCenter" anchor, and are draggable:
 <div class="code">
 <pre>
