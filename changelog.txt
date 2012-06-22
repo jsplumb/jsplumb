@@ -11,6 +11,7 @@
 
 	- makeSource can now be called with a 'filter' parameter which allows you to respond to mouse events only on the parts of the element you want to.
 	- Flowchart connector supports a different length stub at each end
+	- The position of Connector overlays can now be specified as an absolute value, with positive values meaning distance from source and negative values meaning distance from target.
 
 
 	ISSUES RESOLVED
