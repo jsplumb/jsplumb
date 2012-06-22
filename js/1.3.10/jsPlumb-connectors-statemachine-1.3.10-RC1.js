@@ -123,6 +123,7 @@
 			proximityLimit  -   sets the distance beneath which the elements are consider too close together to bother with fancy
 			                    curves. by default this is 80 pixels.
 			loopbackRadius	-	the radius of a loopback connector.  optional; defaults to 25.
+			showLoopback   -   If set to false this tells the connector that it is ok to paint connections whose source and target is the same element with a connector running through the element. The default value for this is true; the connector always makes a loopback connection loop around the element rather than passing through it.
 	*/
 	jsPlumb.Connectors.StateMachine = function(params) {
 		var self = this,
@@ -133,7 +134,8 @@
 		proximityLimit = params.proximityLimit || 80,
 		clockwise = params.orientation && params.orientation == "clockwise",
 		loopbackRadius = params.loopbackRadius || 25,
-		isLoopback = false;
+		isLoopback = false,
+		showLoopback = params.showLoopback !== false;
 
 		this.type = "StateMachine";
 		params = params || {};		
@@ -151,7 +153,7 @@
             	var x = Math.min(sourcePos[0], targetPos[0]) - xo,
         		    y = Math.min(sourcePos[1], targetPos[1]) - yo;
 		
-			if (sourceEndpoint.elementId != targetEndpoint.elementId) {
+			if (!showLoopback || (sourceEndpoint.elementId != targetEndpoint.elementId)) {
                             
                 isLoopback = false;
                             
