@@ -35,7 +35,8 @@
 			jsPlumb.makeSource("window1", {
 				//anchor:sourceAnchors,		// you could supply this if you want, but it was set in the defaults above.							
 				filter:function(evt, el) {
-					return evt.target.tagName !== "A";
+					var t = evt.target || evt.srcElement;
+					return t.tagName !== "A";
 				}
 			});			
 

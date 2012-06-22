@@ -40,7 +40,8 @@ var sourceAnchors = [
 jsPlumb.makeSource("window1", {
 	anchor:sourceAnchors,
 	filter:function(evt, el) {
-		return evt.target.tagName !== "A";
+		var t = evt.target || evt.srcElement;
+		return t.tagName !== "A";
 	}
 });</pre>
 	    	</div>
