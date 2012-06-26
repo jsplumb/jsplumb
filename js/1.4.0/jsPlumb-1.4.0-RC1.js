@@ -453,11 +453,11 @@
 					id:_internalLabelOverlayId,
 					component:self,
 					_jsPlumb:self._jsPlumb
-				},
-				mergedParams = jsPlumb.CurrentLibrary.extend(_params, params);
-
-				return new jsPlumb.Overlays[self._jsPlumb.getRenderMode()].Label( mergedParams );
+				};
+								
+				return new jsPlumb.Overlays[self._jsPlumb.getRenderMode()].Label( jsPlumb.extend(_params, params) );
 			};
+
 			if (params.label) {
 				var loc = params.labelLocation || self.defaultLabelLocation || 0.5,
 					labelStyle = params.labelStyle || self._jsPlumb.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
@@ -474,12 +474,12 @@
 			 * 
 			 * Parameters:
 			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep
-         * that in mind if you need escaped HTML.
+             * that in mind if you need escaped HTML.
 			 */
 			this.setLabel = function(l) {
 				var lo = self.getOverlay(_internalLabelOverlayId);
 				if (!lo) {
-					var params = l.constructor == String || l.constructor == Function ? { label:l } : l;
+					var params = l.constructor == String || l.constructor == Function ? { label:l } : l;					
 					lo = _makeLabelOverlay(params);	
 					this.overlays.push(lo);
 				}
@@ -491,7 +491,8 @@
 					}
 				}
 				
-				self.repaint();
+				if (!self._jsPlumb.isSuspendDrawing()) 
+					self.repaint();
 			};
 
 			/*
@@ -597,13 +598,13 @@
 			LogEnabled : false,
 			Overlays : [ ],
 			MaxConnections : 1, 
-			PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
+			PaintStyle : { lineWidth : 4, strokeStyle : "#456" },
             //Reattach:false,
 			RenderMode : "svg",
 			Scope : "jsPlumb_DefaultScope"
 		};
-		if (_defaults) jpcl.extend(this.Defaults, _defaults);
-		
+		if (_defaults) jpcl.extend(this.Defaults, _defaults);		
+					
 		this.logEnabled = this.Defaults.LogEnabled;		
 
 		jsPlumbUtil.EventGenerator.apply(this);
@@ -611,11 +612,12 @@
 			_instanceIndex = getInstanceIndex(),
 			_bb = _instance.bind,
 			_initialDefaults = {}, 
-			jpcl;			
+			jpcl;					
 
 		for (var i in this.Defaults)
 			_initialDefaults[i] = this.Defaults[i];
 
+		// override bind to fire a 'ready' bind callback immediately if we already, er, ready.
 		this.bind = function(event, fn) {		
 			if ("ready" === event && initialized) fn();
 			else _bb.apply(_instance,[event, fn]);
@@ -664,7 +666,7 @@
 		 * 2. if the 'parent' parameter exists, use that.
 		 * 3. otherwise just use the document body.
 		 * 
-		 */
+		 *
 		_appendElement = function(el, parent) {
 			if (_instance.Defaults.Container)
 				jpcl.appendElement(el, _instance.Defaults.Container);
@@ -672,7 +674,7 @@
 				document.body.appendChild(el);
 			else
 				jpcl.appendElement(el, parent);
-		},
+		},*/
 
 		_curIdStamp = 1,
 		_idstamp = function() { return "" + _curIdStamp++; },		
@@ -684,17 +686,8 @@
 		 */
 		_convertYUICollection = function(c) {
 			return c._nodes ? c._nodes : c;
-		},
-
-        _suspendDrawing = false,
-        /*
-        sets whether or not to suspend drawing.  you should use this if you need to connect a whole load of things in one go.
-        it will save you a lot of time.
-         */
-        _setSuspendDrawing = function(val, repaintAfterwards) {
-            _suspendDrawing = val;
-            if (repaintAfterwards) _instance.repaintEverything();
-        },
+		},        
+                             
 
 		/**
 		 * Draws an endpoint and its connections. this is the main entry point into drawing connections as well
@@ -1221,25 +1214,10 @@
 		 */
 		this.overlayClass = "_jsPlumb_overlay";
 		
-		this.Anchors = {};
-		
-		this.Connectors = { 
-			"canvas":{},
-			"svg":{},
-			"vml":{}
-		};
-
-		this.Endpoints = {
-			"canvas":{},
-			"svg":{},
-			"vml":{}
-		};
-
-		this.Overlays = {
-			"canvas":{},
-			"svg":{},
-			"vml":{}
-		};
+		this.Anchors = 		{ };		
+		this.Connectors = 	{ "canvas":{}, "svg":{}, "vml":{} };
+		this.Endpoints = 	{ "canvas":{}, "svg":{}, "vml":{} };
+		this.Overlays = 	{ "canvas":{}, "svg":{}, "vml":{} };
 		
 // ************************ PLACEHOLDER DOC ENTRIES FOR NATURAL DOCS *****************************************
 		/*
@@ -1953,7 +1931,22 @@ between this method and jsPlumb.reset).
 			return sizes[id];
 		};		
 		
-		this.appendElement = _appendElement;
+		/**
+		 * appends an element to some other element, which is calculated as follows:
+		 * 
+		 * 1. if _instance.Defaults.Container exists, use that element.
+		 * 2. if the 'parent' parameter exists, use that.
+		 * 3. otherwise just use the document body.
+		 * 
+		 */
+		this.appendElement = function(el, parent) {
+			if (_instance.Defaults.Container)
+				jpcl.appendElement(el, _instance.Defaults.Container);
+			else if (!parent)
+				document.body.appendChild(el);
+			else
+				jpcl.appendElement(el, parent);
+		};
 		
 		var _hoverSuspended = false;
 		this.isHoverSuspended = function() { return _hoverSuspended; };
@@ -2977,12 +2970,24 @@ between this method and jsPlumb.reset).
 			log = debugLog;
 		};						
 
+		var _suspendDrawing = false;
         /*
          * Function: setSuspendDrawing
          * Suspends drawing operations.  This can be used when you have a lot of connections to make or endpoints to register;
          * it will save you a lot of time.
          */
-        this.setSuspendDrawing = _setSuspendDrawing;
+        this.setSuspendDrawing = function(val, repaintAfterwards) {
+            _suspendDrawing = val;
+            if (repaintAfterwards) _instance.repaintEverything();
+        };
+
+        /*
+         * Function: isSuspendDrawing
+         * Returns whether or not drawing is currently suspended.
+        */
+        this.isSuspendDrawing = function() {
+        	return _suspendDrawing;
+        };
 		
 		/*
 		 * Constant for use with the setRenderMode method
@@ -4442,7 +4447,7 @@ between this method and jsPlumb.reset).
 			var n = document.createElement("div");
 			n.style.position = "absolute";
 			var placeholderDragElement = jpcl.getElementObject(n);
-			_appendElement(n, parent);
+			_instance.appendElement(n, parent);
 			var id = _getId(placeholderDragElement);
 			_updateOffset( { elId : id });
 			// create and assign an id, and initialize the offset.
