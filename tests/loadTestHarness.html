@@ -55,6 +55,13 @@
 							<label><input type="radio" name="chkSuspend" value="no">No</label>
 						</td>
 					</tr>
+					<tr>
+						<td>setLabel?</td>
+						<td>
+							<label><input value="yes" type="radio" name="chkLabel" checked>yes</label>
+							<label><input value="no" type="radio" name="chkLabel">no</label>
+						</td>
+					</tr>
 				</table>			
 			</div>
 			<button id="btnTest">Run Test</button>
@@ -70,12 +77,14 @@
 						<td>Total time:</td><td id="totalCreateTime"></td>
 					</tr>
 					<tr>
-						<td>Average time:</td><td id="averageCreateTime"></td>
+						<td>Create time:</td><td id="createTime"></td>
+					</tr>
+					<tr>
+						<td>Average create time:</td><td id="averageCreateTime"></td>
 					</tr>
 					<tr>
 						<td>Repaint time:</td><td id="repaintTime"></td>
 					</tr>
-
 				</table>
 			</div>
 		</div>

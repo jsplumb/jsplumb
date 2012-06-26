@@ -36,15 +36,14 @@
 
             var numElements = $("#txtElements").val(),
                 anchors = $("input[name='anchors']:checked").val(),
-                suspend = $("input[name='chkSuspend']:checked").val() === "yes";
+                suspend = $("input[name='chkSuspend']:checked").val() === "yes",
+                setLabel = $("input[name='chkLabel']:checked").val() === "yes";
 
             jsPlumb.importDefaults({
                 Container: $("#demo"),
                 Overlays:[ "Arrow" ]
             });
-
-            
-                
+                    
 
             // for bulk drawing operations this is recommended.
             if (suspend) jsPlumb.setSuspendDrawing(true);
@@ -84,7 +83,8 @@
                         for (var k = 0; k < ep1.length; k++) {
                             for (var l = 0; l < ep2.length; l++) {
                                 var ct = (new Date()).getTime();
-                                jsPlumb.connect({source:ep1[k], target:ep2[l], paintStyle:{lineWidth:1, strokeStyle:"red"}});
+                                var c = jsPlumb.connect({source:ep1[k], target:ep2[l], paintStyle:{lineWidth:1, strokeStyle:"red"}});
+                                if (setLabel) c.setLabel("FOO");
                                 var ctt = (new Date()).getTime();
                                 time += (ctt - ct);
                                 connCount ++;
@@ -104,7 +104,8 @@
             var t2 = (new Date()).getTime();
 
             $("#numConnections").html(connCount);
-            $("#totalCreateTime").html(t-st);
+            $("#totalCreateTime").html((t-st) + (t2-st2));
+            $("#createTime").html(t-st);
             $("#averageCreateTime").html(time/connCount);
             $("#repaintTime").html(t2-st2);
 
