@@ -2547,7 +2547,7 @@ between this method and jsPlumb.reset).
 		*	The current jsPlumb instance.
 		*/
 		this.unmakeSource = function(el, doNotClearArrays) {
-			el = jpcl.getElementObject(el);
+			_el = jpcl.getElementObject(el);
 			var id = _getId(el),
 				mouseDownListener = _sourceTriggers[id];
 			
