@@ -980,7 +980,16 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertContextSize(2);
 		_jsPlumb.removeAllEndpoints("d16");
 		assertContextSize(0);
-	})
+	});
+
+	test(renderMode + " : deleteEveryEndpoint", function() {
+		_addDiv("d16");
+		_jsPlumb.addEndpoint("d16");
+		_jsPlumb.addEndpoint("d16");
+		assertContextSize(2);
+		_jsPlumb.deleteEveryEndpoint();
+		assertContextSize(0);
+	});
 
 	asyncTest(renderMode + "jsPlumbUtil.setImage on Endpoint, with supplied onload", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
