@@ -698,7 +698,11 @@
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
 		_draw = function(element, ui, timestamp) {
-            if (!_suspendDrawing) {
+
+			//var id = _getAttribute(element, "id");
+			 _instance.anchorManager.redraw(element, ui, timestamp);
+
+            /*if (!_suspendDrawing) {
 			    var id = _getAttribute(element, "id"),
 			    	repaintEls = _instance.dragManager.getElementsForDraggable(id);			    
 
@@ -711,7 +715,7 @@
 						_instance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset);			    	
 				    }
 				}
-            }
+            }*/
 		},
 
 		/**
@@ -1458,7 +1462,7 @@
 				endpoint.detachAll();				
 				_removeElements(endpoint.endpoint.getDisplayElements());
 				_instance.anchorManager.deleteEndpoint(endpoint);
-				for (var e in endpointsByElement) {
+				/*for (var e in endpointsByElement) {
 					var endpoints = endpointsByElement[e];
 					if (endpoints) {
 						var newEndpoints = [];
@@ -1467,8 +1471,8 @@
 						
 						endpointsByElement[e] = newEndpoints;
 					}
-				}
-				_instance.dragManager.endpointDeleted(endpoint);								
+				}*/
+				//_instance.dragManager.endpointDeleted(endpoint);								
 			}									
 		};
 		
@@ -1482,14 +1486,16 @@ between this method and jsPlumb.reset).
 		 */
 		this.deleteEveryEndpoint = function() {
 			console.time("delete every endpoint");
-			for ( var id in endpointsByElement) {
+		/*	for ( var id in endpointsByElement) {
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0; i < endpoints.length; i++) {
 						_instance.deleteEndpoint(endpoints[i]);					
 					}
 				}
-			}
+			}*/
+
+			_instance.anchorManager.deleteEveryEndpoint();
 			console.timeEnd("delete every endpoint");
 			//var e = _instance.getSelector("." + _instance.endpointClass);
 			//for (var i = 0; i < e.length; i++)
@@ -2797,9 +2803,10 @@ between this method and jsPlumb.reset).
 		  	<repaint>
 		 */
 		this.repaintEverything = function() {
-			for ( var elId in endpointsByElement) {
+			/*for ( var elId in endpointsByElement) {
 				_draw(jpcl.getElementObject(elId), null, null);
-			}
+			}*/
+			_instance.anchorManager.redrawAll();
 		};
 
 		/*
@@ -3516,12 +3523,14 @@ between this method and jsPlumb.reset).
 		var _amEndpoints = {},
 			connectionsByElementId = {},
 			self = this,
-            anchorLists = {};
+            anchorLists = {},
+            dirtyFlags = {};
 
         this.reset = function() {
         	_amEndpoints = {};
         	connectionsByElementId = {};
             anchorLists = {};
+            dirtyFlags = {};
         };			
  		this.newConnection = function(conn) {
 			var sourceId = conn.sourceId, targetId = conn.targetId,
@@ -3540,6 +3549,9 @@ between this method and jsPlumb.reset).
 			registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
             if (doRegisterTarget)
             	registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
+
+            dirtyFlags[sourceId] = true;
+            //dirtyFlags[targetId] = true;  ??
 		};
 		this.connectionDetached = function(connInfo) {
 			var connection = connInfo.connection || connInfo;
@@ -3577,11 +3589,16 @@ between this method and jsPlumb.reset).
             
             JU.remove(anchorLists[sEl], sE);
             JU.remove(anchorLists[tEl], tE);
+
+            dirtyFlags[sEl] = true;
+            //dirtyFlags[tEl] = true;  ??
+
             self.redraw(sEl);
             self.redraw(tEl);
 		};
 		this.add = function(endpoint, elementId) {
 			JU.addToList(_amEndpoints, elementId, endpoint);
+			dirtyFlags[elementId] = true;
 		};
 		this.changeId = function(oldId, newId) {
 			connectionsByElementId[newId] = connectionsByElementId[oldId];
@@ -3601,7 +3618,21 @@ between this method and jsPlumb.reset).
 				return e.id == endpoint.id;
 			});
 			console.timeEnd("remove an endpoint");
+
+			self.dragManager.endpointDeleted(endpoint);
 		};
+
+		this.deleteEveryEndpoint = function() {
+			for ( var id in _amEndpoints) {
+				var endpoints = _amEndpoints[id];
+				if (endpoints && endpoints.length) {
+					for ( var i = 0; i < endpoints.length; i++) {
+						self.deleteEndpoint(endpoints[i]);					
+					}
+				}
+			}
+		}
+
 		this.clearFor = function(elementId) {
 			delete _amEndpoints[elementId];
 			_amEndpoints[elementId] = [];
@@ -3651,132 +3682,179 @@ between this method and jsPlumb.reset).
             // store this for next time.
             endpoint._continuousAnchorEdge = edgeId;
         };
-		this.redraw = function(elementId, ui, timestamp, offsetToUI) {
-			// get all the endpoints for this element
-			var ep = _amEndpoints[elementId] || [],
-				endpointConnections = connectionsByElementId[elementId] || [],
-				connectionsToPaint = [],
-				endpointsToPaint = [],
-                anchorsToUpdate = [];
-            
-			timestamp = timestamp || _timestamp();
-			// offsetToUI are values that would have been calculated in the dragManager when registering
-			// an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
-			// registered as draggable.
-			offsetToUI = offsetToUI || {left:0, top:0};
-			if (ui) {
-				ui = {
-					left:ui.left + offsetToUI.left,
-					top:ui.top + offsetToUI.top
+        
+        this.redrawAll = function() {
+        	for (var i in _amEndpoints) {
+        		 self.redraw(i);
+        	}
+        	//self.redrawDirty();
+        };
+
+        this.redrawDirty = function() {
+        	for (var i in dirtyFlags) {
+        		if (dirtyFlags[i]) {
+        			self.redraw(i);
+        		}
+        	}
+        };
+
+        /*
+        if (!_suspendDrawing) {
+			    var id = _getAttribute(element, "id"),
+			    	repaintEls = _instance.dragManager.getElementsForDraggable(id);			    
+
+			    if (timestamp == null) timestamp = _timestamp();
+
+			    _instance.anchorManager.redraw(id, ui, timestamp);
+
+			    if (repaintEls) {
+				    for (var i in repaintEls) {
+						_instance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset);			    	
+				    }
 				}
-			}
-				
-			_updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }); 
-			// valid for one paint cycle.
-			var myOffset = offsets[elementId],
-                myWH = sizes[elementId],
-                orientationCache = {};
-			
-			// actually, first we should compute the orientation of this element to all other elements to which
-			// this element is connected with a continuous anchor (whether both ends of the connection have
-			// a continuous anchor or just one)
-            //for (var i = 0; i < continuousAnchorConnections.length; i++) {
-            for (var i = 0; i < endpointConnections.length; i++) {
-                var conn = endpointConnections[i][0],
-					sourceId = conn.sourceId,
-                    targetId = conn.targetId,
-                    sourceContinuous = conn.endpoints[0].anchor.isContinuous,
-                    targetContinuous = conn.endpoints[1].anchor.isContinuous;
-
-                if (sourceContinuous || targetContinuous) {
-	                var oKey = sourceId + "_" + targetId,
-	                    oKey2 = targetId + "_" + sourceId,
-	                    o = orientationCache[oKey],
-	                    oIdx = conn.sourceId == elementId ? 1 : 0;
-
-	                if (sourceContinuous && !anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
-	                if (targetContinuous && !anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
-
-	                if (elementId != targetId) _updateOffset( { elId : targetId, timestamp : timestamp }); 
-	                if (elementId != sourceId) _updateOffset( { elId : sourceId, timestamp : timestamp }); 
-
-	                var td = _getCachedData(targetId),
-						sd = _getCachedData(sourceId);
-
-	                if (targetId == sourceId && (sourceContinuous || targetContinuous)) {
-	                    // here we may want to improve this by somehow determining the face we'd like
-					    // to put the connector on.  ideally, when drawing, the face should be calculated
-					    // by determining which face is closest to the point at which the mouse button
-						// was released.  for now, we're putting it on the top face.
-	                    _updateAnchorList(anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", sourceId, connectionsToPaint, endpointsToPaint)
-					}
-	                else {
-	                    if (!o) {
-	                        o = calculateOrientation(sourceId, targetId, sd.o, td.o);
-	                        orientationCache[oKey] = o;
-	                        // this would be a performance enhancement, but the computed angles need to be clamped to
-	                        //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
-	                    /*  orientationCache[oKey2] = {
-	                            orientation:o.orientation,
-	                            a:[o.a[1], o.a[0]],
-	                            theta:o.theta + Math.PI,
-	                            theta2:o.theta2 + Math.PI
-	                        };*/
-	                    }
-	                    if (sourceContinuous) _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
-	                    if (targetContinuous) _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
-	                }
-
-	                if (sourceContinuous) JU.addWithFunction(anchorsToUpdate, sourceId, function(a) { return a === sourceId; });
-	                if (targetContinuous) JU.addWithFunction(anchorsToUpdate, targetId, function(a) { return a === targetId; });
-	                JU.addWithFunction(connectionsToPaint, conn, function(c) { return c.id == conn.id; });
-	                if ((sourceContinuous && oIdx == 0) || (targetContinuous && oIdx == 1))
-	                	JU.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
-	            }
             }
+            */
 
-            // now place all the continuous anchors we need to;
-            for (var i = 0; i < anchorsToUpdate.length; i++) {
-				placeAnchors(anchorsToUpdate[i], anchorLists[anchorsToUpdate[i]]);
-			}
-			
-			// now that continuous anchors have been placed, paint all the endpoints for this element
-            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
-            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
-			for (var i = 0; i < ep.length; i++) {				
-				ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
-			}
-            // ... and any other endpoints we came across as a result of the continuous anchors.
-            for (var i = 0; i < endpointsToPaint.length; i++) {
-				endpointsToPaint[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
-			}
+		this.redraw = function(element, ui, timestamp, offsetToUI) {
 
-			// paint all the standard and "dynamic connections", which are connections whose other anchor is
-			// static and therefore does need to be recomputed; we make sure that happens only one time.
+			if (!_suspendDrawing) {
 
-			// TODO we could have compiled a list of these in the first pass through connections; might save some time.
-			for (var i = 0; i < endpointConnections.length; i++) {
-				var otherEndpoint = endpointConnections[i][1];
-				if (otherEndpoint.anchor.constructor == DynamicAnchor) {			 							
-					otherEndpoint.paint({ elementWithPrecedence:elementId });								
-                    JU.addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
-					// all the connections for the other endpoint now need to be repainted
-					for (var k = 0; k < otherEndpoint.connections.length; k++) {
-						if (otherEndpoint.connections[k] !== endpointConnections[i][0])							
-                            JU.addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function(c) { return c.id == otherEndpoint.connections[k].id; });
+				// get all the endpoints for this element
+				var elementId = _getId(element),
+					ep = _amEndpoints[elementId] || [],
+					endpointConnections = connectionsByElementId[elementId] || [],
+					connectionsToPaint = [],
+					endpointsToPaint = [],
+	                anchorsToUpdate = [];
+	            
+				timestamp = timestamp || _timestamp();
+				// offsetToUI are values that would have been calculated in the dragManager when registering
+				// an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
+				// registered as draggable.
+				offsetToUI = offsetToUI || {left:0, top:0};
+				if (ui) {
+					ui = {
+						left:ui.left + offsetToUI.left,
+						top:ui.top + offsetToUI.top
 					}
-				} else if (otherEndpoint.anchor.constructor == Anchor) {					
-                    JU.addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 				}
-			}
-			// paint current floating connection for this element, if there is one.
-			var fc = floatingConnections[elementId];
-			if (fc) 
-				fc.paint({timestamp:timestamp, recalc:false, elId:elementId});
+									
+				// valid for one paint cycle.
+				var myOffset = _updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }),
+	                myWH = sizes[elementId],
+	                orientationCache = {};
 				
-			// paint all the connections
-			for (var i = 0; i < connectionsToPaint.length; i++) {
-				connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false});
+				// actually, first we should compute the orientation of this element to all other elements to which
+				// this element is connected with a continuous anchor (whether both ends of the connection have
+				// a continuous anchor or just one)
+	            //for (var i = 0; i < continuousAnchorConnections.length; i++) {
+	            for (var i = 0; i < endpointConnections.length; i++) {
+	                var conn = endpointConnections[i][0],
+						sourceId = conn.sourceId,
+	                    targetId = conn.targetId,
+	                    sourceContinuous = conn.endpoints[0].anchor.isContinuous,
+	                    targetContinuous = conn.endpoints[1].anchor.isContinuous;
+
+	                if (sourceContinuous || targetContinuous) {
+		                var oKey = sourceId + "_" + targetId,
+		                    oKey2 = targetId + "_" + sourceId,
+		                    o = orientationCache[oKey],
+		                    oIdx = conn.sourceId == elementId ? 1 : 0;
+
+		                if (sourceContinuous && !anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
+		                if (targetContinuous && !anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
+
+		                if (elementId != targetId) _updateOffset( { elId : targetId, timestamp : timestamp }); 
+		                if (elementId != sourceId) _updateOffset( { elId : sourceId, timestamp : timestamp }); 
+
+		                var td = _getCachedData(targetId),
+							sd = _getCachedData(sourceId);
+
+		                if (targetId == sourceId && (sourceContinuous || targetContinuous)) {
+		                    // here we may want to improve this by somehow determining the face we'd like
+						    // to put the connector on.  ideally, when drawing, the face should be calculated
+						    // by determining which face is closest to the point at which the mouse button
+							// was released.  for now, we're putting it on the top face.
+		                    _updateAnchorList(anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", sourceId, connectionsToPaint, endpointsToPaint)
+						}
+		                else {
+		                    if (!o) {
+		                        o = calculateOrientation(sourceId, targetId, sd.o, td.o);
+		                        orientationCache[oKey] = o;
+		                        // this would be a performance enhancement, but the computed angles need to be clamped to
+		                        //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
+		                    /*  orientationCache[oKey2] = {
+		                            orientation:o.orientation,
+		                            a:[o.a[1], o.a[0]],
+		                            theta:o.theta + Math.PI,
+		                            theta2:o.theta2 + Math.PI
+		                        };*/
+		                    }
+		                    if (sourceContinuous) _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
+		                    if (targetContinuous) _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
+		                }
+
+		                if (sourceContinuous) JU.addWithFunction(anchorsToUpdate, sourceId, function(a) { return a === sourceId; });
+		                if (targetContinuous) JU.addWithFunction(anchorsToUpdate, targetId, function(a) { return a === targetId; });
+		                JU.addWithFunction(connectionsToPaint, conn, function(c) { return c.id == conn.id; });
+		                if ((sourceContinuous && oIdx == 0) || (targetContinuous && oIdx == 1))
+		                	JU.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
+		            }
+	            }
+
+	            // now place all the continuous anchors we need to;
+	            for (var i = 0; i < anchorsToUpdate.length; i++) {
+					placeAnchors(anchorsToUpdate[i], anchorLists[anchorsToUpdate[i]]);
+				}
+				
+				// now that continuous anchors have been placed, paint all the endpoints for this element
+	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
+	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
+				for (var i = 0; i < ep.length; i++) {				
+					ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+				}
+	            // ... and any other endpoints we came across as a result of the continuous anchors.
+	            for (var i = 0; i < endpointsToPaint.length; i++) {
+					endpointsToPaint[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+				}
+
+				// paint all the standard and "dynamic connections", which are connections whose other anchor is
+				// static and therefore does need to be recomputed; we make sure that happens only one time.
+
+				// TODO we could have compiled a list of these in the first pass through connections; might save some time.
+				for (var i = 0; i < endpointConnections.length; i++) {
+					var otherEndpoint = endpointConnections[i][1];
+					if (otherEndpoint.anchor.constructor == DynamicAnchor) {			 							
+						otherEndpoint.paint({ elementWithPrecedence:elementId });								
+	                    JU.addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
+						// all the connections for the other endpoint now need to be repainted
+						for (var k = 0; k < otherEndpoint.connections.length; k++) {
+							if (otherEndpoint.connections[k] !== endpointConnections[i][0])							
+	                            JU.addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function(c) { return c.id == otherEndpoint.connections[k].id; });
+						}
+					} else if (otherEndpoint.anchor.constructor == Anchor) {					
+	                    JU.addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
+					}
+				}
+				// paint current floating connection for this element, if there is one.
+				var fc = floatingConnections[elementId];
+				if (fc) 
+					fc.paint({timestamp:timestamp, recalc:false, elId:elementId});
+					
+				// paint all the connections
+				for (var i = 0; i < connectionsToPaint.length; i++) {
+					connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false});
+				}
+
+				// see if the drag manager needs us to repaint anything else too.
+				var repaintEls = self.dragManager.getElementsForDraggable(elementId);
+				if (repaintEls) {
+				    for (var i in repaintEls) {
+						self.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset);			    	
+				    }
+				}
+
+				delete dirtyFlags[elementId];
 			}
 		};
 		this.rehomeEndpoint = function(currentId, element) {
@@ -3918,8 +3996,8 @@ between this method and jsPlumb.reset).
 		
 	};
 	_instance.dragManager = new DragManager();
+	_instance.anchorManager.dragManager = _instance.dragManager;
 	
-
 
 		/*
 		 * Class: Connection
@@ -4872,7 +4950,7 @@ between this method and jsPlumb.reset).
 
 				// TODO possibly have this object take charge of moving the UI components into the appropriate
 				// parent.  this is used only by makeSource right now, and that function takes care of
-				// moving the UI bits and pieces.  however it would s			
+				// moving the UI bits and pieces. 			
 				var parentId = _getId(el);
 				// remove the endpoint from the list for the current endpoint's element
 				JU.removeWithFunction(endpointsByElement[self.elementId], function(e) {
