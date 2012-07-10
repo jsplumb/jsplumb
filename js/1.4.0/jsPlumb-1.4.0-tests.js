@@ -427,9 +427,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
 		var c = _jsPlumb.connect({source:e1,target:e2});
 		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
-		var success = e1.detach(c);
+		var result = e1.detach(c);
 		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
-		ok(!success, "Endpoint reported detach did not execute");
+		ok(!result.success, "Endpoint reported detach did not execute");
+		equals(result.endpointsToDelete.length, 0, "No endpoints flagged for deletion");
 	});
 
 	test(renderMode + ": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false", function() {
@@ -536,6 +537,8 @@ var testSuite = function(renderMode, _jsPlumb) {
         equals(connCount, 2, "two connections registered");
         _jsPlumb.detachEveryConnection();
         equals(connCount, 0, "no connections registered");
+
+        assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
     });
 
     test(renderMode + ": _jsPlumb.detachEveryConnection doesn't fire events when instructed not to", function() {
@@ -547,11 +550,12 @@ var testSuite = function(renderMode, _jsPlumb) {
         equals(connCount, 2, "two connections registered");
         _jsPlumb.detachEveryConnection({fireEvent:false});
         equals(connCount, 2, "two connections registered");
+
+        assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
     });
 
      test(renderMode + ": _jsPlumb.detachAllConnections fires events", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0,
-            e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2);
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0;
         _jsPlumb.bind("jsPlumbConnection", function() { connCount++; });
         _jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
         _jsPlumb.connect({source:d1, target:d2});
@@ -559,11 +563,11 @@ var testSuite = function(renderMode, _jsPlumb) {
         equals(connCount, 2, "two connections registered");
         _jsPlumb.detachAllConnections("d1");
         equals(connCount, 0, "no connections registered");
+        assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);        
     });
 
     test(renderMode + ": _jsPlumb.detachAllConnections doesn't fire events when instructed not to", function() {
-        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0,
-            e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2);
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0;           
         _jsPlumb.bind("jsPlumbConnection", function() { connCount++; });
         _jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
         _jsPlumb.connect({source:d1, target:d2});
@@ -571,6 +575,8 @@ var testSuite = function(renderMode, _jsPlumb) {
         equals(connCount, 2, "two connections registered");
         _jsPlumb.detachAllConnections("d1", {fireEvent:false});
         equals(connCount, 2, "two connections registered");
+
+        assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
     });
 	
 	test(renderMode + ': getConnections (scope testScope)', function() {

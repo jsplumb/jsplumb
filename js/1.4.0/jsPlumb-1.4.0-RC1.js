@@ -1524,52 +1524,58 @@ between this method and jsPlumb.reset).
                 params = arguments.length == 2 ? firstArgIsConnection ? (arguments[1] || {}) : arguments[0] : arguments[0],
                 fireEvent = (params.fireEvent !== false),
                 forceDetach = params.forceDetach,
-                connection = firstArgIsConnection ? arguments[0] : params.connection;
+                connection = firstArgIsConnection ? arguments[0] : params.connection,
+                endpointsToDelete = [];
 
-				if (connection) {
-                    if (forceDetach || (connection.isDetachAllowed(connection)
-                                        && connection.endpoints[0].isDetachAllowed(connection)
-                                        && connection.endpoints[1].isDetachAllowed(connection))) {
-                        if (forceDetach || _instance.checkCondition("beforeDetach", connection))
-						    connection.endpoints[0].detach(connection, false, true, fireEvent); // TODO check this param iscorrect for endpoint's detach method
-                    }
-                }
-                else {
-					var _p = jpcl.extend( {}, params); // a backwards compatibility hack: source should be thought of as 'params' in this case.
-					// test for endpoint uuids to detach
-					if (_p.uuids) {
-						_getEndpoint(_p.uuids[0]).detachFrom(_getEndpoint(_p.uuids[1]), fireEvent);
-					} else if (_p.sourceEndpoint && _p.targetEndpoint) {
-						_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
-					} else {
-						var sourceId = _getId(_p.source),
-						    targetId = _getId(_p.target),
-						    eps = _instance.anchorManager.getEndpointsFor(sourceId),
-						    i = 0;
-						    while (i < eps.length) {
-						    //for (var i = 0; i < eps.length; i++) {
-						    	for (var j = 0; j < eps[i].connections.length; j++) {
-						    		//if (!eps[i].deleted) {
-							    		var jpc = eps[i].connections[j];
-							    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-										    if (_instance.checkCondition("beforeDetach", jpc)) {
-			                                    jpc.endpoints[0].detach(jpc, false, true, fireEvent);		                                    
-											}
-										}
-									//}
-						    	}
-						    	i++;
-						    }
-						/*_operation(sourceId, function(jpc) {
-						    if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
-							    if (_instance.checkCondition("beforeDetach", jpc)) {
-                                    jpc.endpoints[0].detach(jpc, false, true, fireEvent);
-								}
-							}
-						});*/
-
+			if (connection) {
+                if (forceDetach || (connection.isDetachAllowed(connection)
+                                    && connection.endpoints[0].isDetachAllowed(connection)
+                                    && connection.endpoints[1].isDetachAllowed(connection))) {
+                    if (forceDetach || _instance.checkCondition("beforeDetach", connection)) {
+					    connection.endpoints[0].detach(connection, false, true, fireEvent); // TODO check this param iscorrect for endpoint's detach method					    
 					}
+                }
+            }
+            else {
+				var _p = jpcl.extend( {}, params); // a backwards compatibility hack: source should be thought of as 'params' in this case.
+				// test for endpoint uuids to detach
+				if (_p.uuids) {
+					_getEndpoint(_p.uuids[0]).detachFrom(_getEndpoint(_p.uuids[1]), fireEvent);					
+				} else if (_p.sourceEndpoint && _p.targetEndpoint) {
+					_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
+				} else {
+					var sourceId = _getId(_p.source),
+					    targetId = _getId(_p.target),
+					    eps = _instance.anchorManager.getEndpointsFor(sourceId),
+					    i = 0;						   
+					    for (var i = 0; i < eps.length; i++) {
+					    	for (var j = 0; j < eps[i].connections.length; j++) {						    		
+					    		var jpc = eps[i].connections[j];
+					    		if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+								    if (_instance.checkCondition("beforeDetach", jpc)) {
+	                                    var r = jpc.endpoints[0].detach(jpc, false, true, fireEvent, null, true);	
+	                                    endpointsToDelete.push.apply(endpointsToDelete, r.endpointsToDelete);
+									}
+								}								
+					    	}
+					    }
+					    // we delete all the endpoints at the end; this prevents us from tripping ourselves
+					    // up if some connection has requested the deletion of an endpoint whose connections
+					    // we are currently iterating.						    
+
+					/*_operation(sourceId, function(jpc) {
+					    if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
+						    if (_instance.checkCondition("beforeDetach", jpc)) {
+                                jpc.endpoints[0].detach(jpc, false, true, fireEvent);
+							}
+						}
+					});*/
+
 				}
+			}
+
+			for (var i = 0; i < endpointsToDelete.length; i++)
+				_instance.deleteEndpoint(endpointsToDelete[i]);
 		};
 
 		/*
@@ -3602,10 +3608,12 @@ between this method and jsPlumb.reset).
 		};
 		this.changeId = function(oldId, newId, newEl) {
 
-			for (var i = 0; i < _amEndpoints[newId].length; i++) {
-				_amEndpoints[newId][i].elementId = newId;
-				_amEndpoints[newId][i].element = newEl;
-				_amEndpoints[newId][i].anchor.elementId = newId;
+			if (!_amEndpoints[newId]) _amEndpoints[newId] = [];
+
+			for (var i = 0; i < _amEndpoints[oldId].length; i++) {
+				_amEndpoints[oldId][i].elementId = newId;
+				_amEndpoints[oldId][i].element = newEl;
+				_amEndpoints[oldId][i].anchor.elementId = newId;
 			}			
 
 			connectionsByElementId[newId] = connectionsByElementId[oldId];
@@ -4835,10 +4843,17 @@ between this method and jsPlumb.reset).
 			 * Parameters:
 			 *   connection - the Connection to detach.
 			 *   ignoreTarget - optional; tells the Endpoint to not notify the Connection target that the Connection was detached.  The default behaviour is to notify the target.
+			 *
+			 * Returns:
+			 *	a JS object literal containing a boolean indicating success or failure, plus a list of endpoints to subsequently delete:
+			 *		{ success:true, endpointsToDelete:[...] } 
+			 *
 			 */
-			this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent) {
+			this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent, doNotDeleteEndpointsImmediately) {
 				var idx =  JU.findWithFunction(self.connections, function(c) { return c.id == connection.id}), 
-					actuallyDetached = false;
+					actuallyDetached = false,
+					endpointsToDelete = [];					
+
                 fireEvent = (fireEvent !== false);
 				if (idx >= 0) {		
 					// 1. does the connection have a before detach (note this also checks jsPlumb's bound
@@ -4869,8 +4884,12 @@ between this method and jsPlumb.reset).
 								if (connection.endpointsToDeleteOnDetach){
 									for (var i = 0; i < connection.endpointsToDeleteOnDetach.length; i++) {
 										var cde = connection.endpointsToDeleteOnDetach[i];
-										if (cde && cde.connections.length == 0) 
-											_instance.deleteEndpoint(cde);							
+										if (cde && cde.connections.length == 0) {
+											if (!doNotDeleteEndpointsImmediately)
+												_instance.deleteEndpoint(cde);
+											else
+												endpointsToDelete.push(cde);
+										}
 									}
 								}
 							}
@@ -4884,7 +4903,7 @@ between this method and jsPlumb.reset).
 						}
 					}
 				}
-				return actuallyDetached;
+				return { success:actuallyDetached, endpointsToDelete:endpointsToDelete };
 			};			
 
 			/*
@@ -4895,9 +4914,12 @@ between this method and jsPlumb.reset).
 			 *  fireEvent   -   whether or not to fire the detach event.  defaults to false.
 			 */
 			this.detachAll = function(fireEvent, originalEvent) {
+				var endpointsToDelete = [];
 				while (self.connections.length > 0) {
-					self.detach(self.connections[0], false, true, fireEvent, originalEvent);					
+					var r = self.detach(self.connections[0], false, true, fireEvent, originalEvent, true);					
+					endpointsToDelete.push.apply(endpointsToDelete, r.endpointsToDelete);
 				}
+				return endpointsToDelete;
 			};
 			/*
 			 * Function: detachFrom
@@ -4908,7 +4930,7 @@ between this method and jsPlumb.reset).
 			 *   fireEvent          - whether or not to fire the detach event. defaults to false.
 			 */
 			this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
-				var c = [];
+				var c = [], endpointsToDelete = [];
 				for ( var i = 0; i < self.connections.length; i++) {
 					if (self.connections[i].endpoints[1] == targetEndpoint
 							|| self.connections[i].endpoints[0] == targetEndpoint) {
@@ -4916,9 +4938,14 @@ between this method and jsPlumb.reset).
 					}
 				}
 				for ( var i = 0; i < c.length; i++) {
-					if (self.detach(c[i], false, true, fireEvent, originalEvent))
-						c[i].setHover(false, false);					
+					var r = self.detach(c[i], false, true, fireEvent, originalEvent);
+					if (r.success)
+						c[i].setHover(false, false);
+											
+					endpointsToDelete.push.apply(endpointsToDelete, r.endpointsToDelete);
 				}
+
+				return endpointsToDelete;
 			};			
 			/*
 			 * Function: detachFromConnection
@@ -5355,7 +5382,7 @@ between this method and jsPlumb.reset).
 								// restore the original scope (issue 57)
 								jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
-								if (self.isReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
+								if (self.isReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent).success) {									
 									jpc.setHover(false);
 									jpc.floatingAnchorIndex = null;
 									jpc.suspendedEndpoint.addConnection(jpc);
