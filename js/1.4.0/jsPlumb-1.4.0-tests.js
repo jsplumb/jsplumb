@@ -973,6 +973,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(e16.isConnectedTo(e17), true, "e16 and e17 are connected");  
 	});
 
+	test(renderMode + " : removeAllEndpoints", function() {
+		_addDiv("d16");
+		_jsPlumb.addEndpoint("d16");
+		_jsPlumb.addEndpoint("d16");
+		assertContextSize(2);
+		_jsPlumb.removeAllEndpoints("d16");
+		assertContextSize(0);
+	})
+
 	asyncTest(renderMode + "jsPlumbUtil.setImage on Endpoint, with supplied onload", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
         e = {
