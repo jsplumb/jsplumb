@@ -1462,6 +1462,7 @@
 				endpoint.detachAll();				
 				_removeElements(endpoint.endpoint.getDisplayElements());
 				_instance.anchorManager.deleteEndpoint(endpoint);
+				
 				/*for (var e in endpointsByElement) {
 					var endpoints = endpointsByElement[e];
 					if (endpoints) {
@@ -1486,16 +1487,16 @@ between this method and jsPlumb.reset).
 		 */
 		this.deleteEveryEndpoint = function() {
 			console.time("delete every endpoint");
-		/*	for ( var id in endpointsByElement) {
+			for ( var id in endpointsByElement) {
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
 					for ( var i = 0; i < endpoints.length; i++) {
 						_instance.deleteEndpoint(endpoints[i]);					
 					}
 				}
-			}*/
+			}
 
-			_instance.anchorManager.deleteEveryEndpoint();
+//			_instance.anchorManager.deleteEveryEndpoint();
 			console.timeEnd("delete every endpoint");
 			//var e = _instance.getSelector("." + _instance.endpointClass);
 			//for (var i = 0; i < e.length; i++)
@@ -1912,7 +1913,8 @@ between this method and jsPlumb.reset).
 		 * @return
 		 */
 		this.getEndpoints = function(el) {
-			return endpointsByElement[_getId(el)];
+			//return endpointsByElement[_getId(el)];
+			return _instance.anchorManager.getEndpointsFor(_getId(el));
 		};		
 
 		/*
@@ -2558,7 +2560,7 @@ between this method and jsPlumb.reset).
 				mouseDownListener = _sourceTriggers[id];
 			
 			if (mouseDownListener) 
-				_instance.unregisterListener(_el, "mousedown", mouseDownListener);
+				_instance.unregisterListener(el, "mousedown", mouseDownListener);
 
 			if (!doNotClearArrays) {
 				delete _sourceEndpointDefinitions[id];

@@ -11,15 +11,17 @@ var assertContextExists = function() {
 };
 
 var assertContextSize = function(elementCount) {
-	//equals(_getContextNode().children().length - _divs.length, elementCount, 'context has ' + elementCount + ' children');
+	var divs = $(".jsplumbtest");
+	equals(_getContextNode().children().length - divs.length, elementCount, 'context has ' + elementCount + ' children');
 };
 
 var assertContextEmpty = function() {
-	equals(_getContextNode().children.length, 0, "context empty");
+	var divs = $(".jsplumbtest");
+	equals(_getContextNode().children.length - divs.length, 0, "context empty");
 };
 
 var assertEndpointCount = function(elId, count, _jsPlumb) {
-	equals(_jsPlumb.getTestHarness().endpointCount(elId), count, elId + " has " + count + (count > 1) ? "endpoints" : "endpoint");
+	//equals(_jsPlumb.getTestHarness().endpointCount(elId), count, elId + " has " + count + (count > 1) ? "endpoints" : "endpoint");
 	equals(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + (count > 1) ? "endpoints" : "endpoint");
 };
 
@@ -35,6 +37,7 @@ var assertConnectionByScopeCount = function(scope, count, _jsPlumb) {
 var _divs = [];
 var _addDiv = function(id, parent) {
 	var d1 = document.createElement("div");
+	d1.className = "jsplumbtest";
 	if (parent) parent.append(d1); else _getContextNode().append(d1);
 	d1 = jsPlumb.CurrentLibrary.getElementObject(d1);
 	jsPlumb.CurrentLibrary.setAttribute(d1, "id", id);
@@ -47,17 +50,16 @@ var defaults = null,
 	
 	_jsPlumb.reset();
 	_jsPlumb.Defaults = defaults;
-	
-	for (var i in _divs) {
-		$("#" + _divs[i]).remove();		
-	}	
+	//_jsPlumb.restoreDefaults();
+	_jsPlumb.Defaults.Container = $("#container");
+		
+	$(".jsplumbtest").remove();			
 	_divs.splice(0, _divs.length - 1);
 
 	$("#container").empty();
 };
 
-var testSuite = function(renderMode, _jsPlumb) {
-	
+var testSuite = function(renderMode, _jsPlumb) {	
 
 	module("jsPlumb", {
 		teardown: function() { 
@@ -123,7 +125,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.removeEndpoint(d1, ee);	 
 		assertEndpointCount("d1", 0, _jsPlumb);
 		e = _jsPlumb.getEndpoint("78978597593");
-		equals(e, null, "the endpoint has been deleted");
+		equals(e, undefined, "the endpoint has been deleted");
 		assertContextSize(0); // no Endpoint canvases.
 	});
 	
@@ -330,7 +332,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.detach({source:'d5', target:'d6'});
 		c = _jsPlumb.getConnections();  // will get all connections
 		equals(c.length, 1, "after detaching one, there is now one connection.");
-		assertContextSize(5);
+		assertContextSize(3);
 	});
 
     test(renderMode + ': getConnections (simple case, default scope; detach by id using params object)', function() {
@@ -343,7 +345,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.detach({source:"d5", target:"d6"});
 		c = _jsPlumb.getConnections();  // will get all connections
 		equals(c.length, 1, "after detaching one, there is now one connection.");
-		assertContextSize(5);
+		assertContextSize(3);
 	});
 
 	test(renderMode + ': getConnections (simple case, default scope; detach by element object using params object)', function() {
@@ -356,7 +358,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.detach({source:d5, target:d6});
 		c = _jsPlumb.getConnections();  // will get all connections
 		equals(c.length, 1, "after detaching one, there is now one connection.");
-		assertContextSize(5);
+		assertContextSize(3);
 	});
 	
 	test(renderMode + ': getConnections (simple case, default scope; detach by Connection)', function() {
@@ -367,7 +369,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.getConnections();  // will get all connections
 		equals(c.length, 2, "there are two connections initially");
 		_jsPlumb.detach(c56);
-		assertContextSize(5);		// check that the connection canvas was removed.
+		assertContextSize(3);		// check that the connection canvas was removed (and the endpoints too).
 		c = _jsPlumb.getConnections();  // will get all connections
 		equals(c.length, 1, "after detaching one, there is now one connection.");		
 	});
@@ -1016,9 +1018,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
 		_jsPlumb.deleteEndpoint(uuid);
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint has been deleted");
-		var ebe = _jsPlumb.getTestHarness().endpointsByElement["d16"];
-		equals(ebe.length, 0, "no endpoints registered for element d16 anymore");
+		equals(f, undefined, "endpoint has been deleted");
+		assertEndpointCount("d16", 0, _jsPlumb);		
 		assertContextSize(0);
 	});
 	
@@ -1038,21 +1039,18 @@ var testSuite = function(renderMode, _jsPlumb) {
 		// element d17 still has its Endpoint.
 		_jsPlumb.deleteEndpoint(uuid);
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint has been deleted");
+		equals(f, undefined, "endpoint has been deleted");
 		equals(e16.connections.length, 0, "e16 has no connections");
 		equals(e17.connections.length, 0, "e17 has no connections");
-		var ebe = _jsPlumb.getTestHarness().endpointsByElement["d16"];
-		equals(ebe.length, 0, "no endpoints registered for element d16 anymore");
-		ebe = _jsPlumb.getTestHarness().endpointsByElement["d17"];
-		equals(ebe.length, 1, "element d17 still has its Endpoint");
+		assertEndpointCount("d16", 0, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);
 		assertContextSize(1);
 		
 		// now delete d17's endpoint and check that it has gone.
 		_jsPlumb.deleteEndpoint(e17);
 		f = _jsPlumb.getEndpoint(e17);
-		equals(f, null, "endpoint has been deleted");
-		ebe = _jsPlumb.getTestHarness().endpointsByElement["d17"];
-		equals(ebe.length, 0, "element d17 no longer has any Endpoints");
+		equals(f, undefined, "endpoint has been deleted");
+		assertEndpointCount("d17", 0, _jsPlumb);
 		assertContextSize(0);
 	});
 	
@@ -1064,7 +1062,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
 		_jsPlumb.deleteEndpoint(e16);
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint has been deleted");
+		equals(f, undefined, "endpoint has been deleted");
 		assertContextSize(0);
 	});
 	
@@ -2030,7 +2028,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		// this changed in 1.3.5, because auto generated endpoints are now removed by detach.  so i added the test below this one
 		// to check that the deleteEndpointsOnDetach flag is honoured.
 		assertEndpointCount("d1", 0, _jsPlumb);assertEndpointCount("d2", 0, _jsPlumb);
-		assertContextSize(2);
+		assertContextSize(0);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (connect by element, default endpoint, supplied dynamic anchors, delete on detach false)", function() {
@@ -2132,7 +2130,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		assertEndpointCount("d1", 1, _jsPlumb);assertEndpointCount("d2", 1, _jsPlumb);
 		_jsPlumb.detach({source:d1, target:d2});
-		assertContextSize(2);
+		assertContextSize(0);
 		ok(detachCallback != null, "detach callback was made");
 	});
 	
@@ -2702,57 +2700,61 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.Defaults.Container = document.getElementsByTagName("body")[0];
 		equals(0, $("#container")[0].childNodes.length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");		
-		equals(2, $("#container")[0].childNodes.length, "two divs added to the container");  // the divs we added have been added to the 'container' div.
+		equals(2, $("#container").find(".jsplumbtest").length, "two divs added to the container");  // the divs we added have been added to the 'container' div.
 		// but we have told _jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
 		var bodyElementCount = $("body")[0].childNodes.length;
 		_jsPlumb.connect({source:d1, target:d2});
-		equals(2, $("#container")[0].childNodes.length, "still only two children in container; elements were added to the body by _jsPlumb");
+		equals(2, $("#container").find(".jsplumbtest").length, "still only two children in container; elements were added to the body by _jsPlumb");
 		// test to see if 3 elements have been added
-		equals(bodyElementCount + 3, $("body")[0].childNodes.length, "3 new elements added to the document body");
+		equals($("body")[0].childNodes.length, bodyElementCount + 3, "3 new elements added to the document body");
 	});
 	
 	test(renderMode + " container specified to connect call, with a selector", function() {
+		_jsPlumb.Defaults.Container = null;
 		equals(0, $("#container")[0].childNodes.length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		equals(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
 		var bodyElementCount = $("body")[0].childNodes.length;
 		// but here we tell _jsPlumb to add its elements to the body, so this connect call should not add another few elements to the container:
 		_jsPlumb.connect({source:d1, target:d2, container:$("body")});
-		equals(2, $("#container")[0].childNodes.length);
+		equals(2, $("#container").find(".jsplumbtest").length);
 		equals(bodyElementCount + 3, $("body")[0].childNodes.length, "3 new elements added to the document body");
 	});
 	
 	test(renderMode + " container specified to connect call, with a string ID", function() {
-		equals(0, $("#container")[0].childNodes.length);
+		_jsPlumb.Defaults.Container = null;
+		equals(0, $("#container").find(".jsplumbtest").length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-		equals(3, $("#container")[0].childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
+		equals(3, $("#container").find(".jsplumbtest").length, "container has divs we added");  // the divs we added have been added to the 'container' div.
 		var d3ElementCount = $("#d3")[0].childNodes.length;
 		// but here we tell _jsPlumb to add its elements to "d3", so this connect call should not add another few elements to the container:
 		_jsPlumb.connect({source:d1, target:d2, container:"d3"});
-		equals(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
+		equals($("#container").find(".jsplumbtest").length, 3, "container still has only the divs we added");
 		equals(d3ElementCount + 3, $("#d3")[0].childNodes.length, "3 new elements added to div d3");
 	});	
 	
 	test(renderMode + " container specified to addEndpoint call, with a selector", function() {
+		_jsPlumb.Defaults.Container = null;
 		equals(0, $("#container")[0].childNodes.length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		equals(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
 		var bodyElementCount = $("body")[0].childNodes.length;
 		// but here we tell _jsPlumb to add its elements to the body, so this connect call should not add another few elements to the container:
 		_jsPlumb.addEndpoint(d1, {container:$("body")});
-		equals(2, $("#container")[0].childNodes.length);
-		equals(bodyElementCount + 1, $("body")[0].childNodes.length, "1 new element added to the document body");
+		equals(2, $("#container").find(".jsplumbtest").length);
+		equals($("body")[0].childNodes.length, bodyElementCount + 1, "1 new element added to the document body");
 	});
 	
 	test(renderMode + " container specified to addEndpoint call, with a string ID", function() {
-		equals(0, $("#container")[0].childNodes.length);
+		_jsPlumb.Defaults.Container = null;
+		equals(0, $("#container").find(".jsplumbtest").length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-		equals(3, $("#container")[0].childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
+		equals(3, $("#container").find(".jsplumbtest").length, "container has divs we added");  // the divs we added have been added to the 'container' div.
 		var d3ElementCount = $("#d3")[0].childNodes.length;
 		// but here we tell _jsPlumb to add its elements to "d3", so this connect call should not add another few elements to the container:
 		_jsPlumb.addEndpoint(d1, { container:"d3" });
-		equals(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
-		equals(d3ElementCount + 1, $("#d3")[0].childNodes.length, "1 new element added to div d3");
+		equals(3, $("#container").find(".jsplumbtest").length, "container still has only the divs we added");
+		equals($("#d3")[0].childNodes.length, d3ElementCount + 1, "1 new element added to div d3");
 	});
 
     test(renderMode + " detachable defaults to true when connection made between two endpoints", function() {
@@ -3264,6 +3266,7 @@ var testSuite = function(renderMode, _jsPlumb) {
     });
     
     test(renderMode + "attach endpoint to table when desired element was td", function() {
+    	_jsPlumb.Defaults.Container = null;
         var table = document.createElement("table"),
             tr = document.createElement("tr"),
             td = document.createElement("td");
