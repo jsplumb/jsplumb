@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.3.11
+ * Title:jsPlumb 1.3.9
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -62,21 +62,27 @@
 
 		};
 	},
+	_segment = function(x1, y1, x2, y2) {
+		if (x1 <= x2 && y2 <= y1) return 1;
+		else if (x1 <= x2 && y1 <= y2) return 2;
+		else if (x2 <= x1 && y2 >= y1) return 3;
+		return 4;
+	},
 		
-	// the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
-	// two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
-	// are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
-	// center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
-	// direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
-	// lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
-	//
-	// sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
-	//
-	// 0 - absolute x
-	// 1 - absolute y
-	// 2 - proportional x in element (0 is left edge, 1 is right edge)
-	// 3 - proportional y in element (0 is top edge, 1 is bottom edge)
-	// 	
+		// the control point we will use depends on the faces to which each end of the connection is assigned, specifically whether or not the
+		// two faces are parallel or perpendicular.  if they are parallel then the control point lies on the midpoint of the axis in which they
+		// are parellel and varies only in the other axis; this variation is proportional to the distance that the anchor points lie from the
+		// center of that face.  if the two faces are perpendicular then the control point is at some distance from both the midpoints; the amount and
+		// direction are dependent on the orientation of the two elements. 'seg', passed in to this method, tells you which segment the target element
+		// lies in with respect to the source: 1 is top right, 2 is bottom right, 3 is bottom left, 4 is top left.
+		//
+		// sourcePos and targetPos are arrays of info about where on the source and target each anchor is located.  their contents are:
+		//
+		// 0 - absolute x
+		// 1 - absolute y
+		// 2 - proportional x in element (0 is left edge, 1 is right edge)
+		// 3 - proportional y in element (0 is top edge, 1 is bottom edge)
+		// 	
 	_findControlPoint = function(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
 
         // TODO (maybe)
@@ -190,7 +196,7 @@
             	    m2 = (-1 * _midx) / _midy, theta2 = Math.atan(m2),
             	    dy =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.sin(theta2)),
 				    dx =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.cos(theta2)),
-				    segment = jsPlumbUtil.segment([_sx, _sy], [_tx, _ty]),
+				    segment = _segment(_sx, _sy, _tx, _ty),
 				    distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));
 			
             	// calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
@@ -203,6 +209,7 @@
                                                   curviness, curviness,
                                                   distance,
                                                   proximityLimit);
+
 	            	
             	var requiredWidth = Math.max(Math.abs(_controlPoint[0] - _sx) * 3, Math.abs(_controlPoint[0] - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, minWidth),
             		requiredHeight = Math.max(Math.abs(_controlPoint[1] - _sy) * 3, Math.abs(_controlPoint[1] - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, minWidth);
@@ -354,7 +361,8 @@
     	params = params || {};
 		var self = this, drawGuideline = params.drawGuideline || true, avoidSelector = params.avoidSelector;
 		jsPlumb.Connectors.StateMachine.apply(this, arguments);
-		jsPlumb.CanvasConnector.apply(this, arguments);	
+		jsPlumb.CanvasConnector.apply(this, arguments);
+	
 		
 		this._paint = function(dimensions) {
 			

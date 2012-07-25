@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.11
+ * Title:jsPlumb 1.3.9
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -978,7 +978,7 @@
      */
     jsPlumb.Overlays.PlainArrow = function(params) {
     	params = params || {};    	
-    	var p = jsPlumb.CurrentLibrary.extend(params, {foldback:1});
+    	var p = jsPlumb.extend(params, {foldback:1});
     	jsPlumb.Overlays.Arrow.call(this, p);
     	this.type = "PlainArrow";
     };
@@ -1001,7 +1001,7 @@
     jsPlumb.Overlays.Diamond = function(params) {
     	params = params || {};    	
     	var l = params.length || 40,
-    	    p = jsPlumb.CurrentLibrary.extend(params, {length:l/2, foldback:2});
+    	    p = jsPlumb.extend(params, {length:l/2, foldback:2});
     	jsPlumb.Overlays.Arrow.call(this, p);
     	this.type = "Diamond";
     };

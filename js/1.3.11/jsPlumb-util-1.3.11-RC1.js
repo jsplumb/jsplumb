@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.11
+ * Title:jsPlumb 1.3.9
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -77,20 +77,6 @@ jsPlumbUtil = {
     			( (a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
     			( (a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2) ) ||
     			( (a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2) );
-    },
-    circleLineIntersect : function(cx, cy, r, m, b) {
-    	// form http://www.vitutor.com/geometry/conics/circle-line.html
-    	var h = cx, k = cy, q = b - k,				
-    		minusB = (-2 * q * m) + (2 * h),
-    		fourac_1 = (4 * q * q * m * m) - (4 * q * m * h) + (4 * h *h),
-    		fourac_2 = (4 + (4*m)) * ( (h*h) + (q*q) - (r*r)),
-    		denom = 2 + (2 * m),
-    		x1 = (minusB + Math.sqrt(fourac_1 - fourac_2)) / denom, 
-    		x2 = (minusB - Math.sqrt(fourac_1 - fourac_2)) / denom,
-    		y1 = (m * x1) + b,
-    		y2 = (m * x2) + b;
-    							
-    	return [[x1,y1], [x2,y2] ];									
     },
     segmentMultipliers : [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ],
     inverseSegmentMultipliers : [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ],
