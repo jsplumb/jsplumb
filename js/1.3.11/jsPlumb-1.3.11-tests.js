@@ -3923,6 +3923,25 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(c.getPaintStyle().strokeStyle, "FOO", "getPaintStyle returns correct value");
 		equals(c.getHoverPaintStyle().strokeStyle, "BAZ", "getHoverPaintStyle returns correct value");
 	});	
+	
+	
+// selectEndpoints
+	test(renderMode + " selectEndpoints, basic test select by source", function() {
+		_addDiv("d1"); _addDiv("d2");
+		
+		var e1 = _jsPlumb.addEndpoint("d1"),
+			e2 = _jsPlumb.addEndpoint("d2"),
+			c = _jsPlumb.connect({source:e1, target:e2}),
+			s = _jsPlumb.selectEndpoints({source:"d1"});
+
+		equals(s.length, 1, "one endpoint selected");
+		equals(s.get(0).elementId, "d1", "d1 is endpoint element");
+
+		s.setHover(true);
+		ok(s.get(0).isHover(), "endpoint has had hover set to true");
+		s.setHover(false);
+		ok(!(s.get(0).isHover()), "endpoint has had hover set to false");
+	});	
 
 // ******************* getEndpoints ************************************************
 
