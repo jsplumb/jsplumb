@@ -3901,12 +3901,31 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.addEndpoint("d2", { scope:"FOO", isSource:true });
 		equals(_jsPlumb.selectEndpoints({source:"d2", scope:"FOO"}).length, 1, "there is one source endpoint on d2 with scope FOO");
 			
-		equals(_jsPlumb.selectEndpoints({element:["d2", "d1"]}).length, 3, "there are three endpoints between d2 and d1");	
-		
-//		equals(_jsPlumb.selectEndpoints({target:["d2", "d1"]}).length, 3, "there are three target endpoints between d2 and d1");			
-		
-//		equals(_jsPlumb.selectEndpoints({source:["d2", "d1"], scope:"FOO"}).length, 1, "there is one source endpoints between d2 and d1 with scope FOO");
+		equals(_jsPlumb.selectEndpoints({element:["d2", "d1"]}).length, 3, "there are three endpoints between d2 and d1");				
+	});
 	
+	test(renderMode + " selectEndpoints, basic tests, various input argument formats", function() {
+		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"),
+			e1 = _jsPlumb.addEndpoint(d1),
+			e2 = _jsPlumb.addEndpoint(d1);
+			
+		equals(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "using id, there are two endpoints on d1");
+		equals(_jsPlumb.selectEndpoints({element:d1}).length, 2, "using dom element, there are two endpoints on d1");
+		equals(_jsPlumb.selectEndpoints({element:$("#d1")}).length, 2, "using selector, there are two endpoints on d1");
+		equals(_jsPlumb.selectEndpoints({element:$(d1)}).length, 2, "using selector with dom element, there are two endpoints on d1");		
+		
+	});
+	
+	test(renderMode + " selectEndpoints, basic tests, scope", function() {
+		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"),
+			e1 = _jsPlumb.addEndpoint(d1, {scope:"FOO"}),
+			e2 = _jsPlumb.addEndpoint(d1);
+			
+		equals(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "using id, there are two endpoints on d1");
+		equals(_jsPlumb.selectEndpoints({element:"d1", scope:"FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'FOO'");		
+		_jsPlumb.addEndpoint(d1, {scope:"BAR"}),		
+		equals(_jsPlumb.selectEndpoints({element:"d1", scope:"FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'BAR'");	
+		equals(_jsPlumb.selectEndpoints({element:"d1", scope:["BAR", "FOO"]}).length, 2, "using id, there are two endpoints on d1 with scope 'BAR' or 'FOO'");					
 	});
 	
 	test(renderMode + " selectEndpoints, isSource tests", function() {
