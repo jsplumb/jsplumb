@@ -1806,17 +1806,26 @@ between this method and jsPlumb.reset).
 					return _getOperation(list, func, arguments);
 				};	
 			},
-			prepareList = function(input) {
+			prepareList = function(input, doNotGetIds) {
 				var r = [];
 				if (input) {
 					if (typeof input == 'string') {
 						if (input === "*") return input;
 						r.push(input);
 					}
-					else
-						r = input;
+					else {
+						if (doNotGetIds) r = input;
+						else { 
+							for (var i = 0; i < input.length; i++) 
+								r.push(_getId(_getElementObject(input[i])));
+						}	
+					}
 				}
 				return r;
+			},
+			filterList = function(list, value, missingIsFalse) {
+				if (list === "*") return true;
+				return list.length > 0 ? _indexOf(list, value) != -1 : !missingIsFalse;
 			};
 
 		/*
@@ -1844,13 +1853,9 @@ between this method and jsPlumb.reset).
 			}
 			var
 			scope = options.scope || _currentInstance.getDefaultScope(),
-			scopes = prepareList(scope),
+			scopes = prepareList(scope, true),
 			sources = prepareList(options.source),
-			targets = prepareList(options.target),
-			filter = function(list, value) {
-				if (list === "*") return true;
-				return list.length > 0 ? _indexOf(list, value) != -1 : true;
-			},
+			targets = prepareList(options.target),			
 			results = (!flat && scopes.length > 1) ? {} : [],
 			_addOne = function(scope, obj) {
 				if (!flat && scopes.length > 1) {
@@ -1862,10 +1867,10 @@ between this method and jsPlumb.reset).
 				} else results.push(obj);
 			};
 			for ( var i in connectionsByScope) {
-				if (filter(scopes, i)) {
+				if (filterList(scopes, i)) {
 					for ( var j = 0; j < connectionsByScope[i].length; j++) {
 						var c = connectionsByScope[i][j];
-						if (filter(sources, c.sourceId) && filter(targets, c.targetId))
+						if (filterList(sources, c.sourceId) && filterList(targets, c.targetId))
 							_addOne(i, c);
 					}
 				}
@@ -1901,23 +1906,14 @@ between this method and jsPlumb.reset).
 				showOverlays:setter(list, "showOverlays", executor),
 				hideOverlays:setter(list, "hideOverlays", executor),
 				setPaintStyle:setter(list, "setPaintStyle", executor),
-				setHoverPaintStyle:setter(list, "setHoverPaintStyle", executor),
-									
-				//setDetachable:setter(list, "setDetachable", _makeConnectionSelectHandler),
-				//setConnector:setter(list, "setConnector", _makeConnectionSelectHandler),		
+				setHoverPaintStyle:setter(list, "setHoverPaintStyle", executor),									
 				setParameter:setter(list, "setParameter", executor),		
 				setParameters:setter(list, "setParameters", executor),	
-				
-			//	detach:function() {
-			////		for (var i = 0; i < list.length; i++)
-				//		_currentInstance.detach(list[i]);
-//				},				
 
 				// getters
 				getLabel:getter(list, "getLabel"),
 				getOverlay:getter(list, "getOverlay"),
 				isHover:getter(list, "isHover"),
-				//isDetachable:getter(list, "isDetachable"),
 				getParameter:getter(list, "getParameter"),		
 				getParameters:getter(list, "getParameters"),
 				getPaintStyle:getter(list, "getPaintStyle"),		
@@ -2014,32 +2010,64 @@ between this method and jsPlumb.reset).
 		
 		/*
 		* Function: selectEndpoints
-		* Selects a set of Endpoints and returns an object that allows you to execute various different methods on them at once.	
-			
+		* Selects a set of Endpoints and returns an object that allows you to execute various different methods on them at once. The return 
+		* value from any of these operations is the original list of Endpoints, allowing operations to be chained (for 'setter' type 
+		* operations). 'getter' type operations return an array of values, where each entry is an [Endpoint, return value] pair.
+		* 
+		* Parameters:
+		*	scope - either a string or an array of strings.
+		* 	source - either a string, a dom element, or a selector, or an array of any mix of these. limits returned endpoints to those that are declared as a source endpoint on any elements identified.
+		*	target - either a string, a dom element, or a selector, or an array of any mix of these. limits returned endpoints to those that are declared as a target endpoint on any elements identified.
+		*	element - either a string, a dom element, or a selector, or an array of any mix of these. limits returned endpoints to those that are declared as either a source OR a target endpoint on any elements identified.		
+		*
+		* Returns:
+		* A list of Endpoints on which operations may be executed. 'Setter' type operations can be chained; 'getter' type operations
+		* return an array of [Endpoint, value] pairs, one entry for each Endpoint in the list returned. The full list of operations 
+		* is as follows (where not specified, the operation's effect or return value is the same as the corresponding method on Endpoint) :
+		*	-	setHover								
+		*	-	removeAllOverlays
+		*	-	setLabel
+		*	-	addOverlay
+		*	-	removeOverlay
+		*	-	removeOverlays
+		*	-	showOverlay
+		*	-	hideOverlay
+		*	-	showOverlays
+		*	-	hideOverlays
+		*	-	setPaintStyle
+		*	-	setHoverPaintStyle
+		*	-	setParameter
+		*	-	setParameters
+		*   - 	getLabel
+		*	-	getOverlay
+		*	-	isHover
+		*	-	isDetachable
+		*	-	getParameter
+		*	-	getParameters
+		*	-	getPaintStyle
+		*	-	getHoverPaintStyle
+		*	-	detachAll Detaches all the Connections from every Endpoint in the list. not chainable and does not return anything.
+		*	-	delete Deletes every Endpoint in the list. not chainable and does not return anything.		
+		*	-	length : returns the length of the list.
+		*	-	get(index) : returns the Endpoint at 'index' in the list.
+		*	-	each(function(endpoint)...) : allows you to specify your own function to execute; this function is chainable.
 		*/
 		this.selectEndpoints = function(params) {
 			params = params || {};
 			params.scope = params.scope || "*";
-			var noElementFilters = !params.element && !params.source && !params.target;
-			var elements = noElementFilters ? "*" : prepareList(params.element),
+			var noElementFilters = !params.element && !params.source && !params.target,			
+				elements = noElementFilters ? "*" : prepareList(params.element),
 				sources = noElementFilters ? "*" : prepareList(params.source),
 				targets = noElementFilters ? "*" : prepareList(params.target),
-				scopes = prepareList(params.scope),				
-				filter = function(list, value) {
-					if (list === "*") return true;
-					return list.length > 0 ? _indexOf(list, value) != -1 : false;
-				},
-				filterScope = function(ep) {
-				
-				};
+				scopes = prepareList(params.scope, true);
 			
 			var ep = [];
 			
 			for (var el in endpointsByElement) {
-				var either = filter(elements, el),
-					source = filter(sources, el),
+				var either = filterList(elements, el, true),
+					source = filterList(sources, el, true),
 					sourceMatchExact = sources != "*",
-					target = filter(targets, el),
+					target = filterList(targets, el, true),
 					targetMatchExact = targets != "*"; 
 					
 				// if they requested 'either' then just match scope. otherwise if they requested 'source' (not as a wildcard) then we have to match only endpoints that have isSource set to to true, and the same thing with isTarget.  
@@ -2047,7 +2075,7 @@ between this method and jsPlumb.reset).
 					inner:
 					for (var i = 0; i < endpointsByElement[el].length; i++) {
 						var _ep = endpointsByElement[el][i];
-						if (filter(scopes, _ep.scope)) {
+						if (filterList(scopes, _ep.scope, true)) {
 						
 							var noMatchSource = (sourceMatchExact && sources.length > 0 && !_ep.isSource),
 								noMatchTarget = (targetMatchExact && targets.length > 0 && !_ep.isTarget);
