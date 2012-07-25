@@ -842,7 +842,7 @@ conn.setLabel("BAR");
 console.log("Label is now", conn.getLabel());
 </pre>
 </div>
-These methods support passing in a Function instead of a String, and jsPlumb will create a label overlay for you if one does not yet exist when you call getLabel:
+These methods support passing in a Function instead of a String, and jsPlumb will create a label overlay for you if one does not yet exist when you call setLabel:
 <div class="code">
 <pre>
 var conn = jsPlumb.connect({
@@ -959,7 +959,6 @@ LabelStyle : { color : "black" },
 LogEnabled : false,
 Overlays : [ ],
 MaxConnections : 1,
-MouseEventsEnabled : true,
 PaintStyle : { lineWidth : 8, strokeStyle : "#456" },
 RenderMode : "svg",
 Scope : "_jsPlumb_DefaultScope"
@@ -977,7 +976,7 @@ individual endpoint/endpoint style arrays, and then fall back to the single defa
 <pre>
 jsPlumb.Defaults.PaintStyle = {
 	lineWidth:13,
-	strokeStyle: 'rgba(200,0,0,100)'
+	strokeStyle: 'rgba(200,0,0,0.5)'
 }
 
 jsPlumb.Defaults.DragOptions = { cursor: "crosshair" };
@@ -1308,8 +1307,7 @@ case that you want to take some special action rather than just relying on one o
 </p>
 <p>This is achieved through an extended anchor syntax (note that this syntax is <strong>not supported</strong> in
 the <strong>jsPlumb.addEndpoint</strong> method) that supplies a "positionFinder" to the anchor specification.  jsPlumb 
-provides two of these by default; you can register your own on jsPlumb and refer to them by name, or just 
-supply a function.  Here's a few examples:</p>
+provides two of these by default; you can register your own on jsPlumb and refer to them by name, or just supply a function.  Here's a few examples:</p>
 Instruct jsPlumb to place the target anchor at the exact location at which the mouse button was released on the
 target element. Note that you tell jsPlumb the anchor is of type "Assign", and you then provide a "position"
 parameter, which can be the name of some position finder, or a position finder function itself:
