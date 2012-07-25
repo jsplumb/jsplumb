@@ -1193,7 +1193,8 @@ A further thing to note about makeSource and makeTarget is that any prior calls 
 <pre>
 jsPlumb.makeSource("el1", {
 	anchor:"Continuous",
-	endpoint:["Rectangle", { width:40, height:20 }]
+	endpoint:["Rectangle", { width:40, height:20 }],
+	maxConnections:3
 });
 
 ...
@@ -1201,13 +1202,17 @@ jsPlumb.makeSource("el1", {
 jsPlumb.connect({source:"el1", target:"el2"});
 </pre>
 </div>
-In this example, the source of the connection will be a Rectangle of size 40x20, having a Continuous Anchor.
+In this example, the source of the connection will be a Rectangle of size 40x20, having a Continuous Anchor.  The source is also configured to allow a maximum of three connections.
 <p>You can override this behaviour by setting a <strong>newConnection</strong> parameter on the connect call:</p>
 <div class="code">
 <pre>
 jsPlumb.makeSource("el1", {
 	anchor:"Continuous",
-	endpoint:["Rectangle", { width:40, height:20 }]
+	endpoint:["Rectangle", { width:40, height:20 }],
+	maxConnections:1,
+	onMaxConnections:function(info, originalEvent) {
+		console.log("element is ", info.element, "maxConnections is", info.maxConnections);	
+	}
 });
 
 ...
@@ -1215,6 +1220,7 @@ jsPlumb.makeSource("el1", {
 jsPlumb.connect({ source:"el1", target:"el2", newConnection:true });
 </pre>
 </div>
+Note the <strong>onMaxConnections</strong> parameter to this call - it allows you to supply a function to call if the user tries to drag a new Connection when the source has already reached capacity.
 <h5><a id="makeTarget">jsPlumb.makeTarget</a></h5>
 <p>
 This method takes two arguments, the first of which specifies some element (or list of elements); the second specifies the Endpoint you wish to create on that element whenever a Connection is established on it.  In this example we will use the exact same target Endpoint we used before - the gray rectangle - but we will tell jsPlumb that the element "aTargetDiv" will be the drop target:
@@ -1235,6 +1241,22 @@ jsPlumb.makeTarget("aTargetDiv", endpointOptions);
 </p>		
 <p>Notice in the 'endpointOptions' object above there is a 'isTarget' parameter set - this may seem incongruous, since you know you're going to make some element a target.  Remember that the endpointOptions object is the information jsPlumb will use to create an Endpoint on the given target element each time a Connection is established to it. It takes the exact same format as you would pass to addEndpoint; makeTarget is essentially a deferred addEndpoint call followed by a connect call.  So in this case, we're telling jsPlumb that any Endpoints it happens to create on some element that was configured by the makeTarget call are themselves Connection targets.
 </p>
+<p>makeTarget also supports the maxConnections and onMaxConnections parameters, as makeSource does, but note that onMaxConnections is passed one extra parameter than its corresponding callback from makeSource - the Connection the user tried to drop:</p>
+		<div class="code">
+<pre>
+jsPlumb.makeTarget("aTargetDiv", { 
+  isTarget:true, 
+  maxConnections:5,
+  endpoint:"Rectangle", 
+  paintStyle:{ fillStyle:"gray" },
+  maxConnections:3,
+  onMaxConnections:function(info, originalEvent) {
+	console.log("user tried to drop connection", info.connection, "on element", info.element, "with max connections", info.maxConnections);
+  }
+};
+</pre>		
+		</div>
+
 <h5>Unique Endpoint per Target </h5>
 <p>jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on the target element, by default, but you can override this behaviour and tell jsPlumb that it should create at most one Endpoint, which it should attempt to use for subsequent Connections:
 </p>
