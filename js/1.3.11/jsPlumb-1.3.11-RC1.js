@@ -2310,6 +2310,8 @@ between this method and jsPlumb.reset).
 		 *                             the connection is subsequently detached. this will not 
 		 *                             remove Endpoints that have had more Connections attached
 		 *                             to them after they were created.
+		 *   maxConnections  optional. Specifies the maximum number of Connections that can be made to this element as a target. Default is no limit.
+		 *   onMaxConnections optional. Function to call when user attempts to drop a connection but the limit has been reached.  The callback is passed two arguments: a JS object with { element, connection, maxConnection }, and the original event.
 		 *                   	
 		 * 
 		 */
@@ -2351,27 +2353,24 @@ between this method and jsPlumb.reset).
 			    targetScope = p.scope || _currentInstance.Defaults.Scope,
 			    deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
 			    maxConnections = p.maxConnections || -1,
+				onMaxConnections = p.onMaxConnections;
 			_doOne = function(_el) {
 				
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
 				var elid = _getId(_el);
-					_targetEndpointDefinitions[elid] = p;
-					_targetEndpointsUnique[elid] = p.uniqueEndpoint,
-					_targetMaxConnections[elid] = maxConnections,
-					_targetsEnabled[elid] = true,
-					proxyComponent = new jsPlumbUIComponent(p);								
+				_targetEndpointDefinitions[elid] = p;
+				_targetEndpointsUnique[elid] = p.uniqueEndpoint,
+				_targetMaxConnections[elid] = maxConnections,
+				_targetsEnabled[elid] = true,
+				proxyComponent = new jsPlumbUIComponent(p);								
 				
 				var dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
 				_drop = function() {
 
 					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
 						targetCount = _currentInstance.select({target:elid}).length;
-						
-					if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
-						console.log("target element " + elid + " is full.");
-						return false;
-					}												
+																							
 
 					_currentInstance.currentlyDragging = false;
 					var draggable = _getElementObject(jpcl.getDragObject(arguments)),
@@ -2380,7 +2379,18 @@ between this method and jsPlumb.reset).
 						scope = _getAttribute(draggable, "originalScope"),
 						jpc = floatingConnections[id],
 						source = jpc.endpoints[0],
-						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};                                              
+						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};
+						
+					if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
+						console.log("target element " + elid + " is full.");
+						if (onMaxConnections) {
+							onMaxConnections({
+								element:_el,
+								connection:jpc
+							}, originalEvent);
+						}
+						return false;
+					}
 
 					// unlock the source anchor to allow it to refresh its position if necessary
 					source.anchor.locked = false;					
@@ -2567,14 +2577,17 @@ between this method and jsPlumb.reset).
 			_sourceEndpoints = {},
 			_sourceEndpointsUnique = {},
 			_sourcesEnabled = {},
-			_sourceTriggers = {},		
+			_sourceTriggers = {},
+			_sourceMaxConnections = {},
 			_targetsEnabled = {};
 
 		this.makeSource = function(el, params, referenceParams) {
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			_setEndpointPaintStylesAndAnchor(p, 0);   
-			var jpcl = jsPlumb.CurrentLibrary,						
+			var jpcl = jsPlumb.CurrentLibrary,
+				maxConnections = p.maxConnections || -1,
+				onMaxConnections = p.onMaxConnections,
 			_doOne = function(_el) {
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
@@ -2593,6 +2606,8 @@ between this method and jsPlumb.reset).
 					existingStop = dragOptions.stop,
 					ep = null,
 					endpointAddedButNoDragYet = false;
+				
+				_sourceMaxConnections[idToRegisterAgainst] = maxConnections;	
 
 				// set scope if its not set in dragOptions but was passed in in params
 				dragOptions["scope"] = dragOptions["scope"] || p.scope;
@@ -2658,6 +2673,18 @@ between this method and jsPlumb.reset).
 
 					// if disabled, return.
 					if (!_sourcesEnabled[idToRegisterAgainst]) return;
+					
+					// if maxConnections reached
+					var sourceCount = _currentInstance.select({source:idToRegisterAgainst}).length
+					if (_sourceMaxConnections[idToRegisterAgainst] >= 0 && sourceCount >= _sourceMaxConnections[idToRegisterAgainst]) {
+						if (onMaxConnections) {
+							onMaxConnections({
+								element:_el,
+								maxConnections:maxConnections
+							}, e);
+						}
+						return false;
+					}
 
 					// if a filter was given, run it, and return if it says no.
 					if (params.filter) {
@@ -2769,6 +2796,7 @@ between this method and jsPlumb.reset).
 				delete _sourceEndpointsUnique[id];
 				delete _sourcesEnabled[id];
 				delete _sourceTriggers[id];
+				delete _sourceMaxConnections[id];
 			}
 
 			return _currentInstance;
@@ -3088,6 +3116,7 @@ between this method and jsPlumb.reset).
 			_sourceEndpointDefinitions = {};
 			_sourceEndpoints = {};
 			_sourceEndpointsUnique = {};
+			_sourceMaxConnections = {};
             _unbindRegisteredListeners();
             _currentInstance.anchorManager.reset();
             _currentInstance.dragManager.reset();
