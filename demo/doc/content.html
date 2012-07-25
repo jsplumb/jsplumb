@@ -2466,6 +2466,7 @@ endpoint.bind("click", function(endpoint) {
 				<li class="bullet"><strong>contextmenu</strong> - a right-click on the Endpoint. The callback is passed the Endpoint and the original event.
 				<li class="bullet"><strong>mouseenter</strong> - notification the mouse entered the Endpoint.  The callback is passed the Endpoint and the original mouse event.</li>
 				<li class="bullet"><strong>mouseexit</strong> - notification the mouse exited the Endpoint.  The callback is passed the Endpoint and the original mouse event.</li>
+				<li class="bullet"><strong>maxConnections</strong> - notification the user tried to drop a Connection on an Endpoint that already has the maximum number of Connections.  The callback is passed as first argument an object literal containing the Endpoint, the Connection the user tried to drop, and the value of maxConnections for the Endpoint, and as second argument the original mouse event.</li>
 			</ul>
 			<h4><a id="overlayEvents">Overlay Events</a></h4>
 			Registering event listeners on an Overlay is a slightly different procedure - you provide them as arguments to the Overlay's 

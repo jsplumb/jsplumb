@@ -902,12 +902,16 @@
 			    JU.addToList(connectionsByScope, jpc.scope, jpc);
 			// fire an event
 			if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
-				_instance.fire("jsPlumbConnection", {
+				var eventArgs = {
 					connection:jpc,
 					source : jpc.source, target : jpc.target,
 					sourceId : jpc.sourceId, targetId : jpc.targetId,
 					sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
-				}, originalEvent);
+				};
+				_instance.fire("jsPlumbConnection", eventArgs, originalEvent);
+				// this is from 1.4.0 onwards. "jsPlumbConnection" always felt so unnecessary, so
+				// I've added this alias in 1.4.0, with a view to removing "jsPlumbConnection" completely in a future version. be aware, of course, you should only register listeners for one or the other of these events.
+				_instance.fire("connection", eventArgs, originalEvent);				
 			}
             // always inform the anchor manager
             // except that if jpc has a suspended endpoint it's not true to say the
@@ -1493,7 +1497,11 @@ between this method and jsPlumb.reset).
 				    sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
                 } : jpc;
 
-			if (doFireEvent) _instance.fire("jsPlumbConnectionDetached", params, originalEvent);
+			if (doFireEvent) {
+				_instance.fire("jsPlumbConnectionDetached", params, originalEvent);
+				// introduced in 1.4.0..an alias because the original event name is unwieldy.  in future versions this will be the only event and the other will no longer be fired.
+				_instance.fire("connectionDetached", params, originalEvent);
+			}
             _instance.anchorManager.connectionDetached(params);			
 		};
 
@@ -4580,9 +4588,10 @@ between this method and jsPlumb.reset).
 		 * dropOptions - if isTarget is set to true, you can supply arguments for the underlying library's drop method with this parameter. Optional; defaults to null. 
 		 * reattach - optional boolean that determines whether or not the Connections reattach after they have been dragged off an Endpoint and left floating. defaults to false: Connections dropped in this way will just be deleted.
 		 * parameters - Optional JS object containing parameters to set on the Endpoint. These parameters are then available via the getParameter method.  When a connection is made involving this Endpoint, the parameters from this Endpoint are copied into that Connection. Source Endpoint parameters override target Endpoint parameters if they both have a parameter with the same name.
+		 * onMaxConnections - optional function to invoke when the user tries to drop a connection onto the Endpoint when it is already full.
 		 */
 		var Endpoint = function(params) {
-			var self = this;//, jpcl = jsPlumb.CurrentLibrary;
+			var self = this;
 			self.idPrefix = "_jsplumb_e_";			
 			self.defaultLabelLocation = [ 0.5, 0.5 ];
 			self.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
@@ -4602,6 +4611,7 @@ between this method and jsPlumb.reset).
 			 *         - *mouseenter*					:	notification that the mouse is over a Endpoint. 
 			 *         - *mouseexit*					:	notification that the mouse exited a Endpoint.
 			 * 		   - *contextmenu*                  :   notification that the user right-clicked on the Endpoint.
+			 *         - *maxConnections*	            :   notification that a user tried to drop a connection onto an Endpoint that was full.
 			 *         
 			 *  callback - function to callback. This function will be passed the Endpoint that caused the event, and also the original event.    
 			 */
@@ -4822,6 +4832,9 @@ between this method and jsPlumb.reset).
             if (params.connectionsDetachable === false || params.detachable === false)
                 self.connectionsDetachable = false;
 			var dragAllowedWhenFull = params.dragAllowedWhenFull || true;
+			
+			if (params.onMaxConnections)
+				self.bind("maxConnections", params.onMaxConnections);
 
 			this.computeAnchor = function(params) {
 				return self.anchor.compute(params);
@@ -5442,6 +5455,9 @@ between this method and jsPlumb.reset).
 							if (scope) jpcl.setDragScope(draggable, scope);							
 							
 							var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
+							
+							if (self.isFull())
+								self.fire("maxConnections", { endpoint:self, connection:jpc, maxConnections:_maxConnections }, originalEvent);
 
 							if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
 							

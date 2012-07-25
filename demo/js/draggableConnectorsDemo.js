@@ -33,10 +33,10 @@
 					jsPlumbDemo.hideConnectionInfo();
 			};				
 
-			jsPlumb.bind("jsPlumbConnection", function(info, originalEvent) {
+			jsPlumb.bind("connection", function(info, originalEvent) {
 				updateConnections(info.connection);
 			});
-			jsPlumb.bind("jsPlumbConnectionDetached", function(info, originalEvent) {
+			jsPlumb.bind("connectionDetached", function(info, originalEvent) {
 				updateConnections(info.connection, true);
 			});
 
@@ -70,9 +70,11 @@
 					dashstyle:"2 2"
 				},
 				isTarget:true,
-				beforeDrop:function(params) { return confirm("Connect " + params.sourceId + " to " + params.targetId + "?"); },				
+				beforeDrop:function(params) { 
+					return confirm("Connect " + params.sourceId + " to " + params.targetId + "?"); 
+				},				
 				dropOptions : exampleDropOptions
-			};
+			};			
 
 			/**
 				the second example uses a Dot of radius 15 as the endpoint marker, is both a source and target, and has scope
@@ -80,15 +82,15 @@
 			*/
 			var color2 = "#316b31";
 			var exampleEndpoint2 = {
-					endpoint:["Dot", { radius:15 }],
-					paintStyle:{ fillStyle:color2 },
-					isSource:true,
-					scope:"green dot",
-					connectorStyle:{ strokeStyle:color2, lineWidth:8 },
-					connector: ["Bezier", { curviness:63 } ],
-					maxConnections:3,
-					isTarget:true,
-					dropOptions : exampleDropOptions
+				endpoint:["Dot", { radius:15 }],
+				paintStyle:{ fillStyle:color2 },
+				isSource:true,
+				scope:"green dot",
+				connectorStyle:{ strokeStyle:color2, lineWidth:8 },
+				connector: ["Bezier", { curviness:63 } ],
+				maxConnections:3,
+				isTarget:true,
+				dropOptions : exampleDropOptions
 			};
 
 			/**
@@ -102,18 +104,21 @@
 			*/
 			var example3Color = "rgba(229,219,61,0.5)";
 			var exampleEndpoint3 = {
-					endpoint:["Dot", {radius:17} ],
-					anchor:"BottomLeft",
-					paintStyle:{ fillStyle:example3Color, opacity:0.5 },
-					isSource:true,
-					scope:'yellow dot',
-					connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
-					connector : "Straight",
-					isTarget:true,
-					dropOptions : exampleDropOptions,
-					beforeDetach:function(conn) { 
-						return confirm("Detach connection?"); 
-					}
+				endpoint:["Dot", {radius:17} ],
+				anchor:"BottomLeft",
+				paintStyle:{ fillStyle:example3Color, opacity:0.5 },
+				isSource:true,
+				scope:'yellow dot',
+				connectorStyle:{ strokeStyle:example3Color, lineWidth:4 },
+				connector : "Straight",
+				isTarget:true,
+				dropOptions : exampleDropOptions,
+				beforeDetach:function(conn) { 
+					return confirm("Detach connection?"); 
+				},
+				onMaxConnections:function(info) {
+					alert("Cannot drop connection " + info.connection.id + " : maxConnections has been reached on Endpoint " + info.endpoint.id);
+				}
 			};
 
 			// setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
@@ -124,16 +129,26 @@
 			// here's an example of how the SelectiveAnchor stuff added to 1.2.3 works with
 			// drag and drop connectors.
 			//
-			var anchors = [[1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0], [0.2, 0, 0, -1] ];
-			jsPlumb.addEndpoint("window1", { anchor:anchors }, exampleEndpoint);
+			var anchors = [[1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0], [0.2, 0, 0, -1] ],
+				maxConnectionsCallback = function(info) {
+					alert("Cannot drop connection " + info.connection.id + " : maxConnections has been reached on Endpoint " + info.endpoint.id);
+				};
+				
+			var e1 = jsPlumb.addEndpoint("window1", { anchor:anchors }, exampleEndpoint);
+			// you can bind for a maxConnections callback using a standard bind call, but you can also supply 'onMaxConnections' in an Endpoint definition - see exampleEndpoint3 above.
+			e1.bind("maxConnections", maxConnectionsCallback);
 
-			jsPlumb.addEndpoint('window2', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint);
+			var e2 = jsPlumb.addEndpoint('window2', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint);
+			// again we bind manually. it's starting to get tedious.  but now that i've done one of the blue endpoints this way, i have to do them all...
+			e2.bind("maxConnections", maxConnectionsCallback);
 			jsPlumb.addEndpoint('window2', { anchor:"RightMiddle" }, exampleEndpoint2);
 
-			jsPlumb.addEndpoint("window3", { anchor:[0.25, 0, 0, -1] }, exampleEndpoint);
+			var e3 = jsPlumb.addEndpoint("window3", { anchor:[0.25, 0, 0, -1] }, exampleEndpoint);
+			e3.bind("maxConnections", maxConnectionsCallback);
 			jsPlumb.addEndpoint("window3", { anchor:[0.75, 0, 0, -1] }, exampleEndpoint2);
 
-			jsPlumb.addEndpoint("window4", { anchor:[1, 0.5, 1, 0] }, exampleEndpoint);
+			var e4 = jsPlumb.addEndpoint("window4", { anchor:[1, 0.5, 1, 0] }, exampleEndpoint);
+			e4.bind("maxConnections", maxConnectionsCallback);			
 			jsPlumb.addEndpoint("window4", { anchor:[0.25, 0, 0, -1] }, exampleEndpoint2);
 
 			// three ways to do this - an id, a list of ids, or a selector (note the two different types of selectors shown here...anything that is valid jquery will work of course)
