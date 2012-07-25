@@ -1,4 +1,4 @@
-* 1.4.0
+* 1.3.11
 
 	- added isSuspendDrawing method
 	- fix for the case that label would repaint and ignore the suspendDrawing member.
