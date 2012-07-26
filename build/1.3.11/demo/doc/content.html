@@ -2349,6 +2349,127 @@ jsPlumb.select({scope:"foo"}).each(function(connection) {
 		</div>
 		
 		<div class="section">
+			<h3><a id="selectEndpoints">Selecting Endpoints</a></h3>
+			<strong>jsPlumb.selectEndpoints</strong> provides a fluid interface for working with lists of Endpoints.
+			The syntax used to specify which Endpoints you want is identical to that which you use for jsPlumb.select,
+			and the return value is an object that supports most operations that you can perform on an Endpoint (and
+			which is also chainable, for setter methods). Certain getter methods are also supported, but these are not
+			chainable; they return an array consisting of all the Endpoints in the selection along with the return
+			value for that Endpoint.
+			<p>
+			<p>
+				Four parameters are supported by selectEndpoints - each of these except 'scope' can be provided as either
+				a string, a selector, a DOM element, or an array of a mixture of these types.  'scope' can be provided as either
+				a string or an array of strings:
+				<ul>
+					<li class="bullet">element - element(s) to get both source and target endpoints from</li>
+					<li class="bullet">source - element(s) to get source endpoints from</li>
+					<li class="bullet">target - element(s) to get target endpoints from</li>
+					<li class="bullet">scope - scope(s) for endpoints to retrieve.</li>					
+				</ul>
+			</p>
+			This is the full list of setter operations supported by jsPlumb.selectEndpoints:
+			<ul>
+				<li class="bullet">addOverlay</li>
+				<li class="bullet">removeOverlay</li>
+				<li class="bullet">removeOverlays</li>
+				<li class="bullet">showOverlay</li>
+				<li class="bullet">hideOverlay</li>
+				<li class="bullet">showOverlays</li>
+				<li class="bullet">hideOverlays</li>
+				<li class="bullet">removeAllOverlays</li>
+				<li class="bullet">setLabel</li>
+				<li class="bullet">setPaintStyle</li>
+				<li class="bullet">setHoverPaintStyle</li>				
+				<li class="bullet">setConnector</li>
+				<li class="bullet">setParameter</li>
+				<li class="bullet">setParameters</li>				
+			</ul>
+
+			Each of these operations returns a selector that can be chained.
+			</p>
+			These is the full list of getter operations supported by jsPlumb.select:
+			<p>
+				<ul>
+					<li class="bullet">getLabel</li>
+					<li class="bullet">getOverlay</li>
+					<li class="bullet">isHover</li>				
+					<li class="bullet">getParameter</li>
+					<li class="bullet">getParameters</li>
+				</ul>
+
+			Each of these operations returns an array whose entries are [ value, Endpoint ] arrays, where 'value'
+			is the return value from the given Endpoint. Remember that the return values from a getter are not chainable,
+			but a getter may be called at the end of a chain of setters.
+			</p>
+			<p>
+				Other methods (not chainable):
+				<ul>
+					<li class="bullet">delete - deletes the Endpoints in the selection</li>
+					<li class="bullet">detachAll - detaches all Connections from the Endpoints in the selection </li>
+				</ul>
+			</p>
+
+			<p>Some examples:</p>
+			Select all Endpoints and set their hover state to be false:
+
+<div class="code">
+<pre>
+jsPlumb.selectEndpoints().setHover(false);
+</pre>
+</div>
+			Select all source Endpoints on "d1" and remove all Overlays:
+
+<div class="code">
+<pre>
+jsPlumb.selectEndpoints({source:"d1"}).removeAllOverlays();
+</pre>
+</div>
+
+Select all Endpoints in scope "foo" and set their fill style to be blue:
+<div class="code">
+<pre>
+jsPlumb.selectEndpoints({ scope:"foo" }).setPaintStyle({ fillStyle:"blue" });
+</pre>
+</div>
+Select all Endpoints from "d1" and detach their Connections:
+<div class="code">
+<pre>
+jsPlumb.selectEndpoints({source:"d1"}).detachAll();
+</pre>
+</div>
+<h5>.each iterator</h5>
+The return value of jsPlumb.selectEndpoints has a <strong>.each</strong> function that allows you to iterate through the list, performing an operation on each one:
+<div class="code">
+<pre>
+jsPlumb.selectEndpoints({scope:"foo"}).each(function(endpoint) {
+	
+		// do something 
+});
+</pre>
+</div>
+.each is itself chainable:
+<div class="code">
+<pre>
+jsPlumb.selectEndpoints({scope:"foo"}).each(function(endpoint) {
+	
+		// do something 
+
+}).setHover(true);
+</pre>
+</div>
+
+
+<h5>Other properties/functions</h5>
+<ul>
+	<li class="bullet"><strong>length</strong> - this member reports the number of Endpoints in the selection</li>
+	<li class="bullet"><strong>get(idx)</strong> - this function allows you to retrieve an Endpoint from the selection</li>
+</ul>
+
+
+		</div>
+		
+		<div class="section">
 			<h3><a id="events">Events</a></h3>
 			jsPlumb supports binding to several different events on Connections, Endpoints and Overlays, and also on the jsPlumb object itself.  
 			
