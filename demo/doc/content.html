@@ -42,28 +42,26 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<h3><a id="changes">Changes between 1.3.11 and 1.3.10</a></h3>
 			
 			<h5>Backwards Compatibility</h5>
-			One issue in this release:
-			<ul>
-				<li>The 'clearListeners' method on Connection, Endpoint and jsPlumb has been renamed to 'unbind'</li>
-			</ul>
+			No issues.
 			
 			<h5>New Features</h5>
 			<ul>
-				<li class="bullet">makeSource can now be called with a 'filter' parameter which allows you to respond to mouse events only on the parts of the element you want to.</li>	
-				<li class="bullet">Flowchart connector supports a different length stub at each end (supply an array of two integers instead of just a single integer)</li>
-				<li class="bullet">The position of Connector overlays can now be specified as an absolute value, with positive values meaning distance from source and negative values meaning distance from target</li>
+				<li class="bullet">added 'selectEndpoints' method to jsPlumb. This functions in the same way as the existing 'select' method, but for Endpoints, providing you with a fluid interface to select and operate on sets of Endpoints.</li>
+				<li class="bullet">makeSource now supports the 'maxConnections' parameter</li>
+				<li class="bullet">makeSource and makeTarget now support an optional 'onMaxConnections' callback</li>
+				<li class="bullet">added 'maxConnections' event to Endpoints.</li>
+				<li class="bullet">add isSuspendDrawing method</li>
+				<li class="bullet">added "connection" as alias to existing "jsPlumbConnection" event. BOTH EVENTS are fired.  So do not register for them both!</li>
+				<li class="bullet">added "connectionDetached" as alias to "jsPlumbConnectionDetached" event.  As above - both events are fired.</li>
 			</ul>
 
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li class="bullet"><strong>224</strong> - 'absolute' overlay position</li>
-				<li class="bullet"><strong>247</strong> - support non-loopback connections between endpoints on the same element (StateMachine connectors)</li>
-				<li class="bullet"><strong>248</strong> - 'container' ignored when using parent with makeSource</li>
-				<li class="bullet"><strong>250</strong> - SVG does not work in Android &lt; 3, but jsPlumb thinks it should</li>
-				<li class="bullet"><strong>252</strong> - rename 'clearListeners' to 'unbind'</li>
-				<li class="bullet"><strong>253</strong> - allow makeSource to ignore mouseclicks on selected elements and not start a drag</li>
-				<li class="bullet"><strong>254</strong> - different stub lengths for each end of a flowchart connector</li>
-				<li class="bullet"><strong>257</strong> - clarified setLabel documentation to point out that it uses innerHTML</li>
+				<li class="bullet"><strong>261</strong> - add maxConnections event to Endpoint</li>
+				<li class="bullet"><strong>264</strong> - selectEndpoints</li>
+				<li class="bullet"><strong>266</strong> - makeSource does not honor maxConnections parameter</li>
+				<li class="bullet"><strong>267</strong> - setLabel ignores suspendDrawing flag</li>
+				<li class="bullet"><strong>268</strong> - deleteEveryEndpoint should suspend drawing before it begins and restore once its done</li>
 			</ul>
 			
 		</div>
