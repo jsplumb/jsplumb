@@ -8,26 +8,17 @@ future
     - expose "rehomeEndpoint" method on jsPlumb (and 'rehome' on Endpoint); this takes an Endpoint and moves it
     to a different parent. should take an optional second method to provide the Container to use.
 
-    - add jsPlumb.selectEndpoints(...); behaves the same way as .select, but for Endpoints
-
     - add "perimeter" anchors: basically helper methods that create a set of dynamic anchors that together approximate the perimeter of some shape.  so if you had circles, for instance, it would be straightforward to get a set of anchors that travel around the circumference of each one.  or ellipses. whatever.  also look into the possibility of jsPlumb interacting directly with SVG/VML elements to determine their perimeter.
-
-    - allow for "named" endpoint types: the user can register a full set of parameters for some endpoint and then just refer to it in code:
-
-        jsPlumb.register("foo", {
-            endpoint:["Dot", {radius:50}],
-            paintStyle:{fillStyle:"red"}
-        });
-
-        ...
-
-        jsPlumb.addEndpoint("anElement", "foo");
-
-                or
-            
-        jsPlumb.addEndpoint("anElement", "foo", { ... optional extra params ... } );
+		
+		
+	-  multiple paint styles, referenced by name.  a simple case in on example app i saw could be "up", which paints green,
+	and "down" which paints red.  then you could have "fat" and "skinny" for the bandwidth, for example.  this would be backed with an API that behaved like classes on DOM elements -
+	you could have multiple assigned at once and jsPlumb would merge them all together.
 
 
+1.3.11
+
+	- add jsPlumb.selectEndpoints(...); behaves the same way as .select, but for Endpoints
 
 
 1.3.9
