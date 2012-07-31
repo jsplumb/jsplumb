@@ -4007,6 +4007,27 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.selectEndpoints({source:"d1"}).setHover(false);
 		equals(e1.isHover(), false, "hover no longer set");		
 	});
+	
+	test(renderMode + " selectEndpoints, setEnabled tests", function() {
+		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"),
+			e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true});
+			
+		equals(e1.isEnabled(), true, "endpoint is enabled");		
+		_jsPlumb.selectEndpoints({source:"d1"}).setEnabled(false);
+		equals(e1.isEnabled(), false, "endpoint not enabled");				
+	});
+	
+	test(renderMode + " selectEndpoints, setEnabled tests", function() {
+		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"),
+			e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true});
+			
+		equals(e1.isEnabled(), true, "endpoint is enabled");		
+		var e = _jsPlumb.selectEndpoints({source:"d1"}).isEnabled();
+		equals(e[0][0], true, "endpoint enabled");
+		_jsPlumb.selectEndpoints({source:"d1"}).setEnabled(false);
+		e = _jsPlumb.selectEndpoints({source:"d1"}).isEnabled();
+		equals(e[0][0], false, "endpoint not enabled");
+	});
 
 // setPaintStyle/getPaintStyle tests
 
