@@ -90,7 +90,7 @@
 		},   
 
 		/**
-		* executes ana ajax call.
+		* executes an ajax call.
 		*/
 		ajax : function(params) {
 			params = params || {};
