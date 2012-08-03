@@ -172,7 +172,9 @@
 		
 		self.paint = function(dim, style) {						
 			if (style != null) {																				
-				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);				
+				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);
+				if (self.getZIndex())
+					self.canvas.style.zIndex = self.getZIndex();
 				if (style.outlineColor != null) {
 					var outlineWidth = style.outlineWidth || 1,
 					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),

@@ -100,12 +100,14 @@
 		_atts(o, atts);
 		return o;
 	},
-	_pos = function(o,d) {
+	_pos = function(o,d, zIndex) {
 		o.style.left = d[0] + "px";		
 		o.style.top =  d[1] + "px";
 		o.style.width= d[2] + "px";
 		o.style.height= d[3] + "px";
 		o.style.position = "absolute";
+		if (zIndex)
+			o.style.zIndex = zIndex;
 	},
 	_conv = jsPlumb.vml.convertValue = function(v) {
 		return Math.floor(v * scale);
@@ -216,14 +218,14 @@
 						p["class"] = clazz;
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
 						self.bgCanvas = _node("shape", d, p, params.parent, self._jsPlumb);						
-						_pos(self.bgCanvas, d);
+						_pos(self.bgCanvas, d, self.getZIndex());
 						self.appendDisplayElement(self.bgCanvas, true);	
 						self.attachListeners(self.bgCanvas, self);					
 						self.initOpacityNodes(self.bgCanvas, ["stroke"]);		
 					}
 					else {
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-						_pos(self.bgCanvas, d);
+						_pos(self.bgCanvas, d, self.getZIndex());
 						_atts(self.bgCanvas, p);
 					}
 					
@@ -246,7 +248,7 @@
 				}
 				else {
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-					_pos(self.canvas, d);
+					_pos(self.canvas, d, self.getZIndex());
 					_atts(self.canvas, p);
 				}
 				
