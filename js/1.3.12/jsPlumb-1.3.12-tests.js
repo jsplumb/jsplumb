@@ -4059,7 +4059,102 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.getEndpoints("d2");
 		equals(e.length, 2, "two endpoints on d1");
 		equals(e2.length, 1, "one endpoint on d2");
-	});	
+	});
+	
+// connection type tests - types, type extension, set types, get types etc.
+	test(renderMode + " set connection type on existing connection", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"yellow", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" }
+		};
+		
+		_jsPlumb.registerConnectionType("basic", basicType);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+			
+		c.setType("basic");
+		equals(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
+		equals(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
+		equals(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
+		equals(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+	});
+	
+	test(renderMode + " set connection type on existing connection then change type", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"yellow", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" }
+		};
+		var otherType = {
+			connector:"Bezier",
+			paintStyle:{ strokeStyle:"red", lineWidth:14 },
+			hoverPaintStyle:{ strokeStyle:"green" }
+		};
+		
+		_jsPlumb.registerConnectionType("basic", basicType);
+		_jsPlumb.registerConnectionType("other", otherType);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+			
+		c.setType("basic");
+		equals(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
+		equals(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
+		equals(c.getHoverPaintStyle().strokeStyle, "blue", "hoverPaintStyle strokeStyle is blue");
+		equals(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+		
+		c.setType("other");
+		equals(c.getPaintStyle().lineWidth, 14, "paintStyle lineWidth is 14");
+		equals(c.getPaintStyle().strokeStyle, "red", "paintStyle strokeStyle is red");
+		equals(c.getHoverPaintStyle().strokeStyle, "green", "hoverPaintStyle strokeStyle is green");
+		equals(c.getHoverPaintStyle().lineWidth, 14, "hoverPaintStyle linewidth is 14");
+	});
+	
+	test(renderMode + " set connection type on existing connection, overlays should be set", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"yellow", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" },
+			overlays:[
+				"Arrow"
+			]
+		};
+		
+		_jsPlumb.registerConnectionType("basic", basicType);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+			
+		c.setType("basic");
+		equals(c.getOverlays().length, 1, "one overlay");
+	});
+	
+	test(renderMode + " set connection type on existing connection, overlays should be removed with second type", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"yellow", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" },
+			overlays:[
+				"Arrow"
+			]
+		};
+		
+		var otherType = {
+			connector:"Bezier"
+		};
+		
+		_jsPlumb.registerConnectionType("basic", basicType);
+		_jsPlumb.registerConnectionType("other", otherType);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+			
+		c.setType("basic");
+		equals(c.getOverlays().length, 1, "one overlay");
+		c.setType("other");
+		equals(c.getOverlays().length, 0, "no overlays");
+		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "paintStyle lineWidth is default");
+	});
+	
+	
 
 	/**
 	 * leave this test at the bottom!
