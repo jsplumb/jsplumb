@@ -3877,7 +3877,22 @@ var testSuite = function(renderMode, _jsPlumb) {
 				
 		var params = _jsPlumb.select().detach();
 
-		equals(jsPlumb.select().length, 0, "there are no connections");
+		equals(_jsPlumb.select().length, 0, "there are no connections");
+	});
+	
+	test(renderMode + " select, repaint method", function() {
+		for (var i = 1; i < 6; i++) {
+			_addDiv("d" + i); 	_addDiv("d" + (i * 10));
+			_jsPlumb.connect({
+				source:"d" + i, 
+				target:"d" + (i*10),
+				label:"FOO"
+			});
+		}
+				
+		var len = _jsPlumb.select().repaint().length;
+
+		equals(len, 5, "there are five connections");
 	});	
 	
 	
@@ -4136,12 +4151,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			overlays:[
 				"Arrow"
 			]
-		};
-		
+		};		
 		var otherType = {
 			connector:"Bezier"
-		};
-		
+		};		
 		_jsPlumb.registerConnectionType("basic", basicType);
 		_jsPlumb.registerConnectionType("other", otherType);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
@@ -4152,6 +4165,197 @@ var testSuite = function(renderMode, _jsPlumb) {
 		c.setType("other");
 		equals(c.getOverlays().length, 0, "no overlays");
 		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "paintStyle lineWidth is default");
+	});	
+	
+	test(renderMode + " set connection type on existing connection, hasType + toggleType", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"yellow", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" },
+			overlays:[
+				"Arrow"
+			]
+		};
+		
+		_jsPlumb.registerConnectionTypes({
+			"basic": basicType
+		});
+		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+			
+		c.setType("basic");
+		equals(c.hasType("basic"), true, "connection has 'basic' type");
+		c.toggleType("basic");
+		equals(c.hasType("basic"), false, "connection does not have 'basic' type");
+		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		c.toggleType("basic");
+		equals(c.hasType("basic"), true, "connection has 'basic' type");
+		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equals(c.getOverlays().length, 1, "one overlay");
+		
+	});
+	
+	test(renderMode + " set connection type on existing connection, merge tests", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"yellow", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" },
+			overlays:[
+				"Arrow"
+			]
+		};
+		// this tests all three merge types: connector should overwrite, linewidth should be inserted into
+		// basic type's params, and arrow overlay should be added to list to end up with two overlays
+		var otherType = {
+			connector:"Bezier",
+			paintStyle:{ lineWidth:14 },
+			overlays:[
+				["Arrow", {location:0.25}]
+			]
+		};		
+		_jsPlumb.registerConnectionTypes({
+			"basic": basicType,
+			"other": otherType
+		});
+		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+			
+		c.setType("basic");
+		equals(c.hasType("basic"), true, "connection has 'basic' type");		
+		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equals(c.getPaintStyle().lineWidth, 4, "connection has linewidth 4");
+		equals(c.getOverlays().length, 1, "one overlay");
+		
+		c.addType("other");
+		equals(c.hasType("basic"), true, "connection has 'basic' type");
+		equals(c.hasType("other"), true, "connection has 'other' type");	
+		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equals(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+		equals(c.getOverlays().length, 2, "two overlays");
+		
+		c.removeType("basic");
+		equals(c.hasType("basic"), false, "connection does not have 'basic' type");
+		equals(c.hasType("other"), true, "connection has 'other' type");	
+		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equals(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+		equals(c.getOverlays().length, 1, "one overlay");
+		
+		c.toggleType("other");
+		equals(c.hasType("other"), false, "connection does not have 'other' type");
+		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "connection has default linewidth");
+		equals(c.getOverlays().length, 0, "nooverlays");
+	});
+	
+	test(renderMode + " connection type tests, space separated arguments", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"yellow", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" },
+			overlays:[
+				"Arrow"
+			]
+		};
+		// this tests all three merge types: connector should overwrite, linewidth should be inserted into
+		// basic type's params, and arrow overlay should be added to list to end up with two overlays
+		var otherType = {
+			connector:"Bezier",
+			paintStyle:{ lineWidth:14 },
+			overlays:[
+				["Arrow", {location:0.25}]
+			]
+		};		
+		_jsPlumb.registerConnectionTypes({
+			"basic": basicType,
+			"other": otherType
+		});
+		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+			
+		c.setType("basic other");
+		equals(c.hasType("basic"), true, "connection has 'basic' type");
+		equals(c.hasType("other"), true, "connection has 'other' type");
+		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equals(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+		equals(c.getOverlays().length, 2, "two overlays");
+		
+		c.toggleType("other basic");
+		equals(c.hasType("basic"), false, "after toggle, connection does not have 'basic' type");
+		equals(c.hasType("other"), false, "after toggle, connection does not have 'other' type");	
+		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after toggle, connection has default stroke style");
+		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after toggle, connection has default linewidth");
+		equals(c.getOverlays().length, 0, "after toggle, no overlays");
+		
+		c.toggleType("basic other");
+		equals(c.hasType("basic"), true, "after toggle again, connection has 'basic' type");
+		equals(c.hasType("other"), true, "after toggle again, connection has 'other' type");
+		equals(c.getPaintStyle().strokeStyle, "yellow", "after toggle again, connection has yellow stroke style");
+		equals(c.getPaintStyle().lineWidth, 14, "after toggle again, connection has linewidth 14");
+		equals(c.getOverlays().length, 2, "after toggle again, two overlays");
+		
+		c.removeType("other basic");
+		equals(c.hasType("basic"), false, "after remove, connection does not have 'basic' type");
+		equals(c.hasType("other"), false, "after remove, connection does not have 'other' type");	
+		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after remove, connection has default stroke style");
+		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after remove, connection has default linewidth");
+		equals(c.getOverlays().length, 0, "after remove, no overlays");
+		
+		c.addType("other basic");
+		equals(c.hasType("basic"), true, "after add, connection has 'basic' type");
+		equals(c.hasType("other"), true, "after add, connection has 'other' type");
+		equals(c.getPaintStyle().strokeStyle, "yellow", "after add, connection has yellow stroke style");
+		// NOTE here we added the types in the other order to before, so lineWidth 4 - from basic - should win.
+		equals(c.getPaintStyle().lineWidth, 4, "after add, connection has linewidth 4");
+		equals(c.getOverlays().length, 2, "after add, two overlays");
+	});
+	
+	test(renderMode + " connection type tests, fluid interface", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"yellow", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" },
+			overlays:[
+				"Arrow"
+			]
+		};
+		// this tests all three merge types: connector should overwrite, linewidth should be inserted into
+		// basic type's params, and arrow overlay should be added to list to end up with two overlays
+		var otherType = {
+			connector:"Bezier",
+			paintStyle:{ lineWidth:14 },
+			overlays:[
+				["Arrow", {location:0.25}]
+			]
+		};		
+		_jsPlumb.registerConnectionTypes({
+			"basic": basicType,
+			"other": otherType
+		});
+		
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
+			c = _jsPlumb.connect({source:d1, target:d2}),
+			c2 = _jsPlumb.connect({source:d2, target:d3});
+			
+		_jsPlumb.select().addType("basic");		
+		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equals(c2.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		
+		_jsPlumb.select().toggleType("basic");
+		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equals(c2.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		
+		_jsPlumb.select().addType("basic");		
+		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equals(c2.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		
+		_jsPlumb.select().removeType("basic").addType("other");		
+		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equals(c2.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		
+		
 	});
 	
 	
