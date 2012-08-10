@@ -23,13 +23,16 @@ jsPlumbUtil = {
 	isString : function(s) {
 		return typeof s === "string";
 	},
+	isBoolean: function(s) {
+		return typeof s === "boolean";
+	},
 	isObject : function(o) {
 		return Object.prototype.toString.call(o) === "[object Object]";	
 	},
 	merge : function(a, b) {
 		var c = jsPlumb.extend({}, a);
 		for (var i in b) {
-			if (!c[i] || this.isString(b[i]))
+			if (c[i] == null || this.isString(b[i]) || this.isBoolean(b[i]))
 				c[i] = b[i];
 			else {
 				if (this.isArray(b[i]) && this.isArray(c[i])) {
