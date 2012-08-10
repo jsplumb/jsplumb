@@ -94,7 +94,11 @@
 	_node = function(name, d, atts, parent, _jsPlumb) {
 		atts = atts || {};
 		var o = document.createElement("jsplumb:" + name);				
-		_jsPlumb.appendElement(o, parent);
+		if(parent){
+		  _jsPlumb.CurrentLibrary.appendElement(o, parent);
+		} else {	
+		  _jsPlumb.appendElement(o, parent);
+		}
 		o.className = (atts["class"] ? atts["class"] + " " : "") + "jsplumb_vml";
 		_pos(o, d);
 		_atts(o, atts);
