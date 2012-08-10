@@ -3,11 +3,12 @@ body {
 	background-image:url(../img/dynamicAnchorBg.jpg); 
 }
 /* docs */
-.code { background-color:#e4e5ef; 
+.code { background-color:#e4eeee;
 border:1px solid black; margin:1em; padding:0.8em; 
 overflow:auto;
 font-family:courier; 
 font-size:8pt;
+border-radius:0.3em;
 }
 .section { border-bottom: 1px dotted black; padding:1em;font-family:helvetica;background-color:white;color:#333;}
 .menu { 
