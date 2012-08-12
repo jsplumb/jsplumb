@@ -4362,6 +4362,8 @@ between this method and jsPlumb.reset).
 		 *  endpointStyles - Optional. Array of two Endpoint style definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
 		 *  paintStyle - Parameters defining the appearance of the Connection. Optional; jsPlumb will use the defaults if you supply nothing here.
 		 *  hoverPaintStyle - Parameters defining the appearance of the Connection when the mouse is hovering over it. Optional; jsPlumb will use the defaults if you supply nothing here (note that the default hoverPaintStyle is null).
+		 *  cssClass - optional CSS class to set on the display element associated with this Connection.
+		 *  hoverClass - optional CSS class to set on the display element associated with this Connection when it is in hover state.
 		 *  overlays - Optional array of Overlay definitions to appear on this Connection.
 		 *  drawEndpoints - if false, instructs jsPlumb to not draw the endpoints for this Connection.  Be careful with this: it only really works when you tell jsPlumb to attach elements to the document body. Read the documentation for a full discussion of this. 
 		 *  parameters - Optional JS object containing parameters to set on the Connection. These parameters are then available via the getParameter method.
@@ -4937,7 +4939,9 @@ between this method and jsPlumb.reset).
 		 * endpoint - optional Endpoint definition. This takes the form of either a string nominating one of the basic Endpoints provided by jsPlumb (eg. "Rectangle"), or an array containing [name,params] for those cases where you don't wish to use the default values, eg. [ "Rectangle", { width:5, height:10 } ].
 		 * enabled - optional, defaults to true. Indicates whether or not the Endpoint should be enabled for mouse events (drag/drop).
 		 * paintStyle - endpoint style, a js object. may be null. 
-		 * hoverPaintStyle - style to use when the mouse is hovering over the Endpoint. A js object. may be null; defaults to null. 
+		 * hoverPaintStyle - style to use when the mouse is hovering over the Endpoint. A js object. may be null; defaults to null.
+		 * cssClass - optional CSS class to set on the display element associated with this Endpoint.
+		 * hoverClass - optional CSS class to set on the display element associated with this Endpoint when it is in hover state.
 		 * source - element the Endpoint is attached to, of type String (an element id) or element selector. Required.
 		 * canvas - canvas element to use. may be, and most often is, null.
 		 * container - optional id or selector instructing jsPlumb where to attach the element it creates for this endpoint.  you should read the documentation for a full discussion of this.
