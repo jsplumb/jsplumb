@@ -31,7 +31,7 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<p>jsPlumb 1.3.12 runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:
 				<ul>
 					<li class="bullet">jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.
-					<li class="bullet">Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element</li>
+					<li class="bullet">Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element (Safari 6.x does not seem to have the same problem)</li>
 					<li class="bullet">MooTools has a bug when using SVG in Firefox 11</li>
 				<ul>
 				
@@ -46,22 +46,22 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			
 			<h5>New Features</h5>
 			<ul>
-				<li class="bullet">added 'selectEndpoints' method to jsPlumb. This functions in the same way as the existing 'select' method, but for Endpoints, providing you with a fluid interface to select and operate on sets of Endpoints.</li>
-				<li class="bullet">makeSource now supports the 'maxConnections' parameter</li>
-				<li class="bullet">makeSource and makeTarget now support an optional 'onMaxConnections' callback</li>
-				<li class="bullet">added 'maxConnections' event to Endpoints.</li>
-				<li class="bullet">add isSuspendDrawing method</li>
+				<li class="bullet">added the concept of Connection and Endpoint "type". A type is a collection of attributes such as paint style,
+	hover paint style, overlays etc. For more information, see <a href="#connectionTypes">here</a></li>
+				<li class="bullet">added 'Custom' Overlay type. You provide a 'create' method that returns an element, and jsPlumb positions it.</li>
+				<li class="bullet">added 'setEnabled' / 'isEnabled' methods to selectEndpoint return value</li>
+				<li class="bullet">added 'ConnectorZIndex' optional default. use this to get hovered connectors to appear on top of others.</li>
+				<li class="bullet">added 'setVisible'/'isVisible' to both jsPlumb.select and jsPlumb.selectEndpoint return value</li>
 				<li class="bullet">added "connection" as alias to existing "jsPlumbConnection" event. BOTH EVENTS are fired.  So do not register for them both!</li>
-				<li class="bullet">added "connectionDetached" as alias to "jsPlumbConnectionDetached" event.  As above - both events are fired.</li>
+				<li class="bullet">added 'repaint' to return value from jsPlumb.select and jsPlumb.selectEndpoint</li>
+				<li class="bullet">performance enhancements for label rendering</li>
 			</ul>
 
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li class="bullet"><strong>261</strong> - add maxConnections event to Endpoint</li>
-				<li class="bullet"><strong>264</strong> - selectEndpoints</li>
-				<li class="bullet"><strong>266</strong> - makeSource does not honor maxConnections parameter</li>
-				<li class="bullet"><strong>267</strong> - setLabel ignores suspendDrawing flag</li>
-				<li class="bullet"><strong>268</strong> - deleteEveryEndpoint should suspend drawing before it begins and restore once its done</li>
+				<li class="bullet"><strong>263</strong> - custom labels</li>
+				<li class="bullet"><strong>269</strong> - Image Endpoint remains in DOM if removed quickly enough after creation</li>
+				<li class="bullet"><strong>270</strong> - Connections repainted when setVisible(false) had been called</li>
 			</ul>
 			
 		</div>
@@ -218,6 +218,26 @@ secondInstance.connect({ source:"element4", target:"element3", scope:"someScope"
 			<tr><td>Connector</td><td>_jsPlumb_connector</td></tr>
 			<tr><td>Overlay</td><td>_jsPlumb_overlay</td></tr>
 		</table>
+		
+		<h5>Automatic z-index for Connections</h5>
+		A common use case is the need to bring hovered Connections up on top of the other connections in your UI. From
+		1.3.12 onwards, jsPlumb offers a way to do this:
+		<div class="code">
+<pre>
+  jsPlumb.importDefaults({
+    ...
+    ConnectorZIndex:5
+	...
+  });
+</pre>			
+		</div>
+		This tells jsPlumb to set the z-index of all Connections to be 5, and the z-index of any hovered Connections will
+		be, in this case, 6.  You could argue that jsPlumb could figure out the z-index automatically, but z-index selection
+		is typically a conscious decision in a webapp, and this approach formalises things a little better than trying
+		to infer what the value is supposed to be.
+		<p>To achieve this, there is actually a <strong>setZIndex</strong> method on Connections now, which is perfectly fine
+		to call, but remember that if you change the z-index of some Connection, hover over it, and then mouse exit, resetting
+		the hover state will mean that jsPlumb resets the z-index to the default value discussed above.</p>
 
 		<h4><a id="containerDefault">Where does jsPlumb add elements?</a></h4>
 		<p>
@@ -2282,16 +2302,36 @@ This will give roughly the same output as the example above (the percentages are
 		</div>
 
 		<div class="section">
-			<h3><a id="cssclasses">CSS Class Reference</a></h3>
-			jsPlumb attaches classes to each of the UI components it creates.
-			<p>These class names are exposed on the jsPlumb object and can be overridden if you need to do so (see the third column in the table) </p>
-			<table width="70%" class="table">
+			<h3><a id="cssclasses">CSS</a></h3>
+			In an ideal world, you'd be able to control the appearance of your UI using CSS only, but due to difference between
+			renderers, this is not the case.  The Canvas renderer, for instance, is completely unaware of CSS, and VML can
+			only be styled up to a point with CSS.  SVG behaves best, and perhaps at some stage in the future when all browsers
+			in popular usage support SVG decently, we'll be able to switch over completely to CSS.
+			<p>For now, though, you can - and should - still use CSS for one important consideration: z-indices.  Every Connection,
+			Endpoint and Overlay in jsPlumb adds some element to the UI, and you should take care to establish appropriate z-indices for each
+			of these, in conjunction with the nodes in your application. 
+			</p>
+			<p>By default, jsPlumb adds a specific class to each of the three types of elements it creates (These class names are
+			exposed on the jsPlumb object and can be overridden if you need to do so - see the third column in the table) </p>
+			<table width="90%" class="table" style="align:left;font-size:12px;">
 				<tr><th>Component</th><th>CSS Class</th><th>jsPlumb Member</th></tr>
 				<tr><td>Connector</td><td>_jsPlumb_connector</td><td>connectorClass</td></tr>
 				<tr><td>Endpoint</td><td>_jsPlumb_endpoint</td><td>endpointClass</td></tr>
 				<tr><td>Overlay</td><td>_jsPlumb_overlay</td><td>overlayClass</td></tr>
 			</table>
-			<p>You would typically use these to establish appropriate z-indices for your UI.</p>			
+			<p>In addition to these defaults, each of the main methods you use to configure Endpoints or make Connections
+			in jsPlumb support the following two parameters:</p>
+			<ul>
+				<li class="bullet"><strong>cssClass</strong> - class(es) to set on the display elements</li>
+				<li class="bullet"><strong>hoverClass</strong> - class(es) to set on the display elements when in hover mode</li>
+			</ul>
+			In addition, addEndpoint and makeSource allow you to specify what these classes will be for any Connections that are dragged from them:
+			<ul>
+				<li class="bullet"><strong>connectorClass</strong> - class(es) to set on the display elements of Connections</li>
+				<li class="bullet"><strong>connectorHoverClass</strong> - class(es) to set on the display elements of Connections when in hover mode</li>
+			</ul>
+			<p>These parameters should be supplied as a String; they will be appended as-is to the class member, so feel free to
+			include multiple classes.  jsPlumb won't even know.</p>
 		</div>
 				
 		<div class="section">
@@ -2323,7 +2363,7 @@ The arguments are as follows:
 		
 			<div class="section">
 			<h3><a id="connectionInfo">Retrieving Connection Information</a></h3>
-			There are two ways of retrieving connection information from jsPlumb. <strong>getConnections</strong>is the original method; this method is supplemented by <a href="#selectConnections">jsPlumb.select</a>, a much more versatile variant.
+			There are two ways of retrieving connection information from jsPlumb. <strong>getConnections</strong>is the original method; this method has since been supplanted by <a href="#selectConnections">jsPlumb.select</a>, a much more versatile variant.
 			<h5>getConnections</h5>
 			<p>Before you use this method you should understand jsPlumb's notion of 'scope' - documentation
 			is <a href="#dragAndDropScope">here</a> </p>
