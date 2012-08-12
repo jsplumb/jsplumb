@@ -19,7 +19,8 @@
 						id:"label",
 						cssClass:"aLabel"
 					}]
-				]
+				],
+				ConnectorZIndex:5
 			});			
 
 			// this is the paint style for the connecting lines..
@@ -40,7 +41,8 @@
 				endpoint:"Dot",
 				paintStyle:{ fillStyle:"#225588",radius:7 },
 				isSource:true,
-				connector:[ "Flowchart", { stub:[40, 60], gap:10 } ],
+				//connector:[ "Flowchart", { stub:[40, 60], gap:10 } ],
+				connector:[ "Flowchart"],
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
@@ -54,7 +56,7 @@
                 ]
 			},
 			// a source endpoint that sits at BottomCenter
-			bottomSource = jsPlumb.extend( { anchor:"BottomCenter" }, sourceEndpoint),
+		//	bottomSource = jsPlumb.extend( { anchor:"BottomCenter" }, sourceEndpoint),
 			// the definition of target endpoints (will appear when the user drags a connection) 
 			targetEndpoint = {
 				endpoint:"Dot",					
@@ -75,11 +77,11 @@
 				_addEndpoints = function(toId, sourceAnchors, targetAnchors) {
 					for (var i = 0; i < sourceAnchors.length; i++) {
 						var sourceUUID = toId + sourceAnchors[i];
-						allSourceEndpoints.push(jsPlumb.addEndpoint(toId, sourceEndpoint, { anchor:sourceAnchors[i], uuid:sourceUUID }));
+						allSourceEndpoints.push(jsPlumb.addEndpoint(toId, sourceEndpoint, { anchor:sourceAnchors[i], uuid:sourceUUID }));						
 					}
 					for (var j = 0; j < targetAnchors.length; j++) {
 						var targetUUID = toId + targetAnchors[j];
-						allTargetEndpoints.push(jsPlumb.addEndpoint(toId, targetEndpoint, { anchor:targetAnchors[j], uuid:targetUUID }));
+						allTargetEndpoints.push(jsPlumb.addEndpoint(toId, targetEndpoint, { anchor:targetAnchors[j], uuid:targetUUID }));						
 					}
 				};
 
@@ -91,19 +93,20 @@
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
 			jsPlumb.bind("jsPlumbConnection", function(connInfo, originalEvent) { 
 				init(connInfo.connection);
-			});
+			});			
 						
 			// make all the window divs draggable						
 			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 
-			// connect a few up
+			//* connect a few up
 			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"]});
 			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"]});
 			jsPlumb.connect({uuids:["window4TopCenter", "window4RightMiddle"]});
 			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"]});
 			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"]});
 			jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"]});
-
+		
+			
 			//
 			// listen for clicks on connections, and offer to delete connections on click.
 			//
