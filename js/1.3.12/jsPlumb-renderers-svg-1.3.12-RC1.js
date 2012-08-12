@@ -203,8 +203,7 @@
 	
 	/*
 	 * Base class for SVG components.
-	 */
-	//var SvgComponent = function(cssClass, originalArgs, pointerEventsSpec) {
+	 */	
 	var SvgComponent = function(params) {
 		var self = this,
 		pointerEventsSpec = params.pointerEventsSpec || "all";
