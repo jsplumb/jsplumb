@@ -104,34 +104,9 @@
 	 */
 	var _getElementObject = function(el) {
 		return $(el);
-	},
-
-    _removeNonPermanentDroppables = function(drag) {  
-        /*
-        // remove non-permanent droppables from all arrays
-        var dbs = _droppables[drag.scope], d = [];
-        if (dbs) {
-            var d = [];
-            for (var i=0; i < dbs.length; i++) {
-                var isPermanent = dbs[i].getAttribute("_isPermanentDroppable");
-                if (isPermanent === "true") d.push(dbs[i]);
-            }
-            dbs.splice(0, dbs.length);
-            _droppables[drag.scope] = d;
-        }
-        d = [];
-        // clear out transient droppables from the drag itself
-        for(var i = 0; i < drag.droppables.length; i++) {
-            var isPermanent = drag.droppables[i].getAttribute("_isPermanentDroppable");
-            if (isPermanent === "true") d.push(drag.droppables[i]);
-        }
-        drag.droppables.splice(0, drag.droppables.length);  // release old ones
-        drag.droppables = d;
-        //*/
-    };
-
+	};
 		
-	jsPlumb.CurrentLibrary = {					
+	jsPlumb.CurrentLibrary = {				
 		
 		/**
 		 * adds the given class to the element object.
@@ -188,6 +163,8 @@
 		getClientXY : function(eventObject) {
 			return [eventObject.event.clientX, eventObject.event.clientY];
 		},
+		
+		getDocumentElement : function() { return document; },
 		
 		getDragObject : function(eventArgs) {
 			return eventArgs[0];
@@ -296,9 +273,7 @@
 					this.element.setStyle('z-index', originalZIndex);
 					if (originalCursor) {
 						this.element.setStyle('cursor', originalCursor);
-					}
-
-                    _removeNonPermanentDroppables(drag);                                        
+					}                    
 				});
 				
 				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element
