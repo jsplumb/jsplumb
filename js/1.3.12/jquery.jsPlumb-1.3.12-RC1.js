@@ -163,7 +163,7 @@
 		*/
 		getDOMElement : function(el) {
 			if (typeof(el) == "string") return document.getElementById(el);
-			else if (el.context) return el[0];
+			else if (el.context || el.length != null) return el[0];
 			else return el;
 		},
 	
