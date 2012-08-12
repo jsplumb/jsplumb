@@ -982,8 +982,7 @@ var testSuite = function(renderMode, _jsPlumb) {
                     ok(imgEp.img.src.indexOf("endpointTest1.png") != -1, "image elementsource is correct");                                        
                     
                     imgEp.canvas.setAttribute("id", "iwilllookforthis");
-
-                    ok(document.getElementById("iwilllookforthis") != null, "image element is present");
+                    
                     _jsPlumb.removeAllEndpoints("d1");
                     ok(document.getElementById("iwilllookforthis") == null, "image element was removed after remove endpoint");
                 }
@@ -2373,8 +2372,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(lo != null, "label overlay exists");
 		equals(lo.getLabel(), "FOO", "label overlay has correct value");
 		equals(lo.getLocation(), 0.2, "label overlay has correct location");
-	});
-	
+	});	
 	
 	test(renderMode + ": _jsPlumb.connect (remove single overlay by id)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
@@ -2496,6 +2494,39 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(!overlay.isVisible());
 		overlay.setVisible(true);
 		ok(overlay.isVisible());
+	});
+	
+	test(renderMode + ": _jsPlumb.connect (custom label overlay, set on Defaults, return plain DOM element)", function() {
+		_jsPlumb.Defaults.ConnectionOverlays = [
+			["Custom",{ id:"custom", create:function(connection) {
+				ok(connection != null, "we were passed in a connection");
+				var d = document.createElement("div");
+				d.setAttribute("custom", "true");
+				d.innerHTML = connection.id;
+				return d;
+			}}]
+		];
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+
+		var o = c.getOverlay("custom");
+		equals(o.getElement().getAttribute("custom"), "true", "custom overlay created correctly");
+		equals(o.getElement().innerHTML, c.id, "custom overlay has correct value");		
+	});
+	
+	test(renderMode + ": _jsPlumb.connect (custom label overlay, set on Defaults, return selector)", function() {
+		_jsPlumb.Defaults.ConnectionOverlays = [
+			["Custom",{ id:"custom", create:function(connection) {
+				ok(connection != null, "we were passed in a connection");
+				return $("<div custom='true'>" + connection.id + "</div>");
+			}}]
+		];
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+
+		var o = c.getOverlay("custom");
+		equals(o.getElement().getAttribute("custom"), "true", "custom overlay created correctly");
+		equals(o.getElement().innerHTML, c.id, "custom overlay has correct value");		
 	});
 	
 	// this test is for the original detach function; it should stay working after i mess with it
