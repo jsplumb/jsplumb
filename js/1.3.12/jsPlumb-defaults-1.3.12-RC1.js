@@ -1079,8 +1079,26 @@
     		return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(self.getElement(component)));
     	};
 		
+		var cachedDimensions = null,
+			_getDimensions = function(component) {
+				if (cachedDimensions == null)
+					cachedDimensions = self.getDimensions(component);
+				return cachedDimensions;
+			};
+		
+		/*
+		 * Function: clearCachedDimensions
+		 * Clears the cached dimensions for the label. As a performance enhancement, label dimensions are
+		 * cached from 1.3.12 onwards. The cache is cleared when you change the label text, of course, but
+		 * there are other reasons why the text dimensions might change - if you make a change through CSS, for
+		 * example, you might change the font size.  in that case you should explicitly call this method.
+		 */
+		this.clearCachedDimensions = function() {
+			cachedDimensions = null;
+		};
+		
 		this.computeMaxSize = function(visualComponent, component) {
-    		var td = self.getDimensions(component);
+    		var td = _getDimensions(component);
 			return Math.max(td[0], td[1]);
     	}; 
 		
@@ -1105,9 +1123,9 @@
 			div.style.left = (componentDimensions[0] + d.minx) + "px";
 			div.style.top = (componentDimensions[1] + d.miny) + "px";			
     	};
-		
+				
 		this.draw = function(component, currentConnectionPaintStyle, componentDimensions, actualComponent) {
-	    	var td = self.getDimensions(component);
+	    	var td = _getDimensions(component);
 	    	if (td != null && td.length == 2) {
 				var cxy = {x:0,y:0};
                 if (component.pointOnPath) {
@@ -1202,6 +1220,7 @@
     	this.setLabel = function(l) {
     		label = l;
     		labelText = null;
+			cachedDimensions = null;
     		self.component.repaint();
     	};
     	
@@ -1209,8 +1228,8 @@
     		return label;
     	};
     	
-		var superGD = this.getDimensions;
-    	this.getDimensions = function(connector) {
+		var superGD = this.getDimensions;		
+		this.getDimensions = function(connector) {				
     		if (typeof label == "function") {
     			var lt = label(self);
     			self.getElement(connector).innerHTML = lt.replace(/\r\n/g, "<br/>");
@@ -1221,8 +1240,9 @@
     				self.getElement(connector).innerHTML = labelText.replace(/\r\n/g, "<br/>");
     			}
     		}
-    		return superGD(connector);
-    	};    	
+			return superGD(connector);
+    	};
+		
     };
 		
     // this is really just a test overlay, so its undocumented and doesnt take any parameters. but i was loth to delete it.
@@ -1253,7 +1273,4 @@
 
  // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************
     
- // ********************************* OVERLAY CANVAS RENDERERS***********************************************************************
-    
- // ********************************* END OF OVERLAY CANVAS RENDERERS ***********************************************************************
 })();
