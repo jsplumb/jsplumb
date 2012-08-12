@@ -380,11 +380,7 @@
 
 		overlayCapableJsPlumbUIComponent = function(params) {
 			jsPlumbUIComponent.apply(this, arguments);
-			var self = this;
-			/*
-			 * Property: overlays
-			 * List of Overlays for this component.
-			 */
+			var self = this;			
 			this.overlays = [];
 
 			var processOverlay = function(o) {
@@ -444,42 +440,21 @@
 				}
 				return idx;
 			};
-			
-			/*
-			 * Function: addOverlay
-			 * Adds an Overlay to the Connection.
-			 * 
-			 * Parameters:
-			 * 	overlay - Overlay to add.
-			 */
+						
 			this.addOverlay = function(overlay, doNotRepaint) { 
 				processOverlay(overlay); 
 				if (!doNotRepaint) self.repaint();
 			};
-			
-			/*
-			 * Function: getOverlay
-			 * Gets an overlay, by ID. Note: by ID.  You would pass an 'id' parameter
-			 * in to the Overlay's constructor arguments, and then use that to retrieve
-			 * it via this method.
-			 */
+						
 			this.getOverlay = function(id) {
 				var idx = _getOverlayIndex(id);
 				return idx >= 0 ? self.overlays[idx] : null;
 			};
-
-			/*
-			* Function:getOverlays
-			* Gets all the overlays for this component.
-			*/
+			
 			this.getOverlays = function() {
 				return self.overlays;
-			};
+			};			
 			
-			/*
-			 * Function: hideOverlay
-			 * Hides the overlay specified by the given id.
-			 */
 			this.hideOverlay = function(id) {
 				var o = self.getOverlay(id);
 				if (o) o.hide();
@@ -489,11 +464,7 @@
 				for (var i = 0; i < self.overlays.length; i++)
 					self.overlays[i].hide();
 			};
-			
-			/*
-			 * Function: showOverlay
-			 * Shows the overlay specified by the given id.
-			 */
+						
 			this.showOverlay = function(id) {
 				var o = self.getOverlay(id);
 				if (o) o.show();
@@ -504,10 +475,6 @@
 					self.overlays[i].show();
 			};
 			
-			/**
-			 * Function: removeAllOverlays
-			 * Removes all overlays from the Connection, and then repaints.
-			 */
 			this.removeAllOverlays = function() {
 				for (var i in self.overlays)
 					self.overlays[i].cleanup();
@@ -515,13 +482,7 @@
 				self.overlays.splice(0, self.overlays.length);
 				self.repaint();
 			};
-			
-			/**
-			 * Function:removeOverlay
-			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
-			 * Parameters:
-			 * overlayId - id of the overlay to remove.
-			 */
+						
 			this.removeOverlay = function(overlayId) {
 				var idx = _getOverlayIndex(overlayId);
 				if (idx != -1) {
@@ -530,13 +491,7 @@
 					self.overlays.splice(idx, 1);
 				}
 			};
-			
-			/**
-			 * Function:removeOverlays
-			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
-			 * Parameters:
-			 * overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
-			 */
+						
 			this.removeOverlays = function() {
 				for (var i = 0; i < arguments.length; i++)
 					self.removeOverlay(arguments[i]);
@@ -568,14 +523,7 @@
 				}));
 			}
 
-			/*
-			 * Function: setLabel
-			 * Sets the Connection's label.  
-			 * 
-			 * Parameters:
-			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep
-         * that in mind if you need escaped HTML.
-			 */
+			
 			this.setLabel = function(l) {
 				var lo = self.getOverlay(_internalLabelOverlayId);
 				if (!lo) {
@@ -595,24 +543,13 @@
 					self.repaint();
 			};
 
-			/*
-				Function:getLabel
-				Returns the label text for this component (or a function if you are labelling with a function).
-				This does not return the overlay itself; this is a convenience method which is a pair with
-				setLabel; together they allow you to add and access a Label Overlay without having to create the
-				Overlay object itself.  For access to the underlying label overlay that jsPlumb has created,
-				use getLabelOverlay.
-			*/
+			
 			this.getLabel = function() {
 				var lo = self.getOverlay(_internalLabelOverlayId);
 				return lo != null ? lo.getLabel() : null;
 			};
 
-			/*
-				Function:getLabelOverlay
-				Returns the underlying internal label overlay, which will exist if you specified a label on
-				a connect or addEndpoint call, or have called setLabel at any stage.   
-			*/
+			
 			this.getLabelOverlay = function() {
 				return self.getOverlay(_internalLabelOverlayId);
 			};
@@ -4242,7 +4179,11 @@ between this method and jsPlumb.reset).
 		 */
 		/*
 		 * Function: Connection
-		 * Connection constructor. You should not ever create one of these directly.
+		 * Connection constructor. You should not ever create one of these directly. If you make a call to jsPlumb.connect, all of
+		 * the parameters that you pass in to that function will be passed to the Connection constructor; if your UI
+		 * uses the various Endpoint-centric methods like addEndpoint/makeSource/makeTarget, along with drag and drop,
+		 * then the parameters you set on those functions are translated and passed in to the Connection constructor. So
+		 * you should check the documentation for each of those methods.
 		 * 
 		 * Parameters:
 		 * 	source 	- either an element id, a selector for an element, or an Endpoint.
@@ -4296,15 +4237,6 @@ between this method and jsPlumb.reset).
 			
 			this.getTypeDescriptor = function() { return "connection"; };
 			this.getDefaultType = function() {
-				/* these are the constructor parameters that are part of the type:
-				 *  scope	
-				 *  detachable
-				 *  paintStyle 
-				 *  hoverPaintStyle 
-				 *  overlays 				
-				 *  parameters
-				*/
-				
 				return {
 					parameters:{},
 					scope:null,
@@ -4758,9 +4690,83 @@ between this method and jsPlumb.reset).
 			 *	The source element for this Connection.
 			 */
 			/*
-			 *	Property:target
+			 *	Property: target
 			 *	The target element for this Connection.
 			 */
+			/*
+			 * Property: overlays
+			 * List of Overlays for this component.
+			 */
+			/*
+			 * Function: addOverlay
+			 * Adds an Overlay to the Connection.
+			 * 
+			 * Parameters:
+			 * 	overlay - Overlay to add.
+			 */
+			/*
+			 * Function: getOverlay
+			 * Gets an overlay, by ID. Note: by ID.  You would pass an 'id' parameter
+			 * in to the Overlay's constructor arguments, and then use that to retrieve
+			 * it via this method.
+			 */
+			/*
+			* Function: getOverlays
+			* Gets all the overlays for this component.
+			*/
+			/*
+			 * Function: hideOverlay
+			 * Hides the overlay specified by the given id.
+			 */
+			/*
+			 * Function: hideOverlays
+			 * Hides all Overlays
+			 */
+			/*
+			 * Function: showOverlay
+			 * Shows the overlay specified by the given id.
+			 */
+			/*
+			 * Function: showOverlays
+			 * Shows all Overlays 
+			 */
+			/**
+			 * Function: removeAllOverlays
+			 * Removes all overlays from the Connection, and then repaints.
+			 */
+			/**
+			 * Function: removeOverlay
+			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Parameters:
+			 * overlayId - id of the overlay to remove.
+			 */
+			/**
+			 * Function: removeOverlays
+			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Parameters:
+			 * overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
+			 */
+			/*
+			 * Function: setLabel
+			 * Sets the Connection's label.  
+			 * 
+			 * Parameters:
+			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep
+         * that in mind if you need escaped HTML.
+			 */
+			/*
+				Function: getLabel
+				Returns the label text for this Connection (or a function if you are labelling with a function).
+				This does not return the overlay itself; this is a convenience method which is a pair with
+				setLabel; together they allow you to add and access a Label Overlay without having to create the
+				Overlay object itself.  For access to the underlying label overlay that jsPlumb has created,
+				use getLabelOverlay.
+			*/
+			/*
+				Function: getLabelOverlay
+				Returns the underlying internal label overlay, which will exist if you specified a label on
+				a connect call, or have called setLabel at any stage.   
+			*/
 			
 // ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************												
 
@@ -4851,6 +4857,8 @@ between this method and jsPlumb.reset).
 		 * connectorHoverStyle - if isSource is set to true, this is the hover paint style for Connections from this Endpoint. Optional; defaults to null.
 		 * connector - optional Connector type to use.  Like 'endpoint', this may be either a single string nominating a known Connector type (eg. "Bezier", "Straight"), or an array containing [name, params], eg. [ "Bezier", { curviness:160 } ].
 		 * connectorOverlays - optional array of Overlay definitions that will be applied to any Connection from this Endpoint. 
+		 * connectorClass - optional CSS class to set on Connections emanating from this Endpoint.
+		 * connectorHoverClass - optional CSS class to set on to set on Connections emanating from this Endpoint when they are in hover state.		 
 		 * connectionsDetachable - optional, defaults to true. Sets whether connections to/from this Endpoint should be detachable or not.
 		 * isTarget - boolean. indicates the endpoint can act as a target of new connections. Optional; defaults to false.
 		 * dropOptions - if isTarget is set to true, you can supply arguments for the underlying library's drop method with this parameter. Optional; defaults to null. 
@@ -4869,25 +4877,7 @@ between this method and jsPlumb.reset).
 // TYPE		
 			
 			this.getTypeDescriptor = function() { return "endpoint"; };
-			this.getDefaultType = function() {
-				/* these are the constructor parameters that are part of the type:
-				 *  scope	
-				 *  maxConnections
-				 *  paintStyle 
-				 *  hoverPaintStyle 
-				 *  overlays 				
-				 *  parameters
-				*/
-				/*
-				 *this.connectorStyle = params.connectorStyle;
-			this.connectorHoverStyle = params.connectorHoverStyle;
-			this.connectorOverlays = params.connectorOverlays;
-			this.connector = params.connector;
-			this.connectorTooltip = params.connectorTooltip;			
-			this.isSource = params.isSource || false;
-			this.isTarget = params.isTarget || false;
-			*/
-				
+			this.getDefaultType = function() {								
 				return {
 					parameters:{},
 					scope:null,
@@ -4896,8 +4886,10 @@ between this method and jsPlumb.reset).
 					endpoint:self._jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
 					hoverPaintStyle:self._jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
 					overlays:self._jsPlumb.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays,
-					connectorStyle:params.connectorStyle,
+					connectorStyle:params.connectorStyle,				
 					connectorHoverStyle:params.connectorHoverStyle,
+					connectorClass:params.connectorClass,
+					connectorHoverClass:params.connectorHoverClass,
 					connectorOverlays:params.connectorOverlays,
 					connector:params.connector,
 					connectorTooltip:params.connectorTooltip
@@ -4914,6 +4906,8 @@ between this method and jsPlumb.reset).
 				self.connector = t.connector;
 				self.connectorTooltip = t.connectorTooltip;
 				self.connectionType = t.connectionType;
+				self.connectorClass = t.connectorClass;
+				self.connectorHoverClass = t.connectorHoverClass;
 			};			
 // END TYPE
 		
@@ -5050,7 +5044,9 @@ between this method and jsPlumb.reset).
 			this.connectorHoverStyle = params.connectorHoverStyle;
 			this.connectorOverlays = params.connectorOverlays;
 			this.connector = params.connector;
-			this.connectorTooltip = params.connectorTooltip;			
+			this.connectorTooltip = params.connectorTooltip;
+			this.connectorClass = params.connectorClass;
+			this.connectorHoverClass = params.connectorHoverClass;	
 			this.isSource = params.isSource || false;
 			this.isTarget = params.isTarget || false;
 			
@@ -5522,7 +5518,9 @@ between this method and jsPlumb.reset).
 							hoverPaintStyle:params.connectorHoverStyle,
 							connector : params.connector, // this can also be null. Connection will use the default.
 							overlays : params.connectorOverlays,
-							type:self.connectionType
+							type:self.connectionType,
+							cssClass:self.connectorClass,
+							hoverClass:self.connectorHoverClass
 						});
 
 					} else {
@@ -5899,6 +5897,81 @@ between this method and jsPlumb.reset).
 			 * Property: scope
 			 * Scope descriptor for this Endpoint.
 			 */
+			
+			/*
+			 * Property: overlays
+			 * List of Overlays for this Endpoint.
+			 */
+			/*
+			 * Function: addOverlay
+			 * Adds an Overlay to the Endpoint.
+			 * 
+			 * Parameters:
+			 * 	overlay - Overlay to add.
+			 */
+			/*
+			 * Function: getOverlay
+			 * Gets an overlay, by ID. Note: by ID.  You would pass an 'id' parameter
+			 * in to the Overlay's constructor arguments, and then use that to retrieve
+			 * it via this method.
+			 */
+			/*
+			* Function: getOverlays
+			* Gets all the overlays for this component.
+			*/
+			/*
+			 * Function: hideOverlay
+			 * Hides the overlay specified by the given id.
+			 */
+			/*
+			 * Function: hideOverlays
+			 * Hides all Overlays
+			 */
+			/*
+			 * Function: showOverlay
+			 * Shows the overlay specified by the given id.
+			 */
+			/*
+			 * Function: showOverlays
+			 * Shows all Overlays 
+			 */
+			/**
+			 * Function: removeAllOverlays
+			 * Removes all overlays from the Endpoint, and then repaints.
+			 */
+			/**
+			 * Function: removeOverlay
+			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Parameters:
+			 * overlayId - id of the overlay to remove.
+			 */
+			/**
+			 * Function: removeOverlays
+			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
+			 * Parameters:
+			 * overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
+			 */
+			/*
+			 * Function: setLabel
+			 * Sets the Endpoint's label.  
+			 * 
+			 * Parameters:
+			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep
+         * that in mind if you need escaped HTML.
+			 */
+			/*
+				Function: getLabel
+				Returns the label text for this Endpoint (or a function if you are labelling with a function).
+				This does not return the overlay itself; this is a convenience method which is a pair with
+				setLabel; together they allow you to add and access a Label Overlay without having to create the
+				Overlay object itself.  For access to the underlying label overlay that jsPlumb has created,
+				use getLabelOverlay.
+			*/
+			/*
+				Function: getLabelOverlay
+				Returns the underlying internal label overlay, which will exist if you specified a label on
+				an addEndpoint call, or have called setLabel at any stage.   
+			*/
 			
 // ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************
 				
