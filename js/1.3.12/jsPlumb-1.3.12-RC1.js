@@ -25,21 +25,6 @@
 	 * create and maintain Connections and Endpoints.
 	 */	
 	
-	var canvasAvailable = !!document.createElement('canvas').getContext,
-		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
-		vmlAvailable = function() {		    
-			if(vmlAvailable.vml == undefined) { 
-				var a = document.body.appendChild(document.createElement('div'));
-		        a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
-		        var b = a.firstChild;
-		        b.style.behavior = "url(#default#VML)";
-		        vmlAvailable.vml = b ? typeof b.adj == "object": true;
-		        a.parentNode.removeChild(a);
-			}
-			return vmlAvailable.vml;
-		};
-	
     var _findWithFunction = jsPlumbUtil.findWithFunction,
 	_indexOf = jsPlumbUtil.indexOf,
     _removeWithFunction = jsPlumbUtil.removeWithFunction,
@@ -57,10 +42,6 @@
 	_isArray = jsPlumbUtil.isArray,
 	_isString = jsPlumbUtil.isString,
 	_isObject = jsPlumbUtil.isObject;
-	
-	// for those browsers that dont have it.  they still don't have it! but at least they won't crash.
-	if (!window.console)
-		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
 		
 	var _connectionBeingDragged = null,
 		_getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
@@ -837,14 +818,15 @@
 		 * 
 		 * 1. if _currentInstance.Defaults.Container exists, use that element.
 		 * 2. if the 'parent' parameter exists, use that.
-		 * 3. otherwise just use the document body.
+		 * 3. otherwise just use the root element (for DOM usage, the document body).
 		 * 
 		 */
 		_appendElement = function(el, parent) {
 			if (_currentInstance.Defaults.Container)
 				jsPlumb.CurrentLibrary.appendElement(el, _currentInstance.Defaults.Container);
 			else if (!parent)
-				document.body.appendChild(el);
+				//document.body.appendChild(el);
+				jsPlumbAdapter.appendToRoot(el);
 			else
 				jsPlumb.CurrentLibrary.appendElement(el, parent);
 		},
@@ -2306,9 +2288,14 @@ between this method and jsPlumb.reset).
 		this.isHoverSuspended = function() { return _hoverSuspended; };
 		this.setHoverSuspended = function(s) { _hoverSuspended = s; };
 
-		this.isCanvasAvailable = function() { return canvasAvailable; };
-		this.isSVGAvailable = function() { return svgAvailable; };
-		this.isVMLAvailable = vmlAvailable;
+		var _isAvailable = function(m) {
+			return function() {
+				return jsPlumbAdapter.isRenderModeAvailable(m);
+			};
+		}
+		this.isCanvasAvailable = _isAvailable("canvas");
+		this.isSVGAvailable = _isAvailable("svg");
+		this.isVMLAvailable = _isAvailable("vml");
 
 		/*
 		  Function: hide 
@@ -3420,7 +3407,7 @@ between this method and jsPlumb.reset).
 		 * the render mode that jsPlumb set, which of course may be different from that requested.
 		 */
 		this.setRenderMode = function(mode) {
-			if (mode) 
+			/*if (mode) 
 				mode = mode.toLowerCase();
 			else 
 				return;
@@ -3434,6 +3421,8 @@ between this method and jsPlumb.reset).
 			else if (mode === jsPlumb.CANVAS && canvasAvailable) renderMode = jsPlumb.CANVAS;
 			else if (vmlAvailable()) renderMode = jsPlumb.VML;
 
+			return renderMode;*/
+			renderMode = jsPlumbAdapter.setRenderMode(mode);
 			return renderMode;
 		};
 		
@@ -4233,7 +4222,9 @@ between this method and jsPlumb.reset).
 	};
 
 	/**
-		Manages dragging for some instance of jsPlumb.  
+		Manages dragging for some instance of jsPlumb.
+		
+		TODO move to DOM adapter
 
 	*/
 	var DragManager = function() {
@@ -4430,7 +4421,25 @@ between this method and jsPlumb.reset).
 			};			
 // END TYPE
 
-/*
+// HOVER			
+			// override setHover to pass it down to the underlying connector
+			_superClassHover = self.setHover;
+			self.setHover = function(state) {
+				var zi = _currentInstance.ConnectorZIndex || jsPlumb.Defaults.ConnectorZIndex;
+				if (zi)
+					self.connector.setZIndex(zi + (state ? 1 : 0));
+				self.connector.setHover.apply(self.connector, arguments);				
+				_superClassHover.apply(self, arguments);
+			};
+			
+			_internalHover = function(state) {
+				if (_connectionBeingDragged == null) {
+					self.setHover(state, false);
+				}
+			};
+// END HOVER
+
+			/*
 			 * Function: setConnector
 			 * Sets the Connection's connector (eg "Bezier", "Flowchart", etc).  You pass a Connector definition into this method - the same
 			 * thing that you would set as the 'connector' property on a jsPlumb.connect call.
@@ -4445,8 +4454,12 @@ between this method and jsPlumb.reset).
 				};
 				if (_isString(connector)) 
 					this.connector = new jsPlumb.Connectors[renderMode][connector](connectorArgs); // lets you use a string as shorthand.
-				else if (_isArray(connector))
-					this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
+				else if (_isArray(connector)) {
+					if (connector.length == 1)
+						this.connector = new jsPlumb.Connectors[renderMode][connector[0]](connectorArgs);
+					else
+						this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
+				}
 				self.canvas = self.connector.canvas;
 				// binds mouse listeners to the current connector.
 				_bindListeners(self.connector, self, _internalHover);
@@ -4644,25 +4657,7 @@ between this method and jsPlumb.reset).
 			jsPlumb.extend(_p, self.getParameters());
 			self.setParameters(_p);
 // END PARAMETERS
-
-// HOVER			
-			// override setHover to pass it down to the underlying connector
-			_superClassHover = self.setHover;
-			self.setHover = function(state) {
-				var zi = _currentInstance.ConnectorZIndex || jsPlumb.Defaults.ConnectorZIndex;
-				if (zi)
-					self.connector.setZIndex(zi + (state ? 1 : 0));
-				self.connector.setHover.apply(self.connector, arguments);				
-				_superClassHover.apply(self, arguments);
-			};
-			
-			_internalHover = function(state) {
-				if (_connectionBeingDragged == null) {
-					self.setHover(state, false);
-				}
-			};
-// END HOVER			
-			
+						
 // MISCELLANEOUS			
 			/**
 			 * implementation of abstract method in jsPlumbUtil.EventGenerator
@@ -4729,7 +4724,7 @@ between this method and jsPlumb.reset).
 					var maxSize = 0;
 					for ( var i = 0; i < self.overlays.length; i++) {
 						var o = self.overlays[i];
-						if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize(self.connector));
+						if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize(self.connector, self));
 					}
 	
 					var dim = this.connector.compute(sAnchorP, tAnchorP, 
@@ -4744,7 +4739,7 @@ between this method and jsPlumb.reset).
 					/* paint overlays*/
 					for ( var i = 0; i < self.overlays.length; i++) {
 						var o = self.overlays[i];
-						if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
+						if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim, self);
 					}
 				}
 			};			
@@ -5510,7 +5505,7 @@ between this method and jsPlumb.reset).
 						/* paint overlays*/
 						for ( var i = 0; i < self.overlays.length; i++) {
 							var o = self.overlays[i];
-							if (o.isVisible) self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse, d);
+							if (o.isVisible) self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse, d, self);
 						}
 					}
 				}
@@ -6009,7 +6004,8 @@ between this method and jsPlumb.reset).
 		};					
 	};		
 
-	var jsPlumb = window.jsPlumb = new jsPlumbInstance();
+	var jsPlumb = new jsPlumbInstance();
+	if (typeof window != 'undefined') window.jsPlumb = jsPlumb;
 	jsPlumb.getInstance = function(_defaults) {
 		var j = new jsPlumbInstance(_defaults);
 		j.init();
