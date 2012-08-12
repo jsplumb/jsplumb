@@ -154,7 +154,7 @@ jsPlumbUtil = {
 		}
 		l.push(value);
 		return l;
-	},	
+	},
 	/**
 	 * EventGenerator
 	 * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
@@ -217,7 +217,6 @@ jsPlumbUtil = {
 			if (event)
 				delete _listeners[event];
 			else {
-				delete _listeners;
 				_listeners = {};
 			}
 			return self;
