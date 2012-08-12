@@ -218,7 +218,7 @@
 				"height":0,
 				"pointer-events":pointerEventsSpec,
 				"position":"absolute"
-			};
+			};		
 		if (self.tooltip) svgParams["title"] = self.tooltip;
 		self.svg = _node("svg", svgParams);
 		if (params.useDivWrapper) {
@@ -254,8 +254,10 @@
 					jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
 					x = 0, y = 0;
 				}
+				var p = _pos([x, y, d[2], d[3]]);
+				if (self.getZIndex()) p += ";z-index:" + self.getZIndex() + ";";
 		    	_attr(self.svg, {
-	    			"style":_pos([x, y, d[2], d[3]]),
+	    			"style":p,
 	    			"width": d[2],
 	    			"height": d[3]
 	    		});

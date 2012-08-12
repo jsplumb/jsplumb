@@ -261,6 +261,10 @@
 		    };
 		    
 		    this.isHover = function() { return _hover; };
+			
+			var zIndex = null;
+			this.setZIndex = function(v) { zIndex = v; };
+			this.getZIndex = function() { return zIndex; };
 
 			var jpcl = jsPlumb.CurrentLibrary,
 				events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
@@ -582,6 +586,7 @@
 		 *  -   *ConnectionsDetachable*		Whether or not connections are detachable by default (using the mouse). Defaults to true.
 		 *  -   *ConnectionOverlays*		The default overlay definitions for Connections. Defaults to an empty list.
 		 * 	-	*Connector*				The default connector definition to use for all connections.  Default is "Bezier".
+		 * 	-   *ConnectorZIndex*       Optional value for the z-index of Connections that are not in the hover state. If you set this, jsPlumb will set the z-index of all created Connections to be this value, and the z-index of any Connections in the hover state to be this value plus one. This brings hovered connections up on top of others, which is a nice effect in busy UIs.
 		 *  -   *Container*				Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element.
 		 * 	-	*DragOptions*			The default drag options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*DropOptions*			The default drop options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
@@ -607,6 +612,7 @@
             ConnectionsDetachable : true,
             ConnectionOverlays : [ ],
             Connector : "Bezier",
+			ConnectorZIndex : null,
 			Container : null,
 			DragOptions : { },
 			DropOptions : { },
@@ -1490,7 +1496,7 @@
 		 */
 		this.connect = function(params, referenceParams) {
 			// prepare a final set of parameters to create connection with
-			var _p = _prepareConnectionParams(params, referenceParams);
+			var _p = _prepareConnectionParams(params, referenceParams), jpc;
 			// TODO probably a nicer return value if the connection was not made.  _prepareConnectionParams
 			// will return null (and log something) if either endpoint was full.  what would be nicer is to 
 			// create a dedicated 'error' object.
@@ -1502,11 +1508,11 @@
 					_p.deleteEndpointsOnDetach = true;
 
 				// create the connection.  it is not yet registered 
-				var jpc = _newConnection(_p);
+				jpc = _newConnection(_p);
 				// now add it the model, fire an event, and redraw
-				_finaliseConnection(jpc, _p);						
-				return jpc;
+				_finaliseConnection(jpc, _p);										
 			}
+			return jpc;
 		};
 		
 		/*
@@ -4003,6 +4009,15 @@ between this method and jsPlumb.reset).
 		                	_addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
 		            }
 	            }
+				
+				// place Endpoints whose anchors are continuous but have no Connections
+				for (var i = 0; i < ep.length; i++) {
+					if (ep[i].connections.length == 0 && ep[i].anchor.isContinuous) {
+						if (!anchorLists[elementId]) anchorLists[elementId] = { top:[], right:[], bottom:[], left:[] };
+						_updateAnchorList(anchorLists[elementId], -Math.PI / 2, 0, {endpoints:[ep[i], ep[i]], paint:function(){}}, false, elementId, 0, false, "top", elementId, connectionsToPaint, endpointsToPaint)
+						_addWithFunction(anchorsToUpdate, elementId, function(a) { return a === elementId; })
+					}
+				}
 	
 	            // now place all the continuous anchors we need to;
 	            for (var i = 0; i < anchorsToUpdate.length; i++) {
@@ -4108,24 +4123,26 @@ between this method and jsPlumb.reset).
 				
 			// look for child elements that have endpoints and register them against this draggable.
 			var _oneLevel = function(p) {
-				var pEl = jpcl.getElementObject(p),
-					pOff = jpcl.getOffset(pEl);
-
-				for (var i = 0; i < p.childNodes.length; i++) {
-					if (p.childNodes[i].nodeType != 3) {
-						var cEl = jpcl.getElementObject(p.childNodes[i]),
-							cid = _currentInstance.getId(cEl, null, true);
-						if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-							var cOff = jpcl.getOffset(cEl);
-							_delements[id][cid] = {
-								id:cid,
-								offset:{
-									left:cOff.left - pOff.left,
-									top:cOff.top - pOff.top
-								}
-							};
-						}
-					}	
+				if (p) {
+					var pEl = jpcl.getElementObject(p),
+						pOff = jpcl.getOffset(pEl);
+	
+					for (var i = 0; i < p.childNodes.length; i++) {
+						if (p.childNodes[i].nodeType != 3) {
+							var cEl = jpcl.getElementObject(p.childNodes[i]),
+								cid = _currentInstance.getId(cEl, null, true);
+							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+								var cOff = jpcl.getOffset(cEl);
+								_delements[id][cid] = {
+									id:cid,
+									offset:{
+										left:cOff.left - pOff.left,
+										top:cOff.top - pOff.top
+									}
+								};
+							}
+						}	
+					}
 				}
 			};
 
@@ -4384,8 +4401,11 @@ between this method and jsPlumb.reset).
 			
 			// if there were no endpoints supplied and the source element is the target element, we will reuse the source
 			// endpoint that was just created.
-			var existingTargetEndpoint = ((self.sourceId == self.targetId) && params.targetEndpoint == null) ? eS : params.targetEndpoint,
-				eT = prepareEndpoint(existingTargetEndpoint, 
+			//var existingTargetEndpoint = ((self.sourceId == self.targetId) && params.targetEndpoint == null) ? eS : params.targetEndpoint,
+			//	eT = prepareEndpoint(existingTargetEndpoint,
+			// TODO again with the unexplained code. why reuse the source endpoint here? i was just doing an integration
+			// where this functionality broke the UI...
+			var eT = prepareEndpoint(params.targetEndpoint, 
 									 1, 
 									 params, 
 									 self.target, 
@@ -4441,7 +4461,10 @@ between this method and jsPlumb.reset).
 			var _sh = self.setHover;
 
 			self.setHover = function(state) {
-				self.connector.setHover.apply(self.connector, arguments);
+				var zi = _currentInstance.ConnectorZIndex || jsPlumb.Defaults.ConnectorZIndex;
+				if (zi)
+					self.connector.setZIndex(zi + (state ? 1 : 0));
+				self.connector.setHover.apply(self.connector, arguments);				
 				_sh.apply(self, arguments);
 			};
 			
@@ -4474,7 +4497,13 @@ between this method and jsPlumb.reset).
 					this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
 				self.canvas = self.connector.canvas;
 				// binds mouse listeners to the current connector.
-				_bindListeners(self.connector, self, _internalHover);				
+				_bindListeners(self.connector, self, _internalHover);
+				
+				// set z-index if it was set on Defaults.
+				var zi = _currentInstance.ConnectorZIndex || jsPlumb.Defaults.ConnectorZIndex;
+				if (zi)
+					self.connector.setZIndex(zi);
+					
 				if (!doNotRepaint) self.repaint();
 			};
 			/*
