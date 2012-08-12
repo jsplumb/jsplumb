@@ -25,7 +25,7 @@ border-radius:0.3em;
    -moz-box-shadow: 2px 2px 19px #aaa;
 }
 
-a {text-decoration:none;color:#05f;font-weight:bold;font-family:helvetica;}
+a {text-decoration:none;color:#05b;font-weight:bold;font-family:helvetica;}
 a:hover {text-decoration:underline;}
 .window, .label { 
 	cursor:pointer;
