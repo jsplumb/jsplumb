@@ -461,6 +461,7 @@
 // ********************************* END OF CANVAS RENDERERS *******************************************************************    
     
     jsPlumb.Overlays.canvas.Label = jsPlumb.Overlays.Label;
+	jsPlumb.Overlays.canvas.Custom = jsPlumb.Overlays.Custom;
     
     /**
      * a placeholder right now, really just exists to mirror the fact that there are SVG and VML versions of this. 

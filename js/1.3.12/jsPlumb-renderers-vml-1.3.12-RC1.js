@@ -369,6 +369,11 @@
 	 */
 	jsPlumb.Overlays.vml.Label  = jsPlumb.Overlays.Label;
 	
+	/**
+	 * VML Custom renderer. uses the default Custom renderer (which adds an element to the DOM)
+	 */
+	jsPlumb.Overlays.vml.Custom = jsPlumb.Overlays.Custom;
+	
 	var AbstractVmlArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
     	VmlComponent.apply(this, originalArgs);

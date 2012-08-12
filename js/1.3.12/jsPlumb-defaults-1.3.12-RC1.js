@@ -315,6 +315,14 @@
         	swapX, swapY,
             maxX = -Infinity, maxY = -Infinity,
             minX = Infinity, minY = Infinity,
+			grid = params.grid,
+			_gridClamp = function(n, g) { var e = n % g, f = Math.floor(n / g), inc = e > (g / 2) ? 1 : 0; return (f + inc) * g; },
+			clampToGrid = function(x, y, dontClampX, dontClampY) {
+				return [
+					dontClampX || grid == null ? x : _gridClamp(x, grid[0]),
+					dontClampY || grid == null ? y : _gridClamp(y, grid[1])
+				];
+			},
 		/**
 		 * recalculates the points at which the segments begin and end, proportional to the total length travelled
 		 * by all the segments that constitute the connector.   we use this to help with pointOnPath calculations.
@@ -336,11 +344,28 @@
 		/**
 		 * helper method to add a segment.
 		 */
-		addSegment = function(x, y, sx, sy, tx, ty) {
+		addSegment = function(x, y, sx, sy, tx, ty/*, doGridX, doGridY*/) {
 			var lx = segments.length == 0 ? sx : segments[segments.length - 1][0],
 			    ly = segments.length == 0 ? sy : segments[segments.length - 1][1],
                 m = x == lx ? Infinity : 0,
-				l = Math.abs(x == lx ? y - ly : x - lx);
+				l = Math.abs(x == lx ? y - ly : x - lx);/*,
+				gridded = clampToGrid(x, y),
+				doGridX = true,
+				doGridY = true;
+				
+			// grid experiment. TODO: have two more params that indicate whether or not to lock to a grid in each
+			// axis. the reason for this is that anchor points wont always be located on the grid, so until a connector
+			// emanating from that anchor has turned a right angle, we can't actually clamp it to a grid for that axis.
+			// so if a line came out horizontally heading left, then it will probably not be clamped in the y axis, but
+			// we can choose to clamp its first corner in the x axis.  the same principle goes for the target anchor.
+			//if (segments.length == 0) {
+			console.log("this is the first segment...if sx == x then do not do grid in X.")
+			doGridX = !(sx == x) && !(tx == x);
+			doGridY = !(sy == y) && !(ty == y);						
+			x = doGridX ? gridded[0] : x;
+			y = doGridY ? gridded[1] : y;
+			*/
+			
 			segments.push([x, y, lx, ly, m, l]);
             totalLength += l;
             
@@ -469,7 +494,8 @@
                 else
                     addSegment(startStubX, Math.min(startStubY, endStubY), sx, sy, tx, ty);
             }*/
-            addSegment(startStubX, startStubY, sx, sy, tx, ty);
+            //addSegment(startStubX, startStubY, sx, sy, tx, ty);
+			addSegment(startStubX, startStubY, sx, sy, tx, ty);
 
             var findClearedLine = function(start, mult, anchorPos, dimension) {
                 return start + (mult * (( 1 - anchorPos) * dimension) + Math.max(sourceStub, targetStub));
@@ -1017,7 +1043,121 @@
     	this.type = "Diamond";
     };
     
-    
+	
+	// abstract superclass for overlays that add an element to the DOM.
+    var AbstractDOMOverlay = function(params) {
+		jsPlumb.DOMElementComponent.apply(this, arguments);
+    	AbstractOverlay.apply(this, arguments);
+		
+		var self = this, initialised = false;
+		params = params || {};
+		this.id = params.id;
+		var div;
+		
+		var makeDiv = function(component) {
+			div = params.create(component);
+			div = jsPlumb.CurrentLibrary.getDOMElement(div);
+			div.style["position"] 	= 	"absolute";    	
+			var clazz = params["_jsPlumb"].overlayClass + " " + 
+				(self.cssClass ? self.cssClass : 
+				params.cssClass ? params.cssClass : "");    	
+			div.className =	clazz;
+			jsPlumb.appendElement(div, params.component.parent);
+			params["_jsPlumb"].getId(div);		
+	    	self.attachListeners(div, self);
+	    	self.canvas = div;
+		};
+		
+		this.getElement = function(component) {
+			if (div == null) {
+				makeDiv(component);
+			}
+    		return div;
+    	};
+		
+		this.getDimensions = function(component) {
+    		return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(self.getElement(component)));
+    	};
+		
+		this.computeMaxSize = function(visualComponent, component) {
+    		var td = self.getDimensions(component);
+			return Math.max(td[0], td[1]);
+    	}; 
+		
+		//override setVisible
+    	var osv = self.setVisible;
+    	self.setVisible = function(state) {
+    		osv(state); // call superclass
+    		div.style.display = state ? "block" : "none";
+    	};
+		
+		this.cleanup = function() {
+    		if (div != null) jsPlumb.CurrentLibrary.removeElement(div);
+    	};
+		
+		this.paint = function(component, d, componentDimensions) {
+			if (!initialised) {
+				self.getElement(component);
+				component.appendDisplayElement(div);
+				self.attachListeners(div, component);
+				initialised = true;
+			}
+			div.style.left = (componentDimensions[0] + d.minx) + "px";
+			div.style.top = (componentDimensions[1] + d.miny) + "px";			
+    	};
+		
+		this.draw = function(component, currentConnectionPaintStyle, componentDimensions, actualComponent) {
+	    	var td = self.getDimensions(component);
+	    	if (td != null && td.length == 2) {
+				var cxy = {x:0,y:0};
+                if (component.pointOnPath) {
+                    var loc = self.loc, absolute = false;
+                    if (jsPlumbUtil.isString(self.loc) || self.loc < 0 || self.loc > 1) {
+                        loc = parseInt(self.loc);
+                        absolute = true;
+                    }
+                    cxy = component.pointOnPath(loc, absolute);  // a connection
+                }
+                else {
+                    var locToUse = self.loc.constructor == Array ? self.loc : self.endpointLoc;
+                    cxy = { x:locToUse[0] * componentDimensions[2],
+                            y:locToUse[1] * componentDimensions[3] };      
+                } 
+                           
+				minx = cxy.x - (td[0] / 2),
+				miny = cxy.y - (td[1] / 2);				
+				self.paint(component, { minx:minx, miny:miny, td:td, cxy:cxy }, componentDimensions);				
+				return [minx, minx + td[0], miny, miny + td[1]];
+        	}
+	    	else return [0,0,0,0];
+	    };
+	    
+	    this.reattachListeners = function(connector) {
+	    	if (div) {
+	    		self.reattachListenersForElement(div, self, connector);
+	    	}
+	    };
+		
+	};
+	
+	/**
+     * Class: Overlays.Custom
+     * A Custom overlay. You supply a 'create' function which returns some DOM element, and jsPlumb positions it.
+     * The 'create' function is passed a Connection or Endpoint.
+     */
+    /**
+     * Function: Constructor
+     * 
+     * Parameters:
+     * 	create - function for jsPlumb to call that returns a DOM element.
+     * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
+     * 	id - optional id to use for later retrieval of this overlay.
+     * 	
+     */
+    jsPlumb.Overlays.Custom = function(params) {
+    	this.type = "Custom";    	
+    	AbstractDOMOverlay.apply(this, arguments);		    	        		    	    		
+    };
     
     /**
      * Class: Overlays.Label
@@ -1035,47 +1175,22 @@
      * 	label - the label to paint.  May be a string or a function that returns a string.  Nothing will be painted if your label is null or your
      *         label function returns null.  empty strings _will_ be painted.
      * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
+     * 	id - optional id to use for later retrieval of this overlay.
      * 	
      */
     jsPlumb.Overlays.Label = function(params) {
-    	this.type = "Label";
-    	jsPlumb.DOMElementComponent.apply(this, arguments);
-    	AbstractOverlay.apply(this, arguments);
-    	this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
-        this.id = params.id;
-        this.cachedDimensions = null;             // setting on 'this' rather than using closures uses a lot less memory.  just don't monkey with it!
-	    var label = params.label || "",
-            self = this,
-    	    initialised = false,
-    	    div = document.createElement("div"),
+		var self = this;    	
+		this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
+		this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
+		params.create = function() {
+			return document.createElement("div");
+		};
+    	jsPlumb.Overlays.Custom.apply(this, arguments);
+		this.type = "Label";
+    	
+        var label = params.label || "",
+            self = this,    	    
             labelText = null;
-    	div.style["position"] 	= 	"absolute";    	
-    	
-    	var clazz = params["_jsPlumb"].overlayClass + " " + 
-    		(self.labelStyle.cssClass ? self.labelStyle.cssClass : 
-    		params.cssClass ? params.cssClass : "");
-    	
-    	div.className =	clazz;
-    	
-    	jsPlumb.appendElement(div, params.component.parent);
-    	jsPlumb.getId(div);		
-    	self.attachListeners(div, self);
-    	self.canvas = div;
-    	
-    	//override setVisible
-    	var osv = self.setVisible;
-    	self.setVisible = function(state) {
-    		osv(state); // call superclass
-    		div.style.display = state ? "block" : "none";
-    	};
-    	
-    	this.getElement = function() {
-    		return div;
-    	};
-    	
-    	this.cleanup = function() {
-    		if (div != null) jsPlumb.CurrentLibrary.removeElement(div);
-    	};
     	
     	/*
     	 * Function: setLabel
@@ -1094,77 +1209,22 @@
     		return label;
     	};
     	
-    	this.paint = function(component, d, componentDimensions) {
-			if (!initialised) {	
-				component.appendDisplayElement(div);
-				self.attachListeners(div, component);
-				initialised = true;
-			}
-			div.style.left = (componentDimensions[0] + d.minx) + "px";
-			div.style.top = (componentDimensions[1] + d.miny) + "px";			
-    	};
-    	
-    	this.getTextDimensions = function() {
+		var superGD = this.getDimensions;
+    	this.getDimensions = function(connector) {
     		if (typeof label == "function") {
     			var lt = label(self);
-    			div.innerHTML = lt.replace(/\r\n/g, "<br/>");
+    			self.getElement(connector).innerHTML = lt.replace(/\r\n/g, "<br/>");
     		}
     		else {
     			if (labelText == null) {
     				labelText = label;
-    				div.innerHTML = labelText.replace(/\r\n/g, "<br/>");
+    				self.getElement(connector).innerHTML = labelText.replace(/\r\n/g, "<br/>");
     			}
     		}
-    		var de = jsPlumb.CurrentLibrary.getElementObject(div),
-    		s = jsPlumb.CurrentLibrary.getSize(de);
-    		return {width:s[0], height:s[1]};
-    	};
-    	
-    	this.computeMaxSize = function(connector) {
-    		var td = self.getTextDimensions(connector);
-    		return td.width ? Math.max(td.width, td.height) * 1.5 : 0;
+    		return superGD(connector);
     	};    	
-    	
-	    this.draw = function(component, currentConnectionPaintStyle, componentDimensions) {
-	    	var td = self.getTextDimensions(component);
-	    	if (td.width !=  null) {
-				var cxy = {x:0,y:0};
-                if (component.pointOnPath) {
-                    var loc = self.loc, absolute = false;
-                    if (jsPlumbUtil.isString(self.loc) || self.loc < 0 || self.loc > 1) {
-                        loc = parseInt(self.loc);
-                        absolute = true;
-                    }
-                    cxy = component.pointOnPath(loc, absolute);  // a connection
-                }
-                else {
-                    var locToUse = self.loc.constructor == Array ? self.loc : self.endpointLoc;
-                    cxy = { x:locToUse[0] * componentDimensions[2],
-                            y:locToUse[1] * componentDimensions[3] };      
-                } 
-                           
-				minx = cxy.x - (td.width / 2),
-				miny = cxy.y - (td.height / 2);
-				
-				self.paint(component, {
-					minx:minx,
-					miny:miny,
-					td:td,
-					cxy:cxy
-				}, componentDimensions);
-				
-				return [minx, minx+td.width, miny, miny+td.height];
-        	}
-	    	else return [0,0,0,0];
-	    };
-	    
-	    this.reattachListeners = function(connector) {
-	    	if (div) {
-	    		self.reattachListenersForElement(div, self, connector);
-	    	}
-	    };
     };
-
+		
     // this is really just a test overlay, so its undocumented and doesnt take any parameters. but i was loth to delete it.
     jsPlumb.Overlays.GuideLines = function() {
         var self = this;

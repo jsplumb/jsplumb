@@ -445,9 +445,13 @@
 	 */
 	jsPlumb.Endpoints.svg.Blank = jsPlumb.Endpoints.Blank;	
 	/*
-	 * Label endpoint in svg renderer is the default Label endpoint.
+	 * Label overlay in svg renderer is the default Label overlay.
 	 */
 	jsPlumb.Overlays.svg.Label = jsPlumb.Overlays.Label;
+	/*
+	 * Custom overlay in svg renderer is the default Custom overlay.
+	 */
+	jsPlumb.Overlays.svg.Custom = jsPlumb.Overlays.Custom;
 		
 	var AbstractSvgArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
