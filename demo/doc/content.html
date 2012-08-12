@@ -2472,6 +2472,11 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 				<li class="bullet">setParameter</li>
 				<li class="bullet">setParameters</li>
 				<li class="bullet">detach</li>
+				<li class="bullet">repaint</li>
+				<li class="bullet">setType</li>
+				<li class="bullet">addType</li>
+				<li class="bullet">removeType</li>
+				<li class="bullet">toggleType</li>		
 			</ul>
 
 			Each of these operations returns a selector that can be chained.
@@ -2485,6 +2490,8 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 				<li class="bullet">isDetachable</li>
 				<li class="bullet">getParameter</li>
 				<li class="bullet">getParameters</li>
+				<li class="bullet">getType</li>
+				<li class="bullet">hasType</li>
 			</ul>
 
 			Each of these operations returns an array whose entries are [ value, Connection ] arrays, where 'value' is the return value from the given Connection.  Remember that the return values from a getter are not chainable, but a getter may be called at the end of a chain of setters.
@@ -2584,7 +2591,12 @@ jsPlumb.select({scope:"foo"}).each(function(connection) {
 				<li class="bullet">setHoverPaintStyle</li>				
 				<li class="bullet">setConnector</li>
 				<li class="bullet">setParameter</li>
-				<li class="bullet">setParameters</li>				
+				<li class="bullet">setParameters</li>
+				<li class="bullet">repaint</li>
+				<li class="bullet">setType</li>
+				<li class="bullet">addType</li>
+				<li class="bullet">removeType</li>
+				<li class="bullet">toggleType</li>
 			</ul>
 
 			Each of these operations returns a selector that can be chained.
@@ -2597,6 +2609,8 @@ jsPlumb.select({scope:"foo"}).each(function(connection) {
 					<li class="bullet">isHover</li>				
 					<li class="bullet">getParameter</li>
 					<li class="bullet">getParameters</li>
+					<li class="bullet">getType</li>
+					<li class="bullet">hasType</li>
 				</ul>
 
 			Each of these operations returns an array whose entries are [ value, Endpoint ] arrays, where 'value'
