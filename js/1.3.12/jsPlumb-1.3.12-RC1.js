@@ -1944,8 +1944,10 @@ between this method and jsPlumb.reset).
 		};
 		
 		var	_makeEndpointSelectHandler = function(list) {
-			var common = _makeCommonSelectHandler(list, _makeConnectionSelectHandler);
+			var common = _makeCommonSelectHandler(list, _makeEndpointSelectHandler);
 			return jsPlumb.CurrentLibrary.extend(common, {
+				setEnabled:setter(list, "setEnabled", _makeEndpointSelectHandler),
+				isEnabled:getter(list, "isEnabled"),
 				detachAll:function() {
 					for (var i = 0; i < list.length; i++)
 						list[i].detachAll();
