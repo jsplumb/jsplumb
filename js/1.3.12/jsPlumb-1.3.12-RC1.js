@@ -303,7 +303,83 @@
 			    	for (var i = 1; i < arguments.length; i++)
 		    			self.attachListeners(o, arguments[i]);
 		    	}
-		    };			
+		    };
+			
+			/*
+			 * TYPES
+			 */
+			var _types = [],
+				_splitType = function(t) { return t.split(" ")},				
+				_applyTypes = function(doNotRepaint) {
+					if (self.getDefaultType) {
+						var td = self.getTypeDescriptor();
+							
+						var o = jsPlumbUtil.merge({}, self.getDefaultType());
+						for (var i = 0; i < _types.length; i++)
+							o = jsPlumbUtil.merge(o, self._jsPlumb.getType(_types[i], td));						
+					
+						self.applyType(o);					
+						if (!doNotRepaint) self.repaint();
+					}
+				};
+				
+			self.setType = function(typeId, doNotRepaint) {				
+				_types = _splitType(typeId);
+				_applyTypes(doNotRepaint);									
+			};
+			
+			/*
+			 * Function : getType
+			 * Gets the 'types' of this component.
+			 */
+			self.getType = function() {
+				return _types;
+			};
+			
+			self.hasType = function(typeId) {
+				return jsPlumbUtil.indexOf(_types, typeId) != -1;
+			};
+			
+			self.addType = function(typeId, doNotRepaint) {
+				var t = _splitType(typeId), _cont = false;
+				for (var i = 0; i < t.length; i++) {
+					if (!self.hasType(t[i])) {
+						_types.push(t[i]);
+						_cont = true;						
+					}
+				}
+				if (_cont) _applyTypes(doNotRepaint);
+			};
+			
+			self.removeType = function(typeId, doNotRepaint) {
+				var t = _splitType(typeId), _cont = false, _one = function(tt) {
+					var idx = jsPlumbUtil.indexOf(_types, tt);
+					if (idx != -1) {
+						_types.splice(idx, 1);
+						return true;
+					}
+					return false;
+				};
+				
+				for (var i = 0; i < t.length; i++) {
+					_cont = _one(t[i]) || _cont;
+				}
+				if (_cont) _applyTypes(doNotRepaint);
+			};
+			
+			self.toggleType = function(typeId, doNotRepaint) {
+				var t = _splitType(typeId);
+				for (var i = 0; i < t.length; i++) {
+					var idx = jsPlumbUtil.indexOf(_types, t[i]);
+					if (idx != -1)
+						_types.splice(idx, 1);
+					else
+						_types.push(t[i]);
+				}
+					
+				_applyTypes(doNotRepaint);
+			};
+			
 		},
 
 		overlayCapableJsPlumbUIComponent = function(params) {
@@ -637,12 +713,23 @@
 		
 		this.logEnabled = this.Defaults.LogEnabled;
 		
-		var _connectionTypes = { };
+		var _connectionTypes = { }, _endpointTypes = {};
 		this.registerConnectionType = function(id, type) {
-			_connectionTypes[id] = type;
+			_connectionTypes[id] = jsPlumb.extend({}, type);
 		};
-		this.getConnectionType = function(id) {
-			return _connectionTypes[id];
+		this.registerConnectionTypes = function(types) {
+			for (var i in types)
+				_connectionTypes[i] = jsPlumb.extend({}, types[i]);
+		};
+		this.registerEndpointType = function(id, type) {
+			_endpointTypes[id] = jsPlumb.extend({}, type);
+		};
+		this.registerEndpointTypes = function(types) {
+			for (var i in types)
+				_endpointTypes[i] = jsPlumb.extend({}, types[i]);
+		};
+		this.getType = function(id, typeDescriptor) {
+			return typeDescriptor ===  "connection" ? _connectionTypes[id] : _endpointTypes[id];
 		};
 
 		jsPlumbUtil.EventGenerator.apply(this);
@@ -1926,6 +2013,10 @@ between this method and jsPlumb.reset).
 				setParameters:setter(list, "setParameters", executor),
 				setVisible:setter(list, "setVisible", executor),
 				setZIndex:setter(list, "setZIndex", executor),
+				repaint:setter(list, "repaint", executor),
+				addType:setter(list, "addType", executor),
+				toggleType:setter(list, "toggleType", executor),
+				removeType:setter(list, "removeType", executor),
 
 				// getters
 				getLabel:getter(list, "getLabel"),
@@ -1937,6 +2028,8 @@ between this method and jsPlumb.reset).
 				getHoverPaintStyle:getter(list, "getHoverPaintStyle"),
 				isVisible:getter(list, "isVisible"),
 				getZIndex:getter(list, "getZIndex"),
+				hasType:getter(list, "hasType"),
+				getType:getter(list, "getType"),
 
 				// util
 				length:list.length,
@@ -2403,7 +2496,7 @@ between this method and jsPlumb.reset).
 						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};
 						
 					if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
-						console.log("target element " + elid + " is full.");
+						//console.log("target element " + elid + " is full.");
 						if (onMaxConnections) {
 							onMaxConnections({
 								element:_el,
@@ -4272,6 +4365,26 @@ between this method and jsPlumb.reset).
 				self.repaint();
 			};
 			
+			this.getTypeDescriptor = function() { return "connection"; };
+			this.getDefaultType = function() {
+				return {
+					paintStyle:self._jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
+					connector:self._jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
+					hoverPaintStyle:self._jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,				
+					overlays:self._jsPlumb.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
+				};
+			};
+			this.applyType = function(t) {				
+				self.setPaintStyle(t.paintStyle);
+				self.setConnector(t.connector);
+				self.setHoverPaintStyle(t.hoverPaintStyle);
+				self.removeAllOverlays();
+				if (t.overlays) {
+					for (var i = 0; i < t.overlays.length; i++)
+						self.addOverlay(t.overlays[i], true);
+				}
+			};
+			
 			/**
 				Property: source
 				The source element for this Connection.
@@ -4486,34 +4599,7 @@ between this method and jsPlumb.reset).
 				}
 			};
 			
-			/*
-			 * Function: setType
-			 * Sets the type of this Connection - a 'type' is simply a collection of attributes such
-			 * as paintStyle, connector etc. You should have previously registered the given type on jsPlumb
-			 * using the 'registerConnectionType' method. 
-			 */
-			var _type = null;
-			self.setType = function(typeId) {
-				_type = typeId;
-				var t = self._jsPlumb.getConnectionType(typeId);
-				self.setPaintStyle(t.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle);
-				self.setConnector(t.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector);
-				self.setHoverPaintStyle(t.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle);
-				self.removeAllOverlays();
-				if (t.overlays) {
-					for (var i = 0; i < t.overlays.length; i++)
-						self.addOverlay(t.overlays[i], true);
-				}
-				self.repaint();
-			};
 			
-			/*
-			 * Function : getType
-			 * Gets the 'type' of this Connection.
-			 */
-			self.getType = function() {
-				return _type;
-			};
 
 			/*
 			 * Function: setConnector

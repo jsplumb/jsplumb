@@ -26,6 +26,26 @@ jsPlumbUtil = {
 	isObject : function(o) {
 		return Object.prototype.toString.call(o) === "[object Object]";	
 	},
+	merge : function(a, b) {
+		var c = jsPlumb.extend({}, a);
+		for (var i in b) {
+			if (!c[i] || this.isString(b[i]))
+				c[i] = b[i];
+			else {
+				if (this.isArray(b[i]) && this.isArray(c[i])) {
+					var ar = [];
+					ar.push.apply(ar, c[i]);
+					ar.push.apply(ar, b[i]);
+					c[i] = ar;
+				}
+				else if(this.isObject(c[i]) && this.isObject(b[i])) {												
+					for (var j in b[i])
+						c[i][j] = b[i][j];
+				}
+			}
+		}
+		return c;
+	},
 	convertStyle : function(s, ignoreAlpha) {
 		// TODO: jsPlumb should support a separate 'opacity' style member.
 		if ("transparent" === s) return s;
