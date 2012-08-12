@@ -181,7 +181,7 @@
                 if (mode === "svg") {
                     if (svgAvailable) renderMode = "svg"
                     else if (canvasAvailable) renderMode = "canvas"
-                    else if (vmlAvailable()) renderMode = "vml"
+                    else if (vmlAvailable) renderMode = "vml"
                 }
                 else if (mode === "canvas" && canvasAvailable) renderMode = "canvas";
                 else if (vmlAvailable) renderMode = "vml";
