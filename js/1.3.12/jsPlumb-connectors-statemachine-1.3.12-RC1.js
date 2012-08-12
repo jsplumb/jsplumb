@@ -111,19 +111,23 @@
         }
 	};
 
+	/**
+     * Class: Connectors.StateMachine
+     * Provides 'state machine' connectors.
+     */
 	/*
-		Function: StateMachine constructor
-		
-		Allowed parameters:
-			curviness 		-	measure of how "curvy" the connectors will be.  this is translated as the distance that the
-								Bezier curve's control point is from the midpoint of the straight line connecting the two
-								endpoints, and does not mean that the connector is this wide.  The Bezier curve never reaches
-								its control points; they act as gravitational masses. defaults to 10.
-			margin			-	distance from element to start and end connectors, in pixels.  defaults to 5.
-			proximityLimit  -   sets the distance beneath which the elements are consider too close together to bother with fancy
-			                    curves. by default this is 80 pixels.
-			loopbackRadius	-	the radius of a loopback connector.  optional; defaults to 25.
-			showLoopback   -   If set to false this tells the connector that it is ok to paint connections whose source and target is the same element with a connector running through the element. The default value for this is true; the connector always makes a loopback connection loop around the element rather than passing through it.
+	 * Function: Constructor
+	 * 
+	 * Parameters:
+	 * curviness -	measure of how "curvy" the connectors will be.  this is translated as the distance that the
+     *                Bezier curve's control point is from the midpoint of the straight line connecting the two
+     *              endpoints, and does not mean that the connector is this wide.  The Bezier curve never reaches
+     *              its control points; they act as gravitational masses. defaults to 10.
+	 * margin	-	distance from element to start and end connectors, in pixels.  defaults to 5.
+	 * proximityLimit  -   sets the distance beneath which the elements are consider too close together to bother
+	 *						with fancy curves. by default this is 80 pixels.
+	 * loopbackRadius	-	the radius of a loopback connector.  optional; defaults to 25.
+	 * showLoopback   -   If set to false this tells the connector that it is ok to paint connections whose source and target is the same element with a connector running through the element. The default value for this is true; the connector always makes a loopback connection loop around the element rather than passing through it.
 	*/
 	jsPlumb.Connectors.StateMachine = function(params) {
 		var self = this,
