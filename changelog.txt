@@ -2,12 +2,14 @@
 
     NEW FUNCTIONALITY
 	
-	- added the concept of connection and endpoint "type". A type is a collection of attributes such as paint style,
+	- added the concept of Connection and Endpoint "type". A type is a collection of attributes such as paint style,
 	hover paint style, overlays etc - basically anything you can set in an Endpoint or Connection definition. An
 	Endpoint or Connection can have zero or more types assigned; they are merged as granularly as possible, in the order
 	in which they were assigned.  There is a supporting API that works in the same way as the class stuff does in
 	jQuery - hasType, addType, removeType, toggleType, setType, and each of these methods (except hasType) takes a space-separated
 	string so you can add several at once.
+	
+	You can also create a Connection or Endpoint with a 'type' parameter.  See the documentation for more information.
 
     - added 'setEnabled' / 'isEnabled' methods to selectEndpoint return value
 	- added 'ConnectorZIndex' optional default. use this to get hovered connectors to appear on top of others.
