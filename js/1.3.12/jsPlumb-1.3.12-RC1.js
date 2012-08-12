@@ -4627,7 +4627,7 @@ between this method and jsPlumb.reset).
 					var maxSize = 0;
 					for ( var i = 0; i < self.overlays.length; i++) {
 						var o = self.overlays[i];
-						if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize(self.connector, self));
+						if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize());
 					}
 	
 					var dim = this.connector.compute(sAnchorP, tAnchorP, 
@@ -4642,7 +4642,7 @@ between this method and jsPlumb.reset).
 					/* paint overlays*/
 					for ( var i = 0; i < self.overlays.length; i++) {
 						var o = self.overlays[i];
-						if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim, self);
+						if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
 					}
 				}
 			};			
@@ -5408,7 +5408,7 @@ between this method and jsPlumb.reset).
 						/* paint overlays*/
 						for ( var i = 0; i < self.overlays.length; i++) {
 							var o = self.overlays[i];
-							if (o.isVisible) self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse, d, self);
+							if (o.isVisible) self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse, d);
 						}
 					}
 				}

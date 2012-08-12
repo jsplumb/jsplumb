@@ -1054,8 +1054,8 @@
 		this.id = params.id;
 		var div;
 		
-		var makeDiv = function(component) {
-			div = params.create(component);
+		var makeDiv = function() {
+			div = params.create(params.component);
 			div = jsPlumb.CurrentLibrary.getDOMElement(div);
 			div.style["position"] 	= 	"absolute";    	
 			var clazz = params["_jsPlumb"].overlayClass + " " + 
@@ -1068,21 +1068,21 @@
 	    	self.canvas = div;
 		};
 		
-		this.getElement = function(component) {
+		this.getElement = function() {
 			if (div == null) {
-				makeDiv(component);
+				makeDiv();
 			}
     		return div;
     	};
 		
-		this.getDimensions = function(component) {
-    		return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(self.getElement(component)));
+		this.getDimensions = function() {
+    		return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(self.getElement()));
     	};
 		
 		var cachedDimensions = null,
 			_getDimensions = function(component) {
 				if (cachedDimensions == null)
-					cachedDimensions = self.getDimensions(component);
+					cachedDimensions = self.getDimensions();
 				return cachedDimensions;
 			};
 		
@@ -1097,8 +1097,8 @@
 			cachedDimensions = null;
 		};
 		
-		this.computeMaxSize = function(visualComponent, component) {
-    		var td = _getDimensions(component);
+		this.computeMaxSize = function() {
+    		var td = _getDimensions();
 			return Math.max(td[0], td[1]);
     	}; 
 		
@@ -1115,7 +1115,7 @@
 		
 		this.paint = function(component, d, componentDimensions) {
 			if (!initialised) {
-				self.getElement(component);
+				self.getElement();
 				component.appendDisplayElement(div);
 				self.attachListeners(div, component);
 				initialised = true;
@@ -1124,8 +1124,8 @@
 			div.style.top = (componentDimensions[1] + d.miny) + "px";			
     	};
 				
-		this.draw = function(component, currentConnectionPaintStyle, componentDimensions, actualComponent) {
-	    	var td = _getDimensions(component);
+		this.draw = function(component, currentConnectionPaintStyle, componentDimensions) {
+	    	var td = _getDimensions();
 	    	if (td != null && td.length == 2) {
 				var cxy = {x:0,y:0};
                 if (component.pointOnPath) {
@@ -1221,26 +1221,31 @@
     		label = l;
     		labelText = null;
 			cachedDimensions = null;
+			_update();
     		self.component.repaint();
     	};
     	
+		var _update = function() {
+			if (typeof label == "function") {
+    			var lt = label(self);
+    			self.getElement().innerHTML = lt.replace(/\r\n/g, "<br/>");
+    		}
+    		else {
+    			if (labelText == null) {
+    				labelText = label;
+    				self.getElement().innerHTML = labelText.replace(/\r\n/g, "<br/>");
+    			}
+    		}
+		};
+		
     	this.getLabel = function() {
     		return label;
     	};
     	
 		var superGD = this.getDimensions;		
-		this.getDimensions = function(connector) {				
-    		if (typeof label == "function") {
-    			var lt = label(self);
-    			self.getElement(connector).innerHTML = lt.replace(/\r\n/g, "<br/>");
-    		}
-    		else {
-    			if (labelText == null) {
-    				labelText = label;
-    				self.getElement(connector).innerHTML = labelText.replace(/\r\n/g, "<br/>");
-    			}
-    		}
-			return superGD(connector);
+		this.getDimensions = function() {				
+    		_update();
+			return superGD();
     	};
 		
     };

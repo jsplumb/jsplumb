@@ -3005,14 +3005,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 		]});
 		var o = c.getOverlay("label"), e = o.getElement();
 		ok(e.innerHTML == "foo", "label text is set to original value");
-		o.setLabel("baz");
-		ok(e.innerHTML == "baz", "label text is set to new value 'baz'");
-		ok(o.getLabel() === "baz", "getLabel function works correctly with String");
+		o.setLabel("baz");		
+		equals(e.innerHTML, "baz", "label text is set to new value 'baz'");
+		equals(o.getLabel(), "baz", "getLabel function works correctly with String");
 		// now try functions
 		var aFunction = function() { return "aFunction"; };
 		o.setLabel(aFunction);
-		ok(e.innerHTML == "aFunction", "label text is set to new value from Function");
-		ok(o.getLabel() === aFunction, "getLabel function works correctly with Function");
+		equals(e.innerHTML, "aFunction", "label text is set to new value from Function");
+		equals(o.getLabel(), aFunction, "getLabel function works correctly with Function");
 	});
 	
 	test(renderMode + " parameters object works for Endpoint", function() {
