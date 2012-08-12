@@ -852,7 +852,9 @@
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
 		_draw = function(element, ui, timestamp) {
-            if (!_suspendDrawing) {
+			
+			// TOD is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
+            if (!jsPlumbAdapter.headless && !_suspendDrawing) {
 			    var id = _getAttribute(element, "id"),
 			    	repaintEls = _currentInstance.dragManager.getElementsForDraggable(id);			    
 
@@ -898,37 +900,40 @@
 		 * inits a draggable if it's not already initialised.
 		 */
 		_initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
-			var draggable = isDraggable == null ? false : isDraggable,
-				jpcl = jsPlumb.CurrentLibrary;
-			if (draggable) {
-				if (jpcl.isDragSupported(element) && !jpcl.isAlreadyDraggable(element)) {
-					var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
-					options = jsPlumb.extend( {}, options); // make a copy.
-					var dragEvent = jpcl.dragEvents["drag"],
-						stopEvent = jpcl.dragEvents["stop"],
-						startEvent = jpcl.dragEvents["start"];
-
-					options[startEvent] = _wrap(options[startEvent], function() {
-						_currentInstance.setHoverSuspended(true);
-					});
-
-					options[dragEvent] = _wrap(options[dragEvent], function() {
-						var ui = jpcl.getUIPosition(arguments);
-						_draw(element, ui);
-						_addClass(element, "jsPlumb_dragged");
-					});
-					options[stopEvent] = _wrap(options[stopEvent], function() {
-						var ui = jpcl.getUIPosition(arguments);
-						_draw(element, ui);
-						_removeClass(element, "jsPlumb_dragged");
-						_currentInstance.setHoverSuspended(false);
-					});
-					var elId = _getId(element); // need ID
-					draggableStates[elId] = true;  
-					var draggable = draggableStates[elId];
-					options.disabled = draggable == null ? false : !draggable;
-					jpcl.initDraggable(element, options, false);
-					_currentInstance.dragManager.register(element);
+			// TODO move to DragManager?
+			if (!jsPlumbAdapter.headless) {
+				var draggable = isDraggable == null ? false : isDraggable,
+					jpcl = jsPlumb.CurrentLibrary;
+				if (draggable) {
+					if (jpcl.isDragSupported(element) && !jpcl.isAlreadyDraggable(element)) {
+						var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
+						options = jsPlumb.extend( {}, options); // make a copy.
+						var dragEvent = jpcl.dragEvents["drag"],
+							stopEvent = jpcl.dragEvents["stop"],
+							startEvent = jpcl.dragEvents["start"];
+	
+						options[startEvent] = _wrap(options[startEvent], function() {
+							_currentInstance.setHoverSuspended(true);
+						});
+	
+						options[dragEvent] = _wrap(options[dragEvent], function() {
+							var ui = jpcl.getUIPosition(arguments);
+							_draw(element, ui);
+							_addClass(element, "jsPlumb_dragged");
+						});
+						options[stopEvent] = _wrap(options[stopEvent], function() {
+							var ui = jpcl.getUIPosition(arguments);
+							_draw(element, ui);
+							_removeClass(element, "jsPlumb_dragged");
+							_currentInstance.setHoverSuspended(false);
+						});
+						var elId = _getId(element); // need ID
+						draggableStates[elId] = true;  
+						var draggable = draggableStates[elId];
+						options.disabled = draggable == null ? false : !draggable;
+						jpcl.initDraggable(element, options, false);
+						_currentInstance.dragManager.register(element);
+					}
 				}
 			}
 		},
@@ -1501,7 +1506,8 @@
 				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e });
 				e.paint({ anchorLoc : anchorLoc });
 				results.push(e);
-				_currentInstance.dragManager.endpointAdded(_el);
+				if (!jsPlumbAdapter.headless)
+					_currentInstance.dragManager.endpointAdded(_el);
 			}
 			
 			return results.length == 1 ? results[0] : results;
@@ -1650,7 +1656,8 @@
 						endpointsByElement[e] = newEndpoints;
 					}
 				}
-				_currentInstance.dragManager.endpointDeleted(endpoint);								
+				if (!jsPlumbAdapter.headless)
+					_currentInstance.dragManager.endpointDeleted(endpoint);								
 			}									
 		};
 		
@@ -3145,13 +3152,17 @@ between this method and jsPlumb.reset).
 		  See Also: 
 		  	<repaintEverything>
 		 */
-		this.repaint = function(el) {
-			var _processElement = function(el) { _draw(_getElementObject(el)); };
+		this.repaint = function(el, ui, timestamp) {
+			//var _processElement = function(el) { _draw(_getElementObject(el)); };
 			// support both lists...
 			if (typeof el == 'object')
-				for ( var i = 0; i < el.length; i++) _processElement(el[i]);			 
+				for ( var i = 0; i < el.length; i++) {
+					//_processElement(el[i]);
+					_draw(_getElementObject(el), ui, timestamp);
+				}
 			else // ...and single strings.
-				_processElement(el);
+				//_processElement(el);
+				_draw(_getElementObject(el), ui, timestamp);
 		};
 
 		/*
@@ -3249,7 +3260,8 @@ between this method and jsPlumb.reset).
 			_sourceMaxConnections = {};
             _unbindRegisteredListeners();
             _currentInstance.anchorManager.reset();
-            _currentInstance.dragManager.reset();
+			if (!jsPlumbAdapter.headless)
+				_currentInstance.dragManager.reset();
 		};
 
 		/*
@@ -4221,117 +4233,8 @@ between this method and jsPlumb.reset).
 		}
 	};
 
-	/**
-		Manages dragging for some instance of jsPlumb.
-		
-		TODO move to DOM adapter
-
-	*/
-	var DragManager = function() {
-		
-		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {};
-
-		/**
-			register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
-			possible that will continue to be the case.
-		*/
-		this.register = function(el) {
-			var jpcl = jsPlumb.CurrentLibrary;
-			el = jpcl.getElementObject(el);
-			var id = _currentInstance.getId(el),
-				domEl = jpcl.getDOMElement(el);
-			if (!_draggables[id]) {
-				_draggables[id] = el;
-				_dlist.push(el);
-				_delements[id] = {};
-			}
-				
-			// look for child elements that have endpoints and register them against this draggable.
-			var _oneLevel = function(p) {
-				if (p) {
-					var pEl = jpcl.getElementObject(p),
-						pOff = jpcl.getOffset(pEl);
-	
-					for (var i = 0; i < p.childNodes.length; i++) {
-						if (p.childNodes[i].nodeType != 3) {
-							var cEl = jpcl.getElementObject(p.childNodes[i]),
-								cid = _currentInstance.getId(cEl, null, true);
-							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-								var cOff = jpcl.getOffset(cEl);
-								_delements[id][cid] = {
-									id:cid,
-									offset:{
-										left:cOff.left - pOff.left,
-										top:cOff.top - pOff.top
-									}
-								};
-							}
-						}	
-					}
-				}
-			};
-
-			_oneLevel(domEl);
-		};
-
-		/**
-			notification that an endpoint was added to the given el.  we go up from that el's parent
-			node, looking for a parent that has been registered as a draggable. if we find one, we add this
-			el to that parent's list of elements to update on drag (if it is not there already)
-		*/
-		this.endpointAdded = function(el) {
-			var jpcl = jsPlumb.CurrentLibrary, b = document.body, id = _currentInstance.getId(el), c = jpcl.getDOMElement(el), 
-				p = c.parentNode, done = p == b;
-
-			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
-
-			while (p != b) {
-				var pid = _currentInstance.getId(p);
-				if (_draggables[pid]) {
-					var idx = -1, pEl = jpcl.getElementObject(p), pLoc = jpcl.getOffset(pEl);
-					
-					if (_delements[pid][id] == null) {
-						var cLoc = jsPlumb.CurrentLibrary.getOffset(el);
-						_delements[pid][id] = {
-							id:id,
-							offset:{
-								left:cLoc.left - pLoc.left,
-								top:cLoc.top - pLoc.top
-							}
-						};
-					}
-					break;
-				}
-				p = p.parentNode;
-			}	
-		};
-
-		this.endpointDeleted = function(endpoint) {
-			if (_elementsWithEndpoints[endpoint.elementId]) {
-				_elementsWithEndpoints[endpoint.elementId]--;
-				if (_elementsWithEndpoints[endpoint.elementId] <= 0) {
-					for (var i in _delements) {
-						delete _delements[i][endpoint.elementId];
-					}
-				}
-			}		
-		};
-
-		this.getElementsForDraggable = function(id) {
-			return _delements[id];	
-		};
-
-		this.reset = function() {
-			_draggables = {};
-			_dlist = [];
-			_delements = {};
-			_elementsWithEndpoints = {};
-		};
-		
-	};
-	_currentInstance.dragManager = new DragManager();
-	
-
+	if (!jsPlumbAdapter.headless)
+		_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 
 		/*
 		 * Class: Connection
