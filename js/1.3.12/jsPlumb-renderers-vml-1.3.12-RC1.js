@@ -91,10 +91,13 @@
 			o[i] = atts[i];
 		}
 	},
-	_node = function(name, d, atts, parent, _jsPlumb) {
+	_node = function(name, d, atts, parent, _jsPlumb, deferToJsPlumbContainer) {
 		atts = atts || {};
-		var o = document.createElement("jsplumb:" + name);				
-		_jsPlumb.appendElement(o, parent);
+		var o = document.createElement("jsplumb:" + name);
+		if (deferToJsPlumbContainer)
+			_jsPlumb.appendElement(o, parent);
+		else
+			jsPlumb.CurrentLibrary.appendElement(o, parent);
 		o.className = (atts["class"] ? atts["class"] + " " : "") + "jsplumb_vml";
 		_pos(o, d);
 		_atts(o, atts);
@@ -154,8 +157,7 @@
 				styleToUse += (Math.floor(parts[i] / style.lineWidth) + sep);
 			}
 			if (component.strokeNode == null) {
-				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:styleToUse }, node, _jsPlumb);
-				//node.appendChild(component.strokeNode);
+				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:styleToUse }, node, _jsPlumb);				
 			}
 			else
 				component.strokeNode.dashstyle = styleToUse;
@@ -217,7 +219,7 @@
 					if (self.bgCanvas == null) {						
 						p["class"] = clazz;
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-						self.bgCanvas = _node("shape", d, p, params.parent, self._jsPlumb);						
+						self.bgCanvas = _node("shape", d, p, params.parent, self._jsPlumb, true);						
 						_pos(self.bgCanvas, d, self.getZIndex());
 						self.appendDisplayElement(self.bgCanvas, true);	
 						self.attachListeners(self.bgCanvas, self);					
@@ -237,7 +239,7 @@
 					p["class"] = clazz;
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
 					if (self.tooltip) p["label"] = self.tooltip;
-					self.canvas = _node("shape", d, p, params.parent, self._jsPlumb);					                
+					self.canvas = _node("shape", d, p, params.parent, self._jsPlumb, true);					                
                     //var group = _getGroup(params.parent);                   // test of append everything to a group
                     //group.appendChild(self.canvas);                           // sort of works but not exactly;
 					//params["_jsPlumb"].appendElement(self.canvas, params.parent);    //before introduction of groups
@@ -413,7 +415,7 @@
 			
     		if (self.canvas == null) {
     			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
-				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb);								
+				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb, true);								
 				connector.appendDisplayElement(self.canvas, true);
 				self.attachListeners(self.canvas, connector);
 				self.attachListeners(self.canvas, self);
