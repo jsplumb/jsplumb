@@ -164,8 +164,6 @@
 			return [eventObject.event.clientX, eventObject.event.clientY];
 		},
 		
-		getDocumentElement : function() { return document; },
-		
 		getDragObject : function(eventArgs) {
 			return eventArgs[0];
 		},

@@ -219,8 +219,6 @@
 			return _droppableScopesById[id];
 		},
 		
-		getDocumentElement : function() { return document; },
-
 		getDOMElement : function(el) { 			
 			if (typeof(el) == "String") 
 				return document.getElementById(el);

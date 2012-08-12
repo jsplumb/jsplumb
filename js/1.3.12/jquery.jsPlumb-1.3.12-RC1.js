@@ -135,8 +135,6 @@
 			return [eventObject.clientX, eventObject.clientY];
 		},
 		
-		getDocumentElement : function() { return document; },
-		
 		/**
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
 		 */
