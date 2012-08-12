@@ -89,7 +89,7 @@
 	<target name="concatLibrary">
 		<echo>Concatenating ${library}</echo>
 		<concat destfile="${output.js.dir}/${library}.jsPlumb-${final.version}-all.js">
-			<filelist dir="${dir}" files="jsPlumb-util-${version}.js,jsPlumb-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-connectors-statemachine-${version}.js, jsPlumb-renderers-vml-${version}.js, jsPlumb-renderers-svg-${version}.js, jsPlumb-renderers-canvas-${version}.js, ${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.4-min.js"/>
+			<filelist dir="${dir}" files="jsPlumb-util-${version}.js,jsPlumb-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-connectors-statemachine-${version}.js, jsPlumb-renderers-vml-${version}.js, jsPlumb-renderers-svg-${version}.js, jsPlumb-renderers-canvas-${version}.js, jsPlumb-dom-adapter-${version}.js, ${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.4-min.js"/>
 		</concat>		
 	</target>
 	
