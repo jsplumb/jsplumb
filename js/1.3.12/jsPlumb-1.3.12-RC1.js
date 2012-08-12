@@ -380,9 +380,9 @@
 			 * Parameters:
 			 * 	overlay - Overlay to add.
 			 */
-			this.addOverlay = function(overlay) { 
+			this.addOverlay = function(overlay, doNotRepaint) { 
 				processOverlay(overlay); 
-				self.repaint();
+				if (!doNotRepaint) self.repaint();
 			};
 			
 			/*
@@ -635,7 +635,15 @@
 		};
 		if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 		
-		this.logEnabled = this.Defaults.LogEnabled;		
+		this.logEnabled = this.Defaults.LogEnabled;
+		
+		var _connectionTypes = { };
+		this.registerConnectionType = function(id, type) {
+			_connectionTypes[id] = type;
+		};
+		this.getConnectionType = function(id) {
+			return _connectionTypes[id];
+		};
 
 		jsPlumbUtil.EventGenerator.apply(this);
 		var _currentInstance = this,
@@ -1915,7 +1923,9 @@ between this method and jsPlumb.reset).
 				setPaintStyle:setter(list, "setPaintStyle", executor),
 				setHoverPaintStyle:setter(list, "setHoverPaintStyle", executor),									
 				setParameter:setter(list, "setParameter", executor),		
-				setParameters:setter(list, "setParameters", executor),	
+				setParameters:setter(list, "setParameters", executor),
+				setVisible:setter(list, "setVisible", executor),
+				setZIndex:setter(list, "setZIndex", executor),
 
 				// getters
 				getLabel:getter(list, "getLabel"),
@@ -1925,6 +1935,8 @@ between this method and jsPlumb.reset).
 				getParameters:getter(list, "getParameters"),
 				getPaintStyle:getter(list, "getPaintStyle"),		
 				getHoverPaintStyle:getter(list, "getHoverPaintStyle"),
+				isVisible:getter(list, "isVisible"),
+				getZIndex:getter(list, "getZIndex"),
 
 				// util
 				length:list.length,
@@ -4472,7 +4484,36 @@ between this method and jsPlumb.reset).
 				if (_connectionBeingDragged == null) {
 					self.setHover(state, false);
 				}
-			};						
+			};
+			
+			/*
+			 * Function: setType
+			 * Sets the type of this Connection - a 'type' is simply a collection of attributes such
+			 * as paintStyle, connector etc. You should have previously registered the given type on jsPlumb
+			 * using the 'registerConnectionType' method. 
+			 */
+			var _type = null;
+			self.setType = function(typeId) {
+				_type = typeId;
+				var t = self._jsPlumb.getConnectionType(typeId);
+				self.setPaintStyle(t.paintStyle || _currentInstance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle);
+				self.setConnector(t.connector || _currentInstance.Defaults.Connector || jsPlumb.Defaults.Connector);
+				self.setHoverPaintStyle(t.hoverPaintStyle || _currentInstance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle);
+				self.removeAllOverlays();
+				if (t.overlays) {
+					for (var i = 0; i < t.overlays.length; i++)
+						self.addOverlay(t.overlays[i], true);
+				}
+				self.repaint();
+			};
+			
+			/*
+			 * Function : getType
+			 * Gets the 'type' of this Connection.
+			 */
+			self.getType = function() {
+				return _type;
+			};
 
 			/*
 			 * Function: setConnector
