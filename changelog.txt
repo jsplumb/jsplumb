@@ -19,9 +19,12 @@
 	- added 'setVisible'/'isVisible' to both jsPlumb.select and jsPlumb.selectEndpoint return value
 	- added 'repaint' to return value from jsPlumb.select and jsPlumb.selectEndpoint
 	
+	- performance enhancements to label rendering 
+	
 	
 	ISSUES RESOLVED
 	
+	263 - support custom labels
 	269 - Image Endpoint remains in DOM if removed quickly enough after creation
 	270 - Connections repainted when setVisible(false) had been called
 
