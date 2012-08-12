@@ -10,6 +10,9 @@
 	string so you can add several at once.
 	
 	You can also create a Connection or Endpoint with a 'type' parameter.  See the documentation for more information.
+	
+	- added 'Custom' Overlay type. You provide a 'create' function that jsPlumb calls with the associated Endpoint or
+	Connection the first time the Overlay is painted.
 
     - added 'setEnabled' / 'isEnabled' methods to selectEndpoint return value
 	- added 'ConnectorZIndex' optional default. use this to get hovered connectors to appear on top of others.
