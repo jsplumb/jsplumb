@@ -4589,8 +4589,6 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(e1.overlays.length, 1, "endpoint has one overlay");
 	});
 	
-	// DOD A TEST WHERE THE ENDPOINT TYPE LISTS CONNECTION TYPES, THEN MAKE A CONNECTION AND CHECK THAT THE
-	// CONNECTION HAS THE RIGHT TYPE
 	test(renderMode + " create connection from Endpoints - type should be passed through.", function() {		
 			
 		_jsPlumb.registerConnectionTypes({
