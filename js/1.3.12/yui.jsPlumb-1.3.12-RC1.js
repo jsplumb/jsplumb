@@ -218,6 +218,8 @@
 			var id = jsPlumb.getId(el);
 			return _droppableScopesById[id];
 		},
+		
+		getDocumentElement : function() { return document; },
 
 		getDOMElement : function(el) { 			
 			if (typeof(el) == "String") 
