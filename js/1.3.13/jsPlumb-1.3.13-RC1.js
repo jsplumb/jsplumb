@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.3.12
+ * Title:jsPlumb 1.3.13
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -5998,26 +5998,70 @@ between this method and jsPlumb.reset).
 			return a;
 		};
 	};
+	/*
+	 * Property: Anchors.TopCenter
+	 * An Anchor that is located at the top center of the element.
+	 */
 	jsPlumb.Anchors["TopCenter"] 		= _curryAnchor(0.5, 0, 0,-1, "TopCenter");
+	/*
+	 * Property: Anchors.BottomCenter
+	 * An Anchor that is located at the bottom center of the element.
+	 */
 	jsPlumb.Anchors["BottomCenter"] 	= _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
+	/*
+	 * Property: Anchors.LeftMiddle
+	 * An Anchor that is located at the left middle of the element.
+	 */
 	jsPlumb.Anchors["LeftMiddle"] 		= _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
+	/*
+	 * Property: Anchors.RightMiddle
+	 * An Anchor that is located at the right middle of the element.
+	 */
 	jsPlumb.Anchors["RightMiddle"] 		= _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
+	/*
+	 * Property: Anchors.Center
+	 * An Anchor that is located at the center of the element.
+	 */
 	jsPlumb.Anchors["Center"] 			= _curryAnchor(0.5, 0.5, 0, 0, "Center");
+	/*
+	 * Property: Anchors.TopRight
+	 * An Anchor that is located at the top right corner of the element.
+	 */
 	jsPlumb.Anchors["TopRight"] 		= _curryAnchor(1, 0, 0,-1, "TopRight");
+	/*
+	 * Property: Anchors.BottomRight
+	 * An Anchor that is located at the bottom right corner of the element.
+	 */
 	jsPlumb.Anchors["BottomRight"] 		= _curryAnchor(1, 1, 0, 1, "BottomRight");
+	/*
+	 * Property: Anchors.TopLeft
+	 * An Anchor that is located at the top left corner of the element.
+	 */
 	jsPlumb.Anchors["TopLeft"] 			= _curryAnchor(0, 0, 0, -1, "TopLeft");
+	/*
+	 * Property: Anchors.BottomLeft
+	 * An Anchor that is located at the bototm left corner of the element.
+	 */
 	jsPlumb.Anchors["BottomLeft"] 		= _curryAnchor(0, 1, 0, 1, "BottomLeft");
-		
-	// TODO test that this does not break with the current instance idea
+			
 	jsPlumb.Defaults.DynamicAnchors = function(params) {
 		return params.jsPlumbInstance.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"], params.elementId, params.jsPlumbInstance);
 	};
+	/*
+	 * Property: Anchors.AutoDefault
+	 * Default DynamicAnchors - chooses from TopCenter, RightMiddle, BottomCenter, LeftMiddle.
+	 */
 	jsPlumb.Anchors["AutoDefault"]  = function(params) { 
 		var a = params.jsPlumbInstance.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors(params));
 		a.type = "AutoDefault";
 		return a;
 	};
 	
+	/*
+	 * Property: Anchors.Assign
+	 * An Anchor whose location is assigned at connection time, through an AnchorPositionFinder. Used in conjunction
+	 * with the 'makeTarget' function. jsPlumb has two of these - 'Fixed' and 'Grid', and you can also write your own.
+	 */
 	jsPlumb.Anchors["Assign"] = _curryAnchor(0,0,0,0,"Assign", function(anchor, params) {
 		// find what to use as the "position finder". the user may have supplied a String which represents
 		// the id of a position finder in jsPlumb.AnchorPositionFinders, or the user may have supplied the
@@ -6031,6 +6075,10 @@ between this method and jsPlumb.reset).
 
 	// Continuous anchor is just curried through to the 'get' method of the continuous anchor
 	// factory.
+	/*
+	 * Property: Anchors.Continuous
+	 * An Anchor that is tracks the other element in the connection, choosing the closest face.
+	 */
 	jsPlumb.Anchors["Continuous"] = function(params) {
 		return params.jsPlumbInstance.continuousAnchorFactory.get(params);
 	};
@@ -6048,5 +6096,48 @@ between this method and jsPlumb.reset).
 				mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
 			return [ ((mx * gx) + (gx / 2)) / es[0], ((my * gy) + (gy / 2)) / es[1] ];
 		}
+	};
+	
+	/*
+	 * Property: Anchors.Perimeter
+	 * An Anchor that tracks the perimeter of some shape, approximating it with a given number of dynamically
+	 * positioned locations.
+	 */
+	jsPlumb.Anchors["Perimeter"] = function(params) {
+		params = params || {};
+		var anchorCount = params.anchorCount || 40,
+			shape = params.shape;
+		
+		if (!shape) throw new Error("no shape supplied to Perimeter Anchor type");		
+		
+		var _shapes = {
+			"circle":function() {
+				var r = 0.5, step = Math.PI * 2 / anchorCount, current = 0, a = [];
+				for (var i = 0; i < anchorCount; i++) {
+					var x = r + (r * Math.sin(current)),
+						y = r + (r * Math.cos(current));                                
+					a.push( [ x, y, 0, 0 ] );
+					current += step;
+				}
+				return a;	
+			},
+			"ellipse":function() {
+				var step = Math.PI * 2 / anchorCount, current = 0, a = [];
+				for (var i = 0; i < anchorCount; i++) {
+					var x = 0.5 + (params.rx * Math.sin(current)),
+						y = 0.5 + (params.ry * Math.cos(current));                                
+					a.push( [ x, y, 0, 0 ] );
+					current += step;
+				}
+				return a;	
+			}
+		};
+		
+		if (!_shapes[shape]) throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
+		
+		var da = _shapes[shape](),
+			a = params.jsPlumbInstance.makeDynamicAnchor(da);
+		a.type = "Perimeter";
+		return a;
 	};
 })();
