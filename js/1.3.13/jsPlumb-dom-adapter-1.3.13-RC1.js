@@ -21,14 +21,32 @@
     var canvasAvailable = !!document.createElement('canvas').getContext,
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
+		hasVMLNamespace = function() {
+			if (!document.namespaces) {
+				return false;
+			}
+			for(var i=0; i < document.namespaces.length; i++) {
+				var ns = document.namespaces(i);
+				if (ns.name == "v") {
+					return ns.urn == "urn:schemas-microsoft-com:vml";
+				}
+			}
+			document.namespaces.add("v","urn:schemas-microsoft-com:vml");
+			return true;
+		},
 		vmlAvailable = function() {		    
-			if(vmlAvailable.vml == undefined) { 
+			if(vmlAvailable.vml == undefined) {
+				if (hasVMLNamespace()) {
 				var a = document.body.appendChild(document.createElement('div'));
 		        a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
 		        var b = a.firstChild;
 		        b.style.behavior = "url(#default#VML)";
 		        vmlAvailable.vml = b ? typeof b.adj == "object": true;
 		        a.parentNode.removeChild(a);
+				}
+				else {
+					vmlAvailable.vml = false;
+				}
 			}
 			return vmlAvailable.vml;
 		};
