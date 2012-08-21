@@ -3095,7 +3095,7 @@ between this method and jsPlumb.reset).
 			if (typeof el == 'object')
 				for ( var i = 0; i < el.length; i++) {
 					//_processElement(el[i]);
-					_draw(_getElementObject(el), ui, timestamp);
+					_draw(_getElementObject(el[i]), ui, timestamp);
 				}
 			else // ...and single strings.
 				//_processElement(el);
