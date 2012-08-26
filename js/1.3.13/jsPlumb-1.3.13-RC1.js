@@ -1204,27 +1204,26 @@
 		 */
 		_updateOffset = function(params) {
 			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId;
+			if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
 			if (!recalc) {
 				if (timestamp && timestamp === offsetTimestamps[elId])
 					return offsets[elId];
 			}
-			if (recalc || !offset) { // if forced repaint or no offset
-											// available, we recalculate.
+			if (recalc || !offset) { // if forced repaint or no offset available, we recalculate.
 				// get the current size and offset, and store them
 				var s = _getElementObject(elId);
-				if (s != null) {
+				if (s != null) {						
 					sizes[elId] = _getSize(s);
 					offsets[elId] = _getOffset(s);
 					offsetTimestamps[elId] = timestamp;
 				}
 			} else {
 				offsets[elId] = offset;
-                if (sizes[elId] == null) {
-                    var s = _getElementObject(elId);
-				    if (s != null)
-					    sizes[elId] = _getSize(s);
-                }
-			}
+        if (sizes[elId] == null) {
+            var s = _getElementObject(elId);
+				    if (s != null) sizes[elId] = _getSize(s);
+        }
+		}
 			
 			if(offsets[elId] && !offsets[elId].right) {
 				offsets[elId].right = offsets[elId].left + sizes[elId][0];
@@ -1435,13 +1434,15 @@
 			for (var i = 0; i < inputs.length; i++) {
 				var _el = _getElementObject(inputs[i]), id = _getId(_el);
 				p.source = _el;
-                _updateOffset({ elId : id });
+                _updateOffset({ elId : id, timestamp:_suspendedAt });
 				var e = _newEndpoint(p);
 				if (p.parentAnchor) e.parentAnchor = p.parentAnchor;
 				_addToList(endpointsByElement, id, e);
 				var myOffset = offsets[id], myWH = sizes[id];
-				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e });
-				e.paint({ anchorLoc : anchorLoc });
+				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e, timestamp:_suspendedAt });
+				var endpointPaintParams = { anchorLoc : anchorLoc, timestamp:_suspendedAt };
+				if (_suspendDrawing) endpointPaintParams.recalc = false;
+				e.paint(endpointPaintParams);
 				results.push(e);
 				if (!jsPlumbAdapter.headless)
 					_currentInstance.dragManager.endpointAdded(_el);
@@ -3113,9 +3114,10 @@ between this method and jsPlumb.reset).
 		  	<repaint>
 		 */
 		this.repaintEverything = function() {
-			for ( var elId in endpointsByElement) {
-				_draw(_getElementObject(elId), null, null);
-			}
+				var timestamp = _timestamp();
+				for ( var elId in endpointsByElement) {
+						_draw(_getElementObject(elId), null, timestamp);
+				}
 		};
 
 		/*
@@ -3315,7 +3317,8 @@ between this method and jsPlumb.reset).
 		};				
 
 
-		var _suspendDrawing = false;
+		var _suspendDrawing = false,
+				_suspendedAt = null;
 		/*
 		 * Function: setSuspendDrawing
 		 * Suspends drawing operations.  This can be used when you have a lot of connections to make or endpoints to register;
@@ -3323,6 +3326,7 @@ between this method and jsPlumb.reset).
 		 */
 		this.setSuspendDrawing = function(val, repaintAfterwards) {
 		    _suspendDrawing = val;
+				if (val) _suspendedAt = new Date().getTime(); else _suspendedAt = null;
 		    if (repaintAfterwards) _currentInstance.repaintEverything();
 		};
         
@@ -4421,14 +4425,14 @@ between this method and jsPlumb.reset).
 			
 			this.paintStyleInUse = this.getPaintStyle();
 			
-			_updateOffset( { elId : this.sourceId });
-			_updateOffset( { elId : this.targetId });
+			_updateOffset( { elId : this.sourceId, timestamp:_suspendedAt });
+			_updateOffset( { elId : this.targetId, timestamp:_suspendedAt });
 			
 			// paint the endpoints
 			var myOffset = offsets[this.sourceId], myWH = sizes[this.sourceId],
 				otherOffset = offsets[this.targetId],
 				otherWH = sizes[this.targetId],
-				initialTimestamp = _timestamp(),
+				initialTimestamp = _suspendedAt || _timestamp(),
 				anchorLoc = this.endpoints[0].anchor.compute( {
 					xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
 					elementId:this.endpoints[0].elementId,
@@ -5367,7 +5371,8 @@ between this method and jsPlumb.reset).
 			this.paint = function(params) {
 				params = params || {};
 				var timestamp = params.timestamp,
-                    recalc = !(params.recalc === false);
+                //    recalc = !(params.recalc === false);
+								recalc = params.recalc;
 				if (!timestamp || self.timestamp !== timestamp) {			
 					_updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
 					var xy = params.offset || offsets[_elementId];
