@@ -4,6 +4,7 @@
 		{ id:"demo", name:"jsPlumb Home", about:"Main jsPlumb demo page.  Contains a bit of everything" },
 		{ id:"flowchartConnectorsDemo", name:"Flowchart Connectors", about:"Demonstration of the Flowchart connectors" },
 		{ id:"draggableConnectorsDemo", name:"Draggable Connections", about:"Demonstration of drag and drop connections" },
+		{ id:"perimeterAnchorsDemo", name:"Perimeter Anchors", about:"Demonstration of perimeter anchors" },
 		{ id:"chartDemo", name:"Chart Demonstration", about:"Simple Chart Demo" },
 		{ id:"anchorDemo", name:"Sources and Targets", about:"Demonstration of how to make whole elements Connection sources and targets" },
 		{ id:"stateMachineDemo", name:"State Machine", about:"Demonstration of the State Machine Connectors and Continuous Anchors" },
