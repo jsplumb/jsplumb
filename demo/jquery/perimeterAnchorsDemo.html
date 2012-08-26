@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.3.13 Perimeter Anchors demo - jQuery</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
+		<link rel="stylesheet" href="../css/perimeterAnchorsDemo.css">				
+	</head>
+	<body onunload="jsPlumb.unload();" data-demo-id="demo" data-library="jquery">
+	
+		<div style="position:absolute">
+		    <div id="demo">
+			    
+            <!-- draw VML for old IE and SVG for everyone else -->
+            <!--[if (lte IE 9) ]>
+                <h1> THIS IS IE</h1>
+            <!--[else]-->
+                <svg class="shape" data-shape="circle" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:200px;top:100px;width:150px;height:150px;">
+                    <circle cx="75" cy="75" r="73" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>                    
+                </svg>
+                
+                <svg class="shape" data-shape="ellipse" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:60px;top:500px;width:160px;height:60px;">
+                    <ellipse cx="80" cy="30" rx="78" ry="28" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>
+                </svg>
+                
+                <svg class="shape" data-shape="rectangle" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:380px;top:585px;width:200px;height:90px;">
+                    <rect x="2" y="2" width="196" height="86" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>
+                </svg>
+                
+                <svg class="shape" data-shape="diamond" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:550px;top:200px;width:160px;height:160px;">
+                    <path d="M 80,0 L 160,80 L 80,160 L 0,80 z" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>
+                </svg>
+                
+                <svg class="shape" data-shape="triangle" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:700px;top:380px;width:160px;height:160px;">
+                    <path d="M 80,0 L 160,160 L 0,160 z" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>
+                </svg>                
+            <![endif]-->  
+          
+		    </div>
+		 </div>
+	    
+	    <div id="explanation">
+	    	<p>jsPlumb provides a way to "plumb" elements of a UI together.</p>
+            <p>This page provides a demonstration of the 'perimeter' anchor functionality in jsPlumb - anchor points that track of the perimeter of some shape or curve.
+            </p>
+            <p>jsPlumb requires one of jQuery, MooTools or YUI3.  See the documentation for a more detailed discussion of requirements.</p>
+	    	<p>This demonstration uses jsPlumb 1.3.13, jQuery 1.7.1 and jQuery UI 1.8.13.</p>
+	    </div>
+	    
+	    <!-- DEP -->
+	    <script type="text/javascript" src="../../js/lib/jquery-1.7.1-min.js"></script>
+		<script type="text/javascript" src="../../js/lib/jquery-ui-1.8.13-min.js"></script>
+        <script type="text/javascript" src="../../js/lib/jquery.ui.touch-punch.min.js"></script>
+		<!-- /DEP -->
+				
+		<!-- JS -->
+		<!-- support lib for bezier stuff -->
+		<script type="text/javascript" src="../../js/lib/jsBezier-0.4-min.js"></script>
+        <!-- touch adapter >
+		<script type="text/javascript" src="../../js/lib/touch-adapter-0.1.js"></script-->
+		<!-- jsplumb util -->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-util-1.3.13-RC1.js"></script>
+        <!-- base DOM adapter -->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-dom-adapter-1.3.13-RC1.js"></script>
+        <!-- jsplumb drag-->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-drag-1.3.13-RC1.js"></script>
+		<!-- main jsplumb engine -->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-1.3.13-RC1.js"></script>
+		<!-- connectors, endpoint and overlays  -->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-defaults-1.3.13-RC1.js"></script>
+		<!-- state machine connectors -->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-connectors-statemachine-1.3.13-RC1.js"></script>
+		<!-- SVG renderer -->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-renderers-svg-1.3.13-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-renderers-canvas-1.3.13-RC1.js"></script>
+		<!-- vml renderer -->
+		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-renderers-vml-1.3.13-RC1.js"></script>
+        
+        <!-- jquery jsPlumb adapter -->
+		<script type="text/javascript" src="../../js/1.3.13/jquery.jsPlumb-1.3.13-RC1.js"></script>
+		<!-- /JS -->
+		
+		<!--  demo code -->
+		<script type="text/javascript" src="../js/perimeterAnchorsDemo.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-jquery.js"></script>
+
+	</body>
+</html>
