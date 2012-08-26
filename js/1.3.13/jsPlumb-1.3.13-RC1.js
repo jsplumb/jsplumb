@@ -6105,31 +6105,58 @@ between this method and jsPlumb.reset).
 	 */
 	jsPlumb.Anchors["Perimeter"] = function(params) {
 		params = params || {};
-		var anchorCount = params.anchorCount || 40,
+		var anchorCount = params.anchorCount || 60,
 			shape = params.shape;
 		
 		if (!shape) throw new Error("no shape supplied to Perimeter Anchor type");		
 		
+		var _circle = function() {
+						var r = 0.5, step = Math.PI * 2 / anchorCount, current = 0, a = [];
+						for (var i = 0; i < anchorCount; i++) {
+							var x = r + (r * Math.sin(current)),
+								y = r + (r * Math.cos(current));                                
+							a.push( [ x, y, 0, 0 ] );
+							current += step;
+						}
+						return a;	
+				},
+				_shape = function(faces) {						
+						var anchorsPerFace = anchorCount / faces.length, a = [],
+								_computeFace = function(x1, y1, x2, y2) {
+										var dx = (x2 - x1) / anchorsPerFace, dy = (y2 - y1) / anchorsPerFace;
+										for (var i = 0; i < anchorsPerFace; i++) {
+												a.push( [
+														x1 + (dx * i),
+														y1 + (dy * i),
+														0,
+														0
+												]);
+										}
+								};
+								
+						for (var i = 0; i < faces.length; i++)
+								_computeFace.apply(null, faces[i]);
+														
+						return a;					
+				};
+		
 		var _shapes = {
-			"circle":function() {
-				var r = 0.5, step = Math.PI * 2 / anchorCount, current = 0, a = [];
-				for (var i = 0; i < anchorCount; i++) {
-					var x = r + (r * Math.sin(current)),
-						y = r + (r * Math.cos(current));                                
-					a.push( [ x, y, 0, 0 ] );
-					current += step;
-				}
-				return a;	
+			"circle":_circle,
+			"ellipse":_circle,
+			"diamond":function() {
+				return _shape([
+						[ 0.5, 0, 1, 0.5 ], [ 1, 0.5, 0.5, 1 ], [ 0.5, 1, 0, 0.5 ], [ 0, 0.5, 0.5, 0 ]
+				]);
 			},
-			"ellipse":function() {
-				var step = Math.PI * 2 / anchorCount, current = 0, a = [];
-				for (var i = 0; i < anchorCount; i++) {
-					var x = 0.5 + (params.rx * Math.sin(current)),
-						y = 0.5 + (params.ry * Math.cos(current));                                
-					a.push( [ x, y, 0, 0 ] );
-					current += step;
-				}
-				return a;	
+			"rectangle":function() {
+				return _shape([
+						[ 0, 0, 1, 0 ], [ 1, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0, 0 ]
+				]);
+			},
+			"triangle":function() {
+				return _shape([
+						[ 0.5, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0.5, 0]
+				]);	
 			}
 		};
 		
