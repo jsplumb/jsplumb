@@ -11,30 +11,11 @@
 		<div style="position:absolute">
 		    <div id="demo">
 			    
-            <!-- draw VML for old IE and SVG for everyone else -->
-            <!--[if (lte IE 9) ]>
-                <h1> THIS IS IE</h1>
-            <!--[else]-->
-                <svg class="shape" data-shape="circle" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:200px;top:100px;width:150px;height:150px;">
-                    <circle cx="75" cy="75" r="73" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>                    
-                </svg>
-                
-                <svg class="shape" data-shape="ellipse" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:60px;top:500px;width:160px;height:60px;">
-                    <ellipse cx="80" cy="30" rx="78" ry="28" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>
-                </svg>
-                
-                <svg class="shape" data-shape="rectangle" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:380px;top:585px;width:200px;height:90px;">
-                    <rect x="2" y="2" width="196" height="86" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>
-                </svg>
-                
-                <svg class="shape" data-shape="diamond" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:550px;top:200px;width:160px;height:160px;">
-                    <path d="M 80,0 L 160,80 L 80,160 L 0,80 z" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>
-                </svg>
-                
-                <svg class="shape" data-shape="triangle" xmlns="http://www.w3.org/1999/xhtml" version="1.1" style="position:absolute;left:700px;top:380px;width:160px;height:160px;">
-                    <path d="M 80,0 L 160,160 L 0,160 z" xmlns="http://www.w3.org/1999/xhtml" version="1.1" stroke="#BBB" fill="#EEE" stroke-width="2"/>
-                </svg>                
-            <![endif]-->  
+					<div class="shape" data-shape="rectangle" style="left:380px;top:585px;"></div>
+					<div class="shape" data-shape="ellipse" style="left:60px;top:500px;"></div>
+					<div class="shape" data-shape="circle" style="left:200px;top:100px;"></div>
+					<div class="shape" data-shape="diamond" style="left:550px;top:200px;"></div>
+          <div class="shape" data-shape="triangle"style="left:700px;top:380px;"></div>					
           
 		    </div>
 		 </div>
@@ -76,13 +57,12 @@
 		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-renderers-canvas-1.3.13-RC1.js"></script>
 		<!-- vml renderer -->
 		<script type="text/javascript" src="../../js/1.3.13/jsPlumb-renderers-vml-1.3.13-RC1.js"></script>
-        
-        <!-- jquery jsPlumb adapter -->
+    <!-- jquery jsPlumb adapter -->
 		<script type="text/javascript" src="../../js/1.3.13/jquery.jsPlumb-1.3.13-RC1.js"></script>
 		<!-- /JS -->
 		
 		<!--  demo code -->
-		<script type="text/javascript" src="../js/perimeterAnchorsDemo.js"></script>
+		<script type="text/javascript" src="../js/perimeterAnchorsDemo-jquery.js"></script>
 		
 		<!--  demo helper code -->
 		<script type="text/javascript" src="../js/demo-list.js"></script>
