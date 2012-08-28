@@ -2,6 +2,7 @@
 
 		NEW FUNCTIONALITY
 		
+		- 'perimeter' anchors. These are anchors that follow the path of the perimeter of some shape.
 		- performance enhancement for painting.
 		
 		MISCELLANEOUS
@@ -10,6 +11,7 @@
 
 		ISSUES RESOLVED
 		
+		271 - 	add perimeter anchors
 		273 - 	nested endpoint ignored by dragging
 		274 - 	jsPlumb.connect does not register endpoints with drag manager
 		
