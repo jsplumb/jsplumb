@@ -4533,10 +4533,11 @@ between this method and jsPlumb.reset).
 			 *  recalc - whether or not to recalculate all anchors etc before painting. 
 			 *  timestamp - timestamp of this paint.  If the Connection was last painted with the same timestamp, it does not paint again.
 			 */
-			var lastPaintedAt = null;
+			var lastPaintedAt = null;			
 			this.paint = function(params) {
 				
 				if (visible) {
+						
 						params = params || {};
 						var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
 								// if the moving object is not the source we must transpose the two references.
@@ -4544,14 +4545,14 @@ between this method and jsPlumb.reset).
 								tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
 								tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 	
-					//	if (timestamp == null || timestamp != lastPaintedAt) {								
+						if (timestamp == null || timestamp != lastPaintedAt) {
 								var sourceInfo = _updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }),
 										targetInfo = _updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
 							
 								var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx],
 										sAnchorP = sE.anchor.getCurrentLocation(sE),				
 										tAnchorP = tE.anchor.getCurrentLocation(tE);
-			
+										
 								/* paint overlays*/
 								var maxSize = 0;
 								for ( var i = 0; i < self.overlays.length; i++) {
@@ -4570,17 +4571,17 @@ between this method and jsPlumb.reset).
 														maxSize,
 														sourceInfo,
 														targetInfo );
-							
+													
 								self.connector.paint(dim, self.paintStyleInUse);
-			
+							
 								/* paint overlays*/
 								for ( var i = 0; i < self.overlays.length; i++) {
 										var o = self.overlays[i];
-										if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
+										if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim, timestamp);
 								}
-						//}
-						//lastPaintedAt = timestamp;
-				}
+						}
+						lastPaintedAt = timestamp;						
+				}		
 			};			
 
 			/*
@@ -6138,6 +6139,11 @@ between this method and jsPlumb.reset).
 								_computeFace.apply(null, faces[i]);
 														
 						return a;					
+				},
+				_rectangle = function() {
+						return _shape([
+								[ 0, 0, 1, 0 ], [ 1, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0, 0 ]
+						]);		
 				};
 		
 		var _shapes = {
@@ -6148,16 +6154,20 @@ between this method and jsPlumb.reset).
 						[ 0.5, 0, 1, 0.5 ], [ 1, 0.5, 0.5, 1 ], [ 0.5, 1, 0, 0.5 ], [ 0, 0.5, 0.5, 0 ]
 				]);
 			},
-			"rectangle":function() {
-				return _shape([
-						[ 0, 0, 1, 0 ], [ 1, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0, 0 ]
-				]);
-			},
+			"rectangle":_rectangle,
+			"square":_rectangle,
 			"triangle":function() {
 				return _shape([
 						[ 0.5, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0.5, 0]
 				]);	
-			}
+			}/*,
+			"path":function(points) {
+				var p = [];
+				for (var i = 0; i < points.length - 1; i++) {
+						p.push([points[i][0], points[i][1], points[i+1][0], points[i+1][1]]);						
+				}
+				return _shape(p);
+			}*/
 		};
 		
 		if (!_shapes[shape]) throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
