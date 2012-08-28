@@ -39,29 +39,21 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 		</div>
 		
 		<div class="section">		
-			<h3><a id="changes">Changes between 1.3.13 and 1.3.11</a></h3>
+			<h3><a id="changes">Changes between 1.3.13 and 1.3.12</a></h3>
 			
 			<h5>Backwards Compatibility</h5>
 			No issues.
 			
 			<h5>New Features</h5>
 			<ul>
-				<li class="bullet">added the concept of Connection and Endpoint "type". A type is a collection of attributes such as paint style,
-	hover paint style, overlays etc. For more information, see <a href="#connectionTypes">here</a></li>
-				<li class="bullet">added 'Custom' Overlay type. You provide a 'create' method that returns an element, and jsPlumb positions it.</li>
-				<li class="bullet">added 'setEnabled' / 'isEnabled' methods to selectEndpoint return value</li>
-				<li class="bullet">added 'ConnectorZIndex' optional default. use this to get hovered connectors to appear on top of others.</li>
-				<li class="bullet">added 'setVisible'/'isVisible' to both jsPlumb.select and jsPlumb.selectEndpoint return value</li>
-				<li class="bullet">added "connection" as alias to existing "jsPlumbConnection" event. BOTH EVENTS are fired.  So do not register for them both!</li>
-				<li class="bullet">added 'repaint' to return value from jsPlumb.select and jsPlumb.selectEndpoint</li>
-				<li class="bullet">performance enhancements for label rendering</li>
+				<li class="bullet">"Perimeter" anchors. These are anchors that follow the path of the perimeter of some shape; they are designed for use in UIs that have non-rectangular nodes such as flowcharts.</li>
+				<li class="bullet">performance enhancements for rendering</li>
 			</ul>
 
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li class="bullet"><strong>263</strong> - custom labels</li>
-				<li class="bullet"><strong>269</strong> - Image Endpoint remains in DOM if removed quickly enough after creation</li>
-				<li class="bullet"><strong>270</strong> - Connections repainted when setVisible(false) had been called</li>
+				<li class="bullet"><strong>273</strong> - nested endpoint ignored by dragging</li>
+				<li class="bullet"><strong>274</strong> - jsPlumb.connect does not register endpoints with drag manager</li>
 			</ul>
 			
 		</div>
@@ -433,6 +425,8 @@ Now when you drag "container", jsPlumb will have noticed that there are nested e
 				<li class="bullet">'Dynamic' anchors - these are lists of Static anchors from which jsPlumb picks the most appropriate one each time a Connection
 				is painted.  The algorithm used to determine the most appropriate anchor picks the one that is closest to the center of the other element in
 				the Connection. A future version of jsPlumb might support a pluggable algorithm to make this decision.<br/><br/></li>
+				<li class="bullet">'Perimeter' anchors - these are anchors that follow the perimeter of some given shape. They are, in essence, Dynamic
+				anchors whose locations are chosen from the perimeter of the underlying shape.<br/><br/></li>
 				<li class="bullet">'Continuous' anchors - These anchors, introduced in 1.3.4, are not fixed to any specific loction; they are assigned to one of
 				the four faces of an element depending on that element's orientation to the other element in the associated Connection.  Continuous anchors are slightly more computationally intensive than Static or Dynamic anchors because jsPlumb is required to calculate the position of every Connection during a paint cycle, rather than just Connections belonging to the element in motion.  These anchors were designed for use with the StateMachine connector that was also introduced in 1.3.4, but will work with any combination of Connector and Endpoint.<br/><br/></li> 
 			</ul>  
@@ -502,6 +496,61 @@ optimises the connection.  <p>You can see this behaviour in the <a href="../html
 you drag a connection from the blue endpoint on window 1 to the blue endpoint on window 3 - the connection is established and then window 1's blue
 endpoint jumps down to a location that is closer to window 3.</p>
 
+	<h4><a id="perimeterAnchors">Perimeter Anchors</a></h4>	
+These are a form of Dynamic anchor in which the anchor locations are chosen from the perimeter of some given shape. jsPlumb
+supports six shapes:
+
+<ul>
+	<li class="bullet">circle</li>
+	<li class="bullet">ellipse</li>
+	<li class="bullet">triangle</li>
+	<li class="bullet">diamond</li>
+	<li class="bullet">rectangle</li>
+	<li class="bullet">square</li>	
+</ul>
+
+'Rectangle' and 'Square', are not, strictly speaking, necessary, since rectangular shapes are the norm in a web page. But they
+are included for completeness.
+<div class="code">
+<pre>
+jsPlumb.addEndpoint("someElement", {
+	endpoint:"Dot",
+	anchor:[ "Perimeter", { shape:"circle" } ]
+});
+</pre>
+</div>
+
+In this example our anchor will travel around the path inscribed by a circle whose diameter is the width and height of the
+underlying element. Note that the 'circle' shape is therefore identical to 'ellipse', since it is assumed the underlying
+element will have equal width and height, and if it does not, you will get an ellipse. 'rectangle' and 'square' have the
+same relationship.
+<p>By default, jsPlumb approximates the perimeter with 60 anchor locations.  You can change this, though:</p>
+<div class="code">
+<pre>
+jsPlumb.addEndpoint("someDiv", {
+	endpoint:"Dot",
+	anchor:[ "Perimeter", { shape:"square", anchorCount:150 }]
+});
+</pre>		
+</div>
+Obviously, the more points the smoother the operation. But also the more work your browser has to do.
+<p>'triangle' and 'diamond' both assume that there is a point at the top center of the shape. This may or may not turn
+out to be acceptable for all applications, in which case it might be possible to add support for a 'rotation' argument to the
+anchor constructor.</p>
+Here's a triangle and diamond example, just for kicks:
+<div class="code">
+<pre>
+jsPlumb.connect({
+	source:"someDiv",
+	target:"someOtherDiv",
+	endpoint:"Dot",
+	anchors:[
+		[ "Perimeter", { shape:"triangle" } ],
+		[ "Perimeter", { shape:"diamond" } ]
+	]
+});
+</pre>		
+</div>
 
 	<h4><a id="continuousAnchors">Continuous Anchors</a></h4>
 	As discussed above, these are anchors whose positions are calculated by jsPlumb according to the orientation between elements in a Connection, and also how
