@@ -1051,14 +1051,16 @@
 			manually, since this method attaches event listeners and an id.
 		*/
 		_newEndpoint = function(params) {
-			var endpointFunc = _currentInstance.Defaults.EndpointType || Endpoint;
-			params.parent = _getParentFromParams(params);
-			params["_jsPlumb"] = _currentInstance;
-			var ep = new endpointFunc(params);
-			ep.id = "ep_" + _idstamp();
-			_eventFireProxy("click", "endpointClick", ep);
-			_eventFireProxy("dblclick", "endpointDblClick", ep);
-            _eventFireProxy("contextmenu", "contextmenu", ep);
+				var endpointFunc = _currentInstance.Defaults.EndpointType || Endpoint;
+				params.parent = _getParentFromParams(params);
+				params["_jsPlumb"] = _currentInstance;
+				var ep = new endpointFunc(params);
+				ep.id = "ep_" + _idstamp();
+				_eventFireProxy("click", "endpointClick", ep);
+				_eventFireProxy("dblclick", "endpointDblClick", ep);
+				_eventFireProxy("contextmenu", "contextmenu", ep);
+				if (!jsPlumbAdapter.headless)
+					_currentInstance.dragManager.endpointAdded(params.source);
 			return ep;
 		},
 		
@@ -1444,8 +1446,8 @@
 				if (_suspendDrawing) endpointPaintParams.recalc = false;
 				e.paint(endpointPaintParams);
 				results.push(e);
-				if (!jsPlumbAdapter.headless)
-					_currentInstance.dragManager.endpointAdded(_el);
+				//if (!jsPlumbAdapter.headless)
+					//_currentInstance.dragManager.endpointAdded(_el);
 			}
 			
 			return results.length == 1 ? results[0] : results;
@@ -3330,13 +3332,13 @@ between this method and jsPlumb.reset).
 		    if (repaintAfterwards) _currentInstance.repaintEverything();
 		};
         
-        /*
-         * Function: isSuspendDrawing
-         * Returns whether or not drawing is currently suspended.
-        */
-        this.isSuspendDrawing = function() {
-        	return _suspendDrawing;
-        };
+    /*
+		* Function: isSuspendDrawing
+    * Returns whether or not drawing is currently suspended.
+    */
+    this.isSuspendDrawing = function() {
+				return _suspendDrawing;
+    };
 		
 		/*
 		 * Constant for use with the setRenderMode method
@@ -3348,6 +3350,9 @@ between this method and jsPlumb.reset).
 		 */
 		this.SVG = "svg";
 		
+		/*
+		 * Constant for use with the setRenderMode method
+		 */
 		this.VML = "vml";
 		
 		/*
@@ -3359,22 +3364,7 @@ between this method and jsPlumb.reset).
 		 * Returns:
 		 * the render mode that jsPlumb set, which of course may be different from that requested.
 		 */
-		this.setRenderMode = function(mode) {
-			/*if (mode) 
-				mode = mode.toLowerCase();
-			else 
-				return;
-			if (mode !== jsPlumb.CANVAS && mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new Error("render mode must be one of jsPlumb.CANVAS, jsPlumb.SVG or jsPlumb.VML");
-			// now test we actually have the capability to do this.						
-			if (mode === jsPlumb.SVG) {
-				if (svgAvailable) renderMode = jsPlumb.SVG
-				else if (canvasAvailable) renderMode = jsPlumb.CANVAS
-				else if (vmlAvailable()) renderMode = jsPlumb.VML
-			}
-			else if (mode === jsPlumb.CANVAS && canvasAvailable) renderMode = jsPlumb.CANVAS;
-			else if (vmlAvailable()) renderMode = jsPlumb.VML;
-
-			return renderMode;*/
+		this.setRenderMode = function(mode) {			
 			renderMode = jsPlumbAdapter.setRenderMode(mode);
 			return renderMode;
 		};
@@ -4543,43 +4533,53 @@ between this method and jsPlumb.reset).
 			 *  recalc - whether or not to recalculate all anchors etc before painting. 
 			 *  timestamp - timestamp of this paint.  If the Connection was last painted with the same timestamp, it does not paint again.
 			 */
+			var lastPaintedAt = null;
 			this.paint = function(params) {
+				
 				if (visible) {
-					params = params || {};
-					var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
-					// if the moving object is not the source we must transpose the two references.
-					swap = false,
-					tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
-					tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
+						params = params || {};
+						var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
+								// if the moving object is not the source we must transpose the two references.
+								swap = false,
+								tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
+								tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 	
-					var sourceInfo = _updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }),
-						targetInfo = _updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
-					
-					var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx],
-						sAnchorP = sE.anchor.getCurrentLocation(sE),				
-						tAnchorP = tE.anchor.getCurrentLocation(tE);
-	
-					/* paint overlays*/
-					var maxSize = 0;
-					for ( var i = 0; i < self.overlays.length; i++) {
-						var o = self.overlays[i];
-						if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize());
-					}
-	
-					var dim = this.connector.compute(sAnchorP, tAnchorP, 
-					this.endpoints[sIdx], this.endpoints[tIdx],
-					this.endpoints[sIdx].anchor, this.endpoints[tIdx].anchor, 
-					self.paintStyleInUse.lineWidth, maxSize,
-					sourceInfo,
-					targetInfo);
-					
-					self.connector.paint(dim, self.paintStyleInUse);
-	
-					/* paint overlays*/
-					for ( var i = 0; i < self.overlays.length; i++) {
-						var o = self.overlays[i];
-						if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
-					}
+					//	if (timestamp == null || timestamp != lastPaintedAt) {								
+								var sourceInfo = _updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }),
+										targetInfo = _updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
+							
+								var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx],
+										sAnchorP = sE.anchor.getCurrentLocation(sE),				
+										tAnchorP = tE.anchor.getCurrentLocation(tE);
+			
+								/* paint overlays*/
+								var maxSize = 0;
+								for ( var i = 0; i < self.overlays.length; i++) {
+										var o = self.overlays[i];
+										if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize());
+								}
+			
+								var dim = this.connector.compute(
+														sAnchorP,
+														tAnchorP, 
+														this.endpoints[sIdx],
+														this.endpoints[tIdx],
+														this.endpoints[sIdx].anchor,
+														this.endpoints[tIdx].anchor, 
+														self.paintStyleInUse.lineWidth,
+														maxSize,
+														sourceInfo,
+														targetInfo );
+							
+								self.connector.paint(dim, self.paintStyleInUse);
+			
+								/* paint overlays*/
+								for ( var i = 0; i < self.overlays.length; i++) {
+										var o = self.overlays[i];
+										if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);
+								}
+						//}
+						//lastPaintedAt = timestamp;
 				}
 			};			
 
@@ -4779,39 +4779,35 @@ between this method and jsPlumb.reset).
 		
 // ENDPOINT HELPER FUNCTIONS
 		var _makeConnectionDragHandler = function(placeholder) {
-            var stopped = false;
-			return {
-
-				drag : function() {
-                	if (stopped) {
+				var stopped = false;
+				return {
+						drag : function() {
+								if (stopped) {
                 		stopped = false;
 	                	return true;
-	                }
-					var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments),
-					el = placeholder.element;
-                	if (el) {
-				    	jsPlumb.CurrentLibrary.setOffset(el, _ui);
-				    	_draw(_getElementObject(el), _ui);
-                	}
-                },
-                stopDrag : function() {
-                    stopped = true;
+	              }
+								var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments),
+								el = placeholder.element;
+                if (el) {
+										jsPlumb.CurrentLibrary.setOffset(el, _ui);
+										_draw(_getElementObject(el), _ui);
                 }
-			};
+            },
+            stopDrag : function() {
+                stopped = true;
+            }
+				};
 		};		
 		
 		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
-			var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
-
-            //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
-            // adding the floating endpoint as a droppable.  that makes more sense anyway!
-            
-			return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
+				var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
+        //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
+        // adding the floating endpoint as a droppable.  that makes more sense anyway!
+        return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
 		};
 		
 		/**
-		 * creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset. then returns
-		 * both the element id and a selector for the element.
+		 * creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.
 		 */
 		var _makeDraggablePlaceholder = function(placeholder, parent) {
 			var n = document.createElement("div");
@@ -4973,8 +4969,8 @@ between this method and jsPlumb.reset).
 			var _connectionsBidirectional = params.connectionsBidirectional === false ? false : true;
 			this.areConnectionsBidirectional = function() { return _connectionsBidirectional; };
 			this.setConnectionsBidirectional = function(b) { _connectionsBidirectional = b; };
-			
-			self.anchor = params.anchor ? _currentInstance.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? _currentInstance.makeAnchor(params.anchors, _elementId, _currentInstance) : _currentInstance.makeAnchor("TopCenter", _elementId, _currentInstance);
+						
+			self.anchor = params.anchor ? _currentInstance.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? _currentInstance.makeAnchor(params.anchors, _elementId, _currentInstance) : _currentInstance.makeAnchor(_currentInstance.Defaults.Anchor || "TopCenter", _elementId, _currentInstance);
 				
 			// ANCHOR MANAGER
 			if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
@@ -5370,10 +5366,9 @@ between this method and jsPlumb.reset).
 			 */
 			this.paint = function(params) {
 				params = params || {};
-				var timestamp = params.timestamp,
-                //    recalc = !(params.recalc === false);
-								recalc = params.recalc;
-				if (!timestamp || self.timestamp !== timestamp) {			
+				var timestamp = params.timestamp, recalc = !(params.recalc === false);
+								//recalc = params.recalc;
+				if (!timestamp || self.timestamp !== timestamp) {						
 					_updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
 					var xy = params.offset || offsets[_elementId];
 					if(xy) {
