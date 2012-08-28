@@ -106,9 +106,9 @@
             $("#numConnections").html(connCount);
             $("#totalCreateTime").html((t-st) + (t2-st2));
             $("#createTime").html(t-st);
-            $("#averageCreateTime").html(time/connCount);
+            $("#averageCreateTime").html((t-st)/connCount);
             $("#repaintTime").html(t2-st2);
-
+            $("#averageRepaintTime").html((t2-st2)/connCount);
             
         }
     };
