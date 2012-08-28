@@ -18,72 +18,68 @@
  */
 ;(function() {
     
-    var canvasAvailable = !!document.createElement('canvas').getContext,
+		var canvasAvailable = !!document.createElement('canvas').getContext,
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
 		vmlAvailable = function() {		    
-			if(vmlAvailable.vml == undefined) { 
-				var a = document.body.appendChild(document.createElement('div'));
+				if (vmlAvailable.vml == undefined) { 
+						var a = document.body.appendChild(document.createElement('div'));
 		        a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
 		        var b = a.firstChild;
 		        b.style.behavior = "url(#default#VML)";
 		        vmlAvailable.vml = b ? typeof b.adj == "object": true;
 		        a.parentNode.removeChild(a);
-			}
-			return vmlAvailable.vml;
+				}
+				return vmlAvailable.vml;
 		};
         
     /**
-		Manages dragging for some instance of jsPlumb.
-		
-		TODO move to DOM adapter
-
-	*/
-	var DragManager = function(_currentInstance) {
-		
-		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {};
-
-		/**
-			register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
-			possible that will continue to be the case.
+				Manages dragging for some instance of jsPlumb.
 		*/
-		this.register = function(el) {
-			var jpcl = jsPlumb.CurrentLibrary;
-			el = jpcl.getElementObject(el);
-			var id = _currentInstance.getId(el),
-				domEl = jpcl.getDOMElement(el);
-			if (!_draggables[id]) {
-				_draggables[id] = el;
-				_dlist.push(el);
-				_delements[id] = {};
-			}
-				
-			// look for child elements that have endpoints and register them against this draggable.
-			var _oneLevel = function(p) {
-				if (p) {
-					var pEl = jpcl.getElementObject(p),
-						pOff = jpcl.getOffset(pEl);
-	
-					for (var i = 0; i < p.childNodes.length; i++) {
-						if (p.childNodes[i].nodeType != 3) {
-							var cEl = jpcl.getElementObject(p.childNodes[i]),
-								cid = _currentInstance.getId(cEl, null, true);
-							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-								var cOff = jpcl.getOffset(cEl);
-								_delements[id][cid] = {
-									id:cid,
-									offset:{
-										left:cOff.left - pOff.left,
-										top:cOff.top - pOff.top
-									}
-								};
-							}
-						}	
-					}
-				}
-			};
+		var DragManager = function(_currentInstance) {		
+				var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {};
 
-			_oneLevel(domEl);
+				/**
+					register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
+					possible that will continue to be the case.
+				*/
+				this.register = function(el) {
+						var jpcl = jsPlumb.CurrentLibrary;
+						el = jpcl.getElementObject(el);
+						var id = _currentInstance.getId(el),
+								domEl = jpcl.getDOMElement(el),
+								parentOffset = jpcl.getOffset(el);
+								
+						if (!_draggables[id]) {
+								_draggables[id] = el;
+								_dlist.push(el);
+								_delements[id] = {};
+						}
+				
+				// look for child elements that have endpoints and register them against this draggable.
+				var _oneLevel = function(p, startOffset) {
+						if (p) {											
+								for (var i = 0; i < p.childNodes.length; i++) {
+										if (p.childNodes[i].nodeType != 3) {
+												var cEl = jpcl.getElementObject(p.childNodes[i]),
+														cid = _currentInstance.getId(cEl, null, true);
+												if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+														var cOff = jpcl.getOffset(cEl);
+														_delements[id][cid] = {
+																id:cid,
+																offset:{
+																		left:cOff.left - parentOffset.left,
+																		top:cOff.top - parentOffset.top
+																}
+														};
+												}
+												_oneLevel(p.childNodes[i]);
+										}	
+								}
+						}
+				};
+
+				_oneLevel(domEl);
 		};
 
 		/**
