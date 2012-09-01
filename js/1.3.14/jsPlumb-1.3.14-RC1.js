@@ -3115,10 +3115,9 @@ between this method and jsPlumb.reset).
 		  See Also: 
 		  	<repaint>
 		 */
-		this.repaintEverything = function() {
-				var timestamp = _timestamp();
+		this.repaintEverything = function() {				
 				for ( var elId in endpointsByElement) {
-						_draw(_getElementObject(elId), null, timestamp);
+						_draw(_getElementObject(elId));
 				}
 		};
 
@@ -6121,9 +6120,10 @@ between this method and jsPlumb.reset).
 						}
 						return a;	
 				},
-				_shape = function(faces) {						
-						var anchorsPerFace = anchorCount / faces.length, a = [],
-								_computeFace = function(x1, y1, x2, y2) {
+        _path = function(segments) {
+            var anchorsPerFace = anchorCount / segments.length, a = [],
+								_computeFace = function(x1, y1, x2, y2, fractionalLength) {
+                    anchorsPerFace = anchorCount * fractionalLength;
 										var dx = (x2 - x1) / anchorsPerFace, dy = (y2 - y1) / anchorsPerFace;
 										for (var i = 0; i < anchorsPerFace; i++) {
 												a.push( [
@@ -6135,10 +6135,17 @@ between this method and jsPlumb.reset).
 										}
 								};
 								
-						for (var i = 0; i < faces.length; i++)
-								_computeFace.apply(null, faces[i]);
+						for (var i = 0; i < segments.length; i++)
+								_computeFace.apply(null, segments[i]);
 														
 						return a;					
+        },
+				_shape = function(faces) {												
+            var s = [];
+            for (var i = 0; i < faces.length; i++) {
+                s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length]);
+            }
+            return _path(s);
 				},
 				_rectangle = function() {
 						return _shape([
@@ -6160,20 +6167,26 @@ between this method and jsPlumb.reset).
 				return _shape([
 						[ 0.5, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0.5, 0]
 				]);	
-			}/*,
-			"path":function(points) {
-				var p = [];
+			},
+			"path":function(params) {
+        var points = params.points;
+				var p = [], tl = 0;
 				for (var i = 0; i < points.length - 1; i++) {
-						p.push([points[i][0], points[i][1], points[i+1][0], points[i+1][1]]);						
+            var l = Math.sqrt(Math.pow(points[i][2] - points[i][0]) + Math.pow(points[i][3] - points[i][1]));
+            tl += l;
+						p.push([points[i][0], points[i][1], points[i+1][0], points[i+1][1], l]);						
 				}
-				return _shape(p);
-			}*/
+        for (var i = 0; i < p.length; i++) {
+            p[i][4] = p[i][4] / tl;
+        }
+				return _path(p);
+			}
 		};
 		
 		if (!_shapes[shape]) throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
 		
-		var da = _shapes[shape](),
-			a = params.jsPlumbInstance.makeDynamicAnchor(da);
+		var da = _shapes[shape](params),
+        a = params.jsPlumbInstance.makeDynamicAnchor(da);
 		a.type = "Perimeter";
 		return a;
 	};
