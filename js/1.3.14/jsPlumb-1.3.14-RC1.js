@@ -706,35 +706,27 @@
 		_currentInstance.restoreDefaults = function() {
 			_currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
 		};
-
-		var log = null,
-		repaintFunction = function() {
-			jsPlumb.repaintEverything();
-		},
-		automaticRepaint = true,
-		repaintEverything = function() {
-			if (automaticRepaint)
-				repaintFunction();
-		},
-		resizeTimer = null,
-		initialized = false,
-		connectionsByScope = {},
-		/**
-		 * map of element id -> endpoint lists. an element can have an arbitrary
-		 * number of endpoints on it, and not all of them have to be connected
-		 * to anything.
-		 */
-		endpointsByElement = {},
-		endpointsByUUID = {},
-		offsets = {},
-		offsetTimestamps = {},
-		floatingConnections = {},
-		draggableStates = {},		
-		canvasList = [],
-		sizes = [],
-		//listeners = {}, // a map: keys are event types, values are lists of listeners.
-		DEFAULT_SCOPE = this.Defaults.Scope,
-		renderMode = null,  // will be set in init()							
+		
+    var log = null,
+        resizeTimer = null,
+        initialized = false,
+        connectionsByScope = {},
+        /**
+         * map of element id -> endpoint lists. an element can have an arbitrary
+         * number of endpoints on it, and not all of them have to be connected
+         * to anything.
+         */
+        endpointsByElement = {},
+        endpointsByUUID = {},
+        offsets = {},
+        offsetTimestamps = {},
+        floatingConnections = {},
+        draggableStates = {},		
+        canvasList = [],
+        sizes = [],
+        //listeners = {}, // a map: keys are event types, values are lists of listeners.
+        DEFAULT_SCOPE = this.Defaults.Scope,
+        renderMode = null,  // will be set in init()							
 
 		/**
 		 * helper method to add an item to a list, creating the list if it does
@@ -3093,15 +3085,12 @@ between this method and jsPlumb.reset).
 		  	<repaintEverything>
 		 */
 		this.repaint = function(el, ui, timestamp) {
-			//var _processElement = function(el) { _draw(_getElementObject(el)); };
 			// support both lists...
 			if (typeof el == 'object')
-				for ( var i = 0; i < el.length; i++) {
-					//_processElement(el[i]);
+				for ( var i = 0; i < el.length; i++) {			
 					_draw(_getElementObject(el[i]), ui, timestamp);
 				}
-			else // ...and single strings.
-				//_processElement(el);
+			else // ...and single strings.				
 				_draw(_getElementObject(el), ui, timestamp);
 		};
 
@@ -3158,16 +3147,16 @@ between this method and jsPlumb.reset).
 			_currentInstance.deleteEndpoint(endpoint);
 		};
 
-        var _registeredListeners = {},
-            _unbindRegisteredListeners = function() {
-                for (var i in _registeredListeners) {
-                    for (var j = 0; j < _registeredListeners[i].length; j++) {
-                        var info = _registeredListeners[i][j];
-                        jsPlumb.CurrentLibrary.unbind(info.el, info.event, info.listener);
-                    }
+    var _registeredListeners = {},
+        _unbindRegisteredListeners = function() {
+            for (var i in _registeredListeners) {
+                for (var j = 0; j < _registeredListeners[i].length; j++) {
+                    var info = _registeredListeners[i][j];
+                    jsPlumb.CurrentLibrary.unbind(info.el, info.event, info.listener);
                 }
-                _registeredListeners = {};
-            };
+            }
+            _registeredListeners = {};
+        };
 
         // internal register listener method.  gives us a hook to clean things up
         // with if the user calls jsPlumb.reset.
@@ -3188,35 +3177,22 @@ between this method and jsPlumb.reset).
 		  Removes all endpoints and connections and clears the listener list. To keep listeners call jsPlumb.deleteEveryEndpoint instead of this.
 		 */
 		this.reset = function() {			
-			_currentInstance.deleteEveryEndpoint();
-			_currentInstance.unbind();
-			_targetEndpointDefinitions = {};
-			_targetEndpoints = {};
-			_targetEndpointsUnique = {};
-			_targetMaxConnections = {};
-			_sourceEndpointDefinitions = {};
-			_sourceEndpoints = {};
-			_sourceEndpointsUnique = {};
-			_sourceMaxConnections = {};
-            _unbindRegisteredListeners();
-            _currentInstance.anchorManager.reset();
-			if (!jsPlumbAdapter.headless)
-				_currentInstance.dragManager.reset();
+        _currentInstance.deleteEveryEndpoint();
+        _currentInstance.unbind();
+        _targetEndpointDefinitions = {};
+        _targetEndpoints = {};
+        _targetEndpointsUnique = {};
+        _targetMaxConnections = {};
+        _sourceEndpointDefinitions = {};
+        _sourceEndpoints = {};
+        _sourceEndpointsUnique = {};
+        _sourceMaxConnections = {};
+        _unbindRegisteredListeners();
+        _currentInstance.anchorManager.reset();
+        if (!jsPlumbAdapter.headless)
+            _currentInstance.dragManager.reset();
 		};
-
-		/*
-		  Function: setAutomaticRepaint 
-		  Sets/unsets automatic repaint on window resize.
-		   
-		  Parameters: 
-		  	value - whether or not to automatically repaint when the window is resized.
-		  	 
-		  Returns: void
-		 *
-		this.setAutomaticRepaint = function(value) {
-			automaticRepaint = value;
-		};*/
-
+		
 		/*
 		 * Function: setDefaultScope 
 		 * Sets the default scope for Connections and Endpoints. A scope defines a type of Endpoint/Connection; supplying a
@@ -3304,20 +3280,7 @@ between this method and jsPlumb.reset).
 			log = debugLog;
 		};
 
-		/*
-		 * Function: setRepaintFunction 
-		 * 	Sets the function to fire when the window size has changed and a repaint was fired. 
-		 * 
-		 * Parameters: 
-		 * 	f - Function to execute.
-		 *  
-		 * Returns: void
-		 */
-		this.setRepaintFunction = function(f) {
-			repaintFunction = f;
-		};				
-
-
+		
 		var _suspendDrawing = false,
 				_suspendedAt = null;
 		/*
