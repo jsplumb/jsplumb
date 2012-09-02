@@ -39,21 +39,24 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 		</div>
 		
 		<div class="section">		
-			<h3><a id="changes">Changes between 1.3.14 and 1.3.12</a></h3>
+			<h3><a id="changes">Changes between 1.3.14 and 1.3.13</a></h3>
+			
+			The main reason for the 1.3.14 release was to back out some over-zealous performance enhancements that were added to
+			1.3.13, affecting certain usages of the repaintEverything function.
 			
 			<h5>Backwards Compatibility</h5>
-			No issues.
+			<ul>
+				<li class="bullet">setRepaintFunction method removed from jsPlumb</li>
+			</ul>
 			
 			<h5>New Features</h5>
 			<ul>
-				<li class="bullet">"Perimeter" anchors. These are anchors that follow the path of the perimeter of some shape; they are designed for use in UIs that have non-rectangular nodes such as flowcharts.</li>
-				<li class="bullet">performance enhancements for rendering</li>
+				
 			</ul>
 
 			<h5>Issues Resolved</h5>
 			<ul>
-				<li class="bullet"><strong>273</strong> - nested endpoint ignored by dragging</li>
-				<li class="bullet"><strong>274</strong> - jsPlumb.connect does not register endpoints with drag manager</li>
+				
 			</ul>
 			
 		</div>
@@ -1888,7 +1891,10 @@ supported properties in Connection Type objects:
 	<li class="bullet"><strong>hoverPaintStyle</strong></li>
 	<li class="bullet"><strong>scope</strong> - remember, Connections support a single scope. So if you have multiple types applied, you will get the scope from the last type that defines one.</li>
 	<li class="bullet"><strong>parameters</strong> - when you add/set a type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a type that has parameters, its parameters are NOT removed from the Connection.</li>
-	<li class="bullet"><strong>overlays</strong> - when you have multiple types applied to a Connection, you get the union of all the Overlays defined across the various types.</li>	
+	<li class="bullet"><strong>overlays</strong> - when you have multiple types applied to a Connection, you get the union of
+	all the Overlays defined across the various types. <strong>Note</strong> when you create a Connection using jsPlumb.connect and you
+	provide a 'type', that is equivalent to calling 'setType': any Overlays you provide to the connect method are discarded
+	and your Connection ends up with only the Overlays defined by the type(s) you set.</li>	
 </ul>
 
 <h4><a id="endpointTypes">Endpoint Type</a></h4>
