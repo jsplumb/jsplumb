@@ -157,6 +157,20 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(e, 'endpoint exists');
 	});
 	
+	test(renderMode + ': draggable in nested element does not cause extra ids to be created', function() {
+	  var d = _addDiv("d1");
+	  var d2 = document.createElement("div");
+	  d2.setAttribute("foo", "ff");
+	  d.append(d2);
+	  var d3 = document.createElement("div");
+	  d2.appendChild(d3);
+	  ok(d2.getAttribute("id") == null, "no id on d2");
+	  _jsPlumb.draggable(d);
+	  _jsPlumb.addEndpoint(d3);
+	  ok(d2.getAttribute("id") == null, "no id on d2");
+	  ok(d3.getAttribute("id") != null, "id on d3");
+	});
+	
 	test(renderMode + ': defaultEndpointMaxConnections', function() {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		var e3 = _jsPlumb.addEndpoint(d3, {isSource:true});
@@ -4675,6 +4689,16 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equals(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
 		equals(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
 		equal(c.connector.type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
+	});
+	
+	test(renderMode + " endpoint type", function() {
+		_jsPlumb.registerEndpointTypes({"example": {hoverPaintStyle: null}});	
+		//OR
+		//jsPlumb.registerEndpointType("example", {hoverPaintStyle: null});
+
+		var d = _addDiv("d");
+		_jsPlumb.addEndpoint(d, {type: "example"});
+		_jsPlumb.repaint(d);
 	});
 	
 	/*
