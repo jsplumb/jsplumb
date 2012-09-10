@@ -27,8 +27,8 @@
 						// here we supply a different anchor for source and for target, and we get the element's "data-shape"
 						// attribute to tell us what shape we should use.
 						anchors:[
-							[ "Perimeter", { shape:shapes[i].getAttribute("data-shape") }],
-							[ "Perimeter", { shape:shapes[j].getAttribute( "data-shape") }]
+							[ "Perimeter", { shape:shapes[i].getAttribute("data-shape"), rotation:shapes[i].getAttribute("data-rotation") }],
+							[ "Perimeter", { shape:shapes[j].getAttribute( "data-shape"), rotation:shapes[i].getAttribute("data-rotation") }]
 						]
 					});				
 				}	

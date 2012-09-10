@@ -25,10 +25,10 @@
 						source:shapes[i],  // just pass in the current node in the selector for source 
 						target:shapes[j],
 						// here we supply a different anchor for source and for target, and we get the element's "data-shape"
-						// attribute to tell us what shape we should use.
+						// attribute to tell us what shape we should use, as well as, optionally, a rotation value.
 						anchors:[
-							[ "Perimeter", { shape:$(shapes[i]).attr("data-shape") }],
-							[ "Perimeter", { shape:$(shapes[j]).attr( "data-shape") }]
+							[ "Perimeter", { shape:$(shapes[i]).attr("data-shape"), rotation:$(shapes[i]).attr("data-rotation") }],
+							[ "Perimeter", { shape:$(shapes[j]).attr( "data-shape"), rotation:$(shapes[j]).attr("data-rotation") }]
 						]
 					});				
 				}	
