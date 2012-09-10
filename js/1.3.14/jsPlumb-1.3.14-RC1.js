@@ -3124,9 +3124,9 @@ between this method and jsPlumb.reset).
 		  	<repaint>
 		 */
 		this.repaintEverything = function() {				
-				for ( var elId in endpointsByElement) {
-						_draw(_getElementObject(elId));
-				}
+			for ( var elId in endpointsByElement) {
+				_draw(_getElementObject(elId));
+			}
 		};
 
 		/*
@@ -3445,19 +3445,7 @@ between this method and jsPlumb.reset).
 		 * Returns: 
 		 * 	The current draggable state.
 		 */
-		this.toggleDraggable = _toggleDraggable;
-
-		/*
-		 * Function: unload 
-		 * Unloads jsPlumb, deleting all storage. You should call this from an onunload attribute on the <body> element. 
-		 * 
-		 * Returns:
-		 * 	void
-		 */
-		this.unload = function() {
-			// this used to do something, but it turns out that what it did was nothing.
-			// now it exists only for backwards compatibility.
-		};
+		this.toggleDraggable = _toggleDraggable;		
 
 		/*
 		 * Helper method to wrap an existing function with one of
