@@ -34,52 +34,52 @@
 		};
         
     /**
-				Manages dragging for some instance of jsPlumb.
-		*/
-		var DragManager = function(_currentInstance) {		
-				var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {};
+		Manages dragging for some instance of jsPlumb.
+	*/
+	var DragManager = function(_currentInstance) {		
+		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {};
 
-				/**
-					register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
-					possible that will continue to be the case.
-				*/
-				this.register = function(el) {
-						var jpcl = jsPlumb.CurrentLibrary;
-						el = jpcl.getElementObject(el);
-						var id = _currentInstance.getId(el),
-								domEl = jpcl.getDOMElement(el),
-								parentOffset = jpcl.getOffset(el);
-								
-						if (!_draggables[id]) {
-								_draggables[id] = el;
-								_dlist.push(el);
-								_delements[id] = {};
-						}
+        /**
+            register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
+            possible that will continue to be the case.
+        */
+		this.register = function(el) {
+            var jpcl = jsPlumb.CurrentLibrary;
+            el = jpcl.getElementObject(el);
+            var id = _currentInstance.getId(el),
+                domEl = jpcl.getDOMElement(el),
+                parentOffset = jpcl.getOffset(el);
+                    
+            if (!_draggables[id]) {
+                _draggables[id] = el;
+                _dlist.push(el);
+                _delements[id] = {};
+            }
 				
-				// look for child elements that have endpoints and register them against this draggable.
-				var _oneLevel = function(p, startOffset) {
-						if (p) {											
-								for (var i = 0; i < p.childNodes.length; i++) {
-										if (p.childNodes[i].nodeType != 3) {
-												var cEl = jpcl.getElementObject(p.childNodes[i]),
-														cid = _currentInstance.getId(cEl, null, true);
-												if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-														var cOff = jpcl.getOffset(cEl);
-														_delements[id][cid] = {
-																id:cid,
-																offset:{
-																		left:cOff.left - parentOffset.left,
-																		top:cOff.top - parentOffset.top
-																}
-														};
-												}
-												_oneLevel(p.childNodes[i]);
-										}	
-								}
-						}
-				};
+			// look for child elements that have endpoints and register them against this draggable.
+			var _oneLevel = function(p, startOffset) {
+                if (p) {											
+                    for (var i = 0; i < p.childNodes.length; i++) {
+                        if (p.childNodes[i].nodeType != 3) {
+                            var cEl = jpcl.getElementObject(p.childNodes[i]),
+                                cid = _currentInstance.getId(cEl, null, true);
+                            if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+                                var cOff = jpcl.getOffset(cEl);
+                                _delements[id][cid] = {
+                                    id:cid,
+                                    offset:{
+                                        left:cOff.left - parentOffset.left,
+                                        top:cOff.top - parentOffset.top
+                                    }
+                                };
+                            }
+                            _oneLevel(p.childNodes[i]);
+                        }	
+                    }
+                }
+			};
 
-				_oneLevel(domEl);
+			_oneLevel(domEl);
 		};
 
 		/**
@@ -94,8 +94,8 @@
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
 
 			while (p != b) {
-				var pid = _currentInstance.getId(p);
-				if (_draggables[pid]) {
+				var pid = _currentInstance.getId(p, null, true);
+				if (pid && _draggables[pid]) {
 					var idx = -1, pEl = jpcl.getElementObject(p), pLoc = jpcl.getOffset(pEl);
 					
 					if (_delements[pid][id] == null) {
