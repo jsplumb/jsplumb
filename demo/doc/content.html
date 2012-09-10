@@ -12,13 +12,6 @@
 	&nbsp;|&nbsp;<a href="http://jsplumb.tumblr.com" class="mplink">jsPlumb on Tumblr</a>	
 </div>
 
-<!--
-GWT
-
-http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?spref=tw
-
--->
-
 <div class="content">
 		<div class="section">
 			<h3><a id="summary">Summary</a></h3>
@@ -47,16 +40,23 @@ http://fishfilosophy.blogspot.com/2011/12/how-to-connect-gwt-widgets-using.html?
 			<h5>Backwards Compatibility</h5>
 			<ul>
 				<li class="bullet">setRepaintFunction method removed from jsPlumb</li>
+				<li class="bullet">unload method removed from jsPlumb</li>
+				<li class="bullet">when providing a type to a constructor, what used to be an implicit setType call is now an addType call. it used to be that
+		the type would remove any additional overlays you supplied with the constructor, because that's what setType does. but
+		it was pointed out to me that addType was perhaps a little more accomodating.</li>
 			</ul>
 			
 			<h5>New Features</h5>
 			<ul>
-				
+			  <li class="bullet">Perimeter anchors now support optional 'rotation' parameter</li>	
 			</ul>
 
-			<h5>Issues Resolved</h5>
+			<h5>Miscellaneous</h5>
 			<ul>
-				
+				<li class="bullet">This release sees the removal of some overzealous performance enhancements added to 1.3.13, which affected particular
+		usages of the repaintEverything function. Their removal does not seem to have unduly affected performance though.</li>
+		
+			  <li class="bullet">fix for nested draggables causing extra ids to be added throughout the DOM</li>
 			</ul>
 			
 		</div>
@@ -554,6 +554,23 @@ jsPlumb.connect({
 });
 </pre>		
 </div>
+<h5>Perimeter Anchor Rotation</h5>
+You can supply a 'rotation' value to a Perimeter anchor - an example can be seen in <a href="../jquery/perimeterAnchorsDemo.html" target="_blank">this demo</a>. Here's how you would use it:
+<div class="code">
+<pre>
+jsPlumb.connect({
+	source:"someDiv",
+	target:"someOtherDiv",
+	endpoint:"Dot",
+	anchors:[
+		[ "Perimeter", { shape:"triangle", rotation:25 } ],
+		[ "Perimeter", { shape:"triangle", rotation:-335 } ]
+	]
+});  
+</pre>
+</div>
+
+Note that the value must be supplied <strong>in degrees</strong>, not radians, and the number may be either positive or negative. In the example above, both triangles are of course rotated by the same amount.
 
 	<h4><a id="continuousAnchors">Continuous Anchors</a></h4>
 	As discussed above, these are anchors whose positions are calculated by jsPlumb according to the orientation between elements in a Connection, and also how
@@ -1758,7 +1775,7 @@ console.log(params.p5);   	// 343
 <div class="section">
 	<h3><a id="connectionTypes">Connection and Endpoint Type</a></h3>
 	<p>
-	From version 1.3.14 onwards, jsPlumb supports the notion of "type" for both Connections and Endpoints. A type is a
+	jsPlumb supports the notion of "type" for both Connections and Endpoints. A type is a
 	collection of attributes such as paint style, hover paint style, overlays etc - it is a subset, including most but not all, of the
 	parameters you can set in an Endpoint or Connection definition. 
 	</p>
@@ -1808,7 +1825,7 @@ c.bind("click", function() {
 </pre>		
 </div>
 <p>Notice here how we used a different method - <strong>registerConnectionTypes</strong> - to register a few types at once.
-Notice also the hoverPaintStyle for the 'selected' type: it declares only a lineWidth.  As I mentioned above, types are
+Notice also the hoverPaintStyle for the 'selected' type: it declares only a lineWidth.  As mentioned above, types are
 merged with as much granularity as possible, so that means that in this case the lineWidth from 'selected' will be merged
 into the hoverPaintStyle from 'basic', and voila, red, 7 pixels.</p>
 <p>These examples, of course, use the <strong>jsPlumb.connect</strong> method, but in many UIs Connections are created
@@ -1893,8 +1910,8 @@ supported properties in Connection Type objects:
 	<li class="bullet"><strong>parameters</strong> - when you add/set a type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a type that has parameters, its parameters are NOT removed from the Connection.</li>
 	<li class="bullet"><strong>overlays</strong> - when you have multiple types applied to a Connection, you get the union of
 	all the Overlays defined across the various types. <strong>Note</strong> when you create a Connection using jsPlumb.connect and you
-	provide a 'type', that is equivalent to calling 'setType': any Overlays you provide to the connect method are discarded
-	and your Connection ends up with only the Overlays defined by the type(s) you set.</li>	
+	provide a 'type', that is equivalent to calling 'addType': you will get the Overlays defined by the type(s) you set as
+	well as any others you have provided to the constructor.</li>	
 </ul>
 
 <h4><a id="endpointTypes">Endpoint Type</a></h4>
