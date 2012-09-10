@@ -4,6 +4,8 @@
 		
 		- setRepaintFunction method removed from jsPlumb
 		
+		- unload function removed. it was pointless.
+		
 		- when providing a type to a constructor, what used to be an implicit setType call is now an addType call. it used to be that
 		the type would remove any additional overlays you supplied with the constructor, because that's what setType does. but
 		it was pointed out to me that addType was perhaps a little more accomodating.
