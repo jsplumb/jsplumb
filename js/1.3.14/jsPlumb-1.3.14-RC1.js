@@ -6085,6 +6085,12 @@ between this method and jsPlumb.reset).
 	 * Property: Anchors.Perimeter
 	 * An Anchor that tracks the perimeter of some shape, approximating it with a given number of dynamically
 	 * positioned locations.
+	 *
+	 * Parameters:
+	 *
+	 * anchorCount  -   optional number of anchors to use to approximate the perimeter. default is 60.
+	 * shape        -   required. the name of the shape. valid values are 'rectangle', 'square', 'ellipse', 'circle', 'triangle' and 'diamond'
+	 * rotation     -   optional rotation, in degrees, to apply. 
 	 */
 	jsPlumb.Anchors["Perimeter"] = function(params) {
 		params = params || {};
@@ -6094,47 +6100,47 @@ between this method and jsPlumb.reset).
 		if (!shape) throw new Error("no shape supplied to Perimeter Anchor type");		
 		
 		var _circle = function() {
-						var r = 0.5, step = Math.PI * 2 / anchorCount, current = 0, a = [];
-						for (var i = 0; i < anchorCount; i++) {
-							var x = r + (r * Math.sin(current)),
-								y = r + (r * Math.cos(current));                                
-							a.push( [ x, y, 0, 0 ] );
-							current += step;
-						}
-						return a;	
-				},
-        _path = function(segments) {
-            var anchorsPerFace = anchorCount / segments.length, a = [],
-								_computeFace = function(x1, y1, x2, y2, fractionalLength) {
-                    anchorsPerFace = anchorCount * fractionalLength;
-										var dx = (x2 - x1) / anchorsPerFace, dy = (y2 - y1) / anchorsPerFace;
-										for (var i = 0; i < anchorsPerFace; i++) {
-												a.push( [
-														x1 + (dx * i),
-														y1 + (dy * i),
-														0,
-														0
-												]);
-										}
-								};
+                var r = 0.5, step = Math.PI * 2 / anchorCount, current = 0, a = [];
+                for (var i = 0; i < anchorCount; i++) {
+                    var x = r + (r * Math.sin(current)),
+                        y = r + (r * Math.cos(current));                                
+                    a.push( [ x, y, 0, 0 ] );
+                    current += step;
+                }
+                return a;	
+            },
+            _path = function(segments) {
+                var anchorsPerFace = anchorCount / segments.length, a = [],
+                    _computeFace = function(x1, y1, x2, y2, fractionalLength) {
+                        anchorsPerFace = anchorCount * fractionalLength;
+                        var dx = (x2 - x1) / anchorsPerFace, dy = (y2 - y1) / anchorsPerFace;
+                        for (var i = 0; i < anchorsPerFace; i++) {
+                            a.push( [
+                                x1 + (dx * i),
+                                y1 + (dy * i),
+                                0,
+                                0
+                            ]);
+                        }
+                    };
 								
-						for (var i = 0; i < segments.length; i++)
-								_computeFace.apply(null, segments[i]);
+                for (var i = 0; i < segments.length; i++)
+                    _computeFace.apply(null, segments[i]);
 														
-						return a;					
-        },
-				_shape = function(faces) {												
-            var s = [];
-            for (var i = 0; i < faces.length; i++) {
-                s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length]);
-            }
-            return _path(s);
-				},
-				_rectangle = function() {
-						return _shape([
-								[ 0, 0, 1, 0 ], [ 1, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0, 0 ]
-						]);		
-				};
+                return a;					
+            },
+			_shape = function(faces) {												
+                var s = [];
+                for (var i = 0; i < faces.length; i++) {
+                    s.push([faces[i][0], faces[i][1], faces[i][2], faces[i][3], 1 / faces.length]);
+                }
+                return _path(s);
+			},
+			_rectangle = function() {
+				return _shape([
+					[ 0, 0, 1, 0 ], [ 1, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0, 0 ]
+				]);		
+			};
 		
 		var _shapes = {
 			"circle":_circle,
@@ -6152,24 +6158,40 @@ between this method and jsPlumb.reset).
 				]);	
 			},
 			"path":function(params) {
-        var points = params.points;
+                var points = params.points;
 				var p = [], tl = 0;
 				for (var i = 0; i < points.length - 1; i++) {
-            var l = Math.sqrt(Math.pow(points[i][2] - points[i][0]) + Math.pow(points[i][3] - points[i][1]));
-            tl += l;
-						p.push([points[i][0], points[i][1], points[i+1][0], points[i+1][1], l]);						
+                    var l = Math.sqrt(Math.pow(points[i][2] - points[i][0]) + Math.pow(points[i][3] - points[i][1]));
+                    tl += l;
+					p.push([points[i][0], points[i][1], points[i+1][0], points[i+1][1], l]);						
 				}
-        for (var i = 0; i < p.length; i++) {
-            p[i][4] = p[i][4] / tl;
-        }
+                for (var i = 0; i < p.length; i++) {
+                    p[i][4] = p[i][4] / tl;
+                }
 				return _path(p);
 			}
-		};
+		},
+        _rotate = function(points, amountInDegrees) {
+            var o = [], theta = amountInDegrees / 180 * Math.PI ;
+            for (var i = 0; i < points.length; i++) {
+                var _x = points[i][0] - 0.5,
+                    _y = points[i][1] - 0.5;
+                    
+                o.push([
+                    0.5 + ((_x * Math.cos(theta)) - (_y * Math.sin(theta))),
+                    0.5 + ((_x * Math.sin(theta)) + (_y * Math.cos(theta))),
+                    points[i][2],
+                    points[i][3]
+                ]);
+            }
+            return o;
+        };
 		
 		if (!_shapes[shape]) throw new Error("Shape [" + shape + "] is unknown by Perimeter Anchor type");
 		
-		var da = _shapes[shape](params),
-        a = params.jsPlumbInstance.makeDynamicAnchor(da);
+		var da = _shapes[shape](params);
+        if (params.rotation) da = _rotate(da, params.rotation);
+        var a = params.jsPlumbInstance.makeDynamicAnchor(da);
 		a.type = "Perimeter";
 		return a;
 	};
