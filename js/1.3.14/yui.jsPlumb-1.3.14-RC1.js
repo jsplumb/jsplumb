@@ -268,10 +268,11 @@
             return e != null && e._node != null ? e._node.tagName : null;
         },
 		
-		getUIPosition : function(args) {		
+		getUIPosition : function(args, zoom) {
+			zoom = zoom || 1;
 			var n = args[0].currentTarget.el._node,
 			o = Y.DOM.getXY(n);
-			return {left:o[0], top:o[1]};
+			return {left:o[0] / zoom, top:o[1] / zoom};
 		},		
 		
 		hasClass : function(el, clazz) {

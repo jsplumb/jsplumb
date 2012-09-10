@@ -229,8 +229,9 @@
 		 * different libraries have different signatures for their event callbacks.  
 		 * see getDragObject as well
 		 */
-		getUIPosition : function(eventArgs) {
+		getUIPosition : function(eventArgs, zoom) {
 			
+			zoom = zoom || 1;
 			// this code is a workaround for the case that the element being dragged has a margin set on it. jquery UI passes
 			// in the wrong offset if the element has a margin (it doesn't take the margin into account).  the getBoundingClientRect
 			// method, which is in pretty much all browsers now, reports the right numbers.  but it introduces a noticeable lag, which
@@ -244,10 +245,16 @@
 				ret = { left: eventArgs[0].pageX, top:eventArgs[0].pageY };
 			}
 			else {
-				var ui = eventArgs[1], _offset = ui.offset;			
+				var ui = eventArgs[1],
+				  _offset = ui.offset;
+				  
 				ret = _offset || ui.absolutePosition;
+				
+				// adjust ui position to account for zoom, because jquery ui does not do this.
+				ui.position.left /= zoom;
+				ui.position.top /= zoom;
 			}
-            return ret;
+            return { left:ret.left / zoom, top: ret.top / zoom };
 		},		
 		
 		hasClass : function(el, clazz) {

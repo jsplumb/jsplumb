@@ -103,7 +103,7 @@
 	 * function is used to find the element, using the given String as the element's id.
 	 */
 	var _getElementObject = function(el) {
-		return $(el);
+	  return $(el);
 	};
 		
 	jsPlumb.CurrentLibrary = {				
@@ -239,10 +239,14 @@
 		 * position of the object being moved, as a js object with the same params as the result of
 		 * getOffset, ie: { left: xxx, top: xxx }.
 		 */
-		getUIPosition : function(eventArgs) {
-			var ui = eventArgs[0],
-			p = jsPlumb.CurrentLibrary.getElementObject(ui).getPosition();
-			return { left:p.x, top:p.y };
+		getUIPosition : function(eventArgs, zoom) {
+		  var ui = eventArgs[0],
+			  el = jsPlumb.CurrentLibrary.getElementObject(ui),
+			  p = el.getPosition();
+			
+		  zoom = zoom || 1;		  
+			
+		  return { left:p.x / zoom, top:p.y / zoom};
 		},		
 		
 		hasClass : function(el, clazz) {

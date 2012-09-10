@@ -50,8 +50,18 @@
 		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
 		_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); },
 		_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
-		_getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },		
-		_getSize = function(el) { return jsPlumb.CurrentLibrary.getSize(_getElementObject(el)); },
+		_getOffset = function(el, _instance) {
+            var o = jsPlumb.CurrentLibrary.getOffset(_getElementObject(el));
+            if (_instance != null) {
+                var z = _instance.getZoom();
+                return {left:o.left / z, top:o.top / z };    
+            }
+            else
+                return o;
+        },		
+		_getSize = function(el) {
+            return jsPlumb.CurrentLibrary.getSize(_getElementObject(el));
+        },
 		_log = jsPlumbUtil.log,
 		_group = jsPlumbUtil.group,
 		_groupEnd = jsPlumbUtil.groupEnd,
@@ -476,8 +486,9 @@
 			};
 			
 			this.removeAllOverlays = function() {
-				for (var i in self.overlays)
-					self.overlays[i].cleanup();
+				for (var i = 0; i < self.overlays.length; i++) {
+					if (self.overlays[i].cleanup) self.overlays[i].cleanup();
+				}
 
 				self.overlays.splice(0, self.overlays.length);
 				self.repaint();
@@ -487,7 +498,7 @@
 				var idx = _getOverlayIndex(overlayId);
 				if (idx != -1) {
 					var o = self.overlays[idx];
-					o.cleanup();
+					if (o.cleanup) o.cleanup();
 					self.overlays.splice(idx, 1);
 				}
 			};
@@ -679,7 +690,14 @@
 		var _currentInstance = this,
 			_instanceIndex = getInstanceIndex(),
 			_bb = _currentInstance.bind,
-			_initialDefaults = {};
+			_initialDefaults = {},
+            _zoom = 1;
+            
+        this.setZoom = function(z, repaintEverything) {
+            _zoom = z;
+            if (repaintEverything) _currentInstance.repaintEverything();
+        };
+        this.getZoom = function() { return _zoom; };
 
 		for (var i in this.Defaults)
 			_initialDefaults[i] = this.Defaults[i];
@@ -845,13 +863,13 @@
 							_currentInstance.setHoverSuspended(true);
 						});
 	
-						options[dragEvent] = _wrap(options[dragEvent], function() {
-							var ui = jpcl.getUIPosition(arguments);
+						options[dragEvent] = _wrap(options[dragEvent], function() {                            
+							var ui = jpcl.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui);
 							_addClass(element, "jsPlumb_dragged");
 						});
 						options[stopEvent] = _wrap(options[stopEvent], function() {
-							var ui = jpcl.getUIPosition(arguments);
+							var ui = jpcl.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui);
 							_removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);
@@ -1208,7 +1226,7 @@
 				var s = _getElementObject(elId);
 				if (s != null) {						
 					sizes[elId] = _getSize(s);
-					offsets[elId] = _getOffset(s);
+					offsets[elId] = _getOffset(s, _currentInstance);
 					offsetTimestamps[elId] = timestamp;
 				}
 			} else {
@@ -1256,7 +1274,8 @@
 					id = uuid;
 				else if (arguments.length == 1 || (arguments.length == 3 && !arguments[2]))
 					id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
-				_setAttribute(ele, "id", id);
+				
+                if (!doNotCreateIfNotFound) _setAttribute(ele, "id", id);
 			}
 			return id;
 		},		
@@ -2505,9 +2524,9 @@ between this method and jsPlumb.reset).
 						// if the anchor has a 'positionFinder' set, then delegate to that function to find
 						// out where to locate the anchor.
 						if (newEndpoint.anchor.positionFinder != null) {
-							var dropPosition = jpcl.getUIPosition(arguments),
-							elPosition = jpcl.getOffset(_el),
-							elSize = jpcl.getSize(_el),
+							var dropPosition = jpcl.getUIPosition(arguments, _currentInstance.getZoom()),
+							elPosition = _getOffset(_el, _currentInstance),
+							elSize = _getSize(_el),
 							ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
 							newEndpoint.anchor.x = ap[0];
 							newEndpoint.anchor.y = ap[1];
@@ -3460,7 +3479,7 @@ between this method and jsPlumb.reset).
 				offsetParent = el.offsetParent;					
 			}
 			if (offsetParent != null) {
-				var po = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(offsetParent),
+				var po = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(offsetParent, _currentInstance),
 					so = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:offsetParent.scrollLeft, top:offsetParent.scrollTop};					
 
 
@@ -4559,7 +4578,7 @@ between this method and jsPlumb.reset).
 			// the very last thing we do is check to see if a 'type' was supplied in the params
 			var _type = params.type || self.endpoints[0].connectionType || self.endpoints[1].connectionType;
 			if (_type)
-				self.setType(_type);
+				self.addType(_type);
 			
 // END PAINTING
 
@@ -4742,24 +4761,25 @@ between this method and jsPlumb.reset).
 		
 // ENDPOINT HELPER FUNCTIONS
 		var _makeConnectionDragHandler = function(placeholder) {
-				var stopped = false;
-				return {
-						drag : function() {
-								if (stopped) {
-                		stopped = false;
-	                	return true;
-	              }
-								var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments),
-								el = placeholder.element;
-                if (el) {
-										jsPlumb.CurrentLibrary.setOffset(el, _ui);
-										_draw(_getElementObject(el), _ui);
+            var stopped = false;
+            return {
+                drag : function() {
+                    if (stopped) {
+                        stopped = false;
+                        return true;
+                    }
+                    var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments, _currentInstance.getZoom()),
+                        el = placeholder.element;
+            
+                    if (el) {
+                        jsPlumb.CurrentLibrary.setOffset(el, _ui);
+                        _draw(_getElementObject(el), _ui);
+                    }
+                },
+                stopDrag : function() {
+                    stopped = true;
                 }
-            },
-            stopDrag : function() {
-                stopped = true;
-            }
-				};
+            };
 		};		
 		
 		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
@@ -5427,7 +5447,7 @@ between this method and jsPlumb.reset).
 					// TODO merge this code with the code in both Anchor and FloatingAnchor, because it
 					// does the same stuff.
 					var ipcoel = _getElementObject(inPlaceCopy.canvas),
-					    ipco = jsPlumb.CurrentLibrary.getOffset(ipcoel),
+					    ipco = _getOffset(ipcoel, _currentInstance),
 					    po = adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
 					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
 					
@@ -5778,7 +5798,7 @@ between this method and jsPlumb.reset).
 			
 			 // finally, set type if it was provided
 			 if (params.type)
-				self.setType(params.type);
+				self.addType(params.type);
 
 // ***************************** PLACEHOLDERS FOR NATURAL DOCS *************************************************
 			/*
