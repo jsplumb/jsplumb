@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>jsPlumb 1.3.14 - documentation</title>
+		<title>jsPlumb 1.3.15 - documentation</title>
 		<link rel="stylesheet" href="/mp.css">
 		<link rel="stylesheet" href="jsPlumbDoc.css">
 	</head>
@@ -21,7 +21,7 @@
 			</p>  
 
 			<h5>Browser Compatibility</h5>
-			<p>jsPlumb 1.3.14 runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:
+			<p>jsPlumb 1.3.15 runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:
 				<ul>
 					<li class="bullet">jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.
 					<li class="bullet">Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element (Safari 6.x does not seem to have the same problem)</li>
@@ -32,9 +32,9 @@
 		</div>
 		
 		<div class="section">		
-			<h3><a id="changes">Changes between 1.3.14 and 1.3.13</a></h3>
+			<h3><a id="changes">Changes between 1.3.15 and 1.3.13</a></h3>
 			
-			The main reason for the 1.3.14 release was to back out some over-zealous performance enhancements that were added to
+			The main reason for the 1.3.15 release was to back out some over-zealous performance enhancements that were added to
 			1.3.13, affecting certain usages of the repaintEverything function.
 			
 			<h5>Backwards Compatibility</h5>
@@ -73,7 +73,7 @@
 			    <div class="code">
 <pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.14-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.3.15-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>MooTools</h4>
 				<ul>
@@ -83,7 +83,7 @@
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.3/mootools-yui-compressed.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.14-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.3.15-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			<h4>YUI3</h4>
 			<ul>
@@ -91,7 +91,7 @@
 			</ul>
 			<div class="code">
 			<pre>&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.14-all-min.js "&gt;&lt;/script&gt;</pre>
+&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.3.15-all-min.js "&gt;&lt;/script&gt;</pre>
 			</div>
 			
 			<h4><a id="renderMode">Render Mode</a></h4>
@@ -216,7 +216,7 @@ secondInstance.connect({ source:"element4", target:"element3", scope:"someScope"
 		
 		<h5>Automatic z-index for Connections</h5>
 		A common use case is the need to bring hovered Connections up on top of the other connections in your UI. From
-		1.3.14 onwards, jsPlumb offers a way to do this:
+		1.3.15 onwards, jsPlumb offers a way to do this:
 		<div class="code">
 <pre>
   jsPlumb.importDefaults({
@@ -3557,10 +3557,10 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 				</ul>
 			These seven files are packaged together to form the scripts that people use, for example:
 			<ul>
-				<li>jquery.jsPlumb-1.3.14-all.js
-				<p>Contains jsPlumb-1.3.14.js, jsPlumb-defaults-1.3.14.js, jsPlumb-renderers-canvas-1.3.14.js, jsPlumb-renderers-svg-1.3.14.js, jsPlumb-renderers-vml-1.3.14.js, jsPlumb-connectors-statemachine-1.3.14.js, jquery.jsPlumb-1.3.14.js and jsBezier-0.4-min.js</p>
+				<li>jquery.jsPlumb-1.3.15-all.js
+				<p>Contains jsPlumb-1.3.15.js, jsPlumb-defaults-1.3.15.js, jsPlumb-renderers-canvas-1.3.15.js, jsPlumb-renderers-svg-1.3.15.js, jsPlumb-renderers-vml-1.3.15.js, jsPlumb-connectors-statemachine-1.3.15.js, jquery.jsPlumb-1.3.15.js and jsBezier-0.4-min.js</p>
 				</li>
-				<li>jquery.jsPlumb-1.3.14-all-min.js
+				<li>jquery.jsPlumb-1.3.15-all-min.js
 				<p>A minified version of the script above (minified using the YUI Compressor)</p>
 				</li>
 			</ul>
