@@ -350,7 +350,16 @@
 		</copy>
 
 		<!-- replace refs to old version in test html to new version -->
-		<replace dir="tests" token="${old}" value="${new}"/>
+		<replace file="tests/android-svg.html" token="${old}" value="${new}"/>
+		<replace file="tests/loadTestHarness.html" token="${old}" value="${new}"/>
+		<replace file="tests/qunit-canvas-jquery-instance.html" token="${old}" value="${new}"/>
+		<replace file="tests/qunit-canvas-jquery.html" token="${old}" value="${new}"/>
+		<replace file="tests/qunit-canvas-mootools.html" token="${old}" value="${new}"/>
+		<replace file="tests/qunit-svg-jquery-instance.html" token="${old}" value="${new}"/>
+		<replace file="tests/qunit-svg-jquery.html" token="${old}" value="${new}"/>
+		<replace file="tests/qunit-vml-jquery-instance.html" token="${old}" value="${new}"/>
+		<replace file="tests/qunit-vml-jquery.html" token="${old}" value="${new}"/>
+		
 
 		<!-- create new archive dir for docs -->
 		<mkdir dir="demo/doc/archive/${old}"/>
@@ -361,12 +370,17 @@
 			</fileset>
 		</copy>
 
-		<replace dir="demo/doc" token="${old}" value="${new}"/>		
+		<replace file="demo/doc/content.html" token="${old}" value="${new}"/>
+		<replace file="demo/doc/usage.html" token="${old}" value="${new}"/>
+		<replace file="demo/doc/index.html" token="${old}" value="${new}"/>		
 		
 		<!-- replace refs to old version in demo html to new version -->
 		<replace dir="demo/jquery" token="${old}" value="${new}"/>
 		<replace dir="demo/yui3" token="${old}" value="${new}"/>
 		<replace dir="demo/mootools" token="${old}" value="${new}"/>
+		
+		<!-- replace version number in code -->
+		<replace dir="js/${new}" token="${old}" value="${new}"/>
 
 		<!-- replace in README >
 		<replace file="README.md" token="latest version is ${old}" value="latest version is ${new}"/-->
