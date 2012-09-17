@@ -4102,10 +4102,12 @@ between this method and jsPlumb.reset).
 		this.rehomeEndpoint = function(currentId, element) {
 			var eps = _amEndpoints[currentId] || [], //, 
 				elementId = _currentInstance.getId(element);
-			for (var i = 0; i < eps.length; i++) {
-				self.add(eps[i], elementId);
+			if (elementId !== currentId) {
+				for (var i = 0; i < eps.length; i++) {
+					self.add(eps[i], elementId);
+				}
+				eps.splice(0, eps.length);
 			}
-			eps.splice(0, eps.length);
 		};
 	};
 	_currentInstance.anchorManager = new AnchorManager();				
