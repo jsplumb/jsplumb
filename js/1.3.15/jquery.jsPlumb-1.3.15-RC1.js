@@ -66,7 +66,7 @@
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			try {
 				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumb.util.svg.addClass(el[0], clazz);
+					jsPlumbUtil.svg.addClass(el[0], clazz);
 				}
 			}
 			catch (e) {
@@ -307,7 +307,7 @@
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			try {
 				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumb.util.svg.removeClass(el[0], clazz);
+					jsPlumbUtil.svg.removeClass(el[0], clazz);
 				}
 			}
 			catch (e) {
