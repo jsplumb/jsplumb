@@ -889,7 +889,10 @@
 		* prepares a final params object that can be passed to _newConnection, taking into account defaults, events, etc.
 		*/
 		_prepareConnectionParams = function(params, referenceParams) {
-			var _p = jsPlumb.extend( {}, params);
+			var _p = jsPlumb.extend( {
+				sourceIsNew:true,
+				targetIsNew:true
+			}, params);
 			if (referenceParams) jsPlumb.extend(_p, referenceParams);
 			
 			// hotwire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
@@ -900,7 +903,7 @@
 			if (params.uuids) {
 				_p.sourceEndpoint = _getEndpoint(params.uuids[0]);
 				_p.targetEndpoint = _getEndpoint(params.uuids[1]);
-			}
+			}						
 
 			// now ensure that if we do have Endpoints already, they're not full.
 			// source:
@@ -914,6 +917,11 @@
 				_log(_currentInstance, "could not add connection; target endpoint is full");
 				return;
 			}
+			
+			// at this point, if we have source or target Endpoints, they were not new and we should mark the
+			// flag to reflect that.  this is for use later with the deleteEndpointsOnDetach flag.
+			if (_p.sourceEndpoint) _p.sourceIsNew = false;
+			if (_p.targetEndpoint) _p.targetIsNew = false;
 			
 			// if source endpoint mandates connection type and nothing specified in our params, use it.
 			if (!_p.type && _p.sourceEndpoint)
@@ -952,6 +960,7 @@
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
 					 newEndpoint._makeTargetCreator = true;
+					 _p.targetIsNew = true;
 				}
 			}
 
@@ -968,6 +977,7 @@
 					var newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.source, tep);
 					if (_sourceEndpointsUnique[tid]) _sourceEndpoints[tid] = newEndpoint;
 					 _p.sourceEndpoint = newEndpoint;
+					 _p.sourceIsNew = true;
 				}
 			}
 			
@@ -4363,8 +4373,11 @@ between this method and jsPlumb.reset).
 			if (!this.scope) this.scope = this.endpoints[0].scope;		
 			
 			// if delete endpoints on detach, keep a record of just exactly which endpoints they are.
-			if (params.deleteEndpointsOnDetach)
-				self.endpointsToDeleteOnDetach = [eS, eT];
+			self.endpointsToDeleteOnDetach = [null, null];
+			if (params.deleteEndpointsOnDetach) {
+				if (params.sourceIsNew) self.endpointsToDeleteOnDetach[0] = self.endpoints[0];
+				if (params.targetIsNew) self.endpointsToDeleteOnDetach[1] = self.endpoints[1];
+			}
 						
 			self.setConnector(this.endpoints[0].connector || 
 							  this.endpoints[1].connector || 
