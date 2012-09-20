@@ -363,13 +363,35 @@
     	jsPlumb.Connectors.Flowchart.apply(this, arguments);
 		SvgConnector.apply(this, arguments);
     	this.getPath = function(dimensions) {
-    		var p = "M " + dimensions[4] + "," + dimensions[5];
+    		var p = "M " + dimensions[4] + "," + dimensions[5],
+				lx = dimensions[4],
+				ly = dimensions[5];
+				
 	        // loop through extra points
 	        for (var i = 0; i < dimensions[8]; i++) {
-	        	p = p + " L " + dimensions[9 + (i*2)] + " " + dimensions[10 + (i*2)];
+				
+				var x1 = dimensions[9 + (i*2)], y1 = dimensions[10 + (i*2)],
+					x2 =  dimensions[9 + ((i + 1) * 2)], y2 = dimensions[10 + ((i + 1) * 2)],					
+					horiz = (x1 != lx) && (y1 == ly),
+					vert = (x1 == lx) && (y1 != ly),
+					multX = horiz ? x1 > x2 ? 1 : -1 : 0,
+					multY = vert ? y1 > y2 ? 1 : -1 : 0,
+					halfStroke = self.lineWidth / 2;								
+					
+				// previously:
+				//p = p + " L " + x1 + " " + y1;
+				//p = p + " M " + x1 + " " + y1;
+									
+				// now, with support for painting an extra bit at the end each line:
+	        	p = p + " L " + x1 + " " + y1;											
+				p = p + " L " + (x1 + (multX * halfStroke)) + " " + (y1 + (multY * halfStroke));
+					
+				lx = x1;
+				ly = y1;				
+				p = p + " M " + x1 + " " + y1;				
 	        }
 	        // finally draw a line to the end
-	        p = p  + " " + dimensions[6] + "," +  dimensions[7];
+	        p = p  + " L " + dimensions[6] + "," +  dimensions[7];
 	        return p;
     	};
     };
