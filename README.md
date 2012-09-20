@@ -17,9 +17,12 @@ There are a few integration issues that you should be aware of: z-index needs sp
 ## Requirements
 - jQuery:
 
-jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.2, 1.4.3, 1.4.4, 1.5.0, 1.6.0 and 1.7.1. To support dragging, you will need jQueryUI 1.7.x or 1.8.x. I've tested both.
+jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.x, 1.5.x, 1.6.x, 1.7.x and 1.8.x. To support
+dragging, you will need jQueryUI 1.7.x or 1.8.x. NOTE: jQuery 1.8.x only works with jQueryUI 1.8.22 and above.
 
-__There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9__ - see [this issue](http://bugs.jquery.com/ticket/10832). It means that mouse events do not get posted. This is quite a bummer since the default renderer for jsPlumb, from 1.3.4 onwards, is SVG, and I was hoping to encourage everyone to make use of the fact that you can use CSS with SVG to style your plumbing rather than rely on the old-skool paintStyle stuff. There is another discussion of the issue [here](http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events)
+__There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9__ - see [this issue](http://bugs.jquery.com/ticket/10832). It means that mouse events
+do not get posted. There is another discussion of the issue [here](http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events).
+This issue is fixed in jQuery 1.8.
 
 - MooTools:
 
