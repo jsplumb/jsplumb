@@ -154,7 +154,7 @@
 		<antcall target="html">
 			<param name="libraryDir" value="jquery"/>
 			<param name="library" value="jquery"/>
-			<param name="dependencies" value="&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'&gt;&lt;/script&gt;&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js'&gt;&lt;/script&gt;"/>
+			<param name="dependencies" value="&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'&gt;&lt;/script&gt;&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'&gt;&lt;/script&gt;"/>
 		</antcall>
 
 		<antcall target="html">			
