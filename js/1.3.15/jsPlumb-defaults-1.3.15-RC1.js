@@ -347,8 +347,8 @@
 		addSegment = function(x, y, sx, sy, tx, ty/*, doGridX, doGridY*/) {
 			var lx = segments.length == 0 ? sx : segments[segments.length - 1][0],
 			    ly = segments.length == 0 ? sy : segments[segments.length - 1][1],
-                m = x == lx ? Infinity : 0,
-				l = Math.abs(x == lx ? y - ly : x - lx);/*,
+                m = x == lx ? Infinity : 0;
+				/*,
 				gridded = clampToGrid(x, y),
 				doGridX = true,
 				doGridY = true;
@@ -364,11 +364,13 @@
 			doGridY = !(sy == y) && !(ty == y);						
 			x = doGridX ? gridded[0] : x;
 			y = doGridY ? gridded[1] : y;
-			*/
+			*/			
+			
+			var l = Math.abs(x == lx ? y - ly : x - lx);
 			
 			segments.push([x, y, lx, ly, m, l]);
             totalLength += l;
-            
+			
             maxX = Math.max(maxX, x);
             maxY = Math.max(maxY, y);
             minX = Math.min(minX, x);
@@ -401,13 +403,14 @@
 		
 		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, 
             sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
-            
             segments = [];
             segmentProportions = [];
             totalLength = 0;
             segmentProportionalLengths = [];
             maxX = maxY = -Infinity;
             minX = minY = Infinity;
+			
+			self.lineWidth = lineWidth;
             
             swapX = targetPos[0] < sourcePos[0]; 
             swapY = targetPos[1] < sourcePos[1];
@@ -481,20 +484,7 @@
                 
             if (flipSourceSegments)                
                 segment = flipSegments[sourceAxis][segment];                                    
-
-            /*if (segment == 1 || segment == 2) {
-                if (sourceAxis == "x")
-                    addSegment(Math.max(startStubX, endStubX), startStubY, sx, sy, tx, ty);
-                else
-                    addSegment(startStubX, Math.max(startStubY, endStubY), sx, sy, tx, ty);
-            }
-            else {
-                if (sourceAxis == "x")
-                    addSegment(Math.min(startStubX, endStubX), startStubY, sx, sy, tx, ty);
-                else
-                    addSegment(startStubX, Math.min(startStubY, endStubY), sx, sy, tx, ty);
-            }*/
-            //addSegment(startStubX, startStubY, sx, sy, tx, ty);
+            
 			addSegment(startStubX, startStubY, sx, sy, tx, ty);
 
             var findClearedLine = function(start, mult, anchorPos, dimension) {
