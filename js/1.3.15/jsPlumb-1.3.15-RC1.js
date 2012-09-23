@@ -5710,19 +5710,9 @@ between this method and jsPlumb.reset).
 										maxConnections:_maxConnections 
 									}, originalEvent);
 								}
-								
-								
-								// TODO clean this up now. it has tests that are not required - we have already aborted if
-								// we're dropping back where we came from.
-								var _doContinue =
-									(jpc.suspendedEndpoint && self.referenceEndpoint && self.referenceEndpoint.id == jpc.suspendedEndpoint.id)
-									||
-									(!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled);
-
-								//if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
-								if (_doContinue) {
-									_doContinue = true;
-//									var _doContinue = true;
+																
+								if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
+									var _doContinue = true;
 	
 									// the second check here is for the case that the user is dropping it back
 									// where it came from.
@@ -5767,7 +5757,6 @@ between this method and jsPlumb.reset).
 											jpc.setParameter(aParam, params[aParam]);
 	
 										if (!jpc.suspendedEndpoint) {  
-											//_initDraggableIfNecessary(self.element, params.draggable, {});
 											if (params.draggable)
 												jsPlumb.CurrentLibrary.initDraggable(self.element, dragOptions, true);
 										}
@@ -5791,8 +5780,7 @@ between this method and jsPlumb.reset).
 									}
 									else {
 										// otherwise just put it back on the endpoint it was on before the drag.
-										if (jpc.suspendedEndpoint) {
-									//        self.detachFrom(jpc);
+										if (jpc.suspendedEndpoint) {									
 											jpc.endpoints[idx] = jpc.suspendedEndpoint;
 											jpc.setHover(false);
 											jpc._forceDetach = true;
