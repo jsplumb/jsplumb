@@ -1,9 +1,24 @@
  *1.3.15
  
+		BACKWARDS COMPATIBILITY
+		
+		- 'removeEveryEndpoint' method removed from jsPlumb. use 'deleteEveryEndpoint'.
+		- 'removeEndpoint' method removed from jsPlumb. use 'deleteEndpoint'.
+ 
+		NEW FUNCTIONALITY
+		
+		- added 'ReattachConnections' default. instructs jsPlumb whether or not to automatically reattach connections dragged off and dropped via the mouse.
+		- added setReattach/isReattach methods to Connection
+		- added setReattach/isReattach methods to jsPlumb.select handler
  
 		ISSUES FIXED
 		
 		279 - deleteEndpointsOnDetach flag ignored when Endpoints assigned to an element previously configured with makeSource/makeTarget
+		280 - cannot drop connection dragged by source back onto its original source
+		
+		MISCELLANEOUS
+		
+		- fixed potential infinite loop issue related to makeSource function.
 
 * 1.3.14
 
