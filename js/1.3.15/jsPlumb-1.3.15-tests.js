@@ -120,7 +120,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(e.id != null, "the endpoint has had an id assigned to it");
 		assertEndpointCount("d1", 1, _jsPlumb);
 		assertContextSize(1); // one Endpoint canvas.
-		_jsPlumb.removeEndpoint(d1, ee);	 
+		_jsPlumb.deleteEndpoint(ee);	 
 		assertEndpointCount("d1", 0, _jsPlumb);
 		e = _jsPlumb.getEndpoint("78978597593");
 		equals(e, null, "the endpoint has been deleted");
