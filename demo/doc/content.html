@@ -32,29 +32,25 @@
 		</div>
 		
 		<div class="section">		
-			<h3><a id="changes">Changes between 1.3.16 and 1.3.14</a></h3>	
+			<h3><a id="changes">Changes between 1.3.16 and 1.3.15</a></h3>	
 			<h5>Backwards Compatibility</h5>
 			<ul>
-			  <li class="bullet">'removeEveryEndpoint' method removed from jsPlumb. use 'deleteEveryEndpoint'.</li>
-			  <li class="bullet">'removeEndpoint' method removed from jsPlumb. use 'deleteEndpoint'.</li>
+			  
 			</ul>
 			
 			<h5>New Features</h5>
 			<ul>
-			  <li class="bullet">added 'ReattachConnections' default. instructs jsPlumb whether or not to automatically reattach connections dragged off and dropped via the mouse.</li>
-			  <li class="bullet">added setReattach/isReattach methods to Connection</li>
-			  <li class="bullet">added setReattach/isReattach methods to jsPlumb.select handler</li>
+			  <li class="bullet">Flowchart connectors now support configurable 'midpoint'</li>
 			</ul>
 			
 			<h5>Issues Resolved</h5>
 			<ul>
-			  <li class="bullet"><strong>279</strong> - deleteEndpointsOnDetach flag ignored when Endpoints assigned to an element previously configured with makeSource/makeTarget</li>
-			  <li class="bullet"><strong>280</strong> - cannot drop connection dragged by source back onto its original source</li>
+			  
 			</ul>
 
 			<h5>Miscellaneous</h5>
 			<ul>
-			  <li class="bullet">fixed potential infinite loop issue related to makeSource function</li>
+			  
 			</ul>
 			
 		</div>
@@ -694,8 +690,8 @@ The allowed constructor parameters are different for each artifact you create, b
 			<strong>curviness</strong> - Optional; defaults to 150. This defines the distance in pixels that
 			the Bezier's control points are situated from the anchor points.  This does not mean that your
 			connector will pass through a point at this distance from your curve.  It is a hint to how you want the
-			curve to travel. Rather than discuss Bezier curves at length here, because they are a complex topic,
-			refer instead to <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve" target="_blank">Wikipedia.</a>
+			curve to travel. Rather than discuss Bezier curves at length here, we 
+			refer you to <a href="http://en.wikipedia.org/wiki/B%C3%A9zier_curve" target="_blank">Wikipedia.</a>
 			</p>
 			<h4><a id="straightConnector">Straight Connector</a></h4>
 			<p>The Straight Connector draws a straight line between the two endpoints. No constructor arguments are supported; use the <strong>endpointStyle</strong> and/or <strong>cssClass</strong>/<strong>connectorClass</strong> to a <strong>connect</strong>, <strong>addEndpoint</strong>, <strong>makeSource</strong> or <strong>makeTarget</strong> call to control the appearance of one of these Connectors.  
@@ -704,7 +700,8 @@ The allowed constructor parameters are different for each artifact you create, b
 			<p>This type of Connector draws a connection that consists of a series of vertical or horizontal segments - the classic flowchart look. Two constructor arguments are supported:</p>
 			<strong>stub</strong> - this is the minimum length, in pixels, of the initial stub that emanates from an Endpoint.  This is an optional parameter, and can be either an integer, which specifies the stub fo each end of the connector, or an array of two integers, specifying the stub for the [source, target] endpoints in the connection.  This parameter is optional, and defaults to an integer with value 30 pixels.<br/>
 			<strong>gap</strong> - optional, defaults to 0 pixels. Lets you specify a gap between the end of the connector and the elements to which it is attached.
-			<p>This Connector supports Connection that start and end on the same element.</p>
+			<strong>midpoint</strong> - optional, defaults to 0.5. This is the distance between the two elements that the longest section of the flowchart connector will be drawn at.  This parameter is useful for those cases where you have programmatic control of the drawing and perhaps want to avoid some other element on the page.
+			<p>This Connector supports Connections that start and end on the same element.</p>
 			<h4><a id="stateMachineConnector">State Machine Connector</a></h4>
 			<p>This Connector draws slightly curved lines (they are actually quadratic Bezier curves), similar to the State Machine connectors you may have seen in software like GraphViz.  Connections in which some element is both the source and the target (so-called 'loopback') are supported by these Connectors (as they are with Flowchart Connectors); in this case you get a circle. Supported parameters are:
 			</p>
