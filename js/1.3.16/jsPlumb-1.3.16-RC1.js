@@ -52,7 +52,7 @@
 		_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
 		_getOffset = function(el, _instance) {
             var o = jsPlumb.CurrentLibrary.getOffset(_getElementObject(el));
-            if (_instance != null) {
+			if (_instance != null) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
             }
@@ -3722,8 +3722,10 @@ between this method and jsPlumb.reset).
 			
 				// helper method to calculate the distance between the centers of the two elements.
 				_distance = function(anchor, cx, cy, xy, wh) {
-					var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]);
-					return Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2));
+					var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]),				
+						acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2);
+					return (Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) +
+							Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2)));
 				},
 			
 			// default method uses distance between element centers.  you can provide your own method in the dynamic anchor
@@ -5651,7 +5653,7 @@ between this method and jsPlumb.reset).
 
 					} else {
 						existingJpc = true;
-						jpc.connector.setHover(false, false);
+						jpc.setHover(false);						
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
 						_initDropTarget(_getElementObject(inPlaceCopy.canvas), false, true);
 						// new anchor idx
@@ -5760,7 +5762,7 @@ between this method and jsPlumb.reset).
 						}
 						self.anchor.locked = false;												
 						self.paint({recalc:false});
-						jpc.setHover(false, false);
+						//jpc.setHover(false, false);
 
 						fireConnectionDragStopEvent(jpc);
 
