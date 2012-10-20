@@ -13,7 +13,7 @@
 	    	<classpath>
 	            <path refid="yuicompressor.classpath"/>
 	        </classpath>
-	    </java>
+	    </java>			
 	</target>
 	
 	<!-- ant-contrib taskdefs -->
@@ -100,6 +100,16 @@
 			<param name="input" value="${output.js.dir}/${library}.jsPlumb-${final.version}-all.js"/>
 			<param name="output" value="${output.js.dir}/${library}.jsPlumb-${final.version}-all-min.js"/>
 		</antcall>
+		
+		<!-- put a header in the file -->
+		<replaceregexp>
+			<regexp pattern="(&lt;!-- DEP.*&gt;.*\n)(.*\n)*(.*/DEP --&gt;)"/>
+			<substitution expression="${dependencies}"/>
+			<fileset dir="${output.demo.dir}/${libraryDir}">
+				<include name="*.html"/>
+			</fileset>
+		</replaceregexp>
+		
 	</target>
 	
 	<!-- 
@@ -153,8 +163,8 @@
 		<!-- replace dev JS imports with final versions -->
 		<antcall target="html">
 			<param name="libraryDir" value="jquery"/>
-			<param name="library" value="jquery"/>
-			<param name="dependencies" value="&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'&gt;&lt;/script&gt;&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'&gt;&lt;/script&gt;"/>
+			<param name="library" value="jquery"/>			
+			<param name="dependencies" value="&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'&gt;&lt;/script&gt;&lt;script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'&gt;&lt;/script&gt;&lt;script type='text/javascript' src='../js/jquery.ui.touch-punch.min.js'&gt;&lt;/script&gt;"/>
 		</antcall>
 
 		<antcall target="html">			
