@@ -4651,13 +4651,13 @@ between this method and jsPlumb.reset).
 							sAnchorP = sE.anchor.getCurrentLocation(sE),				
 							tAnchorP = tE.anchor.getCurrentLocation(tE);
 									
-						/* paint overlays*/
+						// find largest overlay; we use it to ensure sufficient padding in the connector canvas.
 						var maxSize = 0;
 						for ( var i = 0; i < self.overlays.length; i++) {
 							var o = self.overlays[i];
 							if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize());
-						}
-		
+						}						
+														
 						var dim = this.connector.compute(
 							sAnchorP,
 							tAnchorP, 
@@ -4666,17 +4666,19 @@ between this method and jsPlumb.reset).
 							this.endpoints[sIdx].anchor,
 							this.endpoints[tIdx].anchor, 
 							self.paintStyleInUse.lineWidth,
-							maxSize,
+							maxSize,							
 							sourceInfo,
 							targetInfo );
-												
-						self.connector.paint(dim, self.paintStyleInUse);
-						
-						/* paint overlays*/
+																		
+						// paint overlays
 						for ( var i = 0; i < self.overlays.length; i++) {
 							var o = self.overlays[i];
-							if (o.isVisible) self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim, timestamp);
+							if (o.isVisible) {
+								self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);								
+							}
 						}
+												
+						self.connector.paint(dim, self.paintStyleInUse);
 					}
 					lastPaintedAt = timestamp;						
 				}		
@@ -6122,13 +6124,25 @@ between this method and jsPlumb.reset).
 		};					
 	};		
 
+// --------------------- static instance + AMD registration -------------------------------------------	
+	
+// create static instance and assign to window if window exists.	
 	var jsPlumb = new jsPlumbInstance();
 	if (typeof window != 'undefined') window.jsPlumb = jsPlumb;
+// add 'getInstance' method to static instance
 	jsPlumb.getInstance = function(_defaults) {
 		var j = new jsPlumbInstance(_defaults);
 		j.init();
 		return j;
-	};	
+	};
+// maybe register static instance as an AMD module
+	if ( typeof define === "function" && define.amd && define.amd.jsPlumb) {
+		define( "jsplumb", [], function () { return jsPlumb; } );
+	}
+	
+// --------------------- end static instance + AMD registration -------------------------------------------		
+	
+// --------------------- anchors (would like to move these out of here -------------------------------------------		
 	
 	var _curryAnchor = function(x, y, ox, oy, type, fnInit) {
 		return function(params) {
