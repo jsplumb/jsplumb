@@ -123,7 +123,9 @@
                 farAwayPoint = location == 1 ? {
                     x:_sx + ((_tx - _sx) * 10),
                     y:_sy + ((_sy - _ty) * 10)
-                } : {x:_tx, y:_ty };
+                } : distance <= 0 ? {x:_sx, y:_sy} : {x:_tx, y:_ty };
+				
+			if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
 
             return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
         };
@@ -187,7 +189,9 @@
         var _CP, _CP2, _sx, _tx, _ty, _sx, _sy, _canvasX, _canvasY, _w, _h, _sStubX, _sStubY, _tStubX, _tStubY;
 
         this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
-        	lineWidth = lineWidth || 0;
+        	// this calculation gives us what the minimum distance between either start or end
+			// should be from the edge of the canvas.
+			lineWidth = Math.max(minWidth, (lineWidth || 0));
             _w = Math.abs(sourcePos[0] - targetPos[0]) + lineWidth; 
             _h = Math.abs(sourcePos[1] - targetPos[1]) + lineWidth;
             _canvasX = Math.min(sourcePos[0], targetPos[0])-(lineWidth/2);
@@ -945,7 +949,7 @@
     	
     	this.cleanup = function() { };  // nothing to clean up for Arrows
     	
-    	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
+    	this.draw = function(connector, currentConnectionPaintStyle/*, connectorDimensions*/) {
 
             var hxy, mid, txy, tail, cxy;
             if (connector.pointAlongPathFrom) {
@@ -956,15 +960,26 @@
                     mid = connector.pointOnPath(l, true),
                     txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
                 }
-                else if (self.loc == 1) {
-                    hxy = connector.pointOnPath(self.loc);
-                    mid = connector.pointAlongPathFrom(self.loc, -1);                    
-                    txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
+                else if (self.loc == 1) {					
+					hxy = connector.pointOnPath(self.loc);
+					mid = connector.pointAlongPathFrom(self.loc, -1);                    
+					txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
+					
+					if (direction == -1) {
+						var _ = txy;
+						txy = hxy;
+						hxy = _;
+					}
                 }
-                else if (self.loc == 0) {
-                    txy = connector.pointOnPath(self.loc);
-                    mid = connector.pointAlongPathFrom(self.loc, 1);
-                    hxy = jsPlumbUtil.pointOnLine(txy, mid, self.length);
+                else if (self.loc == 0) {					
+					txy = connector.pointOnPath(self.loc);
+					mid = connector.pointAlongPathFrom(self.loc, 1);
+					hxy = jsPlumbUtil.pointOnLine(txy, mid, self.length);
+					if (direction == -1) {
+						var _ = txy;
+						txy = hxy;
+						hxy = _;
+					}
                 }
                 else {
     			    hxy = connector.pointAlongPathFrom(self.loc, direction * self.length / 2),
@@ -985,7 +1000,7 @@
     			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
     			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
     			
-    			self.paint(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions);							
+    			self.paint(connector, d, lineWidth, strokeStyle, fillStyle/*, connectorDimensions*/);							
 			
 			    return [ minx, maxx, miny, maxy]; 
             }
