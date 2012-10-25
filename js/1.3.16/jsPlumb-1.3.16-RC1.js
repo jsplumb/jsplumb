@@ -154,7 +154,7 @@
 				}
 				return r;
 			};
-			
+									
 			// helper method to update the hover style whenever it, or paintStyle, changes.
 			// we use paintStyle as the foundation and merge hoverPaintStyle over the
 			// top.
@@ -1548,8 +1548,9 @@
 		* condition events anyway.
 		*/
 		this.checkCondition = function(conditionName, value) {
-			var l = _currentInstance.getListener(conditionName);
-			var r = true;
+			var l = _currentInstance.getListener(conditionName),
+				r = true;
+				
 			if (l && l.length > 0) {
 				try {
 					for (var i = 0 ; i < l.length; i++) {
@@ -1561,6 +1562,28 @@
 				}
 			}
 			return r;
+		};
+		
+		/**
+		 * checks a condition asynchronously: fires the event handler and passes the handler
+		 * a 'proceed' function and a 'stop' function. The handler MUST execute one or other
+		 * of these once it has made up its mind.
+		 *
+		 * Note that although this reads the listener list for the given condition, it
+		 * does not loop through and hit each listener, because that, with asynchronous
+		 * callbacks, would be messy. so it uses only the first listener registered.
+		 */ 
+		this.checkASyncCondition = function(conditionName, value, proceed, stop) {
+			var l = _currentInstance.getListener(conditionName);
+				
+			if (l && l.length > 0) {
+				try {
+					l[0](value, proceed, stop); 					
+				}
+				catch (e) { 
+					_log(_currentInstance, "cannot asynchronously check condition [" + conditionName + "]" + e); 
+				}
+			}	
 		};
 
 		/*
@@ -5853,13 +5876,14 @@ between this method and jsPlumb.reset).
 										jpc.targetId = self.elementId;
 									}
 																
-									// now check beforeDrop.  this will be available only on Endpoints that are setup to
-									// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
-									// the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
-									// it only makes sense to have it on a target endpoint.
-									_doContinue = _doContinue && self.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, self);
-															
-									if (_doContinue) {
+// ------------ wrap the execution path in a function so we can support asynchronous beforeDrop																
+										
+									// we want to execute this regardless.
+									var commonFunction = function() {
+										jpc.floatingAnchorIndex = null;
+									};	
+																									
+									var continueFunction = function() {
 										// remove this jpc from the current endpoint
 										jpc.endpoints[idx].detachFromConnection(jpc);
 										if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
@@ -5892,8 +5916,11 @@ between this method and jsPlumb.reset).
 										// finalise will inform the anchor manager and also add to
 										// connectionsByScope if necessary.
 										_finaliseConnection(jpc, null, originalEvent);
-									}
-									else {
+										
+										commonFunction();
+									};
+									
+									var dontContinueFunction = function() {
 										// otherwise just put it back on the endpoint it was on before the drag.
 										if (jpc.suspendedEndpoint) {									
 											jpc.endpoints[idx] = jpc.suspendedEndpoint;
@@ -5913,9 +5940,25 @@ between this method and jsPlumb.reset).
 											_currentInstance.repaint(jpc.source.elementId);
 											jpc._forceDetach = false;
 										}
+										
+										commonFunction();
+									};
+									
+// --------------------------------------
+									// now check beforeDrop.  this will be available only on Endpoints that are setup to
+									// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
+									// the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
+									// it only makes sense to have it on a target endpoint.
+									_doContinue = _doContinue && self.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, self);
+																														
+									if (_doContinue) {
+										continueFunction();
+									}
+									else {
+										dontContinueFunction();
 									}
 	
-									jpc.floatingAnchorIndex = null;
+									//commonFunction();
 								}
 								_currentInstance.currentlyDragging = false;
 								delete floatingConnections[id];
