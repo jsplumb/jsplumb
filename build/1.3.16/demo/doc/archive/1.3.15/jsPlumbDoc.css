@@ -1,0 +1,127 @@
+body { 
+	background-color:white; font-size:90%;
+	background-image:url(../img/dynamicAnchorBg.jpg); 
+}
+/* docs */
+.code { background-color:#e4eeee;
+border:1px solid black; margin:1em; padding:0.8em; 
+overflow:auto;
+font-family:courier; 
+font-size:8pt;
+border-radius:0.3em;
+}
+.section { border-bottom: 1px dotted black; padding:1em;font-family:helvetica;background-color:white;color:#333;}
+.menu { 
+	position:fixed; 
+	right:10em; top:1em;
+	background-color:white;
+	padding:0.3em;
+	opacity:0.8;
+	z-index:5000;
+	filter:alpha(opacity=80);
+		box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;
+}
+
+a {text-decoration:none;color:#05b;font-weight:bold;font-family:helvetica;}
+a:hover {text-decoration:underline;}
+.window, .label { 
+	cursor:pointer;
+	box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;
+}
+
+#explanation { 
+	background-color:white;
+	color:black;
+	border:0.25em solid #ddd; 
+	position:absolute;
+	right:3.5em;
+	top:5em;
+	width:22em;
+	font-size:100%;
+	-moz-border-radius:1em;
+	border-radius:1em;
+	padding:1em;
+	z-index:1000;
+	opacity:0.9;
+	filter:alpha(opacity=90); 
+	font-family:helvetica;
+		box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;
+}
+
+.selected {
+	color:rgb(189,11,11);
+}
+
+
+/*  these styles are what jsPlumb attaches to the various elements it creates.
+._jsPlumb_connector {
+border:1px solid blue;
+}
+._jsPlumb_endpoint {
+border:1px solid green;
+}
+._jsPlumb_overlay {
+border:1px solid yellow;
+}
+*/
+
+
+.section li {
+list-style-type:none;
+}
+
+li.bullet {
+	list-style-type:circle;
+	}
+
+
+.section {
+padding-left:2em;
+font-size:10pt;
+}
+.index.section {
+padding-left:0;
+}
+
+.index {
+width:20em;
+font-size:9pt;
+float:left;
+background-color:#e4eeee;
+overflow:auto;
+padding-left:0.5em;
+}
+
+.index li {
+list-style-type:none;
+}
+
+.index ul, .index h3 {
+padding-left:1.5em;
+
+}
+
+#demo {
+width:80%;
+height:50em;
+margin-left:3em;
+margin-top:3em;
+position:relative;
+}
+
+.sub {
+margin-left:1em;
+}
+
+.table td {
+	text-align:center;
+}
