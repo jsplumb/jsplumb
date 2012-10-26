@@ -949,7 +949,7 @@
     	
     	this.cleanup = function() { };  // nothing to clean up for Arrows
     	
-    	this.draw = function(connector, currentConnectionPaintStyle/*, connectorDimensions*/) {
+    	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
 
             var hxy, mid, txy, tail, cxy;
             if (connector.pointAlongPathFrom) {
@@ -1000,7 +1000,7 @@
     			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
     			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
     			
-    			self.paint(connector, d, lineWidth, strokeStyle, fillStyle/*, connectorDimensions*/);							
+    			self.paint(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions);							
 			
 			    return [ minx, maxx, miny, maxy]; 
             }
