@@ -3,6 +3,10 @@
 		
 		- Flowchart connectors now support configurable 'midpoint'. This can be useful for those cases
 			where you have programmatic control of the layout.
+		
+		- recalculateOffsets method added. This lets you tell jsPlumb that the internal layout of some element that
+		has nested endpoints has changed, and that it should recalculate the offset of each endpoint with respect to
+		the element's origin.
 		  
 		  
 		ISSUES

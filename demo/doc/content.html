@@ -35,22 +35,27 @@
 			<h3><a id="changes">Changes between 1.3.16 and 1.3.15</a></h3>	
 			<h5>Backwards Compatibility</h5>
 			<ul>
-			  
+				<li>No Issues</li> 
 			</ul>
 			
 			<h5>New Features</h5>
 			<ul>
 			  <li class="bullet">Flowchart connectors now support configurable 'midpoint'</li>
+			  <li class="bullet">recalculateOffsets method added. This lets you tell jsPlumb that the internal layout of some element that
+		has nested endpoints has changed, and that it should recalculate the offset of each endpoint with respect to
+		the element's origin.</li>
 			</ul>
 			
 			<h5>Issues Resolved</h5>
 			<ul>
-			  
+				<li><strong>284</strong> - JS errors when dragging connections</li>
+				<li><strong>285</strong> - occasional error thrown by getOffset (dupe of 284)</li>
+				<li><strong>286</strong> - Bounding box of connections does not extend to include arrow</li> 
 			</ul>
 
 			<h5>Miscellaneous</h5>
 			<ul>
-			  
+				<li class="bullet">fixed paint issue with arrows in reverse direction on Straight connector.</li> 
 			</ul>
 			
 		</div>
