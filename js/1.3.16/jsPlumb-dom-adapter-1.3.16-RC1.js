@@ -81,6 +81,30 @@
 
 			_oneLevel(domEl);
 		};
+		
+		// refresh the offsets for child elements of this element. 
+		this.updateOffsets = function(elId) {
+			var jpcl = jsPlumb.CurrentLibrary,
+				el = jpcl.getElementObject(elId),
+				id = _currentInstance.getId(el),
+				children = _delements[id],
+				parentOffset = jpcl.getOffset(el);
+				
+			if (children) {
+				for (var i in children) {
+					var cel = jpcl.getElementObject(i),
+						cOff = jpcl.getOffset(cel);
+						
+					_delements[id][i] = {
+						id:i,
+						offset:{
+							left:cOff.left - parentOffset.left,
+							top:cOff.top - parentOffset.top
+						}
+					};
+				}
+			}
+		};
 
 		/**
 			notification that an endpoint was added to the given el.  we go up from that el's parent

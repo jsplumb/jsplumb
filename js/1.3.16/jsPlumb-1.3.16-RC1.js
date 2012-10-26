@@ -4251,6 +4251,18 @@ between this method and jsPlumb.reset).
 
 	if (!jsPlumbAdapter.headless)
 		_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
+		_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
+		
+		/*
+		 * Function: recalculateOffsets
+		 * Recalculates the offsets of all child elements of some element. If you have Endpoints registered on the
+		 * descendants of some element and you make changes to that element's markup, it is possible that the location
+		 * of each Endpooint relative to the origin of the element may have changed. So you call this to tell jsPlumb to
+		 * recalculate.  You need to do this because, for performance reasons, jsplumb won't calculate these offsets on
+		 * the fly.
+		 * Parameters:
+		 * el - either a string id, or a selector.
+		 */
 
 		/*
 		 * Class: Connection
@@ -4692,6 +4704,8 @@ between this method and jsPlumb.reset).
 							maxSize,							
 							sourceInfo,
 							targetInfo );
+						
+						self.connector.paint(dim, self.paintStyleInUse);
 																		
 						// paint overlays
 						for ( var i = 0; i < self.overlays.length; i++) {
@@ -4700,8 +4714,7 @@ between this method and jsPlumb.reset).
 								self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);								
 							}
 						}
-												
-						self.connector.paint(dim, self.paintStyleInUse);
+																	
 					}
 					lastPaintedAt = timestamp;						
 				}		
