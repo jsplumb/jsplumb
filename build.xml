@@ -99,17 +99,7 @@
 		<antcall target="yui.minify">
 			<param name="input" value="${output.js.dir}/${library}.jsPlumb-${final.version}-all.js"/>
 			<param name="output" value="${output.js.dir}/${library}.jsPlumb-${final.version}-all-min.js"/>
-		</antcall>
-		
-		<!-- put a header in the file -->
-		<replaceregexp>
-			<regexp pattern="(&lt;!-- DEP.*&gt;.*\n)(.*\n)*(.*/DEP --&gt;)"/>
-			<substitution expression="${dependencies}"/>
-			<fileset dir="${output.demo.dir}/${libraryDir}">
-				<include name="*.html"/>
-			</fileset>
-		</replaceregexp>
-		
+		</antcall>				
 	</target>
 	
 	<!-- 
