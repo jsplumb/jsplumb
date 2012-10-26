@@ -387,6 +387,37 @@ jsPlumb.draggable("container");
 </div>
 Now when you drag "container", jsPlumb will have noticed that there are nested elements that have connections, and they will be updated.  Note that the order of operations is not important here: if "container" was already draggable when you connected one of its children to something, you would get the same result.
 
+		<h5>Nested Element offsets</h5>
+		For performance reasons, jsPlumb caches the offset of each nested element relative to its draggable ancestor. If you
+		make changes to the draggable ancestor that will have resulted in the offset of one or more nested elements changing,
+		you need to tell jsPlumb about it, using the <strong>recalculateOffsets</strong> function. Consider the example from
+		before, but with a change to the markup after initializing everything:
+<div class="code">
+<pre>
+&lt;div id="container"&gt;
+  &lt;div class="header" style="height:20px;background-color:blue;"&gt;header&lt;/div&gt;
+  &lt;div class="childType1"&gt;&lt;/div&gt;
+  &lt;div class="childType2"&gt;&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+</div>
+..and then you connect one of those child divs to something, and make "container" draggable:
+<div class="code">
+<pre>
+jsPlumb.connect({
+	source:$("#container .childType1"),
+	target:"somewhere else"
+});
+
+jsPlumb.draggable("container");
+
+...
+
+$("#container .header).hide();    // hide the header bar. this will alter the offset of the other child elements...
+jsPlumb.recalculateOffsets("container");   // tell jsPlumb that the internal dimensions have changed.
+					// you can also use a selector, eg $("#container")
+</pre>
+</div>
 
 		</div>
 				
