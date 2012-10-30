@@ -1,6 +1,6 @@
 body { 
 	background-color:white; font-size:90%;
-	background-image:url(../img/dynamicAnchorBg.jpg); 
+	/*background-image:url(../img/dynamicAnchorBg.jpg); */
 }
 /* docs */
 .code { background-color:#e4eeee;
@@ -93,7 +93,7 @@ padding-left:0;
 }
 
 .index {
-width:20em;
+/*width:20em;*/
 font-size:9pt;
 float:left;
 background-color:#e4eeee;
