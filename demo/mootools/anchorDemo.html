@@ -1,14 +1,31 @@
 <!doctype html>
 <html>
 	<head>
-		<title>jsPlumb 1.3.16 - Connection Sources and Targets Demonstration - MooTools</title>
+		<title>jsPlumb 1.4.0 - Connection Sources and Targets Demonstration - MooTools</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
+		<link rel="stylesheet" href="../css/demo-new.css">
 		<link rel="stylesheet" href="../css/anchorDemo.css">
 	</head>
 	<body data-demo-id="anchorDemo" data-library="mootools">	
 						
-		<div id="demo">
+		<div id="header"></div>
+        <div id="sidebar">
+			<div id="explanation">
+				<p>This page provides a demonstration of the makeSource and makeTarget functions.</p>
+				<p>Drag Connections from the blue element to any of the green ones. You can also drag existing
+					Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
+				<p>These functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
+				elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
+				<p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>	    	
+				<p>
+				The 'disable' link is excluded from being a drag source through the use of the 'filter' parameter on the makeSource call.
+				</p>
+				<p>The green elements are configured as Connection targets, with a "TopCenter" anchor, and are draggable</p>
+				<p>This demonstration uses jsPlumb 1.4.0, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
+			</div>	    			
+		</div>
+        <div id="main">
+			<div id="render"></div>
 			<div class="window" id="window1">			
 				<strong>Window 1</strong>
 				<a href="#" id="enableDisableSource">disable</a>				
@@ -19,52 +36,7 @@
 		    <div class="window smallWindow" id="window5"><strong>Window 5</strong><br/><br/></div>
 		    <div class="window smallWindow" id="window6"><strong>Window 6</strong><br/><br/></div>
 		</div>
-	    <div id="explanation">
-	    	<p>This page provides a demonstration of the makeSource and makeTarget functions.  Drag Connections from the
-	    	big blue element to any of the small green ones. You can also drag Connections from one green element to another, because Connections in jsPlumb
-            are, by default, detachable (this behaviour can be overridden at the default level, or on a per-call basis).</p>
-            <p>These functions provide an alternative means of setting up your UI to support draggable connections - in the other demos you will see Endpoints
-            being created and assigned to elements, which are then used as the sources and targets for Connections.  But in this demonstration we treat entire
-            elements as sources and targets, and only when Connections are established do we assign Endpoints for them, according to the parameters specified in
-            the makeSource and makeTarget method calls.</p>
-	    	<p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor
-	    	locations:</p>
-	    	<div class="code">
-<pre>
-var sourceAnchors = [ 
-	[ 0, 1, 0, 1 ],
-	[ 0.25, 1, 0, 1 ],
-	[ 0.5, 1, 0, 1 ],
-	[ 0.75, 1, 0, 1 ],
-	[ 1, 1, 0, 1 ]				
-];
-jsPlumb.makeSource("window1", {
-	anchor:sourceAnchors,
-	filter:function(evt, el) {
-		var t = evt.target || evt.srcElement;
-		return t.tagName !== "A";
-	}
-});</pre>
-	    	</div>
-	    	<p>
-	    	The 'disable' link on the blue element is excluded from being a drag source through the use of the 'filter' parameter on the makeSource call (shown in the code snippet above)
-	    	</p>
-	    	The green elements are configured as Connection targets, with a "TopCenter" anchor, and are draggable:
-<div class="code">
-<pre>
-var smallWindows = jsPlumb.getSelector(".smallWindow");
-for (var i = 0; i < smallWindows.length; i++) {	
-  jsPlumb.draggable(smallWindows[i]);
-  jsPlumb.makeTarget(smallWindows[i], {
-    anchor:"TopCenter"	
-  });
-}
-</pre>
-</div>
-	    	<p>This demonstration uses jsPlumb 1.3.16, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
-	    
-	    </div>
-	    
+		
 	    <!-- DEP -->
 	    <script type="text/javascript" src="../../js/lib/mootools-1.3.2-yui-compressed.js"></script>
 	    <!-- /DEP -->
@@ -74,25 +46,24 @@ for (var i = 0; i < smallWindows.length; i++) {
 		<!-- support lib for bezier stuff -->
 		<script type="text/javascript" src="../../js/lib/jsBezier-0.4-min.js"></script>
 		<!-- jsplumb util -->
-		<script type="text/javascript" src="../../js/1.3.16/jsPlumb-util-1.3.16-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
 		<!-- base DOM adapter -->
-		<script type="text/javascript" src="../../js/1.3.16/jsPlumb-dom-adapter-1.3.16-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>
 		<!-- main jsplumb engine -->
-		<script type="text/javascript" src="../../js/1.3.16/jsPlumb-1.3.16-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
 		<!-- connectors, endpoint and overlays  -->
-		<script type="text/javascript" src="../../js/1.3.16/jsPlumb-defaults-1.3.16-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
 		<!-- SVG renderer -->
-		<script type="text/javascript" src="../../js/1.3.16/jsPlumb-renderers-svg-1.3.16-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
 		<!-- canvas renderer -->
-		<script type="text/javascript" src="../../js/1.3.16/jsPlumb-renderers-canvas-1.3.16-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
 		<!-- VML renderer -->
-		<script type="text/javascript" src="../../js/1.3.16/jsPlumb-renderers-vml-1.3.16-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
 		<!-- mootools jsplumb adapter -->
-		<script type="text/javascript" src="../../js/1.3.16/mootools.jsPlumb-1.3.16-RC1.js"></script>
+		<script type="text/javascript" src="../../js/1.4.0/mootools.jsPlumb-1.4.0-RC1.js"></script>
 		<!-- /JS -->
 				
-		<!--  demo code -->
-		<script type="text/javascript" src="../js/anchorDemo.js"></script>
+		<!--  demo code -->		
 		<script type="text/javascript" src="../js/anchorDemo-mootools.js"></script>
 		
 		<!--  demo helper code -->
