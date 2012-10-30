@@ -19,15 +19,16 @@
 }
 #window1 { 
 	background-color:#225588; 
-	top:4em;
+	top:9em;
 	left:14em;
 	width:30em;
 	height:6em;
+	text-align:left;
 }
-#window2 { top:24em; left:44em;}
-#window3 { top:18em; left:2em; }
-#window4 { top:26em; left:26em; }
-#window5 {top:34em;left:13em; }
-#window6 {top:16em;left:56em; }
+#window2 { top:29em; left:44em;}
+#window3 { top:23em; left:2em; }
+#window4 { top:31em; left:26em; }
+#window5 {top:39em;left:13em; }
+#window6 {top:21em;left:56em; }
 
 ._jsPlumb_endpoint { z-index:32; }

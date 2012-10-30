@@ -12,12 +12,12 @@
 	text-align:center;
 	background-color:white;
 }
-#window1 { left:20em;}
-#window2 { left:10em;top:12em;}
-#window3 { left:40em;top:12em;}
-#window4 { left:4em;top:24em;}
-#window5 { left:22em;top:24em;}
-#window6 { left:47em;top:24em;}
-#window7 { top:18em;left:40em;}
-#window8 { left:63em;top:32em;}
+#window1 { left:20em; top:4em;}
+#window2 { left:10em;top:16em;}
+#window3 { left:40em;top:16em;}
+#window4 { left:4em;top:28em;}
+#window5 { left:22em;top:28em;}
+#window6 { left:47em;top:28em;}
+#window7 { top:18em;left:44em;}
+#window8 { left:63em;top:36em;}
 

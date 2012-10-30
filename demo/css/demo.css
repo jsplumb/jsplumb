@@ -34,14 +34,14 @@ border-color:#5d94a6;
 	 
 }
 
-#window1 {  top:2em;left:2em;}
-#window2 { top:14em; left:47em;}
-#window3 { top:28em;left:2em; }
-#window4 { top:6em; left:26em;}
-#window5 {top:40em;left:32em;}
-#window6 {top:25em;left:69em;}
-#window7 {top:54em;left:4em;}
-#window8 {left:63em;top:32em;}
+#window1 {  top:5em;left:2em;}
+#window2 { top:17em; left:47em;}
+#window3 { top:31em;left:2em; }
+#window4 { top:9em; left:26em;}
+#window5 {top:43em;left:32em;}
+#window6 {top:28em;left:69em;}
+#window7 {top:57em;left:4em;}
+#window8 {left:66em;top:32em;}
 ._jsPlumb_connector { z-index:4; }
 ._jsPlumb_endpoint { z-index:5; }
 ._jsPlumb_overlay { z-index:6; }
