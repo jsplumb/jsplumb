@@ -3,7 +3,7 @@ body {
     margin:0;
     background-color:white;    
     font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    text-align:center;
+    text-align:center;	
 }
 #header {
     height:44px;
@@ -24,9 +24,7 @@ body {
    
    opacity:0.8;
 }
-#sidebar {
-    /*float:left;*/
-    
+#sidebar {    
     position:fixed;
     min-height:100%;
     top:44px;    
@@ -43,12 +41,8 @@ body {
 #main {
     z-index:9;
     margin-top:44px;
-   margin-left:250px;
-   /*margin-left:auto;
-   margin-right:auto;*/
-    position:relative;
-    
-    background-color:blue;
+	margin-left:250px;
+	position:relative;	
     font-size:80%;
 }
 
@@ -75,7 +69,7 @@ body {
 }
 
 #render{    
-    top:5px;
+    top:10px;
     position:absolute;
     z-index:5000;
     padding-top:0.1em;
