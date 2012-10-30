@@ -1,3 +1,13 @@
+* 1.4.0
+
+		NEW FUNCTIONALITY
+		
+		- jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:
+		'jsplumb' for the static instance, and 'jsplumbinstance', for a new instance.
+		
+		
+		
+
 * 1.3.16
 		NEW FUNCTIONALITY
 		
