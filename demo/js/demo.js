@@ -43,75 +43,78 @@
 				},
 				endpointStyle:{ fillStyle:"#a7b04b" },
 			   	hoverPaintStyle:hoverPaintStyle,			   
-			   	overlays : [ ["Label", {													   					
-			   					cssClass:"l1 component label",
-			   					label : "Connection One", 
-			   					location:0.7,
-			   					id:"label",
-			   					events:{
-									"click":function(label, evt) {
-										alert("clicked on label for connection " + label.component.id);
-			   						}
-			   					}
-			   				  } ],
-			   				["Arrow", {
-			   					cssClass:"l1arrow",
-				   				location:0.5, width:40,
-				   				events:{
-				   					"click":function(arrow, evt) {
-				   						alert("clicked on arrow for connection " + arrow.component.id);
-				   					}
-				   				}
-	   						}]
-			]});            
+			   	overlays : [
+					["Label", {													   					
+						cssClass:"l1 component label",
+						label : "Connection One", 
+						location:0.7,
+						id:"label",
+						events:{
+							"click":function(label, evt) {
+								alert("clicked on label for connection " + label.component.id);
+							}
+						}
+					}],
+					["Arrow", {
+						cssClass:"l1arrow",
+						location:0.5, width:40,
+						events:{
+							"click":function(arrow, evt) {
+								alert("clicked on arrow for connection " + arrow.component.id);
+							}
+						}
+					}]
+				]
+			});            
 					        
 	        var w23Stroke = "rgb(189,11,11)"; 
 	        var connection3 = jsPlumb.connect({
-					source:"window2", 
-	      				target:"window3", 
-	      				paintStyle:{ 
-							lineWidth:8,
-							strokeStyle:w23Stroke,
-							outlineColor:"#666",
-							outlineWidth:1 
-						},
-                        detachable:false,
-	      				hoverPaintStyle:hoverPaintStyle, 
-	      				anchors:[ [ 0.3 , 1, 0, 1 ], "TopCenter" ], 
-	      				endpoint:"Rectangle", 
-	      				endpointStyles:[
-	      		        	{ gradient : { stops:[[0, w23Stroke], [1, "#558822"]] }},
-		    			{ gradient : {stops:[[0, w23Stroke], [1, "#882255"]] }}
-		    		]
+				source:"window2", 
+				target:"window3", 
+				paintStyle:{ 
+					lineWidth:8,
+					strokeStyle:w23Stroke,
+					outlineColor:"#666",
+					outlineWidth:1 
+				},
+				detachable:false,
+				hoverPaintStyle:hoverPaintStyle, 
+				anchors:[ [ 0.3 , 1, 0, 1 ], "TopCenter" ], 
+				endpoint:"Rectangle", 
+				endpointStyles:[
+					{ gradient : { stops:[[0, w23Stroke], [1, "#558822"]] }},
+					{ gradient : {stops:[[0, w23Stroke], [1, "#882255"]] }}
+				]	
 			});					
 				
-			var connection2 = jsPlumb.connect({source:'window3', target:'window4', 
-		        				 paintStyle:{ 
-	    				 		    lineWidth:10,
-	    				 			strokeStyle:connectorStrokeColor,
-	    				 			outlineColor:"#666",
-	    				 			outlineWidth:1
-	    				 		 },
-		        				 hoverPaintStyle:hoverPaintStyle, 
-		        				 anchor:"AutoDefault",
-                                 detachable:false,
-		        				 endpointStyle:{ 
-			        				 	gradient : { 
-			        				 		stops:[[0, connectorStrokeColor], [1, connectorHighlightStrokeColor]],
-			        				 		offset:17.5, 
-			        				 		innerRadius:15 
-			        				 	}, 
-			        				 	radius:35
-			        			 },				        					        			
-		        				 label : function(connection) { 
-			        				 var d = new Date();
-			        				 var fmt = function(n, m) { m = m || 10;  return (n < m ? new Array(("" + m).length - (""+n).length + 1).join("0") : "") + n; }; 
-			        				 return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds(), 100)); 
-			        			 },
-			        			 labelStyle:{
-			        				 cssClass:"component label"
-			        			 }
-		        			});
+			var connection2 = jsPlumb.connect({
+				source:'window3', target:'window4', 
+				paintStyle:{ 
+				   lineWidth:10,
+				   strokeStyle:connectorStrokeColor,
+				   outlineColor:"#666",
+				   outlineWidth:1
+				},
+				hoverPaintStyle:hoverPaintStyle, 
+				anchor:"AutoDefault",
+				detachable:false,
+				endpointStyle:{ 
+					   gradient : { 
+						   stops:[[0, connectorStrokeColor], [1, connectorHighlightStrokeColor]],
+						   offset:17.5, 
+						   innerRadius:15 
+					   }, 
+					   radius:35
+				},				        					        			
+				label : function(connection) { 
+					var d = new Date();
+					var fmt = function(n, m) { m = m || 10;  return (n < m ? new Array(("" + m).length - (""+n).length + 1).join("0") : "") + n; }; 
+					return (fmt(d.getHours()) + ":" + fmt(d.getMinutes()) + ":" + fmt(d.getSeconds())+ "." + fmt(d.getMilliseconds(), 100)); 
+				},
+				labelStyle:{
+					cssClass:"component label"
+				}
+		   });
 	
 
             /*
@@ -122,50 +125,51 @@
              */
 	        var conn4Color = "rgba(46,164,26,0.8)";
 	        var connection4 = jsPlumb.connect({  
-		        						source:'window5', 
-		        						target:'window6', 
-		        						connector:"Flowchart",
-		        						anchors:["Center", "Center"],  
-		        						paintStyle:{ 
-											lineWidth:9, 
-											strokeStyle:conn4Color, 
-											outlineColor:"#666",
-					 						outlineWidth:1,
-					 						joinstyle:"round"
-					 					},
-		        						hoverPaintStyle:hoverPaintStyle,
-                                        detachable:false,
-		        						endpointsOnTop:false, 
-		        						endpointStyle:{ radius:95, fillStyle:conn4Color },
-		        						labelStyle : { cssClass:"component label" },
-		        						label : "big\nendpoints"
-		        				});
+				source:'window5', 
+				target:'window6', 
+				connector:"Flowchart",
+				anchors:["Center", "Center"],  
+				paintStyle:{ 
+					lineWidth:9, 
+					strokeStyle:conn4Color, 
+					outlineColor:"#666",
+					outlineWidth:1,
+					joinstyle:"round"
+				},
+				hoverPaintStyle:hoverPaintStyle,
+				detachable:false,
+				endpointsOnTop:false, 
+				endpointStyle:{ radius:95, fillStyle:conn4Color },
+				labelStyle : { cssClass:"component label" },
+				label : "big\nendpoints"
+		    });
 	
 	        var connection5 = jsPlumb.connect({
-		        					source:"window4", 
-		        					target:"window5", 
-		        					anchors:["BottomRight", "TopLeft"], 
-		        					paintStyle:{ 
-										lineWidth:7,
-										strokeStyle:"rgb(131,8,135)",
+				source:"window4", 
+				target:"window5", 
+				anchors:["BottomRight", "TopLeft"], 
+				paintStyle:{ 
+					lineWidth:7,
+					strokeStyle:"rgb(131,8,135)",
 //										outlineColor:"#666",
 //						 				outlineWidth:1,
-						 				dashstyle:"4 2",
-						 				joinstyle:"miter"
-	   								},
-                                    tooltip:"This connection will appear dashed when using SVG or VML.  This effect is achieved through CSS - see the accompanying stylesheet for this demo",
-		        					hoverPaintStyle:hoverPaintStyle, 
-		        					endpoint:["Image", {url:"../img/endpointTest1.png"}], 
-		        					connector:"Straight", 
-		        					endpointsOnTop:true,
-									overlays:[ ["Label", {
-													cssClass:"component label",		    			        				 
-							    			        label : "4 - 5",
-							    			        location:0.3
-                                                }],
-							    			    "Arrow"
-							    			    
-									]});
+					dashstyle:"4 2",
+					joinstyle:"miter"
+				},
+				tooltip:"This connection will appear dashed when using SVG or VML.  This effect is achieved through CSS - see the accompanying stylesheet for this demo",
+				hoverPaintStyle:hoverPaintStyle, 
+				endpoint:["Image", {url:"../img/endpointTest1.png"}], 
+				connector:"Straight", 
+				endpointsOnTop:true,
+				overlays:[ ["Label", {
+								cssClass:"component label",		    			        				 
+								label : "4 - 5",
+								location:0.3
+							}],
+							"Arrow"
+							
+				]
+			});
 									
 			var stateMachineConnector = {				
 				connector:"StateMachine",
@@ -199,9 +203,10 @@
                 return false;
             });
 			
-			// make all .window divs draggable
-			jsPlumb.draggable(jsPlumb.getSelector(".window"));
-            
+			// make all .window divs draggable. note that here i am just using a convenience method - getSelector -
+			// that enables me to reuse this code across all three libraries. In your own usage of jsPlumb you can use
+			// your library's selector method - "$" for jQuery, "$$" for MooTools, "Y.all" for YUI3.
+			jsPlumb.draggable(jsPlumb.getSelector(".window"));            
 		}
 	};	
 })();

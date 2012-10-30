@@ -2,7 +2,7 @@
 
 	var entries = [
 		{ id:"demo", name:"jsPlumb Home", about:"Main jsPlumb demo page.  Contains a bit of everything" },
-		{ id:"flowchartConnectorsDemo", name:"Flowchart Connectors", about:"Demonstration of the Flowchart connectors" },
+		{ id:"flowchartConnectorsDemo", name:"Flowchart", about:"Demonstration of the Flowchart connectors" },
 		{ id:"draggableConnectorsDemo", name:"Draggable Connections", about:"Demonstration of drag and drop connections" },
 		{ id:"perimeterAnchorsDemo", name:"Perimeter Anchors", about:"Demonstration of perimeter anchors" },
 		{ id:"stateMachineDemo", name:"State Machine", about:"Demonstration of the State Machine Connectors and Continuous Anchors" },
@@ -20,12 +20,12 @@
 		var s = "", demoInfo = jsPlumb.DemoList.find(demoId);
 		for (var i = 0; i < libraries.length; i++) {
 			var c = libraries[i].id == library ? "selected" : "";
-			s += '<a class="' + c + '" href="../' + libraries[i].id + '/' + demoId + '.html">' + libraries[i].name + '</a>&nbsp;&nbsp;';
+			s += '<a class="' + c + '" href="../' + libraries[i].id + '/' + demoId + '.html" title="Use ' + libraries[i].name + ' as the support library">' + libraries[i].name + '</a>&nbsp;';
 		}
 		return s;
 	},
 	demoSelectorString = (function() {
-		var s = '<h5>Select Demo:</h5><select id="demoSelector" class="demoSelector">';
+		var s = '&nbsp;<h5>select:</h5><select id="demoSelector" class="demoSelector" title="Select a demo">';
 		for (var i = 0; i < entries.length; i++) {
 			s += '<option value="' + entries[i].id + '.html">' + entries[i].name + '</option>';
 		}
@@ -54,30 +54,32 @@
 			var bod = document.body,
 				demoId = bod.getAttribute("data-demo-id"),
 				library = bod.getAttribute("data-library"),
-				renderModeString = '<h5>Render Mode:</h5><a href="#" class="rmode" mode="svg">SVG</a>&nbsp;|&nbsp;<a href="#" class="selected rmode" mode="canvas">Canvas</a>&nbsp;|&nbsp;<a href="#" class="rmode" mode="vml">VML</a>',
-				libraryString = '<h5>Library:</h5><div class="otherLibraries"></div>' + prepareOtherLibraryString(demoId, library),
+				renderModeString = '<a href="#" class="rmode" mode="svg" title="Use SVG for rendering">SVG</a>&nbsp;<a href="#" class="selected rmode" mode="canvas" title="Use Canvas elements for rendering">Canvas</a>&nbsp;<a href="#" class="rmode" mode="vml" title="Use VML for rendering (IE < 10 only)">VML</a>',
+				libraryString = '&nbsp;|&nbsp;<div class="otherLibraries"></div>' + prepareOtherLibraryString(demoId, library),
 				demoInfo = jsPlumb.DemoList.find(demoId);
 				
 			if (demoInfo) {
-				var prevString = '<h5>Previous:</h5><a href="' + demoInfo.prev.id + '.html">' + demoInfo.prev.name + '</a>',
-					nextString = '<h5>Next:</h5><a href="' + demoInfo.next.id + '.html">' + demoInfo.next.name + '</a>',
-					menuString = '<div class="menu"><a href="../doc/usage.html" class="mplink">view documentation</a>' +
-							 '&nbsp;|&nbsp;<a href="../apidocs">view api docs</a>' +
+				var prevString = '|&nbsp;<h5>prev:</h5><a href="' + demoInfo.prev.id + '.html" title="View previous demo">' + demoInfo.prev.name + '</a>',
+					nextString = '&nbsp;<h5>next:</h5><a href="' + demoInfo.next.id + '.html" title="View next demo">' + demoInfo.next.name + '</a>',
+					menuString = '<a href="../doc/usage.html" class="mplink">Documentation</a>' +
+							 '&nbsp;|&nbsp;<a href="../apidocs">API docs</a>' +
 							 '&nbsp;|&nbsp;<a href="../../tests/qunit-all.html">qUnit tests</a>' +
-							 '&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">contact me</a>' +
-                             '&nbsp;|&nbsp;<a href="http://github.com/sporritt/jsplumb/" class="mplink">jsPlumb on GitHub</a>' +
-							 '&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">jsPlumb on Google code</a>' +			
-							 '&nbsp;|&nbsp;<a href="http://jsplumb.tumblr.com" class="mplink">jsPlumb on Tumblr</a>';			
+							 '&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>' +
+                             '&nbsp;|&nbsp;<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>' +
+							 '&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">Google Code</a>';// +			
+							 //'&nbsp;|&nbsp;<a href="http://jsplumb.tumblr.com" class="mplink">jsPlumb on Tumblr</a>';			
 			
-				var d = document.createElement("div");
-				d.className = "renderMode";
-				d.innerHTML = renderModeString + libraryString + prevString + "<br/>" + nextString + demoSelectorString;
-				bod.appendChild(d);
+				//var d = document.createElement("div");
+				//d.className = "renderMode";
+				document.getElementById("render").innerHTML = renderModeString + libraryString + prevString  + demoSelectorString+ nextString;				
+				//document.getElementById("sidebar").appendChild(d);
+				//document.body.appendChild(d);				
+				//document.getElementById("sidebar").insertBefore(d, document.getElementById("explanation"));
 			
 				var m = document.createElement("div");
 				m.className = "menu";
-				m.innerHTML = menuString;
-				bod.appendChild(m);
+				m.innerHTML = menuString;				
+				document.getElementById("header").appendChild(m);
 			
 				var ds = document.getElementById("demoSelector");
 				ds.selectedIndex = demoInfo.idx;
