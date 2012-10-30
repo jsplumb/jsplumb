@@ -61,19 +61,13 @@ a:hover {text-decoration:underline;}
 	color:rgb(189,11,11);
 }
 
+iframe {
+	border:0 !important;
+}
 
-/*  these styles are what jsPlumb attaches to the various elements it creates.
-._jsPlumb_connector {
-border:1px solid blue;
+#main {
+	margin-top:46px;
 }
-._jsPlumb_endpoint {
-border:1px solid green;
-}
-._jsPlumb_overlay {
-border:1px solid yellow;
-}
-*/
-
 
 .section li {
 list-style-type:none;

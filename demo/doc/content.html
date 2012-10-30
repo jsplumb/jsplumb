@@ -1,12 +1,29 @@
 <html>
 	<head>
-		<title>jsPlumb 1.4.0 - documentation</title>
-		<link rel="stylesheet" href="/mp.css">
+		<title>jsPlumb 1.4.0 - documentation</title>		
 		<link rel="stylesheet" href="jsPlumbDoc.css">
+			
+		<script type="text/javascript" src="../../js/lib/jquery-1.8.1-min.js"></script>
+		<script type="text/javascript" src="../js/jquery.scrollTo-min.js"></script>
+		<script type="text/javascript">
+			window.scrollTo = function(id) {
+				$(document).scrollTo("#" + id);
+			};
+			$(function() {
+				$("a").bind("click", function() {
+					var h = $(this).attr("href");
+					if (h && h[0] == "#") {
+						scrollTo(h.substring(1));
+						return false;
+					}					
+				});
+			});
+		</script>	
+			
 	</head>
 	<body>
 
-<div class="content">
+		<div class="content">
 		<div class="section">
 			<h3><a id="summary">Summary</a></h3>
 			jsPlumb allows you to connect elements on the screen using SVG, Canvas or VML, depending on the capabilities of the browser.
