@@ -1,6 +1,6 @@
 body { 
-	background-color:white; font-size:90%;
-	/*background-image:url(../img/dynamicAnchorBg.jpg); */
+	background-color:white; font-size:90%;	
+	margin:0;
 }
 /* docs */
 .code { background-color:#e4eeee;

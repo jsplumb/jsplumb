@@ -1,19 +1,15 @@
 <html>
 	<head>
 		<title>jsPlumb 1.4.0 - documentation</title>
-		<link rel="stylesheet" href="../css/demo-new.css">
-		<link rel="stylesheet" href="jsPlumbDoc.css">
-	</head>
+		<link rel="stylesheet" href="../css/demo-new.css">		
+	</head>	
 	
-	<div id="header">
-		<div class="menu">
-			<a href="http://jsplumb.org" class="mplink" target="_top">Demonstrations</a>&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>
-		</div>
-	</div>
-	<div id="sidebar">
-		<iframe src="index.html"></iframe>
-	</div>
-	<div id="main">
-		<iframe src="content.html" id="content"></iframe>
-	</div>		
+	<frameset rows="44,*">
+		<frame src="header.html"/>
+		<frameset cols="250,*">
+			<frame src="index.html" />
+			<frame src="content.html" name="contentFrame" />
+		</frameset>
+	</frameset>
+		
 </html>
