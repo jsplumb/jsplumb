@@ -5,11 +5,20 @@
 		<title>jsPlumb 1.4.0 - State Machine Demonstration - jQuery</title>
 		<link rel="stylesheet" href="../css/demo-new.css">
 		<link rel="stylesheet" href="../css/stateMachineDemo.css">
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>						
 	</head>
 	<body data-demo-id="stateMachineDemo" data-library="jquery">
 		
-		<div id="header"></div>
-        <div id="sidebar">
+		<div id="headerWrapper"><div id="header"></div></div>        
+        <div id="main">
+			<div id="render"></div>
+			<div class="w" id="opened">begin<div class="ep"></div></div>
+			<div class="w" id="phone1">phone interview 1<div class="ep"></div></div>
+			<div class="w" id="phone2">phone interview 2<div class="ep"></div></div>
+			<div class="w" id="inperson">in person<div class="ep"></div></div>
+			<div class="w" id="rejected">rejected<div class="ep"></div></div>			
+		</div>
+		<div id="sidebar">
 			<div id="explanation">
 				<p>This is a demonstration of the StateMachine connector type, and of 'Continuous' anchors, which are anchors whose location is calculated based
 				on the location of all other connected elements, and which guarantee a unique endpoint per connection.
@@ -20,14 +29,6 @@
 	
 				<p>This demonstration uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
 			</div>	    			
-		</div>
-        <div id="main">
-			<div id="render"></div>
-			<div class="w" id="opened">begin<div class="ep"></div></div>
-			<div class="w" id="phone1">phone interview 1<div class="ep"></div></div>
-			<div class="w" id="phone2">phone interview 2<div class="ep"></div></div>
-			<div class="w" id="inperson">in person<div class="ep"></div></div>
-			<div class="w" id="rejected">rejected<div class="ep"></div></div>			
 		</div>
 	
 		<!-- DEP -->

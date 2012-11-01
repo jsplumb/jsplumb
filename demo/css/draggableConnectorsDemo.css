@@ -22,7 +22,11 @@ padding-top:0.9em; font-size:0.9em;text-align:center;z-index:40;background-color
     position:absolute;
     width:250px;
     left:30%;
-    top:100px;    
+    top:100px;
+    background-color:white;
+    padding:5px;
+    border:1px solid #456;
+    opacity:0.8;
 }
 #list table { width:100%; text-align:left;}
 #explanation { text-align:center; }

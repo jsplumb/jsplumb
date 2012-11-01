@@ -9,12 +9,14 @@
     position:absolute;
     cursor:pointer;
     text-align:center;
-    color:#789;
+    color:#333;
 }
 
 [data-shape=rectangle] {
     width:210px;
     height:70px;
+    left:380px;
+    top:505px;
     line-height: 70px;
     background-image:url(../img/rectangle.png);
 }
@@ -22,6 +24,8 @@
 [data-shape=ellipse] {
     width:210px;
     height:70px;
+    left:250px;
+    top:300px;
     line-height: 70px;
     background-image:url(../img/ellipse.png);
 }
@@ -29,6 +33,8 @@
 [data-shape=circle] {
     width:150px;
     height:150px;
+    left:100px;
+    top:60px;
     line-height: 150px;
     background-image:url(../img/circle.png);
 }
@@ -50,6 +56,8 @@
 [data-shape=diamond] {
     width:150px;
     height:150px;
+    left:550px;
+    top:150px;
     line-height: 150px;
     background-image:url(../img/diamond.png);
 }

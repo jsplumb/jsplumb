@@ -30,7 +30,7 @@
 			var connection1 = jsPlumb.connect({
 				source:"window1", 
 			   	target:"window2", 			   	
-				connector:"Bezier",
+				connector:["Bezier", { curviness:70 }],
 			   	cssClass:"c1",
 			   	endpoint:"Blank",
 			   	endpointClass:"c1Endpoint",													   
@@ -139,7 +139,7 @@
 				hoverPaintStyle:hoverPaintStyle,
 				detachable:false,
 				endpointsOnTop:false, 
-				endpointStyle:{ radius:95, fillStyle:conn4Color },
+				endpointStyle:{ radius:65, fillStyle:conn4Color },
 				labelStyle : { cssClass:"component label" },
 				label : "big\nendpoints"
 		    });

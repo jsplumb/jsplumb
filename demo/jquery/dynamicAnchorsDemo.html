@@ -5,16 +5,10 @@
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../css/demo-new.css">
 		<link rel="stylesheet" href="../css/dynamicAnchorsDemo.css">
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>						
 	</head>
 	<body data-demo-id="dynamicAnchorsDemo" data-library="jquery">
-		<div id="header"></div>
-        <div id="sidebar">
-			<div id="explanation">
-				<p>This is a demonstration of anchors that change position dependent on the location of the other element in a connection. Each connection is decorated with a Diamond overlay, located halfway along the connector.</p>
-            <p>You can drag new connections between blue endpoints.</p>
-	    	<p>This demonstration uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
-			</div>	    			
-		</div>
+		<div id="headerWrapper"><div id="header"></div></div>            
         <div id="main">
 			<div id="render"></div>
 			<div class="window" id="window1"><strong>1</strong><br/><br/></div>
@@ -23,6 +17,13 @@
 		    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
 		    <div class="window" id="window5"><strong>5</strong><br/><br/></div>
 		    <div class="window" id="window6"><strong>6</strong><br/><br/></div>
+		</div>
+		<div id="sidebar">
+			<div id="explanation">
+				<p>This is a demonstration of anchors that change position dependent on the location of the other element in a connection. Each connection is decorated with a Diamond overlay, located halfway along the connector.</p>
+            <p>You can drag new connections between blue endpoints.</p>
+	    	<p>This demonstration uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
+			</div>	    			
 		</div>
 
 	    <!-- DEP -->

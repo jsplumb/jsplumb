@@ -1,6 +1,7 @@
 body { 
 	background-color:white; font-size:90%;	
 	margin:0;
+	font-family:'Open Sans', "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 /* docs */
 .code { background-color:#e4eeee;
@@ -10,7 +11,9 @@ font-family:courier;
 font-size:8pt;
 border-radius:0.3em;
 }
-.section { border-bottom: 1px dotted black; padding:1em;font-family:helvetica;background-color:white;color:#333;}
+.section { border-bottom: 1px dotted black; padding:1em;
+font-family:'Open Sans', "Helvetica Neue",Helvetica,Arial,sans-serif;
+background-color:white;color:#333;}
 .menu { 
 	position:fixed; 
 	right:10em; top:1em;

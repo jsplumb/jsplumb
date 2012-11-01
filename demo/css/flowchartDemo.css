@@ -33,9 +33,9 @@ filter:alpha(opacity=60);
 	border:1px dotted red;
 }
 
-#window1 { top:36em;left:10em;}
-#window2 { top:4em; left:36em;}
-#window3 { top:26em;left:45em; }
+#window1 { top:34em;left:5em;}
+#window2 { top:7em; left:36em;}
+#window3 { top:27em;left:48em; }
 #window4 { top:23em; left:22em;}
 ._jsPlumb_connector { z-index:4; }
 ._jsPlumb_endpoint, .endpointTargetLabel, .endpointSourceLabel{ z-index:21;cursor:pointer; }
