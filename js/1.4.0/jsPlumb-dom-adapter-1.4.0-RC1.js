@@ -148,6 +148,11 @@
 				}
 			}		
 		};
+		
+		this.changeId = function(oldId, newId) {				
+			_delements[newId] = _delements[oldId];			
+			delete _delements[oldId];
+		};
 
 		this.getElementsForDraggable = function(id) {
 			return _delements[id];	

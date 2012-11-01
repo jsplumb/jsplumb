@@ -442,20 +442,7 @@
                 to[index] = sourcePos[index] > targetPos[index] ? 1 : -1;
                 so[oIndex] = 0;
                 to[oIndex] = 0;
-            }
-            
-			/*
-			 this code is unexplained and causes paint errors with continuous anchors sometimes.
-			 commenting it out until i can get to the bottom of it.
-            if (w < minWidth) {      
-                sourceOffx += (minWidth - w) / 2;
-                w = minWidth;
-            }
-            if (h < minWidth) {             
-                sourceOffy += (minWidth - h) / 2;
-                h = minWidth;
-            }
-            */
+            }            			
 
             var sx = swapX ? (w - targetOffx) +( gap * so[0])  : sourceOffx + (gap * so[0]), 
                 sy = swapY ? (h - targetOffy) + (gap * so[1])  : sourceOffy + (gap * so[1]), 

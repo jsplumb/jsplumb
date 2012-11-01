@@ -3358,17 +3358,21 @@ between this method and jsPlumb.reset).
 			delete endpointsByElement[id];
 
 			_currentInstance.anchorManager.changeId(id, newId);
+			if (!jsPlumbAdapter.headless)		
+				_currentInstance.dragManager.changeId(id, newId);
 
 			var _conns = function(list, epIdx, type) {
 				for (var i = 0; i < list.length; i++) {
-					list[i].endpoints[epIdx].elementId = newId;
-					list[i].endpoints[epIdx].element = el;
+					list[i].endpoints[epIdx].setElementId(newId);
+					list[i].endpoints[epIdx].setElement(el);
 					list[i][type + "Id"] = newId;
 					list[i][type] = el;
 				}
 			};
 			_conns(sConns, 0, "source");
 			_conns(tConns, 1, "target");
+			
+			_currentInstance.repaint(newId);
 		};
 
 		/*
@@ -5115,6 +5119,16 @@ between this method and jsPlumb.reset).
 			var _elementId = _getAttribute(_element, "id");
 			this.elementId = _elementId;
 			this.element = _element;
+			
+			self.setElementId = function(_elId) {
+				_elementId = _elId;
+				self.elementId = _elId;
+			};
+			
+			self.setElement = function(_el) {
+				_element = _el;
+				self.element = _el;
+			};
 			
 			var _connectionCost = params.connectionCost;
 			this.getConnectionCost = function() { return _connectionCost; };
