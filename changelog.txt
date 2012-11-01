@@ -5,7 +5,9 @@
 		- jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:
 		'jsplumb' for the static instance, and 'jsplumbinstance', for a new instance.
 		
+		ISSUES
 		
+		290 - setId doesn't work.
 		
 
 * 1.3.16
