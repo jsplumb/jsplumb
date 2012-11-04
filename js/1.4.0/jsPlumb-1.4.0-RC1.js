@@ -5988,8 +5988,7 @@ between this method and jsPlumb.reset).
 									//commonFunction();
 								}
 								_currentInstance.currentlyDragging = false;
-								delete floatingConnections[id];
-								jpc.suspendedEndpoint = null;
+								delete floatingConnections[id];								
 							}
 						};
 					
