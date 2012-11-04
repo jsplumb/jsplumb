@@ -35,7 +35,173 @@
 		this.mousedown = 
 		this.mouseup = function(e) { };					
 	};
+	
+	jsPlumb.Segments = {};
+	
+	/*
+	 * Class: AbstractSegment
+	 * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
+	 * 'Bezier'. This is new from 1.4.0, and gives us a lot more flexibility when drawing connections: things such
+	 * as rounded corners for flowchart connectors, for example, or a straight line stub for Bezier connections, are
+	 * much easier to do now.
+	 *
+	 * A Segment is responsible for providing coordinates for painting it, and also must be able to report its length.
+	 * 
+	 */ 
+	jsPlumb.Segments.AbstractSegment = function(params) {
+		
 	                                   
+	};
+	
+	jsPlumb.Segments.Straight = function(params) {
+		var self = this,
+			length = Math.sqrt(Math.pow(params.x2 - params.x1, 2) + Math.pow(params.y2 - params.y1, 2)),
+			m = jsPlumbUtil.gradient({x:params.x1, y:params.y1}, {x:params.x2, y:params.y2}), m2 = -1 / m;
+		
+		self.getLength = function() { return length; };
+		
+		/**
+         * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
+         * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
+         */
+        this.pointOnPath = function(location, absolute) {
+        	if (location == 0 && !absolute)
+                return { x:params.x1, y:params.y1 };
+            else if (location == 1 && !absolute)
+                return { x:params.x2, y:params.y2 };
+            else {
+                var l = absolute ? location > 0 ? location : length + location : location * length;
+                return jsPlumbUtil.pointOnLine({x:params.x1, y:params.y1}, {x:params.x2, y:params.y2}, l);
+            }
+        };
+        
+        /**
+         * returns the gradient of the connector at the given point - which for us is constant.
+         */
+        this.gradientAtPoint = function(_) {
+            return m;
+        };
+        
+        /**
+         * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
+         * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
+         * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
+         */
+        this.pointAlongPathFrom = function(location, distance, absolute) {            
+        	var p = self.pointOnPath(location, absolute),
+                farAwayPoint = location == 1 ? {
+                    x:params.x1 + ((params.x2 - params.x1) * 10),
+                    y:params.y1 + ((params.y1 - params.y2) * 10)
+                } : distance <= 0 ? {x:params.x1, y:params.y1} : {x:params.x2, y:params.y2 };
+				
+			if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
+
+            return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
+        };
+	};
+	
+	jsPlumb.Segments.Arc = function(params) {
+		
+	};
+	
+	jsPlumb.Segments.Bezier = function(params) {
+		var makeCurve = function() {
+			return {
+				
+			}
+		}
+	};
+	
+	/*
+	 * Class: AbstractConnector
+	 * Superclass for all Connectors; here is where Segments are managed.  This is exposed on jsPlumb just so it
+	 * can be accessed from other files. You should not try to instantiate one of these directly.
+	 *
+	 * When this class is asked for a pointOnPath, or gradient etc, it must first figure out which segment to dispatch
+	 * that request to. This is done by keeping track of the total connector length as segments are added, and also
+	 * their cumulative ratios to the total length.  Then when the right segment is found it is a simple case of dispatching
+	 * the request to it (and adjusting 'location' so that it is relative to the beginning of that segment.)
+	 */ 
+	jsPlumb.Connectors.AbstractConnector = function(params) {
+		
+		var segments = [],
+			totalLength = 0,
+			segmentProportions = [],
+			segmentProportionalLengths = [];
+			
+		var _updateSegmentProportions = function() {
+			var curLoc = 0;
+			for (var i = 0; i < segments.length; i++) {
+				var sl = segments[i].getLength();
+				segmentProportionalLengths[i] = sl / totalLength;
+				segmentProportions[i] = [curLoc, (curLoc += (sl / totalLength)) ];
+			}
+		};
+		
+		/**
+		 * returns [segment, proportion of travel in segment, segment index] for the segment 
+		 * that contains the point which is 'location' distance along the entire path, where 
+		 * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths 
+		 * are made up of a list of segments, each of which contributes some fraction to
+		 * the total length. 
+         * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
+         * as the absolute distance in pixels, rather than a proportion of the total path. 
+		 */
+		var _findSegmentForLocation = function(location, absolute) {
+            if (absolute) {
+                location = location > 0 ? location / totalLength : (totalLength + location) / totalLength;
+            }
+
+			var idx = segmentProportions.length - 1, inSegmentProportion = 1;
+			for (var i = 0; i < segmentProportions.length; i++) {
+				if (segmentProportions[i][1] >= location) {
+					idx = i;
+					// todo is this correct for all connector path types?
+					inSegmentProportion = (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
+ 					break;
+				}
+			}
+			return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
+		};
+		
+		var _addSegment = function(segment) {
+			segments.push(segment);
+			totalLength += segment.getLength();			
+		};
+		
+		var _clearSegments = function() {
+			totalLength = 0;
+			segments.splice(0, segments.length);
+		};
+		
+		this.pointOnPath = function(location, absolute) {
+			var seg = _findSegmentForLocation(location, absolute);			
+			return seg.segment.pointOnPath(seg.proportion, absolute);
+		};
+		
+		this.gradientAtPoint = function(location) {
+			var seg = _findSegmentForLocation(location, absolute);			
+			return seg.segment.gradientAtPoint(seg.proportion, absolute);
+		};
+		
+		this.pointAlongPathFrom = function(location, distance, absolute) {
+			var seg = _findSegmentForLocation(location, absolute);
+			// TODO what happens if this crosses to the next segment?
+			return seg.segment.pointAlongPathFrom(seg.proportion, distance, absolute);
+		};
+		
+		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
+			_clearSegments();
+			var out = this._compute(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth);
+			_updateSegmentProportions();
+			return out;
+		};
+		
+		return {
+			addSegment:_addSegment
+		};		
+	};
+	
     /**
      * Class: Connectors.Straight
      * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
@@ -43,13 +209,14 @@
     jsPlumb.Connectors.Straight = function() {
     	this.type = "Straight";
 		var self = this,
-		currentPoints = null,
-		_m, _m2, _b, _dx, _dy, _theta, _theta2, _sx, _sy, _tx, _ty, _segment, _length;
+		currentPoints = null;
+		
+		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);
 
         /**
          * Computes the new size and position of the canvas.         
          */
-        this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
+        this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
         	var w = Math.abs(sourcePos[0] - targetPos[0]),
             h = Math.abs(sourcePos[1] - targetPos[1]),
             // these are padding to ensure the whole connector line appears
@@ -78,57 +245,12 @@
             _sy = sourcePos[1] < targetPos[1] ? yo:h-yo;
             _tx = sourcePos[0] < targetPos[0] ? w-xo : xo;
             _ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
-            currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];                        
-            _dx = _tx - _sx, _dy = _ty - _sy;
-			//_m = _dy / _dx, _m2 = -1 / _m;
-            _m = jsPlumbUtil.gradient({x:_sx, y:_sy}, {x:_tx, y:_ty}), _m2 = -1 / _m;
-			_b = -1 * ((_m * _sx) - _sy);
-			_theta = Math.atan(_m); _theta2 = Math.atan(_m2);
-            //_segment = jsPlumbUtil.segment({x:_sx, y:_sy}, {x:_tx, y:_ty});
-            _length = Math.sqrt((_dx * _dx) + (_dy * _dy));
+            currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];
+			
+			_super.addSegment(new jsPlumb.Segments.Straight({x1:_sx, y1:_sy, x2:_tx, y2:_ty}));
                              
             return currentPoints;
-        };
-        
-        
-        /**
-         * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
-         * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
-         */
-        this.pointOnPath = function(location, absolute) {
-        	if (location == 0 && !absolute)
-                return { x:_sx, y:_sy };
-            else if (location == 1 && !absolute)
-                return { x:_tx, y:_ty };
-            else {
-                var l = absolute ? location > 0 ? location : _length + location : location * _length;
-                return jsPlumbUtil.pointOnLine({x:_sx, y:_sy}, {x:_tx, y:_ty}, l);
-            }
-        };
-        
-        /**
-         * returns the gradient of the connector at the given point - which for us is constant.
-         */
-        this.gradientAtPoint = function(location) {
-            return _m;
-        };
-        
-        /**
-         * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
-         * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
-         * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
-         */
-        this.pointAlongPathFrom = function(location, distance, absolute) {            
-        	var p = self.pointOnPath(location, absolute),
-                farAwayPoint = location == 1 ? {
-                    x:_sx + ((_tx - _sx) * 10),
-                    y:_sy + ((_sy - _ty) * 10)
-                } : distance <= 0 ? {x:_sx, y:_sy} : {x:_tx, y:_ty };
-				
-			if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
-
-            return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
-        };
+        };                    
     };
                 
     
@@ -255,6 +377,35 @@
 
             return location;
         };
+		
+		var pointOnLine = function (a,b,loc) {
+                var dx = b[0] - a[0],
+                    dy = b[1] - a[1];
+                    
+                return [ a[0] + (dx * loc), a[1] + (dy * loc) ];
+            };
+            
+			// NEEDS work.  if endpoints are swapped the overlay flips aroun
+            var pointOnCurve = function(a,b,c,d,loc) {						
+				
+				if (a[0] > d[0]) {
+					var _ = b;
+					b = c;
+					c = _;
+					_ = d;
+					d = a;
+					a = _;
+				}
+				
+                var m_ab = pointOnLine(a,b,loc),
+                    m_bc = pointOnLine(b,c,loc),
+                    m_cd = pointOnLine(c,d,loc);
+                    
+                var m_ab_bc = pointOnLine(m_ab,m_bc,loc),
+                    m_bc_cd = pointOnLine(m_bc,m_cd,loc);
+                    
+                return pointOnLine(m_ab_bc, m_bc_cd, loc);
+			};
         
         /**
          * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
@@ -262,8 +413,15 @@
          */
         this.pointOnPath = function(location, absolute) {
             var c = _makeCurve();
-            location = _translateLocation(c, location, absolute);
-            return jsBezier.pointOnCurve(c, location);
+			if (!absolute) {
+				var c = pointOnCurve([_sx, _sy], [_CP[0], _CP[1]], [_CP2[0], _CP2[1]], [_tx, _ty], location);
+				//console.log("pont is ", c[0], c[1]);
+				return {x:c[0], y:c[1]};
+			}
+			else {
+				location = _translateLocation(c, location, absolute);
+				return jsBezier.pointOnCurve(c, location);
+			}
         };
         
         /**
