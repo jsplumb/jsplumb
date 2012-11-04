@@ -7,6 +7,7 @@
 		
 		ISSUES
 		
+		289 - JS errors after dropping a target endpoint on a source
 		290 - setId doesn't work.
 		
 
