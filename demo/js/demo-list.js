@@ -66,7 +66,7 @@
 							 '&nbsp;|&nbsp;<a href="../../tests/qunit-all.html">qUnit tests</a>' +
 							 '&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>' +
                              '&nbsp;|&nbsp;<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>' +
-							 '&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/" class="mplink">Google Code</a>';// +			
+							 '&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/issues/list" class="mplink">Issues</a>';// +			
 							 //'&nbsp;|&nbsp;<a href="http://jsplumb.tumblr.com" class="mplink">jsPlumb on Tumblr</a>';			
 			
 				//var d = document.createElement("div");
