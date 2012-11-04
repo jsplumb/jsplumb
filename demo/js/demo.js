@@ -66,7 +66,8 @@
 					}]
 				]
 			});            
-					        
+				
+				        
 	        var w23Stroke = "rgb(189,11,11)"; 
 	        var connection3 = jsPlumb.connect({
 				source:"window2", 
@@ -117,12 +118,12 @@
 		   });
 	
 
-            /*
-            this connects window5 with window6 using a Flowchart connector that is painted green,
-            with large Dot endpoints that are placed in the center of each element.  there is a
-            label at the default location of 0.5, and the connection is marked as not being
-            detachable.
-             */
+            //
+            //this connects window5 with window6 using a Flowchart connector that is painted green,
+            //with large Dot endpoints that are placed in the center of each element.  there is a
+            //label at the default location of 0.5, and the connection is marked as not being
+            //detachable.
+			//
 	        var conn4Color = "rgba(46,164,26,0.8)";
 	        var connection4 = jsPlumb.connect({  
 				source:'window5', 
