@@ -28,7 +28,7 @@
 				lineWidth:5,
 				strokeStyle:"#deea18",
 				joinstyle:"round",
-				outlineColor:"white",
+				outlineColor:"#EAEDEF",
 				outlineWidth:7
 			},
 			// .. and this is the hover style. 
