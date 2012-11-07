@@ -1343,7 +1343,7 @@
 			"svg":{},
 			"vml":{}
 		};
-
+				
 		this.Endpoints = {
 			"canvas":{},
 			"svg":{},
@@ -3351,9 +3351,8 @@ between this method and jsPlumb.reset).
 
 			endpointsByElement[newId] = endpointsByElement[id] || [];
 			for (var i = 0; i < endpointsByElement[newId].length; i++) {
-				endpointsByElement[newId][i].elementId = newId;
-				endpointsByElement[newId][i].element = el;
-				endpointsByElement[newId][i].anchor.elementId = newId;
+				endpointsByElement[newId][i].setElementId(newId);
+				endpointsByElement[newId][i].setReferenceElement(el);
 			}
 			delete endpointsByElement[id];
 
@@ -3364,7 +3363,7 @@ between this method and jsPlumb.reset).
 			var _conns = function(list, epIdx, type) {
 				for (var i = 0; i < list.length; i++) {
 					list[i].endpoints[epIdx].setElementId(newId);
-					list[i].endpoints[epIdx].setElement(el);
+					list[i].endpoints[epIdx].setReferenceElement(el);
 					list[i][type + "Id"] = newId;
 					list[i][type] = el;
 				}
@@ -5123,9 +5122,10 @@ between this method and jsPlumb.reset).
 			self.setElementId = function(_elId) {
 				_elementId = _elId;
 				self.elementId = _elId;
+				self.anchor.elementId = _elId
 			};
 			
-			self.setElement = function(_el) {
+			self.setReferenceElement = function(_el) {
 				_element = _el;
 				self.element = _el;
 			};
@@ -5685,8 +5685,7 @@ between this method and jsPlumb.reset).
 					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
                         self.setHover(false, false);
-                        // TODO the hover call above does not reset any target endpoint's hover
-                        // states.
+                        // TODO the hover call above does not reset any target endpoint's hover states.
 						// create a connection. one end is this endpoint, the other is a floating endpoint.
 						jpc = _newConnection({
 							sourceEndpoint : self,
@@ -5702,6 +5701,8 @@ between this method and jsPlumb.reset).
 							cssClass:self.connectorClass,
 							hoverClass:self.connectorHoverClass
 						});
+						// fire an event that informs that a connection is being dragged						
+						fireConnectionDraggingEvent(jpc);
 
 					} else {
 						existingJpc = true;
