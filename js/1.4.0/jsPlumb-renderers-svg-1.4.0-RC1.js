@@ -32,6 +32,8 @@
  */
 ;(function() {
 	
+// ************************** SVG utility methods ********************************************	
+	
 	var svgAttributeMap = {
 		"joinstyle":"stroke-linejoin",
 		"stroke-linejoin":"stroke-linejoin",		
@@ -201,12 +203,16 @@
 		pos:_pos
 	};
 	
+ // ************************** / SVG utility methods ********************************************	
+	
 	/*
 	 * Base class for SVG components.
 	 */	
 	var SvgComponent = function(params) {
 		var self = this,
-		pointerEventsSpec = params.pointerEventsSpec || "all";
+			pointerEventsSpec = params.pointerEventsSpec || "all",
+			renderer = {};
+			
 		jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
 		self.canvas = null, self.path = null, self.svg = null; 
 	
@@ -260,25 +266,41 @@
 	    			"width": d[2],
 	    			"height": d[3]
 	    		});
-		    	self._paint.apply(this, arguments);		    			    	
+		    	renderer.paint.apply(this, arguments);		    			    	
 			}
-	    };	
+	    };
+		
+		return {
+			renderer:renderer
+		};
 	};
 	
 	/*
 	 * Base class for SVG connectors.
-	 */
+	 */ 
 	var SvgConnector = jsPlumb.SvgConnector = function(params) {
-		var self = this;
-		SvgComponent.apply(this, [ { 
-			cssClass:params["_jsPlumb"].connectorClass, 
-			originalArgs:arguments, 
-			pointerEventsSpec:"none", 
-			tooltip:params.tooltip,
-			_jsPlumb:params["_jsPlumb"] 
-		} ]);
-		this._paint = function(d, style) {
-			var p = self.getPath(d), a = { "d":p }, outlineStyle = null;									
+		var self = this,
+			_super = SvgComponent.apply(this, [ { 
+				cssClass:params["_jsPlumb"].connectorClass, 
+				originalArgs:arguments, 
+				pointerEventsSpec:"none", 
+				tooltip:params.tooltip,
+				_jsPlumb:params["_jsPlumb"] 
+			} ]);
+		
+		_super.renderer.paint = function(d, style) {
+			
+			var segments = self.getSegments(),			
+				p = "";
+			
+			// create path from segments.	
+			for (var i = 0; i < segments.length; i++) {
+				p += jsPlumb.Segments.svg.SegmentRenderer.getPath(segments[i]);
+				p += " ";
+			}			
+			
+			var a = { "d":p }, outlineStyle = null;
+				
 			a["pointer-events"] = "all";
 			
 			// outline style.  actually means drawing an svg object underneath the main one.
@@ -299,28 +321,12 @@
 				}
 				
 				_applyStyles(self.svg, self.bgPath, outlineStyle, d, self);
-			}
-			
-			
-			// test - see below
-	    	//	a["clip-path"]= "url(#testClip)"; 
+			}			
 			
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
 		    	self.svg.appendChild(self.path);
-	    		self.attachListeners(self.path, self);	    	
-	    		
-	    		/*
-	    		this is a test of a clip path.  i'm looking into using one of these to animate a jsplumb connection.
-	    		you could do this by walking along the line, stepping along a little at a time, and setting the clip
-	    		path to extend as far as that point.
-	    		
-	    		self.clip = _node("clipPath", {id:"testClip", clipPathUnits:"objectBoundingBox"});
-	    		self.svg.appendChild(self.clip);
-	    		self.clip.appendChild(_node("rect", {
-	    			x:"0",y:"0",width:"0.5",height:"1" 
-	    		}));
-	    		*/
+	    		self.attachListeners(self.path, self);	    		    		
 	    	}
 	    	else {
 	    		_attr(self.path, a);
@@ -333,82 +339,77 @@
 			if (self.bgPath) self.reattachListenersForElement(self.bgPath, self);
 			if (self.path) self.reattachListenersForElement(self.path, self);
 		};
-			
-	};		
-
-	/*
-	 * SVG Bezier Connector
-	 */
-	jsPlumb.Connectors.svg.Bezier = function(params) {	
-		jsPlumb.Connectors.Bezier.apply(this, arguments);
-		SvgConnector.apply(this, arguments);	
-		this.getPath = function(d) {
-			var _p = "M " + d[4] + " " + d[5];						
-			_p += (" C " + d[8] + " " + d[9] + " " + d[10] + " " + d[11] + " " + d[6] + " " + d[7]);			
-			return _p;
-		};
 	};
+		
+// ******************************* svg segment renderer *****************************************************	
+		
+	jsPlumb.Segments.svg = {
+		SegmentRenderer : {		
+			getPath : function(segment) {
+				return ({
+					"Straight":function(segment) {
+						var d = segment.params;
+						return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;	
+					},
+					"Bezier":function(segment) {
+						var d = segment.params;
+						return "M " + d.x1 + " " + d.y1 + 
+							" C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;					
+					},
+					"Arc":function(segment) {
+						var d = segment.params;
+						return "M" + d.x1 + " " + d.y1 + " A " + d.r + " " + d.r + " 0 1,0 " + d.x2 + " " + d.y2;
+					}
+				})[segment.type](segment);	
+			}
+		}
+	};
+	
+// ******************************* /svg segments *****************************************************
+
+// ******************************* svg connectors	*****************************************************	
 	
 	/*
 	 * SVG straight line Connector
 	 */
 	jsPlumb.Connectors.svg.Straight = function(params) {			
 		jsPlumb.Connectors.Straight.apply(this, arguments);
-		SvgConnector.apply(this, arguments);	    		    
-	    this.getPath = function(d) { return "M " + d[4] + " " + d[5] + " L " + d[6] + " " + d[7]; };	    
+		SvgConnector.apply(this, arguments);	
 	};
 	
-	jsPlumb.Connectors.svg.Flowchart = function() {
-    	var self = this;
-    	jsPlumb.Connectors.Flowchart.apply(this, arguments);
+	/*
+	 * SVG flowchart connector. are these, strictly speaking, unecessary now? it seems we really just need to apply
+	 * the SvgConnector at this level.
+	 * */
+	jsPlumb.Connectors.svg.Flowchart = function() {    	
+    	jsPlumb.Connectors.Flowchart.apply(this, arguments);		
 		SvgConnector.apply(this, arguments);
-    	this.getPath = function(dimensions) {
-    		var p = "M " + dimensions[4] + "," + dimensions[5],
-				lx = dimensions[4],
-				ly = dimensions[5];
-				
-	        // loop through extra points
-	        for (var i = 0; i < dimensions[8]; i++) {
-				
-				var x1 = dimensions[9 + (i*2)], y1 = dimensions[10 + (i*2)],
-					x2 =  dimensions[9 + ((i + 1) * 2)], y2 = dimensions[10 + ((i + 1) * 2)],					
-					horiz = (x1 != lx) && (y1 == ly),
-					vert = (x1 == lx) && (y1 != ly),
-					multX = horiz ? x1 > x2 ? 1 : -1 : 0,
-					multY = vert ? y1 > y2 ? 1 : -1 : 0,
-					halfStroke = self.lineWidth / 2;								
-					
-				// previously:
-				//p = p + " L " + x1 + " " + y1;
-				//p = p + " M " + x1 + " " + y1;
-									
-				// now, with support for painting an extra bit at the end each line:
-	        	p = p + " L " + x1 + " " + y1;											
-				p = p + " L " + (x1 + (multX * halfStroke)) + " " + (y1 + (multY * halfStroke));
-					
-				lx = x1;
-				ly = y1;				
-				p = p + " M " + x1 + " " + y1;				
-	        }
-	        // finally draw a line to the end
-	        p = p  + " L " + dimensions[6] + "," +  dimensions[7];
-	        return p;
-    	};
     };
+	
+	/*
+	 * SVG Bezier Connector
+	 */
+	jsPlumb.Connectors.svg.Bezier = function(params) {	
+		jsPlumb.Connectors.Bezier.apply(this, arguments);
+		SvgConnector.apply(this, arguments);			
+	};
+	
+// ******************************* /svg connectors	*****************************************************
     
     /*
 	 * Base class for SVG endpoints.
 	 */
 	var SvgEndpoint = window.SvgEndpoint = function(params) {
-		var self = this;
-		SvgComponent.apply(this, [ {
-			cssClass:params["_jsPlumb"].endpointClass, 
-			originalArgs:arguments, 
-			pointerEventsSpec:"all",
-			useDivWrapper:true,
-			_jsPlumb:params["_jsPlumb"]
-		} ]);
-		this._paint = function(d, style) {
+		var self = this,
+			_super = SvgComponent.apply(this, [ {
+				cssClass:params["_jsPlumb"].endpointClass, 
+				originalArgs:arguments, 
+				pointerEventsSpec:"all",
+				useDivWrapper:true,
+				_jsPlumb:params["_jsPlumb"]
+			} ]);
+			
+		_super.renderer.paint = function(d, style) {
 			var s = jsPlumb.extend({}, style);
 			if (s.outlineColor) {
 				s.strokeWidth = s.outlineWidth;
