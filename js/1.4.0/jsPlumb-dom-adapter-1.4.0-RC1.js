@@ -143,7 +143,8 @@
 				_elementsWithEndpoints[endpoint.elementId]--;
 				if (_elementsWithEndpoints[endpoint.elementId] <= 0) {
 					for (var i in _delements) {
-						delete _delements[i][endpoint.elementId];
+						if (_delements[i])
+						    _delements[i][endpoint.elementId] = {};
 					}
 				}
 			}		
@@ -151,7 +152,7 @@
 		
 		this.changeId = function(oldId, newId) {				
 			_delements[newId] = _delements[oldId];			
-			delete _delements[oldId];
+			_delements[oldId] = {};
 		};
 
 		this.getElementsForDraggable = function(id) {
