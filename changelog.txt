@@ -1,5 +1,9 @@
 * 1.4.0
 
+		BACKWARDS COMPATIBILITY
+	   
+		- Flowchart connectors do not support minStubLength anymore. use 'stub'.
+
 		NEW FUNCTIONALITY
 		
 		- jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:
@@ -9,9 +13,11 @@
 		
 		289 - JS errors after dropping a target endpoint on a source
 		290 - setId doesn't work.
+		292 - fire connectionDrag event when dragging a new connection.
 		
 
 * 1.3.16
+
 		NEW FUNCTIONALITY
 		
 		- Flowchart connectors now support configurable 'midpoint'. This can be useful for those cases
