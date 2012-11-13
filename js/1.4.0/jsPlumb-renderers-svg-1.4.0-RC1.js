@@ -290,8 +290,7 @@
 		
 		_super.renderer.paint = function(d, style) {
 			
-			var segments = self.getSegments(),			
-				p = "";
+			var segments = self.getSegments(), p = "";
 			
 			// create path from segments.	
 			for (var i = 0; i < segments.length; i++) {
