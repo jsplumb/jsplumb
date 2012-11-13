@@ -12,7 +12,7 @@
     color:#333;
 }
 
-[data-shape=rectangle] {
+[data-shape=Rectangle] {
     width:210px;
     height:70px;
     left:380px;
@@ -21,7 +21,7 @@
     background-image:url(../img/rectangle.png);
 }
 
-[data-shape=ellipse] {
+[data-shape=Ellipse] {
     width:210px;
     height:70px;
     left:250px;
@@ -30,7 +30,7 @@
     background-image:url(../img/ellipse.png);
 }
 
-[data-shape=circle] {
+[data-shape=Circle] {
     width:150px;
     height:150px;
     left:100px;
@@ -39,21 +39,21 @@
     background-image:url(../img/circle.png);
 }
 
-[data-shape=triangle] {
+[data-shape=Triangle] {
     width:150px;
     height:150px;
     line-height: 150px;
     background-image:url(../img/triangle.png);
 }
 
-._90[data-shape=triangle] {
+._90[data-shape=Triangle] {
     width:150px;
     height:150px;
     line-height: 150px;
     background-image:url(../img/triangle_90.png);
 }
 
-[data-shape=diamond] {
+[data-shape=Diamond] {
     width:150px;
     height:150px;
     left:550px;

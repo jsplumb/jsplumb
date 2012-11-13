@@ -11,9 +11,7 @@
 				EndpointStyle:{ fillStyle:"#ffa500" }
 			});
 			  
-			// NOTE here we are just using getSelector so we don't have to rewrite the code for each of the supported libraries.
-			// you can just use the approriate selector from the library you're using, if you want to. like $(".shape) on jquery, for example.
-			var shapes = jsPlumb.getSelector(".shape");
+			var shapes = $(".shape");
 				
 			// make everything draggable
 			jsPlumb.draggable(shapes);
