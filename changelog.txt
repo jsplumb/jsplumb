@@ -2,12 +2,17 @@
 
 		BACKWARDS COMPATIBILITY
 	   
-		- Flowchart connectors do not support minStubLength anymore. use 'stub'.
+		- Flowchart connectors do not support minStubLength anymore. Use 'stub'.
+		- Perimeter anchor names now have a capitalised first letter. 'circle' is now 'Circle', for instance. This brings their naming convention
+		  into line with the various other names used throughout jsPlumb.
 
 		NEW FUNCTIONALITY
 		
 		- jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:
 		'jsplumb' for the static instance, and 'jsplumbinstance', for a new instance.
+		
+		- internally, all Connectors are now composed of a set of Segments, of which there are three types - Bezier, Straight, and Arc. Whilst there
+		are no changes to any Connector in this release, this new architecture will enable several new features in the future.
 		
 		ISSUES
 		
