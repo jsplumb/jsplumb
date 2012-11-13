@@ -6304,13 +6304,13 @@ between this method and jsPlumb.reset).
 	// factory.
 	/*
 	 * Property: Anchors.Continuous
-	 * An Anchor that is tracks the other element in the connection, choosing the closest face.
+	 * An Anchor that tracks the other element in the connection, choosing the closest face.
 	 */
 	jsPlumb.Anchors["Continuous"] = function(params) {
 		return params.jsPlumbInstance.continuousAnchorFactory.get(params);
 	};
 
-    // these are the default anchor positions finders, which are used by the makeTarget function.  supply
+    // these are the default anchor positions finders, which are used by the makeTarget function.  supplying
     // a position finder argument to that function allows you to specify where the resulting anchor will
     // be located
 	jsPlumb.AnchorPositionFinders = {
@@ -6387,21 +6387,21 @@ between this method and jsPlumb.reset).
 			};
 		
 		var _shapes = {
-			"circle":_circle,
-			"ellipse":_circle,
-			"diamond":function() {
+			"Circle":_circle,
+			"Ellipse":_circle,
+			"Diamond":function() {
 				return _shape([
 						[ 0.5, 0, 1, 0.5 ], [ 1, 0.5, 0.5, 1 ], [ 0.5, 1, 0, 0.5 ], [ 0, 0.5, 0.5, 0 ]
 				]);
 			},
-			"rectangle":_rectangle,
-			"square":_rectangle,
-			"triangle":function() {
+			"Rectangle":_rectangle,
+			"Square":_rectangle,
+			"Triangle":function() {
 				return _shape([
 						[ 0.5, 0, 1, 1 ], [ 1, 1, 0, 1 ], [ 0, 1, 0.5, 0]
 				]);	
 			},
-			"path":function(params) {
+			"Path":function(params) {
                 var points = params.points;
 				var p = [], tl = 0;
 				for (var i = 0; i < points.length - 1; i++) {
