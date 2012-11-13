@@ -169,7 +169,7 @@
 	 * Base class for Vml endpoints and connectors. Extends jsPlumbUIComponent. 
 	 */
 	VmlComponent = function() {				
-		var self = this;		
+		var self = this, renderer = {};
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);		
 		this.opacityNodes = {
 			"stroke":null,
@@ -200,11 +200,17 @@
 		var self = this;
 		self.strokeNode = null;
 		self.canvas = null;
-		VmlComponent.apply(this, arguments);
+		var _super = VmlComponent.apply(this, arguments);
 		var clazz = self._jsPlumb.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
-		this.paint = function(d, style, anchor) {
-			if (style != null) {				
-				var path = self.getPath(d), p = { "path":path };				
+		this.paint = function(d, style, anchor) {		
+			if (style !== null) {				
+				var segments = self.getSegments(), p = { "path":"" };
+				
+				// create path from segments.	
+				for (var i = 0; i < segments.length; i++) {
+					p.path += jsPlumb.Segments.vml.SegmentRenderer.getPath(segments[i]);
+					p.path += " ";
+				}
 
                 //*
 				if (style.outlineColor) {
@@ -256,14 +262,13 @@
 				
 				_applyStyles(self.canvas, style, self, self._jsPlumb);
 			}
-		};
-		
-		//self.appendDisplayElement(self.canvas);
+		};	
 		
 		this.reattachListeners = function() {
 			if (self.canvas) self.reattachListenersForElement(self.canvas, self);
 		};
 	},		
+	
 	/*
 	 * 
 	 * Base class for Vml Endpoints. extends VmlComponent.
@@ -310,37 +315,55 @@
 		};
 	};
 	
+// ******************************* vml segments *****************************************************	
+		
+	jsPlumb.Segments.vml = {
+		SegmentRenderer : {		
+			getPath : function(segment) {
+				return ({
+					"Straight":function(segment) {
+						var d = segment.params;
+					// TODO the question is, should the segments end the path?
+						return "m" + _conv(d.x1) + "," + _conv(d.y1) + " l" + _conv(d.x2) + "," + _conv(d.y2) + " e";
+					},
+					"Bezier":function(segment) {
+						var d = segment.params;
+					// TODO the question is, should the segments end the path?						
+						return "m" + _conv(d.x1) + "," + _conv(d.y1) + 
+				   			" c" + _conv(d.cp1x) + "," + _conv(d.cp1y) + "," + _conv(d.cp2x) + "," + _conv(d.cp2y) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";
+					},
+					"Arc":function(segment) {
+						// not implemented yet.
+						//var d = segment.params;
+						//return "M" + d.x1 + " " + d.y1 + " A " + d.r + " " + d.r + " 0 1,0 " + d.x2 + " " + d.y2;
+					}
+				})[segment.type](segment);	
+			}
+		}
+	};
+	
+// ******************************* /vml segments *****************************************************
+	
+// ******************************* vml connectors *****************************************************
+	
 	jsPlumb.Connectors.vml.Bezier = function() {
 		jsPlumb.Connectors.Bezier.apply(this, arguments);	
 		VmlConnector.apply(this, arguments);
-		this.getPath = function(d) {			
-			return "m" + _conv(d[4]) + "," + _conv(d[5]) + 
-				   " c" + _conv(d[8]) + "," + _conv(d[9]) + "," + _conv(d[10]) + "," + _conv(d[11]) + "," + _conv(d[6]) + "," + _conv(d[7]) + " e";
-		};
 	};
 	
 	jsPlumb.Connectors.vml.Straight = function() {
 		jsPlumb.Connectors.Straight.apply(this, arguments);	
 		VmlConnector.apply(this, arguments);
-		this.getPath = function(d) {
-			return "m" + _conv(d[4]) + "," + _conv(d[5]) + " l" + _conv(d[6]) + "," + _conv(d[7]) + " e";
-		};
 	};
 	
 	jsPlumb.Connectors.vml.Flowchart = function() {
     	jsPlumb.Connectors.Flowchart.apply(this, arguments);
 		VmlConnector.apply(this, arguments);
-    	this.getPath = function(dimensions) {
-    		var p = "m " + _conv(dimensions[4]) + "," + _conv(dimensions[5]) + " l";
-	        // loop through extra points
-	        for (var i = 0; i < dimensions[8]; i++) {
-	        	p = p + " " + _conv(dimensions[9 + (i*2)]) + "," + _conv(dimensions[10 + (i*2)]);
-	        }
-	        // finally draw a line to the end
-	        p = p  + " " + _conv(dimensions[6]) + "," +  _conv(dimensions[7]) + " e";
-	        return p;
-    	};
     };
+	
+// ******************************* /vml connectors *****************************************************	
+
+// ******************************* vml endpoints *****************************************************
 	
 	jsPlumb.Endpoints.vml.Dot = function() {
 		jsPlumb.Endpoints.Dot.apply(this, arguments);
@@ -363,6 +386,10 @@
 	 * placeholder for Blank endpoint in vml renderer.
 	 */
 	jsPlumb.Endpoints.vml.Blank = jsPlumb.Endpoints.Blank;
+	
+// ******************************* /vml endpoints *****************************************************	
+
+// ******************************* vml overlays *****************************************************
 	
 	/**
 	 * VML Label renderer. uses the default label renderer (which adds an element to the DOM)
@@ -451,4 +478,7 @@
     jsPlumb.Overlays.vml.Diamond = function() {
     	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);    	
     };
+    
+// ******************************* /vml overlays *****************************************************    
+    
 })();
