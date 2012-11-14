@@ -1008,7 +1008,16 @@
             params = params || {};
 			// add to list of connections (by scope).
             if (!jpc.suspendedEndpoint)
-			    _addToList(connectionsByScope, jpc.scope, jpc);
+			    _addToList(connectionsByScope, jpc.scope, jpc);					
+			
+            // always inform the anchor manager
+            // except that if jpc has a suspended endpoint it's not true to say the
+            // connection is new; it has just (possibly) moved. the question is whether
+            // to make that call here or in the anchor manager.  i think perhaps here.
+            _currentInstance.anchorManager.newConnection(jpc);
+			// force a paint
+			_draw(jpc.source);
+			
 			// fire an event
 			if (!params.doNotFireConnectionEvent && params.fireEvent !== false) {
 			
@@ -1023,15 +1032,7 @@
 				// this is from 1.3.11 onwards. "jsPlumbConnection" always felt so unnecessary, so
 				// I've added this alias in 1.3.11, with a view to removing "jsPlumbConnection" completely in a future version. be aware, of course, you should only register listeners for one or the other of these events.
 				_currentInstance.fire("connection", eventArgs, originalEvent);
-			}		
-			
-            // always inform the anchor manager
-            // except that if jpc has a suspended endpoint it's not true to say the
-            // connection is new; it has just (possibly) moved. the question is whether
-            // to make that call here or in the anchor manager.  i think perhaps here.
-            _currentInstance.anchorManager.newConnection(jpc);
-			// force a paint
-			_draw(jpc.source);
+			}
 		},
 		
 		_eventFireProxy = function(event, proxyEvent, obj) {
@@ -1734,9 +1735,10 @@ between this method and jsPlumb.reset).
 
 				if (connection) {
                     if (forceDetach || (connection.isDetachAllowed(connection)
-                                        && connection.endpoints[0].isDetachAllowed(connection)
-                                        && connection.endpoints[1].isDetachAllowed(connection))) {
-                        if (forceDetach || _currentInstance.checkCondition("beforeDetach", connection))
+                                        || connection.endpoints[0].isDetachAllowed(connection)
+                                        || connection.endpoints[1].isDetachAllowed(connection)
+                                        || _currentInstance.checkCondition("beforeDetach", connection))) {
+//                        if (forceDetach || )
 						    connection.endpoints[0].detach(connection, false, true, fireEvent); // TODO check this param iscorrect for endpoint's detach method
                     }
                 }
