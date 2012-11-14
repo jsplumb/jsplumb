@@ -196,7 +196,7 @@
 	/*
 	 * Base class for Vml connectors. extends VmlComponent.
 	 */
-	VmlConnector = jsPlumb.VmlConnector = function(params) {
+	VmlConnector = jsPlumb.ConnectorRenderers.vml = function(params) {
 		var self = this;
 		self.strokeNode = null;
 		self.canvas = null;
@@ -323,45 +323,31 @@
 				return ({
 					"Straight":function(segment) {
 						var d = segment.params;
-					// TODO the question is, should the segments end the path?
 						return "m" + _conv(d.x1) + "," + _conv(d.y1) + " l" + _conv(d.x2) + "," + _conv(d.y2) + " e";
 					},
 					"Bezier":function(segment) {
 						var d = segment.params;
-					// TODO the question is, should the segments end the path?						
 						return "m" + _conv(d.x1) + "," + _conv(d.y1) + 
 				   			" c" + _conv(d.cp1x) + "," + _conv(d.cp1y) + "," + _conv(d.cp2x) + "," + _conv(d.cp2y) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";
 					},
 					"Arc":function(segment) {
-						// not implemented yet.
-						//var d = segment.params;
-						//return "M" + d.x1 + " " + d.y1 + " A " + d.r + " " + d.r + " 0 1,0 " + d.x2 + " " + d.y2;
+						var d = segment.params;
+						var left = _conv(d.x1 - d.r),
+							top = _conv(d.y1 - (2 * d.r)),
+							right = left + _conv(2 * d.r),
+							bottom = top + _conv(2 * d.r),
+							posString = left + "," + top + "," + right + "," + bottom;
+							
+						return "ar " + posString + "," + _conv(d.x1) + ","
+								+ _conv(d.y1) + "," + _conv(d.x1) + "," + _conv(d.y1) + " e";						
 					}
+						
 				})[segment.type](segment);	
 			}
 		}
 	};
 	
-// ******************************* /vml segments *****************************************************
-	
-// ******************************* vml connectors *****************************************************
-	
-	jsPlumb.Connectors.vml.Bezier = function() {
-		jsPlumb.Connectors.Bezier.apply(this, arguments);	
-		VmlConnector.apply(this, arguments);
-	};
-	
-	jsPlumb.Connectors.vml.Straight = function() {
-		jsPlumb.Connectors.Straight.apply(this, arguments);	
-		VmlConnector.apply(this, arguments);
-	};
-	
-	jsPlumb.Connectors.vml.Flowchart = function() {
-    	jsPlumb.Connectors.Flowchart.apply(this, arguments);
-		VmlConnector.apply(this, arguments);
-    };
-	
-// ******************************* /vml connectors *****************************************************	
+// ******************************* /vml segments *****************************************************	
 
 // ******************************* vml endpoints *****************************************************
 	
