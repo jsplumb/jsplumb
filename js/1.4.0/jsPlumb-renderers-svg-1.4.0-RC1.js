@@ -86,16 +86,17 @@
 		// some default offset, for instance.
 		// issue 244 suggested the 'gradientUnits' attribute; without this, straight/flowchart connectors with gradients would
 		// not show gradients when the line was perfectly horizontal or vertical.
+		var g;
 		if (!style.gradient.offset) {
-			var g = _node(LINEAR_GRADIENT, {id:id, gradientUnits:"userSpaceOnUse"});
-			parent.appendChild(g);
+			g = _node(LINEAR_GRADIENT, {id:id, gradientUnits:"userSpaceOnUse"});
 		}
 		else {
-			var g = _node(RADIAL_GRADIENT, {
+			g = _node(RADIAL_GRADIENT, {
 				id:id
-			});
-			parent.appendChild(g);
+			});			
 		}
+		
+		parent.appendChild(g);
 		
 		// the svg radial gradient seems to treat stops in the reverse 
 		// order to how canvas does it.  so we want to keep all the maths the same, but
@@ -278,7 +279,7 @@
 	/*
 	 * Base class for SVG connectors.
 	 */ 
-	var SvgConnector = jsPlumb.SvgConnector = function(params) {
+	var SvgConnector = jsPlumb.ConnectorRenderers.svg = function(params) {
 		var self = this,
 			_super = SvgComponent.apply(this, [ { 
 				cssClass:params["_jsPlumb"].connectorClass, 
@@ -365,36 +366,7 @@
 	};
 	
 // ******************************* /svg segments *****************************************************
-
-// ******************************* svg connectors	*****************************************************	
-	
-	/*
-	 * SVG straight line Connector
-	 */
-	jsPlumb.Connectors.svg.Straight = function(params) {			
-		jsPlumb.Connectors.Straight.apply(this, arguments);
-		SvgConnector.apply(this, arguments);	
-	};
-	
-	/*
-	 * SVG flowchart connector. are these, strictly speaking, unecessary now? it seems we really just need to apply
-	 * the SvgConnector at this level.
-	 * */
-	jsPlumb.Connectors.svg.Flowchart = function() {    	
-    	jsPlumb.Connectors.Flowchart.apply(this, arguments);		
-		SvgConnector.apply(this, arguments);
-    };
-	
-	/*
-	 * SVG Bezier Connector
-	 */
-	jsPlumb.Connectors.svg.Bezier = function(params) {	
-		jsPlumb.Connectors.Bezier.apply(this, arguments);
-		SvgConnector.apply(this, arguments);			
-	};
-	
-// ******************************* /svg connectors	*****************************************************
-    
+   
     /*
 	 * Base class for SVG endpoints.
 	 */
