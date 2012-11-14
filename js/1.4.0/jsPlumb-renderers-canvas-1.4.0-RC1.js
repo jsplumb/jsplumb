@@ -214,10 +214,10 @@
 				var d = segment.params;
 				ctx.beginPath();
 				// arcTo is supported in most browsers i think; this is what we will use once the arc segment is a little more clever.
-				// right now it just draws a circle.
+				// right now its up to the connector to figure out the geometry. well, maybe that's ok.
 				//ctx.moveTo(d.x1, d.y1);
 				//ctx.arcTo((d.x1 + d.x2) / 2, (d.y1 + d.y2) / 2, d.r);
-				ctx.arc(d.cx, d.cy, d.r, (Math.PI/180)*0, (Math.PI/180)*360, true);
+				ctx.arc(d.cx, d.cy, d.r, d.startAngle, d.endAngle, d.c);
 				ctx.stroke();
 			}
 		})[segment.type](segment, ctx, style);	
