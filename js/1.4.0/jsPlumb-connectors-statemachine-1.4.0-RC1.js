@@ -89,22 +89,22 @@
         // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
         if (distance <= proximityLimit) return [midx, midy];
 
-        if (segment == 1) {
+        if (segment === 1) {
             if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
             else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
             else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
         }
-        else if (segment == 2) {
+        else if (segment === 2) {
             if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
             else if (sourceEdge[2] >= 1 && targetEdge[2] <= 0) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
             else return [ midx + (1 * dx) , midy + (-1 * dy) ];
         }
-        else if (segment == 3) {
+        else if (segment === 3) {
             if (sourceEdge[3] >= 1 && targetEdge[3] <= 0) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
             else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
             else return [ midx + (-1 * dx) , midy + (-1 * dy) ];
         }
-        else if (segment == 4) {
+        else if (segment === 4) {
             if (sourceEdge[3] <= 0 && targetEdge[3] >= 1) return [ midx + (sourceEdge[2] < 0.5 ? -1 * dx : dx), midy ];
             else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
             else return [ midx + (1 * dx) , midy + (-1 * dy) ];
@@ -137,9 +137,8 @@
 			curviness = params.curviness || 10,
 			margin = params.margin || 5,
 			proximityLimit = params.proximityLimit || 80,
-			clockwise = params.orientation && params.orientation == "clockwise",
+			clockwise = params.orientation && params.orientation === "clockwise",
 			loopbackRadius = params.loopbackRadius || 25,
-			isLoopback = false,
 			showLoopback = params.showLoopback !== false;
 
 		this.type = "StateMachine";
@@ -148,34 +147,31 @@
 		this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
 
 			var w = Math.abs(sourcePos[0] - targetPos[0]),
-   	 	       	h = Math.abs(sourcePos[1] - targetPos[1]),
-	   	     	// these are padding to ensure the whole connector line appears
-   	   	   		xo = 0.45 * w, yo = 0.45 * h;
-   		   		// these are padding to ensure the whole connector line appears
-            	w *= 1.9; h *= 1.9;
-                //ensure at least one pixel width
-                lineWidth = lineWidth || 1;
-            	var x = Math.min(sourcePos[0], targetPos[0]) - xo,
-        		    y = Math.min(sourcePos[1], targetPos[1]) - yo;
+				h = Math.abs(sourcePos[1] - targetPos[1]),
+				// these are padding to ensure the whole connector line appears
+				xo = 0.45 * w, yo = 0.45 * h;
+				// these are padding to ensure the whole connector line appears
+				w *= 1.9; h *= 1.9;
+				//ensure at least one pixel width
+				lineWidth = lineWidth || 1;
+				var x = Math.min(sourcePos[0], targetPos[0]) - xo,
+					y = Math.min(sourcePos[1], targetPos[1]) - yo;
 		
-			if (!showLoopback || (sourceEndpoint.elementId != targetEndpoint.elementId)) {
-                            
-                isLoopback = false;
-                            
-        		_sx = sourcePos[0] < targetPos[0] ?  xo : w-xo;
-            	_sy = sourcePos[1] < targetPos[1] ? yo:h-yo;
-            	_tx = sourcePos[0] < targetPos[0] ? w-xo : xo;
-            	_ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
+			if (!showLoopback || (sourceEndpoint.elementId !== targetEndpoint.elementId)) {                            
+				_sx = sourcePos[0] < targetPos[0] ?  xo : w-xo;
+				_sy = sourcePos[1] < targetPos[1] ? yo:h-yo;
+				_tx = sourcePos[0] < targetPos[0] ? w-xo : xo;
+				_ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
             
-            	// now adjust for the margin
-            	if (sourcePos[2] == 0) _sx -= margin;
-            	if (sourcePos[2] == 1) _sx += margin;
-            	if (sourcePos[3] == 0) _sy -= margin;
-            	if (sourcePos[3] == 1) _sy += margin;
-            	if (targetPos[2] == 0) _tx -= margin;
-            	if (targetPos[2] == 1) _tx += margin;
-            	if (targetPos[3] == 0) _ty -= margin;
-            	if (targetPos[3] == 1) _ty += margin;
+				// now adjust for the margin
+				if (sourcePos[2] === 0) _sx -= margin;
+            	if (sourcePos[2] === 1) _sx += margin;
+            	if (sourcePos[3] === 0) _sy -= margin;
+            	if (sourcePos[3] === 1) _sy += margin;
+            	if (targetPos[2] === 0) _tx -= margin;
+            	if (targetPos[2] === 1) _tx += margin;
+            	if (targetPos[3] === 0) _ty -= margin;
+            	if (targetPos[3] === 1) _ty += margin;
 
             	//
 	            // these connectors are quadratic bezier curves, having a single control point. if both anchors 
@@ -238,7 +234,6 @@
             	}
             	currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty, _controlPoint[0], _controlPoint[1] ];
 				
-				//_super.addSegment(new jsPlumb.Segments.Bezier({
 				_super.addSegment("Bezier", {
 					x1:_tx, y1:_ty, x2:_sx, y2:_sy,
 					cp1x:_controlPoint[0], cp1y:_controlPoint[1],
@@ -246,7 +241,6 @@
 				});
             }
             else {
-            	//isLoopback = true;
             	// a loopback connector.  draw an arc from one anchor to the other.            	
         		var x1 = sourcePos[0], x2 = sourcePos[0], y1 = sourcePos[1] - margin, y2 = sourcePos[1] - margin, 				
 					cx = x1, cy = y1 - loopbackRadius;
@@ -257,106 +251,27 @@
 				currentPoints = [ x, y, w, h, cx-x, cy-y, loopbackRadius, clockwise, x1-x, y1-y, x2-x, y2-y];
 				
 				// ADD AN ARC SEGMENT.
-				//_super.addSegment(new jsPlumb.Segments.Arc({
 				_super.addSegment("Arc", {
-					//"M" + (d[8] + 4) + " " + d[9] + " A " + d[6] + " " + d[6] + " 0 1,0 " + (d[8]-4) + " " + d[9];
 					x1:(x1-x) + 4,
 					y1:y1-y,
+					startAngle:0,
+					endAngle: 2 * Math.PI,
 					r:loopbackRadius,
 					c:clockwise,
 					x2:(x1-x) - 4,
 					y2:y1-y,
 					cx:cx-x,
 					cy:cy-y
-				//}));
 				});
             }
                 
             return currentPoints;
         };                        
 	};
-	
-	/*
-     * Canvas state machine renderer.
-     *
-     * TODO make this follow the new pattern.
-     */
-    jsPlumb.Connectors.canvas.StateMachine = function(params) {   	 
-    	params = params || {};
-		var self = this, drawGuideline = params.drawGuideline || true, avoidSelector = params.avoidSelector;
-		jsPlumb.Connectors.StateMachine.apply(this, arguments);
-		jsPlumb.CanvasConnector.apply(this, arguments);
-	
-		
-		this._paint = function(dimensions) {
-			
-			if (dimensions.length == 10) {
-		        self.ctx.beginPath();
-				self.ctx.moveTo(dimensions[4], dimensions[5]);
-				self.ctx.bezierCurveTo(dimensions[8], dimensions[9], dimensions[8], dimensions[9], dimensions[6], dimensions[7]);
-				self.ctx.stroke();            				
-			}
-			else {
-				// a loopback connector
-				self.ctx.save();
-				self.ctx.beginPath();        	
-	        	var startAngle = 0,                     // Starting point on circle
-	        	endAngle   = 2 * Math.PI, // End point on circle
-	        	clockwise  = dimensions[7]; // clockwise or anticlockwise 
-	        	self.ctx.arc(dimensions[4],dimensions[5],dimensions[6],0, endAngle, clockwise);
-				self.ctx.stroke();
-				self.ctx.closePath();
-				self.ctx.restore();
-			}
-	    };	    
-	    
-	    this.createGradient = function(dim, ctx) {
-        	return ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
-        };
-    };
-    
-    /*
-     * SVG State Machine renderer
-     */
-    jsPlumb.Connectors.svg.StateMachine = function() {   	 
-		jsPlumb.Connectors.StateMachine.apply(this, arguments);		
-		jsPlumb.SvgConnector.apply(this, arguments);	    				    	
-    };
-    
-    /*
-     * VML state machine renderer
-     *
-     * TODO make this follow the new pattern
-     */
-    jsPlumb.Connectors.vml.StateMachine = function() {
-		jsPlumb.Connectors.StateMachine.apply(this, arguments);	
-		jsPlumb.VmlConnector.apply(this, arguments);
-		var _conv = jsPlumb.vml.convertValue;
-		this.getPath = function(d) {	
-			if (d.length == 10) {
-				return "m" + _conv(d[4]) + "," + _conv(d[5]) + 
-					   " c" + _conv(d[8]) + "," + _conv(d[9]) + "," + _conv(d[8]) + "," + _conv(d[9]) + "," + _conv(d[6]) + "," + _conv(d[7]) + " e";
-			}
-			else {
-				// loopback
-				var left = _conv(d[8] - d[6]),
-					top = _conv(d[9] - (2 * d[6])),
-					right = left + _conv(2 * d[6]),
-					bottom = top + _conv(2 * d[6]),
-					posString = left + "," + top + "," + right + "," + bottom;
-					
-				var o = "ar " + posString + "," + _conv(d[8]) + ","
-						+ _conv(d[9]) + "," + _conv(d[8]) + "," + _conv(d[9]) + " e";
-				
-				 return o;
-			}
-		};
-	};
-
 })();
 
 /*
-    	// now for a rudimentary avoidance scheme. TODO: how to set this in a cross-library way?
+    	// a possible rudimentary avoidance scheme, old now, perhaps not useful.
         //      if (avoidSelector) {
 		//		    var testLine = new Line(sourcePos[0] + _sx,sourcePos[1] + _sy,sourcePos[0] + _tx,sourcePos[1] + _ty);
 		//		    var sel = jsPlumb.getSelector(avoidSelector);
