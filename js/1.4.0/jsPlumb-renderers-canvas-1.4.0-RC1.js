@@ -42,33 +42,32 @@
 		 * returns whether or not the given event is ojver a painted area of the canvas. 
 		 */
 	    this._over = function(e) {		    			  		    	
-	    	var o = _getOffset(_getElementObject(self.canvas)),
-	    	pageXY = _pageXY(e),
-	    	x = pageXY[0] - o.left, y = pageXY[1] - o.top;
-	    	if (x > 0 && y > 0 && x < self.canvas.width && y < self.canvas.height) {
-		    	// first check overlays
-		    	for ( var i = 0; i < self.overlayPlacements.length; i++) {
-		    		var p = self.overlayPlacements[i];
-		    		if (p && (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y))
-		    			return true;
-		    	}
-		    	
-		    	// then the canvas
-		    	var d = self.canvas.getContext("2d").getImageData(parseInt(x), parseInt(y), 1, 1);
-		    	return d.data[0] != 0 || d.data[1] != 0 || d.data[2] != 0 || d.data[3] != 0;		  
-	    	}
-	    	return false;
+			var o = _getOffset(_getElementObject(self.canvas)),
+				pageXY = _pageXY(e),
+				x = pageXY[0] - o.left, y = pageXY[1] - o.top;
+			if (x > 0 && y > 0 && x < self.canvas.width && y < self.canvas.height) {
+				// first check overlays
+				for ( var i = 0; i < self.overlayPlacements.length; i++) {
+					var p = self.overlayPlacements[i];
+					if (p && (p[0] <= x && p[1] >= x && p[2] <= y && p[3] >= y))
+						return true;
+				}		    	
+				// then the canvas
+				var d = self.canvas.getContext("2d").getImageData(parseInt(x, 10), parseInt(y, 10), 1, 1);
+				return d.data[0] !== 0 || d.data[1] !== 0 || d.data[2] !== 0 || d.data[3] !== 0;		  
+			}
+			return false;
 	    };
 	    
 	    var _mouseover = false, _mouseDown = false, _posWhenMouseDown = null, _mouseWasDown = false,
-	    _nullSafeHasClass = function(el, clazz) {
-	    	return el != null && _hasClass(el, clazz);
-	    };
+		    _nullSafeHasClass = function(el, clazz) {
+		    	return el !== null && _hasClass(el, clazz);
+		    };
 	    this.mousemove = function(e) {		    
 	    	var pageXY = _pageXY(e), clientXY = _clientXY(e),	   
 	    	ee = document.elementFromPoint(clientXY[0], clientXY[1]),
 	    	eventSourceWasOverlay = _nullSafeHasClass(ee, "_jsPlumb_overlay");	    	
-			var _continue = _connectionBeingDragged == null && (_nullSafeHasClass(ee, "_jsPlumb_endpoint") || _nullSafeHasClass(ee, "_jsPlumb_connector"));
+			var _continue = _connectionBeingDragged === null && (_nullSafeHasClass(ee, "_jsPlumb_endpoint") || _nullSafeHasClass(ee, "_jsPlumb_connector"));
 			if (!_mouseover && _continue && self._over(e)) {
 				_mouseover = true;
 				self.fire("mouseenter", self, e);		
@@ -85,7 +84,7 @@
 	    };
 	    		    		    
 	    this.click = function(e) {	    		
-	    	if (_mouseover && self._over(e) && !_mouseWasDown) 
+			if (_mouseover && self._over(e) && !_mouseWasDown) 
 	    		self.fire("click", self, e);		    	
 	    	_mouseWasDown = false;
 	    };
@@ -137,24 +136,109 @@
 		this.appendDisplayElement = function(el) { displayElements.push(el); };
 	};
 	
+	var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ];
+	var maybeMakeGradient = function(ctx, style, gradientFunction) {
+		if (style.gradient) {
+			var g = gradientFunction();
+			for ( var i = 0; i < style.gradient.stops.length; i++)
+				g.addColorStop(style.gradient.stops[i][0], style.gradient.stops[i][1]);
+			ctx.strokeStyle = g;
+		}
+	};
+	var segmentRenderer = function(segment, ctx, style) {	
+		({
+			"Straight":function(segment, ctx, style) {
+				var d = segment.params;
+				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x1, d.y1, d.x2, d.y2); });
+				ctx.beginPath();
+				if (style.dashstyle && style.dashstyle.split(" ").length === 2) {			
+					// only a very simple dashed style is supported - having two values, which define the stroke length 
+					// (as a multiple of the stroke width) and then the space length (also as a multiple of stroke width). 
+					var ds = style.dashstyle.split(" ");
+					if (ds.length !== 2) ds = [2, 2];
+					var dss = [ ds[0] * style.lineWidth, ds[1] * style.lineWidth ],
+						m = (d.x2- d.x1) / (d.y2 - d.y1),
+						s = jsPlumbUtil.segment([d.x1, d.y1], [ d.x2, d.y2 ]),
+						sm = segmentMultipliers[s],
+						theta = Math.atan(m),
+						l = Math.sqrt(Math.pow(d.x2 - d.x1, 2) + Math.pow(d.y2 - d.y1, 2)),
+						repeats = Math.floor(l / (dss[0] + dss[1])),
+						curPos = [d.x1, d.y1];
+
+					
+					// TODO: the question here is why could we not support this in all connector types? it's really
+					// just a case of going along and asking jsPlumb for the next point on the path a few times, until it
+					// reaches the end. every type of connector supports that method, after all.  but right now its only the
+					// bezier connector that gives you back the new location on the path along with the x,y coordinates, which
+					// we would need. we'd start out at loc=0 and ask for the point along the path that is dss[0] pixels away.
+					// we then ask for the point that is (dss[0] + dss[1]) pixels away; and from that one we need not just the
+					// x,y but the location, cos we're gonna plug that location back in in order to find where that dash ends.
+					//
+					// it also strikes me that it should be trivial to support arbitrary dash styles (having more or less than two
+					// entries). you'd just iterate that array using a step size of 2, and generify the (rss[0] + rss[1])
+					// computation to be sum(rss[0]..rss[n]).
+
+					for (var i = 0; i < repeats; i++) {
+						ctx.moveTo(curPos[0], curPos[1]);
+
+						var nextEndX = curPos[0] + (Math.abs(Math.sin(theta) * dss[0]) * sm[0]),
+							nextEndY = curPos[1] + (Math.abs(Math.cos(theta) * dss[0]) * sm[1]),
+							nextStartX = curPos[0] + (Math.abs(Math.sin(theta) * (dss[0] + dss[1]))  * sm[0]),
+							nextStartY = curPos[1] + (Math.abs(Math.cos(theta) * (dss[0] + dss[1])) * sm[1]);
+
+						ctx.lineTo(nextEndX, nextEndY);
+						curPos = [nextStartX, nextStartY];					
+					}
+
+					// now draw the last bit
+					ctx.moveTo(curPos[0], curPos[1]);
+					ctx.lineTo(d.x2, d.y2);		
+
+				}	        
+		        else {
+					ctx.moveTo(d.x1, d.y1);
+					ctx.lineTo(d.x2, d.y2);
+		        }				
+
+				ctx.stroke();
+			},
+			"Bezier":function(segment, ctx, style) {
+				var d = segment.params;
+				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x2, d.y2, d.x1, d.y1); });
+				ctx.beginPath();
+				ctx.moveTo(d.x1, d.y1);
+				ctx.bezierCurveTo(d.cp1x, d.cp1y, d.cp2x, d.cp2y, d.x2, d.y2);
+				ctx.stroke();
+			},
+			"Arc":function(segment, ctx, style) {
+				var d = segment.params;
+				ctx.beginPath();
+				// arcTo is supported in most browsers i think; this is what we will use once the arc segment is a little more clever.
+				// right now it just draws a circle.
+				//ctx.moveTo(d.x1, d.y1);
+				//ctx.arcTo((d.x1 + d.x2) / 2, (d.y1 + d.y2) / 2, d.r);
+				ctx.arc(d.cx, d.cy, d.r, (Math.PI/180)*0, (Math.PI/180)*360, true);
+				ctx.stroke();
+			}
+		})[segment.type](segment, ctx, style);	
+	};
+	
 	/**
 	 * Class:CanvasConnector
 	 * Superclass for Canvas Connector renderers.
 	 */
-	var CanvasConnector = jsPlumb.CanvasConnector = function(params) {
-		
+	var CanvasConnector = jsPlumb.ConnectorRenderers.canvas = function(params) {
+		var self = this;
 		CanvasComponent.apply(this, arguments);
 		
 		var _paintOneStyle = function(dim, aStyle) {
 			self.ctx.save();
 			jsPlumb.extend(self.ctx, aStyle);
-			if (aStyle.gradient) {
-				var g = self.createGradient(dim, self.ctx);
-				for ( var i = 0; i < aStyle.gradient.stops.length; i++)
-					g.addColorStop(aStyle.gradient.stops[i][0], aStyle.gradient.stops[i][1]);
-				self.ctx.strokeStyle = g;
+
+			var segments = self.getSegments();				
+			for (var i = 0; i < segments.length; i++) {
+				segmentRenderer(segments[i], self.ctx, aStyle);
 			}
-			self._paint(dim, aStyle);
 			self.ctx.restore();
 		};
 
@@ -188,6 +272,8 @@
 			}
 		};				
 	};		
+	
+	
 	
 	/**
 	 * Class:CanvasEndpoint
@@ -350,112 +436,21 @@
      * Canvas Bezier Connector. Draws a Bezier curve onto a Canvas element.
      */
     jsPlumb.Connectors.canvas.Bezier = function() {
-    	var self = this;
     	jsPlumb.Connectors.Bezier.apply(this, arguments); 
-    	CanvasConnector.apply(this, arguments);
-    	this._paint = function(dimensions, style) {
-        	self.ctx.beginPath();
-        	self.ctx.moveTo(dimensions[4], dimensions[5]);
-        	self.ctx.bezierCurveTo(dimensions[8], dimensions[9], dimensions[10], dimensions[11], dimensions[6], dimensions[7]);	            
-        	self.ctx.stroke();            
-        };
-        
-        // TODO i doubt this handles the case that source and target are swapped.
-        this.createGradient = function(dim, ctx, swap) {
-        	return /*(swap) ? self.ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]) : */self.ctx.createLinearGradient(dim[6], dim[7], dim[4], dim[5]);
-        };
+    	CanvasConnector.apply(this, arguments);    	        
     };
     
     /*
      * Canvas straight line Connector. Draws a straight line onto a Canvas element.
      */
     jsPlumb.Connectors.canvas.Straight = function() {   	 
-		var self = this,
-			segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ];
-
 		jsPlumb.Connectors.Straight.apply(this, arguments);
-		CanvasConnector.apply(this, arguments);
-		this._paint = function(dimensions, style) {
-
-			self.ctx.beginPath();
-
-			if (style.dashstyle && style.dashstyle.split(" ").length == 2) {			
-				// only a very simple dashed style is supported - having two values, which define the stroke length 
-				// (as a multiple of the stroke width) and then the space length (also as a multiple of stroke width). 
-				var ds = style.dashstyle.split(" ");
-				if (ds.length != 2) ds = [2, 2];
-				var dss = [ ds[0] * style.lineWidth, ds[1] * style.lineWidth ],
-					m = (dimensions[6] - dimensions[4]) / (dimensions[7] - dimensions[5]),
-					s = jsPlumbUtil.segment([dimensions[4], dimensions[5]], [ dimensions[6], dimensions[7] ]),
-					sm = segmentMultipliers[s],
-					theta = Math.atan(m),
-					l = Math.sqrt(Math.pow(dimensions[6] - dimensions[4], 2) + Math.pow(dimensions[7] - dimensions[5], 2)),
-					repeats = Math.floor(l / (dss[0] + dss[1])),
-					curPos = [dimensions[4], dimensions[5]];
-
-				
-				// TODO: the question here is why could we not support this in all connector types? it's really
-				// just a case of going along and asking jsPlumb for the next point on the path a few times, until it
-				// reaches the end. every type of connector supports that method, after all.  but right now its only the
-				// bezier connector that gives you back the new location on the path along with the x,y coordinates, which
-				// we would need. we'd start out at loc=0 and ask for the point along the path that is dss[0] pixels away.
-				// we then ask for the point that is (dss[0] + dss[1]) pixels away; and from that one we need not just the
-				// x,y but the location, cos we're gonna plug that location back in in order to find where that dash ends.
-				//
-				// it also strikes me that it should be trivial to support arbitrary dash styles (having more or less than two
-				// entries). you'd just iterate that array using a step size of 2, and generify the (rss[0] + rss[1])
-				// computation to be sum(rss[0]..rss[n]).
-
-				for (var i = 0; i < repeats; i++) {
-					self.ctx.moveTo(curPos[0], curPos[1]);
-
-					var nextEndX = curPos[0] + (Math.abs(Math.sin(theta) * dss[0]) * sm[0]),
-						nextEndY = curPos[1] + (Math.abs(Math.cos(theta) * dss[0]) * sm[1]),
-						nextStartX = curPos[0] + (Math.abs(Math.sin(theta) * (dss[0] + dss[1]))  * sm[0]),
-						nextStartY = curPos[1] + (Math.abs(Math.cos(theta) * (dss[0] + dss[1])) * sm[1])
-
-					self.ctx.lineTo(nextEndX, nextEndY);
-					curPos = [nextStartX, nextStartY];					
-				}
-
-				// now draw the last bit
-				self.ctx.moveTo(curPos[0], curPos[1]);
-				self.ctx.lineTo(dimensions[6], dimensions[7]);		
-
-			}	        
-	        else {
-		        self.ctx.moveTo(dimensions[4], dimensions[5]);
-	        	self.ctx.lineTo(dimensions[6], dimensions[7]);
-	        }
-	        	      
-	        self.ctx.stroke();            
-	    };
-	    
-	    // TODO this does not handle the case that src and target are swapped.
-	    this.createGradient = function(dim, ctx) {
-        	return ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
-        };
+		CanvasConnector.apply(this, arguments);		
     };
     
     jsPlumb.Connectors.canvas.Flowchart = function() {
-    	var self = this;
     	jsPlumb.Connectors.Flowchart.apply(this, arguments);
 		CanvasConnector.apply(this, arguments);
-    	this._paint = function(dimensions, style) {
-	        self.ctx.beginPath();
-	        self.ctx.moveTo(dimensions[4], dimensions[5]);
-	        // loop through extra points
-	        for (var i = 0; i < dimensions[8]; i++) {
-	        	self.ctx.lineTo(dimensions[9 + (i*2)], dimensions[10 + (i*2)]);
-	        }
-	        // finally draw a line to the end
-	        self.ctx.lineTo(dimensions[6], dimensions[7]);
-	        self.ctx.stroke();
-    	};
-    	
-    	this.createGradient = function(dim, ctx) {
-        	return ctx.createLinearGradient(dim[4], dim[5], dim[6], dim[7]);
-        };
     };
     
 // ********************************* END OF CANVAS RENDERERS *******************************************************************    
