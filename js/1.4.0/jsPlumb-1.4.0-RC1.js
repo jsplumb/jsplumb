@@ -1356,6 +1356,8 @@
 			"vml":{}
 		};
 		
+		this.ConnectorRenderers = {};
+		
 // ************************ PLACEHOLDER DOC ENTRIES FOR NATURAL DOCS *****************************************
 
 		/*
@@ -4371,6 +4373,14 @@ between this method and jsPlumb.reset).
 			};
 // END HOVER
 
+
+			var makeConnector = function(renderMode, connector, connectorArgs) {
+				var c = new Object();
+				jsPlumb.Connectors[connector].apply(c, [connectorArgs]);
+				jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);	
+				return c;
+			};
+			
 			/*
 			 * Function: setConnector
 			 * Sets the Connection's connector (eg "Bezier", "Flowchart", etc).  You pass a Connector definition into this method, the same
@@ -4385,12 +4395,15 @@ between this method and jsPlumb.reset).
 					cssClass:params.cssClass, container:params.container, tooltip:self.tooltip
 				};
 				if (_isString(connector)) 
-					this.connector = new jsPlumb.Connectors[renderMode][connector](connectorArgs); // lets you use a string as shorthand.
+					//this.connector = new jsPlumb.Connectors[renderMode][connector](connectorArgs); // lets you use a string as shorthand.
+					this.connector = makeConnector(renderMode, connector, connectorArgs); // lets you use a string as shorthand.
 				else if (_isArray(connector)) {
 					if (connector.length == 1)
-						this.connector = new jsPlumb.Connectors[renderMode][connector[0]](connectorArgs);
+						//this.connector = new jsPlumb.Connectors[renderMode][connector[0]](connectorArgs);
+						this.connector = makeConnector(renderMode, connector[0], connectorArgs);
 					else
-						this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
+						//this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
+						this.connector = makeConnector(renderMode, connector[0], jsPlumb.extend(connector[1], connectorArgs));
 				}
 				self.canvas = self.connector.canvas;
 				// binds mouse listeners to the current connector.
@@ -4858,9 +4871,9 @@ between this method and jsPlumb.reset).
 			 * 	overlayId 	-	id of the overlay to retrieve.
 			 */
 			/*
-			* Function: getOverlays
-			* Gets all the overlays for this component.
-			*/
+			 * Function: getOverlays
+			 * Gets all the overlays for this component.
+			 */
 			/*
 			 * Function: hideOverlay
 			 * Hides the overlay specified by the given id.
@@ -4883,18 +4896,18 @@ between this method and jsPlumb.reset).
 			 * Function: showOverlays
 			 * Shows all Overlays 
 			 */
-			/**
+			/*
 			 * Function: removeAllOverlays
 			 * Removes all overlays from the Connection, and then repaints.
 			 */
-			/**
+			/*
 			 * Function: removeOverlay
 			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
 			 * 
 			 * Parameters:
 			 * 	overlayId - id of the overlay to remove.
 			 */
-			/**
+			/*
 			 * Function: removeOverlays
 			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
 			 * 
@@ -4956,15 +4969,15 @@ between this method and jsPlumb.reset).
 		};		
 		
 		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
-				var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
-        //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
-        // adding the floating endpoint as a droppable.  that makes more sense anyway!
-        return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
+			var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
+        	//setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
+        	// adding the floating endpoint as a droppable.  that makes more sense anyway!
+        	return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
 		};
 		
-		/**
-		 * creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.
-		 */
+		//
+		// creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.
+		//
 		var _makeDraggablePlaceholder = function(placeholder, parent) {
 			var n = document.createElement("div");
 			n.style.position = "absolute";
@@ -5232,9 +5245,7 @@ between this method and jsPlumb.reset).
 			this.scope = params.scope || DEFAULT_SCOPE;
 			this.connectionType = params.connectionType;
 			this.timestamp = null;
-			//self.isReattach = params.reattach || false;
 			self.reattachConnections = params.reattach || _currentInstance.Defaults.ReattachConnections;
-			//self.isReattach = params.reattach || false;
             self.connectionsDetachable = _currentInstance.Defaults.ConnectionsDetachable;
             if (params.connectionsDetachable === false || params.detachable === false)
                 self.connectionsDetachable = false;
@@ -5660,7 +5671,7 @@ between this method and jsPlumb.reset).
 					// create a floating endpoint.
 					// here we test to see if a dragProxy was specified in this endpoint's constructor params, and
 					// if so, we create that endpoint instead of cloning ourselves.
-					if (params.proxy) {
+					//if (params.proxy) {
 				/*		var floatingAnchor = new FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
 
 						floatingEndpoint = _newEndpoint({ 
@@ -5673,19 +5684,18 @@ between this method and jsPlumb.reset).
 						
 						//$(self.canvas).hide();									
 						*/
-						self.setPaintStyle(params.proxy.paintStyle);
+						//self.setPaintStyle(params.proxy.paintStyle);
 						// if we do this, we have to cleanup the old one. like just remove its display parts												
 						//self.setEndpoint(params.proxy.endpoint);
 
-					}
+					//}
 				//	else {
 						floatingEndpoint = _makeFloatingEndpoint(self.getPaintStyle(), self.anchor, _endpoint, self.canvas, placeholderInfo.element);
 				//	}
 					
 					if (jpc == null) {                                                                                                                                                         
 						self.anchor.locked = true;
-                        self.setHover(false, false);
-                        // TODO the hover call above does not reset any target endpoint's hover states.
+                        self.setHover(false, false);                        
 						// create a connection. one end is this endpoint, the other is a floating endpoint.
 						jpc = _newConnection({
 							sourceEndpoint : self,
@@ -5770,17 +5780,18 @@ between this method and jsPlumb.reset).
 				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _dragHandler.drag);
 				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
 					function() {
-						var originalEvent = jpcl.getDropEvent(arguments);
-						_currentInstance.currentlyDragging = false;						
+						var originalEvent = jpcl.getDropEvent(arguments);					
 						_removeWithFunction(endpointsByElement[placeholderInfo.id], function(e) {
 							return e.id == floatingEndpoint.id;
 						});
-						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
 						_removeElement(inPlaceCopy.canvas, _element);
 						_currentInstance.anchorManager.clearFor(placeholderInfo.id);						
 						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
 						jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
-						self.setPaintStyle(originalPaintStyle); // reset to original; may have been changed by drag proxy.
+					
+					// commented out pending decision on drag proxy stuff.
+					//	self.setPaintStyle(originalPaintStyle); // reset to original; may have been changed by drag proxy.
+					
 						if (jpc.endpoints[idx] == floatingEndpoint) {
 							// if the connection was an existing one:
 							if (existingJpc && jpc.suspendedEndpoint) {
@@ -5797,7 +5808,6 @@ between this method and jsPlumb.reset).
 								// restore the original scope (issue 57)
 								jsPlumb.CurrentLibrary.setDragScope(existingJpcParams[2], existingJpcParams[3]);
 								jpc.endpoints[idx] = jpc.suspendedEndpoint;
-								//if (self.isReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {
 								if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
 									jpc.setHover(false);
 									jpc.floatingAnchorIndex = null;
@@ -5813,9 +5823,12 @@ between this method and jsPlumb.reset).
 								self.detachFromConnection(jpc);								
 							}																
 						}
+						
+						// remove floating endpoint _after_ checking beforeDetach 
+						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
+						
 						self.anchor.locked = false;												
 						self.paint({recalc:false});
-						//jpc.setHover(false, false);
 
 						fireConnectionDragStopEvent(jpc);
 
@@ -5825,7 +5838,6 @@ between this method and jsPlumb.reset).
 						floatingEndpoint.anchor = null;
                         floatingEndpoint = null;
 						_currentInstance.currentlyDragging = false;
-
 
 					});
 				
@@ -6149,17 +6161,17 @@ between this method and jsPlumb.reset).
 			 * Function: showOverlays
 			 * Shows all Overlays 
 			 */
-			/**
+			/*
 			 * Function: removeAllOverlays
 			 * Removes all overlays from the Endpoint, and then repaints.
 			 */
-			/**
+			/*
 			 * Function: removeOverlay
 			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
 			 * Parameters:
 			 * overlayId - id of the overlay to remove.
 			 */
-			/**
+			/*
 			 * Function: removeOverlays
 			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
 			 * Parameters:
@@ -6171,7 +6183,7 @@ between this method and jsPlumb.reset).
 			 * 
 			 * Parameters:
 			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep
-         * that in mind if you need escaped HTML.
+         	 * that in mind if you need escaped HTML.
 			 */
 			/*
 				Function: getLabel
@@ -6213,12 +6225,10 @@ between this method and jsPlumb.reset).
 	
 // --------------------- end static instance + AMD registration -------------------------------------------		
 	
-// --------------------- anchors (would like to move these out of here -------------------------------------------		
+// --------------------- anchors (would like to move these out of here) -------------------------------------------		
 	
 	var _curryAnchor = function(x, y, ox, oy, type, fnInit) {
 		return function(params) {
-			params = params || {};
-			//var a = jsPlumb.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
 			var a = params.jsPlumbInstance.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
 			a.type = type;
 			if (fnInit) fnInit(a, params);
@@ -6402,8 +6412,7 @@ between this method and jsPlumb.reset).
 				]);	
 			},
 			"Path":function(params) {
-                var points = params.points;
-				var p = [], tl = 0;
+                var points = params.points, p = [], tl = 0;
 				for (var i = 0; i < points.length - 1; i++) {
                     var l = Math.sqrt(Math.pow(points[i][2] - points[i][0]) + Math.pow(points[i][3] - points[i][1]));
                     tl += l;
