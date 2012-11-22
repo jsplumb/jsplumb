@@ -36,8 +36,8 @@ jsPlumbUtil = {
 		return Object.prototype.toString.call(o) === "[object Function]";
 	},
 	clone : function(a) {
-		if (this.isString(a)) return new String(a);
-		else if (this.isBoolean(a)) return new Boolean(a);
+		if (this.isString(a)) return "" + a;
+		else if (this.isBoolean(a)) return !!a;
 		else if (this.isDate(a)) return new Date(a.getTime());
 		else if (this.isFunction(a)) return a;
 		else if (this.isArray(a)) {
