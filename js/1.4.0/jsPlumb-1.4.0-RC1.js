@@ -432,7 +432,7 @@
 				return o;
 			}
 
-			var _overlays = calculateOverlaysToAdd(params);//params.overlays || self._jsPlumb.Defaults.Overlays;
+			var _overlays = calculateOverlaysToAdd(params);
 			if (_overlays) {
 				for (var i = 0; i < _overlays.length; i++) {
 					processOverlay(_overlays[i]);
@@ -533,7 +533,6 @@
 					labelStyle:labelStyle
 				}));
 			}
-
 			
 			this.setLabel = function(l) {
 				var lo = self.getOverlay(_internalLabelOverlayId);
@@ -1734,12 +1733,19 @@ between this method and jsPlumb.reset).
                 connection = firstArgIsConnection ? arguments[0] : params.connection;
 
 				if (connection) {
-                    if (forceDetach || (connection.isDetachAllowed(connection)
-                                        || connection.endpoints[0].isDetachAllowed(connection)
+//                    if (forceDetach || (connection.isDetachAllowed(connection)
+  //                                      || connection.endpoints[0].isDetachAllowed(connection)
+    //                                    || connection.endpoints[1].isDetachAllowed(connection)
+      //                                  || _currentInstance.checkCondition("beforeDetach", connection))) {
+      
+      // YAWN i want to check each one of those detach conditions and fail on the first one that fails
+      
+						if (forceDetach || (connection.endpoints[0].isDetachAllowed(connection)
                                         || connection.endpoints[1].isDetachAllowed(connection)
-                                        || _currentInstance.checkCondition("beforeDetach", connection))) {
+                                        || connection.isDetachAllowed(connection)
+                                        || _currentInstance.checkCondition("beforeDetach", connection))) {      
 //                        if (forceDetach || )
-						    connection.endpoints[0].detach(connection, false, true, fireEvent); // TODO check this param iscorrect for endpoint's detach method
+						    connection.endpoints[0].detach(connection, false, true, fireEvent); 
                     }
                 }
                 else {
@@ -4397,15 +4403,12 @@ between this method and jsPlumb.reset).
 					cssClass:params.cssClass, container:params.container, tooltip:self.tooltip
 				};
 				if (_isString(connector)) 
-					//this.connector = new jsPlumb.Connectors[renderMode][connector](connectorArgs); // lets you use a string as shorthand.
 					this.connector = makeConnector(renderMode, connector, connectorArgs); // lets you use a string as shorthand.
 				else if (_isArray(connector)) {
 					if (connector.length == 1)
-						//this.connector = new jsPlumb.Connectors[renderMode][connector[0]](connectorArgs);
 						this.connector = makeConnector(renderMode, connector[0], connectorArgs);
 					else
-						//this.connector = new jsPlumb.Connectors[renderMode][connector[0]](jsPlumb.extend(connector[1], connectorArgs));
-						this.connector = makeConnector(renderMode, connector[0], jsPlumb.extend(connector[1], connectorArgs));
+						this.connector = makeConnector(renderMode, connector[0], jsPlumbUtil.merge(connector[1], connectorArgs));
 				}
 				self.canvas = self.connector.canvas;
 				// binds mouse listeners to the current connector.
@@ -5174,7 +5177,8 @@ between this method and jsPlumb.reset).
 				if (_isString(ep)) 
 					_endpoint = new jsPlumb.Endpoints[renderMode][ep](endpointArgs);
 				else if (_isArray(ep)) {
-					endpointArgs = jsPlumb.extend(ep[1], endpointArgs);
+					//endpointArgs = jsPlumb.extend(ep[1], endpointArgs);
+					endpointArgs = jsPlumbUtil.merge(ep[1], endpointArgs);
 					_endpoint = new jsPlumb.Endpoints[renderMode][ep[0]](endpointArgs);
 				}
 				else {
