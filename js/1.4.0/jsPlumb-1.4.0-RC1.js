@@ -1065,9 +1065,10 @@
 		*/
 		_newEndpoint = function(params) {
 				var endpointFunc = _currentInstance.Defaults.EndpointType || Endpoint;
-				params.parent = _getParentFromParams(params);
-				params["_jsPlumb"] = _currentInstance;
-				var ep = new endpointFunc(params);
+				var _p = jsPlumb.extend({}, params);				
+				_p.parent = _getParentFromParams(_p);
+				_p["_jsPlumb"] = _currentInstance;
+				var ep = new endpointFunc(_p);
 				ep.id = "ep_" + _idstamp();
 				_eventFireProxy("click", "endpointClick", ep);
 				_eventFireProxy("dblclick", "endpointDblClick", ep);
@@ -5177,7 +5178,6 @@ between this method and jsPlumb.reset).
 				if (_isString(ep)) 
 					_endpoint = new jsPlumb.Endpoints[renderMode][ep](endpointArgs);
 				else if (_isArray(ep)) {
-					//endpointArgs = jsPlumb.extend(ep[1], endpointArgs);
 					endpointArgs = jsPlumbUtil.merge(ep[1], endpointArgs);
 					_endpoint = new jsPlumb.Endpoints[renderMode][ep[0]](endpointArgs);
 				}
