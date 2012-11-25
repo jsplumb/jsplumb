@@ -271,14 +271,16 @@
             }
 
 			var idx = segmentProportions.length - 1, inSegmentProportion = 1;
-			for (var i = 0; i < segmentProportions.length; i++) {
-				if (segmentProportions[i][1] >= location) {
-					idx = i;
-					// todo is this correct for all connector path types?
-					inSegmentProportion = (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
- 					break;
+			//if (location < 1) {
+				for (var i = 0; i < segmentProportions.length; i++) {
+					if (segmentProportions[i][1] >= location) {
+						idx = i;
+						// todo is this correct for all connector path types?
+						inSegmentProportion = location == 1 ? 1 : location == 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
+	 					break;
+					}
 				}
-			}
+			//}
 			return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
 		};
 		
@@ -291,6 +293,8 @@
 		var _clearSegments = function() {
 			totalLength = 0;
 			segments.splice(0, segments.length);
+			segmentProportions.splice(0, segmentProportions.length);
+			segmentProportionalLengths.splice(0, segmentProportionalLengths.length);
 		};
 		
 		this.getSegments = function() { return segments; };
