@@ -11,25 +11,24 @@ var assertContextExists = function() {
 };
 
 var assertContextSize = function(elementCount) {
-	//equals(_getContextNode().children().length - _divs.length, elementCount, 'context has ' + elementCount + ' children');
+	//equal(_getContextNode().children().length - _divs.length, elementCount, 'context has ' + elementCount + ' children');
 };
 
 var assertContextEmpty = function() {
-	equals(_getContextNode().children.length, 0, "context empty");
+	equal(_getContextNode().children.length, 0, "context empty");
 };
 
 var assertEndpointCount = function(elId, count, _jsPlumb) {
-	equals(_jsPlumb.getTestHarness().endpointCount(elId), count, elId + " has " + count + (count > 1) ? "endpoints" : "endpoint");
-	equals(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + (count > 1) ? "endpoints" : "endpoint");
+	equal(_jsPlumb.getTestHarness().endpointCount(elId), count, elId + " has " + count + (count > 1) ? "endpoints" : "endpoint");
+	equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + (count > 1) ? "endpoints" : "endpoint");
 };
 
 var assertConnectionCount = function(endpoint, count) {
-	equals(endpoint.connections.length, count, "endpoint has " + count + " connections");
+	equal(endpoint.connections.length, count, "endpoint has " + count + " connections");
 };
 
 var assertConnectionByScopeCount = function(scope, count, _jsPlumb) {
-	equals(_jsPlumb.getTestHarness().connectionCount(scope), count, 'Scope ' + scope + " has " + count + (count > 1) ? "connections" : "connection");
-c
+	equal(_jsPlumb.getTestHarness().connectionCount(scope), count, 'Scope ' + scope + " has " + count + (count > 1) ? "connections" : "connection");
 };
 
 var _divs = [];
@@ -82,7 +81,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		e.id = "FOO";
 		document.body.appendChild(e);
 		var el = jpcl.getElementObject(e);
-		equals(jpcl.getAttribute(el, "id"), "FOO");
+		equal(jpcl.getAttribute(el, "id"), "FOO");
 	});
 
 	test(renderMode + " : getDOMElement", function() {
@@ -91,7 +90,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		document.body.appendChild(e);
 		var el = jpcl.getElementObject(e);
 		var e2 = jpcl.getDOMElement(el);
-		equals(e2.id, "FOO");
+		equal(e2.id, "FOO");
 	});
 	
 	test(renderMode + ': _jsPlumb setup', function() {
@@ -100,7 +99,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 	
 	test(renderMode + ': getId', function() {
 		var d10 = _addDiv('d10');
-		equals(_jsPlumb.getTestHarness().getId(d10), "d10");
+		equal(_jsPlumb.getTestHarness().getId(d10), "d10");
 	});
 	
 	test(renderMode + ': create a simple endpoint', function() {
@@ -123,7 +122,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.deleteEndpoint(ee);	 
 		assertEndpointCount("d1", 0, _jsPlumb);
 		e = _jsPlumb.getEndpoint("78978597593");
-		equals(e, null, "the endpoint has been deleted");
+		equal(e, null, "the endpoint has been deleted");
 		assertContextSize(0); // no Endpoint canvases.
 	});
 	
@@ -131,7 +130,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		d1.addClass("window");d2.addClass("window");
 		var endpoints = _jsPlumb.addEndpoint($(".window"), {});
-		equals(endpoints.length, 2, "endpoint added to both windows");  
+		equal(endpoints.length, 2, "endpoint added to both windows");  
 		assertEndpointCount("d1", 1, _jsPlumb);
 		assertEndpointCount("d2", 1, _jsPlumb);
 	});
@@ -140,7 +139,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		d1.addClass("window");d2.addClass("window");
 		var endpoints = _jsPlumb.addEndpoint(["d1", "d2"], {});
-		equals(endpoints.length, 2, "endpoint added to both windows");  
+		equal(endpoints.length, 2, "endpoint added to both windows");  
 		assertEndpointCount("d1", 1, _jsPlumb);
 		assertEndpointCount("d2", 1, _jsPlumb);
 	});
@@ -251,6 +250,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		_jsPlumb.connect({source:d3, target:d4});
 		_jsPlumb.detach();	
+		expect(0);
 	});
 
     // test that detach does not fire an event by default
@@ -260,7 +260,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var eventCount = 0;
 		_jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
 		_jsPlumb.detach(conn);
-		equals(eventCount, 1);
+		equal(eventCount, 1);
 	});
 
     // test that detach does not fire an event by default
@@ -270,7 +270,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var eventCount = 0;
 		_jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
 		_jsPlumb.detach({connection:conn});
-		equals(eventCount, 1);
+		equal(eventCount, 1);
 	});
 
     // test that detach fires an event when instructed to do so
@@ -280,7 +280,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var eventCount = 0;
 		_jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
 		_jsPlumb.detach(conn, {fireEvent:false});
-		equals(eventCount, 0);
+		equal(eventCount, 0);
 	});
 	
 	// issue 81
@@ -290,7 +290,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var eventCount = 0;
 		_jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
 		_jsPlumb.detach(conn);
-		equals(eventCount, 1);
+		equal(eventCount, 1);
 	});
 	
 	// issue 81
@@ -300,7 +300,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var eventCount = 0;
 		_jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
 		_jsPlumb.detach({connection:conn});
-		equals(eventCount, 1);
+		equal(eventCount, 1);
 	});
 	
 	// issue 81
@@ -310,7 +310,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var eventCount = 0;
 		_jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
 		_jsPlumb.detach({source:"d5", target:"d6"});
-		equals(eventCount, 1);
+		equal(eventCount, 1);
 	});
 	
 	// issue 81
@@ -320,7 +320,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var eventCount = 0;
 		_jsPlumb.bind("jsPlumbConnectionDetached", function(c) { eventCount++; });
 		_jsPlumb.detach({source:d5, target:d6, fireEvent:true});
-		equals(eventCount, 1);
+		equal(eventCount, 1);
 	});
 	
 	//TODO make sure you run this test with a single detach call, to ensure that
@@ -331,7 +331,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d5, target:d6});
 		assertContextSize(3);
 		var c = _jsPlumb.getConnections();  // will get all connections in the default scope.
-		equals(c.length, 1, "there is one connection");
+		equal(c.length, 1, "there is one connection");
 	});
 	
 	test(renderMode + ': getConnections (simple case, default scope; detach by element id using params object)', function() {
@@ -340,10 +340,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = _jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 2, "there are two connections initially");
+		equal(c.length, 2, "there are two connections initially");
 		_jsPlumb.detach({source:'d5', target:'d6'});
 		c = _jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 1, "after detaching one, there is now one connection.");
+		equal(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
 
@@ -353,10 +353,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = _jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 2, "there are two connections initially");
+		equal(c.length, 2, "there are two connections initially");
 		_jsPlumb.detach({source:"d5", target:"d6"});
 		c = _jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 1, "after detaching one, there is now one connection.");
+		equal(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
 
@@ -366,10 +366,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = _jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 2, "there are two connections initially");
+		equal(c.length, 2, "there are two connections initially");
 		_jsPlumb.detach({source:d5, target:d6});
 		c = _jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 1, "after detaching one, there is now one connection.");
+		equal(c.length, 1, "after detaching one, there is now one connection.");
 		assertContextSize(5);
 	});
 	
@@ -379,11 +379,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c67 = _jsPlumb.connect({source:d6, target:d7});
 		assertContextSize(6);
 		var c = _jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 2, "there are two connections initially");
+		equal(c.length, 2, "there are two connections initially");
 		_jsPlumb.detach(c56);
 		assertContextSize(5);		// check that the connection canvas was removed.
 		c = _jsPlumb.getConnections();  // will get all connections
-		equals(c.length, 1, "after detaching one, there is now one connection.");		
+		equal(c.length, 1, "after detaching one, there is now one connection.");		
 	});
 
 // beforeDetach functionality
@@ -391,25 +391,25 @@ var testSuite = function(renderMode, _jsPlumb) {
 	test(renderMode + ": detach; beforeDetach on connect call returns false", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = _jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { return false; }});
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
 	});
 	
 	test(renderMode + ": detach; beforeDetach on connect call returns true", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = _jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { return true; }});
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+		equal(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
 	});
 
 	test(renderMode + ": detach; beforeDetach on connect call throws an exception; we treat it with the contempt it deserves and pretend it said the detach was ok.", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = _jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { throw "i am an example of badly coded beforeDetach, but i don't break jsPlumb "; }});
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+		equal(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
 	});
 	
 	test(renderMode + ": detach; beforeDetach on addEndpoint call to source Endpoint returns false", function() {
@@ -417,9 +417,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true, beforeDetach:function(conn) { return false; } }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
 	});
 	
 	test(renderMode + ": detach; beforeDetach on addEndpoint call to source Endpoint returns true", function() {
@@ -427,9 +427,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true, beforeDetach:function(conn) { return true; } }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+		equal(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
 	});
 	
 
@@ -438,9 +438,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true, beforeDetach:function(conn) { return false; } }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		var success = e1.detach(c);
-		equals(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
+		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
 		ok(!success, "Endpoint reported detach did not execute");
 	});
 
@@ -449,9 +449,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
 	});
 
     test(renderMode + ": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns false but detach is forced", function() {
@@ -459,10 +459,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c, {forceDetach:true});
-        equals(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was denied but forced anyway");
-		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was denied but forced anyway");
+        equal(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was denied but forced anyway");
+		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was denied but forced anyway");
 	});
 	
 	test(renderMode + ": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns true", function() {
@@ -470,9 +470,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return true; } });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was allowed");
+		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was allowed");
 	});
 	
 	test(renderMode + ": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns false", function() {
@@ -485,9 +485,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 			ok(connection.targetId === "d2", "connection is provided and configured with correct target");
 			return false;
 		});
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
 	});
 	
 	test(renderMode + ": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns true", function() {
@@ -500,9 +500,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 			ok(connection.targetId === "d2", "connection is provided and configured with correct target");
 			return true;
 		});
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was denied");
+		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was denied");
 	});
 	
 	test(renderMode + ": _jsPlumb.detachAllConnections ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
@@ -510,9 +510,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detachAllConnections(d1);
-		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAll was called");
+		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAll was called");
 	});
 
 	test(renderMode + ": _jsPlumb.detachEveryConnection ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
@@ -520,9 +520,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detachEveryConnection();
-		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachEveryConnection was called");
+		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachEveryConnection was called");
 	});
 
 	test(renderMode + ": Endpoint.detachAll ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
@@ -530,9 +530,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true, beforeDetach:function(conn) { return false; } });
 		var c = _jsPlumb.connect({source:e1,target:e2});
-		equals(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
+		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		e1.detachAll();
-		equals(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAllConnections was called");
+		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAllConnections was called");
 	});
 	
 // ******** end of beforeDetach tests **************
@@ -545,9 +545,9 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
         _jsPlumb.connect({source:d1, target:d2});
         _jsPlumb.connect({source:d1, target:d2});
-        equals(connCount, 2, "two connections registered");
+        equal(connCount, 2, "two connections registered");
         _jsPlumb.detachEveryConnection();
-        equals(connCount, 0, "no connections registered");
+        equal(connCount, 0, "no connections registered");
     });
 
     test(renderMode + ": _jsPlumb.detachEveryConnection doesn't fire events when instructed not to", function() {
@@ -556,9 +556,9 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
         _jsPlumb.connect({source:d1, target:d2});
         _jsPlumb.connect({source:d1, target:d2});
-        equals(connCount, 2, "two connections registered");
+        equal(connCount, 2, "two connections registered");
         _jsPlumb.detachEveryConnection({fireEvent:false});
-        equals(connCount, 2, "two connections registered");
+        equal(connCount, 2, "two connections registered");
     });
 
      test(renderMode + ": _jsPlumb.detachAllConnections fires events", function() {
@@ -568,9 +568,9 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
         _jsPlumb.connect({source:d1, target:d2});
         _jsPlumb.connect({source:d1, target:d2});
-        equals(connCount, 2, "two connections registered");
+        equal(connCount, 2, "two connections registered");
         _jsPlumb.detachAllConnections("d1");
-        equals(connCount, 0, "no connections registered");
+        equal(connCount, 0, "no connections registered");
     });
 
     test(renderMode + ": _jsPlumb.detachAllConnections doesn't fire events when instructed not to", function() {
@@ -580,20 +580,20 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
         _jsPlumb.connect({source:d1, target:d2});
         _jsPlumb.connect({source:d1, target:d2});
-        equals(connCount, 2, "two connections registered");
+        equal(connCount, 2, "two connections registered");
         _jsPlumb.detachAllConnections("d1", {fireEvent:false});
-        equals(connCount, 2, "two connections registered");
+        equal(connCount, 2, "two connections registered");
     });
 	
 	test(renderMode + ': getConnections (scope testScope)', function() {
 		var d5 = _addDiv("d5"), d6 = _addDiv("d6");
 		_jsPlumb.connect({source:d5, target:d6, scope:'testScope'});
 		var c = _jsPlumb.getConnections("testScope");  // will get all connections in testScope	
-		equals(c.length, 1, "there is one connection");
-		equals(c[0].sourceId, 'd5', "the connection's source is d5");
-		equals(c[0].targetId, 'd6', "the connection's source is d6");
+		equal(c.length, 1, "there is one connection");
+		equal(c[0].sourceId, 'd5', "the connection's source is d5");
+		equal(c[0].targetId, 'd6', "the connection's source is d6");
 		c = _jsPlumb.getConnections();  // will get all connections in default scope; should be none.
-		equals(c.length, 0, "there are no connections in the default scope");
+		equal(c.length, 0, "there are no connections in the default scope");
 	});
 	
 	test(renderMode + ': _jsPlumb.getAllConnections (filtered by scope)', function() {
@@ -601,13 +601,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d8, target:d9, scope:'testScope'});
 		_jsPlumb.connect({source:d9, target:d10}); // default scope
 		var c = _jsPlumb.getAllConnections();  // will get all connections	
-		equals(c[_jsPlumb.getDefaultScope()].length, 1);
-		equals(c['testScope'].length, 1);	
+		equal(c[_jsPlumb.getDefaultScope()].length, 1);
+		equal(c['testScope'].length, 1);	
 		// now supply a list of scopes
 		c = _jsPlumb.getConnections();  	
-		equals(c.length, 1);
+		equal(c.length, 1);
 		c = _jsPlumb.getConnections("testScope");
-		equals(c.length, 1, "there is one connection in 'testScope'");
+		equal(c.length, 1, "there is one connection in 'testScope'");
 	});
 	
 	test(renderMode + ': _jsPlumb.getConnections (filtered by scope and sourceId)', function() {
@@ -616,7 +616,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d9, target:d8, scope:'testScope'});
 		_jsPlumb.connect({source:d9, target:d10}); // default scope
 		var c = _jsPlumb.getConnections({scope:'testScope', source:'d8'});  // will get all connections with sourceId 'd8'	
-		equals(c.length, 1, "there is one connection in 'testScope' from d8");	
+		equal(c.length, 1, "there is one connection in 'testScope' from d8");	
 	});
 	
 	test(renderMode + ': _jsPlumb.getConnections (filtered by scope, source id and target id)', function() {
@@ -625,7 +625,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d12, target:d13, scope:'testScope'});
 		_jsPlumb.connect({source:d11, target:d13, scope:'testScope'});
 		var c = _jsPlumb.getConnections({scope:'testScope', source:'d11', target:'d13'});  
-		equals(c.length, 1, "there is one connection from d11 to d13");	
+		equal(c.length, 1, "there is one connection from d11 to d13");	
 	});
 	
 	test(renderMode + ': _jsPlumb.getConnections (filtered by a list of scopes)', function() {
@@ -634,9 +634,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d12, target:d13, scope:'testScope2'});
 		_jsPlumb.connect({source:d11, target:d13, scope:'testScope3'});
 		var c = _jsPlumb.getConnections({scope:['testScope','testScope3']});  
-		equals(c['testScope'].length, 1, 'there is one connection in testScope');
-		equals(c['testScope3'].length, 1, 'there is one connection in testScope3');
-		equals(c['testScope2'], null, 'there are no connections in testScope2');
+		equal(c['testScope'].length, 1, 'there is one connection in testScope');
+		equal(c['testScope3'].length, 1, 'there is one connection in testScope3');
+		equal(c['testScope2'], null, 'there are no connections in testScope2');
 	});
 	
 	test(renderMode + ': _jsPlumb.getConnections (filtered by a list of scopes and source ids)', function() {
@@ -646,9 +646,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d12, target:d13, scope:'testScope2'});
 		_jsPlumb.connect({source:d11, target:d13, scope:'testScope3'});
 		var c = _jsPlumb.getConnections({scope:['testScope','testScope3'], source:['d11']});  
-		equals(c['testScope'].length, 1, 'there is one connection in testScope');
-		equals(c['testScope3'].length, 1, 'there is one connection in testScope3');
-		equals(c['testScope2'], null, 'there are no connections in testScope2');
+		equal(c['testScope'].length, 1, 'there is one connection in testScope');
+		equal(c['testScope3'].length, 1, 'there is one connection in testScope3');
+		equal(c['testScope2'], null, 'there are no connections in testScope2');
 	});
 	
 	test(renderMode + ': _jsPlumb.getConnections (filtered by a list of scopes, source ids and target ids)', function() {
@@ -662,28 +662,28 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d11, target:d13, scope:'testScope3'});
 		assertContextSize(18);
 		var c = _jsPlumb.getConnections({scope:['testScope','testScope3'], source:['d11'], target:['d14', 'd15']});  
-		equals(c['testScope'].length, 2, 'there are two connections in testScope');
-		equals(c['testScope3'], null, 'there are no connections in testScope3');
-		equals(c['testScope2'], null, 'there are no connections in testScope2');
+		equal(c['testScope'].length, 2, 'there are two connections in testScope');
+		equal(c['testScope3'], null, 'there are no connections in testScope3');
+		equal(c['testScope2'], null, 'there are no connections in testScope2');
 		var anEntry = c['testScope'][0];
 		ok(anEntry.endpoints[0] != null, "Source endpoint is set");
 		ok(anEntry.endpoints[1] != null, "Target endpoint is set");
-		equals(anEntry.source.attr("id"), "d11", "Source is div d11");
-		equals(anEntry.target.attr("id"), "d14", "Target is div d14");
+		equal(anEntry.source.attr("id"), "d11", "Source is div d11");
+		equal(anEntry.target.attr("id"), "d14", "Target is div d14");
 	});
 	
 	test(renderMode + ': getEndpoints, one Endpoint added by addEndpoint, get Endpoints by selector', function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		_jsPlumb.addEndpoint(d1);
 		var e = _jsPlumb.getEndpoints(d1);
-		equals(e.length, 1, "there is one endpoint for element d1");
+		equal(e.length, 1, "there is one endpoint for element d1");
 	});
 	
 	test(renderMode + ': getEndpoints, one Endpoint added by addEndpoint, get Endpoints by id', function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		_jsPlumb.addEndpoint(d1);
 		var e = _jsPlumb.getEndpoints("d1");
-		equals(e.length, 1, "there is one endpoint for element d1");
+		equal(e.length, 1, "there is one endpoint for element d1");
 	});
 	
 	test(renderMode + ': connection event listeners', function() {
@@ -695,10 +695,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:d1, target:d2});
 		ok(returnedParams != null, "new connection listener event was fired");
 		ok(returnedParams.connection != null, 'connection is set');
-		equals(returnedParams.sourceId, "d1", 'sourceid is set');
-		equals(returnedParams.targetId, "d2", 'targetid is set');
-		equals(returnedParams.source.attr("id"), "d1", 'source is set');
-		equals(returnedParams.target.attr("id"), "d2" , 'target is set');
+		equal(returnedParams.sourceId, "d1", 'sourceid is set');
+		equal(returnedParams.targetId, "d2", 'targetid is set');
+		equal(returnedParams.source.attr("id"), "d1", 'source is set');
+		equal(returnedParams.target.attr("id"), "d2" , 'target is set');
 		ok(returnedParams.sourceEndpoint != null, "source endpoint is not null");
 		ok(returnedParams.targetEndpoint != null, "target endpoint is not null");
 		_jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
@@ -982,10 +982,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(e16.anchor, 'endpoint 16 has an anchor');
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true});
 		var conn = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
-		equals(e16.isConnectedTo(e17), true, "e16 and e17 are connected");  
+		equal(e16.isConnectedTo(e17), true, "e16 and e17 are connected");  
 	});
 
-	asyncTest(renderMode + "jsPlumbUtil.setImage on Endpoint, with supplied onload", function() {
+	asyncTest(renderMode + " jsPlumbUtil.setImage on Endpoint, with supplied onload", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
         e = {
             endpoint:[ "Image", {
@@ -1004,13 +1004,14 @@ var testSuite = function(renderMode, _jsPlumb) {
         };
         start();
         _jsPlumb.addEndpoint(d1, e);
+        expect(3);
     });
 	
 	test(renderMode + ": setting endpoint uuid", function() {
 		var uuid = "14785937583175927504313";
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18");
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true,maxConnections:-1, uuid:uuid});
-		equals(e16.getUuid(), uuid, "endpoint's uuid was set correctly");
+		equal(e16.getUuid(), uuid, "endpoint's uuid was set correctly");
 	});
 	
 	test(renderMode + ": _jsPlumb.getEndpoint (by uuid)", function() {
@@ -1018,7 +1019,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16");
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true,maxConnections:-1, uuid:uuid});
 		var e = _jsPlumb.getEndpoint(uuid);
-		equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+		equal(e.getUuid(), uuid, "retrieved endpoint by uuid");
 	});
 	
 	test(renderMode + ": _jsPlumb.deleteEndpoint (by uuid, simple case)", function() {
@@ -1026,12 +1027,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16");
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true,maxConnections:-1, uuid:uuid});
 		var e = _jsPlumb.getEndpoint(uuid);
-		equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+		equal(e.getUuid(), uuid, "retrieved endpoint by uuid");
 		_jsPlumb.deleteEndpoint(uuid);
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint has been deleted");
+		equal(f, null, "endpoint has been deleted");
 		var ebe = _jsPlumb.getTestHarness().endpointsByElement["d16"];
-		equals(ebe.length, 0, "no endpoints registered for element d16 anymore");
+		equal(ebe.length, 0, "no endpoints registered for element d16 anymore");
 		assertContextSize(0);
 	});
 	
@@ -1043,29 +1044,29 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true,maxConnections:-1});
 		_jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		// check that the connection was ok.
-		equals(e16.connections.length, 1, "e16 has one connection");
-		equals(e17.connections.length, 1, "e17 has one connection");
+		equal(e16.connections.length, 1, "e16 has one connection");
+		equal(e17.connections.length, 1, "e17 has one connection");
 		assertContextSize(3);
 		
 		// delete the endpoint that has a uuid.  verify that the endpoint cannot be retrieved and that the connection has been removed, but that
 		// element d17 still has its Endpoint.
 		_jsPlumb.deleteEndpoint(uuid);
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint has been deleted");
-		equals(e16.connections.length, 0, "e16 has no connections");
-		equals(e17.connections.length, 0, "e17 has no connections");
+		equal(f, null, "endpoint has been deleted");
+		equal(e16.connections.length, 0, "e16 has no connections");
+		equal(e17.connections.length, 0, "e17 has no connections");
 		var ebe = _jsPlumb.getTestHarness().endpointsByElement["d16"];
-		equals(ebe.length, 0, "no endpoints registered for element d16 anymore");
+		equal(ebe.length, 0, "no endpoints registered for element d16 anymore");
 		ebe = _jsPlumb.getTestHarness().endpointsByElement["d17"];
-		equals(ebe.length, 1, "element d17 still has its Endpoint");
+		equal(ebe.length, 1, "element d17 still has its Endpoint");
 		assertContextSize(1);
 		
 		// now delete d17's endpoint and check that it has gone.
 		_jsPlumb.deleteEndpoint(e17);
 		f = _jsPlumb.getEndpoint(e17);
-		equals(f, null, "endpoint has been deleted");
+		equal(f, null, "endpoint has been deleted");
 		ebe = _jsPlumb.getTestHarness().endpointsByElement["d17"];
-		equals(ebe.length, 0, "element d17 no longer has any Endpoints");
+		equal(ebe.length, 0, "element d17 no longer has any Endpoints");
 		assertContextSize(0);
 	});
 	
@@ -1074,10 +1075,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16");
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true,maxConnections:-1, uuid:uuid});
 		var e = _jsPlumb.getEndpoint(uuid);
-		equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+		equal(e.getUuid(), uuid, "retrieved endpoint by uuid");
 		_jsPlumb.deleteEndpoint(e16);
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint has been deleted");
+		equal(f, null, "endpoint has been deleted");
 		assertContextSize(0);
 	});
 	
@@ -1087,15 +1088,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true,maxConnections:-1, uuid:uuid});
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true,maxConnections:-1});
 		_jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
-		equals(e16.connections.length, 1, "e16 has one connection");
-		equals(e17.connections.length, 1, "e17 has one connection");
+		equal(e16.connections.length, 1, "e16 has one connection");
+		equal(e17.connections.length, 1, "e17 has one connection");
 		assertContextSize(3);
 		
 		_jsPlumb.deleteEndpoint(e16);
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint has been deleted");
-		equals(e16.connections.length, 0, "e16 has no connections");
-		equals(e17.connections.length, 0, "e17 has no connections");
+		equal(f, null, "endpoint has been deleted");
+		equal(e16.connections.length, 0, "e16 has no connections");
+		equal(e17.connections.length, 0, "e17 has no connections");
 		assertContextSize(1);
 	});
 	
@@ -1106,14 +1107,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true,maxConnections:-1});
 		assertContextSize(2);
 		var e = _jsPlumb.getEndpoint(uuid);
-		equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+		equal(e.getUuid(), uuid, "retrieved endpoint by uuid");
 		
 		_jsPlumb.deleteEveryEndpoint();
 		
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint e16 has been deleted");
+		equal(f, null, "endpoint e16 has been deleted");
 		var g = _jsPlumb.getEndpoint(e17);
-		equals(g, null, "endpoint e17 has been deleted");
+		equal(g, null, "endpoint e17 has been deleted");
 		assertContextSize(0);
 	});
 	
@@ -1126,14 +1127,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		assertContextSize(3);
 		var e = _jsPlumb.getEndpoint(uuid);
-		equals(e.getUuid(), uuid, "retrieved endpoint by uuid");
+		equal(e.getUuid(), uuid, "retrieved endpoint by uuid");
 		
 		_jsPlumb.deleteEveryEndpoint();
 		
 		var f = _jsPlumb.getEndpoint(uuid);
-		equals(f, null, "endpoint e16 has been deleted");
+		equal(f, null, "endpoint e16 has been deleted");
 		var g = _jsPlumb.getEndpoint(e17);
-		equals(g, null, "endpoint e17 has been deleted");
+		equal(g, null, "endpoint e17 has been deleted");
 		assertContextSize(0);								// no canvases. so all connection canvases have been cleaned up too.
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
 	});
@@ -1143,10 +1144,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {anchor:[0,0.5,0,-1]});
 		var e17 = _jsPlumb.addEndpoint(d17, {anchor:"TopCenter"});
 		assertContextSize(2);
-		equals(e16.anchor.x, 0);
-		equals(e16.anchor.y, 0.5);
-		equals(e17.anchor.x, 0.5);
-		equals(e17.anchor.y, 0);
+		equal(e16.anchor.x, 0);
+		equal(e16.anchor.y, 0.5);
+		equal(e17.anchor.x, 0.5);
+		equal(e17.anchor.y, 0);
 	});
 	
 	test(renderMode + ": _jsPlumb.addEndpoint (tooltip)", function() {
@@ -1154,8 +1155,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e16 = _jsPlumb.addEndpoint(d16, {tooltip:"FOO"}),
 			e17 = _jsPlumb.addEndpoint(d17, {tooltip:"BAZ"});
 		assertContextSize(2);
-		equals(e16.canvas.getAttribute("title"), "FOO");
-		equals(e17.canvas.getAttribute("title"), "BAZ");
+		equal(e16.canvas.getAttribute("title"), "FOO");
+		equal(e17.canvas.getAttribute("title"), "BAZ");
 	});
 	
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case, dynamic anchors)", function() {
@@ -1163,8 +1164,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		var e17 = _jsPlumb.addEndpoint(d17, {anchors:["TopCenter", "BottomCenter"]});
 		assertContextSize(2);
-		equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
-		equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+		equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+		equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 	});
 	
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case, two arg method)", function() {
@@ -1172,14 +1173,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchor:[0,0.5,0,-1]});
 		var e17 = _jsPlumb.addEndpoint(d17, {isTarget:true, isSource:false}, {anchor:"TopCenter"});
 		assertContextSize(2);
-		equals(e16.anchor.x, 0);
-		equals(e16.anchor.y, 0.5);
-		equals(false, e16.isTarget);
-		equals(true, e16.isSource);
-		equals(e17.anchor.x, 0.5);
-		equals(e17.anchor.y, 0);
-		equals(true, e17.isTarget);
-		equals(false, e17.isSource);
+		equal(e16.anchor.x, 0);
+		equal(e16.anchor.y, 0.5);
+		equal(false, e16.isTarget);
+		equal(true, e16.isSource);
+		equal(e17.anchor.x, 0.5);
+		equal(e17.anchor.y, 0);
+		equal(true, e17.isTarget);
+		equal(false, e17.isSource);
 	});
 	
 	
@@ -1187,14 +1188,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoints(d16, [{isSource:true, isTarget:false, anchor:[0,0.5,0,-1] }, { isTarget:true, isSource:false, anchor:"TopCenter" }]);
 		assertContextSize(2);
-		equals(e16[0].anchor.x, 0);
-		equals(e16[0].anchor.y, 0.5);
-		equals(false, e16[0].isTarget);
-		equals(true, e16[0].isSource);
-		equals(e16[1].anchor.x, 0.5);
-		equals(e16[1].anchor.y, 0);
-		equals(true, e16[1].isTarget);
-		equals(false, e16[1].isSource);
+		equal(e16[0].anchor.x, 0);
+		equal(e16[0].anchor.y, 0.5);
+		equal(false, e16[0].isTarget);
+		equal(true, e16[0].isSource);
+		equal(e16[1].anchor.x, 0.5);
+		equal(e16[1].anchor.y, 0);
+		equal(true, e16[1].isTarget);
+		equal(false, e16[1].isSource);
 	});
 	
 	test(renderMode + ": _jsPlumb.addEndpoints (with reference params)", function() {
@@ -1202,14 +1203,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var refParams = {anchor:"RightMiddle"};
 		var e16 = _jsPlumb.addEndpoints(d16, [{isSource:true, isTarget:false}, { isTarget:true, isSource:false }], refParams);
 		assertContextSize(2);
-		equals(e16[0].anchor.x, 1);
-		equals(e16[0].anchor.y, 0.5);
-		equals(false, e16[0].isTarget);
-		equals(true, e16[0].isSource);
-		equals(e16[1].anchor.x, 1);
-		equals(e16[1].anchor.y, 0.5);
-		equals(true, e16[1].isTarget);
-		equals(false, e16[1].isSource);
+		equal(e16[0].anchor.x, 1);
+		equal(e16[0].anchor.y, 0.5);
+		equal(false, e16[0].isTarget);
+		equal(true, e16[0].isSource);
+		equal(e16[1].anchor.x, 1);
+		equal(e16[1].anchor.y, 0.5);
+		equal(true, e16[1].isTarget);
+		equal(false, e16[1].isSource);
 	});
 	
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case, dynamic anchors, two arg method)", function() {
@@ -1217,8 +1218,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		var e17 = _jsPlumb.addEndpoint(d17, {isTarget:true, isSource:false}, {anchors:["TopCenter", "BottomCenter"]});
 		assertContextSize(2);
-		equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
-		equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+		equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+		equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 	});
 
 	test(renderMode + ": _jsPlumb.addEndpoints (default overlays)", function() {
@@ -1254,7 +1255,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.addEndpoint(d17);
 
 		e1.setLabel("FOO");
-		equals(e1.getLabel(), "FOO", "endpoint's label is correct");
+		equal(e1.getLabel(), "FOO", "endpoint's label is correct");
 	});
 
 	test(renderMode + ": _jsPlumb.addEndpoints (end point set label in constructor, as string)", function() {
@@ -1262,7 +1263,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e1 = _jsPlumb.addEndpoint(d16, {label:"FOO"}),
 			e2 = _jsPlumb.addEndpoint(d17);
 
-		equals(e1.getLabel(), "FOO", "endpoint's label is correct");
+		equal(e1.getLabel(), "FOO", "endpoint's label is correct");
 	});
 
 	test(renderMode + ": _jsPlumb.addEndpoints (end point set label in constructor, as function)", function() {
@@ -1270,8 +1271,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e1 = _jsPlumb.addEndpoint(d16, {label:function() { return "BAZ"; }, labelLocation:0.1}),
 			e2 = _jsPlumb.addEndpoint(d17);
 
-		equals(e1.getLabel()(), "BAZ", "endpoint's label is correct");
-		equals(e1.getLabelOverlay().getLocation(), 0.1, "endpoint's label's location is correct");
+		equal(e1.getLabel()(), "BAZ", "endpoint's label is correct");
+		equal(e1.getLabelOverlay().getLocation(), 0.1, "endpoint's label's location is correct");
 	});
 
 // ******************  makeTarget (and associated methods) tests ********************************************	
@@ -1280,85 +1281,85 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"TopCenter"  });
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 	});
 
 	test(renderMode + ": _jsPlumb.makeTarget (specify two divs in an array)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		_jsPlumb.makeTarget([d16, d17], { isTarget:true,anchor:"TopCenter"  });
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 	});
 	
 	test(renderMode + ": _jsPlumb.makeTarget (specify two divs by id in an array)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		_jsPlumb.makeTarget(["d16", "d17"], { isTarget:true,anchor:"TopCenter"  });
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 	});
 	
 	test(renderMode + ": _jsPlumb.makeTarget (specify divs by selector)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		d16.addClass("FOO");d17.addClass("FOO");
 		_jsPlumb.makeTarget($(".FOO"), { isTarget:true,anchor:"TopCenter"  });
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");
-		equals(e.length, 1, "d17 has one endpoint");
-		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e.length, 1, "d17 has one endpoint");
+		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (simple case, two connect calls)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 2, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");		
-		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (simple case, two connect calls, uniqueEndpoint set)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true, anchor:"LeftMiddle", uniqueEndpoint:true, maxConnections:-1  }); // give it a non-default anchor, we will check this below.
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");		
-		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].connections.length, 2, "endpoint on d17 has two connections");
+		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].connections.length, 2, "endpoint on d17 has two connections");
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (newConnection:true specified)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equals(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17", newConnection:true});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");		
-		equals(e[0].anchor.x, 0.5, "anchor is BottomCenter"); //here we should be seeing the default anchor
-		equals(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
+		equal(e[0].anchor.x, 0.5, "anchor is BottomCenter"); //here we should be seeing the default anchor
+		equal(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
 	});
 
 // jsPlumb.connect, after makeSource has been called on some element
@@ -1370,8 +1371,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");		
-		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeSource (simple case, two connect calls)", function() {
@@ -1383,8 +1384,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 2, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");		
-		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (simple case, two connect calls, uniqueEndpoint set)", function() {
@@ -1396,9 +1397,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");		
-		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].connections.length, 2, "endpoint on d17 has two connections");
+		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].connections.length, 2, "endpoint on d17 has two connections");
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (newConnection:true specified)", function() {
@@ -1409,8 +1410,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");		
-		equals(e[0].anchor.x, 0.5, "anchor is BottomCenter"); //here we should be seeing the default anchor
-		equals(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
+		equal(e[0].anchor.x, 0.5, "anchor is BottomCenter"); //here we should be seeing the default anchor
+		equal(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeSource on child; wth parent set (parent should be recognised)", function() {
@@ -1422,8 +1423,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d17", 1, _jsPlumb);
 		assertEndpointCount("d18", 0, _jsPlumb);
 		var e = _jsPlumb.getEndpoints("d17");		
-		equals(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
-		equals(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
 
 	// makeSource, then disable it. should not be able to make a connection from it.
@@ -1623,7 +1624,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e = _jsPlumb.addEndpoint(d1, {connectorTooltip:"FOO"});
 		var e2 = _jsPlumb.addEndpoint(d2, {});
 		var c = _jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
-		equals(c.connector.canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
+		equal(c.connector.canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (tooltip parameter)', function() {
@@ -1631,7 +1632,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e = _jsPlumb.addEndpoint(d1, {});
 		var e2 = _jsPlumb.addEndpoint(d2, {});
 		var c = _jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2, tooltip:"FOO"});
-		equals(c.connector.canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
+		equal(c.connector.canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (between two Endpoints, and dont supply any parameters to the Endpoints.)', function() {
@@ -1653,10 +1654,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
 			c = _jsPlumb.connect({source:d1, target:d2, anchors:["LeftMiddle", "RightMiddle"]});
 
-		equals(c.endpoints[0].anchor.x, 0, "source anchor is at x=0");
-		equals(c.endpoints[0].anchor.y, 0.5, "source anchor is at y=0.5");
-		equals(c.endpoints[1].anchor.x, 1, "target anchor is at x=1");
-		equals(c.endpoints[1].anchor.y, 0.5, "target anchor is at y=0.5");
+		equal(c.endpoints[0].anchor.x, 0, "source anchor is at x=0");
+		equal(c.endpoints[0].anchor.y, 0.5, "source anchor is at y=0.5");
+		equal(c.endpoints[1].anchor.x, 1, "target anchor is at x=1");
+		equal(c.endpoints[1].anchor.y, 0.5, "target anchor is at y=0.5");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (by endpoint)', function() {
@@ -1675,7 +1676,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true});
 		var c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17, cost:567});
 		assertContextSize(3);
-		equals(c.getCost(), 567, "connection cost is 567");
+		equal(c.getCost(), 567, "connection cost is 567");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (default cost)', function() {
@@ -1685,7 +1686,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true});
 		var c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.getCost(), undefined, "default connection cost is 1");
+		equal(c.getCost(), undefined, "default connection cost is 1");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (set cost)', function() {
@@ -1695,9 +1696,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true});
 		var c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.getCost(), undefined, "default connection cost is 1");
+		equal(c.getCost(), undefined, "default connection cost is 1");
 		c.setCost(8989);
-		equals(c.getCost(), 8989, "connection cost is 8989");
+		equal(c.getCost(), 8989, "connection cost is 8989");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect two endpoints (connectionCost)', function() {
@@ -1707,7 +1708,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true});
 		var c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.getCost(), 567, "connection cost is 567");
+		equal(c.getCost(), 567, "connection cost is 567");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect two endpoints (change connectionCost)', function() {
@@ -1716,10 +1717,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e17 = _jsPlumb.addEndpoint(d17, {isSource:true, maxConnections:-1});
 			c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.getCost(), 567, "connection cost is 567");
+		equal(c.getCost(), 567, "connection cost is 567");
 		e16.setConnectionCost(23);
 		var c2 = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
-		equals(c2.getCost(), 23, "connection cost is 23 after change on endpoint");
+		equal(c2.getCost(), 23, "connection cost is 23 after change on endpoint");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (default bidirectional)', function() {
@@ -1728,7 +1729,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e17 = _jsPlumb.addEndpoint(d17, {isSource:true}),
 			c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.isBidirectional(), true, "default connection is bidirectional");
+		equal(c.isBidirectional(), true, "default connection is bidirectional");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (bidirectional false)', function() {
@@ -1737,7 +1738,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e17 = _jsPlumb.addEndpoint(d17, {isSource:true}),
 			c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17, bidirectional:false});
 		assertContextSize(3);
-		equals(c.isBidirectional(), false, "connection is not bidirectional");
+		equal(c.isBidirectional(), false, "connection is not bidirectional");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect two endpoints (connectionsBidirectional)', function() {
@@ -1747,7 +1748,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true, maxConnections:-1});
 		var c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.isBidirectional(), true, "connection is bidrectional");
+		equal(c.isBidirectional(), true, "connection is bidrectional");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect two endpoints (change connectionsBidirectional)', function() {
@@ -1756,10 +1757,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e17 = _jsPlumb.addEndpoint(d17, {isSource:true, maxConnections:-1});
 			c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equals(c.isBidirectional(), true, "connection is bidirectional");
+		equal(c.isBidirectional(), true, "connection is bidirectional");
 		e16.setConnectionsBidirectional(false);
 		var c2 = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
-		equals(c2.isBidirectional(), false, "connection is not bidirectional");
+		equal(c2.isBidirectional(), false, "connection is not bidirectional");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (two Endpoints - that have been already added - by UUID)", function() {
@@ -1812,7 +1813,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, no params)", function() {
@@ -1820,8 +1821,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Bezier" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.connector.type, "Bezier", "Bezier connector chosen for connection");
-		equals(conn.connector.majorAnchor, 150, "Bezier connector chose 150 curviness");
+		equal(conn.connector.type, "Bezier", "Bezier connector chosen for connection");
+		equal(conn.connector.majorAnchor, 150, "Bezier connector chose 150 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, curviness as int)", function() {
@@ -1829,8 +1830,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", { curviness:200 }] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.connector.type, "Bezier", "Canvas Bezier connector chosen for connection");
-		equals(conn.connector.majorAnchor, 200, "Bezier connector chose 200 curviness");
+		equal(conn.connector.type, "Bezier", "Canvas Bezier connector chosen for connection");
+		equal(conn.connector.majorAnchor, 200, "Bezier connector chose 200 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, curviness as named option)", function() {
@@ -1838,8 +1839,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", {curviness:300}] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.connector.type, "Bezier", "Bezier connector chosen for connection");
-		equals(conn.connector.majorAnchor, 300, "Bezier connector chose 300 curviness");
+		equal(conn.connector.type, "Bezier", "Bezier connector chosen for connection");
+		equal(conn.connector.majorAnchor, 300, "Bezier connector chose 300 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)", function() {
@@ -1847,11 +1848,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:[[0.3,0.3,1,0], [0.7,0.7,0,1]] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.connector.type, "Straight", "Canvas Straight connector chosen for connection");
-		equals(0.3, conn.endpoints[0].anchor.x, "source anchor x");
-		equals(0.3, conn.endpoints[0].anchor.y, "source anchor y");
-		equals(0.7, conn.endpoints[1].anchor.x, "target anchor x");
-		equals(0.7, conn.endpoints[1].anchor.y, "target anchor y");
+		equal(conn.connector.type, "Straight", "Canvas Straight connector chosen for connection");
+		equal(0.3, conn.endpoints[0].anchor.x, "source anchor x");
+		equal(0.3, conn.endpoints[0].anchor.y, "source anchor y");
+		equal(0.7, conn.endpoints[1].anchor.x, "target anchor x");
+		equal(0.7, conn.endpoints[1].anchor.y, "target anchor y");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as strings)", function() {
@@ -1859,11 +1860,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:["LeftMiddle", "RightMiddle"] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.connector.type, "Straight", "Straight connector chosen for connection");
-		equals(0, conn.endpoints[0].anchor.x, "source anchor x");
-		equals(0.5, conn.endpoints[0].anchor.y, "source anchor y");
-		equals(1, conn.endpoints[1].anchor.x, "target anchor x");
-		equals(0.5, conn.endpoints[1].anchor.y, "target anchor y");
+		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(0, conn.endpoints[0].anchor.x, "source anchor x");
+		equal(0.5, conn.endpoints[0].anchor.y, "source anchor y");
+		equal(1, conn.endpoints[1].anchor.x, "target anchor x");
+		equal(0.5, conn.endpoints[1].anchor.y, "target anchor y");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)", function() {
@@ -1871,11 +1872,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:[[0.3,0.3,1,0], [0.7,0.7,0,1]] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.connector.type, "Straight", "Straight connector chosen for connection");
-		equals(0.3, conn.endpoints[0].anchor.x, "source anchor x");
-		equals(0.3, conn.endpoints[0].anchor.y, "source anchor y");
-		equals(0.7, conn.endpoints[1].anchor.x, "target anchor x");
-		equals(0.7, conn.endpoints[1].anchor.y, "target anchor y");
+		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(0.3, conn.endpoints[0].anchor.x, "source anchor x");
+		equal(0.3, conn.endpoints[0].anchor.y, "source anchor y");
+		equal(0.7, conn.endpoints[1].anchor.x, "target anchor x");
+		equal(0.7, conn.endpoints[1].anchor.y, "target anchor y");
 	});
 	
 	
@@ -1886,16 +1887,16 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn2 = _jsPlumb.connect({ source:d18, target:d19}, sharedData);
 		assertContextSize(6);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 2, _jsPlumb);
-		equals(conn.connector.type, "Straight", "Straight connector chosen for connection");
-		equals(conn2.connector.type, "Straight", "Straight connector chosen for connection");
-		equals(0.3, conn.endpoints[0].anchor.x, "source anchor x");
-		equals(0.3, conn.endpoints[0].anchor.y, "source anchor y");
-		equals(0.7, conn.endpoints[1].anchor.x, "target anchor x");
-		equals(0.7, conn.endpoints[1].anchor.y, "target anchor y");
-		equals(0.3, conn2.endpoints[0].anchor.x, "source anchor x");
-		equals(0.3, conn2.endpoints[0].anchor.y, "source anchor y");
-		equals(0.7, conn2.endpoints[1].anchor.x, "target anchor x");
-		equals(0.7, conn2.endpoints[1].anchor.y, "target anchor y");
+		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(conn2.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(0.3, conn.endpoints[0].anchor.x, "source anchor x");
+		equal(0.3, conn.endpoints[0].anchor.y, "source anchor y");
+		equal(0.7, conn.endpoints[1].anchor.x, "target anchor x");
+		equal(0.7, conn.endpoints[1].anchor.y, "target anchor y");
+		equal(0.3, conn2.endpoints[0].anchor.x, "source anchor x");
+		equal(0.3, conn2.endpoints[0].anchor.y, "source anchor y");
+		equal(0.7, conn2.endpoints[1].anchor.x, "target anchor x");
+		equal(0.7, conn2.endpoints[1].anchor.y, "target anchor y");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector as string test)", function() {
@@ -1903,7 +1904,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Endpoint test)", function() {
@@ -1911,8 +1912,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, endpoint:"Rectangle" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection source");
-		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection target");
+		equal(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection source");
+		equal(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection target");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Endpoint as string test)", function() {
@@ -1920,8 +1921,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, endpoint:"Rectangle" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection source");
-		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection target");
+		equal(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection source");
+		equal(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection target");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Endpoints test)", function() {
@@ -1929,8 +1930,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, endpoints:["Rectangle", "Dot" ] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection source");
-		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Dot, "Dot endpoint chosen for connection target");
+		equal(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection source");
+		equal(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Dot, "Dot endpoint chosen for connection target");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Blank Endpoint specified via 'endpoint' param)", function() {
@@ -1938,8 +1939,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, endpoint:"Blank" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection source");
-		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection target");
+		equal(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection source");
+		equal(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection target");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Blank Endpoint specified via 'endpoints' param)", function() {
@@ -1947,8 +1948,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, endpoints:["Blank", "Blank" ] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection source");
-		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection target");
+		equal(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection source");
+		equal(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Blank, "Blank endpoint chosen for connection target");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Endpoint as string test)", function() {
@@ -1956,8 +1957,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, endpoints:["Rectangle", "Dot" ] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection source");
-		equals(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Dot, "Dot endpoint chosen for connection target");
+		equal(conn.endpoints[0].endpoint.constructor, jsPlumb.Endpoints[renderMode].Rectangle, "Rectangle endpoint chosen for connection source");
+		equal(conn.endpoints[1].endpoint.constructor, jsPlumb.Endpoints[renderMode].Dot, "Dot endpoint chosen for connection target");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, connector test)", function() {
@@ -1967,7 +1968,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(e16.connections[0].connector.constructor, jsPlumb.Connectors[renderMode].Straight, "Straight connector chosen for connection");
+		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, connector as string test)", function() {
@@ -1977,7 +1978,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(e16.connections[0].connector.constructor, jsPlumb.Connectors[renderMode].Straight, "Straight connector chosen for connection");
+		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, anchors as string test)", function() {
@@ -1988,9 +1989,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(e16.connections[0].connector.constructor, jsPlumb.Connectors[renderMode].Straight, "Straight connector chosen for connection");
-		equals(e16.anchor.x, 0.5, "endpoint 16 is at top center");equals(e16.anchor.y, 0, "endpoint 16 is at top center");
-		equals(e17.anchor.x, 0.5, "endpoint 17 is at bottom center");equals(e17.anchor.y, 1, "endpoint 17 is at bottom center");
+		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.anchor.x, 0.5, "endpoint 16 is at top center");equal(e16.anchor.y, 0, "endpoint 16 is at top center");
+		equal(e17.anchor.x, 0.5, "endpoint 17 is at bottom center");equal(e17.anchor.y, 1, "endpoint 17 is at bottom center");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, endpoints create anchors)", function() {
@@ -2001,11 +2002,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(e16.connections[0].connector.constructor, jsPlumb.Connectors[renderMode].Straight, "Straight connector chosen for connection");
-		equals(e16.anchor.x, a16[0]);equals(e16.anchor.y, a16[1]);
-		equals(e17.anchor.x, a17[0]);equals(e17.anchor.y, a17[1]);
-		equals(e16.anchor.getOrientation()[0], a16[2]); equals(e16.anchor.getOrientation()[1], a16[3]);
-		equals(e17.anchor.getOrientation()[0], a17[2]); equals(e17.anchor.getOrientation()[1], a17[3]);
+		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.anchor.x, a16[0]);equal(e16.anchor.y, a16[1]);
+		equal(e17.anchor.x, a17[0]);equal(e17.anchor.y, a17[1]);
+		equal(e16.anchor.getOrientation()[0], a16[2]); equal(e16.anchor.getOrientation()[1], a16[3]);
+		equal(e17.anchor.getOrientation()[0], a17[2]); equal(e17.anchor.getOrientation()[1], a17[3]);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchor')", function() {
@@ -2015,9 +2016,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(e16.connections[0].connector.constructor, jsPlumb.Connectors[renderMode].Straight, "Straight connector chosen for connection");
-		equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
-		equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+		equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, endpoints create dynamic anchors; anchors specified by 'anchors')", function() {
@@ -2027,9 +2028,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equals(e16.connections[0].connector.constructor, jsPlumb.Connectors[renderMode].Straight, "Straight connector chosen for connection");
-		equals(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
-		equals(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
+		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
+		equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (connect by element, default endpoint, supplied dynamic anchors)", function() {
@@ -2096,36 +2097,36 @@ var testSuite = function(renderMode, _jsPlumb) {
     test(renderMode + " detachable parameter defaults to true on _jsPlumb.connect", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = _jsPlumb.connect({source:d1, target:d2});
-        equals(c.isDetachable(), true, "connections detachable by default");
+        equal(c.isDetachable(), true, "connections detachable by default");
     });
 
     test(renderMode + " detachable parameter set to false on _jsPlumb.connect", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = _jsPlumb.connect({source:d1, target:d2, detachable:false});
-        equals(c.isDetachable(), false, "connection detachable");
+        equal(c.isDetachable(), false, "connection detachable");
     });
 
     test(renderMode + " setDetachable on initially detachable connection", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = _jsPlumb.connect({source:d1, target:d2});
-        equals(c.isDetachable(), true, "connection initially detachable");
+        equal(c.isDetachable(), true, "connection initially detachable");
         c.setDetachable(false);
-        equals(c.isDetachable(), false, "connection not detachable");
+        equal(c.isDetachable(), false, "connection not detachable");
     });
 
     test(renderMode + " setDetachable on initially not detachable connection", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = _jsPlumb.connect({source:d1, target:d2, detachable:false });
-        equals(c.isDetachable(), false, "connection not initially detachable");
+        equal(c.isDetachable(), false, "connection not initially detachable");
         c.setDetachable(true);
-        equals(c.isDetachable(), true, "connection now detachable");
+        equal(c.isDetachable(), true, "connection now detachable");
     });
 
     test(renderMode + " _jsPlumb.Defaults.ConnectionsDetachable", function() {
         _jsPlumb.Defaults.ConnectionsDetachable = false;
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = _jsPlumb.connect({source:d1, target:d2});
-        equals(c.isDetachable(), false, "connections not detachable by default (overrode the defaults)");
+        equal(c.isDetachable(), false, "connections not detachable by default (overrode the defaults)");
         _jsPlumb.Defaults.ConnectionsDetachable = true;
     });
 	
@@ -2173,13 +2174,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3}],
 					["Arrow",arrowSpec ] ]
 		});
-		equals(2, connection1.overlays.length);
-		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		equal(2, connection1.overlays.length);
+		equal(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
 		
-		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
-		equals(0.7, connection1.overlays[1].loc);
-		equals(40, connection1.overlays[1].width);
-		equals(40, connection1.overlays[1].length);
+		equal(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
+		equal(0.7, connection1.overlays[1].loc);
+		equal(40, connection1.overlays[1].width);
+		equal(40, connection1.overlays[1].length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (overlays, long-hand version, IDs specified)", function() {
@@ -2200,15 +2201,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
 					["Arrow",arrowSpec ] ]
 		});
-		equals(2, connection1.overlays.length);
-		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
-		equals("aLabel", connection1.overlays[0].id);
+		equal(2, connection1.overlays.length);
+		equal(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		equal("aLabel", connection1.overlays[0].id);
 		
-		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
-		equals(0.7, connection1.overlays[1].loc);
-		equals(40, connection1.overlays[1].width);
-		equals(40, connection1.overlays[1].length);
-		equals("anArrow", connection1.overlays[1].id);
+		equal(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
+		equal(0.7, connection1.overlays[1].loc);
+		equal(40, connection1.overlays[1].width);
+		equal(40, connection1.overlays[1].length);
+		equal("anArrow", connection1.overlays[1].id);
 	});
 
 	test(renderMode + ": _jsPlumb.connect (default overlays)", function() {
@@ -2296,7 +2297,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 				label:"FOO"
 			});
 
-		equals(c.getLabel(), "FOO", "label is set correctly");
+		equal(c.getLabel(), "FOO", "label is set correctly");
 	});
 
 	test(renderMode + ": _jsPlumb.connect (set label after construction, with string)", function() {		
@@ -2306,7 +2307,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 				target:d2});
 
 		c.setLabel("FOO");
-		equals(c.getLabel(), "FOO", "label is set correctly");
+		equal(c.getLabel(), "FOO", "label is set correctly");
 	});
 
 	test(renderMode + ": _jsPlumb.connect (set label after construction, with function)", function() {		
@@ -2316,7 +2317,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 				target:d2});
 
 		c.setLabel(function() { return "BAR"; });
-		equals(c.getLabel()(), "BAR", "label is set correctly");
+		equal(c.getLabel()(), "BAR", "label is set correctly");
 	});
 
 	test(renderMode + ": _jsPlumb.connect (set label after construction, with params object)", function() {		
@@ -2332,8 +2333,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		});
 		var lo = c.getLabelOverlay();
 		ok(lo != null, "label overlay exists");
-		equals(lo.getLabel(), "BAZ", "label overlay has correct value");
-		equals(lo.getLocation(), 0.9, "label overlay has correct location");
+		equal(lo.getLabel(), "BAZ", "label overlay has correct value");
+		equal(lo.getLocation(), 0.9, "label overlay has correct location");
 	});
 
 	test(renderMode + ": _jsPlumb.connect (set label after construction with existing label set, with params object)", function() {		
@@ -2346,7 +2347,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			});
 
 		var lo = c.getLabelOverlay();
-		equals(lo.getLocation(), 0.2, "label overlay has correct location");
+		equal(lo.getLocation(), 0.2, "label overlay has correct location");
 
 		c.setLabel({
 			label:"BAZ",
@@ -2355,8 +2356,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		});
 		
 		ok(lo != null, "label overlay exists");
-		equals(lo.getLabel(), "BAZ", "label overlay has correct value");
-		equals(lo.getLocation(), 0.9, "label overlay has correct location");
+		equal(lo.getLabel(), "BAZ", "label overlay has correct value");
+		equal(lo.getLocation(), 0.9, "label overlay has correct location");
 	});
 
 	test(renderMode + ": _jsPlumb.connect (getLabelOverlay, label on connect call)", function() {		
@@ -2369,8 +2370,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			lo = c.getLabelOverlay();
 
 		ok(lo != null, "label overlay exists");
-		equals(lo.getLabel(), "FOO", "label overlay has correct value");
-		equals(lo.getLocation(), 0.5, "label overlay has correct location");
+		equal(lo.getLabel(), "FOO", "label overlay has correct value");
+		equal(lo.getLocation(), 0.5, "label overlay has correct location");
 	});
 
 	test(renderMode + ": _jsPlumb.connect (getLabelOverlay, label on connect call, location set)", function() {		
@@ -2384,8 +2385,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			lo = c.getLabelOverlay();
 
 		ok(lo != null, "label overlay exists");
-		equals(lo.getLabel(), "FOO", "label overlay has correct value");
-		equals(lo.getLocation(), 0.2, "label overlay has correct location");
+		equal(lo.getLabel(), "FOO", "label overlay has correct value");
+		equal(lo.getLocation(), 0.2, "label overlay has correct location");
 	});	
 	
 	test(renderMode + ": _jsPlumb.connect (remove single overlay by id)", function() {
@@ -2405,10 +2406,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
 					["Arrow",arrowSpec ] ]
 		});
-		equals(2, connection1.overlays.length);
+		equal(2, connection1.overlays.length);
 		connection1.removeOverlay("aLabel");
-		equals(1, connection1.overlays.length);
-		equals("anArrow", connection1.overlays[0].id);
+		equal(1, connection1.overlays.length);
+		equal("anArrow", connection1.overlays[0].id);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (remove multiple overlays by id)", function() {
@@ -2428,9 +2429,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
 					["Arrow",arrowSpec ] ]
 		});
-		equals(2, connection1.overlays.length);
+		equal(2, connection1.overlays.length);
 		connection1.removeOverlays("aLabel", "anArrow");
-		equals(0, connection1.overlays.length);
+		equal(0, connection1.overlays.length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (overlays, short-hand version)", function() {
@@ -2445,13 +2446,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",  {label:"CONNECTION 1", location:0.3}],
 					["Arrow", arrowSpec, loc] ]
 		});
-		equals(2, connection1.overlays.length);
-		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		equal(2, connection1.overlays.length);
+		equal(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
 		
-		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
-		equals(0.7, connection1.overlays[1].loc);
-		equals(40, connection1.overlays[1].width);
-		equals(40, connection1.overlays[1].length);
+		equal(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
+		equal(0.7, connection1.overlays[1].loc);
+		equal(40, connection1.overlays[1].width);
+		equal(40, connection1.overlays[1].length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (removeAllOverlays)", function() {
@@ -2466,23 +2467,23 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",  {label:"CONNECTION 1", location:0.3, cssClass:"PPPP"}],
 					["Arrow", arrowSpec, loc] ]
 		});
-		equals(2, connection1.overlays.length);
-		equals(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		equal(2, connection1.overlays.length);
+		equal(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
 		
-		equals(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
-		equals(0.7, connection1.overlays[1].loc);
-		equals(40, connection1.overlays[1].width);
-		equals(40, connection1.overlays[1].length);
+		equal(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
+		equal(0.7, connection1.overlays[1].loc);
+		equal(40, connection1.overlays[1].width);
+		equal(40, connection1.overlays[1].length);
 		
 		connection1.removeAllOverlays();
-		equals(0, connection1.overlays.length);
-		equals(0, $(".PPPP").length);
+		equal(0, connection1.overlays.length);
+		equal(0, $(".PPPP").length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect, specify arrow overlay using string identifier only", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 		var conn = _jsPlumb.connect({source:d1,target:d2,overlays:["Arrow"]});
-		equals(jsPlumb.Overlays[renderMode].Arrow, conn.overlays[0].constructor);
+		equal(jsPlumb.Overlays[renderMode].Arrow, conn.overlays[0].constructor);
 	});
 	
 	test(renderMode + ": Connection.getOverlay method, existing overlay", function() {
@@ -2524,8 +2525,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 
 		var o = c.getOverlay("custom");
-		equals(o.getElement().getAttribute("custom"), "true", "custom overlay created correctly");
-		equals(o.getElement().innerHTML, c.id, "custom overlay has correct value");		
+		equal(o.getElement().getAttribute("custom"), "true", "custom overlay created correctly");
+		equal(o.getElement().innerHTML, c.id, "custom overlay has correct value");		
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (custom label overlay, set on Defaults, return selector)", function() {
@@ -2539,8 +2540,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 
 		var o = c.getOverlay("custom");
-		equals(o.getElement().getAttribute("custom"), "true", "custom overlay created correctly");
-		equals(o.getElement().innerHTML, c.id, "custom overlay has correct value");		
+		equal(o.getElement().getAttribute("custom"), "true", "custom overlay created correctly");
+		equal(o.getElement().innerHTML, c.id, "custom overlay has correct value");		
 	});
 	
 	// this test is for the original detach function; it should stay working after i mess with it
@@ -2655,7 +2656,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 					   _jsPlumb.makeAnchor([0.8, 1, 0, 1], null, _jsPlumb), _jsPlumb.makeAnchor([0, 0.8, -1, 0], null, _jsPlumb) ];				   				
 		var dynamicAnchor = _jsPlumb.makeDynamicAnchor(anchors);
 		var a = dynamicAnchor.getAnchors();
-		equals(a.length, 4, "Dynamic Anchors has four anchors");
+		equal(a.length, 4, "Dynamic Anchors has four anchors");
 		for (var i = 0; i < a.length; i++)
 			ok(a[i].compute.constructor == Function, "anchor " + i + " well formed");
 	});
@@ -2665,7 +2666,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 					   [0.8, 1, 0, 1], [0, 0.8, -1, 0] ];				   				
 		var dynamicAnchor = _jsPlumb.makeDynamicAnchor(anchors);
 		var a = dynamicAnchor.getAnchors();
-		equals(a.length, 4, "Dynamic Anchors has four anchors");
+		equal(a.length, 4, "Dynamic Anchors has four anchors");
 		for (var i = 0; i < a.length; i++)
 			ok(a[i].compute.constructor == Function, "anchor " + i + " well formed");
 	});
@@ -2673,176 +2674,176 @@ var testSuite = function(renderMode, _jsPlumb) {
 	test(renderMode + ": Connection.isVisible/setVisible", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c1 = _jsPlumb.connect({source:d1,target:d2});
-		equals(true, c1.isVisible(), "Connection is visible after creation.");
+		equal(true, c1.isVisible(), "Connection is visible after creation.");
 		c1.setVisible(false);
-		equals(false, c1.isVisible(), "Connection is not visible after calling setVisible(false).");
-		equals($(c1.connector.canvas).css("display"), "none");
+		equal(false, c1.isVisible(), "Connection is not visible after calling setVisible(false).");
+		equal($(c1.connector.canvas).css("display"), "none");
 		c1.setVisible(true);
-		equals(true, c1.isVisible(), "Connection is visible after calling setVisible(true).");
-		equals($(c1.connector.canvas).css("display"), "block");
+		equal(true, c1.isVisible(), "Connection is visible after calling setVisible(true).");
+		equal($(c1.connector.canvas).css("display"), "block");
 	});
 	
 	test(renderMode + ": Endpoint.isVisible/setVisible basic test (no connections)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var e1 = _jsPlumb.addEndpoint(d1);
-		equals(true, e1.isVisible(), "Endpoint is visible after creation.");
+		equal(true, e1.isVisible(), "Endpoint is visible after creation.");
 		e1.setVisible(false);
-		equals(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
-		equals($(e1.canvas).css("display"), "none");
+		equal(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
+		equal($(e1.canvas).css("display"), "none");
 		e1.setVisible(true);
-		equals(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
-		equals($(e1.canvas).css("display"), "block");
+		equal(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
+		equal($(e1.canvas).css("display"), "block");
 	});
 	
 	test(renderMode + ": Endpoint.isVisible/setVisible (one connection, other Endpoint's visibility should track changes in the source, because it has only this connection.)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2);
-		equals(true, e1.isVisible(), "Endpoint is visible after creation.");
+		equal(true, e1.isVisible(), "Endpoint is visible after creation.");
 		var c1 = _jsPlumb.connect({source:e1, target:e2});
 		e1.setVisible(false);
-		equals(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
-		equals(false, e2.isVisible(), "other Endpoint is not visible either.");
-		equals(false, c1.isVisible(), "connection between the two is not visible either.");
+		equal(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
+		equal(false, e2.isVisible(), "other Endpoint is not visible either.");
+		equal(false, c1.isVisible(), "connection between the two is not visible either.");
 		
 		e1.setVisible(true);
-		equals(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
-		equals(true, e2.isVisible(), "other Endpoint is visible too");
-		equals(true, c1.isVisible(), "connection between the two is visible too.");
+		equal(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
+		equal(true, e2.isVisible(), "other Endpoint is visible too");
+		equal(true, c1.isVisible(), "connection between the two is visible too.");
 	});
 	
 	test(renderMode + ": Endpoint.isVisible/setVisible (one connection, other Endpoint's visibility should not track changes in the source, because it has another connection.)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 		var e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2, { maxConnections:2 }), e3 = _jsPlumb.addEndpoint(d3);
-		equals(true, e1.isVisible(), "Endpoint is visible after creation.");
+		equal(true, e1.isVisible(), "Endpoint is visible after creation.");
 		var c1 = _jsPlumb.connect({source:e1, target:e2});
 		var c2 = _jsPlumb.connect({source:e2, target:e3});
 		
 		e1.setVisible(false);
-		equals(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
-		equals(true, e2.isVisible(), "other Endpoint should still be visible.");
-		equals(true, e3.isVisible(), "third Endpoint should still be visible.");
-		equals(false, c1.isVisible(), "connection between the two is not visible either.");
-		equals(true, c2.isVisible(), "other connection is visible.");
+		equal(false, e1.isVisible(), "Endpoint is not visible after calling setVisible(false).");
+		equal(true, e2.isVisible(), "other Endpoint should still be visible.");
+		equal(true, e3.isVisible(), "third Endpoint should still be visible.");
+		equal(false, c1.isVisible(), "connection between the two is not visible either.");
+		equal(true, c2.isVisible(), "other connection is visible.");
 		
 		e1.setVisible(true);
-		equals(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
-		equals(true, e2.isVisible(), "other Endpoint is visible too");
-		equals(true, c1.isVisible(), "connection between the two is visible too.");
-		equals(true, c2.isVisible(), "other connection is visible.");
+		equal(true, e1.isVisible(), "Endpoint is visible after calling setVisible(true).");
+		equal(true, e2.isVisible(), "other Endpoint is visible too");
+		equal(true, c1.isVisible(), "connection between the two is visible too.");
+		equal(true, c2.isVisible(), "other connection is visible.");
 	});
 	
 	// tests of the functionality that allows a user to specify that they want elements appended to the document body
 	test(renderMode + " _jsPlumb.Defaults.Container, specified with a selector", function() {
 		_jsPlumb.Defaults.Container = $("body");
-		equals($("#container")[0].childNodes.length, 0, "container has no nodes");
+		equal($("#container")[0].childNodes.length, 0, "container has no nodes");
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		equals($("#container")[0].childNodes.length, 2, "container has two div elements");  // the divs we added have been added to the 'container' div.
+		equal($("#container")[0].childNodes.length, 2, "container has two div elements");  // the divs we added have been added to the 'container' div.
 		// but we have told _jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
 		_jsPlumb.connect({source:d1, target:d2});
-		equals($("#container")[0].childNodes.length, 2, "container still has two div elements");
+		equal($("#container")[0].childNodes.length, 2, "container still has two div elements");
 	});
 	
 	// tests of the functionality that allows a user to specify that they want elements appended to some specific container.
 	test(renderMode + " _jsPlumb.Defaults.Container, specified with DOM element", function() {		
 		_jsPlumb.Defaults.Container = document.getElementsByTagName("body")[0];
-		equals(0, $("#container")[0].childNodes.length);
+		equal(0, $("#container")[0].childNodes.length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");		
-		equals(2, $("#container")[0].childNodes.length, "two divs added to the container");  // the divs we added have been added to the 'container' div.
+		equal(2, $("#container")[0].childNodes.length, "two divs added to the container");  // the divs we added have been added to the 'container' div.
 		// but we have told _jsPlumb to add its canvas to the body, so this connect call should not add another few elements to the container:
 		var bodyElementCount = $("body")[0].childNodes.length;
 		_jsPlumb.connect({source:d1, target:d2});
-		equals(2, $("#container")[0].childNodes.length, "still only two children in container; elements were added to the body by _jsPlumb");
+		equal(2, $("#container")[0].childNodes.length, "still only two children in container; elements were added to the body by _jsPlumb");
 		// test to see if 3 elements have been added
-		equals(bodyElementCount + 3, $("body")[0].childNodes.length, "3 new elements added to the document body");
+		equal(bodyElementCount + 3, $("body")[0].childNodes.length, "3 new elements added to the document body");
 	});
 	
 	test(renderMode + " container specified to connect call, with a selector", function() {
-		equals(0, $("#container")[0].childNodes.length);
+		equal(0, $("#container")[0].childNodes.length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		equals(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
+		equal(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
 		var bodyElementCount = $("body")[0].childNodes.length;
 		// but here we tell _jsPlumb to add its elements to the body, so this connect call should not add another few elements to the container:
 		_jsPlumb.connect({source:d1, target:d2, container:$("body")});
-		equals(2, $("#container")[0].childNodes.length);
-		equals(bodyElementCount + 3, $("body")[0].childNodes.length, "3 new elements added to the document body");
+		equal(2, $("#container")[0].childNodes.length);
+		equal(bodyElementCount + 3, $("body")[0].childNodes.length, "3 new elements added to the document body");
 	});
 	
 	test(renderMode + " container specified to connect call, with a string ID", function() {
-		equals(0, $("#container")[0].childNodes.length);
+		equal(0, $("#container")[0].childNodes.length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-		equals(3, $("#container")[0].childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
+		equal(3, $("#container")[0].childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
 		var d3ElementCount = $("#d3")[0].childNodes.length;
 		// but here we tell _jsPlumb to add its elements to "d3", so this connect call should not add another few elements to the container:
 		_jsPlumb.connect({source:d1, target:d2, container:"d3"});
-		equals(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
-		equals(d3ElementCount + 3, $("#d3")[0].childNodes.length, "3 new elements added to div d3");
+		equal(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
+		equal(d3ElementCount + 3, $("#d3")[0].childNodes.length, "3 new elements added to div d3");
 	});	
 	
 	test(renderMode + " container specified to addEndpoint call, with a selector", function() {
-		equals(0, $("#container")[0].childNodes.length);
+		equal(0, $("#container")[0].childNodes.length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		equals(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
+		equal(2, $("#container")[0].childNodes.length);  // the divs we added have been added to the 'container' div.
 		var bodyElementCount = $("body")[0].childNodes.length;
 		// but here we tell _jsPlumb to add its elements to the body, so this connect call should not add another few elements to the container:
 		_jsPlumb.addEndpoint(d1, {container:$("body")});
-		equals(2, $("#container")[0].childNodes.length);
-		equals(bodyElementCount + 1, $("body")[0].childNodes.length, "1 new element added to the document body");
+		equal(2, $("#container")[0].childNodes.length);
+		equal(bodyElementCount + 1, $("body")[0].childNodes.length, "1 new element added to the document body");
 	});
 	
 	test(renderMode + " container specified to addEndpoint call, with a string ID", function() {
-		equals(0, $("#container")[0].childNodes.length);
+		equal(0, $("#container")[0].childNodes.length);
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-		equals(3, $("#container")[0].childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
+		equal(3, $("#container")[0].childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
 		var d3ElementCount = $("#d3")[0].childNodes.length;
 		// but here we tell _jsPlumb to add its elements to "d3", so this connect call should not add another few elements to the container:
 		_jsPlumb.addEndpoint(d1, { container:"d3" });
-		equals(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
-		equals(d3ElementCount + 1, $("#d3")[0].childNodes.length, "1 new element added to div d3");
+		equal(3, $("#container")[0].childNodes.length, "container still has only the divs we added");
+		equal(d3ElementCount + 1, $("#d3")[0].childNodes.length, "1 new element added to div d3");
 	});
 
     test(renderMode + " detachable defaults to true when connection made between two endpoints", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2),
             c = _jsPlumb.connect({source:e1, target:e2});
-        equals(c.isDetachable(), true, "connection not detachable");
+        equal(c.isDetachable(), true, "connection not detachable");
     });
 
     test(renderMode + " connection detachable when target endpoint has connectionsDetachable set to true", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2, {connectionsDetachable:true}),
             c = _jsPlumb.connect({source:e1, target:e2});
-        equals(c.isDetachable(), true, "connection detachable because connectionsDetachable was set on target endpoint");
+        equal(c.isDetachable(), true, "connection detachable because connectionsDetachable was set on target endpoint");
     });
 
     test(renderMode + " connection detachable when source endpoint has connectionsDetachable set to true", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1, {connectionsDetachable:true}), e2 = _jsPlumb.addEndpoint(d2),
             c = _jsPlumb.connect({source:e1, target:e2});
-        equals(c.isDetachable(), true, "connection detachable because connectionsDetachable was set on source endpoint");
+        equal(c.isDetachable(), true, "connection detachable because connectionsDetachable was set on source endpoint");
     });
 	
 	test(renderMode + " Connector has 'type' member set", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		
 		var c = _jsPlumb.connect({source:d1, target:d2});
-		equals(c.connector.type, "Bezier", "Bezier connector has type set");
+		equal(c.connector.type, "Bezier", "Bezier connector has type set");
 		
 		var c2 = _jsPlumb.connect({source:d1, target:d2, connector:"Straight"});
-		equals(c2.connector.type, "Straight", "Straight connector has type set");
+		equal(c2.connector.type, "Straight", "Straight connector has type set");
 		
 		var c3 = _jsPlumb.connect({source:d1, target:d2, connector:"Flowchart"});
-		equals(c3.connector.type, "Flowchart", "Flowchart connector has type set");
+		equal(c3.connector.type, "Flowchart", "Flowchart connector has type set");
 	});
 	
 	test(renderMode + " Endpoints have 'type' member set", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		
 		var c = _jsPlumb.connect({source:d1, target:d2});
-		equals(c.endpoints[0].type, "Dot", "Dot endpoint has type set");
+		equal(c.endpoints[0].type, "Dot", "Dot endpoint has type set");
 		
 		var c2 = _jsPlumb.connect({source:d1, target:d2, endpoints:["Rectangle", "Blank"]});
-		equals(c2.endpoints[1].type, "Blank", "Blank endpoint has type set");
-		equals(c2.endpoints[0].type, "Rectangle", "Rectangle endpoint has type set");		
+		equal(c2.endpoints[1].type, "Blank", "Blank endpoint has type set");
+		equal(c2.endpoints[0].type, "Rectangle", "Rectangle endpoint has type set");		
 	});
 	
 	test(renderMode + " Overlays have 'type' member set", function() {
@@ -2853,10 +2854,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			target:d2,
 			overlays:[ "Arrow", "Label", "PlainArrow", "Diamond" ]
 		});
-		equals(c.overlays[0].type, "Arrow", "Arrow overlay has type set");
-		equals(c.overlays[1].type, "Label", "Label overlay has type set");
-		equals(c.overlays[2].type, "PlainArrow", "PlainArrow overlay has type set");
-		equals(c.overlays[3].type, "Diamond", "Diamond overlay has type set");		
+		equal(c.overlays[0].type, "Arrow", "Arrow overlay has type set");
+		equal(c.overlays[1].type, "Label", "Label overlay has type set");
+		equal(c.overlays[2].type, "PlainArrow", "PlainArrow overlay has type set");
+		equal(c.overlays[3].type, "Diamond", "Diamond overlay has type set");		
 	});
 	
 	test(renderMode + " _jsPlumb.hide, original one-arg version", function() {
@@ -2866,19 +2867,19 @@ var testSuite = function(renderMode, _jsPlumb) {
 		e2 = _jsPlumb.addEndpoint(d2, e),
 		c1 = _jsPlumb.connect({source:e1, target:e2});
 		
-		equals(true, c1.isVisible(), "Connection 1 is visible after creation.");
-		equals(true, e1.isVisible(), "endpoint 1 is visible after creation.");
-		equals(true, e2.isVisible(), "endpoint 2 is visible after creation.");
+		equal(true, c1.isVisible(), "Connection 1 is visible after creation.");
+		equal(true, e1.isVisible(), "endpoint 1 is visible after creation.");
+		equal(true, e2.isVisible(), "endpoint 2 is visible after creation.");
 		
 		_jsPlumb.hide(d1);
 		
-		equals(false, c1.isVisible(), "Connection 1 is no longer visible.");
-		equals(true, e1.isVisible(), "endpoint 1 is still visible.");
-		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equal(false, c1.isVisible(), "Connection 1 is no longer visible.");
+		equal(true, e1.isVisible(), "endpoint 1 is still visible.");
+		equal(true, e2.isVisible(), "endpoint 2 is still visible.");
 		
 		_jsPlumb.show(d1);
 		
-		equals(true, c1.isVisible(), "Connection 1 is visible again.");
+		equal(true, c1.isVisible(), "Connection 1 is visible again.");
 	});
 	
 	test(renderMode + " _jsPlumb.hide, two-arg version, endpoints should also be hidden", function() {
@@ -2888,21 +2889,21 @@ var testSuite = function(renderMode, _jsPlumb) {
 		e2 = _jsPlumb.addEndpoint(d2, e),
 		c1 = _jsPlumb.connect({source:e1, target:e2});
 		
-		equals(true, c1.isVisible(), "Connection 1 is visible after creation.");
-		equals(true, e1.isVisible(), "endpoint 1 is visible after creation.");
-		equals(true, e2.isVisible(), "endpoint 2 is visible after creation.");
+		equal(true, c1.isVisible(), "Connection 1 is visible after creation.");
+		equal(true, e1.isVisible(), "endpoint 1 is visible after creation.");
+		equal(true, e2.isVisible(), "endpoint 2 is visible after creation.");
 		
 		_jsPlumb.hide("d1", true);
 		
-		equals(false, c1.isVisible(), "Connection 1 is no longer visible.");
-		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
-		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equal(false, c1.isVisible(), "Connection 1 is no longer visible.");
+		equal(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equal(true, e2.isVisible(), "endpoint 2 is still visible.");
 		
 		_jsPlumb.show(d1);  // now show d1, but do not alter the endpoints. e1 should still be hidden
 		
-		equals(true, c1.isVisible(), "Connection 1 is visible again.");
-		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
-		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equal(true, c1.isVisible(), "Connection 1 is visible again.");
+		equal(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equal(true, e2.isVisible(), "endpoint 2 is still visible.");
 	});
 	
 	test(renderMode + " _jsPlumb.show, two-arg version, endpoints should become visible", function() {
@@ -2914,15 +2915,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 				
 		_jsPlumb.hide("d1", true);
 		
-		equals(false, c1.isVisible(), "Connection 1 is no longer visible.");
-		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
-		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equal(false, c1.isVisible(), "Connection 1 is no longer visible.");
+		equal(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equal(true, e2.isVisible(), "endpoint 2 is still visible.");
 		
 		_jsPlumb.show(d1, true);  // now show d1, and alter the endpoints. e1 should be visible.
 		
-		equals(true, c1.isVisible(), "Connection 1 is visible again.");
-		equals(true, e1.isVisible(), "endpoint 1 is visible again.");
-		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equal(true, c1.isVisible(), "Connection 1 is visible again.");
+		equal(true, e1.isVisible(), "endpoint 1 is visible again.");
+		equal(true, e2.isVisible(), "endpoint 2 is still visible.");
 	});
 	
 	test(renderMode + " _jsPlumb.show, two-arg version, endpoints should become visible, but not all connections, because some other endpoints are  not visible.", function() {
@@ -2939,26 +2940,26 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		_jsPlumb.hide("d1", true);
 		
-		equals(false, c1.isVisible(), "connection 1 is no longer visible.");
-		equals(false, c2.isVisible(), "connection 2 is no longer visible.");
-		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
-		equals(false, e11.isVisible(), "endpoint 1 is no longer visible.");
-		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
-		equals(true, e3.isVisible(), "endpoint 3 is still visible.");
+		equal(false, c1.isVisible(), "connection 1 is no longer visible.");
+		equal(false, c2.isVisible(), "connection 2 is no longer visible.");
+		equal(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equal(false, e11.isVisible(), "endpoint 1 is no longer visible.");
+		equal(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equal(true, e3.isVisible(), "endpoint 3 is still visible.");
 		
 		// now, we will also hide d3. making d1 visible again should NOT result in c2 becoming visible, because the other endpoint
 		// for c2 is e3, which is not visible.
 		_jsPlumb.hide(d3, true);
-		equals(false, e3.isVisible(), "endpoint 3 is no longer visible.");
+		equal(false, e3.isVisible(), "endpoint 3 is no longer visible.");
 		
 		_jsPlumb.show(d1, true);  // now show d1, and alter the endpoints. e1 should be visible, c1 should be visible, but c2 should not.
 		
-		equals(true, c1.isVisible(), "Connection 1 is visible again.");
-		equals(false, c2.isVisible(), "Connection 2 is not visible.");
-		equals(true, e1.isVisible(), "endpoint 1 is visible again.");
-		equals(true, e11.isVisible(), "endpoint 11 is visible again.");
-		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
-		equals(false, e3.isVisible(), "endpoint 3 is still not visible.");
+		equal(true, c1.isVisible(), "Connection 1 is visible again.");
+		equal(false, c2.isVisible(), "Connection 2 is not visible.");
+		equal(true, e1.isVisible(), "endpoint 1 is visible again.");
+		equal(true, e11.isVisible(), "endpoint 11 is visible again.");
+		equal(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equal(false, e3.isVisible(), "endpoint 3 is still not visible.");
 	});
 	
 	/*
@@ -2969,15 +2970,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		e2 = _jsPlumb.addEndpoint(d2, e),
 		c1 = _jsPlumb.connect({source:e1, target:e2});
 		
-		equals(true, c1.isVisible(), "Connection 1 is visible after creation.");
-		equals(true, e1.isVisible(), "endpoint 1 is visible after creation.");
-		equals(true, e2.isVisible(), "endpoint 2 is visible after creation.");
+		equal(true, c1.isVisible(), "Connection 1 is visible after creation.");
+		equal(true, e1.isVisible(), "endpoint 1 is visible after creation.");
+		equal(true, e2.isVisible(), "endpoint 2 is visible after creation.");
 		
 		_jsPlumb.hide("d1", true);
 		
-		equals(false, c1.isVisible(), "Connection 1 is no longer visible.");
-		equals(false, e1.isVisible(), "endpoint 1 is no longer visible.");
-		equals(true, e2.isVisible(), "endpoint 2 is still visible.");
+		equal(false, c1.isVisible(), "Connection 1 is no longer visible.");
+		equal(false, e1.isVisible(), "endpoint 1 is no longer visible.");
+		equal(true, e2.isVisible(), "endpoint 2 is still visible.");
 	});
 	
 	/**
@@ -3020,13 +3021,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var o = c.getOverlay("label"), e = o.getElement();
 		ok(e.innerHTML == "foo", "label text is set to original value");
 		o.setLabel("baz");		
-		equals(e.innerHTML, "baz", "label text is set to new value 'baz'");
-		equals(o.getLabel(), "baz", "getLabel function works correctly with String");
+		equal(e.innerHTML, "baz", "label text is set to new value 'baz'");
+		equal(o.getLabel(), "baz", "getLabel function works correctly with String");
 		// now try functions
 		var aFunction = function() { return "aFunction"; };
 		o.setLabel(aFunction);
-		equals(e.innerHTML, "aFunction", "label text is set to new value from Function");
-		equals(o.getLabel(), aFunction, "getLabel function works correctly with Function");
+		equal(e.innerHTML, "aFunction", "label text is set to new value from Function");
+		equal(o.getLabel(), aFunction, "getLabel function works correctly with Function");
 	});
 	
 	test(renderMode + " parameters object works for Endpoint", function() {
@@ -3093,15 +3094,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 	test(renderMode + " anchorManager registers standard connection", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = _jsPlumb.connect({source:d1, target:d2});
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1);
-		equals(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 1);		
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1);
-		equals(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 1);				
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 1);
+		equal(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 1);		
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 1);
+		equal(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 1);				
 		var c2 = _jsPlumb.connect({source:d1, target:d2});
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 2);
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 2);
-		equals(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 2);
-		equals(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 2);				
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d1").length, 2);
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d2").length, 2);
+		equal(_jsPlumb.anchorManager.getEndpointsFor("d1").length, 2);
+		equal(_jsPlumb.anchorManager.getEndpointsFor("d2").length, 2);				
 	});
 	
 	// anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
@@ -3109,15 +3110,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		var c = _jsPlumb.connect({source:d3, target:d4, anchors:["AutoDefault", "AutoDefault"]});
 
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
 		
 		var c2 = _jsPlumb.connect({source:d3, target:d4});
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 2);
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 2);		
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 2);
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 2);		
 
-		equals(_jsPlumb.anchorManager.getEndpointsFor("d3").length, 2);			
+		equal(_jsPlumb.anchorManager.getEndpointsFor("d3").length, 2);			
 		_jsPlumb.detach(c);
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);						
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);						
 	});
 	
 	// anchor manager tests.  a new and more comprehensive way of managing the paint, introduced in 1.3.5
@@ -3125,15 +3126,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		var c = _jsPlumb.connect({source:d3, target:d4, anchors:["Continuous", "Continuous"]});
 
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 1);							
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 1);
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 1);							
 	
 		_jsPlumb.detach(c);
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0);		
-		equals(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 0);	
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d3").length, 0);		
+		equal(_jsPlumb.anchorManager.getConnectionsFor("d4").length, 0);	
 		
 		_jsPlumb.reset();
-		equals(_jsPlumb.anchorManager.getEndpointsFor("d4").length, 0);	
+		equal(_jsPlumb.anchorManager.getEndpointsFor("d4").length, 0);	
 	});
 	
 // ------------- utility functions - math stuff, mostly --------------------------
@@ -3146,35 +3147,35 @@ var testSuite = function(renderMode, _jsPlumb) {
     };
     test(renderMode + " jsPlumbUtil.gradient, segment 1", function() {
 		var p1 = [2,2], p2 = [3,1], m = jsPlumbUtil.gradient(p1,p2);
-		equals(m, -1, "gradient calculated correctly for simple case");
+		equal(m, -1, "gradient calculated correctly for simple case");
 	});
 	test(renderMode + " jsPlumbUtil.normal, segment 1", function() {
 		var p1 = [2,2], p2 = [3,1], m = jsPlumbUtil.normal(p1,p2);
-		equals(m, 1, "normal calculated correctly for simple case");
+		equal(m, 1, "normal calculated correctly for simple case");
 	});
 	test(renderMode + " jsPlumbUtil.gradient, segment 2", function() {
 		var p1 = [2,2], p2 = [3,3], m = jsPlumbUtil.gradient(p1,p2);
-		equals(m, 1, "gradient calculated correctly for simple case");
+		equal(m, 1, "gradient calculated correctly for simple case");
 	});
 	test(renderMode + " jsPlumbUtil.normal, segment 2", function() {
 		var p1 = [2,2], p2 = [3,3], m = jsPlumbUtil.normal(p1,p2);
-		equals(m, -1, "normal calculated correctly for simple case");
+		equal(m, -1, "normal calculated correctly for simple case");
 	});
     test(renderMode + " jsPlumbUtil.gradient, segment 3", function() {
 		var p1 = [2,2], p2 = [1,3], m = jsPlumbUtil.gradient(p1,p2);
-		equals(m, -1, "gradient calculated correctly for simple case");
+		equal(m, -1, "gradient calculated correctly for simple case");
 	});
 	test(renderMode + " jsPlumbUtil.normal, segment 3", function() {
 		var p1 = [2,2], p2 = [1,3], m = jsPlumbUtil.normal(p1,p2);
-		equals(m, 1, "normal calculated correctly for simple case");
+		equal(m, 1, "normal calculated correctly for simple case");
 	});
     test(renderMode + " jsPlumbUtil.gradient, segment 4", function() {
 		var p1 = [2,2], p2 = [1,1], m = jsPlumbUtil.gradient(p1,p2);
-		equals(m, 1, "gradient calculated correctly for simple case");
+		equal(m, 1, "gradient calculated correctly for simple case");
 	});
 	test(renderMode + " jsPlumbUtil.normal, segment 4", function() {
 		var p1 = [2,2], p2 = [1,1], m = jsPlumbUtil.normal(p1,p2);
-		equals(m, -1, "normal calculated correctly for simple case");
+		equal(m, -1, "normal calculated correctly for simple case");
 	});
     test(renderMode + "jsPlumbUtil.pointOnLine, segment 1", function() {
        var p1 = {x:2,y:2}, p2={x:3, y:1},
@@ -3282,30 +3283,33 @@ var testSuite = function(renderMode, _jsPlumb) {
 
     	ok(jsPlumbUtil.intersects(r1, r2), "r1 and r2 intersect");
     });
-    test(renderMode + "setImage on Endpoint", function() {
+    test(renderMode + " setImage on Endpoint", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
         originalUrl = "../../img/endpointTest1.png",
         e = {
             endpoint:[ "Image", { src:originalUrl } ]
         },
         ep = _jsPlumb.addEndpoint(d1, e);        
+        expect(0);
     });
-    test(renderMode + "setImage on Endpoint, with supplied onload", function() {
+    asyncTest(renderMode + "setImage on Endpoint, with supplied onload", function() {
+    start();
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
         e = {
             endpoint:[ "Image", {
                 src:"../../img/endpointTest1.png",
                 onload:function(imgEp) {
-                    equals("../../img/endpointTest1.png", imgEp.img.src);
-                    equals(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
+                    equal("../../img/endpointTest1.png", imgEp.img.src);
+                    equal(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
                 }
             } ]
         },
         ep = _jsPlumb.addEndpoint(d1, e);
         ep.setImage("../../img/littledot.png", function(imgEp) {
-            equals("../../img/littledot.png", imgEp.img.src);
-            equals(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
+            equal("../../img/littledot.png", imgEp.img.src);
+            equal(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
         });
+        expect(0);
     });
     
     test(renderMode + "attach endpoint to table when desired element was td", function() {
@@ -3315,7 +3319,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         table.appendChild(tr); tr.appendChild(td);
         document.body.appendChild(table);
         var ep = _jsPlumb.addEndpoint(td);
-        equals(ep.canvas.parentNode.tagName.toLowerCase(), "table");
+        equal(ep.canvas.parentNode.tagName.toLowerCase(), "table");
     });
 
 // issue 190 - regressions with getInstance.  these tests ensure that generated ids are unique across
@@ -3368,8 +3372,8 @@ var testSuite = function(renderMode, _jsPlumb) {
     		c = _jsPlumb.connect({source:d1, target:d2}),
     		e = c.endpoints[0];
 
-    	equals(e.anchor.x, 0, "left middle anchor");
-    	equals(e.anchor.y, 0.5, "left middle anchor");
+    	equal(e.anchor.x, 0, "left middle anchor");
+    	equal(e.anchor.y, 0.5, "left middle anchor");
 
     	_jsPlumb.importDefaults({
     		Anchors:["TopLeft", "TopRight"]
@@ -3378,10 +3382,10 @@ var testSuite = function(renderMode, _jsPlumb) {
     	var conn = _jsPlumb.connect({source:d1, target:d2}),
     		e1 = conn.endpoints[0], e2 = conn.endpoints[1];
     	
-    	equals(e1.anchor.x, 0, "top leftanchor");
-    	equals(e2.anchor.y, 0, "top left anchor");
-    	equals(e2.anchor.x, 1, "top right anchor");
-    	equals(e2.anchor.y, 0, "top right anchor");
+    	equal(e1.anchor.x, 0, "top leftanchor");
+    	equal(e2.anchor.y, 0, "top left anchor");
+    	equal(e2.anchor.x, 1, "top right anchor");
+    	equal(e2.anchor.y, 0, "top right anchor");
 
     });
 
@@ -3393,20 +3397,20 @@ var testSuite = function(renderMode, _jsPlumb) {
     	var d1 = _addDiv("d1"), d2 = _addDiv("d2"), conn = _jsPlumb.connect({source:d1, target:d2}),
     		e1 = conn.endpoints[0], e2 = conn.endpoints[1];
     	
-    	equals(e1.anchor.x, 0, "top leftanchor");
-    	equals(e2.anchor.y, 0, "top left anchor");
-    	equals(e2.anchor.x, 1, "top right anchor");
-    	equals(e2.anchor.y, 0, "top right anchor");
+    	equal(e1.anchor.x, 0, "top leftanchor");
+    	equal(e2.anchor.y, 0, "top left anchor");
+    	equal(e2.anchor.x, 1, "top right anchor");
+    	equal(e2.anchor.y, 0, "top right anchor");
 
     	_jsPlumb.restoreDefaults();
     	
     	var conn2 = _jsPlumb.connect({source:d1, target:d2}),
     		e3 = conn2.endpoints[0], e4 = conn2.endpoints[1];
     	
-    	equals(e3.anchor.x, 0.5, "bottom center anchor");
-    	equals(e3.anchor.y, 1, "bottom center anchor");
-    	equals(e4.anchor.x, 0.5, "bottom center anchor");
-    	equals(e4.anchor.y, 1, "bottom center anchor");    	
+    	equal(e3.anchor.x, 0.5, "bottom center anchor");
+    	equal(e3.anchor.y, 1, "bottom center anchor");
+    	equal(e4.anchor.x, 0.5, "bottom center anchor");
+    	equal(e4.anchor.y, 1, "bottom center anchor");    	
     });
 
 // setId function
@@ -3420,10 +3424,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint("d1");
 
 		assertEndpointCount("d1", 2, _jsPlumb);
-		equals(e1.elementId, "d1", "endpoint has correct element id");
-		equals(e3.elementId, "d1", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e1.elementId, "d1", "endpoint has correct element id");
+		equal(e3.elementId, "d1", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d1", "anchor has correct element id");
 
 		var c = _jsPlumb.connect({source:e1, target:e2}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
@@ -3432,15 +3436,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d3", 2, _jsPlumb);		
 		assertEndpointCount("d1", 0, _jsPlumb);
 
-		equals(e1.elementId, "d3", "endpoint has correct element id");
-		equals(e3.elementId, "d3", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e1.elementId, "d3", "endpoint has correct element id");
+		equal(e3.elementId, "d3", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
-		equals(c.sourceId, "d3", "connection's sourceId has changed");
-		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c2.targetId, "d3", "connection's targetId has changed");
-		equals(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c.sourceId, "d3", "connection's sourceId has changed");
+		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c2.targetId, "d3", "connection's targetId has changed");
+		equal(c2.target.attr("id"), "d3", "connection's target has changed");
 	});   
 	
 	test(renderMode + " setId, taking a selector and a string, only default scope", function() {
@@ -3452,10 +3456,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint("d1");
 		
 		assertEndpointCount("d1", 2, _jsPlumb);
-		equals(e1.elementId, "d1", "endpoint has correct element id");
-		equals(e3.elementId, "d1", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e1.elementId, "d1", "endpoint has correct element id");
+		equal(e3.elementId, "d1", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d1", "anchor has correct element id");
 
 		var c = _jsPlumb.connect({source:e1, target:e2}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
@@ -3464,15 +3468,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d3", 2, _jsPlumb);
 		assertEndpointCount("d1", 0, _jsPlumb);
 
-		equals(e1.elementId, "d3", "endpoint has correct element id");
-		equals(e3.elementId, "d3", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e1.elementId, "d3", "endpoint has correct element id");
+		equal(e3.elementId, "d3", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
-		equals(c.sourceId, "d3", "connection's sourceId has changed");
-		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c2.targetId, "d3", "connection's targetId has changed");
-		equals(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c.sourceId, "d3", "connection's sourceId has changed");
+		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c2.targetId, "d3", "connection's targetId has changed");
+		equal(c2.target.attr("id"), "d3", "connection's target has changed");
 	});   
 
 	test(renderMode + " setId, taking a DOM element and a string, only default scope", function() {
@@ -3484,10 +3488,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint("d1");
 
 		assertEndpointCount("d1", 2, _jsPlumb);
-		equals(e1.elementId, "d1", "endpoint has correct element id");
-		equals(e3.elementId, "d1", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e1.elementId, "d1", "endpoint has correct element id");
+		equal(e3.elementId, "d1", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d1", "anchor has correct element id");
 
 		var c = _jsPlumb.connect({source:e1, target:e2}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
@@ -3496,15 +3500,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d3", 2, _jsPlumb);
 		assertEndpointCount("d1", 0, _jsPlumb);
 
-		equals(e1.elementId, "d3", "endpoint has correct element id");
-		equals(e3.elementId, "d3", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e1.elementId, "d3", "endpoint has correct element id");
+		equal(e3.elementId, "d3", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
-		equals(c.sourceId, "d3", "connection's sourceId has changed");
-		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c2.targetId, "d3", "connection's targetId has changed");
-		equals(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c.sourceId, "d3", "connection's sourceId has changed");
+		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c2.targetId, "d3", "connection's targetId has changed");
+		equal(c2.target.attr("id"), "d3", "connection's target has changed");
 	}); 
 
 	test(renderMode + " setId, taking two strings, mix of scopes", function() {
@@ -3516,10 +3520,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint("d1");
 
 		assertEndpointCount("d1", 2, _jsPlumb);
-		equals(e1.elementId, "d1", "endpoint has correct element id");
-		equals(e3.elementId, "d1", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e1.elementId, "d1", "endpoint has correct element id");
+		equal(e3.elementId, "d1", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d1", "anchor has correct element id");
 
 		var c = _jsPlumb.connect({source:e1, target:e2, scope:"FOO"}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
@@ -3528,15 +3532,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d3", 2, _jsPlumb);
 		assertEndpointCount("d1", 0, _jsPlumb);
 
-		equals(e1.elementId, "d3", "endpoint has correct element id");
-		equals(e3.elementId, "d3", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e1.elementId, "d3", "endpoint has correct element id");
+		equal(e3.elementId, "d3", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
-		equals(c.sourceId, "d3", "connection's sourceId has changed");
-		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c2.targetId, "d3", "connection's targetId has changed");
-		equals(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c.sourceId, "d3", "connection's sourceId has changed");
+		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c2.targetId, "d3", "connection's targetId has changed");
+		equal(c2.target.attr("id"), "d3", "connection's target has changed");
 	});   
 	
 	test(renderMode + " setId, taking a selector and a string, mix of scopes", function() {
@@ -3548,10 +3552,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint("d1");
 		
 		assertEndpointCount("d1", 2, _jsPlumb);
-		equals(e1.elementId, "d1", "endpoint has correct element id");
-		equals(e3.elementId, "d1", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e1.elementId, "d1", "endpoint has correct element id");
+		equal(e3.elementId, "d1", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d1", "anchor has correct element id");
 
 		var c = _jsPlumb.connect({source:e1, target:e2, scope:"FOO"}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
@@ -3560,15 +3564,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d3", 2, _jsPlumb);
 		assertEndpointCount("d1", 0, _jsPlumb);
 
-		equals(e1.elementId, "d3", "endpoint has correct element id");
-		equals(e3.elementId, "d3", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e1.elementId, "d3", "endpoint has correct element id");
+		equal(e3.elementId, "d3", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
-		equals(c.sourceId, "d3", "connection's sourceId has changed");
-		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c2.targetId, "d3", "connection's targetId has changed");
-		equals(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c.sourceId, "d3", "connection's sourceId has changed");
+		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c2.targetId, "d3", "connection's targetId has changed");
+		equal(c2.target.attr("id"), "d3", "connection's target has changed");
 	});   
 
 	test(renderMode + " setId, taking a DOM element and a string, mix of scopes", function() {
@@ -3580,10 +3584,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint("d1");
 
 		assertEndpointCount("d1", 2, _jsPlumb);
-		equals(e1.elementId, "d1", "endpoint has correct element id");
-		equals(e3.elementId, "d1", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e1.elementId, "d1", "endpoint has correct element id");
+		equal(e3.elementId, "d1", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d1", "anchor has correct element id");
 
 		var c = _jsPlumb.connect({source:e1, target:e2, scope:"FOO"}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
@@ -3592,15 +3596,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d3", 2, _jsPlumb);
 		assertEndpointCount("d1", 0, _jsPlumb);
 
-		equals(e1.elementId, "d3", "endpoint has correct element id");
-		equals(e3.elementId, "d3", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e1.elementId, "d3", "endpoint has correct element id");
+		equal(e3.elementId, "d3", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
-		equals(c.sourceId, "d3", "connection's sourceId has changed");
-		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c2.targetId, "d3", "connection's targetId has changed");
-		equals(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c.sourceId, "d3", "connection's sourceId has changed");
+		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c2.targetId, "d3", "connection's targetId has changed");
+		equal(c2.target.attr("id"), "d3", "connection's target has changed");
 	});
 
 	test(renderMode + " setIdChanged, ", function() {
@@ -3612,10 +3616,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint("d1");
 
 		assertEndpointCount("d1", 2, _jsPlumb);
-		equals(e1.elementId, "d1", "endpoint has correct element id");
-		equals(e3.elementId, "d1", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d1", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e1.elementId, "d1", "endpoint has correct element id");
+		equal(e3.elementId, "d1", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d1", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d1", "anchor has correct element id");
 
 		var c = _jsPlumb.connect({source:e1, target:e2}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
@@ -3627,15 +3631,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d3", 2, _jsPlumb);		
 		assertEndpointCount("d1", 0, _jsPlumb);
 
-		equals(e1.elementId, "d3", "endpoint has correct element id");
-		equals(e3.elementId, "d3", "endpoint has correct element id");
-		equals(e1.anchor.elementId, "d3", "anchor has correct element id");
-		equals(e3.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e1.elementId, "d3", "endpoint has correct element id");
+		equal(e3.elementId, "d3", "endpoint has correct element id");
+		equal(e1.anchor.elementId, "d3", "anchor has correct element id");
+		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
-		equals(c.sourceId, "d3", "connection's sourceId has changed");
-		equals(c.source.attr("id"), "d3", "connection's source has changed");
-		equals(c2.targetId, "d3", "connection's targetId has changed");
-		equals(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c.sourceId, "d3", "connection's sourceId has changed");
+		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c2.targetId, "d3", "connection's targetId has changed");
+		equal(c2.target.attr("id"), "d3", "connection's target has changed");
 	});  
 
 	test(renderMode + " endpoint hide/show should hide/show overlays", function() {
@@ -3671,8 +3675,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:"d1", target:"d2"}),
 			s = _jsPlumb.select({source:"d1"});
 
-		equals(s.length, 1, "one connection selected");
-		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+		equal(s.length, 1, "one connection selected");
+		equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
 		s.setHover(true);
 		ok(s.get(0).isHover(), "connection has had hover set to true");
@@ -3686,8 +3690,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
 			s = _jsPlumb.select({source:"d1"});
 
-		equals(s.length, 2, "two connections selected");
-		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+		equal(s.length, 2, "two connections selected");
+		equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
 		s.setHover(true);
 		ok(s.get(0).isHover(), "connection has had hover set to true");
@@ -3701,8 +3705,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
 			s = _jsPlumb.select({source:"d1", scope:"FOO"});
 
-		equals(s.length, 1, "one connection selected");
-		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+		equal(s.length, 1, "one connection selected");
+		equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
 		s.setHover(true);
 		ok(s.get(0).isHover(), "connection has had hover set to true");
@@ -3717,8 +3721,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c3 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAZ"})
 			s = _jsPlumb.select({source:"d1", scope:["FOO","BAR"]});
 
-		equals(s.length, 2, "two connections selected");
-		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+		equal(s.length, 2, "two connections selected");
+		equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
 		s.setHover(true);
 		ok(s.get(0).isHover(), "connection has had hover set to true");
@@ -3734,8 +3738,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c4 = _jsPlumb.connect({source:"d2", target:"d1", scope:"BOZ"}),
 			s = _jsPlumb.select({source:"d1"});
 
-		equals(s.length, 3, "three connections selected");
-		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+		equal(s.length, 3, "three connections selected");
+		equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
 		s.setHover(true);
 		ok(s.get(0).isHover(), "connection has had hover set to true");
@@ -3751,8 +3755,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c4 = _jsPlumb.connect({source:"d2", target:"d1", scope:"BOZ"}),
 			s = _jsPlumb.select({source:"d1", scope:["FOO","BAR", "BOZ"]});
 
-		equals(s.length, 2, "two connections selected");
-		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+		equal(s.length, 2, "two connections selected");
+		equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
 		s.setHover(true);
 		ok(s.get(0).isHover(), "connection has had hover set to true");
@@ -3766,8 +3770,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c2 = _jsPlumb.connect({source:"d1", target:"d2", scope:"BAR"}),
 			s = _jsPlumb.select({ scope:"FOO" });
 
-		equals(s.length, 1, "two connections selected");
-		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+		equal(s.length, 1, "two connections selected");
+		equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
 		s.setHover(true);
 		ok(s.get(0).isHover(), "connection has had hover set to true");
@@ -3781,8 +3785,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c2 = _jsPlumb.connect({source:"d2", target:"d1", scope:"BAR"}),
 			s = _jsPlumb.select({ scope:"FOO" });
 
-		equals(s.length, 1, "two connections selected");
-		equals(s.get(0).sourceId, "d1", "d1 is connection source");
+		equal(s.length, 1, "two connections selected");
+		equal(s.get(0).sourceId, "d1", "d1 is connection source");
 
 		s.setHover(true);
 		ok(s.get(0).isHover(), "connection has had hover set to true");
@@ -3808,7 +3812,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			}),
 			s = _jsPlumb.select({source:"d1"});
 		
-		equals(s.length, 2, "two connections selected");
+		equal(s.length, 2, "two connections selected");
 		ok(s.get(0).getOverlay("l") != null, "connection has overlay");
 		ok(s.get(1).getOverlay("l") != null, "connection has overlay");
 	});
@@ -3840,13 +3844,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 		}
 				
 		var s = _jsPlumb.select();
-		equals(s.length, 5, "there are five connections");
+		equal(s.length, 5, "there are five connections");
 
 		var t = "";
 		s.each(function(connection) {
 			t += "f";
 		});
-		equals("fffff", t, ".each is working");
+		equal("fffff", t, ".each is working");
 	});
 
 	test(renderMode + " select, multiple connections + chaining", function() {
@@ -3863,13 +3867,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 		}
 				
 		var s = _jsPlumb.select().removeAllOverlays().setParameter("foo", "bar").setHover(false).setLabel("baz");
-		equals(s.length, 5, "there are five connections");
+		equal(s.length, 5, "there are five connections");
 
 		for (var j = 0; j < 5; j++) {
-			equals(s.get(j).getOverlays().length, 1, "one overlay: the label");
-			equals(s.get(j).getParameter("foo"), "bar", "parameter foo has value 'bar'");
+			equal(s.get(j).getOverlays().length, 1, "one overlay: the label");
+			equal(s.get(j).getParameter("foo"), "bar", "parameter foo has value 'bar'");
 			ok(!(s.get(j).isHover()), "hover is set to false");
-			equals(s.get(j).getLabel(), "baz", "label is set to 'baz'");
+			equal(s.get(j).getLabel(), "baz", "label is set to 'baz'");
 		}			
 	});
 
@@ -3884,10 +3888,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		}
 				
 		var lbls = _jsPlumb.select().getLabel();
-		equals(lbls.length, 5, "there are five labels");
+		equal(lbls.length, 5, "there are five labels");
 
 		for (var j = 0; j < 5; j++) {
-			equals(lbls[j][0], "FOO", "label has value 'FOO'");
+			equal(lbls[j][0], "FOO", "label has value 'FOO'");
 		}			
 	});
 
@@ -3902,10 +3906,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		}
 				
 		var params = _jsPlumb.select().removeAllOverlays().setParameter("foo", "bar").getParameter("foo");
-		equals(params.length, 5, "there are five params");
+		equal(params.length, 5, "there are five params");
 
 		for (var j = 0; j < 5; j++) {
-			equals(params[j][0], "bar", "parameter has value 'bar'");
+			equal(params[j][0], "bar", "parameter has value 'bar'");
 		}			
 	});
 
@@ -3922,7 +3926,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 				
 		var params = _jsPlumb.select().detach();
 
-		equals(_jsPlumb.select().length, 0, "there are no connections");
+		equal(_jsPlumb.select().length, 0, "there are no connections");
 	});
 	
 	test(renderMode + " select, repaint method", function() {
@@ -3937,7 +3941,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 				
 		var len = _jsPlumb.select().repaint().length;
 
-		equals(len, 5, "there are five connections");
+		equal(len, 5, "there are five connections");
 	});	
 	
 	
@@ -3947,21 +3951,21 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e1 = _jsPlumb.addEndpoint(d1),
 			e2 = _jsPlumb.addEndpoint(d1);
 			
-		equals(_jsPlumb.selectEndpoints().length, 2, "there are two endpoints");
-		equals(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "there are two endpoints on d1");
-		equals(_jsPlumb.selectEndpoints({element:"d2"}).length, 0, "there are 0 endpoints on d2");
+		equal(_jsPlumb.selectEndpoints().length, 2, "there are two endpoints");
+		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "there are two endpoints on d1");
+		equal(_jsPlumb.selectEndpoints({element:"d2"}).length, 0, "there are 0 endpoints on d2");
 		
-		equals(_jsPlumb.selectEndpoints({source:"d1"}).length, 0, "there are zero source endpoints on d1");
-		equals(_jsPlumb.selectEndpoints({target:"d1"}).length, 0, "there are zero target endpoints on d1");		
-		equals(_jsPlumb.selectEndpoints({source:"d2"}).length, 0, "there are zero source endpoints on d2");
-		equals(_jsPlumb.selectEndpoints({target:"d2"}).length, 0, "there are zero target endpoints on d2");		
+		equal(_jsPlumb.selectEndpoints({source:"d1"}).length, 0, "there are zero source endpoints on d1");
+		equal(_jsPlumb.selectEndpoints({target:"d1"}).length, 0, "there are zero target endpoints on d1");		
+		equal(_jsPlumb.selectEndpoints({source:"d2"}).length, 0, "there are zero source endpoints on d2");
+		equal(_jsPlumb.selectEndpoints({target:"d2"}).length, 0, "there are zero target endpoints on d2");		
 		
-		equals(_jsPlumb.selectEndpoints({source:"d1", scope:"FOO"}).length, 0, "there are zero source endpoints on d1 with scope FOO");
+		equal(_jsPlumb.selectEndpoints({source:"d1", scope:"FOO"}).length, 0, "there are zero source endpoints on d1 with scope FOO");
 		
 		_jsPlumb.addEndpoint("d2", { scope:"FOO", isSource:true });
-		equals(_jsPlumb.selectEndpoints({source:"d2", scope:"FOO"}).length, 1, "there is one source endpoint on d2 with scope FOO");
+		equal(_jsPlumb.selectEndpoints({source:"d2", scope:"FOO"}).length, 1, "there is one source endpoint on d2 with scope FOO");
 			
-		equals(_jsPlumb.selectEndpoints({element:["d2", "d1"]}).length, 3, "there are three endpoints between d2 and d1");				
+		equal(_jsPlumb.selectEndpoints({element:["d2", "d1"]}).length, 3, "there are three endpoints between d2 and d1");				
 	});
 	
 	test(renderMode + " selectEndpoints, basic tests, various input argument formats", function() {
@@ -3969,10 +3973,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e1 = _jsPlumb.addEndpoint(d1),
 			e2 = _jsPlumb.addEndpoint(d1);
 			
-		equals(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "using id, there are two endpoints on d1");
-		equals(_jsPlumb.selectEndpoints({element:d1}).length, 2, "using dom element, there are two endpoints on d1");
-		equals(_jsPlumb.selectEndpoints({element:$("#d1")}).length, 2, "using selector, there are two endpoints on d1");
-		equals(_jsPlumb.selectEndpoints({element:$(d1)}).length, 2, "using selector with dom element, there are two endpoints on d1");		
+		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "using id, there are two endpoints on d1");
+		equal(_jsPlumb.selectEndpoints({element:d1}).length, 2, "using dom element, there are two endpoints on d1");
+		equal(_jsPlumb.selectEndpoints({element:$("#d1")}).length, 2, "using selector, there are two endpoints on d1");
+		equal(_jsPlumb.selectEndpoints({element:$(d1)}).length, 2, "using selector with dom element, there are two endpoints on d1");		
 		
 	});
 	
@@ -3981,11 +3985,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e1 = _jsPlumb.addEndpoint(d1, {scope:"FOO"}),
 			e2 = _jsPlumb.addEndpoint(d1);
 			
-		equals(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "using id, there are two endpoints on d1");
-		equals(_jsPlumb.selectEndpoints({element:"d1", scope:"FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'FOO'");		
+		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "using id, there are two endpoints on d1");
+		equal(_jsPlumb.selectEndpoints({element:"d1", scope:"FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'FOO'");		
 		_jsPlumb.addEndpoint(d1, {scope:"BAR"}),		
-		equals(_jsPlumb.selectEndpoints({element:"d1", scope:"FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'BAR'");	
-		equals(_jsPlumb.selectEndpoints({element:"d1", scope:["BAR", "FOO"]}).length, 2, "using id, there are two endpoints on d1 with scope 'BAR' or 'FOO'");					
+		equal(_jsPlumb.selectEndpoints({element:"d1", scope:"FOO"}).length, 1, "using id, there is one endpoint on d1 with scope 'BAR'");	
+		equal(_jsPlumb.selectEndpoints({element:"d1", scope:["BAR", "FOO"]}).length, 2, "using id, there are two endpoints on d1 with scope 'BAR' or 'FOO'");					
 	});
 	
 	test(renderMode + " selectEndpoints, isSource tests", function() {
@@ -3994,12 +3998,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.addEndpoint(d1),
 			e3 = _jsPlumb.addEndpoint(d2, {isSource:true});
 			
-		equals(_jsPlumb.selectEndpoints({source:"d1"}).length, 1, "there is one source endpoint on d1");
-		equals(_jsPlumb.selectEndpoints({target:"d1"}).length, 0, "there are zero target endpoints on d1");		
+		equal(_jsPlumb.selectEndpoints({source:"d1"}).length, 1, "there is one source endpoint on d1");
+		equal(_jsPlumb.selectEndpoints({target:"d1"}).length, 0, "there are zero target endpoints on d1");		
 		
-		equals(_jsPlumb.selectEndpoints({source:"d2"}).length, 1, "there is one source endpoint on d2");
+		equal(_jsPlumb.selectEndpoints({source:"d2"}).length, 1, "there is one source endpoint on d2");
 		
-		equals(_jsPlumb.selectEndpoints({source:["d2", "d1"]}).length, 2, "there are two source endpoints between d1 and d2");			
+		equal(_jsPlumb.selectEndpoints({source:["d2", "d1"]}).length, 2, "there are two source endpoints between d1 and d2");			
 	});
 	
 	test(renderMode + " selectEndpoints, isTarget tests", function() {
@@ -4008,12 +4012,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.addEndpoint(d1),
 			e3 = _jsPlumb.addEndpoint(d2, {isTarget:true});
 			
-		equals(_jsPlumb.selectEndpoints({target:"d1"}).length, 1, "there is one target endpoint on d1");
-		equals(_jsPlumb.selectEndpoints({source:"d1"}).length, 0, "there are zero source endpoints on d1");		
+		equal(_jsPlumb.selectEndpoints({target:"d1"}).length, 1, "there is one target endpoint on d1");
+		equal(_jsPlumb.selectEndpoints({source:"d1"}).length, 0, "there are zero source endpoints on d1");		
 		
-		equals(_jsPlumb.selectEndpoints({target:"d2"}).length, 1, "there is one target endpoint on d2");
+		equal(_jsPlumb.selectEndpoints({target:"d2"}).length, 1, "there is one target endpoint on d2");
 		
-		equals(_jsPlumb.selectEndpoints({target:["d2", "d1"]}).length, 2, "there are two target endpoints between d1 and d2");			
+		equal(_jsPlumb.selectEndpoints({target:["d2", "d1"]}).length, 2, "there are two target endpoints between d1 and d2");			
 	});
 	
 	test(renderMode + " selectEndpoints, isSource + isTarget tests", function() {
@@ -4023,12 +4027,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint(d1, {isSource:true}),			
 			e4 = _jsPlumb.addEndpoint(d1, {isTarget:true});
 			
-		equals(_jsPlumb.selectEndpoints({source:"d1"}).length, 2, "there are two source endpoints on d1");
-		equals(_jsPlumb.selectEndpoints({target:"d1"}).length, 2, "there are two target endpoints on d1");		
+		equal(_jsPlumb.selectEndpoints({source:"d1"}).length, 2, "there are two source endpoints on d1");
+		equal(_jsPlumb.selectEndpoints({target:"d1"}).length, 2, "there are two target endpoints on d1");		
 		
-		equals(_jsPlumb.selectEndpoints({target:"d1", source:"d1"}).length, 1, "there is one source and target endpoint on d1");	
+		equal(_jsPlumb.selectEndpoints({target:"d1", source:"d1"}).length, 1, "there is one source and target endpoint on d1");	
 		
-		equals(_jsPlumb.selectEndpoints({element:"d1"}).length, 4, "there are four endpoints on d1");	
+		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 4, "there are four endpoints on d1");	
 		
 	});
 	
@@ -4036,9 +4040,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"),
 			e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true});
 		
-		equals(_jsPlumb.selectEndpoints({element:"d1"}).length, 1, "there is one endpoint on d1");	
+		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 1, "there is one endpoint on d1");	
 		_jsPlumb.selectEndpoints({source:"d1"}).delete();
-		equals(_jsPlumb.selectEndpoints({element:"d1"}).length, 0, "there are zero endpoints on d1");						
+		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 0, "there are zero endpoints on d1");						
 	});
 	
 	test(renderMode + " selectEndpoints, detach connections", function() {
@@ -4048,45 +4052,45 @@ var testSuite = function(renderMode, _jsPlumb) {
 			
 		_jsPlumb.connect({source:e1, target:e2});
 		
-		equals(e1.connections.length, 1, "there is one connection on d1's endpoint");	
-		equals(e2.connections.length, 1, "there is one connection on d2's endpoint");			
+		equal(e1.connections.length, 1, "there is one connection on d1's endpoint");	
+		equal(e2.connections.length, 1, "there is one connection on d2's endpoint");			
 		
 		_jsPlumb.selectEndpoints({source:"d1"}).detachAll();
 		
-		equals(e1.connections.length, 0, "there are zero connections on d1's endpoint");	
-		equals(e2.connections.length, 0, "there are zero connections on d2's endpoint");			
+		equal(e1.connections.length, 0, "there are zero connections on d1's endpoint");	
+		equal(e2.connections.length, 0, "there are zero connections on d2's endpoint");			
 	});
 	
 	test(renderMode + " selectEndpoints, hover tests", function() {
 		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"),
 			e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true});
 			
-		equals(e1.isHover(), false, "hover not set");		
+		equal(e1.isHover(), false, "hover not set");		
 		_jsPlumb.selectEndpoints({source:"d1"}).setHover(true);
-		equals(e1.isHover(), true, "hover set");		
+		equal(e1.isHover(), true, "hover set");		
 		_jsPlumb.selectEndpoints({source:"d1"}).setHover(false);
-		equals(e1.isHover(), false, "hover no longer set");		
+		equal(e1.isHover(), false, "hover no longer set");		
 	});
 	
 	test(renderMode + " selectEndpoints, setEnabled tests", function() {
 		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"),
 			e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true});
 			
-		equals(e1.isEnabled(), true, "endpoint is enabled");		
+		equal(e1.isEnabled(), true, "endpoint is enabled");		
 		_jsPlumb.selectEndpoints({source:"d1"}).setEnabled(false);
-		equals(e1.isEnabled(), false, "endpoint not enabled");				
+		equal(e1.isEnabled(), false, "endpoint not enabled");				
 	});
 	
 	test(renderMode + " selectEndpoints, setEnabled tests", function() {
 		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"),
 			e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true});
 			
-		equals(e1.isEnabled(), true, "endpoint is enabled");		
+		equal(e1.isEnabled(), true, "endpoint is enabled");		
 		var e = _jsPlumb.selectEndpoints({source:"d1"}).isEnabled();
-		equals(e[0][0], true, "endpoint enabled");
+		equal(e[0][0], true, "endpoint enabled");
 		_jsPlumb.selectEndpoints({source:"d1"}).setEnabled(false);
 		e = _jsPlumb.selectEndpoints({source:"d1"}).isEnabled();
-		equals(e[0][0], false, "endpoint not enabled");
+		equal(e[0][0], false, "endpoint not enabled");
 	});
 
 // setPaintStyle/getPaintStyle tests
@@ -4094,16 +4098,16 @@ var testSuite = function(renderMode, _jsPlumb) {
 	test(renderMode + " setPaintStyle", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), c = _jsPlumb.connect({source:d1, target:d2});
 		c.setPaintStyle({strokeStyle:"FOO", lineWidth:999});
-		equals(c.paintStyleInUse.strokeStyle, "FOO", "strokeStyle was set");
-		equals(c.paintStyleInUse.lineWidth, 999, "lineWidth was set");
+		equal(c.paintStyleInUse.strokeStyle, "FOO", "strokeStyle was set");
+		equal(c.paintStyleInUse.lineWidth, 999, "lineWidth was set");
 
 		c.setHoverPaintStyle({strokeStyle:"BAZ",  lineWidth:444});
 		c.setHover(true);
-		equals(c.paintStyleInUse.strokeStyle, "BAZ", "strokeStyle was set");
-		equals(c.paintStyleInUse.lineWidth, 444, "lineWidth was set");
+		equal(c.paintStyleInUse.strokeStyle, "BAZ", "strokeStyle was set");
+		equal(c.paintStyleInUse.lineWidth, 444, "lineWidth was set");
 
-		equals(c.getPaintStyle().strokeStyle, "FOO", "getPaintStyle returns correct value");
-		equals(c.getHoverPaintStyle().strokeStyle, "BAZ", "getHoverPaintStyle returns correct value");
+		equal(c.getPaintStyle().strokeStyle, "FOO", "getPaintStyle returns correct value");
+		equal(c.getHoverPaintStyle().strokeStyle, "BAZ", "getHoverPaintStyle returns correct value");
 	});	
 
 // ******************* getEndpoints ************************************************
@@ -4117,8 +4121,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		var e = _jsPlumb.getEndpoints("d1"),
 			e2 = _jsPlumb.getEndpoints("d2");
-		equals(e.length, 2, "two endpoints on d1");
-		equals(e2.length, 1, "one endpoint on d2");
+		equal(e.length, 2, "two endpoints on d1");
+		equal(e2.length, 1, "one endpoint on d2");
 	});
 	
 // connection type tests - types, type extension, set types, get types etc.
@@ -4134,10 +4138,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType("basic");
-		equals(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
-		equals(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
-		equals(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
-		equals(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+		equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
 	});
 	
 	test(renderMode + " set connection type on existing connection then change type", function() {
@@ -4158,16 +4162,16 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType("basic");
-		equals(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
-		equals(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
-		equals(c.getHoverPaintStyle().strokeStyle, "blue", "hoverPaintStyle strokeStyle is blue");
-		equals(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+		equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().strokeStyle, "blue", "hoverPaintStyle strokeStyle is blue");
+		equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
 		
 		c.setType("other");
-		equals(c.getPaintStyle().lineWidth, 14, "paintStyle lineWidth is 14");
-		equals(c.getPaintStyle().strokeStyle, "red", "paintStyle strokeStyle is red");
-		equals(c.getHoverPaintStyle().strokeStyle, "green", "hoverPaintStyle strokeStyle is green");
-		equals(c.getHoverPaintStyle().lineWidth, 14, "hoverPaintStyle linewidth is 14");
+		equal(c.getPaintStyle().lineWidth, 14, "paintStyle lineWidth is 14");
+		equal(c.getPaintStyle().strokeStyle, "red", "paintStyle strokeStyle is red");
+		equal(c.getHoverPaintStyle().strokeStyle, "green", "hoverPaintStyle strokeStyle is green");
+		equal(c.getHoverPaintStyle().lineWidth, 14, "hoverPaintStyle linewidth is 14");
 	});
 	
 	test(renderMode + " set connection type on existing connection, overlays should be set", function() {
@@ -4185,7 +4189,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType("basic");
-		equals(c.getOverlays().length, 1, "one overlay");
+		equal(c.getOverlays().length, 1, "one overlay");
 	});
 	
 	test(renderMode + " set connection type on existing connection, overlays should be removed with second type", function() {
@@ -4206,10 +4210,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType("basic");
-		equals(c.getOverlays().length, 1, "one overlay");
+		equal(c.getOverlays().length, 1, "one overlay");
 		c.setType("other");
-		equals(c.getOverlays().length, 0, "no overlays");
-		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "paintStyle lineWidth is default");
+		equal(c.getOverlays().length, 0, "no overlays");
+		equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "paintStyle lineWidth is default");
 	});	
 	
 	test(renderMode + " set connection type on existing connection, hasType + toggleType", function() {
@@ -4230,14 +4234,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType("basic");
-		equals(c.hasType("basic"), true, "connection has 'basic' type");
+		equal(c.hasType("basic"), true, "connection has 'basic' type");
 		c.toggleType("basic");
-		equals(c.hasType("basic"), false, "connection does not have 'basic' type");
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c.hasType("basic"), false, "connection does not have 'basic' type");
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
 		c.toggleType("basic");
-		equals(c.hasType("basic"), true, "connection has 'basic' type");
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-		equals(c.getOverlays().length, 1, "one overlay");
+		equal(c.hasType("basic"), true, "connection has 'basic' type");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equal(c.getOverlays().length, 1, "one overlay");
 		
 	});
 	
@@ -4268,30 +4272,30 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType("basic");
-		equals(c.hasType("basic"), true, "connection has 'basic' type");		
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-		equals(c.getPaintStyle().lineWidth, 4, "connection has linewidth 4");
-		equals(c.getOverlays().length, 1, "one overlay");
+		equal(c.hasType("basic"), true, "connection has 'basic' type");		
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equal(c.getPaintStyle().lineWidth, 4, "connection has linewidth 4");
+		equal(c.getOverlays().length, 1, "one overlay");
 		
 		c.addType("other");
-		equals(c.hasType("basic"), true, "connection has 'basic' type");
-		equals(c.hasType("other"), true, "connection has 'other' type");	
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-		equals(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
-		equals(c.getOverlays().length, 2, "two overlays");
+		equal(c.hasType("basic"), true, "connection has 'basic' type");
+		equal(c.hasType("other"), true, "connection has 'other' type");	
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+		equal(c.getOverlays().length, 2, "two overlays");
 		
 		c.removeType("basic");
-		equals(c.hasType("basic"), false, "connection does not have 'basic' type");
-		equals(c.hasType("other"), true, "connection has 'other' type");	
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
-		equals(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
-		equals(c.getOverlays().length, 1, "one overlay");
+		equal(c.hasType("basic"), false, "connection does not have 'basic' type");
+		equal(c.hasType("other"), true, "connection has 'other' type");	
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+		equal(c.getOverlays().length, 1, "one overlay");
 		
 		c.toggleType("other");
-		equals(c.hasType("other"), false, "connection does not have 'other' type");
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
-		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "connection has default linewidth");
-		equals(c.getOverlays().length, 0, "nooverlays");
+		equal(c.hasType("other"), false, "connection does not have 'other' type");
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "connection has default linewidth");
+		equal(c.getOverlays().length, 0, "nooverlays");
 	});
 	
 	test(renderMode + " connection type tests, space separated arguments", function() {
@@ -4321,40 +4325,40 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType("basic other");
-		equals(c.hasType("basic"), true, "connection has 'basic' type");
-		equals(c.hasType("other"), true, "connection has 'other' type");
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-		equals(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
-		equals(c.getOverlays().length, 2, "two overlays");
+		equal(c.hasType("basic"), true, "connection has 'basic' type");
+		equal(c.hasType("other"), true, "connection has 'other' type");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equal(c.getPaintStyle().lineWidth, 14, "connection has linewidth 14");
+		equal(c.getOverlays().length, 2, "two overlays");
 		
 		c.toggleType("other basic");
-		equals(c.hasType("basic"), false, "after toggle, connection does not have 'basic' type");
-		equals(c.hasType("other"), false, "after toggle, connection does not have 'other' type");	
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after toggle, connection has default stroke style");
-		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after toggle, connection has default linewidth");
-		equals(c.getOverlays().length, 0, "after toggle, no overlays");
+		equal(c.hasType("basic"), false, "after toggle, connection does not have 'basic' type");
+		equal(c.hasType("other"), false, "after toggle, connection does not have 'other' type");	
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after toggle, connection has default stroke style");
+		equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after toggle, connection has default linewidth");
+		equal(c.getOverlays().length, 0, "after toggle, no overlays");
 		
 		c.toggleType("basic other");
-		equals(c.hasType("basic"), true, "after toggle again, connection has 'basic' type");
-		equals(c.hasType("other"), true, "after toggle again, connection has 'other' type");
-		equals(c.getPaintStyle().strokeStyle, "yellow", "after toggle again, connection has yellow stroke style");
-		equals(c.getPaintStyle().lineWidth, 14, "after toggle again, connection has linewidth 14");
-		equals(c.getOverlays().length, 2, "after toggle again, two overlays");
+		equal(c.hasType("basic"), true, "after toggle again, connection has 'basic' type");
+		equal(c.hasType("other"), true, "after toggle again, connection has 'other' type");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "after toggle again, connection has yellow stroke style");
+		equal(c.getPaintStyle().lineWidth, 14, "after toggle again, connection has linewidth 14");
+		equal(c.getOverlays().length, 2, "after toggle again, two overlays");
 		
 		c.removeType("other basic");
-		equals(c.hasType("basic"), false, "after remove, connection does not have 'basic' type");
-		equals(c.hasType("other"), false, "after remove, connection does not have 'other' type");	
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after remove, connection has default stroke style");
-		equals(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after remove, connection has default linewidth");
-		equals(c.getOverlays().length, 0, "after remove, no overlays");
+		equal(c.hasType("basic"), false, "after remove, connection does not have 'basic' type");
+		equal(c.hasType("other"), false, "after remove, connection does not have 'other' type");	
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "after remove, connection has default stroke style");
+		equal(c.getPaintStyle().lineWidth, _jsPlumb.Defaults.PaintStyle.lineWidth, "after remove, connection has default linewidth");
+		equal(c.getOverlays().length, 0, "after remove, no overlays");
 		
 		c.addType("other basic");
-		equals(c.hasType("basic"), true, "after add, connection has 'basic' type");
-		equals(c.hasType("other"), true, "after add, connection has 'other' type");
-		equals(c.getPaintStyle().strokeStyle, "yellow", "after add, connection has yellow stroke style");
+		equal(c.hasType("basic"), true, "after add, connection has 'basic' type");
+		equal(c.hasType("other"), true, "after add, connection has 'other' type");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "after add, connection has yellow stroke style");
 		// NOTE here we added the types in the other order to before, so lineWidth 4 - from basic - should win.
-		equals(c.getPaintStyle().lineWidth, 4, "after add, connection has linewidth 4");
-		equals(c.getOverlays().length, 2, "after add, two overlays");
+		equal(c.getPaintStyle().lineWidth, 4, "after add, connection has linewidth 4");
+		equal(c.getOverlays().length, 2, "after add, two overlays");
 	});
 	
 	test(renderMode + " connection type tests, fluid interface", function() {
@@ -4385,20 +4389,20 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c2 = _jsPlumb.connect({source:d2, target:d3});
 			
 		_jsPlumb.select().addType("basic");		
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-		equals(c2.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equal(c2.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
 		
 		_jsPlumb.select().toggleType("basic");
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
-		equals(c2.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c2.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
 		
 		_jsPlumb.select().addType("basic");		
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
-		equals(c2.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
+		equal(c2.getPaintStyle().strokeStyle, "yellow", "connection has yellow stroke style");
 		
 		_jsPlumb.select().removeType("basic").addType("other");		
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
-		equals(c2.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c2.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
 		
 		
 	});
@@ -4422,10 +4426,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2}),
 			c2 = _jsPlumb.connect({source:d2, target:d3});
 		c.setType("basic");
-			equals(c.getPaintStyle().strokeStyle, "yellow", "first connection has yellow stroke style");
+			equal(c.getPaintStyle().strokeStyle, "yellow", "first connection has yellow stroke style");
 		c2.setType("other");
 		
-		equals(c.getPaintStyle().strokeStyle, "yellow", "first connection has yellow stroke style");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "first connection has yellow stroke style");
 	
 		
 	});
@@ -4435,7 +4439,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType(null);		
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");		
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");		
 		
 	});
 	
@@ -4444,7 +4448,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			c = _jsPlumb.connect({source:d1, target:d2});
 			
 		c.setType("foo");		
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");		
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");		
 		
 	});
 	
@@ -4462,16 +4466,16 @@ var testSuite = function(renderMode, _jsPlumb) {
 		});
 			
 		c.setType("basic foo");		
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
 		
 		c.toggleType("foo");		
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
 		
 		c.removeType("basic baz");		
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
 		
 		c.addType("basic foo bar baz");		
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
 		
 	});
 	
@@ -4494,14 +4498,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 			}
 		});
 		
-		equals(_jsPlumb.Defaults.PaintStyle.strokeStyle, "blue", "default value has not been messed up");
+		equal(_jsPlumb.Defaults.PaintStyle.strokeStyle, "blue", "default value has not been messed up");
 		
 		c = _jsPlumb.connect({source:d1, target:d2});
-		equals(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
+		equal(c.getPaintStyle().strokeStyle, _jsPlumb.Defaults.PaintStyle.strokeStyle, "connection has default stroke style");
 		
 		c = _jsPlumb.connect({source:d1, target:d2, type:"basic other"});
-		equals(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
-		equals(c.getPaintStyle().lineWidth, 14, "connection has other type's lineWidth");		
+		equal(c.getPaintStyle().strokeStyle, "yellow", "connection has basic type's stroke style");
+		equal(c.getPaintStyle().lineWidth, 14, "connection has other type's lineWidth");		
 				
 	});
 	
@@ -4523,8 +4527,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.Defaults.ConnectionsDetachable = true;//just make sure we've setup the test correctly.
 			
 		c.setType("basic");		
-		equals(c.scope, "BANANA", "scope is correct");
-		equals(c.isDetachable(), false, "not detachable");
+		equal(c.scope, "BANANA", "scope is correct");
+		equal(c.isDetachable(), false, "not detachable");
 		
 	});
 	
@@ -4548,12 +4552,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 		// first try creating one with the parameters
 		c = _jsPlumb.connect({source:d1, target:d2, type:"basic"});
 		
-		equals(c.getParameter("foo"), 1, "foo param correct");
-		equals(c.getParameter("bar"), 2, "bar param correct");
+		equal(c.getParameter("foo"), 1, "foo param correct");
+		equal(c.getParameter("bar"), 2, "bar param correct");
 		
 		c.addType("frank");
-		equals(c.getParameter("foo"), 1, "foo param correct");
-		equals(c.getParameter("bar"), 5, "bar param correct");
+		equal(c.getParameter("foo"), 1, "foo param correct");
+		equal(c.getParameter("bar"), 5, "bar param correct");
 	});
 	
 	test(renderMode + " setType, scope, two types", function() {
@@ -4579,8 +4583,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.Defaults.ConnectionsDetachable = true;//just make sure we've setup the test correctly.
 			
 		c.setType("basic frank");		
-		equals(c.scope, "OVERRIDE", "scope is correct");
-		equals(c.isDetachable(), true, "detachable");
+		equal(c.scope, "OVERRIDE", "scope is correct");
+		equal(c.isDetachable(), true, "detachable");
 		
 	});
 	
@@ -4608,7 +4612,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		});	
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
-		equals(c.getPaintStyle().strokeStyle, "blue", "connection has default stroke style");
+		equal(c.getPaintStyle().strokeStyle, "blue", "connection has default stroke style");
 		equal(c.connector.type, "Flowchart", "connector is flowchart");
 	});
 	
@@ -4619,10 +4623,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
 		e.setType("basic");
-		equals(e.getPaintStyle().fillStyle, "blue", "fill style is correct");
+		equal(e.getPaintStyle().fillStyle, "blue", "fill style is correct");
 		
 		var d2 = _addDiv('d2'), e2 = _jsPlumb.addEndpoint(d2, {type:"basic"});
-		equals(e2.getPaintStyle().fillStyle, "blue", "fill style is correct");
+		equal(e2.getPaintStyle().fillStyle, "blue", "fill style is correct");
 	});
 	
 	test(renderMode + " create connection from Endpoints - with connector settings in Endpoint type.", function() {
@@ -4653,12 +4657,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.addEndpoint(d2);
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
-		equals(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
-		equals(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
-		equals(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
-		equals(c.connector.type, "Flowchart", "connector is Flowchart");
-		equals(c.overlays.length, 1, "connector has one overlay");
-		equals(e1.overlays.length, 1, "endpoint has one overlay");
+		equal(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
+		equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
+		equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
+		equal(c.connector.type, "Flowchart", "connector is Flowchart");
+		equal(c.overlays.length, 1, "connector has one overlay");
+		equal(e1.overlays.length, 1, "endpoint has one overlay");
 	});
 	
 	test(renderMode + " create connection from Endpoints - type should be passed through.", function() {		
@@ -4686,8 +4690,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.addEndpoint(d2);
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
-		equals(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
-		equals(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
+		equal(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
+		equal(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
 		equal(c.connector.type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
 	});
 	
@@ -4699,6 +4703,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d = _addDiv("d");
 		_jsPlumb.addEndpoint(d, {type: "example"});
 		_jsPlumb.repaint(d);
+		
+		expect(0);
 	});
 	
 	/*
@@ -4720,14 +4726,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 				}
 			},
 			c = jsPlumbUtil.merge(a, b);
-			equals(c.foo, "b_foo", "c has b's foo");
-			equals(c.nested.foo, "b_foo", "c has b's nested foo");
+			equal(c.foo, "b_foo", "c has b's foo");
+			equal(c.nested.foo, "b_foo", "c has b's nested foo");
 			// now change c's foo. b should be unchanged.
 			c.foo = "c_foo";
-			equals(b.foo, "b_foo", "b has b's foo");
+			equal(b.foo, "b_foo", "b has b's foo");
 			c.nested.foo = "c_foo";
-			equals(b.nested.foo, "b_foo", "b has b's nested foo");
-			equals(a.nested.foo, "a_foo", "a has a's nested foo");
+			equal(b.nested.foo, "b_foo", "b has b's nested foo");
+			equal(a.nested.foo, "a_foo", "a has a's nested foo");
 		});
 	
 	test(renderMode + "jsPlumbUtil.clone", function() {
@@ -4737,11 +4743,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 			}
 		},
 		b = jsPlumbUtil.clone(a);
-		equals(b.nested.foo, "a_foo", "b has a's nested foo");
-		equals(a.nested.foo, "a_foo", "a has a's nested foo");
+		equal(b.nested.foo, "a_foo", "b has a's nested foo");
+		equal(a.nested.foo, "a_foo", "a has a's nested foo");
 		b.nested.foo="b_foo";
-		equals(b.nested.foo, "b_foo", "b has b's nested foo");
-		equals(a.nested.foo, "a_foo", "a has a's nested foo");
+		equal(b.nested.foo, "b_foo", "b has b's nested foo");
+		equal(a.nested.foo, "a_foo", "a has a's nested foo");
 	});
 	
 };
