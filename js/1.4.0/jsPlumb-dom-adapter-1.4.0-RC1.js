@@ -117,7 +117,7 @@
 
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
 
-			while (p != b) {
+			while (p != null && p != b) {
 				var pid = _currentInstance.getId(p, null, true);
 				if (pid && _draggables[pid]) {
 					var idx = -1, pEl = jpcl.getElementObject(p), pLoc = jpcl.getOffset(pEl);
