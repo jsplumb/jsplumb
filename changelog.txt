@@ -14,6 +14,8 @@
 		- internally, all Connectors are now composed of a set of Segments, of which there are three types - Bezier, Straight, and Arc. Whilst there
 		are no changes to any Connector in this release, this new architecture will enable several new features in the future.
 		
+		- jsPlumb.select and jsPlumb.selectEndpoints' return value now supports the 'setType' method.
+		
 		ISSUES
 		
 		289 - JS errors after dropping a target endpoint on a source
