@@ -1,8 +1,18 @@
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+ 	src:local('Open Sans'), 
+ 		local('OpenSans'),
+ 		url("../font/OpenSans-Regular.ttf") format('truetype'),
+ 		url("../font/OpenSans.woff") format('woff'); 		
+}
+
 body {
     padding:0;
     margin:0;
     background-color:white;    
-    font-family:'Open Sans', "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     text-align:center;	
 }
 #headerWrapper {
