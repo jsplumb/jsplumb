@@ -1723,44 +1723,44 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(c2.getCost(), 23, "connection cost is 23 after change on endpoint");
 	});
 	
-	test(renderMode + ': _jsPlumb.connect (default bidirectional)', function() {
+	test(renderMode + ': _jsPlumb.connect (directed is false by default)', function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
 			e16 = _jsPlumb.addEndpoint(d16, {isSource:true}),
 			e17 = _jsPlumb.addEndpoint(d17, {isSource:true}),
 			c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equal(c.isBidirectional(), true, "default connection is bidirectional");
+		equal(c.isDirected(), false, "default connection is not directed");
 	});
 	
-	test(renderMode + ': _jsPlumb.connect (bidirectional false)', function() {
+	test(renderMode + ': _jsPlumb.connect (directed true)', function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
 			e16 = _jsPlumb.addEndpoint(d16, {isSource:true}),
 			e17 = _jsPlumb.addEndpoint(d17, {isSource:true}),
-			c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17, bidirectional:false});
+			c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17, directed:true});
 		assertContextSize(3);
-		equal(c.isBidirectional(), false, "connection is not bidirectional");
+		equal(c.isDirected(), true, "connection is directed");
 	});
 	
-	test(renderMode + ': _jsPlumb.connect two endpoints (connectionsBidirectional)', function() {
+	test(renderMode + ': _jsPlumb.connect two endpoints (connectionsDirected)', function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, connectionsBidirectional:true, maxConnections:-1});
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, connectionsDirected:true, maxConnections:-1});
 		ok(e16.anchor, 'endpoint 16 has an anchor');
 		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true, maxConnections:-1});
 		var c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equal(c.isBidirectional(), true, "connection is bidrectional");
+		equal(c.isDirected(), true, "connection is directed");
 	});
 	
-	test(renderMode + ': _jsPlumb.connect two endpoints (change connectionsBidirectional)', function() {
+	test(renderMode + ': _jsPlumb.connect two endpoints (change connectionsDirected)', function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
-			e16 = _jsPlumb.addEndpoint(d16, {isSource:true, connectionsBidirectional:true, maxConnections:-1}),
+			e16 = _jsPlumb.addEndpoint(d16, {isSource:true, connectionsDirected:true, maxConnections:-1}),
 			e17 = _jsPlumb.addEndpoint(d17, {isSource:true, maxConnections:-1});
 			c = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		assertContextSize(3);
-		equal(c.isBidirectional(), true, "connection is bidirectional");
-		e16.setConnectionsBidirectional(false);
+		equal(c.isDirected(), true, "connection is directed");
+		e16.setConnectionsDirected(false);
 		var c2 = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
-		equal(c2.isBidirectional(), false, "connection is not bidirectional");
+		equal(c2.isDirected(), false, "connection is not directed");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (two Endpoints - that have been already added - by UUID)", function() {

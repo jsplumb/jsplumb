@@ -4624,10 +4624,10 @@ between this method and jsPlumb.reset).
 			var _cost = params.cost || self.endpoints[0].getConnectionCost();			
 			self.getCost = function() { return _cost; };
 			self.setCost = function(c) { _cost = c; };			
-			var _bidirectional = !(params.bidirectional === false);
-			// inherit bidirectional flag if set no source endpoint
-            if (params.bidirectional == null) _bidirectional = self.endpoints[0].areConnectionsBidirectional();
-			self.isBidirectional = function() { return _bidirectional; };
+			var directed = params.directed;
+			// inherit directed flag if set no source endpoint
+            if (params.directed == null) directed = self.endpoints[0].areConnectionsDirected();
+			self.isDirected = function() { return directed === true; };
 // END COST + DIRECTIONALITY
                         
 // PARAMETERS						
@@ -5155,9 +5155,9 @@ between this method and jsPlumb.reset).
 				_connectionCost = c; 
 			};
 			
-			var _connectionsBidirectional = params.connectionsBidirectional === false ? false : true;
-			this.areConnectionsBidirectional = function() { return _connectionsBidirectional; };
-			this.setConnectionsBidirectional = function(b) { _connectionsBidirectional = b; };
+			var _connectionsDirected = params.connectionsDirected;
+			this.areConnectionsDirected = function() { return _connectionsDirected; };
+			this.setConnectionsDirected = function(b) { _connectionsDirected = b; };
 						
 			self.anchor = params.anchor ? _currentInstance.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? _currentInstance.makeAnchor(params.anchors, _elementId, _currentInstance) : _currentInstance.makeAnchor(_currentInstance.Defaults.Anchor || "TopCenter", _elementId, _currentInstance);
 				

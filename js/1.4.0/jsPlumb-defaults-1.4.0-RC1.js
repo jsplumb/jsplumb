@@ -1174,20 +1174,20 @@
 		jsPlumb.DOMElementComponent.apply(this, arguments);
     	AbstractOverlay.apply(this, arguments);
 		
-		var self = this, initialised = false;
+		var self = this, initialised = false, jpcl = jsPlumb.CurrentLibrary;
 		params = params || {};
 		this.id = params.id;
 		var div;
 		
 		var makeDiv = function() {
 			div = params.create(params.component);
-			div = jsPlumb.CurrentLibrary.getDOMElement(div);
+			div = jpcl.getDOMElement(div);
 			div.style["position"] 	= 	"absolute";    	
 			var clazz = params["_jsPlumb"].overlayClass + " " + 
 				(self.cssClass ? self.cssClass : 
 				params.cssClass ? params.cssClass : "");    	
 			div.className =	clazz;
-			jsPlumb.appendElement(div, params.component.parent);
+			params["_jsPlumb"].appendElement(div, params.component.parent);
 			params["_jsPlumb"].getId(div);		
 	    	self.attachListeners(div, self);
 	    	self.canvas = div;
@@ -1201,7 +1201,7 @@
     	};
 		
 		this.getDimensions = function() {
-    		return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(self.getElement()));
+    		return jpcl.getSize(jpcl.getElementObject(self.getElement()));
     	};
 		
 		var cachedDimensions = null,
@@ -1235,7 +1235,7 @@
     	};
 		
 		this.cleanup = function() {
-    		if (div != null) jsPlumb.CurrentLibrary.removeElement(div);
+    		if (div != null) jpcl.removeElement(div);
     	};
 		
 		this.paint = function(component, d, componentDimensions) {
