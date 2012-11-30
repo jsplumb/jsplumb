@@ -4736,6 +4736,24 @@ var testSuite = function(renderMode, _jsPlumb) {
 			equal(a.nested.foo, "a_foo", "a has a's nested foo");
 		});
 	
+	// tests for a bug that i found in 1.3.16, in which an array would not overwrite an existing string.	
+	test(renderMode + "jsPlumbUtil.merge, array overwriting string", function() {		
+		var a = {
+				foo:"foo",
+				bar:"bar"
+			},
+			b = {
+				foo:[ "bar", "baz" ],
+				bar:{
+					bar:"baz"
+				}
+			},
+			c = jsPlumbUtil.merge(a, b);
+			
+		equal(c.foo[0], "bar", "array was copied correctly");
+		equal(c.bar.bar, "baz", "object was copied correctly");		
+	});
+	
 	test(renderMode + "jsPlumbUtil.clone", function() {
 		var a = {
 			nested:{

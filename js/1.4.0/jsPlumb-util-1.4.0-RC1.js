@@ -60,13 +60,17 @@ jsPlumbUtil = {
 			if (c[i] == null || this.isString(b[i]) || this.isBoolean(b[i]))
 				c[i] = b[i];
 			else {
-				if (this.isArray(b[i]) && this.isArray(c[i])) {
+				if (this.isArray(b[i])/* && this.isArray(c[i])*/) {
 					var ar = [];
-					ar.push.apply(ar, c[i]);
+					// if c's object is also an array we can keep its values.
+					if (this.isArray(c[i])) ar.push.apply(ar, c[i]);
 					ar.push.apply(ar, b[i]);
 					c[i] = ar;
 				}
-				else if(this.isObject(c[i]) && this.isObject(b[i])) {												
+				else if(this.isObject(b[i])) {	
+					// overwite c's value with an object if it is not already one.
+					if (!this.isObject(c[i])) 
+						c[i] = {};
 					for (var j in b[i])
 						c[i][j] = b[i][j];
 				}
