@@ -2037,6 +2037,7 @@ between this method and jsPlumb.reset).
 				addType:setter(list, "addType", executor),
 				toggleType:setter(list, "toggleType", executor),
 				removeType:setter(list, "removeType", executor),
+				setType:setter(list, "setType", executor),				
 
 				// getters
 				getLabel:getter(list, "getLabel"),
@@ -2112,37 +2113,45 @@ between this method and jsPlumb.reset).
 		* A list of Connections on which operations may be executed. 'Setter' type operations can be chained; 'getter' type operations
 		* return an array of [Connection, value] pairs, one entry for each Connection in the list returned. The full list of operations 
 		* is as follows (where not specified, the operation's effect or return value is the same as the corresponding method on Connection) :
-		* 
-		*	-	setHover								
-		*	-	removeAllOverlays
-		*	-	setLabel
+		* 								
 		*	-	addOverlay
-		*	-	removeOverlay
-		*	-	removeOverlays
-		*	-	showOverlay
-		*	-	hideOverlay
-		*	-	showOverlays
-		*	-	hideOverlays
-		*	-	setPaintStyle
-		*	-	setHoverPaintStyle
-		*	-	setDetachable
-		*	- 	setReattach
-		*	-	setConnector
-		*	-	setParameter
-		*	-	setParameters
+		*	-	addType
+		*	-	detach : detaches all the connections in the list. not chainable and does not return anything.		
+		*	-	each(function(connection)...) : allows you to specify your own function to execute; this function is chainable.		
+		*	-	get(index) : returns the Connection at 'index' in the list.			
+		*	-	getHoverPaintStyle		
 		*   - 	getLabel
 		*	-	getOverlay
-		*	-	isHover
-		*	-	isDetachable
-		*	-	isReattach
+		*	-	getPaintStyle		
 		*	-	getParameter
 		*	-	getParameters
-		*	-	getPaintStyle
-		*	-	getHoverPaintStyle
-		*	-	detach : detaches all the connections in the list. not chainable and does not return anything.
+		*	-	getType
+		*	-	getZIndex
+		*	-	hasType		
+		*	-	hideOverlay
+		*	-	hideOverlays		
+		*	-	isDetachable		
+		*	-	isHover
+		*	-	isReattach
+		*	-	isVisible		
 		*	-	length : returns the length of the list.
-		*	-	get(index) : returns the Connection at 'index' in the list.
-		*	-	each(function(connection)...) : allows you to specify your own function to execute; this function is chainable.
+		*	-	removeAllOverlays		
+		*	-	removeOverlay
+		*	-	removeOverlays
+		*	-	removeType
+		*	-	repaint	
+		*	-	setConnector		
+		*	-	setDetachable
+		*	-	setHover		
+		*	-	setHoverPaintStyle		
+		*	-	setLabel		
+		*	-	setPaintStyle		
+		*	-	setParameter
+		*	-	setParameters
+		*	- 	setReattach	
+		*	-	setType	
+		*	-	showOverlay		
+		*	-	showOverlays
 		*/
 		this.select = function(params) {
 			params = params || {};
