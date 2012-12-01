@@ -432,7 +432,9 @@
 			dim[3] = connectorDimensions[3];
 			
     		if (self.canvas == null) {
-    			//p["class"] = jsPlumb.overlayClass; // TODO currentInstance?
+    			var overlayClass = connector._jsPlumb.overlayClass || "";
+    			var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "";
+    			p["class"] = clazz + " " + overlayClass;
 				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb, true);								
 				connector.appendDisplayElement(self.canvas, true);
 				self.attachListeners(self.canvas, connector);
