@@ -14,13 +14,18 @@
 		- internally, all Connectors are now composed of a set of Segments, of which there are three types - Bezier, Straight, and Arc. Whilst there
 		are no changes to any Connector in this release, this new architecture will enable several new features in the future.
 		
-		- jsPlumb.select and jsPlumb.selectEndpoints' return value now supports the 'setType' method.
+		- return value from jsPlumb.select and jsPlumb.selectEndpoints now supports the 'setType' method.
 		
 		ISSUES
 		
 		289 - JS errors after dropping a target endpoint on a source
 		290 - setId doesn't work.
 		292 - fire connectionDrag event when dragging a new connection.
+		
+		MISCELLANEOUS
+		
+		- jsPlumb overlay class and custom overlay class now set correctly on VML arrow overlays
+		- couple of fixes for jsPlumbUtil merge function
 		
 
 * 1.3.16
