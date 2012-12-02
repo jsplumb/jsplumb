@@ -309,7 +309,7 @@
 						for (var i = 0; i < _types.length; i++)
 							o = jsPlumbUtil.merge(o, self._jsPlumb.getType(_types[i], td));						
 					
-						self.applyType(o);					
+						self.applyType(o, doNotRepaint);					
 						if (!doNotRepaint) self.repaint();
 					}
 				};
@@ -377,9 +377,9 @@
 				}
 			};
 			
-			this.applyType = function(t) {
-				self.setPaintStyle(t.paintStyle);				
-				self.setHoverPaintStyle(t.hoverPaintStyle);
+			this.applyType = function(t, doNotRepaint) {
+				self.setPaintStyle(t.paintStyle, doNotRepaint);				
+				self.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint);
 				if (t.parameters){
 					for (var i in t.parameters)
 						self.setParameter(i, t.parameters[i]);
@@ -565,8 +565,8 @@
 			};
 			
 			var superAt = this.applyType;
-			this.applyType = function(t) {
-				superAt(t);
+			this.applyType = function(t, doNotRepaint) {
+				superAt(t, doNotRepaint);
 				self.removeAllOverlays();
 				if (t.overlays) {
 					for (var i = 0; i < t.overlays.length; i++)
@@ -4364,8 +4364,8 @@ between this method and jsPlumb.reset).
 				};
 			};
 			var superAt = this.applyType;
-			this.applyType = function(t) {
-				superAt(t);
+			this.applyType = function(t, doNotRepaint) {
+				superAt(t, doNotRepaint);
 				if (t.detachable != null) self.setDetachable(t.detachable);
 				if (t.reattach != null) self.setReattach(t.reattach);
 				if (t.scope) self.scope = t.scope;
@@ -4764,7 +4764,7 @@ between this method and jsPlumb.reset).
 			// the very last thing we do is check to see if a 'type' was supplied in the params
 			var _type = params.type || self.endpoints[0].connectionType || self.endpoints[1].connectionType;
 			if (_type)
-				self.addType(_type);
+				self.addType(_type, _currentInstance.isSuspendDrawing());
 			
 // END PAINTING
 
@@ -5080,8 +5080,8 @@ between this method and jsPlumb.reset).
 				};
 			};
 			var superAt = this.applyType;
-			this.applyType = function(t) {
-				superAt(t);
+			this.applyType = function(t, doNotRepaint) {
+				superAt(t, doNotRepaint);
 				if (t.maxConnections != null) _maxConnections = t.maxConnections;
 				if (t.scope) self.scope = t.scope;
 				self.connectorStyle = t.connectorStyle;
