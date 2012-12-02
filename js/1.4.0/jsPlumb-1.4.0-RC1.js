@@ -4369,7 +4369,7 @@ between this method and jsPlumb.reset).
 				if (t.detachable != null) self.setDetachable(t.detachable);
 				if (t.reattach != null) self.setReattach(t.reattach);
 				if (t.scope) self.scope = t.scope;
-				self.setConnector(t.connector);
+				self.setConnector(t.connector, doNotRepaint);
 			};			
 // END TYPE
 
