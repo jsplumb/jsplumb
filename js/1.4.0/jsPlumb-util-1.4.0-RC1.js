@@ -117,18 +117,17 @@ jsPlumbUtil = {
         }
     },
     intersects : function(r1, r2) {
-    	var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
-    		a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h;
-    		
-    	return  ( (x1 <= a1 && a1 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
-    			( (x1 <= a2 && a2 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
-    			( (x1 <= a1 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||
-    			( (x1 <= a2 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||
-    			
-    			( (a1 <= x1 && x1 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
-    			( (a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
-    			( (a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2) ) ||
-    			( (a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2) );
+		var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
+			a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h;
+	
+	return  ( (x1 <= a1 && a1 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
+			( (x1 <= a2 && a2 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
+			( (x1 <= a1 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||
+			( (x1 <= a2 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||	
+			( (a1 <= x1 && x1 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
+			( (a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
+			( (a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2) ) ||
+			( (a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2) );
     },
     segmentMultipliers : [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ],
     inverseSegmentMultipliers : [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ],
@@ -158,6 +157,18 @@ jsPlumbUtil = {
     	if (a)
   			for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
 		return -1;
+	},
+	clampToGrid : function(x, y, grid, dontClampX, dontClampY) {
+		var _gridClamp = function(n, g) { 
+			var e = n % g, 
+				f = Math.floor(n / g), 
+				inc = e >= (g / 2) ? 1 : 0; 
+			return (f + inc) * g; 
+		};
+		return [
+			dontClampX || grid == null ? x : _gridClamp(x, grid[0]),
+			dontClampY || grid == null ? y : _gridClamp(y, grid[1])
+		];		
 	},
 	indexOf : function(l, v) {
 		return jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });	
