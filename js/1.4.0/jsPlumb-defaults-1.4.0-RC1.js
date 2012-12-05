@@ -535,15 +535,7 @@
         	points = [],
         	swapX, swapY,
 			grid = params.grid,
-			_gridClamp = function(n, g) { var e = n % g, f = Math.floor(n / g), inc = e > (g / 2) ? 1 : 0; return (f + inc) * g; },
-			clampToGrid = function(x, y, dontClampX, dontClampY) {
-				return [
-					dontClampX || grid == null ? x : _gridClamp(x, grid[0]),
-					dontClampY || grid == null ? y : _gridClamp(y, grid[1])
-				];
-			},
-			lastx = -1, lasty = -1,
-			
+			lastx = -1, lasty = -1,			
 				
 		/**
 		 * helper method to add a segment.
@@ -563,25 +555,7 @@
 				// now, with support for painting an extra bit at the end each line:
 	        	p = p + " L " + x1 + " " + y1;											
 				p = p + " L " + (x1 + (multX * halfStroke)) + " " + (y1 + (multY * halfStroke));
-				*/
-				
-				/*,
-				gridded = clampToGrid(x, y),
-				doGridX = true,
-				doGridY = true;
-				
-			// grid experiment. TODO: have two more params that indicate whether or not to lock to a grid in each
-			// axis. the reason for this is that anchor points wont always be located on the grid, so until a connector
-			// emanating from that anchor has turned a right angle, we can't actually clamp it to a grid for that axis.
-			// so if a line came out horizontally heading left, then it will probably not be clamped in the y axis, but
-			// we can choose to clamp its first corner in the x axis.  the same principle goes for the target anchor.
-			//if (segments.length == 0) {
-			console.log("this is the first segment...if sx == x then do not do grid in X.")
-			doGridX = !(sx == x) && !(tx == x);
-			doGridY = !(sy == y) && !(ty == y);						
-			x = doGridX ? gridded[0] : x;
-			y = doGridY ? gridded[1] : y;
-			*/			
+				*/		
 			
 			lastx = x;
 			lasty = y;
@@ -940,7 +914,7 @@
 		};				
 	};
 	
-	/**
+	/*
 	 * Class: Endpoints.Blank
 	 * An Endpoint that paints nothing (visible) on the screen.  Supports cssClass and hoverClass parameters like all Endpoints.
 	 */
@@ -966,11 +940,11 @@
 		};
 	};
 	
-	/**
+	/*
 	 * Class: Endpoints.Triangle
 	 * A triangular Endpoint.  
 	 */
-	/**
+	/*
 	 * Function: Constructor
 	 * 
 	 * Parameters:
@@ -1026,7 +1000,7 @@
 	};
 	
 	
-	/**
+	/*
 	 * Class: Overlays.Arrow
 	 * 
 	 * An arrow overlay, defined by four points: the head, the two sides of the tail, and a 'foldback' point at some distance along the length
@@ -1034,7 +1008,7 @@
 	 * of the length of the arrow and has a default value of 0.623.  A foldback point value of 1 would mean that the arrow had a straight line
 	 * across the tail.  
 	 */
-	/**
+	/*
 	 * Function: Constructor
 	 * 
 	 * Parameters:
@@ -1127,14 +1101,14 @@
     	};
     };          
     
-    /**
+    /*
      * Class: Overlays.PlainArrow
 	 * 
 	 * A basic arrow.  This is in fact just one instance of the more generic case in which the tail folds back on itself to some
 	 * point along the length of the arrow: in this case, that foldback point is the full length of the arrow.  so it just does
 	 * a 'call' to Arrow with foldback set appropriately.       
 	 */
-    /**
+    /*
      * Function: Constructor
      * See <Overlays.Arrow> for allowed parameters for this overlay.
      */
@@ -1145,7 +1119,7 @@
     	this.type = "PlainArrow";
     };
         
-    /**
+    /*
      * Class: Overlays.Diamond
      * 
 	 * A diamond. Like PlainArrow, this is a concrete case of the more generic case of the tail points converging on some point...it just
@@ -1156,7 +1130,7 @@
 	 *      stuck when it comes to helping out the Arrow class. possibly we could pass in a 'transpose' parameter or something. the value
 	 *      would be -l/4 in this case - move along one quarter of the total length.
 	 */
-    /**
+    /*
      * Function: Constructor
      * See <Overlays.Arrow> for allowed parameters for this overlay.
      */
@@ -1283,12 +1257,12 @@
 		
 	};
 	
-	/**
+	/*
      * Class: Overlays.Custom
      * A Custom overlay. You supply a 'create' function which returns some DOM element, and jsPlumb positions it.
      * The 'create' function is passed a Connection or Endpoint.
      */
-    /**
+    /*
      * Function: Constructor
      * 
      * Parameters:
@@ -1302,14 +1276,14 @@
     	AbstractDOMOverlay.apply(this, arguments);		    	        		    	    		
     };
     
-    /**
+    /*
      * Class: Overlays.Label
      * A Label overlay. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  Version 1.3.0 of jsPlumb
      * introduced the ability to set css classes on the label; this is now the preferred way for you to style a label.  The 'labelStyle' parameter
      * is still supported in 1.3.0 but its usage is deprecated.  Under the hood, jsPlumb just turns that object into a bunch of CSS directive that it 
      * puts on the Label's 'style' attribute, so the end result is the same. 
      */
-    /**
+    /*
      * Function: Constructor
      * 
      * Parameters:
