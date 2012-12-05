@@ -266,8 +266,9 @@
 		 */
 		initDraggable : function(el, options, isPlumbedComponent) {
 			options = options || {};
-			// remove helper directive if present.  
-			options.helper = null;
+			// remove helper directive if present and no override
+			if (!options.doNotRemoveHelper)
+				options.helper = null;
 			if (isPlumbedComponent)
 				options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
 			el.draggable(options);
