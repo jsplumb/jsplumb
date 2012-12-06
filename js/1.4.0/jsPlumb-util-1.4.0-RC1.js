@@ -78,6 +78,48 @@ jsPlumbUtil = {
 		}
 		return c;
 	},
+	// take the given model and expand out any parameters.
+	populate : function(model, values) {		
+		// for a string, see if it has parameter matches, and if so, try to make the substitutions.
+		var getValue = function(fromString) {
+				var matches = fromString.match(/(\${.*?})/g);
+				if (matches != null) {
+					for (var i = 0; i < matches.length; i++) {
+						var val = values[matches[i].substring(2, matches[i].length - 1)];
+						if (val) {
+							fromString = fromString.replace(matches[i], val);
+						}
+					}							
+				}
+				return fromString;
+			},		
+			// process one entry.
+			_one = function(d) {
+				if (d != null) {
+					if (jsPlumbUtil.isString(d)) {
+						return getValue(d);
+					}
+					else if (jsPlumbUtil.isArray(d)) {
+						var r = [];	
+						for (var i = 0; i < d.length; i++)
+							r.push(_one(d[i]));
+						return r;
+					}
+					else if (jsPlumbUtil.isObject(d)) {
+						var r = {};
+						for (var i in d) {
+							r[i] = _one(d[i]);
+						}
+						return r;
+					}
+					else {
+						return d;
+					}
+				}
+			};
+		
+		return _one(model);	
+	},
 	convertStyle : function(s, ignoreAlpha) {
 		// TODO: jsPlumb should support a separate 'opacity' style member.
 		if ("transparent" === s) return s;
