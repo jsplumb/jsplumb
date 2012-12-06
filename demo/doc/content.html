@@ -1658,7 +1658,7 @@ jsPlumb offers four methods to let you cancel previous makeTarget or makeSource 
 <li class="bullet">unmakeEveryTarget</li>
 <li class="bullet">unmakeEverySource</li>
 </ul>
-<p>These last two are analogous to the <strong>removeEveryConnection</strong> and <strong>removeEveryEndpoint</strong> methods that have been in jsPlumb for a while now.</p>
+<p>These last two are analogous to the <strong>removeEveryConnection</strong> and <strong>deleteEveryEndpoint</strong> methods that have been in jsPlumb for a while now.</p>
 <p>unmakeTarget and unmakeSource both take as argument the same sorts of values that makeTarget and makeSource accept - a string id, or a selector, or an array of either of these:</p>
 <div class="code">
 <pre>
@@ -3557,20 +3557,15 @@ not be able to.  To permit that, you would set 'isTarget:true' on the targetEndp
 						<pre>jsPlumb.detachAllConnections("window1");</pre>
 					</div>
 				</li>
-				<li>Remove the given Endpoint from element "window1", deleting its Connections. 
-					<div class="code">
-						<pre>jsPlumb.removeEndpoint("window1", someEndpoint);</pre>
-					</div>
-				</li>
 				<li>Remove all Endpoints for the element 'window1', deleting their Connections.
 					<div class="code">
 						<pre>jsPlumb.removeAllEndpoints("window1");</pre>
 					</div>
 				</li>	
-				<li>Removes every Endpoint managed by this instance of jsPlumb, deleting all Connections.
+				<li>Deletes every Endpoint managed by this instance of jsPlumb, deleting all Connections.
 				This is the same as jsPlumb.reset(), effectively, but it does not clear out the event listeners list. 
 					<div class="code">
-						<pre>jsPlumb.removeEveryEndpoint();</pre>
+						<pre>jsPlumb.deleteEveryEndpoint();</pre>
 					</div>
 				</li>
 				<li>Deletes the given Endpoint and all its Connections. 
