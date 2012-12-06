@@ -301,22 +301,26 @@
 			 */
 			var _types = [],
 				_splitType = function(t) { return t == null ? null : t.split(" ")},				
-				_applyTypes = function(doNotRepaint) {
+				_applyTypes = function(params, doNotRepaint) {
 					if (self.getDefaultType) {
 						var td = self.getTypeDescriptor();
 							
 						var o = jsPlumbUtil.merge({}, self.getDefaultType());
 						for (var i = 0; i < _types.length; i++)
 							o = jsPlumbUtil.merge(o, self._jsPlumb.getType(_types[i], td));						
+							
+						if (params) {
+							o = jsPlumbUtil.populate(o, params);
+						}
 					
 						self.applyType(o, doNotRepaint);					
 						if (!doNotRepaint) self.repaint();
 					}
 				};
 				
-			self.setType = function(typeId, doNotRepaint) {				
+			self.setType = function(typeId, params, doNotRepaint) {				
 				_types = _splitType(typeId) || [];
-				_applyTypes(doNotRepaint);									
+				_applyTypes(params, doNotRepaint);									
 			};
 			
 			/*
@@ -331,7 +335,7 @@
 				return jsPlumbUtil.indexOf(_types, typeId) != -1;
 			};
 			
-			self.addType = function(typeId, doNotRepaint) {
+			self.addType = function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false;
 				if (t != null) {
 					for (var i = 0; i < t.length; i++) {
@@ -340,7 +344,7 @@
 							_cont = true;						
 						}
 					}
-					if (_cont) _applyTypes(doNotRepaint);
+					if (_cont) _applyTypes(params, doNotRepaint);
 				}
 			};
 			
@@ -358,11 +362,11 @@
 					for (var i = 0; i < t.length; i++) {
 						_cont = _one(t[i]) || _cont;
 					}
-					if (_cont) _applyTypes(doNotRepaint);
+					if (_cont) _applyTypes(null, doNotRepaint);
 				}
 			};
 			
-			self.toggleType = function(typeId, doNotRepaint) {
+			self.toggleType = function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId);
 				if (t != null) {
 					for (var i = 0; i < t.length; i++) {
@@ -373,7 +377,7 @@
 							_types.push(t[i]);
 					}
 						
-					_applyTypes(doNotRepaint);
+					_applyTypes(params, doNotRepaint);
 				}
 			};
 			
@@ -4764,7 +4768,7 @@ between this method and jsPlumb.reset).
 			// the very last thing we do is check to see if a 'type' was supplied in the params
 			var _type = params.type || self.endpoints[0].connectionType || self.endpoints[1].connectionType;
 			if (_type)
-				self.addType(_type, _currentInstance.isSuspendDrawing());
+				self.addType(_type, params.data, _currentInstance.isSuspendDrawing());
 			
 // END PAINTING
 
@@ -6056,7 +6060,7 @@ between this method and jsPlumb.reset).
 			
 			 // finally, set type if it was provided
 			 if (params.type)
-				self.addType(params.type);
+				self.addType(params.type, params.data, _currentInstance.isSuspendDrawing());
 
 // ***************************** PLACEHOLDERS FOR NATURAL DOCS *************************************************
 			/*

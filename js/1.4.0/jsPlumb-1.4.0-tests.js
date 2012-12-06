@@ -3993,7 +3993,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e2.length, 1, "one endpoint on d2");
 	});
 	
-// connection type tests - types, type extension, set types, get types etc.
+// ******************  connection type tests - types, type extension, set types, get types etc. *****************
+
 	test(renderMode + " set connection type on existing connection", function() {
 		var basicType = {
 			connector:"Flowchart",
@@ -4427,6 +4428,46 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(c.getParameter("foo"), 1, "foo param correct");
 		equal(c.getParameter("bar"), 5, "bar param correct");
 	});
+	
+	test(renderMode + " set connection type on existing connection, parameterised type", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"${strokeColor}", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" }
+		};
+		
+		_jsPlumb.registerConnectionType("basic", basicType);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({source:d1, target:d2});
+			
+		c.setType("basic", { strokeColor:"yellow" });
+		equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+	});	
+	
+	test(renderMode + " create connection with parameterised type", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"${strokeColor}", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" }
+		};
+		
+		_jsPlumb.registerConnectionType("basic", basicType);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({
+				source:d1, 
+				target:d2, 
+				type:"basic",
+				data:{ strokeColor:"yellow" }
+			});
+			
+		equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+	});		
 	
 	test(renderMode + " setType, scope, two types", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
