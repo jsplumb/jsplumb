@@ -18,9 +18,10 @@
 		
 		ISSUES
 		
-		289 - JS errors after dropping a target endpoint on a source
-		290 - setId doesn't work.
-		292 - fire connectionDrag event when dragging a new connection.
+		289 - 	JS errors after dropping a target endpoint on a source
+		290 - 	setId doesn't work.
+		292 - 	fire connectionDrag event when dragging a new connection.
+		296	-	docs refer to 'removeEveryEndpoint'; they should refer to 'deleteEveryEndpoint'
 		
 		MISCELLANEOUS
 		
