@@ -28,8 +28,8 @@
 			<h3><a id="changes">Changes between 1.4.0 and 1.3.16</a></h3>	
 			<h5>Backwards Compatibility</h5>
 			<ul>
-				<li>Flowchart connectors do not support minStubLength anymore. Use <strong>stub</strong>.</li> 
-				<li>Perimeter anchor names now have a capitalised first letter: 'circle' is now 'Circle', for instance. This brings their naming convention
+				<li class="bullet">Flowchart connectors do not support minStubLength anymore. Use <strong>stub</strong>.</li> 
+				<li class="bullet">Perimeter anchor names now have a capitalised first letter: 'circle' is now 'Circle', for instance. This brings their naming convention
 		  into line with the various other names used throughout jsPlumb.</li>
 			</ul>
 			
@@ -46,6 +46,7 @@
 				<li><strong>289</strong> - JS errors after dropping a target endpoint on a source</li>
 				<li><strong>290</strong> - setId doesn't work.</li>
 				<li><strong>292</strong> - fire connectionDrag event when dragging a new connection.</li>
+				<li><strong>296</strong> - documentation refers to 'removeEveryEndpoint' instead of 'deleteEveryEndpoint'.</li>
 			</ul>
 
 			<h5>Miscellaneous</h5>
@@ -1971,13 +1972,68 @@ the Endpoint's connectorType parameter, like so:</p>
 Endpoint in the Connection had one.  But we could have supplied one, and jsPlumb will use it, but only if the source
 Endpoint has not declared connectorType.  This is the same way jsPlumb treats other connector parameters such as
 paintStyle etc - the source Endpoint wins.</p>
-<p>Here's a few examples showing you the full type API:</p>
+
+<h5>Supported Parameters in Connection Type objects</h5>
+Not every parameter from a Connection's constructor is supported in a Connection Type - as mentioned above, types act pretty
+much like CSS classes, so the things are supported are related to behaviour or appearance. For instance, 'source' is
+not supported.  You cannot make a Connection Type that is fixed to a specific source element. Here's the full list of
+supported properties in Connection Type objects:
+<ul>
+	<li class="bullet"><strong>detachable</strong> - whether or not the Connection is detachable using the mouse</li>
+	<li class="bullet"><strong>paintStyle</strong></li>
+	<li class="bullet"><strong>hoverPaintStyle</strong></li>
+	<li class="bullet"><strong>scope</strong> - remember, Connections support a single scope. So if you have multiple types applied, you will get the scope from the last type that defines one.</li>
+	<li class="bullet"><strong>parameters</strong> - when you add/set a type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a type that has parameters, its parameters are NOT removed from the Connection.</li>
+	<li class="bullet"><strong>overlays</strong> - when you have multiple types applied to a Connection, you get the union of
+	all the Overlays defined across the various types. <strong>Note</strong> when you create a Connection using jsPlumb.connect and you
+	provide a 'type', that is equivalent to calling 'addType': you will get the Overlays defined by the type(s) you set as
+	well as any others you have provided to the constructor.</li>	
+</ul>
+
+<h5>Parameterized Connection Types</h5>
+Connection Types support parameterized values - values that are derived at runtime by some object you supply. Here's
+the first example from above, with a parameterized value for 'strokeStyle':
+<div class="code">
+<pre>
+jsPlumb.registerConnectionType("example", {
+	paintStyle:{ strokeStyle:"${color}", lineWidth:5  },
+	hoverPaintStyle:{ strokeStyle:"red", lineWidth:7 }
+});
+
+var c = jsPlumb.connect({ source:"someDiv", target:"someOtherDiv" });
+c.bind("click", function() {
+	c.setType("example", { color:"blue" });
+});	
+</pre>		
+</div>
+
+<strong>setType</strong>, <strong>addType</strong> and <strong>toggleType</strong> all now support this optional second
+argument.  
+<p>You can also use a parameterized type in a jsPlumb.connect call, by supplying a <strong>data</strong> value:
+<div class="code">
+<pre>
+jsPlumb.registerConnectionType("example", {
+	paintStyle:{ strokeStyle:"${color}", lineWidth:5  },
+	hoverPaintStyle:{ strokeStyle:"red", lineWidth:7 }
+});
+
+var c = jsPlumb.connect({ 
+	source:"someDiv", 
+	target:"someOtherDiv",
+	type:"example",
+	data:{ color: "blue" }
+});
+</pre>		
+</div>
+
+<p>Here are a few examples showing you the full type API:</p>
 <div class="code">
 <pre>
 	jsPlumb.registerConnectionTypes({
 		"foo":{ paintStyle:{ strokeStyle:"yellow", lineWidth:5 } },
 		"bar":{ paintStyle:{ strokeStyle:"blue", lineWidth:10 } },
-		"baz":{ paintStyle:{ strokeStyle:"green", lineWidth:1 } }
+		"baz":{ paintStyle:{ strokeStyle:"green", lineWidth:1 } },
+		"boz":{ paintStyle: { strokeStyle:"${color}", lineWidth:"${width}" } }
 	});
 	
 	var c = jsPlumb.connect({ source:"someDiv", target:"someOtherDiv", type:"foo" });
@@ -2010,26 +2066,16 @@ paintStyle etc - the source Endpoint wins.</p>
 	// what are we left with? good old foo.
 	console.log(c.getType()); // -> [ "foo" ]
 	
+	// now let's add 'boz', a parameterized type
+	c.addType("boz", {
+		color:"#456",
+		width:35
+	});
+	
 </pre>	
 </div>
 <p>Things to note here are that every method <strong>except hasType</strong> can take a space-delimited list of types
-to work with. So types work like CSS classes, basically.</p>
-<h5>Supported Parameters in Connection Type objects</h5>
-Not every parameter from a Connection's constructor is supported in a Connection Type - as mentioned above, types act pretty
-much like CSS classes, so the things are supported are related to behaviour or appearance. For instance, 'source' is
-not supported.  You cannot make a Connection Type that is fixed to a specific source element. Here's the full list of
-supported properties in Connection Type objects:
-<ul>
-	<li class="bullet"><strong>detachable</strong> - whether or not the Connection is detachable using the mouse</li>
-	<li class="bullet"><strong>paintStyle</strong></li>
-	<li class="bullet"><strong>hoverPaintStyle</strong></li>
-	<li class="bullet"><strong>scope</strong> - remember, Connections support a single scope. So if you have multiple types applied, you will get the scope from the last type that defines one.</li>
-	<li class="bullet"><strong>parameters</strong> - when you add/set a type that has parameters, any existing parameters with the same keys will be overwritten. When you remove a type that has parameters, its parameters are NOT removed from the Connection.</li>
-	<li class="bullet"><strong>overlays</strong> - when you have multiple types applied to a Connection, you get the union of
-	all the Overlays defined across the various types. <strong>Note</strong> when you create a Connection using jsPlumb.connect and you
-	provide a 'type', that is equivalent to calling 'addType': you will get the Overlays defined by the type(s) you set as
-	well as any others you have provided to the constructor.</li>	
-</ul>
+to work with. So types work like CSS classes, basically. </p> 
 
 <h4><a id="endpointTypes">Endpoint Type</a></h4>
 Endpoints can also be assigned one or more types, both at creation and programmatically using the API discussed above.
@@ -2074,6 +2120,21 @@ Here's an example of using Endpoint types:
 So it works the same way as Connection Types.  There are several parameters allowed by an Endpoint Type that affect Connections
 coming from that Endpoint. Note that this does not affect existing Connections.  It affects only Connections that are
 created after you set the new type(s) on an Endpoint.
+
+<h5>Parameterized Endpoint Types</h5>
+You can use parameterized types for Endpoints just as you can Connections:
+<div class="code">
+<pre>
+jsPlumb.registerEndpointType("example", {
+	paintStyle:{ fillStyle:"${color}"}
+});
+
+var e = jsPlumb.addEndpoint("someDiv", { 
+	type:"example",
+	data:{ color: "blue" }
+});
+</pre>		
+</div>
 
 <h4>Fluid Interface</h4>
 As mentioned previously, all of the type operations are supported by the <strong>select</strong> and <strong>selectEndpoints</strong> methods.
