@@ -2866,7 +2866,7 @@ between this method and jsPlumb.reset).
 				mouseDownListener = _sourceTriggers[id];
 			
 			if (mouseDownListener) 
-				_currentInstance.unregisterListener(_el, "mousedown", mouseDownListener);
+				_currentInstance.unregisterListener(el, "mousedown", mouseDownListener);
 
 			if (!doNotClearArrays) {
 				delete _sourceEndpointDefinitions[id];
