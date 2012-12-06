@@ -4422,7 +4422,7 @@ between this method and jsPlumb.reset).
 					if (connector.length == 1)
 						this.connector = makeConnector(renderMode, connector[0], connectorArgs);
 					else
-						this.connector = makeConnector(renderMode, connector[0], jsPlumbUtil.merge(connector[1], connectorArgs));
+						this.connector = makeConnector(renderMode, connector[0], jsPlumbUtil.merge(jsPlumbUtil.clone(connector[1]), connectorArgs));
 				}
 				self.canvas = self.connector.canvas;
 				// binds mouse listeners to the current connector.
