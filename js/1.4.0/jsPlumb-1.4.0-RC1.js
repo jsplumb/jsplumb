@@ -20,7 +20,7 @@
 ;(function() {
 	
 	/**
-	 * Class:jsPlumb
+	 * Class: jsPlumb
 	 * The jsPlumb engine, registered as a static object in the window.  This object contains all of the methods you will use to
 	 * create and maintain Connections and Endpoints.
 	 */	
@@ -294,7 +294,7 @@
 			    	for (var i = 1; i < arguments.length; i++)
 		    			self.attachListeners(o, arguments[i]);
 		    	}
-		    };
+		    };		    	    
 			
 			/*
 			 * TYPES
@@ -6241,6 +6241,11 @@ between this method and jsPlumb.reset).
 		define( "jsplumb", [], function () { return jsPlumb; } );
 		define( "jsplumbinstance", [], function () { return jsPlumb.getInstance(); } );
 	}
+ // CommonJS 
+	if (typeof exports !== 'undefined') {
+      exports.jsPlumb = jsPlumb;
+  	}
+	
 	
 // --------------------- end static instance + AMD registration -------------------------------------------		
 	
