@@ -48,10 +48,7 @@
 	 * A Segment is responsible for providing coordinates for painting it, and also must be able to report its length.
 	 * 
 	 */ 
-	jsPlumb.Segments.AbstractSegment = function(params) {
-		
-	                                   
-	};
+	jsPlumb.Segments.AbstractSegment = function(params) { };
 	
 	jsPlumb.Segments.Straight = function(params) {
 		var self = this,
@@ -519,6 +516,7 @@
      * 	stub - minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
      * or an array of two integers, giving separate values for each end. The default is an integer with value 30 (pixels). 
      *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  defaults to 0 pixels.     
+     * cornerRadius - optional, defines the radius of corners between segments. defaults to 0 (hard edged corners).
      */
     jsPlumb.Connectors.Flowchart = function(params) {
     	this.type = "Flowchart";
@@ -536,34 +534,53 @@
         	swapX, swapY,
 			grid = params.grid,
 			lastx = -1, lasty = -1,			
+			cornerRadius = params.cornerRadius != null ? params.cornerRadius : 10,	
+			/**
+			 * helper method to add a segment.
+			 */
+			addSegment = function(x, y, sx, sy) {
 				
-		/**
-		 * helper method to add a segment.
-		 */
-		addSegment = function(x, y, sx, sy) {
-			
-			var lx = lastx == -1 ? sx : lastx,
-			    ly = lasty == -1 ? sy : lasty;
+				var lx = lastx == -1 ? sx : lastx,
+				    ly = lasty == -1 ? sy : lasty;
+					
+					/*
+					 *	halfStroke = self.lineWidth / 2;								
+						
+					// previously:
+					//p = p + " L " + x1 + " " + y1;
+					//p = p + " M " + x1 + " " + y1;
+										
+					// now, with support for painting an extra bit at the end each line:
+		        	p = p + " L " + x1 + " " + y1;											
+					p = p + " L " + (x1 + (multX * halfStroke)) + " " + (y1 + (multY * halfStroke));
+					*/	
+					
+				lastx = x;
+				lasty = y;
 				
 				/*
-				 *	halfStroke = self.lineWidth / 2;								
-					
-				// previously:
-				//p = p + " L " + x1 + " " + y1;
-				//p = p + " M " + x1 + " " + y1;
-									
-				// now, with support for painting an extra bit at the end each line:
-	        	p = p + " L " + x1 + " " + y1;											
-				p = p + " L " + (x1 + (multX * halfStroke)) + " " + (y1 + (multY * halfStroke));
-				*/		
-			
-			lastx = x;
-			lasty = y;
+				if (cornerRadius != 0) {
+					// adjust x, y appropriately
+					if (lx == x) {
+						// vertical
+						var sgny = jsPlumbUtil.sgn(y - ly);
+						y -= (cornerRadius * sgny);
+					}
+					else {
+						// horizontal
+						var sgnx = jsPlumbUtil.sgn(x - lx);
+						x -= (cornerRadius * sgnx);
+					}					
 						
-			_super.addSegment("Straight", {
-				x1:lx, y1:ly, x2:x, y2:y	
-			});
-		};
+					// add an arc segment													
+				}
+				//*/
+							
+				_super.addSegment("Straight", {
+					x1:lx, y1:ly, x2:x, y2:y,
+					cssClass:lx == x ? "jsPlumb-vertical" : "jsPlumb-horizontal"
+				});
+			};
 		
 		this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, 
             sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
