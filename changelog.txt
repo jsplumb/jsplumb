@@ -24,6 +24,7 @@
 		290 - 	setId doesn't work.
 		292 - 	fire connectionDrag event when dragging a new connection.
 		296	-	docs refer to 'removeEveryEndpoint'; they should refer to 'deleteEveryEndpoint'
+		297 -	cannot use connection types
 		
 		MISCELLANEOUS
 		
