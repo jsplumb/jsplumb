@@ -262,12 +262,15 @@
 				}
 				var p = _pos([x, y, d[2], d[3]]);
 				if (self.getZIndex()) p += ";z-index:" + self.getZIndex() + ";";
+                
+                renderer.paint.apply(this, arguments);		    			    	
+                
 		    	_attr(self.svg, {
 	    			"style":p,
 	    			"width": d[2],
 	    			"height": d[3]
 	    		});
-		    	renderer.paint.apply(this, arguments);		    			    	
+		    	
 			}
 	    };
 		
@@ -357,8 +360,11 @@
 							" C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;					
 					},
 					"Arc":function(segment) {
-						var d = segment.params;
-						return "M" + d.x1 + " " + d.y1 + " A " + d.r + " " + d.r + " 0 1,0 " + d.x2 + " " + d.y2;
+						var d = segment.params,
+							laf = d.laf != null ? d.laf : 1,
+							sf = d.sf != null ? d.sf : 0;
+							
+						return "M" + d.x1 + " " + d.y1 + " A " + d.r + " " + d.r + " 0 " + laf + "," + sf + " " + d.x2 + " " + d.y2;
 					}
 				})[segment.type](segment);	
 			}
