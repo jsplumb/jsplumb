@@ -39,15 +39,18 @@
 		<strong>jsplumb</strong> for the static instance, and <strong>jsplumbinstance</strong></li>
 			  <li class="bullet">internally, all Connectors are now composed of a set of Segments, of which there are three types - Bezier, Straight, and Arc. Whilst there
 		is no change to any Connectors in this release, this new architecture will enable several new features in the future.</li>
+              <li class="bullet">setType/addType methods now support a parameter object</li>
 			</ul>
 			
 			<h5>Issues Resolved</h5>
 			<ul>
+                <li><strong>283</strong> - Firefox: SVG line repaint issues</li>
 				<li><strong>289</strong> - JS errors after dropping a target endpoint on a source</li>
 				<li><strong>290</strong> - setId doesn't work.</li>
 				<li><strong>292</strong> - fire connectionDrag event when dragging a new connection.</li>
 				<li><strong>296</strong> - documentation refers to 'removeEveryEndpoint' instead of 'deleteEveryEndpoint'.</li>
 				<li><strong>297</strong> - cannot use connection types</li>
+                <li><strong>300</strong> - typo in unmakeSource</li>
 			</ul>
 
 			<h5>Miscellaneous</h5>
