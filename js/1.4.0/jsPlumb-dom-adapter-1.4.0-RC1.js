@@ -144,7 +144,7 @@
 				if (_elementsWithEndpoints[endpoint.elementId] <= 0) {
 					for (var i in _delements) {
 						if (_delements[i])
-						    _delements[i][endpoint.elementId] = {};
+                            delete _delements[i][endpoint.elementId];
 					}
 				}
 			}		
