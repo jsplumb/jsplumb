@@ -7,7 +7,7 @@
 		  into line with the various other names used throughout jsPlumb.
 
 		NEW FUNCTIONALITY
-		
+		        
 		- jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:
 		'jsplumb' for the static instance, and 'jsplumbinstance', for a new instance.
 		
@@ -20,11 +20,13 @@
 		
 		ISSUES
 		
+        283 -   Firefox: SVG line repaint issues
 		289 - 	JS errors after dropping a target endpoint on a source
 		290 - 	setId doesn't work.
 		292 - 	fire connectionDrag event when dragging a new connection.
 		296	-	docs refer to 'removeEveryEndpoint'; they should refer to 'deleteEveryEndpoint'
 		297 -	cannot use connection types
+        300 -   typo in unmakeSource 
 		
 		MISCELLANEOUS
 		
