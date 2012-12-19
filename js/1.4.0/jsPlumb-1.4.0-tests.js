@@ -19,8 +19,8 @@ var assertContextEmpty = function() {
 };
 
 var assertEndpointCount = function(elId, count, _jsPlumb) {
-	equal(_jsPlumb.getTestHarness().endpointCount(elId), count, elId + " has " + count + (count > 1) ? "endpoints" : "endpoint");
-	equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + (count > 1) ? "endpoints" : "endpoint");
+	equal(_jsPlumb.getTestHarness().endpointCount(elId), count, elId + " has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint"));
+	equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
 };
 
 var assertConnectionCount = function(endpoint, count) {
@@ -39,6 +39,15 @@ var _addDiv = function(id, parent) {
 	jsPlumb.CurrentLibrary.setAttribute(d1, "id", id);
 	_divs.push(id);
 	return d1;
+};
+
+var _triggerEvent = function(el, eventId) {
+    var o = $(el).offset();
+    var evt = jQuery.Event(eventId);
+    evt.which = 0;
+    evt.pageX = o.left;
+    evt.pageY = o.top;
+    $(el).trigger(evt);
 };
 
 var defaults = null,
@@ -1564,6 +1573,77 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(_jsPlumb.isTargetEnabled(d17) == true, "d17 is recognised as enabled");
 		_jsPlumb.setTargetEnabled(d17, false);
 		ok(_jsPlumb.isTargetEnabled(d17) == false, "d17 is recognised as disabled");
+	});
+    
+    test(renderMode + ": _jsPlumb.makeTarget - endpoints deleted by default.", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		_jsPlumb.makeSource(d16);
+		_jsPlumb.makeTarget(d17);
+
+		var c = _jsPlumb.connect({source:"d16", target:"d17"});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);		
+        _jsPlumb.detach(c);        
+		assertEndpointCount("d16", 0, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+	});
+    
+    /*
+
+    What i would *like* this test to do is to fake the user having dragged a connection from
+    d16 to d17.  the mousedown on d16 is recognised, and an endpoint is added. but the rest of it
+    is not.  so the test fails by saying that there's 1 endpoint on d16 when i expected none, and
+    also that the callback was not called.
+
+    if i add this,
+
+    _trigger(d16, "mouseup");
+
+    then the endpoint is actually removed. so it looks like it's just not interacting well with the
+    jquery ui drag stuff.  another clue about this is that it does not matter if i have fired
+    'mousemove' and 'mouseout' on d16 before calling 'mouseup'.  
+
+    test(renderMode + ": _jsPlumb.makeTarget - endpoints deleted when detached on callback.", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		_jsPlumb.makeSource(d16);
+		_jsPlumb.makeTarget(d17);
+        var detached = false;
+        _jsPlumb.bind("connection", function(i) {
+            _jsPlumb.detach(i.connection);    
+            detached = true;
+        });
+
+        _triggerEvent(d16, "mousedown");
+        _triggerEvent(d16, "mousemove");        
+        _triggerEvent(d16, "mouseout");                
+        
+        _triggerEvent(d17, "mouseover");        
+        _triggerEvent(d17, "mousemove");                
+        _triggerEvent(d17, "mouseup");        
+    
+        equal(detached, true, "callback was called");
+		assertEndpointCount("d16", 0, _jsPlumb);
+		assertEndpointCount("d17", 0, _jsPlumb);		
+
+	});
+    */
+    
+    test(renderMode + ": _jsPlumb.makeSource (parameters)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"),
+            params = { "foo":"foo" },
+            e16 = _jsPlumb.addEndpoint("d16", { parameters:params });
+        
+		_jsPlumb.makeSource(d17, { 
+            isSource:true, 
+            parameters:params
+        }); 
+        
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);
+		var e = _jsPlumb.getEndpoints("d17");		
+		equal(e[0].getParameter("foo"), "foo", "makeSource created endpoint has parameters");
+		equal(e16.getParameter("foo"), "foo", "normally created endpoint has parameters");        
 	});
 
 	// makeSource, then unmake it. should not be able to make a connection from it. then connect to it, which should succeed,
