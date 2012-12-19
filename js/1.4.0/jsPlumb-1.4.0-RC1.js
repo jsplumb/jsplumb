@@ -2638,6 +2638,7 @@ between this method and jsPlumb.reset).
 							previousConnection:jpc,
 							container:jpc.parent,
 							deleteEndpointsOnDetach:deleteEndpointsOnDetach,
+                            endpointsToDeleteOnDetach : deleteEndpointsOnDetach ? [ source, newEndpoint ] : null,
 							// 'endpointWillMoveAfterConnection' is set by the makeSource function, and it indicates that the
 							// given endpoint will actually transfer from the element it is currently attached to to some other
 							// element after a connection has been established.  in that case, we do not want to fire the
@@ -2650,9 +2651,6 @@ between this method and jsPlumb.reset).
 						// automatically and has no other connections.
 						if (jpc.endpoints[1]._makeTargetCreator && jpc.endpoints[1].connections.length < 2)
 							_currentInstance.deleteEndpoint(jpc.endpoints[1]);
-
-						if (deleteEndpointsOnDetach) 
-							c.endpointsToDeleteOnDetach = [ source, newEndpoint ];
 
 						c.repaint();
 					}				
@@ -2878,9 +2876,9 @@ between this method and jsPlumb.reset).
 					}
 
 					// if a filter was given, run it, and return if it says no.
-					if (params.filter) {
+					if (p.filter) {
 						// pass the original event to the user: 
-						var r = params.filter(jpcl.getOriginalEvent(e), _el);
+						var r = p.filter(jpcl.getOriginalEvent(e), _el);
 						if (r === false) return;
 					}
 
@@ -4533,6 +4531,9 @@ between this method and jsPlumb.reset).
 				if (params.sourceIsNew) self.endpointsToDeleteOnDetach[0] = self.endpoints[0];
 				if (params.targetIsNew) self.endpointsToDeleteOnDetach[1] = self.endpoints[1];
 			}
+            // or if the endpoints were supplied, use them.
+            if (params.endpointsToDeleteOnDetach)
+                self.endpointsToDeleteOnDetach = params.endpointsToDeleteOnDetach;
 						
 			self.setConnector(this.endpoints[0].connector || 
 							  this.endpoints[1].connector || 
@@ -5464,7 +5465,7 @@ between this method and jsPlumb.reset).
 					anchor : inPlaceAnchor, 
 					source : _element, 
 					paintStyle : this.getPaintStyle(), 
-					endpoint : _endpoint,
+					endpoint : params.hideOnDrag ? "Blank" : _endpoint,
 					_transient:true,
                     scope:self.scope
 				});
