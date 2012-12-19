@@ -27,6 +27,7 @@
 		296	-	docs refer to 'removeEveryEndpoint'; they should refer to 'deleteEveryEndpoint'
 		297 -	cannot use connection types
         300 -   typo in unmakeSource 
+        303 -   mixture of continuous and static anchors causes paint issues
 		
 		MISCELLANEOUS
 		
