@@ -4206,7 +4206,7 @@ between this method and jsPlumb.reset).
 				}
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (var i = 0; i < endpointsToPaint.length; i++) {
-					endpointsToPaint[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+                    endpointsToPaint[i].paint( { timestamp : timestamp, offset : offsets[endpointsToPaint[i].elementId], dimensions : sizes[endpointsToPaint[i].elementId] });
 				}
 	
 				// paint all the standard and "dynamic connections", which are connections whose other anchor is
