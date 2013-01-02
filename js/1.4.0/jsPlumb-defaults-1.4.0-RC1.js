@@ -50,6 +50,24 @@
 	 */ 
 	jsPlumb.Segments.AbstractSegment = function(params) { 
         this.params = params;
+        
+        /**
+        * Function: findClosestPointOnPath
+        * Finds the closest point on this segment to the given [x, y], 
+        * returning both the x and y of the point plus its distance from
+        * the supplied point, and its location along the length of the
+        * path inscribed by the segment.  This implementation returns
+        * Infinity for distance and null values for everything else;
+        * subclasses are expected to override.
+        */
+        this.findClosestPointOnPath = function(x, y) {
+            return {
+                d:Infinity,
+                x:null,
+                y:null,
+                l:null
+            };
+        };
     };
 	
 	jsPlumb.Segments.Straight = function(params) {
@@ -100,6 +118,36 @@
 			if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
 
             return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
+        };
+        
+        /**
+            Function: findClosestPointOnPath
+            Finds the closest point on this segment to [x,y]. See
+            notes on this method in AbstractSegment.
+        */
+        this.findClosestPointOnPath = function(x, y) {
+            // closest point lies on normal from given point to this line.  
+            var b = params.y1 - (m * params.x1),
+                b2 = y - (m2 * x),
+            // now we know that
+            // y1 = m.x1 + b
+            // and
+            // y1 = m2.x1 + b2
+            // so
+            // m.x1 + b = m2.x1 + b2
+            // x1(m - m2) = b2 - b
+            // x1 = (b2 - b) / (m - m2)
+                x1 = (b2 -b) / (m - m2),
+                y1 = (m * x1) + b,
+                d = jsPlumbUtil.lineLength([ x, y ], [ x1, y1 ]),
+                fractionInSegment = jsPlumbUtil.lineLength([ x1, y1 ], [ params.x1, params.y1 ]);
+            
+            return {
+                d:d,
+                x:x1,
+                y:y1,
+                l:fractionInSegment / length
+            };            
         };
 	};
 	
@@ -298,16 +346,45 @@
 		
 		var self = this,
             segments = [],
-            editable = false,
             editing = false,
 			totalLength = 0,
 			segmentProportions = [],
 			segmentProportionalLengths = [],        
-            stub = 20,// TODO params.stub || 0, 
+            stub = params.stub || 0, 
             sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
             targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
             gap = params.gap || 0;
-
+        
+        // subclasses should override.
+        this.isEditable = function() { return false; };
+        
+        /**
+        * Function: findSegmentForPoint
+        * Returns the segment that is closest to the given [x,y],
+        * null if nothing found.  This function returns a JS 
+        * object with:
+        *
+        *   d   -   distance from segment
+        *   l   -   proportional location in segment
+        *   x   -   x point on the segment
+        *   y   -   y point on the segment
+        *   s   -   the segment itself.
+        */ 
+        this.findClosestPointOnPath = function(x, y) {
+            var out = { d:Infinity, s:null, x:null, y:null, l:null };
+            for (var i = 0; i < segments.length; i++) {
+                var _s = segments[i].findClosestPointOnPath(x, y);
+                if (_s.d < d) {
+                    out.d = _s.d; 
+                    out.l = _s.l; 
+                    out.x = _s.x;
+                    out.y = _s.y; 
+                    out.s = segments[i];
+                }
+            }
+            
+            return out;                
+        };
 			
 		var _updateSegmentProportions = function() {
 			var curLoc = 0;
