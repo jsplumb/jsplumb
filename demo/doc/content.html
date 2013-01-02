@@ -15,13 +15,12 @@
 			</p>  
 
 			<h5>Browser Compatibility</h5>
-			<p>jsPlumb 1.4.0 runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:
-				<ul>
-					<li class="bullet">jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.</li>
-					<li class="bullet">Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element (Safari 6.x does not seem to have the same problem)</li>
-					<li class="bullet">MooTools has a bug when using SVG in Firefox 11</li>
-				</ul>				
-			</p>
+			<p>jsPlumb 1.4.0 runs on everything from IE6 up.  There are some caveats, though, because of various browser/library bugs:</p>
+            <ul>
+                <li class="bullet">jQuery 1.6.x and 1.7.x have a bug in their SVG implementation for IE9 that causes hover events to not get fired.</li>
+                <li class="bullet">Safari 5.1 has an SVG bug that prevents mouse events from being passed through the transparent area of an SVG element (Safari 6.x does not seem to have the same problem)</li>
+                <li class="bullet">MooTools has a bug when using SVG in Firefox 11</li>
+            </ul>				
 		</div>
 		
 		<div class="section">		
@@ -35,11 +34,23 @@
 			
 			<h5>New Features</h5>
 			<ul>
-			  <li class="bullet">jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:
+                <li class="bullet">jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:
 		<strong>jsplumb</strong> for the static instance, and <strong>jsplumbinstance</strong></li>
-			  <li class="bullet">internally, all Connectors are now composed of a set of Segments, of which there are three types - Bezier, Straight, and Arc. Whilst there
-		is no change to any Connectors in this release, this new architecture will enable several new features in the future.</li>
-              <li class="bullet">setType/addType methods now support a parameter object</li>
+			     <li class="bullet">internally, all Connectors are now composed of a set of Segments, of which there are three types - Bezier, Straight, and Arc. </li>
+                <li class="bullet">setType/addType methods now support a parameter object</li>
+                <li class="bullet">added 'remove' function to jsPlumb: removes an element from the DOM and its associated
+        Endpoints and their Connections.</li>
+        
+                <li class="bullet">flowchart connectors support a 'cornerRadius' parameter, which allows you
+        to specify a radius for curved corners.  default is 5 pixels.</li>
+        
+                <li class="bullet">Straight connectors now support the 'stub' parameter.</li>
+        
+                <li class="bullet">added 'addClass' and 'removeClass' methods to Connection and Endpoint, and to the return value of
+        jsPlumb.select and jsPlumb.selectEndpoints.</li>
+                
+                <li class="bullet">add 'hoverClass' member to jsPlumb; this is set when hovering over a Connection or Endpoint. default is
+        '_jsPlumb_hover'.</li>
 			</ul>
 			
 			<h5>Issues Resolved</h5>
@@ -51,12 +62,14 @@
 				<li><strong>296</strong> - documentation refers to 'removeEveryEndpoint' instead of 'deleteEveryEndpoint'.</li>
 				<li><strong>297</strong> - cannot use connection types</li>
                 <li><strong>300</strong> - typo in unmakeSource</li>                   
+                <li><strong>302</strong> - removeAllEndpoints not functioning correctly</li>
                 <li><strong>303</strong> - mixture of continuous and static anchors causes paint issues</li>
 			</ul>
 
 			<h5>Miscellaneous</h5>
 			<ul>
-				<!--li class="bullet"></li--> 
+				<li class="bullet">jsPlumb overlay class and custom overlay class now set correctly on VML arrow overlays</li> 
+                <li class="bullet">couple of fixes for jsPlumbUtil merge function</li>
 			</ul>
 			
 			The full changelog can be found on GitHub <a href="https://github.com/sporritt/jsPlumb/blob/master/changelog.txt" target="_blank">here</a>.
@@ -118,7 +131,7 @@
 			<h5>Performance Considerations</h5>
 			<p>
 			SVG uses less memory than Canvas and has support for mouse events built in, so I recommend using
-			SVG unless you have a really good reason for wanting Canvas. Of course, you might consider that horrendous Safari bug a really good reason for wanting Canvas.
+			SVG unless you have a really good reason for wanting Canvas.
 			</p>
 			
 			<h4><a id="initializing">Initializing jsPlumb</a></h4>
@@ -216,6 +229,8 @@ secondInstance.connect({ source:"element4", target:"element3", scope:"someScope"
 			<tr><td>Connector</td><td>_jsPlumb_connector</td></tr>
 			<tr><td>Overlay</td><td>_jsPlumb_overlay</td></tr>
 		</table>
+            In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is
+            assigned the class <strong>_jsPlumb_hover</strong>.
 		
 		<h5>Automatic z-index for Connections</h5>
 		A common use case is the need to bring hovered Connections up on top of the other connections in your UI. From
@@ -2753,6 +2768,8 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 			<p>
 			This is the full list of setter operations supported by jsPlumb.select:
 			<ul>
+                <li class="bullet">addClass</li>
+                <li class="bullet">removeClass</li>                
 				<li class="bullet">addOverlay</li>
 				<li class="bullet">removeOverlay</li>
 				<li class="bullet">removeOverlays</li>
@@ -2779,10 +2796,10 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 			</ul>
 
 			Each of these operations returns a selector that can be chained.
-			</p>
-			These is the full list of getter operations supported by jsPlumb.select:
 			<p>
-				<ul>
+			These is the full list of getter operations supported by jsPlumb.select:
+			</p>
+            <ul>
 				<li class="bullet">getLabel</li>
 				<li class="bullet">getOverlay</li>
 				<li class="bullet">isHover</li>
@@ -2795,6 +2812,8 @@ var c = jsPlumb.getConnections({scope:'myScope", source:"mySourceElement", targe
 				<li class="bullet">hasType</li>
 			</ul>
 
+            <p>
+                
 			Each of these operations returns an array whose entries are [ value, Connection ] arrays, where 'value' is the return value from the given Connection.  Remember that the return values from a getter are not chainable, but a getter may be called at the end of a chain of setters.
 			</p>
 
@@ -2826,6 +2845,23 @@ Select all Connections from "d1" and detach them:
 jsPlumb.select({source:"d1"}).detach();
 </pre>
 </div>
+            
+			Select all Connections and add the classes "foo" and "bar" to them :
+
+<div class="code">
+<pre>
+jsPlumb.select().addClass("foo bar");
+</pre>
+</div>            
+            
+			Select all Connections and remove the class "foo" from them :
+
+<div class="code">
+<pre>
+jsPlumb.select().removeClass("foo");
+</pre>
+</div>                                    
+            
 <h5>.each iterator</h5>
 The return value of jsPlumb.select has a <strong>.each</strong> function that allows you to iterate through the list, performing an operation on each one:
 <div class="code">
@@ -2855,7 +2891,6 @@ jsPlumb.select({scope:"foo"}).each(function(connection) {
 </ul>
 
 
-		</div>
 		
 		<div class="section">
 			<h3><a id="selectEndpoints">Selecting Endpoints</a></h3>
@@ -2866,19 +2901,20 @@ jsPlumb.select({scope:"foo"}).each(function(connection) {
 			chainable; they return an array consisting of all the Endpoints in the selection along with the return
 			value for that Endpoint.
 			<p>
-			<p>
 				Four parameters are supported by selectEndpoints - each of these except 'scope' can be provided as either
 				a string, a selector, a DOM element, or an array of a mixture of these types.  'scope' can be provided as either
 				a string or an array of strings:
-				<ul>
-					<li class="bullet">element - element(s) to get both source and target endpoints from</li>
-					<li class="bullet">source - element(s) to get source endpoints from</li>
-					<li class="bullet">target - element(s) to get target endpoints from</li>
-					<li class="bullet">scope - scope(s) for endpoints to retrieve.</li>					
-				</ul>
-			</p>
+            </p>
+            <ul>
+                <li class="bullet">element - element(s) to get both source and target endpoints from</li>
+                <li class="bullet">source - element(s) to get source endpoints from</li>
+                <li class="bullet">target - element(s) to get target endpoints from</li>
+                <li class="bullet">scope - scope(s) for endpoints to retrieve.</li>					
+            </ul>
 			This is the full list of setter operations supported by jsPlumb.selectEndpoints:
 			<ul>
+                <li class="bullet">addClass</li>
+                <li class="bullet">removeClass</li>                                
 				<li class="bullet">addOverlay</li>
 				<li class="bullet">removeOverlay</li>
 				<li class="bullet">removeOverlays</li>
@@ -2902,31 +2938,30 @@ jsPlumb.select({scope:"foo"}).each(function(connection) {
 			</ul>
 
 			Each of these operations returns a selector that can be chained.
-			</p>
-			These is the full list of getter operations supported by jsPlumb.select:
-			<p>
-				<ul>
-					<li class="bullet">getLabel</li>
-					<li class="bullet">getOverlay</li>
-					<li class="bullet">isHover</li>				
-					<li class="bullet">isVisible</li>					
-					<li class="bullet">getParameter</li>
-					<li class="bullet">getParameters</li>
-					<li class="bullet">getType</li>
-					<li class="bullet">hasType</li>
-				</ul>
+            <p>
+			This is the full list of getter operations supported by jsPlumb.select:                
+            </p>
+            <ul>
+                <li class="bullet">getLabel</li>
+                <li class="bullet">getOverlay</li>
+                <li class="bullet">isHover</li>				
+                <li class="bullet">isVisible</li>					
+                <li class="bullet">getParameter</li>
+                <li class="bullet">getParameters</li>
+                <li class="bullet">getType</li>
+                <li class="bullet">hasType</li>
+            </ul>
 
+            <p>                
 			Each of these operations returns an array whose entries are [ value, Endpoint ] arrays, where 'value'
 			is the return value from the given Endpoint. Remember that the return values from a getter are not chainable,
 			but a getter may be called at the end of a chain of setters.
 			</p>
-			<p>
-				Other methods (not chainable):
-				<ul>
-					<li class="bullet">delete - deletes the Endpoints in the selection</li>
-					<li class="bullet">detachAll - detaches all Connections from the Endpoints in the selection </li>
-				</ul>
-			</p>
+            Other methods (not chainable):
+            <ul>
+                <li class="bullet">delete - deletes the Endpoints in the selection</li>
+                <li class="bullet">detachAll - detaches all Connections from the Endpoints in the selection </li>
+            </ul>
 
 			<p>Some examples:</p>
 			Select all Endpoints and set their hover state to be false:
@@ -2943,6 +2978,23 @@ jsPlumb.selectEndpoints().setHover(false);
 jsPlumb.selectEndpoints({source:"d1"}).removeAllOverlays();
 </pre>
 </div>
+            
+			Select all source Endpoints on "d1" and add the classes "foo" and "bar" to them :
+
+<div class="code">
+<pre>
+jsPlumb.selectEndpoints({source:"d1"}).addClass("foo bar");
+</pre>
+</div>            
+            
+			Select all source Endpoints on "d1" and remove the class "foo" from them :
+
+<div class="code">
+<pre>
+jsPlumb.selectEndpoints({source:"d1"}).removeClass("foo");
+</pre>
+</div>                        
+            
 
 Select all Endpoints in scope "foo" and set their fill style to be blue:
 <div class="code">
