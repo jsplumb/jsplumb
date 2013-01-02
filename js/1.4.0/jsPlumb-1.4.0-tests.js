@@ -31,6 +31,13 @@ var assertConnectionByScopeCount = function(scope, count, _jsPlumb) {
 	equal(_jsPlumb.getTestHarness().connectionCount(scope), count, 'Scope ' + scope + " has " + count + (count > 1) ? "connections" : "connection");
 };
 
+var VERY_SMALL_NUMBER = 0.00000000001;
+// helper to test that a value is the same as some target, within our tolerance
+// sometimes the trigonometry stuff needs a little bit of leeway.
+var within = function(val, target, _ok, msg) {
+    _ok(Math.abs(val - target) < VERY_SMALL_NUMBER, msg + "[expected: " + target + " got " + val + "] [diff:" + (Math.abs(val - target)) + "]");
+};
+
 var _divs = [];
 var _addDiv = function(id, parent) {
 	var d1 = document.createElement("div");
@@ -1147,7 +1154,80 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertContextSize(0);								// no canvases. so all connection canvases have been cleaned up too.
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);
 	});
+    
+    test(renderMode + ": removeAllEndpoints, referenced as string", function() {
+        var d1 = _addDiv("d1");
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        
+        _jsPlumb.removeAllEndpoints("d1");        
+        _jsPlumb.repaintEverything();
+
+        _jsPlumb.addEndpoint(d1);        
+        equal(_jsPlumb.getTestHarness().endpointsByElement["d1"].length, 1, "one endpoint for the given element");        
+        
+        expect(1);
+    });
+    
+    test(renderMode + ": removeAllEndpoints, referenced as selector", function() {
+        var d1 = _addDiv("d1");
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        
+        _jsPlumb.removeAllEndpoints(d1);        
+        _jsPlumb.repaintEverything();
+
+        _jsPlumb.addEndpoint(d1);        
+        equal(_jsPlumb.getTestHarness().endpointsByElement["d1"].length, 1, "one endpoint for the given element");        
+        
+        expect(1);
+    });    
 	
+    test(renderMode + ": removeAllEndpoints - element already deleted", function() {
+        var d1 = _addDiv("d1");
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        
+        d1.remove();
+        _jsPlumb.removeAllEndpoints("d1");        
+        _jsPlumb.repaintEverything();
+        
+        expect(0);
+    });
+    
+    test(renderMode + ": jsPlumb.remove, element identified by string", function() {
+        var d1 = _addDiv("d1");
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        
+        _jsPlumb.remove("d1");
+
+        _jsPlumb.repaintEverything(); // shouldn't complain
+        
+        ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the given element");                
+        
+        expect(1);
+    });
+    
+    test(renderMode + ": jsPlumb.remove, element identified by selector", function() {
+        var d1 = _addDiv("d1");
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        
+        _jsPlumb.remove(d1);
+
+        _jsPlumb.repaintEverything(); // shouldn't complain
+        
+        ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the given element");                
+        
+        expect(1);
+    });    
+    
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {anchor:[0,0.5,0,-1]});
@@ -4846,31 +4926,31 @@ var testSuite = function(renderMode, _jsPlumb) {
 	/*
 	 * test the merge function in jsplumb util: it should create an entirely new object
 	 */
-		test(renderMode + " jsPlumbUtil.merge", function() {
-			var a = {
-				foo:"a_foo",
-				bar:"a_bar",
-				nested:{
-					foo:"a_foo",
-					bar:"a_bar"
-				}
-			},
-			b = {
-				foo:"b_foo",
-				nested :{
-					foo:"b_foo"
-				}
-			},
-			c = jsPlumbUtil.merge(a, b);
-			equal(c.foo, "b_foo", "c has b's foo");
-			equal(c.nested.foo, "b_foo", "c has b's nested foo");
-			// now change c's foo. b should be unchanged.
-			c.foo = "c_foo";
-			equal(b.foo, "b_foo", "b has b's foo");
-			c.nested.foo = "c_foo";
-			equal(b.nested.foo, "b_foo", "b has b's nested foo");
-			equal(a.nested.foo, "a_foo", "a has a's nested foo");
-		});
+    test(renderMode + " jsPlumbUtil.merge", function() {
+        var a = {
+            foo:"a_foo",
+            bar:"a_bar",
+            nested:{
+                foo:"a_foo",
+                bar:"a_bar"
+            }
+        },
+        b = {
+            foo:"b_foo",
+            nested :{
+                foo:"b_foo"
+            }
+        },
+        c = jsPlumbUtil.merge(a, b);
+        equal(c.foo, "b_foo", "c has b's foo");
+        equal(c.nested.foo, "b_foo", "c has b's nested foo");
+        // now change c's foo. b should be unchanged.
+        c.foo = "c_foo";
+        equal(b.foo, "b_foo", "b has b's foo");
+        c.nested.foo = "c_foo";
+        equal(b.nested.foo, "b_foo", "b has b's nested foo");
+        equal(a.nested.foo, "a_foo", "a has a's nested foo");
+    });
 	
 	// tests for a bug that i found in 1.3.16, in which an array would not overwrite an existing string.	
 	test(renderMode + " jsPlumbUtil.merge, array overwriting string", function() {		
@@ -4929,6 +5009,157 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(r5[0], 180);
 		equal(r5[1], 580);
 	});
+    
+    test(renderMode + " arc segment tests", function() {							
+        var r = 10, circ = 2 * Math.PI * r;
+        // first, an arc up and to the right (clockwise)
+        var params = { r:r, x1:0, y1:0, x2:10,  y2:-10, cx:10, cy:0 };
+        var s = new jsPlumb.Segments["Arc"](params);
+        // segment should be one quarter of the circumference
+        equal(s.getLength(), 0.25 * circ, "length of segment is correct");
+        // point 0 is (0,0)
+        var p1 = s.pointOnPath(0);
+        within(p1.x, 0, ok, "start x is correct");
+        within(p1.y, 0, ok, "start y is correct");   
+        // point 1 is (10, -10)
+        var p2 = s.pointOnPath(1);
+        within(p2.x, 10, ok, "end x is correct");
+        within(p2.y, -10, ok, "end y is correct");                
+        // point at loc 0.5 is (2.92, -7.07))
+        var p3 = s.pointOnPath(0.5);
+        within(p3.x, 10 - (Math.sqrt(2) / 2 * 10), ok, "end x is correct");
+        within(p3.y, -(Math.sqrt(2) / 2 * 10), ok, "end y is correct");                        
+        // gradient at point 0 is 0
+        equal(s.gradientAtPoint(0), 0, "gradient at point 0 is 0");
+        
+        // an arc up and to the left (anticlockwise)
+        params = { r:r, x1:0, y1:0, x2:-10,  y2:-10, cx:-10, cy:0, ac:true };  
+        s = new jsPlumb.Segments["Arc"](params);
+        equal(s.getLength(), 0.25 * circ, "length of segment is correct");    
+        // point 0 is (0,0)
+        p1 = s.pointOnPath(0);
+        within(p1.x, 0, ok, "start x is correct");
+        within(p1.y, 0, ok, "start y is correct");   
+        // point 1 is (-10, -10)
+        p2 = s.pointOnPath(1);
+        within(p2.x, -10, ok, "end x is correct");
+        within(p2.y, -10, ok, "end y is correct");                
+        // point at loc 0.5 is (-2.92, -7.07))
+        p3 = s.pointOnPath(0.5);
+        within(p3.x, -2.9289321881345245, ok, "end x is correct");
+        within(p3.y, -7.071067811865477, ok, "end y is correct");                        
+
+        
+        
+        
+        // clockwise, 180 degrees
+        params = { r:r, x1:0, y1:0, x2:0,  y2:20, cx:0, cy:10 };  
+        s = new jsPlumb.Segments["Arc"](params);
+        equal(s.getLength(), 0.5 * circ, "length of segment is correct");
+        p1 = s.pointOnPath(0);
+        within(p1.x, 0, ok, "start x is correct");
+        within(p1.y, 0, ok, "start y is correct");   
+        p2 = s.pointOnPath(1);
+        within(p2.x, 0, ok, "end x is correct");
+        within(p2.y, 20, ok, "end y is correct");                
+        var p3 = s.pointOnPath(0.5);
+        within(p3.x, 10, ok, "end x is correct");
+        within(p3.y, 10, ok, "end y is correct");                        
+        
+        
+        
+        // anticlockwise, 180 degrees
+        params = { r:r, x1:0, y1:0, x2:0,  y2:-20, cx:0, cy:-10, ac:true };  
+        s = new jsPlumb.Segments["Arc"](params);
+        equal(s.getLength(), 0.5 * circ, "length of segment is correct");   
+        p1 = s.pointOnPath(0);
+        within(p1.x, 0, ok, "start x is correct");
+        within(p1.y, 0, ok, "start y is correct");   
+        p2 = s.pointOnPath(1);
+        within(p2.x, 0, ok, "end x is correct");
+        within(p2.y, -20, ok, "end y is correct");    
+        var p3 = s.pointOnPath(0.5);
+        within(p3.x, 10, ok, "end x is correct");
+        within(p3.y, -10, ok, "end y is correct");                                
+        
+        
+        // clockwise, 270 degrees
+        params = { r:r, x1:0, y1:0, x2:-10,  y2:10, cx:0, cy:10 };  
+        s = new jsPlumb.Segments["Arc"](params);
+        equal(s.getLength(), 0.75 * circ, "length of segment is correct");
+        p1 = s.pointOnPath(0);
+        within(p1.x, 0, ok, "start x is correct");
+        within(p1.y, 0, ok, "start y is correct");   
+        p2 = s.pointOnPath(1);
+        within(p2.x, -10, ok, "end x is correct");
+        within(p2.y, 10, ok, "end y is correct");     
+        var p3 = s.pointOnPath(0.5);
+        within(p3.x, 7.071067811865477, ok, "end x is correct");
+        within(p3.y, 17.071067811865477, ok, "end y is correct");                                
+        
+        
+        // anticlockwise, 90 degrees
+        params = { r:r, x1:0, y1:0, x2:-10,  y2:10, cx:0, cy:10, ac:true };  
+        s = new jsPlumb.Segments["Arc"](params);
+        equal(s.getLength(), 0.25 * circ, "length of segment is correct");        
+        p1 = s.pointOnPath(0);
+        within(p1.x, 0, ok, "start x is correct");
+        within(p1.y, 0, ok, "start y is correct");   
+        p2 = s.pointOnPath(1);
+        within(p2.x, -10, ok, "end x is correct");
+        within(p2.y, 10, ok, "end y is correct");      
+        var p3 = s.pointOnPath(0.5);
+        within(p3.x, -7.071067811865477, ok, "end x is correct");
+        within(p3.y, 2.9289321881345245, ok, "end y is correct");                                
+        
+        
+        // anticlockwise, 270 degrees
+        params = { r:r, x1:0, y1:0, x2:10,  y2:10, cx:0, cy:10, ac:true };  
+        s = new jsPlumb.Segments["Arc"](params);
+        equal(s.getLength(), 0.75 * circ, "length of segment is correct");  
+        p1 = s.pointOnPath(0);
+        within(p1.x, 0, ok, "start x is correct");
+        within(p1.y, 0, ok, "start y is correct");   
+        p2 = s.pointOnPath(1);
+        within(p2.x, 10, ok, "end x is correct");
+        within(p2.y, 10, ok, "end y is correct");                
+        var p3 = s.pointOnPath(0.5);
+        within(p3.x, -7.071067811865477, ok, "end x is correct");
+        within(p3.y, 17.071067811865477, ok, "end y is correct");                                
+        
+        
+    });
+    
+    
+    test(renderMode + " jsPlumbUtil.theta", function() {
+        var x1 = 0, y1 = 0, 
+            x2 = 10, y2 = 0,   // 0 degrees : 0 PI or 2 PI
+            x3 = 10, y3 = 10,  // 45 degrees : 0.25 PI
+            x4 = 0, y4 = 10,   // 90 degrees : 0.5 PI
+            x5 = -10, y5 = 10, // 135 degrees : 0.75 PI
+            x6 = -10, y6 = 0,  // 180 degrees : PI
+            x7 = -10, y7 = -10, // 225 degress : 1.25 PI
+            x8 = 0, y8 = -10,   // 270 degrees : 1.5 PI        
+            x9 = 10, y9 = -10;  // 315 degrees : 1.75 PI            
+        
+        var t2 = jsPlumbUtil.theta([x1,y1],[x2,y2]),
+            t3 = jsPlumbUtil.theta([x1,y1],[x3,y3]),
+            t4 = jsPlumbUtil.theta([x1,y1],[x4,y4]),
+            t5 = jsPlumbUtil.theta([x1,y1],[x5,y5]),
+            t6 = jsPlumbUtil.theta([x1,y1],[x6,y6]),
+            t7 = jsPlumbUtil.theta([x1,y1],[x7,y7]),
+            t8 = jsPlumbUtil.theta([x1,y1],[x8,y8]),            
+            t9 = jsPlumbUtil.theta([x1,y1],[x9,y9]);            
+        
+        equal(t2, 0, "t2 is zero degrees");
+        equal(t3, 0.25 * Math.PI, "t3 is 45 degrees");
+        equal(t4, 0.5 * Math.PI, "t4 is 90 degrees");
+        equal(t5, 0.75 * Math.PI, "t5 is 135 degrees");
+        equal(t6, Math.PI, "t6 is 180 degrees");
+        equal(t7, 1.25 * Math.PI, "t7 is 225 degrees");
+        equal(t8, 1.5 * Math.PI, "t8 is 270 degrees");        
+        equal(t9, 1.75 * Math.PI, "t9 is 315 degrees");                
+    });
 	
 };
 
