@@ -25,6 +25,12 @@
         to specify a radius for curved corners.  default is 0.
         
         - Straight connectors now support the 'stub' parameter.
+        
+        - added 'addClass' and 'removeClass' methods to Connection and Endpoint, and to the return value of
+        jsPlumb.select and jsPlumb.selectEndpoints.
+        
+        - add 'hoverClass' member to jsPlumb; this is set when hovering over a Connection or Endpoint. default is
+        '_jsPlumb_hover'.
 		
 		ISSUES
 		
