@@ -134,6 +134,20 @@ a:hover {
    -o-box-shadow: 2px 2px 19px #aaa;
    -webkit-box-shadow: 2px 2px 19px #aaa;
    -moz-box-shadow: 2px 2px 19px #aaa;
+    
+}
+path, ._jsPlumb_endpoint { cursor:pointer; }
+
+/* z index stuff */
+
+._jsPlumb_connector { z-index:18; }
+._jsPlumb_endpoint { z-index:19; }
+._jsPlumb_overlay { z-index:23; }
+
+._jsPlumb_connector._jsPlumb_hover {
+    z-index:21 !important;
 }
 
-path, ._jsPlumb_endpoint { cursor:pointer; }
+._jsPlumb_endpoint._jsPlumb_hover {
+    z-index:22 !important;
+}
