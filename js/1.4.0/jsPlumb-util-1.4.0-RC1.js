@@ -136,27 +136,41 @@ jsPlumbUtil = {
 		return o;
 	},
 	gradient : function(p1, p2) {
-		p1 = jsPlumbUtil.isArray(p1) ? p1 : [p1.x, p1.y];
-		p2 = jsPlumbUtil.isArray(p2) ? p2 : [p2.x, p2.y];			
+		p1 = this.isArray(p1) ? p1 : [p1.x, p1.y];
+		p2 = this.isArray(p2) ? p2 : [p2.x, p2.y];			
 		return (p2[1] - p1[1]) / (p2[0] - p1[0]);		
 	},
 	normal : function(p1, p2) {
-		return -1 / jsPlumbUtil.gradient(p1,p2);
+		return -1 / this.gradient(p1, p2);
 	},
 	lineLength : function(p1, p2) {
-		p1 = jsPlumbUtil.isArray(p1) ? p1 : [p1.x, p1.y];
-		p2 = jsPlumbUtil.isArray(p2) ? p2 : [p2.x, p2.y];			
+		p1 = this.isArray(p1) ? p1 : [p1.x, p1.y];
+		p2 = this.isArray(p2) ? p2 : [p2.x, p2.y];			
 		return Math.sqrt(Math.pow(p2[1] - p1[1], 2) + Math.pow(p2[0] - p1[0], 2));			
 	},
     segment : function(p1, p2) {
-        p1 = jsPlumbUtil.isArray(p1) ? p1 : [p1.x, p1.y];
-        p2 = jsPlumbUtil.isArray(p2) ? p2 : [p2.x, p2.y];
+        p1 = this.isArray(p1) ? p1 : [p1.x, p1.y];
+        p2 = this.isArray(p2) ? p2 : [p2.x, p2.y];
         if (p2[0] > p1[0]) {
             return (p2[1] > p1[1]) ? 2 : 1;
+        }
+        else if (p2[0] == p1[0]) {
+            return p2[1] > p1[1] ? 2 : 1;    
         }
         else {
             return (p2[1] > p1[1]) ? 3 : 4;
         }
+    },
+    theta : function(p1, p2) {
+        p1 = this.isArray(p1) ? p1 : [p1.x, p1.y];
+        p2 = this.isArray(p2) ? p2 : [p2.x, p2.y];
+        var m = this.gradient(p1, p2),
+            t = Math.atan(m),
+            s = this.segment(p1, p2);
+        if ((s == 4 || s== 3)) t += Math.PI;
+        if (t < 0) t += (2 * Math.PI);
+        
+        return t;
     },
     intersects : function(r1, r2) {
 		var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
