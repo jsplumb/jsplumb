@@ -3254,16 +3254,29 @@ between this method and jsPlumb.reset).
 		* <removeEndpoint>
 		*/
 		this.removeAllEndpoints = function(el) {
-			var elId = _getAttribute(el, "id"),
+			var elId = jsPlumbUtil.isString(el) ? el : _getId(_getElementObject(el)),
 			    ebe = endpointsByElement[elId];
 			if (ebe) {
 				for ( var i = 0; i < ebe.length; i++) 
 					_currentInstance.deleteEndpoint(ebe[i]);
 			}
-			endpointsByElement[elId] = [];
+			delete endpointsByElement[elId];
 			return _currentInstance;
 		};
-		
+            
+        /*
+        * Function: remove
+        * Removes the given element from the DOM, along with all Endpoints associated with it,
+        * and their connections.
+        *
+        * Parameters:
+        *  el - either an element id, or a selector for the element.
+        */
+        this.remove = function(el) {
+            el = _getElementObject(el);
+            _currentInstance.removeAllEndpoints(el);
+            jsPlumb.CurrentLibrary.removeElement(el);
+        };
 
 		var _registeredListeners = {},
 			_unbindRegisteredListeners = function() {
