@@ -233,12 +233,20 @@
 				if (!self._jsPlumb.currentlyDragging && !self._jsPlumb.isHoverSuspended()) {
 		    
 			    	_hover = hover;
-					if (self.hoverClass != null && self.canvas != null) {
-						if (hover) 
-							jpcl.addClass(self.canvas, self.hoverClass);						
-						else
-							jpcl.removeClass(self.canvas, self.hoverClass);
-					}
+                        
+                    if (self.canvas != null) {
+                        if (self.hoverClass != null) {
+                            if (hover) 
+                                jpcl.addClass(self.canvas, self.hoverClass);						
+                            else
+                                jpcl.removeClass(self.canvas, self.hoverClass);
+                        }
+                        
+                        if (hover) 
+                            jpcl.addClass(self.canvas, self._jsPlumb.hoverClass);						
+                        else
+                            jpcl.removeClass(self.canvas, self._jsPlumb.hoverClass);
+                    }
 		   		 	if (hoverPaintStyle != null) {
 						self.paintStyleInUse = hover ? hoverPaintStyle : paintStyle;
 						timestamp = timestamp || _timestamp();
@@ -389,7 +397,18 @@
 						self.setParameter(i, t.parameters[i]);
 				}
 			};
+            
+            // CSS classes
+            this.addClass = function(clazz) {
+                if (self.canvas != null)
+                    jsPlumb.CurrentLibrary.addClass(self.canvas, clazz);
+            };
 			
+            this.removeClass = function(clazz) {
+                if (self.canvas != null)
+                    jsPlumb.CurrentLibrary.removeClass(self.canvas, clazz);
+            };            
+            
 		},
 
 		overlayCapableJsPlumbUIComponent = function(params) {
@@ -594,7 +613,7 @@
 	                _hoverFunction(false);
 					_self.fire("mouseexit", _self, e);
 				}
-			});	
+			});	  
         };	
 		
 		var _jsPlumbInstanceIndex = 0,
@@ -1328,6 +1347,12 @@
 		 *   The CSS class to set on Connection elements. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.connectorClass = "_jsPlumb_connector";
+            
+		/*
+		 * Property: hoverClass 
+		 *   The CSS class to set on Connection or Endpoint elements when hovering. This value is a String and can have multiple classes; the entire String is appended as-is.
+		 */
+		this.hoverClass = "_jsPlumb_hover";            
 
 		/*
 		 * Property: endpointClass 
@@ -2024,6 +2049,7 @@ between this method and jsPlumb.reset).
 				setHover:setter(list, "setHover", executor),								
 				removeAllOverlays:setter(list, "removeAllOverlays", executor),
 				setLabel:setter(list, "setLabel", executor),
+                addClass:setter(list, "addClass", executor),
 				addOverlay:setter(list, "addOverlay", executor),
 				removeOverlay:setter(list, "removeOverlay", executor),
 				removeOverlays:setter(list, "removeOverlays", executor),
@@ -2041,6 +2067,7 @@ between this method and jsPlumb.reset).
 				addType:setter(list, "addType", executor),
 				toggleType:setter(list, "toggleType", executor),
 				removeType:setter(list, "removeType", executor),
+                removeClass:setter(list, "removeClass", executor),
 				setType:setter(list, "setType", executor),				
 
 				// getters
@@ -2117,7 +2144,8 @@ between this method and jsPlumb.reset).
 		* A list of Connections on which operations may be executed. 'Setter' type operations can be chained; 'getter' type operations
 		* return an array of [Connection, value] pairs, one entry for each Connection in the list returned. The full list of operations 
 		* is as follows (where not specified, the operation's effect or return value is the same as the corresponding method on Connection) :
-		* 								
+		* 				
+        *   -   addClass
 		*	-	addOverlay
 		*	-	addType
 		*	-	detach : detaches all the connections in the list. not chainable and does not return anything.		
@@ -2140,6 +2168,7 @@ between this method and jsPlumb.reset).
 		*	-	isVisible		
 		*	-	length : returns the length of the list.
 		*	-	removeAllOverlays		
+        *   -   removeClass
 		*	-	removeOverlay
 		*	-	removeOverlays
 		*	-	removeType
@@ -2188,7 +2217,9 @@ between this method and jsPlumb.reset).
 		*	-	setHover								
 		*	-	removeAllOverlays
 		*	-	setLabel
+        *   -   addClass
 		*	-	addOverlay
+        *   -   removeClass
 		*	-	removeOverlay
 		*	-	removeOverlays
 		*	-	showOverlay
@@ -4361,8 +4392,30 @@ between this method and jsPlumb.reset).
 				if (self.connector && self.connector.canvas) self.connector.canvas.style.display = v ? "block" : "none";
 				self.repaint();
 			};
-// END VISIBILITY						
-		
+// END VISIBILITY	
+                        
+// EDITABLE
+            
+            var editable = params.editable === true;
+            /**
+            * Function: setEditable
+            * Sets whether or not the Connection is editable. This will only be honoured if
+            * the underlying Connector is editable - not all types are.
+            */
+            this.setEditable = function(e) {
+                if (this.connector && this.connector.isEditable())
+                    editable = e;
+                
+                return editable;
+            };
+            /**
+            * Function: isEditable
+            * Returns whether or not the Connection is editable.
+            */
+            this.isEditable = function() { return editable; };
+           
+// END EDITABLE            
+            
 // TYPE		
 			
 			this.getTypeDescriptor = function() { return "connection"; };
@@ -4413,6 +4466,11 @@ between this method and jsPlumb.reset).
 				jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);	
 				return c;
 			};
+            
+            var documentMouseUp = function(e) {
+                console.log("mouseup");  
+                jsPlumb.CurrentLibrary.unbind(document, "mouseup", documentMouseUp);
+            };
 			
 			/*
 			 * Function: setConnector
@@ -4438,11 +4496,21 @@ between this method and jsPlumb.reset).
 				self.canvas = self.connector.canvas;
 				// binds mouse listeners to the current connector.
 				_bindListeners(self.connector, self, _internalHover);
+                
+                // bind to mousedown and mouseup, for editing
+                self.connector.bind("mousedown", function(e) {
+                    console.log("mousedown");
+                    jsPlumb.CurrentLibrary.bind(document, "mouseup", documentMouseUp);
+                });
 				
 				// set z-index if it was set on Defaults.
 				var zi = _currentInstance.ConnectorZIndex || jsPlumb.Defaults.ConnectorZIndex;
 				if (zi)
 					self.connector.setZIndex(zi);
+                
+                // if underlying connector not editable, set editable to false;
+                if (!self.connector.isEditable())
+                    editable = false;
 					
 				if (!doNotRepaint) self.repaint();
 			};
