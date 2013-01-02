@@ -361,10 +361,10 @@
 					},
 					"Arc":function(segment) {
 						var d = segment.params,
-							laf = d.laf != null ? d.laf : 1,
-							sf = d.sf != null ? d.sf : 0;
+							laf = 0,
+							sf = segment.anticlockwise ? 0 : 1;
 							
-						return "M" + d.x1 + " " + d.y1 + " A " + d.r + " " + d.r + " 0 " + laf + "," + sf + " " + d.x2 + " " + d.y2;
+						return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
 					}
 				})[segment.type](segment);	
 			}
