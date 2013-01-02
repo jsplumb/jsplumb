@@ -17,7 +17,7 @@
  * Dual licensed under the MIT and GPL2 licenses.
  */
 
-(function() {	
+;(function() {	
 				
 	/**
 	 * 
@@ -48,7 +48,9 @@
 	 * A Segment is responsible for providing coordinates for painting it, and also must be able to report its length.
 	 * 
 	 */ 
-	jsPlumb.Segments.AbstractSegment = function(params) { };
+	jsPlumb.Segments.AbstractSegment = function(params) { 
+        this.params = params;
+    };
 	
 	jsPlumb.Segments.Straight = function(params) {
 		var self = this,
@@ -58,7 +60,6 @@
 			m2 = -1 / m;
 			
 		this.type = "Straight";
-		this.params = params;
 		
 		self.getLength = function() { return length; };
 		
@@ -102,14 +103,83 @@
         };
 	};
 	
+	/*
+		Arc Segment. You need to supply:
+
+        r   -   radius
+        cx  -   center x for the arc
+        cy  -   center y for the arc
+        ac  -   whether the arc is anticlockwise or not. default is clockwise.
+
+        and then either:
+
+        startAngle  -   startAngle for the arc.
+        endAngle    -   endAngle for the arc.
+
+        or:
+
+        x1          -   x for start point
+        y1          -   y for start point
+        x2          -   x for end point
+        y2          -   y for end point
+
+	*/
 	jsPlumb.Segments.Arc = function(params) {
 		var self = this,
-			_super = jsPlumb.Segments.AbstractSegment.apply(this, arguments);
-			
+			_super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+            _calcAngle = function(_x, _y) {
+                return jsPlumbUtil.theta([params.cx, params.cy], [_x, _y]);    
+            },
+            _calcAngleForLocation = function(location) {
+                if (self.anticlockwise) {
+                    var sa = self.startAngle < self.endAngle ? self.startAngle + TWO_PI : self.startAngle,
+                        s = Math.abs(sa - self.endAngle);
+                    return sa - (s * location);                    
+                }
+                else {
+                    var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle,
+                        s = Math.abs (ea - self.startAngle);
+                
+                    return self.startAngle + (s * location);
+                }
+            },
+            TWO_PI = 2 * Math.PI;
+            
+        if (params.startAngle && params.endAngle) {
+            this.startAngle = params.startAngle;
+            this.endAngle = params.endAngle;            
+            this.x1 = params.cx + (params.r * Math.cos(params.startAngle));     
+            this.y1 = params.cy + (params.r * Math.sin(params.startAngle));            
+            this.x2 = params.cx + (params.r * Math.cos(params.endAngle));     
+            this.y2 = params.cy + (params.r * Math.sin(params.endAngle));                        
+        }
+        else {
+            this.startAngle = _calcAngle(params.x1, params.y1);
+            this.endAngle = _calcAngle(params.x2, params.y2);            
+            this.x1 = params.x1;
+            this.y1 = params.y1;
+            this.x2 = params.x2;
+            this.y2 = params.y2;            
+        }
+        
+        if (this.endAngle < 0) this.endAngle += TWO_PI;
+        if (this.startAngle < 0) this.startAngle += TWO_PI;        
+        
+        // we now have startAngle and endAngle as positive numbers, meaning the
+        // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
+        // arc is 'anticlockwise' in which case 's' is given by 2PI - |d|.
+        
+        this.radius = params.r;
+        this.anticlockwise = params.ac;			
 		this.type = "Arc";
-		this.params = params;
+        
 		this.getLength = function() {
-			return 2 * Math.PI * params.r;
+            var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle;
+            var s = Math.abs (ea - self.startAngle);
+            if (self.anticlockwise) s = TWO_PI - s;
+			var circ = 2 * Math.PI * params.r,
+                frac = s / TWO_PI;
+            return circ * frac;
 		};
 		
 		/**
@@ -117,43 +187,31 @@
          * 0 to 1 inclusive. 
          */
         this.pointOnPath = function(location, absolute) {
-            if (absolute) {
-				var circumference = Math.PI * 2 * params.r;
-				location = location / circumference;
+
+           if (absolute) {
+				location = location / self.getLength();
 			}
 
-			if (location > 0 && location < 1) location = 1 - location;
+			/*if (location > 0 && location < 1) location = 1 - location;
 			// the path length is the circumference of the circle
 			// map 'location' to an angle. 0 is PI/2 when the connector is on the top face; if we
 			// support other faces it will have to be calculated for each one. 1 is also PI/2.
-			// 0.5 is -PI/2.
-			var startAngle = (location * 2 * Math.PI) + (Math.PI / 2),
-				startX = params.cx + (params.r * Math.cos(startAngle)),
-				startY = params.cy + (params.r * Math.sin(startAngle));					
+			// 0.5 is -PI/2.*/
+			var angle = _calcAngleForLocation(location),
+				_x = params.cx + (params.r * Math.cos(angle)),
+				_y  = params.cy + (params.r * Math.sin(angle));					
 
-			return {x:startX, y:startY};
+			return {x:_x, y:_y};
         };
         
         /**
          * returns the gradient of the connector at the given point.
          */
         this.gradientAtPoint = function(location, absolute) {
-            if (absolute) {
-				var circumference = Math.PI * 2 * params.r;
-				location = location / circumference;
-			}
-
-			return Math.atan(location * 2 * Math.PI);
+            var p = self.pointOnPath(location, absolute);
+            return jsPlumbUtil.normal(params.cx, params.cy, p.x, p.y);
         };	              
-        
-        /**
-         * for Bezier curves this method is a little tricky, cos calculating path distance algebraically is notoriously difficult.
-         * this method is iterative, jumping forward .05% of the path at a time and summing the distance between this point and the previous
-         * one, until the sum reaches 'distance'. the method may turn out to be computationally expensive; we'll see.
-         * another drawback of this method is that if the connector gets quite long, .05% of the length of it is not necessarily smaller
-         * than the desired distance, in which case the loop returns immediately and the arrow is mis-shapen. so a better strategy might be to
-         * calculate the step as a function of distance/distance between endpoints.  
-         */
+                
         this.pointAlongPathFrom = function(location, distance, absolute) {
             if (absolute) {
 				var circumference = Math.PI * 2 * params.r;
@@ -179,7 +237,6 @@
 			_super = jsPlumb.Segments.AbstractSegment.apply(this, arguments);
 			
 		this.type = "Bezier";
-		this.params = params;
 		
 		var _makeCurve = function() {
         	return [	
@@ -239,10 +296,18 @@
 	 */ 
 	jsPlumb.Connectors.AbstractConnector = function(params) {
 		
-		var segments = [],
+		var self = this,
+            segments = [],
+            editable = false,
+            editing = false,
 			totalLength = 0,
 			segmentProportions = [],
-			segmentProportionalLengths = [];
+			segmentProportionalLengths = [],        
+            stub = 20,// TODO params.stub || 0, 
+            sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
+            targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
+            gap = params.gap || 0;
+
 			
 		var _updateSegmentProportions = function() {
 			var curLoc = 0;
@@ -285,7 +350,7 @@
 			var s = new jsPlumb.Segments[type](params);
 			segments.push(s);
 			totalLength += s.getLength();			
-		};		
+		};			
 		
 		var _clearSegments = function() {
 			totalLength = 0;
@@ -293,6 +358,76 @@
 			segmentProportions.splice(0, segmentProportions.length);
 			segmentProportionalLengths.splice(0, segmentProportionalLengths.length);
 		};
+        
+        var _prepareCompute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, 
+            sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
+            
+            self.lineWidth = lineWidth;
+            var swapX = targetPos[0] < sourcePos[0],
+                swapY = targetPos[1] < sourcePos[1];
+                lw = lineWidth || 1,                
+                sourceOffx = (lw / 2) + (sourceStub + targetStub), 
+                targetOffx = (lw / 2) + (targetStub + sourceStub),                 
+                sourceOffy = (lw / 2) + (sourceStub + targetStub),
+                targetOffy = (lw / 2) + (targetStub + sourceStub),
+                so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
+                to = targetAnchor.orientation || targetAnchor.getOrientation(targetEndpoint),
+                x = swapX ? targetPos[0] : sourcePos[0], 
+                y = swapY ? targetPos[1] : sourcePos[1],
+                w = Math.abs(targetPos[0] - sourcePos[0]) + sourceOffx + targetOffx, 
+                h = Math.abs(targetPos[1] - sourcePos[1]) + sourceOffy + targetOffy;            
+            
+            // if either anchor does not have an orientation set, we derive one from their relative
+            // positions.  we fix the axis to be the one in which the two elements are further apart, and
+            // point each anchor at the other element.  this is also used when dragging a new connection.
+            if (so[0] == 0 && so[1] == 0 || to[0] == 0 && to[1] == 0) {
+                var index = w > h ? 0 : 1, oIndex = [1,0][index];
+                so = []; to = [];
+                so[index] = sourcePos[index] > targetPos[index] ? -1 : 1;
+                to[index] = sourcePos[index] > targetPos[index] ? 1 : -1;
+                so[oIndex] = 0; to[oIndex] = 0;
+            }
+            
+            x -= sourceOffx; y -= sourceOffy;
+            
+            var sx = swapX ? (w - targetOffx) +(gap * so[0])  : sourceOffx + (gap * so[0]), 
+                sy = swapY ? (h - targetOffy) + (gap * so[1])  : sourceOffy + (gap * so[1]), 
+                tx = swapX ? sourceOffx + (gap * to[0]) : (w - targetOffx) + (gap * to[0]),
+                ty = swapY ? sourceOffy + (gap * to[1]) : (h - targetOffy) + (gap * to[1]),
+                oProduct = ((so[0] * to[0]) + (so[1] * to[1]));        
+            
+            var result = {
+                sx:sx, sy:sy, tx:tx, ty:ty, lw:lw, 
+                mx:(sx + tx) / 2,
+                my:(sy + ty) / 2,                
+                so:so, to:to, x:x, y:y, w:w, h:h,
+                segment : jsPlumbUtil.segment([ sx, sy ], [ tx, ty ]),
+                sourceOffx:sourceOffx, sourceOffy:sourceOffy,
+                targetOffx:targetOffx, targetOffy:targetOffy,
+                startStubX : sx + (so[0] * sourceStub), 
+                startStubY : sy + (so[1] * sourceStub),
+                endStubX : tx + (to[0] * targetStub), 
+                endStubY : ty + (to[1] * targetStub),
+                isXGreaterThanStubTimes2 : Math.abs(sx - tx) > (sourceStub + targetStub),
+                isYGreaterThanStubTimes2 : Math.abs(sy - ty) > (sourceStub + targetStub),
+                opposite:oProduct == -1,
+                perpendicular:oProduct == 0,
+                orthogonal:oProduct == 1,
+                sourceAxis : so[0] == 0 ? "y" : "x",
+                points:[x, y, w, h, sx, sy, tx, ty ]
+            };
+            result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
+            var flipSourceSegments = so[result.sourceAxis == "x" ? 0 : 1] == -1,
+                flipSegments = {
+                    "x":[null, 4, 3, 2, 1],
+                    "y":[null, 2, 1, 4, 3]
+                };        
+                
+            if (flipSourceSegments)                
+                result.segment = flipSegments[result.sourceAxis][result.segment];                                    
+            
+            return result;
+        };
 		
 		this.getSegments = function() { return segments; };
 		
@@ -322,7 +457,12 @@
 		};
 		
 		return {
-			addSegment:_addSegment
+			addSegment:_addSegment,
+            prepareCompute:_prepareCompute,
+            sourceStub:sourceStub,
+            targetStub:targetStub,
+            maxStub:Math.max(sourceStub, targetStub),
+            gap:gap
 		};		
 	};
 	
@@ -332,47 +472,24 @@
      */
     jsPlumb.Connectors.Straight = function() {
     	this.type = "Straight";
-		var self = this,
-			_super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
-			currentPoints = null;		
+		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);		
 
-        /**
-         * Computes the new size and position of the canvas.         
-         */
-        this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
-        	var w = Math.abs(sourcePos[0] - targetPos[0]),
-				h = Math.abs(sourcePos[1] - targetPos[1]),
-				// these are padding to ensure the whole connector line appears
-				xo = 0.45 * w,
-				yo = 0.45 * h,
-				x = Math.min(sourcePos[0], targetPos[0]) - xo,
-				y = Math.min(sourcePos[1], targetPos[1]) - yo,
-				// minimum size is 2 * line Width if minWidth was not given.
-				calculatedMinWidth = Math.max(2 * lineWidth, minWidth);
-				
-			// these are padding to ensure the whole connector line appears
-			w *= 1.9; h *=1.9;            
+        this._compute = function(sourcePos, targetPos, sourceEndpoint, 
+                                 targetEndpoint, sourceAnchor, targetAnchor, 
+                                 lineWidth, minWidth,
+                                    sourceInfo, targetInfo) {
             
-            if (w < calculatedMinWidth) { 
-        		w = calculatedMinWidth; 
-        		x = sourcePos[0]  + ((targetPos[0] - sourcePos[0]) / 2) - (calculatedMinWidth / 2);
-        		xo = (w - Math.abs(sourcePos[0]-targetPos[0])) / 2;
-        	}
-            if (h < calculatedMinWidth) {         
-        		h = calculatedMinWidth; 
-        		y = sourcePos[1]  + ((targetPos[1] - sourcePos[1]) / 2) - (calculatedMinWidth / 2);
-        		yo = (h - Math.abs(sourcePos[1]-targetPos[1])) / 2;
-        	}
-                            
-            _sx = sourcePos[0] < targetPos[0] ?  xo : w-xo;
-            _sy = sourcePos[1] < targetPos[1] ? yo:h-yo;
-            _tx = sourcePos[0] < targetPos[0] ? w-xo : xo;
-            _ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
-            currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty ];
-			
-			_super.addSegment("Straight", {x1:_sx, y1:_sy, x2:_tx, y2:_ty});
-                             
-            return currentPoints;
+            var paintInfo = _super.prepareCompute(sourcePos, targetPos, 
+                                                  sourceEndpoint, targetEndpoint, 
+                                                  sourceAnchor, targetAnchor, 
+                                                  lineWidth, minWidth, 
+                                                  sourceInfo, targetInfo);
+            
+            _super.addSegment("Straight", {x1:paintInfo.sx, y1:paintInfo.sy, x2:paintInfo.startStubX, y2:paintInfo.startStubY});                                                
+            _super.addSegment("Straight", {x1:paintInfo.startStubX, y1:paintInfo.startStubY, x2:paintInfo.endStubX, y2:paintInfo.endStubY});                        
+            _super.addSegment("Straight", {x1:paintInfo.endStubX, y1:paintInfo.endStubY, x2:paintInfo.tx, y2:paintInfo.ty});                        
+            
+            return paintInfo.points;
         };                    
     };
                 
@@ -436,7 +553,16 @@
 
         var _CP, _CP2, _sx, _tx, _ty, _sx, _sy, _canvasX, _canvasY, _w, _h, _sStubX, _sStubY, _tStubX, _tStubY;
 
-        this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
+        this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth, 
+                                                  sourceInfo, targetInfo) {
+            
+            
+            var paintInfo = _super.prepareCompute(sourcePos, targetPos, 
+                                                  sourceEndpoint, targetEndpoint, 
+                                                  sourceAnchor, targetAnchor, 
+                                                  lineWidth, minWidth, 
+                                                  sourceInfo, targetInfo);
+            
         	// this calculation gives us what the minimum distance between either start or end
 			// should be from the edge of the canvas.
 			var sp = [sourcePos[0], sourcePos[1]],
@@ -452,15 +578,19 @@
 			lineWidth = Math.max(minWidth, (lineWidth || 0));
             _w = Math.abs(sp[0] - tp[0]) + lineWidth; 
             _h = Math.abs(sp[1] - tp[1]) + lineWidth;
+            
             _canvasX = Math.min(sp[0], tp[0])-(lineWidth/2);
             _canvasY = Math.min(sp[1], tp[1])-(lineWidth/2);
-            _sx = sp[0] < tp[0] ? _w - (lineWidth/2): (lineWidth/2);
+            _canvasX = Math.min(sp[0], tp[0])-(lineWidth/2);
+            _canvasY = Math.min(sp[1], tp[1])-(lineWidth/2);            
+      
+               _sx = sp[0] < tp[0] ? _w - (lineWidth/2): (lineWidth/2);
             _sy = sp[1] < tp[1] ? _h - (lineWidth/2) : (lineWidth/2);
             _tx = sp[0] < tp[0] ? (lineWidth/2) : _w - (lineWidth/2);
             _ty = sp[1] < tp[1] ? (lineWidth/2) : _h - (lineWidth/2);
                         
-            _CP = self._findControlPoint([_sx,_sy], sp, tp, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor);
-            _CP2 = self._findControlPoint([_tx,_ty], tp, sp, targetEndpoint, sourceEndpoint, targetAnchor, sourceAnchor);                
+            _CP = self._findControlPoint([_sx, _sy], sp, tp, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor);
+            _CP2 = self._findControlPoint([_tx, _ty], tp, sp, targetEndpoint, sourceEndpoint, targetAnchor, sourceAnchor);                
             var minx1 = Math.min(_sx,_tx), minx2 = Math.min(_CP[0], _CP2[0]), minx = Math.min(minx1,minx2),
             	maxx1 = Math.max(_sx,_tx), maxx2 = Math.max(_CP[0], _CP2[0]), maxx = Math.max(maxx1,maxx2);
             
@@ -485,7 +615,7 @@
         		_canvasX -= posAdjust; _sx = _sx + posAdjust ; _tx = _tx + posAdjust; _CP[0] =  _CP[0] + posAdjust; _CP2[0] = _CP2[0] + posAdjust;
         	}
             
-            if (minWidth && _h < minWidth) {
+            if (minWidth && paintInfo.h < minWidth) {
             	var posAdjust = (minWidth - _h) / 2;
         		_h = minWidth;        		
         		_canvasY -= posAdjust; _sy = _sy + posAdjust ; _ty = _ty + posAdjust; _CP[1] =  _CP[1] + posAdjust; _CP2[1] = _CP2[1] + posAdjust;
@@ -505,254 +635,7 @@
     };        
     
     
-    /**
-     * Class: Connectors.Flowchart
-     * Provides 'flowchart' connectors, consisting of vertical and horizontal line segments.
-     */
-    /**
-     * Function: Constructor
-     * 
-     * Parameters:
-     * 	stub - minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
-     * or an array of two integers, giving separate values for each end. The default is an integer with value 30 (pixels). 
-     *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  defaults to 0 pixels.     
-     * cornerRadius - optional, defines the radius of corners between segments. defaults to 0 (hard edged corners).
-     */
-    jsPlumb.Connectors.Flowchart = function(params) {
-    	this.type = "Flowchart";
-    	params = params || {};
-        var self = this,
-			_super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),		
-        	stub = params.stub || 30, 
-            sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
-            targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
-            gap = params.gap || 0,
-			midpoint = params.midpoint || 0.5,
-        	segments = [],
-            totalLength = 0,
-        	points = [],
-        	swapX, swapY,
-			grid = params.grid,
-			lastx = -1, lasty = -1,			
-			cornerRadius = params.cornerRadius != null ? params.cornerRadius : 10,	
-			/**
-			 * helper method to add a segment.
-			 */
-			addSegment = function(x, y, sx, sy) {
-				
-				var lx = lastx == -1 ? sx : lastx,
-				    ly = lasty == -1 ? sy : lasty;
-					
-					/*
-					 *	halfStroke = self.lineWidth / 2;								
-						
-					// previously:
-					//p = p + " L " + x1 + " " + y1;
-					//p = p + " M " + x1 + " " + y1;
-										
-					// now, with support for painting an extra bit at the end each line:
-		        	p = p + " L " + x1 + " " + y1;											
-					p = p + " L " + (x1 + (multX * halfStroke)) + " " + (y1 + (multY * halfStroke));
-					*/	
-					
-				lastx = x;
-				lasty = y;
-				
-				/*
-				if (cornerRadius != 0) {
-					// adjust x, y appropriately
-					if (lx == x) {
-						// vertical
-						var sgny = jsPlumbUtil.sgn(y - ly);
-						y -= (cornerRadius * sgny);
-					}
-					else {
-						// horizontal
-						var sgnx = jsPlumbUtil.sgn(x - lx);
-						x -= (cornerRadius * sgnx);
-					}					
-						
-					// add an arc segment													
-				}
-				//*/
-							
-				_super.addSegment("Straight", {
-					x1:lx, y1:ly, x2:x, y2:y,
-					cssClass:lx == x ? "jsPlumb-vertical" : "jsPlumb-horizontal"
-				});
-			};
-		
-		this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, 
-            sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
-            segments = [];
-			lastx = -1; lasty = -1;
-			
-			self.lineWidth = lineWidth;
-            
-            swapX = targetPos[0] < sourcePos[0]; 
-            swapY = targetPos[1] < sourcePos[1];
-            
-            var lw = lineWidth || 1,                
-                sourceOffx = (lw / 2) + (sourceStub + targetStub), 
-                targetOffx = (lw / 2) + (targetStub + sourceStub),                 
-                sourceOffy = (lw / 2) + (sourceStub + targetStub),
-                targetOffy = (lw / 2) + (targetStub + sourceStub),
-                so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
-                to = targetAnchor.orientation || targetAnchor.getOrientation(targetEndpoint),
-                x = swapX ? targetPos[0] : sourcePos[0], 
-                y = swapY ? targetPos[1] : sourcePos[1],
-                w = Math.abs(targetPos[0] - sourcePos[0]) + sourceOffx + targetOffx, 
-                h = Math.abs(targetPos[1] - sourcePos[1]) + sourceOffy + targetOffy;
-
-            // if either anchor does not have an orientation set, we derive one from their relative
-            // positions.  we fix the axis to be the one in which the two elements are further apart, and
-            // point each anchor at the other element.  this is also used when dragging a new connection.
-            if (so[0] == 0 && so[1] == 0 || to[0] == 0 && to[1] == 0) {
-                var index = w > h ? 0 : 1, oIndex = [1,0][index];
-                so = []; to = [];
-                so[index] = sourcePos[index] > targetPos[index] ? -1 : 1;
-                to[index] = sourcePos[index] > targetPos[index] ? 1 : -1;
-                so[oIndex] = 0;
-                to[oIndex] = 0;
-            }            			
-
-            var sx = swapX ? (w - targetOffx) +( gap * so[0])  : sourceOffx + (gap * so[0]), 
-                sy = swapY ? (h - targetOffy) + (gap * so[1])  : sourceOffy + (gap * so[1]), 
-                tx = swapX ? sourceOffx + (gap * to[0]) : (w - targetOffx) + (gap * to[0]),
-                ty = swapY ? sourceOffy + (gap * to[1]) : (h - targetOffy) + (gap * to[1]),
-                startStubX = sx + (so[0] * sourceStub), 
-                startStubY = sy + (so[1] * sourceStub),
-                endStubX = tx + (to[0] * targetStub), 
-                endStubY = ty + (to[1] * targetStub),
-                isXGreaterThanStubTimes2 = Math.abs(sx - tx) > (sourceStub + targetStub),
-                isYGreaterThanStubTimes2 = Math.abs(sy - ty) > (sourceStub + targetStub),
-                midx = startStubX + ((endStubX - startStubX) * midpoint),
-                midy = startStubY + ((endStubY - startStubY) * midpoint),
-                oProduct = ((so[0] * to[0]) + (so[1] * to[1])),
-                opposite = oProduct == -1,
-                perpendicular = oProduct == 0,
-                orthogonal = oProduct == 1; 
-            
-            x -= sourceOffx; y -= sourceOffy;
-            points = [x, y, w, h, sx, sy, tx, ty];
-            var extraPoints = [];                                        
-                      
-            var sourceAxis = so[0] == 0 ? "y" : "x",
-                anchorOrientation = opposite ? "opposite" : orthogonal ? "orthogonal" : "perpendicular",
-                segment = jsPlumbUtil.segment([sx, sy], [tx, ty]),
-                flipSourceSegments = so[sourceAxis == "x" ? 0 : 1] == -1,
-                flipSegments = {
-                    "x":[null, 4, 3, 2, 1],
-                    "y":[null, 2, 1, 4, 3]
-                }        
-                
-            if (flipSourceSegments)                
-                segment = flipSegments[sourceAxis][segment];                                    
-            
-			addSegment(startStubX, startStubY, sx, sy);			
-
-            var findClearedLine = function(start, mult, anchorPos, dimension) {
-					return start + (mult * (( 1 - anchorPos) * dimension) + Math.max(sourceStub, targetStub));
-				},
-				lineCalculators = {
-					oppositex : function() {
-						if (sourceEndpoint.elementId == targetEndpoint.elementId) {
-							var _y = startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + Math.max(sourceStub, targetStub);
-							return [ [ startStubX, _y ], [ endStubX, _y ]];
-						}
-						else if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
-							return [[ midx, sy ], [ midx, ty ]];
-						}    
-						else {
-							return [[ startStubX, midy ], [endStubX, midy ]];                
-						}
-					},
-					orthogonalx : function() {
-						if (segment == 1 || segment == 2) {
-							return [ [ endStubX, startStubY  ]];
-						}
-						else {
-							return [ [ startStubX, endStubY ]];
-						}
-					},
-					perpendicularx : function() {                
-						var my = (ty + sy) / 2;
-						if ((segment == 1 && to[1] == 1) || (segment == 2 && to[1] == -1)) {                  
-							if (Math.abs(tx - sx) > Math.max(sourceStub, targetStub))
-								return [ [endStubX, startStubY ]];            
-							else
-								return [ [startStubX, startStubY ], [ startStubX, my ], [ endStubX, my ]];                                
-						}  
-						else if ((segment == 3 && to[1] == -1) || (segment == 4 && to[1] == 1)) {                    
-							return [ [ startStubX, my ], [ endStubX, my ]];
-						}
-						else if ((segment == 3 && to[1] == 1) || (segment == 4 && to[1] == -1)) {                
-							return [ [ startStubX, endStubY ]];
-						}
-						else if ((segment == 1 && to[1] == -1) || (segment == 2 && to[1] == 1)) {                
-							if (Math.abs(tx - sx) > Math.max(sourceStub, targetStub))                    
-								return [ [ midx, startStubY ], [ midx, endStubY ]];                    
-							else
-								return [ [ startStubX, endStubY ]];                                        
-						}
-					},
-					oppositey : function() {
-						if (sourceEndpoint.elementId == targetEndpoint.elementId) {
-							var _x = startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + Math.max(sourceStub, targetStub);
-							return [ [ _x, startStubY ], [ _x, endStubY ]];
-						}
-						else if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
-							return [[ sx, midy ], [ tx, midy ]];
-						}    
-						else {
-							return [[ midx, startStubY ], [midx, endStubY ]];                
-						}
-					},
-					orthogonaly : function() {
-						if (segment == 2 || segment == 3) {
-							return [ [ startStubX, endStubY  ]];
-						}
-						else {
-							return [ [ endStubX, startStubY ]];
-						}
-					},
-					perpendiculary : function() {                
-						var mx = (tx + sx) / 2;
-						if ((segment == 2 && to[0] == -1) || (segment == 3 && to[0] == 1)) {                    
-							if (Math.abs(tx - sx) > Math.max(sourceStub, targetStub))
-								return [ [startStubX, endStubY ]];                    
-							else
-								return [ [startStubX, midy ], [ endStubX, midy ]];                                        
-						}  
-						else if ((segment == 1 && to[0] == -1) || (segment == 4 && to[0] == 1)) {
-							var mx = (tx + sx) / 2;
-							return [ [ mx, startStubY ], [ mx, endStubY ]];
-						}
-						else if ((segment == 1 && to[0] == 1) || (segment == 4 && to[0] == -1)) {                
-							return [ [ endStubX, startStubY ]];
-						}
-						else if ((segment == 2 && to[0] == 1) || (segment == 3 && to[0] == -1)) {                
-							if (Math.abs(ty - sy) > Math.max(sourceStub, targetStub))                    
-								return [ [ startStubX, midy ], [ endStubX, midy ]];                  
-							else
-								return [ [ endStubX, startStubY ]];                                    
-						}
-					}
-				};                                                 
-
-            var p = lineCalculators[anchorOrientation + sourceAxis]();
-            if (p) {
-                for (var i = 0; i < p.length; i++) {
-                    addSegment(p[i][0], p[i][1], sx, sy);
-                }
-            }                                                    
-
-            addSegment(endStubX, endStubY, sx, sy);
-            addSegment(tx, ty, sx, sy);          
-            
-            return points;
-        };		
-    };
+    
 
  // ********************************* END OF CONNECTOR TYPES *******************************************************************
     
