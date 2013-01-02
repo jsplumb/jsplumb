@@ -17,6 +17,14 @@
 		- return value from jsPlumb.select and jsPlumb.selectEndpoints now supports the 'setType' method.
 		
 		- setType/addType functions now support parameterised types.
+        
+        - added 'remove' function to jsPlumb: removes an element from the DOM and its associated
+        Endpoints and their Connections.
+        
+        - flowchart connectors support a 'cornerRadius' parameter, which allows you
+        to specify a radius for curved corners.  default is 0.
+        
+        - Straight connectors now support the 'stub' parameter.
 		
 		ISSUES
 		
@@ -27,6 +35,7 @@
 		296	-	docs refer to 'removeEveryEndpoint'; they should refer to 'deleteEveryEndpoint'
 		297 -	cannot use connection types
         300 -   typo in unmakeSource 
+        302 -   removeAllEndpoints not functioning correctly
         303 -   mixture of continuous and static anchors causes paint issues
 		
 		MISCELLANEOUS
