@@ -42,9 +42,7 @@ border-color:#5d94a6;
 #window6 {top:30em;left:64em;}
 #window7 {top:52em;left:6em;}
 #window8 {left:66em;top:32em;}
-._jsPlumb_connector { z-index:4; }
-._jsPlumb_endpoint { z-index:5; }
-._jsPlumb_overlay { z-index:6; }
+
 .hl { border:3px solid red; }
 
 /*        SVG styles.  Apart from the fact that SVG uses far less memory than Canvas, you can style it!   
