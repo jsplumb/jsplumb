@@ -912,7 +912,7 @@
 			
 			// hotwire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
 			if (_p.source && _p.source.endpoint) _p.sourceEndpoint = _p.source;
-			if (_p.source && _p.target.endpoint) _p.targetEndpoint = _p.target;
+			if (_p.target && _p.target.endpoint) _p.targetEndpoint = _p.target;
 			
 			// test for endpoint uuids to connect
 			if (params.uuids) {
