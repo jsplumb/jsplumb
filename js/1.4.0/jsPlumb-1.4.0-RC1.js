@@ -261,9 +261,9 @@
 		    
 		    this.isHover = function() { return _hover; };
 			
-			var zIndex = null;
-			this.setZIndex = function(v) { zIndex = v; };
-			this.getZIndex = function() { return zIndex; };
+			//var zIndex = null;
+			//this.setZIndex = function(v) { zIndex = v; };
+			//this.getZIndex = function() { return zIndex; };
 
 			var jpcl = jsPlumb.CurrentLibrary,
 				events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
@@ -638,7 +638,6 @@
 		 *  -   *ConnectionsDetachable*		Whether or not connections are detachable by default (using the mouse). Defaults to true.
 		 *  -   *ConnectionOverlays*		The default overlay definitions for Connections. Defaults to an empty list.
 		 * 	-	*Connector*				The default connector definition to use for all connections.  Default is "Bezier".
-		 * 	-   *ConnectorZIndex*       Optional value for the z-index of Connections that are not in the hover state. If you set this, jsPlumb will set the z-index of all created Connections to be this value, and the z-index of any Connections in the hover state to be this value plus one. This brings hovered connections up on top of others, which is a nice effect in busy UIs.
 		 *  -   *Container*				Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element.
 		 * 	-	*DragOptions*			The default drag options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*DropOptions*			The default drop options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
@@ -665,7 +664,6 @@
             ConnectionsDetachable : true,
             ConnectionOverlays : [ ],
             Connector : "Bezier",
-			ConnectorZIndex : null,
 			Container : null,
 			DragOptions : { },
 			DropOptions : { },
@@ -2062,7 +2060,7 @@ between this method and jsPlumb.reset).
 				setParameter:setter(list, "setParameter", executor),		
 				setParameters:setter(list, "setParameters", executor),
 				setVisible:setter(list, "setVisible", executor),
-				setZIndex:setter(list, "setZIndex", executor),
+				//setZIndex:setter(list, "setZIndex", executor),
 				repaint:setter(list, "repaint", executor),
 				addType:setter(list, "addType", executor),
 				toggleType:setter(list, "toggleType", executor),
@@ -4445,9 +4443,6 @@ between this method and jsPlumb.reset).
 			// override setHover to pass it down to the underlying connector
 			_superClassHover = self.setHover;
 			self.setHover = function(state) {
-				var zi = _currentInstance.ConnectorZIndex || jsPlumb.Defaults.ConnectorZIndex;
-				if (zi)
-					self.connector.setZIndex(zi + (state ? 1 : 0));
 				self.connector.setHover.apply(self.connector, arguments);				
 				_superClassHover.apply(self, arguments);
 			};
@@ -4493,20 +4488,23 @@ between this method and jsPlumb.reset).
 					else
 						this.connector = makeConnector(renderMode, connector[0], jsPlumbUtil.merge(connector[1], connectorArgs));
 				}
-				self.canvas = self.connector.canvas;
+				self.canvas = self.connector.canvas;                
 				// binds mouse listeners to the current connector.
 				_bindListeners(self.connector, self, _internalHover);
                 
                 // bind to mousedown and mouseup, for editing
-                self.connector.bind("mousedown", function(e) {
-                    console.log("mousedown");
+                self.connector.bind("mousedown", function(c, e) {
+                    var x = (e.pageX || e.page.x),
+                        y = (e.pageY || e.page.y),
+                        oe = jsPlumb.CurrentLibrary.getElementObject(self.canvas),
+                        o = jsPlumb.CurrentLibrary.getOffset(oe);
+                    
+                    //var    p = self.connector.findSegmentForPoint(x - o.left, y - o.top);
+                    self.connector.editStart(x - o.left, y - o.top);
+                    
+                    console.log("mousedown", x, y, o);
                     jsPlumb.CurrentLibrary.bind(document, "mouseup", documentMouseUp);
-                });
-				
-				// set z-index if it was set on Defaults.
-				var zi = _currentInstance.ConnectorZIndex || jsPlumb.Defaults.ConnectorZIndex;
-				if (zi)
-					self.connector.setZIndex(zi);
+                });				
                 
                 // if underlying connector not editable, set editable to false;
                 if (!self.connector.isEditable())
