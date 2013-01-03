@@ -261,7 +261,6 @@
 					x = 0, y = 0;
 				}
 				var p = _pos([x, y, d[2], d[3]]);
-				if (self.getZIndex()) p += ";z-index:" + self.getZIndex() + ";";
                 
                 renderer.paint.apply(this, arguments);		    			    	
                 
