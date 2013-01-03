@@ -77,8 +77,11 @@
                             sgnEqual = sgny == sgnx,
                             cx = (sgnEqual && ac || (!sgnEqual && !ac)) ? next[0] : current[2],
                             cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];                                                        
+                        
+                        _super.addSegment("Straight", {
+                            x1:segments[i][0], y1:segments[i][1], x2:segments[i][2], y2:segments[i][3]
+                        });
                             
-                        //*
                         _super.addSegment("Arc", {
                             r:cornerRadius, 
                             x1:current[2], 
@@ -88,13 +91,13 @@
                             cx:cx,
                             cy:cy,
                             ac:ac
-                        });
-                        //*/						
+                        });				
                     }
-                    
-                    _super.addSegment("Straight", {
-                        x1:segments[i][0], y1:segments[i][1], x2:segments[i][2], y2:segments[i][3]
-                    });
+                    else {
+                        _super.addSegment("Straight", {
+                            x1:segments[i][0], y1:segments[i][1], x2:segments[i][2], y2:segments[i][3]
+                        });
+                    }
                 }
                 var ls = segments[segments.length - 1];
                 // last segment
@@ -124,83 +127,108 @@
                 },
                 lineCalculators = {
                     oppositex : function() {
-                        if (sourceEndpoint.elementId == targetEndpoint.elementId) {
-                            var _y = paintInfo.startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + _super.maxStub;
-                            return [ [ paintInfo.startStubX, _y ], [ paintInfo.endStubX, _y ]];
-                        }
-                        else if (paintInfo.isXGreaterThanStubTimes2 && (paintInfo.segment == 1 || paintInfo.segment == 2)) {
-                            return [[ midx, paintInfo.sy ], [ midx, paintInfo.ty ]];
-                        }    
-                        else {                            
-                            return [[ paintInfo.startStubX, midy ], [ paintInfo.endStubX, midy ]];                
+                        with (paintInfo) {                                                
+                            if (sourceEndpoint.elementId == targetEndpoint.elementId) {
+                                var _y = startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + _super.maxStub;
+                                return [ [ startStubX, _y ], [ endStubX, _y ]];
+                            }
+                            else if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
+                                return [[ midx, paintInfo.sy ], [ midx, paintInfo.ty ]];
+                            }    
+                            else {                            
+                                return [[ startStubX, midy ], [ endStubX, midy ]];                
+                            }
                         }
                     },
                     orthogonalx : function() {
-                        if (paintInfo.segment == 1 || paintInfo.segment == 2) {
-                            return [ [ paintInfo.endStubX, paintInfo.startStubY  ]];
-                        }
-                        else {
-                            return [ [ paintInfo.startStubX, paintInfo.endStubY ]];
+                        with (paintInfo) {                        
+                            if (segment == 1 || segment == 2) {
+                                return [ [ endStubX, startStubY  ]];
+                            }
+                            else {
+                                return [ [ startStubX, endStubY ]];
+                            }
                         }
                     },
-                    perpendicularx : function() {                
-                        if ((paintInfo.segment == 1 && paintInfo.to[1] == 1) || (paintInfo.segment == 2 && paintInfo.to[1] == -1)) {                  
-                            if (Math.abs(paintInfo.tx - paintInfo.sx) > _super.maxStub)
-                                return [ [ paintInfo.endStubX, paintInfo.startStubY ]];            
-                            else
-                                return [ [ paintInfo.startStubX, paintInfo.startStubY ], [ paintInfo.startStubX, paintInfo.my ], [ paintInfo.endStubX, paintInfo.my ]];                                
-                        }  
-                        else if ((paintInfo.segment == 3 && paintInfo.to[1] == -1) || (paintInfo.segment == 4 && paintInfo.to[1] == 1)) {                    
-                            return [ [ paintInfo.startStubX, paintInfo.my ], [ paintInfo.endStubX, paintInfo.my ]];
-                        }
-                        else if ((paintInfo.segment == 3 && paintInfo.to[1] == 1) || (paintInfo.segment == 4 && paintInfo.to[1] == -1)) {                
-                            return [ [ paintInfo.startStubX, paintInfo.endStubY ]];
-                        }
-                        else if ((paintInfo.segment == 1 && paintInfo.to[1] == -1) || (paintInfo.segment == 2 && paintInfo.to[1] == 1)) {                
-                            if (Math.abs(paintInfo.tx - paintInfo.sx) > _super.maxStub)                    
-                                return [ [ midx, paintInfo.startStubY ], [ midx, paintInfo.endStubY ]];                    
-                            else
-                                return [ [ paintInfo.startStubX, paintInfo.endStubY ]];                                        
+                    perpendicularx : function() { 
+                        with (paintInfo) {
+                           // console.log("perpendicularX, segment is", segment, "sx,sy", sourcePos, "tx,ty", targetPos);
+                            if ((segment == 1 && to[1] == 1) || (segment == 2 && to[1] == -1)) {                  
+                                if (xSpan > _super.maxStub) {
+                                    /*
+                                    // here we need to check if we need to loop up to endstuby or whether we can just link directly.
+                                    if (endStubY < startStubY) {
+                                        var _sgn = sgn(startStubX - endStubX);
+                                        return [
+                                            [ endStubX + (_sgn * _super.targetStub), startStubY ],
+                                            [ endStubX + (_sgn * _super.targetStub), endStubY ],
+                                            [ endStubX, endStubY ]                                                                                        
+                                        ];
+                                    }*/
+                                    return [ [ endStubX, startStubY ]];  
+    
+                                }
+                                else
+                                    return [ [ startStubX, startStubY ], [ startStubX, my ], [ endStubX, my ]];                                
+                            }  
+                            else if ((segment == 3 && to[1] == -1) || (segment == 4 && to[1] == 1)) {                    
+                                return [ [ startStubX, my ], [ endStubX, my ]];
+                            }
+                            else if ((segment == 3 && to[1] == 1) || (segment == 4 && to[1] == -1)) {                
+                                return [ [ startStubX, endStubY ]];
+                            }
+                            else if ((segment == 1 && to[1] == -1) || (segment == 2 && to[1] == 1)) {                
+                                if (xSpan > _super.maxStub)                    
+                                    return [ [ midx, startStubY ], [ midx, endStubY ]];                    
+                                else
+                                    return [ [ startStubX, endStubY ]];                                        
+                            }
                         }
                     },
                     oppositey : function() {
-                        if (sourceEndpoint.elementId == targetEndpoint.elementId) {
-                            var _x = paintInfo.startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + _super.maxStub;
-                            return [ [ _x, paintInfo.startStubY ], [ _x, paintInfo.endStubY ]];
-                        }
-                        else if (paintInfo.isYGreaterThanStubTimes2 && (paintInfo.segment == 2 || paintInfo.segment == 3)) {
-                            return [[ paintInfo.sx, midy ], [ paintInfo.tx, midy ]];
-                        }    
-                        else {
-                            return [[ midx, paintInfo.startStubY ], [midx, paintInfo.endStubY ]];                
+                        with (paintInfo) {
+                            if (sourceEndpoint.elementId == targetEndpoint.elementId) {
+                                var _x = startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + _super.maxStub;
+                                return [ [ _x, startStubY ], [ _x, endStubY ]];
+                            }
+                            else if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
+                                return [[ sx, midy ], [ tx, midy ]];
+                            }    
+                            else {
+                                return [[ midx, startStubY ], [midx, endStubY ]];                
+                            }
                         }
                     },
                     orthogonaly : function() {
-                        if (paintInfo.segment == 2 || paintInfo.segment == 3) {
-                            return [ [ paintInfo.startStubX, paintInfo.endStubY  ]];
-                        }
-                        else {
-                            return [ [ paintInfo.endStubX, paintInfo.startStubY ]];
+                        with (paintInfo) {
+                            if (segment == 2 || segment == 3) {
+                                return [ [ startStubX, endStubY  ]];
+                            }
+                            else {
+                                return [ [ endStubX, startStubY ]];
+                            }
                         }
                     },
-                    perpendiculary : function() {                
-                        if ((paintInfo.segment == 2 && paintInfo.to[0] == -1) || (paintInfo.segment == 3 && paintInfo.to[0] == 1)) {                    
-                            if (Math.abs(paintInfo.tx - paintInfo.sx) > _super.maxStub)
-                                return [ [paintInfo.startStubX, paintInfo.endStubY ]];                    
-                            else
-                                return [ [paintInfo.startStubX, midy ], [ paintInfo.endStubX, midy ]];                                        
-                        }  
-                        else if ((paintInfo.segment == 1 && paintInfo.to[0] == -1) || (paintInfo.segment == 4 && paintInfo.to[0] == 1)) {
-                            return [ [ paintInfo.mx, paintInfo.startStubY ], [ paintInfo.mx, paintInfo.endStubY ]];
-                        }
-                        else if ((paintInfo.segment == 1 && paintInfo.to[0] == 1) || (paintInfo.segment == 4 && paintInfo.to[0] == -1)) {                
-                            return [ [ paintInfo.endStubX, paintInfo.startStubY ]];
-                        }
-                        else if ((paintInfo.segment == 2 && paintInfo.to[0] == 1) || (paintInfo.segment == 3 && paintInfo.to[0] == -1)) {                
-                            if (Math.abs(paintInfo.ty - paintInfo.sy) > _super.maxStub)                    
-                                return [ [ paintInfo.startStubX, midy ], [ paintInfo.endStubX, midy ]];                  
-                            else
-                                return [ [ paintInfo.endStubX, paintInfo.startStubY ]];                                    
+                    perpendiculary : function() {    
+                        with (paintInfo) {                        
+                            if ((segment == 2 && to[0] == -1) || (segment == 3 && to[0] == 1)) {                    
+                                if (xSpan > _super.maxStub)
+                                    return [ [startStubX, endStubY ]];                    
+                                else
+                                    return [ [startStubX, midy ], [ endStubX, midy ]];                                        
+                            }  
+                            else if ((segment == 1 && to[0] == -1) || (segment == 4 && to[0] == 1)) {
+                                return [ [ mx, startStubY ], [ mx, endStubY ]];
+                            }
+                            else if ((segment == 1 && to[0] == 1) || (segment == 4 && to[0] == -1)) {                
+                                return [ [ endStubX, startStubY ]];
+                            }
+                            else if ((segment == 2 && to[0] == 1) || (segment == 3 && to[0] == -1)) {                
+                                if (ySpan > _super.maxStub)                    
+                                    return [ [ startStubX, midy ], [ endStubX, midy ]];                  
+                                else
+                                    return [ [ endStubX, startStubY ]];                                    
+                            }
                         }
                     }
                 };                                                 
