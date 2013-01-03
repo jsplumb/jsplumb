@@ -126,28 +126,44 @@
             notes on this method in AbstractSegment.
         */
         this.findClosestPointOnPath = function(x, y) {
-            // closest point lies on normal from given point to this line.  
-            var b = params.y1 - (m * params.x1),
-                b2 = y - (m2 * x),
-            // now we know that
-            // y1 = m.x1 + b
-            // and
-            // y1 = m2.x1 + b2
-            // so
-            // m.x1 + b = m2.x1 + b2
-            // x1(m - m2) = b2 - b
-            // x1 = (b2 - b) / (m - m2)
-                x1 = (b2 -b) / (m - m2),
-                y1 = (m * x1) + b,
-                d = jsPlumbUtil.lineLength([ x, y ], [ x1, y1 ]),
-                fractionInSegment = jsPlumbUtil.lineLength([ x1, y1 ], [ params.x1, params.y1 ]);
-            
-            return {
-                d:d,
-                x:x1,
-                y:y1,
-                l:fractionInSegment / length
-            };            
+            if (m == 0) {
+                return {
+                    x:x,
+                    y:params.y1,
+                    d:Math.abs(y - params.y1)
+                };
+            }
+            else if (m == Infinity || m == -Infinity) {
+                return {
+                    x:params.x1,
+                    y:y,
+                    d:Math.abs(x = params.x1)
+                };
+            }
+            else {
+                // closest point lies on normal from given point to this line.  
+                var b = params.y1 - (m * params.x1),
+                    b2 = y - (m2 * x),
+                // now we know that
+                // y1 = m.x1 + b
+                // and
+                // y1 = m2.x1 + b2
+                // so
+                // m.x1 + b = m2.x1 + b2
+                // x1(m - m2) = b2 - b
+                // x1 = (b2 - b) / (m - m2)
+                    x1 = (b2 -b) / (m - m2),
+                    y1 = (m * x1) + b,
+                    d = jsPlumbUtil.lineLength([ x, y ], [ x1, y1 ]),
+                    fractionInSegment = jsPlumbUtil.lineLength([ x1, y1 ], [ params.x1, params.y1 ]);
+                
+                return {
+                    d:d,
+                    x:x1,
+                    y:y1,
+                    l:fractionInSegment / length
+                };            
+            }
         };
 	};
 	
@@ -236,9 +252,16 @@
          */
         this.pointOnPath = function(location, absolute) {
 
-           if (absolute) {
+            if (absolute) {
 				location = location / self.getLength();
 			}
+            
+            if (location == 0) {
+                return { x:self.x1, y:self.y1 };    
+            }
+            else if (location == 1) {
+                return { x:self.x2, y:self.y2 };                    
+            }
 
 			/*if (location > 0 && location < 1) location = 1 - location;
 			// the path length is the circumference of the circle
@@ -257,7 +280,7 @@
          */
         this.gradientAtPoint = function(location, absolute) {
             var p = self.pointOnPath(location, absolute);
-            return jsPlumbUtil.normal(params.cx, params.cy, p.x, p.y);
+            return jsPlumbUtil.normal( [ params.cx, params.cy ], [p.x, p.y ] );
         };	              
                 
         this.pointAlongPathFrom = function(location, distance, absolute) {
@@ -358,6 +381,15 @@
         // subclasses should override.
         this.isEditable = function() { return false; };
         
+        // notification that the mouse was pressed on a path.
+        // these values are adjusted to the connector's canvas.
+        // not sure right now, as i write this, if they need to be
+        // further adjusted inside this method.
+        this.editStart = function(x, y) {
+            var s = self.findSegmentForPoint(x, y);
+            console.log("segment is ", s);
+        };
+        
         /**
         * Function: findSegmentForPoint
         * Returns the segment that is closest to the given [x,y],
@@ -370,11 +402,12 @@
         *   y   -   y point on the segment
         *   s   -   the segment itself.
         */ 
-        this.findClosestPointOnPath = function(x, y) {
+        this.findSegmentForPoint = function(x, y) {
             var out = { d:Infinity, s:null, x:null, y:null, l:null };
             for (var i = 0; i < segments.length; i++) {
                 var _s = segments[i].findClosestPointOnPath(x, y);
-                if (_s.d < d) {
+                console.log("closest point for segment", _s, segments[i].type);
+                if (_s.d < out.d) {
                     out.d = _s.d; 
                     out.l = _s.l; 
                     out.x = _s.x;
@@ -440,7 +473,8 @@
             sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
             
             self.lineWidth = lineWidth;
-            var swapX = targetPos[0] < sourcePos[0],
+            var segment = jsPlumbUtil.segment(sourcePos, targetPos),
+                swapX = targetPos[0] < sourcePos[0],
                 swapY = targetPos[1] < sourcePos[1];
                 lw = lineWidth || 1,                
                 sourceOffx = (lw / 2) + (sourceStub + targetStub), 
@@ -475,10 +509,12 @@
             
             var result = {
                 sx:sx, sy:sy, tx:tx, ty:ty, lw:lw, 
+                xSpan:Math.abs(tx - sx),
+                ySpan:Math.abs(ty - sy),                
                 mx:(sx + tx) / 2,
                 my:(sy + ty) / 2,                
                 so:so, to:to, x:x, y:y, w:w, h:h,
-                segment : jsPlumbUtil.segment([ sx, sy ], [ tx, ty ]),
+                segment : segment,
                 sourceOffx:sourceOffx, sourceOffy:sourceOffy,
                 targetOffx:targetOffx, targetOffy:targetOffy,
                 startStubX : sx + (so[0] * sourceStub), 
@@ -507,6 +543,13 @@
         };
 		
 		this.getSegments = function() { return segments; };
+        
+        var dumpSegmentsToConsole = function() {
+            console.log("SEGMENTS:");
+            for (var i = 0; i < segments.length; i++) {
+                console.log(segments[i].type, segments[i].getLength(), segmentProportions[i]);
+            }
+        };
 		
 		this.pointOnPath = function(location, absolute) {
 			var seg = _findSegmentForLocation(location, absolute);			
