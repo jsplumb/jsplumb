@@ -4784,6 +4784,66 @@ var testSuite = function(renderMode, _jsPlumb) {
             ok(false, msg + "; expected " + v1 + " got " + v2);
         }
     };
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 1", function() {
+		var p1 = [2,0], p2 = [3,-1], s = jsPlumbUtil.segment(p1,p2);
+		equal(s, 1, "segment 1 correct");
+	});        
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 2", function() {
+		var p1 = [2,0], p2 = [3,1], s = jsPlumbUtil.segment(p1,p2);
+		equal(s, 2, "segment 2 correct");
+	});    
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 3", function() {
+		var p1 = [416.7166748046875, 116.13333129882812], 
+            p2 = [95.10000610351562, 391.6666564941406], 
+            s = jsPlumbUtil.segment(p1,p2);
+        
+		equal(s, 3, "segment 3 correct");
+	});    
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 3", function() {
+		var p1 = [2,0], p2 = [1,1], s = jsPlumbUtil.segment(p1,p2);
+		equal(s, 3, "segment 3 correct");
+	});        
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 4", function() {
+		var p1 = [2,0], p2 = [1,-1], s = jsPlumbUtil.segment(p1,p2);
+		equal(s, 4, "segment 4 correct");
+	});        
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 1 edge case", function() {
+		var p1 = [2,0], p2 = [3,0], s = jsPlumbUtil.segment(p1,p2);
+		equal(s, 1, "segment 1 correct");
+	});        
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 2 edge case", function() {
+		var p1 = [2,0], p2 = [2,1], s = jsPlumbUtil.segment(p1,p2);
+		equal(s, 2, "segment 2 correct");
+	});   
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 3 edge case", function() {
+		var p1 = [2,0], p2 = [1,0], s = jsPlumbUtil.segment(p1,p2);
+		equal(s, 4, "segment 4 correct");
+	});        
+    
+    test(renderMode + " jsPlumbUtil.segment, segment 4 edge case", function() {
+		var p1 = [2,0], p2 = [2,-1], s = jsPlumbUtil.segment(p1,p2);
+		equal(s, 1, "segment 1 correct");
+	});        
+    
+    
+    test(renderMode + " jsPlumbUtil.gradient, horizontal line", function() {
+		var p1 = [2,0], p2 = [3,0], m = jsPlumbUtil.gradient(p1,p2);
+		equal(m, 0, "gradient calculated correctly for horizontal line");
+	});    
+
+    test(renderMode + " jsPlumbUtil.gradient, vertical line", function() {
+		var p1 = [0,2], p2 = [0,3], m = jsPlumbUtil.gradient(p1,p2);
+		equal(m, Infinity, "gradient calculated correctly for vertical line");
+	});        
+    
     test(renderMode + " jsPlumbUtil.gradient, segment 1", function() {
 		var p1 = [2,2], p2 = [3,1], m = jsPlumbUtil.gradient(p1,p2);
 		equal(m, -1, "gradient calculated correctly for simple case");
@@ -5029,8 +5089,10 @@ var testSuite = function(renderMode, _jsPlumb) {
         var p3 = s.pointOnPath(0.5);
         within(p3.x, 10 - (Math.sqrt(2) / 2 * 10), ok, "end x is correct");
         within(p3.y, -(Math.sqrt(2) / 2 * 10), ok, "end y is correct");                        
-        // gradient at point 0 is 0
-        equal(s.gradientAtPoint(0), 0, "gradient at point 0 is 0");
+        // gradients
+        equal(s.gradientAtPoint(0), Infinity, "gradient at location 0 is Infinity");
+        equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");        
+        within(s.gradientAtPoint(0.5), -1, ok, "gradient at location 0.5 is -1");                
         
         // an arc up and to the left (anticlockwise)
         params = { r:r, x1:0, y1:0, x2:-10,  y2:-10, cx:-10, cy:0, ac:true };  
@@ -5048,6 +5110,10 @@ var testSuite = function(renderMode, _jsPlumb) {
         p3 = s.pointOnPath(0.5);
         within(p3.x, -2.9289321881345245, ok, "end x is correct");
         within(p3.y, -7.071067811865477, ok, "end y is correct");                        
+        // gradients
+        equal(s.gradientAtPoint(0), Infinity, "gradient at location 0 is Infinity");
+        equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");        
+        within(s.gradientAtPoint(0.5), 1, ok, "gradient at location 0.5 is 1");                
 
         
         
