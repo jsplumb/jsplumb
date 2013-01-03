@@ -125,113 +125,140 @@
             var findClearedLine = function(start, mult, anchorPos, dimension) {
                     return start + (mult * (( 1 - anchorPos) * dimension) + _super.maxStub);
                 },
+                oneperp = function(axis) {
+                    with (paintInfo) {
+                        var sis = {
+                            x:[ [ [ 1,2,3,4 ], null, [ 2,1,4,3 ] ], null, [ [ 4,3,2,1 ], null, [ 3,4,1,2 ] ] ],
+                            y:[ [ [ 3,2,1,4 ], null, [ 2,3,4,1 ] ], null, [ [ 4,1,2,3 ], null, [ 1,4,3,2 ] ] ]
+                        },
+                        stubs = { 
+                            x:[ [ startStubX, endStubX ] , null, [ endStubX, startStubX ] ],
+                            y:[ [ startStubY, endStubY ] , null, [ endStubY, startStubY ] ]
+                        },
+                        midLines = {
+                            x:[ [ midx, startStubY ], [ midx, endStubY ] ],
+                            y:[ [ startStubX, midy ], [ endStubX, midy ] ]
+                        },
+                        linesToEnd = {
+                            x:[ [ endStubX, startStubY ] ],
+                            y:[ [ startStubX, endStubY ] ]
+                        },
+                        startToEnd = {
+                            x:[ [ startStubX, endStubY ], [ endStubX, endStubY ] ],        
+                            y:[ [ endStubX, startStubY ], [ endStubX, endStubY ] ]
+                        },
+                        startToMidToEnd = {
+                            x:[ [ startStubX, midy ], [ endStubX, midy ], [ endStubX, endStubY ] ],
+                            y:[ [ midx, startStubY ], [ midx, endStubY ], [ endStubX, endStubY ] ]
+                        },
+                        otherStubs = {
+                            x:[ startStubY, endStubY ],
+                            y:[ startStubX, endStubX ]                                    
+                        },
+                        orientations = { x:[ 0, 1 ], y:[ 1, 0 ] },                                    
+                        soIdx = orientations[axis][0], toIdx = orientations[axis][1],
+                        _so = so[soIdx] + 1,
+                        _to = to[toIdx] + 1,
+                        otherFlipped = (to[toIdx] == -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (to[toIdx] == 1 && (otherStubs[axis][1] > otherStubs[axis][0])),
+                        stub1 = stubs[axis][_so][0],
+                        stub2 = stubs[axis][_so][1],
+                        segmentIndexes = sis[axis][_so][_to];
+                        
+                        if (segment == segmentIndexes[3] || (segment == segmentIndexes[2] && otherFlipped)) {
+                            return midLines[axis];       
+                        }
+                        else if (segment == segmentIndexes[2] && stub2 < stub1) {
+                            return linesToEnd[axis];
+                        }
+                        else if ((segment == segmentIndexes[2] && stub2 >= stub1) || (segment == segmentIndexes[1] && !otherFlipped)) {
+                            return startToMidToEnd[axis];
+                        }
+                        else if (segment == segmentIndexes[0] || (segment == segmentIndexes[1] && otherFlipped)) {
+                            return startToEnd[axis];  
+                        }                                
+                    }                                
+                },
                 lineCalculators = {
                     oppositex : function() {
-                        with (paintInfo) {                                                
+                        with (paintInfo) {        
+                        // WORKS ALWAYS
                             if (sourceEndpoint.elementId == targetEndpoint.elementId) {
                                 var _y = startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + _super.maxStub;
                                 return [ [ startStubX, _y ], [ endStubX, _y ]];
+                            }                                                        
+                            else if (!isXGreaterThanStubTimes2 || (so[0] == 1 && startStubX > endStubX)
+                               || (so[0] == -1 && startStubX < endStubX)) {
+                                return [[ startStubX, midy ], [ endStubX, midy ]];                                            
                             }
-                            else if (isXGreaterThanStubTimes2 && (segment == 1 || segment == 2)) {
+                            else if ((so[0] == 1 && startStubX < endStubX) || (so[0] == -1 && startStubX > endStubX)) {
                                 return [[ midx, paintInfo.sy ], [ midx, paintInfo.ty ]];
-                            }    
-                            else {                            
-                                return [[ startStubX, midy ], [ endStubX, midy ]];                
                             }
                         }
                     },
                     orthogonalx : function() {
+                        // WORKS ALWAYS
                         with (paintInfo) {                        
-                            if (segment == 1 || segment == 2) {
-                                return [ [ endStubX, startStubY  ]];
-                            }
-                            else {
-                                return [ [ startStubX, endStubY ]];
-                            }
+                            var xExtent = so[0] == -1 ? Math.min(startStubX, endStubX) : Math.max(startStubX, endStubX);
+                            return [ 
+                                [ xExtent, startStubY ],
+                                [ xExtent, endStubY ],
+                                [ endStubX, endStubY ]
+                            ];
+
                         }
                     },
                     perpendicularx : function() { 
-                        with (paintInfo) {
-                           // console.log("perpendicularX, segment is", segment, "sx,sy", sourcePos, "tx,ty", targetPos);
-                            if ((segment == 1 && to[1] == 1) || (segment == 2 && to[1] == -1)) {                  
-                                if (xSpan > _super.maxStub) {
-                                    /*
-                                    // here we need to check if we need to loop up to endstuby or whether we can just link directly.
-                                    if (endStubY < startStubY) {
-                                        var _sgn = sgn(startStubX - endStubX);
-                                        return [
-                                            [ endStubX + (_sgn * _super.targetStub), startStubY ],
-                                            [ endStubX + (_sgn * _super.targetStub), endStubY ],
-                                            [ endStubX, endStubY ]                                                                                        
-                                        ];
-                                    }*/
-                                    return [ [ endStubX, startStubY ]];  
-    
-                                }
-                                else
-                                    return [ [ startStubX, startStubY ], [ startStubX, my ], [ endStubX, my ]];                                
-                            }  
-                            else if ((segment == 3 && to[1] == -1) || (segment == 4 && to[1] == 1)) {                    
-                                return [ [ startStubX, my ], [ endStubX, my ]];
-                            }
-                            else if ((segment == 3 && to[1] == 1) || (segment == 4 && to[1] == -1)) {                
-                                return [ [ startStubX, endStubY ]];
-                            }
-                            else if ((segment == 1 && to[1] == -1) || (segment == 2 && to[1] == 1)) {                
-                                if (xSpan > _super.maxStub)                    
-                                    return [ [ midx, startStubY ], [ midx, endStubY ]];                    
-                                else
-                                    return [ [ startStubX, endStubY ]];                                        
-                            }
-                        }
+                        return oneperp("x");                                                   
                     },
                     oppositey : function() {
+                        // WORKS ALWAYS
                         with (paintInfo) {
                             if (sourceEndpoint.elementId == targetEndpoint.elementId) {
                                 var _x = startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + _super.maxStub;
                                 return [ [ _x, startStubY ], [ _x, endStubY ]];
                             }
-                            else if (isYGreaterThanStubTimes2 && (segment == 2 || segment == 3)) {
+                            else if (!isYGreaterThanStubTimes2 || (so[1] == 1 && startStubY > endStubY)
+                               || (so[1] == -1 && startStubY < endStubY)) {
+                                return [[ midx, startStubY ], [ midx, endStubY ]];                                            
+                            }
+                            else if ((so[1] == 1 && startStubY < endStubY) || (so[1] == -1 && startStubY > endStubY)) {
                                 return [[ sx, midy ], [ tx, midy ]];
-                            }    
-                            else {
-                                return [[ midx, startStubY ], [midx, endStubY ]];                
                             }
                         }
                     },
                     orthogonaly : function() {
+                        // WORKS ALWAYS
                         with (paintInfo) {
-                            if (segment == 2 || segment == 3) {
-                                return [ [ startStubX, endStubY  ]];
-                            }
-                            else {
-                                return [ [ endStubX, startStubY ]];
-                            }
+                            var yExtent = so[1] == -1 ? Math.min(startStubY, endStubY) : Math.max(startStubY, endStubY);
+                            return [ 
+                                [ startStubX, yExtent ],
+                                [ endStubX, yExtent ],
+                                [ endStubX, endStubY ]
+                            ];
                         }
                     },
                     perpendiculary : function() {    
-                        with (paintInfo) {                        
-                            if ((segment == 2 && to[0] == -1) || (segment == 3 && to[0] == 1)) {                    
-                                if (xSpan > _super.maxStub)
-                                    return [ [startStubX, endStubY ]];                    
-                                else
-                                    return [ [startStubX, midy ], [ endStubX, midy ]];                                        
-                            }  
-                            else if ((segment == 1 && to[0] == -1) || (segment == 4 && to[0] == 1)) {
-                                return [ [ mx, startStubY ], [ mx, endStubY ]];
+                       /* with (paintInfo) {
+                            if (so[1] == -1) {
+                                if (segment == 1 && endStubY < startStubY) {
+                                    return [ [startStubX, endStubY ] ];
+                                }
+                                else if ( (segment ==1 && endStubY > startStubY) || (segment == 2) ){
+                                    return [
+                                        [ midx, startStubY ],
+                                        [ midx, endStubY ],
+                                        [ endStubX, endStubY ]
+                                    ];
+                                }
                             }
-                            else if ((segment == 1 && to[0] == 1) || (segment == 4 && to[0] == -1)) {                
-                                return [ [ endStubX, startStubY ]];
-                            }
-                            else if ((segment == 2 && to[0] == 1) || (segment == 3 && to[0] == -1)) {                
-                                if (ySpan > _super.maxStub)                    
-                                    return [ [ startStubX, midy ], [ endStubX, midy ]];                  
-                                else
-                                    return [ [ endStubX, startStubY ]];                                    
-                            }
-                        }
+                        }*/
+                        return oneperp("y");
                     }
-                };                                                 
+                };       
+            
+            console.log("segment", paintInfo.segment);
+            console.log("orientation", paintInfo.anchorOrientation);
+            console.log("source axis", paintInfo.sourceAxis);
     
             //*
             var p = lineCalculators[paintInfo.anchorOrientation + paintInfo.sourceAxis]();
