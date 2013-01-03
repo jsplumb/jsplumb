@@ -19,8 +19,7 @@
 						id:"label",
 						cssClass:"aLabel"
 					}]
-				],
-				ConnectorZIndex:5
+				]
 			});			
 
 			// this is the paint style for the connecting lines..
