@@ -530,6 +530,7 @@
                 points:[x, y, w, h, sx, sy, tx, ty ]
             };
             result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
+          /* 
             var flipSourceSegments = so[result.sourceAxis == "x" ? 0 : 1] == -1,
                 flipSegments = {
                     "x":[null, 4, 3, 2, 1],
@@ -537,7 +538,8 @@
                 };        
                 
             if (flipSourceSegments)                
-                result.segment = flipSegments[result.sourceAxis][result.segment];                                    
+                result.segment = flipSegments[result.sourceAxis][result.segment];
+        //*/
             
             return result;
         };
@@ -567,9 +569,9 @@
 			return seg.segment.pointAlongPathFrom(seg.proportion, distance, absolute);
 		};
 		
-		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
+		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
 			_clearSegments();
-			var out = this._compute(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth);
+			var out = this._compute(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo);
 			_updateSegmentProportions();
 			// TODO why does this still have to return something? isn't all the painting handled by
 			// this class now?
