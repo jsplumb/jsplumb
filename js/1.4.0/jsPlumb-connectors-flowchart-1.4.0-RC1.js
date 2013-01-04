@@ -125,7 +125,8 @@
             var findClearedLine = function(start, mult, anchorPos, dimension) {
                     return start + (mult * (( 1 - anchorPos) * dimension) + _super.maxStub);
                 },
-                oneperp = function(axis) {
+                orientations = { x:[ 0, 1 ], y:[ 1, 0 ] },
+                perpendicular = function(axis) {
                     with (paintInfo) {
                         var sis = {
                             x:[ [ [ 1,2,3,4 ], null, [ 2,1,4,3 ] ], null, [ [ 4,3,2,1 ], null, [ 3,4,1,2 ] ] ],
@@ -155,7 +156,7 @@
                             x:[ startStubY, endStubY ],
                             y:[ startStubX, endStubX ]                                    
                         },
-                        orientations = { x:[ 0, 1 ], y:[ 1, 0 ] },                                    
+                                    
                         soIdx = orientations[axis][0], toIdx = orientations[axis][1],
                         _so = so[soIdx] + 1,
                         _to = to[toIdx] + 1,
@@ -178,6 +179,19 @@
                         }                                
                     }                                
                 },
+                orthogonal = function(axis) {                    
+                    with (paintInfo) {                                            
+                        var extent = {
+                            "x":so[0] == -1 ? Math.min(startStubX, endStubX) : Math.max(startStubX, endStubX),
+                            "y":so[1] == -1 ? Math.min(startStubY, endStubY) : Math.max(startStubY, endStubY)
+                        }[axis];
+                                            
+                        return {
+                            "x":[ [ extent, startStubY ],[ extent, endStubY ], [ endStubX, endStubY ] ],
+                            "y":[ [ startStubX, extent ], [ endStubX, extent ],[ endStubX, endStubY ] ]
+                        }[axis];
+                    }
+                },
                 lineCalculators = {
                     oppositex : function() {
                         with (paintInfo) {        
@@ -196,22 +210,12 @@
                         }
                     },
                     orthogonalx : function() {
-                        // WORKS ALWAYS
-                        with (paintInfo) {                        
-                            var xExtent = so[0] == -1 ? Math.min(startStubX, endStubX) : Math.max(startStubX, endStubX);
-                            return [ 
-                                [ xExtent, startStubY ],
-                                [ xExtent, endStubY ],
-                                [ endStubX, endStubY ]
-                            ];
-
-                        }
+                        return orthogonal("x");
                     },
                     perpendicularx : function() { 
-                        return oneperp("x");                                                   
+                        return perpendicular("x");                                                   
                     },
                     oppositey : function() {
-                        // WORKS ALWAYS
                         with (paintInfo) {
                             if (sourceEndpoint.elementId == targetEndpoint.elementId) {
                                 var _x = startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + _super.maxStub;
@@ -227,32 +231,10 @@
                         }
                     },
                     orthogonaly : function() {
-                        // WORKS ALWAYS
-                        with (paintInfo) {
-                            var yExtent = so[1] == -1 ? Math.min(startStubY, endStubY) : Math.max(startStubY, endStubY);
-                            return [ 
-                                [ startStubX, yExtent ],
-                                [ endStubX, yExtent ],
-                                [ endStubX, endStubY ]
-                            ];
-                        }
+                        return orthogonal("y");
                     },
                     perpendiculary : function() {    
-                       /* with (paintInfo) {
-                            if (so[1] == -1) {
-                                if (segment == 1 && endStubY < startStubY) {
-                                    return [ [startStubX, endStubY ] ];
-                                }
-                                else if ( (segment ==1 && endStubY > startStubY) || (segment == 2) ){
-                                    return [
-                                        [ midx, startStubY ],
-                                        [ midx, endStubY ],
-                                        [ endStubX, endStubY ]
-                                    ];
-                                }
-                            }
-                        }*/
-                        return oneperp("y");
+                        return perpendicular("y");
                     }
                 };       
             
