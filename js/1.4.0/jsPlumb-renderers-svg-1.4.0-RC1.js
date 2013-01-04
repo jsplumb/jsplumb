@@ -360,7 +360,7 @@
 					},
 					"Arc":function(segment) {
 						var d = segment.params,
-							laf = 0,
+							laf = segment.sweep > Math.PI ? 1 : 0,
 							sf = segment.anticlockwise ? 0 : 1;
 							
 						return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
