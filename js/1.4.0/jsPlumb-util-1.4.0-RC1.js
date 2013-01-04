@@ -144,7 +144,14 @@
             return o;
         },
         gradient : function(p1, p2) {
-            return pointHelper(p1, p2, function(_p1, _p2) { return (_p2[1] - _p1[1]) / (_p2[0] - _p1[0]); });		
+            return pointHelper(p1, p2, function(_p1, _p2) { 
+                if (_p2[0] == _p1[0])
+                    return _p2[1] > _p1[1] ? Infinity : -Infinity;
+                else if (_p2[1] == _p1[1]) 
+                    return _p2[0] > _p1[0] ? 0 : -0;
+                else 
+                    return (_p2[1] - _p1[1]) / (_p2[0] - _p1[0]); 
+            });		
         },
         normal : function(p1, p2) {
             return -1 / this.gradient(p1, p2);
