@@ -5090,7 +5090,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         within(p3.x, 10 - (Math.sqrt(2) / 2 * 10), ok, "end x is correct");
         within(p3.y, -(Math.sqrt(2) / 2 * 10), ok, "end y is correct");                        
         // gradients
-        equal(s.gradientAtPoint(0), Infinity, "gradient at location 0 is Infinity");
+        equal(s.gradientAtPoint(0), -Infinity, "gradient at location 0 is -Infinity");
         equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");        
         within(s.gradientAtPoint(0.5), -1, ok, "gradient at location 0.5 is -1");                
         
@@ -5111,7 +5111,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         within(p3.x, -2.9289321881345245, ok, "end x is correct");
         within(p3.y, -7.071067811865477, ok, "end y is correct");                        
         // gradients
-        equal(s.gradientAtPoint(0), Infinity, "gradient at location 0 is Infinity");
+        equal(s.gradientAtPoint(0), -Infinity, "gradient at location 0 is -Infinity");
         equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");        
         within(s.gradientAtPoint(0.5), 1, ok, "gradient at location 0.5 is 1");                
 
@@ -5131,7 +5131,10 @@ var testSuite = function(renderMode, _jsPlumb) {
         var p3 = s.pointOnPath(0.5);
         within(p3.x, 10, ok, "end x is correct");
         within(p3.y, 10, ok, "end y is correct");                        
-        
+        // gradients
+        equal(s.gradientAtPoint(0), 0, "gradient at location 0 is 0");
+        equal(s.gradientAtPoint(1), 0, "gradient at location 1 is 0");        
+        equal(s.gradientAtPoint(0.5), Infinity, "gradient at location 0.5 is Infinity");                        
         
         
         // anticlockwise, 180 degrees
