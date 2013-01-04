@@ -208,14 +208,18 @@
                 }
             },
             TWO_PI = 2 * Math.PI;
+        
+        this.radius = params.r;
+        this.anticlockwise = params.ac;			
+		this.type = "Arc";
             
         if (params.startAngle && params.endAngle) {
             this.startAngle = params.startAngle;
             this.endAngle = params.endAngle;            
-            this.x1 = params.cx + (params.r * Math.cos(params.startAngle));     
-            this.y1 = params.cy + (params.r * Math.sin(params.startAngle));            
-            this.x2 = params.cx + (params.r * Math.cos(params.endAngle));     
-            this.y2 = params.cy + (params.r * Math.sin(params.endAngle));                        
+            this.x1 = params.cx + (self.radius * Math.cos(params.startAngle));     
+            this.y1 = params.cy + (self.radius * Math.sin(params.startAngle));            
+            this.x2 = params.cx + (self.radius * Math.cos(params.endAngle));     
+            this.y2 = params.cy + (self.radius * Math.sin(params.endAngle));                        
         }
         else {
             this.startAngle = _calcAngle(params.x1, params.y1);
@@ -233,74 +237,70 @@
         // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
         // arc is 'anticlockwise' in which case 's' is given by 2PI - |d|.
         
-        this.radius = params.r;
-        this.anticlockwise = params.ac;			
-		this.type = "Arc";
+        var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle;
+        self.sweep = Math.abs (ea - self.startAngle);
+        if (self.anticlockwise) self.sweep = TWO_PI - self.sweep;
+        var circumference = 2 * Math.PI * self.radius,
+            frac = self.sweep / TWO_PI,
+            length = circumference * frac;
         
 		this.getLength = function() {
-            var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle;
-            var s = Math.abs (ea - self.startAngle);
-            if (self.anticlockwise) s = TWO_PI - s;
-			var circ = 2 * Math.PI * params.r,
-                frac = s / TWO_PI;
-            return circ * frac;
+            return length;
 		};
+        
+        var VERY_SMALL_VALUE = 0.0000000001,
+            gentleRound = function(n) {
+                var f = Math.floor(n), r = Math.ceil(n);
+                if (n - f < VERY_SMALL_VALUE) 
+                    return f;    
+                else if (r - n < VERY_SMALL_VALUE)
+                    return r;
+                return n;
+            };
 		
 		/**
          * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
          * 0 to 1 inclusive. 
          */
-        this.pointOnPath = function(location, absolute) {
-
-            if (absolute) {
-				location = location / self.getLength();
-			}
+        this.pointOnPath = function(location, absolute) {            
             
             if (location == 0) {
-                return { x:self.x1, y:self.y1 };    
+                return { x:self.x1, y:self.y1, theta:self.startAngle };    
             }
             else if (location == 1) {
-                return { x:self.x2, y:self.y2 };                    
+                return { x:self.x2, y:self.y2, theta:self.endAngle };                    
             }
+            
+            if (absolute) {
+				location = location / length;
+			}
 
-			/*if (location > 0 && location < 1) location = 1 - location;
-			// the path length is the circumference of the circle
-			// map 'location' to an angle. 0 is PI/2 when the connector is on the top face; if we
-			// support other faces it will have to be calculated for each one. 1 is also PI/2.
-			// 0.5 is -PI/2.*/
 			var angle = _calcAngleForLocation(location),
 				_x = params.cx + (params.r * Math.cos(angle)),
 				_y  = params.cy + (params.r * Math.sin(angle));					
 
-			return {x:_x, y:_y};
+			return { x:gentleRound(_x), y:gentleRound(_y), theta:angle };
         };
         
         /**
-         * returns the gradient of the connector at the given point.
+         * returns the gradient of the segment at the given point.
          */
         this.gradientAtPoint = function(location, absolute) {
             var p = self.pointOnPath(location, absolute);
-            return jsPlumbUtil.normal( [ params.cx, params.cy ], [p.x, p.y ] );
+            var m = jsPlumbUtil.normal( [ params.cx, params.cy ], [p.x, p.y ] );
+            if (!self.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
+            return m;
         };	              
                 
         this.pointAlongPathFrom = function(location, distance, absolute) {
-            if (absolute) {
-				var circumference = Math.PI * 2 * params.r;
-				location = location / circumference;
-			}
-
-			if (location > 0 && location < 1) location = 1 - location;
-
-			var circumference = 2 * Math.PI * params.r,
-				arcSpan = distance / circumference * 2 * Math.PI,
-				startAngle = (location * 2 * Math.PI) - arcSpan + (Math.PI / 2),	
-				
-				startX = params.cx + (params.r * Math.cos(startAngle)),
-				startY = params.cy + (params.r * Math.sin(startAngle));	
+            var p = self.pointOnPath(location, absolute),
+			    arcSpan = distance / circumference * 2 * Math.PI,
+				startAngle = p.theta - arcSpan,				
+				startX = params.cx + (self.radius * Math.cos(startAngle)),
+				startY = params.cy + (self.radius * Math.sin(startAngle));	
 
 			return {x:startX, y:startY};
-        };
-		
+        };		
 	};
 	
 	jsPlumb.Segments.Bezier = function(params) {
