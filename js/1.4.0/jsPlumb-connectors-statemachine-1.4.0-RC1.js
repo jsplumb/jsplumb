@@ -257,7 +257,7 @@
 					startAngle:0,
 					endAngle: 2 * Math.PI,
 					r:loopbackRadius,
-					c:clockwise,
+					ac:!clockwise,
 					x2:(x1-x) - 4,
 					y2:y1-y,
 					cx:cx-x,
