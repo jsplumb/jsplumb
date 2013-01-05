@@ -475,12 +475,13 @@
             self.lineWidth = lineWidth;
             var segment = jsPlumbUtil.segment(sourcePos, targetPos),
                 swapX = targetPos[0] < sourcePos[0],
-                swapY = targetPos[1] < sourcePos[1];
-                lw = lineWidth || 1,                
-                sourceOffx = (lw / 2) + (sourceStub + targetStub), 
-                targetOffx = (lw / 2) + (targetStub + sourceStub),                 
-                sourceOffy = (lw / 2) + (sourceStub + targetStub),
-                targetOffy = (lw / 2) + (targetStub + sourceStub),
+                swapY = targetPos[1] < sourcePos[1],
+                lw = lineWidth || 1,       
+                // TODO '50' is arbitrary. should take overlay widths into account.
+                sourceOffx = Math.max(50, (lw / 2) + (sourceStub + targetStub)), 
+                targetOffx = Math.max(50, (lw / 2) + (targetStub + sourceStub)),                 
+                sourceOffy = Math.max(50, (lw / 2) + (sourceStub + targetStub)),
+                targetOffy = Math.max(50, (lw / 2) + (targetStub + sourceStub)),
                 so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
                 to = targetAnchor.orientation || targetAnchor.getOrientation(targetEndpoint),
                 x = swapX ? targetPos[0] : sourcePos[0], 
