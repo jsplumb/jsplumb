@@ -40,7 +40,7 @@
 				endpoint:"Dot",
 				paintStyle:{ fillStyle:"#225588",radius:7 },
 				isSource:true,
-				connector:[ "Flowchart", { stub:[40, 60], gap:10 } ],								
+				connector:[ "Flowchart", { stub:[40, 60], gap:10 } ],								                
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
@@ -98,6 +98,7 @@
 			// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector method!
 			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 
+            
 			//* connect a few up
 			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"]});
 			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"]});
@@ -105,7 +106,8 @@
 			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"]});
 			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"]});
 			jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"]});
-					
+			//*/
+            
 			//
 			// listen for clicks on connections, and offer to delete connections on click.
 			//
