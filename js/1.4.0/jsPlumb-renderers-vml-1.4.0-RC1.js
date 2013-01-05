@@ -226,14 +226,14 @@
 						p["class"] = clazz;
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
 						self.bgCanvas = _node("shape", d, p, params.parent, self._jsPlumb, true);						
-						_pos(self.bgCanvas, d, self.getZIndex());
+						_pos(self.bgCanvas, d);
 						self.appendDisplayElement(self.bgCanvas, true);	
 						self.attachListeners(self.bgCanvas, self);					
 						self.initOpacityNodes(self.bgCanvas, ["stroke"]);		
 					}
 					else {
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-						_pos(self.bgCanvas, d, self.getZIndex());
+						_pos(self.bgCanvas, d);
 						_atts(self.bgCanvas, p);
 					}
 					
@@ -256,7 +256,7 @@
 				}
 				else {
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-					_pos(self.canvas, d, self.getZIndex());
+					_pos(self.canvas, d);
 					_atts(self.canvas, p);
 				}
 				
