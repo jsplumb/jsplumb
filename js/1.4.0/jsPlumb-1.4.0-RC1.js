@@ -2137,6 +2137,7 @@ between this method and jsPlumb.reset).
 		*	scope - see getConnections
 		* 	source - see getConnections
 		*	target - see getConnections
+        *   connections - an existing list of Connections.  If you supply this, 'source' and 'target' will be ignored.
 		*
 		* Returns:
 		* A list of Connections on which operations may be executed. 'Setter' type operations can be chained; 'getter' type operations
@@ -2187,7 +2188,7 @@ between this method and jsPlumb.reset).
 		this.select = function(params) {
 			params = params || {};
 			params.scope = params.scope || "*";
-			var c = _currentInstance.getConnections(params, true);
+			var c = params.connections || _currentInstance.getConnections(params, true);
 			return _makeConnectionSelectHandler(c);							
 		};
 		
