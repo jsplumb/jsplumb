@@ -22,7 +22,7 @@
             points = [], segments = [],
             grid = params.grid,
             lastx = -1, lasty = -1, lastOrientation,	
-            cornerRadius = 10,//params.cornerRadius != null ? params.cornerRadius : 20,	
+            cornerRadius = params.cornerRadius != null ? params.cornerRadius : 10,	
             sgn = function(n) { return n < 0 ? -1 : n == 0 ? 0 : 1; },
             /**
              * helper method to add a segment.
@@ -237,19 +237,14 @@
                         return perpendicular("y");
                     }
                 };       
-            
-            console.log("segment", paintInfo.segment);
-            console.log("orientation", paintInfo.anchorOrientation);
-            console.log("source axis", paintInfo.sourceAxis);
-    
-            //*
+                       
             var p = lineCalculators[paintInfo.anchorOrientation + paintInfo.sourceAxis]();
             if (p) {
                 for (var i = 0; i < p.length; i++) {                	
                     addSegment(segments, p[i][0], p[i][1]);
                 }
-            }                                                    
-//    */
+            }          
+            
             addSegment(segments, paintInfo.endStubX, paintInfo.endStubY);
     
             // end stub
