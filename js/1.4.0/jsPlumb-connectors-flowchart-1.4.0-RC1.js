@@ -28,6 +28,8 @@
              * helper method to add a segment.
              */
             addSegment = function(segments, x, y, sx, sy) {
+                // if segment would have length zero, dont add it.
+                if (sx == lastx && sy == lasty) return;
                 
                 var lx = lastx == -1 ? sx : lastx,
                     ly = lasty == -1 ? sy : lasty,
@@ -37,24 +39,7 @@
                     
                 lastx = x;
                 lasty = y;				    		
-                    
-                    /*
-                     *	halfStroke = self.lineWidth / 2;								
-                        
-                    // previously:
-                    //p = p + " L " + x1 + " " + y1;
-                    //p = p + " M " + x1 + " " + y1;
                                         
-                    // now, with support for painting an extra bit at the end each line:
-                    p = p + " L " + x1 + " " + y1;											
-                    p = p + " L " + (x1 + (multX * halfStroke)) + " " + (y1 + (multY * halfStroke));
-                    */												
-            
-                            
-                /*_super.addSegment("Straight", {
-                    x1:lx, y1:ly, x2:x, y2:y,
-                    cssClass:lx == x ? "jsPlumb-vertical" : "jsPlumb-horizontal"
-                });*/
                 segments.push([lx, ly, x, y, o, sgnx, sgny]);				
             },
             segLength = function(s) {
@@ -62,13 +47,14 @@
             },
             writeSegments = function(segments) {
                 for (var i = 0; i < segments.length - 1; i++) {
-                    var current = segments[i], next = segments[i + 1], d = 1 * cornerRadius;
-                    if (cornerRadius > 0 && current[4] != next[4] && segLength(current) > d && segLength(next) > d) {
+                    var current = segments[i], next = segments[i + 1];/*, d = 1 * cornerRadius;*/
+                    if (cornerRadius > 0 && current[4] != next[4] /*&& segLength(current) > d && segLength(next) > d*/) {
+                        var radiusToUse = Math.min(cornerRadius, segLength(current), segLength(next));
                         // right angle! adjust current segment's end point, and next segment's start point.
-                        current[2] -= current[5] * cornerRadius;
-                        current[3] -= current[6] * cornerRadius;
-                        next[0] += next[5] * cornerRadius;
-                        next[1] += next[6] * cornerRadius;														                         			
+                        current[2] -= current[5] * radiusToUse;
+                        current[3] -= current[6] * radiusToUse;
+                        next[0] += next[5] * radiusToUse;
+                        next[1] += next[6] * radiusToUse;														                         			
                         var ac = (current[6] == next[5] && next[5] == 1) ||
                                  ((current[6] == next[5] && next[5] == 0) && current[5] != next[6]) ||
                                  (current[6] == next[5] && next[5] == -1),
@@ -83,7 +69,7 @@
                         });
                             
                         _super.addSegment("Arc", {
-                            r:cornerRadius, 
+                            r:radiusToUse, 
                             x1:current[2], 
                             y1:current[3], 
                             x2:next[0], 
