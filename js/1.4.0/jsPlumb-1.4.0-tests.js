@@ -1228,6 +1228,24 @@ var testSuite = function(renderMode, _jsPlumb) {
         expect(1);
     });    
     
+    test(renderMode + ": jsPlumb.remove, element identified by string, nested endpoints", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        d1.append(d2);
+        _jsPlumb.addEndpoint(d2);
+        _jsPlumb.addEndpoint(d2);
+        _jsPlumb.addEndpoint(d2);
+        
+        _jsPlumb.remove("d1");
+
+        _jsPlumb.repaintEverything(); // shouldn't complain
+        
+        ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the main div");                
+        ok(_jsPlumb.getTestHarness().endpointsByElement["d2"] ==  null, "no endpoints for the nested div");                        
+        
+        expect(2);
+    });
+    
+    
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {anchor:[0,0.5,0,-1]});
@@ -5229,6 +5247,30 @@ var testSuite = function(renderMode, _jsPlumb) {
         equal(t8, 1.5 * Math.PI, "t8 is 270 degrees");        
         equal(t9, 1.75 * Math.PI, "t9 is 315 degrees");                
     });
+    
+    test(renderMode + " jsPlumb.getSelector, simple case", function() {
+        _addDiv("d1");
+        var s = _jsPlumb.getSelector("#d1");
+        equal(s.length, 1, "d1 found by getSelector");        
+    });
+    
+    test(renderMode + " jsPlumb.getSelector, with context node given as selector", function() {
+        var d1 = _addDiv("d1");
+        var d = $("<div id='foo'></div>");
+        d1.append(d);
+        var s = _jsPlumb.getSelector(d1, "#foo");
+        equal(s.length, 1, "foo found by getSelector with context d1");        
+        equal(s[0].getAttribute("id"), "foo", "foo found by getSelector with context d1");                
+    });    
+    
+    test(renderMode + " jsPlumb.getSelector, with context node given as DOM element", function() {
+        var d1 = _addDiv("d1");
+        var d = $("<div id='foo'></div>");
+        d1.append(d);
+        var s = _jsPlumb.getSelector(d1[0], "#foo");
+        equal(s.length, 1, "foo found by getSelector with context d1");        
+        equal(s[0].getAttribute("id"), "foo", "foo found by getSelector with context d1");                
+    });     
 	
 };
 
