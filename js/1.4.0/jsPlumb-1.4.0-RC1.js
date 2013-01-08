@@ -2354,10 +2354,13 @@ between this method and jsPlumb.reset).
 		 * jsPlumb demo pages).
 		 *
 		 * Parameters:
+         *  context  -   an element to search from. may be omitted (not null: omitted. as in you only pass one argument to the function)
 		 * 	spec 	-	a valid selector string.
+         *
+            
 		 */ 	
-		this.getSelector = function(spec) {
-			return jsPlumb.CurrentLibrary.getSelector(spec);
+		this.getSelector = function() {
+			return jsPlumb.CurrentLibrary.getSelector.apply(null, arguments);
 		};
 		
 		// get the size of the element with the given id, perhaps from cache.
@@ -3276,6 +3279,7 @@ between this method and jsPlumb.reset).
 		* 
 		* Parameters: 
 		*	el - either an element id, or a selector for an element.
+        *   recurse - whether or not to recurse down through this elements children and remove their endpoints too. defaults to false.
 		*  	 
 		* Returns: 
 		* The current jsPlumb instance.
@@ -3283,14 +3287,25 @@ between this method and jsPlumb.reset).
 		* See Also: 
 		* <removeEndpoint>
 		*/
-		this.removeAllEndpoints = function(el) {
-			var elId = jsPlumbUtil.isString(el) ? el : _getId(_getElementObject(el)),
-			    ebe = endpointsByElement[elId];
-			if (ebe) {
-				for ( var i = 0; i < ebe.length; i++) 
-					_currentInstance.deleteEndpoint(ebe[i]);
-			}
-			delete endpointsByElement[elId];
+		this.removeAllEndpoints = function(el, recurse) {
+            var _one = function(_el) {                
+                var elId = jsPlumbUtil.isString(_el) ? _el : _getId(_getElementObject(_el)),
+                    ebe = endpointsByElement[elId];
+                if (ebe) {
+                    for ( var i = 0; i < ebe.length; i++) 
+                        _currentInstance.deleteEndpoint(ebe[i]);
+                }
+                delete endpointsByElement[elId];
+                
+                if (recurse) {
+                    var del = jsPlumb.CurrentLibrary.getDOMElement(_getElementObject(_el));
+                    for (var i = 0; i < del.childNodes.length; i++) {
+                        _one(del.childNodes[i]);
+                    }
+                }
+                
+            };
+            _one(el);
 			return _currentInstance;
 		};
             
@@ -3300,11 +3315,11 @@ between this method and jsPlumb.reset).
         * and their connections.
         *
         * Parameters:
-        *  el - either an element id, or a selector for the element.
+        *  el - either an element id, a DOM element, or a selector for the element.
         */
         this.remove = function(el) {
             el = _getElementObject(el);
-            _currentInstance.removeAllEndpoints(el);
+            _currentInstance.removeAllEndpoints(el, true);
             jsPlumb.CurrentLibrary.removeElement(el);
         };
 

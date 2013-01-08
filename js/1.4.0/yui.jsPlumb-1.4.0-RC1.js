@@ -254,9 +254,15 @@
 			return 0;
 		},
 		
-		getSelector : function(spec) {
-			var s = Y.all(spec);
-			return s && s ._nodes ? s._nodes : [];
+		getSelector : function(context, spec) {
+			var _convert = function(s) { return s && s ._nodes ? s._nodes : []; };
+            
+            if (arguments.length == 2) {            
+                return _convert(jsPlumb.CurrentLibrary.getElementObject(context).all(spec));
+            }
+            else {
+			     return _convert(Y.all(context));
+            }            
 		},
 		
 		getSize : function(el) {

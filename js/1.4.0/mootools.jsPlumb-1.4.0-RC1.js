@@ -220,8 +220,12 @@
 			return null;
 		},
 		
-		getSelector : function(spec) {
-			return $$(spec);
+		getSelector : function(context, spec) {
+            if (arguments.length == 2) {
+                return jsPlumb.CurrentLibrary.getElementObject(context).getElements(spec);
+            }
+            else
+			     return $$(context);
 		},
 		
 		getSize : function(el) {

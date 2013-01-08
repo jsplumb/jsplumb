@@ -205,8 +205,11 @@
 			return el.scrollTop();
 		},
 		
-		getSelector : function(spec) {
-			return $(spec);
+		getSelector : function(context, spec) {
+            if (arguments.length == 2)
+                return jsPlumb.CurrentLibrary.getElementObject(context).find(spec);
+            else
+                return $(context);
 		},
 		
 		/**
@@ -317,7 +320,7 @@
 			el.removeClass(clazz);
 		},
 		
-		removeElement : function(element, parent) {			
+		removeElement : function(element) {			
 			jsPlumb.CurrentLibrary.getElementObject(element).remove();
 		},
 		
