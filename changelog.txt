@@ -33,6 +33,8 @@
         
         - add 'hoverClass' member to jsPlumb; this is set when hovering over a Connection or Endpoint. default is
         '_jsPlumb_hover'.
+        
+        - jsPlumb.select supports a 'connections' parameter, which is an existing list of Connections.  
 		
 		ISSUES
 		
