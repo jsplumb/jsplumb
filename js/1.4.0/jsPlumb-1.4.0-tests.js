@@ -1508,6 +1508,17 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
+    
+	test(renderMode + ": _jsPlumb.connect after makeSource (parameters)", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeSource(d17, { isSource:true,anchor:"LeftMiddle", parameters:{ foo:"bar"}  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);
+		var e = _jsPlumb.getEndpoints("d17");		
+        equal(e[0].getParameter("foo"), "bar", "parameter was set on endpoint made from makeSource call");
+	});    
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (simple case, two connect calls, uniqueEndpoint set)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
@@ -5270,7 +5281,27 @@ var testSuite = function(renderMode, _jsPlumb) {
         var s = _jsPlumb.getSelector(d1[0], "#foo");
         equal(s.length, 1, "foo found by getSelector with context d1");        
         equal(s[0].getAttribute("id"), "foo", "foo found by getSelector with context d1");                
-    });     
+    });   
+    
+    test(renderMode + " addClass method of Connection", function() {
+        _addDiv("d1"); _addDiv("d2");
+        var c = _jsPlumb.connect({source:"d1", target:"d2"});
+        c.addClass("foo");
+        ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
+        c.addClass("bar", true);
+        ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint hasclass 'bar'");        
+    });
+    
+    test(renderMode + " addClass via jsPlumb.select", function() {
+        _addDiv("d1"); _addDiv("d2");
+        var c = _jsPlumb.connect({source:"d1", target:"d2"});
+        jsPlumb.select().addClass("foo");
+        ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
+        jsPlumb.select().addClass("bar", true);
+        ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint hasclass 'bar'");        
+        jsPlumb.select().removeClass("bar", true);
+        ok(!($(c.endpoints[0].canvas).hasClass("bar")), "endpoint doesn't have class 'bar'");                
+    });    
 	
 };
 
