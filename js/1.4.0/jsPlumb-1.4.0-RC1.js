@@ -4430,6 +4430,23 @@ between this method and jsPlumb.reset).
            
 // END EDITABLE            
             
+// ADD CLASS/REMOVE CLASS - override to support adding/removing to/from endpoints
+            var _ac = this.addClass, _rc = this.removeClass;
+            this.addClass = function(c, informEndpoints) {
+                _ac(c);
+                if (informEndpoints) {
+                    self.endpoints[0].addClass(c);
+                    self.endpoints[1].addClass(c);                    
+                }
+            };
+            this.removeClass = function(c, informEndpoints) {
+                _rc(c);
+                if (informEndpoints) {
+                    self.endpoints[0].removeClass(c);
+                    self.endpoints[1].removeClass(c);                    
+                }
+            };            
+            
 // TYPE		
 			
 			this.getTypeDescriptor = function() { return "connection"; };
