@@ -2895,6 +2895,13 @@ between this method and jsPlumb.reset).
 
 					// if disabled, return.
 					if (!_sourcesEnabled[idToRegisterAgainst]) return;
+                    
+                    // if a filter was given, run it, and return if it says no.
+					if (p.filter) {
+						// pass the original event to the user: 
+						var r = p.filter(jpcl.getOriginalEvent(e), _el);
+						if (r === false) return;
+					}
 					
 					// if maxConnections reached
 					var sourceCount = _currentInstance.select({source:idToRegisterAgainst}).length
@@ -2906,14 +2913,7 @@ between this method and jsPlumb.reset).
 							}, e);
 						}
 						return false;
-					}
-
-					// if a filter was given, run it, and return if it says no.
-					if (p.filter) {
-						// pass the original event to the user: 
-						var r = p.filter(jpcl.getOriginalEvent(e), _el);
-						if (r === false) return;
-					}
+					}					
 
 					// make sure we have the latest offset for this div 
 					var myOffsetInfo = _updateOffset({elId:elid});		
@@ -3299,8 +3299,10 @@ between this method and jsPlumb.reset).
                 
                 if (recurse) {
                     var del = jsPlumb.CurrentLibrary.getDOMElement(_getElementObject(_el));
-                    for (var i = 0; i < del.childNodes.length; i++) {
-                        _one(del.childNodes[i]);
+                    if (del && del.nodeType != 3 && del.nodeType != 8 ) {
+                        for (var i = 0; i < del.childNodes.length; i++) {
+                            _one(del.childNodes[i]);
+                        }
                     }
                 }
                 
@@ -4486,7 +4488,6 @@ between this method and jsPlumb.reset).
 				}
 			};
 // END HOVER
-
 
 			var makeConnector = function(renderMode, connector, connectorArgs) {
 				var c = new Object();
