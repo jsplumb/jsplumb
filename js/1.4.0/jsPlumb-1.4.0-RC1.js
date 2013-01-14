@@ -5383,7 +5383,10 @@ between this method and jsPlumb.reset).
             if (params.connectionsDetachable === false || params.detachable === false)
                 self.connectionsDetachable = false;
 			var dragAllowedWhenFull = params.dragAllowedWhenFull || true;
-			
+
+      if (typeof params.cssClass === 'string')
+			  self.addClass(params.cssClass);
+
 			if (params.onMaxConnections)
 				self.bind("maxConnections", params.onMaxConnections);
 
