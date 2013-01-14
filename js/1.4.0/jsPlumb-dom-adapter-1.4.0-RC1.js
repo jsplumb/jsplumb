@@ -22,15 +22,15 @@
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
 		vmlAvailable = function() {		    
-				if (vmlAvailable.vml == undefined) { 
-						var a = document.body.appendChild(document.createElement('div'));
-		        a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
-		        var b = a.firstChild;
-		        b.style.behavior = "url(#default#VML)";
-		        vmlAvailable.vml = b ? typeof b.adj == "object": true;
-		        a.parentNode.removeChild(a);
-				}
-				return vmlAvailable.vml;
+            if (vmlAvailable.vml == undefined) { 
+                    var a = document.body.appendChild(document.createElement('div'));
+            a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
+            var b = a.firstChild;
+            b.style.behavior = "url(#default#VML)";
+            vmlAvailable.vml = b ? typeof b.adj == "object": true;
+            a.parentNode.removeChild(a);
+            }
+            return vmlAvailable.vml;
 		};
         
     /**
@@ -202,7 +202,6 @@
                     svgAvailable = this.isRenderModeAvailable("svg"),
                     vmlAvailable = this.isRenderModeAvailable("vml");
                 
-                //if (mode !== jsPlumb.CANVAS && mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new Error("render mode must be one of jsPlumb.CANVAS, jsPlumb.SVG or jsPlumb.VML");
                 // now test we actually have the capability to do this.						
                 if (mode === "svg") {
                     if (svgAvailable) renderMode = "svg"
