@@ -1245,6 +1245,24 @@ var testSuite = function(renderMode, _jsPlumb) {
         expect(2);
     });
     
+    test(renderMode + ": jsPlumb.remove, nested element, element identified by string, nested endpoints", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        d1.append(d2);
+        _jsPlumb.addEndpoint(d2);
+        _jsPlumb.addEndpoint(d2);
+        _jsPlumb.addEndpoint(d2);
+        
+        _jsPlumb.remove("d2");        
+
+        _jsPlumb.repaint("d1"); // shouldn't complain
+        _jsPlumb.recalculateOffsets();
+        
+        ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the main div");                
+        ok(_jsPlumb.getTestHarness().endpointsByElement["d2"] ==  null, "no endpoints for the nested div");                        
+        
+        expect(2);
+    });    
+    
     
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
