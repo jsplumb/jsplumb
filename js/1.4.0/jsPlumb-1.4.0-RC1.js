@@ -5581,7 +5581,7 @@ between this method and jsPlumb.reset).
 					anchor : inPlaceAnchor, 
 					source : _element, 
 					paintStyle : this.getPaintStyle(),
-          cssClass: self.cssClass,
+          cssClass: params.cssClass,
 					endpoint : params.hideOnDrag ? "Blank" : _endpoint,
 					_transient:true,
                     scope:self.scope
