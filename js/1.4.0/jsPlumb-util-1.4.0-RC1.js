@@ -269,7 +269,7 @@
          * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
          */
         EventGenerator : function() {
-            var _listeners = {}, self = this;
+            var _listeners = {}, self = this, eventsSuspended = false;
             
             // this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
             // jsPlumb, but it seems feasible that people might want to manipulate this list.  the thinking is that we don't want event
@@ -298,7 +298,7 @@
              *  originalEvent	 	- 	the original event from the browser
              */			
             this.fire = function(event, value, originalEvent) {
-                if (_listeners[event]) {
+                if (!eventsSuspended && _listeners[event]) {
                     for ( var i = 0; i < _listeners[event].length; i++) {
                         // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
                         // method will have the whole call stack available in the debugger.
@@ -334,6 +334,14 @@
             this.getListener = function(forEvent) {
                 return _listeners[forEvent];
             };		
+            
+            this.setSuspendEvents = function(val) {
+                eventsSuspended = val;    
+            };
+            
+            this.isSuspendEvents = function() {
+                return eventsSuspended;
+            };
         },
         logEnabled : true,
         log : function() {
