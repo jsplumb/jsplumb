@@ -253,23 +253,22 @@
 			displayElements.push(el);
 		};
 		
-		this.paint = function(d, style, anchor) {	   
+		this.paint = function(style, anchor) {	   
 			if (style != null) {
-				var x = d[0], y = d[1];
+                var x = self.x, y = self.y;
 				if (params.useDivWrapper) {
-					jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
+					jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);
 					x = 0, y = 0;
 				}
-				var p = _pos([x, y, d[2], d[3]]);
+				var p = _pos([x, y, self.x, self.h]);
                 
                 renderer.paint.apply(this, arguments);		    			    	
                 
 		    	_attr(self.svg, {
 	    			"style":p,
-	    			"width": d[2],
-	    			"height": d[3]
-	    		});
-		    	
+	    			"width": self.w,
+	    			"height": self.h
+	    		});		    	
 			}
 	    };
 		
@@ -291,7 +290,7 @@
 				_jsPlumb:params["_jsPlumb"] 
 			} ]);
 		
-		_super.renderer.paint = function(d, style) {
+		_super.renderer.paint = function(style) {
 			
 			var segments = self.getSegments(), p = "";
 			
@@ -301,9 +300,11 @@
 				p += " ";
 			}			
 			
-			var a = { "d":p }, outlineStyle = null;
+			var a = { "d":p }, 
+                outlineStyle = null,
+                d = [self.x,self.y,self.w,self.h];
 				
-			a["pointer-events"] = "all";
+			a["pointer-events"] = params["pointer-events"] || "visibleStroke";
 			
 			// outline style.  actually means drawing an svg object underneath the main one.
 			if (style.outlineColor) {
@@ -350,7 +351,7 @@
 			getPath : function(segment) {
 				return ({
 					"Straight":function(segment) {
-						var d = segment.params;
+						var d = segment.getCoordinates();
 						return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;	
 					},
 					"Bezier":function(segment) {
@@ -385,7 +386,7 @@
 				_jsPlumb:params["_jsPlumb"]
 			} ]);
 			
-		_super.renderer.paint = function(d, style) {
+		_super.renderer.paint = function(style) {
 			var s = jsPlumb.extend({}, style);
 			if (s.outlineColor) {
 				s.strokeWidth = s.outlineWidth;
@@ -393,12 +394,12 @@
 			}
 			
 			if (self.node == null) {
-				self.node = self.makeNode(d, s);
+				self.node = self.makeNode(s);
 				self.svg.appendChild(self.node);
 				self.attachListeners(self.node, self);
 			}
-			_applyStyles(self.svg, self.node, s, d, self);
-			_pos(self.node, d);
+			_applyStyles(self.svg, self.node, s, [ self.x, self.y, self.w, self.h ], self);
+			_pos(self.node, [ self.x, self.y ]);
 		};
 		
 		this.reattachListeners = function() {
@@ -412,12 +413,12 @@
 	jsPlumb.Endpoints.svg.Dot = function() {
 		jsPlumb.Endpoints.Dot.apply(this, arguments);
 		SvgEndpoint.apply(this, arguments);		
-		this.makeNode = function(d, style) { 
+		this.makeNode = function(style) { 
 			return _node("circle", {
-					"cx"	:	d[2] / 2,
-					"cy"	:	d[3] / 2,
-					"r"		:	d[2] / 2
-				});			
+                "cx"	:	this.w / 2,
+                "cy"	:	this.h / 2,
+                "r"		:	this.w / 2
+            });			
 		};
 	};
 	
@@ -427,10 +428,10 @@
 	jsPlumb.Endpoints.svg.Rectangle = function() {
 		jsPlumb.Endpoints.Rectangle.apply(this, arguments);
 		SvgEndpoint.apply(this, arguments);		
-		this.makeNode = function(d, style) {
+		this.makeNode = function(style) {
 			return _node("rect", {
-				"width":d[2],
-				"height":d[3]
+				"width"     :   this.w,
+				"height"    :   this.h
 			});
 		};			
 	};		
