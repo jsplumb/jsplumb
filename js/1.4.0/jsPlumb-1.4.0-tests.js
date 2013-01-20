@@ -2383,6 +2383,19 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(has("CSS"), "custom cssClass set correctly");
 		ok(has(_jsPlumb.connectorClass), "basic connector class set correctly");
 	});
+    
+	test(renderMode + ": _jsPlumb.addEndpoint (setting cssClass on Endpoint)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e = _jsPlumb.addEndpoint(d1, {cssClass:"CSS"});
+		var has = function(clazz) { 
+			var cn = e.endpoint.canvas.className,
+				cns = cn.constructor == String ? cn : cn.baseVal; 
+			
+			return cns.indexOf(clazz) != -1; 
+		};		
+		ok(has("CSS"), "custom cssClass set correctly");
+		ok(has(_jsPlumb.endpointClass), "basic endpoint class set correctly");
+	});    
 	
 	test(renderMode + ": _jsPlumb.connect (overlays, long-hand version)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
@@ -5319,7 +5332,20 @@ var testSuite = function(renderMode, _jsPlumb) {
         ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint hasclass 'bar'");        
         jsPlumb.select().removeClass("bar", true);
         ok(!($(c.endpoints[0].canvas).hasClass("bar")), "endpoint doesn't have class 'bar'");                
-    });    
-	
+    });   
+    
+// ******************* override pointer events ********************
+    test(renderMode + "pointer-events, jsPlumb.connect", function() {
+        _addDiv("d1");_addDiv("d2");
+        var c = jsPlumb.connect({source:"d1",target:"d2", "pointer-events":"BANANA"});
+        equal($(c.canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+    });
+    
+    test(renderMode + "connector-pointer-events, jsPlumb.addEndpoint", function() {
+        _addDiv("d1");_addDiv("d2");
+        var e1 = jsPlumb.addEndpoint("d1", { "connector-pointer-events":"BANANA" });
+        var c = jsPlumb.connect({source:e1,target:"d2"});
+        equal($(c.canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+    });          	
 };
 
