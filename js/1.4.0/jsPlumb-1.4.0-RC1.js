@@ -596,6 +596,14 @@
 						self.addOverlay(t.overlays[i], true);
 				}
 			};
+            
+            var superHover = this.setHover;
+            this.setHover = function(hover, ignoreAttachedElements, timestamp) {
+                superHover.apply(self, arguments);    
+                for (var i = 0; i < self.overlays.length; i++) {
+					self.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.hoverClass);
+				}
+            };
 		},
 		
 		_bindListeners = function(obj, _self, _hoverFunction) {
@@ -811,7 +819,7 @@
 		 * @param ui UI object from current library's event system. optional.
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
-		_draw = function(element, ui, timestamp) {
+		_draw = function(element, ui, timestamp, clearEdits) {
 			
 			// TOD is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
             if (!jsPlumbAdapter.headless && !_suspendDrawing) {
@@ -820,11 +828,11 @@
 
 			    if (timestamp == null) timestamp = _timestamp();
 
-			    _currentInstance.anchorManager.redraw(id, ui, timestamp);
+			    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
 
 			    if (repaintEls) {
 				    for (var i in repaintEls) {
-						_currentInstance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset);			    	
+						_currentInstance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset, clearEdits);			    	
 				    }
 				}
             }
@@ -878,7 +886,7 @@
 	
 						options[dragEvent] = _wrap(options[dragEvent], function() {                            
 							var ui = jpcl.getUIPosition(arguments, _currentInstance.getZoom());
-							_draw(element, ui);
+							_draw(element, ui, null, true);
 							_addClass(element, "jsPlumb_dragged");
 						});
 						options[stopEvent] = _wrap(options[stopEvent], function() {
@@ -947,7 +955,11 @@
 				for (var i = 0; i < _p.sourceEndpoint.connectorOverlays.length; i++) {
 					_p.overlays.push(_p.sourceEndpoint.connectorOverlays[i]);
 				}
-			}			
+			}		
+            
+            // pointer events
+            if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents)
+                _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
 			
 			// tooltip.  params.tooltip takes precedence, then sourceEndpoint.connectorTooltip.
 			_p.tooltip = params.tooltip;
@@ -2042,51 +2054,26 @@ between this method and jsPlumb.reset).
 			};
 			
 		var _makeCommonSelectHandler = function(list, executor) {
-			return {
-				// setters
-				setHover:setter(list, "setHover", executor),								
-				removeAllOverlays:setter(list, "removeAllOverlays", executor),
-				setLabel:setter(list, "setLabel", executor),
-                addClass:setter(list, "addClass", executor),
-				addOverlay:setter(list, "addOverlay", executor),
-				removeOverlay:setter(list, "removeOverlay", executor),
-				removeOverlays:setter(list, "removeOverlays", executor),
-				showOverlay:setter(list, "showOverlay", executor),
-				hideOverlay:setter(list, "hideOverlay", executor),
-				showOverlays:setter(list, "showOverlays", executor),
-				hideOverlays:setter(list, "hideOverlays", executor),
-				setPaintStyle:setter(list, "setPaintStyle", executor),
-				setHoverPaintStyle:setter(list, "setHoverPaintStyle", executor),									
-				setParameter:setter(list, "setParameter", executor),		
-				setParameters:setter(list, "setParameters", executor),
-				setVisible:setter(list, "setVisible", executor),
-				//setZIndex:setter(list, "setZIndex", executor),
-				repaint:setter(list, "repaint", executor),
-				addType:setter(list, "addType", executor),
-				toggleType:setter(list, "toggleType", executor),
-				removeType:setter(list, "removeType", executor),
-                removeClass:setter(list, "removeClass", executor),
-				setType:setter(list, "setType", executor),				
-
-				// getters
-				getLabel:getter(list, "getLabel"),
-				getOverlay:getter(list, "getOverlay"),
-				isHover:getter(list, "isHover"),
-				getParameter:getter(list, "getParameter"),		
-				getParameters:getter(list, "getParameters"),
-				getPaintStyle:getter(list, "getPaintStyle"),		
-				getHoverPaintStyle:getter(list, "getHoverPaintStyle"),
-				isVisible:getter(list, "isVisible"),
-				getZIndex:getter(list, "getZIndex"),
-				hasType:getter(list, "hasType"),
-				getType:getter(list, "getType"),
-
-				// util
-				length:list.length,
-				each:_curryEach(list, executor),
-				get:_curryGet(list)
-			};
-		
+            var out = {
+                    length:list.length,
+				    each:_curryEach(list, executor),
+				    get:_curryGet(list)
+                },
+                setters = ["setHover", "removeAllOverlays", "setLabel", "addClass", "addOverlay", "removeOverlay", 
+                           "removeOverlays", "showOverlay", "hideOverlay", "showOverlays", "hideOverlays", "setPaintStyle",
+                           "setHoverPaintStyle", "setSuspendEvents", "setParameter", "setParameters", "setVisible", 
+                           "repaint", "addType", "toggleType", "removeType", "removeClass", "setType" ],
+                
+                getters = ["getLabel", "getOverlay", "isHover", "getParameter", "getParameters", "getPaintStyle",
+                           "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ];
+            
+            for (var i = 0; i < setters.length; i++)
+                out[setters[i]] = setter(list, setters[i], executor);
+            
+            for (var i = 0; i < getters.length; i++)
+                out[getters[i]] = getter(list, getters[i]);       
+            
+            return out;
 		};
 		
 		var	_makeConnectionSelectHandler = function(list) {
@@ -3319,7 +3306,7 @@ between this method and jsPlumb.reset).
         * Parameters:
         *  el - either an element id, a DOM element, or a selector for the element.
         */
-        this.remove = function(el) {
+        this.remove = function(el, doNotFireEvent) {
             el = _getElementObject(el);
             _currentInstance.removeAllEndpoints(el, true);
             jsPlumb.CurrentLibrary.removeElement(el);
@@ -4158,7 +4145,7 @@ between this method and jsPlumb.reset).
             // store this for next time.
             endpoint._continuousAnchorEdge = edgeId;
         };
-		this.redraw = function(elementId, ui, timestamp, offsetToUI) {
+		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits) {
 		
 			if (!_suspendDrawing) {
 				// get all the endpoints for this element
@@ -4294,7 +4281,7 @@ between this method and jsPlumb.reset).
 					
 				// paint all the connections
 				for (var i = 0; i < connectionsToPaint.length; i++) {
-					connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false});
+					connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false, clearEdits:clearEdits});
 				}
 			}
 		};
@@ -4494,12 +4481,7 @@ between this method and jsPlumb.reset).
 				jsPlumb.Connectors[connector].apply(c, [connectorArgs]);
 				jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);	
 				return c;
-			};
-            
-            var documentMouseUp = function(e) {
-                console.log("mouseup");  
-                jsPlumb.CurrentLibrary.unbind(document, "mouseup", documentMouseUp);
-            };
+			};                        
 			
 			/*
 			 * Function: setConnector
@@ -4511,8 +4493,13 @@ between this method and jsPlumb.reset).
 			 */
 			this.setConnector = function(connector, doNotRepaint) {
 				if (self.connector != null) _removeElements(self.connector.getDisplayElements(), self.parent);
-				var connectorArgs = { _jsPlumb:self._jsPlumb, parent:params.parent, 
-					cssClass:params.cssClass, container:params.container, tooltip:self.tooltip
+				var connectorArgs = { 
+                    _jsPlumb:self._jsPlumb, 
+                    parent:params.parent, 
+					cssClass:params.cssClass, 
+                    container:params.container, 
+                    tooltip:self.tooltip,
+                    "pointer-events":params["pointer-events"]
 				};
 				if (_isString(connector)) 
 					this.connector = makeConnector(renderMode, connector, connectorArgs); // lets you use a string as shorthand.
@@ -4526,23 +4513,15 @@ between this method and jsPlumb.reset).
 				// binds mouse listeners to the current connector.
 				_bindListeners(self.connector, self, _internalHover);
                 
-                // bind to mousedown and mouseup, for editing
-                self.connector.bind("mousedown", function(c, e) {
-                    var x = (e.pageX || e.page.x),
-                        y = (e.pageY || e.page.y),
-                        oe = jsPlumb.CurrentLibrary.getElementObject(self.canvas),
-                        o = jsPlumb.CurrentLibrary.getOffset(oe);
-                    
-                    //var    p = self.connector.findSegmentForPoint(x - o.left, y - o.top);
-                    self.connector.editStart(x - o.left, y - o.top);
-                    
-                    console.log("mousedown", x, y, o);
-                    jsPlumb.CurrentLibrary.bind(document, "mouseup", documentMouseUp);
-                });				
-                
-                // if underlying connector not editable, set editable to false;
-                if (!self.connector.isEditable())
+                if (editable && jsPlumb.ConnectorEditors[self.connector.type] && self.connector.isEditable()) {
+                    new jsPlumb.ConnectorEditors[self.connector.type]({
+                        connector:self.connector,
+                        connection: self
+                    });
+                }
+                else {                    
                     editable = false;
+                }                
 					
 				if (!doNotRepaint) self.repaint();
 			};
@@ -4841,26 +4820,28 @@ between this method and jsPlumb.reset).
 							var o = self.overlays[i];
 							if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize());
 						}						
-														
-						var dim = this.connector.compute(
-							sAnchorP,
-							tAnchorP, 
-							this.endpoints[sIdx],
-							this.endpoints[tIdx],
-							this.endpoints[sIdx].anchor,
-							this.endpoints[tIdx].anchor, 
-							self.paintStyleInUse.lineWidth,
-							maxSize,							
-							sourceInfo,
-							targetInfo );
+							
+                        self.connector.compute({
+							sourcePos:sAnchorP,
+							targetPos:tAnchorP, 
+							sourceEndpoint:this.endpoints[sIdx],
+							targetEndpoint:this.endpoints[tIdx],
+							sourceAnchor:this.endpoints[sIdx].anchor,
+							targetAnchor:this.endpoints[tIdx].anchor, 
+							lineWidth:self.paintStyleInUse.lineWidth,
+							minWidth:maxSize,							
+							sourceInfo:sourceInfo,
+							targetInfo:targetInfo,
+                            clearEdits:params.clearEdits === true
+                        });
 						
-						self.connector.paint(dim, self.paintStyleInUse);
+						self.connector.paint(self.paintStyleInUse);
 																		
 						// paint overlays
 						for ( var i = 0; i < self.overlays.length; i++) {
 							var o = self.overlays[i];
 							if (o.isVisible) {
-								self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse, dim);								
+								self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse);								
 							}
 						}
 																	
@@ -4876,7 +4857,7 @@ between this method and jsPlumb.reset).
 			this.repaint = function(params) {
 				params = params || {};
                 var recalc = !(params.recalc === false);
-				this.paint({ elId : this.sourceId, recalc : recalc, timestamp:params.timestamp });
+				this.paint({ elId : this.sourceId, recalc : recalc, timestamp:params.timestamp, clearEdits:params.clearEdits });
 			};
 			
 			// the very last thing we do is check to see if a 'type' was supplied in the params
@@ -5166,6 +5147,7 @@ between this method and jsPlumb.reset).
 		 * dropOptions - if isTarget is set to true, you can supply arguments for the underlying library's drop method with this parameter. Optional; defaults to null. 
 		 * reattach - optional boolean that determines whether or not the Connections reattach after they have been dragged off an Endpoint and left floating. defaults to false: Connections dropped in this way will just be deleted.
 		 * parameters - Optional JS object containing parameters to set on the Endpoint. These parameters are then available via the getParameter method.  When a connection is made involving this Endpoint, the parameters from this Endpoint are copied into that Connection. Source Endpoint parameters override target Endpoint parameters if they both have a parameter with the same name.
+         * connector-pointer-events - Optional. a value for the 'pointer-events' property of any SVG elements that are created to render connections from this endoint.
 		 */
 		var Endpoint = function(params) {
 			var self = this;
@@ -5296,6 +5278,7 @@ between this method and jsPlumb.reset).
 			this.setEndpoint = function(ep) {
 				var endpointArgs = {
 	                _jsPlumb:self._jsPlumb,
+                    cssClass:params.cssClass,
 	                parent:params.parent,
 	                container:params.container,
 	                tooltip:params.tooltip,
@@ -5374,6 +5357,7 @@ between this method and jsPlumb.reset).
 						
 			this.canvas = this.endpoint.canvas;			
 			this.connections = params.connections || [];
+            this.connectorPointerEvents = params["connector-pointer-events"];
 			
 			this.scope = params.scope || DEFAULT_SCOPE;
 			this.connectionType = params.connectionType;
@@ -5689,8 +5673,7 @@ between this method and jsPlumb.reset).
 			 */
 			this.paint = function(params) {
 				params = params || {};
-				var timestamp = params.timestamp, recalc = !(params.recalc === false);
-								//recalc = params.recalc;
+				var timestamp = params.timestamp, recalc = !(params.recalc === false);								
 				if (!timestamp || self.timestamp !== timestamp) {						
 					_updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
 					var xy = params.offset || offsets[_elementId];
@@ -5720,14 +5703,15 @@ between this method and jsPlumb.reset).
 						// endpoint's id, but here "_endpoint" is the renderer, not the actual endpoint.
 						// TODO need to verify this does not break anything.
 						//var d = _endpoint.compute(ap, self.anchor.getOrientation(_endpoint), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
-						var d = _endpoint.compute(ap, self.anchor.getOrientation(self), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
-						_endpoint.paint(d, self.paintStyleInUse, self.anchor);					
+						_endpoint.compute(ap, self.anchor.getOrientation(self), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
+						_endpoint.paint(self.paintStyleInUse, self.anchor);					
 						self.timestamp = timestamp;
 
-						/* paint overlays*/
+						// paint overlays
 						for ( var i = 0; i < self.overlays.length; i++) {
 							var o = self.overlays[i];
-							if (o.isVisible) self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse, d);
+							if (o.isVisible) 
+                                self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse);
 						}
 					}
 				}
