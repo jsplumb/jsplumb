@@ -144,34 +144,33 @@
 		this.type = "StateMachine";
 		params = params || {};		
 		
-		this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth) {
-
-			var w = Math.abs(sourcePos[0] - targetPos[0]),
-				h = Math.abs(sourcePos[1] - targetPos[1]),
+		this._compute = function(paintInfo, params) {
+			var w = Math.abs(params.sourcePos[0] - params.targetPos[0]),
+				h = Math.abs(params.sourcePos[1] - params.targetPos[1]),
 				// these are padding to ensure the whole connector line appears
 				xo = 0.45 * w, yo = 0.45 * h;
 				// these are padding to ensure the whole connector line appears
 				w *= 1.9; h *= 1.9;
 				//ensure at least one pixel width
-				lineWidth = lineWidth || 1;
-				var x = Math.min(sourcePos[0], targetPos[0]) - xo,
-					y = Math.min(sourcePos[1], targetPos[1]) - yo;
+				var lineWidth = params.lineWidth || 1;
+				var x = Math.min(params.sourcePos[0], params.targetPos[0]) - xo,
+					y = Math.min(params.sourcePos[1], params.targetPos[1]) - yo;
 		
-			if (!showLoopback || (sourceEndpoint.elementId !== targetEndpoint.elementId)) {                            
-				_sx = sourcePos[0] < targetPos[0] ?  xo : w-xo;
-				_sy = sourcePos[1] < targetPos[1] ? yo:h-yo;
-				_tx = sourcePos[0] < targetPos[0] ? w-xo : xo;
-				_ty = sourcePos[1] < targetPos[1] ? h-yo : yo;
+			if (!showLoopback || (params.sourceEndpoint.elementId !== params.targetEndpoint.elementId)) {                            
+				_sx = params.sourcePos[0] < params.targetPos[0] ?  xo : w-xo;
+				_sy = params.sourcePos[1] < params.targetPos[1] ? yo:h-yo;
+				_tx = params.sourcePos[0] < params.targetPos[0] ? w-xo : xo;
+				_ty = params.sourcePos[1] < params.targetPos[1] ? h-yo : yo;
             
 				// now adjust for the margin
-				if (sourcePos[2] === 0) _sx -= margin;
-            	if (sourcePos[2] === 1) _sx += margin;
-            	if (sourcePos[3] === 0) _sy -= margin;
-            	if (sourcePos[3] === 1) _sy += margin;
-            	if (targetPos[2] === 0) _tx -= margin;
-            	if (targetPos[2] === 1) _tx += margin;
-            	if (targetPos[3] === 0) _ty -= margin;
-            	if (targetPos[3] === 1) _ty += margin;
+				if (params.sourcePos[2] === 0) _sx -= margin;
+            	if (params.sourcePos[2] === 1) _sx += margin;
+            	if (params.sourcePos[3] === 0) _sy -= margin;
+            	if (params.sourcePos[3] === 1) _sy += margin;
+            	if (params.targetPos[2] === 0) _tx -= margin;
+            	if (params.targetPos[2] === 1) _tx += margin;
+            	if (params.targetPos[3] === 0) _ty -= margin;
+            	if (params.targetPos[3] === 1) _ty += margin;
 
             	//
 	            // these connectors are quadratic bezier curves, having a single control point. if both anchors 
@@ -205,15 +204,14 @@
 				_controlPoint = _findControlPoint(_midx,
                                                   _midy,
                                                   segment,
-                                                  sourcePos,
-                                                  targetPos,
+                                                  params.sourcePos,
+                                                  params.targetPos,
                                                   curviness, curviness,
                                                   distance,
                                                   proximityLimit);
-
 	            	
-            	var requiredWidth = Math.max(Math.abs(_controlPoint[0] - _sx) * 3, Math.abs(_controlPoint[0] - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, minWidth),
-            		requiredHeight = Math.max(Math.abs(_controlPoint[1] - _sy) * 3, Math.abs(_controlPoint[1] - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, minWidth);
+            	var requiredWidth = Math.max(Math.abs(_controlPoint[0] - _sx) * 3, Math.abs(_controlPoint[0] - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, params.minWidth),
+            		requiredHeight = Math.max(Math.abs(_controlPoint[1] - _sy) * 3, Math.abs(_controlPoint[1] - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, params.minWidth);
 
             	if (w < requiredWidth) {      	
             		var dw = requiredWidth - w;            		
@@ -242,7 +240,7 @@
             }
             else {
             	// a loopback connector.  draw an arc from one anchor to the other.            	
-        		var x1 = sourcePos[0], x2 = sourcePos[0], y1 = sourcePos[1] - margin, y2 = sourcePos[1] - margin, 				
+        		var x1 = params.sourcePos[0], x2 = params.sourcePos[0], y1 = params.sourcePos[1] - margin, y2 = params.sourcePos[1] - margin, 				
 					cx = x1, cy = y1 - loopbackRadius;
 				
 				// canvas sizing stuff, to ensure the whole painted area is visible.
