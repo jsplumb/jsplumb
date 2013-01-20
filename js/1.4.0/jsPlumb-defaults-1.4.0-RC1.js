@@ -36,324 +36,331 @@
 		this.mouseup = function(e) { };					
 	};
 	
-	jsPlumb.Segments = {};
-	
-	/*
-	 * Class: AbstractSegment
-	 * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
-	 * 'Bezier'. This is new from 1.4.0, and gives us a lot more flexibility when drawing connections: things such
-	 * as rounded corners for flowchart connectors, for example, or a straight line stub for Bezier connections, are
-	 * much easier to do now.
-	 *
-	 * A Segment is responsible for providing coordinates for painting it, and also must be able to report its length.
-	 * 
-	 */ 
-	jsPlumb.Segments.AbstractSegment = function(params) { 
-        this.params = params;
-        
-        /**
-        * Function: findClosestPointOnPath
-        * Finds the closest point on this segment to the given [x, y], 
-        * returning both the x and y of the point plus its distance from
-        * the supplied point, and its location along the length of the
-        * path inscribed by the segment.  This implementation returns
-        * Infinity for distance and null values for everything else;
-        * subclasses are expected to override.
-        */
-        this.findClosestPointOnPath = function(x, y) {
-            return {
-                d:Infinity,
-                x:null,
-                y:null,
-                l:null
+	jsPlumb.Segments = {
+        	
+        /*
+         * Class: AbstractSegment
+         * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
+         * 'Bezier'. This is new from 1.4.0, and gives us a lot more flexibility when drawing connections: things such
+         * as rounded corners for flowchart connectors, for example, or a straight line stub for Bezier connections, are
+         * much easier to do now.
+         *
+         * A Segment is responsible for providing coordinates for painting it, and also must be able to report its length.
+         * 
+         */ 
+        AbstractSegment : function(params) { 
+            this.params = params;
+            
+            /**
+            * Function: findClosestPointOnPath
+            * Finds the closest point on this segment to the given [x, y], 
+            * returning both the x and y of the point plus its distance from
+            * the supplied point, and its location along the length of the
+            * path inscribed by the segment.  This implementation returns
+            * Infinity for distance and null values for everything else;
+            * subclasses are expected to override.
+            */
+            this.findClosestPointOnPath = function(x, y) {
+                return {
+                    d:Infinity,
+                    x:null,
+                    y:null,
+                    l:null
+                };
             };
-        };
-    };
-	
-	jsPlumb.Segments.Straight = function(params) {
-		var self = this,
-			_super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
-			length = Math.sqrt(Math.pow(params.x2 - params.x1, 2) + Math.pow(params.y2 - params.y1, 2)),
-			m = jsPlumbUtil.gradient({x:params.x1, y:params.y1}, {x:params.x2, y:params.y2}),
-			m2 = -1 / m;
-			
-		this.type = "Straight";
-		
-		self.getLength = function() { return length; };
-		
-		/**
-         * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
-         * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
-         */
-        this.pointOnPath = function(location, absolute) {
-        	if (location == 0 && !absolute)
-                return { x:params.x1, y:params.y1 };
-            else if (location == 1 && !absolute)
-                return { x:params.x2, y:params.y2 };
-            else {
-                var l = absolute ? location > 0 ? location : length + location : location * length;
-                return jsPlumbUtil.pointOnLine({x:params.x1, y:params.y1}, {x:params.x2, y:params.y2}, l);
-            }
-        };
-        
-        /**
-         * returns the gradient of the connector at the given point - which for us is constant.
-         */
-        this.gradientAtPoint = function(_) {
-            return m;
-        };
-        
-        /**
-         * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
-         * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
-         * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
-         */
-        this.pointAlongPathFrom = function(location, distance, absolute) {            
-        	var p = self.pointOnPath(location, absolute),
-                farAwayPoint = location == 1 ? {
-                    x:params.x1 + ((params.x2 - params.x1) * 10),
-                    y:params.y1 + ((params.y1 - params.y2) * 10)
-                } : distance <= 0 ? {x:params.x1, y:params.y1} : {x:params.x2, y:params.y2 };
-				
-			if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
-
-            return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
-        };
-        
-        /**
-            Function: findClosestPointOnPath
-            Finds the closest point on this segment to [x,y]. See
-            notes on this method in AbstractSegment.
-        */
-        this.findClosestPointOnPath = function(x, y) {
-            if (m == 0) {
-                return {
-                    x:x,
-                    y:params.y1,
-                    d:Math.abs(y - params.y1)
+        },
+        Straight : function(params) {
+            var self = this,
+                _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+                length, m, m2, x1, x2, y1, y2,
+                _recalc = function() {
+                    length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    m = jsPlumbUtil.gradient({x:x1, y:y1}, {x:x2, y:y2});
+                    m2 = -1 / m;                
                 };
-            }
-            else if (m == Infinity || m == -Infinity) {
-                return {
-                    x:params.x1,
-                    y:y,
-                    d:Math.abs(x = params.x1)
-                };
-            }
-            else {
-                // closest point lies on normal from given point to this line.  
-                var b = params.y1 - (m * params.x1),
-                    b2 = y - (m2 * x),
-                // now we know that
-                // y1 = m.x1 + b
-                // and
-                // y1 = m2.x1 + b2
-                // so
-                // m.x1 + b = m2.x1 + b2
-                // x1(m - m2) = b2 - b
-                // x1 = (b2 - b) / (m - m2)
-                    x1 = (b2 -b) / (m - m2),
-                    y1 = (m * x1) + b,
-                    d = jsPlumbUtil.lineLength([ x, y ], [ x1, y1 ]),
-                    fractionInSegment = jsPlumbUtil.lineLength([ x1, y1 ], [ params.x1, params.y1 ]);
                 
-                return {
-                    d:d,
-                    x:x1,
-                    y:y1,
-                    l:fractionInSegment / length
-                };            
-            }
-        };
-	};
-	
-	/*
-		Arc Segment. You need to supply:
-
-        r   -   radius
-        cx  -   center x for the arc
-        cy  -   center y for the arc
-        ac  -   whether the arc is anticlockwise or not. default is clockwise.
-
-        and then either:
-
-        startAngle  -   startAngle for the arc.
-        endAngle    -   endAngle for the arc.
-
-        or:
-
-        x1          -   x for start point
-        y1          -   y for start point
-        x2          -   x for end point
-        y2          -   y for end point
-
-	*/
-	jsPlumb.Segments.Arc = function(params) {
-		var self = this,
-			_super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
-            _calcAngle = function(_x, _y) {
-                return jsPlumbUtil.theta([params.cx, params.cy], [_x, _y]);    
-            },
-            _calcAngleForLocation = function(location) {
-                if (self.anticlockwise) {
-                    var sa = self.startAngle < self.endAngle ? self.startAngle + TWO_PI : self.startAngle,
-                        s = Math.abs(sa - self.endAngle);
-                    return sa - (s * location);                    
+            this.type = "Straight";
+            
+            self.getLength = function() { return length; };
+            self.getGradient = function() { return m; };
+                
+            this.getCoordinates = function() {
+                return { x1:x1,y1:y1,x2:x2,y2:y2 };
+            };
+            this.setCoordinates = function(coords) {
+                x1 = coords.x1; y1 = coords.y1; x2 = coords.x2; y2 = coords.y2;
+                _recalc();
+            };
+            this.setCoordinates({x1:params.x1, y1:params.y1, x2:params.x2, y2:params.y2});
+            
+            /**
+             * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
+             * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
+             */
+             this.pointOnPath = function(location, absolute) {
+                if (location == 0 && !absolute)
+                    return { x:x1, y:y1 };
+                else if (location == 1 && !absolute)
+                    return { x:x2, y:y2 };
+                else {
+                    var l = absolute ? location > 0 ? location : length + location : location * length;
+                    return jsPlumbUtil.pointOnLine({x:x1, y:y1}, {x:x2, y:y2}, l);
+                }
+            };
+            
+            /**
+             * returns the gradient of the connector at the given point - which for us is constant.
+             */
+            this.gradientAtPoint = function(_) {
+                return m;
+            };
+            
+            /**
+             * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
+             * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
+             * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
+             */            
+            this.pointAlongPathFrom = function(location, distance, absolute) {            
+                var p = self.pointOnPath(location, absolute),
+                    farAwayPoint = location == 1 ? {
+                        x:x1 + ((x2 - x1) * 10),
+                        y:y1 + ((y1 - y2) * 10)
+                    } : distance <= 0 ? {x:x1, y:y1} : {x:x2, y:y2 };
+    
+                if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
+    
+                return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
+            };
+            
+            /**
+                Function: findClosestPointOnPath
+                Finds the closest point on this segment to [x,y]. See
+                notes on this method in AbstractSegment.
+            */
+            this.findClosestPointOnPath = function(x, y) {
+                if (m == 0) {
+                    return {
+                        x:x,
+                        y:y1,
+                        d:Math.abs(y - y1)
+                    };
+                }
+                else if (m == Infinity || m == -Infinity) {
+                    return {
+                        x:x1,
+                        y:y,
+                        d:Math.abs(x - 1)
+                    };
                 }
                 else {
-                    var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle,
-                        s = Math.abs (ea - self.startAngle);
-                
-                    return self.startAngle + (s * location);
+                    // closest point lies on normal from given point to this line.  
+                    var b = y1 - (m * x1),
+                        b2 = y - (m2 * x),
+                    // now we know that
+                    // y1 = m.x1 + b
+                    // and
+                    // y1 = m2.x1 + b2
+                    // so
+                    // m.x1 + b = m2.x1 + b2
+                    // x1(m - m2) = b2 - b
+                    // x1 = (b2 - b) / (m - m2)
+                        _x1 = (b2 -b) / (m - m2),
+                        _y1 = (m * _x1) + b,
+                        d = jsPlumbUtil.lineLength([ x, y ], [ _x1, _y1 ]),
+                        fractionInSegment = jsPlumbUtil.lineLength([ _x1, _y1 ], [ x1, y1 ]);
+                    
+                    return {
+                        d:d,
+                        x:_x1,
+                        y:_y1,
+                        l:fractionInSegment / length
+                    };            
                 }
-            },
-            TWO_PI = 2 * Math.PI;
-        
-        this.radius = params.r;
-        this.anticlockwise = params.ac;			
-		this.type = "Arc";
-            
-        if (params.startAngle && params.endAngle) {
-            this.startAngle = params.startAngle;
-            this.endAngle = params.endAngle;            
-            this.x1 = params.cx + (self.radius * Math.cos(params.startAngle));     
-            this.y1 = params.cy + (self.radius * Math.sin(params.startAngle));            
-            this.x2 = params.cx + (self.radius * Math.cos(params.endAngle));     
-            this.y2 = params.cy + (self.radius * Math.sin(params.endAngle));                        
-        }
-        else {
-            this.startAngle = _calcAngle(params.x1, params.y1);
-            this.endAngle = _calcAngle(params.x2, params.y2);            
-            this.x1 = params.x1;
-            this.y1 = params.y1;
-            this.x2 = params.x2;
-            this.y2 = params.y2;            
-        }
-        
-        if (this.endAngle < 0) this.endAngle += TWO_PI;
-        if (this.startAngle < 0) this.startAngle += TWO_PI;        
-        
-        // we now have startAngle and endAngle as positive numbers, meaning the
-        // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
-        // arc is 'anticlockwise' in which case 's' is given by 2PI - |d|.
-        
-        var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle;
-        self.sweep = Math.abs (ea - self.startAngle);
-        if (self.anticlockwise) self.sweep = TWO_PI - self.sweep;
-        var circumference = 2 * Math.PI * self.radius,
-            frac = self.sweep / TWO_PI,
-            length = circumference * frac;
-        
-		this.getLength = function() {
-            return length;
-		};
-        
-        var VERY_SMALL_VALUE = 0.0000000001,
-            gentleRound = function(n) {
-                var f = Math.floor(n), r = Math.ceil(n);
-                if (n - f < VERY_SMALL_VALUE) 
-                    return f;    
-                else if (r - n < VERY_SMALL_VALUE)
-                    return r;
-                return n;
             };
-		
-		/**
-         * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
-         * 0 to 1 inclusive. 
-         */
-        this.pointOnPath = function(location, absolute) {            
-            
-            if (location == 0) {
-                return { x:self.x1, y:self.y1, theta:self.startAngle };    
-            }
-            else if (location == 1) {
-                return { x:self.x2, y:self.y2, theta:self.endAngle };                    
-            }
-            
-            if (absolute) {
-				location = location / length;
-			}
-
-			var angle = _calcAngleForLocation(location),
-				_x = params.cx + (params.r * Math.cos(angle)),
-				_y  = params.cy + (params.r * Math.sin(angle));					
-
-			return { x:gentleRound(_x), y:gentleRound(_y), theta:angle };
-        };
-        
-        /**
-         * returns the gradient of the segment at the given point.
-         */
-        this.gradientAtPoint = function(location, absolute) {
-            var p = self.pointOnPath(location, absolute);
-            var m = jsPlumbUtil.normal( [ params.cx, params.cy ], [p.x, p.y ] );
-            if (!self.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
-            return m;
-        };	              
-                
-        this.pointAlongPathFrom = function(location, distance, absolute) {
-            var p = self.pointOnPath(location, absolute),
-			    arcSpan = distance / circumference * 2 * Math.PI,
-				startAngle = p.theta - arcSpan,				
-				startX = params.cx + (self.radius * Math.cos(startAngle)),
-				startY = params.cy + (self.radius * Math.sin(startAngle));	
-
-			return {x:startX, y:startY};
-        };		
-	};
+        },
 	
-	jsPlumb.Segments.Bezier = function(params) {
-		var self = this,
-			_super = jsPlumb.Segments.AbstractSegment.apply(this, arguments);
-			
-		this.type = "Bezier";
-		
-		var _makeCurve = function() {
-        	return [	
-	        	{ x:params.x1, y:params.y1},
-	        	{ x:params.cp1x, y:params.cp1y },
-	        	{ x:params.cp2x, y:params.cp2y },
-	        	{ x:params.x2, y:params.y2 }
-         	];
-        };
-		
-		var _translateLocation = function(curve, location, absolute) {
-            if (absolute)
-                location = jsBezier.locationAlongCurveFrom(curve, location > 0 ? 0 : 1, location);
-
-            return location;
-        };		
-        
-        /**
-         * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
-         * 0 to 1 inclusive. 
-         */
-        this.pointOnPath = function(location, absolute) {
-            var c = _makeCurve();
-			location = _translateLocation(c, location, absolute);
-			return jsBezier.pointOnCurve(c, location);
-        };
-        
-        /**
-         * returns the gradient of the connector at the given point.
-         */
-        this.gradientAtPoint = function(location, absolute) {
-            var c = _makeCurve();
-            location = _translateLocation(c, location, absolute);
-            return jsBezier.gradientAtPoint(c, location);        	
-        };	              
-        
-        this.pointAlongPathFrom = function(location, distance, absolute) {
-            var c = _makeCurve();
-            location = _translateLocation(c, location, absolute);
-            return jsBezier.pointAlongCurveFrom(c, location, distance);
-        };
-		
-		this.getLength = function() {
-			return jsBezier.getLength(_makeCurve());				
-		};
-	};
+        /*
+            Arc Segment. You need to supply:
+    
+            r   -   radius
+            cx  -   center x for the arc
+            cy  -   center y for the arc
+            ac  -   whether the arc is anticlockwise or not. default is clockwise.
+    
+            and then either:
+    
+            startAngle  -   startAngle for the arc.
+            endAngle    -   endAngle for the arc.
+    
+            or:
+    
+            x1          -   x for start point
+            y1          -   y for start point
+            x2          -   x for end point
+            y2          -   y for end point
+    
+        */
+        Arc : function(params) {
+            var self = this,
+                _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+                _calcAngle = function(_x, _y) {
+                    return jsPlumbUtil.theta([params.cx, params.cy], [_x, _y]);    
+                },
+                _calcAngleForLocation = function(location) {
+                    if (self.anticlockwise) {
+                        var sa = self.startAngle < self.endAngle ? self.startAngle + TWO_PI : self.startAngle,
+                            s = Math.abs(sa - self.endAngle);
+                        return sa - (s * location);                    
+                    }
+                    else {
+                        var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle,
+                            s = Math.abs (ea - self.startAngle);
+                    
+                        return self.startAngle + (s * location);
+                    }
+                },
+                TWO_PI = 2 * Math.PI;
+            
+            this.radius = params.r;
+            this.anticlockwise = params.ac;			
+            this.type = "Arc";
+                
+            if (params.startAngle && params.endAngle) {
+                this.startAngle = params.startAngle;
+                this.endAngle = params.endAngle;            
+                this.x1 = params.cx + (self.radius * Math.cos(params.startAngle));     
+                this.y1 = params.cy + (self.radius * Math.sin(params.startAngle));            
+                this.x2 = params.cx + (self.radius * Math.cos(params.endAngle));     
+                this.y2 = params.cy + (self.radius * Math.sin(params.endAngle));                        
+            }
+            else {
+                this.startAngle = _calcAngle(params.x1, params.y1);
+                this.endAngle = _calcAngle(params.x2, params.y2);            
+                this.x1 = params.x1;
+                this.y1 = params.y1;
+                this.x2 = params.x2;
+                this.y2 = params.y2;            
+            }
+            
+            if (this.endAngle < 0) this.endAngle += TWO_PI;
+            if (this.startAngle < 0) this.startAngle += TWO_PI;        
+            
+            // we now have startAngle and endAngle as positive numbers, meaning the
+            // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
+            // arc is 'anticlockwise' in which case 's' is given by 2PI - |d|.
+            
+            var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle;
+            self.sweep = Math.abs (ea - self.startAngle);
+            if (self.anticlockwise) self.sweep = TWO_PI - self.sweep;
+            var circumference = 2 * Math.PI * self.radius,
+                frac = self.sweep / TWO_PI,
+                length = circumference * frac;
+            
+            this.getLength = function() {
+                return length;
+            };
+            
+            var VERY_SMALL_VALUE = 0.0000000001,
+                gentleRound = function(n) {
+                    var f = Math.floor(n), r = Math.ceil(n);
+                    if (n - f < VERY_SMALL_VALUE) 
+                        return f;    
+                    else if (r - n < VERY_SMALL_VALUE)
+                        return r;
+                    return n;
+                };
+            
+            /**
+             * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
+             * 0 to 1 inclusive. 
+             */
+            this.pointOnPath = function(location, absolute) {            
+                
+                if (location == 0) {
+                    return { x:self.x1, y:self.y1, theta:self.startAngle };    
+                }
+                else if (location == 1) {
+                    return { x:self.x2, y:self.y2, theta:self.endAngle };                    
+                }
+                
+                if (absolute) {
+                    location = location / length;
+                }
+    
+                var angle = _calcAngleForLocation(location),
+                    _x = params.cx + (params.r * Math.cos(angle)),
+                    _y  = params.cy + (params.r * Math.sin(angle));					
+    
+                return { x:gentleRound(_x), y:gentleRound(_y), theta:angle };
+            };
+            
+            /**
+             * returns the gradient of the segment at the given point.
+             */
+            this.gradientAtPoint = function(location, absolute) {
+                var p = self.pointOnPath(location, absolute);
+                var m = jsPlumbUtil.normal( [ params.cx, params.cy ], [p.x, p.y ] );
+                if (!self.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
+                return m;
+            };	              
+                    
+            this.pointAlongPathFrom = function(location, distance, absolute) {
+                var p = self.pointOnPath(location, absolute),
+                    arcSpan = distance / circumference * 2 * Math.PI,
+                    startAngle = p.theta - arcSpan,				
+                    startX = params.cx + (self.radius * Math.cos(startAngle)),
+                    startY = params.cy + (self.radius * Math.sin(startAngle));	
+    
+                return {x:startX, y:startY};
+            };		
+        },
+	
+        Bezier : function(params) {
+            var self = this,
+                _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+                curve = [	
+                    { x:params.x1, y:params.y1},
+                    { x:params.cp1x, y:params.cp1y },
+                    { x:params.cp2x, y:params.cp2y },
+                    { x:params.x2, y:params.y2 }
+                ];
+                
+            this.type = "Bezier";            
+            
+            var _translateLocation = function(_curve, location, absolute) {
+                if (absolute)
+                    location = jsBezier.locationAlongCurveFrom(_curve, location > 0 ? 0 : 1, location);
+    
+                return location;
+            };		
+            
+            /**
+             * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
+             * 0 to 1 inclusive. 
+             */
+            this.pointOnPath = function(location, absolute) {
+                location = _translateLocation(curve, location, absolute);
+                return jsBezier.pointOnCurve(curve, location);
+            };
+            
+            /**
+             * returns the gradient of the connector at the given point.
+             */
+            this.gradientAtPoint = function(location, absolute) {
+                location = _translateLocation(curve, location, absolute);
+                return jsBezier.gradientAtPoint(curve, location);        	
+            };	              
+            
+            this.pointAlongPathFrom = function(location, distance, absolute) {
+                location = _translateLocation(curve, location, absolute);
+                return jsBezier.pointAlongCurveFrom(curve, location, distance);
+            };
+            
+            this.getLength = function() {
+                return jsBezier.getLength(curve);				
+            };
+        }
+    };
 	
 	/*
 	 * Class: AbstractConnector
@@ -376,19 +383,11 @@
             stub = params.stub || 0, 
             sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
             targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
-            gap = params.gap || 0;
+            gap = params.gap || 0,
+            userProvidedSegments = null;
         
         // subclasses should override.
-        this.isEditable = function() { return false; };
-        
-        // notification that the mouse was pressed on a path.
-        // these values are adjusted to the connector's canvas.
-        // not sure right now, as i write this, if they need to be
-        // further adjusted inside this method.
-        this.editStart = function(x, y) {
-            var s = self.findSegmentForPoint(x, y);
-            console.log("segment is ", s);
-        };
+        this.isEditable = function() { return false; };                
         
         /**
         * Function: findSegmentForPoint
@@ -406,7 +405,7 @@
             var out = { d:Infinity, s:null, x:null, y:null, l:null };
             for (var i = 0; i < segments.length; i++) {
                 var _s = segments[i].findClosestPointOnPath(x, y);
-                console.log("closest point for segment", _s, segments[i].type);
+                //console.log("closest point for segment", _s, segments[i].type);
                 if (_s.d < out.d) {
                     out.d = _s.d; 
                     out.l = _s.l; 
@@ -420,73 +419,81 @@
         };
 			
 		var _updateSegmentProportions = function() {
-			var curLoc = 0;
-			for (var i = 0; i < segments.length; i++) {
-				var sl = segments[i].getLength();
-				segmentProportionalLengths[i] = sl / totalLength;
-				segmentProportions[i] = [curLoc, (curLoc += (sl / totalLength)) ];
-			}
-		};
+                var curLoc = 0;
+                for (var i = 0; i < segments.length; i++) {
+                    var sl = segments[i].getLength();
+                    segmentProportionalLengths[i] = sl / totalLength;
+                    segmentProportions[i] = [curLoc, (curLoc += (sl / totalLength)) ];
+                }
+            },
 		
-		/**
-		 * returns [segment, proportion of travel in segment, segment index] for the segment 
-		 * that contains the point which is 'location' distance along the entire path, where 
-		 * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths 
-		 * are made up of a list of segments, each of which contributes some fraction to
-		 * the total length. 
-         * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
-         * as the absolute distance in pixels, rather than a proportion of the total path. 
-		 */
-		var _findSegmentForLocation = function(location, absolute) {
-            if (absolute) {
-                location = location > 0 ? location / totalLength : (totalLength + location) / totalLength;
-            }
-
-			var idx = segmentProportions.length - 1, inSegmentProportion = 1;
-			//if (location < 1) {
-				for (var i = 0; i < segmentProportions.length; i++) {
-					if (segmentProportions[i][1] >= location) {
-						idx = i;
-						// todo is this correct for all connector path types?
-						inSegmentProportion = location == 1 ? 1 : location == 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
-	 					break;
-					}
-				}
-			//}
-			return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
-		};
-		
-		var _addSegment = function(type, params) {
-			var s = new jsPlumb.Segments[type](params);
-			segments.push(s);
-			totalLength += s.getLength();			
-		};			
-		
-		var _clearSegments = function() {
-			totalLength = 0;
-			segments.splice(0, segments.length);
-			segmentProportions.splice(0, segmentProportions.length);
-			segmentProportionalLengths.splice(0, segmentProportionalLengths.length);
-		};
+            /**
+             * returns [segment, proportion of travel in segment, segment index] for the segment 
+             * that contains the point which is 'location' distance along the entire path, where 
+             * 'location' is a decimal between 0 and 1 inclusive. in this connector type, paths 
+             * are made up of a list of segments, each of which contributes some fraction to
+             * the total length. 
+             * From 1.3.10 this also supports the 'absolute' property, which lets us specify a location
+             * as the absolute distance in pixels, rather than a proportion of the total path. 
+             */
+            _findSegmentForLocation = function(location, absolute) {
+                if (absolute) {
+                    location = location > 0 ? location / totalLength : (totalLength + location) / totalLength;
+                }
+    
+                var idx = segmentProportions.length - 1, inSegmentProportion = 1;
+                //if (location < 1) {
+                    for (var i = 0; i < segmentProportions.length; i++) {
+                        if (segmentProportions[i][1] >= location) {
+                            idx = i;
+                            // todo is this correct for all connector path types?
+                            inSegmentProportion = location == 1 ? 1 : location == 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
+                            break;
+                        }
+                    }
+                //}
+                return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
+            },		
+            _addSegment = function(type, params) {
+                var s = new jsPlumb.Segments[type](params);
+                segments.push(s);
+                totalLength += s.getLength();			
+            },					
+            _clearSegments = function() {
+                totalLength = 0;
+                segments.splice(0, segments.length);
+                segmentProportions.splice(0, segmentProportions.length);
+                segmentProportionalLengths.splice(0, segmentProportionalLengths.length);
+            };
         
-        var _prepareCompute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, 
-            sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
-            
-            self.lineWidth = lineWidth;
-            var segment = jsPlumbUtil.segment(sourcePos, targetPos),
-                swapX = targetPos[0] < sourcePos[0],
-                swapY = targetPos[1] < sourcePos[1],
-                lw = lineWidth || 1,       
-                sourceOffx = Math.max(minWidth, (lw / 2) + (sourceStub + targetStub)), 
-                targetOffx = Math.max(minWidth, (lw / 2) + (targetStub + sourceStub)),                 
-                sourceOffy = Math.max(minWidth, (lw / 2) + (sourceStub + targetStub)),
-                targetOffy = Math.max(minWidth, (lw / 2) + (targetStub + sourceStub)),
-                so = sourceAnchor.orientation || sourceAnchor.getOrientation(sourceEndpoint), 
-                to = targetAnchor.orientation || targetAnchor.getOrientation(targetEndpoint),
-                x = swapX ? targetPos[0] : sourcePos[0], 
-                y = swapY ? targetPos[1] : sourcePos[1],
-                w = Math.abs(targetPos[0] - sourcePos[0]) + sourceOffx + targetOffx, 
-                h = Math.abs(targetPos[1] - sourcePos[1]) + sourceOffy + targetOffy;            
+        this.setSegments = function(_segs) {
+            userProvidedSegments = [];
+            totalLength = 0;
+            for (var i = 0; i < _segs.length; i++) {      
+                userProvidedSegments.push(_segs[i]);
+                totalLength += _segs[i].getLength();			            
+            }            
+        };
+        //if (params.segments) {
+        //  this.setSegments(params.segments);
+        //}        
+        
+        var _prepareCompute = function(params) {
+            self.lineWidth = params.lineWidth;
+            var segment = jsPlumbUtil.segment(params.sourcePos, params.targetPos),
+                swapX = params.targetPos[0] < params.sourcePos[0],
+                swapY = params.targetPos[1] < params.sourcePos[1],
+                lw = params.lineWidth || 1,       
+                sourceOffx = Math.max(params.minWidth, (lw / 2) + (sourceStub + targetStub)), 
+                targetOffx = Math.max(params.minWidth, (lw / 2) + (targetStub + sourceStub)),                 
+                sourceOffy = Math.max(params.minWidth, (lw / 2) + (sourceStub + targetStub)),
+                targetOffy = Math.max(params.minWidth, (lw / 2) + (targetStub + sourceStub)),
+                so = params.sourceAnchor.orientation || params.sourceAnchor.getOrientation(params.sourceEndpoint), 
+                to = params.targetAnchor.orientation || params.targetAnchor.getOrientation(params.targetEndpoint),
+                x = swapX ? params.targetPos[0] : params.sourcePos[0], 
+                y = swapY ? params.targetPos[1] : params.sourcePos[1],
+                w = Math.abs(params.targetPos[0] - params.sourcePos[0]) + sourceOffx + targetOffx, 
+                h = Math.abs(params.targetPos[1] - params.sourcePos[1]) + sourceOffy + targetOffy;            
             
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
@@ -494,8 +501,8 @@
             if (so[0] == 0 && so[1] == 0 || to[0] == 0 && to[1] == 0) {
                 var index = w > h ? 0 : 1, oIndex = [1,0][index];
                 so = []; to = [];
-                so[index] = sourcePos[index] > targetPos[index] ? -1 : 1;
-                to[index] = sourcePos[index] > targetPos[index] ? 1 : -1;
+                so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1;
+                to[index] = params.sourcePos[index] > params.targetPos[index] ? 1 : -1;
                 so[oIndex] = 0; to[oIndex] = 0;
             }
             
@@ -530,17 +537,6 @@
                 points:[x, y, w, h, sx, sy, tx, ty ]
             };
             result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
-          /* 
-            var flipSourceSegments = so[result.sourceAxis == "x" ? 0 : 1] == -1,
-                flipSegments = {
-                    "x":[null, 4, 3, 2, 1],
-                    "y":[null, 2, 1, 4, 3]
-                };        
-                
-            if (flipSourceSegments)                
-                result.segment = flipSegments[result.sourceAxis][result.segment];
-        //*/
-            
             return result;
         };
 		
@@ -569,13 +565,15 @@
 			return seg.segment.pointAlongPathFrom(seg.proportion, distance, absolute);
 		};
 		
-		this.compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo) {
-			_clearSegments();
-			var out = this._compute(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth, sourceInfo, targetInfo);
-			_updateSegmentProportions();
-			// TODO why does this still have to return something? isn't all the painting handled by
-			// this class now?
-			return out;
+		this.compute = function(params)  {
+            var paintInfo = _prepareCompute(params);
+            _clearSegments();
+            var out = this._compute(paintInfo, params);
+            self.x = out[0];
+            self.y = out[1];
+            self.w = out[2];
+            self.h = out[3];            
+            _updateSegmentProportions();            
 		};
 		
 		return {
@@ -596,16 +594,7 @@
     	this.type = "Straight";
 		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);		
 
-        this._compute = function(sourcePos, targetPos, sourceEndpoint, 
-                                 targetEndpoint, sourceAnchor, targetAnchor, 
-                                 lineWidth, minWidth,
-                                    sourceInfo, targetInfo) {
-            
-            var paintInfo = _super.prepareCompute(sourcePos, targetPos, 
-                                                  sourceEndpoint, targetEndpoint, 
-                                                  sourceAnchor, targetAnchor, 
-                                                  lineWidth, minWidth, 
-                                                  sourceInfo, targetInfo);
+        this._compute = function(paintInfo, params) {            
             
             _super.addSegment("Straight", {x1:paintInfo.sx, y1:paintInfo.sy, x2:paintInfo.startStubX, y2:paintInfo.startStubY});                                                
             _super.addSegment("Straight", {x1:paintInfo.startStubX, y1:paintInfo.startStubY, x2:paintInfo.endStubX, y2:paintInfo.endStubY});                        
@@ -614,8 +603,7 @@
             return paintInfo.points;
         };                    
     };
-                
-    
+                    
     /**
      * Class:Connectors.Bezier
      * This Connector draws a Bezier curve with two control points.  You can provide a 'curviness' value which gets applied to jsPlumb's
@@ -675,20 +663,12 @@
 
         var _CP, _CP2, _sx, _tx, _ty, _sx, _sy, _canvasX, _canvasY, _w, _h, _sStubX, _sStubY, _tStubX, _tStubY;
 
-        this._compute = function(sourcePos, targetPos, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor, lineWidth, minWidth, 
-                                                  sourceInfo, targetInfo) {
-            
-            
-            var paintInfo = _super.prepareCompute(sourcePos, targetPos, 
-                                                  sourceEndpoint, targetEndpoint, 
-                                                  sourceAnchor, targetAnchor, 
-                                                  lineWidth, minWidth, 
-                                                  sourceInfo, targetInfo);
+        this._compute = function(paintInfo, p) {                        
             
         	// this calculation gives us what the minimum distance between either start or end
 			// should be from the edge of the canvas.
-			var sp = [sourcePos[0], sourcePos[1]],
-				tp = [ targetPos[0], targetPos[1] ];
+			var sp = [p.sourcePos[0], p.sourcePos[1]],
+				tp = [ p.targetPos[0], p.targetPos[1] ];
 
 			// -----------------------------
 			
@@ -697,7 +677,7 @@
 			
 			// ------------------
 				
-			lineWidth = Math.max(minWidth, (lineWidth || 0));
+			var lineWidth = Math.max(p.minWidth, (p.lineWidth || 0));
             _w = Math.abs(sp[0] - tp[0]) + lineWidth; 
             _h = Math.abs(sp[1] - tp[1]) + lineWidth;
             
@@ -706,13 +686,13 @@
             _canvasX = Math.min(sp[0], tp[0])-(lineWidth/2);
             _canvasY = Math.min(sp[1], tp[1])-(lineWidth/2);            
       
-               _sx = sp[0] < tp[0] ? _w - (lineWidth/2): (lineWidth/2);
+            _sx = sp[0] < tp[0] ? _w - (lineWidth/2): (lineWidth/2);
             _sy = sp[1] < tp[1] ? _h - (lineWidth/2) : (lineWidth/2);
             _tx = sp[0] < tp[0] ? (lineWidth/2) : _w - (lineWidth/2);
             _ty = sp[1] < tp[1] ? (lineWidth/2) : _h - (lineWidth/2);
                         
-            _CP = self._findControlPoint([_sx, _sy], sp, tp, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor);
-            _CP2 = self._findControlPoint([_tx, _ty], tp, sp, targetEndpoint, sourceEndpoint, targetAnchor, sourceAnchor);                
+            _CP = self._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, p.sourceAnchor, p.targetAnchor);
+            _CP2 = self._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, p.targetAnchor, p.sourceAnchor);                
             var minx1 = Math.min(_sx,_tx), minx2 = Math.min(_CP[0], _CP2[0]), minx = Math.min(minx1,minx2),
             	maxx1 = Math.max(_sx,_tx), maxx2 = Math.max(_CP[0], _CP2[0]), maxx = Math.max(maxx1,maxx2);
             
@@ -731,15 +711,15 @@
                 _h += oy; _CP[1] += oy; _sy += oy; _ty +=oy; _CP2[1] += oy;                
             }
             
-            if (minWidth && _w < minWidth) {
-            	var posAdjust = (minWidth - _w) / 2;
+            if (p.minWidth && _w < p.minWidth) {
+            	var posAdjust = (p.minWidth - _w) / 2;
         		_w = minWidth;        		
         		_canvasX -= posAdjust; _sx = _sx + posAdjust ; _tx = _tx + posAdjust; _CP[0] =  _CP[0] + posAdjust; _CP2[0] = _CP2[0] + posAdjust;
         	}
             
-            if (minWidth && paintInfo.h < minWidth) {
-            	var posAdjust = (minWidth - _h) / 2;
-        		_h = minWidth;        		
+            if (p.minWidth && paintInfo.h < p.minWidth) {
+            	var posAdjust = (p.minWidth - _h) / 2;
+        		_h = p.minWidth;        		
         		_canvasY -= posAdjust; _sy = _sy + posAdjust ; _ty = _ty + posAdjust; _CP[1] =  _CP[1] + posAdjust; _CP2[1] = _CP2[1] + posAdjust;
         	}
 
@@ -756,12 +736,25 @@
         };               
     };        
     
-    
-    
-
  // ********************************* END OF CONNECTOR TYPES *******************************************************************
     
  // ********************************* ENDPOINT TYPES *******************************************************************
+    
+    jsPlumb.Endpoints.AbstractEndpoint = function(params) {
+        var self = this;    
+        this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {    
+            var out = self._compute(anchorPoint, orientation, endpointStyle, connectorPaintStyle);
+            self.x = out[0];
+            self.y = out[1];
+            self.w = out[2];
+            self.h = out[3];
+            return out;
+        };
+        return {
+            compute:self.compute,
+            cssClass:params.cssClass
+        };
+    };
     
     /**
      * Class: Endpoints.Dot
@@ -775,15 +768,16 @@
 	 * 
 	 * 	radius	-	radius of the endpoint.  defaults to 10 pixels.
 	 */
-	jsPlumb.Endpoints.Dot = function(params) {
+	jsPlumb.Endpoints.Dot = function(params) {        
 		this.type = "Dot";
-		var self = this;
+		var self = this,
+            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		params = params || {};				
 		this.radius = params.radius || 10;
 		this.defaultOffset = 0.5 * this.radius;
 		this.defaultInnerRadius = this.radius / 3;			
 		
-		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
+		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			var r = endpointStyle.radius || self.radius,
 				x = anchorPoint[0] - r,
 				y = anchorPoint[1] - r;
@@ -805,12 +799,13 @@
 	 */
 	jsPlumb.Endpoints.Rectangle = function(params) {
 		this.type = "Rectangle";
-		var self = this;
+		var self = this,
+            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		params = params || {};
 		this.width = params.width || 20;
 		this.height = params.height || 20;
 		
-		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
+		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			var width = endpointStyle.width || self.width,
 				height = endpointStyle.height || self.height,
 				x = anchorPoint[0] - (width/2),
@@ -849,7 +844,8 @@
 		this.type = "Image";
 		DOMElementEndpoint.apply(this, arguments);
 		
-		var self = this, 
+		var self = this,
+            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments), 
 			initialized = false,
 			deleted = false,
 			widthToUse = params.width,
@@ -888,7 +884,7 @@
 
         _endpoint.setImage(params.src || params.url, params.onload);
 
-		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
+		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			self.anchorPoint = anchorPoint;
 			if (self.ready) return [anchorPoint[0] - widthToUse / 2, anchorPoint[1] - heightToUse / 2, 
 									widthToUse, heightToUse];
@@ -924,13 +920,13 @@
 			}
 		};
 		
-		this.paint = function(d, style, anchor) {
+		this.paint = function(style, anchor) {
 			if (self.ready) {
-    			actuallyPaint(d, style, anchor);
+    			actuallyPaint(style, anchor);
 			}
 			else { 
 				window.setTimeout(function() {    					
-					self.paint(d, style, anchor);
+					self.paint(style, anchor);
 				}, 200);
 			}
 		};				
@@ -941,10 +937,11 @@
 	 * An Endpoint that paints nothing (visible) on the screen.  Supports cssClass and hoverClass parameters like all Endpoints.
 	 */
 	jsPlumb.Endpoints.Blank = function(params) {
-		var self = this;
+		var self = this,
+            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		this.type = "Blank";
 		DOMElementEndpoint.apply(this, arguments);		
-		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
+		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			return [anchorPoint[0], anchorPoint[1],10,0];
 		};
 		
@@ -957,8 +954,8 @@
 		self.canvas.className = self._jsPlumb.endpointClass;
 		jsPlumb.appendElement(self.canvas, params.parent);
 		
-		this.paint = function(d, style, anchor) {
-			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);	
+		this.paint = function(style, anchor) {
+			jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);	
 		};
 	};
 	
@@ -974,14 +971,16 @@
 	 * 	width	-	width of the triangle's base.  defaults to 55 pixels.
 	 * 	height	-	height of the triangle from base to apex.  defaults to 55 pixels.
 	 */
-	jsPlumb.Endpoints.Triangle = function(params) {
+	jsPlumb.Endpoints.Triangle = function(params) {        
 		this.type = "Triangle";
+        var self = this,
+            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		params = params || {  };
 		params.width = params.width || 55;
 		params.height = params.height || 55;
 		this.width = params.width;
 		this.height = params.height;
-		this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
+		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			var width = endpointStyle.width || self.width,
 			height = endpointStyle.height || self.height,
 			x = anchorPoint[0] - (width/2),
@@ -1064,7 +1063,7 @@
     	
     	this.cleanup = function() { };  // nothing to clean up for Arrows
     	
-    	this.draw = function(connector, currentConnectionPaintStyle, connectorDimensions) {
+    	this.draw = function(connector, currentConnectionPaintStyle) {
 
             var hxy, mid, txy, tail, cxy;
             if (connector.pointAlongPathFrom) {
@@ -1115,7 +1114,7 @@
     			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
     			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
     			
-    			self.paint(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions);							
+    			self.paint(connector, d, lineWidth, strokeStyle, fillStyle);							
 			
 			    return [ minx, maxx, miny, maxy]; 
             }
@@ -1234,18 +1233,18 @@
     		if (div != null) jpcl.removeElement(div);
     	};
 		
-		this.paint = function(component, d, componentDimensions) {
+		this.paint = function(component, d) {
 			if (!initialised) {
 				self.getElement();
 				component.appendDisplayElement(div);
 				self.attachListeners(div, component);
 				initialised = true;
 			}
-			div.style.left = (componentDimensions[0] + d.minx) + "px";
-			div.style.top = (componentDimensions[1] + d.miny) + "px";			
+			div.style.left = (component.x + d.minx) + "px";
+			div.style.top = (component.y + d.miny) + "px";			
     	};
 				
-		this.draw = function(component, currentConnectionPaintStyle, componentDimensions) {
+		this.draw = function(component, currentConnectionPaintStyle) {
 	    	var td = _getDimensions();
 	    	if (td != null && td.length == 2) {
 				var cxy = {x:0,y:0};
@@ -1259,13 +1258,13 @@
                 }
                 else {
                     var locToUse = self.loc.constructor == Array ? self.loc : self.endpointLoc;
-                    cxy = { x:locToUse[0] * componentDimensions[2],
-                            y:locToUse[1] * componentDimensions[3] };      
+                    cxy = { x:locToUse[0] * component.w,
+                            y:locToUse[1] * component.h };      
                 } 
                            
 				minx = cxy.x - (td[0] / 2),
 				miny = cxy.y - (td[1] / 2);				
-				self.paint(component, { minx:minx, miny:miny, td:td, cxy:cxy }, componentDimensions);				
+				self.paint(component, { minx:minx, miny:miny, td:td, cxy:cxy });				
 				return [minx, minx + td[0], miny, miny + td[1]];
         	}
 	    	else return [0,0,0,0];
