@@ -3684,16 +3684,25 @@ between this method and jsPlumb.reset).
 			var lastTimestamp = null, lastReturnValue = null;
 			this.offsets = params.offsets || [ 0, 0 ];
 			self.timestamp = null;
+            var userDefinedLocation = null;
 			this.compute = function(params) {
-				var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;
-				
-				if (timestamp && timestamp === self.timestamp)
-					return lastReturnValue;
-	
-				lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];
-				
-				// adjust loc if there is an offsetParent
-				lastReturnValue = adjustForParentOffsetAndScroll(lastReturnValue, element.canvas);
+                
+                var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;                    
+                if(params.clearUserDefinedLocation)
+                    userDefinedLocation = null;
+                
+                if (timestamp && timestamp === self.timestamp)
+                    return lastReturnValue;        
+                
+                if (userDefinedLocation != null) {
+                    lastReturnValue = userDefinedLocation;
+                }
+                else {                
+                    
+                    lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];                    
+                    // adjust loc if there is an offsetParent
+                    lastReturnValue = adjustForParentOffsetAndScroll(lastReturnValue, element.canvas);
+                }
 				
 				self.timestamp = timestamp;
 				return lastReturnValue;
@@ -3712,6 +3721,13 @@ between this method and jsPlumb.reset).
 			};
 
 			this.getCurrentLocation = function() { return lastReturnValue; };
+            
+            this.setUserDefinedLocation = function(l) {
+                userDefinedLocation = l;
+            };
+            this.clearUserDefinedLocation = function() {
+                userDefinedLocation = null;
+            };
 		};
 
 		/**
