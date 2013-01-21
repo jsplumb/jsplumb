@@ -19,7 +19,7 @@
         var self = this,
             _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),		
             midpoint = params.midpoint || 0.5,
-            points = [], segments = [], originalSegments = [],
+            points = [], segments = [],
             grid = params.grid,
             userSuppliedSegments = null,
             lastx = -1, lasty = -1, lastOrientation,	
@@ -30,7 +30,7 @@
              */
             addSegment = function(segments, x, y, sx, sy) {
                 // if segment would have length zero, dont add it.
-          //      if (sx == lastx && sy == lasty) return;
+                if (sx == lastx && sy == lasty) return;
                 
                 var lx = lastx == -1 ? sx : lastx,
                     ly = lasty == -1 ? sy : lasty,
@@ -39,22 +39,18 @@
                     sgny = sgn(y - ly);
                     
                 lastx = x;
-                lasty = y;				    		
-                
-                console.log("adding segment", [lx, ly, x, y, o, sgnx, sgny]);
-                                        
+                lasty = y;				    		                
                 segments.push([lx, ly, x, y, o, sgnx, sgny]);				
-                originalSegments.push([lx, ly, x, y, o, sgnx, sgny]);                
             },
             segLength = function(s) {
                 return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));    
             },
             _cloneArray = function(a) { var _a = []; _a.push.apply(_a, a); return _a;},
             writeSegments = function(segments) {
-                var unalteredSegments = [];
+                var current, next;
                 for (var i = 0; i < segments.length - 1; i++) {
-                    var current = segments[i], next = segments[i + 1];
-                    unalteredSegments.push(_cloneArray(current));
+                    current = current || _cloneArray(segments[i]);
+                    next = _cloneArray(segments[i + 1]);
                     if (cornerRadius > 0 && current[4] != next[4]) {
                         var radiusToUse = Math.min(cornerRadius, segLength(current), segLength(next));
                         // right angle! adjust current segment's end point, and next segment's start point.
@@ -72,7 +68,7 @@
                             cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];                                                        
                         
                         _super.addSegment("Straight", {
-                            x1:segments[i][0], y1:segments[i][1], x2:segments[i][2], y2:segments[i][3]
+                            x1:current[0], y1:current[1], x2:current[2], y2:current[3]
                         });
                             
                         _super.addSegment("Arc", {
@@ -88,17 +84,15 @@
                     }
                     else {
                         _super.addSegment("Straight", {
-                            x1:segments[i][0], y1:segments[i][1], x2:segments[i][2], y2:segments[i][3]
+                            x1:current[0], y1:current[1], x2:current[2], y2:current[3]
                         });
                     }
+                    current = next;
                 }
-                var ls = segments[segments.length - 1];
                 // last segment
                 _super.addSegment("Straight", {
-                    x1:ls[0], y1:ls[1], x2:ls[2], y2:ls[3]
+                    x1:next[0], y1:next[1], x2:next[2], y2:next[3]
                 });
-                unalteredSegments.push(_cloneArray(ls));
-                return unalteredSegments;
             };
         
         this.setSegments = function(s) {
@@ -113,7 +107,7 @@
             connector editor, since it only wants to concern itself with the original segments.
         */
         this.getOriginalSegments = function() {
-            return originalSegments;
+            return segments;
         };
         
         this._compute = function(paintInfo, params) {
@@ -122,7 +116,7 @@
                 userSuppliedSegments = null;
             
             if (userSuppliedSegments != null) {
-                originalSegments = writeSegments(userSuppliedSegments);
+                writeSegments(userSuppliedSegments);
                 return paintInfo.points;
             }
             
@@ -262,11 +256,9 @@
             addSegment(segments, paintInfo.endStubX, paintInfo.endStubY);
     
             // end stub
-            addSegment(segments, paintInfo.tx, paintInfo.ty);       
+            addSegment(segments, paintInfo.tx, paintInfo.ty);               
             
-            //console.log("after compute, original segments are", originalSegments);
-            
-            originalSegments = writeSegments(segments);
+            writeSegments(segments);            
             
             return paintInfo.points;
         };		
