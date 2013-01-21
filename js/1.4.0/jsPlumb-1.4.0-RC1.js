@@ -1362,7 +1362,7 @@
 		 * Property: hoverClass 
 		 *   The CSS class to set on Connection or Endpoint elements when hovering. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
-		this.hoverClass = "_jsPlumb_hover";            
+		this.hoverClass = "_jsPlumb_hover";
 
 		/*
 		 * Property: endpointClass 
@@ -1370,10 +1370,16 @@
 		 */
 		this.endpointClass = "_jsPlumb_endpoint";
 
-		/*
-		 * Property: overlayClass 
-		 * The CSS class to set on an Overlay that is an HTML element. This value is a String and can have multiple classes; the entire String is appended as-is.
-		 */
+    /*
+     * Property: floatingEndpointClass
+     *   The CSS class to set on floating Endpoint elements. This value is a String and can have multiple classes; the entire String is appended as-is.
+     */
+    this.floatingEndpointClass = "_jsPlumb_endpoint_floating";
+
+    /*
+     * Property: overlayClass
+     * The CSS class to set on an Overlay that is an HTML element. This value is a String and can have multiple classes; the entire String is appended as-is.
+     */
 		this.overlayClass = "_jsPlumb_overlay";
 		
 		this.Anchors = {};
@@ -5080,14 +5086,28 @@ between this method and jsPlumb.reset).
                     stopped = true;
                 }
             };
-		};		
-		
-		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
-			var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
-        	//setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
-        	// adding the floating endpoint as a droppable.  that makes more sense anyway!
-        	return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
 		};
+
+    var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {
+      var floatingAnchor = new FloatingAnchor({
+        reference: referenceAnchor,
+        referenceCanvas: referenceCanvas
+      });
+
+      //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
+      // adding the floating endpoint as a droppable.  that makes more sense anyway!
+      var floatingEndpoint = _newEndpoint({
+        paintStyle: paintStyle,
+        endpoint: endpoint,
+        anchor: floatingAnchor,
+        source: sourceElement,
+        scope: "__floating"
+      });
+
+      floatingEndpoint.addClass(floatingEndpoint._jsPlumb.floatingEndpointClass);
+
+      return floatingEndpoint;
+    };
 		
 		//
 		// creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.
@@ -5367,7 +5387,10 @@ between this method and jsPlumb.reset).
             if (params.connectionsDetachable === false || params.detachable === false)
                 self.connectionsDetachable = false;
 			var dragAllowedWhenFull = params.dragAllowedWhenFull || true;
-			
+
+      if (typeof params.cssClass === 'string')
+			  self.addClass(params.cssClass);
+
 			if (params.onMaxConnections)
 				self.bind("maxConnections", params.onMaxConnections);
 
@@ -5561,7 +5584,8 @@ between this method and jsPlumb.reset).
 				return _newEndpoint( { 
 					anchor : inPlaceAnchor, 
 					source : _element, 
-					paintStyle : this.getPaintStyle(), 
+					paintStyle : this.getPaintStyle(),
+          cssClass: params.cssClass,
 					endpoint : params.hideOnDrag ? "Blank" : _endpoint,
 					_transient:true,
                     scope:self.scope
