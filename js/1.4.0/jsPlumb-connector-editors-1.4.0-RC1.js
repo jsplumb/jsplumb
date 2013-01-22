@@ -107,8 +107,10 @@
                 _shiftAnchor = function(endpoint, horizontal, value) {
                     var elementSize = jpcl.getSize(endpoint.element),
                         sizeValue = elementSize[horizontal ? 1 : 0],
-                        off = jpcl.getOffset(endpoint.element),                        
-                        offValue = off[horizontal ? "top" : "left"], 
+                        off = jpcl.getOffset(endpoint.element), 
+                        cc = jpcl.getElementObject(params.connector.canvas.parentNode),
+                        co = jpcl.getOffset(cc),
+                        offValue = off[horizontal ? "top" : "left"] - co[horizontal ? "top" : "left"], 
                         ap = endpoint.anchor.getCurrentLocation(),
                         desiredLoc = horizontal ? params.connector.y + value : params.connector.x + value;
                     
