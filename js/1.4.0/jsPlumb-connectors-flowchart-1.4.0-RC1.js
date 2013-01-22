@@ -25,6 +25,7 @@
             lastx = -1, lasty = -1, lastOrientation,	
             cornerRadius = params.cornerRadius != null ? params.cornerRadius : 10,	
             sgn = function(n) { return n < 0 ? -1 : n == 0 ? 0 : 1; },
+            minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity,
             /**
              * helper method to add a segment.
              */
@@ -46,8 +47,15 @@
                 return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));    
             },
             _cloneArray = function(a) { var _a = []; _a.push.apply(_a, a); return _a;},
+            updateMinMax = function(a1, a2) {
+                minX = Math.min(minX, a1[2], a2[0]);
+                maxX = Math.max(maxX, a1[2], a2[0]);
+                minY = Math.min(minY, a1[3], a2[1]);
+                maxY = Math.max(maxY, a1[3], a2[1]);    
+            },
             writeSegments = function(segments) {
                 var current, next;
+                minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 for (var i = 0; i < segments.length - 1; i++) {
                     current = current || _cloneArray(segments[i]);
                     next = _cloneArray(segments[i + 1]);
@@ -80,12 +88,16 @@
                             cx:cx,
                             cy:cy,
                             ac:ac
-                        });				
+                        });	
+                        
+                        updateMinMax(current, next);
                     }
                     else {
                         _super.addSegment("Straight", {
                             x1:current[0], y1:current[1], x2:current[2], y2:current[3]
                         });
+                        
+                        updateMinMax(current, current);
                     }
                     current = next;
                 }
@@ -93,6 +105,10 @@
                 _super.addSegment("Straight", {
                     x1:next[0], y1:next[1], x2:next[2], y2:next[3]
                 });
+                
+                updateMinMax(next, next);
+                
+              //  console.log("MIN MAX FOR FLOWCHART", minX, minY, maxX, maxY);
             };
         
         this.setSegments = function(s) {
@@ -107,7 +123,7 @@
             connector editor, since it only wants to concern itself with the original segments.
         */
         this.getOriginalSegments = function() {
-            return segments;
+            return userSuppliedSegments || segments;
         };
         
         this._compute = function(paintInfo, params) {
@@ -188,17 +204,16 @@
                     }                                
                 },
                 orthogonal = function(axis) {                    
-                    with (paintInfo) {                                            
-                        var extent = {
-                            "x":so[0] == -1 ? Math.min(startStubX, endStubX) : Math.max(startStubX, endStubX),
-                            "y":so[1] == -1 ? Math.min(startStubY, endStubY) : Math.max(startStubY, endStubY)
+                    var pi = paintInfo,                                            
+                        extent = {
+                            "x":pi.so[0] == -1 ? Math.min(pi.startStubX, pi.endStubX) : Math.max(pi.startStubX, pi.endStubX),
+                            "y":pi.so[1] == -1 ? Math.min(pi.startStubY, pi.endStubY) : Math.max(pi.startStubY, pi.endStubY)
                         }[axis];
                                             
-                        return {
-                            "x":[ [ extent, startStubY ],[ extent, endStubY ], [ endStubX, endStubY ] ],
-                            "y":[ [ startStubX, extent ], [ endStubX, extent ],[ endStubX, endStubY ] ]
-                        }[axis];
-                    }
+                    return {
+                        "x":[ [ extent, pi.startStubY ],[ extent, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ],
+                        "y":[ [ pi.startStubX, extent ], [ pi.endStubX, extent ],[ pi.endStubX, pi.endStubY ] ]
+                    }[axis];                    
                 },
                 lineCalculators = {
                     oppositex : function() {
@@ -213,7 +228,7 @@
                                 return [[ startStubX, midy ], [ endStubX, midy ]];                                            
                             }
                             else if ((so[0] == 1 && startStubX < endStubX) || (so[0] == -1 && startStubX > endStubX)) {
-                                return [[ midx, paintInfo.sy ], [ midx, paintInfo.ty ]];
+                                return [[ midx, sy ], [ midx, ty ]];
                             }
                         }
                     },
