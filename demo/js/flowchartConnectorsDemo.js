@@ -100,20 +100,20 @@
 
             
 			//* connect a few up
-			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"]});
-			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"]});
-			jsPlumb.connect({uuids:["window4TopCenter", "window4RightMiddle"]});
-			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"]});
-			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"]});
-			jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"]});
+			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"], editable:true});
+			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"], editable:true});
+			jsPlumb.connect({uuids:["window4TopCenter", "window4RightMiddle"], editable:true});
+			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"], editable:true});
+			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"], editable:true});
+			jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"], editable:true});
 			//*/
             
 			//
 			// listen for clicks on connections, and offer to delete connections on click.
 			//
 			jsPlumb.bind("click", function(conn, originalEvent) {
-				if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
-					jsPlumb.detach(conn); 
+			//	if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
+				//	jsPlumb.detach(conn); 
 			});	
 			
 			jsPlumb.bind("connectionDrag", function(connection) {
