@@ -384,10 +384,16 @@
             sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
             targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
             gap = params.gap || 0,
-            userProvidedSegments = null;
+            userProvidedSegments = null,
+            edited = false,
+            paintInfo = null;
         
         // subclasses should override.
         this.isEditable = function() { return false; };                
+        
+        this.setEdited = function(ed) {
+            edited = ed;
+        };
         
         /**
         * Function: findSegmentForPoint
@@ -566,7 +572,9 @@
 		};
 		
 		this.compute = function(params)  {
-            var paintInfo = _prepareCompute(params);
+            if (!edited)
+                paintInfo = _prepareCompute(params);
+            
             _clearSegments();
             var out = this._compute(paintInfo, params);
             self.x = out[0];
