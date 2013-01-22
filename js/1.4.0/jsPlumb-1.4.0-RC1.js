@@ -4822,12 +4822,18 @@ between this method and jsPlumb.reset).
 						tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
 						tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
-					if (timestamp == null || timestamp != lastPaintedAt) {
+					if (timestamp == null || timestamp != lastPaintedAt) {                        
 						var sourceInfo = _updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }),
 							targetInfo = _updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
 						
-						var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx],
-							sAnchorP = sE.anchor.getCurrentLocation(sE),				
+						var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
+				        if (params.clearEdits) {
+                            sE.anchor.clearUserDefinedLocation();
+                            tE.anchor.clearUserDefinedLocation();
+                            self.connector.setEdited(false);
+                        }
+                        
+                        var sAnchorP = sE.anchor.getCurrentLocation(sE),				
 							tAnchorP = tE.anchor.getCurrentLocation(tE);
 									
 						// find largest overlay; we use it to ensure sufficient padding in the connector canvas.
@@ -5345,7 +5351,7 @@ between this method and jsPlumb.reset).
 			
 			// bind listeners from endpoint to self, with the internal hover function defined above.
             _bindListeners(self.endpoint, self, internalHover);
-			
+			                        
 			this.setPaintStyle(params.paintStyle || 
 							   params.style || 
 							   _currentInstance.Defaults.EndpointStyle || 
