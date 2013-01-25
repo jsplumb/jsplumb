@@ -2454,14 +2454,15 @@ between this method and jsPlumb.reset).
 						newAnchor = jsPlumb.Anchors[specimen[0]](pp);
 					}
 					else
-						newAnchor = new DynamicAnchor(specimen, null, elementId);
+						newAnchor = new DynamicAnchor(specimen, null, elementId, jsPlumbInstance);
 				}
 				else {
 					var anchorParams = {
 						x:specimen[0], y:specimen[1],
 						orientation : (specimen.length >= 4) ? [ specimen[2], specimen[3] ] : [0,0],
 						offsets : (specimen.length == 6) ? [ specimen[4], specimen[5] ] : [ 0, 0 ],
-						elementId:elementId
+						elementId:elementId,
+                        jsPlumbInstance:jsPlumbInstance
 					};						
 					newAnchor = new Anchor(anchorParams);
 					newAnchor.clone = function() { return new Anchor(anchorParams); };						 					
@@ -3641,7 +3642,10 @@ between this method and jsPlumb.reset).
 		this.wrap = _wrap;			
 		this.addListener = this.bind;
 		
-		var adjustForParentOffsetAndScroll = function(xy, el) {
+        /*
+            helper method to take an xy location and adjust it for the parent's offset and scroll.
+        */
+		this.adjustForParentOffsetAndScroll = function(xy, el) {
 
 			var offsetParent = null, result = xy;
 			if (el.tagName.toLowerCase() === "svg" && el.parentNode) {
@@ -3680,11 +3684,13 @@ between this method and jsPlumb.reset).
 			this.x = params.x || 0;
 			this.y = params.y || 0;
 			this.elementId = params.elementId;
-			var orientation = params.orientation || [ 0, 0 ];
-			var lastTimestamp = null, lastReturnValue = null;
+			
+            var orientation = params.orientation || [ 0, 0 ],
+                jsPlumbInstance = params.jsPlumbInstance,
+                lastTimestamp = null, lastReturnValue = null, userDefinedLocation = null;
+            
 			this.offsets = params.offsets || [ 0, 0 ];
-			self.timestamp = null;
-            var userDefinedLocation = null;
+			self.timestamp = null;        
 			this.compute = function(params) {
                 
                 var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;                    
@@ -3701,7 +3707,7 @@ between this method and jsPlumb.reset).
                     
                     lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];                    
                     // adjust loc if there is an offsetParent
-                    lastReturnValue = adjustForParentOffsetAndScroll(lastReturnValue, element.canvas);
+                    lastReturnValue = jsPlumbInstance.adjustForParentOffsetAndScroll(lastReturnValue, element.canvas);
                 }
 				
 				self.timestamp = timestamp;
@@ -3748,9 +3754,10 @@ between this method and jsPlumb.reset).
 			// this is the anchor that this floating anchor is referenced to for
 			// purposes of calculating the orientation.
 			var ref = params.reference,
-			// the canvas this refers to.
-			refCanvas = params.referenceCanvas,
-			size = _getSize(_getElementObject(refCanvas)),
+                // the canvas this refers to.
+                refCanvas = params.referenceCanvas,
+                size = _getSize(_getElementObject(refCanvas)),
+                jsPlumbInstance = params.jsPlumbInstance,
 
 			// these are used to store the current relative position of our
 			// anchor wrt the reference anchor. they only indicate
@@ -3775,7 +3782,7 @@ between this method and jsPlumb.reset).
 				result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
 							
 				// adjust loc if there is an offsetParent
-				result = adjustForParentOffsetAndScroll(result, element.canvas);
+				result = jsPlumbInstance.adjustForParentOffsetAndScroll(result, element.canvas);
 				
 				_lastResult = result;
 				return result;
@@ -3821,14 +3828,14 @@ between this method and jsPlumb.reset).
 		 * feature for some applications.
 		 * 
 		 */
-		var DynamicAnchor = function(anchors, anchorSelector, elementId) {
+		var DynamicAnchor = function(anchors, anchorSelector, elementId, jsPlumbInstance) {
             Anchor.apply(this, arguments);
             
 			this.isSelective = true;
 			this.isDynamic = true;			
 			var _anchors = [], self = this,
 			_convert = function(anchor) { 
-				return anchor.constructor == Anchor ? anchor: _currentInstance.makeAnchor(anchor, elementId, _currentInstance); 
+				return anchor.constructor == Anchor ? anchor: jsPlumbInstance.makeAnchor(anchor, elementId, _currentInstance); 
 			};
 			for (var i = 0; i < anchors.length; i++) 
 				_anchors[i] = _convert(anchors[i]);			
@@ -4022,7 +4029,7 @@ between this method and jsPlumb.reset).
 
 			    // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
 			    var _setAnchorLocation = function(endpoint, anchorPos) {
-				    var a = adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
+				    var a = _currentInstance.adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
 				    continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
 				    continuousAnchorOrientations[endpoint.id] = orientation;
 			    };
@@ -5819,7 +5826,7 @@ between this method and jsPlumb.reset).
 					// does the same stuff.
 					var ipcoel = _getElementObject(inPlaceCopy.canvas),
 					    ipco = _getOffset(ipcoel, _currentInstance),
-					    po = adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
+					    po = _currentInstance.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
 					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
 					
 					// when using makeSource and a parent, we first draw the source anchor on the source element, then
