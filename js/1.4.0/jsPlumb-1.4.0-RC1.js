@@ -3675,18 +3675,10 @@ between this method and jsPlumb.reset).
 
 		
 		
-	/*
-	manages anchors for all elements.
-	*/
-	// "continuous" anchors: anchors that pick their location based on how many connections the given element has.
-	// this requires looking at a lot more elements than normal - anything that has had a Continuous anchor applied has
-	// to be recalculated.  so this manager is used as a reference point.  the first time, with a new timestamp, that
-	// a continuous anchor is asked to compute, it calls this guy.  or maybe, even, this guy gets called somewhere else
-	// and compute only ever returns pre-computed values.  either way, this is the central point, and we want it to
-	// be called as few times as possible.
-	
-    	     
-    var AnchorManager = function(params) {
+	//
+	// manages anchors for all elements.
+	//
+	var AnchorManager = function(params) {
 		var _amEndpoints = {},
             continuousAnchors = {},
             continuousAnchorLocations = {},
