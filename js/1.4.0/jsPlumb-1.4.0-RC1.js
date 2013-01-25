@@ -3684,142 +3684,152 @@ between this method and jsPlumb.reset).
 	// a continuous anchor is asked to compute, it calls this guy.  or maybe, even, this guy gets called somewhere else
 	// and compute only ever returns pre-computed values.  either way, this is the central point, and we want it to
 	// be called as few times as possible.
-	var continuousAnchors = {},
-        continuousAnchorLocations = {},
-        userDefinedContinuousAnchorLocations = {},        
-	    continuousAnchorOrientations = {},
-	    Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
-    
-	// TODO this functions uses a crude method of determining orientation between two elements.
-	// 'diagonal' should be chosen when the angle of the line between the two centers is around
-	// one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
-	calculateOrientation = function(sourceId, targetId, sd, td) {
-
-		if (sourceId === targetId) return {
-			orientation:Orientation.IDENTITY,
-			a:["top", "top"]
-		};
-
-		var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),
-		    theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx)),
-		    h = ((sd.left <= td.left && sd.right >= td.left) || (sd.left <= td.right && sd.right >= td.right) ||
-			    (sd.left <= td.left && sd.right >= td.right) || (td.left <= sd.left && td.right >= sd.right)),
-		    v = ((sd.top <= td.top && sd.bottom >= td.top) || (sd.top <= td.bottom && sd.bottom >= td.bottom) ||
-			    (sd.top <= td.top && sd.bottom >= td.bottom) || (td.top <= sd.top && td.bottom >= sd.bottom));
-
-		if (! (h || v)) {
-			var a = null, rls = false, rrs = false, sortValue = null;
-			if (td.left > sd.left && td.top > sd.top)
-				a = ["right", "top"];
-			else if (td.left > sd.left && sd.top > td.top)
-				a = [ "top", "left"];
-			else if (td.left < sd.left && td.top < sd.top)
-				a = [ "top", "right"];
-			else if (td.left < sd.left && td.top > sd.top)
-				a = ["left", "top" ];
-
-			return { orientation:Orientation.DIAGONAL, a:a, theta:theta, theta2:theta2 };
-		}
-		else if (h) return {
-			orientation:Orientation.HORIZONTAL,
-			a:sd.top < td.top ? ["bottom", "top"] : ["top", "bottom"],
-			theta:theta, theta2:theta2
-		}
-		else return {
-			orientation:Orientation.VERTICAL,
-			a:sd.left < td.left ? ["right", "left"] : ["left", "right"],
-			theta:theta, theta2:theta2
-		}
-	},
-	placeAnchorsOnLine = function(desc, elementDimensions, elementPosition,
-					connections, horizontal, otherMultiplier, reverse) {
-		var a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
-
-		for (var i = 0; i < connections.length; i++) {
-			var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
-			if (reverse)
-			  val = elementDimensions[horizontal ? 0 : 1] - val;
-
-			var dx = (horizontal ? val : other), x = elementPosition[0] + dx,  xp = dx / elementDimensions[0],
-			 	dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
-
-			a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ]);
-		}
-
-		return a;
-	},
-	standardEdgeSort = function(a, b) { return a[0] > b[0] ? 1 : -1 },
-	currySort = function(reverseAngles) {
-		return function(a,b) {
-            var r = true;
-			if (reverseAngles) {
-				if (a[0][0] < b[0][0])
-					r = true;
-				else
-					r = a[0][1] > b[0][1];
-			}
-			else {
-				if (a[0][0] > b[0][0])
-					r= true;
-				else
-					r =a[0][1] > b[0][1];
-			}
-            return r === false ? -1 : 1;
-		};
-	},
-	leftSort = function(a,b) {
-		// first get adjusted values
-		var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
-		p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
-		if (p1 > p2) return 1;
-		else return a[0][1] > b[0][1] ? 1 : -1;
-	},
-	edgeSortFunctions = {
-		"top":standardEdgeSort,
-		"right":currySort(true),
-		"bottom":currySort(true),
-		"left":leftSort
-	},
-    _sortHelper = function(_array, _fn) {
-      return _array.sort(_fn);
-    },
-	placeAnchors = function(elementId, _anchorLists) {		
-		var sS = sizes[elementId], sO = offsets[elementId],
-		placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
-            if (unsortedConnections.length > 0) {
-			    var sc = _sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen			    
-				    reverse = desc === "right" || desc === "top",
-				    anchors = placeAnchorsOnLine(desc, elementDimensions,
-											 elementPosition, sc,
-											 isHorizontal, otherMultiplier, reverse );
-
-			    // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-			    var _setAnchorLocation = function(endpoint, anchorPos) {
-				    var a = _currentInstance.adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
-				    continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
-				    continuousAnchorOrientations[endpoint.id] = orientation;
-			    };
-
-			    for (var i = 0; i < anchors.length; i++) {
-				    var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
-				    if (weAreSource)
-					    _setAnchorLocation(c.endpoints[0], anchors[i]);
-				    else if (weAreTarget)
-					    _setAnchorLocation(c.endpoints[1], anchors[i]);
-			    }
-            }
-		};
-
-		placeSomeAnchors("bottom", sS, [sO.left,sO.top], _anchorLists.bottom, true, 1, [0,1]);
-		placeSomeAnchors("top", sS, [sO.left,sO.top], _anchorLists.top, true, 0, [0,-1]);
-		placeSomeAnchors("left", sS, [sO.left,sO.top], _anchorLists.left, false, 0, [-1,0]);
-		placeSomeAnchors("right", sS, [sO.left,sO.top], _anchorLists.right, false, 1, [1,0]);
-	},
-    AnchorManager = function() {
+	
+    	     
+    var AnchorManager = function(params) {
 		var _amEndpoints = {},
+            continuousAnchors = {},
+            continuousAnchorLocations = {},
+            userDefinedContinuousAnchorLocations = {},        
+            continuousAnchorOrientations = {},
+            Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
 			connectionsByElementId = {},
 			self = this,
-            anchorLists = {};
+            anchorLists = {},
+            jsPlumbInstance = params.jsPlumbInstance,
+            // TODO this functions uses a crude method of determining orientation between two elements.
+	       // 'diagonal' should be chosen when the angle of the line between the two centers is around
+	       // one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
+            // used by AnchorManager.redraw
+            calculateOrientation = function(sourceId, targetId, sd, td) {
+        
+                if (sourceId === targetId) return {
+                    orientation:Orientation.IDENTITY,
+                    a:["top", "top"]
+                };
+        
+                var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),
+                    theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx)),
+                    h = ((sd.left <= td.left && sd.right >= td.left) || (sd.left <= td.right && sd.right >= td.right) ||
+                        (sd.left <= td.left && sd.right >= td.right) || (td.left <= sd.left && td.right >= sd.right)),
+                    v = ((sd.top <= td.top && sd.bottom >= td.top) || (sd.top <= td.bottom && sd.bottom >= td.bottom) ||
+                        (sd.top <= td.top && sd.bottom >= td.bottom) || (td.top <= sd.top && td.bottom >= sd.bottom));
+        
+                if (! (h || v)) {
+                    var a = null, rls = false, rrs = false, sortValue = null;
+                    if (td.left > sd.left && td.top > sd.top)
+                        a = ["right", "top"];
+                    else if (td.left > sd.left && sd.top > td.top)
+                        a = [ "top", "left"];
+                    else if (td.left < sd.left && td.top < sd.top)
+                        a = [ "top", "right"];
+                    else if (td.left < sd.left && td.top > sd.top)
+                        a = ["left", "top" ];
+        
+                    return { orientation:Orientation.DIAGONAL, a:a, theta:theta, theta2:theta2 };
+                }
+                else if (h) return {
+                    orientation:Orientation.HORIZONTAL,
+                    a:sd.top < td.top ? ["bottom", "top"] : ["top", "bottom"],
+                    theta:theta, theta2:theta2
+                }
+                else return {
+                    orientation:Orientation.VERTICAL,
+                    a:sd.left < td.left ? ["right", "left"] : ["left", "right"],
+                    theta:theta, theta2:theta2
+                }
+            },
+                // used by placeAnchors function
+            placeAnchorsOnLine = function(desc, elementDimensions, elementPosition,
+                            connections, horizontal, otherMultiplier, reverse) {
+                var a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
+        
+                for (var i = 0; i < connections.length; i++) {
+                    var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
+                    if (reverse)
+                      val = elementDimensions[horizontal ? 0 : 1] - val;
+        
+                    var dx = (horizontal ? val : other), x = elementPosition[0] + dx,  xp = dx / elementDimensions[0],
+                        dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
+        
+                    a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ]);
+                }
+        
+                return a;
+            },
+            // used by edgeSortFunctions
+            standardEdgeSort = function(a, b) { return a[0] > b[0] ? 1 : -1 },
+            // used by edgeSortFunctions        
+            currySort = function(reverseAngles) {
+                return function(a,b) {
+                    var r = true;
+                    if (reverseAngles) {
+                        if (a[0][0] < b[0][0])
+                            r = true;
+                        else
+                            r = a[0][1] > b[0][1];
+                    }
+                    else {
+                        if (a[0][0] > b[0][0])
+                            r= true;
+                        else
+                            r =a[0][1] > b[0][1];
+                    }
+                    return r === false ? -1 : 1;
+                };
+            },
+                // used by edgeSortFunctions
+            leftSort = function(a,b) {
+                // first get adjusted values
+                var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
+                p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
+                if (p1 > p2) return 1;
+                else return a[0][1] > b[0][1] ? 1 : -1;
+            },
+                // used by placeAnchors
+            edgeSortFunctions = {
+                "top":standardEdgeSort,
+                "right":currySort(true),
+                "bottom":currySort(true),
+                "left":leftSort
+            },
+                // used by placeAnchors
+            _sortHelper = function(_array, _fn) {
+              return _array.sort(_fn);
+            },
+                // used by AnchorManager.redraw
+            placeAnchors = function(elementId, _anchorLists) {		
+                var sS = sizes[elementId], sO = offsets[elementId],
+                placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
+                    if (unsortedConnections.length > 0) {
+                        var sc = _sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen			    
+                            reverse = desc === "right" || desc === "top",
+                            anchors = placeAnchorsOnLine(desc, elementDimensions,
+                                                     elementPosition, sc,
+                                                     isHorizontal, otherMultiplier, reverse );
+        
+                        // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
+                        var _setAnchorLocation = function(endpoint, anchorPos) {
+                            var a = _currentInstance.adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
+                            continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
+                            continuousAnchorOrientations[endpoint.id] = orientation;
+                        };
+        
+                        for (var i = 0; i < anchors.length; i++) {
+                            var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
+                            if (weAreSource)
+                                _setAnchorLocation(c.endpoints[0], anchors[i]);
+                            else if (weAreTarget)
+                                _setAnchorLocation(c.endpoints[1], anchors[i]);
+                        }
+                    }
+                };
+        
+                placeSomeAnchors("bottom", sS, [sO.left,sO.top], _anchorLists.bottom, true, 1, [0,1]);
+                placeSomeAnchors("top", sS, [sO.left,sO.top], _anchorLists.top, true, 0, [0,-1]);
+                placeSomeAnchors("left", sS, [sO.left,sO.top], _anchorLists.left, false, 0, [-1,0]);
+                placeSomeAnchors("right", sS, [sO.left,sO.top], _anchorLists.right, false, 1, [1,0]);
+            };
 
         this.reset = function() {
         	_amEndpoints = {};
@@ -4101,37 +4111,44 @@ between this method and jsPlumb.reset).
 				eps.splice(0, eps.length);
 			}
 		};
+        
+        // continuous anchors
+        jsPlumbInstance.continuousAnchorFactory = {
+            get:function(params) {
+                var existing = continuousAnchors[params.elementId];
+                if (!existing) {
+                    existing = {
+                        type:"Continuous",
+                        compute : function(params) {
+                            return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
+                        },
+                        getCurrentLocation : function(endpoint) {
+                            return userDefinedContinuousAnchorLocations[endpoint.id] || continuousAnchorLocations[endpoint.id] || [0,0];
+                        },
+                        getOrientation : function(endpoint) {
+                            return continuousAnchorOrientations[endpoint.id] || [0,0];
+                        },
+                        isDynamic : true,
+                        isContinuous : true,
+                        clearUserDefinedLocation:function() { 
+                            delete userDefinedContinuousAnchorLocations[params.elementId]; 
+                        },
+                        setUserDefinedLocation:function(loc) { 
+                            userDefinedContinuousAnchorLocations[params.elementId] = loc; 
+                        }
+                    };
+                    continuousAnchors[params.elementId] = existing;
+                }
+                return existing;
+            }
+        };
 	};
-	_currentInstance.anchorManager = new AnchorManager();				
-	_currentInstance.continuousAnchorFactory = {
-		get:function(params) {
-			var existing = continuousAnchors[params.elementId];
-			if (!existing) {
-				existing = {
-					type:"Continuous",
-					compute : function(params) {
-						return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
-					},
-					getCurrentLocation : function(endpoint) {
-						return userDefinedContinuousAnchorLocations[endpoint.id] || continuousAnchorLocations[endpoint.id] || [0,0];
-					},
-					getOrientation : function(endpoint) {
-						return continuousAnchorOrientations[endpoint.id] || [0,0];
-					},
-					isDynamic : true,
-					isContinuous : true,
-                    clearUserDefinedLocation:function() { 
-                        delete userDefinedContinuousAnchorLocations[params.elementId]; 
-                    },
-                    setUserDefinedLocation:function(loc) { 
-                        userDefinedContinuousAnchorLocations[params.elementId] = loc; 
-                    }
-				};
-				continuousAnchors[params.elementId] = existing;
-			}
-			return existing;
-		}
-	};
+            
+	_currentInstance.anchorManager = new AnchorManager({jsPlumbInstance:_currentInstance});
+            
+            
+            
+	
 
 	if (!jsPlumbAdapter.headless)
 		_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
