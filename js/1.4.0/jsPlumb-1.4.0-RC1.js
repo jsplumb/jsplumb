@@ -8,7 +8,7 @@
  * 
  * This file contains the jsPlumb core code.
  *
- * Copyright (c) 2010 - 2012 Simon Porritt (simon.porritt@gmail.com)
+ * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
  * 
  * http://jsplumb.org
  * http://github.com/sporritt/jsplumb
@@ -2454,7 +2454,7 @@ between this method and jsPlumb.reset).
 						newAnchor = jsPlumb.Anchors[specimen[0]](pp);
 					}
 					else
-						newAnchor = new DynamicAnchor(specimen, null, elementId, jsPlumbInstance);
+						newAnchor = new jsPlumb.DynamicAnchor(specimen, null, elementId, jsPlumbInstance);
 				}
 				else {
 					var anchorParams = {
@@ -2464,8 +2464,8 @@ between this method and jsPlumb.reset).
 						elementId:elementId,
                         jsPlumbInstance:jsPlumbInstance
 					};						
-					newAnchor = new Anchor(anchorParams);
-					newAnchor.clone = function() { return new Anchor(anchorParams); };						 					
+					newAnchor = new jsPlumb.Anchor(anchorParams);
+					newAnchor.clone = function() { return new jsPlumb.Anchor(anchorParams); };						 					
 				}
 			}
 			
@@ -2494,7 +2494,7 @@ between this method and jsPlumb.reset).
 		 * not need to provide this - i think). 
 		 */
 		this.makeDynamicAnchor = function(anchors, anchorSelector) {
-			return new DynamicAnchor(anchors, anchorSelector);
+			return new jsPlumb.DynamicAnchor(anchors, anchorSelector, null, _currentInstance);
 		};
 		
 		/**
@@ -3673,241 +3673,7 @@ between this method and jsPlumb.reset).
 			
 		};
 
-		/**
-		 * Anchors model a position on some element at which an Endpoint may be located.  They began as a first class citizen of jsPlumb, ie. a user
-		 * was required to create these themselves, but over time this has been replaced by the concept of referring to them either by name (eg. "TopMiddle"),
-		 * or by an array describing their coordinates (eg. [ 0, 0.5, 0, -1 ], which is the same as "TopMiddle").  jsPlumb now handles all of the
-		 * creation of Anchors without user intervention.
-		 */
-		var Anchor = function(params) {
-			var self = this;
-			this.x = params.x || 0;
-			this.y = params.y || 0;
-			this.elementId = params.elementId;
-			
-            var orientation = params.orientation || [ 0, 0 ],
-                jsPlumbInstance = params.jsPlumbInstance,
-                lastTimestamp = null, lastReturnValue = null, userDefinedLocation = null;
-            
-			this.offsets = params.offsets || [ 0, 0 ];
-			self.timestamp = null;        
-			this.compute = function(params) {
-                
-                var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;                    
-                if(params.clearUserDefinedLocation)
-                    userDefinedLocation = null;
-                
-                if (timestamp && timestamp === self.timestamp)
-                    return lastReturnValue;        
-                
-                if (userDefinedLocation != null) {
-                    lastReturnValue = userDefinedLocation;
-                }
-                else {                
-                    
-                    lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];                    
-                    // adjust loc if there is an offsetParent
-                    lastReturnValue = jsPlumbInstance.adjustForParentOffsetAndScroll(lastReturnValue, element.canvas);
-                }
-				
-				self.timestamp = timestamp;
-				return lastReturnValue;
-			};
-
-			this.getOrientation = function(_endpoint) { return orientation; };
-
-			this.equals = function(anchor) {
-				if (!anchor) return false;
-				var ao = anchor.getOrientation();
-				var o = this.getOrientation();
-				return this.x == anchor.x && this.y == anchor.y
-						&& this.offsets[0] == anchor.offsets[0]
-						&& this.offsets[1] == anchor.offsets[1]
-						&& o[0] == ao[0] && o[1] == ao[1];
-			};
-
-			this.getCurrentLocation = function() { return lastReturnValue; };
-            
-            this.getUserDefinedLocation = function() { 
-                return userDefinedLocation;
-            };
-            
-            this.setUserDefinedLocation = function(l) {
-                userDefinedLocation = l;
-            };
-            this.clearUserDefinedLocation = function() {
-                userDefinedLocation = null;
-            };
-		};
-
-		/**
-		 * An Anchor that floats. its orientation is computed dynamically from
-		 * its position relative to the anchor it is floating relative to.  It is used when creating 
-		 * a connection through drag and drop.
-		 * 
-		 * TODO FloatingAnchor could totally be refactored to extend Anchor just slightly.
-		 */
-		var FloatingAnchor = function(params) {
-            
-            Anchor.apply(this, arguments);
-
-			// this is the anchor that this floating anchor is referenced to for
-			// purposes of calculating the orientation.
-			var ref = params.reference,
-                // the canvas this refers to.
-                refCanvas = params.referenceCanvas,
-                size = _getSize(_getElementObject(refCanvas)),
-                jsPlumbInstance = params.jsPlumbInstance,
-
-			// these are used to store the current relative position of our
-			// anchor wrt the reference anchor. they only indicate
-			// direction, so have a value of 1 or -1 (or, very rarely, 0). these
-			// values are written by the compute method, and read
-			// by the getOrientation method.
-			xDir = 0, yDir = 0,
-			// temporary member used to store an orientation when the floating
-			// anchor is hovering over another anchor.
-			orientation = null,
-			_lastResult = null;
-
-			// set these to 0 each; they are used by certain types of connectors in the loopback case,
-			// when the connector is trying to clear the element it is on. but for floating anchor it's not
-			// very important.
-			this.x = 0; this.y = 0;
-
-			this.isFloating = true;
-
-			this.compute = function(params) {
-				var xy = params.xy, element = params.element,
-				result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-							
-				// adjust loc if there is an offsetParent
-				result = jsPlumbInstance.adjustForParentOffsetAndScroll(result, element.canvas);
-				
-				_lastResult = result;
-				return result;
-			};
-
-			this.getOrientation = function(_endpoint) {
-				if (orientation) return orientation;
-				else {
-					var o = ref.getOrientation(_endpoint);
-					// here we take into account the orientation of the other
-					// anchor: if it declares zero for some direction, we declare zero too. this might not be the most awesome. perhaps we can come
-					// up with a better way. it's just so that the line we draw looks like it makes sense. maybe this wont make sense.
-					return [ Math.abs(o[0]) * xDir * -1,
-							Math.abs(o[1]) * yDir * -1 ];
-				}
-			};
-
-			/**
-			 * notification the endpoint associated with this anchor is hovering
-			 * over another anchor; we want to assume that anchor's orientation
-			 * for the duration of the hover.
-			 */
-			this.over = function(anchor) { 
-				orientation = anchor.getOrientation(); 
-			};
-
-			/**
-			 * notification the endpoint associated with this anchor is no
-			 * longer hovering over another anchor; we should resume calculating
-			 * orientation as we normally do.
-			 */
-			this.out = function() { orientation = null; };
-
-			this.getCurrentLocation = function() { return _lastResult; };
-		};
-
-		/* 
-		 * A DynamicAnchor is an Anchor that contains a list of other Anchors, which it cycles
-		 * through at compute time to find the one that is located closest to
-		 * the center of the target element, and returns that Anchor's compute
-		 * method result. this causes endpoints to follow each other with
-		 * respect to the orientation of their target elements, which is a useful
-		 * feature for some applications.
-		 * 
-		 */
-		var DynamicAnchor = function(anchors, anchorSelector, elementId, jsPlumbInstance) {
-            Anchor.apply(this, arguments);
-            
-			this.isSelective = true;
-			this.isDynamic = true;			
-			var _anchors = [], self = this,
-			_convert = function(anchor) { 
-				return anchor.constructor == Anchor ? anchor: jsPlumbInstance.makeAnchor(anchor, elementId, _currentInstance); 
-			};
-			for (var i = 0; i < anchors.length; i++) 
-				_anchors[i] = _convert(anchors[i]);			
-			this.addAnchor = function(anchor) { _anchors.push(_convert(anchor)); };
-			this.getAnchors = function() { return _anchors; };
-			this.locked = false;
-			var _curAnchor = _anchors.length > 0 ? _anchors[0] : null,
-				_curIndex = _anchors.length > 0 ? 0 : -1,
-				self = this,
-			
-				// helper method to calculate the distance between the centers of the two elements.
-				_distance = function(anchor, cx, cy, xy, wh) {
-					var ax = xy[0] + (anchor.x * wh[0]), ay = xy[1] + (anchor.y * wh[1]),				
-						acx = xy[0] + (wh[0] / 2), acy = xy[1] + (wh[1] / 2);
-					return (Math.sqrt(Math.pow(cx - ax, 2) + Math.pow(cy - ay, 2)) +
-							Math.sqrt(Math.pow(acx - ax, 2) + Math.pow(acy - ay, 2)));
-				},
-			
-			// default method uses distance between element centers.  you can provide your own method in the dynamic anchor
-			// constructor (and also to jsPlumb.makeDynamicAnchor). the arguments to it are four arrays: 
-			// xy - xy loc of the anchor's element
-			// wh - anchor's element's dimensions
-			// txy - xy loc of the element of the other anchor in the connection
-			// twh - dimensions of the element of the other anchor in the connection.
-			// anchors - the list of selectable anchors
-			_anchorSelector = anchorSelector || function(xy, wh, txy, twh, anchors) {
-				var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
-				var minIdx = -1, minDist = Infinity;
-				for ( var i = 0; i < anchors.length; i++) {
-					var d = _distance(anchors[i], cx, cy, xy, wh);
-					if (d < minDist) {
-						minIdx = i + 0;
-						minDist = d;
-					}
-				}
-				return anchors[minIdx];
-			};
-			
-			this.compute = function(params) {				
-				var xy = params.xy, wh = params.wh, timestamp = params.timestamp, txy = params.txy, twh = params.twh;				
-                
-                if(params.clearUserDefinedLocation)
-                    userDefinedLocation = null;
-                
-                var udl = self.getUserDefinedLocation();
-                if (udl != null) {
-                    return udl;
-                }
-                
-				// if anchor is locked or an opposite element was not given, we
-				// maintain our state. anchor will be locked
-				// if it is the source of a drag and drop.
-				if (self.locked || txy == null || twh == null)
-					return _curAnchor.compute(params);				
-				else
-					params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
-				
-				_curAnchor = _anchorSelector(xy, wh, txy, twh, _anchors);
-				self.x = _curAnchor.x;
-				self.y = _curAnchor.y;
-				
-				return _curAnchor.compute(params);
-			};
-
-			this.getCurrentLocation = function() {
-				return self.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation() : null);
-			};
-
-			this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };
-			this.over = function(anchor) { if (_curAnchor != null) _curAnchor.over(anchor); };
-			this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
-		};
+		
 		
 	/*
 	manages anchors for all elements.
@@ -4070,7 +3836,7 @@ between this method and jsPlumb.reset).
                         jsPlumb.CurrentLibrary.removeElement(ep[1].canvas);
                         doRegisterTarget = false;
                     }
-					_addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == DynamicAnchor]);
+					_addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == jsPlumb.DynamicAnchor]);
 			    };
 
 			registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
@@ -4083,7 +3849,7 @@ between this method and jsPlumb.reset).
                 targetId = connection.targetId,
 				ep = connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
-					if (otherAnchor.constructor == FloatingAnchor) {
+					if (otherAnchor.constructor == jsPlumb.FloatingAnchor) {
 						// no-op
 					}
 					else {
@@ -4302,7 +4068,7 @@ between this method and jsPlumb.reset).
 				// TODO we could have compiled a list of these in the first pass through connections; might save some time.
 				for (var i = 0; i < endpointConnections.length; i++) {
 					var otherEndpoint = endpointConnections[i][1];
-					if (otherEndpoint.anchor.constructor == DynamicAnchor) {			 							
+					if (otherEndpoint.anchor.constructor == jsPlumb.DynamicAnchor) {			 							
 						otherEndpoint.paint({ elementWithPrecedence:elementId });								
 	                    _addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 						// all the connections for the other endpoint now need to be repainted
@@ -4310,7 +4076,7 @@ between this method and jsPlumb.reset).
 							if (otherEndpoint.connections[k] !== endpointConnections[i][0])							
 	                            _addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function(c) { return c.id == otherEndpoint.connections[k].id; });
 						}
-					} else if (otherEndpoint.anchor.constructor == Anchor) {					
+					} else if (otherEndpoint.anchor.constructor == jsPlumb.Anchor) {					
 	                    _addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 					}
 				}
@@ -5136,7 +4902,7 @@ between this method and jsPlumb.reset).
 		};		
 		
 		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
-			var floatingAnchor = new FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas });
+			var floatingAnchor = new jsPlumb.FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas, jsPlumbInstance:_currentInstance });
         	//setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
         	// adding the floating endpoint as a droppable.  that makes more sense anyway!
         	return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
@@ -5842,7 +5608,7 @@ between this method and jsPlumb.reset).
 					// here we test to see if a dragProxy was specified in this endpoint's constructor params, and
 					// if so, we create that endpoint instead of cloning ourselves.
 					//if (params.proxy) {
-				/*		var floatingAnchor = new FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
+				/*		var floatingAnchor = new jsPlumb.FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
 
 						floatingEndpoint = _newEndpoint({ 
 							paintStyle : params.proxy.paintStyle,
