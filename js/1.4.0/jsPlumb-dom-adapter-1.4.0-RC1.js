@@ -8,7 +8,7 @@
  * 
  * This file contains the base functionality for DOM type adapters. 
  *
- * Copyright (c) 2010 - 2012 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
  * 
  * http://jsplumb.org
  * http://github.com/sporritt/jsplumb

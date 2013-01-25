@@ -10,7 +10,7 @@
  *
  * Thanks to Brainstorm Mobile Solutions for supporting the development of these.
  *
- * Copyright (c) 2010 - 2012 Simon Porritt (simon.porritt@gmail.com)
+ * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
  *
  * http://jsplumb.org
  * http://github.com/sporritt/jsplumb

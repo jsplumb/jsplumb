@@ -8,7 +8,7 @@
  * 
  * This file contains the YUI3 adapter.
  *
- * Copyright (c) 2010 - 2012 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
  * 
  * http://jsplumb.org
  * http://github.com/sporritt/jsplumb

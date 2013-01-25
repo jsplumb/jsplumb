@@ -1,6 +1,20 @@
- /**
- * Class: Connectors.Flowchart
- * Provides 'flowchart' connectors, consisting of vertical and horizontal line segments.
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.4.0
+ * 
+ * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
+ * elements, or VML.  
+ * 
+ * This file contains the 'flowchart' connectors, consisting of vertical and horizontal line segments.
+ *
+ * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
+ * 
+ * http://jsplumb.org
+ * http://github.com/sporritt/jsplumb
+ * http://code.google.com/p/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {
    

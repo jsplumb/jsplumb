@@ -1,3 +1,22 @@
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.4.0
+ * 
+ * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
+ * elements, or VML.  
+ * 
+ * This file contains the jsPlumb connector editors.  It is not deployed wth the released versions of jsPlumb; you need to
+ * include it as an extra script.
+ *
+ * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
+ * 
+ * http://jsplumb.org
+ * http://github.com/sporritt/jsplumb
+ * http://code.google.com/p/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
     
     var AbstractEditor = function(params) {
