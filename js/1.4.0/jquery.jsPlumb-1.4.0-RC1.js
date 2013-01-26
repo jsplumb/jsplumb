@@ -67,6 +67,7 @@
 			try {
 				if (el[0].className.constructor == SVGAnimatedString) {
 					jsPlumbUtil.svg.addClass(el[0], clazz);
+                    return;
 				}
 			}
 			catch (e) {
@@ -312,6 +313,7 @@
 			try {
 				if (el[0].className.constructor == SVGAnimatedString) {
 					jsPlumbUtil.svg.removeClass(el[0], clazz);
+                    return;
 				}
 			}
 			catch (e) {
