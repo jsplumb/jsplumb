@@ -41,6 +41,13 @@
         - Continuous anchors now support a 'faces' constructor parameter, eg:
         
                 anchor:["Continuous", {faces:["top", "bottom"] } ],
+                
+                There are four instances of this already prepared:
+                
+                "ContinuousLeft"
+                "ContinuousTop"
+                "ContinuousRight"
+                "ContinuousBottom"
 		
 		ISSUES
 		
@@ -53,7 +60,8 @@
         300 -   typo in unmakeSource 
         302 -   removeAllEndpoints not functioning correctly
         303 -   mixture of continuous and static anchors causes paint issues
-        305 - Add pointer-events to the properties of connection
+        305 -   Add pointer-events to the properties of connection
+        311 -   add options to Continuous anchor
 		
 		MISCELLANEOUS
 		
