@@ -32,9 +32,15 @@
         jsPlumb.select and jsPlumb.selectEndpoints.
         
         - add 'hoverClass' member to jsPlumb; this is set when hovering over a Connection or Endpoint. default is
-        '_jsPlumb_hover'.
+        '_jsPlumb_hover'.  also set on all overlays for a connection or endpoint.
         
         - jsPlumb.select supports a 'connections' parameter, which is an existing list of Connections.  
+        
+        - added setSuspendEvents to Connection, Endpoint and jsPlumb.select/jsPlumb.selectEndpoints return values.
+        
+        - Continuous anchors now support a 'faces' constructor parameter, eg:
+        
+                anchor:["Continuous", {faces:["top", "bottom"] } ],
 		
 		ISSUES
 		
@@ -47,6 +53,7 @@
         300 -   typo in unmakeSource 
         302 -   removeAllEndpoints not functioning correctly
         303 -   mixture of continuous and static anchors causes paint issues
+        305 - Add pointer-events to the properties of connection
 		
 		MISCELLANEOUS
 		
