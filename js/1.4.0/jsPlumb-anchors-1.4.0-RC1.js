@@ -776,6 +776,15 @@
 			return a;
 		};
 	};
+    
+    var _curryContinuousAnchor = function(type, faces) {
+        jsPlumb.Anchors[type] = function(params) {
+            var a = params.jsPlumbInstance.makeAnchor(["Continuous", { faces:faces }], params.elementId, params.jsPlumbInstance);
+            a.type = type;
+            return a;
+        };
+    };
+    
 	/*
 	 * Property: Anchors.TopCenter
 	 * An Anchor that is located at the top center of the element.
@@ -858,6 +867,28 @@
 	jsPlumb.Anchors["Continuous"] = function(params) {
 		return params.jsPlumbInstance.continuousAnchorFactory.get(params);
 	};
+            
+    /*
+    * Property: Anchors.ContinuousLeft
+    * A continuous anchor that uses only the left edge of the element.
+    */
+    _curryContinuousAnchor("ContinuousLeft", ["left"]);
+    /*
+    * Property: Anchors.ContinuousTop
+    * A continuous anchor that uses only the top edge of the element.
+    */            
+    _curryContinuousAnchor("ContinuousTop", ["top"]);             
+    /*
+    * Property: Anchors.ContinuousBottom
+    * A continuous anchor that uses only the bottom edge of the element.
+    */
+    _curryContinuousAnchor("ContinuousBottom", ["bottom"]);             
+    /*
+    * Property: Anchors.ContinuousRight
+    * A continuous anchor that uses only the right edge of the element.
+    */
+    _curryContinuousAnchor("ContinuousRight", ["right"]);                         
+            
 
     // these are the default anchor positions finders, which are used by the makeTarget function.  supplying
     // a position finder argument to that function allows you to specify where the resulting anchor will
