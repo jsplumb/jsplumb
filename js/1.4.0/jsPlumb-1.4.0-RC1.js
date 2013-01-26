@@ -1268,11 +1268,11 @@
 				}
 			} else {
 				offsets[elId] = offset;
-        if (sizes[elId] == null) {
-            var s = _getElementObject(elId);
-				    if (s != null) sizes[elId] = _getSize(s);
-        }
-		}
+                if (sizes[elId] == null) {
+                    var s = _getElementObject(elId);
+                    if (s != null) sizes[elId] = _getSize(s);
+                }
+            }
 			
 			if(offsets[elId] && !offsets[elId].right) {
 				offsets[elId].right = offsets[elId].left + sizes[elId][0];
@@ -1356,46 +1356,26 @@
 		 * Property: connectorClass 
 		 *   The CSS class to set on Connection elements. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
-		this.connectorClass = "_jsPlumb_connector";
-            
+		this.connectorClass = "_jsPlumb_connector";            
 		/*
 		 * Property: hoverClass 
 		 *   The CSS class to set on Connection or Endpoint elements when hovering. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.hoverClass = "_jsPlumb_hover";            
-
 		/*
 		 * Property: endpointClass 
 		 *   The CSS class to set on Endpoint elements. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.endpointClass = "_jsPlumb_endpoint";
-
 		/*
 		 * Property: overlayClass 
 		 * The CSS class to set on an Overlay that is an HTML element. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
-		this.overlayClass = "_jsPlumb_overlay";
-		
-		this.Anchors = {};
-		
-		this.Connectors = { 
-			"canvas":{},
-			"svg":{},
-			"vml":{}
-		};
-				
-		this.Endpoints = {
-			"canvas":{},
-			"svg":{},
-			"vml":{}
-		};
-
-		this.Overlays = {
-			"canvas":{},
-			"svg":{},
-			"vml":{}
-		};
-		
+		this.overlayClass = "_jsPlumb_overlay";		
+		this.Anchors = {};		
+		this.Connectors = {  "canvas":{}, "svg":{}, "vml":{} };				
+		this.Endpoints = { "canvas":{}, "svg":{}, "vml":{} };
+		this.Overlays = { "canvas":{}, "svg":{}, "vml":{}};		
 		this.ConnectorRenderers = {};
 		
 // ************************ PLACEHOLDER DOC ENTRIES FOR NATURAL DOCS *****************************************
@@ -2396,6 +2376,9 @@ between this method and jsPlumb.reset).
 		 */
 		this.init = function() {
 			if (!initialized) {
+                
+                _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});
+                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
 				
 				var bindOne = function(event) {
@@ -3491,6 +3474,12 @@ between this method and jsPlumb.reset).
 		this.isSuspendDrawing = function() {
 			return _suspendDrawing;
 		};
+            
+        this.updateOffset = _updateOffset;
+        this.getOffset = function(elId) { return offsets[elId]; };
+        this.getSize = function(elId) { return sizes[elId]; };            
+        this.getCachedData = _getCachedData;
+        this.timestamp = _timestamp;
 		
 		/*
 		 * Property: CANVAS
@@ -3673,478 +3662,10 @@ between this method and jsPlumb.reset).
 			
 		};
 
-		
-		
-	//
-	// manages anchors for all elements.
-	//
-	var AnchorManager = function(params) {
-		var _amEndpoints = {},
-            continuousAnchors = {},
-            continuousAnchorLocations = {},
-            userDefinedContinuousAnchorLocations = {},        
-            continuousAnchorOrientations = {},
-            Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
-			connectionsByElementId = {},
-			self = this,
-            anchorLists = {},
-            jsPlumbInstance = params.jsPlumbInstance,
-            // TODO this functions uses a crude method of determining orientation between two elements.
-	       // 'diagonal' should be chosen when the angle of the line between the two centers is around
-	       // one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
-            // used by AnchorManager.redraw
-            calculateOrientation = function(sourceId, targetId, sd, td) {
-        
-                if (sourceId === targetId) return {
-                    orientation:Orientation.IDENTITY,
-                    a:["top", "top"]
-                };
-        
-                var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),
-                    theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx)),
-                    h = ((sd.left <= td.left && sd.right >= td.left) || (sd.left <= td.right && sd.right >= td.right) ||
-                        (sd.left <= td.left && sd.right >= td.right) || (td.left <= sd.left && td.right >= sd.right)),
-                    v = ((sd.top <= td.top && sd.bottom >= td.top) || (sd.top <= td.bottom && sd.bottom >= td.bottom) ||
-                        (sd.top <= td.top && sd.bottom >= td.bottom) || (td.top <= sd.top && td.bottom >= sd.bottom));
-        
-                if (! (h || v)) {
-                    var a = null, rls = false, rrs = false, sortValue = null;
-                    if (td.left > sd.left && td.top > sd.top)
-                        a = ["right", "top"];
-                    else if (td.left > sd.left && sd.top > td.top)
-                        a = [ "top", "left"];
-                    else if (td.left < sd.left && td.top < sd.top)
-                        a = [ "top", "right"];
-                    else if (td.left < sd.left && td.top > sd.top)
-                        a = ["left", "top" ];
-        
-                    return { orientation:Orientation.DIAGONAL, a:a, theta:theta, theta2:theta2 };
-                }
-                else if (h) return {
-                    orientation:Orientation.HORIZONTAL,
-                    a:sd.top < td.top ? ["bottom", "top"] : ["top", "bottom"],
-                    theta:theta, theta2:theta2
-                }
-                else return {
-                    orientation:Orientation.VERTICAL,
-                    a:sd.left < td.left ? ["right", "left"] : ["left", "right"],
-                    theta:theta, theta2:theta2
-                }
-            },
-                // used by placeAnchors function
-            placeAnchorsOnLine = function(desc, elementDimensions, elementPosition,
-                            connections, horizontal, otherMultiplier, reverse) {
-                var a = [], step = elementDimensions[horizontal ? 0 : 1] / (connections.length + 1);
-        
-                for (var i = 0; i < connections.length; i++) {
-                    var val = (i + 1) * step, other = otherMultiplier * elementDimensions[horizontal ? 1 : 0];
-                    if (reverse)
-                      val = elementDimensions[horizontal ? 0 : 1] - val;
-        
-                    var dx = (horizontal ? val : other), x = elementPosition[0] + dx,  xp = dx / elementDimensions[0],
-                        dy = (horizontal ? other : val), y = elementPosition[1] + dy, yp = dy / elementDimensions[1];
-        
-                    a.push([ x, y, xp, yp, connections[i][1], connections[i][2] ]);
-                }
-        
-                return a;
-            },
-            // used by edgeSortFunctions
-            standardEdgeSort = function(a, b) { return a[0] > b[0] ? 1 : -1 },
-            // used by edgeSortFunctions        
-            currySort = function(reverseAngles) {
-                return function(a,b) {
-                    var r = true;
-                    if (reverseAngles) {
-                        if (a[0][0] < b[0][0])
-                            r = true;
-                        else
-                            r = a[0][1] > b[0][1];
-                    }
-                    else {
-                        if (a[0][0] > b[0][0])
-                            r= true;
-                        else
-                            r =a[0][1] > b[0][1];
-                    }
-                    return r === false ? -1 : 1;
-                };
-            },
-                // used by edgeSortFunctions
-            leftSort = function(a,b) {
-                // first get adjusted values
-                var p1 = a[0][0] < 0 ? -Math.PI - a[0][0] : Math.PI - a[0][0],
-                p2 = b[0][0] < 0 ? -Math.PI - b[0][0] : Math.PI - b[0][0];
-                if (p1 > p2) return 1;
-                else return a[0][1] > b[0][1] ? 1 : -1;
-            },
-                // used by placeAnchors
-            edgeSortFunctions = {
-                "top":standardEdgeSort,
-                "right":currySort(true),
-                "bottom":currySort(true),
-                "left":leftSort
-            },
-                // used by placeAnchors
-            _sortHelper = function(_array, _fn) {
-              return _array.sort(_fn);
-            },
-                // used by AnchorManager.redraw
-            placeAnchors = function(elementId, _anchorLists) {		
-                var sS = sizes[elementId], sO = offsets[elementId],
-                placeSomeAnchors = function(desc, elementDimensions, elementPosition, unsortedConnections, isHorizontal, otherMultiplier, orientation) {
-                    if (unsortedConnections.length > 0) {
-                        var sc = _sortHelper(unsortedConnections, edgeSortFunctions[desc]), // puts them in order based on the target element's pos on screen			    
-                            reverse = desc === "right" || desc === "top",
-                            anchors = placeAnchorsOnLine(desc, elementDimensions,
-                                                     elementPosition, sc,
-                                                     isHorizontal, otherMultiplier, reverse );
-        
-                        // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-                        var _setAnchorLocation = function(endpoint, anchorPos) {
-                            var a = _currentInstance.adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
-                            continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
-                            continuousAnchorOrientations[endpoint.id] = orientation;
-                        };
-        
-                        for (var i = 0; i < anchors.length; i++) {
-                            var c = anchors[i][4], weAreSource = c.endpoints[0].elementId === elementId, weAreTarget = c.endpoints[1].elementId === elementId;
-                            if (weAreSource)
-                                _setAnchorLocation(c.endpoints[0], anchors[i]);
-                            else if (weAreTarget)
-                                _setAnchorLocation(c.endpoints[1], anchors[i]);
-                        }
-                    }
-                };
-        
-                placeSomeAnchors("bottom", sS, [sO.left,sO.top], _anchorLists.bottom, true, 1, [0,1]);
-                placeSomeAnchors("top", sS, [sO.left,sO.top], _anchorLists.top, true, 0, [0,-1]);
-                placeSomeAnchors("left", sS, [sO.left,sO.top], _anchorLists.left, false, 0, [-1,0]);
-                placeSomeAnchors("right", sS, [sO.left,sO.top], _anchorLists.right, false, 1, [1,0]);
-            };
-
-        this.reset = function() {
-        	_amEndpoints = {};
-        	connectionsByElementId = {};
-            anchorLists = {};
-        };			
- 		this.newConnection = function(conn) {
-			var sourceId = conn.sourceId, targetId = conn.targetId,
-				ep = conn.endpoints,
-                doRegisterTarget = true,
-			    registerConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
-					if ((sourceId == targetId) && otherAnchor.isContinuous){
-                       // remove the target endpoint's canvas.  we dont need it.
-                        jsPlumb.CurrentLibrary.removeElement(ep[1].canvas);
-                        doRegisterTarget = false;
-                    }
-					_addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == jsPlumb.DynamicAnchor]);
-			    };
-
-			registerConnection(0, ep[0], ep[0].anchor, targetId, conn);
-            if (doRegisterTarget)
-            	registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
-		};
-		this.connectionDetached = function(connInfo) {
-            var connection = connInfo.connection || connInfo,
-			    sourceId = connection.sourceId,
-                targetId = connection.targetId,
-				ep = connection.endpoints,
-				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
-					if (otherAnchor.constructor == jsPlumb.FloatingAnchor) {
-						// no-op
-					}
-					else {
-						_removeWithFunction(connectionsByElementId[elId], function(_c) {
-							return _c[0].id == c.id;
-						});
-					}
-				};
-				
-			removeConnection(1, ep[1], ep[1].anchor, sourceId, connection);
-			removeConnection(0, ep[0], ep[0].anchor, targetId, connection);
-
-            // remove from anchorLists
-            var sEl = connection.sourceId,
-                tEl = connection.targetId,
-                sE =  connection.endpoints[0].id,
-                tE = connection.endpoints[1].id,
-                _remove = function(list, eId) {
-                    if (list) {  // transient anchors dont get entries in this list.
-                        var f = function(e) { return e[4] == eId; };
-                        _removeWithFunction(list["top"], f);
-                        _removeWithFunction(list["left"], f);
-                        _removeWithFunction(list["bottom"], f);
-                        _removeWithFunction(list["right"], f);
-                    }
-                };
-            
-            _remove(anchorLists[sEl], sE);
-            _remove(anchorLists[tEl], tE);
-            self.redraw(sEl);
-            self.redraw(tEl);
-		};
-		this.add = function(endpoint, elementId) {
-			_addToList(_amEndpoints, elementId, endpoint);
-		};
-		this.changeId = function(oldId, newId) {
-			connectionsByElementId[newId] = connectionsByElementId[oldId];
-			_amEndpoints[newId] = _amEndpoints[oldId];
-			delete connectionsByElementId[oldId];
-			delete _amEndpoints[oldId];	
-		};
-		this.getConnectionsFor = function(elementId) {
-			return connectionsByElementId[elementId] || [];
-		};
-		this.getEndpointsFor = function(elementId) {
-			return _amEndpoints[elementId] || [];
-		};
-		this.deleteEndpoint = function(endpoint) {
-			_removeWithFunction(_amEndpoints[endpoint.elementId], function(e) {
-				return e.id == endpoint.id;
-			});
-		};
-		this.clearFor = function(elementId) {
-			delete _amEndpoints[elementId];
-			_amEndpoints[elementId] = [];
-		};
-        // updates the given anchor list by either updating an existing anchor's info, or adding it. this function
-        // also removes the anchor from its previous list, if the edge it is on has changed.
-        // all connections found along the way (those that are connected to one of the faces this function
-        // operates on) are added to the connsToPaint list, as are their endpoints. in this way we know to repaint
-        // them wthout having to calculate anything else about them.
-        var _updateAnchorList = function(lists, theta, order, conn, aBoolean, otherElId, idx, reverse, edgeId, elId, connsToPaint, endpointsToPaint) {
-            // first try to find the exact match, but keep track of the first index of a matching element id along the way.s
-            var exactIdx = -1,
-                firstMatchingElIdx = -1,
-                endpoint = conn.endpoints[idx],
-                endpointId = endpoint.id,
-                oIdx = [1,0][idx],
-                values = [ [ theta, order ], conn, aBoolean, otherElId, endpointId ],
-                listToAddTo = lists[edgeId],
-                listToRemoveFrom = endpoint._continuousAnchorEdge ? lists[endpoint._continuousAnchorEdge] : null;
-
-            if (listToRemoveFrom) {
-                var rIdx = _findWithFunction(listToRemoveFrom, function(e) { return e[4] == endpointId });
-                if (rIdx != -1) {
-                    listToRemoveFrom.splice(rIdx, 1);
-                    // get all connections from this list
-                    for (var i = 0; i < listToRemoveFrom.length; i++) {
-                        _addWithFunction(connsToPaint, listToRemoveFrom[i][1], function(c) { return c.id == listToRemoveFrom[i][1].id });
-                        _addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[idx].id });
-                    }
-                }
-            }
-
-            for (var i = 0; i < listToAddTo.length; i++) {
-                if (idx == 1 && listToAddTo[i][3] === otherElId && firstMatchingElIdx == -1)
-                    firstMatchingElIdx = i;
-                _addWithFunction(connsToPaint, listToAddTo[i][1], function(c) { return c.id == listToAddTo[i][1].id });                
-                _addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function(e) { return e.id == listToAddTo[i][1].endpoints[idx].id });
-            }
-            if (exactIdx != -1) {
-                listToAddTo[exactIdx] = values;
-            }
-            else {
-                var insertIdx = reverse ? firstMatchingElIdx != -1 ? firstMatchingElIdx : 0 : listToAddTo.length; // of course we will get this from having looked through the array shortly.
-                listToAddTo.splice(insertIdx, 0, values);
-            }
-
-            // store this for next time.
-            endpoint._continuousAnchorEdge = edgeId;
-        };
-		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits) {
-		
-			if (!_suspendDrawing) {
-				// get all the endpoints for this element
-				var ep = _amEndpoints[elementId] || [],
-					endpointConnections = connectionsByElementId[elementId] || [],
-					connectionsToPaint = [],
-					endpointsToPaint = [],
-	                anchorsToUpdate = [];
-	            
-				timestamp = timestamp || _timestamp();
-				// offsetToUI are values that would have been calculated in the dragManager when registering
-				// an endpoint for an element that had a parent (somewhere in the hierarchy) that had been
-				// registered as draggable.
-				offsetToUI = offsetToUI || {left:0, top:0};
-				if (ui) {
-					ui = {
-						left:ui.left + offsetToUI.left,
-						top:ui.top + offsetToUI.top
-					}
-				}
-					
-				_updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }); 
-				// valid for one paint cycle.
-				var myOffset = offsets[elementId],
-	                myWH = sizes[elementId],
-	                orientationCache = {};
-				
-				// actually, first we should compute the orientation of this element to all other elements to which
-				// this element is connected with a continuous anchor (whether both ends of the connection have
-				// a continuous anchor or just one)
-	            //for (var i = 0; i < continuousAnchorConnections.length; i++) {
-	            for (var i = 0; i < endpointConnections.length; i++) {
-	                var conn = endpointConnections[i][0],
-						sourceId = conn.sourceId,
-	                    targetId = conn.targetId,
-	                    sourceContinuous = conn.endpoints[0].anchor.isContinuous,
-	                    targetContinuous = conn.endpoints[1].anchor.isContinuous;
-	
-	                if (sourceContinuous || targetContinuous) {
-		                var oKey = sourceId + "_" + targetId,
-		                    oKey2 = targetId + "_" + sourceId,
-		                    o = orientationCache[oKey],
-		                    oIdx = conn.sourceId == elementId ? 1 : 0;
-	
-		                if (sourceContinuous && !anchorLists[sourceId]) anchorLists[sourceId] = { top:[], right:[], bottom:[], left:[] };
-		                if (targetContinuous && !anchorLists[targetId]) anchorLists[targetId] = { top:[], right:[], bottom:[], left:[] };
-	
-		                if (elementId != targetId) _updateOffset( { elId : targetId, timestamp : timestamp }); 
-		                if (elementId != sourceId) _updateOffset( { elId : sourceId, timestamp : timestamp }); 
-	
-		                var td = _getCachedData(targetId),
-							sd = _getCachedData(sourceId);
-	
-		                if (targetId == sourceId && (sourceContinuous || targetContinuous)) {
-		                    // here we may want to improve this by somehow determining the face we'd like
-						    // to put the connector on.  ideally, when drawing, the face should be calculated
-						    // by determining which face is closest to the point at which the mouse button
-							// was released.  for now, we're putting it on the top face.
-		                    _updateAnchorList(anchorLists[sourceId], -Math.PI / 2, 0, conn, false, targetId, 0, false, "top", sourceId, connectionsToPaint, endpointsToPaint)
-						}
-		                else {
-		                    if (!o) {
-		                        o = calculateOrientation(sourceId, targetId, sd.o, td.o);
-		                        orientationCache[oKey] = o;
-		                        // this would be a performance enhancement, but the computed angles need to be clamped to
-		                        //the (-PI/2 -> PI/2) range in order for the sorting to work properly.
-		                    /*  orientationCache[oKey2] = {
-		                            orientation:o.orientation,
-		                            a:[o.a[1], o.a[0]],
-		                            theta:o.theta + Math.PI,
-		                            theta2:o.theta2 + Math.PI
-		                        };*/
-		                    }
-		                    if (sourceContinuous) _updateAnchorList(anchorLists[sourceId], o.theta, 0, conn, false, targetId, 0, false, o.a[0], sourceId, connectionsToPaint, endpointsToPaint);
-		                    if (targetContinuous) _updateAnchorList(anchorLists[targetId], o.theta2, -1, conn, true, sourceId, 1, true, o.a[1], targetId, connectionsToPaint, endpointsToPaint);
-		                }
-	
-		                if (sourceContinuous) _addWithFunction(anchorsToUpdate, sourceId, function(a) { return a === sourceId; });
-		                if (targetContinuous) _addWithFunction(anchorsToUpdate, targetId, function(a) { return a === targetId; });
-		                _addWithFunction(connectionsToPaint, conn, function(c) { return c.id == conn.id; });
-		                if ((sourceContinuous && oIdx == 0) || (targetContinuous && oIdx == 1))
-		                	_addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
-		            }
-	            }
-				
-				// place Endpoints whose anchors are continuous but have no Connections
-				for (var i = 0; i < ep.length; i++) {
-					if (ep[i].connections.length == 0 && ep[i].anchor.isContinuous) {
-						if (!anchorLists[elementId]) anchorLists[elementId] = { top:[], right:[], bottom:[], left:[] };
-						_updateAnchorList(anchorLists[elementId], -Math.PI / 2, 0, {endpoints:[ep[i], ep[i]], paint:function(){}}, false, elementId, 0, false, "top", elementId, connectionsToPaint, endpointsToPaint)
-						_addWithFunction(anchorsToUpdate, elementId, function(a) { return a === elementId; })
-					}
-				}
-	
-	            // now place all the continuous anchors we need to;
-	            for (var i = 0; i < anchorsToUpdate.length; i++) {
-					placeAnchors(anchorsToUpdate[i], anchorLists[anchorsToUpdate[i]]);
-				}
-				
-				// now that continuous anchors have been placed, paint all the endpoints for this element
-	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
-	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
-				for (var i = 0; i < ep.length; i++) {				
-					ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
-				}
-	            // ... and any other endpoints we came across as a result of the continuous anchors.
-	            for (var i = 0; i < endpointsToPaint.length; i++) {
-                    endpointsToPaint[i].paint( { timestamp : timestamp, offset : offsets[endpointsToPaint[i].elementId], dimensions : sizes[endpointsToPaint[i].elementId] });
-				}
-	
-				// paint all the standard and "dynamic connections", which are connections whose other anchor is
-				// static and therefore does need to be recomputed; we make sure that happens only one time.
-	
-				// TODO we could have compiled a list of these in the first pass through connections; might save some time.
-				for (var i = 0; i < endpointConnections.length; i++) {
-					var otherEndpoint = endpointConnections[i][1];
-					if (otherEndpoint.anchor.constructor == jsPlumb.DynamicAnchor) {			 							
-						otherEndpoint.paint({ elementWithPrecedence:elementId });								
-	                    _addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
-						// all the connections for the other endpoint now need to be repainted
-						for (var k = 0; k < otherEndpoint.connections.length; k++) {
-							if (otherEndpoint.connections[k] !== endpointConnections[i][0])							
-	                            _addWithFunction(connectionsToPaint, otherEndpoint.connections[k], function(c) { return c.id == otherEndpoint.connections[k].id; });
-						}
-					} else if (otherEndpoint.anchor.constructor == jsPlumb.Anchor) {					
-	                    _addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
-					}
-				}
-				// paint current floating connection for this element, if there is one.
-				var fc = floatingConnections[elementId];
-				if (fc) 
-					fc.paint({timestamp:timestamp, recalc:false, elId:elementId});
-					
-				// paint all the connections
-				for (var i = 0; i < connectionsToPaint.length; i++) {
-					connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false, clearEdits:clearEdits});
-				}
-			}
-		};
-		this.rehomeEndpoint = function(currentId, element) {
-			var eps = _amEndpoints[currentId] || [], //, 
-				elementId = _currentInstance.getId(element);
-			if (elementId !== currentId) {
-				for (var i = 0; i < eps.length; i++) {
-					self.add(eps[i], elementId);
-				}
-				eps.splice(0, eps.length);
-			}
-		};
-        
-        // continuous anchors
-        jsPlumbInstance.continuousAnchorFactory = {
-            get:function(params) {
-                var existing = continuousAnchors[params.elementId];
-                if (!existing) {
-                    existing = {
-                        type:"Continuous",
-                        compute : function(params) {
-                            return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
-                        },
-                        getCurrentLocation : function(endpoint) {
-                            return userDefinedContinuousAnchorLocations[endpoint.id] || continuousAnchorLocations[endpoint.id] || [0,0];
-                        },
-                        getOrientation : function(endpoint) {
-                            return continuousAnchorOrientations[endpoint.id] || [0,0];
-                        },
-                        isDynamic : true,
-                        isContinuous : true,
-                        clearUserDefinedLocation:function() { 
-                            delete userDefinedContinuousAnchorLocations[params.elementId]; 
-                        },
-                        setUserDefinedLocation:function(loc) { 
-                            userDefinedContinuousAnchorLocations[params.elementId] = loc; 
-                        }
-                    };
-                    continuousAnchors[params.elementId] = existing;
-                }
-                return existing;
-            }
-        };
-	};
-            
-	_currentInstance.anchorManager = new AnchorManager({jsPlumbInstance:_currentInstance});
-            
-            
-            
-	
-
-	if (!jsPlumbAdapter.headless)
+	if (!jsPlumbAdapter.headless) {
 		_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 		_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
+    }
 		
 		/*
 		 * Function: recalculateOffsets
@@ -5703,6 +5224,7 @@ between this method and jsPlumb.reset).
 					}
 					// register it and register connection on it.
 					floatingConnections[placeholderInfo.id] = jpc;
+                    _currentInstance.anchorManager.addFloatingConnection(placeholderInfo.id, jpc);
 					floatingEndpoint.addConnection(jpc);
 					// only register for the target endpoint; we will not be dragging the source at any time
 					// before this connection is either discarded or made into a permanent connection.
@@ -5946,7 +5468,8 @@ between this method and jsPlumb.reset).
 									//commonFunction();
 								}
 								_currentInstance.currentlyDragging = false;
-								delete floatingConnections[id];								
+								delete floatingConnections[id];		
+                                _currentInstance.anchorManager.removeFloatingConnection(id);
 							}
 						};
 					
