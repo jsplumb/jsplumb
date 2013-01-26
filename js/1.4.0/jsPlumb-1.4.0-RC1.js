@@ -2042,7 +2042,7 @@ between this method and jsPlumb.reset).
                 setters = ["setHover", "removeAllOverlays", "setLabel", "addClass", "addOverlay", "removeOverlay", 
                            "removeOverlays", "showOverlay", "hideOverlay", "showOverlays", "hideOverlays", "setPaintStyle",
                            "setHoverPaintStyle", "setSuspendEvents", "setParameter", "setParameters", "setVisible", 
-                           "repaint", "addType", "toggleType", "removeType", "removeClass", "setType" ],
+                           "repaint", "addType", "toggleType", "removeType", "removeClass", "setType", "bind", "unbind" ],
                 
                 getters = ["getLabel", "getOverlay", "isHover", "getParameter", "getParameters", "getPaintStyle",
                            "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ];
