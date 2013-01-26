@@ -44,14 +44,14 @@
 	_isObject = jsPlumbUtil.isObject;
 		
 	var _connectionBeingDragged = null,
-		_getAttribute = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_getElementObject(el), attName); },
-		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_getElementObject(el), attName, attValue); },
-		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_getElementObject(el), clazz); },
-		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
-		_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_getElementObject(el), clazz); },
-		_getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
+		_att = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_gel(el), attName); },
+		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_gel(el), attName, attValue); },
+		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_gel(el), clazz); },
+		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_gel(el), clazz); },
+		_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_gel(el), clazz); },
+		_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
 		_getOffset = function(el, _instance) {
-            var o = jsPlumb.CurrentLibrary.getOffset(_getElementObject(el));
+            var o = jsPlumb.CurrentLibrary.getOffset(_gel(el));
 			if (_instance != null) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
@@ -60,7 +60,7 @@
                 return o;
         },		
 		_getSize = function(el) {
-            return jsPlumb.CurrentLibrary.getSize(_getElementObject(el));
+            return jsPlumb.CurrentLibrary.getSize(_gel(el));
         },
 		_log = jsPlumbUtil.log,
 		_group = jsPlumbUtil.group,
@@ -401,12 +401,12 @@
             // CSS classes
             this.addClass = function(clazz) {
                 if (self.canvas != null)
-                    jsPlumb.CurrentLibrary.addClass(self.canvas, clazz);
+                    _addClass(self.canvas, clazz);
             };
 			
             this.removeClass = function(clazz) {
                 if (self.canvas != null)
-                    jsPlumb.CurrentLibrary.removeClass(self.canvas, clazz);
+                    _removeClass(self.canvas, clazz);
             };            
             
 		},
@@ -823,7 +823,7 @@
 			
 			// TOD is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
             if (!jsPlumbAdapter.headless && !_suspendDrawing) {
-			    var id = _getAttribute(element, "id"),
+			    var id = _att(element, "id"),
 			    	repaintEls = _currentInstance.dragManager.getElementsForDraggable(id);			    
 
 			    if (timestamp == null) timestamp = _timestamp();
@@ -849,11 +849,11 @@
 			if (_isArray(element)) {
 				retVal = [];
 				for ( var i = 0; i < element.length; i++) {
-					var el = _getElementObject(element[i]), id = _getAttribute(el, "id");
+					var el = _gel(element[i]), id = _att(el, "id");
 					retVal.push(fn(el, id)); // append return values to what we will return
 				}
 			} else {
-				var el = _getElementObject(element), id = _getAttribute(el, "id");
+				var el = _gel(element), id = _att(el, "id");
 				retVal = fn(el, id);
 			}
 			return retVal;
@@ -1195,7 +1195,7 @@
 					ep.setVisible(false, true, true);
 				};
 			}
-			var id = _getAttribute(el, "id");
+			var id = _att(el, "id");
 			_operation(id, function(jpc) {
 				if (state && alsoChangeEndpoints) {		
 					// this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
@@ -1260,7 +1260,7 @@
 			}
 			if (recalc || !offset) { // if forced repaint or no offset available, we recalculate.
 				// get the current size and offset, and store them
-				var s = _getElementObject(elId);
+				var s = _gel(elId);
 				if (s != null) {						
 					sizes[elId] = _getSize(s);
 					offsets[elId] = _getOffset(s, _currentInstance);
@@ -1269,7 +1269,7 @@
 			} else {
 				offsets[elId] = offset;
                 if (sizes[elId] == null) {
-                    var s = _getElementObject(elId);
+                    var s = _gel(elId);
                     if (s != null) sizes[elId] = _getSize(s);
                 }
             }
@@ -1303,8 +1303,8 @@
 		 * have them but also to connections and endpoints.
 		 */
 		_getId = function(element, uuid, doNotCreateIfNotFound) {
-			var ele = _getElementObject(element);
-			var id = _getAttribute(ele, "id");
+			var ele = _gel(element);
+			var id = _att(ele, "id");
 			if (!id || id == "undefined") {
 				// check if fixed uuid parameter is given
 				if (arguments.length == 2 && arguments[1] != undefined)
@@ -1485,7 +1485,7 @@
 			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
 						
 			for (var i = 0; i < inputs.length; i++) {
-				var _el = _getElementObject(inputs[i]), id = _getId(_el);
+				var _el = _gel(inputs[i]), id = _getId(_el);
 				p.source = _el;
                 _updateOffset({ elId : id, timestamp:_suspendedAt });
 				var e = _newEndpoint(p);
@@ -1545,7 +1545,7 @@
 		  	void
 		 */
 		this.animate = function(el, properties, options) {
-			var ele = _getElementObject(el), id = _getAttribute(el, "id");
+			var ele = _gel(el), id = _att(el, "id");
 			options = options || {};
 			var stepFunction = jsPlumb.CurrentLibrary.dragEvents['step'];
 			var completeFunction = jsPlumb.CurrentLibrary.dragEvents['complete'];
@@ -1803,8 +1803,8 @@ between this method and jsPlumb.reset).
 		 */
 		this.detachAllConnections = function(el, params) {
             params = params || {};
-            el = _getElementObject(el);
-			var id = _getAttribute(el, "id"),
+            el = _gel(el);
+			var id = _att(el, "id"),
                 endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
 				for ( var i = 0; i < endpoints.length; i++) {
@@ -1858,19 +1858,19 @@ between this method and jsPlumb.reset).
 		this.draggable = function(el, options) {
 			if (typeof el == 'object' && el.length) {
 				for ( var i = 0; i < el.length; i++) {
-					var ele = _getElementObject(el[i]);
+					var ele = _gel(el[i]);
 					if (ele) _initDraggableIfNecessary(ele, true, options);
 				}
 			} 
 			else if (el._nodes) { 	// TODO this is YUI specific; really the logic should be forced
 				// into the library adapters (for jquery and mootools aswell)
 				for ( var i = 0; i < el._nodes.length; i++) {
-					var ele = _getElementObject(el._nodes[i]);
+					var ele = _gel(el._nodes[i]);
 					if (ele) _initDraggableIfNecessary(ele, true, options);
 				}
 			}
 			else {
-				var ele = _getElementObject(el);
+				var ele = _gel(el);
 				if (ele) _initDraggableIfNecessary(ele, true, options);
 			}
 		};
@@ -1954,7 +1954,7 @@ between this method and jsPlumb.reset).
 						if (doNotGetIds) r = input;
 						else { 
 							for (var i = 0; i < input.length; i++) 
-								r.push(_getId(_getElementObject(input[i])));
+								r.push(_getId(_gel(input[i])));
 						}	
 					}
 				}
@@ -2561,10 +2561,10 @@ between this method and jsPlumb.reset).
 						targetCount = _currentInstance.select({target:elid}).length;																							
 
 					_currentInstance.currentlyDragging = false;
-					var draggable = _getElementObject(jpcl.getDragObject(arguments)),
-						id = _getAttribute(draggable, "dragId"),				
+					var draggable = _gel(jpcl.getDragObject(arguments)),
+						id = _att(draggable, "dragId"),				
 						// restore the original scope if necessary (issue 57)
-						scope = _getAttribute(draggable, "originalScope"),
+						scope = _att(draggable, "originalScope"),
 						jpc = floatingConnections[id],
 						source = jpc.endpoints[0],
 						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};
@@ -2690,7 +2690,7 @@ between this method and jsPlumb.reset).
 			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
 			for (var i = 0; i < inputs.length; i++) {			
-				_doOne(_getElementObject(inputs[i]));
+				_doOne(_gel(inputs[i]));
 			}
 
 			return _currentInstance;
@@ -2716,7 +2716,7 @@ between this method and jsPlumb.reset).
 				delete _targetEndpointDefinitions[elid];
 				delete _targetEndpointsUnique[elid];
 				delete _targetMaxConnections[elid];
-				delete _targetsEnabled[elid];
+				delete _targetsEnabled[elid];                
 			}
 
 			return _currentInstance;
@@ -2962,7 +2962,7 @@ between this method and jsPlumb.reset).
 			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
 			for (var i = 0; i < inputs.length; i++) {			
-				_doOne(_getElementObject(inputs[i]));
+				_doOne(_gel(inputs[i]));
 			}
 
 			return _currentInstance;
@@ -3219,10 +3219,10 @@ between this method and jsPlumb.reset).
 			// support both lists...
 			if (typeof el == 'object')
 				for ( var i = 0; i < el.length; i++) {			
-					_draw(_getElementObject(el[i]), ui, timestamp);
+					_draw(_gel(el[i]), ui, timestamp);
 				}
 			else // ...and single strings.				
-				_draw(_getElementObject(el), ui, timestamp);
+				_draw(_gel(el), ui, timestamp);
 				
 			return _currentInstance;
 		};
@@ -3239,7 +3239,7 @@ between this method and jsPlumb.reset).
 		*/
 		this.repaintEverything = function() {				
 			for ( var elId in endpointsByElement) {
-				_draw(_getElementObject(elId));
+				_draw(_gel(elId));
 			}
 			return _currentInstance;
 		};
@@ -3260,7 +3260,7 @@ between this method and jsPlumb.reset).
 		*/
 		this.removeAllEndpoints = function(el, recurse) {
             var _one = function(_el) {                
-                var elId = jsPlumbUtil.isString(_el) ? _el : _getId(_getElementObject(_el)),
+                var elId = jsPlumbUtil.isString(_el) ? _el : _getId(_gel(_el)),
                     ebe = endpointsByElement[elId];
                 if (ebe) {
                     for ( var i = 0; i < ebe.length; i++) 
@@ -3269,7 +3269,7 @@ between this method and jsPlumb.reset).
                 delete endpointsByElement[elId];
                 
                 if (recurse) {
-                    var del = jsPlumb.CurrentLibrary.getDOMElement(_getElementObject(_el));
+                    var del = jsPlumb.CurrentLibrary.getDOMElement(_gel(_el));
                     if (del && del.nodeType != 3 && del.nodeType != 8 ) {
                         for (var i = 0; i < del.childNodes.length; i++) {
                             _one(del.childNodes[i]);
@@ -3291,7 +3291,7 @@ between this method and jsPlumb.reset).
         *  el - either an element id, a DOM element, or a selector for the element.
         */
         this.remove = function(el, doNotFireEvent) {
-            el = _getElementObject(el);
+            el = _gel(el);
             _currentInstance.removeAllEndpoints(el, true);
             jsPlumb.CurrentLibrary.removeElement(el);
         };
@@ -3871,8 +3871,8 @@ between this method and jsPlumb.reset).
 			
 // INITIALISATION CODE			
 						
-			this.source = _getElementObject(params.source);
-			this.target = _getElementObject(params.target);
+			this.source = _gel(params.source);
+			this.target = _gel(params.target);
 			// sourceEndpoint and targetEndpoint override source/target, if they are present. but 
 			// source is not overridden if the Endpoint has declared it is not the final target of a connection;
 			// instead we use the source that the Endpoint declares will be the final source element.
@@ -3884,8 +3884,8 @@ between this method and jsPlumb.reset).
 			// member and take action if they need to.
 			self.previousConnection = params.previousConnection;
 						
-			this.sourceId = _getAttribute(this.source, "id");
-			this.targetId = _getAttribute(this.target, "id");
+			this.sourceId = _att(this.source, "id");
+			this.targetId = _att(this.target, "id");
 			this.scope = params.scope; // scope may have been passed in to the connect call. if it wasn't, we will pull it from the source endpoint, after having initialised the endpoints.			
 			this.endpoints = [];
 			this.endpointStyles = [];
@@ -4422,7 +4422,7 @@ between this method and jsPlumb.reset).
             
                     if (el) {
                         jsPlumb.CurrentLibrary.setOffset(el, _ui);
-                        _draw(_getElementObject(el), _ui);
+                        _draw(_gel(el), _ui);
                     }
                 },
                 stopDrag : function() {
@@ -4444,7 +4444,7 @@ between this method and jsPlumb.reset).
 		var _makeDraggablePlaceholder = function(placeholder, parent) {
 			var n = document.createElement("div");
 			n.style.position = "absolute";
-			var placeholderDragElement = _getElementObject(n);
+			var placeholderDragElement = _gel(n);
 			_appendElement(n, parent);
 			var id = _getId(placeholderDragElement);
 			_updateOffset( { elId : id });
@@ -4592,7 +4592,7 @@ between this method and jsPlumb.reset).
 
 			var _element = params.source,  _uuid = params.uuid, floatingEndpoint = null,  inPlaceCopy = null;
 			if (_uuid) endpointsByUUID[_uuid] = self;
-			var _elementId = _getAttribute(_element, "id");
+			var _elementId = _att(_element, "id");
 			this.elementId = _elementId;
 			this.element = _element;
 			
@@ -4868,7 +4868,7 @@ between this method and jsPlumb.reset).
 				_removeWithFunction(endpointsByElement[self.elementId], function(e) {
 					return e.id == self.id;
 				});
-				_element = _getElementObject(el);
+				_element = _gel(el);
 				_elementId = _getId(_element);
 				self.elementId = _elementId;
 				// need to get the new parent now
@@ -5120,7 +5120,7 @@ between this method and jsPlumb.reset).
 					// set the offset of this div to be where 'inPlaceCopy' is, to start with.
 					// TODO merge this code with the code in both Anchor and FloatingAnchor, because it
 					// does the same stuff.
-					var ipcoel = _getElementObject(inPlaceCopy.canvas),
+					var ipcoel = _gel(inPlaceCopy.canvas),
 					    ipco = _getOffset(ipcoel, _currentInstance),
 					    po = _currentInstance.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
 					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
@@ -5131,8 +5131,8 @@ between this method and jsPlumb.reset).
 					if (self.parentAnchor) self.anchor = _currentInstance.makeAnchor(self.parentAnchor, self.elementId, _currentInstance);
 
 					// store the id of the dragging div and the source element. the drop function will pick these up.					
-					_setAttribute(_getElementObject(self.canvas), "dragId", placeholderInfo.id);
-					_setAttribute(_getElementObject(self.canvas), "elId", _elementId);
+					_setAttribute(_gel(self.canvas), "dragId", placeholderInfo.id);
+					_setAttribute(_gel(self.canvas), "elId", _elementId);
 
 					// create a floating endpoint.
 					// here we test to see if a dragProxy was specified in this endpoint's constructor params, and
@@ -5166,7 +5166,7 @@ between this method and jsPlumb.reset).
 						jpc = _newConnection({
 							sourceEndpoint : self,
 							targetEndpoint : floatingEndpoint,
-							source : self.endpointWillMoveTo || _getElementObject(_element),  // for makeSource with parent option.  ensure source element is represented correctly.
+							source : self.endpointWillMoveTo || _gel(_element),  // for makeSource with parent option.  ensure source element is represented correctly.
 							target : placeholderInfo.element,
 							anchors : [ self.anchor, floatingEndpoint.anchor ],
 							paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
@@ -5184,14 +5184,14 @@ between this method and jsPlumb.reset).
 						existingJpc = true;
 						jpc.setHover(false);						
 						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
-						_initDropTarget(_getElementObject(inPlaceCopy.canvas), false, true);
+						_initDropTarget(_gel(inPlaceCopy.canvas), false, true);
 						// new anchor idx
 						var anchorIdx = jpc.endpoints[0].id == self.id ? 0 : 1;
 						jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
 						self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
 						
 						// store the original scope (issue 57)
-						var c = _getElementObject(self.canvas),
+						var c = _gel(self.canvas),
 						    dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
 						_setAttribute(c, "originalScope", dragScope);
 						// now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
@@ -5308,7 +5308,7 @@ between this method and jsPlumb.reset).
 
 					});
 				
-				var i = _getElementObject(self.canvas);				
+				var i = _gel(self.canvas);				
 				jsPlumb.CurrentLibrary.initDraggable(i, dragOptions, true);
 			}
 
@@ -5325,10 +5325,10 @@ between this method and jsPlumb.reset).
 						drop = function() {
 														
 							var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
-								draggable = _getElementObject(jsPlumb.CurrentLibrary.getDragObject(arguments)),
-								id = _getAttribute(draggable, "dragId"),
-								elId = _getAttribute(draggable, "elId"),						
-								scope = _getAttribute(draggable, "originalScope"),
+								draggable = _gel(jsPlumb.CurrentLibrary.getDragObject(arguments)),
+								id = _att(draggable, "dragId"),
+								elId = _att(draggable, "elId"),						
+								scope = _att(draggable, "originalScope"),
 								jpc = floatingConnections[id];
 								
 							// if this is a drop back where the connection came from, mark it force rettach and
@@ -5476,7 +5476,7 @@ between this method and jsPlumb.reset).
 					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
 					dropOptions[overEvent] = _wrap(dropOptions[overEvent], function() {					
 						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
-							id = _getAttribute( _getElementObject(draggable), "dragId"),
+							id = _att( _gel(draggable), "dragId"),
 							_jpc = floatingConnections[id];
 							
 						if (_jpc != null) {								
@@ -5490,7 +5490,7 @@ between this method and jsPlumb.reset).
 					});	
 					dropOptions[outEvent] = _wrap(dropOptions[outEvent], function() {					
 						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
-							id = _getAttribute( _getElementObject(draggable), "dragId"),
+							id = _att( _gel(draggable), "dragId"),
 							_jpc = floatingConnections[id];
 							
 						if (_jpc != null) {
@@ -5505,7 +5505,7 @@ between this method and jsPlumb.reset).
 			};
 			
 			// initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
-			_initDropTarget(_getElementObject(self.canvas), true, !(params._transient || self.anchor.isFloating), self);
+			_initDropTarget(_gel(self.canvas), true, !(params._transient || self.anchor.isFloating), self);
 			
 			 // finally, set type if it was provided
 			 if (params.type)
