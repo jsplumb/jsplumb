@@ -31,6 +31,8 @@
         - added 'addClass' and 'removeClass' methods to Connection and Endpoint, and to the return value of
         jsPlumb.select and jsPlumb.selectEndpoints.
         
+        - added 'bind' and 'unbind' to the return value of jsPlumb.select and jsPlumb.selectEndpoints.
+        
         - add 'hoverClass' member to jsPlumb; this is set when hovering over a Connection or Endpoint. default is
         '_jsPlumb_hover'.  also set on all overlays for a connection or endpoint.
         
@@ -62,6 +64,7 @@
         303 -   mixture of continuous and static anchors causes paint issues
         305 -   Add pointer-events to the properties of connection
         311 -   add options to Continuous anchor
+        312 -   jsPlumb mouseenter event fails with jQuery 1.9.0 (Firefox)
 		
 		MISCELLANEOUS
 		
