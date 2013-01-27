@@ -1103,6 +1103,8 @@
                 _p.endpointsByElement = endpointsByElement;  
                 _p.finaliseConnection = _finaliseConnection;
                 _p.fireDetachEvent = fireDetachEvent;
+                _p.floatingConnections = floatingConnections;
+                _p.connectionsByScope = connectionsByScope;
 				var ep = new endpointFunc(_p);
 				ep.id = "ep_" + _idstamp();
 				_eventFireProxy("click", "endpointClick", ep);

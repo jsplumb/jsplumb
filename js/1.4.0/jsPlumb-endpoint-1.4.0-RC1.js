@@ -55,7 +55,8 @@
             _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
             _finaliseConnection = params.finaliseConnection,
-            _fireDetachEvent = params.fireDetachEvent;
+            _fireDetachEvent = params.fireDetachEvent,
+            floatingConnections = params.floatingConnections;
         
         self.idPrefix = "_jsplumb_e_";			
         self.defaultLabelLocation = [ 0.5, 0.5 ];
@@ -322,8 +323,8 @@
                                 }
                             }
                         }
-                        params.removeElements(connection.connector.getDisplayElements(), connection.parent);
-                        _ju.removeWithFunction(connectionsByScope[connection.scope], function(c) {
+                        _ju.removeElements(connection.connector.getDisplayElements(), connection.parent);
+                        _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
                             return c.id == connection.id;
                         });
                         actuallyDetached = true;
@@ -536,12 +537,7 @@
             }
         };
 
-        this.repaint = this.paint;
-
-        /**
-         * @deprecated
-         */
-        this.removeConnection = this.detach; // backwards compatibility
+        this.repaint = this.paint;        
 
         // is this a connection source? we make it draggable and have the
         // drag listener maintain a connection with a floating endpoint.
@@ -914,7 +910,7 @@
 
                                         jpc.endpoints[0].repaint();
                                         jpc.repaint();
-                                        _jsPlumb.repaint(jpc.source.elementId);
+                                        _jsPlumb.repaint(jpc.sourceId);
                                         jpc._forceDetach = false;
                                     }
                                     
