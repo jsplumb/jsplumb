@@ -78,7 +78,7 @@
 		 * Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
 		 * and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
 		 */
-		jsPlumbUIComponent = function(params) {
+		jsPlumbUIComponent = window.jsPlumbUIComponent = function(params) {
 			var self = this, 
 				a = arguments, 
 				_hover = false, 
@@ -260,11 +260,25 @@
 		    };
 		    
 		    this.isHover = function() { return _hover; };
-			
-			//var zIndex = null;
-			//this.setZIndex = function(v) { zIndex = v; };
-			//this.getZIndex = function() { return zIndex; };
-
+            
+            this.bindListeners = function(obj, _self, _hoverFunction) {
+                obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
+                obj.bind("dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
+                obj.bind("contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
+                obj.bind("mouseenter", function(ep, e) {
+                    if (!_self.isHover()) {
+                        _hoverFunction(true);
+                        _self.fire("mouseenter", _self, e);
+                    }
+                });
+                obj.bind("mouseexit", function(ep, e) {
+                    if (_self.isHover()) {
+                        _hoverFunction(false);
+                        _self.fire("mouseexit", _self, e);
+                    }
+                });	  
+            }
+		
 			var jpcl = jsPlumb.CurrentLibrary,
 				events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
 				eventFilters = { "mouseout":"mouseexit" },
@@ -411,7 +425,7 @@
             
 		},
 
-		overlayCapableJsPlumbUIComponent = function(params) {
+		overlayCapableJsPlumbUIComponent = window.overlayCapableJsPlumbUIComponent = function(params) {
 			jsPlumbUIComponent.apply(this, arguments);
 			var self = this;			
 			this.overlays = [];
@@ -604,25 +618,7 @@
 					self.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.hoverClass);
 				}
             };
-		},
-		
-		_bindListeners = function(obj, _self, _hoverFunction) {
-        	obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
-			obj.bind("dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
-	        obj.bind("contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
-			obj.bind("mouseenter", function(ep, e) {
-				if (!_self.isHover()) {
-	                _hoverFunction(true);
-					_self.fire("mouseenter", _self, e);
-				}
-			});
-			obj.bind("mouseexit", function(ep, e) {
-				if (_self.isHover()) {
-	                _hoverFunction(false);
-					_self.fire("mouseexit", _self, e);
-				}
-			});	  
-        };	
+		};		
 		
 		var _jsPlumbInstanceIndex = 0,
 			getInstanceIndex = function() {
@@ -1011,7 +1007,7 @@
 		
 		_newConnection = function(params) {
 			var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
-			    endpointFunc = _currentInstance.Defaults.EndpointType || Endpoint,
+			    endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint,
 			    parent = jsPlumb.CurrentLibrary.getParent;
 			
 			if (params.container)
@@ -1097,10 +1093,16 @@
 			manually, since this method attaches event listeners and an id.
 		*/
 		_newEndpoint = function(params) {
-				var endpointFunc = _currentInstance.Defaults.EndpointType || Endpoint;
+				var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
 				var _p = jsPlumb.extend({}, params);				
 				_p.parent = _getParentFromParams(_p);
 				_p["_jsPlumb"] = _currentInstance;
+                _p.newConnection = _newConnection;
+                _p.newEndpoint = _newEndpoint;                
+                _p.endpointsByUUID = endpointsByUUID;             
+                _p.endpointsByElement = endpointsByElement;  
+                _p.finaliseConnection = _finaliseConnection;
+                _p.fireDetachEvent = fireDetachEvent;
 				var ep = new endpointFunc(_p);
 				ep.id = "ep_" + _idstamp();
 				_eventFireProxy("click", "endpointClick", ep);
@@ -1140,22 +1142,7 @@
 				_operation(elId, func);
 			}
 		},		
-		
-		/**
-		 * helper to remove an element from the DOM.
-		 */
-		_removeElement = function(element, parent) {
-			if (element != null && element.parentNode != null) {
-				element.parentNode.removeChild(element);
-			}
-		},
-		/**
-		 * helper to remove a list of elements from the DOM.
-		 */
-		_removeElements = function(elements, parent) {
-			for ( var i = 0; i < elements.length; i++)
-				_removeElement(elements[i], parent);
-		},
+				        
 		/**
 		 * Sets whether or not the given element(s) should be draggable,
 		 * regardless of what a particular plumb command may request.
@@ -1282,14 +1269,17 @@
 				offsets[elId].centerx = offsets[elId].left + (offsets[elId].width / 2);
 				offsets[elId].centery = offsets[elId].top + (offsets[elId].height / 2);				
 			}
-			return offsets[elId];
+			//return offsets[elId];
+            return {o:offsets[elId], s:sizes[elId]};
 		},
 
 		// TODO comparison performance
 		_getCachedData = function(elId) {
 			var o = offsets[elId];
-			if (!o) o = _updateOffset({elId:elId});
-			return {o:o, s:sizes[elId]};
+			if (!o) 
+                return _updateOffset({elId:elId});
+			else
+                return {o:o, s:sizes[elId]};
 		},
 
 		/**
@@ -1331,6 +1321,7 @@
 		 * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
 		 * note that this is a simple comparison and only works for primitives right now.
 		 */
+        // TODO move to util.
 		_wrap = function(wrappedFunction, newFunction, returnOnThisValue) {
 			wrappedFunction = wrappedFunction || function() { };
 			newFunction = newFunction || function() { };
@@ -1658,7 +1649,7 @@
 				if (uuid) endpointsByUUID[uuid] = null;				
 				endpoint.detachAll();
 				if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
-				_removeElements(endpoint.endpoint.getDisplayElements());
+				jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
 				_currentInstance.anchorManager.deleteEndpoint(endpoint);
 				for (var e in endpointsByElement) {
 					var endpoints = endpointsByElement[e];
@@ -1716,16 +1707,7 @@ between this method and jsPlumb.reset).
 				_currentInstance.fire("connectionDetached", params, originalEvent);
 			}
             _currentInstance.anchorManager.connectionDetached(params);
-		},
-		/**
-			fires an event to indicate an existing connection is being dragged.
-		*/
-		fireConnectionDraggingEvent = function(jpc) {
-			_currentInstance.fire("connectionDrag", jpc);	
-		},
-		fireConnectionDragStopEvent = function(jpc) {
-			_currentInstance.fire("connectionDragStop", jpc);
-		};
+		};	
 
 		/*
 		  Function: detach 
@@ -2887,7 +2869,7 @@ between this method and jsPlumb.reset).
 					}					
 
 					// make sure we have the latest offset for this div 
-					var myOffsetInfo = _updateOffset({elId:elid});		
+					var myOffsetInfo = _updateOffset({elId:elid}).o;		
 
 					var x = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
 					    y = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height,
@@ -2900,7 +2882,7 @@ between this method and jsPlumb.reset).
 					if (p.parent) {
 						var pEl = jpcl.getElementObject(p.parent),
 							pId = _getId(pEl);
-						myOffsetInfo = _updateOffset({elId:pId});
+						myOffsetInfo = _updateOffset({elId:pId}).o;
 						parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
 					    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height;
 					}											
@@ -3835,7 +3817,7 @@ between this method and jsPlumb.reset).
 			 * 	connector		-	Connector definition
 			 */
 			this.setConnector = function(connector, doNotRepaint) {
-				if (self.connector != null) _removeElements(self.connector.getDisplayElements(), self.parent);
+				if (self.connector != null) jsPlumbUtil.removeElements(self.connector.getDisplayElements(), self.parent);
 				var connectorArgs = { 
                     _jsPlumb:self._jsPlumb, 
                     parent:params.parent, 
@@ -3854,7 +3836,7 @@ between this method and jsPlumb.reset).
 				}
 				self.canvas = self.connector.canvas;                
 				// binds mouse listeners to the current connector.
-				_bindListeners(self.connector, self, _internalHover);
+				self.bindListeners(self.connector, self, _internalHover);
                 
                 if (editable && jsPlumb.ConnectorEditors[self.connector.type] && self.connector.isEditable()) {
                     new jsPlumb.ConnectorEditors[self.connector.type]({
@@ -4150,8 +4132,8 @@ between this method and jsPlumb.reset).
 						tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
 					if (timestamp == null || timestamp != lastPaintedAt) {                        
-						var sourceInfo = _updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }),
-							targetInfo = _updateOffset( { elId : tId, timestamp : timestamp }); // update the target if this is a forced repaint. otherwise, only the source has been moved.
+						var sourceInfo = _updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
+							targetInfo = _updateOffset( { elId : tId, timestamp : timestamp }).o; // update the target if this is a forced repaint. otherwise, only the source has been moved.
 						
 						var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
 				        if (params.clearEdits) {
@@ -4408,1271 +4390,10 @@ between this method and jsPlumb.reset).
 			
 		}; // END Connection class
 		
-// ENDPOINT HELPER FUNCTIONS
-		var _makeConnectionDragHandler = function(placeholder) {
-            var stopped = false;
-            return {
-                drag : function() {
-                    if (stopped) {
-                        stopped = false;
-                        return true;
-                    }
-                    var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments, _currentInstance.getZoom()),
-                        el = placeholder.element;
+		
+		
             
-                    if (el) {
-                        jsPlumb.CurrentLibrary.setOffset(el, _ui);
-                        _draw(_gel(el), _ui);
-                    }
-                },
-                stopDrag : function() {
-                    stopped = true;
-                }
-            };
-		};		
-		
-		var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement) {			
-			var floatingAnchor = new jsPlumb.FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas, jsPlumbInstance:_currentInstance });
-        	//setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
-        	// adding the floating endpoint as a droppable.  that makes more sense anyway!
-        	return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
-		};
-		
-		//
-		// creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.
-		//
-		var _makeDraggablePlaceholder = function(placeholder, parent) {
-			var n = document.createElement("div");
-			n.style.position = "absolute";
-			var placeholderDragElement = _gel(n);
-			_appendElement(n, parent);
-			var id = _getId(placeholderDragElement);
-			_updateOffset( { elId : id });
-			// create and assign an id, and initialize the offset.
-			placeholder.id = id;
-			placeholder.element = placeholderDragElement;
-		};
-
-		/*
-		 * Class: Endpoint 
-		 * 
-		 * Models an endpoint. Can have 1 to 'maxConnections' Connections emanating from it (set maxConnections to -1 
-		 * to allow unlimited).  Typically, if you use 'jsPlumb.connect' to programmatically connect two elements, you won't
-		 * actually deal with the underlying Endpoint objects.  But if you wish to support drag and drop Connections, one of the ways you
-		 * do so is by creating and registering Endpoints using 'jsPlumb.addEndpoint', and marking these Endpoints as 'source' and/or
-		 * 'target' Endpoints for Connections.  
-		 * 
-		 * 
-		 */
-
-		/*
-		 * Function: Endpoint 
-		 * 
-		 * Endpoint constructor.
-		 * 
-		 * Parameters: 
-		 * anchor - definition of the Anchor for the endpoint.  You can include one or more Anchor definitions here; if you include more than one, jsPlumb creates a 'dynamic' Anchor, ie. an Anchor which changes position relative to the other elements in a Connection.  Each Anchor definition can be either a string nominating one of the basic Anchors provided by jsPlumb (eg. "TopCenter"), or a four element array that designates the Anchor's location and orientation (eg, and this is equivalent to TopCenter, [ 0.5, 0, 0, -1 ]).  To provide more than one Anchor definition just put them all in an array. You can mix string definitions with array definitions.
-		 * endpoint - optional Endpoint definition. This takes the form of either a string nominating one of the basic Endpoints provided by jsPlumb (eg. "Rectangle"), or an array containing [name,params] for those cases where you don't wish to use the default values, eg. [ "Rectangle", { width:5, height:10 } ].
-		 * enabled - optional, defaults to true. Indicates whether or not the Endpoint should be enabled for mouse events (drag/drop).
-		 * paintStyle - endpoint style, a js object. may be null. 
-		 * hoverPaintStyle - style to use when the mouse is hovering over the Endpoint. A js object. may be null; defaults to null.
-		 * cssClass - optional CSS class to set on the display element associated with this Endpoint.
-		 * hoverClass - optional CSS class to set on the display element associated with this Endpoint when it is in hover state.
-		 * source - element the Endpoint is attached to, of type String (an element id) or element selector. Required.
-		 * canvas - canvas element to use. may be, and most often is, null.
-		 * container - optional id or selector instructing jsPlumb where to attach the element it creates for this endpoint.  you should read the documentation for a full discussion of this.
-		 * connections - optional list of Connections to configure the Endpoint with. 
-		 * isSource - boolean. indicates the endpoint can act as a source of new connections. Optional; defaults to false.
-		 * maxConnections - integer; defaults to 1.  a value of -1 means no upper limit. 
-		 * dragOptions - if isSource is set to true, you can supply arguments for the underlying library's drag method. Optional; defaults to null. 
-		 * connectorStyle - if isSource is set to true, this is the paint style for Connections from this Endpoint. Optional; defaults to null.
-		 * connectorHoverStyle - if isSource is set to true, this is the hover paint style for Connections from this Endpoint. Optional; defaults to null.
-		 * connector - optional Connector type to use.  Like 'endpoint', this may be either a single string nominating a known Connector type (eg. "Bezier", "Straight"), or an array containing [name, params], eg. [ "Bezier", { curviness:160 } ].
-		 * connectorOverlays - optional array of Overlay definitions that will be applied to any Connection from this Endpoint. 
-		 * connectorClass - optional CSS class to set on Connections emanating from this Endpoint.
-		 * connectorHoverClass - optional CSS class to set on to set on Connections emanating from this Endpoint when they are in hover state.		 
-		 * connectionsDetachable - optional, defaults to true. Sets whether connections to/from this Endpoint should be detachable or not.
-		 * isTarget - boolean. indicates the endpoint can act as a target of new connections. Optional; defaults to false.
-		 * dropOptions - if isTarget is set to true, you can supply arguments for the underlying library's drop method with this parameter. Optional; defaults to null. 
-		 * reattach - optional boolean that determines whether or not the Connections reattach after they have been dragged off an Endpoint and left floating. defaults to false: Connections dropped in this way will just be deleted.
-		 * parameters - Optional JS object containing parameters to set on the Endpoint. These parameters are then available via the getParameter method.  When a connection is made involving this Endpoint, the parameters from this Endpoint are copied into that Connection. Source Endpoint parameters override target Endpoint parameters if they both have a parameter with the same name.
-         * connector-pointer-events - Optional. a value for the 'pointer-events' property of any SVG elements that are created to render connections from this endoint.
-		 */
-		var Endpoint = function(params) {
-			var self = this;
-			self.idPrefix = "_jsplumb_e_";			
-			self.defaultLabelLocation = [ 0.5, 0.5 ];
-			self.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-			this.parent = params.parent;
-			overlayCapableJsPlumbUIComponent.apply(this, arguments);
-			params = params || {};
-			
-// TYPE		
-			
-			this.getTypeDescriptor = function() { return "endpoint"; };
-			this.getDefaultType = function() {								
-				return {
-					parameters:{},
-					scope:null,
-					maxConnections:self._jsPlumb.Defaults.MaxConnections,
-					paintStyle:self._jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
-					endpoint:self._jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
-					hoverPaintStyle:self._jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
-					overlays:self._jsPlumb.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays,
-					connectorStyle:params.connectorStyle,				
-					connectorHoverStyle:params.connectorHoverStyle,
-					connectorClass:params.connectorClass,
-					connectorHoverClass:params.connectorHoverClass,
-					connectorOverlays:params.connectorOverlays,
-					connector:params.connector,
-					connectorTooltip:params.connectorTooltip
-				};
-			};
-			var superAt = this.applyType;
-			this.applyType = function(t, doNotRepaint) {
-				superAt(t, doNotRepaint);
-				if (t.maxConnections != null) _maxConnections = t.maxConnections;
-				if (t.scope) self.scope = t.scope;
-				self.connectorStyle = t.connectorStyle;
-				self.connectorHoverStyle = t.connectorHoverStyle;
-				self.connectorOverlays = t.connectorOverlays;
-				self.connector = t.connector;
-				self.connectorTooltip = t.connectorTooltip;
-				self.connectionType = t.connectionType;
-				self.connectorClass = t.connectorClass;
-				self.connectorHoverClass = t.connectorHoverClass;
-			};			
-// END TYPE
-		
-			var visible = true, __enabled = !(params.enabled === false);
-			/*
-				Function: isVisible
-				Returns whether or not the Endpoint is currently visible.
-			*/
-			this.isVisible = function() { return visible; };
-			/*
-				Function: setVisible
-				Sets whether or not the Endpoint is currently visible.
-
-				Parameters:
-					visible - whether or not the Endpoint should be visible.
-					doNotChangeConnections - Instructs jsPlumb to not pass the visible state on to any attached Connections. defaults to false.
-					doNotNotifyOtherEndpoint - Instructs jsPlumb to not pass the visible state on to Endpoints at the other end of any attached Connections. defaults to false. 
-			*/
-			this.setVisible = function(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
-				visible = v;
-				if (self.canvas) self.canvas.style.display = v ? "block" : "none";
-				self[v ? "showOverlays" : "hideOverlays"]();
-				if (!doNotChangeConnections) {
-					for (var i = 0; i < self.connections.length; i++) {
-						self.connections[i].setVisible(v);
-						if (!doNotNotifyOtherEndpoint) {
-							var oIdx = self === self.connections[i].endpoints[0] ? 1 : 0;
-							// only change the other endpoint if this is its only connection.
-							if (self.connections[i].endpoints[oIdx].connections.length == 1) self.connections[i].endpoints[oIdx].setVisible(v, true, true);
-						}
-					}
-				}
-			};			
-
-			/*
-				Function: isEnabled
-				Returns whether or not the Endpoint is enabled for drag/drop connections.
-			*/
-			this.isEnabled = function() { return __enabled; };
-
-			/*
-				Function: setEnabled
-				Sets whether or not the Endpoint is enabled for drag/drop connections.
-				
-				Parameters:
-					enabled - whether or not the Endpoint is enabled.			
-			*/
-			this.setEnabled = function(e) { __enabled = e; };
-
-			var _element = params.source,  _uuid = params.uuid, floatingEndpoint = null,  inPlaceCopy = null;
-			if (_uuid) endpointsByUUID[_uuid] = self;
-			var _elementId = _att(_element, "id");
-			this.elementId = _elementId;
-			this.element = _element;
-			
-			self.setElementId = function(_elId) {
-				_elementId = _elId;
-				self.elementId = _elId;
-				self.anchor.elementId = _elId
-			};
-			
-			self.setReferenceElement = function(_el) {
-				_element = _el;
-				self.element = _el;
-			};
-			
-			var _connectionCost = params.connectionCost;
-			this.getConnectionCost = function() { return _connectionCost; };
-			this.setConnectionCost = function(c) {
-				_connectionCost = c; 
-			};
-			
-			var _connectionsDirected = params.connectionsDirected;
-			this.areConnectionsDirected = function() { return _connectionsDirected; };
-			this.setConnectionsDirected = function(b) { _connectionsDirected = b; };
-						
-			self.anchor = params.anchor ? _currentInstance.makeAnchor(params.anchor, _elementId, _currentInstance) : params.anchors ? _currentInstance.makeAnchor(params.anchors, _elementId, _currentInstance) : _currentInstance.makeAnchor(_currentInstance.Defaults.Anchor || "TopCenter", _elementId, _currentInstance);
-				
-			// ANCHOR MANAGER
-			if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
-				_currentInstance.anchorManager.add(self, _elementId);
-
-			var _endpoint = null, originalEndpoint = null;
-			this.setEndpoint = function(ep) {
-				var endpointArgs = {
-	                _jsPlumb:self._jsPlumb,
-                    cssClass:params.cssClass,
-	                parent:params.parent,
-	                container:params.container,
-	                tooltip:params.tooltip,
-	                connectorTooltip:params.connectorTooltip,
-	                endpoint:self
-	            };
-				if (_isString(ep)) 
-					_endpoint = new jsPlumb.Endpoints[renderMode][ep](endpointArgs);
-				else if (_isArray(ep)) {
-					endpointArgs = jsPlumbUtil.merge(ep[1], endpointArgs);
-					_endpoint = new jsPlumb.Endpoints[renderMode][ep[0]](endpointArgs);
-				}
-				else {
-					_endpoint = ep.clone();
-				}
-
-				// assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
-				// and the clone is left in its place while the original one goes off on a magical journey. 
-				// the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
-				// the whole world.
-				var argsForClone = jsPlumb.extend({}, endpointArgs);						
-				_endpoint.clone = function() {
-					var o = new Object();
-					_endpoint.constructor.apply(o, [argsForClone]);
-					return o;
-				};
-
-				self.endpoint = _endpoint;
-				self.type = self.endpoint.type;
-			};
-			 
-			this.setEndpoint(params.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							
-			originalEndpoint = _endpoint;
-
-			// override setHover to pass it down to the underlying endpoint
-			var _sh = self.setHover;
-			self.setHover = function() {
-				self.endpoint.setHover.apply(self.endpoint, arguments);
-				_sh.apply(self, arguments);
-			};
-            // endpoint delegates to first connection for hover, if there is one.
-            var internalHover = function(state) {
-              if (self.connections.length > 0)
-                self.connections[0].setHover(state, false);
-              else
-                self.setHover(state);
-            };
-			
-			// bind listeners from endpoint to self, with the internal hover function defined above.
-            _bindListeners(self.endpoint, self, internalHover);
-			                        
-			this.setPaintStyle(params.paintStyle || 
-							   params.style || 
-							   _currentInstance.Defaults.EndpointStyle || 
-							   jsPlumb.Defaults.EndpointStyle, true);
-			this.setHoverPaintStyle(params.hoverPaintStyle || 
-									_currentInstance.Defaults.EndpointHoverStyle || 
-									jsPlumb.Defaults.EndpointHoverStyle, true);
-			this.paintStyleInUse = this.getPaintStyle();
-			var originalPaintStyle = this.getPaintStyle();
-			this.connectorStyle = params.connectorStyle;
-			this.connectorHoverStyle = params.connectorHoverStyle;
-			this.connectorOverlays = params.connectorOverlays;
-			this.connector = params.connector;
-			this.connectorTooltip = params.connectorTooltip;
-			this.connectorClass = params.connectorClass;
-			this.connectorHoverClass = params.connectorHoverClass;	
-			this.isSource = params.isSource || false;
-			this.isTarget = params.isTarget || false;
-			
-			var _maxConnections = params.maxConnections || _currentInstance.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.
-						
-			this.getAttachedElements = function() {
-				return self.connections;
-			};
-						
-			this.canvas = this.endpoint.canvas;			
-			this.connections = params.connections || [];
-            this.connectorPointerEvents = params["connector-pointer-events"];
-			
-			this.scope = params.scope || DEFAULT_SCOPE;
-			this.connectionType = params.connectionType;
-			this.timestamp = null;
-			self.reattachConnections = params.reattach || _currentInstance.Defaults.ReattachConnections;
-            self.connectionsDetachable = _currentInstance.Defaults.ConnectionsDetachable;
-            if (params.connectionsDetachable === false || params.detachable === false)
-                self.connectionsDetachable = false;
-			var dragAllowedWhenFull = params.dragAllowedWhenFull || true;
-			
-			if (params.onMaxConnections)
-				self.bind("maxConnections", params.onMaxConnections);
-
-			this.computeAnchor = function(params) {
-				return self.anchor.compute(params);
-			};
-			/*
-			 * Function: addConnection
-			 *   Adds a Connection to this Endpoint.
-			 *   
-			 * Parameters:
-			 *   connection - the Connection to add.
-			 */
-			this.addConnection = function(connection) {
-				self.connections.push(connection);
-			};			
-			/*
-			 * Function: detach
-			 *   Detaches the given Connection from this Endpoint.
-			 *   
-			 * Parameters:
-			 *   connection - the Connection to detach.
-			 *   ignoreTarget - optional; tells the Endpoint to not notify the Connection target that the Connection was detached.  The default behaviour is to notify the target.
-			 */
-			this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent) {
-				var idx = _findWithFunction(self.connections, function(c) { return c.id == connection.id}), 
-					actuallyDetached = false;
-                fireEvent = (fireEvent !== false);
-				if (idx >= 0) {		
-					// 1. does the connection have a before detach (note this also checks jsPlumb's bound
-					// detach handlers; but then Endpoint's check will, too, hmm.)
-					if (forceDetach || connection._forceDetach || connection.isDetachable() || connection.isDetachAllowed(connection)) {
-						// get the target endpoint
-						var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
-						// it would be nice to check with both endpoints that it is ok to detach. but 
-						// for this we'll have to get a bit fancier: right now if you use the same beforeDetach
-						// interceptor for two endpoints (which is kind of common, because it's part of the
-						// endpoint definition), then it gets fired twice.  so in fact we need to loop through
-						// each beforeDetach and see if it returns false, at which point we exit.  but if it
-						// returns true, we have to check the next one.  however we need to track which ones
-						// have already been run, and not run them again.
-						if (forceDetach || connection._forceDetach || (self.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {
-					
-							self.connections.splice(idx, 1);										
-					
-							// this avoids a circular loop
-							if (!ignoreTarget) {
-							
-								t.detach(connection, true, forceDetach);
-								// check connection to see if we want to delete the endpoints associated with it.
-								// we only detach those that have just this connection; this scenario is most
-								// likely if we got to this bit of code because it is set by the methods that
-								// create their own endpoints, like .connect or .makeTarget. the user is
-								// not likely to have interacted with those endpoints.
-								if (connection.endpointsToDeleteOnDetach){
-									for (var i = 0; i < connection.endpointsToDeleteOnDetach.length; i++) {
-										var cde = connection.endpointsToDeleteOnDetach[i];
-										if (cde && cde.connections.length == 0) 
-											_currentInstance.deleteEndpoint(cde);							
-									}
-								}
-							}
-							_removeElements(connection.connector.getDisplayElements(), connection.parent);
-							_removeWithFunction(connectionsByScope[connection.scope], function(c) {
-								return c.id == connection.id;
-							});
-							actuallyDetached = true;
-                            var doFireEvent = (!ignoreTarget && fireEvent)
-							fireDetachEvent(connection, doFireEvent, originalEvent);
-						}
-					}
-				}
-				return actuallyDetached;
-			};			
-
-			/*
-			 * Function: detachAll
-			 *   Detaches all Connections this Endpoint has.
-			 *
-			 * Parameters:
-			 *  fireEvent   -   whether or not to fire the detach event.  defaults to false.
-			 */
-			this.detachAll = function(fireEvent, originalEvent) {
-				while (self.connections.length > 0) {
-					self.detach(self.connections[0], false, true, fireEvent, originalEvent);
-				}
-			};
-			/*
-			 * Function: detachFrom
-			 *   Removes any connections from this Endpoint that are connected to the given target endpoint.
-			 *   
-			 * Parameters:
-			 *   targetEndpoint     - Endpoint from which to detach all Connections from this Endpoint.
-			 *   fireEvent          - whether or not to fire the detach event. defaults to false.
-			 */
-			this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
-				var c = [];
-				for ( var i = 0; i < self.connections.length; i++) {
-					if (self.connections[i].endpoints[1] == targetEndpoint
-							|| self.connections[i].endpoints[0] == targetEndpoint) {
-						c.push(self.connections[i]);
-					}
-				}
-				for ( var i = 0; i < c.length; i++) {
-					if (self.detach(c[i], false, true, fireEvent, originalEvent))
-						c[i].setHover(false, false);					
-				}
-			};			
-			/*
-			 * Function: detachFromConnection
-			 *   Detach this Endpoint from the Connection, but leave the Connection alive. Used when dragging.
-			 *   
-			 * Parameters:
-			 *   connection - Connection to detach from.
-			 */
-			this.detachFromConnection = function(connection) {
-				var idx =  _findWithFunction(self.connections, function(c) { return c.id == connection.id});
-				if (idx >= 0) {
-					self.connections.splice(idx, 1);
-				}
-			};
-
-			/*
-			 * Function: getElement
-			 *
-			 * Returns:
-			 * 	The DOM element this Endpoint is attached to.
-			 */
-			this.getElement = function() {
-				return _element;
-			};		
-			
-			/*
-			 * Function: setElement
-			 * Sets the DOM element this Endpoint is attached to.
-			 *
-			 * Parameters:
-			 * 	el	-	dom element or selector
-			 * 	container	-	optional, specifies the actual parent element to use as the parent for this Endpoint's visual representation.
-			 * 	See the jsPlumb documentation for a discussion about this.
-			 */
-			this.setElement = function(el, container) {
-
-				// TODO possibly have this object take charge of moving the UI components into the appropriate
-				// parent.  this is used only by makeSource right now, and that function takes care of
-				// moving the UI bits and pieces.  however it would s			
-				var parentId = _getId(el);
-				// remove the endpoint from the list for the current endpoint's element
-				_removeWithFunction(endpointsByElement[self.elementId], function(e) {
-					return e.id == self.id;
-				});
-				_element = _gel(el);
-				_elementId = _getId(_element);
-				self.elementId = _elementId;
-				// need to get the new parent now
-				var newParentElement = _getParentFromParams({source:parentId, container:container}),
-				curParent = jpcl.getParent(self.canvas);
-				jpcl.removeElement(self.canvas, curParent);
-				jpcl.appendElement(self.canvas, newParentElement);								
-				
-				// now move connection(s)...i would expect there to be only one but we will iterate.
-				for (var i = 0; i < self.connections.length; i++) {
-					self.connections[i].moveParent(newParentElement);
-					self.connections[i].sourceId = _elementId;
-					self.connections[i].source = _element;					
-				}	
-				_addToList(endpointsByElement, parentId, self);
-				//_currentInstance.repaint(parentId);			
-			
-			};
-
-			/*
-			 * Function: getUuid
-			 *   Returns the UUID for this Endpoint, if there is one. Otherwise returns null.
-			 */
-			this.getUuid = function() {
-				return _uuid;
-			};
-			/**
-			 * private but must be exposed.
-			 */
-			this.makeInPlaceCopy = function() {
-				var loc = self.anchor.getCurrentLocation(self),
-					o = self.anchor.getOrientation(self),
-					inPlaceAnchor = {
-						compute:function() { return [ loc[0], loc[1] ]},
-						getCurrentLocation : function() { return [ loc[0], loc[1] ]},
-						getOrientation:function() { return o; }
-					};
-
-				return _newEndpoint( { 
-					anchor : inPlaceAnchor, 
-					source : _element, 
-					paintStyle : this.getPaintStyle(), 
-					endpoint : params.hideOnDrag ? "Blank" : _endpoint,
-					_transient:true,
-                    scope:self.scope
-				});
-			};
-			/*
-			 * Function: isConnectedTo
-			 *   Returns whether or not this endpoint is connected to the given Endpoint.
-			 *   
-			 * Parameters:
-			 *   endpoint - Endpoint to test.
-			 */
-			this.isConnectedTo = function(endpoint) {
-				var found = false;
-				if (endpoint) {
-					for ( var i = 0; i < self.connections.length; i++) {
-						if (self.connections[i].endpoints[1] == endpoint) {
-							found = true;
-							break;
-						}
-					}
-				}
-				return found;
-			};
-
-			/**
-			 * private but needs to be exposed.
-			 */
-			this.isFloating = function() {
-				return floatingEndpoint != null;
-			};
-			
-			/**
-			 * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
-			 */
-			this.connectorSelector = function() {
-				var candidate = self.connections[0];
-				if (self.isTarget && candidate) return candidate;
-				else {
-					return (self.connections.length < _maxConnections) || _maxConnections == -1 ? null : candidate;
-				}
-			};
-
-			/*
-			 * Function: isFull
-			 *   Returns whether or not the Endpoint can accept any more Connections.
-			 */
-			this.isFull = function() {
-				return !(self.isFloating() || _maxConnections < 1 || self.connections.length < _maxConnections);				
-			};
-			/*
-			 * Function: setDragAllowedWhenFull
-			 *   Sets whether or not connections can be dragged from this Endpoint once it is full. You would use this in a UI in 
-			 *   which you're going to provide some other way of breaking connections, if you need to break them at all. This property 
-			 *   is by default true; use it in conjunction with the 'reattach' option on a connect call.
-			 *   
-			 * Parameters:
-			 *   allowed - whether drag is allowed or not when the Endpoint is full.
-			 */
-			this.setDragAllowedWhenFull = function(allowed) {
-				dragAllowedWhenFull = allowed;
-			};
-			/*
-			 * Function: setStyle
-			 *   Sets the paint style of the Endpoint.  This is a JS object of the same form you supply to a jsPlumb.addEndpoint or jsPlumb.connect call.
-			 *   TODO move setStyle into EventGenerator, remove it from here. is Connection's method currently setPaintStyle ? wire that one up to
-			 *   setStyle and deprecate it if so.
-			 *   
-			 * Parameters:
-			 *   style - Style object to set, for example {fillStyle:"blue"}.
-			 *   
-			 *  @deprecated use setPaintStyle instead.
-			 */
-			this.setStyle = self.setPaintStyle;
-
-			/**
-			 * a deep equals check. everything must match, including the anchor,
-			 * styles, everything. TODO: finish Endpoint.equals
-			 */
-			this.equals = function(endpoint) {
-				return this.anchor.equals(endpoint.anchor);
-			};
-			
-			// a helper function that tries to find a connection to the given element, and returns it if so. if elementWithPrecedence is null,
-			// or no connection to it is found, we return the first connection in our list.
-			var findConnectionToUseForDynamicAnchor = function(elementWithPrecedence) {
-				var idx = 0;
-				if (elementWithPrecedence != null) {
-					for (var i = 0; i < self.connections.length; i++) {
-						if (self.connections[i].sourceId == elementWithPrecedence || self.connections[i].targetId == elementWithPrecedence) {
-							idx = i;
-							break;
-						}
-					}
-				}
-				
-				return self.connections[idx];
-			};
-
-			/*
-			 * Function: paint
-			 *   Paints the Endpoint, recalculating offset and anchor positions if necessary. This does NOT paint
-			 *   any of the Endpoint's connections.
-			 *   
-			 * Parameters:
-			 *   timestamp - optional timestamp advising the Endpoint of the current paint time; if it has painted already once for this timestamp, it will not paint again.
-			 *   canvas - optional Canvas to paint on.  Only used internally by jsPlumb in certain obscure situations.
-			 *   connectorPaintStyle - paint style of the Connector attached to this Endpoint. Used to get a fillStyle if nothing else was supplied.
-			 */
-			this.paint = function(params) {
-				params = params || {};
-				var timestamp = params.timestamp, recalc = !(params.recalc === false);								
-				if (!timestamp || self.timestamp !== timestamp) {						
-					_updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
-					var xy = params.offset || offsets[_elementId];
-					if(xy) {
-						var ap = params.anchorPoint,connectorPaintStyle = params.connectorPaintStyle;
-						if (ap == null) {
-							var wh = params.dimensions || sizes[_elementId];
-							if (xy == null || wh == null) {
-								_updateOffset( { elId : _elementId, timestamp : timestamp });
-								xy = offsets[_elementId];
-								wh = sizes[_elementId];
-							}
-							var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
-							if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
-								var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
-								oIdx = c.endpoints[0] == self ? 1 : 0,
-								oId = oIdx == 0 ? c.sourceId : c.targetId,
-								oOffset = offsets[oId], oWH = sizes[oId];
-								anchorParams.txy = [ oOffset.left, oOffset.top ];
-								anchorParams.twh = oWH;
-								anchorParams.tElement = c.endpoints[oIdx];
-							}
-							ap = self.anchor.compute(anchorParams);
-						}
-											
-						// switched _endpoint to self here; continuous anchors, for instance, look for the
-						// endpoint's id, but here "_endpoint" is the renderer, not the actual endpoint.
-						// TODO need to verify this does not break anything.
-						//var d = _endpoint.compute(ap, self.anchor.getOrientation(_endpoint), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
-						_endpoint.compute(ap, self.anchor.getOrientation(self), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
-						_endpoint.paint(self.paintStyleInUse, self.anchor);					
-						self.timestamp = timestamp;
-
-						// paint overlays
-						for ( var i = 0; i < self.overlays.length; i++) {
-							var o = self.overlays[i];
-							if (o.isVisible) 
-                                self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse);
-						}
-					}
-				}
-			};
-
-            this.repaint = this.paint;
-
-			/**
-			 * @deprecated
-			 */
-			this.removeConnection = this.detach; // backwards compatibility
-
-			// is this a connection source? we make it draggable and have the
-			// drag listener maintain a connection with a floating endpoint.
-			if (jsPlumb.CurrentLibrary.isDragSupported(_element)) {
-				var placeholderInfo = { id:null, element:null },
-                    jpc = null,
-                    existingJpc = false,
-                    existingJpcParams = null,
-                    _dragHandler = _makeConnectionDragHandler(placeholderInfo);
-
-				var start = function() {	
-				// drag might have started on an endpoint that is not actually a source, but which has
-				// one or more connections.
-					jpc = self.connectorSelector();
-                    var _continue = true;
-                    // if not enabled, return
-                    if (!self.isEnabled()) _continue = false;
-					// if no connection and we're not a source, return.
-					if (jpc == null && !params.isSource) _continue = false;
-                    // otherwise if we're full and not allowed to drag, also return false.
-                    if (params.isSource && self.isFull() && !dragAllowedWhenFull) _continue = false;
-                    // if the connection was setup as not detachable or one of its endpoints
-                    // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
-                    // is set to false...
-                    if (jpc != null && !jpc.isDetachable()) _continue = false;
-
-                    if (_continue === false) {
-                        // this is for mootools and yui. returning false from this causes jquery to stop drag.
-                        // the events are wrapped in both mootools and yui anyway, but i don't think returning
-                        // false from the start callback would stop a drag.
-                        if (jsPlumb.CurrentLibrary.stopDrag) jsPlumb.CurrentLibrary.stopDrag();
-                        _dragHandler.stopDrag();
-                        return false;
-                    }
-
-					// if we're not full but there was a connection, make it null. we'll create a new one.
-					if (jpc && !self.isFull() && params.isSource) jpc = null;
-
-					_updateOffset( { elId : _elementId });
-					inPlaceCopy = self.makeInPlaceCopy();
-					inPlaceCopy.referenceEndpoint = self;
-					inPlaceCopy.paint();																
-					
-					_makeDraggablePlaceholder(placeholderInfo, self.parent);
-					
-					// set the offset of this div to be where 'inPlaceCopy' is, to start with.
-					// TODO merge this code with the code in both Anchor and FloatingAnchor, because it
-					// does the same stuff.
-					var ipcoel = _gel(inPlaceCopy.canvas),
-					    ipco = _getOffset(ipcoel, _currentInstance),
-					    po = _currentInstance.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
-					jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
-					
-					// when using makeSource and a parent, we first draw the source anchor on the source element, then
-					// move it to the parent.  note that this happens after drawing the placeholder for the
-					// first time.
-					if (self.parentAnchor) self.anchor = _currentInstance.makeAnchor(self.parentAnchor, self.elementId, _currentInstance);
-
-					// store the id of the dragging div and the source element. the drop function will pick these up.					
-					_setAttribute(_gel(self.canvas), "dragId", placeholderInfo.id);
-					_setAttribute(_gel(self.canvas), "elId", _elementId);
-
-					// create a floating endpoint.
-					// here we test to see if a dragProxy was specified in this endpoint's constructor params, and
-					// if so, we create that endpoint instead of cloning ourselves.
-					//if (params.proxy) {
-				/*		var floatingAnchor = new jsPlumb.FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
-
-						floatingEndpoint = _newEndpoint({ 
-							paintStyle : params.proxy.paintStyle,
-							endpoint : params.proxy.endpoint,
-							anchor : floatingAnchor, 
-							source : placeholderInfo.element, 
-							scope:"__floating" 
-						});		
-						
-						//$(self.canvas).hide();									
-						*/
-						//self.setPaintStyle(params.proxy.paintStyle);
-						// if we do this, we have to cleanup the old one. like just remove its display parts												
-						//self.setEndpoint(params.proxy.endpoint);
-
-					//}
-				//	else {
-						floatingEndpoint = _makeFloatingEndpoint(self.getPaintStyle(), self.anchor, _endpoint, self.canvas, placeholderInfo.element);
-				//	}
-					
-					if (jpc == null) {                                                                                                                                                         
-						self.anchor.locked = true;
-                        self.setHover(false, false);                        
-						// create a connection. one end is this endpoint, the other is a floating endpoint.
-						jpc = _newConnection({
-							sourceEndpoint : self,
-							targetEndpoint : floatingEndpoint,
-							source : self.endpointWillMoveTo || _gel(_element),  // for makeSource with parent option.  ensure source element is represented correctly.
-							target : placeholderInfo.element,
-							anchors : [ self.anchor, floatingEndpoint.anchor ],
-							paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
-							hoverPaintStyle:params.connectorHoverStyle,
-							connector : params.connector, // this can also be null. Connection will use the default.
-							overlays : params.connectorOverlays,
-							type:self.connectionType,
-							cssClass:self.connectorClass,
-							hoverClass:self.connectorHoverClass
-						});
-						// fire an event that informs that a connection is being dragged						
-						fireConnectionDraggingEvent(jpc);
-
-					} else {
-						existingJpc = true;
-						jpc.setHover(false);						
-						// if existing connection, allow to be dropped back on the source endpoint (issue 51).
-						_initDropTarget(_gel(inPlaceCopy.canvas), false, true);
-						// new anchor idx
-						var anchorIdx = jpc.endpoints[0].id == self.id ? 0 : 1;
-						jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
-						self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
-						
-						// store the original scope (issue 57)
-						var c = _gel(self.canvas),
-						    dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
-						_setAttribute(c, "originalScope", dragScope);
-						// now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
-						// that have our drop scope (issue 57).
-						var dropScope = jsPlumb.CurrentLibrary.getDropScope(c);
-						jsPlumb.CurrentLibrary.setDragScope(c, dropScope);
-				
-						// now we replace ourselves with the temporary div we created above:
-						if (anchorIdx == 0) {
-							existingJpcParams = [ jpc.source, jpc.sourceId, i, dragScope ];
-							jpc.source = placeholderInfo.element;
-							jpc.sourceId = placeholderInfo.id;
-						} else {
-							existingJpcParams = [ jpc.target, jpc.targetId, i, dragScope ];
-							jpc.target = placeholderInfo.element;
-							jpc.targetId = placeholderInfo.id;
-						}
-
-						// lock the other endpoint; if it is dynamic it will not move while the drag is occurring.
-						jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
-						// store the original endpoint and assign the new floating endpoint for the drag.
-						jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
-						jpc.suspendedEndpoint.setHover(false);
-						floatingEndpoint.referenceEndpoint = jpc.suspendedEndpoint;
-						jpc.endpoints[anchorIdx] = floatingEndpoint;
-
-						// fire an event that informs that a connection is being dragged
-						fireConnectionDraggingEvent(jpc);
-
-					}
-					// register it and register connection on it.
-					floatingConnections[placeholderInfo.id] = jpc;
-                    _currentInstance.anchorManager.addFloatingConnection(placeholderInfo.id, jpc);
-					floatingEndpoint.addConnection(jpc);
-					// only register for the target endpoint; we will not be dragging the source at any time
-					// before this connection is either discarded or made into a permanent connection.
-					_addToList(endpointsByElement, placeholderInfo.id, floatingEndpoint);
-					// tell jsplumb about it
-					_currentInstance.currentlyDragging = true;
-				};
-
-				var jpcl = jsPlumb.CurrentLibrary,
-				    dragOptions = params.dragOptions || {},
-				    defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
-				    startEvent = jpcl.dragEvents["start"],
-				    stopEvent = jpcl.dragEvents["stop"],
-				    dragEvent = jpcl.dragEvents["drag"];
-				
-				dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
-				dragOptions.scope = dragOptions.scope || self.scope;
-				dragOptions[startEvent] = _wrap(dragOptions[startEvent], start);
-				// extracted drag handler function so can be used by makeSource
-				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], _dragHandler.drag);
-				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent],
-					function() {
-						var originalEvent = jpcl.getDropEvent(arguments);					
-						_removeWithFunction(endpointsByElement[placeholderInfo.id], function(e) {
-							return e.id == floatingEndpoint.id;
-						});
-						_removeElement(inPlaceCopy.canvas, _element);
-						_currentInstance.anchorManager.clearFor(placeholderInfo.id);						
-						var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-						jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
-					
-					// commented out pending decision on drag proxy stuff.
-					//	self.setPaintStyle(originalPaintStyle); // reset to original; may have been changed by drag proxy.
-					
-						if (jpc.endpoints[idx] == floatingEndpoint) {
-							// if the connection was an existing one:
-							if (existingJpc && jpc.suspendedEndpoint) {
-								// fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
-								// floating endpoint has been replaced.
-								if (idx == 0) {
-									jpc.source = existingJpcParams[0];
-									jpc.sourceId = existingJpcParams[1];
-								} else {
-									jpc.target = existingJpcParams[0];
-									jpc.targetId = existingJpcParams[1];
-								}
-								
-								// restore the original scope (issue 57)
-								jsPlumb.CurrentLibrary.setDragScope(existingJpcParams[2], existingJpcParams[3]);
-								jpc.endpoints[idx] = jpc.suspendedEndpoint;
-								if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
-									jpc.setHover(false);
-									jpc.floatingAnchorIndex = null;
-									jpc.suspendedEndpoint.addConnection(jpc);
-									_currentInstance.repaint(existingJpcParams[1]);
-								}
-                                jpc._forceDetach = null;
-								jpc._forceReattach = null;
-							} else {
-								// TODO this looks suspiciously kind of like an Endpoint.detach call too.
-								// i wonder if this one should post an event though.  maybe this is good like this.
-								_removeElements(jpc.connector.getDisplayElements(), self.parent);
-								self.detachFromConnection(jpc);								
-							}																
-						}
-						
-						// remove floating endpoint _after_ checking beforeDetach 
-						_removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
-						
-						self.anchor.locked = false;												
-						self.paint({recalc:false});
-
-						fireConnectionDragStopEvent(jpc);
-
-						jpc = null;						
-						inPlaceCopy = null;							
-						delete endpointsByElement[floatingEndpoint.elementId];
-						floatingEndpoint.anchor = null;
-                        floatingEndpoint = null;
-						_currentInstance.currentlyDragging = false;
-
-					});
-				
-				var i = _gel(self.canvas);				
-				jsPlumb.CurrentLibrary.initDraggable(i, dragOptions, true);
-			}
-
-			// pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
-			// back onto the endpoint you detached it from.
-			var _initDropTarget = function(canvas, forceInit, isTransient, endpoint) {
-				if ((params.isTarget || forceInit) && jsPlumb.CurrentLibrary.isDropSupported(_element)) {
-					var dropOptions = params.dropOptions || _currentInstance.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
-					dropOptions = jsPlumb.extend( {}, dropOptions);
-					dropOptions.scope = dropOptions.scope || self.scope;
-					var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'],
-					    overEvent = jsPlumb.CurrentLibrary.dragEvents['over'],
-					    outEvent = jsPlumb.CurrentLibrary.dragEvents['out'],
-						drop = function() {
-														
-							var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
-								draggable = _gel(jsPlumb.CurrentLibrary.getDragObject(arguments)),
-								id = _att(draggable, "dragId"),
-								elId = _att(draggable, "elId"),						
-								scope = _att(draggable, "originalScope"),
-								jpc = floatingConnections[id];
-								
-							// if this is a drop back where the connection came from, mark it force rettach and
-							// return; the stop handler will reattach. without firing an event.
-							var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id == self.id ||
-											self.referenceEndpoint && jpc.suspendedEndpoint.id == self.referenceEndpoint.id) ;							
-							if (redrop) {								
-								jpc._forceReattach = true;
-								return;
-							}
-
-							if (jpc != null) {
-								var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx == 0 ? 1 : 0;
-								
-								// restore the original scope if necessary (issue 57)						
-								if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);							
-								
-								var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
-								
-								if (self.isFull()) {
-									self.fire("maxConnections", { 
-										endpoint:self, 
-										connection:jpc, 
-										maxConnections:_maxConnections 
-									}, originalEvent);
-								}
-																
-								if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
-									var _doContinue = true;
-	
-									// the second check here is for the case that the user is dropping it back
-									// where it came from.
-									if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != self.id) {
-										if (idx == 0) {
-											jpc.source = jpc.suspendedEndpoint.element;
-											jpc.sourceId = jpc.suspendedEndpoint.elementId;
-										} else {
-											jpc.target = jpc.suspendedEndpoint.element;
-											jpc.targetId = jpc.suspendedEndpoint.elementId;
-										}
-	
-										if (!jpc.isDetachAllowed(jpc) || !jpc.endpoints[idx].isDetachAllowed(jpc) || !jpc.suspendedEndpoint.isDetachAllowed(jpc) || !_currentInstance.checkCondition("beforeDetach", jpc))
-											_doContinue = false;								
-									}
-				
-									// these have to be set before testing for beforeDrop.
-									if (idx == 0) {
-										jpc.source = self.element;
-										jpc.sourceId = self.elementId;
-									} else {
-										jpc.target = self.element;
-										jpc.targetId = self.elementId;
-									}
-																
-// ------------ wrap the execution path in a function so we can support asynchronous beforeDrop																
-										
-									// we want to execute this regardless.
-									var commonFunction = function() {
-										jpc.floatingAnchorIndex = null;
-									};	
-																									
-									var continueFunction = function() {
-										// remove this jpc from the current endpoint
-										jpc.endpoints[idx].detachFromConnection(jpc);
-										if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
-										jpc.endpoints[idx] = self;
-										self.addConnection(jpc);
-										
-										// copy our parameters in to the connection:
-										var params = self.getParameters();
-										for (var aParam in params)
-											jpc.setParameter(aParam, params[aParam]);
-	
-										if (!jpc.suspendedEndpoint) {  
-											if (params.draggable)
-												jsPlumb.CurrentLibrary.initDraggable(self.element, dragOptions, true);
-										}
-										else {
-											var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
-											// fire a detach event
-											fireDetachEvent({
-												source : idx == 0 ? suspendedElement : jpc.source, 
-												target : idx == 1 ? suspendedElement : jpc.target,
-												sourceId : idx == 0 ? suspendedElementId : jpc.sourceId, 
-												targetId : idx == 1 ? suspendedElementId : jpc.targetId,
-												sourceEndpoint : idx == 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
-												targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
-												connection : jpc
-											}, true, originalEvent);
-										}
-	
-										// finalise will inform the anchor manager and also add to
-										// connectionsByScope if necessary.
-										_finaliseConnection(jpc, null, originalEvent);
-										
-										commonFunction();
-									};
-									
-									var dontContinueFunction = function() {
-										// otherwise just put it back on the endpoint it was on before the drag.
-										if (jpc.suspendedEndpoint) {									
-											jpc.endpoints[idx] = jpc.suspendedEndpoint;
-											jpc.setHover(false);
-											jpc._forceDetach = true;
-											if (idx == 0) {
-												jpc.source = jpc.suspendedEndpoint.element;
-												jpc.sourceId = jpc.suspendedEndpoint.elementId;
-											} else {
-												jpc.target = jpc.suspendedEndpoint.element;
-												jpc.targetId = jpc.suspendedEndpoint.elementId;;
-											}
-											jpc.suspendedEndpoint.addConnection(jpc);
-	
-											jpc.endpoints[0].repaint();
-											jpc.repaint();
-											_currentInstance.repaint(jpc.source.elementId);
-											jpc._forceDetach = false;
-										}
-										
-										commonFunction();
-									};
-									
-// --------------------------------------
-									// now check beforeDrop.  this will be available only on Endpoints that are setup to
-									// have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
-									// the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
-									// it only makes sense to have it on a target endpoint.
-									_doContinue = _doContinue && self.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, self);
-																														
-									if (_doContinue) {
-										continueFunction();
-									}
-									else {
-										dontContinueFunction();
-									}
-	
-									//commonFunction();
-								}
-								_currentInstance.currentlyDragging = false;
-								delete floatingConnections[id];		
-                                _currentInstance.anchorManager.removeFloatingConnection(id);
-							}
-						};
-					
-					dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], drop);
-					dropOptions[overEvent] = _wrap(dropOptions[overEvent], function() {					
-						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
-							id = _att( _gel(draggable), "dragId"),
-							_jpc = floatingConnections[id];
-							
-						if (_jpc != null) {								
-							var idx = _jpc.floatingAnchorIndex == null ? 1 : _jpc.floatingAnchorIndex;
-							// here we should fire the 'over' event if we are a target and this is a new connection,
-							// or we are the same as the floating endpoint.								
-							var _cont = (self.isTarget && _jpc.floatingAnchorIndex != 0) || (_jpc.suspendedEndpoint && self.referenceEndpoint && self.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
-							if (_cont)
-								_jpc.endpoints[idx].anchor.over(self.anchor);
-						}						
-					});	
-					dropOptions[outEvent] = _wrap(dropOptions[outEvent], function() {					
-						var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
-							id = _att( _gel(draggable), "dragId"),
-							_jpc = floatingConnections[id];
-							
-						if (_jpc != null) {
-							var idx = _jpc.floatingAnchorIndex == null ? 1 : _jpc.floatingAnchorIndex;
-							var _cont = (self.isTarget && _jpc.floatingAnchorIndex != 0) || (_jpc.suspendedEndpoint && self.referenceEndpoint && self.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
-							if (_cont)
-								_jpc.endpoints[idx].anchor.out();
-						}
-					});
-					jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions, true, isTransient);
-				}
-			};
-			
-			// initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
-			_initDropTarget(_gel(self.canvas), true, !(params._transient || self.anchor.isFloating), self);
-			
-			 // finally, set type if it was provided
-			 if (params.type)
-				self.addType(params.type, params.data, _currentInstance.isSuspendDrawing());
-
-// ***************************** PLACEHOLDERS FOR NATURAL DOCS *************************************************
-			/*
-			 * Function: bind
-			 * Bind to an event on the Endpoint.  
-			 * 
-			 * Parameters:
-			 * 	event - the event to bind.  Available events on an Endpoint are:
-			 *         - *click*						:	notification that a Endpoint was clicked.  
-			 *         - *dblclick*						:	notification that a Endpoint was double clicked.
-			 *         - *mouseenter*					:	notification that the mouse is over a Endpoint. 
-			 *         - *mouseexit*					:	notification that the mouse exited a Endpoint.
-			 * 		   - *contextmenu*                  :   notification that the user right-clicked on the Endpoint.
-			 *         
-			 *  callback - function to callback. This function will be passed the Endpoint that caused the event, and also the original event.    
-			 */
-			
-			/*
-		     * Function: setPaintStyle
-		     * Sets the Endpoint's paint style and then repaints the Endpoint.
-		     * 
-		     * Parameters:
-		     * 	style - Style to use.
-		     */
-
-		     /*
-		     * Function: getPaintStyle
-		     * Gets the Endpoint's paint style. This is not necessarily the paint style in use at the time;
-		     * this is the paint style for the Endpoint when the mouse it not hovering over it.
-		     */
-			
-			/*
-		     * Function: setHoverPaintStyle
-		     * Sets the paint style to use when the mouse is hovering over the Endpoint. This is null by default.
-		     * The hover paint style is applied as extensions to the paintStyle; it does not entirely replace
-		     * it.  This is because people will most likely want to change just one thing when hovering, say the
-		     * color for example, but leave the rest of the appearance the same.
-		     * 
-		     * Parameters:
-		     * 	style - Style to use when the mouse is hovering.
-		     *  doNotRepaint - if true, the Endpoint will not be repainted.  useful when setting things up initially.
-		     */
-			
-			/*
-		     * Function: setHover
-		     * Sets/unsets the hover state of this Endpoint.
-		     * 
-		     * Parameters:
-		     * 	hover - hover state boolean
-		     * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
-		     */
-
-		     /*
-		     * Function: getParameter
-		     * Gets the named parameter; returns null if no parameter with that name is set. Parameters may have been set on the Endpoint in the 'addEndpoint' call, or they may have been set with the setParameter function.
-		     *
-		     * Parameters:
-		     *   key - Parameter name.
-		     */
-
-		     /*
-		     * Function: setParameter
-		     * Sets the named parameter to the given value.
-		     *
-		     * Parameters:
-		     *   key - Parameter name.
-		     *   value - Parameter value.
-		     */
-			 
-			 /*
-			 * Property: canvas
-			 * The Endpoint's drawing area.
-			 */
-			/*
-			 * Property: connections
-			 * List of Connections this Endpoint is attached to.
-			 */
-			/*
-			 * Property: scope
-			 * Scope descriptor for this Endpoint.
-			 */
-			
-			/*
-			 * Property: overlays
-			 * List of Overlays for this Endpoint.
-			 */
-			/*
-			 * Function: addOverlay
-			 * Adds an Overlay to the Endpoint.
-			 * 
-			 * Parameters:
-			 * 	overlay - Overlay to add.
-			 */
-			/*
-			 * Function: getOverlay
-			 * Gets an overlay, by ID. Note: by ID.  You would pass an 'id' parameter
-			 * in to the Overlay's constructor arguments, and then use that to retrieve
-			 * it via this method.
-			 */
-			/*
-			* Function: getOverlays
-			* Gets all the overlays for this component.
-			*/
-			/*
-			 * Function: hideOverlay
-			 * Hides the overlay specified by the given id.
-			 */
-			/*
-			 * Function: hideOverlays
-			 * Hides all Overlays
-			 */
-			/*
-			 * Function: showOverlay
-			 * Shows the overlay specified by the given id.
-			 */
-			/*
-			 * Function: showOverlays
-			 * Shows all Overlays 
-			 */
-			/*
-			 * Function: removeAllOverlays
-			 * Removes all overlays from the Endpoint, and then repaints.
-			 */
-			/*
-			 * Function: removeOverlay
-			 * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
-			 * Parameters:
-			 * overlayId - id of the overlay to remove.
-			 */
-			/*
-			 * Function: removeOverlays
-			 * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
-			 * Parameters:
-			 * overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
-			 */
-			/*
-			 * Function: setLabel
-			 * Sets the Endpoint's label.  
-			 * 
-			 * Parameters:
-			 * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep
-         	 * that in mind if you need escaped HTML.
-			 */
-			/*
-				Function: getLabel
-				Returns the label text for this Endpoint (or a function if you are labelling with a function).
-				This does not return the overlay itself; this is a convenience method which is a pair with
-				setLabel; together they allow you to add and access a Label Overlay without having to create the
-				Overlay object itself.  For access to the underlying label overlay that jsPlumb has created,
-				use getLabelOverlay.
-			*/
-			/*
-				Function: getLabelOverlay
-				Returns the underlying internal label overlay, which will exist if you specified a label on
-				an addEndpoint call, or have called setLabel at any stage.   
-			*/
-			
-// ***************************** END OF PLACEHOLDERS FOR NATURAL DOCS *************************************************
-				
-			
-			return self;
-		};					
-	};		
+    };
 
 // --------------------- static instance + AMD registration -------------------------------------------	
 	
