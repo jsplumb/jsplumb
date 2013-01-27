@@ -6,7 +6,8 @@
 		- Perimeter anchor names now have a capitalised first letter. 'circle' is now 'Circle', for instance. This brings their naming convention
 		  into line with the various other names used throughout jsPlumb.
         - jsPlumb.Defaults.ConnectorZIndex was removed.  Use CSS classes for z index.
-        - Connection.setZIndex was removed.  Use CSS classes for z index.        
+        - Connection.setZIndex was removed.  Use CSS classes for z index.      
+        - removeConnection method removed from Endpoint. use 'detach' instead.
 
 		NEW FUNCTIONALITY
 		        
