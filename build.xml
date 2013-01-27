@@ -89,14 +89,14 @@
 	<target name="concatLibrary">
 		<echo>Concatenating ${library}</echo>
 		<concat destfile="${output.js.dir}/${library}.jsPlumb-${final.version}-all.js">
-			<filelist dir="${dir}" files="jsPlumb-util-${version}.js, jsPlumb-dom-adapter-${version}.js, jsPlumb-${version}.js,jsPlumb-anchors-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-connectors-statemachine-${version}.js,jsPlumb-connectors-flowchart-${version}.js, jsPlumb-renderers-vml-${version}.js, jsPlumb-renderers-svg-${version}.js, jsPlumb-renderers-canvas-${version}.js, ${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.5-min.js"/>
+			<filelist dir="${dir}" files="jsPlumb-util-${version}.js, jsPlumb-dom-adapter-${version}.js, jsPlumb-${version}.js,jsPlumb-anchors-${version}.js,jsPlumb-endpoint-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-connectors-statemachine-${version}.js,jsPlumb-connectors-flowchart-${version}.js, jsPlumb-renderers-vml-${version}.js, jsPlumb-renderers-svg-${version}.js, jsPlumb-renderers-canvas-${version}.js, ${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.5-min.js"/>
 		</concat>		
 	</target>
     
     <target name="concatLibraryNoCanvas">
 		<echo>Concatenating ${library} without canvas renderer</echo>
 		<concat destfile="${output.js.dir}/${library}.jsPlumb-${final.version}-nocanvas-all.js">
-			<filelist dir="${dir}" files="jsPlumb-util-${version}.js, jsPlumb-dom-adapter-${version}.js, jsPlumb-${version}.js,jsPlumb-anchors-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-connectors-statemachine-${version}.js,jsPlumb-connectors-flowchart-${version}.js, jsPlumb-renderers-vml-${version}.js, jsPlumb-renderers-svg-${version}.js, ${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.5-min.js"/>
+			<filelist dir="${dir}" files="jsPlumb-util-${version}.js, jsPlumb-dom-adapter-${version}.js, jsPlumb-${version}.js,jsPlumb-anchors-${version}.js,jsPlumb-endpoint-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-connectors-statemachine-${version}.js,jsPlumb-connectors-flowchart-${version}.js, jsPlumb-renderers-vml-${version}.js, jsPlumb-renderers-svg-${version}.js, ${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.5-min.js"/>
 		</concat>		
 	</target>
 	
