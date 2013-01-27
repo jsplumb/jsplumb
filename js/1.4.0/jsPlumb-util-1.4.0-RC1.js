@@ -356,6 +356,22 @@
         group : function(g) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.group(g); },
         groupEnd : function(g) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.groupEnd(g); },
         time : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.time(t); },
-        timeEnd : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.timeEnd(t); }
+        timeEnd : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.timeEnd(t); },
+        
+        /**
+		 * helper to remove an element from the DOM.
+		 */
+		removeElement : function(element, parent) {
+			if (element != null && element.parentNode != null) {
+				element.parentNode.removeChild(element);
+			}
+		},
+        /**
+		 * helper to remove a list of elements from the DOM.
+		 */
+		removeElements : function(elements, parent) {
+			for ( var i = 0; i < elements.length; i++)
+				jsPlumbUtil.removeElement(elements[i], parent);
+		}
     };
 })();
