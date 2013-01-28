@@ -103,20 +103,8 @@
 // END TYPE
     
         var visible = true, __enabled = !(params.enabled === false);
-        /*
-            Function: isVisible
-            Returns whether or not the Endpoint is currently visible.
-        */
-        this.isVisible = function() { return visible; };
-        /*
-            Function: setVisible
-            Sets whether or not the Endpoint is currently visible.
-
-            Parameters:
-                visible - whether or not the Endpoint should be visible.
-                doNotChangeConnections - Instructs jsPlumb to not pass the visible state on to any attached Connections. defaults to false.
-                doNotNotifyOtherEndpoint - Instructs jsPlumb to not pass the visible state on to Endpoints at the other end of any attached Connections. defaults to false. 
-        */
+        
+        this.isVisible = function() { return visible; };        
         this.setVisible = function(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
             visible = v;
             if (self.canvas) self.canvas.style.display = v ? "block" : "none";
@@ -498,20 +486,19 @@
                 if(xy) {
                     var ap = params.anchorPoint,connectorPaintStyle = params.connectorPaintStyle;
                     if (ap == null) {
-                        var wh = params.dimensions || info.s;//sizes[_elementId];
+                        var wh = params.dimensions || info.s;
                         if (xy == null || wh == null) {
                             info = _jsPlumb.updateOffset( { elId : _elementId, timestamp : timestamp });
-                            xy = info.o;//offsets[_elementId];
-                            wh = info.s;//sizes[_elementId];
+                            xy = info.o;
+                            wh = info.s;
                         }
                         var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
                         if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
                             var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
-                            oIdx = c.endpoints[0] == self ? 1 : 0,
-                            oId = oIdx == 0 ? c.sourceId : c.targetId,
+                                oIdx = c.endpoints[0] == self ? 1 : 0,
+                                oId = oIdx == 0 ? c.sourceId : c.targetId,
                                 oInfo = _jsPlumb.getCachedData(oId),
-                            //oOffset = offsets[oId], oWH = sizes[oId];
-                            oOffset = oInfo.o, oWH = oInfo.s;
+                                oOffset = oInfo.o, oWH = oInfo.s;
                             anchorParams.txy = [ oOffset.left, oOffset.top ];
                             anchorParams.twh = oWH;
                             anchorParams.tElement = c.endpoints[oIdx];
@@ -519,10 +506,6 @@
                         ap = self.anchor.compute(anchorParams);
                     }
                                         
-                    // switched _endpoint to self here; continuous anchors, for instance, look for the
-                    // endpoint's id, but here "_endpoint" is the renderer, not the actual endpoint.
-                    // TODO need to verify this does not break anything.
-                    //var d = _endpoint.compute(ap, self.anchor.getOrientation(_endpoint), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
                     _endpoint.compute(ap, self.anchor.getOrientation(self), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
                     _endpoint.paint(self.paintStyleInUse, self.anchor);					
                     self.timestamp = timestamp;
@@ -541,7 +524,7 @@
 
         // is this a connection source? we make it draggable and have the
         // drag listener maintain a connection with a floating endpoint.
-        if (jsPlumb.CurrentLibrary.isDragSupported(_element)) {
+        if (jpcl.isDragSupported(_element)) {
             var placeholderInfo = { id:null, element:null },
                 jpc = null,
                 existingJpc = false,
@@ -568,7 +551,7 @@
                     // this is for mootools and yui. returning false from this causes jquery to stop drag.
                     // the events are wrapped in both mootools and yui anyway, but i don't think returning
                     // false from the start callback would stop a drag.
-                    if (jsPlumb.CurrentLibrary.stopDrag) jsPlumb.CurrentLibrary.stopDrag();
+                    if (jpcl.stopDrag) jpcl.stopDrag();
                     _dragHandler.stopDrag();
                     return false;
                 }
@@ -589,7 +572,8 @@
                 var ipcoel = _gel(inPlaceCopy.canvas),
                     ipco = _getOffset(ipcoel, _jsPlumb),
                     po = _jsPlumb.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
-                jsPlumb.CurrentLibrary.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
+                    
+                jpcl.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
                 
                 // when using makeSource and a parent, we first draw the source anchor on the source element, then
                 // move it to the parent.  note that this happens after drawing the placeholder for the
@@ -662,8 +646,8 @@
                     jpcl.setAttribute(c, "originalScope", dragScope);
                     // now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
                     // that have our drop scope (issue 57).
-                    var dropScope = jsPlumb.CurrentLibrary.getDropScope(c);
-                    jsPlumb.CurrentLibrary.setDragScope(c, dropScope);
+                    var dropScope = jpcl.getDropScope(c);
+                    jpcl.setDragScope(c, dropScope);
             
                     // now we replace ourselves with the temporary div we created above:
                     if (anchorIdx == 0) {
@@ -699,8 +683,7 @@
                 _jsPlumb.currentlyDragging = true;
             };
 
-            var jpcl = jsPlumb.CurrentLibrary,
-                dragOptions = params.dragOptions || {},
+            var dragOptions = params.dragOptions || {},
                 defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
                 startEvent = jpcl.dragEvents["start"],
                 stopEvent = jpcl.dragEvents["stop"],
@@ -739,7 +722,7 @@
                             }
                             
                             // restore the original scope (issue 57)
-                            jsPlumb.CurrentLibrary.setDragScope(existingJpcParams[2], existingJpcParams[3]);
+                            jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
                             jpc.endpoints[idx] = jpc.suspendedEndpoint;
                             if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
                                 jpc.setHover(false);
@@ -775,19 +758,19 @@
                 });
             
             var i = _gel(self.canvas);				
-            jsPlumb.CurrentLibrary.initDraggable(i, dragOptions, true);
+            jpcl.initDraggable(i, dragOptions, true);
         }
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
         var _initDropTarget = function(canvas, forceInit, isTransient, endpoint) {
-            if ((params.isTarget || forceInit) && jsPlumb.CurrentLibrary.isDropSupported(_element)) {
+            if ((params.isTarget || forceInit) && jpcl.isDropSupported(_element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
                 dropOptions = jsPlumb.extend( {}, dropOptions);
                 dropOptions.scope = dropOptions.scope || self.scope;
-                var dropEvent = jsPlumb.CurrentLibrary.dragEvents['drop'],
-                    overEvent = jsPlumb.CurrentLibrary.dragEvents['over'],
-                    outEvent = jsPlumb.CurrentLibrary.dragEvents['out'],
+                var dropEvent = jpcl.dragEvents['drop'],
+                    overEvent = jpcl.dragEvents['over'],
+                    outEvent = jpcl.dragEvents['out'],
                     drop = function() {
                                                     
                         var originalEvent = jpcl.getDropEvent(arguments),
@@ -941,7 +924,7 @@
                 
                 dropOptions[dropEvent] = _jsPlumb.wrap(dropOptions[dropEvent], drop);
                 dropOptions[overEvent] = _jsPlumb.wrap(dropOptions[overEvent], function() {					
-                    var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
+                    var draggable = jpcl.getDragObject(arguments),
                         id = _att( _gel(draggable), "dragId"),
                         _jpc = floatingConnections[id];
                         
@@ -955,7 +938,7 @@
                     }						
                 });	
                 dropOptions[outEvent] = _jsPlumb.wrap(dropOptions[outEvent], function() {					
-                    var draggable = jsPlumb.CurrentLibrary.getDragObject(arguments),
+                    var draggable = jpcl.getDragObject(arguments),
                         id = _att( _gel(draggable), "dragId"),
                         _jpc = floatingConnections[id];
                         
@@ -966,7 +949,7 @@
                             _jpc.endpoints[idx].anchor.out();
                     }
                 });
-                jsPlumb.CurrentLibrary.initDroppable(canvas, dropOptions, true, isTransient);
+                jpcl.initDroppable(canvas, dropOptions, true, isTransient);
             }
         };
         
