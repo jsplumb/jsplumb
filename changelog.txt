@@ -51,6 +51,8 @@
                 "ContinuousTop"
                 "ContinuousRight"
                 "ContinuousBottom"
+                
+        - added 'Top', 'Right', 'Bottom' and 'Left' anchor aliases for 'TopCenter', 'RightMiddle', 'BottomCenter' and 'LeftMiddle'
 		
 		ISSUES
 		
