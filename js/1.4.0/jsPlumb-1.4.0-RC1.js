@@ -19,11 +19,7 @@
 
 ;(function() {
 	
-	/**
-	 * Class: jsPlumb
-	 * The jsPlumb engine, registered as a static object in the window.  This object contains all of the methods you will use to
-	 * create and maintain Connections and Endpoints.
-	 */	
+	
 	
     var _findWithFunction = jsPlumbUtil.findWithFunction,
 	_indexOf = jsPlumbUtil.indexOf,
@@ -2361,29 +2357,28 @@ between this method and jsPlumb.reset).
 		this.init = function() {
 			if (!initialized) {
                 
-                _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});
-                
+                _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
 				
 				var bindOne = function(event) {
-						jsPlumb.CurrentLibrary.bind(document, event, function(e) {
-							if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
-								// try connections first
-								for (var scope in connectionsByScope) {
-					    			var c = connectionsByScope[scope];
-					    			for (var i = 0; i < c.length; i++) {
-					    				var t = c[i].connector[event](e);
-					    				if (t) return;	
-					    			}
-					    		}
-								for (var el in endpointsByElement) {
-									var ee = endpointsByElement[el];
-									for (var i = 0; i < ee.length; i++) {
-										if (ee[i].endpoint[event](e)) return;
-									}
-								}
-							}
-						});					
+                    jsPlumb.CurrentLibrary.bind(document, event, function(e) {
+                        if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
+                            // try connections first
+                            for (var scope in connectionsByScope) {
+                                var c = connectionsByScope[scope];
+                                for (var i = 0; i < c.length; i++) {
+                                    var t = c[i].connector[event](e);
+                                    if (t) return;	
+                                }
+                            }
+                            for (var el in endpointsByElement) {
+                                var ee = endpointsByElement[el];
+                                for (var i = 0; i < ee.length; i++) {
+                                    if (ee[i].endpoint[event](e)) return;
+                                }
+                            }
+                        }
+                    });					
 				};
 				bindOne("click");bindOne("dblclick");bindOne("mousemove");bindOne("mousedown");bindOne("mouseup");bindOne("contextmenu");
 			
@@ -3142,7 +3137,7 @@ between this method and jsPlumb.reset).
 		*	The current enabled state of the target.
 		*/	
 		this.toggleTargetEnabled = function(el) {
-			return _setEnabled("target", el, null, true);	
+			_setEnabled("target", el, null, true);	
 			return _currentInstance.isTargetEnabled(el);
 		};
 
@@ -3434,7 +3429,7 @@ between this method and jsPlumb.reset).
 
 		
 		var _suspendDrawing = false,
-				_suspendedAt = null;
+            _suspendedAt = null;
 		/*
 		 * Function: setSuspendDrawing
 		 * Suspends drawing operations.  This can (and should!) be used when you have a lot of connections to make or endpoints to register;
