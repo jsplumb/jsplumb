@@ -6,6 +6,70 @@
  * create and maintain Connections and Endpoints.
  */	
 
+/*
+		* Function: importDefaults
+		* Imports all the given defaults into this instance of jsPlumb.		
+		*/
+		
+		/*
+		* Function: restoreDefaults
+		* Restores the default settings to "factory" values.
+		*/
+		
+		/*
+		 * Function: bind
+		 * Bind to an event on jsPlumb.  
+		 * 
+		 * Parameters:
+		 * 	event - the event to bind.  Available events on jsPlumb are:
+		 *         - *jsPlumbConnection* 			: 	notification that a new Connection was established.  jsPlumb passes the new Connection to the callback.
+		 *         - *jsPlumbConnectionDetached* 	: 	notification that a Connection was detached.  jsPlumb passes the detached Connection to the callback.
+		 *         - *click*						:	notification that a Connection was clicked.  jsPlumb passes the Connection that was clicked to the callback.
+		 *         - *dblclick*						:	notification that a Connection was double clicked.  jsPlumb passes the Connection that was double clicked to the callback.
+		 *         - *endpointClick*				:	notification that an Endpoint was clicked.  jsPlumb passes the Endpoint that was clicked to the callback.
+		 *         - *endpointDblClick*				:	notification that an Endpoint was double clicked.  jsPlumb passes the Endpoint that was double clicked to the callback.
+		 *         - *beforeDrop*					: 	notification that a Connection is about to be dropped. Returning false from this method cancels the drop. jsPlumb passes { sourceId, targetId, scope, connection, dropEndpoint } to your callback. For more information, refer to the jsPlumb documentation.
+		 *         - *beforeDetach*					: 	notification that a Connection is about to be detached. Returning false from this method cancels the detach. jsPlumb passes the Connection to your callback. For more information, refer to the jsPlumb documentation.
+		 *		   - *connectionDrag* 				:   notification that an existing Connection is being dragged. jsPlumb passes the Connection to your callback function.
+		 *         - *connectionDragEnd*            :   notification that the drag of an existing Connection has ended.  jsPlumb passes the Connection to your callback function.
+		 *         
+		 *  callback - function to callback. This function will be passed the Connection/Endpoint that caused the event, and also the original event.    
+		 */
+		
+		/*
+		 * Function: unbind
+		 * Clears either all listeners, or listeners for some specific event.
+		 * 
+		 * Parameters:
+		 * 	event	-	optional. constrains the clear to just listeners for this event.
+		 */
+		
+		/*
+		* Function: addClass
+		* Add class(es) to some element(s).
+		*
+		* Parameters:
+		* 	el			-	element id, dom element, or selector representing the element(s) to add class(es) to.
+		* 	clazz		-	string representing the class(es) to add. may contain multiple classes separated by spaces.
+		*/
+		
+		/*
+		* Function: removeClass
+		* Remove class from some selement(s).
+		*
+		* Parameters:
+		* 	el			-	element id, dom element, or selector representing the element(s) to remove a class from.
+		* 	clazz		-	string representing the class to remove. 
+		*/
+		
+		/*
+		* Function: hasClass
+		* Checks if an element has some class.
+		*
+		* Parameters:
+		* 	el			-	element id, dom element, or selector representing the element to test. If the selector matches multiple elements, we return the test for the first element in the selector only.
+		* 	clazz		-	string representing the class to test for. 
+		*/
     /*
 	 * Property: Anchors.TopCenter
 	 * An Anchor that is located at the top center of the element.
@@ -396,3 +460,280 @@
         */
 
 // ---------------- / ENDPOINT -----------------------------------------------------
+
+// --------------- CONNECTION ----------------------
+
+    /*
+     * Class: Connection
+     * The connecting line between two Endpoints.
+     */
+    /*
+     * Function: Connection
+     * Connection constructor. You should not ever create one of these directly. If you make a call to jsPlumb.connect, all of
+     * the parameters that you pass in to that function will be passed to the Connection constructor; if your UI
+     * uses the various Endpoint-centric methods like addEndpoint/makeSource/makeTarget, along with drag and drop,
+     * then the parameters you set on those functions are translated and passed in to the Connection constructor. So
+     * you should check the documentation for each of those methods.
+     * 
+     * Parameters:
+     * 	source 	- either an element id, a selector for an element, or an Endpoint.
+     * 	target	- either an element id, a selector for an element, or an Endpoint
+     * 	scope	- scope descriptor for this connection. optional.
+     *  container - optional id or selector instructing jsPlumb where to attach all the elements it creates for this connection.  you should read the documentation for a full discussion of this.
+     *  detachable - optional, defaults to true. Defines whether or not the connection may be detached using the mouse.
+     *  reattach	- optional, defaults to false. Defines whether not the connection should be retached if it was dragged off an Endpoint and then dropped in whitespace.
+     *  endpoint - Optional. Endpoint definition to use for both ends of the connection.
+     *  endpoints - Optional. Array of two Endpoint definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
+     *  endpointStyle - Optional. Endpoint style definition to use for both ends of the Connection.
+     *  endpointStyles - Optional. Array of two Endpoint style definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
+     *  paintStyle - Parameters defining the appearance of the Connection. Optional; jsPlumb will use the defaults if you supply nothing here.
+     *  hoverPaintStyle - Parameters defining the appearance of the Connection when the mouse is hovering over it. Optional; jsPlumb will use the defaults if you supply nothing here (note that the default hoverPaintStyle is null).
+     *  cssClass - optional CSS class to set on the display element associated with this Connection.
+     *  hoverClass - optional CSS class to set on the display element associated with this Connection when it is in hover state.
+     *  overlays - Optional array of Overlay definitions to appear on this Connection.
+     *  drawEndpoints - if false, instructs jsPlumb to not draw the endpoints for this Connection.  Be careful with this: it only really works when you tell jsPlumb to attach elements to the document body. Read the documentation for a full discussion of this. 
+     *  parameters - Optional JS object containing parameters to set on the Connection. These parameters are then available via the getParameter method.
+     */
+
+/*
+         * Function: bind
+         * Bind to an event on the Connection.  
+         * 
+         * Parameters:
+         * 	event - the event to bind.  Available events on a Connection are:
+         *         - *click*						:	notification that a Connection was clicked.  
+         *         - *dblclick*						:	notification that a Connection was double clicked.
+         *         - *mouseenter*					:	notification that the mouse is over a Connection. 
+         *         - *mouseexit*					:	notification that the mouse exited a Connection.
+         * 		   - *contextmenu*                  :   notification that the user right-clicked on the Connection.
+         *         
+         *  callback - function to callback. This function will be passed the Connection that caused the event, and also the original event.    
+         */
+        
+        /*
+         * Function: setPaintStyle
+         * Sets the Connection's paint style and then repaints the Connection.
+         * 
+         * Parameters:
+         * 	style - Style to use.
+         */
+
+         /*
+         * Function: getPaintStyle
+         * Gets the Connection's paint style. This is not necessarily the paint style in use at the time;
+         * this is the paint style for the connection when the mouse it not hovering over it.
+         */
+        
+        /*
+         * Function: setHoverPaintStyle
+         * Sets the paint style to use when the mouse is hovering over the Connection. This is null by default.
+         * The hover paint style is applied as extensions to the paintStyle; it does not entirely replace
+         * it.  This is because people will most likely want to change just one thing when hovering, say the
+         * color for example, but leave the rest of the appearance the same.
+         * 
+         * Parameters:
+         * 	style - Style to use when the mouse is hovering.
+         *  doNotRepaint - if true, the Connection will not be repainted.  useful when setting things up initially.
+         */
+        
+        /*
+         * Function: setHover
+         * Sets/unsets the hover state of this Connection.
+         * 
+         * Parameters:
+         * 	hover - hover state boolean
+         * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
+         */
+
+         /*
+         * Function: getParameter
+         * Gets the named parameter; returns null if no parameter with that name is set. Parameter values may have been supplied to a 'connect' or 'addEndpoint' call (connections made with the mouse get a copy of all parameters set on each of their Endpoints), or the parameter value may have been set with setParameter.
+         *
+         * Parameters:
+         *   key - Parameter name.
+         */
+
+         /*
+         * Function: setParameter
+         * Sets the named parameter to the given value.
+         *
+         * Parameters:
+         *   key - Parameter name.
+         *   value - Parameter value.
+         */
+         
+         /*
+         * Property: connector
+         * The underlying Connector for this Connection (eg. a Bezier connector, straight line connector, flowchart connector etc)
+         */
+         
+         /*
+         * Property: sourceId
+         * Id of the source element in the connection.
+         */
+        /*
+         * Property: targetId
+         * Id of the target element in the connection.
+         */
+        /*
+         * Property: scope
+         * Optional scope descriptor for the connection.
+         */
+        /*
+         * Property: endpoints
+         * Array of [source, target] Endpoint objects.
+         */
+        /*
+         *	Property: source
+         *	The source element for this Connection.
+         */
+        /*
+         *	Property: target
+         *	The target element for this Connection.
+         */
+        /*
+         * Property: overlays
+         * List of Overlays for this component.
+         */
+        /*
+         * Function: addOverlay
+         * Adds an Overlay to the Connection.
+         * 
+         * Parameters:
+         * 	overlay - Overlay to add.
+         */
+        /*
+         * Function: getOverlay
+         * Gets an overlay, by ID. Note: by ID.  You would pass an 'id' parameter
+         * in to the Overlay's constructor arguments, and then use that to retrieve
+         * it via this method.
+         *
+         * Parameters:
+         * 	overlayId 	-	id of the overlay to retrieve.
+         */
+        /*
+         * Function: getOverlays
+         * Gets all the overlays for this component.
+         */
+        /*
+         * Function: hideOverlay
+         * Hides the overlay specified by the given id.
+         *
+         * Parameters:
+         * 	overlayId 	-	id of the overlay to hide.
+         */
+        /*
+         * Function: hideOverlays
+         * Hides all Overlays
+         */
+        /*
+         * Function: showOverlay
+         * Shows the overlay specified by the given id.
+         *
+         * Parameters:
+         * 	overlayId 	-	id of the overlay to show. 
+         */
+        /*
+         * Function: showOverlays
+         * Shows all Overlays 
+         */
+        /*
+         * Function: removeAllOverlays
+         * Removes all overlays from the Connection, and then repaints.
+         */
+        /*
+         * Function: removeOverlay
+         * Removes an overlay by ID.  Note: by ID.  this is a string you set in the overlay spec.
+         * 
+         * Parameters:
+         * 	overlayId - id of the overlay to remove.
+         */
+        /*
+         * Function: removeOverlays
+         * Removes a set of overlays by ID.  Note: by ID.  this is a string you set in the overlay spec.
+         * 
+         * Parameters:
+         * 	overlayIds - this function takes an arbitrary number of arguments, each of which is a single overlay id.
+         */
+        /*
+         * Function: setLabel
+         * Sets the Connection's label.  
+         * 
+         * Parameters:
+         * 	l	- label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep
+         * that in mind if you need escaped HTML.
+         */
+        /*
+        * Function: getLabel
+        * Returns the label text for this Connection (or a function if you are labelling with a function).
+        * 
+        * This does not return the overlay itself; this is a convenience method which is a pair with
+        * setLabel; together they allow you to add and access a Label Overlay without having to create the
+        * Overlay object itself.  For access to the underlying label overlay that jsPlumb has created,
+        * use getLabelOverlay.
+        *
+        * See Also:
+        * 	<getOverlay>
+        */
+        /*
+        * Function: getLabelOverlay
+        * Returns the underlying internal label overlay, which will exist if you specified a label on
+        * a connect call, or have called setLabel at any stage.   
+        */
+    
+    /*
+        * Function: isVisible
+        * Returns whether or not the Connection is currently visible.
+        */
+        /*
+        * Function: setVisible
+        * Sets whether or not the Connection should be visible.
+        *
+        * Parameters:
+        *	visible - boolean indicating desired visible state.
+        */
+    /**
+        * Function: setEditable
+        * Sets whether or not the Connection is editable. This will only be honoured if
+        * the underlying Connector is editable - not all types are.
+        */
+        /**
+        * Function: isEditable
+        * Returns whether or not the Connection is editable.
+        */
+    /*
+         * Function: setConnector
+         * Sets the Connection's connector (eg "Bezier", "Flowchart", etc).  You pass a Connector definition into this method, the same
+         * thing that you would set as the 'connector' property on a jsPlumb.connect call.
+         * 
+         * Parameters:
+         * 	connector		-	Connector definition
+         */
+    /*
+        * Function: isDetachable
+        * Returns whether or not this connection can be detached from its target/source endpoint.  by default this
+        * is false; use it in conjunction with the 'reattach' parameter.
+        */
+        /*
+        * Function: setDetachable
+        * Sets whether or not this connection is detachable.
+        *
+        * Parameters:
+        * 	detachable - whether or not to set the Connection to be detachable.
+        */
+    /*
+        * Function: isReattach
+        * Returns whether or not this connection will be reattached after having been detached via the mouse and dropped.  by default this
+        * is false; use it in conjunction with the 'detachable' parameter.
+        */
+        /*
+        * Function: setReattach
+        * Sets whether or not this connection will reattach after having been detached via the mouse and dropped.
+        *
+        * Parameters:
+        * 	reattach	-	whether or not to set the Connection to reattach after drop in whitespace.
+        */    
+        /**
+         * implementation of abstract method in jsPlumbUtil.EventGenerator
+         * @return list of attached elements. in our case, a list of Endpoints.
+         */
