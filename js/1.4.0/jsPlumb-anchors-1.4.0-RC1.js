@@ -766,16 +766,48 @@
         this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };
         this.over = function(anchor) { if (_curAnchor != null) _curAnchor.over(anchor); };
         this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
-    };    
+    };            
     
-	var _curryAnchor = function(x, y, ox, oy, type, fnInit) {
-		return function(params) {
-			var a = params.jsPlumbInstance.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
-			a.type = type;
-			if (fnInit) fnInit(a, params);
-			return a;
-		};
+// -------- basic anchors ------------------    
+    var _curryAnchor = function(x, y, ox, oy, type, fnInit) {
+        jsPlumb.Anchors[type] = function(params) {
+            var a = params.jsPlumbInstance.makeAnchor([ x, y, ox, oy, 0, 0 ], params.elementId, params.jsPlumbInstance);
+            a.type = type;
+            if (fnInit) fnInit(a, params);
+            return a;
+        };
+    };
+    	
+	_curryAnchor(0.5, 0, 0,-1, "TopCenter");
+    _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
+    _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
+    _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
+    // from 1.4.0: Top, Right, Bottom, Left
+    _curryAnchor(0.5, 0, 0,-1, "Top");
+    _curryAnchor(0.5, 1, 0, 1, "Bottom");
+    _curryAnchor(0, 0.5, -1, 0, "Left");
+    _curryAnchor(1, 0.5, 1, 0, "Right");
+    _curryAnchor(0.5, 0.5, 0, 0, "Center");
+    _curryAnchor(1, 0, 0,-1, "TopRight");
+    _curryAnchor(1, 1, 0, 1, "BottomRight");
+    _curryAnchor(0, 0, 0, -1, "TopLeft");
+    _curryAnchor(0, 1, 0, 1, "BottomLeft");
+    
+// ------- dynamic anchors -------------------    
+			
+    // default dynamic anchors chooses from Top, Right, Bottom, Left
+	jsPlumb.Defaults.DynamicAnchors = function(params) {
+		return params.jsPlumbInstance.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"], params.elementId, params.jsPlumbInstance);
 	};
+    
+    // default dynamic anchors bound to name 'AutoDefault'
+	jsPlumb.Anchors["AutoDefault"]  = function(params) { 
+		var a = params.jsPlumbInstance.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors(params));
+		a.type = "AutoDefault";
+		return a;
+	};	
+    
+// ------- continuous anchors -------------------    
     
     var _curryContinuousAnchor = function(type, faces) {
         jsPlumb.Anchors[type] = function(params) {
@@ -785,71 +817,19 @@
         };
     };
     
-	/*
-	 * Property: Anchors.TopCenter
-	 * An Anchor that is located at the top center of the element.
-	 */
-	jsPlumb.Anchors["TopCenter"] 		= _curryAnchor(0.5, 0, 0,-1, "TopCenter");
-	/*
-	 * Property: Anchors.BottomCenter
-	 * An Anchor that is located at the bottom center of the element.
-	 */
-	jsPlumb.Anchors["BottomCenter"] 	= _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
-	/*
-	 * Property: Anchors.LeftMiddle
-	 * An Anchor that is located at the left middle of the element.
-	 */
-	jsPlumb.Anchors["LeftMiddle"] 		= _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
-	/*
-	 * Property: Anchors.RightMiddle
-	 * An Anchor that is located at the right middle of the element.
-	 */
-	jsPlumb.Anchors["RightMiddle"] 		= _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
-	/*
-	 * Property: Anchors.Center
-	 * An Anchor that is located at the center of the element.
-	 */
-	jsPlumb.Anchors["Center"] 			= _curryAnchor(0.5, 0.5, 0, 0, "Center");
-	/*
-	 * Property: Anchors.TopRight
-	 * An Anchor that is located at the top right corner of the element.
-	 */
-	jsPlumb.Anchors["TopRight"] 		= _curryAnchor(1, 0, 0,-1, "TopRight");
-	/*
-	 * Property: Anchors.BottomRight
-	 * An Anchor that is located at the bottom right corner of the element.
-	 */
-	jsPlumb.Anchors["BottomRight"] 		= _curryAnchor(1, 1, 0, 1, "BottomRight");
-	/*
-	 * Property: Anchors.TopLeft
-	 * An Anchor that is located at the top left corner of the element.
-	 */
-	jsPlumb.Anchors["TopLeft"] 			= _curryAnchor(0, 0, 0, -1, "TopLeft");
-	/*
-	 * Property: Anchors.BottomLeft
-	 * An Anchor that is located at the bototm left corner of the element.
-	 */
-	jsPlumb.Anchors["BottomLeft"] 		= _curryAnchor(0, 1, 0, 1, "BottomLeft");
-			
-	jsPlumb.Defaults.DynamicAnchors = function(params) {
-		return params.jsPlumbInstance.makeAnchors(["TopCenter", "RightMiddle", "BottomCenter", "LeftMiddle"], params.elementId, params.jsPlumbInstance);
+    jsPlumb.Anchors["Continuous"] = function(params) {
+		return params.jsPlumbInstance.continuousAnchorFactory.get(params);
 	};
-	/*
-	 * Property: Anchors.AutoDefault
-	 * Default DynamicAnchors - chooses from TopCenter, RightMiddle, BottomCenter, LeftMiddle.
-	 */
-	jsPlumb.Anchors["AutoDefault"]  = function(params) { 
-		var a = params.jsPlumbInstance.makeDynamicAnchor(jsPlumb.Defaults.DynamicAnchors(params));
-		a.type = "AutoDefault";
-		return a;
-	};
-	
-	/*
-	 * Property: Anchors.Assign
-	 * An Anchor whose location is assigned at connection time, through an AnchorPositionFinder. Used in conjunction
-	 * with the 'makeTarget' function. jsPlumb has two of these - 'Fixed' and 'Grid', and you can also write your own.
-	 */
-	jsPlumb.Anchors["Assign"] = _curryAnchor(0,0,0,0,"Assign", function(anchor, params) {
+                
+    _curryContinuousAnchor("ContinuousLeft", ["left"]);    
+    _curryContinuousAnchor("ContinuousTop", ["top"]);                 
+    _curryContinuousAnchor("ContinuousBottom", ["bottom"]);                 
+    _curryContinuousAnchor("ContinuousRight", ["right"]); 
+    
+// ------- position assign anchors -------------------    
+    
+    // this anchor type lets you assign the position at connection time.
+	jsPlumb.Anchors["Assign"] = _curryAnchor(0, 0, 0, 0, "Assign", function(anchor, params) {
 		// find what to use as the "position finder". the user may have supplied a String which represents
 		// the id of a position finder in jsPlumb.AnchorPositionFinders, or the user may have supplied the
 		// position finder as a function.  we find out what to use and then set it on the anchor.
@@ -858,37 +838,7 @@
 		// always set the constructor params; the position finder might need them later (the Grid one does,
 		// for example)
 		anchor.constructorParams = params;
-	});
-	
-	/*
-	 * Property: Anchors.Continuous
-	 * An Anchor that tracks the other element in the connection, choosing the closest face.
-	 */
-	jsPlumb.Anchors["Continuous"] = function(params) {
-		return params.jsPlumbInstance.continuousAnchorFactory.get(params);
-	};
-            
-    /*
-    * Property: Anchors.ContinuousLeft
-    * A continuous anchor that uses only the left edge of the element.
-    */
-    _curryContinuousAnchor("ContinuousLeft", ["left"]);
-    /*
-    * Property: Anchors.ContinuousTop
-    * A continuous anchor that uses only the top edge of the element.
-    */            
-    _curryContinuousAnchor("ContinuousTop", ["top"]);             
-    /*
-    * Property: Anchors.ContinuousBottom
-    * A continuous anchor that uses only the bottom edge of the element.
-    */
-    _curryContinuousAnchor("ContinuousBottom", ["bottom"]);             
-    /*
-    * Property: Anchors.ContinuousRight
-    * A continuous anchor that uses only the right edge of the element.
-    */
-    _curryContinuousAnchor("ContinuousRight", ["right"]);                         
-            
+	});	
 
     // these are the default anchor positions finders, which are used by the makeTarget function.  supplying
     // a position finder argument to that function allows you to specify where the resulting anchor will
@@ -904,18 +854,9 @@
 			return [ ((mx * gx) + (gx / 2)) / es[0], ((my * gy) + (gy / 2)) / es[1] ];
 		}
 	};
-	
-	/*
-	 * Property: Anchors.Perimeter
-	 * An Anchor that tracks the perimeter of some shape, approximating it with a given number of dynamically
-	 * positioned locations.
-	 *
-	 * Parameters:
-	 *
-	 * anchorCount  -   optional number of anchors to use to approximate the perimeter. default is 60.
-	 * shape        -   required. the name of the shape. valid values are 'rectangle', 'square', 'ellipse', 'circle', 'triangle' and 'diamond'
-	 * rotation     -   optional rotation, in degrees, to apply. 
-	 */
+    
+// ------- perimeter anchors -------------------    
+		
 	jsPlumb.Anchors["Perimeter"] = function(params) {
 		params = params || {};
 		var anchorCount = params.anchorCount || 60,
