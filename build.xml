@@ -273,9 +273,12 @@
 		<mkdir dir="js/TEMP"/>
 		<mkdir dir="js/TEMPOUT"/>
 		<copy todir="js/TEMP">
-			<fileset dir="build/${final.version}/js">
-				<include name="jquery.jsPlumb-${final.version}-all.js"/>
+            <fileset dir="${dir}">
+				<include name="jsPlumb-apidocs-${version}.js"/>
 			</fileset>
+			<!--fileset dir="build/${final.version}/js">
+				<include name="jquery.jsPlumb-${final.version}-all.js"/>
+			</fileset-->
 		</copy>
 		<mkdir dir="apidocs"/>
 	    <exec executable="naturaldocs">
