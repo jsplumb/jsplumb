@@ -1,3 +1,88 @@
+// ---------------- JSPLUMB ----------------------------------------
+
+/**
+ * Class: jsPlumb
+ * The jsPlumb engine, registered as a static object in the window.  This object contains all of the methods you will use to
+ * create and maintain Connections and Endpoints.
+ */	
+
+    /*
+	 * Property: Anchors.TopCenter
+	 * An Anchor that is located at the top center of the element.
+	 */
+	/*
+	 * Property: Anchors.BottomCenter
+	 * An Anchor that is located at the bottom center of the element.
+	 */
+	/*
+	 * Property: Anchors.LeftMiddle
+	 * An Anchor that is located at the left middle of the element.
+	 */
+	/*
+	 * Property: Anchors.RightMiddle
+	 * An Anchor that is located at the right middle of the element.
+	 */
+	/*
+	 * Property: Anchors.Center
+	 * An Anchor that is located at the center of the element.
+	 */
+	/*
+	 * Property: Anchors.TopRight
+	 * An Anchor that is located at the top right corner of the element.
+	 */
+	/*
+	 * Property: Anchors.BottomRight
+	 * An Anchor that is located at the bottom right corner of the element.
+	 */
+	/*
+	 * Property: Anchors.TopLeft
+	 * An Anchor that is located at the top left corner of the element.
+	 */
+	/*
+	 * Property: Anchors.BottomLeft
+	 * An Anchor that is located at the bototm left corner of the element.
+	 */
+	/*
+	 * Property: Anchors.AutoDefault
+	 * Default DynamicAnchors - chooses from TopCenter, RightMiddle, BottomCenter, LeftMiddle.
+	 */
+	/*
+	 * Property: Anchors.Assign
+	 * An Anchor whose location is assigned at connection time, through an AnchorPositionFinder. Used in conjunction
+	 * with the 'makeTarget' function. jsPlumb has two of these - 'Fixed' and 'Grid', and you can also write your own.
+	 */
+	/*
+	 * Property: Anchors.Continuous
+	 * An Anchor that tracks the other element in the connection, choosing the closest face.
+	 */
+    /*
+    * Property: Anchors.ContinuousLeft
+    * A continuous anchor that uses only the left edge of the element.
+    */
+    /*
+    * Property: Anchors.ContinuousTop
+    * A continuous anchor that uses only the top edge of the element.
+    */            
+    /*
+    * Property: Anchors.ContinuousBottom
+    * A continuous anchor that uses only the bottom edge of the element.
+    */
+    /*
+    * Property: Anchors.ContinuousRight
+    * A continuous anchor that uses only the right edge of the element.
+    */
+/*
+	 * Property: Anchors.Perimeter
+	 * An Anchor that tracks the perimeter of some shape, approximating it with a given number of dynamically
+	 * positioned locations.
+	 *
+	 * Parameters:
+	 *
+	 * anchorCount  -   optional number of anchors to use to approximate the perimeter. default is 60.
+	 * shape        -   required. the name of the shape. valid values are 'rectangle', 'square', 'ellipse', 'circle', 'triangle' and 'diamond'
+	 * rotation     -   optional rotation, in degrees, to apply. 
+	 */
+
 // ---------------- ENDPOINT -----------------------------------------------------
 
 /*
@@ -295,6 +380,19 @@
             Function: getLabelOverlay
             Returns the underlying internal label overlay, which will exist if you specified a label on
             an addEndpoint call, or have called setLabel at any stage.   
+        */
+/*
+            Function: isVisible
+            Returns whether or not the Endpoint is currently visible.
+        */    
+        /*
+            Function: setVisible
+            Sets whether or not the Endpoint is currently visible.
+
+            Parameters:
+                visible - whether or not the Endpoint should be visible.
+                doNotChangeConnections - Instructs jsPlumb to not pass the visible state on to any attached Connections. defaults to false.
+                doNotNotifyOtherEndpoint - Instructs jsPlumb to not pass the visible state on to Endpoints at the other end of any attached Connections. defaults to false. 
         */
 
 // ---------------- / ENDPOINT -----------------------------------------------------
