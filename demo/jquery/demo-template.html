@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+    <head>
+        
+        <title>jsPlumb 1.4.0 demo - jQuery</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
+		<link rel="stylesheet" href="../css/demo-new.css">
+		<link rel="stylesheet" href="../css/demo.css">	        
+    </head>
+    <body data-demo-id="demo" data-library="jquery">
+        <div id="header"></div>
+        <div id="sidebar">
+            <div id="explanation">
+                <p>jsPlumb provides a way to "plumb" elements of a UI together.</p>
+                <p>This page contains examples of the various types of connections you can make.</p>
+                <p>There are several other demonstrations that offer
+                a more focused look at some specific part of jsPlumb's functionality - pick one from the drop down or cycle through Next/Previous.
+                </p>
+                <p>jsPlumb requires one of jQuery, MooTools or YUI3.  See the documentation for a more detailed discussion of requirements.</p>
+                <p>This demonstration uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
+            </div>
+            <div id="render"></div>
+        </div>
+        <div id="main">            
+            <div class="component window" id="window1"><strong>Window 1</strong><br/><br/>I am plumbed with a Bezier connector to Window 2 and a label, with Blank endpoints.</div>
+            <div class="component window" id="window2"><strong>Window 2</strong><br/><br/>I am plumbed with a Bezier connector to Window 1, and a Bezier connector with Rectangle endpoints to Window 3</div>
+            <div class="component window" id="window3"><strong>Window 3</strong><br/><br/>I am plumbed with a Bezier connector and Rectangle endpoints to Window 2, and a Bezier connector with Dot endpoints and a label to Window 4. My blue endpoint tracks Window 4's position.</div>
+            <div class="component window" id="window4"><strong>Window 4</strong><br/><br/>I am plumbed with a Bezier connector with Dot endpoints to Window 3, and with a Straight connector with Image endpoints to Window 5. My blue endpoint tracks Window 3's position.</div>
+            <div class="component window" id="window5"><strong>Window 5</strong><br/><br/>I am plumbed with a Flowchart connector to Window 6, between our two centerpoints, which are drawn below, and larger than, the window element; I am also plumbed to Window 4.</div>
+            <div class="component window" id="window6"><strong>Window 6</strong><br/><br/>I am plumbed with a Flowchart connector to Window 5, between our two centerpoints, which are drawn below, and larger than, the window element.</div>
+            <div class="component window" id="window7"><strong>Window 7</strong><br/><br/>I am plumbed with State Machine connectors to Window 3.</div>            
+        </div>        
+        
+        <!-- DEP -->
+	    <script type="text/javascript" src="../../js/lib/jquery-1.8.1-min.js"></script>
+		<script type="text/javascript" src="../../js/lib/jquery-ui-1.8.23-min.js"></script>
+        <script type="text/javascript" src="../../js/lib/jquery.ui.touch-punch.min.js"></script>
+		<!-- /DEP -->
+				
+		<!-- JS -->
+		<!-- support lib for bezier stuff -->
+		<script type="text/javascript" src="../../js/lib/jsBezier-0.5-min.js"></script>        
+		<!-- jsplumb util -->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
+        <!-- base DOM adapter -->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>
+        <!-- jsplumb drag-->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-drag-1.4.0-RC1.js"></script>
+		<!-- main jsplumb engine -->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+        <!-- anchors -->
+		<script src="../../js/1.4.0/jsPlumb-anchors-1.4.0-RC1.js"></script> 
+        <!-- endpoint -->
+		<script src="../../js/1.4.0/jsPlumb-endpoint-1.4.0-RC1.js"></script>  
+        <!-- connection -->
+		<script src="../../js/1.4.0/jsPlumb-connection-1.4.0-RC1.js"></script>
+		<!-- connectors, endpoint and overlays  -->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
+		<!-- state machine connectors -->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-connectors-statemachine-1.4.0-RC1.js"></script>
+        <!-- flowchart connectors -->
+		<script src="../../js/1.4.0/jsPlumb-connectors-flowchart-1.4.0-RC1.js"></script>                
+		<!-- SVG renderer -->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
+		<!-- vml renderer -->
+		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
+        
+        <!-- jquery jsPlumb adapter -->
+		<script type="text/javascript" src="../../js/1.4.0/jquery.jsPlumb-1.4.0-RC1.js"></script>
+		<!-- /JS -->
+		
+		<!--  demo code -->
+		<script type="text/javascript" src="../js/demo.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-jquery.js"></script>
+        
+        
+        
+        
+    </body>
+</html>
