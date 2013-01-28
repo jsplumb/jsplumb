@@ -369,7 +369,7 @@
             _elementId = _jsPlumb.getId(_element);
             self.elementId = _elementId;
             // need to get the new parent now
-            var newParentElement = _getParentFromParams({source:parentId, container:container}),
+            var newParentElement = params.getParentFromParams({source:parentId, container:container}),
             curParent = jpcl.getParent(self.canvas);
             jpcl.removeElement(self.canvas, curParent);
             jpcl.appendElement(self.canvas, newParentElement);								
