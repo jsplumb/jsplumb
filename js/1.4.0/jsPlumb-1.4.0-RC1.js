@@ -756,20 +756,7 @@
         //listeners = {}, // a map: keys are event types, values are lists of listeners.
         DEFAULT_SCOPE = this.Defaults.Scope,
         renderMode = null,  // will be set in init()							
-
-		/**
-		 * helper method to add an item to a list, creating the list if it does
-		 * not yet exist.
-		 */
-		_addToList = function(map, key, value) {
-			var l = map[key];
-			if (l == null) {
-				l = [];
-				map[key] = l;
-			}
-			l.push(value);
-			return l;
-		},
+		
 
 		/**
 		 * appends an element to some other element, which is calculated as follows:
@@ -783,7 +770,6 @@
 			if (_currentInstance.Defaults.Container)
 				jsPlumb.CurrentLibrary.appendElement(el, _currentInstance.Defaults.Container);
 			else if (!parent)
-				//document.body.appendChild(el);
 				jsPlumbAdapter.appendToRoot(el);
 			else
 				jsPlumb.CurrentLibrary.appendElement(el, parent);
@@ -1668,22 +1654,16 @@ between this method and jsPlumb.reset).
                 params = arguments.length == 2 ? firstArgIsConnection ? (arguments[1] || {}) : arguments[0] : arguments[0],
                 fireEvent = (params.fireEvent !== false),
                 forceDetach = params.forceDetach,
-                connection = firstArgIsConnection ? arguments[0] : params.connection;
-
-				if (connection) {
-//                    if (forceDetach || (connection.isDetachAllowed(connection)
-  //                                      || connection.endpoints[0].isDetachAllowed(connection)
-    //                                    || connection.endpoints[1].isDetachAllowed(connection)
-      //                                  || _currentInstance.checkCondition("beforeDetach", connection))) {
-      
-      // YAWN i want to check each one of those detach conditions and fail on the first one that fails
-      
-						if (forceDetach || (connection.endpoints[0].isDetachAllowed(connection)
-                                        || connection.endpoints[1].isDetachAllowed(connection)
-                                        || connection.isDetachAllowed(connection)
-                                        || _currentInstance.checkCondition("beforeDetach", connection))) {      
-//                        if (forceDetach || )
-						    connection.endpoints[0].detach(connection, false, true, fireEvent); 
+                conn = firstArgIsConnection ? arguments[0] : params.connection;
+                                                    
+				if (conn) {             
+                    if (forceDetach || jsPlumbUtil.functionChain(true, false, [
+                            [ conn.endpoints[0], "isDetachAllowed", [ conn ] ],    
+                            [ conn.endpoints[1], "isDetachAllowed", [ conn ] ],
+                            [ conn, "isDetachAllowed", [ conn ] ],
+                            [ _currentInstance, "checkCondition", [ "beforeDetach", conn ] ] ])) {
+                        
+                        conn.endpoints[0].detach(conn, false, true, fireEvent); 
                     }
                 }
                 else {
