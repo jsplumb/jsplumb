@@ -546,7 +546,7 @@ other element in the Connection.  It is possible that future versions of jsPlumb
 <h4>Draggable Connections</h4>
 Dynamic Anchors and Draggable Connections can interoperate: jsPlumb locks the position of a dynamic anchor when you start to drag a connection from it,
 and unlocks it once the connection is either established or abandoned. At that point you may see the position of the dynamic anchor change, as jsPlumb
-optimises the connection.  <p>You can see this behaviour in the <a href="../html/jquery/draggableConnectorsDemo.html" target="_blank">draggable connections</a> demonstration, when
+optimises the connection.  <p>You can see this behaviour in the <a href="../jquery/draggableConnectorsDemo.html" target="_blank">draggable connections</a> demonstration, when
 you drag a connection from the blue endpoint on window 1 to the blue endpoint on window 3 - the connection is established and then window 1's blue
 endpoint jumps down to a location that is closer to window 3.</p>
 
@@ -872,7 +872,7 @@ The allowed constructor parameters are different for each artifact you create, b
 	...
 	overlays:[ 
 		"Arrow", 
-		[ "Label", { label:"foo", location:50 }, id:"myLabel" ]
+		[ "Label", { label:"foo", location:50, id:"myLabel" } ]
 	],
 	...
 });			
@@ -1037,7 +1037,7 @@ an Endpoint.
 	...
 	overlays:[ 
 		"Arrow", 
-		[ "Label", { label:"foo", location:0.25 }, id:"myLabel" ]
+		[ "Label", { label:"foo", location:0.25, id:"myLabel" } ]
 	],
 	...
 });		
