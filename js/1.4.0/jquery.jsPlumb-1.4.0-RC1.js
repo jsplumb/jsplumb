@@ -66,14 +66,18 @@
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			try {
 				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.addClass(el[0], clazz);
-                    return;
+					jsPlumbUtil.svg.addClass(el[0], clazz);                    
 				}
 			}
 			catch (e) {
 				// SVGAnimatedString not supported; no problem.
 			}
-			el.addClass(clazz);
+            try {                
+                el.addClass(clazz);
+            }
+            catch (e) {
+                // you probably have jQuery 1.9 and Firefox.  
+            }
 		},
 		
 		/**
