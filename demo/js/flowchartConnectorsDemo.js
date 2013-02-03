@@ -112,8 +112,8 @@
 			// listen for clicks on connections, and offer to delete connections on click.
 			//
 			jsPlumb.bind("click", function(conn, originalEvent) {
-			//	if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
-				//	jsPlumb.detach(conn); 
+				if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
+					jsPlumb.detach(conn); 
 			});	
 			
 			jsPlumb.bind("connectionDrag", function(connection) {
