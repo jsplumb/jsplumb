@@ -95,7 +95,7 @@
         };
         
         _internalHover = function(state) {
-            if (_jsPlumb.isConnectionBeingDragged()) {
+            if (!_jsPlumb.isConnectionBeingDragged()) {
                 self.setHover(state, false);
             }
         };
