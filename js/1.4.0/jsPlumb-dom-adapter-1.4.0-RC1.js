@@ -60,7 +60,7 @@
 			var _oneLevel = function(p, startOffset) {
                 if (p) {											
                     for (var i = 0; i < p.childNodes.length; i++) {
-                        if (p.childNodes[i].nodeType != 3) {
+                        if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
                             var cEl = jpcl.getElementObject(p.childNodes[i]),
                                 cid = _currentInstance.getId(cEl, null, true);
                             if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
