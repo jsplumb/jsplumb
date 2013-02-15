@@ -48,20 +48,22 @@ body {
 }
 
  #main {
-margin-top:44px;
-margin-left: auto;
-position: relative;
-font-size: 80%;
-margin-right: auto;
-width: 850px;
-border-left: 2px solid #456;
-border-right: 2px solid #456;
-border-bottom: 2px solid #456;
-height: 600px;
-overflow: hidden;
-border-bottom-left-radius: 10px;
-border-bottom-right-radius: 10px;
-background-color:#eaedef;
+    /* these two margins settings are here just to ensure that jsPlumb handles
+    margins properly.*/  
+    margin-top:44px;
+    margin-left: auto;
+    position: relative;
+    font-size: 80%;
+    margin-right: auto;
+    width: 850px;
+    border-left: 2px solid #456;
+    border-right: 2px solid #456;
+    border-bottom: 2px solid #456;
+    height: 600px;
+    overflow: hidden;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-color:#eaedef;
 }
 
 #sidebar {            
@@ -88,7 +90,7 @@ background-color:#eaedef;
 	margin-right:30px;
 }
 
-#render{
+#render {
 	padding-top:2px;
     margin-left:auto;
 	margin-right:auto;
@@ -129,6 +131,9 @@ a:hover {
 }
 
 .window, .label { 
+    background-color:white;
+    text-align:center;
+    z-index:23;
 	cursor:pointer;
 	box-shadow: 2px 2px 19px #aaa;
    -o-box-shadow: 2px 2px 19px #aaa;
