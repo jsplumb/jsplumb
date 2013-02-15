@@ -32,7 +32,7 @@
 			self = this,
             anchorLists = {},
             jsPlumbInstance = params.jsPlumbInstance,
-            jpcl = jsPlumb.CurrentLibrary;
+            jpcl = jsPlumb.CurrentLibrary,
             floatingConnections = {},
             // TODO this functions uses a crude method of determining orientation between two elements.
 	       // 'diagonal' should be chosen when the angle of the line between the two centers is around
@@ -428,12 +428,12 @@
 	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
 	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
 				for (var i = 0; i < ep.length; i++) {				
-					ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
 				}
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (var i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
-                    endpointsToPaint[i].paint( { timestamp : timestamp, offset : cd.o, dimensions : cd.s });
+                    endpointsToPaint[i].paint( { timestamp : timestamp, offset : cd, dimensions : cd.s });
 				}
 	
 				// paint all the standard and "dynamic connections", which are connections whose other anchor is
