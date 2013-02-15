@@ -1,0 +1,41 @@
+#demo7 .window { 
+	border:2px dotted #346789; 	 
+	height:4em; 
+	z-index:20; 
+	position:absolute; 
+	color:white;
+	font-family:helvetica;
+	padding:0.5em; 
+	font-size:0.8em;
+	-moz-border-radius:0.6em; 
+	border-radius:0.6em; 
+}
+.smallWindow { 
+    background-color:#558822; 
+    width:7em;
+}
+#enableDisableSource {
+	position:absolute;
+	color:WhiteSmoke;
+	left:15em;
+    text-decoration:none;
+}
+#enableDisableSource:hover {
+    text-decoration:underline;
+}
+#w7_1 { 
+	background-color:#225588; 
+	top:3em;
+    width:18em;
+	left:17em;	
+	height:6em;
+	text-align:left;
+    line-height:4em;
+}
+#w7_2 { top:29em; left:44em;}
+#w7_3 { top:23em; left:2em; }
+#w7_4 { top:27em; left:26em; }
+#w7_5 {top:34em;left:13em; }
+#w7_6 {top:21em;left:56em; }
+
+#demo7 ._jsPlumb_endpoint { z-index:32; }

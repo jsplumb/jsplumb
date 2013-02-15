@@ -1,0 +1,109 @@
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+    src:local('Open Sans'), 
+        local('OpenSans'),
+        url("../font/OpenSans-Regular.ttf") format('truetype'),
+        url("../font/OpenSans.woff") format('woff'); 		
+}
+body {
+    padding:0;
+    margin:0;
+    background-color:white;    
+    font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-align:center;	
+}
+#header {
+    font-size:80px;
+    background-color:#2d91de;
+    color:white;
+}
+.section {
+    height:500px;
+}
+.odd {
+    background-color:WhiteSmoke;
+}
+.demo {
+    width:70%;
+    float:left;
+    height:500px;
+    position:relative;
+    overflow:hidden;;
+}
+.explanation {
+    margin-left:71%;    
+    background-color:#2d91de;
+    border:1px solid transparent;
+    color:white;
+    /*height:440px;*/
+    height:500px;
+    font-size:12px;
+    padding-left:5px;
+    padding-right:20px;
+}
+
+/*
+
+.odd .explanation {
+    border-top:30px solid WhiteSmoke;
+    border-bottom:30px solid WhiteSmoke;    
+}
+
+.even .explanation {
+    border-top:30px solid white;
+    border-bottom:30px solid white;
+}
+*/
+
+
+path, ._jsPlumb_endpoint { cursor:pointer; }
+
+/* z index stuff */
+
+._jsPlumb_connector { z-index:18; }
+._jsPlumb_endpoint { z-index:19; }
+._jsPlumb_overlay { z-index:23; }
+
+._jsPlumb_connector._jsPlumb_hover {
+    z-index:21 !important;
+}
+
+._jsPlumb_endpoint._jsPlumb_hover {
+    z-index:22 !important;
+}
+            
+/* -------- elements ------- */            
+            
+.window {
+    border:1px solid gray;
+    position:absolute;
+    background-color:white;
+    width:70px;
+    height:70px;
+    line-height:70px;
+    border-radius:10px;
+    text-align:center;
+    z-index:23;
+    cursor:pointer;
+    box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;                
+}
+
+.label {
+    border:1px solid gray;
+   padding:3px;
+    background-color:white;
+   font-size:11px;
+    border-radius:5px;
+    text-align:center;
+    z-index:23;
+    cursor:pointer;
+    box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;                
+}

@@ -1,0 +1,28 @@
+#w3_1 { top:50px;left:15%; }
+#w3_2 { top:50px; right:10%; }
+#w3_3 { top:330px; left:15%; }
+#w3_4 { top:330px; right:10%}
+
+#list {
+    text-align:center;
+    display:none;
+    font-size:90%;
+    position:absolute;
+    width:250px;
+    left:30%;
+    top:100px;
+    border-radius:5px;
+    background-color:white;
+    padding:5px;
+    border:1px solid #456;
+    opacity:0.8;
+}
+#list table { width:100%; text-align:left;}
+
+#demo3 .window {
+    font-size:10px;
+    line-height:inherit;
+    padding:10px;
+    height:90px;
+    width:90px;
+}
