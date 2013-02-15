@@ -711,6 +711,10 @@
 			_initialDefaults = {},
             _zoom = 1;
             
+        this.getInstanceIndex = function() {
+            return _instanceIndex;
+        };
+            
         this.setZoom = function(z, repaintEverything) {
             _zoom = z;
             if (repaintEverything) _currentInstance.repaintEverything();
@@ -3114,7 +3118,7 @@ between this method and jsPlumb.reset).
 		*/
 		this.repaint = function(el, ui, timestamp) {
 			// support both lists...
-			if (typeof el == 'object')
+			if (typeof el == 'object' && el.length)
 				for ( var i = 0; i < el.length; i++) {			
 					_draw(_gel(el[i]), ui, timestamp);
 				}
