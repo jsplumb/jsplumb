@@ -8,8 +8,17 @@
 	</head>
 	<body data-demo-id="draggableConnectorsDemo" data-library="yui3">
 
-		<div id="header"></div>
-        <div id="sidebar">
+		<div id="headerWrapper"><div id="header"></div></div>
+		
+        <div id="main">
+			<div id="render"></div>
+			<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window1">detach all</a></div>
+			<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window2">detach all</a></div>
+			<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a></div>
+			<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>			
+			<div id="list"></div>
+		</div>
+		<div id="sidebar">
             <div id="explanation">                
 				<p>Drag from any Endpoint to similar Endpoints
 				on other elements to create Connections.</p>
@@ -19,37 +28,37 @@
 				<p>Yellow endpoints are configured to use a <strong>beforeDetach</strong> interceptor, which provides a way to programmatically override a connection detach. Yellow connections are painted with the Straight connector</p>			
 				<p>Green endpoints support up to three Connections. Once a green endpoint has three connections, when you drag from it you will drag the oldest connection made on the endpoint.</p>
 				<a id="clear" href="#">clear plumbing</a>	   
-				<p>This demo uses jsPlumb 1.4.0 and YUI 3.3.0</p>
+				<p>This demo uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
             </div>			
-        </div>
-        <div id="main">
-			<div id="render"></div>
-			<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window1">detach all</a></div>
-			<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window2">detach all</a></div>
-			<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a></div>
-			<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>			
-			<div id="list"></div>
-		</div>	   
+        </div>	   
 	    	
 		<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
 	    
 	    <!-- JS -->
 		<!-- support lib for bezier stuff -->
-		<script type="text/javascript" src="../../js/lib/jsBezier-0.5-min.js"></script>
+		<script src="../../js/lib/jsBezier-0.5.js"></script>
 		<!-- jsplumb util -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
 		<!-- base DOM adapter -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>
 		<!-- main jsplumb engine -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+        <!-- anchors -->
+		<script src="../../js/1.4.0/jsPlumb-anchors-1.4.0-RC1.js"></script>                
+        <!-- endpoint -->
+		<script src="../../js/1.4.0/jsPlumb-endpoint-1.4.0-RC1.js"></script>  
+        <!-- connection -->
+		<script src="../../js/1.4.0/jsPlumb-connection-1.4.0-RC1.js"></script>
 		<!-- connectors, endpoint and overlays  -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
+        <!-- flowchart connectors -->
+		<script src="../../js/1.4.0/jsPlumb-connectors-flowchart-1.4.0-RC1.js"></script>        
 		<!-- SVG renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
 		<!-- canvas renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
 		<!-- vml renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
 		<!-- yui jsPlumb adapter -->
 		<script type="text/javascript" src="../../js/1.4.0/yui.jsPlumb-1.4.0-RC1.js"></script>
 		<!-- /JS -->

@@ -7,23 +7,23 @@
 		<link rel="stylesheet" href="../css/flowchartDemo.css">
 	</head>
 	<body data-demo-id="flowchartConnectorsDemo" data-library="mootools">
-	
-		<div id="header"></div>
-        <div id="sidebar">			
-            <div id="explanation">
-                <p>This is a demonstration of Flowchart connectors</p>
-				<p>Hover over connections to highlight them, click to delete. </p>
-				<p>Drag new connections from blue dots to green dots. You can also drag connections from green dots onto other green dots or back onto themselves.</p>            
-				<p>This demonstration uses jsPlumb 1.4.0, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
-            </div>			
-        </div>
+		
+		<div id="headerWrapper"><div id="header"></div></div>		
         <div id="main">
 			<div id="render"></div>
 			<div class="window" id="window1"><strong>1</strong><br/><br/></div>
 			<div class="window" id="window2"><strong>2</strong><br/><br/></div>
 		    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
 		    <div class="window" id="window4"><strong>4</strong><br/><br/></div>		
-	    </div>   
+	    </div>
+		<div id="sidebar">			
+            <div id="explanation">
+                <p>This is a demonstration of Flowchart connectors</p>
+				<p>Hover over connections to highlight them, click to delete. </p>
+				<p>Drag new connections from blue dots to green dots. You can also drag connections from green dots onto other green dots or back onto themselves.</p>            
+				<p>This demonstration uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
+            </div>			
+        </div>  
 
 	    <!-- DEP -->
 	    <script type="text/javascript" src="../../js/lib/mootools-1.3.2-yui-compressed.js"></script>
@@ -32,21 +32,33 @@
 		
 		<!-- JS -->
 		<!-- support lib for bezier stuff -->
-		<script type="text/javascript" src="../../js/lib/jsBezier-0.5-min.js"></script>
+		<script src="../../js/lib/jsBezier-0.5.js"></script>
 		<!-- jsplumb util -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
-		<!-- base DOM adapter -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
+        <!-- base DOM adapter -->
+		<script src="../../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>
 		<!-- main jsplumb engine -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+        <!-- anchors -->
+		<script src="../../js/1.4.0/jsPlumb-anchors-1.4.0-RC1.js"></script>   
+        <!-- endpoint -->
+		<script src="../../js/1.4.0/jsPlumb-endpoint-1.4.0-RC1.js"></script>      
+        <!-- connection -->
+		<script src="../../js/1.4.0/jsPlumb-connection-1.4.0-RC1.js"></script>
+		<!-- connector editors  -->
+		<script src="../../js/1.4.0/jsPlumb-connector-editors-1.4.0-RC1.js"></script>        
 		<!-- connectors, endpoint and overlays  -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
+		<!-- state machine connectors -->
+		<script src="../../js/1.4.0/jsPlumb-connectors-statemachine-1.4.0-RC1.js"></script>
+		<!-- flowchart connectors -->
+		<script src="../../js/1.4.0/jsPlumb-connectors-flowchart-1.4.0-RC1.js"></script>        
 		<!-- SVG renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
 		<!-- canvas renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
 		<!-- vml renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
 		<!-- mootools jsPlumb adapter -->
 		<script type="text/javascript" src="../../js/1.4.0/mootools.jsPlumb-1.4.0-RC1.js"></script>
 		<!-- /JS -->

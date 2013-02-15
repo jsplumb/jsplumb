@@ -7,19 +7,7 @@
 	</head>
 	<body data-demo-id="stateMachineDemo" data-library="yui3">
 		
-		<div id="header"></div>
-        <div id="sidebar">
-			<div id="explanation">
-				<p>This is a demonstration of the StateMachine connector type, and of 'Continuous' anchors, which are anchors whose location is calculated based
-				on the location of all other connected elements, and which guarantee a unique endpoint per connection.
-				</p>								
-				<p>Click and drag new Connections from the red div in each element; the main elements in the UI are configured to be Connection targets. You can
-				drag from one of these divs onto its parent element to create a 'loopback' connection. Each element supports up to 5 Connections.</p>
-				<p>Click on a Connection to delete it.</p>				
-	
-				<p>This demonstration uses jsPlumb 1.4.0 and YUI 3.3.0.</p>
-			</div>	    			
-		</div>
+		<div id="headerWrapper"><div id="header"></div></div>        
         <div id="main">
 			<div id="render"></div>
 			<div class="w" id="opened">begin<div class="ep"></div></div>
@@ -28,29 +16,49 @@
 			<div class="w" id="inperson">in person<div class="ep"></div></div>
 			<div class="w" id="rejected">rejected<div class="ep"></div></div>			
 		</div>
+		<div id="sidebar">
+			<div id="explanation">
+				<p>This is a demonstration of the StateMachine connector type, and of 'Continuous' anchors, which are anchors whose location is calculated based
+				on the location of all other connected elements, and which guarantee a unique endpoint per connection.
+				</p>								
+				<p>Click and drag new Connections from the red div in each element; the main elements in the UI are configured to be Connection targets. You can
+				drag from one of these divs onto its parent element to create a 'loopback' connection. Each element supports up to 5 Connections.</p>
+				<p>Click on a Connection to delete it.</p>				
+	
+				<p>This demonstration uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
+			</div>	    			
+		</div>
 
 		<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
 
-		<!-- JS -->
+	    <!-- JS -->		
 		<!-- support lib for bezier stuff -->
-		<script type="text/javascript" src="../../js/lib/jsBezier-0.5-min.js"></script>
+		<script src="../../js/lib/jsBezier-0.5.js"></script>
 		<!-- jsplumb util -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
 		<!-- base DOM adapter -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>
 		<!-- main jsplumb engine -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+        <!-- anchors -->
+		<script src="../../js/1.4.0/jsPlumb-anchors-1.4.0-RC1.js"></script> 
+        <!-- endpoint -->
+		<script src="../../js/1.4.0/jsPlumb-endpoint-1.4.0-RC1.js"></script>  
+        <!-- connection -->
+		<script src="../../js/1.4.0/jsPlumb-connection-1.4.0-RC1.js"></script>
 		<!-- connectors, endpoint and overlays  -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
 		<!-- state machine connectors -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-connectors-statemachine-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-connectors-statemachine-1.4.0-RC1.js"></script>
+        <!-- flowchart connectors -->
+		<script src="../../js/1.4.0/jsPlumb-connectors-flowchart-1.4.0-RC1.js"></script>        
 		<!-- SVG renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
 		<!-- canvas renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
+		<script src="../../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
 		<!-- vml renderer -->
-		<script type="text/javascript" src="../../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
-		<!-- YUI jsPlumb adapter -->
+		<script src="../../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
+		<!-- yui jsPlumb adapter -->
 		<script type="text/javascript" src="../../js/1.4.0/yui.jsPlumb-1.4.0-RC1.js"></script>
 		<!-- /JS -->
 
