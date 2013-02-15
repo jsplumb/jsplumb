@@ -8,12 +8,11 @@
                     stopped = false;
                     return true;
                 }
-                var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments, _jsPlumb.getZoom()),
-                    el = placeholder.element;
+                var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments, _jsPlumb.getZoom());
         
-                if (el) {
-                    jsPlumb.CurrentLibrary.setOffset(el, _ui);
-                    _jsPlumb.repaint(jsPlumb.CurrentLibrary.getElementObject(el), _ui);
+                if (placeholder.element) {
+                    jsPlumb.CurrentLibrary.setOffset(placeholder.element, _ui);                    
+                    _jsPlumb.repaint(placeholder.element, _ui);
                 }
             },
             stopDrag : function() {
@@ -571,7 +570,8 @@
                 // does the same stuff.
                 var ipcoel = _gel(inPlaceCopy.canvas),
                     ipco = _getOffset(ipcoel, _jsPlumb),
-                    po = _jsPlumb.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas);
+                    po = _jsPlumb.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas),
+                    canvasElement = _gel(self.canvas);                               
                     
                 jpcl.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});															
                 
@@ -579,10 +579,10 @@
                 // move it to the parent.  note that this happens after drawing the placeholder for the
                 // first time.
                 if (self.parentAnchor) self.anchor = _jsPlumb.makeAnchor(self.parentAnchor, self.elementId, _jsPlumb);
-
+                
                 // store the id of the dragging div and the source element. the drop function will pick these up.					
-                jpcl.setAttribute(_gel(self.canvas), "dragId", placeholderInfo.id);
-                jpcl.setAttribute(_gel(self.canvas), "elId", _elementId);
+                jpcl.setAttribute(canvasElement, "dragId", placeholderInfo.id);
+                jpcl.setAttribute(canvasElement, "elId", _elementId);
 
                 // create a floating endpoint.
                 // here we test to see if a dragProxy was specified in this endpoint's constructor params, and
@@ -612,11 +612,11 @@
                 if (jpc == null) {                                                                                                                                                         
                     self.anchor.locked = true;
                     self.setHover(false, false);                        
-                    // create a connection. one end is this endpoint, the other is a floating endpoint.
+                    // create a connection. one end is this endpoint, the other is a floating endpoint.                    
                     jpc = _newConnection({
                         sourceEndpoint : self,
                         targetEndpoint : floatingEndpoint,
-                        source : self.endpointWillMoveTo || _gel(_element),  // for makeSource with parent option.  ensure source element is represented correctly.
+                        source : self.endpointWillMoveTo || _element,  // for makeSource with parent option.  ensure source element is represented correctly.
                         target : placeholderInfo.element,
                         anchors : [ self.anchor, floatingEndpoint.anchor ],
                         paintStyle : params.connectorStyle, // this can be null. Connection will use the default.
@@ -634,20 +634,19 @@
                     existingJpc = true;
                     jpc.setHover(false);						
                     // if existing connection, allow to be dropped back on the source endpoint (issue 51).
-                    _initDropTarget(_gel(inPlaceCopy.canvas), false, true);
+                    _initDropTarget(ipcoel, false, true);
                     // new anchor idx
                     var anchorIdx = jpc.endpoints[0].id == self.id ? 0 : 1;
                     jpc.floatingAnchorIndex = anchorIdx;					// save our anchor index as the connection's floating index.						
                     self.detachFromConnection(jpc);							// detach from the connection while dragging is occurring.
                     
                     // store the original scope (issue 57)
-                    var c = _gel(self.canvas),
-                        dragScope = jsPlumb.CurrentLibrary.getDragScope(c);
-                    jpcl.setAttribute(c, "originalScope", dragScope);
+                    var dragScope = jsPlumb.CurrentLibrary.getDragScope(canvasElement);
+                    jpcl.setAttribute(canvasElement, "originalScope", dragScope);
                     // now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
                     // that have our drop scope (issue 57).
-                    var dropScope = jpcl.getDropScope(c);
-                    jpcl.setDragScope(c, dropScope);
+                    var dropScope = jpcl.getDropScope(canvasElement);
+                    jpcl.setDragScope(canvasElement, dropScope);
             
                     // now we replace ourselves with the temporary div we created above:
                     if (anchorIdx == 0) {
