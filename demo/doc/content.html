@@ -128,7 +128,7 @@
 				<li class="bullet">jsPlumb.SVG</li>
 				<li class="bullet">jsPlumb.VML</li>
 			</ul>			
-			<h5>Performance Considerations</h5>
+			<h4><a id="performance">Performance Considerations</a></h4>
 			<p>
 			SVG uses less memory than Canvas and has support for mouse events built in, so I recommend using
 			SVG unless you have a really good reason for wanting Canvas.
@@ -229,29 +229,12 @@ secondInstance.connect({ source:"element4", target:"element3", scope:"someScope"
 			<tr><td>Connector</td><td>_jsPlumb_connector</td></tr>
 			<tr><td>Overlay</td><td>_jsPlumb_overlay</td></tr>
 		</table>
+            <p>
+                            
             In addition, whenever the mouse is hovering over an Endpoint or Connection, that component is
             assigned the class <strong>_jsPlumb_hover</strong>.
-		
-		<h5>Automatic z-index for Connections</h5>
-		A common use case is the need to bring hovered Connections up on top of the other connections in your UI. From
-		1.4.0 onwards, jsPlumb offers a way to do this:
-		<div class="code">
-<pre>
-  jsPlumb.importDefaults({
-    ...
-    ConnectorZIndex:5
-	...
-  });
-</pre>			
-		</div>
-		This tells jsPlumb to set the z-index of all Connections to be 5, and the z-index of any hovered Connections will
-		be, in this case, 6.  You could argue that jsPlumb could figure out the z-index automatically, but z-index selection
-		is typically a conscious decision in a webapp, and this approach formalises things a little better than trying
-		to infer what the value is supposed to be.
-		<p>To achieve this, there is actually a <strong>setZIndex</strong> method on Connections now, which is perfectly fine
-		to call, but remember that if you change the z-index of some Connection, hover over it, and then mouse exit, resetting
-		the hover state will mean that jsPlumb resets the z-index to the default value discussed above.</p>
-
+                </p>
+				
 		<h4><a id="containerDefault">Where does jsPlumb add elements?</a></h4>
 		<p>
 			It's important to understand where in the DOM jsPlumb will add any elements it creates,
@@ -335,7 +318,7 @@ register the Endpoints on the 'container' divs (and then quite possibly throw aw
 	use the "Blank" endpoint when you don't want to see one, or instruct jsPlumb to attach everything to the document body (see below). 
 	</p>
 	
-	<h5>Overriding the default behaviour</h5>
+	<h4><a id="overrideContainer">Overriding the default behaviour</a></h4>
 	<p>
 From version 1.3.3, the <strong>container</strong> concept was reintroduced into jsPlumb, because there are use cases in which the default behaviour makes it difficult or impossible to build the UI you want. You can instruct jsPlumb to use some element as the parent of everything jsPlumb adds to the UI through usage of the <strong>jsPlumb.Defaults.Container</strong> property, or you can set a <strong>container</strong> parameter on calls to <strong>addEndpoint</strong> or <strong>connect</strong> (if this is set and a default is also set, this default value is actually used.  This may seem counter-intuitive, and could of course be changed if there is feedback from the community that this would be a good idea). Some examples:
 	</p>
@@ -387,7 +370,7 @@ This method is just a wrapper for the underlying library's draggable functionali
 	containment:"parent"
 });</pre>
 </div>
-		<h5>Dragging nested elements</h5>
+		<h4><a id="draggingNested">Dragging nested elements</a></h4>
 jsPlumb takes nesting into account when handling draggable elements. For example, say you have this markup:
 <div class="code">
 <pre>
@@ -410,11 +393,14 @@ jsPlumb.draggable("container");
 </div>
 Now when you drag "container", jsPlumb will have noticed that there are nested elements that have connections, and they will be updated.  Note that the order of operations is not important here: if "container" was already draggable when you connected one of its children to something, you would get the same result.
 
-		<h5>Nested Element offsets</h5>
+		<h4><a id="nestedElementOffsets">Nested Element offsets</a></h4>
 		For performance reasons, jsPlumb caches the offset of each nested element relative to its draggable ancestor. If you
 		make changes to the draggable ancestor that will have resulted in the offset of one or more nested elements changing,
-		you need to tell jsPlumb about it, using the <strong>recalculateOffsets</strong> function. Consider the example from
+		you need to tell jsPlumb about it, using the <strong>recalculateOffsets</strong> function. 
+            <p>
+            Consider the example from
 		before, but with a change to the markup after initializing everything:
+            </p>
 <div class="code">
 <pre>
 &lt;div id="container"&gt;
@@ -451,14 +437,14 @@ jsPlumb.recalculateOffsets("container");   // tell jsPlumb that the internal dim
 			broken down into these four concepts:
 
 			<ul>
-				<li><strong>Anchor</strong> - a location, relative to an element's origin, at which an Endpoint can exist. You do not create these yourself; you 
+				<li class="bullet"><strong>Anchor</strong> - a location, relative to an element's origin, at which an Endpoint can exist. You do not create these yourself; you 
 				supply hints to the various jsPlumb functions, which create them as needed.  They have no visual representation; they are a logical position only. Anchors can be referenced by name, for the Anchors that jsPlumb ships with, or a four element array describing [ x, y, x orientation, y orientation ]. 
 				See the <a href="#anchors">anchors</a> section for more detail.<br/><br/></li>
-				<li><strong>Endpoint</strong> - the visual representation of one end of a Connection.  You can create and attach these to elements yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection programmatically using jsPlumb.connect(...).  You can also join two Endpoints programmatically, by passing them as arguments to jsPlumb.connect(...).<br/><br/></li>				
-				<li><strong>Connector</strong> - the visual representation of the line connecting two elements in the page.  jsPlumb has four types of these 
+				<li class="bullet"><strong>Endpoint</strong> - the visual representation of one end of a Connection.  You can create and attach these to elements yourself, which you are required to do to support drag and drop, or have jsPlumb create them when creating a Connection programmatically using jsPlumb.connect(...).  You can also join two Endpoints programmatically, by passing them as arguments to jsPlumb.connect(...).<br/><br/></li>				
+				<li class="bullet"><strong>Connector</strong> - the visual representation of the line connecting two elements in the page.  jsPlumb has four types of these 
 				available as defaults - a Bezier curve, a straight line, 'flowchart' connectors and 'state machine' connectors. You do not interact with Connectors; 
 				you just specify definitions of them when you need to - see <a href="#definitions">Connector, Endpoint &amp; Overlay Definitions</a> <br/><br/></li>
-				<li><strong>Overlay</strong> - a UI component that is used to decorate a Connector, such as a Label, Arrow, etc.<br/><br/></li>
+				<li class="bullet"><strong>Overlay</strong> - a UI component that is used to decorate a Connector, such as a Label, Arrow, etc.<br/><br/></li>
 			</ul>
 						
 			<p>One Connection is made up of two Endpoints, a Connector, and zero or more Overlays working together to join two elements.</p>
@@ -488,13 +474,13 @@ jsPlumb.recalculateOffsets("container");   // tell jsPlumb that the internal dim
 			jsPlumb has nine default anchor locations you can use to specify where the Connectors connect to elements: these are the four corners of an element,
 			the center of the element, and the midpoint of each edge of the element:  
 			<ul>
-				<li class="bullet">TopCenter</li>
+				<li class="bullet">TopCenter (also aliased as Top)</li>
 				<li class="bullet">TopRight</li>
-				<li class="bullet">RightMiddle</li>
+				<li class="bullet">RightMiddle (also aliased as Right)</li>
 				<li class="bullet">BottomRight</li>
-				<li class="bullet">BottomCenter</li>
+				<li class="bullet">BottomCenter (also aliased as Bottom)</li>
 				<li class="bullet">BottomLeft</li>
-				<li class="bullet">LeftMiddle</li>
+				<li class="bullet">LeftMiddle (also aliased as Left)</li>
 				<li class="bullet">TopLeft</li>
 			</ul>
 			
@@ -679,6 +665,26 @@ jsPlumb.makeTarget(someDiv, {
 jsPlumb.Defaults.Anchor = "Continuous";
 </pre>
 </div>  
+                
+<h5>Continuous Anchor Faces</h5>
+By default, a Continuous anchor will choose points from all four faces of the element on
+which it resides.  You can control this behaviour, though, with the <strong>faces</strong>
+parameter on the anchor spec:
+<div class="code">
+<pre>
+jsPlumb.makeSource(someDiv, {
+    anchor:["Continuous", { faces:["top", "left"] } ]
+});
+</pre>
+</div>
+Allowed values are:
+    <ul>
+        <li class="bullet">top</li>
+        <li class="bullet">left</li>
+        <li class="bullet">right</li>
+        <li class="bullet">bottom</li>
+    </ul>
+If you provide an empty array for the 'faces' parameter, jsPlumb will default to using all four faces.        
 					</div>		
 												
 <div class="section">
@@ -835,13 +841,13 @@ The allowed constructor parameters are different for each artifact you create, b
 			jsPlumb comes with five types of Overlays:
 			</p>
 			<ul>
-				<li><strong>Arrow</strong> - a configurable arrow that is painted at some point along the connector.  You can control the length and width of the Arrow, the 'foldback' point - a point the tail points fold back into, and the direction (allowed values are 1 and -1; 1 is the default and means point in the direction of the connection)</li>
-				<li><strong>Label</strong> - a configurable label that is painted at some point along the connector.</li>
-				<li><strong>PlainArrow</strong> - an Arrow shaped as a triangle, with no foldback.</li>
-				<li><strong>Diamond</strong> - as the name suggests, a diamond.</li>
-				<li><strong>Custom</strong> - allows you to create the Overlay yourself - your Overlay may be any DOM element you like.</li>
+				<li class="bullet"><strong>Arrow</strong> - a configurable arrow that is painted at some point along the connector.  You can control the length and width of the Arrow, the 'foldback' point - a point the tail points fold back into, and the direction (allowed values are 1 and -1; 1 is the default and means point in the direction of the connection)</li>
+				<li class="bullet"><strong>Label</strong> - a configurable label that is painted at some point along the connector.</li>
+				<li class="bullet"><strong>PlainArrow</strong> - an Arrow shaped as a triangle, with no foldback.</li>
+				<li class="bullet"><strong>Diamond</strong> - as the name suggests, a diamond.</li>
+				<li class="bullet"><strong>Custom</strong> - allows you to create the Overlay yourself - your Overlay may be any DOM element you like.</li>
 			</ul> 
-			PlainArrow and Diamon are actually just configured instances of the generic Arrow overlay (see examples). 
+			PlainArrow and Diamond are actually just configured instances of the generic Arrow overlay (see examples). 
 			
 			<p>All Overlays support these two methods for getting/setting their location (location is either a number between 0 and 1 inclusive, indicating some point along the path inscribed by the associated Connector, or an absolute number of pixels, where negative values mean distance from the target of the connection):</p>
 			<ul>
