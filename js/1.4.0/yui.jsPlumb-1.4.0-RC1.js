@@ -58,7 +58,7 @@
 	
 	var Y;
 	
-	YUI().use('node', 'dd', 'anim', 'node-event-simulate', function(_Y) {
+	YUI().use('node', 'dd', 'dd-constrain', 'anim', 'node-event-simulate', function(_Y) {
 		Y = _Y;	
 		Y.on("domready", function() { jsPlumb.init(); });
 	});
@@ -289,8 +289,15 @@
 			var _opts = _getDDOptions(options),
 				id = jsPlumb.getId(el);
 			_opts.node = "#" + id;		
-			var dd = new Y.DD.Drag(_opts);
+			var dd = new Y.DD.Drag(_opts), 
+                containment = options.constrain2node || options.containment;
 			dd.el = el;	
+            
+            if (containment) {
+                dd.plug(Y.Plugin.DDConstrained, {
+                    constrain2node: containment
+                });
+            }
 			
 			if (isPlumbedComponent) {
 				var scope = options['scope'] || jsPlumb.Defaults.Scope;
