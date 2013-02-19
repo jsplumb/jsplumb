@@ -132,10 +132,11 @@
             // binds mouse listeners to the current connector.
             self.bindListeners(self.connector, self, _internalHover);
             
-            if (editable && jsPlumb.ConnectorEditors[self.connector.type] && self.connector.isEditable()) {
+            if (editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[self.connector.type] && self.connector.isEditable()) {
                 new jsPlumb.ConnectorEditors[self.connector.type]({
                     connector:self.connector,
-                    connection: self
+                    connection:self,
+                    params:params.editorParams || { }
                 });
             }
             else {                    
