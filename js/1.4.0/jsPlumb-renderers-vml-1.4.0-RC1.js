@@ -202,9 +202,10 @@
 		self.canvas = null;
 		var _super = VmlComponent.apply(this, arguments);
 		var clazz = self._jsPlumb.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
-		this.paint = function(d, style, anchor) {		
+		this.paint = function(style) {		
 			if (style !== null) {				
-				var segments = self.getSegments(), p = { "path":"" };
+				var segments = self.getSegments(), p = { "path":"" },
+                    d = [self.x,self.y,self.w,self.h];
 				
 				// create path from segments.	
 				for (var i = 0; i < segments.length; i++) {
@@ -288,13 +289,13 @@
 
         if (self.tooltip) self.canvas.setAttribute("label", self.tooltip);
 		
-		this.paint = function(d, style, anchor) {
+		this.paint = function(style, anchor) {
 			var p = { };					
 			
-			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);
+			jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);
 			if (vml == null) {
 				p["class"] = clazz;
-				vml = self.getVml([0,0, d[2], d[3]], p, anchor, self.canvas, self._jsPlumb);				
+				vml = self.getVml([0,0, self.w, self.h], p, anchor, self.canvas, self._jsPlumb);				
 				self.attachListeners(vml, self);
 
 				self.appendDisplayElement(vml, true);
@@ -303,7 +304,7 @@
 				self.initOpacityNodes(vml, ["fill"]);			
 			}
 			else {				
-				_pos(vml, [0,0, d[2], d[3]]);
+				_pos(vml, [0,0, self.w, self.h]);
 				_atts(vml, p);
 			}
 			
@@ -393,14 +394,14 @@
     	var self = this, path = null;
     	self.canvas = null; 
     	self.isAppendedAtTopLevel = true;
-    	var getPath = function(d, connectorDimensions) {    		
+    	var getPath = function(d) {    		
     		return "m " + _conv(d.hxy.x) + "," + _conv(d.hxy.y) +
     		       " l " + _conv(d.tail[0].x) + "," + _conv(d.tail[0].y) + 
     		       " " + _conv(d.cxy.x) + "," + _conv(d.cxy.y) + 
     		       " " + _conv(d.tail[1].x) + "," + _conv(d.tail[1].y) + 
     		       " x e";
     	};
-    	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle, connectorDimensions) {
+    	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     		var p = {};
 			if (strokeStyle) {
 				p["stroked"] = "true";
@@ -423,13 +424,13 @@
 			// coordsize as their connector - overlays calculate themselves relative to the
 			// connector (it's how it's been done since the original canvas implementation, because
 			// for canvas that makes sense).
-			p["path"] = getPath(d, connectorDimensions);
-			p["coordsize"] = (connectorDimensions[2] * scale) + "," + (connectorDimensions[3] * scale);
+			p["path"] = getPath(d);
+			p["coordsize"] = (connector.w * scale) + "," + (connector.h * scale);
 			
-			dim[0] = connectorDimensions[0];
-			dim[1] = connectorDimensions[1];
-			dim[2] = connectorDimensions[2];
-			dim[3] = connectorDimensions[3];
+			dim[0] = connector.x;
+			dim[1] = connector.y;
+			dim[2] = connector.w;
+			dim[3] = connector.h;
 			
     		if (self.canvas == null) {
     			var overlayClass = connector._jsPlumb.overlayClass || "";
