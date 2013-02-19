@@ -97,6 +97,7 @@
                 currentSegments = null,
                 selectedSegment = null,
                 segmentCoords = null,
+                anchorsMoveable = params.params.anchorsMoveable,
                 sgn = function(p1, p2) {
                     if (p1[0] == p2[0])
                         return p1[1] < p2[1]  ? 1 : -1;
@@ -123,7 +124,7 @@
                     currentSegments = s;                   
                 },
                 // attempt to shift anchor
-                _shiftAnchor = function(endpoint, horizontal, value) {
+                _shiftAnchor = function(endpoint, horizontal, value) {                    
                     var elementSize = jpcl.getSize(endpoint.element),
                         sizeValue = elementSize[horizontal ? 1 : 0],
                         off = jpcl.getOffset(endpoint.element), 
@@ -133,16 +134,25 @@
                         ap = endpoint.anchor.getCurrentLocation(),
                         desiredLoc = horizontal ? params.connector.y + value : params.connector.x + value;
                     
-                    if (offValue < desiredLoc && desiredLoc < offValue + sizeValue) {
-                        var udl = [ ap[0], ap[1] ];
-                        ap[horizontal ? 1 : 0] = desiredLoc;
-                        endpoint.anchor.setUserDefinedLocation(ap);
-                        return value;
+                    if (anchorsMoveable) {                        
+                        
+                        if (offValue < desiredLoc && desiredLoc < offValue + sizeValue) {
+                            // if still on the element, okay to move.
+                            var udl = [ ap[0], ap[1] ];
+                            ap[horizontal ? 1 : 0] = desiredLoc;
+                            endpoint.anchor.setUserDefinedLocation(ap);
+                            return value;
+                        }
+                        else {                        
+                            // otherwise, clamp to element edge
+                            var edgeVal = desiredLoc < offValue ? offValue : offValue + sizeValue;
+                            return edgeVal - (horizontal ? params.connector.y: params.connector.x);                         
+                        }                    
                     }
-                    else {                        
-                        var edgeVal = desiredLoc < offValue ? offValue : offValue + sizeValue;
-                        return edgeVal - (horizontal ? params.connector.y: params.connector.x);                         
-                    }                    
+                    else {
+                        // otherwise, return the current anchor point.
+                        return ap[horizontal ? 1 : 0] - params.connector[horizontal ? "y" : "x"];
+                    }
                 },
                 _updateSegmentOrientation = function(seg) {
                     if (seg[0] != seg[2]) seg[5] = (seg[0] < seg[2]) ? 1 : -1;
@@ -173,15 +183,16 @@
                         // what an agreeable value is, and we use that.
                         
                         if (selectedSegment.i == 0) {
+                                                        
                             var anchorLoc = _shiftAnchor(params.connection.endpoints[0], horizontal, horizontal ? newY1 : newX1);                            
                             if (horizontal) 
                                 newY1 = newY2 = anchorLoc; 
                             else
                                 newX1 = newX2 = anchorLoc;
-                            
+                        
                             currentSegments[1][0] = newX2;
                             currentSegments[1][1] = newY2;
-                            _updateSegmentOrientation(currentSegments[1]);                            
+                            _updateSegmentOrientation(currentSegments[1]);                                                                                            
                         }
                         else if (selectedSegment.i == currentSegments.length - 1) {
                             var anchorLoc = _shiftAnchor(params.connection.endpoints[1], horizontal, horizontal ? newY1 : newX1);                          
