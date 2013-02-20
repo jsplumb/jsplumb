@@ -580,7 +580,8 @@
             self.x = out[0];
             self.y = out[1];
             self.w = out[2];
-            self.h = out[3];            
+            self.h = out[3];   
+            self.segment = paintInfo.segment;         
             _updateSegmentProportions();            
 		};
 		
