@@ -607,6 +607,8 @@
                 //}
             //	else {
                     floatingEndpoint = _makeFloatingEndpoint(self.getPaintStyle(), self.anchor, _endpoint, self.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint);
+
+                    self.canvas.style.visibility = "hidden";
             //	}
                 
                 if (jpc == null) {                                                                                                                                                         
@@ -741,6 +743,7 @@
                     
                     // remove floating endpoint _after_ checking beforeDetach 
                     _ju.removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
+                    self.canvas.style.visibility = "visible";
                     
                     self.anchor.locked = false;												
                     self.paint({recalc:false});
