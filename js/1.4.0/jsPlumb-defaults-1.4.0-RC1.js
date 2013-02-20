@@ -384,6 +384,8 @@
             sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
             targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
             gap = params.gap || 0,
+            sourceGap = jsPlumbUtil.isArray(gap) ? gap[0] : gap,
+            targetGap = jsPlumbUtil.isArray(gap) ? gap[1] : gap,
             userProvidedSegments = null,
             edited = false,
             paintInfo = null;
@@ -411,7 +413,6 @@
             var out = { d:Infinity, s:null, x:null, y:null, l:null };
             for (var i = 0; i < segments.length; i++) {
                 var _s = segments[i].findClosestPointOnPath(x, y);
-                //console.log("closest point for segment", _s, segments[i].type);
                 if (_s.d < out.d) {
                     out.d = _s.d; 
                     out.l = _s.l; 
@@ -514,10 +515,10 @@
             
             x -= sourceOffx; y -= sourceOffy;
             
-            var sx = swapX ? (w - targetOffx) +(gap * so[0])  : sourceOffx + (gap * so[0]), 
-                sy = swapY ? (h - targetOffy) + (gap * so[1])  : sourceOffy + (gap * so[1]), 
-                tx = swapX ? sourceOffx + (gap * to[0]) : (w - targetOffx) + (gap * to[0]),
-                ty = swapY ? sourceOffy + (gap * to[1]) : (h - targetOffy) + (gap * to[1]),
+            var sx = swapX ? (w - targetOffx) +(sourceGap * so[0])  : sourceOffx + (sourceGap * so[0]), 
+                sy = swapY ? (h - targetOffy) + (sourceGap * so[1])  : sourceOffy + (sourceGap * so[1]), 
+                tx = swapX ? sourceOffx + (targetGap * to[0]) : (w - targetOffx) + (targetGap * to[0]),
+                ty = swapY ? sourceOffy + (targetGap * to[1]) : (h - targetOffy) + (targetGap * to[1]),
                 oProduct = ((so[0] * to[0]) + (so[1] * to[1]));        
             
             var result = {
@@ -591,7 +592,10 @@
             sourceStub:sourceStub,
             targetStub:targetStub,
             maxStub:Math.max(sourceStub, targetStub),
-            gap:gap
+            //gap:gap
+            sourceGap:sourceGap,
+            targetGap:targetGap,
+            maxGap:Math.max(sourceGap, targetGap)
 		};		
 	};
 	
