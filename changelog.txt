@@ -53,6 +53,8 @@
                 "ContinuousBottom"
                 
         - added 'Top', 'Right', 'Bottom' and 'Left' anchor aliases for 'TopCenter', 'RightMiddle', 'BottomCenter' and 'LeftMiddle'
+        
+        - added support for containment in YUI (supply a selector as the value for a 'constrain2node' or 'containment' parameter to jsPlumb.draggable)
 		
 		ISSUES
 		
@@ -66,8 +68,10 @@
         302 -   removeAllEndpoints not functioning correctly
         303 -   mixture of continuous and static anchors causes paint issues
         305 -   Add pointer-events to the properties of connection
+        310 - 	Endpoint does not honor the cssClass option
         311 -   add options to Continuous anchor
         312 -   jsPlumb mouseenter event fails with jQuery 1.9.0 (Firefox)
+        322 -	Connector gap option for source and target
 		
 		MISCELLANEOUS
 		
