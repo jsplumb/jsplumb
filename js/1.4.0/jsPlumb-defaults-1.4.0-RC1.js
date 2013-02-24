@@ -396,6 +396,9 @@
         this.setEdited = function(ed) {
             edited = ed;
         };
+
+        // to be overridden by subclasses.
+        this.getPath = function() { };
         
         /**
         * Function: findSegmentForPoint
