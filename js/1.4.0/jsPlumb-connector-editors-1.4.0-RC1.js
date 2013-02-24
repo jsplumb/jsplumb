@@ -92,6 +92,7 @@
                     params.connector.setSuspendEvents(false); 
                     params.connection.endpoints[0].setSuspendEvents(false);                
                     params.connection.endpoints[1].setSuspendEvents(false);
+                    params.connection.editCompleted();
                 },
                 downAt = null,
                 currentSegments = null,
@@ -235,7 +236,7 @@
             params.connector.bind("mousedown", function(c, e) {
                 var x = (e.pageX || e.page.x),
                     y = (e.pageY || e.page.y),
-                    oe = jpcl.getElementObject(params.connection.canvas),
+                    oe = jpcl.getElementObject(params.connection.getConnector().canvas),
                     o = jpcl.getOffset(oe),                    
                     minD = Infinity;           
                 
@@ -258,7 +259,11 @@
                 downAt = [ x, y ];
                 
                 jpcl.bind(document, "mouseup", documentMouseUp);
-                jpcl.bind(document, "mousemove", documentMouseMove);                                
+                jpcl.bind(document, "mousemove", documentMouseMove);  
+
+                if (selectedSegment != null) {
+                    params.connection.editStarted();
+                }                              
             });
         }
     };
