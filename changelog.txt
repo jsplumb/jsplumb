@@ -8,6 +8,8 @@
         - jsPlumb.Defaults.ConnectorZIndex was removed.  Use CSS classes for z index.
         - Connection.setZIndex was removed.  Use CSS classes for z index.      
         - removeConnection method removed from Endpoint. use 'detach' instead.
+        - Connection does not expose 'connector' anymore. Use Connection.getConnector()
+        - Connection does not expose 'canvas' anymore. Use Connection.getConnector().canvas
 
 		NEW FUNCTIONALITY
 		        
