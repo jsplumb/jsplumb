@@ -374,7 +374,7 @@
         /**
 		 * helper to remove an element from the DOM.
 		 */
-		removeElement : function(element, parent) {
+		removeElement : function(element) {
 			if (element != null && element.parentNode != null) {
 				element.parentNode.removeChild(element);
 			}
@@ -382,9 +382,9 @@
         /**
 		 * helper to remove a list of elements from the DOM.
 		 */
-		removeElements : function(elements, parent) {
+		removeElements : function(elements) {
 			for ( var i = 0; i < elements.length; i++)
-				jsPlumbUtil.removeElement(elements[i], parent);
+				jsPlumbUtil.removeElement(elements[i]);
 		}
     };
 })();
