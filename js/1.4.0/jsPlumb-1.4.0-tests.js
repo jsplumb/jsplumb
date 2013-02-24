@@ -1409,7 +1409,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		};
 		var j = jsPlumb.getInstance(def);
 		var c = j.connect({source:"d1",target:"d2"});
-		equal(c.connector.type, "Bezier", "connector is the default");
+		equal(c.getConnector().type, "Bezier", "connector is the default");
 		c.setConnector(["Bezier", { curviness:789 }]);
 		equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
 	});
@@ -1845,7 +1845,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e = _jsPlumb.addEndpoint(d1, {connectorTooltip:"FOO"});
 		var e2 = _jsPlumb.addEndpoint(d2, {});
 		var c = _jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
-		equal(c.connector.canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
+		equal(c.getConnector().canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (tooltip parameter)', function() {
@@ -1853,7 +1853,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e = _jsPlumb.addEndpoint(d1, {});
 		var e2 = _jsPlumb.addEndpoint(d2, {});
 		var c = _jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2, tooltip:"FOO"});
-		equal(c.connector.canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
+		equal(c.getConnector().canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
 	});
 	
 	test(renderMode + ': _jsPlumb.connect (between two Endpoints, and dont supply any parameters to the Endpoints.)', function() {
@@ -2034,7 +2034,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, no params)", function() {
@@ -2042,8 +2042,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Bezier" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(conn.connector.type, "Bezier", "Bezier connector chosen for connection");
-		equal(conn.connector.majorAnchor, 150, "Bezier connector chose 150 curviness");
+		equal(conn.getConnector().type, "Bezier", "Bezier connector chosen for connection");
+		equal(conn.getConnector().majorAnchor, 150, "Bezier connector chose 150 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, curviness as int)", function() {
@@ -2051,8 +2051,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", { curviness:200 }] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(conn.connector.type, "Bezier", "Canvas Bezier connector chosen for connection");
-		equal(conn.connector.majorAnchor, 200, "Bezier connector chose 200 curviness");
+		equal(conn.getConnector().type, "Bezier", "Canvas Bezier connector chosen for connection");
+		equal(conn.getConnector().majorAnchor, 200, "Bezier connector chose 200 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, curviness as named option)", function() {
@@ -2060,8 +2060,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", {curviness:300}] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(conn.connector.type, "Bezier", "Bezier connector chosen for connection");
-		equal(conn.connector.majorAnchor, 300, "Bezier connector chose 300 curviness");
+		equal(conn.getConnector().type, "Bezier", "Bezier connector chosen for connection");
+		equal(conn.getConnector().majorAnchor, 300, "Bezier connector chose 300 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)", function() {
@@ -2069,7 +2069,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:[[0.3,0.3,1,0], [0.7,0.7,0,1]] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(conn.connector.type, "Straight", "Canvas Straight connector chosen for connection");
+		equal(conn.getConnector().type, "Straight", "Canvas Straight connector chosen for connection");
 		equal(0.3, conn.endpoints[0].anchor.x, "source anchor x");
 		equal(0.3, conn.endpoints[0].anchor.y, "source anchor y");
 		equal(0.7, conn.endpoints[1].anchor.x, "target anchor x");
@@ -2081,7 +2081,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:["LeftMiddle", "RightMiddle"] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
 		equal(0, conn.endpoints[0].anchor.x, "source anchor x");
 		equal(0.5, conn.endpoints[0].anchor.y, "source anchor y");
 		equal(1, conn.endpoints[1].anchor.x, "target anchor x");
@@ -2093,7 +2093,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight", anchors:[[0.3,0.3,1,0], [0.7,0.7,0,1]] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
 		equal(0.3, conn.endpoints[0].anchor.x, "source anchor x");
 		equal(0.3, conn.endpoints[0].anchor.y, "source anchor y");
 		equal(0.7, conn.endpoints[1].anchor.x, "target anchor x");
@@ -2108,8 +2108,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn2 = _jsPlumb.connect({ source:d18, target:d19}, sharedData);
 		assertContextSize(6);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 2, _jsPlumb);
-		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
-		equal(conn2.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
+		equal(conn2.getConnector().type, "Straight", "Straight connector chosen for connection");
 		equal(0.3, conn.endpoints[0].anchor.x, "source anchor x");
 		equal(0.3, conn.endpoints[0].anchor.y, "source anchor y");
 		equal(0.7, conn.endpoints[1].anchor.x, "target anchor x");
@@ -2125,7 +2125,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(conn.connector.type, "Straight", "Straight connector chosen for connection");
+		equal(conn.getConnector().type, "Straight", "Straight connector chosen for connection");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Endpoint test)", function() {
@@ -2189,7 +2189,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, connector as string test)", function() {
@@ -2199,7 +2199,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, anchors as string test)", function() {
@@ -2210,7 +2210,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
 		equal(e16.anchor.x, 0.5, "endpoint 16 is at top center");equal(e16.anchor.y, 0, "endpoint 16 is at top center");
 		equal(e17.anchor.x, 0.5, "endpoint 17 is at bottom center");equal(e17.anchor.y, 1, "endpoint 17 is at bottom center");
 	});
@@ -2223,7 +2223,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
 		equal(e16.anchor.x, a16[0]);equal(e16.anchor.y, a16[1]);
 		equal(e17.anchor.x, a17[0]);equal(e17.anchor.y, a17[1]);
 		equal(e16.anchor.getOrientation()[0], a16[2]); equal(e16.anchor.getOrientation()[1], a16[3]);
@@ -2237,7 +2237,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
 		equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
 		equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 	});
@@ -2249,7 +2249,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		equal(e16.connections[0].connector.type, "Straight", "Straight connector chosen for connection");
+		equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
 		equal(e16.anchor.isDynamic, true, "Endpoint 16 has a dynamic anchor");
 		equal(e17.anchor.isDynamic, true, "Endpoint 17 has a dynamic anchor");
 	});
@@ -2375,7 +2375,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = _jsPlumb.connect({source:d1,target:d2,cssClass:"CSS"});
 		var has = function(clazz) { 
-			var cn = c.connector.canvas.className,
+			var cn = c.getConnector().canvas.className,
 				cns = cn.constructor == String ? cn : cn.baseVal; 
 			
 			return cns.indexOf(clazz) != -1; 
@@ -2911,10 +2911,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(true, c1.isVisible(), "Connection is visible after creation.");
 		c1.setVisible(false);
 		equal(false, c1.isVisible(), "Connection is not visible after calling setVisible(false).");
-		equal($(c1.connector.canvas).css("display"), "none");
+		equal($(c1.getConnector().canvas).css("display"), "none");
 		c1.setVisible(true);
 		equal(true, c1.isVisible(), "Connection is visible after calling setVisible(true).");
-		equal($(c1.connector.canvas).css("display"), "block");
+		equal($(c1.getConnector().canvas).css("display"), "block");
 	});
 	
 	test(renderMode + ": Endpoint.isVisible/setVisible basic test (no connections)", function() {
@@ -3060,13 +3060,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		
 		var c = _jsPlumb.connect({source:d1, target:d2});
-		equal(c.connector.type, "Bezier", "Bezier connector has type set");
+		equal(c.getConnector().type, "Bezier", "Bezier connector has type set");
 		
 		var c2 = _jsPlumb.connect({source:d1, target:d2, connector:"Straight"});
-		equal(c2.connector.type, "Straight", "Straight connector has type set");
+		equal(c2.getConnector().type, "Straight", "Straight connector has type set");
 		
 		var c3 = _jsPlumb.connect({source:d1, target:d2, connector:"Flowchart"});
-		equal(c3.connector.type, "Flowchart", "Flowchart connector has type set");
+		equal(c3.getConnector().type, "Flowchart", "Flowchart connector has type set");
 	});
 	
 	test(renderMode + " Endpoints have 'type' member set", function() {
@@ -4742,7 +4742,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
 		equal(c.getPaintStyle().strokeStyle, "blue", "connection has default stroke style");
-		equal(c.connector.type, "Flowchart", "connector is flowchart");
+		equal(c.getConnector().type, "Flowchart", "connector is flowchart");
 	});
 	
 	test(renderMode + " simple Endpoint type tests.", function() {
@@ -4789,7 +4789,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
 		equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
 		equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
-		equal(c.connector.type, "Flowchart", "connector is Flowchart");
+		equal(c.getConnector().type, "Flowchart", "connector is Flowchart");
 		equal(c.overlays.length, 1, "connector has one overlay");
 		equal(e1.overlays.length, 1, "endpoint has one overlay");
 	});
@@ -4821,7 +4821,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		c = _jsPlumb.connect({source:e1, target:e2});
 		equal(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
 		equal(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
-		equal(c.connector.type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
+		equal(c.getConnector().type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
 	});
 	
 	test(renderMode + " endpoint type", function() {
@@ -5326,26 +5326,79 @@ var testSuite = function(renderMode, _jsPlumb) {
     test(renderMode + " addClass via jsPlumb.select", function() {
         _addDiv("d1"); _addDiv("d2");
         var c = _jsPlumb.connect({source:"d1", target:"d2"});
-        jsPlumb.select().addClass("foo");
+        _jsPlumb.select().addClass("foo");
         ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
-        jsPlumb.select().addClass("bar", true);
+        _jsPlumb.select().addClass("bar", true);
         ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint hasclass 'bar'");        
-        jsPlumb.select().removeClass("bar", true);
+        _jsPlumb.select().removeClass("bar", true);
         ok(!($(c.endpoints[0].canvas).hasClass("bar")), "endpoint doesn't have class 'bar'");                
     });   
     
 // ******************* override pointer events ********************
     test(renderMode + "pointer-events, jsPlumb.connect", function() {
         _addDiv("d1");_addDiv("d2");
-        var c = jsPlumb.connect({source:"d1",target:"d2", "pointer-events":"BANANA"});
-        equal($(c.canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+        var c = _jsPlumb.connect({source:"d1",target:"d2", "pointer-events":"BANANA"});
+        equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
     });
     
     test(renderMode + "connector-pointer-events, jsPlumb.addEndpoint", function() {
         _addDiv("d1");_addDiv("d2");
-        var e1 = jsPlumb.addEndpoint("d1", { "connector-pointer-events":"BANANA" });
-        var c = jsPlumb.connect({source:e1,target:"d2"});
-        equal($(c.canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
-    });          	
+        var e1 = _jsPlumb.addEndpoint("d1", { "connector-pointer-events":"BANANA" });
+        var c = _jsPlumb.connect({source:e1,target:"d2"});
+        equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+    });   
+
+// ******************** flowchart get segments ***************
+	test(renderMode + " get segments from flowchart connector", function() {
+		var d1 = _addDiv("d1")[0], d2 = _addDiv("d2")[0];
+		d1.style.position="absolute";
+		d2.style.position="absolute";		
+		d1.style.left = "0px";
+		d2.style.left = "100px";
+		d1.style.top = "0px";
+		d2.style.top = "100px";
+		d1.style.width = "10px";d1.style.height = "10px";
+		d2.style.width = "10px";d2.style.height = "10px";
+
+		var c = _jsPlumb.connect({
+			source:d1,
+			target:d2,
+			connector:"Flowchart",
+			anchors:["Right", "Top"]
+		}),
+		s = c.getConnector().getPath();
+		equal(s[0].start[0], 4);
+		equal(s[0].start[1], 4);
+		equal(s[0].end[0], 99);
+		equal(s[0].end[1], 4);
+		equal(s[1].start[0], 99);
+		equal(s[1].start[1], 4);
+		equal(s[1].end[0], 99);
+		equal(s[1].end[1], 99);
+
+		var c2 = _jsPlumb.connect({
+			source:d1,
+			target:d2,
+			connector:"Flowchart",
+			anchors:["Bottom", "Top"]
+		}),
+		s2 = c2.getConnector().getPath();
+		equal(s2.length, 3, "3 segments");
+		
+		equal(s2[0].start[0], 4);
+		equal(s2[0].start[1], 4);
+		equal(s2[0].end[0], 4);
+		equal(s2[0].end[1], 49);
+		
+		equal(s2[1].start[0], 4);
+		equal(s2[1].start[1], 49);
+		equal(s2[1].end[0], 104);
+		equal(s2[1].end[1], 49);
+
+		equal(s2[2].start[0], 104);
+		equal(s2[2].start[1], 49);
+		equal(s2[2].end[0], 104);
+		equal(s2[2].end[1], 94);
+	});
 };
 
