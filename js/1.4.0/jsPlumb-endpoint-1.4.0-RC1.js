@@ -310,7 +310,7 @@
                                 }
                             }
                         }
-                        _ju.removeElements(connection.connector.getDisplayElements(), connection.parent);
+                        _ju.removeElements(connection.getConnector().getDisplayElements(), connection.parent);
                         _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
                             return c.id == connection.id;
                         });
@@ -736,7 +736,7 @@
                         } else {
                             // TODO this looks suspiciously kind of like an Endpoint.detach call too.
                             // i wonder if this one should post an event though.  maybe this is good like this.
-                            _ju.removeElements(jpc.connector.getDisplayElements(), self.parent);
+                            _ju.removeElements(jpc.getConnector().getDisplayElements(), self.parent);
                             self.detachFromConnection(jpc);								
                         }																
                     }
