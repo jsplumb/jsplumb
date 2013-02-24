@@ -69,6 +69,10 @@
 			},			
 			init = function(connection) {
 				connection.getOverlay("label").setLabel(connection.sourceId.substring(6) + "-" + connection.targetId.substring(6));
+				connection.bind("editCompleted", function(o) {
+					if (typeof console != "undefined")
+						console.log("connection edited. path is now ", o.path);
+				});
 			};			
 
 			var allSourceEndpoints = [], allTargetEndpoints = [];
