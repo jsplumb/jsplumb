@@ -2289,7 +2289,7 @@ between this method and jsPlumb.reset).
                             for (var scope in connectionsByScope) {
                                 var c = connectionsByScope[scope];
                                 for (var i = 0; i < c.length; i++) {
-                                    var t = c[i].connector[event](e);
+                                    var t = c[i].getConnector()[event](e);
                                     if (t) return;	
                                 }
                             }
