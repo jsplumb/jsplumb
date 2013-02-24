@@ -9,7 +9,8 @@
             _ju = jsPlumbUtil,
             _getOffset = jpcl.getOffset,
             _newConnection = params.newConnection,
-            _newEndpoint = params.newEndpoint;
+            _newEndpoint = params.newEndpoint,
+            connector = null;
         
         self.idPrefix = "_jsplumb_c_";
         self.defaultLabelLocation = 0.5;
@@ -25,7 +26,7 @@
         this.setVisible = function(v) {
             visible = v;
             self[v ? "showOverlays" : "hideOverlays"]();
-            if (self.connector && self.connector.canvas) self.connector.canvas.style.display = v ? "block" : "none";
+            if (connector && connector.canvas) connector.canvas.style.display = v ? "block" : "none";
             self.repaint();
         };
 // END VISIBILITY	
@@ -34,12 +35,21 @@
         
         var editable = params.editable === true;        
         this.setEditable = function(e) {
-            if (this.connector && this.connector.isEditable())
+            if (connector && connector.isEditable())
                 editable = e;
             
             return editable;
         };        
         this.isEditable = function() { return editable; };
+        this.editStarted = function() {
+
+        };
+        this.editCompleted = function() {
+            self.fire("editCompleted", {
+                path:connector.getPath()
+            });
+        };
+        this.editCanceled = function() { };
        
 // END EDITABLE            
         
@@ -90,7 +100,7 @@
         // override setHover to pass it down to the underlying connector
         _superClassHover = self.setHover;
         self.setHover = function(state) {
-            self.connector.setHover.apply(self.connector, arguments);				
+            connector.setHover.apply(connector, arguments);				
             _superClassHover.apply(self, arguments);
         };
         
@@ -101,15 +111,15 @@
         };
 // END HOVER
 
-        var makeConnector = function(renderMode, connector, connectorArgs) {
+        var makeConnector = function(renderMode, connectorName, connectorArgs) {
             var c = new Object();
-            jsPlumb.Connectors[connector].apply(c, [connectorArgs]);
+            jsPlumb.Connectors[connectorName].apply(c, [connectorArgs]);
             jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);	
             return c;
         };                        
                 
-        this.setConnector = function(connector, doNotRepaint) {
-            if (self.connector != null) jsPlumbUtil.removeElements(self.connector.getDisplayElements(), self.parent);
+        this.setConnector = function(connectorSpec, doNotRepaint) {
+            if (connector != null) jsPlumbUtil.removeElements(connector.getDisplayElements());
             var connectorArgs = { 
                 _jsPlumb:self._jsPlumb, 
                 parent:params.parent, 
@@ -120,21 +130,20 @@
             },
             renderMode = _jsPlumb.getRenderMode();
             
-            if (_ju.isString(connector)) 
-                this.connector = makeConnector(renderMode, connector, connectorArgs); // lets you use a string as shorthand.
-            else if (_ju.isArray(connector)) {
-                if (connector.length == 1)
-                    this.connector = makeConnector(renderMode, connector[0], connectorArgs);
+            if (_ju.isString(connectorSpec)) 
+                connector = makeConnector(renderMode, connectorSpec, connectorArgs); // lets you use a string as shorthand.
+            else if (_ju.isArray(connectorSpec)) {
+                if (connectorSpec.length == 1)
+                    connector = makeConnector(renderMode, connectorSpec[0], connectorArgs);
                 else
-                    this.connector = makeConnector(renderMode, connector[0], jsPlumbUtil.merge(connector[1], connectorArgs));
+                    connector = makeConnector(renderMode, connectorSpec[0], jsPlumbUtil.merge(connectorSpec[1], connectorArgs));
             }
-            self.canvas = self.connector.canvas;                
             // binds mouse listeners to the current connector.
-            self.bindListeners(self.connector, self, _internalHover);
+            self.bindListeners(connector, self, _internalHover);
             
-            if (editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[self.connector.type] && self.connector.isEditable()) {
-                new jsPlumb.ConnectorEditors[self.connector.type]({
-                    connector:self.connector,
+            if (editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[connector.type] && connector.isEditable()) {
+                new jsPlumb.ConnectorEditors[connector.type]({
+                    connector:connector,
                     connection:self,
                     params:params.editorParams || { }
                 });
@@ -145,6 +154,8 @@
                 
             if (!doNotRepaint) self.repaint();
         };
+
+        this.getConnector = function() { return connector; };
         
 // INITIALISATION CODE			
                     
@@ -358,24 +369,24 @@
         // changes the parent element of this connection to newParent.  not exposed for the public API.
         //
         this.moveParent = function(newParent) {
-            var jpcl = jsPlumb.CurrentLibrary, curParent = jpcl.getParent(self.connector.canvas);				
-            if (self.connector.bgCanvas) {
-                jpcl.removeElement(self.connector.bgCanvas, curParent);
-                jpcl.appendElement(self.connector.bgCanvas, newParent);
+            var jpcl = jsPlumb.CurrentLibrary, curParent = jpcl.getParent(connector.canvas);				
+            if (connector.bgCanvas) {
+                jpcl.removeElement(connector.bgCanvas);
+                jpcl.appendElement(connector.bgCanvas, newParent);
             }
-            jpcl.removeElement(self.connector.canvas, curParent);
-            jpcl.appendElement(self.connector.canvas, newParent);                
+            jpcl.removeElement(connector.canvas);
+            jpcl.appendElement(connector.canvas, newParent);                
             // this only applies for DOMOverlays
             for (var i = 0; i < self.overlays.length; i++) {
                 if (self.overlays[i].isAppendedAtTopLevel) {
-                    jpcl.removeElement(self.overlays[i].canvas, curParent);
+                    jpcl.removeElement(self.overlays[i].canvas);
                     jpcl.appendElement(self.overlays[i].canvas, newParent);
                     if (self.overlays[i].reattachListeners) 
-                        self.overlays[i].reattachListeners(self.connector);
+                        self.overlays[i].reattachListeners(connector);
                 }
             }
-            if (self.connector.reattachListeners)		// this is for SVG/VML; change an element's parent and you have to reinit its listeners.
-                self.connector.reattachListeners();     // the Canvas implementation doesn't have to care about this
+            if (connector.reattachListeners)		// this is for SVG/VML; change an element's parent and you have to reinit its listeners.
+                connector.reattachListeners();     // the Canvas implementation doesn't have to care about this
         };
         
 // END MISCELLANEOUS
@@ -411,7 +422,7 @@
                     if (params.clearEdits) {
                         sE.anchor.clearUserDefinedLocation();
                         tE.anchor.clearUserDefinedLocation();
-                        self.connector.setEdited(false);
+                        connector.setEdited(false);
                     }
                     
                     var sAnchorP = sE.anchor.getCurrentLocation(sE),				
@@ -424,7 +435,7 @@
                         if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize());
                     }						
                         
-                    self.connector.compute({
+                    connector.compute({
                         sourcePos:sAnchorP,
                         targetPos:tAnchorP, 
                         sourceEndpoint:this.endpoints[sIdx],
@@ -438,13 +449,13 @@
                         clearEdits:params.clearEdits === true
                     });
                     
-                    self.connector.paint(self.paintStyleInUse);
+                    connector.paint(self.paintStyleInUse);
                                                                     
                     // paint overlays
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
                         if (o.isVisible) {
-                            self.overlayPlacements[i] = o.draw(self.connector, self.paintStyleInUse);								
+                            self.overlayPlacements[i] = o.draw(connector, self.paintStyleInUse);								
                         }
                     }
                                                                 
