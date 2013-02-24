@@ -121,9 +121,7 @@
                     x1:next[0], y1:next[1], x2:next[2], y2:next[3]
                 });
                 
-                updateMinMax(next, next);
-                
-              //  console.log("MIN MAX FOR FLOWCHART", minX, minY, maxX, maxY);
+                updateMinMax(next, next);                            
             };
         
         this.setSegments = function(s) {
@@ -291,6 +289,27 @@
             writeSegments(segments);            
             
             return paintInfo.points;
-        };		
+        };	
+
+        this.getPath = function() {
+            var _last = null, _lastAxis = null, s = [], segs = userSuppliedSegments || segments;
+            for (var i = 0; i < segs.length; i++) {
+                var seg = segs[i], axis = seg[4], axisIndex = (axis == "v" ? 3 : 2);
+                if (_last != null && _lastAxis === axis) {
+                    _last[axisIndex] = seg[axisIndex];                            
+                }
+                else {
+                    if (seg[0] != seg[2] || seg[1] != seg[3]) {
+                        s.push({
+                            start:[ seg[0], seg[1] ],
+                            end:[ seg[2], seg[3] ]
+                        });                    
+                        _last = seg;
+                        _lastAxis = seg[4];
+                    }
+                }
+            }
+            return s;
+        };	
     };
 })();
