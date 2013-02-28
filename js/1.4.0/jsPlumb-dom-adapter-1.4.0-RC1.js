@@ -170,8 +170,10 @@
 
 		this.elementRemoved = function(elementId) {
 			var elId = _draggablesForElements[elementId];
-			delete _delements[elId][elementId];
-			delete _draggablesForElements[elementId];
+			if (elId) {
+				delete _delements[elId][elementId];
+				delete _draggablesForElements[elementId];
+			}
 		};
 
 		this.reset = function() {
