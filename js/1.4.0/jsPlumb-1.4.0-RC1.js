@@ -1235,7 +1235,7 @@
 			if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
 			if (!recalc) {
 				if (timestamp && timestamp === offsetTimestamps[elId])
-					return offsets[elId];
+					return {o:offsets[elId], s:sizes[elId]};
 			}
 			if (recalc || !offset) { // if forced repaint or no offset available, we recalculate.
 				// get the current size and offset, and store them
