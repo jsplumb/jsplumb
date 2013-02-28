@@ -42,14 +42,20 @@
         };        
         this.isEditable = function() { return editable; };
         this.editStarted = function() {
-
+            self.fire("editStarted", {
+                path:connector.getPath()
+            });
         };
         this.editCompleted = function() {
             self.fire("editCompleted", {
                 path:connector.getPath()
             });
         };
-        this.editCanceled = function() { };
+        this.editCanceled = function() {
+            self.fire("editCanceled", {
+                path:connector.getPath()
+            });
+        };
        
 // END EDITABLE            
         
@@ -141,6 +147,8 @@
             // binds mouse listeners to the current connector.
             self.bindListeners(connector, self, _internalHover);
             
+            self.canvas = connector.canvas;
+
             if (editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[connector.type] && connector.isEditable()) {
                 new jsPlumb.ConnectorEditors[connector.type]({
                     connector:connector,
