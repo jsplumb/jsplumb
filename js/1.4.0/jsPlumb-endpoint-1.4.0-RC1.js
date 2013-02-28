@@ -743,6 +743,7 @@
                     
                     // remove floating endpoint _after_ checking beforeDetach 
                     _ju.removeElements( [ placeholderInfo.element[0], floatingEndpoint.canvas ], _element); // TODO: clean up the connection canvas (if the user aborted)
+                    _jsPlumb.dragManager.elementRemoved(floatingEndpoint.elementId);
                     self.canvas.style.visibility = "visible";
                     
                     self.anchor.locked = false;												
