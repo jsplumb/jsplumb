@@ -230,10 +230,9 @@
                 },
                 lineCalculators = {
                     oppositex : function() {
-                        with (paintInfo) {        
-                        // WORKS ALWAYS
+                        with (paintInfo) {                                
                             if (params.sourceEndpoint.elementId == params.targetEndpoint.elementId) {
-                                var _y = startStubY + ((1 - sourceAnchor.y) * sourceInfo.height) + _super.maxStub;
+                                var _y = startStubY + ((1 - params.sourceAnchor.y) * params.sourceInfo.height) + _super.maxStub;
                                 return [ [ startStubX, _y ], [ endStubX, _y ]];
                             }                                                        
                             else if (!isXGreaterThanStubTimes2 || (so[0] == 1 && startStubX > endStubX)
@@ -254,7 +253,7 @@
                     oppositey : function() {
                         with (paintInfo) {
                             if (params.sourceEndpoint.elementId == params.targetEndpoint.elementId) {
-                                var _x = startStubX + ((1 - sourceAnchor.x) * sourceInfo.width) + _super.maxStub;
+                                var _x = startStubX + ((1 - params.sourceAnchor.x) * params.sourceInfo.width) + _super.maxStub;
                                 return [ [ _x, startStubY ], [ _x, endStubY ]];
                             }
                             else if (!isYGreaterThanStubTimes2 || (so[1] == 1 && startStubY > endStubY)
