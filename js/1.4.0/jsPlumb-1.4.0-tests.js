@@ -5322,6 +5322,9 @@ var testSuite = function(renderMode, _jsPlumb) {
         ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'bar'");        
         c.addClass("bar", true);
         ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint has class 'bar'");        
+        c.removeClass("bar", true);
+        ok(c.canvas.className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");                
+        ok(!$(c.endpoints[0].canvas).hasClass("bar"), "endpoint doesnt have class 'bar'");  
     });
     
     test(renderMode + " addClass via jsPlumb.select", function() {
