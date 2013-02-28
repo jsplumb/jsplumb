@@ -37,7 +37,9 @@
 		Manages dragging for some instance of jsPlumb.
 	*/
 	var DragManager = function(_currentInstance) {		
-		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {};
+		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},			
+			// elementids mapped to the draggable to which they belong.
+			_draggablesForElements = {};
 
         /**
             register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
@@ -72,6 +74,7 @@
                                         top:cOff.top - parentOffset.top
                                     }
                                 };
+                                _draggablesForElements[cid] = id;
                             }
                             _oneLevel(p.childNodes[i]);
                         }	
@@ -102,6 +105,7 @@
 							top:cOff.top - parentOffset.top
 						}
 					};
+					_draggablesForElements[i] = id;
 				}
 			}
 		};
@@ -131,6 +135,7 @@
 								top:cLoc.top - pLoc.top
 							}
 						};
+						_draggablesForElements[id] = pid;
 					}
 					break;
 				}
@@ -143,8 +148,10 @@
 				_elementsWithEndpoints[endpoint.elementId]--;
 				if (_elementsWithEndpoints[endpoint.elementId] <= 0) {
 					for (var i in _delements) {
-						if (_delements[i])
+						if (_delements[i]) {
                             delete _delements[i][endpoint.elementId];
+                            delete _draggablesForElements[endpoint.elementId];
+                        }
 					}
 				}
 			}		
@@ -153,10 +160,18 @@
 		this.changeId = function(oldId, newId) {				
 			_delements[newId] = _delements[oldId];			
 			_delements[oldId] = {};
+			_draggablesForElements[newId] = _draggablesForElements[oldId];
+			_draggablesForElements[oldId] = null;			
 		};
 
 		this.getElementsForDraggable = function(id) {
 			return _delements[id];	
+		};
+
+		this.elementRemoved = function(elementId) {
+			var elId = _draggablesForElements[elementId];
+			delete _delements[elId][elementId];
+			delete _draggablesForElements[elementId];
 		};
 
 		this.reset = function() {
