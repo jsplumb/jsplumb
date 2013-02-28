@@ -5319,8 +5319,9 @@ var testSuite = function(renderMode, _jsPlumb) {
         var c = _jsPlumb.connect({source:"d1", target:"d2"});
         c.addClass("foo");
         ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
+        ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'bar'");        
         c.addClass("bar", true);
-        ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint hasclass 'bar'");        
+        ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint has class 'bar'");        
     });
     
     test(renderMode + " addClass via jsPlumb.select", function() {
