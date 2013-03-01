@@ -271,7 +271,10 @@
                           this.endpoints[1].connector || 
                           params.connector || 
                           _jsPlumb.Defaults.Connector || 
-                          jsPlumb.Defaults.Connector, true);							  							  		
+                          jsPlumb.Defaults.Connector, true);
+
+        if (params.path)
+            connector.setPath(params.path);
         
         this.setPaintStyle(this.endpoints[0].connectorStyle || 
                            this.endpoints[1].connectorStyle || 
