@@ -310,5 +310,20 @@
             }
             return s;
         };	
+
+        this.setPath = function(path) {
+            userSuppliedSegments = [];
+            for (var i = 0; i < path.length; i++) {
+                 var lx = path[i].start[0],
+                    ly = path[i].start[1],
+                    x = path[i].end[0],
+                    y = path[i].end[1],
+                    o = lx == x ? "v" : "h",
+                    sgnx = sgn(x - lx),
+                    sgny = sgn(y - ly);
+
+                userSuppliedSegments.push([lx, ly, x, y, o, sgnx, sgny]);
+            }
+        };
     };
 })();
