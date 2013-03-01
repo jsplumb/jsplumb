@@ -5403,6 +5403,33 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(s2[2].start[1], 49);
 		equal(s2[2].end[0], 104);
 		equal(s2[2].end[1], 94);
+
+
+		// now set the segments on the connection.
+		var c3 = _jsPlumb.connect({
+			source:d1,
+			target:d2,
+			connector:"Flowchart",
+			anchors:["Right", "Top"],
+			path:[
+				{ start:[5,5], end:[5,55] },
+				{ start:[5,55], end:[105,55] },
+				{ start:[105,55], end:[105,105] }
+			]
+		}),
+		s3 = c3.getConnector().getPath();
+		equal(s3[0].start[0], 5);
+		equal(s3[0].start[1], 5);
+		equal(s3[0].end[0], 5);
+		equal(s3[0].end[1], 55);
+		equal(s3[1].start[0], 5);
+		equal(s3[1].start[1], 55);
+		equal(s3[1].end[0], 105);
+		equal(s3[1].end[1],55);
+		equal(s3[2].start[0], 105);
+		equal(s3[2].start[1], 55);
+		equal(s3[2].end[0], 105);
+		equal(s3[2].end[1],105);
 	});
 };
 
