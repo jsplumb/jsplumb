@@ -399,6 +399,7 @@
 
         // to be overridden by subclasses.
         this.getPath = function() { };
+        this.setPath = function(path) { };
         
         /**
         * Function: findSegmentForPoint
