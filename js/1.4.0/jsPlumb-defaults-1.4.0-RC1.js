@@ -68,6 +68,15 @@
                     l:null
                 };
             };
+
+            this.getBounds = function() {
+                return {
+                    minX:Math.min(params.x1, params.x2),
+                    minY:Math.min(params.y1, params.y2),
+                    maxX:Math.max(params.x1, params.x2),
+                    maxY:Math.max(params.y1, params.y2)
+                };
+            };
         },
         Straight : function(params) {
             var self = this,
@@ -92,6 +101,15 @@
                 _recalc();
             };
             this.setCoordinates({x1:params.x1, y1:params.y1, x2:params.x2, y2:params.y2});
+
+            this.getBounds = function() {
+                return {
+                    minX:Math.min(x1, x2),
+                    minY:Math.min(y1, y2),
+                    maxX:Math.max(x1, x2),
+                    maxY:Math.max(y1, y2)
+                };
+            };
             
             /**
              * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
@@ -303,7 +321,7 @@
                     startY = params.cy + (self.radius * Math.sin(startAngle));	
     
                 return {x:startX, y:startY};
-            };		
+            };	            
         },
 	
         Bezier : function(params) {
@@ -382,8 +400,9 @@
 
         self.getDimensions = function() {
             var o = self.getOffset();
-            return [ Math.max(self.w + o[0], self.bounds.maxX), Math.max(self.h + o[1], self.bounds.maxY) ];
+            return [ self.bounds.maxX - self.bounds.minX , self.bounds.maxY - self.bounds.minY];
         };
+        
     };
 	
 	/*
@@ -494,7 +513,8 @@
             _addSegment = function(type, params) {
                 var s = new jsPlumb.Segments[type](params);
                 segments.push(s);
-                totalLength += s.getLength();			
+                totalLength += s.getLength();	
+                self.updateBounds(s);	                
             },					
             _clearSegments = function() {
                 totalLength = 0;
@@ -510,10 +530,7 @@
                 userProvidedSegments.push(_segs[i]);
                 totalLength += _segs[i].getLength();			            
             }            
-        };
-        //if (params.segments) {
-        //  this.setSegments(params.segments);
-        //}        
+        };  
         
         var _prepareCompute = function(params) {
             self.lineWidth = params.lineWidth;
@@ -521,16 +538,12 @@
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
                 lw = params.lineWidth || 1,       
-                sourceOffx = Math.max(params.minWidth, (lw / 2) + (sourceStub + targetStub)), 
-                targetOffx = Math.max(params.minWidth, (lw / 2) + (targetStub + sourceStub)),                 
-                sourceOffy = Math.max(params.minWidth, (lw / 2) + (sourceStub + targetStub)),
-                targetOffy = Math.max(params.minWidth, (lw / 2) + (targetStub + sourceStub)),
                 so = params.sourceAnchor.orientation || params.sourceAnchor.getOrientation(params.sourceEndpoint), 
                 to = params.targetAnchor.orientation || params.targetAnchor.getOrientation(params.targetEndpoint),
                 x = swapX ? params.targetPos[0] : params.sourcePos[0], 
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
-                w = Math.abs(params.targetPos[0] - params.sourcePos[0]) + sourceOffx + targetOffx, 
-                h = Math.abs(params.targetPos[1] - params.sourcePos[1]) + sourceOffy + targetOffy;            
+                w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
+                h = Math.abs(params.targetPos[1] - params.sourcePos[1]);
             
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
@@ -541,14 +554,12 @@
                 so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1;
                 to[index] = params.sourcePos[index] > params.targetPos[index] ? 1 : -1;
                 so[oIndex] = 0; to[oIndex] = 0;
-            }
+            }                    
             
-            x -= sourceOffx; y -= sourceOffy;
-            
-            var sx = swapX ? (w - targetOffx) +(sourceGap * so[0])  : sourceOffx + (sourceGap * so[0]), 
-                sy = swapY ? (h - targetOffy) + (sourceGap * so[1])  : sourceOffy + (sourceGap * so[1]), 
-                tx = swapX ? sourceOffx + (targetGap * to[0]) : (w - targetOffx) + (targetGap * to[0]),
-                ty = swapY ? sourceOffy + (targetGap * to[1]) : (h - targetOffy) + (targetGap * to[1]),
+            var sx = swapX ? w + (sourceGap * so[0])  : sourceGap * so[0], 
+                sy = swapY ? h + (sourceGap * so[1])  : sourceGap * so[1], 
+                tx = swapX ? targetGap * to[0] : w + (targetGap * to[0]),
+                ty = swapY ? targetGap * to[1] : h + (targetGap * to[1]),
                 oProduct = ((so[0] * to[0]) + (so[1] * to[1]));        
             
             var result = {
@@ -559,8 +570,6 @@
                 my:(sy + ty) / 2,                
                 so:so, to:to, x:x, y:y, w:w, h:h,
                 segment : segment,
-                sourceOffx:sourceOffx, sourceOffy:sourceOffy,
-                targetOffx:targetOffx, targetOffy:targetOffy,
                 startStubX : sx + (so[0] * sourceStub), 
                 startStubY : sy + (so[1] * sourceStub),
                 endStubX : tx + (to[0] * targetStub), 
@@ -578,6 +587,14 @@
         };
 		
 		this.getSegments = function() { return segments; };
+
+        self.updateBounds = function(segment) {
+            var segBounds = segment.getBounds();
+            self.bounds.minX = Math.min(self.bounds.minX, segBounds.minX);
+            self.bounds.maxX = Math.max(self.bounds.maxX, segBounds.maxX);
+            self.bounds.minY = Math.min(self.bounds.minY, segBounds.minY);
+            self.bounds.maxY = Math.max(self.bounds.maxY, segBounds.maxY);              
+        };
         
         var dumpSegmentsToConsole = function() {
             console.log("SEGMENTS:");
@@ -791,6 +808,10 @@
             self.y = out[1];
             self.w = out[2];
             self.h = out[3];
+            self.bounds.minX = self.x;
+            self.bounds.minY = self.y;
+            self.bounds.maxX = self.x + self.w;
+            self.bounds.maxY = self.y + self.h;
             return out;
         };
         return {
