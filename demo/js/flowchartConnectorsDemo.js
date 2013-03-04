@@ -103,12 +103,12 @@
 			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 
             
-			//* connect a few up
+			/* connect a few up
 			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"], editable:true});
 			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"], editable:true});
 			jsPlumb.connect({uuids:["window4TopCenter", "window4RightMiddle"], editable:true});
-			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"], editable:true});
-			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"], editable:true});
+			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"], editable:true});*/
+			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"], editable:true});/*
 			jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"], editable:true});
 			//*/
             
