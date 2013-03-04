@@ -182,7 +182,13 @@
 		el.className.baseVal = curClasses.join(" ");
 	},
 	_addClass = function(el, clazz) { _classManip(el, true, clazz); },
-	_removeClass = function(el, clazz) { _classManip(el, false, clazz); };
+	_removeClass = function(el, clazz) { _classManip(el, false, clazz); },
+	_appendAtIndex = function(svg, path, idx) {
+		if (svg.childNodes.length > idx) {
+			svg.insertBefore(path, svg.childNodes[idx]);
+		}
+		else svg.appendChild(path);
+	};
 	
 	/**
 		utility methods for other objects to use.
@@ -241,25 +247,28 @@
 		this.appendDisplayElement = function(el) {
 			displayElements.push(el);
 		};
+
+		self.getStylePadding = function(_) { return 0; };
 		
 		this.paint = function(style, anchor) {	   			
 			if (style != null) {
 
-				var xy = self.getXY(), wh = self.getDimensions();                
+				var xy = self.getXY(), wh = self.getDimensions(), lw = 0, p;//self.getStylePadding(style), p;
 
 				if (params.useDivWrapper) {					
-					jsPlumb.sizeCanvas(self.canvas, xy[0], xy[1], wh[0], wh[1]);
+					jsPlumb.sizeCanvas(self.canvas, xy[0] - lw, xy[1] - lw, wh[0] + (2 * lw), wh[1] + (2 * lw));
 					xy[0] = 0, xy[1] = 0;
+					p = _pos([ 0, 0 ]);
 				}
-				
-				var p = _pos([ xy[0], xy[1] ]);
+				else
+					p = _pos([ xy[0] - lw, xy[1] - lw ]);
                 
                 renderer.paint.apply(this, arguments);		    			    	
                 
 		    	_attr(self.svg, {
 	    			"style":p,
-	    			"width": wh[0],
-	    			"height": wh[1]
+	    			"width": wh[0] + (2 * lw),
+	    			"height": wh[1] + (2 * lw)
 	    		});		    		    		    	
 			}
 	    };
@@ -281,9 +290,13 @@
 				_jsPlumb:params["_jsPlumb"] 
 			} ]);		
 
+		self.getStylePadding = function(style) {			
+			return Math.max(style.lineWidth || 0, style.outlineWidth || 0);
+		};
+
 		_super.renderer.paint = function(style) {
 			
-			var segments = self.getSegments(), p = "", offset = self.getOffset();			
+			var segments = self.getSegments(), p = "", offset = self.getOffset(), lw = 0;//self.getStylePadding(style);
 			
 			// create path from segments.	
 			for (var i = 0; i < segments.length; i++) {
@@ -293,7 +306,7 @@
 			
 			var a = { 
 					d:p,
-					transform:"translate(" + offset[0] + "," + offset[1] + ")",
+					transform:"translate(" + (offset[0] + lw) + "," + (offset[1] + lw) + ")",
 					"pointer-events":params["pointer-events"] || "visibleStroke"
 				}, 
                 outlineStyle = null,
@@ -309,7 +322,7 @@
 				
 				if (self.bgPath == null) {
 					self.bgPath = _node("path", a);
-			    	self.svg.appendChild(self.bgPath);
+			    	_appendAtIndex(self.svg, self.bgPath, 0);
 		    		self.attachListeners(self.bgPath, self);
 				}
 				else {
@@ -321,7 +334,7 @@
 			
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
-		    	self.svg.appendChild(self.path);
+		    	_appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
 	    		self.attachListeners(self.path, self);	    		    		
 	    	}
 	    	else {
