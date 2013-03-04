@@ -286,7 +286,7 @@
 				};
 		    
 		    this.attachListeners = function(o, c) {
-				for (var i = 0; i < events.length; i++) {
+				for (var i = 0, j = events.length; i < j; i++) {
 					bindOne(o, c, events[i]); 			
 				}
 			};
@@ -294,7 +294,7 @@
 		    var _updateAttachedElements = function(state, timestamp, sourceElement) {
 		    	var affectedElements = self.getAttachedElements();		// implemented in subclasses
 		    	if (affectedElements) {
-		    		for (var i = 0; i < affectedElements.length; i++) {
+		    		for (var i = 0, j = affectedElements.length; i < j; i++) {
 		    			if (!sourceElement || sourceElement != affectedElements[i])
 		    				affectedElements[i].setHover(state, true, timestamp);			// tell the attached elements not to inform their own attached elements.
 		    		}
@@ -303,9 +303,9 @@
 		    
 		    this.reattachListenersForElement = function(o) {
 			    if (arguments.length > 1) {
-		    		for (var i = 0; i < events.length; i++)
+		    		for (var i = 0, j = events.length; i < j; i++)
 		    			unbindOne(o, events[i]);
-			    	for (var i = 1; i < arguments.length; i++)
+			    	for (var i = 1, j = arguments.length; i < j; i++)
 		    			self.attachListeners(o, arguments[i]);
 		    	}
 		    };		    	    
@@ -320,7 +320,7 @@
 						var td = self.getTypeDescriptor();
 							
 						var o = jsPlumbUtil.merge({}, self.getDefaultType());
-						for (var i = 0; i < _types.length; i++)
+						for (var i = 0, j = _types.length; i < j; i++)
 							o = jsPlumbUtil.merge(o, self._jsPlumb.getType(_types[i], td));						
 							
 						if (params) {
@@ -352,7 +352,7 @@
 			self.addType = function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false;
 				if (t != null) {
-					for (var i = 0; i < t.length; i++) {
+					for (var i = 0, j = t.length; i < j; i++) {
 						if (!self.hasType(t[i])) {
 							_types.push(t[i]);
 							_cont = true;						
@@ -373,7 +373,7 @@
 				};
 				
 				if (t != null) {
-					for (var i = 0; i < t.length; i++) {
+					for (var i = 0,j = t.length; i < j; i++) {
 						_cont = _one(t[i]) || _cont;
 					}
 					if (_cont) _applyTypes(null, doNotRepaint);
@@ -383,7 +383,7 @@
 			self.toggleType = function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId);
 				if (t != null) {
-					for (var i = 0; i < t.length; i++) {
+					for (var i = 0, j = t.length; i < j; i++) {
 						var idx = jsPlumbUtil.indexOf(_types, t[i]);
 						if (idx != -1)
 							_types.splice(idx, 1);
@@ -455,7 +455,7 @@
 				
 				if (!o) o = [];
 
-				for (var i = 0; i < defaultKeys.length; i++)
+				for (var i = 0, j = defaultKeys.length; i < j; i++)
 					o.unshift.apply(o, checkKey(defaultKeys[i]));
 				
 				return o;
@@ -463,7 +463,7 @@
 
 			var _overlays = calculateOverlaysToAdd(params);
 			if (_overlays) {
-				for (var i = 0; i < _overlays.length; i++) {
+				for (var i = 0, j = _overlays.length; i < j; i++) {
 					processOverlay(_overlays[i]);
 				}
 			}
@@ -471,7 +471,7 @@
 		    // overlay finder helper method
 			var _getOverlayIndex = function(id) {
 				var idx = -1;
-				for (var i = 0; i < self.overlays.length; i++) {
+				for (var i = 0, j = self.overlays.length; i < j; i++) {
 					if (id === self.overlays[i].id) {
 						idx = i;
 						break;
@@ -500,7 +500,7 @@
 			};
 
 			this.hideOverlays = function() {
-				for (var i = 0; i < self.overlays.length; i++)
+				for (var i = 0, j = self.overlays.length; i < j; i++)
 					self.overlays[i].hide();
 			};
 						
@@ -510,12 +510,12 @@
 			};
 
 			this.showOverlays = function() {
-				for (var i = 0; i < self.overlays.length; i++)
+				for (var i = 0, j = self.overlays.length; i < j; i++)
 					self.overlays[i].show();
 			};
 			
 			this.removeAllOverlays = function() {
-				for (var i = 0; i < self.overlays.length; i++) {
+				for (var i = 0, j = self.overlays.length; i < j; i++) {
 					if (self.overlays[i].cleanup) self.overlays[i].cleanup();
 				}
 
@@ -533,7 +533,7 @@
 			};
 						
 			this.removeOverlays = function() {
-				for (var i = 0; i < arguments.length; i++)
+				for (var i = 0, j = arguments.length; i < j; i++)
 					self.removeOverlay(arguments[i]);
 			};
 
@@ -598,7 +598,7 @@
 				superAt(t, doNotRepaint);
 				self.removeAllOverlays();
 				if (t.overlays) {
-					for (var i = 0; i < t.overlays.length; i++)
+					for (var i = 0, j = t.overlays.length; i < j; i++)
 						self.addOverlay(t.overlays[i], true);
 				}
 			};
@@ -606,7 +606,7 @@
             var superHover = this.setHover;
             this.setHover = function(hover, ignoreAttachedElements, timestamp) {
                 superHover.apply(self, arguments);    
-                for (var i = 0; i < self.overlays.length; i++) {
+                for (var i = 0, j = self.overlays.length; i < j; i++) {
 					self.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.hoverClass);
 				}
             };
@@ -827,7 +827,7 @@
 			var retVal = null;
 			if (_isArray(element)) {
 				retVal = [];
-				for ( var i = 0; i < element.length; i++) {
+				for ( var i = 0, j = element.length; i < j; i++) {
 					var el = _gel(element[i]), id = _att(el, "id");
 					retVal.push(fn(el, id)); // append return values to what we will return
 				}
@@ -931,7 +931,7 @@
 			// it doesnt copy target endpoint overlays.  i'm not sure if we want it to or not.
 			if (_p.sourceEndpoint && _p.sourceEndpoint.connectorOverlays) {
 				_p.overlays = _p.overlays || [];
-				for (var i = 0; i < _p.sourceEndpoint.connectorOverlays.length; i++) {
+				for (var i = 0, j = _p.sourceEndpoint.connectorOverlays.length; i < j; i++) {
 					_p.overlays.push(_p.sourceEndpoint.connectorOverlays[i]);
 				}
 			}		
@@ -1110,8 +1110,8 @@
 		_operation = function(elId, func, endpointFunc) {
 			var endpoints = endpointsByElement[elId];
 			if (endpoints && endpoints.length) {
-				for ( var i = 0; i < endpoints.length; i++) {
-					for ( var j = 0; j < endpoints[i].connections.length; j++) {
+				for ( var i = 0, ii = endpoints.length; i < ii; i++) {
+					for ( var j = 0, jj = endpoints[i].connections.length; j < jj; j++) {
 						var retVal = func(endpoints[i].connections[j]);
 						// if the function passed in returns true, we exit.
 						// most functions return false.
@@ -1396,7 +1396,7 @@
 			
 			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
 						
-			for (var i = 0; i < inputs.length; i++) {
+			for (var i = 0, j = inputs.length; i < j; i++) {
 				var _el = _gel(inputs[i]), id = _getId(_el);
 				p.source = _el;
                 _updateOffset({ elId : id, timestamp:_suspendedAt });
@@ -1433,7 +1433,7 @@
 		 */
 		this.addEndpoints = function(el, endpoints, referenceParams) {
 			var results = [];
-			for ( var i = 0; i < endpoints.length; i++) {
+			for ( var i = 0, j = endpoints.length; i < j; i++) {
 				var e = _currentInstance.addEndpoint(el, endpoints[i], referenceParams);
 				if (_isArray(e))
 					Array.prototype.push.apply(results, e);
@@ -1487,7 +1487,7 @@
 				
 			if (l && l.length > 0) {
 				try {
-					for (var i = 0 ; i < l.length; i++) {
+					for (var i = 0, j = l.length; i < j; i++) {
 						r = r && l[i](value); 
 					}
 				}
@@ -1576,7 +1576,7 @@
 					var endpoints = endpointsByElement[e];
 					if (endpoints) {
 						var newEndpoints = [];
-						for (var i = 0; i < endpoints.length; i++)
+						for (var i = 0, j = endpoints.length; i < j; i++)
 							if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
 						
 						endpointsByElement[e] = newEndpoints;
@@ -1600,7 +1600,7 @@ between this method and jsPlumb.reset).
 			for ( var id in endpointsByElement) {
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
-					for ( var i = 0; i < endpoints.length; i++) {
+					for ( var i = 0, j = endpoints.length; i < j; i++) {
 						_currentInstance.deleteEndpoint(endpoints[i]);
 					}
 				}
@@ -1704,7 +1704,7 @@ between this method and jsPlumb.reset).
 			var id = _att(el, "id"),
                 endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
-				for ( var i = 0; i < endpoints.length; i++) {
+				for ( var i = 0, j = endpoints.length; i < j; i++) {
 					endpoints[i].detachAll(params.fireEvent);
 				}
 			}
@@ -1730,7 +1730,7 @@ between this method and jsPlumb.reset).
 			for ( var id in endpointsByElement) {
 				var endpoints = endpointsByElement[id];
 				if (endpoints && endpoints.length) {
-					for ( var i = 0; i < endpoints.length; i++) {
+					for ( var i = 0, j = endpoints.length; i < j; i++) {
 						endpoints[i].detachAll(params.fireEvent);
 					}
 				}
@@ -1754,14 +1754,14 @@ between this method and jsPlumb.reset).
 		 */		 
 		this.draggable = function(el, options) {
 			if (typeof el == 'object' && el.length) {
-				for ( var i = 0; i < el.length; i++) {
+				for ( var i = 0, j = el.length; i < j; i++) {
 					var ele = _gel(el[i]);
 					if (ele) _initDraggableIfNecessary(ele, true, options);
 				}
 			} 
 			else if (el._nodes) { 	// TODO this is YUI specific; really the logic should be forced
 				// into the library adapters (for jquery and mootools aswell)
-				for ( var i = 0; i < el._nodes.length; i++) {
+				for ( var i = 0, j = el._nodes.length; i < j; i++) {
 					var ele = _gel(el._nodes[i]);
 					if (ele) _initDraggableIfNecessary(ele, true, options);
 				}
@@ -1818,14 +1818,14 @@ between this method and jsPlumb.reset).
 
 		// helpers for select/selectEndpoints
 		var _setOperation = function(list, func, args, selector) {
-				for (var i = 0; i < list.length; i++) {
+				for (var i = 0, j = list.length; i < j; i++) {
 					list[i][func].apply(list[i], args);
 				}	
 				return selector(list);
 			},
 			_getOperation = function(list, func, args) {
 				var out = [];
-				for (var i = 0; i < list.length; i++) {					
+				for (var i = 0, j = list.length; i < j; i++) {					
 					out.push([ list[i][func].apply(list[i], args), list[i] ]);
 				}	
 				return out;
@@ -1850,7 +1850,7 @@ between this method and jsPlumb.reset).
 					else {
 						if (doNotGetIds) r = input;
 						else { 
-							for (var i = 0; i < input.length; i++) 
+							for (var i = 0, j = input.length; i < j; i++) 
 								r.push(_getId(_gel(input[i])));
 						}	
 					}
@@ -1906,7 +1906,7 @@ between this method and jsPlumb.reset).
 			};
 			for ( var i in connectionsByScope) {
 				if (filterList(scopes, i)) {
-					for ( var j = 0; j < connectionsByScope[i].length; j++) {
+					for ( var j = 0, jj = connectionsByScope[i].length; j < jj; j++) {
 						var c = connectionsByScope[i][j];
 						if (filterList(sources, c.sourceId) && filterList(targets, c.targetId))
 							_addOne(i, c);
@@ -1918,7 +1918,7 @@ between this method and jsPlumb.reset).
 		
 		var _curryEach = function(list, executor) {
 				return function(f) {
-					for (var i = 0; i < list.length; i++) {
+					for (var i = 0, ii = list.length; i < ii; i++) {
 						f(list[i]);
 					}
 					return executor(list);
@@ -1944,10 +1944,10 @@ between this method and jsPlumb.reset).
                 getters = ["getLabel", "getOverlay", "isHover", "getParameter", "getParameters", "getPaintStyle",
                            "getHoverPaintStyle", "isVisible", "hasType", "getType", "isSuspendEvents" ];
             
-            for (var i = 0; i < setters.length; i++)
+            for (var i = 0, ii = setters.length; i < ii; i++)
                 out[setters[i]] = setter(list, setters[i], executor);
             
-            for (var i = 0; i < getters.length; i++)
+            for (var i = 0, ii = getters.length; i < ii; i++)
                 out[getters[i]] = getter(list, getters[i]);       
             
             return out;
@@ -1961,7 +1961,7 @@ between this method and jsPlumb.reset).
 				setReattach:setter(list, "setReattach", _makeConnectionSelectHandler),
 				setConnector:setter(list, "setConnector", _makeConnectionSelectHandler),			
 				detach:function() {
-					for (var i = 0; i < list.length; i++)
+					for (var i = 0, ii = list.length; i < ii; i++)
 						_currentInstance.detach(list[i]);
 				},				
 				// getters
@@ -1976,11 +1976,11 @@ between this method and jsPlumb.reset).
 				setEnabled:setter(list, "setEnabled", _makeEndpointSelectHandler),
 				isEnabled:getter(list, "isEnabled"),
 				detachAll:function() {
-					for (var i = 0; i < list.length; i++)
+					for (var i = 0, ii = list.length; i < ii; i++)
 						list[i].detachAll();
 				},
 				"delete":function() {
-					for (var i = 0; i < list.length; i++)
+					for (var i = 0, ii = list.length; i < ii; i++)
 						_currentInstance.deleteEndpoint(list[i]);
 				}
 			});
@@ -2128,7 +2128,7 @@ between this method and jsPlumb.reset).
 				// if they requested 'either' then just match scope. otherwise if they requested 'source' (not as a wildcard) then we have to match only endpoints that have isSource set to to true, and the same thing with isTarget.  
 				if ( either || source  || target ) {
 					inner:
-					for (var i = 0; i < endpointsByElement[el].length; i++) {
+					for (var i = 0, ii = endpointsByElement[el].length; i < ii; i++) {
 						var _ep = endpointsByElement[el][i];
 						if (filterList(scopes, _ep.scope, true)) {
 						
@@ -2283,14 +2283,14 @@ between this method and jsPlumb.reset).
                             // try connections first
                             for (var scope in connectionsByScope) {
                                 var c = connectionsByScope[scope];
-                                for (var i = 0; i < c.length; i++) {
+                                for (var i = 0, ii = c.length; i < ii; i++) {
                                     var t = c[i].getConnector()[event](e);
                                     if (t) return;	
                                 }
                             }
                             for (var el in endpointsByElement) {
                                 var ee = endpointsByElement[el];
-                                for (var i = 0; i < ee.length; i++) {
+                                for (var i = 0, ii = ee.length; i < ii; i++) {
                                     if (ee[i].endpoint[event](e)) return;
                                 }
                             }
@@ -2358,7 +2358,7 @@ between this method and jsPlumb.reset).
 		 */
 		this.makeAnchors = function(types, elementId, jsPlumbInstance) {
 			var r = [];
-			for ( var i = 0; i < types.length; i++) {
+			for ( var i = 0, ii = types.length; i < ii; i++) {
 				if (typeof types[i] == "string")
 					r.push(jsPlumb.Anchors[types[i]]({elementId:elementId, jsPlumbInstance:jsPlumbInstance}));
 				else if (_isArray(types[i]))
@@ -2585,7 +2585,7 @@ between this method and jsPlumb.reset).
 			
 			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
-			for (var i = 0; i < inputs.length; i++) {			
+			for (var i = 0, ii = inputs.length; i < ii; i++) {			
 				_doOne(_gel(inputs[i]));
 			}
 
@@ -2631,7 +2631,7 @@ between this method and jsPlumb.reset).
 		 * The current jsPlumb instance.
 		 */
 		this.makeTargets = function(els, params, referenceParams) {
-			for ( var i = 0; i < els.length; i++) {
+			for ( var i = 0, ii = els.length; i < ii; i++) {
 				_currentInstance.makeTarget(els[i], params, referenceParams);				
 			}
 		};
@@ -2857,7 +2857,7 @@ between this method and jsPlumb.reset).
 			
 			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
-			for (var i = 0; i < inputs.length; i++) {			
+			for (var i = 0, ii = inputs.length; i < ii; i++) {			
 				_doOne(_gel(inputs[i]));
 			}
 
@@ -2942,7 +2942,7 @@ between this method and jsPlumb.reset).
 		 * The current jsPlumb instance.
 		 */
 		this.makeSources = function(els, params, referenceParams) {
-			for ( var i = 0; i < els.length; i++) {
+			for ( var i = 0, ii = els.length; i < ii; i++) {
 				_currentInstance.makeSource(els[i], params, referenceParams);				
 			}
 
@@ -2956,7 +2956,7 @@ between this method and jsPlumb.reset).
 			if (_isString(el)) a[el] = toggle ? !a[el] : state;
 			else if (el.length) {
 				el = _convertYUICollection(el);
-				for (var i = 0; i < el.length; i++) {
+				for (var i = 0, ii = el.length; i < ii; i++) {
 					var id = _el = jsPlumb.CurrentLibrary.getElementObject(el[i]), id = _getId(_el);
 					a[id] = toggle ? !a[id] : state;
 				}
@@ -3114,7 +3114,7 @@ between this method and jsPlumb.reset).
 		this.repaint = function(el, ui, timestamp) {
 			// support both lists...
 			if (typeof el == 'object' && el.length)
-				for ( var i = 0; i < el.length; i++) {			
+				for ( var i = 0, ii = el.length; i < ii; i++) {			
 					_draw(_gel(el[i]), ui, timestamp);
 				}
 			else // ...and single strings.				
@@ -3159,7 +3159,7 @@ between this method and jsPlumb.reset).
                 var elId = jsPlumbUtil.isString(_el) ? _el : _getId(_gel(_el)),
                     ebe = endpointsByElement[elId];
                 if (ebe) {
-                    for ( var i = 0; i < ebe.length; i++) 
+                    for ( var i = 0, ii = ebe.length; i < ii; i++) 
                         _currentInstance.deleteEndpoint(ebe[i]);
                 }
                 delete endpointsByElement[elId];
@@ -3167,7 +3167,7 @@ between this method and jsPlumb.reset).
                 if (recurse) {
                     var del = jsPlumb.CurrentLibrary.getDOMElement(_gel(_el));
                     if (del && del.nodeType != 3 && del.nodeType != 8 ) {
-                        for (var i = 0; i < del.childNodes.length; i++) {
+                        for (var i = 0, ii = del.childNodes.length; i < ii; i++) {
                             _one(del.childNodes[i]);
                         }
                     }
@@ -3195,7 +3195,7 @@ between this method and jsPlumb.reset).
 		var _registeredListeners = {},
 			_unbindRegisteredListeners = function() {
 				for (var i in _registeredListeners) {
-					for (var j = 0; j < _registeredListeners[i].length; j++) {
+					for (var j = 0, jj = _registeredListeners[i].length; j < jj; j++) {
 						var info = _registeredListeners[i][j];
 						jsPlumb.CurrentLibrary.unbind(info.el, info.event, info.listener);
 					}
@@ -3299,7 +3299,7 @@ between this method and jsPlumb.reset).
 			
 
 			endpointsByElement[newId] = endpointsByElement[id] || [];
-			for (var i = 0; i < endpointsByElement[newId].length; i++) {
+			for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
 				endpointsByElement[newId][i].setElementId(newId);
 				endpointsByElement[newId][i].setReferenceElement(el);
 			}
@@ -3310,7 +3310,7 @@ between this method and jsPlumb.reset).
 				_currentInstance.dragManager.changeId(id, newId);
 
 			var _conns = function(list, epIdx, type) {
-				for (var i = 0; i < list.length; i++) {
+				for (var i = 0, ii = list.length; i < ii; i++) {
 					list[i].endpoints[epIdx].setElementId(newId);
 					list[i].endpoints[epIdx].setReferenceElement(el);
 					list[i][type + "Id"] = newId;
