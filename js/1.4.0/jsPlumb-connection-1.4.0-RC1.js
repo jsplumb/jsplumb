@@ -444,12 +444,12 @@
                     var sAnchorP = sE.anchor.getCurrentLocation(sE),				
                         tAnchorP = tE.anchor.getCurrentLocation(tE);
                                 
-                    // find largest overlay; we use it to ensure sufficient padding in the connector canvas.
+                    /* find largest overlay; we use it to ensure sufficient padding in the connector canvas.
                     var maxSize = 0;
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
                         if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize());
-                    }						
+                    }*/						
                         
                     connector.compute({
                         sourcePos:sAnchorP,
@@ -459,22 +459,29 @@
                         sourceAnchor:this.endpoints[sIdx].anchor,
                         targetAnchor:this.endpoints[tIdx].anchor, 
                         lineWidth:self.paintStyleInUse.lineWidth,
-                        minWidth:maxSize,							
+                        minWidth:0,//maxSize,							
                         sourceInfo:sourceInfo,
                         targetInfo:targetInfo,
                         clearEdits:params.clearEdits === true
-                    });
-                    
-                    connector.paint(self.paintStyleInUse);
+                    });                                        
                                                                     
-                    // paint overlays
+                    // paint overlays. we do this first so we can get their placements, and adjust the
+                    // container if needs be (if an overlay would be clipped)
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
                         if (o.isVisible) {
-                            self.overlayPlacements[i] = o.draw(connector, self.paintStyleInUse);								
+                            self.overlayPlacements[i] = o.draw(connector, self.paintStyleInUse);
+
+                            /*connector.bounds.minX = Math.min(connector.bounds.minX, self.overlayPlacements[i][0]);								
+                            connector.bounds.maxX = Math.max(connector.bounds.maxX, self.overlayPlacements[i][1]);
+                            connector.bounds.minY = Math.min(connector.bounds.minY, self.overlayPlacements[i][2]);                                
+                            connector.bounds.maxY = Math.max(connector.bounds.maxY, self.overlayPlacements[i][3]);*/
                         }
                     }
-                                                                
+
+                    // last, paint the connector.
+                    connector.paint(self.paintStyleInUse);                    
+                                                            
                 }
                 lastPaintedAt = timestamp;						
             }		
