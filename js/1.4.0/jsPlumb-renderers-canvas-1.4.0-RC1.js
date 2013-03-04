@@ -294,8 +294,8 @@
 
 		self.appendDisplayElement(self.canvas);
 		
-		this.paint = function(d, style, anchor) {
-			jsPlumb.sizeCanvas(self.canvas, d[0], d[1], d[2], d[3]);			
+		this.paint = function(style, anchor) {
+			jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);			
 			if (style.outlineColor != null) {
 				var outlineWidth = style.outlineWidth || 1,
 				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
@@ -326,7 +326,7 @@
         	gradient.innerRadius && (innerRadius = parseValue(gradient.innerRadius));
         	return [offsetAdjustment, innerRadius];
 		};
-		this._paint = function(d, style, anchor) {
+		this._paint = function(style, anchor) {
 			if (style != null) {			
 				var ctx = self.canvas.getContext('2d'), orientation = anchor.getOrientation(self);
 				jsPlumb.extend(ctx, style);							
@@ -354,7 +354,7 @@
 		jsPlumb.Endpoints.Rectangle.apply(this, arguments);
 		CanvasEndpoint.apply(this, arguments);				
 		
-    	this._paint = function(d, style, anchor) {
+    	this._paint = function(style, anchor) {
 				
 			var ctx = self.canvas.getContext("2d"), orientation = anchor.getOrientation(self);
 			jsPlumb.extend(ctx, style);
@@ -386,7 +386,7 @@
 		jsPlumb.Endpoints.Triangle.apply(this, arguments);
 		CanvasEndpoint.apply(this, arguments);			
 		
-    	this._paint = function(d, style, anchor)
+    	this._paint = function(style, anchor)
 		{    		
 			var width = d[2], height = d[3], x = d[0], y = d[1],			
 			ctx = self.canvas.getContext('2d'),

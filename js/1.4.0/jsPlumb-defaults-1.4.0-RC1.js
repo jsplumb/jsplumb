@@ -155,13 +155,9 @@
                 else {
                     // closest point lies on normal from given point to this line.  
                     var b = y1 - (m * x1),
-                        b2 = y - (m2 * x),
-                    // now we know that
-                    // y1 = m.x1 + b
-                    // and
-                    // y1 = m2.x1 + b2
-                    // so
-                    // m.x1 + b = m2.x1 + b2
+                        b2 = y - (m2 * x),                    
+                    // y1 = m.x1 + b and y1 = m2.x1 + b2
+                    // so m.x1 + b = m2.x1 + b2
                     // x1(m - m2) = b2 - b
                     // x1 = (b2 - b) / (m - m2)
                         _x1 = (b2 -b) / (m - m2),
@@ -169,12 +165,7 @@
                         d = jsPlumbUtil.lineLength([ x, y ], [ _x1, _y1 ]),
                         fractionInSegment = jsPlumbUtil.lineLength([ _x1, _y1 ], [ x1, y1 ]);
                     
-                    return {
-                        d:d,
-                        x:_x1,
-                        y:_y1,
-                        l:fractionInSegment / length
-                    };            
+                    return { d:d, x:_x1, y:_y1, l:fractionInSegment / length};            
                 }
             };
         },
@@ -361,6 +352,39 @@
             };
         }
     };
+
+    /*
+        Class: AbstractComponent
+        Superclass for AbstractConnector and AbstractEndpoint.
+    */
+    var AbstractComponent = function() {
+        var self = this;
+        self.resetBounds = function() {
+            self.bounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
+        };
+        self.resetBounds();
+
+        self.getXY = function() {   
+            var xy = [ self.x, self.y ];
+            if (self.bounds.minX < 0)
+                xy[0] += self.bounds.minX;
+            if (self.bounds.minY < 0)
+                xy[1] += self.bounds.minY;
+            return xy;
+        };
+
+        self.getOffset = function() {
+            return [
+                self.bounds.minX < 0 ? -self.bounds.minX : 0,
+                self.bounds.minY < 0 ? -self.bounds.minY : 0
+            ];
+        };
+
+        self.getDimensions = function() {
+            var o = self.getOffset();
+            return [ Math.max(self.w + o[0], self.bounds.maxX), Math.max(self.h + o[1], self.bounds.maxY) ];
+        };
+    };
 	
 	/*
 	 * Class: AbstractConnector
@@ -374,6 +398,8 @@
 	 */ 
 	jsPlumb.Connectors.AbstractConnector = function(params) {
 		
+        AbstractComponent.apply(this, arguments);
+
 		var self = this,
             segments = [],
             editing = false,
@@ -388,7 +414,7 @@
             targetGap = jsPlumbUtil.isArray(gap) ? gap[1] : gap,
             userProvidedSegments = null,
             edited = false,
-            paintInfo = null;
+            paintInfo = null;            
         
         // subclasses should override.
         this.isEditable = function() { return false; };                
@@ -585,7 +611,7 @@
             self.x = out[0];
             self.y = out[1];
             self.w = out[2];
-            self.h = out[3];   
+            self.h = out[3];               
             self.segment = paintInfo.segment;         
             _updateSegmentProportions();            
 		};
@@ -595,8 +621,7 @@
             prepareCompute:_prepareCompute,
             sourceStub:sourceStub,
             targetStub:targetStub,
-            maxStub:Math.max(sourceStub, targetStub),
-            //gap:gap
+            maxStub:Math.max(sourceStub, targetStub),            
             sourceGap:sourceGap,
             targetGap:targetGap,
             maxGap:Math.max(sourceGap, targetGap)
@@ -758,9 +783,10 @@
  // ********************************* ENDPOINT TYPES *******************************************************************
     
     jsPlumb.Endpoints.AbstractEndpoint = function(params) {
+        AbstractComponent.apply(this, arguments);
         var self = this;    
         this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {    
-            var out = self._compute(anchorPoint, orientation, endpointStyle, connectorPaintStyle);
+            var out = self._compute.apply(self, arguments);
             self.x = out[0];
             self.y = out[1];
             self.w = out[2];
@@ -1074,12 +1100,9 @@
     	    paintStyle = params.paintStyle || { lineWidth:1 },
     	    // how far along the arrow the lines folding back in come to. default is 62.3%.
     	    foldback = params.foldback || 0.623;
-
     	    	
-    	this.computeMaxSize = function() { return self.width * 1.5; };
-    	
-    	this.cleanup = function() { };  // nothing to clean up for Arrows
-    	
+    	this.computeMaxSize = function() { return self.width * 1.5; };    	
+    	this.cleanup = function() { };  // nothing to clean up for Arrows    
     	this.draw = function(connector, currentConnectionPaintStyle) {
 
             var hxy, mid, txy, tail, cxy;

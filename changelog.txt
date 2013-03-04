@@ -10,6 +10,7 @@
         - removeConnection method removed from Endpoint. use 'detach' instead.
         - Connection does not expose 'connector' anymore. Use Connection.getConnector()
         - Connection does not expose 'canvas' anymore. Use Connection.getConnector().canvas
+        - support for tooltip has been removed.
 
 		NEW FUNCTIONALITY
 		        

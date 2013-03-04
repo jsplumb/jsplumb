@@ -244,8 +244,7 @@
 				
 				if (self.canvas == null) {										
 					p["class"] = clazz;
-					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-					if (self.tooltip) p["label"] = self.tooltip;
+					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);					
 					self.canvas = _node("shape", d, p, params.parent, self._jsPlumb, true);					                
                     //var group = _getGroup(params.parent);                   // test of append everything to a group
                     //group.appendChild(self.canvas);                           // sort of works but not exactly;
@@ -287,8 +286,6 @@
         //group.appendChild(self.canvas);
 		params["_jsPlumb"].appendElement(self.canvas, params.parent);
 
-        if (self.tooltip) self.canvas.setAttribute("label", self.tooltip);
-		
 		this.paint = function(style, anchor) {
 			var p = { };					
 			

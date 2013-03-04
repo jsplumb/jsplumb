@@ -39,8 +39,7 @@
             userSuppliedSegments = null,
             lastx = -1, lasty = -1, lastOrientation,	
             cornerRadius = params.cornerRadius != null ? params.cornerRadius : 10,	
-            sgn = function(n) { return n < 0 ? -1 : n == 0 ? 0 : 1; },
-            minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity,
+            sgn = function(n) { return n < 0 ? -1 : n == 0 ? 0 : 1; },            
             /**
              * helper method to add a segment.
              */
@@ -63,14 +62,16 @@
             },
             _cloneArray = function(a) { var _a = []; _a.push.apply(_a, a); return _a;},
             updateMinMax = function(a1, a2) {
-                minX = Math.min(minX, a1[2], a2[0]);
-                maxX = Math.max(maxX, a1[2], a2[0]);
-                minY = Math.min(minY, a1[3], a2[1]);
-                maxY = Math.max(maxY, a1[3], a2[1]);    
+                self.bounds.minX = Math.min(self.bounds.minX, a1[2], a2[0]);
+                self.bounds.maxX = Math.max(self.bounds.maxX, a1[2], a2[0]);
+                self.bounds.minY = Math.min(self.bounds.minY, a1[3], a2[1]);
+                self.bounds.maxY = Math.max(self.bounds.maxY, a1[3], a2[1]);    
             },
-            writeSegments = function(segments) {
+            writeSegments = function(segments, paintInfo) {
+                console.log("writing segments. x,y,w,h is ", paintInfo.points);
+
                 var current, next;
-                minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                self.resetBounds();
                 for (var i = 0; i < segments.length - 1; i++) {
                     current = current || _cloneArray(segments[i]);
                     next = _cloneArray(segments[i + 1]);
@@ -121,7 +122,8 @@
                     x1:next[0], y1:next[1], x2:next[2], y2:next[3]
                 });
                 
-                updateMinMax(next, next);                            
+                updateMinMax(next, next);    
+                console.log("bounds of segments", self.bounds.minX, self.bounds.minY, self.bounds.maxX, self.bounds.maxY);                
             };
         
         this.setSegments = function(s) {
@@ -145,7 +147,7 @@
                 userSuppliedSegments = null;
             
             if (userSuppliedSegments != null) {
-                writeSegments(userSuppliedSegments);
+                writeSegments(userSuppliedSegments, paintInfo);                
                 return paintInfo.points;
             }
             
@@ -285,7 +287,7 @@
             // end stub
             addSegment(segments, paintInfo.tx, paintInfo.ty);               
             
-            writeSegments(segments);            
+            writeSegments(segments, paintInfo);            
             
             return paintInfo.points;
         };	

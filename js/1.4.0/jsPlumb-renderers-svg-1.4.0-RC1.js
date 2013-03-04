@@ -102,12 +102,10 @@
 		// order to how canvas does it.  so we want to keep all the maths the same, but
 		// iterate the actual style declarations in reverse order, if the x indexes are not in order.
 		for (var i = 0; i < style.gradient.stops.length; i++) {
-			// Straight Connectors and Bezier connectors act slightly differently; this code is a bit of a kludge.  but next version of
-			// jsplumb will be replacing both Straight and Bezier to be generic instances of 'Connector', which has a list of segments.
-			// so, not too concerned about leaving this in for now.
-			var styleToUse = uiComponent.segment == 1 ||  uiComponent.segment == 2 ? i: style.gradient.stops.length - 1 - i;			
-			var stopColor = jsPlumbUtil.convertStyle(style.gradient.stops[styleToUse][1], true);
-			var s = _node(STOP, {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
+			var styleToUse = uiComponent.segment == 1 ||  uiComponent.segment == 2 ? i: style.gradient.stops.length - 1 - i,			
+				stopColor = jsPlumbUtil.convertStyle(style.gradient.stops[styleToUse][1], true),
+				s = _node(STOP, {"offset":Math.floor(style.gradient.stops[i][0] * 100) + "%", "stop-color":stopColor});
+
 			g.appendChild(s);
 		}
 		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
@@ -159,8 +157,9 @@
 		}
 	},
 	_decodeFont = function(f) {
-		var r = /([0-9].)(p[xt])\s(.*)/;
-		var bits = f.match(r);
+		var r = /([0-9].)(p[xt])\s(.*)/, 
+			bits = f.match(r);
+
 		return {size:bits[1] + bits[2], font:bits[3]};		
 	},
 	_classManip = function(el, add, clazz) {
@@ -182,12 +181,8 @@
 		
 		el.className.baseVal = curClasses.join(" ");
 	},
-	_addClass = function(el, clazz) {
-		_classManip(el, true, clazz);
-	},
-	_removeClass = function(el, clazz) {
-		_classManip(el, false, clazz);
-	};
+	_addClass = function(el, clazz) { _classManip(el, true, clazz); },
+	_removeClass = function(el, clazz) { _classManip(el, false, clazz); };
 	
 	/**
 		utility methods for other objects to use.
@@ -220,15 +215,13 @@
 				"height":0,
 				"pointer-events":pointerEventsSpec,
 				"position":"absolute"
-			};		
-		if (self.tooltip) svgParams["title"] = self.tooltip;
+			};				
 		self.svg = _node("svg", svgParams);
 		if (params.useDivWrapper) {
 			self.canvas = document.createElement("div");
 			self.canvas.style["position"] = "absolute";
 			jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
 			self.canvas.className = clazz;
-			if (self.tooltip) self.canvas.setAttribute("title", self.tooltip);
 		}
 		else {
 			_attr(self.svg, { "class":clazz });
@@ -249,22 +242,25 @@
 			displayElements.push(el);
 		};
 		
-		this.paint = function(style, anchor) {	   
+		this.paint = function(style, anchor) {	   			
 			if (style != null) {
-                var x = self.x, y = self.y;
-				if (params.useDivWrapper) {
-					jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);
-					x = 0, y = 0;
+
+				var xy = self.getXY(), wh = self.getDimensions();                
+
+				if (params.useDivWrapper) {					
+					jsPlumb.sizeCanvas(self.canvas, xy[0], xy[1], wh[0], wh[1]);
+					xy[0] = 0, xy[1] = 0;
 				}
-				var p = _pos([x, y, self.x, self.h]);
+				
+				var p = _pos([ xy[0], xy[1] ]);
                 
                 renderer.paint.apply(this, arguments);		    			    	
                 
 		    	_attr(self.svg, {
 	    			"style":p,
-	    			"width": self.w,
-	    			"height": self.h
-	    		});		    	
+	    			"width": wh[0],
+	    			"height": wh[1]
+	    		});		    		    		    	
 			}
 	    };
 		
@@ -282,13 +278,12 @@
 				cssClass:params["_jsPlumb"].connectorClass, 
 				originalArgs:arguments, 
 				pointerEventsSpec:"none", 
-				tooltip:params.tooltip,
 				_jsPlumb:params["_jsPlumb"] 
-			} ]);
-		
+			} ]);		
+
 		_super.renderer.paint = function(style) {
 			
-			var segments = self.getSegments(), p = "";
+			var segments = self.getSegments(), p = "", offset = self.getOffset();			
 			
 			// create path from segments.	
 			for (var i = 0; i < segments.length; i++) {
@@ -296,11 +291,13 @@
 				p += " ";
 			}			
 			
-			var a = { "d":p }, 
+			var a = { 
+					d:p,
+					transform:"translate(" + offset[0] + "," + offset[1] + ")",
+					"pointer-events":params["pointer-events"] || "visibleStroke"
+				}, 
                 outlineStyle = null,
-                d = [self.x,self.y,self.w,self.h];
-				
-			a["pointer-events"] = params["pointer-events"] || "visibleStroke";
+                d = [self.x,self.y,self.w,self.h];						
 			
 			// outline style.  actually means drawing an svg object underneath the main one.
 			if (style.outlineColor) {
@@ -346,23 +343,23 @@
 		SegmentRenderer : {		
 			getPath : function(segment) {
 				return ({
-					"Straight":function(segment) {
+					"Straight":function() {
 						var d = segment.getCoordinates();
 						return "M " + d.x1 + " " + d.y1 + " L " + d.x2 + " " + d.y2;	
 					},
-					"Bezier":function(segment) {
+					"Bezier":function() {
 						var d = segment.params;
 						return "M " + d.x1 + " " + d.y1 + 
-							" C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;					
+							" C " + d.cp1x + " " + d.cp1y + " " + d.cp2x + " " + d.cp2y + " " + d.x2 + " " + d.y2;			
 					},
-					"Arc":function(segment) {
+					"Arc":function() {
 						var d = segment.params,
 							laf = segment.sweep > Math.PI ? 1 : 0,
 							sf = segment.anticlockwise ? 0 : 1;
 							
 						return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
 					}
-				})[segment.type](segment);	
+				})[segment.type]();	
 			}
 		}
 	};
@@ -464,13 +461,15 @@
     			self.attachListeners(path, connector);
     			self.attachListeners(path, self);
     		}
-    		var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "";
+    		var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "",
+    			offset = connector.getOffset();
     		
     		_attr(path, { 
-    			"d"		:	makePath(d),
-    			"class" :	clazz,
-    			stroke 	: 	strokeStyle ? strokeStyle : null,
-    			fill 	: 	fillStyle ? fillStyle : null
+    			"d"			:	makePath(d),
+    			"class" 	:	clazz,
+    			stroke 		: 	strokeStyle ? strokeStyle : null,
+    			fill 		: 	fillStyle ? fillStyle : null,
+    			transform	: 	"translate(" + offset[0] + "," + offset[1] + ")"
     		});    		
     	};
     	var makePath = function(d) {
@@ -520,25 +519,29 @@
     			connector.svg.appendChild(p1_2);
     			self.attachListeners(p1_2, connector);
     			self.attachListeners(p1_2, self);
-
     		}
+
+    		var offset = connector.getOffset();
 
     		_attr(path, {
     			"d"		:	makePath(d[0], d[1]),
     			stroke 	: 	"red",
-    			fill 	: 	null
+    			fill 	: 	null,
+    			transform:"translate(" + offset[0] + "," + offset[1] + ")"
     		});
 
             _attr(p1_1, {
     			"d"		:	makePath(d[2][0], d[2][1]),
     			stroke 	: 	"blue",
-    			fill 	: 	null
+    			fill 	: 	null,
+    			transform:"translate(" + offset[0] + "," + offset[1] + ")"
     		});
 
             _attr(p1_2, {
     			"d"		:	makePath(d[3][0], d[3][1]),
     			stroke 	: 	"green",
-    			fill 	: 	null
+    			fill 	: 	null,
+    			transform:"translate(" + offset[0] + "," + offset[1] + ")"
     		});
     	};
 

@@ -82,8 +82,7 @@
 				hoverPaintStyle = null;
 
 			self._jsPlumb = params["_jsPlumb"];			
-			self.getId = function() { return id; };
-			self.tooltip = params.tooltip;
+			self.getId = function() { return id; };			
 			self.hoverClass = params.hoverClass || self._jsPlumb.Defaults.HoverClass || jsPlumb.Defaults.HoverClass;				
 			
 			// all components can generate events
@@ -940,11 +939,7 @@
             // pointer events
             if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents)
                 _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
-			
-			// tooltip.  params.tooltip takes precedence, then sourceEndpoint.connectorTooltip.
-			_p.tooltip = params.tooltip;
-			if (!_p.tooltip && _p.sourceEndpoint && _p.sourceEndpoint.connectorTooltip)
-				_p.tooltip = _p.sourceEndpoint.connectorTooltip;
+						
 			
 			// if there's a target specified (which of course there should be), and there is no
 			// target endpoint specified, and 'newConnection' was not set to true, then we check to

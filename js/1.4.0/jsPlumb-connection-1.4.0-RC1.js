@@ -41,20 +41,25 @@
             return editable;
         };        
         this.isEditable = function() { return editable; };
-        this.editStarted = function() {
+        this.editStarted = function() {            
             self.fire("editStarted", {
                 path:connector.getPath()
-            });
+            });            
+            _jsPlumb.setHoverSuspended(true);
         };
-        this.editCompleted = function() {
+        this.editCompleted = function() {            
             self.fire("editCompleted", {
                 path:connector.getPath()
-            });
+            });       
+            self.setHover(false);     
+            _jsPlumb.setHoverSuspended(false);
         };
         this.editCanceled = function() {
             self.fire("editCanceled", {
                 path:connector.getPath()
             });
+            self.setHover(false);
+            _jsPlumb.setHoverSuspended(false);
         };
        
 // END EDITABLE            

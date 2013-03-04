@@ -8,6 +8,8 @@
  		url("../font/OpenSans.woff") format('woff'); 		
 }
 
+svg { border: 1px solid red;}
+
 body {
     padding:0;
     margin:0;
