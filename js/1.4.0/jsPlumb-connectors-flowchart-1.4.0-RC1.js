@@ -68,7 +68,7 @@
                 self.bounds.maxY = Math.max(self.bounds.maxY, a1[3]);    
             },
             writeSegments = function(segments, paintInfo) {
-                console.log("writing segments. x,y,w,h is ", paintInfo.points);
+                //console.log("writing segments. x,y,w,h is ", paintInfo.points);
 
                 var current, next;
                 self.resetBounds();
@@ -77,7 +77,7 @@
                     next = _cloneArray(segments[i + 1]);
                     if (cornerRadius > 0 && current[4] != next[4]) {
                         var radiusToUse = Math.min(cornerRadius, segLength(current), segLength(next));
-                        // right angle! adjust current segment's end point, and next segment's start point.
+                        // right angle. adjust current segment's end point, and next segment's start point.
                         current[2] -= current[5] * radiusToUse;
                         current[3] -= current[6] * radiusToUse;
                         next[0] += next[5] * radiusToUse;
@@ -110,17 +110,13 @@
                         _super.addSegment("Straight", {
                             x1:current[0], y1:current[1], x2:current[2], y2:current[3]
                         });
-                    }
-                    //updateMinMax(current);
+                    }                    
                     current = next;
                 }
                 // last segment
                 _super.addSegment("Straight", {
                     x1:next[0], y1:next[1], x2:next[2], y2:next[3]
-                });
-                
-                //updateMinMax(next);    
-                console.log("bounds of segments", self.bounds.minX, self.bounds.minY, self.bounds.maxX, self.bounds.maxY);                
+                });                             
             };
         
         this.setSegments = function(s) {
