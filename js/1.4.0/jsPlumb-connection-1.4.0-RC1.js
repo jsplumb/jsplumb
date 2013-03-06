@@ -458,29 +458,58 @@
                         targetEndpoint:this.endpoints[tIdx],
                         sourceAnchor:this.endpoints[sIdx].anchor,
                         targetAnchor:this.endpoints[tIdx].anchor, 
-                        lineWidth:self.paintStyleInUse.lineWidth,
-                        minWidth:0,//maxSize,							
+                        lineWidth:self.paintStyleInUse.lineWidth,                        					
                         sourceInfo:sourceInfo,
                         targetInfo:targetInfo,
                         clearEdits:params.clearEdits === true
                     });                                        
-                                                                    
-                    // paint overlays. we do this first so we can get their placements, and adjust the
+                                                                 
+                    var overlayExtents = {
+                        minX:Infinity,
+                        minY:Infinity,
+                        maxX:-Infinity,
+                        maxY:-Infinity
+                    };                    
+                    // compute overlays. we do this first so we can get their placements, and adjust the
                     // container if needs be (if an overlay would be clipped)
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
                         if (o.isVisible) {
                             self.overlayPlacements[i] = o.draw(connector, self.paintStyleInUse);
-
-                            /*connector.bounds.minX = Math.min(connector.bounds.minX, self.overlayPlacements[i][0]);								
-                            connector.bounds.maxX = Math.max(connector.bounds.maxX, self.overlayPlacements[i][1]);
-                            connector.bounds.minY = Math.min(connector.bounds.minY, self.overlayPlacements[i][2]);                                
-                            connector.bounds.maxY = Math.max(connector.bounds.maxY, self.overlayPlacements[i][3]);*/
+                            overlayExtents.minX = Math.min(overlayExtents.minX, self.overlayPlacements[i].minx);
+                            overlayExtents.maxX = Math.max(overlayExtents.maxX, self.overlayPlacements[i].maxx);
+                            overlayExtents.minY = Math.min(overlayExtents.minY, self.overlayPlacements[i].miny);
+                            overlayExtents.maxY = Math.max(overlayExtents.maxY, self.overlayPlacements[i].maxy);
                         }
                     }
 
-                    // last, paint the connector.
-                    connector.paint(self.paintStyleInUse);                    
+                    /* so now we have the connector's bounds object:
+                    console.log("connector bounds", connector.bounds);
+                    // and the overlay placements:
+                    console.log("overlay extents", overlayExtents);
+                    // and also know the paintStyleInUse.lineWidth
+                    console.log("current line width", self.paintStyleInUse.lineWidth);
+                    */
+
+                    var extents = {
+                            xmin : Math.min(connector.bounds.minX - (self.paintStyleInUse.lineWidth / 2), overlayExtents.minX),
+                            ymin : Math.min(connector.bounds.minY - (self.paintStyleInUse.lineWidth / 2), overlayExtents.minY),
+                            xmax : Math.max(connector.bounds.maxX + (self.paintStyleInUse.lineWidth / 2), overlayExtents.maxX),
+                            ymax : Math.max(connector.bounds.maxY + (self.paintStyleInUse.lineWidth / 2), overlayExtents.maxY)
+                        };
+
+                    //console.log("extents", extents);
+
+                    // paint the connector.
+                    connector.paint(self.paintStyleInUse, null, extents);  
+
+                    // and then the overlays
+                    for ( var i = 0; i < self.overlays.length; i++) {
+                        var o = self.overlays[i];
+                        if (o.isVisible) {
+                            o.paint(self.overlayPlacements[i], extents);    
+                        }
+                    }                  
                                                             
                 }
                 lastPaintedAt = timestamp;						
