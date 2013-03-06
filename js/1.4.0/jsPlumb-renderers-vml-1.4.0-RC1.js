@@ -328,16 +328,29 @@
 						return "m" + _conv(d.x1) + "," + _conv(d.y1) + 
 				   			" c" + _conv(d.cp1x) + "," + _conv(d.cp1y) + "," + _conv(d.cp2x) + "," + _conv(d.cp2y) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";
 					},
-					"Arc":function(segment) {
-						var d = segment.params;
-						var left = _conv(d.x1 - d.r),
-							top = _conv(d.y1 - (2 * d.r)),
-							right = left + _conv(2 * d.r),
-							bottom = top + _conv(2 * d.r),
-							posString = left + "," + top + "," + right + "," + bottom;
-							
-						return "ar " + posString + "," + _conv(d.x1) + ","
-								+ _conv(d.y1) + "," + _conv(d.x1) + "," + _conv(d.y1) + " e";						
+					"Arc":function(segment) {					
+						var d = segment.params,
+							xmin = Math.min(d.x1, d.x2),
+							xmax = Math.max(d.x1, d.x2),
+							ymin = Math.min(d.y1, d.y2),
+							ymax = Math.max(d.y1, d.y2),														
+							sf = segment.anticlockwise ? 1 : 0,
+							pathType = (segment.anticlockwise ? "at " : "wa "),
+							makePosString = function() {
+								var xy = [
+										null,
+										[ function() { return [xmin, ymin ];}, function() { return [xmin - d.r, ymin - d.r ];}],
+										[ function() { return [xmin - d.r, ymin ];}, function() { return [xmin, ymin - d.r ];}],
+										[ function() { return [xmin - d.r, ymin - d.r ];}, function() { return [xmin, ymin ];}],
+										[ function() { return [xmin, ymin - d.r ];}, function() { return [xmin - d.r, ymin ];}]
+									][segment.segment][sf]();
+
+								return _conv(xy[0]) + "," + _conv(xy[1]) + "," + _conv(xy[0] + (2*d.r)) + "," + _conv(xy[1] + (2*d.r));
+							};
+
+						
+						return pathType + makePosString() + "," + _conv(d.x1) + ","
+								+ _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";						
 					}
 						
 				})[segment.type](segment);	
@@ -385,6 +398,9 @@
 	 */
 	jsPlumb.Overlays.vml.Custom = jsPlumb.Overlays.Custom;
 	
+	/**
+	 * Abstract VML arrow superclass
+	 */
 	var AbstractVmlArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
     	VmlComponent.apply(this, originalArgs);
@@ -398,24 +414,24 @@
     		       " " + _conv(d.tail[1].x) + "," + _conv(d.tail[1].y) + 
     		       " x e";
     	};
-    	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
-    		var p = {};
-			if (strokeStyle) {
+    	this.paint = function(params, containerExtents) {
+    		var p = {}, d = params.d, connector = params.connector;
+			if (params.strokeStyle) {
 				p["stroked"] = "true";
-				p["strokecolor"] = jsPlumbUtil.convertStyle(strokeStyle, true);    				
+				p["strokecolor"] = jsPlumbUtil.convertStyle(params.strokeStyle, true);    				
 			}
-			if (lineWidth) p["strokeweight"] = lineWidth + "px";
-			if (fillStyle) {
+			if (params.lineWidth) p["strokeweight"] = params.lineWidth + "px";
+			if (params.fillStyle) {
 				p["filled"] = "true";
-				p["fillcolor"] = fillStyle;
+				p["fillcolor"] = params.fillStyle;
 			}
 			var xmin = Math.min(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
-			ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
-			xmax = Math.max(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
-			ymax = Math.max(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
-			w = Math.abs(xmax - xmin),
-			h = Math.abs(ymax - ymin),
-			dim = [xmin, ymin, w, h];
+				ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
+				xmax = Math.max(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
+				ymax = Math.max(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
+				w = Math.abs(xmax - xmin),
+				h = Math.abs(ymax - ymin),
+				dim = [xmin, ymin, w, h];
 			
 			// for VML, we create overlays using shapes that have the same dimensions and
 			// coordsize as their connector - overlays calculate themselves relative to the
