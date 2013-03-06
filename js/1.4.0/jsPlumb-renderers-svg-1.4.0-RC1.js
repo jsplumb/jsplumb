@@ -246,29 +246,33 @@
 		
 		this.appendDisplayElement = function(el) {
 			displayElements.push(el);
-		};
-
-		self.getStylePadding = function(_) { return 0; };
+		};		
 		
-		this.paint = function(style, anchor) {	   			
+		this.paint = function(style, anchor, extents) {	   			
 			if (style != null) {
-
-				var xy = self.getXY(), wh = self.getDimensions(), lw = 0, p;//self.getStylePadding(style), p;
+				
+				var xy = [ self.x, self.y ], wh = [ self.w, self.h ], p;
+				if (extents != null) {
+					if (extents.xmin < 0) xy[0] += extents.xmin;
+					if (extents.ymin < 0) xy[1] += extents.ymin;
+					wh[0] = extents.xmax - extents.xmin;
+					wh[1] = extents.ymax - extents.ymin;
+				}
 
 				if (params.useDivWrapper) {					
-					jsPlumb.sizeCanvas(self.canvas, xy[0] - lw, xy[1] - lw, wh[0] + (2 * lw), wh[1] + (2 * lw));
+					jsPlumb.sizeCanvas(self.canvas, xy[0], xy[1], wh[0], wh[1]);
 					xy[0] = 0, xy[1] = 0;
 					p = _pos([ 0, 0 ]);
 				}
 				else
-					p = _pos([ xy[0] - lw, xy[1] - lw ]);
+					p = _pos([ xy[0], xy[1] ]);
                 
                 renderer.paint.apply(this, arguments);		    			    	
                 
 		    	_attr(self.svg, {
 	    			"style":p,
-	    			"width": wh[0] + (2 * lw),
-	    			"height": wh[1] + (2 * lw)
+	    			"width": wh[0],
+	    			"height": wh[1]
 	    		});		    		    		    	
 			}
 	    };
@@ -288,15 +292,13 @@
 				originalArgs:arguments, 
 				pointerEventsSpec:"none", 
 				_jsPlumb:params["_jsPlumb"] 
-			} ]);		
+			} ]);				
 
-		self.getStylePadding = function(style) {			
-			return Math.max(style.lineWidth || 0, style.outlineWidth || 0);
-		};
-
-		_super.renderer.paint = function(style) {
+		_super.renderer.paint = function(style, anchor, extents) {
 			
-			var segments = self.getSegments(), p = "", offset = self.getOffset(), lw = 0;//self.getStylePadding(style);
+			var segments = self.getSegments(), p = "", offset = [0,0];			
+			if (extents.xmin < 0) offset[0] = -extents.xmin;
+			if (extents.ymin < 0) offset[1] = -extents.ymin;			
 			
 			// create path from segments.	
 			for (var i = 0; i < segments.length; i++) {
@@ -306,7 +308,7 @@
 			
 			var a = { 
 					d:p,
-					transform:"translate(" + (offset[0] + lw) + "," + (offset[1] + lw) + ")",
+					transform:"translate(" + offset[0] + "," + offset[1] + ")",
 					"pointer-events":params["pointer-events"] || "visibleStroke"
 				}, 
                 outlineStyle = null,
@@ -368,8 +370,8 @@
 					"Arc":function() {
 						var d = segment.params,
 							laf = segment.sweep > Math.PI ? 1 : 0,
-							sf = segment.anticlockwise ? 0 : 1;
-							
+							sf = segment.anticlockwise ? 0 : 1;			
+
 						return "M" + segment.x1 + " " + segment.y1 + " A " + segment.radius + " " + d.r + " 0 " + laf + "," + sf + " " + segment.x2 + " " + segment.y2;
 					}
 				})[segment.type]();	
@@ -464,24 +466,27 @@
     	jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
         this.isAppendedAtTopLevel = false;
     	var self = this, path = null;
-    	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
+    	this.paint = function(params, containerExtents) {
     		if (path == null) {
     			path = _node("path", {
     				"pointer-events":"all"	
     			});
-    			connector.svg.appendChild(path);
+    			params.connector.svg.appendChild(path);
     			
-    			self.attachListeners(path, connector);
+    			self.attachListeners(path, params.connector);
     			self.attachListeners(path, self);
     		}
     		var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "",
-    			offset = connector.getOffset();
+    			offset = [0,0];
+
+    		if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
+    		if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
     		
     		_attr(path, { 
-    			"d"			:	makePath(d),
+    			"d"			:	makePath(params.d),
     			"class" 	:	clazz,
-    			stroke 		: 	strokeStyle ? strokeStyle : null,
-    			fill 		: 	fillStyle ? fillStyle : null,
+    			stroke 		: 	params.strokeStyle ? params.strokeStyle : null,
+    			fill 		: 	params.fillStyle ? params.fillStyle : null,
     			transform	: 	"translate(" + offset[0] + "," + offset[1] + ")"
     		});    		
     	};
