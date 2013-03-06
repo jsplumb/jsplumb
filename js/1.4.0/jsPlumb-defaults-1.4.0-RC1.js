@@ -252,7 +252,10 @@
             }
             
             if (this.endAngle < 0) this.endAngle += TWO_PI;
-            if (this.startAngle < 0) this.startAngle += TWO_PI;        
+            if (this.startAngle < 0) this.startAngle += TWO_PI;   
+
+            // segment is used by vml     
+            this.segment = jsPlumbUtil.segment([this.x1, this.y1], [this.x2, this.y2]);
             
             // we now have startAngle and endAngle as positive numbers, meaning the
             // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
@@ -380,29 +383,7 @@
         self.resetBounds = function() {
             self.bounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
         };
-        self.resetBounds();
-
-        self.getXY = function() {   
-            var xy = [ self.x, self.y ];
-            if (self.bounds.minX < 0)
-                xy[0] += self.bounds.minX;
-            if (self.bounds.minY < 0)
-                xy[1] += self.bounds.minY;
-            return xy;
-        };
-
-        self.getOffset = function() {
-            return [
-                self.bounds.minX < 0 ? -self.bounds.minX : 0,
-                self.bounds.minY < 0 ? -self.bounds.minY : 0
-            ];
-        };
-
-        self.getDimensions = function() {
-            var o = self.getOffset();
-            return [ self.bounds.maxX - self.bounds.minX , self.bounds.maxY - self.bounds.minY];
-        };
-        
+        self.resetBounds();        
     };
 	
 	/*
@@ -1163,23 +1144,27 @@
                 }
 
                 tail = jsPlumbUtil.perpendicularLineTo(hxy, txy, self.width);
-                cxy = jsPlumbUtil.pointOnLine(hxy, txy, foldback * self.length);
-
-    			var minx = Math.min(hxy.x, tail[0].x, tail[1].x),
-    				maxx = Math.max(hxy.x, tail[0].x, tail[1].x),
-    				miny = Math.min(hxy.y, tail[0].y, tail[1].y),
-    				maxy = Math.max(hxy.y, tail[0].y, tail[1].y);
+                cxy = jsPlumbUtil.pointOnLine(hxy, txy, foldback * self.length);    			
     			
     			var d = { hxy:hxy, tail:tail, cxy:cxy },
     			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
     			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
-    			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth;
-    			
-    			self.paint(connector, d, lineWidth, strokeStyle, fillStyle);							
-			
-			    return [ minx, maxx, miny, maxy]; 
+    			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth,
+                    info = {
+                        connector:connector, 
+                        d:d, 
+                        lineWidth:lineWidth, 
+                        strokeStyle:strokeStyle, 
+                        fillStyle:fillStyle,
+                        minx:Math.min(hxy.x, tail[0].x, tail[1].x),
+                        maxx:Math.max(hxy.x, tail[0].x, tail[1].x),
+                        miny:Math.min(hxy.y, tail[0].y, tail[1].y),
+                        maxy:Math.max(hxy.y, tail[0].y, tail[1].y)
+                    };    			
+						    
+                return info;
             }
-            else return [0,0,0,0];
+            else return {minx:0,maxx:0,miny:0,maxy:0};
     	};
     };          
     
@@ -1294,15 +1279,15 @@
     		if (div != null) jpcl.removeElement(div);
     	};
 		
-		this.paint = function(component, d) {
+		this.paint = function(params, containerExtents) {
 			if (!initialised) {
 				self.getElement();
-				component.appendDisplayElement(div);
-				self.attachListeners(div, component);
+				params.component.appendDisplayElement(div);
+				self.attachListeners(div, params.component);
 				initialised = true;
 			}
-			div.style.left = (component.x + d.minx) + "px";
-			div.style.top = (component.y + d.miny) + "px";			
+			div.style.left = (params.component.x + params.d.minx) + "px";
+			div.style.top = (params.component.y + params.d.miny) + "px";			
     	};
 				
 		this.draw = function(component, currentConnectionPaintStyle) {
@@ -1323,12 +1308,19 @@
                             y:locToUse[1] * component.h };      
                 } 
                            
-				minx = cxy.x - (td[0] / 2),
-				miny = cxy.y - (td[1] / 2);				
-				self.paint(component, { minx:minx, miny:miny, td:td, cxy:cxy });				
-				return [minx, minx + td[0], miny, miny + td[1]];
+				var minx = cxy.x - (td[0] / 2),
+				    miny = cxy.y - (td[1] / 2);
+
+                return {
+                    component:component, 
+                    d:{ minx:minx, miny:miny, td:td, cxy:cxy },
+                    minx:minx, 
+                    maxx:minx + td[0], 
+                    miny:miny, 
+                    maxy:miny + td[1]
+                };								
         	}
-	    	else return [0,0,0,0];
+	    	else return {minx:0,maxx:0,miny:0,maxy:0};
 	    };
 	    
 	    this.reattachListeners = function(connector) {
