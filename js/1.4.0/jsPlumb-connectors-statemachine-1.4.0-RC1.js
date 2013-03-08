@@ -130,37 +130,29 @@
 	 * showLoopback   -   If set to false this tells the connector that it is ok to paint connections whose source and target is the same element with a connector running through the element. The default value for this is true; the connector always makes a loopback connection loop around the element rather than passing through it.
 	*/
 	jsPlumb.Connectors.StateMachine = function(params) {
+		params = params || {};
+		this.type = "StateMachine";
+
 		var self = this,
 			_super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
-			currentPoints = null,
-			_sx, _sy, _tx, _ty, _controlPoint = [],
 			curviness = params.curviness || 10,
 			margin = params.margin || 5,
 			proximityLimit = params.proximityLimit || 80,
 			clockwise = params.orientation && params.orientation === "clockwise",
 			loopbackRadius = params.loopbackRadius || 25,
 			showLoopback = params.showLoopback !== false;
-
-		this.type = "StateMachine";
-		params = params || {};		
 		
 		this._compute = function(paintInfo, params) {
 			var w = Math.abs(params.sourcePos[0] - params.targetPos[0]),
 				h = Math.abs(params.sourcePos[1] - params.targetPos[1]),
-				// these are padding to ensure the whole connector line appears
-				xo = 0.45 * w, yo = 0.45 * h;
-				// these are padding to ensure the whole connector line appears
-				w *= 1.9; h *= 1.9;
-				//ensure at least one pixel width
-				var lineWidth = params.lineWidth || 1;
-				var x = Math.min(params.sourcePos[0], params.targetPos[0]) - xo,
-					y = Math.min(params.sourcePos[1], params.targetPos[1]) - yo;
+				x = Math.min(params.sourcePos[0], params.targetPos[0]),
+				y = Math.min(params.sourcePos[1], params.targetPos[1]);
 		
 			if (!showLoopback || (params.sourceEndpoint.elementId !== params.targetEndpoint.elementId)) {                            
-				_sx = params.sourcePos[0] < params.targetPos[0] ?  xo : w-xo;
-				_sy = params.sourcePos[1] < params.targetPos[1] ? yo:h-yo;
-				_tx = params.sourcePos[0] < params.targetPos[0] ? w-xo : xo;
-				_ty = params.sourcePos[1] < params.targetPos[1] ? h-yo : yo;
+				var _sx = params.sourcePos[0] < params.targetPos[0] ? 0  : w,
+					_sy = params.sourcePos[1] < params.targetPos[1] ? 0:h,
+					_tx = params.sourcePos[0] < params.targetPos[0] ? w : 0,
+					_ty = params.sourcePos[1] < params.targetPos[1] ? h : 0;
             
 				// now adjust for the margin
 				if (params.sourcePos[2] === 0) _sx -= margin;
@@ -197,11 +189,10 @@
             	    dy =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.sin(theta2)),
 				    dx =  (m2 == Infinity || m2 == -Infinity) ? 0 : Math.abs(curviness / 2 * Math.cos(theta2)),
 				    segment = _segment(_sx, _sy, _tx, _ty),
-				    distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2));
-			
-            	// calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
-            	// will work by extending the control point to force the curve to be, um, curvier.
-				_controlPoint = _findControlPoint(_midx,
+				    distance = Math.sqrt(Math.pow(_tx - _sx, 2) + Math.pow(_ty - _sy, 2)),			
+	            	// calculate the control point.  this code will be where we'll put in a rudimentary element avoidance scheme; it
+	            	// will work by extending the control point to force the curve to be, um, curvier.
+					_controlPoint = _findControlPoint(_midx,
                                                   _midy,
                                                   segment,
                                                   params.sourcePos,
@@ -209,29 +200,7 @@
                                                   curviness, curviness,
                                                   distance,
                                                   proximityLimit);
-	            	
-            	var requiredWidth = Math.max(Math.abs(_controlPoint[0] - _sx) * 3, Math.abs(_controlPoint[0] - _tx) * 3, Math.abs(_tx-_sx), 2 * lineWidth, params.minWidth),
-            		requiredHeight = Math.max(Math.abs(_controlPoint[1] - _sy) * 3, Math.abs(_controlPoint[1] - _ty) * 3, Math.abs(_ty-_sy), 2 * lineWidth, params.minWidth);
-
-            	if (w < requiredWidth) {      	
-            		var dw = requiredWidth - w;            		
-            		x -= (dw / 2);
-            		_sx += (dw / 2);
-            		_tx  += (dw / 2);
-            		w = requiredWidth;
-                    _controlPoint[0] += (dw / 2);
-            	}
-            	
-            	if (h < requiredHeight) {
-            		var dh = requiredHeight - h;
-            		y -= (dh / 2);
-            		_sy += (dh / 2);
-            		_ty += (dh / 2);
-            		h = requiredHeight;
-                    _controlPoint[1] += (dh / 2);
-            	}
-            	currentPoints = [ x, y, w, h, _sx, _sy, _tx, _ty, _controlPoint[0], _controlPoint[1] ];
-				
+	            	            	            	
 				_super.addSegment("Bezier", {
 					x1:_tx, y1:_ty, x2:_sx, y2:_sy,
 					cp1x:_controlPoint[0], cp1y:_controlPoint[1],
@@ -241,12 +210,19 @@
             else {
             	// a loopback connector.  draw an arc from one anchor to the other.            	
         		var x1 = params.sourcePos[0], x2 = params.sourcePos[0], y1 = params.sourcePos[1] - margin, y2 = params.sourcePos[1] - margin, 				
-					cx = x1, cy = y1 - loopbackRadius;
+					cx = x1, cy = y1 - loopbackRadius,
+					lineWidth = 0;//params.lineWidth || 0,
 				
-				// canvas sizing stuff, to ensure the whole painted area is visible.
-				w = ((2 * lineWidth) + (4 * loopbackRadius)), h = ((2 * lineWidth) + (4 * loopbackRadius));
-				x = cx - loopbackRadius - lineWidth - loopbackRadius, y = cy - loopbackRadius - lineWidth - loopbackRadius;
-				currentPoints = [ x, y, w, h, cx-x, cy-y, loopbackRadius, clockwise, x1-x, y1-y, x2-x, y2-y];
+					// canvas sizing stuff, to ensure the whole painted area is visible.
+					w = ((2 * lineWidth) + (4 * loopbackRadius)), 
+					h = ((2 * lineWidth) + (4 * loopbackRadius)),
+					x = cx - loopbackRadius - lineWidth - loopbackRadius, 
+					y = cy - loopbackRadius - lineWidth - loopbackRadius;
+
+				paintInfo.points[0] = x;
+				paintInfo.points[1] = y;
+				paintInfo.points[2] = w;
+				paintInfo.points[3] = h;
 				
 				// ADD AN ARC SEGMENT.
 				_super.addSegment("Arc", {
@@ -261,9 +237,7 @@
 					cx:cx-x,
 					cy:cy-y
 				});
-            }
-                
-            return currentPoints;
+            }                           
         };                        
 	};
 })();
