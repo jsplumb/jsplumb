@@ -70,8 +70,7 @@
             writeSegments = function(segments, paintInfo) {
                 //console.log("writing segments. x,y,w,h is ", paintInfo.points);
 
-                var current, next;
-                self.resetBounds();
+                var current, next;                
                 for (var i = 0; i < segments.length - 1; i++) {
                     current = current || _cloneArray(segments[i]);
                     next = _cloneArray(segments[i + 1]);
@@ -141,7 +140,7 @@
             
             if (userSuppliedSegments != null) {
                 writeSegments(userSuppliedSegments, paintInfo);                
-                return paintInfo.points;
+                return;
             }
             
             segments = [];
@@ -273,9 +272,7 @@
             // end stub
             addSegment(segments, paintInfo.tx, paintInfo.ty);               
             
-            writeSegments(segments, paintInfo);            
-            
-            return paintInfo.points;
+            writeSegments(segments, paintInfo);                            
         };	
 
         this.getPath = function() {
