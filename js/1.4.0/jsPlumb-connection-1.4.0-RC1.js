@@ -432,9 +432,9 @@
 
                 if (timestamp == null || timestamp != lastPaintedAt) {                        
                     var sourceInfo = _jsPlumb.updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
-                        targetInfo = _jsPlumb.updateOffset( { elId : tId, timestamp : timestamp }).o; // update the target if this is a forced repaint. otherwise, only the source has been moved.
-                    
-                    var sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
+                        targetInfo = _jsPlumb.updateOffset( { elId : tId, timestamp : timestamp }).o, // update the target if this is a forced repaint. otherwise, only the source has been moved.
+                        sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
+
                     if (params.clearEdits) {
                         sE.anchor.clearUserDefinedLocation();
                         tE.anchor.clearUserDefinedLocation();
@@ -442,15 +442,10 @@
                     }
                     
                     var sAnchorP = sE.anchor.getCurrentLocation(sE),				
-                        tAnchorP = tE.anchor.getCurrentLocation(tE);
-                                
-                    /* find largest overlay; we use it to ensure sufficient padding in the connector canvas.
-                    var maxSize = 0;
-                    for ( var i = 0; i < self.overlays.length; i++) {
-                        var o = self.overlays[i];
-                        if (o.isVisible()) maxSize = Math.max(maxSize, o.computeMaxSize());
-                    }*/						
+                        tAnchorP = tE.anchor.getCurrentLocation(tE);                                
                         
+                    connector.resetBounds();
+
                     connector.compute({
                         sourcePos:sAnchorP,
                         targetPos:tAnchorP, 
@@ -491,11 +486,12 @@
                     console.log("current line width", self.paintStyleInUse.lineWidth);
                     */
 
-                    var extents = {
-                            xmin : Math.min(connector.bounds.minX - (self.paintStyleInUse.lineWidth / 2), overlayExtents.minX),
-                            ymin : Math.min(connector.bounds.minY - (self.paintStyleInUse.lineWidth / 2), overlayExtents.minY),
-                            xmax : Math.max(connector.bounds.maxX + (self.paintStyleInUse.lineWidth / 2), overlayExtents.maxX),
-                            ymax : Math.max(connector.bounds.maxY + (self.paintStyleInUse.lineWidth / 2), overlayExtents.maxY)
+                    var lineWidth = (self.paintStyleInUse.lineWidth || 1) / 2,
+                        extents = {
+                            xmin : Math.min(connector.bounds.minX - lineWidth, overlayExtents.minX),
+                            ymin : Math.min(connector.bounds.minY - lineWidth, overlayExtents.minY),
+                            xmax : Math.max(connector.bounds.maxX + lineWidth, overlayExtents.maxX),
+                            ymax : Math.max(connector.bounds.maxY + lineWidth, overlayExtents.maxY)
                         };
 
                     //console.log("extents", extents);
