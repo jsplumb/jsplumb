@@ -6,7 +6,9 @@
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
  * 
- * This file contains the HTML5 canvas renderers.
+ * This file contains the HTML5 canvas renderers.  Support for canvas was dropped in 1.4.0.
+ * This is being kept around because canvas might make a comeback as a single-page solution
+ * that also supports node rendering.
  *
  * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
  * 
@@ -18,6 +20,33 @@
  */
 
 ;(function() {
+
+// event binding from jsplumb.  canvas no longer supported.  but it may make a comeback in 
+// the form of a single-page canvas.
+
+/*var bindOne = function(event) {
+                    jsPlumb.CurrentLibrary.bind(document, event, function(e) {
+                        if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
+                            // try connections first
+                            for (var scope in connectionsByScope) {
+                                var c = connectionsByScope[scope];
+                                for (var i = 0, ii = c.length; i < ii; i++) {
+                                    var t = c[i].getConnector()[event](e);
+                                    if (t) return;	
+                                }
+                            }
+                            for (var el in endpointsByElement) {
+                                var ee = endpointsByElement[el];
+                                for (var i = 0, ii = ee.length; i < ii; i++) {
+                                    if (ee[i].endpoint[event](e)) return;
+                                }
+                            }
+                        }
+                    });					
+				};
+				bindOne("click");bindOne("dblclick");bindOne("mousemove");bindOne("mousedown");bindOne("mouseup");bindOne("contextmenu");
+				*/
+
 	
 // ********************************* CANVAS RENDERERS FOR CONNECTORS AND ENDPOINTS *******************************************************************
 		
