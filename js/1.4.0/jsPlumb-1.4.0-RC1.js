@@ -2272,35 +2272,11 @@ between this method and jsPlumb.reset).
 		 * mouse listeners etc; can't do that until the library has provided a bind method)		 
 		 */
 		this.init = function() {
-			if (!initialized) {
-                
+			if (!initialized) {                
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
-				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.
-				
-				var bindOne = function(event) {
-                    jsPlumb.CurrentLibrary.bind(document, event, function(e) {
-                        if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
-                            // try connections first
-                            for (var scope in connectionsByScope) {
-                                var c = connectionsByScope[scope];
-                                for (var i = 0, ii = c.length; i < ii; i++) {
-                                    var t = c[i].getConnector()[event](e);
-                                    if (t) return;	
-                                }
-                            }
-                            for (var el in endpointsByElement) {
-                                var ee = endpointsByElement[el];
-                                for (var i = 0, ii = ee.length; i < ii; i++) {
-                                    if (ee[i].endpoint[event](e)) return;
-                                }
-                            }
-                        }
-                    });					
-				};
-				bindOne("click");bindOne("dblclick");bindOne("mousemove");bindOne("mousedown");bindOne("mouseup");bindOne("contextmenu");
-			
+				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.										
 				initialized = true;
-				_currentInstance.fire("ready");
+				_currentInstance.fire("ready", _currentInstance);
 			}
 		};
 		
@@ -3380,12 +3356,6 @@ between this method and jsPlumb.reset).
         this.timestamp = _timestamp;
 		
 		/*
-		 * Property: CANVAS
-		 * Constant for use with the setRenderMode method
-		 */
-		this.CANVAS = "canvas";
-		
-		/*
 		 * Property: SVG
 		 * Constant for use with the setRenderMode method
 		 */
@@ -3399,7 +3369,7 @@ between this method and jsPlumb.reset).
 		
 		/*
 		 * Function: setRenderMode
-		 * Sets render mode: jsPlumb.CANVAS, jsPlumb.SVG or jsPlumb.VML.  jsPlumb will fall back to VML if it determines that
+		 * Sets render mode: jsPlumb.SVG or jsPlumb.VML.  jsPlumb will fall back to VML if it determines that
 		 * what you asked for is not supported (and that VML is).  If you asked for VML but the browser does
 		 * not support it, jsPlumb uses SVG.
 		 *
