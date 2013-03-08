@@ -271,6 +271,15 @@
             this.getLength = function() {
                 return length;
             };
+
+            this.getBounds = function() {
+                return {
+                    minX:params.cx - params.r,
+                    maxX:params.cx + params.r,
+                    minY:params.cy - params.r,
+                    maxY:params.cy + params.r
+                }
+            };
             
             var VERY_SMALL_VALUE = 0.0000000001,
                 gentleRound = function(n) {
@@ -335,7 +344,16 @@
                     { x:params.cp1x, y:params.cp1y },
                     { x:params.cp2x, y:params.cp2y },
                     { x:params.x2, y:params.y2 }
-                ];
+                ],
+                // although this is not a strictly rigorous determination of bounds
+                // of a bezier curve, it works for the types of curves that this segment
+                // type produces.
+                bounds = {
+                    minX:Math.min(params.x1, params.x2, params.cp1x, params.cp2x),
+                    minY:Math.min(params.y1, params.y2, params.cp1y, params.cp2y),
+                    maxX:Math.max(params.x1, params.x2, params.cp1x, params.cp2x),
+                    maxY:Math.max(params.y1, params.y2, params.cp1y, params.cp2y)
+                };
                 
             this.type = "Bezier";            
             
@@ -370,6 +388,10 @@
             
             this.getLength = function() {
                 return jsBezier.getLength(curve);				
+            };
+
+            this.getBounds = function() {
+                return bounds;
             };
         }
     };
@@ -605,11 +627,11 @@
                 paintInfo = _prepareCompute(params);
             
             _clearSegments();
-            var out = this._compute(paintInfo, params);
-            self.x = out[0];
-            self.y = out[1];
-            self.w = out[2];
-            self.h = out[3];               
+            this._compute(paintInfo, params);
+            self.x = paintInfo.points[0];
+            self.y = paintInfo.points[1];
+            self.w = paintInfo.points[2];
+            self.h = paintInfo.points[3];               
             self.segment = paintInfo.segment;         
             _updateSegmentProportions();            
 		};
@@ -634,13 +656,10 @@
     	this.type = "Straight";
 		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);		
 
-        this._compute = function(paintInfo, params) {            
-            
+        this._compute = function(paintInfo, _) {                        
             _super.addSegment("Straight", {x1:paintInfo.sx, y1:paintInfo.sy, x2:paintInfo.startStubX, y2:paintInfo.startStubY});                                                
             _super.addSegment("Straight", {x1:paintInfo.startStubX, y1:paintInfo.startStubY, x2:paintInfo.endStubX, y2:paintInfo.endStubY});                        
-            _super.addSegment("Straight", {x1:paintInfo.endStubX, y1:paintInfo.endStubY, x2:paintInfo.tx, y2:paintInfo.ty});                        
-            
-            return paintInfo.points;
+            _super.addSegment("Straight", {x1:paintInfo.endStubX, y1:paintInfo.endStubY, x2:paintInfo.tx, y2:paintInfo.ty});                                    
         };                    
     };
                     
@@ -660,15 +679,15 @@
      * 
      */
     jsPlumb.Connectors.Bezier = function(params) {
+        params = params || {};
+
     	var self = this,
 			_super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
-			currentPoints = null;
-			
-    	params = params || {};
-    	this.majorAnchor = params.curviness || 150;        
-        this.minorAnchor = 10;        
-        this.type = "Bezier";
-		var stub = params.stub || 50;
+            stub = params.stub || 50,
+            majorAnchor = params.curviness || 150,
+            minorAnchor = 10;   
+
+        this.type = "Bezier";		
         
         this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor) {
         	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
@@ -676,103 +695,46 @@
         	var soo = sourceAnchor.getOrientation(sourceEndpoint), 
         		too = targetAnchor.getOrientation(targetEndpoint),
         		perpendicular = soo[0] != too[0] || soo[1] == too[1],
-            	p = [],            
-            	ma = self.majorAnchor, mi = self.minorAnchor;                
+            	p = [];                
             	
             if (!perpendicular) {
                 if (soo[0] == 0) // X
-                    p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + mi : point[0] - mi);
-                else p.push(point[0] - (ma * soo[0]));
+                    p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
+                else p.push(point[0] - (majorAnchor * soo[0]));
                                  
                 if (soo[1] == 0) // Y
-                	p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + mi : point[1] - mi);
-                else p.push(point[1] + (ma * too[1]));
+                	p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
+                else p.push(point[1] + (majorAnchor * too[1]));
             }
              else {
                 if (too[0] == 0) // X
-                	p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + mi : point[0] - mi);
-                else p.push(point[0] + (ma * too[0]));
+                	p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
+                else p.push(point[0] + (majorAnchor * too[0]));
                 
                 if (too[1] == 0) // Y
-                	p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + mi : point[1] - mi);
-                else p.push(point[1] + (ma * soo[1]));
+                	p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
+                else p.push(point[1] + (majorAnchor * soo[1]));
              }
 
             return p;                
         };        
 
-        var _CP, _CP2, _sx, _tx, _ty, _sx, _sy, _canvasX, _canvasY, _w, _h, _sStubX, _sStubY, _tStubX, _tStubY;
+        this._compute = function(paintInfo, p) {                                
+			var sp = p.sourcePos,
+				tp = p.targetPos,				
+                _w = Math.abs(sp[0] - tp[0]),
+                _h = Math.abs(sp[1] - tp[1]),            
+                _sx = sp[0] < tp[0] ? _w : 0,
+                _sy = sp[1] < tp[1] ? _h : 0,
+                _tx = sp[0] < tp[0] ? 0 : _w,
+                _ty = sp[1] < tp[1] ? 0 : _h,
+                _CP = self._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, p.sourceAnchor, p.targetAnchor),
+                _CP2 = self._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, p.targetAnchor, p.sourceAnchor);
 
-        this._compute = function(paintInfo, p) {                        
-            
-        	// this calculation gives us what the minimum distance between either start or end
-			// should be from the edge of the canvas.
-			var sp = [p.sourcePos[0], p.sourcePos[1]],
-				tp = [ p.targetPos[0], p.targetPos[1] ];
-
-			// -----------------------------
-			
-			// STUB ?
-			
-			
-			// ------------------
-				
-			var lineWidth = Math.max(p.minWidth, (p.lineWidth || 0));
-            _w = Math.abs(sp[0] - tp[0]) + lineWidth; 
-            _h = Math.abs(sp[1] - tp[1]) + lineWidth;
-            
-            _canvasX = Math.min(sp[0], tp[0])-(lineWidth/2);
-            _canvasY = Math.min(sp[1], tp[1])-(lineWidth/2);
-            _canvasX = Math.min(sp[0], tp[0])-(lineWidth/2);
-            _canvasY = Math.min(sp[1], tp[1])-(lineWidth/2);            
-      
-            _sx = sp[0] < tp[0] ? _w - (lineWidth/2): (lineWidth/2);
-            _sy = sp[1] < tp[1] ? _h - (lineWidth/2) : (lineWidth/2);
-            _tx = sp[0] < tp[0] ? (lineWidth/2) : _w - (lineWidth/2);
-            _ty = sp[1] < tp[1] ? (lineWidth/2) : _h - (lineWidth/2);
-                        
-            _CP = self._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, p.sourceAnchor, p.targetAnchor);
-            _CP2 = self._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, p.targetAnchor, p.sourceAnchor);                
-            var minx1 = Math.min(_sx,_tx), minx2 = Math.min(_CP[0], _CP2[0]), minx = Math.min(minx1,minx2),
-            	maxx1 = Math.max(_sx,_tx), maxx2 = Math.max(_CP[0], _CP2[0]), maxx = Math.max(maxx1,maxx2);
-            
-            if (maxx > _w) _w = maxx;
-            if (minx < 0) {
-                _canvasX += minx; var ox = Math.abs(minx);
-                _w += ox; _CP[0] += ox; _sx += ox; _tx +=ox; _CP2[0] += ox;                
-            }                
-
-            var miny1 = Math.min(_sy,_ty), miny2 = Math.min(_CP[1], _CP2[1]), miny = Math.min(miny1,miny2),
-            	maxy1 = Math.max(_sy,_ty), maxy2 = Math.max(_CP[1], _CP2[1]), maxy = Math.max(maxy1,maxy2);
-            	
-            if (maxy > _h) _h = maxy;
-            if (miny < 0) {
-                _canvasY += miny; var oy = Math.abs(miny);
-                _h += oy; _CP[1] += oy; _sy += oy; _ty +=oy; _CP2[1] += oy;                
-            }
-            
-            if (p.minWidth && _w < p.minWidth) {
-            	var posAdjust = (p.minWidth - _w) / 2;
-        		_w = minWidth;        		
-        		_canvasX -= posAdjust; _sx = _sx + posAdjust ; _tx = _tx + posAdjust; _CP[0] =  _CP[0] + posAdjust; _CP2[0] = _CP2[0] + posAdjust;
-        	}
-            
-            if (p.minWidth && paintInfo.h < p.minWidth) {
-            	var posAdjust = (p.minWidth - _h) / 2;
-        		_h = p.minWidth;        		
-        		_canvasY -= posAdjust; _sy = _sy + posAdjust ; _ty = _ty + posAdjust; _CP[1] =  _CP[1] + posAdjust; _CP2[1] = _CP2[1] + posAdjust;
-        	}
-
-            currentPoints = [_canvasX, _canvasY, _w, _h,
-                             _sx, _sy, _tx, _ty,
-                             _CP[0], _CP[1], _CP2[0], _CP2[1] ];
-												
 			_super.addSegment("Bezier", {
 				x1:_sx, y1:_sy, x2:_tx, y2:_ty,
 				cp1x:_CP[0], cp1y:_CP[1], cp2x:_CP2[0], cp2y:_CP2[1]
-			});
-            
-            return currentPoints;            
+			});                    
         };               
     };        
     
