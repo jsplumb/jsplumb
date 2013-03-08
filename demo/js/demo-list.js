@@ -54,8 +54,7 @@
 			var bod = document.body,
 				demoId = bod.getAttribute("data-demo-id"),
 				library = bod.getAttribute("data-library"),
-				renderModeString = '<a href="#" class="rmode" mode="svg" title="Use SVG for rendering">SVG</a>&nbsp;<a href="#" class="selected rmode" mode="canvas" title="Use Canvas elements for rendering">Canvas</a>&nbsp;<a href="#" class="rmode" mode="vml" title="Use VML for rendering (IE < 10 only)">VML</a>',
-				libraryString = '&nbsp;|&nbsp;<div class="otherLibraries"></div>' + prepareOtherLibraryString(demoId, library),
+				libraryString = '<div class="otherLibraries"></div>' + prepareOtherLibraryString(demoId, library),
 				demoInfo = jsPlumb.DemoList.find(demoId);
 				
 			if (demoInfo) {
@@ -66,15 +65,10 @@
 							 '&nbsp;|&nbsp;<a href="../../tests/qunit-all.html">qUnit tests</a>' +
 							 '&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>' +
                              '&nbsp;|&nbsp;<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>' +
-							 '&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/issues/list" class="mplink">Issues</a>';// +			
-							 //'&nbsp;|&nbsp;<a href="http://jsplumb.tumblr.com" class="mplink">jsPlumb on Tumblr</a>';			
+                             '&nbsp;|&nbsp;<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Google Group</a>' +
+							 '&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/issues/list" class="mplink">Issues</a>';				
 			
-				//var d = document.createElement("div");
-				//d.className = "renderMode";
-				document.getElementById("render").innerHTML = renderModeString + libraryString + prevString  + demoSelectorString+ nextString;				
-				//document.getElementById("sidebar").appendChild(d);
-				//document.body.appendChild(d);				
-				//document.getElementById("sidebar").insertBefore(d, document.getElementById("explanation"));
+				document.getElementById("render").innerHTML = libraryString + prevString  + demoSelectorString+ nextString;				
 			
 				var m = document.createElement("div");
 				m.className = "menu";
