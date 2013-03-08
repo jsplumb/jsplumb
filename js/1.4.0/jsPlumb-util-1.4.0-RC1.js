@@ -3,8 +3,7 @@
  * 
  * Title:jsPlumb 1.4.0
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 
  * This file contains the util functions
  *
