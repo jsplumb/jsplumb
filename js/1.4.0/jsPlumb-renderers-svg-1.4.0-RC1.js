@@ -255,8 +255,8 @@
 				if (extents != null) {
 					if (extents.xmin < 0) xy[0] += extents.xmin;
 					if (extents.ymin < 0) xy[1] += extents.ymin;
-					wh[0] = extents.xmax - extents.xmin;
-					wh[1] = extents.ymax - extents.ymin;
+					wh[0] = extents.xmax + ((extents.xmin < 0) ? -extents.xmin : 0);
+					wh[1] = extents.ymax + ((extents.ymin < 0) ? -extents.ymin : 0);
 				}
 
 				if (params.useDivWrapper) {					
