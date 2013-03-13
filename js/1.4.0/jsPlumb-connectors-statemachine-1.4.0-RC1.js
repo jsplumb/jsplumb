@@ -84,7 +84,6 @@
 		// 3 - proportional y in element (0 is top edge, 1 is bottom edge)
 		// 	
 	_findControlPoint = function(midx, midy, segment, sourceEdge, targetEdge, dx, dy, distance, proximityLimit) {
-
         // TODO (maybe)
         // - if anchor pos is 0.5, make the control point take into account the relative position of the elements.
         if (distance <= proximityLimit) return [midx, midy];
@@ -109,6 +108,7 @@
             else if (sourceEdge[2] <= 0 && targetEdge[2] >= 1) return [ midx, midy + (sourceEdge[3] < 0.5 ? -1 * dy : dy) ];
             else return [ midx + (1 * dx) , midy + (-1 * dy) ];
         }
+
 	};	
 	
 	/**
@@ -146,7 +146,7 @@
 			var w = Math.abs(params.sourcePos[0] - params.targetPos[0]),
 				h = Math.abs(params.sourcePos[1] - params.targetPos[1]),
 				x = Math.min(params.sourcePos[0], params.targetPos[0]),
-				y = Math.min(params.sourcePos[1], params.targetPos[1]);
+				y = Math.min(params.sourcePos[1], params.targetPos[1]);				
 		
 			if (!showLoopback || (params.sourceEndpoint.elementId !== params.targetEndpoint.elementId)) {                            
 				var _sx = params.sourcePos[0] < params.targetPos[0] ? 0  : w,
@@ -200,24 +200,23 @@
                                                   curviness, curviness,
                                                   distance,
                                                   proximityLimit);
-	            	            	            	
+
 				_super.addSegment("Bezier", {
 					x1:_tx, y1:_ty, x2:_sx, y2:_sy,
 					cp1x:_controlPoint[0], cp1y:_controlPoint[1],
 					cp2x:_controlPoint[0], cp2y:_controlPoint[1]
-				});
+				});				
             }
             else {
             	// a loopback connector.  draw an arc from one anchor to the other.            	
         		var x1 = params.sourcePos[0], x2 = params.sourcePos[0], y1 = params.sourcePos[1] - margin, y2 = params.sourcePos[1] - margin, 				
-					cx = x1, cy = y1 - loopbackRadius,
-					lineWidth = 0;//params.lineWidth || 0,
+					cx = x1, cy = y1 - loopbackRadius;
 				
 					// canvas sizing stuff, to ensure the whole painted area is visible.
-					w = ((2 * lineWidth) + (4 * loopbackRadius)), 
-					h = ((2 * lineWidth) + (4 * loopbackRadius)),
-					x = cx - loopbackRadius - lineWidth - loopbackRadius, 
-					y = cy - loopbackRadius - lineWidth - loopbackRadius;
+					w = 2 * loopbackRadius, 
+					h = 2 * loopbackRadius,
+					x = cx - loopbackRadius, 
+					y = cy - loopbackRadius;
 
 				paintInfo.points[0] = x;
 				paintInfo.points[1] = y;

@@ -246,7 +246,7 @@
 		
 		this.appendDisplayElement = function(el) {
 			displayElements.push(el);
-		};		
+		};	
 		
 		this.paint = function(style, anchor, extents) {	   			
 			if (style != null) {
@@ -467,28 +467,31 @@
         this.isAppendedAtTopLevel = false;
     	var self = this, path = null;
     	this.paint = function(params, containerExtents) {
-    		if (path == null) {
-    			path = _node("path", {
-    				"pointer-events":"all"	
-    			});
-    			params.connector.svg.appendChild(path);
-    			
-    			self.attachListeners(path, params.connector);
-    			self.attachListeners(path, self);
-    		}
-    		var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "",
-    			offset = [0,0];
+    		// only draws on connections, not endpoints.
+    		if (params.component.svg && containerExtents) {
+	    		if (path == null) {
+	    			path = _node("path", {
+	    				"pointer-events":"all"	
+	    			});
+	    			params.component.svg.appendChild(path);
+	    			
+	    			self.attachListeners(path, params.component);
+	    			self.attachListeners(path, self);
+	    		}
+	    		var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "",
+	    			offset = [0,0];
 
-    		if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
-    		if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
-    		
-    		_attr(path, { 
-    			"d"			:	makePath(params.d),
-    			"class" 	:	clazz,
-    			stroke 		: 	params.strokeStyle ? params.strokeStyle : null,
-    			fill 		: 	params.fillStyle ? params.fillStyle : null,
-    			transform	: 	"translate(" + offset[0] + "," + offset[1] + ")"
-    		});    		
+	    		if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
+	    		if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
+	    		
+	    		_attr(path, { 
+	    			"d"			:	makePath(params.d),
+	    			"class" 	:	clazz,
+	    			stroke 		: 	params.strokeStyle ? params.strokeStyle : null,
+	    			fill 		: 	params.fillStyle ? params.fillStyle : null,
+	    			transform	: 	"translate(" + offset[0] + "," + offset[1] + ")"
+	    		});    		
+	    	}
     	};
     	var makePath = function(d) {
     		return "M" + d.hxy.x + "," + d.hxy.y +
@@ -519,44 +522,46 @@
 
     // a test
     jsPlumb.Overlays.svg.GuideLines = function() {
-        var path = null, self = this, path2 = null, p1_1, p1_2;
+        var path = null, self = this, p1_1, p1_2;        
         jsPlumb.Overlays.GuideLines.apply(this, arguments);
-        this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
+        this.paint = function(params, containerExtents) {
     		if (path == null) {
     			path = _node("path");
-    			connector.svg.appendChild(path);
-    			self.attachListeners(path, connector);
+    			params.connector.svg.appendChild(path);
+    			self.attachListeners(path, params.connector);
     			self.attachListeners(path, self);
 
                 p1_1 = _node("path");
-    			connector.svg.appendChild(p1_1);
-    			self.attachListeners(p1_1, connector);
+    			params.connector.svg.appendChild(p1_1);
+    			self.attachListeners(p1_1, params.connector);
     			self.attachListeners(p1_1, self);
 
                 p1_2 = _node("path");
-    			connector.svg.appendChild(p1_2);
-    			self.attachListeners(p1_2, connector);
+    			params.connector.svg.appendChild(p1_2);
+    			self.attachListeners(p1_2, params.connector);
     			self.attachListeners(p1_2, self);
     		}
 
-    		var offset = connector.getOffset();
+    		var offset =[0,0];
+    		if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
+    		if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
 
     		_attr(path, {
-    			"d"		:	makePath(d[0], d[1]),
+    			"d"		:	makePath(params.head, params.tail),
     			stroke 	: 	"red",
     			fill 	: 	null,
     			transform:"translate(" + offset[0] + "," + offset[1] + ")"
     		});
 
             _attr(p1_1, {
-    			"d"		:	makePath(d[2][0], d[2][1]),
+    			"d"		:	makePath(params.tailLine[0], params.tailLine[1]),
     			stroke 	: 	"blue",
     			fill 	: 	null,
     			transform:"translate(" + offset[0] + "," + offset[1] + ")"
     		});
 
             _attr(p1_2, {
-    			"d"		:	makePath(d[3][0], d[3][1]),
+    			"d"		:	makePath(params.headLine[0], params.headLine[1]),
     			stroke 	: 	"green",
     			fill 	: 	null,
     			transform:"translate(" + offset[0] + "," + offset[1] + ")"
@@ -566,7 +571,7 @@
         var makePath = function(d1, d2) {
             return "M " + d1.x + "," + d1.y +
                    " L" + d2.x + "," + d2.y;
-        };
+        };        
 
     };
 })();

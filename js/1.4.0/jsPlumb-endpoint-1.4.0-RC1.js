@@ -512,8 +512,10 @@
                     // paint overlays
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
-                        if (o.isVisible) 
+                        if (o.isVisible()) { 
                             self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse);
+                            o.paint(self.overlayPlacements[i]);    
+                        }
                     }
                 }
             }

@@ -112,8 +112,8 @@
             };
             
             /**
-             * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
-             * 0 to 1 inclusive. for the straight line connector this is simple maths.  for Bezier, not so much.
+             * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
+             * 0 to 1 inclusive. for the straight line segment this is simple maths.
              */
              this.pointOnPath = function(location, absolute) {
                 if (location == 0 && !absolute)
@@ -127,14 +127,14 @@
             };
             
             /**
-             * returns the gradient of the connector at the given point - which for us is constant.
+             * returns the gradient of the segment at the given point - which for us is constant.
              */
             this.gradientAtPoint = function(_) {
                 return m;
             };
             
             /**
-             * returns the point on the connector's path that is 'distance' along the length of the path from 'location', where 
+             * returns the point on the segment's path that is 'distance' along the length of the path from 'location', where 
              * 'location' is a decimal from 0 to 1 inclusive, and 'distance' is a number of pixels.
              * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
              */            
@@ -365,16 +365,16 @@
             };		
             
             /**
-             * returns the point on the connector's path that is 'location' along the length of the path, where 'location' is a decimal from
+             * returns the point on the segment's path that is 'location' along the length of the path, where 'location' is a decimal from
              * 0 to 1 inclusive. 
              */
             this.pointOnPath = function(location, absolute) {
-                location = _translateLocation(curve, location, absolute);
+                location = _translateLocation(curve, location, absolute);                
                 return jsBezier.pointOnCurve(curve, location);
             };
             
             /**
-             * returns the gradient of the connector at the given point.
+             * returns the gradient of the segment at the given point.
              */
             this.gradientAtPoint = function(location, absolute) {
                 location = _translateLocation(curve, location, absolute);
@@ -607,7 +607,9 @@
         };
 		
 		this.pointOnPath = function(location, absolute) {
-			var seg = _findSegmentForLocation(location, absolute);			
+            //console.log("point on path", location);
+			var seg = _findSegmentForLocation(location, absolute);		
+            //console.log("point on path", location, seg);	
 			return seg.segment.pointOnPath(seg.proportion, absolute);
 		};
 		
@@ -685,9 +687,10 @@
 			_super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
             stub = params.stub || 50,
             majorAnchor = params.curviness || 150,
-            minorAnchor = 10;   
+            minorAnchor = 10;            
 
-        this.type = "Bezier";		
+        this.type = "Bezier";	
+        this.getCurviness = function() { return majorAnchor; };	
         
         this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor) {
         	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
@@ -1000,7 +1003,7 @@
 
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
 
-	var AbstractOverlay = function(params) {
+	var AbstractOverlay = jsPlumb.Overlays.AbstractOverlay = function(params) {
 		var visible = true, self = this;
         this.isAppendedAtTopLevel = true;
 		this.component = params.component;
@@ -1067,20 +1070,20 @@
     	    	
     	this.computeMaxSize = function() { return self.width * 1.5; };    	
     	this.cleanup = function() { };  // nothing to clean up for Arrows    
-    	this.draw = function(connector, currentConnectionPaintStyle) {
+    	this.draw = function(component, currentConnectionPaintStyle) {
 
             var hxy, mid, txy, tail, cxy;
-            if (connector.pointAlongPathFrom) {
+            if (component.pointAlongPathFrom) {
 
-                if (jsPlumbUtil.isString(self.loc) || self.loc > 1 || self.loc < 0) {
+                if (jsPlumbUtil.isString(self.loc) || self.loc > 1 || self.loc < 0) {                    
                     var l = parseInt(self.loc);
-                    hxy = connector.pointAlongPathFrom(l, direction * self.length / 2, true),
-                    mid = connector.pointOnPath(l, true),
+                    hxy = component.pointAlongPathFrom(l, direction * self.length / 2, true),
+                    mid = component.pointOnPath(l, true),
                     txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
                 }
-                else if (self.loc == 1) {					
-					hxy = connector.pointOnPath(self.loc);
-					mid = connector.pointAlongPathFrom(self.loc, -1);                    
+                else if (self.loc == 1) {                
+					hxy = component.pointOnPath(self.loc);
+					mid = component.pointAlongPathFrom(self.loc, -1);                    
 					txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
 					
 					if (direction == -1) {
@@ -1089,19 +1092,19 @@
 						hxy = _;
 					}
                 }
-                else if (self.loc == 0) {					
-					txy = connector.pointOnPath(self.loc);
-					mid = connector.pointAlongPathFrom(self.loc, 1);
-					hxy = jsPlumbUtil.pointOnLine(txy, mid, self.length);
+                else if (self.loc == 0) {					                    
+					txy = component.pointOnPath(self.loc);                    
+					mid = component.pointAlongPathFrom(self.loc, 1);                    
+					hxy = jsPlumbUtil.pointOnLine(txy, mid, self.length);                    
 					if (direction == -1) {
 						var _ = txy;
 						txy = hxy;
 						hxy = _;
 					}
                 }
-                else {
-    			    hxy = connector.pointAlongPathFrom(self.loc, direction * self.length / 2),
-                    mid = connector.pointOnPath(self.loc),
+                else {                    
+    			    hxy = component.pointAlongPathFrom(self.loc, direction * self.length / 2),
+                    mid = component.pointOnPath(self.loc),
                     txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
                 }
 
@@ -1113,20 +1116,20 @@
     			    fillStyle = paintStyle.fillStyle || currentConnectionPaintStyle.strokeStyle,
     			    lineWidth = paintStyle.lineWidth || currentConnectionPaintStyle.lineWidth,
                     info = {
-                        connector:connector, 
+                        component:component, 
                         d:d, 
                         lineWidth:lineWidth, 
                         strokeStyle:strokeStyle, 
                         fillStyle:fillStyle,
-                        minx:Math.min(hxy.x, tail[0].x, tail[1].x),
-                        maxx:Math.max(hxy.x, tail[0].x, tail[1].x),
-                        miny:Math.min(hxy.y, tail[0].y, tail[1].y),
-                        maxy:Math.max(hxy.y, tail[0].y, tail[1].y)
+                        minX:Math.min(hxy.x, tail[0].x, tail[1].x),
+                        maxX:Math.max(hxy.x, tail[0].x, tail[1].x),
+                        minY:Math.min(hxy.y, tail[0].y, tail[1].y),
+                        maxY:Math.max(hxy.y, tail[0].y, tail[1].y)
                     };    			
 						    
                 return info;
             }
-            else return {minx:0,maxx:0,miny:0,maxy:0};
+            else return {component:component, minX:0,maxX:0,minY:0,maxY:0};
     	};
     };          
     
@@ -1276,13 +1279,13 @@
                 return {
                     component:component, 
                     d:{ minx:minx, miny:miny, td:td, cxy:cxy },
-                    minx:minx, 
-                    maxx:minx + td[0], 
-                    miny:miny, 
-                    maxy:miny + td[1]
+                    minX:minx, 
+                    maxX:minx + td[0], 
+                    minY:miny, 
+                    maxY:miny + td[1]
                 };								
         	}
-	    	else return {minx:0,maxx:0,miny:0,maxy:0};
+	    	else return {minX:0,maxX:0,minY:0,maxY:0};
 	    };
 	    
 	    this.reattachListeners = function(connector) {
@@ -1310,6 +1313,37 @@
     jsPlumb.Overlays.Custom = function(params) {
     	this.type = "Custom";    	
     	AbstractDOMOverlay.apply(this, arguments);		    	        		    	    		
+    };
+
+    jsPlumb.Overlays.GuideLines = function() {
+        var self = this;
+        self.length = 50;
+        self.lineWidth = 5;
+        this.type = "GuideLines";
+        AbstractOverlay.apply(this, arguments);
+        jsPlumb.jsPlumbUIComponent.apply(this, arguments);
+        this.draw = function(connector, currentConnectionPaintStyle) {
+
+            var head = connector.pointAlongPathFrom(self.loc, self.length / 2),
+                mid = connector.pointOnPath(self.loc),
+                tail = jsPlumbUtil.pointOnLine(head, mid, self.length),
+                tailLine = jsPlumbUtil.perpendicularLineTo(head, tail, 40),
+                headLine = jsPlumbUtil.perpendicularLineTo(tail, head, 20);
+
+            return {
+                connector:connector,
+                head:head,
+                tail:tail,
+                headLine:headLine,
+                tailLine:tailLine,                
+                minX:Math.min(head.x, tail.x, headLine[0].x, headLine[1].x), 
+                minY:Math.min(head.y, tail.y, headLine[0].y, headLine[1].y), 
+                maxX:Math.max(head.x, tail.x, headLine[0].x, headLine[1].x), 
+                maxY:Math.max(head.y, tail.y, headLine[0].y, headLine[1].y)
+            };
+        };
+
+        this.cleanup = function() { };  // nothing to clean up for GuideLines
     };
     
     /*
