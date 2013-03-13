@@ -1275,14 +1275,6 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e17.anchor.y, 0);
 	});
 	
-	test(renderMode + ": _jsPlumb.addEndpoint (tooltip)", function() {
-		var d16 = _addDiv("d16"), d17 = _addDiv("d17"), 
-			e16 = _jsPlumb.addEndpoint(d16, {tooltip:"FOO"}),
-			e17 = _jsPlumb.addEndpoint(d17, {tooltip:"BAZ"});
-		assertContextSize(2);
-		equal(e16.canvas.getAttribute("title"), "FOO");
-		equal(e17.canvas.getAttribute("title"), "BAZ");
-	});
 	
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case, dynamic anchors)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
@@ -1839,22 +1831,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertContextSize(3);				// now we should also have a canvas for the connection.
 		ok(c.id != null, "connection has had an id assigned");
 	});
-	
-	test(renderMode + ': _jsPlumb.connect (Endpoint connectorTooltip parameter)', function() {
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		var e = _jsPlumb.addEndpoint(d1, {connectorTooltip:"FOO"});
-		var e2 = _jsPlumb.addEndpoint(d2, {});
-		var c = _jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2});
-		equal(c.getConnector().canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
-	});
-	
-	test(renderMode + ': _jsPlumb.connect (tooltip parameter)', function() {
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		var e = _jsPlumb.addEndpoint(d1, {});
-		var e2 = _jsPlumb.addEndpoint(d2, {});
-		var c = _jsPlumb.connect({target:'d2', sourceEndpoint:e, targetEndpoint:e2, tooltip:"FOO"});
-		equal(c.getConnector().canvas.getAttribute("title"), "FOO", "connector canvas has label attribute set");
-	});
+		
 	
 	test(renderMode + ': _jsPlumb.connect (between two Endpoints, and dont supply any parameters to the Endpoints.)', function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
@@ -2043,7 +2020,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		equal(conn.getConnector().type, "Bezier", "Bezier connector chosen for connection");
-		equal(conn.getConnector().majorAnchor, 150, "Bezier connector chose 150 curviness");
+		equal(conn.getConnector().getCurviness(), 150, "Bezier connector chose 150 curviness");		
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, curviness as int)", function() {
@@ -2052,7 +2029,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		equal(conn.getConnector().type, "Bezier", "Canvas Bezier connector chosen for connection");
-		equal(conn.getConnector().majorAnchor, 200, "Bezier connector chose 200 curviness");
+		equal(conn.getConnector().getCurviness(), 200, "Bezier connector chose 200 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, curviness as named option)", function() {
@@ -2061,7 +2038,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		equal(conn.getConnector().type, "Bezier", "Bezier connector chosen for connection");
-		equal(conn.getConnector().majorAnchor, 300, "Bezier connector chose 300 curviness");
+		equal(conn.getConnector().getCurviness(), 300, "Bezier connector chose 300 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)", function() {
