@@ -457,8 +457,8 @@
                         sourceInfo:sourceInfo,
                         targetInfo:targetInfo,
                         clearEdits:params.clearEdits === true
-                    });                                        
-                                                                 
+                    });                                                                                        
+
                     var overlayExtents = {
                         minX:Infinity,
                         minY:Infinity,
@@ -469,22 +469,14 @@
                     // container if needs be (if an overlay would be clipped)
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
-                        if (o.isVisible) {
+                        if (o.isVisible()) {
                             self.overlayPlacements[i] = o.draw(connector, self.paintStyleInUse);
-                            overlayExtents.minX = Math.min(overlayExtents.minX, self.overlayPlacements[i].minx);
-                            overlayExtents.maxX = Math.max(overlayExtents.maxX, self.overlayPlacements[i].maxx);
-                            overlayExtents.minY = Math.min(overlayExtents.minY, self.overlayPlacements[i].miny);
-                            overlayExtents.maxY = Math.max(overlayExtents.maxY, self.overlayPlacements[i].maxy);
+                            overlayExtents.minX = Math.min(overlayExtents.minX, self.overlayPlacements[i].minX);
+                            overlayExtents.maxX = Math.max(overlayExtents.maxX, self.overlayPlacements[i].maxX);
+                            overlayExtents.minY = Math.min(overlayExtents.minY, self.overlayPlacements[i].minY);
+                            overlayExtents.maxY = Math.max(overlayExtents.maxY, self.overlayPlacements[i].maxY);
                         }
                     }
-
-                    /* so now we have the connector's bounds object:
-                    console.log("connector bounds", connector.bounds);
-                    // and the overlay placements:
-                    console.log("overlay extents", overlayExtents);
-                    // and also know the paintStyleInUse.lineWidth
-                    console.log("current line width", self.paintStyleInUse.lineWidth);
-                    */
 
                     var lineWidth = (self.paintStyleInUse.lineWidth || 1) / 2,
                         extents = {
@@ -494,15 +486,12 @@
                             ymax : Math.max(connector.bounds.maxY + lineWidth, overlayExtents.maxY)
                         };
 
-                    //console.log("extents", extents);
-
                     // paint the connector.
                     connector.paint(self.paintStyleInUse, null, extents);  
-
                     // and then the overlays
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
-                        if (o.isVisible) {
+                        if (o.isVisible()) {
                             o.paint(self.overlayPlacements[i], extents);    
                         }
                     }                  
