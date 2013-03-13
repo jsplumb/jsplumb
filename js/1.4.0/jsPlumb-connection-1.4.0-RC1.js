@@ -479,11 +479,12 @@
                     }
 
                     var lineWidth = (self.paintStyleInUse.lineWidth || 1) / 2,
+                        outlineWidth = self.paintStyleInUse.lineWidth || 0,
                         extents = {
-                            xmin : Math.min(connector.bounds.minX - lineWidth, overlayExtents.minX),
-                            ymin : Math.min(connector.bounds.minY - lineWidth, overlayExtents.minY),
-                            xmax : Math.max(connector.bounds.maxX + lineWidth, overlayExtents.maxX),
-                            ymax : Math.max(connector.bounds.maxY + lineWidth, overlayExtents.maxY)
+                            xmin : Math.min(connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
+                            ymin : Math.min(connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
+                            xmax : Math.max(connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
+                            ymax : Math.max(connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
                         };
 
                     // paint the connector.
