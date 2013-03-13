@@ -98,19 +98,19 @@
 			});			
 						
 			// make all the window divs draggable						
-			//jsPlumb.draggable(jsPlumb.getSelector(".window"), { grid: [20, 20] });
+			jsPlumb.draggable(jsPlumb.getSelector(".window"), { grid: [20, 20] });
 			// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector method!
-			jsPlumb.draggable(jsPlumb.getSelector(".window"));
+			//jsPlumb.draggable(jsPlumb.getSelector(".window"));
 
             
-			/* connect a few up
+			// connect a few up
 			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"], editable:true});
 			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"], editable:true});
 			jsPlumb.connect({uuids:["window4TopCenter", "window4RightMiddle"], editable:true});
-			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"], editable:true});*/
-			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"], editable:true});/*
+			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"], editable:true});
+			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"], editable:true});
 			jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"], editable:true});
-			//*/
+			//
             
 			//
 			// listen for clicks on connections, and offer to delete connections on click.
