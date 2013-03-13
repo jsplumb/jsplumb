@@ -238,8 +238,7 @@
                     y = (e.pageY || e.page.y),
                     oe = jpcl.getElementObject(params.connection.getConnector().canvas),
                     o = jpcl.getOffset(oe),                    
-                    minD = Infinity,
-                    co = params.connector.getOffset();           
+                    minD = Infinity;
                 
                 params.connection.setHover(true);
                 params.connector.setSuspendEvents(true);
@@ -249,7 +248,7 @@
                 currentSegments = params.connector.getOriginalSegments();
                 _collapseSegments();
                 for (var i = 0; i < currentSegments.length; i++) {
-                    var _s = findClosestPointOnPath(currentSegments[i], x - o.left - co[0], y - o.top - co[1], i);
+                    var _s = findClosestPointOnPath(currentSegments[i], x - o.left, y - o.top, i);
                     if (_s.d < minD) {
                         selectedSegment = _s;
                         segmentCoords = [ _s.s[0], _s.s[1], _s.s[2], _s.s[3] ]; // copy the coords at mousedown
