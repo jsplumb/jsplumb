@@ -800,7 +800,7 @@
 		 */
 		_draw = function(element, ui, timestamp, clearEdits) {
 			
-			// TOD is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
+			// TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
             if (!jsPlumbAdapter.headless && !_suspendDrawing) {
 			    var id = _att(element, "id"),
 			    	repaintEls = _currentInstance.dragManager.getElementsForDraggable(id);			    
@@ -808,7 +808,6 @@
 			    if (timestamp == null) timestamp = _timestamp();
 
 			    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
-
 			    if (repaintEls) {
 				    for (var i in repaintEls) {
 						_currentInstance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset, clearEdits);			    	
@@ -1607,6 +1606,8 @@ between this method and jsPlumb.reset).
 			}			
 			endpointsByElement = {};			
 			endpointsByUUID = {};
+			_currentInstance.anchorManager.reset();
+			_currentInstance.dragManager.reset();
 			
 			_currentInstance.setSuspendDrawing(false, true);
 		};
@@ -2712,7 +2713,7 @@ between this method and jsPlumb.reset).
 																
 								ep.setElement(parent, potentialParent);
 								ep.endpointWillMoveAfterConnection = false;														
-								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);													
+								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);																					
 								oldConnection.previousConnection = null;
 								// remove from connectionsByScope
 								_removeWithFunction(connectionsByScope[oldConnection.scope], function(c) {
