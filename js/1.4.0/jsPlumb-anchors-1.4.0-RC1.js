@@ -348,7 +348,7 @@
 				// actually, first we should compute the orientation of this element to all other elements to which
 				// this element is connected with a continuous anchor (whether both ends of the connection have
 				// a continuous anchor or just one)
-	            //for (var i = 0; i < continuousAnchorConnections.length; i++) {
+	                        
 	            for (var i = 0; i < endpointConnections.length; i++) {
 	                var conn = endpointConnections[i][0],
 						sourceId = conn.sourceId,
@@ -408,8 +408,7 @@
 		                if ((sourceContinuous && oIdx == 0) || (targetContinuous && oIdx == 1))
 		                	jsPlumbUtil.addWithFunction(endpointsToPaint, conn.endpoints[oIdx], function(e) { return e.id == conn.endpoints[oIdx].id; });
 		            }
-	            }
-				
+	            }				
 				// place Endpoints whose anchors are continuous but have no Connections
 				for (var i = 0; i < ep.length; i++) {
 					if (ep[i].connections.length == 0 && ep[i].anchor.isContinuous) {
@@ -418,12 +417,11 @@
 						jsPlumbUtil.addWithFunction(anchorsToUpdate, elementId, function(a) { return a === elementId; })
 					}
 				}
-	
 	            // now place all the continuous anchors we need to;
 	            for (var i = 0; i < anchorsToUpdate.length; i++) {
 					placeAnchors(anchorsToUpdate[i], anchorLists[anchorsToUpdate[i]]);
 				}
-				
+
 				// now that continuous anchors have been placed, paint all the endpoints for this element
 	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
 	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
@@ -435,7 +433,7 @@
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
                     endpointsToPaint[i].paint( { timestamp : timestamp, offset : cd, dimensions : cd.s });
 				}
-	
+
 				// paint all the standard and "dynamic connections", which are connections whose other anchor is
 				// static and therefore does need to be recomputed; we make sure that happens only one time.
 	
@@ -455,11 +453,10 @@
 					}
 				}
 				// paint current floating connection for this element, if there is one.
-                
 				var fc = floatingConnections[elementId];
 				if (fc) 
 					fc.paint({timestamp:timestamp, recalc:false, elId:elementId});
-					
+				                
 				// paint all the connections
 				for (var i = 0; i < connectionsToPaint.length; i++) {
 					connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false, clearEdits:clearEdits});
@@ -467,7 +464,7 @@
 			}
 		};
 		this.rehomeEndpoint = function(currentId, element) {
-			var eps = _amEndpoints[currentId] || [], //, 
+			var eps = _amEndpoints[currentId] || [], 
 				elementId = jsPlumbInstance.getId(element);
 			if (elementId !== currentId) {
 				for (var i = 0; i < eps.length; i++) {
