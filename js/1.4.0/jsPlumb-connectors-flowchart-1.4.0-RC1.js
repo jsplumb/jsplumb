@@ -31,6 +31,7 @@
     jsPlumb.Connectors.Flowchart = function(params) {
         this.type = "Flowchart";
         params = params || {};
+        params.stub = params.stub || 30;
         var self = this,
             _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),		
             midpoint = params.midpoint || 0.5,
@@ -68,10 +69,9 @@
                 self.bounds.maxY = Math.max(self.bounds.maxY, a1[3]);    
             },
             writeSegments = function(segments, paintInfo) {
-                //console.log("writing segments. x,y,w,h is ", paintInfo.points);
-
                 var current, next;                
                 for (var i = 0; i < segments.length - 1; i++) {
+                    
                     current = current || _cloneArray(segments[i]);
                     next = _cloneArray(segments[i + 1]);
                     if (cornerRadius > 0 && current[4] != next[4]) {
