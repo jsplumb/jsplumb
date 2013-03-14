@@ -328,7 +328,8 @@
             this.pointAlongPathFrom = function(location, distance, absolute) {
                 var p = self.pointOnPath(location, absolute),
                     arcSpan = distance / circumference * 2 * Math.PI,
-                    startAngle = p.theta - arcSpan,				
+                    dir = self.anticlockwise ? -1 : 1,
+                    startAngle = p.theta + (dir * arcSpan),				
                     startX = params.cx + (self.radius * Math.cos(startAngle)),
                     startY = params.cy + (self.radius * Math.sin(startAngle));	
     
