@@ -2760,10 +2760,11 @@ between this method and jsPlumb.reset).
 					}					
 
 					// make sure we have the latest offset for this div 
-					var myOffsetInfo = _updateOffset({elId:elid}).o;		
+					var myOffsetInfo = _updateOffset({elId:elid}).o,
+						z = _currentInstance.getZoom();		
 
-					var x = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
-					    y = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height,
+					var x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left) / myOffsetInfo.width, 
+					    y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top) / myOffsetInfo.height,
 					    parentX = x, 
 					    parentY = y;					
 							
