@@ -47,6 +47,7 @@
             addSegment = function(segments, x, y, sx, sy) {
                 // if segment would have length zero, dont add it.
                 if (sx == lastx && sy == lasty) return;
+                if (x == lastx && y == lasty) return;
                 
                 var lx = lastx == null ? sx : lastx,
                     ly = lasty == null ? sy : lasty,
