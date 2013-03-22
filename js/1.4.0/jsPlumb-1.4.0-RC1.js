@@ -111,7 +111,7 @@
 			// is performed; returning false prevents the detach.
 			var beforeDetach = params.beforeDetach;
 			this.isDetachAllowed = function(connection) {
-				var r = self._jsPlumb.checkCondition("beforeDetach", connection );
+				var r = true;
 				if (beforeDetach) {
 					try { 
 						r = beforeDetach(connection); 
@@ -877,7 +877,7 @@
 						draggableStates[elId] = true;  
 						var draggable = draggableStates[elId];
 						options.disabled = draggable == null ? false : !draggable;
-						jpcl.initDraggable(element, options, false);
+						jpcl.initDraggable(element, options, false, _currentInstance);
 						_currentInstance.dragManager.register(element);
 					}
 				}
@@ -1580,7 +1580,10 @@
 						
 						endpointsByElement[e] = newEndpoints;
 					}
-				}
+					if(endpointsByElement[e].length <1){
+						delete endpointsByElement[e];
+					}
+				}				
 				if (!jsPlumbAdapter.headless)
 					_currentInstance.dragManager.endpointDeleted(endpoint);								
 			}									

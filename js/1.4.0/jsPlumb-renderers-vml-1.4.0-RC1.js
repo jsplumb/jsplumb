@@ -415,7 +415,7 @@
     		       " x e";
     	};
     	this.paint = function(params, containerExtents) {
-    		var p = {}, d = params.d, connector = params.connector;
+    		var p = {}, d = params.d, connector = params.component;
 			if (params.strokeStyle) {
 				p["stroked"] = "true";
 				p["strokecolor"] = jsPlumbUtil.convertStyle(params.strokeStyle, true);    				

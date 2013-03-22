@@ -111,28 +111,23 @@
 			</div>
 			
 			<h4><a id="renderMode">Render Mode</a></h4>
-			jsPlumb can use SVG, HTML5 Canvas elements or VML to render the various objects it adds to the display.  Most modern browsers support Canvas and SVG; IE&lt;9 browsers support neither.
+			jsPlumb can use SVG or VML to render the various objects it adds to the display.  Most modern browsers support SVG; IE&lt;9 browsers supports only VML.
 			<p>
-				By default, jsPlumb attempts to use <strong>jsPlumb.SVG</strong> as the render mode (prior to 1.3.4, the default renderer was Canvas), falling back to <strong>jsPlumb.VML</strong> if the 
+				By default, jsPlumb attempts to use <strong>jsPlumb.SVG</strong>falling back to <strong>jsPlumb.VML</strong> if the 
 				browser is IE&lt;9.  You can change the render mode by making this call:  
 			</p>
 			<div class="code">
-<pre>jsPlumb.setRenderMode(jsPlumb.CANVAS);</pre>			
+<pre>jsPlumb.setRenderMode(jsPlumb.SVG);</pre>			
 			</div>
-			if, for some reason, you set the render mode to be <strong>jsPlumb.VML</strong> but you're in any browser other than IE, jsPlumb will use SVG.
+			if, for some reason, you set the render mode to be <strong>jsPlumb.VML</strong> but you're in any browser other than IE, jsPlumb will use SVG. The only real reason to use
+			this method is when you're in IE9 and, for some reason, you want to use VML.
 			<p>
 			The <strong>jsPlumb.setRenderMode</strong> method returns you the render mode that jsPlumb actually ended up setting.  Valid values for setRenderMode are:
 			</p>
 			<ul>
-				<li class="bullet">jsPlumb.CANVAS</li>
 				<li class="bullet">jsPlumb.SVG</li>
 				<li class="bullet">jsPlumb.VML</li>
-			</ul>			
-			<h4><a id="performance">Performance Considerations</a></h4>
-			<p>
-			SVG uses less memory than Canvas and has support for mouse events built in, so I recommend using
-			SVG unless you have a really good reason for wanting Canvas.
-			</p>
+			</ul>						
 			
 			<h4><a id="initializing">Initializing jsPlumb</a></h4>
 			You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  With YUI, though, the asynchronous

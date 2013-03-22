@@ -407,9 +407,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 	test(renderMode + ": detach; beforeDetach on connect call returns false", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = _jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { return false; }});
+		var beforeDetachCount = 0;
+		_jsPlumb.bind("beforeDetach", function(connection) {
+			beforeDetachCount++;			
+		});
 		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
 		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
+		equal(beforeDetachCount, 0, "jsplumb before detach was not called");
 	});
 	
 	test(renderMode + ": detach; beforeDetach on connect call returns true", function() {
@@ -433,9 +438,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true, beforeDetach:function(conn) { return false; } }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
 		var c = _jsPlumb.connect({source:e1,target:e2});
+		var beforeDetachCount = 0;
+		_jsPlumb.bind("beforeDetach", function(connection) {
+			beforeDetachCount++;			
+		});
 		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
 		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection after detach call was denied");
+		equal(beforeDetachCount, 0, "jsplumb before detach was not called");
 	});
 	
 	test(renderMode + ": detach; beforeDetach on addEndpoint call to source Endpoint returns true", function() {
@@ -496,14 +506,17 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, { isSource:true }),
 		e2 = _jsPlumb.addEndpoint(d2, { isTarget:true });
 		var c = _jsPlumb.connect({source:e1,target:e2});
+		var beforeDetachCount = 0;
 		_jsPlumb.bind("beforeDetach", function(connection) {
 			ok(connection.sourceId === "d1", "connection is provided and configured with correct source");
 			ok(connection.targetId === "d2", "connection is provided and configured with correct target");
+			beforeDetachCount++;
 			return false;
 		});
 		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c);
 		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection after detach call was denied");
+		equal(beforeDetachCount, 1, "beforeDetach was called only one time");
 	});
 	
 	test(renderMode + ": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns true", function() {
@@ -763,14 +776,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, {});
 		var e2 = _jsPlumb.addEndpoint(d2, {});
 		var returnedParams = null;
-		_jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
+		_jsPlumb.bind("connectionDetached", function(params) {
 				returnedParams = $.extend({}, params);
 			});
-		var conn = _jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2});
-		assertContextSize(3);
+		var conn = _jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2});		
 		e1.detach(conn);
-		ok(returnedParams != null, "removed connection listener event was fired");
-		assertContextSize(2);
+		ok(returnedParams != null, "removed connection listener event was fired");		
 	});
 	
 	test(renderMode + ': detach event listeners (via Endpoint.detachFrom method)', function() {
@@ -1048,7 +1059,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var f = _jsPlumb.getEndpoint(uuid);
 		equal(f, null, "endpoint has been deleted");
 		var ebe = _jsPlumb.getTestHarness().endpointsByElement["d16"];
-		equal(ebe.length, 0, "no endpoints registered for element d16 anymore");
+		ok(ebe == null, "no endpoints registered for element d16 anymore");
 		assertContextSize(0);
 	});
 	
@@ -1061,8 +1072,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
 		// check that the connection was ok.
 		equal(e16.connections.length, 1, "e16 has one connection");
-		equal(e17.connections.length, 1, "e17 has one connection");
-		assertContextSize(3);
+		equal(e17.connections.length, 1, "e17 has one connection");		
 		
 		// delete the endpoint that has a uuid.  verify that the endpoint cannot be retrieved and that the connection has been removed, but that
 		// element d17 still has its Endpoint.
@@ -1072,7 +1082,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e16.connections.length, 0, "e16 has no connections");
 		equal(e17.connections.length, 0, "e17 has no connections");
 		var ebe = _jsPlumb.getTestHarness().endpointsByElement["d16"];
-		equal(ebe.length, 0, "no endpoints registered for element d16 anymore");
+		ok(ebe == null, "no endpoints registered for element d16 anymore");
 		ebe = _jsPlumb.getTestHarness().endpointsByElement["d17"];
 		equal(ebe.length, 1, "element d17 still has its Endpoint");
 		assertContextSize(1);
@@ -1082,7 +1092,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		f = _jsPlumb.getEndpoint(e17);
 		equal(f, null, "endpoint has been deleted");
 		ebe = _jsPlumb.getTestHarness().endpointsByElement["d17"];
-		equal(ebe.length, 0, "element d17 no longer has any Endpoints");
+		ok(ebe == null, "element d17 no longer has any Endpoints");
 		assertContextSize(0);
 	});
 	
@@ -5348,14 +5358,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 			anchors:["Right", "Top"]
 		}),
 		s = c.getConnector().getPath();
-		equal(s[0].start[0], 4);
-		equal(s[0].start[1], 4);
-		equal(s[0].end[0], 99);
-		equal(s[0].end[1], 4);
-		equal(s[1].start[0], 99);
-		equal(s[1].start[1], 4);
-		equal(s[1].end[0], 99);
-		equal(s[1].end[1], 99);
+		//equal(s[0].start[0], 0);
+		equal(s[0].start[1], 0);
+		equal(s[0].end[0], 30);
+		equal(s[0].end[1], 0);
+		equal(s[1].start[0], 95);
+		equal(s[1].start[1], 0);
+		equal(s[1].end[0], 95);
+		equal(s[1].end[1], 65);
 
 		var c2 = _jsPlumb.connect({
 			source:d1,
@@ -5366,20 +5376,20 @@ var testSuite = function(renderMode, _jsPlumb) {
 		s2 = c2.getConnector().getPath();
 		equal(s2.length, 3, "3 segments");
 		
-		equal(s2[0].start[0], 4);
-		equal(s2[0].start[1], 4);
-		equal(s2[0].end[0], 4);
-		equal(s2[0].end[1], 49);
+		equal(s2[0].start[0], 0);
+		equal(s2[0].start[1], 0);
+		equal(s2[0].end[0], 0);
+		equal(s2[0].end[1], 30);
 		
-		equal(s2[1].start[0], 4);
-		equal(s2[1].start[1], 49);
-		equal(s2[1].end[0], 104);
-		equal(s2[1].end[1], 49);
+		equal(s2[1].start[0], 0);
+		equal(s2[1].start[1], 45);
+		equal(s2[1].end[0], 100);
+		equal(s2[1].end[1], 45);
 
-		equal(s2[2].start[0], 104);
-		equal(s2[2].start[1], 49);
-		equal(s2[2].end[0], 104);
-		equal(s2[2].end[1], 94);
+		equal(s2[2].start[0], 100);
+		equal(s2[2].start[1], 45);
+		equal(s2[2].end[0], 100);
+		equal(s2[2].end[1], 60);
 
 
 		// now set the segments on the connection.

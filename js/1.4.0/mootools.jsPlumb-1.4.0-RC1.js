@@ -257,7 +257,7 @@
 			return el.hasClass(clazz);
 		},
 		
-		initDraggable : function(el, options, isPlumbedComponent) {
+		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
 			var id = jsPlumb.getId(el);
 			var drag = _draggablesById[id];
 			if (!drag) {

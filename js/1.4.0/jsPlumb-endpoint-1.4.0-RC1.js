@@ -763,7 +763,7 @@
                 });
             
             var i = _gel(self.canvas);				
-            jpcl.initDraggable(i, dragOptions, true);
+            jpcl.initDraggable(i, dragOptions, true, _jsPlumb);
         }
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
@@ -858,7 +858,7 @@
 
                                     if (!jpc.suspendedEndpoint) {  
                                         if (params.draggable)
-                                            jsPlumb.CurrentLibrary.initDraggable(self.element, dragOptions, true);
+                                            jsPlumb.CurrentLibrary.initDraggable(self.element, dragOptions, true, _jsPlumb);
                                     }
                                     else {
                                         var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;

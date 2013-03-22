@@ -272,8 +272,39 @@
 		/**
 		 * initialises the given element to be draggable.
 		 */
-		initDraggable : function(el, options, isPlumbedComponent) {
+		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
 			options = options || {};
+
+/*
+			// css3 transforms
+			// http://gungfoo.wordpress.com/2013/02/15/jquery-ui-resizabledraggable-with-transform-scale-set/
+			options.start = _jsPlumb.wrap(options["start"], function(e, ui) {
+				// TODO why is this 0?				
+			    ui.position.left = 0;
+			    ui.position.top = 0;
+			});
+
+			options.drag = _jsPlumb.wrap(options["drag"], function(e, ui) {
+
+				console.log("original", ui.originalPosition.left, ui.originalPosition.top);
+				console.log("current", ui.position.left, ui.position.top);
+
+				//var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
+			    //var newLeft = ui.originalPosition.left + (changeLeft * _jsPlumb.getZoom()); // adjust new left by our zoomScale
+			 
+			    //var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
+			    //var newTop = ui.originalPosition.top + (changeTop * _jsPlumb.getZoom()); // adjust new top by our zoomScale
+			 
+			    //ui.position.left = newLeft;
+			    //ui.position.top = newTop;
+
+			    ui.position.left *= _jsPlumb.getZoom();
+			    ui.position.top *= _jsPlumb.getZoom();
+
+			});
+*/
+
+
 			// remove helper directive if present and no override
 			if (!options.doNotRemoveHelper)
 				options.helper = null;

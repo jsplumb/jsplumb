@@ -57,7 +57,7 @@
 					}],
 					["Arrow", {
 						cssClass:"l1arrow",
-						location:0.5, width:40,
+						location:0.5, width:140,length:100,
 						events:{
 							"click":function(arrow, evt) {
 								alert("clicked on arrow for connection " + arrow.component.id);
@@ -134,7 +134,7 @@
 					lineWidth:9, 
 					strokeStyle:conn4Color, 
 					outlineColor:"#666",
-					outlineWidth:1,
+					outlineWidth:10,
 					joinstyle:"round"
 				},
 				hoverPaintStyle:hoverPaintStyle,
@@ -178,7 +178,7 @@
 				hoverPaintStyle:{strokeStyle:"#dbe300"},
 				endpoint:"Blank",
 				anchor:"Continuous",
-				overlays:[ ["PlainArrow", {location:1, width:20, length:12} ]]
+				overlays:[ ["PlainArrow", {location:1, width:120, length:12} ]]
 			};
 			
 			jsPlumb.connect({
