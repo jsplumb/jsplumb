@@ -1401,6 +1401,25 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e1.getLabel()(), "BAZ", "endpoint's label is correct");
 		equal(e1.getLabelOverlay().getLocation(), 0.1, "endpoint's label's location is correct");
 	});
+
+	test(renderMode + ": jsPlumb.addEndpoint (events)", function() {
+		var d16 = _addDiv("d16"), 
+			click = 0,
+			e16 = _jsPlumb.addEndpoint(d16, {
+				isSource:true, 
+				isTarget:false, 
+				anchor:[0,0.5,0,-1],
+				events:{
+					click:function(ep) {
+						click++;
+					}
+				}
+			});
+		e16.fire("click", function() {
+			click++;
+		});
+		equal(click, 1, "click event was fired once");
+	});
 	
 // ***************** setConnector ************************************************************
 
@@ -2302,6 +2321,23 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertContextSize(2);
 	});
 
+	test(renderMode + ": jsPlumb.connect, events specified", function() {
+		var d1 = _addDiv("d1"), _d2 = _addDiv("d2"), 
+			clicked = 0,
+			c = _jsPlumb.connect({
+				source:d1,
+				target:d2,
+				events:{
+					click:function(conn) {
+						clicked++;
+					}
+				}
+			});
+
+		c.fire("click", c);
+		equal(1, clicked, "connection was clicked once");
+	});
+
     test(renderMode + " detachable parameter defaults to true on _jsPlumb.connect", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             c = _jsPlumb.connect({source:d1, target:d2});
@@ -2763,6 +2799,28 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var o = c.getOverlay("custom");
 		equal(o.getElement().getAttribute("custom"), "true", "custom overlay created correctly");
 		equal(o.getElement().innerHTML, c.id, "custom overlay has correct value");		
+	});
+
+	test(renderMode + ": overlay events", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		var clicked = 0;
+		var connection1 = _jsPlumb.connect({
+			source:d1, 
+	   		target:d2, 	   	
+	   		overlays : [ ["Label",{
+	   			label:"CONNECTION 1", 
+	   			location:0.3,
+	   			id:"label",
+	   			events:{
+	   				click:function(label, e) {
+	   					clicked++;
+	   				}
+	   			} 
+	   		}]]
+		});
+		var l = connection1.getOverlay("label");
+		l.fire("click", l);
+		equal(clicked, 1, "click event was fired once");
 	});
 	
 	// this test is for the original detach function; it should stay working after i mess with it
@@ -4832,6 +4890,17 @@ var testSuite = function(renderMode, _jsPlumb) {
         }
     };
     
+    test(renderMode + "jsPlumbUtil.copyValues", function() {
+    	var n = ["foo", "bar", "baz"],
+    		t = {"hello":"hello", "foo":"replaced"},
+    		f = {"foo":"new", "bar":"bar"};
+
+    	jsPlumbUtil.copyValues(n, f, t);
+    	equal(t.foo, "new");
+    	equal(t.hello, "hello");
+    	equal(t.bar,"bar");
+    })
+
     test(renderMode + " jsPlumbUtil.segment, segment 1", function() {
 		var p1 = [2,0], p2 = [3,-1], s = jsPlumbUtil.segment(p1,p2);
 		equal(s, 1, "segment 1 correct");
