@@ -85,6 +85,10 @@
             }
             return c;
         },
+        copyValues:function(names, from, to) {
+            for (var i = 0; i < names.length; i++)
+                to[names[i]] = from[names[i]];
+        },
         //
         // chain a list of functions, supplied by [ object, method name, args ], and return on the first
         // one that returns the failValue. if none return the failValue, return the successValue.
