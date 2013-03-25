@@ -260,7 +260,7 @@
 		var self = this;
 		CanvasComponent.apply(this, arguments);
 		
-		var _paintOneStyle = function(dim, aStyle) {
+		var _paintOneStyle = function(aStyle) {
 			self.ctx.save();
 			jsPlumb.extend(self.ctx, aStyle);
 
@@ -283,11 +283,10 @@
 		
 		self.appendDisplayElement(self.canvas);
 		
-		self.paint = function(dim, style) {						
+		//self.paint = function(dim, style) {						
+		self.paint = function(style, anchor, extents) {						
 			if (style != null) {																				
-				jsPlumb.sizeCanvas(self.canvas, dim[0], dim[1], dim[2], dim[3]);
-				if (self.getZIndex())
-					self.canvas.style.zIndex = self.getZIndex();
+				jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);				
 				if (style.outlineColor != null) {
 					var outlineWidth = style.outlineWidth || 1,
 					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
@@ -295,9 +294,9 @@
 						strokeStyle:style.outlineColor,
 						lineWidth:outlineStrokeWidth
 					};
-					_paintOneStyle(dim, outlineStyle);
+					_paintOneStyle(outlineStyle);
 				}
-				_paintOneStyle(dim, style);
+				_paintOneStyle(style);
 			}
 		};				
 	};		
@@ -323,7 +322,7 @@
 
 		self.appendDisplayElement(self.canvas);
 		
-		this.paint = function(style, anchor) {
+		this.paint = function(style, anchor, extents) {
 			jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);			
 			if (style.outlineColor != null) {
 				var outlineWidth = style.outlineWidth || 1,
@@ -355,7 +354,7 @@
         	gradient.innerRadius && (innerRadius = parseValue(gradient.innerRadius));
         	return [offsetAdjustment, innerRadius];
 		};
-		this._paint = function(style, anchor) {
+		this._paint = function(style) {
 			if (style != null) {			
 				var ctx = self.canvas.getContext('2d'), orientation = anchor.getOrientation(self);
 				jsPlumb.extend(ctx, style);							
@@ -383,7 +382,7 @@
 		jsPlumb.Endpoints.Rectangle.apply(this, arguments);
 		CanvasEndpoint.apply(this, arguments);				
 		
-    	this._paint = function(style, anchor) {
+    	this._paint = function(style) {
 				
 			var ctx = self.canvas.getContext("2d"), orientation = anchor.getOrientation(self);
 			jsPlumb.extend(ctx, style);
@@ -391,10 +390,10 @@
 			/* canvas gradient */
 		    if (style.gradient) {
 		    	// first figure out which direction to run the gradient in (it depends on the orientation of the anchors)
-		    	var y1 = orientation[1] == 1 ? d[3] : orientation[1] == 0 ? d[3] / 2 : 0;
-				var y2 = orientation[1] == -1 ? d[3] : orientation[1] == 0 ? d[3] / 2 : 0;
-				var x1 = orientation[0] == 1 ? d[2] : orientation[0] == 0 ? d[2] / 2 : 0;
-				var x2 = orientation[0] == -1 ? d[2] : orientation[0] == 0 ? d[2] / 2 : 0;
+		    	var y1 = orientation[1] == 1 ? self.h : orientation[1] == 0 ? self.h / 2 : 0;
+				var y2 = orientation[1] == -1 ? self.h : orientation[1] == 0 ? self.h / 2 : 0;
+				var x1 = orientation[0] == 1 ? self.w : orientation[0] == 0 ? self.w / 2 : 0;
+				var x2 = orientation[0] == -1 ? self.w : orientation[0] == 0 ? self.w / 2 : 0;
 			    var g = ctx.createLinearGradient(x1,y1,x2,y2);
 			    for (var i = 0; i < style.gradient.stops.length; i++)
 	            	g.addColorStop(style.gradient.stops[i][0], style.gradient.stops[i][1]);
@@ -402,7 +401,7 @@
 		    }
 			
 			ctx.beginPath();
-			ctx.rect(0, 0, d[2], d[3]);
+			ctx.rect(0, 0, self.w, self.h);
 			ctx.closePath();				
 			if (style.fillStyle || style.gradient) ctx.fill();
 			if (style.strokeStyle) ctx.stroke();
@@ -415,7 +414,7 @@
 		jsPlumb.Endpoints.Triangle.apply(this, arguments);
 		CanvasEndpoint.apply(this, arguments);			
 		
-    	this._paint = function(style, anchor)
+    	this._paint = function(style)
 		{    		
 			var width = d[2], height = d[3], x = d[0], y = d[1],			
 			ctx = self.canvas.getContext('2d'),
@@ -497,10 +496,11 @@
     var AbstractCanvasArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
     	CanvasOverlay.apply(this, originalArgs);
-    	this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
-    		var ctx = connector.ctx;
+    	//this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
+    	this.paint = function(params, containerExtents) {
+    		var ctx = params.component.ctx, d = params.d;
     		
-			ctx.lineWidth = lineWidth;
+			ctx.lineWidth = params.lineWidth;
 			ctx.beginPath();
 			ctx.moveTo(d.hxy.x, d.hxy.y);
 			ctx.lineTo(d.tail[0].x, d.tail[0].y);
@@ -509,12 +509,12 @@
 			ctx.lineTo(d.hxy.x, d.hxy.y);
 			ctx.closePath();						
 						
-			if (strokeStyle) {
-				ctx.strokeStyle = strokeStyle;
+			if (params.strokeStyle) {
+				ctx.strokeStyle = params.strokeStyle;
 				ctx.stroke();
 			}
-			if (fillStyle) {
-				ctx.fillStyle = fillStyle;			
+			if (params.fillStyle) {
+				ctx.fillStyle = params.fillStyle;			
 				ctx.fill();
 			}
     	};
