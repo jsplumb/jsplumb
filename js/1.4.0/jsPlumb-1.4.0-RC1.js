@@ -87,6 +87,11 @@
 			
 			// all components can generate events
 			jsPlumbUtil.EventGenerator.apply(this);
+			if (params.events) {
+				for (var i in params.events)
+					self.bind(i, params.events[i]);
+			}
+
 			// all components get this clone function.
 			// TODO issue 116 showed a problem with this - it seems 'a' that is in
 			// the clone function's scope is shared by all invocations of it, the classic
@@ -432,12 +437,7 @@
 						// make a copy of the object so as not to mess up anyone else's reference...
 						p = jsPlumb.extend({component:self, _jsPlumb:self._jsPlumb}, o[1]);
 					if (o.length == 3) jsPlumb.extend(p, o[2]);
-					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.getRenderMode()][type](p);
-					if (p.events) {
-						for (var evt in p.events) {
-							_newOverlay.bind(evt, p.events[evt]);
-						}
-					}
+					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.getRenderMode()][type](p);					
 				} else if (o.constructor == String) {
 					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.getRenderMode()][o]({component:self, _jsPlumb:self._jsPlumb});
 				} else {
@@ -1977,7 +1977,8 @@ between this method and jsPlumb.reset).
 		var	_makeEndpointSelectHandler = function(list) {
 			var common = _makeCommonSelectHandler(list, _makeEndpointSelectHandler);
 			return jsPlumb.CurrentLibrary.extend(common, {
-				setEnabled:setter(list, "setEnabled", _makeEndpointSelectHandler),
+				setEnabled:setter(list, "setEnabled", _makeEndpointSelectHandler),				
+				setAnchor:setter(list, "setAnchor", _makeEndpointSelectHandler),
 				isEnabled:getter(list, "isEnabled"),
 				detachAll:function() {
 					for (var i = 0, ii = list.length; i < ii; i++)
@@ -2097,6 +2098,7 @@ between this method and jsPlumb.reset).
 		*	-	setHoverPaintStyle
 		*	-	setParameter
 		*	-	setParameters
+		*	-	setAnchor
 		*   - 	getLabel
 		*	-	getOverlay
 		*	-	isHover
