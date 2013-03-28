@@ -2707,7 +2707,7 @@ between this method and jsPlumb.reset).
 							oldAnchor = ep.anchor,
 							oldConnection = ep.connections[0];
 
-						ep.anchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance);																							
+						ep.setAnchor(_currentInstance.makeAnchor(anchorDef, elid, _currentInstance));																							
 						
 						if (p.parent) {						
 							var parent = jpcl.getElementObject(p.parent);
