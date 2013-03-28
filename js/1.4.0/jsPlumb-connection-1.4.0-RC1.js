@@ -130,7 +130,7 @@
         };                        
                 
         this.setConnector = function(connectorSpec, doNotRepaint) {
-            if (connector != null) jsPlumbUtil.removeElements(connector.getDisplayElements());
+            if (connector != null) _ju.removeElements(connector.getDisplayElements());
             var connectorArgs = { 
                 _jsPlumb:self._jsPlumb, 
                 parent:params.parent, 
@@ -147,7 +147,7 @@
                 if (connectorSpec.length == 1)
                     connector = makeConnector(renderMode, connectorSpec[0], connectorArgs);
                 else
-                    connector = makeConnector(renderMode, connectorSpec[0], jsPlumbUtil.merge(connectorSpec[1], connectorArgs));
+                    connector = makeConnector(renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs));
             }
             // binds mouse listeners to the current connector.
             self.bindListeners(connector, self, _internalHover);
@@ -451,8 +451,6 @@
                         targetPos:tAnchorP, 
                         sourceEndpoint:this.endpoints[sIdx],
                         targetEndpoint:this.endpoints[tIdx],
-                        sourceAnchor:this.endpoints[sIdx].anchor,
-                        targetAnchor:this.endpoints[tIdx].anchor, 
                         lineWidth:self.paintStyleInUse.lineWidth,                        					
                         sourceInfo:sourceInfo,
                         targetInfo:targetInfo,

@@ -542,8 +542,8 @@
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
                 lw = params.lineWidth || 1,       
-                so = params.sourceAnchor.orientation || params.sourceAnchor.getOrientation(params.sourceEndpoint), 
-                to = params.targetAnchor.orientation || params.targetAnchor.getOrientation(params.targetEndpoint),
+                so = params.sourceEndpoint.anchor.orientation || params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint), 
+                to = params.targetEndpoint.anchor.orientation || params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
                 x = swapX ? params.targetPos[0] : params.sourcePos[0], 
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
@@ -693,11 +693,11 @@
         this.type = "Bezier";	
         this.getCurviness = function() { return majorAnchor; };	
         
-        this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint, sourceAnchor, targetAnchor) {
+        this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint) {
         	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
         	// points around if so (code could be tightened up)
-        	var soo = sourceAnchor.getOrientation(sourceEndpoint), 
-        		too = targetAnchor.getOrientation(targetEndpoint),
+        	var soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint), 
+        		too = targetEndpoint.anchor.getOrientation(targetEndpoint),
         		perpendicular = soo[0] != too[0] || soo[1] == too[1],
             	p = [];                
             	
@@ -732,8 +732,8 @@
                 _sy = sp[1] < tp[1] ? _h : 0,
                 _tx = sp[0] < tp[0] ? 0 : _w,
                 _ty = sp[1] < tp[1] ? 0 : _h,
-                _CP = self._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint, p.sourceAnchor, p.targetAnchor),
-                _CP2 = self._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint, p.targetAnchor, p.sourceAnchor);
+                _CP = self._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint),
+                _CP2 = self._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint);
 
 			_super.addSegment("Bezier", {
 				x1:_sx, y1:_sy, x2:_tx, y2:_ty,
@@ -1059,7 +1059,7 @@
 		AbstractOverlay.apply(this, arguments);
         this.isAppendedAtTopLevel = false;
 		params = params || {};
-		var self = this;
+		var self = this, _ju = jsPlumbUtil;
 		
     	this.length = params.length || 20;
     	this.width = params.width || 20;
@@ -1076,16 +1076,16 @@
             var hxy, mid, txy, tail, cxy;
             if (component.pointAlongPathFrom) {
 
-                if (jsPlumbUtil.isString(self.loc) || self.loc > 1 || self.loc < 0) {                    
+                if (_ju.isString(self.loc) || self.loc > 1 || self.loc < 0) {                    
                     var l = parseInt(self.loc);
                     hxy = component.pointAlongPathFrom(l, direction * self.length / 2, true),
                     mid = component.pointOnPath(l, true),
-                    txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
+                    txy = _ju.pointOnLine(hxy, mid, self.length);
                 }
                 else if (self.loc == 1) {                
 					hxy = component.pointOnPath(self.loc);
 					mid = component.pointAlongPathFrom(self.loc, -1);                    
-					txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
+					txy = _ju.pointOnLine(hxy, mid, self.length);
 					
 					if (direction == -1) {
 						var _ = txy;
@@ -1096,7 +1096,7 @@
                 else if (self.loc == 0) {					                    
 					txy = component.pointOnPath(self.loc);                    
 					mid = component.pointAlongPathFrom(self.loc, 1);                    
-					hxy = jsPlumbUtil.pointOnLine(txy, mid, self.length);                    
+					hxy = _ju.pointOnLine(txy, mid, self.length);                    
 					if (direction == -1) {
 						var _ = txy;
 						txy = hxy;
@@ -1106,11 +1106,11 @@
                 else {                    
     			    hxy = component.pointAlongPathFrom(self.loc, direction * self.length / 2),
                     mid = component.pointOnPath(self.loc),
-                    txy = jsPlumbUtil.pointOnLine(hxy, mid, self.length);
+                    txy = _ju.pointOnLine(hxy, mid, self.length);
                 }
 
-                tail = jsPlumbUtil.perpendicularLineTo(hxy, txy, self.width);
-                cxy = jsPlumbUtil.pointOnLine(hxy, txy, foldback * self.length);    			
+                tail = _ju.perpendicularLineTo(hxy, txy, self.width);
+                cxy = _ju.pointOnLine(hxy, txy, foldback * self.length);    			
     			
     			var d = { hxy:hxy, tail:tail, cxy:cxy },
     			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,

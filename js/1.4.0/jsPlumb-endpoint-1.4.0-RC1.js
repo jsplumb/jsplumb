@@ -43,6 +43,9 @@
         return _newEndpoint({ paintStyle : paintStyle, endpoint : endpoint, anchor : floatingAnchor, source : sourceElement, scope:"__floating" });
     };
 
+    var typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays",
+                "connector", "connectionType", "connectorClass", "connectorHoverClass" ];
+
     jsPlumb.Endpoint = function(params) {
         var self = this, 
             _jsPlumb = params["_jsPlumb"],
@@ -90,14 +93,7 @@
             superAt(t, doNotRepaint);
             if (t.maxConnections != null) _maxConnections = t.maxConnections;
             if (t.scope) self.scope = t.scope;
-            self.connectorStyle = t.connectorStyle;
-            self.connectorHoverStyle = t.connectorHoverStyle;
-            self.connectorOverlays = t.connectorOverlays;
-            self.connector = t.connector;
-            self.connectorTooltip = t.connectorTooltip;
-            self.connectionType = t.connectionType;
-            self.connectorClass = t.connectorClass;
-            self.connectorHoverClass = t.connectorHoverClass;
+            _ju.copyValues(typeParameters, t, self);
         };			
 // END TYPE
     
@@ -119,20 +115,8 @@
                 }
             }
         };			
-
-        /*
-            Function: isEnabled
-            Returns whether or not the Endpoint is enabled for drag/drop connections.
-        */
+        
         this.isEnabled = function() { return __enabled; };
-
-        /*
-            Function: setEnabled
-            Sets whether or not the Endpoint is enabled for drag/drop connections.
-            
-            Parameters:
-                enabled - whether or not the Endpoint is enabled.			
-        */
         this.setEnabled = function(e) { __enabled = e; };
 
         var _element = params.source,  _uuid = params.uuid, floatingEndpoint = null,  inPlaceCopy = null;
@@ -160,9 +144,19 @@
         
         var _connectionsDirected = params.connectionsDirected;
         this.areConnectionsDirected = function() { return _connectionsDirected; };
-        this.setConnectionsDirected = function(b) { _connectionsDirected = b; };
-                    
-        self.anchor = params.anchor ? _jsPlumb.makeAnchor(params.anchor, _elementId, _jsPlumb) : params.anchors ? _jsPlumb.makeAnchor(params.anchors, _elementId, _jsPlumb) : _jsPlumb.makeAnchor(_jsPlumb.Defaults.Anchor || "TopCenter", _elementId, _jsPlumb);
+        this.setConnectionsDirected = function(b) { _connectionsDirected = b; };                        
+
+        this.setAnchor = function(anchorParams, doNotRepaint) {
+            self.anchor = _jsPlumb.makeAnchor(anchorParams, _elementId, _jsPlumb);
+            self.anchor.bind("anchorChanged", function(currentAnchor) {
+                self.fire("anchorChanged", {endpoint:self, anchor:currentAnchor});
+            });
+            if (!doNotRepaint)
+                _jsPlumb.repaint(_elementId);
+        };
+
+        var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
+        self.setAnchor(anchorParamsToUse, true);
             
         // ANCHOR MANAGER
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
@@ -233,13 +227,9 @@
                                 jsPlumb.Defaults.EndpointHoverStyle, true);
         this.paintStyleInUse = this.getPaintStyle();
         var originalPaintStyle = this.getPaintStyle();
-        this.connectorStyle = params.connectorStyle;
-        this.connectorHoverStyle = params.connectorHoverStyle;
-        this.connectorOverlays = params.connectorOverlays;
-        this.connector = params.connector;
-        this.connectorTooltip = params.connectorTooltip;
-        this.connectorClass = params.connectorClass;
-        this.connectorHoverClass = params.connectorHoverClass;	
+
+        _ju.copyValues(typeParameters, params, this);        
+
         this.isSource = params.isSource || false;
         this.isTarget = params.isTarget || false;
         
@@ -253,8 +243,7 @@
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
         
-        this.scope = params.scope || _jsPlumb.getDefaultScope();
-        this.connectionType = params.connectionType;
+        this.scope = params.scope || _jsPlumb.getDefaultScope();        
         this.timestamp = null;
         self.reattachConnections = params.reattach || _jsPlumb.Defaults.ReattachConnections;
         self.connectionsDetachable = _jsPlumb.Defaults.ConnectionsDetachable;
@@ -282,20 +271,10 @@
                 if (forceDetach || connection._forceDetach || connection.isDetachable() || connection.isDetachAllowed(connection)) {
                     // get the target endpoint
                     var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
-                    // it would be nice to check with both endpoints that it is ok to detach. but 
-                    // for this we'll have to get a bit fancier: right now if you use the same beforeDetach
-                    // interceptor for two endpoints (which is kind of common, because it's part of the
-                    // endpoint definition), then it gets fired twice.  so in fact we need to loop through
-                    // each beforeDetach and see if it returns false, at which point we exit.  but if it
-                    // returns true, we have to check the next one.  however we need to track which ones
-                    // have already been run, and not run them again.
-                    if (forceDetach || connection._forceDetach || (self.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {
-                
+                    if (forceDetach || connection._forceDetach || (self.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {                
                         self.connections.splice(idx, 1);										
-                
-                        // this avoids a circular loop
-                        if (!ignoreTarget) {
-                        
+                        // avoid circular loop
+                        if (!ignoreTarget) {                        
                             t.detach(connection, true, forceDetach);
                             // check connection to see if we want to delete the endpoints associated with it.
                             // we only detach those that have just this connection; this scenario is most
@@ -314,9 +293,8 @@
                         _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
                             return c.id == connection.id;
                         });
-                        actuallyDetached = true;
-                        var doFireEvent = (!ignoreTarget && fireEvent)
-                        _fireDetachEvent(connection, doFireEvent, originalEvent);
+                        actuallyDetached = true;                        
+                        _fireDetachEvent(connection, (!ignoreTarget && fireEvent), originalEvent);
                     }
                 }
             }
@@ -355,10 +333,6 @@
         };		
                  
         this.setElement = function(el, container) {
-
-            // TODO possibly have this object take charge of moving the UI components into the appropriate
-            // parent.  this is used only by makeSource right now, and that function takes care of
-            // moving the UI bits and pieces.  however it would s			
             var parentId = _jsPlumb.getId(el);
             // remove the endpoint from the list for the current endpoint's element
             _ju.removeWithFunction(params.endpointsByElement[self.elementId], function(e) {
@@ -380,18 +354,17 @@
                 self.connections[i].source = _element;					
             }	
             _ju.addToList(params.endpointsByElement, parentId, self);
-            //_jsPlumb.repaint(parentId);			
-        
+            
         };
-
         
         this.getUuid = function() {
             return _uuid;
         };
+
         /**
          * private but must be exposed.
          */
-        this.makeInPlaceCopy = function() {
+        self.makeInPlaceCopy = function() {
             var loc = self.anchor.getCurrentLocation(self),
                 o = self.anchor.getOrientation(self),
                 inPlaceAnchor = {
@@ -585,33 +558,8 @@
                 // store the id of the dragging div and the source element. the drop function will pick these up.					
                 jpcl.setAttribute(canvasElement, "dragId", placeholderInfo.id);
                 jpcl.setAttribute(canvasElement, "elId", _elementId);
-
-                // create a floating endpoint.
-                // here we test to see if a dragProxy was specified in this endpoint's constructor params, and
-                // if so, we create that endpoint instead of cloning ourselves.
-                //if (params.proxy) {
-            /*		var floatingAnchor = new jsPlumb.FloatingAnchor( { reference : self.anchor, referenceCanvas : self.canvas });
-
-                    floatingEndpoint = _newEndpoint({ 
-                        paintStyle : params.proxy.paintStyle,
-                        endpoint : params.proxy.endpoint,
-                        anchor : floatingAnchor, 
-                        source : placeholderInfo.element, 
-                        scope:"__floating" 
-                    });		
-                    
-                    //$(self.canvas).hide();									
-                    */
-                    //self.setPaintStyle(params.proxy.paintStyle);
-                    // if we do this, we have to cleanup the old one. like just remove its display parts												
-                    //self.setEndpoint(params.proxy.endpoint);
-
-                //}
-            //	else {
-                    floatingEndpoint = _makeFloatingEndpoint(self.getPaintStyle(), self.anchor, _endpoint, self.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint);
-
-                    self.canvas.style.visibility = "hidden";
-            //	}
+                floatingEndpoint = _makeFloatingEndpoint(self.getPaintStyle(), self.anchor, _endpoint, self.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint);
+                self.canvas.style.visibility = "hidden";            
                 
                 if (jpc == null) {                                                                                                                                                         
                     self.anchor.locked = true;

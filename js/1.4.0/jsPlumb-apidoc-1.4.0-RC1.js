@@ -306,6 +306,20 @@
          *  callback - function to callback. This function will be passed the Endpoint that caused the event, and also the original event.    
          */
         
+
+         /*
+            Function: setEnabled
+            Sets whether or not the Endpoint is enabled for drag/drop connections.
+            
+            Parameters:
+                enabled - whether or not the Endpoint is enabled.			
+        */
+
+        /*
+            Function: isEnabled
+            Returns whether or not the Endpoint is enabled for drag/drop connections.
+        */
+
         /*
          * Function: setPaintStyle
          * Sets the Endpoint's paint style and then repaints the Endpoint.
@@ -458,6 +472,16 @@
                 doNotChangeConnections - Instructs jsPlumb to not pass the visible state on to any attached Connections. defaults to false.
                 doNotNotifyOtherEndpoint - Instructs jsPlumb to not pass the visible state on to Endpoints at the other end of any attached Connections. defaults to false. 
         */
+
+        /*
+        	Function: setAnchor
+        	Sets the Endpoint's anchor. This takes an anchor in any supported form in a jsPlumb.connect
+        	or jsPlumb.addEndpoint call.
+
+        	Parameters:
+        		anchorParams - anchor spec
+        		doNotRepaint - optional, defaults to false.
+        */	
 
 // ---------------- / ENDPOINT -----------------------------------------------------
 
