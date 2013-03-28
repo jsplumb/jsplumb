@@ -368,6 +368,7 @@
             var loc = self.anchor.getCurrentLocation(self),
                 o = self.anchor.getOrientation(self),
                 inPlaceAnchor = {
+                    bind:function() { },
                     compute:function() { return [ loc[0], loc[1] ]},
                     getCurrentLocation : function() { return [ loc[0], loc[1] ]},
                     getOrientation:function() { return o; }
