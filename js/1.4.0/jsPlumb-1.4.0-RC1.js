@@ -2315,7 +2315,7 @@ between this method and jsPlumb.reset).
 						newAnchor = jsPlumb.Anchors[specimen[0]](pp);
 					}
 					else
-						newAnchor = new jsPlumb.DynamicAnchor(specimen, null, elementId, jsPlumbInstance);
+						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:jsPlumbInstance});
 				}
 				else {
 					var anchorParams = {
@@ -2355,7 +2355,7 @@ between this method and jsPlumb.reset).
 		 * not need to provide this - i think). 
 		 */
 		this.makeDynamicAnchor = function(anchors, anchorSelector) {
-			return new jsPlumb.DynamicAnchor(anchors, anchorSelector, null, _currentInstance);
+			return new jsPlumb.DynamicAnchor({anchors:anchors, selector:anchorSelector, elementId:null, jsPlumbInstance:_currentInstance});
 		};
 		
 		/**
