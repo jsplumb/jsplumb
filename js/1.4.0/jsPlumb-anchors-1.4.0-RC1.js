@@ -475,6 +475,7 @@
 		};
         
         var ContinuousAnchor = function(anchorParams) {
+            jsPlumbUtil.EventGenerator.apply(this);
             this.type = "Continuous";
             this.isDynamic = true;
             this.isContinuous = true;
@@ -540,6 +541,8 @@
         this.x = params.x || 0;
         this.y = params.y || 0;
         this.elementId = params.elementId;
+
+        jsPlumbUtil.EventGenerator.apply(this);
         
         var orientation = params.orientation || [ 0, 0 ],
             jsPlumbInstance = params.jsPlumbInstance,
@@ -685,22 +688,24 @@
      * feature for some applications.
      * 
      */
-    jsPlumb.DynamicAnchor = function(anchors, anchorSelector, elementId, jsPlumbInstance) {
+    jsPlumb.DynamicAnchor = function(params) {
         jsPlumb.Anchor.apply(this, arguments);
         
         this.isSelective = true;
         this.isDynamic = true;			
-        var _anchors = [], self = this,
-        _convert = function(anchor) { 
-            return anchor.constructor == jsPlumb.Anchor ? anchor: jsPlumbInstance.makeAnchor(anchor, elementId, jsPlumbInstance); 
-        };
-        for (var i = 0; i < anchors.length; i++) 
-            _anchors[i] = _convert(anchors[i]);			
+        var _anchors = [], self = this,            
+            _convert = function(anchor) { 
+                return anchor.constructor == jsPlumb.Anchor ? anchor: params.jsPlumbInstance.makeAnchor(anchor, params.elementId, params.jsPlumbInstance); 
+            };
+
+        for (var i = 0; i < params.anchors.length; i++) 
+            _anchors[i] = _convert(params.anchors[i]);			
         this.addAnchor = function(anchor) { _anchors.push(_convert(anchor)); };
         this.getAnchors = function() { return _anchors; };
         this.locked = false;
         var _curAnchor = _anchors.length > 0 ? _anchors[0] : null,
             _curIndex = _anchors.length > 0 ? 0 : -1,
+            _lastAnchor = _curAnchor,
             self = this,
         
             // helper method to calculate the distance between the centers of the two elements.
@@ -717,7 +722,7 @@
             // txy - xy loc of the element of the other anchor in the connection
             // twh - dimensions of the element of the other anchor in the connection.
             // anchors - the list of selectable anchors
-            _anchorSelector = anchorSelector || function(xy, wh, txy, twh, anchors) {
+            _anchorSelector = params.selector || function(xy, wh, txy, twh, anchors) {
                 var cx = txy[0] + (twh[0] / 2), cy = txy[1] + (twh[1] / 2);
                 var minIdx = -1, minDist = Infinity;
                 for ( var i = 0; i < anchors.length; i++) {
@@ -751,7 +756,12 @@
             
             _curAnchor = _anchorSelector(xy, wh, txy, twh, _anchors);
             self.x = _curAnchor.x;
-            self.y = _curAnchor.y;
+            self.y = _curAnchor.y;        
+
+            if (_curAnchor != _lastAnchor)
+                self.fire("anchorChanged", _curAnchor);
+
+            _lastAnchor = _curAnchor;
             
             return _curAnchor.compute(params);
         };
