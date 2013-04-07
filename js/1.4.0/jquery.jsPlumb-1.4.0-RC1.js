@@ -57,13 +57,17 @@
 	
 	//var getBoundingClientRectSupported = "getBoundingClientRect" in document.documentElement;
 
+	var _getElementObject = function(el) {			
+		return typeof(el) == "string" ? $("#" + el) : $(el);
+	};
+
 	jsPlumb.CurrentLibrary = {					        
 		
 		/**
 		 * adds the given class to the element object.
 		 */
 		addClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el = _getElementObject(el);
 			try {
 				if (el[0].className.constructor == SVGAnimatedString) {
 					jsPlumbUtil.svg.addClass(el[0], clazz);                    
@@ -91,7 +95,7 @@
 		 * appends the given child to the given parent.
 		 */
 		appendElement : function(child, parent) {
-			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
+			_getElementObject(parent).append(child);			
 		},   
 
 		/**
@@ -108,7 +112,7 @@
 		 * uses 'on'.
 		 */
 		bind : function(el, event, callback) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el = _getElementObject(el);
 			el.bind(event, callback);
 		},
 		
@@ -177,9 +181,7 @@
 		 * function is used to find the element, using the given String as the element's id.
 		 * 
 		 */		
-		getElementObject : function(el) {			
-			return typeof(el) == "string" ? $("#" + el) : $(el);
-		},
+		getElementObject : _getElementObject,
 		
 		/**
 		  * gets the offset for the element object.  this should return a js object like this:
@@ -199,7 +201,7 @@
 		},
 		
 		getParent : function(el) {
-			return jsPlumb.CurrentLibrary.getElementObject(el).parent();
+			return _getElementObject(el).parent();
 		},
 														
 		getScrollLeft : function(el) {
@@ -212,7 +214,7 @@
 		
 		getSelector : function(context, spec) {
             if (arguments.length == 2)
-                return jsPlumb.CurrentLibrary.getElementObject(context).find(spec);
+                return _getElementObject(context).find(spec);
             else
                 return $(context);
 		},
@@ -225,7 +227,7 @@
 		},
 
         getTagName : function(el) {
-            var e = jsPlumb.CurrentLibrary.getElementObject(el);
+            var e = _getElementObject(el);
             return e.length > 0 ? e[0].tagName : null;
         },
 		
@@ -322,8 +324,7 @@
 		},
 		
 		isAlreadyDraggable : function(el) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			return el.hasClass("ui-draggable");
+			return _getElementObject(el).hasClass("ui-draggable");
 		},
 		
 		/**
@@ -344,7 +345,7 @@
 		 * removes the given class from the element object.
 		 */
 		removeClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el = _getElementObject(el);
 			try {
 				if (el[0].className.constructor == SVGAnimatedString) {
 					jsPlumbUtil.svg.removeClass(el[0], clazz);
@@ -358,34 +359,23 @@
 		},
 		
 		removeElement : function(element) {			
-			jsPlumb.CurrentLibrary.getElementObject(element).remove();
+			_getElementObject(element).remove();
 		},
 		
-		/**
-		 * sets the named attribute on the given element object.  
-		 */
 		setAttribute : function(el, attName, attValue) {
 			el.attr(attName, attValue);
 		},
 		
-		/**
-		 * sets the draggable state for the given element
-		 */
 		setDraggable : function(el, draggable) {
 			el.draggable("option", "disabled", !draggable);
 		},
 		
-		/**
-		 * sets the drag scope.  probably time for a setDragOption method (roll this and the one above together)
-		 * @param el
-		 * @param scope
-		 */
 		setDragScope : function(el, scope) {
 			el.draggable("option", "scope", scope);
 		},
 		
 		setOffset : function(el, o) {
-			jsPlumb.CurrentLibrary.getElementObject(el).offset(o);
+			_getElementObject(el).offset(o);
 		},
 		
 		/**
@@ -397,19 +387,12 @@
 		 * @param originalEvent
 		 */
 		trigger : function(el, event, originalEvent) {
-			//originalEvent.stopPropagation();
-			//jsPlumb.CurrentLibrary.getElementObject(el).trigger(originalEvent);
-            var h = jQuery._data(jsPlumb.CurrentLibrary.getElementObject(el)[0], "handle");
+			var h = jQuery._data(_getElementObject(el)[0], "handle");
             h(originalEvent);
-            //originalEvent.stopPropagation();
 		},
 		
-		/**
-		 * event unbinding wrapper.  it just so happens that jQuery uses 'unbind' also.  yui3, for example,
-		 * uses..something else.
-		 */
 		unbind : function(el, event, callback) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el = _getElementObject(el);
 			el.unbind(event, callback);
 		}
 	};
