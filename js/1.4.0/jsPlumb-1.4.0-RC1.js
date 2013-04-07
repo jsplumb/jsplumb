@@ -2845,6 +2845,13 @@ between this method and jsPlumb.reset).
 	                // register this on jsPlumb so that it can be cleared by a reset.
 	                _currentInstance.registerListener(_el, "mousedown", mouseDownListener);
 	                _sourceTriggers[elid] = mouseDownListener;
+
+	                // lastly, if a filter was provided, set it as a dragFilter on the element,
+	                // to prevent the element drag function from kicking in when we want to
+	                // drag a new connection
+	                if (p.filter && jsPlumbUtil.isString(p.filter)) {
+	                	jpcl.setDragFilter(_el, p.filter);
+	                }
 				};
 			
 			el = _convertYUICollection(el);			

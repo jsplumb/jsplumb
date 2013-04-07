@@ -352,6 +352,10 @@
 		setAttribute : function(el, attributeName, attributeValue) {
 			el.setAttribute(attributeName, attributeValue);
 		},
+
+		setDragFilter : function(el, filter) {
+			jsPlumb.log("NOT IMPLEMENTED: setDragFilter")
+		},
 		
 		/**
 		 * sets the draggable state for the given element

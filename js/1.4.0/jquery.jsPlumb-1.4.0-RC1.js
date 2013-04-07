@@ -47,6 +47,7 @@
  * removeClass			removes a class from a given element.
  * removeElement		removes some element completely from the DOM.
  * setAttribute			sets an attribute on some element.
+ * setDragFilter		sets a filter for some element that indicates areas of the element that should not respond to dragging.
  * setDraggable			sets whether or not some element should be draggable.
  * setDragScope			sets the drag scope for a given element.
  * setOffset			sets the offset of some element.
@@ -364,6 +365,10 @@
 		
 		setAttribute : function(el, attName, attValue) {
 			el.attr(attName, attValue);
+		},
+
+		setDragFilter : function(el, filter) {
+			el.draggable("option", "cancel", filter);
 		},
 		
 		setDraggable : function(el, draggable) {

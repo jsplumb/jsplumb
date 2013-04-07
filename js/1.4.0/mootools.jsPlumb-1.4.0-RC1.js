@@ -387,6 +387,10 @@
 		setAttribute : function(el, attName, attValue) {
 			el.set(attName, attValue);
 		},
+
+		setDragFilter : function(el, filter) {
+			jsPlumb.log("NOT IMPLEMENTED: setDragFilter")
+		},
 		
 		setDraggable : function(el, draggable) {
 			var draggables = _draggablesById[el.get("id")];

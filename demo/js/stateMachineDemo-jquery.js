@@ -44,13 +44,11 @@
 			// to use a Continuous anchor and the StateMachine connectors, and also we give it the
 			// connector's paint style.  note that in this demo the strokeStyle is dynamically generated,
 			// which prevents us from just setting a jsPlumb.Defaults.PaintStyle.  but that is what i
-			// would recommend you do. Note also here that we use the 'parent' option to assign the connections
-			// that were dragged from this endpoint to some other element. This allows us to keep the parent element
-			// draggable and have only the ".ep" div act as a connection source.
-			$(".ep").each(function(i,e) {
-				var p = $(e).parent();
+			// would recommend you do. Note also here that we use the 'filter' option to tell jsPlumb
+			// which parts of the element should actually respond to a drag start.
+			$(".w").each(function(i,e) {			
 				jsPlumb.makeSource($(e), {
-					parent:p,				
+					filter:".ep",
 					anchor:"Continuous",
 					connector:[ "StateMachine", { curviness:20 } ],
 					connectorStyle:{ strokeStyle:nextColour(), lineWidth:2 },
