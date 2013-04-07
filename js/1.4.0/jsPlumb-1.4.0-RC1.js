@@ -2312,7 +2312,7 @@ between this method and jsPlumb.reset).
 				if (_isArray(specimen[0]) || _isString(specimen[0])) {
 					if (specimen.length == 2 && _isString(specimen[0]) && _isObject(specimen[1])) {
 						var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
-						newAnchor = jsPlumb.Anchors[specimen[0]](pp);
+						newAnchor = new jsPlumb.Anchors[specimen[0]](pp);
 					}
 					else
 						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:jsPlumbInstance});
@@ -2650,7 +2650,18 @@ between this method and jsPlumb.reset).
 			_sourcesEnabled = {},
 			_sourceTriggers = {},
 			_sourceMaxConnections = {},
-			_targetsEnabled = {};
+			_targetsEnabled = {},
+			selectorFilter = function(evt, _el, selector) {	            
+                var t = evt.target || evt.srcElement, ok = false, 
+                    sel = _currentInstance.getSelector(_el, selector);
+                for (var j = 0; j < sel.length; j++) {
+                    if (sel[j] == t) {
+                        ok = true;
+                        break;
+                    }
+                }
+                return ok;	            
+	        };
 
 		this.makeSource = function(el, params, referenceParams) {
 			var p = jsPlumb.extend({}, referenceParams);
@@ -2659,182 +2670,182 @@ between this method and jsPlumb.reset).
 			var jpcl = jsPlumb.CurrentLibrary,
 				maxConnections = p.maxConnections || -1,
 				onMaxConnections = p.onMaxConnections,
-			_doOne = function(_el) {
-				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-				// and use the endpoint definition if found.
-				var elid = _getId(_el),
-					parent = p.parent,
-					idToRegisterAgainst = parent != null ? _currentInstance.getId(jpcl.getElementObject(parent)) : elid;
+				_doOne = function(_el) {
+					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+					// and use the endpoint definition if found.
+					var elid = _getId(_el),
+						parentElement = function(_el) {
+							return p.parent == null ? p.parent : p.parent === "parent" ? jpcl.getElementObject(jpcl.getDOMElement(_el).parentNode) : jpcl.getElementObject(p.parent);
+						},
+						idToRegisterAgainst = p.parent != null ? _currentInstance.getId(parentElement()) : elid;
+					
+					_sourceEndpointDefinitions[idToRegisterAgainst] = p;
+					_sourceEndpointsUnique[idToRegisterAgainst] = p.uniqueEndpoint;
+					_sourcesEnabled[idToRegisterAgainst] = true;
+
+					var stopEvent = jpcl.dragEvents["stop"],
+						dragEvent = jpcl.dragEvents["drag"],
+						dragOptions = jsPlumb.extend({ }, p.dragOptions || {}),
+						existingDrag = dragOptions.drag,
+						existingStop = dragOptions.stop,
+						ep = null,
+						endpointAddedButNoDragYet = false;
 				
-				_sourceEndpointDefinitions[idToRegisterAgainst] = p;
-				_sourceEndpointsUnique[idToRegisterAgainst] = p.uniqueEndpoint;
-				_sourcesEnabled[idToRegisterAgainst] = true;
+					_sourceMaxConnections[idToRegisterAgainst] = maxConnections;	
 
-				var stopEvent = jpcl.dragEvents["stop"],
-					dragEvent = jpcl.dragEvents["drag"],
-					dragOptions = jsPlumb.extend({ }, p.dragOptions || {}),
-					existingDrag = dragOptions.drag,
-					existingStop = dragOptions.stop,
-					ep = null,
-					endpointAddedButNoDragYet = false;
-				
-				_sourceMaxConnections[idToRegisterAgainst] = maxConnections;	
+					// set scope if its not set in dragOptions but was passed in in params
+					dragOptions["scope"] = dragOptions["scope"] || p.scope;
 
-				// set scope if its not set in dragOptions but was passed in in params
-				dragOptions["scope"] = dragOptions["scope"] || p.scope;
-
-				dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {
-					if (existingDrag) existingDrag.apply(this, arguments);
-					endpointAddedButNoDragYet = false;
-				});
+					dragOptions[dragEvent] = _wrap(dragOptions[dragEvent], function() {
+						if (existingDrag) existingDrag.apply(this, arguments);
+						endpointAddedButNoDragYet = false;
+					});
 					
-				dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], function() { 							
-					if (existingStop) existingStop.apply(this, arguments);								
+					dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], function() { 							
+						if (existingStop) existingStop.apply(this, arguments);								
 
-                    //_currentlyDown = false;
-					_currentInstance.currentlyDragging = false;
-					
-					if (ep.connections.length == 0)
-						_currentInstance.deleteEndpoint(ep);
-					else {
+	                    //_currentlyDown = false;
+						_currentInstance.currentlyDragging = false;
 						
-						jpcl.unbind(ep.canvas, "mousedown"); 
-								
-						// reset the anchor to the anchor that was initially provided. the one we were using to drag
-						// the connection was just a placeholder that was located at the place the user pressed the
-						// mouse button to initiate the drag.
-						var anchorDef = p.anchor || _currentInstance.Defaults.Anchor,
-							oldAnchor = ep.anchor,
-							oldConnection = ep.connections[0];
-
-						ep.setAnchor(_currentInstance.makeAnchor(anchorDef, elid, _currentInstance));																							
-						
-						if (p.parent) {						
-							var parent = jpcl.getElementObject(p.parent);
-							if (parent) {	
-								var currentId = ep.elementId;
-											
-								var potentialParent = p.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;			
-																
-								ep.setElement(parent, potentialParent);
-								ep.endpointWillMoveAfterConnection = false;														
-								_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);																					
-								oldConnection.previousConnection = null;
-								// remove from connectionsByScope
-								_removeWithFunction(connectionsByScope[oldConnection.scope], function(c) {
-									return c.id === oldConnection.id;
-								});										
-								_currentInstance.anchorManager.connectionDetached({
-									sourceId:oldConnection.sourceId,
-									targetId:oldConnection.targetId,
-									connection:oldConnection
-								});											
-								_finaliseConnection(oldConnection);					
-							}
-						}						
-						
-						ep.repaint();			
-						_currentInstance.repaint(ep.elementId);																		
-						_currentInstance.repaint(oldConnection.targetId);
-
-					}				
-				});
-				// when the user presses the mouse, add an Endpoint, if we are enabled.
-				var mouseDownListener = function(e) {
-
-					// if disabled, return.
-					if (!_sourcesEnabled[idToRegisterAgainst]) return;
-                    
-                    // if a filter was given, run it, and return if it says no.
-					if (p.filter) {
-						// pass the original event to the user: 
-						var r = p.filter(jpcl.getOriginalEvent(e), _el);
-						if (r === false) return;
-					}
-					
-					// if maxConnections reached
-					var sourceCount = _currentInstance.select({source:idToRegisterAgainst}).length
-					if (_sourceMaxConnections[idToRegisterAgainst] >= 0 && sourceCount >= _sourceMaxConnections[idToRegisterAgainst]) {
-						if (onMaxConnections) {
-							onMaxConnections({
-								element:_el,
-								maxConnections:maxConnections
-							}, e);
-						}
-						return false;
-					}					
-
-					// make sure we have the latest offset for this div 
-					var myOffsetInfo = _updateOffset({elId:elid}).o,
-						z = _currentInstance.getZoom();		
-
-					var x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left) / myOffsetInfo.width, 
-					    y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top) / myOffsetInfo.height,
-					    parentX = x, 
-					    parentY = y;					
-							
-					// if there is a parent, the endpoint will actually be added to it now, rather than the div
-					// that was the source.  in that case, we have to adjust the anchor position so it refers to
-					// the parent.
-					if (p.parent) {
-						var pEl = jpcl.getElementObject(p.parent),
-							pId = _getId(pEl);
-						myOffsetInfo = _updateOffset({elId:pId}).o;
-						parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
-					    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height;
-					}											
-					
-					// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
-					// the params passed in, because after a connection is established we're going to reset the endpoint
-					// to have the anchor we were given.
-					var tempEndpointParams = {};
-					jsPlumb.extend(tempEndpointParams, p);
-					tempEndpointParams.isSource = true;
-					tempEndpointParams.anchor = [x,y,0,0];
-					tempEndpointParams.parentAnchor = [ parentX, parentY, 0, 0 ];
-					tempEndpointParams.dragOptions = dragOptions;
-					// if a parent was given we need to turn that into a "container" argument.  this is, by default,
-					// the parent of the element we will move to, so parent of p.parent in this case.  however, if
-					// the user has specified a 'container' on the endpoint definition or on 
-					// the defaults, we should use that.
-					if (p.parent) {
-						var potentialParent = tempEndpointParams.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
-						if (potentialParent)
-							tempEndpointParams.container = potentialParent;
-						else
-							tempEndpointParams.container = jsPlumb.CurrentLibrary.getParent(p.parent);
-					}
-					
-					ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
-
-					endpointAddedButNoDragYet = true;
-					// we set this to prevent connections from firing attach events before this function has had a chance
-					// to move the endpoint.
-					ep.endpointWillMoveAfterConnection = p.parent != null;
-					ep.endpointWillMoveTo = p.parent ? jpcl.getElementObject(p.parent) : null;
-
-                    var _delTempEndpoint = function() {
-						// this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
-						// it is fired even if dragging has occurred, in which case we would blow away a perfectly
-						// legitimate endpoint, were it not for this check.  the flag is set after adding an
-						// endpoint and cleared in a drag listener we set in the dragOptions above.
-						if(endpointAddedButNoDragYet) {
+						if (ep.connections.length == 0)
 							_currentInstance.deleteEndpoint(ep);
-                        }
-					};
+						else {
+							
+							jpcl.unbind(ep.canvas, "mousedown"); 
+									
+							// reset the anchor to the anchor that was initially provided. the one we were using to drag
+							// the connection was just a placeholder that was located at the place the user pressed the
+							// mouse button to initiate the drag.
+							var anchorDef = p.anchor || _currentInstance.Defaults.Anchor,
+								oldAnchor = ep.anchor,
+								oldConnection = ep.connections[0];
 
-					_currentInstance.registerListener(ep.canvas, "mouseup", _delTempEndpoint);
-                    _currentInstance.registerListener(_el, "mouseup", _delTempEndpoint);
-					
-					// and then trigger its mousedown event, which will kick off a drag, which will start dragging
-					// a new connection from this endpoint.
-					jpcl.trigger(ep.canvas, "mousedown", e);
+							ep.setAnchor(_currentInstance.makeAnchor(anchorDef, elid, _currentInstance));																							
+							
+							if (p.parent) {						
+								var parent = parentElement(_el);
+								if (parent) {	
+									var currentId = ep.elementId,
+										potentialParent = p.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;			
+																	
+									ep.setElement(parent, potentialParent);
+									ep.endpointWillMoveAfterConnection = false;														
+									_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);																					
+									oldConnection.previousConnection = null;
+									// remove from connectionsByScope
+									_removeWithFunction(connectionsByScope[oldConnection.scope], function(c) {
+										return c.id === oldConnection.id;
+									});										
+									_currentInstance.anchorManager.connectionDetached({
+										sourceId:oldConnection.sourceId,
+										targetId:oldConnection.targetId,
+										connection:oldConnection
+									});											
+									_finaliseConnection(oldConnection);					
+								}
+							}						
+							
+							ep.repaint();			
+							_currentInstance.repaint(ep.elementId);																		
+							_currentInstance.repaint(oldConnection.targetId);
+						}				
+					});
+					// when the user presses the mouse, add an Endpoint, if we are enabled.
+					var mouseDownListener = function(e) {
+
+						// if disabled, return.
+						if (!_sourcesEnabled[idToRegisterAgainst]) return;
+	                    
+	                    // if a filter was given, run it, and return if it says no.
+						if (p.filter) {
+							var evt = jpcl.getOriginalEvent(e),
+								r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter) : p.filter(evt, _el);
+							
+							if (r === false) return;
+						}
+						
+						// if maxConnections reached
+						var sourceCount = _currentInstance.select({source:idToRegisterAgainst}).length
+						if (_sourceMaxConnections[idToRegisterAgainst] >= 0 && sourceCount >= _sourceMaxConnections[idToRegisterAgainst]) {
+							if (onMaxConnections) {
+								onMaxConnections({
+									element:_el,
+									maxConnections:maxConnections
+								}, e);
+							}
+							return false;
+						}					
+
+						// make sure we have the latest offset for this div 
+						var myOffsetInfo = _updateOffset({elId:elid}).o,
+							z = _currentInstance.getZoom(),		
+							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left) / myOffsetInfo.width, 
+						    y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top) / myOffsetInfo.height,
+						    parentX = x, 
+						    parentY = y;					
+								
+						// if there is a parent, the endpoint will actually be added to it now, rather than the div
+						// that was the source.  in that case, we have to adjust the anchor position so it refers to
+						// the parent.
+						if (p.parent) {
+							var pEl = parentElement(_el), pId = _getId(pEl);
+							myOffsetInfo = _updateOffset({elId:pId}).o;
+							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
+						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height;
+						}											
+						
+						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
+						// the params passed in, because after a connection is established we're going to reset the endpoint
+						// to have the anchor we were given.
+						var tempEndpointParams = {};
+						jsPlumb.extend(tempEndpointParams, p);
+						tempEndpointParams.isSource = true;
+						tempEndpointParams.anchor = [x,y,0,0];
+						tempEndpointParams.parentAnchor = [ parentX, parentY, 0, 0 ];
+						tempEndpointParams.dragOptions = dragOptions;
+						// if a parent was given we need to turn that into a "container" argument.  this is, by default,
+						// the parent of the element we will move to, so parent of p.parent in this case.  however, if
+						// the user has specified a 'container' on the endpoint definition or on 
+						// the defaults, we should use that.
+						if (p.parent) {
+							var potentialParent = tempEndpointParams.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
+							if (potentialParent)
+								tempEndpointParams.container = potentialParent;
+							else
+								tempEndpointParams.container = jsPlumb.CurrentLibrary.getParent(parentElement(_el));
+						}
+						
+						ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
+
+						endpointAddedButNoDragYet = true;
+						// we set this to prevent connections from firing attach events before this function has had a chance
+						// to move the endpoint.
+						ep.endpointWillMoveAfterConnection = p.parent != null;
+						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
+
+	                    var _delTempEndpoint = function() {
+							// this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
+							// it is fired even if dragging has occurred, in which case we would blow away a perfectly
+							// legitimate endpoint, were it not for this check.  the flag is set after adding an
+							// endpoint and cleared in a drag listener we set in the dragOptions above.
+							if(endpointAddedButNoDragYet) {
+								_currentInstance.deleteEndpoint(ep);
+	                        }
+						};
+
+						_currentInstance.registerListener(ep.canvas, "mouseup", _delTempEndpoint);
+	                    _currentInstance.registerListener(_el, "mouseup", _delTempEndpoint);
+						
+						// and then trigger its mousedown event, which will kick off a drag, which will start dragging
+						// a new connection from this endpoint.
+						jpcl.trigger(ep.canvas, "mousedown", e);
+						
+					};
+	               
+	                // register this on jsPlumb so that it can be cleared by a reset.
+	                _currentInstance.registerListener(_el, "mousedown", mouseDownListener);
+	                _sourceTriggers[elid] = mouseDownListener;
 				};
-               
-                // register this on jsPlumb so that it can be cleared by a reset.
-                _currentInstance.registerListener(_el, "mousedown", mouseDownListener);
-                _sourceTriggers[elid] = mouseDownListener;
-			};
 			
 			el = _convertYUICollection(el);			
 			
