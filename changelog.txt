@@ -10,15 +10,13 @@
         - removeConnection method removed from Endpoint. use 'detach' instead.
         - Connection does not expose 'connector' anymore. Use Connection.getConnector()
         - Connection does not expose 'canvas' anymore. Use Connection.getConnector().canvas
-        - support for tooltip has been removed.
+        - support for tooltip has been removed. 
 
 		NEW FUNCTIONALITY
 		        
-		- jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:
-		'jsplumb' for the static instance, and 'jsplumbinstance', for a new instance.
+		- jsPlumb now registers as an AMD module if an AMD loader is found in the page.  Two registrations are made:'jsplumb' for the static instance, and 'jsplumbinstance', for a new instance.
 		
-		- internally, all Connectors are now composed of a set of Segments, of which there are three types - Bezier, Straight, and Arc. Whilst there
-		are no changes to any Connector in this release, this new architecture will enable several new features in the future.
+		- internally, all Connectors are now composed of a set of Segments, of which there are three types - Bezier, Straight, and Arc. 
 		
 		- return value from jsPlumb.select and jsPlumb.selectEndpoints now supports the 'setType' method.
 		
@@ -58,9 +56,21 @@
         - added 'Top', 'Right', 'Bottom' and 'Left' anchor aliases for 'TopCenter', 'RightMiddle', 'BottomCenter' and 'LeftMiddle'
         
         - added support for containment in YUI (supply a selector as the value for a 'constrain2node' or 'containment' parameter to jsPlumb.draggable)
+
+        - added 'setAnchor' method to Endpoint
+        - added 'setAnchor' to chainable methods from selectEndpoints(..) function
+
+        - jsPlumb.connect now accepts an 'events' object for registration of event handlers at connection creation (rather than having to bind them afterwards)
+
+        - Endpoint methods like makeTarget, makeSource, addEndpoint now accept an 'events' object
+        for registration of event handlers.
+
+        - makeSource now supports "parent" as value of parent parameter. previously this had to be
+        a selector or DOM element.
 		
 		ISSUES
 		
+		262 -	retrieve path from flowchart connector
         283 -   Firefox: SVG line repaint issues
 		289 - 	JS errors after dropping a target endpoint on a source
 		290 - 	setId doesn't work.
@@ -75,6 +85,8 @@
         311 -   add options to Continuous anchor
         312 -   jsPlumb mouseenter event fails with jQuery 1.9.0 (Firefox)
         322 -	Connector gap option for source and target
+        324 -	beforeDetach firing too many times
+        330 -	Change endpoint anchor
 		
 		MISCELLANEOUS
 		
