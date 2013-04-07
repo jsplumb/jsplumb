@@ -1598,6 +1598,19 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
 
+	test(renderMode + ": _jsPlumb.connect after makeSource on child; wth parent set (parent is string 'parent')", function() {
+		var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18", d17);		
+		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
+		_jsPlumb.makeSource(d18, { isSource:true,anchor:"LeftMiddle", parent:"parent"  }); // give it a non-default anchor, we will check this below.
+		_jsPlumb.connect({source:"d17", target:e16});
+		assertEndpointCount("d16", 1, _jsPlumb);
+		assertEndpointCount("d17", 1, _jsPlumb);
+		assertEndpointCount("d18", 0, _jsPlumb);
+		var e = _jsPlumb.getEndpoints("d17");		
+		equal(e[0].anchor.x, 0, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
+	});
+
 	// makeSource, then disable it. should not be able to make a connection from it.
 	test(renderMode + ": _jsPlumb.connect after makeSource and setSourceEnabled(false) (string id as argument)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
