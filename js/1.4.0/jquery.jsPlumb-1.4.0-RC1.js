@@ -368,7 +368,8 @@
 		},
 
 		setDragFilter : function(el, filter) {
-			el.draggable("option", "cancel", filter);
+			if (jsPlumb.CurrentLibrary.isAlreadyDraggable(el))
+				el.draggable("option", "cancel", filter);
 		},
 		
 		setDraggable : function(el, draggable) {
