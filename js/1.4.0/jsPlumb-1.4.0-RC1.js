@@ -1352,6 +1352,11 @@
 		 * The CSS class to set on an Overlay that is an HTML element. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.overlayClass = "_jsPlumb_overlay";		
+		/*
+		 * Property: draggingClass 
+		 * The CSS class to set on connections that are being dragged. This value is a String and can have multiple classes; the entire String is appended as-is.
+		 */
+		this.draggingClass = "_jsPlumb_dragging";
 		this.Anchors = {};		
 		this.Connectors = {  "canvas":{}, "svg":{}, "vml":{} };				
 		this.Endpoints = { "canvas":{}, "svg":{}, "vml":{} };

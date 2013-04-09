@@ -580,6 +580,7 @@
                         cssClass:self.connectorClass,
                         hoverClass:self.connectorHoverClass
                     });
+                    jpc.addClass(_jsPlumb.draggingClass);
                     // fire an event that informs that a connection is being dragged						
                     _jsPlumb.fire("connectionDrag", jpc);
 
@@ -620,6 +621,7 @@
                     floatingEndpoint.referenceEndpoint = jpc.suspendedEndpoint;
                     jpc.endpoints[anchorIdx] = floatingEndpoint;
 
+                    jpc.addClass(_jsPlumb.draggingClass);
                     // fire an event that informs that a connection is being dragged
                     _jsPlumb.fire("connectionDrag", jpc);
 
@@ -700,6 +702,7 @@
                     self.anchor.locked = false;												
                     self.paint({recalc:false});
 
+                    jpc.removeClass(_jsPlumb.draggingClass);
                     _jsPlumb.fire("connectionDragStop", jpc);
 
                     jpc = null;						
