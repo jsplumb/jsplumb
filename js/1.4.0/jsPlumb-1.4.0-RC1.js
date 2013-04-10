@@ -336,7 +336,11 @@
 						if (!doNotRepaint) self.repaint();
 					}
 				};
-				
+			
+			/*
+				Function: setType	
+				Sets the type, removing all existing types.
+			*/
 			self.setType = function(typeId, params, doNotRepaint) {				
 				_types = _splitType(typeId) || [];
 				_applyTypes(params, doNotRepaint);									
@@ -349,11 +353,23 @@
 			self.getType = function() {
 				return _types;
 			};
+
+			/**
+				Function: reapplyTypes
+				Reapply all existing types, but with the given new params.
+			*/
+			self.reapplyTypes = function(params, doNotRepaint) {
+				_applyTypes(params, doNotRepaint);
+			};
 			
 			self.hasType = function(typeId) {
 				return jsPlumbUtil.indexOf(_types, typeId) != -1;
 			};
 			
+			/*
+				Function: addType
+				adds a type. will not be re-added it already exists.
+			*/
 			self.addType = function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false;
 				if (t != null) {
@@ -1347,6 +1363,21 @@
 		 *   The CSS class to set on Endpoint elements. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.endpointClass = "_jsPlumb_endpoint";
+		/*
+		 * Property: endpointFullClass 
+		 *  The CSS class to set on a full Endpoint element. This value is a String and can have multiple classes; the entire String is appended as-is.
+		 */
+		this.endpointFullClass = "_jsPlumb_endpoint_full";
+		/*
+		 * Property: endpointDropAllowedClass 
+		 *  The CSS class to set on an Endpoint on which a drop will be allowed (during drag and drop). This value is a String and can have multiple classes; the entire String is appended as-is.
+		 */
+		this.endpointDropAllowedClass = "_jsPlumb_endpoint_drop_allowed";
+		/*
+		 * Property: endpointDropForbiddenClass 
+		 *  The CSS class to set on an Endpoint on which a drop will be forbidden (during drag and drop). This value is a String and can have multiple classes; the entire String is appended as-is.
+		 */
+		this.endpointDropForbiddenClass = "_jsPlumb_endpoint_drop_forbidden";
 		/*
 		 * Property: overlayClass 
 		 * The CSS class to set on an Overlay that is an HTML element. This value is a String and can have multiple classes; the entire String is appended as-is.
