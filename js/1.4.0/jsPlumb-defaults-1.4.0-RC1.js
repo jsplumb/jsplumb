@@ -789,10 +789,20 @@
 		this.defaultInnerRadius = this.radius / 3;			
 		
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
-			var r = endpointStyle.radius || self.radius,
-				x = anchorPoint[0] - r,
-				y = anchorPoint[1] - r;
-			return [ x, y, r * 2, r * 2, r ];
+			self.radius = endpointStyle.radius || self.radius;
+			var	x = anchorPoint[0] - self.radius,
+				y = anchorPoint[1] - self.radius,
+                w = self.radius * 2,
+                h = self.radius * 2;
+
+            if (endpointStyle.strokeStyle) {
+                var lw = endpointStyle.lineWidth || 1;
+                x -= lw;
+                y -= lw;
+                w += (lw * 2);
+                h += (lw * 2);
+            }
+			return [ x, y, w, h, self.radius ];
 		};
 	};
 	
@@ -821,6 +831,7 @@
 				height = endpointStyle.height || self.height,
 				x = anchorPoint[0] - (width/2),
 				y = anchorPoint[1] - (height/2);
+                
 			return [ x, y, width, height];
 		};
 	};
