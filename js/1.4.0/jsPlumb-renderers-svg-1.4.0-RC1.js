@@ -406,6 +406,9 @@
 				self.svg.appendChild(self.node);
 				self.attachListeners(self.node, self);
 			}
+			else if (self.updateNode != null) {
+				self.updateNode(self.node);
+			}
 			_applyStyles(self.svg, self.node, s, [ self.x, self.y, self.w, self.h ], self);
 			_pos(self.node, [ self.x, self.y ]);
 		};
@@ -425,8 +428,15 @@
 			return _node("circle", {
                 "cx"	:	this.w / 2,
                 "cy"	:	this.h / 2,
-                "r"		:	this.w / 2
+                "r"		:	this.radius
             });			
+		};
+		this.updateNode = function(node) {
+			_attr(node, {
+				"cx":this.w / 2,
+				"cy":this.h  / 2,
+				"r":this.radius
+			});
 		};
 	};
 	
@@ -440,6 +450,12 @@
 			return _node("rect", {
 				"width"     :   this.w,
 				"height"    :   this.h
+			});
+		};
+		this.updateNode = function(node) {
+			_attr(node, {
+				"width":this.w,
+				"height":this.h
 			});
 		};			
 	};		
