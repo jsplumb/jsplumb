@@ -4746,6 +4746,30 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
 		equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
 	});		
+
+	test(renderMode + " reapply parameterised type", function() {
+		var basicType = {
+			connector:"Flowchart",
+			paintStyle:{ strokeStyle:"${strokeColor}", lineWidth:4 },
+			hoverPaintStyle:{ strokeStyle:"blue" }
+		};
+		
+		_jsPlumb.registerConnectionType("basic", basicType);
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
+			c = _jsPlumb.connect({
+				source:d1, 
+				target:d2
+			});
+			
+		c.addType("basic", { strokeColor:"yellow" });
+		equal(c.getPaintStyle().lineWidth, 4, "paintStyle lineWidth is 4");
+		equal(c.getPaintStyle().strokeStyle, "yellow", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().strokeStyle, "blue", "paintStyle strokeStyle is yellow");
+		equal(c.getHoverPaintStyle().lineWidth, 4, "hoverPaintStyle linewidth is 6");
+
+		c.reapplyTypes({ strokeColor:"green" });
+		equal(c.getPaintStyle().strokeStyle, "green", "paintStyle strokeStyle is now green");
+	});
 	
 	test(renderMode + " setType, scope, two types", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
