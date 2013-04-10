@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>jQuery+RequireJS Sample Page</title>
+        <!-- This is a special version of jQuery with RequireJS built-in -->
+        <script data-main="scripts/main" src="scripts/require-jquery.js"></script>
+        <script src="../../../../build/1.3.16/js/jquery.jsPlumb-1.3.16-all.js"></script>
+        <style type="text/css">
+            .win {
+                width:5em;
+                height:5em;
+                position:absolute;
+                border:2px solid #456;
+            }
+            #one {
+                left:250px;
+                top:250px;
+            }
+            #two {
+                left:650px;
+                top:250px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>jQuery+RequireJS Sample Page</h1>
+        <p>Look at source or inspect the DOM to see how it works.</p>
+        <div id="one" class="win">one</div>
+        <div id="two" class="win">two</div>
+    </body>
+</html>
