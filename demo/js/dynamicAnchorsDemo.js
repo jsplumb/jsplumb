@@ -3,38 +3,39 @@
 	window.jsPlumbDemo = {
 		init : function() {
 
-			var sourceAnchors = [[0.2, 0, 0, -1], [1, 0.2, 1, 0], [0.8, 1, 0, 1], [0, 0.8, -1, 0] ],
+			var sourceAnchors = [[0.2, 0, 0, -1, 0, 0, "foo"], [1, 0.2, 1, 0, 0, 0, "bar"], [0.8, 1, 0, 1, 0, 0, "foo"], [0, 0.8, -1, 0, 0, 0, "bar"] ],
 				targetAnchors = [[0.6, 0, 0, -1], [1, 0.6, 1, 0], [0.4, 1, 0, 1], [0, 0.4, -1, 0] ],
-			exampleColor = '#00f',
-			exampleDropOptions = {
-					tolerance:'touch',
-					hoverClass:'dropHover',
-					activeClass:'dragActive'
-			}, 
-			connector = [ "Bezier", { cssClass:"connectorClass", hoverClass:"connectorHoverClass" } ],
-			connectorStyle = {
-				gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
-				lineWidth:5,
-				strokeStyle:exampleColor
-			},
-			hoverStyle = {
-				strokeStyle:"#449999"
-			},
-			overlays = [ ["Diamond", { fillStyle:"#09098e", width:15, length:15 } ] ],
-			endpoint = ["Dot", { cssClass:"endpointClass", radius:10, hoverClass:"endpointHoverClass" } ],
-			endpointStyle = { fillStyle:exampleColor },
-			anEndpoint = {
-				endpoint:endpoint,
-				paintStyle:endpointStyle,
-				hoverPaintStyle:{ fillStyle:"#449999" },
-				isSource:true, 
-				isTarget:true, 
-				maxConnections:-1, 
-				connector:connector,
-				connectorStyle:connectorStyle,
-				connectorHoverStyle:hoverStyle,
-				connectorOverlays:overlays
-			};
+
+				exampleColor = '#00f',
+				exampleDropOptions = {
+						tolerance:'touch',
+						hoverClass:'dropHover',
+						activeClass:'dragActive'
+				}, 
+				connector = [ "Bezier", { cssClass:"connectorClass", hoverClass:"connectorHoverClass" } ],
+				connectorStyle = {
+					gradient:{stops:[[0, exampleColor], [0.5, '#09098e'], [1, exampleColor]]},
+					lineWidth:5,
+					strokeStyle:exampleColor
+				},
+				hoverStyle = {
+					strokeStyle:"#449999"
+				},
+				overlays = [ ["Diamond", { fillStyle:"#09098e", width:15, length:15 } ] ],
+				endpoint = ["Dot", { cssClass:"endpointClass", radius:10, hoverClass:"endpointHoverClass" } ],
+				endpointStyle = { fillStyle:exampleColor },
+				anEndpoint = {
+					endpoint:endpoint,
+					paintStyle:endpointStyle,
+					hoverPaintStyle:{ fillStyle:"#449999" },
+					isSource:true, 
+					isTarget:true, 
+					maxConnections:-1, 
+					connector:connector,
+					connectorStyle:connectorStyle,
+					connectorHoverStyle:hoverStyle,
+					connectorOverlays:overlays
+				};
 			
 			jsPlumb.Defaults.DragOptions = { cursor: 'pointer', zIndex:2000 };
 		
