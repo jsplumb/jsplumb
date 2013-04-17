@@ -108,8 +108,6 @@
         
                 return a;
             },
-            // used by edgeSortFunctions
-            standardEdgeSort = function(a, b) { return a[0] > b[0] ? 1 : -1 },
             // used by edgeSortFunctions        
             currySort = function(reverseAngles) {
                 return function(a,b) {
@@ -139,15 +137,13 @@
             },
                 // used by placeAnchors
             edgeSortFunctions = {
-                "top":standardEdgeSort,
+                "top":function(a, b) { return a[0] > b[0] ? 1 : -1 },
                 "right":currySort(true),
                 "bottom":currySort(true),
                 "left":leftSort
             },
                 // used by placeAnchors
-            _sortHelper = function(_array, _fn) {
-              return _array.sort(_fn);
-            },
+            _sortHelper = function(_array, _fn) { return _array.sort(_fn); },
                 // used by AnchorManager.redraw
             placeAnchors = function(elementId, _anchorLists) {		
                 var cd = jsPlumbInstance.getCachedData(elementId), sS = cd.s, sO = cd.o,
@@ -540,13 +536,16 @@
         var self = this;
         this.x = params.x || 0;
         this.y = params.y || 0;
-        this.elementId = params.elementId;
+        this.elementId = params.elementId;        
 
         jsPlumbUtil.EventGenerator.apply(this);
         
         var orientation = params.orientation || [ 0, 0 ],
             jsPlumbInstance = params.jsPlumbInstance,
-            lastTimestamp = null, lastReturnValue = null, userDefinedLocation = null;
+            lastTimestamp = null, lastReturnValue = null, userDefinedLocation = null,
+            cssClass = params.cssClass || "";
+
+        this.getCssClass = function() { return cssClass; };
         
         this.offsets = params.offsets || [ 0, 0 ];
         self.timestamp = null;        
@@ -773,6 +772,8 @@
         this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };
         this.over = function(anchor) { if (_curAnchor != null) _curAnchor.over(anchor); };
         this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
+
+        this.getCssClass = function() { return (_curAnchor && _curAnchor.getCssClass()) || ""; };
     };            
     
 // -------- basic anchors ------------------    
