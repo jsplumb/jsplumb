@@ -382,11 +382,13 @@
         self.makeInPlaceCopy = function() {
             var loc = self.anchor.getCurrentLocation(self),
                 o = self.anchor.getOrientation(self),
+                acc = self.anchor.getCssClass(),
                 inPlaceAnchor = {
                     bind:function() { },
                     compute:function() { return [ loc[0], loc[1] ]},
                     getCurrentLocation : function() { return [ loc[0], loc[1] ]},
-                    getOrientation:function() { return o; }
+                    getOrientation:function() { return o; },
+                    getCssClass:function() { return acc; }
                 };
 
             return _newEndpoint( { 
