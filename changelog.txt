@@ -67,6 +67,20 @@
 
         - makeSource now supports "parent" as value of parent parameter. previously this had to be
         a selector or DOM element.
+
+        - added _jsPlumb_endpoint_connected class to Endpoints that have one or more connection
+        - added _jsPlumb_endpoint_full class to Endpoints that are full
+        - added _jsPlumb_dragging class to connections that are currently being dragged
+        - added _jsPlumb_element_dragging to connections (and their endpoints) whose source or
+          target element is being dragged
+        - added _jsPlumb_endpoint_drop_allowed class to endpoints when a connection is hovering
+          over them and a drop would be allowed.
+        - added _jsPlumb_endpoint_drop_forbidden class to endpoints when a connection is hovering
+          over them and a drop would not be allowed.
+
+        - added checkDropAllowed interceptor
+
+        - added the ability to associate a css class with an anchor (the class is added to the anchor's endpoint)
 		
 		ISSUES
 		
