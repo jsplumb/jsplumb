@@ -146,10 +146,19 @@
         this.areConnectionsDirected = function() { return _connectionsDirected; };
         this.setConnectionsDirected = function(b) { _connectionsDirected = b; };                        
 
+        var _currentAnchorClass = "",
+            _updateAnchorClass = function() {
+                self.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass)
+                _currentAnchorClass = self.anchor.getCssClass();
+                self.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
+            };
+
         this.setAnchor = function(anchorParams, doNotRepaint) {
             self.anchor = _jsPlumb.makeAnchor(anchorParams, _elementId, _jsPlumb);
+            _updateAnchorClass();
             self.anchor.bind("anchorChanged", function(currentAnchor) {
                 self.fire("anchorChanged", {endpoint:self, anchor:currentAnchor});
+                _updateAnchorClass();
             });
             if (!doNotRepaint)
                 _jsPlumb.repaint(_elementId);
@@ -259,7 +268,9 @@
         };
         
         this.addConnection = function(connection) {
-            self.connections.push(connection);
+            self.connections.push(connection);                  
+            self[(self.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+            self[(self.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
         };		        
         this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent) {
             var idx = _ju.findWithFunction(self.connections, function(c) { return c.id == connection.id}), 
@@ -293,6 +304,8 @@
                         _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
                             return c.id == connection.id;
                         });
+                        self[(self.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+                        self[(self.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
                         actuallyDetached = true;                        
                         _fireDetachEvent(connection, (!ignoreTarget && fireEvent), originalEvent);
                     }
@@ -325,6 +338,8 @@
             var idx =  _ju.findWithFunction(self.connections, function(c) { return c.id == connection.id});
             if (idx >= 0) {
                 self.connections.splice(idx, 1);
+                self[(self.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+                self[(self.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
             }
         };
         
@@ -531,6 +546,8 @@
                     return false;
                 }
 
+                self.addClass("endpointDrag");
+
                 // if we're not full but there was a connection, make it null. we'll create a new one.
                 if (jpc && !self.isFull() && params.isSource) jpc = null;
 
@@ -581,6 +598,7 @@
                         hoverClass:self.connectorHoverClass
                     });
                     jpc.addClass(_jsPlumb.draggingClass);
+                    floatingEndpoint.addClass(_jsPlumb.draggingClass);
                     // fire an event that informs that a connection is being dragged						
                     _jsPlumb.fire("connectionDrag", jpc);
 
@@ -622,6 +640,7 @@
                     jpc.endpoints[anchorIdx] = floatingEndpoint;
 
                     jpc.addClass(_jsPlumb.draggingClass);
+                    floatingEndpoint.addClass(_jsPlumb.draggingClass);
                     // fire an event that informs that a connection is being dragged
                     _jsPlumb.fire("connectionDrag", jpc);
 
@@ -703,6 +722,7 @@
                     self.paint({recalc:false});
 
                     jpc.removeClass(_jsPlumb.draggingClass);
+                    floatingEndpoint.removeClass(_jsPlumb.draggingClass);
                     _jsPlumb.fire("connectionDragStop", jpc);
 
                     jpc = null;						
@@ -729,6 +749,9 @@
                     overEvent = jpcl.dragEvents['over'],
                     outEvent = jpcl.dragEvents['out'],
                     drop = function() {
+
+                        self["removeClass"](_jsPlumb.endpointDropAllowedClass);
+                        self["removeClass"](_jsPlumb.endpointDropForbiddenClass);
                                                     
                         var originalEvent = jpcl.getDropEvent(arguments),
                             draggable = _gel(jpcl.getDragObject(arguments)),
@@ -890,8 +913,16 @@
                         // here we should fire the 'over' event if we are a target and this is a new connection,
                         // or we are the same as the floating endpoint.								
                         var _cont = (self.isTarget && _jpc.floatingAnchorIndex != 0) || (_jpc.suspendedEndpoint && self.referenceEndpoint && self.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
-                        if (_cont)
+                        if (_cont) {
+                            var bb = _jsPlumb.checkCondition("checkDropAllowed", { 
+                                sourceEndpoint:_jpc.endpoints[idx], 
+                                targetEndpoint:self,
+                                connection:_jpc
+                            }); 
+                            self[(bb ? "add" : "remove") + "Class"](_jsPlumb.endpointDropAllowedClass);
+                            self[(bb ? "remove" : "add") + "Class"](_jsPlumb.endpointDropForbiddenClass);
                             _jpc.endpoints[idx].anchor.over(self.anchor);
+                        }
                     }						
                 });	
                 dropOptions[outEvent] = _jsPlumb.wrap(dropOptions[outEvent], function() {					
@@ -902,8 +933,11 @@
                     if (_jpc != null) {
                         var idx = _jpc.floatingAnchorIndex == null ? 1 : _jpc.floatingAnchorIndex;
                         var _cont = (self.isTarget && _jpc.floatingAnchorIndex != 0) || (_jpc.suspendedEndpoint && self.referenceEndpoint && self.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
-                        if (_cont)
+                        if (_cont) {
+                            self["removeClass"](_jsPlumb.endpointDropAllowedClass);
+                            self["removeClass"](_jsPlumb.endpointDropForbiddenClass);
                             _jpc.endpoints[idx].anchor.out();
+                        }
                     }
                 });
                 jpcl.initDroppable(canvas, dropOptions, true, isTransient);
