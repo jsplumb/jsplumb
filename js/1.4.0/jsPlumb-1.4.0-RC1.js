@@ -864,8 +864,7 @@
 		_initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
 			// TODO move to DragManager?
 			if (!jsPlumbAdapter.headless) {
-				var draggable = isDraggable == null ? false : isDraggable,
-					jpcl = jsPlumb.CurrentLibrary;
+				var draggable = isDraggable == null ? false : isDraggable, jpcl = jsPlumb.CurrentLibrary;
 				if (draggable) {
 					if (jpcl.isDragSupported(element) && !jpcl.isAlreadyDraggable(element)) {
 						var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
@@ -875,7 +874,9 @@
 							startEvent = jpcl.dragEvents["start"];
 	
 						options[startEvent] = _wrap(options[startEvent], function() {
-							_currentInstance.setHoverSuspended(true);
+							_currentInstance.setHoverSuspended(true);							
+							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass, true);
+							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass, true);
 						});
 	
 						options[dragEvent] = _wrap(options[dragEvent], function() {                            
@@ -887,7 +888,9 @@
 							var ui = jpcl.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui);
 							_removeClass(element, "jsPlumb_dragged");
-							_currentInstance.setHoverSuspended(false);
+							_currentInstance.setHoverSuspended(false);							
+							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass, true);
+							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass, true);
 						});
 						var elId = _getId(element); // need ID
 						draggableStates[elId] = true;  
@@ -1364,6 +1367,11 @@
 		 */
 		this.endpointClass = "_jsPlumb_endpoint";
 		/*
+		 * Property: endpointConnectedClass 
+		 *  The CSS class to set on an Endpoint element when its Endpoint has at least one connection. This value is a String and can have multiple classes; the entire String is appended as-is.
+		 */
+		this.endpointConnectedClass = "_jsPlumb_endpoint_connected";
+		/*
 		 * Property: endpointFullClass 
 		 *  The CSS class to set on a full Endpoint element. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
@@ -1388,6 +1396,21 @@
 		 * The CSS class to set on connections that are being dragged. This value is a String and can have multiple classes; the entire String is appended as-is.
 		 */
 		this.draggingClass = "_jsPlumb_dragging";
+		/*
+		 * Property: elementDraggingClass 
+		 * The CSS class to set on connections whose source or target element is being dragged, and
+		 * on their endpoints too. This value is a String and can have multiple classes; the entire String is appended as-is.
+		 */
+		this.elementDraggingClass = "_jsPlumb_element_dragging";	
+		/*
+		 * Property: endpointAnchorClassPrefix
+		 * The prefix for the CSS class to set on endpoints that have dynamic anchors whose individual locations
+		 * have declared an associated CSS class. This value is a String and, unlike the other classes, is expected
+		 * to contain a single value, as it is used as a prefix for the final class: '_***' is appended,
+		 * where "***" is the CSS class associated with the current dynamic anchor location.
+		 */
+		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";	
+
 		this.Anchors = {};		
 		this.Connectors = {  "canvas":{}, "svg":{}, "vml":{} };				
 		this.Endpoints = { "canvas":{}, "svg":{}, "vml":{} };
@@ -2357,9 +2380,10 @@ between this method and jsPlumb.reset).
 					var anchorParams = {
 						x:specimen[0], y:specimen[1],
 						orientation : (specimen.length >= 4) ? [ specimen[2], specimen[3] ] : [0,0],
-						offsets : (specimen.length == 6) ? [ specimen[4], specimen[5] ] : [ 0, 0 ],
+						offsets : (specimen.length >= 6) ? [ specimen[4], specimen[5] ] : [ 0, 0 ],
 						elementId:elementId,
-                        jsPlumbInstance:jsPlumbInstance
+                        jsPlumbInstance:jsPlumbInstance,
+                        cssClass:specimen.length == 7 ? specimen[6] : null
 					};						
 					newAnchor = new jsPlumb.Anchor(anchorParams);
 					newAnchor.clone = function() { return new jsPlumb.Anchor(anchorParams); };						 					
