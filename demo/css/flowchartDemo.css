@@ -42,6 +42,8 @@ filter:alpha(opacity=60);
 .hl { border:3px solid red; }
 #debug { position:absolute; background-color:black; color:red; z-index:5000 }
 
+._jsPlumb_dragging { z-index:4000; }
+
 .aLabel {
  	background-color:white; 
 	padding:0.4em; 
