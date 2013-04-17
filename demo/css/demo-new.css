@@ -149,6 +149,28 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 ._jsPlumb_endpoint { z-index:19; }
 ._jsPlumb_overlay { z-index:23; }
 
+/* A TEST 
+._jsPlumb_element_dragging path {    
+    z-index:21 !important;
+    stroke:green;
+}
+
+._jsPlumb_endpoint._jsPlumb_element_dragging * {
+    fill:green;
+}
+
+*/
+
+/* ANOTHER TEST 
+._jsPlumb_endpoint_anchor_foo * {
+    fill:black;
+}
+
+._jsPlumb_endpoint_anchor_bar * {
+    fill:red;
+}
+*/
+
 ._jsPlumb_connector._jsPlumb_hover {
     z-index:21 !important;
 }
