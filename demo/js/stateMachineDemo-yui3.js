@@ -76,11 +76,9 @@
 				anchor:"Continuous"				
 			});
 			
-			// and finally, make one connection
-			jsPlumb.connect({
-				source:"opened",
-				target:"phone1"
-			});
+			// and finally, make a couple of connections
+			jsPlumb.connect({ source:"opened", target:"phone1" });
+			jsPlumb.connect({ source:"phone1", target:"inperson" });
 		}
 	};
 })();
