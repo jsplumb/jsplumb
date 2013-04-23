@@ -80,7 +80,7 @@
 
         - added checkDropAllowed interceptor
 
-        - added the ability to associate a css class with an anchor (the class is added to the anchor's endpoint)
+        - added the ability to associate a css class with an anchor (the class is added to the anchor's endpoint and to its associated element, with a prefix. see the docs)
 		
 		ISSUES
 		
@@ -101,6 +101,7 @@
         322 -	Connector gap option for source and target
         324 -	beforeDetach firing too many times
         330 -	Change endpoint anchor
+        342 -	ensure endpoints are cleared from anchor lists on deleteEndpoint call
 		
 		MISCELLANEOUS
 		
