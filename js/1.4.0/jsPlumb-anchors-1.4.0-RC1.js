@@ -206,6 +206,17 @@
             if (doRegisterTarget)
             	registerConnection(1, ep[1], ep[1].anchor, sourceId, conn);
 		};
+        var removeEndpointFromAnchorLists = function(endpoint) {
+            (function(list, eId) {
+                if (list) {  // transient anchors dont get entries in this list.
+                    var f = function(e) { return e[4] == eId; };
+                    jsPlumbUtil.removeWithFunction(list["top"], f);
+                    jsPlumbUtil.removeWithFunction(list["left"], f);
+                    jsPlumbUtil.removeWithFunction(list["bottom"], f);
+                    jsPlumbUtil.removeWithFunction(list["right"], f);
+                }
+            })(anchorLists[endpoint.elementId], endpoint.id);
+        };
 		this.connectionDetached = function(connInfo) {
             var connection = connInfo.connection || connInfo,
 			    sourceId = connection.sourceId,
@@ -225,25 +236,12 @@
 			removeConnection(1, ep[1], ep[1].anchor, sourceId, connection);
 			removeConnection(0, ep[0], ep[0].anchor, targetId, connection);
 
-            // remove from anchorLists
-            var sEl = connection.sourceId,
-                tEl = connection.targetId,
-                sE =  connection.endpoints[0].id,
-                tE = connection.endpoints[1].id,
-                _remove = function(list, eId) {
-                    if (list) {  // transient anchors dont get entries in this list.
-                        var f = function(e) { return e[4] == eId; };
-                        jsPlumbUtil.removeWithFunction(list["top"], f);
-                        jsPlumbUtil.removeWithFunction(list["left"], f);
-                        jsPlumbUtil.removeWithFunction(list["bottom"], f);
-                        jsPlumbUtil.removeWithFunction(list["right"], f);
-                    }
-                };
-            
-            _remove(anchorLists[sEl], sE);
-            _remove(anchorLists[tEl], tE);
-            self.redraw(sEl);
-            self.redraw(tEl);
+            // remove from anchorLists            
+            removeEndpointFromAnchorLists(connection.endpoints[0]);
+            removeEndpointFromAnchorLists(connection.endpoints[1]);
+
+            self.redraw(connection.sourceId);
+            self.redraw(connection.targetId);
 		};
 		this.add = function(endpoint, elementId) {
 			jsPlumbUtil.addToList(_amEndpoints, elementId, endpoint);
@@ -264,6 +262,7 @@
 			jsPlumbUtil.removeWithFunction(_amEndpoints[endpoint.elementId], function(e) {
 				return e.id == endpoint.id;
 			});
+            removeEndpointFromAnchorLists(endpoint);
 		};
 		this.clearFor = function(elementId) {
 			delete _amEndpoints[elementId];
@@ -482,7 +481,8 @@
                 clockwiseOptions = { "top":"right", "right":"bottom","left":"top","bottom":"left" },
                 antiClockwiseOptions = { "top":"left", "right":"top","left":"bottom","bottom":"right" },
                 secondBest = clockwise ? clockwiseOptions : antiClockwiseOptions,
-                lastChoice = clockwise ? antiClockwiseOptions : clockwiseOptions;
+                lastChoice = clockwise ? antiClockwiseOptions : clockwiseOptions,
+                cssClass = anchorParams.cssClass || "";
             
             for (var i = 0; i < faces.length; i++) { availableFaces[faces[i]] = true; }
           
@@ -511,6 +511,8 @@
             this.setUserDefinedLocation = function(loc) { 
                 userDefinedContinuousAnchorLocations[anchorParams.elementId] = loc; 
             };            
+            this.getCssClass = function() { return cssClass; };
+            this.setCssClass = function(c) { cssClass = c; };
         };        
         
         // continuous anchors
