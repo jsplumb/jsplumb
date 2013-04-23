@@ -237,6 +237,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertConnectionCount(e4, 3);
 		assertContextSize(6);
 	});
+
+// ************** ANCHORS ********************************************	
 	
 	test(renderMode + ': anchors equal', function() {
 		var a1 = _jsPlumb.makeAnchor([0, 1, 1, 1], null, _jsPlumb);
@@ -261,7 +263,33 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var a2 = _jsPlumb.makeAnchor([0, 1, 1, 1], null, _jsPlumb);
 		ok(!a1.equals(a2), "anchors are different");
 	});
+
+	test(renderMode + ": unknown anchor type should throw Error", function() {
+		try {
+			_addDiv("d1");_addDiv("d2");
+			_jsPlumb.connect({source:"d1", target:"d2", anchor:"FOO"});			
+		}
+		catch (e) {
+			// ok	
+			ok(e.msg == "jsPlumb: unknown anchor type 'FOO'", "useful error message");		
+		}
+	});
+
+	test(renderMode + ": unknown anchor type should not throw Error because it is suppressed in Defaults", function() {
+		try {
+			_addDiv("d1");_addDiv("d2");
+			_jsPlumb.Defaults.DoNotThrowErrors = true;
+			_jsPlumb.connect({source:"d1", target:"d2", anchor:"FOO"});			
+		}
+		catch (e) {
+			// ok	
+			ok(e.msg != "jsPlumb: unknown anchor type 'FOO'", "no error message");		
+		}
+	});
 	
+// ************** / ANCHORS ********************************************
+
+
 	test(renderMode + ': detach does not fail when no arguments are provided', function() {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		_jsPlumb.connect({source:d3, target:d4});
@@ -713,6 +741,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.addEndpoint(d1);
 		var e = _jsPlumb.getEndpoints("d1");
 		equal(e.length, 1, "there is one endpoint for element d1");
+	});
+
+	test(renderMode + ': addEndpoint, css class on anchor added to endpoint artefact and element', function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var ep =_jsPlumb.addEndpoint(d1, { anchor:[0,0,1,1,0,0,"foo" ]});
+		ok($(ep.canvas).hasClass("_jsPlumb_endpoint_anchor_foo"), "class set on endpoint");
+		ok(d1.hasClass("_jsPlumb_endpoint_anchor_foo"), "class set on element");
+		_jsPlumb.deleteEndpoint(ep);
+		ok(!d1.hasClass("_jsPlumb_endpoint_anchor_foo"), "class removed from element");
 	});
 	
 	test(renderMode + ': connection event listeners', function() {
@@ -1186,7 +1223,8 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.addEndpoint(d1);
         _jsPlumb.addEndpoint(d1);
         
-        _jsPlumb.removeAllEndpoints(d1);        
+        _jsPlumb.removeAllEndpoints(d1);                
+
         _jsPlumb.repaintEverything();
 
         _jsPlumb.addEndpoint(d1);        
@@ -1585,7 +1623,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e[0].anchor.y, 1, "anchor is BottomCenter"); //here we should be seeing the default anchor
 	});
 
-	test(renderMode + ": _jsPlumb.connect after makeSource on child; wth parent set (parent should be recognised)", function() {
+	test(renderMode + ": _jsPlumb.connect after makeSource on child; with parent set (parent should be recognised)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18", d17);
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeSource(d18, { isSource:true,anchor:"LeftMiddle", parent:d17  }); // give it a non-default anchor, we will check this below.
@@ -1598,7 +1636,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e[0].anchor.y, 0.5, "anchor is LeftMiddle"); //here we should be seeing the anchor we setup via makeTarget
 	});
 
-	test(renderMode + ": _jsPlumb.connect after makeSource on child; wth parent set (parent is string 'parent')", function() {
+	test(renderMode + ": _jsPlumb.connect after makeSource on child; with parent set (parent is string 'parent')", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"), d18 = _addDiv("d18", d17);		
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:false, isTarget:true}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeSource(d18, { isSource:true,anchor:"LeftMiddle", parent:"parent"  }); // give it a non-default anchor, we will check this below.
