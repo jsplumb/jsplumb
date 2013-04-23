@@ -148,9 +148,11 @@
 
         var _currentAnchorClass = "",
             _updateAnchorClass = function() {
-                self.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass)
+                jpcl.removeClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
+                self.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
                 _currentAnchorClass = self.anchor.getCssClass();
                 self.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
+                jpcl.addClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
             };
 
         this.setAnchor = function(anchorParams, doNotRepaint) {
@@ -162,6 +164,10 @@
             });
             if (!doNotRepaint)
                 _jsPlumb.repaint(_elementId);
+        };
+
+        this.cleanup = function() {
+            jpcl.removeClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
         };
 
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
@@ -208,7 +214,7 @@
         };
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							
-        originalEndpoint = _endpoint;
+        originalEndpoint = _endpoint;        
 
         // override setHover to pass it down to the underlying endpoint
         var _sh = self.setHover;
@@ -248,7 +254,10 @@
             return self.connections;
         };
                     
-        this.canvas = this.endpoint.canvas;			
+        this.canvas = this.endpoint.canvas;		
+        // add anchor class (need to do this on construction because we set anchor first)
+        self.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);	
+        jpcl.addClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
         
