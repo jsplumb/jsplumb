@@ -651,6 +651,7 @@
 		 *  -   *ConnectionOverlays*		The default overlay definitions for Connections. Defaults to an empty list.
 		 * 	-	*Connector*				The default connector definition to use for all connections.  Default is "Bezier".
 		 *  -   *Container*				Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element.
+		 *	-	*DoNotThrowErrors*		Defaults to false; whether or not to throw errors if a user specifies an unknown anchor, endpoint or connector type.
 		 * 	-	*DragOptions*			The default drag options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*DropOptions*			The default drop options to pass in to connect, makeTarget and addEndpoint calls. Default is empty.
 		 * 	-	*Endpoint*				The default endpoint definition to use for all connections (both source and target).  Default is "Dot".
@@ -677,6 +678,7 @@
             ConnectionOverlays : [ ],
             Connector : "Bezier",
 			Container : null,
+			DoNotThrowErrors:false,
 			DragOptions : { },
 			DropOptions : { },
 			Endpoint : "Dot",
@@ -1627,6 +1629,7 @@
 				var uuid = endpoint.getUuid();
 				if (uuid) endpointsByUUID[uuid] = null;				
 				endpoint.detachAll();
+				endpoint.cleanup();
 				if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
 				jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
 				_currentInstance.anchorManager.deleteEndpoint(endpoint);
@@ -2353,15 +2356,22 @@ between this method and jsPlumb.reset).
 		 * 
 		 * 
 		 * Returns: The newly created Anchor.
+		 * Throws: an error if a named anchor was not found.
 		 */
 		this.makeAnchor = function() {
+			var _a = function(t, p) {
+				if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
+				if (!_currentInstance.Defaults.DoNotThrowErrors)
+					throw { msg:"jsPlumb: unknown anchor type '" + t + "'" };
+			}
 			if (arguments.length == 0) return null;
 			var specimen = arguments[0], elementId = arguments[1], jsPlumbInstance = arguments[2], newAnchor = null;			
 			// if it appears to be an anchor already...
 			if (specimen.compute && specimen.getOrientation) return specimen;  //TODO hazy here about whether it should be added or is already added somehow.
 			// is it the name of an anchor type?
 			else if (typeof specimen == "string") {
-				newAnchor = jsPlumb.Anchors[arguments[0]]({elementId:elementId, jsPlumbInstance:_currentInstance});
+				//newAnchor = jsPlumb.Anchors[arguments[0]]({elementId:elementId, jsPlumbInstance:_currentInstance});
+				newAnchor = _a(arguments[0], {elementId:elementId, jsPlumbInstance:_currentInstance});
 			}
 			// is it an array? it will be one of:
 			// 		an array of [name, params] - this defines a single anchor
@@ -2371,7 +2381,8 @@ between this method and jsPlumb.reset).
 				if (_isArray(specimen[0]) || _isString(specimen[0])) {
 					if (specimen.length == 2 && _isString(specimen[0]) && _isObject(specimen[1])) {
 						var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
-						newAnchor = new jsPlumb.Anchors[specimen[0]](pp);
+						//newAnchor = new jsPlumb.Anchors[specimen[0]](pp);
+						newAnchor = _a(specimen[0], pp);
 					}
 					else
 						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:jsPlumbInstance});
@@ -2734,7 +2745,7 @@ between this method and jsPlumb.reset).
 					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 					// and use the endpoint definition if found.
 					var elid = _getId(_el),
-						parentElement = function(_el) {
+						parentElement = function() {
 							return p.parent == null ? p.parent : p.parent === "parent" ? jpcl.getElementObject(jpcl.getDOMElement(_el).parentNode) : jpcl.getElementObject(p.parent);
 						},
 						idToRegisterAgainst = p.parent != null ? _currentInstance.getId(parentElement()) : elid;
@@ -2783,7 +2794,7 @@ between this method and jsPlumb.reset).
 							ep.setAnchor(_currentInstance.makeAnchor(anchorDef, elid, _currentInstance));																							
 							
 							if (p.parent) {						
-								var parent = parentElement(_el);
+								var parent = parentElement();
 								if (parent) {	
 									var currentId = ep.elementId,
 										potentialParent = p.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;			
@@ -2848,7 +2859,7 @@ between this method and jsPlumb.reset).
 						// that was the source.  in that case, we have to adjust the anchor position so it refers to
 						// the parent.
 						if (p.parent) {
-							var pEl = parentElement(_el), pId = _getId(pEl);
+							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
 							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width, 
 						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height;
@@ -2872,7 +2883,7 @@ between this method and jsPlumb.reset).
 							if (potentialParent)
 								tempEndpointParams.container = potentialParent;
 							else
-								tempEndpointParams.container = jsPlumb.CurrentLibrary.getParent(parentElement(_el));
+								tempEndpointParams.container = jsPlumb.CurrentLibrary.getParent(parentElement());
 						}
 						
 						ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
