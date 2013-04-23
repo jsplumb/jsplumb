@@ -24,7 +24,7 @@
 
 			// this is the paint style for the connecting lines..
 			var connectorPaintStyle = {
-				lineWidth:5,
+				lineWidth:4,
 				strokeStyle:"#deea18",
 				joinstyle:"round",
 				outlineColor:"#EAEDEF",
@@ -32,7 +32,7 @@
 			},
 			// .. and this is the hover style. 
 			connectorHoverStyle = {
-				lineWidth:7,
+				lineWidth:4,
 				strokeStyle:"#2e2aF8"
 			},
 			// the definition of source endpoints (the small blue ones)
