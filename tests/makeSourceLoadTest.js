@@ -1,5 +1,5 @@
 ;(function() {
-    var elements = [];
+    var elements = [], hasRun = false;
 
     window.jsPlumbLoadTest = {
         spacing:100,
@@ -25,9 +25,10 @@
             $("#demo").empty();
 
             if (thenRun !== false) window.setTimeout(jsPlumbLoadTest.run, 250);
-        },
+        },        
 
         run : function() {
+            hasRun = true;
 
             var numElements = $("#txtElements").val(),
                 makeSource = $("#chkMakeSource")[0].checked,
@@ -95,7 +96,37 @@
             $("#repaintTime").html(t2-st2);
             $("#averageRepaintTime").html((t2-st2)/connCount);
             
+        }        
+    };
+
+    window.connect = function(startIdx, endIdx) {
+        if (!hasRun) {
+            console.log("run test first"); return;
         }
+        console.time("connect");
+        jsPlumb.connect({source:"div-" + startIdx, target:"div-" + endIdx});
+        console.timeEnd("connect");
+    };
+
+    window.bulkconnect = function(startIdx, endIdx) {
+        if (!hasRun) {
+            console.log("run test first"); return;
+        }
+        console.time("connect");
+        var c = 0, _t = [];
+        for (var i = startIdx; i < endIdx; i++) {
+            for (var j = startIdx; j < endIdx; j++) {
+                if (i != j) {
+                    var st = new Date().getTime();
+                    jsPlumb.connect({source:"div-" + i, target:"div-" + j});
+                    _t.push((new Date().getTime()) - st);
+                    c++;
+                }
+            }
+        }        
+        console.timeEnd("connect");
+        console.log(c + " connections established");
+        console.log(_t);
     };
 
 
