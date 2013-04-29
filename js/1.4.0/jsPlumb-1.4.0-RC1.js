@@ -274,7 +274,9 @@
                         _self.fire("mouseexit", _self, e);
                     }
                 });	  
-            }
+                obj.bind("mousedown", function(ep, e) { _self.fire("mousedown", _self, e); });
+                obj.bind("mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
+            };
 		
 			var jpcl = jsPlumb.CurrentLibrary,
 				events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
@@ -434,8 +436,7 @@
             this.removeClass = function(clazz) {
                 if (self.canvas != null)
                     _removeClass(self.canvas, clazz);
-            };            
-            
+            };                    
 		},
 
 		overlayCapableJsPlumbUIComponent = window.overlayCapableJsPlumbUIComponent = function(params) {
@@ -844,8 +845,8 @@
 	
 						options[startEvent] = _wrap(options[startEvent], function() {
 							_currentInstance.setHoverSuspended(true);							
-							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass, true);
-							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass, true);
+							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
+							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
 						});
 	
 						options[dragEvent] = _wrap(options[dragEvent], function() {                            
@@ -858,8 +859,8 @@
 							_draw(element, ui);
 							_removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);							
-							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass, true);
-							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass, true);
+							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
+							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
 						});
 						var elId = _getId(element); // need ID
 						draggableStates[elId] = true;  
@@ -1330,6 +1331,8 @@
 		this.overlayClass = "_jsPlumb_overlay";				
 		this.draggingClass = "_jsPlumb_dragging";		
 		this.elementDraggingClass = "_jsPlumb_element_dragging";			
+		this.sourceElementDraggingClass = "_jsPlumb_source_element_dragging";
+		this.targetElementDraggingClass = "_jsPlumb_target_element_dragging";
 		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";	
 
 		this.Anchors = {};		
