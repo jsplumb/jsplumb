@@ -11,6 +11,7 @@
         - Connection does not expose 'connector' anymore. Use Connection.getConnector()
         - Connection does not expose 'canvas' anymore. Use Connection.getConnector().canvas
         - support for tooltip has been removed. 
+        - 'toggle' method on jsPlumb removed. use 'toggleVisible'
 
 		NEW FUNCTIONALITY
 		        
