@@ -1,5 +1,6 @@
 ;(function() {
         
+    // create the drag handler for a connection
     var _makeConnectionDragHandler = function(placeholder, _jsPlumb) {
         var stopped = false;
         return {
@@ -20,10 +21,8 @@
             }
         };
     };
-    
-    //
-    // creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.
-    //
+        
+    // creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.    
     var _makeDraggablePlaceholder = function(placeholder, parent, _jsPlumb) {
         var n = document.createElement("div");
         n.style.position = "absolute";
@@ -36,6 +35,7 @@
         placeholder.element = placeholderDragElement;
     };
     
+    // create a floating endpoint (for drag connections)
     var _makeFloatingEndpoint = function(paintStyle, referenceAnchor, endpoint, referenceCanvas, sourceElement, _jsPlumb, _newEndpoint) {			
         var floatingAnchor = new jsPlumb.FloatingAnchor( { reference : referenceAnchor, referenceCanvas : referenceCanvas, jsPlumbInstance:_jsPlumb });
         //setting the scope here should not be the way to fix that mootools issue.  it should be fixed by not
