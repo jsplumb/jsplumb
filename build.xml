@@ -248,8 +248,8 @@
 		<mkdir dir="js/TEMP"/>
 		<mkdir dir="js/TEMPOUT"/>
 		<copy todir="js/TEMP">
-            <fileset dir="${dir}">
-				<include name="jsPlumb-apidocs-${version}.js"/>
+            <fileset dir="js/${final.version}">
+				<include name="jsPlumb-apidoc-${version}.js"/>
 			</fileset>
 			<!--fileset dir="build/${final.version}/js">
 				<include name="jquery.jsPlumb-${final.version}-all.js"/>
@@ -280,7 +280,7 @@
 	    <echo file="js/TEMPOUT/index.html" append="false">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv="Refresh" CONTENT="0; URL=./files/jquery-jsPlumb-${version.with.dashes}-all-js.html"&gt;&lt;/head&gt;&lt;/html&gt;</echo>
 
 	    <delete dir="Data"/>
-		<delete dir="js/TEMP"/>
+		<!--delete dir="js/TEMP"/-->
 		<delete>
 			<fileset dir="demo/apidocs">
 				<include name="**/*.html"/>
