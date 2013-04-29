@@ -33,25 +33,29 @@
 	              select="\0"
 	              casesensitive="false" />
 	<!-- js input directory -->
-	<property name="dir" value="./js/${final.version}/"/>
+	<property name="dir" value="./src/"/>
 	<!-- input demo directory -->
 	<property name="demo.dir" value="./demo"/>
 	<!-- output directory -->
-	<property name="output.dir" value="${build.dir}/${final.version}"/>
+	<property name="output.dir" value="${build.dir}"/>
 	<!-- output JS directory -->
-	<property name="output.js.dir" value="${build.dir}/${final.version}/js"/>
+	<property name="output.js.dir" value="${build.dir}/js"/>
 	<!-- output demo directory -->
-	<property name="output.demo.dir" value="${build.dir}/${final.version}/demo"/>
+	<property name="output.demo.dir" value="${build.dir}/demo"/>
 	<!-- output demo js directory -->
-	<property name="output.demo.js.dir" value="${build.dir}/${final.version}/demo/js"/>
+	<property name="output.demo.js.dir" value="${build.dir}/demo/js"/>
 	<!-- output tests directory -->
-	<property name="output.tests.dir" value="${build.dir}/${final.version}/tests"/>
+	<property name="output.tests.dir" value="${build.dir}/tests"/>
 
 	<!--
 		fails the build if no "version" parameter supplied.
-	-->
+	
 	<target name="checkForVersion" unless="version">
 		<fail message="You must supply the version to bundle, eg. ant -Dversion=x.y.c-RCn"/>
+	</target-->
+
+	<target name="checkForVersion">
+		<loadproperties srcFile="build.properties"/>
 	</target>
 
 	<!-- fails if the desired build dir already exists and force was not specified on the command line. -->
@@ -78,7 +82,7 @@
 		<mkdir dir="${output.demo.dir}"/>		
 		<mkdir dir="${output.tests.dir}"/>				
 		<echo/>
-		<echo>Building Version         :    ${final.version} into directory ${output.dir}</echo>			
+		<echo>Building Version         :    ${version} into directory ${output.dir}</echo>			
 	</target>
 	
 	<!-- 
@@ -89,7 +93,7 @@
 	<target name="concatLibrary">
 		<echo>Concatenating ${library}</echo>
 		<concat destfile="${output.js.dir}/${library}.jsPlumb-${final.version}-all.js">
-			<filelist dir="${dir}" files="jsPlumb-util-${version}.js, jsPlumb-dom-adapter-${version}.js, jsPlumb-${version}.js,jsPlumb-anchors-${version}.js,jsPlumb-endpoint-${version}.js,jsPlumb-connection-${version}.js,jsPlumb-defaults-${version}.js,jsPlumb-connectors-statemachine-${version}.js,jsPlumb-connectors-flowchart-${version}.js, jsPlumb-renderers-vml-${version}.js, jsPlumb-renderers-svg-${version}.js, ${library}.jsPlumb-${version}.js, ../lib/jsBezier-0.5-min.js"/>
+			<filelist dir="${dir}" files="jsPlumb-util.js, jsPlumb-dom-adapter.js, jsPlumb.js,jsPlumb-anchors.js,jsPlumb-endpoint.js,jsPlumb-connection.js,jsPlumb-defaults.js,jsPlumb-connectors-statemachine.js,jsPlumb-connectors-flowchart.js, jsPlumb-renderers-vml.js, jsPlumb-renderers-svg.js, ${library}.jsPlumb.js, ../lib/jsBezier-0.6-min.js"/>
 		</concat>		
 	</target>    
 	
@@ -170,6 +174,8 @@
 	</target>
 
 	<!-- copies the jsPlumb documentation into the build area -->
+
+	<!-- TODO: move docs from demo into top level 'doc' directory -->
 	<target name="copy-documentation">
 		<echo>Copying documentation...</echo>
 		<copy todir="${output.dir}/demo/doc">
@@ -211,8 +217,8 @@
 	<!-- copies the tests directory into the build dir -->
 	<target name="copy-tests">
 		<copy todir="${output.js.dir}">
-			<fileset dir="js/${final.version}">
-				<include name="jsPlumb-${final.version}-tests.js"/>
+			<fileset dir="src">
+				<include name="jsPlumb-tests.js"/>
 			</fileset>
 		</copy>
 		<copy todir="${output.tests.dir}">
@@ -223,7 +229,7 @@
 		</copy>
 		<mkdir dir="${output.js.dir}/lib"/>
 		<copy todir="${output.js.dir}/lib">
-			<fileset dir="js/lib">
+			<fileset dir="lib">
 				<include name="qunit.js"/>
 			</fileset>
 		</copy>
@@ -248,8 +254,8 @@
 		<mkdir dir="js/TEMP"/>
 		<mkdir dir="js/TEMPOUT"/>
 		<copy todir="js/TEMP">
-            <fileset dir="js/${final.version}">
-				<include name="jsPlumb-apidoc-${version}.js"/>
+            <fileset dir="src">
+				<include name="jsPlumb-apidoc.js"/>
 			</fileset>
 			<!--fileset dir="build/${final.version}/js">
 				<include name="jquery.jsPlumb-${final.version}-all.js"/>
@@ -267,33 +273,39 @@
 	    </exec>
 
 	    <!-- replace the jquery.blah title stuff that apidocs comes up with -->
-	    <replace dir="js/TEMPOUT" token="&lt;wbr&gt;"/>
-	    <replace dir="js/TEMPOUT" token="jquery.jsPlumb-${final.version}-all.js" value="jsPlumb ${final.version}"/>
 
-	    <!-- get a copy of the version number with dashes not dots -->
+	    <!-- TODO this will have also changed -->
+
+	    <replace dir="js/TEMPOUT" token="&lt;wbr&gt;"/>
+	    <replace dir="js/TEMPOUT" token="jsPlumb-apidoc-js.html" value="jsPlumb-${final.version}-apidoc.html"/>
+
+	    <!-- get a copy of the version number with dashes not dots>
 	    <propertyregex property="version.with.dashes"
               input="${final.version}"
               regexp="([0-9])\.([0-9])\.([0-9])"
-              replace="\1-\2-\3"/>
+              replace="\1-\2-\3"/-->
+
+        <!-- rename apidoc main file -->
+        <move file="js/TEMPOUT/files/jsPlumb-apidoc-js.html" tofile="js/TEMPOUT/files/jsPlumb-${final.version}-apidoc.html"/>      
 
 	    <!-- write the index file -->
-	    <echo file="js/TEMPOUT/index.html" append="false">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv="Refresh" CONTENT="0; URL=./files/jquery-jsPlumb-${version.with.dashes}-all-js.html"&gt;&lt;/head&gt;&lt;/html&gt;</echo>
+	    <echo file="js/TEMPOUT/index.html" append="false">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv="Refresh" CONTENT="0; URL=./files/jsPlumb-${final.version}-apidoc.html"&gt;&lt;/head&gt;&lt;/html&gt;</echo>
 
 	    <delete dir="Data"/>
-		<!--delete dir="js/TEMP"/-->
+		<delete dir="js/TEMP"/>
 		<delete>
-			<fileset dir="demo/apidocs">
+			<fileset dir="apidocs">
 				<include name="**/*.html"/>
 			</fileset>
 		</delete>
-		<mkdir dir="demo/apidocs"/>
-		<copy todir="demo/apidocs">
+		<mkdir dir="apidocs"/>
+		<copy todir="apidocs">
 			<fileset dir="js/TEMPOUT">
 				<include name="**/*"/>
 			</fileset>
 		</copy>
-		<copy todir="build/${final.version}/demo/apidocs">
-			<fileset dir="demo/apidocs">
+		<copy todir="build/apidocs">
+			<fileset dir="apidocs">
 				<include name="**/*"/>
 			</fileset>
 		</copy>
@@ -334,41 +346,40 @@
 
         <echo>${new.escaped}</echo>
 
-		<!-- create new js dir and copy previous version js into it -->
+		<!-- create new js dir and copy previous version js into it >
 		<mkdir dir="js/${new}"/>
 		<copy todir="js/${new}">
 			<fileset dir="js/${old}">
 				<include name="*.js"/>
 			</fileset>
 			<mapper type="regexp" from="(.*)${old.escaped}(.*)" to="\1${new.escaped}\2"/>
-		</copy>
+		</copy-->
 
-		<!-- create new dir in tests/archive and copy test html files in there -->
+		<!-- create new dir in tests/archive and copy test html files in there >
 		<mkdir dir="tests/archive/${old}"/>
 		<copy todir="tests/archive/${old}">
 			<fileset dir="tests">
 				<include name="*.html"/>
 				<include name="*.css"/>
 			</fileset>
-		</copy>
+		</copy-->
 
-		<!-- replace refs to old version in test html to new version -->
+		<!-- replace refs to old version in test html to new version>
 		<replace file="tests/android-svg.html" token="${old}" value="${new}"/>
 		<replace file="tests/loadTestHarness.html" token="${old}" value="${new}"/>		
 		<replace file="tests/qunit-svg-jquery-instance.html" token="${old}" value="${new}"/>
 		<replace file="tests/qunit-svg-jquery.html" token="${old}" value="${new}"/>
 		<replace file="tests/qunit-vml-jquery-instance.html" token="${old}" value="${new}"/>
-		<replace file="tests/qunit-vml-jquery.html" token="${old}" value="${new}"/>
+		<replace file="tests/qunit-vml-jquery.html" token="${old}" value="${new}"/-->
 		
-
-		<!-- create new archive dir for docs -->
+		<!-- create new archive dir for docs>
 		<mkdir dir="demo/doc/archive/${old}"/>
 		<copy todir="demo/doc/archive/${old}">
 			<fileset dir="demo/doc">
 				<include name="*.html"/>
 				<include name="*.css"/>
 			</fileset>
-		</copy>
+		</copy-->
 
 		<replace file="demo/doc/content.html" token="${old}" value="${new}"/>
 		<replace file="demo/doc/usage.html" token="${old}" value="${new}"/>
@@ -380,7 +391,7 @@
 		<replace dir="demo/mootools" token="${old}" value="${new}"/>
 		
 		<!-- replace version number in code -->
-		<replace dir="js/${new}" token="${old}" value="${new}"/>
+		<replace dir="src" token="${old}" value="${new}"/>
 
 		<!-- replace in README >
 		<replace file="README.md" token="latest version is ${old}" value="latest version is ${new}"/-->

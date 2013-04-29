@@ -60,8 +60,8 @@
 			if (demoInfo) {
 				var prevString = '|&nbsp;<h5>prev:</h5><a href="' + demoInfo.prev.id + '.html" title="View previous demo">' + demoInfo.prev.name + '</a>',
 					nextString = '&nbsp;<h5>next:</h5><a href="' + demoInfo.next.id + '.html" title="View next demo">' + demoInfo.next.name + '</a>',
-					menuString = '<a href="../doc/usage.html" class="mplink">Documentation</a>' +
-							 '&nbsp;|&nbsp;<a href="../apidocs">API docs</a>' +
+					menuString = '<a href="../../doc/usage.html" class="mplink">Documentation</a>' +
+							 '&nbsp;|&nbsp;<a href="../../apidocs">API docs</a>' +
 							 '&nbsp;|&nbsp;<a href="../../tests/qunit-all.html">qUnit tests</a>' +
 							 '&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>' +
                              '&nbsp;|&nbsp;<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>' +
