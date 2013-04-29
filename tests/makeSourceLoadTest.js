@@ -99,7 +99,7 @@
         }        
     };
 
-    window.connect = function(startIdx, endIdx) {
+    window.connect = function(startIdx, endIdx, suspendDrawing) {
         if (!hasRun) {
             console.log("run test first"); return;
         }
@@ -108,14 +108,17 @@
         console.timeEnd("connect");
     };
 
-    window.bulkconnect = function(startIdx, endIdx) {
+    window.bulkconnect = function(startIdx, endIdx, suspendDrawing) {
         if (!hasRun) {
             console.log("run test first"); return;
         }
+        if (suspendDrawing)
+            jsPlumb.setSuspendDrawing(true);
+
         console.time("connect");
         var c = 0, _t = [];
-        for (var i = startIdx; i < endIdx; i++) {
-            for (var j = startIdx; j < endIdx; j++) {
+        for (var i = startIdx; i <= endIdx; i++) {
+            for (var j = startIdx; j <= endIdx; j++) {
                 if (i != j) {
                     var st = new Date().getTime();
                     jsPlumb.connect({source:"div-" + i, target:"div-" + j});
@@ -124,6 +127,10 @@
                 }
             }
         }        
+
+        if (suspendDrawing)
+            jsPlumb.setSuspendDrawing(false, true);
+
         console.timeEnd("connect");
         console.log(c + " connections established");
         console.log(_t);
