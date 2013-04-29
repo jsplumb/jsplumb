@@ -82,6 +82,8 @@
         - added checkDropAllowed interceptor
 
         - added the ability to associate a css class with an anchor (the class is added to the anchor's endpoint and to its associated element, with a prefix. see the docs)
+
+        - added "mousedown" and "mouseup" events to endpoints and connections
 		
 		ISSUES
 		
