@@ -139,6 +139,9 @@
 
 	<!-- copies the demos and replaces their JS imports with final versions -->
 	<target name="demo">
+		<!-- copy a jsplumb version into require js sample -->
+		<copy tofile="${demo.dir}/requirejs/scripts/jsplumb.js" file="${output.js.dir}/jquery.jsPlumb-${final.version}-all.js"/>		
+
 		<echo>Processing demo code...</echo>
 		<copy todir="${output.demo.dir}">
 			<fileset dir="${demo.dir}"/>
