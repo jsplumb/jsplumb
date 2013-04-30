@@ -47,13 +47,6 @@
 	<!-- output tests directory -->
 	<property name="output.tests.dir" value="${build.dir}/tests"/>
 
-	<!--
-		fails the build if no "version" parameter supplied.
-	
-	<target name="checkForVersion" unless="version">
-		<fail message="You must supply the version to bundle, eg. ant -Dversion=x.y.c-RCn"/>
-	</target-->
-
 	<target name="checkForVersion">
 		<loadproperties srcFile="build.properties"/>
 	</target>
@@ -172,25 +165,7 @@
 			<param name="library" value="yui"/>
 		</antcall>
 	</target>
-
-	<!-- copies the jsPlumb documentation into the build area -->
-
-	<!-- TODO: move docs from demo into top level 'doc' directory -->
-	<target name="copy-documentation">
-		<echo>Copying documentation...</echo>
-		<copy todir="${output.dir}/demo/doc">
-			<fileset dir="./demo/doc">
-				<include name="*.html"/>
-				<include name="*.css"/>
-			</fileset>
-		</copy>
-		<copy todir="${output.dir}/demo/doc">
-			<fileset dir="./demo/doc">
-				<include name="*.html"/>
-				<include name="*.css"/>
-			</fileset>
-		</copy>			
-	</target>
+	
 
 	<!-- writes the final version of JS into the copies of test html, files replacing the dev imports -->
 	<target name="update-tests-js">
@@ -257,9 +232,6 @@
             <fileset dir="src">
 				<include name="jsPlumb-apidoc.js"/>
 			</fileset>
-			<!--fileset dir="build/${final.version}/js">
-				<include name="jquery.jsPlumb-${final.version}-all.js"/>
-			</fileset-->
 		</copy>
 		<mkdir dir="apidocs"/>
 	    <exec executable="naturaldocs">
@@ -278,12 +250,6 @@
 
 	    <replace dir="js/TEMPOUT" token="&lt;wbr&gt;"/>
 	    <replace dir="js/TEMPOUT" token="jsPlumb-apidoc-js.html" value="jsPlumb-${final.version}-apidoc.html"/>
-
-	    <!-- get a copy of the version number with dashes not dots>
-	    <propertyregex property="version.with.dashes"
-              input="${final.version}"
-              regexp="([0-9])\.([0-9])\.([0-9])"
-              replace="\1-\2-\3"/-->
 
         <!-- rename apidoc main file -->
         <move file="js/TEMPOUT/files/jsPlumb-apidoc-js.html" tofile="js/TEMPOUT/files/jsPlumb-${final.version}-apidoc.html"/>      
@@ -315,8 +281,7 @@
 	<!-- builds a version of jsplumb -->
 	<target name="build" depends="init">		
 		<antcall target="minAll"/>		
-		<antcall target="demo"/>
-		<antcall target="copy-documentation"/>
+		<antcall target="demo"/>		
 		<antcall target="copy-tests"/>
 	</target>
 
@@ -344,42 +309,7 @@
               regexp="\."
               replace="\\\."/>
 
-        <echo>${new.escaped}</echo>
-
-		<!-- create new js dir and copy previous version js into it >
-		<mkdir dir="js/${new}"/>
-		<copy todir="js/${new}">
-			<fileset dir="js/${old}">
-				<include name="*.js"/>
-			</fileset>
-			<mapper type="regexp" from="(.*)${old.escaped}(.*)" to="\1${new.escaped}\2"/>
-		</copy-->
-
-		<!-- create new dir in tests/archive and copy test html files in there >
-		<mkdir dir="tests/archive/${old}"/>
-		<copy todir="tests/archive/${old}">
-			<fileset dir="tests">
-				<include name="*.html"/>
-				<include name="*.css"/>
-			</fileset>
-		</copy-->
-
-		<!-- replace refs to old version in test html to new version>
-		<replace file="tests/android-svg.html" token="${old}" value="${new}"/>
-		<replace file="tests/loadTestHarness.html" token="${old}" value="${new}"/>		
-		<replace file="tests/qunit-svg-jquery-instance.html" token="${old}" value="${new}"/>
-		<replace file="tests/qunit-svg-jquery.html" token="${old}" value="${new}"/>
-		<replace file="tests/qunit-vml-jquery-instance.html" token="${old}" value="${new}"/>
-		<replace file="tests/qunit-vml-jquery.html" token="${old}" value="${new}"/-->
-		
-		<!-- create new archive dir for docs>
-		<mkdir dir="demo/doc/archive/${old}"/>
-		<copy todir="demo/doc/archive/${old}">
-			<fileset dir="demo/doc">
-				<include name="*.html"/>
-				<include name="*.css"/>
-			</fileset>
-		</copy-->
+        <echo>${new.escaped}</echo>		
 
 		<replace file="demo/doc/content.html" token="${old}" value="${new}"/>
 		<replace file="demo/doc/usage.html" token="${old}" value="${new}"/>
@@ -393,8 +323,8 @@
 		<!-- replace version number in code -->
 		<replace dir="src" token="${old}" value="${new}"/>
 
-		<!-- replace in README >
-		<replace file="README.md" token="latest version is ${old}" value="latest version is ${new}"/-->
+		<!-- replace in README -->
+		<replace file="README.md" token="latest version is ${old}" value="latest version is ${new}"/>
 
 	</target>
 
