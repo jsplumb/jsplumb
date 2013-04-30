@@ -1,3 +1,7 @@
+//
+// this script is used to dynamically insert links from each demo to its previous and next,
+// as well as write the drop down.  
+//
 ;(function() {
 
 	var entries = [
@@ -59,21 +63,9 @@
 				
 			if (demoInfo) {
 				var prevString = '|&nbsp;<h5>prev:</h5><a href="' + demoInfo.prev.id + '.html" title="View previous demo">' + demoInfo.prev.name + '</a>',
-					nextString = '&nbsp;<h5>next:</h5><a href="' + demoInfo.next.id + '.html" title="View next demo">' + demoInfo.next.name + '</a>',
-					menuString = '<a href="../../doc/usage.html" class="mplink">Documentation</a>' +
-							 '&nbsp;|&nbsp;<a href="../../apidocs">API docs</a>' +
-							 '&nbsp;|&nbsp;<a href="../../tests/qunit-all.html">qUnit tests</a>' +
-							 '&nbsp;|&nbsp;<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>' +
-                             '&nbsp;|&nbsp;<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>' +
-                             '&nbsp;|&nbsp;<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Google Group</a>' +
-							 '&nbsp;|&nbsp;<a href="http://code.google.com/p/jsplumb/issues/list" class="mplink">Issues</a>';				
+					nextString = '&nbsp;<h5>next:</h5><a href="' + demoInfo.next.id + '.html" title="View next demo">' + demoInfo.next.name + '</a>';				
 			
 				document.getElementById("render").innerHTML = libraryString + prevString  + demoSelectorString+ nextString;				
-			
-				var m = document.createElement("div");
-				m.className = "menu";
-				m.innerHTML = menuString;				
-				document.getElementById("header").appendChild(m);
 			
 				var ds = document.getElementById("demoSelector");
 				ds.selectedIndex = demoInfo.idx;
