@@ -12,9 +12,13 @@ body {
     padding:0;
     margin:0;
     background-color:white;    
-    font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    text-align:center;	
+    font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;    
 }
+
+#explanation {
+    text-align: center;
+}
+
 #headerWrapper {
 	width:100%;
 	background-color:black;
@@ -35,11 +39,11 @@ body {
 #header {
 	margin-top:0;
     height:44px;
-    font-size:80%;
+    font-size:13px;
 	margin-left:auto;
 	margin-right:auto;    
     width:950px;
-    background-image:url(../../img/logo_bw_44h.jpg);
+    background-image:url(logo_bw_44h.jpg);
     background-repeat:no-repeat;    
 }
 
