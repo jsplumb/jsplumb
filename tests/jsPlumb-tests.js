@@ -287,6 +287,54 @@ var testSuite = function(renderMode, _jsPlumb) {
 		}
 	});
 	
+	test(renderMode + ": unknown endpoint type should throw Error", function() {
+		try {
+			_addDiv("d1");_addDiv("d2");
+			_jsPlumb.Defaults.DoNotThrowErrors = false;
+			_jsPlumb.connect({source:"d1", target:"d2", endpoint:"FOO"});			
+		}
+		catch (e) {
+			// ok	
+			ok(e.msg == "jsPlumb: unknown endpoint type 'FOO'", "useful error message");		
+		}
+	});
+
+	test(renderMode + ": unknown endpoint type should not throw Error because it is suppressed in Defaults", function() {
+		try {
+			_addDiv("d1");_addDiv("d2");
+			_jsPlumb.Defaults.DoNotThrowErrors = true;
+			_jsPlumb.connect({source:"d1", target:"d2", endpoint:"FOO"});			
+		}
+		catch (e) {
+			// ok	
+			ok(e.msg != "jsPlumb: unknown endpoint type 'FOO'", "no error message");		
+		}
+	});
+
+	test(renderMode + ": unknown connector type should throw Error", function() {
+		try {
+			_addDiv("d1");_addDiv("d2");
+			_jsPlumb.Defaults.DoNotThrowErrors = false;
+			_jsPlumb.connect({source:"d1", target:"d2", connector:"FOO"});			
+		}
+		catch (e) {
+			// ok	
+			ok(e.msg == "jsPlumb: unknown connector type 'FOO'", "useful error message");		
+		}
+	});
+
+	test(renderMode + ": unknown connector type should not throw Error because it is suppressed in Defaults", function() {
+		try {
+			_addDiv("d1");_addDiv("d2");
+			_jsPlumb.Defaults.DoNotThrowErrors = true;
+			_jsPlumb.connect({source:"d1", target:"d2", connector:"FOO"});			
+		}
+		catch (e) {
+			// ok	
+			ok(e.msg != "jsPlumb: unknown connector type 'FOO'", "no error message");		
+		}
+	});
+
 // ************** / ANCHORS ********************************************
 
 

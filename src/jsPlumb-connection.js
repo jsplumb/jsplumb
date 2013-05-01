@@ -124,6 +124,9 @@
 
         var makeConnector = function(renderMode, connectorName, connectorArgs) {
             var c = new Object();
+            if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[connectorName] == null)
+                    throw { msg:"jsPlumb: unknown connector type '" + connectorName + "'" };
+
             jsPlumb.Connectors[connectorName].apply(c, [connectorArgs]);
             jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);	
             return c;

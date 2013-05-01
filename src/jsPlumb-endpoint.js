@@ -179,6 +179,14 @@
 
         var _endpoint = null, originalEndpoint = null;
         this.setEndpoint = function(ep) {
+
+            var _e = function(t, p) {
+                var rm = _jsPlumb.getRenderMode();
+                if (jsPlumb.Endpoints[rm][t]) return new jsPlumb.Endpoints[rm][t](p);
+                if (!_jsPlumb.Defaults.DoNotThrowErrors)
+                    throw { msg:"jsPlumb: unknown endpoint type '" + t + "'" };
+            };            
+
             var endpointArgs = {
                 _jsPlumb:self._jsPlumb,
                 cssClass:params.cssClass,
@@ -189,10 +197,10 @@
                 endpoint:self
             };
             if (_ju.isString(ep)) 
-                _endpoint = new jsPlumb.Endpoints[_jsPlumb.getRenderMode()][ep](endpointArgs);
+                _endpoint = _e(ep, endpointArgs);
             else if (_ju.isArray(ep)) {
                 endpointArgs = _ju.merge(ep[1], endpointArgs);
-                _endpoint = new jsPlumb.Endpoints[_jsPlumb.getRenderMode()][ep[0]](endpointArgs);
+                _endpoint = _e(ep[0], endpointArgs);
             }
             else {
                 _endpoint = ep.clone();
@@ -309,7 +317,8 @@
                                 }
                             }
                         }
-                        _ju.removeElements(connection.getConnector().getDisplayElements(), connection.parent);
+                        if (connection.getConnector() != null)
+                            _ju.removeElements(connection.getConnector().getDisplayElements(), connection.parent);
                         _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
                             return c.id == connection.id;
                         });

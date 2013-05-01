@@ -84,6 +84,10 @@
         - added the ability to associate a css class with an anchor (the class is added to the anchor's endpoint and to its associated element, with a prefix. see the docs)
 
         - added "mousedown" and "mouseup" events to endpoints and connections
+
+        - jsPlumb now throws exceptions if you request an anchor, endpoint or connector type
+        that does not exist. this can be suppressed (although why you would want to do this i'm
+        not sure) with the DoNotThrowErrors default setting.
 		
 		ISSUES
 		
