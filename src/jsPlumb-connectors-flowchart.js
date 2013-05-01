@@ -39,7 +39,7 @@
             grid = params.grid,
             userSuppliedSegments = null,
             lastx = null, lasty = null, lastOrientation,	
-            cornerRadius = params.cornerRadius != null ? params.cornerRadius : 10,	
+            cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,	
             sgn = function(n) { return n < 0 ? -1 : n == 0 ? 0 : 1; },            
             /**
              * helper method to add a segment.
