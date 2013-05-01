@@ -67,19 +67,7 @@
 					$("#iframe")[0].src = href;
 					$("#links a[href='" + href + "']").addClass("current-tests");
 				};
-
-				/*var lib = [ "jQuery"/*, "MooTools", "YUI" ],
-				render = [ "Canvas", "SVG", "VML" ];
-				var links = "<p>Choose Tests:</p>	<ul>";
-				for (var i = 0; i < lib.length; i++) {
-					for (var j = 0; j < render.length; j++) {
-						links += "<li><a href=\"qunit-" + render[j].toLowerCase() + "-" + lib[i].toLowerCase() + ".html\">" + lib[i] + "+" + render[j] + "</a></li>"; 
-						links += "<li><a href=\"qunit-" + render[j].toLowerCase() + "-" + lib[i].toLowerCase() + "-instance.html\">" + lib[i] + "+" + render[j] + " (instance) </a></li>"; 
-					}
-				}
-				links += "</ul>";
-				$("#links").append(links);
-				*/
+				
 				$("#links a").live("click", function() {
 					load($(this).attr("href"));
 					return false;
