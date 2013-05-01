@@ -20,13 +20,15 @@
 
         reset : function(thenRun) {
             $("#numConnections").html("");
+            $("#createTime").html("");
             $("#totalCreateTime").html("");
             $("#averageCreateTime").html("");
             $("#repaintTime").html("");
+            $("#averageRepaintTime").html("");
             var t = new Date().getTime();
             jsPlumb.reset();
             var t2 = new Date().getTime();
-            $("#resetTime").html(t2 - t);
+            $("#resetTime").html((t2 - t) + "ms");
             $("#demo").empty();
 
             if (thenRun !== false) window.setTimeout(jsPlumbLoadTest.run, 250);
@@ -104,11 +106,11 @@
             var t2 = (new Date()).getTime();
 
             $("#numConnections").html(connCount);
-            $("#totalCreateTime").html((t-st) + (t2-st2));
-            $("#createTime").html(t-st);
-            $("#averageCreateTime").html((t-st)/connCount);
-            $("#repaintTime").html(t2-st2);
-            $("#averageRepaintTime").html((t2-st2)/connCount);
+            $("#totalCreateTime").html((t-st) + (t2-st2) + "ms");
+            $("#createTime").html((t-st) + "ms");
+            $("#averageCreateTime").html(((t-st)/connCount).toFixed(2) + "ms");
+            $("#repaintTime").html((t2-st2) + "ms");
+            $("#averageRepaintTime").html(((t2-st2)/connCount).toFixed(2) + "ms");
             
         }
     };

@@ -2,10 +2,9 @@
 <html>
 	<head>
 		<title>jsPlumb 1.4.0 load test harness - jQuery</title>
-		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-		<link rel="stylesheet" href="/mp.css">
-		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
-		<link rel="stylesheet" href="../css/demo.css">
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
+		<link rel="stylesheet" href="../demo/css/demo-all.css">
+		
         <style type="text/css">
             ._jsPlumb_connection { z-index:3; }
             .jspLoad {
@@ -27,13 +26,16 @@
             	margin-top:10em;
             	position:relative;
             }
+            #setup, #output {
+            	font-size:12px;
+            }
 
         </style>
 	</head>
-	<body onunload="jsPlumb.unload();">
+	<body>
 	
 
-		<div id="header">
+		<div>
 			<div id="setup">
 				<table>
 					<tr>
@@ -63,65 +65,59 @@
 						</td>
 					</tr>
 				</table>			
-			</div>
-			<button id="btnTest">Run Test</button>
+			</div>			
 			<div id="output">
-				<table>
+				<table colspacing="20">
 					<tr>
-						<td>Reset time:</td><td id="resetTime"></td>
+						<td colspan="2">Num Connections:</td><td colspan="2" id="numConnections"></td>
 					</tr>
 					<tr>
-						<td>Num Connections:</td><td id="numConnections"></td>
-					</tr>
-					<tr>
+						<td>Reset time:</td><td id="resetTime"></td>					
 						<td>Total time:</td><td id="totalCreateTime"></td>
 					</tr>
 					<tr>
-						<td>Create time:</td><td id="createTime"></td>
-					</tr>
-					<tr>
+						<td>Create time:</td><td id="createTime"></td>					
 						<td>Average create time:</td><td id="averageCreateTime"></td>
 					</tr>
 					<tr>
-						<td>Repaint time:</td><td id="repaintTime"></td>
-					</tr>
-					<tr>
+						<td>Repaint time:</td><td id="repaintTime"></td>					
 						<td>Average Repaint time:</td><td id="averageRepaintTime"></td>
 					</tr>
 				</table>
 			</div>
+			<button id="btnTest">Run Test</button>
 		</div>
 		
 		<div id="demo"></div>	
 	    
 	    
-	    <script type="text/javascript" src="../js/lib/jquery-1.7.1-min.js"></script>
-		<script type="text/javascript" src="../js/lib/jquery-ui-1.8.13-min.js"></script>
+	    <script type="text/javascript" src="../lib/jquery-1.7.1-min.js"></script>
+		<script type="text/javascript" src="../lib/jquery-ui-1.8.13-min.js"></script>
 				
 		<!-- support lib for bezier stuff -->
-		<script src="../js/lib/jsBezier-0.5.js"></script>
+		<script src="../lib/jsBezier-0.6.js"></script>
 		<!-- jsplumb util-->
-		<script src="../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
+		<script src="../src/jsPlumb-util.js"></script>
 		<!-- base DOM adapter -->
-		<script src="../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>		
+		<script src="../src/jsPlumb-dom-adapter.js"></script>		
 		<!-- main jsplumb engine -->
-		<script src="../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+		<script src="../src/jsPlumb.js"></script>
         <!-- anchors -->
-		<script src="../js/1.4.0/jsPlumb-anchors-1.4.0-RC1.js"></script> 
+		<script src="../src/jsPlumb-anchors.js"></script> 
         <!-- endpoint -->
-		<script src="../js/1.4.0/jsPlumb-endpoint-1.4.0-RC1.js"></script>  
+		<script src="../src/jsPlumb-endpoint.js"></script>  
         <!-- connection -->
-		<script src="../js/1.4.0/jsPlumb-connection-1.4.0-RC1.js"></script>		
+		<script src="../src/jsPlumb-connection.js"></script>		
 		<!-- connectors, endpoint and overlays  -->
-		<script src="../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
+		<script src="../src/jsPlumb-defaults.js"></script>
 		<!-- SVG renderer -->
-		<script src="../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
+		<script src="../src/jsPlumb-renderers-svg.js"></script>
 		<!-- canvas renderer -->
-		<script src="../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
+		<script src="../src/jsPlumb-renderers-canvas.js"></script>
 		<!-- vml renderer -->
-		<script src="../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
+		<script src="../src/jsPlumb-renderers-vml.js"></script>
 		<!-- jquery jsPlumb adapter -->
-		<script src="../js/1.4.0/jquery.jsPlumb-1.4.0-RC1.js"></script>
+		<script src="../src/jquery.jsPlumb.js"></script>
 		
 		<!--  demo code -->
 		<script src="loadTestHarness.js"></script>
