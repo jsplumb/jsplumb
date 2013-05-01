@@ -49,21 +49,10 @@
 
 	<target name="checkForVersion">
 		<loadproperties srcFile="build.properties"/>
-	</target>
-
-	<!-- fails if the desired build dir already exists and force was not specified on the command line. -->
-	<target name="checkForExistingBuildDir" unless="force">
-		<if>
-			<available file="${output.dir}" type="dir"/>
-			<then>
-				<echo>Output directory already exists and "-Dforce=true" was not specified - exiting.</echo>
-				<fail message="output directory already exists"/>
-			</then>
-    	</if>
-    </target>
+	</target>	
 
     <!-- creates the output dir, if necessary -->
-	<target name="init" depends="checkForExistingBuildDir,checkForVersion">
+	<target name="init" depends="checkForVersion">
 		<!-- this will fail silently if the dir already exists; that's ok. it's because this is the first build this user has run. -->
 		<mkdir dir="${build.dir}"/>	
 		<!-- but these should not already exist; we will have bailed before here if that's the case, unless the user 
@@ -229,9 +218,9 @@
 	</target>
 	<!-- generates the API docs -->
 	<target name="docs" depends="doc-version">
-		<mkdir dir="js/TEMP"/>
-		<mkdir dir="js/TEMPOUT"/>
-		<copy todir="js/TEMP">
+		<mkdir dir="TEMP"/>
+		<mkdir dir="TEMPOUT"/>
+		<copy todir="TEMP">
             <fileset dir="src">
 				<include name="jsPlumb-apidoc.js"/>
 			</fileset>
@@ -239,10 +228,10 @@
 		<mkdir dir="apidocs"/>
 	    <exec executable="naturaldocs">
 	        <arg line="-i"/>
-	        <arg path="js/TEMP"/>
+	        <arg path="TEMP"/>
 	        <arg line="-o"/>
 	    	<arg line="HTML"/>
-	    	<arg line="js/TEMPOUT"/>
+	    	<arg line="TEMPOUT"/>
 	    	<arg line="-p"/>
 	    	<arg line="."/>
 	    </exec>
@@ -251,17 +240,17 @@
 
 	    <!-- TODO this will have also changed -->
 
-	    <replace dir="js/TEMPOUT" token="&lt;wbr&gt;"/>
-	    <replace dir="js/TEMPOUT" token="jsPlumb-apidoc-js.html" value="jsPlumb-${final.version}-apidoc.html"/>
+	    <replace dir="TEMPOUT" token="&lt;wbr&gt;"/>
+	    <replace dir="TEMPOUT" token="jsPlumb-apidoc-js.html" value="jsPlumb-${final.version}-apidoc.html"/>
 
         <!-- rename apidoc main file -->
-        <move file="js/TEMPOUT/files/jsPlumb-apidoc-js.html" tofile="js/TEMPOUT/files/jsPlumb-${final.version}-apidoc.html"/>      
+        <move file="TEMPOUT/files/jsPlumb-apidoc-js.html" tofile="TEMPOUT/files/jsPlumb-${final.version}-apidoc.html"/>      
 
 	    <!-- write the index file -->
-	    <echo file="js/TEMPOUT/index.html" append="false">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv="Refresh" CONTENT="0; URL=./files/jsPlumb-${final.version}-apidoc.html"&gt;&lt;/head&gt;&lt;/html&gt;</echo>
+	    <echo file="TEMPOUT/index.html" append="false">&lt;html&gt;&lt;head&gt;&lt;meta http-equiv="Refresh" CONTENT="0; URL=./files/jsPlumb-${final.version}-apidoc.html"&gt;&lt;/head&gt;&lt;/html&gt;</echo>
 
 	    <delete dir="Data"/>
-		<delete dir="js/TEMP"/>
+		<delete dir="TEMP"/>
 		<delete>
 			<fileset dir="apidocs">
 				<include name="**/*.html"/>
@@ -269,7 +258,7 @@
 		</delete>
 		<mkdir dir="apidocs"/>
 		<copy todir="apidocs">
-			<fileset dir="js/TEMPOUT">
+			<fileset dir="TEMPOUT">
 				<include name="**/*"/>
 			</fileset>
 		</copy>
@@ -278,7 +267,7 @@
 				<include name="**/*"/>
 			</fileset>
 		</copy>
-		<delete dir="js/TEMPOUT"/>
+		<delete dir="TEMPOUT"/>
 	</target>
 	
 	<!-- builds a version of jsplumb -->

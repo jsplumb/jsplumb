@@ -134,7 +134,7 @@
 					lineWidth:9, 
 					strokeStyle:conn4Color, 
 					outlineColor:"#666",
-					outlineWidth:10,
+					outlineWidth:2,
 					joinstyle:"round"
 				},
 				hoverPaintStyle:hoverPaintStyle,
