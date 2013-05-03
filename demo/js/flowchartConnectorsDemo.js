@@ -35,6 +35,7 @@
 				lineWidth:4,
 				strokeStyle:"#2e2aF8"
 			},
+			endpointHoverStyle = {fillStyle:"#2e2aF8"},
 			// the definition of source endpoints (the small blue ones)
 			sourceEndpoint = {
 				endpoint:"Dot",
@@ -42,7 +43,7 @@
 				isSource:true,
 				connector:[ "Flowchart", { stub:[40, 60], gap:10, cornerRadius:5 } ],								                
 				connectorStyle:connectorPaintStyle,
-				hoverPaintStyle:connectorHoverStyle,
+				hoverPaintStyle:endpointHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
                 dragOptions:{},
                 overlays:[
@@ -59,7 +60,7 @@
 			targetEndpoint = {
 				endpoint:"Dot",					
 				paintStyle:{ fillStyle:"#558822",radius:11 },
-				hoverPaintStyle:connectorHoverStyle,
+				hoverPaintStyle:endpointHoverStyle,
 				maxConnections:-1,
 				dropOptions:{ hoverClass:"hover", activeClass:"active" },
 				isTarget:true,			
