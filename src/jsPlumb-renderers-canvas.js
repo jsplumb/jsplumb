@@ -356,19 +356,21 @@
 		};
 		this._paint = function(style) {
 			if (style != null) {			
-				var ctx = self.canvas.getContext('2d'), orientation = anchor.getOrientation(self);
+				var ctx = self.canvas.getContext('2d'), 
+					orientation = params.endpoint.anchor.getOrientation(params.endpoint);
+
 				jsPlumb.extend(ctx, style);							
 	            if (style.gradient) {            	
 	            	var adjustments = calculateAdjustments(style.gradient), 
 	            	yAdjust = orientation[1] == 1 ? adjustments[0] * -1 : adjustments[0],
 	            	xAdjust = orientation[0] == 1 ? adjustments[0] * -1:  adjustments[0],
-	            	g = ctx.createRadialGradient(d[4], d[4], d[4], d[4] + xAdjust, d[4] + yAdjust, adjustments[1]);
+	            	g = ctx.createRadialGradient(self.radius, self.radius, self.radius, self.radius + xAdjust, self.radius + yAdjust, adjustments[1]);
 		            for (var i = 0; i < style.gradient.stops.length; i++)
 		            	g.addColorStop(style.gradient.stops[i][0], style.gradient.stops[i][1]);
 		            ctx.fillStyle = g;
 	            }				
 				ctx.beginPath();    		
-				ctx.arc(d[4], d[4], d[4], 0, Math.PI*2, true);
+				ctx.arc(self.radius, self.radius, self.radius, 0, Math.PI*2, true);
 				ctx.closePath();				
 				if (style.fillStyle || style.gradient) ctx.fill();
 				if (style.strokeStyle) ctx.stroke();
@@ -384,7 +386,9 @@
 		
     	this._paint = function(style) {
 				
-			var ctx = self.canvas.getContext("2d"), orientation = anchor.getOrientation(self);
+			var ctx = self.canvas.getContext("2d"), 
+				orientation = params.endpoint.anchor.getOrientation(params.endpoint);
+
 			jsPlumb.extend(ctx, style);
 			
 			/* canvas gradient */
@@ -500,22 +504,24 @@
     	this.paint = function(params, containerExtents) {
     		var ctx = params.component.ctx, d = params.d;
     		
-			ctx.lineWidth = params.lineWidth;
-			ctx.beginPath();
-			ctx.moveTo(d.hxy.x, d.hxy.y);
-			ctx.lineTo(d.tail[0].x, d.tail[0].y);
-			ctx.lineTo(d.cxy.x, d.cxy.y);
-			ctx.lineTo(d.tail[1].x, d.tail[1].y);
-			ctx.lineTo(d.hxy.x, d.hxy.y);
-			ctx.closePath();						
-						
-			if (params.strokeStyle) {
-				ctx.strokeStyle = params.strokeStyle;
-				ctx.stroke();
-			}
-			if (params.fillStyle) {
-				ctx.fillStyle = params.fillStyle;			
-				ctx.fill();
+    		if (d) {
+				ctx.lineWidth = params.lineWidth;
+				ctx.beginPath();
+				ctx.moveTo(d.hxy.x, d.hxy.y);
+				ctx.lineTo(d.tail[0].x, d.tail[0].y);
+				ctx.lineTo(d.cxy.x, d.cxy.y);
+				ctx.lineTo(d.tail[1].x, d.tail[1].y);
+				ctx.lineTo(d.hxy.x, d.hxy.y);
+				ctx.closePath();						
+							
+				if (params.strokeStyle) {
+					ctx.strokeStyle = params.strokeStyle;
+					ctx.stroke();
+				}
+				if (params.fillStyle) {
+					ctx.fillStyle = params.fillStyle;			
+					ctx.fill();
+				}
 			}
     	};
     }; 
