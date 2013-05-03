@@ -2391,6 +2391,54 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d1", 1, _jsPlumb);assertEndpointCount("d2", 1, _jsPlumb);
 		assertContextSize(2);
 	});
+
+	test(renderMode + ": delete endpoints on detach, makeSource and makeTarget)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		_jsPlumb.makeSource(d1);
+		_jsPlumb.makeTarget(d2);
+		var c = _jsPlumb.connect({
+			source:d1, 
+			target:d2
+		});          
+		assertEndpointCount("d1", 1, _jsPlumb);
+		assertEndpointCount("d2", 1, _jsPlumb);
+		_jsPlumb.detach(c);
+		// both endpoints should have been deleted, as they were both created automatically
+		assertEndpointCount("d1", 0, _jsPlumb);
+		assertEndpointCount("d2", 0, _jsPlumb);
+	});
+
+	test(renderMode + ": delete endpoints on detach, addEndpoint and makeTarget)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var e = _jsPlumb.addEndpoint(d1);
+		_jsPlumb.makeTarget(d2);
+		var c = _jsPlumb.connect({
+			source:e, 
+			target:d2
+		});          
+		assertEndpointCount("d1", 1, _jsPlumb);
+		assertEndpointCount("d2", 1, _jsPlumb);
+		_jsPlumb.detach(c);
+		// only target endpoint should have been deleted, as the other was not added automatically
+		assertEndpointCount("d1", 1, _jsPlumb);
+		assertEndpointCount("d2", 0, _jsPlumb);
+	});
+
+	test(renderMode + ": delete endpoints on detach, makeSource and addEndpoint)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");		
+		_jsPlumb.makeSource(d1);
+		var e = _jsPlumb.addEndpoint(d2);
+		var c = _jsPlumb.connect({
+			source:d1, 
+			target:e
+		});          
+		assertEndpointCount("d1", 1, _jsPlumb);
+		assertEndpointCount("d2", 1, _jsPlumb);
+		_jsPlumb.detach(c);
+		// only source endpoint should have been deleted, as the other was not added automatically
+		assertEndpointCount("d1", 0, _jsPlumb);
+		assertEndpointCount("d2", 1, _jsPlumb);
+	});
 	
 	test(renderMode + ": _jsPlumb.connect (connect by element, supplied endpoint and dynamic anchors)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
@@ -4423,8 +4471,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			
 		c.setType("basic");
 		equal(c.getOverlays().length, 1, "one overlay");
-	});
-	
+	});	
+
 	test(renderMode + " set connection type on existing connection, overlays should be removed with second type", function() {
 		var basicType = {
 			connector:"Flowchart",
@@ -5494,16 +5542,20 @@ var testSuite = function(renderMode, _jsPlumb) {
     });   
     
     test(renderMode + " addClass method of Connection", function() {
-        _addDiv("d1"); _addDiv("d2");
-        var c = _jsPlumb.connect({source:"d1", target:"d2"});
-        c.addClass("foo");
-        ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
-        ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'bar'");        
-        c.addClass("bar", true);
-        ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint has class 'bar'");        
-        c.removeClass("bar", true);
-        ok(c.canvas.className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");                
-        ok(!$(c.endpoints[0].canvas).hasClass("bar"), "endpoint doesnt have class 'bar'");  
+    	if (!_jsPlumb.getRenderMode() == jsPlumb.CANVAS) {
+	        _addDiv("d1"); _addDiv("d2");
+	        var c = _jsPlumb.connect({source:"d1", target:"d2"});
+	        c.addClass("foo");
+	        ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
+	        ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'bar'");        
+	        c.addClass("bar", true);
+	        ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint has class 'bar'");        
+	        c.removeClass("bar", true);
+	        ok(c.canvas.className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");                
+	        ok(!$(c.endpoints[0].canvas).hasClass("bar"), "endpoint doesnt have class 'bar'");  
+	    }
+	    else
+	    	expect(0);
     });
     
     test(renderMode + " addClass via jsPlumb.select", function() {
@@ -5519,16 +5571,24 @@ var testSuite = function(renderMode, _jsPlumb) {
     
 // ******************* override pointer events ********************
     test(renderMode + "pointer-events, jsPlumb.connect", function() {
-        _addDiv("d1");_addDiv("d2");
-        var c = _jsPlumb.connect({source:"d1",target:"d2", "pointer-events":"BANANA"});
-        equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+    	if (_jsPlumb.getRenderMode() == jsPlumb.SVG) {
+	        _addDiv("d1");_addDiv("d2");
+	        var c = _jsPlumb.connect({source:"d1",target:"d2", "pointer-events":"BANANA"});
+	        equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+	    }
+	    else
+	    	expect(0);
     });
     
     test(renderMode + "connector-pointer-events, jsPlumb.addEndpoint", function() {
-        _addDiv("d1");_addDiv("d2");
-        var e1 = _jsPlumb.addEndpoint("d1", { "connector-pointer-events":"BANANA" });
-        var c = _jsPlumb.connect({source:e1,target:"d2"});
-        equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+    	if (_jsPlumb.getRenderMode() == jsPlumb.SVG) {
+	        _addDiv("d1");_addDiv("d2");
+	        var e1 = _jsPlumb.addEndpoint("d1", { "connector-pointer-events":"BANANA" });
+	        var c = _jsPlumb.connect({source:e1,target:"d2"});
+	        equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+	     }
+	     else
+	       	expect(0);
     });   
 
 // ******************** flowchart get segments ***************
