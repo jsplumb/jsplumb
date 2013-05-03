@@ -169,8 +169,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 		_jsPlumb.connect({source:e1, target:e3});
 		
-		jsPlumb.remove("in1");
-		_jsPlumb.removeAllEndpoints("in1");
+		_jsPlumb.remove("in1");		
 		try {
 			_jsPlumb.recalculateOffsets(container);
 			_jsPlumb.repaint(container);			
