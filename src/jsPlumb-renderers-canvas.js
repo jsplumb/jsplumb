@@ -174,12 +174,13 @@
 			ctx.strokeStyle = g;
 		}
 	};
-	var segmentRenderer = function(segment, ctx, style) {	
+	var segmentRenderer = function(segment, ctx, style, dx, dy) {	
 		({
-			"Straight":function(segment, ctx, style) {
+			"Straight":function(segment, ctx, style, dx, dy) {
 				var d = segment.params;
 				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x1, d.y1, d.x2, d.y2); });
 				ctx.beginPath();
+				ctx.translate(dx/2, dy/2);
 				if (style.dashstyle && style.dashstyle.split(" ").length === 2) {			
 					// only a very simple dashed style is supported - having two values, which define the stroke length 
 					// (as a multiple of the stroke width) and then the space length (also as a multiple of stroke width). 
@@ -205,7 +206,7 @@
 					//
 					// it also strikes me that it should be trivial to support arbitrary dash styles (having more or less than two
 					// entries). you'd just iterate that array using a step size of 2, and generify the (rss[0] + rss[1])
-					// computation to be sum(rss[0]..rss[n]).
+					// computation to be sum(rss[0]..rss[n]).					
 
 					for (var i = 0; i < repeats; i++) {
 						ctx.moveTo(curPos[0], curPos[1]);
@@ -231,25 +232,27 @@
 
 				ctx.stroke();
 			},
-			"Bezier":function(segment, ctx, style) {
+			"Bezier":function(segment, ctx, style, dx, dy) {				
 				var d = segment.params;
-				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x2, d.y2, d.x1, d.y1); });
+				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x2 + dx, d.y2 + dy, d.x1 + dx, d.y1 + dy); });
 				ctx.beginPath();
+				ctx.translate(dx, dy);
 				ctx.moveTo(d.x1, d.y1);
 				ctx.bezierCurveTo(d.cp1x, d.cp1y, d.cp2x, d.cp2y, d.x2, d.y2);
 				ctx.stroke();
 			},
-			"Arc":function(segment, ctx, style) {
+			"Arc":function(segment, ctx, style, dx, dy) {
 				var d = segment.params;
 				ctx.beginPath();
 				// arcTo is supported in most browsers i think; this is what we will use once the arc segment is a little more clever.
 				// right now its up to the connector to figure out the geometry. well, maybe that's ok.
 				//ctx.moveTo(d.x1, d.y1);
 				//ctx.arcTo((d.x1 + d.x2) / 2, (d.y1 + d.y2) / 2, d.r);
+				ctx.translate(dx, dy);
 				ctx.arc(d.cx, d.cy, d.r, d.startAngle, d.endAngle, d.c);
 				ctx.stroke();
 			}
-		})[segment.type](segment, ctx, style);	
+		})[segment.type](segment, ctx, style, dx, dy);	
 	};
 	
 	/**
@@ -260,13 +263,13 @@
 		var self = this;
 		CanvasComponent.apply(this, arguments);
 		
-		var _paintOneStyle = function(aStyle) {
+		var _paintOneStyle = function(aStyle, dx, dy) {
 			self.ctx.save();
 			jsPlumb.extend(self.ctx, aStyle);
 
 			var segments = self.getSegments();				
 			for (var i = 0; i < segments.length; i++) {
-				segmentRenderer(segments[i], self.ctx, aStyle);
+				segmentRenderer(segments[i], self.ctx, aStyle, dx, dy);
 			}
 			self.ctx.restore();
 		};
@@ -276,17 +279,36 @@
 		self.canvas = _newCanvas({ 
 			"class":clazz, 
 			_jsPlumb:self._jsPlumb,
-			parent:params.parent,
-			tooltip:params.tooltip
+			parent:params.parent
 		});	
 		self.ctx = self.canvas.getContext("2d");
 		
 		self.appendDisplayElement(self.canvas);
 		
-		//self.paint = function(dim, style) {						
 		self.paint = function(style, anchor, extents) {						
-			if (style != null) {																				
-				jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);				
+			if (style != null) {							
+
+				var xy = [ self.x, self.y ], wh = [ self.w, self.h ], p,
+					dx = 0, dy = 0;
+
+				if (extents != null) {
+					if (extents.xmin < 0) {
+						xy[0] += extents.xmin;
+						dx = -extents.xmin;
+					}
+					if (extents.ymin < 0) {
+						xy[1] += extents.ymin;
+						dy = -extents.ymin;
+					}
+					wh[0] = extents.xmax + ((extents.xmin < 0) ? -extents.xmin : 0);
+					wh[1] = extents.ymax + ((extents.ymin < 0) ? -extents.ymin : 0);
+				}
+
+				self.translateX = dx;
+				self.translateY = dy;
+				
+				jsPlumb.sizeCanvas(self.canvas, xy[0], xy[1], wh[0], wh[1]);				
+				
 				if (style.outlineColor != null) {
 					var outlineWidth = style.outlineWidth || 1,
 					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
@@ -294,9 +316,9 @@
 						strokeStyle:style.outlineColor,
 						lineWidth:outlineStrokeWidth
 					};
-					_paintOneStyle(outlineStyle);
+					_paintOneStyle(outlineStyle, dx, dy);
 				}
-				_paintOneStyle(style);
+				_paintOneStyle(style, dx, dy);
 			}
 		};				
 	};		
@@ -419,23 +441,22 @@
 		CanvasEndpoint.apply(this, arguments);			
 		
     	this._paint = function(style)
-		{    		
-			var width = d[2], height = d[3], x = d[0], y = d[1],			
-			ctx = self.canvas.getContext('2d'),
-			offsetX = 0, offsetY = 0, angle = 0,
-			orientation = anchor.getOrientation(self);
+		{    					
+			var ctx = self.canvas.getContext('2d'),
+				offsetX = 0, offsetY = 0, angle = 0,
+				orientation = params.endpoint.anchor.getOrientation(params.endpoint);
 			
 			if( orientation[0] == 1 ) {
-				offsetX = width;
-				offsetY = height;
+				offsetX = self.width;
+				offsetY = self.height;
 				angle = 180;
 			}
 			if( orientation[1] == -1 ) {
-				offsetX = width;
+				offsetX = self.width;
 				angle = 90;
 			}
 			if( orientation[1] == 1 ) {
-				offsetY = height;
+				offsetY = self.height;
 				angle = -90;
 			}
 			
@@ -446,8 +467,8 @@
 
 			ctx.beginPath();
 			ctx.moveTo(0, 0);
-			ctx.lineTo(width/2, height/2);
-			ctx.lineTo(0, height);
+			ctx.lineTo(self.width/2, self.height/2);
+			ctx.lineTo(0, self.height);
 			ctx.closePath();
 			if (style.fillStyle || style.gradient) ctx.fill();
 			if (style.strokeStyle) ctx.stroke();				
@@ -500,13 +521,13 @@
     var AbstractCanvasArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
     	CanvasOverlay.apply(this, originalArgs);
-    	//this.paint = function(connector, d, lineWidth, strokeStyle, fillStyle) {
     	this.paint = function(params, containerExtents) {
     		var ctx = params.component.ctx, d = params.d;
     		
     		if (d) {
 				ctx.lineWidth = params.lineWidth;
 				ctx.beginPath();
+				ctx.translate(params.component.translateX, params.component.translateY);
 				ctx.moveTo(d.hxy.x, d.hxy.y);
 				ctx.lineTo(d.tail[0].x, d.tail[0].y);
 				ctx.lineTo(d.cxy.x, d.cxy.y);
