@@ -797,7 +797,10 @@ between this method and jsPlumb.reset).
 
  		/*
  		* Function: removeAllEndpoints(el, [recurse]) 
- 		* Removes all Endpoints associated with a given element. Also removes all Connections associated with each Endpoint it removes.
+ 		* Removes all Endpoints associated with a given element. 
+    * Also removes all Connections associated with each Endpoint it removes. jsPlumb expects
+    * that the element referenced here exists in the DOM. If it does not, or you are uncertain
+    * whether it will exist or not, use jsPlumb.remove.
  		* 
  		* Parameters: 
  		*	el - either an element id, or a selector for an element.
@@ -813,7 +816,7 @@ between this method and jsPlumb.reset).
  		/*
  		* Function: remove(el)
  		* Removes the given element from the DOM, along with all Endpoints associated with it,
- 		* and their connections.  This is present in jsPlumb since version 1.4.0.
+ 		* and their connections.  This is present in jsPlumb since version 1.4.0. 
  		*
  		* Parameters:
  		*  el - either an element id, a DOM element, or a selector for the element.

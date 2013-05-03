@@ -173,7 +173,7 @@
 			if (!_initialised) {
 				$$(".hide").each(function(h) {
 					h.addEvent('click', function() {
-						jsPlumb.toggle(h.get("rel"));
+						jsPlumb.toggleVisible(h.get("rel"));
 					});
 				});
 				

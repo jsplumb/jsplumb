@@ -160,7 +160,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d2", 1, _jsPlumb);
 	});
 
-	test(renderMode + ' jsPlumb.remove', function() {
+	test(renderMode + ' jsPlumb.removeAllEndpoints after element removed from DOM', function() {
 		var container = $('<div id="container"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>');
 		$("body").append(container);
 		var e1 = _jsPlumb.addEndpoint("in1", { isSource: false, isTarget: true, anchor: [ 1, 0.4, 1, 0 ] }),
@@ -168,16 +168,34 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e3 = _jsPlumb.addEndpoint("output", { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] });
 
 		_jsPlumb.connect({source:e1, target:e3});
-		
+					
+		$("#in1").remove();
 		_jsPlumb.remove("in1");		
-		try {
-			_jsPlumb.recalculateOffsets(container);
-			_jsPlumb.repaint(container);			
-		}
-		catch (e) {
-			equal(1, 0, "failed to repaint container");
-		}
-		expect(0);
+
+		_jsPlumb.recalculateOffsets(container);
+		_jsPlumb.repaint(container);			
+		
+		equal(_jsPlumb.selectEndpoints({element:"in1"}).length, 0, "no endpoints registered for in1");
+	});
+
+	test(renderMode + ' jsPlumb.remove after element removed from DOM', function() {
+		var container = $('<div id="container2"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>');
+		$("body").append(container);
+		var e1 = _jsPlumb.addEndpoint("in1", { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
+			e2 = _jsPlumb.addEndpoint("in2", { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
+			e3 = _jsPlumb.addEndpoint("output", { isSource:true, isTarget:false, anchor: [ 1, 0.4, 1, 0 ] } );
+
+		_jsPlumb.connect({source:e3, target:e1});
+		
+		// the element gets removed out of jsplumb's control
+		$("#output").remove();
+		
+		// but you can tell jsPlumb about it after the fact
+		_jsPlumb.remove("output");		
+		_jsPlumb.recalculateOffsets(container);
+		_jsPlumb.repaint(container);			
+
+		equal(_jsPlumb.selectEndpoints({element:"output"}).length, 0, "no endpoints registered for in1");		
 	});
 	
 	test(renderMode + ': draggable silently ignored when jquery ui not present', function() {

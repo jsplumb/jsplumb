@@ -173,7 +173,7 @@
 			if (!_initialised) {
 				Y.all(".hide").each(function(h) {
 					h.on('click', function() {
-						jsPlumb.toggle(h.get("rel"));
+						jsPlumb.toggleVisible(h.get("rel"));
 					});
 				});
 				

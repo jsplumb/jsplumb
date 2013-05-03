@@ -171,7 +171,7 @@
 			//			
 			if (!_initialised) {
 				$(".hide").click(function() {
-					jsPlumb.toggle($(this).attr("rel"));
+					jsPlumb.toggleVisible($(this).attr("rel"));
 				});
 	
 				$(".drag").click(function() {

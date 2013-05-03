@@ -2625,10 +2625,13 @@
 			return _currentInstance;
 		};
                     
-        this.remove = function(el, doNotFireEvent) {
-            el = _gel(el);
-            _currentInstance.removeAllEndpoints(el, true);
-            jsPlumb.CurrentLibrary.removeElement(el);
+        this.remove = function(el) {
+            var _el = _gel(el);
+            var id = jsPlumbUtil.isString(el) ? el : _getId(_el);
+            _currentInstance.doWhileSuspended(function() {
+            	_currentInstance.removeAllEndpoints(id, true);
+            });
+            jsPlumb.CurrentLibrary.removeElement(_el);
         };
 
 		var _registeredListeners = {},
