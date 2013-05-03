@@ -137,7 +137,7 @@ a:hover {
 .window, .label { 
     background-color:white;
     text-align:center;
-    z-index:23;
+    z-index:24;
 	cursor:pointer;
 	box-shadow: 2px 2px 19px #aaa;
    -o-box-shadow: 2px 2px 19px #aaa;
@@ -147,11 +147,23 @@ a:hover {
 }
 path, ._jsPlumb_endpoint { cursor:pointer; }
 
-/* z index stuff */
+/* z index stuff. windows are at z-index 24. */
 
 ._jsPlumb_connector { z-index:18; }
 ._jsPlumb_endpoint { z-index:19; }
-._jsPlumb_overlay { z-index:23; }
+._jsPlumb_overlay { z-index:20; }
+
+._jsPlumb_connector._jsPlumb_hover {
+    z-index:21 !important;
+}
+
+._jsPlumb_endpoint._jsPlumb_hover {
+    z-index:22 !important;
+}
+
+._jsPlumb_overlay._jsPlumb_hover {
+    z-index:23 !important;
+}
 
 /* A TEST 
 ._jsPlumb_element_dragging path {    
@@ -174,11 +186,3 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
     fill:red;
 }
 */
-
-._jsPlumb_connector._jsPlumb_hover {
-    z-index:21 !important;
-}
-
-._jsPlumb_endpoint._jsPlumb_hover {
-    z-index:22 !important;
-}
