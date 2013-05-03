@@ -219,8 +219,8 @@
         };
 		this.connectionDetached = function(connInfo) {
             var connection = connInfo.connection || connInfo,
-			    sourceId = connection.sourceId,
-                targetId = connection.targetId,
+			    sourceId = connInfo.sourceId,
+                targetId = connInfo.targetId,
 				ep = connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if (otherAnchor.constructor == jsPlumb.FloatingAnchor) {
@@ -337,7 +337,6 @@
 									
 				// valid for one paint cycle.
 				var myOffset = jsPlumbInstance.updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }),
-	                myWH = jsPlumbInstance.getSize(elementId),
 	                orientationCache = {};
 				
 				// actually, first we should compute the orientation of this element to all other elements to which
@@ -421,7 +420,7 @@
 	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
 	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
 				for (var i = 0; i < ep.length; i++) {				
-                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s });
 				}
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (var i = 0; i < endpointsToPaint.length; i++) {
