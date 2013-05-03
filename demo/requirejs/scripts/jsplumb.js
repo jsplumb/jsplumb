@@ -1535,8 +1535,8 @@
 			
 			// at this point, if we have source or target Endpoints, they were not new and we should mark the
 			// flag to reflect that.  this is for use later with the deleteEndpointsOnDetach flag.
-			if (_p.sourceEndpoint) _p.sourceIsNew = false;
-			if (_p.targetEndpoint) _p.targetIsNew = false;
+			if (_p.sourceEndpoint && !_p.sourceEndpoint.addedViaMouse) _p.sourceIsNew = false;
+			if (_p.targetEndpoint && !_p.targetEndpoint.addedViaMouse) _p.targetIsNew = false;
 			
 			// if source endpoint mandates connection type and nothing specified in our params, use it.
 			if (!_p.type && _p.sourceEndpoint)
@@ -3043,6 +3043,7 @@
 						// to move the endpoint.
 						ep.endpointWillMoveAfterConnection = p.parent != null;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
+						ep.addedViaMouse = true;
 
 	                    var _delTempEndpoint = function() {
 							// this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
@@ -3777,8 +3778,8 @@
         };
 		this.connectionDetached = function(connInfo) {
             var connection = connInfo.connection || connInfo,
-			    sourceId = connection.sourceId,
-                targetId = connection.targetId,
+			    sourceId = connInfo.sourceId,
+                targetId = connInfo.targetId,
 				ep = connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if (otherAnchor.constructor == jsPlumb.FloatingAnchor) {
@@ -3895,7 +3896,7 @@
 									
 				// valid for one paint cycle.
 				var myOffset = jsPlumbInstance.updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }),
-	                myWH = jsPlumbInstance.getSize(elementId),
+	                //myWH = jsPlumbInstance.getSize(elementId),
 	                orientationCache = {};
 				
 				// actually, first we should compute the orientation of this element to all other elements to which
@@ -3979,7 +3980,7 @@
 	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
 	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
 				for (var i = 0; i < ep.length; i++) {				
-                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
+                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s });
 				}
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (var i = 0; i < endpointsToPaint.length; i++) {
@@ -5397,6 +5398,10 @@
                                             connection : jpc
                                         }, true, originalEvent);
                                     }
+
+                                    // mark endpoints to delete on detach
+                                    if (jpc.endpoints[0].addedViaMouse) jpc.endpointsToDeleteOnDetach[0] = jpc.endpoints[0];
+                                    if (jpc.endpoints[1].addedViaMouse) jpc.endpointsToDeleteOnDetach[1] = jpc.endpoints[1];
 
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
