@@ -1801,7 +1801,7 @@
 					for (var i = 0, ii = list.length; i < ii; i++)
 						list[i].detachAll();
 				},
-				"delete":function() {
+				"remove":function() {
 					for (var i = 0, ii = list.length; i < ii; i++)
 						_currentInstance.deleteEndpoint(list[i]);
 				}

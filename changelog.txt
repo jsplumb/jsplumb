@@ -12,6 +12,7 @@
         - Connection does not expose 'canvas' anymore. Use Connection.getConnector().canvas
         - support for tooltip has been removed. 
         - 'toggle' method on jsPlumb removed. use 'toggleVisible'
+        - 'delete' method on jsPlumb.selectEndpoints(..) return type renamed to 'remove' (IE parsing issue)
 
 		NEW FUNCTIONALITY
 		        

@@ -4341,7 +4341,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e1 = _jsPlumb.addEndpoint(d1, {isSource:true, isTarget:true});
 		
 		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 1, "there is one endpoint on d1");	
-		_jsPlumb.selectEndpoints({source:"d1"}).delete();
+		_jsPlumb.selectEndpoints({source:"d1"}).remove();
 		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 0, "there are zero endpoints on d1");						
 	});
 	
