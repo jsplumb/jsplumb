@@ -106,9 +106,12 @@
                             ac:ac
                         });	                                            
                     }
-                    else {
+                    else {                 
+                        // dx + dy are used to adjust for line width.
+                        var dx = (current[2] == current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
+                            dy = (current[3] == current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
                         _super.addSegment("Straight", {
-                            x1:current[0], y1:current[1], x2:current[2], y2:current[3]
+                            x1:current[0]- dx, y1:current[1]-dy, x2:current[2] + dx, y2:current[3] + dy
                         });
                     }                    
                     current = next;

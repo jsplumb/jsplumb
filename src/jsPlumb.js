@@ -2752,7 +2752,21 @@
 			return _suspendDrawing;
 		};
             
+        // return timestamp for when drawing was suspended.
         this.getSuspendedAt = function() { return _suspendedAt; };
+
+        // suspends drawing, runs the given function, then re-enables drawing (and repaints,
+        // unless you tell it not to)
+        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {
+			_currentInstance.setSuspendDrawing(true);
+			try {
+				fn();
+			}
+			catch (e) {
+				_log("Function run while suspended failed", e);
+			}
+			_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
+        };
             
         this.updateOffset = _updateOffset;
         this.getOffset = function(elId) { return offsets[elId]; };

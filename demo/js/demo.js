@@ -157,7 +157,6 @@
 					dashstyle:"4 2",
 					joinstyle:"miter"
 				},
-				tooltip:"This connection will appear dashed when using SVG or VML.  This effect is achieved through CSS - see the accompanying stylesheet for this demo",
 				hoverPaintStyle:hoverPaintStyle, 
 				endpoint:["Image", {url:"../img/endpointTest1.png"}], 
 				connector:"Straight", 

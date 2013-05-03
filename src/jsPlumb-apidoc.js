@@ -897,6 +897,12 @@ between this method and jsPlumb.reset).
  */ 
 
  /*
+ * Function: doWhileSuspended(fn, [doNotRepaintAfterwards])
+ * Suspends drawing, runs the given function, then re-enables drawing (and repaints, unless
+ * you set 'doNotRepaintAfterwards' to true)
+ */ 
+
+ /*
   * Function: show(el, [changeEndpoints])
   * Sets an element's connections to be visible.
   * 
