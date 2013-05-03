@@ -215,6 +215,16 @@
 			</fileset>
 		</copy>			
 	</target>
+
+	<!-- copies the font directory to build -->
+	<target name="copy-font">
+		<mkdir dir="${output.dir}/font"/>
+		<copy todir="${output.dir}/font">
+			<fileset dir="demo/font">
+				<include name="*.*"/>
+			</fileset>
+		</copy>			
+	</target>
 	
 	<target name="doc-version" unless="final.version">
 		<fail message="You must supply the final version to build api docs from"/>
@@ -279,6 +289,7 @@
 		<antcall target="demo"/>		
 		<antcall target="copy-tests"/>
 		<antcall target="copy-lib"/>
+		<antcall target="copy-font"/>
 	</target>
 
 	<!-- builds a version of jsplumb and generates apidocs -->
