@@ -869,6 +869,10 @@
                                         }, true, originalEvent);
                                     }
 
+                                    // mark endpoints to delete on detach
+                                    if (jpc.endpoints[0].addedViaMouse) jpc.endpointsToDeleteOnDetach[0] = jpc.endpoints[0];
+                                    if (jpc.endpoints[1].addedViaMouse) jpc.endpointsToDeleteOnDetach[1] = jpc.endpoints[1];
+
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
                                     _finaliseConnection(jpc, null, originalEvent);
