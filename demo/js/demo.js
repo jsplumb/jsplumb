@@ -128,7 +128,7 @@
 	        var connection4 = jsPlumb.connect({  
 				source:'window5', 
 				target:'window6', 
-				connector:"Flowchart",
+				connector:[ "Flowchart", { cornerRadius:10 } ],
 				anchors:["Center", "Center"],  
 				paintStyle:{ 
 					lineWidth:9, 
