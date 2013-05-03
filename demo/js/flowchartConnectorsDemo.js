@@ -40,7 +40,7 @@
 				endpoint:"Dot",
 				paintStyle:{ fillStyle:"#225588",radius:7 },
 				isSource:true,
-				connector:[ "Flowchart", { stub:[40, 60], gap:10 } ],								                
+				connector:[ "Flowchart", { stub:[40, 60], gap:10, cornerRadius:5 } ],								                
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
