@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.4.0 - State Machine Demonstration - MooTools</title>
+		<link rel="stylesheet" href="../css/demo-all.css">
+		<link rel="stylesheet" href="../css/stateMachineDemo.css">
+	</head>
+	<body data-demo-id="stateMachineDemo" data-library="mootools">
+		
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="menu">   
+					<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;     			
+					<a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
+					<a href="../../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
+					<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Discussion Group</a>&nbsp;|&nbsp;
+					<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
+				</div>
+			</div>
+		</div>        
+        <div id="main">
+			<div id="render"></div>
+			<div class="w" id="opened">begin<div class="ep"></div></div>
+			<div class="w" id="phone1">phone interview 1<div class="ep"></div></div>
+			<div class="w" id="phone2">phone interview 2<div class="ep"></div></div>
+			<div class="w" id="inperson">in person<div class="ep"></div></div>
+			<div class="w" id="rejected">rejected<div class="ep"></div></div>			
+		</div>
+		<div id="sidebar">
+			<div id="explanation">
+				<p>This is a demonstration of the StateMachine connector type, and of 'Continuous' anchors, which are anchors whose location is calculated based
+				on the location of all other connected elements, and which guarantee a unique endpoint per connection.
+				</p>								
+				<p>Click and drag new Connections from the red div in each element; the main elements in the UI are configured to be Connection targets. You can
+				drag from one of these divs onto its parent element to create a 'loopback' connection. Each element supports up to 5 Connections.</p>
+				<p>Click on a Connection to delete it.</p>				
+	
+				<p>This demonstration uses jsPlumb 1.4.0, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
+			</div>	    			
+		</div>
+
+		<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>
+		<script type="text/javascript" src="../../lib/mootools-1.3.2.1-more.js"></script>				
+		
+		<script type='text/javascript' src='../js/mootools.jsPlumb-1.4.0-all-min.js'></script>
+
+		<!--  demo code -->		
+        <script type="text/javascript" src="../js/stateMachineDemo-mootools.js"></script>
+
+		<!-- demo helper - generates the mode/library/demo selector bar and executes the demo on load. -->
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-mootools.js"></script>
+	</body>
+</html>

@@ -1535,8 +1535,8 @@
 			
 			// at this point, if we have source or target Endpoints, they were not new and we should mark the
 			// flag to reflect that.  this is for use later with the deleteEndpointsOnDetach flag.
-			if (_p.sourceEndpoint && !_p.sourceEndpoint.addedViaMouse) _p.sourceIsNew = false;
-			if (_p.targetEndpoint && !_p.targetEndpoint.addedViaMouse) _p.targetIsNew = false;
+			if (_p.sourceEndpoint) _p.sourceIsNew = false;
+			if (_p.targetEndpoint) _p.targetIsNew = false;
 			
 			// if source endpoint mandates connection type and nothing specified in our params, use it.
 			if (!_p.type && _p.sourceEndpoint)
@@ -2428,7 +2428,7 @@
 					for (var i = 0, ii = list.length; i < ii; i++)
 						list[i].detachAll();
 				},
-				"remove":function() {
+				"delete":function() {
 					for (var i = 0, ii = list.length; i < ii; i++)
 						_currentInstance.deleteEndpoint(list[i]);
 				}
@@ -2579,7 +2579,7 @@
 				if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
 				if (!_currentInstance.Defaults.DoNotThrowErrors)
 					throw { msg:"jsPlumb: unknown anchor type '" + t + "'" };
-			};
+			}
 			if (arguments.length == 0) return null;
 			var specimen = arguments[0], elementId = arguments[1], jsPlumbInstance = arguments[2], newAnchor = null;			
 			// if it appears to be an anchor already...
@@ -3043,7 +3043,6 @@
 						// to move the endpoint.
 						ep.endpointWillMoveAfterConnection = p.parent != null;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
-						ep.addedViaMouse = true;
 
 	                    var _delTempEndpoint = function() {
 							// this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
@@ -3379,21 +3378,7 @@
 			return _suspendDrawing;
 		};
             
-        // return timestamp for when drawing was suspended.
         this.getSuspendedAt = function() { return _suspendedAt; };
-
-        // suspends drawing, runs the given function, then re-enables drawing (and repaints,
-        // unless you tell it not to)
-        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {
-			_currentInstance.setSuspendDrawing(true);
-			try {
-				fn();
-			}
-			catch (e) {
-				_log("Function run while suspended failed", e);
-			}
-			_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
-        };
             
         this.updateOffset = _updateOffset;
         this.getOffset = function(elId) { return offsets[elId]; };
@@ -3409,13 +3394,8 @@
 		  * Property: VML
 		  * Constant for use with the setRenderMode method
 		  */
-		/*
-		 * Property: CANVAS
-		 * Constant for use with the setRenderMode method
-		 */
 		this.SVG = "svg";
 		
-		this.CANVAS = "canvas";
 		
 		this.VML = "vml";
 		
@@ -3797,8 +3777,8 @@
         };
 		this.connectionDetached = function(connInfo) {
             var connection = connInfo.connection || connInfo,
-			    sourceId = connInfo.sourceId,
-                targetId = connInfo.targetId,
+			    sourceId = connection.sourceId,
+                targetId = connection.targetId,
 				ep = connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if (otherAnchor.constructor == jsPlumb.FloatingAnchor) {
@@ -3915,6 +3895,7 @@
 									
 				// valid for one paint cycle.
 				var myOffset = jsPlumbInstance.updateOffset( { elId : elementId, offset : ui, recalc : false, timestamp : timestamp }),
+	                myWH = jsPlumbInstance.getSize(elementId),
 	                orientationCache = {};
 				
 				// actually, first we should compute the orientation of this element to all other elements to which
@@ -3998,7 +3979,7 @@
 	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
 	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
 				for (var i = 0; i < ep.length; i++) {				
-                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s });
+                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myWH });
 				}
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (var i = 0; i < endpointsToPaint.length; i++) {
@@ -4727,14 +4708,6 @@
 
         var _endpoint = null, originalEndpoint = null;
         this.setEndpoint = function(ep) {
-
-            var _e = function(t, p) {
-                var rm = _jsPlumb.getRenderMode();
-                if (jsPlumb.Endpoints[rm][t]) return new jsPlumb.Endpoints[rm][t](p);
-                if (!_jsPlumb.Defaults.DoNotThrowErrors)
-                    throw { msg:"jsPlumb: unknown endpoint type '" + t + "'" };
-            };            
-
             var endpointArgs = {
                 _jsPlumb:self._jsPlumb,
                 cssClass:params.cssClass,
@@ -4745,10 +4718,10 @@
                 endpoint:self
             };
             if (_ju.isString(ep)) 
-                _endpoint = _e(ep, endpointArgs);
+                _endpoint = new jsPlumb.Endpoints[_jsPlumb.getRenderMode()][ep](endpointArgs);
             else if (_ju.isArray(ep)) {
                 endpointArgs = _ju.merge(ep[1], endpointArgs);
-                _endpoint = _e(ep[0], endpointArgs);
+                _endpoint = new jsPlumb.Endpoints[_jsPlumb.getRenderMode()][ep[0]](endpointArgs);
             }
             else {
                 _endpoint = ep.clone();
@@ -4865,8 +4838,7 @@
                                 }
                             }
                         }
-                        if (connection.getConnector() != null)
-                            _ju.removeElements(connection.getConnector().getDisplayElements(), connection.parent);
+                        _ju.removeElements(connection.getConnector().getDisplayElements(), connection.parent);
                         _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
                             return c.id == connection.id;
                         });
@@ -5417,10 +5389,6 @@
                                         }, true, originalEvent);
                                     }
 
-                                    // mark endpoints to delete on detach
-                                    if (jpc.endpoints[0].addedViaMouse) jpc.endpointsToDeleteOnDetach[0] = jpc.endpoints[0];
-                                    if (jpc.endpoints[1].addedViaMouse) jpc.endpointsToDeleteOnDetach[1] = jpc.endpoints[1];
-
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
                                     _finaliseConnection(jpc, null, originalEvent);
@@ -5651,9 +5619,6 @@
 
         var makeConnector = function(renderMode, connectorName, connectorArgs) {
             var c = new Object();
-            if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[connectorName] == null)
-                    throw { msg:"jsPlumb: unknown connector type '" + connectorName + "'" };
-
             jsPlumb.Connectors[connectorName].apply(c, [connectorArgs]);
             jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);	
             return c;
@@ -7790,7 +7755,7 @@
             grid = params.grid,
             userSuppliedSegments = null,
             lastx = null, lasty = null, lastOrientation,	
-            cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,	
+            cornerRadius = params.cornerRadius != null ? params.cornerRadius : 10,	
             sgn = function(n) { return n < 0 ? -1 : n == 0 ? 0 : 1; },            
             /**
              * helper method to add a segment.
@@ -7857,12 +7822,9 @@
                             ac:ac
                         });	                                            
                     }
-                    else {                 
-                        // dx + dy are used to adjust for line width.
-                        var dx = (current[2] == current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
-                            dy = (current[3] == current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
+                    else {
                         _super.addSegment("Straight", {
-                            x1:current[0]- dx, y1:current[1]-dy, x2:current[2] + dx, y2:current[3] + dy
+                            x1:current[0], y1:current[1], x2:current[2], y2:current[3]
                         });
                     }                    
                     current = next;

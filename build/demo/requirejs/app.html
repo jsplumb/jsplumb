@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>jsPlumb + RequireJS</title>
+        <!-- This is a special version of jQuery with RequireJS built-in -->
+        <script data-main="scripts/main" src="scripts/require-jquery.js"></script>        
+        <link rel="stylesheet" href="../css/demo-all.css">
+        <style type="text/css">    
+            body { margin-left:75px;margin-top:50px;}        
+            .win {                
+                width:5em;
+                height:5em;
+                position:absolute;
+                border:2px solid #456;
+                text-align: center;
+                line-height: 5em;
+                border-radius:3px;
+            }
+            #one {
+                left:150px;
+                top:210px;
+            }
+            #two {
+                left:650px;
+                top:450px;
+            }
+            p {
+                color:gray;
+                font-size:12px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="headerWrapper">
+            <div id="header">
+                <div class="menu">     
+                    <a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;              
+                    <a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
+                    <a href="../../tests/qunit-all.html">qUnit tests</a>&nbsp;|&nbsp;
+                    <a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>&nbsp;|&nbsp;
+                    <a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Google Group</a>&nbsp;|&nbsp;
+                    <a href="http://code.google.com/p/jsplumb/issues/list" class="mplink">Issues</a>
+                </div>
+            </div>
+        </div>
+        <h1>jsPlumb + RequireJS</h1>        
+        <p>This is an adaptation of a jQuery+RequireJS sample found <a href="http://requirejs.org/docs/jquery.html" target="_blank">here.</a></p>
+        <p><em>You must run a build before this demo will work: the build copies a built version of jsPlumb into this demo's scripts directory</em></p>
+        <div id="one" class="win">one</div>
+        <div id="two" class="win">two</div>
+    </body>
+</html>

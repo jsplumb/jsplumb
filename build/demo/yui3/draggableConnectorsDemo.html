@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.4.0 - draggable connectors experiments - YUI3</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<link rel="stylesheet" href="../css/demo-all.css">
+		<link rel="stylesheet" href="../css/draggableConnectorsDemo.css">
+	</head>
+	<body data-demo-id="draggableConnectorsDemo" data-library="yui3">
+
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="menu">   
+					<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;     			
+					<a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
+					<a href="../../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
+					<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Discussion Group</a>&nbsp;|&nbsp;
+					<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
+				</div>
+			</div>
+		</div>
+		
+        <div id="main">
+			<div id="render"></div>
+			<div class="window" id="window1">one<br/><br/><a href="#" class="cmdLink hide" rel="window1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window1">detach all</a></div>
+			<div class="window" id="window2">two<br/><br/><a href="#" class="cmdLink hide" rel="window2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window2">detach all</a></div>
+			<div class="window" id="window3">three<br/><br/><a href="#" class="cmdLink hide" rel="window3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window3">detach all</a></div>
+			<div class="window" id="window4">four<br/><br/><a href="#" class="cmdLink hide" rel="window4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="window4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="window4">detach all</a></div>			
+			<div id="list"></div>
+		</div>
+		<div id="sidebar">
+            <div id="explanation">                
+				<p>Drag from any Endpoint to similar Endpoints
+				on other elements to create Connections.</p>
+				<p>Blue endpoints use a <strong>beforeDrop</strong> interceptor.  This enables
+				you to intercept a new connection and decide whether or not you wish to allow it to proceed. They are 
+				also configured to automatically reattach if you drag a connection off and drop it on the background.</p>
+				<p>Yellow endpoints are configured to use a <strong>beforeDetach</strong> interceptor, which provides a way to programmatically override a connection detach. Yellow connections are painted with the Straight connector</p>			
+				<p>Green endpoints support up to three Connections. Once a green endpoint has three connections, when you drag from it you will drag the oldest connection made on the endpoint.</p>
+				<a id="clear" href="#">clear plumbing</a>	   
+				<p>This demo uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
+            </div>			
+        </div>	   
+	    	
+		<script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
+	    
+	    <script type='text/javascript' src='../js/yui.jsPlumb-1.4.0-all-min.js'></script>
+		
+		<!--  demo code -->
+		<!--script type="text/javascript" src="../js/draggableConnectorsDemo.js"></script-->
+		<script type="text/javascript" src="../js/draggableConnectorsDemo-yui3.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-yui3.js"></script>
+		
+	</body>
+</html>

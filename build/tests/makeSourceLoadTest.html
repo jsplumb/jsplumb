@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.4.0 load test harness - jQuery</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<link rel="stylesheet" href="/mp.css">
+		<link rel="stylesheet" href="../css/jsPlumbDemo.css">
+		<link rel="stylesheet" href="../css/demo.css">
+        <style type="text/css">
+            ._jsPlumb_connection { z-index:3; }
+            .jspLoad {
+                z-index:4;
+                position:absolute;
+                width:70px;
+                height:70px;
+                cursor:pointer;
+            }
+
+            #header {
+            	height:11em;
+            	border:2px solid #824563;
+            }
+            #setup {
+            	float:left;
+            }
+            #demo {
+            	margin-top:10em;
+            	position:relative;
+            }
+
+        </style>
+	</head>
+	<body onunload="jsPlumb.unload();">
+	
+
+		<div id="header">
+			<div id="setup">
+				<table>
+					<tr>
+						<td>Options</td>
+						<td>
+							<label><input type="checkbox" checked id="chkMakeSource" checked>makeSource</label>
+							<label><input type="checkbox" checked id="chkMakeTarget">makeTarget</label>
+						</td>
+					</tr>
+					<tr>
+						<td>Number of elements</td>
+						<td><input id="txtElements" value="100"></td>
+					</tr>
+					<tr>
+						<td>Suspend Drawing?</td>
+						<td>
+							<label><input type="radio" name="chkSuspend" value="yes" checked>Yes</label>
+							<label><input type="radio" name="chkSuspend" value="no">No</label>
+						</td>
+					</tr>
+					<tr>
+						<td>setLabel?</td>
+						<td>
+							<label><input value="yes" type="radio" name="chkLabel" checked>yes</label>
+							<label><input value="no" type="radio" name="chkLabel">no</label>
+						</td>
+					</tr>
+				</table>			
+			</div>
+			<button id="btnTest">Run Test</button>
+			<div id="output">
+				<table>
+					<tr>
+						<td>Reset time:</td><td id="resetTime"></td>
+					</tr>
+					<tr>
+						<td>Num Connections:</td><td id="numConnections"></td>
+					</tr>
+					<tr>
+						<td>Total time:</td><td id="totalCreateTime"></td>
+					</tr>
+					<tr>
+						<td>Create time:</td><td id="createTime"></td>
+					</tr>
+					<tr>
+						<td>Average create time:</td><td id="averageCreateTime"></td>
+					</tr>
+					<tr>
+						<td>Repaint time:</td><td id="repaintTime"></td>
+					</tr>
+					<tr>
+						<td>Average Repaint time:</td><td id="averageRepaintTime"></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		
+		<div id="demo"></div>	
+	    
+	    
+	    <script type="text/javascript" src="../js/lib/jquery-1.7.1-min.js"></script>
+		<script type="text/javascript" src="../js/lib/jquery-ui-1.8.13-min.js"></script>
+				
+		<!-- support lib for bezier stuff -->
+		<script src="../js/lib/jsBezier-0.5.js"></script>
+		<!-- jsplumb util-->
+		<script src="../js/1.4.0/jsPlumb-util-1.4.0-RC1.js"></script>
+		<!-- base DOM adapter -->
+		<script src="../js/1.4.0/jsPlumb-dom-adapter-1.4.0-RC1.js"></script>		
+		<!-- main jsplumb engine -->
+		<script src="../js/1.4.0/jsPlumb-1.4.0-RC1.js"></script>
+        <!-- anchors -->
+		<script src="../js/1.4.0/jsPlumb-anchors-1.4.0-RC1.js"></script> 
+        <!-- endpoint -->
+		<script src="../js/1.4.0/jsPlumb-endpoint-1.4.0-RC1.js"></script>  
+        <!-- connection -->
+		<script src="../js/1.4.0/jsPlumb-connection-1.4.0-RC1.js"></script>		
+		<!-- connectors, endpoint and overlays  -->
+		<script src="../js/1.4.0/jsPlumb-defaults-1.4.0-RC1.js"></script>
+		<!-- SVG renderer -->
+		<script src="../js/1.4.0/jsPlumb-renderers-svg-1.4.0-RC1.js"></script>
+		<!-- canvas renderer -->
+		<script src="../js/1.4.0/jsPlumb-renderers-canvas-1.4.0-RC1.js"></script>
+		<!-- vml renderer -->
+		<script src="../js/1.4.0/jsPlumb-renderers-vml-1.4.0-RC1.js"></script>
+		<!-- jquery jsPlumb adapter -->
+		<script src="../js/1.4.0/jquery.jsPlumb-1.4.0-RC1.js"></script>
+		
+		<!--  demo code -->
+		<script src="makeSourceLoadTest.js"></script>
+			
+
+	</body>
+</html>

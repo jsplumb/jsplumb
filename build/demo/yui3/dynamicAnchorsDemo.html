@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.4.0 - Dynamic Anchors Demonstration - YUI3</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<link rel="stylesheet" href="../css/demo-all.css">
+		<link rel="stylesheet" href="../css/dynamicAnchorsDemo.css">
+	</head>
+	<body data-demo-id="dynamicAnchorsDemo" data-library="yui3">
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="menu">   
+					<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;     			
+					<a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
+					<a href="../../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
+					<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Discussion Group</a>&nbsp;|&nbsp;
+					<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
+				</div>
+			</div>
+		</div>            
+        <div id="main">
+			<div id="render"></div>
+			<div class="window" id="window1"><strong>1</strong><br/><br/></div>
+			<div class="window" id="window2"><strong>2</strong><br/><br/></div>
+		    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
+		    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
+		    <div class="window" id="window5"><strong>5</strong><br/><br/></div>
+		    <div class="window" id="window6"><strong>6</strong><br/><br/></div>
+		</div>
+		<div id="sidebar">
+			<div id="explanation">
+				<p>This is a demonstration of anchors that change position dependent on the location of the other element in a connection. Each connection is decorated with a Diamond overlay, located halfway along the connector.</p>
+            <p>You can drag new connections between blue endpoints.</p>
+	    	<p>This demonstration uses jsPlumb 1.4.0, jQuery 1.8.1 and jQuery UI 1.8.23.</p>
+			</div>	    			
+		</div>
+
+	    <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>		
+
+	    <script type='text/javascript' src='../js/yui.jsPlumb-1.4.0-all-min.js'></script>       
+		
+		<!--  demo code -->
+		<script type="text/javascript" src="../js/dynamicAnchorsDemo.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-yui3.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.4.0 - Chart Demonstration - YUI3</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<link rel="stylesheet" href="../css/demo-all.css">
+		<link rel="stylesheet" href="../css/chartDemo.css">
+	</head>
+	<body data-demo-id="chartDemo" data-library="yui3">
+
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="menu">   
+					<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;     			
+					<a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
+					<a href="../../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
+					<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Discussion Group</a>&nbsp;|&nbsp;
+					<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
+				</div>
+			</div>
+		</div>         
+        <div id="main">
+			<div id="render"></div>
+			<div class="window" id="window1">window one</div>
+			<div class="window" id="window2">window two</div>
+			<div class="window" id="window3">window three</div>
+			<div class="window" id="window4">window four</div>
+			<div class="window" id="window5">window five</div>
+			<div class="window" id="window6">window six</div>
+		</div>
+		<div id="sidebar">
+			<div id="explanation">
+				<p>This is a simple demonstration of using jsPlumb to display hierarchical information.</p>
+	    	<p>On this page we set our connectors to gray and specify an endpoint of radius 9.
+	    	Each connection has an Arrow overlay indicating direction, and paints itself orange on mouse hover
+            </p>
+	    	<p>The Bezier curve used on this page has a 'curviness' of 50; See the documentation for examples of how to set the Bezier curviness.</p>
+	    	<p>This demonstration uses jsPlumb 1.4.0 and YUI 3.3.0.</p>
+			</div>	    			
+		</div>
+
+	    <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
+	    
+	   	<script type='text/javascript' src='../js/yui.jsPlumb-1.4.0-all-min.js'></script>
+		
+		<!--  demo code -->
+		<script type="text/javascript" src="../js/chartDemo.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-yui3.js"></script>
+						
+	</body>
+</html>

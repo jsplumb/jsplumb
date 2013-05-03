@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.4.0 load test harness - jQuery</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
+		<link rel="stylesheet" href="../demo/css/demo-all.css">
+		
+        <style type="text/css">
+            ._jsPlumb_connection { z-index:3; }
+            .jspLoad {
+                z-index:4;
+                position:absolute;
+                width:70px;
+                height:70px;
+                cursor:pointer;
+            }
+
+            #header {
+            	height:11em;
+            	border:2px solid #824563;
+            }
+            #setup {
+            	float:left;
+            }
+            #demo {
+            	margin-top:10em;
+            	position:relative;
+            }
+            #setup, #output {
+            	font-size:12px;
+            }
+
+        </style>
+	</head>
+	<body>
+	
+
+		<div>
+			<div id="setup">
+				<table>
+					<tr>
+						<td>Anchors</td>
+						<td>
+							<label><input type="radio" value="normal" name="anchors" checked>normal</label>
+							<label><input type="radio" value="dynamic" name="anchors">dynamic</label>
+							<label><input type="radio" value="continuous" name="anchors">continuous</label>
+						</td>
+					</tr>
+					<tr>
+						<td>Number of elements</td>
+						<td><input id="txtElements" value="10"></td>
+					</tr>
+					<tr>
+						<td>Suspend Drawing?</td>
+						<td>
+							<label><input type="radio" name="chkSuspend" value="yes" checked>Yes</label>
+							<label><input type="radio" name="chkSuspend" value="no">No</label>
+						</td>
+					</tr>
+					<tr>
+						<td>setLabel?</td>
+						<td>
+							<label><input value="yes" type="radio" name="chkLabel" checked>yes</label>
+							<label><input value="no" type="radio" name="chkLabel">no</label>
+						</td>
+					</tr>
+				</table>			
+			</div>			
+			<div id="output">
+				<table colspacing="20">
+					<tr>
+						<td colspan="2">Num Connections:</td><td colspan="2" id="numConnections"></td>
+					</tr>
+					<tr>
+						<td>Reset time:</td><td id="resetTime"></td>					
+						<td>Total time:</td><td id="totalCreateTime"></td>
+					</tr>
+					<tr>
+						<td>Create time:</td><td id="createTime"></td>					
+						<td>Average create time:</td><td id="averageCreateTime"></td>
+					</tr>
+					<tr>
+						<td>Repaint time:</td><td id="repaintTime"></td>					
+						<td>Average Repaint time:</td><td id="averageRepaintTime"></td>
+					</tr>
+				</table>
+			</div>
+			<button id="btnTest">Run Test</button>
+		</div>
+		
+		<div id="demo"></div>	
+	    	    
+	    <!-- DEP -->
+	    <script src="../lib/jquery-1.9.0.js"></script>
+		<script src="../lib/jquery-ui-1.9.2-min.js"></script>
+	    <script src="../lib/jquery.ui.touch-punch.min.js"></script>
+		<!-- /DEP -->
+				
+		<script type='text/javascript' src='../js/jquery.jsPlumb-1.4.0-all-min.js'></script>
+		
+		<!--  demo code -->
+		<script src="loadTestHarness.js"></script>
+			
+
+	</body>
+</html>

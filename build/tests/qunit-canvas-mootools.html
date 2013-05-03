@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+	<title>jsPlumb 1.4.0 qUnit tests</title>
+	<link rel="stylesheet" href="qunit-1.11.0.css" type="text/css" media="screen">
+	<script type="text/javascript" src="qunit-1.11.0.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.8/mootools-yui-compressed.js"></script>
+	<script type="text/javascript" src="../js/lib/mootools-1.3.8.1-more.js"></script>
+		
+
+	<script type='text/javascript' src='../js/mootools.jsPlumb-1.4.0-all-min.js'></script>
+			
+	<!-- TEST -->
+	<script type="text/javascript" src="../js/1.4.0/jsPlumb-1.4.0-tests.js"></script>
+	<!-- /TEST -->
+	
+</head>
+<body>
+	<h1 id="qunit-header">jsPlumb 1.4.0 qUnit tests</h1>
+	<h2 id="qunit-banner"></h2>
+	<div id="qunit-testrunner-toolbar"></div>
+	<h2 id="qunit-userAgent"></h2>
+	<ol id="qunit-tests"></ol>
+	
+	<script type="text/javascript">
+	jsPlumb.bind("ready", function() {	
+		testSuite(jsPlumb.CANVAS);
+	});	
+	</script>
+	
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.4.0 - Connection Sources and Targets Demonstration - YUI3</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<link rel="stylesheet" href="../css/demo-all.css">
+		<link rel="stylesheet" href="../css/anchorDemo.css">
+	</head>
+	<body data-demo-id="anchorDemo" data-library="yui3">
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="menu">   
+					<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;     			
+					<a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
+					<a href="../../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
+					<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Discussion Group</a>&nbsp;|&nbsp;
+					<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
+				</div>
+			</div>
+		</div>                 
+        <div id="main">
+			<div id="render"></div>
+			<div class="window" id="window1">			
+				<strong>Window 1</strong>
+				<a href="#" id="enableDisableSource">disable</a>				
+			</div>
+			<div class="window smallWindow" id="window2"><strong>Window 2</strong><br/><br/></div>
+		    <div class="window smallWindow" id="window3"><strong>Window 3</strong><br/><br/></div>
+		    <div class="window smallWindow" id="window4"><strong>Window 4</strong><br/><br/></div>
+		    <div class="window smallWindow" id="window5"><strong>Window 5</strong><br/><br/></div>
+		    <div class="window smallWindow" id="window6"><strong>Window 6</strong><br/><br/></div>
+		</div>
+		<div id="sidebar">
+			<div id="explanation">
+				<p>This page provides a demonstration of the makeSource and makeTarget functions.</p>
+				<p>Drag Connections from the blue element to any of the green ones. You can also drag existing
+					Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
+				<p>These functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
+				elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
+				<p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>	    	
+				<p>
+				The 'disable' link is excluded from being a drag source through the use of the 'filter' parameter on the makeSource call.
+				</p>
+				<p>The green elements are configured as Connection targets, with a "TopCenter" anchor, and are draggable</p>
+				<p>This demonstration uses jsPlumb 1.4.0 and YUI 3.3.0.</p>
+			</div>	    			
+		</div>
+	    	    
+	    <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
+	    
+	    <script type='text/javascript' src='../js/yui.jsPlumb-1.4.0-all-min.js'></script>
+				
+		<!--  demo code -->		
+		<script type="text/javascript" src="../js/anchorDemo-yui3.js"></script>
+		
+		<!--  demo helper code -->
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-yui3.js"></script>
+		
+	</body>
+</html>

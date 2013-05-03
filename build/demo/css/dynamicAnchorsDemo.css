@@ -1,0 +1,51 @@
+.endpointHoverClass {
+border:2px solid white;
+}
+
+.window { border:1px solid #346789;
+box-shadow: 2px 2px 19px #e0e0e0;
+   -o-box-shadow: 2px 2px 19px #e0e0e0;
+   -webkit-box-shadow: 2px 2px 19px #e0e0e0;
+   -moz-box-shadow: 2px 2px 19px #e0e0e0;
+-moz-border-radius:0.5em;
+border-radius:0.5em;
+opacity:0.8;
+filter:alpha(opacity=80);
+width:5em; height:5em;
+line-height:5em;
+text-align:center;
+z-index:20; position:absolute;
+background-color:#eeeeef;
+color:black;
+font-family:helvetica;padding:0.5em;
+font-size:0.9em;
+top:50%;
+left:50%;
+}
+.window:hover {
+border:1px solid #123456;
+box-shadow: 2px 2px 19px #444;
+   -o-box-shadow: 2px 2px 19px #444;
+   -webkit-box-shadow: 2px 2px 19px #444;
+   -moz-box-shadow: 2px 2px 19px #fff;
+    opacity:0.9;
+filter:alpha(opacity=90);
+
+}
+#demo {
+width:70%;
+background-color:transparent;
+}
+path { cursor:pointer; }
+#window1 { top:5em;left:2em;}
+#window2 { top:8em; left:43em;}
+#window3 { top:28em;left:2em; }
+#window4 { top:16em; left:22em;}
+#window5 {top:34em;left:26em;}
+#window6 {top:23em;left:56em;}
+#window7 {top:18em;left:40em;}
+#window8 {left:63em;top:32em;}
+._jsPlumb_connector { z-index:4; }
+._jsPlumb_endpoint { z-index:5; }
+.hl { border:3px solid red; }
+#debug { position:absolute; background-color:black; color:red; z-index:5000 }

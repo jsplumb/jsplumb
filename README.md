@@ -1,27 +1,17 @@
 # jsPlumb
-jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or 
-Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.3.16.
+jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.4.0.
 
-The project started out life on Google Code and has been hosted there for the last two years; from version 
-1.3.4 onwards it also lives here on GitHub. The source repo is now being synchronised between the two.  I did
-this because I didn't want to lose the project history (issues etc), and I know some people checkout the 
-source from Google Code.
+The project started out life on Google Code and was hosted there up until April 30, 2013.  From May 1st, 2013, jsPlumb lives on GitHub only.
 
-__All issues should be reported on Google Code until I can import everything from there at once.__
-
-For users upgrading from earlier versions to 1.3.x - there are a few minor backwards incompatibilities. Please see the changelog.
-
-If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc/usage.html). 
+If you're new to jsPlumb, please do take the time to read the [documentation](http://jsplumb.org/doc). 
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.
 
 ## Requirements
 - jQuery:
 
-jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.x, 1.5.x, 1.6.x, 1.7.x and 1.8.x. To support
-dragging, you will need jQueryUI 1.7.x or 1.8.x. NOTE: jQuery 1.8.x only works with jQueryUI 1.8.22 and above.
+jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.x, 1.5.x, 1.6.x, 1.7.x, 1.8.x and 1.9.x. To support dragging, you will need jQueryUI 1.7.x or 1.8.x. NOTE: jQuery 1.8.x only works with jQueryUI 1.8.22 and above.
 
-__There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9__ - see [this issue](http://bugs.jquery.com/ticket/10832). It means that mouse events
-do not get posted. There is another discussion of the issue [here](http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events).
+__There is a bug in jQuery 1.6.x and 1.7.x's SVG support for IE9__ - see [this issue](http://bugs.jquery.com/ticket/10832). It means that mouse events do not get posted. There is another discussion of the issue [here](http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events).
 This issue is fixed in jQuery 1.8.
 
 - MooTools:
@@ -51,7 +41,7 @@ Links to various demonstrations can be found [here](http://jsplumb.org).
 myself!) using jsPlumb.
 
 ## Documentation
-Documentation can be found in the doc folder of the project, or you can view it online [here](http://jsplumb.org/doc/usage.html).
+Documentation can be found in the doc folder of the project, or you can view it online [here](http://jsplumb.org/doc).
 
 API documentation is in the apidoc folder of the project, and online [here](http://jsplumb.org/apidocs/).
 
@@ -60,7 +50,7 @@ The Bezier curve functions used by jsPlumb have been extracted to a separate pro
 [https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
 
 ## Tests
-qUnit test suite can be found [here](http://jsplumb.org/tests/qunit-all.html)
+Tests can be found [here](http://jsplumb.org/tests/all-tests.html)
 
 ## Twitter
 The Twitter account I use for this project is [jsplumblib](http://twitter.com/jsplumblib)
@@ -71,4 +61,4 @@ The Twitter account I use for this project is [jsplumblib](http://twitter.com/js
 Sign up for the jsPlumb announcements mailing list [here](http://eepurl.com/bMuD9).
 
 ## License
-All 1.x.x versions of jsPlumb are dual-licensed under both MIT and GPL version 2. 
+All 1.x.x versions of jsPlumb are dual-licensed under both MIT and GPLv2. 

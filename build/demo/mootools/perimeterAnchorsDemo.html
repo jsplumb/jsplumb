@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.4.0 Perimeter Anchors demo - MooTools</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
+		<link rel="stylesheet" href="../css/demo-all.css">
+		<link rel="stylesheet" href="../css/perimeterAnchorsDemo.css">				
+	</head>
+	<body data-demo-id="perimeterAnchorsDemo" data-library="mootools">
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="menu">   
+					<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;     			
+					<a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
+					<a href="../../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
+					<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Discussion Group</a>&nbsp;|&nbsp;
+					<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
+				</div>
+			</div>
+		</div>
+        <div id="main">
+			<div id="render"></div>
+			<div class="shape" data-shape="Rectangle">Rectangle</div>
+			<div class="shape" data-shape="Ellipse">Ellipse</div>
+			<div class="shape" data-shape="Circle">Circle</div>
+			<div class="shape" data-shape="Diamond">Diamond</div>
+			<div class="shape" data-shape="Triangle" style="left:700px;top:380px;">Triangle</div>
+			<div class="shape _90" data-shape="Triangle" data-rotation="90" style="left:60px;top:500px;">90&#176; rotation</div>					          		    
+		 </div>
+		<div id="sidebar">
+            <div id="explanation">
+				<p>This page provides a demonstration of the 'perimeter' anchor functionality in jsPlumb - anchor points that track of the perimeter of some shape or curve.
+				</p>
+				<p>jsPlumb requires one of jQuery, MooTools or YUI3.  See the documentation for a more detailed discussion of requirements.</p>
+				<p>This demonstration uses jsPlumb 1.4.0, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
+			</div>			
+        </div>
+	    
+	    <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>
+		<script type="text/javascript" src="../../lib/mootools-1.3.2.1-more.js"></script>				
+		
+		<script type='text/javascript' src='../js/mootools.jsPlumb-1.4.0-all-min.js'></script>
+		
+		<!--  demo code -->
+		<script src="../js/perimeterAnchorsDemo-mootools.js"></script>
+		
+		<!--  demo helper code -->
+		<script src="../js/demo-list.js"></script>
+		<script src="../js/demo-helper-mootools.js"></script>
+
+	</body>
+</html>
