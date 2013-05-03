@@ -908,8 +908,8 @@
 			
 			// at this point, if we have source or target Endpoints, they were not new and we should mark the
 			// flag to reflect that.  this is for use later with the deleteEndpointsOnDetach flag.
-			if (_p.sourceEndpoint) _p.sourceIsNew = false;
-			if (_p.targetEndpoint) _p.targetIsNew = false;
+			if (_p.sourceEndpoint && !_p.sourceEndpoint.addedViaMouse) _p.sourceIsNew = false;
+			if (_p.targetEndpoint && !_p.targetEndpoint.addedViaMouse) _p.targetIsNew = false;
 			
 			// if source endpoint mandates connection type and nothing specified in our params, use it.
 			if (!_p.type && _p.sourceEndpoint)
@@ -2416,6 +2416,7 @@
 						// to move the endpoint.
 						ep.endpointWillMoveAfterConnection = p.parent != null;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
+						ep.addedViaMouse = true;
 
 	                    var _delTempEndpoint = function() {
 							// this mouseup event is fired only if no dragging occurred, by jquery and yui, but for mootools
@@ -2767,8 +2768,13 @@
 		  * Property: VML
 		  * Constant for use with the setRenderMode method
 		  */
+		/*
+		 * Property: CANVAS
+		 * Constant for use with the setRenderMode method
+		 */
 		this.SVG = "svg";
 		
+		this.CANVAS = "canvas";
 		
 		this.VML = "vml";
 		
