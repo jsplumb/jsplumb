@@ -479,8 +479,8 @@
                         }
                     }
 
-                    var lineWidth = (self.paintStyleInUse.lineWidth || 1) / 2,
-                        outlineWidth = self.paintStyleInUse.lineWidth || 0,
+                    var lineWidth = parseFloat(self.paintStyleInUse.lineWidth || 1) / 2,
+                        outlineWidth = parseFloat(self.paintStyleInUse.lineWidth || 0),
                         extents = {
                             xmin : Math.min(connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
                             ymin : Math.min(connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),

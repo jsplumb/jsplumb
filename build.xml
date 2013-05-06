@@ -298,10 +298,10 @@
 	</target>
 
 	<target name="new" unless="new">
-		<fail message="You must supply the new version, eg: ant -Dold=1.3.7 -Dnew=1.3.8"/>
+		<fail message="You must supply the new version, eg: ant -Dnew=1.4.1"/>
 	</target>
 	<target name="old" unless="old">
-		<fail message="You must supply the old version, eg: ant -Dold=1.3.7 -Dnew=1.3.8"/>
+		<fail message="You must supply the old version, eg: ant -Dold=0.6"/>
 	</target>
 	<!-- creates/copies all the files needed for a new version -->
 	<target name="newversion" depends="old,new">
@@ -316,11 +316,7 @@
               regexp="\."
               replace="\\\."/>
 
-        <echo>${new.escaped}</echo>		
-
-		<replace file="demo/doc/content.html" token="${old}" value="${new}"/>
-		<replace file="demo/doc/usage.html" token="${old}" value="${new}"/>
-		<replace file="demo/doc/index.html" token="${old}" value="${new}"/>		
+        <echo>${new.escaped}</echo>				
 		
 		<!-- replace refs to old version in demo html to new version -->
 		<replace dir="demo/jquery" token="${old}" value="${new}"/>
@@ -328,10 +324,7 @@
 		<replace dir="demo/mootools" token="${old}" value="${new}"/>
 		
 		<!-- replace version number in code -->
-		<replace dir="src" token="${old}" value="${new}"/>
-
-		<!-- replace in README -->
-		<replace file="README.md" token="latest version is ${old}" value="latest version is ${new}"/>
+		<replace dir="src" token="${old}" value="${new}"/>		
 
 	</target>
 

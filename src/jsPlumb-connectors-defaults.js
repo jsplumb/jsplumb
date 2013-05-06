@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -41,7 +41,7 @@
         /*
          * Class: AbstractSegment
          * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
-         * 'Bezier'. This is new from 1.4.0, and gives us a lot more flexibility when drawing connections: things such
+         * 'Bezier'. This is new from 1.4.1, and gives us a lot more flexibility when drawing connections: things such
          * as rounded corners for flowchart connectors, for example, or a straight line stub for Bezier connections, are
          * much easier to do now.
          *

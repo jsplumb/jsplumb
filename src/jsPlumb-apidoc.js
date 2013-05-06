@@ -816,7 +816,7 @@ between this method and jsPlumb.reset).
  		/*
  		* Function: remove(el)
  		* Removes the given element from the DOM, along with all Endpoints associated with it,
- 		* and their connections.  This is present in jsPlumb since version 1.4.0. 
+ 		* and their connections.  This is present in jsPlumb since version 1.4.1. 
  		*
  		* Parameters:
  		*  el - either an element id, a DOM element, or a selector for the element.
