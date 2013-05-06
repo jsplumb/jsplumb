@@ -2630,6 +2630,7 @@
             var id = jsPlumbUtil.isString(el) ? el : _getId(_el);
             _currentInstance.doWhileSuspended(function() {
             	_currentInstance.removeAllEndpoints(id, true);
+            	_currentInstance.dragManager.elementRemoved(id);
             });
             jsPlumb.CurrentLibrary.removeElement(_el);
         };
