@@ -39,7 +39,12 @@
 			// the definition of source endpoints (the small blue ones)
 			sourceEndpoint = {
 				endpoint:"Dot",
-				paintStyle:{ fillStyle:"#225588",radius:7 },
+				paintStyle:{ 
+					strokeStyle:"#225588",
+					fillStyle:"transparent",
+					radius:7,
+					lineWidth:2 
+				},
 				isSource:true,
 				connector:[ "Flowchart", { stub:[40, 60], gap:10, cornerRadius:5 } ],								                
 				connectorStyle:connectorPaintStyle,
