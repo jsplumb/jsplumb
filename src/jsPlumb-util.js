@@ -110,7 +110,7 @@
                     if (matches != null) {
                         for (var i = 0; i < matches.length; i++) {
                             var val = values[matches[i].substring(2, matches[i].length - 1)];
-                            if (val) {
+                            if (val != null) {
                                 fromString = fromString.replace(matches[i], val);
                             }
                         }							
