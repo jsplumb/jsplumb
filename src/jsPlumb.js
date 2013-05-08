@@ -2593,7 +2593,7 @@
 
 		// repaint every endpoint and connection.
 		this.repaintEverything = function() {	
-			var timestamp = _timestamp();			
+			var timestamp = null;// _timestamp();			
 			for ( var elId in endpointsByElement) {
 				_draw(_gel(elId), null, timestamp);				
 			}
