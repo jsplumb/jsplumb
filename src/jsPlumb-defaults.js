@@ -622,7 +622,7 @@
 		this.pointAlongPathFrom = function(location, distance, absolute) {
 			var seg = _findSegmentForLocation(location, absolute);
 			// TODO what happens if this crosses to the next segment?
-			return seg.segment.pointAlongPathFrom(seg.proportion, distance, absolute);
+			return seg.segment.pointAlongPathFrom(seg.proportion, distance, false);
 		};
 		
 		this.compute = function(params)  {
