@@ -13,7 +13,7 @@
 				// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
 				// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
 				ConnectionOverlays : [
-					[ "Arrow", { location:0.9 } ],
+					[ "Arrow", { location:-40 } ],
 					[ "Label", { 
 						location:0.1,
 						id:"label",
@@ -44,7 +44,7 @@
 					fillStyle:"transparent",
 					radius:7,
 					lineWidth:2 
-				},
+				},				
 				isSource:true,
 				connector:[ "Flowchart", { stub:[40, 60], gap:10, cornerRadius:5 } ],								                
 				connectorStyle:connectorPaintStyle,
