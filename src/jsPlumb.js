@@ -1371,8 +1371,10 @@
 				var myOffset = offsets[id], myWH = sizes[id];
 				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e, timestamp:_suspendedAt });
 				var endpointPaintParams = { anchorLoc : anchorLoc, timestamp:_suspendedAt };
+				
 				if (_suspendDrawing) endpointPaintParams.recalc = false;
-				e.paint(endpointPaintParams);
+				if (!_suspendDrawing) e.paint(endpointPaintParams);
+				
 				results.push(e);
 				//if (!jsPlumbAdapter.headless)
 					//_currentInstance.dragManager.endpointAdded(_el);
