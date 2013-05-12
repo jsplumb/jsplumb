@@ -246,8 +246,10 @@
                     }
 		   		 	if (hoverPaintStyle != null) {
 						self.paintStyleInUse = hover ? hoverPaintStyle : paintStyle;
-						timestamp = timestamp || _timestamp();
-						self.repaint({timestamp:timestamp, recalc:false});
+						if (!self._jsPlumb.isSuspendDrawing()) {
+							timestamp = timestamp || _timestamp();
+							self.repaint({timestamp:timestamp, recalc:false});
+						}
 					}
 					// get the list of other affected elements, if supported by this component.
 					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
