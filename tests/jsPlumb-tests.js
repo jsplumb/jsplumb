@@ -2186,25 +2186,25 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		equal(conn.getConnector().type, "Bezier", "Bezier connector chosen for connection");
-		equal(conn.getConnector().getCurviness(), 150, "Bezier connector chose 150 curviness");		
+		equal(conn.getConnector().getCurviness(), 0.3, "Bezier connector chose 0.3 curviness");		
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, curviness as int)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
-		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", { curviness:200 }] });
+		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", { curviness:0.5 }] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		equal(conn.getConnector().type, "Bezier", "Canvas Bezier connector chosen for connection");
-		equal(conn.getConnector().getCurviness(), 200, "Bezier connector chose 200 curviness");
+		equal(conn.getConnector().getCurviness(), 0.5, "Bezier connector chose 0.75 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (Connector test, bezier, curviness as named option)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
-		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", {curviness:300}] });
+		var conn = _jsPlumb.connect({ source:d16, target:d17, connector:["Bezier", {curviness:0.75}] });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		equal(conn.getConnector().type, "Bezier", "Bezier connector chosen for connection");
-		equal(conn.getConnector().getCurviness(), 300, "Bezier connector chose 300 curviness");
+		equal(conn.getConnector().getCurviness(), 0.75, "Bezier connector chose 0.75 curviness");
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (anchors registered correctly; source and target anchors given, as arrays)", function() {

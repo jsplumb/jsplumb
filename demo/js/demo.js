@@ -30,7 +30,7 @@
 			var connection1 = jsPlumb.connect({
 				source:"window1", 
 			   	target:"window2", 			   	
-				connector:["Bezier", { curviness:70 }],
+				connector:["Bezier", { curviness:0.5 }],
 			   	cssClass:"c1",
 			   	endpoint:"Blank",
 			   	endpointClass:"c1Endpoint",													   
