@@ -28,7 +28,7 @@
 				strokeStyle:"#deea18",
 				joinstyle:"round",
 				outlineColor:"#EAEDEF",
-				outlineWidth:7
+				outlineWidth:2
 			},
 			// .. and this is the hover style. 
 			connectorHoverStyle = {
