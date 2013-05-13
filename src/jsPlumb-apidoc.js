@@ -21,7 +21,7 @@
  *         - *beforeDrop*					: 	notification that a Connection is about to be dropped. Returning false from this method cancels the drop. jsPlumb passes { sourceId, targetId, scope, connection, dropEndpoint } to your callback. For more information, refer to the jsPlumb documentation.
  *         - *beforeDetach*					: 	notification that a Connection is about to be detached. Returning false from this method cancels the detach. jsPlumb passes the Connection to your callback. For more information, refer to the jsPlumb documentation.
  *		   - *connectionDrag* 				:   notification that an existing Connection is being dragged. jsPlumb passes the Connection to your callback function.
- *         - *connectionDragEnd*            :   notification that the drag of an existing Connection has ended.  jsPlumb passes the Connection to your callback function.
+ *         - *connectionDragStop*            :   notification that the drag of an existing Connection has ended.  jsPlumb passes the Connection to your callback function.
  *         
  *  callback - function to callback. This function will be passed the Connection/Endpoint that caused the event, and also the original event.    
  */
