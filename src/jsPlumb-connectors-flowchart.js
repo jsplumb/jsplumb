@@ -160,33 +160,36 @@
                 stubCalculators = {
                     perpendicular:commonStubCalculator,
                     orthogonal:commonStubCalculator,
-                    opposite:commonStubCalculator,/*function(axis) {
+                    opposite:function(axis) {  
                         var pi = paintInfo,
-                            otherAxis = {"x":"y","y":"x"}[axis], 
-                            stub = "Stub" + axis.toUpperCase(),
-                            otherStub = "Stub" + otherAxis.toUpperCase(),
-                            otherStartStub = pi["start" + otherStub],
-                            startStub = pi["start" + stub],
-                            otherEndStub = pi["end" + otherStub],
-                            endStub = pi["end" + stub],
-                            dim = {"x":"height","y":"width"}[axis],
-                            comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"],
-                            idx = axis == "x" ? 0 : 1,
-                            start = pi["s" + axis],
-                            end = pi["t" + axis];
+                            idx = axis == "x" ? 0 : 1, 
+                            areInProximity = {
+                                "x":function() {
+                                    return (pi.so[idx] == 1 && ( 
+                                        ( (pi.startStubX > pi.endStubX) && (pi.tx > pi.startStubX) ) ||
+                                        ( (pi.sx > pi.endStubX) && (pi.tx > pi.sx))));
+                                },
+                                "y":function() { 
+                                    return (pi.so[idx] == 1 && ( 
+                                        ( (pi.startStubY > pi.endStubY) && (pi.ty > pi.startStubY) ) ||
+                                        ( (pi.sy > pi.endStubY) && (pi.ty > pi.sy))));
 
-                        if (paintInfo.so[idx] == 1 && (startStub > endStub && end > startStub) || (start > endStub && end > start)) {
+                                }
+                            }[axis]();
+
+                        if (areInProximity) {                   
                             return {
-                                "y":[ otherStartStub, midy, otherEndStub, midy ],
-                                "x":[ midx, otherStartStub, midx, otherEndStub ]
+                                "x":[(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
+                                "y":[paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
                             }[axis];
                         }
-
-                        return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];
-                    }*/
+                        else {
+                            return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];   
+                        }
+                    }
                 },
                 lineCalculators = {
-                    perpendicular : function(axis) {
+                    perpendicular : function(axis, ss, oss, es, oes) {
                         with (paintInfo) {
                             var sis = {
                                 x:[ [ [ 1,2,3,4 ], null, [ 2,1,4,3 ] ], null, [ [ 4,3,2,1 ], null, [ 3,4,1,2 ] ] ],
@@ -239,53 +242,40 @@
                             }                                
                         }                                
                     },
-                    orthogonal : function(axis) {                    
+                    orthogonal : function(axis, ss, oss, es, oes) {                    
                         var pi = paintInfo,                                            
                             extent = {
-                                "x":pi.so[0] == -1 ? Math.min(pi.startStubX, pi.endStubX) : Math.max(pi.startStubX, pi.endStubX),
-                                "y":pi.so[1] == -1 ? Math.min(pi.startStubY, pi.endStubY) : Math.max(pi.startStubY, pi.endStubY)
+                                "x":pi.so[0] == -1 ? Math.min(ss, es) : Math.max(ss, es),
+                                "y":pi.so[1] == -1 ? Math.min(ss, es) : Math.max(ss, es)
                             }[axis];
                                                 
                         return {
-                            "x":[ [ extent, pi.startStubY ],[ extent, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ],
-                            "y":[ [ pi.startStubX, extent ], [ pi.endStubX, extent ],[ pi.endStubX, pi.endStubY ] ]
+                            "x":[ [ extent, oss ],[ extent, oes ], [ es, oes ] ],
+                            "y":[ [ oss, extent ], [ oes, extent ],[ oes, es ] ]
                         }[axis];                    
                     },
-                    opposite : function(axis) {                                                
+                    opposite : function(axis, ss, oss, es, oes) {                                                
                         var pi = paintInfo,
                             otherAxis = {"x":"y","y":"x"}[axis], 
-                            stub = "Stub" + axis.toUpperCase(),
-                            otherStub = "Stub" + otherAxis.toUpperCase(),
-                            otherStartStub = pi["start" + otherStub],
-                            startStub = pi["start" + stub],
-                            otherEndStub = pi["end" + otherStub],
-                            endStub = pi["end" + stub],
                             dim = {"x":"height","y":"width"}[axis],
-                            comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"],
-                            idx = axis == "x" ? 0 : 1,
-                            start = pi["s" + axis],
-                            end = pi["t" + axis];
-
-                         //console.log(comparator, start, startStub, endStub, end)
+                            comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
 
                         if (params.sourceEndpoint.elementId == params.targetEndpoint.elementId) {
-                            var _val = otherStartStub + ((1 - params.sourceAnchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
+                            var _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
                             return {
-                                "x":[ [ startStub, _val ], [ endStub, _val ] ],
-                                "y":[ [ _val, startStub ], [ _val, endStub ] ]
+                                "x":[ [ ss, _val ], [ es, _val ] ],
+                                "y":[ [ _val, ss ], [ _val, es ] ]
                             }[axis];
                             
                         }                                                        
-                        else if (!comparator || (pi.so[idx] == 1 && startStub > endStub)
-                           || (pi.so[idx] == -1 && startStub < endStub)) {                                            
-
+                        else if (!comparator || (pi.so[idx] == 1 && ss > es)
+                           || (pi.so[idx] == -1 && ss < es)) {                                            
                             return {
-                                "x":[[ startStub, midy ], [ endStub, midy ]],
-                                "y":[[ midx, startStub ], [ midx, endStub ]]
+                                "x":[[ ss, midy ], [ es, midy ]],
+                                "y":[[ midx, ss ], [ midx, es ]]
                             }[axis];
                         }
-                        else if ((pi.so[idx] == 1 && startStub < endStub) || (pi.so[idx] == -1 && startStub > endStub)) {
-                            //console.log("case 3");
+                        else if ((pi.so[idx] == 1 && ss < es) || (pi.so[idx] == -1 && ss > es)) {
                             return {
                                 "x":[[ midx, pi.sy ], [ midx, pi.ty ]],
                                 "y":[[ pi.sx, midy ], [ pi.tx, midy ]]
@@ -294,13 +284,19 @@
                     }
                 };
 
-            var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);
+            var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
+                idx = paintInfo.sourceAxis == "x" ? 0 : 1,
+                oidx = paintInfo.sourceAxis == "x" ? 1 : 0,                            
+                ss = stubs[idx],
+                oss = stubs[oidx],
+                es = stubs[idx + 2],
+                oes = stubs[oidx + 2];
 
             // add the start stub segment.
             addSegment(segments, stubs[0], stubs[1], paintInfo);           
 
             // compute the rest of the line
-            var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);            
+            var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);            
             if (p) {
                 for (var i = 0; i < p.length; i++) {                	
                     addSegment(segments, p[i][0], p[i][1], paintInfo);
@@ -310,7 +306,7 @@
             // line to end stub
             addSegment(segments, stubs[2], stubs[3], paintInfo);
     
-            // end stub
+            // end stub to end
             addSegment(segments, paintInfo.tx, paintInfo.ty, paintInfo);               
             
             writeSegments(segments, paintInfo);                            
