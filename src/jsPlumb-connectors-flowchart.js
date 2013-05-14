@@ -152,15 +152,43 @@
             lastOrientation = null;          
             
             var midx = paintInfo.startStubX + ((paintInfo.endStubX - paintInfo.startStubX) * midpoint),
-                midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);
-                                                                                         
-            // add the start stub segment.
-            addSegment(segments, paintInfo.startStubX, paintInfo.startStubY, paintInfo.sx, paintInfo.sy);			
+                midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);                                                                                                    
     
             var findClearedLine = function(start, mult, anchorPos, dimension) {
                     return start + (mult * (( 1 - anchorPos) * dimension) + _super.maxStub);
                 },
                 orientations = { x:[ 0, 1 ], y:[ 1, 0 ] },
+                commonStubCalculator = function(axis) {
+                    return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];                    
+                },
+                stubCalculators = {
+                    perpendicular:commonStubCalculator,
+                    orthogonal:commonStubCalculator,
+                    opposite:commonStubCalculator,/*function(axis) {
+                        var pi = paintInfo,
+                            otherAxis = {"x":"y","y":"x"}[axis], 
+                            stub = "Stub" + axis.toUpperCase(),
+                            otherStub = "Stub" + otherAxis.toUpperCase(),
+                            otherStartStub = pi["start" + otherStub],
+                            startStub = pi["start" + stub],
+                            otherEndStub = pi["end" + otherStub],
+                            endStub = pi["end" + stub],
+                            dim = {"x":"height","y":"width"}[axis],
+                            comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"],
+                            idx = axis == "x" ? 0 : 1,
+                            start = pi["s" + axis],
+                            end = pi["t" + axis];
+
+                        if (paintInfo.so[idx] == 1 && (startStub > endStub && end > startStub) || (start > endStub && end > start)) {
+                            return {
+                                "y":[ otherStartStub, midy, otherEndStub, midy ],
+                                "x":[ midx, otherStartStub, midx, otherEndStub ]
+                            }[axis];
+                        }
+
+                        return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];
+                    }*/
+                },
                 lineCalculators = {
                     perpendicular : function(axis) {
                         with (paintInfo) {
@@ -238,7 +266,11 @@
                             endStub = pi["end" + stub],
                             dim = {"x":"height","y":"width"}[axis],
                             comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"],
-                            idx = axis == "x" ? 0 : 1;
+                            idx = axis == "x" ? 0 : 1,
+                            start = pi["s" + axis],
+                            end = pi["t" + axis];
+
+                         //console.log(comparator, start, startStub, endStub, end)
 
                         if (params.sourceEndpoint.elementId == params.targetEndpoint.elementId) {
                             var _val = otherStartStub + ((1 - params.sourceAnchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
@@ -250,28 +282,48 @@
                         }                                                        
                         else if (!comparator || (pi.so[idx] == 1 && startStub > endStub)
                            || (pi.so[idx] == -1 && startStub < endStub)) {
+                            //console.log("case 2");
+
+                        /* {
+                            console.log("neew case");
+                            return {
+                                "x":[[startStub, midy]],
+                                "y":[[midx, startStub]]
+                            }[axis];
+                        }*/                            
+
                             return {
                                 "x":[[ startStub, midy ], [ endStub, midy ]],
                                 "y":[[ midx, startStub ], [ midx, endStub ]]
                             }[axis];
                         }
                         else if ((pi.so[idx] == 1 && startStub < endStub) || (pi.so[idx] == -1 && startStub > endStub)) {
+                            //console.log("case 3");
                             return {
                                 "x":[[ midx, pi.sy ], [ midx, pi.ty ]],
                                 "y":[[ pi.sx, midy ], [ pi.tx, midy ]]
                             }[axis];
                         }                        
                     }
-                },
-                p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);
-                
+                };
+
+            var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);
+
+            // add the start stub segment.
+            //addSegment(segments, paintInfo.startStubX, paintInfo.startStubY, paintInfo.sx, paintInfo.sy);           
+            addSegment(segments, stubs[0], stubs[1], paintInfo.sx, paintInfo.sy);           
+
+            // compute the rest of the line
+            var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);            
             if (p) {
                 for (var i = 0; i < p.length; i++) {                	
                     addSegment(segments, p[i][0], p[i][1]);
                 }
             }          
             
-            addSegment(segments, paintInfo.endStubX, paintInfo.endStubY);
+            // line to end stub
+            addSegment(segments, stubs[2], stubs[3]);
+            //addSegment(segments, paintInfo.endStubX, paintInfo.endStubY);
     
             // end stub
             addSegment(segments, paintInfo.tx, paintInfo.ty);               
