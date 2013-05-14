@@ -44,13 +44,9 @@
             /**
              * helper method to add a segment.
              */
-            addSegment = function(segments, x, y, sx, sy) {
-                // if segment would have length zero, dont add it.
-                if (sx == lastx && sy == lasty) return;
-                if (x == lastx && y == lasty) return;
-                
-                var lx = lastx == null ? sx : lastx,
-                    ly = lasty == null ? sy : lasty,
+            addSegment = function(segments, x, y, paintInfo) {
+                var lx = lastx == null ? paintInfo.sx : lastx,
+                    ly = lasty == null ? paintInfo.sy : lasty,
                     o = lx == x ? "v" : "h",
                     sgnx = sgn(x - lx),
                     sgny = sgn(y - ly);
@@ -281,16 +277,7 @@
                             
                         }                                                        
                         else if (!comparator || (pi.so[idx] == 1 && startStub > endStub)
-                           || (pi.so[idx] == -1 && startStub < endStub)) {
-                            //console.log("case 2");
-
-                        /* {
-                            console.log("neew case");
-                            return {
-                                "x":[[startStub, midy]],
-                                "y":[[midx, startStub]]
-                            }[axis];
-                        }*/                            
+                           || (pi.so[idx] == -1 && startStub < endStub)) {                                            
 
                             return {
                                 "x":[[ startStub, midy ], [ endStub, midy ]],
@@ -310,23 +297,21 @@
             var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);
 
             // add the start stub segment.
-            //addSegment(segments, paintInfo.startStubX, paintInfo.startStubY, paintInfo.sx, paintInfo.sy);           
-            addSegment(segments, stubs[0], stubs[1], paintInfo.sx, paintInfo.sy);           
+            addSegment(segments, stubs[0], stubs[1], paintInfo);           
 
             // compute the rest of the line
             var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);            
             if (p) {
                 for (var i = 0; i < p.length; i++) {                	
-                    addSegment(segments, p[i][0], p[i][1]);
+                    addSegment(segments, p[i][0], p[i][1], paintInfo);
                 }
             }          
             
             // line to end stub
-            addSegment(segments, stubs[2], stubs[3]);
-            //addSegment(segments, paintInfo.endStubX, paintInfo.endStubY);
+            addSegment(segments, stubs[2], stubs[3], paintInfo);
     
             // end stub
-            addSegment(segments, paintInfo.tx, paintInfo.ty);               
+            addSegment(segments, paintInfo.tx, paintInfo.ty, paintInfo);               
             
             writeSegments(segments, paintInfo);                            
         };	
