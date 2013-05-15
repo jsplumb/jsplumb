@@ -6,13 +6,16 @@
 
 		NEW FUNCTIONALITY
 
-		- See the first note in backwards compatibility!
+		- Flowchart connectors reduce the stub parameter automatically when the two elements are closer than the sum of the two stubs. This can be overridden by setting the alwaysRespectStubs parameter to true on the Flowchart connector definition.
 
 
 		ISSUES (note: these are GitHub issues. Google Code is no longer in use)
 
+		43 - connections flickering with continuous anchors
 		42 - error in isObject method in IE8 causes registered connection types to fail in an obscure way.
 		33 - allow lineWidth/outlineWidth to be specified as strings
+		30 - Error after removing endpoint from deleted element
+		31 - Repaint everything needs to be called twice with 1.4.0
 
 * 1.4.0
 
