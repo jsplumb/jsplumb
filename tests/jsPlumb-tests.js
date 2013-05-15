@@ -223,7 +223,51 @@ var testSuite = function(renderMode, _jsPlumb) {
 	  ok(d2.getAttribute("id") == null, "no id on d2");
 	  ok(d3.getAttribute("id") != null, "id on d3");
 	});
+
+	test(renderMode + ": lineWidth specified as string (eew)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = jsPlumb.connect({
+			source:"d1",
+			target:"d2",
+			paintStyle:{
+				strokeStyle:"red",
+				lineWidth:"3"
+			}
+		});
+		equal(c.paintStyleInUse.lineWidth, 3, "line width converted to integer");
+	});
+
+	test(renderMode + ": outlineWidth specified as string (eew)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({
+			source:"d1",
+			target:"d2",
+			paintStyle:{
+				strokeStyle:"red",
+				lineWidth:3,
+				outlineWidth:"5"
+			}
+		});
+		c.repaint();
+		equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
+	});
 	
+	test(renderMode + ": lineWidth and outlineWidth specified as strings (eew)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({
+			source:"d1",
+			target:"d2",
+			paintStyle:{
+				strokeStyle:"red",
+				lineWidth:"3",
+				outlineWidth:"5"
+			}
+		});
+		c.repaint();
+		equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
+		equal(c.paintStyleInUse.lineWidth, 3, "line width converted to integer");
+	});
+
 	test(renderMode + ': defaultEndpointMaxConnections', function() {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		var e3 = _jsPlumb.addEndpoint(d3, {isSource:true});
