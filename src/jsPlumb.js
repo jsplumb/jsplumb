@@ -1484,51 +1484,52 @@
 		
 		// delete the given endpoint: either an Endpoint here, or its UUID.
 		this.deleteEndpoint = function(object) {
-			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
-			if (endpoint) {					
-				var uuid = endpoint.getUuid();
-				if (uuid) endpointsByUUID[uuid] = null;				
-				endpoint.detachAll();
-				endpoint.cleanup();
-				if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
-				jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
-				_currentInstance.anchorManager.deleteEndpoint(endpoint);
-				for (var e in endpointsByElement) {
-					var endpoints = endpointsByElement[e];
-					if (endpoints) {
-						var newEndpoints = [];
-						for (var i = 0, j = endpoints.length; i < j; i++)
-							if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
-						
-						endpointsByElement[e] = newEndpoints;
-					}
-					if(endpointsByElement[e].length <1){
-						delete endpointsByElement[e];
-					}
-				}				
-				if (!jsPlumbAdapter.headless)
-					_currentInstance.dragManager.endpointDeleted(endpoint);								
-			}
-			return _currentInstance;									
+			_currentInstance.doWhileSuspended(function() {
+				var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
+				if (endpoint) {					
+					var uuid = endpoint.getUuid();
+					if (uuid) endpointsByUUID[uuid] = null;				
+					endpoint.detachAll().cleanup();
+					if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
+					jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
+					_currentInstance.anchorManager.deleteEndpoint(endpoint);
+					for (var e in endpointsByElement) {
+						var endpoints = endpointsByElement[e];
+						if (endpoints) {
+							var newEndpoints = [];
+							for (var i = 0, j = endpoints.length; i < j; i++)
+								if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
+							
+							endpointsByElement[e] = newEndpoints;
+						}
+						if(endpointsByElement[e].length <1){
+							delete endpointsByElement[e];
+						}
+					}				
+					if (!jsPlumbAdapter.headless)
+						_currentInstance.dragManager.endpointDeleted(endpoint);								
+				}
+				return _currentInstance;									
+			});
 		};
 		
 		
 		// delete every endpoint and their connections. distinct from reset because we dont clear listeners here.
 		this.deleteEveryEndpoint = function() {
-			_currentInstance.setSuspendDrawing(true);
-			for ( var id in endpointsByElement) {
-				var endpoints = endpointsByElement[id];
-				if (endpoints && endpoints.length) {
-					for ( var i = 0, j = endpoints.length; i < j; i++) {
-						_currentInstance.deleteEndpoint(endpoints[i]);
+			_currentInstance.doWhileSuspended(function() {
+				for ( var id in endpointsByElement) {
+					var endpoints = endpointsByElement[id];
+					if (endpoints && endpoints.length) {
+						for ( var i = 0, j = endpoints.length; i < j; i++) {
+							_currentInstance.deleteEndpoint(endpoints[i]);
+						}
 					}
-				}
-			}			
-			endpointsByElement = {};			
-			endpointsByUUID = {};
-			_currentInstance.anchorManager.reset();
-			_currentInstance.dragManager.reset();			
-			_currentInstance.setSuspendDrawing(false, true);
+				}			
+				endpointsByElement = {};			
+				endpointsByUUID = {};
+				_currentInstance.anchorManager.reset();
+				_currentInstance.dragManager.reset();							
+			});
 			return _currentInstance;
 		};
 
