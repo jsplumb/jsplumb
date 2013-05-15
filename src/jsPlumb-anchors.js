@@ -113,16 +113,19 @@
                 return function(a,b) {
                     var r = true;
                     if (reverseAngles) {
-                        if (a[0][0] < b[0][0])
+                        /*if (a[0][0] < b[0][0])
                             r = true;
                         else
-                            r = a[0][1] > b[0][1];
+                            r = a[0][1] > b[0][1];*/
+                        r = a[0][0] < b[0][0];
                     }
                     else {
-                        if (a[0][0] > b[0][0])
+                        /*if (a[0][0] > b[0][0])
                             r= true;
                         else
                             r =a[0][1] > b[0][1];
+                        */
+                        r = a[0][0] > b[0][0];
                     }
                     return r === false ? -1 : 1;
                 };
@@ -292,6 +295,7 @@
                     for (var i = 0; i < listToRemoveFrom.length; i++) {
                         jsPlumbUtil.addWithFunction(connsToPaint, listToRemoveFrom[i][1], function(c) { return c.id == listToRemoveFrom[i][1].id });
                         jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[idx].id });
+                        jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[oIdx].id });
                     }
                 }
             }
@@ -301,6 +305,7 @@
                     firstMatchingElIdx = i;
                 jsPlumbUtil.addWithFunction(connsToPaint, listToAddTo[i][1], function(c) { return c.id == listToAddTo[i][1].id });                
                 jsPlumbUtil.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function(e) { return e.id == listToAddTo[i][1].endpoints[idx].id });
+                jsPlumbUtil.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[oIdx], function(e) { return e.id == listToAddTo[i][1].endpoints[oIdx].id });
             }
             if (exactIdx != -1) {
                 listToAddTo[exactIdx] = values;
