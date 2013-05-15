@@ -336,6 +336,7 @@
             while (self.connections.length > 0) {
                 self.detach(self.connections[0], false, true, fireEvent, originalEvent);
             }
+            return self;
         };
             
         this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
@@ -350,6 +351,7 @@
                 if (self.detach(c[i], false, true, fireEvent, originalEvent))
                     c[i].setHover(false, false);					
             }
+            return self;
         };	
         
         this.detachFromConnection = function(connection) {
