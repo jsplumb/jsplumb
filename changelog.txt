@@ -1,3 +1,9 @@
+* 1.4.1
+
+		BACKWARDS COMPATIBILITY
+
+		- Flowchart connectors reduce the stub parameter automatically when the two elements are closer than the sum of the two stubs. This can be overridden by setting the alwaysRespectStubs parameter to true on the Flowchart connector definition.	
+
 * 1.4.0
 
 		BACKWARDS COMPATIBILITY
