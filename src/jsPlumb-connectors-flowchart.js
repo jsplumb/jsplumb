@@ -27,6 +27,8 @@
      *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  
                 Like stub, this can be an array or a single value. defaults to 0 pixels for each end.     
      * cornerRadius - optional, defines the radius of corners between segments. defaults to 0 (hard edged corners).
+     * alwaysRespectStubs - defaults to false. whether or not the connectors should always draw the stub, or, if the two elements
+                            are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
      */
     jsPlumb.Connectors.Flowchart = function(params) {
         this.type = "Flowchart";
@@ -37,6 +39,7 @@
             midpoint = params.midpoint || 0.5,
             points = [], segments = [],
             grid = params.grid,
+            alwaysRespectStubs = params.alwaysRespectStubs,
             userSuppliedSegments = null,
             lastx = null, lasty = null, lastOrientation,	
             cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,	
@@ -164,20 +167,27 @@
                         var pi = paintInfo,
                             idx = axis == "x" ? 0 : 1, 
                             areInProximity = {
-                                "x":function() {
-                                    return (pi.so[idx] == 1 && ( 
+                                "x":function() {                                    
+                                    return ( (pi.so[idx] == 1 && ( 
                                         ( (pi.startStubX > pi.endStubX) && (pi.tx > pi.startStubX) ) ||
-                                        ( (pi.sx > pi.endStubX) && (pi.tx > pi.sx))));
+                                        ( (pi.sx > pi.endStubX) && (pi.tx > pi.sx))))) ||
+
+                                        ( (pi.so[idx] == -1 && ( 
+                                            ( (pi.startStubX < pi.endStubX) && (pi.tx < pi.startStubX) ) ||
+                                            ( (pi.sx < pi.endStubX) && (pi.tx < pi.sx)))));
                                 },
-                                "y":function() { 
-                                    return (pi.so[idx] == 1 && ( 
+                                "y":function() {                                     
+                                    return ( (pi.so[idx] == 1 && ( 
                                         ( (pi.startStubY > pi.endStubY) && (pi.ty > pi.startStubY) ) ||
-                                        ( (pi.sy > pi.endStubY) && (pi.ty > pi.sy))));
+                                        ( (pi.sy > pi.endStubY) && (pi.ty > pi.sy))))) ||
 
+                                        ( (pi.so[idx] == -1 && ( 
+                                        ( (pi.startStubY < pi.endStubY) && (pi.ty < pi.startStubY) ) ||
+                                        ( (pi.sy < pi.endStubY) && (pi.ty < pi.sy)))));
                                 }
-                            }[axis]();
+                            };
 
-                        if (areInProximity) {                   
+                        if (!alwaysRespectStubs && areInProximity[axis]()) {                   
                             return {
                                 "x":[(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
                                 "y":[paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
