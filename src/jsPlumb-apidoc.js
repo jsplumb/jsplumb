@@ -1110,7 +1110,7 @@ between this method and jsPlumb.reset).
 * Property: scope
 * Scope descriptor for this Endpoint.
 */
- /*
+/*
 * Property: overlays
 * List of Overlays for this Endpoint.
 */
@@ -1917,6 +1917,23 @@ between this method and jsPlumb.reset).
  * Parameters:
  * 	typeId - Id of the type to toggle.
  */
+
+ /*
+ * Class: jsPlumb.Connectors.Flowchart
+ * The Flowchart connector.
+ */
+ /*
+  * Function: Constructor
+  * 
+  * Parameters:
+  *   stub - minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
+  * or an array of two integers, giving separate values for each end. The default is an integer with value 30 (pixels). 
+  *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  
+  *           Like stub, this can be an array or a single value. defaults to 0 pixels for each end.     
+  * cornerRadius - optional, defines the radius of corners between segments. defaults to 0 (hard edged corners).
+  * alwaysRespectStubs - defaults to false. whether or not the connectors should always draw the stub, or, if the two elements
+  *                       are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
+  */
     	
     	
         
