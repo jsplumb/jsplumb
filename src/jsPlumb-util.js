@@ -27,14 +27,18 @@
         isArray : function(a) {
             return Object.prototype.toString.call(a) === "[object Array]";	
         },
+        isNumber : function(n) {
+            return Object.prototype.toString.call(n) === "[object Number]";  
+        },
         isString : function(s) {
             return typeof s === "string";
         },
         isBoolean: function(s) {
             return typeof s === "boolean";
         },
+        isNull : function(s) { return s == null; },  
         isObject : function(o) {
-            return Object.prototype.toString.call(o) === "[object Object]";	
+            return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";	
         },
         isDate : function(o) {
             return Object.prototype.toString.call(o) === "[object Date]";

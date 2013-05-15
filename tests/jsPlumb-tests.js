@@ -5098,6 +5098,32 @@ var testSuite = function(renderMode, _jsPlumb) {
             ok(false, msg + "; expected " + v1 + " got " + v2);
         }
     };
+
+	var types = [
+		{ v: { "foo":"bar" }, t:"Object" },
+		{ v:null, t:"Null" },
+		{ v:123, t:"Number" },
+		{ v:"foo", t:"String" },
+		{ v:[1,2,3], t:"Array" },
+		{ v:true, t:"Boolean" },
+		{ v:new Date(), t:"Date" },
+		{ v:function() { }, t:"Function" }
+	];
+
+	test(renderMode + "jsPlumbUtil typeof functions", function() {
+		for (var i = 0; i < types.length; i++) {
+			var v = types[i].v, f = jsPlumbUtil["is" + types[i].t];
+			// first, test that the object type is identified correctly
+			equal(f(v), true, types[i].t + " is recognised as " + types[i].t);
+			// now test that everything else is recognised as not being of this type
+			for (var j = 0; j < types.length; j++) {
+				if (i != j) {
+					var v2 = types[j].v;
+					equal(f(v2), false, types[j].t + " is not recognised as " + types[i].t);
+				}
+			}
+		}
+	});
     
     test(renderMode + "jsPlumbUtil.copyValues", function() {
     	var n = ["foo", "bar", "baz"],
