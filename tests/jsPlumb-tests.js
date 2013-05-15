@@ -1439,7 +1439,36 @@ var testSuite = function(renderMode, _jsPlumb) {
         ok(_jsPlumb.getTestHarness().endpointsByElement["d2"] ==  null, "no endpoints for the nested div");                        
         
         expect(2);
-    });    
+    });  
+
+/*
+
+	I'm on the fence about this one.  There is a method you can call to tell jsPlumb that an element
+	has been deleted, so in theory you should not get into a situation where you are doing what this
+	test does.  But you can of course get there accidentally, which is one reason why it would be good
+	for this test to exist.
+
+    test(renderMode + ": deleting endpoints of deleted element should not fail", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var ep1 = _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+
+        _jsPlumb.connect({source:ep1, target:"d2"});
+        
+        d1.remove();
+
+        var eps = _jsPlumb.getEndpoints(d1);
+        equal(eps.length, 3, "there are three endpoints for d1");
+        for (var i = 0; i < eps.length; i++) {
+            _jsPlumb.deleteEndpoint(eps[i]);
+        }        
+        eps = _jsPlumb.getEndpoints("d1");
+        equal(eps, null, "there are zero endpoints for d1");
+        
+        equal(_jsPlumb.getTestHarness().endpointsByElement["d1"].length, 0, "no endpoints for the given element");                        
+    });  
+*/    
     
     
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case)", function() {
