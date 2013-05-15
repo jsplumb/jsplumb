@@ -1094,8 +1094,8 @@
                     txy = _ju.pointOnLine(hxy, mid, self.length);
                 }
                 else if (self.loc == 1) {                
-					hxy = component.pointOnPath(self.loc);
-					mid = component.pointAlongPathFrom(self.loc, -1);                    
+					hxy = component.pointOnPath(self.loc);					           
+                    mid = component.pointAlongPathFrom(self.loc, -(self.length));
 					txy = _ju.pointOnLine(hxy, mid, self.length);
 					
 					if (direction == -1) {
@@ -1106,7 +1106,7 @@
                 }
                 else if (self.loc == 0) {					                    
 					txy = component.pointOnPath(self.loc);                    
-					mid = component.pointAlongPathFrom(self.loc, 1);                    
+					mid = component.pointAlongPathFrom(self.loc, self.length);                    
 					hxy = _ju.pointOnLine(txy, mid, self.length);                    
 					if (direction == -1) {
 						var _ = txy;
