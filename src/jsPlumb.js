@@ -1359,7 +1359,8 @@
             // YUI wrapper
 			el = _convertYUICollection(el);							
 
-			var results = [], inputs = jsPlumbUtil.isArray(el) ? el : [ el ];
+			var results = [], 
+				inputs = (_isArray(el) || (el.length != null && !_isString(el))) ? el : [ el ];
 						
 			for (var i = 0, j = inputs.length; i < j; i++) {
 				var _el = _gel(inputs[i]), id = _getId(_el);
