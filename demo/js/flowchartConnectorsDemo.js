@@ -46,7 +46,7 @@
 					lineWidth:2 
 				},				
 				isSource:true,
-				connector:[ "Flowchart", { stub:[40, 60], gap:10, cornerRadius:5 } ],								                
+				connector:[ "Flowchart", { stub:[40, 60], gap:10, cornerRadius:5, alwaysRespectStubs:true } ],								                
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:endpointHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
@@ -104,10 +104,10 @@
 			});			
 						
 			// make all the window divs draggable						
-			jsPlumb.draggable(jsPlumb.getSelector(".window"), { grid: [20, 20] });
-			// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector method!
-			//jsPlumb.draggable(jsPlumb.getSelector(".window"));
-
+			jsPlumb.draggable(jsPlumb.getSelector(".window"), { grid: [20, 20] });		
+			// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector 
+			// method, or document.querySelectorAll:
+			//jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
             
 			// connect a few up
 			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"], editable:true});
@@ -127,7 +127,7 @@
 			});	
 			
 			jsPlumb.bind("connectionDrag", function(connection) {
-				console.log("connection " + connection.id + " is being dragged");
+				console.log("connection " + connection.id + " is being dragged. suspendedElement is ", connection.suspendedElement, " of type ", connection.suspendedElementType);
 			});		
 			
 			jsPlumb.bind("connectionDragStop", function(connection) {
