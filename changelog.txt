@@ -11,11 +11,13 @@
 
 		ISSUES (note: these are GitHub issues. Google Code is no longer in use)
 
+		45 - passing empty array to addEndpoint fails
 		43 - connections flickering with continuous anchors
 		42 - error in isObject method in IE8 causes registered connection types to fail in an obscure way.
 		33 - allow lineWidth/outlineWidth to be specified as strings
 		30 - Error after removing endpoint from deleted element
 		31 - Repaint everything needs to be called twice with 1.4.0
+		23 - arrow overlay on Bezier connector placed incorrectly
 
 * 1.4.0
 
