@@ -657,6 +657,12 @@
                     jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
                     // store the original endpoint and assign the new floating endpoint for the drag.
                     jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
+                    
+                    // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
+                    jpc.suspendedElement = jpc.endpoints[anchorIdx].getElement();
+                    jpc.suspendedElementId = jpc.endpoints[anchorIdx].elementId;
+                    jpc.suspendedElementType = anchorIdx == 0 ? "source" : "target";
+                    
                     jpc.suspendedEndpoint.setHover(false);
                     floatingEndpoint.referenceEndpoint = jpc.suspendedEndpoint;
                     jpc.endpoints[anchorIdx] = floatingEndpoint;
