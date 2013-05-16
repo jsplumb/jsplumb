@@ -39,7 +39,8 @@
             var numElements = $("#txtElements").val(),
                 anchors = $("input[name='anchors']:checked").val(),
                 suspend = $("input[name='chkSuspend']:checked").val() === "yes",
-                setLabel = $("input[name='chkLabel']:checked").val() === "yes";
+                setLabel = $("input[name='chkLabel']:checked").val() === "yes",
+                actuallyPaint = $("input[name='chkPaint']:checked").val() === "yes";
 
             jsPlumb.importDefaults({
                 Container: $("#demo"),
@@ -48,7 +49,7 @@
                     
 
             // for bulk drawing operations this is recommended.
-            if (suspend) jsPlumb.setSuspendDrawing(true);
+            if (!actuallyPaint || suspend) jsPlumb.setSuspendDrawing(true);
 
             var st = (new Date()).getTime(),
                 ww = $(window).width(),
@@ -102,7 +103,8 @@
 
             var st2 = (new Date()).getTime();
             // instruct jsplumb to unsuspend drawing, and to do a repaint.
-            if (suspend) jsPlumb.setSuspendDrawing(false, true);
+            if (actuallyPaint && suspend)
+                jsPlumb.setSuspendDrawing(false, true);
             var t2 = (new Date()).getTime();
 
             $("#numConnections").html(connCount);

@@ -223,7 +223,51 @@ var testSuite = function(renderMode, _jsPlumb) {
 	  ok(d2.getAttribute("id") == null, "no id on d2");
 	  ok(d3.getAttribute("id") != null, "id on d3");
 	});
+
+	test(renderMode + ": lineWidth specified as string (eew)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = jsPlumb.connect({
+			source:"d1",
+			target:"d2",
+			paintStyle:{
+				strokeStyle:"red",
+				lineWidth:"3"
+			}
+		});
+		equal(c.paintStyleInUse.lineWidth, 3, "line width converted to integer");
+	});
+
+	test(renderMode + ": outlineWidth specified as string (eew)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({
+			source:"d1",
+			target:"d2",
+			paintStyle:{
+				strokeStyle:"red",
+				lineWidth:3,
+				outlineWidth:"5"
+			}
+		});
+		c.repaint();
+		equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
+	});
 	
+	test(renderMode + ": lineWidth and outlineWidth specified as strings (eew)", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({
+			source:"d1",
+			target:"d2",
+			paintStyle:{
+				strokeStyle:"red",
+				lineWidth:"3",
+				outlineWidth:"5"
+			}
+		});
+		c.repaint();
+		equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
+		equal(c.paintStyleInUse.lineWidth, 3, "line width converted to integer");
+	});
+
 	test(renderMode + ': defaultEndpointMaxConnections', function() {
 		var d3 = _addDiv("d3"), d4 = _addDiv("d4");
 		var e3 = _jsPlumb.addEndpoint(d3, {isSource:true});
@@ -1395,7 +1439,36 @@ var testSuite = function(renderMode, _jsPlumb) {
         ok(_jsPlumb.getTestHarness().endpointsByElement["d2"] ==  null, "no endpoints for the nested div");                        
         
         expect(2);
-    });    
+    });  
+
+/*
+
+	I'm on the fence about this one.  There is a method you can call to tell jsPlumb that an element
+	has been deleted, so in theory you should not get into a situation where you are doing what this
+	test does.  But you can of course get there accidentally, which is one reason why it would be good
+	for this test to exist.
+
+    test(renderMode + ": deleting endpoints of deleted element should not fail", function() {
+        var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+        var ep1 = _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+        _jsPlumb.addEndpoint(d1);
+
+        _jsPlumb.connect({source:ep1, target:"d2"});
+        
+        d1.remove();
+
+        var eps = _jsPlumb.getEndpoints(d1);
+        equal(eps.length, 3, "there are three endpoints for d1");
+        for (var i = 0; i < eps.length; i++) {
+            _jsPlumb.deleteEndpoint(eps[i]);
+        }        
+        eps = _jsPlumb.getEndpoints("d1");
+        equal(eps, null, "there are zero endpoints for d1");
+        
+        equal(_jsPlumb.getTestHarness().endpointsByElement["d1"].length, 0, "no endpoints for the given element");                        
+    });  
+*/    
     
     
 	test(renderMode + ": _jsPlumb.addEndpoint (simple case)", function() {
@@ -1447,6 +1520,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e16[1].anchor.y, 0);
 		equal(true, e16[1].isTarget);
 		equal(false, e16[1].isSource);
+	});
+
+	test(renderMode + ": _jsPlumb.addEndpoint (empty array)", function() {
+		_jsPlumb.addEndpoint([], {isSource:true});
+		_jsPlumb.repaintEverything();
+		expect(0);
 	});
 	
 	test(renderMode + ": _jsPlumb.addEndpoints (with reference params)", function() {
@@ -5098,6 +5177,32 @@ var testSuite = function(renderMode, _jsPlumb) {
             ok(false, msg + "; expected " + v1 + " got " + v2);
         }
     };
+
+	var types = [
+		{ v: { "foo":"bar" }, t:"Object" },
+		{ v:null, t:"Null" },
+		{ v:123, t:"Number" },
+		{ v:"foo", t:"String" },
+		{ v:[1,2,3], t:"Array" },
+		{ v:true, t:"Boolean" },
+		{ v:new Date(), t:"Date" },
+		{ v:function() { }, t:"Function" }
+	];
+
+	test(renderMode + "jsPlumbUtil typeof functions", function() {
+		for (var i = 0; i < types.length; i++) {
+			var v = types[i].v, f = jsPlumbUtil["is" + types[i].t];
+			// first, test that the object type is identified correctly
+			equal(f(v), true, types[i].t + " is recognised as " + types[i].t);
+			// now test that everything else is recognised as not being of this type
+			for (var j = 0; j < types.length; j++) {
+				if (i != j) {
+					var v2 = types[j].v;
+					equal(f(v2), false, types[j].t + " is not recognised as " + types[i].t);
+				}
+			}
+		}
+	});
     
     test(renderMode + "jsPlumbUtil.copyValues", function() {
     	var n = ["foo", "bar", "baz"],

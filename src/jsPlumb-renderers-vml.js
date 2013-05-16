@@ -170,7 +170,11 @@
 	 */
 	VmlComponent = function() {				
 		var self = this, renderer = {};
-		jsPlumb.jsPlumbUIComponent.apply(this, arguments);		
+		jsPlumb.jsPlumbUIComponent.apply(this, arguments);	
+
+
+
+
 		this.opacityNodes = {
 			"stroke":null,
 			"fill":null
@@ -281,6 +285,10 @@
 		self.canvas.style["position"] = "absolute";
 
 		var clazz = self._jsPlumb.endpointClass + (params.cssClass ? (" " + params.cssClass) : "");
+
+		// TODO vml endpoint adds class to VML at constructor time.  but the addClass method adds VML
+		// to the enclosing DIV. what to do?  seems like it would be better to just target the div.
+		// HOWEVER...vml connection has no containing div.  why not? it feels like it should.
 
 		//var group = _getGroup(params.parent);
         //group.appendChild(self.canvas);

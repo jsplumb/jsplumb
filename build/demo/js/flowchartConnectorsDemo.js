@@ -13,7 +13,7 @@
 				// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
 				// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
 				ConnectionOverlays : [
-					[ "Arrow", { location:0.9 } ],
+					[ "Arrow", { location:-40 } ],
 					[ "Label", { 
 						location:0.1,
 						id:"label",
@@ -28,7 +28,7 @@
 				strokeStyle:"#deea18",
 				joinstyle:"round",
 				outlineColor:"#EAEDEF",
-				outlineWidth:7
+				outlineWidth:2
 			},
 			// .. and this is the hover style. 
 			connectorHoverStyle = {
@@ -39,9 +39,14 @@
 			// the definition of source endpoints (the small blue ones)
 			sourceEndpoint = {
 				endpoint:"Dot",
-				paintStyle:{ fillStyle:"#225588",radius:7 },
+				paintStyle:{ 
+					strokeStyle:"#225588",
+					fillStyle:"transparent",
+					radius:7,
+					lineWidth:2 
+				},				
 				isSource:true,
-				connector:[ "Flowchart", { stub:[40, 60], gap:10, cornerRadius:5 } ],								                
+				connector:[ "Flowchart", { stub:[40, 60], gap:10, cornerRadius:5, alwaysRespectStubs:true } ],								                
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:endpointHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
@@ -99,10 +104,10 @@
 			});			
 						
 			// make all the window divs draggable						
-			jsPlumb.draggable(jsPlumb.getSelector(".window"), { grid: [20, 20] });
-			// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector method!
-			//jsPlumb.draggable(jsPlumb.getSelector(".window"));
-
+			jsPlumb.draggable(jsPlumb.getSelector(".window"), { grid: [20, 20] });		
+			// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector 
+			// method, or document.querySelectorAll:
+			//jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
             
 			// connect a few up
 			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"], editable:true});
@@ -122,7 +127,7 @@
 			});	
 			
 			jsPlumb.bind("connectionDrag", function(connection) {
-				console.log("connection " + connection.id + " is being dragged");
+				console.log("connection " + connection.id + " is being dragged. suspendedElement is ", connection.suspendedElement, " of type ", connection.suspendedElementType);
 			});		
 			
 			jsPlumb.bind("connectionDragStop", function(connection) {

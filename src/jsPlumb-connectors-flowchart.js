@@ -48,6 +48,7 @@
              * helper method to add a segment.
              */
             addSegment = function(segments, x, y, paintInfo) {
+                if (lastx == x && lasty == y) return;
                 var lx = lastx == null ? paintInfo.sx : lastx,
                     ly = lasty == null ? paintInfo.sy : lasty,
                     o = lx == x ? "v" : "h",
@@ -56,7 +57,7 @@
                     
                 lastx = x;
                 lasty = y;				    		                
-                segments.push([lx, ly, x, y, o, sgnx, sgny]);				
+                segments.push([lx, ly, x, y, o, sgnx, sgny]);
             },
             segLength = function(s) {
                 return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));    
@@ -252,16 +253,16 @@
                             }                                
                         }                                
                     },
-                    orthogonal : function(axis, ss, oss, es, oes) {                    
+                    orthogonal : function(axis, startStub, otherStartStub, endStub, otherEndStub) {                    
                         var pi = paintInfo,                                            
                             extent = {
-                                "x":pi.so[0] == -1 ? Math.min(ss, es) : Math.max(ss, es),
-                                "y":pi.so[1] == -1 ? Math.min(ss, es) : Math.max(ss, es)
+                                "x":pi.so[0] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
+                                "y":pi.so[1] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
                             }[axis];
                                                 
                         return {
-                            "x":[ [ extent, oss ],[ extent, oes ], [ es, oes ] ],
-                            "y":[ [ oss, extent ], [ oes, extent ],[ oes, es ] ]
+                            "x":[ [ extent, otherStartStub ],[ extent, otherEndStub ], [ endStub, otherEndStub ] ],
+                            "y":[ [ otherStartStub, extent ], [ otherEndStub, extent ], [ otherEndStub, endStub ] ]
                         }[axis];                    
                     },
                     opposite : function(axis, ss, oss, es, oes) {                                                

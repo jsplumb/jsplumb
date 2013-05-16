@@ -96,11 +96,11 @@
 			//
 			var color2 = "#316b31";
 			var exampleEndpoint2 = {
-				endpoint:["Dot", { radius:15 }],
+				endpoint:["Dot", { radius:11 }],
 				paintStyle:{ fillStyle:color2 },
 				isSource:true,
 				scope:"green dot",
-				connectorStyle:{ strokeStyle:color2, lineWidth:8 },
+				connectorStyle:{ strokeStyle:color2, lineWidth:6 },
 				connector: ["Bezier", { curviness:63 } ],
 				maxConnections:3,
 				isTarget:true,

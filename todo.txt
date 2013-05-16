@@ -8,6 +8,8 @@ future
     - expose "rehomeEndpoint" method on jsPlumb (and 'rehome' on Endpoint); this takes an Endpoint and moves it
     to a different parent. should take an optional second method to provide the Container to use.
 
+    - text on path (see demo)?
+
 
     FAQ
 

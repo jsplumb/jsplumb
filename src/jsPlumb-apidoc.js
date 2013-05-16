@@ -1934,6 +1934,44 @@ between this method and jsPlumb.reset).
   * alwaysRespectStubs - defaults to false. whether or not the connectors should always draw the stub, or, if the two elements
   *                       are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
   */
+  /*
+  * Function: getPath
+  * Gets the path inscribed by the connector, as a series of [x,y] points.
+  */
+
+
+  /**
+  * Class: jsPlumb.Connectors.StateMachine
+  * Provides 'state machine' connectors.
+  */
+  /*
+  * Function: Constructor
+  * 
+  * Parameters:
+  * curviness -  measure of how "curvy" the connectors will be.  this is translated as the distance that the
+  *                Bezier curve's control point is from the midpoint of the straight line connecting the two
+  *              endpoints, and does not mean that the connector is this wide.  The Bezier curve never reaches
+  *              its control points; they act as gravitational masses. defaults to 10.
+  * margin - distance from element to start and end connectors, in pixels.  defaults to 5.
+  * proximityLimit  -   sets the distance beneath which the elements are consider too close together to bother
+  *            with fancy curves. by default this is 80 pixels.
+  * loopbackRadius - the radius of a loopback connector.  optional; defaults to 25.
+  * showLoopback   -   If set to false this tells the connector that it is ok to paint connections whose source and target is the same element with a connector running through the element. The default value for this is true; the connector always makes a loopback connection loop around the element rather than passing through it.
+  * orientation - defaults to "clockwise"; valid values are "clockwise" and "anticlockwise". Indicates in which direction a loopback connection should be considered to be travelling.
+  */
+
+  /**
+   * Class: jsPlumb.Connectors.Straight
+   * The Straight connector draws a simple straight line between the two anchor points.  
+   * 
+   * Parameters:
+   * stub - optional distance to travel from each endpoint before making the connection between the two. defaults to 0.
+   * sourceStub - optional stub for the source endpoint only.
+   * targetStub - optional stub for the target endpoint only.
+   * gap - optional gap to leave between the endpoints and the start of the connector.
+   * sourceGap - optional gap for the source endpoint only.
+   * targetGap - optional gap for the target endpoint only.
+   */  
     	
     	
         

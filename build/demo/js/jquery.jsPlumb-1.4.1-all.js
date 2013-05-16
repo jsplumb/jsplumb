@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 
@@ -27,14 +27,18 @@
         isArray : function(a) {
             return Object.prototype.toString.call(a) === "[object Array]";	
         },
+        isNumber : function(n) {
+            return Object.prototype.toString.call(n) === "[object Number]";  
+        },
         isString : function(s) {
             return typeof s === "string";
         },
         isBoolean: function(s) {
             return typeof s === "boolean";
         },
+        isNull : function(s) { return s == null; },  
         isObject : function(o) {
-            return Object.prototype.toString.call(o) === "[object Object]";	
+            return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";	
         },
         isDate : function(o) {
             return Object.prototype.toString.call(o) === "[object Date]";
@@ -110,7 +114,7 @@
                     if (matches != null) {
                         for (var i = 0; i < matches.length; i++) {
                             var val = values[matches[i].substring(2, matches[i].length - 1)];
-                            if (val) {
+                            if (val != null) {
                                 fromString = fromString.replace(matches[i], val);
                             }
                         }							
@@ -393,7 +397,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -628,7 +632,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -873,8 +877,10 @@
                     }
 		   		 	if (hoverPaintStyle != null) {
 						self.paintStyleInUse = hover ? hoverPaintStyle : paintStyle;
-						timestamp = timestamp || _timestamp();
-						self.repaint({timestamp:timestamp, recalc:false});
+						if (!self._jsPlumb.isSuspendDrawing()) {
+							timestamp = timestamp || _timestamp();
+							self.repaint({timestamp:timestamp, recalc:false});
+						}
 					}
 					// get the list of other affected elements, if supported by this component.
 					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
@@ -1982,9 +1988,9 @@
 			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
 			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
             // YUI wrapper
-			el = _convertYUICollection(el);			
-			
-			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+			el = _convertYUICollection(el);							
+
+			var results = [], inputs = jsPlumbUtil.isArray(el) ? el : [ el ];
 						
 			for (var i = 0, j = inputs.length; i < j; i++) {
 				var _el = _gel(inputs[i]), id = _getId(_el);
@@ -1996,8 +2002,10 @@
 				var myOffset = offsets[id], myWH = sizes[id];
 				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e, timestamp:_suspendedAt });
 				var endpointPaintParams = { anchorLoc : anchorLoc, timestamp:_suspendedAt };
+				
 				if (_suspendDrawing) endpointPaintParams.recalc = false;
-				e.paint(endpointPaintParams);
+				if (!_suspendDrawing) e.paint(endpointPaintParams);
+				
 				results.push(e);
 				//if (!jsPlumbAdapter.headless)
 					//_currentInstance.dragManager.endpointAdded(_el);
@@ -2107,51 +2115,52 @@
 		
 		// delete the given endpoint: either an Endpoint here, or its UUID.
 		this.deleteEndpoint = function(object) {
-			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
-			if (endpoint) {					
-				var uuid = endpoint.getUuid();
-				if (uuid) endpointsByUUID[uuid] = null;				
-				endpoint.detachAll();
-				endpoint.cleanup();
-				if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
-				jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
-				_currentInstance.anchorManager.deleteEndpoint(endpoint);
-				for (var e in endpointsByElement) {
-					var endpoints = endpointsByElement[e];
-					if (endpoints) {
-						var newEndpoints = [];
-						for (var i = 0, j = endpoints.length; i < j; i++)
-							if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
-						
-						endpointsByElement[e] = newEndpoints;
-					}
-					if(endpointsByElement[e].length <1){
-						delete endpointsByElement[e];
-					}
-				}				
-				if (!jsPlumbAdapter.headless)
-					_currentInstance.dragManager.endpointDeleted(endpoint);								
-			}
-			return _currentInstance;									
+			_currentInstance.doWhileSuspended(function() {
+				var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
+				if (endpoint) {					
+					var uuid = endpoint.getUuid();
+					if (uuid) endpointsByUUID[uuid] = null;				
+					endpoint.detachAll().cleanup();
+					if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
+					jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
+					_currentInstance.anchorManager.deleteEndpoint(endpoint);
+					for (var e in endpointsByElement) {
+						var endpoints = endpointsByElement[e];
+						if (endpoints) {
+							var newEndpoints = [];
+							for (var i = 0, j = endpoints.length; i < j; i++)
+								if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
+							
+							endpointsByElement[e] = newEndpoints;
+						}
+						if(endpointsByElement[e].length <1){
+							delete endpointsByElement[e];
+						}
+					}				
+					if (!jsPlumbAdapter.headless)
+						_currentInstance.dragManager.endpointDeleted(endpoint);								
+				}
+				return _currentInstance;									
+			});
 		};
 		
 		
 		// delete every endpoint and their connections. distinct from reset because we dont clear listeners here.
 		this.deleteEveryEndpoint = function() {
-			_currentInstance.setSuspendDrawing(true);
-			for ( var id in endpointsByElement) {
-				var endpoints = endpointsByElement[id];
-				if (endpoints && endpoints.length) {
-					for ( var i = 0, j = endpoints.length; i < j; i++) {
-						_currentInstance.deleteEndpoint(endpoints[i]);
+			_currentInstance.doWhileSuspended(function() {
+				for ( var id in endpointsByElement) {
+					var endpoints = endpointsByElement[id];
+					if (endpoints && endpoints.length) {
+						for ( var i = 0, j = endpoints.length; i < j; i++) {
+							_currentInstance.deleteEndpoint(endpoints[i]);
+						}
 					}
-				}
-			}			
-			endpointsByElement = {};			
-			endpointsByUUID = {};
-			_currentInstance.anchorManager.reset();
-			_currentInstance.dragManager.reset();			
-			_currentInstance.setSuspendDrawing(false, true);
+				}			
+				endpointsByElement = {};			
+				endpointsByUUID = {};
+				_currentInstance.anchorManager.reset();
+				_currentInstance.dragManager.reset();							
+			});
 			return _currentInstance;
 		};
 
@@ -3220,7 +3229,7 @@
 
 		// repaint every endpoint and connection.
 		this.repaintEverything = function() {	
-			var timestamp = _timestamp();			
+			var timestamp = null;// _timestamp();			
 			for ( var elId in endpointsByElement) {
 				_draw(_gel(elId), null, timestamp);				
 			}
@@ -3257,6 +3266,7 @@
             var id = jsPlumbUtil.isString(el) ? el : _getId(_el);
             _currentInstance.doWhileSuspended(function() {
             	_currentInstance.removeAllEndpoints(id, true);
+            	_currentInstance.dragManager.elementRemoved(id);
             });
             jsPlumb.CurrentLibrary.removeElement(_el);
         };
@@ -3582,7 +3592,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -3694,16 +3704,19 @@
                 return function(a,b) {
                     var r = true;
                     if (reverseAngles) {
-                        if (a[0][0] < b[0][0])
+                        /*if (a[0][0] < b[0][0])
                             r = true;
                         else
-                            r = a[0][1] > b[0][1];
+                            r = a[0][1] > b[0][1];*/
+                        r = a[0][0] < b[0][0];
                     }
                     else {
-                        if (a[0][0] > b[0][0])
+                        /*if (a[0][0] > b[0][0])
                             r= true;
                         else
                             r =a[0][1] > b[0][1];
+                        */
+                        r = a[0][0] > b[0][0];
                     }
                     return r === false ? -1 : 1;
                 };
@@ -3873,6 +3886,7 @@
                     for (var i = 0; i < listToRemoveFrom.length; i++) {
                         jsPlumbUtil.addWithFunction(connsToPaint, listToRemoveFrom[i][1], function(c) { return c.id == listToRemoveFrom[i][1].id });
                         jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[idx].id });
+                        jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[oIdx].id });
                     }
                 }
             }
@@ -3882,6 +3896,7 @@
                     firstMatchingElIdx = i;
                 jsPlumbUtil.addWithFunction(connsToPaint, listToAddTo[i][1], function(c) { return c.id == listToAddTo[i][1].id });                
                 jsPlumbUtil.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function(e) { return e.id == listToAddTo[i][1].endpoints[idx].id });
+                jsPlumbUtil.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[oIdx], function(e) { return e.id == listToAddTo[i][1].endpoints[oIdx].id });
             }
             if (exactIdx != -1) {
                 listToAddTo[exactIdx] = values;
@@ -4372,7 +4387,7 @@
     _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
     _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
     _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
-    // from 1.4.0: Top, Right, Bottom, Left
+    // from 1.4.1: Top, Right, Bottom, Left
     _curryAnchor(0.5, 0, 0,-1, "Top");
     _curryAnchor(0.5, 1, 0, 1, "Bottom");
     _curryAnchor(0, 0.5, -1, 0, "Left");
@@ -4887,6 +4902,7 @@
             while (self.connections.length > 0) {
                 self.detach(self.connections[0], false, true, fireEvent, originalEvent);
             }
+            return self;
         };
             
         this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
@@ -4901,6 +4917,7 @@
                 if (self.detach(c[i], false, true, fireEvent, originalEvent))
                     c[i].setHover(false, false);					
             }
+            return self;
         };	
         
         this.detachFromConnection = function(connection) {
@@ -5206,6 +5223,12 @@
                     jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
                     // store the original endpoint and assign the new floating endpoint for the drag.
                     jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
+                    
+                    // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
+                    jpc.suspendedElement = jpc.endpoints[anchorIdx].getElement();
+                    jpc.suspendedElementId = jpc.endpoints[anchorIdx].elementId;
+                    jpc.suspendedElementType = anchorIdx == 0 ? "source" : "target";
+                    
                     jpc.suspendedEndpoint.setHover(false);
                     floatingEndpoint.referenceEndpoint = jpc.suspendedEndpoint;
                     jpc.endpoints[anchorIdx] = floatingEndpoint;
@@ -5831,30 +5854,32 @@
         var _suspendedAt = _jsPlumb.getSuspendedAt();
         _jsPlumb.updateOffset( { elId : this.sourceId, timestamp:_suspendedAt });
         _jsPlumb.updateOffset( { elId : this.targetId, timestamp:_suspendedAt });
-        
-        // paint the endpoints
-        var myInfo = _jsPlumb.getCachedData(this.sourceId),
-            myOffset = myInfo.o, myWH = myInfo.s,
-            otherInfo = _jsPlumb.getCachedData(this.targetId),
-            otherOffset = otherInfo.o,
-            otherWH = otherInfo.s,
-            initialTimestamp = _suspendedAt || _jsPlumb.timestamp(),
-            anchorLoc = this.endpoints[0].anchor.compute( {
-                xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
-                elementId:this.endpoints[0].elementId,
-                txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1],
-                timestamp:initialTimestamp
+
+        if(!_jsPlumb.isSuspendDrawing()) {                    
+            // paint the endpoints
+            var myInfo = _jsPlumb.getCachedData(this.sourceId),
+                myOffset = myInfo.o, myWH = myInfo.s,
+                otherInfo = _jsPlumb.getCachedData(this.targetId),
+                otherOffset = otherInfo.o,
+                otherWH = otherInfo.s,
+                initialTimestamp = _suspendedAt || _jsPlumb.timestamp(),
+                anchorLoc = this.endpoints[0].anchor.compute( {
+                    xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
+                    elementId:this.endpoints[0].elementId,
+                    txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1],
+                    timestamp:initialTimestamp
+                });
+
+            this.endpoints[0].paint( { anchorLoc : anchorLoc, timestamp:initialTimestamp });
+
+            anchorLoc = this.endpoints[1].anchor.compute( {
+                xy : [ otherOffset.left, otherOffset.top ], wh : otherWH, element : this.endpoints[1],
+                elementId:this.endpoints[1].elementId,				
+                txy : [ myOffset.left, myOffset.top ], twh : myWH, tElement : this.endpoints[0],
+                timestamp:initialTimestamp				
             });
-
-        this.endpoints[0].paint( { anchorLoc : anchorLoc, timestamp:initialTimestamp });
-
-        anchorLoc = this.endpoints[1].anchor.compute( {
-            xy : [ otherOffset.left, otherOffset.top ], wh : otherWH, element : this.endpoints[1],
-            elementId:this.endpoints[1].elementId,				
-            txy : [ myOffset.left, myOffset.top ], twh : myWH, tElement : this.endpoints[0],
-            timestamp:initialTimestamp				
-        });
-        this.endpoints[1].paint({ anchorLoc : anchorLoc, timestamp:initialTimestamp });
+            this.endpoints[1].paint({ anchorLoc : anchorLoc, timestamp:initialTimestamp });
+        }
                                 
 // END INITIALISATION CODE			
         
@@ -6009,8 +6034,8 @@
                         }
                     }
 
-                    var lineWidth = (self.paintStyleInUse.lineWidth || 1) / 2,
-                        outlineWidth = self.paintStyleInUse.lineWidth || 0,
+                    var lineWidth = parseFloat(self.paintStyleInUse.lineWidth || 1) / 2,
+                        outlineWidth = parseFloat(self.paintStyleInUse.lineWidth || 0),
                         extents = {
                             xmin : Math.min(connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
                             ymin : Math.min(connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
@@ -6053,7 +6078,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -6093,7 +6118,7 @@
         /*
          * Class: AbstractSegment
          * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
-         * 'Bezier'. This is new from 1.4.0, and gives us a lot more flexibility when drawing connections: things such
+         * 'Bezier'. This is new from 1.4.1, and gives us a lot more flexibility when drawing connections: things such
          * as rounded corners for flowchart connectors, for example, or a straight line stub for Bezier connections, are
          * much easier to do now.
          *
@@ -6674,7 +6699,7 @@
 		this.pointAlongPathFrom = function(location, distance, absolute) {
 			var seg = _findSegmentForLocation(location, absolute);
 			// TODO what happens if this crosses to the next segment?
-			return seg.segment.pointAlongPathFrom(seg.proportion, distance, absolute);
+			return seg.segment.pointAlongPathFrom(seg.proportion, distance, false);
 		};
 		
 		this.compute = function(params)  {
@@ -7146,8 +7171,8 @@
                     txy = _ju.pointOnLine(hxy, mid, self.length);
                 }
                 else if (self.loc == 1) {                
-					hxy = component.pointOnPath(self.loc);
-					mid = component.pointAlongPathFrom(self.loc, -1);                    
+					hxy = component.pointOnPath(self.loc);					           
+                    mid = component.pointAlongPathFrom(self.loc, -(self.length));
 					txy = _ju.pointOnLine(hxy, mid, self.length);
 					
 					if (direction == -1) {
@@ -7158,7 +7183,7 @@
                 }
                 else if (self.loc == 0) {					                    
 					txy = component.pointOnPath(self.loc);                    
-					mid = component.pointAlongPathFrom(self.loc, 1);                    
+					mid = component.pointAlongPathFrom(self.loc, self.length);                    
 					hxy = _ju.pointOnLine(txy, mid, self.length);                    
 					if (direction == -1) {
 						var _ = txy;
@@ -7489,7 +7514,7 @@
 })();/*
  * jsPlumb
  *
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -7755,7 +7780,7 @@
     *//*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -7781,6 +7806,8 @@
      *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  
                 Like stub, this can be an array or a single value. defaults to 0 pixels for each end.     
      * cornerRadius - optional, defines the radius of corners between segments. defaults to 0 (hard edged corners).
+     * alwaysRespectStubs - defaults to false. whether or not the connectors should always draw the stub, or, if the two elements
+                            are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
      */
     jsPlumb.Connectors.Flowchart = function(params) {
         this.type = "Flowchart";
@@ -7791,6 +7818,7 @@
             midpoint = params.midpoint || 0.5,
             points = [], segments = [],
             grid = params.grid,
+            alwaysRespectStubs = params.alwaysRespectStubs,
             userSuppliedSegments = null,
             lastx = null, lasty = null, lastOrientation,	
             cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,	
@@ -7798,20 +7826,17 @@
             /**
              * helper method to add a segment.
              */
-            addSegment = function(segments, x, y, sx, sy) {
-                // if segment would have length zero, dont add it.
-                if (sx == lastx && sy == lasty) return;
-                if (x == lastx && y == lasty) return;
-                
-                var lx = lastx == null ? sx : lastx,
-                    ly = lasty == null ? sy : lasty,
+            addSegment = function(segments, x, y, paintInfo) {
+                if (lastx == x && lasty == y) return;
+                var lx = lastx == null ? paintInfo.sx : lastx,
+                    ly = lasty == null ? paintInfo.sy : lasty,
                     o = lx == x ? "v" : "h",
                     sgnx = sgn(x - lx),
                     sgny = sgn(y - ly);
                     
                 lastx = x;
                 lasty = y;				    		                
-                segments.push([lx, ly, x, y, o, sgnx, sgny]);				
+                segments.push([lx, ly, x, y, o, sgnx, sgny]);
             },
             segLength = function(s) {
                 return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));    
@@ -7906,17 +7931,55 @@
             lastOrientation = null;          
             
             var midx = paintInfo.startStubX + ((paintInfo.endStubX - paintInfo.startStubX) * midpoint),
-                midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);
-                                                                                         
-            // add the start stub segment.
-            addSegment(segments, paintInfo.startStubX, paintInfo.startStubY, paintInfo.sx, paintInfo.sy);			
+                midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);                                                                                                    
     
             var findClearedLine = function(start, mult, anchorPos, dimension) {
                     return start + (mult * (( 1 - anchorPos) * dimension) + _super.maxStub);
                 },
                 orientations = { x:[ 0, 1 ], y:[ 1, 0 ] },
+                commonStubCalculator = function(axis) {
+                    return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];                    
+                },
+                stubCalculators = {
+                    perpendicular:commonStubCalculator,
+                    orthogonal:commonStubCalculator,
+                    opposite:function(axis) {  
+                        var pi = paintInfo,
+                            idx = axis == "x" ? 0 : 1, 
+                            areInProximity = {
+                                "x":function() {                                    
+                                    return ( (pi.so[idx] == 1 && ( 
+                                        ( (pi.startStubX > pi.endStubX) && (pi.tx > pi.startStubX) ) ||
+                                        ( (pi.sx > pi.endStubX) && (pi.tx > pi.sx))))) ||
+
+                                        ( (pi.so[idx] == -1 && ( 
+                                            ( (pi.startStubX < pi.endStubX) && (pi.tx < pi.startStubX) ) ||
+                                            ( (pi.sx < pi.endStubX) && (pi.tx < pi.sx)))));
+                                },
+                                "y":function() {                                     
+                                    return ( (pi.so[idx] == 1 && ( 
+                                        ( (pi.startStubY > pi.endStubY) && (pi.ty > pi.startStubY) ) ||
+                                        ( (pi.sy > pi.endStubY) && (pi.ty > pi.sy))))) ||
+
+                                        ( (pi.so[idx] == -1 && ( 
+                                        ( (pi.startStubY < pi.endStubY) && (pi.ty < pi.startStubY) ) ||
+                                        ( (pi.sy < pi.endStubY) && (pi.ty < pi.sy)))));
+                                }
+                            };
+
+                        if (!alwaysRespectStubs && areInProximity[axis]()) {                   
+                            return {
+                                "x":[(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
+                                "y":[paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
+                            }[axis];
+                        }
+                        else {
+                            return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];   
+                        }
+                    }
+                },
                 lineCalculators = {
-                    perpendicular : function(axis) {
+                    perpendicular : function(axis, ss, oss, es, oes) {
                         with (paintInfo) {
                             var sis = {
                                 x:[ [ [ 1,2,3,4 ], null, [ 2,1,4,3 ] ], null, [ [ 4,3,2,1 ], null, [ 3,4,1,2 ] ] ],
@@ -7969,66 +8032,72 @@
                             }                                
                         }                                
                     },
-                    orthogonal : function(axis) {                    
+                    orthogonal : function(axis, startStub, otherStartStub, endStub, otherEndStub) {                    
                         var pi = paintInfo,                                            
                             extent = {
-                                "x":pi.so[0] == -1 ? Math.min(pi.startStubX, pi.endStubX) : Math.max(pi.startStubX, pi.endStubX),
-                                "y":pi.so[1] == -1 ? Math.min(pi.startStubY, pi.endStubY) : Math.max(pi.startStubY, pi.endStubY)
+                                "x":pi.so[0] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
+                                "y":pi.so[1] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
                             }[axis];
                                                 
                         return {
-                            "x":[ [ extent, pi.startStubY ],[ extent, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ],
-                            "y":[ [ pi.startStubX, extent ], [ pi.endStubX, extent ],[ pi.endStubX, pi.endStubY ] ]
+                            "x":[ [ extent, otherStartStub ],[ extent, otherEndStub ], [ endStub, otherEndStub ] ],
+                            "y":[ [ otherStartStub, extent ], [ otherEndStub, extent ], [ otherEndStub, endStub ] ]
                         }[axis];                    
                     },
-                    opposite : function(axis) {                                                
+                    opposite : function(axis, ss, oss, es, oes) {                                                
                         var pi = paintInfo,
                             otherAxis = {"x":"y","y":"x"}[axis], 
-                            stub = "Stub" + axis.toUpperCase(),
-                            otherStub = "Stub" + otherAxis.toUpperCase(),
-                            otherStartStub = pi["start" + otherStub],
-                            startStub = pi["start" + stub],
-                            otherEndStub = pi["end" + otherStub],
-                            endStub = pi["end" + stub],
                             dim = {"x":"height","y":"width"}[axis],
-                            comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"],
-                            idx = axis == "x" ? 0 : 1;
+                            comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
 
                         if (params.sourceEndpoint.elementId == params.targetEndpoint.elementId) {
-                            var _val = otherStartStub + ((1 - params.sourceAnchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
+                            var _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
                             return {
-                                "x":[ [ startStub, _val ], [ endStub, _val ] ],
-                                "y":[ [ _val, startStub ], [ _val, endStub ] ]
+                                "x":[ [ ss, _val ], [ es, _val ] ],
+                                "y":[ [ _val, ss ], [ _val, es ] ]
                             }[axis];
                             
                         }                                                        
-                        else if (!comparator || (pi.so[idx] == 1 && startStub > endStub)
-                           || (pi.so[idx] == -1 && startStub < endStub)) {
+                        else if (!comparator || (pi.so[idx] == 1 && ss > es)
+                           || (pi.so[idx] == -1 && ss < es)) {                                            
                             return {
-                                "x":[[ startStub, midy ], [ endStub, midy ]],
-                                "y":[[ midx, startStub ], [ midx, endStub ]]
+                                "x":[[ ss, midy ], [ es, midy ]],
+                                "y":[[ midx, ss ], [ midx, es ]]
                             }[axis];
                         }
-                        else if ((pi.so[idx] == 1 && startStub < endStub) || (pi.so[idx] == -1 && startStub > endStub)) {
+                        else if ((pi.so[idx] == 1 && ss < es) || (pi.so[idx] == -1 && ss > es)) {
                             return {
                                 "x":[[ midx, pi.sy ], [ midx, pi.ty ]],
                                 "y":[[ pi.sx, midy ], [ pi.tx, midy ]]
                             }[axis];
                         }                        
                     }
-                },
-                p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);
-                
+                };
+
+            var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
+                idx = paintInfo.sourceAxis == "x" ? 0 : 1,
+                oidx = paintInfo.sourceAxis == "x" ? 1 : 0,                            
+                ss = stubs[idx],
+                oss = stubs[oidx],
+                es = stubs[idx + 2],
+                oes = stubs[oidx + 2];
+
+            // add the start stub segment.
+            addSegment(segments, stubs[0], stubs[1], paintInfo);           
+
+            // compute the rest of the line
+            var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);            
             if (p) {
                 for (var i = 0; i < p.length; i++) {                	
-                    addSegment(segments, p[i][0], p[i][1]);
+                    addSegment(segments, p[i][0], p[i][1], paintInfo);
                 }
             }          
             
-            addSegment(segments, paintInfo.endStubX, paintInfo.endStubY);
+            // line to end stub
+            addSegment(segments, stubs[2], stubs[3], paintInfo);
     
-            // end stub
-            addSegment(segments, paintInfo.tx, paintInfo.ty);               
+            // end stub to end
+            addSegment(segments, paintInfo.tx, paintInfo.ty, paintInfo);               
             
             writeSegments(segments, paintInfo);                            
         };	
@@ -8072,7 +8141,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -8241,7 +8310,11 @@
 	 */
 	VmlComponent = function() {				
 		var self = this, renderer = {};
-		jsPlumb.jsPlumbUIComponent.apply(this, arguments);		
+		jsPlumb.jsPlumbUIComponent.apply(this, arguments);	
+
+
+
+
 		this.opacityNodes = {
 			"stroke":null,
 			"fill":null
@@ -8352,6 +8425,10 @@
 		self.canvas.style["position"] = "absolute";
 
 		var clazz = self._jsPlumb.endpointClass + (params.cssClass ? (" " + params.cssClass) : "");
+
+		// TODO vml endpoint adds class to VML at constructor time.  but the addClass method adds VML
+		// to the enclosing DIV. what to do?  seems like it would be better to just target the div.
+		// HOWEVER...vml connection has no containing div.  why not? it feels like it should.
 
 		//var group = _getGroup(params.parent);
         //group.appendChild(self.canvas);
@@ -8557,7 +8634,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -9149,12 +9226,12 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
  * 
- * This file contains the MooTools adapter.
+ * This file contains the jQuery adapter.
  *
  * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
  * 
@@ -9163,415 +9240,374 @@
  * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
+ */ 
+/* 
+ * the library specific functions, such as find offset, get id, get attribute, extend etc.  
+ * the full list is:
+ * 
+ * addClass				adds a class to the given element
+ * animate				calls the underlying library's animate functionality
+ * appendElement		appends a child element to a parent element.
+ * bind					binds some event to an element
+ * dragEvents			a dictionary of event names
+ * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
+ * getAttribute			gets some attribute from an element
+ * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
+ * getDragScope			gets the drag scope for a given element.
+ * getDropScope			gets the drop scope for a given element.
+ * getElementObject		turns an id or dom element into an element object of the underlying library's type.
+ * getOffset			gets an element's offset
+ * getOriginalEvent     gets the original browser event from some wrapper event
+ * getPageXY			gets the page event's xy location.
+ * getParent			gets the parent of some element.
+ * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
+ * getScrollTop			gets an element's scroll top.  TODO: is this actually used?  will it be?
+ * getSize				gets an element's size.
+ * getUIPosition		gets the position of some element that is currently being dragged, by extracting it from the arguments passed to a drag callback.
+ * hasClass				returns whether or not the given element has the given class.
+ * initDraggable		initializes an element to be draggable 
+ * initDroppable		initializes an element to be droppable
+ * isDragSupported		returns whether or not drag is supported for some element.
+ * isDropSupported		returns whether or not drop is supported for some element.
+ * removeClass			removes a class from a given element.
+ * removeElement		removes some element completely from the DOM.
+ * setAttribute			sets an attribute on some element.
+ * setDragFilter		sets a filter for some element that indicates areas of the element that should not respond to dragging.
+ * setDraggable			sets whether or not some element should be draggable.
+ * setDragScope			sets the drag scope for a given element.
+ * setOffset			sets the offset of some element.
+ * trigger				triggers some event on an element.
+ * unbind				unbinds some listener from some element.
  */
+(function($) {	
+	
+	//var getBoundingClientRectSupported = "getBoundingClientRect" in document.documentElement;
 
-;(function() {
-	
-	/*
-	 * overrides the FX class to inject 'step' functionality, which MooTools does not
-	 * offer, and which makes me sad.  they don't seem keen to add it, either, despite
-	 * the fact that it could be useful:
-	 * 
-	 * https://mootools.lighthouseapp.com/projects/2706/tickets/668
-	 * 
-	 */
-	var jsPlumbMorph = new Class({
-		Extends:Fx.Morph,
-		onStep : null,
-		initialize : function(el, options) {
-			this.parent(el, options);
-			if (options['onStep']) {
-				this.onStep = options['onStep'];
-			}
-		},
-		step : function(now) {
-			this.parent(now);
-			if (this.onStep) { 
-				try { this.onStep(); } 
-				catch(e) { } 
-			}
-		}
-	});
-	
-	var _droppables = {},
-	_droppableOptions = {},
-	_draggablesByScope = {},
-	_draggablesById = {},
-	_droppableScopesById = {};
-	/*
-	 * 
-	 */
-	var _executeDroppableOption = function(el, dr, event, originalEvent) {
-		if (dr) {
-			var id = dr.get("id");
-			if (id) {
-				var options = _droppableOptions[id];
-				if (options) {
-					if (options[event]) {
-						options[event](el, dr, originalEvent);
-					}
-				}
-			}
-		}
-	};	
-	
-	var _checkHover = function(el, entering) {
-		if (el) {
-			var id = el.get("id");
-			if (id) {
-				var options = _droppableOptions[id];
-				if (options) {
-					if (options['hoverClass']) {
-						if (entering) el.addClass(options['hoverClass']);
-						else el.removeClass(options['hoverClass']);
-					}
-				}
-			}
-		}
+	var _getElementObject = function(el) {			
+		return typeof(el) == "string" ? $("#" + el) : $(el);
 	};
 
-	/**
-	 * adds the given value to the given list, with the given scope. creates the scoped list
-	 * if necessary.
-	 * used by initDraggable and initDroppable.
-	 */
-	var _add = function(list, _scope, value) {
-		var l = list[_scope];
-		if (!l) {
-			l = [];
-			list[_scope] = l;
-		}
-		l.push(value);
-	};
-	
-	/*
-	 * gets an "element object" from the given input.  this means an object that is used by the
-	 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
-	 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
-	 * function is used to find the element, using the given String as the element's id.
-	 */
-	var _getElementObject = function(el) {
-	  return $(el);
-	};
-		
-	jsPlumb.CurrentLibrary = {				
+	jsPlumb.CurrentLibrary = {					        
 		
 		/**
 		 * adds the given class to the element object.
 		 */
 		addClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el)						
+			el = _getElementObject(el);
 			try {
-				if (el.className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.addClass(el, clazz);
+				if (el[0].className.constructor == SVGAnimatedString) {
+					jsPlumbUtil.svg.addClass(el[0], clazz);                    
 				}
-				else el.addClass(clazz);
 			}
-			catch (e) {				
+			catch (e) {
 				// SVGAnimatedString not supported; no problem.
-				el.addClass(clazz);
-			}						
-		},	
-			
-		animate : function(el, properties, options) {			
-			var m = new jsPlumbMorph(el, options);
-			m.start(properties);
+			}
+            try {                
+                el.addClass(clazz);
+            }
+            catch (e) {
+                // you probably have jQuery 1.9 and Firefox.  
+            }
 		},
 		
+		/**
+		 * animates the given element.
+		 */
+		animate : function(el, properties, options) {
+			el.animate(properties, options);
+		},				
+		
+		/**
+		 * appends the given child to the given parent.
+		 */
 		appendElement : function(child, parent) {
-			_getElementObject(parent).grab(child);			
+			_getElementObject(parent).append(child);			
+		},   
+
+		/**
+		* executes an ajax call.
+		*/
+		ajax : function(params) {
+			params = params || {};
+			params.type = params.type || "get";
+			$.ajax(params);
 		},
 		
+		/**
+		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
+		 * uses 'on'.
+		 */
 		bind : function(el, event, callback) {
 			el = _getElementObject(el);
-			el.addEvent(event, callback);
+			el.bind(event, callback);
 		},
 		
+		/**
+         * mapping of drag events for jQuery
+         */
 		dragEvents : {
-			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
-			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
+			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
+			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
-
-		/*
+				
+		/**
 		 * wrapper around the library's 'extend' functionality (which it hopefully has.
 		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
 		 * instead.  it's not like its hard.
 		 */
 		extend : function(o1, o2) {
-			return $extend(o1, o2);
+			return $.extend(o1, o2);
 		},
 		
 		/**
 		 * gets the named attribute from the given element object.  
 		 */
 		getAttribute : function(el, attName) {
-			return el.get(attName);
+			return el.attr(attName);
 		},
 		
 		getClientXY : function(eventObject) {
-			return [eventObject.event.clientX, eventObject.event.clientY];
+			return [eventObject.clientX, eventObject.clientY];
 		},
 		
+		/**
+		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
+		 */
 		getDragObject : function(eventArgs) {
-			return eventArgs[0];
+			return eventArgs[1].draggable || eventArgs[1].helper;
 		},
 		
 		getDragScope : function(el) {
-			var id = jsPlumb.getId(el),
-			    drags = _draggablesById[id];
-			return drags[0].scope;
+			return el.draggable("option", "scope");
 		},
-	
-		getDropEvent : function(args) {			
-			return args[2];
+
+		getDropEvent : function(args) {
+			return args[0];
 		},
 		
 		getDropScope : function(el) {
-			var id = jsPlumb.getId(el);
-			return _droppableScopesById[id];
+			return el.droppable("option", "scope");		
 		},
-		
-		getDOMElement : function(el) { 
-			// MooTools just decorates the DOM elements. so we have either an ID or an Element here.
-			return typeof(el) == "String" ? document.getElementById(el) : el; 
+
+		/**
+		* gets a DOM element from the given input, which might be a string (in which case we just do document.getElementById),
+		* a selector (in which case we return el[0]), or a DOM element already (we assume this if it's not either of the other
+		* two cases).  this is the opposite of getElementObject below.
+		*/
+		getDOMElement : function(el) {
+			if (typeof(el) == "string") return document.getElementById(el);
+			else if (el.context || el.length != null) return el[0];
+			else return el;
 		},
-							
+	
+		/**
+		 * gets an "element object" from the given input.  this means an object that is used by the
+		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
+		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
+		 * function is used to find the element, using the given String as the element's id.
+		 * 
+		 */		
 		getElementObject : _getElementObject,
 		
-		/*
-		  gets the offset for the element object.  this should return a js object like this:
-		  
-		  { left:xxx, top: xxx}
+		/**
+		  * gets the offset for the element object.  this should return a js object like this:
+		  *
+		  * { left:xxx, top: xxx }
 		 */
 		getOffset : function(el) {
-			var p = el.getPosition();
-			return { left:p.x, top:p.y };
-		},	
-		
+			return el.offset();
+		},
+
 		getOriginalEvent : function(e) {
-			return e.event;
-		},			
+			return e.originalEvent;
+		},
 		
 		getPageXY : function(eventObject) {
-			return [eventObject.event.pageX, eventObject.event.pageY];
+			return [eventObject.pageX, eventObject.pageY];
 		},
 		
 		getParent : function(el) {
-			return jsPlumb.CurrentLibrary.getElementObject(el).getParent();
+			return _getElementObject(el).parent();
 		},
-		
+														
 		getScrollLeft : function(el) {
-			return null;
+			return el.scrollLeft();
 		},
 		
 		getScrollTop : function(el) {
-			return null;
+			return el.scrollTop();
 		},
 		
 		getSelector : function(context, spec) {
-            if (arguments.length == 2) {
-                return jsPlumb.CurrentLibrary.getElementObject(context).getElements(spec);
-            }
+            if (arguments.length == 2)
+                return _getElementObject(context).find(spec);
             else
-			     return $$(context);
+                return $(context);
 		},
 		
+		/**
+		 * gets the size for the element object, in an array : [ width, height ].
+		 */
 		getSize : function(el) {
-			var s = el.getSize();
-			return [s.x, s.y];
+			return [el.outerWidth(), el.outerHeight()];
 		},
 
         getTagName : function(el) {
-            var e = jsPlumb.CurrentLibrary.getElementObject(el);
-            return e != null ? e.tagName : null;
+            var e = _getElementObject(el);
+            return e.length > 0 ? e[0].tagName : null;
         },
 		
-		/*
+		/**
 		 * takes the args passed to an event function and returns you an object that gives the
 		 * position of the object being moved, as a js object with the same params as the result of
 		 * getOffset, ie: { left: xxx, top: xxx }.
+		 * 
+		 * different libraries have different signatures for their event callbacks.  
+		 * see getDragObject as well
 		 */
 		getUIPosition : function(eventArgs, zoom) {
-		  var ui = eventArgs[0],
-			  el = jsPlumb.CurrentLibrary.getElementObject(ui),
-			  p = el.getPosition();
 			
-		  zoom = zoom || 1;		  
-			
-		  return { left:p.x / zoom, top:p.y / zoom};
+			zoom = zoom || 1;
+			// this code is a workaround for the case that the element being dragged has a margin set on it. jquery UI passes
+			// in the wrong offset if the element has a margin (it doesn't take the margin into account).  the getBoundingClientRect
+			// method, which is in pretty much all browsers now, reports the right numbers.  but it introduces a noticeable lag, which
+			// i don't like.
+            
+			/*if ( getBoundingClientRectSupported ) {
+				var r = eventArgs[1].helper[0].getBoundingClientRect();
+				return { left : r.left, top: r.top };
+			} else {*/
+			if (eventArgs.length == 1) {
+				ret = { left: eventArgs[0].pageX, top:eventArgs[0].pageY };
+			}
+			else {
+				var ui = eventArgs[1],
+				  _offset = ui.offset;
+				  
+				ret = _offset || ui.absolutePosition;
+				
+				// adjust ui position to account for zoom, because jquery ui does not do this.
+				ui.position.left /= zoom;
+				ui.position.top /= zoom;
+			}
+            return { left:ret.left / zoom, top: ret.top / zoom };
 		},		
 		
 		hasClass : function(el, clazz) {
 			return el.hasClass(clazz);
 		},
 		
+		/**
+		 * initialises the given element to be draggable.
+		 */
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
-			var id = jsPlumb.getId(el);
-			var drag = _draggablesById[id];
-			if (!drag) {
-				var originalZIndex = 0,
-                    originalCursor = null,
-				    dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
-                
-				options['onStart'] = jsPlumb.wrap(options['onStart'], function() {
-                    originalZIndex = this.element.getStyle('z-index');
-					this.element.setStyle('z-index', dragZIndex);
-                    drag.originalZIndex = originalZIndex;
-					if (jsPlumb.Defaults.DragOptions.cursor) {
-						originalCursor = this.element.getStyle('cursor');
-						this.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
-					}
-				});
-				
-				options['onComplete'] = jsPlumb.wrap(options['onComplete'], function() {
-					this.element.setStyle('z-index', originalZIndex);
-					if (originalCursor) {
-						this.element.setStyle('cursor', originalCursor);
-					}                    
-				});
-				
-				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element
-                // draggable.  this is the only library adapter that has to care about this parameter.
-				var scope = "" + (options["scope"] || jsPlumb.Defaults.Scope),
-				    filterFunc = function(entry) {
-					    return entry.get("id") != el.get("id");
-				    },
-				    droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
+			options = options || {};
 
-                if (isPlumbedComponent) {
+/*
+			// css3 transforms
+			// http://gungfoo.wordpress.com/2013/02/15/jquery-ui-resizabledraggable-with-transform-scale-set/
+			options.start = _jsPlumb.wrap(options["start"], function(e, ui) {
+				// TODO why is this 0?				
+			    ui.position.left = 0;
+			    ui.position.top = 0;
+			});
 
-				    options['droppables'] = droppables;
-				    options['onLeave'] = jsPlumb.wrap(options['onLeave'], function(el, dr) {
-		    			if (dr) {
-			    			_checkHover(dr, false);
-				    		_executeDroppableOption(el, dr, 'onLeave');
-					    }
-				    });
-				    options['onEnter'] = jsPlumb.wrap(options['onEnter'], function(el, dr) {
-					    if (dr) {
-						    _checkHover(dr, true);
-						    _executeDroppableOption(el, dr, 'onEnter');
-					    }
-				    });
-				    options['onDrop'] = function(el, dr, event) {
-					    if (dr) {
-						    _checkHover(dr, false);
-						    _executeDroppableOption(el, dr, 'onDrop', event);
-					    }
-				    };
-                }
-                else
-                    options["droppables"] = [];
-				
-				drag = new Drag.Move(el, options);
-				drag.scope = scope;
-                drag.originalZIndex = originalZIndex;
-                _add(_draggablesById, el.get("id"), drag);
-				// again, only keep a record of this for scope stuff if this is a plumbed component (an endpoint)
-                if (isPlumbedComponent) {
-				    _add(_draggablesByScope, scope, drag);
-                }
-				// test for disabled.
-				if (options.disabled) drag.detach();
-			}
-			return drag;
+			options.drag = _jsPlumb.wrap(options["drag"], function(e, ui) {
+
+				console.log("original", ui.originalPosition.left, ui.originalPosition.top);
+				console.log("current", ui.position.left, ui.position.top);
+
+				//var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
+			    //var newLeft = ui.originalPosition.left + (changeLeft * _jsPlumb.getZoom()); // adjust new left by our zoomScale
+			 
+			    //var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
+			    //var newTop = ui.originalPosition.top + (changeTop * _jsPlumb.getZoom()); // adjust new top by our zoomScale
+			 
+			    //ui.position.left = newLeft;
+			    //ui.position.top = newTop;
+
+			    ui.position.left *= _jsPlumb.getZoom();
+			    ui.position.top *= _jsPlumb.getZoom();
+
+			});
+*/
+
+
+			// remove helper directive if present and no override
+			if (!options.doNotRemoveHelper)
+				options.helper = null;
+			if (isPlumbedComponent)
+				options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
+			el.draggable(options);
 		},
 		
-		initDroppable : function(el, options, isPlumbedComponent, isPermanent) {
-			var scope = options["scope"];
-            _add(_droppables, scope, el);
-			var id = jsPlumb.getId(el);
-
-            el.setAttribute("_isPermanentDroppable", isPermanent);  // we use this to clear out droppables on drag complete.
-			_droppableOptions[id] = options;
-			_droppableScopesById[id] = scope;
-			var filterFunc = function(entry) { return entry.element != el; },
-			    draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
-			for (var i = 0; i < draggables.length; i++) {
-				draggables[i].droppables.push(el);
-			}
+		/**
+		 * initialises the given element to be droppable.
+		 */
+		initDroppable : function(el, options) {
+			options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
+			el.droppable(options);
 		},
 		
 		isAlreadyDraggable : function(el) {
-			return _draggablesById[jsPlumb.getId(el)] != null;
-		},										
+			return _getElementObject(el).hasClass("ui-draggable");
+		},
 		
+		/**
+		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
+		 */
 		isDragSupported : function(el, options) {
-			return typeof Drag != 'undefined' ;
-		},	
-		
-		/*
-		 * you need Drag.Move imported to make drop work.
+			return el.draggable;
+		},				
+						
+		/**
+		 * returns whether or not drop is supported (by the library, not whether or not it is disabled) for the given element.
 		 */
 		isDropSupported : function(el, options) {
-			return (typeof Drag != undefined && typeof Drag.Move != undefined);
-		},
+			return el.droppable;
+		},							
 		
 		/**
 		 * removes the given class from the element object.
 		 */
 		removeClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			el = _getElementObject(el);
 			try {
-				if (el.className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.removeClass(el, clazz);
+				if (el[0].className.constructor == SVGAnimatedString) {
+					jsPlumbUtil.svg.removeClass(el[0], clazz);
+                    return;
 				}
-				else el.removeClass(clazz);
 			}
-			catch (e) {				
+			catch (e) {
 				// SVGAnimatedString not supported; no problem.
-				el.removeClass(clazz);
 			}
+			el.removeClass(clazz);
 		},
 		
-		removeElement : function(element, parent) {
-            var el = _getElementObject(element);
-			if (el) el.dispose();  // ??
+		removeElement : function(element) {			
+			_getElementObject(element).remove();
 		},
 		
-		/**
-		 * sets the named attribute on the given element object.  
-		 */
 		setAttribute : function(el, attName, attValue) {
-			el.set(attName, attValue);
+			el.attr(attName, attValue);
 		},
 
 		setDragFilter : function(el, filter) {
-			jsPlumb.log("NOT IMPLEMENTED: setDragFilter")
+			if (jsPlumb.CurrentLibrary.isAlreadyDraggable(el))
+				el.draggable("option", "cancel", filter);
 		},
 		
 		setDraggable : function(el, draggable) {
-			var draggables = _draggablesById[el.get("id")];
-			if (draggables) {
-				draggables.each(function(d) {
-					if (draggable) d.attach(); else d.detach();
-				});
-			}
+			el.draggable("option", "disabled", !draggable);
 		},
 		
 		setDragScope : function(el, scope) {
-			var drag = _draggablesById[el.get("id")];
-			var filterFunc = function(entry) {
-				return entry.get("id") != el.get("id");
-			};
-			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
-			drag[0].droppables = droppables;
+			el.draggable("option", "scope", scope);
 		},
 		
 		setOffset : function(el, o) {
-			_getElementObject(el).setPosition({x:o.left, y:o.top});
+			_getElementObject(el).offset(o);
 		},
-
-        stopDrag : function() {
-            for (var i in _draggablesById) {
-                for (var j = 0; j < _draggablesById[i].length; j++) {
-                    var d = _draggablesById[i][j];
-                    d.stop();
-                    if (d.originalZIndex != 0)
-                        d.element.setStyle("z-index", d.originalZIndex);
-                }
-            }
-        },
 		
 		/**
 		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
@@ -9582,18 +9618,20 @@
 		 * @param originalEvent
 		 */
 		trigger : function(el, event, originalEvent) {
-			originalEvent.stopPropagation();
-			_getElementObject(el).fireEvent(event, originalEvent);
+			var h = jQuery._data(_getElementObject(el)[0], "handle");
+            h(originalEvent);
 		},
 		
 		unbind : function(el, event, callback) {
 			el = _getElementObject(el);
-			el.removeEvent(event, callback);
+			el.unbind(event, callback);
 		}
 	};
 	
-	window.addEvent('domready', jsPlumb.init);
-})();
+	$(document).ready(jsPlumb.init);
+	
+})(jQuery);
+
 (function(){"undefined"==typeof Math.sgn&&(Math.sgn=function(a){return 0==a?0:0<a?1:-1});var q={subtract:function(a,b){return{x:a.x-b.x,y:a.y-b.y}},dotProduct:function(a,b){return a.x*b.x+a.y*b.y},square:function(a){return Math.sqrt(a.x*a.x+a.y*a.y)},scale:function(a,b){return{x:a.x*b,y:a.y*b}}},B=Math.pow(2,-65),x=function(a,b){for(var f=[],d=b.length-1,g=2*d-1,h=[],e=[],m=[],k=[],l=[[1,0.6,0.3,0.1],[0.4,0.6,0.6,0.4],[0.1,0.3,0.6,1]],c=0;c<=d;c++)h[c]=q.subtract(b[c],a);for(c=0;c<=d-1;c++)e[c]=q.subtract(b[c+
 1],b[c]),e[c]=q.scale(e[c],3);for(c=0;c<=d-1;c++)for(var n=0;n<=d;n++)m[c]||(m[c]=[]),m[c][n]=q.dotProduct(e[c],h[n]);for(c=0;c<=g;c++)k[c]||(k[c]=[]),k[c].y=0,k[c].x=parseFloat(c)/g;g=d-1;for(h=0;h<=d+g;h++){c=Math.max(0,h-g);for(e=Math.min(h,d);c<=e;c++)j=h-c,k[c+j].y+=m[j][c]*l[j][c]}d=b.length-1;k=u(k,2*d-1,f,0);g=q.subtract(a,b[0]);m=q.square(g);for(c=l=0;c<k;c++)g=q.subtract(a,v(b,d,f[c],null,null)),g=q.square(g),g<m&&(m=g,l=f[c]);g=q.subtract(a,b[d]);g=q.square(g);g<m&&(m=g,l=1);return{location:l,
 distance:m}},u=function(a,b,f,d){var g=[],h=[],e=[],m=[],k=0,l,c;c=Math.sgn(a[0].y);for(var n=1;n<=b;n++)l=Math.sgn(a[n].y),l!=c&&k++,c=l;switch(k){case 0:return 0;case 1:if(64<=d)return f[0]=(a[0].x+a[b].x)/2,1;var r,p,k=a[0].y-a[b].y;c=a[b].x-a[0].x;n=a[0].x*a[b].y-a[b].x*a[0].y;l=max_distance_below=0;for(r=1;r<b;r++)p=k*a[r].x+c*a[r].y+n,p>l?l=p:p<max_distance_below&&(max_distance_below=p);p=c;r=0*p-1*k;l=(1*(n-l)-0*p)*(1/r);p=c;c=n-max_distance_below;r=0*p-1*k;k=(1*c-0*p)*(1/r);c=Math.min(l,k);

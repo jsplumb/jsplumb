@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 
@@ -27,14 +27,18 @@
         isArray : function(a) {
             return Object.prototype.toString.call(a) === "[object Array]";	
         },
+        isNumber : function(n) {
+            return Object.prototype.toString.call(n) === "[object Number]";  
+        },
         isString : function(s) {
             return typeof s === "string";
         },
         isBoolean: function(s) {
             return typeof s === "boolean";
         },
+        isNull : function(s) { return s == null; },  
         isObject : function(o) {
-            return Object.prototype.toString.call(o) === "[object Object]";	
+            return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";	
         },
         isDate : function(o) {
             return Object.prototype.toString.call(o) === "[object Date]";
@@ -110,7 +114,7 @@
                     if (matches != null) {
                         for (var i = 0; i < matches.length; i++) {
                             var val = values[matches[i].substring(2, matches[i].length - 1)];
-                            if (val) {
+                            if (val != null) {
                                 fromString = fromString.replace(matches[i], val);
                             }
                         }							
@@ -393,7 +397,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -628,7 +632,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -873,8 +877,10 @@
                     }
 		   		 	if (hoverPaintStyle != null) {
 						self.paintStyleInUse = hover ? hoverPaintStyle : paintStyle;
-						timestamp = timestamp || _timestamp();
-						self.repaint({timestamp:timestamp, recalc:false});
+						if (!self._jsPlumb.isSuspendDrawing()) {
+							timestamp = timestamp || _timestamp();
+							self.repaint({timestamp:timestamp, recalc:false});
+						}
 					}
 					// get the list of other affected elements, if supported by this component.
 					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
@@ -1982,9 +1988,9 @@
 			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
 			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
             // YUI wrapper
-			el = _convertYUICollection(el);			
-			
-			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+			el = _convertYUICollection(el);							
+
+			var results = [], inputs = jsPlumbUtil.isArray(el) ? el : [ el ];
 						
 			for (var i = 0, j = inputs.length; i < j; i++) {
 				var _el = _gel(inputs[i]), id = _getId(_el);
@@ -1996,8 +2002,10 @@
 				var myOffset = offsets[id], myWH = sizes[id];
 				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e, timestamp:_suspendedAt });
 				var endpointPaintParams = { anchorLoc : anchorLoc, timestamp:_suspendedAt };
+				
 				if (_suspendDrawing) endpointPaintParams.recalc = false;
-				e.paint(endpointPaintParams);
+				if (!_suspendDrawing) e.paint(endpointPaintParams);
+				
 				results.push(e);
 				//if (!jsPlumbAdapter.headless)
 					//_currentInstance.dragManager.endpointAdded(_el);
@@ -2107,51 +2115,52 @@
 		
 		// delete the given endpoint: either an Endpoint here, or its UUID.
 		this.deleteEndpoint = function(object) {
-			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
-			if (endpoint) {					
-				var uuid = endpoint.getUuid();
-				if (uuid) endpointsByUUID[uuid] = null;				
-				endpoint.detachAll();
-				endpoint.cleanup();
-				if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
-				jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
-				_currentInstance.anchorManager.deleteEndpoint(endpoint);
-				for (var e in endpointsByElement) {
-					var endpoints = endpointsByElement[e];
-					if (endpoints) {
-						var newEndpoints = [];
-						for (var i = 0, j = endpoints.length; i < j; i++)
-							if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
-						
-						endpointsByElement[e] = newEndpoints;
-					}
-					if(endpointsByElement[e].length <1){
-						delete endpointsByElement[e];
-					}
-				}				
-				if (!jsPlumbAdapter.headless)
-					_currentInstance.dragManager.endpointDeleted(endpoint);								
-			}
-			return _currentInstance;									
+			_currentInstance.doWhileSuspended(function() {
+				var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
+				if (endpoint) {					
+					var uuid = endpoint.getUuid();
+					if (uuid) endpointsByUUID[uuid] = null;				
+					endpoint.detachAll().cleanup();
+					if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
+					jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
+					_currentInstance.anchorManager.deleteEndpoint(endpoint);
+					for (var e in endpointsByElement) {
+						var endpoints = endpointsByElement[e];
+						if (endpoints) {
+							var newEndpoints = [];
+							for (var i = 0, j = endpoints.length; i < j; i++)
+								if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
+							
+							endpointsByElement[e] = newEndpoints;
+						}
+						if(endpointsByElement[e].length <1){
+							delete endpointsByElement[e];
+						}
+					}				
+					if (!jsPlumbAdapter.headless)
+						_currentInstance.dragManager.endpointDeleted(endpoint);								
+				}
+				return _currentInstance;									
+			});
 		};
 		
 		
 		// delete every endpoint and their connections. distinct from reset because we dont clear listeners here.
 		this.deleteEveryEndpoint = function() {
-			_currentInstance.setSuspendDrawing(true);
-			for ( var id in endpointsByElement) {
-				var endpoints = endpointsByElement[id];
-				if (endpoints && endpoints.length) {
-					for ( var i = 0, j = endpoints.length; i < j; i++) {
-						_currentInstance.deleteEndpoint(endpoints[i]);
+			_currentInstance.doWhileSuspended(function() {
+				for ( var id in endpointsByElement) {
+					var endpoints = endpointsByElement[id];
+					if (endpoints && endpoints.length) {
+						for ( var i = 0, j = endpoints.length; i < j; i++) {
+							_currentInstance.deleteEndpoint(endpoints[i]);
+						}
 					}
-				}
-			}			
-			endpointsByElement = {};			
-			endpointsByUUID = {};
-			_currentInstance.anchorManager.reset();
-			_currentInstance.dragManager.reset();			
-			_currentInstance.setSuspendDrawing(false, true);
+				}			
+				endpointsByElement = {};			
+				endpointsByUUID = {};
+				_currentInstance.anchorManager.reset();
+				_currentInstance.dragManager.reset();							
+			});
 			return _currentInstance;
 		};
 
@@ -3220,7 +3229,7 @@
 
 		// repaint every endpoint and connection.
 		this.repaintEverything = function() {	
-			var timestamp = _timestamp();			
+			var timestamp = null;// _timestamp();			
 			for ( var elId in endpointsByElement) {
 				_draw(_gel(elId), null, timestamp);				
 			}
@@ -3257,6 +3266,7 @@
             var id = jsPlumbUtil.isString(el) ? el : _getId(_el);
             _currentInstance.doWhileSuspended(function() {
             	_currentInstance.removeAllEndpoints(id, true);
+            	_currentInstance.dragManager.elementRemoved(id);
             });
             jsPlumb.CurrentLibrary.removeElement(_el);
         };
@@ -3582,7 +3592,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -3694,16 +3704,19 @@
                 return function(a,b) {
                     var r = true;
                     if (reverseAngles) {
-                        if (a[0][0] < b[0][0])
+                        /*if (a[0][0] < b[0][0])
                             r = true;
                         else
-                            r = a[0][1] > b[0][1];
+                            r = a[0][1] > b[0][1];*/
+                        r = a[0][0] < b[0][0];
                     }
                     else {
-                        if (a[0][0] > b[0][0])
+                        /*if (a[0][0] > b[0][0])
                             r= true;
                         else
                             r =a[0][1] > b[0][1];
+                        */
+                        r = a[0][0] > b[0][0];
                     }
                     return r === false ? -1 : 1;
                 };
@@ -3873,6 +3886,7 @@
                     for (var i = 0; i < listToRemoveFrom.length; i++) {
                         jsPlumbUtil.addWithFunction(connsToPaint, listToRemoveFrom[i][1], function(c) { return c.id == listToRemoveFrom[i][1].id });
                         jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[idx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[idx].id });
+                        jsPlumbUtil.addWithFunction(endpointsToPaint, listToRemoveFrom[i][1].endpoints[oIdx], function(e) { return e.id == listToRemoveFrom[i][1].endpoints[oIdx].id });
                     }
                 }
             }
@@ -3882,6 +3896,7 @@
                     firstMatchingElIdx = i;
                 jsPlumbUtil.addWithFunction(connsToPaint, listToAddTo[i][1], function(c) { return c.id == listToAddTo[i][1].id });                
                 jsPlumbUtil.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[idx], function(e) { return e.id == listToAddTo[i][1].endpoints[idx].id });
+                jsPlumbUtil.addWithFunction(endpointsToPaint, listToAddTo[i][1].endpoints[oIdx], function(e) { return e.id == listToAddTo[i][1].endpoints[oIdx].id });
             }
             if (exactIdx != -1) {
                 listToAddTo[exactIdx] = values;
@@ -4372,7 +4387,7 @@
     _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
     _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
     _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
-    // from 1.4.0: Top, Right, Bottom, Left
+    // from 1.4.1: Top, Right, Bottom, Left
     _curryAnchor(0.5, 0, 0,-1, "Top");
     _curryAnchor(0.5, 1, 0, 1, "Bottom");
     _curryAnchor(0, 0.5, -1, 0, "Left");
@@ -4887,6 +4902,7 @@
             while (self.connections.length > 0) {
                 self.detach(self.connections[0], false, true, fireEvent, originalEvent);
             }
+            return self;
         };
             
         this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
@@ -4901,6 +4917,7 @@
                 if (self.detach(c[i], false, true, fireEvent, originalEvent))
                     c[i].setHover(false, false);					
             }
+            return self;
         };	
         
         this.detachFromConnection = function(connection) {
@@ -5206,6 +5223,12 @@
                     jpc.endpoints[anchorIdx == 0 ? 1 : 0].anchor.locked = true;
                     // store the original endpoint and assign the new floating endpoint for the drag.
                     jpc.suspendedEndpoint = jpc.endpoints[anchorIdx];
+                    
+                    // PROVIDE THE SUSPENDED ELEMENT, BE IT A SOURCE OR TARGET (ISSUE 39)
+                    jpc.suspendedElement = jpc.endpoints[anchorIdx].getElement();
+                    jpc.suspendedElementId = jpc.endpoints[anchorIdx].elementId;
+                    jpc.suspendedElementType = anchorIdx == 0 ? "source" : "target";
+                    
                     jpc.suspendedEndpoint.setHover(false);
                     floatingEndpoint.referenceEndpoint = jpc.suspendedEndpoint;
                     jpc.endpoints[anchorIdx] = floatingEndpoint;
@@ -5831,30 +5854,32 @@
         var _suspendedAt = _jsPlumb.getSuspendedAt();
         _jsPlumb.updateOffset( { elId : this.sourceId, timestamp:_suspendedAt });
         _jsPlumb.updateOffset( { elId : this.targetId, timestamp:_suspendedAt });
-        
-        // paint the endpoints
-        var myInfo = _jsPlumb.getCachedData(this.sourceId),
-            myOffset = myInfo.o, myWH = myInfo.s,
-            otherInfo = _jsPlumb.getCachedData(this.targetId),
-            otherOffset = otherInfo.o,
-            otherWH = otherInfo.s,
-            initialTimestamp = _suspendedAt || _jsPlumb.timestamp(),
-            anchorLoc = this.endpoints[0].anchor.compute( {
-                xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
-                elementId:this.endpoints[0].elementId,
-                txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1],
-                timestamp:initialTimestamp
+
+        if(!_jsPlumb.isSuspendDrawing()) {                    
+            // paint the endpoints
+            var myInfo = _jsPlumb.getCachedData(this.sourceId),
+                myOffset = myInfo.o, myWH = myInfo.s,
+                otherInfo = _jsPlumb.getCachedData(this.targetId),
+                otherOffset = otherInfo.o,
+                otherWH = otherInfo.s,
+                initialTimestamp = _suspendedAt || _jsPlumb.timestamp(),
+                anchorLoc = this.endpoints[0].anchor.compute( {
+                    xy : [ myOffset.left, myOffset.top ], wh : myWH, element : this.endpoints[0],
+                    elementId:this.endpoints[0].elementId,
+                    txy : [ otherOffset.left, otherOffset.top ], twh : otherWH, tElement : this.endpoints[1],
+                    timestamp:initialTimestamp
+                });
+
+            this.endpoints[0].paint( { anchorLoc : anchorLoc, timestamp:initialTimestamp });
+
+            anchorLoc = this.endpoints[1].anchor.compute( {
+                xy : [ otherOffset.left, otherOffset.top ], wh : otherWH, element : this.endpoints[1],
+                elementId:this.endpoints[1].elementId,				
+                txy : [ myOffset.left, myOffset.top ], twh : myWH, tElement : this.endpoints[0],
+                timestamp:initialTimestamp				
             });
-
-        this.endpoints[0].paint( { anchorLoc : anchorLoc, timestamp:initialTimestamp });
-
-        anchorLoc = this.endpoints[1].anchor.compute( {
-            xy : [ otherOffset.left, otherOffset.top ], wh : otherWH, element : this.endpoints[1],
-            elementId:this.endpoints[1].elementId,				
-            txy : [ myOffset.left, myOffset.top ], twh : myWH, tElement : this.endpoints[0],
-            timestamp:initialTimestamp				
-        });
-        this.endpoints[1].paint({ anchorLoc : anchorLoc, timestamp:initialTimestamp });
+            this.endpoints[1].paint({ anchorLoc : anchorLoc, timestamp:initialTimestamp });
+        }
                                 
 // END INITIALISATION CODE			
         
@@ -6009,8 +6034,8 @@
                         }
                     }
 
-                    var lineWidth = (self.paintStyleInUse.lineWidth || 1) / 2,
-                        outlineWidth = self.paintStyleInUse.lineWidth || 0,
+                    var lineWidth = parseFloat(self.paintStyleInUse.lineWidth || 1) / 2,
+                        outlineWidth = parseFloat(self.paintStyleInUse.lineWidth || 0),
                         extents = {
                             xmin : Math.min(connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
                             ymin : Math.min(connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
@@ -6053,7 +6078,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -6093,7 +6118,7 @@
         /*
          * Class: AbstractSegment
          * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
-         * 'Bezier'. This is new from 1.4.0, and gives us a lot more flexibility when drawing connections: things such
+         * 'Bezier'. This is new from 1.4.1, and gives us a lot more flexibility when drawing connections: things such
          * as rounded corners for flowchart connectors, for example, or a straight line stub for Bezier connections, are
          * much easier to do now.
          *
@@ -6674,7 +6699,7 @@
 		this.pointAlongPathFrom = function(location, distance, absolute) {
 			var seg = _findSegmentForLocation(location, absolute);
 			// TODO what happens if this crosses to the next segment?
-			return seg.segment.pointAlongPathFrom(seg.proportion, distance, absolute);
+			return seg.segment.pointAlongPathFrom(seg.proportion, distance, false);
 		};
 		
 		this.compute = function(params)  {
@@ -7146,8 +7171,8 @@
                     txy = _ju.pointOnLine(hxy, mid, self.length);
                 }
                 else if (self.loc == 1) {                
-					hxy = component.pointOnPath(self.loc);
-					mid = component.pointAlongPathFrom(self.loc, -1);                    
+					hxy = component.pointOnPath(self.loc);					           
+                    mid = component.pointAlongPathFrom(self.loc, -(self.length));
 					txy = _ju.pointOnLine(hxy, mid, self.length);
 					
 					if (direction == -1) {
@@ -7158,7 +7183,7 @@
                 }
                 else if (self.loc == 0) {					                    
 					txy = component.pointOnPath(self.loc);                    
-					mid = component.pointAlongPathFrom(self.loc, 1);                    
+					mid = component.pointAlongPathFrom(self.loc, self.length);                    
 					hxy = _ju.pointOnLine(txy, mid, self.length);                    
 					if (direction == -1) {
 						var _ = txy;
@@ -7489,7 +7514,7 @@
 })();/*
  * jsPlumb
  *
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -7755,7 +7780,7 @@
     *//*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -7781,6 +7806,8 @@
      *  gap  - gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  
                 Like stub, this can be an array or a single value. defaults to 0 pixels for each end.     
      * cornerRadius - optional, defines the radius of corners between segments. defaults to 0 (hard edged corners).
+     * alwaysRespectStubs - defaults to false. whether or not the connectors should always draw the stub, or, if the two elements
+                            are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
      */
     jsPlumb.Connectors.Flowchart = function(params) {
         this.type = "Flowchart";
@@ -7791,6 +7818,7 @@
             midpoint = params.midpoint || 0.5,
             points = [], segments = [],
             grid = params.grid,
+            alwaysRespectStubs = params.alwaysRespectStubs,
             userSuppliedSegments = null,
             lastx = null, lasty = null, lastOrientation,	
             cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,	
@@ -7798,20 +7826,17 @@
             /**
              * helper method to add a segment.
              */
-            addSegment = function(segments, x, y, sx, sy) {
-                // if segment would have length zero, dont add it.
-                if (sx == lastx && sy == lasty) return;
-                if (x == lastx && y == lasty) return;
-                
-                var lx = lastx == null ? sx : lastx,
-                    ly = lasty == null ? sy : lasty,
+            addSegment = function(segments, x, y, paintInfo) {
+                if (lastx == x && lasty == y) return;
+                var lx = lastx == null ? paintInfo.sx : lastx,
+                    ly = lasty == null ? paintInfo.sy : lasty,
                     o = lx == x ? "v" : "h",
                     sgnx = sgn(x - lx),
                     sgny = sgn(y - ly);
                     
                 lastx = x;
                 lasty = y;				    		                
-                segments.push([lx, ly, x, y, o, sgnx, sgny]);				
+                segments.push([lx, ly, x, y, o, sgnx, sgny]);
             },
             segLength = function(s) {
                 return Math.sqrt(Math.pow(s[0] - s[2], 2) + Math.pow(s[1] - s[3], 2));    
@@ -7906,17 +7931,55 @@
             lastOrientation = null;          
             
             var midx = paintInfo.startStubX + ((paintInfo.endStubX - paintInfo.startStubX) * midpoint),
-                midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);
-                                                                                         
-            // add the start stub segment.
-            addSegment(segments, paintInfo.startStubX, paintInfo.startStubY, paintInfo.sx, paintInfo.sy);			
+                midy = paintInfo.startStubY + ((paintInfo.endStubY - paintInfo.startStubY) * midpoint);                                                                                                    
     
             var findClearedLine = function(start, mult, anchorPos, dimension) {
                     return start + (mult * (( 1 - anchorPos) * dimension) + _super.maxStub);
                 },
                 orientations = { x:[ 0, 1 ], y:[ 1, 0 ] },
+                commonStubCalculator = function(axis) {
+                    return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];                    
+                },
+                stubCalculators = {
+                    perpendicular:commonStubCalculator,
+                    orthogonal:commonStubCalculator,
+                    opposite:function(axis) {  
+                        var pi = paintInfo,
+                            idx = axis == "x" ? 0 : 1, 
+                            areInProximity = {
+                                "x":function() {                                    
+                                    return ( (pi.so[idx] == 1 && ( 
+                                        ( (pi.startStubX > pi.endStubX) && (pi.tx > pi.startStubX) ) ||
+                                        ( (pi.sx > pi.endStubX) && (pi.tx > pi.sx))))) ||
+
+                                        ( (pi.so[idx] == -1 && ( 
+                                            ( (pi.startStubX < pi.endStubX) && (pi.tx < pi.startStubX) ) ||
+                                            ( (pi.sx < pi.endStubX) && (pi.tx < pi.sx)))));
+                                },
+                                "y":function() {                                     
+                                    return ( (pi.so[idx] == 1 && ( 
+                                        ( (pi.startStubY > pi.endStubY) && (pi.ty > pi.startStubY) ) ||
+                                        ( (pi.sy > pi.endStubY) && (pi.ty > pi.sy))))) ||
+
+                                        ( (pi.so[idx] == -1 && ( 
+                                        ( (pi.startStubY < pi.endStubY) && (pi.ty < pi.startStubY) ) ||
+                                        ( (pi.sy < pi.endStubY) && (pi.ty < pi.sy)))));
+                                }
+                            };
+
+                        if (!alwaysRespectStubs && areInProximity[axis]()) {                   
+                            return {
+                                "x":[(paintInfo.sx + paintInfo.tx) / 2, paintInfo.startStubY, (paintInfo.sx + paintInfo.tx) / 2, paintInfo.endStubY],
+                                "y":[paintInfo.startStubX, (paintInfo.sy + paintInfo.ty) / 2, paintInfo.endStubX, (paintInfo.sy + paintInfo.ty) / 2]
+                            }[axis];
+                        }
+                        else {
+                            return [ paintInfo.startStubX, paintInfo.startStubY, paintInfo.endStubX, paintInfo.endStubY ];   
+                        }
+                    }
+                },
                 lineCalculators = {
-                    perpendicular : function(axis) {
+                    perpendicular : function(axis, ss, oss, es, oes) {
                         with (paintInfo) {
                             var sis = {
                                 x:[ [ [ 1,2,3,4 ], null, [ 2,1,4,3 ] ], null, [ [ 4,3,2,1 ], null, [ 3,4,1,2 ] ] ],
@@ -7969,66 +8032,72 @@
                             }                                
                         }                                
                     },
-                    orthogonal : function(axis) {                    
+                    orthogonal : function(axis, startStub, otherStartStub, endStub, otherEndStub) {                    
                         var pi = paintInfo,                                            
                             extent = {
-                                "x":pi.so[0] == -1 ? Math.min(pi.startStubX, pi.endStubX) : Math.max(pi.startStubX, pi.endStubX),
-                                "y":pi.so[1] == -1 ? Math.min(pi.startStubY, pi.endStubY) : Math.max(pi.startStubY, pi.endStubY)
+                                "x":pi.so[0] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub),
+                                "y":pi.so[1] == -1 ? Math.min(startStub, endStub) : Math.max(startStub, endStub)
                             }[axis];
                                                 
                         return {
-                            "x":[ [ extent, pi.startStubY ],[ extent, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ],
-                            "y":[ [ pi.startStubX, extent ], [ pi.endStubX, extent ],[ pi.endStubX, pi.endStubY ] ]
+                            "x":[ [ extent, otherStartStub ],[ extent, otherEndStub ], [ endStub, otherEndStub ] ],
+                            "y":[ [ otherStartStub, extent ], [ otherEndStub, extent ], [ otherEndStub, endStub ] ]
                         }[axis];                    
                     },
-                    opposite : function(axis) {                                                
+                    opposite : function(axis, ss, oss, es, oes) {                                                
                         var pi = paintInfo,
                             otherAxis = {"x":"y","y":"x"}[axis], 
-                            stub = "Stub" + axis.toUpperCase(),
-                            otherStub = "Stub" + otherAxis.toUpperCase(),
-                            otherStartStub = pi["start" + otherStub],
-                            startStub = pi["start" + stub],
-                            otherEndStub = pi["end" + otherStub],
-                            endStub = pi["end" + stub],
                             dim = {"x":"height","y":"width"}[axis],
-                            comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"],
-                            idx = axis == "x" ? 0 : 1;
+                            comparator = pi["is" + axis.toUpperCase() + "GreaterThanStubTimes2"];
 
                         if (params.sourceEndpoint.elementId == params.targetEndpoint.elementId) {
-                            var _val = otherStartStub + ((1 - params.sourceAnchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
+                            var _val = oss + ((1 - params.sourceEndpoint.anchor[otherAxis]) * params.sourceInfo[dim]) + _super.maxStub;
                             return {
-                                "x":[ [ startStub, _val ], [ endStub, _val ] ],
-                                "y":[ [ _val, startStub ], [ _val, endStub ] ]
+                                "x":[ [ ss, _val ], [ es, _val ] ],
+                                "y":[ [ _val, ss ], [ _val, es ] ]
                             }[axis];
                             
                         }                                                        
-                        else if (!comparator || (pi.so[idx] == 1 && startStub > endStub)
-                           || (pi.so[idx] == -1 && startStub < endStub)) {
+                        else if (!comparator || (pi.so[idx] == 1 && ss > es)
+                           || (pi.so[idx] == -1 && ss < es)) {                                            
                             return {
-                                "x":[[ startStub, midy ], [ endStub, midy ]],
-                                "y":[[ midx, startStub ], [ midx, endStub ]]
+                                "x":[[ ss, midy ], [ es, midy ]],
+                                "y":[[ midx, ss ], [ midx, es ]]
                             }[axis];
                         }
-                        else if ((pi.so[idx] == 1 && startStub < endStub) || (pi.so[idx] == -1 && startStub > endStub)) {
+                        else if ((pi.so[idx] == 1 && ss < es) || (pi.so[idx] == -1 && ss > es)) {
                             return {
                                 "x":[[ midx, pi.sy ], [ midx, pi.ty ]],
                                 "y":[[ pi.sx, midy ], [ pi.tx, midy ]]
                             }[axis];
                         }                        
                     }
-                },
-                p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis);
-                
+                };
+
+            var stubs = stubCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis),
+                idx = paintInfo.sourceAxis == "x" ? 0 : 1,
+                oidx = paintInfo.sourceAxis == "x" ? 1 : 0,                            
+                ss = stubs[idx],
+                oss = stubs[oidx],
+                es = stubs[idx + 2],
+                oes = stubs[oidx + 2];
+
+            // add the start stub segment.
+            addSegment(segments, stubs[0], stubs[1], paintInfo);           
+
+            // compute the rest of the line
+            var p = lineCalculators[paintInfo.anchorOrientation](paintInfo.sourceAxis, ss, oss, es, oes);            
             if (p) {
                 for (var i = 0; i < p.length; i++) {                	
-                    addSegment(segments, p[i][0], p[i][1]);
+                    addSegment(segments, p[i][0], p[i][1], paintInfo);
                 }
             }          
             
-            addSegment(segments, paintInfo.endStubX, paintInfo.endStubY);
+            // line to end stub
+            addSegment(segments, stubs[2], stubs[3], paintInfo);
     
-            // end stub
-            addSegment(segments, paintInfo.tx, paintInfo.ty);               
+            // end stub to end
+            addSegment(segments, paintInfo.tx, paintInfo.ty, paintInfo);               
             
             writeSegments(segments, paintInfo);                            
         };	
@@ -8072,7 +8141,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -8241,7 +8310,11 @@
 	 */
 	VmlComponent = function() {				
 		var self = this, renderer = {};
-		jsPlumb.jsPlumbUIComponent.apply(this, arguments);		
+		jsPlumb.jsPlumbUIComponent.apply(this, arguments);	
+
+
+
+
 		this.opacityNodes = {
 			"stroke":null,
 			"fill":null
@@ -8352,6 +8425,10 @@
 		self.canvas.style["position"] = "absolute";
 
 		var clazz = self._jsPlumb.endpointClass + (params.cssClass ? (" " + params.cssClass) : "");
+
+		// TODO vml endpoint adds class to VML at constructor time.  but the addClass method adds VML
+		// to the enclosing DIV. what to do?  seems like it would be better to just target the div.
+		// HOWEVER...vml connection has no containing div.  why not? it feels like it should.
 
 		//var group = _getGroup(params.parent);
         //group.appendChild(self.canvas);
@@ -8557,7 +8634,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -9149,7 +9226,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.0
+ * Title:jsPlumb 1.4.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
