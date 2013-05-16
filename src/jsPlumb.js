@@ -1484,7 +1484,7 @@
 		};
 		
 		// delete the given endpoint: either an Endpoint here, or its UUID.
-		this.deleteEndpoint = function(object) {
+		this.deleteEndpoint = function(object, doNotRepaintAfterwards) {
 			_currentInstance.doWhileSuspended(function() {
 				var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
 				if (endpoint) {					
@@ -1511,7 +1511,7 @@
 						_currentInstance.dragManager.endpointDeleted(endpoint);								
 				}
 				return _currentInstance;									
-			});
+			}, doNotRepaintAfterwards);
 		};
 		
 		
@@ -1522,7 +1522,7 @@
 					var endpoints = endpointsByElement[id];
 					if (endpoints && endpoints.length) {
 						for ( var i = 0, j = endpoints.length; i < j; i++) {
-							_currentInstance.deleteEndpoint(endpoints[i]);
+							_currentInstance.deleteEndpoint(endpoints[i], true);
 						}
 					}
 				}			
