@@ -1357,9 +1357,9 @@
 			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
 			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
             // YUI wrapper
-			el = _convertYUICollection(el);			
-			
-			var results = [], inputs = el.length && el.constructor != String ? el : [ el ];
+			el = _convertYUICollection(el);							
+
+			var results = [], inputs = jsPlumbUtil.isArray(el) ? el : [ el ];
 						
 			for (var i = 0, j = inputs.length; i < j; i++) {
 				var _el = _gel(inputs[i]), id = _getId(_el);
