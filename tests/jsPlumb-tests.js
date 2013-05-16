@@ -1521,6 +1521,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(true, e16[1].isTarget);
 		equal(false, e16[1].isSource);
 	});
+
+	test(renderMode + ": _jsPlumb.addEndpoint (empty array)", function() {
+		_jsPlumb.addEndpoint([], {isSource:true});
+		_jsPlumb.repaintEverything();
+		expect(0);
+	});
 	
 	test(renderMode + ": _jsPlumb.addEndpoints (with reference params)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
