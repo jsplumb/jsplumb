@@ -1,12 +1,12 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
  * 
- * This file contains the HTML5 canvas renderers.  Support for canvas was dropped in 1.4.1.
+ * This file contains the HTML5 canvas renderers.  Support for canvas was dropped in 1.4.2.
  * This is being kept around because canvas might make a comeback as a single-page solution
  * that also supports node rendering.
  *
