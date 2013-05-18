@@ -324,7 +324,10 @@
 		<replace dir="demo/mootools" token="${old}" value="${new}"/>
 		
 		<!-- replace version number in code -->
-		<replace dir="src" token="${old}" value="${new}"/>		
+		<replace dir="src" token="${old}" value="${new}"/>	
+
+		<!-- update build properties -->
+		<replace file="build.properties" token="${old}" value="${new}"/>	
 
 	</target>
 
