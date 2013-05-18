@@ -400,7 +400,7 @@
          * private but must be exposed.
          */
         self.makeInPlaceCopy = function() {
-            var loc = self.anchor.getCurrentLocation(self),
+            var loc = self.anchor.getCurrentLocation({element:self}),
                 o = self.anchor.getOrientation(self),
                 acc = self.anchor.getCssClass(),
                 inPlaceAnchor = {

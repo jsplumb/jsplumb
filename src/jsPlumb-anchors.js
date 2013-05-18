@@ -503,8 +503,8 @@
             this.compute = function(params) {
                 return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
             };
-            this.getCurrentLocation = function(endpoint) {
-                return userDefinedContinuousAnchorLocations[endpoint.id] || continuousAnchorLocations[endpoint.id] || [0,0];
+            this.getCurrentLocation = function(params) {
+                return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
             };
             this.getOrientation = function(endpoint) {
                 return continuousAnchorOrientations[endpoint.id] || [0,0];
@@ -590,7 +590,7 @@
                     && o[0] == ao[0] && o[1] == ao[1];
         };
 
-        this.getCurrentLocation = function() { return lastReturnValue; };
+        this.getCurrentLocation = function(params) { return lastReturnValue == null ? self.compute(params) : lastReturnValue; };
         
         this.getUserDefinedLocation = function() { 
             return userDefinedLocation;
@@ -622,7 +622,8 @@
             jsPlumbInstance = params.jsPlumbInstance,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,
-            size = jpcl.getSize(jpcl.getElementObject(refCanvas)),                
+            size = jpcl.getSize(jpcl.getElementObject(refCanvas)), 
+            self = this,               
 
         // these are used to store the current relative position of our
         // anchor wrt the reference anchor. they only indicate
@@ -681,7 +682,7 @@
          */
         this.out = function() { orientation = null; };
 
-        this.getCurrentLocation = function() { return _lastResult; };
+        this.getCurrentLocation = function(params) { return _lastResult == null ? self.compute(params) : _lastResult; };
     };
 
     /* 
@@ -771,8 +772,8 @@
             return _curAnchor.compute(params);
         };
 
-        this.getCurrentLocation = function() {
-            return self.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation() : null);
+        this.getCurrentLocation = function(params) {
+            return self.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation(params) : null);
         };
 
         this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };

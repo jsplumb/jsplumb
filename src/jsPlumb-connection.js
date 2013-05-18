@@ -426,7 +426,7 @@
         var lastPaintedAt = null;			
         this.paint = function(params) {
             
-            if (visible) {
+            if (!_jsPlumb.isSuspendDrawing() && visible) {
                     
                 params = params || {};
                 var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
@@ -446,8 +446,8 @@
                         connector.setEdited(false);
                     }
                     
-                    var sAnchorP = sE.anchor.getCurrentLocation(sE),				
-                        tAnchorP = tE.anchor.getCurrentLocation(tE);                                
+                    var sAnchorP = sE.anchor.getCurrentLocation({xy:[sourceInfo.left,sourceInfo.top], wh:[sourceInfo.width, sourceInfo.height], element:sE, timestamp:timestamp}),				
+                        tAnchorP = tE.anchor.getCurrentLocation({xy:[targetInfo.left,targetInfo.top], wh:[targetInfo.width, targetInfo.height], element:tE, timestamp:timestamp});                                
                         
                     connector.resetBounds();
 
