@@ -432,11 +432,13 @@
                 var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
                     // if the moving object is not the source we must transpose the two references.
                     swap = false,
-                    tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
-                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
+                    //tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,                    
+                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0,
+                    tId = this.endpoints[tIdx].elementId,
+                    sId = this.endpoints[sIdx].elementId;
 
                 if (timestamp == null || timestamp != lastPaintedAt) {                        
-                    var sourceInfo = _jsPlumb.updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
+                    var sourceInfo = _jsPlumb.updateOffset( { elId : sId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
                         targetInfo = _jsPlumb.updateOffset( { elId : tId, timestamp : timestamp }).o, // update the target if this is a forced repaint. otherwise, only the source has been moved.
                         sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
 

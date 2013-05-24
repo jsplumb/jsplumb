@@ -491,13 +491,17 @@
             params = params || {};
             var timestamp = params.timestamp, recalc = !(params.recalc === false);								
             if (!timestamp || self.timestamp !== timestamp) {						
+                
+                // TODO is this is a safe performance enhancement?
+                //var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp/*, recalc:recalc*/ });
                 var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
+
                 var xy = params.offset ? params.offset.o : info.o;
                 if(xy) {
                     var ap = params.anchorPoint,connectorPaintStyle = params.connectorPaintStyle;
                     if (ap == null) {
                         var wh = params.dimensions || info.s;
-                        if (xy == null || wh == null) {
+                        if (wh == null) {
                             info = _jsPlumb.updateOffset( { elId : _elementId, timestamp : timestamp });
                             xy = info.o;
                             wh = info.s;

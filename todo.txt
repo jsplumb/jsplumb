@@ -10,6 +10,11 @@ future
 
     - text on path (see demo)?
 
+    - performance tests: 
+        - single SVG element, many paths (what are mouse interaction/zindex ramifications?)
+        - single canvas (have to paint nodes). 
+        - VML groups.
+
 
     FAQ
 
