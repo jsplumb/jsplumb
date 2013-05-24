@@ -140,10 +140,14 @@
              */            
             this.pointAlongPathFrom = function(location, distance, absolute) {            
                 var p = self.pointOnPath(location, absolute),
-                    farAwayPoint = location == 1 ? {
-                        x:x1 + ((x2 - x1) * 10),
-                        y:y1 + ((y1 - y2) * 10)
-                    } : distance <= 0 ? {x:x1, y:y1} : {x:x2, y:y2 };
+                    farAwayPoint = distance <= 0 ? {x:x1, y:y1} : {x:x2, y:y2 };
+
+                /*
+                location == 1 ? {
+                                        x:x1 + ((x2 - x1) * 10),
+                                        y:y1 + ((y1 - y2) * 10)
+                                    } : 
+                */
     
                 if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
     
