@@ -2769,15 +2769,18 @@
 
         // suspends drawing, runs the given function, then re-enables drawing (and repaints,
         // unless you tell it not to)
-        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {        	
-			_currentInstance.setSuspendDrawing(true);
+        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {     
+        	var _wasSuspended = _currentInstance.isSuspendDrawing();        	
+        	if (!_wasSuspended)
+				_currentInstance.setSuspendDrawing(true);
 			try {
 				fn();
 			}
 			catch (e) {
 				_log("Function run while suspended failed", e);
 			}			
-			_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
+			if (!_wasSuspended)
+				_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
         };
             
         this.updateOffset = _updateOffset;
