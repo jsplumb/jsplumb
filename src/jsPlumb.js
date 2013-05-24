@@ -1612,15 +1612,17 @@
 		// detach every connection but leave endpoints in place (unless a connection is set to auto delete them)
 		this.detachEveryConnection = function(params) {
             params = params || {};
-			for ( var id in endpointsByElement) {
-				var endpoints = endpointsByElement[id];
-				if (endpoints && endpoints.length) {
-					for ( var i = 0, j = endpoints.length; i < j; i++) {
-						endpoints[i].detachAll(params.fireEvent);
+            _currentInstance.doWhileSuspended(function() {
+				for ( var id in endpointsByElement) {
+					var endpoints = endpointsByElement[id];
+					if (endpoints && endpoints.length) {
+						for ( var i = 0, j = endpoints.length; i < j; i++) {
+							endpoints[i].detachAll(params.fireEvent);
+						}
 					}
 				}
-			}
-			connectionsByScope = {};
+				connectionsByScope = {};
+			});
 			return _currentInstance;
 		};
 
@@ -2767,14 +2769,14 @@
 
         // suspends drawing, runs the given function, then re-enables drawing (and repaints,
         // unless you tell it not to)
-        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {
+        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {        	
 			_currentInstance.setSuspendDrawing(true);
 			try {
 				fn();
 			}
 			catch (e) {
 				_log("Function run while suspended failed", e);
-			}
+			}			
 			_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
         };
             
