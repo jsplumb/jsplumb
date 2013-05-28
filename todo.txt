@@ -21,6 +21,18 @@ future
         http://jsfiddle.net/sporritt/S4Fxk/12/   (connect to intermediate endpoint)
         http://jsfiddle.net/sporritt/ZUm7p/50/  (connect list items)
 
+        extending a connector:
+        jsPlumb.Connectors.Flowchart2 = function(params) {
+            jsPlumb.Connectors.Flowchart.apply(this, arguments);
+            var _c = this._compute;
+            this._compute = function(paintInfo, params) {
+                paintInfo.endStubX += 30;
+                _c(paintInfo, params);
+            }
+
+        };
+        
+
 
 1.3.16
 
