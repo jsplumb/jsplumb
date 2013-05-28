@@ -590,7 +590,9 @@
                     && o[0] == ao[0] && o[1] == ao[1];
         };
 
-        this.getCurrentLocation = function(params) { return lastReturnValue == null ? self.compute(params) : lastReturnValue; };
+        this.getCurrentLocation = function(params) { 
+            return (lastReturnValue == null || (params.timestamp != null && self.timestamp != params.timestamp)) ? self.compute(params) : lastReturnValue; 
+        };
         
         this.getUserDefinedLocation = function() { 
             return userDefinedLocation;
@@ -746,6 +748,8 @@
             
             if(params.clearUserDefinedLocation)
                 userDefinedLocation = null;
+
+            self.timestamp = timestamp;            
             
             var udl = self.getUserDefinedLocation();
             if (udl != null) {
