@@ -519,10 +519,11 @@
                 return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
             },		
             _addSegment = function(type, params) {
+                if (params.x1 == params.x2 && params.y1 == params.y2) return;
                 var s = new jsPlumb.Segments[type](params);
                 segments.push(s);
                 totalLength += s.getLength();	
-                self.updateBounds(s);	                
+                self.updateBounds(s);	                                
             },					
             _clearSegments = function() {
                 totalLength = 0;

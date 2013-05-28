@@ -1,3 +1,10 @@
+* 1.4.2
+
+		ISSUES
+
+		49	- detachEveryConnection performance issue
+		51	- arrow overlay orientation at location 1 on flowchart connectors
+
 * 1.4.1
 
 		BACKWARDS COMPATIBILITY

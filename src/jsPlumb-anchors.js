@@ -318,7 +318,7 @@
             // store this for next time.
             endpoint._continuousAnchorEdge = edgeId;
         };
-		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits) {
+		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 		
 			if (!jsPlumbInstance.isSuspendDrawing()) {
 				// get all the endpoints for this element
@@ -425,7 +425,7 @@
 	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
 	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
 				for (var i = 0; i < ep.length; i++) {				
-                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s });
+                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s, recalc:doNotRecalcEndpoint !== true });
 				}
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (var i = 0; i < endpointsToPaint.length; i++) {
@@ -440,7 +440,7 @@
 				for (var i = 0; i < endpointConnections.length; i++) {
 					var otherEndpoint = endpointConnections[i][1];
 					if (otherEndpoint.anchor.constructor == jsPlumb.DynamicAnchor) {			 							
-						otherEndpoint.paint({ elementWithPrecedence:elementId });								
+						otherEndpoint.paint({ elementWithPrecedence:elementId, timestamp:timestamp });								
 	                    jsPlumbUtil.addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 						// all the connections for the other endpoint now need to be repainted
 						for (var k = 0; k < otherEndpoint.connections.length; k++) {
@@ -590,7 +590,9 @@
                     && o[0] == ao[0] && o[1] == ao[1];
         };
 
-        this.getCurrentLocation = function(params) { return lastReturnValue == null ? self.compute(params) : lastReturnValue; };
+        this.getCurrentLocation = function(params) { 
+            return (lastReturnValue == null || (params.timestamp != null && self.timestamp != params.timestamp)) ? self.compute(params) : lastReturnValue; 
+        };
         
         this.getUserDefinedLocation = function() { 
             return userDefinedLocation;
@@ -746,6 +748,8 @@
             
             if(params.clearUserDefinedLocation)
                 userDefinedLocation = null;
+
+            self.timestamp = timestamp;            
             
             var udl = self.getUserDefinedLocation();
             if (udl != null) {

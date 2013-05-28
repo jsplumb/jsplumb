@@ -7,6 +7,13 @@
 	window.jsPlumbDemo = {
 			
 		init : function() {
+
+			jsPlumb.Defaults.Container = "main";
+
+/*/
+
+			jsPlumb.setRenderMode(jsPlumb.CANVAS);	
+			
 			
 			jsPlumb.importDefaults({
 				DragOptions : { cursor: "pointer", zIndex:2000 },
@@ -202,11 +209,28 @@
                 originalEvent.preventDefault();
                 return false;
             });
+
+//*/
 			
 			// make all .window divs draggable. note that here i am just using a convenience method - getSelector -
 			// that enables me to reuse this code across all three libraries. In your own usage of jsPlumb you can use
 			// your library's selector method - "$" for jQuery, "$$" for MooTools, "Y.all" for YUI3.
 			jsPlumb.draggable(jsPlumb.getSelector(".window"), { containment:".demo"});            
+
+
+		//	var et = jsPlumb.addEndpoint("window1", { anchor:"Top" }),
+		//		es = jsPlumb.addEndpoint("window1", {anchor:["Left", "Right"]});
+
+		//	jsPlumb.connect({source:es, target:et})
+
+			var et2 = jsPlumb.addEndpoint("window1", { anchor:"Top" });
+			jsPlumb.makeSource("ppp", { anchor:["Top", "Bottom"] });
+			jsPlumb.connect({source:"ppp", target:et2})
+
+			var et3 = jsPlumb.addEndpoint("window2", { anchor:"Top" });
+			jsPlumb.makeSource("pppp", { anchor:"Bottom" });
+			jsPlumb.connect({source:"pppp", target:et3})
+
 		}
 	};	
 })();

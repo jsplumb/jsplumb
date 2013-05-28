@@ -20,7 +20,7 @@
 						cssClass:"aLabel"
 					}]
 				]
-			});			
+			});		
 
 			// this is the paint style for the connecting lines..
 			var connectorPaintStyle = {

@@ -178,9 +178,11 @@
 		({
 			"Straight":function(segment, ctx, style, dx, dy) {
 				var d = segment.params;
+				ctx.save();
 				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x1, d.y1, d.x2, d.y2); });
 				ctx.beginPath();
-				ctx.translate(dx/2, dy/2);
+				//ctx.translate(dx/2, dy/2);				
+				ctx.translate(dx, dy);				
 				if (style.dashstyle && style.dashstyle.split(" ").length === 2) {			
 					// only a very simple dashed style is supported - having two values, which define the stroke length 
 					// (as a multiple of the stroke width) and then the space length (also as a multiple of stroke width). 
@@ -222,7 +224,7 @@
 
 					// now draw the last bit
 					ctx.moveTo(curPos[0], curPos[1]);
-					ctx.lineTo(d.x2, d.y2);		
+					ctx.lineTo(d.x2, d.y2);							
 
 				}	        
 		        else {
@@ -231,26 +233,28 @@
 		        }				
 
 				ctx.stroke();
+
+				ctx.restore();
 			},
 			"Bezier":function(segment, ctx, style, dx, dy) {				
 				var d = segment.params;
+				ctx.save();
 				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x2 + dx, d.y2 + dy, d.x1 + dx, d.y1 + dy); });
 				ctx.beginPath();
 				ctx.translate(dx, dy);
 				ctx.moveTo(d.x1, d.y1);
 				ctx.bezierCurveTo(d.cp1x, d.cp1y, d.cp2x, d.cp2y, d.x2, d.y2);
 				ctx.stroke();
+				ctx.restore();
 			},
 			"Arc":function(segment, ctx, style, dx, dy) {
 				var d = segment.params;
+				ctx.save();
 				ctx.beginPath();
-				// arcTo is supported in most browsers i think; this is what we will use once the arc segment is a little more clever.
-				// right now its up to the connector to figure out the geometry. well, maybe that's ok.
-				//ctx.moveTo(d.x1, d.y1);
-				//ctx.arcTo((d.x1 + d.x2) / 2, (d.y1 + d.y2) / 2, d.r);
-				ctx.translate(dx, dy);
-				ctx.arc(d.cx, d.cy, d.r, d.startAngle, d.endAngle, d.c);
+				ctx.translate(dx, dy);				
+				ctx.arc(d.cx, d.cy, d.r, segment.startAngle, segment.endAngle, d.ac);
 				ctx.stroke();
+				ctx.restore();
 			}
 		})[segment.type](segment, ctx, style, dx, dy);	
 	};
@@ -525,6 +529,7 @@
     		var ctx = params.component.ctx, d = params.d;
     		
     		if (d) {
+    			ctx.save();
 				ctx.lineWidth = params.lineWidth;
 				ctx.beginPath();
 				ctx.translate(params.component.translateX, params.component.translateY);
@@ -543,6 +548,7 @@
 					ctx.fillStyle = params.fillStyle;			
 					ctx.fill();
 				}
+				ctx.restore();
 			}
     	};
     }; 

@@ -787,7 +787,8 @@
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
 		_draw = function(element, ui, timestamp, clearEdits) {
-			
+
+
 			// TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
             if (!jsPlumbAdapter.headless && !_suspendDrawing) {
 			    var id = _att(element, "id"),
@@ -795,12 +796,34 @@
 
 			    if (timestamp == null) timestamp = _timestamp();
 
+			    // update the offset of everything _before_ we try to draw anything.
+			    var o = _updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp });
+
+
+		        if (repaintEls) {
+		    	    for (var i in repaintEls) {									 							
+			    		_updateOffset( { 
+			    			elId : repaintEls[i].id, 
+			    			offset : {
+								left:o.o.left + repaintEls[i].offset.left,
+				    			top:o.o.top + repaintEls[i].offset.top
+				    		}, 
+			    			recalc : false, 
+			    			timestamp : timestamp 
+			    		});
+			    	}
+			    }	
+			    		          
+
 			    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
+			    
 			    if (repaintEls) {
 				    for (var i in repaintEls) {
-						_currentInstance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset, clearEdits);			    	
+						_currentInstance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset, clearEdits, true);			    	
 				    }
 				}
+
+		//		console.log("-------------");
             }
 		},
 
@@ -1218,11 +1241,15 @@
 		_updateOffset = function(params) {
 			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId;
 			if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
+			//console.log("start update offset", elId, recalc, offset, timestamp, offsetTimestamps[elId]);
 			if (!recalc) {
-				if (timestamp && timestamp === offsetTimestamps[elId])
-					return {o:offsets[elId], s:sizes[elId]};
-			}
+				if (timestamp && timestamp === offsetTimestamps[elId]) {
+				//	console.log("timestamp matched; returning cached value or provide value")
+					return {o:params.offset || offsets[elId], s:sizes[elId]};
+				}
+			}			
 			if (recalc || !offset) { // if forced repaint or no offset available, we recalculate.
+				//console.log("calculating offset", elId, "timestamp", timestamp, recalc, offset);
 				// get the current size and offset, and store them
 				var s = _gel(elId);
 				if (s != null) {						
@@ -1231,11 +1258,13 @@
 					offsetTimestamps[elId] = timestamp;
 				}
 			} else {
+				//console.log("storing offset", elId, "timestamp", timestamp, offset);
 				offsets[elId] = offset;
                 if (sizes[elId] == null) {
                     var s = _gel(elId);
                     if (s != null) sizes[elId] = _getSize(s);
                 }
+                offsetTimestamps[elId] = timestamp;
             }
 			
 			if(offsets[elId] && !offsets[elId].right) {
@@ -1939,7 +1968,7 @@
 		this.init = function() {
 			if (!initialized) {                
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
-				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.										
+				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
 				initialized = true;
 				_currentInstance.fire("ready", _currentInstance);
 			}
@@ -2821,6 +2850,33 @@
 		 */
 		this.setRenderMode = function(mode) {			
 			renderMode = jsPlumbAdapter.setRenderMode(mode);
+
+			// only add this if the renderer is canvas; we dont want these listeners registered on te
+			// entire document otherwise.
+			if (renderMode == jsPlumb.CANVAS) {
+				var bindOne = function(event) {
+	                jsPlumb.CurrentLibrary.bind(document, event, function(e) {
+	                    if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
+	                        // try connections first
+	                        for (var scope in connectionsByScope) {
+	                            var c = connectionsByScope[scope];
+	                            for (var i = 0, ii = c.length; i < ii; i++) {
+	                                var t = c[i].getConnector()[event](e);
+	                                if (t) return;	
+	                            }
+	                        }
+	                        for (var el in endpointsByElement) {
+	                            var ee = endpointsByElement[el];
+	                            for (var i = 0, ii = ee.length; i < ii; i++) {
+	                                if (ee[i].endpoint[event] && ee[i].endpoint[event](e)) return;
+	                            }
+	                        }
+	                    }
+	                });					
+				};
+				bindOne("click");bindOne("dblclick");bindOne("mousemove");bindOne("mousedown");bindOne("mouseup");bindOne("contextmenu");				
+			}
+
 			return renderMode;
 		};
 		

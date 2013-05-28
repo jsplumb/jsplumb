@@ -491,18 +491,17 @@
             params = params || {};
             var timestamp = params.timestamp, recalc = !(params.recalc === false);								
             if (!timestamp || self.timestamp !== timestamp) {						
-                var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
+                
+                // TODO check: is this is a safe performance enhancement?
+                var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp/*, recalc:recalc*/ });
+                //var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });              
+
                 var xy = params.offset ? params.offset.o : info.o;
-                if(xy) {
+                if(xy != null) {
                     var ap = params.anchorPoint,connectorPaintStyle = params.connectorPaintStyle;
                     if (ap == null) {
-                        var wh = params.dimensions || info.s;
-                        if (xy == null || wh == null) {
-                            info = _jsPlumb.updateOffset( { elId : _elementId, timestamp : timestamp });
-                            xy = info.o;
-                            wh = info.s;
-                        }
-                        var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
+                        var wh = params.dimensions || info.s,                       
+                            anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
                         if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
                             var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
                                 oIdx = c.endpoints[0] == self ? 1 : 0,
