@@ -21,32 +21,6 @@
 
 ;(function() {
 
-// event binding from jsplumb.  canvas no longer supported.  but it may make a comeback in 
-// the form of a single-page canvas.
-
-/*var bindOne = function(event) {
-                    jsPlumb.CurrentLibrary.bind(document, event, function(e) {
-                        if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
-                            // try connections first
-                            for (var scope in connectionsByScope) {
-                                var c = connectionsByScope[scope];
-                                for (var i = 0, ii = c.length; i < ii; i++) {
-                                    var t = c[i].getConnector()[event](e);
-                                    if (t) return;	
-                                }
-                            }
-                            for (var el in endpointsByElement) {
-                                var ee = endpointsByElement[el];
-                                for (var i = 0, ii = ee.length; i < ii; i++) {
-                                    if (ee[i].endpoint[event](e)) return;
-                                }
-                            }
-                        }
-                    });					
-				};
-				bindOne("click");bindOne("dblclick");bindOne("mousemove");bindOne("mousedown");bindOne("mouseup");bindOne("contextmenu");
-				*/
-
 	
 // ********************************* CANVAS RENDERERS FOR CONNECTORS AND ENDPOINTS *******************************************************************
 		
@@ -181,7 +155,6 @@
 				ctx.save();
 				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x1, d.y1, d.x2, d.y2); });
 				ctx.beginPath();
-				//ctx.translate(dx/2, dy/2);				
 				ctx.translate(dx, dy);				
 				if (style.dashstyle && style.dashstyle.split(" ").length === 2) {			
 					// only a very simple dashed style is supported - having two values, which define the stroke length 
@@ -395,7 +368,9 @@
 		            	g.addColorStop(style.gradient.stops[i][0], style.gradient.stops[i][1]);
 		            ctx.fillStyle = g;
 	            }				
-				ctx.beginPath();    		
+				ctx.beginPath();    
+				//ctx.translate(dx, dy);		
+				console.dir(self)
 				ctx.arc(self.radius, self.radius, self.radius, 0, Math.PI*2, true);
 				ctx.closePath();				
 				if (style.fillStyle || style.gradient) ctx.fill();
