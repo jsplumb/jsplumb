@@ -432,10 +432,10 @@
                 var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
                     // if the moving object is not the source we must transpose the two references.
                     swap = false,
-                    //tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,                    
-                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0,
-                    tId = this.endpoints[tIdx].elementId,
-                    sId = this.endpoints[sIdx].elementId;
+                    tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,                    
+                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;//,
+                    //tId = this.endpoints[tIdx].elementId,
+                    //sId = this.endpoints[sIdx].elementId;
 
                 if (timestamp == null || timestamp != lastPaintedAt) {                        
                     var sourceInfo = _jsPlumb.updateOffset( { elId : sId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
@@ -449,7 +449,7 @@
                     }
                     
                     var sAnchorP = sE.anchor.getCurrentLocation({xy:[sourceInfo.left,sourceInfo.top], wh:[sourceInfo.width, sourceInfo.height], element:sE, timestamp:timestamp}),				
-                        tAnchorP = tE.anchor.getCurrentLocation({xy:[targetInfo.left,targetInfo.top], wh:[targetInfo.width, targetInfo.height], element:tE, timestamp:timestamp});                                
+                        tAnchorP = tE.anchor.getCurrentLocation({xy:[targetInfo.left,targetInfo.top], wh:[targetInfo.width, targetInfo.height], element:tE, timestamp:timestamp});                                                 
                         
                     connector.resetBounds();
 
