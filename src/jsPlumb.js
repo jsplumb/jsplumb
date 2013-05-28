@@ -799,6 +799,7 @@
 			    // update the offset of everything _before_ we try to draw anything.
 			    var o = _updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp });
 
+
 		        if (repaintEls) {
 		    	    for (var i in repaintEls) {									 							
 			    		_updateOffset( { 
@@ -810,12 +811,9 @@
 			    			recalc : false, 
 			    			timestamp : timestamp 
 			    		});
-			    		console.log("pre-update for ", repaintEls[i].id, {
-								left:o.o.left + repaintEls[i].offset.left,
-				    			top:o.o.top + repaintEls[i].offset.top
-				    		});
 			    	}
-			    }			            
+			    }	
+			    		          
 
 			    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
 			    
