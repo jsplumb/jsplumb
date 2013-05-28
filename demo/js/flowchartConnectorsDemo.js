@@ -20,7 +20,9 @@
 						cssClass:"aLabel"
 					}]
 				]
-			});			
+			});		
+
+			jsPlumb.setRenderMode(jsPlumb.CANVAS);	
 
 			// this is the paint style for the connecting lines..
 			var connectorPaintStyle = {
