@@ -1966,7 +1966,7 @@
 		this.init = function() {
 			if (!initialized) {                
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
-				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.										
+				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
 				initialized = true;
 				_currentInstance.fire("ready", _currentInstance);
 			}
@@ -2845,6 +2845,33 @@
 		 */
 		this.setRenderMode = function(mode) {			
 			renderMode = jsPlumbAdapter.setRenderMode(mode);
+
+			// only add this if the renderer is canvas; we dont want these listeners registered on te
+			// entire document otherwise.
+			if (renderMode == jsPlumb.CANVAS) {
+				var bindOne = function(event) {
+	                jsPlumb.CurrentLibrary.bind(document, event, function(e) {
+	                    if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
+	                        // try connections first
+	                        for (var scope in connectionsByScope) {
+	                            var c = connectionsByScope[scope];
+	                            for (var i = 0, ii = c.length; i < ii; i++) {
+	                                var t = c[i].getConnector()[event](e);
+	                                if (t) return;	
+	                            }
+	                        }
+	                        for (var el in endpointsByElement) {
+	                            var ee = endpointsByElement[el];
+	                            for (var i = 0, ii = ee.length; i < ii; i++) {
+	                                if (ee[i].endpoint[event] && ee[i].endpoint[event](e)) return;
+	                            }
+	                        }
+	                    }
+	                });					
+				};
+				bindOne("click");bindOne("dblclick");bindOne("mousemove");bindOne("mousedown");bindOne("mouseup");bindOne("contextmenu");				
+			}
+
 			return renderMode;
 		};
 		
