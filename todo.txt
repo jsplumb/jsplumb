@@ -31,7 +31,24 @@ future
             }
 
         };
+
+        ---
+
+        makeTarget when elements verlap:
+
+        https://groups.google.com/forum/?fromgroups#!topic/jsplumb/C9d217E34oo
+
+        dropOptions: {
+                          hoverClass: "dragHover",
+                          over: function(event, ui){
+                              $('.w').not(self.$el).droppable("disable");
+                          },
+                          out: function(event, ui){
+                              $('.w').droppable("enable");
+                          }
+                      }
         
+        ---
 
 
     Performance
