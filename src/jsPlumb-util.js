@@ -363,6 +363,26 @@
                 return eventsSuspended;
             };
         },
+        extend:function(obj, _proto) {
+            var child = new Function();
+            _proto = _proto || {};
+            for (var i in obj.prototype) {
+                if(obj.prototype.hasOwnProperty(i)) {
+                    child.prototype[i] = obj.prototype[i];
+                }
+            }
+            for (var j in _proto) {
+                child.prototype[j] = function() {
+                    if (obj.prototype[j]) obj.prototype[j].apply(this, arguments);
+                    _proto[j].apply(this, arguments);
+                };
+            }
+
+            child.prototype._super = obj;
+
+            return child;
+
+        },
         logEnabled : true,
         log : function() {
             if (jsPlumbUtil.logEnabled && typeof console != "undefined") {
