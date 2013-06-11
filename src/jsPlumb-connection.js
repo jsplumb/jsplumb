@@ -135,7 +135,7 @@
         this.setConnector = function(connectorSpec, doNotRepaint) {
             if (connector != null) _ju.removeElements(connector.getDisplayElements());
             var connectorArgs = { 
-                _jsPlumb:self._jsPlumb, 
+                _jsPlumb:self._jsPlumb.instance, 
                 parent:params.parent, 
                 cssClass:params.cssClass, 
                 container:params.container, 

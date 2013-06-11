@@ -72,6 +72,7 @@
 		 * and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
 		 */
 		jsPlumbUIComponent = window.jsPlumbUIComponent = function(params) {
+
 			var self = this, 
 				a = arguments, 
 				_hover = false, 
@@ -81,9 +82,10 @@
 				paintStyle = null,
 				hoverPaintStyle = null;
 
-			self._jsPlumb = params["_jsPlumb"];			
+			self._jsPlumb = { instance: params["_jsPlumb"] };
+			
 			self.getId = function() { return id; };			
-			self.hoverClass = params.hoverClass || self._jsPlumb.Defaults.HoverClass || jsPlumb.Defaults.HoverClass;				
+			self.hoverClass = params.hoverClass || self._jsPlumb.instance.Defaults.HoverClass || jsPlumb.Defaults.HoverClass;				
 			
 			// all components can generate events
 			jsPlumbUtil.EventGenerator.apply(this);
@@ -130,7 +132,7 @@
 			// connection is confirmed. user can return false to reject connection.
 			var beforeDrop = params.beforeDrop;
 			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint) {
-				var r = self._jsPlumb.checkCondition("beforeDrop", { 
+				var r = self._jsPlumb.instance.checkCondition("beforeDrop", { 
 					sourceId:sourceId, 
 					targetId:targetId, 
 					scope:scope,
@@ -227,7 +229,7 @@
 		    this.setHover = function(hover, ignoreAttachedElements, timestamp) {
 		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
 		    	// swishing and whatevering.
-				if (!self._jsPlumb.currentlyDragging && !self._jsPlumb.isHoverSuspended()) {
+				if (!self._jsPlumb.instance.currentlyDragging && !self._jsPlumb.instance.isHoverSuspended()) {
 		    
 			    	_hover = hover;
                         
@@ -240,13 +242,13 @@
                         }
                         
                         if (hover) 
-                            jpcl.addClass(self.canvas, self._jsPlumb.hoverClass);						
+                            jpcl.addClass(self.canvas, self._jsPlumb.instance.hoverClass);						
                         else
-                            jpcl.removeClass(self.canvas, self._jsPlumb.hoverClass);
+                            jpcl.removeClass(self.canvas, self._jsPlumb.instance.hoverClass);
                     }
 		   		 	if (hoverPaintStyle != null) {
 						self.paintStyleInUse = hover ? hoverPaintStyle : paintStyle;
-						if (!self._jsPlumb.isSuspendDrawing()) {
+						if (!self._jsPlumb.instance.isSuspendDrawing()) {
 							timestamp = timestamp || _timestamp();
 							self.repaint({timestamp:timestamp, recalc:false});
 						}
@@ -330,7 +332,7 @@
 							
 						var o = jsPlumbUtil.merge({}, self.getDefaultType());
 						for (var i = 0, j = _types.length; i < j; i++)
-							o = jsPlumbUtil.merge(o, self._jsPlumb.getType(_types[i], td));						
+							o = jsPlumbUtil.merge(o, self._jsPlumb.instance.getType(_types[i], td));						
 							
 						if (params) {
 							o = jsPlumbUtil.populate(o, params);
@@ -454,11 +456,11 @@
 					// which merges the 3rd arg into the 2nd.
 					var type = o[0],
 						// make a copy of the object so as not to mess up anyone else's reference...
-						p = jsPlumb.extend({component:self, _jsPlumb:self._jsPlumb}, o[1]);
+						p = jsPlumb.extend({component:self, _jsPlumb:self._jsPlumb.instance}, o[1]);
 					if (o.length == 3) jsPlumb.extend(p, o[2]);
-					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.getRenderMode()][type](p);					
+					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.instance.getRenderMode()][type](p);					
 				} else if (o.constructor == String) {
-					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.getRenderMode()][o]({component:self, _jsPlumb:self._jsPlumb});
+					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.instance.getRenderMode()][o]({component:self, _jsPlumb:self._jsPlumb.instance});
 				} else {
 					_newOverlay = o;
 				}										
@@ -469,7 +471,7 @@
 				var defaultKeys = self.defaultOverlayKeys || [],
 					o = params.overlays,
 					checkKey = function(k) {
-						return self._jsPlumb.Defaults[k] || jsPlumb.Defaults[k] || [];
+						return self._jsPlumb.instance.Defaults[k] || jsPlumb.Defaults[k] || [];
 					};
 				
 				if (!o) o = [];
@@ -566,15 +568,15 @@
 					labelStyle : this.labelStyle,					
 					id:_internalLabelOverlayId,
 					component:self,
-					_jsPlumb:self._jsPlumb
+					_jsPlumb:self._jsPlumb.instance
 				},
 				mergedParams = jsPlumb.extend(_params, params);
 
-				return new jsPlumb.Overlays[self._jsPlumb.getRenderMode()].Label( mergedParams );
+				return new jsPlumb.Overlays[self._jsPlumb.instance.getRenderMode()].Label( mergedParams );
 			};
 			if (params.label) {
 				var loc = params.labelLocation || self.defaultLabelLocation || 0.5,
-					labelStyle = params.labelStyle || self._jsPlumb.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
+					labelStyle = params.labelStyle || self._jsPlumb.instance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
 				this.overlays.push(_makeLabelOverlay({
 					label:params.label,
 					location:loc,
@@ -597,7 +599,7 @@
 					}
 				}
 				
-				if (!self._jsPlumb.isSuspendDrawing()) 
+				if (!self._jsPlumb.instance.isSuspendDrawing()) 
 					self.repaint();
 			};
 
@@ -626,7 +628,7 @@
             this.setHover = function(hover, ignoreAttachedElements, timestamp) {
                 superHover.apply(self, arguments);    
                 for (var i = 0, j = self.overlays.length; i < j; i++) {
-					self.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.hoverClass);
+					self.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.instance.hoverClass);
 				}
             };
 		};		

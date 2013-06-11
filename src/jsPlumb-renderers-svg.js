@@ -76,7 +76,7 @@
 		}
 	},		
 	_updateGradient = function(parent, node, style, dimensions, uiComponent) {
-		var id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.idstamp();
+		var id = JSPLUMB_GRADIENT + uiComponent._jsPlumb.instance.idstamp();
 		// first clear out any existing gradient
 		_clearGradient(parent);
 		// this checks for an 'offset' property in the gradient, and in the absence of it, assumes

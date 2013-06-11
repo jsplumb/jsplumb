@@ -188,7 +188,7 @@
             };            
 
             var endpointArgs = {
-                _jsPlumb:self._jsPlumb,
+                _jsPlumb:self._jsPlumb.instance,
                 cssClass:params.cssClass,
                 parent:params.parent,
                 container:params.container,
