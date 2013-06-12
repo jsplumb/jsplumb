@@ -234,7 +234,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 				lineWidth:"3"
 			}
 		});
-		equal(c.paintStyleInUse.lineWidth, 3, "line width converted to integer");
+		equal(c._jsPlumb.paintStyleInUse.lineWidth, 3, "line width converted to integer");
 	});
 
 	test(renderMode + ": outlineWidth specified as string (eew)", function() {
@@ -249,7 +249,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			}
 		});
 		c.repaint();
-		equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
+		equal(c._jsPlumb.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
 	});
 	
 	test(renderMode + ": lineWidth and outlineWidth specified as strings (eew)", function() {
@@ -264,8 +264,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			}
 		});
 		c.repaint();
-		equal(c.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
-		equal(c.paintStyleInUse.lineWidth, 3, "line width converted to integer");
+		equal(c._jsPlumb.paintStyleInUse.outlineWidth, 5, "outline width converted to integer");
+		equal(c._jsPlumb.paintStyleInUse.lineWidth, 3, "line width converted to integer");
 	});
 
 	test(renderMode + ': defaultEndpointMaxConnections', function() {
@@ -4495,13 +4495,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 	test(renderMode + " setPaintStyle", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), c = _jsPlumb.connect({source:d1, target:d2});
 		c.setPaintStyle({strokeStyle:"FOO", lineWidth:999});
-		equal(c.paintStyleInUse.strokeStyle, "FOO", "strokeStyle was set");
-		equal(c.paintStyleInUse.lineWidth, 999, "lineWidth was set");
+		equal(c._jsPlumb.paintStyleInUse.strokeStyle, "FOO", "strokeStyle was set");
+		equal(c._jsPlumb.paintStyleInUse.lineWidth, 999, "lineWidth was set");
 
 		c.setHoverPaintStyle({strokeStyle:"BAZ",  lineWidth:444});
 		c.setHover(true);
-		equal(c.paintStyleInUse.strokeStyle, "BAZ", "strokeStyle was set");
-		equal(c.paintStyleInUse.lineWidth, 444, "lineWidth was set");
+		equal(c._jsPlumb.paintStyleInUse.strokeStyle, "BAZ", "strokeStyle was set");
+		equal(c._jsPlumb.paintStyleInUse.lineWidth, 444, "lineWidth was set");
 
 		equal(c.getPaintStyle().strokeStyle, "FOO", "getPaintStyle returns correct value");
 		equal(c.getHoverPaintStyle().strokeStyle, "BAZ", "getHoverPaintStyle returns correct value");
@@ -5659,6 +5659,48 @@ var testSuite = function(renderMode, _jsPlumb) {
         equal(t8, 1.5 * Math.PI, "t8 is 270 degrees");        
         equal(t9, 1.75 * Math.PI, "t9 is 315 degrees");                
     });
+
+// *********************************** jsPlumbUtil.extend tests *****************************************************
+
+	test(renderMode + " jsPlumbUtil.extend", function() {
+
+		var Parent = function(arg) {
+			this.aValue = "parent";
+			this.inputArg = arg;
+			console.log("FOO");
+		};
+		Parent.prototype = {
+			id:function() {
+				return "parent";
+			}
+		};
+
+		// extend parent and call with no constructor args and nothing overridden.
+		var Child = jsPlumbUtil.extend(Parent), aChild = new Child();
+		equal(aChild.id(), "parent", "child has inherited parent's id method");
+		equal(aChild.aValue, "parent", "child has inherited parent's aValue property");
+		ok(typeof aChild.inputArg == "undefined", "input argument was undefined");
+
+		// extend parent and call with a constructor arg
+		var anotherChild = new Child("foo");		
+		equal(anotherChild.inputArg, "foo", "input argument was 'foo'");
+
+		// extend parent with a constructor, then call it and check child's constructor was run.
+		var Child2 = jsPlumbUtil.extend(Parent, function(arg) {
+			this.inputArg = arg + " from child";
+		});
+		var thirdChild = new Child2("foo");
+		equal(thirdChild.inputArg, "foo from child", "input argument was 'foo from child'");
+
+		// extend parent with a prototype that overrides the id method
+		var Child3 = jsPlumbUtil.extend(Parent, null, {
+			id:function() {
+				return "child";
+			}
+		}), fourthChild = new Child3("fourthChild");
+		equal(fourthChild.inputArg, "fourthChild", "input arg was overriden correctly");
+		equal(fourthChild.id(), "child", "id method from prototype was overridden");
+	});
     
     test(renderMode + " jsPlumb.getSelector, simple case", function() {
         _addDiv("d1");
