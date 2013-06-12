@@ -2738,7 +2738,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			["Arrow",{ location:0.1, id:"arrow" }]
 		];
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
-			c = _jsPlumb.connect({source:d1, target:d2});
+			c = _jsPlumb.connect({source:d1, target:d2});		
 
 		ok(c.getOverlay("arrow") != null, "Arrow overlay created from defaults");
 	});

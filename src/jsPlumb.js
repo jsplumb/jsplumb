@@ -65,6 +65,34 @@
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
 		 */
 		_timestamp = function() { return "" + (new Date()).getTime(); },
+
+		// helper method to update the hover style whenever it, or paintStyle, changes.
+		// we use paintStyle as the foundation and merge hoverPaintStyle over the
+		// top.
+		_updateHoverStyle = function(component) {
+			if (component._jsPlumb.paintStyle && component._jsPlumb.hoverPaintStyle) {
+				var mergedHoverStyle = {};
+				jsPlumb.extend(mergedHoverStyle, component._jsPlumb.paintStyle);
+				jsPlumb.extend(mergedHoverStyle, component._jsPlumb.hoverPaintStyle);
+				delete component._jsPlumb["hoverPaintStyle"];
+				// we want the fillStyle of paintStyle to override a gradient, if possible.
+				if (mergedHoverStyle.gradient && component._jsPlumb.paintStyle.fillStyle)
+					delete mergedHoverStyle["gradient"];
+				component._jsPlumb.hoverPaintStyle = mergedHoverStyle;
+			}
+		},		
+		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
+		eventFilters = { "mouseout":"mouseexit" },
+		_updateAttachedElements = function(component, state, timestamp, sourceElement) {
+			var affectedElements = component.getAttachedElements();		// implemented in subclasses
+			if (affectedElements) {
+				for (var i = 0, j = affectedElements.length; i < j; i++) {
+					if (!sourceElement || sourceElement != affectedElements[i])
+						affectedElements[i].setHover(state, true, timestamp);			// tell the attached elements not to inform their own attached elements.
+				}
+			}
+		},
+		_splitType = function(t) { return t == null ? null : t.split(" ")},				
 		
 		/*
 		 * Class:jsPlumbUIComponent
@@ -74,18 +102,26 @@
 		jsPlumbUIComponent = window.jsPlumbUIComponent = function(params) {
 
 			var self = this, 
-				a = arguments, 
-				_hover = false, 
-				parameters = params.parameters || {}, 
+				a = arguments, 				 				
 				idPrefix = self.idPrefix,
 				id = idPrefix + (new Date()).getTime(),
-				paintStyle = null,
-				hoverPaintStyle = null;
+				jpcl = jsPlumb.CurrentLibrary;
 
-			self._jsPlumb = { instance: params["_jsPlumb"] };
-			
+			this._jsPlumb = { 
+				instance: params["_jsPlumb"],
+				parameters:params.parameters || {},
+				paintStyle:null,
+				hoverPaintStyle:null,
+				paintStyleInUse:null,
+				hover:false,
+				beforeDetach:params.beforeDetach,
+				beforeDrop:params.beforeDrop,
+				overlayPlacements : [],
+				hoverClass: params.hoverClass || params["_jsPlumb"].Defaults.HoverClass || jsPlumb.Defaults.HoverClass
+			};
+
 			self.getId = function() { return id; };			
-			self.hoverClass = params.hoverClass || self._jsPlumb.instance.Defaults.HoverClass || jsPlumb.Defaults.HoverClass;				
+			//self.hoverClass = params.hoverClass || self._jsPlumb.instance.Defaults.HoverClass || jsPlumb.Defaults.HoverClass;				
 			
 			// all components can generate events
 			jsPlumbUtil.EventGenerator.apply(this);
@@ -106,22 +142,20 @@
 				return o;
 			};
 			
-			this.getParameter = function(name) { return parameters[name]; },
+			this.getParameter = function(name) { return this._jsPlumb.parameters[name]; },
 			this.getParameters = function() { 
-				return parameters; 
+				return this._jsPlumb.parameters; 
 			},
-			this.setParameter = function(name, value) { parameters[name] = value; },
-			this.setParameters = function(p) { parameters = p; },			
-			this.overlayPlacements = [];			
-			
+			this.setParameter = function(name, value) { this._jsPlumb.parameters[name] = value; },
+			this.setParameters = function(p) { this._jsPlumb.parameters = p; };		
+						
 			// user can supply a beforeDetach callback, which will be executed before a detach
-			// is performed; returning false prevents the detach.
-			var beforeDetach = params.beforeDetach;
+			// is performed; returning false prevents the detach.			
 			this.isDetachAllowed = function(connection) {
 				var r = true;
-				if (beforeDetach) {
+				if (this._jsPlumb.beforeDetach) {
 					try { 
-						r = beforeDetach(connection); 
+						r = this._jsPlumb.beforeDetach(connection); 
 					}
 					catch (e) { _log("jsPlumb: beforeDetach callback failed", e); }
 				}
@@ -129,8 +163,7 @@
 			};
 			
 			// user can supply a beforeDrop callback, which will be executed before a dropped
-			// connection is confirmed. user can return false to reject connection.
-			var beforeDrop = params.beforeDrop;
+			// connection is confirmed. user can return false to reject connection.			
 			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint) {
 				var r = self._jsPlumb.instance.checkCondition("beforeDrop", { 
 					sourceId:sourceId, 
@@ -139,9 +172,9 @@
 					connection:connection,
 					dropEndpoint:dropEndpoint 
 				});
-				if (beforeDrop) {
+				if (this._jsPlumb.beforeDrop) {
 					try { 
-						r = beforeDrop({ 
+						r = this._jsPlumb.beforeDrop({ 
 							sourceId:sourceId, 
 							targetId:targetId, 
 							scope:scope, 
@@ -152,23 +185,7 @@
 					catch (e) { _log("jsPlumb: beforeDrop callback failed", e); }
 				}
 				return r;
-			};
-									
-			// helper method to update the hover style whenever it, or paintStyle, changes.
-			// we use paintStyle as the foundation and merge hoverPaintStyle over the
-			// top.
-			var _updateHoverStyle = function() {
-				if (paintStyle && hoverPaintStyle) {
-					var mergedHoverStyle = {};
-					jsPlumb.extend(mergedHoverStyle, paintStyle);
-					jsPlumb.extend(mergedHoverStyle, hoverPaintStyle);
-					delete self["hoverPaintStyle"];
-					// we want the fillStyle of paintStyle to override a gradient, if possible.
-					if (mergedHoverStyle.gradient && paintStyle.fillStyle)
-						delete mergedHoverStyle["gradient"];
-					hoverPaintStyle = mergedHoverStyle;
-				}
-			};
+			};										
 			
 			/*
 		     * Sets the paint style and then repaints the element.
@@ -177,10 +194,10 @@
 		     * 	style - Style to use.
 		     */
 		    this.setPaintStyle = function(style, doNotRepaint) {
-		    	paintStyle = style;
-		    	self.paintStyleInUse = paintStyle;
-		    	_updateHoverStyle();
-		    	if (!doNotRepaint) self.repaint();
+		    	this._jsPlumb.paintStyle = style;
+		    	this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
+		    	_updateHoverStyle(self);
+		    	if (!doNotRepaint) this.repaint();
 		    };
 
 		    /**
@@ -190,7 +207,7 @@
 		    * the component's paint style. if there is no hoverPaintStyle set then this will be the paint style used all the time, otherwise this is the style used when the mouse is not hovering.
 		    */
 		    this.getPaintStyle = function() {
-		    	return paintStyle;
+		    	return this._jsPlumb.paintStyle;
 		    };
 		    
 		    /*
@@ -204,9 +221,9 @@
 		     *  doNotRepaint - if true, the component will not be repainted.  useful when setting things up initially.
 		     */
 		    this.setHoverPaintStyle = function(style, doNotRepaint) {		    	
-		    	hoverPaintStyle = style;
-		    	_updateHoverStyle();
-		    	if (!doNotRepaint) self.repaint();
+		    	this._jsPlumb.hoverPaintStyle = style;
+		    	_updateHoverStyle(self);
+		    	if (!doNotRepaint) this.repaint();
 		    };
 
 		    /**
@@ -216,7 +233,7 @@
 		    * the component's hover paint style. may be null.
 		    */
 		    this.getHoverPaintStyle = function() {
-		    	return hoverPaintStyle;
+		    	return this._jsPlumb.hoverPaintStyle;
 		    };
 		    
 		    /*
@@ -229,38 +246,38 @@
 		    this.setHover = function(hover, ignoreAttachedElements, timestamp) {
 		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
 		    	// swishing and whatevering.
-				if (!self._jsPlumb.instance.currentlyDragging && !self._jsPlumb.instance.isHoverSuspended()) {
+				if (!this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
 		    
-			    	_hover = hover;
+			    	this._jsPlumb.hover = hover;
                         
-                    if (self.canvas != null) {
-                        if (self.hoverClass != null) {
+                    if (this.canvas != null) {
+                        if (this._jsPlumb.hoverClass != null) {
                             if (hover) 
-                                jpcl.addClass(self.canvas, self.hoverClass);						
+                                jpcl.addClass(this.canvas, this._jsPlumb.hoverClass);						
                             else
-                                jpcl.removeClass(self.canvas, self.hoverClass);
+                                jpcl.removeClass(this.canvas, this.hoverClass);
                         }
                         
                         if (hover) 
-                            jpcl.addClass(self.canvas, self._jsPlumb.instance.hoverClass);						
+                            jpcl.addClass(this.canvas, this._jsPlumb.instance.hoverClass);						
                         else
-                            jpcl.removeClass(self.canvas, self._jsPlumb.instance.hoverClass);
+                            jpcl.removeClass(this.canvas, this._jsPlumb.instance.hoverClass);
                     }
-		   		 	if (hoverPaintStyle != null) {
-						self.paintStyleInUse = hover ? hoverPaintStyle : paintStyle;
-						if (!self._jsPlumb.instance.isSuspendDrawing()) {
+		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
+						this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
+						if (!this._jsPlumb.instance.isSuspendDrawing()) {
 							timestamp = timestamp || _timestamp();
-							self.repaint({timestamp:timestamp, recalc:false});
+							this.repaint({timestamp:timestamp, recalc:false});
 						}
 					}
 					// get the list of other affected elements, if supported by this component.
 					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
-					if (self.getAttachedElements && !ignoreAttachedElements)
-						_updateAttachedElements(hover, _timestamp(), self);
+					if (this.getAttachedElements && !ignoreAttachedElements)
+						_updateAttachedElements(this, hover, _timestamp(), this);
 				}
 		    };
 		    
-		    this.isHover = function() { return _hover; };
+		    this.isHover = function() { return this._jsPlumb.hover; };
             
             this.bindListeners = function(obj, _self, _hoverFunction) {
                 obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
@@ -282,9 +299,7 @@
                 obj.bind("mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
             };
 		
-			var jpcl = jsPlumb.CurrentLibrary,
-				events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
-				eventFilters = { "mouseout":"mouseexit" },
+			var 
 				bindOne = function(o, c, evt) {
 					var filteredEvent = eventFilters[evt] || evt;
 					jpcl.bind(o, evt, function(ee) {
@@ -300,17 +315,7 @@
 				for (var i = 0, j = events.length; i < j; i++) {
 					bindOne(o, c, events[i]); 			
 				}
-			};
-		    
-		    var _updateAttachedElements = function(state, timestamp, sourceElement) {
-		    	var affectedElements = self.getAttachedElements();		// implemented in subclasses
-		    	if (affectedElements) {
-		    		for (var i = 0, j = affectedElements.length; i < j; i++) {
-		    			if (!sourceElement || sourceElement != affectedElements[i])
-		    				affectedElements[i].setHover(state, true, timestamp);			// tell the attached elements not to inform their own attached elements.
-		    		}
-		    	}
-		    };
+			};		   		    
 		    
 		    this.reattachListenersForElement = function(o) {
 			    if (arguments.length > 1) {
@@ -325,12 +330,12 @@
 			 * TYPES
 			 */
 			var _types = [],
-				_splitType = function(t) { return t == null ? null : t.split(" ")},				
-				_applyTypes = function(params, doNotRepaint) {
-					if (self.getDefaultType) {
-						var td = self.getTypeDescriptor();
+				
+				_applyTypes = function(component, params, doNotRepaint) {
+					if (component.getDefaultType) {
+						var td = component.getTypeDescriptor();
 							
-						var o = jsPlumbUtil.merge({}, self.getDefaultType());
+						var o = jsPlumbUtil.merge({}, component.getDefaultType());
 						for (var i = 0, j = _types.length; i < j; i++)
 							o = jsPlumbUtil.merge(o, self._jsPlumb.instance.getType(_types[i], td));						
 							
@@ -338,8 +343,8 @@
 							o = jsPlumbUtil.populate(o, params);
 						}
 					
-						self.applyType(o, doNotRepaint);					
-						if (!doNotRepaint) self.repaint();
+						component.applyType(o, doNotRepaint);					
+						if (!doNotRepaint) component.repaint();
 					}
 				};
 			
@@ -349,14 +354,14 @@
 			*/
 			self.setType = function(typeId, params, doNotRepaint) {				
 				_types = _splitType(typeId) || [];
-				_applyTypes(params, doNotRepaint);									
+				_applyTypes(this, params, doNotRepaint);									
 			};
 			
 			/*
 			 * Function : getType
 			 * Gets the 'types' of this component.
 			 */
-			self.getType = function() {
+			this.getType = function() {
 				return _types;
 			};
 
@@ -364,11 +369,11 @@
 				Function: reapplyTypes
 				Reapply all existing types, but with the given new params.
 			*/
-			self.reapplyTypes = function(params, doNotRepaint) {
-				_applyTypes(params, doNotRepaint);
+			this.reapplyTypes = function(params, doNotRepaint) {
+				_applyTypes(this, params, doNotRepaint);
 			};
 			
-			self.hasType = function(typeId) {
+			this.hasType = function(typeId) {
 				return jsPlumbUtil.indexOf(_types, typeId) != -1;
 			};
 			
@@ -376,7 +381,7 @@
 				Function: addType
 				adds a type. will not be re-added it already exists.
 			*/
-			self.addType = function(typeId, params, doNotRepaint) {
+			this.addType = function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false;
 				if (t != null) {
 					for (var i = 0, j = t.length; i < j; i++) {
@@ -385,11 +390,11 @@
 							_cont = true;						
 						}
 					}
-					if (_cont) _applyTypes(params, doNotRepaint);
+					if (_cont) _applyTypes(this, params, doNotRepaint);
 				}
 			};
 			
-			self.removeType = function(typeId, doNotRepaint) {
+			this.removeType = function(typeId, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false, _one = function(tt) {
 					var idx = jsPlumbUtil.indexOf(_types, tt);
 					if (idx != -1) {
@@ -403,11 +408,11 @@
 					for (var i = 0,j = t.length; i < j; i++) {
 						_cont = _one(t[i]) || _cont;
 					}
-					if (_cont) _applyTypes(null, doNotRepaint);
+					if (_cont) _applyTypes(this, null, doNotRepaint);
 				}
 			};
 			
-			self.toggleType = function(typeId, params, doNotRepaint) {
+			this.toggleType = function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId);
 				if (t != null) {
 					for (var i = 0, j = t.length; i < j; i++) {
@@ -418,16 +423,16 @@
 							_types.push(t[i]);
 					}
 						
-					_applyTypes(params, doNotRepaint);
+					_applyTypes(this, params, doNotRepaint);
 				}
 			};
 			
 			this.applyType = function(t, doNotRepaint) {
-				self.setPaintStyle(t.paintStyle, doNotRepaint);				
-				self.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint);
+				this.setPaintStyle(t.paintStyle, doNotRepaint);				
+				this.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint);
 				if (t.parameters){
 					for (var i in t.parameters)
-						self.setParameter(i, t.parameters[i]);
+						this.setParameter(i, t.parameters[i]);
 				}
 			};
             

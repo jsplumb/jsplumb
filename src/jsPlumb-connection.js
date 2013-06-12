@@ -296,7 +296,7 @@
                                 _jsPlumb.Defaults.HoverPaintStyle || 
                                 jsPlumb.Defaults.HoverPaintStyle, true);
         
-        this.paintStyleInUse = this.getPaintStyle();
+        this._jsPlumb.paintStyleInUse = this.getPaintStyle();
         
         var _suspendedAt = _jsPlumb.getSuspendedAt();
         _jsPlumb.updateOffset( { elId : this.sourceId, timestamp:_suspendedAt });
@@ -458,7 +458,7 @@
                         targetPos:tAnchorP, 
                         sourceEndpoint:this.endpoints[sIdx],
                         targetEndpoint:this.endpoints[tIdx],
-                        lineWidth:self.paintStyleInUse.lineWidth,                        					
+                        lineWidth:self._jsPlumb.paintStyleInUse.lineWidth,                        					
                         sourceInfo:sourceInfo,
                         targetInfo:targetInfo,
                         clearEdits:params.clearEdits === true
@@ -475,16 +475,16 @@
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
                         if (o.isVisible()) {
-                            self.overlayPlacements[i] = o.draw(connector, self.paintStyleInUse);
-                            overlayExtents.minX = Math.min(overlayExtents.minX, self.overlayPlacements[i].minX);
-                            overlayExtents.maxX = Math.max(overlayExtents.maxX, self.overlayPlacements[i].maxX);
-                            overlayExtents.minY = Math.min(overlayExtents.minY, self.overlayPlacements[i].minY);
-                            overlayExtents.maxY = Math.max(overlayExtents.maxY, self.overlayPlacements[i].maxY);
+                            this._jsPlumb.overlayPlacements[i] = o.draw(connector, self._jsPlumb.paintStyleInUse);
+                            overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
+                            overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
+                            overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
+                            overlayExtents.maxY = Math.max(overlayExtents.maxY, this._jsPlumb.overlayPlacements[i].maxY);
                         }
                     }
 
-                    var lineWidth = parseFloat(self.paintStyleInUse.lineWidth || 1) / 2,
-                        outlineWidth = parseFloat(self.paintStyleInUse.lineWidth || 0),
+                    var lineWidth = parseFloat(self._jsPlumb.paintStyleInUse.lineWidth || 1) / 2,
+                        outlineWidth = parseFloat(self._jsPlumb.paintStyleInUse.lineWidth || 0),
                         extents = {
                             xmin : Math.min(connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
                             ymin : Math.min(connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
@@ -493,12 +493,12 @@
                         };
 
                     // paint the connector.
-                    connector.paint(self.paintStyleInUse, null, extents);  
+                    connector.paint(self._jsPlumb.paintStyleInUse, null, extents);  
                     // and then the overlays
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
                         if (o.isVisible()) {
-                            o.paint(self.overlayPlacements[i], extents);    
+                            o.paint(this._jsPlumb.overlayPlacements[i], extents);    
                         }
                     }                  
                                                             

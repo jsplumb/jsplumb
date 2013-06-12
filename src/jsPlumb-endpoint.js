@@ -248,7 +248,7 @@
         this.setHoverPaintStyle(params.hoverPaintStyle || 
                                 _jsPlumb.Defaults.EndpointHoverStyle || 
                                 jsPlumb.Defaults.EndpointHoverStyle, true);
-        this.paintStyleInUse = this.getPaintStyle();
+        this._jsPlumb.paintStyleInUse = this.getPaintStyle();
         var originalPaintStyle = this.getPaintStyle();
 
         _ju.copyValues(typeParameters, params, this);        
@@ -515,16 +515,16 @@
                         ap = self.anchor.compute(anchorParams);
                     }
                                         
-                    _endpoint.compute(ap, self.anchor.getOrientation(self), self.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
-                    _endpoint.paint(self.paintStyleInUse, self.anchor);					
+                    _endpoint.compute(ap, self.anchor.getOrientation(self), self._jsPlumb.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
+                    _endpoint.paint(self._jsPlumb.paintStyleInUse, self.anchor);					
                     self.timestamp = timestamp;
 
                     // paint overlays
                     for ( var i = 0; i < self.overlays.length; i++) {
                         var o = self.overlays[i];
                         if (o.isVisible()) { 
-                            self.overlayPlacements[i] = o.draw(self.endpoint, self.paintStyleInUse);
-                            o.paint(self.overlayPlacements[i]);    
+                            this._jsPlumb.overlayPlacements[i] = o.draw(self.endpoint, self._jsPlumb.paintStyleInUse);
+                            o.paint(this._jsPlumb.overlayPlacements[i]);    
                         }
                     }
                 }
