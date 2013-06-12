@@ -925,7 +925,7 @@
 			deleted = true;
             img = null;
             canvas = null;
-            self = null;
+           // self = null;
 		};
 		
 		var actuallyPaint = function(d, style, anchor) {
@@ -1020,7 +1020,7 @@
         this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
 		this.setVisible = function(val) { 
 			visible = val;
-			self.component.repaint();
+			this.component.repaint();
 		};
     	this.isVisible = function() { return visible; };
     	this.hide = function() { this.setVisible(false); };

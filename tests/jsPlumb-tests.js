@@ -2695,13 +2695,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3}],
 					["Arrow",arrowSpec ] ]
 		});
-		equal(2, connection1.overlays.length);
-		equal(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		equal(2, connection1._jsPlumb.overlays.length);
+		equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays[0].constructor);
 		
-		equal(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
-		equal(0.7, connection1.overlays[1].loc);
-		equal(40, connection1.overlays[1].width);
-		equal(40, connection1.overlays[1].length);
+		equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays[1].constructor);
+		equal(0.7, connection1._jsPlumb.overlays[1].loc);
+		equal(40, connection1._jsPlumb.overlays[1].width);
+		equal(40, connection1._jsPlumb.overlays[1].length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (overlays, long-hand version, IDs specified)", function() {
@@ -2722,15 +2722,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
 					["Arrow",arrowSpec ] ]
 		});
-		equal(2, connection1.overlays.length);
-		equal(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
-		equal("aLabel", connection1.overlays[0].id);
+		equal(2, connection1._jsPlumb.overlays.length);
+		equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays[0].constructor);
+		equal("aLabel", connection1._jsPlumb.overlays[0].id);
 		
-		equal(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
-		equal(0.7, connection1.overlays[1].loc);
-		equal(40, connection1.overlays[1].width);
-		equal(40, connection1.overlays[1].length);
-		equal("anArrow", connection1.overlays[1].id);
+		equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays[1].constructor);
+		equal(0.7, connection1._jsPlumb.overlays[1].loc);
+		equal(40, connection1._jsPlumb.overlays[1].width);
+		equal(40, connection1._jsPlumb.overlays[1].length);
+		equal("anArrow", connection1._jsPlumb.overlays[1].id);
 	});
 
 	test(renderMode + ": _jsPlumb.connect (default overlays)", function() {
@@ -2927,10 +2927,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
 					["Arrow",arrowSpec ] ]
 		});
-		equal(2, connection1.overlays.length);
+		equal(2, connection1._jsPlumb.overlays.length);
 		connection1.removeOverlay("aLabel");
-		equal(1, connection1.overlays.length);
-		equal("anArrow", connection1.overlays[0].id);
+		equal(1, connection1._jsPlumb.overlays.length);
+		equal("anArrow", connection1._jsPlumb.overlays[0].id);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (remove multiple overlays by id)", function() {
@@ -2950,9 +2950,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",{label:"CONNECTION 1", location:0.3, id:"aLabel"}],
 					["Arrow",arrowSpec ] ]
 		});
-		equal(2, connection1.overlays.length);
+		equal(2, connection1._jsPlumb.overlays.length);
 		connection1.removeOverlays("aLabel", "anArrow");
-		equal(0, connection1.overlays.length);
+		equal(0, connection1._jsPlumb.overlays.length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (overlays, short-hand version)", function() {
@@ -2967,13 +2967,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",  {label:"CONNECTION 1", location:0.3}],
 					["Arrow", arrowSpec, loc] ]
 		});
-		equal(2, connection1.overlays.length);
-		equal(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		equal(2, connection1._jsPlumb.overlays.length);
+		equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays[0].constructor);
 		
-		equal(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
-		equal(0.7, connection1.overlays[1].loc);
-		equal(40, connection1.overlays[1].width);
-		equal(40, connection1.overlays[1].length);
+		equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays[1].constructor);
+		equal(0.7, connection1._jsPlumb.overlays[1].loc);
+		equal(40, connection1._jsPlumb.overlays[1].width);
+		equal(40, connection1._jsPlumb.overlays[1].length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (removeAllOverlays)", function() {
@@ -2988,23 +2988,23 @@ var testSuite = function(renderMode, _jsPlumb) {
 	   	overlays : [ ["Label",  {label:"CONNECTION 1", location:0.3, cssClass:"PPPP"}],
 					["Arrow", arrowSpec, loc] ]
 		});
-		equal(2, connection1.overlays.length);
-		equal(jsPlumb.Overlays[renderMode].Label, connection1.overlays[0].constructor);
+		equal(2, connection1._jsPlumb.overlays.length);
+		equal(jsPlumb.Overlays[renderMode].Label, connection1._jsPlumb.overlays[0].constructor);
 		
-		equal(jsPlumb.Overlays[renderMode].Arrow, connection1.overlays[1].constructor);
-		equal(0.7, connection1.overlays[1].loc);
-		equal(40, connection1.overlays[1].width);
-		equal(40, connection1.overlays[1].length);
+		equal(jsPlumb.Overlays[renderMode].Arrow, connection1._jsPlumb.overlays[1].constructor);
+		equal(0.7, connection1._jsPlumb.overlays[1].loc);
+		equal(40, connection1._jsPlumb.overlays[1].width);
+		equal(40, connection1._jsPlumb.overlays[1].length);
 		
 		connection1.removeAllOverlays();
-		equal(0, connection1.overlays.length);
+		equal(0, connection1._jsPlumb.overlays.length);
 		equal(0, $(".PPPP").length);
 	});
 	
 	test(renderMode + ": _jsPlumb.connect, specify arrow overlay using string identifier only", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 		var conn = _jsPlumb.connect({source:d1,target:d2,overlays:["Arrow"]});
-		equal(jsPlumb.Overlays[renderMode].Arrow, conn.overlays[0].constructor);
+		equal(jsPlumb.Overlays[renderMode].Arrow, conn._jsPlumb.overlays[0].constructor);
 	});
 	
 	test(renderMode + ": Connection.getOverlay method, existing overlay", function() {
@@ -3397,10 +3397,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 			target:d2,
 			overlays:[ "Arrow", "Label", "PlainArrow", "Diamond" ]
 		});
-		equal(c.overlays[0].type, "Arrow", "Arrow overlay has type set");
-		equal(c.overlays[1].type, "Label", "Label overlay has type set");
-		equal(c.overlays[2].type, "PlainArrow", "PlainArrow overlay has type set");
-		equal(c.overlays[3].type, "Diamond", "Diamond overlay has type set");		
+		equal(c._jsPlumb.overlays[0].type, "Arrow", "Arrow overlay has type set");
+		equal(c._jsPlumb.overlays[1].type, "Label", "Label overlay has type set");
+		equal(c._jsPlumb.overlays[2].type, "PlainArrow", "PlainArrow overlay has type set");
+		equal(c._jsPlumb.overlays[3].type, "Diamond", "Diamond overlay has type set");		
 	});
 	
 	test(renderMode + " _jsPlumb.hide, original one-arg version", function() {

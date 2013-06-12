@@ -99,7 +99,7 @@
 					
 				var o = jsPlumbUtil.merge({}, component.getDefaultType());
 				for (var i = 0, j = component._jsPlumb.types.length; i < j; i++)
-					o = jsPlumbUtil.merge(o, self._jsPlumb.instance.getType(component._jsPlumb.types[i], td));						
+					o = jsPlumbUtil.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td));						
 					
 				if (params) {
 					o = jsPlumbUtil.populate(o, params);
@@ -590,7 +590,7 @@
 				if (!lo) {
 					var params = l.constructor == String || l.constructor == Function ? { label:l } : l;
 					lo = _makeLabelOverlay(this, params);	
-					this.overlays.push(lo);
+					this._jsPlumb.overlays.push(lo);
 				}
 				else {
 					if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
