@@ -363,9 +363,14 @@
                 return eventsSuspended;
             };
         },
-        extend:function(obj, _proto) {
-            var child = new Function();
+        extend : function(obj, constructor, _proto) {
             _proto = _proto || {};
+            constructor = constructor || function() {};
+            var child = function() {                
+                obj.apply(this, arguments);
+                constructor.apply(this, arguments);
+            };            
+            
             for (var i in obj.prototype) {
                 if(obj.prototype.hasOwnProperty(i)) {
                     child.prototype[i] = obj.prototype[i];
@@ -373,8 +378,8 @@
             }
             for (var j in _proto) {
                 child.prototype[j] = function() {
-                    if (obj.prototype[j]) obj.prototype[j].apply(this, arguments);
-                    _proto[j].apply(this, arguments);
+                    var parentValue = (obj.prototype[j])  ? obj.prototype[j].apply(this, arguments) : null;
+                    return _proto[j].apply(this, arguments);
                 };
             }
 
