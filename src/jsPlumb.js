@@ -115,7 +115,7 @@
 		 * Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
 		 * and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
 		 */
-		jsPlumbUIComponent = window.jsPlumbUIComponent = function(params) {
+		jsPlumbUIComponent = window.jsPlumbUIComponent = jsPlumbUtil.extend(jsPlumbUtil.EventGenerator, function(params) {
 
 			var self = this, 
 				a = arguments, 				 				
@@ -140,7 +140,7 @@
 			self.getId = function() { return id; };	
 			
 			// all components can generate events
-			jsPlumbUtil.EventGenerator.apply(this);
+			//jsPlumbUtil.EventGenerator.apply(this);
 			if (params.events) {
 				for (var i in params.events)
 					self.bind(i, params.events[i]);
@@ -445,7 +445,7 @@
                 if (self.canvas != null)
                     _removeClass(self.canvas, clazz);
             };                    
-		},
+		}),
 		_internalLabelOverlayId = "__label",
 		// helper to get the index of some overlay
 		_getOverlayIndex = function(component, id) {
@@ -505,8 +505,7 @@
 			
 			return o;
 		},
-		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
-			jsPlumbUIComponent.apply(this, arguments);
+		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = jsPlumbUtil.extend(jsPlumbUIComponent, function(params) {
 			var self = this;			
 			this._jsPlumb.overlays = [];			
 
@@ -633,9 +632,7 @@
 					self._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.instance.hoverClass);
 				}
             };
-
-
-		};		
+		});		
 		
 		var _jsPlumbInstanceIndex = 0,
 			getInstanceIndex = function() {

@@ -1,6 +1,6 @@
 ;(function() {
     
-    jsPlumb.Connection = function(params) {
+    jsPlumb.Connection = jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, function(params) {
         var self = this, visible = true, _internalHover, _superClassHover,
             _jsPlumb = params["_jsPlumb"],
             jpcl = jsPlumb.CurrentLibrary,
@@ -16,7 +16,7 @@
         self.defaultLabelLocation = 0.5;
         self.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
         this.parent = params.parent;
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+        //OverlayCapableJsPlumbUIComponent.apply(this, arguments);
         // ************** get the source and target and register the connection. *******************
         
 // VISIBILITY						
@@ -523,5 +523,5 @@
             self.addType(_type, params.data, _jsPlumb.isSuspendDrawing());
         
 // END PAINTING    
-    }; // END Connection class            
+    }); // END Connection class            
 })();
