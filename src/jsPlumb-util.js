@@ -366,19 +366,28 @@
         extend : function(obj, constructor, _proto) {
             _proto = _proto || {};
             constructor = constructor || function() {};
-            var child = function() {                
-                obj.apply(this, arguments);
+            obj = this.isArray(obj) ? obj : [ obj ];
+            var child = function() {
+                for (var i = 0; i < obj.length; i++)                            
+                    obj[i].apply(this, arguments);
                 constructor.apply(this, arguments);
             };            
             
-            for (var i in obj.prototype) {
-                if(obj.prototype.hasOwnProperty(i)) {
-                    child.prototype[i] = obj.prototype[i];
+            for (var i = 0; i < obj.length; i++) {
+                for (var j in obj[i].prototype) {
+                    if(obj[i].prototype.hasOwnProperty(j)) {
+                        child.prototype[j] = obj[i].prototype[j];
+                    }
                 }
             }
+
             for (var j in _proto) {
                 child.prototype[j] = function() {
-                    var parentValue = (obj.prototype[j])  ? obj.prototype[j].apply(this, arguments) : null;
+                    for (var i = 0; i < obj.length; i++) {
+                        if (obj[i].prototype[j])
+                            obj[i].prototype[j].apply(this, arguments);
+                    }
+
                     return _proto[j].apply(this, arguments);
                 };
             }
