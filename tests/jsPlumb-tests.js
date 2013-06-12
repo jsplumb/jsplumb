@@ -5679,7 +5679,11 @@ var testSuite = function(renderMode, _jsPlumb) {
 		};
 
 		// extend parent and call with no constructor args and nothing overridden.
-		var Child = jsPlumbUtil.extend(Parent), aChild = new Child();
+		var Child = function() {
+			Parent.apply(this, arguments);
+		};
+		jsPlumbUtil.extend(Child, Parent);
+		var aChild = new Child();
 		equal(aChild.id(), "parent", "child has inherited parent's id method");
 		equal(aChild.id2(), "parent2", "child has inherited parent's id2 method");
 		equal(aChild.aValue, "parent", "child has inherited parent's aValue property");
@@ -5690,37 +5694,31 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(anotherChild.inputArg, "foo", "input argument was 'foo'");
 
 		// extend parent with a constructor, then call it and check child's constructor was run.
-		var Child2 = jsPlumbUtil.extend(Parent, function(arg) {
+		var Child2 = function(arg) {
+			Parent.apply(this, arguments);
 			this.inputArg = arg + " from child";
-		});
+		};
+		jsPlumbUtil.extend(Child2, Parent);
 		var thirdChild = new Child2("foo");
 		equal(thirdChild.inputArg, "foo from child", "input argument was 'foo from child'");
 
 		// extend parent with a prototype that overrides the id method
-		var Child3 = jsPlumbUtil.extend(Parent, null, {
+		var Child3 = function() {
+			Parent.apply(this, arguments);
+		};
+
+		jsPlumbUtil.extend(Child3, Parent, {
 			id:function() {
 				return "child";
 			},
 			id2:function() {
 				return "child2";
 			}
-		}), fourthChild = new Child3("fourthChild");
+		});
+		var fourthChild = new Child3("fourthChild");
 		equal(fourthChild.inputArg, "fourthChild", "input arg was overriden correctly");
 		equal(fourthChild.id(), "child", "id method from prototype was overridden");
-		equal(fourthChild.id2(), "child2", "id method from prototype was overridden");
-
-		// extend Parent with some prototype functions and also some class level members.
-		var Child4 = jsPlumbUtil.extend(Parent, null, {
-			id:function() {
-				return "child";
-			},
-			id2:function() {
-				return "child2";
-			}
-		}, {
-			foo:"bar"
-		}), fifthChild = new Child4("fifthChild");
-		equal(fifthChild.foo, "bar", "class level members set");
+		equal(fourthChild.id2(), "child2", "id method from prototype was overridden");		
 	});
 
 test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
@@ -5754,7 +5752,13 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
 	};
 
 	// extend parent and call with no constructor args and nothing overridden.
-	var Child = jsPlumbUtil.extend([Mother, Father]), aChild = new Child();
+	var Child = function() {
+		Mother.apply(this, arguments);
+		Father.apply(this, arguments);
+	};
+
+	jsPlumbUtil.extend(Child, [Mother, Father]);
+	var aChild = new Child();
 	equal(aChild.id(), "father", "child has inherited father's id method");
 	equal(aChild.mother(), "mother", "child has inherited mother's method");
 	equal(aChild.father(), "father", "child has inherited father's method");
@@ -5766,18 +5770,26 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
 	equal(anotherChild.inputArg, "foo", "input argument was 'foo'");
 
 	// extend parents with a constructor, then call it and check child's constructor was run.
-	var Child2 = jsPlumbUtil.extend([Mother, Father], function(arg) {
+	var Child2 = function(arg) {
+		Mother.apply(this, arguments);
+		Father.apply(this, arguments);
 		this.inputArg = arg + " from child";
-	});
+	};
+	jsPlumbUtil.extend(Child2, [Mother, Father]);
 	var thirdChild = new Child2("foo");
 	equal(thirdChild.inputArg, "foo from child", "input argument was 'foo from child'");
 
 	// extend parents with a prototype that overrides the id method
-	var Child3 = jsPlumbUtil.extend([Mother, Father], null, {
+	var Child3 = function() {
+		Mother.apply(this, arguments);
+		Father.apply(this, arguments);
+	};
+	jsPlumbUtil.extend(Child3, [Mother, Father], {
 		id:function() {
 			return "child";
 		}
-	}), fourthChild = new Child3("fourthChild");
+	});
+	var fourthChild = new Child3("fourthChild");
 	equal(fourthChild.inputArg, "fourthChild", "input arg was overriden correctly");
 	equal(fourthChild.id(), "child", "id method from prototype was overridden");
 });

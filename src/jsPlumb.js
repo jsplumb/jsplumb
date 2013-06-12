@@ -115,7 +115,9 @@
 		 * Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
 		 * and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
 		 */
-		jsPlumbUIComponent = window.jsPlumbUIComponent = jsPlumbUtil.extend(jsPlumbUtil.EventGenerator, function(params) {
+		jsPlumbUIComponent = window.jsPlumbUIComponent = function(params) {
+
+			jsPlumbUtil.EventGenerator.apply(this, arguments);
 
 			var self = this, 
 				a = arguments, 				 				
@@ -357,7 +359,9 @@
 			
 			//this.;
                       
-		}, {
+		};
+
+		jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
 			getParameter : function(name) { 
 				return this._jsPlumb.parameters[name]; 
 			},
@@ -521,7 +525,10 @@
 			
 			return o;
 		},
-		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = jsPlumbUtil.extend(jsPlumbUIComponent, function(params) {
+		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
+
+			jsPlumbUIComponent.apply(this, arguments);
+
 			var self = this;			
 			this._jsPlumb.overlays = [];			
 
@@ -581,7 +588,9 @@
 			//var superAt = this.applyType;
 			//this.;
                                     
-		}, {
+		};
+
+		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
 			applyType : function(t, doNotRepaint) {			
 				this.removeAllOverlays();
 				if (t.overlays) {

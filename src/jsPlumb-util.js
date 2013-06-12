@@ -367,37 +367,25 @@
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
         // class members, any of which may be null.
         //
-        extend : function(obj, constructor, _proto, classMembers) {
+        extend : function(child, parent, _proto/*, classMembers*/) {
             _proto = _proto || {};
-            constructor = constructor || function() {};
-            obj = this.isArray(obj) ? obj : [ obj ];
-            classMembers = classMembers || {};
+            parent = this.isArray(parent) ? parent : [ parent ];
+            //classMembers = classMembers || {};
 
-            var child = function() {
-                for (var i in classMembers) {
-                    this[i] = classMembers[i];
-                }
-                for (var i = 0; i < obj.length; i++)                            
-                    obj[i].apply(this, arguments);
-                constructor.apply(this, arguments);
-            };                        
-            
-            for (var i = 0; i < obj.length; i++) {
-                for (var j in obj[i].prototype) {
-                    if(obj[i].prototype.hasOwnProperty(j)) {
-                        child.prototype[j] = obj[i].prototype[j];
+            for (var i = 0; i < parent.length; i++) {
+                for (var j in parent[i].prototype) {
+                    if(parent[i].prototype.hasOwnProperty(j)) {
+                        child.prototype[j] = parent[i].prototype[j];
                     }
                 }
             }
 
             var _makeFn = function(name) {
                 return function() {
-                    for (var i = 0; i < obj.length; i++) {
-                        if (obj[i].prototype[name])
-                            obj[i].prototype[name].apply(this, arguments);
-                    }
-
-                    console.log("applyinf ", name)
+                    for (var i = 0; i < parent.length; i++) {
+                        if (parent[i].prototype[name])
+                            parent[i].prototype[name].apply(this, arguments);
+                    }                    
                     return _proto[name].apply(this, arguments);
                 };
             };
@@ -406,7 +394,6 @@
                 child.prototype[j] = _makeFn(j);
             }
 
-            child.prototype._super = obj;
             return child;
         },
         logEnabled : true,

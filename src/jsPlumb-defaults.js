@@ -1184,9 +1184,9 @@
     
 	
 	// abstract superclass for overlays that add an element to the DOM.
-    var AbstractDOMOverlay = jsPlumbUtil.extend([jsPlumb.DOMElementComponent, AbstractOverlay], function(params) {
-		//jsPlumb.DOMElementComponent.apply(this, arguments);
-    	//AbstractOverlay.apply(this, arguments);
+    var AbstractDOMOverlay = function(params) {
+		jsPlumb.DOMElementComponent.apply(this, arguments);
+    	AbstractOverlay.apply(this, arguments);
 		
 		var self = this, initialised = false, jpcl = jsPlumb.CurrentLibrary;
 		params = params || {};
@@ -1302,7 +1302,8 @@
 	    	}
 	    };
 		
-	});
+	};
+    jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay]);
 	
 	/*
      * Class: Overlays.Custom
@@ -1318,10 +1319,11 @@
      * 	id - optional id to use for later retrieval of this overlay.
      * 	
      */
-    jsPlumb.Overlays.Custom = jsPlumbUtil.extend(AbstractDOMOverlay, function(params) {
+    jsPlumb.Overlays.Custom = function(params) {
     	this.type = "Custom";    	
-    	//AbstractDOMOverlay.apply(this, arguments);		    	        		    	    		
-    });
+    	AbstractDOMOverlay.apply(this, arguments);		    	        		    	    		
+    };
+    jsPlumbUtil.extend(jsPlumb.Overlays.Custom, AbstractDOMOverlay);
 
     jsPlumb.Overlays.GuideLines = function() {
         var self = this;
@@ -1373,14 +1375,14 @@
      * 	id - optional id to use for later retrieval of this overlay.
      * 	
      */
-    jsPlumb.Overlays.Label = jsPlumbUtil.extend(jsPlumb.Overlays.Custom, function(params) {
+    jsPlumb.Overlays.Label =  function(params) {
 		var self = this;    	
 		this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
 		this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
 		params.create = function() {
 			return document.createElement("div");
 		};
-    	//jsPlumb.Overlays.Custom.apply(this, arguments);
+    	jsPlumb.Overlays.Custom.apply(this, arguments);
 		this.type = "Label";
     	
         var label = params.label || "",
@@ -1425,7 +1427,8 @@
 			return superGD();
     	};
 		
-    });
+    };
+    jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom);
 		
 
  // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************

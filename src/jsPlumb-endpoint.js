@@ -46,7 +46,7 @@
     var typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays",
                 "connector", "connectionType", "connectorClass", "connectorHoverClass" ];
 
-    jsPlumb.Endpoint = jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, function(params) {
+    jsPlumb.Endpoint = function(params) {
         var self = this, 
             _jsPlumb = params["_jsPlumb"],
             jpcl = jsPlumb.CurrentLibrary,
@@ -983,5 +983,7 @@
             self.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
 
         return self;        					
-    });	
+    };
+
+    jsPlumbUtil.extend(jsPlumb.Endpoint, OverlayCapableJsPlumbUIComponent);
 })();
