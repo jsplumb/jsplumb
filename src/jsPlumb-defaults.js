@@ -79,8 +79,7 @@
             };
         },
         Straight : function(params) {
-            var self = this,
-                _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+            var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
                 length, m, m2, x1, x2, y1, y2,
                 _recalc = function() {
                     length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -90,8 +89,8 @@
                 
             this.type = "Straight";
             
-            self.getLength = function() { return length; };
-            self.getGradient = function() { return m; };
+            this.getLength = function() { return length; };
+            this.getGradient = function() { return m; };
                 
             this.getCoordinates = function() {
                 return { x1:x1,y1:y1,x2:x2,y2:y2 };
@@ -139,7 +138,7 @@
              * this hands off to jsPlumbUtil to do the maths, supplying two points and the distance.
              */            
             this.pointAlongPathFrom = function(location, distance, absolute) {            
-                var p = self.pointOnPath(location, absolute),
+                var p = this.pointOnPath(location, absolute),
                     farAwayPoint = distance <= 0 ? {x:x1, y:y1} : {x:x2, y:y2 };
 
                 /*
@@ -214,22 +213,21 @@
     
         */
         Arc : function(params) {
-            var self = this,
-                _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+            var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
                 _calcAngle = function(_x, _y) {
                     return jsPlumbUtil.theta([params.cx, params.cy], [_x, _y]);    
                 },
-                _calcAngleForLocation = function(location) {
-                    if (self.anticlockwise) {
-                        var sa = self.startAngle < self.endAngle ? self.startAngle + TWO_PI : self.startAngle,
-                            s = Math.abs(sa - self.endAngle);
+                _calcAngleForLocation = function(segment, location) {
+                    if (segment.anticlockwise) {
+                        var sa = segment.startAngle < segment.endAngle ? segment.startAngle + TWO_PI : segment.startAngle,
+                            s = Math.abs(sa - segment.endAngle);
                         return sa - (s * location);                    
                     }
                     else {
-                        var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle,
-                            s = Math.abs (ea - self.startAngle);
+                        var ea = segment.endAngle < segment.startAngle ? segment.endAngle + TWO_PI : segment.endAngle,
+                            s = Math.abs (ea - segment.startAngle);
                     
-                        return self.startAngle + (s * location);
+                        return segment.startAngle + (s * location);
                     }
                 },
                 TWO_PI = 2 * Math.PI;
@@ -241,10 +239,10 @@
             if (params.startAngle && params.endAngle) {
                 this.startAngle = params.startAngle;
                 this.endAngle = params.endAngle;            
-                this.x1 = params.cx + (self.radius * Math.cos(params.startAngle));     
-                this.y1 = params.cy + (self.radius * Math.sin(params.startAngle));            
-                this.x2 = params.cx + (self.radius * Math.cos(params.endAngle));     
-                this.y2 = params.cy + (self.radius * Math.sin(params.endAngle));                        
+                this.x1 = params.cx + (this.radius * Math.cos(params.startAngle));     
+                this.y1 = params.cy + (this.radius * Math.sin(params.startAngle));            
+                this.x2 = params.cx + (this.radius * Math.cos(params.endAngle));     
+                this.y2 = params.cy + (this.radius * Math.sin(params.endAngle));                        
             }
             else {
                 this.startAngle = _calcAngle(params.x1, params.y1);
@@ -265,11 +263,11 @@
             // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
             // arc is 'anticlockwise' in which case 's' is given by 2PI - |d|.
             
-            var ea = self.endAngle < self.startAngle ? self.endAngle + TWO_PI : self.endAngle;
-            self.sweep = Math.abs (ea - self.startAngle);
-            if (self.anticlockwise) self.sweep = TWO_PI - self.sweep;
-            var circumference = 2 * Math.PI * self.radius,
-                frac = self.sweep / TWO_PI,
+            var ea = this.endAngle < this.startAngle ? this.endAngle + TWO_PI : this.endAngle;
+            this.sweep = Math.abs (ea - this.startAngle);
+            if (this.anticlockwise) this.sweep = TWO_PI - this.sweep;
+            var circumference = 2 * Math.PI * this.radius,
+                frac = this.sweep / TWO_PI,
                 length = circumference * frac;
             
             this.getLength = function() {
@@ -302,17 +300,17 @@
             this.pointOnPath = function(location, absolute) {            
                 
                 if (location == 0) {
-                    return { x:self.x1, y:self.y1, theta:self.startAngle };    
+                    return { x:this.x1, y:this.y1, theta:this.startAngle };    
                 }
                 else if (location == 1) {
-                    return { x:self.x2, y:self.y2, theta:self.endAngle };                    
+                    return { x:this.x2, y:this.y2, theta:this.endAngle };                    
                 }
                 
                 if (absolute) {
                     location = location / length;
                 }
     
-                var angle = _calcAngleForLocation(location),
+                var angle = _calcAngleForLocation(this, location),
                     _x = params.cx + (params.r * Math.cos(angle)),
                     _y  = params.cy + (params.r * Math.sin(angle));					
     
@@ -323,27 +321,26 @@
              * returns the gradient of the segment at the given point.
              */
             this.gradientAtPoint = function(location, absolute) {
-                var p = self.pointOnPath(location, absolute);
+                var p = this.pointOnPath(location, absolute);
                 var m = jsPlumbUtil.normal( [ params.cx, params.cy ], [p.x, p.y ] );
-                if (!self.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
+                if (!this.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
                 return m;
             };	              
                     
             this.pointAlongPathFrom = function(location, distance, absolute) {
-                var p = self.pointOnPath(location, absolute),
+                var p = this.pointOnPath(location, absolute),
                     arcSpan = distance / circumference * 2 * Math.PI,
-                    dir = self.anticlockwise ? -1 : 1,
+                    dir = this.anticlockwise ? -1 : 1,
                     startAngle = p.theta + (dir * arcSpan),				
-                    startX = params.cx + (self.radius * Math.cos(startAngle)),
-                    startY = params.cy + (self.radius * Math.sin(startAngle));	
+                    startX = params.cx + (this.radius * Math.cos(startAngle)),
+                    startY = params.cy + (this.radius * Math.sin(startAngle));	
     
                 return {x:startX, y:startY};
             };	            
         },
 	
         Bezier : function(params) {
-            var self = this,
-                _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
+            var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
                 curve = [	
                     { x:params.x1, y:params.y1},
                     { x:params.cp1x, y:params.cp1y },
@@ -406,11 +403,10 @@
         Superclass for AbstractConnector and AbstractEndpoint.
     */
     var AbstractComponent = function() {
-        var self = this;
-        self.resetBounds = function() {
-            self.bounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
+        this.resetBounds = function() {
+            this.bounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
         };
-        self.resetBounds();        
+        this.resetBounds();        
     };
 	
 	/*
@@ -427,8 +423,8 @@
 		
         AbstractComponent.apply(this, arguments);
 
-		var self = this,
-            segments = [],
+		var self = this, 
+        segments = [],
             editing = false,
 			totalLength = 0,
 			segmentProportions = [],
@@ -542,7 +538,7 @@
         };  
         
         var _prepareCompute = function(params) {
-            self.lineWidth = params.lineWidth;
+            this.lineWidth = params.lineWidth;
             var segment = jsPlumbUtil.segment(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
@@ -597,12 +593,12 @@
 		
 		this.getSegments = function() { return segments; };
 
-        self.updateBounds = function(segment) {
+        this.updateBounds = function(segment) {
             var segBounds = segment.getBounds();
-            self.bounds.minX = Math.min(self.bounds.minX, segBounds.minX);
-            self.bounds.maxX = Math.max(self.bounds.maxX, segBounds.maxX);
-            self.bounds.minY = Math.min(self.bounds.minY, segBounds.minY);
-            self.bounds.maxY = Math.max(self.bounds.maxY, segBounds.maxY);              
+            this.bounds.minX = Math.min(this.bounds.minX, segBounds.minX);
+            this.bounds.maxX = Math.max(this.bounds.maxX, segBounds.maxX);
+            this.bounds.minY = Math.min(this.bounds.minY, segBounds.minY);
+            this.bounds.maxY = Math.max(this.bounds.maxY, segBounds.maxY);              
         };
         
         var dumpSegmentsToConsole = function() {
@@ -613,22 +609,20 @@
         };
 		
 		this.pointOnPath = function(location, absolute) {
-            //console.log("point on path", location);
-			var seg = _findSegmentForLocation(location, absolute);		
-            //console.log("point on path", location, seg);	
-			return seg.segment.pointOnPath(seg.proportion, absolute);
-		};
-		
-		this.gradientAtPoint = function(location) {
-			var seg = _findSegmentForLocation(location, absolute);			
-			return seg.segment.gradientAtPoint(seg.proportion, absolute);
-		};
-		
-		this.pointAlongPathFrom = function(location, distance, absolute) {
-			var seg = _findSegmentForLocation(location, absolute);
-			// TODO what happens if this crosses to the next segment?
-			return seg.segment.pointAlongPathFrom(seg.proportion, distance, false);
-		};
+            var seg = _findSegmentForLocation(location, absolute);      
+            return seg.segment && seg.segment.pointOnPath(seg.proportion, absolute) || [0,0];
+        };
+        
+        this.gradientAtPoint = function(location) {
+            var seg = _findSegmentForLocation(location, absolute);          
+            return seg.segment && seg.segment.gradientAtPoint(seg.proportion, absolute) || 0;
+        };
+        
+        this.pointAlongPathFrom = function(location, distance, absolute) {
+            var seg = _findSegmentForLocation(location, absolute);
+            // TODO what happens if this crosses to the next segment?
+            return seg.segment && seg.segment.pointAlongPathFrom(seg.proportion, distance, false) || [0,0];
+        };
 		
 		this.compute = function(params)  {
             if (!edited)
@@ -689,8 +683,7 @@
     jsPlumb.Connectors.Bezier = function(params) {
         params = params || {};
 
-    	var self = this,
-			_super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
+    	var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
             stub = params.stub || 50,
             majorAnchor = params.curviness || 150,
             minorAnchor = 10;            
@@ -737,8 +730,8 @@
                 _sy = sp[1] < tp[1] ? _h : 0,
                 _tx = sp[0] < tp[0] ? 0 : _w,
                 _ty = sp[1] < tp[1] ? 0 : _h,
-                _CP = self._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint),
-                _CP2 = self._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint);
+                _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint),
+                _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint);
 
 			_super.addSegment("Bezier", {
 				x1:_sx, y1:_sy, x2:_tx, y2:_ty,
@@ -753,21 +746,20 @@
     
     jsPlumb.Endpoints.AbstractEndpoint = function(params) {
         AbstractComponent.apply(this, arguments);
-        var self = this;    
-        this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {    
-            var out = self._compute.apply(self, arguments);
-            self.x = out[0];
-            self.y = out[1];
-            self.w = out[2];
-            self.h = out[3];
-            self.bounds.minX = self.x;
-            self.bounds.minY = self.y;
-            self.bounds.maxX = self.x + self.w;
-            self.bounds.maxY = self.y + self.h;
+        var compute = this.compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {    
+            var out = this._compute.apply(this, arguments);
+            this.x = out[0];
+            this.y = out[1];
+            this.w = out[2];
+            this.h = out[3];
+            this.bounds.minX = this.x;
+            this.bounds.minY = this.y;
+            this.bounds.maxX = this.x + this.w;
+            this.bounds.maxY = this.y + this.h;
             return out;
         };
         return {
-            compute:self.compute,
+            compute:compute,
             cssClass:params.cssClass
         };
     };
@@ -786,19 +778,18 @@
 	 */
 	jsPlumb.Endpoints.Dot = function(params) {        
 		this.type = "Dot";
-		var self = this,
-            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+		var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		params = params || {};				
 		this.radius = params.radius || 10;
 		this.defaultOffset = 0.5 * this.radius;
 		this.defaultInnerRadius = this.radius / 3;			
 		
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
-			self.radius = endpointStyle.radius || self.radius;
-			var	x = anchorPoint[0] - self.radius,
-				y = anchorPoint[1] - self.radius,
-                w = self.radius * 2,
-                h = self.radius * 2;
+			this.radius = endpointStyle.radius || this.radius;
+			var	x = anchorPoint[0] - this.radius,
+				y = anchorPoint[1] - this.radius,
+                w = this.radius * 2,
+                h = this.radius * 2;
 
             if (endpointStyle.strokeStyle) {
                 var lw = endpointStyle.lineWidth || 1;
@@ -807,7 +798,7 @@
                 w += (lw * 2);
                 h += (lw * 2);
             }
-			return [ x, y, w, h, self.radius ];
+			return [ x, y, w, h, this.radius ];
 		};
 	};
 	
@@ -825,15 +816,14 @@
 	 */
 	jsPlumb.Endpoints.Rectangle = function(params) {
 		this.type = "Rectangle";
-		var self = this,
-            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+		var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		params = params || {};
 		this.width = params.width || 20;
 		this.height = params.height || 20;
 		
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
-			var width = endpointStyle.width || self.width,
-				height = endpointStyle.height || self.height,
+			var width = endpointStyle.width || this.width,
+				height = endpointStyle.height || this.height,
 				x = anchorPoint[0] - (width/2),
 				y = anchorPoint[1] - (height/2);
                 
@@ -843,16 +833,14 @@
 	
 
     var DOMElementEndpoint = function(params) {
-        jsPlumb.DOMElementComponent.apply(this, arguments);
-        var self = this;
-
-        var displayElements = [  ];
+        jsPlumb.DOMElementComponent.apply(this, arguments);        
+        this._jsPlumb.displayElements = [  ];
         this.getDisplayElements = function() { 
-            return displayElements; 
+            return this._jsPlumb.displayElements; 
         };
         
         this.appendDisplayElement = function(el) {
-            displayElements.push(el);
+            this._jsPlumb.displayElements.push(el);
         };            
     };
 	/**
@@ -865,28 +853,31 @@
 	 * Parameters:
 	 * 
 	 * 	src	-	location of the image to use.
+
+    TODO: multiple references to self. not sure quite how to get rid of them entirely. perhaps self = null in the cleanup
+    function will suffice
+
 	 */
 	jsPlumb.Endpoints.Image = function(params) {
 				
 		this.type = "Image";
 		DOMElementEndpoint.apply(this, arguments);
 		
-		var self = this,
+		var self = this,  
             _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments), 
 			initialized = false,
 			deleted = false,
+            ready = false,
 			widthToUse = params.width,
 			heightToUse = params.height,
             _onload = null,
-            _endpoint = params.endpoint;
-			
-		this.img = new Image();
-		self.ready = false;
+            _endpoint = params.endpoint,
+            img = this._jsPlumb.img = new Image();		
 
-		this.img.onload = function() {
-			self.ready = true;
-			widthToUse = widthToUse || self.img.width;
-			heightToUse = heightToUse || self.img.height;
+		this._jsPlumb.img.onload = function() {
+			ready = true;            
+			widthToUse = widthToUse || img.width;
+			heightToUse = heightToUse || img.height;
             if (_onload) {
                 _onload(self);
             }
@@ -900,55 +891,58 @@
             img         -   may be a URL or an Image object
             onload      -   optional; a callback to execute once the image has loaded.
         */
-        _endpoint.setImage = function(img, onload) {
-            var s = img.constructor == String ? img : img.src;
-            _onload = onload;
-            self.img.src = img;
+        _endpoint.setImage = function(_img, onload) {
+            var s = _img.constructor == String ? _img : _img.src;
+            _onload = onload; // TODO would like to 
+            img.src = _img;
 
-            if (self.canvas != null)
-                self.canvas.setAttribute("src", img);
+            if (canvas != null)
+                canvas.setAttribute("src", img);
         };
 
         _endpoint.setImage(params.src || params.url, params.onload);
 
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			self.anchorPoint = anchorPoint;
-			if (self.ready) return [anchorPoint[0] - widthToUse / 2, anchorPoint[1] - heightToUse / 2, 
+			if (ready) return [anchorPoint[0] - widthToUse / 2, anchorPoint[1] - heightToUse / 2, 
 									widthToUse, heightToUse];
 			else return [0,0,0,0];
 		};
 		
-		self.canvas = document.createElement("img"), initialized = false;
-		self.canvas.style["margin"] = 0;
-		self.canvas.style["padding"] = 0;
-		self.canvas.style["outline"] = 0;
-		self.canvas.style["position"] = "absolute";
+		var canvas = this.canvas = document.createElement("img"), initialized = false;
+		canvas.style["margin"] = 0;
+		canvas.style["padding"] = 0;
+		canvas.style["outline"] = 0;
+		canvas.style["position"] = "absolute";
 		var clazz = params.cssClass ? " " + params.cssClass : "";
-		self.canvas.className = jsPlumb.endpointClass + clazz;
-		if (widthToUse) self.canvas.setAttribute("width", widthToUse);
-		if (heightToUse) self.canvas.setAttribute("height", heightToUse);		
-		jsPlumb.appendElement(self.canvas, params.parent);
-		self.attachListeners(self.canvas, self);
+		canvas.className = jsPlumb.endpointClass + clazz;
+		if (widthToUse) canvas.setAttribute("width", widthToUse);
+		if (heightToUse) canvas.setAttribute("height", heightToUse);		
+		jsPlumb.appendElement(canvas, params.parent);
+		this.attachListeners(canvas, this);
 		
-		self.cleanup = function() {
+		this.cleanup = function() {
 			deleted = true;
+            img = null;
+            canvas = null;
+            self = null;
 		};
 		
 		var actuallyPaint = function(d, style, anchor) {
 			if (!deleted) {
 				if (!initialized) {
-					self.canvas.setAttribute("src", self.img.src);
-					self.appendDisplayElement(self.canvas);
+					canvas.setAttribute("src", img.src);
+					self.appendDisplayElement(canvas);
 					initialized = true;
 				}
 				var x = self.anchorPoint[0] - (widthToUse / 2),
 					y = self.anchorPoint[1] - (heightToUse / 2);
-				jsPlumb.sizeCanvas(self.canvas, x, y, widthToUse, heightToUse);
+				jsPlumb.sizeCanvas(canvas, x, y, widthToUse, heightToUse);
 			}
 		};
 		
 		this.paint = function(style, anchor) {
-			if (self.ready) {
+			if (ready) {
     			actuallyPaint(style, anchor);
 			}
 			else { 
@@ -964,25 +958,24 @@
 	 * An Endpoint that paints nothing (visible) on the screen.  Supports cssClass and hoverClass parameters like all Endpoints.
 	 */
 	jsPlumb.Endpoints.Blank = function(params) {
-		var self = this,
-            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+		var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		this.type = "Blank";
 		DOMElementEndpoint.apply(this, arguments);		
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			return [anchorPoint[0], anchorPoint[1],10,0];
 		};
 		
-		self.canvas = document.createElement("div");
-		self.canvas.style.display = "block";
-		self.canvas.style.width = "1px";
-		self.canvas.style.height = "1px";
-		self.canvas.style.background = "transparent";
-		self.canvas.style.position = "absolute";
-		self.canvas.className = self._jsPlumb.endpointClass;
-		jsPlumb.appendElement(self.canvas, params.parent);
+		this.canvas = document.createElement("div");
+		this.canvas.style.display = "block";
+		this.canvas.style.width = "1px";
+		this.canvas.style.height = "1px";
+		this.canvas.style.background = "transparent";
+		this.canvas.style.position = "absolute";
+		this.canvas.className = this._jsPlumb.endpointClass;
+		jsPlumb.appendElement(this.canvas, params.parent);
 		
 		this.paint = function(style, anchor) {
-			jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);	
+			jsPlumb.sizeCanvas(this.canvas, this.x, this.y, this.w, this.h);	
 		};
 	};
 	
@@ -1000,8 +993,7 @@
 	 */
 	jsPlumb.Endpoints.Triangle = function(params) {        
 		this.type = "Triangle";
-        var self = this,
-            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
+        var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		params = params || {  };
 		params.width = params.width || 55;
 		params.height = params.height || 55;
@@ -1021,7 +1013,7 @@
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
 
 	var AbstractOverlay = jsPlumb.Overlays.AbstractOverlay = function(params) {
-		var visible = true, self = this;
+		var visible = true;
         this.isAppendedAtTopLevel = true;
 		this.component = params.component;
 		this.loc = params.location == null ? 0.5 : params.location;
@@ -1031,19 +1023,19 @@
 			self.component.repaint();
 		};
     	this.isVisible = function() { return visible; };
-    	this.hide = function() { self.setVisible(false); };
-    	this.show = function() { self.setVisible(true); };
+    	this.hide = function() { this.setVisible(false); };
+    	this.show = function() { this.setVisible(true); };
     	
     	this.incrementLocation = function(amount) {
-    		self.loc += amount;
-    		self.component.repaint();
+    		this.loc += amount;
+    		this.component.repaint();
     	};
     	this.setLocation = function(l) {
-    		self.loc = l;
-    		self.component.repaint();
+    		this.loc = l;
+    		this.component.repaint();
     	};
     	this.getLocation = function() {
-    		return self.loc;
+    		return this.loc;
     	};
 	};
 	
@@ -1075,7 +1067,7 @@
 		AbstractOverlay.apply(this, arguments);
         this.isAppendedAtTopLevel = false;
 		params = params || {};
-		var self = this, _ju = jsPlumbUtil;
+		var _ju = jsPlumbUtil;
 		
     	this.length = params.length || 20;
     	this.width = params.width || 20;
@@ -1092,16 +1084,16 @@
             var hxy, mid, txy, tail, cxy;
             if (component.pointAlongPathFrom) {
 
-                if (_ju.isString(self.loc) || self.loc > 1 || self.loc < 0) {                    
-                    var l = parseInt(self.loc);
-                    hxy = component.pointAlongPathFrom(l, direction * self.length / 2, true),
+                if (_ju.isString(this.loc) || this.loc > 1 || this.loc < 0) {                    
+                    var l = parseInt(this.loc);
+                    hxy = component.pointAlongPathFrom(l, direction * this.length / 2, true),
                     mid = component.pointOnPath(l, true),
-                    txy = _ju.pointOnLine(hxy, mid, self.length);
+                    txy = _ju.pointOnLine(hxy, mid, this.length);
                 }
-                else if (self.loc == 1) {                
-					hxy = component.pointOnPath(self.loc);					           
-                    mid = component.pointAlongPathFrom(self.loc, -(self.length));
-					txy = _ju.pointOnLine(hxy, mid, self.length);
+                else if (this.loc == 1) {                
+					hxy = component.pointOnPath(this.loc);					           
+                    mid = component.pointAlongPathFrom(this.loc, -(this.length));
+					txy = _ju.pointOnLine(hxy, mid, this.length);
 					
 					if (direction == -1) {
 						var _ = txy;
@@ -1109,10 +1101,10 @@
 						hxy = _;
 					}
                 }
-                else if (self.loc == 0) {					                    
-					txy = component.pointOnPath(self.loc);                    
-					mid = component.pointAlongPathFrom(self.loc, self.length);                    
-					hxy = _ju.pointOnLine(txy, mid, self.length);                    
+                else if (this.loc == 0) {					                    
+					txy = component.pointOnPath(this.loc);                    
+					mid = component.pointAlongPathFrom(this.loc, this.length);                    
+					hxy = _ju.pointOnLine(txy, mid, this.length);                    
 					if (direction == -1) {
 						var _ = txy;
 						txy = hxy;
@@ -1120,13 +1112,13 @@
 					}
                 }
                 else {                    
-    			    hxy = component.pointAlongPathFrom(self.loc, direction * self.length / 2),
-                    mid = component.pointOnPath(self.loc),
-                    txy = _ju.pointOnLine(hxy, mid, self.length);
+    			    hxy = component.pointAlongPathFrom(this.loc, direction * this.length / 2),
+                    mid = component.pointOnPath(this.loc),
+                    txy = _ju.pointOnLine(hxy, mid, this.length);
                 }
 
-                tail = _ju.perpendicularLineTo(hxy, txy, self.width);
-                cxy = _ju.pointOnLine(hxy, txy, foldback * self.length);    			
+                tail = _ju.perpendicularLineTo(hxy, txy, this.width);
+                cxy = _ju.pointOnLine(hxy, txy, foldback * this.length);    			
     			
     			var d = { hxy:hxy, tail:tail, cxy:cxy },
     			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
@@ -1203,22 +1195,22 @@
 		var div;
 		
 		var makeDiv = function() {
-			div = params.create(params.component);
-			div = jpcl.getDOMElement(div);
-			div.style["position"] 	= 	"absolute";    	
-			var clazz = params["_jsPlumb"].overlayClass + " " + 
-				(self.cssClass ? self.cssClass : 
-				params.cssClass ? params.cssClass : "");    	
-			div.className =	clazz;
-			params["_jsPlumb"].appendElement(div, params.component.parent);
-			params["_jsPlumb"].getId(div);		
-	    	self.attachListeners(div, self);
-	    	self.canvas = div;
+			
 		};
 		
 		this.getElement = function() {
 			if (div == null) {
-				makeDiv();
+				        div = params.create(params.component);
+                        div = jpcl.getDOMElement(div);
+                        div.style["position"]   =   "absolute";     
+                        var clazz = params["_jsPlumb"].overlayClass + " " + 
+                            (this.cssClass ? this.cssClass : 
+                            params.cssClass ? params.cssClass : "");        
+                        div.className = clazz;
+                        params["_jsPlumb"].appendElement(div, params.component.parent);
+                        params["_jsPlumb"].getId(div);      
+                        this.attachListeners(div, this);
+                        this.canvas = div;
 			}
     		return div;
     	};

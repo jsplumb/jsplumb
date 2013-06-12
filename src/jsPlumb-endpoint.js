@@ -64,7 +64,7 @@
         self.defaultLabelLocation = [ 0.5, 0.5 ];
         self.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
         this.parent = params.parent;
-        overlayCapableJsPlumbUIComponent.apply(this, arguments);
+        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
         params = params || {};
         
 // TYPE		
@@ -74,11 +74,11 @@
             return {
                 parameters:{},
                 scope:null,
-                maxConnections:self._jsPlumb.Defaults.MaxConnections,
-                paintStyle:self._jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
-                endpoint:self._jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
-                hoverPaintStyle:self._jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
-                overlays:self._jsPlumb.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays,
+                maxConnections:self._jsPlumb.instance.Defaults.MaxConnections,
+                paintStyle:self._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
+                endpoint:self._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
+                hoverPaintStyle:self._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
+                overlays:self._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays,
                 connectorStyle:params.connectorStyle,				
                 connectorHoverStyle:params.connectorHoverStyle,
                 connectorClass:params.connectorClass,
@@ -520,8 +520,8 @@
                     self.timestamp = timestamp;
 
                     // paint overlays
-                    for ( var i = 0; i < self.overlays.length; i++) {
-                        var o = self.overlays[i];
+                    for ( var i = 0; i < self._jsPlumb.overlays.length; i++) {
+                        var o = self._jsPlumb.overlays[i];
                         if (o.isVisible()) { 
                             this._jsPlumb.overlayPlacements[i] = o.draw(self.endpoint, self._jsPlumb.paintStyleInUse);
                             o.paint(this._jsPlumb.overlayPlacements[i]);    

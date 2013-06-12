@@ -16,7 +16,7 @@
         self.defaultLabelLocation = 0.5;
         self.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
         this.parent = params.parent;
-        overlayCapableJsPlumbUIComponent.apply(this, arguments);
+        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
         // ************** get the source and target and register the connection. *******************
         
 // VISIBILITY						
@@ -88,12 +88,12 @@
             return {
                 parameters:{},
                 scope:null,
-                detachable:self._jsPlumb.Defaults.ConnectionsDetachable,
-                rettach:self._jsPlumb.Defaults.ReattachConnections,
-                paintStyle:self._jsPlumb.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-                connector:self._jsPlumb.Defaults.Connector || jsPlumb.Defaults.Connector,
-                hoverPaintStyle:self._jsPlumb.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,				
-                overlays:self._jsPlumb.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
+                detachable:self._jsPlumb.instance.Defaults.ConnectionsDetachable,
+                rettach:self._jsPlumb.instance.Defaults.ReattachConnections,
+                paintStyle:self._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
+                connector:self._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
+                hoverPaintStyle:self._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,				
+                overlays:self._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
             };
         };
         var superAt = this.applyType;
@@ -472,8 +472,8 @@
                     };                    
                     // compute overlays. we do this first so we can get their placements, and adjust the
                     // container if needs be (if an overlay would be clipped)
-                    for ( var i = 0; i < self.overlays.length; i++) {
-                        var o = self.overlays[i];
+                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                        var o = this._jsPlumb.overlays[i];
                         if (o.isVisible()) {
                             this._jsPlumb.overlayPlacements[i] = o.draw(connector, self._jsPlumb.paintStyleInUse);
                             overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
@@ -493,10 +493,10 @@
                         };
 
                     // paint the connector.
-                    connector.paint(self._jsPlumb.paintStyleInUse, null, extents);  
+                    connector.paint(this._jsPlumb.paintStyleInUse, null, extents);  
                     // and then the overlays
-                    for ( var i = 0; i < self.overlays.length; i++) {
-                        var o = self.overlays[i];
+                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                        var o = this._jsPlumb.overlays[i];
                         if (o.isVisible()) {
                             o.paint(this._jsPlumb.overlayPlacements[i], extents);    
                         }

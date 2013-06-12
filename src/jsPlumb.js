@@ -92,7 +92,23 @@
 				}
 			}
 		},
-		_splitType = function(t) { return t == null ? null : t.split(" ")},				
+		_splitType = function(t) { return t == null ? null : t.split(" ")},		
+		_applyTypes = function(component, params, doNotRepaint) {
+			if (component.getDefaultType) {
+				var td = component.getTypeDescriptor();
+					
+				var o = jsPlumbUtil.merge({}, component.getDefaultType());
+				for (var i = 0, j = component._jsPlumb.types.length; i < j; i++)
+					o = jsPlumbUtil.merge(o, self._jsPlumb.instance.getType(component._jsPlumb.types[i], td));						
+					
+				if (params) {
+					o = jsPlumbUtil.populate(o, params);
+				}
+			
+				component.applyType(o, doNotRepaint);					
+				if (!doNotRepaint) component.repaint();
+			}
+		},		
 		
 		/*
 		 * Class:jsPlumbUIComponent
@@ -117,11 +133,11 @@
 				beforeDetach:params.beforeDetach,
 				beforeDrop:params.beforeDrop,
 				overlayPlacements : [],
-				hoverClass: params.hoverClass || params["_jsPlumb"].Defaults.HoverClass || jsPlumb.Defaults.HoverClass
+				hoverClass: params.hoverClass || params["_jsPlumb"].Defaults.HoverClass || jsPlumb.Defaults.HoverClass,
+				types:[]
 			};
 
-			self.getId = function() { return id; };			
-			//self.hoverClass = params.hoverClass || self._jsPlumb.instance.Defaults.HoverClass || jsPlumb.Defaults.HoverClass;				
+			self.getId = function() { return id; };	
 			
 			// all components can generate events
 			jsPlumbUtil.EventGenerator.apply(this);
@@ -329,31 +345,14 @@
 			/*
 			 * TYPES
 			 */
-			var _types = [],
-				
-				_applyTypes = function(component, params, doNotRepaint) {
-					if (component.getDefaultType) {
-						var td = component.getTypeDescriptor();
-							
-						var o = jsPlumbUtil.merge({}, component.getDefaultType());
-						for (var i = 0, j = _types.length; i < j; i++)
-							o = jsPlumbUtil.merge(o, self._jsPlumb.instance.getType(_types[i], td));						
-							
-						if (params) {
-							o = jsPlumbUtil.populate(o, params);
-						}
-					
-						component.applyType(o, doNotRepaint);					
-						if (!doNotRepaint) component.repaint();
-					}
-				};
+			
 			
 			/*
 				Function: setType	
 				Sets the type, removing all existing types.
 			*/
-			self.setType = function(typeId, params, doNotRepaint) {				
-				_types = _splitType(typeId) || [];
+			this.setType = function(typeId, params, doNotRepaint) {				
+				this._jsPlumb.types = _splitType(typeId) || [];
 				_applyTypes(this, params, doNotRepaint);									
 			};
 			
@@ -362,7 +361,7 @@
 			 * Gets the 'types' of this component.
 			 */
 			this.getType = function() {
-				return _types;
+				return this._jsPlumb.types;
 			};
 
 			/**
@@ -374,7 +373,7 @@
 			};
 			
 			this.hasType = function(typeId) {
-				return jsPlumbUtil.indexOf(_types, typeId) != -1;
+				return jsPlumbUtil.indexOf(this._jsPlumb.types, typeId) != -1;
 			};
 			
 			/*
@@ -385,8 +384,8 @@
 				var t = _splitType(typeId), _cont = false;
 				if (t != null) {
 					for (var i = 0, j = t.length; i < j; i++) {
-						if (!self.hasType(t[i])) {
-							_types.push(t[i]);
+						if (!this.hasType(t[i])) {
+							this._jsPlumb.types.push(t[i]);
 							_cont = true;						
 						}
 					}
@@ -396,9 +395,9 @@
 			
 			this.removeType = function(typeId, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false, _one = function(tt) {
-					var idx = jsPlumbUtil.indexOf(_types, tt);
+					var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, tt);
 					if (idx != -1) {
-						_types.splice(idx, 1);
+						this._jsPlumb.types.splice(idx, 1);
 						return true;
 					}
 					return false;
@@ -416,11 +415,11 @@
 				var t = _splitType(typeId);
 				if (t != null) {
 					for (var i = 0, j = t.length; i < j; i++) {
-						var idx = jsPlumbUtil.indexOf(_types, t[i]);
+						var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, t[i]);
 						if (idx != -1)
-							_types.splice(idx, 1);
+							this._jsPlumb.types.splice(idx, 1);
 						else
-							_types.push(t[i]);
+							this._jsPlumb.types.push(t[i]);
 					}
 						
 					_applyTypes(this, params, doNotRepaint);
@@ -447,142 +446,139 @@
                     _removeClass(self.canvas, clazz);
             };                    
 		},
+		_internalLabelOverlayId = "__label",
+		// helper to get the index of some overlay
+		_getOverlayIndex = function(component, id) {
+			var idx = -1;
+			for (var i = 0, j = component._jsPlumb.overlays.length; i < j; i++) {
+				if (id === component._jsPlumb.overlays[i].id) {
+					idx = i;
+					break;
+				}
+			}
+			return idx;
+		},
+		// this is a shortcut helper method to let people add a label as
+		// overlay.						
+		_makeLabelOverlay = function(component, params) {
 
-		overlayCapableJsPlumbUIComponent = window.overlayCapableJsPlumbUIComponent = function(params) {
+			var _params = {
+				cssClass:params.cssClass,
+				labelStyle : component.labelStyle,					
+				id:_internalLabelOverlayId,
+				component:component,
+				_jsPlumb:component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
+			},
+			mergedParams = jsPlumb.extend(_params, params);
+
+			return new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()].Label( mergedParams );
+		},
+		_processOverlay = function(component, o) {
+			var _newOverlay = null;
+			if (_isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+				// there's also a three arg version:
+				// ["Arrow", { width:50 }, {location:0.7}] 
+				// which merges the 3rd arg into the 2nd.
+				var type = o[0],
+					// make a copy of the object so as not to mess up anyone else's reference...
+					p = jsPlumb.extend({component:component, _jsPlumb:component._jsPlumb.instance}, o[1]);
+				if (o.length == 3) jsPlumb.extend(p, o[2]);
+				_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);					
+			} else if (o.constructor == String) {
+				_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component:component, _jsPlumb:component._jsPlumb.instance});
+			} else {
+				_newOverlay = o;
+			}										
+				
+			component._jsPlumb.overlays.push(_newOverlay);
+		},
+		_calculateOverlaysToAdd = function(component, params) {
+			var defaultKeys = component.defaultOverlayKeys || [], o = params.overlays,
+				checkKey = function(k) {
+					return component._jsPlumb.instance.Defaults[k] || jsPlumb.Defaults[k] || [];
+				};
+			
+			if (!o) o = [];
+
+			for (var i = 0, j = defaultKeys.length; i < j; i++)
+				o.unshift.apply(o, checkKey(defaultKeys[i]));
+			
+			return o;
+		},
+		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
 			jsPlumbUIComponent.apply(this, arguments);
 			var self = this;			
-			this.overlays = [];
+			this._jsPlumb.overlays = [];			
 
-			var processOverlay = function(o) {
-				var _newOverlay = null;
-				if (_isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
-					// there's also a three arg version:
-					// ["Arrow", { width:50 }, {location:0.7}] 
-					// which merges the 3rd arg into the 2nd.
-					var type = o[0],
-						// make a copy of the object so as not to mess up anyone else's reference...
-						p = jsPlumb.extend({component:self, _jsPlumb:self._jsPlumb.instance}, o[1]);
-					if (o.length == 3) jsPlumb.extend(p, o[2]);
-					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.instance.getRenderMode()][type](p);					
-				} else if (o.constructor == String) {
-					_newOverlay = new jsPlumb.Overlays[self._jsPlumb.instance.getRenderMode()][o]({component:self, _jsPlumb:self._jsPlumb.instance});
-				} else {
-					_newOverlay = o;
-				}										
-					
-				self.overlays.push(_newOverlay);
-			},
-			calculateOverlaysToAdd = function(params) {
-				var defaultKeys = self.defaultOverlayKeys || [],
-					o = params.overlays,
-					checkKey = function(k) {
-						return self._jsPlumb.instance.Defaults[k] || jsPlumb.Defaults[k] || [];
-					};
-				
-				if (!o) o = [];
-
-				for (var i = 0, j = defaultKeys.length; i < j; i++)
-					o.unshift.apply(o, checkKey(defaultKeys[i]));
-				
-				return o;
-			}
-
-			var _overlays = calculateOverlaysToAdd(params);
+			var _overlays = _calculateOverlaysToAdd(this, params);
 			if (_overlays) {
 				for (var i = 0, j = _overlays.length; i < j; i++) {
-					processOverlay(_overlays[i]);
+					_processOverlay(this, _overlays[i]);
 				}
 			}
-
-		    // overlay finder helper method
-			var _getOverlayIndex = function(id) {
-				var idx = -1;
-				for (var i = 0, j = self.overlays.length; i < j; i++) {
-					if (id === self.overlays[i].id) {
-						idx = i;
-						break;
-					}
-				}
-				return idx;
-			};
 						
 			this.addOverlay = function(overlay, doNotRepaint) { 
-				processOverlay(overlay); 
-				if (!doNotRepaint) self.repaint();
+				_processOverlay(this, overlay); 
+				if (!doNotRepaint) this.repaint();
 			};
 						
 			this.getOverlay = function(id) {
-				var idx = _getOverlayIndex(id);
-				return idx >= 0 ? self.overlays[idx] : null;
+				var idx = _getOverlayIndex(this, id);
+				return idx >= 0 ? this._jsPlumb.overlays[idx] : null;
 			};
 			
 			this.getOverlays = function() {
-				return self.overlays;
+				return this._jsPlumb.overlays;
 			};			
 			
 			this.hideOverlay = function(id) {
-				var o = self.getOverlay(id);
+				var o = this.getOverlay(id);
 				if (o) o.hide();
 			};
 
 			this.hideOverlays = function() {
-				for (var i = 0, j = self.overlays.length; i < j; i++)
-					self.overlays[i].hide();
+				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
+					this._jsPlumb.overlays[i].hide();
 			};
 						
 			this.showOverlay = function(id) {
-				var o = self.getOverlay(id);
+				var o = this.getOverlay(id);
 				if (o) o.show();
 			};
 
 			this.showOverlays = function() {
-				for (var i = 0, j = self.overlays.length; i < j; i++)
-					self.overlays[i].show();
+				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
+					this._jsPlumb.overlays[i].show();
 			};
 			
 			this.removeAllOverlays = function() {
-				for (var i = 0, j = self.overlays.length; i < j; i++) {
-					if (self.overlays[i].cleanup) self.overlays[i].cleanup();
+				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
+					if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
 				}
 
-				self.overlays.splice(0, self.overlays.length);
-				self.repaint();
+				this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
+				this.repaint();
 			};
 						
 			this.removeOverlay = function(overlayId) {
-				var idx = _getOverlayIndex(overlayId);
+				var idx = _getOverlayIndex(this, overlayId);
 				if (idx != -1) {
-					var o = self.overlays[idx];
+					var o = this._jsPlumb.overlays[idx];
 					if (o.cleanup) o.cleanup();
-					self.overlays.splice(idx, 1);
+					this._jsPlumb.overlays.splice(idx, 1);
 				}
 			};
 						
 			this.removeOverlays = function() {
 				for (var i = 0, j = arguments.length; i < j; i++)
-					self.removeOverlay(arguments[i]);
-			};
+					this.removeOverlay(arguments[i]);
+			};			
 
-			// this is a shortcut helper method to let people add a label as
-			// overlay.			
-			var _internalLabelOverlayId = "__label",
-			_makeLabelOverlay = function(params) {
-
-				var _params = {
-					cssClass:params.cssClass,
-					labelStyle : this.labelStyle,					
-					id:_internalLabelOverlayId,
-					component:self,
-					_jsPlumb:self._jsPlumb.instance
-				},
-				mergedParams = jsPlumb.extend(_params, params);
-
-				return new jsPlumb.Overlays[self._jsPlumb.instance.getRenderMode()].Label( mergedParams );
-			};
 			if (params.label) {
 				var loc = params.labelLocation || self.defaultLabelLocation || 0.5,
 					labelStyle = params.labelStyle || self._jsPlumb.instance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
-				this.overlays.push(_makeLabelOverlay({
+
+				this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
 					label:params.label,
 					location:loc,
 					labelStyle:labelStyle
@@ -590,10 +586,10 @@
 			}
 			
 			this.setLabel = function(l) {
-				var lo = self.getOverlay(_internalLabelOverlayId);
+				var lo = this.getOverlay(_internalLabelOverlayId);
 				if (!lo) {
 					var params = l.constructor == String || l.constructor == Function ? { label:l } : l;
-					lo = _makeLabelOverlay(params);	
+					lo = _makeLabelOverlay(this, params);	
 					this.overlays.push(lo);
 				}
 				else {
@@ -604,21 +600,22 @@
 					}
 				}
 				
-				if (!self._jsPlumb.instance.isSuspendDrawing()) 
-					self.repaint();
+				if (!this._jsPlumb.instance.isSuspendDrawing()) 
+					this.repaint();
 			};
 
 			
 			this.getLabel = function() {
-				var lo = self.getOverlay(_internalLabelOverlayId);
+				var lo = this.getOverlay(_internalLabelOverlayId);
 				return lo != null ? lo.getLabel() : null;
 			};
 
 			
 			this.getLabelOverlay = function() {
-				return self.getOverlay(_internalLabelOverlayId);
+				return this.getOverlay(_internalLabelOverlayId);
 			};
 			
+			// this will be fixed by the extend stuff:
 			var superAt = this.applyType;
 			this.applyType = function(t, doNotRepaint) {
 				superAt(t, doNotRepaint);
@@ -632,10 +629,12 @@
             var superHover = this.setHover;
             this.setHover = function(hover, ignoreAttachedElements, timestamp) {
                 superHover.apply(self, arguments);    
-                for (var i = 0, j = self.overlays.length; i < j; i++) {
-					self.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.instance.hoverClass);
+                for (var i = 0, j = self._jsPlumb.overlays.length; i < j; i++) {
+					self._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.instance.hoverClass);
 				}
             };
+
+
 		};		
 		
 		var _jsPlumbInstanceIndex = 0,
