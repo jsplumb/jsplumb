@@ -156,14 +156,7 @@
 				var o = new Object();
 				self.constructor.apply(o, a);
 				return o;
-			};
-			
-			this.getParameter = function(name) { return this._jsPlumb.parameters[name]; },
-			this.getParameters = function() { 
-				return this._jsPlumb.parameters; 
-			},
-			this.setParameter = function(name, value) { this._jsPlumb.parameters[name] = value; },
-			this.setParameters = function(p) { this._jsPlumb.parameters = p; };		
+			};				
 						
 			// user can supply a beforeDetach callback, which will be executed before a detach
 			// is performed; returning false prevents the detach.			
@@ -209,12 +202,7 @@
 		     * Parameters:
 		     * 	style - Style to use.
 		     */
-		    this.setPaintStyle = function(style, doNotRepaint) {
-		    	this._jsPlumb.paintStyle = style;
-		    	this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
-		    	_updateHoverStyle(self);
-		    	if (!doNotRepaint) this.repaint();
-		    };
+		    
 
 		    /**
 		    * Gets the component's paint style.
@@ -222,9 +210,7 @@
 		    * Returns:
 		    * the component's paint style. if there is no hoverPaintStyle set then this will be the paint style used all the time, otherwise this is the style used when the mouse is not hovering.
 		    */
-		    this.getPaintStyle = function() {
-		    	return this._jsPlumb.paintStyle;
-		    };
+		    //this.;
 		    
 		    /*
 		     * Sets the paint style to use when the mouse is hovering over the element. This is null by default.
@@ -236,11 +222,7 @@
 		     * 	style - Style to use when the mouse is hovering.
 		     *  doNotRepaint - if true, the component will not be repainted.  useful when setting things up initially.
 		     */
-		    this.setHoverPaintStyle = function(style, doNotRepaint) {		    	
-		    	this._jsPlumb.hoverPaintStyle = style;
-		    	_updateHoverStyle(self);
-		    	if (!doNotRepaint) this.repaint();
-		    };
+		    //this.;
 
 		    /**
 		    * Gets the component's hover paint style.
@@ -248,9 +230,7 @@
 		    * Returns:
 		    * the component's hover paint style. may be null.
 		    */
-		    this.getHoverPaintStyle = function() {
-		    	return this._jsPlumb.hoverPaintStyle;
-		    };
+		    //this.;
 		    
 		    /*
 		     * sets/unsets the hover state of this element.
@@ -291,9 +271,7 @@
 					if (this.getAttachedElements && !ignoreAttachedElements)
 						_updateAttachedElements(this, hover, _timestamp(), this);
 				}
-		    };
-		    
-		    this.isHover = function() { return this._jsPlumb.hover; };
+		    };		   		   
             
             this.bindListeners = function(obj, _self, _hoverFunction) {
                 obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
@@ -351,36 +329,71 @@
 				Function: setType	
 				Sets the type, removing all existing types.
 			*/
-			this.setType = function(typeId, params, doNotRepaint) {				
-				this._jsPlumb.types = _splitType(typeId) || [];
-				_applyTypes(this, params, doNotRepaint);									
-			};
+			//this.;
 			
 			/*
 			 * Function : getType
 			 * Gets the 'types' of this component.
 			 */
-			this.getType = function() {
-				return this._jsPlumb.types;
-			};
+			//this.;
 
 			/**
 				Function: reapplyTypes
 				Reapply all existing types, but with the given new params.
 			*/
-			this.reapplyTypes = function(params, doNotRepaint) {
-				_applyTypes(this, params, doNotRepaint);
-			};
+			//this.;
 			
-			this.hasType = function(typeId) {
-				return jsPlumbUtil.indexOf(this._jsPlumb.types, typeId) != -1;
-			};
+			//this.;
 			
 			/*
 				Function: addType
 				adds a type. will not be re-added it already exists.
 			*/
-			this.addType = function(typeId, params, doNotRepaint) {
+			//this.;
+			
+			//this.;
+			
+			//this.;
+			
+			//this.;
+                      
+		}, {
+			getParameter : function(name) { 
+				return this._jsPlumb.parameters[name]; 
+			},
+			setParameter : function(name, value) { 
+				this._jsPlumb.parameters[name] = value; 
+			},
+			getParameters : function() { 
+				return this._jsPlumb.parameters; 
+			},			
+			setParameters : function(p) { 
+				this._jsPlumb.parameters = p; 
+			},
+			isHover : function() { return this._jsPlumb.hover; },
+			// CSS classes
+			addClass : function(clazz) {
+			    if (this.canvas != null)
+			        _addClass(this.canvas, clazz);
+			},			
+			removeClass : function(clazz) {
+			    if (this.canvas != null)
+			        _removeClass(this.canvas, clazz);
+			},
+			setType : function(typeId, params, doNotRepaint) {				
+				this._jsPlumb.types = _splitType(typeId) || [];
+				_applyTypes(this, params, doNotRepaint);									
+			},
+			getType : function() {
+				return this._jsPlumb.types;
+			},
+			reapplyTypes : function(params, doNotRepaint) {
+				_applyTypes(this, params, doNotRepaint);
+			},
+			hasType : function(typeId) {
+				return jsPlumbUtil.indexOf(this._jsPlumb.types, typeId) != -1;
+			},
+			addType : function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false;
 				if (t != null) {
 					for (var i = 0, j = t.length; i < j; i++) {
@@ -391,9 +404,8 @@
 					}
 					if (_cont) _applyTypes(this, params, doNotRepaint);
 				}
-			};
-			
-			this.removeType = function(typeId, doNotRepaint) {
+			},
+			removeType : function(typeId, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false, _one = function(tt) {
 					var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, tt);
 					if (idx != -1) {
@@ -409,9 +421,8 @@
 					}
 					if (_cont) _applyTypes(this, null, doNotRepaint);
 				}
-			};
-			
-			this.toggleType = function(typeId, params, doNotRepaint) {
+			},
+			toggleType : function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId);
 				if (t != null) {
 					for (var i = 0, j = t.length; i < j; i++) {
@@ -424,27 +435,32 @@
 						
 					_applyTypes(this, params, doNotRepaint);
 				}
-			};
-			
-			this.applyType = function(t, doNotRepaint) {
+			},
+			applyType : function(t, doNotRepaint) {
 				this.setPaintStyle(t.paintStyle, doNotRepaint);				
 				this.setHoverPaintStyle(t.hoverPaintStyle, doNotRepaint);
 				if (t.parameters){
 					for (var i in t.parameters)
 						this.setParameter(i, t.parameters[i]);
 				}
-			};
-            
-            // CSS classes
-            this.addClass = function(clazz) {
-                if (self.canvas != null)
-                    _addClass(self.canvas, clazz);
-            };
-			
-            this.removeClass = function(clazz) {
-                if (self.canvas != null)
-                    _removeClass(self.canvas, clazz);
-            };                    
+			},
+			setPaintStyle : function(style, doNotRepaint) {
+		    	this._jsPlumb.paintStyle = style;
+		    	this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
+		    	_updateHoverStyle(this);
+		    	if (!doNotRepaint) this.repaint();
+		    },
+		    getPaintStyle : function() {
+		    	return this._jsPlumb.paintStyle;
+		    },
+		    setHoverPaintStyle : function(style, doNotRepaint) {		    	
+		    	this._jsPlumb.hoverPaintStyle = style;
+		    	_updateHoverStyle(this);
+		    	if (!doNotRepaint) this.repaint();
+		    },
+		    getHoverPaintStyle : function() {
+		    	return this._jsPlumb.hoverPaintStyle;
+		    }
 		}),
 		_internalLabelOverlayId = "__label",
 		// helper to get the index of some overlay
@@ -516,62 +532,9 @@
 				}
 			}
 						
-			this.addOverlay = function(overlay, doNotRepaint) { 
-				_processOverlay(this, overlay); 
-				if (!doNotRepaint) this.repaint();
-			};
+			//this.;
 						
-			this.getOverlay = function(id) {
-				var idx = _getOverlayIndex(this, id);
-				return idx >= 0 ? this._jsPlumb.overlays[idx] : null;
-			};
-			
-			this.getOverlays = function() {
-				return this._jsPlumb.overlays;
-			};			
-			
-			this.hideOverlay = function(id) {
-				var o = this.getOverlay(id);
-				if (o) o.hide();
-			};
-
-			this.hideOverlays = function() {
-				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
-					this._jsPlumb.overlays[i].hide();
-			};
-						
-			this.showOverlay = function(id) {
-				var o = this.getOverlay(id);
-				if (o) o.show();
-			};
-
-			this.showOverlays = function() {
-				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
-					this._jsPlumb.overlays[i].show();
-			};
-			
-			this.removeAllOverlays = function() {
-				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
-					if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
-				}
-
-				this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
-				this.repaint();
-			};
-						
-			this.removeOverlay = function(overlayId) {
-				var idx = _getOverlayIndex(this, overlayId);
-				if (idx != -1) {
-					var o = this._jsPlumb.overlays[idx];
-					if (o.cleanup) o.cleanup();
-					this._jsPlumb.overlays.splice(idx, 1);
-				}
-			};
-						
-			this.removeOverlays = function() {
-				for (var i = 0, j = arguments.length; i < j; i++)
-					this.removeOverlay(arguments[i]);
-			};			
+			//this.;			
 
 			if (params.label) {
 				var loc = params.labelLocation || self.defaultLabelLocation || 0.5,
@@ -615,23 +578,69 @@
 			};
 			
 			// this will be fixed by the extend stuff:
-			var superAt = this.applyType;
-			this.applyType = function(t, doNotRepaint) {
-				superAt(t, doNotRepaint);
-				self.removeAllOverlays();
+			//var superAt = this.applyType;
+			//this.;
+                                    
+		}, {
+			applyType : function(t, doNotRepaint) {			
+				this.removeAllOverlays();
 				if (t.overlays) {
 					for (var i = 0, j = t.overlays.length; i < j; i++)
-						self.addOverlay(t.overlays[i], true);
+						this.addOverlay(t.overlays[i], true);
 				}
-			};
-            
-            var superHover = this.setHover;
-            this.setHover = function(hover, ignoreAttachedElements, timestamp) {
-                superHover.apply(self, arguments);    
-                for (var i = 0, j = self._jsPlumb.overlays.length; i < j; i++) {
-					self._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](self._jsPlumb.instance.hoverClass);
+			},
+			setHover : function(hover, ignoreAttachedElements, timestamp) {            
+                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
+					this._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](this._jsPlumb.instance.hoverClass);
 				}
-            };
+            },
+            addOverlay : function(overlay, doNotRepaint) { 
+				_processOverlay(this, overlay); 
+				if (!doNotRepaint) this.repaint();
+			},
+			getOverlay : function(id) {
+				var idx = _getOverlayIndex(this, id);
+				return idx >= 0 ? this._jsPlumb.overlays[idx] : null;
+			},			
+			getOverlays : function() {
+				return this._jsPlumb.overlays;
+			},			
+			hideOverlay : function(id) {
+				var o = this.getOverlay(id);
+				if (o) o.hide();
+			},
+			hideOverlays : function() {
+				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
+					this._jsPlumb.overlays[i].hide();
+			},
+			showOverlay : function(id) {
+				var o = this.getOverlay(id);
+				if (o) o.show();
+			},
+			showOverlays : function() {
+				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
+					this._jsPlumb.overlays[i].show();
+			},
+			removeAllOverlays : function() {
+				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
+					if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
+				}
+
+				this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
+				this.repaint();
+			},
+			removeOverlay : function(overlayId) {
+				var idx = _getOverlayIndex(this, overlayId);
+				if (idx != -1) {
+					var o = this._jsPlumb.overlays[idx];
+					if (o.cleanup) o.cleanup();
+					this._jsPlumb.overlays.splice(idx, 1);
+				}
+			},
+			removeOverlays : function() {
+				for (var i = 0, j = arguments.length; i < j; i++)
+					this.removeOverlay(arguments[i]);
+			}
 		});		
 		
 		var _jsPlumbInstanceIndex = 0,

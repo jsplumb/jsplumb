@@ -96,15 +96,8 @@
                 overlays:self._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
             };
         };
-        var superAt = this.applyType;
-        this.applyType = function(t, doNotRepaint) {
-            superAt(t, doNotRepaint);
-            if (t.detachable != null) self.setDetachable(t.detachable);
-            if (t.reattach != null) self.setReattach(t.reattach);
-            if (t.scope) self.scope = t.scope;
-            editable = t.editable;
-            self.setConnector(t.connector, doNotRepaint);
-        };			
+        //var superAt = this.applyType;
+        //this.;			
 // END TYPE
 
 // HOVER			
@@ -523,5 +516,19 @@
             self.addType(_type, params.data, _jsPlumb.isSuspendDrawing());
         
 // END PAINTING    
+    }, {
+        applyType : function(t, doNotRepaint) {            
+            if (t.detachable != null) this.setDetachable(t.detachable);
+            if (t.reattach != null) this.setReattach(t.reattach);
+            if (t.scope) this.scope = t.scope;
+            //editable = t.editable;  // TODO
+            this.setConnector(t.connector, doNotRepaint);
+        }
+    }, {
+
+        idPrefix : "_jsplumb_c_",
+        defaultLabelLocation : 0.5,
+        defaultOverlayKeys : ["Overlays", "ConnectionOverlays"]
+
     }); // END Connection class            
 })();

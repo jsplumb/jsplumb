@@ -5672,14 +5672,18 @@ var testSuite = function(renderMode, _jsPlumb) {
 		Parent.prototype = {
 			id:function() {
 				return "parent";
+			},
+			id2:function() {
+				return "parent2";
 			}
 		};
 
 		// extend parent and call with no constructor args and nothing overridden.
 		var Child = jsPlumbUtil.extend(Parent), aChild = new Child();
 		equal(aChild.id(), "parent", "child has inherited parent's id method");
+		equal(aChild.id2(), "parent2", "child has inherited parent's id2 method");
 		equal(aChild.aValue, "parent", "child has inherited parent's aValue property");
-		ok(typeof aChild.inputArg == "undefined", "input argument was undefined");
+		ok(typeof aChild.inputArg == "undefined", "input argument was undefined");		
 
 		// extend parent and call with a constructor arg
 		var anotherChild = new Child("foo");		
@@ -5696,10 +5700,27 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var Child3 = jsPlumbUtil.extend(Parent, null, {
 			id:function() {
 				return "child";
+			},
+			id2:function() {
+				return "child2";
 			}
 		}), fourthChild = new Child3("fourthChild");
 		equal(fourthChild.inputArg, "fourthChild", "input arg was overriden correctly");
 		equal(fourthChild.id(), "child", "id method from prototype was overridden");
+		equal(fourthChild.id2(), "child2", "id method from prototype was overridden");
+
+		// extend Parent with some prototype functions and also some class level members.
+		var Child4 = jsPlumbUtil.extend(Parent, null, {
+			id:function() {
+				return "child";
+			},
+			id2:function() {
+				return "child2";
+			}
+		}, {
+			foo:"bar"
+		}), fifthChild = new Child4("fifthChild");
+		equal(fifthChild.foo, "bar", "class level members set");
 	});
 
 test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {

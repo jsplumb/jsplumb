@@ -1184,9 +1184,9 @@
     
 	
 	// abstract superclass for overlays that add an element to the DOM.
-    var AbstractDOMOverlay = function(params) {
-		jsPlumb.DOMElementComponent.apply(this, arguments);
-    	AbstractOverlay.apply(this, arguments);
+    var AbstractDOMOverlay = jsPlumbUtil.extend([jsPlumb.DOMElementComponent, AbstractOverlay], function(params) {
+		//jsPlumb.DOMElementComponent.apply(this, arguments);
+    	//AbstractOverlay.apply(this, arguments);
 		
 		var self = this, initialised = false, jpcl = jsPlumb.CurrentLibrary;
 		params = params || {};
@@ -1302,7 +1302,7 @@
 	    	}
 	    };
 		
-	};
+	});
 	
 	/*
      * Class: Overlays.Custom
@@ -1318,10 +1318,10 @@
      * 	id - optional id to use for later retrieval of this overlay.
      * 	
      */
-    jsPlumb.Overlays.Custom = function(params) {
+    jsPlumb.Overlays.Custom = jsPlumbUtil.extend(AbstractDOMOverlay, function(params) {
     	this.type = "Custom";    	
-    	AbstractDOMOverlay.apply(this, arguments);		    	        		    	    		
-    };
+    	//AbstractDOMOverlay.apply(this, arguments);		    	        		    	    		
+    });
 
     jsPlumb.Overlays.GuideLines = function() {
         var self = this;
@@ -1373,14 +1373,14 @@
      * 	id - optional id to use for later retrieval of this overlay.
      * 	
      */
-    jsPlumb.Overlays.Label = function(params) {
+    jsPlumb.Overlays.Label = jsPlumbUtil.extend(jsPlumb.Overlays.Custom, function(params) {
 		var self = this;    	
 		this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
 		this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
 		params.create = function() {
 			return document.createElement("div");
 		};
-    	jsPlumb.Overlays.Custom.apply(this, arguments);
+    	//jsPlumb.Overlays.Custom.apply(this, arguments);
 		this.type = "Label";
     	
         var label = params.label || "",
@@ -1425,7 +1425,7 @@
 			return superGD();
     	};
 		
-    };
+    });
 		
 
  // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************

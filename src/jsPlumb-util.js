@@ -363,15 +363,24 @@
                 return eventsSuspended;
             };
         },
-        extend : function(obj, constructor, _proto) {
+        //
+        // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
+        // class members, any of which may be null.
+        //
+        extend : function(obj, constructor, _proto, classMembers) {
             _proto = _proto || {};
             constructor = constructor || function() {};
             obj = this.isArray(obj) ? obj : [ obj ];
+            classMembers = classMembers || {};
+
             var child = function() {
+                for (var i in classMembers) {
+                    this[i] = classMembers[i];
+                }
                 for (var i = 0; i < obj.length; i++)                            
                     obj[i].apply(this, arguments);
                 constructor.apply(this, arguments);
-            };            
+            };                        
             
             for (var i = 0; i < obj.length; i++) {
                 for (var j in obj[i].prototype) {
@@ -381,21 +390,24 @@
                 }
             }
 
-            for (var j in _proto) {
-                child.prototype[j] = function() {
+            var _makeFn = function(name) {
+                return function() {
                     for (var i = 0; i < obj.length; i++) {
-                        if (obj[i].prototype[j])
-                            obj[i].prototype[j].apply(this, arguments);
+                        if (obj[i].prototype[name])
+                            obj[i].prototype[name].apply(this, arguments);
                     }
 
-                    return _proto[j].apply(this, arguments);
+                    console.log("applyinf ", name)
+                    return _proto[name].apply(this, arguments);
                 };
+            };
+
+            for (var j in _proto) {
+                child.prototype[j] = _makeFn(j);
             }
 
             child.prototype._super = obj;
-
             return child;
-
         },
         logEnabled : true,
         log : function() {
