@@ -206,7 +206,9 @@
 			// make all .window divs draggable. note that here i am just using a convenience method - getSelector -
 			// that enables me to reuse this code across all three libraries. In your own usage of jsPlumb you can use
 			// your library's selector method - "$" for jQuery, "$$" for MooTools, "Y.all" for YUI3.
-			jsPlumb.draggable(jsPlumb.getSelector(".window"), { containment:".demo"});            
+			jsPlumb.draggable(jsPlumb.getSelector(".window"), { containment:".demo"});    
+
+			//jsPlumb.selectEndpoints().get(0).foo();        
 
 		}
 	};	

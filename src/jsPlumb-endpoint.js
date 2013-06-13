@@ -69,7 +69,7 @@
         
 // TYPE		
         
-        this.getTypeDescriptor = function() { return "endpoint"; };
+        
         this.getDefaultType = function() {								
             return {
                 parameters:{},
@@ -88,36 +88,13 @@
                 connectorTooltip:params.connectorTooltip
             };
         };
-        var superAt = this.applyType;
-        this.applyType = function(t, doNotRepaint) {
-            superAt(t, doNotRepaint);
-            if (t.maxConnections != null) _maxConnections = t.maxConnections;
-            if (t.scope) self.scope = t.scope;
-            _ju.copyValues(typeParameters, t, self);
-        };			
+        ;			
 // END TYPE
     
-        var visible = true, __enabled = !(params.enabled === false);
+        //var visible = true,
+        this._jsPlumb.enabled = !(params.enabled === false);
+        this._jsPlumb.visible = true;
         
-        this.isVisible = function() { return visible; };        
-        this.setVisible = function(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
-            visible = v;
-            if (self.canvas) self.canvas.style.display = v ? "block" : "none";
-            self[v ? "showOverlays" : "hideOverlays"]();
-            if (!doNotChangeConnections) {
-                for (var i = 0; i < self.connections.length; i++) {
-                    self.connections[i].setVisible(v);
-                    if (!doNotNotifyOtherEndpoint) {
-                        var oIdx = self === self.connections[i].endpoints[0] ? 1 : 0;
-                        // only change the other endpoint if this is its only connection.
-                        if (self.connections[i].endpoints[oIdx].connections.length == 1) self.connections[i].endpoints[oIdx].setVisible(v, true, true);
-                    }
-                }
-            }
-        };			
-        
-        this.isEnabled = function() { return __enabled; };
-        this.setEnabled = function(e) { __enabled = e; };
 
         var _element = params.source,  _uuid = params.uuid, floatingEndpoint = null,  inPlaceCopy = null;
         if (_uuid) params.endpointsByUUID[_uuid] = self;
@@ -144,21 +121,32 @@
         
         var _connectionsDirected = params.connectionsDirected;
         this.areConnectionsDirected = function() { return _connectionsDirected; };
-        this.setConnectionsDirected = function(b) { _connectionsDirected = b; };                        
+        this.setConnectionsDirected = function(b) { _connectionsDirected = b; };     
 
-        var _currentAnchorClass = "",
-            _updateAnchorClass = function() {
-                jpcl.removeClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
-                self.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
-                _currentAnchorClass = self.anchor.getCssClass();
-                self.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
-                jpcl.addClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
-            };
+/*
+        var foo = function() {
+            alert(this.id);
+        }.bind(this);
+        this.foo = function() {
+            foo();
+        };
+*/
+
+        //var _currentAnchorClass = "",
+        this._jsPlumb.currentAnchorClass = "";
+            
+          var  _updateAnchorClass = function() {
+                jpcl.removeClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+                this.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+                this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
+                this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+                jpcl.addClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            }.bind(this);
 
         this.setAnchor = function(anchorParams, doNotRepaint) {
-            self.anchor = _jsPlumb.makeAnchor(anchorParams, _elementId, _jsPlumb);
+            this.anchor = _jsPlumb.makeAnchor(anchorParams, _elementId, _jsPlumb);
             _updateAnchorClass();
-            self.anchor.bind("anchorChanged", function(currentAnchor) {
+            this.anchor.bind("anchorChanged", function(currentAnchor) {
                 self.fire("anchorChanged", {endpoint:self, anchor:currentAnchor});
                 _updateAnchorClass();
             });
@@ -166,9 +154,7 @@
                 _jsPlumb.repaint(_elementId);
         };
 
-        this.cleanup = function() {
-            jpcl.removeClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
-        };
+        //this.;
 
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
         self.setAnchor(anchorParamsToUse, true);
@@ -256,16 +242,14 @@
         this.isSource = params.isSource || false;
         this.isTarget = params.isTarget || false;
         
-        var _maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.
+        this._jsPlumb.maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.
                     
-        this.getAttachedElements = function() {
-            return self.connections;
-        };
+        //this.;
                     
         this.canvas = this.endpoint.canvas;		
         // add anchor class (need to do this on construction because we set anchor first)
-        self.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);	
-        jpcl.addClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + _currentAnchorClass);
+        this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
+        jpcl.addClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
         
@@ -448,12 +432,12 @@
             var candidate = self.connections[0];
             if (self.isTarget && candidate) return candidate;
             else {
-                return (self.connections.length < _maxConnections) || _maxConnections == -1 ? null : candidate;
+                return (self.connections.length < this._jsPlumb.maxConnections) || this._jsPlumb.maxConnections == -1 ? null : candidate;
             }
         };
         
         this.isFull = function() {
-            return !(self.isFloating() || _maxConnections < 1 || self.connections.length < _maxConnections);				
+            return !(self.isFloating() || this._jsPlumb.maxConnections < 1 || self.connections.length < this._jsPlumb.maxConnections);				
         };
                     
         this.setDragAllowedWhenFull = function(allowed) {
@@ -808,7 +792,7 @@
                                 self.fire("maxConnections", { 
                                     endpoint:self, 
                                     connection:jpc, 
-                                    maxConnections:_maxConnections 
+                                    maxConnections:self._jsPlumb.maxConnections 
                                 }, originalEvent);
                             }
                                                             
@@ -980,10 +964,42 @@
         
          // finally, set type if it was provided
          if (params.type)
-            self.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
+            this.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
 
         return self;        					
     };
 
-    jsPlumbUtil.extend(jsPlumb.Endpoint, OverlayCapableJsPlumbUIComponent);
+    jsPlumbUtil.extend(jsPlumb.Endpoint, OverlayCapableJsPlumbUIComponent, {
+        getTypeDescriptor : function() { return "endpoint"; },
+        isVisible : function() { return this._jsPlumb.visible; },
+        setVisible : function(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
+            this._jsPlumb.visible = v;
+            if (this.canvas) this.canvas.style.display = v ? "block" : "none";
+            this[v ? "showOverlays" : "hideOverlays"]();
+            if (!doNotChangeConnections) {
+                for (var i = 0; i < this.connections.length; i++) {
+                    this.connections[i].setVisible(v);
+                    if (!doNotNotifyOtherEndpoint) {
+                        var oIdx = this === this.connections[i].endpoints[0] ? 1 : 0;
+                        // only change the other endpoint if this is its only connection.
+                        if (this.connections[i].endpoints[oIdx].connections.length == 1) this.connections[i].endpoints[oIdx].setVisible(v, true, true);
+                    }
+                }
+            }
+        },
+        getAttachedElements : function() {
+            return this.connections;
+        },
+        applyType : function(t, doNotRepaint) {         
+            if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
+            if (t.scope) this.scope = t.scope;
+            jsPlumbUtil.copyValues(typeParameters, t, this);
+        },
+        isEnabled : function() { return this._jsPlumb.enabled; },
+        setEnabled : function(e) { this._jsPlumb.enabled = e; },
+        cleanup : function() {
+            //console.log("cleanup ", this.element)
+            jsPlumb.CurrentLibrary.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+        }
+    });
 })();

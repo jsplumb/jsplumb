@@ -156,9 +156,9 @@
 			// further at this.
 			this.clone = function() {
 				var o = new Object();
-				self.constructor.apply(o, a);
+				this.constructor.apply(o, a);
 				return o;
-			};				
+			}.bind(this);				
 						
 			// user can supply a beforeDetach callback, which will be executed before a detach
 			// is performed; returning false prevents the detach.			
@@ -176,7 +176,7 @@
 			// user can supply a beforeDrop callback, which will be executed before a dropped
 			// connection is confirmed. user can return false to reject connection.			
 			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint) {
-				var r = self._jsPlumb.instance.checkCondition("beforeDrop", { 
+				var r = this._jsPlumb.instance.checkCondition("beforeDrop", { 
 					sourceId:sourceId, 
 					targetId:targetId, 
 					scope:scope,
@@ -318,47 +318,9 @@
 		    		for (var i = 0, j = events.length; i < j; i++)
 		    			unbindOne(o, events[i]);
 			    	for (var i = 1, j = arguments.length; i < j; i++)
-		    			self.attachListeners(o, arguments[i]);
+		    			this.attachListeners(o, arguments[i]);
 		    	}
-		    };		    	    
-			
-			/*
-			 * TYPES
-			 */
-			
-			
-			/*
-				Function: setType	
-				Sets the type, removing all existing types.
-			*/
-			//this.;
-			
-			/*
-			 * Function : getType
-			 * Gets the 'types' of this component.
-			 */
-			//this.;
-
-			/**
-				Function: reapplyTypes
-				Reapply all existing types, but with the given new params.
-			*/
-			//this.;
-			
-			//this.;
-			
-			/*
-				Function: addType
-				adds a type. will not be re-added it already exists.
-			*/
-			//this.;
-			
-			//this.;
-			
-			//this.;
-			
-			//this.;
-                      
+		    };		    	    			                      
 		};
 
 		jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
@@ -464,7 +426,10 @@
 		    },
 		    getHoverPaintStyle : function() {
 		    	return this._jsPlumb.hoverPaintStyle;
-		    }
+		    },
+			cleanup:function() {
+				console.log("jsPlumb.jsPlumbUIComponent cleanup");
+			}
 		}),
 		_internalLabelOverlayId = "__label",
 		// helper to get the index of some overlay
@@ -528,8 +493,6 @@
 		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
 
 			jsPlumbUIComponent.apply(this, arguments);
-
-			var self = this;			
 			this._jsPlumb.overlays = [];			
 
 			var _overlays = _calculateOverlaysToAdd(this, params);
@@ -538,56 +501,17 @@
 					_processOverlay(this, _overlays[i]);
 				}
 			}
-						
-			//this.;
-						
-			//this.;			
-
+			
 			if (params.label) {
-				var loc = params.labelLocation || self.defaultLabelLocation || 0.5,
-					labelStyle = params.labelStyle || self._jsPlumb.instance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;			
+				var loc = params.labelLocation || this.defaultLabelLocation || 0.5,
+					labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;
 
 				this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
 					label:params.label,
 					location:loc,
 					labelStyle:labelStyle
 				}));
-			}
-			
-			this.setLabel = function(l) {
-				var lo = this.getOverlay(_internalLabelOverlayId);
-				if (!lo) {
-					var params = l.constructor == String || l.constructor == Function ? { label:l } : l;
-					lo = _makeLabelOverlay(this, params);	
-					this._jsPlumb.overlays.push(lo);
-				}
-				else {
-					if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
-					else {
-						if (l.label) lo.setLabel(l.label);
-						if (l.location) lo.setLocation(l.location);
-					}
-				}
-				
-				if (!this._jsPlumb.instance.isSuspendDrawing()) 
-					this.repaint();
-			};
-
-			
-			this.getLabel = function() {
-				var lo = this.getOverlay(_internalLabelOverlayId);
-				return lo != null ? lo.getLabel() : null;
-			};
-
-			
-			this.getLabelOverlay = function() {
-				return this.getOverlay(_internalLabelOverlayId);
-			};
-			
-			// this will be fixed by the extend stuff:
-			//var superAt = this.applyType;
-			//this.;
-                                    
+			}			                                  
 		};
 
 		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
@@ -649,6 +573,35 @@
 			removeOverlays : function() {
 				for (var i = 0, j = arguments.length; i < j; i++)
 					this.removeOverlay(arguments[i]);
+			},
+			getLabel : function() {
+				var lo = this.getOverlay(_internalLabelOverlayId);
+				return lo != null ? lo.getLabel() : null;
+			},		
+			getLabelOverlay : function() {
+				return this.getOverlay(_internalLabelOverlayId);
+			},
+			setLabel : function(l) {
+				var lo = this.getOverlay(_internalLabelOverlayId);
+				if (!lo) {
+					var params = l.constructor == String || l.constructor == Function ? { label:l } : l;
+					lo = _makeLabelOverlay(this, params);	
+					this._jsPlumb.overlays.push(lo);
+				}
+				else {
+					if (l.constructor == String || l.constructor == Function) lo.setLabel(l);
+					else {
+						if (l.label) lo.setLabel(l.label);
+						if (l.location) lo.setLocation(l.location);
+					}
+				}
+				
+				if (!this._jsPlumb.instance.isSuspendDrawing()) 
+					this.repaint();
+			},
+			cleanup:function() {
+				console.log("OverlayCapableJsPlumbUIComponent cleanup");
+				this._jsPlumb.overlays.splice(0);
 			}
 		});		
 		
