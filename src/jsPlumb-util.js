@@ -289,7 +289,7 @@
          * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
          */
         EventGenerator : function() {
-            var _listeners = {}, self = this, eventsSuspended = false;
+            var _listeners = {}, /*self = this,*/ eventsSuspended = false;
             
             // this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
             // jsPlumb, but it seems feasible that people might want to manipulate this list.  the thinking is that we don't want event
@@ -307,7 +307,7 @@
              */
             this.bind = function(event, listener) {
                 jsPlumbUtil.addToList(_listeners, event, listener);		
-                return self;		
+                return this;		
             };
             /*
              * Fires an update for the given event.
@@ -334,7 +334,7 @@
                         }
                     }
                 }
-                return self;
+                return this;
             };
             /*
              * Clears either all listeners, or listeners for some specific event.
@@ -348,7 +348,7 @@
                 else {
                     _listeners = {};
                 }
-                return self;
+                return this;
             };
             
             this.getListener = function(forEvent) {

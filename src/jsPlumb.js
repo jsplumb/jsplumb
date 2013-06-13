@@ -241,39 +241,7 @@
 		     * 	hover - hover state boolean
 		     * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
 		     */
-		    this.setHover = function(hover, ignoreAttachedElements, timestamp) {
-		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
-		    	// swishing and whatevering.
-				if (!this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
-		    
-			    	this._jsPlumb.hover = hover;
-                        
-                    if (this.canvas != null) {
-                        if (this._jsPlumb.hoverClass != null) {
-                            if (hover) 
-                                jpcl.addClass(this.canvas, this._jsPlumb.hoverClass);						
-                            else
-                                jpcl.removeClass(this.canvas, this.hoverClass);
-                        }
-                        
-                        if (hover) 
-                            jpcl.addClass(this.canvas, this._jsPlumb.instance.hoverClass);						
-                        else
-                            jpcl.removeClass(this.canvas, this._jsPlumb.instance.hoverClass);
-                    }
-		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
-						this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
-						if (!this._jsPlumb.instance.isSuspendDrawing()) {
-							timestamp = timestamp || _timestamp();
-							this.repaint({timestamp:timestamp, recalc:false});
-						}
-					}
-					// get the list of other affected elements, if supported by this component.
-					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
-					if (this.getAttachedElements && !ignoreAttachedElements)
-						_updateAttachedElements(this, hover, _timestamp(), this);
-				}
-		    };		   		   
+		    //this.;		   		   
             
             this.bindListeners = function(obj, _self, _hoverFunction) {
                 obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
@@ -429,7 +397,41 @@
 		    },
 			cleanup:function() {
 				console.log("jsPlumb.jsPlumbUIComponent cleanup");
-			}
+			},
+			setHover : function(hover, ignoreAttachedElements, timestamp) {
+				var jpcl = jsPlumb.CurrentLibrary;
+		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
+		    	// swishing and whatevering.
+				if (!this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
+		    
+			    	this._jsPlumb.hover = hover;
+                        
+                    if (this.canvas != null) {
+                        if (this._jsPlumb.hoverClass != null) {
+                            if (hover) 
+                                jpcl.addClass(this.canvas, this._jsPlumb.hoverClass);						
+                            else
+                                jpcl.removeClass(this.canvas, this.hoverClass);
+                        }
+                        
+                        if (hover) 
+                            jpcl.addClass(this.canvas, this._jsPlumb.instance.hoverClass);						
+                        else
+                            jpcl.removeClass(this.canvas, this._jsPlumb.instance.hoverClass);
+                    }
+		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
+						this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
+						if (!this._jsPlumb.instance.isSuspendDrawing()) {
+							timestamp = timestamp || _timestamp();
+							this.repaint({timestamp:timestamp, recalc:false});
+						}
+					}
+					// get the list of other affected elements, if supported by this component.
+					// for a connection, its the endpoints.  for an endpoint, its the connections! surprise.
+					if (this.getAttachedElements && !ignoreAttachedElements)
+						_updateAttachedElements(this, hover, _timestamp(), this);
+				}
+		    }
 		}),
 		_internalLabelOverlayId = "__label",
 		// helper to get the index of some overlay

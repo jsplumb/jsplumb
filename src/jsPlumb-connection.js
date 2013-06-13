@@ -51,7 +51,8 @@
         var _jsPlumb = this._jsPlumb.instance;    
         this._jsPlumb.visible = true;
         this._jsPlumb.editable = params.editable === true;    
-        this._jsPlumb.params = params;                        
+        this._jsPlumb.params = params;          
+        this._jsPlumb.lastPaintedAt = null;              
         this.getDefaultType = function() {
             return {
                 parameters:{},
@@ -64,15 +65,6 @@
                 overlays:this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
             };
         };
-
-// HOVER			        
-        
-        //var _internalHover = 
-
-// END HOVER                            
-                
-        //this.;
-
         
 // INITIALISATION CODE			
                     
@@ -248,8 +240,7 @@
          * 	ui - current library's event system ui object (present if we came from a drag to get here).
          *  recalc - whether or not to recalculate all anchors etc before painting. 
          *  timestamp - timestamp of this paint.  If the Connection was last painted with the same timestamp, it does not paint again.
-         */
-        var lastPaintedAt = null;			
+         *
         this.paint = function(params) {
             
             if (!_jsPlumb.isSuspendDrawing() && this._jsPlumb.visible) {
@@ -259,11 +250,9 @@
                     // if the moving object is not the source we must transpose the two references.
                     swap = false,
                     tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,                    
-                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;//,
-                    //tId = this.endpoints[tIdx].elementId,
-                    //sId = this.endpoints[sIdx].elementId;
+                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
 
-                if (timestamp == null || timestamp != lastPaintedAt) {                        
+                if (timestamp == null || timestamp != this._jsPlumb.lastPaintedAt) {                        
                     var sourceInfo = _jsPlumb.updateOffset( { elId : sId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
                         targetInfo = _jsPlumb.updateOffset( { elId : tId, timestamp : timestamp }).o, // update the target if this is a forced repaint. otherwise, only the source has been moved.
                         sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
@@ -329,9 +318,9 @@
                     }                  
                                                             
                 }
-                lastPaintedAt = timestamp;						
+                this._jsPlumb.lastPaintedAt = timestamp;						
             }		
-        };			
+        };			*/
 
         /*
          * Function: repaint
@@ -495,6 +484,86 @@
             }                
                 
             if (!doNotRepaint) this.repaint();
+        },
+        paint : function(params) {
+                    
+            if (!this._jsPlumb.instance.isSuspendDrawing() && this._jsPlumb.visible) {
+                    
+                params = params || {};
+                var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
+                    // if the moving object is not the source we must transpose the two references.
+                    swap = false,
+                    tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,                    
+                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
+
+                if (timestamp == null || timestamp != this._jsPlumb.lastPaintedAt) {                        
+                    var sourceInfo = this._jsPlumb.instance.updateOffset( { elId : sId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
+                        targetInfo = this._jsPlumb.instance.updateOffset( { elId : tId, timestamp : timestamp }).o, // update the target if this is a forced repaint. otherwise, only the source has been moved.
+                        sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
+
+                    if (params.clearEdits) {
+                        sE.anchor.clearUserDefinedLocation();
+                        tE.anchor.clearUserDefinedLocation();
+                        this.connector.setEdited(false);
+                    }
+                    
+                    var sAnchorP = sE.anchor.getCurrentLocation({xy:[sourceInfo.left,sourceInfo.top], wh:[sourceInfo.width, sourceInfo.height], element:sE, timestamp:timestamp}),              
+                        tAnchorP = tE.anchor.getCurrentLocation({xy:[targetInfo.left,targetInfo.top], wh:[targetInfo.width, targetInfo.height], element:tE, timestamp:timestamp});                                                 
+                        
+                    this.connector.resetBounds();
+
+                    this.connector.compute({
+                        sourcePos:sAnchorP,
+                        targetPos:tAnchorP, 
+                        sourceEndpoint:this.endpoints[sIdx],
+                        targetEndpoint:this.endpoints[tIdx],
+                        lineWidth:this._jsPlumb.paintStyleInUse.lineWidth,                                          
+                        sourceInfo:sourceInfo,
+                        targetInfo:targetInfo,
+                        clearEdits:params.clearEdits === true
+                    });                                                                                        
+
+                    var overlayExtents = {
+                        minX:Infinity,
+                        minY:Infinity,
+                        maxX:-Infinity,
+                        maxY:-Infinity
+                    };                    
+                    // compute overlays. we do this first so we can get their placements, and adjust the
+                    // container if needs be (if an overlay would be clipped)
+                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                        var o = this._jsPlumb.overlays[i];
+                        if (o.isVisible()) {
+                            this._jsPlumb.overlayPlacements[i] = o.draw(this.connector, this._jsPlumb.paintStyleInUse);
+                            overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
+                            overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
+                            overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
+                            overlayExtents.maxY = Math.max(overlayExtents.maxY, this._jsPlumb.overlayPlacements[i].maxY);
+                        }
+                    }
+
+                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 1) / 2,
+                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 0),
+                        extents = {
+                            xmin : Math.min(this.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
+                            ymin : Math.min(this.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
+                            xmax : Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
+                            ymax : Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
+                        };
+
+                    // paint the connector.
+                    this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);  
+                    // and then the overlays
+                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                        var o = this._jsPlumb.overlays[i];
+                        if (o.isVisible()) {
+                            o.paint(this._jsPlumb.overlayPlacements[i], extents);    
+                        }
+                    }                  
+                                                            
+                }
+                this._jsPlumb.lastPaintedAt = timestamp;                        
+            }       
         }
         
     }); // END Connection class            

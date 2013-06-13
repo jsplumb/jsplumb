@@ -762,6 +762,7 @@
             cssClass:params.cssClass
         };
     };
+    jsPlumbUtil.extend(jsPlumb.Endpoints.AbstractEndpoint, AbstractComponent);
     
     /**
      * Class: Endpoints.Dot
@@ -800,6 +801,7 @@
 			return [ x, y, w, h, this.radius ];
 		};
 	};
+    jsPlumbUtil.extend(jsPlumb.Endpoints.Dot, jsPlumb.Endpoints.AbstractEndpoint);
 	
 	/**
 	 * Class: Endpoints.Rectangle
@@ -829,19 +831,23 @@
 			return [ x, y, width, height];
 		};
 	};
+    jsPlumbUtil.extend(jsPlumb.Endpoints.Rectangle, jsPlumb.Endpoints.AbstractEndpoint);
 	
 
     var DOMElementEndpoint = function(params) {
         jsPlumb.DOMElementComponent.apply(this, arguments);        
-        this._jsPlumb.displayElements = [  ];
-        this.getDisplayElements = function() { 
-            return this._jsPlumb.displayElements; 
-        };
-        
-        this.appendDisplayElement = function(el) {
-            this._jsPlumb.displayElements.push(el);
-        };            
+        this._jsPlumb.displayElements = [  ];                
     };
+    jsPlumbUtil.extend(DOMElementEndpoint, jsPlumb.DOMElementComponent, {
+       // jsPlumb.Endpoints.AbstractEndpoint
+        getDisplayElements : function() { 
+            return this._jsPlumb.displayElements; 
+        },        
+        appendDisplayElement : function(el) {
+            this._jsPlumb.displayElements.push(el);
+        }
+    });
+
 	/**
 	 * Class: Endpoints.Image
 	 * Draws an image as the Endpoint.
@@ -951,6 +957,7 @@
 			}
 		};				
 	};
+    jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ]);
 	
 	/*
 	 * Class: Endpoints.Blank
@@ -977,6 +984,7 @@
 			jsPlumb.sizeCanvas(this.canvas, this.x, this.y, this.w, this.h);	
 		};
 	};
+    jsPlumbUtil.extend(jsPlumb.Endpoints.Blank, jsPlumb.Endpoints.AbstractEndpoint);
 	
 	/*
 	 * Class: Endpoints.Triangle
@@ -1188,42 +1196,36 @@
 		jsPlumb.DOMElementComponent.apply(this, arguments);
     	AbstractOverlay.apply(this, arguments);
 		
-		var self = this, initialised = false, jpcl = jsPlumb.CurrentLibrary;
+		var /*self = this,*/ initialised = false, jpcl = jsPlumb.CurrentLibrary;
 		params = params || {};
 		this.id = params.id;
-		var div;
-		
-		var makeDiv = function() {
-			
-		};
+        this._jsPlumb.div = null;		
 		
 		this.getElement = function() {
-			if (div == null) {
-				        div = params.create(params.component);
-                        div = jpcl.getDOMElement(div);
-                        div.style["position"]   =   "absolute";     
-                        var clazz = params["_jsPlumb"].overlayClass + " " + 
-                            (this.cssClass ? this.cssClass : 
-                            params.cssClass ? params.cssClass : "");        
-                        div.className = clazz;
-                        params["_jsPlumb"].appendElement(div, params.component.parent);
-                        params["_jsPlumb"].getId(div);      
-                        this.attachListeners(div, this);
-                        this.canvas = div;
+			if (this._jsPlumb.div == null) {
+                var div = this._jsPlumb.div = params.create(params.component);
+                div = jpcl.getDOMElement(div);
+                div.style["position"]   =   "absolute";     
+                var clazz = params["_jsPlumb"].overlayClass + " " + 
+                    (this.cssClass ? this.cssClass : 
+                    params.cssClass ? params.cssClass : "");        
+                div.className = clazz;
+                params["_jsPlumb"].appendElement(div, params.component.parent);
+                params["_jsPlumb"].getId(div);      
+                this.attachListeners(div, this);
+                this.canvas = div;
 			}
     		return div;
     	};
 		
-		this.getDimensions = function() {
-    		return jpcl.getSize(jpcl.getElementObject(self.getElement()));
-    	};
+		//this.;
 		
 		var cachedDimensions = null,
 			_getDimensions = function(component) {
 				if (cachedDimensions == null)
-					cachedDimensions = self.getDimensions();
+					cachedDimensions = this.getDimensions();
 				return cachedDimensions;
-			};
+			}.bind(this);
 		
 		/*
 		 * Function: clearCachedDimensions
@@ -1243,24 +1245,24 @@
 		
 		//override setVisible
     	var osv = self.setVisible;
-    	self.setVisible = function(state) {
+    	this.setVisible = function(state) {
     		osv(state); // call superclass
     		div.style.display = state ? "block" : "none";
     	};
 		
 		this.cleanup = function() {
-    		if (div != null) jpcl.removeElement(div);
+    		if (this._jsPlumb.div != null) jpcl.removeElement(this._jsPlumb.div);
     	};
 		
 		this.paint = function(params, containerExtents) {
 			if (!initialised) {
-				self.getElement();
-				params.component.appendDisplayElement(div);
-				self.attachListeners(div, params.component);
+				this.getElement();
+				params.component.appendDisplayElement(this._jsPlumb.div);
+				this.attachListeners(this._jsPlumb.div, params.component);
 				initialised = true;
 			}
-			div.style.left = (params.component.x + params.d.minx) + "px";
-			div.style.top = (params.component.y + params.d.miny) + "px";			
+			this._jsPlumb.div.style.left = (params.component.x + params.d.minx) + "px";
+			this._jsPlumb.div.style.top = (params.component.y + params.d.miny) + "px";			
     	};
 				
 		this.draw = function(component, currentConnectionPaintStyle) {
@@ -1268,15 +1270,15 @@
 	    	if (td != null && td.length == 2) {
 				var cxy = {x:0,y:0};
                 if (component.pointOnPath) {
-                    var loc = self.loc, absolute = false;
-                    if (jsPlumbUtil.isString(self.loc) || self.loc < 0 || self.loc > 1) {
-                        loc = parseInt(self.loc);
+                    var loc = this.loc, absolute = false;
+                    if (jsPlumbUtil.isString(this.loc) || this.loc < 0 || this.loc > 1) {
+                        loc = parseInt(this.loc);
                         absolute = true;
                     }
                     cxy = component.pointOnPath(loc, absolute);  // a connection
                 }
                 else {
-                    var locToUse = self.loc.constructor == Array ? self.loc : self.endpointLoc;
+                    var locToUse = this.loc.constructor == Array ? this.loc : this.endpointLoc;
                     cxy = { x:locToUse[0] * component.w,
                             y:locToUse[1] * component.h };      
                 } 
@@ -1297,13 +1299,17 @@
 	    };
 	    
 	    this.reattachListeners = function(connector) {
-	    	if (div) {
-	    		self.reattachListenersForElement(div, self, connector);
+	    	if (this._jsPlumb.div) {
+	    		self.reattachListenersForElement(this._jsPlumb.div, this, connector);
 	    	}
 	    };
 		
 	};
-    jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay]);
+    jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
+        getDimensions : function() {
+            return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(this.getElement()));
+        }
+    });
 	
 	/*
      * Class: Overlays.Custom
@@ -1386,7 +1392,7 @@
 		this.type = "Label";
     	
         var label = params.label || "",
-            self = this,    	    
+            //self = this,    	    
             labelText = null;
     	
     	/*
@@ -1399,32 +1405,32 @@
     	this.setLabel = function(l) {
     		label = l;
     		labelText = null;
-			self.clearCachedDimensions();
+			this.clearCachedDimensions();
 			_update();
-    		self.component.repaint();
+    		this.component.repaint();
     	};
     	
 		var _update = function() {
 			if (typeof label == "function") {
-    			var lt = label(self);
-    			self.getElement().innerHTML = lt.replace(/\r\n/g, "<br/>");
+    			var lt = label(this);
+    			this.getElement().innerHTML = lt.replace(/\r\n/g, "<br/>");
     		}
     		else {
     			if (labelText == null) {
     				labelText = label;
-    				self.getElement().innerHTML = labelText.replace(/\r\n/g, "<br/>");
+    				this.getElement().innerHTML = labelText.replace(/\r\n/g, "<br/>");
     			}
     		}
-		};
+		}.bind(this);
 		
     	this.getLabel = function() {
     		return label;
     	};
     	
-		var superGD = this.getDimensions;		
+		//*var superGD = this.getDimensions;		
 		this.getDimensions = function() {				
     		_update();
-			return superGD();
+			return AbstractDOMOverlay.prototype.getDimensions.apply(this, arguments);
     	};
 		
     };

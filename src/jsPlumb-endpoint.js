@@ -209,13 +209,7 @@
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							
         originalEndpoint = _endpoint;        
-
-        // override setHover to pass it down to the underlying endpoint
-        var _sh = self.setHover;
-        self.setHover = function() {
-            self.endpoint.setHover.apply(self.endpoint, arguments);
-            _sh.apply(self, arguments);
-        };
+        
         // endpoint delegates to first connection for hover, if there is one.
         var internalHover = function(state) {
           if (self.connections.length > 0)
@@ -1000,6 +994,9 @@
         cleanup : function() {
             //console.log("cleanup ", this.element)
             jsPlumb.CurrentLibrary.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+        },
+        setHover : function() {
+            this.endpoint.setHover.apply(this.endpoint, arguments);            
         }
     });
 })();
