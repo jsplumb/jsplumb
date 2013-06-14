@@ -671,7 +671,7 @@
          * for the duration of the hover.
          */
         this.over = function(anchor) { 
-            orientation = anchor.getOrientation(); 
+            orientation = anchor.getOrientation(this); 
         };
 
         /**
