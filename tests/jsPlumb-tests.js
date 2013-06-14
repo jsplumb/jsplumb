@@ -1186,8 +1186,8 @@ var testSuite = function(renderMode, _jsPlumb) {
                 src:"../img/endpointTest1.png",
                 onload:function(imgEp) {                	
                 	_jsPlumb.repaint("d1");
-                    ok(imgEp.img.src.indexOf("endpointTest1.png") != -1, "image source is correct");                                        
-                    ok(imgEp.img.src.indexOf("endpointTest1.png") != -1, "image elementsource is correct");                                        
+                    ok(imgEp._jsPlumb.img.src.indexOf("endpointTest1.png") != -1, "image source is correct");                                        
+                    ok(imgEp._jsPlumb.img.src.indexOf("endpointTest1.png") != -1, "image elementsource is correct");                                        
                     
                     imgEp.canvas.setAttribute("id", "iwilllookforthis");
                     
@@ -5123,8 +5123,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
 		equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
 		equal(c.getConnector().type, "Flowchart", "connector is Flowchart");
-		equal(c.overlays.length, 1, "connector has one overlay");
-		equal(e1.overlays.length, 1, "endpoint has one overlay");
+		equal(c._jsPlumb.overlays.length, 1, "connector has one overlay");
+		equal(e1._jsPlumb.overlays.length, 1, "endpoint has one overlay");
 	});
 	
 	test(renderMode + " create connection from Endpoints - type should be passed through.", function() {		

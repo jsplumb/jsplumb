@@ -30,7 +30,7 @@
      * alwaysRespectStubs - defaults to false. whether or not the connectors should always draw the stub, or, if the two elements
                             are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
      */
-    jsPlumb.Connectors.Flowchart = function(params) {
+    var Flowchart = function(params) {
         this.type = "Flowchart";
         params = params || {};
         params.stub = params.stub || 30;
@@ -359,4 +359,6 @@
             }
         };
     };
+
+    jsPlumb.registerConnectorType(Flowchart, "Flowchart");
 })();

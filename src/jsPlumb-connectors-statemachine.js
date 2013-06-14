@@ -129,7 +129,7 @@
 	 * loopbackRadius	-	the radius of a loopback connector.  optional; defaults to 25.
 	 * showLoopback   -   If set to false this tells the connector that it is ok to paint connections whose source and target is the same element with a connector running through the element. The default value for this is true; the connector always makes a loopback connection loop around the element rather than passing through it.
 	*/
-	jsPlumb.Connectors.StateMachine = function(params) {
+	var StateMachine = function(params) {
 		params = params || {};
 		this.type = "StateMachine";
 
@@ -239,6 +239,7 @@
             }                           
         };                        
 	};
+	jsPlumb.registerConnectorType(StateMachine, "StateMachine");
 })();
 
 /*

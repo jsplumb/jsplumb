@@ -995,8 +995,8 @@
             //console.log("cleanup ", this.element)
             jsPlumb.CurrentLibrary.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
         },
-        setHover : function() {
-            this.endpoint.setHover.apply(this.endpoint, arguments);            
+        setHover : function(h) {
+            this.endpoint.setHover(h);            
         }
     });
 })();

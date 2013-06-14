@@ -207,12 +207,12 @@
 	 * Base class for SVG components.
 	 */	
 	var SvgComponent = function(params) {
-		var self = this,
+		var //self = this,
 			pointerEventsSpec = params.pointerEventsSpec || "all",
 			renderer = {};
 			
 		jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
-		self.canvas = null, self.path = null, self.svg = null; 
+		this.canvas = null, this.path = null, this.svg = null; 
 	
 		var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || ""),		
 			svgParams = {
@@ -222,24 +222,24 @@
 				"pointer-events":pointerEventsSpec,
 				"position":"absolute"
 			};				
-		self.svg = _node("svg", svgParams);
+		this.svg = _node("svg", svgParams);
 		if (params.useDivWrapper) {
-			self.canvas = document.createElement("div");
-			self.canvas.style["position"] = "absolute";
-			jsPlumb.sizeCanvas(self.canvas,0,0,1,1);
-			self.canvas.className = clazz;
+			this.canvas = document.createElement("div");
+			this.canvas.style["position"] = "absolute";
+			jsPlumb.sizeCanvas(this.canvas,0,0,1,1);
+			this.canvas.className = clazz;
 		}
 		else {
-			_attr(self.svg, { "class":clazz });
-			self.canvas = self.svg;
+			_attr(this.svg, { "class":clazz });
+			this.canvas = this.svg;
 		}
 			
-		params._jsPlumb.appendElement(self.canvas, params.originalArgs[0]["parent"]);
-		if (params.useDivWrapper) self.canvas.appendChild(self.svg);
+		params._jsPlumb.appendElement(this.canvas, params.originalArgs[0]["parent"]);
+		if (params.useDivWrapper) this.canvas.appendChild(this.svg);
 		
 		// TODO this displayElement stuff is common between all components, across all
 		// renderers.  would be best moved to jsPlumbUIComponent.
-		var displayElements = [ self.canvas ];
+		var displayElements = [ this.canvas ];
 		this.getDisplayElements = function() { 
 			return displayElements; 
 		};
@@ -251,7 +251,7 @@
 		this.paint = function(style, anchor, extents) {	   			
 			if (style != null) {
 				
-				var xy = [ self.x, self.y ], wh = [ self.w, self.h ], p;
+				var xy = [ this.x, this.y ], wh = [ this.w, this.h ], p;
 				if (extents != null) {
 					if (extents.xmin < 0) xy[0] += extents.xmin;
 					if (extents.ymin < 0) xy[1] += extents.ymin;
@@ -260,7 +260,7 @@
 				}
 
 				if (params.useDivWrapper) {					
-					jsPlumb.sizeCanvas(self.canvas, xy[0], xy[1], wh[0], wh[1]);
+					jsPlumb.sizeCanvas(this.canvas, xy[0], xy[1], wh[0], wh[1]);
 					xy[0] = 0, xy[1] = 0;
 					p = _pos([ 0, 0 ]);
 				}
@@ -269,7 +269,7 @@
                 
                 renderer.paint.apply(this, arguments);		    			    	
                 
-		    	_attr(self.svg, {
+		    	_attr(this.svg, {
 	    			"style":p,
 	    			"width": wh[0],
 	    			"height": wh[1]
@@ -281,6 +281,7 @@
 			renderer:renderer
 		};
 	};
+	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent);
 	
 	/*
 	 * Base class for SVG connectors.
@@ -351,7 +352,23 @@
 			if (self.path) self.reattachListenersForElement(self.path, self);
 		};
 	};
+	jsPlumbUtil.extend(jsPlumb.ConnectorRenderers.svg, SvgComponent);
+
+// extensions
+
+	/*jsPlumb.Connectors.svg.Bezier = function() {
+		jsPlumb.Connectors.Bezier.apply(this, arguments);
+		jsPlumb.ConnectorRenderers.svg.apply(this, arguments);		
+	};
+	jsPlumbUtil.extend(jsPlumb.Connectors.svg.Bezier, [ jsPlumb.Connectors.Bezier, jsPlumb.ConnectorRenderers.svg]);
+
+	jsPlumb.Connectors.svg.Straight = function() {
+		jsPlumb.Connectors.Straight.apply(this, arguments);
+		jsPlumb.ConnectorRenderers.svg.apply(this, arguments);		
+	};
+	jsPlumbUtil.extend(jsPlumb.Connectors.svg.Straight, [ jsPlumb.Connectors.Straight, jsPlumb.ConnectorRenderers.svg]);
 		
+*/
 // ******************************* svg segment renderer *****************************************************	
 		
 	jsPlumb.Segments.svg = {
@@ -417,6 +434,7 @@
 			if (self.node) self.reattachListenersForElement(self.node, self);
 		};
 	};
+	jsPlumbUtil.extend(SvgEndpoint, SvgComponent);
 	
 	/*
 	 * SVG Dot Endpoint
@@ -439,6 +457,7 @@
 			});
 		};
 	};
+	jsPlumbUtil.extend(jsPlumb.Endpoints.svg.Dot, [jsPlumb.Endpoints.Dot, SvgEndpoint]);
 	
 	/*
 	 * SVG Rectangle Endpoint 
@@ -459,6 +478,7 @@
 			});
 		};			
 	};		
+	jsPlumbUtil.extend(jsPlumb.Endpoints.svg.Rectangle, [jsPlumb.Endpoints.Rectangle, SvgEndpoint]);
 	
 	/*
 	 * SVG Image Endpoint is the default image endpoint.
@@ -523,18 +543,22 @@
     		if (path != null) jsPlumb.CurrentLibrary.removeElement(path);
     	};
     };
+    jsPlumbUtil.extend(AbstractSvgArrowOverlay, jsPlumb.jsPlumbUIComponent);
     
     jsPlumb.Overlays.svg.Arrow = function() {
     	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.svg.Arrow, AbstractSvgArrowOverlay);
     
     jsPlumb.Overlays.svg.PlainArrow = function() {
     	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.PlainArrow, arguments]);    	
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.svg.PlainArrow, AbstractSvgArrowOverlay);
     
     jsPlumb.Overlays.svg.Diamond = function() {
     	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);    	
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.svg.Diamond, AbstractSvgArrowOverlay);
 
     // a test
     jsPlumb.Overlays.svg.GuideLines = function() {
@@ -588,6 +612,6 @@
             return "M " + d1.x + "," + d1.y +
                    " L" + d2.x + "," + d2.y;
         };        
-
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.svg.GuideLines, jsPlumb.Overlays.GuideLines);
 })();

@@ -1,21 +1,22 @@
 ;(function() {
 
     var makeConnector = function(_jsPlumb, renderMode, connectorName, connectorArgs) {
-            var c = new Object();
-            if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[connectorName] == null)
+    //        var c = function() { };
+            if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
                     throw { msg:"jsPlumb: unknown connector type '" + connectorName + "'" };
 
-            jsPlumb.Connectors[connectorName].apply(c, [connectorArgs]);
-            jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);   
-            return c;
+            /*jsPlumb.Connectors[connectorName].apply(c, [connectorArgs]);
+            jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);  
+            jsPlumbUtil.extend(c, [jsPlumb.Connectors[connectorName], jsPlumb.ConnectorRenderers[renderMode]]) ;*/
+
+            return new jsPlumb.Connectors[renderMode][connectorName](connectorArgs);  
         },
         _makeAnchor = function(anchorParams, elementId, _jsPlumb) {
             return (anchorParams) ? _jsPlumb.makeAnchor(anchorParams, elementId, _jsPlumb) : null;
         };
     
     jsPlumb.Connection = function(params) {
-        var //self = this,             
-            _newConnection = params.newConnection,
+        var _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
 
             jpcl = jsPlumb.CurrentLibrary,
@@ -411,7 +412,7 @@
           this._jsPlumb.reattach = reattach === true;
         },
         setHover : function(state) {
-            this.connector.setHover.apply(this.connector, arguments);                       
+            this.connector.setHover(state);                       
         },
         getCost : function() { return this._jsPlumb.cost; },
         setCost : function(c) { this._jsPlumb.cost = c; },

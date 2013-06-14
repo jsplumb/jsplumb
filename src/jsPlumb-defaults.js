@@ -648,12 +648,13 @@
             maxGap:Math.max(sourceGap, targetGap)
 		};		
 	};
+    jsPlumbUtil.extend(jsPlumb.Connectors.AbstractConnector, AbstractComponent);
 	
     /**
      * Class: Connectors.Straight
      * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
      */
-    jsPlumb.Connectors.Straight = function() {
+    var Straight = function() {
     	this.type = "Straight";
 		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);		
 
@@ -663,6 +664,8 @@
             _super.addSegment("Straight", {x1:paintInfo.endStubX, y1:paintInfo.endStubY, x2:paintInfo.tx, y2:paintInfo.ty});                                    
         };                    
     };
+    jsPlumbUtil.extend(jsPlumb.Connectors.Straight, jsPlumb.Connectors.AbstractConnector);
+    jsPlumb.registerConnectorType(Straight, "Straight");
                     
     /**
      * Class:Connectors.Bezier
@@ -679,7 +682,7 @@
      * stub - optional value for a distance to travel from the connector's endpoint before beginning the Bezier curve. defaults to 0.
      * 
      */
-    jsPlumb.Connectors.Bezier = function(params) {
+    var Bezier = function(params) {
         params = params || {};
 
     	var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
@@ -737,7 +740,9 @@
 				cp1x:_CP[0], cp1y:_CP[1], cp2x:_CP2[0], cp2y:_CP2[1]
 			});                    
         };               
-    };        
+    };    
+    jsPlumbUtil.extend(Bezier, jsPlumb.Connectors.AbstractConnector);
+    jsPlumb.registerConnectorType(Bezier, "Bezier");
     
  // ********************************* END OF CONNECTOR TYPES *******************************************************************
     
@@ -1189,84 +1194,56 @@
     	jsPlumb.Overlays.Arrow.call(this, p);
     	this.type = "Diamond";
     };
-    
+
+    var _getDimensions = function(component) {
+        if (component._jsPlumb.cachedDimensions == null)
+            component._jsPlumb.cachedDimensions = component.getDimensions();
+        return component._jsPlumb.cachedDimensions;
+    };      
 	
 	// abstract superclass for overlays that add an element to the DOM.
     var AbstractDOMOverlay = function(params) {
 		jsPlumb.DOMElementComponent.apply(this, arguments);
     	AbstractOverlay.apply(this, arguments);
 		
-		var /*self = this,*/ initialised = false, jpcl = jsPlumb.CurrentLibrary;
-		params = params || {};
+		var jpcl = jsPlumb.CurrentLibrary;		
 		this.id = params.id;
         this._jsPlumb.div = null;		
+        this._jsPlumb.initialised = false;
+        this._jsPlumb.component = params.component;
 		
 		this.getElement = function() {
 			if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = params.create(params.component);
-                div = jpcl.getDOMElement(div);
+                var div = params.create(this._jsPlumb.component);
+                div = this._jsPlumb.div = jpcl.getDOMElement(div);
                 div.style["position"]   =   "absolute";     
                 var clazz = params["_jsPlumb"].overlayClass + " " + 
                     (this.cssClass ? this.cssClass : 
                     params.cssClass ? params.cssClass : "");        
                 div.className = clazz;
-                params["_jsPlumb"].appendElement(div, params.component.parent);
-                params["_jsPlumb"].getId(div);      
+                this._jsPlumb.instance.appendElement(div, this._jsPlumb.component.parent);
+                this._jsPlumb.instance.getId(div);      
                 this.attachListeners(div, this);
                 this.canvas = div;
 			}
-    		return div;
+    		return this._jsPlumb.div;
     	};
+		this._jsPlumb.cachedDimensions = null;
 		
-		//this.;
-		
-		var cachedDimensions = null,
-			_getDimensions = function(component) {
-				if (cachedDimensions == null)
-					cachedDimensions = this.getDimensions();
-				return cachedDimensions;
-			}.bind(this);
-		
-		/*
-		 * Function: clearCachedDimensions
-		 * Clears the cached dimensions for the label. As a performance enhancement, label dimensions are
-		 * cached from 1.3.12 onwards. The cache is cleared when you change the label text, of course, but
-		 * there are other reasons why the text dimensions might change - if you make a change through CSS, for
-		 * example, you might change the font size.  in that case you should explicitly call this method.
-		 */
-		this.clearCachedDimensions = function() {
-			cachedDimensions = null;
-		};
-		
-		this.computeMaxSize = function() {
-    		var td = _getDimensions();
-			return Math.max(td[0], td[1]);
-    	}; 
-		
-		//override setVisible
-    	var osv = self.setVisible;
-    	this.setVisible = function(state) {
-    		osv(state); // call superclass
-    		div.style.display = state ? "block" : "none";
-    	};
-		
-		this.cleanup = function() {
-    		if (this._jsPlumb.div != null) jpcl.removeElement(this._jsPlumb.div);
-    	};
 		
 		this.paint = function(params, containerExtents) {
-			if (!initialised) {
+			if (!this._jsPlumb.initialised) {
 				this.getElement();
 				params.component.appendDisplayElement(this._jsPlumb.div);
-				this.attachListeners(this._jsPlumb.div, params.component);
-				initialised = true;
+				this.attachListeners(this._jsPlumb.div, this._jsPlumb.component);
+				this._jsPlumb.initialised = true;
 			}
 			this._jsPlumb.div.style.left = (params.component.x + params.d.minx) + "px";
 			this._jsPlumb.div.style.top = (params.component.y + params.d.miny) + "px";			
     	};
 				
 		this.draw = function(component, currentConnectionPaintStyle) {
-	    	var td = _getDimensions();
+	    	var td = _getDimensions(this);
 	    	if (td != null && td.length == 2) {
 				var cxy = {x:0,y:0};
                 if (component.pointOnPath) {
@@ -1300,7 +1277,7 @@
 	    
 	    this.reattachListeners = function(connector) {
 	    	if (this._jsPlumb.div) {
-	    		self.reattachListenersForElement(this._jsPlumb.div, this, connector);
+	    		this.reattachListenersForElement(this._jsPlumb.div, this, connector);
 	    	}
 	    };
 		
@@ -1308,6 +1285,26 @@
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
         getDimensions : function() {
             return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(this.getElement()));
+        },
+        setVisible : function(state) {
+            this._jsPlumb.div.style.display = state ? "block" : "none";
+        },
+        /*
+         * Function: clearCachedDimensions
+         * Clears the cached dimensions for the label. As a performance enhancement, label dimensions are
+         * cached from 1.3.12 onwards. The cache is cleared when you change the label text, of course, but
+         * there are other reasons why the text dimensions might change - if you make a change through CSS, for
+         * example, you might change the font size.  in that case you should explicitly call this method.
+         */
+        clearCachedDimensions : function() {
+            this._jsPlumb.cachedDimensions = null;
+        },
+        cleanup : function() {
+            if (this._jsPlumb.div != null) jsPlumb.CurrentLibrary.removeElement(this._jsPlumb.div);
+        },
+        computeMaxSize : function() {
+            var td = _getDimensions(this);
+            return Math.max(td[0], td[1]);
         }
     });
 	

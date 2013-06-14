@@ -226,26 +226,17 @@
 		     */
 		    //this.;
 
-		    /**
-		    * Gets the component's hover paint style.
-		    *
-		    * Returns:
-		    * the component's hover paint style. may be null.
-		    */
-		    //this.;
-		    
-		    /*
-		     * sets/unsets the hover state of this element.
-		     * 
-		     * Parameters:
-		     * 	hover - hover state boolean
-		     * 	ignoreAttachedElements - if true, does not notify any attached elements of the change in hover state.  used mostly to avoid infinite loops.
-		     */
-		    //this.;		   		   
-            
+		    var boundListeners = [];
+
+		    var bindAListener = function(obj, type, fn) {
+		    	boundListeners.push([obj, type, fn]);
+		    	obj.bind(type, fn);
+		    };
+
             this.bindListeners = function(obj, _self, _hoverFunction) {
                 obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
-                obj.bind("dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
+             //   obj.bind("dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
+             bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
                 obj.bind("contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
                 obj.bind("mouseenter", function(ep, e) {
                     if (!_self.isHover()) {
@@ -261,6 +252,13 @@
                 });	  
                 obj.bind("mousedown", function(ep, e) { _self.fire("mousedown", _self, e); });
                 obj.bind("mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
+            };
+
+            this.unbindListeners = function() {
+            	for (var i = 0; i < boundListeners.length; i++) {
+            		var o = boundListeners[i];
+            		o[0].unbind(o[1], o[2]);
+            	}
             };
 		
 			var 
@@ -341,13 +339,13 @@
 			},
 			removeType : function(typeId, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false, _one = function(tt) {
-					var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, tt);
-					if (idx != -1) {
-						this._jsPlumb.types.splice(idx, 1);
-						return true;
-					}
-					return false;
-				};
+						var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, tt);
+						if (idx != -1) {
+							this._jsPlumb.types.splice(idx, 1);
+							return true;
+						}
+						return false;
+					}.bind(this);
 				
 				if (t != null) {
 					for (var i = 0,j = t.length; i < j; i++) {
@@ -397,6 +395,7 @@
 		    },
 			cleanup:function() {
 				console.log("jsPlumb.jsPlumbUIComponent cleanup");
+				this.unbindListeners();
 			},
 			setHover : function(hover, ignoreAttachedElements, timestamp) {
 				var jpcl = jsPlumb.CurrentLibrary;
@@ -603,7 +602,7 @@
 			},
 			cleanup:function() {
 				console.log("OverlayCapableJsPlumbUIComponent cleanup");
-				this._jsPlumb.overlays.splice(0);
+				//this._jsPlumb.overlays.splice(0);
 			}
 		});		
 		
@@ -1936,19 +1935,45 @@
 		
 		// exposed for other objects to use to get a unique id.
 		this.idstamp = _idstamp;
+
+		this.connectorsInitialized = false;
+		var connectorTypes = [], rendererTypes = ["canvas", "svg", "vml"];
+		this.registerConnectorType = function(connector, name) {
+			connectorTypes.push([connector, name]);
+		}
 		
 		/**
 		 * callback from the current library to tell us to prepare ourselves (attach
 		 * mouse listeners etc; can't do that until the library has provided a bind method)		 
 		 */
 		this.init = function() {
+			var _oneType = function(renderer, name, fn) {
+				jsPlumb.Connectors[renderer][name] = function() {
+					fn.apply(this, arguments);
+					jsPlumb.ConnectorRenderers[renderer].apply(this, arguments);		
+				};
+				jsPlumbUtil.extend(jsPlumb.Connectors[renderer][name], [ fn, jsPlumb.ConnectorRenderers[renderer]]);
+			}
+
+			if (!jsPlumb.connectorsInitialized) {
+				console.dir(connectorTypes)	
+				for (var i = 0; i < connectorTypes.length; i++) {
+					for (var j = 0; j < rendererTypes.length; j++) {
+						_oneType(rendererTypes[j], connectorTypes[i][1], connectorTypes[i][0]);												
+					}
+
+				}
+				jsPlumb.connectorsInitialized = true;
+			}
+			
+
 			if (!initialized) {                
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
 				initialized = true;
 				_currentInstance.fire("ready", _currentInstance);
 			}
-		};
+		}.bind(this);		
 		
 		this.log = log;
 		this.jsPlumbUIComponent = jsPlumbUIComponent;		
