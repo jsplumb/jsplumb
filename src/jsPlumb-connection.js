@@ -174,7 +174,7 @@
         _jsPlumb.updateOffset( { elId : this.sourceId, timestamp:_suspendedAt });
         _jsPlumb.updateOffset( { elId : this.targetId, timestamp:_suspendedAt });
 
-/*
+//*
         if(!_jsPlumb.isSuspendDrawing()) {                    
             // paint the endpoints
             var myInfo = _jsPlumb.getCachedData(this.sourceId),
@@ -200,7 +200,7 @@
             });
             this.endpoints[1].paint({ anchorLoc : anchorLoc, timestamp:initialTimestamp });
         }
-        */
+        //*/
                                 
 // END INITIALISATION CODE			
         
@@ -399,6 +399,13 @@
             this.setHover(false);
             this._jsPlumb.instance.setHoverSuspended(false);
         },
+        cleanup:function() {
+            this._jsPlumb.instance.remove(this.connector.getDisplayElements());
+            this.connector.cleanup();
+            //this.connector.cleanupListeners();
+            this.connector.destroy();
+            this.connector = null;
+        },
         isDetachable : function() {
             return this._jsPlumb.detachable === true;
         },
@@ -524,12 +531,8 @@
                         clearEdits:params.clearEdits === true
                     });                                                                                        
 
-                    var overlayExtents = {
-                        minX:Infinity,
-                        minY:Infinity,
-                        maxX:-Infinity,
-                        maxY:-Infinity
-                    };                    
+                    var overlayExtents = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
+                                        
                     // compute overlays. we do this first so we can get their placements, and adjust the
                     // container if needs be (if an overlay would be clipped)
                     for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {

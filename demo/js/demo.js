@@ -67,7 +67,7 @@
 				]
 			});            
 				
-				        
+				    /*    
 	        var w23Stroke = "rgb(189,11,11)"; 
 	        var connection3 = jsPlumb.connect({
 				source:"window2", 
@@ -209,6 +209,8 @@
 			jsPlumb.draggable(jsPlumb.getSelector(".window"), { containment:".demo"});    
 
 			//jsPlumb.selectEndpoints().get(0).foo();        
+
+	*/
 
 		}
 	};	

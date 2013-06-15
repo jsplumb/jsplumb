@@ -116,6 +116,14 @@
 			el = _getElementObject(el);
 			el.bind(event, callback);
 		},
+
+		destroyDraggable : function(el) {
+			el.draggable("destroy");
+		},
+
+		destroyDroppable : function(el) {
+			el.droppable("destroy");
+		},
 		
 		/**
          * mapping of drag events for jQuery

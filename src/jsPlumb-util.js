@@ -284,85 +284,6 @@
             l.push(value);
             return l;
         },
-        /**
-         * EventGenerator
-         * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
-         */
-        EventGenerator : function() {
-            var _listeners = {}, /*self = this,*/ eventsSuspended = false;
-            
-            // this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
-            // jsPlumb, but it seems feasible that people might want to manipulate this list.  the thinking is that we don't want event
-            // listeners to bring down jsPlumb - or do we.  i can't make up my mind about this, but i know i want to hear about it if the "ready"
-            // event fails, because then my page has most likely not initialised.  so i have this halfway-house solution.  it will be interesting
-            // to hear what other people think.
-            var eventsToDieOn = [ "ready" ];
-                                    
-            /*
-             * Binds a listener to an event.  
-             * 
-             * Parameters:
-             * 	event		-	name of the event to bind to.
-             * 	listener	-	function to execute.
-             */
-            this.bind = function(event, listener) {
-                jsPlumbUtil.addToList(_listeners, event, listener);		
-                return this;		
-            };
-            /*
-             * Fires an update for the given event.
-             * 
-             * Parameters:
-             * 	event				-	event to fire
-             * 	value				-	value to pass to the event listener(s).
-             *  originalEvent	 	- 	the original event from the browser
-             */			
-            this.fire = function(event, value, originalEvent) {
-                if (!eventsSuspended && _listeners[event]) {
-                    for ( var i = 0; i < _listeners[event].length; i++) {
-                        // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
-                        // method will have the whole call stack available in the debugger.
-                        if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event}) != -1)
-                            _listeners[event][i](value, originalEvent);
-                        else {
-                            // for events we don't want to die on, catch and log.
-                            try {
-                                _listeners[event][i](value, originalEvent);
-                            } catch (e) {
-                                jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
-                            }
-                        }
-                    }
-                }
-                return this;
-            };
-            /*
-             * Clears either all listeners, or listeners for some specific event.
-             * 
-             * Parameters:
-             * 	event	-	optional. constrains the clear to just listeners for this event.
-             */
-            this.unbind = function(event) {
-                if (event)
-                    delete _listeners[event];
-                else {
-                    _listeners = {};
-                }
-                return this;
-            };
-            
-            this.getListener = function(forEvent) {
-                return _listeners[forEvent];
-            };		
-            
-            this.setSuspendEvents = function(val) {
-                eventsSuspended = val;    
-            };
-            
-            this.isSuspendEvents = function() {
-                return eventsSuspended;
-            };
-        },
         //
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
         // class members, any of which may be null.
@@ -432,6 +353,101 @@
 			for ( var i = 0; i < elements.length; i++)
 				jsPlumbUtil.removeElement(elements[i]);
 		}
+    };
+
+    /**
+     * EventGenerator
+     * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
+     */
+    jsPlumbUtil.EventGenerator = function() {
+        var _listeners = {}, eventsSuspended = false;
+        
+        // this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
+        // jsPlumb, but it seems feasible that people might want to manipulate this list.  the thinking is that we don't want event
+        // listeners to bring down jsPlumb - or do we.  i can't make up my mind about this, but i know i want to hear about it if the "ready"
+        // event fails, because then my page has most likely not initialised.  so i have this halfway-house solution.  it will be interesting
+        // to hear what other people think.
+        var eventsToDieOn = [ "ready" ];
+                                
+        /*
+         * Binds a listener to an event.  
+         * 
+         * Parameters:
+         *  event       -   name of the event to bind to.
+         *  listener    -   function to execute.
+         */
+        this.bind = function(event, listener) {
+            jsPlumbUtil.addToList(_listeners, event, listener);     
+            return this;        
+        };
+        /*
+         * Fires an update for the given event.
+         * 
+         * Parameters:
+         *  event               -   event to fire
+         *  value               -   value to pass to the event listener(s).
+         *  originalEvent       -   the original event from the browser
+         */         
+        this.fire = function(event, value, originalEvent) {
+            if (!eventsSuspended && _listeners[event]) {
+                for ( var i = 0; i < _listeners[event].length; i++) {
+                    // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
+                    // method will have the whole call stack available in the debugger.
+                    if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event}) != -1)
+                        _listeners[event][i](value, originalEvent);
+                    else {
+                        // for events we don't want to die on, catch and log.
+                        try {
+                            _listeners[event][i](value, originalEvent);
+                        } catch (e) {
+                            jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
+                        }
+                    }
+                }
+            }
+            return this;
+        };
+        /*
+         * Clears either all listeners, or listeners for some specific event.
+         * 
+         * Parameters:
+         *  event   -   optional. constrains the clear to just listeners for this event.
+         */
+        this.unbind = function(event) {
+            if (event)
+                delete _listeners[event];
+            else {
+                _listeners = {};
+            }
+            return this;
+        };
+        
+        this.getListener = function(forEvent) {
+            return _listeners[forEvent];
+        };      
+        
+        this.setSuspendEvents = function(val) {
+            eventsSuspended = val;    
+        };
+        
+        this.isSuspendEvents = function() {
+            return eventsSuspended;
+        };
+
+        this.cleanupListeners = function() {
+            for (var i in _listeners) {
+                _listeners[i].splice(0);
+                delete _listeners[i];
+            }
+            _listeners = null;
+            eventsSuspended = null;            
+        };
+    };
+
+    jsPlumbUtil.EventGenerator.prototype = {
+        cleanup:function() {
+            this.cleanupListeners();
+        }
     };
 
     // thanks MDC

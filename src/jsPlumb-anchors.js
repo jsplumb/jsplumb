@@ -226,7 +226,7 @@
                 targetId = connInfo.targetId,
 				ep = connection.endpoints,
 				removeConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
-					if (otherAnchor.constructor == jsPlumb.FloatingAnchor) {
+					if (otherAnchor != null && otherAnchor.constructor == jsPlumb.FloatingAnchor) {
 						// no-op
 					}
 					else {
@@ -539,48 +539,52 @@
      * creation of Anchors without user intervention.
      */
     jsPlumb.Anchor = function(params) {
-        var self = this;
+       // var self = this;
         this.x = params.x || 0;
         this.y = params.y || 0;
-        this.elementId = params.elementId;        
+        this.elementId = params.elementId;  
+        this.cssClass = params.cssClass || "";      
+        this.userDefinedLocation = null;
+        this.orientation = params.orientation || [ 0, 0 ];
 
         jsPlumbUtil.EventGenerator.apply(this);
         
-        var orientation = params.orientation || [ 0, 0 ],
-            jsPlumbInstance = params.jsPlumbInstance,
-            lastTimestamp = null, lastReturnValue = null, userDefinedLocation = null,
-            cssClass = params.cssClass || "";
-
-        this.getCssClass = function() { return cssClass; };
+        var jsPlumbInstance = params.jsPlumbInstance;//,
+            //lastTimestamp = null;//, lastReturnValue = null;
         
+        this.lastReturnValue = null;
         this.offsets = params.offsets || [ 0, 0 ];
-        self.timestamp = null;        
+        this.timestamp = null;        
         this.compute = function(params) {
             
-            var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp;                    
+            var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp; 
+
             if(params.clearUserDefinedLocation)
-                userDefinedLocation = null;
+                this.userDefinedLocation = null;
             
             if (timestamp && timestamp === self.timestamp)
-                return lastReturnValue;        
+                return this.lastReturnValue;        
             
-            if (userDefinedLocation != null) {
-                lastReturnValue = userDefinedLocation;
+            if (this.userDefinedLocation != null) {
+                this.lastReturnValue = this.userDefinedLocation;
             }
             else {                
                 
-                lastReturnValue = [ xy[0] + (self.x * wh[0]) + self.offsets[0], xy[1] + (self.y * wh[1]) + self.offsets[1] ];                    
+                this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1] ];                    
                 // adjust loc if there is an offsetParent
-                lastReturnValue = jsPlumbInstance.adjustForParentOffsetAndScroll(lastReturnValue, element.canvas);
+                this.lastReturnValue = jsPlumbInstance.adjustForParentOffsetAndScroll(this.lastReturnValue, element.canvas);
             }
             
-            self.timestamp = timestamp;
-            return lastReturnValue;
+            this.timestamp = timestamp;
+            return this.lastReturnValue;
         };
 
-        this.getOrientation = function(_endpoint) { return orientation; };
-
-        this.equals = function(anchor) {
+        this.getCurrentLocation = function(params) { 
+            return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp != params.timestamp)) ? this.compute(params) : this.lastReturnValue; 
+        };
+    };
+    jsPlumbUtil.extend(jsPlumb.Anchor, jsPlumbUtil.EventGenerator, {
+        equals : function(anchor) {
             if (!anchor) return false;
             var ao = anchor.getOrientation();
             var o = this.getOrientation();
@@ -588,23 +592,19 @@
                     && this.offsets[0] == anchor.offsets[0]
                     && this.offsets[1] == anchor.offsets[1]
                     && o[0] == ao[0] && o[1] == ao[1];
-        };
-
-        this.getCurrentLocation = function(params) { 
-            return (lastReturnValue == null || (params.timestamp != null && self.timestamp != params.timestamp)) ? self.compute(params) : lastReturnValue; 
-        };
-        
-        this.getUserDefinedLocation = function() { 
-            return userDefinedLocation;
-        };
-        
-        this.setUserDefinedLocation = function(l) {
-            userDefinedLocation = l;
-        };
-        this.clearUserDefinedLocation = function() {
-            userDefinedLocation = null;
-        };
-    };
+        },
+        getUserDefinedLocation : function() { 
+            return this.userDefinedLocation;
+        },        
+        setUserDefinedLocation : function(l) {
+            this.userDefinedLocation = l;
+        },
+        clearUserDefinedLocation : function() {
+            this.userDefinedLocation = null;
+        },
+        getOrientation : function(_endpoint) { return this.orientation; },
+        getCssClass : function() { return this.cssClass; }
+    });
 
     /**
      * An Anchor that floats. its orientation is computed dynamically from
@@ -686,6 +686,11 @@
 
         this.getCurrentLocation = function(params) { return _lastResult == null ? self.compute(params) : _lastResult; };
     };
+    jsPlumbUtil.extend(jsPlumb.FloatingAnchor, jsPlumb.Anchor);
+
+    var _convertAnchor = function(anchor, jsPlumbInstance, elementId) { 
+        return anchor.constructor == jsPlumb.Anchor ? anchor: jsPlumbInstance.makeAnchor(anchor, elementId, jsPlumbInstance); 
+    };
 
     /* 
      * A DynamicAnchor is an Anchor that contains a list of other Anchors, which it cycles
@@ -701,18 +706,19 @@
         
         this.isSelective = true;
         this.isDynamic = true;			
-        var _anchors = [], self = this,            
-            _convert = function(anchor) { 
-                return anchor.constructor == jsPlumb.Anchor ? anchor: params.jsPlumbInstance.makeAnchor(anchor, params.elementId, params.jsPlumbInstance); 
-            };
+        this.anchors = [];
+        this.elementId = params.elementId;
+        this.jsPlumbInstance = params.jsPlumbInstance;
+
+        ;
 
         for (var i = 0; i < params.anchors.length; i++) 
-            _anchors[i] = _convert(params.anchors[i]);			
-        this.addAnchor = function(anchor) { _anchors.push(_convert(anchor)); };
-        this.getAnchors = function() { return _anchors; };
+            this.anchors[i] = _convertAnchor(params.anchors[i], this.jsPlumbInstance, this.elementId);			
+        this.addAnchor = function(anchor) { this.anchors.push(_convertAnchor(anchor, this.jsPlumbInstance, this.elementId)); };
+        this.getAnchors = function() { return this.anchors; };
         this.locked = false;
-        var _curAnchor = _anchors.length > 0 ? _anchors[0] : null,
-            _curIndex = _anchors.length > 0 ? 0 : -1,
+        var _curAnchor = this.anchors.length > 0 ? this.anchors[0] : null,
+            _curIndex = this.anchors.length > 0 ? 0 : -1,
             _lastAnchor = _curAnchor,
             self = this,
         
@@ -749,7 +755,7 @@
             if(params.clearUserDefinedLocation)
                 userDefinedLocation = null;
 
-            self.timestamp = timestamp;            
+            this.timestamp = timestamp;            
             
             var udl = self.getUserDefinedLocation();
             if (udl != null) {
@@ -759,17 +765,17 @@
             // if anchor is locked or an opposite element was not given, we
             // maintain our state. anchor will be locked
             // if it is the source of a drag and drop.
-            if (self.locked || txy == null || twh == null)
+            if (this.locked || txy == null || twh == null)
                 return _curAnchor.compute(params);				
             else
                 params.timestamp = null; // otherwise clear this, i think. we want the anchor to compute.
             
-            _curAnchor = _anchorSelector(xy, wh, txy, twh, _anchors);
-            self.x = _curAnchor.x;
-            self.y = _curAnchor.y;        
+            _curAnchor = _anchorSelector(xy, wh, txy, twh, this.anchors);
+            this.x = _curAnchor.x;
+            this.y = _curAnchor.y;        
 
             if (_curAnchor != _lastAnchor)
-                self.fire("anchorChanged", _curAnchor);
+                this.fire("anchorChanged", _curAnchor);
 
             _lastAnchor = _curAnchor;
             
@@ -777,7 +783,7 @@
         };
 
         this.getCurrentLocation = function(params) {
-            return self.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation(params) : null);
+            return this.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation(params) : null);
         };
 
         this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };
@@ -785,7 +791,8 @@
         this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
 
         this.getCssClass = function() { return (_curAnchor && _curAnchor.getCssClass()) || ""; };
-    };            
+    };    
+    jsPlumbUtil.extend(jsPlumb.DynamicAnchor, jsPlumb.Anchor);        
     
 // -------- basic anchors ------------------    
     var _curryAnchor = function(x, y, ox, oy, type, fnInit) {

@@ -139,7 +139,7 @@
 				types:[]
 			};
 
-			self.getId = function() { return id; };	
+			this.getId = function() { return id; };	
 			
 			// all components can generate events
 			//jsPlumbUtil.EventGenerator.apply(this);
@@ -159,6 +159,7 @@
 				this.constructor.apply(o, a);
 				return o;
 			}.bind(this);				
+
 						
 			// user can supply a beforeDetach callback, which will be executed before a detach
 			// is performed; returning false prevents the detach.			
@@ -234,24 +235,23 @@
 		    };
 
             this.bindListeners = function(obj, _self, _hoverFunction) {
-                obj.bind("click", function(ep, e) { _self.fire("click", _self, e); });
-             //   obj.bind("dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
-             bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
-                obj.bind("contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
-                obj.bind("mouseenter", function(ep, e) {
+                bindAListener(obj, "click", function(ep, e) { _self.fire("click", _self, e); });             
+             	bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
+                bindAListener(obj, "contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
+                bindAListener(obj, "mouseenter", function(ep, e) {
                     if (!_self.isHover()) {
                         _hoverFunction(true);
                         _self.fire("mouseenter", _self, e);
                     }
                 });
-                obj.bind("mouseexit", function(ep, e) {
+                bindAListener(obj, "mouseexit", function(ep, e) {
                     if (_self.isHover()) {
                         _hoverFunction(false);
                         _self.fire("mouseexit", _self, e);
                     }
                 });	  
-                obj.bind("mousedown", function(ep, e) { _self.fire("mousedown", _self, e); });
-                obj.bind("mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
+                bindAListener(obj, "mousedown", function(ep, e) { _self.fire("mousedown", _self, e); });
+                bindAListener(obj, "mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
             };
 
             this.unbindListeners = function() {
@@ -259,6 +259,9 @@
             		var o = boundListeners[i];
             		o[0].unbind(o[1], o[2]);
             	}
+            	//for (var i in events)
+
+            	boundListeners = null;
             };
 		
 			var 
@@ -393,9 +396,15 @@
 		    getHoverPaintStyle : function() {
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
-			cleanup:function() {
-				console.log("jsPlumb.jsPlumbUIComponent cleanup");
+			cleanup:function() {		
+				//console.log("jsPlumbUIComponent cleanup", this.id);	
 				this.unbindListeners();
+			},
+			destroy:function() {
+				//console.log("destroy", this.id);
+				this.cleanupListeners();
+				this.clone = null;				
+				this._jsPlumb = null;
 			},
 			setHover : function(hover, ignoreAttachedElements, timestamp) {
 				var jpcl = jsPlumb.CurrentLibrary;
@@ -601,8 +610,12 @@
 					this.repaint();
 			},
 			cleanup:function() {
-				console.log("OverlayCapableJsPlumbUIComponent cleanup");
-				//this._jsPlumb.overlays.splice(0);
+				//console.log("OverlayCapableJsPlumbUIComponent cleanup");
+				for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+					this._jsPlumb.overlays[i].cleanup();
+					this._jsPlumb.overlays[i].destroy();
+				}
+				this._jsPlumb.overlays.splice(0);
 			}
 		});		
 		
@@ -1494,9 +1507,7 @@
 				if (endpoint) {					
 					var uuid = endpoint.getUuid();
 					if (uuid) endpointsByUUID[uuid] = null;				
-					endpoint.detachAll().cleanup();
-					if (endpoint.endpoint.cleanup) endpoint.endpoint.cleanup();
-					jsPlumbUtil.removeElements(endpoint.endpoint.getDisplayElements());
+					endpoint.detachAll().cleanup();														
 					_currentInstance.anchorManager.deleteEndpoint(endpoint);
 					for (var e in endpointsByElement) {
 						var endpoints = endpointsByElement[e];
@@ -1513,6 +1524,8 @@
 					}				
 					if (!jsPlumbAdapter.headless)
 						_currentInstance.dragManager.endpointDeleted(endpoint);								
+
+					endpoint.destroy();
 				}
 				return _currentInstance;									
 			}, doNotRepaintAfterwards);

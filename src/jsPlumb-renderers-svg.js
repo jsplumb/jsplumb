@@ -207,9 +207,7 @@
 	 * Base class for SVG components.
 	 */	
 	var SvgComponent = function(params) {
-		var //self = this,
-			pointerEventsSpec = params.pointerEventsSpec || "all",
-			renderer = {};
+		var pointerEventsSpec = params.pointerEventsSpec || "all", renderer = {};
 			
 		jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
 		this.canvas = null, this.path = null, this.svg = null; 
@@ -281,7 +279,13 @@
 			renderer:renderer
 		};
 	};
-	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent);
+	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
+		cleanup:function() {
+			this.svg = null;
+			this.canvas = null;
+			this.path = null;			
+		}
+	});
 	
 	/*
 	 * Base class for SVG connectors.
@@ -348,27 +352,12 @@
 		};
 		
 		this.reattachListeners = function() {
-			if (self.bgPath) self.reattachListenersForElement(self.bgPath, self);
-			if (self.path) self.reattachListenersForElement(self.path, self);
+			if (this.bgPath) this.reattachListenersForElement(this.bgPath, this);
+			if (this.path) this.reattachListenersForElement(this.path, this);
 		};
 	};
 	jsPlumbUtil.extend(jsPlumb.ConnectorRenderers.svg, SvgComponent);
 
-// extensions
-
-	/*jsPlumb.Connectors.svg.Bezier = function() {
-		jsPlumb.Connectors.Bezier.apply(this, arguments);
-		jsPlumb.ConnectorRenderers.svg.apply(this, arguments);		
-	};
-	jsPlumbUtil.extend(jsPlumb.Connectors.svg.Bezier, [ jsPlumb.Connectors.Bezier, jsPlumb.ConnectorRenderers.svg]);
-
-	jsPlumb.Connectors.svg.Straight = function() {
-		jsPlumb.Connectors.Straight.apply(this, arguments);
-		jsPlumb.ConnectorRenderers.svg.apply(this, arguments);		
-	};
-	jsPlumbUtil.extend(jsPlumb.Connectors.svg.Straight, [ jsPlumb.Connectors.Straight, jsPlumb.ConnectorRenderers.svg]);
-		
-*/
 // ******************************* svg segment renderer *****************************************************	
 		
 	jsPlumb.Segments.svg = {
@@ -402,7 +391,7 @@
 	 * Base class for SVG endpoints.
 	 */
 	var SvgEndpoint = window.SvgEndpoint = function(params) {
-		var self = this,
+		var //self = this,
 			_super = SvgComponent.apply(this, [ {
 				cssClass:params["_jsPlumb"].endpointClass, 
 				originalArgs:arguments, 
@@ -418,20 +407,20 @@
 				s.strokeStyle = jsPlumbUtil.convertStyle(s.outlineColor, true);
 			}
 			
-			if (self.node == null) {
-				self.node = self.makeNode(s);
-				self.svg.appendChild(self.node);
-				self.attachListeners(self.node, self);
+			if (this.node == null) {
+				this.node = this.makeNode(s);
+				this.svg.appendChild(this.node);
+				this.attachListeners(this.node, this);
 			}
-			else if (self.updateNode != null) {
-				self.updateNode(self.node);
+			else if (this.updateNode != null) {
+				this.updateNode(this.node);
 			}
-			_applyStyles(self.svg, self.node, s, [ self.x, self.y, self.w, self.h ], self);
-			_pos(self.node, [ self.x, self.y ]);
-		};
+			_applyStyles(this.svg, this.node, s, [ this.x, this.y, this.w, this.h ], this);
+			_pos(this.node, [ this.x, this.y ]);
+		}.bind(this);
 		
 		this.reattachListeners = function() {
-			if (self.node) self.reattachListenersForElement(self.node, self);
+			if (this.node) this.reattachListenersForElement(this.node, this);
 		};
 	};
 	jsPlumbUtil.extend(SvgEndpoint, SvgComponent);
@@ -501,18 +490,19 @@
     	superclass.apply(this, originalArgs);
     	jsPlumb.jsPlumbUIComponent.apply(this, originalArgs);
         this.isAppendedAtTopLevel = false;
-    	var self = this, path = null;
+    	var self = this;
+    	this.path = null;
     	this.paint = function(params, containerExtents) {
     		// only draws on connections, not endpoints.
     		if (params.component.svg && containerExtents) {
-	    		if (path == null) {
-	    			path = _node("path", {
+	    		if (this.path == null) {
+	    			this.path = _node("path", {
 	    				"pointer-events":"all"	
 	    			});
-	    			params.component.svg.appendChild(path);
+	    			params.component.svg.appendChild(this.path);
 	    			
-	    			self.attachListeners(path, params.component);
-	    			self.attachListeners(path, self);
+	    			this.attachListeners(this.path, params.component);
+	    			this.attachListeners(this.path, this);
 	    		}
 	    		var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "",
 	    			offset = [0,0];
@@ -520,7 +510,7 @@
 	    		if (containerExtents.xmin < 0) offset[0] = -containerExtents.xmin;
 	    		if (containerExtents.ymin < 0) offset[1] = -containerExtents.ymin;
 	    		
-	    		_attr(path, { 
+	    		_attr(this.path, { 
 	    			"d"			:	makePath(params.d),
 	    			"class" 	:	clazz,
 	    			stroke 		: 	params.strokeStyle ? params.strokeStyle : null,
@@ -537,28 +527,29 @@
     				" L" + d.hxy.x + "," + d.hxy.y;
     	};
     	this.reattachListeners = function() {
-			if (path) self.reattachListenersForElement(path, self);
-		};
-		this.cleanup = function() {
-    		if (path != null) jsPlumb.CurrentLibrary.removeElement(path);
-    	};
+			if (this.path) this.reattachListenersForElement(this.path, this);
+		};		
     };
-    jsPlumbUtil.extend(AbstractSvgArrowOverlay, jsPlumb.jsPlumbUIComponent);
+    jsPlumbUtil.extend(AbstractSvgArrowOverlay, jsPlumb.jsPlumbUIComponent, {
+    	cleanup : function() {
+    		if (this.path != null) jsPlumb.CurrentLibrary.removeElement(this.path);
+    	}
+    });
     
     jsPlumb.Overlays.svg.Arrow = function() {
     	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.svg.Arrow, AbstractSvgArrowOverlay);
+    jsPlumbUtil.extend(jsPlumb.Overlays.svg.Arrow, [ jsPlumb.Overlays.Arrow, AbstractSvgArrowOverlay ]);
     
     jsPlumb.Overlays.svg.PlainArrow = function() {
     	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.PlainArrow, arguments]);    	
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.svg.PlainArrow, AbstractSvgArrowOverlay);
+    jsPlumbUtil.extend(jsPlumb.Overlays.svg.PlainArrow, [ jsPlumb.Overlays.PlainArrow, AbstractSvgArrowOverlay ]);
     
     jsPlumb.Overlays.svg.Diamond = function() {
     	AbstractSvgArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);    	
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.svg.Diamond, AbstractSvgArrowOverlay);
+    jsPlumbUtil.extend(jsPlumb.Overlays.svg.Diamond, [ jsPlumb.Overlays.Diamond, AbstractSvgArrowOverlay ]);
 
     // a test
     jsPlumb.Overlays.svg.GuideLines = function() {

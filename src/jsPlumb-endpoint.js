@@ -46,6 +46,22 @@
     var typeParameters = [ "connectorStyle", "connectorHoverStyle", "connectorOverlays",
                 "connector", "connectionType", "connectorClass", "connectorHoverClass" ];
 
+    // a helper function that tries to find a connection to the given element, and returns it if so. if elementWithPrecedence is null,
+    // or no connection to it is found, we return the first connection in our list.
+    var findConnectionToUseForDynamicAnchor = function(ep, elementWithPrecedence) {
+        var idx = 0;
+        if (elementWithPrecedence != null) {
+            for (var i = 0; i < ep.connections.length; i++) {
+                if (ep.connections[i].sourceId == elementWithPrecedence || ep.connections[i].targetId == elementWithPrecedence) {
+                    idx = i;
+                    break;
+                }
+            }
+        }
+        
+        return ep.connections[idx];
+    };
+
     jsPlumb.Endpoint = function(params) {
         var self = this, 
             _jsPlumb = params["_jsPlumb"],
@@ -60,9 +76,9 @@
             _fireDetachEvent = params.fireDetachEvent,
             floatingConnections = params.floatingConnections;
         
-        self.idPrefix = "_jsplumb_e_";			
-        self.defaultLabelLocation = [ 0.5, 0.5 ];
-        self.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
+        this.idPrefix = "_jsplumb_e_";			
+        this.defaultLabelLocation = [ 0.5, 0.5 ];
+        this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
         this.parent = params.parent;
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);
         params = params || {};
@@ -97,20 +113,20 @@
         
 
         var _element = params.source,  _uuid = params.uuid, floatingEndpoint = null,  inPlaceCopy = null;
-        if (_uuid) params.endpointsByUUID[_uuid] = self;
+        if (_uuid) params.endpointsByUUID[_uuid] = this;
         var _elementId = _att(_element, "id");
         this.elementId = _elementId;
         this.element = _element;
         
-        self.setElementId = function(_elId) {
+        this.setElementId = function(_elId) {
             _elementId = _elId;
-            self.elementId = _elId;
-            self.anchor.elementId = _elId
+            this.elementId = _elId;
+            this.anchor.elementId = _elId
         };
         
-        self.setReferenceElement = function(_el) {
+        this.setReferenceElement = function(_el) {
             _element = _el;
-            self.element = _el;
+            this.element = _el;
         };
         
         var _connectionCost = params.connectionCost;
@@ -122,46 +138,35 @@
         var _connectionsDirected = params.connectionsDirected;
         this.areConnectionsDirected = function() { return _connectionsDirected; };
         this.setConnectionsDirected = function(b) { _connectionsDirected = b; };     
-
-/*
-        var foo = function() {
-            alert(this.id);
-        }.bind(this);
-        this.foo = function() {
-            foo();
-        };
-*/
-
-        //var _currentAnchorClass = "",
+        
         this._jsPlumb.currentAnchorClass = "";
+        this._jsPlumb.events = {};
             
-          var  _updateAnchorClass = function() {
-                jpcl.removeClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-                this.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-                this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
-                this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-                jpcl.addClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-            }.bind(this);
+        var  _updateAnchorClass = function() {
+            jpcl.removeClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            this.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
+            this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            jpcl.addClass(_element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+        }.bind(this);
 
         this.setAnchor = function(anchorParams, doNotRepaint) {
-            this.anchor = _jsPlumb.makeAnchor(anchorParams, _elementId, _jsPlumb);
+            this.anchor = this._jsPlumb.instance.makeAnchor(anchorParams, _elementId, _jsPlumb);
             _updateAnchorClass();
             this.anchor.bind("anchorChanged", function(currentAnchor) {
                 self.fire("anchorChanged", {endpoint:self, anchor:currentAnchor});
                 _updateAnchorClass();
             });
             if (!doNotRepaint)
-                _jsPlumb.repaint(_elementId);
+                this._jsPlumb.instance.repaint(_elementId);
         };
 
-        //this.;
-
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
-        self.setAnchor(anchorParamsToUse, true);
+        this.setAnchor(anchorParamsToUse, true);
             
         // ANCHOR MANAGER
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
-            _jsPlumb.anchorManager.add(self, _elementId);
+            this._jsPlumb.instance.anchorManager.add(this, _elementId);
 
         var _endpoint = null, originalEndpoint = null;
         this.setEndpoint = function(ep) {
@@ -203,8 +208,8 @@
                 return o;
             };
 
-            self.endpoint = _endpoint;
-            self.type = self.endpoint.type;
+            this.endpoint = _endpoint;
+            this.type = this.endpoint.type;
         };
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							
@@ -212,24 +217,18 @@
         
         // endpoint delegates to first connection for hover, if there is one.
         var internalHover = function(state) {
-          if (self.connections.length > 0)
-            self.connections[0].setHover(state, false);
+          if (this.connections.length > 0)
+            this.connections[0].setHover(state, false);
           else
-            self.setHover(state);
-        };
+            this.setHover(state);
+        }.bind(this);
         
         // bind listeners from endpoint to self, with the internal hover function defined above.
-        self.bindListeners(self.endpoint, self, internalHover);
+        this.bindListeners(this.endpoint, this, internalHover);
                                 
-        this.setPaintStyle(params.paintStyle || 
-                           params.style || 
-                           _jsPlumb.Defaults.EndpointStyle || 
-                           jsPlumb.Defaults.EndpointStyle, true);
-        this.setHoverPaintStyle(params.hoverPaintStyle || 
-                                _jsPlumb.Defaults.EndpointHoverStyle || 
-                                jsPlumb.Defaults.EndpointHoverStyle, true);
+        this.setPaintStyle(params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
+        this.setHoverPaintStyle(params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
         this._jsPlumb.paintStyleInUse = this.getPaintStyle();
-        var originalPaintStyle = this.getPaintStyle();
 
         _ju.copyValues(typeParameters, params, this);        
 
@@ -249,39 +248,51 @@
         
         this.scope = params.scope || _jsPlumb.getDefaultScope();        
         this.timestamp = null;
-        self.reattachConnections = params.reattach || _jsPlumb.Defaults.ReattachConnections;
-        self.connectionsDetachable = _jsPlumb.Defaults.ConnectionsDetachable;
+        this.reattachConnections = params.reattach || _jsPlumb.Defaults.ReattachConnections;
+        this.connectionsDetachable = _jsPlumb.Defaults.ConnectionsDetachable;
         if (params.connectionsDetachable === false || params.detachable === false)
-            self.connectionsDetachable = false;
+            this.connectionsDetachable = false;
         var dragAllowedWhenFull = params.dragAllowedWhenFull || true;
         
         if (params.onMaxConnections)
-            self.bind("maxConnections", params.onMaxConnections);
+            this.bind("maxConnections", params.onMaxConnections);
 
         this.computeAnchor = function(params) {
-            return self.anchor.compute(params);
+            return this.anchor.compute(params);
         };
         
         this.addConnection = function(connection) {
-            self.connections.push(connection);                  
-            self[(self.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
-            self[(self.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
-        };		        
-        this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent) {
-            var idx = _ju.findWithFunction(self.connections, function(c) { return c.id == connection.id}), 
-                actuallyDetached = false;
+            this.connections.push(connection);                  
+            this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+            this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
+        };	
+
+        var findConnectionIndex = function(connection) {
+            return _ju.findWithFunction(this.connections, function(c) { return c.id == connection.id});
+        }.bind(this);
+
+        this.justDetach = function(connection) {
+            var idx = findConnectionIndex(connection);
+            if (idx >= 0)
+                this.connections.splice(idx, 1);
+        };
+
+        this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted) {
+            var idx = findConnectionIndex(connection), actuallyDetached = false;
             fireEvent = (fireEvent !== false);
             if (idx >= 0) {		
                 // 1. does the connection have a before detach (note this also checks jsPlumb's bound
                 // detach handlers; but then Endpoint's check will, too, hmm.)
                 if (forceDetach || connection._forceDetach || connection.isDetachable() || connection.isDetachAllowed(connection)) {
                     // get the target endpoint
-                    var t = connection.endpoints[0] == self ? connection.endpoints[1] : connection.endpoints[0];
+                    var t = connection.endpoints[0] == this ? connection.endpoints[1] : connection.endpoints[0];
                     if (forceDetach || connection._forceDetach || (self.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {                
-                        self.connections.splice(idx, 1);										
+                        this.connections.splice(idx, 1);										
+                        connection.cleanup();
+                        connection.destroy();
                         // avoid circular loop
                         if (!ignoreTarget) {                        
-                            t.detach(connection, true, forceDetach);
+                            t.justDetach(connection);
                             // check connection to see if we want to delete the endpoints associated with it.
                             // we only detach those that have just this connection; this scenario is most
                             // likely if we got to this bit of code because it is set by the methods that
@@ -290,7 +301,7 @@
                             if (connection.endpointsToDeleteOnDetach){
                                 for (var i = 0; i < connection.endpointsToDeleteOnDetach.length; i++) {
                                     var cde = connection.endpointsToDeleteOnDetach[i];
-                                    if (cde && cde.connections.length == 0) 
+                                    if (cde && endpointBeingDeleted != cde && cde.connections.length == 0) 
                                         _jsPlumb.deleteEndpoint(cde);							
                                 }
                             }
@@ -300,8 +311,8 @@
                         _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
                             return c.id == connection.id;
                         });
-                        self[(self.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
-                        self[(self.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
+                        this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+                        this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
                         actuallyDetached = true;                        
                         _fireDetachEvent(connection, (!ignoreTarget && fireEvent), originalEvent);
                     }
@@ -311,33 +322,33 @@
         };			
         
         this.detachAll = function(fireEvent, originalEvent) {
-            while (self.connections.length > 0) {
-                self.detach(self.connections[0], false, true, fireEvent, originalEvent);
+            while (this.connections.length > 0) {
+                this.detach(this.connections[0], false, true, fireEvent, originalEvent, this);
             }
-            return self;
+            return this;
         };
             
         this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
             var c = [];
-            for ( var i = 0; i < self.connections.length; i++) {
-                if (self.connections[i].endpoints[1] == targetEndpoint
-                        || self.connections[i].endpoints[0] == targetEndpoint) {
-                    c.push(self.connections[i]);
+            for ( var i = 0; i < this.connections.length; i++) {
+                if (this.connections[i].endpoints[1] == targetEndpoint
+                        || this.connections[i].endpoints[0] == targetEndpoint) {
+                    c.push(this.connections[i]);
                 }
             }
             for ( var i = 0; i < c.length; i++) {
-                if (self.detach(c[i], false, true, fireEvent, originalEvent))
+                if (this.detach(c[i], false, true, fireEvent, originalEvent))
                     c[i].setHover(false, false);					
             }
-            return self;
+            return this;
         };	
         
         this.detachFromConnection = function(connection) {
-            var idx =  _ju.findWithFunction(self.connections, function(c) { return c.id == connection.id});
+            var idx = findConnectionIndex(connection);
             if (idx >= 0) {
-                self.connections.splice(idx, 1);
-                self[(self.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
-                self[(self.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
+                this.connections.splice(idx, 1);
+                this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+                this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
             }
         };
         
@@ -346,27 +357,26 @@
         };		
                  
         this.setElement = function(el, container) {
-            var parentId = _jsPlumb.getId(el);
+            var parentId = this._jsPlumb.instance.getId(el);
             // remove the endpoint from the list for the current endpoint's element
             _ju.removeWithFunction(params.endpointsByElement[self.elementId], function(e) {
                 return e.id == self.id;
             });
             _element = _gel(el);
-            _elementId = _jsPlumb.getId(_element);
-            self.elementId = _elementId;
+            _elementId = this.elementId = _jsPlumb.getId(_element);             
             // need to get the new parent now
             var newParentElement = params.getParentFromParams({source:parentId, container:container}),
-            curParent = jpcl.getParent(self.canvas);
-            jpcl.removeElement(self.canvas, curParent);
-            jpcl.appendElement(self.canvas, newParentElement);								
+            curParent = jpcl.getParent(this.canvas);
+            jpcl.removeElement(this.canvas, curParent);
+            jpcl.appendElement(this.canvas, newParentElement);								
             
             // now move connection(s)...i would expect there to be only one but we will iterate.
-            for (var i = 0; i < self.connections.length; i++) {
-                self.connections[i].moveParent(newParentElement);
-                self.connections[i].sourceId = _elementId;
-                self.connections[i].source = _element;					
+            for (var i = 0; i < this.connections.length; i++) {
+                this.connections[i].moveParent(newParentElement);
+                this.connections[i].sourceId = _elementId;
+                this.connections[i].source = _element;					
             }	
-            _ju.addToList(params.endpointsByElement, parentId, self);
+            _ju.addToList(params.endpointsByElement, parentId, this);
             
         };
         
@@ -378,9 +388,9 @@
          * private but must be exposed.
          */
         self.makeInPlaceCopy = function() {
-            var loc = self.anchor.getCurrentLocation({element:self}),
-                o = self.anchor.getOrientation(self),
-                acc = self.anchor.getCssClass(),
+            var loc = this.anchor.getCurrentLocation({element:self}),
+                o = this.anchor.getOrientation(self),
+                acc = this.anchor.getCssClass(),
                 inPlaceAnchor = {
                     bind:function() { },
                     compute:function() { return [ loc[0], loc[1] ]},
@@ -402,8 +412,8 @@
         this.isConnectedTo = function(endpoint) {
             var found = false;
             if (endpoint) {
-                for ( var i = 0; i < self.connections.length; i++) {
-                    if (self.connections[i].endpoints[1] == endpoint) {
+                for ( var i = 0; i < this.connections.length; i++) {
+                    if (this.connections[i].endpoints[1] == endpoint) {
                         found = true;
                         break;
                     }
@@ -423,16 +433,14 @@
          * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
          */
         this.connectorSelector = function() {
-            var candidate = self.connections[0];
-            if (self.isTarget && candidate) return candidate;
+            var candidate = this.connections[0];
+            if (this.isTarget && candidate) return candidate;
             else {
-                return (self.connections.length < this._jsPlumb.maxConnections) || this._jsPlumb.maxConnections == -1 ? null : candidate;
+                return (this.connections.length < this._jsPlumb.maxConnections) || this._jsPlumb.maxConnections == -1 ? null : candidate;
             }
         };
         
-        this.isFull = function() {
-            return !(self.isFloating() || this._jsPlumb.maxConnections < 1 || self.connections.length < this._jsPlumb.maxConnections);				
-        };
+        //this.
                     
         this.setDragAllowedWhenFull = function(allowed) {
             dragAllowedWhenFull = allowed;
@@ -447,23 +455,7 @@
          */
         this.equals = function(endpoint) {
             return this.anchor.equals(endpoint.anchor);
-        };
-        
-        // a helper function that tries to find a connection to the given element, and returns it if so. if elementWithPrecedence is null,
-        // or no connection to it is found, we return the first connection in our list.
-        var findConnectionToUseForDynamicAnchor = function(elementWithPrecedence) {
-            var idx = 0;
-            if (elementWithPrecedence != null) {
-                for (var i = 0; i < self.connections.length; i++) {
-                    if (self.connections[i].sourceId == elementWithPrecedence || self.connections[i].targetId == elementWithPrecedence) {
-                        idx = i;
-                        break;
-                    }
-                }
-            }
-            
-            return self.connections[idx];
-        };
+        };        
         
         this.paint = function(params) {
             params = params || {};
@@ -481,7 +473,7 @@
                         var wh = params.dimensions || info.s,                       
                             anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
                         if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
-                            var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
+                            var c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
                                 oIdx = c.endpoints[0] == self ? 1 : 0,
                                 oId = oIdx == 0 ? c.sourceId : c.targetId,
                                 oInfo = _jsPlumb.getCachedData(oId),
@@ -682,9 +674,6 @@
                     _jsPlumb.anchorManager.clearFor(placeholderInfo.id);						
                     var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
                     jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
-                
-                // commented out pending decision on drag proxy stuff.
-                //	self.setPaintStyle(originalPaintStyle); // reset to original; may have been changed by drag proxy.
                 
                     if (jpc.endpoints[idx] == floatingEndpoint) {
                         // if the connection was an existing one:
@@ -992,11 +981,22 @@
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
         cleanup : function() {
-            //console.log("cleanup ", this.element)
             jsPlumb.CurrentLibrary.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            jsPlumbUtil.removeElements(this.endpoint.getDisplayElements());            
+            this.anchor = null;
+            this.endpoint.cleanup();
+            this.endpoint.destroy();
+            this.endpoint = null;
+            // drag/drop
+            var i = jsPlumb.CurrentLibrary.getElementObject(this.canvas);              
+            jsPlumb.CurrentLibrary.destroyDraggable(i);
+            jsPlumb.CurrentLibrary.destroyDroppable(i);
         },
         setHover : function(h) {
             this.endpoint.setHover(h);            
+        },
+        isFull : function() {
+            return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);              
         }
     });
 })();

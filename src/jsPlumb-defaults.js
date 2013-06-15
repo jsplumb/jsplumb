@@ -401,7 +401,7 @@
         Class: AbstractComponent
         Superclass for AbstractConnector and AbstractEndpoint.
     */
-    var AbstractComponent = function() {
+    var AbstractComponent = function() {        
         this.resetBounds = function() {
             this.bounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
         };
@@ -420,7 +420,7 @@
 	 */ 
 	jsPlumb.Connectors.AbstractConnector = function(params) {
 		
-        AbstractComponent.apply(this, arguments);
+        AbstractComponent.apply(this, arguments);        
 
 		var self = this, 
         segments = [],
@@ -629,11 +629,11 @@
             
             _clearSegments();
             this._compute(paintInfo, params);
-            self.x = paintInfo.points[0];
-            self.y = paintInfo.points[1];
-            self.w = paintInfo.points[2];
-            self.h = paintInfo.points[3];               
-            self.segment = paintInfo.segment;         
+            this.x = paintInfo.points[0];
+            this.y = paintInfo.points[1];
+            this.w = paintInfo.points[2];
+            this.h = paintInfo.points[3];               
+            this.segment = paintInfo.segment;         
             _updateSegmentProportions();            
 		};
 		
@@ -935,7 +935,7 @@
 			deleted = true;
             img = null;
             canvas = null;
-           // self = null;
+            self = null;
 		};
 		
 		var actuallyPaint = function(d, style, anchor) {
@@ -989,7 +989,7 @@
 			jsPlumb.sizeCanvas(this.canvas, this.x, this.y, this.w, this.h);	
 		};
 	};
-    jsPlumbUtil.extend(jsPlumb.Endpoints.Blank, jsPlumb.Endpoints.AbstractEndpoint);
+    jsPlumbUtil.extend(jsPlumb.Endpoints.Blank, [jsPlumb.Endpoints.AbstractEndpoint, DOMElementEndpoint]);
 	
 	/*
 	 * Class: Endpoints.Triangle
@@ -1025,31 +1025,40 @@
 // ********************************* OVERLAY DEFINITIONS ***********************************************************************    
 
 	var AbstractOverlay = jsPlumb.Overlays.AbstractOverlay = function(params) {
-		var visible = true;
+		this.visible = true;
         this.isAppendedAtTopLevel = true;
 		this.component = params.component;
 		this.loc = params.location == null ? 0.5 : params.location;
         this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
-		this.setVisible = function(val) { 
-			visible = val;
-			this.component.repaint();
-		};
-    	this.isVisible = function() { return visible; };
-    	this.hide = function() { this.setVisible(false); };
-    	this.show = function() { this.setVisible(true); };
-    	
-    	this.incrementLocation = function(amount) {
-    		this.loc += amount;
-    		this.component.repaint();
-    	};
-    	this.setLocation = function(l) {
-    		this.loc = l;
-    		this.component.repaint();
-    	};
-    	this.getLocation = function() {
-    		return this.loc;
-    	};
+		//this.;
 	};
+    AbstractOverlay.prototype = {
+        cleanup:function() {  
+            //console.log("AbstractOverlay cleanup");
+           this.component = null;
+           this.canvas = null;
+           this.endpointLoc = null;
+        },
+        setVisible : function(val) { 
+            this.visible = val;
+            this.component.repaint();
+        },
+        isVisible : function() { return this.visible; },
+        hide : function() { this.setVisible(false); },
+        show : function() { this.setVisible(true); },
+        
+        incrementLocation : function(amount) {
+            this.loc += amount;
+            this.component.repaint();
+        },
+        setLocation : function(l) {
+            this.loc = l;
+            this.component.repaint();
+        },
+        getLocation : function() {
+            return this.loc;
+        }
+    };
 	
 	
 	/*
@@ -1090,7 +1099,7 @@
     	    foldback = params.foldback || 0.623;
     	    	
     	this.computeMaxSize = function() { return self.width * 1.5; };    	
-    	this.cleanup = function() { };  // nothing to clean up for Arrows    
+    	//this.cleanup = function() { };  // nothing to clean up for Arrows    
     	this.draw = function(component, currentConnectionPaintStyle) {
 
             var hxy, mid, txy, tail, cxy;
@@ -1152,7 +1161,8 @@
             }
             else return {component:component, minX:0,maxX:0,minY:0,maxY:0};
     	};
-    };          
+    };    
+    jsPlumbUtil.extend(jsPlumb.Overlays.Arrow, AbstractOverlay);      
     
     /*
      * Class: Overlays.PlainArrow
@@ -1171,6 +1181,7 @@
     	jsPlumb.Overlays.Arrow.call(this, p);
     	this.type = "PlainArrow";
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.PlainArrow, jsPlumb.Overlays.Arrow);
         
     /*
      * Class: Overlays.Diamond
@@ -1194,6 +1205,7 @@
     	jsPlumb.Overlays.Arrow.call(this, p);
     	this.type = "Diamond";
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.Diamond, jsPlumb.Overlays.Arrow);
 
     var _getDimensions = function(component) {
         if (component._jsPlumb.cachedDimensions == null)
@@ -1231,15 +1243,15 @@
 		this._jsPlumb.cachedDimensions = null;
 		
 		
-		this.paint = function(params, containerExtents) {
+		this.paint = function(p, containerExtents) {
 			if (!this._jsPlumb.initialised) {
 				this.getElement();
-				params.component.appendDisplayElement(this._jsPlumb.div);
-				this.attachListeners(this._jsPlumb.div, this._jsPlumb.component);
+				p.component.appendDisplayElement(this._jsPlumb.div);
+				this.attachListeners(this._jsPlumb.div, p.component);
 				this._jsPlumb.initialised = true;
 			}
-			this._jsPlumb.div.style.left = (params.component.x + params.d.minx) + "px";
-			this._jsPlumb.div.style.top = (params.component.y + params.d.miny) + "px";			
+			this._jsPlumb.div.style.left = (p.component.x + p.d.minx) + "px";
+			this._jsPlumb.div.style.top = (p.component.y + p.d.miny) + "px";			
     	};
 				
 		this.draw = function(component, currentConnectionPaintStyle) {
@@ -1273,14 +1285,7 @@
                 };								
         	}
 	    	else return {minX:0,maxX:0,minY:0,maxY:0};
-	    };
-	    
-	    this.reattachListeners = function(connector) {
-	    	if (this._jsPlumb.div) {
-	    		this.reattachListenersForElement(this._jsPlumb.div, this, connector);
-	    	}
-	    };
-		
+	    };	   	   		
 	};
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
         getDimensions : function() {
@@ -1300,11 +1305,17 @@
             this._jsPlumb.cachedDimensions = null;
         },
         cleanup : function() {
+            //console.log("AbstractDOMOverlay cleanup");
             if (this._jsPlumb.div != null) jsPlumb.CurrentLibrary.removeElement(this._jsPlumb.div);
         },
         computeMaxSize : function() {
             var td = _getDimensions(this);
             return Math.max(td[0], td[1]);
+        },
+        reattachListeners : function(connector) {
+            if (this._jsPlumb.div) {
+                this.reattachListenersForElement(this._jsPlumb.div, this, connector);
+            }
         }
     });
 	
@@ -1378,61 +1389,61 @@
      * 	id - optional id to use for later retrieval of this overlay.
      * 	
      */
-    jsPlumb.Overlays.Label =  function(params) {
-		var self = this;    	
+    jsPlumb.Overlays.Label =  function(params) {		   
 		this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
 		this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
-		params.create = function() {
-			return document.createElement("div");
-		};
-    	jsPlumb.Overlays.Custom.apply(this, arguments);
-		this.type = "Label";
-    	
-        var label = params.label || "",
-            //self = this,    	    
-            labelText = null;
-    	
-    	/*
-    	 * Function: setLabel
-    	 * sets the label's, um, label.  you would think i'd call this function
-    	 * 'setText', but you can pass either a Function or a String to this, so
-    	 * it makes more sense as 'setLabel'. This uses innerHTML on the label div, so keep
-         * that in mind if you need escaped HTML.
-    	 */
-    	this.setLabel = function(l) {
-    		label = l;
-    		labelText = null;
-			this.clearCachedDimensions();
-			_update();
-    		this.component.repaint();
-    	};
-    	
-		var _update = function() {
-			if (typeof label == "function") {
-    			var lt = label(this);
-    			this.getElement().innerHTML = lt.replace(/\r\n/g, "<br/>");
-    		}
-    		else {
-    			if (labelText == null) {
-    				labelText = label;
-    				this.getElement().innerHTML = labelText.replace(/\r\n/g, "<br/>");
-    			}
-    		}
-		}.bind(this);
-		
-    	this.getLabel = function() {
-    		return label;
-    	};
-    	
-		//*var superGD = this.getDimensions;		
-		this.getDimensions = function() {				
-    		_update();
-			return AbstractDOMOverlay.prototype.getDimensions.apply(this, arguments);
-    	};
-		
+		var p = jsPlumb.extend({
+                create : function() {
+                    return document.createElement("div");
+                }}, params);
+    	jsPlumb.Overlays.Custom.call(this, p);
+		this.type = "Label";    	
+        this.label = params.label || "";
+        this.labelText = null;        	    	
     };
-    jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom);
-		
+    jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
+        cleanup:function() {
+            //console.log("Label cleanup");
+            this.div = null;
+            this.label = null;
+            this.labelText = null;
+            this.cssClass = null;
+            this.labelStyle = null;
+        },
+        getLabel : function() {
+            return this.label;
+        },
+        /*
+         * Function: setLabel
+         * sets the label's, um, label.  you would think i'd call this function
+         * 'setText', but you can pass either a Function or a String to this, so
+         * it makes more sense as 'setLabel'. This uses innerHTML on the label div, so keep
+         * that in mind if you need escaped HTML.
+         */
+        setLabel : function(l) {
+            this.label = l;
+            this.labelText = null;
+            this.clearCachedDimensions();
+            this.update();
+            this.component.repaint();
+        },
+        getDimensions : function() {                
+            this.update();
+            return AbstractDOMOverlay.prototype.getDimensions.apply(this, arguments);
+        },
+        update : function() {
+            if (typeof this.label == "function") {
+                var lt = this.label(this);
+                this.getElement().innerHTML = lt.replace(/\r\n/g, "<br/>");
+            }
+            else {
+                if (this.labelText == null) {
+                    this.labelText = this.label;
+                    this.getElement().innerHTML = this.labelText.replace(/\r\n/g, "<br/>");
+                }
+            }
+        }
+    });		
 
  // ********************************* END OF OVERLAY DEFINITIONS ***********************************************************************
     
