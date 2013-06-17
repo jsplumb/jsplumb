@@ -63,7 +63,7 @@
     };
 
     jsPlumb.Endpoint = function(params) {
-        var self = this, 
+        var //self = this, 
             _jsPlumb = params["_jsPlumb"],
             jpcl = jsPlumb.CurrentLibrary,
             _att = jpcl.getAttribute,
@@ -82,17 +82,16 @@
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
         
 // TYPE		
-        
-        
+                
         this.getDefaultType = function() {								
             return {
                 parameters:{},
                 scope:null,
-                maxConnections:self._jsPlumb.instance.Defaults.MaxConnections,
-                paintStyle:self._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
-                endpoint:self._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
-                hoverPaintStyle:self._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
-                overlays:self._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays,
+                maxConnections:this._jsPlumb.instance.Defaults.MaxConnections,
+                paintStyle:this._jsPlumb.instance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle,
+                endpoint:this._jsPlumb.instance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint,
+                hoverPaintStyle:this._jsPlumb.instance.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle,				
+                overlays:this._jsPlumb.instance.Defaults.EndpointOverlays || jsPlumb.Defaults.EndpointOverlays,
                 connectorStyle:params.connectorStyle,				
                 connectorHoverStyle:params.connectorHoverStyle,
                 connectorClass:params.connectorClass,
@@ -104,11 +103,9 @@
         };
         ;			
 // END TYPE
-    
-        //var visible = true,
+            
         this._jsPlumb.enabled = !(params.enabled === false);
-        this._jsPlumb.visible = true;
-        
+        this._jsPlumb.visible = true;        
         this.element = params.source;  
         this._jsPlumb.uuid = params.uuid;
         this._jsPlumb.floatingEndpoint = null;  
@@ -155,7 +152,7 @@
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
 
-        var _endpoint = null, originalEndpoint = null;
+        var /*_endpoint = null,*/ originalEndpoint = null;
         this.setEndpoint = function(ep) {
 
             if (this.endpoint != null) {
@@ -171,22 +168,22 @@
             };            
 
             var endpointArgs = {
-                _jsPlumb:self._jsPlumb.instance,
+                _jsPlumb:this._jsPlumb.instance,
                 cssClass:params.cssClass,
                 parent:params.parent,
                 container:params.container,
                 tooltip:params.tooltip,
                 connectorTooltip:params.connectorTooltip,
-                endpoint:self
+                endpoint:this
             };
             if (_ju.isString(ep)) 
-                _endpoint = _e(ep, endpointArgs);
+                this.endpoint = _e(ep, endpointArgs);
             else if (_ju.isArray(ep)) {
                 endpointArgs = _ju.merge(ep[1], endpointArgs);
-                _endpoint = _e(ep[0], endpointArgs);
+                this.endpoint = _e(ep[0], endpointArgs);
             }
             else {
-                _endpoint = ep.clone();
+                this.endpoint = ep.clone();
             }
 
             // assign a clone function using a copy of endpointArgs. this is used when a drag starts: the endpoint that was dragged is cloned,
@@ -194,19 +191,19 @@
             // the copy is to get around a closure problem, in which endpointArgs ends up getting shared by
             // the whole world.
             var argsForClone = jsPlumb.extend({}, endpointArgs);						
-            _endpoint.clone = function() {
+            this.endpoint.clone = function() {
                 var o = new Object();
-                _endpoint.constructor.apply(o, [argsForClone]);
+                this.endpoint.constructor.apply(o, [argsForClone]);
                 return o;
-            };
+            }.bind(this);
 
-            this.endpoint = _endpoint;
+            //this.endpoint = _endpoint;
             this.type = this.endpoint.type;
             this.bindListeners(this.endpoint, this, internalHover);
         };
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							
-        originalEndpoint = _endpoint;                    
+        originalEndpoint = this.endpoint;                    
         
         // bind listeners from endpoint to self, with the internal hover function defined above.
         // TODO shouldn't this be called inside setEndpoint?
@@ -272,7 +269,7 @@
                 if (forceDetach || connection._forceDetach || connection.isDetachable() || connection.isDetachAllowed(connection)) {
                     // get the target endpoint
                     var t = connection.endpoints[0] == this ? connection.endpoints[1] : connection.endpoints[0];
-                    if (forceDetach || connection._forceDetach || (self.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {                
+                    if (forceDetach || connection._forceDetach || (this.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {                
                         this.connections.splice(idx, 1);										
                         connection.cleanup();
                         connection.destroy();
@@ -346,8 +343,8 @@
             var parentId = this._jsPlumb.instance.getId(el);
             // remove the endpoint from the list for the current endpoint's element
             _ju.removeWithFunction(params.endpointsByElement[this.elementId], function(e) {
-                return e.id == self.id;
-            });
+                return e.id == this.id;
+            }.bind(this));
             this.element = _gel(el);
            /* _elementId = */this.elementId = _jsPlumb.getId(this.element);             
             // need to get the new parent now
@@ -371,8 +368,8 @@
          * private but must be exposed.
          */
         this.makeInPlaceCopy = function() {
-            var loc = this.anchor.getCurrentLocation({element:self}),
-                o = this.anchor.getOrientation(self),
+            var loc = this.anchor.getCurrentLocation({element:this}),
+                o = this.anchor.getOrientation(this),
                 acc = this.anchor.getCssClass(),
                 inPlaceAnchor = {
                     bind:function() { },
@@ -386,9 +383,9 @@
                 anchor : inPlaceAnchor, 
                 source : this.element, 
                 paintStyle : this.getPaintStyle(), 
-                endpoint : params.hideOnDrag ? "Blank" : _endpoint,
+                endpoint : params.hideOnDrag ? "Blank" : this.endpoint,
                 _transient:true,
-                scope:self.scope
+                scope:this.scope
             });
         };
                 
@@ -421,7 +418,7 @@
         this.paint = function(params) {
             params = params || {};
             var timestamp = params.timestamp, recalc = !(params.recalc === false);								
-            if (!timestamp || self.timestamp !== timestamp) {						
+            if (!timestamp || this.timestamp !== timestamp) {						
                 
                 // TODO check: is this is a safe performance enhancement?
                 var info = _jsPlumb.updateOffset({ elId:this.elementId, timestamp:timestamp/*, recalc:recalc*/ });
@@ -432,10 +429,10 @@
                     var ap = params.anchorPoint,connectorPaintStyle = params.connectorPaintStyle;
                     if (ap == null) {
                         var wh = params.dimensions || info.s,                       
-                            anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
-                        if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
+                            anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : this, timestamp : timestamp };
+                        if (recalc && this.anchor.isDynamic && this.connections.length > 0) {
                             var c = findConnectionToUseForDynamicAnchor(this, params.elementWithPrecedence),
-                                oIdx = c.endpoints[0] == self ? 1 : 0,
+                                oIdx = c.endpoints[0] == this ? 1 : 0,
                                 oId = oIdx == 0 ? c.sourceId : c.targetId,
                                 oInfo = _jsPlumb.getCachedData(oId),
                                 oOffset = oInfo.o, oWH = oInfo.s;
@@ -443,18 +440,18 @@
                             anchorParams.twh = oWH;
                             anchorParams.tElement = c.endpoints[oIdx];
                         }
-                        ap = self.anchor.compute(anchorParams);
+                        ap = this.anchor.compute(anchorParams);
                     }
                                         
-                    _endpoint.compute(ap, self.anchor.getOrientation(self), self._jsPlumb.paintStyleInUse, connectorPaintStyle || self.paintStyleInUse);
-                    _endpoint.paint(self._jsPlumb.paintStyleInUse, self.anchor);					
-                    self.timestamp = timestamp;
+                    this.endpoint.compute(ap, this.anchor.getOrientation(this), this._jsPlumb.paintStyleInUse, connectorPaintStyle || this.paintStyleInUse);
+                    this.endpoint.paint(this._jsPlumb.paintStyleInUse, this.anchor);					
+                    this.timestamp = timestamp;
 
                     // paint overlays
-                    for ( var i = 0; i < self._jsPlumb.overlays.length; i++) {
-                        var o = self._jsPlumb.overlays[i];
+                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
+                        var o = this._jsPlumb.overlays[i];
                         if (o.isVisible()) { 
-                            this._jsPlumb.overlayPlacements[i] = o.draw(self.endpoint, self._jsPlumb.paintStyleInUse);
+                            this._jsPlumb.overlayPlacements[i] = o.draw(this.endpoint, this._jsPlumb.paintStyleInUse);
                             o.paint(this._jsPlumb.overlayPlacements[i]);    
                         }
                     }
@@ -481,9 +478,9 @@
                 // if not enabled, return
                 if (!this.isEnabled()) _continue = false;
                 // if no connection and we're not a source, return.
-                if (jpc == null && !params.isSource) _continue = false;
+                if (jpc == null && !this.isSource) _continue = false;
                 // otherwise if we're full and not allowed to drag, also return false.
-                if (params.isSource && this.isFull() && !this.dragAllowedWhenFull) _continue = false;
+                if (this.isSource && this.isFull() && !this.dragAllowedWhenFull) _continue = false;
                 // if the connection was setup as not detachable or one of its endpoints
                 // was setup as connectionsDetachable = false, or Defaults.ConnectionsDetachable
                 // is set to false...
@@ -501,7 +498,7 @@
                 this.addClass("endpointDrag");
 
                 // if we're not full but there was a connection, make it null. we'll create a new one.
-                if (jpc && !this.isFull() && params.isSource) jpc = null;
+                if (jpc && !this.isFull() && this.isSource) jpc = null;
 
                 _jsPlumb.updateOffset( { elId : this.elementId });
                 inPlaceCopy = this.makeInPlaceCopy();
@@ -528,7 +525,7 @@
                 // store the id of the dragging div and the source element. the drop function will pick these up.					
                 jpcl.setAttribute(canvasElement, "dragId", placeholderInfo.id);
                 jpcl.setAttribute(canvasElement, "elId", this.elementId);
-                this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, _endpoint, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint);
+                this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, this.endpoint, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint);
                 this.canvas.style.visibility = "hidden";            
                 
                 if (jpc == null) {                                                                                                                                                         
@@ -621,7 +618,7 @@
                 dragEvent = jpcl.dragEvents["drag"];
             
             dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
-            dragOptions.scope = dragOptions.scope || self.scope;
+            dragOptions.scope = dragOptions.scope || this.scope;
             dragOptions[startEvent] = _jsPlumb.wrap(dragOptions[startEvent], start);
             // extracted drag handler function so can be used by makeSource
             dragOptions[dragEvent] = _jsPlumb.wrap(dragOptions[dragEvent], _dragHandler.drag);
@@ -696,17 +693,17 @@
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
         var _initDropTarget = function(canvas, forceInit, isTransient, endpoint) {
-            if ((params.isTarget || forceInit) && jpcl.isDropSupported(this.element)) {
+            if ((this.isTarget || forceInit) && jpcl.isDropSupported(this.element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
                 dropOptions = jsPlumb.extend( {}, dropOptions);
-                dropOptions.scope = dropOptions.scope || self.scope;
+                dropOptions.scope = dropOptions.scope || this.scope;
                 var dropEvent = jpcl.dragEvents['drop'],
                     overEvent = jpcl.dragEvents['over'],
                     outEvent = jpcl.dragEvents['out'],
                     drop = function() {
 
-                        self["removeClass"](_jsPlumb.endpointDropAllowedClass);
-                        self["removeClass"](_jsPlumb.endpointDropForbiddenClass);
+                        this["removeClass"](_jsPlumb.endpointDropAllowedClass);
+                        this["removeClass"](_jsPlumb.endpointDropForbiddenClass);
                                                     
                         var originalEvent = jpcl.getDropEvent(arguments),
                             draggable = _gel(jpcl.getDragObject(arguments)),
@@ -717,8 +714,8 @@
                             
                         // if this is a drop back where the connection came from, mark it force rettach and
                         // return; the stop handler will reattach. without firing an event.
-                        var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id == self.id ||
-                                        self.referenceEndpoint && jpc.suspendedEndpoint.id == self.referenceEndpoint.id) ;							
+                        var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id == this.id ||
+                                        this.referenceEndpoint && jpc.suspendedEndpoint.id == this.referenceEndpoint.id) ;							
                         if (redrop) {								
                             jpc._forceReattach = true;
                             return;
@@ -732,20 +729,20 @@
                             
                             var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
                             
-                            if (self.isFull()) {
-                                self.fire("maxConnections", { 
-                                    endpoint:self, 
+                            if (this.isFull()) {
+                                this.fire("maxConnections", { 
+                                    endpoint:this, 
                                     connection:jpc, 
-                                    maxConnections:self._jsPlumb.maxConnections 
+                                    maxConnections:this._jsPlumb.maxConnections 
                                 }, originalEvent);
                             }
                                                             
-                            if (!self.isFull() && !(idx == 0 && !self.isSource) && !(idx == 1 && !self.isTarget) && endpointEnabled) {
+                            if (!this.isFull() && !(idx == 0 && !this.isSource) && !(idx == 1 && !this.isTarget) && endpointEnabled) {
                                 var _doContinue = true;
 
                                 // the second check here is for the case that the user is dropping it back
                                 // where it came from.
-                                if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != self.id) {
+                                if (jpc.suspendedEndpoint && jpc.suspendedEndpoint.id != this.id) {
                                     if (idx == 0) {
                                         jpc.source = jpc.suspendedEndpoint.element;
                                         jpc.sourceId = jpc.suspendedEndpoint.elementId;
@@ -760,11 +757,11 @@
             
                                 // these have to be set before testing for beforeDrop.
                                 if (idx == 0) {
-                                    jpc.source = self.element;
-                                    jpc.sourceId = self.elementId;
+                                    jpc.source = this.element;
+                                    jpc.sourceId = this.elementId;
                                 } else {
-                                    jpc.target = self.element;
-                                    jpc.targetId = self.elementId;
+                                    jpc.target = this.element;
+                                    jpc.targetId = this.elementId;
                                 }
                                                             
 // ------------ wrap the execution path in a function so we can support asynchronous beforeDrop																
@@ -778,17 +775,17 @@
                                     // remove this jpc from the current endpoint
                                     jpc.endpoints[idx].detachFromConnection(jpc);
                                     if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
-                                    jpc.endpoints[idx] = self;
-                                    self.addConnection(jpc);
+                                    jpc.endpoints[idx] = this;
+                                    this.addConnection(jpc);
                                     
                                     // copy our parameters in to the connection:
-                                    var params = self.getParameters();
+                                    var params = this.getParameters();
                                     for (var aParam in params)
                                         jpc.setParameter(aParam, params[aParam]);
 
                                     if (!jpc.suspendedEndpoint) {  
                                         if (params.draggable)
-                                            jsPlumb.CurrentLibrary.initDraggable(self.element, dragOptions, true, _jsPlumb);
+                                            jsPlumb.CurrentLibrary.initDraggable(this.element, dragOptions, true, _jsPlumb);
                                     }
                                     else {
                                         var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
@@ -813,7 +810,7 @@
                                     _finaliseConnection(jpc, null, originalEvent);
                                     
                                     commonFunction();
-                                };
+                                }.bind(this);
                                 
                                 var dontContinueFunction = function() {
                                     // otherwise just put it back on the endpoint it was on before the drag.
@@ -844,7 +841,7 @@
                                 // have a beforeDrop condition (although, secretly, under the hood all Endpoints and 
                                 // the Connection have them, because they are on jsPlumbUIComponent.  shhh!), because
                                 // it only makes sense to have it on a target endpoint.
-                                _doContinue = _doContinue && self.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, self);
+                                _doContinue = _doContinue && this.isDropAllowed(jpc.sourceId, jpc.targetId, jpc.scope, jpc, this);
                                                                                                                     
                                 if (_doContinue) {
                                     continueFunction();
@@ -859,7 +856,7 @@
                             delete floatingConnections[id];		
                             _jsPlumb.anchorManager.removeFloatingConnection(id);
                         }
-                    };
+                    }.bind(this);
                 
                 dropOptions[dropEvent] = _jsPlumb.wrap(dropOptions[dropEvent], drop);
                 dropOptions[overEvent] = _jsPlumb.wrap(dropOptions[overEvent], function() {					
@@ -871,19 +868,20 @@
                         var idx = _jpc.floatingAnchorIndex == null ? 1 : _jpc.floatingAnchorIndex;
                         // here we should fire the 'over' event if we are a target and this is a new connection,
                         // or we are the same as the floating endpoint.								
-                        var _cont = (self.isTarget && _jpc.floatingAnchorIndex != 0) || (_jpc.suspendedEndpoint && self.referenceEndpoint && self.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
+                        var _cont = (this.isTarget && _jpc.floatingAnchorIndex != 0) || (_jpc.suspendedEndpoint && this.referenceEndpoint && this.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
                         if (_cont) {
                             var bb = _jsPlumb.checkCondition("checkDropAllowed", { 
                                 sourceEndpoint:_jpc.endpoints[idx], 
-                                targetEndpoint:self,
+                                targetEndpoint:this,
                                 connection:_jpc
                             }); 
-                            self[(bb ? "add" : "remove") + "Class"](_jsPlumb.endpointDropAllowedClass);
-                            self[(bb ? "remove" : "add") + "Class"](_jsPlumb.endpointDropForbiddenClass);
-                            _jpc.endpoints[idx].anchor.over(self.anchor);
+                            this[(bb ? "add" : "remove") + "Class"](_jsPlumb.endpointDropAllowedClass);
+                            this[(bb ? "remove" : "add") + "Class"](_jsPlumb.endpointDropForbiddenClass);
+                            _jpc.endpoints[idx].anchor.over(this.anchor);
                         }
                     }						
-                });	
+                }.bind(this));	
+
                 dropOptions[outEvent] = _jsPlumb.wrap(dropOptions[outEvent], function() {					
                     var draggable = jpcl.getDragObject(arguments),
                         id = _att( _gel(draggable), "dragId"),
@@ -891,26 +889,26 @@
                         
                     if (_jpc != null) {
                         var idx = _jpc.floatingAnchorIndex == null ? 1 : _jpc.floatingAnchorIndex;
-                        var _cont = (self.isTarget && _jpc.floatingAnchorIndex != 0) || (_jpc.suspendedEndpoint && self.referenceEndpoint && self.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
+                        var _cont = (this.isTarget && _jpc.floatingAnchorIndex != 0) || (_jpc.suspendedEndpoint && this.referenceEndpoint && this.referenceEndpoint.id == _jpc.suspendedEndpoint.id);
                         if (_cont) {
-                            self["removeClass"](_jsPlumb.endpointDropAllowedClass);
-                            self["removeClass"](_jsPlumb.endpointDropForbiddenClass);
+                            this["removeClass"](_jsPlumb.endpointDropAllowedClass);
+                            this["removeClass"](_jsPlumb.endpointDropForbiddenClass);
                             _jpc.endpoints[idx].anchor.out();
                         }
                     }
-                });
+                }.bind(this));
                 jpcl.initDroppable(canvas, dropOptions, true, isTransient);
             }
         }.bind(this);
         
         // initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
-        _initDropTarget(_gel(self.canvas), true, !(params._transient || self.anchor.isFloating), self);
+        _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
         
          // finally, set type if it was provided
          if (params.type)
             this.addType(params.type, params.data, _jsPlumb.isSuspendDrawing());
 
-        return self;        					
+        return this;        					
     };
 
     jsPlumbUtil.extend(jsPlumb.Endpoint, OverlayCapableJsPlumbUIComponent, {
