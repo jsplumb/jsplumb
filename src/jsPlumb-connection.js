@@ -400,7 +400,7 @@
             this._jsPlumb.instance.setHoverSuspended(false);
         },
         cleanup:function() {
-            console.log("Connection cleanup");
+            //console.log("Connection cleanup");
             this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
             this._jsPlumb.instance.remove(this.connector.getDisplayElements());

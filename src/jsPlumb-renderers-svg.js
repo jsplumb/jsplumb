@@ -281,7 +281,7 @@
 	};
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
-			console.log("SvgComponent cleanup");
+			//console.log("SvgComponent cleanup");
 			jsPlumbUtil.removeElement(this.canvas);            
 			this.svg = null;
 			this.canvas = null;

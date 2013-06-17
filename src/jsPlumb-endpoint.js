@@ -152,7 +152,7 @@
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
 
-        var /*_endpoint = null,*/ originalEndpoint = null;
+        //var /*_endpoint = null,*/ originalEndpoint = null;
         this.setEndpoint = function(ep) {
 
             if (this.endpoint != null) {
@@ -197,18 +197,14 @@
                 return o;
             }.bind(this);
 
-            //this.endpoint = _endpoint;
             this.type = this.endpoint.type;
+            // bind listeners from endpoint to self, with the internal hover function defined above.
             this.bindListeners(this.endpoint, this, internalHover);
         };
          
         this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							
-        originalEndpoint = this.endpoint;                    
-        
-        // bind listeners from endpoint to self, with the internal hover function defined above.
-        // TODO shouldn't this be called inside setEndpoint?
-       // this.bindListeners(this.endpoint, this, internalHover);
-                                
+        //originalEndpoint = this.endpoint;                    
+                            
         this.setPaintStyle(params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
         this.setHoverPaintStyle(params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
         this._jsPlumb.paintStyleInUse = this.getPaintStyle();
@@ -216,12 +212,8 @@
         _ju.copyValues(typeParameters, params, this);        
 
         this.isSource = params.isSource || false;
-        this.isTarget = params.isTarget || false;
-        
-        this._jsPlumb.maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.
-                    
-        //this.;
-                    
+        this.isTarget = params.isTarget || false;        
+        this._jsPlumb.maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.                
         this.canvas = this.endpoint.canvas;		
         // add anchor class (need to do this on construction because we set anchor first)
         this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
@@ -238,11 +230,7 @@
         this.dragAllowedWhenFull = params.dragAllowedWhenFull || true;
         
         if (params.onMaxConnections)
-            this.bind("maxConnections", params.onMaxConnections);
-
-        this.computeAnchor = function(params) {
-            return this.anchor.compute(params);
-        };
+            this.bind("maxConnections", params.onMaxConnections);        
         
         this.addConnection = function(connection) {
             this.connections.push(connection);                  
@@ -254,7 +242,7 @@
             return _ju.findWithFunction(this.connections, function(c) { return c.id == connection.id});
         }.bind(this);
 
-        this.justDetach = function(connection, idx) {
+        this.detachFromConnection = function(connection, idx) {
             idx = idx == null ? findConnectionIndex(connection) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
@@ -274,11 +262,11 @@
                     var t = connection.endpoints[0] == this ? connection.endpoints[1] : connection.endpoints[0];
                     if (forceDetach || connection._forceDetach || (this.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {                
                         
-                        this.justDetach(connection, idx);
+                        this.detachFromConnection(connection, idx);
                                                 
                         // avoid circular loop
                         if (!ignoreTarget) {                        
-                            t.justDetach(connection);
+                            t.detachFromConnection(connection);
                             // check connection to see if we want to delete the endpoints associated with it.
                             // we only detach those that have just this connection; this scenario is most
                             // likely if we got to this bit of code because it is set by the methods that
@@ -328,20 +316,16 @@
                 }
             }
             for ( var i = 0; i < c.length; i++) {
-                if (this.detach(c[i], false, true, fireEvent, originalEvent))
-                    c[i].setHover(false, false);					
+                this.detach(c[i], false, true, fireEvent, originalEvent);
+
+                //if (this.detach(c[i], false, true, fireEvent, originalEvent))
+                  //  c[i].setHover(false, false);					
             }
             return this;
         };	
         
-        this.detachFromConnection = function(connection) {
-            var idx = findConnectionIndex(connection);
-            if (idx >= 0) {
-                this.connections.splice(idx, 1);
-                this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
-                this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
-            }
-        };
+
+        //this.detachFromConnection = this.justDetach;
         
         this.getElement = function() {
             return this.element;
@@ -987,6 +971,9 @@
         },
         getUuid : function() {
             return this._jsPlumb.uuid;
+        },
+        computeAnchor : function(params) {
+            return this.anchor.compute(params);
         }
     });
 })();

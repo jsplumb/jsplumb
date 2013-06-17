@@ -1040,7 +1040,7 @@
 	};
     AbstractOverlay.prototype = {
         cleanup:function() {  
-           console.log("AbstractOverlay cleanup");
+           //console.log("AbstractOverlay cleanup");
            this.component = null;
            this.canvas = null;
            this.endpointLoc = null;
@@ -1311,7 +1311,7 @@
             this._jsPlumb.cachedDimensions = null;
         },
         cleanup : function() {
-            console.log("AbstractDOMOverlay cleanup");
+            //console.log("AbstractDOMOverlay cleanup");
             if (this._jsPlumb.div != null) jsPlumb.CurrentLibrary.removeElement(this._jsPlumb.div);
         },
         computeMaxSize : function() {
@@ -1409,7 +1409,7 @@
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
         cleanup:function() {
-            console.log("Label cleanup");
+            //console.log("Label cleanup");
             this.div = null;
             this.label = null;
             this.labelText = null;

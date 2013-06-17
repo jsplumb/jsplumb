@@ -37,7 +37,13 @@
 
 				// connect the two endpoints then delete one of them. should detach the connection, leaving 
 				// the second endpoint, which we then delete.
+				//jsPlumb.connect({source:e, target:e2});
+				//jsPlumb.deleteEndpoint(e);
+				//jsPlumb.deleteEndpoint(e2);
+
+				// connect the two, and then use detachFrom
 				jsPlumb.connect({source:e, target:e2});
+				e.detachFrom(e2);
 				jsPlumb.deleteEndpoint(e);
 				jsPlumb.deleteEndpoint(e2);
 			}			
