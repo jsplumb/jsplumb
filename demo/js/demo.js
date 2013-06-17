@@ -18,6 +18,14 @@
 				hoverPaintStyle = { strokeStyle:"#7ec3d9" };			// hover paint style is merged on normal style, so you 
 			                                                        // don't necessarily need to specify a lineWidth
 			
+
+
+			/*var connection1 = jsPlumb.connect({
+				source:"window1", 
+			   	target:"window2"});*/
+
+			jsPlumb.addEndpoint("window1")
+
 			// 
 			// connect window1 to window2 with a 13 px wide olive colored Bezier, from the BottomCenter of 
 			// window1 to 3/4 of the way along the top edge of window2.  give the connection a 1px black outline,
@@ -26,7 +34,7 @@
 			// wide tail at a point 0.2 of the length of the connection.  we use 'cssClass' and 'endpointClass' to assign
 			// our own css classes, and the Label overlay has three css classes specified for it too.  we also give this
 			// connection a 'hoverPaintStyle', which defines the appearance when the mouse is hovering over it. 
-			//
+			/*
 			var connection1 = jsPlumb.connect({
 				source:"window1", 
 			   	target:"window2", 			   	

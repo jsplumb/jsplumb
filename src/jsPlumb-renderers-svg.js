@@ -281,6 +281,8 @@
 	};
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
+			console.log("SvgComponent cleanup");
+			jsPlumbUtil.removeElement(this.canvas);            
 			this.svg = null;
 			this.canvas = null;
 			this.path = null;			
@@ -391,8 +393,7 @@
 	 * Base class for SVG endpoints.
 	 */
 	var SvgEndpoint = window.SvgEndpoint = function(params) {
-		var //self = this,
-			_super = SvgComponent.apply(this, [ {
+		var _super = SvgComponent.apply(this, [ {
 				cssClass:params["_jsPlumb"].endpointClass, 
 				originalArgs:arguments, 
 				pointerEventsSpec:"all",
@@ -418,12 +419,13 @@
 			_applyStyles(this.svg, this.node, s, [ this.x, this.y, this.w, this.h ], this);
 			_pos(this.node, [ this.x, this.y ]);
 		}.bind(this);
-		
-		this.reattachListeners = function() {
-			if (this.node) this.reattachListenersForElement(this.node, this);
-		};
+				
 	};
-	jsPlumbUtil.extend(SvgEndpoint, SvgComponent);
+	jsPlumbUtil.extend(SvgEndpoint, SvgComponent, {
+		reattachListeners : function() {
+			if (this.node) this.reattachListenersForElement(this.node, this);
+		}
+	});
 	
 	/*
 	 * SVG Dot Endpoint

@@ -1,9 +1,17 @@
 * 1.4.2
 
+		BACKWARDS COMPATIBILITY
+
+		- Endpoint.isConnectedTo method removed.  it didnt work properly as it only checked for connections
+		where the endpoint was the source.  
+		
+
+
 		ISSUES
 
 		49	- detachEveryConnection performance issue
 		51	- arrow overlay orientation at location 1 on flowchart connectors
+
 
 * 1.4.1
 

@@ -19,13 +19,8 @@
 
 ;(function() {
 			
-    var _findWithFunction = jsPlumbUtil.findWithFunction,
-	_indexOf = jsPlumbUtil.indexOf,
-    _removeWithFunction = jsPlumbUtil.removeWithFunction,
-    _remove = jsPlumbUtil.remove,
-    // TODO support insert index
-    _addWithFunction = jsPlumbUtil.addWithFunction,
-    _addToList = jsPlumbUtil.addToList,
+    var 
+    
 	/**
 		an isArray function that even works across iframes...see here:
 		
@@ -142,7 +137,7 @@
 			this.getId = function() { return id; };	
 			
 			// all components can generate events
-			//jsPlumbUtil.EventGenerator.apply(this);
+			
 			if (params.events) {
 				for (var i in params.events)
 					self.bind(i, params.events[i]);
@@ -199,21 +194,6 @@
 				return r;
 			};										
 			
-			/*
-		     * Sets the paint style and then repaints the element.
-		     * 
-		     * Parameters:
-		     * 	style - Style to use.
-		     */
-		    
-
-		    /**
-		    * Gets the component's paint style.
-		    *
-		    * Returns:
-		    * the component's paint style. if there is no hoverPaintStyle set then this will be the paint style used all the time, otherwise this is the style used when the mouse is not hovering.
-		    */
-		    //this.;
 		    
 		    /*
 		     * Sets the paint style to use when the mouse is hovering over the element. This is null by default.
@@ -263,24 +243,34 @@
 
             	boundListeners = null;
             };
+
+            var domListeners = [];
 		
 			var 
 				bindOne = function(o, c, evt) {
-					var filteredEvent = eventFilters[evt] || evt;
-					jpcl.bind(o, evt, function(ee) {
-						c.fire(filteredEvent, c, ee);
-					});
+					var filteredEvent = eventFilters[evt] || evt,
+						fn = function(ee) {
+							c.fire(filteredEvent, c, ee);
+						};
+					domListeners.push([o, evt, fn]);
+					jpcl.bind(o, evt, fn);
 				},
-				unbindOne = function(o, evt) {
+				unbindOne = function(o, evt, fn) {
 					var filteredEvent = eventFilters[evt] || evt;
-					jpcl.unbind(o, evt);
+					jpcl.unbind(o, evt, fn);
 				};
 		    
 		    this.attachListeners = function(o, c) {
 				for (var i = 0, j = events.length; i < j; i++) {
 					bindOne(o, c, events[i]); 			
 				}
-			};		   		    
+			};	
+			this.detachListeners = function() {
+				for (var i = 0; i < domListeners.length; i++) {
+					unbindOne(domListeners[i][0], domListeners[i][1], domListeners[i][2]);
+				}
+				domListeners = null;
+			};	   		    
 		    
 		    this.reattachListenersForElement = function(o) {
 			    if (arguments.length > 1) {
@@ -397,11 +387,12 @@
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
 			cleanup:function() {		
-				//console.log("jsPlumbUIComponent cleanup", this.id);	
+				console.log("jsPlumbUIComponent cleanup", this.id);	
 				this.unbindListeners();
+				this.detachListeners();
 			},
 			destroy:function() {
-				//console.log("destroy", this.id);
+				console.log("jsPlumbUIComponent destroy", this.id);
 				this.cleanupListeners();
 				this.clone = null;				
 				this._jsPlumb = null;
@@ -610,7 +601,7 @@
 					this.repaint();
 			},
 			cleanup:function() {
-				//console.log("OverlayCapableJsPlumbUIComponent cleanup");
+				console.log("OverlayCapableJsPlumbUIComponent cleanup");
 				for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
 					this._jsPlumb.overlays[i].cleanup();
 					this._jsPlumb.overlays[i].destroy();
@@ -1021,7 +1012,7 @@
             params = params || {};
 			// add to list of connections (by scope).
             if (!jpc.suspendedEndpoint)
-			    _addToList(connectionsByScope, jpc.scope, jpc);					
+			    jsPlumbUtil.addToList(connectionsByScope, jpc.scope, jpc);					
 			
             // always inform the anchor manager
             // except that if jpc has a suspended endpoint it's not true to say the
@@ -1385,7 +1376,7 @@
                 _updateOffset({ elId : id, timestamp:_suspendedAt });
 				var e = _newEndpoint(p);
 				if (p.parentAnchor) e.parentAnchor = p.parentAnchor;
-				_addToList(endpointsByElement, id, e);
+				jsPlumbUtil.addToList(endpointsByElement, id, e);
 				var myOffset = offsets[id], myWH = sizes[id];
 				var anchorLoc = e.anchor.compute( { xy : [ myOffset.left, myOffset.top ], wh : myWH, element : e, timestamp:_suspendedAt });
 				var endpointPaintParams = { anchorLoc : anchorLoc, timestamp:_suspendedAt };
@@ -1725,7 +1716,7 @@
 			},
 			filterList = function(list, value, missingIsFalse) {
 				if (list === "*") return true;
-				return list.length > 0 ? _indexOf(list, value) != -1 : !missingIsFalse;
+				return list.length > 0 ? jsPlumbUtil.indexOf(list, value) != -1 : !missingIsFalse;
 			};
 
 		// get some connections, specifying source/target/scope
@@ -1953,7 +1944,7 @@
 		var connectorTypes = [], rendererTypes = ["canvas", "svg", "vml"];
 		this.registerConnectorType = function(connector, name) {
 			connectorTypes.push([connector, name]);
-		}
+		};
 		
 		/**
 		 * callback from the current library to tell us to prepare ourselves (attach
@@ -1969,7 +1960,6 @@
 			}
 
 			if (!jsPlumb.connectorsInitialized) {
-				console.dir(connectorTypes)	
 				for (var i = 0; i < connectorTypes.length; i++) {
 					for (var j = 0; j < rendererTypes.length; j++) {
 						_oneType(rendererTypes[j], connectorTypes[i][1], connectorTypes[i][0]);												
@@ -1979,7 +1969,6 @@
 				jsPlumb.connectorsInitialized = true;
 			}
 			
-
 			if (!initialized) {                
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
@@ -2378,7 +2367,7 @@
 									_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);																					
 									oldConnection.previousConnection = null;
 									// remove from connectionsByScope
-									_removeWithFunction(connectionsByScope[oldConnection.scope], function(c) {
+									jsPlumbUtil.removeWithFunction(connectionsByScope[oldConnection.scope], function(c) {
 										return c.id === oldConnection.id;
 									});										
 									_currentInstance.anchorManager.connectionDetached({
@@ -2701,12 +2690,12 @@
         // with if the user calls jsPlumb.reset.
         this.registerListener = function(el, type, listener) {
             jsPlumb.CurrentLibrary.bind(el, type, listener);
-            _addToList(_registeredListeners, type, {el:el, event:type, listener:listener});
+            jsPlumbUtil.addToList(_registeredListeners, type, {el:el, event:type, listener:listener});
         };
 
         this.unregisterListener = function(el, type, listener) {
         	jsPlumb.CurrentLibrary.unbind(el, type, listener);
-        	_removeWithFunction(_registeredListeners, function(rl) {
+        	jsPlumbUtil.removeWithFunction(_registeredListeners, function(rl) {
         		return rl.type == type && rl.listener == listener;
         	});
         };
