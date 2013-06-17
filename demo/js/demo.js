@@ -24,7 +24,25 @@
 				source:"window1", 
 			   	target:"window2"});*/
 
-			jsPlumb.addEndpoint("window1")
+			for (var i = 0; i < 500; i++) {
+				var e = jsPlumb.addEndpoint("window1"),
+					e2 = jsPlumb.addEndpoint("window2");
+
+				// delete endpoints programmatically (doesnt leak)				
+				//jsPlumb.deleteEndpoint(e);
+				//jsPlumb.deleteEndpoint(e2);
+
+				// delete every endpoint (NOTE: no connections).  doesnt leak.
+				//jsPlumb.deleteEveryEndpoint();
+
+				// connect the two endpoints then delete one of them. should detach the connection, leaving 
+				// the second endpoint, which we then delete.
+				jsPlumb.connect({source:e, target:e2});
+				jsPlumb.deleteEndpoint(e);
+				jsPlumb.deleteEndpoint(e2);
+			}			
+
+			alert("DONE!")
 
 			// 
 			// connect window1 to window2 with a 13 px wide olive colored Bezier, from the BottomCenter of 

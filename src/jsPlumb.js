@@ -387,12 +387,12 @@
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
 			cleanup:function() {		
-				console.log("jsPlumbUIComponent cleanup", this.id);	
+				//console.log("jsPlumbUIComponent cleanup", this.id);	
 				this.unbindListeners();
 				this.detachListeners();
 			},
 			destroy:function() {
-				console.log("jsPlumbUIComponent destroy", this.id);
+				//console.log("jsPlumbUIComponent destroy", this.id);
 				this.cleanupListeners();
 				this.clone = null;				
 				this._jsPlumb = null;
@@ -601,7 +601,7 @@
 					this.repaint();
 			},
 			cleanup:function() {
-				console.log("OverlayCapableJsPlumbUIComponent cleanup");
+//				console.log("OverlayCapableJsPlumbUIComponent cleanup");
 				for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
 					this._jsPlumb.overlays[i].cleanup();
 					this._jsPlumb.overlays[i].destroy();
@@ -1496,10 +1496,17 @@
 			_currentInstance.doWhileSuspended(function() {
 				var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
 				if (endpoint) {					
-					var uuid = endpoint.getUuid();
-					if (uuid) endpointsByUUID[uuid] = null;				
-					endpoint.detachAll().cleanup();														
+					// 1. cleanup by uuid reference if there was one
+					if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
+					// 2. inform the anchor manager
 					_currentInstance.anchorManager.deleteEndpoint(endpoint);
+					// 3. detach all connections from the endpoint
+					endpoint.detachAll();
+					//4. cleanup endpoint
+					endpoint.cleanup();														
+					
+					// 5. remove from endpointsByElement. i wish endpointsByElement didnt exist.
+					// TODO at least replace this with a removeWithFunction call!
 					for (var e in endpointsByElement) {
 						var endpoints = endpointsByElement[e];
 						if (endpoints) {
@@ -1512,10 +1519,13 @@
 						if(endpointsByElement[e].length <1){
 							delete endpointsByElement[e];
 						}
-					}				
+					}	
+
+					// 6. inform drag manager, if there is one.  i wish jsplumb knew nothing about ui.			
 					if (!jsPlumbAdapter.headless)
 						_currentInstance.dragManager.endpointDeleted(endpoint);								
 
+					// 7. destroy the endpoint. 
 					endpoint.destroy();
 				}
 				return _currentInstance;									

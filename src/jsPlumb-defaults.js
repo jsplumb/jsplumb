@@ -965,7 +965,7 @@
 	};
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
         cleanup : function() {
-            console.log("Cleanup image overlay");
+            //console.log("Cleanup image overlay");
             this.doCleanup();
         } 
     });

@@ -254,14 +254,17 @@
             return _ju.findWithFunction(this.connections, function(c) { return c.id == connection.id});
         }.bind(this);
 
-        this.justDetach = function(connection) {
-            var idx = findConnectionIndex(connection);
-            if (idx >= 0)
+        this.justDetach = function(connection, idx) {
+            idx = idx == null ? findConnectionIndex(connection) : idx;
+            if (idx >= 0) {
                 this.connections.splice(idx, 1);
+                this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+                this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);                 
+            }
         };
 
-        this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted) {
-            var idx = findConnectionIndex(connection), actuallyDetached = false;
+        this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
+            var idx = connectionIndex == null ? findConnectionIndex(connection) : connectionIndex, actuallyDetached = false;
             fireEvent = (fireEvent !== false);
             if (idx >= 0) {		
                 // 1. does the connection have a before detach (note this also checks jsPlumb's bound
@@ -270,9 +273,9 @@
                     // get the target endpoint
                     var t = connection.endpoints[0] == this ? connection.endpoints[1] : connection.endpoints[0];
                     if (forceDetach || connection._forceDetach || (this.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {                
-                        this.connections.splice(idx, 1);										
-                        connection.cleanup();
-                        connection.destroy();
+                        
+                        this.justDetach(connection, idx);
+                                                
                         // avoid circular loop
                         if (!ignoreTarget) {                        
                             t.justDetach(connection);
@@ -289,15 +292,17 @@
                                 }
                             }
                         }
-                        if (connection.getConnector() != null)
-                            _ju.removeElements(connection.getConnector().getDisplayElements(), connection.parent);
+                        
+                        // TODO I WISH JSPLUMB WOULD DO THIS. WHY DONT WE CALL jsPlumb.detach with the connection here?
                         _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
                             return c.id == connection.id;
-                        });
-                        this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
-                        this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
+                        });                        
+                       
                         actuallyDetached = true;                        
                         _fireDetachEvent(connection, (!ignoreTarget && fireEvent), originalEvent);
+
+                        connection.cleanup();
+                        connection.destroy();
                     }
                 }
             }
@@ -306,11 +311,14 @@
         
         this.detachAll = function(fireEvent, originalEvent) {
             while (this.connections.length > 0) {
-                this.detach(this.connections[0], false, true, fireEvent, originalEvent, this);
+                // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
+                this.detach(this.connections[0], false, true, fireEvent == null ? false : fireEvent, originalEvent, this, 0);
             }
             return this;
         };
             
+        // TODO check this! surely it will crash now...it sets the connection to hover false after detaching
+        // it, but the connection will have been deleted.
         this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
             var c = [];
             for ( var i = 0; i < this.connections.length; i++) {
@@ -940,7 +948,7 @@
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
         cleanup : function() {
-            console.log("Endpoint cleanup");
+            //console.log("Endpoint cleanup");
             jsPlumb.CurrentLibrary.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
             //jsPlumbUtil.removeElements(this.endpoint.getDisplayElements());            
             this.anchor = null;
