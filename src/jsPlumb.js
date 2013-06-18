@@ -1502,11 +1502,10 @@
 					_currentInstance.anchorManager.deleteEndpoint(endpoint);
 					// 3. detach all connections from the endpoint
 					endpoint.detachAll();
-					//4. cleanup endpoint
-					endpoint.cleanup();														
-					
-					// 5. remove from endpointsByElement. i wish endpointsByElement didnt exist.
+																							
+					// 4. remove from endpointsByElement. i wish endpointsByElement didnt exist.
 					// TODO at least replace this with a removeWithFunction call!
+					//console.time("rework endpointsByElement");
 					for (var e in endpointsByElement) {
 						var endpoints = endpointsByElement[e];
 						if (endpoints) {
@@ -1519,7 +1518,21 @@
 						if(endpointsByElement[e].length <1){
 							delete endpointsByElement[e];
 						}
-					}	
+					}
+					
+					/*
+					jsPlumbUtil.removeWithFunction(endpointsByElement[endpoint.elementId], function(e) {
+					    return e == endpoint;
+					});	
+					if (endpointsByElement[endpoint.elementId].length < 1)
+						delete endpointsByElement[endpoint.elementId];
+					*/
+				
+
+					//console.timeEnd("rework endpointsByElement");
+
+					// 5. cleanup endpoint
+					endpoint.cleanup();
 
 					// 6. inform drag manager, if there is one.  i wish jsplumb knew nothing about ui.			
 					if (!jsPlumbAdapter.headless)
