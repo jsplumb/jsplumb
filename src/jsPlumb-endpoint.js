@@ -152,7 +152,6 @@
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
 
-        //var /*_endpoint = null,*/ originalEndpoint = null;
         this.setEndpoint = function(ep) {
 
             if (this.endpoint != null) {
@@ -281,10 +280,7 @@
                             }
                         }
                         
-                        // TODO I WISH JSPLUMB WOULD DO THIS. WHY DONT WE CALL jsPlumb.detach with the connection here?
-                        _ju.removeWithFunction(params.connectionsByScope[connection.scope], function(c) {
-                            return c.id == connection.id;
-                        });                        
+                        _jsPlumb.unregisterConnection(connection);                        
                        
                         actuallyDetached = true;                        
                         _fireDetachEvent(connection, (!ignoreTarget && fireEvent), originalEvent);

@@ -709,7 +709,8 @@
         resizeTimer = null,
         initialized = false,
         _connectionBeingDragged = null,        
-        connectionsByScope = {},
+        //connectionsByScope = {},
+        connections = window.connections = [],
         /**
          * map of element id -> endpoint lists. an element can have an arbitrary
          * number of endpoints on it, and not all of them have to be connected
@@ -721,9 +722,7 @@
         offsetTimestamps = {},
         floatingConnections = {},
         draggableStates = {},		
-        canvasList = [],
         sizes = [],
-        //listeners = {}, // a map: keys are event types, values are lists of listeners.
         DEFAULT_SCOPE = this.Defaults.Scope,
         renderMode = null,  // will be set in init()							
 		
@@ -1012,7 +1011,8 @@
             params = params || {};
 			// add to list of connections (by scope).
             if (!jpc.suspendedEndpoint)
-			    jsPlumbUtil.addToList(connectionsByScope, jpc.scope, jpc);					
+			    //jsPlumbUtil.addToList(connectionsByScope, jpc.scope, jpc);					
+				connections.push(jpc);
 			
             // always inform the anchor manager
             // except that if jpc has a suspended endpoint it's not true to say the
@@ -1081,7 +1081,8 @@
                 _p.fireDetachEvent = fireDetachEvent;
                 _p.floatingConnections = floatingConnections;
                 _p.getParentFromParams = _getParentFromParams;
-                _p.connectionsByScope = connectionsByScope;
+                //_p.connectionsByScope = connectionsByScope;
+                //_p.connections = connections;
 				var ep = new endpointFunc(_p);
 				ep.id = "ep_" + _idstamp();
 				_eventFireProxy("click", "endpointClick", ep);
@@ -1584,6 +1585,13 @@
             _currentInstance.anchorManager.connectionDetached(params);
 		};	
 
+		// remove a connection from the list.
+		this.unregisterConnection = function(connection) {
+			jsPlumbUtil.removeWithFunction(connections, function(c) {
+			    return c.id == connection.id;
+			});
+		};
+
 		// detach a connection
 		this.detach = function() {
 
@@ -1652,7 +1660,8 @@
 						}
 					}
 				}
-				connectionsByScope = {};
+				//connectionsByScope = {};
+				connections.splice(0);
 			});
 			return _currentInstance;
 		};
@@ -1764,15 +1773,15 @@
 					ss.push(obj);
 				} else results.push(obj);
 			};
-			for ( var i in connectionsByScope) {
-				if (filterList(scopes, i)) {
-					for ( var j = 0, jj = connectionsByScope[i].length; j < jj; j++) {
-						var c = connectionsByScope[i][j];
-						if (filterList(sources, c.sourceId) && filterList(targets, c.targetId))
-							_addOne(i, c);
+			//for ( var i in connectionsByScope) {
+			//	if (filterList(scopes, i)) {
+					for ( var j = 0, jj = connections.length; j < jj; j++) {
+						var c = connections[j];
+						if (filterList(scopes, c.scope) && filterList(sources, c.sourceId) && filterList(targets, c.targetId))
+							_addOne(c.scope, c);
 					}
-				}
-			}
+			//	}
+			//}
 			return results;
 		};
 		
@@ -1898,7 +1907,7 @@
 
 		// get all connections managed by the instance of jsplumb.
 		this.getAllConnections = function() {
-			return connectionsByScope;
+			return connections;//ByScope;
 		};
 
 
@@ -2390,7 +2399,7 @@
 									_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);																					
 									oldConnection.previousConnection = null;
 									// remove from connectionsByScope
-									jsPlumbUtil.removeWithFunction(connectionsByScope[oldConnection.scope], function(c) {
+									jsPlumbUtil.removeWithFunction(connections, function(c) {
 										return c.id === oldConnection.id;
 									});										
 									_currentInstance.anchorManager.connectionDetached({
@@ -2735,6 +2744,7 @@
 			_sourceEndpoints = {};
 			_sourceEndpointsUnique = {};
 			_sourceMaxConnections = {};
+			connections.splice(0);
 			_unbindRegisteredListeners();
 			_currentInstance.anchorManager.reset();
 			if (!jsPlumbAdapter.headless)
@@ -2884,13 +2894,13 @@
 	                jsPlumb.CurrentLibrary.bind(document, event, function(e) {
 	                    if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
 	                        // try connections first
-	                        for (var scope in connectionsByScope) {
-	                            var c = connectionsByScope[scope];
-	                            for (var i = 0, ii = c.length; i < ii; i++) {
-	                                var t = c[i].getConnector()[event](e);
+	                        //for (var scope in connectionsByScope) {
+	                            //var c = connectionsByScope[scope];
+	                            for (var i = 0, ii = connections.length; i < ii; i++) {
+	                                var t = connections[i].getConnector()[event](e);
 	                                if (t) return;	
 	                            }
-	                        }
+	                        //}
 	                        for (var el in endpointsByElement) {
 	                            var ee = endpointsByElement[el];
 	                            for (var i = 0, ii = ee.length; i < ii; i++) {
@@ -2958,10 +2968,9 @@
 				},
 				connectionCount : function(scope) {
 					scope = scope || DEFAULT_SCOPE;
-					var c = connectionsByScope[scope];
+					var c = _currentInstance.getConnections({scope:scope});
 					return c ? c.length : 0;
 				},
-				//findIndex : _findIndex,
 				getId : _getId,
 				makeAnchor:self.makeAnchor,
 				makeDynamicAnchor:self.makeDynamicAnchor

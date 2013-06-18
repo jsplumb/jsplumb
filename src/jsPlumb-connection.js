@@ -71,11 +71,11 @@
                     
         
         // wrapped the main function to return null if no input given. this lets us cascade defaults properly.
-        var prepareEndpoint = function(existing, index, params, element, elementId, connectorPaintStyle, connectorHoverPaintStyle) {
+        var prepareEndpoint = function(conn, existing, index, params, element, elementId, connectorPaintStyle, connectorHoverPaintStyle) {
             var e;
             if (existing) {
-                this.endpoints[index] = existing;
-                existing.addConnection(this);					
+                conn.endpoints[index] = existing;
+                existing.addConnection(conn);					
             } else {
                 if (!params.endpoints) params.endpoints = [ null, null ];
                 var ep = params.endpoints[index] 
@@ -116,22 +116,22 @@
                         _makeAnchor(jsPlumb.Defaults.Anchor, elementId, _jsPlumb),					
                     u = params.uuids ? params.uuids[index] : null;
                     e = _newEndpoint({ 
-                        paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ this ], 
+                        paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ conn ], 
                         uuid : u,  anchor : a,  source : element, scope  : params.scope, container:params.container,
                         reattach:params.reattach || _jsPlumb.Defaults.ReattachConnections,
                         detachable:params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
                     });
-                this.endpoints[index] = e;
+                conn.endpoints[index] = e;
                 
                 if (params.drawEndpoints === false) e.setVisible(false, true, true);
                                     
             }
             return e;
-        }.bind(this);					
+        };
 
-        var eS = prepareEndpoint(params.sourceEndpoint, 0, params, this.source, this.sourceId, params.paintStyle, params.hoverPaintStyle);			
+        var eS = prepareEndpoint(this, params.sourceEndpoint, 0, params, this.source, this.sourceId, params.paintStyle, params.hoverPaintStyle);			
         if (eS) _ju.addToList(params.endpointsByElement, this.sourceId, eS);						
-        var eT = prepareEndpoint(params.targetEndpoint, 1, params, this.target, this.targetId, params.paintStyle, params.hoverPaintStyle);
+        var eT = prepareEndpoint(this, params.targetEndpoint, 1, params, this.target, this.targetId, params.paintStyle, params.hoverPaintStyle);
         if (eT) _ju.addToList(params.endpointsByElement, this.targetId, eT);
         // if scope not set, set it to be the scope for the source endpoint.
         if (!this.scope) this.scope = this.endpoints[0].scope;		

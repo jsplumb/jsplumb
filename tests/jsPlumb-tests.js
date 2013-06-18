@@ -62,7 +62,7 @@ var defaults = null,
 		_jsPlumb.reset();
 		if (_jsPlumb.select().length != 0)
 			throw "there are connections!";
-		
+
 		_jsPlumb.Defaults = defaults;
 	
 		for (var i in _divs) {
@@ -799,11 +799,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d8, target:d9, scope:'testScope'});
 		_jsPlumb.connect({source:d9, target:d10}); // default scope
 		var c = _jsPlumb.getAllConnections();  // will get all connections	
-		equal(c[_jsPlumb.getDefaultScope()].length, 1);
-		equal(c['testScope'].length, 1);	
+		equal(c.length, 2, "all connections has two entries");		
 		// now supply a list of scopes
 		c = _jsPlumb.getConnections();  	
-		equal(c.length, 1);
+		equal(c.length, 1, "1 connection in default scope");
 		c = _jsPlumb.getConnections("testScope");
 		equal(c.length, 1, "there is one connection in 'testScope'");
 	});
@@ -1365,6 +1364,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         expect(1);
     });    
 	
+	/*
     test(renderMode + ": removeAllEndpoints - element already deleted", function() {
         var d1 = _addDiv("d1");
         _jsPlumb.addEndpoint(d1);
@@ -1376,7 +1376,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.repaintEverything();
         
         expect(0);
-    });
+    });*/
     
     test(renderMode + ": jsPlumb.remove, element identified by string", function() {
         var d1 = _addDiv("d1");
