@@ -867,6 +867,8 @@
     TODO: multiple references to self. not sure quite how to get rid of them entirely. perhaps self = null in the cleanup
     function will suffice
 
+    TODO this class still leaks memory.
+
 	 */
 	jsPlumb.Endpoints.Image = function(params) {
 				
@@ -889,9 +891,9 @@
 			widthToUse = widthToUse || img.width;
 			heightToUse = heightToUse || img.height;
             if (_onload) {
-                _onload(self);
+                _onload(this);
             }
-		};
+		}.bind(this);
 
         /*
             Function: setImage
@@ -903,7 +905,7 @@
         */
         _endpoint.setImage = function(_img, onload) {
             var s = _img.constructor == String ? _img : _img.src;
-            _onload = onload; // TODO would like to 
+            _onload = onload; 
             img.src = _img;
 
             if (canvas != null)
@@ -913,7 +915,7 @@
         _endpoint.setImage(params.src || params.url, params.onload);
 
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
-			self.anchorPoint = anchorPoint;
+			this.anchorPoint = anchorPoint;
 			if (ready) return [anchorPoint[0] - widthToUse / 2, anchorPoint[1] - heightToUse / 2, 
 									widthToUse, heightToUse];
 			else return [0,0,0,0];
@@ -925,10 +927,10 @@
 		canvas.style["outline"] = 0;
 		canvas.style["position"] = "absolute";
 		var clazz = params.cssClass ? " " + params.cssClass : "";
-		canvas.className = jsPlumb.endpointClass + clazz;
+		canvas.className = this._jsPlumb.instance.endpointClass + clazz;
 		if (widthToUse) canvas.setAttribute("width", widthToUse);
 		if (heightToUse) canvas.setAttribute("height", heightToUse);		
-		jsPlumb.appendElement(canvas, params.parent);
+		this._jsPlumb.instance.appendElement(canvas, params.parent);
 		this.attachListeners(canvas, this);
 		
         //
@@ -937,20 +939,21 @@
             img = null;
             canvas = null;
             self = null;
+            //jsPlumbUtil.removeElement(this.canvas);
 		};
 		
 		var actuallyPaint = function(d, style, anchor) {
 			if (!deleted) {
 				if (!initialized) {
 					canvas.setAttribute("src", img.src);
-					self.appendDisplayElement(canvas);
+					this.appendDisplayElement(canvas);
 					initialized = true;
 				}
-				var x = self.anchorPoint[0] - (widthToUse / 2),
-					y = self.anchorPoint[1] - (heightToUse / 2);
+				var x = this.anchorPoint[0] - (widthToUse / 2),
+					y = this.anchorPoint[1] - (heightToUse / 2);
 				jsPlumb.sizeCanvas(canvas, x, y, widthToUse, heightToUse);
 			}
-		};
+		}.bind(this);
 		
 		this.paint = function(style, anchor) {
 			if (ready) {
@@ -958,8 +961,8 @@
 			}
 			else { 
 				window.setTimeout(function() {    					
-					self.paint(style, anchor);
-				}, 200);
+					this.paint(style, anchor);
+				}.bind(this), 200);
 			}
 		};				
 	};
