@@ -939,7 +939,7 @@
             img = null;
             canvas = null;
             self = null;
-            //jsPlumbUtil.removeElement(this.canvas);
+            jsPlumbUtil.removeElement(this.canvas);
 		};
 		
 		var actuallyPaint = function(d, style, anchor) {

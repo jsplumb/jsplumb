@@ -276,7 +276,7 @@
                                 for (var i = 0; i < connection.endpointsToDeleteOnDetach.length; i++) {
                                     var cde = connection.endpointsToDeleteOnDetach[i];
                                     if (cde && endpointBeingDeleted != cde && cde.connections.length == 0) 
-                                        _jsPlumb.deleteEndpoint(cde);							
+                                        _jsPlumb.deleteEndpoint(cde, true);							
                                 }
                             }
                         }
@@ -300,13 +300,13 @@
         this.detachAll = function(fireEvent, originalEvent) {
             while (this.connections.length > 0) {
                 // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
-                this.detach(this.connections[0], false, true, fireEvent == null ? false : fireEvent, originalEvent, this, 0);
+                // TODO now it defaults to fireEvent true.  will that mess with things?
+                this.detach(this.connections[0], false, true, fireEvent !== false, originalEvent, this, 0);
             }
             return this;
         };
             
-        // TODO check this! surely it will crash now...it sets the connection to hover false after detaching
-        // it, but the connection will have been deleted.
+        
         this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
             var c = [];
             for ( var i = 0; i < this.connections.length; i++) {
@@ -316,16 +316,10 @@
                 }
             }
             for ( var i = 0; i < c.length; i++) {
-                this.detach(c[i], false, true, fireEvent, originalEvent);
-
-                //if (this.detach(c[i], false, true, fireEvent, originalEvent))
-                  //  c[i].setHover(false, false);					
+                this.detach(c[i], false, true, fireEvent, originalEvent);				
             }
             return this;
-        };	
-        
-
-        //this.detachFromConnection = this.justDetach;
+        };	        
         
         this.getElement = function() {
             return this.element;
@@ -338,7 +332,7 @@
                 return e.id == this.id;
             }.bind(this));
             this.element = _gel(el);
-           /* _elementId = */this.elementId = _jsPlumb.getId(this.element);             
+            this.elementId = _jsPlumb.getId(this.element);             
             // need to get the new parent now
             var newParentElement = params.getParentFromParams({source:parentId, container:container}),
             curParent = jpcl.getParent(this.canvas);
@@ -351,11 +345,9 @@
                 this.connections[i].sourceId = this.elementId;
                 this.connections[i].source = this.element;					
             }	
-            _ju.addToList(params.endpointsByElement, parentId, this);
-            
+            _ju.addToList(params.endpointsByElement, parentId, this);            
         };
                 
-
         /**
          * private but must be exposed.
          */
@@ -398,12 +390,7 @@
             else {
                 return (this.connections.length < this._jsPlumb.maxConnections) || this._jsPlumb.maxConnections == -1 ? null : candidate;
             }
-        };
-        
-        //this.
-                    
-        
-            
+        };        
         
         this.setStyle = this.setPaintStyle;        
         
@@ -954,8 +941,8 @@
         setConnectionCost : function(c) {
             this._jsPlumb.connectionCost = c; 
         },
-        areConnectionsDirected : function() { return this._jsPlumbconnectionsDirected; },
-        setConnectionsDirected : function(b) { this._jsPlumbconnectionsDirected = b; },
+        areConnectionsDirected : function() { return this._jsPlumb.connectionsDirected; },
+        setConnectionsDirected : function(b) { this._jsPlumb.connectionsDirected = b; },
         setElementId : function(_elId) {
             this.elementId = _elId;
             this.anchor.elementId = _elId;

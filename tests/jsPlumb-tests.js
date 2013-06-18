@@ -58,18 +58,20 @@ var _triggerEvent = function(el, eventId) {
 };
 
 var defaults = null,
-	_cleanup = function(_jsPlumb) {	
+	_cleanup = function(_jsPlumb) {		
+		_jsPlumb.reset();
+		if (_jsPlumb.select().length != 0)
+			throw "there are connections!";
+		
+		_jsPlumb.Defaults = defaults;
 	
-	_jsPlumb.reset();
-	_jsPlumb.Defaults = defaults;
-	
-	for (var i in _divs) {
-		$("#" + _divs[i]).remove();		
-	}	
-	_divs.splice(0, _divs.length - 1);
+		for (var i in _divs) {
+			$("#" + _divs[i]).remove();		
+		}	
+		_divs.splice(0, _divs.length - 1);
 
-	$("#container").empty();
-};
+		$("#container").empty();
+	};
 
 var testSuite = function(renderMode, _jsPlumb) {
 	
@@ -580,7 +582,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { return true; }});
 		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equal(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+		equal(c.endpoints, null, "connection's endpoints were removed");
 	});
 
 	test(renderMode + ": detach; beforeDetach on connect call throws an exception; we treat it with the contempt it deserves and pretend it said the detach was ok.", function() {
@@ -588,7 +590,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:d1, target:d2, beforeDetach:function(conn) { throw "i am an example of badly coded beforeDetach, but i don't break jsPlumb "; }});
 		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equal(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+		equal(c.endpoints, null, "connection's endpoints were removed");
 	});
 	
 	test(renderMode + ": detach; beforeDetach on addEndpoint call to source Endpoint returns false", function() {
@@ -613,7 +615,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1,target:e2});
 		equal(c.endpoints[0].connections.length, 1, "source endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equal(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was allowed");
+		equal(c.endpoints, null, "connection's endpoints were removed");
 	});
 	
 
@@ -645,8 +647,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1,target:e2});
 		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c, {forceDetach:true});
-        equal(c.endpoints[0].connections.length, 0, "source endpoint has no connections after detach call was denied but forced anyway");
-		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was denied but forced anyway");
+        equal(c.endpoints, null, "connection's endpoints were removed");
 	});
 	
 	test(renderMode + ": _jsPlumb.detach; beforeDetach on addEndpoint call to target Endpoint returns true", function() {
@@ -656,7 +657,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1,target:e2});
 		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was allowed");
+		equal(c.endpoints, null, "connection's endpoints were removed");
+		equal(e1.connections.length, 0, "source endpoint has no connections");
+		equal(e2.connections.length, 0, "target endpoint has no connections");
 	});
 	
 	test(renderMode + ": _jsPlumb.detach; beforeDetach bound to _jsPlumb returns false", function() {
@@ -689,7 +692,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		});
 		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detach(c);
-		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detach call was denied");
+		equal(c.endpoints, null, "connection's endpoints were removed");
+		equal(e1.connections.length, 0, "source endpoint has no connections");
+		equal(e2.connections.length, 0, "target endpoint has no connections");
 	});
 	
 	test(renderMode + ": _jsPlumb.detachAllConnections ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
@@ -699,7 +704,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1,target:e2});
 		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detachAllConnections(d1);
-		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAll was called");
+		equal(c.endpoints, null, "connection's endpoints were removed");
+		equal(e1.connections.length, 0, "source endpoint has no connections");
+		equal(e2.connections.length, 0, "target endpoint has no connections");
 	});
 
 	test(renderMode + ": _jsPlumb.detachEveryConnection ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
@@ -709,7 +716,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1,target:e2});
 		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		_jsPlumb.detachEveryConnection();
-		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachEveryConnection was called");
+		equal(c.endpoints, null, "connection's endpoints were removed");
+		equal(e1.connections.length, 0, "source endpoint has no connections");
+		equal(e2.connections.length, 0, "target endpoint has no connections");
 	});
 
 	test(renderMode + ": Endpoint.detachAll ; beforeDetach on addEndpoint call to target Endpoint returns false but we should detach anyway", function() {
@@ -719,7 +728,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1,target:e2});
 		equal(c.endpoints[1].connections.length, 1, "target endpoint has a connection initially");
 		e1.detachAll();
-		equal(c.endpoints[1].connections.length, 0, "target endpoint has no connections after detachAllConnections was called");
+		equal(c.endpoints, null, "connection's endpoints were removed");
+		equal(e1.connections.length, 0, "source endpoint has no connections");
+		equal(e2.connections.length, 0, "target endpoint has no connections");
 	});
 	
 // ******** end of beforeDetach tests **************
@@ -728,8 +739,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 
     test(renderMode + ": _jsPlumb.detachEveryConnection fires events", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"), connCount = 0;
-        _jsPlumb.bind("jsPlumbConnection", function() { connCount++; });
-        _jsPlumb.bind("jsPlumbConnectionDetached", function() { connCount--; });
+        _jsPlumb.bind("connection", function() { connCount++; });
+        _jsPlumb.bind("connectionDetached", function() { connCount--; });
         _jsPlumb.connect({source:d1, target:d2});
         _jsPlumb.connect({source:d1, target:d2});
         equal(connCount, 2, "two connections registered");
@@ -971,7 +982,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, {});
 		var e2 = _jsPlumb.addEndpoint(d2, {});
 		var returnedParams = null;
-		_jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
+		_jsPlumb.bind("connectionDetached", function(params) {
 				returnedParams = $.extend({}, params);
 			});
 		_jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2});
@@ -986,7 +997,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e1 = _jsPlumb.addEndpoint(d1, {});
 		var e2 = _jsPlumb.addEndpoint(d2, {});
 		var returnedParams = null;
-		_jsPlumb.bind("jsPlumbConnectionDetached", function(params) {
+		_jsPlumb.bind("connectionDetached", function(params) {
 				returnedParams = $.extend({}, params);
 			});
 		_jsPlumb.connect({sourceEndpoint:e1, targetEndpoint:e2});
@@ -1168,16 +1179,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertConnectionCount(e16, 0);
 		assertConnectionCount(e17, 0);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 0, _jsPlumb);  
-	});
-	
-	test(renderMode + ": Endpoint.isConnectedTo", function() {
-		var d16 = _addDiv("d16"), d17 = _addDiv("d17");
-		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true});
-		ok(e16.anchor, 'endpoint 16 has an anchor');
-		var e17 = _jsPlumb.addEndpoint(d17, {isSource:true});
-		var conn = _jsPlumb.connect({sourceEndpoint:e16, targetEndpoint:e17});
-		equal(e16.isConnectedTo(e17), true, "e16 and e17 are connected");  
-	});
+	});	
 
 	asyncTest(renderMode + " jsPlumbUtil.setImage on Endpoint, with supplied onload", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
@@ -5837,7 +5839,9 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
     
     test(renderMode + " addClass via jsPlumb.select", function() {
         _addDiv("d1"); _addDiv("d2");
+        equal(_jsPlumb.select().length, 0, "there are no connections");
         var c = _jsPlumb.connect({source:"d1", target:"d2"});
+        equal(_jsPlumb.select().length, 1, "there is one connection");
         _jsPlumb.select().addClass("foo");
         ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
         _jsPlumb.select().addClass("bar", true);
