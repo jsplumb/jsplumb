@@ -33,10 +33,10 @@
     var Flowchart = function(params) {
         this.type = "Flowchart";
         params = params || {};
-        params.stub = params.stub || 30;
+        params.stub = params.stub == null ? 30 : params.stub;
         var self = this,
             _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),		
-            midpoint = params.midpoint || 0.5,
+            midpoint = params.midpoint == null ? 0.5 : params.midpoint,
             points = [], segments = [],
             grid = params.grid,
             alwaysRespectStubs = params.alwaysRespectStubs,
