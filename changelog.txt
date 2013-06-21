@@ -11,6 +11,7 @@
 
 		49	- detachEveryConnection performance issue
 		51	- arrow overlay orientation at location 1 on flowchart connectors
+		63  - midpoint:0 is ignored
 
 
 * 1.4.1
