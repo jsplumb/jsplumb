@@ -769,7 +769,7 @@
 
 			// TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
             if (!jsPlumbAdapter.headless && !_suspendDrawing) {
-			    var id = _att(element, "id"),
+			    var id = _getId(element),//_att(element, "id"),
 			    	repaintEls = _currentInstance.dragManager.getElementsForDraggable(id);			    
 
 			    if (timestamp == null) timestamp = _timestamp();
@@ -1083,6 +1083,7 @@
                 _p.getParentFromParams = _getParentFromParams;
                 //_p.connectionsByScope = connectionsByScope;
                 //_p.connections = connections;
+                _p.elementId = _getId(_p.source);
 				var ep = new endpointFunc(_p);
 				ep.id = "ep_" + _idstamp();
 				_eventFireProxy("click", "endpointClick", ep);
@@ -1162,7 +1163,7 @@
 					ep.setVisible(false, true, true);
 				};
 			}
-			var id = _att(el, "id");
+			var id = _getId(el);//_att(el, "id");
 			_operation(id, function(jpc) {
 				if (state && alsoChangeEndpoints) {		
 					// this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
@@ -1373,8 +1374,9 @@
 				inputs = (_isArray(el) || (el.length != null && !_isString(el))) ? el : [ el ];
 						
 			for (var i = 0, j = inputs.length; i < j; i++) {
-				var _el = _gel(inputs[i]), id = _getId(_el);
+				var _el = _gel(inputs[i]), id = _getId(inputs[i]);//id = _getId(_el);				
 				p.source = _el;
+
                 _updateOffset({ elId : id, timestamp:_suspendedAt });
 				var e = _newEndpoint(p);
 				if (p.parentAnchor) e.parentAnchor = p.parentAnchor;
@@ -1638,8 +1640,8 @@
 		// detach all connections from some element.
 		this.detachAllConnections = function(el, params) {
             params = params || {};
-            el = _gel(el);
-			var id = _att(el, "id"),
+            //el = _gel(el);
+			var id = _getId(el),//_att(el, "id"),
                 endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
 				for ( var i = 0, j = endpoints.length; i < j; i++) {

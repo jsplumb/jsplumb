@@ -146,7 +146,8 @@
 		 * gets the named attribute from the given element object.  
 		 */
 		getAttribute : function(el, attName) {
-			return el.attr(attName);
+			//return el.attr(attName);
+			return el.getAttribute(attName);
 		},
 		
 		getClientXY : function(eventObject) {

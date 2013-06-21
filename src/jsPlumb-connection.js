@@ -42,13 +42,14 @@
         if (params.sourceEndpoint) this.source = params.sourceEndpoint.endpointWillMoveTo || params.sourceEndpoint.getElement();            
         if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();        
 
-        this.sourceId = _att(this.source, "id");
-        this.targetId = _att(this.target, "id");
+        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+
+        this.sourceId = this._jsPlumb.instance.getId(this.source);              //_att(this.source, "id");
+        this.targetId = this._jsPlumb.instance.getId(this.target);//_att(this.target, "id");
         this.scope = params.scope; // scope may have been passed in to the connect call. if it wasn't, we will pull it from the source endpoint, after having initialised the endpoints.            
         this.endpoints = [];
         this.endpointStyles = [];
-
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);    
+            
         var _jsPlumb = this._jsPlumb.instance;    
         this._jsPlumb.visible = true;
         this._jsPlumb.editable = params.editable === true;    

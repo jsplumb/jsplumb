@@ -111,7 +111,7 @@
         this._jsPlumb.floatingEndpoint = null;  
         var inPlaceCopy = null;
         if (this._jsPlumb.uuid) params.endpointsByUUID[this._jsPlumb.uuid] = this;
-        this.elementId = _att(this.element, "id");            
+        this.elementId = params.elementId;//_att(this.element, "id");            
         
         this._jsPlumb.connectionCost = params.connectionCost;
         this._jsPlumb.connectionsDirected = params.connectionsDirected;        
