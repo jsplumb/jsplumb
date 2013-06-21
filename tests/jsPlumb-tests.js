@@ -1019,6 +1019,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		_jsPlumb.reset();
 		var conn = _jsPlumb.connect({source:d1, target:d2});
+		// TODO this does NOT work. the method doesn't correctly deduce what the args are.
+		// and this test doesn't properly check that anything actually happened.
 		_jsPlumb.detach(d1,d2);
 		ok(returnedParams == null, "connection listener was cleared by _jsPlumb.reset()");
 	});

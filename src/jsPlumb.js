@@ -1279,8 +1279,9 @@
 		 * have them but also to connections and endpoints.
 		 */
 		_getId = function(element, uuid, doNotCreateIfNotFound) {
-			var ele = _gel(element);
-			var id = _att(ele, "id");
+			var ele = jsPlumb.CurrentLibrary.getDOMElement(element);
+			if (ele == null) return null;			
+			var id = ele.getAttribute("id");
 			if (!id || id == "undefined") {
 				// check if fixed uuid parameter is given
 				if (arguments.length == 2 && arguments[1] != undefined)
@@ -1288,7 +1289,7 @@
 				else if (arguments.length == 1 || (arguments.length == 3 && !arguments[2]))
 					id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
 				
-                if (!doNotCreateIfNotFound) _setAttribute(ele, "id", id);
+                if (!doNotCreateIfNotFound) ele.setAttribute("id", id);//_setAttribute(ele, "id", id);
 			}
 			return id;
 		},		
