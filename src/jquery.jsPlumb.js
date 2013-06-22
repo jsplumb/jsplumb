@@ -144,11 +144,12 @@
 		
 		/**
 		 * gets the named attribute from the given element object.  
-		 */
+		 *
 		getAttribute : function(el, attName) {
+			//alert("hh")
 			//return el.attr(attName);
 			return el.getAttribute(attName);
-		},
+		},*/
 		
 		getClientXY : function(eventObject) {
 			return [eventObject.clientX, eventObject.clientY];

@@ -66,7 +66,7 @@
         var //self = this, 
             _jsPlumb = params["_jsPlumb"],
             jpcl = jsPlumb.CurrentLibrary,
-            _att = jpcl.getAttribute,
+            _att = jsPlumbAdapter.getAttribute,//jpcl.getAttribute,
             _gel = jpcl.getElementObject,
             _ju = jsPlumbUtil,            
             _newConnection = params.newConnection,
@@ -111,7 +111,7 @@
         this._jsPlumb.floatingEndpoint = null;  
         var inPlaceCopy = null;
         if (this._jsPlumb.uuid) params.endpointsByUUID[this._jsPlumb.uuid] = this;
-        this.elementId = params.elementId;//_att(this.element, "id");            
+        this.elementId = params.elementId;
         
         this._jsPlumb.connectionCost = params.connectionCost;
         this._jsPlumb.connectionsDirected = params.connectionsDirected;        
@@ -682,9 +682,9 @@
                                                     
                         var originalEvent = jpcl.getDropEvent(arguments),
                             draggable = _gel(jpcl.getDragObject(arguments)),
-                            id = _att(draggable, "dragId"),
-                            elId = _att(draggable, "elId"),						
-                            scope = _att(draggable, "originalScope"),
+                            id = _jsPlumb.getAttribute(draggable, "dragId"),
+                            elId = _jsPlumb.getAttribute(draggable, "elId"),						
+                            scope = _jsPlumb.getAttribute(draggable, "originalScope"),
                             jpc = floatingConnections[id];
                             
                         // if this is a drop back where the connection came from, mark it force rettach and
@@ -836,7 +836,7 @@
                 dropOptions[dropEvent] = _jsPlumb.wrap(dropOptions[dropEvent], drop);
                 dropOptions[overEvent] = _jsPlumb.wrap(dropOptions[overEvent], function() {					
                     var draggable = jpcl.getDragObject(arguments),
-                        id = _att( _gel(draggable), "dragId"),
+                        id = _jsPlumb.getAttribute(draggable, "dragId"),
                         _jpc = floatingConnections[id];
                         
                     if (_jpc != null) {								
@@ -859,7 +859,7 @@
 
                 dropOptions[outEvent] = _jsPlumb.wrap(dropOptions[outEvent], function() {					
                     var draggable = jpcl.getDragObject(arguments),
-                        id = _att( _gel(draggable), "dragId"),
+                        id = _jsPlumb.getAttribute( draggable, "dragId"),
                         _jpc = floatingConnections[id];
                         
                     if (_jpc != null) {

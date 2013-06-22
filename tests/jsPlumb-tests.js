@@ -99,7 +99,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		e.id = "FOO";
 		document.body.appendChild(e);
 		var el = jpcl.getElementObject(e);
-		equal(jpcl.getAttribute(el, "id"), "FOO");
+		equal(el.attr("id"), "FOO");
 	});
 
 	test(renderMode + " : getDOMElement", function() {

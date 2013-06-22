@@ -192,6 +192,10 @@
     window.jsPlumbAdapter = {
         
         headless:false,
+
+        getAttribute:function(el, attName) {
+        	return el.getAttribute(attName);
+        },
         
         appendToRoot : function(node) {
             document.body.appendChild(node);

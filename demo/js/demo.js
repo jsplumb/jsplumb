@@ -22,7 +22,7 @@
 
 			/*var connection1 = jsPlumb.connect({
 				source:"window1", 
-			   	target:"window2"});*/
+			   	target:"window2"});
 
 			for (var i = 0; i < 500; i++) {
 				var e = jsPlumb.addEndpoint("window1"),
@@ -48,7 +48,7 @@
 				jsPlumb.deleteEndpoint(e2);
 			}			
 
-			alert("DONE!")
+			alert("DONE!")*/
 
 			// 
 			// connect window1 to window2 with a 13 px wide olive colored Bezier, from the BottomCenter of 
@@ -58,7 +58,7 @@
 			// wide tail at a point 0.2 of the length of the connection.  we use 'cssClass' and 'endpointClass' to assign
 			// our own css classes, and the Label overlay has three css classes specified for it too.  we also give this
 			// connection a 'hoverPaintStyle', which defines the appearance when the mouse is hovering over it. 
-			/*
+			//
 			var connection1 = jsPlumb.connect({
 				source:"window1", 
 			   	target:"window2", 			   	
@@ -99,7 +99,7 @@
 				]
 			});            
 				
-				    /*    
+				    
 	        var w23Stroke = "rgb(189,11,11)"; 
 	        var connection3 = jsPlumb.connect({
 				source:"window2", 
@@ -242,7 +242,7 @@
 
 			//jsPlumb.selectEndpoints().get(0).foo();        
 
-	*/
+	
 
 		}
 	};	

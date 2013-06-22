@@ -32,7 +32,7 @@
 	_isString = jsPlumbUtil.isString,
 	_isObject = jsPlumbUtil.isObject;
 		
-	var _att = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_gel(el), attName); },
+	var //_att = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_gel(el), attName); },
 		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_gel(el), attName, attValue); },
 		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_gel(el), clazz); },
 		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_gel(el), clazz); },
@@ -680,7 +680,11 @@
         this.getInstanceIndex = function() {
             return _instanceIndex;
         };
-            
+
+        this.getAttribute = function(el, a) {
+        	return jsPlumbAdapter.getAttribute(jsPlumb.CurrentLibrary.getDOMElement(el), a);
+        };
+
         this.setZoom = function(z, repaintEverything) {
             _zoom = z;
             if (repaintEverything) _currentInstance.repaintEverything();
@@ -709,7 +713,6 @@
         resizeTimer = null,
         initialized = false,
         _connectionBeingDragged = null,        
-        //connectionsByScope = {},
         connections = window.connections = [],
         /**
          * map of element id -> endpoint lists. an element can have an arbitrary
@@ -766,17 +769,15 @@
 		 */
 		_draw = function(element, ui, timestamp, clearEdits) {
 
-
 			// TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
             if (!jsPlumbAdapter.headless && !_suspendDrawing) {
-			    var id = _getId(element),//_att(element, "id"),
+			    var id = _getId(element),
 			    	repaintEls = _currentInstance.dragManager.getElementsForDraggable(id);			    
 
 			    if (timestamp == null) timestamp = _timestamp();
 
 			    // update the offset of everything _before_ we try to draw anything.
 			    var o = _updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp });
-
 
 		        if (repaintEls) {
 		    	    for (var i in repaintEls) {									 							
@@ -816,11 +817,11 @@
 			if (_isArray(element)) {
 				retVal = [];
 				for ( var i = 0, j = element.length; i < j; i++) {
-					var el = _gel(element[i]), id = _att(el, "id");
+					var el = _gel(element[i]), id = _currentInstance.getAttribute(el, "id");
 					retVal.push(fn(el, id)); // append return values to what we will return
 				}
 			} else {
-				var el = _gel(element), id = _att(el, "id");
+				var el = _gel(element), id = _currentInstance.getAttribute(el, "id");
 				retVal = fn(el, id);
 			}
 			return retVal;
@@ -1163,7 +1164,7 @@
 					ep.setVisible(false, true, true);
 				};
 			}
-			var id = _getId(el);//_att(el, "id");
+			var id = _getId(el);
 			_operation(id, function(jpc) {
 				if (state && alsoChangeEndpoints) {		
 					// this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
@@ -1280,6 +1281,7 @@
 		 * have them but also to connections and endpoints.
 		 */
 		_getId = function(element, uuid, doNotCreateIfNotFound) {
+			if (jsPlumbUtil.isString(element)) return element;
 			var ele = jsPlumb.CurrentLibrary.getDOMElement(element);
 			if (ele == null) return null;			
 			var id = ele.getAttribute("id");
@@ -1410,7 +1412,7 @@
 
 		
 		this.animate = function(el, properties, options) {
-			var ele = _gel(el), id = _att(el, "id");
+			var ele = _gel(el), id = _getId(el);
 			options = options || {};
 			var stepFunction = jsPlumb.CurrentLibrary.dragEvents['step'];
 			var completeFunction = jsPlumb.CurrentLibrary.dragEvents['complete'];
@@ -1641,7 +1643,7 @@
 		this.detachAllConnections = function(el, params) {
             params = params || {};
             //el = _gel(el);
-			var id = _getId(el),//_att(el, "id"),
+			var id = _getId(el),
                 endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
 				for ( var i = 0, j = endpoints.length; i < j; i++) {
@@ -2153,9 +2155,9 @@
 
 					_currentInstance.currentlyDragging = false;
 					var draggable = _gel(jpcl.getDragObject(arguments)),
-						id = _att(draggable, "dragId"),				
+						id = _currentInstance.getAttribute(draggable, "dragId"),				
 						// restore the original scope if necessary (issue 57)
-						scope = _att(draggable, "originalScope"),
+						scope = _currentInstance.getAttribute(draggable, "originalScope"),
 						jpc = floatingConnections[id],
 						source = jpc.endpoints[0],
 						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};
@@ -2670,7 +2672,8 @@
 		this.repaintEverything = function() {	
 			var timestamp = null;// _timestamp();			
 			for ( var elId in endpointsByElement) {
-				_draw(_gel(elId), null, timestamp);				
+				//_draw(_gel(elId), null, timestamp);				
+				_draw(elId, null, timestamp);				
 			}
 			return _currentInstance;
 		};
