@@ -28,11 +28,11 @@
         n.style.position = "absolute";
         var placeholderDragElement = jsPlumb.CurrentLibrary.getElementObject(n);
         jsPlumb.CurrentLibrary.appendElement(n, parent);
-        var id = _jsPlumb.getId(placeholderDragElement);
+        var id = _jsPlumb.getId(n);
         _jsPlumb.updateOffset( { elId : id });
         // create and assign an id, and initialize the offset.
         placeholder.id = id;
-        placeholder.element = placeholderDragElement;
+        placeholder.element = n;//placeholderDragElement;
     };
     
     // create a floating endpoint (for drag connections)
@@ -68,6 +68,7 @@
             jpcl = jsPlumb.CurrentLibrary,
             _att = jsPlumbAdapter.getAttribute,//jpcl.getAttribute,
             _gel = jpcl.getElementObject,
+            _dom = jpcl.getDOMElement,
             _ju = jsPlumbUtil,            
             _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
@@ -106,7 +107,7 @@
             
         this._jsPlumb.enabled = !(params.enabled === false);
         this._jsPlumb.visible = true;        
-        this.element = params.source;  
+        this.element = _dom(params.source);  
         this._jsPlumb.uuid = params.uuid;
         this._jsPlumb.floatingEndpoint = null;  
         var inPlaceCopy = null;
@@ -191,9 +192,13 @@
             // the whole world.
             var argsForClone = jsPlumb.extend({}, endpointArgs);						
             this.endpoint.clone = function() {
-                var o = new Object();
-                this.endpoint.constructor.apply(o, [argsForClone]);
-                return o;
+                // TODO this, and the code above, can be refactored to be more dry.
+                if (_ju.isString(ep)) 
+                    return _e(ep, endpointArgs);
+                else if (_ju.isArray(ep)) {
+                    endpointArgs = _ju.merge(ep[1], endpointArgs);
+                    return _e(ep[0], endpointArgs);
+                }
             }.bind(this);
 
             this.type = this.endpoint.type;
@@ -241,6 +246,9 @@
             return _ju.findWithFunction(this.connections, function(c) { return c.id == connection.id});
         }.bind(this);
 
+        /**
+        * Detach from the given connection, without cleaning up or destroying the connection.
+        */
         this.detachFromConnection = function(connection, idx) {
             idx = idx == null ? findConnectionIndex(connection) : idx;
             if (idx >= 0) {
@@ -250,49 +258,34 @@
             }
         };
 
+        /**
+        * Detach and cleanup a connection.
+        */
         this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
-            var idx = connectionIndex == null ? findConnectionIndex(connection) : connectionIndex, actuallyDetached = false;
-            fireEvent = (fireEvent !== false);
-            if (idx >= 0) {		
-                // 1. does the connection have a before detach (note this also checks jsPlumb's bound
-                // detach handlers; but then Endpoint's check will, too, hmm.)
-                if (forceDetach || connection._forceDetach || connection.isDetachable() || connection.isDetachAllowed(connection)) {
-                    // get the target endpoint
-                    var t = connection.endpoints[0] == this ? connection.endpoints[1] : connection.endpoints[0];
-                    if (forceDetach || connection._forceDetach || (this.isDetachAllowed(connection) /*&& t.isDetachAllowed(connection)*/)) {                
-                        
-                        this.detachFromConnection(connection, idx);
-                                                
-                        // avoid circular loop
-                        if (!ignoreTarget) {                        
-                            t.detachFromConnection(connection);
-                            // check connection to see if we want to delete the endpoints associated with it.
-                            // we only detach those that have just this connection; this scenario is most
-                            // likely if we got to this bit of code because it is set by the methods that
-                            // create their own endpoints, like .connect or .makeTarget. the user is
-                            // not likely to have interacted with those endpoints.
-                            if (connection.endpointsToDeleteOnDetach){
-                                for (var i = 0; i < connection.endpointsToDeleteOnDetach.length; i++) {
-                                    var cde = connection.endpointsToDeleteOnDetach[i];
-                                    if (cde && endpointBeingDeleted != cde && cde.connections.length == 0) 
-                                        _jsPlumb.deleteEndpoint(cde, true);							
-                                }
-                            }
-                        }
-                        
-                        _jsPlumb.unregisterConnection(connection);                        
-                       
-                        actuallyDetached = true;                        
-                        _fireDetachEvent(connection, (!ignoreTarget && fireEvent), originalEvent);
 
-                        connection.cleanup();
-                        connection.destroy();
-                    }
+            var idx = connectionIndex == null ? findConnectionIndex(connection) : connectionIndex,
+                actuallyDetached = false;
+                fireEvent = (fireEvent !== false);
+
+            if (idx >= 0) {		                
+                if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) )) {
+
+                    //connection.setHover(false);
+
+                    _jsPlumb.deleteTest({
+                        connection:connection, 
+                        fireEvent:(!ignoreTarget && fireEvent), 
+                        originalEvent:originalEvent
+                    });
+                    actuallyDetached = true;                       
                 }
             }
             return actuallyDetached;
         };			
         
+        /**
+        * Detach all connections for this endpoint.
+        */
         this.detachAll = function(fireEvent, originalEvent) {
             while (this.connections.length > 0) {
                 // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
@@ -302,7 +295,9 @@
             return this;
         };
             
-        
+        /**
+        * Detach from the given target endpoint.
+        */
         this.detachFrom = function(targetEndpoint, fireEvent, originalEvent) {
             var c = [];
             for ( var i = 0; i < this.connections.length; i++) {
@@ -327,7 +322,7 @@
             _ju.removeWithFunction(params.endpointsByElement[this.elementId], function(e) {
                 return e.id == this.id;
             }.bind(this));
-            this.element = _gel(el);
+            this.element = _dom(el);
             this.elementId = _jsPlumb.getId(this.element);             
             // need to get the new parent now
             var newParentElement = params.getParentFromParams({source:parentId, container:container}),
@@ -599,17 +594,30 @@
             dragOptions[dragEvent] = _jsPlumb.wrap(dragOptions[dragEvent], _dragHandler.drag);
             dragOptions[stopEvent] = _jsPlumb.wrap(dragOptions[stopEvent],
                 function() {
+                    
+                    // 1. get the actual drop event (decode from library args to stop function)
                     var originalEvent = jpcl.getDropEvent(arguments);					
-                    _ju.removeWithFunction(params.endpointsByElement[placeholderInfo.id], function(e) {
-                        return e.id == this._jsPlumb.floatingEndpoint.id;
-                    }.bind(this));
-                    _ju.removeElement(inPlaceCopy.canvas, this.element);
+                    // 2. remove s
+                    //_ju.removeWithFunction(params.endpointsByElement[placeholderInfo.id], function(e) {
+                        //return e.id == this._jsPlumb.floatingEndpoint.id;
+                    //}.bind(this));
+                    // 2. remove references to this floating element in the endpoint lists
+                    params.endpointsByElement[placeholderInfo.id] = null;
+                    // 3. remove the in-place copy from the DOM
+                    //_ju.removeElement(inPlaceCopy.canvas, this.element);
+                    // 4. tell the anchor manager to clear out info related to this floating element
                     _jsPlumb.anchorManager.clearFor(placeholderInfo.id);						
+                    // 5. unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                     var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
                     jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
+                    // 6. make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                    this.canvas.style.visibility = "visible";
+                    // 7. unlock our anchor
+                    this.anchor.locked = false;
                 
+                    // 6.if we have the floating endpoint 
                     if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
-                        // if the connection was an existing one:
+                        // 6a. if the connection was an existing one...
                         if (existingJpc && jpc.suspendedEndpoint) {
                             // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
                             // floating endpoint has been replaced.
@@ -624,38 +632,61 @@
                             // restore the original scope (issue 57)
                             jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
                             jpc.endpoints[idx] = jpc.suspendedEndpoint;
+                            // IF the connection should be reattached, or the other endpoint refuses detach, then
+                            // reset the connection to its original state
                             if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
                                 jpc.setHover(false);
                                 jpc.floatingAnchorIndex = null;
+                                jpc._forceDetach = null;
+                                jpc._forceReattach = null;
                                 jpc.suspendedEndpoint.addConnection(jpc);
                                 _jsPlumb.repaint(existingJpcParams[1]);
                             }
-                            jpc._forceDetach = null;
-                            jpc._forceReattach = null;
                         } else {
+                            // 7. not an existing connection
                             // TODO this looks suspiciously kind of like an Endpoint.detach call too.
                             // i wonder if this one should post an event though.  maybe this is good like this.
-                            _ju.removeElements(jpc.getConnector().getDisplayElements(), this.parent);
+                            _ju.removeElements(jpc.getConnector().getDisplayElements());
                             this.detachFromConnection(jpc);								
                         }																
                     }
                     
+                    /*
                     // remove floating endpoint _after_ checking beforeDetach 
-                    _ju.removeElements( [ placeholderInfo.element[0], this._jsPlumb.floatingEndpoint.canvas ], this.element); // TODO: clean up the connection canvas (if the user aborted)
+                    _ju.removeElements( [ placeholderInfo.element[0], this._jsPlumb.floatingEndpoint.canvas ], this.element); 
+                    // TODO: clean up the connection canvas (if the user aborted)  ?
                     _jsPlumb.dragManager.elementRemoved(this._jsPlumb.floatingEndpoint.elementId);
-                    this.canvas.style.visibility = "visible";
+                    this._jsPlumb.floatingEndpoint.removeClass(_jsPlumb.draggingClass);
+                    //delete params.endpointsByElement[this._jsPlumb.floatingEndpoint.elementId];
+                    */
+
+                    // cleanup floaing endpoint
+                    this._jsPlumb.floatingEndpoint.cleanup();
+                    this._jsPlumb.floatingEndpoint.destroy();
+
+                    // remove the element associated with the floating endpoint (and its associated floating endpoint and visual artefacts)                    
+                    _jsPlumb.remove(placeholderInfo.element, false);
+                    // remove the inplace copy
+                    _jsPlumb.remove(inPlaceCopy.canvas, false);
                     
-                    this.anchor.locked = false;												
+                    delete floatingConnections[placeholderInfo.id];     
+                    _jsPlumb.anchorManager.removeFloatingConnection(placeholderInfo.id);
+                    
+                    
                     this.paint({recalc:false});
 
+                    // WHY does this need to happen?  i suppose because the connection might not get 
+                    // deleted.
                     jpc.removeClass(_jsPlumb.draggingClass);
-                    this._jsPlumb.floatingEndpoint.removeClass(_jsPlumb.draggingClass);
+                    
                     _jsPlumb.fire("connectionDragStop", jpc);
 
+                    //jpc.cleanup();
+                    //jpc.destroy();
+
                     jpc = null;						
-                    inPlaceCopy = null;							
-                    delete params.endpointsByElement[this._jsPlumb.floatingEndpoint.elementId];
-                    this._jsPlumb.floatingEndpoint.anchor = null;
+                    inPlaceCopy = null;							                    
+                    
                     this._jsPlumb.floatingEndpoint = null;
                     _jsPlumb.currentlyDragging = false;
 
@@ -828,8 +859,8 @@
                                 //commonFunction();
                             }
                             _jsPlumb.currentlyDragging = false;
-                            delete floatingConnections[id];		
-                            _jsPlumb.anchorManager.removeFloatingConnection(id);
+                            //delete floatingConnections[id];		
+                            //_jsPlumb.anchorManager.removeFloatingConnection(id);
                         }
                     }.bind(this);
                 
@@ -944,7 +975,7 @@
             this.anchor.elementId = _elId;
         },        
         setReferenceElement : function(_el) {
-            this.element = _el;
+            this.element = jsPlumb.CurrentLibrary.getDOMElement(_el);
         },
         setDragAllowedWhenFull : function(allowed) {
             this.dragAllowedWhenFull = allowed;

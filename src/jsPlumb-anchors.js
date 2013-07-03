@@ -318,6 +318,17 @@
             // store this for next time.
             endpoint._continuousAnchorEdge = edgeId;
         };
+        // find the entry in an endpoint's list for this connection and update its target endpoint
+        // with the current target in the connection.
+        this.updateOtherEndpoint = function(elId, connection) {
+            var endpointConnections = connectionsByElementId[elId] || [];
+            for (var i = 0; i < endpointConnections.length; i++) {
+                if (endpointConnections[i][0].id == connection.id) {
+                    var otherEndpoint = endpointConnections[i][0][endpointConnections[i][0].sourceId == elId ? "targetId" : "sourceId"];
+                    endpointConnections[i][1] = otherEndpoint;
+                }
+            }
+        };
 		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 		
 			if (!jsPlumbInstance.isSuspendDrawing()) {

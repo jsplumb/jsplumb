@@ -46,11 +46,11 @@
             possible that will continue to be the case.
         */
 		this.register = function(el) {
-            var jpcl = jsPlumb.CurrentLibrary;
-            el = jpcl.getElementObject(el);
-            var id = _currentInstance.getId(el),
-                domEl = jpcl.getDOMElement(el),
-                parentOffset = jpcl.getOffset(el);
+            var jpcl = jsPlumb.CurrentLibrary,
+            	_el = jpcl.getElementObject(el),
+            	id = _currentInstance.getId(el),
+                //domEl = jpcl.getDOMElement(el),
+                parentOffset = jpcl.getOffset(_el);
                     
             if (!_draggables[id]) {
                 _draggables[id] = el;
@@ -64,7 +64,7 @@
                     for (var i = 0; i < p.childNodes.length; i++) {
                         if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
                             var cEl = jpcl.getElementObject(p.childNodes[i]),
-                                cid = _currentInstance.getId(cEl, null, true);
+                                cid = _currentInstance.getId(p.childNodes[i], null, true);
                             if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
                                 var cOff = jpcl.getOffset(cEl);
                                 _delements[id][cid] = {
@@ -82,14 +82,15 @@
                 }
 			};
 
-			_oneLevel(domEl);
+			_oneLevel(el);
 		};
 		
 		// refresh the offsets for child elements of this element. 
 		this.updateOffsets = function(elId) {
 			var jpcl = jsPlumb.CurrentLibrary,
 				el = jpcl.getElementObject(elId),
-				id = _currentInstance.getId(el),
+				domEl = jpcl.getDOMElement(el),
+				id = _currentInstance.getId(domEl),
 				children = _delements[id],
 				parentOffset = jpcl.getOffset(el);
 				
@@ -116,7 +117,9 @@
 			el to that parent's list of elements to update on drag (if it is not there already)
 		*/
 		this.endpointAdded = function(el) {
-			var jpcl = jsPlumb.CurrentLibrary, b = document.body, id = _currentInstance.getId(el), c = jpcl.getDOMElement(el), 
+			var jpcl = jsPlumb.CurrentLibrary, b = document.body, id = _currentInstance.getId(el), 
+				c = jpcl.getElementObject(el), 
+				cLoc = jsPlumb.CurrentLibrary.getOffset(c),
 				p = c.parentNode, done = p == b;
 
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
@@ -126,8 +129,7 @@
 				if (pid && _draggables[pid]) {
 					var idx = -1, pEl = jpcl.getElementObject(p), pLoc = jpcl.getOffset(pEl);
 					
-					if (_delements[pid][id] == null) {
-						var cLoc = jsPlumb.CurrentLibrary.getOffset(el);
+					if (_delements[pid][id] == null) {						
 						_delements[pid][id] = {
 							id:id,
 							offset:{
@@ -237,4 +239,28 @@
         }
     };
     
+
+    /*
+
+    addClass:
+
+    add: function( elem, classNames ) {
+    jQuery.each((classNames || "").split(/\s+/), function(i, className){
+        if ( elem.nodeType == 1 && !jQuery.className.has( elem.className, className ) )
+            elem.className += (elem.className ? " " : "") + className;
+        });
+    },
+    */
+
+    /*
+
+	removeClass:
+
+    elem.className = classNames !== undefined ?
+    	jQuery.grep(elem.className.split(/\s+/), function(className){
+    		return !jQuery.className.has( classNames, className );
+    	}).join(" ") :
+
+*/
+
 })();

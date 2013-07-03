@@ -46,6 +46,12 @@
         isFunction: function(o) {
             return Object.prototype.toString.call(o) === "[object Function]";
         },
+        isEmpty:function(o) {
+            for (var i in o) {
+                if (o.hasOwnProperty(i)) return false;
+            }
+            return true;
+        },
         clone : function(a) {
             if (this.isString(a)) return "" + a;
             else if (this.isBoolean(a)) return !!a;
@@ -390,7 +396,7 @@
          */         
         this.fire = function(event, value, originalEvent) {
             if (!eventsSuspended && _listeners[event]) {
-                for ( var i = 0; i < _listeners[event].length; i++) {
+                for ( var i = 0;_listeners != null && i < _listeners[event].length; i++) {
                     // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
                     // method will have the whole call stack available in the debugger.
                     if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event}) != -1)

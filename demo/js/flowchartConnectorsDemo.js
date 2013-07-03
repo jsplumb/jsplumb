@@ -99,7 +99,7 @@
 			_addEndpoints("window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
 						
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
-			jsPlumb.bind("jsPlumbConnection", function(connInfo, originalEvent) { 
+			jsPlumb.bind("connection", function(connInfo, originalEvent) { 
 				init(connInfo.connection);
 			});			
 						

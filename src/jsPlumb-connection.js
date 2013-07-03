@@ -22,6 +22,7 @@
             jpcl = jsPlumb.CurrentLibrary,
             _att = jpcl.getAttribute,
             _gel = jpcl.getElementObject,
+            _dom = jpcl.getDOMElement,
             _ju = jsPlumbUtil,
             _getOffset = jpcl.getOffset;
 
@@ -34,8 +35,8 @@
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
         this.previousConnection = params.previousConnection;
-        this.source = _gel(params.source);
-        this.target = _gel(params.target);
+        this.source = _dom(params.source);//_gel(params.source);
+        this.target = _dom(params.target);//_gel(params.target);
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
@@ -357,13 +358,15 @@
         addClass : function(c, informEndpoints) {        
             if (informEndpoints) {
                 this.endpoints[0].addClass(c);
-                this.endpoints[1].addClass(c);                    
+                this.endpoints[1].addClass(c); 
+                if (this.suspendedEndpoint) this.suspendedEndpoint.addClass(c);                   
             }
         },
         removeClass : function(c, informEndpoints) {            
             if (informEndpoints) {
                 this.endpoints[0].removeClass(c);
                 this.endpoints[1].removeClass(c);                    
+                if (this.suspendedEndpoint) this.suspendedEndpoint.removeClass(c);
             }
         },
         isVisible : function() { return this._jsPlumb.visible; },
@@ -404,7 +407,11 @@
             //console.log("Connection cleanup");
             this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
-            this._jsPlumb.instance.remove(this.connector.getDisplayElements());
+            this.source = null;
+            this.target = null;
+            this.sourceEndpoint = null;
+            this.targetEndpoint = null;
+            jsPlumbUtil.removeElements(this.connector.getDisplayElements());
             this.connector.cleanup();
             //this.connector.cleanupListeners();
             this.connector.destroy();

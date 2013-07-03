@@ -38,6 +38,7 @@
 		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_gel(el), clazz); },
 		_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_gel(el), clazz); },
 		_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
+		_dom = function(el) { return jsPlumb.CurrentLibrary.getDOMElement(el); },		
 		_getOffset = function(el, _instance) {
             var o = jsPlumb.CurrentLibrary.getOffset(_gel(el));
 			if (_instance != null) {
@@ -387,7 +388,7 @@
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
 			cleanup:function() {		
-				//console.log("jsPlumbUIComponent cleanup", this.id);	
+				console.log("jsPlumbUIComponent cleanup", this.id);	
 				this.unbindListeners();
 				this.detachListeners();
 			},
@@ -406,17 +407,17 @@
 			    	this._jsPlumb.hover = hover;
                         
                     if (this.canvas != null) {
-                        if (this._jsPlumb.hoverClass != null) {
+                        if (this._jsPlumb.instance.hoverClass != null) {
                             if (hover) 
                                 jpcl.addClass(this.canvas, this._jsPlumb.hoverClass);						
                             else
-                                jpcl.removeClass(this.canvas, this.hoverClass);
+                                jpcl.removeClass(this.canvas, this._jsPlumb.hoverClass);
                         }
                         
                         if (hover) 
-                            jpcl.addClass(this.canvas, this._jsPlumb.instance.hoverClass);						
+                            jpcl.addClass(this.canvas, this._jsPlumb.hoverClass);						
                         else
-                            jpcl.removeClass(this.canvas, this._jsPlumb.instance.hoverClass);
+                            jpcl.removeClass(this.canvas, this._jsPlumb.hoverClass);
                     }
 		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
 						this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
@@ -675,7 +676,11 @@
 			_instanceIndex = getInstanceIndex(),
 			_bb = _currentInstance.bind,
 			_initialDefaults = {},
-            _zoom = 1;
+            _zoom = 1,
+            _info = function(el) {
+            	el = _dom(el);	
+            	return { el:el, id:_getId(el) };
+            };
             
         this.getInstanceIndex = function() {
             return _instanceIndex;
@@ -888,8 +893,18 @@
 			if (referenceParams) jsPlumb.extend(_p, referenceParams);
 			
 			// hotwire endpoints passed as source or target to sourceEndpoint/targetEndpoint, respectively.
-			if (_p.source && _p.source.endpoint) _p.sourceEndpoint = _p.source;
-			if (_p.target && _p.target.endpoint) _p.targetEndpoint = _p.target;
+			if (_p.source) {
+				if (_p.source.endpoint) 
+					_p.sourceEndpoint = _p.source;
+				else
+					_p.source = _dom(_p.source);
+			}
+			if (_p.target) {
+				if (_p.target.endpoint) 
+					_p.targetEndpoint = _p.target;
+				else
+					_p.target = _dom(_p.target);
+			}
 			
 			// test for endpoint uuids to connect
 			if (params.uuids) {
@@ -938,7 +953,7 @@
 			// see if a prior call to makeTarget has provided us with the specs for the target endpoint, and
 			// we use those if so.  additionally, if the makeTarget call was specified with 'uniqueEndpoint' set
 			// to true, then if that target endpoint has already been created, we re-use it.
-			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {				
+			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {							
 				var tid = _getId(_p.target),
 					tep =_targetEndpointDefinitions[tid],
 					existingUniqueEndpoint = _targetEndpoints[tid];				
@@ -1033,9 +1048,6 @@
 					sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
 				};
 			
-				_currentInstance.fire("jsPlumbConnection", eventArgs, originalEvent);
-				// this is from 1.3.11 onwards. "jsPlumbConnection" always felt so unnecessary, so
-				// I've added this alias in 1.3.11, with a view to removing "jsPlumbConnection" completely in a future version. be aware, of course, you should only register listeners for one or the other of these events.
 				_currentInstance.fire("connection", eventArgs, originalEvent);
 			}
 		},
@@ -1164,12 +1176,12 @@
 					ep.setVisible(false, true, true);
 				};
 			}
-			var id = _getId(el);
-			_operation(id, function(jpc) {
+			var info = _info(el);
+			_operation(info.id, function(jpc) {
 				if (state && alsoChangeEndpoints) {		
 					// this test is necessary because this functionality is new, and i wanted to maintain backwards compatibility.
 					// this block will only set a connection to be visible if the other endpoint in the connection is also visible.
-					var oidx = jpc.sourceId === id ? 1 : 0;
+					var oidx = jpc.sourceId === info.id ? 1 : 0;
 					if (jpc.endpoints[oidx].isVisible()) jpc.setVisible(true);
 				}
 				else  // the default behaviour for show, and what always happens for hide, is to just set the visibility without getting clever.
@@ -1231,7 +1243,6 @@
 				}
 			}			
 			if (recalc || !offset) { // if forced repaint or no offset available, we recalculate.
-				//console.log("calculating offset", elId, "timestamp", timestamp, recalc, offset);
 				// get the current size and offset, and store them
 				var s = _gel(elId);
 				if (s != null) {						
@@ -1240,7 +1251,6 @@
 					offsetTimestamps[elId] = timestamp;
 				}
 			} else {
-				//console.log("storing offset", elId, "timestamp", timestamp, offset);
 				offsets[elId] = offset;
                 if (sizes[elId] == null) {
                     var s = _gel(elId);
@@ -1257,8 +1267,7 @@
 				offsets[elId].centerx = offsets[elId].left + (offsets[elId].width / 2);
 				offsets[elId].centery = offsets[elId].top + (offsets[elId].height / 2);				
 			}
-			//return offsets[elId];
-            return {o:offsets[elId], s:sizes[elId]};
+			return {o:offsets[elId], s:sizes[elId]};
 		},
 
 		// TODO comparison performance
@@ -1282,7 +1291,7 @@
 		 */
 		_getId = function(element, uuid, doNotCreateIfNotFound) {
 			if (jsPlumbUtil.isString(element)) return element;
-			var ele = jsPlumb.CurrentLibrary.getDOMElement(element);
+			var ele = element;//jsPlumb.CurrentLibrary.getDOMElement(element);
 			if (ele == null) return null;			
 			var id = ele.getAttribute("id");
 			if (!id || id == "undefined") {
@@ -1376,7 +1385,7 @@
 				inputs = (_isArray(el) || (el.length != null && !_isString(el))) ? el : [ el ];
 						
 			for (var i = 0, j = inputs.length; i < j; i++) {
-				var _el = _gel(inputs[i]), id = _getId(inputs[i]);//id = _getId(_el);				
+				var _el = _dom(inputs[i]), id = _getId(_el);//_gel(inputs[i]), id = _getId(inputs[i]);//id = _getId(_el);				
 				p.source = _el;
 
                 _updateOffset({ elId : id, timestamp:_suspendedAt });
@@ -1501,7 +1510,9 @@
 		this.deleteEndpoint = function(object, doNotRepaintAfterwards) {
 			_currentInstance.doWhileSuspended(function() {
 				var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
-				if (endpoint) {					
+				if (endpoint) {		
+
+				/*			
 					// 1. cleanup by uuid reference if there was one
 					if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
 					// 2. inform the anchor manager
@@ -1526,13 +1537,13 @@
 						}
 					}
 					
-					/*
-					jsPlumbUtil.removeWithFunction(endpointsByElement[endpoint.elementId], function(e) {
-					    return e == endpoint;
-					});	
-					if (endpointsByElement[endpoint.elementId].length < 1)
-						delete endpointsByElement[endpoint.elementId];
-					*/
+					
+					//jsPlumbUtil.removeWithFunction(endpointsByElement[endpoint.elementId], function(e) {
+					 //   return e == endpoint;
+					//});	
+					//if (endpointsByElement[endpoint.elementId].length < 1)
+					//	delete endpointsByElement[endpoint.elementId];
+					//
 				
 
 					//console.timeEnd("rework endpointsByElement");
@@ -1545,7 +1556,8 @@
 						_currentInstance.dragManager.endpointDeleted(endpoint);								
 
 					// 7. destroy the endpoint. 
-					endpoint.destroy();
+					endpoint.destroy();*/
+					_currentInstance.deleteTest({endpoint:endpoint});
 				}
 				return _currentInstance;									
 			}, doNotRepaintAfterwards);
@@ -1583,7 +1595,7 @@
                 } : jpc;
 
 			if (doFireEvent) {
-				_currentInstance.fire("jsPlumbConnectionDetached", params, originalEvent);
+				//_currentInstance.fire("jsPlumbConnectionDetached", params, originalEvent);
 				// introduced in 1.3.11..an alias because the original event name is unwieldy.  in future versions this will be the only event and the other will no longer be fired.
 				_currentInstance.fire("connectionDetached", params, originalEvent);
 			}
@@ -1596,6 +1608,30 @@
 			    return c.id == connection.id;
 			});
 		};
+
+		this.unregisterEndpoint = function(endpoint) {
+			if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
+			_currentInstance.anchorManager.deleteEndpoint(endpoint);
+			
+																				
+			// 4. remove from endpointsByElement. i wish endpointsByElement didnt exist.
+			// TODO at least replace this with a removeWithFunction call!
+			//console.time("rework endpointsByElement");
+			for (var e in endpointsByElement) {
+				var endpoints = endpointsByElement[e];
+				if (endpoints) {
+					var newEndpoints = [];
+					for (var i = 0, j = endpoints.length; i < j; i++)
+						if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
+					
+					endpointsByElement[e] = newEndpoints;
+				}
+				if(endpointsByElement[e].length <1){
+					delete endpointsByElement[e];
+				}
+			}
+
+		}
 
 		// detach a connection
 		this.detach = function() {
@@ -1626,8 +1662,8 @@
 					} else if (_p.sourceEndpoint && _p.targetEndpoint) {
 						_p.sourceEndpoint.detachFrom(_p.targetEndpoint);
 					} else {
-						var sourceId = _getId(_p.source),
-						    targetId = _getId(_p.target);
+						var sourceId = _getId(_dom(_p.source)),
+						    targetId = _getId(_dom(_p.target));
 						_operation(sourceId, function(jpc) {
 						    if ((jpc.sourceId == sourceId && jpc.targetId == targetId) || (jpc.targetId == sourceId && jpc.sourceId == targetId)) {
 							    if (_currentInstance.checkCondition("beforeDetach", jpc)) {
@@ -1642,7 +1678,7 @@
 		// detach all connections from some element.
 		this.detachAllConnections = function(el, params) {
             params = params || {};
-            //el = _gel(el);
+            el = _dom(el);
 			var id = _getId(el),
                 endpoints = endpointsByElement[id];
 			if (endpoints && endpoints.length) {
@@ -1665,30 +1701,150 @@
 						}
 					}
 				}
-				//connectionsByScope = {};
 				connections.splice(0);
 			});
 			return _currentInstance;
 		};
 
+		this.deleteTest = function(params) {
+			var result = {
+					endpoints : {}, 
+					connections : {},
+					endpointCount:0,
+					connectionCount:0
+				},
+				fireEvent = params.fireEvent !== false;//,
+				//suspendEvents = params.suspendEvents 
 
+			var unravelConnection = function(connection) {
+				if(connection != null && result.connections[connection.id] == null) {
+					connection.setHover(false);
+					result.connections[connection.id] = connection;
+					result.connectionCount++;
+					if (connection.endpointsToDeleteOnDetach != null) {
+						for (var j = 0; j < connection.endpointsToDeleteOnDetach.length; j++) {
+							unravelEndpoint(connection.endpointsToDeleteOnDetach[j]);
+						}
+					}					
+				}
+			};
+			var unravelEndpoint = function(endpoint) {
+				if(endpoint != null && result.endpoints[endpoint.id] == null) {
+					endpoint.setHover(false);
+					result.endpoints[endpoint.id] = endpoint;
+					result.endpointCount++;
+
+					for (var i = 0; i < endpoint.connections.length; i++) {
+						var c = endpoint.connections[i];
+						unravelConnection(c);						
+					}
+					
+				}
+			};
+
+			if (params.connection) 
+				unravelConnection(params.connection);
+			else unravelEndpoint(params.endpoint);
+
+			// loop through connections
+			for (var i in result.connections) {
+				var c = result.connections[i];
+				c.endpoints[0].detachFromConnection(c);
+				c.endpoints[1].detachFromConnection(c);
+				_currentInstance.unregisterConnection(c);
+				fireDetachEvent(c, fireEvent, params.originalEvent);
+				c.cleanup();
+				c.destroy();
+			}
+
+			// loop through endpoints
+			for (var i in result.endpoints) {
+				var e = result.endpoints[i];	
+				_currentInstance.unregisterEndpoint(e);
+				// FIRE some endpoint deleted event?
+				e.cleanup();
+				e.destroy();
+			}	
+
+			return result;
+		};
+
+
+		this.detachConnectionFromEndpoint = function(params) {
+			var findConnectionIndex = function(ep, connection) {
+			    return jsPlumbUtil.findWithFunction(ep.connections, function(c) { return c.id == connection.id});
+			};
+
+			var conn = params.connection, ep = params.endpoint,
+				idx = params.connectionIndex == null ? findConnectionIndex(ep, conn) : params.connectionIndex, 
+				actuallyDetached = false,
+				fireEvent = (params.fireEvent !== false),
+				connectionsToDelete = [];
+
+			if (idx >= 0) {		
+			    // 1. does the connection have a before detach (note this also checks jsPlumb's bound
+			    // detach handlers; but then Endpoint's check will, too, hmm.)
+			    if (params.forceDetach || conn._forceDetach || conn.isDetachable() || conn.isDetachAllowed(conn)) {
+			        // get the target endpoint
+			        var t = conn.endpoints[0] == ep ? conn.endpoints[1] : conn.endpoints[0];
+			        if (params.forceDetach || conn._forceDetach || (ep.isDetachAllowed(conn))) {                
+			            
+			            ep.detachFromConnection(conn, idx);
+			                                    
+			            // avoid circular loop
+			            if (!params.ignoreTarget) {                        
+			                t.detachFromConnection(conn);
+			                // check connection to see if we want to delete the endpoints associated with it.
+			                // we only detach those that have just this connection; this scenario is most
+			                // likely if we got to this bit of code because it is set by the methods that
+			                // create their own endpoints, like .connect or .makeTarget. the user is
+			                // not likely to have interacted with those endpoints.
+			                if (conn.endpointsToDeleteOnDetach){
+			                    for (var i = 0; i < conn.endpointsToDeleteOnDetach.length; i++) {
+			                        var cde = conn.endpointsToDeleteOnDetach[i];
+			                        if (cde && params.endpointBeingDeleted != cde && cde.connections.length == 0) 
+			                            _currentInstance.deleteEndpoint(cde, true);							
+			                    }
+			                }
+			            }			           			                                  
+			           
+			            actuallyDetached = true;                        
+			            fireDetachEvent(conn, (!params.ignoreTarget && fireEvent), params.originalEvent);
+
+			            connectionsToDelete.push(conn);			            
+			        }
+			    }
+			}
+
+			// finally, cleanup the connections we encountered.
+			for (var i = 0; i < connectionsToDelete.length; i++) {
+				_currentInstance.unregisterConnection(connectionsToDelete[i]);
+				connectionsToDelete[i].cleanup();
+				connectionsToDelete[i].destroy();
+			}
+
+			return actuallyDetached;
+
+		};
 		 
 		this.draggable = function(el, options) {
+			// allows for array or jquery/mootools selector
 			if (typeof el == 'object' && el.length) {
 				for ( var i = 0, j = el.length; i < j; i++) {
-					var ele = _gel(el[i]);
+					var ele = _dom(el[i]);
 					if (ele) _initDraggableIfNecessary(ele, true, options);
 				}
 			} 
+			// allows for YUI selector
 			else if (el._nodes) { 	// TODO this is YUI specific; really the logic should be forced
 				// into the library adapters (for jquery and mootools aswell)
 				for ( var i = 0, j = el._nodes.length; i < j; i++) {
-					var ele = _gel(el._nodes[i]);
+					var ele = _dom(el._nodes[i]);
 					if (ele) _initDraggableIfNecessary(ele, true, options);
 				}
 			}
-			else {
-				var ele = _gel(el);
+			else {				
+				var ele = _dom(el);
 				if (ele) _initDraggableIfNecessary(ele, true, options);
 			}
 			return _currentInstance;
@@ -1742,10 +1898,11 @@
 						r.push(input);
 					}
 					else {
+						input = _gel(input);
 						if (doNotGetIds) r = input;
 						else { 
 							for (var i = 0, j = input.length; i < j; i++) 
-								r.push(_getId(_gel(input[i])));
+								r.push(_info(input[i]).id);
 						}	
 					}
 				}
@@ -1763,30 +1920,27 @@
 			} else if (options.constructor == String) {
 				options = { "scope": options };
 			}
-			var
-			scope = options.scope || _currentInstance.getDefaultScope(),
-			scopes = prepareList(scope, true),
-			sources = prepareList(options.source),
-			targets = prepareList(options.target),			
-			results = (!flat && scopes.length > 1) ? {} : [],
-			_addOne = function(scope, obj) {
-				if (!flat && scopes.length > 1) {
-					var ss = results[scope];
-					if (ss == null) {
-						ss = []; results[scope] = ss;
-					}
-					ss.push(obj);
-				} else results.push(obj);
-			};
-			//for ( var i in connectionsByScope) {
-			//	if (filterList(scopes, i)) {
-					for ( var j = 0, jj = connections.length; j < jj; j++) {
-						var c = connections[j];
-						if (filterList(scopes, c.scope) && filterList(sources, c.sourceId) && filterList(targets, c.targetId))
-							_addOne(c.scope, c);
-					}
-			//	}
-			//}
+			var scope = options.scope || _currentInstance.getDefaultScope(),
+				scopes = prepareList(scope, true),
+				sources = prepareList(options.source),
+				targets = prepareList(options.target),			
+				results = (!flat && scopes.length > 1) ? {} : [],
+				_addOne = function(scope, obj) {
+					if (!flat && scopes.length > 1) {
+						var ss = results[scope];
+						if (ss == null) {
+							ss = []; results[scope] = ss;
+						}
+						ss.push(obj);
+					} else results.push(obj);
+				};
+			
+			for ( var j = 0, jj = connections.length; j < jj; j++) {
+				var c = connections[j];
+				if (filterList(scopes, c.scope) && filterList(sources, c.sourceId) && filterList(targets, c.targetId))
+					_addOne(c.scope, c);
+			}
+			
 			return results;
 		};
 		
@@ -1912,7 +2066,7 @@
 
 		// get all connections managed by the instance of jsplumb.
 		this.getAllConnections = function() {
-			return connections;//ByScope;
+			return connections;
 		};
 
 
@@ -1925,7 +2079,7 @@
 				
 		// get endpoints for some element.
 		this.getEndpoints = function(el) {
-			return endpointsByElement[_getId(el)];
+			return endpointsByElement[_info(el).id];
 		};		
 
 		/*
@@ -2128,35 +2282,44 @@
 		// see API docs
 		this.makeTarget = function(el, params, referenceParams) {						
 			
+			// put jsplumb ref into params without altering the params passed in
 			var p = jsPlumb.extend({_jsPlumb:_currentInstance}, referenceParams);
 			jsPlumb.extend(p, params);
-			_setEndpointPaintStylesAndAnchor(p, 1);                                                    
+
+			// calculate appropriate paint styles and anchor from the params given			
+			_setEndpointPaintStylesAndAnchor(p, 1);                               
+
 			var jpcl = jsPlumb.CurrentLibrary,
 			    targetScope = p.scope || _currentInstance.Defaults.Scope,
 			    deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
 			    maxConnections = p.maxConnections || -1,
 				onMaxConnections = p.onMaxConnections;
-			_doOne = function(_el) {
+
+			_doOne = function(el) {
 				
 				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 				// and use the endpoint definition if found.
-				var elid = _getId(_el);
-				_targetEndpointDefinitions[elid] = p;
-				_targetEndpointsUnique[elid] = p.uniqueEndpoint,
-				_targetMaxConnections[elid] = maxConnections,
-				_targetsEnabled[elid] = true,
-				proxyComponent = new jsPlumbUIComponent(p);								
-				
-				var dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
-				_drop = function() {
+				// decode the info for this element (id and element)
+				var elInfo = _info(el), 
+					elid = elInfo.id,
+					proxyComponent = new jsPlumbUIComponent(p),
+					dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 
-					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
-						targetCount = _currentInstance.select({target:elid}).length;																							
+				// store the definitions keyed against the element id.
+				_targetEndpointDefinitions[elid] = p;
+				_targetEndpointsUnique[elid] = p.uniqueEndpoint;
+				_targetMaxConnections[elid] = maxConnections;
+				_targetsEnabled[elid] = true;				
+				
+
+				var _drop = function() {
 
 					_currentInstance.currentlyDragging = false;
-					var draggable = _gel(jpcl.getDragObject(arguments)),
-						id = _currentInstance.getAttribute(draggable, "dragId"),				
-						// restore the original scope if necessary (issue 57)
+
+					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
+						targetCount = _currentInstance.select({target:elid}).length,
+						draggable = _gel(jpcl.getDragObject(arguments)),
+						id = _currentInstance.getAttribute(draggable, "dragId"),										
 						scope = _currentInstance.getAttribute(draggable, "originalScope"),
 						jpc = floatingConnections[id],
 						source = jpc.endpoints[0],
@@ -2165,7 +2328,7 @@
 					if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
 						if (onMaxConnections) {
 							onMaxConnections({
-								element:_el,
+								element:elInfo.el,
 								connection:jpc
 							}, originalEvent);
 						}
@@ -2175,11 +2338,12 @@
 					// unlock the source anchor to allow it to refresh its position if necessary
 					source.anchor.locked = false;					
 										
+					// restore the original scope if necessary (issue 57)
 					if (scope) jpcl.setDragScope(draggable, scope);				
 					
 					// check if drop is allowed here.					
 					//var _continue = jpc.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope);		
-					var _continue = proxyComponent.isDropAllowed(jpc.sourceId, _getId(_el), jpc.scope, jpc, null);		
+					var _continue = proxyComponent.isDropAllowed(jpc.sourceId, elid, jpc.scope, jpc, null);		
 					
 					// regardless of whether the connection is ok, reconfigure the existing connection to 
 					// point at the current info. we need this to be correct for the detach event that will follow.
@@ -2204,12 +2368,12 @@
 					}																										
 					
 					if (_continue) {
-					
-						// detach this connection from the source.						
-						source.detach(jpc, false, true, false);
+											
 					
 						// make a new Endpoint for the target												
-						var newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
+						var _el = jpcl.getElementObject(elInfo.el),
+							newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
+
 						if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
 						newEndpoint._makeTargetCreator = true;
 																
@@ -2228,7 +2392,39 @@
 							// specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
 							// the target is furthest away from the source.
 						}
-						var c = _currentInstance.connect({
+						
+						// TODO: ensure this is ok.  we used to create a new connection, but now it seems
+						// to be better to just reset the target to the new enpdoint. someone asked a 
+						// question about this a while ago, because they were setting parameters on the
+						// connection which were being thrown away by the fact that we create a new connection.
+						// so this is good in general.  but need to be careful about backwards compatibility.
+
+/* ----------------- the new way ------------------------------------------------- */
+
+						// delete the original target endpoint.  but only want to do this if the endpoint was created
+						// automatically and has no other connections.
+
+						// TODO reinstate!
+						//if (jpc.endpoints[1]._makeTargetCreator && jpc.endpoints[1].connections.length < 2)
+						//	_currentInstance.deleteEndpoint(jpc.endpoints[1], true);
+
+						jpc.targetEndpoint = newEndpoint;
+						jpc.target = newEndpoint.element;
+						jpc.targetId = newEndpoint.elementId;
+						jpc.endpoints[1] = newEndpoint;
+						jpc.deleteEndpointsOnDetach = deleteEndpointsOnDetach;
+						jpc.endpointsToDeleteOnDetach = deleteEndpointsOnDetach ? [ source, newEndpoint ] : null;
+						// inform the anchor manager to update its target endpoint for this connection.
+						_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc);
+
+						// TODO: fire a connection event!
+						// TODO: what about moving the connection's source, if that was set?
+						//jpc.repaint();
+						_finaliseConnection(jpc);
+
+/* ----------------- the old way -------------------------------------------------	*/
+
+						/*var c = _currentInstance.connect({
 							source:source,
 							target:newEndpoint,
 							scope:scope,
@@ -2250,6 +2446,10 @@
 							_currentInstance.deleteEndpoint(jpc.endpoints[1]);
 
 						c.repaint();
+
+						// detach this connection from the source.						
+						source.detach(jpc, false, true, false);*/
+
 					}				
 					// if not allowed to drop...
 					else {
@@ -2271,19 +2471,21 @@
 					}														
 				};
 				
+				// wrap drop events as needed and initialise droppable
 				var dropEvent = jpcl.dragEvents['drop'];
 				dropOptions["scope"] = dropOptions["scope"] || targetScope;
-				dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], _drop);
-				
-				jpcl.initDroppable(_el, dropOptions, true);
+				dropOptions[dropEvent] = _wrap(dropOptions[dropEvent], _drop);				
+				jpcl.initDroppable(_gel(elInfo.el), dropOptions, true);
 			};
 			
+			// YUI collection fix
 			el = _convertYUICollection(el);			
-			
+			// make an array if only given one element
 			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
-			for (var i = 0, ii = inputs.length; i < ii; i++) {			
-				_doOne(_gel(inputs[i]));
+			// register each one in the list.
+			for (var i = 0, ii = inputs.length; i < ii; i++) {							
+				_doOne(inputs[i]);
 			}
 
 			return _currentInstance;
@@ -2291,28 +2493,20 @@
 
 		// see api docs
 		this.unmakeTarget = function(el, doNotClearArrays) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			var elid = _getId(el);			
+			var info = _info(el);
 
+			jsPlumb.CurrentLibrary.destroyDroppable(info.el);
 			// TODO this is not an exhaustive unmake of a target, since it does not remove the droppable stuff from
-			// the element.  the effect will be to prevent it form behaving as a target, but it's not completely purged.
+			// the element.  the effect will be to prevent it from behaving as a target, but it's not completely purged.
 			if (!doNotClearArrays) {
-				delete _targetEndpointDefinitions[elid];
-				delete _targetEndpointsUnique[elid];
-				delete _targetMaxConnections[elid];
-				delete _targetsEnabled[elid];                
+				delete _targetEndpointDefinitions[info.id];
+				delete _targetEndpointsUnique[info.id];
+				delete _targetMaxConnections[info.id];
+				delete _targetsEnabled[info.id];                
 			}
 
 			return _currentInstance;
-		};
-		
-		// see api docs
-		this.makeTargets = function(els, params, referenceParams) {
-			for ( var i = 0, ii = els.length; i < ii; i++) {
-				_currentInstance.makeTarget(els[i], params, referenceParams);				
-			}
-		};
-		
+		};				
 		
 		var _sourceEndpointDefinitions = {},
 			_sourceEndpoints = {},
@@ -2341,12 +2535,13 @@
 			var jpcl = jsPlumb.CurrentLibrary,
 				maxConnections = p.maxConnections || -1,
 				onMaxConnections = p.onMaxConnections,
-				_doOne = function(_el) {
+				_doOne = function(elInfo) {
 					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 					// and use the endpoint definition if found.
-					var elid = _getId(_el),
+					var elid = elInfo.id,
+						_el = _gel(elInfo.el),
 						parentElement = function() {
-							return p.parent == null ? p.parent : p.parent === "parent" ? jpcl.getElementObject(jpcl.getDOMElement(_el).parentNode) : jpcl.getElementObject(p.parent);
+							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _dom(p.parent);
 						},
 						idToRegisterAgainst = p.parent != null ? _currentInstance.getId(parentElement()) : elid;
 					
@@ -2374,10 +2569,7 @@
 					
 					dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], function() { 							
 						if (existingStop) existingStop.apply(this, arguments);								
-
-	                    //_currentlyDown = false;
-						_currentInstance.currentlyDragging = false;
-						
+	                    _currentInstance.currentlyDragging = false;						
 						if (ep.connections.length == 0)
 							_currentInstance.deleteEndpoint(ep);
 						else {
@@ -2391,7 +2583,7 @@
 								oldAnchor = ep.anchor,
 								oldConnection = ep.connections[0];
 
-							ep.setAnchor(_currentInstance.makeAnchor(anchorDef, elid, _currentInstance));																							
+							ep.setAnchor(_currentInstance.makeAnchor(anchorDef, elid, _currentInstance), true);																							
 							
 							if (p.parent) {						
 								var parent = parentElement();
@@ -2531,7 +2723,7 @@
 			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
 			for (var i = 0, ii = inputs.length; i < ii; i++) {			
-				_doOne(_gel(inputs[i]));
+				_doOne(_info(inputs[i]));
 			}
 
 			return _currentInstance;
@@ -2539,19 +2731,18 @@
 	
 		// see api docs		
 		this.unmakeSource = function(el, doNotClearArrays) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			var id = _getId(el),
-				mouseDownListener = _sourceTriggers[id];
+			var info = _info(el),
+				mouseDownListener = _sourceTriggers[info.id];
 			
 			if (mouseDownListener) 
-				_currentInstance.unregisterListener(el, "mousedown", mouseDownListener);
+				_currentInstance.unregisterListener(info.el, "mousedown", mouseDownListener);
 
 			if (!doNotClearArrays) {
-				delete _sourceEndpointDefinitions[id];
-				delete _sourceEndpointsUnique[id];
-				delete _sourcesEnabled[id];
-				delete _sourceTriggers[id];
-				delete _sourceMaxConnections[id];
+				delete _sourceEndpointDefinitions[info.id];
+				delete _sourceEndpointsUnique[info.id];
+				delete _sourcesEnabled[info.id];
+				delete _sourceTriggers[info.id];
+				delete _sourceMaxConnections[info.id];
 			}
 
 			return _currentInstance;
@@ -2579,16 +2770,7 @@
 			_targetsEnabled = {};
 
 			return _currentInstance;
-		};
-		
-		
-		this.makeSources = function(els, params, referenceParams) {
-			for ( var i = 0, ii = els.length; i < ii; i++) {
-				_currentInstance.makeSource(els[i], params, referenceParams);				
-			}
-
-			return _currentInstance;
-		};
+		};			
 
 		// does the work of setting a source enabled or disabled.
 		var _setEnabled = function(type, el, state, toggle) {
@@ -2598,8 +2780,8 @@
 			else if (el.length) {
 				el = _convertYUICollection(el);
 				for (var i = 0, ii = el.length; i < ii; i++) {
-					var id = _el = jsPlumb.CurrentLibrary.getElementObject(el[i]), id = _getId(_el);
-					a[id] = toggle ? !a[id] : state;
+					var info = _info(el[i]);
+					a[info.id] = toggle ? !a[info.id] : state;
 				}
 			}	
 			return _currentInstance;
@@ -2618,14 +2800,12 @@
 
 		
 		this.isSource = function(el) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			return _sourcesEnabled[_getId(el)] != null;
+			return _sourcesEnabled[_info(el).id] != null;
 		};
 
 		
 		this.isSourceEnabled = function(el) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			return _sourcesEnabled[_getId(el)] === true;
+			return _sourcesEnabled[_info(el).id] === true;
 		};
 
 		
@@ -2641,14 +2821,12 @@
 
 		
 		this.isTarget = function(el) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			return _targetsEnabled[_getId(el)] != null;
+			return _targetsEnabled[_info(el).id] != null;
 		};
 
 		
 		this.isTargetEnabled = function(el) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			return _targetsEnabled[_getId(el)] === true;
+			return _targetsEnabled[_info(el).id] === true;
 		};
 				
 		this.ready = function(fn) {
@@ -2660,10 +2838,12 @@
 			// support both lists...
 			if (typeof el == 'object' && el.length)
 				for ( var i = 0, ii = el.length; i < ii; i++) {			
-					_draw(_gel(el[i]), ui, timestamp);
+					//_draw(_gel(el[i]), ui, timestamp);
+					_draw(el[i], ui, timestamp);
 				}
 			else // ...and single strings.				
-				_draw(_gel(el), ui, timestamp);
+				//_draw(_gel(el), ui, timestamp);
+			_draw(el, ui, timestamp);
 				
 			return _currentInstance;
 		};
@@ -2680,20 +2860,20 @@
 
 		
 		this.removeAllEndpoints = function(el, recurse) {
-            var _one = function(_el) {                
-                var elId = jsPlumbUtil.isString(_el) ? _el : _getId(_gel(_el)),
-                    ebe = endpointsByElement[elId];
+            var _one = function(_el) {                            	
+                var info = _info(_el),
+                    ebe = endpointsByElement[info.id];
+
                 if (ebe) {
                     for ( var i = 0, ii = ebe.length; i < ii; i++) 
                         _currentInstance.deleteEndpoint(ebe[i]);
                 }
-                delete endpointsByElement[elId];
+                delete endpointsByElement[info.id];
                 
                 if (recurse) {
-                    var del = jsPlumb.CurrentLibrary.getDOMElement(_gel(_el));
-                    if (del && del.nodeType != 3 && del.nodeType != 8 ) {
-                        for (var i = 0, ii = del.childNodes.length; i < ii; i++) {
-                            _one(del.childNodes[i]);
+                    if (info.el && info.el.nodeType != 3 && info.el.nodeType != 8 ) {
+                        for (var i = 0, ii = info.el.childNodes.length; i < ii; i++) {
+                            _one(info.el.childNodes[i]);
                         }
                     }
                 }
@@ -2703,14 +2883,18 @@
 			return _currentInstance;
 		};
                     
-        this.remove = function(el) {
-            var _el = _gel(el);
-            var id = jsPlumbUtil.isString(el) ? el : _getId(_el);
+        /**
+        * Remove the given element, including cleaning up all endpoints registered for it.
+        * This is exposed in the public API but also used internally by jsPlumb when removing the
+        * element associated with a connection drag.
+        */
+        this.remove = function(el, doNotRepaint) {
+            var info = _info(el);
             _currentInstance.doWhileSuspended(function() {
-            	_currentInstance.removeAllEndpoints(id, true);
-            	_currentInstance.dragManager.elementRemoved(id);
-            });
-            jsPlumb.CurrentLibrary.removeElement(_el);
+            	_currentInstance.removeAllEndpoints(info.id, true);
+            	_currentInstance.dragManager.elementRemoved(info.id);
+            }, doNotRepaint === false);
+            jsPlumb.CurrentLibrary.removeElement(info.el);
         };
 
 		var _registeredListeners = {},
@@ -2769,7 +2953,7 @@
 		// sets the id of some element, changing whatever we need to to keep track.
 		this.setId = function(el, newId, doNotSetAttribute) {
 		
-			var id = el.constructor == String ? el : _currentInstance.getId(el),
+			var id = jsPlumbUtil.isString(el) ? el : _info(el).id,
 				sConns = _currentInstance.getConnections({source:id, scope:'*'}, true),
 				tConns = _currentInstance.getConnections({target:id, scope:'*'}, true);
 
@@ -2782,7 +2966,6 @@
 			
 			el = jsPlumb.CurrentLibrary.getElementObject(newId);
 			
-
 			endpointsByElement[newId] = endpointsByElement[id] || [];
 			for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
 				endpointsByElement[newId][i].setElementId(newId);

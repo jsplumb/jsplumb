@@ -94,6 +94,9 @@
 		
 		/**
 		 * appends the given child to the given parent.
+
+TODO: REMOVE!
+
 		 */
 		appendElement : function(child, parent) {
 			_getElementObject(parent).append(child);			
@@ -118,11 +121,13 @@
 		},
 
 		destroyDraggable : function(el) {
-			el.draggable("destroy");
+			if ($(el).data("draggable"))
+				$(el).draggable("destroy");
 		},
 
 		destroyDroppable : function(el) {
-			el.droppable("destroy");
+			if ($(el).data("droppable"))
+				$(el).droppable("destroy");
 		},
 		
 		/**
@@ -140,16 +145,7 @@
 		 */
 		extend : function(o1, o2) {
 			return $.extend(o1, o2);
-		},
-		
-		/**
-		 * gets the named attribute from the given element object.  
-		 *
-		getAttribute : function(el, attName) {
-			//alert("hh")
-			//return el.attr(attName);
-			return el.getAttribute(attName);
-		},*/
+		},		
 		
 		getClientXY : function(eventObject) {
 			return [eventObject.clientX, eventObject.clientY];
@@ -163,7 +159,7 @@
 		},
 		
 		getDragScope : function(el) {
-			return el.draggable("option", "scope");
+			return $(el).draggable("option", "scope");
 		},
 
 		getDropEvent : function(args) {
@@ -171,7 +167,7 @@
 		},
 		
 		getDropScope : function(el) {
-			return el.droppable("option", "scope");		
+			return $(el).droppable("option", "scope");		
 		},
 
 		/**
@@ -180,6 +176,7 @@
 		* two cases).  this is the opposite of getElementObject below.
 		*/
 		getDOMElement : function(el) {
+			if (el == null) return null;
 			if (typeof(el) == "string") return document.getElementById(el);
 			else if (el.context || el.length != null) return el[0];
 			else return el;
@@ -287,6 +284,7 @@
 		 */
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
 			options = options || {};
+			el = $(el);
 
 /*
 			// css3 transforms
@@ -331,25 +329,25 @@
 		 */
 		initDroppable : function(el, options) {
 			options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
-			el.droppable(options);
+			$(el).droppable(options);
 		},
 		
 		isAlreadyDraggable : function(el) {
-			return _getElementObject(el).hasClass("ui-draggable");
+			return $(el).hasClass("ui-draggable");
 		},
 		
 		/**
 		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
 		 */
 		isDragSupported : function(el, options) {
-			return el.draggable;
+			return $(el).draggable;
 		},				
 						
 		/**
 		 * returns whether or not drop is supported (by the library, not whether or not it is disabled) for the given element.
 		 */
 		isDropSupported : function(el, options) {
-			return el.droppable;
+			return $(el).droppable;
 		},							
 		
 		/**
