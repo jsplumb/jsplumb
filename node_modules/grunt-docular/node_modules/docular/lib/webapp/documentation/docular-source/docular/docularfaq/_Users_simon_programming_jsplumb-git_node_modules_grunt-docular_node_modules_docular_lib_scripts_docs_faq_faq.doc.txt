@@ -1,0 +1,62 @@
+@doc overview
+@id index
+@name Frequently Asked Questions
+@description
+
+# Frequently Asked Questions!
+
+<page-list></page-list>
+
+
+@doc overview
+@id whichdoc
+@name Should I use @doc or @ngdoc?
+@description
+
+The "@doc" {@link /documentation/docular/basics/identifier documentation identifer} and the "@ngdoc" {@link /documentation/docular/basics/identifier documentation identifier} provide different sets of logic for parsing, ordering, and rendering your documentation.
+
+The "@ngdoc" plugin and any other plugins inherit from the "@doc" base plugin. This means "@ngdoc" provides the same {@link /documentation/docular/basics/sections module sections} and basic rendering and behavior but adds additional sections, rendering, and behavior to support AngularJS based apps.
+
+So, in short, if you are documenting AngularJS code, you would want to use "@ngdoc". If you are not, then you simply use "@doc".
+
+But of course since "@ngdoc" inherits from "@doc", you could technically use "@ngdoc". Note that "@ngdoc" does override a few of the rendering methods of the base "@doc" plugin, but not in a way that would create a significant difference.
+
+<pager></pager>
+
+
+@doc overview
+@id services
+@name How the heck do I create an "@ngdoc" service?
+@description
+
+Docular is still built to parse the original AngularJS source code to provide as close to the same documentation as seen on the AngularJS site.
+
+Therefore, following the AngularJS code as an example for Docular is perfectly fine with a few exceptions.
+
+AngularJS has a few special naming conventions of their document ids that do not follow "the rules".
+
+If you look at the AngularJS source, you see this example:
+
+```js
+/**
+ * @ngdoc function
+ * @name ng.$anchorScroll
+ * @requires $window
+ * @requires $location
+ * @requires $rootScope
+ *
+ * @description
+ * When called, it checks current value of `$location.hash()` and scroll to related element,
+ * according to rules specified in
+ * {@link http://dev.w3.org/html5/spec/Overview.html#the-indicated-part-of-the-document Html5 spec}.
+ *
+ * It also watches the `$location.hash()` and scroll whenever it changes to match any anchor.
+ * This can be disabled by calling `$anchorScrollProvider.disableAutoScrolling()`.
+ */
+```
+
+This is the documentation syntax for the anchorScroll service. You notice however, that AngularJS has a naming convention that assumes that anything that has this form "<moduleName>.$<someName>", is a service. So behind the scenes it would turn "&lt;moduleName&gt;.$&lt;someName&gt;" into our {@link /documentation/docular/basics/naming normal naming convention} of "&lt;moduleName&gt;.service:&lt;someName&gt;".
+
+Therefore, you have two choices in putting documentation objects into the "service" {@link /documentation/docular/basics/sections module section}. You can either follow the "$" prefix and not specify a {@link /documentation/docular/basics/sections module section}, or you can use the {@link /documentation/docular/basics/naming normal naming convention} and provide the {@link /documentation/docular/basics/sections module section}.
+
+<pager></pager>

@@ -1,0 +1,15 @@
+<h1><code ng:non-bindable="">verifyNoOutstandingExpectation</code>
+<span class="hint">( service in module <code ng:non-bindable="">ngMock</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Verifies that all of the requests defined via the  <code class="plain">expect</code>  api were made. If any of the
+requests were not made, verifyNoOutstandingExpectation throws an exception.</p>
+
+<p>Typically, you would call this method following each test case that asserts requests using an
+"afterEach" clause.</p>
+
+<pre class="prettyprint linenums">
+  afterEach($httpBackend.verifyExpectations);
+</pre></div>
+</div>

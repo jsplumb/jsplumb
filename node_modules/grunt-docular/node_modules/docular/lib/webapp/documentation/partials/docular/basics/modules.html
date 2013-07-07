@@ -1,0 +1,31 @@
+<h1><code ng:non-bindable="">Creating Modules</code>
+<span class="hint"></span>
+</h1>
+<div><p>When creating documentation for your code, you typically want to document your APIs and code in a way that eases the cognitive load of those who may need to review your code.</p>
+
+<p>Docular provides  <code class="plain">Modules</code>  as the first level of abstraction to help people understand how your code is organized.</p>
+
+<p>Typically, you would want a module to be completely self sufficient. It should have no dependencies on other modules or other code. In AngularJS terms this makes complete sense, but for projects that use frameworks that do not provide this natural "modularity", you may need to put a little thought into this.</p>
+
+<h2 id="idvaluesmakemodules">@id Values Make Modules</h3>
+
+<h3 id="justcreateyouridsandenjoy">Just create your ids and enjoy!</h4>
+
+<p>You NEVER have to say "Yo, make me a module". All you need to do is create a document that has an  <code class="plain">id</code>  that specifies a module. For example, suppose I create a document within my code that looks like this:</p>
+
+<pre class="prettyprint linenums">/**
+ * &#64;ngdoc service
+ * &#64;name booyah.service:yayer
+ * &#64;description Awesome Sauce
+ */
+</pre>
+
+<p>First off, since I didn't specify an "@id", Docular copies the "@name" attribute ot the "id" field.</p>
+
+<p>Now we know the "id" is also "booyah.service:yayer". Now, if you recall the <a href="documentation/docular/basics/naming">naming conventions</a> Docular uses, you can see that  <code class="plain">booyah</code>  is the module specified for this id. That's all you need to do! Docular sees that you need to generate that module if it already hasn't generated it and you are all set! Easy peezy lemon sqeezy.</p>
+
+<div class="alert alert-warn">REMINDER : If you are creating API documentation, just put your id in the  <code>@name</code>  attribute. It will also become the  <code class="plain">id</code> </div>
+
+<p>For more examples of module generation, check out this <a href="/documentation/docular/docularcreate/firstdoc">documentation steeze</a>.</p>
+
+<p><pager></pager></p></div>

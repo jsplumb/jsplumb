@@ -1,0 +1,12 @@
+<h1><code ng:non-bindable="">Should I use @doc or @ngdoc?</code>
+<span class="hint"></span>
+</h1>
+<div><p>The "@doc" <a href="/documentation/docular/basics/identifier">documentation identifer</a> and the "@ngdoc" <a href="/documentation/docular/basics/identifier">documentation identifier</a> provide different sets of logic for parsing, ordering, and rendering your documentation.</p>
+
+<p>The "@ngdoc" plugin and any other plugins inherit from the "@doc" base plugin. This means "@ngdoc" provides the same <a href="/documentation/docular/basics/sections">module sections</a> and basic rendering and behavior but adds additional sections, rendering, and behavior to support AngularJS based apps.</p>
+
+<p>So, in short, if you are documenting AngularJS code, you would want to use "@ngdoc". If you are not, then you simply use "@doc".</p>
+
+<p>But of course since "@ngdoc" inherits from "@doc", you could technically use "@ngdoc". Note that "@ngdoc" does override a few of the rendering methods of the base "@doc" plugin, but not in a way that would create a significant difference.</p>
+
+<p><pager></pager></p></div>

@@ -1,0 +1,83 @@
+<h1><code ng:non-bindable="">$watch</code>
+<span class="hint">( type in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Registers a  <code class="plain">listener</code>  callback to be executed whenever the  <code class="plain">watchExpression</code>  changes.</p>
+
+<ul>
+<li>The  <code class="plain">watchExpression</code>  is called on every call to <a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest()</code></a> and
+should return the value which will be watched. (Since <a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest()</code></a>
+reruns when it detects changes the  <code class="plain">watchExpression</code>  can execute multiple times per
+<a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest()</code></a> and should be idempotent.)</li>
+<li>The  <code class="plain">listener</code>  is called only when the value from the current  <code class="plain">watchExpression</code>  and the
+previous call to  <code class="plain">watchExpression</code>  are not equal (with the exception of the initial run,
+see below). The inequality is determined according to
+<a href="documentation/angular/api/angular.equals"><code>angular.equals</code></a> function. To save the value of the object for later comparison, the
+<a href="documentation/angular/api/angular.copy"><code>angular.copy</code></a> function is used. It also means that watching complex options will
+have adverse memory and performance implications.</li>
+<li>The watch  <code class="plain">listener</code>  may change the model, which may trigger other  <code class="plain">listener</code> s to fire. This
+is achieved by rerunning the watchers until no changes are detected. The rerun iteration
+limit is 10 to prevent an infinite loop deadlock.</li>
+</ul>
+
+<p>If you want to be notified whenever <a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest</code></a> is called,
+you can register a  <code class="plain">watchExpression</code>  function with no  <code class="plain">listener</code> . (Since  <code class="plain">watchExpression</code> 
+can execute multiple times per <a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest</code></a> cycle when a change is
+detected, be prepared for multiple calls to your listener.)</p>
+
+<p>After a watcher is registered with the scope, the  <code class="plain">listener</code>  fn is called asynchronously
+(via <a href="documentation/angular/api/ng.$rootScope.Scope#$evalAsync"><code>$evalAsync</code></a>) to initialize the
+watcher. In rare cases, this is undesirable because the listener is called when the result
+of  <code class="plain">watchExpression</code>  didn't change. To detect this scenario within the  <code class="plain">listener</code>  fn, you
+can compare the  <code class="plain">newVal</code>  and  <code class="plain">oldVal</code> . If these two values are identical ( <code class="plain">===</code> ) then the
+listener was called due to initialization.</p>
+
+<h1 id="example">Example</h3>
+
+<pre class="prettyprint linenums">
+           // let's assume that scope was dependency injected as the $rootScope
+           var scope = $rootScope;
+           scope.name = 'misko';
+           scope.counter = 0;
+
+           expect(scope.counter).toEqual(0);
+           scope.$watch('name', function(newValue, oldValue) { scope.counter = scope.counter + 1; });
+           expect(scope.counter).toEqual(0);
+
+           scope.$digest();
+           // no variable change
+           expect(scope.counter).toEqual(0);
+
+           scope.name = 'adam';
+           scope.$digest();
+           expect(scope.counter).toEqual(1);
+</pre></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">Scope#$watch(watchExpression[, listener][, objectEquality]);</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">watchExpression – {(function()|string)} – </code>
+<p>Expression that is evaluated on each
+<a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest</code></a> cycle. A change in the return value triggers a
+call to the  <code class="plain">listener</code> .</p>
+
+<ul>
+<li> <code class="plain">string</code> : Evaluated as <a href="documentation/angular/guide/expression">expression</a></li>
+<li> <code class="plain">function(scope)</code> : called with current  <code class="plain">scope</code>  as a parameter.</li>
+</ul></li>
+<li><code class="plain">listener<i>(optional)</i> – {(function()|string)=} – </code>
+<p>Callback called whenever the return value of
+the  <code class="plain">watchExpression</code>  changes.</p>
+
+<ul>
+<li> <code class="plain">string</code> : Evaluated as <a href="documentation/angular/guide/expression">expression</a></li>
+<li> <code class="plain">function(newValue, oldValue, scope)</code> : called with current and previous values as parameters.</li>
+</ul></li>
+<li><code class="plain">objectEquality<i>(optional)</i> – {boolean=} – </code>
+<p>Compare object for equality rather than for reference.</p></li>
+</ul>
+<h3 id="Returns">Returns</h3>
+<div class="returns"><code class="plain">{function()}</code>
+– <p>Returns a deregistration function for this listener.</p></div>
+</div>
+</div>

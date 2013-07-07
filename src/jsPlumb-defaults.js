@@ -874,26 +874,29 @@
 				
 		this.type = "Image";
 		DOMElementEndpoint.apply(this, arguments);
+        jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		
-		var self = this,  
-            _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments), 
-			initialized = false,
-			deleted = false,
-            ready = false,
-			widthToUse = params.width,
-			heightToUse = params.height,
-            _onload = null,
-            _endpoint = params.endpoint,
-            img = this._jsPlumb.img = new Image();		
+		var _onload = params.onload, 
+            src = params.src || params.url,
+            parent = params.parent,
+            clazz = params.cssClass ? " " + params.cssClass : "";
+
+        this._jsPlumb.img = new Image();		
+        this._jsPlumb.ready = false;
+        this._jsPlumb.initialized = false;
+        this._jsPlumb.deleted = false;
+        this._jsPlumb.widthToUse = params.width;
+        this._jsPlumb.heightToUse = params.height;
+        this._jsPlumb.endpoint = params.endpoint;
 
 		this._jsPlumb.img.onload = function() {
-			ready = true;            
-			widthToUse = widthToUse || img.width;
-			heightToUse = heightToUse || img.height;
+			this._jsPlumb.ready = true;            
+			this._jsPlumb.widthToUse = this._jsPlumb.widthToUse || this._jsPlumb.img.width;
+			this._jsPlumb.heightToUse = this._jsPlumb.heightToUse || this._jsPlumb.img.height;
             if (_onload) {
                 _onload(this);
             }
-		}.bind(this);
+		}.bind(this);        
 
         /*
             Function: setImage
@@ -903,61 +906,61 @@
             img         -   may be a URL or an Image object
             onload      -   optional; a callback to execute once the image has loaded.
         */
-        _endpoint.setImage = function(_img, onload) {
+       /* this._jsPlumb.endpoint.setImage = function(_img, onload) {
             var s = _img.constructor == String ? _img : _img.src;
             _onload = onload; 
-            img.src = _img;
+            this._jsPlumb.img.src = _img;
 
-            if (canvas != null)
-                canvas.setAttribute("src", img);
-        };
+            if (this.canvas != null)
+                this.canvas.setAttribute("src", this._jsPlumb.img);
+        }.bind(this);
 
-        _endpoint.setImage(params.src || params.url, params.onload);
+        this._jsPlumb.endpoint.setImage(src, _onload);
+        */        
+            var s = src.constructor == String ? src : src.src;
+            //_onload = onload; 
+            this._jsPlumb.img.src = src;
+
+            if (this.canvas != null)
+                this.canvas.setAttribute("src", this._jsPlumb.img.src);
+       // }.bind(this);
+
+        //this._jsPlumb.endpoint.setImage(src, _onload);
 
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			this.anchorPoint = anchorPoint;
-			if (ready) return [anchorPoint[0] - widthToUse / 2, anchorPoint[1] - heightToUse / 2, 
-									widthToUse, heightToUse];
+			if (this._jsPlumb.ready) return [anchorPoint[0] - this._jsPlumb.widthToUse / 2, anchorPoint[1] - this._jsPlumb.heightToUse / 2, 
+									this._jsPlumb.widthToUse, this._jsPlumb.heightToUse];
 			else return [0,0,0,0];
 		};
 		
-		var canvas = this.canvas = document.createElement("img"), initialized = false;
-		canvas.style["margin"] = 0;
-		canvas.style["padding"] = 0;
-		canvas.style["outline"] = 0;
-		canvas.style["position"] = "absolute";
-		var clazz = params.cssClass ? " " + params.cssClass : "";
-		canvas.className = this._jsPlumb.instance.endpointClass + clazz;
-		if (widthToUse) canvas.setAttribute("width", widthToUse);
-		if (heightToUse) canvas.setAttribute("height", heightToUse);		
-		this._jsPlumb.instance.appendElement(canvas, params.parent);
-		this.attachListeners(canvas, this);
+		this.canvas = document.createElement("img");
+		this.canvas.style["margin"] = 0;
+		this.canvas.style["padding"] = 0;
+		this.canvas.style["outline"] = 0;
+		this.canvas.style["position"] = "absolute";		
+		this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
+		if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
+		if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);		
+		this._jsPlumb.instance.appendElement(this.canvas, parent);
+		this.attachListeners(this.canvas, this);		
 		
-        //
-		this.doCleanup = function() {
-			deleted = true;
-            img = null;
-            canvas = null;
-            self = null;
-            jsPlumbUtil.removeElement(this.canvas);
+		this.actuallyPaint = function(d, style, anchor) {
+			if (!this._jsPlumb.deleted) {
+				if (!this._jsPlumb.initialized) {
+					this.canvas.setAttribute("src", this._jsPlumb.img.src);
+					this.appendDisplayElement(this.canvas);
+					this._jsPlumb.initialized = true;
+				}
+				var x = this.anchorPoint[0] - (this._jsPlumb.widthToUse / 2),
+					y = this.anchorPoint[1] - (this._jsPlumb.heightToUse / 2);
+				jsPlumb.sizeCanvas(this.canvas, x, y, this._jsPlumb.widthToUse, this._jsPlumb.heightToUse);
+			}
 		};
 		
-		var actuallyPaint = function(d, style, anchor) {
-			if (!deleted) {
-				if (!initialized) {
-					canvas.setAttribute("src", img.src);
-					this.appendDisplayElement(canvas);
-					initialized = true;
-				}
-				var x = this.anchorPoint[0] - (widthToUse / 2),
-					y = this.anchorPoint[1] - (heightToUse / 2);
-				jsPlumb.sizeCanvas(canvas, x, y, widthToUse, heightToUse);
-			}
-		}.bind(this);
-		
 		this.paint = function(style, anchor) {
-			if (ready) {
-    			actuallyPaint(style, anchor);
+			if (this._jsPlumb.ready) {
+    			this.actuallyPaint(style, anchor);
 			}
 			else { 
 				window.setTimeout(function() {    					
@@ -967,9 +970,10 @@
 		};				
 	};
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
-        cleanup : function() {
-            //console.log("Cleanup image overlay");
-            this.doCleanup();
+        cleanup : function() {            
+            this._jsPlumb.deleted = true;
+            jsPlumbUtil.removeElement(this.canvas);
+            this.canvas = null;
         } 
     });
 	

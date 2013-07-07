@@ -1,0 +1,28 @@
+<h1><code ng:non-bindable="">animation</code>
+<span class="hint">( global in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Defines an animation hook that can be later used with <a href="documentation/angular/api/ng.directive:ngAnimate"><code>ngAnimate</code></a>
+alongside <a href="documentation/angular/api/ng.directive:ngAnimate#Description"><code>common ng directives</code></a> as well as custom directives.
+<pre class="prettyprint linenums">
+module.animation('animation-name', function($inject1, $inject2) {
+  return {
+    //this gets called in preparation to setup an animation
+    setup : function(element) { ... },
+
+    //this gets called once the animation is run
+    start : function(element, done, memo) { ... }
+  }
+})
+</pre>
+
+<p>See <a href="documentation/angular/api/ng.$animationProvider#register"><code>$animationProvider.register()</code></a> and
+<a href="documentation/angular/api/ng.directive:ngAnimate"><code>ngAnimate</code></a> for more information.</p></div>
+<h2 id="Parameters">Parameters</h2>
+<ul class="parameters"><li><code class="plain">name – {string} – </code>
+<p>animation name</p></li>
+<li><code class="plain">animationFactory – {Function} – </code>
+<p>Factory function for creating new instance of an animation.</p></li>
+</ul>
+</div>

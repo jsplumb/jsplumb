@@ -1,0 +1,32 @@
+<h1></h1>
+<div><h1 id="creatingdocumentationwithdocular">Creating Documentation with Docular</h2>
+
+<p>AngularJS's source includes code to generate documentation from their source code as well as from files that contain strictly documentation and no code. Docular follows the original approach and provides ways to extend the documentation API. The best way to learn is to install the <a href="/documentation/docular/docularinstall/index">grunt-docular</a> on an existing project and follow the information here to start generating your own docs.</p>
+
+<h2 id="whatmakesdoculargreat">What makes Docular great?</h3>
+
+<p>Leveraging AngularJS's approach gives you the power to create flexible documentation using the latest in dev technology</p>
+
+<ul>
+<li><a href="https://github.com/coreyti/showdown">Showdown</a> is used so all documentation can use common "markdown" syntax</li>
+<li>DDO's or ( Docular Documentation Objects ) can be anywhere and reference any DDO at any time at any place</li>
+<li>The AngularJS based webapp provides a simple and effective interface for viewing documentation</li>
+<li>It's extensible. You can create your own custimizations to the styling, partial generation, or create your own documentation API</li>
+</ul>
+
+<h2 id="understandingtheddodoculardocumentationobject">Understanding the "DDO" ( Docular Documentation Object )</h3>
+
+<p>The <span class="label">DDO</span> ( Docular Documentation Object ) can be thought of as an object that is created by parsing out common properties in your documentation, transforming them into an object, and then generating a viewable <span class="label">Partial</span> by running the DDO through the Docular rendering process.</p>
+
+<h2 id="visualize">Visualize</h3>
+
+<p>Visualizing your documentation turning into a DDO object and then being used to generate HTML is important. Continue through this guide and learn how this basic understanding
+becomes very powerful when you introduce extendible transformations that modify the DDO's during the creation and partial generation process.</p>
+
+<p>Most examples will use the default "Doc" API for generating documentation, however we will also introduce example from the "ngdoc" API which is the API that parses and renders AngularJS's documentation within Docular.</p>
+
+<p>Your next step is to understand the workflow from start to finish. This is covered in the "From Docs to Partials" step. Enjoy!</p>
+
+<h2 id="understandtheddolifecycle">Understand the DDO lifecycle</h3>
+
+<p><page-list></page-list></p></div>

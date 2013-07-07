@@ -1,0 +1,52 @@
+<h1><code ng:non-bindable="">Documentation In "Doc" Files</code>
+<span class="hint"></span>
+</h1>
+<div><p>First remember how to <a href="/documentation/docular/docularconfigure/sections">point Docular at your doc files</a>. Next, understand the main differences between script files and "doc" files.</p>
+
+<h4 id="docfilesendwithdoc">"Doc" Files End With ".doc"</h5>
+
+<p>The first obvious difference is that these files must end with a ".doc" file extension. This allows you to mix your ".doc" files with script files within the same directory and have Docular pick them out easily.</p>
+
+<h4 id="docfilesonlyhavedocumentation">"Doc" Files only Have Documentation</h5>
+
+<p>The most important difference is that "doc" files contain no code and are meant exclusively for storing documentation. This means documentation does not need to reside within comment blocks.</p>
+
+<h4 id="docfilesaregreatforoverviews">"Doc" Files are Great for "Overviews"</h5>
+
+<p>"Doc" files are perfect for storing "overview" type documentation, tutorials, and introductions. Most of the documentation you are reading here was made within "doc" files.</p>
+
+<h3 id="howdocfilesareparsed">How "Doc" Files are Parsed</h4>
+
+<p>When "Doc" files are read, the parser looks for a <a href="/documentation/docular/basics/identifier">document identifier</a>. This signals the begginning of a documentation section. All other <a href="/documentation/docular/basics/fields">documentation fields</a> that are encountered are parsed and attached to this documentation object.</p>
+
+<p>This process continues until the end of the file is reached or until a new <a href="/documentation/docular/basics/identifier">document identifier</a> is discovered. At this point either the process ends or the start of a new documentation object begins.</p>
+
+<h3 id="sampledocumentationwithinadocfile">Sample Documentation Within A "Doc" File</h4>
+
+<p>Here is an example of Docular documentation within a "doc" file:</p>
+
+<pre class="prettyprint linenums">
+&#64;doc overview
+&#64;id intro
+&#64;name Intro To My Code
+&#64;description #Welcome to My Code
+
+## Why My Code is Awesome
+
+1. Naming is clear
+2. It is well organized
+3. It is well documented ;-)
+
+</pre>
+
+<h2 id="summary">Summary</h3>
+
+<p>So here are a few points to note:</p>
+
+<ol>
+<li>"Doc" files should end with the extension ".doc"</li>
+<li>Documentation is not within comment blocks</li>
+<li>"Doc" files are perfect for creating overviews, tutorials, splash pages.</li>
+</ol>
+
+<p><pager></pager></p></div>

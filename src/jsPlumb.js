@@ -1,3 +1,17 @@
+/**
+ * @doc module
+ * @name jsPlumb
+ * @description
+ *
+ * ## jsPlumb
+ *
+ * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
+ * elements, or VML.   
+ *
+ * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
+ *
+ */
+
 /*
  * jsPlumb
  * 
@@ -388,7 +402,7 @@
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
 			cleanup:function() {		
-				console.log("jsPlumbUIComponent cleanup", this.id);	
+				//console.log("jsPlumbUIComponent cleanup", this.id);	
 				this.unbindListeners();
 				this.detachListeners();
 			},
@@ -1507,79 +1521,58 @@
 		};
 		
 		// delete the given endpoint: either an Endpoint here, or its UUID.
+
+		/**
+		 * @doc function
+		 * @name jsPlumb.global:deleteEndpoint
+		 * @param  {object} object Either a string, representing the endpoint's uuid, or an Endpoint.		 
+		 * @param {boolean} doNotRepaintAfterwards Defaults to false. Indicates whether or not to repaint everything after this call.
+		 * @return {object} The current jsPlumb instance.
+		 * @description
+		 * Deletes the given Endpoint.
+		 *		 
+		 * ```js
+		 *     jsPlumb.deleteEndpoint(someEndpoint)
+		 * ```
+		 */
 		this.deleteEndpoint = function(object, doNotRepaintAfterwards) {
-			_currentInstance.doWhileSuspended(function() {
-				var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
-				if (endpoint) {		
-
-				/*			
-					// 1. cleanup by uuid reference if there was one
-					if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
-					// 2. inform the anchor manager
-					_currentInstance.anchorManager.deleteEndpoint(endpoint);
-					// 3. detach all connections from the endpoint
-					endpoint.detachAll();
-																							
-					// 4. remove from endpointsByElement. i wish endpointsByElement didnt exist.
-					// TODO at least replace this with a removeWithFunction call!
-					//console.time("rework endpointsByElement");
-					for (var e in endpointsByElement) {
-						var endpoints = endpointsByElement[e];
-						if (endpoints) {
-							var newEndpoints = [];
-							for (var i = 0, j = endpoints.length; i < j; i++)
-								if (endpoints[i] != endpoint) newEndpoints.push(endpoints[i]);
-							
-							endpointsByElement[e] = newEndpoints;
-						}
-						if(endpointsByElement[e].length <1){
-							delete endpointsByElement[e];
-						}
-					}
-					
-					
-					//jsPlumbUtil.removeWithFunction(endpointsByElement[endpoint.elementId], function(e) {
-					 //   return e == endpoint;
-					//});	
-					//if (endpointsByElement[endpoint.elementId].length < 1)
-					//	delete endpointsByElement[endpoint.elementId];
-					//
-				
-
-					//console.timeEnd("rework endpointsByElement");
-
-					// 5. cleanup endpoint
-					endpoint.cleanup();
-
-					// 6. inform drag manager, if there is one.  i wish jsplumb knew nothing about ui.			
-					if (!jsPlumbAdapter.headless)
-						_currentInstance.dragManager.endpointDeleted(endpoint);								
-
-					// 7. destroy the endpoint. 
-					endpoint.destroy();*/
-					_currentInstance.deleteTest({endpoint:endpoint});
-				}
-				return _currentInstance;									
-			}, doNotRepaintAfterwards);
+			var _is = _currentInstance.setSuspendDrawing(true);
+			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
+			if (endpoint) {		
+				_currentInstance.deleteTest({endpoint:endpoint});
+			}
+			if(!_is) _currentInstance.setSuspendDrawing(false, doNotRepaintAfterwards);
+			return _currentInstance;									
 		};
 		
 		
-		// delete every endpoint and their connections. distinct from reset because we dont clear listeners here.
+		/**
+		 * @doc function
+		 * @name jsPlumb.global:deleteEveryEndpoint		 
+		 * @return {object} The current jsPlumb instance.
+		 * @description
+		 * Deletes every `Endpoint` and their associated `Connection`s. Distinct from `reset` because we dont clear listeners here, so
+		 * for that reason this function is often the best way to reset a jsPlumb instance.
+		 *		 
+		 * ```js
+		 *     jsPlumb.deleteEveryEndpoint()
+		 * ```
+		 */		
 		this.deleteEveryEndpoint = function() {
-			_currentInstance.doWhileSuspended(function() {
-				for ( var id in endpointsByElement) {
-					var endpoints = endpointsByElement[id];
-					if (endpoints && endpoints.length) {
-						for ( var i = 0, j = endpoints.length; i < j; i++) {
-							_currentInstance.deleteEndpoint(endpoints[i], true);
-						}
+			var _is = _currentInstance.setSuspendDrawing(true);
+			for ( var id in endpointsByElement) {
+				var endpoints = endpointsByElement[id];
+				if (endpoints && endpoints.length) {
+					for ( var i = 0, j = endpoints.length; i < j; i++) {
+						_currentInstance.deleteEndpoint(endpoints[i], true);
 					}
-				}			
-				endpointsByElement = {};			
-				endpointsByUUID = {};
-				_currentInstance.anchorManager.reset();
-				_currentInstance.dragManager.reset();							
-			});
+				}
+			}			
+			endpointsByElement = {};			
+			endpointsByUUID = {};
+			_currentInstance.anchorManager.reset();
+			_currentInstance.dragManager.reset();							
+			if(!_is) _currentInstance.setSuspendDrawing(false, doNotRepaintAfterwards);
 			return _currentInstance;
 		};
 
@@ -1634,6 +1627,12 @@
 		}
 
 		// detach a connection
+		/**
+		 * @doc function
+		 * @name jsPlumb.global:detach		 
+		 * @description
+		 * Detaches a Connection.
+		 */	
 		this.detach = function() {
 
             if (arguments.length == 0) return;
@@ -1713,15 +1712,16 @@
 					endpointCount:0,
 					connectionCount:0
 				},
-				fireEvent = params.fireEvent !== false;//,
+				fireEvent = params.fireEvent !== false,
+				deleteAttachedObjects = params.deleteAttachedObjects !== false;//,
 				//suspendEvents = params.suspendEvents 
 
 			var unravelConnection = function(connection) {
 				if(connection != null && result.connections[connection.id] == null) {
-					connection.setHover(false);
+					//connection.setHover(false);
 					result.connections[connection.id] = connection;
 					result.connectionCount++;
-					if (connection.endpointsToDeleteOnDetach != null) {
+					if (deleteAttachedObjects && connection.endpointsToDeleteOnDetach != null) {
 						for (var j = 0; j < connection.endpointsToDeleteOnDetach.length; j++) {
 							unravelEndpoint(connection.endpointsToDeleteOnDetach[j]);
 						}
@@ -1730,15 +1730,16 @@
 			};
 			var unravelEndpoint = function(endpoint) {
 				if(endpoint != null && result.endpoints[endpoint.id] == null) {
-					endpoint.setHover(false);
+					//endpoint.setHover(false);
 					result.endpoints[endpoint.id] = endpoint;
 					result.endpointCount++;
 
-					for (var i = 0; i < endpoint.connections.length; i++) {
-						var c = endpoint.connections[i];
-						unravelConnection(c);						
+					if (deleteAttachedObjects) {
+						for (var i = 0; i < endpoint.connections.length; i++) {
+							var c = endpoint.connections[i];
+							unravelConnection(c);						
+						}
 					}
-					
 				}
 			};
 
@@ -2314,6 +2315,8 @@
 
 				var _drop = function() {
 
+					console.log("MAKE TARGET DROP");
+
 					_currentInstance.currentlyDragging = false;
 
 					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
@@ -2327,6 +2330,8 @@
 						
 					if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
 						if (onMaxConnections) {
+							// TODO here we still have the id of the floating element, not the
+							// actual target.
 							onMaxConnections({
 								element:elInfo.el,
 								connection:jpc
@@ -2363,7 +2368,8 @@
 					// if we manipulate it a bit.
 					if (jpc.suspendedEndpoint) {
 						jpc.targetId = jpc.suspendedEndpoint.elementId;
-						jpc.target = jpcl.getElementObject(jpc.suspendedEndpoint.elementId);
+						//jpc.target = jpcl.getElementObject(jpc.suspendedEndpoint.elementId);
+						jpc.target = jpc.suspendedEndpoint.element;
 						jpc.endpoints[1] = jpc.suspendedEndpoint;
 					}																										
 					
@@ -2408,9 +2414,10 @@
 						//if (jpc.endpoints[1]._makeTargetCreator && jpc.endpoints[1].connections.length < 2)
 						//	_currentInstance.deleteEndpoint(jpc.endpoints[1], true);
 
-						jpc.targetEndpoint = newEndpoint;
+						//jpc.targetEndpoint = newEndpoint;
 						jpc.target = newEndpoint.element;
 						jpc.targetId = newEndpoint.elementId;
+						jpc.endpoints[1].detachFromConnection(jpc);
 						jpc.endpoints[1] = newEndpoint;
 						jpc.deleteEndpointsOnDetach = deleteEndpointsOnDetach;
 						jpc.endpointsToDeleteOnDetach = deleteEndpointsOnDetach ? [ source, newEndpoint ] : null;
@@ -2567,7 +2574,10 @@
 						endpointAddedButNoDragYet = false;
 					});
 					
-					dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], function() { 							
+					dragOptions[stopEvent] = _wrap(dragOptions[stopEvent], function() { 
+						
+						console.log("MAKE SOURCE STOP");
+
 						if (existingStop) existingStop.apply(this, arguments);								
 	                    _currentInstance.currentlyDragging = false;						
 						if (ep.connections.length == 0)
@@ -2890,9 +2900,13 @@
         */
         this.remove = function(el, doNotRepaint) {
             var info = _info(el);
+            //console.log("removing element", info.id)
             _currentInstance.doWhileSuspended(function() {
             	_currentInstance.removeAllEndpoints(info.id, true);
             	_currentInstance.dragManager.elementRemoved(info.id);
+            	delete floatingConnections[info.id];     
+            	_currentInstance.anchorManager.clearFor(info.id);						
+            	_currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
             jsPlumb.CurrentLibrary.removeElement(info.el);
         };
@@ -3008,9 +3022,11 @@
          // set whether or not drawing is suspended. you should use this when doing bulk painting,
          // like when first drawing a UI.
 		this.setSuspendDrawing = function(val, repaintAfterwards) {
+			var curVal = _suspendDrawing;
 		    _suspendDrawing = val;
 				if (val) _suspendedAt = new Date().getTime(); else _suspendedAt = null;
 		    if (repaintAfterwards) _currentInstance.repaintEverything();
+		    return curVal;
 		};
         	
         // returns whether or not drawing is currently suspended.		

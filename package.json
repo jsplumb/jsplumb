@@ -1,0 +1,33 @@
+{
+  "name": "jsplumb",
+  "version": "1.5.0",
+  "description": "pipe up your life",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sporritt/jsPlumb.git"
+  },
+  "keywords": [
+    "javascript",
+    "awesome",
+    "tricks"
+  ],
+  "author": "Simon Porritt",
+  "license": "MIT/GPL2",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-qunit": "~0.2.2",
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-docular": "~0.1.1"
+  }
+}

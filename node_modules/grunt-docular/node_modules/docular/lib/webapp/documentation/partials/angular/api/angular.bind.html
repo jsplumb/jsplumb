@@ -1,0 +1,23 @@
+<h1><code ng:non-bindable="">bind</code>
+<span class="hint">( global in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Returns a function which calls function  <code class="plain">fn</code>  bound to  <code class="plain">self</code>  ( <code class="plain">self</code>  becomes the  <code class="plain">this</code>  for
+ <code class="plain">fn</code> ). You can supply optional  <code class="plain">args</code>  that are prebound to the function. This feature is also
+known as <a href="http://en.wikipedia.org/wiki/Currying">function currying</a>.</p></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">angular.bind(self, fn, args);</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">self – {Object} – </code>
+<p>Context which  <code class="plain">fn</code>  should be evaluated in.</p></li>
+<li><code class="plain">fn – {function()} – </code>
+<p>Function to be bound.</p></li>
+<li><code class="plain">args – {...*} – </code>
+<p>Optional arguments to be prebound to the  <code class="plain">fn</code>  function call.</p></li>
+</ul>
+<h3 id="Returns">Returns</h3>
+<div class="returns"><code class="plain">{function()}</code>
+– <p>Function that wraps the  <code class="plain">fn</code>  with all the specified bindings.</p></div>
+</div>
+</div>

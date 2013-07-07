@@ -1,0 +1,240 @@
+<h1></h1>
+<div><h1 id="docular">Docular</h2>
+
+<blockquote>
+  <p>Extensible Documentation Generation Based on AngularJS's Documentation Generation
+  NOTE: NodeJS has access to your filesystem so please proceed with caution. I will not be held responsible for side effects of bad code or malitious docular extensions.</p>
+</blockquote>
+
+<h1 id="gruntpluginfordoculargruntdocular">Grunt Plugin For Docular: "grunt-docular"</h2>
+
+<blockquote>
+  <p>Docular is best used as a dependency by the grunt-docular plugin.
+  The grunt-docular plugin exposes the api in a simple fashion and helps you include documentation tasks in your grunt-based build process.</p>
+</blockquote>
+
+<p><img src="http://grunt-docular.com/public/docular-screenshot.png" alt="docular" title="Docular Image" /></p>
+
+<h2 id="gettingstarted">Getting Started</h3>
+
+<p>This plugin requires Grunt  <code class="plain">~0.4.1</code> 
+
+<p>If you haven't used <a href="http://gruntjs.com/">Grunt</a> before, be sure to check out the <a href="http://gruntjs.com/getting-started">Getting Started</a> guide, as it explains how to create a <a href="http://gruntjs.com/sample-gruntfile">Gruntfile</a> as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:</p>
+
+<pre class="prettyprint linenums">npm install grunt-docular --save-dev
+</pre>
+
+<p>One the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:</p>
+
+<pre class="prettyprint linenums">grunt.loadNpmTasks('grunt-docular');
+</pre>
+
+<h2 id="thedoculartask">The "docular" task</h3>
+
+<h3 id="overview">Overview</h4>
+
+<p>In your project's Gruntfile, add a section named  <code class="plain">docular</code>  to the data object passed into  <code class="plain">grunt.initConfig()</code> .</p>
+
+<pre class="prettyprint linenums">
+grunt.initConfig({
+    docular: {
+        baseUrl: 'http://localhost:8000', //base tag used by Angular
+        showAngularDocs: true, //parse and render Angular documentation
+        showDocularDocs: true, //parse and render Docular documentation
+        docAPIOrder : ['doc', 'angular'], //order to load ui resources
+        groups: [] //groups of documentation to parse
+    },
+})
+
+</pre>
+
+<h3 id="options">Options</h4>
+
+ <code>baseURL</code>  (Type:  <code class="plain">string</code> , default:  <code class="plain">""</code> ): Angular uses the <base> tag to designate the baseUrl for an app. This is helpful for helping resolve routes and location through the $location service</p>
+
+ <code>showAngularDocs</code>  (Type:  <code class="plain">boolean</code> , default:  <code class="plain">false</code> ): The angular source is included in the docular package so it can be parsed and rendered to both help test the docular package and provide angular documentation for apps that use it.</p>
+
+ <code>showDocularDocs</code>  (Type:  <code class="plain">boolean</code> , default:  <code class="plain">false</code> ): Setting this to true will have docular parse and render the documentation for the docular plugin itself. This is helpful for developers to understand the default doc api (docular-doc-api-doc) to help them create their own docular api extensions.</p>
+
+ <code>docAPIOrder</code>  (Type:  <code class="plain">array [string]</code> , default:  <code class="plain">['doc', 'angular']</code> ): For each docular api extension, we need to know which order to include the UI scripts and CSS due to overrides etc..</p>
+
+ <code>groups</code>  (Type:  <code class="plain">array [group object]</code> , default:  <code class="plain">[]</code> ): This is an array of group objects. Groups have their own api but generally consists of some meta data and lists of files that need to be parsed and rendered for documentation. For more check out</p>
+
+<h3 id="groups">Groups</h4>
+
+<p>Group configurations for Angular and the docular documentation are stored and pushed into all groups if you set the showAngularDocs and showDocularDocs options to true. These configurations are identical to what you would use to configure docular to parse and render your own documentation.</p>
+
+<p>Here is the group configuration for Angular:
+<pre class="prettyprint linenums">{
+    groupTitle: 'Angular Docs', //Title used in the UI
+    groupId: 'angular', //identifier and determines directory
+    groupIcon: 'icon-book', //Icon to use for this group
+    sections: [
+        {
+            id: "api",
+            title:"Angular API",
+            scripts: ["lib/angular/js"]
+        },
+        {
+            id: "guide",
+            title: "Developers Guide",
+            docs: ["lib/angular/ngdocs/guide"]
+        },
+        {
+            id: "tutorial",
+            title: "Tutorial",
+            docs: ["lib/angular/ngdocs/tutorial"]
+        },
+        {
+            id: "misc",
+            title: "Overview",
+            docs: ["lib/angular/ngdocs/misc"]
+        }
+    ]
+}
+</pre>
+
+<h3 id="groupobjectattributes">Group Object Attributes</h4>
+
+ <code>groupTitle</code>  (required)  <code class="plain">string</code>  : The string value that will propogate up to the UI as the name of the tab</p>
+
+ <code>groupId</code>  (required)  <code class="plain">string</code>  : This will be the id used globally within the code and as the directory for this code. It will show in the URL for these docs ie 'http:/localhost:8000/documentation/<groupId>/blah blah'.</p>
+
+ <code>groupIcon</code>   <code class="plain">(default="icon-book")</code>  string : This is an optional attribute that determines the class put on the icon attribute in the UI. This comes from Twitter Boostrap. See <a href="http://twitter.github.io/bootstrap/base-css.html#images">Twitter Boostrap</a></p>
+
+ <code>sections</code>  (required)  <code class="plain">array [sectionObject]</code>  : This determines the different sections of documentation within your group. You can see the Angular example above in how it's documentation is broken up into sections that make logical sense.</p>
+
+ <code>sectionObject.id</code>  (required)  <code class="plain">string</code>  : This will be the id used globally within the code and will be the identifier in the url for documentation within this section ie 'http:/localhost:8000/documentation/<groupId>/<sectionObject.id>/blah blah'.</p>
+
+ <code>sectionObject.title</code>  (required)  <code class="plain">string</code>  : The title that will show in the tab drop downs for this section of documentation</p>
+
+ <code>sectionObject.scripts</code>  (optional)  <code class="plain">array [string]</code>  : The scripts array is an array of paths to folders and files that contain scripts (really of any kind... could probably be php or java or whatever although that has not been tested). These files will be parsed for documentation that resides within comments (within /** and *). The end of a comment will conclude the end of a complete documentation entry.</p>
+
+ <code>sectionObject.docs</code>  (optional)  <code class="plain">array [string]</code>  : The docs array is an array of paths to folders and files that contain documentation. These files will be parsed assuming that the docs here are not within comments. So this is basically a text file full of docs. This is a great way to provide supplimental documentation, tutorials, guides, and definitions for types etc..</p>
+
+<h2 id="contributing">Contributing</h3>
+
+<p>Contributing includes setting up a dev environment by cloning docular, grunt-docular, doc apis (optional), and setting up an example project. You must have NodeJS installed as well as npm (which now should come bundled with NodeJS).</p>
+
+<p>NodeJS can be installed here <a href="http://nodejs.org/">Install NodeJS</a></p>
+
+<p>Here is an example setup:</p>
+
+<h3 id="createadirectoryfordevelopment">Create a directory for development</h4>
+
+<p>In the command line create a directory and cd into it:
+<pre class="prettyprint linenums">mkdir docular-environment
+cd docular-environment
+</pre>
+
+<h3 id="clonedoculargruntdocularanddocularapiextensions">Clone docular, grunt-docular, and docular api extensions</h4>
+
+<p>From within your environment directory:
+<pre class="prettyprint linenums">git clone https://github.com/gitsome/docular.git
+git clone https://github.com/gitsome/grunt-docular.git
+</pre>
+optionally clone the docular extensions
+<pre class="prettyprint linenums">git clone https://github.com/gitsome/docular-doc-api-doc.git
+git clone https://github.com/gitsome/docular-doc-api-angular.git
+</pre>
+
+<h3 id="setupdevelopmentsymlinks">Setup Development Sym Links</h4>
+
+<p>NPM provides some sweet methods to setup a dev environment. This allows you to develop NPM dependencies for other NPM packages. <a href="https://npmjs.org/doc/link.html">npm link documentation</a>.</p>
+
+<p>If you follow all of these steps you will have a dev environment that can run the grunt-docular grunt plugin. The grunt-plugin cloned repo will be isolated outside your docular-test code via sym links, so changes you make in the grunt-plugin code will be kept isolated from changes in your docular-test code. Additionally, docular will be sym linked from the grunt-docular code. This allows you to isolate changes for the docular code while seeing its changes in the docular-test environment.</p>
+
+<p>Setup global symlink for docular:
+<pre class="prettyprint linenums">cd docular
+npm link
+cd ..
+</pre>
+
+<p>Setup global symlink for grunt-docular:
+<pre class="prettyprint linenums">cd grunt-docular
+npm link
+cd ..
+</pre>
+
+<p>Setup global symlink for docular extensions (optional):
+<pre class="prettyprint linenums">cd docular-doc-api-doc
+npm link
+cd ..
+cd docular-doc-api-angular
+npm link
+cd ..
+</pre>
+
+<p>Wire up docular sym link in the grunt-docular package. CD into the grunt-docular directory:
+<pre class="prettyprint linenums">cd grunt-docular
+npm link docular
+cd ..
+</pre>
+
+<p>Optionally wire up the sym links for the docular extension api:
+<pre class="prettyprint linenums">cd docular
+npm link docular-doc-api-doc
+npm docular-doc-api-angular
+cd ..
+</pre>
+
+<p>Okay now time to setup the separate test project from your environment base:
+<pre class="prettyprint linenums">mkdir docular-test
+cd docular-test
+</pre>
+
+<p>Use npm to create an npm package for your test. Run  <code class="plain">npm init</code>  and follow the directions, you can use all the defaults:
+<pre class="prettyprint linenums">npm init
+</pre>
+
+<p>For Grunt v4.x
+<pre class="prettyprint linenums">npm install grunt
+</pre>
+
+<p>Use npm to access the global sym link for the grunt-docular npm package:
+<pre class="prettyprint linenums">npm link grunt-docular
+</pre>
+
+<p>Create the following Gruntfile.js file within the root of your docular-test npm package:
+<pre class="prettyprint linenums">module.exports = function(grunt) {
+
+    // Project configuration.
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [],
+            showDocularDocs: true,
+            showAngularDocs: true
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" and "docular-server" task.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+</pre>
+
+<h3 id="runthegruntdoculartasks">Run the grunt-docular tasks</h4>
+
+<p>Now within your docular-test project, run grunt to compile the Angular and Docular source:
+<pre class="prettyprint linenums">grunt docular // you can also do "grunt" beaucse we set up "docular" as the default
+</pre>
+
+<p>Now start up the NodeJS server so you can view the documentation:
+<pre class="prettyprint linenums">grunt docular-server
+</pre>
+
+<h3 id="commityourchanges">Commit your changes</h4>
+
+<p>As usual, edit the different packages.. your changes will immediatly propagate through the sym links to your docular-test project. Submit pull requests as desired. Thank you so much for you time, energy, and ingenuity!!</p>
+
+<h2 id="releasehistory">Release History</h3>
+
+<p>version: 0.1.1
+* Included hooks into the docular api for the docular and docular-server api</p></div>

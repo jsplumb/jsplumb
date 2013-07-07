@@ -1,0 +1,28 @@
+<h1><code ng:non-bindable="">$emit</code>
+<span class="hint">( type in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Dispatches an event  <code class="plain">name</code>  upwards through the scope hierarchy notifying the
+registered <a href="documentation/angular/api/ng.$rootScope.Scope#$on"><code>ng.$rootScope.Scope#$on</code></a> listeners.</p>
+
+<p>The event life cycle starts at the scope on which  <code class="plain">$emit</code>  was called. All
+<a href="documentation/angular/api/ng.$rootScope.Scope#$on"><code>listeners</code></a> listening for  <code class="plain">name</code>  event on this scope get notified.
+Afterwards, the event traverses upwards toward the root scope and calls all registered
+listeners along the way. The event will stop propagating if one of the listeners cancels it.</p>
+
+<p>Any exception emitted from the <a href="documentation/angular/api/ng.$rootScope.Scope#$on"><code>listeners</code></a> will be passed
+onto the <a href="documentation/angular/api/ng.$exceptionHandler"><code>$exceptionHandler</code></a> service.</p></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">Scope#$emit(name, args);</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">name – {string} – </code>
+<p>Event name to emit.</p></li>
+<li><code class="plain">args – {...*} – </code>
+<p>Optional set of arguments which will be passed onto the event listeners.</p></li>
+</ul>
+<h3 id="Returns">Returns</h3>
+<div class="returns"><code class="plain">{Object}</code>
+– <p>Event object, see <a href="documentation/angular/api/ng.$rootScope.Scope#$on"><code>ng.$rootScope.Scope#$on</code></a></p></div>
+</div>
+</div>

@@ -1,0 +1,49 @@
+<h1><code ng:non-bindable="">$digest</code>
+<span class="hint">( type in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Processes all of the <a href="documentation/angular/api/ng.$rootScope.Scope#$watch"><code>watchers</code></a> of the current scope and its children.
+Because a <a href="documentation/angular/api/ng.$rootScope.Scope#$watch"><code>watcher</code></a>'s listener can change the model, the
+ <code class="plain">$digest()</code>  keeps calling the <a href="documentation/angular/api/ng.$rootScope.Scope#$watch"><code>watchers</code></a> until no more listeners are
+firing. This means that it is possible to get into an infinite loop. This function will throw
+ <code class="plain">'Maximum iteration limit exceeded.'</code>  if the number of iterations exceeds 10.</p>
+
+<p>Usually you don't call  <code class="plain">$digest()</code>  directly in
+<a href="documentation/angular/api/ng.directive:ngController"><code>controllers</code></a> or in
+<a href="documentation/angular/api/ng.$compileProvider#directive"><code>directives</code></a>.
+Instead a call to <a href="documentation/angular/api/ng.$rootScope.Scope#$apply"><code>$apply()</code></a> (typically from within a
+<a href="documentation/angular/api/ng.$compileProvider#directive"><code>directives</code></a>) will force a  <code class="plain">$digest()</code> .</p>
+
+<p>If you want to be notified whenever  <code class="plain">$digest()</code>  is called,
+you can register a  <code class="plain">watchExpression</code>  function  with <a href="documentation/angular/api/ng.$rootScope.Scope#$watch"><code>$watch()</code></a>
+with no  <code class="plain">listener</code> .</p>
+
+<p>You may have a need to call  <code class="plain">$digest()</code>  from within unit-tests, to simulate the scope
+life-cycle.</p>
+
+<h1 id="example">Example</h3>
+
+<pre class="prettyprint linenums">
+           var scope = ...;
+           scope.name = 'misko';
+           scope.counter = 0;
+
+           expect(scope.counter).toEqual(0);
+           scope.$watch('name', function(newValue, oldValue) {
+             scope.counter = scope.counter + 1;
+           });
+           expect(scope.counter).toEqual(0);
+
+           scope.$digest();
+           // no variable change
+           expect(scope.counter).toEqual(0);
+
+           scope.name = 'adam';
+           scope.$digest();
+           expect(scope.counter).toEqual(1);
+</pre></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">Scope#$digest();</pre>
+</div>
+</div>

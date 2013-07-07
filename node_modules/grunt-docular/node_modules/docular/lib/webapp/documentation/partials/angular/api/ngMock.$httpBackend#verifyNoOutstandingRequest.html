@@ -1,0 +1,14 @@
+<h1><code ng:non-bindable="">verifyNoOutstandingRequest</code>
+<span class="hint">( service in module <code ng:non-bindable="">ngMock</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Verifies that there are no outstanding requests that need to be flushed.</p>
+
+<p>Typically, you would call this method following each test case that asserts requests using an
+"afterEach" clause.</p>
+
+<pre class="prettyprint linenums">
+  afterEach($httpBackend.verifyNoOutstandingRequest);
+</pre></div>
+</div>

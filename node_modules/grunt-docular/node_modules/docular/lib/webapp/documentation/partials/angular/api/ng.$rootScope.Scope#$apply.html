@@ -1,0 +1,53 @@
+<h1><code ng:non-bindable="">$apply</code>
+<span class="hint">( type in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"> <code class="plain">$apply()</code>  is used to execute an expression in angular from outside of the angular framework.
+(For example from browser DOM events, setTimeout, XHR or third party libraries).
+Because we are calling into the angular framework we need to perform proper scope life-cycle
+of <a href="documentation/angular/api/ng.$exceptionHandler"><code>exception handling</code></a>,
+<a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>executing watches</code></a>.</p>
+
+<h2 id="lifecycle">Life cycle</h4>
+
+<h1 id="pseudocodeofreplaceme1">Pseudo-Code of  <code class="plain">$apply()</code> </h3>
+
+<pre class="prettyprint linenums">
+           function $apply(expr) {
+             try {
+               return $eval(expr);
+             } catch (e) {
+               $exceptionHandler(e);
+             } finally {
+               $root.$digest();
+             }
+           }
+</pre>
+
+<p>Scope's  <code class="plain">$apply()</code>  method transitions through the following stages:</p>
+
+<ol>
+<li>The <a href="documentation/angular/guide/expression">expression</a> is executed using the
+<a href="documentation/angular/api/ng.$rootScope.Scope#$eval"><code>$eval()</code></a> method.</li>
+<li>Any exceptions from the execution of the expression are forwarded to the
+<a href="documentation/angular/api/ng.$exceptionHandler"><code>$exceptionHandler</code></a> service.</li>
+<li>The <a href="documentation/angular/api/ng.$rootScope.Scope#$watch"><code>watch</code></a> listeners are fired immediately after the expression
+was executed using the <a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest()</code></a> method.</li>
+</ol></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">Scope#$apply([exp]);</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">exp<i>(optional)</i> – {(string|function())=} – </code>
+<p>An angular expression to be executed.</p>
+
+<ul>
+<li> <code class="plain">string</code> : execute using the rules as defined in <a href="documentation/angular/guide/expression">expression</a>.</li>
+<li> <code class="plain">function(scope)</code> : execute the function with current  <code class="plain">scope</code>  parameter.</li>
+</ul></li>
+</ul>
+<h3 id="Returns">Returns</h3>
+<div class="returns"><code class="plain">{*}</code>
+– <p>The result of evaluating the expression.</p></div>
+</div>
+</div>

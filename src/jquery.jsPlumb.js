@@ -26,7 +26,6 @@
  * bind					binds some event to an element
  * dragEvents			a dictionary of event names
  * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
- * getAttribute			gets some attribute from an element
  * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
  * getDragScope			gets the drag scope for a given element.
  * getDropScope			gets the drop scope for a given element.

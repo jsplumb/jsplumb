@@ -1,0 +1,88 @@
+<h1><code ng:non-bindable="">Documentation Fields</code>
+<span class="hint"></span>
+</h1>
+<div><p>Time to cover the basic fields that apply to all documents. These fields are specified using the '@' character and constitute key value pairs used in rendering your final document.</p>
+
+<h1 id="samplekeyvaluepairs">Sample Key Value Pairs</h2>
+
+<p>Documentation is generated through providing the parser with key value pairs. Let's take a look at a few examples:</p>
+
+<pre class="prettyprint linenums">&#64;id ng.filter:limitTo
+</pre>
+
+<pre class="prettyprint linenums">&#64;name Sweet Title
+</pre>
+
+<pre class="prettyprint linenums">&#64;ngdoc directive
+</pre>
+
+<pre class="prettyprint linenums">&#64;doc overview
+</pre>
+
+<pre class="prettyprint linenums">&#64;description
+## My Markdown Title!
+
+Here is a markdown list
+* Yay
+* Cool
+* Awesome
+
+</pre>
+
+<p>In every case there is a key next to the "@" symbol and then the value is everything after the key until the next key is found, the code block ends, or the next <a href="documentation/docular/basics/identifier">documentation identifier</a> is encountered. Multiline is supported but is typically used most often for "@description" type keys.</p>
+
+<h1 id="standardkeyvaluepairs">Standard Key Value Pairs</h2>
+
+<h2 id="164doc64ngdocdocumentationidentifieranddoctype">1. &#64;doc / &#64;ngdoc - Documentation Identifier And Doctype</h3>
+
+<p>We have covered identifiers in a <a href="documentation/docular/basics/identifier">previous article</a>. But let's talk more about the docType values.</p>
+
+<h3 id="doctypedeterminesrendering">DocType Determines Rendering</h4>
+
+<p>This is important to remember. Often times you can get wrapped up in the "@id" given to a document. For example:</p>
+
+<pre class="prettyprint linenums">&#64;ngdoc filter
+&#64;name ng.filter:limitTo
+</pre>
+
+<p>It can be tempting to look at a name/id and assume this document will be rendered as a "filter", but it is the value associated with the  <code>document identifier</code>  (  <code class="plain">&#64;ngdoc filter</code>  ) that determines which rendering method is used to generate the html for this document.</p>
+
+<p>Here are the default docTypes for the "@doc" <a href="documentation/docular/basics/identifier">documentation plugin</a> which are inherited by all documentation plugins including the <a href="documentation/docular/basics/identifier">AngularJS documentation plugin</a>.</p>
+
+<ul>
+<li>&#64;doc overview</li>
+<li>&#64;doc module</li>
+<li>&#64;doc function</li>
+<li>&#64;doc object</li>
+<li>&#64;doc interface</li>
+</ul>
+
+<p>Here are are docTypes added by the  "@ngdoc" <a href="documentation/docular/basics/identifier">AngularJS documentation plugin</a></p>
+
+<ul>
+<li>&#64;ngdoc directive</li>
+<li>&#64;ngdoc filter</li>
+<li>&#64;ngdoc service</li>
+<li>&#64;ngdoc inputType</li>
+<li>&#64;ngdoc function</li>
+</ul>
+
+<div class="alert alert-info">The "@ngdoc" documentation api overrides the inherited  <code class="plain">function</code>  from the default plugin to provide a different experience for displaying the  <code class="plain">function</code>  docType.</div>
+
+<h4 id="visualizethis">Visualize This</h5>
+
+<p>Picture all these key value pairs getting parsed out and stored in a nice pretty json object. Then this json object needs to be rendered into html. Well, the docType is the identifier that determines which rendering function gets to grab onto all these attributes of this object to spit out html! Easy peezy lemon squeezy.</p>
+
+<h2 id="264id">2. &#64;id</h3>
+
+<p>The  <code>id</code>  is a system used identifier for this doc. It appears in urls and in filenames. It can also determine where the document is placed in terms of grouping unless the docType is "overview" or unless the  <code>id</code>  value is "index". We'll talk more about that later :-)</p>
+
+<h2 id="364name">3. &#64;name</h3>
+
+<p>The  <code>name</code>  is the user friendly title of the document. If no  <code>id</code>  is provided, then the  <code>name</code>  also becomes the  <code>id</code> . This is helpful in API documentation when you really want the name and the id to be the same.</p>
+
+<h2 id="464description">4. &#64;description</h3>
+
+<p>The  <code>description</code>  is the meat and potatoes. The description is typically parsed via <a href="https://github.com/coreyti/showdown">"Showdown"</a>, a NodeJS implementation of markdown. It is a multiline value that provides really whatever you want. One caveat is that you DO NOT want to put markup within markdown! If you need to use markup in your description, then make sure it will not be a child of any markdown or you will get unpredictable results. Taking a look at the source of this documentation will give you a good idea of how to balance markup and markdown. Naturally, sticking with markdown will be lighter weight and will provide more consistency within the ui.</p>
+
+<p><pager></pager></p></div>

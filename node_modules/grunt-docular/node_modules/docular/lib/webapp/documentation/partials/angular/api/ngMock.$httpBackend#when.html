@@ -1,0 +1,29 @@
+<h1><code ng:non-bindable="">when</code>
+<span class="hint">( service in module <code ng:non-bindable="">ngMock</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Creates a new backend definition.</p></div>
+<h2 id="Parameters">Parameters</h2>
+<ul class="parameters"><li><code class="plain">method – {string} – </code>
+<p>HTTP method.</p></li>
+<li><code class="plain">url – {string|RegExp} – </code>
+<p>HTTP url.</p></li>
+<li><code class="plain">data<i>(optional)</i> – {(string|RegExp)=} – </code>
+<p>HTTP request body.</p></li>
+<li><code class="plain">headers<i>(optional)</i> – {(Object|function(Object))=} – </code>
+<p>HTTP headers or function that receives http header
+object and returns true if the headers match the current definition.</p></li>
+</ul>
+<h2 id="Returns">Returns</h2>
+<div class="returns"><code class="plain">{requestHandler}</code>
+– <p>Returns an object with  <code class="plain">respond</code>  method that control how a matched
+request is handled.</p>
+
+<ul>
+<li>respond –  <code class="plain">{function([status,] data[, headers])|function(function(method, url, data, headers)}</code> 
+– The respond method takes a set of static data to be returned or a function that can return
+an array containing response status (number), response data (string) and response headers
+(Object).</li>
+</ul></div>
+</div>

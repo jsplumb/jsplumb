@@ -1,0 +1,131 @@
+<h1><code ng:non-bindable="">9 - Filters</code>
+<span class="hint"></span>
+</h1>
+<div><ul doc-tutorial-nav="9"></ul>
+
+<p>In this step you will learn how to create your own custom display filter.</p>
+
+<div doc-tutorial-reset="9">
+</div>
+
+<p>Navigate to one of the detail pages.</p>
+
+<p>In the previous step, the details page displayed either "true" or "false" to indicate whether
+certain phone features were present or not. We have used a custom filter to convert those text
+strings into glyphs: ✓ for "true", and ✘ for "false". Let's see what the filter code looks like.</p>
+
+<p>The most important changes are listed below. You can see the full diff on <a href="https://github.com/angular/angular-phonecat/compare/step-8...step-9">GitHub</a>:</p>
+
+<h2 id="customfilter">Custom Filter</h3>
+
+<p>In order to create a new filter, you are going to create a  <code class="plain">phonecatFilters</code>  module and register
+your custom filter with this module:</p>
+
+<p><strong> <code class="plain">app/js/filters.js</code> :</strong>
+<pre class="prettyprint linenums">
+angular.module('phonecatFilters', []).filter('checkmark', function() {
+  return function(input) {
+    return input ? '\u2713' : '\u2718';
+  };
+});
+</pre>
+
+<p>The name of our filter is "checkmark". The  <code class="plain">input</code>  evaluates to either  <code class="plain">true</code>  or  <code class="plain">false</code> , and we
+return one of two unicode characters we have chosen to represent true or false ( <code class="plain">\u2713</code>  and
+ <code class="plain">\u2718</code> ).</p>
+
+<p>Now that our filter is ready, we need to register the  <code class="plain">phonecatFilters</code>  module as a dependency for
+our main  <code class="plain">phonecat</code>  module.</p>
+
+<p><strong> <code class="plain">app/js/app.js</code> :</strong>
+<pre class="prettyprint linenums">
+...
+angular.module('phonecat', ['phonecatFilters']).
+...
+</pre>
+
+<h2 id="template">Template</h3>
+
+<p>Since the filter code lives in the  <code class="plain">app/js/filters.js</code>  file, we need to include this file in our
+layout template.</p>
+
+<p><strong> <code class="plain">app/index.html</code> :</strong>
+<pre class="prettyprint linenums">
+...
+ &lt;script src="js/controllers.js"&gt;&lt;/script&gt;
+ &lt;script src="js/filters.js"&gt;&lt;/script&gt;
+...
+</pre>
+
+<p>The syntax for using filters in Angular templates is as follows:</p>
+
+<pre><code>{{ expression | filter }}
+</code></pre>
+
+<p>Let's employ the filter in the phone details template:</p>
+
+<p><strong> <code class="plain">app/partials/phone-detail.html</code> :</strong>
+<pre class="prettyprint linenums">
+...
+    &lt;dl&gt;
+      &lt;dt&gt;Infrared&lt;/dt&gt;
+      &lt;dd&gt;{{phone.connectivity.infrared | checkmark}}&lt;/dd&gt;
+      &lt;dt&gt;GPS&lt;/dt&gt;
+      &lt;dd&gt;{{phone.connectivity.gps | checkmark}}&lt;/dd&gt;
+    &lt;/dl&gt;
+...
+</pre>
+
+<h2 id="test">Test</h3>
+
+<p>Filters, like any other component, should be tested and these tests are very easy to write.</p>
+
+<p><strong> <code class="plain">test/unit/filtersSpec.js</code> :</strong>
+<pre class="prettyprint linenums">
+describe('filter', function() {
+
+  beforeEach(module('phonecatFilters'));
+
+
+  describe('checkmark', function() {
+
+    it('should convert boolean values to unicode checkmark or cross',
+        inject(function(checkmarkFilter) {
+      expect(checkmarkFilter(true)).toBe('\u2713');
+      expect(checkmarkFilter(false)).toBe('\u2718');
+    }));
+  });
+});
+</pre>
+
+<p>Note that you need to configure our test injector with the  <code class="plain">phonecatFilters</code>  module before any of
+our filter tests execute.</p>
+
+<p>You should now see the following output in the Karma tab:</p>
+
+<pre><code>    Chrome 22.0: Executed 4 of 4 SUCCESS (0.034 secs / 0.012 secs)
+</code></pre>
+
+<h1 id="experiments">Experiments</h2>
+
+<ul>
+<li><p>Let's experiment with some of the <a href="documentation/angular/api/ng.$filter"><code>built-in Angular filters</code></a> and add the
+following bindings to  <code class="plain">index.html</code> :</p>
+
+<ul><li> <code class="plain">{{ "lower cap string" | uppercase }}</code> </li>
+<li> <code class="plain">{{ {foo: "bar", baz: 23} | json }}</code> </li>
+<li> <code class="plain">{{ 1304375948024 | date }}</code> </li>
+<li> <code class="plain">{{ 1304375948024 | date:"MM/dd/yyyy @ h:mma" }}</code> </li></ul></li>
+<li><p>We can also create a model with an input element, and combine it with a filtered binding. Add
+the following to index.html:</p>
+
+<pre><code>&lt;input ng-model="userInput"&gt; Uppercased: {{ userInput | uppercase }}
+</code></pre></li>
+</ul>
+
+<h1 id="summary">Summary</h2>
+
+<p>Now that you have learned how to write and test a custom filter, go to <a href="documentation/angular/tutorial/step_10">step 10</a> to
+learn how we can use Angular to enhance the phone details page further.</p>
+
+<ul doc-tutorial-nav="9"></ul></div>

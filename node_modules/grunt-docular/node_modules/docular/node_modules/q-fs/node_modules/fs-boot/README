@@ -1,0 +1,19 @@
+
+API
+
+    ROOT
+    SEPARATOR
+    ALT_SEPARATOR
+    SEPARATORS_RE()
+    split(path)
+    join(...path)
+    resolve(...path)
+    normal(...path)
+    isAbsolute(path)
+    isRelative(path)
+    isRoot(path)
+    root(path)
+    directory(path)
+    base(path, extension_opt)
+    extension(path)
+

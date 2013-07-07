@@ -1,0 +1,50 @@
+<h1><code ng:non-bindable="">First Documentation Section</code>
+<span class="hint"></span>
+</h1>
+<div><p>Now it is time to create your first <a href="documentation/docular/docularconfigure/sections">documentation section</a>!</p>
+
+<p>Suppose in our "example" group we want to add documentation for some global utilities functions that live in "javascript/lib/utilities.js". It makes sense to put global utilities into their own section, so let's add a "Globals" section to our group in the Gruntfile.js file configuration and add the scripts we want scanned for documentation.</p>
+
+<pre class="prettyprint linenums">module.exports = function(grunt) {
+
+    // Project configuration
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [
+                {
+                    groupTitle: 'Example Docs',
+                    groupId: 'example',
+                    groupIcon: 'icon-beer',
+                    sections: [
+                        {
+                            id: "globals",
+                            title: "Globals",
+                            scripts: [
+                                "example/javascript/lib/utilities.js"
+                            ],
+                            docs: [],
+                            rank : {}
+                        }
+                    ]
+                }
+            ],
+            //other configurations ommitted here for simplicity
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+</pre>
+
+<div class="alert">WARNING: Make sure you understand the <a href="documentation/docular/docularconfigure/sections#docsnscripts">difference between scripts and docs</a></div>
+
+<p><pager></pager></p></div>

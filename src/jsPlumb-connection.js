@@ -1,83 +1,19 @@
 ;(function() {
 
     var makeConnector = function(_jsPlumb, renderMode, connectorName, connectorArgs) {
-    //        var c = function() { };
             if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
                     throw { msg:"jsPlumb: unknown connector type '" + connectorName + "'" };
-
-            /*jsPlumb.Connectors[connectorName].apply(c, [connectorArgs]);
-            jsPlumb.ConnectorRenderers[renderMode].apply(c, [connectorArgs]);  
-            jsPlumbUtil.extend(c, [jsPlumb.Connectors[connectorName], jsPlumb.ConnectorRenderers[renderMode]]) ;*/
 
             return new jsPlumb.Connectors[renderMode][connectorName](connectorArgs);  
         },
         _makeAnchor = function(anchorParams, elementId, _jsPlumb) {
             return (anchorParams) ? _jsPlumb.makeAnchor(anchorParams, elementId, _jsPlumb) : null;
-        };
-    
-    jsPlumb.Connection = function(params) {
-        var _newConnection = params.newConnection,
-            _newEndpoint = params.newEndpoint,
-
-            jpcl = jsPlumb.CurrentLibrary,
-            _att = jpcl.getAttribute,
-            _gel = jpcl.getElementObject,
-            _dom = jpcl.getDOMElement,
-            _ju = jsPlumbUtil,
-            _getOffset = jpcl.getOffset;
-
-        this.connector = null;                        
-        this.idPrefix = "_jsplumb_c_";
-        this.defaultLabelLocation = 0.5;
-        this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
-        this.parent = params.parent;
-        // if a new connection is the result of moving some existing connection, params.previousConnection
-        // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
-        // member and take action if they need to.
-        this.previousConnection = params.previousConnection;
-        this.source = _dom(params.source);//_gel(params.source);
-        this.target = _dom(params.target);//_gel(params.target);
-        // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
-        // source is not overridden if the Endpoint has declared it is not the final target of a connection;
-        // instead we use the source that the Endpoint declares will be the final source element.
-        if (params.sourceEndpoint) this.source = params.sourceEndpoint.endpointWillMoveTo || params.sourceEndpoint.getElement();            
-        if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();        
-
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
-
-        this.sourceId = this._jsPlumb.instance.getId(this.source);              //_att(this.source, "id");
-        this.targetId = this._jsPlumb.instance.getId(this.target);//_att(this.target, "id");
-        this.scope = params.scope; // scope may have been passed in to the connect call. if it wasn't, we will pull it from the source endpoint, after having initialised the endpoints.            
-        this.endpoints = [];
-        this.endpointStyles = [];
-            
-        var _jsPlumb = this._jsPlumb.instance;    
-        this._jsPlumb.visible = true;
-        this._jsPlumb.editable = params.editable === true;    
-        this._jsPlumb.params = params;          
-        this._jsPlumb.lastPaintedAt = null;              
-        this.getDefaultType = function() {
-            return {
-                parameters:{},
-                scope:null,
-                detachable:this._jsPlumb.instance.Defaults.ConnectionsDetachable,
-                rettach:this._jsPlumb.instance.Defaults.ReattachConnections,
-                paintStyle:this._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
-                connector:this._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
-                hoverPaintStyle:this._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,				
-                overlays:this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
-            };
-        };
-        
-// INITIALISATION CODE			
-                    
-        
-        // wrapped the main function to return null if no input given. this lets us cascade defaults properly.
-        var prepareEndpoint = function(conn, existing, index, params, element, elementId, connectorPaintStyle, connectorHoverPaintStyle) {
+        },
+        prepareEndpoint = function(conn, existing, index, params, element, elementId, connectorPaintStyle, connectorHoverPaintStyle) {
             var e;
             if (existing) {
                 conn.endpoints[index] = existing;
-                existing.addConnection(conn);					
+                existing.addConnection(conn);                   
             } else {
                 if (!params.endpoints) params.endpoints = [ null, null ];
                 var ep = params.endpoints[index] 
@@ -115,7 +51,7 @@
                         _makeAnchor(_jsPlumb.Defaults.Anchors[index], elementId, _jsPlumb) || 
                         _makeAnchor(jsPlumb.Defaults.Anchors[index], elementId,_jsPlumb) || 
                         _makeAnchor(_jsPlumb.Defaults.Anchor, elementId,_jsPlumb) || 
-                        _makeAnchor(jsPlumb.Defaults.Anchor, elementId, _jsPlumb),					
+                        _makeAnchor(jsPlumb.Defaults.Anchor, elementId, _jsPlumb),                  
                     u = params.uuids ? params.uuids[index] : null;
                     e = _newEndpoint({ 
                         paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ conn ], 
@@ -130,6 +66,72 @@
             }
             return e;
         };
+    
+    jsPlumb.Connection = function(params) {
+        var _newConnection = params.newConnection,
+            _newEndpoint = params.newEndpoint,
+
+            jpcl = jsPlumb.CurrentLibrary,
+            _att = jpcl.getAttribute,
+            _gel = jpcl.getElementObject,
+            _dom = jpcl.getDOMElement,
+            _ju = jsPlumbUtil,
+            _getOffset = jpcl.getOffset;
+
+        this.connector = null;                        
+        this.idPrefix = "_jsplumb_c_";
+        this.defaultLabelLocation = 0.5;
+        this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
+        this.parent = params.parent;
+        // if a new connection is the result of moving some existing connection, params.previousConnection
+        // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
+        // member and take action if they need to.
+        this.previousConnection = params.previousConnection;
+        this.source = _dom(params.source);
+        this.target = _dom(params.target);
+        // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
+        // source is not overridden if the Endpoint has declared it is not the final target of a connection;
+        // instead we use the source that the Endpoint declares will be the final source element.
+        if (params.sourceEndpoint) this.source = params.sourceEndpoint.endpointWillMoveTo || params.sourceEndpoint.getElement();            
+        if (params.targetEndpoint) this.target = params.targetEndpoint.getElement();        
+
+        OverlayCapableJsPlumbUIComponent.apply(this, arguments);
+
+        this.sourceId = this._jsPlumb.instance.getId(this.source);
+        this.targetId = this._jsPlumb.instance.getId(this.target);
+        this.scope = params.scope; // scope may have been passed in to the connect call. if it wasn't, we will pull it from the source endpoint, after having initialised the endpoints.            
+        this.endpoints = [];
+        this.endpointStyles = [];
+            
+        var _jsPlumb = this._jsPlumb.instance;    
+        this._jsPlumb.visible = true;
+        this._jsPlumb.editable = params.editable === true;    
+        this._jsPlumb.params = {
+            parent:params.parent,
+            cssClass:params.cssClass,
+            container:params.container,
+            "pointer-events":params["pointer-events"],
+            editorParams:params.editorParams
+        };   
+        this._jsPlumb.lastPaintedAt = null;              
+        this.getDefaultType = function() {
+            return {
+                parameters:{},
+                scope:null,
+                detachable:this._jsPlumb.instance.Defaults.ConnectionsDetachable,
+                rettach:this._jsPlumb.instance.Defaults.ReattachConnections,
+                paintStyle:this._jsPlumb.instance.Defaults.PaintStyle || jsPlumb.Defaults.PaintStyle,
+                connector:this._jsPlumb.instance.Defaults.Connector || jsPlumb.Defaults.Connector,
+                hoverPaintStyle:this._jsPlumb.instance.Defaults.HoverPaintStyle || jsPlumb.Defaults.HoverPaintStyle,				
+                overlays:this._jsPlumb.instance.Defaults.ConnectorOverlays || jsPlumb.Defaults.ConnectorOverlays
+            };
+        };
+        
+// INITIALISATION CODE			
+                    
+        
+        // wrapped the main function to return null if no input given. this lets us cascade defaults properly.
+        
 
         var eS = prepareEndpoint(this, params.sourceEndpoint, 0, params, this.source, this.sourceId, params.paintStyle, params.hoverPaintStyle);			
         if (eS) _ju.addToList(params.endpointsByElement, this.sourceId, eS);						
@@ -234,111 +236,11 @@
 // END PARAMETERS
 
 // PAINTING
-            
-        /*
-         * Paints the Connection.  Not exposed for public usage. 
-         * 
-         * Parameters:
-         * 	elId - Id of the element that is in motion.
-         * 	ui - current library's event system ui object (present if we came from a drag to get here).
-         *  recalc - whether or not to recalculate all anchors etc before painting. 
-         *  timestamp - timestamp of this paint.  If the Connection was last painted with the same timestamp, it does not paint again.
-         *
-        this.paint = function(params) {
-            
-            if (!_jsPlumb.isSuspendDrawing() && this._jsPlumb.visible) {
-                    
-                params = params || {};
-                var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
-                    // if the moving object is not the source we must transpose the two references.
-                    swap = false,
-                    tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,                    
-                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
-
-                if (timestamp == null || timestamp != this._jsPlumb.lastPaintedAt) {                        
-                    var sourceInfo = _jsPlumb.updateOffset( { elId : sId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
-                        targetInfo = _jsPlumb.updateOffset( { elId : tId, timestamp : timestamp }).o, // update the target if this is a forced repaint. otherwise, only the source has been moved.
-                        sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
-
-                    if (params.clearEdits) {
-                        sE.anchor.clearUserDefinedLocation();
-                        tE.anchor.clearUserDefinedLocation();
-                        this.connector.setEdited(false);
-                    }
-                    
-                    var sAnchorP = sE.anchor.getCurrentLocation({xy:[sourceInfo.left,sourceInfo.top], wh:[sourceInfo.width, sourceInfo.height], element:sE, timestamp:timestamp}),				
-                        tAnchorP = tE.anchor.getCurrentLocation({xy:[targetInfo.left,targetInfo.top], wh:[targetInfo.width, targetInfo.height], element:tE, timestamp:timestamp});                                                 
-                        
-                    this.connector.resetBounds();
-
-                    this.connector.compute({
-                        sourcePos:sAnchorP,
-                        targetPos:tAnchorP, 
-                        sourceEndpoint:this.endpoints[sIdx],
-                        targetEndpoint:this.endpoints[tIdx],
-                        lineWidth:this._jsPlumb.paintStyleInUse.lineWidth,                        					
-                        sourceInfo:sourceInfo,
-                        targetInfo:targetInfo,
-                        clearEdits:params.clearEdits === true
-                    });                                                                                        
-
-                    var overlayExtents = {
-                        minX:Infinity,
-                        minY:Infinity,
-                        maxX:-Infinity,
-                        maxY:-Infinity
-                    };                    
-                    // compute overlays. we do this first so we can get their placements, and adjust the
-                    // container if needs be (if an overlay would be clipped)
-                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                        var o = this._jsPlumb.overlays[i];
-                        if (o.isVisible()) {
-                            this._jsPlumb.overlayPlacements[i] = o.draw(this.connector, this._jsPlumb.paintStyleInUse);
-                            overlayExtents.minX = Math.min(overlayExtents.minX, this._jsPlumb.overlayPlacements[i].minX);
-                            overlayExtents.maxX = Math.max(overlayExtents.maxX, this._jsPlumb.overlayPlacements[i].maxX);
-                            overlayExtents.minY = Math.min(overlayExtents.minY, this._jsPlumb.overlayPlacements[i].minY);
-                            overlayExtents.maxY = Math.max(overlayExtents.maxY, this._jsPlumb.overlayPlacements[i].maxY);
-                        }
-                    }
-
-                    var lineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 1) / 2,
-                        outlineWidth = parseFloat(this._jsPlumb.paintStyleInUse.lineWidth || 0),
-                        extents = {
-                            xmin : Math.min(this.connector.bounds.minX - (lineWidth + outlineWidth), overlayExtents.minX),
-                            ymin : Math.min(this.connector.bounds.minY - (lineWidth + outlineWidth), overlayExtents.minY),
-                            xmax : Math.max(this.connector.bounds.maxX + (lineWidth + outlineWidth), overlayExtents.maxX),
-                            ymax : Math.max(this.connector.bounds.maxY + (lineWidth + outlineWidth), overlayExtents.maxY)
-                        };
-
-                    // paint the connector.
-                    this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);  
-                    // and then the overlays
-                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                        var o = this._jsPlumb.overlays[i];
-                        if (o.isVisible()) {
-                            o.paint(this._jsPlumb.overlayPlacements[i], extents);    
-                        }
-                    }                  
-                                                            
-                }
-                this._jsPlumb.lastPaintedAt = timestamp;						
-            }		
-        };			*/
-
-        /*
-         * Function: repaint
-         * Repaints the Connection. No parameters exposed to public API.
-         */
-        this.repaint = function(params) {
-            params = params || {};
-            var recalc = !(params.recalc === false);
-            this.paint({ elId : this.sourceId, recalc : recalc, timestamp:params.timestamp, clearEdits:params.clearEdits });
-        };
-        
+                                    
         // the very last thing we do is check to see if a 'type' was supplied in the params
         var _type = params.type || this.endpoints[0].connectionType || this.endpoints[1].connectionType;
         if (_type)
-            this.addType(_type, params.data, _jsPlumb.isSuspendDrawing());
+            this.addType(_type, params.data, _jsPlumb.isSuspendDrawing());        
         
 // END PAINTING    
     };
@@ -408,12 +310,8 @@
             this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
             this.source = null;
-            this.target = null;
-            this.sourceEndpoint = null;
-            this.targetEndpoint = null;
-            jsPlumbUtil.removeElements(this.connector.getDisplayElements());
-            this.connector.cleanup();
-            //this.connector.cleanupListeners();
+            this.target = null;                    
+            this.connector.cleanup();            
             this.connector.destroy();
             this.connector = null;
         },
@@ -462,8 +360,12 @@
         getConnector : function() { return this.connector; },
         setConnector : function(connectorSpec, doNotRepaint) {
             var _ju = jsPlumbUtil;
-            if (this.connector != null) _ju.removeElements(this.connector.getDisplayElements());
-            // TODO connector cleanup
+            if (this.connector != null) {
+                //_ju.removeElements(this.connector.getDisplayElements());
+                this.connector.cleanup();
+                this.connector.destroy();
+            }
+            // TODO connector cleanup  (done with cleanup/destroy?)
 
             var connectorArgs = { 
                     _jsPlumb:this._jsPlumb.instance, 
@@ -536,6 +438,7 @@
                         targetPos:tAnchorP, 
                         sourceEndpoint:this.endpoints[sIdx],
                         targetEndpoint:this.endpoints[tIdx],
+                        //SHAMOZZLE:this.endpoints[tIdx],
                         lineWidth:this._jsPlumb.paintStyleInUse.lineWidth,                                          
                         sourceInfo:sourceInfo,
                         targetInfo:targetInfo,
@@ -579,6 +482,15 @@
                 }
                 this._jsPlumb.lastPaintedAt = timestamp;                        
             }       
+        },
+        /*
+         * Function: repaint
+         * Repaints the Connection. No parameters exposed to public API.
+         */
+        repaint : function(params) {
+            params = params || {};
+            var recalc = !(params.recalc === false);
+            this.paint({ elId : this.sourceId, recalc : recalc, timestamp:params.timestamp, clearEdits:params.clearEdits });
         }
         
     }); // END Connection class            

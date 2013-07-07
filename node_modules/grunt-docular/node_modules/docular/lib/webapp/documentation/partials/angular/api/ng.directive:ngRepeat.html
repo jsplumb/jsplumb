@@ -1,0 +1,151 @@
+<h1><code ng:non-bindable="">ngRepeat</code>
+<span class="hint">( directive in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>The  <code class="plain">ngRepeat</code>  directive instantiates a template once per item from a collection. Each template
+instance gets its own scope, where the given loop variable is set to the current collection item,
+and  <code class="plain">$index</code>  is set to the item index or key.</p>
+
+<p>Special properties are exposed on the local scope of each template instance, including:</p>
+
+<ul>
+<li> <code class="plain">$index</code>  –  <code class="plain">{number}</code>  – iterator offset of the repeated element (0..length-1)</li>
+<li> <code class="plain">$first</code>  –  <code class="plain">{boolean}</code>  – true if the repeated element is first in the iterator.</li>
+<li> <code class="plain">$middle</code>  –  <code class="plain">{boolean}</code>  – true if the repeated element is between the first and last in the iterator.</li>
+<li> <code class="plain">$last</code>  –  <code class="plain">{boolean}</code>  – true if the repeated element is last in the iterator.</li>
+</ul>
+
+<p>Additionally, you can also provide animations via the ngAnimate attribute to animate the <strong>enter</strong>,
+<strong>leave</strong> and <strong>move</strong> effects.</p></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY ng-repeat="{repeat_expression}"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;ANY class="ng-repeat: {repeat_expression};"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+<h3 id="Directive.info">Directive info</h3>
+<div class="directive-info"><ul><li>This directive creates new scope.</li>
+<li>This directive executes at priority level 1000.</li>
+</ul>
+</div>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">ngRepeat – {repeat_expression} – </code>
+<p>The expression indicating how to enumerate a collection. These
+formats are currently supported:</p>
+
+<ul>
+<li> <code class="plain">variable in expression</code>  – where variable is the user defined loop variable and  <code class="plain">expression</code> 
+is a scope expression giving the collection to enumerate.</p>
+
+<p>For example:  <code class="plain">track in cd.tracks</code> .</p></li>
+<li> <code class="plain">(key, value) in expression</code>  – where  <code class="plain">key</code>  and  <code class="plain">value</code>  can be any user defined identifiers,
+and  <code class="plain">expression</code>  is the scope expression giving the collection to enumerate.</p>
+
+<p>For example:  <code class="plain">(name, age) in {'adam':10, 'amalie':12}</code> .</p></li>
+<li> <code class="plain">variable in expression track by tracking_expression</code>  – You can also provide an optional tracking function
+which can be used to associate the objects in the collection with the DOM elements. If no tractking function
+is specified the ng-repeat associates elements by identity in the collection. It is an error to have
+more then one tractking function to  resolve to the same key. (This would mean that two distinct objects are
+mapped to the same DOM element, which is not possible.)</p>
+
+<p>For example:  <code class="plain">item in items</code>  is equivalent to  <code class="plain">item in items track by $id(item)'. This implies that the DOM elements
+  will be associated by item identity in the array.
+
+  For example: </code> item in items track by $id(item) <code class="plain">. A built in </code> $id() <code class="plain"> function can be used to assign a unique
+  </code> $$hashKey <code class="plain"> property to each item in the array. This property is then used as a key to associated DOM elements
+  with the corresponding item in the array by identity. Moving the same object in array would move the DOM
+  element in the same way ian the DOM.
+
+  For example: </code> item in items track by item.id <code class="plain"> Is a typical pattern when the items come from the database. In this
+  case the object identity does not matter. Two objects are considered equivalent as long as their </code> id`
+property is same.</p></li>
+</ul></li>
+</ul>
+</div>
+<h2 id="Example">Example</h2>
+<div class="example"><p>This example initializes the scope to a list of names and
+then uses  <code class="plain">ngRepeat</code>  to display every person:
+  <example animations="true">
+    <file name="index.html">
+      <div ng-init="friends = [
+        {name:'John', age:25, gender:'boy'},
+        {name:'Jessie', age:30, gender:'girl'},
+        {name:'Johanna', age:28, gender:'girl'},
+        {name:'Joy', age:15, gender:'girl'},
+        {name:'Mary', age:28, gender:'girl'},
+        {name:'Peter', age:95, gender:'boy'},
+        {name:'Sebastian', age:50, gender:'boy'},
+        {name:'Erika', age:27, gender:'girl'},
+        {name:'Patrick', age:40, gender:'boy'},
+        {name:'Samantha', age:60, gender:'girl'}
+      ]">
+        I have {{friends.length}} friends. They are:
+        <input type="search" ng-model="q" placeholder="filter friends..." />
+        <ul>
+          <li ng-repeat="friend in friends | filter:q"
+              ng-animate="{enter: 'example-repeat-enter',
+                          leave: 'example-repeat-leave',
+                          move: 'example-repeat-move'}">
+            [{{$index + 1}}] {{friend.name}} who is {{friend.age}} years old.
+          </li>
+        </ul>
+      </div>
+    </file>
+    <file name="animations.css">
+      .example-repeat-enter-setup,
+      .example-repeat-leave-setup,
+      .example-repeat-move-setup {
+        -webkit-transition:all linear 0.5s;
+        -moz-transition:all linear 0.5s;
+        -ms-transition:all linear 0.5s;
+        -o-transition:all linear 0.5s;
+        transition:all linear 0.5s;
+      }</p>
+
+<pre><code>  .example-repeat-enter-setup {
+    line-height:0;
+    opacity:0;
+  }
+  .example-repeat-enter-setup.example-repeat-enter-start {
+    line-height:20px;
+    opacity:1;
+  }
+
+  .example-repeat-leave-setup {
+    opacity:1;
+    line-height:20px;
+  }
+  .example-repeat-leave-setup.example-repeat-leave-start {
+    opacity:0;
+    line-height:0;
+  }
+
+  .example-repeat-move-setup { }
+  .example-repeat-move-setup.example-repeat-move-start { }
+&lt;/file&gt;
+&lt;file name="scenario.js"&gt;
+   it('should render initial data set', function() {
+     var r = using('.doc-example-live').repeater('ul li');
+     expect(r.count()).toBe(10);
+     expect(r.row(0)).toEqual(["1","John","25"]);
+     expect(r.row(1)).toEqual(["2","Jessie","30"]);
+     expect(r.row(9)).toEqual(["10","Samantha","60"]);
+     expect(binding('friends.length')).toBe("10");
+   });
+
+   it('should update repeater when filter predicate changes', function() {
+     var r = using('.doc-example-live').repeater('ul li');
+     expect(r.count()).toBe(10);
+
+     input('q').enter('ma');
+
+     expect(r.count()).toBe(2);
+     expect(r.row(0)).toEqual(["1","Mary","28"]);
+     expect(r.row(1)).toEqual(["2","Samantha","60"]);
+   });
+  &lt;/file&gt;
+&lt;/example&gt;
+</code></pre></div>
+</div>

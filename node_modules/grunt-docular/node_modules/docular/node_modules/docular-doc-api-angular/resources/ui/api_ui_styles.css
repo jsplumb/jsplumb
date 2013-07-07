@@ -1,0 +1,16 @@
+.tutorial-nav {
+  margin-left: 175px;
+  color: black;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.tutorial-nav a {
+  color: white;
+}
+
+.tutorial-nav a:hover {
+  color: white;
+  text-decoration: none;
+}
+

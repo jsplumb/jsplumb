@@ -496,6 +496,8 @@
                 jpcl.setAttribute(canvasElement, "dragId", placeholderInfo.id);
                 jpcl.setAttribute(canvasElement, "elId", this.elementId);
                 this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, this.endpoint, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint);
+                // TODO we should not know about DOM here. make the library adapter do this (or the 
+                    // dom adapter)
                 this.canvas.style.visibility = "hidden";            
                 
                 if (jpc == null) {                                                                                                                                                         
@@ -572,8 +574,7 @@
                 }
                 // register it and register connection on it.
                 floatingConnections[placeholderInfo.id] = jpc;
-                _jsPlumb.anchorManager.addFloatingConnection(placeholderInfo.id, jpc);
-                this._jsPlumb.floatingEndpoint.addConnection(jpc);
+                _jsPlumb.anchorManager.addFloatingConnection(placeholderInfo.id, jpc);               
                 // only register for the target endpoint; we will not be dragging the source at any time
                 // before this connection is either discarded or made into a permanent connection.
                 _ju.addToList(params.endpointsByElement, placeholderInfo.id, this._jsPlumb.floatingEndpoint);
@@ -595,28 +596,31 @@
             dragOptions[stopEvent] = _jsPlumb.wrap(dragOptions[stopEvent],
                 function() {
                     
-                    // 1. get the actual drop event (decode from library args to stop function)
-                    var originalEvent = jpcl.getDropEvent(arguments);					
-                    // 2. remove s
-                    //_ju.removeWithFunction(params.endpointsByElement[placeholderInfo.id], function(e) {
-                        //return e.id == this._jsPlumb.floatingEndpoint.id;
-                    //}.bind(this));
-                    // 2. remove references to this floating element in the endpoint lists
-                    params.endpointsByElement[placeholderInfo.id] = null;
-                    // 3. remove the in-place copy from the DOM
-                    //_ju.removeElement(inPlaceCopy.canvas, this.element);
-                    // 4. tell the anchor manager to clear out info related to this floating element
-                    _jsPlumb.anchorManager.clearFor(placeholderInfo.id);						
-                    // 5. unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
+                    console.log("STOP!");
+
+                    // get the actual drop event (decode from library args to stop function)
+                    var originalEvent = jpcl.getDropEvent(arguments);					                    
+                    // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                     var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
                     jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
-                    // 6. make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                    // make our canvas visible (TODO: hand off to library; we should not know about DOM)
                     this.canvas.style.visibility = "visible";
-                    // 7. unlock our anchor
+                    // unlock our anchor
                     this.anchor.locked = false;
+                    // WHY does this need to happen?  i suppose because the connection might not get 
+                    // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
+                    jpc.removeClass(_jsPlumb.draggingClass);
+
+                    var deleteConnection = true;
                 
-                    // 6.if we have the floating endpoint 
+                    // if we have the floating endpoint then the connection has not been dropped
+                    // on another endpoint.  If it is a new connection we throw it away. If it is an 
+                    // existing connection we check to see if we should reattach it, throwing it away 
+                    // if not.
                     if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
+                        
+                        console.log("WE HAVE THE FLOATING ENDPOINT");
+
                         // 6a. if the connection was an existing one...
                         if (existingJpc && jpc.suspendedEndpoint) {
                             // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
@@ -639,55 +643,32 @@
                                 jpc.floatingAnchorIndex = null;
                                 jpc._forceDetach = null;
                                 jpc._forceReattach = null;
+                                this._jsPlumb.floatingEndpoint.detachFromConnection(jpc);
                                 jpc.suspendedEndpoint.addConnection(jpc);
                                 _jsPlumb.repaint(existingJpcParams[1]);
                             }
-                        } else {
-                            // 7. not an existing connection
-                            // TODO this looks suspiciously kind of like an Endpoint.detach call too.
-                            // i wonder if this one should post an event though.  maybe this is good like this.
-                            _ju.removeElements(jpc.getConnector().getDisplayElements());
-                            this.detachFromConnection(jpc);								
                         }																
                     }
-                    
-                    /*
-                    // remove floating endpoint _after_ checking beforeDetach 
-                    _ju.removeElements( [ placeholderInfo.element[0], this._jsPlumb.floatingEndpoint.canvas ], this.element); 
-                    // TODO: clean up the connection canvas (if the user aborted)  ?
-                    _jsPlumb.dragManager.elementRemoved(this._jsPlumb.floatingEndpoint.elementId);
-                    this._jsPlumb.floatingEndpoint.removeClass(_jsPlumb.draggingClass);
-                    //delete params.endpointsByElement[this._jsPlumb.floatingEndpoint.elementId];
-                    */
 
-                    // cleanup floaing endpoint
-                    this._jsPlumb.floatingEndpoint.cleanup();
-                    this._jsPlumb.floatingEndpoint.destroy();
-
-                    // remove the element associated with the floating endpoint (and its associated floating endpoint and visual artefacts)                    
+                    // remove the element associated with the floating endpoint 
+                    // (and its associated floating endpoint and visual artefacts)                    
+                    // TODO we need a way to say that the connection should be kept, if 
                     _jsPlumb.remove(placeholderInfo.element, false);
                     // remove the inplace copy
                     _jsPlumb.remove(inPlaceCopy.canvas, false);
+                                        
+                    // repaint this endpoint.
+                    this.paint({recalc:false});                    
                     
-                    delete floatingConnections[placeholderInfo.id];     
-                    _jsPlumb.anchorManager.removeFloatingConnection(placeholderInfo.id);
-                    
-                    
-                    this.paint({recalc:false});
-
-                    // WHY does this need to happen?  i suppose because the connection might not get 
-                    // deleted.
-                    jpc.removeClass(_jsPlumb.draggingClass);
-                    
+                    // TODO can this stay here? the connection is no longer valid.
                     _jsPlumb.fire("connectionDragStop", jpc);
 
-                    //jpc.cleanup();
-                    //jpc.destroy();
-
+                    // reset connection drag stuff
                     jpc = null;						
-                    inPlaceCopy = null;							                    
-                    
+                    inPlaceCopy = null;							                                        
                     this._jsPlumb.floatingEndpoint = null;
+
+                    // tell jsplumb that dragging is finished.
                     _jsPlumb.currentlyDragging = false;
 
                 }.bind(this));
@@ -707,6 +688,8 @@
                     overEvent = jpcl.dragEvents['over'],
                     outEvent = jpcl.dragEvents['out'],
                     drop = function() {
+
+                        console.log("DROP!");
 
                         this["removeClass"](_jsPlumb.endpointDropAllowedClass);
                         this["removeClass"](_jsPlumb.endpointDropForbiddenClass);
@@ -778,6 +761,7 @@
                                 };	
                                                                                                 
                                 var continueFunction = function() {
+
                                     // remove this jpc from the current endpoint
                                     jpc.endpoints[idx].detachFromConnection(jpc);
                                     if (jpc.suspendedEndpoint) jpc.suspendedEndpoint.detachFromConnection(jpc);
@@ -855,12 +839,8 @@
                                 else {
                                     dontContinueFunction();
                                 }
-
-                                //commonFunction();
                             }
                             _jsPlumb.currentlyDragging = false;
-                            //delete floatingConnections[id];		
-                            //_jsPlumb.anchorManager.removeFloatingConnection(id);
                         }
                     }.bind(this);
                 

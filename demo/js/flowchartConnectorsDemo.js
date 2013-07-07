@@ -81,15 +81,14 @@
 				});
 			};			
 
-			var allSourceEndpoints = [], allTargetEndpoints = [];
-				_addEndpoints = function(toId, sourceAnchors, targetAnchors) {
+			var _addEndpoints = function(toId, sourceAnchors, targetAnchors) {
 					for (var i = 0; i < sourceAnchors.length; i++) {
 						var sourceUUID = toId + sourceAnchors[i];
-						allSourceEndpoints.push(jsPlumb.addEndpoint(toId, sourceEndpoint, { anchor:sourceAnchors[i], uuid:sourceUUID }));						
+						jsPlumb.addEndpoint(toId, sourceEndpoint, { anchor:sourceAnchors[i], uuid:sourceUUID });						
 					}
 					for (var j = 0; j < targetAnchors.length; j++) {
 						var targetUUID = toId + targetAnchors[j];
-						allTargetEndpoints.push(jsPlumb.addEndpoint(toId, targetEndpoint, { anchor:targetAnchors[j], uuid:targetUUID }));						
+						jsPlumb.addEndpoint(toId, targetEndpoint, { anchor:targetAnchors[j], uuid:targetUUID });						
 					}
 				};
 

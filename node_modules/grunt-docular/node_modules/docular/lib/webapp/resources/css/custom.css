@@ -1,0 +1,70 @@
+.shout-outs {text-align: left; margin:0 0 1em 0;}
+.shout-outs img {width: auto; height:40px; border-radius:10px; -moz-border-radius:10px; box-shadow:0px 1px 4px #444; padding:20px; margin-left:0px; margin-right:20px;}
+
+.partial-home {margin-bottom:5em;}
+.partial-home h1 {margin-bottom:0.50em;}
+.partial-home .hero-unit { -moz-box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.4); -webkit-box-shadow:0px 1px 5px rgba(0, 0, 0, 0.4); box-shadow:0px 1px 5px rgba(0, 0, 0, 0.4);}
+.partial-home .hero-unit h1 {margin-bottom:0;}
+.partial-home h2 {margin-bottom:10px; margin-top:30px;}
+.partial-home .documentation-groups h2 {margin-top:0; margin-bottom:0px;}
+
+/* CSS from: http://www.red-team-design.com/css3-ordered-list-styles */
+
+ol.rounded-list{
+    counter-reset: li; /* Initiate a counter */
+    list-style: none; /* Remove default numbering */
+    *list-style: decimal; /* Keep using default numbering for IE6/7 */
+    font-size: 15px;
+    padding: 0;
+    margin-bottom: 2em;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5);
+    margin-left:1.3em;
+}
+
+ol.rounded-list ol.rounded-list{
+    margin: 0 0 0 1.3em; /* Add some left margin for inner lists */
+}
+
+.rounded-list {margin-top:1em;}
+
+.rounded-list a{
+    position: relative;
+    display: block;
+    padding: .4em .4em .4em 2em;
+    *padding: .4em;
+    margin: .75em 0;
+    background: #eeeeee;
+    color: #333;
+    text-decoration: none;
+    border-radius: .3em;
+    transition: all .3s ease-out;
+}
+
+.rounded-list a:hover{
+    background: #e0e0e0;
+    text-decoration: underline;
+}
+
+.rounded-list a:hover:before{
+    transform: rotate(360deg);
+}
+
+.rounded-list a:before{
+    content: counter(li);
+    counter-increment: li;
+    color: #fff;
+    position: absolute;
+    left: -1.3em;
+    top: 50%;
+    margin-top: -1.3em;
+    background: #0088cc;
+    height: 2em;
+    width: 2em;
+    line-height: 2em;
+    border: .3em solid #fff;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 2em;
+    transition: all .3s ease-out;
+     -moz-box-shadow: 0px 0px 2px #fff; -webkit-box-shadow:0px 0px 2px #fff; box-shadow:0px 0px 2px #fff;
+}

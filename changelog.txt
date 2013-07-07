@@ -11,6 +11,12 @@
 
 		- makeTargets method removed from jsPlumb.  you can pass an array or selector to makeTarget.
 		- makeSources method removed from jsPlumb.  you can pass an array or selector to makeSource.
+
+
+		NEW FUNCTIONALITY
+
+		- jsPlumb.remove takes a third argument, defaulting to true, saying whether ??
+		- setSuspendDrawing returns the value of suspendDrawing _before_ the call was made.
 		
 
 
