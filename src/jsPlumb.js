@@ -46,9 +46,7 @@
 	_isString = jsPlumbUtil.isString,
 	_isObject = jsPlumbUtil.isObject;
 		
-	var //_att = function(el, attName) { return jsPlumb.CurrentLibrary.getAttribute(_gel(el), attName); },
-		_setAttribute = function(el, attName, attValue) { jsPlumb.CurrentLibrary.setAttribute(_gel(el), attName, attValue); },
-		_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_gel(el), clazz); },
+	var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_gel(el), clazz); },
 		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_gel(el), clazz); },
 		_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_gel(el), clazz); },
 		_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
@@ -702,6 +700,10 @@
 
         this.getAttribute = function(el, a) {
         	return jsPlumbAdapter.getAttribute(jsPlumb.CurrentLibrary.getDOMElement(el), a);
+        };
+
+        this.setAttribute = function(el, a, v) {
+        	jsPlumbAdapter.setAttribute(el, a, v);
         };
 
         this.setZoom = function(z, repaintEverything) {
@@ -1572,7 +1574,7 @@
 			endpointsByUUID = {};
 			_currentInstance.anchorManager.reset();
 			_currentInstance.dragManager.reset();							
-			if(!_is) _currentInstance.setSuspendDrawing(false, doNotRepaintAfterwards);
+			if(!_is) _currentInstance.setSuspendDrawing(false);
 			return _currentInstance;
 		};
 
@@ -2407,17 +2409,15 @@
 
 /* ----------------- the new way ------------------------------------------------- */
 
-						// delete the original target endpoint.  but only want to do this if the endpoint was created
-						// automatically and has no other connections.
-
-						// TODO reinstate!
-						//if (jpc.endpoints[1]._makeTargetCreator && jpc.endpoints[1].connections.length < 2)
-						//	_currentInstance.deleteEndpoint(jpc.endpoints[1], true);
-
-						//jpc.targetEndpoint = newEndpoint;
+						
+						// change the target endpoint and target element information. really this should be 
+						// done on a method on connection
 						jpc.target = newEndpoint.element;
 						jpc.targetId = newEndpoint.elementId;
 						jpc.endpoints[1].detachFromConnection(jpc);
+						jpc.endpoints[1].deleteAfterDragStop = true; // tell this endpoint to delet itself after drag stop.
+						// set new endpoint, and configure the settings for endpoints to delete on detach
+						newEndpoint.addConnection(jpc);
 						jpc.endpoints[1] = newEndpoint;
 						jpc.deleteEndpointsOnDetach = deleteEndpointsOnDetach;
 						jpc.endpointsToDeleteOnDetach = deleteEndpointsOnDetach ? [ source, newEndpoint ] : null;
@@ -2426,36 +2426,7 @@
 
 						// TODO: fire a connection event!
 						// TODO: what about moving the connection's source, if that was set?
-						//jpc.repaint();
 						_finaliseConnection(jpc);
-
-/* ----------------- the old way -------------------------------------------------	*/
-
-						/*var c = _currentInstance.connect({
-							source:source,
-							target:newEndpoint,
-							scope:scope,
-							previousConnection:jpc,
-							container:jpc.parent,
-							deleteEndpointsOnDetach:deleteEndpointsOnDetach,
-                            endpointsToDeleteOnDetach : deleteEndpointsOnDetach ? [ source, newEndpoint ] : null,
-							// 'endpointWillMoveAfterConnection' is set by the makeSource function, and it indicates that the
-							// given endpoint will actually transfer from the element it is currently attached to to some other
-							// element after a connection has been established.  in that case, we do not want to fire the
-							// connection event, since it will have the wrong data in it; makeSource will do it for us.
-							// this is controlled by the 'parent' parameter on a makeSource call.
-							doNotFireConnectionEvent:source.endpointWillMoveAfterConnection
-						});
-
-						// delete the original target endpoint.  but only want to do this if the endpoint was created
-						// automatically and has no other connections.
-						if (jpc.endpoints[1]._makeTargetCreator && jpc.endpoints[1].connections.length < 2)
-							_currentInstance.deleteEndpoint(jpc.endpoints[1]);
-
-						c.repaint();
-
-						// detach this connection from the source.						
-						source.detach(jpc, false, true, false);*/
 
 					}				
 					// if not allowed to drop...
@@ -2966,20 +2937,29 @@
 
 		// sets the id of some element, changing whatever we need to to keep track.
 		this.setId = function(el, newId, doNotSetAttribute) {
-		
-			var id = jsPlumbUtil.isString(el) ? el : _info(el).id,
-				sConns = _currentInstance.getConnections({source:id, scope:'*'}, true),
+			// 
+			var id;
+
+			if (jsPlumbUtil.isString(el)) {
+				id = el;				
+			}
+			else {
+				el = _dom(el);
+				id = _currentInstance.getId(el);
+			}
+
+			var sConns = _currentInstance.getConnections({source:id, scope:'*'}, true),
 				tConns = _currentInstance.getConnections({target:id, scope:'*'}, true);
 
 			newId = "" + newId;
-							
+
 			if (!doNotSetAttribute) {
-				el = jsPlumb.CurrentLibrary.getElementObject(id);
-				jsPlumb.CurrentLibrary.setAttribute(el, "id", newId);
+				el = _dom(id);
+				jsPlumbAdapter.setAttribute(el, "id", newId);
 			}
-			
-			el = jsPlumb.CurrentLibrary.getElementObject(newId);
-			
+			else
+				el = _dom(newId);
+
 			endpointsByElement[newId] = endpointsByElement[id] || [];
 			for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
 				endpointsByElement[newId][i].setElementId(newId);
@@ -3001,12 +2981,13 @@
 			};
 			_conns(sConns, 0, "source");
 			_conns(tConns, 1, "target");
-			
+
 			_currentInstance.repaint(newId);
 		};
 
 		// called to notify us that an id WAS changed, and we should do our changes, but we
 		// dont need to change the element's DOM attribute.
+		// note that this does not work if the an element with the new id is not in the DOM.
 		this.setIdChanged = function(oldId, newId) {
 			_currentInstance.setId(oldId, newId, true);
 		};
@@ -3014,7 +2995,6 @@
 		this.setDebugLog = function(debugLog) {
 			log = debugLog;
 		};
-
 		
 		var _suspendDrawing = false,
             _suspendedAt = null;
@@ -3099,13 +3079,10 @@
 	                jsPlumb.CurrentLibrary.bind(document, event, function(e) {
 	                    if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
 	                        // try connections first
-	                        //for (var scope in connectionsByScope) {
-	                            //var c = connectionsByScope[scope];
-	                            for (var i = 0, ii = connections.length; i < ii; i++) {
-	                                var t = connections[i].getConnector()[event](e);
-	                                if (t) return;	
-	                            }
-	                        //}
+	                        for (var i = 0, ii = connections.length; i < ii; i++) {
+                                var t = connections[i].getConnector()[event](e);
+                                if (t) return;	
+                            }
 	                        for (var el in endpointsByElement) {
 	                            var ee = endpointsByElement[el];
 	                            for (var i = 0, ii = ee.length; i < ii; i++) {
@@ -3133,33 +3110,7 @@
 		this.show = function(el, changeEndpoints) {
 			_setVisible(el, "block", changeEndpoints);
 			return _currentInstance;
-		};
-
-		/*
-		 * Function: sizeCanvas 
-		 * Helper to size a canvas. You would typically use
-		 * this when writing your own Connector or Endpoint implementation.
-		 * 
-		 * Parameters: 
-		 * 	x - [int] x position for the Canvas origin 
-		 * 	y - [int] y position for the Canvas origin 
-		 * 	w - [int] width of the canvas 
-		 * 	h - [int] height of the canvas
-		 *  
-		 * Returns: 
-		 * 	The current jsPlumb instance
-		 */
-		this.sizeCanvas = function(canvas, x, y, w, h) {
-			if (canvas) {
-				canvas.style.height = h + "px";
-				canvas.height = h;
-				canvas.style.width = w + "px";
-				canvas.width = w;
-				canvas.style.left = x + "px";
-				canvas.style.top = y + "px";
-			}
-			return _currentInstance;
-		};
+		};		
 
 		/**
 		 * gets some test hooks. nothing writable.

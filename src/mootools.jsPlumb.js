@@ -153,13 +153,6 @@
 			return $extend(o1, o2);
 		},
 		
-		/**
-		 * gets the named attribute from the given element object.  
-		 */
-		getAttribute : function(el, attName) {
-			return el.get(attName);
-		},
-		
 		getClientXY : function(eventObject) {
 			return [eventObject.event.clientX, eventObject.event.clientY];
 		},
@@ -379,13 +372,6 @@
 		removeElement : function(element, parent) {
             var el = _getElementObject(element);
 			if (el) el.dispose();  // ??
-		},
-		
-		/**
-		 * sets the named attribute on the given element object.  
-		 */
-		setAttribute : function(el, attName, attValue) {
-			el.set(attName, attValue);
 		},
 
 		setDragFilter : function(el, filter) {

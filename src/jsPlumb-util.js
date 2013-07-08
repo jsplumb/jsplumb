@@ -358,7 +358,29 @@
 		removeElements : function(elements) {
 			for ( var i = 0; i < elements.length; i++)
 				jsPlumbUtil.removeElement(elements[i]);
-		}
+		},
+        /*
+         * Function: sizeElement 
+         * Helper to size and position an element. You would typically use
+         * this when writing your own Connector or Endpoint implementation.
+         * 
+         * Parameters: 
+         *  x - [int] x position for the element origin 
+         *  y - [int] y position for the element origin 
+         *  w - [int] width of the element 
+         *  h - [int] height of the element
+         *  
+         */
+        sizeElement : function(el, x, y, w, h) {
+            if (el) {
+                el.style.height = h + "px";
+                el.height = h;
+                el.style.width = w + "px";
+                el.width = w;
+                el.style.left = x + "px";
+                el.style.top = y + "px";
+            }
+        }
     };
 
     /**
@@ -445,8 +467,9 @@
                 _listeners[i].splice(0);
                 delete _listeners[i];
             }
-            _listeners = null;
-            eventsSuspended = null;            
+            // TODO: is it necessary to set these to null to help memory cleanup. i dont think it is.
+          //  _listeners = null;
+           // eventsSuspended = null;            
         };
     };
 

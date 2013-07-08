@@ -224,7 +224,7 @@
 		if (params.useDivWrapper) {
 			this.canvas = document.createElement("div");
 			this.canvas.style["position"] = "absolute";
-			jsPlumb.sizeCanvas(this.canvas,0,0,1,1);
+			jsPlumbUtil.sizeElement(this.canvas,0,0,1,1);
 			this.canvas.className = clazz;
 		}
 		else {
@@ -258,7 +258,7 @@
 				}
 
 				if (params.useDivWrapper) {					
-					jsPlumb.sizeCanvas(this.canvas, xy[0], xy[1], wh[0], wh[1]);
+					jsPlumbUtil.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);
 					xy[0] = 0, xy[1] = 0;
 					p = _pos([ 0, 0 ]);
 				}

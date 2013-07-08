@@ -938,7 +938,7 @@
 				}
 				var x = self.anchorPoint[0] - (widthToUse / 2),
 					y = self.anchorPoint[1] - (heightToUse / 2);
-				jsPlumb.sizeCanvas(self.canvas, x, y, widthToUse, heightToUse);
+				jsPlumbUtil.sizeElement(self.canvas, x, y, widthToUse, heightToUse);
 			}
 		};
 		
@@ -977,7 +977,7 @@
 		jsPlumb.appendElement(self.canvas, params.parent);
 		
 		this.paint = function(style, anchor) {
-			jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);	
+			jsPlumbUtil.sizeElement(self.canvas, self.x, self.y, self.w, self.h);	
 		};
 	};
 	

@@ -198,6 +198,10 @@
         getAttribute:function(el, attName) {
         	return el.getAttribute(attName);
         },
+
+        setAttribute:function(el, a, v) {
+        	el.setAttribute(a, v);
+        },
         
         appendToRoot : function(node) {
             document.body.appendChild(node);

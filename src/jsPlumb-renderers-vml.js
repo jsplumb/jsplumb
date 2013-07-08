@@ -172,16 +172,13 @@
 		var self = this, renderer = {};
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);	
 
-
-
-
 		this.opacityNodes = {
 			"stroke":null,
 			"fill":null
 		};
 		this.initOpacityNodes = function(vml) {
-			self.opacityNodes["stroke"] = _node("stroke", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb);
-			self.opacityNodes["fill"] = _node("fill", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb);							
+			self.opacityNodes["stroke"] = _node("stroke", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb.instance);
+			self.opacityNodes["fill"] = _node("fill", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb.instance);							
 		};
 		this.setOpacity = function(type, value) {
 			var node = self.opacityNodes[type];
@@ -196,20 +193,25 @@
 			if (!doNotAppendToCanvas) self.canvas.parentNode.appendChild(el);
 			displayElements.push(el);
 		};
-	},	
+	};
+	jsPlumbUtil.extend(VmlComponent, jsPlumb.jsPlumbUIComponent, {
+		cleanup:function() {			
+			jsPlumbUtil.removeElement(this.canvas);            				
+		}
+	});
+
 	/*
 	 * Base class for Vml connectors. extends VmlComponent.
 	 */
-	VmlConnector = jsPlumb.ConnectorRenderers.vml = function(params) {
-		var self = this;
-		self.strokeNode = null;
-		self.canvas = null;
-		var _super = VmlComponent.apply(this, arguments);
-		var clazz = self._jsPlumb.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
+	var VmlConnector = jsPlumb.ConnectorRenderers.vml = function(params) {		
+		this.strokeNode = null;
+		this.canvas = null;
+		VmlComponent.apply(this, arguments);
+		var clazz = this._jsPlumb.instance.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
 		this.paint = function(style) {		
 			if (style !== null) {				
-				var segments = self.getSegments(), p = { "path":"" },
-                    d = [self.x,self.y,self.w,self.h];
+				var segments = this.getSegments(), p = { "path":"" },
+                    d = [this.x, this.y, this.w, this.h];
 				
 				// create path from segments.	
 				for (var i = 0; i < segments.length; i++) {
@@ -227,64 +229,65 @@
 					};
 					for (var aa in vmlAttributeMap) outlineStyle[aa] = style[aa];
 					
-					if (self.bgCanvas == null) {						
+					if (this.bgCanvas == null) {						
 						p["class"] = clazz;
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-						self.bgCanvas = _node("shape", d, p, params.parent, self._jsPlumb, true);						
+						this.bgCanvas = _node("shape", d, p, params.parent, this._jsPlumb.instance, true);						
 						_pos(self.bgCanvas, d);
-						self.appendDisplayElement(self.bgCanvas, true);	
-						self.attachListeners(self.bgCanvas, self);					
-						self.initOpacityNodes(self.bgCanvas, ["stroke"]);		
+						this.appendDisplayElement(this.bgCanvas, true);	
+						this.attachListeners(this.bgCanvas, this);					
+						this.initOpacityNodes(this.bgCanvas, ["stroke"]);		
 					}
 					else {
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-						_pos(self.bgCanvas, d);
-						_atts(self.bgCanvas, p);
+						_pos(this.bgCanvas, d);
+						_atts(this.bgCanvas, p);
 					}
 					
-					_applyStyles(self.bgCanvas, outlineStyle, self);
+					_applyStyles(this.bgCanvas, outlineStyle, this);
 				}
 				//*/
 				
-				if (self.canvas == null) {										
+				if (this.canvas == null) {										
 					p["class"] = clazz;
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);					
-					self.canvas = _node("shape", d, p, params.parent, self._jsPlumb, true);					                
+					this.canvas = _node("shape", d, p, params.parent, this._jsPlumb.instance, true);					                
                     //var group = _getGroup(params.parent);                   // test of append everything to a group
                     //group.appendChild(self.canvas);                           // sort of works but not exactly;
 					//params["_jsPlumb"].appendElement(self.canvas, params.parent);    //before introduction of groups
 
-					self.appendDisplayElement(self.canvas, true);										
-					self.attachListeners(self.canvas, self);					
-					self.initOpacityNodes(self.canvas, ["stroke"]);		
+					this.appendDisplayElement(this.canvas, true);										
+					this.attachListeners(this.canvas, this);					
+					this.initOpacityNodes(this.canvas, ["stroke"]);		
 				}
 				else {
 					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
-					_pos(self.canvas, d);
-					_atts(self.canvas, p);
+					_pos(this.canvas, d);
+					_atts(this.canvas, p);
 				}
 				
-				_applyStyles(self.canvas, style, self, self._jsPlumb);
+				_applyStyles(this.canvas, style, this, this._jsPlumb.instance);
 			}
 		};	
-		
-		this.reattachListeners = function() {
-			if (self.canvas) self.reattachListenersForElement(self.canvas, self);
-		};
-	},		
+				
+	};
+	jsPlumbUtil.extend(VmlConnector, VmlComponent, {
+		reattachListeners : function() {
+			if (this.canvas) this.reattachListenersForElement(this.canvas, this);
+		}
+	});	
 	
 	/*
 	 * 
 	 * Base class for Vml Endpoints. extends VmlComponent.
 	 * 
 	 */
-	VmlEndpoint = window.VmlEndpoint = function(params) {
+	var VmlEndpoint = window.VmlEndpoint = function(params) {
 		VmlComponent.apply(this, arguments);
-		var vml = null, self = this, opacityStrokeNode = null, opacityFillNode = null;
-		self.canvas = document.createElement("div");
-		self.canvas.style["position"] = "absolute";
-
-		var clazz = self._jsPlumb.endpointClass + (params.cssClass ? (" " + params.cssClass) : "");
+		this._jsPlumb.vml = null;//, opacityStrokeNode = null, opacityFillNode = null;
+		this.canvas = document.createElement("div");
+		this.canvas.style["position"] = "absolute";
+		this._jsPlumb.clazz = this._jsPlumb.instance.endpointClass + (params.cssClass ? (" " + params.cssClass) : "");
 
 		// TODO vml endpoint adds class to VML at constructor time.  but the addClass method adds VML
 		// to the enclosing DIV. what to do?  seems like it would be better to just target the div.
@@ -292,34 +295,35 @@
 
 		//var group = _getGroup(params.parent);
         //group.appendChild(self.canvas);
-		params["_jsPlumb"].appendElement(self.canvas, params.parent);
+		params["_jsPlumb"].appendElement(this.canvas, params.parent);
 
 		this.paint = function(style, anchor) {
-			var p = { };					
+			var p = { }, vml = this._jsPlumb.vml;				
 			
-			jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);
-			if (vml == null) {
-				p["class"] = clazz;
-				vml = self.getVml([0,0, self.w, self.h], p, anchor, self.canvas, self._jsPlumb);				
-				self.attachListeners(vml, self);
+			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);
+			if (this._jsPlumb.vml == null) {
+				p["class"] = this._jsPlumb.clazz;
+				vml = this._jsPlumb.vml = this.getVml([0,0, this.w, this.h], p, anchor, this.canvas, this._jsPlumb.instance);				
+				this.attachListeners(vml, this);
 
-				self.appendDisplayElement(vml, true);
-				self.appendDisplayElement(self.canvas, true);
+				this.appendDisplayElement(vml, true);
+				this.appendDisplayElement(this.canvas, true);
 				
-				self.initOpacityNodes(vml, ["fill"]);			
+				this.initOpacityNodes(vml, ["fill"]);			
 			}
 			else {				
-				_pos(vml, [0,0, self.w, self.h]);
+				_pos(vml, [0,0, this.w, this.h]);
 				_atts(vml, p);
 			}
 			
-			_applyStyles(vml, style, self);
-		};
-		
-		this.reattachListeners = function() {
-			if (vml) self.reattachListenersForElement(vml, self);
-		};
+			_applyStyles(vml, style, this);
+		};		
 	};
+	jsPlumbUtil.extend(VmlEndpoint, VmlComponent, {
+		reattachListeners : function() {
+			if (this._jsPlumb.vml) this.reattachListenersForElement(this._jsPlumb.vml, this);
+		}
+	});
 	
 // ******************************* vml segments *****************************************************	
 		
@@ -375,12 +379,14 @@
 		VmlEndpoint.apply(this, arguments);
 		this.getVml = function(d, atts, anchor, parent, _jsPlumb) { return _node("oval", d, atts, parent, _jsPlumb); };
 	};
+	jsPlumbUtil.extend(jsPlumb.Endpoints.vml.Dot, VmlEndpoint);
 	
 	jsPlumb.Endpoints.vml.Rectangle = function() {
 		jsPlumb.Endpoints.Rectangle.apply(this, arguments);
 		VmlEndpoint.apply(this, arguments);
 		this.getVml = function(d, atts, anchor, parent, _jsPlumb) { return _node("rect", d, atts, parent, _jsPlumb); };
 	};
+	jsPlumbUtil.extend(jsPlumb.Endpoints.vml.Rectangle, VmlEndpoint);
 	
 	/*
 	 * VML Image Endpoint is the same as the default image endpoint.
@@ -457,7 +463,7 @@
     			var overlayClass = connector._jsPlumb.overlayClass || "";
     			var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "";
     			p["class"] = clazz + " " + overlayClass;
-				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb, true);								
+				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb.instance, true);								
 				connector.appendDisplayElement(self.canvas, true);
 				self.attachListeners(self.canvas, connector);
 				self.attachListeners(self.canvas, self);
@@ -476,18 +482,22 @@
     		if (self.canvas != null) jsPlumb.CurrentLibrary.removeElement(self.canvas);
     	};
     };
+    jsPlumbUtil.extend(AbstractVmlArrowOverlay, VmlComponent);
 	
 	jsPlumb.Overlays.vml.Arrow = function() {
     	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.vml.Arrow, [ jsPlumb.Overlays.Arrow, AbstractVmlArrowOverlay ]);
     
     jsPlumb.Overlays.vml.PlainArrow = function() {
     	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.PlainArrow, arguments]);    	
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.vml.PlainArrow, [ jsPlumb.Overlays.PlainArrow, AbstractVmlArrowOverlay ]);
     
     jsPlumb.Overlays.vml.Diamond = function() {
     	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);    	
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.vml.Diamond, [ jsPlumb.Overlays.Diamond, AbstractVmlArrowOverlay ]);
     
 // ******************************* /vml overlays *****************************************************    
     

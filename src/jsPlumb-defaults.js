@@ -954,7 +954,7 @@
 				}
 				var x = this.anchorPoint[0] - (this._jsPlumb.widthToUse / 2),
 					y = this.anchorPoint[1] - (this._jsPlumb.heightToUse / 2);
-				jsPlumb.sizeCanvas(this.canvas, x, y, this._jsPlumb.widthToUse, this._jsPlumb.heightToUse);
+				jsPlumbUtil.sizeElement(this.canvas, x, y, this._jsPlumb.widthToUse, this._jsPlumb.heightToUse);
 			}
 		};
 		
@@ -999,7 +999,7 @@
 		jsPlumb.appendElement(this.canvas, params.parent);
 		
 		this.paint = function(style, anchor) {
-			jsPlumb.sizeCanvas(this.canvas, this.x, this.y, this.w, this.h);	
+			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);	
 		};
 	};
     jsPlumbUtil.extend(jsPlumb.Endpoints.Blank, [jsPlumb.Endpoints.AbstractEndpoint, DOMElementEndpoint]);

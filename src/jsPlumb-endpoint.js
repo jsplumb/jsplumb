@@ -493,8 +493,9 @@
                 if (this.parentAnchor) this.anchor = _jsPlumb.makeAnchor(this.parentAnchor, this.elementId, _jsPlumb);
                 
                 // store the id of the dragging div and the source element. the drop function will pick these up.					
-                jpcl.setAttribute(canvasElement, "dragId", placeholderInfo.id);
-                jpcl.setAttribute(canvasElement, "elId", this.elementId);
+                _jsPlumb.setAttribute(this.canvas, "dragId", placeholderInfo.id);
+                _jsPlumb.setAttribute(this.canvas, "elId", this.elementId);
+
                 this._jsPlumb.floatingEndpoint = _makeFloatingEndpoint(this.getPaintStyle(), this.anchor, this.endpoint, this.canvas, placeholderInfo.element, _jsPlumb, _newEndpoint);
                 // TODO we should not know about DOM here. make the library adapter do this (or the 
                     // dom adapter)
@@ -535,7 +536,7 @@
                     
                     // store the original scope (issue 57)
                     var dragScope = jsPlumb.CurrentLibrary.getDragScope(canvasElement);
-                    jpcl.setAttribute(canvasElement, "originalScope", dragScope);
+                    _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
                     // now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
                     // that have our drop scope (issue 57).
                     var dropScope = jpcl.getDropScope(canvasElement);
@@ -596,22 +597,16 @@
             dragOptions[stopEvent] = _jsPlumb.wrap(dragOptions[stopEvent],
                 function() {
                     
-                    console.log("STOP!");
+                    console.log("STOP!");                    
 
                     // get the actual drop event (decode from library args to stop function)
                     var originalEvent = jpcl.getDropEvent(arguments);					                    
                     // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                     var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
                     jpc.endpoints[idx == 0 ? 1 : 0].anchor.locked = false;
-                    // make our canvas visible (TODO: hand off to library; we should not know about DOM)
-                    this.canvas.style.visibility = "visible";
-                    // unlock our anchor
-                    this.anchor.locked = false;
                     // WHY does this need to happen?  i suppose because the connection might not get 
                     // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
-                    jpc.removeClass(_jsPlumb.draggingClass);
-
-                    var deleteConnection = true;
+                    jpc.removeClass(_jsPlumb.draggingClass);                                    
                 
                     // if we have the floating endpoint then the connection has not been dropped
                     // on another endpoint.  If it is a new connection we throw it away. If it is an 
@@ -656,17 +651,23 @@
                     _jsPlumb.remove(placeholderInfo.element, false);
                     // remove the inplace copy
                     _jsPlumb.remove(inPlaceCopy.canvas, false);
+
+                    // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
+                    if (this.deleteAfterDragStop) {
+                        console.log("i should delete myself.");
+                        _jsPlumb.deleteTest({endpoint:this});
+                    }
+                    else {
+                        // repaint this endpoint.
+                        // make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                        this.canvas.style.visibility = "visible";
+                        // unlock our anchor
+                        this.anchor.locked = false;
+                        this.paint({recalc:false});                        
+                    }
                                         
-                    // repaint this endpoint.
-                    this.paint({recalc:false});                    
-                    
                     // TODO can this stay here? the connection is no longer valid.
                     _jsPlumb.fire("connectionDragStop", jpc);
-
-                    // reset connection drag stuff
-                    jpc = null;						
-                    inPlaceCopy = null;							                                        
-                    this._jsPlumb.floatingEndpoint = null;
 
                     // tell jsplumb that dragging is finished.
                     _jsPlumb.currentlyDragging = false;

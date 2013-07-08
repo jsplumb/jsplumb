@@ -54,6 +54,7 @@
             // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           
             jsPlumb.connect({ source:"window1", target:"window5" });
             jsPlumb.connect({ source:"window1", target:"window2" });
+            //jsPlumb.connect({ source:"window1", target:"window3" });
 
 			// click listener for the enable/disable link.
             $("#enableDisableSource").bind("click", function() {

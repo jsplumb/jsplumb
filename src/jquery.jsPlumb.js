@@ -44,8 +44,7 @@
  * isDragSupported		returns whether or not drag is supported for some element.
  * isDropSupported		returns whether or not drop is supported for some element.
  * removeClass			removes a class from a given element.
- * removeElement		removes some element completely from the DOM.
- * setAttribute			sets an attribute on some element.
+ * removeElement		removes some element completely from the DOM. 
  * setDragFilter		sets a filter for some element that indicates areas of the element that should not respond to dragging.
  * setDraggable			sets whether or not some element should be draggable.
  * setDragScope			sets the drag scope for a given element.
@@ -368,11 +367,7 @@ TODO: REMOVE!
 		
 		removeElement : function(element) {			
 			_getElementObject(element).remove();
-		},
-		
-		setAttribute : function(el, attName, attValue) {
-			el.attr(attName, attValue);
-		},
+		},		
 
 		setDragFilter : function(el, filter) {
 			if (jsPlumb.CurrentLibrary.isAlreadyDraggable(el))

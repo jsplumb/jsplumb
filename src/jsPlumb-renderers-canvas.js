@@ -284,7 +284,7 @@
 				self.translateX = dx;
 				self.translateY = dy;
 				
-				jsPlumb.sizeCanvas(self.canvas, xy[0], xy[1], wh[0], wh[1]);				
+				jsPlumbUtil.sizeElement(self.canvas, xy[0], xy[1], wh[0], wh[1]);				
 				
 				if (style.outlineColor != null) {
 					var outlineWidth = style.outlineWidth || 1,
@@ -322,7 +322,7 @@
 		self.appendDisplayElement(self.canvas);
 		
 		this.paint = function(style, anchor, extents) {
-			jsPlumb.sizeCanvas(self.canvas, self.x, self.y, self.w, self.h);			
+			jsPlumbUtil.sizeElement(self.canvas, self.x, self.y, self.w, self.h);			
 			if (style.outlineColor != null) {
 				var outlineWidth = style.outlineWidth || 1,
 				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);

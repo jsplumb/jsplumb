@@ -2,6 +2,11 @@
 
 		BACKWARDS COMPATIBILITY
 
+		- many places in jsPlumb that used to use library-specific selectors for elements now use
+		  pure DOM elements.  It is best to re-select any elements you are getting from a jsPlumb
+		  object, even if you supplied them as a selector, as jsPlumb will have unwrapped your
+		  selector into a DOM element.
+
 		- Endpoint.isConnectedTo method removed.  it didnt work properly as it only checked for connections
 		where the endpoint was the source.  
 
@@ -11,6 +16,15 @@
 
 		- makeTargets method removed from jsPlumb.  you can pass an array or selector to makeTarget.
 		- makeSources method removed from jsPlumb.  you can pass an array or selector to makeSource.
+
+		- jsPlumb.detach no longer supports passing in two elements as arguments.  Use instead
+		either 
+
+				jsPlumb.detach({source:someDiv, target:someOtherDiv});
+
+		or
+
+				jsPlumb.select({source:someDiv, target:someOtherDiv}).detach();
 
 
 		NEW FUNCTIONALITY

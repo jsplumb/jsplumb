@@ -24,7 +24,6 @@
  * bind					binds some event to an element
  * dragEvents			a dictionary of event names
  * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
- * getAttribute			gets some attribute from an element
  * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
  * getDragScope			gets the drag scope for a given element.
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
@@ -40,7 +39,6 @@
  * isDropSupported		returns whether or not drop is supported for some element.
  * removeClass			removes a class from a given element.
  * removeElement		removes some element completely from the DOM.
- * setAttribute			sets an attribute on some element.
  * setDraggable			sets whether or not some element should be draggable.
  * setDragScope			sets the drag scope for a given element.
  * setOffset			sets the offset of some element.
@@ -185,9 +183,7 @@
 			"over":"drop:enter", "out":"drop:exit", "drop":"drop:hit"
 		},								
 			
-		extend : _extend,
-		
-		getAttribute : _getAttribute,
+		extend : _extend,			
 		
 		getClientXY : function(eventObject) {
 			return [eventObject.clientX, eventObject.clientY];
@@ -347,11 +343,7 @@
 		removeClass : function(el, clazz) { 
 			jsPlumb.CurrentLibrary.getElementObject(el).removeClass(clazz); 
 		},		
-		removeElement : function(el) { _getElementObject(el).remove(); },
-		
-		setAttribute : function(el, attributeName, attributeValue) {
-			el.setAttribute(attributeName, attributeValue);
-		},
+		removeElement : function(el) { _getElementObject(el).remove(); },		
 
 		setDragFilter : function(el, filter) {
 			jsPlumb.log("NOT IMPLEMENTED: setDragFilter")

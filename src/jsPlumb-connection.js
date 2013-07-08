@@ -9,7 +9,7 @@
         _makeAnchor = function(anchorParams, elementId, _jsPlumb) {
             return (anchorParams) ? _jsPlumb.makeAnchor(anchorParams, elementId, _jsPlumb) : null;
         },
-        prepareEndpoint = function(conn, existing, index, params, element, elementId, connectorPaintStyle, connectorHoverPaintStyle) {
+        prepareEndpoint = function(_jsPlumb, _newEndpoint, conn, existing, index, params, element, elementId, connectorPaintStyle, connectorHoverPaintStyle) {
             var e;
             if (existing) {
                 conn.endpoints[index] = existing;
@@ -70,7 +70,6 @@
     jsPlumb.Connection = function(params) {
         var _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
-
             jpcl = jsPlumb.CurrentLibrary,
             _att = jpcl.getAttribute,
             _gel = jpcl.getElementObject,
@@ -133,9 +132,9 @@
         // wrapped the main function to return null if no input given. this lets us cascade defaults properly.
         
 
-        var eS = prepareEndpoint(this, params.sourceEndpoint, 0, params, this.source, this.sourceId, params.paintStyle, params.hoverPaintStyle);			
+        var eS = prepareEndpoint(_jsPlumb, _newEndpoint, this, params.sourceEndpoint, 0, params, this.source, this.sourceId, params.paintStyle, params.hoverPaintStyle);			
         if (eS) _ju.addToList(params.endpointsByElement, this.sourceId, eS);						
-        var eT = prepareEndpoint(this, params.targetEndpoint, 1, params, this.target, this.targetId, params.paintStyle, params.hoverPaintStyle);
+        var eT = prepareEndpoint(_jsPlumb, _newEndpoint, this, params.targetEndpoint, 1, params, this.target, this.targetId, params.paintStyle, params.hoverPaintStyle);
         if (eT) _ju.addToList(params.endpointsByElement, this.targetId, eT);
         // if scope not set, set it to be the scope for the source endpoint.
         if (!this.scope) this.scope = this.endpoints[0].scope;		
@@ -306,13 +305,14 @@
             this._jsPlumb.instance.setHoverSuspended(false);
         },
         cleanup:function() {
-            //console.log("Connection cleanup");
             this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
             this.source = null;
             this.target = null;                    
-            this.connector.cleanup();            
-            this.connector.destroy();
+            if (this.connector != null) {
+                this.connector.cleanup();            
+                this.connector.destroy();
+            }
             this.connector = null;
         },
         isDetachable : function() {
@@ -361,11 +361,9 @@
         setConnector : function(connectorSpec, doNotRepaint) {
             var _ju = jsPlumbUtil;
             if (this.connector != null) {
-                //_ju.removeElements(this.connector.getDisplayElements());
                 this.connector.cleanup();
                 this.connector.destroy();
             }
-            // TODO connector cleanup  (done with cleanup/destroy?)
 
             var connectorArgs = { 
                     _jsPlumb:this._jsPlumb.instance, 
@@ -438,7 +436,6 @@
                         targetPos:tAnchorP, 
                         sourceEndpoint:this.endpoints[sIdx],
                         targetEndpoint:this.endpoints[tIdx],
-                        //SHAMOZZLE:this.endpoints[tIdx],
                         lineWidth:this._jsPlumb.paintStyleInUse.lineWidth,                                          
                         sourceInfo:sourceInfo,
                         targetInfo:targetInfo,
@@ -488,9 +485,8 @@
          * Repaints the Connection. No parameters exposed to public API.
          */
         repaint : function(params) {
-            params = params || {};
-            var recalc = !(params.recalc === false);
-            this.paint({ elId : this.sourceId, recalc : recalc, timestamp:params.timestamp, clearEdits:params.clearEdits });
+            params = params || {};            
+            this.paint({ elId : this.sourceId, recalc : !(params.recalc === false), timestamp:params.timestamp, clearEdits:params.clearEdits });
         }
         
     }); // END Connection class            

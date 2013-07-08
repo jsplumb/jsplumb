@@ -1088,9 +1088,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		_jsPlumb.reset();
 		var conn = _jsPlumb.connect({source:d1, target:d2});
-		_jsPlumb.detach(d1,d2);
+		_jsPlumb.detach({source:d1,target:d2, fireEvent:true});
 		ok(returnedParams == null, "connection listener was cleared by _jsPlumb.reset()");
-		equal(_jsPlumb.select({source:d1}).length, 0, "no connections from d1");
+		equal(_jsPlumb.select({source:d1}).length, 0, "no connections from d1 after detach with two connections as arguments");
 	});
 	
 	test(renderMode + ': connection events that throw errors', function() {
@@ -3911,9 +3911,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
 		equal(c.sourceId, "d3", "connection's sourceId has changed");
-		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
 		equal(c2.targetId, "d3", "connection's targetId has changed");
-		equal(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
 	});   
 	
 	test(renderMode + " setId, taking a selector and a string, only default scope", function() {
@@ -3943,9 +3943,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
 		equal(c.sourceId, "d3", "connection's sourceId has changed");
-		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
 		equal(c2.targetId, "d3", "connection's targetId has changed");
-		equal(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
 	});   
 
 	test(renderMode + " setId, taking a DOM element and a string, only default scope", function() {
@@ -3975,9 +3975,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
 		equal(c.sourceId, "d3", "connection's sourceId has changed");
-		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
 		equal(c2.targetId, "d3", "connection's targetId has changed");
-		equal(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
 	}); 
 
 	test(renderMode + " setId, taking two strings, mix of scopes", function() {
@@ -4007,9 +4007,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
 		equal(c.sourceId, "d3", "connection's sourceId has changed");
-		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
 		equal(c2.targetId, "d3", "connection's targetId has changed");
-		equal(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
 	});   
 	
 	test(renderMode + " setId, taking a selector and a string, mix of scopes", function() {
@@ -4039,9 +4039,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
 		equal(c.sourceId, "d3", "connection's sourceId has changed");
-		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
 		equal(c2.targetId, "d3", "connection's targetId has changed");
-		equal(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
 	});   
 
 	test(renderMode + " setId, taking a DOM element and a string, mix of scopes", function() {
@@ -4071,13 +4071,13 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
 		equal(c.sourceId, "d3", "connection's sourceId has changed");
-		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
 		equal(c2.targetId, "d3", "connection's targetId has changed");
-		equal(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
 	});
 
 	test(renderMode + " setIdChanged, ", function() {
-		_addDiv("d1"); _addDiv("d2");
+		_addDiv("d1"); _addDiv("d2"); //_addDiv("d3");
 
 		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
@@ -4106,9 +4106,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e3.anchor.elementId, "d3", "anchor has correct element id");
 
 		equal(c.sourceId, "d3", "connection's sourceId has changed");
-		equal(c.source.attr("id"), "d3", "connection's source has changed");
+		equal(c.source.getAttribute("id"), "d3", "connection's source has changed");
 		equal(c2.targetId, "d3", "connection's targetId has changed");
-		equal(c2.target.attr("id"), "d3", "connection's target has changed");
+		equal(c2.target.getAttribute("id"), "d3", "connection's target has changed");
 	});  
 
 	test(renderMode + " endpoint hide/show should hide/show overlays", function() {
