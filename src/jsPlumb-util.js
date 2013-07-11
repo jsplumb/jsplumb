@@ -16,54 +16,46 @@
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {
-    
-    var pointHelper = function(p1, p2, fn) {
-        p1 = jsPlumbUtil.isArray(p1) ? p1 : [p1.x, p1.y];
-        p2 = jsPlumbUtil.isArray(p2) ? p2 : [p2.x, p2.y];    
-        return fn(p1, p2);
-    };
-    
-    jsPlumbUtil = {
-        isArray : function(a) {
-            return Object.prototype.toString.call(a) === "[object Array]";	
-        },
-        isNumber : function(n) {
-            return Object.prototype.toString.call(n) === "[object Number]";  
-        },
-        isString : function(s) {
-            return typeof s === "string";
-        },
-        isBoolean: function(s) {
-            return typeof s === "boolean";
-        },
-        isNull : function(s) { return s == null; },  
-        isObject : function(o) {
-            return o == null ? false : Object.prototype.toString.call(o) === "[object Object]";	
-        },
-        isDate : function(o) {
-            return Object.prototype.toString.call(o) === "[object Date]";
-        },
-        isFunction: function(o) {
-            return Object.prototype.toString.call(o) === "[object Function]";
-        },
-        isEmpty:function(o) {
-            for (var i in o) {
-                if (o.hasOwnProperty(i)) return false;
-            }
+
+    var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
+        _isnum = function(n) { return Object.prototype.toString.call(n) === "[object Number]"; },
+        _iss = function(s) { return typeof s === "string"; },
+        _isb = function(s) { return typeof s === "boolean"; },
+        _isnull = function(s) { return s == null; },  
+        _iso = function(o) { return o == null ? false : Object.prototype.toString.call(o) === "[object Object]"; },
+        _isd = function(o) { return Object.prototype.toString.call(o) === "[object Date]"; },
+        _isf = function(o) { return Object.prototype.toString.call(o) === "[object Function]"; },
+        _ise = function(o) {
+            for (var i in o) { if (o.hasOwnProperty(i)) return false; }
             return true;
         },
+        pointHelper = function(p1, p2, fn) {
+            p1 = _isa(p1) ? p1 : [p1.x, p1.y];
+            p2 = _isa(p2) ? p2 : [p2.x, p2.y];    
+            return fn(p1, p2);
+        };
+    
+    jsPlumbUtil = {
+        isArray : _isa,
+        isString : _iss,
+        isBoolean: _isb,
+        isNull : _isnull,
+        isObject : _iso,
+        isDate : _isd,
+        isFunction: _isf,
+        isEmpty:_ise,
         clone : function(a) {
-            if (this.isString(a)) return "" + a;
-            else if (this.isBoolean(a)) return !!a;
-            else if (this.isDate(a)) return new Date(a.getTime());
-            else if (this.isFunction(a)) return a;
-            else if (this.isArray(a)) {
+            if (_iss(a)) return "" + a;
+            else if (_isb(a)) return !!a;
+            else if (_isd(a)) return new Date(a.getTime());
+            else if (_isf(a)) return a;
+            else if (_isa(a)) {
                 var b = [];
                 for (var i = 0; i < a.length; i++)
                     b.push(this.clone(a[i]));
                 return b;
             }
-            else if (this.isObject(a)) {
+            else if (_iso(a)) {
                 var b = {};
                 for (var i in a)
                     b[i] = this.clone(a[i]);
@@ -74,19 +66,19 @@
         merge : function(a, b) {		
             var c = this.clone(a);		
             for (var i in b) {
-                if (c[i] == null || this.isString(b[i]) || this.isBoolean(b[i]))
+                if (c[i] == null || _iss(b[i]) || _isb(b[i]))
                     c[i] = b[i];
                 else {
-                    if (this.isArray(b[i])/* && this.isArray(c[i])*/) {
+                    if (_isa(b[i])/* && this.isArray(c[i])*/) {
                         var ar = [];
                         // if c's object is also an array we can keep its values.
-                        if (this.isArray(c[i])) ar.push.apply(ar, c[i]);
+                        if (_isa(c[i])) ar.push.apply(ar, c[i]);
                         ar.push.apply(ar, b[i]);
                         c[i] = ar;
                     }
-                    else if(this.isObject(b[i])) {	
+                    else if(_iso(b[i])) {	
                         // overwite c's value with an object if it is not already one.
-                        if (!this.isObject(c[i])) 
+                        if (!_iso(c[i])) 
                             c[i] = {};
                         for (var j in b[i])
                             c[i][j] = b[i][j];
@@ -130,16 +122,16 @@
                 // process one entry.
                 _one = function(d) {
                     if (d != null) {
-                        if (jsPlumbUtil.isString(d)) {
+                        if (_iss(d)) {
                             return getValue(d);
                         }
-                        else if (jsPlumbUtil.isArray(d)) {
+                        else if (_isa(d)) {
                             var r = [];	
                             for (var i = 0; i < d.length; i++)
                                 r.push(_one(d[i]));
                             return r;
                         }
-                        else if (jsPlumbUtil.isObject(d)) {
+                        else if (_iso(d)) {
                             var r = {};
                             for (var i in d) {
                                 r[i] = _one(d[i]);
@@ -296,7 +288,7 @@
         //
         extend : function(child, parent, _proto/*, classMembers*/) {
             _proto = _proto || {};
-            parent = this.isArray(parent) ? parent : [ parent ];
+            parent = _isa(parent) ? parent : [ parent ];
             //classMembers = classMembers || {};
 
             for (var i = 0; i < parent.length; i++) {
