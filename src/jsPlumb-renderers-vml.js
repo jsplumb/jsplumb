@@ -233,7 +233,7 @@
 						p["class"] = clazz;
 						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
 						this.bgCanvas = _node("shape", d, p, params.parent, this._jsPlumb.instance, true);						
-						_pos(self.bgCanvas, d);
+						_pos(this.bgCanvas, d);
 						this.appendDisplayElement(this.bgCanvas, true);	
 						this.attachListeners(this.bgCanvas, this);					
 						this.initOpacityNodes(this.bgCanvas, ["stroke"]);		
