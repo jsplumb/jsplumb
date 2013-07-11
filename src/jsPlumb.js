@@ -3,50 +3,24 @@
  * @name jsPlumb
  * @description
  *
- * ## jsPlumb
+ * ## jsPlumb 1.5.0
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.   
  *
  * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
  *
- */
-
-/*
- * jsPlumb
- * 
- * Title:jsPlumb 1.4.2
- * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
- * 
- * This file contains the jsPlumb core code.
- *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
- * 
  * http://jsplumb.org
  * http://github.com/sporritt/jsplumb
  * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
+ *
  */
-
 ;(function() {
 			
-    var 
-    
-	/**
-		an isArray function that even works across iframes...see here:
-		
-		http://tobyho.com/2011/01/28/checking-types-in-javascript/
-
-		i was originally using "a.constructor == Array" as a test.
-	*/
-	_isArray = jsPlumbUtil.isArray,
-	_isString = jsPlumbUtil.isString,
-	_isObject = jsPlumbUtil.isObject;
-		
-	var _addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_gel(el), clazz); },
+    var _ju = jsPlumbUtil,
+    	_addClass = function(el, clazz) { jsPlumb.CurrentLibrary.addClass(_gel(el), clazz); },
 		_hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_gel(el), clazz); },
 		_removeClass = function(el, clazz) { jsPlumb.CurrentLibrary.removeClass(_gel(el), clazz); },
 		_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
@@ -63,11 +37,6 @@
 		_getSize = function(el) {
             return jsPlumb.CurrentLibrary.getSize(_gel(el));
         },
-		_log = jsPlumbUtil.log,
-		_group = jsPlumbUtil.group,
-		_groupEnd = jsPlumbUtil.groupEnd,
-		_time = jsPlumbUtil.time,
-		_timeEnd = jsPlumbUtil.timeEnd,
 		
 		/**
 		 * creates a timestamp, using milliseconds since 1970, but as a string.
@@ -177,7 +146,7 @@
 					try { 
 						r = this._jsPlumb.beforeDetach(connection); 
 					}
-					catch (e) { _log("jsPlumb: beforeDetach callback failed", e); }
+					catch (e) { _ju.log("jsPlumb: beforeDetach callback failed", e); }
 				}
 				return r;
 			};
@@ -202,7 +171,7 @@
 							dropEndpoint:dropEndpoint
 						}); 
 					}
-					catch (e) { _log("jsPlumb: beforeDrop callback failed", e); }
+					catch (e) { _ju.log("jsPlumb: beforeDrop callback failed", e); }
 				}
 				return r;
 			};										
@@ -474,7 +443,7 @@
 		},
 		_processOverlay = function(component, o) {
 			var _newOverlay = null;
-			if (_isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+			if (_ju.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
 				// there's also a three arg version:
 				// ["Arrow", { width:50 }, {location:0.7}] 
 				// which merges the 3rd arg into the 2nd.
@@ -835,7 +804,7 @@
 		 */
 		_elementProxy = function(element, fn) {
 			var retVal = null;
-			if (_isArray(element)) {
+			if (_ju.isArray(element)) {
 				retVal = [];
 				for ( var i = 0, j = element.length; i < j; i++) {
 					var el = _gel(element[i]), id = _currentInstance.getAttribute(el, "id");
@@ -931,13 +900,13 @@
 			// now ensure that if we do have Endpoints already, they're not full.
 			// source:
 			if (_p.sourceEndpoint && _p.sourceEndpoint.isFull()) {
-				_log(_currentInstance, "could not add connection; source endpoint is full");
+				_ju.log(_currentInstance, "could not add connection; source endpoint is full");
 				return;
 			}
 
 			// target:
 			if (_p.targetEndpoint && _p.targetEndpoint.isFull()) {
-				_log(_currentInstance, "could not add connection; target endpoint is full");
+				_ju.log(_currentInstance, "could not add connection; target endpoint is full");
 				return;
 			}
 			
@@ -1345,13 +1314,13 @@
 				try {
 					r = newFunction.apply(this, arguments);
 				} catch (e) {
-					_log(_currentInstance, "jsPlumb function failed : " + e);
+					_ju.log(_currentInstance, "jsPlumb function failed : " + e);
 				}
 				if (returnOnThisValue == null || (r !== returnOnThisValue)) {
 					try {
 						wrappedFunction.apply(this, arguments);
 					} catch (e) {
-						_log(_currentInstance, "wrapped function failed : " + e);
+						_ju.log(_currentInstance, "wrapped function failed : " + e);
 					}
 				}
 				return r;
@@ -1398,7 +1367,7 @@
 			el = _convertYUICollection(el);							
 
 			var results = [], 
-				inputs = (_isArray(el) || (el.length != null && !_isString(el))) ? el : [ el ];
+				inputs = (_ju.isArray(el) || (el.length != null && !_ju.isString(el))) ? el : [ el ];
 						
 			for (var i = 0, j = inputs.length; i < j; i++) {
 				var _el = _dom(inputs[i]), id = _getId(_el);//_gel(inputs[i]), id = _getId(inputs[i]);//id = _getId(_el);				
@@ -1428,7 +1397,7 @@
 			var results = [];
 			for ( var i = 0, j = endpoints.length; i < j; i++) {
 				var e = _currentInstance.addEndpoint(el, endpoints[i], referenceParams);
-				if (_isArray(e))
+				if (_ju.isArray(e))
 					Array.prototype.push.apply(results, e);
 				else results.push(e);
 			}
@@ -1472,7 +1441,7 @@
 					}
 				}
 				catch (e) { 
-					_log(_currentInstance, "cannot check condition [" + conditionName + "]" + e); 
+					_ju.log(_currentInstance, "cannot check condition [" + conditionName + "]" + e); 
 				}
 			}
 			return r;
@@ -1495,7 +1464,7 @@
 					l[0](value, proceed, stop); 					
 				}
 				catch (e) { 
-					_log(_currentInstance, "cannot asynchronously check condition [" + conditionName + "]" + e); 
+					_ju.log(_currentInstance, "cannot asynchronously check condition [" + conditionName + "]" + e); 
 				}
 			}	
 		};
@@ -2200,9 +2169,9 @@
 			// 		an array of [name, params] - this defines a single anchor
 			//		an array of arrays - this defines some dynamic anchors
 			//		an array of numbers - this defines a single anchor.				
-			else if (_isArray(specimen)) {
-				if (_isArray(specimen[0]) || _isString(specimen[0])) {
-					if (specimen.length == 2 && _isString(specimen[0]) && _isObject(specimen[1])) {
+			else if (_ju.isArray(specimen)) {
+				if (_ju.isArray(specimen[0]) || _ju.isString(specimen[0])) {
+					if (specimen.length == 2 && _ju.isString(specimen[0]) && _ju.isObject(specimen[1])) {
 						var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
 						//newAnchor = new jsPlumb.Anchors[specimen[0]](pp);
 						newAnchor = _a(specimen[0], pp);
@@ -2237,7 +2206,7 @@
 			for ( var i = 0, ii = types.length; i < ii; i++) {
 				if (typeof types[i] == "string")
 					r.push(jsPlumb.Anchors[types[i]]({elementId:elementId, jsPlumbInstance:jsPlumbInstance}));
-				else if (_isArray(types[i]))
+				else if (_ju.isArray(types[i]))
 					r.push(_currentInstance.makeAnchor(types[i], elementId, jsPlumbInstance));
 			}
 			return r;
@@ -2757,7 +2726,7 @@
 		var _setEnabled = function(type, el, state, toggle) {
 			var a = type == "source" ? _sourcesEnabled : _targetsEnabled;									
 
-			if (_isString(el)) a[el] = toggle ? !a[el] : state;
+			if (_ju.isString(el)) a[el] = toggle ? !a[el] : state;
 			else if (el.length) {
 				el = _convertYUICollection(el);
 				for (var i = 0, ii = el.length; i < ii; i++) {
@@ -3027,7 +2996,7 @@
 				fn();
 			}
 			catch (e) {
-				_log("Function run while suspended failed", e);
+				_ju.log("Function run while suspended failed", e);
 			}			
 			if (!_wasSuspended)
 				_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
