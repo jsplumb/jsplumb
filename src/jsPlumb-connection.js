@@ -262,12 +262,18 @@
                 this.endpoints[1].addClass(c); 
                 if (this.suspendedEndpoint) this.suspendedEndpoint.addClass(c);                   
             }
+            if (this.connector) {
+                this.connector.addClass(c);
+            }
         },
         removeClass : function(c, informEndpoints) {            
             if (informEndpoints) {
                 this.endpoints[0].removeClass(c);
                 this.endpoints[1].removeClass(c);                    
                 if (this.suspendedEndpoint) this.suspendedEndpoint.removeClass(c);
+            }
+            if (this.connector) {
+                this.connector.removeClass(c);
             }
         },
         isVisible : function() { return this._jsPlumb.visible; },
