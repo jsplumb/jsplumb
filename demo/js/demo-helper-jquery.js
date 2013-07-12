@@ -4,10 +4,7 @@
  */
 jsPlumb.bind("ready", function() {
 
-	jsPlumb.DemoList.init();
-
-	// chrome fix.
-	document.onselectstart = function () { return false; };				
+	jsPlumb.DemoList.init();			
 
     // render mode
 	var resetRenderMode = function(desiredMode) {

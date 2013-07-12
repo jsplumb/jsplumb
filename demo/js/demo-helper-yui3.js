@@ -5,9 +5,6 @@
 YUI().use("node", function(Y) {
 	
 	jsPlumb.bind("ready", function() {
-
-		// chrome fix.
-		document.onselectstart = function () { return false; };
 		
 		jsPlumb.DemoList.init();
 		

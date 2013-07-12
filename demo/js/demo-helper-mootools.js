@@ -3,10 +3,7 @@
  *  between render modes. it also initialises ".window" elements to be draggable.  from jsPlumb 1.3.4 
  *  elements are no longer initialised as draggable automatically.
  */
-jsPlumb.bind("ready", function() {
-
-	// chrome fix.
-	document.onselectstart = function () { return false; };		
+jsPlumb.bind("ready", function() {	
 	
 	jsPlumb.DemoList.init();
 	
