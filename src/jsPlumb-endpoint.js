@@ -541,6 +541,10 @@
                     // that have our drop scope (issue 57).
                     var dropScope = jpcl.getDropScope(canvasElement);
                     jpcl.setDragScope(canvasElement, dropScope);
+
+                    // fire an event that informs that a connection is being dragged. we do this before
+                    // replacing the original target with the floating element info.
+                    _jsPlumb.fire("connectionDrag", jpc);
             
                     // now we replace ourselves with the temporary div we created above:
                     if (anchorIdx == 0) {
@@ -568,9 +572,7 @@
                     jpc.endpoints[anchorIdx] = this._jsPlumb.floatingEndpoint;
 
                     jpc.addClass(_jsPlumb.draggingClass);
-                    this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
-                    // fire an event that informs that a connection is being dragged
-                    _jsPlumb.fire("connectionDrag", jpc);
+                    this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);                    
 
                 }
                 // register it and register connection on it.
