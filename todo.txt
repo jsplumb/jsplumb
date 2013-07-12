@@ -50,6 +50,10 @@ future
         
         ---
 
+        CSS to disable drag highlight:
+        
+        http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting
+
 
     Performance
     -----------
