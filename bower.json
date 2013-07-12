@@ -1,0 +1,22 @@
+{
+  "name": "jsPlumb",
+  "version": "1.4.1",
+  "ignore": [
+    "lib",
+    "img",
+    "doc",
+    "demo",
+    "build",
+    "archive",
+    "apidocs",
+    "ant",
+    "build.properties",
+    "build.xml",
+    "changelog.txt",
+    "index.html",
+    "Languages.txt",
+    "Menu.txt",
+    "todo.txt",
+    "Topics.txt"
+  ]
+}
