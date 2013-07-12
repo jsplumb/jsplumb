@@ -144,10 +144,9 @@ module.exports = function(grunt) {
                         expand:true, 
                         cwd:"dist/js/", 
                         src:"jquery.jsPlumb-<%=pkg.version%>.js", 
-                        dest:"dist/demo/requirejs/scripts/",
-                        rename:function() { 
-                            console.log("HEY")
-                            return "jsbumb.js" 
+                        //dest:"dist/demo/requirejs/scripts/",
+                        rename:function() {                             
+                            return "dist/demo/requirejs/scripts/jsplumb.js" 
                         } 
                     }
                 ]
@@ -164,6 +163,18 @@ module.exports = function(grunt) {
             }
         },
         "regex-replace": makeReplacements(),
+        // TODO: use a template in the markdown plugin
+        // https://github.com/treasonx/grunt-markdown
+        markdown: {
+            all: {
+                files: [{
+                    expand: true,
+                    src: '../jsPlumb.wiki/*.md',
+                    dest: 'dist/docs/html/',
+                    ext: '.html'
+                }]
+            }
+        },
         docular: {
             groups: [{
                 groupTitle: 'Example Docs',
@@ -191,6 +202,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-regex-replace');
+    grunt.loadNpmTasks('grunt-markdown');
 
     // the current build:
     // - generates apidocs and massages the resulting files a little (docular to the rescue)
@@ -205,5 +217,5 @@ module.exports = function(grunt) {
     // build it into the grunt build.
    
     // Default task(s).
-    grunt.registerTask('default', [/*'qunit', */'concat', 'uglify', 'copy', 'regex-replace', 'docular']);
+    grunt.registerTask('default', [/*'qunit', */'concat', 'uglify', 'copy', 'regex-replace', 'markdown', 'docular']);
 };
