@@ -549,8 +549,7 @@
      * or by an array describing their coordinates (eg. [ 0, 0.5, 0, -1 ], which is the same as "TopMiddle").  jsPlumb now handles all of the
      * creation of Anchors without user intervention.
      */
-    jsPlumb.Anchor = function(params) {
-       // var self = this;
+    jsPlumb.Anchor = function(params) {       
         this.x = params.x || 0;
         this.y = params.y || 0;
         this.elementId = params.elementId;  
@@ -648,6 +647,9 @@
         // anchor is hovering over another anchor.
         orientation = null,
         _lastResult = null;
+
+        // clear from parent. we want floating anchor orientation to always be computed.
+        this.orientation = null;
 
         // set these to 0 each; they are used by certain types of connectors in the loopback case,
         // when the connector is trying to clear the element it is on. but for floating anchor it's not
