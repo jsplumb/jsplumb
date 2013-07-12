@@ -597,10 +597,7 @@
             // extracted drag handler function so can be used by makeSource
             dragOptions[dragEvent] = _jsPlumb.wrap(dragOptions[dragEvent], _dragHandler.drag);
             dragOptions[stopEvent] = _jsPlumb.wrap(dragOptions[stopEvent],
-                function() {
-                    
-                    console.log("STOP!");                    
-
+                function() {                    
                     // get the actual drop event (decode from library args to stop function)
                     var originalEvent = jpcl.getDropEvent(arguments);					                    
                     // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
@@ -615,9 +612,6 @@
                     // existing connection we check to see if we should reattach it, throwing it away 
                     // if not.
                     if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
-                        
-                        console.log("WE HAVE THE FLOATING ENDPOINT");
-
                         // 6a. if the connection was an existing one...
                         if (existingJpc && jpc.suspendedEndpoint) {
                             // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
@@ -655,8 +649,7 @@
                     _jsPlumb.remove(inPlaceCopy.canvas, false);
 
                     // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
-                    if (this.deleteAfterDragStop) {
-                        console.log("i should delete myself.");
+                    if (this.deleteAfterDragStop) {                        
                         _jsPlumb.deleteTest({endpoint:this});
                     }
                     else {
@@ -690,9 +683,7 @@
                 var dropEvent = jpcl.dragEvents['drop'],
                     overEvent = jpcl.dragEvents['over'],
                     outEvent = jpcl.dragEvents['out'],
-                    drop = function() {
-
-                        console.log("DROP!");
+                    drop = function() {                        
 
                         this["removeClass"](_jsPlumb.endpointDropAllowedClass);
                         this["removeClass"](_jsPlumb.endpointDropForbiddenClass);
@@ -928,10 +919,8 @@
         },
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
-        cleanup : function() {
-            //console.log("Endpoint cleanup");
-            jsPlumb.CurrentLibrary.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-            //jsPlumbUtil.removeElements(this.endpoint.getDisplayElements());            
+        cleanup : function() {            
+            jsPlumb.CurrentLibrary.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);            
             this.anchor = null;
             this.endpoint.cleanup();
             this.endpoint.destroy();
