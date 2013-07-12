@@ -686,8 +686,8 @@
          * over another anchor; we want to assume that anchor's orientation
          * for the duration of the hover.
          */
-        this.over = function(anchor) { 
-            orientation = anchor.getOrientation(); 
+        this.over = function(anchor, endpoint) { 
+            orientation = anchor.getOrientation(endpoint); 
         };
 
         /**
@@ -800,7 +800,7 @@
         };
 
         this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };
-        this.over = function(anchor) { if (_curAnchor != null) _curAnchor.over(anchor); };
+        this.over = function(anchor, endpoint) { if (_curAnchor != null) _curAnchor.over(anchor, endpoint); };
         this.out = function() { if (_curAnchor != null) _curAnchor.out(); };
 
         this.getCssClass = function() { return (_curAnchor && _curAnchor.getCssClass()) || ""; };
