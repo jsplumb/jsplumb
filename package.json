@@ -1,5 +1,5 @@
 {
-  "name": "jsplumb",
+  "name": "jsPlumb",
   "version": "1.5.0",
   "description": "pipe up your life",
   "main": "index.js",
@@ -28,6 +28,8 @@
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-qunit": "~0.2.2",
     "grunt-contrib-jshint": "~0.6.0",
-    "grunt-docular": "~0.1.1"
+    "grunt-docular": "~0.1.1",
+    "grunt-regex-replace": "~0.2.5",
+    "grunt-markdown": "~0.3.0"
   }
 }

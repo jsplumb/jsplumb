@@ -41,9 +41,9 @@ var within = function(val, target, _ok, msg) {
 var _divs = [];
 var _addDiv = function(id, parent) {
 	var d1 = document.createElement("div");
-	if (parent) parent.append(d1); else _getContextNode().append(d1);
+	if (parent) parent.append(d1); else _getContextNode().append(d1);	
+	d1.setAttribute("id", id);
 	d1 = jsPlumb.CurrentLibrary.getElementObject(d1);
-	jsPlumb.CurrentLibrary.setAttribute(d1, "id", id);
 	_divs.push(id);
 	return d1;
 };

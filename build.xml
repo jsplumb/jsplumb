@@ -176,7 +176,7 @@
 	<!-- copies the tests directory into the build dir -->
 	<target name="copy-tests">
 		<copy todir="${output.js.dir}">
-			<fileset dir="src">
+			<fileset dir="tests">
 				<include name="jsPlumb-tests.js"/>
 			</fileset>
 		</copy>
