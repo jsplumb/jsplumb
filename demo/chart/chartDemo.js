@@ -1,3 +1,8 @@
+/**
+
+	Simple hierarchical "org chart" demonstration.
+
+*/	
 ;(function() {
 	
 	window.jsPlumbDemo = {
@@ -29,7 +34,7 @@
 		
 			jsPlumb.connect({source:"window3", target:"window6", overlays:overlays, detachable:true, reattach:true});
 			jsPlumb.connect({source:"window1", target:"window2", overlays:overlays});
-			jsPlumb.connect({source:"window1", target:"window3", overlays:overlays, detachable:false});
+			jsPlumb.connect({source:"window1", target:"window3", overlays:overlays, detachable:false });
 			jsPlumb.connect({source:"window2", target:"window4", overlays:overlays});
 			jsPlumb.connect({source:"window2", target:"window5", overlays:overlays});
 			
