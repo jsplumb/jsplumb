@@ -272,7 +272,7 @@
 
                     //connection.setHover(false);
 
-                    _jsPlumb.deleteTest({
+                    _jsPlumb.deleteObject({
                         connection:connection, 
                         fireEvent:(!ignoreTarget && fireEvent), 
                         originalEvent:originalEvent
@@ -650,7 +650,7 @@
 
                     // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
                     if (this.deleteAfterDragStop) {                        
-                        _jsPlumb.deleteTest({endpoint:this});
+                        _jsPlumb.deleteObject({endpoint:this});
                     }
                     else {
                         // repaint this endpoint.
@@ -857,7 +857,7 @@
                             }); 
                             this[(bb ? "add" : "remove") + "Class"](_jsPlumb.endpointDropAllowedClass);
                             this[(bb ? "remove" : "add") + "Class"](_jsPlumb.endpointDropForbiddenClass);
-                            _jpc.endpoints[idx].anchor.over(this.anchor);
+                            _jpc.endpoints[idx].anchor.over(this.anchor, this);
                         }
                     }						
                 }.bind(this));	
