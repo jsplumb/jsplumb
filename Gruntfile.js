@@ -54,7 +54,7 @@ var JS_BEZIER = "0.6", // current js bezier version
             "canvas", "svg", "vml"
         ],
         common:[
-            'jsPlumb-util.js', 'jsPlumb-dom-adapter.js', 'jsPlumb.js', 'jsPlumb-endpoint.js', 'jsPlumb-connection.js', 'jsPlumb-anchors.js', 'jsPlumb-defaults.js'
+            'util.js', 'dom-adapter.js', 'jsPlumb.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js'
         ]
     },
     optionList = function(grunt, type) {
@@ -79,10 +79,8 @@ var JS_BEZIER = "0.6", // current js bezier version
 
         console.log("Building jsPlumb with source list " + sources);
         return sources;
-    }
+    };
 
-
-//Wrapper function with one parameter
 module.exports = function(grunt) {    
 
     var fileLists = function(suffix) {
