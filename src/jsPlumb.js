@@ -1510,7 +1510,7 @@
 			var _is = _currentInstance.setSuspendDrawing(true);
 			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
 			if (endpoint) {		
-				_currentInstance.deleteTest({endpoint:endpoint});
+				_currentInstance.deleteObject({endpoint:endpoint});
 			}
 			if(!_is) _currentInstance.setSuspendDrawing(false, doNotRepaintAfterwards);
 			return _currentInstance;									
@@ -1676,7 +1676,7 @@
 			return _currentInstance;
 		};
 
-		this.deleteTest = function(params) {
+		this.deleteObject = function(params) {
 			var result = {
 					endpoints : {}, 
 					connections : {},
@@ -2788,24 +2788,26 @@
 			// support both lists...
 			if (typeof el == 'object' && el.length)
 				for ( var i = 0, ii = el.length; i < ii; i++) {			
-					//_draw(_gel(el[i]), ui, timestamp);
 					_draw(el[i], ui, timestamp);
 				}
-			else // ...and single strings.				
-				//_draw(_gel(el), ui, timestamp);
-			_draw(el, ui, timestamp);
+			else // ...and single strings.								
+				_draw(el, ui, timestamp);
 				
 			return _currentInstance;
 		};
 
 		// repaint every endpoint and connection.
 		this.repaintEverything = function() {	
-			var timestamp = null;// _timestamp();			
+			// TODO this timestamp causes continuous anchors to not repaint properly.
+			// fix this. do not just take out the timestamp. it runs a lot faster with 
+			// the timestamp included.
+			var timestamp = _timestamp();			
 			for ( var elId in endpointsByElement) {
-				//_draw(_gel(elId), null, timestamp);				
 				_draw(elId, null, timestamp);				
 			}
 			return _currentInstance;
+			/*for (var i = 0; i < connections.length; i++)
+				connections[i].repaint({timestamp:timestamp});*/
 		};
 
 		
