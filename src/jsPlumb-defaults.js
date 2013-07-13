@@ -1236,11 +1236,13 @@
         this._jsPlumb.div = null;		
         this._jsPlumb.initialised = false;
         this._jsPlumb.component = params.component;
+        this._jsPlumb.cachedDimensions = null;
+        this._jsPlumb.create = params.create;
 		
 		this.getElement = function() {
 			if (this._jsPlumb.div == null) {
-                var div = params.create(this._jsPlumb.component);
-                div = this._jsPlumb.div = jpcl.getDOMElement(div);
+                var div = this._jsPlumb.div = this._jsPlumb.create(this._jsPlumb.component);
+                //div = this._jsPlumb.div = jpcl.getDOMElement(div);
                 div.style["position"]   =   "absolute";     
                 var clazz = params["_jsPlumb"].overlayClass + " " + 
                     (this.cssClass ? this.cssClass : 
@@ -1253,9 +1255,8 @@
 			}
     		return this._jsPlumb.div;
     	};
-		this._jsPlumb.cachedDimensions = null;
-		
-		
+			
+            /*	
 		this.paint = function(p, containerExtents) {
 			if (!this._jsPlumb.initialised) {
 				this.getElement();
@@ -1265,7 +1266,7 @@
 			}
 			this._jsPlumb.div.style.left = (p.component.x + p.d.minx) + "px";
 			this._jsPlumb.div.style.top = (p.component.y + p.d.miny) + "px";			
-    	};
+    	};*/
 				
 		this.draw = function(component, currentConnectionPaintStyle) {
 	    	var td = _getDimensions(this);
@@ -1302,7 +1303,12 @@
 	};
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
         getDimensions : function() {
+            if(window.gd) window.gd++; else window.gd = 1;
             return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(this.getElement()));
+            //var e = this.getElement();
+            //return [e.offsetWidth, e.offsetHeight];
+            //console.log(d);
+            //console.log(e.clientWidth, e.clientHeight);
         },
         setVisible : function(state) {
             this._jsPlumb.div.style.display = state ? "block" : "none";
@@ -1329,6 +1335,16 @@
             if (this._jsPlumb.div) {
                 this.reattachListenersForElement(this._jsPlumb.div, this, connector);
             }
+        },
+        paint : function(p, containerExtents) {
+            if (!this._jsPlumb.initialised) {
+                this.getElement();
+                p.component.appendDisplayElement(this._jsPlumb.div);
+                this.attachListeners(this._jsPlumb.div, p.component);
+                this._jsPlumb.initialised = true;
+            }
+            this._jsPlumb.div.style.left = (p.component.x + p.d.minx) + "px";
+            this._jsPlumb.div.style.top = (p.component.y + p.d.miny) + "px";            
         }
     });
 	
