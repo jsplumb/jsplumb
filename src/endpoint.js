@@ -1,3 +1,17 @@
+
+/*
+ * @doc module
+ * @name Endpoint 
+ * 
+ * @description Models an endpoint. Can have 1 to `maxConnections`. Connections emanating from it (set maxConnections to -1 
+ * to allow unlimited).  Typically, if you use 'jsPlumb.connect' to programmatically connect two elements, you won't
+ * actually deal with the underlying Endpoint objects.  But if you wish to support drag and drop Connections, one of the ways you
+ * do so is by creating and registering Endpoints using 'jsPlumb.addEndpoint', and marking these Endpoints as 'source' and/or
+ * 'target' Endpoints for Connections. 
+ *
+ * You never need to create one of these directly; jsPlumb will create them as needed.  
+ * 
+ */
 ;(function() {
         
     // create the drag handler for a connection
@@ -62,11 +76,14 @@
         return ep.connections[idx];
     };
 
+    var findConnectionIndex = function(conn, ep) {
+        return _ju.findWithFunction(ep.connections, function(c) { return c.id == conn.id});
+    };
+
     jsPlumb.Endpoint = function(params) {
-        var //self = this, 
-            _jsPlumb = params["_jsPlumb"],
+        var _jsPlumb = params["_jsPlumb"],
             jpcl = jsPlumb.CurrentLibrary,
-            _att = jsPlumbAdapter.getAttribute,//jpcl.getAttribute,
+            _att = jsPlumbAdapter.getAttribute,
             _gel = jpcl.getElementObject,
             _dom = jpcl.getDOMElement,
             _ju = jsPlumbUtil,            
@@ -80,7 +97,7 @@
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
         this.parent = params.parent;
-        OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
+        OverlayCapableUIComponent.apply(this, arguments);        
         
 // TYPE		
                 
@@ -206,9 +223,7 @@
             this.bindListeners(this.endpoint, this, internalHover);
         };
          
-        this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							
-        //originalEndpoint = this.endpoint;                    
-                            
+        this.setEndpoint(params.endpoint || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint || "Dot");							                    
         this.setPaintStyle(params.paintStyle || params.style || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle, true);
         this.setHoverPaintStyle(params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
         this._jsPlumb.paintStyleInUse = this.getPaintStyle();
@@ -236,21 +251,20 @@
         if (params.onMaxConnections)
             this.bind("maxConnections", params.onMaxConnections);        
         
+        //
+        // add a connection. not part of public API.
+        //
         this.addConnection = function(connection) {
             this.connections.push(connection);                  
             this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
             this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
         };	
 
-        var findConnectionIndex = function(connection) {
-            return _ju.findWithFunction(this.connections, function(c) { return c.id == connection.id});
-        }.bind(this);
-
         /**
         * Detach from the given connection, without cleaning up or destroying the connection.
         */
         this.detachFromConnection = function(connection, idx) {
-            idx = idx == null ? findConnectionIndex(connection) : idx;
+            idx = idx == null ? findConnectionIndex(connection, this) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
                 this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
@@ -263,7 +277,7 @@
         */
         this.detach = function(connection, ignoreTarget, forceDetach, fireEvent, originalEvent, endpointBeingDeleted, connectionIndex) {
 
-            var idx = connectionIndex == null ? findConnectionIndex(connection) : connectionIndex,
+            var idx = connectionIndex == null ? findConnectionIndex(connection, this) : connectionIndex,
                 actuallyDetached = false;
                 fireEvent = (fireEvent !== false);
 

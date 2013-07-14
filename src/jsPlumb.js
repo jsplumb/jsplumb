@@ -7,14 +7,14 @@
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.   
+ * 
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
- *
- * http://jsplumb.org
- * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
+ * - [jsPlumb Site](http://jsplumb.org)
+ * - [GitHub](http://github.com/sporritt/jsplumb)
  * 
  * Dual licensed under the MIT and GPL2 licenses.
+ *
+ * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
  *
  */
 ;(function() {
@@ -87,11 +87,13 @@
 			}
 		},		
 		
-		/*
-		 * Class:jsPlumbUIComponent
-		 * Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
-		 * and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
-		 */
+		/**
+		* doc module		
+		* name jsPlumbUIComponent
+		* description		
+		* Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
+		* and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
+		*/
 		jsPlumbUIComponent = window.jsPlumbUIComponent = function(params) {
 
 			jsPlumbUtil.EventGenerator.apply(this, arguments);
@@ -174,27 +176,26 @@
 					catch (e) { _ju.log("jsPlumb: beforeDrop callback failed", e); }
 				}
 				return r;
-			};										
-			
-		    
-		    /*
-		     * Sets the paint style to use when the mouse is hovering over the element. This is null by default.
-		     * The hover paint style is applied as extensions to the paintStyle; it does not entirely replace
-		     * it.  This is because people will most likely want to change just one thing when hovering, say the
-		     * color for example, but leave the rest of the appearance the same.
-		     * 
-		     * Parameters:
-		     * 	style - Style to use when the mouse is hovering.
-		     *  doNotRepaint - if true, the component will not be repainted.  useful when setting things up initially.
-		     */
-		    //this.;
+			};													
 
-		    var boundListeners = [];
-
-		    var bindAListener = function(obj, type, fn) {
-		    	boundListeners.push([obj, type, fn]);
-		    	obj.bind(type, fn);
-		    };
+		    var boundListeners = [],
+		    	bindAListener = function(obj, type, fn) {
+			    	boundListeners.push([obj, type, fn]);
+			    	obj.bind(type, fn);
+			    },
+		    	domListeners = [],
+            	bindOne = function(o, c, evt) {
+					var filteredEvent = eventFilters[evt] || evt,
+						fn = function(ee) {
+							c.fire(filteredEvent, c, ee);
+						};
+					domListeners.push([o, evt, fn]);
+					jpcl.bind(o, evt, fn);
+				},
+				unbindOne = function(o, evt, fn) {
+					var filteredEvent = eventFilters[evt] || evt;
+					jpcl.unbind(o, evt, fn);
+				}
 
             this.bindListeners = function(obj, _self, _hoverFunction) {
                 bindAListener(obj, "click", function(ep, e) { _self.fire("click", _self, e); });             
@@ -220,27 +221,9 @@
             	for (var i = 0; i < boundListeners.length; i++) {
             		var o = boundListeners[i];
             		o[0].unbind(o[1], o[2]);
-            	}
-            	//for (var i in events)
-
+            	}            	
             	boundListeners = null;
-            };
-
-            var domListeners = [];
-		
-			var 
-				bindOne = function(o, c, evt) {
-					var filteredEvent = eventFilters[evt] || evt,
-						fn = function(ee) {
-							c.fire(filteredEvent, c, ee);
-						};
-					domListeners.push([o, evt, fn]);
-					jpcl.bind(o, evt, fn);
-				},
-				unbindOne = function(o, evt, fn) {
-					var filteredEvent = eventFilters[evt] || evt;
-					jpcl.unbind(o, evt, fn);
-				};
+            };            
 		    
 		    this.attachListeners = function(o, c) {
 				for (var i = 0, j = events.length; i < j; i++) {
@@ -265,41 +248,50 @@
 		};
 
 		jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
+			
 			getParameter : function(name) { 
 				return this._jsPlumb.parameters[name]; 
 			},
+			
 			setParameter : function(name, value) { 
 				this._jsPlumb.parameters[name] = value; 
 			},
+			
 			getParameters : function() { 
 				return this._jsPlumb.parameters; 
 			},			
+			
 			setParameters : function(p) { 
 				this._jsPlumb.parameters = p; 
-			},
-			isHover : function() { return this._jsPlumb.hover; },
-			// CSS classes
+			},			
+			
 			addClass : function(clazz) {
 			    if (this.canvas != null)
 			        _addClass(this.canvas, clazz);
-			},			
+			},
+						
 			removeClass : function(clazz) {
 			    if (this.canvas != null)
 			        _removeClass(this.canvas, clazz);
 			},
+			
 			setType : function(typeId, params, doNotRepaint) {				
 				this._jsPlumb.types = _splitType(typeId) || [];
 				_applyTypes(this, params, doNotRepaint);									
 			},
+			
 			getType : function() {
 				return this._jsPlumb.types;
 			},
+			
 			reapplyTypes : function(params, doNotRepaint) {
 				_applyTypes(this, params, doNotRepaint);
 			},
+			
 			hasType : function(typeId) {
 				return jsPlumbUtil.indexOf(this._jsPlumb.types, typeId) != -1;
 			},
+			
 			addType : function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false;
 				if (t != null) {
@@ -312,6 +304,7 @@
 					if (_cont) _applyTypes(this, params, doNotRepaint);
 				}
 			},
+			
 			removeType : function(typeId, doNotRepaint) {
 				var t = _splitType(typeId), _cont = false, _one = function(tt) {
 						var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, tt);
@@ -329,6 +322,7 @@
 					if (_cont) _applyTypes(this, null, doNotRepaint);
 				}
 			},
+			
 			toggleType : function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId);
 				if (t != null) {
@@ -379,6 +373,9 @@
 				this.clone = null;				
 				this._jsPlumb = null;
 			},
+			
+			isHover : function() { return this._jsPlumb.hover; },
+			
 			setHover : function(hover, ignoreAttachedElements, timestamp) {
 				var jpcl = jsPlumb.CurrentLibrary;
 		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
@@ -473,7 +470,7 @@
 			
 			return o;
 		},
-		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
+		OverlayCapableUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
 
 			jsPlumbUIComponent.apply(this, arguments);
 			this._jsPlumb.overlays = [];			
@@ -497,7 +494,7 @@
 			}			                                  
 		};
 
-		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
+		jsPlumbUtil.extend(OverlayCapableUIComponent, jsPlumbUIComponent, {
 			applyType : function(t, doNotRepaint) {			
 				this.removeAllOverlays();
 				if (t.overlays) {
@@ -600,76 +597,115 @@
 			};
 
 		var jsPlumbInstance = function(_defaults) {
+				
+			this.Defaults = {
+				Anchor : "BottomCenter",
+				Anchors : [ null, null ],
+	            ConnectionsDetachable : true,
+	            ConnectionOverlays : [ ],
+	            Connector : "Bezier",
+				Container : null,
+				DoNotThrowErrors:false,
+				DragOptions : { },
+				DropOptions : { },
+				Endpoint : "Dot",
+				EndpointOverlays : [ ],
+				Endpoints : [ null, null ],
+				EndpointStyle : { fillStyle : "#456" },
+				EndpointStyles : [ null, null ],
+				EndpointHoverStyle : null,
+				EndpointHoverStyles : [ null, null ],
+				HoverPaintStyle : null,
+				LabelStyle : { color : "black" },
+				LogEnabled : false,
+				Overlays : [ ],
+				MaxConnections : 1, 
+				PaintStyle : { lineWidth : 8, strokeStyle : "#456" },            
+				ReattachConnections:false,
+				RenderMode : "svg",
+				Scope : "jsPlumb_DefaultScope"
+			};
+			if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
 		
+			this.logEnabled = this.Defaults.LogEnabled;
 		
-		this.Defaults = {
-			Anchor : "BottomCenter",
-			Anchors : [ null, null ],
-            ConnectionsDetachable : true,
-            ConnectionOverlays : [ ],
-            Connector : "Bezier",
-			Container : null,
-			DoNotThrowErrors:false,
-			DragOptions : { },
-			DropOptions : { },
-			Endpoint : "Dot",
-			EndpointOverlays : [ ],
-			Endpoints : [ null, null ],
-			EndpointStyle : { fillStyle : "#456" },
-			EndpointStyles : [ null, null ],
-			EndpointHoverStyle : null,
-			EndpointHoverStyles : [ null, null ],
-			HoverPaintStyle : null,
-			LabelStyle : { color : "black" },
-			LogEnabled : false,
-			Overlays : [ ],
-			MaxConnections : 1, 
-			PaintStyle : { lineWidth : 8, strokeStyle : "#456" },            
-			ReattachConnections:false,
-			RenderMode : "svg",
-			Scope : "jsPlumb_DefaultScope"
-		};
-		if (_defaults) jsPlumb.extend(this.Defaults, _defaults);
-		
-		this.logEnabled = this.Defaults.LogEnabled;
-		
-		var _connectionTypes = { }, _endpointTypes = {};
-		this.registerConnectionType = function(id, type) {
-			_connectionTypes[id] = jsPlumb.extend({}, type);
-		};
-		this.registerConnectionTypes = function(types) {
-			for (var i in types)
-				_connectionTypes[i] = jsPlumb.extend({}, types[i]);
-		};
-		this.registerEndpointType = function(id, type) {
-			_endpointTypes[id] = jsPlumb.extend({}, type);
-		};
-		this.registerEndpointTypes = function(types) {
-			for (var i in types)
-				_endpointTypes[i] = jsPlumb.extend({}, types[i]);
-		};
-		this.getType = function(id, typeDescriptor) {
-			return typeDescriptor ===  "connection" ? _connectionTypes[id] : _endpointTypes[id];
-		};
+			var _connectionTypes = { }, _endpointTypes = {};
+			/**
+			* @doc function
+			* @name jsPlumb.class:registerConnectionType
+			* @param {string} typeId Id of the type
+			* @param {object} type Object containing the type specification.
+			* @description
+			* Registers the given connection type on this instance of jsPlumb.
+			*/
+			this.registerConnectionType = function(id, type) {
+				_connectionTypes[id] = jsPlumb.extend({}, type);
+			};
+			/**
+			* @doc function
+			* @name jsPlumb.class:registerConnectionTypes
+			* @param {object} types Object containing the type specifications.
+			* @description
+			* Registers all of the given connection types on this instance of jsPlumb. `types` is expected
+			* to contain keys with typeids and values with type specification objects.
+			*/
+			this.registerConnectionTypes = function(types) {
+				for (var i in types)
+					_connectionTypes[i] = jsPlumb.extend({}, types[i]);
+			};
+			/**
+			* @doc function
+			* @name jsPlumb.class:registerEndpointType
+			* @param {string} typeId Id of the type
+			* @param {object} type Object containing the type specification.
+			* @description
+			* Registers the given endpoint type on this instance of jsPlumb.
+			*/
+			this.registerEndpointType = function(id, type) {
+				_endpointTypes[id] = jsPlumb.extend({}, type);
+			};
+			/**
+			* @doc function
+			* @name jsPlumb.class:registerEndpointTypes
+			* @param {object} types Object containing the type specifications.
+			* @description
+			* Registers all of the given endpoint types on this instance of jsPlumb. `types` is expected
+			* to contain keys with typeids and values with type specification objects.
+			*/
+			this.registerEndpointTypes = function(types) {
+				for (var i in types)
+					_endpointTypes[i] = jsPlumb.extend({}, types[i]);
+			};
+			/**
+			* @doc function
+			* @name jsPlumb.class:getType
+			* @param {string} id Id of the type to retrieve
+			* @param {string} typeDescriptor `"connection"` or `"endpoint"` - the type of Type to get.
+			* @description
+			* Returns the given type's specification.
+			* @return {object} Type specification, it if exists, null otherwise.
+			*/
+			this.getType = function(id, typeDescriptor) {
+				return typeDescriptor ===  "connection" ? _connectionTypes[id] : _endpointTypes[id];
+			};
 
-		jsPlumbUtil.EventGenerator.apply(this);
-		var _currentInstance = this,
-			_instanceIndex = getInstanceIndex(),
-			_bb = _currentInstance.bind,
-			_initialDefaults = {},
-            _zoom = 1,
-            _info = function(el) {
-            	el = _dom(el);	
-            	return { el:el, id:_getId(el) };
-            };
+			jsPlumbUtil.EventGenerator.apply(this);
+
+			var _currentInstance = this,
+				_instanceIndex = getInstanceIndex(),
+				_bb = _currentInstance.bind,
+				_initialDefaults = {},
+	            _zoom = 1,
+	            _info = function(el) {
+	            	el = _dom(el);	
+	            	return { el:el, id:_getId(el) };
+	            };
             
-        this.getInstanceIndex = function() {
-            return _instanceIndex;
-        };
+	        this.getInstanceIndex = function() { return _instanceIndex; };
 
-        this.getAttribute = function(el, a) {
-        	return jsPlumbAdapter.getAttribute(jsPlumb.CurrentLibrary.getDOMElement(el), a);
-        };
+	        this.getAttribute = function(el, a) {
+	        	return jsPlumbAdapter.getAttribute(jsPlumb.CurrentLibrary.getDOMElement(el), a);
+	        };
 
         this.setAttribute = function(el, a, v) {
         	jsPlumbAdapter.setAttribute(el, a, v);
@@ -684,19 +720,44 @@
 		for (var i in this.Defaults)
 			_initialDefaults[i] = this.Defaults[i];
 
+		/**
+		* @doc function
+		* @name jsPlumb.class:bind
+		* @param {string} event Event to bind to
+		* @param {function} fn Function to bind to event
+		* @description
+		* Binds a function to some given event.
+		*/
 		this.bind = function(event, fn) {		
 			if ("ready" === event && initialized) fn();
 			else _bb.apply(_currentInstance,[event, fn]);
 		};
 
+		/**
+		* @doc function
+		* @name jsPlumb.class:importDefaults
+		* @param {object} d The defaults to import.
+		* @return {object} The current jsPlumb instance.
+		* @description		
+		* Imports all the given defaults into this instance of jsPlumb.		
+		*/				
 		_currentInstance.importDefaults = function(d) {
 			for (var i in d) {
 				_currentInstance.Defaults[i] = d[i];
 			}	
+			return _currentInstance;
 		};
 		
+		/**
+		* @doc function
+		* @name jsPlumb.class:restoreDefaults
+		* @return {object} The current jsPlumb instance.
+		* @description
+		* Restores the default settings to "factory" values.
+		*/
 		_currentInstance.restoreDefaults = function() {
 			_currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
+			return _currentInstance;
 		};
 		
     var log = null,
@@ -717,9 +778,10 @@
         draggableStates = {},		
         sizes = [],
         DEFAULT_SCOPE = this.Defaults.Scope,
-        renderMode = null,  // will be set in init()							
+        renderMode = null,  // will be set in init()		
+        _curIdStamp = 1,
+        _idstamp = function() { return "" + _curIdStamp++; },							
 		
-
 		/**
 		 * appends an element to some other element, which is calculated as follows:
 		 * 
@@ -735,10 +797,7 @@
 				jsPlumbAdapter.appendToRoot(el);
 			else
 				jsPlumb.CurrentLibrary.appendElement(el, parent);
-		},
-
-		_curIdStamp = 1,
-		_idstamp = function() { return "" + _curIdStamp++; },		
+		},		
 		
 		/**
 		 * YUI, for some reason, put the result of a Y.all call into an object that contains
@@ -790,9 +849,7 @@
 				    for (var i in repaintEls) {
 						_currentInstance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset, clearEdits, true);			    	
 				    }
-				}
-
-		//		console.log("-------------");
+				}		
             }
 		},
 
@@ -824,6 +881,8 @@
 
 		/**
 		 * inits a draggable if it's not already initialised.
+		 * TODO: somehow abstract this to the adapter, because the concept of "draggable" has no
+		 * place on the server.
 		 */
 		_initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
 			// TODO move to DragManager?
@@ -938,6 +997,8 @@
 			// see if a prior call to makeTarget has provided us with the specs for the target endpoint, and
 			// we use those if so.  additionally, if the makeTarget call was specified with 'uniqueEndpoint' set
 			// to true, then if that target endpoint has already been created, we re-use it.
+
+			// TODO: this code can be refactored to be a little dry.
 			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {							
 				var tid = _getId(_p.target),
 					tep =_targetEndpointDefinitions[tid],
@@ -1005,9 +1066,9 @@
 			return con;
 		},
 		
-		/**
-		* adds the connection to the backing model, fires an event if necessary and then redraws
-		*/
+		//
+		// adds the connection to the backing model, fires an event if necessary and then redraws
+		//
 		_finaliseConnection = function(jpc, params, originalEvent) {
             params = params || {};
 			// add to list of connections (by scope).
@@ -1079,8 +1140,6 @@
                 _p.fireDetachEvent = fireDetachEvent;
                 _p.floatingConnections = floatingConnections;
                 _p.getParentFromParams = _getParentFromParams;
-                //_p.connectionsByScope = connectionsByScope;
-                //_p.connections = connections;
                 _p.elementId = _getId(_p.source);
 				var ep = new endpointFunc(_p);
 				ep.id = "ep_" + _idstamp();
@@ -1097,7 +1156,7 @@
 		 * for the given element id; this means we find all the endpoints for
 		 * the given element, and then for each endpoint find the connectors
 		 * connected to it. then we pass each connection in to the given
-		 * function.
+		 * function.		 
 		 */
 		_operation = function(elId, func, endpointFunc) {
 			var endpoints = endpointsByElement[elId];
@@ -1329,7 +1388,7 @@
 
         this.isConnectionBeingDragged = function() { return _connectionBeingDragged != null; };
         this.setConnectionBeingDragged = function(c) {_connectionBeingDragged = c; };
-            
+                    
 		this.connectorClass = "_jsPlumb_connector";            		
 		this.hoverClass = "_jsPlumb_hover";            		
 		this.endpointClass = "_jsPlumb_endpoint";		
@@ -1353,10 +1412,19 @@
 
 // --------------------------- jsPLumbInstance public API ---------------------------------------------------------
 		
-		this.addClass = function(el, clazz) { return jsPlumb.CurrentLibrary.addClass(el, clazz); };		
-		this.removeClass = function(el, clazz) { return jsPlumb.CurrentLibrary.removeClass(el, clazz); };		
-		this.hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(el, clazz); };
-				
+		/**
+		* @doc function
+		* @name jsPlumb.class:addEndpoint
+		* @param {object} el  Element to add the endpoint to. Either an element id, a selector representing some element(s), or an array of either of these. 
+		* @param {object} params Object containing Endpoint constructor arguments.  For more information, see <Endpoint>.
+		* @param {object} referenceParams - Object containing more Endpoint constructor arguments; it will be merged with params by jsPlumb.  You would use this if you had some 
+		* shared parameters that you wanted to reuse when you added Endpoints to a number of elements. The allowed values in this object are anything that 'params' can contain.  See <Endpoint>.	
+		* @description
+		* Adds an `Endpoint` to a given element or elements.
+		* @return {object}
+		* The newly created `Endpoint`, if el referred to a single element.  Otherwise, an array of newly created `Endpoint`s. 
+		* @see addEndpoints
+		*/		
 		this.addEndpoint = function(el, params, referenceParams) {
 			referenceParams = referenceParams || {};
 			var p = jsPlumb.extend({}, referenceParams);
@@ -1392,7 +1460,15 @@
 			return results.length == 1 ? results[0] : results;
 		};
 		
-		
+		/**
+		* @doc function
+		* @name jsPlumb.class:addEndpoints
+		* @param {object} target Element to add the Endpoint to. Either an element id, a selector representing some element(s), or an array of either of these. 
+		* @param {array} endpoints - List of objects containing Endpoint constructor arguments. one Endpoint is created for each entry in this list.  See <Endpoint>'s constructor documentation. 
+		* @param {object} referenceParams - Object containing more Endpoint constructor arguments; it will be merged with params by jsPlumb.  You would use this if you had some shared parameters that you wanted to reuse when you added Endpoints to a number of elements.		  	 
+		* @return {array} List  of newly created <Endpoint>s, one for each entry in the 'endpoints' argument. 
+		* @description Adds a list of <Endpoint>s to a given element or elements.
+		*/
 		this.addEndpoints = function(el, endpoints, referenceParams) {
 			var results = [];
 			for ( var i = 0, j = endpoints.length; i < j; i++) {
@@ -1469,7 +1545,16 @@
 			}	
 		};
 
-		
+		/**
+		* @doc function
+		* @name jsPlumb.class:connect
+		* @param {object} params Connection params
+		* @param {object} referenceParams Optional second set of parameters, which will be merge into a new object along with `params`. This can be useful if
+		* you have some common settings to share between multiple `connect` calls.
+		* @description
+		* Establishes a <Connection> between two elements (or <Endpoint>s, which are themselves registered to elements).
+		* @return {object} The Connection that was created.
+		*/
 		this.connect = function(params, referenceParams) {
 			// prepare a final set of parameters to create connection with
 			var _p = _prepareConnectionParams(params, referenceParams), jpc;
@@ -1489,18 +1574,16 @@
 				_finaliseConnection(jpc, _p);										
 			}
 			return jpc;
-		};
-		
-		// delete the given endpoint: either an Endpoint here, or its UUID.
+		};		
 
 		/**
 		 * @doc function
-		 * @name jsPlumb.global:deleteEndpoint
-		 * @param  {object} object Either a string, representing the endpoint's uuid, or an Endpoint.		 
+		 * @name jsPlumb.class:deleteEndpoint
+		 * @param {object} object Either a string, representing the endpoint's uuid, or an Endpoint.		 
 		 * @param {boolean} doNotRepaintAfterwards Defaults to false. Indicates whether or not to repaint everything after this call.
 		 * @return {object} The current jsPlumb instance.
 		 * @description
-		 * Deletes the given Endpoint.
+		 * Deletes an <Endpoint> and removes all <Connection>s it has (which removes the Connections from the other Endpoints involved too)
 		 *		 
 		 * ```js
 		 *     jsPlumb.deleteEndpoint(someEndpoint)
@@ -1519,7 +1602,7 @@
 		
 		/**
 		 * @doc function
-		 * @name jsPlumb.global:deleteEveryEndpoint		 
+		 * @name jsPlumb.class:deleteEveryEndpoint
 		 * @return {object} The current jsPlumb instance.
 		 * @description
 		 * Deletes every `Endpoint` and their associated `Connection`s. Distinct from `reset` because we dont clear listeners here, so
@@ -1527,7 +1610,7 @@
 		 *		 
 		 * ```js
 		 *     jsPlumb.deleteEveryEndpoint()
-		 * ```
+		 * ```		 
 		 */		
 		this.deleteEveryEndpoint = function() {
 			var _is = _currentInstance.setSuspendDrawing(true);
@@ -1558,20 +1641,11 @@
 				    sourceEndpoint : jpc.endpoints[0], targetEndpoint : jpc.endpoints[1]
                 } : jpc;
 
-			if (doFireEvent) {
-				//_currentInstance.fire("jsPlumbConnectionDetached", params, originalEvent);
-				// introduced in 1.3.11..an alias because the original event name is unwieldy.  in future versions this will be the only event and the other will no longer be fired.
+			if (doFireEvent)
 				_currentInstance.fire("connectionDetached", params, originalEvent);
-			}
+			
             _currentInstance.anchorManager.connectionDetached(params);
 		};	
-
-		// remove a connection from the list.
-		this.unregisterConnection = function(connection) {
-			jsPlumbUtil.removeWithFunction(connections, function(c) {
-			    return c.id == connection.id;
-			});
-		};
 
 		this.unregisterEndpoint = function(endpoint) {
 			if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
@@ -1596,14 +1670,19 @@
 			}
 
 		}
-
-		// detach a connection
+		
 		/**
-		 * @doc function
-		 * @name jsPlumb.global:detach		 
-		 * @description
-		 * Detaches a Connection.
-		 */	
+		* @doc function
+		* @name jsPlumb.class:detach
+		* @param {object} connection  The <Connection> to detach
+		* @param {object} params Optional parameters to the detach call.  valid values here are
+		* fireEvent   :   defaults to false; indicates you want jsPlumb to fire a connection
+		* detached event. The thinking behind this is that if you made a programmatic
+		* call to detach an event, you probably don't need the callback.
+		* forceDetach :   defaults to false. allows you to override any beforeDetach listeners that may be registered.
+		* @return {boolean} True if successful, false if not.
+		* @description Detaches a Connection.
+		*/	
 		this.detach = function() {
 
             if (arguments.length == 0) return;
@@ -1645,7 +1724,15 @@
 				}
 		};
 
-		// detach all connections from some element.
+		/**
+		* @doc function
+		* @name jsPlumb.class:detachAllConnections
+		* @description Removes all an element's Connections.
+		* @param {object} el Either the id of the element, or a selector for the element.
+		* @param {object} params Optional parameters.  alowed values:
+		* fireEvent : defaults to true, whether or not to fire the detach event.
+		* @return {object} The current jsPlumb instance.
+		*/  
 		this.detachAllConnections = function(el, params) {
             params = params || {};
             el = _dom(el);
@@ -1659,7 +1746,15 @@
 			return _currentInstance;
 		};
 
-		// detach every connection but leave endpoints in place (unless a connection is set to auto delete them)
+		/**
+		* @doc function
+		* @name jsPlumb.class:detachEveryConnection
+		* @description Remove all Connections from all elements, but leaves Endpoints in place ((unless a connection is set to auto delete its Endpoints).
+		* @param {object} params params  - optional params object containing:
+		* fireEvent : whether or not to fire detach events. defaults to true.
+		* @return {object} The current jsPlumb Instance
+		* @see <deleteEveryEndpoint>
+		*/
 		this.detachEveryConnection = function(params) {
             params = params || {};
             _currentInstance.doWhileSuspended(function() {
@@ -1676,6 +1771,7 @@
 			return _currentInstance;
 		};
 
+		/// not public.  but of course its exposed. how to change this.
 		this.deleteObject = function(params) {
 			var result = {
 					endpoints : {}, 
@@ -1684,8 +1780,7 @@
 					connectionCount:0
 				},
 				fireEvent = params.fireEvent !== false,
-				deleteAttachedObjects = params.deleteAttachedObjects !== false;//,
-				//suspendEvents = params.suspendEvents 
+				deleteAttachedObjects = params.deleteAttachedObjects !== false;
 
 			var unravelConnection = function(connection) {
 				if(connection != null && result.connections[connection.id] == null) {
@@ -1723,7 +1818,10 @@
 				var c = result.connections[i];
 				c.endpoints[0].detachFromConnection(c);
 				c.endpoints[1].detachFromConnection(c);
-				_currentInstance.unregisterConnection(c);
+				//_currentInstance.unregisterConnection(c);
+				jsPlumbUtil.removeWithFunction(connections, function(_c) {
+				    return c.id == _c.id;
+				});
 				fireDetachEvent(c, fireEvent, params.originalEvent);
 				c.cleanup();
 				c.destroy();
@@ -1740,65 +1838,22 @@
 
 			return result;
 		};
-
-
-		this.detachConnectionFromEndpoint = function(params) {
-			var findConnectionIndex = function(ep, connection) {
-			    return jsPlumbUtil.findWithFunction(ep.connections, function(c) { return c.id == connection.id});
-			};
-
-			var conn = params.connection, ep = params.endpoint,
-				idx = params.connectionIndex == null ? findConnectionIndex(ep, conn) : params.connectionIndex, 
-				actuallyDetached = false,
-				fireEvent = (params.fireEvent !== false),
-				connectionsToDelete = [];
-
-			if (idx >= 0) {		
-			    // 1. does the connection have a before detach (note this also checks jsPlumb's bound
-			    // detach handlers; but then Endpoint's check will, too, hmm.)
-			    if (params.forceDetach || conn._forceDetach || conn.isDetachable() || conn.isDetachAllowed(conn)) {
-			        // get the target endpoint
-			        var t = conn.endpoints[0] == ep ? conn.endpoints[1] : conn.endpoints[0];
-			        if (params.forceDetach || conn._forceDetach || (ep.isDetachAllowed(conn))) {                
-			            
-			            ep.detachFromConnection(conn, idx);
-			                                    
-			            // avoid circular loop
-			            if (!params.ignoreTarget) {                        
-			                t.detachFromConnection(conn);
-			                // check connection to see if we want to delete the endpoints associated with it.
-			                // we only detach those that have just this connection; this scenario is most
-			                // likely if we got to this bit of code because it is set by the methods that
-			                // create their own endpoints, like .connect or .makeTarget. the user is
-			                // not likely to have interacted with those endpoints.
-			                if (conn.endpointsToDeleteOnDetach){
-			                    for (var i = 0; i < conn.endpointsToDeleteOnDetach.length; i++) {
-			                        var cde = conn.endpointsToDeleteOnDetach[i];
-			                        if (cde && params.endpointBeingDeleted != cde && cde.connections.length == 0) 
-			                            _currentInstance.deleteEndpoint(cde, true);							
-			                    }
-			                }
-			            }			           			                                  
-			           
-			            actuallyDetached = true;                        
-			            fireDetachEvent(conn, (!params.ignoreTarget && fireEvent), params.originalEvent);
-
-			            connectionsToDelete.push(conn);			            
-			        }
-			    }
-			}
-
-			// finally, cleanup the connections we encountered.
-			for (var i = 0; i < connectionsToDelete.length; i++) {
-				_currentInstance.unregisterConnection(connectionsToDelete[i]);
-				connectionsToDelete[i].cleanup();
-				connectionsToDelete[i].destroy();
-			}
-
-			return actuallyDetached;
-
-		};
-		 
+ 
+ 		/*
+ 		* @doc function
+ 		* @name jsPlumb.class:draggable
+ 		* @description Initialises the draggability of some element or elements.  You should use this instead of your 
+ 		* library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your 
+ 		* underlying library's drag method is always called from this method.
+ 		* @param {object} el Either an element id, a list of element ids, or a selector. 
+ 		* @param {object} options Options to pass through to the underlying library. A common use case in jQueryUI, for instance, is to provide a `containment` parameter:
+ 		* ```js
+ 		* jsPlumb.draggable("someElementId", {
+		*   containment:"parent"
+		* });
+		* ```
+ 		* @return {object} The current jsPlumb instance.
+ 		*/ 
 		this.draggable = function(el, options) {
 			// allows for array or jquery/mootools selector
 			if (typeof el == 'object' && el.length) {
@@ -1828,15 +1883,7 @@
 			return jsPlumb.CurrentLibrary.extend(o1, o2);
 		};
 		
-		// gets the default endpoint type. used when subclassing. see wiki.
-		this.getDefaultEndpointType = function() {
-			return jsPlumb.Endpoint;
-		};
 		
-		// gets the default connection type. used when subclassing.  see wiki.
-		this.getDefaultConnectionType = function() {
-			return jsPlumb.Connection;
-		};
 
 		// helpers for select/selectEndpoints
 		var _setOperation = function(list, func, args, selector) {
@@ -1982,7 +2029,7 @@
 				},
 				"remove":function() {
 					for (var i = 0, ii = list.length; i < ii; i++)
-						_currentInstance.deleteEndpoint(list[i]);
+						_currentInstance.deleteObject({endpoint:list[i]});
 				}
 			});
 		};
@@ -1991,10 +2038,8 @@
 		this.select = function(params) {
 			params = params || {};
 			params.scope = params.scope || "*";
-			var c = params.connections || _currentInstance.getConnections(params, true);
-			return _makeConnectionSelectHandler(c);							
-		};
-		
+			return _makeConnectionSelectHandler(params.connections || _currentInstance.getConnections(params, true));							
+		};		
 
 		this.selectEndpoints = function(params) {
 			params = params || {};
@@ -2037,23 +2082,16 @@
 		};
 
 		// get all connections managed by the instance of jsplumb.
-		this.getAllConnections = function() {
-			return connections;
-		};
-
-
-		this.getDefaultScope = function() {
-			return DEFAULT_SCOPE;
-		};
-
+		this.getAllConnections = function() { return connections; };
+		this.getDefaultScope = function() { return DEFAULT_SCOPE; };
 		// get an endpoint by uuid.
-		this.getEndpoint = _getEndpoint;
-				
+		this.getEndpoint = _getEndpoint;				
 		// get endpoints for some element.
-		this.getEndpoints = function(el) {
-			return endpointsByElement[_info(el).id];
-		};		
-
+		this.getEndpoints = function(el) { return endpointsByElement[_info(el).id]; };		
+		// gets the default endpoint type. used when subclassing. see wiki.
+		this.getDefaultEndpointType = function() { return jsPlumb.Endpoint; };		
+		// gets the default connection type. used when subclassing.  see wiki.
+		this.getDefaultConnectionType = function() { return jsPlumb.Connection; };
 		/*
 		 * Gets an element's id, creating one if necessary. really only exposed
 		 * for the lib-specific functionality to access; would be better to pass
@@ -2066,8 +2104,16 @@
 			return _updateOffset({elId:id});
 		};
 		
-		// gets a library-agnostic selector.  not necessary for use outside of jsplumb, since
-		// you already know what library you're using it with.	
+		/**
+		* @doc function
+		* @name jsPlumb.class:getSelector
+		* @description This method takes the given selector spec and, using the current underlying library, turns it into
+		* a selector from that library.  This method exists really as a helper function for those applications
+		* where you're writing jsPlumb code that will target more than one library (such as in the case of the
+		* jsPlumb demo pages).
+		* @param {object} context  An element to search from. may be omitted (__not__ null: omitted. as in you only pass one argument to the function)
+		* @param {string} spec 	A valid selector string.
+		*/
 		this.getSelector = function() {
 			return jsPlumb.CurrentLibrary.getSelector.apply(null, arguments);
 		};
@@ -2221,6 +2267,7 @@
 			return new jsPlumb.DynamicAnchor({anchors:anchors, selector:anchorSelector, elementId:null, jsPlumbInstance:_currentInstance});
 		};
 		
+// --------------------- makeSource/makeTarget ---------------------------------------------- 
 		
 		var _targetEndpointDefinitions = {},
 			_targetEndpoints = {},
@@ -2249,7 +2296,25 @@
 							  _currentInstance.Defaults.Endpoint ||
 							  jsPlumb.Defaults.Endpoints[epIndex] ||
 							  jsPlumb.Defaults.Endpoint;
-			};
+			},
+			_sourceEndpointDefinitions = {},
+			_sourceEndpoints = {},
+			_sourceEndpointsUnique = {},
+			_sourcesEnabled = {},
+			_sourceTriggers = {},
+			_sourceMaxConnections = {},
+			_targetsEnabled = {},
+			selectorFilter = function(evt, _el, selector) {	            
+                var t = evt.target || evt.srcElement, ok = false, 
+                    sel = _currentInstance.getSelector(_el, selector);
+                for (var j = 0; j < sel.length; j++) {
+                    if (sel[j] == t) {
+                        ok = true;
+                        break;
+                    }
+                }
+                return ok;	            
+	        };
 
 		// see API docs
 		this.makeTarget = function(el, params, referenceParams) {						
@@ -2453,26 +2518,7 @@
 			}
 
 			return _currentInstance;
-		};				
-		
-		var _sourceEndpointDefinitions = {},
-			_sourceEndpoints = {},
-			_sourceEndpointsUnique = {},
-			_sourcesEnabled = {},
-			_sourceTriggers = {},
-			_sourceMaxConnections = {},
-			_targetsEnabled = {},
-			selectorFilter = function(evt, _el, selector) {	            
-                var t = evt.target || evt.srcElement, ok = false, 
-                    sel = _currentInstance.getSelector(_el, selector);
-                for (var j = 0; j < sel.length; j++) {
-                    if (sel[j] == t) {
-                        ok = true;
-                        break;
-                    }
-                }
-                return ok;	            
-	        };
+		};						
 
 	    // see api docs
 		this.makeSource = function(el, params, referenceParams) {
@@ -2737,47 +2783,25 @@
 			return _currentInstance;
 		};
 
-		
-		this.setSourceEnabled = function(el, state) {
-			return _setEnabled("source", el, state);
-		};
-
-			
 		this.toggleSourceEnabled = function(el) {
 			_setEnabled("source", el, null, true);	
 			return _currentInstance.isSourceEnabled(el);
 		};
 
-		
-		this.isSource = function(el) {
-			return _sourcesEnabled[_info(el).id] != null;
-		};
+		this.setSourceEnabled = function(el, state) { return _setEnabled("source", el, state); };
+		this.isSource = function(el) { return _sourcesEnabled[_info(el).id] != null; };		
+		this.isSourceEnabled = function(el) { return _sourcesEnabled[_info(el).id] === true; };
 
-		
-		this.isSourceEnabled = function(el) {
-			return _sourcesEnabled[_info(el).id] === true;
-		};
-
-		
-		this.setTargetEnabled = function(el, state) {
-			return _setEnabled("target", el, state);
-		};
-
-			
 		this.toggleTargetEnabled = function(el) {
 			_setEnabled("target", el, null, true);	
 			return _currentInstance.isTargetEnabled(el);
 		};
-
 		
-		this.isTarget = function(el) {
-			return _targetsEnabled[_info(el).id] != null;
-		};
+		this.isTarget = function(el) { return _targetsEnabled[_info(el).id] != null; };		
+		this.isTargetEnabled = function(el) { return _targetsEnabled[_info(el).id] === true; };
+		this.setTargetEnabled = function(el, state) { return _setEnabled("target", el, state); };
 
-		
-		this.isTargetEnabled = function(el) {
-			return _targetsEnabled[_info(el).id] === true;
-		};
+// --------------------- end makeSource/makeTarget ---------------------------------------------- 				
 				
 		this.ready = function(fn) {
 			_currentInstance.bind("ready", fn);
@@ -2842,7 +2866,6 @@
         */
         this.remove = function(el, doNotRepaint) {
             var info = _info(el);
-            //console.log("removing element", info.id)
             _currentInstance.doWhileSuspended(function() {
             	_currentInstance.removeAllEndpoints(info.id, true);
             	_currentInstance.dragManager.elementRemoved(info.id);
@@ -2877,7 +2900,6 @@
         		return rl.type == type && rl.listener == listener;
         	});
         };
-
 		
 		this.reset = function() {			
 			_currentInstance.deleteEveryEndpoint();
@@ -3011,21 +3033,23 @@
         this.timestamp = _timestamp;
 		
 		/*
-		 * Property: SVG
-		 * Constant for use with the setRenderMode method
-		 */
-		 /*
-		  * Property: VML
-		  * Constant for use with the setRenderMode method
-		  */
-		/*
-		 * Property: CANVAS
-		 * Constant for use with the setRenderMode method
-		 */
+		* @doc property
+		* @name jsPlumb.global:SVG
+		* @description
+		* Constant for use with the setRenderMode method
+		*/				
 		this.SVG = "svg";
-		
+		/*
+		 * @doc property
+		 * @name jsPlumb.global:CANVAS
+		 * @description		
+		 */
 		this.CANVAS = "canvas";
-		
+		/*
+		 * @doc property
+		 * @name jsPlumb.global:VML
+		 * @description		
+		 */
 		this.VML = "vml";
 		
 		/*
@@ -3076,7 +3100,6 @@
 		 * The current render mode.
 		 */
 		this.getRenderMode = function() { return renderMode; };
-
 		
 		this.show = function(el, changeEndpoints) {
 			_setVisible(el, "block", changeEndpoints);

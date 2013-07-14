@@ -75,13 +75,27 @@ var JS_BEZIER = "0.6", // current js bezier version
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
         sources.push.apply(sources, getList(grunt, "renderers")); 
-        sources.push("src/" + lib + ".jsPlumb.js");   
-
-        console.log("Building jsPlumb with source list " + sources);
+        sources.push("src/" + lib + ".jsPlumb.js");           
         return sources;
-    };
+    },
+    help = "\nBuilding jsPlumb\n" +
+           "-----------------\n" +
+           "To build jsPlumb, execute the 'build' task:\n\n" +
+           "--> grunt build\n\n" +
+           "this will, by default, build a version of jsPlumb with all the available connectors and renderers (SVG, Canvas and VML).\n\n" +
+           "You can build a custom version of jsPlumb by specifying a list of connectors and/or renderers on the command line, for example:\n\n" +
+           "--> grunt build --connectors=flowchart,statemachine --renderers=svg,vml\n\n";
 
 module.exports = function(grunt) {    
+
+    grunt.registerTask('help', 'Help with the jsPlumb build', function(arg1, arg2) {
+        grunt.log.write(help);
+    });
+
+    grunt.registerTask('info', 'dumps info about what will be built', function(arg1, arg2) {
+        grunt.log.write('Build jsPlumb');
+    });
+
 
     var fileLists = function(suffix) {
         suffix = suffix || "";
@@ -175,14 +189,14 @@ module.exports = function(grunt) {
         },
         docular: {
             groups: [{
-                groupTitle: 'Example Docs',
-                groupId: 'example',
+                groupTitle: 'jsPlumb apidoc',
+                groupId: 'apidoc',
                 groupIcon: 'icon-beer',
                 sections: [{
-                    id: "globals",
-                    title: "Globals",
+                    id: "classes",
+                    title: "Classes",
                     scripts: [
-                        "src/jsPlumb.js"
+                        "src/jsPlumb.js", "src/endpoint.js", "doc/api/*.js"
                     ],
                     docs: [],
                     rank : {}
@@ -215,5 +229,6 @@ module.exports = function(grunt) {
     // build it into the grunt build.
    
     // Default task(s).
-    grunt.registerTask('default', [/*'qunit', */'concat', 'uglify', 'copy', 'regex-replace', 'markdown', 'docular']);
+    grunt.registerTask('build', [/*'qunit', */'concat', 'uglify', 'copy', 'regex-replace', 'markdown', 'docular', 'info']);
+    grunt.registerTask('default', ['help']);
 };

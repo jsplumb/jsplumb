@@ -26,6 +26,13 @@
 
 				jsPlumb.select({source:someDiv, target:someOtherDiv}).detach();
 
+		- jsPlumb.addClass removed
+		- jsPlumb.removeClass removed
+		- jsPlumb.hasClass removed
+
+		for each of those, if you absolutely need to, you can use jsPlumb.CurrentLibrary.****Class.
+		but you can of course just use your library's own methods.
+
 
 		NEW FUNCTIONALITY
 
