@@ -5,26 +5,26 @@
 ;(function() {
 
 	var entries = [
-		{ id:"demo", name:"jsPlumb Home", about:"Main jsPlumb demo page.  Contains a bit of everything" },
-		{ id:"flowchartConnectorsDemo", name:"Flowchart", about:"Demonstration of the Flowchart connectors" },
-		{ id:"draggableConnectorsDemo", name:"Draggable Connections", about:"Demonstration of drag and drop connections" },
-		{ id:"perimeterAnchorsDemo", name:"Perimeter Anchors", about:"Demonstration of perimeter anchors" },
-		{ id:"stateMachineDemo", name:"State Machine", about:"Demonstration of the State Machine Connectors and Continuous Anchors" },
-		{ id:"chartDemo", name:"Chart Demonstration", about:"Simple Chart Demo" },
-		{ id:"anchorDemo", name:"Sources and Targets", about:"Demonstration of how to make whole elements Connection sources and targets" },
-		{ id:"dynamicAnchorsDemo", name:"Dynamic Anchors", about:"Demonstration of Dynamic Anchors" },
-		{ id:"dragAnimDemo", name:"Animation", about:"Drag/drop demo with animation" }
+		{ id:"home", name:"jsPlumb Home", about:"Main jsPlumb demo page.  Contains a bit of everything" },
+		{ id:"flowchart", name:"Flowchart", about:"Demonstration of the Flowchart connectors" },
+		{ id:"draggableConnectors", name:"Draggable Connections", about:"Demonstration of drag and drop connections" },
+		{ id:"perimeterAnchors", name:"Perimeter Anchors", about:"Demonstration of perimeter anchors" },
+		{ id:"statemachine", name:"State Machine", about:"Demonstration of the State Machine Connectors and Continuous Anchors" },
+		{ id:"chart", name:"Chart Demonstration", about:"Simple Chart Demo" },
+		{ id:"sourcesAndTargets", name:"Sources and Targets", about:"Demonstration of how to make whole elements Connection sources and targets" },
+		{ id:"dynamicAnchors", name:"Dynamic Anchors", about:"Demonstration of Dynamic Anchors" },
+		{ id:"animation", name:"Animation", about:"Drag/drop demo with animation" }
 	],
 	libraries = [
 		{id:"jquery", name:"jQuery"},
 		{id:"mootools", name:"MooTools"},
-		{id:"yui3", name:"YUI3"}
+		{id:"yui", name:"YUI3"}
 	],
 	prepareOtherLibraryString = function(demoId, library) {
 		var s = "", demoInfo = jsPlumb.DemoList.find(demoId);
 		for (var i = 0; i < libraries.length; i++) {
 			var c = libraries[i].id == library ? "selected" : "";
-			s += '<a class="' + c + '" href="../' + libraries[i].id + '/' + demoId + '.html" title="Use ' + libraries[i].name + ' as the support library">' + libraries[i].name + '</a>&nbsp;';
+			s += '<a class="' + c + '" href="' + libraries[i].id + '.html" title="Use ' + libraries[i].name + ' as the support library">' + libraries[i].name + '</a>&nbsp;';
 		}
 		return s;
 	},
@@ -62,8 +62,8 @@
 				demoInfo = jsPlumb.DemoList.find(demoId);
 				
 			if (demoInfo) {
-				var prevString = '|&nbsp;<h5>prev:</h5><a href="' + demoInfo.prev.id + '.html" title="View previous demo">' + demoInfo.prev.name + '</a>',
-					nextString = '&nbsp;<h5>next:</h5><a href="' + demoInfo.next.id + '.html" title="View next demo">' + demoInfo.next.name + '</a>';				
+				var prevString = '|&nbsp;<h5>prev:</h5><a href="../' + demoInfo.prev.id + '/' + library + '.html" title="View previous demo">' + demoInfo.prev.name + '</a>',
+					nextString = '&nbsp;<h5>next:</h5><a href="../' + demoInfo.next.id +'/' + library + '.html" title="View next demo">' + demoInfo.next.name + '</a>';				
 			
 				document.getElementById("render").innerHTML = libraryString + prevString  + demoSelectorString+ nextString;				
 			
