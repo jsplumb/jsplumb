@@ -470,7 +470,7 @@
 			
 			return o;
 		},
-		OverlayCapableUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
+		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
 
 			jsPlumbUIComponent.apply(this, arguments);
 			this._jsPlumb.overlays = [];			
@@ -494,7 +494,7 @@
 			}			                                  
 		};
 
-		jsPlumbUtil.extend(OverlayCapableUIComponent, jsPlumbUIComponent, {
+		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
 			applyType : function(t, doNotRepaint) {			
 				this.removeAllOverlays();
 				if (t.overlays) {

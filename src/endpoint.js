@@ -97,7 +97,7 @@
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
         this.parent = params.parent;
-        OverlayCapableUIComponent.apply(this, arguments);        
+        OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
         
 // TYPE		
                 

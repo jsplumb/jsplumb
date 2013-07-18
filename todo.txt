@@ -15,6 +15,10 @@ future
         - single canvas (have to paint nodes). 
         - VML groups.
 
+    - type selector that takes some data and decides which types to apply to a 
+    connection or endpoint.
+
+
 
     FAQ
 
