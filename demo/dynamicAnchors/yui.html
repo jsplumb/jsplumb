@@ -1,13 +1,12 @@
 <!doctype html>
 <html>
 	<head>
-		<title>jsPlumb 1.5.0 - Simple Hierarchy Demonstration - jQuery</title>
+		<title>jsPlumb 1.5.0 - Dynamic Anchors Demonstration - YUI3</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../demo-all.css">
 		<link rel="stylesheet" href="demo.css">
 	</head>
-	<body data-demo-id="chartDemo" data-library="jquery">
-
+	<body data-demo-id="dynamicAnchorsDemo" data-library="yui3">
 		<div id="headerWrapper">
 			<div id="header">
 				<div class="menu">   
@@ -20,33 +19,27 @@
 					<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
 				</div>
 			</div>
-		</div>
-		
+		</div>            
         <div id="main">
 			<div id="render"></div>
-			<div class="window" id="window1">window one</div>
-			<div class="window" id="window2">window two</div>
-			<div class="window" id="window3">window three</div>
-			<div class="window" id="window4">window four</div>
-			<div class="window" id="window5">window five</div>
-			<div class="window" id="window6">window six</div>
-
-			<iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=box_count"></iframe>
+			<div class="window" id="window1"><strong>1</strong><br/><br/></div>
+			<div class="window" id="window2"><strong>2</strong><br/><br/></div>
+		    <div class="window" id="window3"><strong>3</strong><br/><br/></div>
+		    <div class="window" id="window4"><strong>4</strong><br/><br/></div>
+		    <div class="window" id="window5"><strong>5</strong><br/><br/></div>
+		    <div class="window" id="window6"><strong>6</strong><br/><br/></div>
 		</div>
 		<div id="sidebar">
 			<div id="explanation">
-				<p>This is a simple demonstration of using jsPlumb to display hierarchical information.</p>
-	    	<p>On this page we set our connectors to gray and specify an endpoint of radius 9.
-	    	Each connection has an Arrow overlay indicating direction, and paints itself orange on mouse hover
-            </p>
-	    	<p>The Bezier curve used on this page has a 'curviness' of 50; See the documentation for examples of how to set the Bezier curviness.</p>
-	    	<p>This demonstration uses jsPlumb 1.5.0 and YUI 3.3.0.</p>
+				<p>This is a demonstration of anchors that change position dependent on the location of the other element in a connection. Each connection is decorated with a Diamond overlay, located halfway along the connector.</p>
+            <p>You can drag new connections between blue endpoints.</p>
+	    	<p>This demonstration uses jsPlumb 5.0 and YUI 3.3.0.</p>
 			</div>	    			
 		</div>
-		
-        <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
-				
-		<!-- JS -->
+
+	    <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>		
+
+	    <!-- JS -->
 		<!-- support lib for bezier stuff -->
 		<script src="../../lib/jsBezier-0.6.js"></script>        
 		<!-- jsplumb util -->
@@ -76,16 +69,16 @@
 		<!-- vml renderer -->
 		<script src="../../src/renderers-vml.js"></script>
         
-        <!-- jquery jsPlumb adapter -->
+        <!-- yui jsPlumb adapter -->
 		<script src="../../src/yui.jsPlumb.js"></script>
-		<!-- /JS -->
+		<!-- /JS -->       
 		
 		<!--  demo code -->
-		<script src="demo.js"></script>
+		<script type="text/javascript" src="demo.js"></script>
 		
 		<!--  demo helper code -->
-		<script src="../js/demo-list.js"></script>
-		<script src="../js/demo-helper-yui3.js"></script>
-						
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-yui3.js"></script>
+
 	</body>
 </html>

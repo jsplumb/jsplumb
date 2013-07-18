@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
 	<head>
-		<title>jsPlumb 1.5.0 - Simple Hierarchy Demonstration - jQuery</title>
+		<title>jsPlumb 1.5.0 - animated draggable connectors demonstration - MooTools</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../demo-all.css">
 		<link rel="stylesheet" href="demo.css">
 	</head>
-	<body data-demo-id="chartDemo" data-library="jquery">
+	<body data-demo-id="dragAnimDemo" data-library="mootools">
 
 		<div id="headerWrapper">
 			<div id="header">
@@ -20,36 +20,34 @@
 					<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
 				</div>
 			</div>
-		</div>
-		
+		</div>                    
         <div id="main">
 			<div id="render"></div>
-			<div class="window" id="window1">window one</div>
-			<div class="window" id="window2">window two</div>
-			<div class="window" id="window3">window three</div>
-			<div class="window" id="window4">window four</div>
-			<div class="window" id="window5">window five</div>
-			<div class="window" id="window6">window six</div>
-
-			<iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=box_count"></iframe>
+			<div class="bigdot" id="bd1"></div>
+			<div class="bigdot" id="bd2"></div>
+			<div class="bigdot" id="bd3"></div>
+			<div class="bigdot" id="bd4"></div>				
 		</div>
 		<div id="sidebar">
 			<div id="explanation">
-				<p>This is a simple demonstration of using jsPlumb to display hierarchical information.</p>
-	    	<p>On this page we set our connectors to gray and specify an endpoint of radius 9.
-	    	Each connection has an Arrow overlay indicating direction, and paints itself orange on mouse hover
-            </p>
-	    	<p>The Bezier curve used on this page has a 'curviness' of 50; See the documentation for examples of how to set the Bezier curviness.</p>
-	    	<p>This demonstration uses jsPlumb 1.5.0 and YUI 3.3.0.</p>
+				<p>This is a demonstration of jsPlumb's 'animate' method.</p>
+		   	<p>Drag orange dots to create connections.</p>
+	    	<p>Click on or near blue dots to make them move in that direction.</p>
+	    	<p><a id="add" href="#" class="cmd">add a disc</a></p>
+	   		<p><a id="clear" href="#" class="cmd">remove all connections</a></p>
+            <p>This demonstration uses jsPlumb 1.5.0, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
 			</div>	    			
 		</div>
 		
-        <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
-				
+	   	<!-- DEP -->
+	    <script type="text/javascript" src="../../lib/mootools-1.3.2-yui-compressed.js"></script>
+	    <!-- /DEP -->
+		<script type="text/javascript" src="../../lib/mootools-1.3.2.1-more.js"></script>				
+		
 		<!-- JS -->
-		<!-- support lib for bezier stuff -->
-		<script src="../../lib/jsBezier-0.6.js"></script>        
-		<!-- jsplumb util -->
+        <!-- support lib for bezier stuff -->
+		<script src="../../lib/jsBezier-0.6.js"></script>
+        <!-- jsplumb util -->
 		<script src="../../src/util.js"></script>
         <!-- base DOM adapter -->
 		<script src="../../src/dom-adapter.js"></script>        
@@ -75,17 +73,16 @@
 		<script src="../../src/renderers-canvas.js"></script>
 		<!-- vml renderer -->
 		<script src="../../src/renderers-vml.js"></script>
-        
-        <!-- jquery jsPlumb adapter -->
-		<script src="../../src/yui.jsPlumb.js"></script>
+        <!-- mootools jsPlumb adapter -->
+		<script src="../../src/mootools.jsPlumb.js"></script>
 		<!-- /JS -->
-		
-		<!--  demo code -->
-		<script src="demo.js"></script>
+
+		<!--  demo code -->		
+		<script type="text/javascript" src="dragAnimDemo-mootools.js"></script>
 		
 		<!--  demo helper code -->
-		<script src="../js/demo-list.js"></script>
-		<script src="../js/demo-helper-yui3.js"></script>
-						
+		<script type="text/javascript" src="../js/demo-list.js"></script>
+		<script type="text/javascript" src="../js/demo-helper-mootools.js"></script>
+		
 	</body>
 </html>

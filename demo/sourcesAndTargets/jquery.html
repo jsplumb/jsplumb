@@ -1,17 +1,17 @@
 <!doctype html>
 <html>
 	<head>
-		<title>jsPlumb 1.5.0 - Simple Hierarchy Demonstration - jQuery</title>
+		<title>jsPlumb 1.5.0 - Connection Sources and Targets Demonstration - jQuery</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../demo-all.css">
 		<link rel="stylesheet" href="demo.css">
 	</head>
-	<body data-demo-id="chartDemo" data-library="jquery">
-
+	<body data-demo-id="anchorDemo" data-library="jquery">							
+		
 		<div id="headerWrapper">
 			<div id="header">
-				<div class="menu">   
-					<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;     			
+				<div class="menu">        		
+					<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;	
 					<a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
 					<a href="../../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
 					<a href="mailto:simon.porritt@gmail.com" class="mplink">Contact</a>&nbsp;|&nbsp;
@@ -21,29 +21,37 @@
 				</div>
 			</div>
 		</div>
-		
+
         <div id="main">
 			<div id="render"></div>
-			<div class="window" id="window1">window one</div>
-			<div class="window" id="window2">window two</div>
-			<div class="window" id="window3">window three</div>
-			<div class="window" id="window4">window four</div>
-			<div class="window" id="window5">window five</div>
-			<div class="window" id="window6">window six</div>
+			<div class="window" id="window1">			
+				<strong>Window 1</strong>
+				<a href="#" id="enableDisableSource">disable</a>				
+			</div>
+			<div class="window smallWindow" id="window2"><strong>Window 2</strong><br/><br/></div>
+		    <div class="window smallWindow" id="window3"><strong>Window 3</strong><br/><br/></div>
+		    <div class="window smallWindow" id="window4"><strong>Window 4</strong><br/><br/></div>
+		    <div class="window smallWindow" id="window5"><strong>Window 5</strong><br/><br/></div>
+		    <div class="window smallWindow" id="window6"><strong>Window 6</strong><br/><br/></div>
 
-			<iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=box_count"></iframe>
+		    <iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=box_count"></iframe>
 		</div>
 		<div id="sidebar">
 			<div id="explanation">
-				<p>This is a simple demonstration of using jsPlumb to display hierarchical information.</p>
-	    	<p>On this page we set our connectors to gray and specify an endpoint of radius 9.
-	    	Each connection has an Arrow overlay indicating direction, and paints itself orange on mouse hover
-            </p>
-	    	<p>The Bezier curve used on this page has a 'curviness' of 50; See the documentation for examples of how to set the Bezier curviness.</p>
-	    	<p>This demonstration uses jsPlumb 1.5.0, jQuery 1.9.0 and jQuery UI 1.9.2. For touch support, jQuery Touch Punch is used.</p>
+				<p>This page provides a demonstration of the makeSource and makeTarget functions.</p>
+				<p>Drag Connections from the blue element to any of the green ones. You can also drag existing
+					Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
+				<p>These functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
+				elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
+				<p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>	    	
+				<p>
+				The 'disable' link is excluded from being a drag source through the use of the 'filter' parameter on the makeSource call.
+				</p>
+				<p>The green elements are configured as Connection targets, with a "TopCenter" anchor, and are draggable</p>
+				<p>This demonstration uses jsPlumb 1.5.0, jQuery 1.9.0 and jQuery UI 1.9.2. For touch support, jQuery Touch Punch is used.</p>
 			</div>	    			
 		</div>
-		
+	    
         <!-- DEP -->
 	    <script src="../../lib/jquery-1.9.0.js"></script>
 		<script src="../../lib/jquery-ui-1.9.2-min.js"></script>
@@ -82,14 +90,14 @@
         
         <!-- jquery jsPlumb adapter -->
 		<script src="../../src/jquery.jsPlumb.js"></script>
-		<!-- /JS -->
-		
-		<!--  demo code -->
-		<script src="demo.js"></script>
+		<!-- /JS -->		
+				
+		<!--  demo code -->		
+		<script src="demo-jquery.js"></script>
 		
 		<!--  demo helper code -->
 		<script src="../js/demo-list.js"></script>
 		<script src="../js/demo-helper-jquery.js"></script>
-						
+		
 	</body>
 </html>
