@@ -18,7 +18,7 @@
     left:380px;
     top:505px;
     line-height: 70px;
-    background-image:url(../img/rectangle.png);
+    background-image:url(rectangle.png);
 }
 
 [data-shape=Ellipse] {
@@ -27,7 +27,7 @@
     left:250px;
     top:300px;
     line-height: 70px;
-    background-image:url(../img/ellipse.png);
+    background-image:url(ellipse.png);
 }
 
 [data-shape=Circle] {
@@ -36,21 +36,21 @@
     left:100px;
     top:60px;
     line-height: 150px;
-    background-image:url(../img/circle.png);
+    background-image:url(circle.png);
 }
 
 [data-shape=Triangle] {
     width:150px;
     height:150px;
     line-height: 150px;
-    background-image:url(../img/triangle.png);
+    background-image:url(triangle.png);
 }
 
 ._90[data-shape=Triangle] {
     width:150px;
     height:150px;
     line-height: 150px;
-    background-image:url(../img/triangle_90.png);
+    background-image:url(triangle_90.png);
 }
 
 [data-shape=Diamond] {
@@ -59,5 +59,5 @@
     left:550px;
     top:150px;
     line-height: 150px;
-    background-image:url(../img/diamond.png);
+    background-image:url(diamond.png);
 }

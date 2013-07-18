@@ -83,7 +83,7 @@
 
 			jsPlumb.importDefaults({
 				DragOptions : { cursor: 'wait', zIndex:20 },
-				Endpoint : [ "Image", { url:"../img/littledot.png" } ],
+				Endpoint : [ "Image", { url:"littledot.png" } ],
 				Connector : [ "Bezier", { curviness: 90 } ]
 			});				
 				

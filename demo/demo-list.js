@@ -28,14 +28,14 @@
 		}
 		return s;
 	},
-	demoSelectorString = (function() {
+	demoSelectorString = function(library){
 		var s = '&nbsp;<h5>select:</h5><select id="demoSelector" class="demoSelector" title="Select a demo">';
 		for (var i = 0; i < entries.length; i++) {
-			s += '<option value="' + entries[i].id + '.html">' + entries[i].name + '</option>';
+			s += '<option value="../' + entries[i].id + '/' + library +  '.html">' + entries[i].name + '</option>';
 		}
 		s += '</select>';
 		return s;
-	})();
+	};
 	
 	
 	jsPlumb.DemoList = {
@@ -65,7 +65,7 @@
 				var prevString = '|&nbsp;<h5>prev:</h5><a href="../' + demoInfo.prev.id + '/' + library + '.html" title="View previous demo">' + demoInfo.prev.name + '</a>',
 					nextString = '&nbsp;<h5>next:</h5><a href="../' + demoInfo.next.id +'/' + library + '.html" title="View next demo">' + demoInfo.next.name + '</a>';				
 			
-				document.getElementById("render").innerHTML = libraryString + prevString  + demoSelectorString+ nextString;				
+				document.getElementById("render").innerHTML = libraryString + prevString  + demoSelectorString(library) + nextString;				
 			
 				var ds = document.getElementById("demoSelector");
 				ds.selectedIndex = demoInfo.idx;
