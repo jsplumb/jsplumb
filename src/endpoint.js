@@ -667,15 +667,14 @@
                         _jsPlumb.deleteObject({endpoint:this});
                     }
                     else {
+                        this._jsPlumb.floatingEndpoint = null;
                         // repaint this endpoint.
                         // make our canvas visible (TODO: hand off to library; we should not know about DOM)
                         this.canvas.style.visibility = "visible";
                         // unlock our anchor
                         this.anchor.locked = false;
                         this.paint({recalc:false});                        
-                    }
-                                        
-                    this._jsPlumb.floatingEndpoint = null;
+                    }                                                    
 
                     // TODO can this stay here? the connection is no longer valid.
                     _jsPlumb.fire("connectionDragStop", jpc);
