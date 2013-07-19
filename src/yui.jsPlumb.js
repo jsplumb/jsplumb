@@ -272,9 +272,8 @@
 		
 		getUIPosition : function(args, zoom) {
 			zoom = zoom || 1;
-			var n = args[0].currentTarget.el._node,
-			o = Y.DOM.getXY(n);
-			return {left:o[0] / zoom, top:o[1] / zoom};
+			var o = Y.DOM.getXY(args[0].currentTarget.el);
+			return {left:o[0] / zoom, top:o[1] / zoom };
 		},		
 		
 		hasClass : function(el, clazz) {
