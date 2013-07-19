@@ -77,7 +77,7 @@
     };
 
     var findConnectionIndex = function(conn, ep) {
-        return _ju.findWithFunction(ep.connections, function(c) { return c.id == conn.id});
+        return jsPlumbUtil.findWithFunction(ep.connections, function(c) { return c.id == conn.id});
     };
 
     jsPlumb.Endpoint = function(params) {
@@ -675,6 +675,8 @@
                         this.paint({recalc:false});                        
                     }
                                         
+                    this._jsPlumb.floatingEndpoint = null;
+
                     // TODO can this stay here? the connection is no longer valid.
                     _jsPlumb.fire("connectionDragStop", jpc);
 
