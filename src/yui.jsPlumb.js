@@ -177,6 +177,22 @@
 		bind : function(el, event, callback) {
 			_getElementObject(el).on(event, callback);
 		},
+
+		destroyDraggable : function(el) {
+			var id = jsPlumb.getId(el),
+				dd = _draggablesById[id];
+
+			if (dd) {
+				dd.destroy();
+				delete _draggablesById[id];
+			}
+		},
+
+		destroyDroppable : function(el) {
+			//if ($(el).data("droppable"))
+			//	$(el).droppable("destroy");
+			// TODO
+		},
 			
 		dragEvents : {
 			"start":"drag:start", "stop":"drag:end", "drag":"drag:drag", "step":"step",
@@ -215,8 +231,9 @@
 			return _droppableScopesById[id];
 		},
 		
-		getDOMElement : function(el) { 			
-			if (typeof(el) == "String") 
+		getDOMElement : function(el) { 	
+			if (el == null) return null;		
+			if (typeof(el) == "string") 
 				return document.getElementById(el);
 			else if (el._node) 
 				return el._node;
@@ -272,7 +289,8 @@
 		
 		getUIPosition : function(args, zoom) {
 			zoom = zoom || 1;
-			var o = Y.DOM.getXY(args[0].currentTarget.el);
+			var el = args[0].currentTarget.el._node || args[0].currentTarget.el;
+			var o = Y.DOM.getXY(el);
 			return {left:o[0] / zoom, top:o[1] / zoom };
 		},		
 		

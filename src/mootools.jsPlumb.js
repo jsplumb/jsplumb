@@ -138,6 +138,21 @@
 			el = _getElementObject(el);
 			el.addEvent(event, callback);
 		},
+
+		destroyDraggable : function(el) {
+			// TODO
+			var id = jsPlumb.getId(el), d = _draggablesById[id];
+			if (d) {
+				for (var i = 0; i < d.length; i++)
+					d[i].detach();
+
+				delete _draggablesById[id];
+			}
+		},
+
+		destroyDroppable : function(el) {
+			// TODO
+		},
 		
 		dragEvents : {
 			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
@@ -177,8 +192,9 @@
 		},
 		
 		getDOMElement : function(el) { 
+			if (el == null) return null;
 			// MooTools just decorates the DOM elements. so we have either an ID or an Element here.
-			return typeof(el) == "String" ? document.getElementById(el) : el; 
+			return typeof(el) == "string" ? document.getElementById(el) : el; 
 		},
 							
 		getElementObject : _getElementObject,
