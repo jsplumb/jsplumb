@@ -410,7 +410,12 @@
          */         
         this.fire = function(event, value, originalEvent) {
             if (!eventsSuspended && _listeners[event]) {
-                for ( var i = 0;_listeners != null && i < _listeners[event].length; i++) {
+                // instead of looping through the array we get a counter and a length, because it is possible
+                // that an event fired from here could cause the object to get cleaned up, which would throw
+                // away the listeners. so after each cycle through the loop we check to ensure we haven't
+                // been nuked.
+                var l = _listeners[event].length, i = 0, _gone = false;
+                while (!_gone && i < l) {
                     // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
                     // method will have the whole call stack available in the debugger.
                     if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event}) != -1)
@@ -423,6 +428,8 @@
                             jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
                         }
                     }
+                    i++;
+                    if (_listeners == null || _listeners[event] == null) _gone = true;
                 }
             }
             return this;
