@@ -385,17 +385,9 @@
 			    	this._jsPlumb.hover = hover;
                         
                     if (this.canvas != null) {
-                        if (this._jsPlumb.instance.hoverClass != null) {
-                            if (hover) 
-                                jpcl.addClass(this.canvas, this._jsPlumb.hoverClass);						
-                            else
-                                jpcl.removeClass(this.canvas, this._jsPlumb.hoverClass);
-                        }
-                        
-                        if (hover) 
-                            jpcl.addClass(this.canvas, this._jsPlumb.hoverClass);						
-                        else
-                            jpcl.removeClass(this.canvas, this._jsPlumb.hoverClass);
+                        if (this._jsPlumb.instance.hoverClass != null) {                            
+                            jpcl[hover ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.hoverClass);						                            
+                        }                                              
                     }
 		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
 						this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
