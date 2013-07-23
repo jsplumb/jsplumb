@@ -229,6 +229,7 @@ TODO: REMOVE!
 		 * gets the size for the element object, in an array : [ width, height ].
 		 */
 		getSize : function(el) {
+			el = $(el);
 			return [el.outerWidth(), el.outerHeight()];
 		},
 
