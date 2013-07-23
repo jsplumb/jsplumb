@@ -58,7 +58,7 @@ var JS_BEZIER = "0.6", // current js bezier version
         ]
     },
     optionList = function(grunt, type) {
-        return (grunt.option(type) || "").split(",");
+        return grunt.option(type) && grunt.option(type).split(",") || [];
     },
     filter = function(l, v, t, o) {
         if (l.length == 0 || l.indexOf(v) != -1)
@@ -68,6 +68,7 @@ var JS_BEZIER = "0.6", // current js bezier version
         var ol = optionList(grunt, type), l = objects[type], out = [];
         for (var i = 0; i < l.length; i++)
             filter(ol, l[i], type, out);
+        
         return out;
     },
     getSources = function(grunt, lib) {
@@ -106,6 +107,7 @@ module.exports = function(grunt) {
                 dest:'dist/js/' + l + '.jsPlumb-<%= pkg.version%>' + suffix + '.js'
             };
         });
+        console.dir(o)
         return o;
     };
 
