@@ -1,4 +1,13 @@
 /**
+* @doc module
+* @name jsPlumbUIComponent
+* @description    
+* Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
+* and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
+* @extends EventGenerator
+*/
+
+/**
 * @doc function
 * @name jsPlumbUIComponent.class:getParameter
 * @param {string} name Name of the parameter to get

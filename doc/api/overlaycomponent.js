@@ -1,4 +1,11 @@
 /**
+* @doc module
+* @name OverlayCapableJsPlumbUIComponent
+* @description Base class for components that support Overlays.
+* @extends jsPlumbUIComponent
+*/
+
+/**
 * @doc function
 * @name OverlayCapableJsPlumbUIComponent.class:getLabel
 * @description Returns the label text for this Connection (or a function if you are labelling with a function).

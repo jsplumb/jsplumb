@@ -44,6 +44,7 @@
         isDate : _isd,
         isFunction: _isf,
         isEmpty:_ise,
+        isNumber:_isnum,
         clone : function(a) {
             if (_iss(a)) return "" + a;
             else if (_isb(a)) return !!a;

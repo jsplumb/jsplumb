@@ -890,11 +890,14 @@
         this._jsPlumb.endpoint = params.endpoint;
 
 		this._jsPlumb.img.onload = function() {
-			this._jsPlumb.ready = true;            
-			this._jsPlumb.widthToUse = this._jsPlumb.widthToUse || this._jsPlumb.img.width;
-			this._jsPlumb.heightToUse = this._jsPlumb.heightToUse || this._jsPlumb.img.height;
-            if (_onload) {
-                _onload(this);
+            // check we weren't actually discarded before use (in fact mostly happens in tests)
+            if (this._jsPlumb != null) {
+    			this._jsPlumb.ready = true;            
+    			this._jsPlumb.widthToUse = this._jsPlumb.widthToUse || this._jsPlumb.img.width;
+    			this._jsPlumb.heightToUse = this._jsPlumb.heightToUse || this._jsPlumb.img.height;
+                if (_onload) {
+                    _onload(this);
+                }
             }
 		}.bind(this);        
 
@@ -906,17 +909,17 @@
             img         -   may be a URL or an Image object
             onload      -   optional; a callback to execute once the image has loaded.
         */
-       /* this._jsPlumb.endpoint.setImage = function(_img, onload) {
+        this._jsPlumb.endpoint.setImage = function(_img, onload) {
             var s = _img.constructor == String ? _img : _img.src;
             _onload = onload; 
-            this._jsPlumb.img.src = _img;
+            this._jsPlumb.img.src = s;
 
             if (this.canvas != null)
-                this.canvas.setAttribute("src", this._jsPlumb.img);
+                this.canvas.setAttribute("src", this._jsPlumb.img.src);
         }.bind(this);
 
         this._jsPlumb.endpoint.setImage(src, _onload);
-        */        
+        /*        
             var s = src.constructor == String ? src : src.src;
             //_onload = onload; 
             this._jsPlumb.img.src = src;
@@ -925,7 +928,7 @@
                 this.canvas.setAttribute("src", this._jsPlumb.img.src);
        // }.bind(this);
 
-        //this._jsPlumb.endpoint.setImage(src, _onload);
+        //this._jsPlumb.endpoint.setImage(src, _onload);*/
 
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			this.anchorPoint = anchorPoint;
@@ -959,14 +962,16 @@
 		};
 		
 		this.paint = function(style, anchor) {
-			if (this._jsPlumb.ready) {
-    			this.actuallyPaint(style, anchor);
-			}
-			else { 
-				window.setTimeout(function() {    					
-					this.paint(style, anchor);
-				}.bind(this), 200);
-			}
+            if (this._jsPlumb != null) {  // may have been deleted
+    			if (this._jsPlumb.ready) {
+        			this.actuallyPaint(style, anchor);
+    			}
+    			else { 
+    				window.setTimeout(function() {    					
+    					this.paint(style, anchor);
+    				}.bind(this), 200);
+    			}
+            }
 		};				
 	};
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
@@ -1241,8 +1246,7 @@
 		
 		this.getElement = function() {
 			if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = this._jsPlumb.create(this._jsPlumb.component);
-                //div = this._jsPlumb.div = jpcl.getDOMElement(div);
+                var div = this._jsPlumb.div = jpcl.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));                
                 div.style["position"]   =   "absolute";     
                 var clazz = params["_jsPlumb"].overlayClass + " " + 
                     (this.cssClass ? this.cssClass : 
@@ -1302,8 +1306,7 @@
 	    };	   	   		
 	};
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
-        getDimensions : function() {
-            if(window.gd) window.gd++; else window.gd = 1;
+        getDimensions : function() {            
             return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(this.getElement()));
             //var e = this.getElement();
             //return [e.offsetWidth, e.offsetHeight];

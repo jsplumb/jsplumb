@@ -189,8 +189,6 @@
 		},
 
 		destroyDroppable : function(el) {
-			//if ($(el).data("droppable"))
-			//	$(el).droppable("destroy");
 			// TODO
 		},
 			

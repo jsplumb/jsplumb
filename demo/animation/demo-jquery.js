@@ -66,7 +66,7 @@
 			d.className = "bigdot";
 			document.getElementById("main").appendChild(d);
 			var id = '' + ((new Date().getTime())), _d = jsPlumb.CurrentLibrary.getElementObject(d);
-			jsPlumb.CurrentLibrary.setAttribute(_d, "id", id);
+			d.setAttribute("id", id);
 			var w = screen.width - 162, h = screen.height - 162;
 			var x = (0.2 * w) + Math.floor(Math.random()*(0.5 * w));
 			var y = (0.2 * h) + Math.floor(Math.random()*(0.6 * h));

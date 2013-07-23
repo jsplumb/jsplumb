@@ -36,7 +36,7 @@
 	 * Class:CanvasMouseAdapter
 	 * Provides support for mouse events on canvases.  
 	 */
-	var CanvasMouseAdapter = function() {
+	var CanvasMouseAdapter = window.CanvasMouseAdapter = function() {
 		var self = this;
 		self.overlayPlacements = [];
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
@@ -117,27 +117,29 @@
           _mouseWasDown = false;
         };
 	};
+	jsPlumbUtil.extend(CanvasMouseAdapter, [ jsPlumb.jsPlumbUIComponent, jsPlumbUtil.EventGenerator ]);		
 	
 	var _newCanvas = function(params) {
 		var canvas = document.createElement("canvas");
-		params["_jsPlumb"].appendElement(canvas, params.parent);
+		params["_jsPlumb"].instance.appendElement(canvas, params.parent);
 		canvas.style.position = "absolute";
 		if (params["class"]) canvas.className = params["class"];
 		// set an id. if no id on the element and if uuid was supplied it
 		// will be used, otherwise we'll create one.
-		params["_jsPlumb"].getId(canvas, params.uuid);
+		params["_jsPlumb"].instance.getId(canvas, params.uuid);
 		if (params.tooltip) canvas.setAttribute("title", params.tooltip);
 
 		return canvas;
 	};	
 
-	var CanvasComponent = function(params) {
+	var CanvasComponent = window.CanvasComponent = function(params) {
 		CanvasMouseAdapter.apply(this, arguments);
 
 		var displayElements = [ ];
 		this.getDisplayElements = function() { return displayElements; };
 		this.appendDisplayElement = function(el) { displayElements.push(el); };
 	};
+	jsPlumbUtil.extend(CanvasComponent, CanvasMouseAdapter);
 	
 	var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ];
 	var maybeMakeGradient = function(ctx, style, gradientFunction) {
@@ -237,35 +239,33 @@
 	 * Superclass for Canvas Connector renderers.
 	 */
 	var CanvasConnector = jsPlumb.ConnectorRenderers.canvas = function(params) {
-		var self = this;
 		CanvasComponent.apply(this, arguments);
 		
 		var _paintOneStyle = function(aStyle, dx, dy) {
-			self.ctx.save();
-			jsPlumb.extend(self.ctx, aStyle);
+			this.ctx.save();
+			jsPlumb.extend(this.ctx, aStyle);
 
-			var segments = self.getSegments();				
+			var segments = this.getSegments();				
 			for (var i = 0; i < segments.length; i++) {
-				segmentRenderer(segments[i], self.ctx, aStyle, dx, dy);
+				segmentRenderer(segments[i], this.ctx, aStyle, dx, dy);
 			}
-			self.ctx.restore();
-		};
+			this.ctx.restore();
+		}.bind(this);
 
-		var self = this,
-		clazz = self._jsPlumb.connectorClass + " " + (params.cssClass || "");
-		self.canvas = _newCanvas({ 
+		var clazz = this._jsPlumb.instance.connectorClass + " " + (params.cssClass || "");
+		this.canvas = _newCanvas({ 
 			"class":clazz, 
-			_jsPlumb:self._jsPlumb,
+			_jsPlumb:this._jsPlumb,
 			parent:params.parent
 		});	
-		self.ctx = self.canvas.getContext("2d");
+		this.ctx = this.canvas.getContext("2d");
 		
-		self.appendDisplayElement(self.canvas);
+		this.appendDisplayElement(this.canvas);
 		
-		self.paint = function(style, anchor, extents) {						
+		this.paint = function(style, anchor, extents) {						
 			if (style != null) {							
 
-				var xy = [ self.x, self.y ], wh = [ self.w, self.h ], p,
+				var xy = [ this.x, this.y ], wh = [ this.w, this.h ], p,
 					dx = 0, dy = 0;
 
 				if (extents != null) {
@@ -281,10 +281,10 @@
 					wh[1] = extents.ymax + ((extents.ymin < 0) ? -extents.ymin : 0);
 				}
 
-				self.translateX = dx;
-				self.translateY = dy;
+				this.translateX = dx;
+				this.translateY = dy;
 				
-				jsPlumbUtil.sizeElement(self.canvas, xy[0], xy[1], wh[0], wh[1]);				
+				jsPlumbUtil.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);				
 				
 				if (style.outlineColor != null) {
 					var outlineWidth = style.outlineWidth || 1,
@@ -299,30 +299,29 @@
 			}
 		};				
 	};		
-	
-	
+	jsPlumbUtil.extend(CanvasConnector, CanvasComponent);
+		
 	
 	/**
 	 * Class:CanvasEndpoint
 	 * Superclass for Canvas Endpoint renderers.
 	 */
 	var CanvasEndpoint = function(params) {
-		var self = this;				
 		CanvasComponent.apply(this, arguments);		
-		var clazz = self._jsPlumb.endpointClass + " " + (params.cssClass || ""),
+		var clazz = this._jsPlumb.instance.endpointClass + " " + (params.cssClass || ""),
 			canvasParams = { 
 			"class":clazz, 
-			_jsPlumb:self._jsPlumb,
+			_jsPlumb:this._jsPlumb,
 			parent:params.parent,
 			tooltip:self.tooltip
 		};
-		self.canvas = _newCanvas(canvasParams);	
-		self.ctx = self.canvas.getContext("2d");
+		this.canvas = _newCanvas(canvasParams);	
+		this.ctx = this.canvas.getContext("2d");
 
-		self.appendDisplayElement(self.canvas);
+		this.appendDisplayElement(this.canvas);
 		
 		this.paint = function(style, anchor, extents) {
-			jsPlumbUtil.sizeElement(self.canvas, self.x, self.y, self.w, self.h);			
+			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);			
 			if (style.outlineColor != null) {
 				var outlineWidth = style.outlineWidth || 1,
 				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
@@ -332,9 +331,10 @@
 				};
 			}
 			
-			self._paint.apply(this, arguments);
+			this._paint.apply(this, arguments);
 		};
 	};
+	jsPlumbUtil.extend(CanvasEndpoint, CanvasComponent);
 	
 	jsPlumb.Endpoints.canvas.Dot = function(params) {		
 		jsPlumb.Endpoints.Dot.apply(this, arguments);
@@ -378,6 +378,7 @@
 			}
     	};
 	};	
+	jsPlumbUtil.extend(jsPlumb.Endpoints.canvas.Dot, [ jsPlumb.Endpoints.Dot, CanvasEndpoint ]);
 		
 	jsPlumb.Endpoints.canvas.Rectangle = function(params) {
 		
@@ -412,6 +413,7 @@
 			if (style.strokeStyle) ctx.stroke();
     	};
 	};		
+	jsPlumbUtil.extend(jsPlumb.Endpoints.canvas.Rectangle, [ jsPlumb.Endpoints.Rectangle, CanvasEndpoint ]);
 	
 	jsPlumb.Endpoints.canvas.Triangle = function(params) {
 	        			
@@ -453,6 +455,7 @@
 			if (style.strokeStyle) ctx.stroke();				
     	};
 	};	
+	jsPlumbUtil.extend(jsPlumb.Endpoints.canvas.Triangle, [ jsPlumb.Endpoints.Triangle, CanvasEndpoint ]);
 	
 	/*
 	 * Canvas Image Endpoint: uses the default version, which creates an <img> tag.
@@ -466,25 +469,29 @@
 	
 	/*
      * Canvas Bezier Connector. Draws a Bezier curve onto a Canvas element.
-     */
+     *
     jsPlumb.Connectors.canvas.Bezier = function() {
     	jsPlumb.Connectors.Bezier.apply(this, arguments); 
     	CanvasConnector.apply(this, arguments);    	        
     };
+    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Bezier, [ jsPlumb.Connectors.Bezier, CanvasConnector ]);
     
     /*
      * Canvas straight line Connector. Draws a straight line onto a Canvas element.
-     */
+     *
     jsPlumb.Connectors.canvas.Straight = function() {   	 
 		jsPlumb.Connectors.Straight.apply(this, arguments);
 		CanvasConnector.apply(this, arguments);		
     };
+    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Straight, [ jsPlumb.Connectors.Straight, CanvasConnector ]);
     
     jsPlumb.Connectors.canvas.Flowchart = function() {
     	jsPlumb.Connectors.Flowchart.apply(this, arguments);
 		CanvasConnector.apply(this, arguments);
     };
+    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Flowchart, [ jsPlumb.Connectors.Flowchart, CanvasConnector ]);
     
+    */
 // ********************************* END OF CANVAS RENDERERS *******************************************************************    
     
     jsPlumb.Overlays.canvas.Label = jsPlumb.Overlays.Label;
@@ -496,6 +503,7 @@
     var CanvasOverlay = function() { 
     	jsPlumb.jsPlumbUIComponent.apply(this, arguments);
     };
+    jsPlumbUtil.extend(CanvasOverlay, jsPlumb.jsPlumbUIComponent);
     
     var AbstractCanvasArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
@@ -531,12 +539,15 @@
     jsPlumb.Overlays.canvas.Arrow = function() {
     	AbstractCanvasArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.canvas.Arrow, [ jsPlumb.Overlays.Arrow, CanvasOverlay ] );
     
     jsPlumb.Overlays.canvas.PlainArrow = function() {
     	AbstractCanvasArrowOverlay.apply(this, [jsPlumb.Overlays.PlainArrow, arguments]);    	
     };
+    jsPlumbUtil.extend(jsPlumb.Overlays.canvas.PlainArrow, [ jsPlumb.Overlays.PlainArrow, CanvasOverlay ] );
     
     jsPlumb.Overlays.canvas.Diamond = function() {
     	AbstractCanvasArrowOverlay.apply(this, [jsPlumb.Overlays.Diamond, arguments]);    	
     };		
+    jsPlumbUtil.extend(jsPlumb.Overlays.canvas.Diamond, [ jsPlumb.Overlays.Diamond, CanvasOverlay ] );
 })();

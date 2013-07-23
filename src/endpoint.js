@@ -1,7 +1,7 @@
-
-/*
+/**
  * @doc module
  * @name Endpoint 
+ * @extends OverlayCapableJsPlumbUIComponent
  * 
  * @description Models an endpoint. Can have 1 to `maxConnections`. Connections emanating from it (set maxConnections to -1 
  * to allow unlimited).  Typically, if you use 'jsPlumb.connect' to programmatically connect two elements, you won't
@@ -144,6 +144,14 @@
             jpcl.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
         }.bind(this);
 
+        /**
+        * @doc function
+        * @name Endpoint.class:setAnchor
+        * @param {object} anchorParams Parameters for the anchor
+        * @param {boolean} doNotRepaint Optional, defaults to false. 
+        * @description Sets the anchor to use for this Endpoint.  `anchorParams` is an object in the same
+        * form that you would pass as the `anchor` parameter to `jsPlumb.addEndpoint` or `jsPlumb.connect`.
+        */
         this.setAnchor = function(anchorParams, doNotRepaint) {
             this.anchor = this._jsPlumb.instance.makeAnchor(anchorParams, this.elementId, _jsPlumb);
             _updateAnchorClass();
@@ -170,6 +178,13 @@
         if (!params._transient) // in place copies, for example, are transient.  they will never need to be retrieved during a paint cycle, because they dont move, and then they are deleted.
             this._jsPlumb.instance.anchorManager.add(this, this.elementId);
 
+        /**
+        * @doc function
+        * @name Endpoint.class:setAnchor
+        * @param {object} ep Parameters for the endpoint
+        * @description Sets the underlying visual representation to use for this Endpoint.  `ep` is an object in the same
+        * form that you would pass as the `endpoint` parameter to `jsPlumb.addEndpoint` or `jsPlumb.connect`.
+        */
         this.setEndpoint = function(ep) {
 
             if (this.endpoint != null) {
@@ -907,7 +922,7 @@
     };
 
     jsPlumbUtil.extend(jsPlumb.Endpoint, OverlayCapableJsPlumbUIComponent, {
-        getTypeDescriptor : function() { return "endpoint"; },
+        getTypeDescriptor : function() { return "endpoint"; },        
         isVisible : function() { return this._jsPlumb.visible; },
         setVisible : function(v, doNotChangeConnections, doNotNotifyOtherEndpoint) {
             this._jsPlumb.visible = v;

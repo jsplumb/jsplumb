@@ -162,6 +162,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d2", 1, _jsPlumb);
 	});
 
+/*
 	test(renderMode + ' jsPlumb.removeAllEndpoints after element removed from DOM', function() {
 		var container = $('<div id="container"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>');
 		$("body").append(container);
@@ -179,6 +180,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		equal(_jsPlumb.selectEndpoints({element:"in1"}).length, 0, "no endpoints registered for in1");
 	});
+*/	
 
 	test(renderMode + ' jsPlumb.remove after element removed from DOM', function() {
 		var container = $('<div id="container2"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>');
@@ -796,7 +798,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		// 1. simplest case - an endpoint that exists on some element.		
 		var d1 = _addDiv("d1"), 
 			e = _jsPlumb.addEndpoint(d1),
-			dt = _jsPlumb.deleteTest({endpoint:e});
+			dt = _jsPlumb.deleteObject({endpoint:e});
 
 		equal(jsPlumbUtil.isEmpty(dt.endpoints), false, "one endpoint to delete");
 		equal(dt.endpointCount, 1, "one endpoint to delete");
@@ -812,7 +814,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:e2, target:e3});
 		equal(_jsPlumb.select({source:d2}).length, 1, "one connection exists");
 
-		var dt2 = _jsPlumb.deleteTest({endpoint:e2});
+		var dt2 = _jsPlumb.deleteObject({endpoint:e2});
 		equal(jsPlumbUtil.isEmpty(dt2.endpoints), false, "one endpoint to delete");
 		equal(jsPlumbUtil.isEmpty(dt2.connections), false, "one connection to delete");
 		equal(_jsPlumb.select({source:d2}).length, 0, "zero connections exist");
@@ -828,7 +830,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e4, target:e5});
 		equal(_jsPlumb.select({source:d4}).length, 1, "one connection exists");
 
-		var dt3 = _jsPlumb.deleteTest({connection:c});
+		var dt3 = _jsPlumb.deleteObject({connection:c});
 		equal(jsPlumbUtil.isEmpty(dt3.endpoints), true, "zero endpoints to delete");
 		equal(jsPlumbUtil.isEmpty(dt3.connections), false, "connections to delete");
 		equal(_jsPlumb.select({source:d4}).length, 0, "zero connections exist");
@@ -841,7 +843,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c2 = _jsPlumb.connect({source:d6, target:d7, deleteEndpointsOnDetach:true});
 		equal(_jsPlumb.select({source:d6}).length, 1, "one connection exists");
 
-		var dt4 = _jsPlumb.deleteTest({connection:c2});
+		var dt4 = _jsPlumb.deleteObject({connection:c2});
 		equal(jsPlumbUtil.isEmpty(dt4.endpoints), false, "endpoints to delete");
 		equal(dt4.endpointCount, 2, "2 endpoints to delete");
 		equal(jsPlumbUtil.isEmpty(dt4.connections), false, "zero connections to delete");
@@ -1254,7 +1256,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
         e = {
             endpoint:[ "Image", {
-                src:"../img/endpointTest1.png",
+                src:"../demo/home/endpointTest1.png",
                 onload:function(imgEp) {                	
                 	_jsPlumb.repaint("d1");
                     ok(imgEp._jsPlumb.img.src.indexOf("endpointTest1.png") != -1, "image source is correct");                                        
@@ -2480,10 +2482,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {});
 		var e17 = _jsPlumb.addEndpoint(d17, {});
+		window.FOO = "BAR"
 		var conn = _jsPlumb.connect({ sourceEndpoint:e16, targetEndpoint:e17, connector:"Straight" });
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
 		equal(e16.connections[0].getConnector().type, "Straight", "Straight connector chosen for connection");
+		window.FOO = null;
 	});
 	
 	test(renderMode + ": _jsPlumb.connect (by Endpoints, connector as string test)", function() {
@@ -3754,7 +3758,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 	
     test(renderMode + " setImage on Endpoint", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
-        originalUrl = "../../img/endpointTest1.png",
+        originalUrl = "../../demo/home/endpointTest1.png",
         e = {
             endpoint:[ "Image", { src:originalUrl } ]
         },
@@ -3766,16 +3770,16 @@ var testSuite = function(renderMode, _jsPlumb) {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
         e = {
             endpoint:[ "Image", {
-                src:"../../img/endpointTest1.png",
+                src:"../../demo/home/endpointTest1.png",
                 onload:function(imgEp) {
-                    equal("../../img/endpointTest1.png", imgEp.img.src);
+                    equal("../../demo/home/endpointTest1.png", imgEp.img.src);
                     equal(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
                 }
             } ]
         },
         ep = _jsPlumb.addEndpoint(d1, e);
-        ep.setImage("../../img/littledot.png", function(imgEp) {
-            equal("../../img/littledot.png", imgEp.img.src);
+        ep.setImage("../../demo/animation/littledot.png", function(imgEp) {
+            equal("../../demo/animation/littledot.png", imgEp.img.src);
             equal(ep.endpoint.canvas.getAttribute("src"), imgEp.img.src);
         });
         expect(0);

@@ -9,13 +9,12 @@
  * elements, or VML.   
  * 
  *
- * - [jsPlumb Site](http://jsplumb.org)
+ * - [Demo Site](http://jsplumb.org)
  * - [GitHub](http://github.com/sporritt/jsplumb)
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  *
  * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
- *
  */
 ;(function() {
 			
@@ -86,14 +85,7 @@
 				if (!doNotRepaint) component.repaint();
 			}
 		},		
-		
-		/**
-		* doc module		
-		* name jsPlumbUIComponent
-		* description		
-		* Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
-		* and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
-		*/
+
 		jsPlumbUIComponent = window.jsPlumbUIComponent = function(params) {
 
 			jsPlumbUtil.EventGenerator.apply(this, arguments);
@@ -461,7 +453,7 @@
 				o.unshift.apply(o, checkKey(defaultKeys[i]));
 			
 			return o;
-		},
+		},		
 		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
 
 			jsPlumbUIComponent.apply(this, arguments);
@@ -689,8 +681,8 @@
 				_initialDefaults = {},
 	            _zoom = 1,
 	            _info = function(el) {
-	            	el = _dom(el);	
-	            	return { el:el, id:_getId(el) };
+	            	var _el = _dom(el);	
+	            	return { el:_el, id:(jsPlumbUtil.isString(el) && _el == null) ? el : _getId(_el) };
 	            };
             
 	        this.getInstanceIndex = function() { return _instanceIndex; };
@@ -2857,7 +2849,7 @@
         * element associated with a connection drag.
         */
         this.remove = function(el, doNotRepaint) {
-            var info = _info(el);
+        	var info = _info(el);        	
             _currentInstance.doWhileSuspended(function() {
             	_currentInstance.removeAllEndpoints(info.id, true);
             	_currentInstance.dragManager.elementRemoved(info.id);
@@ -2865,7 +2857,7 @@
             	_currentInstance.anchorManager.clearFor(info.id);						
             	_currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
-            jsPlumb.CurrentLibrary.removeElement(info.el);
+            info.el && jsPlumb.CurrentLibrary.removeElement(info.el);
         };
 
 		var _registeredListeners = {},

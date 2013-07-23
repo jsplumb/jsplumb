@@ -68,7 +68,8 @@
             //g["coordsize"] = "1000,1000";
             g.style.backgroundColor="red";
             _groupMap[id] = g;
-            jsPlumb.appendElement(g, container);  // todo if this gets reinstated, remember to use the current jsplumb instance.
+            //jsPlumb.appendElement(g, container);  // todo if this gets reinstated, remember to use the current jsplumb instance.
+            //jsPlumb.CurrentLibrary.getDOMElement(container).appendChild(g);
             //document.body.appendChild(g);
         }
         return g;
