@@ -141,7 +141,7 @@ module.exports = function(grunt) {
         uglify: fileLists("-min"),
         qunit:{
             target: {
-                src: ['tests/qunit-svg*.html', 'tests/qunit-canvas*.html' ]
+                src: ['tests/qunit-svg-jquery*.html', 'tests/qunit-canvas-jquery*.html' ]
             }
         },
         copy:{
@@ -229,6 +229,6 @@ module.exports = function(grunt) {
     // build it into the grunt build.
    
     // Default task(s).
-    grunt.registerTask('build', ['qunit', 'concat', 'uglify', 'copy', 'regex-replace', 'markdown', 'docular', 'info']);
+    grunt.registerTask('build', [/*'qunit', */'concat', 'uglify', 'copy', 'regex-replace', 'markdown', 'docular', 'info']);
     grunt.registerTask('default', ['help']);
 };
