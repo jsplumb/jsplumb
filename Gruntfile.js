@@ -107,15 +107,16 @@ module.exports = function(grunt) {
                 dest:'dist/js/' + l + '.jsPlumb-<%= pkg.version%>' + suffix + '.js'
             };
         });
-        console.dir(o)
         return o;
     };
-
+    
     var makeReplacements = function() {
         var o = {};
+        // expand out lists of individual imports into concatenated versions for dist.
+        // also replace link to docs
         libraries.forEach(function(l) {
             o[l] = {
-                src: ['dist/demo/' + l + '/*.html'],
+                src: ['dist/demo/*/' + l + '.html', 'dist/tests/*.html' ],
                 actions: [
                     {
                         name:"dep",                        
@@ -128,10 +129,47 @@ module.exports = function(grunt) {
                         search:"(<!-- JS.*>.*\n)(.*\n)*(.*/JS -->)",                        
                         replace:"<script type='text/javascript' src='../js/" + l + ".jsPlumb-<%= pkg.version%>-min.js'></script>",
                         flags:'gm'
+                    },
+                    {
+                        search:"<a href=\"http://localhost:4567\">",
+                        replace:"<a href=\"../../docs/\">",
+                        flags:"gm"
                     }
                 ]
             }    
         });
+
+        // change media wiki style links into standard markdown links
+        // [[Changes since version 1.4.0|changelog]]  -> [Changes since version 1.4.0](changelog)
+        o["docs"] = {
+            src:['jsPlumb.wiki/*.md'],
+            actions:[
+                {
+                    name:"links",
+                    search:"\\[\\[(.*)\\|(.*)\\]\\]",
+                    replace:"[$1]($2)",
+                    flags:"gm"
+                }
+            ]
+        }
+
+        // copy docular generated docs in and replace absolute paths with relative paths
+        o["docular"] = {
+            src:["dist/apidocs/**/*.html"],
+            actions:[
+                {
+                    search:"/resources",
+                    replace:"resources",
+                    flags:"gm"
+                },
+                {
+                    search:"/documentation",
+                    replace:"documentation",
+                    flags:"gm"  
+                }
+            ]
+        }
+
         return o;
     };
 
@@ -149,11 +187,8 @@ module.exports = function(grunt) {
         copy:{
             demos:{
                 files:[
-                    { expand:true, src:"demo/**/*", dest:"dist" }                                                                                                 
-                ]
-            },
-            requirejs:{
-                files:[
+                    { expand:true, src:"demo/**/*", dest:"dist" },
+                    { expand:true, cwd:"dist/js/", src:"*.js", dest:"dist/demo/js/"},
                     { 
                         expand:true, 
                         cwd:"dist/js/", 
@@ -162,38 +197,87 @@ module.exports = function(grunt) {
                         rename:function() {                             
                             return "dist/demo/requirejs/scripts/jsplumb.js" 
                         } 
+                    },
+                    {
+                        expand:true,
+                        cwd:"lib",
+                        src:["mootools-1.3.2.1-more.js", "jquery-1.9.0.js", "jquery-ui-1.9.2-min.js", "jquery.ui.touch-punch.min.js"],
+                        dest:"dist/lib/"
                     }
-                ]
-            },
-            jsplumb_to_demo:{
-                files:[
-                    { expand:true, cwd:"dist/js/", src:"*.js", dest:"dist/demo/js/"}
                 ]
             },
             tests:{
                 files:[
-                    { expand:true, src:"tests/jsPlumb-tests.js", dest:"dist/"}
+                    { expand:true, src:"tests/jsPlumb-tests.js", dest:"dist/" },
+                    { expand:true, src:"tests/qunit-*.*", dest:"dist/" },
+                    { expand:true, src:"tests/all-tests.html", dest:"dist/" },
+                    { expand:true, src:"tests/loadTestHarness.js", dest:"dist/" },
+                    { expand:true, src:"tests/loadTestHarness.html", dest:"dist/" }
+                ]
+            },
+            doc:{
+                files:[
+                    { 
+                        expand:true, 
+                        src:"doc/gollum-template.css", 
+                        // it is quite incredible that i have to do this.  if i supply that
+                        // string to the 'dest' argument it treats it as a directory!
+                        // amazing.  and also, amazingly, reasoned away on the project's github page.
+                        // TODO: write a new grunt copy task.
+                        rename:function() {                                                 
+                            return "dist/docs/gollum-template.css";
+                        }
+                    },
+                    {
+                        expand:true,
+                        src:"demo/demo-all.css",
+                        rename:function() { return "dist/docs/demo-all.css"; }
+                    }
+                ]
+            },
+            // copy markdown to temp dir for pre-processing
+            temp:{
+                files:[
+                    {
+                        expand:true,
+                        src:"../jsPlumb.wiki/*.md",
+                        dest:"TEMPOUT/"
+                    }
+                ]
+            },
+            docular:{
+                files:[
+                    {
+                        expand:true,
+                        src:"node_modules/grunt-docular/node_modules/docular/lib/webapp/**",                        
+                        rename:function(a,b,c) {
+                            return b.replace("node_modules/grunt-docular/node_modules/docular/lib/webapp/", "dist/apidocs/")
+                        }
+                    }
                 ]
             }
         },
         "regex-replace": makeReplacements(),
-        // TODO: use a template in the markdown plugin
-        // https://github.com/treasonx/grunt-markdown
         markdown: {
             all: {
                 files: [{
                     expand: true,
-                    src: '../jsPlumb.wiki/*.md',
-                    dest: 'dist/docs/html/',
+                    flatten:true,
+                    src: 'jsPlumb.wiki/*.md',
+                    dest: 'dist/docs/',
                     ext: '.html'
-                }]
+                }],
+                options:{
+                    template:'./doc/doc-template.html'
+                }
             }
         },
         docular: {
+            baseUrl:"./",
             groups: [{
                 groupTitle: 'jsPlumb apidoc',
                 groupId: 'apidoc',
-                groupIcon: 'icon-beer',
+                //groupIcon: 'icon-beer',
                 sections: [{
                     id: "classes",
                     title: "Classes",
@@ -206,6 +290,9 @@ module.exports = function(grunt) {
             }],
             showDocularDocs: false,
             showAngularDocs: false
+        },
+        clean:{
+            temp:"jsPlumb.wiki"
         }   
     });
    
@@ -217,6 +304,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-regex-replace');
     grunt.loadNpmTasks('grunt-markdown');
+    grunt.loadNpmTasks('grunt-contrib-clean');
 
     // the current build:
     // - generates apidocs and massages the resulting files a little (docular to the rescue)
@@ -229,8 +317,13 @@ module.exports = function(grunt) {
 
     // the wiki documentation is handled in the jsplumb.org project. but i would like to somehow
     // build it into the grunt build.
-   
-    // Default task(s).
-    grunt.registerTask('build', [/*'qunit', */'concat', 'uglify', 'copy', 'regex-replace', 'markdown', 'docular', 'info']);
+
+    grunt.registerTask('writeIndex', function() {
+        // write an index file to the root of the dist dir (redirects to main jquery demo)    
+        grunt.file.write("dist/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/jquery.html'/></head></html>");
+        // write an index file to the root of the docs dir (redirects to 'home')
+        grunt.file.write("dist/docs/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");
+    })
+    grunt.registerTask('build', [/*'qunit', */'docular', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:docular', 'regex-replace', 'markdown', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
 };

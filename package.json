@@ -30,6 +30,7 @@
     "grunt-contrib-jshint": "~0.6.0",
     "grunt-docular": "~0.1.1",
     "grunt-regex-replace": "~0.2.5",
-    "grunt-markdown": "~0.3.0"
+    "grunt-markdown": "~0.3.0",
+    "grunt-contrib-clean": "~0.5.0"
   }
 }
