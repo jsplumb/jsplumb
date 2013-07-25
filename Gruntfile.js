@@ -348,6 +348,17 @@ module.exports = function(grunt) {
 
     });
 
+    /*
+
+    <target name="upgrade-jsbezier" depends="old,new">
+        <!-- replace refs to old version in demo html to new version -->
+        <replace dir="demo/jquery" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
+        <replace dir="demo/yui3" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
+        <replace dir="demo/mootools" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
+    </target>
+    */
+
+
     grunt.registerTask('build', [/*'qunit', */'docular', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:docular', 'regex-replace', 'markdown', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
 };
