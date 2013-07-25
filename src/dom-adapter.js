@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.2
+ * Title:jsPlumb 1.5.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -48,8 +48,7 @@
 		this.register = function(el) {
             var jpcl = jsPlumb.CurrentLibrary,
             	_el = jpcl.getElementObject(el),
-            	id = _currentInstance.getId(el),
-                //domEl = jpcl.getDOMElement(el),
+            	id = _currentInstance.getId(el),                
                 parentOffset = jpcl.getOffset(_el);
                     
             if (!_draggables[id]) {
@@ -120,7 +119,7 @@
 			var jpcl = jsPlumb.CurrentLibrary, b = document.body, id = _currentInstance.getId(el), 
 				c = jpcl.getElementObject(el), 
 				cLoc = jsPlumb.CurrentLibrary.getOffset(c),
-				p = c.parentNode, done = p == b;
+				p = el.parentNode, done = p == b;
 
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
 
