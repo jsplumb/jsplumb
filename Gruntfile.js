@@ -334,8 +334,10 @@ module.exports = function(grunt) {
             var oldV = grunt.config("pkg").version;
             var _replace = function(cwd, pattern) {
                 var _one = function(f) {
-                    var f = grunt.file.read(cwd + "/" + f);
-                    grunt.file.write(cwd + "/" + f, f.replace(oldV, newV));
+                    if (!grunt.file.isDir(cwd + "/" + f)) {
+                        var f = grunt.file.read(cwd + "/" + f);
+                        grunt.file.write(cwd + "/" + f, f.replace(oldV, newV));
+                    }
                 };
                 var sources = grunt.file.expand({cwd:"src"},"*.js")
                 for (var i = 0; i < sources.length; i++)
