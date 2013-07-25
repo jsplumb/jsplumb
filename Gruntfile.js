@@ -323,7 +323,31 @@ module.exports = function(grunt) {
         grunt.file.write("dist/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/jquery.html'/></head></html>");
         // write an index file to the root of the docs dir (redirects to 'home')
         grunt.file.write("dist/docs/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");
-    })
+    });
+
+    grunt.registerTask('update', function() {
+        var newV = grunt.option("newver");
+        if (newV == null) {
+            grunt.log.error("You must provide the new version: grunt update --newver=X.X.X");
+        }
+        else {            
+            var oldV = grunt.config("pkg").version;
+            var _replace = function(cwd, pattern) {
+                var _one = function(f) {
+                    var f = grunt.file.read(cwd + "/" + f);
+                    grunt.file.write(cwd + "/" + f, f.replace(oldV, newV));
+                };
+                var sources = grunt.file.expand({cwd:"src"},"*.js")
+                for (var i = 0; i < sources.length; i++)
+                    _one(sources[i]);    
+            }
+            // now update version number in all demos and src files
+            _replace("src", "*.js");
+            _replace("demo", "*.html");
+        }
+
+    });
+
     grunt.registerTask('build', [/*'qunit', */'docular', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:docular', 'regex-replace', 'markdown', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
 };
