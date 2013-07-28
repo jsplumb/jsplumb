@@ -2566,10 +2566,8 @@
 
 						if (existingStop) existingStop.apply(this, arguments);								
 	                    _currentInstance.currentlyDragging = false;						
-						if (ep.connections.length == 0)
-							_currentInstance.deleteEndpoint(ep);
-						else {
-							
+						if (ep._jsPlumb != null) { // if not cleaned up...
+
 							jpcl.unbind(ep.canvas, "mousedown"); 
 									
 							// reset the anchor to the anchor that was initially provided. the one we were using to drag
