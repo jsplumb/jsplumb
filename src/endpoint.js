@@ -819,9 +819,15 @@
                             //        if (jpc.endpoints[0].addedViaMouse) jpc.endpointsToDeleteOnDetach[0] = jpc.endpoints[0];
                             //        if (jpc.endpoints[1].addedViaMouse) jpc.endpointsToDeleteOnDetach[1] = jpc.endpoints[1];
 
+                                    // TODO this is like the makeTarget drop code.
+                                    if (idx == 1)
+                                        _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc);
+                                    else
+                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
-                                    _finaliseConnection(jpc, null, originalEvent);
+                                    _finaliseConnection(jpc, null, originalEvent, true);
                                     
                                     commonFunction();
                                 }.bind(this);

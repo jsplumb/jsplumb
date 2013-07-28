@@ -1065,18 +1065,17 @@
 		//
 		// adds the connection to the backing model, fires an event if necessary and then redraws
 		//
-		_finaliseConnection = function(jpc, params, originalEvent) {
+		_finaliseConnection = function(jpc, params, originalEvent, doInformAnchorManager) {
             params = params || {};
 			// add to list of connections (by scope).
             if (!jpc.suspendedEndpoint)
-			    //jsPlumbUtil.addToList(connectionsByScope, jpc.scope, jpc);					
-				connections.push(jpc);
+			    connections.push(jpc);
 			
             // always inform the anchor manager
             // except that if jpc has a suspended endpoint it's not true to say the
             // connection is new; it has just (possibly) moved. the question is whether
             // to make that call here or in the anchor manager.  i think perhaps here.
-            if (jpc.suspendedEndpoint == null)
+            if (jpc.suspendedEndpoint == null || doInformAnchorManager)
             	_currentInstance.anchorManager.newConnection(jpc);
 
 			// force a paint
