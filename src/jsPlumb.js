@@ -1138,12 +1138,8 @@
                 _p.fireDetachEvent = fireDetachEvent;
                 _p.floatingConnections = floatingConnections;
                 _p.getParentFromParams = _getParentFromParams;
-                _p.elementId = _getId(_p.source);
-                try {
-				var ep = new endpointFunc(_p);
-			} catch (e) {
-				console.log(e)
-			}
+                _p.elementId = _getId(_p.source);                
+				var ep = new endpointFunc(_p);			
 				ep.id = "ep_" + _idstamp();
 				_eventFireProxy("click", "endpointClick", ep);
 				_eventFireProxy("dblclick", "endpointDblClick", ep);
