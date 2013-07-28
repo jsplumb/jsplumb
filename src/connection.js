@@ -146,6 +146,17 @@
         // or if the endpoints were supplied, use them.
         //if (params.endpointsToDeleteOnDetach)
         //    this.endpointsToDeleteOnDetach = params.endpointsToDeleteOnDetach;
+
+        // if explicitly told to (or not to) delete endpoints on detach, override endpoint's preferences
+        if (params.deleteEndpointsOnDetach != null) {
+            this.endpoints[0]._deleteOnDetach = params.deleteEndpointsOnDetach;
+            this.endpoints[1]._deleteOnDetach = params.deleteEndpointsOnDetach;
+        }
+        else {
+            // otherwise, unless the endpoints say otherwise, mark them for deletion.
+            if (!this.endpoints[0]._doNotDeleteOnDetach) this.endpoints[0]._deleteOnDetach = true;
+            if (!this.endpoints[1]._doNotDeleteOnDetach) this.endpoints[1]._deleteOnDetach = true;
+        }   
                     
         // TODO these could surely be refactored into some method that tries them one at a time until something exists
         this.setConnector(this.endpoints[0].connector || 

@@ -403,87 +403,87 @@
 // ------------------------------ BEGIN OverlayCapablejsPlumbUIComponent --------------------------------------------
 
 		var _internalLabelOverlayId = "__label",
-		// helper to get the index of some overlay
-		_getOverlayIndex = function(component, id) {
-			var idx = -1;
-			for (var i = 0, j = component._jsPlumb.overlays.length; i < j; i++) {
-				if (id === component._jsPlumb.overlays[i].id) {
-					idx = i;
-					break;
+			// helper to get the index of some overlay
+			_getOverlayIndex = function(component, id) {
+				var idx = -1;
+				for (var i = 0, j = component._jsPlumb.overlays.length; i < j; i++) {
+					if (id === component._jsPlumb.overlays[i].id) {
+						idx = i;
+						break;
+					}
 				}
-			}
-			return idx;
-		},
-		// this is a shortcut helper method to let people add a label as
-		// overlay.						
-		_makeLabelOverlay = function(component, params) {
-
-			var _params = {
-				cssClass:params.cssClass,
-				labelStyle : component.labelStyle,					
-				id:_internalLabelOverlayId,
-				component:component,
-				_jsPlumb:component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
+				return idx;
 			},
-			mergedParams = jsPlumb.extend(_params, params);
+			// this is a shortcut helper method to let people add a label as
+			// overlay.						
+			_makeLabelOverlay = function(component, params) {
 
-			return new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()].Label( mergedParams );
-		},
-		_processOverlay = function(component, o) {
-			var _newOverlay = null;
-			if (_ju.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
-				// there's also a three arg version:
-				// ["Arrow", { width:50 }, {location:0.7}] 
-				// which merges the 3rd arg into the 2nd.
-				var type = o[0],
-					// make a copy of the object so as not to mess up anyone else's reference...
-					p = jsPlumb.extend({component:component, _jsPlumb:component._jsPlumb.instance}, o[1]);
-				if (o.length == 3) jsPlumb.extend(p, o[2]);
-				_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);					
-			} else if (o.constructor == String) {
-				_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component:component, _jsPlumb:component._jsPlumb.instance});
-			} else {
-				_newOverlay = o;
-			}										
+				var _params = {
+					cssClass:params.cssClass,
+					labelStyle : component.labelStyle,					
+					id:_internalLabelOverlayId,
+					component:component,
+					_jsPlumb:component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
+				},
+				mergedParams = jsPlumb.extend(_params, params);
+
+				return new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()].Label( mergedParams );
+			},
+			_processOverlay = function(component, o) {
+				var _newOverlay = null;
+				if (_ju.isArray(o)) {	// this is for the shorthand ["Arrow", { width:50 }] syntax
+					// there's also a three arg version:
+					// ["Arrow", { width:50 }, {location:0.7}] 
+					// which merges the 3rd arg into the 2nd.
+					var type = o[0],
+						// make a copy of the object so as not to mess up anyone else's reference...
+						p = jsPlumb.extend({component:component, _jsPlumb:component._jsPlumb.instance}, o[1]);
+					if (o.length == 3) jsPlumb.extend(p, o[2]);
+					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);					
+				} else if (o.constructor == String) {
+					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component:component, _jsPlumb:component._jsPlumb.instance});
+				} else {
+					_newOverlay = o;
+				}										
+					
+				component._jsPlumb.overlays.push(_newOverlay);
+			},
+			_calculateOverlaysToAdd = function(component, params) {
+				var defaultKeys = component.defaultOverlayKeys || [], o = params.overlays,
+					checkKey = function(k) {
+						return component._jsPlumb.instance.Defaults[k] || jsPlumb.Defaults[k] || [];
+					};
 				
-			component._jsPlumb.overlays.push(_newOverlay);
-		},
-		_calculateOverlaysToAdd = function(component, params) {
-			var defaultKeys = component.defaultOverlayKeys || [], o = params.overlays,
-				checkKey = function(k) {
-					return component._jsPlumb.instance.Defaults[k] || jsPlumb.Defaults[k] || [];
-				};
-			
-			if (!o) o = [];
+				if (!o) o = [];
 
-			for (var i = 0, j = defaultKeys.length; i < j; i++)
-				o.unshift.apply(o, checkKey(defaultKeys[i]));
-			
-			return o;
-		},		
-		OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
+				for (var i = 0, j = defaultKeys.length; i < j; i++)
+					o.unshift.apply(o, checkKey(defaultKeys[i]));
+				
+				return o;
+			},		
+			OverlayCapableJsPlumbUIComponent = window.OverlayCapableJsPlumbUIComponent = function(params) {
 
-			jsPlumbUIComponent.apply(this, arguments);
-			this._jsPlumb.overlays = [];			
+				jsPlumbUIComponent.apply(this, arguments);
+				this._jsPlumb.overlays = [];			
 
-			var _overlays = _calculateOverlaysToAdd(this, params);
-			if (_overlays) {
-				for (var i = 0, j = _overlays.length; i < j; i++) {
-					_processOverlay(this, _overlays[i]);
+				var _overlays = _calculateOverlaysToAdd(this, params);
+				if (_overlays) {
+					for (var i = 0, j = _overlays.length; i < j; i++) {
+						_processOverlay(this, _overlays[i]);
+					}
 				}
-			}
-			
-			if (params.label) {
-				var loc = params.labelLocation || this.defaultLabelLocation || 0.5,
-					labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;
+				
+				if (params.label) {
+					var loc = params.labelLocation || this.defaultLabelLocation || 0.5,
+						labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;
 
-				this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
-					label:params.label,
-					location:loc,
-					labelStyle:labelStyle
-				}));
-			}			                                  
-		};
+					this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
+						label:params.label,
+						location:loc,
+						labelStyle:labelStyle
+					}));
+				}			                                  
+			};
 
 		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
 			applyType : function(t, doNotRepaint) {			
@@ -622,7 +622,10 @@
 		
 			this.logEnabled = this.Defaults.LogEnabled;
 		
-			var _connectionTypes = { }, _endpointTypes = {};
+			//var _connectionTypes = { }, _endpointTypes = {};
+			this._connectionTypes = {};
+			this._endpointTypes = {};
+
 			/**
 			* @doc function
 			* @name jsPlumb.class:registerConnectionType
@@ -632,7 +635,7 @@
 			* Registers the given connection type on this instance of jsPlumb.
 			*/
 			this.registerConnectionType = function(id, type) {
-				_connectionTypes[id] = jsPlumb.extend({}, type);
+				this._connectionTypes[id] = jsPlumb.extend({}, type);
 			};
 			/**
 			* @doc function
@@ -644,7 +647,7 @@
 			*/
 			this.registerConnectionTypes = function(types) {
 				for (var i in types)
-					_connectionTypes[i] = jsPlumb.extend({}, types[i]);
+					this._connectionTypes[i] = jsPlumb.extend({}, types[i]);
 			};
 			/**
 			* @doc function
@@ -655,7 +658,7 @@
 			* Registers the given endpoint type on this instance of jsPlumb.
 			*/
 			this.registerEndpointType = function(id, type) {
-				_endpointTypes[id] = jsPlumb.extend({}, type);
+				this._endpointTypes[id] = jsPlumb.extend({}, type);
 			};
 			/**
 			* @doc function
@@ -667,7 +670,7 @@
 			*/
 			this.registerEndpointTypes = function(types) {
 				for (var i in types)
-					_endpointTypes[i] = jsPlumb.extend({}, types[i]);
+					this._endpointTypes[i] = jsPlumb.extend({}, types[i]);
 			};
 			/**
 			* @doc function
@@ -679,7 +682,7 @@
 			* @return {object} Type specification, it if exists, null otherwise.
 			*/
 			this.getType = function(id, typeDescriptor) {
-				return typeDescriptor ===  "connection" ? _connectionTypes[id] : _endpointTypes[id];
+				return typeDescriptor ===  "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
 			};
 
 			jsPlumbUtil.EventGenerator.apply(this);
@@ -1001,6 +1004,8 @@
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
 					 //newEndpoint._makeTargetCreator = true;
+					 // TODO test options to makeTarget to see if we should do this?
+					 newEndpoint._doNotDeleteOnDetach = false; // reset.
 					 newEndpoint._deleteOnDetach = true;
 					 //_p.targetIsNew = true;
 				}
@@ -1019,7 +1024,8 @@
 					var newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.source, tep);
 					if (_sourceEndpointsUnique[tid]) _sourceEndpoints[tid] = newEndpoint;
 					 _p.sourceEndpoint = newEndpoint;
-					 //_p.sourceIsNew = true;
+					 // TODO test options to makeSource to see if we should do this?
+					 newEndpoint._doNotDeleteOnDetach = false; // reset.
 					 newEndpoint._deleteOnDetach = true;
 				}
 			}
@@ -1133,7 +1139,11 @@
                 _p.floatingConnections = floatingConnections;
                 _p.getParentFromParams = _getParentFromParams;
                 _p.elementId = _getId(_p.source);
+                try {
 				var ep = new endpointFunc(_p);
+			} catch (e) {
+				console.log(e)
+			}
 				ep.id = "ep_" + _idstamp();
 				_eventFireProxy("click", "endpointClick", ep);
 				_eventFireProxy("dblclick", "endpointDblClick", ep);
@@ -1445,6 +1455,7 @@
 				if (!_suspendDrawing) e.paint(endpointPaintParams);
 				
 				results.push(e);
+				e._doNotDeleteOnDetach = true; // mark this as being added via addEndpoint.
 				//if (!jsPlumbAdapter.headless)
 					//_currentInstance.dragManager.endpointAdded(_el);
 			}
@@ -1557,8 +1568,8 @@
 				// a connect call will delete its created endpoints on detach, unless otherwise specified.
 				// this is because the endpoints belong to this connection only, and are no use to
 				// anyone else, so they hang around like a bad smell.
-				if (_p.deleteEndpointsOnDetach == null)
-					_p.deleteEndpointsOnDetach = true;
+				//if (_p.deleteEndpointsOnDetach == null)
+				//	_p.deleteEndpointsOnDetach = true;
 
 				// create the connection.  it is not yet registered 
 				jpc = _newConnection(_p);
@@ -2405,6 +2416,8 @@
 							newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
 
 						if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
+						// TODO test options to makeTarget to see if we should do this?
+						newEndpoint._doNotDeleteOnDetach = false; // reset.
 						newEndpoint._deleteOnDetach = true;
 																
 						// if the anchor has a 'positionFinder' set, then delegate to that function to find
@@ -2672,6 +2685,9 @@
 						// to move the endpoint.
 						ep.endpointWillMoveAfterConnection = p.parent != null;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
+
+						// TODO test options to makeSource to see if we should do this?
+						ep._doNotDeleteOnDetach = false; // reset.
 						ep._deleteOnDetach = true;
 
 	                    var _delTempEndpoint = function() {
