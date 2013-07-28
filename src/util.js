@@ -287,10 +287,10 @@
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
         // class members, any of which may be null.
         //
-        extend : function(child, parent, _proto/*, classMembers*/) {
-            _proto = _proto || {};
-            parent = _isa(parent) ? parent : [ parent ];
-            //classMembers = classMembers || {};
+        extend : function(child, parent, _protoFn, _protoAtts) {
+            _protoFn = _protoFn || {};
+            _protoAtts = _protoAtts || {};
+            parent = _isa(parent) ? parent : [ parent ];            
 
             for (var i = 0; i < parent.length; i++) {
                 for (var j in parent[i].prototype) {
@@ -306,12 +306,16 @@
                         if (parent[i].prototype[name])
                             parent[i].prototype[name].apply(this, arguments);
                     }                    
-                    return _proto[name].apply(this, arguments);
+                    return _protoFn[name].apply(this, arguments);
                 };
             };
 
-            for (var j in _proto) {
+            for (var j in _protoFn) {
                 child.prototype[j] = _makeFn(j);
+            }
+
+            for (var j in _protoAtts) {
+                child.prototype[j] = _protoAtts[j];
             }
 
             return child;

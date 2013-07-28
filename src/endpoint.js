@@ -398,7 +398,7 @@
          * private but needs to be exposed.
          */
         this.isFloating = function() {
-            return this._jsPlumb.floatingEndpoint != null;
+            return this.anchor != null && this.anchor.isFloating;
         };
         
         /**
@@ -816,8 +816,8 @@
                                     }
 
                                     // mark endpoints to delete on detach
-                                    if (jpc.endpoints[0].addedViaMouse) jpc.endpointsToDeleteOnDetach[0] = jpc.endpoints[0];
-                                    if (jpc.endpoints[1].addedViaMouse) jpc.endpointsToDeleteOnDetach[1] = jpc.endpoints[1];
+                            //        if (jpc.endpoints[0].addedViaMouse) jpc.endpointsToDeleteOnDetach[0] = jpc.endpoints[0];
+                            //        if (jpc.endpoints[1].addedViaMouse) jpc.endpointsToDeleteOnDetach[1] = jpc.endpoints[1];
 
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.

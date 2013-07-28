@@ -127,11 +127,9 @@
         };
         
 // INITIALISATION CODE			
-                    
-        
+                            
         // wrapped the main function to return null if no input given. this lets us cascade defaults properly.
         
-
         var eS = prepareEndpoint(_jsPlumb, _newEndpoint, this, params.sourceEndpoint, 0, params, this.source, this.sourceId, params.paintStyle, params.hoverPaintStyle);			
         if (eS) _ju.addToList(params.endpointsByElement, this.sourceId, eS);						
         var eT = prepareEndpoint(_jsPlumb, _newEndpoint, this, params.targetEndpoint, 1, params, this.target, this.targetId, params.paintStyle, params.hoverPaintStyle);
@@ -140,14 +138,14 @@
         if (!this.scope) this.scope = this.endpoints[0].scope;		
         
         // if delete endpoints on detach, keep a record of just exactly which endpoints they are.
-        this.endpointsToDeleteOnDetach = [null, null];
-        if (params.deleteEndpointsOnDetach) {
-            if (params.sourceIsNew) this.endpointsToDeleteOnDetach[0] = this.endpoints[0];
-            if (params.targetIsNew) this.endpointsToDeleteOnDetach[1] = this.endpoints[1];
-        }
+        //this.endpointsToDeleteOnDetach = [null, null];
+        //if (params.deleteEndpointsOnDetach) {
+        //    if (params.sourceIsNew) this.endpointsToDeleteOnDetach[0] = this.endpoints[0];
+        //    if (params.targetIsNew) this.endpointsToDeleteOnDetach[1] = this.endpoints[1];
+        //}
         // or if the endpoints were supplied, use them.
-        if (params.endpointsToDeleteOnDetach)
-            this.endpointsToDeleteOnDetach = params.endpointsToDeleteOnDetach;
+        //if (params.endpointsToDeleteOnDetach)
+        //    this.endpointsToDeleteOnDetach = params.endpointsToDeleteOnDetach;
                     
         // TODO these could surely be refactored into some method that tries them one at a time until something exists
         this.setConnector(this.endpoints[0].connector || 
@@ -311,7 +309,7 @@
             this._jsPlumb.instance.setHoverSuspended(false);
         },
         cleanup:function() {
-            this.endpointsToDeleteOnDetach = null;
+            //this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
             this.source = null;
             this.target = null;                    
