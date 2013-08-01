@@ -666,8 +666,7 @@
             jsPlumbInstance = params.jsPlumbInstance,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,
-            size = jpcl.getSize(jpcl.getElementObject(refCanvas)), 
-            self = this,               
+            size = jpcl.getSize(jpcl.getElementObject(refCanvas));
 
         // these are used to store the current relative position of our
         // anchor wrt the reference anchor. they only indicate
@@ -729,7 +728,7 @@
          */
         this.out = function() { orientation = null; };
 
-        this.getCurrentLocation = function(params) { return _lastResult == null ? self.compute(params) : _lastResult; };
+        this.getCurrentLocation = function(params) { return _lastResult == null ? this.compute(params) : _lastResult; };
     };
     jsPlumbUtil.extend(jsPlumb.FloatingAnchor, jsPlumb.Anchor);
 
@@ -754,8 +753,6 @@
         this.anchors = [];
         this.elementId = params.elementId;
         this.jsPlumbInstance = params.jsPlumbInstance;
-
-        ;
 
         for (var i = 0; i < params.anchors.length; i++) 
             this.anchors[i] = _convertAnchor(params.anchors[i], this.jsPlumbInstance, this.elementId);			
