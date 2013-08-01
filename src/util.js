@@ -314,10 +314,6 @@
                 child.prototype[j] = _makeFn(j);
             }
 
-            for (var j in _protoAtts) {
-                child.prototype[j] = _protoAtts[j];
-            }
-
             return child;
         },
         uuid : function() {
@@ -377,6 +373,40 @@
                 el.style.left = x + "px";
                 el.style.top = y + "px";
             }
+        },
+        /**
+        * @doc function
+        * @name jsPlumbUtil.global:wrap
+        * @description Wraps one function with another, creating a placeholder for the
+        * wrapped function if it was null. this is used to wrap the various
+        * drag/drop event functions - to allow jsPlumb to be notified of
+        * important lifecycle events without imposing itself on the user's
+        * drag/drop functionality. 
+        * @param {function} wrappedFunction original function to wrap; may be null.
+        * @param {function} newFunction function to wrap the original with.
+        * @param {object} returnOnThisValue Optional. Indicates that the wrappedFunction should 
+        * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
+        * note that this is a simple comparison and only works for primitives right now.
+        */        
+        wrap : function(wrappedFunction, newFunction, returnOnThisValue) {
+            wrappedFunction = wrappedFunction || function() { };
+            newFunction = newFunction || function() { };
+            return function() {
+                var r = null;
+                try {
+                    r = newFunction.apply(this, arguments);
+                } catch (e) {
+                    _ju.log(_currentInstance, "jsPlumb function failed : " + e);
+                }
+                if (returnOnThisValue == null || (r !== returnOnThisValue)) {
+                    try {
+                        wrappedFunction.apply(this, arguments);
+                    } catch (e) {
+                        _ju.log(_currentInstance, "wrapped function failed : " + e);
+                    }
+                }
+                return r;
+            };
         }
     };
 
