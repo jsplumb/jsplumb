@@ -201,7 +201,7 @@
                                                   distance,
                                                   proximityLimit);
 
-				_super.addSegment("Bezier", {
+				_super.addSegment(this, "Bezier", {
 					x1:_tx, y1:_ty, x2:_sx, y2:_sy,
 					cp1x:_controlPoint[0], cp1y:_controlPoint[1],
 					cp2x:_controlPoint[0], cp2y:_controlPoint[1]
@@ -224,7 +224,7 @@
 				paintInfo.points[3] = h;
 				
 				// ADD AN ARC SEGMENT.
-				_super.addSegment("Arc", {
+				_super.addSegment(this, "Arc", {
 					x1:(x1-x) + 4,
 					y1:y1-y,
 					startAngle:0,

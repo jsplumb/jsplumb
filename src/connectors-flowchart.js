@@ -91,11 +91,11 @@
                             cx = (sgnEqual && ac || (!sgnEqual && !ac)) ? next[0] : current[2],
                             cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];                                                        
                         
-                        _super.addSegment("Straight", {
+                        _super.addSegment(this, "Straight", {
                             x1:current[0], y1:current[1], x2:current[2], y2:current[3]
                         });
                             
-                        _super.addSegment("Arc", {
+                        _super.addSegment(this, "Arc", {
                             r:radiusToUse, 
                             x1:current[2], 
                             y1:current[3], 
@@ -110,14 +110,14 @@
                         // dx + dy are used to adjust for line width.
                         var dx = (current[2] == current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
                             dy = (current[3] == current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
-                        _super.addSegment("Straight", {
+                        _super.addSegment(this, "Straight", {
                             x1:current[0]- dx, y1:current[1]-dy, x2:current[2] + dx, y2:current[3] + dy
                         });
                     }                    
                     current = next;
                 }
                 // last segment
-                _super.addSegment("Straight", {
+                _super.addSegment(this, "Straight", {
                     x1:next[0], y1:next[1], x2:next[2], y2:next[3]
                 });                             
             };
