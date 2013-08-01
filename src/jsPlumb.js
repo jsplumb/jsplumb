@@ -2073,8 +2073,8 @@
 				_targetEndpointDefinitions[elid] = p;
 				_targetEndpointsUnique[elid] = p.uniqueEndpoint,
 				_targetMaxConnections[elid] = maxConnections,
-				_targetsEnabled[elid] = true,
-				proxyComponent = new jsPlumbUIComponent(p);								
+				_targetsEnabled[elid] = true;
+				var proxyComponent = new jsPlumbUIComponent(p);								
 				
 				var dropOptions = jsPlumb.extend({}, p.dropOptions || {}),
 				_drop = function() {
