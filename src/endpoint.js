@@ -622,10 +622,10 @@
             
             dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
             dragOptions.scope = dragOptions.scope || this.scope;
-            dragOptions[startEvent] = _jsPlumb.wrap(dragOptions[startEvent], start);
+            dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start);
             // extracted drag handler function so can be used by makeSource
-            dragOptions[dragEvent] = _jsPlumb.wrap(dragOptions[dragEvent], _dragHandler.drag);
-            dragOptions[stopEvent] = _jsPlumb.wrap(dragOptions[stopEvent],
+            dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
+            dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
                 function() {                    
                     // get the actual drop event (decode from library args to stop function)
                     var originalEvent = jpcl.getDropEvent(arguments);					                    
@@ -696,6 +696,8 @@
 
                     // tell jsplumb that dragging is finished.
                     _jsPlumb.currentlyDragging = false;
+
+                    jpc = null;
 
                 }.bind(this));
             
@@ -874,8 +876,8 @@
                         }
                     }.bind(this);
                 
-                dropOptions[dropEvent] = _jsPlumb.wrap(dropOptions[dropEvent], drop);
-                dropOptions[overEvent] = _jsPlumb.wrap(dropOptions[overEvent], function() {					
+                dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop);
+                dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function() {					
                     var draggable = jpcl.getDragObject(arguments),
                         id = _jsPlumb.getAttribute(draggable, "dragId"),
                         _jpc = floatingConnections[id];
@@ -898,7 +900,7 @@
                     }						
                 }.bind(this));	
 
-                dropOptions[outEvent] = _jsPlumb.wrap(dropOptions[outEvent], function() {					
+                dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function() {					
                     var draggable = jpcl.getDragObject(arguments),
                         id = _jsPlumb.getAttribute( draggable, "dragId"),
                         _jpc = floatingConnections[id];
