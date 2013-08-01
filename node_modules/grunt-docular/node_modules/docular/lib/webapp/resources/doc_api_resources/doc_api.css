@@ -1,4 +1,20 @@
-.spacer {
+.tutorial-nav {
+  margin-left: 175px;
+  color: black;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.tutorial-nav a {
+  color: white;
+}
+
+.tutorial-nav a:hover {
+  color: white;
+  text-decoration: none;
+}
+
+ .spacer {
   height: 1em;
 }
 
@@ -61,22 +77,6 @@ ul.events > li > h3 {
   padding: .25em 19px;
   background-color: #d3d3d3;
   font-family: monospace;
-}
-
- .tutorial-nav {
-  margin-left: 175px;
-  color: black;
-  margin-top: 2em;
-  margin-bottom: 2em;
-}
-
-.tutorial-nav a {
-  color: white;
-}
-
-.tutorial-nav a:hover {
-  color: white;
-  text-decoration: none;
 }
 
  
