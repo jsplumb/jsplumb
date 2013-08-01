@@ -422,8 +422,8 @@
 		
         AbstractComponent.apply(this, arguments);        
 
-		var self = this, 
-        segments = [],
+		var //self = this, 
+            segments = [],
             editing = false,
 			totalLength = 0,
 			segmentProportions = [],
@@ -439,11 +439,8 @@
             paintInfo = null;            
         
         // subclasses should override.
-        this.isEditable = function() { return false; };                
-        
-        this.setEdited = function(ed) {
-            edited = ed;
-        };
+        this.isEditable = function() { return false; };                        
+        this.setEdited = function(ed) { edited = ed; };
 
         // to be overridden by subclasses.
         this.getPath = function() { };
@@ -513,12 +510,12 @@
                 //}
                 return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
             },		
-            _addSegment = function(type, params) {
+            _addSegment = function(conn, type, params) {
                 if (params.x1 == params.x2 && params.y1 == params.y2) return;
                 var s = new jsPlumb.Segments[type](params);
                 segments.push(s);
                 totalLength += s.getLength();	
-                self.updateBounds(s);	                                
+                conn.updateBounds(s);	                                
             },					
             _clearSegments = function() {
                 totalLength = 0;
@@ -659,9 +656,9 @@
 		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);		
 
         this._compute = function(paintInfo, _) {                        
-            _super.addSegment("Straight", {x1:paintInfo.sx, y1:paintInfo.sy, x2:paintInfo.startStubX, y2:paintInfo.startStubY});                                                
-            _super.addSegment("Straight", {x1:paintInfo.startStubX, y1:paintInfo.startStubY, x2:paintInfo.endStubX, y2:paintInfo.endStubY});                        
-            _super.addSegment("Straight", {x1:paintInfo.endStubX, y1:paintInfo.endStubY, x2:paintInfo.tx, y2:paintInfo.ty});                                    
+            _super.addSegment(this, "Straight", {x1:paintInfo.sx, y1:paintInfo.sy, x2:paintInfo.startStubX, y2:paintInfo.startStubY});                                                
+            _super.addSegment(this, "Straight", {x1:paintInfo.startStubX, y1:paintInfo.startStubY, x2:paintInfo.endStubX, y2:paintInfo.endStubY});                        
+            _super.addSegment(this, "Straight", {x1:paintInfo.endStubX, y1:paintInfo.endStubY, x2:paintInfo.tx, y2:paintInfo.ty});                                    
         };                    
     };
     jsPlumbUtil.extend(jsPlumb.Connectors.Straight, jsPlumb.Connectors.AbstractConnector);
