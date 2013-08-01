@@ -2558,7 +2558,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:d1, target:d2, dynamicAnchors:anchors});                // auto connect with default endpoint and provided anchors
 		assertContextSize(3);
 		assertConnectionByScopeCount(_jsPlumb.getDefaultScope(), 1, _jsPlumb);
-		assertEndpointCount("d1", 1, _jsPlumb);assertEndpointCount("d2", 1, _jsPlumb);
+		assertEndpointCount("d1", 1, _jsPlumb);
+		assertEndpointCount("d2", 1, _jsPlumb);
 		_jsPlumb.detach({source:d1, target:d2});
 		// this changed in 1.3.5, because auto generated endpoints are now removed by detach.  so i added the test below this one
 		// to check that the deleteEndpointsOnDetach flag is honoured.
@@ -4081,7 +4082,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 	});
 
 	test(renderMode + " setIdChanged, ", function() {
-		_addDiv("d1"); _addDiv("d2"); //_addDiv("d3");
+		_addDiv("d1"); _addDiv("d2"); 
 
 		_jsPlumb.Defaults.MaxConnections = -1;
 		var e1 = _jsPlumb.addEndpoint("d1"),
