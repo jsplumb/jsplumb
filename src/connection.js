@@ -136,17 +136,7 @@
         if (eT) _ju.addToList(params.endpointsByElement, this.targetId, eT);
         // if scope not set, set it to be the scope for the source endpoint.
         if (!this.scope) this.scope = this.endpoints[0].scope;		
-        
-        // if delete endpoints on detach, keep a record of just exactly which endpoints they are.
-        //this.endpointsToDeleteOnDetach = [null, null];
-        //if (params.deleteEndpointsOnDetach) {
-        //    if (params.sourceIsNew) this.endpointsToDeleteOnDetach[0] = this.endpoints[0];
-        //    if (params.targetIsNew) this.endpointsToDeleteOnDetach[1] = this.endpoints[1];
-        //}
-        // or if the endpoints were supplied, use them.
-        //if (params.endpointsToDeleteOnDetach)
-        //    this.endpointsToDeleteOnDetach = params.endpointsToDeleteOnDetach;
-
+                
         // if explicitly told to (or not to) delete endpoints on detach, override endpoint's preferences
         if (params.deleteEndpointsOnDetach != null) {
             this.endpoints[0]._deleteOnDetach = params.deleteEndpointsOnDetach;
