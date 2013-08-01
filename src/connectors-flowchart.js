@@ -69,7 +69,7 @@
                 self.bounds.minY = Math.min(self.bounds.minY, a1[3]);
                 self.bounds.maxY = Math.max(self.bounds.maxY, a1[3]);    
             },
-            writeSegments = function(segments, paintInfo) {
+            writeSegments = function(conn, segments, paintInfo) {
                 var current, next;                
                 for (var i = 0; i < segments.length - 1; i++) {
                     
@@ -91,11 +91,11 @@
                             cx = (sgnEqual && ac || (!sgnEqual && !ac)) ? next[0] : current[2],
                             cy = (sgnEqual && ac || (!sgnEqual && !ac)) ? current[3] : next[1];                                                        
                         
-                        _super.addSegment(this, "Straight", {
+                        _super.addSegment(conn, "Straight", {
                             x1:current[0], y1:current[1], x2:current[2], y2:current[3]
                         });
                             
-                        _super.addSegment(this, "Arc", {
+                        _super.addSegment(conn, "Arc", {
                             r:radiusToUse, 
                             x1:current[2], 
                             y1:current[3], 
@@ -110,14 +110,14 @@
                         // dx + dy are used to adjust for line width.
                         var dx = (current[2] == current[0]) ? 0 : (current[2] > current[0]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2),
                             dy = (current[3] == current[1]) ? 0 : (current[3] > current[1]) ? (paintInfo.lw / 2) : -(paintInfo.lw / 2);
-                        _super.addSegment(this, "Straight", {
+                        _super.addSegment(conn, "Straight", {
                             x1:current[0]- dx, y1:current[1]-dy, x2:current[2] + dx, y2:current[3] + dy
                         });
                     }                    
                     current = next;
                 }
                 // last segment
-                _super.addSegment(this, "Straight", {
+                _super.addSegment(conn, "Straight", {
                     x1:next[0], y1:next[1], x2:next[2], y2:next[3]
                 });                             
             };
@@ -320,7 +320,7 @@
             // end stub to end
             addSegment(segments, paintInfo.tx, paintInfo.ty, paintInfo);               
             
-            writeSegments(segments, paintInfo);                            
+            writeSegments(this, segments, paintInfo);                            
         };	
 
         this.getPath = function() {
