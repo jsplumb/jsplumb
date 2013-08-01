@@ -1,4 +1,4 @@
-* 1.4.2
+* 1.5.0
 
 		BACKWARDS COMPATIBILITY
 
@@ -43,9 +43,18 @@
 
 		ISSUES
 
-		49	- detachEveryConnection performance issue
-		51	- arrow overlay orientation at location 1 on flowchart connectors
-		63  - midpoint:0 is ignored
+		27 - investigate why a new connection is created after drag 
+		37 - .addClass() not working - IE8
+		39 - problem about connectionDrag event
+		49 - Calling detachEveryConnection winds up calling repaintEverything once for each endpoint
+		51 - arrow overlay orientation at location 1 on flowchart connectors
+		54 - Memory Leak Issue
+		57 - DOMException while dragging endpoints
+		60 - flowchart connector start position wrong
+		63  - Flowchart midpoint=0 is ignored 
+		65 - Uncaught exception in IE 8
+		69 - jsPlumb.detach(connection) is really slow with larger graphs
+		72 - Drag and drop connections fail to work correctly when using makeTarget
 
 
 * 1.4.1
