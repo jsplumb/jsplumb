@@ -201,56 +201,54 @@
                 },
                 lineCalculators = {
                     perpendicular : function(axis, ss, oss, es, oes) {
-                        with (paintInfo) {
-                            var sis = {
+                        var pi = paintInfo, 
+                            sis = {
                                 x:[ [ [ 1,2,3,4 ], null, [ 2,1,4,3 ] ], null, [ [ 4,3,2,1 ], null, [ 3,4,1,2 ] ] ],
                                 y:[ [ [ 3,2,1,4 ], null, [ 2,3,4,1 ] ], null, [ [ 4,1,2,3 ], null, [ 1,4,3,2 ] ] ]
                             },
                             stubs = { 
-                                x:[ [ startStubX, endStubX ] , null, [ endStubX, startStubX ] ],
-                                y:[ [ startStubY, endStubY ] , null, [ endStubY, startStubY ] ]
+                                x:[ [ pi.startStubX, pi.endStubX ] , null, [ pi.endStubX, pi.startStubX ] ],
+                                y:[ [ pi.startStubY, pi.endStubY ] , null, [ pi.endStubY, pi.startStubY ] ]
                             },
                             midLines = {
-                                x:[ [ midx, startStubY ], [ midx, endStubY ] ],
-                                y:[ [ startStubX, midy ], [ endStubX, midy ] ]
+                                x:[ [ pi.midx, pi.startStubY ], [ pi.midx, pi.endStubY ] ],
+                                y:[ [ pi.startStubX, pi.midy ], [ pi.endStubX, pi.midy ] ]
                             },
                             linesToEnd = {
-                                x:[ [ endStubX, startStubY ] ],
-                                y:[ [ startStubX, endStubY ] ]
+                                x:[ [ pi.endStubX, pi.startStubY ] ],
+                                y:[ [ pi.startStubX, pi.endStubY ] ]
                             },
                             startToEnd = {
-                                x:[ [ startStubX, endStubY ], [ endStubX, endStubY ] ],        
-                                y:[ [ endStubX, startStubY ], [ endStubX, endStubY ] ]
+                                x:[ [ pi.startStubX, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ],        
+                                y:[ [ pi.endStubX, pi.startStubY ], [ pi.endStubX, pi.endStubY ] ]
                             },
                             startToMidToEnd = {
-                                x:[ [ startStubX, midy ], [ endStubX, midy ], [ endStubX, endStubY ] ],
-                                y:[ [ midx, startStubY ], [ midx, endStubY ], [ endStubX, endStubY ] ]
+                                x:[ [ pi.startStubX, pi.midy ], [ pi.endStubX, pi.midy ], [ pi.endStubX, pi.endStubY ] ],
+                                y:[ [ pi.midx, pi.startStubY ], [ pi.midx, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ]
                             },
                             otherStubs = {
-                                x:[ startStubY, endStubY ],
-                                y:[ startStubX, endStubX ]                                    
+                                x:[ pi.startStubY, pi.endStubY ],
+                                y:[ pi.startStubX, pi.endStubX ]                                    
                             },
-                                        
                             soIdx = orientations[axis][0], toIdx = orientations[axis][1],
-                            _so = so[soIdx] + 1,
-                            _to = to[toIdx] + 1,
-                            otherFlipped = (to[toIdx] == -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (to[toIdx] == 1 && (otherStubs[axis][1] > otherStubs[axis][0])),
+                            _so = pi.so[soIdx] + 1,
+                            _to = pi.to[toIdx] + 1,
+                            otherFlipped = (pi.to[toIdx] == -1 && (otherStubs[axis][1] < otherStubs[axis][0])) || (pi.to[toIdx] == 1 && (otherStubs[axis][1] > otherStubs[axis][0])),
                             stub1 = stubs[axis][_so][0],
                             stub2 = stubs[axis][_so][1],
                             segmentIndexes = sis[axis][_so][_to];
-                            
-                            if (segment == segmentIndexes[3] || (segment == segmentIndexes[2] && otherFlipped)) {
-                                return midLines[axis];       
-                            }
-                            else if (segment == segmentIndexes[2] && stub2 < stub1) {
-                                return linesToEnd[axis];
-                            }
-                            else if ((segment == segmentIndexes[2] && stub2 >= stub1) || (segment == segmentIndexes[1] && !otherFlipped)) {
-                                return startToMidToEnd[axis];
-                            }
-                            else if (segment == segmentIndexes[0] || (segment == segmentIndexes[1] && otherFlipped)) {
-                                return startToEnd[axis];  
-                            }                                
+
+                        if (pi.segment == segmentIndexes[3] || (pi.segment == segmentIndexes[2] && otherFlipped)) {
+                            return midLines[axis];       
+                        }
+                        else if (pi.segment == segmentIndexes[2] && stub2 < stub1) {
+                            return linesToEnd[axis];
+                        }
+                        else if ((pi.segment == segmentIndexes[2] && stub2 >= stub1) || (pi.segment == segmentIndexes[1] && !otherFlipped)) {
+                            return startToMidToEnd[axis];
+                        }
+                        else if (pi.segment == segmentIndexes[0] || (pi.segment == segmentIndexes[1] && otherFlipped)) {
+                            return startToEnd[axis];  
                         }                                
                     },
                     orthogonal : function(axis, startStub, otherStartStub, endStub, otherEndStub) {                    
