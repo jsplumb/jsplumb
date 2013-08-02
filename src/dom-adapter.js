@@ -22,13 +22,13 @@
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
 		vmlAvailable = function() {		    
-            if (vmlAvailable.vml == undefined) { 
-                    var a = document.body.appendChild(document.createElement('div'));
-            a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
-            var b = a.firstChild;
-            b.style.behavior = "url(#default#VML)";
-            vmlAvailable.vml = b ? typeof b.adj == "object": true;
-            a.parentNode.removeChild(a);
+            if (vmlAvailable.vml === undefined) { 
+                var a = document.body.appendChild(document.createElement('div'));
+            	a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
+            	var b = a.firstChild;
+            	b.style.behavior = "url(#default#VML)";
+            	vmlAvailable.vml = b ? typeof b.adj == "object": true;
+            	a.parentNode.removeChild(a);
             }
             return vmlAvailable.vml;
 		};
@@ -206,7 +206,7 @@
             document.body.appendChild(node);
         },
         getRenderModes : function() {
-            return [ "canvas", "svg", "vml" ]
+            return [ "canvas", "svg", "vml" ];
         },
         isRenderModeAvailable : function(m) {
             return {
@@ -230,9 +230,9 @@
                 
                 // now test we actually have the capability to do this.						
                 if (mode === "svg") {
-                    if (svgAvailable) renderMode = "svg"
-                    else if (canvasAvailable) renderMode = "canvas"
-                    else if (vmlAvailable) renderMode = "vml"
+                    if (svgAvailable) renderMode = "svg";
+                    else if (canvasAvailable) renderMode = "canvas";
+                    else if (vmlAvailable) renderMode = "vml";
                 }
                 else if (mode === "canvas" && canvasAvailable) renderMode = "canvas";
                 else if (vmlAvailable) renderMode = "vml";

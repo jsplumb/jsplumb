@@ -127,30 +127,30 @@
 	_applyStyles = function(node, style, component, _jsPlumb) {
 		var styleToWrite = {};
 		if (style.strokeStyle) {
-			styleToWrite["stroked"] = "true";
+			styleToWrite.stroked = "true";
 			var strokeColor = jsPlumbUtil.convertStyle(style.strokeStyle, true);
-			styleToWrite["strokecolor"] = strokeColor;
+			styleToWrite.strokecolor = strokeColor;
 			_maybeSetOpacity(styleToWrite, strokeColor, "stroke", component);
-			styleToWrite["strokeweight"] = style.lineWidth + "px";
+			styleToWrite.strokeweight = style.lineWidth + "px";
 		}
-		else styleToWrite["stroked"] = "false";
+		else styleToWrite.stroked = "false";
 		
 		if (style.fillStyle) {
-			styleToWrite["filled"] = "true";
+			styleToWrite.filled = "true";
 			var fillColor = jsPlumbUtil.convertStyle(style.fillStyle, true);
-			styleToWrite["fillcolor"] = fillColor;
+			styleToWrite.fillcolor = fillColor;
 			_maybeSetOpacity(styleToWrite, fillColor, "fill", component);
 		}
-		else styleToWrite["filled"] = "false";
+		else styleToWrite.filled = "false";
 		
-		if(style["dashstyle"]) {
+		if(style.dashstyle) {
 			if (component.strokeNode == null) {
-				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style["dashstyle"] }, node, _jsPlumb);				
+				component.strokeNode = _node("stroke", [0,0,0,0], { dashstyle:style.dashstyle }, node, _jsPlumb);				
 			}
 			else
-				component.strokeNode.dashstyle = style["dashstyle"];
+				component.strokeNode.dashstyle = style.dashstyle;
 		}					
-		else if (style["stroke-dasharray"] && style["lineWidth"]) {
+		else if (style["stroke-dasharray"] && style.lineWidth) {
 			var sep = style["stroke-dasharray"].indexOf(",") == -1 ? " " : ",",
 			parts = style["stroke-dasharray"].split(sep),
 			styleToUse = "";
@@ -178,12 +178,12 @@
 			"fill":null
 		};
 		this.initOpacityNodes = function(vml) {
-			self.opacityNodes["stroke"] = _node("stroke", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb.instance);
-			self.opacityNodes["fill"] = _node("fill", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb.instance);							
+			self.opacityNodes.stroke = _node("stroke", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb.instance);
+			self.opacityNodes.fill = _node("fill", [0,0,1,1], {opacity:"0.0"}, vml, self._jsPlumb.instance);							
 		};
 		this.setOpacity = function(type, value) {
 			var node = self.opacityNodes[type];
-			if (node) node["opacity"] = "" + value;
+			if (node) node.opacity = "" + value;
 		};
 		var displayElements = [ ];
 		this.getDisplayElements = function() { 
@@ -232,7 +232,7 @@
 					
 					if (this.bgCanvas == null) {						
 						p["class"] = clazz;
-						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
+						p.coordsize = (d[2] * scale) + "," + (d[3] * scale);
 						this.bgCanvas = _node("shape", d, p, params.parent, this._jsPlumb.instance, true);						
 						_pos(this.bgCanvas, d);
 						this.appendDisplayElement(this.bgCanvas, true);	
@@ -240,7 +240,7 @@
 						this.initOpacityNodes(this.bgCanvas, ["stroke"]);		
 					}
 					else {
-						p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
+						p.coordsize = (d[2] * scale) + "," + (d[3] * scale);
 						_pos(this.bgCanvas, d);
 						_atts(this.bgCanvas, p);
 					}
@@ -251,7 +251,7 @@
 				
 				if (this.canvas == null) {										
 					p["class"] = clazz;
-					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);					
+					p.coordsize = (d[2] * scale) + "," + (d[3] * scale);					
 					this.canvas = _node("shape", d, p, params.parent, this._jsPlumb.instance, true);					                
                     //var group = _getGroup(params.parent);                   // test of append everything to a group
                     //group.appendChild(self.canvas);                           // sort of works but not exactly;
@@ -262,7 +262,7 @@
 					this.initOpacityNodes(this.canvas, ["stroke"]);		
 				}
 				else {
-					p["coordsize"] = (d[2] * scale) + "," + (d[3] * scale);
+					p.coordsize = (d[2] * scale) + "," + (d[3] * scale);
 					_pos(this.canvas, d);
 					_atts(this.canvas, p);
 				}
@@ -287,7 +287,7 @@
 		VmlComponent.apply(this, arguments);
 		this._jsPlumb.vml = null;//, opacityStrokeNode = null, opacityFillNode = null;
 		this.canvas = document.createElement("div");
-		this.canvas.style["position"] = "absolute";
+		this.canvas.style.position = "absolute";
 		this._jsPlumb.clazz = this._jsPlumb.instance.endpointClass + (params.cssClass ? (" " + params.cssClass) : "");
 
 		// TODO vml endpoint adds class to VML at constructor time.  but the addClass method adds VML
@@ -296,7 +296,7 @@
 
 		//var group = _getGroup(params.parent);
         //group.appendChild(self.canvas);
-		params["_jsPlumb"].appendElement(this.canvas, params.parent);
+		params._jsPlumb.appendElement(this.canvas, params.parent);
 
 		this.paint = function(style, anchor) {
 			var p = { }, vml = this._jsPlumb.vml;				
@@ -362,8 +362,7 @@
 							};
 
 						
-						return pathType + makePosString() + "," + _conv(d.x1) + ","
-								+ _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";						
+						return pathType + makePosString() + "," + _conv(d.x1) + "," + _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";						
 					}
 						
 				})[segment.type](segment);	
@@ -432,13 +431,13 @@
     	this.paint = function(params, containerExtents) {
     		var p = {}, d = params.d, connector = params.component;
 			if (params.strokeStyle) {
-				p["stroked"] = "true";
-				p["strokecolor"] = jsPlumbUtil.convertStyle(params.strokeStyle, true);    				
+				p.stroked = "true";
+				p.strokecolor = jsPlumbUtil.convertStyle(params.strokeStyle, true);    				
 			}
-			if (params.lineWidth) p["strokeweight"] = params.lineWidth + "px";
+			if (params.lineWidth) p.strokeweight = params.lineWidth + "px";
 			if (params.fillStyle) {
-				p["filled"] = "true";
-				p["fillcolor"] = params.fillStyle;
+				p.filled = "true";
+				p.fillcolor = params.fillStyle;
 			}
 			var xmin = Math.min(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
 				ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
@@ -452,8 +451,8 @@
 			// coordsize as their connector - overlays calculate themselves relative to the
 			// connector (it's how it's been done since the original canvas implementation, because
 			// for canvas that makes sense).
-			p["path"] = getPath(d);
-			p["coordsize"] = (connector.w * scale) + "," + (connector.h * scale);
+			p.path = getPath(d);
+			p.coordsize = (connector.w * scale) + "," + (connector.h * scale);
 			
 			dim[0] = connector.x;
 			dim[1] = connector.y;

@@ -114,7 +114,7 @@
              * 0 to 1 inclusive. for the straight line segment this is simple maths.
              */
              this.pointOnPath = function(location, absolute) {
-                if (location == 0 && !absolute)
+                if (location === 0 && !absolute)
                     return { x:x1, y:y1 };
                 else if (location == 1 && !absolute)
                     return { x:x2, y:y2 };
@@ -158,7 +158,7 @@
                 notes on this method in AbstractSegment.
             */
             this.findClosestPointOnPath = function(x, y) {
-                if (m == 0) {
+                if (m === 0) {
                     return {
                         x:x,
                         y:y1,
@@ -224,9 +224,9 @@
                     }
                     else {
                         var ea = segment.endAngle < segment.startAngle ? segment.endAngle + TWO_PI : segment.endAngle,
-                            s = Math.abs (ea - segment.startAngle);
+                            ss = Math.abs (ea - segment.startAngle);
                     
-                        return segment.startAngle + (s * location);
+                        return segment.startAngle + (ss * location);
                     }
                 },
                 TWO_PI = 2 * Math.PI;
@@ -279,7 +279,7 @@
                     maxX:params.cx + params.r,
                     minY:params.cy - params.r,
                     maxY:params.cy + params.r
-                }
+                };
             };
             
             var VERY_SMALL_VALUE = 0.0000000001,
@@ -298,7 +298,7 @@
              */
             this.pointOnPath = function(location, absolute) {            
                 
-                if (location == 0) {
+                if (location === 0) {
                     return { x:this.x1, y:this.y1, theta:this.startAngle };    
                 }
                 else if (location == 1) {
@@ -503,7 +503,7 @@
                         if (segmentProportions[i][1] >= location) {
                             idx = i;
                             // todo is this correct for all connector path types?
-                            inSegmentProportion = location == 1 ? 1 : location == 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
+                            inSegmentProportion = location == 1 ? 1 : location === 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
                             break;
                         }
                     }
@@ -549,7 +549,7 @@
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
             // point each anchor at the other element.  this is also used when dragging a new connection.
-            if (so[0] == 0 && so[1] == 0 || to[0] == 0 && to[1] == 0) {
+            if (so[0] === 0 && so[1] === 0 || to[0] === 0 && to[1] === 0) {
                 var index = w > h ? 0 : 1, oIndex = [1,0][index];
                 so = []; to = [];
                 so[index] = params.sourcePos[index] > params.targetPos[index] ? -1 : 1;
@@ -578,9 +578,9 @@
                 isXGreaterThanStubTimes2 : Math.abs(sx - tx) > (sourceStub + targetStub),
                 isYGreaterThanStubTimes2 : Math.abs(sy - ty) > (sourceStub + targetStub),
                 opposite:oProduct == -1,
-                perpendicular:oProduct == 0,
+                perpendicular:oProduct === 0,
                 orthogonal:oProduct == 1,
-                sourceAxis : so[0] == 0 ? "y" : "x",
+                sourceAxis : so[0] === 0 ? "y" : "x",
                 points:[x, y, w, h, sx, sy, tx, ty ]
             };
             result.anchorOrientation = result.opposite ? "opposite" : result.orthogonal ? "orthogonal" : "perpendicular";
@@ -699,20 +699,20 @@
             	p = [];                
             	
             if (!perpendicular) {
-                if (soo[0] == 0) // X
+                if (soo[0] === 0) // X
                     p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
                 else p.push(point[0] - (majorAnchor * soo[0]));
                                  
-                if (soo[1] == 0) // Y
+                if (soo[1] === 0) // Y
                 	p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
                 else p.push(point[1] + (majorAnchor * too[1]));
             }
              else {
-                if (too[0] == 0) // X
+                if (too[0] === 0) // X
                 	p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
                 else p.push(point[0] + (majorAnchor * too[0]));
                 
-                if (too[1] == 0) // Y
+                if (too[1] === 0) // Y
                 	p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
                 else p.push(point[1] + (majorAnchor * soo[1]));
              }
@@ -935,10 +935,10 @@
 		};
 		
 		this.canvas = document.createElement("img");
-		this.canvas.style["margin"] = 0;
-		this.canvas.style["padding"] = 0;
-		this.canvas.style["outline"] = 0;
-		this.canvas.style["position"] = "absolute";		
+		this.canvas.style.margin = 0;
+		this.canvas.style.padding = 0;
+		this.canvas.style.outline = 0;
+		this.canvas.style.position = "absolute";		
 		this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
 		if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
 		if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);		
@@ -1121,9 +1121,9 @@
             if (component.pointAlongPathFrom) {
 
                 if (_ju.isString(this.loc) || this.loc > 1 || this.loc < 0) {                    
-                    var l = parseInt(this.loc);
-                    hxy = component.pointAlongPathFrom(l, direction * this.length / 2, true),
-                    mid = component.pointOnPath(l, true),
+                    var l = parseInt(this.loc, 10);
+                    hxy = component.pointAlongPathFrom(l, direction * this.length / 2, true);
+                    mid = component.pointOnPath(l, true);
                     txy = _ju.pointOnLine(hxy, mid, this.length);
                 }
                 else if (this.loc == 1) {                
@@ -1137,19 +1137,19 @@
 						hxy = _;
 					}
                 }
-                else if (this.loc == 0) {					                    
+                else if (this.loc === 0) {					                    
 					txy = component.pointOnPath(this.loc);                    
 					mid = component.pointAlongPathFrom(this.loc, this.length);                    
 					hxy = _ju.pointOnLine(txy, mid, this.length);                    
 					if (direction == -1) {
-						var _ = txy;
+						var __ = txy;
 						txy = hxy;
-						hxy = _;
+						hxy = __;
 					}
                 }
                 else {                    
-    			    hxy = component.pointAlongPathFrom(this.loc, direction * this.length / 2),
-                    mid = component.pointOnPath(this.loc),
+    			    hxy = component.pointAlongPathFrom(this.loc, direction * this.length / 2);
+                    mid = component.pointOnPath(this.loc);
                     txy = _ju.pointOnLine(hxy, mid, this.length);
                 }
 
@@ -1244,8 +1244,8 @@
 		this.getElement = function() {
 			if (this._jsPlumb.div == null) {
                 var div = this._jsPlumb.div = jpcl.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));                
-                div.style["position"]   =   "absolute";     
-                var clazz = params["_jsPlumb"].overlayClass + " " + 
+                div.style.position   =   "absolute";     
+                var clazz = params._jsPlumb.overlayClass + " " + 
                     (this.cssClass ? this.cssClass : 
                     params.cssClass ? params.cssClass : "");        
                 div.className = clazz;
@@ -1276,7 +1276,7 @@
                 if (component.pointOnPath) {
                     var loc = this.loc, absolute = false;
                     if (jsPlumbUtil.isString(this.loc) || this.loc < 0 || this.loc > 1) {
-                        loc = parseInt(this.loc);
+                        loc = parseInt(this.loc, 10);
                         absolute = true;
                     }
                     cxy = component.pointOnPath(loc, absolute);  // a connection

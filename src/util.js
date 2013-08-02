@@ -15,6 +15,7 @@
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
+
 ;(function() {
 
     var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
@@ -35,11 +36,11 @@
             return fn(p1, p2);
         };
     
-    jsPlumbUtil = {
-        isArray : _isa,
-        isString : _iss,
-        isBoolean: _isb,
-        isNull : _isnull,
+    jsPlumbUtil = {        
+        isArray : _isa,        
+        isString : _iss,        
+        isBoolean: _isb,        
+        isNull : _isnull,        
         isObject : _iso,
         isDate : _isd,
         isFunction: _isf,
@@ -57,10 +58,10 @@
                 return b;
             }
             else if (_iso(a)) {
-                var b = {};
-                for (var i in a)
-                    b[i] = this.clone(a[i]);
-                return b;		
+                var c = {};
+                for (var j in a)
+                    c[j] = this.clone(a[j]);
+                return c;		
             }
             else return a;
         },
@@ -133,9 +134,9 @@
                             return r;
                         }
                         else if (_iso(d)) {
-                            var r = {};
-                            for (var i in d) {
-                                r[i] = _one(d[i]);
+                            var s = {};
+                            for (var j in d) {
+                                s[j] = _one(d[j]);
                             }
                             return r;
                         }
@@ -227,13 +228,7 @@
                 y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
                 x =  Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
             return { x:fromPoint.x + x, y:fromPoint.y + y };
-        },
-        /**
-         * calculates a perpendicular to the line fromPoint->toPoint, that passes through toPoint and is 'length' long.
-         * @param fromPoint
-         * @param toPoint
-         * @param length
-         */
+        },        
         perpendicularLineTo : function(fromPoint, toPoint, length) {
             var m = jsPlumbUtil.gradient(fromPoint, toPoint),
                 theta2 = Math.atan(-1 / m),
@@ -278,7 +273,8 @@
         addToList : function(map, key, value) {
             var l = map[key];
             if (l == null) {
-                l = [], map[key] = l;
+                l = [];
+                map[key] = l;
             }
             l.push(value);
             return l;
@@ -310,8 +306,8 @@
                 };
             };
 
-            for (var j in _protoFn) {
-                child.prototype[j] = _makeFn(j);
+            for (var k in _protoFn) {
+                child.prototype[k] = _makeFn(k);
             }
 
             return child;
@@ -375,16 +371,15 @@
             }
         },
         /**
-        * @doc function
-        * @name jsPlumbUtil.global:wrap
-        * @description Wraps one function with another, creating a placeholder for the
+        * @name jsPlumbUtil.wrap
+        * @desc Wraps one function with another, creating a placeholder for the
         * wrapped function if it was null. this is used to wrap the various
         * drag/drop event functions - to allow jsPlumb to be notified of
         * important lifecycle events without imposing itself on the user's
         * drag/drop functionality. 
-        * @param {function} wrappedFunction original function to wrap; may be null.
-        * @param {function} newFunction function to wrap the original with.
-        * @param {object} returnOnThisValue Optional. Indicates that the wrappedFunction should 
+        * @param {Function} wrappedFunction original function to wrap; may be null.
+        * @param {Function} newFunction function to wrap the original with.
+        * @param {Object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should 
         * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
         * note that this is a simple comparison and only works for primitives right now.
         */        
@@ -410,10 +405,7 @@
         }
     };
 
-    /**
-     * EventGenerator
-     * Superclass for objects that generate events - jsPlumb extends this, as does jsPlumbUIComponent, which all the UI elements extend.
-     */
+    
     jsPlumbUtil.EventGenerator = function() {
         var _listeners = {}, eventsSuspended = false;
         
@@ -423,26 +415,12 @@
         // event fails, because then my page has most likely not initialised.  so i have this halfway-house solution.  it will be interesting
         // to hear what other people think.
         var eventsToDieOn = [ "ready" ];
-                                
-        /*
-         * Binds a listener to an event.  
-         * 
-         * Parameters:
-         *  event       -   name of the event to bind to.
-         *  listener    -   function to execute.
-         */
+                                        
         this.bind = function(event, listener) {
             jsPlumbUtil.addToList(_listeners, event, listener);     
             return this;        
         };
-        /*
-         * Fires an update for the given event.
-         * 
-         * Parameters:
-         *  event               -   event to fire
-         *  value               -   value to pass to the event listener(s).
-         *  originalEvent       -   the original event from the browser
-         */         
+                 
         this.fire = function(event, value, originalEvent) {
             if (!eventsSuspended && _listeners[event]) {
                 // instead of looping through the array we get a counter and a length, because it is possible
@@ -453,7 +431,7 @@
                 while (!_gone && i < l) {
                     // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
                     // method will have the whole call stack available in the debugger.
-                    if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event}) != -1)
+                    if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event; }) != -1)
                         _listeners[event][i](value, originalEvent);
                     else {
                         // for events we don't want to die on, catch and log.
@@ -469,12 +447,7 @@
             }
             return this;
         };
-        /*
-         * Clears either all listeners, or listeners for some specific event.
-         * 
-         * Parameters:
-         *  event   -   optional. constrains the clear to just listeners for this event.
-         */
+        
         this.unbind = function(event) {
             if (event)
                 delete _listeners[event];
@@ -486,24 +459,18 @@
         
         this.getListener = function(forEvent) {
             return _listeners[forEvent];
-        };      
-        
+        };              
         this.setSuspendEvents = function(val) {
             eventsSuspended = val;    
-        };
-        
+        };        
         this.isSuspendEvents = function() {
             return eventsSuspended;
-        };
-
+        };        
         this.cleanupListeners = function() {
             for (var i in _listeners) {
                 _listeners[i].splice(0);
                 delete _listeners[i];
             }
-            // TODO: is it necessary to set these to null to help memory cleanup. i dont think it is.
-          //  _listeners = null;
-           // eventsSuspended = null;            
         };
     };
 
@@ -528,9 +495,7 @@
             fToBind = this, 
             fNOP = function () {},
             fBound = function () {
-              return fToBind.apply(this instanceof fNOP && oThis
-                                     ? this
-                                     : oThis,
+              return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
                                    aArgs.concat(Array.prototype.slice.call(arguments)));
             };
 

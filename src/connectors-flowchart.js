@@ -43,7 +43,7 @@
             userSuppliedSegments = null,
             lastx = null, lasty = null, lastOrientation,	
             cornerRadius = params.cornerRadius != null ? params.cornerRadius : 0,	
-            sgn = function(n) { return n < 0 ? -1 : n == 0 ? 0 : 1; },            
+            sgn = function(n) { return n < 0 ? -1 : n === 0 ? 0 : 1; },            
             /**
              * helper method to add a segment.
              */
@@ -83,7 +83,7 @@
                         next[0] += next[5] * radiusToUse;
                         next[1] += next[6] * radiusToUse;														                         			
                         var ac = (current[6] == next[5] && next[5] == 1) ||
-                                 ((current[6] == next[5] && next[5] == 0) && current[5] != next[6]) ||
+                                 ((current[6] == next[5] && next[5] === 0) && current[5] != next[6]) ||
                                  (current[6] == next[5] && next[5] == -1),
                             sgny = next[1] > current[3] ? 1 : -1,
                             sgnx = next[0] > current[2] ? 1 : -1,
@@ -279,8 +279,7 @@
                             }[axis];
                             
                         }                                                        
-                        else if (!comparator || (pi.so[idx] == 1 && ss > es)
-                           || (pi.so[idx] == -1 && ss < es)) {                                            
+                        else if (!comparator || (pi.so[idx] == 1 && ss > es) || (pi.so[idx] == -1 && ss < es)) {                                            
                             return {
                                 "x":[[ ss, midy ], [ es, midy ]],
                                 "y":[[ midx, ss ], [ midx, es ]]

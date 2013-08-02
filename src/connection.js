@@ -16,13 +16,7 @@
                 existing.addConnection(conn);                   
             } else {
                 if (!params.endpoints) params.endpoints = [ null, null ];
-                var ep = params.endpoints[index] 
-                        || params.endpoint
-                        || _jsPlumb.Defaults.Endpoints[index]
-                        || jsPlumb.Defaults.Endpoints[index]
-                        || _jsPlumb.Defaults.Endpoint
-                        || jsPlumb.Defaults.Endpoint;
-
+                var ep = params.endpoints[index]  || params.endpoint || _jsPlumb.Defaults.Endpoints[index] || jsPlumb.Defaults.Endpoints[index] || _jsPlumb.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
                 if (!params.endpointStyles) params.endpointStyles = [ null, null ];
                 if (!params.endpointHoverStyles) params.endpointHoverStyles = [ null, null ];
                 var es = params.endpointStyles[index] || params.endpointStyle || _jsPlumb.Defaults.EndpointStyles[index] || jsPlumb.Defaults.EndpointStyles[index] || _jsPlumb.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
@@ -474,13 +468,12 @@
                     // paint the connector.
                     this.connector.paint(this._jsPlumb.paintStyleInUse, null, extents);  
                     // and then the overlays
-                    for ( var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                        var o = this._jsPlumb.overlays[i];
-                        if (o.isVisible()) {
-                            o.paint(this._jsPlumb.overlayPlacements[i], extents);    
+                    for ( var j = 0; j < this._jsPlumb.overlays.length; j++) {
+                        var p = this._jsPlumb.overlays[j];
+                        if (p.isVisible()) {
+                            p.paint(this._jsPlumb.overlayPlacements[j], extents);    
                         }
-                    }                  
-                                                            
+                    }                                                                          
                 }
                 this._jsPlumb.lastPaintedAt = timestamp;                        
             }       

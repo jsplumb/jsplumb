@@ -63,8 +63,8 @@
 	_node = function(name, attributes) {
 		var n = document.createElementNS(ns.svg, name);
 		attributes = attributes || {};
-		attributes["version"] = "1.1";
-		attributes["xmlns"] = ns.xhtml;
+		attributes.version = "1.1";
+		attributes.xmlns = ns.xhtml;
 		_attr(n, attributes);
 		return n;
 	},
@@ -210,7 +210,7 @@
 		var pointerEventsSpec = params.pointerEventsSpec || "all", renderer = {};
 			
 		jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
-		this.canvas = null, this.path = null, this.svg = null; 
+		this.canvas = null;this.path = null;this.svg = null; 
 	
 		var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || ""),		
 			svgParams = {
@@ -223,7 +223,7 @@
 		this.svg = _node("svg", svgParams);
 		if (params.useDivWrapper) {
 			this.canvas = document.createElement("div");
-			this.canvas.style["position"] = "absolute";
+			this.canvas.style.position = "absolute";
 			jsPlumbUtil.sizeElement(this.canvas,0,0,1,1);
 			this.canvas.className = clazz;
 		}
@@ -232,7 +232,7 @@
 			this.canvas = this.svg;
 		}
 			
-		params._jsPlumb.appendElement(this.canvas, params.originalArgs[0]["parent"]);
+		params._jsPlumb.appendElement(this.canvas, params.originalArgs[0].parent);
 		if (params.useDivWrapper) this.canvas.appendChild(this.svg);
 		
 		// TODO this displayElement stuff is common between all components, across all
@@ -259,7 +259,7 @@
 
 				if (params.useDivWrapper) {					
 					jsPlumbUtil.sizeElement(this.canvas, xy[0], xy[1], wh[0], wh[1]);
-					xy[0] = 0, xy[1] = 0;
+					xy[0] = 0; xy[1] = 0;
 					p = _pos([ 0, 0 ]);
 				}
 				else
@@ -295,10 +295,10 @@
 	var SvgConnector = jsPlumb.ConnectorRenderers.svg = function(params) {
 		var self = this,
 			_super = SvgComponent.apply(this, [ { 
-				cssClass:params["_jsPlumb"].connectorClass, 
+				cssClass:params._jsPlumb.connectorClass, 
 				originalArgs:arguments, 
 				pointerEventsSpec:"none", 
-				_jsPlumb:params["_jsPlumb"] 
+				_jsPlumb:params._jsPlumb
 			} ]);				
 
 		_super.renderer.paint = function(style, anchor, extents) {
@@ -324,7 +324,7 @@
 			// outline style.  actually means drawing an svg object underneath the main one.
 			if (style.outlineColor) {
 				var outlineWidth = style.outlineWidth || 1,
-				outlineStrokeWidth = style.lineWidth + (2 * outlineWidth),
+					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
 				outlineStyle = jsPlumb.CurrentLibrary.extend({}, style);
 				outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
 				outlineStyle.lineWidth = outlineStrokeWidth;
@@ -394,11 +394,11 @@
 	 */
 	var SvgEndpoint = window.SvgEndpoint = function(params) {
 		var _super = SvgComponent.apply(this, [ {
-				cssClass:params["_jsPlumb"].endpointClass, 
+				cssClass:params._jsPlumb.endpointClass, 
 				originalArgs:arguments, 
 				pointerEventsSpec:"all",
 				useDivWrapper:true,
-				_jsPlumb:params["_jsPlumb"]
+				_jsPlumb:params._jsPlumb
 			} ]);
 			
 		_super.renderer.paint = function(style) {

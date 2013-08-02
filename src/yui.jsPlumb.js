@@ -122,9 +122,9 @@
 			if (id) {
 				var options = _droppableOptions[id];
 				if (options) {
-					if (options['hoverClass']) {
-						if (entering) el.addClass(options['hoverClass']);
-						else el.removeClass(options['hoverClass']);
+					if (options.hoverClass) {
+						if (entering) el.addClass(options.hoverClass);
+						else el.removeClass(options.hoverClass);
 					}
 				}
 			}
@@ -158,7 +158,7 @@
 		animate : function(el, properties, options) {
 			var o = _extend({node:el, to:properties}, options),			
 				id = _getAttribute(el, "id");
-			o["tween"] = jsPlumb.wrap(properties["tween"], function() {
+			o.tween = jsPlumb.wrap(properties.tween, function() {
 				// TODO should use a current instance.
 				jsPlumb.repaint(id);
 			});
@@ -311,7 +311,7 @@
             }
 			
 			if (isPlumbedComponent) {
-				var scope = options['scope'] || _jsPlumb.Defaults.Scope;
+				var scope = options.scope || _jsPlumb.Defaults.Scope;
 				dd.scope = scope;
 				_add(_draggablesByScope, scope, dd);
 			}
@@ -330,7 +330,7 @@
 			_droppableOptions[id] = options;
 			
 			options = _extend({}, options);
-			var scope = options['scope'] || jsPlumb.Defaults.Scope;					
+			var scope = options.scope || jsPlumb.Defaults.Scope;					
 			_droppableScopesById[id] = scope;
 			
 			options["drop:enter"] = jsPlumb.wrap(options["drop:enter"], function(e) {
@@ -361,7 +361,7 @@
 		removeElement : function(el) { _getElementObject(el).remove(); },		
 
 		setDragFilter : function(el, filter) {
-			jsPlumb.log("NOT IMPLEMENTED: setDragFilter")
+			jsPlumb.log("NOT IMPLEMENTED: setDragFilter");
 		},
 		
 		/**

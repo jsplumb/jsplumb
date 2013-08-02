@@ -293,6 +293,28 @@ module.exports = function(grunt) {
         },
         clean:{
             temp:"jsPlumb.wiki"
+        },
+        //http://www.kajabity.com/2012/02/how-i-introduced-jsdoc-into-a-javascript-project-and-found-my-eclipse-outline/
+        jsdoc : {
+            dist : {
+                src:['doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js'],
+                options: {
+                    destination: 'jsapidoc',
+                    configure:'jsdoc.json'
+                }
+            }
+        },
+        jshint: {
+            options: {
+                  eqnull: true,
+                  loopfunc:true,
+                  '-W099': true,
+                  '-W018':true,
+                  '-W038':true
+                },
+            files:{
+                src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-canvas.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
+            }
         }   
     });
    
@@ -305,6 +327,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-regex-replace');
     grunt.loadNpmTasks('grunt-markdown');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
     // the current build:
     // - generates apidocs and massages the resulting files a little (docular to the rescue)
@@ -361,6 +385,6 @@ module.exports = function(grunt) {
     */
 
 
-    grunt.registerTask('build', [/*'qunit', */'docular', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:docular', 'regex-replace', 'markdown', 'info', 'clean', 'writeIndex' ]);
+    grunt.registerTask('build', [/*'qunit', *//*'docular',*/ 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', /*'copy:docular',*/ 'regex-replace', 'markdown', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
 };

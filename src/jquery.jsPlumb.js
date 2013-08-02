@@ -319,7 +319,7 @@ TODO: REMOVE!
 			if (!options.doNotRemoveHelper)
 				options.helper = null;
 			if (isPlumbedComponent)
-				options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
+				options.scope = options.scope || jsPlumb.Defaults.Scope;
 			el.draggable(options);
 		},
 		
@@ -327,7 +327,7 @@ TODO: REMOVE!
 		 * initialises the given element to be droppable.
 		 */
 		initDroppable : function(el, options) {
-			options['scope'] = options['scope'] || jsPlumb.Defaults.Scope;
+			options.scope = options.scope || jsPlumb.Defaults.Scope;
 			$(el).droppable(options);
 		},
 		

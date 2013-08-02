@@ -112,7 +112,7 @@
 				},
 				detachable:false,
 				hoverPaintStyle:hoverPaintStyle, 
-				anchors:[ [ 0.3 , 1, 0, 1 ], "TopCenter" ], 
+				anchors:[ [ 0.3 , 1, 0, 1, 15, 15 ], "TopCenter" ], 
 				endpoint:"Rectangle", 
 				endpointStyles:[
 					{ gradient : { stops:[[0, w23Stroke], [1, "#558822"]] }},

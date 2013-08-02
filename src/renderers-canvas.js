@@ -121,12 +121,12 @@
 	
 	var _newCanvas = function(params) {
 		var canvas = document.createElement("canvas");
-		params["_jsPlumb"].instance.appendElement(canvas, params.parent);
+		params._jsPlumb.instance.appendElement(canvas, params.parent);
 		canvas.style.position = "absolute";
 		if (params["class"]) canvas.className = params["class"];
 		// set an id. if no id on the element and if uuid was supplied it
 		// will be used, otherwise we'll create one.
-		params["_jsPlumb"].instance.getId(canvas, params.uuid);
+		params._jsPlumb.instance.getId(canvas, params.uuid);
 		if (params.tooltip) canvas.setAttribute("title", params.tooltip);
 
 		return canvas;
@@ -341,16 +341,16 @@
 		CanvasEndpoint.apply(this, arguments);
 		var self = this,		
 		parseValue = function(value) {
-			try { return parseInt(value); }
+			try { return parseInt(value, 10); }
 			catch(e) {
 				if (value.substring(value.length - 1) == '%')
-					return parseInt(value.substring(0, value - 1));
+					return parseInt(value.substring(0, value - 1), 10);
 			}
 		},					    	
 		calculateAdjustments = function(gradient) {
 			var offsetAdjustment = self.defaultOffset, innerRadius = self.defaultInnerRadius;
-			gradient.offset && (offsetAdjustment = parseValue(gradient.offset));
-        	gradient.innerRadius && (innerRadius = parseValue(gradient.innerRadius));
+			if (gradient.offset) offsetAdjustment = parseValue(gradient.offset);
+        	if (gradient.innerRadius) innerRadius = parseValue(gradient.innerRadius);
         	return [offsetAdjustment, innerRadius];
 		};
 		this._paint = function(style) {
@@ -369,8 +369,7 @@
 		            ctx.fillStyle = g;
 	            }				
 				ctx.beginPath();    
-				//ctx.translate(dx, dy);		
-				console.dir(self)
+				//ctx.translate(dx, dy);						
 				ctx.arc(self.radius, self.radius, self.radius, 0, Math.PI*2, true);
 				ctx.closePath();				
 				if (style.fillStyle || style.gradient) ctx.fill();
@@ -396,10 +395,10 @@
 			/* canvas gradient */
 		    if (style.gradient) {
 		    	// first figure out which direction to run the gradient in (it depends on the orientation of the anchors)
-		    	var y1 = orientation[1] == 1 ? self.h : orientation[1] == 0 ? self.h / 2 : 0;
-				var y2 = orientation[1] == -1 ? self.h : orientation[1] == 0 ? self.h / 2 : 0;
-				var x1 = orientation[0] == 1 ? self.w : orientation[0] == 0 ? self.w / 2 : 0;
-				var x2 = orientation[0] == -1 ? self.w : orientation[0] == 0 ? self.w / 2 : 0;
+		    	var y1 = orientation[1] == 1 ? self.h : orientation[1] === 0 ? self.h / 2 : 0;
+				var y2 = orientation[1] == -1 ? self.h : orientation[1] === 0 ? self.h / 2 : 0;
+				var x1 = orientation[0] == 1 ? self.w : orientation[0] === 0 ? self.w / 2 : 0;
+				var x2 = orientation[0] == -1 ? self.w : orientation[0] === 0 ? self.w / 2 : 0;
 			    var g = ctx.createLinearGradient(x1,y1,x2,y2);
 			    for (var i = 0; i < style.gradient.stops.length; i++)
 	            	g.addColorStop(style.gradient.stops[i][0], style.gradient.stops[i][1]);
@@ -421,8 +420,7 @@
 		jsPlumb.Endpoints.Triangle.apply(this, arguments);
 		CanvasEndpoint.apply(this, arguments);			
 		
-    	this._paint = function(style)
-		{    					
+    	this._paint = function(style) {    					
 			var ctx = self.canvas.getContext('2d'),
 				offsetX = 0, offsetY = 0, angle = 0,
 				orientation = params.endpoint.anchor.getOrientation(params.endpoint);

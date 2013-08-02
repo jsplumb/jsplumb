@@ -22,6 +22,9 @@ module.exports = function(grunt) {
       reporterOutput: null,
     });
 
+    // log (verbose) options before hooking in the reporter
+    grunt.verbose.writeflags(options, 'JSHint options');
+
     // Report JSHint errors but dont fail the task
     var force = options.force;
     delete options.force;

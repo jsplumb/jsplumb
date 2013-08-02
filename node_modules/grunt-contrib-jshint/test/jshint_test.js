@@ -71,8 +71,8 @@ exports.jshint = {
       jshint.lint(files, options, function(results, data) {});
     }, function(result) {
       test.ok(jshint.usingGruntReporter, 'Should be using the default grunt reporter.');
-      test.ok(result.match(/nodemodule\.js\.\.\.ERROR/g).length === 2, 'Should have reported nodemodule.js once per error.');
-      test.ok(result.match(/missingsemicolon\.js\.\.\.ERROR/g).length === 1, 'Should have reported missingsemicolon.js once per error.');
+      test.ok(result.match(/nodemodule\.js\s\.\.\.ERROR/g).length === 2, 'Should have reported nodemodule.js once per error.');
+      test.ok(result.match(/missingsemicolon\.js\s\.\.\.ERROR/g).length === 1, 'Should have reported missingsemicolon.js once per error.');
       test.done();
     });
   },
