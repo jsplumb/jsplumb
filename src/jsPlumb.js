@@ -952,7 +952,7 @@
 				else params.parent = parent(params.source);
 			}
 			
-			params.jsPlumb = _currentInstance;
+			params._jsPlumb = _currentInstance;
             params.newConnection = _newConnection;
             params.newEndpoint = _newEndpoint;
             params.endpointsByUUID = endpointsByUUID;             
