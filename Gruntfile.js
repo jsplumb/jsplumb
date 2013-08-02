@@ -299,7 +299,7 @@ module.exports = function(grunt) {
             dist : {
                 src:['doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js'],
                 options: {
-                    destination: 'jsapidoc',
+                    destination: 'dist/apidoc',
                     configure:'jsdoc.json'
                 }
             }
