@@ -1,8 +1,17 @@
 /**
 * @name jsPlumbUIComponent
 * @class
-* @classdesc Abstract superclass for UI components Endpoint and Connection.  Provides the abstraction of paintStyle/hoverPaintStyle,
-* and also extends jsPlumbUtil.EventGenerator to provide the bind and fire methods.
+* @classdesc Abstract superclass for Endpoint, Connection, Connector and Overlay.
+*
+* This class provides support for a few basic capabilities that are common to many objects in jsPlumb:
+* 
+* - Events
+* - Types
+* - CSS Classes
+* - Parameters
+* - Paint Styles
+*
+* You don't interact directly with an instance of this class; it is abstract.  
 * @extends jsPlumbUtil.EventGenerator
 */
 
@@ -58,7 +67,7 @@
 * @function
 * @param {String} typeId Id of the type to set.
 * @param {Object} [params] Optional parameter object to expand.
-* @param {Boolean} [doNotRepaint] Defaults to false; tells jsPlumb not to repaint after setting the type.
+* @param {Boolean} [doNotRepaint=false] Tells jsPlumb not to repaint after setting the type.
 * @desc This function sets a `type` for the given component. It replaces all existing types. For a full discussion of the concept
 * of types, see the jsPlumb documentation.
 */
@@ -67,7 +76,7 @@
 * @name jsPlumbUIComponent#getType
 * @function
 * @desc Gets the current type - or types - for this component.
-* @return {Array} The current list of types, empty if none registered.
+* @return {String[]} The current list of types, empty if none registered.
 */
 
 /**
@@ -91,7 +100,7 @@
 * @function
 * @param {String} typeId Id of the type to add.
 * @param {Object} [params] Optional params to use when applying the type.
-* @param {Boolean} [doNotRepaint] Defaults to false; tells jsPlumb not to repaint after adding the type.
+* @param {Boolean} [doNotRepaint=false] Tells jsPlumb not to repaint after adding the type.
 * @desc Adds a type to the component. Note this is distinct from {@link jsPlumbUIComponent#setType}, which overrides all current types - this function just adds a type to the existing list.
 */
 
@@ -99,7 +108,7 @@
 * @name jsPlumbUIComponent#removeType
 * @function
 * @param {String} typeId Id of the type to remove.
-* @param {Boolean} [doNotRepaint] Defaults to false; tells jsPlumb not to repaint after removing the type.
+* @param {Boolean} [doNotRepaint=false] Tells jsPlumb not to repaint after removing the type.
 * @desc Removes the given type from the component.			
 */
 
@@ -108,7 +117,7 @@
 * @function
 * @param {String} typeId Id of the type to toggle.
 * @param {Object} [params] Optional params to use if the type does not exist and jsPlumb applies it.
-* @param {Boolean} [doNotRepaint] Defaults to false; tells jsPlumb not to repaint after toggling the type.
+* @param {Boolean} [doNotRepaint=false] Tells jsPlumb not to repaint after toggling the type.
 * @desc Toggles the given type on the component.			
 */
 
@@ -135,7 +144,7 @@
 * @function
 * @desc Sets/unsets the hover state of this component.
 * @param {Boolean} hover Hover state boolean
-* @param {Boolean} [ignoreAttachedElements] If true, does not notify any attached elements of the change in hover state.  Used mostly by jsPlumb internally, to avoid infinite loops.
+* @param {Boolean} [ignoreAttachedElements=false] If true, does not notify any attached elements of the change in hover state.  Used mostly by jsPlumb internally, to avoid infinite loops.
 */
 
 /**
@@ -143,7 +152,7 @@
 * @function
 * @desc Sets the component's paint style and then repaints the component.
 * @param {Object} style Style to use.
-* @param {Boolean} [doNotRepaint] If true, the component will not be repainted.
+* @param {Boolean} [doNotRepaint=false] If true, the component will not be repainted.
 */
 
 

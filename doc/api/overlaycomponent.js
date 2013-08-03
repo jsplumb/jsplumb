@@ -6,9 +6,14 @@
 */
 
 /**
+* @name OverlayCapableJsPlumbUIComponent#overlays
+* @desc List of Overlays for this component.
+*/
+
+/**
 * @name OverlayCapableJsPlumbUIComponent#getLabel
 * @function
-* @desc Returns the label text for this Connection (or a function if you are labelling with a function).
+* @desc Returns the label text for this component (or a function if you are labelling with a function).
 * This does not return the overlay itself; this is a convenience method which is a pair with
 * `setLabel`; together they allow you to add and access a Label Overlay without having to create the
 * Overlay object itself.  For access to the underlying label overlay that jsPlumb has created,
@@ -52,9 +57,22 @@
 /**
 * @name OverlayCapableJsPlumbUIComponent#hideOverlays
 * @function
-* @desc Hides all Overlays
+* @desc Hides all Overlays for this component.
 */
 
+
+/**
+* @name OverlayCapableJsPlumbUIComponent#showOverlay
+* @function
+* @desc Shows the overlay specified by the given id.
+* @param {String} overlayId Id of the overlay to show.
+*/
+
+/**
+* @name OverlayCapableJsPlumbUIComponent#showOverlays
+* @function
+* @desc Shows all Overlays for this component.
+*/
 /*
 * @name OverlayCapableJsPlumbUIComponent#removeAllOverlays
 * @function
@@ -78,13 +96,13 @@
 /*
 * @name OverlayCapableJsPlumbUIComponent#setLabel
 * @function
-* @desc Sets the Connection's label.  
+* @desc Sets the component's label.  
 * @param {String|Function|Object} label	Label to set. May be a String, a Function that returns a String, or a params object containing { "label", "labelStyle", "location", "cssClass" }.  Note that this uses innerHTML on the label div, so keep that in mind if you need escaped HTML.
 */
 
 /*
 * @name OverlayCapableJsPlumbUIComponent#addOverlay
 * @function
-* @desc Adds an Overlay to the Connection.
+* @desc Adds an Overlay to the component.
 * @param {Object} overlaySpec Specification of the Overlay to add.
 */ 

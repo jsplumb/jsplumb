@@ -15,25 +15,50 @@
   * uses the various Endpoint-centric methods like addEndpoint/makeSource/makeTarget, along with drag and drop,
   * then the parameters you set on those functions are translated and passed in to the Connection constructor. So
   * you should check the documentation for each of those methods.
-  * 
-  * @param {String|Element|Selector|Endpoint} source Either an element id, a selector for an element, or an Endpoint.
-  * @param {String|Element|Selector|Endpoint} target Either an element id, a selector for an element, or an Endpoint
-  * @param {String} [scope=`jsPlumb.Defaults.Scope`] Scope descriptor for this connection. 
-  * @param {String|Element|Selector} [container] Optional id, element or selector instructing jsPlumb where to attach all the elements it creates for this connection.  you should read the documentation for a full discussion of this.
-  * @param {Boolean} [detachable=true] Defines whether or not the connection may be detached using the mouse.
-  * @param {Boolean} [reattach=false] Defines whether not the connection should be retached if it was dragged off an Endpoint and then dropped in whitespace.
-  * @param {Object} [endpoint] Optional Endpoint definition to use for both ends of the connection.
-  * @param {Object[]} [endpoints] Optional array of two Endpoint definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
-  * @param {Object} [endpointStyle] Endpoint style definition to use for both ends of the Connection.
-  * @param {Object[]} [endpointStyles] Array of two Endpoint style definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
-  * @param {Object} [paintStyle] Parameters defining the appearance of the Connection. Optional; jsPlumb will use the defaults if you supply nothing here.
-  * @param {Object} [hoverPaintStyle] Parameters defining the appearance of the Connection when the mouse is hovering over it. Optional; jsPlumb will use the defaults if you supply nothing here (note that the default hoverPaintStyle is null).
-  * @param {String} [cssClass] CSS class to set on the display element associated with this Connection.
-  * @param {String} [hoverClass] CSS class to set on the display element associated with this Connection when it is in hover state.
-  * @param {Object[]} [overlays] Array of Overlay definitions to appear on this Connection.
-  * @param {Boolean} [drawEndpoints=true] If false, instructs jsPlumb to not draw the endpoints for this Connection.  Be careful with this: it only really works when you tell jsPlumb to attach elements to the document body. Read the documentation for a full discussion of this. 
-  * @param {Object} [parameters={}] JS object containing parameters to set on the Connection. These parameters are then available via the getParameter method.
+  * @param {Object} params Constructor parameters 
+  * @param {String|Element|Selector|Endpoint} [params.source] Either an element id, a selector for an element, or an Endpoint.
+  * @param {String|Element|Selector|Endpoint} [params.target] Either an element id, a selector for an element, or an Endpoint
+  * @param {String} [params.scope=`jsPlumb.Defaults.Scope`] Scope descriptor for this connection. 
+  * @param {String|Element|Selector} [params.container] Optional id, element or selector instructing jsPlumb where to attach all the elements it creates for this connection.  you should read the documentation for a full discussion of this.
+  * @param {Boolean} [params.detachable=true] Defines whether or not the connection may be detached using the mouse.
+  * @param {Boolean} [params.reattach=false] Defines whether not the connection should be retached if it was dragged off an Endpoint and then dropped in whitespace.
+  * @param {Object} [params.endpoint] Optional Endpoint definition to use for both ends of the connection.
+  * @param {Object[]} [params.endpoints] Optional array of two Endpoint definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
+  * @param {Object} [params.endpointStyle] Endpoint style definition to use for both ends of the Connection.
+  * @param {Object[]} [params.endpointStyles] Array of two Endpoint style definitions, one for each end of the Connection. This and 'endpoint' are mutually exclusive parameters.
+  * @param {Object} [params.paintStyle] Parameters defining the appearance of the Connection. Optional; jsPlumb will use the defaults if you supply nothing here.
+  * @param {Object} [params.hoverPaintStyle] Parameters defining the appearance of the Connection when the mouse is hovering over it. Optional; jsPlumb will use the defaults if you supply nothing here (note that the default hoverPaintStyle is null).
+  * @param {String} [params.cssClass] CSS class to set on the display element associated with this Connection.
+  * @param {String} [params.hoverClass] CSS class to set on the display element associated with this Connection when it is in hover state.
+  * @param {Object[]} [params.overlays] Array of Overlay definitions to appear on this Connection.
+  * @param {Boolean} [params.drawEndpoints=true] If false, instructs jsPlumb to not draw the endpoints for this Connection.  Be careful with this: it only really works when you tell jsPlumb to attach elements to the document body. Read the documentation for a full discussion of this. 
+  * @param {Object} [params.parameters={}] JS object containing parameters to set on the Connection. These parameters are then available via the getParameter method.
   */ 
+
+  /**
+  * @name Connection#sourceId
+  * @desc ID of the source element.
+  */
+
+  /**
+  * @name Connection#targetId
+  * @desc ID of the target element.
+  */
+
+  /**
+  * @name Connection#scope
+  * @desc Scope descriptor for the Connection.
+  */
+
+  /**
+  * @name Connection#source
+  * @desc Source element in the Connection.
+  */
+
+  /**
+  * @name Connection#target
+  * @desc Target element in the Connection..
+  */
 
 /**
 * @name Connection#getConnector

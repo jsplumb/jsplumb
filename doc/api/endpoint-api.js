@@ -17,40 +17,57 @@
  * @name Endpoint#Endpoint
  * @constructor 
  * @function
- * @desc You never instantiate an Endpoint directly, but all of the constructor parameters described here are valid
+ * @desc You never instantiate an Endpoint directly, but, with the exception of `source`, all of the constructor parameters described here are valid
  * in the params object you pass to a `jsPlumb.addEndpoint`, `jsPlumb.makeSource` or `jsPlumb.makeTarget` call. 
- * @param {Object} [anchor] Definition of the Anchor for the endpoint.  See the jsPlumb documentation for a discussion of this.
- * @param {Object} [endpoint] Endpoint definition. See the jsPlumb documentation for a discussion of this.
- * @param {Boolean} [enabled=true] Whether or not the Endpoint should be enabled for mouse events (drag/drop).
- * @param {Object} [paintStyle=null] Endpoint style, a js object. may be null. 
- * @param {Object} [hoverPaintStyle=null] Style to use when the mouse is hovering over the Endpoint. A js object. may be null; defaults to null.
- * @param {String} [cssClass=null] CSS class to set on the display element associated with this Endpoint.
- * @param {String} [hoverClass=null] CSS class to set on the display element associated with this Endpoint when it is in hover state.
- * @param {String|Selector|Element} source Element the Endpoint is attached to, of type String (an element id), element selector, or element. Required. 
- * @param {String|Selector|Element} [container] Id or selector instructing jsPlumb where to attach the element it creates for this endpoint.  you should read the documentation for a full discussion of this.
- * @param {Connection[]} [connections] List of Connections to configure the Endpoint with. 
- * @param {Boolean} [isSource=false] Indicates the endpoint can act as a source of new connections. Optional; defaults to false.
- * @param {Integer} [maxConnections=1] A value of -1 means no upper limit. 
- * @param {Object} [dragOptions] If `isSource` is set to true, you can supply arguments for the underlying library's drag method. Optional; defaults to null. 
- * @param {Object} [connectorStyle] If `isSource` is set to true, this is the paint style for Connections from this Endpoint. Optional; defaults to null.
- * @param {Object} [connectorHoverStyle] If `isSource` is set to true, this is the hover paint style for Connections from this Endpoint. Optional; defaults to null.
- * @param {String|Object} [connector] Connector type to use.  Like `endpoint`, this may be either a single string nominating a known Connector type (eg. `"Bezier"`, `"Straight"`), or an array containing [name, params], eg. `[ "Bezier", { curviness:160 } ]`.
- * @param {Object[]} [connectorOverlays] Array of Overlay definitions that will be applied to any Connection from this Endpoint. 
- * @param {String} [connectorClass] CSS class to set on Connections emanating from this Endpoint.
- * @param {String} [connectorHoverClass] CSS class to set on to set on Connections emanating from this Endpoint when they are in hover state.		 
- * @param {Boolean} [connectionsDetachable=true] Sets whether connections to/from this Endpoint should be detachable or not.
- * @param {Boolean} [isTarget=false] Indicates the endpoint can act as a target of new connections. Optional; defaults to false.
- * @param {Object} [dropOptions] If `isTarget` is set to true, you can supply arguments for the underlying library's drop method with this parameter. Optional; defaults to null. 
- * @param {Boolean} [reattach=false] Determines whether or not the Connections reattach after they have been dragged off an Endpoint and left floating. defaults to false: Connections dropped in this way will just be deleted.
- * @param {Object} [parameters={}] JS object containing parameters to set on the Endpoint. These parameters are then available via the getParameter method.  When a connection is made involving this Endpoint, the parameters from this Endpoint are copied into that Connection. Source Endpoint parameters override target Endpoint parameters if they both have a parameter with the same name.
- * @param {String} [connector-pointer-events] A value for the 'pointer-events' property of any SVG elements that are created to render connections from this endoint.
+ * @param {Object} params Constructor parameters.
+ * @param {String|Array} [params.anchor] Definition of the Anchor for the endpoint.  See the jsPlumb documentation for a discussion of this.
+ * @param {String|Array} [params.endpoint] Endpoint definition. See the jsPlumb documentation for a discussion of this.
+ * @param {Boolean} [params.enabled=true] Whether or not the Endpoint should be enabled for mouse events (drag/drop).
+ * @param {Object} [params.paintStyle=null] Endpoint style, a js object. may be null. 
+ * @param {Object} [params.hoverPaintStyle=null] Style to use when the mouse is hovering over the Endpoint. A js object. may be null; defaults to null.
+ * @param {String} [params.cssClass=null] CSS class to set on the display element associated with this Endpoint.
+ * @param {String} [params.hoverClass=null] CSS class to set on the display element associated with this Endpoint when it is in hover state.
+ * @param {String|Selector|Element} params.source Element the Endpoint is attached to, of type String (an element id), element selector, or element. Required. 
+ * @param {String|Selector|Element} [params.container] Id or selector instructing jsPlumb where to attach the element it creates for this endpoint.  you should read the documentation for a full discussion of this.
+ * @param {Connection[]} [params.connections] List of Connections to configure the Endpoint with. 
+ * @param {Boolean} [params.isSource=false] Indicates the endpoint can act as a source of new connections. Optional; defaults to false.
+ * @param {Integer} [params.maxConnections=1] A value of -1 means no upper limit. 
+ * @param {Object} [params.dragOptions] If `isSource` is set to true, you can supply arguments for the underlying library's drag method. Optional; defaults to null. 
+ * @param {Object} [params.connectorStyle] If `isSource` is set to true, this is the paint style for Connections from this Endpoint. Optional; defaults to null.
+ * @param {Object} [params.connectorHoverStyle] If `isSource` is set to true, this is the hover paint style for Connections from this Endpoint. Optional; defaults to null.
+ * @param {String|Object} [params.connector] Connector type to use.  Like `endpoint`, this may be either a single string nominating a known Connector type (eg. `"Bezier"`, `"Straight"`), or an array containing [name, params], eg. `[ "Bezier", { curviness:160 } ]`.
+ * @param {Object[]} [params.connectorOverlays] Array of Overlay definitions that will be applied to any Connection from this Endpoint. 
+ * @param {String} [params.connectorClass] CSS class to set on Connections emanating from this Endpoint.
+ * @param {String} [params.connectorHoverClass] CSS class to set on to set on Connections emanating from this Endpoint when they are in hover state.		 
+ * @param {Boolean} [params.connectionsDetachable=true] Sets whether connections to/from this Endpoint should be detachable or not.
+ * @param {Boolean} [params.isTarget=false] Indicates the endpoint can act as a target of new connections. Optional; defaults to false.
+ * @param {Object} [params.dropOptions] If `isTarget` is set to true, you can supply arguments for the underlying library's drop method with this parameter. Optional; defaults to null. 
+ * @param {Boolean} [params.reattach=false] Determines whether or not the Connections reattach after they have been dragged off an Endpoint and left floating. defaults to false: Connections dropped in this way will just be deleted.
+ * @param {Object} [params.parameters={}] JS object containing parameters to set on the Endpoint. These parameters are then available via the getParameter method.  When a connection is made involving this Endpoint, the parameters from this Endpoint are copied into that Connection. Source Endpoint parameters override target Endpoint parameters if they both have a parameter with the same name.
+ * @param {String} [params.connector-pointer-events] A value for the 'pointer-events' property of any SVG elements that are created to render connections from this endoint.
  */
+
+ /**
+ * @name Endpoint#canvas
+ * @desc The Endpoint's drawing area
+ */
+
+ /**
+ * @name Endpoint#connections
+ * @desc List of Connections for the Endpoint.
+ */
+
+ /**
+ * @name Endpoint#scope
+ * @desc Scope descriptor for the Endpoint.
+ */
+
 
  /**
  * @name Endpoint#setAnchor
  * @function
  * @param {object} anchorParams Parameters for the anchor
- * @param {boolean} [doNotRepaint] Optional, defaults to false. 
+ * @param {boolean} [doNotRepaint = false] Instructs jsPlumb to not repaint after setting the new anchor.
  * @desc Sets the anchor to use for this Endpoint.  `anchorParams` is an object in the same
  * form that you would pass as the `anchor` parameter to `jsPlumb.addEndpoint` or `jsPlumb.connect`.
  */
@@ -58,9 +75,9 @@
  /**
  * @name Endpoint#setEndpoint
  * @function
- * @param {object} ep Parameters for the endpoint
+ * @param {Object} ep Parameters for the endpoint
  * @desc Sets the underlying visual representation to use for this Endpoint.  `ep` is an object in the same
- * form that you would pass as the `endpoint` parameter to `jsPlumb.addEndpoint` or `jsPlumb.connect`.
+ * form that you would pass as the `endpoint` parameter to `jsPlumb.addEndpoint` or `jsPlumb.makeSource`.
  */
 
  /**
@@ -74,7 +91,7 @@
  * @name Endpoint#detach
  * @function
  * @param {Connection} connection
- * Detach and cleanup a connection.
+ * @desc Detach and cleanup a connection. 
  */
 
  /**
@@ -100,26 +117,31 @@
 
 /**
 * @name Endpoint#getUuid
+* @function
 * @returns {String} The UUID for this Endpoint, if there is one. Otherwise returns null.
 */
 
 /**
 * @name Endpoint#isEnabled
+* @function
 * @returns {Boolean} True if the Endpoint is enabled for drag/drop connections enabled, false otherwise.
 */
 
 /**
 * @name Endpoint#isFull
+* @function
 * @returns {Boolean} True if the Endpoint cannot accept any more Connections, false otherwise.
 */
 
 /**
 * @name Endpoint#isVisible
+* @function
 * @returns {Boolean} Whether or not the Endpoint is currently visible.
 */ 
 
 /**
 * @name Endpoint#setDragAllowedWhenFull
+* @function
 * @desc Sets whether or not connections can be dragged from this Endpoint once it is full. You would use this in a UI in 
 *   which you're going to provide some other way of breaking connections, if you need to break them at all. This property 
 *   is by default true; use it in conjunction with the 'reattach' option on a connect call.
@@ -128,6 +150,7 @@
 
 /**
  * @name Endpoint#setElement
+ * @function
  * @desc Sets the DOM element this Endpoint is attached to.
  * @param {String|Selector|Element} el	Element id, DOM element or selector identifying the new element
  * @param {String|Selector|Element} [container] Specifies the actual parent element to use as the parent for this Endpoint's visual representation. See the jsPlumb documentation for a discussion about this.
@@ -135,14 +158,16 @@
 
 /**
 * @name Endpoint#setEnabled
+* @function
 * @desc Sets whether or not the Endpoint is enabled for drag/drop connections.
 * @param {Boolean} enabled Whether or not the Endpoint is enabled.			
 */
 
 /**
 * @name Endpoint#setVisible
+* @function
 * @desc Sets whether or not the Endpoint is currently visible.
 * @param {Boolean} visible Whether or not the Endpoint should be visible.
-* @param {Boolean} [doNotChangeConnections=false] Instructs jsPlumb to not pass the visible state on to any attached Connections. defaults to false.
-* @param {Boolean} [doNotNotifyOtherEndpoint=false] Instructs jsPlumb to not pass the visible state on to Endpoints at the other end of any attached Connections. defaults to false. 
+* @param {Boolean} [doNotChangeConnections=false] Instructs jsPlumb to not pass the visible state on to any attached Connections.
+* @param {Boolean} [doNotNotifyOtherEndpoint=false] Instructs jsPlumb to not pass the visible state on to Endpoints at the other end of any attached Connections.
 */

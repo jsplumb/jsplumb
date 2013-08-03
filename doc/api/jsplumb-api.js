@@ -167,21 +167,22 @@
 *
 *    `[ Connection, return value ]`
 * 
+* @param {Object} [params] Filter parameters. All of the values in this object are optional; if you supply no parameters at all you will get back all of the current Connections in the given jsPlumb instance.
 * @param {String|String[]} [params.scope] scope - see getConnections
 * @param {String|String[]} [params.source] - see getConnections
 * @param {String|String[]} [params.target] - see getConnections
 * @param {Connection[]} [params.connections] - an existing list of Connections.  If you supply this, 'source' and 'target' will be ignored.
 *
 * @returns A list of Connections on which operations may be executed. 'Setter' type operations can be chained; 'getter' type operations
-* return an array of [Connection, value] pairs, one entry for each Connection in the list returned. The full list of operations 
+* return an array of `[Connection, value]` pairs, one entry for each Connection in the list returned. The full list of operations 
 * is as follows (where not specified, the operation's effect or return value is the same as the corresponding method on Connection) :
 * 				
-* - **addClass**
-* -	**addOverlay**
-* -	**addType**
-* -	**detach** : detaches all the connections in the list. not chainable and does not return anything.		
-* -	**each(function(connection)...)** : allows you to specify your own function to execute; this function is chainable.		
-* -	**get(index)** : returns the Connection at 'index' in the list.			
+* - **addClass** : Adds a class to all the Connections in the list.
+* -	**addOverlay** : Adds an Overlay to all the Connections in the list.
+* -	**addType** : Adds a type to all the Connections in the list.
+* -	**detach** : Detaches all the Connections in the list. Not chainable, and does not return anything.		
+* -	**each(function(connection)...)** : Allows you to specify your own function to execute; this function is chainable.		
+* -	**get(index)** : Returns the Connection at 'index' in the list.			
 * -	**getHoverPaintStyle**
 * - **getLabel**
 * -	**getOverlay**
@@ -227,7 +228,8 @@
 *
 *     `[ Endpoint, return value ]`
 * 
-* @param {String|String[]} [params.scope] Scope(s) to match
+* @param {Object} [params] Filter parameters.
+* @param {String|String[]} [params.scope=jsPlumb.DefaultScope] Scope(s) to match
 * @param {String|Element|Selector|Array} [params.source] - limits returned endpoints to those that are declared as a source endpoint on any elements identified.
 * @param {String|Element|Selector|Array} [params.target] - limits returned endpoints to those that are declared as a target endpoint on any elements identified.
 * @param {String|Element|Selector|Array} [params.element] - limits returned endpoints to those that are declared as either a source OR a target endpoint on any elements identified.		
@@ -288,7 +290,7 @@
 * @name jsPlumbInstance#hide
 * @desc Sets an element's connections to be hidden.
 * @function
-* @param {String|Element|Selector| el Element to hide connections for.
+* @param {String|Element|Selector} el Element to hide connections for.
 * @param {Boolean} [changeEndpoints=false] Whether not to also hide endpoints on the element.
 * @returns {jsPlumbInstance} The jsPlumb instance.
 */
@@ -297,7 +299,7 @@
 * @name jsPlumbInstance#show
 * @desc Sets an element's connections to be visible.
 * @function
-* @param {String|Element|Selector| el Element to show connections for.
+* @param {String|Element|Selector} el Element to show connections for.
 * @param {Boolean} [changeEndpoints=false] Whether or not to also change the visible state of the endpoints on the element.  this also has a bearing on
 *  other connections on those endpoints: if their other endpoint is also visible, the connections are made visible.  
 * @returns {jsPlumbInstance} The current jsPlumb instance.
@@ -307,7 +309,7 @@
 * @name jsPlumbInstance#toggleVisible
 * @desc Toggles visibility of an element's Connections.
 * @function
-* @param {String|Element|Selector| el Element to toggle visibility for.
+* @param {String|Element|Selector} el Element to toggle visibility for.
 * @param {Boolean} [changeEndpoints=false] Whether or not to also toggle the endpoints on the element.
 * @returns {null} But should be updated to return the current state.
 */
@@ -316,16 +318,9 @@
 * @name jsPlumbInstance#toggleDraggable
 * @desc Toggles draggability (sic?) of an element's Connections.
 * @function
-* @param {String|Element|Selector| el The element for which to toggle draggability.
+* @param {String|Element|Selector} el The element for which to toggle draggability.
 * @returns {Boolean} The current draggable state.
 */   
-
-/**
- * @name jsPlumbInstance#setDraggable
- * @desc Sets whether or not a given element is draggable, regardless of what any jsPlumb command may request.
- * @param {String|Element|Selector} el The element to set draggable or not.
- * @param {Boolean} draggable Whether or not the element should be draggable. 
- */
 
 /**
  * @name jsPlumbInstance#recalculateOffsets
@@ -335,25 +330,24 @@
  * recalculate.  You need to do this because, for performance reasons, jsplumb won't calculate these offsets on
  * the fly.
  * @function
- * @param {String|Element|Selector| el The element for which to recalculate offsets.
+ * @param {String|Element|Selector} el The element for which to recalculate offsets.
  */
 
 /*
 * @name jsPlumbInstance#setId
 * @desc Changes the id of some element, adjusting all connections and endpoints
-* @param {String|Element|Selector| el Element to change id on.
+* @function
+* @param {String|Element|Selector} el Element to change id on.
 * @param {String} newId The new id to set.
 * @param {Boolean} [doNotSetAttribute=false] If true, the id on the DOM element wont be changed. 
 */ 
 
  /**
  * @name jsPlumbInstance#setIdChanged
- * @desc Notify jsPlumb that the element with oldId has had its id changed to newId.
- *
- * This method is equivalent to what jsPlumb does itself in the second step of the setId method.
+ * @desc Notify jsPlumb that the element with oldId has had its id changed to newId. This method is equivalent to what jsPlumb does itself in the second step of the setId method.
+ * @function
  * @param {String} oldId Previous element id
- * @param {String{ newId Element's new id
- *
+ * @param {String} newId Element's new id
  * @see jsPlumbInstance#setId
  */
 
@@ -389,25 +383,27 @@
 
 /**
 * name getEndpoint(uuid)
- Gets an Endpoint by UUID
-  
- Parameters: 
- 	uuid - the UUID for the Endpoint
- 	 
- Returns: 
- 	Endpoint with the given UUID, null if nothing found.
+* Gets an Endpoint by UUID
+* @param {String} uuid The UUID for the Endpoint
+* @returns {Endpoint} Endpoint with the given UUID, null if nothing found.
 */ 
 
 /**
- * @name jsPlumb.Anchors.Top
+* @namespace jsPlumb.Anchors
+* @desc Parent for all Anchor types. You won't reference this namespace directly in code, as Anchors are
+* instantiated by jsPlumb from definitions you provide.
+*/
+
+/**
+ * @name jsPlumb.Anchors.Top 
  * @desc An Anchor that is located at the top center of the element.
  */
 /**
- * @name jsPlumb.Anchors.Bottom
+ * @name jsPlumb.Anchors.Bottom 
  * @desc An Anchor that is located at the bottom center of the element.
  */
 /**
- * @name jsPlumb.Anchors.Left
+ * @name jsPlumb.Anchors.Left 
  * @desc An Anchor that is located at the left middle of the element.
  */
 /**
@@ -441,7 +437,7 @@
 /**
  * @name jsPlumb.Anchors.Assign
  * @desc An Anchor whose location is assigned at connection time, through an AnchorPositionFinder. Used in conjunction
- * with the 'makeTarget' function. jsPlumb has two of these - 'Fixed' and 'Grid', and you can also write your own.
+ * with the 'makeTarget' function. jsPlumb has two of these - `Fixed` and `Grid`, and you can also write your own.
  */
 /**
  * @name jsPlumb.Anchors.Continuous
@@ -467,11 +463,16 @@
  * @name jsPlumb.Anchors.Perimeter
  * @desc An Anchor that tracks the perimeter of some shape, approximating it with a given number of dynamically
  * positioned locations.
- *
- * @param {Integer} [anchorCount] Optional number of anchors to use to approximate the perimeter. default is 60.
- * @param {String} shape Required. the name of the shape. valid values are 'rectangle', 'square', 'ellipse', 'circle', 'triangle' and 'diamond'
- * @param {Number} [rotation] Optional rotation, in degrees, to apply. 
  */
+
+ /**
+  * @name jsPlumb.Anchors.Perimeter
+  * @constructor
+  * @function  
+  * @param {Integer} [anchorCount=60] Optional number of anchors to use to approximate the perimeter. default is 60.
+  * @param {String} shape Required. the name of the shape. Valid values are 'rectangle', 'square', 'ellipse', 'circle', 'triangle' and 'diamond'
+  * @param {Number} [rotation] Optional rotation, in degrees, to apply. 
+  */ 
 
  // SP
 
@@ -483,20 +484,17 @@
 * the endpoint spec that was passed in to this method is used to create a suitable 
 * Endpoint (the default will be used if you do not provide one).
 * @param {String|Element|Selector} el Element to turn into a connection target.
-* @param {Object} params	-	JS object containing parameters:
-* 	  - *endpoint*	optional.	specification of an Endpoint to create when a Connection is established.
-* 	  - *scope*		optional.   scope for the drop zone.
-* 	  - *dropOptions* optional. same stuff as you would pass to dropOptions of an Endpoint definition.
-* 	  - *deleteEndpointsOnDetach*  optional, defaults to true. whether or not to delete
-*                             any Endpoints created by a connection to this target if
-*                             the connection is subsequently detached. this will not 
-*                             remove Endpoints that have had more Connections attached
-*                             to them after they were created.
-*   - *maxConnections*  optional. Specifies the maximum number of Connections that can be made to this element as a target. Default is no limit.
-*   - *onMaxConnections* optional. Function to call when user attempts to drop a connection but the limit has been reached.
-*   		The callback is passed two arguments: a JS object with:
-*   		: { element, connection, maxConnection }
-*   		...and the original event.		 
+* @param {Object} params Parameters for the call
+* @param {String|Array} [params.endpoint] Specification of an Endpoint to create when a Connection is established.
+* @param {String} [params.scope] Scope for the drop zone.
+* @param {Object} [params.dropOptions] Same stuff as you would pass to dropOptions of an Endpoint definition.
+* @param {Boolean} [params.deleteEndpointsOnDetach=true] Whether or not to delete any Endpoints created by a connection to this target if
+* the connection is subsequently detached. this will not remove Endpoints that have had more Connections attached
+* to them after they were created.
+* @param {Integer} [params.maxConnections=-1] Specifies the maximum number of Connections that can be made to this element as a target.
+* @param {Function} [params.onMaxConnections] Function to call when user attempts to drop a connection but the limit has been reached.
+* The callback signature should look like this:
+*     `function( { element, connection, maxConnection }, originalEvent )`
 */
 
 /**
@@ -507,264 +505,284 @@
 * @returns {jsPlumbInstance} The current jsPlumb instance.
 */ 
 
-/*
-* @name jsPlumbInstance# makeTargets(els, [params], [referenceParams])
-* Makes all elements in some array or a selector connection targets.
-* 
-* Parameters:
-* 	els 	- 	either an array of ids or a selector
-*  params  -   parameters to configure each element as a target with
-*  referenceParams - extra parameters to configure each element as a target with.
-*
-* Returns:
-* The current jsPlumb instance.
+/**
+* @name jsPlumbInstance#makeTargets
+* @desc Makes all elements in some array or a selector connection targets.
+* @function
+* @param {String[]|Selector} els 	- 	either an array of ids/elements or a selector
+* @param {Object} [params]  Parameters to configure each element as a target with
+* @param {Object} [referenceParams] Extra parameters to configure each element as a target with.
+* @returns {jsPlumbInstance} The current jsPlumb instance.
 */
 
-/*
-* @name jsPlumbInstance# makeSource(el, [params])
-* Makes some DOM element a Connection source, allowing you to drag connections from it
+/**
+* @name jsPlumbInstance#makeSource
+* @desc Makes some DOM element a Connection source, allowing you to drag connections from it
 * without having to register any Endpoints on it first.  When a Connection is established,
 * the endpoint spec that was passed in to this method is used to create a suitable 
 * Endpoint (the default will be used if you do not provide one).
-* 
-* Parameters:
-*  el		-	string id or element selector for the element to make a source.
-* 	params	-	JS object containing parameters:
-* 	  - *endpoint*	optional.	specification of an endpoint to create when a connection is created.
-* 	  - *parent*	optional.   the element to add Endpoints to when a Connection is established.  if you omit this, 
-*                          Endpoints will be added to 'el'.
-* 	  - *scope*		optional.   scope for the connections dragged from this element.
-* 	  - *dragOptions* optional. same stuff as you would pass to dragOptions of an Endpoint definition.
-* 	  - *deleteEndpointsOnDetach*  optional, defaults to false. whether or not to delete
-*                             any Endpoints created by a connection from this source if
-*                             the connection is subsequently detached. this will not 
-*                             remove Endpoints that have had more Connections attached
-*                             to them after they were created.
-* 	  - *filter* - optional function to call when the user presses the mouse button to start a drag. This function is passed the original 
+* @function
+* @param {String|Element|Selector} el	String id, element, or element selector for the element to make a source.
+* @param {Object} params Parameters for the call
+* @param {String|Array} [params.endpoint]	Specification of an endpoint to create when a connection is created.
+* @param {String|Element} [params.parent] The element to add Endpoints to when a Connection is established.  if you omit this, Endpoints will be added to 'el'.
+* @param {String} [params.scope] Scope for the connections dragged from this element.
+* @param {Object} [params.dragOptions] Same stuff as you would pass to dragOptions of an Endpoint definition.
+* @param {Boolean} [params.deleteEndpointsOnDetach=false] Whether or not to delete any Endpoints created by a connection from this source if the connection is subsequently detached. this will not 
+* remove Endpoints that have had more Connections attached to them after they were created.
+* @param {Function} [params.filter] Function to call when the user presses the mouse button to start a drag. This function is passed the original 
 * event and the element on which the associated makeSource call was made.  If it returns anything other than false,
 * the drag begins as usual. But if it returns false (the boolean false, not just something falsey), the drag is aborted.		 
 */      
 
 
-/*
-*	@name jsPlumbInstance# unmakeSource(el)
-*	Sets the given element to no longer be a connection source.
-*	
-*	Parameters:
-*		el - a string id, a dom element, or a selector representing the element.
-*		
-*	Returns:
-*	The current jsPlumb instance.
+/**
+*	@name jsPlumbInstance#unmakeSource
+*	@desc Sets the given element to no longer be a connection source.
+* @param {String|Element|Selector| el The element in question.
+* @function
+*	@returns {jsPlumbInstance} The current jsPlumb instance.
 */
 
-/*
-*	@name jsPlumbInstance# unmakeEverySource()
-*	Resets all elements in this instance of jsPlumb so that none of them are connection sources.
-*	
-*	Returns:
-*	The current jsPlumb instance.
-*/
-/*
-*	@name jsPlumbInstance# unmakeEveryTarget()
-*	Resets all elements in this instance of jsPlumb so that none of them are connection targets.
-*	
-*	Returns:
-*	The current jsPlumb instance.
+/**
+*	@name jsPlumbInstance#unmakeEverySource
+* @function
+*	@desc Resets all elements in this instance of jsPlumb so that none of them are connection sources.
+* @returns {jsPlumbInstance} The current jsPlumb instance.
 */
 
-/*
-* @name jsPlumbInstance# makeSources(els, [params], [referenceParams])
-* Makes all elements in some array or a selector connection sources.
-* 
-* Parameters:
-* 	els 	- 	either an array of ids or a selector
-*  params  -   parameters to configure each element as a source with
-*  referenceParams - extra parameters to configure each element as a source with.
-*
-* Returns:
-* The current jsPlumb instance.
+/**
+*	@name jsPlumbInstance#unmakeEveryTarget
+* @function
+*	@desc Resets all elements in this instance of jsPlumb so that none of them are connection targets.
+* @returns {jsPlumbInstance} The current jsPlumb instance.
 */
 
-/*
-* @name jsPlumbInstance# setSourceEnabled(el, state)
-* Sets the enabled state of one or more elements that were previously made a connection source with the makeSource
+/**
+* @name jsPlumbInstance#makeSources
+* @function
+* @desc Makes all elements in some array or a selector connection sources.
+* @param {String[]|Selector} els 	Either an array of ids or elements, or a selector
+* @param {Object} [params]  Parameters to configure each element as a source with
+* @param {Object} [referenceParams] Extra parameters to configure each element as a source with.
+* @returns {jsPlumbInstance} The current jsPlumb instance.
+*/
+
+/**
+* @name jsPlumbInstance#setSourceEnabled
+* @desc Sets the enabled state of one or more elements that were previously made a connection source with the makeSource
 * method.
-*
-* Parameters:
-*	el 	- 	either a string representing some element's id, or an array of ids, or a selector.
-*	state - true to enable the element(s), false to disable it.
-*
-* Returns:
-*	The current jsPlumb instance.
+* @function
+* @param {String|Element|Selector} el The element in question.
+*	@param {Boolean} state True to enable the element(s), false to disable it.
+* @returns {jsPlumbInstance} The current jsPlumb instance.
 */
 
-/*
-*	@name jsPlumbInstance# toggleSourceEnabled(el)
-*	Toggles the source enabled state of the given element or elements.
-*
-* 	Parameters:
-*		el 	- 	either a string representing some element's id, or an array of ids, or a selector.
-*
-*	Returns:
-*	The current enabled state of the source.
+/**
+*	@name jsPlumbInstance#toggleSourceEnabled
+*	@desc Toggles the source enabled state of the given element or elements.
+* @function
+* @param {String|Element|Selector} el The element in question.
+* @returns {Boolean} The current enabled state of the source.
 */
 
-/*
-*	@name jsPlumbInstance# isSource(el)
-*	Returns whether or not the given element is registered as a connection source.
-*
-*	Parameters:
-*		el 	- 	a string id, a dom element, or a selector representing a single element.
-*
-*	Returns:
-*	True if source, false if not.
+/**
+*	@name jsPlumbInstance#isSource
+*	@desc Returns whether or not the given element is registered as a connection source.
+* @function
+* @param {String|Element|Selector} el The element in question.
+* @returns {Boolean} True if source, false if not.
 */
 
-/*
-*	@name jsPlumbInstance# isSourceEnabled(el)
-*	Returns whether or not the given connection source is enabled.
-*
-*	Parameters:
-*	el 	- 	a string id, a dom element, or a selector representing a single element.
-*
-*	Returns:
-*	True if enabled, false if not.
+/**
+*	@name jsPlumbInstance#isSourceEnabled
+*	@desc Returns whether or not the given connection source is enabled.
+* @function
+* @param {String|Element|Selector} el The element in question.
+* @returns {Boolean} True if enabled, false if not.
 */
 
-/*
-*	@name jsPlumbInstance# setTargetEnabled(el, state)
-*	Sets the enabled state of one or more elements that were previously made a connection target with the makeTarget method.
+/**
+*	@name jsPlumbInstance#setTargetEnabled
+*	@desc Sets the enabled state of one or more elements that were previously made a connection target with the makeTarget method.
 *	method.
-*
-*	Parameters:
-*		el 	- 	either a string representing some element's id, or an array of ids, or a selector.
-*		state - true to enable the element(s), false to disable it.
-*
-*	Returns:
-*	The current jsPlumb instance.
+* @function
+* @param {String|Element|Selector} el The element in question.
+*	@param {Boolean} state True to enable the element(s), false to disable it.
+* @returns {jsPlumbInstance} The current jsPlumb instance.
 */
 
-/*
-*	@name jsPlumbInstance# toggleTargetEnabled(el)
-*	Toggles the target enabled state of the given element or elements.
-*
-*	Parameters:
-*		el 	- 	either a string representing some element's id, or an array of ids, or a selector.
-*
-*	Returns:
-*	The current enabled state of the target.
+/**
+*	@name jsPlumbInstance#toggleTargetEnabled
+*	@desc Toggles the target enabled state of the given element or elements.
+* @function
+* @param {String|Element|Selector} el The element in question.
+* @returns {Boolean} The current enabled state of the target.
 */
 
-/*
-@name jsPlumbInstance# isTarget(el)
-Returns whether or not the given element is registered as a connection target.
-
-Parameters:
-	el 	- 	a string id, a dom element, or a selector representing a single element.
-
-Returns:
-True if source, false if not.
+/**
+* @name jsPlumbInstance#isTarget
+* @desc Returns whether or not the given element is registered as a connection target.
+* @function
+* @param {String|Element|Selector} el The element in question.
+* @returns {Boolean} True if source, false if not.
 */
 
-/*
-@name jsPlumbInstance# isTargetEnabled(el)
-Returns whether or not the given connection target is enabled.
-
-Parameters:
-	el 	- 	a string id, a dom element, or a selector representing a single element.
-
-Returns:
-True if enabled, false if not.
+/**
+* @name jsPlumbInstance#isTargetEnabled
+* @desc Returns whether or not the given connection target is enabled.
+* @function
+* @param {String|Element|Selector} el The element in question.
+* @returns {Boolean} True if enabled, false if not.
 */
 
-/*
-* @name jsPlumbInstance# ready(fn)
-* Helper method to bind a function to jsPlumb's ready event. You should use this method instead of your
+/**
+* @name jsPlumbInstance#ready
+* @desc Helper method to bind a function to jsPlumb's ready event. You should use this method instead of your
 * library's equivalent, to ensure that jsPlumb has loaded properly before you start to use it. This is
 * particularly true in the case of YUI, because of the asynchronous nature of the module loading process.
-* 
-* Parameters:
-* fn - function to call once the instance is ready.
+* @function
+* @param {Function} fn Function to call once the instance is ready.
 */
 
-/*
-* @name jsPlumbInstance# repaint (el)
-* Repaints an element and its connections. This method gets new sizes for the elements before painting anything.
-*  
-* Parameters: 
-*	el - id of the element, a dom element, or a selector representing the element.
-*  	 
-* Returns: 
-*	The current jsPlumb instance.
-*  	 
-* See Also: 
-*	<repaintEverything>
+/**
+* @name jsPlumbInstance#repaint
+* @desc Repaints an element and its connections. This method gets new sizes for the elements before painting anything.
+* @function
+* @param {String|Element|Selector} el The element in question.
+* @returns {jsPlumbInstance} The current jsPlumb instance.
+* @see jsPlumbInstance#repaintEverything
 */
 
-/*
-* @name jsPlumbInstance# repaintEverything() 
-* Repaints all connections and endpoints.
-*  
-* Returns: 
-*	The current jsPlumb instance.
-* 	
-* See Also: 
-*	<repaint>
+/**
+* @name jsPlumbInstance#repaintEverything 
+* @desc Repaints all connections and endpoints.
+* @function
+* @returns {jsPlumbInstance} The current jsPlumb instance.
+* @see jsPlumbInstance#repaint
 */
 
-	/*
-	* @name jsPlumbInstance# removeAllEndpoints(el, [recurse]) 
-	* Removes all Endpoints associated with a given element. 
+/**
+* @name jsPlumbInstance#removeAllEndpoints
+* @desc Removes all Endpoints associated with a given element. 
 * Also removes all Connections associated with each Endpoint it removes. jsPlumb expects
 * that the element referenced here exists in the DOM. If it does not, or you are uncertain
-* whether it will exist or not, use jsPlumb.remove.
-	* 
-	* Parameters: 
-	*	el - either an element id, or a selector for an element.
-  *   recurse - whether or not to recurse down through this elements children and remove their endpoints too. defaults to false.
-	*  	 
-	* Returns: 
-	* The current jsPlumb instance.
-	*  	 
-	* See Also: 
-	* <deleteEndpoint>
-	*/
+* whether it will exist or not, use {@link jsPlumbInstance#remove}.
+* @param {String|Element|Selector} el The element in question.
+* @param {Boolean} [recurse=false] Whether or not to recurse down through this elements children and remove their endpoints too.
+* @function
+* @returns {jsPlumbInstance} The current jsPlumb instance.
+* @see jsPlumbInstance#deleteEndpoint
+*/
 
-	/*
-	* @name jsPlumbInstance# remove(el)
-	* Removes the given element from the DOM, along with all Endpoints associated with it,
-	* and their connections.  This is present in jsPlumb since version 1.4.2. 
-	*
-	* Parameters:
-	*  el - either an element id, a DOM element, or a selector for the element.
-	*/ 	
+/**
+* @name jsPlumbInstance#remove
+* @desc Removes the given element from the DOM, along with all Endpoints associated with it,
+* and their connections.  
+* @param {String|Element|Selector} el The element in question.
+* @function
+*/ 	
 
-	/*
-	* @name jsPlumbInstance#reset()
-	* Removes all endpoints and connections and clears the listener list. To keep listeners call
-	* : jsPlumb.deleteEveryEndpoint()
-	* instead of this.
-	*/
+/**
+* @name jsPlumbInstance#reset
+* @desc Removes all endpoints and connections and clears the listener list. To keep listeners call {@link jsPlumbInstance#deleteEveryEndpoint}
+* instead of this.
+* @function
+*/
 
-	/*
-	 * @name jsPlumbInstance# setDefaultScope(scope)
-	 * Sets the default scope for Connections and Endpoints. A scope defines a type of Endpoint/Connection; supplying a
-	 * scope to an Endpoint or Connection allows you to support different
-	 * types of Connections in the same UI.  If you're only interested in
-	 * one type of Connection, you don't need to supply a scope. This method
-	 * will probably be used by very few people; it just instructs jsPlumb
-	 * to use a different key for the default scope.
-	 * 
-	 * Parameters:
-	 * 	scope - scope to set as default.
-	 *
-	 * Returns:
-	 * The current jsPlumb instance.
-	 */ 
+/**
+* @name jsPlumbInstance#setDefaultScope
+* @desc Sets the default scope for Connections and Endpoints. A scope defines a type of Endpoint/Connection; supplying a
+* scope to an Endpoint or Connection allows you to support different
+* types of Connections in the same UI.  If you're only interested in
+* one type of Connection, you don't need to supply a scope. This method
+* will probably be used by very few people; it just instructs jsPlumb
+* to use a different key for the default scope.
+* @param {String} scope Scope to set as default.
+* @returns {jsPlumbInstance} The current jsPlumb instance.
+* @function
+*/ 
 
-	
+    /**
+    * @name jsPlumbInstance#detach
+    * @function
+    * @param {Connection} connection  The Connection to detach
+    * @param {Object} [params] Optional parameters to the detach call.
+    * @param {Boolean} [params.fireEvent=false] Indicates you want jsPlumb to fire a connection
+    * detached event. The thinking behind this is that if you made a programmatic
+    * call to detach an event, you probably don't need the callback.
+    * @param {Boolean} [params.forceDetach=false] Allows you to override any beforeDetach listeners that may be registered.
+    * @returns {boolean} True if successful, false if not.
+    * @desc Detaches a Connection.
+    */
 
-	  
+    // SP
 
+    /**
+    * @name jsPlumbInstance#detachAllConnections
+    * @function
+    * @desc Removes all an element's Connections.
+    * @param {Object} el Either the id of the element, or a selector for the element.
+    * @param {Object} [params] Optional parameters.
+    * @param {Boolean} [params.fireEvent=true] Whether or not to fire the detach event.
+    * @return {jsPlumbInstance} The current jsPlumb instance.
+    */  
+    /**
+    * @name jsPlumbInstance#detachEveryConnection
+    * @function
+    * @desc Remove all Connections from all elements, but leaves Endpoints in place ((unless a connection is set to auto delete its Endpoints).
+    * @param {Object} [params] optional params object for the call
+    * @param {Boolean} [params.fireEvent=true] Whether or not to fire detach events
+    * @returns {jsPlumbInstance} The current jsPlumb Instance
+    * @see jsPlumbInstance#deleteEveryEndpoint
+    */
+    /*
+    * @name jsPlumbInstance#draggable
+    * @function
+    * @desc Initialises the draggability of some element or elements.  You should use this instead of your 
+    * library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your 
+    * underlying library's drag method is always called from this method.
+    * @param {Object} el Either an element id, a list of element ids, or a selector. 
+    * @param {Object} [options] Options to pass through to the underlying library. A common use case in jQueryUI, for instance, is to provide a `containment` parameter:
+    * 
+    *         `jsPlumb.draggable("someElementId", {
+    *            containment:"parent"
+    *          });`
+    *    
+    * @returns {jsPlumbInstance} The current jsPlumb instance.
+    */
+/**
+* @name jsPlumbInstance#getSelector
+* @function
+* @desc This method takes the given selector spec and, using the current underlying library, turns it into
+* a selector from that library.  This method exists really as a helper function for those applications
+* where you're writing jsPlumb code that will target more than one library (such as in the case of the
+* jsPlumb demo pages).
+* @param {Element|Selector} [context]  An element to search from. may be omitted (__not__ null: omitted. as in you only pass one argument to the function)
+* @param {String} spec  A valid selector string.
+*/
+/**
+* @name jsPlumbInstance#setSuspendDrawing
+* @function
+* @param {Boolean} val Whether or not to suspend drawing.
+* @param {Boolean} [doNotRepaintAfterwards=false] If true, jsPlumb won't run a full repaint. Otherwise it will.
+* @desc Sets whether or not drawing is suspended. you should use this when doing bulk painting, like when first drawing a UI.
+*/
 
-
+/**
+ * @name jsPlumbInstance#deleteEndpoint
+ * @function
+ * @param {String|Endpoint} object Either a string, representing the endpoint's uuid, or an Endpoint.     
+ * @param {Boolean} [doNotRepaintAfterwards=false] Indicates whether or not to repaint everything after this call.
+ * @returns {jsPlumbInstance} The current jsPlumb instance.
+ * @desc
+ * Deletes an Endpoint and removes all Connections it has (which removes the Connections from the other Endpoints involved too)
+ */   
+/**
+ * @name jsPlumbInstance#deleteEveryEndpoint
+ * @function
+ * @returns {jsPlumbInstance} The current jsPlumb instance.
+ * @desc
+ * Deletes every `Endpoint` and their associated `Connection`s. Distinct from {@link jsPlumbInstance#reset} because we dont clear listeners here, so
+ * for that reason this function is often the best way to reset a jsPlumb instance.
+ */   

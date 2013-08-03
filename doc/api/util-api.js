@@ -80,6 +80,7 @@
   /**
    * @name jsPlumbUtil.EventGenerator#fire
    * @function
+   * @private
    * @description Fires an update for the given event.
    * @param {String} event Event to fire
    * @param {Object} value Value to pass to the event listener(s).
