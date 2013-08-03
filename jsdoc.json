@@ -13,7 +13,11 @@
     "explain":true,
     "templates": {
         "cleverLinks": false,
-        "monospaceLinks": false
+        "monospaceLinks": false,
+        "SIMON":"SIMON"
+    },
+    "css":{
+        "foo":"/foo.css"
     },
     "jsVersion": 180
 }
