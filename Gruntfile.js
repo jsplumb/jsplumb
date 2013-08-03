@@ -300,7 +300,8 @@ module.exports = function(grunt) {
                 src:['README.md', 'doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js', 'doc/api/connectors.js'],
                 options: {
                     destination: 'dist/apidocs/',
-                    configure:'jsdoc.json'
+                    configure:'jsdoc.json',
+                    "private":false
                 }
             }
         },
