@@ -143,7 +143,7 @@
                 userSuppliedSegments = null;
             
             if (userSuppliedSegments != null) {
-                writeSegments(userSuppliedSegments, paintInfo);                
+                writeSegments(this, userSuppliedSegments, paintInfo);                
                 return;
             }
             

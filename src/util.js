@@ -138,7 +138,7 @@
                             for (var j in d) {
                                 s[j] = _one(d[j]);
                             }
-                            return r;
+                            return s;
                         }
                         else {
                             return d;

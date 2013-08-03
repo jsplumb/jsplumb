@@ -943,7 +943,7 @@
 			    parent = jsPlumb.CurrentLibrary.getParent;
 			
 			if (params.container)
-				paramsparent = params.container;
+				params.parent = params.container;
 			else {
 				if (params.sourceEndpoint)
 					params.parent = params.sourceEndpoint.parent;
@@ -1378,20 +1378,7 @@
 			}
 			return jpc;
 		};		
-
-		/**
-		 * @doc function
-		 * @name jsPlumb.class:deleteEndpoint
-		 * @param {object} object Either a string, representing the endpoint's uuid, or an Endpoint.		 
-		 * @param {boolean} doNotRepaintAfterwards Defaults to false. Indicates whether or not to repaint everything after this call.
-		 * @return {object} The current jsPlumb instance.
-		 * @description
-		 * Deletes an <Endpoint> and removes all <Connection>s it has (which removes the Connections from the other Endpoints involved too)
-		 *		 
-		 * ```js
-		 *     jsPlumb.deleteEndpoint(someEndpoint)
-		 * ```
-		 */
+		
 		this.deleteEndpoint = function(object, doNotRepaintAfterwards) {
 			var _is = _currentInstance.setSuspendDrawing(true);
 			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
@@ -1403,18 +1390,6 @@
 		};
 		
 		
-		/**
-		 * @doc function
-		 * @name jsPlumb.class:deleteEveryEndpoint
-		 * @return {object} The current jsPlumb instance.
-		 * @description
-		 * Deletes every `Endpoint` and their associated `Connection`s. Distinct from `reset` because we dont clear listeners here, so
-		 * for that reason this function is often the best way to reset a jsPlumb instance.
-		 *		 
-		 * ```js
-		 *     jsPlumb.deleteEveryEndpoint()
-		 * ```		 
-		 */		
 		this.deleteEveryEndpoint = function() {
 			var _is = _currentInstance.setSuspendDrawing(true);
 			for ( var id in endpointsByElement) {
@@ -1468,19 +1443,7 @@
 				}
 			}
 		};
-		
-		/**
-		* @doc function
-		* @name jsPlumb.class:detach
-		* @param {object} connection  The <Connection> to detach
-		* @param {object} params Optional parameters to the detach call.  valid values here are
-		* fireEvent   :   defaults to false; indicates you want jsPlumb to fire a connection
-		* detached event. The thinking behind this is that if you made a programmatic
-		* call to detach an event, you probably don't need the callback.
-		* forceDetach :   defaults to false. allows you to override any beforeDetach listeners that may be registered.
-		* @return {boolean} True if successful, false if not.
-		* @description Detaches a Connection.
-		*/	
+				
 		this.detach = function() {
 
             if (arguments.length === 0) return;
@@ -1522,15 +1485,6 @@
 				}
 		};
 
-		/**
-		* @doc function
-		* @name jsPlumb.class:detachAllConnections
-		* @description Removes all an element's Connections.
-		* @param {object} el Either the id of the element, or a selector for the element.
-		* @param {object} params Optional parameters.  alowed values:
-		* fireEvent : defaults to true, whether or not to fire the detach event.
-		* @return {object} The current jsPlumb instance.
-		*/  
 		this.detachAllConnections = function(el, params) {
             params = params || {};
             el = _dom(el);
@@ -1544,15 +1498,6 @@
 			return _currentInstance;
 		};
 
-		/**
-		* @doc function
-		* @name jsPlumb.class:detachEveryConnection
-		* @description Remove all Connections from all elements, but leaves Endpoints in place ((unless a connection is set to auto delete its Endpoints).
-		* @param {object} params params  - optional params object containing:
-		* fireEvent : whether or not to fire detach events. defaults to true.
-		* @return {object} The current jsPlumb Instance
-		* @see <deleteEveryEndpoint>
-		*/
 		this.detachEveryConnection = function(params) {
             params = params || {};
             _currentInstance.doWhileSuspended(function() {
@@ -1638,21 +1583,6 @@
 			return result;
 		};
  
- 		/*
- 		* @doc function
- 		* @name jsPlumb.class:draggable
- 		* @description Initialises the draggability of some element or elements.  You should use this instead of your 
- 		* library's draggable method so that jsPlumb can setup the appropriate callbacks.  Your 
- 		* underlying library's drag method is always called from this method.
- 		* @param {object} el Either an element id, a list of element ids, or a selector. 
- 		* @param {object} options Options to pass through to the underlying library. A common use case in jQueryUI, for instance, is to provide a `containment` parameter:
- 		* ```js
- 		* jsPlumb.draggable("someElementId", {
-		*   containment:"parent"
-		* });
-		* ```
- 		* @return {object} The current jsPlumb instance.
- 		*/ 
 		this.draggable = function(el, options) {
 			var i,j,ele;
 			// allows for array or jquery/mootools selector
@@ -1902,17 +1832,7 @@
 			var o = offsets[id]; 
 			return _updateOffset({elId:id});
 		};
-		
-		/**
-		* @doc function
-		* @name jsPlumb.class:getSelector
-		* @description This method takes the given selector spec and, using the current underlying library, turns it into
-		* a selector from that library.  This method exists really as a helper function for those applications
-		* where you're writing jsPlumb code that will target more than one library (such as in the case of the
-		* jsPlumb demo pages).
-		* @param {object} context  An element to search from. may be omitted (__not__ null: omitted. as in you only pass one argument to the function)
-		* @param {string} spec 	A valid selector string.
-		*/
+
 		this.getSelector = function() {
 			return jsPlumb.CurrentLibrary.getSelector.apply(null, arguments);
 		};
@@ -2778,16 +2698,7 @@
 		this.setDebugLog = function(debugLog) {
 			log = debugLog;
 		};
-		
-		
-         
-         /**
-         * @doc function
-         * @name jsPlumb.class:setSuspendDrawing
-         * @param {boolean} val Whether or not to suspend drawing.
-         * @param {boolean} doNotRepaintAfterwards If true, jsPlumb won't run a full repaint. Otherwise it will.
-         * @description Sets whether or not drawing is suspended. you should use this when doing bulk painting, like when first drawing a UI.
-         */
+			          	
 		this.setSuspendDrawing = function(val, repaintAfterwards) {
 			var curVal = _suspendDrawing;
 		    _suspendDrawing = val;

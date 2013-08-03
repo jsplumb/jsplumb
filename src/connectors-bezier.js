@@ -1,18 +1,4 @@
-/**
- * Class:Connectors.Bezier
- * This Connector draws a Bezier curve with two control points.  You can provide a 'curviness' value which gets applied to jsPlumb's
- * internal voodoo machine and ends up generating locations for the two control points.  See the constructor documentation below.
- */
-/**
- * Function:Constructor
- * 
- * Parameters:
- * 	curviness - How 'curvy' you want the curve to be! This is a directive for the placement of control points, not endpoints of the curve, so your curve does not 
- * actually touch the given point, but it has the tendency to lean towards it.  The larger this value, the greater the curve is pulled from a straight line.
- * Optional; defaults to 150.
- * stub - optional value for a distance to travel from the connector's endpoint before beginning the Bezier curve. defaults to 0.
- * 
- */
+
 ;(function() {
 
 	var Bezier = function(params) {
