@@ -297,9 +297,9 @@ module.exports = function(grunt) {
         //http://www.kajabity.com/2012/02/how-i-introduced-jsdoc-into-a-javascript-project-and-found-my-eclipse-outline/
         jsdoc : {
             dist : {
-                src:['doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js'],
+                src:['README.md', 'doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js', 'doc/api/connectors.js'],
                 options: {
-                    destination: 'dist/apidoc',
+                    destination: 'dist/apidocs/',
                     configure:'jsdoc.json'
                 }
             }
@@ -385,6 +385,6 @@ module.exports = function(grunt) {
     */
 
 
-    grunt.registerTask('build', [/*'qunit', *//*'docular',*/ 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', /*'copy:docular',*/ 'regex-replace', 'markdown', 'info', 'clean', 'writeIndex' ]);
+    grunt.registerTask('build', [/*'qunit', *//*'docular',*/ 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', /*'copy:docular',*/ 'regex-replace', 'markdown', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
 };
