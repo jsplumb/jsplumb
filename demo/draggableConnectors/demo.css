@@ -1,7 +1,7 @@
-#window1 { top:6em;left:15%; }
-#window2 { top:6em; right:25%; }
-#window3 { top:30em; left:15%; }
-#window4 { top:30em; right:25%}
+#window1 { top:6em;left:10%; }
+#window2 { top:8em; right:50%; }
+#window3 { top:30em; left:8%; }
+#window4 { top:33em; right:40%}
 .window {  
     border:1px dotted gray; 
     width:9.7em; 

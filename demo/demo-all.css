@@ -22,10 +22,12 @@ body {
     margin:0;
     background-color:white;    
     font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;    
+    background-color:#eaedef;
 }
 
 #explanation {
     text-align: center;
+    padding: 10px;        
 }
 
 #headerWrapper {
@@ -61,29 +63,20 @@ body {
 }
 
  #main {
-    /* these two margins settings are here just to ensure that jsPlumb handles
+    /* this two margin settings is here just to ensure that jsPlumb handles
     margins properly.*/  
     margin-top:44px;
-    margin-left: auto;
     position: relative;
     font-size: 80%;
-    margin-right: auto;
-    width: 850px;
-    border-left: 2px solid #456;
-    border-right: 2px solid #456;
-    border-bottom: 2px solid #456;
     height: 600px;
-    overflow: hidden;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    background-color:#eaedef;
 }
 
 #sidebar {            
-    margin-left:auto;
-	margin-right:auto;
-    width:800px;        
-    font-size:13px;    
+    width: 420px;
+    font-size: 12px;
+    position: fixed;
+    right: 20px;
+    top: 90px;    
 }
 
 
