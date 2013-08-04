@@ -19,5 +19,6 @@
     "css":{
         "foo":"/foo.css"
     },
-    "jsVersion": 180
+    "jsVersion": 180,
+    "layout":"jsplumb-apidoc.tmpl"
 }
