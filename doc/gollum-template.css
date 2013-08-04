@@ -31,6 +31,48 @@ a[name]:before {
     visibility: hidden;    
 }
 
+/* corrections for  jsdoc (move these out) */
+#main {
+  height:auto;
+  width:75%;
+  background-color: transparent;
+  border:none;
+  font-size: 85%;
+}
+nav {
+  background-color:white;
+  margin-top:40px;  
+  position:fixed;
+  right:15px;
+  border:none;
+}
+nav a:visited {
+  color:#01a3c6;
+}
+
+nav h2 {
+  display:none;
+}
+
+#main section {
+  margin-right:auto;
+}
+
+#main article dd {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 26px;
+}
+
+/* this is the location in source links */
+.details {
+  display:none;
+}
+
+/* constructors */
+.container-overview {
+  /*display:none;*/
+}
+
 /* / jsplumb */
 
 
