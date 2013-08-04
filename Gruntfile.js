@@ -297,7 +297,7 @@ module.exports = function(grunt) {
         //http://www.kajabity.com/2012/02/how-i-introduced-jsdoc-into-a-javascript-project-and-found-my-eclipse-outline/
         jsdoc : {
             dist : {
-                src:['README.md', 'doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js', 'doc/api/connectors.js'],
+                src:['doc/api/README.md', 'doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js', 'doc/api/connectors.js'],
                 options: {
                     destination: 'dist/apidocs/',
                     configure:'jsdoc.json',
