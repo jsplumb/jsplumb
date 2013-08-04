@@ -732,7 +732,7 @@
                 _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint),
                 _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint);
 
-			_super.addSegment("Bezier", {
+			_super.addSegment(this, "Bezier", {
 				x1:_sx, y1:_sy, x2:_tx, y2:_ty,
 				cp1x:_CP[0], cp1y:_CP[1], cp2x:_CP2[0], cp2y:_CP2[1]
 			});                    
