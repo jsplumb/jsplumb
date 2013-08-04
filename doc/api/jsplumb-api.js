@@ -390,8 +390,15 @@
 
 /**
 * @namespace jsPlumb.Anchors
-* @desc Parent for all Anchor types. You won't reference this namespace directly in code, as Anchors are
-* instantiated by jsPlumb from definitions you provide.
+* @desc These are the named Anchor types that jsPlumb provides.  You don't create these directly; you pass in an
+* anchor definition to an appropriate jsPlumb method and an anchor is created for you.  To use a named anchor type
+* you can either reference it directly as a string:
+*
+*    `anchor:"Bottom"`
+*
+* or, in the case of the `Perimeter` anchor, as an array:
+*
+*   `anchor:[ "Perimeter", { anchorCount:25, shape:"circle" } ]`
 */
 
 /**
@@ -464,6 +471,13 @@
  * @desc An Anchor that tracks the perimeter of some shape, approximating it with a given number of dynamically
  * positioned locations.
  */
+
+ /**
+  * @name jsPlumb.Anchors.Continuous
+  * @constructor
+  * @function  
+  * @param {String[]} [faces] Optional array of faces for the anchor. Valid values are `"top"`, `"left"`, `"bottom"` and `"right"`.
+  */
 
  /**
   * @name jsPlumb.Anchors.Perimeter

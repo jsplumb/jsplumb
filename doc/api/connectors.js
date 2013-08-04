@@ -1,23 +1,17 @@
 
-
-/**
-* @name Connector
-* @class
-* @classdesc A Connector is the visual representation of some Connection.  jsPlumb ships with several different
-* types of Connectors, and it is also possible to create your own.  As with all jsPlumb objects, you do not
-* create one of these directly, instead passing in a definition of what you want to the appropriate jsPlumb
-* method.
-*
-* An object of this type is returned from {@link Connection#getConnector}.  The full set of methods available on
-* that object will vary depending on the Connector type.
-*
-* Subclasses of this class are to be found in the {@link jsPlumb.Connectors} namespace.
-*/
-
 /**
 * @namespace jsPlumb.Connectors
-* @desc Parent for all Connector types. You won't reference this namespace directly in code, as Connectors are
-* instantiated by jsPlumb from definitions you provide.
+* @desc Parent for all Connector types. When you provide a Connector definition to an appropriate jsPlumb method,
+* you can do so either as a string, or as an array of the form `[String, Object]`.  In the former case, the string
+* must be one of the members from this namespace, such as `"Bezier"` or `"StateMachine"`. In the latter case,
+* the first argument to the array is the Connector name, and the second is a JS object containing 
+* constructor parameters for the Connector, for instance
+*
+* 
+*    `[ "Bezier", { curviness:75 } ]`
+*
+*
+* Valid values for the constructor parameters for each Connector type are given below.
 */
 
 /**
@@ -25,13 +19,12 @@
 * @desc Provides 'Flowchart' connectors.
 */
 
-
 /**
  * @name jsPlumb.Connectors.Flowchart
  * @constructor 
  * @function
  * @param {Object} params Constructor parameters
- * @param {Integer} [params.stub=30] Minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
+ * @param {Integer|Integer[]} [params.stub=30] Minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
  * or an array of two integers, giving separate values for each end. 
  * @param {Integer} [params.gap=0]  Gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  
  *           Like stub, this can be an array or a single value.
@@ -46,7 +39,6 @@
  * @function
  * @returns {Array} An array of [x,y] locations.
  */
-
 
  /**
  * @name jsPlumb.Connectors.StateMachine
@@ -82,10 +74,10 @@
 * @param {Object} params Constructor parameters.
 * @param {Integer} [params.stub=0] Optional distance to travel from each endpoint before making the connection between the two.
 * @param {Integer} [params.sourceStub] Optional stub for the source endpoint only.
-* @param {integer} [params.targetStub] Optional stub for the target endpoint only.
-* @param {integer} [params.gap=0] Optional gap to leave between the endpoints and the start of the connector.
-* @param {integer} [params.sourceGap] Optional gap for the source endpoint only.
-* @param {integer} [params.targetGap] Optional gap for the target endpoint only.
+* @param {Integer} [params.targetStub] Optional stub for the target endpoint only.
+* @param {Integer} [params.gap=0] Optional gap to leave between the endpoints and the start of the connector.
+* @param {Integer} [params.sourceGap] Optional gap for the source endpoint only.
+* @param {Integer} [params.targetGap] Optional gap for the target endpoint only.
 */  
 
 /**
