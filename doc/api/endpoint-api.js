@@ -171,3 +171,85 @@
 * @param {Boolean} [doNotChangeConnections=false] Instructs jsPlumb to not pass the visible state on to any attached Connections.
 * @param {Boolean} [doNotNotifyOtherEndpoint=false] Instructs jsPlumb to not pass the visible state on to Endpoints at the other end of any attached Connections.
 */
+
+
+/**
+* @namespace jsPlumb.Endpoints
+* @desc Parent for all Endpoint types. When you provide an Endpoint definition to an appropriate jsPlumb method,
+* you can do so either as a string, or as an array of the form `[String, Object]`.  In the former case, the string
+* must be one of the members from this namespace, such as `"Dot"` or `"Rectangle"`. In the latter case,
+* the first argument to the array is the Endpoint name, and the second is a JS object containing 
+* constructor parameters for the Endpoint, for instance
+*
+* 
+*    `[ "Dot", { radius:75 } ]`
+*
+*
+* Valid values for the constructor parameters for each Endpoint type are given below.
+*/
+
+/**
+* @name jsPlumb.Endpoints.Dot
+* @desc A circular Endpoint.
+* @param {Object} params Constructor parameters
+* @param {Integer} [params.radius=10] Radius of the Endpoint
+* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
+* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
+*/
+
+/**
+* @name jsPlumb.Endpoints.Rectangle
+* @desc A rectangular Endpoint.
+* @param {Object} params Constructor parameters
+* @param {Integer} [params.width=20] Width of the Endpoint
+* @param {Integer} [params.height=20] Height of the Endpoint
+* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
+* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
+*/
+
+/**
+* @name jsPlumb.Endpoints.Image
+* @desc An Image Endpoint.
+* @param {Object} params Constructor parameters
+* @param {Integer} params.src Url of the image to display
+* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
+* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
+*/
+
+/**
+* @name jsPlumb.Endpoints.Blank
+* @desc Does not draw anything visible to the user. This Endpoint is probably not what you want if you need your users to be able to drag existing Connections - for that, use a Rectangle or Dot Endpoint and assign to it a CSS class that causes it to be transparent.
+*/
+
+/**
+* @name jsPlumb.Endpoints.Dot
+* @constructor
+* @function
+* @param {Object} params Constructor parameters
+* @param {Integer} [params.radius=10] Radius of the Endpoint
+* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
+* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
+*/
+
+/**
+* @name jsPlumb.Endpoints.Rectangle
+* @constructor
+* @function
+* @param {Object} params Constructor parameters
+* @param {Integer} [params.width=20] Width of the Endpoint
+* @param {Integer} [params.height=20] Height of the Endpoint
+* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
+* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
+*/
+
+/**
+* @name jsPlumb.Endpoints.Image
+* @constructor
+* @function
+* @param {Object} params Constructor parameters
+* @param {Integer} params.src Url of the image to display
+* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
+* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
+*/
+
+

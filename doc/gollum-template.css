@@ -6,7 +6,7 @@
 
 .markdown-body {
   
-  margin-left:300px;  
+  margin-left:325px;  
   margin-top:50px;
   padding-right:20px;
 }
@@ -34,18 +34,25 @@ a[name]:before {
 /* corrections for  jsdoc (move these out) */
 #main {
   height:auto;
-  /*width:75%;*/
+  width:auto;
   background-color: white;
   border:none;
   font-size: 85%;
 }
 nav {
-  background-color:white;
-  margin-top:40px;  
-  position:fixed;
-  right:15px;
-  border:none;
+  padding-bottom: 10px;
+  overflow-x: hidden;
+  overflow-y:auto;
+  height:100%;
+  background-color: white;
+  margin-top: 40px;
+  position: fixed;
+  left: 9px;
+  border: none;
+  float: none;
+  margin-left: 0;
 }
+
 nav a:visited {
   color:#01a3c6;
 }
@@ -73,25 +80,35 @@ nav h2 {
   /*display:none;*/
 }
 
+.apidoc-main {
+  margin-left: 250px;  
+  height: auto;
+  width: auto;
+  background-color: white;
+  border: none;
+}
+
 /* / jsplumb */
 
 /* added by SP */
 .nav {
-  width: 300px;
-  float:left; 
-  margin-left:15px;
+  width: 300px;  
+  margin-left: 15px;
+  font-size: 12px;
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x:hidden;
 }
 
 .nav ul {
   padding-left: 25px;
+  margin-top:8px;
 }
 
-
-/* margin & padding reset
-* {
-  margin: 0;
-  padding: 0;
-}*/
+.nav ul li {
+  margin-bottom:5px;
+}
 
 html, body {
   color: #333;
@@ -121,7 +138,7 @@ a.absent {
 }
 
 .markdown-body {
-  font-size: 14px;
+  font-size: 12.5px;
   line-height: 1.6;
 }
 .markdown-body>*:first-child {
@@ -438,8 +455,8 @@ a.absent {
 .markdown-body pre {
   background-color: #f8f8f8;
   border: 1px solid #ccc;
-  font-size: 13px;
-  line-height: 19px;
+  font-size: 11.5px;
+  line-height: 18px;
   overflow: auto;
   padding: 6px 10px;
   border-radius: 3px;
