@@ -9,7 +9,7 @@
 }
 
 #like {
-    position: absolute;
+    position: fixed;
     width: 50px;
     height: 70px;
     border: 0;
