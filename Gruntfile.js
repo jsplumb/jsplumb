@@ -151,26 +151,20 @@ module.exports = function(grunt) {
                     flags:"gm"
                 }
             ]
-        }
-
-        // copy docular generated docs in and replace absolute paths with relative paths
-        o["docular"] = {
-            src:["dist/apidocs/**/*.html"],
-            actions:[
-                {
-                    search:"/resources",
-                    replace:"resources",
-                    flags:"gm"
-                },
-                {
-                    search:"/documentation",
-                    replace:"documentation",
-                    flags:"gm"  
-                }
-            ]
-        }
+        }       
 
         return o;
+    };
+
+    //
+    // this is a helper for the copy task, because the copy task is strange about the way it copies
+    // things. basically the only way to get a file from some folder into another is to use a 'rename'
+    // function! wtf.  anyway this is a helper for that.    
+    var moveFolder = function(toDir) {
+        return function() {
+            var idx = arguments[1].lastIndexOf("/"), _idx = idx < 0 ? 0 : idx;
+            return toDir + "/" + arguments[1].substring(_idx);
+        }
     };
 
     // Project configuration.
@@ -208,30 +202,19 @@ module.exports = function(grunt) {
             },
             tests:{
                 files:[
-                    { expand:true, src:"tests/jsPlumb-tests.js", dest:"dist/" },
-                    { expand:true, src:"tests/qunit-*.*", dest:"dist/" },
-                    { expand:true, src:"tests/all-tests.html", dest:"dist/" },
-                    { expand:true, src:"tests/loadTestHarness.js", dest:"dist/" },
-                    { expand:true, src:"tests/loadTestHarness.html", dest:"dist/" }
+                    { 
+                        expand:true, 
+                        src:[ "tests/jsPlumb-tests.js", "tests/qunit-*.*", "tests/all-tests.html", "tests/loadTestHarness.js", "tests/loadTestHarness.html" ],  
+                        dest:"dist/" 
+                    }  
                 ]
             },
             doc:{
                 files:[
                     { 
                         expand:true, 
-                        src:"doc/gollum-template.css", 
-                        // it is quite incredible that i have to do this.  if i supply that
-                        // string to the 'dest' argument it treats it as a directory!
-                        // amazing.  and also, amazingly, reasoned away on the project's github page.
-                        // TODO: write a new grunt copy task.
-                        rename:function() {                                                 
-                            return "dist/docs/gollum-template.css";
-                        }
-                    },
-                    {
-                        expand:true,
-                        src:"demo/demo-all.css",
-                        rename:function() { return "dist/docs/demo-all.css"; }
+                        src:[ "doc/gollum-template.css", "demo/demo-all.css", "demo/*.ttf", "demo/*.woff" ],
+                        rename:moveFolder("dist/docs")                        
                     }
                 ]
             },
@@ -242,17 +225,6 @@ module.exports = function(grunt) {
                         expand:true,
                         src:"../jsPlumb.wiki/*.md",
                         dest:"TEMPOUT/"
-                    }
-                ]
-            },
-            docular:{
-                files:[
-                    {
-                        expand:true,
-                        src:"node_modules/grunt-docular/node_modules/docular/lib/webapp/**",                        
-                        rename:function(a,b,c) {
-                            return b.replace("node_modules/grunt-docular/node_modules/docular/lib/webapp/", "dist/apidocs/")
-                        }
                     }
                 ]
             }
@@ -271,25 +243,6 @@ module.exports = function(grunt) {
                     template:'./doc/doc-template.html'
                 }
             }
-        },
-        docular: {
-            baseUrl:"./",
-            groups: [{
-                groupTitle: 'jsPlumb apidoc',
-                groupId: 'apidoc',
-                //groupIcon: 'icon-beer',
-                sections: [{
-                    id: "classes",
-                    title: "Classes",
-                    scripts: [
-                        "src/jsPlumb.js", "src/endpoint.js", "doc/api/overlaycomponent.js", "doc/api/uicomponent.js"
-                    ],
-                    docs: [],
-                    rank : {}
-                }]
-            }],
-            showDocularDocs: false,
-            showAngularDocs: false
         },
         clean:{
             temp:"jsPlumb.wiki"
@@ -320,7 +273,6 @@ module.exports = function(grunt) {
     });
    
     // Load the plugin that provides the "docular" tasks.
-    grunt.loadNpmTasks('grunt-docular');
     grunt.loadNpmTasks('grunt-contrib-concat');   
     grunt.loadNpmTasks('grunt-contrib-uglify'); 
     grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -350,30 +302,43 @@ module.exports = function(grunt) {
         grunt.file.write("dist/docs/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");
     });
 
+    var _replace = function(cwd, pattern, oldV, newV, exclusions) {
+        exclusions = exclusions || [];
+        var _one = function(f) {
+            if (exclusions.indexOf(f) == -1) {
+                if (!grunt.file.isDir(cwd + "/" + f)) {                    
+                    var c = grunt.file.read(cwd + "/" + f);
+                    grunt.file.write(cwd + "/" + f, c.replace(oldV, newV));
+                }
+            }
+        };
+        var sources = grunt.file.expand({ cwd:cwd }, pattern);
+        for (var i = 0; i < sources.length; i++)
+            _one(sources[i]);    
+    };
+
     grunt.registerTask('update', function() {
         var newV = grunt.option("newver");
         if (newV == null) {
             grunt.log.error("You must provide the new version: grunt update --newver=X.X.X");
         }
         else {            
-            var oldV = grunt.config("pkg").version;
-            var _replace = function(cwd, pattern) {
-                var _one = function(f) {
-                    if (!grunt.file.isDir(cwd + "/" + f)) {
-                        var f = grunt.file.read(cwd + "/" + f);
-                        grunt.file.write(cwd + "/" + f, f.replace(oldV, newV));
-                    }
-                };
-                var sources = grunt.file.expand({cwd:"src"},"*.js")
-                for (var i = 0; i < sources.length; i++)
-                    _one(sources[i]);    
-            }
+            var oldV = grunt.config("pkg").version;            
             // now update version number in all demos and src files
-            _replace("src", "*.js");
-            _replace("demo", "*.html");
+            _replace("src", "*.js", oldV, newV);
+            _replace("demo", "*.html", oldV, newV);
         }
 
     });
+
+    // reads the contents of home.html (the docs index), and writes it into all of the other files.
+    grunt.registerTask("docIndex", function() {
+        var f = grunt.file.read("dist/docs/contents.html"),
+            re = /(<!-- BODY.*>.*\n)(.*\n)*(.*\/BODY -->)/,
+            idx = f.match(re);
+
+        _replace("dist/docs", "*.html", /<\!-- NAV -->/, idx[0], ["contents.html"])
+    })
 
     /*
 
@@ -386,6 +351,6 @@ module.exports = function(grunt) {
     */
 
 
-    grunt.registerTask('build', [/*'qunit', *//*'docular',*/ 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', /*'copy:docular',*/ 'regex-replace', 'markdown', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
+    grunt.registerTask('build', [/*'qunit', */'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
 };

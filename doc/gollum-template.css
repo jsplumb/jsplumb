@@ -5,10 +5,10 @@
 /* jsplumb */
 
 .markdown-body {
-  width:80%;
-  margin-left:auto;
-  margin-right:auto;
+  
+  margin-left:300px;  
   margin-top:50px;
+  padding-right:20px;
 }
 
 @font-face {
@@ -17,8 +17,8 @@
   font-weight: 400;
   src:local('Open Sans'), 
     local('OpenSans'),
-    url("../font/OpenSans-Regular.ttf") format('truetype'),
-    url("../font/OpenSans.woff") format('woff');    
+    url("OpenSans-Regular.ttf") format('truetype'),
+    url("OpenSans.woff") format('woff');    
 }
 body { font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif !important; }
 
@@ -34,8 +34,8 @@ a[name]:before {
 /* corrections for  jsdoc (move these out) */
 #main {
   height:auto;
-  width:75%;
-  background-color: transparent;
+  /*width:75%;*/
+  background-color: white;
   border:none;
   font-size: 85%;
 }
@@ -75,12 +75,23 @@ nav h2 {
 
 /* / jsplumb */
 
+/* added by SP */
+.nav {
+  width: 300px;
+  float:left; 
+  margin-left:15px;
+}
 
-/* margin & padding reset*/
+.nav ul {
+  padding-left: 25px;
+}
+
+
+/* margin & padding reset
 * {
   margin: 0;
   padding: 0;
-}
+}*/
 
 html, body {
   color: #333;

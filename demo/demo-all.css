@@ -63,12 +63,11 @@ body {
 }
 
  #main {
-    /* this two margin settings is here just to ensure that jsPlumb handles
+    /* this margin setting is here just to ensure that jsPlumb handles
     margins properly.*/  
     margin-top:44px;
     position: relative;
-    font-size: 80%;
-    height: 600px;
+    font-size: 80%;    
 }
 
 #sidebar {            
