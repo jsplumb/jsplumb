@@ -299,9 +299,16 @@
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
 			var _opts = _getDDOptions(options),
 				id = _jsPlumb.getId(el);
-			_opts.node = "#" + id;		
+			_opts.node = "#" + id;	
+			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
+				Y.one(document.body).addClass("_jsPlumb_drag_select");
+			});	
+			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
+				Y.one(document.body).removeClass("_jsPlumb_drag_select");
+			});	
 			var dd = new Y.DD.Drag(_opts), 
                 containment = options.constrain2node || options.containment;
+
 			dd.el = el;	
             
             if (containment) {
@@ -316,8 +323,7 @@
 				_add(_draggablesByScope, scope, dd);
 			}
 			
-			_draggablesById[id] = dd;			
-			
+			_draggablesById[id] = dd;						
 			_attachListeners(dd, options, ddEvents);
 		},
 		
