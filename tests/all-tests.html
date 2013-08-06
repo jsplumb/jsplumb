@@ -5,17 +5,18 @@
 		<link rel="stylesheet" href="../demo/demo-all.css">
 		<style>
 		/*body {  font-family:courier;background-color:WhiteSmoke;}		*/
-		#iframe { width:100%; height:100%; position:absolute; left:0; top:0;}				
+		#iframe { width:100%; height:1000px; position:absolute; left:150px; top:0;}				
 		a:hover { text-decoration:underline; }
 		#links {			
-			width: 250px;			
+			width: 116px;
 			font-size: 14px;
 			padding-left: 7px;
 			position: fixed;
-			right: 15px;
+			left: 15px;
 			top: 35px;
-			z-index:20;
+			z-index: 20;
 			background-color: white;
+			float: left;
 		}
 		ul { padding:0; }
 		li {
@@ -23,6 +24,9 @@
 		}
 		.current-tests {
 			color:orange !important;
+		}
+		#qunit-tests li.pass, #qunit-tests li.fail {
+			background-color:transparent;
 		}
 		</style>		
 	</head>
