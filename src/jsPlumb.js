@@ -1527,7 +1527,7 @@
 
 			var unravelConnection = function(connection) {
 				if(connection != null && result.connections[connection.id] == null) {
-					//connection.setHover(false);
+					connection._jsPlumb && connection.setHover(false);
 					result.connections[connection.id] = connection;
 					result.connectionCount++;
 					if (deleteAttachedObjects) {
@@ -1540,7 +1540,7 @@
 			};
 			var unravelEndpoint = function(endpoint) {
 				if(endpoint != null && result.endpoints[endpoint.id] == null) {
-					//endpoint.setHover(false);
+					endpoint._jsPlumb && endpoint.setHover(false);
 					result.endpoints[endpoint.id] = endpoint;
 					result.endpointCount++;
 

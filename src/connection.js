@@ -382,10 +382,8 @@
                     this.connector = makeConnector(this._jsPlumb.instance, renderMode, connectorSpec[0], _ju.merge(connectorSpec[1], connectorArgs));
             }
             // binds mouse listeners to the current connector.
-            this.bindListeners(this.connector, this, function(state) {
-                if (!this._jsPlumb.instance.isConnectionBeingDragged()) {
-                    this.setHover(state, false);
-                }
+            this.bindListeners(this.connector, this, function(state) {                
+                this.setHover(state, false);                
             }.bind(this));
             
             this.canvas = this.connector.canvas;
