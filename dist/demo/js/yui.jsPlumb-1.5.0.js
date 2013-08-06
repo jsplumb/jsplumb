@@ -1569,7 +1569,7 @@
 				var jpcl = jsPlumb.CurrentLibrary;
 		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
 		    	// swishing and whatevering.
-				if (!this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
+				if (this._jsPlumb && !this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
 		    
 			    	this._jsPlumb.hover = hover;
                         
@@ -1689,8 +1689,10 @@
 				}
 			},
 			setHover : function(hover, ignoreAttachedElements, timestamp) {            
-                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
-					this._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](this._jsPlumb.instance.hoverClass);
+				if (this._jsPlumb) {
+	                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
+						this._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](this._jsPlumb.instance.hoverClass);
+					}
 				}
             },
             addOverlay : function(overlay, doNotRepaint) { 
@@ -5092,7 +5094,7 @@
             jsPlumb.CurrentLibrary.destroyDroppable(i);
         },
         setHover : function(h) {
-            this.endpoint.setHover(h);            
+            this.endpoint && this.endpoint.setHover(h);            
         },
         isFull : function() {
             return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);              
@@ -5453,7 +5455,7 @@
           this._jsPlumb.reattach = reattach === true;
         },
         setHover : function(state) {
-            this.connector.setHover(state);                       
+            this.connector && this.connector.setHover(state);                       
         },
         getCost : function() { return this._jsPlumb.cost; },
         setCost : function(c) { this._jsPlumb.cost = c; },
