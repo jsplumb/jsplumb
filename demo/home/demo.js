@@ -16,39 +16,7 @@
 			var connectorStrokeColor = "rgba(50, 50, 200, 1)",
 				connectorHighlightStrokeColor = "rgba(180, 180, 200, 1)",
 				hoverPaintStyle = { strokeStyle:"#7ec3d9" };			// hover paint style is merged on normal style, so you 
-			                                                        // don't necessarily need to specify a lineWidth
-			
-
-
-			/*var connection1 = jsPlumb.connect({
-				source:"window1", 
-			   	target:"window2"});
-
-			for (var i = 0; i < 500; i++) {
-				var e = jsPlumb.addEndpoint("window1"),
-					e2 = jsPlumb.addEndpoint("window2");
-
-				// delete endpoints programmatically (doesnt leak)				
-				//jsPlumb.deleteEndpoint(e);
-				//jsPlumb.deleteEndpoint(e2);
-
-				// delete every endpoint (NOTE: no connections).  doesnt leak.
-				//jsPlumb.deleteEveryEndpoint();
-
-				// connect the two endpoints then delete one of them. should detach the connection, leaving 
-				// the second endpoint, which we then delete.
-				//jsPlumb.connect({source:e, target:e2});
-				//jsPlumb.deleteEndpoint(e);
-				//jsPlumb.deleteEndpoint(e2);
-
-				// connect the two, and then use detachFrom
-				jsPlumb.connect({source:e, target:e2});
-				e.detachFrom(e2);
-				jsPlumb.deleteEndpoint(e);
-				jsPlumb.deleteEndpoint(e2);
-			}			
-
-			alert("DONE!")*/
+			                                                        // don't necessarily need to specify a lineWidth			
 
 			// 
 			// connect window1 to window2 with a 13 px wide olive colored Bezier, from the BottomCenter of 
@@ -112,7 +80,7 @@
 				},
 				detachable:false,
 				hoverPaintStyle:hoverPaintStyle, 
-				anchors:[ [ 0.3 , 1, 0, 1, 15, 15 ], "TopCenter" ], 
+				anchors:[ [ 0.3 , 1, 0, 1 ], "TopCenter" ], 
 				endpoint:"Rectangle", 
 				endpointStyles:[
 					{ gradient : { stops:[[0, w23Stroke], [1, "#558822"]] }},
@@ -239,10 +207,6 @@
 			// that enables me to reuse this code across all three libraries. In your own usage of jsPlumb you can use
 			// your library's selector method - "$" for jQuery, "$$" for MooTools, "Y.all" for YUI3.
 			jsPlumb.draggable(jsPlumb.getSelector(".window"), { containment:".demo"});    
-
-			//jsPlumb.selectEndpoints().get(0).foo();        
-
-	
 
 		}
 	};	
