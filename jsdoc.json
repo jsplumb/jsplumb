@@ -17,7 +17,8 @@
         "SIMON":"SIMON"
     },
     "css":{
-        "foo":"/foo.css"
+        "demo":"../demo/demo-all.css",
+        "gollum":"../doc/gollum-template.css"
     },
     "jsVersion": 180,
     "layout":"jsplumb-apidoc.tmpl"
