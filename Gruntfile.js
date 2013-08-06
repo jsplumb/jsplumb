@@ -30,9 +30,6 @@
 
 // http://flippinawesome.org/2013/07/01/building-a-javascript-library-with-grunt-js/?utm_source=javascriptweekly&utm_medium=email
 
-// angular  docs:
-//  http://grunt-docular.com/ 
-
 // also to checkout:
 // https://github.com/ModelN/grunt-blanket-qunit
 
@@ -132,7 +129,7 @@ module.exports = function(grunt) {
                     },
                     {
                         search:"<a href=\"http://localhost:4567\">",
-                        replace:"<a href=\"../../docs/\">",
+                        replace:"<a href=\"../../doc/\">",
                         flags:"gm"
                     }
                 ]
@@ -141,7 +138,7 @@ module.exports = function(grunt) {
 
         // change media wiki style links into standard markdown links
         // [[Changes since version 1.4.0|changelog]]  -> [Changes since version 1.4.0](changelog)
-        o["docs"] = {
+        o["doc"] = {
             src:['jsPlumb.wiki/*.md'],
             actions:[
                 {
@@ -214,7 +211,7 @@ module.exports = function(grunt) {
                     { 
                         expand:true, 
                         src:[ "doc/gollum-template.css", "demo/demo-all.css", "demo/*.ttf", "demo/*.woff", "demo/logo_bw_44h.jpg" ],
-                        rename:moveFolder("dist/docs")                        
+                        rename:moveFolder("dist/doc")                        
                     }
                 ]
             },
@@ -236,7 +233,7 @@ module.exports = function(grunt) {
                     expand: true,
                     flatten:true,
                     src: 'jsPlumb.wiki/*.md',
-                    dest: 'dist/docs/',
+                    dest: 'dist/doc/',
                     ext: '.html'
                 }],
                 options:{
@@ -283,23 +280,11 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
 
-    // the current build:
-    // - generates apidocs and massages the resulting files a little (docular to the rescue)
-    // - generates a concatenated and minified jsplumb for each supported library (done)
-    // - copies demos into the build dir (done)
-    // - copies built jsplumb versions into demo dir (done)
-    // - copies a jsplumb version into the requirejs demo in the build dir (done)
-    // - replaces dev imports in the demos in the build dir with refs to concatenated files (done)
-    // - copies tests, font and libs into the build dir
-
-    // the wiki documentation is handled in the jsplumb.org project. but i would like to somehow
-    // build it into the grunt build.
-
     grunt.registerTask('writeIndex', function() {
         // write an index file to the root of the dist dir (redirects to main jquery demo)    
         grunt.file.write("dist/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/jquery.html'/></head></html>");
         // write an index file to the root of the docs dir (redirects to 'home')
-        grunt.file.write("dist/docs/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");
+        grunt.file.write("dist/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");        
     });
 
     var _replace = function(cwd, pattern, oldV, newV, exclusions) {
@@ -333,11 +318,11 @@ module.exports = function(grunt) {
 
     // reads the contents of home.html (the docs index), and writes it into all of the other files.
     grunt.registerTask("docIndex", function() {
-        var f = grunt.file.read("dist/docs/contents.html"),
+        var f = grunt.file.read("dist/doc/contents.html"),
             re = /(<!-- BODY.*>.*\n)(.*\n)*(.*\/BODY -->)/,
             idx = f.match(re);
 
-        _replace("dist/docs", "*.html", /<\!-- NAV -->/, idx[0], ["contents.html"])
+        _replace("dist/doc", "*.html", /<\!-- NAV -->/, idx[0], ["contents.html"])
     })
 
     /*

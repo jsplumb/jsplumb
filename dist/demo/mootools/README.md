@@ -1,1 +1,0 @@
-The Mootools demos have been moved from this directory to be in their own directories, one per demo.  This directory remains in order to redirect people to the new demos.
