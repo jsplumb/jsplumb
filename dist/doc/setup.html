@@ -307,7 +307,7 @@ jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
 jsPlumb.draggable(&quot;container&quot;);</code></pre>
 <p>Now when you drag <code>container</code>, jsPlumb will have noticed that there are nested elements that have Connections, and they will be updated.  Note that the order of operations is not important here: if <code>container</code> was already draggable when you connected one of its children to something, you would get the same result.</p>
 <h6>Nested Element offsets</h6>
-<p>For performance reasons, jsPlumb caches the offset of each nested element relative to its draggable ancestor. If you make changes to the draggable ancestor that will have resulted in the offset of one or more nested elements changing, you need to tell jsPlumb about it, using the <code>recalculateOffsets</code> function.          </p>
+<p>For performance reasons, jsPlumb caches the offset of each nested element relative to its draggable ancestor. If you make changes to the draggable ancestor that will have resulted in the offset of one or more nested elements changing, you need to tell jsPlumb about it, using the <code>recalculateOffsets</code> function.        </p>
 <p>Consider the example from before, but with a change to the markup after initializing everything:            </p>
 <pre><code>&lt;div id=&quot;container&quot;&gt;
   &lt;div class=&quot;header&quot; style=&quot;height:20px;background-color:blue;&quot;&gt;header&lt;/div&gt;
@@ -327,6 +327,19 @@ jsPlumb.draggable(&quot;container&quot;);
 $(&quot;#container .header).hide();    // hide the header bar. this will alter the offset of the other child elements...
 jsPlumb.recalculateOffsets(&quot;container&quot;);   // tell jsPlumb that the internal dimensions have changed.
 // you can also use a selector, eg $(&quot;#container&quot;)</code></pre>
+<p>Another setup I have seen in which you will need to call <code>recalculateOffsets</code> is when you have some draggable parent that itself contains draggable child nodes:</p>
+<pre><code>&lt;div class=&quot;parent&quot;&gt;
+    &lt;div class=&quot;child&quot;&gt;child 1&lt;/div&gt;
+    &lt;div class=&quot;child&quot;&gt;child 2&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p>If you make both <code>.parent</code> and <code>.child</code> draggable, you need to make a call to <code>recalculateOffsets</code> whenever a <code>.child</code> node stops dragging:</p>
+<pre><code>jsPlumb.draggable($(&quot;.parent&quot;));
+jsPlumb.draggable($(&quot;.child&quot;), {
+    containment:&quot;parent&quot;,
+    stop:function() {
+        jsPlumb.recalculateOffsets($(this).parent());
+    }
+});</code></pre>
 <p><a name="performance"></a></p>
 <h3>Performance</h3>
 <p>The speed at which jsPlumb executes, and the practical limit to the number of manageable connections, is greatly affected by the browser upon which it is being run.  At the time of writing, it will probably not surprise you to learn that jsPlumb runs fastest in Chrome, followed by Safari/Firefox, and then IE browsers in descending version number order.</p>
