@@ -274,7 +274,7 @@
                     originalCursor = null,
 				    dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
                 
-				options.onStart = jsPlumb.wrap(options.onStart, function() {
+				options.onStart = jsPlumbUtil.wrap(options.onStart, function() {
                     originalZIndex = this.element.getStyle('z-index');
 					this.element.setStyle('z-index', dragZIndex);
                     drag.originalZIndex = originalZIndex;
@@ -284,7 +284,7 @@
 					}
 				});
 				
-				options.onComplete = jsPlumb.wrap(options.onComplete, function() {
+				options.onComplete = jsPlumbUtil.wrap(options.onComplete, function() {
 					this.element.setStyle('z-index', originalZIndex);
 					if (originalCursor) {
 						this.element.setStyle('cursor', originalCursor);
@@ -302,13 +302,13 @@
                 if (isPlumbedComponent) {
 
 				    options.droppables = droppables;
-				    options.onLeave = jsPlumb.wrap(options.onLeave, function(el, dr) {
+				    options.onLeave = jsPlumbUtil.wrap(options.onLeave, function(el, dr) {
 		    			if (dr) {
 			    			_checkHover(dr, false);
 				    		_executeDroppableOption(el, dr, 'onLeave');
 					    }
 				    });
-				    options.onEnter = jsPlumb.wrap(options.onEnter, function(el, dr) {
+				    options.onEnter = jsPlumbUtil.wrap(options.onEnter, function(el, dr) {
 					    if (dr) {
 						    _checkHover(dr, true);
 						    _executeDroppableOption(el, dr, 'onEnter');

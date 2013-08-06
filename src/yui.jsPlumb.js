@@ -158,7 +158,7 @@
 		animate : function(el, properties, options) {
 			var o = _extend({node:el, to:properties}, options),			
 				id = _getAttribute(el, "id");
-			o.tween = jsPlumb.wrap(properties.tween, function() {
+			o.tween = jsPlumbUtil.wrap(properties.tween, function() {
 				// TODO should use a current instance.
 				jsPlumb.repaint(id);
 			});
@@ -333,14 +333,14 @@
 			var scope = options.scope || jsPlumb.Defaults.Scope;					
 			_droppableScopesById[id] = scope;
 			
-			options["drop:enter"] = jsPlumb.wrap(options["drop:enter"], function(e) {
+			options["drop:enter"] = jsPlumbUtil.wrap(options["drop:enter"], function(e) {
 				if (e.drag.scope !== scope) return true;
 				_checkHover(el, true);
 			}, true);
-			options["drop:exit"] = jsPlumb.wrap(options["drop:exit"], function(e) {
+			options["drop:exit"] = jsPlumbUtil.wrap(options["drop:exit"], function(e) {
 				_checkHover(el, false);
 			});
-			options["drop:hit"] = jsPlumb.wrap(options["drop:hit"], function(e) {
+			options["drop:hit"] = jsPlumbUtil.wrap(options["drop:hit"], function(e) {
 				if (e.drag.scope !== scope) return true;
 				_checkHover(el, false);
 			}, true);
