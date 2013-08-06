@@ -98,7 +98,7 @@
 <li><a href="#multiple">Multiple jsPlumb Instances</a></li>
 <li><a href="#zindex">Z-Index Considerations</a></li>
 <li><a href="#container">Where does jsPlumb add elements?</a></li>
-<li><a href="#dragging">Element Dragging</a></li>
+<li><a href="#dragging">Dragging</a></li>
 <li><a href="#performance">Performance</a></li>
 <li><a href="#boilerplate">Skeleton Page</a></li>
 </ol>
@@ -332,6 +332,19 @@ jsPlumb.draggable(&quot;container&quot;);
 $(&quot;#container .header).hide();    // hide the header bar. this will alter the offset of the other child elements...
 jsPlumb.recalculateOffsets(&quot;container&quot;);   // tell jsPlumb that the internal dimensions have changed.
 // you can also use a selector, eg $(&quot;#container&quot;)</code></pre>
+<h3>Selection while dragging</h3>
+<p>The default browser behaviour on mouse drag is to select elements in the DOM.  jQuery suppresses this behaviour, but MooTools and YUI do not. To assist with handling this, the MooTools and YUI adapters attach this class to the <strong>body</strong> at drag start:</p>
+<pre><code>_jsPlumb_drag_select</code></pre>
+<p>The class is removed at drag end. </p>
+<p>A suitable value for this class (this is from the jsPlumb demo pages) is:</p>
+<pre><code>._jsPlumb_drag_select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;    
+}    </code></pre>
 <p><a name="performance"></a></p>
 <h3>Performance</h3>
 <p>The speed at which jsPlumb executes, and the practical limit to the number of manageable connections, is greatly affected by the browser upon which it is being run.  At the time of writing, it will probably not surprise you to learn that jsPlumb runs fastest in Chrome, followed by Safari/Firefox, and then IE browsers in descending version number order.</p>

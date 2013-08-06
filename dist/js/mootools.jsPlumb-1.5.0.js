@@ -814,13 +814,13 @@
                 try {
                     r = newFunction.apply(this, arguments);
                 } catch (e) {
-                    _ju.log(_currentInstance, "jsPlumb function failed : " + e);
+                    jsPlumbUtil.log("jsPlumb function failed : " + e);
                 }
                 if (returnOnThisValue == null || (r !== returnOnThisValue)) {
                     try {
                         wrappedFunction.apply(this, arguments);
                     } catch (e) {
-                        _ju.log(_currentInstance, "wrapped function failed : " + e);
+                        jsPlumbUtil.log("wrapped function failed : " + e);
                     }
                 }
                 return r;
@@ -10764,6 +10764,7 @@
 						originalCursor = this.element.getStyle('cursor');
 						this.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
 					}
+					$(document.body).addClass("_jsPlumb_drag_select");
 				});
 				
 				options.onComplete = jsPlumbUtil.wrap(options.onComplete, function() {
@@ -10771,6 +10772,7 @@
 					if (originalCursor) {
 						this.element.setStyle('cursor', originalCursor);
 					}                    
+					$(document.body).removeClass("_jsPlumb_drag_select");
 				});
 				
 				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element

@@ -130,6 +130,18 @@
 
   return true; // or false.  in this case we say drop is allowed.
 });</code></pre>
+<h3>Preventing selection while dragging</h3>
+<p>MooTools and YUI3 do not prevent the default browser behaviour of selecting DOM elements when dragging, so jsPlumb puts a class on the body that you can use to disable it yourself:</p>
+<pre><code>_jsPlumb_drag_select</code></pre>
+<p>A suitable value for this (from the jsPlumb demos) is:</p>
+<pre><code>._jsPlumb_drag_select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;    
+}</code></pre>
 <h3>Custom CSS Classes</h3>
 <p>In addition to the default CSS classes, each of the main methods you use to configure Endpoints or make Connections in jsPlumb support the following two parameters:</p>
 <ul>

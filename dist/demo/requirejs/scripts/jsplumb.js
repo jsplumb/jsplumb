@@ -814,13 +814,13 @@
                 try {
                     r = newFunction.apply(this, arguments);
                 } catch (e) {
-                    _ju.log(_currentInstance, "jsPlumb function failed : " + e);
+                    jsPlumbUtil.log("jsPlumb function failed : " + e);
                 }
                 if (returnOnThisValue == null || (r !== returnOnThisValue)) {
                     try {
                         wrappedFunction.apply(this, arguments);
                     } catch (e) {
-                        _ju.log(_currentInstance, "wrapped function failed : " + e);
+                        jsPlumbUtil.log("wrapped function failed : " + e);
                     }
                 }
                 return r;
