@@ -122,13 +122,22 @@ body {
 a, a:visited {
     text-decoration:none;
     color:#01a3c6;    
-    font-family:helvetica;
+/*    font-family:helvetica;*/
     padding:0.3em;
     border-radius:0.2em;
+
+    -webkit-transition: color 0.15s ease-in;
+    -moz-transition: color 0.15s ease-in;
+    -o-transition: color 0.15s ease-in;
+    transition: color 0.15s ease-in;
 }
 
 a:hover {
     color:#1b911b;
+}
+
+.render a {
+    margin-right:10px;
 }
 
 .selected {
