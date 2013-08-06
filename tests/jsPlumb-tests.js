@@ -3766,7 +3766,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         ep = _jsPlumb.addEndpoint(d1, e);        
         expect(0);
     });
-    asyncTest(renderMode + "setImage on Endpoint, with supplied onload", function() {
+    asyncTest(renderMode + " setImage on Endpoint, with supplied onload", function() {
     start();
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
         e = {

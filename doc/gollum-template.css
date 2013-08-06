@@ -88,6 +88,14 @@ nav h2 {
   border: none;
 }
 
+#qunit-tests li, #qunit-testresult {
+  background-color: white !important;
+}
+
+#qunit-userAgent {
+  text-shadow:none;
+}
+
 /* / jsplumb */
 
 /* added by SP */
