@@ -11,8 +11,12 @@
     font-family:serif;
     font-style:italic;
     padding-top:0.9em; 
-    font-size:0.9em;
-            
+    font-size:0.9em;   
+    opacity: 0.95;
+    border-radius: 5px;         
+}
+.window a {
+    font-family:helvetica;
 }
 .demo { position:relative; }
 .drag-locked { border:1px solid red; }
@@ -43,6 +47,9 @@
     padding:5px;
     border:1px solid #456;
     opacity:0.8;
+    border-radius:8px;
+    color:#444;
 }
-#list table { width:100%; text-align:left;}
+#list table { width:100%;}
+#list table th, #list strong { color:black; font-size:12px;}
 #explanation { text-align:center; }
