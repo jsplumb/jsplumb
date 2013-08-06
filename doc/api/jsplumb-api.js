@@ -493,11 +493,11 @@
 /**
 * @name jsPlumbInstance#makeTarget
 * @function
-* @desc Makes some DOM element a Connection target, allowing you to drag connections to it
-* without having to register any Endpoints on it first.  When a Connection is established,
+* @desc Makes some DOM element(s) a Connection target, allowing you to drag connections to it/them
+* without having to first register any Endpoints.  When a Connection is established,
 * the endpoint spec that was passed in to this method is used to create a suitable 
 * Endpoint (the default will be used if you do not provide one).
-* @param {String|Element|Selector} el Element to turn into a connection target.
+* @param {String|Element|Selector} el Element(s) to turn into a connection target.
 * @param {Object} params Parameters for the call
 * @param {String|Array} [params.endpoint] Specification of an Endpoint to create when a Connection is established.
 * @param {String} [params.scope] Scope for the drop zone.
@@ -520,23 +520,13 @@
 */ 
 
 /**
-* @name jsPlumbInstance#makeTargets
-* @desc Makes all elements in some array or a selector connection targets.
-* @function
-* @param {String[]|Selector} els 	- 	either an array of ids/elements or a selector
-* @param {Object} [params]  Parameters to configure each element as a target with
-* @param {Object} [referenceParams] Extra parameters to configure each element as a target with.
-* @returns {jsPlumbInstance} The current jsPlumb instance.
-*/
-
-/**
 * @name jsPlumbInstance#makeSource
-* @desc Makes some DOM element a Connection source, allowing you to drag connections from it
-* without having to register any Endpoints on it first.  When a Connection is established,
-* the endpoint spec that was passed in to this method is used to create a suitable 
-* Endpoint (the default will be used if you do not provide one).
+* @desc Makes some DOM element(s) a Connection source, allowing you to drag connections from it/them
+* without having to first register any Endpoints.  When a Connection is established, the endpoint spec 
+* that was passed in to this method is used to create a suitable Endpoint (the default will be used if 
+* you do not provide one).
 * @function
-* @param {String|Element|Selector} el	String id, element, or element selector for the element to make a source.
+* @param {String|Element|Selector} el	String id, element, or element selector for the element(s) to make a source.
 * @param {Object} params Parameters for the call
 * @param {String|Array} [params.endpoint]	Specification of an endpoint to create when a connection is created.
 * @param {String|Element} [params.parent] The element to add Endpoints to when a Connection is established.  if you omit this, Endpoints will be added to 'el'.
@@ -569,16 +559,6 @@
 *	@name jsPlumbInstance#unmakeEveryTarget
 * @function
 *	@desc Resets all elements in this instance of jsPlumb so that none of them are connection targets.
-* @returns {jsPlumbInstance} The current jsPlumb instance.
-*/
-
-/**
-* @name jsPlumbInstance#makeSources
-* @function
-* @desc Makes all elements in some array or a selector connection sources.
-* @param {String[]|Selector} els 	Either an array of ids or elements, or a selector
-* @param {Object} [params]  Parameters to configure each element as a source with
-* @param {Object} [referenceParams] Extra parameters to configure each element as a source with.
 * @returns {jsPlumbInstance} The current jsPlumb instance.
 */
 
