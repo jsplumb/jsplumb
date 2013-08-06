@@ -327,7 +327,7 @@
           this._jsPlumb.reattach = reattach === true;
         },
         setHover : function(state) {
-            this.connector.setHover(state);                       
+            this.connector && this.connector.setHover(state);                       
         },
         getCost : function() { return this._jsPlumb.cost; },
         setCost : function(c) { this._jsPlumb.cost = c; },

@@ -927,7 +927,7 @@
             jsPlumb.CurrentLibrary.destroyDroppable(i);
         },
         setHover : function(h) {
-            this.endpoint.setHover(h);            
+            this.endpoint && this.endpoint.setHover(h);            
         },
         isFull : function() {
             return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);              
