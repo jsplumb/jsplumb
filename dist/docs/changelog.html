@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="gollum-template.css">
+		<link rel="stylesheet" href="demo-all.css">
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="menu">
+					<a href="home">Documentation</a>&nbsp;|&nbsp;
+					<a href="../demo/">Demos</a>&nbsp;|&nbsp;
+					<a href="../apidocs">API docs</a>&nbsp;|&nbsp;
+					<a href="../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
+					<a href="mailto:simon.porritt@gmail.com">Contact</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsPlumb/">GitHub</a>&nbsp;|&nbsp;
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">Discussion Group</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsPlumb/issues">Issues</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changes since version 1.4.1</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a></li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h2>Changes since 1.4.1</h2>
+<p>Release 1.5.0 contains several bugfixes and one or two minor enhancements, but the biggest change since 1.4.1 is the way jsPlumb handles inheritance internally - it has switched from a &#39;module pattern&#39; architecture to a prototypal-based setup.  The module pattern is good for information hiding, but it makes objects bigger, and its far easier to leak memory with that sort of arrangement than it is with a prototypal inheritance scheme. </p>
+<p>The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see <a href="build">here</a>).</p>
+<ol>
+<li><a href="#backwards">Backwards Compatibility</a></li>
+<li><a href="#new">New Functionality</a></li>
+<li><a href="#issues">Issues Fixed</a></li>
+<li><a href="#misc">Miscellaneous</a></li>
+</ol>
+<p><a name="backwards"></a></p>
+<h3>Backwards Compatibility</h3>
+<ul>
+<li><code>jsPlumb.addClass</code>, <code>jsPlumb.removeClass</code> and removed <code>jsPlumb.hasClass</code> removed. You don&#39;t need these. You can use the methods from the underlying library.</li>
+<li><code>makeTargets</code> method removed from jsPlumb. You can pass an array or selector to <code>makeTarget</code>.</li>
+<li><code>makeSources</code> method removed from jsPlumb. You can pass an array or selector to <code>makeSource</code>.</li>
+<li><code>jsPlumb.detach</code> no longer supports passing in two elements as arguments.  Use instead either </li>
+</ul>
+<p><code>jsPlumb.detach({source:someDiv, target:someOtherDiv});</code></p>
+<p>or</p>
+<p><code>jsPlumb.select({source:someDiv, target:someOtherDiv}).detach();</code></p>
+<ul>
+<li><code>jsPlumbConnectionDetached</code> event, which was deprecated, has been removed. Use <code>connectionDetached</code>.</li>
+<li><code>jsPlumbConnection</code> event, which was deprecated, has been removed. Use <code>connection</code>.</li>
+<li><code>Endpoint.isConnectedTo</code> method removed.  it didnt work properly as it only checked for connections where the Endpoint was the source.</li>
+<li>Many places in jsPlumb that used to use library-specific selectors for elements now use pure DOM elements.  It is best to re-select any elements you are getting from a jsPlumb object, even if you supplied them as a selector, as jsPlumb will have unwrapped your selector into a DOM element.</li>
+</ul>
+<p><a name="new"></a></p>
+<h3>New Functionality</h3>
+<ul>
+<li>setSuspendDrawing returns the value of suspendDrawing <em>before</em> the call was made.</li>
+</ul>
+<p><a name="issues"></a></p>
+<h3>Issues Fixed</h3>
+<ul>
+<li><strong>27</strong> - investigate why a new connection is created after drag          </li>
+<li><strong>37</strong> - .addClass() not working - IE8</li>
+<li><strong>39</strong> - problem about connectionDrag event</li>
+<li><strong>49</strong> - Calling detachEveryConnection winds up calling repaintEverything once for each endpoint</li>
+<li><strong>51</strong> - arrow overlay orientation at location 1 on flowchart connectors</li>
+<li><strong>54</strong> - Memory Leak Issue</li>
+<li><strong>57</strong> - DOMException while dragging endpoints</li>
+<li><strong>60</strong> - flowchart connector start position wrong</li>
+<li><strong>63</strong>  - Flowchart midpoint=0 is ignored </li>
+<li><strong>65</strong> - Uncaught exception in IE 8</li>
+<li><strong>69</strong> - jsPlumb.detach(connection) is really slow with larger graphs</li>
+<li><strong>72</strong> - Drag and drop connections fail to work correctly when using makeTarget</li>
+</ul>
+<p><a name="misc"></a></p>
+<h3>Miscellaneous</h3>
+<p>Nothing to report.</p>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

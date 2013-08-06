@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+	<head>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<link rel="stylesheet" href="../demo/demo-all.css">
+		<style>
+		/*body {  font-family:courier;background-color:WhiteSmoke;}		*/
+		#iframe { width:100%; height:1000px; position:absolute; left:150px; top:0;}				
+		a:hover { text-decoration:underline; }
+		#links {			
+			width: 116px;
+			font-size: 14px;
+			padding-left: 7px;
+			position: fixed;
+			left: 15px;
+			top: 35px;
+			z-index: 20;
+			background-color: white;
+			float: left;
+		}
+		ul { padding:0; }
+		li {
+			list-style-type:none;
+		}
+		.current-tests {
+			color:orange !important;
+		}
+		#qunit-tests li.pass, #qunit-tests li.fail {
+			background-color:transparent;
+		}
+		</style>		
+	</head>
+	<body>		
+		
+
+    	<div id="headerWrapper">
+        	<div id="header">
+        		<div class="menu">    
+        			<a href="../docs">Documentation</a>&nbsp;|&nbsp;    			
+        			<a href="../apidocs">API docs</a>&nbsp;|&nbsp;
+        			<a href="../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
+        			<a href="mailto:hello@jsplumbtoolkit.com" class="mplink">Contact</a>&nbsp;|&nbsp;
+        			<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;
+        			<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Discussion Group</a>&nbsp;|&nbsp;
+        			<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
+        		</div>
+        	</div>
+        </div>
+
+		<div id="links">
+			<h3>Unit Tests</h3>
+			<ul>
+				<li><h5>jsPlumb</h5></li>
+				<li><a href="qunit-svg-jquery.html">SVG</a></li>				
+				<li><a href="qunit-canvas-jquery.html">Canvas</a></li>								
+				<li><a href="qunit-vml-jquery.html">VML</a></li>
+				<li><h5>jsPlumb Instance</h5></li>
+				<li><a href="qunit-svg-jquery-instance.html">SVG</a></li>
+				<li><a href="qunit-canvas-jquery-instance.html">Canvas</a></li>
+				<li><a href="qunit-vml-jquery-instance.html">VML</a></li>				
+			</ul>
+			<h3>Load Tests</h3>
+			<ul>
+				<li><a href="loadTestHarness.html">Basic Load Test</a></li>
+		</div>
+		<div id="main">
+			<iframe src="" id="iframe"></iframe>
+		</div> 
+		<script>
+			$(function() {	
+
+				var load = function(href) {
+					$("#links a").removeClass("current-tests");
+					$("#iframe")[0].src = href;
+					$("#links a[href='" + href + "']").addClass("current-tests");
+				};
+				
+				$("#links a").live("click", function() {
+					load($(this).attr("href"));
+					return false;
+				});
+
+				$("#body").height($(window).height() - $("#header").height());
+
+				load("qunit-svg-jquery.html");
+
+			});
+		</script>
+	</body>
+</html>
