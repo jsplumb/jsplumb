@@ -1,7 +1,7 @@
 ;(function() {
 
 	// helper method to generate a color from a cycle of colors.
-	var curColourIndex = 1, maxColourIndex = 24, nextColour = function() {
+	/*var curColourIndex = 1, maxColourIndex = 24, nextColour = function() {
 		var R,G,B;
 		R = parseInt(128+Math.sin((curColourIndex*3+0)*1.3)*128);
 		G = parseInt(128+Math.sin((curColourIndex*3+1)*1.3)*128);
@@ -9,7 +9,7 @@
 		curColourIndex = curColourIndex + 1;
 		if (curColourIndex > maxColourIndex) curColourIndex = 1;
 		return "rgb(" + R + "," + G + "," + B + ")";
-	 };	
+	 };	*/
 		
 	window.jsPlumbDemo = { 
 	
@@ -18,7 +18,7 @@
 			// setup some defaults for jsPlumb.	
 			jsPlumb.importDefaults({
 				Endpoint : ["Dot", {radius:2}],
-				HoverPaintStyle : {strokeStyle:"#42a62c", lineWidth:2 },
+				HoverPaintStyle : {strokeStyle:"#1e8151", lineWidth:2 },
 				ConnectionOverlays : [
 					[ "Arrow", { 
 						location:1,
@@ -26,7 +26,7 @@
 	                    length:14,
 	                    foldback:0.8
 					} ],
-	                [ "Label", { label:"FOO", id:"label" }]
+	                [ "Label", { label:"FOO", id:"label", cssClass:"aLabel" }]
 				]
 			});
 			
@@ -52,7 +52,7 @@
 				filter:".ep",				// only supported by jquery
 				anchor:"Continuous",
 				connector:[ "StateMachine", { curviness:20 } ],
-				connectorStyle:{ strokeStyle:nextColour(), lineWidth:2 },
+				connectorStyle:{ strokeStyle:"#5c96bc", lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
 				maxConnections:5,
 				onMaxConnections:function(info, e) {
 					alert("Maximum connections (" + info.maxConnections + ") reached");
@@ -61,11 +61,10 @@
 
 			// bind a connection listener. note that the parameter passed to this function contains more than
 			// just the new connection - see the documentation for a full list of what is included in 'info'.
-			// this listener changes the paint style to some random new color and also sets the connection's internal
+			// this listener sets the connection's internal
 			// id as the label overlay's text.
             jsPlumb.bind("connection", function(info) {
-				info.connection.setPaintStyle({strokeStyle:nextColour()});
-                info.connection.getOverlay("label").setLabel(info.connection.id);
+				info.connection.getOverlay("label").setLabel(info.connection.id);
             });
 
 			// initialise all '.w' elements as connection targets.

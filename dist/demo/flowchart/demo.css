@@ -39,6 +39,7 @@ filter:alpha(opacity=60);
 #window4 { top:23em; left:22em;}
 ._jsPlumb_connector { z-index:4; }
 ._jsPlumb_endpoint, .endpointTargetLabel, .endpointSourceLabel{ z-index:21;cursor:pointer; }
+
 .hl { border:3px solid red; }
 #debug { position:absolute; background-color:black; color:red; z-index:5000 }
 
@@ -53,4 +54,10 @@ filter:alpha(opacity=60);
 	border:1px dotted gray;
 	opacity:0.8;
 	filter:alpha(opacity=80);
+	cursor: pointer;
+}
+.aLabel._jsPlumb_hover {
+	background-color:#5C96BC;
+	color:white;	
+	border:1px solid white;
 }

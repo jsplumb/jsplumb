@@ -27,20 +27,22 @@
 				lineWidth:4,
 				strokeStyle:"#deea18",
 				joinstyle:"round",
-				outlineColor:"white",
+				outlineColor:"#eaedef",
 				outlineWidth:2
 			},
 			// .. and this is the hover style. 
 			connectorHoverStyle = {
 				lineWidth:4,
-				strokeStyle:"#2e2aF8"
+				strokeStyle:"#5C96BC",
+				outlineWidth:2,
+				outlineColor:"white"
 			},
-			endpointHoverStyle = {fillStyle:"#2e2aF8"},
+			endpointHoverStyle = {fillStyle:"#5C96BC"},
 			// the definition of source endpoints (the small blue ones)
 			sourceEndpoint = {
 				endpoint:"Dot",
 				paintStyle:{ 
-					strokeStyle:"#225588",
+					strokeStyle:"#1e8151",
 					fillStyle:"transparent",
 					radius:7,
 					lineWidth:2 
@@ -64,7 +66,7 @@
 			// the definition of target endpoints (will appear when the user drags a connection) 
 			targetEndpoint = {
 				endpoint:"Dot",					
-				paintStyle:{ fillStyle:"#558822",radius:11 },
+				paintStyle:{ fillStyle:"#1e8151",radius:11 },
 				hoverPaintStyle:endpointHoverStyle,
 				maxConnections:-1,
 				dropOptions:{ hoverClass:"hover", activeClass:"active" },

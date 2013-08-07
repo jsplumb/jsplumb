@@ -2439,7 +2439,9 @@
 		this.elementDraggingClass = "_jsPlumb_element_dragging";			
 		this.sourceElementDraggingClass = "_jsPlumb_source_element_dragging";
 		this.targetElementDraggingClass = "_jsPlumb_target_element_dragging";
-		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";	
+		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";
+		this.hoverSourceClass = "_jsPlumb_source_hover";	
+		this.hoverTargetClass = "_jsPlumb_target_hover";
 
 		this.Anchors = {};		
 		this.Connectors = {  "canvas":{}, "svg":{}, "vml":{} };				
@@ -5455,7 +5457,11 @@
           this._jsPlumb.reattach = reattach === true;
         },
         setHover : function(state) {
-            this.connector && this.connector.setHover(state);                       
+            if (this.connector) {
+                this.connector.setHover(state);
+                jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
+                jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
+            }
         },
         getCost : function() { return this._jsPlumb.cost; },
         setCost : function(c) { this._jsPlumb.cost = c; },

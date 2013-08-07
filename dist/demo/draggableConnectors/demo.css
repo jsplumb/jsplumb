@@ -33,8 +33,7 @@
 */
 
 .cmdLink { font-size:0.80em;}
-#clear { padding:0.3em; }
-#clear:hover { background-color:yellow; }
+
 #list {
     text-align:center;
     display:none;
