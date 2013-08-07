@@ -327,7 +327,7 @@
           this._jsPlumb.reattach = reattach === true;
         },
         setHover : function(state) {
-            if (this.connector) {
+            if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
                 this.connector.setHover(state);
                 jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
                 jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);

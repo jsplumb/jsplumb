@@ -211,8 +211,8 @@
                                 y:[ [ pi.startStubY, pi.endStubY ] , null, [ pi.endStubY, pi.startStubY ] ]
                             },
                             midLines = {
-                                x:[ [ pi.midx, pi.startStubY ], [ pi.midx, pi.endStubY ] ],
-                                y:[ [ pi.startStubX, pi.midy ], [ pi.endStubX, pi.midy ] ]
+                                x:[ [ midx, pi.startStubY ], [ midx, pi.endStubY ] ],
+                                y:[ [ pi.startStubX, midy ], [ pi.endStubX, midy ] ]
                             },
                             linesToEnd = {
                                 x:[ [ pi.endStubX, pi.startStubY ] ],
@@ -223,8 +223,8 @@
                                 y:[ [ pi.endStubX, pi.startStubY ], [ pi.endStubX, pi.endStubY ] ]
                             },
                             startToMidToEnd = {
-                                x:[ [ pi.startStubX, pi.midy ], [ pi.endStubX, pi.midy ], [ pi.endStubX, pi.endStubY ] ],
-                                y:[ [ pi.midx, pi.startStubY ], [ pi.midx, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ]
+                                x:[ [ pi.startStubX, midy ], [ pi.endStubX, midy ], [ pi.endStubX, pi.endStubY ] ],
+                                y:[ [ midx, pi.startStubY ], [ midx, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ]
                             },
                             otherStubs = {
                                 x:[ pi.startStubY, pi.endStubY ],

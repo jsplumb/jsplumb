@@ -1689,7 +1689,7 @@
 				}
 			},
 			setHover : function(hover, ignoreAttachedElements, timestamp) {            
-				if (this._jsPlumb) {
+				if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
 	                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
 						this._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](this._jsPlumb.instance.hoverClass);
 					}
@@ -1843,21 +1843,18 @@
                         
 			for (var i in this.Defaults)
 				_initialDefaults[i] = this.Defaults[i];
-
 			
 			this.bind = function(event, fn) {		
 				if ("ready" === event && initialized) fn();
 				else _bb.apply(_currentInstance,[event, fn]);
 			};
 
-
 			_currentInstance.importDefaults = function(d) {
 				for (var i in d) {
 					_currentInstance.Defaults[i] = d[i];
 				}	
 				return _currentInstance;
-			};
-		
+			};		
 			
 			_currentInstance.restoreDefaults = function() {
 				_currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
@@ -1878,6 +1875,7 @@
 		        offsetTimestamps = {},
 		        floatingConnections = {},
 		        draggableStates = {},		
+		        connectionBeingDragged = false,
 		        sizes = [],
 		        _suspendDrawing = false,
 		        _suspendedAt = null,
@@ -2425,6 +2423,13 @@
                 if (!doNotCreateIfNotFound) jsPlumbAdapter.setAttribute(element, "id", id);
 			}
 			return id;
+		};
+
+		this.setConnectionBeingDragged = function(v) {
+			connectionBeingDragged = v;
+		};
+		this.isConnectionBeingDragged = function() {
+			return connectionBeingDragged;
 		};
     
 		this.connectorClass = "_jsPlumb_connector";            		
@@ -4622,6 +4627,7 @@
                 }
 
                 this.addClass("endpointDrag");
+                _jsPlumb.setConnectionBeingDragged(true);            
 
                 // if we're not full but there was a connection, make it null. we'll create a new one.
                 if (jpc && !this.isFull() && this.isSource) jpc = null;
@@ -4753,7 +4759,9 @@
             // extracted drag handler function so can be used by makeSource
             dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
             dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
-                function() {                    
+                function() {        
+
+                    _jsPlumb.setConnectionBeingDragged(false);            
                     // get the actual drop event (decode from library args to stop function)
                     var originalEvent = jpcl.getDropEvent(arguments);					                    
                     // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
@@ -4809,13 +4817,15 @@
                         _jsPlumb.deleteObject({endpoint:this});
                     }
                     else {
-                        this._jsPlumb.floatingEndpoint = null;
-                        // repaint this endpoint.
-                        // make our canvas visible (TODO: hand off to library; we should not know about DOM)
-                        this.canvas.style.visibility = "visible";
-                        // unlock our anchor
-                        this.anchor.locked = false;
-                        this.paint({recalc:false});                        
+                        if (this._jsPlumb) {
+                            this._jsPlumb.floatingEndpoint = null;
+                            // repaint this endpoint.
+                            // make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                            this.canvas.style.visibility = "visible";
+                            // unlock our anchor
+                            this.anchor.locked = false;
+                            this.paint({recalc:false});                        
+                        }
                     }                                                    
 
                     // TODO can this stay here? the connection is no longer valid.
@@ -5096,7 +5106,8 @@
             jsPlumb.CurrentLibrary.destroyDroppable(i);
         },
         setHover : function(h) {
-            this.endpoint && this.endpoint.setHover(h);            
+            if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())
+                this.endpoint.setHover(h);            
         },
         isFull : function() {
             return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);              
@@ -5457,7 +5468,7 @@
           this._jsPlumb.reattach = reattach === true;
         },
         setHover : function(state) {
-            if (this.connector) {
+            if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
                 this.connector.setHover(state);
                 jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
                 jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
@@ -8339,8 +8350,8 @@
                                 y:[ [ pi.startStubY, pi.endStubY ] , null, [ pi.endStubY, pi.startStubY ] ]
                             },
                             midLines = {
-                                x:[ [ pi.midx, pi.startStubY ], [ pi.midx, pi.endStubY ] ],
-                                y:[ [ pi.startStubX, pi.midy ], [ pi.endStubX, pi.midy ] ]
+                                x:[ [ midx, pi.startStubY ], [ midx, pi.endStubY ] ],
+                                y:[ [ pi.startStubX, midy ], [ pi.endStubX, midy ] ]
                             },
                             linesToEnd = {
                                 x:[ [ pi.endStubX, pi.startStubY ] ],
@@ -8351,8 +8362,8 @@
                                 y:[ [ pi.endStubX, pi.startStubY ], [ pi.endStubX, pi.endStubY ] ]
                             },
                             startToMidToEnd = {
-                                x:[ [ pi.startStubX, pi.midy ], [ pi.endStubX, pi.midy ], [ pi.endStubX, pi.endStubY ] ],
-                                y:[ [ pi.midx, pi.startStubY ], [ pi.midx, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ]
+                                x:[ [ pi.startStubX, midy ], [ pi.endStubX, midy ], [ pi.endStubX, pi.endStubY ] ],
+                                y:[ [ midx, pi.startStubY ], [ midx, pi.endStubY ], [ pi.endStubX, pi.endStubY ] ]
                             },
                             otherStubs = {
                                 x:[ pi.startStubY, pi.endStubY ],

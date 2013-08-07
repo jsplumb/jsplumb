@@ -488,7 +488,7 @@
 				}
 			},
 			setHover : function(hover, ignoreAttachedElements, timestamp) {            
-				if (this._jsPlumb) {
+				if (this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
 	                for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
 						this._jsPlumb.overlays[i][hover ? "addClass":"removeClass"](this._jsPlumb.instance.hoverClass);
 					}
@@ -642,21 +642,18 @@
                         
 			for (var i in this.Defaults)
 				_initialDefaults[i] = this.Defaults[i];
-
 			
 			this.bind = function(event, fn) {		
 				if ("ready" === event && initialized) fn();
 				else _bb.apply(_currentInstance,[event, fn]);
 			};
 
-
 			_currentInstance.importDefaults = function(d) {
 				for (var i in d) {
 					_currentInstance.Defaults[i] = d[i];
 				}	
 				return _currentInstance;
-			};
-		
+			};		
 			
 			_currentInstance.restoreDefaults = function() {
 				_currentInstance.Defaults = jsPlumb.extend({}, _initialDefaults);
@@ -677,6 +674,7 @@
 		        offsetTimestamps = {},
 		        floatingConnections = {},
 		        draggableStates = {},		
+		        connectionBeingDragged = false,
 		        sizes = [],
 		        _suspendDrawing = false,
 		        _suspendedAt = null,
@@ -1224,6 +1222,13 @@
                 if (!doNotCreateIfNotFound) jsPlumbAdapter.setAttribute(element, "id", id);
 			}
 			return id;
+		};
+
+		this.setConnectionBeingDragged = function(v) {
+			connectionBeingDragged = v;
+		};
+		this.isConnectionBeingDragged = function() {
+			return connectionBeingDragged;
 		};
     
 		this.connectorClass = "_jsPlumb_connector";            		
