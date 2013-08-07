@@ -533,7 +533,7 @@
             
             for (var i = 0; i < faces.length; i++) { availableFaces[faces[i]] = true; }
           
-            // if the given edge is suported, returns it. otherwise looks for a substitute that _is_
+            // if the given edge is supported, returns it. otherwise looks for a substitute that _is_
             // supported. if none supported we also return the request edge.
             this.verifyEdge = function(edge) {
                 if (availableFaces[edge]) return edge;
@@ -571,6 +571,9 @@
                     continuousAnchors[params.elementId] = existing;
                 }
                 return existing;
+            },
+            clear:function(elementId) {
+                delete continuousAnchors[elementId];
             }
         };
 	};

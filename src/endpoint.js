@@ -132,6 +132,7 @@
         }.bind(this);
         
         this.setAnchor = function(anchorParams, doNotRepaint) {
+            this._jsPlumb.instance.continuousAnchorFactory.clear(this.elementId);
             this.anchor = this._jsPlumb.instance.makeAnchor(anchorParams, this.elementId, _jsPlumb);
             _updateAnchorClass();
             this.anchor.bind("anchorChanged", function(currentAnchor) {
@@ -304,7 +305,8 @@
         };		
                  
         this.setElement = function(el, container) {
-            var parentId = this._jsPlumb.instance.getId(el);
+            var parentId = this._jsPlumb.instance.getId(el),
+                curId = this.elementId;
             // remove the endpoint from the list for the current endpoint's element
             _ju.removeWithFunction(params.endpointsByElement[this.elementId], function(e) {
                 return e.id == this.id;
@@ -316,6 +318,8 @@
             curParent = jpcl.getParent(this.canvas);
             jpcl.removeElement(this.canvas, curParent);
             jpcl.appendElement(this.canvas, newParentElement);								
+
+            _jsPlumb.anchorManager.rehomeEndpoint(curId, this.element);
             
             // now move connection(s)...i would expect there to be only one but we will iterate.
             for (var i = 0; i < this.connections.length; i++) {
