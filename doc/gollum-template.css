@@ -33,8 +33,7 @@ a[name]:before {
 
 /* corrections for  jsdoc (move these out) */
 #main {
-  height:auto;
-  width:auto;
+  height:auto;  
   background-color: white;
   border:none;
   font-size: 85%;
@@ -47,10 +46,11 @@ nav {
   background-color: white;
   margin-top: 40px;
   position: fixed;
-  left: 9px;
+  left: 0;
   border: none;
   float: none;
   margin-left: 0;
+  width:241px;
 }
 
 nav a:visited {
