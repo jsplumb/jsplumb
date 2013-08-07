@@ -61,10 +61,6 @@ nav h2 {
   display:none;
 }
 
-#main section {
-  margin-right:auto;
-}
-
 #main article dd {
   border-bottom: 1px solid #ccc;
   padding-bottom: 26px;
