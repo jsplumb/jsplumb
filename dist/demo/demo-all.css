@@ -172,6 +172,10 @@ body {
     color:white;
 }
 
+.menu a {
+  margin-right: 19px;
+}
+
 .menu a:hover {
     color:#5c96bc;
 }
