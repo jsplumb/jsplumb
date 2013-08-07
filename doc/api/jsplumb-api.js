@@ -476,19 +476,19 @@
   * @name jsPlumb.Anchors.Continuous
   * @constructor
   * @function  
-  * @param {String[]} [faces] Optional array of faces for the anchor. Valid values are `"top"`, `"left"`, `"bottom"` and `"right"`.
+  * @param {Object} [params] Constructor parameters
+  * @param {String[]} [params.faces] Optional array of faces for the anchor. Valid values are `"top"`, `"left"`, `"bottom"` and `"right"`.
   */
 
  /**
   * @name jsPlumb.Anchors.Perimeter
   * @constructor
   * @function  
-  * @param {Integer} [anchorCount=60] Optional number of anchors to use to approximate the perimeter. default is 60.
-  * @param {String} shape Required. the name of the shape. Valid values are 'rectangle', 'square', 'ellipse', 'circle', 'triangle' and 'diamond'
-  * @param {Number} [rotation] Optional rotation, in degrees, to apply. 
+  * @param {Object} params Constructor parameters
+  * @param {Integer} [params.anchorCount=60] Optional number of anchors to use to approximate the perimeter. default is 60.
+  * @param {String} params.shape Required. the name of the shape. Valid values are 'rectangle', 'square', 'ellipse', 'circle', 'triangle' and 'diamond'
+  * @param {Number} [params.rotation] Optional rotation, in degrees, to apply. 
   */ 
-
- // SP
 
 /**
 * @name jsPlumbInstance#makeTarget
