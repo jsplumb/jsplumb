@@ -20,12 +20,12 @@
             	// drag options
             	DragOptions : { cursor: "pointer", zIndex:2000 },
 				// default to blue at source and green at target
-				EndpointStyles : [{ fillStyle:"#225588" }, { fillStyle:"#558822" }],
+				EndpointStyles : [{ fillStyle:"#0d78bc" }, { fillStyle:"#558822" }],
 				// blue endpoints 7 px; green endpoints 11.
 				Endpoints : [ ["Dot", { radius:7 } ], [ "Dot", { radius:11 } ] ],
 				// default to a gradient stroke from blue to green.  for IE provide all green fallback.
 				PaintStyle : {
-                	gradient:{ stops:[ [ 0, "#225588" ], [ 1, "#558822" ] ] },
+                	gradient:{ stops:[ [ 0, "#0d78bc" ], [ 1, "#558822" ] ] },
                 	strokeStyle:"#558822",
                 	lineWidth:10
             	}

@@ -1,18 +1,5 @@
 ;(function() {
 
-	// helper method to generate a color from a cycle of colors.
-	var curColourIndex = 1,
-		maxColourIndex = 24,
-		nextColour = function() {
-			var R,G,B;
-			R = parseInt(128+Math.sin((curColourIndex*3+0)*1.3)*128);
-			G = parseInt(128+Math.sin((curColourIndex*3+1)*1.3)*128);
-			B = parseInt(128+Math.sin((curColourIndex*3+2)*1.3)*128);
-			curColourIndex = curColourIndex + 1;
-			if (curColourIndex > maxColourIndex) curColourIndex = 1;
-			return "rgb(" + R + "," + G + "," + B + ")";
-		};
-	
 	window.jsPlumbDemo = { 
 	
 		init :function() {
@@ -28,7 +15,7 @@
 						length:14,
 						foldback:0.8
 					} ],
-					[ "Label", { label:"FOO", id:"label" }]
+					[ "Label", { label:"FOO", id:"label", cssClass:"aLabel" }]
 				]
 			});
 	
@@ -55,7 +42,7 @@
 					parent:p,
 					anchor:"Continuous",
 					connector:[ "StateMachine", { curviness:20 } ],
-					connectorStyle:{ strokeStyle:nextColour(),lineWidth:2 },
+					connectorStyle:{ strokeStyle:"#5c96bc",lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
 					maxConnections:5,
 					onMaxConnections:function(info, e) {
 						alert("Maximum connections (" + info.maxConnections + ") reached");
@@ -68,7 +55,7 @@
 			// this listener changes the paint style to some random new color and also sets the connection's internal
 			// id as the label overlay's text.
             jsPlumb.bind("connection", function(info) {
-				info.connection.setPaintStyle({strokeStyle:nextColour()});
+				info.connection.setPaintStyle({strokeStyle:"#5c96bc"});
                 info.connection.getOverlay("label").setLabel(info.connection.id);
             });
 	

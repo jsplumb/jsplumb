@@ -327,7 +327,11 @@
           this._jsPlumb.reattach = reattach === true;
         },
         setHover : function(state) {
-            this.connector && this.connector.setHover(state);                       
+            if (this.connector) {
+                this.connector.setHover(state);
+                jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
+                jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
+            }
         },
         getCost : function() { return this._jsPlumb.cost; },
         setCost : function(c) { this._jsPlumb.cost = c; },

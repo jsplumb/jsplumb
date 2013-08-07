@@ -9,18 +9,18 @@
 	<body data-demo-id="draggableConnectors" data-library="jquery">
 
 		<div id="headerWrapper">
-	    	<div id="header">
-	    		<div class="menu">    
-	    			<a href="http://localhost:4567">Documentation</a>&nbsp;|&nbsp;    			
-	    			<a href="../../apidocs">API docs</a>&nbsp;|&nbsp;
-	    			<a href="../../tests/all-tests.html">Tests</a>&nbsp;|&nbsp;
-	    			<a href="mailto:hello@jsplumbtoolkit.com" class="mplink">Contact</a>&nbsp;|&nbsp;
-	    			<a href="http://github.com/sporritt/jsplumb/" class="mplink">GitHub</a>&nbsp;|&nbsp;
-	    			<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">Discussion Group</a>&nbsp;|&nbsp;
-	    			<a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">Issues</a>
-	    		</div>
-	    	</div>
-	    </div>
+			<div id="header">
+				<div class="menu">     
+		            <a href="http://localhost:4567">DOCS</a>&nbsp;|&nbsp;   			
+					<a href="../../apidocs">API</a>&nbsp;|&nbsp;
+					<a href="../../tests/all-tests.html">TEST</a>&nbsp;|&nbsp;
+					<a href="mailto:hello@jsplumbtoolkit.com" class="mplink">CONTACT</a>&nbsp;|&nbsp;
+					<a href="http://github.com/sporritt/jsplumb/" class="mplink">GITHUB</a>&nbsp;|&nbsp;
+		            <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb" class="mplink">DISCUSS</a>&nbsp;|&nbsp;
+		            <a href="https://github.com/sporritt/jsPlumb/issues" class="mplink">ISSUES</a>
+				</div>
+			</div>
+		</div>
 		
         <div id="main">
 			<div id="render"></div>
@@ -33,15 +33,14 @@
 			<iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=box_count"></iframe>
 		</div>
 		<div id="sidebar">
-            <div id="explanation">                
-				<p>Drag from any Endpoint to similar Endpoints
-				on other elements to create Connections.</p>
-				<p>Blue endpoints use a <strong>beforeDrop</strong> interceptor.  This enables
-				you to intercept a new connection and decide whether or not you wish to allow it to proceed. They are 
-				also configured to automatically reattach if you drag a connection off and drop it on the background.</p>
-				<p>Yellow endpoints are configured to use a <strong>beforeDetach</strong> interceptor, which provides a way to programmatically override a connection detach. Yellow connections are painted with the Straight connector</p>			
-				<p>Green endpoints support up to three Connections. Once a green endpoint has three connections, when you drag from it you will drag the oldest connection made on the endpoint.</p>
-				<a id="clear" href="#">clear plumbing</a>	   
+            <div id="explanation">         
+            	<h4>DRAG &amp; DROP</h4>       
+				<p>Drag from any Endpoint to similar Endpoints on other elements to create Connections.</p>
+				<p>Blue Endpoints use a <strong>beforeDrop</strong> interceptor.  This enables
+				you to intercept a new connection and decide whether or not you wish to allow it to proceed. They are also configured to automatically reattach if you drag a Connection off and drop it on the background.</p>
+				<p>Yellow Endpoints are configured to use a <strong>beforeDetach</strong> interceptor, which provides a way to programmatically override a Connection detach. Yellow connections are painted with the Straight connector</p>			
+				<p>Green Endpoints support up to three Connections. Once a green Endpoint has three connections, when you drag from it you will drag the oldest connection made on the Endpoint.</p>
+				<a id="clear" class="cmd" href="#">clear plumbing</a>	   
 				<p>This demonstration uses jsPlumb 1.5.0, jQuery 1.9.0 and jQuery UI 1.9.2. For touch support, jQuery Touch Punch is used.</p>
             </div>			
         </div>

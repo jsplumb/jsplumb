@@ -9,7 +9,7 @@
 	border: 1px solid black;
 	z-index:4;
 	border-radius:1em;
-	border:1px solid #346789;
+	border:1px solid #2e6f9a;
 	box-shadow: 2px 2px 19px #e0e0e0;
 	-o-box-shadow: 2px 2px 19px #e0e0e0;
 	-webkit-box-shadow: 2px 2px 19px #e0e0e0;
@@ -20,20 +20,53 @@
 	filter:alpha(opacity=80);
 	cursor:move;
 	background-color:white;
+	-webkit-transition:background-color 0.25s ease-in;
+	-moz-transition:background-color 0.25s ease-in;
+	transition:background-color 0.25s ease-in;	
+}
+
+.w:hover {
+	background-color: #5c96bc;
+	color:white;
+
+}
+
+.aLabel {
+	-webkit-transition:background-color 0.25s ease-in;
+	-moz-transition:background-color 0.25s ease-in;
+	transition:background-color 0.25s ease-in;
+}
+
+.aLabel._jsPlumb_hover, ._jsPlumb_source_hover, ._jsPlumb_target_hover {
+	background-color:#1e8151;
+	color:white;
 }
 
 .aLabel {
 	background-color:white;
 	opacity:0.8;
 	padding:0.3em;				
+	border-radius:0.5em;
+	border:1px solid #346789;
+	cursor:pointer;
 }
 
 .ep {
-	float:right;
+	position:absolute;
+	bottom: 37%;
+	right: 5px;
 	width:1em;
 	height:1em;
-	background-color:#994466;
+	background-color:orange;
 	cursor:pointer;
+	box-shadow: 0px 0px 2px black;
+	-webkit-transition:-webkit-box-shadow 0.25s ease-in;
+	-moz-transition:-moz-box-shadow 0.25s ease-in;
+	transition:box-shadow 0.25s ease-in;
+}
+
+.ep:hover {
+	box-shadow: 0px 0px 6px black;
 }
 
 ._jsPlumb_endpoint {
@@ -62,6 +95,6 @@
 	left:10em;
 	top:35em;
 }
-.dragHover { border:1px dotted red; }
+.dragHover { border:2px solid orange; }
 
 path { cursor:pointer; }

@@ -1238,7 +1238,9 @@
 		this.elementDraggingClass = "_jsPlumb_element_dragging";			
 		this.sourceElementDraggingClass = "_jsPlumb_source_element_dragging";
 		this.targetElementDraggingClass = "_jsPlumb_target_element_dragging";
-		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";	
+		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";
+		this.hoverSourceClass = "_jsPlumb_source_hover";	
+		this.hoverTargetClass = "_jsPlumb_target_hover";
 
 		this.Anchors = {};		
 		this.Connectors = {  "canvas":{}, "svg":{}, "vml":{} };				
