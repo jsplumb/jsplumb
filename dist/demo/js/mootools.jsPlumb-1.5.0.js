@@ -4306,6 +4306,7 @@
         }.bind(this);
         
         this.setAnchor = function(anchorParams, doNotRepaint) {
+            this._jsPlumb.instance.continuousAnchorFactory.clear(this.elementId);
             this.anchor = this._jsPlumb.instance.makeAnchor(anchorParams, this.elementId, _jsPlumb);
             _updateAnchorClass();
             this.anchor.bind("anchorChanged", function(currentAnchor) {
@@ -4478,7 +4479,8 @@
         };		
                  
         this.setElement = function(el, container) {
-            var parentId = this._jsPlumb.instance.getId(el);
+            var parentId = this._jsPlumb.instance.getId(el),
+                curId = this.elementId;
             // remove the endpoint from the list for the current endpoint's element
             _ju.removeWithFunction(params.endpointsByElement[this.elementId], function(e) {
                 return e.id == this.id;
@@ -4490,6 +4492,8 @@
             curParent = jpcl.getParent(this.canvas);
             jpcl.removeElement(this.canvas, curParent);
             jpcl.appendElement(this.canvas, newParentElement);								
+
+            _jsPlumb.anchorManager.rehomeEndpoint(curId, this.element);
             
             // now move connection(s)...i would expect there to be only one but we will iterate.
             for (var i = 0; i < this.connections.length; i++) {
@@ -6167,7 +6171,7 @@
             
             for (var i = 0; i < faces.length; i++) { availableFaces[faces[i]] = true; }
           
-            // if the given edge is suported, returns it. otherwise looks for a substitute that _is_
+            // if the given edge is supported, returns it. otherwise looks for a substitute that _is_
             // supported. if none supported we also return the request edge.
             this.verifyEdge = function(edge) {
                 if (availableFaces[edge]) return edge;
@@ -6205,6 +6209,9 @@
                     continuousAnchors[params.elementId] = existing;
                 }
                 return existing;
+            },
+            clear:function(elementId) {
+                delete continuousAnchors[elementId];
             }
         };
 	};
