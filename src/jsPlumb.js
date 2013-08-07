@@ -2311,7 +2311,7 @@
 																	
 									ep.setElement(parent, potentialParent);
 									ep.endpointWillMoveAfterConnection = false;														
-									_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);																					
+									_currentInstance.anchorManager.rehomeEndpoint(ep, currentId, parent);																					
 									oldConnection.previousConnection = null;
 									// remove from connectionsByScope
 									jsPlumbUtil.removeWithFunction(connections, function(c) {

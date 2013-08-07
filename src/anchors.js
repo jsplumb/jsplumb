@@ -505,14 +505,16 @@
 				}
 			}
 		};
-		this.rehomeEndpoint = function(currentId, element) {
+		this.rehomeEndpoint = function(ep, currentId, element) {
 			var eps = _amEndpoints[currentId] || [], 
 				elementId = jsPlumbInstance.getId(element);
+                
 			if (elementId !== currentId) {
-				for (var i = 0; i < eps.length; i++) {
-					self.add(eps[i], elementId);
-				}
-				eps.splice(0, eps.length);
+                var idx = jsPlumbUtil.indexOf(eps, ep);
+                if (idx > -1) {
+                    var _ep = eps.splice(idx, 1)[0];
+                    self.add(_ep, elementId);
+                }
 			}
 		};
         

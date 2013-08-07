@@ -70,6 +70,7 @@
  * @param {boolean} [doNotRepaint = false] Instructs jsPlumb to not repaint after setting the new anchor.
  * @desc Sets the anchor to use for this Endpoint.  `anchorParams` is an object in the same
  * form that you would pass as the `anchor` parameter to `jsPlumb.addEndpoint` or `jsPlumb.connect`.
+ * @returns {Endpoint} The Endpoint.
  */
 
  /**
@@ -153,7 +154,8 @@
  * @function
  * @desc Sets the DOM element this Endpoint is attached to.
  * @param {String|Selector|Element} el	Element id, DOM element or selector identifying the new element
- * @param {String|Selector|Element} [container] Specifies the actual parent element to use as the parent for this Endpoint's visual representation. See the jsPlumb documentation for a discussion about this.
+ * param {String|Selector|Element} [container] Specifies the actual parent element to use as the parent for this Endpoint's visual representation. See the jsPlumb documentation for a discussion about this.
+ * @returns {Endpoint} The Endpoint.
  */ 
 
 /**

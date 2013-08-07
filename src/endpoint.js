@@ -141,6 +141,7 @@
             }.bind(this));
             if (!doNotRepaint)
                 this._jsPlumb.instance.repaint(this.elementId);
+            return this;
         };
 
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
@@ -304,7 +305,9 @@
             return this.element;
         };		
                  
-        this.setElement = function(el, container) {
+        // container not supported in 1.5.0; you cannot change the container once it is set.
+        // it might come back int a future release.
+        this.setElement = function(el/*, container*/) {
             var parentId = this._jsPlumb.instance.getId(el),
                 curId = this.elementId;
             // remove the endpoint from the list for the current endpoint's element
@@ -314,12 +317,12 @@
             this.element = _dom(el);
             this.elementId = _jsPlumb.getId(this.element);             
             // need to get the new parent now
-            var newParentElement = params.getParentFromParams({source:parentId, container:container}),
+            var newParentElement = params.getParentFromParams({source:parentId/*, container:container*/}),
             curParent = jpcl.getParent(this.canvas);
-            jpcl.removeElement(this.canvas, curParent);
-            jpcl.appendElement(this.canvas, newParentElement);								
+            //jpcl.removeElement(this.canvas, curParent);
+            //jpcl.appendElement(this.canvas, newParentElement);								
 
-            _jsPlumb.anchorManager.rehomeEndpoint(curId, this.element);
+            _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
             
             // now move connection(s)...i would expect there to be only one but we will iterate.
             for (var i = 0; i < this.connections.length; i++) {
@@ -328,6 +331,7 @@
                 this.connections[i].source = this.element;					
             }	
             _ju.addToList(params.endpointsByElement, parentId, this);            
+            return this;
         };
                 
         /**

@@ -3512,7 +3512,7 @@
 																	
 									ep.setElement(parent, potentialParent);
 									ep.endpointWillMoveAfterConnection = false;														
-									_currentInstance.anchorManager.rehomeEndpoint(currentId, parent);																					
+									_currentInstance.anchorManager.rehomeEndpoint(ep, currentId, parent);																					
 									oldConnection.previousConnection = null;
 									// remove from connectionsByScope
 									jsPlumbUtil.removeWithFunction(connections, function(c) {
@@ -4315,6 +4315,7 @@
             }.bind(this));
             if (!doNotRepaint)
                 this._jsPlumb.instance.repaint(this.elementId);
+            return this;
         };
 
         var anchorParamsToUse = params.anchor ? params.anchor : params.anchors ? params.anchors : (_jsPlumb.Defaults.Anchor || "Top");
@@ -4478,7 +4479,9 @@
             return this.element;
         };		
                  
-        this.setElement = function(el, container) {
+        // container not supported in 1.5.0; you cannot change the container once it is set.
+        // it might come back int a future release.
+        this.setElement = function(el/*, container*/) {
             var parentId = this._jsPlumb.instance.getId(el),
                 curId = this.elementId;
             // remove the endpoint from the list for the current endpoint's element
@@ -4488,12 +4491,12 @@
             this.element = _dom(el);
             this.elementId = _jsPlumb.getId(this.element);             
             // need to get the new parent now
-            var newParentElement = params.getParentFromParams({source:parentId, container:container}),
+            var newParentElement = params.getParentFromParams({source:parentId/*, container:container*/}),
             curParent = jpcl.getParent(this.canvas);
-            jpcl.removeElement(this.canvas, curParent);
-            jpcl.appendElement(this.canvas, newParentElement);								
+            //jpcl.removeElement(this.canvas, curParent);
+            //jpcl.appendElement(this.canvas, newParentElement);								
 
-            _jsPlumb.anchorManager.rehomeEndpoint(curId, this.element);
+            _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
             
             // now move connection(s)...i would expect there to be only one but we will iterate.
             for (var i = 0; i < this.connections.length; i++) {
@@ -4502,6 +4505,7 @@
                 this.connections[i].source = this.element;					
             }	
             _ju.addToList(params.endpointsByElement, parentId, this);            
+            return this;
         };
                 
         /**
@@ -6143,14 +6147,16 @@
 				}
 			}
 		};
-		this.rehomeEndpoint = function(currentId, element) {
+		this.rehomeEndpoint = function(ep, currentId, element) {
 			var eps = _amEndpoints[currentId] || [], 
 				elementId = jsPlumbInstance.getId(element);
+                
 			if (elementId !== currentId) {
-				for (var i = 0; i < eps.length; i++) {
-					self.add(eps[i], elementId);
-				}
-				eps.splice(0, eps.length);
+                var idx = jsPlumbUtil.indexOf(eps, ep);
+                if (idx > -1) {
+                    var _ep = eps.splice(idx, 1)[0];
+                    self.add(_ep, elementId);
+                }
 			}
 		};
         
