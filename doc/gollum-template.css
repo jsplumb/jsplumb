@@ -134,6 +134,7 @@ img {
 a {
   color: #4183C4;
   text-decoration: none;
+  padding:0.3em;
 }
 
 a.absent {
