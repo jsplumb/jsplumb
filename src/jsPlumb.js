@@ -1248,6 +1248,7 @@
 		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";
 		this.hoverSourceClass = "_jsPlumb_source_hover";	
 		this.hoverTargetClass = "_jsPlumb_target_hover";
+		this.dragSelectClass = "_jsPlumb_drag_select";
 
 		this.Anchors = {};		
 		this.Connectors = {  "canvas":{}, "svg":{}, "vml":{} };				

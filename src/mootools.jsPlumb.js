@@ -282,7 +282,7 @@
 						originalCursor = this.element.getStyle('cursor');
 						this.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
 					}
-					$(document.body).addClass("_jsPlumb_drag_select");
+					$(document.body).addClass(_jsPlumb.dragSelectClass);
 				});
 				
 				options.onComplete = jsPlumbUtil.wrap(options.onComplete, function() {
@@ -290,7 +290,7 @@
 					if (originalCursor) {
 						this.element.setStyle('cursor', originalCursor);
 					}                    
-					$(document.body).removeClass("_jsPlumb_drag_select");
+					$(document.body).removeClass(_jsPlumb.dragSelectClass);
 				});
 				
 				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element

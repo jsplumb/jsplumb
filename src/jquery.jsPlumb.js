@@ -314,6 +314,13 @@ TODO: REMOVE!
 			});
 */
 
+			options["start"] = jsPlumbUtil.wrap(options["start"], function() {
+				$("body").addClass(_jsPlumb.dragSelectClass);
+			});
+
+			options["stop"] = jsPlumbUtil.wrap(options["stop"], function() {
+				$("body").removeClass(_jsPlumb.dragSelectClass);
+			});
 
 			// remove helper directive if present and no override
 			if (!options.doNotRemoveHelper)

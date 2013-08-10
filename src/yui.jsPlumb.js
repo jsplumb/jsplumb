@@ -301,12 +301,10 @@
 				id = _jsPlumb.getId(el);
 			_opts.node = "#" + id;	
 			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
-				Y.one(document.body).addClass("_jsPlumb_drag_select");
-				console.log("added drag class")
+				Y.one(document.body).addClass(_jsPlumb.dragSelectClass);				
 			});	
 			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
-				Y.one(document.body).removeClass("_jsPlumb_drag_select");
-				console.log("removed drag class")
+				Y.one(document.body).removeClass(_jsPlumb.dragSelectClass);
 			});	
 			var dd = new Y.DD.Drag(_opts), 
                 containment = options.constrain2node || options.containment;
