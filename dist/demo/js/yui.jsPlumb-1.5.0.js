@@ -2005,6 +2005,7 @@
 							_currentInstance.setHoverSuspended(true);							
 							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+							_currentInstance.setConnectionBeingDragged(true);
 						});
 	
 						options[dragEvent] = _ju.wrap(options[dragEvent], function() {                            
@@ -2019,6 +2020,7 @@
 							_currentInstance.setHoverSuspended(false);							
 							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+							_currentInstance.setConnectionBeingDragged(false);
 						});
 						var elId = _getId(element); // need ID
 						draggableStates[elId] = true;  
@@ -2447,6 +2449,7 @@
 		this.endpointAnchorClassPrefix = "_jsPlumb_endpoint_anchor";
 		this.hoverSourceClass = "_jsPlumb_source_hover";	
 		this.hoverTargetClass = "_jsPlumb_target_hover";
+		this.dragSelectClass = "_jsPlumb_drag_select";
 
 		this.Anchors = {};		
 		this.Connectors = {  "canvas":{}, "svg":{}, "vml":{} };				
@@ -4490,16 +4493,9 @@
                 return e.id == this.id;
             }.bind(this));
             this.element = _dom(el);
-            this.elementId = _jsPlumb.getId(this.element);             
-            // need to get the new parent now
-            //var newParentElement = params.getParentFromParams({source:parentId/*, container:container*/}),
-            //curParent = jpcl.getParent(this.canvas);
-            //jpcl.removeElement(this.canvas, curParent);
-            //jpcl.appendElement(this.canvas, newParentElement);								
-
+            this.elementId = _jsPlumb.getId(this.element);                         
             _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
             _jsPlumb.dragManager.endpointAdded(this.element);            
-
             _ju.addToList(params.endpointsByElement, parentId, this);            
             return this;
         };
@@ -4629,6 +4625,10 @@
                     _dragHandler.stopDrag();
                     return false;
                 }
+
+                // clear hover for all connections for this endpoint before continuing.
+                for (var i = 0; i < this.connections.length; i++)
+                    this.connections[i].setHover(false);
 
                 this.addClass("endpointDrag");
                 _jsPlumb.setConnectionBeingDragged(true);
@@ -4958,15 +4958,10 @@
                                         }, true, originalEvent);
                                     }
 
-                                    // mark endpoints to delete on detach
-                            //        if (jpc.endpoints[0].addedViaMouse) jpc.endpointsToDeleteOnDetach[0] = jpc.endpoints[0];
-                            //        if (jpc.endpoints[1].addedViaMouse) jpc.endpointsToDeleteOnDetach[1] = jpc.endpoints[1];
-
                                     // TODO this is like the makeTarget drop code.
                                     if (idx == 1)
                                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
-                                    else
-                                        //_jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+                                    else                                    
                                         _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);                                   
 
                                     // finalise will inform the anchor manager and also add to
@@ -6033,8 +6028,7 @@
                 }
             }
 
-            for (var i = 0; i < ep.connections.length; i++) {
-                //this.connections[i].moveParent(newParentElement);
+            for (var i = 0; i < ep.connections.length; i++) {                
                 if (ep.connections[i].sourceId == currentId) {
                     ep.connections[i].sourceId = ep.elementId;
                     ep.connections[i].source = ep.element;                  
@@ -10852,12 +10846,10 @@
 				id = _jsPlumb.getId(el);
 			_opts.node = "#" + id;	
 			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
-				Y.one(document.body).addClass("_jsPlumb_drag_select");
-				console.log("added drag class")
+				Y.one(document.body).addClass(_jsPlumb.dragSelectClass);				
 			});	
 			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
-				Y.one(document.body).removeClass("_jsPlumb_drag_select");
-				console.log("removed drag class")
+				Y.one(document.body).removeClass(_jsPlumb.dragSelectClass);
 			});	
 			var dd = new Y.DD.Drag(_opts), 
                 containment = options.constrain2node || options.containment;

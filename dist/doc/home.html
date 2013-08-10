@@ -332,6 +332,7 @@ jsPlumb.draggable(&quot;container&quot;);
 $(&quot;#container .header).hide();    // hide the header bar. this will alter the offset of the other child elements...
 jsPlumb.recalculateOffsets(&quot;container&quot;);   // tell jsPlumb that the internal dimensions have changed.
 // you can also use a selector, eg $(&quot;#container&quot;)</code></pre>
+<p><a name="dragSelection"></a></p>
 <h3>Selection while dragging</h3>
 <p>The default browser behaviour on mouse drag is to select elements in the DOM.  jQuery suppresses this behaviour, but MooTools and YUI do not. To assist with handling this, the MooTools and YUI adapters attach this class to the <strong>body</strong> at drag start:</p>
 <pre><code>_jsPlumb_drag_select</code></pre>
