@@ -80,6 +80,8 @@
             
             var jpcl = jsPlumb.CurrentLibrary,
                 documentMouseUp = function(e) { 
+                    jpcl.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
+                    params.connection._jsPlumb.instance.setConnectionBeingDragged(false);
                     e.stopPropagation();
                     e.preventDefault();
                     jpcl.unbind(document, "mouseup", documentMouseUp);
@@ -262,6 +264,8 @@
                 jpcl.bind(document, "mousemove", documentMouseMove);  
 
                 if (selectedSegment != null) {
+                    jpcl.addClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
+                    params.connection._jsPlumb.instance.setConnectionBeingDragged(true);
                     params.connection.editStarted();
                 }                              
             });
