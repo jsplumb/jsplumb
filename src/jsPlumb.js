@@ -804,6 +804,7 @@
 							_currentInstance.setHoverSuspended(true);							
 							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+							_currentInstance.setConnectionBeingDragged(true);
 						});
 	
 						options[dragEvent] = _ju.wrap(options[dragEvent], function() {                            
@@ -818,6 +819,7 @@
 							_currentInstance.setHoverSuspended(false);							
 							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
+							_currentInstance.setConnectionBeingDragged(false);
 						});
 						var elId = _getId(element); // need ID
 						draggableStates[elId] = true;  
