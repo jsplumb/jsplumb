@@ -448,6 +448,10 @@
                     return false;
                 }
 
+                // clear hover for all connections for this endpoint before continuing.
+                for (var i = 0; i < this.connections.length; i++)
+                    this.connections[i].setHover(false);
+
                 this.addClass("endpointDrag");
                 _jsPlumb.setConnectionBeingDragged(true);
 
