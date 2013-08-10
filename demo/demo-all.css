@@ -1,10 +1,10 @@
-._jsPlumb_drag_select {
+._jsPlumb_drag_select * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
-    -moz-user-select: none;
+    -moz-user-select: -moz-none;
     -ms-user-select: none;
-    user-select: none;    
+    user-select: none
 }
 
 /*

@@ -315,21 +315,9 @@
                 return e.id == this.id;
             }.bind(this));
             this.element = _dom(el);
-            this.elementId = _jsPlumb.getId(this.element);             
-            // need to get the new parent now
-            var newParentElement = params.getParentFromParams({source:parentId/*, container:container*/}),
-            curParent = jpcl.getParent(this.canvas);
-            //jpcl.removeElement(this.canvas, curParent);
-            //jpcl.appendElement(this.canvas, newParentElement);								
-
+            this.elementId = _jsPlumb.getId(this.element);                         
             _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
-            
-            // now move connection(s)...i would expect there to be only one but we will iterate.
-            for (var i = 0; i < this.connections.length; i++) {
-                this.connections[i].moveParent(newParentElement);
-                this.connections[i].sourceId = this.elementId;
-                this.connections[i].source = this.element;					
-            }	
+            _jsPlumb.dragManager.endpointAdded(this.element);            
             _ju.addToList(params.endpointsByElement, parentId, this);            
             return this;
         };
@@ -461,7 +449,7 @@
                 }
 
                 this.addClass("endpointDrag");
-                _jsPlumb.setConnectionBeingDragged(true);            
+                _jsPlumb.setConnectionBeingDragged(true);
 
                 // if we're not full but there was a connection, make it null. we'll create a new one.
                 if (jpc && !this.isFull() && this.isSource) jpc = null;
@@ -788,15 +776,11 @@
                                         }, true, originalEvent);
                                     }
 
-                                    // mark endpoints to delete on detach
-                            //        if (jpc.endpoints[0].addedViaMouse) jpc.endpointsToDeleteOnDetach[0] = jpc.endpoints[0];
-                            //        if (jpc.endpoints[1].addedViaMouse) jpc.endpointsToDeleteOnDetach[1] = jpc.endpoints[1];
-
                                     // TODO this is like the makeTarget drop code.
                                     if (idx == 1)
-                                        _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc);
-                                    else
-                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+                                        _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
+                                    else                                    
+                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);                                   
 
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.

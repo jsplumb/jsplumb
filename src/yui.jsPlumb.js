@@ -302,9 +302,11 @@
 			_opts.node = "#" + id;	
 			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
 				Y.one(document.body).addClass("_jsPlumb_drag_select");
+				console.log("added drag class")
 			});	
 			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
 				Y.one(document.body).removeClass("_jsPlumb_drag_select");
+				console.log("removed drag class")
 			});	
 			var dd = new Y.DD.Drag(_opts), 
                 containment = options.constrain2node || options.containment;

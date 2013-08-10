@@ -299,7 +299,13 @@
 				originalArgs:arguments, 
 				pointerEventsSpec:"none", 
 				_jsPlumb:params._jsPlumb
-			} ]);				
+			} ]);	
+
+		/*this.pointOnPath = function(location, absolute) {
+			if (!self.path) return [0,0];
+			var p = absolute ? location : location * self.path.getTotalLength();
+			return self.path.getPointAtLength(p);
+		};*/			
 
 		_super.renderer.paint = function(style, anchor, extents) {
 			

@@ -1865,7 +1865,7 @@
 		        resizeTimer = null,
 		        initialized = false,
 		        // TODO remove from window scope       
-		        connections = window.connections = [],
+		        connections = [],
 		        // map of element id -> endpoint lists. an element can have an arbitrary
 		        // number of endpoints on it, and not all of them have to be connected
 		        // to anything.         
@@ -2886,7 +2886,7 @@
 					if (!flat && scopes.length > 1) {
 						var ss = results[scope];
 						if (ss == null) {
-							ss = []; results[scope] = ss;
+							ss = results[scope] = [];
 						}
 						ss.push(obj);
 					} else results.push(obj);
@@ -3381,9 +3381,10 @@
 						// inform the anchor manager to update its target endpoint for this connection.
 						// TODO refactor to make this a single method.
 						if (idx == 1)
-							_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc);
+							_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
 						else
-							_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+							//_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+						_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
 
 						// TODO: fire a connection event!
 						// TODO: what about moving the connection's source, if that was set?
@@ -4491,19 +4492,14 @@
             this.element = _dom(el);
             this.elementId = _jsPlumb.getId(this.element);             
             // need to get the new parent now
-            var newParentElement = params.getParentFromParams({source:parentId/*, container:container*/}),
-            curParent = jpcl.getParent(this.canvas);
+            //var newParentElement = params.getParentFromParams({source:parentId/*, container:container*/}),
+            //curParent = jpcl.getParent(this.canvas);
             //jpcl.removeElement(this.canvas, curParent);
             //jpcl.appendElement(this.canvas, newParentElement);								
 
             _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
-            
-            // now move connection(s)...i would expect there to be only one but we will iterate.
-            for (var i = 0; i < this.connections.length; i++) {
-                this.connections[i].moveParent(newParentElement);
-                this.connections[i].sourceId = this.elementId;
-                this.connections[i].source = this.element;					
-            }	
+            _jsPlumb.dragManager.endpointAdded(this.element);            
+
             _ju.addToList(params.endpointsByElement, parentId, this);            
             return this;
         };
@@ -4635,7 +4631,7 @@
                 }
 
                 this.addClass("endpointDrag");
-                _jsPlumb.setConnectionBeingDragged(true);            
+                _jsPlumb.setConnectionBeingDragged(true);
 
                 // if we're not full but there was a connection, make it null. we'll create a new one.
                 if (jpc && !this.isFull() && this.isSource) jpc = null;
@@ -4968,9 +4964,10 @@
 
                                     // TODO this is like the makeTarget drop code.
                                     if (idx == 1)
-                                        _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc);
+                                        _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
                                     else
-                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+                                        //_jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);                                   
 
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
@@ -5960,13 +5957,17 @@
             // store this for next time.
             endpoint._continuousAnchorEdge = edgeId;
         };
+
+        //
         // find the entry in an endpoint's list for this connection and update its target endpoint
         // with the current target in the connection.
-        this.updateOtherEndpoint = function(elId, connection) {
+        // 
+        //
+        this.updateOtherEndpoint = function(elId, oldTargetId, newTargetId, connection) {
             var sIndex = jsPlumbUtil.findWithFunction(connectionsByElementId[elId], function(i) {
                     return i[0].id === connection.id;
                 }),
-                tIndex = jsPlumbUtil.findWithFunction(connectionsByElementId[connection.suspendedElementId], function(i) {
+                tIndex = jsPlumbUtil.findWithFunction(connectionsByElementId[oldTargetId], function(i) {
                     return i[0].id === connection.id;
                 });
 
@@ -5979,16 +5980,23 @@
 
             // remove entry for previous target (if there)
             if (tIndex > -1) {
-                connectionsByElementId[connection.suspendedElementId].splice(tIndex, 1);
+
+                connectionsByElementId[oldTargetId].splice(tIndex, 1);
                 // add entry for new target
-                jsPlumbUtil.addToList(connectionsByElementId, connection.targetId, [connection, connection.endpoints[0], connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor]);         
+                jsPlumbUtil.addToList(connectionsByElementId, newTargetId, [connection, connection.endpoints[0], connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor]);         
             }
         };       
         
-        // notification that the connection given has changed source from the originalSourceEndpoint.
-        this.sourceChanged = function(originalSourceEndpoint, connection) {            
+        //
+        // notification that the connection given has changed source from the originalId to the newId.
+        // This involves:
+        // 1. removing the connection from the list of connections stored for the originalId
+        // 2. updating the source information for the target of the connection
+        // 3. re-registering the connection in connectionsByElementId with the newId
+        //
+        this.sourceChanged = function(originalId, newId, connection) {            
             // remove the entry that points from the old source to the target
-            jsPlumbUtil.removeWithFunction(connectionsByElementId[originalSourceEndpoint.elementId], function(info) {
+            jsPlumbUtil.removeWithFunction(connectionsByElementId[originalId], function(info) {
                 return info[0].id === connection.id;
             });
             // find entry for target and update it
@@ -6001,8 +6009,45 @@
                 connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor;
             }
             // add entry for new source
-            jsPlumbUtil.addToList(connectionsByElementId, connection.sourceId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor]);         
+            jsPlumbUtil.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor]);         
         };
+
+        //
+        // moves the given endpoint from `currentId` to `element`.
+        // This involves:
+        //
+        // 1. changing the key in _amEndpoints under which the endpoint is stored
+        // 2. changing the source or target values in all of the endpoint's connections
+        // 3. changing the array in connectionsByElementId in which the endpoint's connections
+        //    are stored (done by either sourceChanged or updateOtherEndpoint)
+        //
+        this.rehomeEndpoint = function(ep, currentId, element) {
+            var eps = _amEndpoints[currentId] || [], 
+                elementId = jsPlumbInstance.getId(element);
+                
+            if (elementId !== currentId) {
+                var idx = jsPlumbUtil.indexOf(eps, ep);
+                if (idx > -1) {
+                    var _ep = eps.splice(idx, 1)[0];
+                    self.add(_ep, elementId);
+                }
+            }
+
+            for (var i = 0; i < ep.connections.length; i++) {
+                //this.connections[i].moveParent(newParentElement);
+                if (ep.connections[i].sourceId == currentId) {
+                    ep.connections[i].sourceId = ep.elementId;
+                    ep.connections[i].source = ep.element;                  
+                    self.sourceChanged(currentId, ep.elementId, ep.connections[i]);
+                }
+                else {
+                    ep.connections[i].targetId = ep.elementId;
+                    ep.connections[i].target = ep.element;   
+                    self.updateOtherEndpoint(ep.connections[i].sourceId, currentId, ep.elementId, ep.connections[i]);               
+                }
+            }   
+        };
+
 		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 		
 			if (!jsPlumbInstance.isSuspendDrawing()) {
@@ -6146,19 +6191,7 @@
 					connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false, clearEdits:clearEdits});
 				}
 			}
-		};
-		this.rehomeEndpoint = function(ep, currentId, element) {
-			var eps = _amEndpoints[currentId] || [], 
-				elementId = jsPlumbInstance.getId(element);
-                
-			if (elementId !== currentId) {
-                var idx = jsPlumbUtil.indexOf(eps, ep);
-                if (idx > -1) {
-                    var _ep = eps.splice(idx, 1)[0];
-                    self.add(_ep, elementId);
-                }
-			}
-		};
+		};        
         
         var ContinuousAnchor = function(anchorParams) {
             jsPlumbUtil.EventGenerator.apply(this);
@@ -9697,7 +9730,13 @@
 				originalArgs:arguments, 
 				pointerEventsSpec:"none", 
 				_jsPlumb:params._jsPlumb
-			} ]);				
+			} ]);	
+
+		/*this.pointOnPath = function(location, absolute) {
+			if (!self.path) return [0,0];
+			var p = absolute ? location : location * self.path.getTotalLength();
+			return self.path.getPointAtLength(p);
+		};*/			
 
 		_super.renderer.paint = function(style, anchor, extents) {
 			
@@ -10814,9 +10853,11 @@
 			_opts.node = "#" + id;	
 			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
 				Y.one(document.body).addClass("_jsPlumb_drag_select");
+				console.log("added drag class")
 			});	
 			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
 				Y.one(document.body).removeClass("_jsPlumb_drag_select");
+				console.log("removed drag class")
 			});	
 			var dd = new Y.DD.Drag(_opts), 
                 containment = options.constrain2node || options.containment;

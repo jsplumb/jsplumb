@@ -664,7 +664,7 @@
 		        resizeTimer = null,
 		        initialized = false,
 		        // TODO remove from window scope       
-		        connections = window.connections = [],
+		        connections = [],
 		        // map of element id -> endpoint lists. an element can have an arbitrary
 		        // number of endpoints on it, and not all of them have to be connected
 		        // to anything.         
@@ -1685,7 +1685,7 @@
 					if (!flat && scopes.length > 1) {
 						var ss = results[scope];
 						if (ss == null) {
-							ss = []; results[scope] = ss;
+							ss = results[scope] = [];
 						}
 						ss.push(obj);
 					} else results.push(obj);
@@ -2180,9 +2180,10 @@
 						// inform the anchor manager to update its target endpoint for this connection.
 						// TODO refactor to make this a single method.
 						if (idx == 1)
-							_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc);
+							_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
 						else
-							_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+							//_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
+						_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
 
 						// TODO: fire a connection event!
 						// TODO: what about moving the connection's source, if that was set?
