@@ -357,5 +357,6 @@
         };
     };
 
+    jsPlumbUtil.extend(Flowchart, jsPlumb.Connectors.AbstractConnector);
     jsPlumb.registerConnectorType(Flowchart, "Flowchart");
 })();
