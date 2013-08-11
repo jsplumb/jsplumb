@@ -283,7 +283,8 @@
             return this._jsPlumb.editable;
         },
         isEditable : function() { return this._jsPlumb.editable; },
-        editStarted : function() {            
+        editStarted : function() {  
+            this.setSuspendEvents(true);
             this.fire("editStarted", {
                 path:this.connector.getPath()
             });            
@@ -293,6 +294,7 @@
             this.fire("editCompleted", {
                 path:this.connector.getPath()
             });       
+            this.setSuspendEvents(false);
             this.setHover(false);     
             this._jsPlumb.instance.setHoverSuspended(false);
         },
