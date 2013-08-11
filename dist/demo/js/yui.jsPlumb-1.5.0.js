@@ -851,7 +851,7 @@
                 // away the listeners. so after each cycle through the loop we check to ensure we haven't
                 // been nuked.
                 var l = _listeners[event].length, i = 0, _gone = false, ret = null;
-                if (!this.prototype || !this.prototype.shouldFireEvent || this.prototype.shouldFireEvent(event, value, originalEvent)) {
+                if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
                     while (!_gone && i < l && ret !== false) {                    
                     
                         // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
@@ -8541,6 +8541,7 @@
         };
     };
 
+    jsPlumbUtil.extend(Flowchart, jsPlumb.Connectors.AbstractConnector);
     jsPlumb.registerConnectorType(Flowchart, "Flowchart");
 })();
 /*
