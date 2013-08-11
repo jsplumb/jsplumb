@@ -536,11 +536,11 @@
             
                     // now we replace ourselves with the temporary div we created above:
                     if (anchorIdx === 0) {
-                        existingJpcParams = [ jpc.source, jpc.sourceId, i, dragScope ];
+                        existingJpcParams = [ jpc.source, jpc.sourceId, canvasElement, dragScope ];
                         jpc.source = placeholderInfo.element;
                         jpc.sourceId = placeholderInfo.id;
                     } else {
-                        existingJpcParams = [ jpc.target, jpc.targetId, i, dragScope ];
+                        existingJpcParams = [ jpc.target, jpc.targetId, canvasElement, dragScope ];
                         jpc.target = placeholderInfo.element;
                         jpc.targetId = placeholderInfo.id;
                     }
