@@ -70,35 +70,43 @@
         return out;
     };
     
+    /**
+    * @namespace jsPlumb.ConnectorEditors
+    * @desc These are editors for the various connector types. They are not included in the
+    * main jsPlumb release. To use them you have to build a custom version of jsPlumb - see
+    * the Gruntfile for information on how to do that. 
+    *
+    * Currently there is only an editor for the Flowchart connector.
+    */
     jsPlumb.ConnectorEditors = {
-        /*
-            Function: FlowchartConnectorEditor
-            lets you drag the segments of a flowchart connection around.
+        /**
+        * @name jsPlumb.ConnectorEditors.FlowchartConnectorEditor
+        * @class
+        * @classdesc Lets you drag the segments of a flowchart connection around. If you subsequently
+        * drag an element, your edits are lost.
         */
         "Flowchart":function(params) {
             AbstractEditor.apply(this, arguments);            
             
             var jpcl = jsPlumb.CurrentLibrary,
-                documentMouseUp = function(e) { 
-                    //if (editing) {
-                        jpcl.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
-                        params.connection._jsPlumb.instance.setConnectionBeingDragged(false);
-                        e.stopPropagation();
-                        e.preventDefault();
-                        jpcl.unbind(document, "mouseup", documentMouseUp);
-                        jpcl.unbind(document, "mousemove", documentMouseMove);                    
-                        downAt = null;
-                        currentSegments = null;
-                        selectedSegment = null; 
-                        segmentCoords = null;
-                        params.connection.setHover(false);                    
-                        params.connector.setSuspendEvents(false); 
-                        params.connection.endpoints[0].setSuspendEvents(false);                
-                        params.connection.endpoints[1].setSuspendEvents(false);
-                        params.connection.editCompleted();
-                        params.connector.justEdited = editing;
-                        editing = false;
-                   // }
+                documentMouseUp = function(e) {                     
+                    jpcl.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
+                    params.connection._jsPlumb.instance.setConnectionBeingDragged(false);
+                    e.stopPropagation();
+                    e.preventDefault();
+                    jpcl.unbind(document, "mouseup", documentMouseUp);
+                    jpcl.unbind(document, "mousemove", documentMouseMove);                    
+                    downAt = null;
+                    currentSegments = null;
+                    selectedSegment = null; 
+                    segmentCoords = null;
+                    params.connection.setHover(false);                    
+                    params.connector.setSuspendEvents(false); 
+                    params.connection.endpoints[0].setSuspendEvents(false);                
+                    params.connection.endpoints[1].setSuspendEvents(false);
+                    params.connection.editCompleted();
+                    params.connector.justEdited = editing;
+                    editing = false;
                 },
                 downAt = null,
                 currentSegments = null,
@@ -285,8 +293,7 @@
 
     jsPlumb.Connectors.AbstractConnector.prototype.shouldFireEvent = function(type, value, originalEvent) {
         var out = !this.justEdited;
-        if (type == "click") {
-            console.log("click", this.justEdited)
+        if (type == "click") {            
             this.justEdited = false;
         }
         return out;
