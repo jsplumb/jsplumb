@@ -270,13 +270,13 @@
         addWithFunction : function(list, item, hashFunction) {
             if (jsPlumbUtil.findWithFunction(list, hashFunction) == -1) list.push(item);
         },
-        addToList : function(map, key, value) {
+        addToList : function(map, key, value, insertAtStart) {
             var l = map[key];
             if (l == null) {
                 l = [];
                 map[key] = l;
             }
-            l.push(value);
+            l[insertAtStart ? "unshift" : "push"](value);
             return l;
         },
         //
@@ -416,8 +416,8 @@
         // to hear what other people think.
         var eventsToDieOn = [ "ready" ];
                                         
-        this.bind = function(event, listener) {
-            jsPlumbUtil.addToList(_listeners, event, listener);     
+        this.bind = function(event, listener, insertAtStart) {
+            jsPlumbUtil.addToList(_listeners, event, listener, true);     
             return this;        
         };
                  
@@ -427,22 +427,25 @@
                 // that an event fired from here could cause the object to get cleaned up, which would throw
                 // away the listeners. so after each cycle through the loop we check to ensure we haven't
                 // been nuked.
-                var l = _listeners[event].length, i = 0, _gone = false;
-                while (!_gone && i < l) {
-                    // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
-                    // method will have the whole call stack available in the debugger.
-                    if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event; }) != -1)
-                        _listeners[event][i](value, originalEvent);
-                    else {
-                        // for events we don't want to die on, catch and log.
-                        try {
+                var l = _listeners[event].length, i = 0, _gone = false, ret = null;
+                if (!this.prototype || !this.prototype.shouldFireEvent || this.prototype.shouldFireEvent(event, value, originalEvent)) {
+                    while (!_gone && i < l && ret !== false) {                    
+                    
+                        // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
+                        // method will have the whole call stack available in the debugger.
+                        if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event; }) != -1) 
                             _listeners[event][i](value, originalEvent);
-                        } catch (e) {
-                            jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
+                        else {
+                            // for events we don't want to die on, catch and log.
+                            try {                            
+                                ret = _listeners[event][i](value, originalEvent);
+                            } catch (e) {
+                                jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
+                            }
                         }
+                        i++;
+                        if (_listeners == null || _listeners[event] == null) _gone = true;                    
                     }
-                    i++;
-                    if (_listeners == null || _listeners[event] == null) _gone = true;
                 }
             }
             return this;
