@@ -57,6 +57,10 @@ var JS_BEZIER = "0.6", // current js bezier version
     optionList = function(grunt, type) {
         return grunt.option(type) && grunt.option(type).split(",") || [];
     },
+    getOutputFilename = function(grunt, lib, suffix) {
+        var suffix2 = grunt.option('outputSuffix') ? ('-' + grunt.option("outputSuffix")) : '';
+        return 'dist/js/' + lib + '.jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js'
+    },
     filter = function(l, v, t, o) {
         if (l.length == 0 || l.indexOf(v) != -1)
             o.push("src/" + t + "-" + v + ".js"); 
@@ -101,7 +105,7 @@ module.exports = function(grunt) {
         libraries.forEach(function(l) {
             o[l] = {
                 src:getSources(grunt, l),
-                dest:'dist/js/' + l + '.jsPlumb-<%= pkg.version%>' + suffix + '.js'
+                dest:getOutputFilename(grunt, l, suffix)
             };
         });
         return o;
@@ -338,4 +342,8 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', [/*'qunit', */'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
+
+    grunt.registerTask("build-all", function() {
+        grunt.task.run("build")
+    })
 };
