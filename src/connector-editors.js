@@ -25,7 +25,7 @@
     
     // TODO: this is for a Straight segment.it would be better to have these all available somewjere, keyed
     // by segment type
-    var findClosestPointOnPath = function(seg, x, y, i) {
+    var findClosestPointOnPath = function(seg, x, y, i, bounds) {
         var m = seg[0] == seg[2] ? Infinity : 0,
             m2 = -1 / m,
             out = { s:seg, m:m, i:i, x:-1, y:-1, d:Infinity };
@@ -80,26 +80,31 @@
             
             var jpcl = jsPlumb.CurrentLibrary,
                 documentMouseUp = function(e) { 
-                    jpcl.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
-                    params.connection._jsPlumb.instance.setConnectionBeingDragged(false);
-                    e.stopPropagation();
-                    e.preventDefault();
-                    jpcl.unbind(document, "mouseup", documentMouseUp);
-                    jpcl.unbind(document, "mousemove", documentMouseMove);                    
-                    downAt = null;
-                    currentSegments = null;
-                    selectedSegment = null; 
-                    segmentCoords = null;
-                    params.connection.setHover(false);                    
-                    params.connector.setSuspendEvents(false); 
-                    params.connection.endpoints[0].setSuspendEvents(false);                
-                    params.connection.endpoints[1].setSuspendEvents(false);
-                    params.connection.editCompleted();
+                    //if (editing) {
+                        jpcl.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
+                        params.connection._jsPlumb.instance.setConnectionBeingDragged(false);
+                        e.stopPropagation();
+                        e.preventDefault();
+                        jpcl.unbind(document, "mouseup", documentMouseUp);
+                        jpcl.unbind(document, "mousemove", documentMouseMove);                    
+                        downAt = null;
+                        currentSegments = null;
+                        selectedSegment = null; 
+                        segmentCoords = null;
+                        params.connection.setHover(false);                    
+                        params.connector.setSuspendEvents(false); 
+                        params.connection.endpoints[0].setSuspendEvents(false);                
+                        params.connection.endpoints[1].setSuspendEvents(false);
+                        params.connection.editCompleted();
+                        params.connector.justEdited = editing;
+                        editing = false;
+                   // }
                 },
                 downAt = null,
                 currentSegments = null,
                 selectedSegment = null,
                 segmentCoords = null,
+                editing = false,
                 anchorsMoveable = params.params.anchorsMoveable,
                 sgn = function(p1, p2) {
                     if (p1[0] == p2[0])
@@ -130,11 +135,12 @@
                 _shiftAnchor = function(endpoint, horizontal, value) {                    
                     var elementSize = jpcl.getSize(endpoint.element),
                         sizeValue = elementSize[horizontal ? 1 : 0],
-                        off = jpcl.getOffset(endpoint.element), 
+                        ee = jpcl.getElementObject(endpoint.element),
+                        off = jpcl.getOffset(ee), 
                         cc = jpcl.getElementObject(params.connector.canvas.parentNode),
                         co = jpcl.getOffset(cc),
                         offValue = off[horizontal ? "top" : "left"] - co[horizontal ? "top" : "left"], 
-                        ap = endpoint.anchor.getCurrentLocation(),
+                        ap = endpoint.anchor.getCurrentLocation({element:endpoint}),
                         desiredLoc = horizontal ? params.connector.y + value : params.connector.x + value;
                     
                     if (anchorsMoveable) {                        
@@ -163,6 +169,14 @@
                 },
                 documentMouseMove = function(e) {
                     if (selectedSegment != null) {
+                        // suspend events on first move.
+                        if (!editing) {
+                            params.connection.setHover(true);
+                            params.connector.setSuspendEvents(true);
+                            params.connection.endpoints[0].setSuspendEvents(true);                
+                            params.connection.endpoints[1].setSuspendEvents(true);
+                        }
+                        editing = true;
                         var m = selectedSegment.m, s = selectedSegment.s,
                             x = (e.pageX || e.page.x), y = (e.pageY || e.page.y),
                             dx = m == 0 ? 0 : x - downAt[0], dy = m == 0 ? y - downAt[1] : 0,
@@ -230,11 +244,13 @@
                         params.connection.repaint();                        
                         params.connection.endpoints[0].repaint();
                         params.connection.endpoints[1].repaint();
-                        params.connector.setEdited(true);
+                        params.connector.setEdited(true);                        
                     }
+                    else
+                        editing = false;
                 };
                         
-            // bind to mousedown and mouseup, for editing
+            //bind to mousedown and mouseup, for editing
             params.connector.bind("mousedown", function(c, e) {
                 var x = (e.pageX || e.page.x),
                     y = (e.pageY || e.page.y),
@@ -242,15 +258,10 @@
                     o = jpcl.getOffset(oe),                    
                     minD = Infinity;
                 
-                params.connection.setHover(true);
-                params.connector.setSuspendEvents(true);
-                params.connection.endpoints[0].setSuspendEvents(true);                
-                params.connection.endpoints[1].setSuspendEvents(true);                
-                
                 currentSegments = params.connector.getOriginalSegments();
                 _collapseSegments();
-                for (var i = 0; i < currentSegments.length; i++) {
-                    var _s = findClosestPointOnPath(currentSegments[i], x - o.left, y - o.top, i);
+                for (var i = 0; i < currentSegments.length; i++) {                    
+                    var _s = findClosestPointOnPath(currentSegments[i], (x - o.left) , (y - o.top), i, params.connector.bounds);
                     if (_s.d < minD) {
                         selectedSegment = _s;
                         segmentCoords = [ _s.s[0], _s.s[1], _s.s[2], _s.s[3] ]; // copy the coords at mousedown
@@ -260,16 +271,25 @@
                 
                 downAt = [ x, y ];
                 
-                jpcl.bind(document, "mouseup", documentMouseUp);
-                jpcl.bind(document, "mousemove", documentMouseMove);  
-
-                if (selectedSegment != null) {
+                if (selectedSegment != null) {                    
+                    jpcl.bind(document, "mouseup", documentMouseUp);
+                    jpcl.bind(document, "mousemove", documentMouseMove);                                      
                     jpcl.addClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
                     params.connection._jsPlumb.instance.setConnectionBeingDragged(true);
-                    params.connection.editStarted();
-                }                              
-            });
+                    params.connection.editStarted();                
+                    return false;
+                }
+            }, true);
         }
+    };
+
+    jsPlumb.Connectors.AbstractConnector.prototype.shouldFireEvent = function(type, value, originalEvent) {
+        var out = !this.justEdited;
+        if (type == "click") {
+            console.log("click", this.justEdited)
+            this.justEdited = false;
+        }
+        return out;
     };
         
 })();
