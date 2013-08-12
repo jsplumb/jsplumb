@@ -95,7 +95,8 @@
 			</div>
 			<div class="markdown-body">
 				<!-- BODY -->
-				<p>This page contains a summary of some common scenarios you may find when using jsPlumb, and what functions jsPlumb offers to help you.</p>
+				<h3>Utility Functions</h3>
+<p>This page contains a summary of some common scenarios you may find when using jsPlumb, and what functions jsPlumb offers to help you.</p>
 <h4>Repainting an element or elements</h4>
 <p>Assuming you use <code>jsPlumb.draggable</code> to initialise your draggable elements, you do not typically need to instruct jsPlumb to repaint.  However, there are times when you need to, for instance:</p>
 <ul>
@@ -104,10 +105,7 @@
 <li>you didn&#39;t actually use <code>jsPlumb.draggable</code> to initialise some draggable element.</li>
 </ul>
 <p>To force a repaint, use:</p>
-<pre>
-jsPlumb.repaint(el, [ui])
-</pre>
-
+<pre><code>jsPlumb.repaint(el, [ui])</code></pre>
 <p>The first argument - <code>el</code> - can be a number of different datatypes:</p>
 <ul>
 <li>a string, representing the id of some element</li>
@@ -118,31 +116,17 @@ jsPlumb.repaint(el, [ui])
 </ul>
 <h4>Performance: provide the element offset</h4>
 <p>Notice the <code>ui</code> argument?  This is an offset in the form:</p>
-<pre>
-{ left:X, top:Y }
-</pre>
-...which, if provided, means that jsPlumb does not have to go and compute the offset of the element. 
-
-**Note** this is of course relevant only if you are repainting a single element. If you provide this when you're painting multiple elements, they will all be assumed to be at the given offset!
-
-#### Repainting everything
-
-To repaint everything:
-<pre>
-jsPlumb.repaintEverything();
-</pre>
-
-
+<pre><code>{ left:X, top:Y }</code></pre>
+<p>...which, if provided, means that jsPlumb does not have to go and compute the offset of the element. </p>
+<p><strong>Note</strong> this is of course relevant only if you are repainting a single element. If you provide this when you&#39;re painting multiple elements, they will all be assumed to be at the given offset!</p>
+<h4>Repainting everything</h4>
+<p>To repaint everything:</p>
+<pre><code>jsPlumb.repaintEverything();</code></pre>
 <h3>Element Ids</h3>
 <p>jsPlumb uses element ids as keys for Connections and Endpoints, so if an element id changes, jsPlumb needs to know about it.  You can either have jsPlumb do it for you:</p>
-<pre>
-jsPlumb.setId(el, newId);
-</pre>
-or tell jsPlumb about it afterwards:
-<pre>
-jsPlumb.setIdChanged(oldId, newId);
-</pre>
-
+<pre><code>jsPlumb.setId(el, newId);</code></pre>
+<p>or tell jsPlumb about it afterwards:</p>
+<pre><code>jsPlumb.setIdChanged(oldId, newId);</code></pre>
 
 				<!-- /BODY -->
 			</div>					

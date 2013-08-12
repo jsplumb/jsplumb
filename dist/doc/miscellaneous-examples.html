@@ -142,51 +142,39 @@ jsPlumb.deleteEndpoint(endpoint);
 <li>Removes every endpoint, detaches every connection, and clears the event listeners list.  Returns jsPlumb instance to its initial state.  <pre>
 jsPlumb.reset();
 </pre></li>
-<li><p>Set window1 to be not draggable, no matter what some jsPlumb command may request.</p>
-<pre><code>              &lt;div class=&quot;code&quot;&gt;
-                  &lt;pre&gt;jsPlumb.setDraggable(&quot;window1&quot;, false);&lt;/pre&gt;
-              &lt;/div&gt;</code></pre>
-</li>
-<li><p>Set window1 and window2 to be not draggable, no matter what some jsPlumb command may request.</p>
-<pre><code>              &lt;div class=&quot;code&quot;&gt;
-                  &lt;pre&gt;jsPlumb.setDraggable([&quot;window1&quot;,&quot;window2&quot;], false);&lt;/pre&gt;
-              &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises window1 as a draggable element (all libraries). Passes in an on drag callback<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable(&quot;window1&quot;);&lt;/pre&gt;
-          &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises window1 and window2 as draggable elements (all libraries)<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable([&quot;window1&quot;,&quot;window2&quot;]);&lt;/pre&gt;
-          &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises window1 as a draggable element (all libraries)<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable(&quot;window1&quot;);&lt;/pre&gt;
-          &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises all elements with class &#39;window&#39; as draggable elements (jQuery)<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable($(&quot;.window&quot;));&lt;/pre&gt;
-          &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises all elements with class &#39;window&#39; as draggable elements (MooTools)<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable($$(&quot;.window&quot;));&lt;/pre&gt;
-          &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises all elements with class &#39;window&#39; as draggable elements (YIU3)<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable(Y.all(&quot;.window&quot;));&lt;/pre&gt;
-          &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises window1 as a draggable element (jQuery)<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable($(&quot;#window1&quot;));&lt;/pre&gt;
-          &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises window1 as a draggable element (MooTools)<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable($(&quot;window1&quot;));&lt;/pre&gt;
-          &lt;/div&gt;</code></pre>
-</li>
-<li>Initialises window1 as a draggable element (YUI3)<pre><code>          &lt;div class=&quot;code&quot;&gt;
-              &lt;pre&gt;jsPlumb.draggable(Y.one(&quot;window1&quot;));&lt;/pre&gt;
-          &lt;/div&gt;                </code></pre>
+<li>Set window1 to be not draggable, no matter what some jsPlumb command may request.<pre>
+jsPlumb.setDraggable("window1", false);
+</pre></li>
+<li>Set window1 and window2 to be not draggable, no matter what some jsPlumb command may request.<pre>
+jsPlumb.setDraggable(["window1","window2"], false);
+</pre></li>
+<li>Initialises window1 as a draggable element (all libraries). Passes in an on drag callback                <pre>
+jsPlumb.draggable("window1");
+</pre></li>
+<li>Initialises window1 and window2 as draggable elements (all libraries)<pre>
+jsPlumb.draggable(["window1","window2"]);
+</pre></li>
+<li>Initialises window1 as a draggable element (all libraries)<pre>
+jsPlumb.draggable("window1");
+</pre></li>
+<li>Initialises all elements with class &#39;window&#39; as draggable elements (jQuery)<pre>
+jsPlumb.draggable($(".window"));
+</pre></li>
+<li>Initialises all elements with class &#39;window&#39; as draggable elements (MooTools)
+jsPlumb.draggable($$(&quot;.window&quot;));
+</pre></li>
+<li>Initialises all elements with class &#39;window&#39; as draggable elements (YIU3)<pre>
+jsPlumb.draggable(Y.all(".window"));
+</pre></li>
+<li>Initialises window1 as a draggable element (jQuery)<pre>
+jsPlumb.draggable($("#window1"));
+</pre></li>
+<li>Initialises window1 as a draggable element (MooTools)<pre>
+jsPlumb.draggable($("window1"));
+</pre></li>
+<li>Initialises window1 as a draggable element (YUI3)<pre>
+jsPlumb.draggable(Y.one("window1"));
+</pre>
 </li>
 </ul>
 

@@ -100,12 +100,14 @@
 <p>Interceptors can be registered via the <code>bind</code> method on jsPlumb just like any other event listeners, and they can also be passed in to the <code>jsPlumb.addEndpoint</code>, <code>jsPlumb.makeSource</code> and <code>jsPlumb.makeTarget</code> methods.  </p>
 <p>Note that binding <code>beforeDrop</code> (as an example) on jsPlumb itself is like a catch-all: it will be called every time a Connection is dropped on <em>any</em> Endpoint, unless that Endpoint has its own <code>beforeDrop</code> interceptor. But passing a beforeDrop callback into an Endpoint constrains that callback to just the Endpoint in question.          </p>
 <h4>beforeDrop</h4>
-<p>This event is fired when a new or existing connection has been dropped. Your callback is passed a JS object with these fields:
-- <strong>sourceId</strong> - the id of the source element in the connection
-- <strong>targetId</strong> - the id of the target element in the connection
-- <strong>scope</strong> - the scope of the connection
-- <strong>connection</strong> - the actual Connection object.  You can access the &#39;endpoints&#39; array in a Connection to get the Endpoints involved in the Connection, but be aware that when a Connection is being dragged, one of these Endpoints will always be a transient Endpoint that exists only for the life of the drag. To get the Endpoint on which the Connection is being dropped, use the &#39;dropEndpoint&#39; member.
-- <strong>dropEndpoint</strong> - this is the actual Endpoint on which the Connection is being dropped.  This <strong>may be null</strong>, because it will not be set if the Connection is being dropped on an element on which makeTarget has been called. </p>
+<p>This event is fired when a new or existing connection has been dropped. Your callback is passed a JS object with these fields:</p>
+<ul>
+<li><strong>sourceId</strong> - the id of the source element in the connection</li>
+<li><strong>targetId</strong> - the id of the target element in the connection</li>
+<li><strong>scope</strong> - the scope of the connection</li>
+<li><strong>connection</strong> - the actual Connection object.  You can access the &#39;endpoints&#39; array in a Connection to get the Endpoints involved in the Connection, but be aware that when a Connection is being dragged, one of these Endpoints will always be a transient Endpoint that exists only for the life of the drag. To get the Endpoint on which the Connection is being dropped, use the &#39;dropEndpoint&#39; member.</li>
+<li><strong>dropEndpoint</strong> - this is the actual Endpoint on which the Connection is being dropped.  This <strong>may be null</strong>, because it will not be set if the Connection is being dropped on an element on which makeTarget has been called. </li>
+</ul>
 <p>If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.</p>
 <h4>beforeDetach</h4>
 <p>This is called when the user has detached a Connection, which can happen for a number of reasons: by default, jsPlumb allows users to drag Connections off of target Endpoints, but this can also result from a programmatic &#39;detach&#39; call.  Every case is treated the same by jsPlumb, so in fact it is possible for you to write code that attempts to detach a Connection but then denies itself!  You might want to be careful with that. </p>
