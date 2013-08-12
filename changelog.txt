@@ -38,8 +38,8 @@
 
 		- jsPlumb.remove takes a third argument, defaulting to true, saying whether ??
 		- setSuspendDrawing returns the value of suspendDrawing _before_ the call was made.
+		- Endpoint.setElement works properly now.
 		
-
 
 		ISSUES
 

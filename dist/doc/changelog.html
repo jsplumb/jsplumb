@@ -97,7 +97,7 @@
 				<!-- BODY -->
 				<h2>Changes since 1.4.1</h2>
 <p>Release 1.5.0 contains several bugfixes and one or two minor enhancements, but the biggest change since 1.4.1 is the way jsPlumb handles inheritance internally - it has switched from a &#39;module pattern&#39; architecture to a prototypal-based setup.  The module pattern is good for information hiding, but it makes objects bigger, and its far easier to leak memory with that sort of arrangement than it is with a prototypal inheritance scheme. </p>
-<p>The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see <a href="build">here</a>).</p>
+<p>The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see <a href="Build">here</a>).</p>
 <ol>
 <li><a href="#backwards">Backwards Compatibility</a></li>
 <li><a href="#new">New Functionality</a></li>
@@ -124,7 +124,8 @@
 <p><a name="new"></a></p>
 <h3>New Functionality</h3>
 <ul>
-<li>setSuspendDrawing returns the value of suspendDrawing <em>before</em> the call was made.</li>
+<li><code>jsPlumb.setSuspendDrawing</code> returns the value of <code>suspendDrawing</code> <em>before</em> the call was made.</li>
+<li><code>Endpoint.setElement</code> works properly now.</li>
 </ul>
 <p><a name="issues"></a></p>
 <h3>Issues Fixed</h3>
@@ -141,6 +142,8 @@
 <li><strong>65</strong> - Uncaught exception in IE 8</li>
 <li><strong>69</strong> - jsPlumb.detach(connection) is really slow with larger graphs</li>
 <li><strong>72</strong> - Drag and drop connections fail to work correctly when using makeTarget</li>
+<li><strong>75</strong> - changing continuous anchor is ignored</li>
+<li><strong>76</strong> - jsPlumb doesn&#39;t work in XHTML documents         </li>
 </ul>
 <p><a name="misc"></a></p>
 <h3>Miscellaneous</h3>
