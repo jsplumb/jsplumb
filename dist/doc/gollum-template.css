@@ -20,6 +20,7 @@
     url("OpenSans-Regular.ttf") format('truetype'),
     url("OpenSans.woff") format('woff');    
 }
+html { background-color: white; }
 body { font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;background-color:white; }
 
 a[name]:before {
