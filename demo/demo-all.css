@@ -121,6 +121,10 @@ a:hover {
 }
 
 .menu a:hover {
+    color:orange;
+}
+
+.menu a:active {
     color:#5c96bc;
 }
 

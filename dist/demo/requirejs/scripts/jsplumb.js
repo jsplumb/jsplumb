@@ -4597,7 +4597,7 @@
 
         // is this a connection source? we make it draggable and have the
         // drag listener maintain a connection with a floating endpoint.
-        if (jpcl.isDragSupported(this.element)) {
+        if (jpcl.isDragSupported(this.element) && (this.isSource || this.isTarget)) {
             var placeholderInfo = { id:null, element:null },
                 jpc = null,
                 existingJpc = false,
