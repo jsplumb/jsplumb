@@ -4584,6 +4584,23 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(c.getHoverPaintStyle().strokeStyle, "BAZ", "getHoverPaintStyle returns correct value");
 	});	
 
+	/*
+	TODO figure out if we want this behaviour or not (components do not share paintStyle objects)
+	*
+	test(renderMode + " clone paint style", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
+			c = _jsPlumb.connect({source:d1, target:d2, paintStyle:ps}),
+			c2 = _jsPlumb.connect({source:d1, target:d3}),
+			ps = {strokeStyle:"FOO", lineWidth:999};
+		
+		c2.setPaintStyle(ps);
+
+		ps.foo = "bar";
+		equal(null, c.getPaintStyle().foo, "foo is not set in c paint style");
+		equal(null, c2.getPaintStyle().foo, "foo is not set in c2 paint style");
+	});
+*/
+
 // ******************* getEndpoints ************************************************
 
 	test(renderMode + " getEndpoints", function() {

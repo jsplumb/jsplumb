@@ -334,7 +334,9 @@
 				}
 			},
 			setPaintStyle : function(style, doNotRepaint) {
-		    	this._jsPlumb.paintStyle = style;
+//		    	this._jsPlumb.paintStyle = jsPlumb.extend({}, style);
+// TODO figure out if we want components to clone paintStyle so as not to share it.
+				this._jsPlumb.paintStyle = style;
 		    	this._jsPlumb.paintStyleInUse = this._jsPlumb.paintStyle;
 		    	_updateHoverStyle(this);
 		    	if (!doNotRepaint) this.repaint();
@@ -343,6 +345,8 @@
 		    	return this._jsPlumb.paintStyle;
 		    },
 		    setHoverPaintStyle : function(style, doNotRepaint) {		    	
+		    	//this._jsPlumb.hoverPaintStyle = jsPlumb.extend({}, style);
+// TODO figure out if we want components to clone paintStyle so as not to share it.		    	
 		    	this._jsPlumb.hoverPaintStyle = style;
 		    	_updateHoverStyle(this);
 		    	if (!doNotRepaint) this.repaint();
@@ -351,12 +355,10 @@
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
 			cleanup:function() {		
-				//console.log("jsPlumbUIComponent cleanup", this.id);	
 				this.unbindListeners();
 				this.detachListeners();
 			},
 			destroy:function() {
-				//console.log("jsPlumbUIComponent destroy", this.id);
 				this.cleanupListeners();
 				this.clone = null;				
 				this._jsPlumb = null;
@@ -567,7 +569,6 @@
 					this.repaint();
 			},
 			cleanup:function() {
-//				console.log("OverlayCapableJsPlumbUIComponent cleanup");
 				for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
 					this._jsPlumb.overlays[i].cleanup();
 					this._jsPlumb.overlays[i].destroy();

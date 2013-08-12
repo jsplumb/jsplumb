@@ -1049,7 +1049,6 @@
 	};
     AbstractOverlay.prototype = {
         cleanup:function() {  
-           //console.log("AbstractOverlay cleanup");
            this.component = null;
            this.canvas = null;
            this.endpointLoc = null;
@@ -1304,11 +1303,7 @@
 	};
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
         getDimensions : function() {            
-            return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(this.getElement()));
-            //var e = this.getElement();
-            //return [e.offsetWidth, e.offsetHeight];
-            //console.log(d);
-            //console.log(e.clientWidth, e.clientHeight);
+            return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(this.getElement()));            
         },
         setVisible : function(state) {
             this._jsPlumb.div.style.display = state ? "block" : "none";
@@ -1324,8 +1319,8 @@
             this._jsPlumb.cachedDimensions = null;
         },
         cleanup : function() {
-            //console.log("AbstractDOMOverlay cleanup");
-            if (this._jsPlumb.div != null) jsPlumb.CurrentLibrary.removeElement(this._jsPlumb.div);
+            if (this._jsPlumb.div != null) 
+                jsPlumb.CurrentLibrary.removeElement(this._jsPlumb.div);
         },
         computeMaxSize : function() {
             var td = _getDimensions(this);
@@ -1432,7 +1427,6 @@
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
         cleanup:function() {
-            //console.log("Label cleanup");
             this.div = null;
             this.label = null;
             this.labelText = null;
