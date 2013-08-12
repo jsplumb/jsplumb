@@ -26,8 +26,12 @@
                 var a = document.body.appendChild(document.createElement('div'));
             	a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
             	var b = a.firstChild;
-            	b.style.behavior = "url(#default#VML)";
-            	vmlAvailable.vml = b ? typeof b.adj == "object": true;
+            	if (b != null && b.style != null) {
+	            	b.style.behavior = "url(#default#VML)";
+	            	vmlAvailable.vml = b ? typeof b.adj == "object": true;
+	            }
+	            else
+	            	vmlAvailable.vml = false;
             	a.parentNode.removeChild(a);
             }
             return vmlAvailable.vml;
