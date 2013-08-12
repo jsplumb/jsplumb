@@ -27,7 +27,7 @@ a[name]:before {
     content:" "; 
     height:50px;     
     margin-bottom:-18px;
-    margin-top:-50px;
+    margin-top:-79px;
     visibility: hidden;    
 }
 
@@ -100,7 +100,7 @@ nav h2 {
   margin-left: 15px;
   font-size: 12px;
   position: fixed;
-  height: 100%;
+  height: 88%;
   overflow-y: auto;
   overflow-x:hidden;
 }

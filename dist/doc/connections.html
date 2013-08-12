@@ -49,7 +49,17 @@
 <li><a href="overlays">Overlays</a></li>
 </ul>
 </li>
-<li><a href="connections">Establishing Connections</a></li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
 <li><a href="removing">Removing Connections/Endpoints</a></li>
 <li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
 <li><a href="types">Connection &amp; Endpoint Types</a></li>
@@ -101,7 +111,8 @@
 <p>In this example we have created a Connection from &#39;element1&#39; to &#39;element2&#39;.  Remember that a Connection in jsPlumb consists of two Endpoints, a Connector, and zero or more Overlays.  But this call to &#39;connect&#39; supplied none of those things, so jsPlumb uses the default values wherever it needs to.  In this case, default values have been used for the following: </p>
 <ul>
 <li>The type and appearance of each Endpoint in the Connection. jsPlumb&#39;s default for this is the &quot;Dot&quot; endpoint, of radius 10, with fill color &quot;#456&quot;.</li>
-<li>The Anchors that define where the connection&#39;s Endpoints appear on each element. The jsPlumb default is &quot;BottomCenter&quot;- Whether or not each Endpoint can be a source or target for new Connections. The default is false.</li>
+<li>The Anchors that define where the Connection&#39;s Endpoints appear on each element. The jsPlumb default is <code>Bottom</code></li>
+<li>Whether or not each Endpoint can be a source or target for new Connections. The default is false.</li>
 <li>The type and appearance of the Connection&#39;s Connector. The default is a &quot;Bezier&quot; connector of line width 8, and color &quot;#456&quot;.</li>
 </ul>
 <p>So this call will result in an 8px Bezier, colored &quot;#456&quot;, from the bottom center of &#39;element1&#39; to the bottom center of &#39;element2&#39;, and each Endpoint will be a 10px radius Dot Endpoint, colored &quot;#456&quot;.</p>
@@ -109,16 +120,17 @@
 <pre><code>jsPlumb.connect({
     source:&quot;element1&quot;, 
     target:&quot;element2&quot;,
-    anchors:[&quot;RightMiddle&quot;, &quot;LeftMiddle&quot; ],
+    anchors:[&quot;Right&quot;, &quot;Left&quot; ],
     endpoint:&quot;Rectangle&quot;,
     endpointStyle:{ fillStyle: &quot;yellow&quot; }
 });</code></pre>
 <p>This is what we have told jsPlumb we want this time:</p>
 <ul>
 <li><strong>anchors</strong> - this array tells jsPlumb where the source and target Endpoints should be located on their parent elements. In this case, we use the shorthand syntax to name one of jsPlumb&#39;s default anchors; you can also specify custom locations (see <a href="anchors">Anchors</a>. Instead of <code>anchors</code> you can use <code>anchor</code>, if you want the source and target Endpoints to be located at the same place on their parent elements.        </li>
-<li><strong>endpoint</strong>  - this tells jsPlumb to use the &quot;Rectangle&quot; Endpoint for both the source and target of the Connection.  As with anchors, <code>endpoint</code> has a plural version that allows you to specify a different Endpoint for each end of the Connection.</li>
+<li><strong>endpoint</strong>  - this tells jsPlumb to use the <code>Rectangle</code> Endpoint for both the source and target of the Connection.  As with anchors, <code>endpoint</code> has a plural version that allows you to specify a different Endpoint for each end of the Connection.</li>
 <li><strong>endpointStyle</strong> - this is the definition of the appearance of the Endpoint you specified above.  Again, there is a plural equivalent of this that allows you to specify a different style for each end of the Connection. For more information about allowed values for this value, see <a href="basic-concepts#definitions">Connector, Endpoint, Anchor &amp; Overlay definitions</a>.</li>
 </ul>
+<p><a name="common"></a></p>
 <h5>Reusing common settings between jsPlumb.connect calls</h5>
 <p>A fairly common situation you will find yourself in is wanting to create a bunch of Connections that have only minor differences between them.  To support that, <code>jsPlumb.connect</code> takes an optional second argument. For example:             </p>
 <pre><code>var common = {
@@ -137,6 +149,7 @@ jsPlumb.connect({ source:&quot;aThirdElement&quot;, target:&quot;yetAnotherEleme
     target:&quot;yetAnotherElement&quot;,
     deleteEndpointsOnDetach:false 
 });</code></pre>
+<p><a name="detaching"></a></p>
 <h5>Detaching Connections</h5>
 <p>By default, connections made with <code>jsPlumb.connect</code> will be detachable via the mouse.  You can prevent this by either setting an appropriate default value:</p>
 <pre><code>jsPlumb.importDefaults({ 
@@ -165,7 +178,7 @@ var endpoint = jsPlumb.addEndpoint(&#39;elementId&#39;, endpointOptions);</code>
     connectorStyle : { strokeStyle:&quot;#666&quot; },
     isTarget:true
 };</code></pre>
-<p>Notice there is no &#39;anchor&#39; set.  Here we apply it to two elements, at a different location in each:</p>
+<p>Notice there is no <code>anchor</code> set.  Here we apply it to two elements, at a different location in each:</p>
 <pre><code>jsPlumb.addEndpoint(&#39;element1&#39;, { 
     anchor:&quot;BottomCenter&quot; 
 }, exampleGreyEndpointOptions)); 
@@ -358,6 +371,7 @@ jsPlumb.makeTarget("someElement", {
   anchor:&quot;BottomCenter&quot;
 });</code></pre>
 <p>Notice again that the second argument is the same as the second argument to an <code>addEndpoint</code> call.  <code>makeSource</code> is, essentially, a type of <code>addEndpoint</code> call.  In this example we have told jsPlumb that we will support dragging Connections directly from <code>someDiv</code>.  Whenever a Connection is established between <code>someDiv</code> and some other element, jsPlumb assigns an Endpoint at BottomCenter of <code>someDiv</code>, fills it yellow, and sets that Endpoint as the newly created Connection&#39;s source. </p>
+<p><a name="sourcefilter"></a></p>
 <h5>Specifying drag source area</h5>
 <p>Configuring an element to be an entire Connection source using makeSource means that the element cannnot itself be draggable.  There would be no way for jsPlumb to distinguish between the user attempting to drag the element and attempting to drag a Connection from the element.  jsPlumb has two ways for you to handle this. Why two?  The second one didn&#39;t occur to me until later. The first one will probably be discontinued at some stage.</p>
 <h6>Supplying a &#39;parent&#39; parameter</h6>
@@ -456,11 +470,6 @@ jsPlumb.makeTarget("someElement", {
 <li><strong>scope</strong> - the scope of the draggable.  can only be dropped on a droppable with the same scope.  this is discussed below.</li>
 </ul>
 <p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable">jQuery</a>, <a href="http://mootools.net/docs/more/Drag/Drag.Move">MooTools</a>, or <a href="http://developer.yahoo.com/yui/3/dd">YUI3</a> docs.    </p>
-<p><strong>NOTE</strong>: there is an issue in Chrome that affects the &#39;cursor&#39; argument to drag options in jQuery. See these links:
-- <a href="http://forum.jquery.com/topic/draggable-cursor-option-does-not-work"><a href="http://forum.jquery.com/topic/draggable-cursor-option-does-not-work">http://forum.jquery.com/topic/draggable-cursor-option-does-not-work</a></a>
-- <a href="http://forum.jquery.com/topic/chrome-text-select-cursor-on-drag"><a href="http://forum.jquery.com/topic/chrome-text-select-cursor-on-drag">http://forum.jquery.com/topic/chrome-text-select-cursor-on-drag</a></a></p>
-<p>You should put something like this at the top of your JS to avoid it (perhaps not something so drastic as a document-wide override):    </p>
-<pre><code>document.onselectstart = function () { return false; };</code></pre>
 <h5>Drop Options</h5>
 <p>Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  MooTools does not have drop options like jQuery and YUI3 do; droppable functionality in MooTools is actually implemented by the Drag.Move class - the one used to initialise a draggable.  But when you setup an Endpoint in jsPlumb you should ignore that fact, and treat droppables like you would in jQuery or YUI3.  jsPlumb wires everything up for you under the hood.</p>
 <p>There are three jQuery droppable options that jsPlumb treats as shortcuts in MooTools and YUI3, for the sake of consistency:</p>
