@@ -31,6 +31,7 @@
 <li>Required imports and basic setup<ul>
 <li><a href="home#browser">Browser Compatibility</a></li>
 <li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
 <li><a href="home#imports">Required Imports</a></li>
 <li><a href="home#initializing">Initializing jsPlumb</a></li>
 <li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
@@ -103,6 +104,7 @@
 <ol>
 <li><a href="#browser">Browser Compatibility</a></li>
 <li><a href="#setup">Setup</a></li>
+<li><a href="#doctype">Doctype</a></li>
 <li><a href="#imports">Required Imports</a></li>
 <li><a href="#initializing">Initializing jsPlumb</a></li>
 <li><a href="#multiple">Multiple jsPlumb Instances</a></li>
@@ -123,6 +125,17 @@
 </ul>
 <p><a name="setup"></a></p>
 <h3>Setup</h3>
+<p><a name="doctype"></a></p>
+<h4>Doctype</h4>
+<h6>text/html</h6>
+<p>If you&#39;re serving your pages with content type <code>text/html</code>, as most people are, then you should use this doctype:</p>
+<pre><code>&lt;!doctype html&gt;</code></pre>
+<p>This gives you Standards mode in all browsers and access to HTML5.</p>
+<h6>application/xhtml+xml</h6>
+<p>If you&#39;re serving <code>application/xhtml+xml</code> then you need to include the VML namespace in the <code>html</code> element:</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;html xmlns=&#39;http://www.w3.org/1999/xhtml&#39;
+           xmlns:v=&quot;urn:schemas-microsoft-com:vml&quot;&gt;</code></pre>
 <p><a name="imports"></a></p>
 <h4>Required Imports</h4>
 <h5>jQuery</h5>
