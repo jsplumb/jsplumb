@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 
@@ -397,7 +397,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -632,7 +632,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -1418,7 +1418,8 @@
 		 * @param timestamp timestamp for this paint cycle. used to speed things up a little by cutting down the amount of offset calculations we do.
 		 */
 		_draw = function(element, ui, timestamp, clearEdits) {
-			
+
+
 			// TODO is it correct to filter by headless at this top level? how would a headless adapter ever repaint?
             if (!jsPlumbAdapter.headless && !_suspendDrawing) {
 			    var id = _att(element, "id"),
@@ -1426,12 +1427,38 @@
 
 			    if (timestamp == null) timestamp = _timestamp();
 
+			    // update the offset of everything _before_ we try to draw anything.
+			    var o = _updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp });
+
+
+		        if (repaintEls) {
+		    	    for (var i in repaintEls) {									 							
+			    		_updateOffset( { 
+			    			elId : repaintEls[i].id, 
+			    			offset : {
+								left:o.o.left + repaintEls[i].offset.left,
+				    			top:o.o.top + repaintEls[i].offset.top
+				    		}, 
+			    			recalc : false, 
+			    			timestamp : timestamp 
+			    		});
+			    		/*console.log("pre-update for ", repaintEls[i].id, {
+								left:o.o.left + repaintEls[i].offset.left,
+				    			top:o.o.top + repaintEls[i].offset.top
+				    		});*/
+			    	}
+			    }	
+			    		            
+
 			    _currentInstance.anchorManager.redraw(id, ui, timestamp, null, clearEdits);
+			    
 			    if (repaintEls) {
 				    for (var i in repaintEls) {
-						_currentInstance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset, clearEdits);			    	
+						_currentInstance.anchorManager.redraw(repaintEls[i].id, ui, timestamp, repaintEls[i].offset, clearEdits, true);			    	
 				    }
 				}
+
+		//		console.log("-------------");
             }
 		},
 
@@ -1849,11 +1876,15 @@
 		_updateOffset = function(params) {
 			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId;
 			if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
+			//console.log("start update offset", elId, recalc, offset, timestamp, offsetTimestamps[elId]);
 			if (!recalc) {
-				if (timestamp && timestamp === offsetTimestamps[elId])
-					return {o:offsets[elId], s:sizes[elId]};
-			}
+				if (timestamp && timestamp === offsetTimestamps[elId]) {
+				//	console.log("timestamp matched; returning cached value or provide value")
+					return {o:params.offset || offsets[elId], s:sizes[elId]};
+				}
+			}			
 			if (recalc || !offset) { // if forced repaint or no offset available, we recalculate.
+				//console.log("calculating offset", elId, "timestamp", timestamp, recalc, offset);
 				// get the current size and offset, and store them
 				var s = _gel(elId);
 				if (s != null) {						
@@ -1862,11 +1893,13 @@
 					offsetTimestamps[elId] = timestamp;
 				}
 			} else {
+				//console.log("storing offset", elId, "timestamp", timestamp, offset);
 				offsets[elId] = offset;
                 if (sizes[elId] == null) {
                     var s = _gel(elId);
                     if (s != null) sizes[elId] = _getSize(s);
                 }
+                offsetTimestamps[elId] = timestamp;
             }
 			
 			if(offsets[elId] && !offsets[elId].right) {
@@ -3593,7 +3626,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -3910,7 +3943,7 @@
             // store this for next time.
             endpoint._continuousAnchorEdge = edgeId;
         };
-		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits) {
+		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 		
 			if (!jsPlumbInstance.isSuspendDrawing()) {
 				// get all the endpoints for this element
@@ -4017,7 +4050,7 @@
 	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
 	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
 				for (var i = 0; i < ep.length; i++) {				
-                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s });
+                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s, recalc:doNotRecalcEndpoint !== true });
 				}
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (var i = 0; i < endpointsToPaint.length; i++) {
@@ -4032,7 +4065,7 @@
 				for (var i = 0; i < endpointConnections.length; i++) {
 					var otherEndpoint = endpointConnections[i][1];
 					if (otherEndpoint.anchor.constructor == jsPlumb.DynamicAnchor) {			 							
-						otherEndpoint.paint({ elementWithPrecedence:elementId });								
+						otherEndpoint.paint({ elementWithPrecedence:elementId, timestamp:timestamp });								
 	                    jsPlumbUtil.addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 						// all the connections for the other endpoint now need to be repainted
 						for (var k = 0; k < otherEndpoint.connections.length; k++) {
@@ -4095,8 +4128,8 @@
             this.compute = function(params) {
                 return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
             };
-            this.getCurrentLocation = function(endpoint) {
-                return userDefinedContinuousAnchorLocations[endpoint.id] || continuousAnchorLocations[endpoint.id] || [0,0];
+            this.getCurrentLocation = function(params) {
+                return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
             };
             this.getOrientation = function(endpoint) {
                 return continuousAnchorOrientations[endpoint.id] || [0,0];
@@ -4182,7 +4215,13 @@
                     && o[0] == ao[0] && o[1] == ao[1];
         };
 
-        this.getCurrentLocation = function() { return lastReturnValue; };
+<<<<<<< HEAD
+        this.getCurrentLocation = function(params) { return lastReturnValue == null ? self.compute(params) : lastReturnValue; };
+=======
+        this.getCurrentLocation = function(params) { 
+            return (lastReturnValue == null || (params.timestamp != null && self.timestamp != params.timestamp)) ? self.compute(params) : lastReturnValue; 
+        };
+>>>>>>> weird_loopback_connections
         
         this.getUserDefinedLocation = function() { 
             return userDefinedLocation;
@@ -4214,7 +4253,8 @@
             jsPlumbInstance = params.jsPlumbInstance,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,
-            size = jpcl.getSize(jpcl.getElementObject(refCanvas)),                
+            size = jpcl.getSize(jpcl.getElementObject(refCanvas)), 
+            self = this,               
 
         // these are used to store the current relative position of our
         // anchor wrt the reference anchor. they only indicate
@@ -4273,7 +4313,7 @@
          */
         this.out = function() { orientation = null; };
 
-        this.getCurrentLocation = function() { return _lastResult; };
+        this.getCurrentLocation = function(params) { return _lastResult == null ? self.compute(params) : _lastResult; };
     };
 
     /* 
@@ -4363,8 +4403,8 @@
             return _curAnchor.compute(params);
         };
 
-        this.getCurrentLocation = function() {
-            return self.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation() : null);
+        this.getCurrentLocation = function(params) {
+            return self.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation(params) : null);
         };
 
         this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };
@@ -4388,7 +4428,7 @@
     _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
     _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
     _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
-    // from 1.4.1: Top, Right, Bottom, Left
+    // from 1.4.2: Top, Right, Bottom, Left
     _curryAnchor(0.5, 0, 0,-1, "Top");
     _curryAnchor(0.5, 1, 0, 1, "Bottom");
     _curryAnchor(0, 0.5, -1, 0, "Left");
@@ -4967,7 +5007,7 @@
          * private but must be exposed.
          */
         self.makeInPlaceCopy = function() {
-            var loc = self.anchor.getCurrentLocation(self),
+            var loc = self.anchor.getCurrentLocation({element:self}),
                 o = self.anchor.getOrientation(self),
                 acc = self.anchor.getCssClass(),
                 inPlaceAnchor = {
@@ -5058,18 +5098,17 @@
             params = params || {};
             var timestamp = params.timestamp, recalc = !(params.recalc === false);								
             if (!timestamp || self.timestamp !== timestamp) {						
-                var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });
+                
+                // TODO is this is a safe performance enhancement?
+                //var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp/*, recalc:recalc*/ });
+                var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });              
+
                 var xy = params.offset ? params.offset.o : info.o;
-                if(xy) {
+                if(xy != null) {
                     var ap = params.anchorPoint,connectorPaintStyle = params.connectorPaintStyle;
                     if (ap == null) {
-                        var wh = params.dimensions || info.s;
-                        if (xy == null || wh == null) {
-                            info = _jsPlumb.updateOffset( { elId : _elementId, timestamp : timestamp });
-                            xy = info.o;
-                            wh = info.s;
-                        }
-                        var anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
+                        var wh = params.dimensions || info.s,                       
+                            anchorParams = { xy : [ xy.left, xy.top ], wh : wh, element : self, timestamp : timestamp };
                         if (recalc && self.anchor.isDynamic && self.connections.length > 0) {
                             var c = findConnectionToUseForDynamicAnchor(params.elementWithPrecedence),
                                 oIdx = c.endpoints[0] == self ? 1 : 0,
@@ -5980,17 +6019,19 @@
         var lastPaintedAt = null;			
         this.paint = function(params) {
             
-            if (visible) {
+            if (!_jsPlumb.isSuspendDrawing() && visible) {
                     
                 params = params || {};
                 var elId = params.elId, ui = params.ui, recalc = params.recalc, timestamp = params.timestamp,
                     // if the moving object is not the source we must transpose the two references.
                     swap = false,
-                    tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,
-                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;
+                    tId = swap ? this.sourceId : this.targetId, sId = swap ? this.targetId : this.sourceId,                    
+                    tIdx = swap ? 0 : 1, sIdx = swap ? 1 : 0;//,
+                    //tId = this.endpoints[tIdx].elementId,
+                    //sId = this.endpoints[sIdx].elementId;
 
                 if (timestamp == null || timestamp != lastPaintedAt) {                        
-                    var sourceInfo = _jsPlumb.updateOffset( { elId : elId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
+                    var sourceInfo = _jsPlumb.updateOffset( { elId : sId, offset : ui, recalc : recalc, timestamp : timestamp }).o,
                         targetInfo = _jsPlumb.updateOffset( { elId : tId, timestamp : timestamp }).o, // update the target if this is a forced repaint. otherwise, only the source has been moved.
                         sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
 
@@ -6000,8 +6041,12 @@
                         connector.setEdited(false);
                     }
                     
-                    var sAnchorP = sE.anchor.getCurrentLocation(sE),				
-                        tAnchorP = tE.anchor.getCurrentLocation(tE);                                
+                    var sAnchorP = sE.anchor.getCurrentLocation({xy:[sourceInfo.left,sourceInfo.top], wh:[sourceInfo.width, sourceInfo.height], element:sE, timestamp:timestamp}),				
+<<<<<<< HEAD
+                        tAnchorP = tE.anchor.getCurrentLocation({xy:[targetInfo.left,targetInfo.top], wh:[targetInfo.width, targetInfo.height], element:tE, timestamp:timestamp});                                
+=======
+                        tAnchorP = tE.anchor.getCurrentLocation({xy:[targetInfo.left,targetInfo.top], wh:[targetInfo.width, targetInfo.height], element:tE, timestamp:timestamp});                                                 
+>>>>>>> weird_loopback_connections
                         
                     connector.resetBounds();
 
@@ -6079,7 +6124,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -6119,7 +6164,7 @@
         /*
          * Class: AbstractSegment
          * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
-         * 'Bezier'. This is new from 1.4.1, and gives us a lot more flexibility when drawing connections: things such
+         * 'Bezier'. This is new from 1.4.2, and gives us a lot more flexibility when drawing connections: things such
          * as rounded corners for flowchart connectors, for example, or a straight line stub for Bezier connections, are
          * much easier to do now.
          *
@@ -6218,10 +6263,14 @@
              */            
             this.pointAlongPathFrom = function(location, distance, absolute) {            
                 var p = self.pointOnPath(location, absolute),
-                    farAwayPoint = location == 1 ? {
-                        x:x1 + ((x2 - x1) * 10),
-                        y:y1 + ((y1 - y2) * 10)
-                    } : distance <= 0 ? {x:x1, y:y1} : {x:x2, y:y2 };
+                    farAwayPoint = distance <= 0 ? {x:x1, y:y1} : {x:x2, y:y2 };
+
+                /*
+                location == 1 ? {
+                                        x:x1 + ((x2 - x1) * 10),
+                                        y:y1 + ((y1 - y2) * 10)
+                                    } : 
+                */
     
                 if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
     
@@ -7515,7 +7564,7 @@
 })();/*
  * jsPlumb
  *
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -7781,7 +7830,7 @@
     *//*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -8142,7 +8191,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -8635,7 +8684,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -9227,7 +9276,7 @@
 })();/*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  

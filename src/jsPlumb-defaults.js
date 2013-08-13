@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -41,7 +41,7 @@
         /*
          * Class: AbstractSegment
          * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
-         * 'Bezier'. This is new from 1.4.1, and gives us a lot more flexibility when drawing connections: things such
+         * 'Bezier'. This is new from 1.4.2, and gives us a lot more flexibility when drawing connections: things such
          * as rounded corners for flowchart connectors, for example, or a straight line stub for Bezier connections, are
          * much easier to do now.
          *
@@ -140,10 +140,14 @@
              */            
             this.pointAlongPathFrom = function(location, distance, absolute) {            
                 var p = self.pointOnPath(location, absolute),
-                    farAwayPoint = location == 1 ? {
-                        x:x1 + ((x2 - x1) * 10),
-                        y:y1 + ((y1 - y2) * 10)
-                    } : distance <= 0 ? {x:x1, y:y1} : {x:x2, y:y2 };
+                    farAwayPoint = distance <= 0 ? {x:x1, y:y1} : {x:x2, y:y2 };
+
+                /*
+                location == 1 ? {
+                                        x:x1 + ((x2 - x1) * 10),
+                                        y:y1 + ((y1 - y2) * 10)
+                                    } : 
+                */
     
                 if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
     
@@ -515,10 +519,11 @@
                 return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
             },		
             _addSegment = function(type, params) {
+                if (params.x1 == params.x2 && params.y1 == params.y2) return;
                 var s = new jsPlumb.Segments[type](params);
                 segments.push(s);
                 totalLength += s.getLength();	
-                self.updateBounds(s);	                
+                self.updateBounds(s);	                                
             },					
             _clearSegments = function() {
                 totalLength = 0;

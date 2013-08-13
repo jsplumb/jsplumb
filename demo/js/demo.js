@@ -6,7 +6,7 @@
 
 	window.jsPlumbDemo = {
 			
-		init : function() {
+		init : function() {			
 			
 			jsPlumb.importDefaults({
 				DragOptions : { cursor: "pointer", zIndex:2000 },
@@ -207,6 +207,7 @@
 			// that enables me to reuse this code across all three libraries. In your own usage of jsPlumb you can use
 			// your library's selector method - "$" for jQuery, "$$" for MooTools, "Y.all" for YUI3.
 			jsPlumb.draggable(jsPlumb.getSelector(".window"), { containment:".demo"});            
+
 		}
 	};	
 })();

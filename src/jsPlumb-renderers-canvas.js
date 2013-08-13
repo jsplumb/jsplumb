@@ -1,12 +1,12 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
  * 
- * This file contains the HTML5 canvas renderers.  Support for canvas was dropped in 1.4.1.
+ * This file contains the HTML5 canvas renderers.  Support for canvas was dropped in 1.4.2.
  * This is being kept around because canvas might make a comeback as a single-page solution
  * that also supports node rendering.
  *
@@ -20,32 +20,6 @@
  */
 
 ;(function() {
-
-// event binding from jsplumb.  canvas no longer supported.  but it may make a comeback in 
-// the form of a single-page canvas.
-
-/*var bindOne = function(event) {
-                    jsPlumb.CurrentLibrary.bind(document, event, function(e) {
-                        if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
-                            // try connections first
-                            for (var scope in connectionsByScope) {
-                                var c = connectionsByScope[scope];
-                                for (var i = 0, ii = c.length; i < ii; i++) {
-                                    var t = c[i].getConnector()[event](e);
-                                    if (t) return;	
-                                }
-                            }
-                            for (var el in endpointsByElement) {
-                                var ee = endpointsByElement[el];
-                                for (var i = 0, ii = ee.length; i < ii; i++) {
-                                    if (ee[i].endpoint[event](e)) return;
-                                }
-                            }
-                        }
-                    });					
-				};
-				bindOne("click");bindOne("dblclick");bindOne("mousemove");bindOne("mousedown");bindOne("mouseup");bindOne("contextmenu");
-				*/
 
 	
 // ********************************* CANVAS RENDERERS FOR CONNECTORS AND ENDPOINTS *******************************************************************
@@ -178,9 +152,10 @@
 		({
 			"Straight":function(segment, ctx, style, dx, dy) {
 				var d = segment.params;
+				ctx.save();
 				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x1, d.y1, d.x2, d.y2); });
 				ctx.beginPath();
-				ctx.translate(dx/2, dy/2);
+				ctx.translate(dx, dy);				
 				if (style.dashstyle && style.dashstyle.split(" ").length === 2) {			
 					// only a very simple dashed style is supported - having two values, which define the stroke length 
 					// (as a multiple of the stroke width) and then the space length (also as a multiple of stroke width). 
@@ -222,7 +197,7 @@
 
 					// now draw the last bit
 					ctx.moveTo(curPos[0], curPos[1]);
-					ctx.lineTo(d.x2, d.y2);		
+					ctx.lineTo(d.x2, d.y2);							
 
 				}	        
 		        else {
@@ -231,26 +206,28 @@
 		        }				
 
 				ctx.stroke();
+
+				ctx.restore();
 			},
 			"Bezier":function(segment, ctx, style, dx, dy) {				
 				var d = segment.params;
+				ctx.save();
 				maybeMakeGradient(ctx, style, function() { return ctx.createLinearGradient(d.x2 + dx, d.y2 + dy, d.x1 + dx, d.y1 + dy); });
 				ctx.beginPath();
 				ctx.translate(dx, dy);
 				ctx.moveTo(d.x1, d.y1);
 				ctx.bezierCurveTo(d.cp1x, d.cp1y, d.cp2x, d.cp2y, d.x2, d.y2);
 				ctx.stroke();
+				ctx.restore();
 			},
 			"Arc":function(segment, ctx, style, dx, dy) {
 				var d = segment.params;
+				ctx.save();
 				ctx.beginPath();
-				// arcTo is supported in most browsers i think; this is what we will use once the arc segment is a little more clever.
-				// right now its up to the connector to figure out the geometry. well, maybe that's ok.
-				//ctx.moveTo(d.x1, d.y1);
-				//ctx.arcTo((d.x1 + d.x2) / 2, (d.y1 + d.y2) / 2, d.r);
-				ctx.translate(dx, dy);
-				ctx.arc(d.cx, d.cy, d.r, d.startAngle, d.endAngle, d.c);
+				ctx.translate(dx, dy);				
+				ctx.arc(d.cx, d.cy, d.r, segment.startAngle, segment.endAngle, d.ac);
 				ctx.stroke();
+				ctx.restore();
 			}
 		})[segment.type](segment, ctx, style, dx, dy);	
 	};
@@ -391,7 +368,9 @@
 		            	g.addColorStop(style.gradient.stops[i][0], style.gradient.stops[i][1]);
 		            ctx.fillStyle = g;
 	            }				
-				ctx.beginPath();    		
+				ctx.beginPath();    
+				//ctx.translate(dx, dy);		
+				console.dir(self)
 				ctx.arc(self.radius, self.radius, self.radius, 0, Math.PI*2, true);
 				ctx.closePath();				
 				if (style.fillStyle || style.gradient) ctx.fill();
@@ -525,6 +504,7 @@
     		var ctx = params.component.ctx, d = params.d;
     		
     		if (d) {
+    			ctx.save();
 				ctx.lineWidth = params.lineWidth;
 				ctx.beginPath();
 				ctx.translate(params.component.translateX, params.component.translateY);
@@ -543,6 +523,7 @@
 					ctx.fillStyle = params.fillStyle;			
 					ctx.fill();
 				}
+				ctx.restore();
 			}
     	};
     }; 

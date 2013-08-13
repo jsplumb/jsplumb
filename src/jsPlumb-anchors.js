@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.4.1
+ * Title:jsPlumb 1.4.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -318,7 +318,7 @@
             // store this for next time.
             endpoint._continuousAnchorEdge = edgeId;
         };
-		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits) {
+		this.redraw = function(elementId, ui, timestamp, offsetToUI, clearEdits, doNotRecalcEndpoint) {
 		
 			if (!jsPlumbInstance.isSuspendDrawing()) {
 				// get all the endpoints for this element
@@ -425,7 +425,7 @@
 	            // TODO performance: add the endpoint ids to a temp array, and then when iterating in the next
 	            // loop, check that we didn't just paint that endpoint. we can probably shave off a few more milliseconds this way.
 				for (var i = 0; i < ep.length; i++) {				
-                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s });
+                    ep[i].paint( { timestamp : timestamp, offset : myOffset, dimensions : myOffset.s, recalc:doNotRecalcEndpoint !== true });
 				}
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (var i = 0; i < endpointsToPaint.length; i++) {
@@ -440,7 +440,7 @@
 				for (var i = 0; i < endpointConnections.length; i++) {
 					var otherEndpoint = endpointConnections[i][1];
 					if (otherEndpoint.anchor.constructor == jsPlumb.DynamicAnchor) {			 							
-						otherEndpoint.paint({ elementWithPrecedence:elementId });								
+						otherEndpoint.paint({ elementWithPrecedence:elementId, timestamp:timestamp });								
 	                    jsPlumbUtil.addWithFunction(connectionsToPaint, endpointConnections[i][0], function(c) { return c.id == endpointConnections[i][0].id; });
 						// all the connections for the other endpoint now need to be repainted
 						for (var k = 0; k < otherEndpoint.connections.length; k++) {
@@ -503,8 +503,8 @@
             this.compute = function(params) {
                 return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
             };
-            this.getCurrentLocation = function(endpoint) {
-                return userDefinedContinuousAnchorLocations[endpoint.id] || continuousAnchorLocations[endpoint.id] || [0,0];
+            this.getCurrentLocation = function(params) {
+                return userDefinedContinuousAnchorLocations[params.element.id] || continuousAnchorLocations[params.element.id] || [0,0];
             };
             this.getOrientation = function(endpoint) {
                 return continuousAnchorOrientations[endpoint.id] || [0,0];
@@ -590,7 +590,9 @@
                     && o[0] == ao[0] && o[1] == ao[1];
         };
 
-        this.getCurrentLocation = function() { return lastReturnValue; };
+        this.getCurrentLocation = function(params) { 
+            return (lastReturnValue == null || (params.timestamp != null && self.timestamp != params.timestamp)) ? self.compute(params) : lastReturnValue; 
+        };
         
         this.getUserDefinedLocation = function() { 
             return userDefinedLocation;
@@ -622,7 +624,8 @@
             jsPlumbInstance = params.jsPlumbInstance,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,
-            size = jpcl.getSize(jpcl.getElementObject(refCanvas)),                
+            size = jpcl.getSize(jpcl.getElementObject(refCanvas)), 
+            self = this,               
 
         // these are used to store the current relative position of our
         // anchor wrt the reference anchor. they only indicate
@@ -681,7 +684,7 @@
          */
         this.out = function() { orientation = null; };
 
-        this.getCurrentLocation = function() { return _lastResult; };
+        this.getCurrentLocation = function(params) { return _lastResult == null ? self.compute(params) : _lastResult; };
     };
 
     /* 
@@ -745,6 +748,8 @@
             
             if(params.clearUserDefinedLocation)
                 userDefinedLocation = null;
+
+            self.timestamp = timestamp;            
             
             var udl = self.getUserDefinedLocation();
             if (udl != null) {
@@ -771,8 +776,8 @@
             return _curAnchor.compute(params);
         };
 
-        this.getCurrentLocation = function() {
-            return self.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation() : null);
+        this.getCurrentLocation = function(params) {
+            return self.getUserDefinedLocation() || (_curAnchor != null ? _curAnchor.getCurrentLocation(params) : null);
         };
 
         this.getOrientation = function(_endpoint) { return _curAnchor != null ? _curAnchor.getOrientation(_endpoint) : [ 0, 0 ]; };
@@ -796,7 +801,7 @@
     _curryAnchor(0.5, 1, 0, 1, "BottomCenter");
     _curryAnchor(0, 0.5, -1, 0, "LeftMiddle");
     _curryAnchor(1, 0.5, 1, 0, "RightMiddle");
-    // from 1.4.1: Top, Right, Bottom, Left
+    // from 1.4.2: Top, Right, Bottom, Left
     _curryAnchor(0.5, 0, 0,-1, "Top");
     _curryAnchor(0.5, 1, 0, 1, "Bottom");
     _curryAnchor(0, 0.5, -1, 0, "Left");

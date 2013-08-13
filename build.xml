@@ -75,7 +75,7 @@
 	<target name="concatLibrary">
 		<echo>Concatenating ${library}</echo>
 		<concat destfile="${output.js.dir}/${library}.jsPlumb-${final.version}-all.js">
-			<filelist dir="${dir}" files="jsPlumb-util.js, jsPlumb-dom-adapter.js, jsPlumb.js,jsPlumb-anchors.js,jsPlumb-endpoint.js,jsPlumb-connection.js,jsPlumb-defaults.js,jsPlumb-connectors-statemachine.js,jsPlumb-connectors-flowchart.js, jsPlumb-renderers-vml.js, jsPlumb-renderers-svg.js, ${library}.jsPlumb.js, ../lib/jsBezier-0.6-min.js"/>
+			<filelist dir="${dir}" files="jsPlumb-util.js, jsPlumb-dom-adapter.js, jsPlumb.js,jsPlumb-anchors.js,jsPlumb-endpoint.js,jsPlumb-connection.js,jsPlumb-defaults.js,jsPlumb-connectors-statemachine.js,jsPlumb-connectors-flowchart.js, jsPlumb-renderers-vml.js, jsPlumb-renderers-svg.js, jsPlumb-renderers-canvas.js, ${library}.jsPlumb.js, ../lib/jsBezier-0.6-min.js"/>
 		</concat>		
 	</target>    
 	
@@ -324,7 +324,10 @@
 		<replace dir="demo/mootools" token="${old}" value="${new}"/>
 		
 		<!-- replace version number in code -->
-		<replace dir="src" token="${old}" value="${new}"/>		
+		<replace dir="src" token="${old}" value="${new}"/>	
+
+		<!-- update build properties -->
+		<replace file="build.properties" token="${old}" value="${new}"/>	
 
 	</target>
 

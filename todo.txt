@@ -10,11 +10,79 @@ future
 
     - text on path (see demo)?
 
+    - performance tests: 
+        - single SVG element, many paths (what are mouse interaction/zindex ramifications?)
+        - single canvas (have to paint nodes). 
+        - VML groups.
+
 
     FAQ
 
         http://jsfiddle.net/sporritt/S4Fxk/12/   (connect to intermediate endpoint)
         http://jsfiddle.net/sporritt/ZUm7p/50/  (connect list items)
+
+        extending a connector:
+        jsPlumb.Connectors.Flowchart2 = function(params) {
+            jsPlumb.Connectors.Flowchart.apply(this, arguments);
+            var _c = this._compute;
+            this._compute = function(paintInfo, params) {
+                paintInfo.endStubX += 30;
+                _c(paintInfo, params);
+            }
+
+        };
+
+        ---
+
+        makeTarget when elements verlap:
+
+        https://groups.google.com/forum/?fromgroups#!topic/jsplumb/C9d217E34oo
+
+        dropOptions: {
+                          hoverClass: "dragHover",
+                          over: function(event, ui){
+                              $('.w').not(self.$el).droppable("disable");
+                          },
+                          out: function(event, ui){
+                              $('.w').droppable("enable");
+                          }
+                      }
+        
+        ---
+
+
+    Performance
+    -----------
+
+    What takes most of the time?
+
+        - jsBezier 
+
+            jsBezier load test with 100 000 curves took tens of milliseconds, so we can discount this.
+
+        - DOM relayouts
+
+            adding individual elements to the DOM, one for each connection/endpoint, causes dom relayouts.
+            is it possible to batch element creation using document fragments instead?
+
+        - getting offsets/size info
+
+            are there too many calls to updateOffset/getSize ?   
+
+            would i be better off just lifting a decent .offset function from somewhere?  then i could
+            take CSS3 transforms into account, and margins, and scroll.
+
+        - anchorManager
+
+            is the redraw routine in anchor manager optimized?
+
+        - native calls
+
+            would there be any gain in introducing a layer that used native methods like getElementById,
+            querySelector, querySelectorAll, and set CSS properties direvtly?  does el.classList exist in all
+            browsers?  does it work on SVG elements?  does it work on VML elements?
+
+        - 
 
 
 1.3.16
