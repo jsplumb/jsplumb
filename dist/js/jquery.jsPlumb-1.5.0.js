@@ -3709,10 +3709,10 @@
 		// does the work of setting a source enabled or disabled.
 		var _setEnabled = function(type, el, state, toggle) {
 			var a = type == "source" ? _sourcesEnabled : _targetsEnabled;									
+			el = _convertYUICollection(el);
 
 			if (_ju.isString(el)) a[el] = toggle ? !a[el] : state;
-			else if (el.length) {
-				el = _convertYUICollection(el);
+			else if (el.length) {				
 				for (var i = 0, ii = el.length; i < ii; i++) {
 					var info = _info(el[i]);
 					a[info.id] = toggle ? !a[info.id] : state;
