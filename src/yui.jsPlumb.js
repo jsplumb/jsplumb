@@ -302,7 +302,7 @@
 			_opts.node = "#" + id;	
 			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
 				Y.one(document.body).addClass(_jsPlumb.dragSelectClass);				
-			});	
+			}, false);	
 			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
 				Y.one(document.body).removeClass(_jsPlumb.dragSelectClass);
 			});	

@@ -395,7 +395,7 @@
                 }
                 if (returnOnThisValue == null || (r !== returnOnThisValue)) {
                     try {
-                        wrappedFunction.apply(this, arguments);
+                        r = wrappedFunction.apply(this, arguments);
                     } catch (e) {
                         jsPlumbUtil.log("wrapped function failed : " + e);
                     }

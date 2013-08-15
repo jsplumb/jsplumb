@@ -581,7 +581,7 @@
             
             dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
             dragOptions.scope = dragOptions.scope || this.scope;
-            dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start);
+            dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start, false);
             // extracted drag handler function so can be used by makeSource
             dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
             dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
