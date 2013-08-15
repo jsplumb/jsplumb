@@ -818,7 +818,7 @@
                 }
                 if (returnOnThisValue == null || (r !== returnOnThisValue)) {
                     try {
-                        wrappedFunction.apply(this, arguments);
+                        r = wrappedFunction.apply(this, arguments);
                     } catch (e) {
                         jsPlumbUtil.log("wrapped function failed : " + e);
                     }
@@ -4767,7 +4767,7 @@
             
             dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
             dragOptions.scope = dragOptions.scope || this.scope;
-            dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start);
+            dragOptions[startEvent] = _ju.wrap(dragOptions[startEvent], start, false);
             // extracted drag handler function so can be used by makeSource
             dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
             dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
@@ -10865,7 +10865,7 @@ TODO: REMOVE!
 
 			options["start"] = jsPlumbUtil.wrap(options["start"], function() {
 				$("body").addClass(_jsPlumb.dragSelectClass);
-			});
+			}, false);
 
 			options["stop"] = jsPlumbUtil.wrap(options["stop"], function() {
 				$("body").removeClass(_jsPlumb.dragSelectClass);
