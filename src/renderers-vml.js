@@ -197,6 +197,7 @@
 	};
 	jsPlumbUtil.extend(VmlComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {			
+			if (this.bgCanvas) jsPlumbUtil.removeElement(this.bgCanvas);
 			jsPlumbUtil.removeElement(this.canvas);            				
 		}
 	});
