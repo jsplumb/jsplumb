@@ -3524,7 +3524,7 @@
 																	
 									ep.setElement(parent, potentialParent);
 									ep.endpointWillMoveAfterConnection = false;														
-									_currentInstance.anchorManager.rehomeEndpoint(ep, currentId, parent);																					
+									//_currentInstance.anchorManager.rehomeEndpoint(ep, currentId, parent);																					
 									oldConnection.previousConnection = null;
 									// remove from connectionsByScope
 									jsPlumbUtil.removeWithFunction(connections, function(c) {
@@ -6044,7 +6044,7 @@
                     ep.connections[i].source = ep.element;                  
                     self.sourceChanged(currentId, ep.elementId, ep.connections[i]);
                 }
-                else {
+                else if(ep.connections[i].targetId == currentId) {
                     ep.connections[i].targetId = ep.elementId;
                     ep.connections[i].target = ep.element;   
                     self.updateOtherEndpoint(ep.connections[i].sourceId, currentId, ep.elementId, ep.connections[i]);               
