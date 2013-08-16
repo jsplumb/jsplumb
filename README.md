@@ -1,5 +1,5 @@
 # jsPlumb
-jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.4.1.
+jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.5.0.
 
 The project started out life on Google Code and was hosted there up until April 30, 2013.  From May 1st, 2013, jsPlumb lives on GitHub only.
 
@@ -7,7 +7,7 @@ If you're new to jsPlumb, please do take the time to read the [documentation](ht
 There are a few integration issues that you should be aware of: z-index needs special attention, for example.
 
 ## Project Structure
-At any time there is a built version in the `build` directory, which contains the concatenated and minified files, as well as a full set of demos and tests, and there is a version under development in `src`.  If taking something that is working and adapting it for your needs is what you want to do, use the files in the `build` directory.  If you need to work directly with the version in development - maybe there's a bug fix you need or whatever - you need the files in the `src` directory.
+At any time there is a built version in the `dist` directory, which contains the concatenated and minified files, as well as a full set of demos and tests, and there is a version under development in `src`.  If taking something that is working and adapting it for your needs is what you want to do, use the files in the `dist` directory.  If you need to work directly with the version in development - maybe there's a bug fix you need or whatever - you need the files in the `src` directory.
 
 Note that the demos in the `demos` directory are always pointing at the current development version, and therefore have a long list of imports.  
 
