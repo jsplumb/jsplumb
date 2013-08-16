@@ -38,7 +38,7 @@ var JS_BEZIER = "0.6", // current js bezier version
     getJsBezier = function() { return "lib/jsBezier-" + JS_BEZIER + ".js"; },
     libraries = [ "jquery", "mootools", "yui" ],
     runtimeLibraries = {
-        jquery:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js'></script><script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js'></script><script type='text/javascript' src='../js/jquery.ui.touch-punch.min.js'></script>",
+        jquery:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script type='text/javascript' src='../../lib/jquery.ui.touch-punch.min.js'></script>",
         mootools:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>",
         yui:""
     }
