@@ -1,0 +1,147 @@
+<h1><code ng:non-bindable="">@doc DocTypes</code>
+<span class="hint"></span>
+</h1>
+<div><h2 id="64docdoctypesarethedefaultdoctypes">&#64;doc DocTypes are the Default DocTypes</h3>
+
+ <code class="plain">@doc</code>  documentation plugin contain the default docTypes that all plugins inherit from. Unless they are overriden, they will be available for every documentation plugin.</p>
+
+<h2 id="doctypes">DocTypes</h3>
+
+<ul class="properties">
+    <li>
+        <h3 id="annotate">@doc overview ( <a href="documentation/docular/docularinstall/installnode">example</a> ) </h4>
+        <div class="annotate">
+            <p>The  <code>overview</code>  docType is meant to simply render whatever is within the "@description". Note, this page was rendered as an overview.</p>
+
+            <h4>Expected Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>id</code>  : Must be provided, or "@name" must be provided.
+                    <pre class="prettyprint linenums">@id &lt;id&gt;</pre>
+                </li>
+                <li>
+                     <code>name</code>  : Optional, unless "@id" is not provided. Value displays in menus and as the titles.
+                    <pre class="prettyprint linenums">@name &lt;name&gt;</pre>
+                </li>
+                <li>
+                     <code>description</code>  :
+                    <pre class="prettyprint linenums">@description &lt;multi-line description&gt; </pre>
+                </li>
+            </ul>
+        </div>
+    </li>
+</ul>
+
+<ul class="properties">
+    <li>
+        <h3 id="annotate">@doc module ( <a href="documentation/docular/docular/docular">example</a> ) </h4>
+        <div class="annotate">
+            <p>The  <code>module</code>  docType generates a bit of a 'splash' page where you can talk generally about the module. It will print out the "@name" attribute which should match the "@id" of the module. You can then use the "@description" to provide more information and quick links.</p>
+
+            <h4>Expected Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>id</code>  : Must be provided, or "@name" must be provided.
+                    <pre class="prettyprint linenums">@id &lt;id&gt;</pre>
+                </li>
+                <li>
+                     <code>name</code>  : Optional, unless "@id" is not provided. Value displays in menus and as the titles.
+                    <pre class="prettyprint linenums">@name &lt;name&gt;</pre>
+                </li>
+                <li>
+                     <code>description</code>  :
+                    <pre class="prettyprint linenums">@description &lt;multi-line description&gt; </pre>
+                </li>
+            </ul>
+        </div>
+    </li>
+</ul>
+
+<ul class="properties">
+    <li>
+        <h3 id="annotate">@doc function ( <a href="/documentation/example/doctypes/doctypes_doc.class:doc_function">example</a> )</h4>
+        <div class="annotate">
+            <p>The  <code>function</code>  docType is used as a single function or method</p>
+
+            <h4>Expected Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>id</code>  : Must be provided, or "@name" must be provided.
+                    <pre class="prettyprint linenums">@id &lt;id&gt;</pre>
+                </li>
+                <li>
+                     <code>name</code>  : Optional, unless "@id" is not provided. Value displays in menus and as the titles.
+                    <pre class="prettyprint linenums">@name &lt;name&gt;</pre>
+                </li>
+            </ul>
+
+            <h4>Optional Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>returns</code> :
+                    <pre class="prettyprint linenums">@returns {&lt;type&gt;} &lt;description of return value&gt;</pre>
+                </li>
+                <li>
+                     <code>param</code>  : Provide one param for each param that the function accepts
+                    <pre class="prettyprint linenums">@param {&lt;type&gt;} &lt;description of param&gt;</pre>
+                </li>
+                <li>
+                     <code>description</code>  :
+                    <pre class="prettyprint linenums">@description &lt;multi-line description&gt; </pre>
+                </li>
+            </ul>
+
+        </div>
+    </li>
+</ul>
+
+<ul class="properties">
+    <li>
+        <h3 id="annotate">@doc method ( <a href="/documentation/example/doctypes/doctypes_doc.class:doc_method">example</a> )</h4>
+        <div class="annotate">
+            <p>SEE  <code class="plain">@doc function</code> 
+        </div>
+    </li>
+</ul>
+
+<ul class="properties">
+    <li>
+        <h3 id="annotate">@doc interface ( <a href="/documentation/example/doctypes/doctypes_doc.class:doc_interface">example</a> )</h4>
+        <div class="annotate">
+            <h4>Expected Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>id</code>  : Must be provided, or "@name" must be provided.
+                    <pre class="prettyprint linenums">@id &lt;id&gt;</pre>
+                </li>
+                <li>
+                     <code>name</code>  : Optional, unless "@id" is not provided. Value displays in menus and as the titles.
+                    <pre class="prettyprint linenums">@name &lt;name&gt;</pre>
+                </li>
+            </ul>
+
+            <h4>Optional Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>property</code>  : Provide as many as necessary
+                    <pre class="prettyprint linenums">@property {&lt;type&gt;} &lt;property name&gt; &lt;description&gt; &lt;id&gt;</pre>
+                </li>
+                <li>
+                     <code>description</code>  :
+                    <pre class="prettyprint linenums">@description &lt;multi-line description&gt; </pre>
+                </li>
+            </ul>
+        </div>
+    </li>
+</ul>
+
+<ul class="properties">
+    <li>
+        <h3 id="annotate">@doc object ( <a href="/documentation/example/doctypes/doctypes_doc.class:doc_object">example</a> )</h4>
+        <div class="annotate">
+            <p>SEE  <code class="plain">@doc interface</code> 
+        </div>
+    </li>
+</ul>
+
+<p><pager></pager></p></div>

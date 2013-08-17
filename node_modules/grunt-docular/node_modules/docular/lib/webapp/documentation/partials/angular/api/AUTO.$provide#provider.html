@@ -1,0 +1,23 @@
+<h1><code ng:non-bindable="">provider</code>
+<span class="hint">( service in module <code ng:non-bindable="">AUTO</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Register a provider for a service. The providers can be retrieved and can have additional configuration methods.</p></div>
+<h2 id="Parameters">Parameters</h2>
+<ul class="parameters"><li><code class="plain">name – {string} – </code>
+<p>The name of the instance. NOTE: the provider will be available under  <code class="plain">name + 'Provider'</code>  key.</p></li>
+<li><code class="plain">provider – {(Object|function())} – </code>
+<p>If the provider is:</p>
+
+<ul>
+<li> <code class="plain">Object</code> : then it should have a  <code class="plain">$get</code>  method. The  <code class="plain">$get</code>  method will be invoked using
+          <a href="documentation/angular/api/AUTO.$injector#invoke"><code>$injector.invoke()</code></a> when an instance needs to be created.</li>
+<li> <code class="plain">Constructor</code> : a new instance of the provider will be created using
+          <a href="documentation/angular/api/AUTO.$injector#instantiate"><code>$injector.instantiate()</code></a>, then treated as  <code class="plain">object</code> .</li>
+</ul></li>
+</ul>
+<h2 id="Returns">Returns</h2>
+<div class="returns"><code class="plain">{Object}</code>
+– <p>registered provider instance</p></div>
+</div>

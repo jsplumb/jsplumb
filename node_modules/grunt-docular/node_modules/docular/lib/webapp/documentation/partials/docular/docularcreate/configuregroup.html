@@ -1,0 +1,40 @@
+<h1><code ng:non-bindable="">First Documentation Group</code>
+<span class="hint"></span>
+</h1>
+<div><p>So you have read about the grunt-docular configuration for <a href="documentation/docular/docularconfigure/groups">documentation groups</a>. Now you need to add a group to this configuration. Let's create a bucket for all our example code into your Gruntfile.js file.</p>
+
+<pre class="prettyprint linenums">module.exports = function(grunt) {
+
+    // Project configuration
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [
+                {
+                    groupTitle: 'Example Docs',
+                    groupId: 'example',
+                    groupIcon: 'icon-beer',
+                    sections: []
+                }
+            ],
+            //other configurations ommitted here for simplicity
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+</pre>
+
+<h2 id="groupcomplete">Group Complete!</h3>
+
+<p>That's it for creating a group. The only things needed are some identifiers and an icon to help distinguish it from other groups. Now it is time to create your first section that will actually point to your documentation files.</p>
+
+<p><pager></pager></p></div>

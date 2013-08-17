@@ -1,0 +1,32 @@
+<h1><code ng:non-bindable="">reject</code>
+<span class="hint">( service in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Creates a promise that is resolved as rejected with the specified  <code class="plain">reason</code> . This api should be
+used to forward rejection in a chain of promises. If you are dealing with the last promise in
+a promise chain, you don't need to worry about it.</p>
+
+<p>When comparing deferreds/promises to the familiar behavior of try/catch/throw, think of
+ <code class="plain">reject</code>  as the  <code class="plain">throw</code>  keyword in JavaScript. This also means that if you "catch" an error via
+a promise error callback and you want to forward the error to the promise derived from the
+current promise, you have to "rethrow" the error by returning a rejection constructed via
+ <code class="plain">reject</code> .</p>
+
+<pre class="prettyprint linenums">
+  promiseB = promiseA.then(function(result) {
+    // success: do something and resolve promiseB
+    //          with the old or a new result
+    return result;
+  }, function(reason) {
+    // error: handle the error if possible and
+    //        resolve promiseB with newPromiseOrValue,
+    //        otherwise forward the rejection to promiseB
+    if (canHandle(reason)) {
+     // handle the error and recover
+     return newPromiseOrValue;
+    }
+    return $q.reject(reason);
+  });
+</pre></div>
+</div>

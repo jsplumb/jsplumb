@@ -1,0 +1,129 @@
+<h1><code ng:non-bindable="">@ngdoc DocTypes</code>
+<span class="hint"></span>
+</h1>
+<div><p>The  <code class="plain">@ngdoc</code>  documentation plugin inherits all docTypes from the default  <code class="plain">@doc</code>  documentation plugin and adds in the following docTypes. Check out the 'expected', and 'optional' fields each docType expects and click 'example' to view a rendered example.</p>
+
+<h2 id="doctypes">DocTypes</h3>
+
+<ul class="properties">
+    <li>
+        <h3 id="annotate">@ngdoc directive ( <a href="/documentation/example/doctypes/doctypes_ngdoc.directive:directive_example">example</a> ) </h4>
+        <div class="annotate">
+            <p>The  <code>directive</code>  docType provides an overview for the usage of an <a href="/documentation/angular/guide/directive">AngularJS directive</a>.</p>
+
+            <h4>Expected Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>id</code>  : Must be provided, or "@name" must be provided.
+                    <pre class="prettyprint linenums">@id &lt;id&gt;</pre>
+                </li>
+                <li>
+                     <code>name</code>  : Optional, unless "@id" is not provided. Value displays in menus and as the titles.
+                    <pre class="prettyprint linenums">@name &lt;name&gt;</pre>
+                </li>
+                <li>
+                     <code>element</code>  : Describes how this directive is used by specifying one of the following element types: "ANY", "ELEMENT, or "ATTRIBUTE".
+                    <pre class="prettyprint linenums">@element &lt;element type&gt;</pre>
+                </li>
+            </ul>
+
+            <h4>Optional Parameters</h4>
+            <ul class="parameters">
+                <li>
+                     <code>description</code>  :
+                    <pre class="prettyprint linenums">@description &lt;multi-line description&gt; </pre>
+                </li>
+                <li>
+                     <code>example</code>  :
+                    <pre class="prettyprint linenums">@example &lt;multi-line markup parsed as an example object&gt; </pre>
+                    More documentation coming here. This may not be usable easily for third party code without a lot of effort.
+                </li>
+            </ul>
+            <h4>Sample Doc</h4>
+            <pre class="prettyprint linenums">
+/**
+ * &#64;ngdoc directive
+ * &#64;name module.directive:sample
+ * &#64;element ANY
+ * &#64;description
+ * This is a sample description.
+ */
+            </pre>
+        </div>
+    </li>
+
+    <li>
+        <h3 id="annotate">@ngdoc filter ( <a href="/documentation/example/doctypes/doctypes_ngdoc.filter:filter_example">example</a> ) </h4>
+        <div class="annotate">
+            <p>The  <code>filter</code>  docType provides an overview for the usage of an <a href="/documentation/angular/guide/dev_guide.templates.filters">AngularJS filter</a>.</p>
+
+            <h4>Expected Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>id</code>  : Must be provided, or "@name" must be provided.
+                    <pre class="prettyprint linenums">@id &lt;id&gt;</pre>
+                </li>
+                <li>
+                     <code>name</code>  : Optional, unless "@id" is not provided. Value displays in menus and as the titles.
+                    <pre class="prettyprint linenums">@name &lt;name&gt;</pre>
+                </li>
+            </ul>
+
+            <h4>Optional Parameters</h4>
+            <ul class="parameters">
+                <li>
+                     <code>description</code>  :
+                    <pre class="prettyprint linenums">@description &lt;multi-line description&gt; </pre>
+                </li>
+            </ul>
+            <h4>Sample Doc</h4>
+            <pre class="prettyprint linenums">
+/**
+ * &#64;ngdoc filter
+ * &#64;name module.filter:sample
+ * &#64;description
+ * This is a sample description.
+ */
+            </pre>
+        </div>
+    </li>
+
+    <li>
+        <h3 id="annotate">@ngdoc service ( <a href="/documentation/example/doctypes/doctypes_ngdoc.service:service_example">example</a> ) </h4>
+        <div class="annotate">
+            <p>The  <code>service</code>  docType provides an overview for the usage of an <a href="/documentation/angular/guide/dev_guide.services">AngularJS service</a>.</p>
+
+            <h4>Expected Params</h4>
+            <ul class="parameters">
+                <li>
+                     <code>id</code>  : Must be provided, or "@name" must be provided.
+                    <pre class="prettyprint linenums">@id &lt;id&gt;</pre>
+                </li>
+                <li>
+                     <code>name</code>  : Optional, unless "@id" is not provided. Value displays in menus and as the titles.
+                    <pre class="prettyprint linenums">@name &lt;name&gt;</pre>
+                </li>
+            </ul>
+
+            <h4>Optional Parameters</h4>
+            <ul class="parameters">
+                <li>
+                     <code>description</code>  :
+                    <pre class="prettyprint linenums">@description &lt;multi-line description&gt; </pre>
+                </li>
+            </ul>
+            <h4>Sample Doc</h4>
+            <pre class="prettyprint linenums">
+/**
+ * &#64;ngdoc service
+ * &#64;name module.service:sample
+ * &#64;description
+ * This is a sample description.
+ */
+            </pre>
+        </div>
+    </li>
+
+</ul>
+
+<p><pager></pager></p></div>

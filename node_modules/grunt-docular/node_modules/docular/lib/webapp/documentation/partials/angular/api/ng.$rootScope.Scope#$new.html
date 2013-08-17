@@ -1,0 +1,28 @@
+<h1><code ng:non-bindable="">$new</code>
+<span class="hint">( type in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Creates a new child <a href="documentation/angular/api/ng.$rootScope.Scope"><code>scope</code></a>.</p>
+
+<p>The parent scope will propagate the <a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest()</code></a> and
+<a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest()</code></a> events. The scope can be removed from the scope
+hierarchy using <a href="documentation/angular/api/ng.$rootScope.Scope#$destroy"><code>$destroy()</code></a>.</p>
+
+<p><a href="documentation/angular/api/ng.$rootScope.Scope#$destroy"><code>$destroy()</code></a> must be called on a scope when it is desired for
+the scope and its child scopes to be permanently detached from the parent and thus stop
+participating in model change detection and listener notification by invoking.</p></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">Scope#$new(isolate);</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">isolate – {boolean} – </code>
+<p>if true then the scope does not prototypically inherit from the
+parent scope. The scope is isolated, as it can not see parent scope properties.
+When creating widgets it is useful for the widget to not accidentally read parent
+state.</p></li>
+</ul>
+<h3 id="Returns">Returns</h3>
+<div class="returns"><code class="plain">{Object}</code>
+– <p>The newly created child scope.</p></div>
+</div>
+</div>

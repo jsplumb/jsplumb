@@ -1,0 +1,104 @@
+<h1><code ng:non-bindable="">ngShow</code>
+<span class="hint">( directive in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>The  <code class="plain">ngShow</code>  and  <code class="plain">ngHide</code>  directives show or hide a portion of the DOM tree (HTML)
+conditionally based on <strong>"truthy"</strong> values evaluated within an {expression}. In other
+words, if the expression assigned to <strong>ngShow evaluates to a true value</strong> then <strong>the element is set to visible</strong>
+(via  <code class="plain">display:block</code>  in css) and <strong>if false</strong> then <strong>the element is set to hidden</strong> (so display:none).
+With ngHide this is the reverse whereas true values cause the element itself to become
+hidden.</p>
+
+<p>Additionally, you can also provide animations via the ngAnimate attribute to animate the <strong>show</strong>
+and <strong>hide</strong> effects.</p></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;ANY ng-show="{expression}"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+as class<pre class="prettyprint linenums">&lt;ANY class="ng-show: {expression};"&gt;
+   ...
+&lt;/ANY&gt;</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">ngShow – {expression} – </code>
+<p>If the <a href="documentation/angular/guide/expression">expression</a> is truthy
+then the element is shown or hidden respectively.</p></li>
+</ul>
+</div>
+<h2 id="Example">Example</h2>
+<div class="example"><p><example animations="true">
+<file name="index.html">
+  Click me: <input type="checkbox" ng-model="checked"><br/>
+  <div>
+    Show:
+    <span class="check-element"
+          ng-show="checked"
+          ng-animate="{show: 'example-show', hide: 'example-hide'}">
+      <span class="icon-thumbs-up"></span> I show up when your checkbox is checked.
+    </span>
+  </div>
+  <div>
+    Hide:
+    <span class="check-element"
+          ng-hide="checked"
+          ng-animate="{show: 'example-show', hide: 'example-hide'}">
+      <span class="icon-thumbs-down"></span> I hide when your checkbox is checked.
+    </span>
+  </div>
+</file>
+<file name="animations.css">
+  .example-show-setup, .example-hide-setup {
+    -webkit-transition:all linear 0.5s;
+    -moz-transition:all linear 0.5s;
+    -ms-transition:all linear 0.5s;
+    -o-transition:all linear 0.5s;
+    transition:all linear 0.5s;
+  }</p>
+
+<p>.example-show-setup {
+    line-height:0;
+    opacity:0;
+    padding:0 10px;
+  }
+  .example-show-start.example-show-start {
+    line-height:20px;
+    opacity:1;
+    padding:10px;
+    border:1px solid black;
+    background:white;
+  }</p>
+
+<p>.example-hide-setup {
+    line-height:20px;
+    opacity:1;
+    padding:10px;
+    border:1px solid black;
+    background:white;
+  }
+  .example-hide-start.example-hide-start {
+    line-height:0;
+    opacity:0;
+    padding:0 10px;
+  }</p>
+
+<p>.check-element {
+    padding:10px;
+    border:1px solid black;
+    background:white;
+  }
+</file>
+<file name="scenario.js">
+   it('should check ng-show / ng-hide', function() {
+     expect(element('.doc-example-live span:first:hidden').count()).toEqual(1);
+     expect(element('.doc-example-live span:last:visible').count()).toEqual(1);</p>
+
+<pre><code> input('checked').check();
+
+ expect(element('.doc-example-live span:first:visible').count()).toEqual(1);
+ expect(element('.doc-example-live span:last:hidden').count()).toEqual(1);
+</code></pre>
+
+<p>});
+</file>
+</example></p></div>
+</div>

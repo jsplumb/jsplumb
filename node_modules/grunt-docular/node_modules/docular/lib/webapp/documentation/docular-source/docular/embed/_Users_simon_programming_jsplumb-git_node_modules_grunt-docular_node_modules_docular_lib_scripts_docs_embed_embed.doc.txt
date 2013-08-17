@@ -1,0 +1,122 @@
+@doc overview
+@id index
+@name Embedding Documentation
+@description
+
+#Embedding Documentation
+
+Follow this overview to familiarize yourself with the basics of embedding documentation within your script files and separate 'doc' files.
+
+When embedding in script files, you will need to nest your documentation within code blocks (see {@link blockdef_js Documentation In Scripts} ).  Docular will also parse out documentation in a separate ".doc" file where documentation is not nested within code blcoks. This is great for creating 'overview' pages (see {@link blockdef_doc Documentation In 'Doc' Files} ).
+
+<page-list></page-list>
+
+
+@doc overview
+@id blockdef_js
+@name Documentation In Scripts
+@description
+
+Docular parses your script files ( {@link docularconfigure/sections designated in your Grunt config} ), and looks for documentation that live
+within blocked comments. A block comment looks like this:
+```js
+
+/**
+ * This is a block comment
+ */
+
+/**
+ * This is a multi
+ * line block comment
+ */
+
+```
+## Sample Documentation Within Comment Blocks
+
+Here is an example of Docular documentation within comment blocks within a script file:
+
+```js
+
+//this comment is ignored because it is not in a block
+
+/**
+ * @doc function
+ * @name myModule.moduleSection:thisIsAFunction
+ *
+ * @description This function rules!
+ *
+ * This is still part of the description!!!
+ */
+
+var thisIsAFunction = function () {};
+
+```
+
+## Summary
+
+So here are a few points to note:
+
+1. Documentation is parsed as key value pairs
+2. Each @ represents a key. So @description designates the "description" key
+3. Text following the key on the same line and text on following lines before the next @ will be the value for that key
+4. Comments delimeted by // are not parsed so you can essentially separate your documentation comments
+from other inline comments that would best be suited for those scanning code instead of learning about your APIs.
+
+<pager></pager>
+
+
+
+@doc overview
+@id blockdef_doc
+@name Documentation In "Doc" Files
+@description
+
+First remember how to {@link /documentation/docular/docularconfigure/sections point Docular at your doc files}. Next, understand the main differences between script files and "doc" files.
+
+#### "Doc" Files End With ".doc"
+
+The first obvious difference is that these files must end with a ".doc" file extension. This allows you to mix your ".doc" files with script files within the same directory and have Docular pick them out easily.
+
+#### "Doc" Files only Have Documentation
+
+The most important difference is that "doc" files contain no code and are meant exclusively for storing documentation. This means documentation does not need to reside within comment blocks.
+
+#### "Doc" Files are Great for "Overviews"
+
+"Doc" files are perfect for storing "overview" type documentation, tutorials, and introductions. Most of the documentation you are reading here was made within "doc" files.
+
+### How "Doc" Files are Parsed
+
+When "Doc" files are read, the parser looks for a {@link /documentation/docular/basics/identifier document identifier}. This signals the begginning of a documentation section. All other {@link /documentation/docular/basics/fields documentation fields} that are encountered are parsed and attached to this documentation object.
+
+This process continues until the end of the file is reached or until a new {@link /documentation/docular/basics/identifier document identifier} is discovered. At this point either the process ends or the start of a new documentation object begins.
+
+### Sample Documentation Within A "Doc" File
+
+Here is an example of Docular documentation within a "doc" file:
+
+```js
+
+&#64;doc overview
+&#64;id intro
+&#64;name Intro To My Code
+&#64;description #Welcome to My Code
+
+## Why My Code is Awesome
+
+1. Naming is clear
+2. It is well organized
+3. It is well documented ;-)
+
+```
+
+## Summary
+
+So here are a few points to note:
+
+1. "Doc" files should end with the extension ".doc"
+2. Documentation is not within comment blocks
+3. "Doc" files are perfect for creating overviews, tutorials, splash pages.
+
+
+<pager></pager>

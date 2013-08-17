@@ -1,0 +1,30 @@
+<h1><code ng:non-bindable="">$evalAsync</code>
+<span class="hint">( type in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Executes the expression on the current scope at a later point in time.</p>
+
+<p>The  <code class="plain">$evalAsync</code>  makes no guarantees as to when the  <code class="plain">expression</code>  will be executed, only that:</p>
+
+<ul>
+<li>it will execute in the current script execution context (before any DOM rendering).</li>
+<li>at least one <a href="documentation/angular/api/ng.$rootScope.Scope#$digest"><code>$digest cycle</code></a> will be performed after
+ <code class="plain">expression</code>  execution.</li>
+</ul>
+
+<p>Any exceptions from the execution of the expression are forwarded to the
+<a href="documentation/angular/api/ng.$exceptionHandler"><code>$exceptionHandler</code></a> service.</p></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">Scope#$evalAsync([expression]);</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">expression<i>(optional)</i> – {(string|function())=} – </code>
+<p>An angular expression to be executed.</p>
+
+<ul>
+<li> <code class="plain">string</code> : execute using the rules as defined in  <a href="documentation/angular/guide/expression">expression</a>.</li>
+<li> <code class="plain">function(scope)</code> : execute the function with the current  <code class="plain">scope</code>  parameter.</li>
+</ul></li>
+</ul>
+</div>
+</div>

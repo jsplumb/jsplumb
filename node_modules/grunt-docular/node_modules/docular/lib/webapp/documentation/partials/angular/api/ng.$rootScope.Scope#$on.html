@@ -1,0 +1,33 @@
+<h1><code ng:non-bindable="">$on</code>
+<span class="hint">( type in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Listens on events of a given type. See <a href="documentation/angular/api/ng.$rootScope.Scope#$emit"><code>$emit</code></a> for discussion of
+event life cycle.</p>
+
+<p>The event listener function format is:  <code class="plain">function(event, args...)</code> . The  <code class="plain">event</code>  object
+passed into the listener has the following attributes:</p>
+
+<ul>
+<li> <code class="plain">targetScope</code>  -  <code class="plain">{Scope}</code> : the scope on which the event was  <code class="plain">$emit</code> -ed or  <code class="plain">$broadcast</code> -ed.</li>
+<li> <code class="plain">currentScope</code>  -  <code class="plain">{Scope}</code> : the current scope which is handling the event.</li>
+<li> <code class="plain">name</code>  -  <code class="plain">{string}</code> : Name of the event.</li>
+<li> <code class="plain">stopPropagation</code>  -  <code class="plain">{function=}</code> : calling  <code class="plain">stopPropagation</code>  function will cancel further event
+propagation (available only for events that were  <code class="plain">$emit</code> -ed).</li>
+<li> <code class="plain">preventDefault</code>  -  <code class="plain">{function}</code> : calling  <code class="plain">preventDefault</code>  sets  <code class="plain">defaultPrevented</code>  flag to true.</li>
+<li> <code class="plain">defaultPrevented</code>  -  <code class="plain">{boolean}</code> : true if  <code class="plain">preventDefault</code>  was called.</li>
+</ul></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">Scope#$on(name, listener);</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">name – {string} – </code>
+<p>Event name to listen on.</p></li>
+<li><code class="plain">listener – {function(event, args...)} – </code>
+<p>Function to call when the event is emitted.</p></li>
+</ul>
+<h3 id="Returns">Returns</h3>
+<div class="returns"><code class="plain">{function()}</code>
+– <p>Returns a deregistration function for this listener.</p></div>
+</div>
+</div>

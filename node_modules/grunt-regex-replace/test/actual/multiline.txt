@@ -1,0 +1,5 @@
+label
+aa - x_aa
+bb - x_bb
+cc - x_cc
+//multiline.txt

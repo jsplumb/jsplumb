@@ -1,0 +1,21 @@
+<h1><code ng:non-bindable="">mode</code>
+<span class="hint">( service in module <code ng:non-bindable="">ngMock</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Sets the logging mode.</p></div>
+<h2 id="Parameters">Parameters</h2>
+<ul class="parameters"><li><code class="plain">mode – {string} – </code>
+<p>Mode of operation, defaults to  <code class="plain">rethrow</code> .</p>
+
+<ul>
+<li> <code class="plain">rethrow</code> : If any errors are passed into the handler in tests, it typically
+           means that there is a bug in the application or test, so this mock will
+           make these tests fail.</li>
+<li> <code class="plain">log</code> : Sometimes it is desirable to test that an error is thrown, for this case the  <code class="plain">log</code>  mode stores an
+       array of errors in  <code class="plain">$exceptionHandler.errors</code> , to allow later assertion of them.
+       See <a href="documentation/angular/api/ngMock.$log#assertEmpty">assertEmpty()</a> and
+        <a href="documentation/angular/api/ngMock.$log#reset">reset()</a></li>
+</ul></li>
+</ul>
+</div>

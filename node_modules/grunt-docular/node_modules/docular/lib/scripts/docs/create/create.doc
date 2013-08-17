@@ -1,0 +1,224 @@
+@doc overview
+@name index
+@description
+
+<div class="alert alert-info">NOTE: Documentation in progress. Use AngularJS and Docular source as examples for documenation.</div>
+
+# Creating Documentation with Docular
+
+Leveraging AngularJS's approach to documentation generation and viewing gives you the power to create flexible documentation using the latest in dev technology. Here are just a few of the benefits of using Docular:
+
+* [Showdown](https://github.com/coreyti/showdown) is used so all documentation can use common "markdown" syntax
+* Documentation can exist near the code it references or anywhere in any file.
+* The AngularJS based webapp provides a simple and effective interface for viewing documentation
+* It's extensible. You can create your own custimizations to the styling, partial generation, or create your own documentation API
+* Docular provides ``group`` -> ``section`` -> ``module`` -> ``module-section`` -> ``item`` -> ``sub-item`` as groupings for documentation. This gives you lots of ways to organize your documentation.
+
+## Your First Documentation
+
+So now that you have {@link docularinstall/index documentation grunt-docular installed}, and your {@link docularconfigure/index Gruntfile.js setup}, it's time to configure your grunt-docular configs and create some documentation!
+
+<page-list></page-list>
+
+
+
+@doc overview
+@id configuregroup
+@name First Documentation Group
+@description
+
+So you have read about the grunt-docular configuration for {@link docularconfigure/groups documentation groups}. Now you need to add a group to this configuration. Let's create a bucket for all our example code into your Gruntfile.js file.
+
+```js
+module.exports = function(grunt) {
+
+    // Project configuration
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [
+                {
+                    groupTitle: 'Example Docs',
+                    groupId: 'example',
+                    groupIcon: 'icon-beer',
+                    sections: []
+                }
+            ],
+            //other configurations ommitted here for simplicity
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+```
+
+## Group Complete!
+
+That's it for creating a group. The only things needed are some identifiers and an icon to help distinguish it from other groups. Now it is time to create your first section that will actually point to your documentation files.
+
+<pager></pager>
+
+
+
+@doc overview
+@id configuresection
+@name First Documentation Section
+@description
+
+
+Now it is time to create your first {@link docularconfigure/sections documentation section}!
+
+Suppose in our "example" group we want to add documentation for some global utilities functions that live in "javascript/lib/utilities.js". It makes sense to put global utilities into their own section, so let's add a "Globals" section to our group in the Gruntfile.js file configuration and add the scripts we want scanned for documentation.
+
+```js
+module.exports = function(grunt) {
+
+    // Project configuration
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [
+                {
+                    groupTitle: 'Example Docs',
+                    groupId: 'example',
+                    groupIcon: 'icon-beer',
+                    sections: [
+                        {
+                            id: "globals",
+                            title: "Globals",
+                            scripts: [
+                                "example/javascript/lib/utilities.js"
+                            ],
+                            docs: [],
+                            rank : {}
+                        }
+                    ]
+                }
+            ],
+            //other configurations ommitted here for simplicity
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+```
+
+<div class="alert">WARNING: Make sure you understand the {@link docularconfigure/sections#docsnscripts difference between scripts and docs}</div>
+
+<pager></pager>
+
+
+
+@doc overview
+@id firstdoc
+@name First Document
+@description
+
+Okay, we are ready to create documentation within our script file.
+
+Let's add documentation to "example/javascript/lib/utilities.js" file as an example. You will have to make sure you have a script file at the root of your application at the specified path or alter the path accordingly relative to the root of your application.
+
+Suppose that this is our utilities.js file:
+
+```js
+//utils namespace
+var utils = utils || {};
+
+utils.makeCooler = function (string_in) {
+    return string_in + 'izzle';
+};
+
+utils.makeUncooler = function (string_in) {
+    return string_in.replace(/izzle/gi,'');
+};
+
+```
+
+## Add comment blocks
+
+Let's add comment blocks with our first Docular documentation and create a "utilities" module and a few classes.
+
+```js
+/**
+ * @doc module
+ * @name utils
+ * @description
+ *
+ * ## Global Utilities
+ *
+ * This module houses utillities that can be used
+ * across the app. There are some pretty cool and
+ * uncool methods in this module so check it outizzle.
+ *
+ * Note, if you do not define the module using @doc module
+ * and the @name with the module id, then this page won't exist!!
+ */
+
+//utils namespace
+var utils = utils || {};
+
+/**
+ * @doc function
+ * @name utils.global:makeCooler
+ * @param  {string} string_in any ol' string
+ * @return {string} adds on the 'izzle'
+ * @description
+ * Man this function is the functionizzle of the heezy for sheezy.
+ *
+ * In fact, sometimes I like to use it to coolify everything
+ * &#96;&#96;&#96;js
+ * for(var thing in window) {
+ *     if(typeof(window[thing]) === "string") {
+ *         window[thing] = util.makeCooler(window[thing]);
+ *     }
+ * }
+ * &#96;&#96;&#96;
+ */
+utils.makeCooler = function (string_in) {
+    return string_in + 'izzle';
+};
+
+/**
+ * @doc function
+ * @name utils.global:makeUncooler
+ * @param  {string} string_in any ol' string
+ * @return {string} removes 'izzle'
+ * @description
+ *
+ * Nothin cool about this function...
+ *
+ */
+utils.makeUncooler = function (string_in) {
+    return string_in.replace(/izzle/gi,'');
+};
+
+```
+
+## Check out the results
+
+<a href="documentation/example/globals/index" class="btn btn-large btn-primary"> View The Rendered Results! </a>
+
+## What's Next?
+
+Now you have {@link firstdoc created your first document} so it's time to learn the details of embedding documentation in your files.
+
+<a class="btn btn-primary btn-large" href="/documentation/docular/embed/index">Embedding Documentation</a>
+
+<pager></pager>
+

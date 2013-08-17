@@ -1,0 +1,34 @@
+<h1><code ng:non-bindable="">$eval</code>
+<span class="hint">( type in module <code ng:non-bindable="">ng</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Executes the  <code class="plain">expression</code>  on the current scope returning the result. Any exceptions in the
+expression are propagated (uncaught). This is useful when evaluating Angular expressions.</p>
+
+<h1 id="example">Example</h3>
+
+<pre class="prettyprint linenums">
+           var scope = ng.$rootScope.Scope();
+           scope.a = 1;
+           scope.b = 2;
+
+           expect(scope.$eval('a+b')).toEqual(3);
+           expect(scope.$eval(function(scope){ return scope.a + scope.b; })).toEqual(3);
+</pre></div>
+<h2 id="Usage">Usage</h2>
+<div class="usage"><pre class="prettyprint linenums">Scope#$eval([expression]);</pre>
+<h3 id="Parameters">Parameters</h3>
+<ul class="parameters"><li><code class="plain">expression<i>(optional)</i> – {(string|function())=} – </code>
+<p>An angular expression to be executed.</p>
+
+<ul>
+<li> <code class="plain">string</code> : execute using the rules as defined in  <a href="documentation/angular/guide/expression">expression</a>.</li>
+<li> <code class="plain">function(scope)</code> : execute the function with the current  <code class="plain">scope</code>  parameter.</li>
+</ul></li>
+</ul>
+<h3 id="Returns">Returns</h3>
+<div class="returns"><code class="plain">{*}</code>
+– <p>The result of evaluating the expression.</p></div>
+</div>
+</div>

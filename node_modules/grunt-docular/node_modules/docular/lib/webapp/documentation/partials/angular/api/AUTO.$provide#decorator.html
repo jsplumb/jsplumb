@@ -1,0 +1,21 @@
+<h1><code ng:non-bindable="">decorator</code>
+<span class="hint">( service in module <code ng:non-bindable="">AUTO</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Decoration of service, allows the decorator to intercept the service instance creation. The
+returned instance may be the original instance, or a new instance which delegates to the
+original instance.</p></div>
+<h2 id="Parameters">Parameters</h2>
+<ul class="parameters"><li><code class="plain">name – {string} – </code>
+<p>The name of the service to decorate.</p></li>
+<li><code class="plain">decorator – {function()} – </code>
+<p>This function will be invoked when the service needs to be
+instanciated. The function is called using the <a href="documentation/angular/api/AUTO.$injector#invoke"><code>injector.invoke</code></a> method and is therefore fully injectable. Local injection arguments:</p>
+
+<ul>
+<li> <code class="plain">$delegate</code>  - The original service instance, which can be monkey patched, configured,
+decorated or delegated to.</li>
+</ul></li>
+</ul>
+</div>

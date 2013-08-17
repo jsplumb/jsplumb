@@ -1,0 +1,192 @@
+<h1><code ng:non-bindable="">Create Your First Doc</code>
+<span class="hint"></span>
+</h1>
+<div><p>Now it is time to create your first doc and update your Gruntfile.js file to include in the compiling and rendering during the grunt "docular" task.</p>
+
+<ol>
+<li>Add a new documentation "group" to include by updating the Gruntfile.js file
+<pre class="prettyprint linenums">
+module.exports = function(grunt) {
+
+    // Project configuration.
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [
+                {
+                    groupTitle: 'My Test Docs',
+                    groupId: 'mytestdocs',
+                    groupIcon: 'icon-book',
+                    sections: []
+                }
+            ],
+            showDocularDocs: true,
+            showAngularDocs: true
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+</pre></li>
+<li>Navigate to the root of your project
+<pre class="prettyprint linenums">cd &lt;your project root&gt;</pre></li>
+<li>Create a directory for your new documentation and navigate within the new directory
+<pre class="prettyprint linenums">
+mkdir docs
+cd docs
+</pre></li>
+<li>Create a file to hold standard doc text
+<pre class="prettyprint linenums">
+touch test.doc
+</pre></li>
+<li>Edit this new file and add the following text and save
+<pre class="prettyprint linenums">
+&#64;doc overview
+&#64;name Test Documentation Overview
+&#64;description This is my test description!
+Notice it is multiline and supports the "Showdown" implementation of Markdown.
+You can add
+## Sub headings
+
+You can also create numbered listes among other markdown items
+
+1. Item one
+2. Item two
+&lt;pre&gt;
+some command or script line
+&lt/pre&gt;
+</pre></li>
+<li>Update the Gruntfile.js file to include this new file within a new section within the group.
+Since it is documentation not within comments within a script, we include it in the "docs" array of the section configuration
+<pre class="prettyprint linenums">
+module.exports = function(grunt) {
+
+    // Project configuration.
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [
+                {
+                    groupTitle: 'My Test Docs',
+                    groupId: 'mytestdocs',
+                    groupIcon: 'icon-book',
+                    sections: [
+                        {
+                            id: "overviewdocs",
+                            title:"My Overview Docs",
+                            scripts: [],
+                            docs: ['docs/']
+                        }
+                    ]
+                }
+            ],
+            showDocularDocs: true,
+            showAngularDocs: true
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+</pre></li>
+<li>Now let's create your first script file that contains documentation. Let's create a scripts directory for your script.
+<pre class="prettyprint linenums">
+cd &lt;root of your project&gt;
+mkdir scripts
+cd scripts
+touch test.js
+</pre></li>
+<li>Now edit the test.js file you created within the scripts folder at the root of your document
+<pre class="prettyprint linenums">
+/**
+* &#64;doc module
+* &#64;name firstmodule
+* &#64;description This is the definition of the module.
+* It provides information about the module when the name of the
+* module is clicked
+*/
+
+/**
+* &#64;doc function
+* &#64;name firstmodule.class:myClass
+* &#64;description This is a function that is classified as a "class"
+* within the module "firstmodule" with name myClass.
+* &#64;param {string} stringInput A description of the stringInput for this function
+* &#64;returns {number} Some number value description
+*/
+
+/**
+ * Here I can still include inline comments for other developers
+ * that are not included in the docs
+ */
+var myClass = function (stringInput) {
+    return 1;
+};
+</pre></li>
+<li>Update the Gruntfile.js file to include this file within the scripts configuration
+<pre class="prettyprint linenums">
+module.exports = function(grunt) {
+
+    // Project configuration.
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [
+                {
+                    groupTitle: 'My Test Docs',
+                    groupId: 'mytestdocs',
+                    groupIcon: 'icon-book',
+                    sections: [
+                        {
+                            id: "overviewdocs",
+                            title:"My Overview Docs",
+                            scripts: ['scripts/'],
+                            docs: ['docs/']
+                        }
+                    ]
+                }
+            ],
+            showDocularDocs: true,
+            showAngularDocs: true
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+</pre></li>
+<li>Run the grunt docular task to compile your documentation!
+<pre class="prettyprint linenums">
+cd &lt;your project root&gt;
+grunt docular
+</pre></li>
+<li>Spin up the local server to view your docs
+<pre class="prettyprint linenums">
+grunt docular-server
+</pre></li>
+<li>Navigate your browser to the url shown after executing the grunt docular-server task</li>
+</ol>
+
+<p><pager></pager></p></div>

@@ -1,0 +1,57 @@
+<h1><code ng:non-bindable="">Test Documentation Overview</code>
+<span class="hint"></span>
+</h1>
+<div><p>This is my test description!
+Notice it is multiline and supports the "Showdown" implementation of Markdown.
+You can add</p>
+
+<h1 id="headings">Headings</h2>
+
+<h2 id="subheadings">Sub headings</h3>
+
+<p>You can also create
+* bulleted
+* lists
+</pre>
+6. Update the Gruntfile.js file to include this new file within a new section within the group
+Since it is documentation not within comments within a script, we include it in the "docs" configuration
+<pre class="prettyprint linenums">
+module.exports = function(grunt) {
+
+    // Project configuration.
+    grunt.initConfig({
+
+        pkg: grunt.file.readJSON('package.json'),
+
+        docular: {
+            groups: [
+                {
+                    groupTitle: 'My Test Docs', //this is what will show up in the UI for this group
+                    groupId: 'mytestdocs', //to determine what directory these docs will go into and used as an identifier
+                    groupIcon: 'icon-book', //icon to use when relevant and within this group of documentation
+                    sections: [
+                        {
+                            id: "overviewdocs",
+                            title:"My Overview Docs",
+                            scripts: [],
+                            docs: ['docs/']
+                        }
+                    ]
+                }
+            ],
+            showDocularDocs: true,
+            showAngularDocs: true
+        }
+
+    });
+
+    // Load the plugin that provides the "docular" tasks.
+    grunt.loadNpmTasks('grunt-docular');
+
+    // Default task(s).
+    grunt.registerTask('default', ['docular']);
+
+};
+</pre>
+
+<p><pager></pager></p></div>

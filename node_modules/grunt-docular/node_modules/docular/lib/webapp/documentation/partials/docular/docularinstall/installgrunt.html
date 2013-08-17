@@ -1,0 +1,46 @@
+<h1><code ng:non-bindable="">Install Grunt</code>
+<span class="hint"></span>
+</h1>
+<div><p><img src="/resources/img/grunt.png" class = "pull-left" /> Next you need to setup Grunt.</p>
+
+<p>This is a task runner that runs in NodeJS. Docular has grunt plugin "grunt-docular" that makes it easy to
+configure your own setup for generating documentation.</p>
+
+<p>Installing Grunt will afford you more than just access to Docular. Grunt ships with some powerful built in tasks that almost any project can take advantage of.</p>
+
+<p>Once you have Docular up and running spend some time learning the other benefits of using Grunt.</p>
+
+<div class="alert alert-info">NOTE: Grunt has a Freenode IRC channel! #grunt </div>
+
+<p>Once you install Grunt on your system, you will need to add Grunt to your project as a dependency and add a configuration file that will be used to configure all Grunt tasks including the grunt-docular plugin.</p>
+
+<ol>
+<li><a href="http://gruntjs.com/getting-started">Install Grunt</a></li>
+<li>Navigate to the root of your project "myProject"
+<pre class="prettyprint linenums">
+cd myProject
+</pre></li>
+<li>Add Grunt to your project
+<pre class="prettyprint linenums">
+npm install grunt
+</pre></li>
+<li>Create a Gruntfile.js file (others may use <a href="http://gruntjs.com/project-scaffolding">grunt-init</a>)
+<pre class="prettyprint linenums">
+touch Gruntfile.js
+</pre></li>
+<li>Add the following to your new Gruntfile.js (This is a bare bones config file)
+<pre class="prettyprint linenums">
+module.exports = function(grunt) {
+
+    // Project configuration.
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+    });
+
+};
+</pre></li>
+</ol>
+
+<p>Now you are ready to install and configure grunt-docular!</p>
+
+<p><pager></pager></p></div>
