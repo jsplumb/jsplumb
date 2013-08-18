@@ -1930,6 +1930,7 @@
 		 */
 		this.makeAnchor = function() {
 			var _a = function(t, p) {
+				if (_currentInstance.Anchors[t]) return new _currentInstance.Anchors[t](p);
 				if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
 				if (!_currentInstance.Defaults.DoNotThrowErrors)
 					throw { msg:"jsPlumb: unknown anchor type '" + t + "'" };
