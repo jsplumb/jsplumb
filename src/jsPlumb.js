@@ -2160,15 +2160,6 @@
 							// the target is furthest away from the source.
 						}
 						
-						// TODO: ensure this is ok.  we used to create a new connection, but now it seems
-						// to be better to just reset the target to the new enpdoint. someone asked a 
-						// question about this a while ago, because they were setting parameters on the
-						// connection which were being thrown away by the fact that we create a new connection.
-						// so this is good in general.  but need to be careful about backwards compatibility.
-
-/* ----------------- the new way ------------------------------------------------- */
-
-						
 						// change the target endpoint and target element information. really this should be 
 						// done on a method on connection
 						jpc[idx ? "target" : "source"] = newEndpoint.element;
@@ -2186,12 +2177,9 @@
 						if (idx == 1)
 							_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
 						else
-							//_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint, jpc);
-						_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
+							_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
 
-						// TODO: fire a connection event!
-						// TODO: what about moving the connection's source, if that was set?
-						_finaliseConnection(jpc);
+						_finaliseConnection(jpc, null, originalEvent);
 
 					}				
 					// if not allowed to drop...
@@ -2419,6 +2407,7 @@
 							// legitimate endpoint, were it not for this check.  the flag is set after adding an
 							// endpoint and cleared in a drag listener we set in the dragOptions above.
 							if(endpointAddedButNoDragYet) {
+								 endpointAddedButNoDragYet = false;
 								_currentInstance.deleteEndpoint(ep);
 	                        }
 						};
