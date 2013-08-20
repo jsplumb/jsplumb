@@ -98,6 +98,10 @@ module.exports = function(grunt) {
         grunt.log.write('Build jsPlumb');
     });
 
+    grunt.registerTask('prepare', function() {
+        grunt.file.delete("dist");
+    });
+
 
     var fileLists = function(suffix) {
         suffix = suffix || "";
@@ -340,7 +344,7 @@ module.exports = function(grunt) {
     */
 
 
-    grunt.registerTask('build', [/*'qunit', */'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
+    grunt.registerTask('build', [/*'qunit', */'prepare', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
 
     grunt.registerTask("build-all", function() {
