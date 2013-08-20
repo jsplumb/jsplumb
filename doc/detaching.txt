@@ -1,0 +1,137 @@
+
+------------------------------------------
+
+Endpoint detachAll (301): (detach all connections)
+
+	this.detach(this.connections[0], false, true, fireEvent !== false, originalEvent, this, 0);
+
+
+it is unclear to me whether this should destroy connections after detaching them.  in theory, once a connection no longer has two endpoints it should be destroyed, i would think.	
+
+
+-------------------------------------------	
+
+Endpoint.detachFrom (316):  (detach from some other element)
+
+	this.detach(c[i], false, true, fireEvent, originalEvent);		
+
+again, unclear what should happen.  the connection now has only one endpoint and so should probably be blown away, i suppose.
+
+
+----------------------------------------------	
+
+jsPlumb-endpoint.js (629). drag options stop event.
+
+unclear to me what the jpc._forceDetach is doing in this test (it was not commented out when i first started messing with this stuff) - surely it says the opposite of what it is being used to test!                            
+
+if (jpc.isReattach() || jpc._forceReattach /*|| jpc._forceDetach*/ || !jpc.endpoints[idx == 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {		
+
+we get here if the connection was existing (ie. it has a suspendedEndpoint).  if the connection should be reattached then we do so, otherwise we ask the other endpoint if its ok to detach).
+
+i think this needs cleaning up really.  if the other endpoint were to nuke the connection during detach then this method would fail quite spectacularly.
+
+
+-------------------------------------------------------------------
+
+jsPlumb.js (1630). The jsPlumb.detach method when you provided a Connection:
+
+
+conn.endpoints[0].detach(conn, false, true, fireEvent); 
+
+
+In this case, the connection should be cleaned up and destroyed. It is what the user asked for.
+
+-----------------------------------------------------------------------
+
+jsPlumb.js (1646).  Detach function - detaches a connection/some connections. this is in a loop of the connections for the case that a source and/or target was provided:                                  
+
+	jpc.endpoints[0].detach(jpc, false, true, fireEvent);
+
+In this case, the connections should be cleaned up and destroyed. It is what the user asked for.
+
+--------------------
+
+
+jsPlumb.js (1850). in the connection select handler; this is for the select handler's detach method, and loops through a list of connections:
+
+	_currentInstance.detach(list[i]);
+
+So this should behave the same way as jsPlumb.detach, which is to destroy a connection after it has been detached.
+
+
+--------------------
+
+
+jsPlumb.js (2276). the drop handler in makeTarget.  detaches the current connection from its source, because a new connection is actually created, and this one is thrown away.
+
+	source.detach(jpc, false, true, false);
+
+
+-----------------
+
+
+jsPlumb.js (2292). in the makeTarget drop code, when the user was "not allowed" to drop and the connection had no suspended endpoint. i am not entirely sure what case this is for, in fact, and i'd like to know:
+
+source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+
+
+
+WHAT TO DO!
+-----------
+
+- firstly, the detach method in Endpoint needs to take a params object instead of a million arguments.
+- secondly, the code that deals with a connection's endpointsToDeleteOnDetach needs to be separated out of the endpoint's detach method.  that is not the place to deal with it.  it should be the jsplumb instance that is responsible for cleaning up a connection and destroying any endpoints it has marked for deletion.  and endpoints should only be deleted after all the detaching has been done
+
+
+
+METHODS
+
+jsPlumb
+-------
+
+	- detach
+
+		detaches a connection from its endpoints, deleting the endpoints if necessary, then discards the connection.
+
+	- detachConnectionFromEndpoint
+
+		detaches a connectio
+
+
+Endpoint
+--------
+
+	- detachFrom(element)
+
+	- detachFromConnection(connection)
+
+	- detach(connection)
+
+Connection
+----------
+
+	- detach
+
+		detaches the connection from its endpoints, deleting the endpoints if necessary, then discards the connection. this just needs to hand off to the jsPlumb.detach method, in fact.
+
+		the problem here is that if we want to delete all the connections from some endpoint, we cannot honour
+		the first one's endpointsToDeleteOnDetach, in case we delete the very endpoint we are still working on. So we need in fact to take an array of connections, and to add the endpointsToDeleteOnDetach to a hashset as we go along.  
+
+			function detach(conns) {
+				var endpointsToDelete = {}; // keyed by id
+				if (!isArray(conns)) conns = [];
+				for (var i = 0; i < conns.length; i++) {
+					conns[i].endpoints[0].detachFromConnection(conns[i]);
+					conns[i].endpoints[1].detachFromConnection(conns[i]);
+					if (conns[i].endpointsToDeleteOnDetach) {
+					for (var j = 0; j < conns[i].endpointsToDeleteOnDetach.length; j++)
+						endpointsToDelete[conns[i].endpointsToDeleteOnDetach[j].id] = conns[i].endpointsToDeleteOnDetach[j];
+					}
+				}
+				// now we have a hashset of endpoints to delete on detach. but what if one or more of these endpoints has connections?  they have to be detached too, which could result in more endpoints to delete, and more connections etc. and we still do not want to delete the endpoints until the end.
+
+
+			}
+
+
+

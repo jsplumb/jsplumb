@@ -1,0 +1,74 @@
+-rw-r--r--  1 simon  staff  172043  8 Jul 11:16 jquery.jsPlumb-1.4.2-all-min.js
+-rw-r--r--  1 simon  staff  452298  8 Jul 11:16 jquery.jsPlumb-1.4.2-all.js
+drwxr-xr-x  2 simon  staff      68  8 Jul 11:16 lib
+-rw-r--r--  1 simon  staff  173823  8 Jul 11:16 mootools.jsPlumb-1.4.2-all-min.js
+-rw-r--r--  1 simon  staff  451698  8 Jul 11:16 mootools.jsPlumb-1.4.2-all.js
+-rw-r--r--  1 simon  staff  173615  8 Jul 11:16 yui.jsPlumb-1.4.2-all-min.js
+-rw-r--r--  1 simon  staff  450813  8 Jul 11:16 yui.jsPlumb-1.4.2-all.js
+
+-rw-r--r--  1 simon  staff  156528  8 Jul 11:17 jquery.jsPlumb-1.4.2-all-min.js
+-rw-r--r--  1 simon  staff  431642  8 Jul 11:17 jquery.jsPlumb-1.4.2-all.js
+drwxr-xr-x  2 simon  staff      68  8 Jul 11:17 lib
+-rw-r--r--  1 simon  staff  158520  8 Jul 11:17 mootools.jsPlumb-1.4.2-all-min.js
+-rw-r--r--  1 simon  staff  431285  8 Jul 11:17 mootools.jsPlumb-1.4.2-all.js
+-rw-r--r--  1 simon  staff  158292  8 Jul 11:17 yui.jsPlumb-1.4.2-all-min.js
+-rw-r--r--  1 simon  staff  430346  8 Jul 11:17 yui.jsPlumb-1.4.2-all.js
+
+
+
+jquery: 				no diff                 (410)
+
+anchors: 				23 lines                (999)
+
+connection:             -33 lines               (493)
+
+connectors-default: 	no diff                 (1437)
+
+connectors-flowchart:	+2 lines                (364)
+
+	- class extension stuff
+
+connectors-statemachine +1 line 				(268)
+
+	- class extension stuff
+
+defaults                 +26                    (1463)
+
+	- mostly class extension stuff
+
+dom adapter             +34                     (270)
+
+	- added getAttribute/setAttribute functions
+
+endpoint                -14                     (974)
+
+canvas renderer         -19                     (542)
+
+svg                     +17                     (610)
+
+	- added svg component cleanup
+
+vml                     +10                     (504)
+
+	- added vml component cleanup
+
+jsplumb                 +221                    (3183)
+
+util                    +105                    (502)
+
+ 	- added Function.prototype.bind
+
+mootools                -15                     (434)
+yui                     -8                      (394)
+
+
+jsPlumb
+-------
+makeSource: 202 lines
+makeTarget: 184 lines
+
+   +44 lines of supporting stuff. 430 lines in total - 1/7th the size of the file.
+
+   actually its 534 lines of code all up, with the set enabled stuff etc.
+   is it possible to pull that into a module that plugs in to jsPlumb via the prototype?
+

@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<body>
+	<script>
+
+		var p = function() {
+			this.p = function() { console.log("i am p"); };
+		};
+
+		var p2 = function() {			
+
+		};
+		p2.prototype = new p();
+
+		document.body.onload = function() {
+			new p().p();
+			new p2().p();
+		}
+	</script>
+</body>
+</html
