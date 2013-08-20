@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.0
+ * Title:jsPlumb 1.5.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -1004,7 +1004,13 @@
 			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);	
 		};
 	};
-    jsPlumbUtil.extend(jsPlumb.Endpoints.Blank, [jsPlumb.Endpoints.AbstractEndpoint, DOMElementEndpoint]);
+    jsPlumbUtil.extend(jsPlumb.Endpoints.Blank, [jsPlumb.Endpoints.AbstractEndpoint, DOMElementEndpoint], {
+        cleanup:function() {
+            if (this.canvas) {
+                this.canvas.parentNode.removeChild(this.canvas);
+            }
+        }
+    });
 	
 	/*
 	 * Class: Endpoints.Triangle

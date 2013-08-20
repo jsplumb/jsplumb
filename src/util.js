@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.0
+ * Title:jsPlumb 1.5.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 

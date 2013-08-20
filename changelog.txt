@@ -3,6 +3,7 @@
 		ISSUES
 
 		81 - Uncaught TypeError: Cannot read property 'uuid' of null
+		82 - Blank endpoint doesn't cleanup properly
 		83 - for connections made with makeTarget originalEvent is not set
 
 * 1.5.0

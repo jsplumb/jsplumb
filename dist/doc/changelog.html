@@ -27,7 +27,7 @@
 				<!-- BODY -->
 				<h3>Contents</h3>
 <ul>
-<li><a href="changelog">Changes since version 1.4.1</a></li>
+<li><a href="changelog">Changelog</a></li>
 <li>Required imports and basic setup<ul>
 <li><a href="home#browser">Browser Compatibility</a></li>
 <li><a href="home#setup">Setup</a></li>
@@ -95,7 +95,15 @@
 			</div>
 			<div class="markdown-body">
 				<!-- BODY -->
-				<h2>Changes since 1.4.1</h2>
+				<h2>Changes since 1.5.1</h2>
+<p>Since 1.5.1 is a minor release containing only bugfixes I&#39;m leaving the notes for the 1.4.1 - 1.5.0 upgrade in the wiki for now.</p>
+<h4>Issues</h4>
+<ul>
+<li><strong>81</strong> - Uncaught TypeError: Cannot read property &#39;uuid&#39; of null</li>
+<li><strong>82</strong> - Blank endpoint doesn&#39;t cleanup properly</li>
+<li><strong>83</strong> - for connections made with makeTarget originalEvent is not set</li>
+</ul>
+<h2>Changes between 1.4.1 and 1.5.0</h2>
 <p>Release 1.5.0 contains several bugfixes and one or two minor enhancements, but the biggest change since 1.4.1 is the way jsPlumb handles inheritance internally - it has switched from a &#39;module pattern&#39; architecture to a prototypal-based setup.  The module pattern is good for information hiding, but it makes objects bigger, and its far easier to leak memory with that sort of arrangement than it is with a prototypal inheritance scheme. </p>
 <p>The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see <a href="Build">here</a>).</p>
 <ol>

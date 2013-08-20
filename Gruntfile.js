@@ -312,10 +312,10 @@ module.exports = function(grunt) {
             grunt.log.error("You must provide the new version: grunt update --newver=X.X.X");
         }
         else {            
-            var oldV = grunt.config("pkg").version;            
+            var oldV = new RegExp(grunt.config("pkg").version, "g");            
             // now update version number in all demos and src files
             _replace("src", "*.js", oldV, newV);
-            _replace("demo", "*.html", oldV, newV);
+            _replace("demo", "**/*.html", oldV, newV);
         }
 
     });

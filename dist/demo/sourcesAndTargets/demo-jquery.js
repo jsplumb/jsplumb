@@ -61,6 +61,10 @@
 				var state = jsPlumb.toggleSourceEnabled("window1");
 				$(this).html(state ? "disable" : "enable");
 			});
+
+			jsPlumb.bind("connection", function(i,c) { 
+				console.dir(i.connection); 
+			})
 		}
 	};	
 })();
