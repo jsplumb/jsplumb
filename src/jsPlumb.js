@@ -908,6 +908,7 @@
 					// if target not enabled, return.
 					if (!_targetsEnabled[tid]) return;
 
+					tep.isTarget = true;
 					// check for max connections??						
 					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
