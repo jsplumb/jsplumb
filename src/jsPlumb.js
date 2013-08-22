@@ -483,7 +483,7 @@
 
 		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
 			applyType : function(t, doNotRepaint) {			
-				this.removeAllOverlays();
+				this.removeAllOverlays(doNotRepaint);
 				if (t.overlays) {
 					for (var i = 0, j = t.overlays.length; i < j; i++)
 						this.addOverlay(t.overlays[i], true);
@@ -523,13 +523,14 @@
 				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
 					this._jsPlumb.overlays[i].show();
 			},
-			removeAllOverlays : function() {
+			removeAllOverlays : function(doNotRepaint) {
 				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
 					if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
 				}
 
 				this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
-				this.repaint();
+				if (!doNotRepaint)
+					this.repaint();
 			},
 			removeOverlay : function(overlayId) {
 				var idx = _getOverlayIndex(this, overlayId);

@@ -211,7 +211,13 @@
 		VmlComponent.apply(this, arguments);
 		var clazz = this._jsPlumb.instance.connectorClass + (params.cssClass ? (" " + params.cssClass) : "");
 		this.paint = function(style) {		
-			if (style !== null) {				
+			if (style !== null) {			
+
+				// we need to be at least 1 pixel in each direction, because otherwise coordsize gets set to
+				// 0 and overlays cannot paint.
+				this.w = Math.max(this.w, 1);
+				this.h = Math.max(this.h, 1);
+
 				var segments = this.getSegments(), p = { "path":"" },
                     d = [this.x, this.y, this.w, this.h];
 				
@@ -439,7 +445,8 @@
 			if (params.fillStyle) {
 				p.filled = "true";
 				p.fillcolor = params.fillStyle;
-			}
+			}			
+
 			var xmin = Math.min(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
 				ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
 				xmax = Math.max(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
@@ -447,13 +454,13 @@
 				w = Math.abs(xmax - xmin),
 				h = Math.abs(ymax - ymin),
 				dim = [xmin, ymin, w, h];
-			
+
 			// for VML, we create overlays using shapes that have the same dimensions and
 			// coordsize as their connector - overlays calculate themselves relative to the
 			// connector (it's how it's been done since the original canvas implementation, because
 			// for canvas that makes sense).
 			p.path = getPath(d);
-			p.coordsize = (connector.w * scale) + "," + (connector.h * scale);
+			p.coordsize = (connector.w * scale) + "," + (connector.h * scale);			
 			
 			dim[0] = connector.x;
 			dim[1] = connector.y;

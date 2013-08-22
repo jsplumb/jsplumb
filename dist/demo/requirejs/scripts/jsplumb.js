@@ -1691,7 +1691,7 @@
 
 		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
 			applyType : function(t, doNotRepaint) {			
-				this.removeAllOverlays();
+				this.removeAllOverlays(doNotRepaint);
 				if (t.overlays) {
 					for (var i = 0, j = t.overlays.length; i < j; i++)
 						this.addOverlay(t.overlays[i], true);
@@ -1731,13 +1731,14 @@
 				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++)
 					this._jsPlumb.overlays[i].show();
 			},
-			removeAllOverlays : function() {
+			removeAllOverlays : function(doNotRepaint) {
 				for (var i = 0, j = this._jsPlumb.overlays.length; i < j; i++) {
 					if (this._jsPlumb.overlays[i].cleanup) this._jsPlumb.overlays[i].cleanup();
 				}
 
 				this._jsPlumb.overlays.splice(0, this._jsPlumb.overlays.length);
-				this.repaint();
+				if (!doNotRepaint)
+					this.repaint();
 			},
 			removeOverlay : function(overlayId) {
 				var idx = _getOverlayIndex(this, overlayId);
@@ -2116,6 +2117,7 @@
 					// if target not enabled, return.
 					if (!_targetsEnabled[tid]) return;
 
+					tep.isTarget = true;
 					// check for max connections??						
 					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
@@ -5370,7 +5372,7 @@
         // the very last thing we do is check to see if a 'type' was supplied in the params
         var _type = params.type || this.endpoints[0].connectionType || this.endpoints[1].connectionType;
         if (_type)
-            this.addType(_type, params.data, _jsPlumb.isSuspendDrawing());        
+            this.addType(_type, params.data, true);        
         
 // END PAINTING    
     };

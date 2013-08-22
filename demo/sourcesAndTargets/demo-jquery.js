@@ -38,7 +38,10 @@
 				filter:function(evt, el) {
 					var t = evt.target || evt.srcElement;
 					return t.tagName !== "A";
-				}
+				},
+				isSource:true,
+				maxConnections:1,
+				detachable:false
 			});			
 
             // get the list of ".smallWindow" elements.            

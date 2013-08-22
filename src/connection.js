@@ -232,7 +232,7 @@
         // the very last thing we do is check to see if a 'type' was supplied in the params
         var _type = params.type || this.endpoints[0].connectionType || this.endpoints[1].connectionType;
         if (_type)
-            this.addType(_type, params.data, _jsPlumb.isSuspendDrawing());        
+            this.addType(_type, params.data, true);        
         
 // END PAINTING    
     };
