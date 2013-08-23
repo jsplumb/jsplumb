@@ -5357,12 +5357,12 @@
                     
 // PARAMETERS						
         // merge all the parameters objects into the connection.  parameters set
-        // on the connection take precedence; then target endpoint params, then
-        // finally source endpoint params.
+        // on the connection take precedence; then source endpoint params, then
+        // finally target endpoint params.
         // TODO jsPlumb.extend could be made to take more than two args, and it would
         // apply the second through nth args in order.
-        var _p = jsPlumb.extend({}, this.endpoints[0].getParameters());
-        jsPlumb.extend(_p, this.endpoints[1].getParameters());
+        var _p = jsPlumb.extend({}, this.endpoints[1].getParameters());
+        jsPlumb.extend(_p, this.endpoints[0].getParameters());
         jsPlumb.extend(_p, this.getParameters());
         this.setParameters(_p);
 // END PARAMETERS

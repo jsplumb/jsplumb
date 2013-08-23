@@ -4,6 +4,7 @@
 
 		84 - jsPlumb 1.5.1 Arrow Disappears on IE8 when connector is straight
 		85 - dragging target endpoints created by makeTarget not working
+		86 - Connection "parameters" override order
 
 		MISCELLANEOUS
 
