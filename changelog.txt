@@ -1,5 +1,11 @@
 * 1.5.2
 
+		BACKWARDS COMPATIBILITY
+
+		- Issue 86, fixed in 1.5.2, changes the priority in which parameters are applied to
+		a connection. The documentation has always stated that source takes priority, but in fact
+		the code was the other way round, with target taking priority. Now source does take priority.
+
 		ISSUES
 
 		84 - jsPlumb 1.5.1 Arrow Disappears on IE8 when connector is straight
@@ -8,8 +14,8 @@
 
 		MISCELLANEOUS
 
-		An issue that caused the SVG renderer to paint overlays before the connector was
-		ready when the types API was used was also fixed.
+		- An issue that caused the SVG renderer to paint overlays before the connector was
+		ready when the types API was used was also fixed.			
 		
 * 1.5.1
 

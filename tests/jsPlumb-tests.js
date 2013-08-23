@@ -3708,7 +3708,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		}});
 		
 		ok(c.getParameter("string") === "sourceEndpoint", "getParameter(String) works correctly");
-		ok(c.getParameter("int") === 1, "getParameter(int) works correctly");
+		ok(c.getParameter("int") === 0, "getParameter(int) works correctly");
 		ok(c.getParameter("function")() == "connection", "getParameter(Function) works correctly");		
 	});
 	
