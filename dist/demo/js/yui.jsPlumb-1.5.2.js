@@ -10560,7 +10560,7 @@
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
  * 
- * This file contains the jQuery adapter.
+ * This file contains the YUI3 adapter.
  *
  * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
  * 
@@ -10569,11 +10569,9 @@
  * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */ 
-/* 
- * the library specific functions, such as find offset, get id, get attribute, extend etc.  
- * the full list is:
- * 
+ */
+
+/**
  * addClass				adds a class to the given element
  * animate				calls the underlying library's animate functionality
  * appendElement		appends a child element to a parent element.
@@ -10582,122 +10580,178 @@
  * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
  * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
  * getDragScope			gets the drag scope for a given element.
- * getDropScope			gets the drop scope for a given element.
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
- * getOriginalEvent     gets the original browser event from some wrapper event
- * getPageXY			gets the page event's xy location.
- * getParent			gets the parent of some element.
+ * getOriginalEvent     gets the original browser event from some wrapper event.
  * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
  * getScrollTop			gets an element's scroll top.  TODO: is this actually used?  will it be?
  * getSize				gets an element's size.
  * getUIPosition		gets the position of some element that is currently being dragged, by extracting it from the arguments passed to a drag callback.
- * hasClass				returns whether or not the given element has the given class.
  * initDraggable		initializes an element to be draggable 
  * initDroppable		initializes an element to be droppable
  * isDragSupported		returns whether or not drag is supported for some element.
  * isDropSupported		returns whether or not drop is supported for some element.
  * removeClass			removes a class from a given element.
- * removeElement		removes some element completely from the DOM. 
- * setDragFilter		sets a filter for some element that indicates areas of the element that should not respond to dragging.
+ * removeElement		removes some element completely from the DOM.
  * setDraggable			sets whether or not some element should be draggable.
  * setDragScope			sets the drag scope for a given element.
  * setOffset			sets the offset of some element.
- * trigger				triggers some event on an element.
- * unbind				unbinds some listener from some element.
  */
-(function($) {	
+(function() {
 	
-	//var getBoundingClientRectSupported = "getBoundingClientRect" in document.documentElement;
-
-	var _getElementObject = function(el) {			
-		return typeof(el) == "string" ? $("#" + el) : $(el);
-	};
-
-	jsPlumb.CurrentLibrary = {					        
-		
-		/**
-		 * adds the given class to the element object.
-		 */
-		addClass : function(el, clazz) {
-			el = _getElementObject(el);
+	if (!Array.prototype.indexOf) {
+		Array.prototype.indexOf = function( v, b, s ) {
+			for( var i = +b || 0, l = this.length; i < l; i++ ) {
+	  			if( this[i]===v || s && this[i]==v ) { return i; }
+	 		}
+	 		return -1;
+		};
+	}
+	
+	var Y;
+	
+	YUI().use('node', 'dd', 'dd-constrain', 'anim', 'node-event-simulate', function(_Y) {
+		Y = _Y;	
+		Y.on("domready", function() { jsPlumb.init(); });
+	});
+	
+	/**
+	 * adds the given value to the given list, with the given scope. creates the scoped list
+	 * if necessary.
+	 * used by initDraggable and initDroppable.
+	 */
+	var _add = function(list, scope, value) {
+		var l = list[scope];
+		if (!l) {
+			l = [];
+			list[scope] = l;
+		}
+		l.push(value);
+	},	
+	ddEvents = [ "drag:mouseDown", "drag:afterMouseDown", "drag:mouseup",
+	     "drag:align", "drag:removeHandle", "drag:addHandle", "drag:removeInvalid", "drag:addInvalid",
+	     "drag:start", "drag:end", "drag:drag", "drag:over", "drag:enter",
+	     "drag:exit", "drag:drophit", "drag:dropmiss", "drop:over", "drop:enter", "drop:exit", "drop:hit"	     	               
+	],	
+	animEvents = [ "tween" ],	
+	/**
+	 * helper function to curry callbacks for some element. 
+	 */
+	_wrapper = function(fn) {
+		return function() {
 			try {
-				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.addClass(el[0], clazz);                    
+				return fn.apply(this, arguments);
+			}
+			catch (e) { }
+		};
+	},	
+	/**
+	 * extracts options from the given options object, leaving out event handlers.
+	 */
+	_getDDOptions = function(options) {
+		var o = {};
+		for (var i in options) if (ddEvents.indexOf(i) == -1) o[i] = options[i];
+		return o;
+	},	
+	/**
+	 * attaches all event handlers found in options to the given dragdrop object, and registering
+	 * the given el as the element of interest.
+	 */
+	_attachListeners = function(dd, options, eventList) {	
+	    for (var ev in options) {
+	    	if (eventList.indexOf(ev) != -1) {
+	    		var w = _wrapper(options[ev]);
+	    		dd.on(ev, w);
+	    	}
+	    }
+	},
+	_droppables = {},
+	_droppableOptions = {},
+	_draggablesByScope = {},
+	_draggablesById = {},
+	_droppableScopesById = {},
+	_checkHover = function(el, entering) {
+		if (el) {
+			var id = el.get("id");
+			if (id) {
+				var options = _droppableOptions[id];
+				if (options) {
+					if (options.hoverClass) {
+						if (entering) el.addClass(options.hoverClass);
+						else el.removeClass(options.hoverClass);
+					}
 				}
 			}
-			catch (e) {
-				// SVGAnimatedString not supported; no problem.
-			}
-            try {                
-                el.addClass(clazz);
-            }
-            catch (e) {
-                // you probably have jQuery 1.9 and Firefox.  
-            }
-		},
+		}
+	},
+	_lastDragObject = null,
+	_extend = function(o1, o2) {
+		for (var i in o2)
+			o1[i] = o2[i];
+		return o1;
+	},
+	_getAttribute = function(el, attributeId) {
+		return el.getAttribute(attributeId);
+	},
+	_getElementObject = function(el) {
+		if (el == null) return null;
+		var eee = null;
+        eee = typeof el == 'string' ? Y.one('#' + el) : el._node ? el : Y.one(el);        
+        return eee;
+	};
+	
+	jsPlumb.CurrentLibrary = {
+			
+		addClass : function(el, clazz) {
+			jsPlumb.CurrentLibrary.getElementObject(el).addClass(clazz);
+		},	
 		
 		/**
 		 * animates the given element.
 		 */
 		animate : function(el, properties, options) {
-			el.animate(properties, options);
-		},				
+			var o = _extend({node:el, to:properties}, options),			
+				id = _getAttribute(el, "id");
+			o.tween = jsPlumbUtil.wrap(properties.tween, function() {
+				// TODO should use a current instance.
+				jsPlumb.repaint(id);
+			});
+			var a = new Y.Anim(o);
+			_attachListeners(a, o, animEvents);
+			a.run();
+		},
 		
-		/**
-		 * appends the given child to the given parent.
-
-TODO: REMOVE!
-
-		 */
 		appendElement : function(child, parent) {
-			_getElementObject(parent).append(child);			
-		},   
-
-		/**
-		* executes an ajax call.
-		*/
-		ajax : function(params) {
-			params = params || {};
-			params.type = params.type || "get";
-			$.ajax(params);
+			_getElementObject (parent).append(child);			
 		},
 		
 		/**
-		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
-		 * uses 'on'.
+		 * event binding wrapper.  
 		 */
 		bind : function(el, event, callback) {
-			el = _getElementObject(el);
-			el.bind(event, callback);
+			_getElementObject(el).on(event, callback);
 		},
 
 		destroyDraggable : function(el) {
-			if ($(el).data("draggable"))
-				$(el).draggable("destroy");
+			var id = jsPlumb.getId(el),
+				dd = _draggablesById[id];
+
+			if (dd) {
+				dd.destroy();
+				delete _draggablesById[id];
+			}
 		},
 
 		destroyDroppable : function(el) {
-			if ($(el).data("droppable"))
-				$(el).droppable("destroy");
+			// TODO
 		},
-		
-		/**
-         * mapping of drag events for jQuery
-         */
+			
 		dragEvents : {
-			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
-			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
-		},
-				
-		/**
-		 * wrapper around the library's 'extend' functionality (which it hopefully has.
-		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
-		 * instead.  it's not like its hard.
-		 */
-		extend : function(o1, o2) {
-			return $.extend(o1, o2);
-		},		
+			"start":"drag:start", "stop":"drag:end", "drag":"drag:drag", "step":"step",
+			"over":"drop:enter", "out":"drop:exit", "drop":"drop:hit"
+		},								
+			
+		extend : _extend,			
 		
 		getClientXY : function(eventObject) {
 			return [eventObject.clientX, eventObject.clientY];
@@ -10707,11 +10761,17 @@ TODO: REMOVE!
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
 		 */
 		getDragObject : function(eventArgs) {
-			return eventArgs[1].draggable || eventArgs[1].helper;
+			// this is a workaround for the unfortunate fact that in YUI3, the 'drop:exit' event does
+			// not contain a reference to the drag that just exited.  single-threaded js to the 
+			// rescue: we'll just keep it for ourselves.
+			if (eventArgs[0].drag) _lastDragObject = eventArgs[0].drag.el;
+			return _lastDragObject;
 		},
 		
 		getDragScope : function(el) {
-			return $(el).draggable("option", "scope");
+			var id = jsPlumb.getId(el),
+				dd = _draggablesById[id];
+			return dd.scope;
 		},
 
 		getDropEvent : function(args) {
@@ -10719,41 +10779,28 @@ TODO: REMOVE!
 		},
 		
 		getDropScope : function(el) {
-			return $(el).droppable("option", "scope");		
+			var id = jsPlumb.getId(el);
+			return _droppableScopesById[id];
 		},
-
-		/**
-		* gets a DOM element from the given input, which might be a string (in which case we just do document.getElementById),
-		* a selector (in which case we return el[0]), or a DOM element already (we assume this if it's not either of the other
-		* two cases).  this is the opposite of getElementObject below.
-		*/
-		getDOMElement : function(el) {
-			if (el == null) return null;
-			if (typeof(el) == "string") return document.getElementById(el);
-			else if (el.context || el.length != null) return el[0];
+		
+		getDOMElement : function(el) { 	
+			if (el == null) return null;		
+			if (typeof(el) == "string") 
+				return document.getElementById(el);
+			else if (el._node) 
+				return el._node;
 			else return el;
 		},
-	
-		/**
-		 * gets an "element object" from the given input.  this means an object that is used by the
-		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
-		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
-		 * function is used to find the element, using the given String as the element's id.
-		 * 
-		 */		
+		
 		getElementObject : _getElementObject,
 		
-		/**
-		  * gets the offset for the element object.  this should return a js object like this:
-		  *
-		  * { left:xxx, top: xxx }
-		 */
-		getOffset : function(el) {
-			return el.offset();
+		getOffset : function(el) {			
+			var o = Y.DOM.getXY(el._node);
+			return {left:o[0], top:o[1]};
 		},
 
 		getOriginalEvent : function(e) {
-			return e.originalEvent;
+			return e._event;
 		},
 		
 		getPageXY : function(eventObject) {
@@ -10761,213 +10808,162 @@ TODO: REMOVE!
 		},
 		
 		getParent : function(el) {
-			return _getElementObject(el).parent();
+			return jsPlumb.CurrentLibrary.getElementObject(el).get("parentNode");
 		},
-														
+		
 		getScrollLeft : function(el) {
-			return el.scrollLeft();
+			return 0; 
 		},
 		
 		getScrollTop : function(el) {
-			return el.scrollTop();
+			return 0;
 		},
 		
 		getSelector : function(context, spec) {
-            if (arguments.length == 2)
-                return _getElementObject(context).find(spec);
-            else
-                return $(context);
+			var _convert = function(s) { return s && s ._nodes ? s._nodes : []; };
+            
+            if (arguments.length == 2) {            
+                return _convert(jsPlumb.CurrentLibrary.getElementObject(context).all(spec));
+            }
+            else {
+			     return _convert(Y.all(context));
+            }            
 		},
 		
-		/**
-		 * gets the size for the element object, in an array : [ width, height ].
-		 */
 		getSize : function(el) {
-			el = $(el);
-			return [el.outerWidth(), el.outerHeight()];
+			return [ el._node.offsetWidth, el._node.offsetHeight ];
 		},
 
         getTagName : function(el) {
-            var e = _getElementObject(el);
-            return e.length > 0 ? e[0].tagName : null;
+            var e = jsPlumb.CurrentLibrary.getElementObject(el);
+            return e != null && e._node != null ? e._node.tagName : null;
         },
 		
-		/**
-		 * takes the args passed to an event function and returns you an object that gives the
-		 * position of the object being moved, as a js object with the same params as the result of
-		 * getOffset, ie: { left: xxx, top: xxx }.
-		 * 
-		 * different libraries have different signatures for their event callbacks.  
-		 * see getDragObject as well
-		 */
-		getUIPosition : function(eventArgs, zoom) {
-			
+		getUIPosition : function(args, zoom) {
 			zoom = zoom || 1;
-			// this code is a workaround for the case that the element being dragged has a margin set on it. jquery UI passes
-			// in the wrong offset if the element has a margin (it doesn't take the margin into account).  the getBoundingClientRect
-			// method, which is in pretty much all browsers now, reports the right numbers.  but it introduces a noticeable lag, which
-			// i don't like.
-            
-			/*if ( getBoundingClientRectSupported ) {
-				var r = eventArgs[1].helper[0].getBoundingClientRect();
-				return { left : r.left, top: r.top };
-			} else {*/
-			if (eventArgs.length == 1) {
-				ret = { left: eventArgs[0].pageX, top:eventArgs[0].pageY };
-			}
-			else {
-				var ui = eventArgs[1],
-				  _offset = ui.offset;
-				  
-				ret = _offset || ui.absolutePosition;
-				
-				// adjust ui position to account for zoom, because jquery ui does not do this.
-				ui.position.left /= zoom;
-				ui.position.top /= zoom;
-			}
-            return { left:ret.left / zoom, top: ret.top / zoom };
+			var el = args[0].currentTarget.el._node || args[0].currentTarget.el;
+			var o = Y.DOM.getXY(el);
+			return {left:o[0] / zoom, top:o[1] / zoom };
 		},		
 		
 		hasClass : function(el, clazz) {
 			return el.hasClass(clazz);
 		},
-		
-		/**
-		 * initialises the given element to be draggable.
-		 */
+				
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
-			options = options || {};
-			el = $(el);
+			var _opts = _getDDOptions(options),
+				id = _jsPlumb.getId(el);
+			_opts.node = "#" + id;	
+			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
+				Y.one(document.body).addClass(_jsPlumb.dragSelectClass);				
+			}, false);	
+			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
+				Y.one(document.body).removeClass(_jsPlumb.dragSelectClass);
+			});	
+			var dd = new Y.DD.Drag(_opts), 
+                containment = options.constrain2node || options.containment;
 
-/*
-			// css3 transforms
-			// http://gungfoo.wordpress.com/2013/02/15/jquery-ui-resizabledraggable-with-transform-scale-set/
-			options.start = _jsPlumb.wrap(options["start"], function(e, ui) {
-				// TODO why is this 0?				
-			    ui.position.left = 0;
-			    ui.position.top = 0;
-			});
-
-			options.drag = _jsPlumb.wrap(options["drag"], function(e, ui) {
-
-				console.log("original", ui.originalPosition.left, ui.originalPosition.top);
-				console.log("current", ui.position.left, ui.position.top);
-
-				//var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
-			    //var newLeft = ui.originalPosition.left + (changeLeft * _jsPlumb.getZoom()); // adjust new left by our zoomScale
-			 
-			    //var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
-			    //var newTop = ui.originalPosition.top + (changeTop * _jsPlumb.getZoom()); // adjust new top by our zoomScale
-			 
-			    //ui.position.left = newLeft;
-			    //ui.position.top = newTop;
-
-			    ui.position.left *= _jsPlumb.getZoom();
-			    ui.position.top *= _jsPlumb.getZoom();
-
-			});
-*/
-
-			options["start"] = jsPlumbUtil.wrap(options["start"], function() {
-				$("body").addClass(_jsPlumb.dragSelectClass);
-			}, false);
-
-			options["stop"] = jsPlumbUtil.wrap(options["stop"], function() {
-				$("body").removeClass(_jsPlumb.dragSelectClass);
-			});
-
-			// remove helper directive if present and no override
-			if (!options.doNotRemoveHelper)
-				options.helper = null;
-			if (isPlumbedComponent)
-				options.scope = options.scope || jsPlumb.Defaults.Scope;
-			el.draggable(options);
+			dd.el = el;	
+            
+            if (containment) {
+                dd.plug(Y.Plugin.DDConstrained, {
+                    constrain2node: containment
+                });
+            }
+			
+			if (isPlumbedComponent) {
+				var scope = options.scope || _jsPlumb.Defaults.Scope;
+				dd.scope = scope;
+				_add(_draggablesByScope, scope, dd);
+			}
+			
+			_draggablesById[id] = dd;						
+			_attachListeners(dd, options, ddEvents);
 		},
 		
-		/**
-		 * initialises the given element to be droppable.
-		 */
 		initDroppable : function(el, options) {
-			options.scope = options.scope || jsPlumb.Defaults.Scope;
-			$(el).droppable(options);
+			var _opts = _getDDOptions(options),
+				id = jsPlumb.getId(el);
+			_opts.node = "#" + id;			
+			var dd = new Y.DD.Drop(_opts);
+			
+			_droppableOptions[id] = options;
+			
+			options = _extend({}, options);
+			var scope = options.scope || jsPlumb.Defaults.Scope;					
+			_droppableScopesById[id] = scope;
+			
+			options["drop:enter"] = jsPlumbUtil.wrap(options["drop:enter"], function(e) {
+				if (e.drag.scope !== scope) return true;
+				_checkHover(el, true);
+			}, true);
+			options["drop:exit"] = jsPlumbUtil.wrap(options["drop:exit"], function(e) {
+				_checkHover(el, false);
+			});
+			options["drop:hit"] = jsPlumbUtil.wrap(options["drop:hit"], function(e) {
+				if (e.drag.scope !== scope) return true;
+				_checkHover(el, false);
+			}, true);
+			
+			_attachListeners(dd, options, ddEvents);
 		},
 		
 		isAlreadyDraggable : function(el) {
-			return $(el).hasClass("ui-draggable");
-		},
-		
-		/**
-		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
-		 */
-		isDragSupported : function(el, options) {
-			return $(el).draggable;
-		},				
-						
-		/**
-		 * returns whether or not drop is supported (by the library, not whether or not it is disabled) for the given element.
-		 */
-		isDropSupported : function(el, options) {
-			return $(el).droppable;
-		},							
-		
-		/**
-		 * removes the given class from the element object.
-		 */
-		removeClass : function(el, clazz) {
 			el = _getElementObject(el);
-			try {
-				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.removeClass(el[0], clazz);
-                    return;
-				}
-			}
-			catch (e) {
-				// SVGAnimatedString not supported; no problem.
-			}
-			el.removeClass(clazz);
+			return el.hasClass("yui3-dd-draggable");
 		},
 		
-		removeElement : function(element) {			
-			_getElementObject(element).remove();
+		isDragSupported : function(el) { return true; },		
+		isDropSupported : function(el) { return true; },										
+		removeClass : function(el, clazz) { 
+			jsPlumb.CurrentLibrary.getElementObject(el).removeClass(clazz); 
 		},		
+		removeElement : function(el) { _getElementObject(el).remove(); },		
 
 		setDragFilter : function(el, filter) {
-			if (jsPlumb.CurrentLibrary.isAlreadyDraggable(el))
-				el.draggable("option", "cancel", filter);
+			jsPlumb.log("NOT IMPLEMENTED: setDragFilter");
 		},
 		
+		/**
+		 * sets the draggable state for the given element
+		 */
 		setDraggable : function(el, draggable) {
-			el.draggable("option", "disabled", !draggable);
+			var id = jsPlumb.getId(el),
+				dd = _draggablesById[id];
+			if (dd) dd.set("lock", !draggable);
 		},
 		
 		setDragScope : function(el, scope) {
-			el.draggable("option", "scope", scope);
+			var id = jsPlumb.getId(el),
+				dd = _draggablesById[id];
+			if (dd) dd.scope = scope;
 		},
 		
 		setOffset : function(el, o) {
-			_getElementObject(el).offset(o);
+			el = _getElementObject(el);
+			el.set("top", o.top);
+			el.set("left", o.left);
+		},
+
+        stopDrag : function() {
+            Y.DD.DDM.stopDrag();
+        },
+		
+		trigger : function(el, event, originalEvent) {
+			originalEvent.stopPropagation();
+			_getElementObject(el).simulate(event, {
+				pageX:originalEvent.pageX, 
+				pageY:originalEvent.pageY, 
+				clientX:originalEvent.clientX, 
+				clientY:originalEvent.clientY
+			});			
 		},
 		
 		/**
-		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
-		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
-		 * from the originalEvent to put in an options object for YUI. 
-		 * @param el
-		 * @param event
-		 * @param originalEvent
+		 * event unbinding wrapper.  
 		 */
-		trigger : function(el, event, originalEvent) {
-			var h = jQuery._data(_getElementObject(el)[0], "handle");
-            h(originalEvent);
-		},
-		
 		unbind : function(el, event, callback) {
-			el = _getElementObject(el);
-			el.unbind(event, callback);
+			_getElementObject(el).detach(event, callback);
 		}
-	};
-	
-	$(document).ready(jsPlumb.init);
-	
-})(jQuery);
-
+	};				
+})();

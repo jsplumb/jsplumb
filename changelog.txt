@@ -4,6 +4,11 @@
 
 		84 - jsPlumb 1.5.1 Arrow Disappears on IE8 when connector is straight
 		85 - dragging target endpoints created by makeTarget not working
+
+		MISCELLANEOUS
+
+		An issue that caused the SVG renderer to paint overlays before the connector was
+		ready when the types API was used was also fixed.
 		
 * 1.5.1
 
