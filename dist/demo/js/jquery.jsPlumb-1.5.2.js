@@ -424,7 +424,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 
@@ -936,7 +936,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -4482,7 +4482,7 @@
             return this.element;
         };		
                  
-        // container not supported in 1.5.1; you cannot change the container once it is set.
+        // container not supported in 1.5.2; you cannot change the container once it is set.
         // it might come back int a future release.
         this.setElement = function(el/*, container*/) {
             var parentId = this._jsPlumb.instance.getId(el),
@@ -5636,7 +5636,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -6702,7 +6702,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -8181,7 +8181,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -8543,7 +8543,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -8877,7 +8877,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -9428,7 +9428,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -10043,7 +10043,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -10555,7 +10555,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.1
+ * Title:jsPlumb 1.5.2
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
