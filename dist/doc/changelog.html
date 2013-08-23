@@ -96,6 +96,12 @@
 			<div class="markdown-body">
 				<!-- BODY -->
 				<h2>Changes between 1.5.1 and 1.5.2</h2>
+<h4>Backwards Compatibility</h4>
+<ul>
+<li>Issue 86, fixed in 1.5.2, changes the priority in which parameters are applied to<pre><code>  a connection. The documentation has always stated that source takes priority, but in fact
+  the code was the other way round, with target taking priority. Now source does take priority.</code></pre>
+</li>
+</ul>
 <h4>Issues</h4>
 <ul>
 <li><strong>84</strong> - jsPlumb 1.5.1 Arrow Disappears on IE8 when connector is straight</li>
@@ -103,7 +109,9 @@
 <li><strong>86</strong> - Connection parameters override order</li>
 </ul>
 <h4>Miscellaneous</h4>
-<p>An issue that caused the SVG renderer to paint overlays before the connector was ready when the types API was used was also fixed.</p>
+<ul>
+<li>An issue that caused the SVG renderer to paint overlays before the connector was ready when the types API was used was also fixed.</li>
+</ul>
 <h2>Changes between 1.5.0 and 1.5.1</h2>
 <h4>Issues</h4>
 <ul>
