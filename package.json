@@ -1,6 +1,6 @@
 {
   "name": "jsPlumb",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "pipe up your life",
   "main": "index.js",
   "directories": {

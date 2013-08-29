@@ -13,8 +13,7 @@
     "explain":true,
     "templates": {
         "cleverLinks": false,
-        "monospaceLinks": false,
-        "SIMON":"SIMON"
+        "monospaceLinks": false
     },
     "css":{
         "demo":"../demo/demo-all.css",
