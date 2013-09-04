@@ -587,48 +587,51 @@
             dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
                 function() {        
 
-                    _jsPlumb.setConnectionBeingDragged(false);            
-                    // get the actual drop event (decode from library args to stop function)
-                    var originalEvent = jpcl.getDropEvent(arguments);					                    
-                    // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
-                    var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-                    jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
-                    // WHY does this need to happen?  i suppose because the connection might not get 
-                    // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
-                    jpc.removeClass(_jsPlumb.draggingClass);                                    
-                
-                    // if we have the floating endpoint then the connection has not been dropped
-                    // on another endpoint.  If it is a new connection we throw it away. If it is an 
-                    // existing connection we check to see if we should reattach it, throwing it away 
-                    // if not.
-                    if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
-                        // 6a. if the connection was an existing one...
-                        if (existingJpc && jpc.suspendedEndpoint) {
-                            // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
-                            // floating endpoint has been replaced.
-                            if (idx === 0) {
-                                jpc.source = existingJpcParams[0];
-                                jpc.sourceId = existingJpcParams[1];
-                            } else {
-                                jpc.target = existingJpcParams[0];
-                                jpc.targetId = existingJpcParams[1];
-                            }
-                            
-                            // restore the original scope (issue 57)
-                            jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
-                            jpc.endpoints[idx] = jpc.suspendedEndpoint;
-                            // IF the connection should be reattached, or the other endpoint refuses detach, then
-                            // reset the connection to its original state
-                            if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
-                                jpc.setHover(false);
-                                jpc.floatingAnchorIndex = null;
-                                jpc._forceDetach = null;
-                                jpc._forceReattach = null;
-                                this._jsPlumb.floatingEndpoint.detachFromConnection(jpc);
-                                jpc.suspendedEndpoint.addConnection(jpc);
-                                _jsPlumb.repaint(existingJpcParams[1]);
-                            }
-                        }																
+                    _jsPlumb.setConnectionBeingDragged(false);  
+                    // if no endpoints, jpc already cleaned up.
+                    if (jpc.endpoints != null) {          
+                        // get the actual drop event (decode from library args to stop function)
+                        var originalEvent = jpcl.getDropEvent(arguments);					                    
+                        // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
+                        var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+                        jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
+                        // WHY does this need to happen?  i suppose because the connection might not get 
+                        // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
+                        jpc.removeClass(_jsPlumb.draggingClass);                                    
+                    
+                        // if we have the floating endpoint then the connection has not been dropped
+                        // on another endpoint.  If it is a new connection we throw it away. If it is an 
+                        // existing connection we check to see if we should reattach it, throwing it away 
+                        // if not.
+                        if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
+                            // 6a. if the connection was an existing one...
+                            if (existingJpc && jpc.suspendedEndpoint) {
+                                // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
+                                // floating endpoint has been replaced.
+                                if (idx === 0) {
+                                    jpc.source = existingJpcParams[0];
+                                    jpc.sourceId = existingJpcParams[1];
+                                } else {
+                                    jpc.target = existingJpcParams[0];
+                                    jpc.targetId = existingJpcParams[1];
+                                }
+                                
+                                // restore the original scope (issue 57)
+                                jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
+                                jpc.endpoints[idx] = jpc.suspendedEndpoint;
+                                // IF the connection should be reattached, or the other endpoint refuses detach, then
+                                // reset the connection to its original state
+                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
+                                    jpc.setHover(false);
+                                    jpc.floatingAnchorIndex = null;
+                                    jpc._forceDetach = null;
+                                    jpc._forceReattach = null;
+                                    this._jsPlumb.floatingEndpoint.detachFromConnection(jpc);
+                                    jpc.suspendedEndpoint.addConnection(jpc);
+                                    _jsPlumb.repaint(existingJpcParams[1]);
+                                }
+                            }																
+                        }
                     }
 
                     // remove the element associated with the floating endpoint 

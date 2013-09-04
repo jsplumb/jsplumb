@@ -622,7 +622,7 @@
 		
 		this.compute = function(params)  {
             if (!edited)
-                paintInfo = _prepareCompute(params);
+                paintInfo = _prepareCompute.call(this, params);
             
             _clearSegments();
             this._compute(paintInfo, params);
