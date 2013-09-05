@@ -11,6 +11,8 @@ At any time there is a built version in the `dist` directory, which contains the
 
 Note that the demos in the `demos` directory are always pointing at the current development version, and therefore have a long list of imports.  
 
+## Issues
+jsPlumb reluctantly uses GitHub's pedestrian issue tracker for enhancements and bugs.  But please do check the [Google Group](https://groups.google.com/forum/?fromgroups#!forum/jsplumb) before posting an issue, particularly if you're just asking a question.
 
 ## Requirements
 - jQuery:
@@ -24,7 +26,7 @@ This issue is fixed in jQuery 1.8.
 
 jsPlumb requires MooTools 1.3.x or 1.2.4 (tested on 1.3.2 and 1.2.4; it might work on other versions). To support
 dragging in MooTools, you will need Drag.Move from MooTools More. jsPlumb has been tested with Drag.Move from MooTools 
-More 1.3.2.1 and 1.2.4.4, but I would recommend using 1.3.2.1 as there were bugs on IE with the getPosition() 
+More 1.3.2.1 and 1.2.4.4, but I would recommend using 1.3.2.1 as there were bugs on IE with the `getPosition()` 
 function of MooTools, which the Drag.Move class uses.
 
 __Firefox 11 and MooTools 1.3.x do not play well together in SVG mode__ - see [this issue](https://github.com/mootools/mootools-core/issues/2331)
