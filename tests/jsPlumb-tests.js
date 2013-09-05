@@ -5201,7 +5201,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 				hoverPaintStyle:{ strokeStyle:"red" },
 				overlays:[
 					"Arrow"
-				]
+				],
+				anchor:"Continuous"
 			},
 			"other":{
 				paintStyle:{ fillStyle:"red" }
@@ -5215,6 +5216,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.addEndpoint(d2);
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
+		equal(e1.anchor.isContinuous, true, "e1's anchor is Continuous");
 		equal(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
 		equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
 		equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
@@ -5238,7 +5240,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		_jsPlumb.registerEndpointType("basic", {
 			connectionType:"basic",
-			paintStyle:{fillStyle:"GAZOODA"}
+			paintStyle:{fillStyle:"GAZOODA"},
+			anchor:"Left"
 		});
 		
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
@@ -5249,6 +5252,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
 		equal(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
+		equal(e1.anchor.orientation[0], -1, "endpoint has correct anchor, from type.");
 		equal(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
 		equal(c.getConnector().type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
 	});
