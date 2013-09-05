@@ -1,5 +1,9 @@
 * 1.5.3
 
+	ISSUES
+
+		77 - endpoint types should support 'anchor'
+
 * 1.5.2
 
 		BACKWARDS COMPATIBILITY
