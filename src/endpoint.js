@@ -916,6 +916,9 @@
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
             jsPlumbUtil.copyValues(typeParameters, t, this);
+            if (t.anchor) {
+                this.anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
+            }
         },
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
