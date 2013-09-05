@@ -11,6 +11,8 @@ At any time there is a built version in the `dist` directory, which contains the
 
 Note that the demos in the `demos` directory are always pointing at the current development version, and therefore have a long list of imports.  
 
+## Issues
+jsPlumb reluctantly uses GitHub's pedestrian issue tracker for enhancements and bugs.  But please do check the [Google Group](https://groups.google.com/forum/?fromgroups#!forum/jsplumb) before posting an issue, particularly if you're just asking a question.
 
 ## Requirements
 - jQuery:
