@@ -33,7 +33,7 @@
         _jsPlumb.updateOffset( { elId : id });
         // create and assign an id, and initialize the offset.
         placeholder.id = id;
-        placeholder.element = n;//placeholderDragElement;
+        placeholder.element = n;
     };
     
     // create a floating endpoint (for drag connections)
@@ -374,8 +374,7 @@
             if (!timestamp || this.timestamp !== timestamp) {						
                 
                 // TODO check: is this is a safe performance enhancement?
-                var info = _jsPlumb.updateOffset({ elId:this.elementId, timestamp:timestamp/*, recalc:recalc*/ });
-                //var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });              
+                var info = _jsPlumb.updateOffset({ elId:this.elementId, timestamp:timestamp/*, recalc:recalc*/ });                
 
                 var xy = params.offset ? params.offset.o : info.o;
                 if(xy != null) {
@@ -507,6 +506,7 @@
                         cssClass:this.connectorClass,
                         hoverClass:this.connectorHoverClass
                     });
+                    jpc.pending = true; // mark this connection as not having been established.
                     jpc.addClass(_jsPlumb.draggingClass);
                     this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
                     // fire an event that informs that a connection is being dragged						
@@ -597,7 +597,7 @@
                         jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
                         // WHY does this need to happen?  i suppose because the connection might not get 
                         // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
-                        jpc.removeClass(_jsPlumb.draggingClass);                                    
+                        jpc.removeClass(_jsPlumb.draggingClass);   
                     
                         // if we have the floating endpoint then the connection has not been dropped
                         // on another endpoint.  If it is a new connection we throw it away. If it is an 
@@ -635,8 +635,7 @@
                     }
 
                     // remove the element associated with the floating endpoint 
-                    // (and its associated floating endpoint and visual artefacts)                    
-                    // TODO we need a way to say that the connection should be kept, if 
+                    // (and its associated floating endpoint and visual artefacts)                                        
                     _jsPlumb.remove(placeholderInfo.element, false);
                     // remove the inplace copy
                     _jsPlumb.remove(inPlaceCopy.canvas, false);
@@ -753,6 +752,7 @@
                                 };	
                                                                                                 
                                 var continueFunction = function() {
+                                    jpc.pending = false;
 
                                     // remove this jpc from the current endpoint
                                     jpc.endpoints[idx].detachFromConnection(jpc);
