@@ -3651,6 +3651,55 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e.innerHTML, "aFunction", "label text is set to new value from Function");
 		equal(o.getLabel(), aFunction, "getLabel function works correctly with Function");
 	});
+
+	test(renderMode + " label overlay custom css class", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	cssClass:"foo"
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label");
+		ok($(o.getElement()).hasClass("foo"), "label overlay has custom css class");
+	});
+
+	test(renderMode + " label overlay custom css class in labelStyle", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	labelStyle:{
+		    		cssClass:"foo"
+		    	}
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label");
+		ok($(o.getElement()).hasClass("foo"), "label overlay has custom css class");
+	});	
+
+	test(renderMode + " label overlay - labelStyle", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	labelStyle:{
+		    		borderWidth:2,
+		    		borderStyle:"red",
+		    		fillStyle:"blue",
+		    		color:"green",
+		    		font:"12px foo",
+		    		padding:10
+		    	}
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label"), el = $(o.getElement());
+		equal(el.css("border-width"), "2px", "border width 2");
+		equal(el.css("border-color"), "rgb(255, 0, 0)", "border color red");
+		equal(el.css("background-color"), "rgb(0, 0, 255)", "bg color blue");
+		equal(el.css("color"), "rgb(0, 128, 0)", "color green");
+		equal(el.css("font"), "normal normal normal 12px/normal foo", "bg font 12px foo");
+	});	
 	
 	test(renderMode + " parameters object works for Endpoint", function() {
 		var d1 = _addDiv("d1"),

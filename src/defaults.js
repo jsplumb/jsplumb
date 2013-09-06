@@ -1402,10 +1402,7 @@
     
     /*
      * Class: Overlays.Label
-     * A Label overlay. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  Version 1.3.0 of jsPlumb
-     * introduced the ability to set css classes on the label; this is now the preferred way for you to style a label.  The 'labelStyle' parameter
-     * is still supported in 1.3.0 but its usage is deprecated.  Under the hood, jsPlumb just turns that object into a bunch of CSS directive that it 
-     * puts on the Label's 'style' attribute, so the end result is the same. 
+     
      */
     /*
      * Function: Constructor
@@ -1417,19 +1414,35 @@
      *         label function returns null.  empty strings _will_ be painted.
      * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
      * 	id - optional id to use for later retrieval of this overlay.
+     * 
      * 	
      */
     jsPlumb.Overlays.Label =  function(params) {		   
-		this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
+		this.labelStyle = params.labelStyle;
+        
+        var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
 		this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
 		var p = jsPlumb.extend({
-                create : function() {
-                    return document.createElement("div");
-                }}, params);
+            create : function() {
+                return document.createElement("div");
+            }}, params);
     	jsPlumb.Overlays.Custom.call(this, p);
 		this.type = "Label";    	
         this.label = params.label || "";
-        this.labelText = null;        	    	
+        this.labelText = null;
+        if (this.labelStyle) {
+            var el = this.getElement();            
+            this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
+            el.style["font"] = this.labelStyle.font;
+            el.style["color"] = this.labelStyle.color || "black";
+            if (this.labelStyle.fillStyle) el.style["background"] = this.labelStyle.fillStyle;
+            if (this.labelStyle.borderWidth > 0) {
+                var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
+                el.style["border"] = this.labelStyle.borderWidth  + "px solid " + dStyle;
+            }
+            if (this.labelStyle.padding) el.style["padding"] = this.labelStyle.padding;            
+        }
+
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
         cleanup:function() {
