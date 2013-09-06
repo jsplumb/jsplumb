@@ -69,7 +69,8 @@
 
 /**
 * @name jsPlumb.Overlays.Label
-* @desc Provides a text label with which to decorate Connectors or Endpoints.
+* @desc Provides a text label with which to decorate Connectors or Endpoints. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  You can style a Label
+* using the `cssClass` parameter, or - if you need to programmatically generate the appearance - the `labelStyle` parameter.     
 */
 
 /** 
@@ -78,6 +79,14 @@
 * @function
 * @param {Object} params Constructor parameters
 * @param {String|Function} label - The text to display. You can provide a function here instead of plain text: it is passed the component as an argument, and it should return a String.
-* @param {String} [cssClass] Optional css class to use for the Label. This is now preferred over using the `labelStyle` parameter.
+* @param {String} [cssClass] Optional css class to use for the Label.
 * @param {Float} [location=0.5] Where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the Label should appear on the Connector
+* @param {Object} [labelStyle] Optional object containing properties for the label's style. Use this if you need to prgrammatically generate the label's appearance.
+* @param {String} [labelStyle.cssClass] css class for the label (you can also use the `cssClass` parameter on the label; this exists for historical reasons)
+* @param {String} [labelStyle.font] A string specifying a font to use, in valid CSS format.
+* @param {String} [labelStyle.color] A string specifying a font color to use, in valid CSS format.
+* @param {String} [labelStyle.fillStyle] A string specifying the background for the label, in valid CSS format.
+* @param {String} [labelStyle.borderStyle] A string specifying the border color for the label, in valid CSS format.
+* @param {Integer} [labelStyle.borderWidth] Width of the border's label
+* @param {Integer} [labelStyle.padding] Padding for the label.
 */
