@@ -734,6 +734,8 @@
 
 			        if (repaintEls) {
 			    	    for (var i in repaintEls) {									 							
+			    	    	// TODO this seems to cause a lag, but we provide the offset, so in theory it 
+			    	    	// should not.  is the timestamp failing?
 				    		_updateOffset( { 
 				    			elId : repaintEls[i].id, 
 				    			offset : {
@@ -900,7 +902,7 @@
 			var tid, tep, existingUniqueEndpoint, newEndpoint;
 
 			// TODO: this code can be refactored to be a little dry.
-			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {							
+			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {
 				tid = _getId(_p.target);
 				tep =_targetEndpointDefinitions[tid];
 				existingUniqueEndpoint = _targetEndpoints[tid];			
@@ -909,7 +911,10 @@
 					// if target not enabled, return.
 					if (!_targetsEnabled[tid]) return;
 
+					// TODO this is dubious. i think it is there so that the endpoint can subsequently
+					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					tep.isTarget = true;
+
 					// check for max connections??						
 					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
@@ -929,6 +934,10 @@
 				if (tep) {
 					// if source not enabled, return.					
 					if (!_sourcesEnabled[tid]) return;
+
+					// TODO this is dubious. i think it is there so that the endpoint can subsequently
+					// be dragged (ie it kicks off the draggable registration). but it is dubious.
+					//tep.isSource = true;
 				
 					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.source, tep);
 					if (_sourceEndpointsUnique[tid]) _sourceEndpoints[tid] = newEndpoint;
@@ -1398,12 +1407,13 @@
 			var _is = _currentInstance.setSuspendDrawing(true);
 			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
 			if (endpoint) {		
-				_currentInstance.deleteObject({endpoint:endpoint});
+				_currentInstance.deleteObject({
+					endpoint:endpoint
+				});
 			}
 			if(!_is) _currentInstance.setSuspendDrawing(false, doNotRepaintAfterwards);
 			return _currentInstance;									
-		};
-		
+		};		
 		
 		this.deleteEveryEndpoint = function() {
 			var _is = _currentInstance.setSuspendDrawing(true);
