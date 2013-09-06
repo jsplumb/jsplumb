@@ -424,7 +424,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 
@@ -936,7 +936,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -1942,6 +1942,8 @@
 
 			        if (repaintEls) {
 			    	    for (var i in repaintEls) {									 							
+			    	    	// TODO this seems to cause a lag, but we provide the offset, so in theory it 
+			    	    	// should not.  is the timestamp failing?
 				    		_updateOffset( { 
 				    			elId : repaintEls[i].id, 
 				    			offset : {
@@ -2108,7 +2110,7 @@
 			var tid, tep, existingUniqueEndpoint, newEndpoint;
 
 			// TODO: this code can be refactored to be a little dry.
-			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {							
+			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {
 				tid = _getId(_p.target);
 				tep =_targetEndpointDefinitions[tid];
 				existingUniqueEndpoint = _targetEndpoints[tid];			
@@ -2117,7 +2119,10 @@
 					// if target not enabled, return.
 					if (!_targetsEnabled[tid]) return;
 
+					// TODO this is dubious. i think it is there so that the endpoint can subsequently
+					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					tep.isTarget = true;
+
 					// check for max connections??						
 					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
@@ -2137,6 +2142,10 @@
 				if (tep) {
 					// if source not enabled, return.					
 					if (!_sourcesEnabled[tid]) return;
+
+					// TODO this is dubious. i think it is there so that the endpoint can subsequently
+					// be dragged (ie it kicks off the draggable registration). but it is dubious.
+					//tep.isSource = true;
 				
 					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.source, tep);
 					if (_sourceEndpointsUnique[tid]) _sourceEndpoints[tid] = newEndpoint;
@@ -2606,12 +2615,13 @@
 			var _is = _currentInstance.setSuspendDrawing(true);
 			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
 			if (endpoint) {		
-				_currentInstance.deleteObject({endpoint:endpoint});
+				_currentInstance.deleteObject({
+					endpoint:endpoint
+				});
 			}
 			if(!_is) _currentInstance.setSuspendDrawing(false, doNotRepaintAfterwards);
 			return _currentInstance;									
-		};
-		
+		};		
 		
 		this.deleteEveryEndpoint = function() {
 			var _is = _currentInstance.setSuspendDrawing(true);
@@ -3271,153 +3281,153 @@
 			    targetScope = p.scope || _currentInstance.Defaults.Scope,
 			    deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
 			    maxConnections = p.maxConnections || -1,
-				onMaxConnections = p.onMaxConnections;
+				onMaxConnections = p.onMaxConnections,
 
-			_doOne = function(el) {
-				
-				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-				// and use the endpoint definition if found.
-				// decode the info for this element (id and element)
-				var elInfo = _info(el), 
-					elid = elInfo.id,
-					proxyComponent = new jsPlumbUIComponent(p),
-					dropOptions = jsPlumb.extend({}, p.dropOptions || {});
-
-				// store the definitions keyed against the element id.
-				_targetEndpointDefinitions[elid] = p;
-				_targetEndpointsUnique[elid] = p.uniqueEndpoint;
-				_targetMaxConnections[elid] = maxConnections;
-				_targetsEnabled[elid] = true;				
-
-				var _drop = function() {
-					_currentInstance.currentlyDragging = false;
-					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
-						targetCount = _currentInstance.select({target:elid}).length,
-						draggable = _gel(jpcl.getDragObject(arguments)),
-						id = _currentInstance.getAttribute(draggable, "dragId"),										
-						scope = _currentInstance.getAttribute(draggable, "originalScope"),
-						jpc = floatingConnections[id],
-						idx = jpc.endpoints[0].isFloating() ? 0 : 1,
-						// this is not necessarily correct. if the source is being dragged,
-						// then the source endpoint is actually the currently suspended endpoint.
-						source = jpc.endpoints[0],
-						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};					
-						
-					if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
-						if (onMaxConnections) {
-							// TODO here we still have the id of the floating element, not the
-							// actual target.
-							onMaxConnections({
-								element:elInfo.el,
-								connection:jpc
-							}, originalEvent);
-						}
-						return false;
-					}
-
-					// unlock the source anchor to allow it to refresh its position if necessary
-					source.anchor.locked = false;					
-										
-					// restore the original scope if necessary (issue 57)
-					if (scope) jpcl.setDragScope(draggable, scope);				
+				_doOne = function(el) {
 					
-					// check if drop is allowed here.					
-					// if the source is being dragged then in fact
-					// the source and target ids to pass into the drop interceptor are
-					// source - elid
-					// target - jpc's targetId
-					// 
-					// otherwise the ids are
-					// source - jpc.sourceId
-					// target - elid
-					//
-					var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null);							
+					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+					// and use the endpoint definition if found.
+					// decode the info for this element (id and element)
+					var elInfo = _info(el), 
+						elid = elInfo.id,
+						proxyComponent = new jsPlumbUIComponent(p),
+						dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 
-					// reinstate any suspended endpoint; this just puts the connection back into
-					// a state in which it will report sensible values if someone asks it about
-					// its target.  we're going to throw this connection away shortly so it doesnt matter
-					// if we manipulate it a bit.
-					if (jpc.suspendedEndpoint) {
-						jpc[idx ? "targetId" : "sourceId"] = jpc.suspendedEndpoint.elementId;
-						jpc[idx ? "target" : "source"] = jpc.suspendedEndpoint.element;
-						jpc.endpoints[idx] = jpc.suspendedEndpoint;
-					}																										
-					
-					if (_continue) {
-																
-						// make a new Endpoint for the target												
-						var _el = jpcl.getElementObject(elInfo.el),
-							newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
+					// store the definitions keyed against the element id.
+					_targetEndpointDefinitions[elid] = p;
+					_targetEndpointsUnique[elid] = p.uniqueEndpoint;
+					_targetMaxConnections[elid] = maxConnections;
+					_targetsEnabled[elid] = true;				
 
-						if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
-						// TODO test options to makeTarget to see if we should do this?
-						newEndpoint._doNotDeleteOnDetach = false; // reset.
-						newEndpoint._deleteOnDetach = true;
-																
-						// if the anchor has a 'positionFinder' set, then delegate to that function to find
-						// out where to locate the anchor.
-						if (newEndpoint.anchor.positionFinder != null) {
-							var dropPosition = jpcl.getUIPosition(arguments, _currentInstance.getZoom()),
-							elPosition = _getOffset(_el, _currentInstance),
-							elSize = _getSize(_el),
-							ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
-							newEndpoint.anchor.x = ap[0];
-							newEndpoint.anchor.y = ap[1];
-							// now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
-							// support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation 
-							// be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
-							// specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
-							// the target is furthest away from the source.
-						}
-						
-						// change the target endpoint and target element information. really this should be 
-						// done on a method on connection
-						jpc[idx ? "target" : "source"] = newEndpoint.element;
-						jpc[idx ? "targetId" : "sourceId"] = newEndpoint.elementId;
-						jpc.endpoints[idx].detachFromConnection(jpc);
-						if (jpc.endpoints[idx]._deleteOnDetach)
-							jpc.endpoints[idx].deleteAfterDragStop = true; // tell this endpoint to delet itself after drag stop.
-						// set new endpoint, and configure the settings for endpoints to delete on detach
-						newEndpoint.addConnection(jpc);
-						jpc.endpoints[idx] = newEndpoint;
-						jpc.deleteEndpointsOnDetach = deleteEndpointsOnDetach;						
-
-						// inform the anchor manager to update its target endpoint for this connection.
-						// TODO refactor to make this a single method.
-						if (idx == 1)
-							_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
-						else
-							_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
-
-						_finaliseConnection(jpc, null, originalEvent);
-
-					}				
-					// if not allowed to drop...
-					else {
-						// TODO this code is identical (pretty much) to what happens when a connection
-						// dragged from a normal endpoint is in this situation. refactor.
-						// is this an existing connection, and will we reattach?
-						// TODO also this assumes the source needs to detach - is that always valid?
-						if (jpc.suspendedEndpoint) {							
-							if (jpc.isReattach()) {
-								jpc.setHover(false);
-								jpc.floatingAnchorIndex = null;
-								jpc.suspendedEndpoint.addConnection(jpc);
-								_currentInstance.repaint(source.elementId);
+					var _drop = function() {
+						_currentInstance.currentlyDragging = false;
+						var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
+							targetCount = _currentInstance.select({target:elid}).length,
+							draggable = _gel(jpcl.getDragObject(arguments)),
+							id = _currentInstance.getAttribute(draggable, "dragId"),										
+							scope = _currentInstance.getAttribute(draggable, "originalScope"),
+							jpc = floatingConnections[id],
+							idx = jpc.endpoints[0].isFloating() ? 0 : 1,
+							// this is not necessarily correct. if the source is being dragged,
+							// then the source endpoint is actually the currently suspended endpoint.
+							source = jpc.endpoints[0],
+							_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};					
+							
+						if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
+							if (onMaxConnections) {
+								// TODO here we still have the id of the floating element, not the
+								// actual target.
+								onMaxConnections({
+									element:elInfo.el,
+									connection:jpc
+								}, originalEvent);
 							}
-							else
-								source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+							return false;
 						}
+
+						// unlock the source anchor to allow it to refresh its position if necessary
+						source.anchor.locked = false;					
+											
+						// restore the original scope if necessary (issue 57)
+						if (scope) jpcl.setDragScope(draggable, scope);				
 						
-					}														
+						// check if drop is allowed here.					
+						// if the source is being dragged then in fact
+						// the source and target ids to pass into the drop interceptor are
+						// source - elid
+						// target - jpc's targetId
+						// 
+						// otherwise the ids are
+						// source - jpc.sourceId
+						// target - elid
+						//
+						var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null);							
+
+						// reinstate any suspended endpoint; this just puts the connection back into
+						// a state in which it will report sensible values if someone asks it about
+						// its target.  we're going to throw this connection away shortly so it doesnt matter
+						// if we manipulate it a bit.
+						if (jpc.suspendedEndpoint) {
+							jpc[idx ? "targetId" : "sourceId"] = jpc.suspendedEndpoint.elementId;
+							jpc[idx ? "target" : "source"] = jpc.suspendedEndpoint.element;
+							jpc.endpoints[idx] = jpc.suspendedEndpoint;
+						}																										
+						
+						if (_continue) {
+																	
+							// make a new Endpoint for the target												
+							var _el = jpcl.getElementObject(elInfo.el),
+								newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
+
+							if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
+							// TODO test options to makeTarget to see if we should do this?
+							newEndpoint._doNotDeleteOnDetach = false; // reset.
+							newEndpoint._deleteOnDetach = true;
+																	
+							// if the anchor has a 'positionFinder' set, then delegate to that function to find
+							// out where to locate the anchor.
+							if (newEndpoint.anchor.positionFinder != null) {
+								var dropPosition = jpcl.getUIPosition(arguments, _currentInstance.getZoom()),
+								elPosition = _getOffset(_el, _currentInstance),
+								elSize = _getSize(_el),
+								ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
+								newEndpoint.anchor.x = ap[0];
+								newEndpoint.anchor.y = ap[1];
+								// now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
+								// support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation 
+								// be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
+								// specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
+								// the target is furthest away from the source.
+							}
+							
+							// change the target endpoint and target element information. really this should be 
+							// done on a method on connection
+							jpc[idx ? "target" : "source"] = newEndpoint.element;
+							jpc[idx ? "targetId" : "sourceId"] = newEndpoint.elementId;
+							jpc.endpoints[idx].detachFromConnection(jpc);
+							if (jpc.endpoints[idx]._deleteOnDetach)
+								jpc.endpoints[idx].deleteAfterDragStop = true; // tell this endpoint to delet itself after drag stop.
+							// set new endpoint, and configure the settings for endpoints to delete on detach
+							newEndpoint.addConnection(jpc);
+							jpc.endpoints[idx] = newEndpoint;
+							jpc.deleteEndpointsOnDetach = deleteEndpointsOnDetach;						
+
+							// inform the anchor manager to update its target endpoint for this connection.
+							// TODO refactor to make this a single method.
+							if (idx == 1)
+								_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
+							else
+								_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
+
+							_finaliseConnection(jpc, null, originalEvent);
+
+						}				
+						// if not allowed to drop...
+						else {
+							// TODO this code is identical (pretty much) to what happens when a connection
+							// dragged from a normal endpoint is in this situation. refactor.
+							// is this an existing connection, and will we reattach?
+							// TODO also this assumes the source needs to detach - is that always valid?
+							if (jpc.suspendedEndpoint) {							
+								if (jpc.isReattach()) {
+									jpc.setHover(false);
+									jpc.floatingAnchorIndex = null;
+									jpc.suspendedEndpoint.addConnection(jpc);
+									_currentInstance.repaint(source.elementId);
+								}
+								else
+									source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+							}
+							
+						}														
+					};
+					
+					// wrap drop events as needed and initialise droppable
+					var dropEvent = jpcl.dragEvents.drop;
+					dropOptions.scope = dropOptions.scope || targetScope;
+					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
+					jpcl.initDroppable(_gel(elInfo.el), dropOptions, true);
 				};
-				
-				// wrap drop events as needed and initialise droppable
-				var dropEvent = jpcl.dragEvents.drop;
-				dropOptions.scope = dropOptions.scope || targetScope;
-				dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
-				jpcl.initDroppable(_gel(elInfo.el), dropOptions, true);
-			};
 			
 			// YUI collection fix
 			el = _convertYUICollection(el);			
@@ -4210,7 +4220,7 @@
         _jsPlumb.updateOffset( { elId : id });
         // create and assign an id, and initialize the offset.
         placeholder.id = id;
-        placeholder.element = n;//placeholderDragElement;
+        placeholder.element = n;
     };
     
     // create a floating endpoint (for drag connections)
@@ -4482,7 +4492,7 @@
             return this.element;
         };		
                  
-        // container not supported in 1.5.2; you cannot change the container once it is set.
+        // container not supported in 1.5.3; you cannot change the container once it is set.
         // it might come back int a future release.
         this.setElement = function(el/*, container*/) {
             var parentId = this._jsPlumb.instance.getId(el),
@@ -4551,8 +4561,7 @@
             if (!timestamp || this.timestamp !== timestamp) {						
                 
                 // TODO check: is this is a safe performance enhancement?
-                var info = _jsPlumb.updateOffset({ elId:this.elementId, timestamp:timestamp/*, recalc:recalc*/ });
-                //var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });              
+                var info = _jsPlumb.updateOffset({ elId:this.elementId, timestamp:timestamp/*, recalc:recalc*/ });                
 
                 var xy = params.offset ? params.offset.o : info.o;
                 if(xy != null) {
@@ -4684,6 +4693,7 @@
                         cssClass:this.connectorClass,
                         hoverClass:this.connectorHoverClass
                     });
+                    jpc.pending = true; // mark this connection as not having been established.
                     jpc.addClass(_jsPlumb.draggingClass);
                     this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
                     // fire an event that informs that a connection is being dragged						
@@ -4764,53 +4774,55 @@
             dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
                 function() {        
 
-                    _jsPlumb.setConnectionBeingDragged(false);            
-                    // get the actual drop event (decode from library args to stop function)
-                    var originalEvent = jpcl.getDropEvent(arguments);					                    
-                    // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
-                    var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-                    jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
-                    // WHY does this need to happen?  i suppose because the connection might not get 
-                    // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
-                    jpc.removeClass(_jsPlumb.draggingClass);                                    
-                
-                    // if we have the floating endpoint then the connection has not been dropped
-                    // on another endpoint.  If it is a new connection we throw it away. If it is an 
-                    // existing connection we check to see if we should reattach it, throwing it away 
-                    // if not.
-                    if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
-                        // 6a. if the connection was an existing one...
-                        if (existingJpc && jpc.suspendedEndpoint) {
-                            // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
-                            // floating endpoint has been replaced.
-                            if (idx === 0) {
-                                jpc.source = existingJpcParams[0];
-                                jpc.sourceId = existingJpcParams[1];
-                            } else {
-                                jpc.target = existingJpcParams[0];
-                                jpc.targetId = existingJpcParams[1];
-                            }
-                            
-                            // restore the original scope (issue 57)
-                            jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
-                            jpc.endpoints[idx] = jpc.suspendedEndpoint;
-                            // IF the connection should be reattached, or the other endpoint refuses detach, then
-                            // reset the connection to its original state
-                            if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
-                                jpc.setHover(false);
-                                jpc.floatingAnchorIndex = null;
-                                jpc._forceDetach = null;
-                                jpc._forceReattach = null;
-                                this._jsPlumb.floatingEndpoint.detachFromConnection(jpc);
-                                jpc.suspendedEndpoint.addConnection(jpc);
-                                _jsPlumb.repaint(existingJpcParams[1]);
-                            }
-                        }																
+                    _jsPlumb.setConnectionBeingDragged(false);  
+                    // if no endpoints, jpc already cleaned up.
+                    if (jpc.endpoints != null) {          
+                        // get the actual drop event (decode from library args to stop function)
+                        var originalEvent = jpcl.getDropEvent(arguments);					                    
+                        // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
+                        var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+                        jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
+                        // WHY does this need to happen?  i suppose because the connection might not get 
+                        // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
+                        jpc.removeClass(_jsPlumb.draggingClass);   
+                    
+                        // if we have the floating endpoint then the connection has not been dropped
+                        // on another endpoint.  If it is a new connection we throw it away. If it is an 
+                        // existing connection we check to see if we should reattach it, throwing it away 
+                        // if not.
+                        if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
+                            // 6a. if the connection was an existing one...
+                            if (existingJpc && jpc.suspendedEndpoint) {
+                                // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
+                                // floating endpoint has been replaced.
+                                if (idx === 0) {
+                                    jpc.source = existingJpcParams[0];
+                                    jpc.sourceId = existingJpcParams[1];
+                                } else {
+                                    jpc.target = existingJpcParams[0];
+                                    jpc.targetId = existingJpcParams[1];
+                                }
+                                
+                                // restore the original scope (issue 57)
+                                jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
+                                jpc.endpoints[idx] = jpc.suspendedEndpoint;
+                                // IF the connection should be reattached, or the other endpoint refuses detach, then
+                                // reset the connection to its original state
+                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
+                                    jpc.setHover(false);
+                                    jpc.floatingAnchorIndex = null;
+                                    jpc._forceDetach = null;
+                                    jpc._forceReattach = null;
+                                    this._jsPlumb.floatingEndpoint.detachFromConnection(jpc);
+                                    jpc.suspendedEndpoint.addConnection(jpc);
+                                    _jsPlumb.repaint(existingJpcParams[1]);
+                                }
+                            }																
+                        }
                     }
 
                     // remove the element associated with the floating endpoint 
-                    // (and its associated floating endpoint and visual artefacts)                    
-                    // TODO we need a way to say that the connection should be kept, if 
+                    // (and its associated floating endpoint and visual artefacts)                                        
                     _jsPlumb.remove(placeholderInfo.element, false);
                     // remove the inplace copy
                     _jsPlumb.remove(inPlaceCopy.canvas, false);
@@ -4927,6 +4939,7 @@
                                 };	
                                                                                                 
                                 var continueFunction = function() {
+                                    jpc.pending = false;
 
                                     // remove this jpc from the current endpoint
                                     jpc.endpoints[idx].detachFromConnection(jpc);
@@ -5090,6 +5103,9 @@
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
             jsPlumbUtil.copyValues(typeParameters, t, this);
+            if (t.anchor) {
+                this.anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
+            }
         },
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
@@ -5542,7 +5558,7 @@
                 });
             }
             else {                    
-                editable = false;
+                this._jsPlumb.editable = false;
             }                
                 
             if (!doNotRepaint) this.repaint();
@@ -5636,7 +5652,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -6702,7 +6718,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -7323,7 +7339,7 @@
 		
 		this.compute = function(params)  {
             if (!edited)
-                paintInfo = _prepareCompute(params);
+                paintInfo = _prepareCompute.call(this, params);
             
             _clearSegments();
             this._compute(paintInfo, params);
@@ -8103,10 +8119,7 @@
     
     /*
      * Class: Overlays.Label
-     * A Label overlay. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  Version 1.3.0 of jsPlumb
-     * introduced the ability to set css classes on the label; this is now the preferred way for you to style a label.  The 'labelStyle' parameter
-     * is still supported in 1.3.0 but its usage is deprecated.  Under the hood, jsPlumb just turns that object into a bunch of CSS directive that it 
-     * puts on the Label's 'style' attribute, so the end result is the same. 
+     
      */
     /*
      * Function: Constructor
@@ -8118,19 +8131,35 @@
      *         label function returns null.  empty strings _will_ be painted.
      * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
      * 	id - optional id to use for later retrieval of this overlay.
+     * 
      * 	
      */
     jsPlumb.Overlays.Label =  function(params) {		   
-		this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
+		this.labelStyle = params.labelStyle;
+        
+        var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
 		this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
 		var p = jsPlumb.extend({
-                create : function() {
-                    return document.createElement("div");
-                }}, params);
+            create : function() {
+                return document.createElement("div");
+            }}, params);
     	jsPlumb.Overlays.Custom.call(this, p);
 		this.type = "Label";    	
         this.label = params.label || "";
-        this.labelText = null;        	    	
+        this.labelText = null;
+        if (this.labelStyle) {
+            var el = this.getElement();            
+            this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
+            el.style["font"] = this.labelStyle.font;
+            el.style["color"] = this.labelStyle.color || "black";
+            if (this.labelStyle.fillStyle) el.style["background"] = this.labelStyle.fillStyle;
+            if (this.labelStyle.borderWidth > 0) {
+                var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
+                el.style["border"] = this.labelStyle.borderWidth  + "px solid " + dStyle;
+            }
+            if (this.labelStyle.padding) el.style["padding"] = this.labelStyle.padding;            
+        }
+
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
         cleanup:function() {
@@ -8181,7 +8210,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -8543,7 +8572,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -8877,7 +8906,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -9428,7 +9457,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -10043,7 +10072,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -10555,12 +10584,12 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
  * 
- * This file contains the YUI3 adapter.
+ * This file contains the jQuery adapter.
  *
  * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
  * 
@@ -10569,9 +10598,11 @@
  * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */
-
-/**
+ */ 
+/* 
+ * the library specific functions, such as find offset, get id, get attribute, extend etc.  
+ * the full list is:
+ * 
  * addClass				adds a class to the given element
  * animate				calls the underlying library's animate functionality
  * appendElement		appends a child element to a parent element.
@@ -10580,178 +10611,122 @@
  * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
  * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
  * getDragScope			gets the drag scope for a given element.
+ * getDropScope			gets the drop scope for a given element.
  * getElementObject		turns an id or dom element into an element object of the underlying library's type.
  * getOffset			gets an element's offset
- * getOriginalEvent     gets the original browser event from some wrapper event.
+ * getOriginalEvent     gets the original browser event from some wrapper event
+ * getPageXY			gets the page event's xy location.
+ * getParent			gets the parent of some element.
  * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
  * getScrollTop			gets an element's scroll top.  TODO: is this actually used?  will it be?
  * getSize				gets an element's size.
  * getUIPosition		gets the position of some element that is currently being dragged, by extracting it from the arguments passed to a drag callback.
+ * hasClass				returns whether or not the given element has the given class.
  * initDraggable		initializes an element to be draggable 
  * initDroppable		initializes an element to be droppable
  * isDragSupported		returns whether or not drag is supported for some element.
  * isDropSupported		returns whether or not drop is supported for some element.
  * removeClass			removes a class from a given element.
- * removeElement		removes some element completely from the DOM.
+ * removeElement		removes some element completely from the DOM. 
+ * setDragFilter		sets a filter for some element that indicates areas of the element that should not respond to dragging.
  * setDraggable			sets whether or not some element should be draggable.
  * setDragScope			sets the drag scope for a given element.
  * setOffset			sets the offset of some element.
+ * trigger				triggers some event on an element.
+ * unbind				unbinds some listener from some element.
  */
-(function() {
+(function($) {	
 	
-	if (!Array.prototype.indexOf) {
-		Array.prototype.indexOf = function( v, b, s ) {
-			for( var i = +b || 0, l = this.length; i < l; i++ ) {
-	  			if( this[i]===v || s && this[i]==v ) { return i; }
-	 		}
-	 		return -1;
-		};
-	}
-	
-	var Y;
-	
-	YUI().use('node', 'dd', 'dd-constrain', 'anim', 'node-event-simulate', function(_Y) {
-		Y = _Y;	
-		Y.on("domready", function() { jsPlumb.init(); });
-	});
-	
-	/**
-	 * adds the given value to the given list, with the given scope. creates the scoped list
-	 * if necessary.
-	 * used by initDraggable and initDroppable.
-	 */
-	var _add = function(list, scope, value) {
-		var l = list[scope];
-		if (!l) {
-			l = [];
-			list[scope] = l;
-		}
-		l.push(value);
-	},	
-	ddEvents = [ "drag:mouseDown", "drag:afterMouseDown", "drag:mouseup",
-	     "drag:align", "drag:removeHandle", "drag:addHandle", "drag:removeInvalid", "drag:addInvalid",
-	     "drag:start", "drag:end", "drag:drag", "drag:over", "drag:enter",
-	     "drag:exit", "drag:drophit", "drag:dropmiss", "drop:over", "drop:enter", "drop:exit", "drop:hit"	     	               
-	],	
-	animEvents = [ "tween" ],	
-	/**
-	 * helper function to curry callbacks for some element. 
-	 */
-	_wrapper = function(fn) {
-		return function() {
+	//var getBoundingClientRectSupported = "getBoundingClientRect" in document.documentElement;
+
+	var _getElementObject = function(el) {			
+		return typeof(el) == "string" ? $("#" + el) : $(el);
+	};
+
+	jsPlumb.CurrentLibrary = {					        
+		
+		/**
+		 * adds the given class to the element object.
+		 */
+		addClass : function(el, clazz) {
+			el = _getElementObject(el);
 			try {
-				return fn.apply(this, arguments);
-			}
-			catch (e) { }
-		};
-	},	
-	/**
-	 * extracts options from the given options object, leaving out event handlers.
-	 */
-	_getDDOptions = function(options) {
-		var o = {};
-		for (var i in options) if (ddEvents.indexOf(i) == -1) o[i] = options[i];
-		return o;
-	},	
-	/**
-	 * attaches all event handlers found in options to the given dragdrop object, and registering
-	 * the given el as the element of interest.
-	 */
-	_attachListeners = function(dd, options, eventList) {	
-	    for (var ev in options) {
-	    	if (eventList.indexOf(ev) != -1) {
-	    		var w = _wrapper(options[ev]);
-	    		dd.on(ev, w);
-	    	}
-	    }
-	},
-	_droppables = {},
-	_droppableOptions = {},
-	_draggablesByScope = {},
-	_draggablesById = {},
-	_droppableScopesById = {},
-	_checkHover = function(el, entering) {
-		if (el) {
-			var id = el.get("id");
-			if (id) {
-				var options = _droppableOptions[id];
-				if (options) {
-					if (options.hoverClass) {
-						if (entering) el.addClass(options.hoverClass);
-						else el.removeClass(options.hoverClass);
-					}
+				if (el[0].className.constructor == SVGAnimatedString) {
+					jsPlumbUtil.svg.addClass(el[0], clazz);                    
 				}
 			}
-		}
-	},
-	_lastDragObject = null,
-	_extend = function(o1, o2) {
-		for (var i in o2)
-			o1[i] = o2[i];
-		return o1;
-	},
-	_getAttribute = function(el, attributeId) {
-		return el.getAttribute(attributeId);
-	},
-	_getElementObject = function(el) {
-		if (el == null) return null;
-		var eee = null;
-        eee = typeof el == 'string' ? Y.one('#' + el) : el._node ? el : Y.one(el);        
-        return eee;
-	};
-	
-	jsPlumb.CurrentLibrary = {
-			
-		addClass : function(el, clazz) {
-			jsPlumb.CurrentLibrary.getElementObject(el).addClass(clazz);
-		},	
+			catch (e) {
+				// SVGAnimatedString not supported; no problem.
+			}
+            try {                
+                el.addClass(clazz);
+            }
+            catch (e) {
+                // you probably have jQuery 1.9 and Firefox.  
+            }
+		},
 		
 		/**
 		 * animates the given element.
 		 */
 		animate : function(el, properties, options) {
-			var o = _extend({node:el, to:properties}, options),			
-				id = _getAttribute(el, "id");
-			o.tween = jsPlumbUtil.wrap(properties.tween, function() {
-				// TODO should use a current instance.
-				jsPlumb.repaint(id);
-			});
-			var a = new Y.Anim(o);
-			_attachListeners(a, o, animEvents);
-			a.run();
-		},
+			el.animate(properties, options);
+		},				
 		
+		/**
+		 * appends the given child to the given parent.
+
+TODO: REMOVE!
+
+		 */
 		appendElement : function(child, parent) {
-			_getElementObject (parent).append(child);			
+			_getElementObject(parent).append(child);			
+		},   
+
+		/**
+		* executes an ajax call.
+		*/
+		ajax : function(params) {
+			params = params || {};
+			params.type = params.type || "get";
+			$.ajax(params);
 		},
 		
 		/**
-		 * event binding wrapper.  
+		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
+		 * uses 'on'.
 		 */
 		bind : function(el, event, callback) {
-			_getElementObject(el).on(event, callback);
+			el = _getElementObject(el);
+			el.bind(event, callback);
 		},
 
 		destroyDraggable : function(el) {
-			var id = jsPlumb.getId(el),
-				dd = _draggablesById[id];
-
-			if (dd) {
-				dd.destroy();
-				delete _draggablesById[id];
-			}
+			if ($(el).data("draggable"))
+				$(el).draggable("destroy");
 		},
 
 		destroyDroppable : function(el) {
-			// TODO
+			if ($(el).data("droppable"))
+				$(el).droppable("destroy");
 		},
-			
+		
+		/**
+         * mapping of drag events for jQuery
+         */
 		dragEvents : {
-			"start":"drag:start", "stop":"drag:end", "drag":"drag:drag", "step":"step",
-			"over":"drop:enter", "out":"drop:exit", "drop":"drop:hit"
-		},								
-			
-		extend : _extend,			
+			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
+			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
+		},
+				
+		/**
+		 * wrapper around the library's 'extend' functionality (which it hopefully has.
+		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
+		 * instead.  it's not like its hard.
+		 */
+		extend : function(o1, o2) {
+			return $.extend(o1, o2);
+		},		
 		
 		getClientXY : function(eventObject) {
 			return [eventObject.clientX, eventObject.clientY];
@@ -10761,17 +10736,11 @@
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
 		 */
 		getDragObject : function(eventArgs) {
-			// this is a workaround for the unfortunate fact that in YUI3, the 'drop:exit' event does
-			// not contain a reference to the drag that just exited.  single-threaded js to the 
-			// rescue: we'll just keep it for ourselves.
-			if (eventArgs[0].drag) _lastDragObject = eventArgs[0].drag.el;
-			return _lastDragObject;
+			return eventArgs[1].draggable || eventArgs[1].helper;
 		},
 		
 		getDragScope : function(el) {
-			var id = jsPlumb.getId(el),
-				dd = _draggablesById[id];
-			return dd.scope;
+			return $(el).draggable("option", "scope");
 		},
 
 		getDropEvent : function(args) {
@@ -10779,28 +10748,41 @@
 		},
 		
 		getDropScope : function(el) {
-			var id = jsPlumb.getId(el);
-			return _droppableScopesById[id];
+			return $(el).droppable("option", "scope");		
 		},
-		
-		getDOMElement : function(el) { 	
-			if (el == null) return null;		
-			if (typeof(el) == "string") 
-				return document.getElementById(el);
-			else if (el._node) 
-				return el._node;
+
+		/**
+		* gets a DOM element from the given input, which might be a string (in which case we just do document.getElementById),
+		* a selector (in which case we return el[0]), or a DOM element already (we assume this if it's not either of the other
+		* two cases).  this is the opposite of getElementObject below.
+		*/
+		getDOMElement : function(el) {
+			if (el == null) return null;
+			if (typeof(el) == "string") return document.getElementById(el);
+			else if (el.context || el.length != null) return el[0];
 			else return el;
 		},
-		
+	
+		/**
+		 * gets an "element object" from the given input.  this means an object that is used by the
+		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
+		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
+		 * function is used to find the element, using the given String as the element's id.
+		 * 
+		 */		
 		getElementObject : _getElementObject,
 		
-		getOffset : function(el) {			
-			var o = Y.DOM.getXY(el._node);
-			return {left:o[0], top:o[1]};
+		/**
+		  * gets the offset for the element object.  this should return a js object like this:
+		  *
+		  * { left:xxx, top: xxx }
+		 */
+		getOffset : function(el) {
+			return el.offset();
 		},
 
 		getOriginalEvent : function(e) {
-			return e._event;
+			return e.originalEvent;
 		},
 		
 		getPageXY : function(eventObject) {
@@ -10808,162 +10790,213 @@
 		},
 		
 		getParent : function(el) {
-			return jsPlumb.CurrentLibrary.getElementObject(el).get("parentNode");
+			return _getElementObject(el).parent();
 		},
-		
+														
 		getScrollLeft : function(el) {
-			return 0; 
+			return el.scrollLeft();
 		},
 		
 		getScrollTop : function(el) {
-			return 0;
+			return el.scrollTop();
 		},
 		
 		getSelector : function(context, spec) {
-			var _convert = function(s) { return s && s ._nodes ? s._nodes : []; };
-            
-            if (arguments.length == 2) {            
-                return _convert(jsPlumb.CurrentLibrary.getElementObject(context).all(spec));
-            }
-            else {
-			     return _convert(Y.all(context));
-            }            
+            if (arguments.length == 2)
+                return _getElementObject(context).find(spec);
+            else
+                return $(context);
 		},
 		
+		/**
+		 * gets the size for the element object, in an array : [ width, height ].
+		 */
 		getSize : function(el) {
-			return [ el._node.offsetWidth, el._node.offsetHeight ];
+			el = $(el);
+			return [el.outerWidth(), el.outerHeight()];
 		},
 
         getTagName : function(el) {
-            var e = jsPlumb.CurrentLibrary.getElementObject(el);
-            return e != null && e._node != null ? e._node.tagName : null;
+            var e = _getElementObject(el);
+            return e.length > 0 ? e[0].tagName : null;
         },
 		
-		getUIPosition : function(args, zoom) {
+		/**
+		 * takes the args passed to an event function and returns you an object that gives the
+		 * position of the object being moved, as a js object with the same params as the result of
+		 * getOffset, ie: { left: xxx, top: xxx }.
+		 * 
+		 * different libraries have different signatures for their event callbacks.  
+		 * see getDragObject as well
+		 */
+		getUIPosition : function(eventArgs, zoom) {
+			
 			zoom = zoom || 1;
-			var el = args[0].currentTarget.el._node || args[0].currentTarget.el;
-			var o = Y.DOM.getXY(el);
-			return {left:o[0] / zoom, top:o[1] / zoom };
+			// this code is a workaround for the case that the element being dragged has a margin set on it. jquery UI passes
+			// in the wrong offset if the element has a margin (it doesn't take the margin into account).  the getBoundingClientRect
+			// method, which is in pretty much all browsers now, reports the right numbers.  but it introduces a noticeable lag, which
+			// i don't like.
+            
+			/*if ( getBoundingClientRectSupported ) {
+				var r = eventArgs[1].helper[0].getBoundingClientRect();
+				return { left : r.left, top: r.top };
+			} else {*/
+			if (eventArgs.length == 1) {
+				ret = { left: eventArgs[0].pageX, top:eventArgs[0].pageY };
+			}
+			else {
+				var ui = eventArgs[1],
+				  _offset = ui.offset;
+				  
+				ret = _offset || ui.absolutePosition;
+				
+				// adjust ui position to account for zoom, because jquery ui does not do this.
+				ui.position.left /= zoom;
+				ui.position.top /= zoom;
+			}
+            return { left:ret.left / zoom, top: ret.top / zoom };
 		},		
 		
 		hasClass : function(el, clazz) {
 			return el.hasClass(clazz);
 		},
-				
+		
+		/**
+		 * initialises the given element to be draggable.
+		 */
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
-			var _opts = _getDDOptions(options),
-				id = _jsPlumb.getId(el);
-			_opts.node = "#" + id;	
-			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
-				Y.one(document.body).addClass(_jsPlumb.dragSelectClass);				
-			}, false);	
-			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
-				Y.one(document.body).removeClass(_jsPlumb.dragSelectClass);
-			});	
-			var dd = new Y.DD.Drag(_opts), 
-                containment = options.constrain2node || options.containment;
+			options = options || {};
+			el = $(el);
 
-			dd.el = el;	
-            
-            if (containment) {
-                dd.plug(Y.Plugin.DDConstrained, {
-                    constrain2node: containment
-                });
-            }
-			
-			if (isPlumbedComponent) {
-				var scope = options.scope || _jsPlumb.Defaults.Scope;
-				dd.scope = scope;
-				_add(_draggablesByScope, scope, dd);
-			}
-			
-			_draggablesById[id] = dd;						
-			_attachListeners(dd, options, ddEvents);
+/*
+			// css3 transforms
+			// http://gungfoo.wordpress.com/2013/02/15/jquery-ui-resizabledraggable-with-transform-scale-set/
+			options.start = _jsPlumb.wrap(options["start"], function(e, ui) {
+				// TODO why is this 0?				
+			    ui.position.left = 0;
+			    ui.position.top = 0;
+			});
+
+			options.drag = _jsPlumb.wrap(options["drag"], function(e, ui) {
+
+				console.log("original", ui.originalPosition.left, ui.originalPosition.top);
+				console.log("current", ui.position.left, ui.position.top);
+
+				//var changeLeft = ui.position.left - ui.originalPosition.left; // find change in left
+			    //var newLeft = ui.originalPosition.left + (changeLeft * _jsPlumb.getZoom()); // adjust new left by our zoomScale
+			 
+			    //var changeTop = ui.position.top - ui.originalPosition.top; // find change in top
+			    //var newTop = ui.originalPosition.top + (changeTop * _jsPlumb.getZoom()); // adjust new top by our zoomScale
+			 
+			    //ui.position.left = newLeft;
+			    //ui.position.top = newTop;
+
+			    ui.position.left *= _jsPlumb.getZoom();
+			    ui.position.top *= _jsPlumb.getZoom();
+
+			});
+*/
+
+			options["start"] = jsPlumbUtil.wrap(options["start"], function() {
+				$("body").addClass(_jsPlumb.dragSelectClass);
+			}, false);
+
+			options["stop"] = jsPlumbUtil.wrap(options["stop"], function() {
+				$("body").removeClass(_jsPlumb.dragSelectClass);
+			});
+
+			// remove helper directive if present and no override
+			if (!options.doNotRemoveHelper)
+				options.helper = null;
+			if (isPlumbedComponent)
+				options.scope = options.scope || jsPlumb.Defaults.Scope;
+			el.draggable(options);
 		},
 		
+		/**
+		 * initialises the given element to be droppable.
+		 */
 		initDroppable : function(el, options) {
-			var _opts = _getDDOptions(options),
-				id = jsPlumb.getId(el);
-			_opts.node = "#" + id;			
-			var dd = new Y.DD.Drop(_opts);
-			
-			_droppableOptions[id] = options;
-			
-			options = _extend({}, options);
-			var scope = options.scope || jsPlumb.Defaults.Scope;					
-			_droppableScopesById[id] = scope;
-			
-			options["drop:enter"] = jsPlumbUtil.wrap(options["drop:enter"], function(e) {
-				if (e.drag.scope !== scope) return true;
-				_checkHover(el, true);
-			}, true);
-			options["drop:exit"] = jsPlumbUtil.wrap(options["drop:exit"], function(e) {
-				_checkHover(el, false);
-			});
-			options["drop:hit"] = jsPlumbUtil.wrap(options["drop:hit"], function(e) {
-				if (e.drag.scope !== scope) return true;
-				_checkHover(el, false);
-			}, true);
-			
-			_attachListeners(dd, options, ddEvents);
+			options.scope = options.scope || jsPlumb.Defaults.Scope;
+			$(el).droppable(options);
 		},
 		
 		isAlreadyDraggable : function(el) {
-			el = _getElementObject(el);
-			return el.hasClass("yui3-dd-draggable");
-		},
-		
-		isDragSupported : function(el) { return true; },		
-		isDropSupported : function(el) { return true; },										
-		removeClass : function(el, clazz) { 
-			jsPlumb.CurrentLibrary.getElementObject(el).removeClass(clazz); 
-		},		
-		removeElement : function(el) { _getElementObject(el).remove(); },		
-
-		setDragFilter : function(el, filter) {
-			jsPlumb.log("NOT IMPLEMENTED: setDragFilter");
+			return $(el).hasClass("ui-draggable");
 		},
 		
 		/**
-		 * sets the draggable state for the given element
+		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
 		 */
+		isDragSupported : function(el, options) {
+			return $(el).draggable;
+		},				
+						
+		/**
+		 * returns whether or not drop is supported (by the library, not whether or not it is disabled) for the given element.
+		 */
+		isDropSupported : function(el, options) {
+			return $(el).droppable;
+		},							
+		
+		/**
+		 * removes the given class from the element object.
+		 */
+		removeClass : function(el, clazz) {
+			el = _getElementObject(el);
+			try {
+				if (el[0].className.constructor == SVGAnimatedString) {
+					jsPlumbUtil.svg.removeClass(el[0], clazz);
+                    return;
+				}
+			}
+			catch (e) {
+				// SVGAnimatedString not supported; no problem.
+			}
+			el.removeClass(clazz);
+		},
+		
+		removeElement : function(element) {			
+			_getElementObject(element).remove();
+		},		
+
+		setDragFilter : function(el, filter) {
+			if (jsPlumb.CurrentLibrary.isAlreadyDraggable(el))
+				el.draggable("option", "cancel", filter);
+		},
+		
 		setDraggable : function(el, draggable) {
-			var id = jsPlumb.getId(el),
-				dd = _draggablesById[id];
-			if (dd) dd.set("lock", !draggable);
+			el.draggable("option", "disabled", !draggable);
 		},
 		
 		setDragScope : function(el, scope) {
-			var id = jsPlumb.getId(el),
-				dd = _draggablesById[id];
-			if (dd) dd.scope = scope;
+			el.draggable("option", "scope", scope);
 		},
 		
 		setOffset : function(el, o) {
-			el = _getElementObject(el);
-			el.set("top", o.top);
-			el.set("left", o.left);
-		},
-
-        stopDrag : function() {
-            Y.DD.DDM.stopDrag();
-        },
-		
-		trigger : function(el, event, originalEvent) {
-			originalEvent.stopPropagation();
-			_getElementObject(el).simulate(event, {
-				pageX:originalEvent.pageX, 
-				pageY:originalEvent.pageY, 
-				clientX:originalEvent.clientX, 
-				clientY:originalEvent.clientY
-			});			
+			_getElementObject(el).offset(o);
 		},
 		
 		/**
-		 * event unbinding wrapper.  
+		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
+		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
+		 * from the originalEvent to put in an options object for YUI. 
+		 * @param el
+		 * @param event
+		 * @param originalEvent
 		 */
+		trigger : function(el, event, originalEvent) {
+			var h = jQuery._data(_getElementObject(el)[0], "handle");
+            h(originalEvent);
+		},
+		
 		unbind : function(el, event, callback) {
-			_getElementObject(el).detach(event, callback);
+			el = _getElementObject(el);
+			el.unbind(event, callback);
 		}
-	};				
-})();
+	};
+	
+	$(document).ready(jsPlumb.init);
+	
+})(jQuery);
+

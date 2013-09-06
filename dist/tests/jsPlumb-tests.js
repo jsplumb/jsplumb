@@ -3651,6 +3651,55 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e.innerHTML, "aFunction", "label text is set to new value from Function");
 		equal(o.getLabel(), aFunction, "getLabel function works correctly with Function");
 	});
+
+	test(renderMode + " label overlay custom css class", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	cssClass:"foo"
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label");
+		ok($(o.getElement()).hasClass("foo"), "label overlay has custom css class");
+	});
+
+	test(renderMode + " label overlay custom css class in labelStyle", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	labelStyle:{
+		    		cssClass:"foo"
+		    	}
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label");
+		ok($(o.getElement()).hasClass("foo"), "label overlay has custom css class");
+	});	
+
+	test(renderMode + " label overlay - labelStyle", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	labelStyle:{
+		    		borderWidth:2,
+		    		borderStyle:"red",
+		    		fillStyle:"blue",
+		    		color:"green",
+		    		font:"12px foo",
+		    		padding:10
+		    	}
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label"), el = $(o.getElement());
+		equal(el.css("border-width"), "2px", "border width 2");
+		equal(el.css("border-color"), "rgb(255, 0, 0)", "border color red");
+		equal(el.css("background-color"), "rgb(0, 0, 255)", "bg color blue");
+		equal(el.css("color"), "rgb(0, 128, 0)", "color green");
+		equal(el.css("font"), "normal normal normal 12px/normal foo", "bg font 12px foo");
+	});	
 	
 	test(renderMode + " parameters object works for Endpoint", function() {
 		var d1 = _addDiv("d1"),
@@ -5201,7 +5250,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 				hoverPaintStyle:{ strokeStyle:"red" },
 				overlays:[
 					"Arrow"
-				]
+				],
+				anchor:"Continuous"
 			},
 			"other":{
 				paintStyle:{ fillStyle:"red" }
@@ -5215,6 +5265,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.addEndpoint(d2);
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
+		equal(e1.anchor.isContinuous, true, "e1's anchor is Continuous");
 		equal(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
 		equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
 		equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
@@ -5238,7 +5289,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		_jsPlumb.registerEndpointType("basic", {
 			connectionType:"basic",
-			paintStyle:{fillStyle:"GAZOODA"}
+			paintStyle:{fillStyle:"GAZOODA"},
+			anchor:"Left"
 		});
 		
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
@@ -5249,6 +5301,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
 		equal(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
+		equal(e1.anchor.orientation[0], -1, "endpoint has correct anchor, from type.");
 		equal(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
 		equal(c.getConnector().type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
 	});

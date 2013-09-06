@@ -424,7 +424,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 
@@ -936,7 +936,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -1942,6 +1942,8 @@
 
 			        if (repaintEls) {
 			    	    for (var i in repaintEls) {									 							
+			    	    	// TODO this seems to cause a lag, but we provide the offset, so in theory it 
+			    	    	// should not.  is the timestamp failing?
 				    		_updateOffset( { 
 				    			elId : repaintEls[i].id, 
 				    			offset : {
@@ -2108,7 +2110,7 @@
 			var tid, tep, existingUniqueEndpoint, newEndpoint;
 
 			// TODO: this code can be refactored to be a little dry.
-			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {							
+			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {
 				tid = _getId(_p.target);
 				tep =_targetEndpointDefinitions[tid];
 				existingUniqueEndpoint = _targetEndpoints[tid];			
@@ -2117,7 +2119,10 @@
 					// if target not enabled, return.
 					if (!_targetsEnabled[tid]) return;
 
+					// TODO this is dubious. i think it is there so that the endpoint can subsequently
+					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					tep.isTarget = true;
+
 					// check for max connections??						
 					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
 					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
@@ -2137,6 +2142,10 @@
 				if (tep) {
 					// if source not enabled, return.					
 					if (!_sourcesEnabled[tid]) return;
+
+					// TODO this is dubious. i think it is there so that the endpoint can subsequently
+					// be dragged (ie it kicks off the draggable registration). but it is dubious.
+					//tep.isSource = true;
 				
 					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.source, tep);
 					if (_sourceEndpointsUnique[tid]) _sourceEndpoints[tid] = newEndpoint;
@@ -2606,12 +2615,13 @@
 			var _is = _currentInstance.setSuspendDrawing(true);
 			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
 			if (endpoint) {		
-				_currentInstance.deleteObject({endpoint:endpoint});
+				_currentInstance.deleteObject({
+					endpoint:endpoint
+				});
 			}
 			if(!_is) _currentInstance.setSuspendDrawing(false, doNotRepaintAfterwards);
 			return _currentInstance;									
-		};
-		
+		};		
 		
 		this.deleteEveryEndpoint = function() {
 			var _is = _currentInstance.setSuspendDrawing(true);
@@ -3271,153 +3281,153 @@
 			    targetScope = p.scope || _currentInstance.Defaults.Scope,
 			    deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
 			    maxConnections = p.maxConnections || -1,
-				onMaxConnections = p.onMaxConnections;
+				onMaxConnections = p.onMaxConnections,
 
-			_doOne = function(el) {
-				
-				// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
-				// and use the endpoint definition if found.
-				// decode the info for this element (id and element)
-				var elInfo = _info(el), 
-					elid = elInfo.id,
-					proxyComponent = new jsPlumbUIComponent(p),
-					dropOptions = jsPlumb.extend({}, p.dropOptions || {});
-
-				// store the definitions keyed against the element id.
-				_targetEndpointDefinitions[elid] = p;
-				_targetEndpointsUnique[elid] = p.uniqueEndpoint;
-				_targetMaxConnections[elid] = maxConnections;
-				_targetsEnabled[elid] = true;				
-
-				var _drop = function() {
-					_currentInstance.currentlyDragging = false;
-					var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
-						targetCount = _currentInstance.select({target:elid}).length,
-						draggable = _gel(jpcl.getDragObject(arguments)),
-						id = _currentInstance.getAttribute(draggable, "dragId"),										
-						scope = _currentInstance.getAttribute(draggable, "originalScope"),
-						jpc = floatingConnections[id],
-						idx = jpc.endpoints[0].isFloating() ? 0 : 1,
-						// this is not necessarily correct. if the source is being dragged,
-						// then the source endpoint is actually the currently suspended endpoint.
-						source = jpc.endpoints[0],
-						_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};					
-						
-					if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
-						if (onMaxConnections) {
-							// TODO here we still have the id of the floating element, not the
-							// actual target.
-							onMaxConnections({
-								element:elInfo.el,
-								connection:jpc
-							}, originalEvent);
-						}
-						return false;
-					}
-
-					// unlock the source anchor to allow it to refresh its position if necessary
-					source.anchor.locked = false;					
-										
-					// restore the original scope if necessary (issue 57)
-					if (scope) jpcl.setDragScope(draggable, scope);				
+				_doOne = function(el) {
 					
-					// check if drop is allowed here.					
-					// if the source is being dragged then in fact
-					// the source and target ids to pass into the drop interceptor are
-					// source - elid
-					// target - jpc's targetId
-					// 
-					// otherwise the ids are
-					// source - jpc.sourceId
-					// target - elid
-					//
-					var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null);							
+					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
+					// and use the endpoint definition if found.
+					// decode the info for this element (id and element)
+					var elInfo = _info(el), 
+						elid = elInfo.id,
+						proxyComponent = new jsPlumbUIComponent(p),
+						dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 
-					// reinstate any suspended endpoint; this just puts the connection back into
-					// a state in which it will report sensible values if someone asks it about
-					// its target.  we're going to throw this connection away shortly so it doesnt matter
-					// if we manipulate it a bit.
-					if (jpc.suspendedEndpoint) {
-						jpc[idx ? "targetId" : "sourceId"] = jpc.suspendedEndpoint.elementId;
-						jpc[idx ? "target" : "source"] = jpc.suspendedEndpoint.element;
-						jpc.endpoints[idx] = jpc.suspendedEndpoint;
-					}																										
-					
-					if (_continue) {
-																
-						// make a new Endpoint for the target												
-						var _el = jpcl.getElementObject(elInfo.el),
-							newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
+					// store the definitions keyed against the element id.
+					_targetEndpointDefinitions[elid] = p;
+					_targetEndpointsUnique[elid] = p.uniqueEndpoint;
+					_targetMaxConnections[elid] = maxConnections;
+					_targetsEnabled[elid] = true;				
 
-						if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
-						// TODO test options to makeTarget to see if we should do this?
-						newEndpoint._doNotDeleteOnDetach = false; // reset.
-						newEndpoint._deleteOnDetach = true;
-																
-						// if the anchor has a 'positionFinder' set, then delegate to that function to find
-						// out where to locate the anchor.
-						if (newEndpoint.anchor.positionFinder != null) {
-							var dropPosition = jpcl.getUIPosition(arguments, _currentInstance.getZoom()),
-							elPosition = _getOffset(_el, _currentInstance),
-							elSize = _getSize(_el),
-							ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
-							newEndpoint.anchor.x = ap[0];
-							newEndpoint.anchor.y = ap[1];
-							// now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
-							// support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation 
-							// be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
-							// specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
-							// the target is furthest away from the source.
-						}
-						
-						// change the target endpoint and target element information. really this should be 
-						// done on a method on connection
-						jpc[idx ? "target" : "source"] = newEndpoint.element;
-						jpc[idx ? "targetId" : "sourceId"] = newEndpoint.elementId;
-						jpc.endpoints[idx].detachFromConnection(jpc);
-						if (jpc.endpoints[idx]._deleteOnDetach)
-							jpc.endpoints[idx].deleteAfterDragStop = true; // tell this endpoint to delet itself after drag stop.
-						// set new endpoint, and configure the settings for endpoints to delete on detach
-						newEndpoint.addConnection(jpc);
-						jpc.endpoints[idx] = newEndpoint;
-						jpc.deleteEndpointsOnDetach = deleteEndpointsOnDetach;						
-
-						// inform the anchor manager to update its target endpoint for this connection.
-						// TODO refactor to make this a single method.
-						if (idx == 1)
-							_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
-						else
-							_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
-
-						_finaliseConnection(jpc, null, originalEvent);
-
-					}				
-					// if not allowed to drop...
-					else {
-						// TODO this code is identical (pretty much) to what happens when a connection
-						// dragged from a normal endpoint is in this situation. refactor.
-						// is this an existing connection, and will we reattach?
-						// TODO also this assumes the source needs to detach - is that always valid?
-						if (jpc.suspendedEndpoint) {							
-							if (jpc.isReattach()) {
-								jpc.setHover(false);
-								jpc.floatingAnchorIndex = null;
-								jpc.suspendedEndpoint.addConnection(jpc);
-								_currentInstance.repaint(source.elementId);
+					var _drop = function() {
+						_currentInstance.currentlyDragging = false;
+						var originalEvent = jsPlumb.CurrentLibrary.getDropEvent(arguments),
+							targetCount = _currentInstance.select({target:elid}).length,
+							draggable = _gel(jpcl.getDragObject(arguments)),
+							id = _currentInstance.getAttribute(draggable, "dragId"),										
+							scope = _currentInstance.getAttribute(draggable, "originalScope"),
+							jpc = floatingConnections[id],
+							idx = jpc.endpoints[0].isFloating() ? 0 : 1,
+							// this is not necessarily correct. if the source is being dragged,
+							// then the source endpoint is actually the currently suspended endpoint.
+							source = jpc.endpoints[0],
+							_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};					
+							
+						if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
+							if (onMaxConnections) {
+								// TODO here we still have the id of the floating element, not the
+								// actual target.
+								onMaxConnections({
+									element:elInfo.el,
+									connection:jpc
+								}, originalEvent);
 							}
-							else
-								source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+							return false;
 						}
+
+						// unlock the source anchor to allow it to refresh its position if necessary
+						source.anchor.locked = false;					
+											
+						// restore the original scope if necessary (issue 57)
+						if (scope) jpcl.setDragScope(draggable, scope);				
 						
-					}														
+						// check if drop is allowed here.					
+						// if the source is being dragged then in fact
+						// the source and target ids to pass into the drop interceptor are
+						// source - elid
+						// target - jpc's targetId
+						// 
+						// otherwise the ids are
+						// source - jpc.sourceId
+						// target - elid
+						//
+						var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null);							
+
+						// reinstate any suspended endpoint; this just puts the connection back into
+						// a state in which it will report sensible values if someone asks it about
+						// its target.  we're going to throw this connection away shortly so it doesnt matter
+						// if we manipulate it a bit.
+						if (jpc.suspendedEndpoint) {
+							jpc[idx ? "targetId" : "sourceId"] = jpc.suspendedEndpoint.elementId;
+							jpc[idx ? "target" : "source"] = jpc.suspendedEndpoint.element;
+							jpc.endpoints[idx] = jpc.suspendedEndpoint;
+						}																										
+						
+						if (_continue) {
+																	
+							// make a new Endpoint for the target												
+							var _el = jpcl.getElementObject(elInfo.el),
+								newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
+
+							if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
+							// TODO test options to makeTarget to see if we should do this?
+							newEndpoint._doNotDeleteOnDetach = false; // reset.
+							newEndpoint._deleteOnDetach = true;
+																	
+							// if the anchor has a 'positionFinder' set, then delegate to that function to find
+							// out where to locate the anchor.
+							if (newEndpoint.anchor.positionFinder != null) {
+								var dropPosition = jpcl.getUIPosition(arguments, _currentInstance.getZoom()),
+								elPosition = _getOffset(_el, _currentInstance),
+								elSize = _getSize(_el),
+								ap = newEndpoint.anchor.positionFinder(dropPosition, elPosition, elSize, newEndpoint.anchor.constructorParams);
+								newEndpoint.anchor.x = ap[0];
+								newEndpoint.anchor.y = ap[1];
+								// now figure an orientation for it..kind of hard to know what to do actually. probably the best thing i can do is to
+								// support specifying an orientation in the anchor's spec. if one is not supplied then i will make the orientation 
+								// be what will cause the most natural link to the source: it will be pointing at the source, but it needs to be
+								// specified in one axis only, and so how to make that choice? i think i will use whichever axis is the one in which
+								// the target is furthest away from the source.
+							}
+							
+							// change the target endpoint and target element information. really this should be 
+							// done on a method on connection
+							jpc[idx ? "target" : "source"] = newEndpoint.element;
+							jpc[idx ? "targetId" : "sourceId"] = newEndpoint.elementId;
+							jpc.endpoints[idx].detachFromConnection(jpc);
+							if (jpc.endpoints[idx]._deleteOnDetach)
+								jpc.endpoints[idx].deleteAfterDragStop = true; // tell this endpoint to delet itself after drag stop.
+							// set new endpoint, and configure the settings for endpoints to delete on detach
+							newEndpoint.addConnection(jpc);
+							jpc.endpoints[idx] = newEndpoint;
+							jpc.deleteEndpointsOnDetach = deleteEndpointsOnDetach;						
+
+							// inform the anchor manager to update its target endpoint for this connection.
+							// TODO refactor to make this a single method.
+							if (idx == 1)
+								_currentInstance.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
+							else
+								_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
+
+							_finaliseConnection(jpc, null, originalEvent);
+
+						}				
+						// if not allowed to drop...
+						else {
+							// TODO this code is identical (pretty much) to what happens when a connection
+							// dragged from a normal endpoint is in this situation. refactor.
+							// is this an existing connection, and will we reattach?
+							// TODO also this assumes the source needs to detach - is that always valid?
+							if (jpc.suspendedEndpoint) {							
+								if (jpc.isReattach()) {
+									jpc.setHover(false);
+									jpc.floatingAnchorIndex = null;
+									jpc.suspendedEndpoint.addConnection(jpc);
+									_currentInstance.repaint(source.elementId);
+								}
+								else
+									source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+							}
+							
+						}														
+					};
+					
+					// wrap drop events as needed and initialise droppable
+					var dropEvent = jpcl.dragEvents.drop;
+					dropOptions.scope = dropOptions.scope || targetScope;
+					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
+					jpcl.initDroppable(_gel(elInfo.el), dropOptions, true);
 				};
-				
-				// wrap drop events as needed and initialise droppable
-				var dropEvent = jpcl.dragEvents.drop;
-				dropOptions.scope = dropOptions.scope || targetScope;
-				dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
-				jpcl.initDroppable(_gel(elInfo.el), dropOptions, true);
-			};
 			
 			// YUI collection fix
 			el = _convertYUICollection(el);			
@@ -4210,7 +4220,7 @@
         _jsPlumb.updateOffset( { elId : id });
         // create and assign an id, and initialize the offset.
         placeholder.id = id;
-        placeholder.element = n;//placeholderDragElement;
+        placeholder.element = n;
     };
     
     // create a floating endpoint (for drag connections)
@@ -4482,7 +4492,7 @@
             return this.element;
         };		
                  
-        // container not supported in 1.5.2; you cannot change the container once it is set.
+        // container not supported in 1.5.3; you cannot change the container once it is set.
         // it might come back int a future release.
         this.setElement = function(el/*, container*/) {
             var parentId = this._jsPlumb.instance.getId(el),
@@ -4551,8 +4561,7 @@
             if (!timestamp || this.timestamp !== timestamp) {						
                 
                 // TODO check: is this is a safe performance enhancement?
-                var info = _jsPlumb.updateOffset({ elId:this.elementId, timestamp:timestamp/*, recalc:recalc*/ });
-                //var info = _jsPlumb.updateOffset({ elId:_elementId, timestamp:timestamp, recalc:recalc });              
+                var info = _jsPlumb.updateOffset({ elId:this.elementId, timestamp:timestamp/*, recalc:recalc*/ });                
 
                 var xy = params.offset ? params.offset.o : info.o;
                 if(xy != null) {
@@ -4684,6 +4693,7 @@
                         cssClass:this.connectorClass,
                         hoverClass:this.connectorHoverClass
                     });
+                    jpc.pending = true; // mark this connection as not having been established.
                     jpc.addClass(_jsPlumb.draggingClass);
                     this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
                     // fire an event that informs that a connection is being dragged						
@@ -4764,53 +4774,55 @@
             dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
                 function() {        
 
-                    _jsPlumb.setConnectionBeingDragged(false);            
-                    // get the actual drop event (decode from library args to stop function)
-                    var originalEvent = jpcl.getDropEvent(arguments);					                    
-                    // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
-                    var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
-                    jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
-                    // WHY does this need to happen?  i suppose because the connection might not get 
-                    // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
-                    jpc.removeClass(_jsPlumb.draggingClass);                                    
-                
-                    // if we have the floating endpoint then the connection has not been dropped
-                    // on another endpoint.  If it is a new connection we throw it away. If it is an 
-                    // existing connection we check to see if we should reattach it, throwing it away 
-                    // if not.
-                    if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
-                        // 6a. if the connection was an existing one...
-                        if (existingJpc && jpc.suspendedEndpoint) {
-                            // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
-                            // floating endpoint has been replaced.
-                            if (idx === 0) {
-                                jpc.source = existingJpcParams[0];
-                                jpc.sourceId = existingJpcParams[1];
-                            } else {
-                                jpc.target = existingJpcParams[0];
-                                jpc.targetId = existingJpcParams[1];
-                            }
-                            
-                            // restore the original scope (issue 57)
-                            jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
-                            jpc.endpoints[idx] = jpc.suspendedEndpoint;
-                            // IF the connection should be reattached, or the other endpoint refuses detach, then
-                            // reset the connection to its original state
-                            if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
-                                jpc.setHover(false);
-                                jpc.floatingAnchorIndex = null;
-                                jpc._forceDetach = null;
-                                jpc._forceReattach = null;
-                                this._jsPlumb.floatingEndpoint.detachFromConnection(jpc);
-                                jpc.suspendedEndpoint.addConnection(jpc);
-                                _jsPlumb.repaint(existingJpcParams[1]);
-                            }
-                        }																
+                    _jsPlumb.setConnectionBeingDragged(false);  
+                    // if no endpoints, jpc already cleaned up.
+                    if (jpc.endpoints != null) {          
+                        // get the actual drop event (decode from library args to stop function)
+                        var originalEvent = jpcl.getDropEvent(arguments);					                    
+                        // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
+                        var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
+                        jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
+                        // WHY does this need to happen?  i suppose because the connection might not get 
+                        // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
+                        jpc.removeClass(_jsPlumb.draggingClass);   
+                    
+                        // if we have the floating endpoint then the connection has not been dropped
+                        // on another endpoint.  If it is a new connection we throw it away. If it is an 
+                        // existing connection we check to see if we should reattach it, throwing it away 
+                        // if not.
+                        if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
+                            // 6a. if the connection was an existing one...
+                            if (existingJpc && jpc.suspendedEndpoint) {
+                                // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
+                                // floating endpoint has been replaced.
+                                if (idx === 0) {
+                                    jpc.source = existingJpcParams[0];
+                                    jpc.sourceId = existingJpcParams[1];
+                                } else {
+                                    jpc.target = existingJpcParams[0];
+                                    jpc.targetId = existingJpcParams[1];
+                                }
+                                
+                                // restore the original scope (issue 57)
+                                jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
+                                jpc.endpoints[idx] = jpc.suspendedEndpoint;
+                                // IF the connection should be reattached, or the other endpoint refuses detach, then
+                                // reset the connection to its original state
+                                if (jpc.isReattach() || jpc._forceReattach || jpc._forceDetach || !jpc.endpoints[idx === 0 ? 1 : 0].detach(jpc, false, false, true, originalEvent)) {									
+                                    jpc.setHover(false);
+                                    jpc.floatingAnchorIndex = null;
+                                    jpc._forceDetach = null;
+                                    jpc._forceReattach = null;
+                                    this._jsPlumb.floatingEndpoint.detachFromConnection(jpc);
+                                    jpc.suspendedEndpoint.addConnection(jpc);
+                                    _jsPlumb.repaint(existingJpcParams[1]);
+                                }
+                            }																
+                        }
                     }
 
                     // remove the element associated with the floating endpoint 
-                    // (and its associated floating endpoint and visual artefacts)                    
-                    // TODO we need a way to say that the connection should be kept, if 
+                    // (and its associated floating endpoint and visual artefacts)                                        
                     _jsPlumb.remove(placeholderInfo.element, false);
                     // remove the inplace copy
                     _jsPlumb.remove(inPlaceCopy.canvas, false);
@@ -4927,6 +4939,7 @@
                                 };	
                                                                                                 
                                 var continueFunction = function() {
+                                    jpc.pending = false;
 
                                     // remove this jpc from the current endpoint
                                     jpc.endpoints[idx].detachFromConnection(jpc);
@@ -5090,6 +5103,9 @@
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
             jsPlumbUtil.copyValues(typeParameters, t, this);
+            if (t.anchor) {
+                this.anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
+            }
         },
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
@@ -5542,7 +5558,7 @@
                 });
             }
             else {                    
-                editable = false;
+                this._jsPlumb.editable = false;
             }                
                 
             if (!doNotRepaint) this.repaint();
@@ -5636,7 +5652,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -6702,7 +6718,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -7323,7 +7339,7 @@
 		
 		this.compute = function(params)  {
             if (!edited)
-                paintInfo = _prepareCompute(params);
+                paintInfo = _prepareCompute.call(this, params);
             
             _clearSegments();
             this._compute(paintInfo, params);
@@ -8103,10 +8119,7 @@
     
     /*
      * Class: Overlays.Label
-     * A Label overlay. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  Version 1.3.0 of jsPlumb
-     * introduced the ability to set css classes on the label; this is now the preferred way for you to style a label.  The 'labelStyle' parameter
-     * is still supported in 1.3.0 but its usage is deprecated.  Under the hood, jsPlumb just turns that object into a bunch of CSS directive that it 
-     * puts on the Label's 'style' attribute, so the end result is the same. 
+     
      */
     /*
      * Function: Constructor
@@ -8118,19 +8131,35 @@
      *         label function returns null.  empty strings _will_ be painted.
      * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
      * 	id - optional id to use for later retrieval of this overlay.
+     * 
      * 	
      */
     jsPlumb.Overlays.Label =  function(params) {		   
-		this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
+		this.labelStyle = params.labelStyle;
+        
+        var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
 		this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
 		var p = jsPlumb.extend({
-                create : function() {
-                    return document.createElement("div");
-                }}, params);
+            create : function() {
+                return document.createElement("div");
+            }}, params);
     	jsPlumb.Overlays.Custom.call(this, p);
 		this.type = "Label";    	
         this.label = params.label || "";
-        this.labelText = null;        	    	
+        this.labelText = null;
+        if (this.labelStyle) {
+            var el = this.getElement();            
+            this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
+            el.style["font"] = this.labelStyle.font;
+            el.style["color"] = this.labelStyle.color || "black";
+            if (this.labelStyle.fillStyle) el.style["background"] = this.labelStyle.fillStyle;
+            if (this.labelStyle.borderWidth > 0) {
+                var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
+                el.style["border"] = this.labelStyle.borderWidth  + "px solid " + dStyle;
+            }
+            if (this.labelStyle.padding) el.style["padding"] = this.labelStyle.padding;            
+        }
+
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
         cleanup:function() {
@@ -8181,7 +8210,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -8543,7 +8572,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -8877,7 +8906,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -9428,7 +9457,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -10043,7 +10072,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -10555,7 +10584,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
