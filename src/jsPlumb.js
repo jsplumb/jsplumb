@@ -575,6 +575,9 @@
 					this._jsPlumb.overlays[i].destroy();
 				}
 				this._jsPlumb.overlays.splice(0);
+			},
+			setVisible:function(v) {
+				this[v ? "showOverlays" : "hideOverlays"]();
 			}
 		});		
 
@@ -824,6 +827,7 @@
 							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
 							_currentInstance.setConnectionBeingDragged(false);
+							_currentInstance.dragManager.dragEnded(element);
 						});
 						var elId = _getId(element); // need ID
 						draggableStates[elId] = true;  

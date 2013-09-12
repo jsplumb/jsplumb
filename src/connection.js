@@ -272,8 +272,9 @@
         isVisible : function() { return this._jsPlumb.visible; },
         setVisible : function(v) {
             this._jsPlumb.visible = v;
-            this[v ? "showOverlays" : "hideOverlays"]();
-            if (this.connector && this.connector.canvas) this.connector.canvas.style.display = v ? "block" : "none";
+            //this[v ? "showOverlays" : "hideOverlays"]();
+            if (this.connector) 
+                this.connector.setVisible(v);
             this.repaint();
         },
         setEditable : function(e) {

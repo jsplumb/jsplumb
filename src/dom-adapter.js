@@ -43,7 +43,7 @@
 	var DragManager = function(_currentInstance) {		
 		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},			
 			// elementids mapped to the draggable to which they belong.
-			_draggablesForElements = {};
+			_draggablesForElements = {};			
 
         /**
             register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
@@ -186,6 +186,17 @@
 			_dlist = [];
 			_delements = {};
 			_elementsWithEndpoints = {};
+		};
+
+		//
+		// notification drag ended. from 1.5.3 we check automatically if need to update some
+		// ancestor's offsets.
+		//
+		this.dragEnded = function(el) {			
+			var id = _currentInstance.getId(el),
+				ancestor = _draggablesForElements[id];
+
+			if (ancestor) this.updateOffsets(ancestor);
 		};
 		
 	};

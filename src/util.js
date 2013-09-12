@@ -417,7 +417,7 @@
         var eventsToDieOn = [ "ready" ];
                                         
         this.bind = function(event, listener, insertAtStart) {
-            jsPlumbUtil.addToList(_listeners, event, listener, true);     
+            jsPlumbUtil.addToList(_listeners, event, listener, insertAtStart);     
             return this;        
         };
                  

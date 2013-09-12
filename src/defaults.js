@@ -1061,7 +1061,9 @@
         },
         setVisible : function(val) { 
             this.visible = val;
-            this.component.repaint();
+            // TODO this is only actually necessary for canvas. so, the Canvas overlay should
+            // override setVisible and call this.
+            //this.component.repaint();
         },
         isVisible : function() { return this.visible; },
         hide : function() { this.setVisible(false); },

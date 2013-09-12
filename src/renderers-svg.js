@@ -285,6 +285,14 @@
 			this.svg = null;
 			this.canvas = null;
 			this.path = null;			
+		},
+		setVisible:function(v) {
+			if (this.canvas) {
+				this.canvas.style.display = v ? "block" : "none";
+			}
+			if (this.bgCanvas) {
+				this.bgCanvas.style.display = v ? "block" : "none";
+			}
 		}
 	});
 	

@@ -282,6 +282,14 @@
 	jsPlumbUtil.extend(VmlConnector, VmlComponent, {
 		reattachListeners : function() {
 			if (this.canvas) this.reattachListenersForElement(this.canvas, this);
+		},
+		setVisible:function(v) {
+			if (this.canvas) {
+				this.canvas.style.display = v ? "block" : "none";
+			}
+			if (this.bgCanvas) {
+				this.bgCanvas.style.display = v ? "block" : "none";
+			}
 		}
 	});	
 	
@@ -490,7 +498,11 @@
     		if (self.canvas != null) jsPlumb.CurrentLibrary.removeElement(self.canvas);
     	};
     };
-    jsPlumbUtil.extend(AbstractVmlArrowOverlay, VmlComponent);
+    jsPlumbUtil.extend(AbstractVmlArrowOverlay, VmlComponent, {
+    	setVisible : function(state) {
+    	    this.canvas.style.display = state ? "block" : "none";
+    	}
+    });
 	
 	jsPlumb.Overlays.vml.Arrow = function() {
     	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	
