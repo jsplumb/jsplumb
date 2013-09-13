@@ -1,8 +1,27 @@
 * 1.5.3
 
-	ISSUES
+		ISSUES
 
-		77 - endpoint types should support 'anchor'
+		77 - Endpoint types should support Anchor parameter
+		88 - reinstate labelStyle parameter on Label overlay.
+		95 - Nested element positions not updated
+		100 - add setParent function
+		101 - JS error when detaching connection during connection callback
+		103 - IE8: connector hide does not hide overlays or background lines
+
+
+		NEW FUNCTIONALITY
+
+		- a setParent function was added. jsPlumb changes the parent of some element and
+		  updates its internal references accordingly (issue 100).
+
+		- Endpoint types now support the anchor parameter (issue 77)
+
+		- The labelStyle parameter on Label overlays has made a comeback (issue 88). The argument went
+		  along the lines of it being useful if you wanted to programmatically generate a label style.
+
+		 - jsPlumb now automatically updates the internal offsets of some element that has draggable
+		 children (obviating the need for you to call `recalculateOffsets` yourself).
 
 * 1.5.2
 

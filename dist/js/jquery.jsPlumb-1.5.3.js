@@ -840,7 +840,7 @@
         var eventsToDieOn = [ "ready" ];
                                         
         this.bind = function(event, listener, insertAtStart) {
-            jsPlumbUtil.addToList(_listeners, event, listener, true);     
+            jsPlumbUtil.addToList(_listeners, event, listener, insertAtStart);     
             return this;        
         };
                  
@@ -978,7 +978,7 @@
 	var DragManager = function(_currentInstance) {		
 		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},			
 			// elementids mapped to the draggable to which they belong.
-			_draggablesForElements = {};
+			_draggablesForElements = {};			
 
         /**
             register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
@@ -1121,6 +1121,34 @@
 			_dlist = [];
 			_delements = {};
 			_elementsWithEndpoints = {};
+		};
+
+		//
+		// notification drag ended. from 1.5.3 we check automatically if need to update some
+		// ancestor's offsets.
+		//
+		this.dragEnded = function(el) {			
+			var id = _currentInstance.getId(el),
+				ancestor = _draggablesForElements[id];
+
+			if (ancestor) this.updateOffsets(ancestor);
+		};
+
+		this.setParent = function(el, elId, p, pId) {
+			var current = _draggablesForElements[elId];
+			if (current) {
+				if (!_delements[pId])
+					_delements[pId] = {};
+				_delements[pId][elId] = _delements[current][elId];
+				delete _delements[current][elId];
+				var pLoc = jsPlumb.CurrentLibrary.getOffset(p),
+					cLoc = jsPlumb.CurrentLibrary.getOffset(el);
+				_delements[pId][elId].offset = {
+					left:cLoc.left - pLoc.left,
+					top:cLoc.top - pLoc.top
+				};				
+				_draggablesForElements[elId] = pId;
+			}			
 		};
 		
 	};
@@ -1334,7 +1362,6 @@
 				this.constructor.apply(o, a);
 				return o;
 			}.bind(this);				
-
 						
 			// user can supply a beforeDetach callback, which will be executed before a detach
 			// is performed; returning false prevents the detach.			
@@ -1783,6 +1810,9 @@
 					this._jsPlumb.overlays[i].destroy();
 				}
 				this._jsPlumb.overlays.splice(0);
+			},
+			setVisible:function(v) {
+				this[v ? "showOverlays" : "hideOverlays"]();
 			}
 		});		
 
@@ -2032,6 +2062,7 @@
 							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
 							_currentInstance.setConnectionBeingDragged(false);
+							_currentInstance.dragManager.dragEnded(element);
 						});
 						var elId = _getId(element); // need ID
 						draggableStates[elId] = true;  
@@ -4078,7 +4109,7 @@
 		if (!jsPlumbAdapter.headless) {
 			_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 			_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-	    }
+	    }	    
 				    
     };
 
@@ -4091,66 +4122,38 @@
     	},    	
     	registerConnectionType : function(id, type) {
     		this._connectionTypes[id] = jsPlumb.extend({}, type);
-    	},
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:registerConnectionTypes
-    	* @param {object} types Object containing the type specifications.
-    	* @description
-    	* Registers all of the given connection types on this instance of jsPlumb. `types` is expected
-    	* to contain keys with typeids and values with type specification objects.
-    	*/
+    	},    	
     	registerConnectionTypes : function(types) {
     		for (var i in types)
     			this._connectionTypes[i] = jsPlumb.extend({}, types[i]);
-    	},    	
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:registerEndpointType
-    	* @param {string} typeId Id of the type
-    	* @param {object} type Object containing the type specification.
-    	* @description
-    	* Registers the given endpoint type on this instance of jsPlumb.
-    	*/
+    	},    	    	
     	registerEndpointType : function(id, type) {
     		this._endpointTypes[id] = jsPlumb.extend({}, type);
-    	},
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:registerEndpointTypes
-    	* @param {object} types Object containing the type specifications.
-    	* @description
-    	* Registers all of the given endpoint types on this instance of jsPlumb. `types` is expected
-    	* to contain keys with typeids and values with type specification objects.
-    	*/
+    	},    	
     	registerEndpointTypes : function(types) {
     		for (var i in types)
     			this._endpointTypes[i] = jsPlumb.extend({}, types[i]);
-    	},
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:getType
-    	* @param {string} id Id of the type to retrieve
-    	* @param {string} typeDescriptor `"connection"` or `"endpoint"` - the type of Type to get.
-    	* @description
-    	* Returns the given type's specification.
-    	* @return {object} Type specification, it if exists, null otherwise.
-    	*/
+    	},    	
     	getType : function(id, typeDescriptor) {
     		return typeDescriptor ===  "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
     	},
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:setIdChanged
-    	* @param {oldId} string Previous id
-    	* @param {newId} string Element's new id.
-    	* @description called to notify us that an id WAS changed, and we should do our changes, but we
-    	* dont need to change the element's DOM attribute. note that this does not work if the an element with 
-    	* the new id is not in the DOM.
-    	*/
     	setIdChanged : function(oldId, newId) {
     		this.setId(oldId, newId, true);
-    	}	
+    	},
+    	// set parent: change the parent for some node and update all the registrations we need to.
+    	setParent : function(el, newParent) {
+    		var jpcl = jsPlumb.CurrentLibrary,
+    			_el = jpcl.getElementObject(el),
+    			_dom = jpcl.getDOMElement(_el),
+    			_id = this.getId(_dom),
+    			_pel = jpcl.getElementObject(newParent),
+    			_pdom = jpcl.getDOMElement(_pel),
+    			_pid = this.getId(_pdom);
+
+    		_dom.parentNode.removeChild(_dom);
+    		_pdom.appendChild(_dom);
+    		this.dragManager.setParent(_el, _id, _pel, _pid);
+    	}
     });
 
 // --------------------- static instance + AMD registration -------------------------------------------	
@@ -5428,8 +5431,9 @@
         isVisible : function() { return this._jsPlumb.visible; },
         setVisible : function(v) {
             this._jsPlumb.visible = v;
-            this[v ? "showOverlays" : "hideOverlays"]();
-            if (this.connector && this.connector.canvas) this.connector.canvas.style.display = v ? "block" : "none";
+            //this[v ? "showOverlays" : "hideOverlays"]();
+            if (this.connector) 
+                this.connector.setVisible(v);
             this.repaint();
         },
         setEditable : function(e) {
@@ -7778,7 +7782,9 @@
         },
         setVisible : function(val) { 
             this.visible = val;
-            this.component.repaint();
+            // TODO this is only actually necessary for canvas. so, the Canvas overlay should
+            // override setVisible and call this.
+            //this.component.repaint();
         },
         isVisible : function() { return this.visible; },
         hide : function() { this.setVisible(false); },
@@ -8943,7 +8949,7 @@
 	 */
 	var CanvasMouseAdapter = window.CanvasMouseAdapter = function() {
 		var self = this;
-		self.overlayPlacements = [];
+		this.overlayPlacements = [];
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
 		jsPlumbUtil.EventGenerator.apply(this, arguments);
 		/**
@@ -9044,7 +9050,11 @@
 		this.getDisplayElements = function() { return displayElements; };
 		this.appendDisplayElement = function(el) { displayElements.push(el); };
 	};
-	jsPlumbUtil.extend(CanvasComponent, CanvasMouseAdapter);
+	jsPlumbUtil.extend(CanvasComponent, CanvasMouseAdapter, {
+		setVisible:function(state) { 			
+			this.canvas.style.display = state ? "block" : "none";
+		}
+	});
 	
 	var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ];
 	var maybeMakeGradient = function(ctx, style, gradientFunction) {
@@ -9369,32 +9379,7 @@
 	 * Blank endpoint in all renderers is just the default Blank endpoint.
 	 */
 	jsPlumb.Endpoints.canvas.Blank = jsPlumb.Endpoints.Blank;
-	
-	/*
-     * Canvas Bezier Connector. Draws a Bezier curve onto a Canvas element.
-     *
-    jsPlumb.Connectors.canvas.Bezier = function() {
-    	jsPlumb.Connectors.Bezier.apply(this, arguments); 
-    	CanvasConnector.apply(this, arguments);    	        
-    };
-    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Bezier, [ jsPlumb.Connectors.Bezier, CanvasConnector ]);
-    
-    /*
-     * Canvas straight line Connector. Draws a straight line onto a Canvas element.
-     *
-    jsPlumb.Connectors.canvas.Straight = function() {   	 
-		jsPlumb.Connectors.Straight.apply(this, arguments);
-		CanvasConnector.apply(this, arguments);		
-    };
-    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Straight, [ jsPlumb.Connectors.Straight, CanvasConnector ]);
-    
-    jsPlumb.Connectors.canvas.Flowchart = function() {
-    	jsPlumb.Connectors.Flowchart.apply(this, arguments);
-		CanvasConnector.apply(this, arguments);
-    };
-    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Flowchart, [ jsPlumb.Connectors.Flowchart, CanvasConnector ]);
-    
-    */
+		
 // ********************************* END OF CANVAS RENDERERS *******************************************************************    
     
     jsPlumb.Overlays.canvas.Label = jsPlumb.Overlays.Label;
@@ -9406,7 +9391,12 @@
     var CanvasOverlay = function() { 
     	jsPlumb.jsPlumbUIComponent.apply(this, arguments);
     };
-    jsPlumbUtil.extend(CanvasOverlay, jsPlumb.jsPlumbUIComponent);
+    jsPlumbUtil.extend(CanvasOverlay, jsPlumb.jsPlumbUIComponent, {
+    	setVisible : function(state) {
+    	    this.visible = state;
+    	    this.component.repaint();
+    	}
+    });
     
     var AbstractCanvasArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);
@@ -9741,6 +9731,14 @@
 			this.svg = null;
 			this.canvas = null;
 			this.path = null;			
+		},
+		setVisible:function(v) {
+			if (this.canvas) {
+				this.canvas.style.display = v ? "block" : "none";
+			}
+			if (this.bgCanvas) {
+				this.bgCanvas.style.display = v ? "block" : "none";
+			}
 		}
 	});
 	
@@ -10353,6 +10351,14 @@
 	jsPlumbUtil.extend(VmlConnector, VmlComponent, {
 		reattachListeners : function() {
 			if (this.canvas) this.reattachListenersForElement(this.canvas, this);
+		},
+		setVisible:function(v) {
+			if (this.canvas) {
+				this.canvas.style.display = v ? "block" : "none";
+			}
+			if (this.bgCanvas) {
+				this.bgCanvas.style.display = v ? "block" : "none";
+			}
 		}
 	});	
 	
@@ -10561,7 +10567,11 @@
     		if (self.canvas != null) jsPlumb.CurrentLibrary.removeElement(self.canvas);
     	};
     };
-    jsPlumbUtil.extend(AbstractVmlArrowOverlay, VmlComponent);
+    jsPlumbUtil.extend(AbstractVmlArrowOverlay, VmlComponent, {
+    	setVisible : function(state) {
+    	    this.canvas.style.display = state ? "block" : "none";
+    	}
+    });
 	
 	jsPlumb.Overlays.vml.Arrow = function() {
     	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	

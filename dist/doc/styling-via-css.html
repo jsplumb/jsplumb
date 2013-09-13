@@ -172,7 +172,7 @@
 <h4>Connections</h4>
 <p>SVG connections in jsPlumb consist of a parent <code>svg</code> element, inside of which there are one or more <code>path</code> elements, depending on whether or not you have specified an <code>outlineStyle</code>.  To target the path element for some connection, you need a rule like this:</p>
 <pre><code>svg path {
-  stroke:&#39;red&#39;
+  stroke:red;
 }</code></pre>
 <p>Hooking this up to the custom class mechanism, you might do something like this:    </p>
 <pre><code>jsPlumb.connect({
@@ -182,7 +182,7 @@
 });</code></pre>
 <p>CSS:</p>
 <pre><code>svg.redLine path {
-    stroke:&#39;red&#39;;
+    stroke:red;
     stroke-width:3;
 }</code></pre>
 <p>You might be thinking to yourself, why have the <code>svg</code> and <code>path</code> elements in this?  In fact they are  perhaps not required: they&#39;re just there to call out the fact that this is a style on an SVG connector.</p>
@@ -201,11 +201,13 @@
 });</code></pre>
 <p>CSS:</p>
 <pre><code>.aRedEndpoint svg circle {
-    fill:&quot;red&quot;
+    fill:red;
+    stroke:yellow;
 }</code></pre>
 <p>...or:</p>
 <pre><code>.aRedEndpoint svg * {
-    fill:&quot;red&quot;
+    fill:red;
+    stroke:yellow;
 }</code></pre>
 <p>For a full discussion of the properties you can configure on an SVG element via CSS, I refer you to <a href="http://www.w3.org/TR/SVG/styling.html#StylingWithCSS">the SVG spec</a>.</p>
 <h3>CSS for VML elements</h3>

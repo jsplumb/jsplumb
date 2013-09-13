@@ -145,7 +145,7 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="bind"><span class="type-signature"></span>bind<span class="signature">(event, listener)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="bind"><span class="type-signature"></span>bind<span class="signature">(event, listener, <span class="optional">insertAtStart</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -175,7 +175,11 @@
 		<th>Type</th>
 		
 		
+		<th>Argument</th>
 		
+		
+		
+		<th>Default</th>
 		
 		
 		<th class="last">Description</th>
@@ -200,7 +204,19 @@
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>Name of the event to bind to.</p></td>
@@ -223,10 +239,61 @@
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>Function to execute.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>insertAtStart</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+            
+            <td class="description last"><p>Whether or not to insert this listener at the start of the listener list, so it is fired before the other currently registered listeners.</p></td>
         </tr>
 	
 	
@@ -441,7 +508,7 @@
         
             
 <dt>
-    <h4 class="name" id="suspendEvents"><span class="type-signature"></span>suspendEvents<span class="signature">(val)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setSuspendEvents"><span class="type-signature"></span>setSuspendEvents<span class="signature">(val)</span><span class="type-signature"></span></h4>
     
     
 </dt>
