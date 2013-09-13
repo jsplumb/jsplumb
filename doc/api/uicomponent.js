@@ -101,7 +101,7 @@
 * @param {String} typeId Id of the type to add.
 * @param {Object} [params] Optional params to use when applying the type.
 * @param {Boolean} [doNotRepaint=false] Tells jsPlumb not to repaint after adding the type.
-* @desc Adds a type to the component. Note this is distinct from {@link jsPlumbUIComponent#setType}, which overrides all current types - this function just adds a type to the existing list.
+* @desc Adds a type to the component. Note this is distinct from {@link #setType}, which overrides all current types - this function just adds a type to the existing list.
 */
 
 /**
@@ -116,7 +116,7 @@
 * @name jsPlumbUIComponent#toggleType
 * @function
 * @param {String} typeId Id of the type to toggle.
-* @param {Object} [params] Optional params to use if the type does not exist and jsPlumb applies it.
+* @param {Object} [params] Optional params to use if the type is not currently set and jsPlumb applies it.
 * @param {Boolean} [doNotRepaint=false] Tells jsPlumb not to repaint after toggling the type.
 * @desc Toggles the given type on the component.			
 */
@@ -135,7 +135,10 @@
 * The hover paint style is applied as extensions to the paintStyle; it does not entirely replace
 * it. This is because people will most likely want to change just one thing when hovering, say the
 * color for example, but leave the rest of the appearance the same.
-* @param {Object} style Style to use when the mouse is hovering.
+* @param {Object} style Style to use when the mouse is hovering. The allowed values in this object originally come from valid values in an HTML5 canvas.
+* @param {String} [style.fillStyle] Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a `fillStyle` on a Connector will cause the browser to fill the connector's path - probably not what you want.
+* @param {String} [style.strokeStyle] Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use `strokeStyle` on Endpoints to define a border.
+* @param {Integer} [style.lineWidth] Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)
 * @param {Boolean} [doNotRepaint] If true, the component will not be repainted. Useful when setting things up initially.
 */
 
@@ -151,7 +154,10 @@
 * @name jsPlumbUIComponent#setPaintStyle
 * @function
 * @desc Sets the component's paint style and then repaints the component.
-* @param {Object} style Style to use.
+* @param {Object} style Style to use. The allowed values in this object originally come from valid values in an HTML5 canvas.
+* @param {String} [style.fillStyle] Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a `fillStyle` on a Connector will cause the browser to fill the connector's path - probably not what you want.
+* @param {String} [style.strokeStyle] Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use `strokeStyle` on Endpoints to define a border.
+* @param {Integer} [style.lineWidth] Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)
 * @param {Boolean} [doNotRepaint=false] If true, the component will not be repainted.
 */
 

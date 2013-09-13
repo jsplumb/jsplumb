@@ -75,6 +75,7 @@
   * @description Binds a listener to an event.  
   * @param {String} event Name of the event to bind to.
   * @param {Function} listener Function to execute.
+  * @param {Boolean} [insertAtStart=false] Whether or not to insert this listener at the start of the listener list, so it is fired before the other currently registered listeners.
   */
 
   /**
@@ -94,7 +95,7 @@
    * @param {String} [event] Optional. constrains the clear to just listeners for this event.
    */
    /**
-   * @name jsPlumbUtil.EventGenerator#suspendEvents
+   * @name jsPlumbUtil.EventGenerator#setSuspendEvents
    * @function
    * @param {Boolean} val Whether or not to suspend events.
    * @desc Sets whether or not events are suspended.
