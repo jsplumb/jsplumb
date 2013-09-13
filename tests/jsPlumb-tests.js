@@ -228,6 +228,47 @@ var testSuite = function(renderMode, _jsPlumb) {
 	  ok(d3.getAttribute("id") != null, "id on d3");
 	});
 
+	test(renderMode + " : draggable, reference elements returned correctly", function() {
+		var d = _addDiv("d1");
+		var d2 = document.createElement("div");
+		d2.setAttribute("foo", "ff");
+		d.append(d2);
+		var d3 = document.createElement("div");
+		d3.setAttribute("id", "d3");
+		d2.appendChild(d3);		
+		_jsPlumb.draggable(d);
+		_jsPlumb.addEndpoint(d3);
+		_jsPlumb.draggable(d3);
+		// now check ref ids for element d1
+		var els = _jsPlumb.dragManager.getElementsForDraggable("d1");		
+		ok(!jsPlumbUtil.isEmpty(els), "there is one sub-element for d1");
+		ok(els["d3"] != null, "d3 registered");		
+	});
+
+	test(renderMode + " : draggable + setParent, reference elements returned correctly", function() {
+		var d = _addDiv("d1");
+		var d2 = document.createElement("div");
+		d2.setAttribute("foo", "ff");
+		d.append(d2);
+		var d3 = document.createElement("div");
+		d3.setAttribute("id", "d3");
+		d2.appendChild(d3);		
+		_jsPlumb.draggable(d);
+		_jsPlumb.addEndpoint(d3);
+		_jsPlumb.draggable(d3);
+		// create some other new parent
+		var d12 = _addDiv("d12");
+		// and move d3
+		_jsPlumb.setParent(d3, d12);
+
+		// now check ref ids for element d1
+		var els = _jsPlumb.dragManager.getElementsForDraggable("d1");		
+		ok(jsPlumbUtil.isEmpty(els), "there are no sub-elements for d1");
+		var els12 = _jsPlumb.dragManager.getElementsForDraggable("d12");		
+		ok(!jsPlumbUtil.isEmpty(els12), "there is one sub-element for d12");
+		ok(els12["d3"] != null, "d3 registered");		
+	});
+
 	test(renderMode + ": lineWidth specified as string (eew)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = jsPlumb.connect({

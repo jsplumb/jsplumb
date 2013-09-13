@@ -198,6 +198,23 @@
 
 			if (ancestor) this.updateOffsets(ancestor);
 		};
+
+		this.setParent = function(el, elId, p, pId) {
+			var current = _draggablesForElements[elId];
+			if (current) {
+				if (!_delements[pId])
+					_delements[pId] = {};
+				_delements[pId][elId] = _delements[current][elId];
+				delete _delements[current][elId];
+				var pLoc = jsPlumb.CurrentLibrary.getOffset(p),
+					cLoc = jsPlumb.CurrentLibrary.getOffset(el);
+				_delements[pId][elId].offset = {
+					left:cLoc.left - pLoc.left,
+					top:cLoc.top - pLoc.top
+				};				
+				_draggablesForElements[elId] = pId;
+			}			
+		};
 		
 	};
         

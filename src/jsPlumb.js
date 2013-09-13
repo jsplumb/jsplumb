@@ -126,7 +126,6 @@
 				this.constructor.apply(o, a);
 				return o;
 			}.bind(this);				
-
 						
 			// user can supply a beforeDetach callback, which will be executed before a detach
 			// is performed; returning false prevents the detach.			
@@ -2874,7 +2873,7 @@
 		if (!jsPlumbAdapter.headless) {
 			_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 			_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-	    }
+	    }	    
 				    
     };
 
@@ -2887,66 +2886,38 @@
     	},    	
     	registerConnectionType : function(id, type) {
     		this._connectionTypes[id] = jsPlumb.extend({}, type);
-    	},
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:registerConnectionTypes
-    	* @param {object} types Object containing the type specifications.
-    	* @description
-    	* Registers all of the given connection types on this instance of jsPlumb. `types` is expected
-    	* to contain keys with typeids and values with type specification objects.
-    	*/
+    	},    	
     	registerConnectionTypes : function(types) {
     		for (var i in types)
     			this._connectionTypes[i] = jsPlumb.extend({}, types[i]);
-    	},    	
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:registerEndpointType
-    	* @param {string} typeId Id of the type
-    	* @param {object} type Object containing the type specification.
-    	* @description
-    	* Registers the given endpoint type on this instance of jsPlumb.
-    	*/
+    	},    	    	
     	registerEndpointType : function(id, type) {
     		this._endpointTypes[id] = jsPlumb.extend({}, type);
-    	},
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:registerEndpointTypes
-    	* @param {object} types Object containing the type specifications.
-    	* @description
-    	* Registers all of the given endpoint types on this instance of jsPlumb. `types` is expected
-    	* to contain keys with typeids and values with type specification objects.
-    	*/
+    	},    	
     	registerEndpointTypes : function(types) {
     		for (var i in types)
     			this._endpointTypes[i] = jsPlumb.extend({}, types[i]);
-    	},
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:getType
-    	* @param {string} id Id of the type to retrieve
-    	* @param {string} typeDescriptor `"connection"` or `"endpoint"` - the type of Type to get.
-    	* @description
-    	* Returns the given type's specification.
-    	* @return {object} Type specification, it if exists, null otherwise.
-    	*/
+    	},    	
     	getType : function(id, typeDescriptor) {
     		return typeDescriptor ===  "connection" ? this._connectionTypes[id] : this._endpointTypes[id];
     	},
-    	/**
-    	* @doc function
-    	* @name jsPlumb.class:setIdChanged
-    	* @param {oldId} string Previous id
-    	* @param {newId} string Element's new id.
-    	* @description called to notify us that an id WAS changed, and we should do our changes, but we
-    	* dont need to change the element's DOM attribute. note that this does not work if the an element with 
-    	* the new id is not in the DOM.
-    	*/
     	setIdChanged : function(oldId, newId) {
     		this.setId(oldId, newId, true);
-    	}	
+    	},
+    	// set parent: change the parent for some node and update all the registrations we need to.
+    	setParent : function(el, newParent) {
+    		var jpcl = jsPlumb.CurrentLibrary,
+    			_el = jpcl.getElementObject(el),
+    			_dom = jpcl.getDOMElement(_el),
+    			_id = this.getId(_dom),
+    			_pel = jpcl.getElementObject(newParent),
+    			_pdom = jpcl.getDOMElement(_pel),
+    			_pid = this.getId(_pdom);
+
+    		_dom.parentNode.removeChild(_dom);
+    		_pdom.appendChild(_dom);
+    		this.dragManager.setParent(_el, _id, _pel, _pid);
+    	}
     });
 
 // --------------------- static instance + AMD registration -------------------------------------------	
