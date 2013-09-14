@@ -4,6 +4,7 @@
 
 		77 - Endpoint types should support Anchor parameter
 		88 - reinstate labelStyle parameter on Label overlay.
+		90 - overlay setVisible not working (SVG/VML)
 		95 - Nested element positions not updated
 		100 - add setParent function
 		101 - JS error when detaching connection during connection callback
