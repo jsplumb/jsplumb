@@ -12,7 +12,6 @@
 				DragOptions : { cursor: "pointer", zIndex:2000 },
 				HoverClass:"connector-hover"
 			});
-			jsPlumb.setRenderMode(jsPlumb.CANVAS);
 	
 			var connectorStrokeColor = "rgba(50, 50, 200, 1)",
 				connectorHighlightStrokeColor = "rgba(180, 180, 200, 1)",

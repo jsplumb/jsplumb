@@ -102,7 +102,7 @@
 				scope:"green dot",
 				connectorStyle:{ strokeStyle:color2, lineWidth:6 },
 				connector: ["Bezier", { curviness:63 } ],
-				maxConnections:1,
+				maxConnections:3,
 				isTarget:true,
 				dropOptions : exampleDropOptions
 			};
