@@ -548,6 +548,9 @@
     jsPlumbUtil.extend(AbstractSvgArrowOverlay, jsPlumb.jsPlumbUIComponent, {
     	cleanup : function() {
     		if (this.path != null) jsPlumb.CurrentLibrary.removeElement(this.path);
+    	},
+    	setVisible:function(v) {
+    		this.path && (this.path.style.display = (v ? "block" : "none"));
     	}
     });
     
