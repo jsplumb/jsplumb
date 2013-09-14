@@ -25,12 +25,12 @@
 * @constructor
 * @function
 * @param {Object} params Constructor parameters
-* @param {Integer} width Width of the tail of the arrow
-* @param {Integer} length Distance from the tail of the arrow to the head
-* @param {Float} [location=0.5] Where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the Arrow should appear on the Connector
-* @param {Integer} direction Which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards
-* @param {Float} [foldback=0.623] How far along the axis of the arrow the tail points foldback in to.
-* @param {Object} paintStyle A style object in the form used for paintStyle values for Endpoints and Connectors.
+* @param {Integer} [params.width=20] Width of the tail of the arrow
+* @param {Integer} [params.length=20] Distance from the tail of the arrow to the head
+* @param {Float} [params.location=0.5] Where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the Arrow should appear on the Connector
+* @param {Integer} [params.direction=1] Which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards
+* @param {Float} [params.foldback=0.623] How far along the axis of the arrow the tail points foldback in to.
+* @param {Object} [params.paintStyle] A style object in the form used for paintStyle values for Endpoints and Connectors.
 */
 
 /**
@@ -43,11 +43,11 @@
 * @constructor
 * @function
 * @param {Object} params Constructor parameters
-* @param {Integer} width Width of the tail of the arrow
-* @param {Integer} length Distance from the tail of the arrow to the head
-* @param {Float} [location=0.5] Where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the PlainArrow should appear on the Connector
-* @param {Integer} direction Which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards
-* @param {Object} paintStyle A style object in the form used for paintStyle values for Endpoints and Connectors.
+* @param {Integer} [params.width=20] Width of the tail of the arrow
+* @param {Integer} [params.length=20] Distance from the tail of the arrow to the head
+* @param {Float} [params.location=0.5] Where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the PlainArrow should appear on the Connector
+* @param {Integer} [params.direction=1] Which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards
+* @param {Object} [params.paintStyle] A style object in the form used for paintStyle values for Endpoints and Connectors.
 */
 
 /**
@@ -60,11 +60,10 @@
 * @constructor
 * @function
 * @param {Object} params Constructor parameters
-* @param {Integer} width Width of the diamond.
-* @param {Integer} length Length of the diamond.
-* @param {Float} [location=0.5] Where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the Diamond should appear on the Connector
-* @param {Integer} direction Which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards
-* @param {Object} paintStyle A style object in the form used for paintStyle values for Endpoints and Connectors.
+* @param {Integer} [params.width=20] Width of the diamond.
+* @param {Integer} [params.length=20] Length of the diamond.
+* @param {Float} [params.location=0.5] Where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the Diamond should appear on the Connector
+* @param {Object} [params.paintStyle] A style object in the form used for paintStyle values for Endpoints and Connectors.
 */
 
 /**

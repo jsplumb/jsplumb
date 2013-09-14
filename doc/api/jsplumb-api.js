@@ -546,7 +546,7 @@
 /**
 *	@name jsPlumbInstance#unmakeSource
 *	@desc Sets the given element to no longer be a connection source.
-* @param {String|Element|Selector| el The element in question.
+* @param {String|Element|Selector} el The element in question.
 * @function
 *	@returns {jsPlumbInstance} The current jsPlumb instance.
 */
@@ -779,8 +779,7 @@
  * @name jsPlumbInstance#deleteEveryEndpoint
  * @function
  * @returns {jsPlumbInstance} The current jsPlumb instance.
- * @desc
- * Deletes every `Endpoint` and their associated `Connection`s. Distinct from {@link jsPlumbInstance#reset} because we dont clear listeners here, so
+ * @desc Deletes every `Endpoint` and their associated `Connection`s. Distinct from {@link jsPlumbInstance#reset} because we dont clear listeners here, so
  * for that reason this function is often the best way to reset a jsPlumb instance.
  */   
 
