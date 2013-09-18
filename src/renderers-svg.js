@@ -545,7 +545,7 @@
 			if (this.path) this.reattachListenersForElement(this.path, this);
 		};		
     };
-    jsPlumbUtil.extend(AbstractSvgArrowOverlay, jsPlumb.jsPlumbUIComponent, {
+    jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
     	cleanup : function() {
     		if (this.path != null) jsPlumb.CurrentLibrary.removeElement(this.path);
     	},
