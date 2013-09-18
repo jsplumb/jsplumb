@@ -3199,12 +3199,25 @@
 			//		an array of numbers - this defines a single anchor.				
 			else if (_ju.isArray(specimen)) {
 				if (_ju.isArray(specimen[0]) || _ju.isString(specimen[0])) {
-					if (specimen.length == 2 && _ju.isString(specimen[0]) && _ju.isObject(specimen[1])) {
+					/*if (specimen.length == 2 && _ju.isString(specimen[0]) && _ju.isObject(specimen[1])) {
 						var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
 						newAnchor = _a(specimen[0], pp);
 					}
 					else
+						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:jsPlumbInstance});*/
+					if (specimen.length == 2 && _ju.isObject(specimen[1])) {
+						if (_ju.isString(specimen[0])) {
+							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
+							newAnchor = _a(specimen[0], pp);
+						}
+						else {
+							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance, anchors:specimen[0]}, specimen[1]);
+							newAnchor = new jsPlumb.DynamicAnchor(pp);
+						}
+					}
+					else
 						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:jsPlumbInstance});
+
 				}
 				else {
 					var anchorParams = {
@@ -10516,50 +10529,53 @@
     		       " x e";
     	};
     	this.paint = function(params, containerExtents) {
-    		var p = {}, d = params.d, connector = params.component;
-			if (params.strokeStyle) {
-				p.stroked = "true";
-				p.strokecolor = jsPlumbUtil.convertStyle(params.strokeStyle, true);    				
-			}
-			if (params.lineWidth) p.strokeweight = params.lineWidth + "px";
-			if (params.fillStyle) {
-				p.filled = "true";
-				p.fillcolor = params.fillStyle;
-			}			
+    		// only draws for connectors, not endpoints.
+    		if (params.component.canvas && containerExtents) {
+	    		var p = {}, d = params.d, connector = params.component;
+				if (params.strokeStyle) {
+					p.stroked = "true";
+					p.strokecolor = jsPlumbUtil.convertStyle(params.strokeStyle, true);    				
+				}
+				if (params.lineWidth) p.strokeweight = params.lineWidth + "px";
+				if (params.fillStyle) {
+					p.filled = "true";
+					p.fillcolor = params.fillStyle;
+				}			
 
-			var xmin = Math.min(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
-				ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
-				xmax = Math.max(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
-				ymax = Math.max(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
-				w = Math.abs(xmax - xmin),
-				h = Math.abs(ymax - ymin),
-				dim = [xmin, ymin, w, h];
+				var xmin = Math.min(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
+					ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
+					xmax = Math.max(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
+					ymax = Math.max(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
+					w = Math.abs(xmax - xmin),
+					h = Math.abs(ymax - ymin),
+					dim = [xmin, ymin, w, h];
 
-			// for VML, we create overlays using shapes that have the same dimensions and
-			// coordsize as their connector - overlays calculate themselves relative to the
-			// connector (it's how it's been done since the original canvas implementation, because
-			// for canvas that makes sense).
-			p.path = getPath(d);
-			p.coordsize = (connector.w * scale) + "," + (connector.h * scale);			
-			
-			dim[0] = connector.x;
-			dim[1] = connector.y;
-			dim[2] = connector.w;
-			dim[3] = connector.h;
-			
-    		if (self.canvas == null) {
-    			var overlayClass = connector._jsPlumb.overlayClass || "";
-    			var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "";
-    			p["class"] = clazz + " " + overlayClass;
-				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb.instance, true);								
-				connector.appendDisplayElement(self.canvas, true);
-				self.attachListeners(self.canvas, connector);
-				self.attachListeners(self.canvas, self);
+				// for VML, we create overlays using shapes that have the same dimensions and
+				// coordsize as their connector - overlays calculate themselves relative to the
+				// connector (it's how it's been done since the original canvas implementation, because
+				// for canvas that makes sense).
+				p.path = getPath(d);
+				p.coordsize = (connector.w * scale) + "," + (connector.h * scale);			
+				
+				dim[0] = connector.x;
+				dim[1] = connector.y;
+				dim[2] = connector.w;
+				dim[3] = connector.h;
+				
+	    		if (self.canvas == null) {
+	    			var overlayClass = connector._jsPlumb.overlayClass || "";
+	    			var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "";
+	    			p["class"] = clazz + " " + overlayClass;
+					self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb.instance, true);								
+					connector.appendDisplayElement(self.canvas, true);
+					self.attachListeners(self.canvas, connector);
+					self.attachListeners(self.canvas, self);
+				}
+				else {				
+					_pos(self.canvas, dim);
+					_atts(self.canvas, p);
+				}    		
 			}
-			else {				
-				_pos(self.canvas, dim);
-				_atts(self.canvas, p);
-			}    		
     	};
     	
     	this.reattachListeners = function() {
