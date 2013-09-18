@@ -1958,17 +1958,28 @@
 				newAnchor = _a(arguments[0], {elementId:elementId, jsPlumbInstance:_currentInstance});
 			}
 			// is it an array? it will be one of:
-			// 		an array of [name, params] - this defines a single anchor
+			// 		an array of [spec, params] - this defines a single anchor, which may be dynamic, but has parameters.
 			//		an array of arrays - this defines some dynamic anchors
 			//		an array of numbers - this defines a single anchor.				
 			else if (_ju.isArray(specimen)) {
 				if (_ju.isArray(specimen[0]) || _ju.isString(specimen[0])) {
-					if (specimen.length == 2 && _ju.isString(specimen[0]) && _ju.isObject(specimen[1])) {
-						var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
-						newAnchor = _a(specimen[0], pp);
+					// if [spec, params] format
+					if (specimen.length == 2 && _ju.isObject(specimen[1])) {
+						// if first arg is a string, its a named anchor with params
+						if (_ju.isString(specimen[0])) {
+							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
+							newAnchor = _a(specimen[0], pp);
+						}
+						// otherwise first arg is array, second is params. we treat as a dynamic anchor, which is fine
+						// even if the first arg has only one entry. you could argue all anchors should be implicitly dynamic in fact.
+						else {
+							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance, anchors:specimen[0]}, specimen[1]);
+							newAnchor = new jsPlumb.DynamicAnchor(pp);
+						}
 					}
 					else
 						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:jsPlumbInstance});
+
 				}
 				else {
 					var anchorParams = {
