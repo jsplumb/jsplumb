@@ -24,6 +24,13 @@
 		 - jsPlumb now automatically updates the internal offsets of some element that has draggable
 		 children (obviating the need for you to call `recalculateOffsets` yourself).
 
+
+		MISCELLANEOUS
+
+		- an issue was fixed that was preventing the ability to supply a dynamic anchor with parameters, eg
+
+		   [ [ [ 1,0,0,1], [1,1,1,1] ], { selector:function() { ... } } ]
+
 * 1.5.2
 
 		BACKWARDS COMPATIBILITY
