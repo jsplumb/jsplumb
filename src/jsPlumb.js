@@ -2135,7 +2135,12 @@
 						source.anchor.locked = false;					
 											
 						// restore the original scope if necessary (issue 57)
-						if (scope) jpcl.setDragScope(draggable, scope);				
+						if (scope) jpcl.setDragScope(draggable, scope);		
+
+						// if no suspendedEndpoint and not pending, it is likely there was a drop on two 
+						// elements that are on top of each other. abort.
+						if (jpc.suspendedEndpoint == null && !jpc.pending)
+							return false;		
 						
 						// check if drop is allowed here.					
 						// if the source is being dragged then in fact
@@ -2206,6 +2211,7 @@
 								_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
 
 							_finaliseConnection(jpc, null, originalEvent);
+							jpc.pending = false;
 
 						}				
 						// if not allowed to drop...
