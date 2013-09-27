@@ -651,7 +651,7 @@
      * Class: Connectors.Straight
      * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
      */
-    var Straight = function() {
+    var Straight = jsPlumb.Connectors.Straight = function() {
     	this.type = "Straight";
 		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);		
 
