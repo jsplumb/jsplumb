@@ -3194,22 +3194,20 @@
 				newAnchor = _a(arguments[0], {elementId:elementId, jsPlumbInstance:_currentInstance});
 			}
 			// is it an array? it will be one of:
-			// 		an array of [name, params] - this defines a single anchor
+			// 		an array of [spec, params] - this defines a single anchor, which may be dynamic, but has parameters.
 			//		an array of arrays - this defines some dynamic anchors
 			//		an array of numbers - this defines a single anchor.				
 			else if (_ju.isArray(specimen)) {
 				if (_ju.isArray(specimen[0]) || _ju.isString(specimen[0])) {
-					/*if (specimen.length == 2 && _ju.isString(specimen[0]) && _ju.isObject(specimen[1])) {
-						var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
-						newAnchor = _a(specimen[0], pp);
-					}
-					else
-						newAnchor = new jsPlumb.DynamicAnchor({anchors:specimen, selector:null, elementId:elementId, jsPlumbInstance:jsPlumbInstance});*/
+					// if [spec, params] format
 					if (specimen.length == 2 && _ju.isObject(specimen[1])) {
+						// if first arg is a string, its a named anchor with params
 						if (_ju.isString(specimen[0])) {
 							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
 							newAnchor = _a(specimen[0], pp);
 						}
+						// otherwise first arg is array, second is params. we treat as a dynamic anchor, which is fine
+						// even if the first arg has only one entry. you could argue all anchors should be implicitly dynamic in fact.
 						else {
 							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance, anchors:specimen[0]}, specimen[1]);
 							newAnchor = new jsPlumb.DynamicAnchor(pp);
@@ -3373,7 +3371,12 @@
 						source.anchor.locked = false;					
 											
 						// restore the original scope if necessary (issue 57)
-						if (scope) jpcl.setDragScope(draggable, scope);				
+						if (scope) jpcl.setDragScope(draggable, scope);		
+
+						// if no suspendedEndpoint and not pending, it is likely there was a drop on two 
+						// elements that are on top of each other. abort.
+						if (jpc.suspendedEndpoint == null && !jpc.pending)
+							return false;		
 						
 						// check if drop is allowed here.					
 						// if the source is being dragged then in fact
@@ -3444,6 +3447,7 @@
 								_currentInstance.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
 
 							_finaliseConnection(jpc, null, originalEvent);
+							jpc.pending = false;
 
 						}				
 						// if not allowed to drop...
@@ -7273,8 +7277,8 @@
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
                 lw = params.lineWidth || 1,       
-                so = params.sourceEndpoint.anchor.orientation || params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint), 
-                to = params.targetEndpoint.anchor.orientation || params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
+                so = /*params.sourceEndpoint.anchor.orientation ||*/ params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint), 
+                to = /*params.targetEndpoint.anchor.orientation || */params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
                 x = swapX ? params.targetPos[0] : params.sourcePos[0], 
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
@@ -7385,7 +7389,7 @@
      * Class: Connectors.Straight
      * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
      */
-    var Straight = function() {
+    var Straight = jsPlumb.Connectors.Straight = function() {
     	this.type = "Straight";
 		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);		
 
@@ -10004,7 +10008,7 @@
 			if (this.path) this.reattachListenersForElement(this.path, this);
 		};		
     };
-    jsPlumbUtil.extend(AbstractSvgArrowOverlay, jsPlumb.jsPlumbUIComponent, {
+    jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
     	cleanup : function() {
     		if (this.path != null) jsPlumb.CurrentLibrary.removeElement(this.path);
     	},
@@ -10586,7 +10590,7 @@
     		if (self.canvas != null) jsPlumb.CurrentLibrary.removeElement(self.canvas);
     	};
     };
-    jsPlumbUtil.extend(AbstractVmlArrowOverlay, VmlComponent, {
+    jsPlumbUtil.extend(AbstractVmlArrowOverlay, [VmlComponent, jsPlumb.Overlays.AbstractOverlay], {
     	setVisible : function(state) {
     	    this.canvas.style.display = state ? "block" : "none";
     	}
