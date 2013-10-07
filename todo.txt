@@ -24,6 +24,7 @@ future
 
         http://jsfiddle.net/sporritt/S4Fxk/12/   (connect to intermediate endpoint)
         http://jsfiddle.net/sporritt/ZUm7p/50/  (connect list items)
+        http://jsfiddle.net/sporritt/ZQcEc/25/ (drag multiple nodes at once)
 
         extending a connector:
         jsPlumb.Connectors.Flowchart2 = function(params) {
@@ -57,6 +58,18 @@ future
         CSS to disable drag highlight:
         
         http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting
+
+
+        ---------------
+
+        Create a new node at the point a connection is dropped and attach a new connection to it:
+        
+        jsPlumb.bind('connectionDragStop', function (data) {
+            if (data.target == null) {                            
+                var newBlock = createNewBlock(null);
+                jsPlumb.connect({ source:data.sourceId, target:newBlock.id + "-parent" });                            
+            } 
+         });
 
 
     Performance
