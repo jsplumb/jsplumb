@@ -7277,8 +7277,8 @@
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
                 lw = params.lineWidth || 1,       
-                so = /*params.sourceEndpoint.anchor.orientation ||*/ params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint), 
-                to = /*params.targetEndpoint.anchor.orientation || */params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
+                so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint), 
+                to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
                 x = swapX ? params.targetPos[0] : params.sourcePos[0], 
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
@@ -7866,9 +7866,10 @@
             if (component.pointAlongPathFrom) {
 
                 if (_ju.isString(this.loc) || this.loc > 1 || this.loc < 0) {                    
-                    var l = parseInt(this.loc, 10);
-                    hxy = component.pointAlongPathFrom(l, direction * this.length / 2, true);
-                    mid = component.pointOnPath(l, true);
+                    var l = parseInt(this.loc, 10),
+                        fromLoc = this.loc < 0 ? 1 : 0;
+                    hxy = component.pointAlongPathFrom(fromLoc, l, false);
+                    mid = component.pointAlongPathFrom(fromLoc, l - (direction * this.length / 2), false);
                     txy = _ju.pointOnLine(hxy, mid, this.length);
                 }
                 else if (this.loc == 1) {                

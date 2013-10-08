@@ -11,6 +11,7 @@
 		103 - IE8: connector hide does not hide overlays or background lines
 		108 - strange anchor orientation behaviour
 		109 - Dropping new connections on overlapping elements leads to crash after connection is deleted
+		111 - Absolute positioned arrow in wrong location
 
 
 		NEW FUNCTIONALITY

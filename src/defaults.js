@@ -1128,9 +1128,10 @@
             if (component.pointAlongPathFrom) {
 
                 if (_ju.isString(this.loc) || this.loc > 1 || this.loc < 0) {                    
-                    var l = parseInt(this.loc, 10);
-                    hxy = component.pointAlongPathFrom(l, direction * this.length / 2, true);
-                    mid = component.pointOnPath(l, true);
+                    var l = parseInt(this.loc, 10),
+                        fromLoc = this.loc < 0 ? 1 : 0;
+                    hxy = component.pointAlongPathFrom(fromLoc, l, false);
+                    mid = component.pointAlongPathFrom(fromLoc, l - (direction * this.length / 2), false);
                     txy = _ju.pointOnLine(hxy, mid, this.length);
                 }
                 else if (this.loc == 1) {                
