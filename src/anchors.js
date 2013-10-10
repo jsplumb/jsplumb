@@ -520,6 +520,10 @@
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
+                    // dont use timestamp for this endpoint, as it is not for the current element and we may 
+                    // have needed to recalculate anchor position due to the element for the endpoint moving.
+                    //endpointsToPaint[i].paint( { timestamp : null, offset : cd, dimensions : cd.s });
+
                     endpointsToPaint[i].paint( { timestamp : timestamp, offset : cd, dimensions : cd.s });
 				}
 
@@ -548,7 +552,10 @@
 				                
 				// paint all the connections
 				for (i = 0; i < connectionsToPaint.length; i++) {
-					connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false, clearEdits:clearEdits});
+					// if not a connection between the two elements in question dont use the timestamp.
+                    var ts  =timestamp;// ((connectionsToPaint[i].sourceId == sourceId && connectionsToPaint[i].targetId == targetId) ||
+                               //(connectionsToPaint[i].sourceId == targetId && connectionsToPaint[i].targetId == sourceId)) ? timestamp : null;
+                    connectionsToPaint[i].paint({elId:elementId, timestamp:ts, recalc:false, clearEdits:clearEdits});
 				}
 			}
 		};        

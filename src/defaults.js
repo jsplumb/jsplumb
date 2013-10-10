@@ -1436,14 +1436,14 @@
         if (this.labelStyle) {
             var el = this.getElement();            
             this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
-            el.style["font"] = this.labelStyle.font;
-            el.style["color"] = this.labelStyle.color || "black";
-            if (this.labelStyle.fillStyle) el.style["background"] = this.labelStyle.fillStyle;
+            el.style.font = this.labelStyle.font;
+            el.style.color = this.labelStyle.color || "black";
+            if (this.labelStyle.fillStyle) el.style.background = this.labelStyle.fillStyle;
             if (this.labelStyle.borderWidth > 0) {
                 var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
-                el.style["border"] = this.labelStyle.borderWidth  + "px solid " + dStyle;
+                el.style.border = this.labelStyle.borderWidth  + "px solid " + dStyle;
             }
-            if (this.labelStyle.padding) el.style["padding"] = this.labelStyle.padding;            
+            if (this.labelStyle.padding) el.style.padding = this.labelStyle.padding;            
         }
 
     };

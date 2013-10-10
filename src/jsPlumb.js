@@ -1555,7 +1555,7 @@
 
 			var unravelConnection = function(connection) {
 				if(connection != null && result.connections[connection.id] == null) {
-					connection._jsPlumb && connection.setHover(false);
+					if (connection._jsPlumb != null) connection.setHover(false);
 					result.connections[connection.id] = connection;
 					result.connectionCount++;
 					if (deleteAttachedObjects) {
@@ -1568,7 +1568,7 @@
 			};
 			var unravelEndpoint = function(endpoint) {
 				if(endpoint != null && result.endpoints[endpoint.id] == null) {
-					endpoint._jsPlumb && endpoint.setHover(false);
+					if (endpoint._jsPlumb != null) endpoint.setHover(false);
 					result.endpoints[endpoint.id] = endpoint;
 					result.endpointCount++;
 
@@ -1944,7 +1944,7 @@
 		 * Throws: an error if a named anchor was not found.
 		 */
 		this.makeAnchor = function() {
-			var _a = function(t, p) {
+			var pp, _a = function(t, p) {
 				if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
 				if (!_currentInstance.Defaults.DoNotThrowErrors)
 					throw { msg:"jsPlumb: unknown anchor type '" + t + "'" };
@@ -1967,13 +1967,13 @@
 					if (specimen.length == 2 && _ju.isObject(specimen[1])) {
 						// if first arg is a string, its a named anchor with params
 						if (_ju.isString(specimen[0])) {
-							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
+							pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
 							newAnchor = _a(specimen[0], pp);
 						}
 						// otherwise first arg is array, second is params. we treat as a dynamic anchor, which is fine
 						// even if the first arg has only one entry. you could argue all anchors should be implicitly dynamic in fact.
 						else {
-							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance, anchors:specimen[0]}, specimen[1]);
+							pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance, anchors:specimen[0]}, specimen[1]);
 							newAnchor = new jsPlumb.DynamicAnchor(pp);
 						}
 					}

@@ -314,11 +314,11 @@ TODO: REMOVE!
 			});
 */
 
-			options["start"] = jsPlumbUtil.wrap(options["start"], function() {
+			options.start = jsPlumbUtil.wrap(options.start, function() {
 				$("body").addClass(_jsPlumb.dragSelectClass);
 			}, false);
 
-			options["stop"] = jsPlumbUtil.wrap(options["stop"], function() {
+			options.stop = jsPlumbUtil.wrap(options.stop, function() {
 				$("body").removeClass(_jsPlumb.dragSelectClass);
 			});
 
