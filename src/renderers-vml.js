@@ -365,6 +365,9 @@
 							sf = segment.anticlockwise ? 1 : 0,
 							pathType = (segment.anticlockwise ? "at " : "wa "),
 							makePosString = function() {
+								if (d.loopback)
+									return "0,0," + _conv(2*d.r) + "," + _conv(2 * d.r);
+
 								var xy = [
 										null,
 										[ function() { return [xmin, ymin ];}, function() { return [xmin - d.r, ymin - d.r ];}],
@@ -376,8 +379,7 @@
 								return _conv(xy[0]) + "," + _conv(xy[1]) + "," + _conv(xy[0] + (2*d.r)) + "," + _conv(xy[1] + (2*d.r));
 							};
 
-						
-						return pathType + makePosString() + "," + _conv(d.x1) + "," + _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";						
+						return pathType + " " + makePosString() + "," + _conv(d.x1) + "," + _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";												
 					}
 						
 				})[segment.type](segment);	

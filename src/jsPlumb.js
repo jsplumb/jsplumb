@@ -2576,13 +2576,12 @@
 			// TODO this timestamp causes continuous anchors to not repaint properly.
 			// fix this. do not just take out the timestamp. it runs a lot faster with 
 			// the timestamp included.
-			var timestamp = _timestamp();			
+			//var timestamp = null;
+			var timestamp = _timestamp();
 			for ( var elId in endpointsByElement) {
 				_draw(elId, null, timestamp);				
 			}
 			return _currentInstance;
-			/*for (var i = 0; i < connections.length; i++)
-				connections[i].repaint({timestamp:timestamp});*/
 		};
 
 		

@@ -224,6 +224,7 @@
 				
 				// ADD AN ARC SEGMENT.
 				_super.addSegment(this, "Arc", {
+					loopback:true,
 					x1:(x1 - _x) + 4,
 					y1:y1 - _y,
 					startAngle:0,
