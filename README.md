@@ -53,9 +53,15 @@ Documentation can be found in the doc folder of the project, or you can view it 
 
 API documentation is in the apidoc folder of the project, and online [here](http://jsplumb.org/apidocs/).
 
+## jsPlumb Helper Projects
+
 The Bezier curve functions used by jsPlumb have been extracted to a separate project:
 
 [https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
+
+...as have various simple geometry functions:
+
+[https://github.com/sporritt/jsplumb-geom](https://github.com/sporritt/jsplumb-geom)
 
 ## Tests
 Tests can be found [here](http://jsplumb.org/tests/all-tests.html)
