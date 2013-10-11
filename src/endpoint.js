@@ -791,7 +791,7 @@
 
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
-                                    _finaliseConnection(jpc, null, originalEvent, true);
+                                    _finaliseConnection(jpc, null, originalEvent/*, true*/);
                                     
                                     commonFunction();
                                 }.bind(this);

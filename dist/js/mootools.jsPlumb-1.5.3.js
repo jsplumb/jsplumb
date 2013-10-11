@@ -421,6 +421,192 @@
 	};
 })();
 
+/**
+ * jsPlumbGeom v0.1
+ *
+ * Various geometry functions written as part of jsPlumb and perhaps useful for others.
+ *
+ * Copyright (c) 2013 Simon Porritt
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ */
+;(function() {
+
+	
+	"use strict";
+
+	// Establish the root object, `window` in the browser, or `global` on the server.
+	var root = this;
+	var jsPlumbGeom;
+	if (typeof exports !== 'undefined') {
+		jsPlumbGeom = exports;
+	} else {
+		jsPlumbGeom = root.jsPlumbGeom = {};
+	}
+
+	var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
+		_pointHelper = function(p1, p2, fn) {
+		    p1 = _isa(p1) ? p1 : [p1.x, p1.y];
+		    p2 = _isa(p2) ? p2 : [p2.x, p2.y];    
+		    return fn(p1, p2);
+		},
+		/**
+		* @name jsPlumbGeom.gradient
+		* @function
+		* @desc Calculates the gradient of a line between the two points.
+		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+		* @return {Float} The gradient of a line between the two points.
+		*/
+		_gradient = jsPlumbGeom.gradient = function(p1, p2) {
+		    return _pointHelper(p1, p2, function(_p1, _p2) { 
+		        if (_p2[0] == _p1[0])
+		            return _p2[1] > _p1[1] ? Infinity : -Infinity;
+		        else if (_p2[1] == _p1[1]) 
+		            return _p2[0] > _p1[0] ? 0 : -0;
+		        else 
+		            return (_p2[1] - _p1[1]) / (_p2[0] - _p1[0]); 
+		    });		
+		},
+		/**
+		* @name jsPlumbGeom.normal
+		* @function
+		* @desc Calculates the gradient of a normal to a line between the two points.
+		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+		* @return {Float} The gradient of a normal to a line between the two points.
+		*/
+		_normal = jsPlumbGeom.normal = function(p1, p2) {
+		    return -1 / _gradient(p1, p2);
+		},
+		/**
+		* @name jsPlumbGeom.lineLength
+		* @function
+		* @desc Calculates the length of a line between the two points.
+		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+		* @return {Float} The length of a line between the two points.
+		*/
+		_lineLength = jsPlumbGeom.lineLength = function(p1, p2) {
+		    return _pointHelper(p1, p2, function(_p1, _p2) {
+		        return Math.sqrt(Math.pow(_p2[1] - _p1[1], 2) + Math.pow(_p2[0] - _p1[0], 2));			
+		    });
+		},
+		/**
+		* @name jsPlumbGeom.quadrant
+		* @function
+		* @desc Calculates the quadrant in which the angle between the two points lies. 
+		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+		* @return {Integer} The quadrant - 1 for upper right, 2 for lower right, 3 for lower left, 4 for upper left.
+		*/
+		_quadrant = jsPlumbGeom.quadrant = function(p1, p2) {
+		    return _pointHelper(p1, p2, function(_p1, _p2) {
+		        if (_p2[0] > _p1[0]) {
+		            return (_p2[1] > _p1[1]) ? 2 : 1;
+		        }
+		        else if (_p2[0] == _p1[0]) {
+		            return _p2[1] > _p1[1] ? 2 : 1;    
+		        }
+		        else {
+		            return (_p2[1] > _p1[1]) ? 3 : 4;
+		        }
+		    });
+		},
+		/**
+		* @name jsPlumbGeom.theta
+		* @function
+		* @desc Calculates the angle between the two points. 
+		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+		* @return {Float} The angle between the two points.
+		*/
+		_theta = jsPlumbGeom.theta = function(p1, p2) {
+		    return _pointHelper(p1, p2, function(_p1, _p2) {
+		        var m = _gradient(_p1, _p2),
+		            t = Math.atan(m),
+		            s = _quadrant(_p1, _p2);
+		        if ((s == 4 || s== 3)) t += Math.PI;
+		        if (t < 0) t += (2 * Math.PI);
+		    
+		        return t;
+		    });
+		},
+		/**
+		* @name jsPlumbGeom.intersects
+		* @function
+		* @desc Calculates whether or not the two rectangles intersect.
+		* @param {Rectangle} r1 First rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+		* @param {Rectangle} r2 Second rectangle, as a js object in the form `{x:.., y:.., w:.., h:..}`
+		* @return {Boolean} True if the rectangles intersect, false otherwise.
+		*/
+		_intersects = jsPlumbGeom.intersects = function(r1, r2) {
+		    var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
+		        a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h;
+		
+			return  ( (x1 <= a1 && a1 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
+			        ( (x1 <= a2 && a2 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
+			        ( (x1 <= a1 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||
+			        ( (x1 <= a2 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||	
+			        ( (a1 <= x1 && x1 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
+			        ( (a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
+			        ( (a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2) ) ||
+			        ( (a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2) );
+		},
+		_segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ],
+		_inverseSegmentMultipliers = [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ],
+		/**
+		* @name jsPlumbGeom.pointOnLine
+		* @function
+		* @desc Calculates a point on the line from `fromPoint` to `toPoint` that is `distance` units along the length of the line.
+		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+		* @return {Point} Point on the line, in the form `{ x:..., y:... }`.
+		*/
+		_pointOnLine = jsPlumbGeom.pointOnLine = function(fromPoint, toPoint, distance) {
+		    var m = _gradient(fromPoint, toPoint),
+		        s = _quadrant(fromPoint, toPoint),
+		        segmentMultiplier = distance > 0 ? _segmentMultipliers[s] : _inverseSegmentMultipliers[s],
+		        theta = Math.atan(m),
+		        y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
+		        x =  Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
+		    return { x:fromPoint.x + x, y:fromPoint.y + y };
+		},
+		/**
+		* @name jsPlumbGeom.perpendicularLineTo
+		* @function
+		* @desc Calculates a line of length `length` that is perpendicular to the line from `fromPoint` to `toPoint` and passes through `toPoint`.
+		* @param {Point} p1 First point, either as a 2 entry array or object with `left` and `top` properties.
+		* @param {Point} p2 Second point, either as a 2 entry array or object with `left` and `top` properties.
+		* @return {Line} Perpendicular line, in the form `[ { x:..., y:... }, { x:..., y:... } ]`.
+		*/        
+		_perpendicularLineTo = jsPlumbGeom.perpendicularLineTo = function(fromPoint, toPoint, length) {
+		    var m = _gradient(fromPoint, toPoint),
+		        theta2 = Math.atan(-1 / m),
+		        y =  length / 2 * Math.sin(theta2),
+		        x =  length / 2 * Math.cos(theta2);
+		    return [{x:toPoint.x + x, y:toPoint.y + y}, {x:toPoint.x - x, y:toPoint.y - y}];
+		};	
+}).call(this);
 /*
  * jsPlumb
  * 
@@ -585,79 +771,6 @@
                     o = o + hex(parts[3]);
             }
             return o;
-        },
-        gradient : function(p1, p2) {
-            return pointHelper(p1, p2, function(_p1, _p2) { 
-                if (_p2[0] == _p1[0])
-                    return _p2[1] > _p1[1] ? Infinity : -Infinity;
-                else if (_p2[1] == _p1[1]) 
-                    return _p2[0] > _p1[0] ? 0 : -0;
-                else 
-                    return (_p2[1] - _p1[1]) / (_p2[0] - _p1[0]); 
-            });		
-        },
-        normal : function(p1, p2) {
-            return -1 / this.gradient(p1, p2);
-        },
-        lineLength : function(p1, p2) {
-            return pointHelper(p1, p2, function(_p1, _p2) {
-                return Math.sqrt(Math.pow(_p2[1] - _p1[1], 2) + Math.pow(_p2[0] - _p1[0], 2));			
-            });
-        },
-        segment : function(p1, p2) {
-            return pointHelper(p1, p2, function(_p1, _p2) {
-                if (_p2[0] > _p1[0]) {
-                    return (_p2[1] > _p1[1]) ? 2 : 1;
-                }
-                else if (_p2[0] == _p1[0]) {
-                    return _p2[1] > _p1[1] ? 2 : 1;    
-                }
-                else {
-                    return (_p2[1] > _p1[1]) ? 3 : 4;
-                }
-            });
-        },
-        theta : function(p1, p2) {
-            return pointHelper(p1, p2, function(_p1, _p2) {
-                var m = jsPlumbUtil.gradient(_p1, _p2),
-                    t = Math.atan(m),
-                    s = jsPlumbUtil.segment(_p1, _p2);
-                if ((s == 4 || s== 3)) t += Math.PI;
-                if (t < 0) t += (2 * Math.PI);
-            
-                return t;
-            });
-        },
-        intersects : function(r1, r2) {
-            var x1 = r1.x, x2 = r1.x + r1.w, y1 = r1.y, y2 = r1.y + r1.h,
-                a1 = r2.x, a2 = r2.x + r2.w, b1 = r2.y, b2 = r2.y + r2.h;
-        
-        return  ( (x1 <= a1 && a1 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
-                ( (x1 <= a2 && a2 <= x2) && (y1 <= b1 && b1 <= y2) ) ||
-                ( (x1 <= a1 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||
-                ( (x1 <= a2 && a1 <= x2) && (y1 <= b2 && b2 <= y2) ) ||	
-                ( (a1 <= x1 && x1 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
-                ( (a1 <= x2 && x2 <= a2) && (b1 <= y1 && y1 <= b2) ) ||
-                ( (a1 <= x1 && x1 <= a2) && (b1 <= y2 && y2 <= b2) ) ||
-                ( (a1 <= x2 && x1 <= a2) && (b1 <= y2 && y2 <= b2) );
-        },
-        segmentMultipliers : [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ],
-        inverseSegmentMultipliers : [null, [-1, -1], [-1, 1], [1, 1], [1, -1] ],
-        pointOnLine : function(fromPoint, toPoint, distance) {
-            var m = jsPlumbUtil.gradient(fromPoint, toPoint),
-                s = jsPlumbUtil.segment(fromPoint, toPoint),
-                segmentMultiplier = distance > 0 ? jsPlumbUtil.segmentMultipliers[s] : jsPlumbUtil.inverseSegmentMultipliers[s],
-                theta = Math.atan(m),
-                y = Math.abs(distance * Math.sin(theta)) * segmentMultiplier[1],
-                x =  Math.abs(distance * Math.cos(theta)) * segmentMultiplier[0];
-            return { x:fromPoint.x + x, y:fromPoint.y + y };
-        },        
-        perpendicularLineTo : function(fromPoint, toPoint, length) {
-            var m = jsPlumbUtil.gradient(fromPoint, toPoint),
-                theta2 = Math.atan(-1 / m),
-                y =  length / 2 * Math.sin(theta2),
-                x =  length / 2 * Math.cos(theta2);
-            return [{x:toPoint.x + x, y:toPoint.y + y}, {x:toPoint.x - x, y:toPoint.y - y}];
         },
         findWithFunction : function(a, f) {
             if (a)
@@ -4997,7 +5110,7 @@
 
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
-                                    _finaliseConnection(jpc, null, originalEvent, true);
+                                    _finaliseConnection(jpc, null, originalEvent/*, true*/);
                                     
                                     commonFunction();
                                 }.bind(this);
@@ -6826,7 +6939,7 @@
                 length, m, m2, x1, x2, y1, y2,
                 _recalc = function() {
                     length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-                    m = jsPlumbUtil.gradient({x:x1, y:y1}, {x:x2, y:y2});
+                    m = jsPlumbGeom.gradient({x:x1, y:y1}, {x:x2, y:y2});
                     m2 = -1 / m;                
                 };
                 
@@ -6864,7 +6977,7 @@
                     return { x:x2, y:y2 };
                 else {
                     var l = absolute ? location > 0 ? location : length + location : location * length;
-                    return jsPlumbUtil.pointOnLine({x:x1, y:y1}, {x:x2, y:y2}, l);
+                    return jsPlumbGeom.pointOnLine({x:x1, y:y1}, {x:x2, y:y2}, l);
                 }
             };
             
@@ -6893,7 +7006,7 @@
     
                 if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
     
-                return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
+                return jsPlumbGeom.pointOnLine(p, farAwayPoint, distance);
             };
             
             /**
@@ -6926,8 +7039,8 @@
                     // x1 = (b2 - b) / (m - m2)
                         _x1 = (b2 -b) / (m - m2),
                         _y1 = (m * _x1) + b,
-                        d = jsPlumbUtil.lineLength([ x, y ], [ _x1, _y1 ]),
-                        fractionInSegment = jsPlumbUtil.lineLength([ _x1, _y1 ], [ x1, y1 ]);
+                        d = jsPlumbGeom.lineLength([ x, y ], [ _x1, _y1 ]),
+                        fractionInSegment = jsPlumbGeom.lineLength([ _x1, _y1 ], [ x1, y1 ]);
                     
                     return { d:d, x:_x1, y:_y1, l:fractionInSegment / length};            
                 }
@@ -6958,7 +7071,7 @@
         Arc : function(params) {
             var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
                 _calcAngle = function(_x, _y) {
-                    return jsPlumbUtil.theta([params.cx, params.cy], [_x, _y]);    
+                    return jsPlumbGeom.theta([params.cx, params.cy], [_x, _y]);    
                 },
                 _calcAngleForLocation = function(segment, location) {
                     if (segment.anticlockwise) {
@@ -7000,7 +7113,7 @@
             if (this.startAngle < 0) this.startAngle += TWO_PI;   
 
             // segment is used by vml     
-            this.segment = jsPlumbUtil.segment([this.x1, this.y1], [this.x2, this.y2]);
+            this.segment = jsPlumbGeom.quadrant([this.x1, this.y1], [this.x2, this.y2]);
             
             // we now have startAngle and endAngle as positive numbers, meaning the
             // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
@@ -7065,7 +7178,7 @@
              */
             this.gradientAtPoint = function(location, absolute) {
                 var p = this.pointOnPath(location, absolute);
-                var m = jsPlumbUtil.normal( [ params.cx, params.cy ], [p.x, p.y ] );
+                var m = jsPlumbGeom.normal( [ params.cx, params.cy ], [p.x, p.y ] );
                 if (!this.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
                 return m;
             };	              
@@ -7279,7 +7392,7 @@
         
         var _prepareCompute = function(params) {
             this.lineWidth = params.lineWidth;
-            var segment = jsPlumbUtil.segment(params.sourcePos, params.targetPos),
+            var segment = jsPlumbGeom.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
                 lw = params.lineWidth || 1,       
@@ -7854,7 +7967,7 @@
 		AbstractOverlay.apply(this, arguments);
         this.isAppendedAtTopLevel = false;
 		params = params || {};
-		var _ju = jsPlumbUtil;
+		var _ju = jsPlumbUtil, _jg = jsPlumbGeom;
 		
     	this.length = params.length || 20;
     	this.width = params.width || 20;
@@ -7876,12 +7989,12 @@
                         fromLoc = this.loc < 0 ? 1 : 0;
                     hxy = component.pointAlongPathFrom(fromLoc, l, false);
                     mid = component.pointAlongPathFrom(fromLoc, l - (direction * this.length / 2), false);
-                    txy = _ju.pointOnLine(hxy, mid, this.length);
+                    txy = _jg.pointOnLine(hxy, mid, this.length);
                 }
                 else if (this.loc == 1) {                
 					hxy = component.pointOnPath(this.loc);					           
                     mid = component.pointAlongPathFrom(this.loc, -(this.length));
-					txy = _ju.pointOnLine(hxy, mid, this.length);
+					txy = _jg.pointOnLine(hxy, mid, this.length);
 					
 					if (direction == -1) {
 						var _ = txy;
@@ -7892,7 +8005,7 @@
                 else if (this.loc === 0) {					                    
 					txy = component.pointOnPath(this.loc);                    
 					mid = component.pointAlongPathFrom(this.loc, this.length);                    
-					hxy = _ju.pointOnLine(txy, mid, this.length);                    
+					hxy = _jg.pointOnLine(txy, mid, this.length);                    
 					if (direction == -1) {
 						var __ = txy;
 						txy = hxy;
@@ -7902,11 +8015,11 @@
                 else {                    
     			    hxy = component.pointAlongPathFrom(this.loc, direction * this.length / 2);
                     mid = component.pointOnPath(this.loc);
-                    txy = _ju.pointOnLine(hxy, mid, this.length);
+                    txy = _jg.pointOnLine(hxy, mid, this.length);
                 }
 
-                tail = _ju.perpendicularLineTo(hxy, txy, this.width);
-                cxy = _ju.pointOnLine(hxy, txy, foldback * this.length);    			
+                tail = _jg.perpendicularLineTo(hxy, txy, this.width);
+                cxy = _jg.pointOnLine(hxy, txy, foldback * this.length);    			
     			
     			var d = { hxy:hxy, tail:tail, cxy:cxy },
     			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
@@ -8127,9 +8240,9 @@
 
             var head = connector.pointAlongPathFrom(self.loc, self.length / 2),
                 mid = connector.pointOnPath(self.loc),
-                tail = jsPlumbUtil.pointOnLine(head, mid, self.length),
-                tailLine = jsPlumbUtil.perpendicularLineTo(head, tail, 40),
-                headLine = jsPlumbUtil.perpendicularLineTo(tail, head, 20);
+                tail = jsPlumbGeom.pointOnLine(head, mid, self.length),
+                tailLine = jsPlumbGeom.perpendicularLineTo(head, tail, 40),
+                headLine = jsPlumbGeom.perpendicularLineTo(tail, head, 20);
 
             return {
                 connector:connector,
