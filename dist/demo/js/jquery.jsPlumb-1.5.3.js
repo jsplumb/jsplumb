@@ -2791,7 +2791,7 @@
 
 			var unravelConnection = function(connection) {
 				if(connection != null && result.connections[connection.id] == null) {
-					connection._jsPlumb && connection.setHover(false);
+					if (connection._jsPlumb != null) connection.setHover(false);
 					result.connections[connection.id] = connection;
 					result.connectionCount++;
 					if (deleteAttachedObjects) {
@@ -2804,7 +2804,7 @@
 			};
 			var unravelEndpoint = function(endpoint) {
 				if(endpoint != null && result.endpoints[endpoint.id] == null) {
-					endpoint._jsPlumb && endpoint.setHover(false);
+					if (endpoint._jsPlumb != null) endpoint.setHover(false);
 					result.endpoints[endpoint.id] = endpoint;
 					result.endpointCount++;
 
@@ -3180,7 +3180,7 @@
 		 * Throws: an error if a named anchor was not found.
 		 */
 		this.makeAnchor = function() {
-			var _a = function(t, p) {
+			var pp, _a = function(t, p) {
 				if (jsPlumb.Anchors[t]) return new jsPlumb.Anchors[t](p);
 				if (!_currentInstance.Defaults.DoNotThrowErrors)
 					throw { msg:"jsPlumb: unknown anchor type '" + t + "'" };
@@ -3203,13 +3203,13 @@
 					if (specimen.length == 2 && _ju.isObject(specimen[1])) {
 						// if first arg is a string, its a named anchor with params
 						if (_ju.isString(specimen[0])) {
-							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
+							pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance}, specimen[1]);
 							newAnchor = _a(specimen[0], pp);
 						}
 						// otherwise first arg is array, second is params. we treat as a dynamic anchor, which is fine
 						// even if the first arg has only one entry. you could argue all anchors should be implicitly dynamic in fact.
 						else {
-							var pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance, anchors:specimen[0]}, specimen[1]);
+							pp = jsPlumb.extend({elementId:elementId, jsPlumbInstance:_currentInstance, anchors:specimen[0]}, specimen[1]);
 							newAnchor = new jsPlumb.DynamicAnchor(pp);
 						}
 					}
@@ -3812,13 +3812,12 @@
 			// TODO this timestamp causes continuous anchors to not repaint properly.
 			// fix this. do not just take out the timestamp. it runs a lot faster with 
 			// the timestamp included.
-			var timestamp = _timestamp();			
+			//var timestamp = null;
+			var timestamp = _timestamp();
 			for ( var elId in endpointsByElement) {
 				_draw(elId, null, timestamp);				
 			}
 			return _currentInstance;
-			/*for (var i = 0; i < connections.length; i++)
-				connections[i].repaint({timestamp:timestamp});*/
 		};
 
 		
@@ -6192,6 +6191,10 @@
 	            // ... and any other endpoints we came across as a result of the continuous anchors.
 	            for (i = 0; i < endpointsToPaint.length; i++) {
                     var cd = jsPlumbInstance.getCachedData(endpointsToPaint[i].elementId);
+                    // dont use timestamp for this endpoint, as it is not for the current element and we may 
+                    // have needed to recalculate anchor position due to the element for the endpoint moving.
+                    //endpointsToPaint[i].paint( { timestamp : null, offset : cd, dimensions : cd.s });
+
                     endpointsToPaint[i].paint( { timestamp : timestamp, offset : cd, dimensions : cd.s });
 				}
 
@@ -6220,7 +6223,10 @@
 				                
 				// paint all the connections
 				for (i = 0; i < connectionsToPaint.length; i++) {
-					connectionsToPaint[i].paint({elId:elementId, timestamp:timestamp, recalc:false, clearEdits:clearEdits});
+					// if not a connection between the two elements in question dont use the timestamp.
+                    var ts  =timestamp;// ((connectionsToPaint[i].sourceId == sourceId && connectionsToPaint[i].targetId == targetId) ||
+                               //(connectionsToPaint[i].sourceId == targetId && connectionsToPaint[i].targetId == sourceId)) ? timestamp : null;
+                    connectionsToPaint[i].paint({elId:elementId, timestamp:ts, recalc:false, clearEdits:clearEdits});
 				}
 			}
 		};        
@@ -8174,14 +8180,14 @@
         if (this.labelStyle) {
             var el = this.getElement();            
             this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
-            el.style["font"] = this.labelStyle.font;
-            el.style["color"] = this.labelStyle.color || "black";
-            if (this.labelStyle.fillStyle) el.style["background"] = this.labelStyle.fillStyle;
+            el.style.font = this.labelStyle.font;
+            el.style.color = this.labelStyle.color || "black";
+            if (this.labelStyle.fillStyle) el.style.background = this.labelStyle.fillStyle;
             if (this.labelStyle.borderWidth > 0) {
                 var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
-                el.style["border"] = this.labelStyle.borderWidth  + "px solid " + dStyle;
+                el.style.border = this.labelStyle.borderWidth  + "px solid " + dStyle;
             }
-            if (this.labelStyle.padding) el.style["padding"] = this.labelStyle.padding;            
+            if (this.labelStyle.padding) el.style.padding = this.labelStyle.padding;            
         }
 
     };
@@ -8819,6 +8825,7 @@
 				
 				// ADD AN ARC SEGMENT.
 				_super.addSegment(this, "Arc", {
+					loopback:true,
 					x1:(x1 - _x) + 4,
 					y1:y1 - _y,
 					startAngle:0,
@@ -10014,7 +10021,7 @@
     		if (this.path != null) jsPlumb.CurrentLibrary.removeElement(this.path);
     	},
     	setVisible:function(v) {
-    		this.path && (this.path.style.display = (v ? "block" : "none"));
+    		if(this.path != null) (this.path.style.display = (v ? "block" : "none"));
     	}
     });
     
@@ -10455,6 +10462,9 @@
 							sf = segment.anticlockwise ? 1 : 0,
 							pathType = (segment.anticlockwise ? "at " : "wa "),
 							makePosString = function() {
+								if (d.loopback)
+									return "0,0," + _conv(2*d.r) + "," + _conv(2 * d.r);
+
 								var xy = [
 										null,
 										[ function() { return [xmin, ymin ];}, function() { return [xmin - d.r, ymin - d.r ];}],
@@ -10466,8 +10476,7 @@
 								return _conv(xy[0]) + "," + _conv(xy[1]) + "," + _conv(xy[0] + (2*d.r)) + "," + _conv(xy[1] + (2*d.r));
 							};
 
-						
-						return pathType + makePosString() + "," + _conv(d.x1) + "," + _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";						
+						return pathType + " " + makePosString() + "," + _conv(d.x1) + "," + _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";												
 					}
 						
 				})[segment.type](segment);	
@@ -10931,11 +10940,11 @@ TODO: REMOVE!
 			});
 */
 
-			options["start"] = jsPlumbUtil.wrap(options["start"], function() {
+			options.start = jsPlumbUtil.wrap(options.start, function() {
 				$("body").addClass(_jsPlumb.dragSelectClass);
 			}, false);
 
-			options["stop"] = jsPlumbUtil.wrap(options["stop"], function() {
+			options.stop = jsPlumbUtil.wrap(options.stop, function() {
 				$("body").removeClass(_jsPlumb.dragSelectClass);
 			});
 
