@@ -134,6 +134,10 @@
 			jsPlumb.bind("connectionDragStop", function(connection) {
 				console.log("connection " + connection.id + " was dragged");
 			});
+
+			jsPlumb.bind("connectionMoved", function(params) {
+				console.log("connection " + params.connection.id + " was moved");
+			});
 		}
 	};
 })();

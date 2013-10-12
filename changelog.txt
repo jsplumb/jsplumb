@@ -1,5 +1,13 @@
 * 1.5.3
 
+		BACKWARDS COMPATIBILITY
+
+		- The fix for issue 112 involved making a change to the circumstances under which a `connectionDetached`
+		event is fired. When you drag the source or target of an existing connection to some other endpoint, 
+		`connectionDetached` is no longer fired. Instead, a `connectionMoved` event is fired, containing the
+		connection that was moved, the index of the endpoint that changed (0 for source, 1 for target), and
+		the original and new source and target endpoints.
+
 		ISSUES
 
 		77 - Endpoint types should support Anchor parameter
@@ -13,6 +21,7 @@
 		107 - remove the necessity to set isSource/isTarget in order to make an endpoint draggable
 		109 - Dropping new connections on overlapping elements leads to crash after connection is deleted
 		111 - Absolute positioned arrow in wrong location
+		112 - Deleting a connection after changing its source endpoint causes failure.
 		113 - IE8 - state machine - loops are not displayed
 
 		NEW FUNCTIONALITY
