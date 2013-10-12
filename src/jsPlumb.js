@@ -980,6 +980,14 @@
 			_eventFireProxy("click", "click", con);
 			_eventFireProxy("dblclick", "dblclick", con);
             _eventFireProxy("contextmenu", "contextmenu", con);
+
+            // if the connection is draggable, then maybe we need to tell the target endpoint to init the
+            // dragging code. it won't run again if it already configured to be draggable.
+            if (con.isDetachable()) {
+            	con.endpoints[0].initDraggable();
+            	con.endpoints[1].initDraggable();
+            }
+
 			return con;
 		},
 		

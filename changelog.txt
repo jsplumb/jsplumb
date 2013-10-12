@@ -10,6 +10,7 @@
 		101 - JS error when detaching connection during connection callback
 		103 - IE8: connector hide does not hide overlays or background lines
 		108 - strange anchor orientation behaviour
+		107 - remove the necessity to set isSource/isTarget in order to make an endpoint draggable
 		109 - Dropping new connections on overlapping elements leads to crash after connection is deleted
 		111 - Absolute positioned arrow in wrong location
 		113 - IE8 - state machine - loops are not displayed
@@ -26,6 +27,12 @@
 
 		 - jsPlumb now automatically updates the internal offsets of some element that has draggable
 		 children (obviating the need for you to call `recalculateOffsets` yourself).
+
+		 - when making a programmatic connection to an endpoint that was not marked isSource:true or isTarget:true,
+		   if the connection is detachable then the endpoint is made draggable, in order to allow users to
+		   drag the connection to detach it. Connections dragged off of source or target endpoints in this way can
+		   be dropped back onto their original endpoint or onto other endpoints with the same scope, but you cannot
+		   subsequently drag a new connection from an endpoint that has been made draggable by this method.
 
 
 		MISCELLANEOUS
