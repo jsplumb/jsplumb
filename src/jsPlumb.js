@@ -1064,6 +1064,7 @@
                 _p.endpointsByElement = endpointsByElement;  
                 _p.finaliseConnection = _finaliseConnection;
                 _p.fireDetachEvent = fireDetachEvent;
+                _p.fireMoveEvent = fireMoveEvent;
                 _p.floatingConnections = floatingConnections;
                 _p.getParentFromParams = _getParentFromParams;
                 _p.elementId = _getId(_p.source);                
@@ -1460,6 +1461,10 @@
 			
             _currentInstance.anchorManager.connectionDetached(params);
 		};	
+
+		var fireMoveEvent = function(params, evt) {
+			_currentInstance.fire("connectionMoved", params, evt);
+		};
 
 		this.unregisterEndpoint = function(endpoint) {
 			if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
