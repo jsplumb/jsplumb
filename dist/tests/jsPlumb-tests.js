@@ -228,6 +228,47 @@ var testSuite = function(renderMode, _jsPlumb) {
 	  ok(d3.getAttribute("id") != null, "id on d3");
 	});
 
+	test(renderMode + " : draggable, reference elements returned correctly", function() {
+		var d = _addDiv("d1");
+		var d2 = document.createElement("div");
+		d2.setAttribute("foo", "ff");
+		d.append(d2);
+		var d3 = document.createElement("div");
+		d3.setAttribute("id", "d3");
+		d2.appendChild(d3);		
+		_jsPlumb.draggable(d);
+		_jsPlumb.addEndpoint(d3);
+		_jsPlumb.draggable(d3);
+		// now check ref ids for element d1
+		var els = _jsPlumb.dragManager.getElementsForDraggable("d1");		
+		ok(!jsPlumbUtil.isEmpty(els), "there is one sub-element for d1");
+		ok(els["d3"] != null, "d3 registered");		
+	});
+
+	test(renderMode + " : draggable + setParent, reference elements returned correctly", function() {
+		var d = _addDiv("d1");
+		var d2 = document.createElement("div");
+		d2.setAttribute("foo", "ff");
+		d.append(d2);
+		var d3 = document.createElement("div");
+		d3.setAttribute("id", "d3");
+		d2.appendChild(d3);		
+		_jsPlumb.draggable(d);
+		_jsPlumb.addEndpoint(d3);
+		_jsPlumb.draggable(d3);
+		// create some other new parent
+		var d12 = _addDiv("d12");
+		// and move d3
+		_jsPlumb.setParent(d3, d12);
+
+		// now check ref ids for element d1
+		var els = _jsPlumb.dragManager.getElementsForDraggable("d1");		
+		ok(jsPlumbUtil.isEmpty(els), "there are no sub-elements for d1");
+		var els12 = _jsPlumb.dragManager.getElementsForDraggable("d12");		
+		ok(!jsPlumbUtil.isEmpty(els12), "there is one sub-element for d12");
+		ok(els12["d3"] != null, "d3 registered");		
+	});
+
 	test(renderMode + ": lineWidth specified as string (eew)", function() {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
 		var c = jsPlumb.connect({
@@ -3651,6 +3692,55 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(e.innerHTML, "aFunction", "label text is set to new value from Function");
 		equal(o.getLabel(), aFunction, "getLabel function works correctly with Function");
 	});
+
+	test(renderMode + " label overlay custom css class", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	cssClass:"foo"
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label");
+		ok($(o.getElement()).hasClass("foo"), "label overlay has custom css class");
+	});
+
+	test(renderMode + " label overlay custom css class in labelStyle", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	labelStyle:{
+		    		cssClass:"foo"
+		    	}
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label");
+		ok($(o.getElement()).hasClass("foo"), "label overlay has custom css class");
+	});	
+
+	test(renderMode + " label overlay - labelStyle", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		var c = _jsPlumb.connect({source:d1,target:d2, overlays:[
+		    [ "Label", {
+		    	id:"label",
+		    	labelStyle:{
+		    		borderWidth:2,
+		    		borderStyle:"red",
+		    		fillStyle:"blue",
+		    		color:"green",
+		    		font:"12px foo",
+		    		padding:10
+		    	}
+		    }]                                                    		    
+		]});
+		var o = c.getOverlay("label"), el = $(o.getElement());
+		equal(el.css("border-width"), "2px", "border width 2");
+		equal(el.css("border-color"), "rgb(255, 0, 0)", "border color red");
+		equal(el.css("background-color"), "rgb(0, 0, 255)", "bg color blue");
+		equal(el.css("color"), "rgb(0, 128, 0)", "color green");
+		equal(el.css("font"), "normal normal normal 12px/normal foo", "bg font 12px foo");
+	});	
 	
 	test(renderMode + " parameters object works for Endpoint", function() {
 		var d1 = _addDiv("d1"),
@@ -5201,7 +5291,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 				hoverPaintStyle:{ strokeStyle:"red" },
 				overlays:[
 					"Arrow"
-				]
+				],
+				anchor:"Continuous"
 			},
 			"other":{
 				paintStyle:{ fillStyle:"red" }
@@ -5215,6 +5306,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 			e2 = _jsPlumb.addEndpoint(d2);
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
+		equal(e1.anchor.isContinuous, true, "e1's anchor is Continuous");
 		equal(e1.getPaintStyle().fillStyle, "blue", "endpoint has fill style specified in Endpoint type");
 		equal(c.getPaintStyle().strokeStyle, "green", "connection has stroke style specified in Endpoint type");
 		equal(c.getHoverPaintStyle().lineWidth, 534, "connection has hover style specified in Endpoint type");
@@ -5238,7 +5330,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		_jsPlumb.registerEndpointType("basic", {
 			connectionType:"basic",
-			paintStyle:{fillStyle:"GAZOODA"}
+			paintStyle:{fillStyle:"GAZOODA"},
+			anchor:"Left"
 		});
 		
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3"),
@@ -5249,6 +5342,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		
 		c = _jsPlumb.connect({source:e1, target:e2});
 		equal(e1.getPaintStyle().fillStyle, "GAZOODA", "endpoint has correct paint style, from type.");
+		equal(e1.anchor.orientation[0], -1, "endpoint has correct anchor, from type.");
 		equal(c.getPaintStyle().strokeStyle, "bazona", "connection has paint style from connection type, as specified in endpoint type. sweet!");
 		equal(c.getConnector().type, "Flowchart", "connector is flowchart - this also came from connection type as specified by endpoint type.");
 	});
@@ -5309,205 +5403,9 @@ var testSuite = function(renderMode, _jsPlumb) {
     	equal(t.foo, "new");
     	equal(t.hello, "hello");
     	equal(t.bar,"bar");
-    })
-
-    test(renderMode + " jsPlumbUtil.segment, segment 1", function() {
-		var p1 = [2,0], p2 = [3,-1], s = jsPlumbUtil.segment(p1,p2);
-		equal(s, 1, "segment 1 correct");
-	});        
-    
-    test(renderMode + " jsPlumbUtil.segment, segment 2", function() {
-		var p1 = [2,0], p2 = [3,1], s = jsPlumbUtil.segment(p1,p2);
-		equal(s, 2, "segment 2 correct");
-	});    
-    
-    test(renderMode + " jsPlumbUtil.segment, segment 3", function() {
-		var p1 = [416.7166748046875, 116.13333129882812], 
-            p2 = [95.10000610351562, 391.6666564941406], 
-            s = jsPlumbUtil.segment(p1,p2);
-        
-		equal(s, 3, "segment 3 correct");
-	});    
-    
-    test(renderMode + " jsPlumbUtil.segment, segment 3", function() {
-		var p1 = [2,0], p2 = [1,1], s = jsPlumbUtil.segment(p1,p2);
-		equal(s, 3, "segment 3 correct");
-	});        
-    
-    test(renderMode + " jsPlumbUtil.segment, segment 4", function() {
-		var p1 = [2,0], p2 = [1,-1], s = jsPlumbUtil.segment(p1,p2);
-		equal(s, 4, "segment 4 correct");
-	});        
-    
-    test(renderMode + " jsPlumbUtil.segment, segment 1 edge case", function() {
-		var p1 = [2,0], p2 = [3,0], s = jsPlumbUtil.segment(p1,p2);
-		equal(s, 1, "segment 1 correct");
-	});        
-    
-    test(renderMode + " jsPlumbUtil.segment, segment 2 edge case", function() {
-		var p1 = [2,0], p2 = [2,1], s = jsPlumbUtil.segment(p1,p2);
-		equal(s, 2, "segment 2 correct");
-	});   
-    
-    test(renderMode + " jsPlumbUtil.segment, segment 3 edge case", function() {
-		var p1 = [2,0], p2 = [1,0], s = jsPlumbUtil.segment(p1,p2);
-		equal(s, 4, "segment 4 correct");
-	});        
-    
-    test(renderMode + " jsPlumbUtil.segment, segment 4 edge case", function() {
-		var p1 = [2,0], p2 = [2,-1], s = jsPlumbUtil.segment(p1,p2);
-		equal(s, 1, "segment 1 correct");
-	});        
-    
-    
-    test(renderMode + " jsPlumbUtil.gradient, horizontal line", function() {
-		var p1 = [2,0], p2 = [3,0], m = jsPlumbUtil.gradient(p1,p2);
-		equal(m, 0, "gradient calculated correctly for horizontal line");
-	});    
-
-    test(renderMode + " jsPlumbUtil.gradient, vertical line", function() {
-		var p1 = [0,2], p2 = [0,3], m = jsPlumbUtil.gradient(p1,p2);
-		equal(m, Infinity, "gradient calculated correctly for vertical line");
-	});        
-    
-    test(renderMode + " jsPlumbUtil.gradient, segment 1", function() {
-		var p1 = [2,2], p2 = [3,1], m = jsPlumbUtil.gradient(p1,p2);
-		equal(m, -1, "gradient calculated correctly for simple case");
-	});
-	test(renderMode + " jsPlumbUtil.normal, segment 1", function() {
-		var p1 = [2,2], p2 = [3,1], m = jsPlumbUtil.normal(p1,p2);
-		equal(m, 1, "normal calculated correctly for simple case");
-	});
-	test(renderMode + " jsPlumbUtil.gradient, segment 2", function() {
-		var p1 = [2,2], p2 = [3,3], m = jsPlumbUtil.gradient(p1,p2);
-		equal(m, 1, "gradient calculated correctly for simple case");
-	});
-	test(renderMode + " jsPlumbUtil.normal, segment 2", function() {
-		var p1 = [2,2], p2 = [3,3], m = jsPlumbUtil.normal(p1,p2);
-		equal(m, -1, "normal calculated correctly for simple case");
-	});
-    test(renderMode + " jsPlumbUtil.gradient, segment 3", function() {
-		var p1 = [2,2], p2 = [1,3], m = jsPlumbUtil.gradient(p1,p2);
-		equal(m, -1, "gradient calculated correctly for simple case");
-	});
-	test(renderMode + " jsPlumbUtil.normal, segment 3", function() {
-		var p1 = [2,2], p2 = [1,3], m = jsPlumbUtil.normal(p1,p2);
-		equal(m, 1, "normal calculated correctly for simple case");
-	});
-    test(renderMode + " jsPlumbUtil.gradient, segment 4", function() {
-		var p1 = [2,2], p2 = [1,1], m = jsPlumbUtil.gradient(p1,p2);
-		equal(m, 1, "gradient calculated correctly for simple case");
-	});
-	test(renderMode + " jsPlumbUtil.normal, segment 4", function() {
-		var p1 = [2,2], p2 = [1,1], m = jsPlumbUtil.normal(p1,p2);
-		equal(m, -1, "normal calculated correctly for simple case");
-	});
-    test(renderMode + "jsPlumbUtil.pointOnLine, segment 1", function() {
-       var p1 = {x:2,y:2}, p2={x:3, y:1},
-           target = jsPlumbUtil.pointOnLine(p1, p2, Math.sqrt(2));
-        withinTolerance(p2.x, target.x, "x is calculated correctly");
-        withinTolerance(p2.y, target.y, "y is calculated correctly");
     });
-    test(renderMode + "jsPlumbUtil.pointOnLine, segment 2", function() {
-       var p1 = {x:2,y:2}, p2={x:3, y:3},
-           target = jsPlumbUtil.pointOnLine(p1, p2, Math.sqrt(2));
-        withinTolerance(p2.x, target.x, "x is calculated correctly");
-        withinTolerance(p2.y, target.y, "y is calculated correctly");
-    });
-    test(renderMode + "jsPlumbUtil.pointOnLine, segment 3", function() {
-       var p1 = {x:2,y:2}, p2={x:1, y:3},
-           target = jsPlumbUtil.pointOnLine(p1, p2, Math.sqrt(2));
-        withinTolerance(p2.x, target.x, "x is calculated correctly");
-        withinTolerance(p2.y, target.y, "y is calculated correctly");
-    });
-    test(renderMode + "jsPlumbUtil.pointOnLine, segment 4", function() {
-       var p1 = {x:2,y:2}, p2={x:1, y:1},
-           target = jsPlumbUtil.pointOnLine(p1, p2, Math.sqrt(2));
-        withinTolerance(p2.x, target.x, "x is calculated correctly");
-        withinTolerance(p2.y, target.y, "y is calculated correctly");
-    });
-    test(renderMode + "jsPlumbUtil.perpendicularLineTo, segment 1", function() {
-        var p1 = {x:2, y:2}, p2={x:3, y:1}, m = jsPlumbUtil.gradient(p1, p2),
-            l = jsPlumbUtil.perpendicularLineTo(p1, p2, 2 * Math.sqrt(2));
 
-        withinTolerance(4, l[0].x, "point 1 x is correct");
-        withinTolerance(2, l[0].y, "point 1 y is correct");
-
-        withinTolerance(2, l[1].x, "point 2 x is correct");
-        withinTolerance(0, l[1].y, "point 2 y is correct");
-    });
-	test(renderMode + "jsPlumbUtil.perpendicularLineTo, segment 2", function() {
-        var p1 = {x:2, y:2}, p2={x:3, y:3}, m = jsPlumbUtil.gradient(p1, p2),
-            l = jsPlumbUtil.perpendicularLineTo(p1, p2, 2 * Math.sqrt(2));
-
-        withinTolerance(4, l[0].x, "point 1 x is correct");
-        withinTolerance(2, l[0].y, "point 1 y is correct");
-
-        withinTolerance(2, l[1].x, "point 2 x is correct");
-        withinTolerance(4, l[1].y, "point 2 y is correct");
-    });
-    test(renderMode + "jsPlumbUtil.perpendicularLineTo, segment 3", function() {
-        var p1 = {x:2, y:2}, p2={x:1, y:3}, m = jsPlumbUtil.gradient(p1, p2),
-            l = jsPlumbUtil.perpendicularLineTo(p1, p2, 2 * Math.sqrt(2));
-
-        withinTolerance(2, l[0].x, "point 1 x is correct");
-        withinTolerance(4, l[0].y, "point 1 y is correct");
-
-        withinTolerance(0, l[1].x, "point 2 x is correct");
-        withinTolerance(2, l[1].y, "point 2 y is correct");
-    });
-    test(renderMode + "jsPlumbUtil.perpendicularLineTo, segment 4", function() {
-        var p1 = {x:2, y:2}, p2={x:1, y:1}, m = jsPlumbUtil.gradient(p1, p2),
-            l = jsPlumbUtil.perpendicularLineTo(p1, p2, 2 * Math.sqrt(2));
-
-        withinTolerance(2, l[0].x, "point 1 x is correct");
-        withinTolerance(0, l[0].y, "point 1 y is correct");
-
-        withinTolerance(0, l[1].x, "point 2 x is correct");
-        withinTolerance(2, l[1].y, "point 2 y is correct");
-    });
-    test(renderMode + "jsPlumbUtil.intersects, with intersection", function() {
-    	var r1 = { x: 2, y:2, w:4, h:6},
-    		r2 = { x: 3, y:4, w:3, h:3};
-
-    	ok(jsPlumbUtil.intersects(r1, r2), "r1 and r2 intersect");
-    });
-    test(renderMode + "jsPlumbUtil.intersects, with no intersection", function() {
-    	var r1 = { x: 2, y:2, w:4, h:6},
-    		r2 = { x: 13, y:4, w:3, h:3};
-
-    	ok(!jsPlumbUtil.intersects(r1, r2), "r1 and r2 do not intersect");
-    });
-    test(renderMode + "jsPlumbUtil.intersects, with intersection, equal Y", function() {
-    	var r1 = { x: 2, y:2, w:4, h:6},
-    		r2 = { x: 1, y:2, w:3, h:6};
-
-    	ok(jsPlumbUtil.intersects(r1, r2), "r1 and r2 intersect");
-    });
-    test(renderMode + "jsPlumbUtil.intersects, with intersection, equal X", function() {
-    	var r1 = { x: 2, y:2, w:4, h:6},
-    		r2 = { x: 2, y:1, w:4, h:6};
-
-    	ok(jsPlumbUtil.intersects(r1, r2), "r1 and r2 intersect");
-    });
-    test(renderMode + "jsPlumbUtil.intersects, identical rectangles", function() {
-    	var r1 = { x: 2, y:2, w:4, h:6},
-    		r2 = { x: 2, y:2, w:4, h:6};
-
-    	ok(jsPlumbUtil.intersects(r1, r2), "r1 and r2 intersect");
-    });
-    test(renderMode + " jsPlumbUtil.intersects, corners touch (intersection)", function() {
-    	var r1 = { x: 2, y:2, w:4, h:6},
-    		r2 = { x: 6, y:8, w:3, h:3};
-
-    	ok(jsPlumbUtil.intersects(r1, r2), "r1 and r2 intersect");
-    });
-    test(renderMode + " jsPlumbUtil.intersects, one rectangle contained within the other", function() {
-    	var r1 = { x: 2, y:2, w:4, h:6},
-    		r2 = { x: 0, y:0, w:23, h:23};
-
-    	ok(jsPlumbUtil.intersects(r1, r2), "r1 and r2 intersect");
-    });	
+    /* -- geometry tests have been moved into the jsplumb-geom project (because that's where the code is now) --- */
 	
 	/*
 	 * test the merge function in jsplumb util: it should create an entirely new object
@@ -5723,38 +5621,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         within(p3.y, 17.071067811865477, ok, "end y is correct");                                
         
         
-    });
-    
-    
-    test(renderMode + " jsPlumbUtil.theta", function() {
-        var x1 = 0, y1 = 0, 
-            x2 = 10, y2 = 0,   // 0 degrees : 0 PI or 2 PI
-            x3 = 10, y3 = 10,  // 45 degrees : 0.25 PI
-            x4 = 0, y4 = 10,   // 90 degrees : 0.5 PI
-            x5 = -10, y5 = 10, // 135 degrees : 0.75 PI
-            x6 = -10, y6 = 0,  // 180 degrees : PI
-            x7 = -10, y7 = -10, // 225 degress : 1.25 PI
-            x8 = 0, y8 = -10,   // 270 degrees : 1.5 PI        
-            x9 = 10, y9 = -10;  // 315 degrees : 1.75 PI            
-        
-        var t2 = jsPlumbUtil.theta([x1,y1],[x2,y2]),
-            t3 = jsPlumbUtil.theta([x1,y1],[x3,y3]),
-            t4 = jsPlumbUtil.theta([x1,y1],[x4,y4]),
-            t5 = jsPlumbUtil.theta([x1,y1],[x5,y5]),
-            t6 = jsPlumbUtil.theta([x1,y1],[x6,y6]),
-            t7 = jsPlumbUtil.theta([x1,y1],[x7,y7]),
-            t8 = jsPlumbUtil.theta([x1,y1],[x8,y8]),            
-            t9 = jsPlumbUtil.theta([x1,y1],[x9,y9]);            
-        
-        equal(t2, 0, "t2 is zero degrees");
-        equal(t3, 0.25 * Math.PI, "t3 is 45 degrees");
-        equal(t4, 0.5 * Math.PI, "t4 is 90 degrees");
-        equal(t5, 0.75 * Math.PI, "t5 is 135 degrees");
-        equal(t6, Math.PI, "t6 is 180 degrees");
-        equal(t7, 1.25 * Math.PI, "t7 is 225 degrees");
-        equal(t8, 1.5 * Math.PI, "t8 is 270 degrees");        
-        equal(t9, 1.75 * Math.PI, "t9 is 315 degrees");                
-    });
+    });    
 
 // *********************************** jsPlumbUtil.extend tests *****************************************************
 

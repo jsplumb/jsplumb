@@ -114,12 +114,14 @@
 </ol>
 <p><a name="intro"></a></p>
 <h3>Introduction</h3>
-<p>jsPlumb comes with five types of Overlays:
-- <strong>Arrow</strong> - a configurable arrow that is painted at some point along the connector.  You can control the length and width of the Arrow, the &#39;foldback&#39; point - a point the tail points fold back into, and the direction (allowed values are 1 and -1; 1 is the default and means point in the direction of the connection)
-- <strong>Label</strong> - a configurable label that is painted at some point along the connector.
-- <strong>PlainArrow</strong> - an Arrow shaped as a triangle, with no foldback.
-- <strong>Diamond</strong> - as the name suggests...a diamond.
-- <strong>Custom</strong> - allows you to create the Overlay yourself - your Overlay may be any DOM element you like.</p>
+<p>jsPlumb comes with five types of Overlays:</p>
+<ul>
+<li><strong>Arrow</strong> - a configurable arrow that is painted at some point along the connector.  You can control the length and width of the Arrow, the &#39;foldback&#39; point - a point the tail points fold back into, and the direction (allowed values are 1 and -1; 1 is the default and means point in the direction of the connection)</li>
+<li><strong>Label</strong> - a configurable label that is painted at some point along the connector.</li>
+<li><strong>PlainArrow</strong> - an Arrow shaped as a triangle, with no foldback.</li>
+<li><strong>Diamond</strong> - as the name suggests...a diamond.</li>
+<li><strong>Custom</strong> - allows you to create the Overlay yourself - your Overlay may be any DOM element you like.</li>
+</ul>
 <p><code>PlainArrow</code> and <code>Diamond</code> are actually just configured instances of the generic <code>Arrow</code> overlay (see examples). </p>
 <p><a name="location"></a></p>
 <h3>Overlay Location</h3>
@@ -221,13 +223,13 @@ e.addOverlay([ &quot;Arrow&quot;, { width:10, height:10, id:&quot;arrow&quot; }]
 <ul>
 <li><strong>label</strong> - The text to display.  You can provide a function here instead of plain text: it is passed the Connection as an argument, and it should return a String.</li>
 <li><strong>cssClass</strong> - Optional css class to use for the Label.  This is now preferred over using the <code>labelStyle</code> parameter.</li>
-<li><strong>labelStyle</strong> - (deprecated, use cssClass instead) Optional arguments for the label&#39;s appearance.  Valid entries in this JS object are:<ul>
-<li>font - a font string in a format suitable for the Canvas element</li>
-<li>fillStyle - the color to fill the label&#39;s background with. Optional.</li>
-<li>color - the color of the label&#39;s text. Optional.</li>
-<li>padding - optional padding for the label. This is expressed as a proportion of the width of the label, not in pixels or ems.</li>
-<li>borderWidth - optional width in pixels for the label&#39;s border. Defaults to 0.</li>
-<li>borderStyle - optional. The color to paint the border, if there is one.</li>
+<li><strong>labelStyle</strong> - Optional arguments for the label&#39;s appearance.  Valid entries in this JS object are:<ul>
+<li><strong>font</strong> - a font string in a format suitable for the Canvas element</li>
+<li><strong>fillStyle</strong> - the color to fill the label&#39;s background with. Optional.</li>
+<li><strong>color</strong> - the color of the label&#39;s text. Optional.</li>
+<li><strong>padding</strong> - optional padding for the label. This is expressed as a proportion of the width of the label, not in pixels or ems.</li>
+<li><strong>borderWidth</strong> - optional width in pixels for the label&#39;s border. Defaults to 0.</li>
+<li><strong>borderStyle</strong> - optional. The color to paint the border, if there is one.</li>
 </ul>
 </li>
 <li><strong>location</strong> - As for Arrow Overlay.  Where, either proportionally from 0 to 1 inclusive, or as an absolute offset from either source or target, the label should appear.</li>
@@ -275,7 +277,7 @@ conn.setLabel(function(c) {
 console.log(&quot;Label is now&quot;, conn.getLabel());</code></pre>
 <p><a name="type-custom"></a></p>
 <h6>Custom</h6>
-<p>The Custom Overlay allows you to create your own Overlays, which jsPlumb will position for you.  You need to implement one method - <code>create(component)</code> -which is passed the component on which the Overlay is located as an argument, and which returns either a DOM element or a valid selector from the underlying library:</p>
+<p>The Custom Overlay allows you to create your own Overlays, which jsPlumb will position for you.  You need to implement one method - <code>create(component)</code> - which is passed the component on which the Overlay is located as an argument, and which returns either a DOM element or a valid selector from the underlying library:</p>
 <p><pre>
 var conn = jsPlumb.connect({
         source:&quot;d1&quot;,

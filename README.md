@@ -1,5 +1,5 @@
 # jsPlumb
-jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.5.2.
+jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG or Canvas in modern browsers, and VML on IE 8 and below. The latest version is 1.5.3.
 
 The project started out life on Google Code and was hosted there up until April 30, 2013.  From May 1st, 2013, jsPlumb lives on GitHub only.
 
@@ -53,9 +53,15 @@ Documentation can be found in the doc folder of the project, or you can view it 
 
 API documentation is in the apidoc folder of the project, and online [here](http://jsplumb.org/apidocs/).
 
+## jsPlumb Helper Projects
+
 The Bezier curve functions used by jsPlumb have been extracted to a separate project:
 
 [https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
+
+...as have various simple geometry functions:
+
+[https://github.com/sporritt/jsplumb-geom](https://github.com/sporritt/jsplumb-geom)
 
 ## Tests
 Tests can be found [here](http://jsplumb.org/tests/all-tests.html)

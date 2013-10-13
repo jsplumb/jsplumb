@@ -782,7 +782,7 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 23
+        jsplumb-api.js, line 21
     </li></ul></dd>
     
     
@@ -810,7 +810,7 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
         
             
 <dt>
-    <h4 class="name" id="bind"><span class="type-signature"></span>bind<span class="signature">(event, listener)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="bind"><span class="type-signature"></span>bind<span class="signature">(event, listener, <span class="optional">insertAtStart</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -840,7 +840,11 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
 		<th>Type</th>
 		
 		
+		<th>Argument</th>
 		
+		
+		
+		<th>Default</th>
 		
 		
 		<th class="last">Description</th>
@@ -865,7 +869,19 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>Name of the event to bind to.</p></td>
@@ -888,10 +904,61 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>Function to execute.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>insertAtStart</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+            
+            <td class="description last"><p>Whether or not to insert this listener at the start of the listener list, so it is fired before the other currently registered listeners.</p></td>
         </tr>
 	
 	
@@ -1101,6 +1168,8 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
 		<th>Type</th>
 		
 		
+		<th>Argument</th>
+		
 		
 		
 		
@@ -1132,6 +1201,14 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
             
             
             
@@ -1161,10 +1238,117 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
+            
             
             
             
             <td class="description last"><p>Target of the connection. May be an id, or an element, or an Endpoint.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>uuids</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String[]</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Optional array of UUIDs of the two Endpoints to connect. If you supply this you do not need to supply <code>source</code> or <code>target</code>.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Optional type for the Connection.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>pointer-events</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Optional <code>pointer-events</code> value for the Connection (only used by the SVG renderer)</p></td>
         </tr>
 	
 	
@@ -1193,8 +1377,8 @@ the second arg. MooTools has only one method, a two arg one. Which is handy.  YU
             
             
             
-            <td class="description last"><p>Optional second set of parameters, which will be merge into a new object along with <code>params</code>. This can be useful if
-you have some common settings to share between multiple <code>connect</code> calls.</p></td>
+            <td class="description last"><p>Optional second set of parameters, which will be merged into a new object along with <code>params</code>. This can be useful if
+you have some common settings to share between multiple <code>connect</code> calls. Valid values in this object are anything that is valid in <code>params</code>.</p></td>
         </tr>
 	
 	
@@ -2373,7 +2557,7 @@ you set 'doNotRepaintAfterwards' to true)</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 21
+        jsplumb-api.js, line 19
     </li></ul></dd>
     
     
@@ -2730,7 +2914,7 @@ default scope).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 29
+        jsplumb-api.js, line 27
     </li></ul></dd>
     
     
@@ -2826,7 +3010,7 @@ default scope).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 27
+        jsplumb-api.js, line 25
     </li></ul></dd>
     
     
@@ -2907,7 +3091,7 @@ default scope).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 25
+        jsplumb-api.js, line 23
     </li></ul></dd>
     
     
@@ -3353,6 +3537,168 @@ jsPlumb demo pages).</p>
         
             
 <dt>
+    <h4 class="name" id="getType"><span class="type-signature"></span>getType<span class="signature">(id, typeDescriptor)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Returns the given type's specification.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Id of the type to retrieve</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>typeDescriptor</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p><code>&quot;connection&quot;</code> or <code>&quot;endpoint&quot;</code> - the type of Type to get.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        jsplumb-api.js, line 141
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>Type specification, it if exists, null otherwise.</p>
+</div>
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Object</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="hide"><span class="type-signature"></span>hide<span class="signature">(el, <span class="optional">changeEndpoints</span>)</span><span class="type-signature"> &rarr; {<a href="jsPlumbInstance.html">jsPlumbInstance</a>}</span></h4>
     
     
@@ -3503,7 +3849,7 @@ jsPlumb demo pages).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 39
+        jsplumb-api.js, line 37
     </li></ul></dd>
     
     
@@ -3729,7 +4075,7 @@ jsPlumb demo pages).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 35
+        jsplumb-api.js, line 33
     </li></ul></dd>
     
     
@@ -4098,7 +4444,7 @@ jsPlumb demo pages).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 19
+        jsplumb-api.js, line 17
     </li></ul></dd>
     
     
@@ -5558,7 +5904,7 @@ the fly.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 47
+        jsplumb-api.js, line 45
     </li></ul></dd>
     
     
@@ -5698,7 +6044,383 @@ the fly.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 15
+        jsplumb-api.js, line 147
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="registerConnectionTypes"><span class="type-signature"></span>registerConnectionTypes<span class="signature">(types)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Registers all of the given connection types on this instance of jsPlumb. <code>types</code> is expected
+to contain keys with typeids and values with type specification objects.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>types</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Object containing the type specifications.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        jsplumb-api.js, line 145
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="registerEndpointType"><span class="type-signature"></span>registerEndpointType<span class="signature">(typeId, type)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Registers the given endpoint type on this instance of jsPlumb.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>typeId</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Id of the type</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Object containing the type specification.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        jsplumb-api.js, line 149
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="registerEndpointTypes"><span class="type-signature"></span>registerEndpointTypes<span class="signature">(types)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Registers all of the given Endpoint types on this instance of jsPlumb. <code>types</code> is expected
+to contain keys with typeids and values with type specification objects.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>types</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Object containing the type specifications.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        jsplumb-api.js, line 143
     </li></ul></dd>
     
     
@@ -6745,7 +7467,7 @@ of the form:</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 31
+        jsplumb-api.js, line 29
     </li></ul></dd>
     
     
@@ -7140,7 +7862,7 @@ operations). 'getter' type operations return an array of values, where each entr
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 33
+        jsplumb-api.js, line 31
     </li></ul></dd>
     
     
@@ -7593,7 +8315,7 @@ drag/drop operations, and it is exposed because it might also be useful for you 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 37
+        jsplumb-api.js, line 35
     </li></ul></dd>
     
     
@@ -7806,7 +8528,7 @@ drag/drop operations, and it is exposed because it might also be useful for you 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 49
+        jsplumb-api.js, line 47
     </li></ul></dd>
     
     
@@ -7946,7 +8668,7 @@ drag/drop operations, and it is exposed because it might also be useful for you 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 51
+        jsplumb-api.js, line 49
     </li></ul></dd>
     
     
@@ -7959,6 +8681,155 @@ drag/drop operations, and it is exposed because it might also be useful for you 
             <li><a href="jsPlumbInstance.html#setId">jsPlumbInstance#setId</a></li>
         </ul>
     </dd>
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setParent"><span class="type-signature"></span>setParent<span class="signature">(el, newParent)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Switches the parent of the element to be the newParent, updating jsPlumb references to the element as necessary.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>el</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Selector</span>
+|
+
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Element to re-parent</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>newParent</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Selector</span>
+|
+
+<span class="param-type">Element</span>
+|
+
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Selector, DOM element, or id of new parent.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        jsplumb-api.js, line 51
+    </li></ul></dd>
+    
+    
+    
+    
     
     
     
@@ -8295,7 +9166,7 @@ it will save you a lot of time.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 17
+        jsplumb-api.js, line 15
     </li></ul></dd>
     
     
@@ -8468,6 +9339,128 @@ it will save you a lot of time.</p>
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         jsplumb-api.js, line 136
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setSuspendEvents"><span class="type-signature"></span>setSuspendEvents<span class="signature">(val)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Sets whether or not events are suspended.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>val</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Whether or not to suspend events.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="jsPlumbUtil.EventGenerator.html#setSuspendEvents">jsPlumbUtil.EventGenerator#setSuspendEvents</a>
+    </li></dd>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        util-api.js, line 26
     </li></ul></dd>
     
     
@@ -8815,7 +9808,7 @@ it will save you a lot of time.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 41
+        jsplumb-api.js, line 39
     </li></ul></dd>
     
     
@@ -8858,128 +9851,6 @@ it will save you a lot of time.</p>
 </dl>
 
         
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="suspendEvents"><span class="type-signature"></span>suspendEvents<span class="signature">(val)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Sets whether or not events are suspended.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>val</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>Whether or not to suspend events.</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="jsPlumbUtil.EventGenerator.html#suspendEvents">jsPlumbUtil.EventGenerator#suspendEvents</a>
-    </li></dd>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        util-api.js, line 26
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
     
     
 </dd>
@@ -9082,7 +9953,7 @@ it will save you a lot of time.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 45
+        jsplumb-api.js, line 43
     </li></ul></dd>
     
     
@@ -9572,7 +10443,7 @@ it will save you a lot of time.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        jsplumb-api.js, line 43
+        jsplumb-api.js, line 41
     </li></ul></dd>
     
     
@@ -9938,7 +10809,7 @@ it will save you a lot of time.</p>
         
             
 <dt>
-    <h4 class="name" id="unmakeSource"><span class="type-signature"></span>unmakeSource<span class="signature">({String|Element|Selector|)</span><span class="type-signature"> &rarr; {<a href="jsPlumbInstance.html">jsPlumbInstance</a>}</span></h4>
+    <h4 class="name" id="unmakeSource"><span class="type-signature"></span>unmakeSource<span class="signature">(el)</span><span class="type-signature"> &rarr; {<a href="jsPlumbInstance.html">jsPlumbInstance</a>}</span></h4>
     
     
 </dt>
@@ -9980,10 +10851,21 @@ it will save you a lot of time.</p>
 	
         <tr>
             
-                <td class="name"><code>{String|Element|Selector|</code></td>
+                <td class="name"><code>el</code></td>
             
             
             <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Element</span>
+|
+
+<span class="param-type">Selector</span>
+
+
             
             </td>
             
@@ -9991,7 +10873,7 @@ it will save you a lot of time.</p>
             
             
             
-            <td class="description last"><p>el The element in question.</p></td>
+            <td class="description last"><p>The element in question.</p></td>
         </tr>
 	
 	

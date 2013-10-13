@@ -60,18 +60,13 @@
 * @param {Object} params Connection params
 * @param {String|Object|Endpoint} params.source Source of the connection. May be an id, or an element, or an Endpoint.
 * @param {String|Object|Endpoint} params.target Target of the connection. May be an id, or an element, or an Endpoint.
-* @param {Object} referenceParams Optional second set of parameters, which will be merge into a new object along with `params`. This can be useful if
-* you have some common settings to share between multiple `connect` calls.
+* @param {String[]} [params.uuids] Optional array of UUIDs of the two Endpoints to connect. If you supply this you do not need to supply `source` or `target`.
+* @param {String} [params.type] Optional type for the Connection.
+* @param {String} [params.pointer-events] Optional `pointer-events` value for the Connection (only used by the SVG renderer)
+* @param {Object} referenceParams Optional second set of parameters, which will be merged into a new object along with `params`. This can be useful if
+* you have some common settings to share between multiple `connect` calls. Valid values in this object are anything that is valid in `params`.
 * @desc Establishes a {@link Connection} between two elements (or {@link Endpoint}s, which are themselves registered to elements).
 * @returns {Connection} The Connection that was created.
-*/
-
-/**
-* @name jsPlumbInstance#registerConnectionType
-* @function
-* @param {String} typeId Id of the type
-* @param {Object} type Object containing the type specification.
-* @desc Registers the given connection type on this instance of jsPlumb.
 */
 
 /**
@@ -352,6 +347,14 @@
  */
 
  /**
+ * @function
+ * @name jsPlumbInstance#setParent
+ * @param {Selector|Element} el Element to re-parent
+ * @param {Selector|Element|String} newParent Selector, DOM element, or id of new parent.
+ * @desc Switches the parent of the element to be the newParent, updating jsPlumb references to the element as necessary.
+ */
+
+ /**
   * @name jsPlumbInstance#getAllConnections
   * @function
   * @returns {Object} All connections, as a map of the form:
@@ -543,7 +546,7 @@
 /**
 *	@name jsPlumbInstance#unmakeSource
 *	@desc Sets the given element to no longer be a connection source.
-* @param {String|Element|Selector| el The element in question.
+* @param {String|Element|Selector} el The element in question.
 * @function
 *	@returns {jsPlumbInstance} The current jsPlumb instance.
 */
@@ -776,7 +779,47 @@
  * @name jsPlumbInstance#deleteEveryEndpoint
  * @function
  * @returns {jsPlumbInstance} The current jsPlumb instance.
- * @desc
- * Deletes every `Endpoint` and their associated `Connection`s. Distinct from {@link jsPlumbInstance#reset} because we dont clear listeners here, so
+ * @desc Deletes every `Endpoint` and their associated `Connection`s. Distinct from {@link jsPlumbInstance#reset} because we dont clear listeners here, so
  * for that reason this function is often the best way to reset a jsPlumb instance.
  */   
+
+ /**
+ * @function
+ * @name jsPlumbInstance#getType
+ * @param {String} id Id of the type to retrieve
+ * @param {String} typeDescriptor `"connection"` or `"endpoint"` - the type of Type to get.
+ * @desc Returns the given type's specification.
+ * @return {Object} Type specification, it if exists, null otherwise.
+ */
+
+ /**
+ * @function
+ * @name jsPlumbInstance#registerEndpointTypes
+ * @param {Object} types Object containing the type specifications.
+ * @desc Registers all of the given Endpoint types on this instance of jsPlumb. `types` is expected
+ * to contain keys with typeids and values with type specification objects.
+ */
+
+ /**
+ * @function
+ * @name jsPlumbInstance#registerConnectionTypes
+ * @param {Object} types Object containing the type specifications.
+ * @desc Registers all of the given connection types on this instance of jsPlumb. `types` is expected
+ * to contain keys with typeids and values with type specification objects.
+ */
+
+ /**
+ * @name jsPlumbInstance#registerConnectionType
+ * @function
+ * @param {String} typeId Id of the type
+ * @param {Object} type Object containing the type specification.
+ * @desc Registers the given connection type on this instance of jsPlumb.
+ */
+
+ /**
+ * @function
+ * @name jsPlumbInstance#registerEndpointType
+ * @param {String} typeId Id of the type
+ * @param {Object} type Object containing the type specification.
+ * @desc Registers the given endpoint type on this instance of jsPlumb.
+ */

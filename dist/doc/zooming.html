@@ -109,11 +109,11 @@
 <h4>CSS <code>transform</code> property</h4>
 <p>Now to set the zoom to 0.75, say, we change the <code>transform</code> property accordingly. Remember that <code>transform</code> is one of those properties that have several vendor prefix versions, so there are several ways to do what I&#39;ve got here, and, given that you&#39;re probably a computer programmer, you&#39;ve most likely got a favourite.  But anyway, here&#39;s something.</p>
 <pre><code>$(&quot;#drawing&quot;).css({
-    &quot;-webkit-transform&quot;,&quot;scale(0.75)&quot;,
-    &quot;-moz-transform&quot;,&quot;scale(0.75)&quot;,
-    &quot;-ms-transform&quot;,&quot;scale(0.75)&quot;,
-    &quot;-o-transform&quot;,&quot;scale(0.75)&quot;,
-    &quot;transform&quot;,&quot;scale(0.75)&quot;
+    &quot;-webkit-transform&quot;:&quot;scale(0.75)&quot;,
+    &quot;-moz-transform&quot;:&quot;scale(0.75)&quot;,
+    &quot;-ms-transform&quot;:&quot;scale(0.75)&quot;,
+    &quot;-o-transform&quot;:&quot;scale(0.75)&quot;,
+    &quot;transform&quot;:&quot;scale(0.75)&quot;
 });</code></pre>
 <h4>jsPlumb.setZoom</h4>
 <p>You now need to tell jsPlumb about the new zoom level:</p>

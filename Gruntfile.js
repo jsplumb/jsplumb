@@ -35,7 +35,9 @@
 
 
 var JS_BEZIER = "0.6", // current js bezier version
+    JS_PLUMB_GEOM = "0.1",
     getJsBezier = function() { return "lib/jsBezier-" + JS_BEZIER + ".js"; },
+    getJsPlumbGeom = function() { return "lib/jsplumb-geom-" + JS_PLUMB_GEOM + ".js"; },
     libraries = [ "jquery", "mootools", "yui" ],
     runtimeLibraries = {
         jquery:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script type='text/javascript' src='../../lib/jquery.ui.touch-punch.min.js'></script>",
@@ -73,7 +75,7 @@ var JS_BEZIER = "0.6", // current js bezier version
         return out;
     },
     getSources = function(grunt, lib) {
-        var sources = [ getJsBezier() ];
+        var sources = [ getJsBezier(), getJsPlumbGeom() ];
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
         sources.push.apply(sources, getList(grunt, "renderers")); 
@@ -180,7 +182,7 @@ module.exports = function(grunt) {
         uglify: fileLists("-min"),
         qunit:{
             target: {
-                src: ['tests/qunit-svg-jquery*.html', 'tests/qunit-canvas-jquery*.html' ]
+                src: ['tests/qunit-svg-jquery*.html'/*, 'tests/qunit-canvas-jquery*.html'*/ ]
             }
         },
         copy:{
@@ -320,6 +322,9 @@ module.exports = function(grunt) {
             // now update version number in all demos and src files
             _replace("src", "*.js", oldV, newV);
             _replace("demo", "**/*.html", oldV, newV);
+            _replace(".", "bower.json", oldV, newV);
+            _replace(".", "package.json", oldV, newV);
+            _replace(".", "README.md", oldV, newV);
         }
 
     });
@@ -341,13 +346,17 @@ module.exports = function(grunt) {
         <replace dir="demo/yui3" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
         <replace dir="demo/mootools" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
     </target>
+
+    // also add one for jsplumb-geom
+
     */
 
 
     grunt.registerTask('build', [/*'qunit', */'prepare', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
+    grunt.registerTask('build-all', ['qunit', 'build']);
 
-    grunt.registerTask("build-all", function() {
+   /* grunt.registerTask("build-all", function() {
         grunt.task.run("build")
-    })
+    })*/
 };

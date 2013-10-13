@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -282,6 +282,14 @@
 	jsPlumbUtil.extend(VmlConnector, VmlComponent, {
 		reattachListeners : function() {
 			if (this.canvas) this.reattachListenersForElement(this.canvas, this);
+		},
+		setVisible:function(v) {
+			if (this.canvas) {
+				this.canvas.style.display = v ? "block" : "none";
+			}
+			if (this.bgCanvas) {
+				this.bgCanvas.style.display = v ? "block" : "none";
+			}
 		}
 	});	
 	
@@ -357,6 +365,9 @@
 							sf = segment.anticlockwise ? 1 : 0,
 							pathType = (segment.anticlockwise ? "at " : "wa "),
 							makePosString = function() {
+								if (d.loopback)
+									return "0,0," + _conv(2*d.r) + "," + _conv(2 * d.r);
+
 								var xy = [
 										null,
 										[ function() { return [xmin, ymin ];}, function() { return [xmin - d.r, ymin - d.r ];}],
@@ -368,8 +379,7 @@
 								return _conv(xy[0]) + "," + _conv(xy[1]) + "," + _conv(xy[0] + (2*d.r)) + "," + _conv(xy[1] + (2*d.r));
 							};
 
-						
-						return pathType + makePosString() + "," + _conv(d.x1) + "," + _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";						
+						return pathType + " " + makePosString() + "," + _conv(d.x1) + "," + _conv(d.y1) + "," + _conv(d.x2) + "," + _conv(d.y2) + " e";												
 					}
 						
 				})[segment.type](segment);	
@@ -436,50 +446,53 @@
     		       " x e";
     	};
     	this.paint = function(params, containerExtents) {
-    		var p = {}, d = params.d, connector = params.component;
-			if (params.strokeStyle) {
-				p.stroked = "true";
-				p.strokecolor = jsPlumbUtil.convertStyle(params.strokeStyle, true);    				
-			}
-			if (params.lineWidth) p.strokeweight = params.lineWidth + "px";
-			if (params.fillStyle) {
-				p.filled = "true";
-				p.fillcolor = params.fillStyle;
-			}			
+    		// only draws for connectors, not endpoints.
+    		if (params.component.canvas && containerExtents) {
+	    		var p = {}, d = params.d, connector = params.component;
+				if (params.strokeStyle) {
+					p.stroked = "true";
+					p.strokecolor = jsPlumbUtil.convertStyle(params.strokeStyle, true);    				
+				}
+				if (params.lineWidth) p.strokeweight = params.lineWidth + "px";
+				if (params.fillStyle) {
+					p.filled = "true";
+					p.fillcolor = params.fillStyle;
+				}			
 
-			var xmin = Math.min(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
-				ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
-				xmax = Math.max(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
-				ymax = Math.max(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
-				w = Math.abs(xmax - xmin),
-				h = Math.abs(ymax - ymin),
-				dim = [xmin, ymin, w, h];
+				var xmin = Math.min(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
+					ymin = Math.min(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
+					xmax = Math.max(d.hxy.x, d.tail[0].x, d.tail[1].x, d.cxy.x),
+					ymax = Math.max(d.hxy.y, d.tail[0].y, d.tail[1].y, d.cxy.y),
+					w = Math.abs(xmax - xmin),
+					h = Math.abs(ymax - ymin),
+					dim = [xmin, ymin, w, h];
 
-			// for VML, we create overlays using shapes that have the same dimensions and
-			// coordsize as their connector - overlays calculate themselves relative to the
-			// connector (it's how it's been done since the original canvas implementation, because
-			// for canvas that makes sense).
-			p.path = getPath(d);
-			p.coordsize = (connector.w * scale) + "," + (connector.h * scale);			
-			
-			dim[0] = connector.x;
-			dim[1] = connector.y;
-			dim[2] = connector.w;
-			dim[3] = connector.h;
-			
-    		if (self.canvas == null) {
-    			var overlayClass = connector._jsPlumb.overlayClass || "";
-    			var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "";
-    			p["class"] = clazz + " " + overlayClass;
-				self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb.instance, true);								
-				connector.appendDisplayElement(self.canvas, true);
-				self.attachListeners(self.canvas, connector);
-				self.attachListeners(self.canvas, self);
+				// for VML, we create overlays using shapes that have the same dimensions and
+				// coordsize as their connector - overlays calculate themselves relative to the
+				// connector (it's how it's been done since the original canvas implementation, because
+				// for canvas that makes sense).
+				p.path = getPath(d);
+				p.coordsize = (connector.w * scale) + "," + (connector.h * scale);			
+				
+				dim[0] = connector.x;
+				dim[1] = connector.y;
+				dim[2] = connector.w;
+				dim[3] = connector.h;
+				
+	    		if (self.canvas == null) {
+	    			var overlayClass = connector._jsPlumb.overlayClass || "";
+	    			var clazz = originalArgs && (originalArgs.length == 1) ? (originalArgs[0].cssClass || "") : "";
+	    			p["class"] = clazz + " " + overlayClass;
+					self.canvas = _node("shape", dim, p, connector.canvas.parentNode, connector._jsPlumb.instance, true);								
+					connector.appendDisplayElement(self.canvas, true);
+					self.attachListeners(self.canvas, connector);
+					self.attachListeners(self.canvas, self);
+				}
+				else {				
+					_pos(self.canvas, dim);
+					_atts(self.canvas, p);
+				}    		
 			}
-			else {				
-				_pos(self.canvas, dim);
-				_atts(self.canvas, p);
-			}    		
     	};
     	
     	this.reattachListeners = function() {
@@ -490,7 +503,11 @@
     		if (self.canvas != null) jsPlumb.CurrentLibrary.removeElement(self.canvas);
     	};
     };
-    jsPlumbUtil.extend(AbstractVmlArrowOverlay, VmlComponent);
+    jsPlumbUtil.extend(AbstractVmlArrowOverlay, [VmlComponent, jsPlumb.Overlays.AbstractOverlay], {
+    	setVisible : function(state) {
+    	    this.canvas.style.display = state ? "block" : "none";
+    	}
+    });
 	
 	jsPlumb.Overlays.vml.Arrow = function() {
     	AbstractVmlArrowOverlay.apply(this, [jsPlumb.Overlays.Arrow, arguments]);    	

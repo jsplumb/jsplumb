@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -59,8 +59,8 @@
             //      x1 = (b2 - b) / (m - m2)
                 _x1 = (b2 -b) / (m - m2),
                 _y1 = (m * _x1) + b,
-                d = jsPlumbUtil.lineLength([ x, y ], [ _x1, _y1 ]),
-                fractionInSegment = jsPlumbUtil.lineLength([ _x1, _y1 ], [ seg[0], seg[1] ]);
+                d = jsPlumbGeom.lineLength([ x, y ], [ _x1, _y1 ]),
+                fractionInSegment = jsPlumbGeom.lineLength([ _x1, _y1 ], [ seg[0], seg[1] ]);
             
             out.d = d;
             out.x = _x1;

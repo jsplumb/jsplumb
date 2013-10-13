@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -38,7 +38,7 @@
 	 */
 	var CanvasMouseAdapter = window.CanvasMouseAdapter = function() {
 		var self = this;
-		self.overlayPlacements = [];
+		this.overlayPlacements = [];
 		jsPlumb.jsPlumbUIComponent.apply(this, arguments);
 		jsPlumbUtil.EventGenerator.apply(this, arguments);
 		/**
@@ -139,7 +139,11 @@
 		this.getDisplayElements = function() { return displayElements; };
 		this.appendDisplayElement = function(el) { displayElements.push(el); };
 	};
-	jsPlumbUtil.extend(CanvasComponent, CanvasMouseAdapter);
+	jsPlumbUtil.extend(CanvasComponent, CanvasMouseAdapter, {
+		setVisible:function(state) { 			
+			this.canvas.style.display = state ? "block" : "none";
+		}
+	});
 	
 	var segmentMultipliers = [null, [1, -1], [1, 1], [-1, 1], [-1, -1] ];
 	var maybeMakeGradient = function(ctx, style, gradientFunction) {
@@ -464,32 +468,7 @@
 	 * Blank endpoint in all renderers is just the default Blank endpoint.
 	 */
 	jsPlumb.Endpoints.canvas.Blank = jsPlumb.Endpoints.Blank;
-	
-	/*
-     * Canvas Bezier Connector. Draws a Bezier curve onto a Canvas element.
-     *
-    jsPlumb.Connectors.canvas.Bezier = function() {
-    	jsPlumb.Connectors.Bezier.apply(this, arguments); 
-    	CanvasConnector.apply(this, arguments);    	        
-    };
-    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Bezier, [ jsPlumb.Connectors.Bezier, CanvasConnector ]);
-    
-    /*
-     * Canvas straight line Connector. Draws a straight line onto a Canvas element.
-     *
-    jsPlumb.Connectors.canvas.Straight = function() {   	 
-		jsPlumb.Connectors.Straight.apply(this, arguments);
-		CanvasConnector.apply(this, arguments);		
-    };
-    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Straight, [ jsPlumb.Connectors.Straight, CanvasConnector ]);
-    
-    jsPlumb.Connectors.canvas.Flowchart = function() {
-    	jsPlumb.Connectors.Flowchart.apply(this, arguments);
-		CanvasConnector.apply(this, arguments);
-    };
-    jsPlumbUtil.extend(jsPlumb.Connectors.canvas.Flowchart, [ jsPlumb.Connectors.Flowchart, CanvasConnector ]);
-    
-    */
+		
 // ********************************* END OF CANVAS RENDERERS *******************************************************************    
     
     jsPlumb.Overlays.canvas.Label = jsPlumb.Overlays.Label;
@@ -501,7 +480,12 @@
     var CanvasOverlay = function() { 
     	jsPlumb.jsPlumbUIComponent.apply(this, arguments);
     };
-    jsPlumbUtil.extend(CanvasOverlay, jsPlumb.jsPlumbUIComponent);
+    jsPlumbUtil.extend(CanvasOverlay, jsPlumb.jsPlumbUIComponent, {
+    	setVisible : function(state) {
+    	    this.visible = state;
+    	    this.component.repaint();
+    	}
+    });
     
     var AbstractCanvasArrowOverlay = function(superclass, originalArgs) {
     	superclass.apply(this, originalArgs);

@@ -51,7 +51,7 @@ nav {
   border: none;
   float: none;
   margin-left: 0;
-  width:241px;
+  width:210px;
 }
 
 nav a:visited {
@@ -78,11 +78,18 @@ nav h2 {
 }
 
 .apidoc-main {
-  margin-left: 250px;  
+  margin-left: 255px;  
   height: auto;
   width: auto;
   background-color: white;
   border: none;
+}
+
+.apidoc-summary {
+  width:150px;
+}
+.apidoc-detail {
+  margin-left:160px;
 }
 
 #qunit-tests li, #qunit-testresult {

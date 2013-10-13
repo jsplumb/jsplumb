@@ -10,9 +10,9 @@
 
             var head = connector.pointAlongPathFrom(self.loc, self.length / 2),
                 mid = connector.pointOnPath(self.loc),
-                tail = jsPlumbUtil.pointOnLine(head, mid, self.length),
-                tailLine = jsPlumbUtil.perpendicularLineTo(head, tail, 40),
-                headLine = jsPlumbUtil.perpendicularLineTo(tail, head, 20);
+                tail = jsPlumbGeom.pointOnLine(head, mid, self.length),
+                tailLine = jsPlumbGeom.perpendicularLineTo(head, tail, 40),
+                headLine = jsPlumbGeom.perpendicularLineTo(tail, head, 20);
 
             self.paint(connector, [head, tail, tailLine, headLine], self.lineWidth, "red", null, connectorDimensions);
 

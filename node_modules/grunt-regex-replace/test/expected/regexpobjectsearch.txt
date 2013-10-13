@@ -1,1 +1,0 @@
-Expect [foo] Expect [bar] Keep [foo123bar] regexpobjectsearch.txt

@@ -64,14 +64,14 @@
 * @name Connection#getConnector
 * @function
 * @desc Gets the underlying Connector for this Connection (eg. a Bezier connector, straight line connector, flowchart connector etc)
-* @returns {Connector} The current Connector
+* @returns {Connector} The current Connector.
 */
 
 /**
 * @name Connection#isDetachable
 * @function
-* @desc Returns whether or not this connection can be detached from its target/source endpoint.  by default this
-* is false; use it in conjunction with the 'reattach' parameter.
+* @desc Returns whether or not this connection can be detached from its target/source endpoint.  By default this
+* is false; use it in conjunction with the `reattach` parameter.
 * @returns {Boolean} True if can be detached, false otherwise.
 */
 
@@ -100,8 +100,8 @@
 /**
 * @name Connection#setConnector
 * @function
-* @desc Sets the Connection's connector (eg "Bezier", "Flowchart", etc).  You pass a Connector definition into this method, the same
-* thing that you would set as the 'connector' property on a jsPlumb.connect call.
+* @desc Sets the Connection's connector (eg `Bezier`, `Flowchart`, etc).  You pass a Connector definition into this method, the same
+* thing that you would set as the `connector` property on a `jsPlumb.connect` call.
 * @param {String|Object} connector Connector definition. See jsPlumb documentation for a discussion.
 */   
 

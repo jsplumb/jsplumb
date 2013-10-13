@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  *
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  *
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.
@@ -224,6 +224,7 @@
 				
 				// ADD AN ARC SEGMENT.
 				_super.addSegment(this, "Arc", {
+					loopback:true,
 					x1:(x1 - _x) + 4,
 					y1:y1 - _y,
 					startAngle:0,

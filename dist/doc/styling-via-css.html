@@ -171,29 +171,23 @@
 <h3>CSS for SVG elements</h3>
 <h4>Connections</h4>
 <p>SVG connections in jsPlumb consist of a parent <code>svg</code> element, inside of which there are one or more <code>path</code> elements, depending on whether or not you have specified an <code>outlineStyle</code>.  To target the path element for some connection, you need a rule like this:</p>
-<pre><code>svg .path {
-  stroke:&#39;red&#39;
+<pre><code>svg path {
+  stroke:red;
 }</code></pre>
 <p>Hooking this up to the custom class mechanism, you might do something like this:    </p>
-<pre>
-jsPlumb.connect({
-  source:"someElement",
-  target:"someOtherElement",
-  cssClass:"redLine"
-});
-</pre>
-
+<pre><code>jsPlumb.connect({
+    source:&quot;someElement&quot;,
+    target:&quot;someOtherElement&quot;,
+    cssClass:&quot;redLine&quot;
+});</code></pre>
 <p>CSS:</p>
-<pre>
-svg .path.redLine {
-  stroke:'red';
-  stroke-width:3;
-}
-</pre>
-
-<p>You might be thinking to yourself, why have the <code>svg .path</code> prefix to this?  In fact it is perhaps not required: it&#39;s just there to call out the fact that this is a style on an SVG connector.</p>
+<pre><code>svg.redLine path {
+    stroke:red;
+    stroke-width:3;
+}</code></pre>
+<p>You might be thinking to yourself, why have the <code>svg</code> and <code>path</code> elements in this?  In fact they are  perhaps not required: they&#39;re just there to call out the fact that this is a style on an SVG connector.</p>
 <h4>Endpoints</h4>
-<p>SVG Endpoints created by jsPlumb consist of an <code>svg</code> parent element, inside of which there is some shape, the tag name of which depends on the type of Endpoint:</p>
+<p>SVG Endpoints created by jsPlumb consist of a <code>div</code>, inside of which is an <code>svg</code> parent element, inside of which there is some shape, the tag name of which depends on the type of Endpoint:</p>
 <table>
   <tr><th>Endpoint Type</th><th>SVG Shape</th></tr>
   <tr><td>Rectangle</td><td>rect</td></tr>
@@ -201,26 +195,20 @@ svg .path.redLine {
 </table>
 
 <p>So you can choose, when writing CSS rules for these, whether or not you specify the shape exactly, or just leave it up to a wildcard:</p>
-<pre>
-jsPlumb.addEndpoint("someElement", {
-  cssClass:"aRedEndpoint",
-  endpoint:"Dot"
-});
-</pre>
-CSS:
-<pre>
-.svg circle.aRedEndpoint {
-  fill:"red"
-}
-</pre>
-...or:
-<pre>
-.svg *.aRedEndpoint {
-  fill:"red"
-}
-</pre>
-
-
+<pre><code>jsPlumb.addEndpoint(&quot;someElement&quot;, {
+    cssClass:&quot;aRedEndpoint&quot;,
+    endpoint:&quot;Dot&quot;
+});</code></pre>
+<p>CSS:</p>
+<pre><code>.aRedEndpoint svg circle {
+    fill:red;
+    stroke:yellow;
+}</code></pre>
+<p>...or:</p>
+<pre><code>.aRedEndpoint svg * {
+    fill:red;
+    stroke:yellow;
+}</code></pre>
 <p>For a full discussion of the properties you can configure on an SVG element via CSS, I refer you to <a href="http://www.w3.org/TR/SVG/styling.html#StylingWithCSS">the SVG spec</a>.</p>
 <h3>CSS for VML elements</h3>
 <p>VML does not really support styling via CSS.  There are some properties you can set, but these are typically things that are under jsPlumb&#39;s control and not something you should mess with.</p>

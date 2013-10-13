@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -82,7 +82,7 @@
                 length, m, m2, x1, x2, y1, y2,
                 _recalc = function() {
                     length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-                    m = jsPlumbUtil.gradient({x:x1, y:y1}, {x:x2, y:y2});
+                    m = jsPlumbGeom.gradient({x:x1, y:y1}, {x:x2, y:y2});
                     m2 = -1 / m;                
                 };
                 
@@ -120,7 +120,7 @@
                     return { x:x2, y:y2 };
                 else {
                     var l = absolute ? location > 0 ? location : length + location : location * length;
-                    return jsPlumbUtil.pointOnLine({x:x1, y:y1}, {x:x2, y:y2}, l);
+                    return jsPlumbGeom.pointOnLine({x:x1, y:y1}, {x:x2, y:y2}, l);
                 }
             };
             
@@ -149,7 +149,7 @@
     
                 if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
     
-                return jsPlumbUtil.pointOnLine(p, farAwayPoint, distance);
+                return jsPlumbGeom.pointOnLine(p, farAwayPoint, distance);
             };
             
             /**
@@ -182,8 +182,8 @@
                     // x1 = (b2 - b) / (m - m2)
                         _x1 = (b2 -b) / (m - m2),
                         _y1 = (m * _x1) + b,
-                        d = jsPlumbUtil.lineLength([ x, y ], [ _x1, _y1 ]),
-                        fractionInSegment = jsPlumbUtil.lineLength([ _x1, _y1 ], [ x1, y1 ]);
+                        d = jsPlumbGeom.lineLength([ x, y ], [ _x1, _y1 ]),
+                        fractionInSegment = jsPlumbGeom.lineLength([ _x1, _y1 ], [ x1, y1 ]);
                     
                     return { d:d, x:_x1, y:_y1, l:fractionInSegment / length};            
                 }
@@ -214,7 +214,7 @@
         Arc : function(params) {
             var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
                 _calcAngle = function(_x, _y) {
-                    return jsPlumbUtil.theta([params.cx, params.cy], [_x, _y]);    
+                    return jsPlumbGeom.theta([params.cx, params.cy], [_x, _y]);    
                 },
                 _calcAngleForLocation = function(segment, location) {
                     if (segment.anticlockwise) {
@@ -256,7 +256,7 @@
             if (this.startAngle < 0) this.startAngle += TWO_PI;   
 
             // segment is used by vml     
-            this.segment = jsPlumbUtil.segment([this.x1, this.y1], [this.x2, this.y2]);
+            this.segment = jsPlumbGeom.quadrant([this.x1, this.y1], [this.x2, this.y2]);
             
             // we now have startAngle and endAngle as positive numbers, meaning the
             // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
@@ -321,7 +321,7 @@
              */
             this.gradientAtPoint = function(location, absolute) {
                 var p = this.pointOnPath(location, absolute);
-                var m = jsPlumbUtil.normal( [ params.cx, params.cy ], [p.x, p.y ] );
+                var m = jsPlumbGeom.normal( [ params.cx, params.cy ], [p.x, p.y ] );
                 if (!this.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
                 return m;
             };	              
@@ -535,12 +535,12 @@
         
         var _prepareCompute = function(params) {
             this.lineWidth = params.lineWidth;
-            var segment = jsPlumbUtil.segment(params.sourcePos, params.targetPos),
+            var segment = jsPlumbGeom.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
                 lw = params.lineWidth || 1,       
-                so = params.sourceEndpoint.anchor.orientation || params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint), 
-                to = params.targetEndpoint.anchor.orientation || params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
+                so = params.sourceEndpoint.anchor.getOrientation(params.sourceEndpoint), 
+                to = params.targetEndpoint.anchor.getOrientation(params.targetEndpoint),
                 x = swapX ? params.targetPos[0] : params.sourcePos[0], 
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
@@ -622,7 +622,7 @@
 		
 		this.compute = function(params)  {
             if (!edited)
-                paintInfo = _prepareCompute(params);
+                paintInfo = _prepareCompute.call(this, params);
             
             _clearSegments();
             this._compute(paintInfo, params);
@@ -651,7 +651,7 @@
      * Class: Connectors.Straight
      * The Straight connector draws a simple straight line between the two anchor points.  It does not have any constructor parameters.
      */
-    var Straight = function() {
+    var Straight = jsPlumb.Connectors.Straight = function() {
     	this.type = "Straight";
 		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments);		
 
@@ -1061,7 +1061,9 @@
         },
         setVisible : function(val) { 
             this.visible = val;
-            this.component.repaint();
+            // TODO this is only actually necessary for canvas. so, the Canvas overlay should
+            // override setVisible and call this.
+            //this.component.repaint();
         },
         isVisible : function() { return this.visible; },
         hide : function() { this.setVisible(false); },
@@ -1108,7 +1110,7 @@
 		AbstractOverlay.apply(this, arguments);
         this.isAppendedAtTopLevel = false;
 		params = params || {};
-		var _ju = jsPlumbUtil;
+		var _ju = jsPlumbUtil, _jg = jsPlumbGeom;
 		
     	this.length = params.length || 20;
     	this.width = params.width || 20;
@@ -1126,15 +1128,16 @@
             if (component.pointAlongPathFrom) {
 
                 if (_ju.isString(this.loc) || this.loc > 1 || this.loc < 0) {                    
-                    var l = parseInt(this.loc, 10);
-                    hxy = component.pointAlongPathFrom(l, direction * this.length / 2, true);
-                    mid = component.pointOnPath(l, true);
-                    txy = _ju.pointOnLine(hxy, mid, this.length);
+                    var l = parseInt(this.loc, 10),
+                        fromLoc = this.loc < 0 ? 1 : 0;
+                    hxy = component.pointAlongPathFrom(fromLoc, l, false);
+                    mid = component.pointAlongPathFrom(fromLoc, l - (direction * this.length / 2), false);
+                    txy = _jg.pointOnLine(hxy, mid, this.length);
                 }
                 else if (this.loc == 1) {                
 					hxy = component.pointOnPath(this.loc);					           
                     mid = component.pointAlongPathFrom(this.loc, -(this.length));
-					txy = _ju.pointOnLine(hxy, mid, this.length);
+					txy = _jg.pointOnLine(hxy, mid, this.length);
 					
 					if (direction == -1) {
 						var _ = txy;
@@ -1145,7 +1148,7 @@
                 else if (this.loc === 0) {					                    
 					txy = component.pointOnPath(this.loc);                    
 					mid = component.pointAlongPathFrom(this.loc, this.length);                    
-					hxy = _ju.pointOnLine(txy, mid, this.length);                    
+					hxy = _jg.pointOnLine(txy, mid, this.length);                    
 					if (direction == -1) {
 						var __ = txy;
 						txy = hxy;
@@ -1155,11 +1158,11 @@
                 else {                    
     			    hxy = component.pointAlongPathFrom(this.loc, direction * this.length / 2);
                     mid = component.pointOnPath(this.loc);
-                    txy = _ju.pointOnLine(hxy, mid, this.length);
+                    txy = _jg.pointOnLine(hxy, mid, this.length);
                 }
 
-                tail = _ju.perpendicularLineTo(hxy, txy, this.width);
-                cxy = _ju.pointOnLine(hxy, txy, foldback * this.length);    			
+                tail = _jg.perpendicularLineTo(hxy, txy, this.width);
+                cxy = _jg.pointOnLine(hxy, txy, foldback * this.length);    			
     			
     			var d = { hxy:hxy, tail:tail, cxy:cxy },
     			    strokeStyle = paintStyle.strokeStyle || currentConnectionPaintStyle.strokeStyle,
@@ -1380,9 +1383,9 @@
 
             var head = connector.pointAlongPathFrom(self.loc, self.length / 2),
                 mid = connector.pointOnPath(self.loc),
-                tail = jsPlumbUtil.pointOnLine(head, mid, self.length),
-                tailLine = jsPlumbUtil.perpendicularLineTo(head, tail, 40),
-                headLine = jsPlumbUtil.perpendicularLineTo(tail, head, 20);
+                tail = jsPlumbGeom.pointOnLine(head, mid, self.length),
+                tailLine = jsPlumbGeom.perpendicularLineTo(head, tail, 40),
+                headLine = jsPlumbGeom.perpendicularLineTo(tail, head, 20);
 
             return {
                 connector:connector,
@@ -1402,10 +1405,7 @@
     
     /*
      * Class: Overlays.Label
-     * A Label overlay. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  Version 1.3.0 of jsPlumb
-     * introduced the ability to set css classes on the label; this is now the preferred way for you to style a label.  The 'labelStyle' parameter
-     * is still supported in 1.3.0 but its usage is deprecated.  Under the hood, jsPlumb just turns that object into a bunch of CSS directive that it 
-     * puts on the Label's 'style' attribute, so the end result is the same. 
+     
      */
     /*
      * Function: Constructor
@@ -1417,19 +1417,35 @@
      *         label function returns null.  empty strings _will_ be painted.
      * 	location - distance (as a decimal from 0 to 1 inclusive) marking where the label should sit on the connector. defaults to 0.5.
      * 	id - optional id to use for later retrieval of this overlay.
+     * 
      * 	
      */
     jsPlumb.Overlays.Label =  function(params) {		   
-		this.labelStyle = params.labelStyle || jsPlumb.Defaults.LabelStyle;
+		this.labelStyle = params.labelStyle;
+        
+        var labelWidth = null, labelHeight =  null, labelText = null, labelPadding = null;
 		this.cssClass = this.labelStyle != null ? this.labelStyle.cssClass : null;
 		var p = jsPlumb.extend({
-                create : function() {
-                    return document.createElement("div");
-                }}, params);
+            create : function() {
+                return document.createElement("div");
+            }}, params);
     	jsPlumb.Overlays.Custom.call(this, p);
 		this.type = "Label";    	
         this.label = params.label || "";
-        this.labelText = null;        	    	
+        this.labelText = null;
+        if (this.labelStyle) {
+            var el = this.getElement();            
+            this.labelStyle.font = this.labelStyle.font || "12px sans-serif";
+            el.style.font = this.labelStyle.font;
+            el.style.color = this.labelStyle.color || "black";
+            if (this.labelStyle.fillStyle) el.style.background = this.labelStyle.fillStyle;
+            if (this.labelStyle.borderWidth > 0) {
+                var dStyle = this.labelStyle.borderStyle ? this.labelStyle.borderStyle : "black";
+                el.style.border = this.labelStyle.borderWidth  + "px solid " + dStyle;
+            }
+            if (this.labelStyle.padding) el.style.padding = this.labelStyle.padding;            
+        }
+
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Label, jsPlumb.Overlays.Custom, {
         cleanup:function() {

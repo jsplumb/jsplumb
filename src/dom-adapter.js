@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.2
+ * Title:jsPlumb 1.5.3
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -43,7 +43,7 @@
 	var DragManager = function(_currentInstance) {		
 		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},			
 			// elementids mapped to the draggable to which they belong.
-			_draggablesForElements = {};
+			_draggablesForElements = {};			
 
         /**
             register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
@@ -186,6 +186,34 @@
 			_dlist = [];
 			_delements = {};
 			_elementsWithEndpoints = {};
+		};
+
+		//
+		// notification drag ended. from 1.5.3 we check automatically if need to update some
+		// ancestor's offsets.
+		//
+		this.dragEnded = function(el) {			
+			var id = _currentInstance.getId(el),
+				ancestor = _draggablesForElements[id];
+
+			if (ancestor) this.updateOffsets(ancestor);
+		};
+
+		this.setParent = function(el, elId, p, pId) {
+			var current = _draggablesForElements[elId];
+			if (current) {
+				if (!_delements[pId])
+					_delements[pId] = {};
+				_delements[pId][elId] = _delements[current][elId];
+				delete _delements[current][elId];
+				var pLoc = jsPlumb.CurrentLibrary.getOffset(p),
+					cLoc = jsPlumb.CurrentLibrary.getOffset(el);
+				_delements[pId][elId].offset = {
+					left:cLoc.left - pLoc.left,
+					top:cLoc.top - pLoc.top
+				};				
+				_draggablesForElements[elId] = pId;
+			}			
 		};
 		
 	};

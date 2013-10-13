@@ -97,13 +97,12 @@
 				<!-- BODY -->
 				<h2>Building</h2>
 <p>jsPlumb consists of several scripts in development, which are concatenated together when it comes time to release.  You can run this yourself on the source - you just need <a href="https://github.com/gruntjs/grunt">Grunt</a>.  </p>
-<p><strong>Note</strong> <code>node_modules</code> is currently checked in to the jsPlumb project. It&#39;s not standard practice to do so, but I made some changes to JSDoc for which I issued a PR but have heard nothing from the author, so I have checked all of the modules in.</p>
 <h3>Building jsPlumb</h3>
 <p>In the main project directory, execute the following command:</p>
 <pre><code>grunt build   </code></pre>
 <p>The output is written into <code>./dist</code>. Subsequent builds will overwrite the contents of the <code>dist</code> directory.</p>
 <h3>Building Custom Versions</h3>
-<p>1.5.0 introduces the ability to build custom versions of jsPlumb, omitting connectors or renderers you do not need.  This does not, admittedly, save you a huge amount; future releases will take this ability a step further and allow you, for instance, to leave out the whole <code>makeTarget</code>/<code>makeSource</code> module, should you wish to.</p>
+<p>1.5.0 introduced the ability to build custom versions of jsPlumb, omitting connectors or renderers you do not need.  This does not, admittedly, save you a huge amount; future releases will take this ability a step further and allow you, for instance, to leave out the whole <code>makeTarget</code>/<code>makeSource</code> module, should you wish to.</p>
 <p>Say you want to leave out the Canvas renderer, for example. You would do this:</p>
 <pre><code>grunt build --renderers=svg,vml</code></pre>
 <p>If you only need the Flowchart connectors, you&#39;d do this:</p>

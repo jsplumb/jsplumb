@@ -1,6 +1,6 @@
 {
   "name": "jsPlumb",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "pipe up your life",
   "main": "index.js",
   "directories": {
@@ -32,7 +32,7 @@
     "grunt-regex-replace": "~0.2.5",
     "grunt-markdown": "~0.3.0",
     "grunt-contrib-clean": "~0.5.0",
-    "jsdoc": "git://github.com/jsdoc3/jsdoc.git",
+    "jsdoc": "git://github.com/sporritt/jsdoc.git",
     "grunt-jsdoc": "~0.4.0"
   }
 }

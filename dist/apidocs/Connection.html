@@ -735,7 +735,7 @@ appended as given, meaning you can supply a space separated string of several cl
     
     
     <div class="description">
-        <p>Adds a type to the component. Note this is distinct from <a href="jsPlumbUIComponent.html#setType">jsPlumbUIComponent#setType</a>, which overrides all current types - this function just adds a type to the existing list.</p>
+        <p>Adds a type to the component. Note this is distinct from #setType, which overrides all current types - this function just adds a type to the existing list.</p>
     </div>
     
 
@@ -941,7 +941,7 @@ appended as given, meaning you can supply a space separated string of several cl
         
             
 <dt>
-    <h4 class="name" id="bind"><span class="type-signature"></span>bind<span class="signature">(event, listener)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="bind"><span class="type-signature"></span>bind<span class="signature">(event, listener, <span class="optional">insertAtStart</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -971,7 +971,11 @@ appended as given, meaning you can supply a space separated string of several cl
 		<th>Type</th>
 		
 		
+		<th>Argument</th>
 		
+		
+		
+		<th>Default</th>
 		
 		
 		<th class="last">Description</th>
@@ -996,7 +1000,19 @@ appended as given, meaning you can supply a space separated string of several cl
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>Name of the event to bind to.</p></td>
@@ -1019,10 +1035,61 @@ appended as given, meaning you can supply a space separated string of several cl
             </td>
             
             
+                <td class="attributes">
+                
+                    
+                
+                    
+                
+                </td>
             
+            
+            
+                <td class="default">
+                
+                </td>
             
             
             <td class="description last"><p>Function to execute.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>insertAtStart</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+            
+            <td class="description last"><p>Whether or not to insert this listener at the start of the listener list, so it is fired before the other currently registered listeners.</p></td>
         </tr>
 	
 	
@@ -2039,7 +2106,7 @@ you should check the documentation for each of those methods.</p>
     
             
 <div class="param-desc">
-    <p>The current Connector</p>
+    <p>The current Connector.</p>
 </div>
 
 
@@ -3178,8 +3245,8 @@ to the parameters object you could cause a memory leak.</p>
     
     
     <div class="description">
-        <p>Returns whether or not this connection can be detached from its target/source endpoint.  by default this
-is false; use it in conjunction with the 'reattach' parameter.</p>
+        <p>Returns whether or not this connection can be detached from its target/source endpoint.  By default this
+is false; use it in conjunction with the <code>reattach</code> parameter.</p>
     </div>
     
 
@@ -4484,8 +4551,8 @@ jsPlumb documentation for a full discussion of types.</p>
     
     
     <div class="description">
-        <p>Sets the Connection's connector (eg &quot;Bezier&quot;, &quot;Flowchart&quot;, etc).  You pass a Connector definition into this method, the same
-thing that you would set as the 'connector' property on a jsPlumb.connect call.</p>
+        <p>Sets the Connection's connector (eg <code>Bezier</code>, <code>Flowchart</code>, etc).  You pass a Connector definition into this method, the same
+thing that you would set as the <code>connector</code> property on a <code>jsPlumb.connect</code> call.</p>
     </div>
     
 
@@ -5080,7 +5147,133 @@ color for example, but leave the rest of the appearance the same.</p>
             
             
             
-            <td class="description last"><p>Style to use when the mouse is hovering.</p></td>
+            <td class="description last"><p>Style to use when the mouse is hovering. The allowed values in this object originally come from valid values in an HTML5 canvas.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>fillStyle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a <code>fillStyle</code> on a Connector will cause the browser to fill the connector's path - probably not what you want.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>strokeStyle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use <code>strokeStyle</code> on Endpoints to define a border.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>lineWidth</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
         </tr>
 	
 	
@@ -5379,7 +5572,133 @@ color for example, but leave the rest of the appearance the same.</p>
                 </td>
             
             
-            <td class="description last"><p>Style to use.</p></td>
+            <td class="description last"><p>Style to use. The allowed values in this object originally come from valid values in an HTML5 canvas.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>fillStyle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Fill style, in valid CSS format (a hex code, name, or rgb value). Note that setting a <code>fillStyle</code> on a Connector will cause the browser to fill the connector's path - probably not what you want.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>strokeStyle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Stroke style, in valid CSS format (a hex code, name, or rgb value). You can use <code>strokeStyle</code> on Endpoints to define a border.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>lineWidth</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Width of the stroked line (for Connectors this is the Connector itself; for Endpoints it is the outline)</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
         </tr>
 	
 	
@@ -5839,6 +6158,128 @@ color for example, but leave the rest of the appearance the same.</p>
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
         connection-api.js, line 32
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setSuspendEvents"><span class="type-signature"></span>setSuspendEvents<span class="signature">(val)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Sets whether or not events are suspended.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>val</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Whether or not to suspend events.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="jsPlumbUtil.EventGenerator.html#setSuspendEvents">jsPlumbUtil.EventGenerator#setSuspendEvents</a>
+    </li></dd>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        util-api.js, line 26
     </li></ul></dd>
     
     
@@ -6394,128 +6835,6 @@ of types, see the jsPlumb documentation.</p>
         
             
 <dt>
-    <h4 class="name" id="suspendEvents"><span class="type-signature"></span>suspendEvents<span class="signature">(val)</span><span class="type-signature"></span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Sets whether or not events are suspended.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>val</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">Boolean</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>Whether or not to suspend events.</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="jsPlumbUtil.EventGenerator.html#suspendEvents">jsPlumbUtil.EventGenerator#suspendEvents</a>
-    </li></dd>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        util-api.js, line 26
-    </li></ul></dd>
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
     <h4 class="name" id="toggleType"><span class="type-signature"></span>toggleType<span class="signature">(typeId, <span class="optional">params</span>, <span class="optional">doNotRepaint</span>)</span><span class="type-signature"></span></h4>
     
     
@@ -6627,7 +6946,7 @@ of types, see the jsPlumb documentation.</p>
                 </td>
             
             
-            <td class="description last"><p>Optional params to use if the type does not exist and jsPlumb applies it.</p></td>
+            <td class="description last"><p>Optional params to use if the type is not currently set and jsPlumb applies it.</p></td>
         </tr>
 	
 	

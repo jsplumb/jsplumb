@@ -238,7 +238,8 @@ as follows:</p>
 <dd>
     
     <div class="description">
-        <p>Provides a text label with which to decorate Connectors or Endpoints.</p>
+        <p>Provides a text label with which to decorate Connectors or Endpoints. For all different renderer types (SVG/Canvas/VML), jsPlumb draws a Label overlay as a styled DIV.  You can style a Label
+using the <code>cssClass</code> parameter, or - if you need to programmatically generate the appearance - the <code>labelStyle</code> parameter.</p>
     </div>
     
     
@@ -345,7 +346,7 @@ as follows:</p>
         <dl>
             
 <dt>
-    <h4 class="name" id="Arrow"><span class="type-signature">&lt;static> </span>Arrow<span class="signature">(params, width, length, <span class="optional">location</span>, direction, <span class="optional">foldback</span>, paintStyle)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Arrow"><span class="type-signature">&lt;static> </span>Arrow<span class="signature">(params)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -360,6 +361,48 @@ as follows:</p>
     
         <h5>Parameters:</h5>
         
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Constructor parameters</p>
+                <h6>Properties</h6>
+                
 
 <table class="params">
     <thead>
@@ -387,41 +430,6 @@ as follows:</p>
 	
         <tr>
             
-                <td class="name"><code>params</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>Constructor parameters</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
                 <td class="name"><code>width</code></td>
             
             
@@ -437,6 +445,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -446,6 +456,8 @@ as follows:</p>
             
             
                 <td class="default">
+                
+                    20
                 
                 </td>
             
@@ -472,6 +484,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -481,6 +495,8 @@ as follows:</p>
             
             
                 <td class="default">
+                
+                    20
                 
                 </td>
             
@@ -546,6 +562,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -555,6 +573,8 @@ as follows:</p>
             
             
                 <td class="default">
+                
+                    1
                 
                 </td>
             
@@ -620,6 +640,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -634,6 +656,12 @@ as follows:</p>
             
             
             <td class="description last"><p>A style object in the form used for paintStyle values for Endpoints and Connectors.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
         </tr>
 	
 	
@@ -692,7 +720,7 @@ as follows:</p>
         
             
 <dt>
-    <h4 class="name" id="Diamond"><span class="type-signature">&lt;static> </span>Diamond<span class="signature">(params, width, length, <span class="optional">location</span>, direction, paintStyle)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Diamond"><span class="type-signature">&lt;static> </span>Diamond<span class="signature">(params)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -707,6 +735,48 @@ as follows:</p>
     
         <h5>Parameters:</h5>
         
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Constructor parameters</p>
+                <h6>Properties</h6>
+                
 
 <table class="params">
     <thead>
@@ -734,41 +804,6 @@ as follows:</p>
 	
         <tr>
             
-                <td class="name"><code>params</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>Constructor parameters</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
                 <td class="name"><code>width</code></td>
             
             
@@ -784,6 +819,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -793,6 +830,8 @@ as follows:</p>
             
             
                 <td class="default">
+                
+                    20
                 
                 </td>
             
@@ -819,6 +858,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -828,6 +869,8 @@ as follows:</p>
             
             
                 <td class="default">
+                
+                    20
                 
                 </td>
             
@@ -878,41 +921,6 @@ as follows:</p>
 	
         <tr>
             
-                <td class="name"><code>direction</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>Which way to point. Allowed values are 1 (the default, meaning forwards) and -1, meaning backwards</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
                 <td class="name"><code>paintStyle</code></td>
             
             
@@ -928,6 +936,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -942,6 +952,12 @@ as follows:</p>
             
             
             <td class="description last"><p>A style object in the form used for paintStyle values for Endpoints and Connectors.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
         </tr>
 	
 	
@@ -1000,7 +1016,7 @@ as follows:</p>
         
             
 <dt>
-    <h4 class="name" id="Label"><span class="type-signature">&lt;static> </span>Label<span class="signature">(params, label, <span class="optional">cssClass</span>, <span class="optional">location</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Label"><span class="type-signature">&lt;static> </span>Label<span class="signature">(params, label, <span class="optional">cssClass</span>, <span class="optional">location</span>, <span class="optional">labelStyle</span>)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -1145,7 +1161,7 @@ as follows:</p>
                 </td>
             
             
-            <td class="description last"><p>Optional css class to use for the Label. This is now preferred over using the <code>labelStyle</code> parameter.</p></td>
+            <td class="description last"><p>Optional css class to use for the Label.</p></td>
         </tr>
 	
 	
@@ -1185,6 +1201,301 @@ as follows:</p>
             
             
             <td class="description last"><p>Where, either as a proportional value from 0 to 1 inclusive, or as an absolute value (negative values mean distance from target; positive values greater than 1 mean distance from source) the Label should appear on the Connector</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>labelStyle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+                <td class="default">
+                
+                </td>
+            
+            
+            <td class="description last"><p>Optional object containing properties for the label's style. Use this if you need to prgrammatically generate the label's appearance.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>cssClass</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>css class for the label (you can also use the <code>cssClass</code> parameter on the label; this exists for historical reasons)</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>font</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>A string specifying a font to use, in valid CSS format.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>color</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>A string specifying a font color to use, in valid CSS format.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>fillStyle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>A string specifying the background for the label, in valid CSS format.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>borderStyle</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>A string specifying the border color for the label, in valid CSS format.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>borderWidth</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Width of the border's label</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>padding</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last"><p>Padding for the label.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
         </tr>
 	
 	
@@ -1243,7 +1554,7 @@ as follows:</p>
         
             
 <dt>
-    <h4 class="name" id="PlainArrow"><span class="type-signature">&lt;static> </span>PlainArrow<span class="signature">(params, width, length, <span class="optional">location</span>, direction, paintStyle)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="PlainArrow"><span class="type-signature">&lt;static> </span>PlainArrow<span class="signature">(params)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -1258,6 +1569,48 @@ as follows:</p>
     
         <h5>Parameters:</h5>
         
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Constructor parameters</p>
+                <h6>Properties</h6>
+                
 
 <table class="params">
     <thead>
@@ -1285,41 +1638,6 @@ as follows:</p>
 	
         <tr>
             
-                <td class="name"><code>params</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-            
-            
-                <td class="attributes">
-                
-                    
-                
-                    
-                
-                </td>
-            
-            
-            
-                <td class="default">
-                
-                </td>
-            
-            
-            <td class="description last"><p>Constructor parameters</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
                 <td class="name"><code>width</code></td>
             
             
@@ -1335,6 +1653,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -1344,6 +1664,8 @@ as follows:</p>
             
             
                 <td class="default">
+                
+                    20
                 
                 </td>
             
@@ -1370,6 +1692,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -1379,6 +1703,8 @@ as follows:</p>
             
             
                 <td class="default">
+                
+                    20
                 
                 </td>
             
@@ -1444,6 +1770,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -1453,6 +1781,8 @@ as follows:</p>
             
             
                 <td class="default">
+                
+                    1
                 
                 </td>
             
@@ -1479,6 +1809,8 @@ as follows:</p>
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
                     
                 
                     
@@ -1493,6 +1825,12 @@ as follows:</p>
             
             
             <td class="description last"><p>A style object in the form used for paintStyle values for Endpoints and Connectors.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
         </tr>
 	
 	
