@@ -1,13 +1,30 @@
 ;(function() {
 	
-	var initClearButton = function() {
-			$("#clear").unbind("click", jsPlumb.detachEveryConnection);
-			$("#clear").bind("click", jsPlumb.detachEveryConnection );
+	var instance, 
+		discs = [],
+
+		addDisc = function() {
+			var info = createDisc();
+			var e = prepare(info.id);	
+			instance.draggable(info.id);
+			discs.push(info.id);
+		},
+		
+		reset = function() {
+			for (var i = 0; i < discs.length; i++) {
+				var d = document.getElementById(discs[i]);
+				if (d) d.parentNode.removeChild(d);
+			}
+			discs = [];
+		},
+		initClearButton = function() {
+			$("#clear").unbind("click", instance.detachEveryConnection);
+			$("#clear").bind("click", instance.detachEveryConnection );
 		},
 	
 		initAddButton = function() {
-			$("#add").unbind("click", jsPlumbDemo.addDisc );
-			$("#add").bind('click', jsPlumbDemo.addDisc );
+			$("#add").unbind("click", addDisc );
+			$("#add").bind('click', addDisc );
 		},
 	
 		initHover = function(elId) {
@@ -73,49 +90,32 @@
 			d.style.top= y + 'px';
 			d.style.left= x + 'px';
 			return {d:d, id:id};
-		},
+		};
 		
-		discs = [];
+		
 	
 
-	window.jsPlumbDemo = {
-		init : function() {
+	jsPlumb.ready(function() {
 
-			jsPlumb.importDefaults({
-				DragOptions : { cursor: 'wait', zIndex:20 },
-				Endpoint : [ "Image", { url:"littledot.png" } ],
-				Connector : [ "Bezier", { curviness: 90 } ]
-			});				
-				
-			var e1 = prepare("bd1"),
-				e2 = prepare("bd2"),
-				e3 = prepare("bd3"),
-				e4 = prepare("bd4");
-	
-			initClearButton();
-	
-			jsPlumb.connect({ source:e1, target:e2 });
-			jsPlumb.connect({ source:e1, target:e3 });
-			jsPlumb.connect({ source:e1, target:e4 });
-	
-			initAddButton();
-		},
-				
-		
-		addDisc : function() {
-			var info = createDisc();
-			var e = prepare(info.id);	
-			jsPlumb.draggable(info.id);
-			discs.push(info.id);
-		},
-		
-		reset : function() {
-			for (var i = 0; i < discs.length; i++) {
-				var d = document.getElementById(discs[i]);
-				if (d) d.parentNode.removeChild(d);
-			}
-			discs = [];
-		}
-	};
+		instance = jsPlumb.getInstance({
+			DragOptions : { cursor: 'wait', zIndex:20 },
+			Endpoint : [ "Image", { url:"littledot.png" } ],
+			Connector : [ "Bezier", { curviness: 90 } ],
+			Container:"animation-demo"
+		});				
+			
+		var e1 = prepare("bd1"),
+			e2 = prepare("bd2"),
+			e3 = prepare("bd3"),
+			e4 = prepare("bd4");
+
+		initClearButton();
+
+		instance.connect({ source:e1, target:e2 });
+		instance.connect({ source:e1, target:e3 });
+		instance.connect({ source:e1, target:e4 });
+
+		initAddButton();							
+	});
 	
 })();
