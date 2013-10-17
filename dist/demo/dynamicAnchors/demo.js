@@ -39,59 +39,63 @@ jsPlumb.ready(function() {
 		Container:"dynamic-demo"
 	});
 
-	var connections = {
-		"dynamicWindow1":["dynamicWindow4"],
-		"dynamicWindow3":["dynamicWindow1"],
-		"dynamicWindow5":["dynamicWindow3"],
-		"dynamicWindow6":["dynamicWindow5"],
-		"dynamicWindow2":["dynamicWindow6"],
-		"dynamicWindow4":["dynamicWindow2"]
+	// suspend drawing and initialise.
+	instance.doWhileSuspended(function() {
+
+		var connections = {
+			"dynamicWindow1":["dynamicWindow4"],
+			"dynamicWindow3":["dynamicWindow1"],
+			"dynamicWindow5":["dynamicWindow3"],
+			"dynamicWindow6":["dynamicWindow5"],
+			"dynamicWindow2":["dynamicWindow6"],
+			"dynamicWindow4":["dynamicWindow2"]
+			
+		},
+		endpoints = {},			
+		// ask jsPlumb for a selector for the window class
+		divsWithWindowClass = jsPlumb.getSelector(".dynamic-demo .window");
 		
-	},
-	endpoints = {},			
-	// ask jsPlumb for a selector for the window class
-	divsWithWindowClass = jsPlumb.getSelector(".dynamic-demo .window");
-	
-	// add endpoints to all of these - one for source, and one for target, configured so they don't sit
-	// on top of each other.
-	for (var i = 0 ; i < divsWithWindowClass.length; i++) {
-		var id = instance.getId(divsWithWindowClass[i]);
-		endpoints[id] = [
-			// note the three-arg version of addEndpoint; lets you re-use some common settings easily.
-			instance.addEndpoint(id, anEndpoint, {anchor:sourceAnchors}),
-			instance.addEndpoint(id, anEndpoint, {anchor:targetAnchors})
-		];
-	}
-	// then connect everything using the connections map declared above.
-	for (var e in endpoints) {
-		if (connections[e]) {
-			for (var j = 0; j < connections[e].length; j++) {					
-				instance.connect({
-					source:endpoints[e][0],
-					target:endpoints[connections[e][j]][1]
-				});						
-			}
-		}	
-	}
-	
-	// bind click listener; delete connections on click			
-	instance.bind("click", function(conn) {
-		instance.detach(conn);
+		// add endpoints to all of these - one for source, and one for target, configured so they don't sit
+		// on top of each other.
+		for (var i = 0 ; i < divsWithWindowClass.length; i++) {
+			var id = instance.getId(divsWithWindowClass[i]);
+			endpoints[id] = [
+				// note the three-arg version of addEndpoint; lets you re-use some common settings easily.
+				instance.addEndpoint(id, anEndpoint, {anchor:sourceAnchors}),
+				instance.addEndpoint(id, anEndpoint, {anchor:targetAnchors})
+			];
+		}
+		// then connect everything using the connections map declared above.
+		for (var e in endpoints) {
+			if (connections[e]) {
+				for (var j = 0; j < connections[e].length; j++) {					
+					instance.connect({
+						source:endpoints[e][0],
+						target:endpoints[connections[e][j]][1]
+					});						
+				}
+			}	
+		}
+		
+		// bind click listener; delete connections on click			
+		instance.bind("click", function(conn) {
+			instance.detach(conn);
+		});
+		
+		// bind beforeDetach interceptor: will be fired when the click handler above calls detach, and the user
+		// will be prompted to confirm deletion.
+		instance.bind("beforeDetach", function(conn) {
+			return confirm("Delete connection?");
+		});
+		
+		//
+		// configure ".window" to be draggable. 'getSelector' is a jsPlumb convenience method that allows you to
+		// write library-agnostic selectors; you could use your library's selector instead, eg.
+		//
+		// $(".window")  		jquery
+		// $$(".window") 		mootools
+		// Y.all(".window")		yui3
+		//
+		instance.draggable(divsWithWindowClass);	
 	});
-	
-	// bind beforeDetach interceptor: will be fired when the click handler above calls detach, and the user
-	// will be prompted to confirm deletion.
-	instance.bind("beforeDetach", function(conn) {
-		return confirm("Delete connection?");
-	});
-	
-	//
-	// configure ".window" to be draggable. 'getSelector' is a jsPlumb convenience method that allows you to
-	// write library-agnostic selectors; you could use your library's selector instead, eg.
-	//
-	// $(".window")  		jquery
-	// $$(".window") 		mootools
-	// Y.all(".window")		yui3
-	//
-	instance.draggable(divsWithWindowClass);	
 });

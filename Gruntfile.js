@@ -123,7 +123,7 @@ module.exports = function(grunt) {
         // also replace link to docs
         libraries.forEach(function(l) {
             o[l] = {
-                src: ['dist/demo/*/' + l + '.html', 'dist/tests/*.html' ],
+                src: ['dist/demo/*/' + l + '.html', 'dist/tests/*.html', 'dist/demo/demo-all*.html' ],
                 actions: [
                     {
                         name:"dep",                        
@@ -139,7 +139,7 @@ module.exports = function(grunt) {
                     },
                     {
                         search:"<a href=\"http://localhost:4567\">",
-                        replace:"<a href=\"../../doc/\">",
+                        replace:"<a href=\"../doc/\">",
                         flags:"gm"
                     }
                 ]
