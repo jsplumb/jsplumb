@@ -1,13 +1,18 @@
-
 ;(function() {
 
 	var _initialised = false,
+		jpcl = jsPlumb.CurrentLibrary,
+		_bind = jpcl.bind,
+		listDiv = document.getElementById("list"),
+
 		showConnectionInfo = function(s) {
-			$("list").set('html', s);
-			$("list").setStyle("display","block");
+			list.innerHTML = s;
+			list.style.display = "block";
+			jsPlumb.repaintEverything();
 		},	
 		hideConnectionInfo = function() {
-			$("list").setStyle("display","none");
+			list.style.display = "none";
+			jsPlumb.repaintEverything();
 		},
 		connections = [],
 		updateConnections = function(conn, remove) {
@@ -31,23 +36,22 @@
 				hideConnectionInfo();
 		};
 	
-	window.jsPlumbDemo = {
-		init : function() {
-		
-			// setup jsPlumb defaults.
-			jsPlumb.importDefaults({
+	jsPlumb.ready(function() {
+
+			var instance = jsPlumb.getInstance({
 				DragOptions : { cursor: 'pointer', zIndex:2000 },
 				PaintStyle : { strokeStyle:'#666' },
 				EndpointStyle : { width:20, height:16, strokeStyle:'#666' },
 				Endpoint : "Rectangle",
-				Anchors : ["TopCenter", "TopCenter"]
+				Anchors : ["TopCenter", "TopCenter"],
+				Container:"drag-drop-demo"
 			});												
 
 			// bind to connection/connectionDetached events, and update the list of connections on screen.
-			jsPlumb.bind("connection", function(info, originalEvent) {
+			instance.bind("connection", function(info, originalEvent) {
 				updateConnections(info.connection);
 			});
-			jsPlumb.bind("connectionDetached", function(info, originalEvent) {
+			instance.bind("connectionDetached", function(info, originalEvent) {
 				updateConnections(info.connection, true);
 			});
 
@@ -97,11 +101,11 @@
 			//
 			var color2 = "#316b31";
 			var exampleEndpoint2 = {
-				endpoint:["Dot", { radius:15 }],
+				endpoint:["Dot", { radius:11 }],
 				paintStyle:{ fillStyle:color2 },
 				isSource:true,
 				scope:"green dot",
-				connectorStyle:{ strokeStyle:color2, lineWidth:8 },
+				connectorStyle:{ strokeStyle:color2, lineWidth:6 },
 				connector: ["Bezier", { curviness:63 } ],
 				maxConnections:3,
 				isTarget:true,
@@ -137,7 +141,7 @@
 
 			// setup some empty endpoints.  again note the use of the three-arg method to reuse all the parameters except the location
 			// of the anchor (purely because we want to move the anchor around here; you could set it one time and forget about it though.)
-			var e1 = jsPlumb.addEndpoint('window1', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint2);
+			var e1 = instance.addEndpoint('dragDropWindow1', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint2);
 
 			// setup some DynamicAnchors for use with the blue endpoints			
 			// and a function to set as the maxConnections callback.
@@ -146,61 +150,57 @@
 					alert("Cannot drop connection " + info.connection.id + " : maxConnections has been reached on Endpoint " + info.endpoint.id);
 				};
 				
-			var e1 = jsPlumb.addEndpoint("window1", { anchor:anchors }, exampleEndpoint);
+			var e1 = instance.addEndpoint("dragDropWindow1", { anchor:anchors }, exampleEndpoint);
 			// you can bind for a maxConnections callback using a standard bind call, but you can also supply 'onMaxConnections' in an Endpoint definition - see exampleEndpoint3 above.
 			e1.bind("maxConnections", maxConnectionsCallback);
 
-			var e2 = jsPlumb.addEndpoint('window2', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint);
+			var e2 = instance.addEndpoint('dragDropWindow2', { anchor:[0.5, 1, 0, 1] }, exampleEndpoint);
 			// again we bind manually. it's starting to get tedious.  but now that i've done one of the blue endpoints this way, i have to do them all...
 			e2.bind("maxConnections", maxConnectionsCallback);
-			jsPlumb.addEndpoint('window2', { anchor:"RightMiddle" }, exampleEndpoint2);
+			instance.addEndpoint('dragDropWindow2', { anchor:"RightMiddle" }, exampleEndpoint2);
 
-			var e3 = jsPlumb.addEndpoint("window3", { anchor:[0.25, 0, 0, -1] }, exampleEndpoint);
+			var e3 = instance.addEndpoint("dragDropWindow3", { anchor:[0.25, 0, 0, -1] }, exampleEndpoint);
 			e3.bind("maxConnections", maxConnectionsCallback);
-			jsPlumb.addEndpoint("window3", { anchor:[0.75, 0, 0, -1] }, exampleEndpoint2);
+			instance.addEndpoint("dragDropWindow3", { anchor:[0.75, 0, 0, -1] }, exampleEndpoint2);
 
-			var e4 = jsPlumb.addEndpoint("window4", { anchor:[1, 0.5, 1, 0] }, exampleEndpoint);
+			var e4 = instance.addEndpoint("dragDropWindow4", { anchor:[1, 0.5, 1, 0] }, exampleEndpoint);
 			e4.bind("maxConnections", maxConnectionsCallback);			
-			jsPlumb.addEndpoint("window4", { anchor:[0.25, 0, 0, -1] }, exampleEndpoint2);
+			instance.addEndpoint("dragDropWindow4", { anchor:[0.25, 0, 0, -1] }, exampleEndpoint2);
 
 			// make .window divs draggable
-			jsPlumb.draggable($$(".window"));
+			instance.draggable(jsPlumb.getSelector(".drag-drop-demo .window"));
 
 			// add endpoint of type 3 using a selector. 
-			jsPlumb.addEndpoint($$(".window"), exampleEndpoint3);
+			instance.addEndpoint(jsPlumb.getSelector(".drag-drop-demo .window"), exampleEndpoint3);
+			
+			var hideLinks = jsPlumb.getSelector(".drag-drop-demo .hide");
+			_bind(hideLinks, "click", function(e) {
+				instance.toggleVisible(this.getAttribute("rel"));
+				e.stopPropagation();
+				e.preventDefault();
+			});
 
-			//			
-			if (!_initialised) {
-				$$(".hide").each(function(h) {
-					h.addEvent('click', function() {
-						jsPlumb.toggleVisible(h.get("rel"));
-					});
-				});
-				
-				$$(".drag").each(function(d) {
-					d.addEvent('click', function() {
-						var s = jsPlumb.toggleDraggable(d.get("rel"));
-						d.set('html', s ? 'disable dragging' : 'enable dragging');
-						if (!s) $(d.get("rel")).addClass('drag-locked'); 
-						else $(d.get("rel")).removeClass('drag-locked');
-						$(d.get("rel")).setStyle("cursor", s ? "pointer" : "default");
-					});
-	
-				});
-	
-				$$(".detach").each(function(d) {
-					d.addEvent('click', function() {
-						jsPlumb.detachAllConnections(d.get("rel"));
-					});
-				});
-	
-				$("clear").addEvent('click', function() {
-					jsPlumb.detachEveryConnection();
-					showConnectionInfo("");
-				});
-	
-				_initialised = true;
-			}
-		}
-	};	
+			var dragLinks = jsPlumb.getSelector(".drag-drop-demo .drag");
+			_bind(dragLinks, "click", function(e) {
+				var s = instance.toggleDraggable(this.getAttribute("rel"));
+				this.innerHTML = (s ? 'disable dragging' : 'enable dragging');				
+				e.stopPropagation();
+				e.preventDefault();
+			});
+
+			var detachLinks = jsPlumb.getSelector(".drag-drop-demo .detach");
+			_bind(detachLinks, "click", function(e) {
+				instance.detachAllConnections(this.getAttribute("rel"));
+				e.stopPropagation();
+				e.preventDefault();
+			});
+
+			_bind(document.getElementById("clear"), "click", function(e) { 
+				instance.detachEveryConnection();
+				showConnectionInfo("");
+				e.stopPropagation();
+				e.preventDefault();
+			});
+			
+	});	
 })();

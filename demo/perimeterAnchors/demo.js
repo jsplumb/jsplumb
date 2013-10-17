@@ -10,7 +10,7 @@
 			Container:"perimeter-demo"
 		});
 		  
-		var shapes = $(".shape");
+		var shapes = jsPlumb.getSelector(".shape");
 			
 		// make everything draggable
 		instance.draggable(shapes);
@@ -24,8 +24,8 @@
 					// here we supply a different anchor for source and for target, and we get the element's "data-shape"
 					// attribute to tell us what shape we should use, as well as, optionally, a rotation value.
 					anchors:[
-						[ "Perimeter", { shape:$(shapes[i]).attr("data-shape"), rotation:$(shapes[i]).attr("data-rotation") }],
-						[ "Perimeter", { shape:$(shapes[j]).attr( "data-shape"), rotation:$(shapes[j]).attr("data-rotation") }]
+						[ "Perimeter", { shape:shapes[i].getAttribute("data-shape"), rotation:shapes[i].getAttribute("data-rotation") }],
+						[ "Perimeter", { shape:shapes[j].getAttribute( "data-shape"), rotation:shapes[j].getAttribute("data-rotation") }]
 					]
 				});				
 			}	

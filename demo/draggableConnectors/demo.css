@@ -13,6 +13,10 @@
     line-height:1.5em;
 }
 
+.drag-drop-demo a, .drag-drop-demo a:visited {
+    color:#057D9F;
+}
+
 /** LINKS IN WINDOWS **/
 .drag-locked { border:1px solid red; }
 .cmdLink { font-size:0.80em;}

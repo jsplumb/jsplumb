@@ -2,6 +2,8 @@
 	
 	var instance, 
 		discs = [],
+		jpcl = jsPlumb.CurrentLibrary,
+		_bind = jpcl.bind,
 
 		addDisc = function() {
 			var info = createDisc();
@@ -17,43 +19,35 @@
 			}
 			discs = [];
 		},
-		initClearButton = function() {
-			$("#clear").unbind("click", instance.detachEveryConnection);
-			$("#clear").bind("click", instance.detachEveryConnection );
-		},
-	
-		initAddButton = function() {
-			$("#add").unbind("click", addDisc );
-			$("#add").bind('click', addDisc );
-		},
 	
 		initHover = function(elId) {
-			$("#" + elId).hover(
-				function() { $(this).addClass("bigdot-hover"); },
-				function() { $(this).removeClass("bigdot-hover"); }
-			);
+			_bind(elId, "mouseover", function() { jpcl.addClass(elId, "bigdot-hover") });
+			_bind(elId, "mouseout", function() { jpcl.removeClass(elId, "bigdot-hover") });
 		},
 	
 		initAnimation = function(elId) {
-			$("#" + elId).bind('click', function(e, ui) {
-				if ($(this).hasClass("jsPlumb_dragged")) {
-					$(this).removeClass("jsPlumb_dragged");
+			var el = document.getElementById(elId),
+				_el = jpcl.getElementObject(el);
+
+			_bind(el, 'click', function(e, ui) {
+				if (el.className.indexOf("jsPlumb_dragged") > -1) {
+					jpcl.removeClass(elId, "jsPlumb_dragged");
 					return;
 				}
-				var o = $(this).offset(),
-				w = $(this).outerWidth(),
-				h = $(this).outerHeight(),
-				c = [o.left + (w/2) - e.pageX, o.top + (h/2) - e.pageY],
-				oo = [c[0] / w, c[1] / h],
-				l = oo[0] < 0 ? '+=' : '-=', t = oo[1] < 0 ? "+=" : '-=',
-				DIST = 450,
-				l = l + Math.abs(oo[0] * DIST);
+				var o = jpcl.getOffset(_el),
+					s = jpcl.getSize(_el),
+					pxy = jpcl.getPageXY(e),
+					c = [o.left + (s[0]/2) - pxy[0], o.top + (s[1]/2) - pxy[1]],
+					oo = [c[0] / s[0], c[1] / s[1]],
+					l = oo[0] < 0 ? '+=' : '-=', t = oo[1] < 0 ? "+=" : '-=',
+					DIST = 450,
+					l = l + Math.abs(oo[0] * DIST);
 	
 				t = t + Math.abs(oo[1] * DIST);
 				// notice the easing here.  you can pass any args into this animate call; they
 				// are passed through to jquery as-is by jsPlumb.
-				var id = $(this).attr("id");
-				jsPlumb.animate(id, {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
+				var id = el.getAttribute("id");
+				instance.animate(id, {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
 			});
 		},
 	
@@ -74,15 +68,15 @@
 			initHover(elId);
 			initAnimation(elId);
 			
-			return jsPlumb.addEndpoint(elId, endpoint);
+			return instance.addEndpoint(elId, endpoint);
 		},
 		
 		// this is overridden by the YUI demo.
 		createDisc = function() {
 			var d = document.createElement("div");
 			d.className = "bigdot";
-			document.getElementById("main").appendChild(d);
-			var id = '' + ((new Date().getTime())), _d = jsPlumb.CurrentLibrary.getElementObject(d);
+			document.getElementById("animation-demo").appendChild(d);
+			var id = '' + ((new Date().getTime())), _d = jpcl.getElementObject(d);
 			d.setAttribute("id", id);
 			var w = screen.width - 162, h = screen.height - 162;
 			var x = (0.2 * w) + Math.floor(Math.random()*(0.5 * w));
@@ -92,9 +86,6 @@
 			return {d:d, id:id};
 		};
 		
-		
-	
-
 	jsPlumb.ready(function() {
 
 		instance = jsPlumb.getInstance({
@@ -107,15 +98,17 @@
 		var e1 = prepare("bd1"),
 			e2 = prepare("bd2"),
 			e3 = prepare("bd3"),
-			e4 = prepare("bd4");
+			e4 = prepare("bd4"),
+			clearBtn = jsPlumb.getSelector("#clear"),
+			addBtn = jsPlumb.getSelector("#add");
 
-		initClearButton();
+		_bind(clearBtn, "click", instance.detachEveryConnection );
 
 		instance.connect({ source:e1, target:e2 });
 		instance.connect({ source:e1, target:e3 });
 		instance.connect({ source:e1, target:e4 });
 
-		initAddButton();							
+		_bind(addBtn, 'click', addDisc );							
 	});
 	
 })();

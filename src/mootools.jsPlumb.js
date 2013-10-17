@@ -135,8 +135,10 @@
 		},
 		
 		bind : function(el, event, callback) {
-			el = _getElementObject(el);
-			el.addEvent(event, callback);
+			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : $$(el);
+			//el = _getElementObject(el);
+			for (var i = 0; i < els.length; i++)
+				els[i].addEvent(event, callback);
 		},
 
 		destroyDraggable : function(el) {
@@ -393,7 +395,7 @@
 		},
 
 		setDragFilter : function(el, filter) {
-			jsPlumb.log("NOT IMPLEMENTED: setDragFilter");
+			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");
 		},
 		
 		setDraggable : function(el, draggable) {
