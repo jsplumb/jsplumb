@@ -1,6 +1,6 @@
 /** ELEMENT POSITIONS **/
 #dragDropWindow1 { top:6em;left:10%; }
-#dragDropWindow2 { top:8em; right:50%; }
+#dragDropWindow2 { top:8em; right:10%; }
 #dragDropWindow3 { top:30em; left:8%; }
 #dragDropWindow4 { top:33em; right:40%}
 
@@ -10,7 +10,9 @@
     font-family:serif;
     font-style:italic;
     padding-top:0.9em; 
-    line-height:1.5em;
+    line-height:1.3em;
+    width:80px;
+    height:80px;
 }
 
 .drag-drop-demo a, .drag-drop-demo a:visited {

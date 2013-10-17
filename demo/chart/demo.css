@@ -12,11 +12,11 @@
 }
 
 /** ELEMENT POSITIONS **/
-#chartWindow1 { left:20em; top:4em;}
-#chartWindow2 { left:10em;top:16em;}
-#chartWindow3 { left:40em;top:16em;}
-#chartWindow4 { left:4em;top:28em;}
-#chartWindow5 { left:22em;top:28em;}
-#chartWindow6 { left:47em;top:28em;}
-#chartWindow7 { top:18em;left:44em;}
-#chartWindow8 { left:63em;top:36em;}
+#chartWindow1 { left:20em; top:6em;}
+#chartWindow2 { left:10em;top:18em;}
+#chartWindow3 { left:40em;top:18em;}
+#chartWindow4 { left:4em;top:30em;}
+#chartWindow5 { left:22em;top:30em;}
+#chartWindow6 { left:47em;top:30em;}
+#chartWindow7 { top:18em;left:46em;}
+#chartWindow8 { left:63em;top:38em;}

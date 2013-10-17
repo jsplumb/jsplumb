@@ -91,7 +91,6 @@ body {
 
 .explanation {
 position: absolute;
-width: 100%;
 text-align: center;
 background-color: #7AB02C;
 opacity: 0.8;
@@ -101,6 +100,8 @@ height:35px;
 z-index:10000;
 overflow:hidden;
 box-shadow: 0px 0px 10px gray;
+padding-left:15px;
+padding-right:15px;
 }
 
 .explanation:hover {

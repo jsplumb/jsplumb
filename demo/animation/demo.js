@@ -90,7 +90,7 @@
 
 		instance = jsPlumb.getInstance({
 			DragOptions : { cursor: 'wait', zIndex:20 },
-			Endpoint : [ "Image", { url:"littledot.png" } ],
+			Endpoint : [ "Image", { url:"animation/littledot.png" } ],
 			Connector : [ "Bezier", { curviness: 90 } ],
 			Container:"animation-demo"
 		});				
