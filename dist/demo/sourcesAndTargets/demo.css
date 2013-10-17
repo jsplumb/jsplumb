@@ -1,5 +1,5 @@
 /** ELEMENTS **/
-.window { 
+.source-target-demo .window { 
 	border:2px dotted #346789; 
 	width:14em; 
 	height:4em; 	
@@ -20,7 +20,7 @@
 }
 
 /** LARGE WINDOW STYLE AND POSITION **/
-#window1 { 
+#sourceWindow1 { 
 	background-color:#0d78bc; 
 	top:9em;
 	left:14em;
@@ -30,11 +30,11 @@
 }
 
 /** SMALL WINDOW POSITIONS **/
-#window2 { top:29em; left:44em;}
-#window3 { top:23em; left:2em; }
-#window4 { top:31em; left:26em; }
-#window5 {top:39em;left:13em; }
-#window6 {top:21em;left:56em; }
+#targetWindow2 { top:29em; left:44em;}
+#targetWindow3 { top:23em; left:2em; }
+#targetWindow4 { top:31em; left:26em; }
+#targetWindow5 {top:39em;left:13em; }
+#targetWindow6 {top:21em;left:56em; }
 
 /** JSPLUMB ARTEFACTS **/
 ._jsPlumb_endpoint { z-index:32; }

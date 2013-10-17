@@ -1,16 +1,22 @@
 /** ELEMENT POSITIONS **/
-#window1 { top:6em;left:10%; }
-#window2 { top:8em; right:50%; }
-#window3 { top:30em; left:8%; }
-#window4 { top:33em; right:40%}
+#dragDropWindow1 { top:6em;left:10%; }
+#dragDropWindow2 { top:8em; right:10%; }
+#dragDropWindow3 { top:30em; left:8%; }
+#dragDropWindow4 { top:33em; right:40%}
 
 /** ELEMENTS **/
-.window {  
+.drag-drop-demo .window {  
     font-size:0.9em;
     font-family:serif;
     font-style:italic;
     padding-top:0.9em; 
-    line-height:1.5em;
+    line-height:1.3em;
+    width:80px;
+    height:80px;
+}
+
+.drag-drop-demo a, .drag-drop-demo a:visited {
+    color:#057D9F;
 }
 
 /** LINKS IN WINDOWS **/

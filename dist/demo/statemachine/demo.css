@@ -70,7 +70,7 @@
 	box-shadow: 0px 0px 6px black;
 }
 
-._jsPlumb_endpoint {
+.statemachine-demo ._jsPlumb_endpoint {
 	z-index:3;
 }
 
