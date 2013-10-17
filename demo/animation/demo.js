@@ -88,6 +88,7 @@
 		
 	jsPlumb.ready(function() {
 
+		// get a jsPlumb instance, setting some appropriate defaults and a Container.
 		instance = jsPlumb.getInstance({
 			DragOptions : { cursor: 'wait', zIndex:20 },
 			Endpoint : [ "Image", { url:"animation/littledot.png" } ],
@@ -95,20 +96,23 @@
 			Container:"animation-demo"
 		});				
 			
-		var e1 = prepare("bd1"),
-			e2 = prepare("bd2"),
-			e3 = prepare("bd3"),
-			e4 = prepare("bd4"),
-			clearBtn = jsPlumb.getSelector("#clear"),
-			addBtn = jsPlumb.getSelector("#add");
+		// suspend drawing and initialise.
+		instance.doWhileSuspended(function() {
+			var e1 = prepare("bd1"),
+				e2 = prepare("bd2"),
+				e3 = prepare("bd3"),
+				e4 = prepare("bd4"),
+				clearBtn = jsPlumb.getSelector("#clear"),
+				addBtn = jsPlumb.getSelector("#add");
 
-		_bind(clearBtn, "click", instance.detachEveryConnection );
+			_bind(clearBtn, "click", instance.detachEveryConnection );
 
-		instance.connect({ source:e1, target:e2 });
-		instance.connect({ source:e1, target:e3 });
-		instance.connect({ source:e1, target:e4 });
+			instance.connect({ source:e1, target:e2 });
+			instance.connect({ source:e1, target:e3 });
+			instance.connect({ source:e1, target:e4 });
 
-		_bind(addBtn, 'click', addDisc );							
+			_bind(addBtn, 'click', addDisc );							
+		});
 	});
 	
 })();

@@ -17,7 +17,7 @@
 			],
 			Container:"statemachine-demo"
 		});
-		
+
 		var windows = jsPlumb.getSelector(".statemachine-demo .w");
 
         // initialise draggable elements.  
@@ -28,24 +28,7 @@
 		// happening.
 		instance.bind("click", function(c) { 
 			instance.detach(c); 
-		});			
-			
-		// make each ".ep" div a source and give it some parameters to work with.  here we tell it
-		// to use a Continuous anchor and the StateMachine connectors, and also we give it the
-		// connector's paint style.  note that in this demo the strokeStyle is dynamically generated,
-		// which prevents us from just setting a jsPlumb.Defaults.PaintStyle.  but that is what i
-		// would recommend you do. Note also here that we use the 'filter' option to tell jsPlumb
-		// which parts of the element should actually respond to a drag start.
-		instance.makeSource(windows, {
-			filter:".ep",				// only supported by jquery
-			anchor:"Continuous",
-			connector:[ "StateMachine", { curviness:20 } ],
-			connectorStyle:{ strokeStyle:"#5c96bc", lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
-			maxConnections:5,
-			onMaxConnections:function(info, e) {
-				alert("Maximum connections (" + info.maxConnections + ") reached");
-			}
-		});			
+		});
 
 		// bind a connection listener. note that the parameter passed to this function contains more than
 		// just the new connection - see the documentation for a full list of what is included in 'info'.
@@ -55,16 +38,37 @@
 			info.connection.getOverlay("label").setLabel(info.connection.id);
         });
 
-		// initialise all '.w' elements as connection targets.
-        instance.makeTarget(windows, {
-			dropOptions:{ hoverClass:"dragHover" },
-			anchor:"Continuous"				
+		// suspend drawing and initialise.
+		instance.doWhileSuspended(function() {
+										
+			// make each ".ep" div a source and give it some parameters to work with.  here we tell it
+			// to use a Continuous anchor and the StateMachine connectors, and also we give it the
+			// connector's paint style.  note that in this demo the strokeStyle is dynamically generated,
+			// which prevents us from just setting a jsPlumb.Defaults.PaintStyle.  but that is what i
+			// would recommend you do. Note also here that we use the 'filter' option to tell jsPlumb
+			// which parts of the element should actually respond to a drag start.
+			instance.makeSource(windows, {
+				filter:".ep",				// only supported by jquery
+				anchor:"Continuous",
+				connector:[ "StateMachine", { curviness:20 } ],
+				connectorStyle:{ strokeStyle:"#5c96bc", lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
+				maxConnections:5,
+				onMaxConnections:function(info, e) {
+					alert("Maximum connections (" + info.maxConnections + ") reached");
+				}
+			});						
+
+			// initialise all '.w' elements as connection targets.
+	        instance.makeTarget(windows, {
+				dropOptions:{ hoverClass:"dragHover" },
+				anchor:"Continuous"				
+			});
+			
+			// and finally, make a couple of connections
+			instance.connect({ source:"opened", target:"phone1" });
+			instance.connect({ source:"phone1", target:"inperson" });              
+			instance.connect({ source:"phone1", target:"phone1" });
 		});
-		
-		// and finally, make a couple of connections
-		instance.connect({ source:"opened", target:"phone1" });
-		instance.connect({ source:"phone1", target:"inperson" });              
-		instance.connect({ source:"phone1", target:"phone1" });
 	
 	});
 })();

@@ -89,49 +89,53 @@
 				}
 			};
 
-		_addEndpoints("Window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);			
-		_addEndpoints("Window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
-		_addEndpoints("Window3", ["RightMiddle", "BottomCenter"], ["LeftMiddle", "TopCenter"]);
-		_addEndpoints("Window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
-					
-		// listen for new connections; initialise them the same way we initialise the connections at startup.
-		instance.bind("connection", function(connInfo, originalEvent) { 
-			init(connInfo.connection);
-		});			
-					
-		// make all the window divs draggable						
-		instance.draggable(jsPlumb.getSelector(".flowchart-demo .window"), { grid: [20, 20] });		
-		// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector 
-		// method, or document.querySelectorAll:
-		//jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
-        
-		// connect a few up
-		instance.connect({uuids:["Window2BottomCenter", "Window3TopCenter"], editable:true});
-		instance.connect({uuids:["Window2LeftMiddle", "Window4LeftMiddle"], editable:true});
-		instance.connect({uuids:["Window4TopCenter", "Window4RightMiddle"], editable:true});
-		instance.connect({uuids:["Window3RightMiddle", "Window2RightMiddle"], editable:true});
-		instance.connect({uuids:["Window4BottomCenter", "Window1TopCenter"], editable:true});
-		instance.connect({uuids:["Window3BottomCenter", "Window1BottomCenter"], editable:true});
-		//
-        
-		//
-		// listen for clicks on connections, and offer to delete connections on click.
-		//
-		instance.bind("click", function(conn, originalEvent) {
-			if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
-				jsPlumb.detach(conn); 
-		});	
-		
-		instance.bind("connectionDrag", function(connection) {
-			console.log("connection " + connection.id + " is being dragged. suspendedElement is ", connection.suspendedElement, " of type ", connection.suspendedElementType);
-		});		
-		
-		instance.bind("connectionDragStop", function(connection) {
-			console.log("connection " + connection.id + " was dragged");
-		});
+		// suspend drawing and initialise.
+		instance.doWhileSuspended(function() {
 
-		instance.bind("connectionMoved", function(params) {
-			console.log("connection " + params.connection.id + " was moved");
+			_addEndpoints("Window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);			
+			_addEndpoints("Window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
+			_addEndpoints("Window3", ["RightMiddle", "BottomCenter"], ["LeftMiddle", "TopCenter"]);
+			_addEndpoints("Window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
+						
+			// listen for new connections; initialise them the same way we initialise the connections at startup.
+			instance.bind("connection", function(connInfo, originalEvent) { 
+				init(connInfo.connection);
+			});			
+						
+			// make all the window divs draggable						
+			instance.draggable(jsPlumb.getSelector(".flowchart-demo .window"), { grid: [20, 20] });		
+			// THIS DEMO ONLY USES getSelector FOR CONVENIENCE. Use your library's appropriate selector 
+			// method, or document.querySelectorAll:
+			//jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
+	        
+			// connect a few up
+			instance.connect({uuids:["Window2BottomCenter", "Window3TopCenter"], editable:true});
+			instance.connect({uuids:["Window2LeftMiddle", "Window4LeftMiddle"], editable:true});
+			instance.connect({uuids:["Window4TopCenter", "Window4RightMiddle"], editable:true});
+			instance.connect({uuids:["Window3RightMiddle", "Window2RightMiddle"], editable:true});
+			instance.connect({uuids:["Window4BottomCenter", "Window1TopCenter"], editable:true});
+			instance.connect({uuids:["Window3BottomCenter", "Window1BottomCenter"], editable:true});
+			//
+	        
+			//
+			// listen for clicks on connections, and offer to delete connections on click.
+			//
+			instance.bind("click", function(conn, originalEvent) {
+				if (confirm("Delete connection from " + conn.sourceId + " to " + conn.targetId + "?"))
+					jsPlumb.detach(conn); 
+			});	
+			
+			instance.bind("connectionDrag", function(connection) {
+				console.log("connection " + connection.id + " is being dragged. suspendedElement is ", connection.suspendedElement, " of type ", connection.suspendedElementType);
+			});		
+			
+			instance.bind("connectionDragStop", function(connection) {
+				console.log("connection " + connection.id + " was dragged");
+			});
+
+			instance.bind("connectionMoved", function(params) {
+				console.log("connection " + params.connection.id + " was moved");
+			});
 		});
 		
 	});

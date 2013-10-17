@@ -30,31 +30,6 @@
         	Container:"source-target-demo"
         });
 
-        // make 'window1' a connection source. notice the filter parameter: it tells jsPlumb to ignore drags
-		// that started on the 'enable/disable' link on the blue window.
-		instance.makeSource("sourceWindow1", {
-			//anchor:sourceAnchors,		// you could supply this if you want, but it was set in the defaults above.							
-			filter:function(evt, el) {
-				var t = evt.target || evt.srcElement;
-				return t.tagName !== "A";
-			},
-			isSource:true
-		});			
-
-        // get the list of ".smallWindow" elements.            
-		var smallWindows = jsPlumb.getSelector(".smallWindow");
-		// make them draggable
-		instance.draggable(smallWindows);
-		// configure them as targets.
-		instance.makeTarget(smallWindows, {
-			//anchor:"TopCenter",				// you could supply this if you want, but it was set in the defaults above.					
-			dropOptions:{ hoverClass:"hover" }
-		});	
-
-        // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           
-        instance.connect({ source:"sourceWindow1", target:"targetWindow5" });
-        instance.connect({ source:"sourceWindow1", target:"targetWindow2" });
-
 		// click listener for the enable/disable link.
         jsPlumb.CurrentLibrary.bind(document.getElementById("enableDisableSource"), "click", function(e) {
 			var state = instance.toggleSourceEnabled("sourceWindow1");
@@ -63,8 +38,39 @@
 			e.preventDefault();
 		});
 
+        // bind to a connection event, just for the purposes of pointing out that it can be done.
 		instance.bind("connection", function(i,c) { 
 			console.dir(i.connection); 
-		})		
+		});
+
+        // get the list of ".smallWindow" elements.            
+		var smallWindows = jsPlumb.getSelector(".smallWindow");
+		// make them draggable
+		instance.draggable(smallWindows);
+
+        // suspend drawing and initialise.
+        instance.doWhileSuspended(function() {
+
+	        // make 'window1' a connection source. notice the filter parameter: it tells jsPlumb to ignore drags
+			// that started on the 'enable/disable' link on the blue window.
+			instance.makeSource("sourceWindow1", {
+				//anchor:sourceAnchors,		// you could supply this if you want, but it was set in the defaults above.							
+				filter:function(evt, el) {
+					var t = evt.target || evt.srcElement;
+					return t.tagName !== "A";
+				},
+				isSource:true
+			});			
+	        
+			// configure the .smallWindows as targets.
+			instance.makeTarget(smallWindows, {
+				//anchor:"TopCenter",				// you could supply this if you want, but it was set in the defaults above.					
+				dropOptions:{ hoverClass:"hover" }
+			});	
+
+	        // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           
+	        instance.connect({ source:"sourceWindow1", target:"targetWindow5" });
+	        instance.connect({ source:"sourceWindow1", target:"targetWindow2" });			
+		});
 	});	
 })();
