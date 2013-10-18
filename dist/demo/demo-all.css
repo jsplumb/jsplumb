@@ -41,7 +41,7 @@ body {
 
 #headerWrapper {
 	width:100%;
-	background-color:black;
+	background-color:white;
 	position:fixed;
 	top:0;left:0;
   z-index:100001;
@@ -56,9 +56,20 @@ body {
   font-size:13px;
 	margin-left:auto;
 	margin-right:auto;    
-  width:950px;
-  background-image:url(logo_bw_44h.jpg);
-  background-repeat:no-repeat;    
+  padding-right: 50px;
+  padding-left: 50px;
+}
+
+.logo {  
+  font-size:30px;
+  color:#1f1f1f;
+  text-shadow: 1px 1px #ccc;
+  float:left;
+  /*background-image:url(logo-export-35h.png);
+  background-repeat:no-repeat;    */
+  width:154px;
+  height:44px;
+  background-position:0px 5px;
 }
 
  #main {  
@@ -115,7 +126,7 @@ padding-right:15px;
 
 a, a:visited {
     text-decoration:none;
-    color:white;        
+    color:#057D9F;        
     border-radius:0.2em;
     -webkit-transition: color 0.15s ease-in;
     -moz-transition: color 0.15s ease-in;
@@ -125,6 +136,10 @@ a, a:visited {
 
 a:hover {
     color:#7AB02C;
+}
+
+a:active {
+  color:#FF2300;
 }
 
 .menu, #render, #explanation {   

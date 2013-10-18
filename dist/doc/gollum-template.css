@@ -6,7 +6,7 @@
 
 .markdown-body {
   
-  margin-left:325px;  
+  margin-left:265px;  
   margin-top:50px;
   padding-right:20px;
 }
@@ -38,6 +38,8 @@ a[name]:before {
   background-color: white;
   border:none;
   font-size: 85%;
+  text-align: left;
+  width: 90%;
 }
 nav {
   padding-bottom: 10px;
@@ -103,8 +105,13 @@ nav h2 {
 /* / jsplumb */
 
 /* added by SP */
+
+#headerWrapper {
+  background-color:#eaedef;
+}
+
 .nav {
-  width: 300px;  
+  width: 240px;  
   margin-left: 15px;
   font-size: 12px;
   position: fixed;

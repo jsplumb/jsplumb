@@ -105,6 +105,11 @@ nav h2 {
 /* / jsplumb */
 
 /* added by SP */
+
+#headerWrapper {
+  background-color:#eaedef;
+}
+
 .nav {
   width: 240px;  
   margin-left: 15px;
