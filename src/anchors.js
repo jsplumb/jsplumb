@@ -940,7 +940,7 @@
 // ------- position assign anchors -------------------    
     
     // this anchor type lets you assign the position at connection time.
-	jsPlumb.Anchors.Assign = _curryAnchor(0, 0, 0, 0, "Assign", function(anchor, params) {
+	_curryAnchor(0, 0, 0, 0, "Assign", function(anchor, params) {
 		// find what to use as the "position finder". the user may have supplied a String which represents
 		// the id of a position finder in jsPlumb.AnchorPositionFinders, or the user may have supplied the
 		// position finder as a function.  we find out what to use and then set it on the anchor.
@@ -954,7 +954,7 @@
     // these are the default anchor positions finders, which are used by the makeTarget function.  supplying
     // a position finder argument to that function allows you to specify where the resulting anchor will
     // be located
-	jsPlumb.AnchorPositionFinders = {
+	jsPlumbInstance.prototype.AnchorPositionFinders = {
 		"Fixed": function(dp, ep, es, params) {
 			return [ (dp.left - ep.left) / es[0], (dp.top - ep.top) / es[1] ];	
 		},
