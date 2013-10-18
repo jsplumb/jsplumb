@@ -5,19 +5,23 @@
 		jpcl = jsPlumb.CurrentLibrary,
 		_bind = jpcl.bind,
 
-		addDisc = function() {
+		addDisc = function(evt) {
 			var info = createDisc();
 			var e = prepare(info.id);	
 			instance.draggable(info.id);
 			discs.push(info.id);
+			evt.stopPropagation();
+			evt.preventDefault();
 		},
 		
-		reset = function() {
+		reset = function(e) {
 			for (var i = 0; i < discs.length; i++) {
 				var d = document.getElementById(discs[i]);
 				if (d) d.parentNode.removeChild(d);
 			}
 			discs = [];
+			e.stopPropagation();
+			e.preventDefault();
 		},
 	
 		initHover = function(elId) {
@@ -102,10 +106,14 @@
 				e2 = prepare("bd2"),
 				e3 = prepare("bd3"),
 				e4 = prepare("bd4"),
-				clearBtn = jsPlumb.getSelector("#clear"),
+				clearBtn = jsPlumb.getSelector("#anim-clear"),
 				addBtn = jsPlumb.getSelector("#add");
 
-			_bind(clearBtn, "click", instance.detachEveryConnection );
+			_bind(clearBtn, "click", function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				instance.detachEveryConnection(); 
+			});
 
 			instance.connect({ source:e1, target:e2 });
 			instance.connect({ source:e1, target:e3 });

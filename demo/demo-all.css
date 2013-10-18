@@ -80,6 +80,7 @@ body {
   margin-right: auto;  
   height:600px;
   text-align: center;
+  position: relative;
 }
 
 .demo {
@@ -87,9 +88,9 @@ body {
   width:100%;
   background-color:white;    
   height:450px;
-  overflow:auto;
-  margin-bottom:25px;
+  overflow:auto;  
   margin-top:35px;
+  margin-bottom:25px;
 }
 
 #sidebar {            
@@ -101,26 +102,32 @@ body {
 }
 
 .explanation {
-position: absolute;
-text-align: center;
-background-color: #7AB02C;
-opacity: 0.8;
-color: white;
-font-size: 11px;
-height:35px;
-z-index:10000;
-overflow:hidden;
-box-shadow: 0px 0px 10px gray;
-padding-left:15px;
-padding-right:15px;
+  position: absolute;
+  text-align: center;
+  background-color: #7AB02C;
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+  color: white;
+  width: 100%;
+  height: 54px;
+  z-index: 10000;
+  overflow: hidden;
+  box-shadow: 0px 0px 10px gray;
 }
 
 .explanation:hover {
   height:auto;
-  min-height:35px;
+  min-height:54px;
     max-height:100%;    
 }
 
+.commands {
+  margin-bottom:10px;
+}
+
+.commands:hover {
+  z-index:10000;
+}
 
 /* demo elements */
 
@@ -210,15 +217,17 @@ a:active {
 }
 path, ._jsPlumb_endpoint { cursor:pointer; }
 
-.cmd { padding:0.5em; width:60px;}
-.cmd:hover { 
-  border:2px solid #5c96bc;
-  background-color:#89bcde;
+.cmd { 
   color:white;
+  margin-right:25px;
+}
+
+.cmd:hover { 
+  color:#FF2300;
+  text-decoration: underline;
 }
 .cmd:active {
-  border:2px solid orange;
-  color:orange;
+  color:#FF2300;
 }
 
 .label {
