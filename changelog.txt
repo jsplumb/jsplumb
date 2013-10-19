@@ -1,3 +1,10 @@
+* 1.5.4
+
+	ISSUES
+
+	116 - Assign anchors wont connect
+	117 - Assign anchors fail on source
+
 * 1.5.3
 
 		BACKWARDS COMPATIBILITY
