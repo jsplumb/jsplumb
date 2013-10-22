@@ -2337,9 +2337,23 @@
 							// mouse button to initiate the drag.
 							var anchorDef = p.anchor || _currentInstance.Defaults.Anchor,
 								oldAnchor = ep.anchor,
-								oldConnection = ep.connections[0];
+								oldConnection = ep.connections[0],
+								newAnchor = _currentInstance.makeAnchor(anchorDef, elid, _currentInstance),
+								_el = ep.element;
 
-							ep.setAnchor(_currentInstance.makeAnchor(anchorDef, elid, _currentInstance), true);																							
+							// if the anchor has a 'positionFinder' set, then delegate to that function to find
+							// out where to locate the anchor. issue 117.
+							if (newAnchor.positionFinder != null) {
+								var elPosition = _getOffset(_el, _currentInstance),
+									elSize = _getSize(_el),
+									dropPosition = { left:elPosition.left + (oldAnchor.x * elSize[0]), top:elPosition.top + (oldAnchor.y * elSize[1]) },
+									ap = newAnchor.positionFinder(dropPosition, elPosition, elSize, newAnchor.constructorParams);
+
+								newAnchor.x = ap[0];
+								newAnchor.y = ap[1];
+							}
+
+							ep.setAnchor(newAnchor, true);																							
 							
 							if (p.parent) {						
 								var parent = parentElement();
