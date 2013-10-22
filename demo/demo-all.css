@@ -81,6 +81,7 @@ body {
   height:600px;
   text-align: center;
   position: relative;
+  max-width:852px;
 }
 
 .demo {
