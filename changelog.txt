@@ -2,8 +2,13 @@
 
 	ISSUES
 
+	105 - Blank endpoint cleanup fails
 	116 - Assign anchors wont connect
 	117 - Assign anchors fail on source
+
+	NEW FUNCTIONALITY
+
+	- "Assign" anchors now work with the makeSource method.
 
 * 1.5.3
 
