@@ -210,4 +210,14 @@
 
 		}
 	};	
+
+	window.jsPlumbDemo.loadTest = function(count) {
+            count = count || 10;
+            for (var i = 0; i < count; i++) {
+                    jsPlumb.reset();
+                    jsPlumbDemo.init();
+            }
+    };
+
+	jsPlumb.ready(jsPlumbDemo.init);
 })();
