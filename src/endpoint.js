@@ -659,8 +659,8 @@
                             }
                         }                                                    
 
-                        // TODO can this stay here? the connection is no longer valid.
-                        _jsPlumb.fire("connectionDragStop", jpc);
+                        // although the connection is no longer valid, there are use cases where this is useful.
+                        _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
 
                         // tell jsplumb that dragging is finished.
                         _jsPlumb.currentlyDragging = false;
