@@ -22,6 +22,11 @@
     var AbstractEditor = function(params) {
         var self = this;        
     };
+
+    var isTouchDevice = "ontouchstart" in document.documentElement,
+        downEvent = isTouchDevice ? "touchstart" : "mousedown",
+        upEvent = isTouchDevice ? "touchend" : "mouseup",
+        moveEvent = isTouchDevice ? "touchmove" : "mousemove";
     
     // TODO: this is for a Straight segment.it would be better to have these all available somewjere, keyed
     // by segment type
@@ -89,13 +94,29 @@
             AbstractEditor.apply(this, arguments);            
             
             var jpcl = jsPlumb.CurrentLibrary,
-                documentMouseUp = function(e) {                     
+                clickConsumer = function(conn) {                     
+                    conn._jsPlumb.afterEditClick = function() {
+                        console.log("after edit click");
+                        conn.unbind("click", conn._jsPlumb.afterEditClick);
+                        conn._jsPlumb.afterEditClick = null;
+                        return false;
+                    }; 
+                    conn.bind("click", conn._jsPlumb.afterEditClick, true);                    
+                },
+                documentMouseUp = function(e) {       
+
+                    // an attempt at consuming the click that occurs after this mouseup
+                    // it's not reliable though, as we dont always get a click fired, for some
+                    // reason.
+                    //if (editing)
+                    //    clickConsumer(params.connection);
+
                     jpcl.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
                     params.connection._jsPlumb.instance.setConnectionBeingDragged(false);
                     e.stopPropagation();
                     e.preventDefault();
-                    jpcl.unbind(document, "mouseup", documentMouseUp);
-                    jpcl.unbind(document, "mousemove", documentMouseMove);                    
+                    jpcl.unbind(document, upEvent, documentMouseUp);
+                    jpcl.unbind(document, moveEvent, documentMouseMove);                    
                     downAt = null;
                     currentSegments = null;
                     selectedSegment = null; 
@@ -106,7 +127,7 @@
                     params.connection.endpoints[1].setSuspendEvents(false);
                     params.connection.editCompleted();
                     params.connector.justEdited = editing;
-                    editing = false;
+                    editing = false;            
                 },
                 downAt = null,
                 currentSegments = null,
@@ -259,17 +280,23 @@
                 };
                         
             //bind to mousedown and mouseup, for editing
-            params.connector.bind("mousedown", function(c, e) {
+            params.connector.bind(downEvent, function(c, e) {
                 var x = (e.pageX || e.page.x),
                     y = (e.pageY || e.page.y),
                     oe = jpcl.getElementObject(params.connection.getConnector().canvas),
                     o = jpcl.getOffset(oe),                    
                     minD = Infinity;
+
+                var __seg = params.connector.findSegmentForPoint(x-o.left, y-o.top);
+                console.log(__seg);
                 
                 currentSegments = params.connector.getOriginalSegments();
                 _collapseSegments();
                 for (var i = 0; i < currentSegments.length; i++) {                    
                     var _s = findClosestPointOnPath(currentSegments[i], (x - o.left) , (y - o.top), i, params.connector.bounds);
+                    
+                    //var _s = currentSegments[i].findClosestPointOnPath(x - o.left, y - o.top);
+                    
                     if (_s.d < minD) {
                         selectedSegment = _s;
                         segmentCoords = [ _s.s[0], _s.s[1], _s.s[2], _s.s[3] ]; // copy the coords at mousedown
@@ -280,8 +307,8 @@
                 downAt = [ x, y ];
                 
                 if (selectedSegment != null) {                    
-                    jpcl.bind(document, "mouseup", documentMouseUp);
-                    jpcl.bind(document, "mousemove", documentMouseMove);                                      
+                    jpcl.bind(document, upEvent, documentMouseUp);
+                    jpcl.bind(document, moveEvent, documentMouseMove);                                      
                     jpcl.addClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
                     params.connection._jsPlumb.instance.setConnectionBeingDragged(true);
                     params.connection.editStarted();                
@@ -297,6 +324,44 @@
             this.justEdited = false;
         }
         return out;
+    };
+
+// ------------------ augment the Connection prototype with the editing stuff --------------------------
+
+    var EDIT_STARTED = "editStarted", EDIT_COMPLETED = "editCompleted", EDIT_CANCELED = "editCanceled";
+
+    jsPlumb.Connection.prototype.setEditable = function(e) {
+        if (this.connector && this.connector.isEditable())
+            this._jsPlumb.editable = e;
+        
+        return this._jsPlumb.editable;
+    };
+
+    jsPlumb.Connection.prototype.isEditable = function() { return this._jsPlumb.editable; };
+
+    jsPlumb.Connection.prototype.editStarted = function() {  
+        this.setSuspendEvents(true);
+        this.fire(EDIT_STARTED, {
+            path:this.connector.getPath()
+        });            
+        this._jsPlumb.instance.setHoverSuspended(true);
+    };
+
+    jsPlumb.Connection.prototype.editCompleted = function() {            
+        this.fire(EDIT_COMPLETED, {
+            path:this.connector.getPath()
+        });       
+        this.setSuspendEvents(false);        
+        this._jsPlumb.instance.setHoverSuspended(false);
+        this.setHover(false);
+    };
+
+    jsPlumb.Connection.prototype.editCanceled = function() {
+        this.fire(EDIT_CANCELED, {
+            path:this.connector.getPath()
+        });        
+        this._jsPlumb.instance.setHoverSuspended(false);
+        this.setHover(false);
     };
         
 })();
