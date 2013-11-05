@@ -277,6 +277,9 @@
                 this.connector.setVisible(v);
             this.repaint();
         },
+
+        /* TODO move to connecto editors; it should put these on the prototype.
+
         setEditable : function(e) {
             if (this.connector && this.connector.isEditable())
                 this._jsPlumb.editable = e;
@@ -306,6 +309,9 @@
             this.setHover(false);
             this._jsPlumb.instance.setHoverSuspended(false);
         },
+
+*/
+
         cleanup:function() {
             //this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
