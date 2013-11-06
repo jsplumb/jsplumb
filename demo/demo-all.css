@@ -24,11 +24,17 @@
 /** FB **/
 #like {
     position: fixed;
-    width: 50px;
+    width: 77px;
     height: 70px;
     border: 0;
-    right: 13px;
-    bottom: 8px;
+    right: 11px;
+    bottom: -40px;
+}
+
+#retweet_button {
+  position: fixed;
+  bottom: 90px;
+  right: -17px;
 }
 
 body {

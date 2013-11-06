@@ -135,8 +135,8 @@
 <p>This gives you Standards mode in all browsers and access to HTML5.</p>
 <h6>application/xhtml+xml</h6>
 <p>If you&#39;re serving <code>application/xhtml+xml</code> then you need to include the VML namespace in the <code>html</code> element:</p>
-<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;html xmlns=&#39;http://www.w3.org/1999/xhtml&#39; xmlns:v=&quot;urn:schemas-microsoft-com:vml&quot;&gt;</code></pre>
+<pre><code class="lang-xml">    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+    &lt;html xmlns=&#39;http://www.w3.org/1999/xhtml&#39; xmlns:v=&quot;urn:schemas-microsoft-com:vml&quot;&gt;</code></pre>
 <p>Don&#39;t forget that in IE&lt;9, XHTML is not supported.  </p>
 <p><a name="imports"></a></p>
 <h3>Required Imports</h3>
@@ -177,24 +177,24 @@
 <p><a name="initializing"></a></p>
 <h3>Initializing jsPlumb</h3>
 <p>You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  To handle this, you should bind to the <code>ready</code> event on jsPlumb (or the instance of jsPlumb you are working with):            </p>
-<pre><code>jsPlumb.bind(&quot;ready&quot;, function() {
-...            
-// your jsPlumb related init code goes here
-...
+<pre><code class="lang-javascript">jsPlumb.bind(&quot;ready&quot;, function() {
+  ...            
+  // your jsPlumb related init code goes here
+  ...
 });</code></pre>
 <p>There&#39;s a helper method that can save you a few precious characters:</p>
-<pre><code>jsPlumb.ready(function() {
-...            
-// your jsPlumb related init code goes here
-...
+<pre><code class="lang-javascript">jsPlumb.ready(function() {
+    ...            
+    // your jsPlumb related init code goes here
+    ...
 });</code></pre>
 <p>If you bind to the <code>ready</code> event after jsPlumb has already been initialized, your callback will be executed immediately.</p>
 <p><a name="multiple"></a></p>
 <h3>Multiple jsPlumb instances</h3>
 <p>jsPlumb is registered on the browser&#39;s Window by default, providing one static instance for the whole page to use.  Should you need to, though, you can instantiate independent instances of jsPlumb, using the <code>getInstance</code> method, for example:</p>
-<pre><code>var firstInstance = jsPlumb.getInstance();</code></pre>
+<pre><code class="lang-javascript">var firstInstance = jsPlumb.getInstance();</code></pre>
 <p>The variable <code>firstInstance</code> can now be treated exactly as you would treat the <code>jsPlumb</code> variable - you can set defaults, call the <code>connect</code> method, whatever:</p>
-<pre><code>firstInstance.importDefaults({
+<pre><code class="lang-javascript">firstInstance.importDefaults({
   Connector : [ &quot;Bezier&quot;, { curviness: 150 } ],
   Anchors : [ &quot;TopCenter&quot;, &quot;BottomCenter&quot; ]
 });
@@ -205,7 +205,7 @@ firstInstance.connect({
   scope:&quot;someScope&quot; 
 });</code></pre>
 <p><code>getInstance</code> optionally takes an object that provides the defaults:</p>
-<pre><code>var secondInstance = jsPlumb.getInstance({
+<pre><code class="lang-javascript">var secondInstance = jsPlumb.getInstance({
   PaintStyle:{ 
     lineWidth:6, 
     strokeStyle:&quot;#567567&quot;, 
@@ -218,7 +218,11 @@ firstInstance.connect({
   Anchor : [ 0.5, 0.5, 1, 1 ]
 });
 
-secondInstance.connect({ source:&quot;element4&quot;, target:&quot;element3&quot;, scope:&quot;someScope&quot; });</code></pre>
+secondInstance.connect({ 
+  source:&quot;element4&quot;, 
+  target:&quot;element3&quot;, 
+  scope:&quot;someScope&quot;   
+});</code></pre>
 <p><a name="ids"></a></p>
 <h3>Element Ids</h3>
 <p>jsPlumb uses the <code>id</code> attribute of any element with which it interacts. If <code>id</code> is not set, jsPlumb will create an id for the element. It is recommended that you set appropriate ids for the elements in your UI yourself.</p>
@@ -233,7 +237,7 @@ secondInstance.connect({ source:&quot;element4&quot;, target:&quot;element3&quot
 <p><a name="zindex"></a></p>
 <h3>Z-index Considerations</h3>
 <p>You need to pay attention to the z-indices of the various parts of your UI when using jsPlumb, in particular to ensure that the elements that jsPlumb adds to the DOM do not overlay other parts of the interface. </p>
-<p>jsPlumb adds an element to the DOM for each Endpoint, Connector and Overlay. So for a connection having visible Endpoints at each end and a label in the middle, jsPlumb adds four elements to the DOM.  The actual elements it adds depend on the renderer in use (Canvas/SVG/VML).            </p>
+<p>jsPlumb adds an element to the DOM for each Endpoint, Connector and Overlay. So for a Connection having visible Endpoints at each end and a label in the middle, jsPlumb adds four elements to the DOM.  The actual elements it adds depend on the renderer in use (Canvas/SVG/VML).            </p>
 <p>To help you organise z-indices correctly, jsPlumb adds a CSS class to each type of element it adds. They are as follows:        </p>
 <table style="color:black;font-size:90%;">
   <tr><td><strong>Component</strong></td><td><strong>Class</strong></td></tr>
@@ -249,33 +253,31 @@ secondInstance.connect({ source:&quot;element4&quot;, target:&quot;element3&quot
 <p>Early versions of jsPlumb added everything to the end of the <strong>body</strong> element. This has the advantage of being the most flexible arrangement in terms of supporting which elements can be connected, but in certain use cases produced unexpected results. Consider the arrangement where you have some connected elements in a tab: you would expect jsPlumb to add elements inside the tab, so that when the user switches tabs and the current one is hidden, all the jsPlumb stuff is hidden too.  But when the elements are  on the body, this does not happen!   </p>
 <p>For this reason, jsPlumb&#39;s default behaviour is now to attach Endpoint elements to the parent of the element the Endpoint is attached to (<strong>not</strong> the actual element the Endpoint is attached to), and to attach Connector elements to the parent of the source Endpoint in the Connection. This results in all the elements of the Connection being siblings inside the same parent node, which jsPlumb requires, for various reasons arising from the trade off between doing lots of maths and the performance of the whole thing.</p>
 <p>In general, the default behaviour means that you cannot do things like this:</p>
-<pre><code>&lt;body&gt;
-    &lt;div id=&quot;container0&quot;&gt;
-        &lt;div id=&quot;node0&gt;&lt;/div&gt;
-    &lt;/div&gt;
-    &lt;div id=&quot;container1&quot;&gt;
-        &lt;div id=&quot;node1&quot;&gt;&lt;/div&gt;
-    &lt;/div&gt;
+<pre><code class="lang-html">&lt;body&gt;
+  &lt;div id=&quot;container0&quot;&gt;
+    &lt;div id=&quot;node0&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id=&quot;container1&quot;&gt;
+    &lt;div id=&quot;node1&quot;&gt;&lt;/div&gt;
+  &lt;/div&gt;
 &lt;/body&gt;
 
 &lt;script type=&quot;text/javascript&quot;&gt;    
-    var e0 = jsPlumb.addEndpoint(&quot;node0&quot;),
-    e1 = jsPlumb.addEndpoint(&quot;node1&quot;);
+  var e0 = jsPlumb.addEndpoint(&quot;node0&quot;),
+      e1 = jsPlumb.addEndpoint(&quot;node1&quot;);
 
-    jsPlumb.connect({ source:e0, target:e1 });
+  jsPlumb.connect({ source:e0, target:e1 });
 &lt;/script&gt;</code></pre>
 <p>...because the elements created for <code>e0</code> and <code>e1</code> would have different parent nodes, and an attempt to make a Connection between them would not work.  For the example just given, you would need to register the Endpoints on the <code>container</code> divs (and then quite possibly throw away the <code>node</code> divs):          </p>
-<pre><code>&lt;body&gt;
-    &lt;div id=&quot;container0&quot;&gt;
-    &lt;/div&gt;
-    &lt;div id=&quot;container1&quot;&gt;
-    &lt;/div&gt;
-&lt;body&gt;
+<pre><code class="lang-html">&lt;body&gt;
+  &lt;div id=&quot;container0&quot;&gt;&lt;/div&gt;
+  &lt;div id=&quot;container1&quot;&gt;&lt;/div&gt;
+&lt;/body&gt;
 
 &lt;script type=&quot;text/javascript&quot;&gt;
   var e0 = jsPlumb.addEndpoint(&quot;container0&quot;),
       e1 = jsPlumb.addEndpoint(&quot;container1&quot;);
-    jsPlumb.connect({ source:e0, target:e1 });
+  jsPlumb.connect({ source:e0, target:e1 });
 &lt;/script&gt;</code></pre>
 <p>now &#39;e0&#39; and &#39;e1&#39; have the same parent - the <strong>body</strong> element. </p>
 <h4>Container</h4>
@@ -283,65 +285,58 @@ secondInstance.connect({ source:&quot;element4&quot;, target:&quot;element3&quot
 <p><strong>It is recommended</strong> that you do this.</p>
 <p>Some examples:</p>
 <ul>
-<li><p>Set a container to use as the default container, using a jQuery selector (you can supply MooTools/YUI selectors if that&#39;s the library you&#39;re using), and then add an Endpoint.  The canvas (or SVG/VML element) created will be a child of the document body:</p>
-<pre>
-jsPlumb.Defaults.Container = $("body");
-...
-jsPlumb.addEndpoint(someDiv, { endpoint options });
-</pre>            
-</li>
-<li><p>Set a container to use as the default container, using an element id, and then connect two elements.  The elements created in this example will be children of the element with id &quot;containerId&quot;:</p>
-<pre>
-jsPlumb.Defaults.Container = "containerId";
-...
-jsPlumb.connect({ source:someDiv, target:someOtherDiv });
-</pre>                
-</li>
-<li><p>Pass a container to use into a <code>jsPlumb.connect</code> call, using a selector.  The elements created in this example will be children of the element with id &quot;containerId&quot;:    </p>
-<pre>
-jsPlumb.connect({ source:someDiv, target:someOtherDiv, container:$("#containerId") });
-</pre>                
-</li>
-<li><p>Pass a container to use into a <code>jsPlumb.addEndpoint</code> call, using an element id. The element created in this example will be a child of the element with id &quot;containerId&quot;:        </p>
-<pre>
-jsPlumb.addEndpoint(someDiv, { ..., container:"containerId" });
-</pre>
-
-</li>
+<li>Set a container to use as the default container, using a jQuery selector (you can supply MooTools/YUI selectors if that&#39;s the library you&#39;re using), and then add an Endpoint.  The canvas (or SVG/VML element) created will be a child of the document body:</li>
 </ul>
+<pre><code class="lang-javascript">jsPlumb.Defaults.Container = $(&quot;body&quot;);
+...
+jsPlumb.addEndpoint(someDiv, { endpoint options });</code></pre>
+<ul>
+<li>Set a container to use as the default container, using an element id, and then connect two elements.  The elements created in this example will be children of the element with id &quot;containerId&quot;:</li>
+</ul>
+<pre><code class="lang-javascript">jsPlumb.Defaults.Container = &quot;containerId&quot;;
+...
+jsPlumb.connect({ source:someDiv, target:someOtherDiv });</code></pre>
+<ul>
+<li>Pass a container to use into a <code>jsPlumb.connect</code> call, using a selector.  The elements created in this example will be children of the element with id &quot;containerId&quot;:    </li>
+</ul>
+<pre><code class="lang-javascript">jsPlumb.connect({ source:someDiv, target:someOtherDiv, container:$(&quot;#containerId&quot;) });</code></pre>
+<ul>
+<li>Pass a container to use into a <code>jsPlumb.addEndpoint</code> call, using an element id. The element created in this example will be a child of the element with id &quot;containerId&quot;:        </li>
+</ul>
+<pre><code class="lang-javascript">jsPlumb.addEndpoint(someDiv, { ..., container:&quot;containerId&quot; });</code></pre>
 <p><a name="dragging"></a></p>
 <h3>Element Dragging</h3>
 <p>A common feature of interfaces using jsPlumb is that the elements are draggable.  Unless you absolutely need to configure this behaviour using your library&#39;s underlying method, you should use <code>jsPlumb.draggable</code>:</p>
-<pre><code>jsPlumb.draggable(&quot;elementId&quot;);</code></pre>
+<pre><code class="lang-javascript">jsPlumb.draggable(&quot;elementId&quot;);</code></pre>
 <p>You can also pass a selector from your library in to this method:</p>
-<pre><code>jsPlumb.draggable($(&quot;.someClass&quot;));</code></pre>
+<pre><code class="lang-javascript">jsPlumb.draggable($(&quot;.someClass&quot;));</code></pre>
 <p>This method is just a wrapper for the underlying library&#39;s draggable functionality, and there is a two-argument version in which the second argument is passed down to the underlying library (example below).  </p>
 <h5>Drag Containment</h5>
 <p>A common request is for the ability to contain the area within which an element may be dragged. For jQuery this is as simple as providing a <code>containment</code> parameter:</p>
-<pre><code>jsPlumb.draggable($(&quot;someSelector&quot;), {
+<pre><code class="lang-javascript">jsPlumb.draggable($(&quot;someSelector&quot;), {
   containment:&quot;parent&quot;
 });</code></pre>
 <h6>YUI</h6>
 <p>Drag containment is also supported if you are using YUI - for this you can supply either a <code>constrain2Node</code> parameter (this is YUI&#39;s parameter name), or <code>containment</code>, as with jQuery, and jsPlumb will convert it:</p>
-<pre><code>jsPlumb.draggable($(&quot;someSelector&quot;), {
+<pre><code class="lang-javascript">jsPlumb.draggable($(&quot;someSelector&quot;), {
   constrain2Node:Y.one(&quot;aNode&quot;)
 });</code></pre>
 <p>Note that YUI does not support the string <code>&quot;parent&quot;</code> as a value, and jsPlumb does not do anything to massage the argument you pass in.  So you cannot do this:</p>
-<pre><code>jsPlumb.draggable($(&quot;someSelector&quot;), {
+<pre><code class="lang-javascript">jsPlumb.draggable($(&quot;someSelector&quot;), {
   constrain2Node:&quot;parent&quot;
-});  </code></pre>
+});</code></pre>
 <h6>MooTools</h6>
 <p>Drag containment is not supported in MooTools.</p>
 <h5>Dragging nested elements</h5>
 <p>jsPlumb takes nesting into account when handling draggable elements. For example, say you have this markup:</p>
-<pre><code>&lt;div id=&quot;container&quot;&gt;
+<pre><code class="lang-html">&lt;div id=&quot;container&quot;&gt;
   &lt;div class=&quot;childType1&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;childType2&quot;&gt;&lt;/div&gt;
 &lt;/div&gt;</code></pre>
 <p>...and then you connect one of those child divs to something, and make <code>container</code> draggable:</p>
-<pre><code>jsPlumb.connect({
-    source:$(&quot;#container .childType1&quot;),
-    target:&quot;somewhere else&quot;
+<pre><code class="lang-javascript">jsPlumb.connect({
+  source:$(&quot;#container .childType1&quot;),
+  target:&quot;somewhere else&quot;
 });
 
 jsPlumb.draggable(&quot;container&quot;);</code></pre>
@@ -349,43 +344,43 @@ jsPlumb.draggable(&quot;container&quot;);</code></pre>
 <h6>Nested Element offsets</h6>
 <p>For performance reasons, jsPlumb caches the offset of each nested element relative to its draggable ancestor. If you make changes to the draggable ancestor that will have resulted in the offset of one or more nested elements changing, you need to tell jsPlumb about it, using the <code>recalculateOffsets</code> function.          </p>
 <p>Consider the example from before, but with a change to the markup after initializing everything:            </p>
-<pre><code>&lt;div id=&quot;container&quot;&gt;
+<pre><code class="lang-html">&lt;div id=&quot;container&quot;&gt;
   &lt;div class=&quot;header&quot; style=&quot;height:20px;background-color:blue;&quot;&gt;header&lt;/div&gt;
   &lt;div class=&quot;childType1&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;childType2&quot;&gt;&lt;/div&gt;
 &lt;div&gt;</code></pre>
 <p>Connect a child div to some element and make it draggable:</p>
-<pre><code>jsPlumb.connect({
+<pre><code class="lang-javascript">jsPlumb.connect({
   source:$(&quot;#container .childType1&quot;),
   target:&quot;somewhere else&quot;
 });
 
 jsPlumb.draggable(&quot;container&quot;);</code></pre>
 <p>Now if you manipulate the DOM in such a way that the internal layout of the <code>container</code> node is changed, you need to tell jsPlumb:    </p>
-<pre><code>$(&quot;#container .header).hide();    // hide the header bar. this will alter the offset of the other child elements...
+<pre><code class="lang-javascript">$(&quot;#container .header&quot;).hide();    // hide the header bar. this will alter the offset of the other child elements...
 jsPlumb.recalculateOffsets(&quot;container&quot;);   // tell jsPlumb that the internal dimensions have changed.
 // you can also use a selector, eg $(&quot;#container&quot;)</code></pre>
 <p><strong>Note</strong> in this example, one of the child divs was made draggable. jsPlumb automatically recalculates internal offsets after dragging stops in that case - you do not need to call it yourself.  </p>
 <p><a name="dragSelection"></a></p>
 <h3>Selection while dragging</h3>
 <p>The default browser behaviour on mouse drag is to select elements in the DOM.  jQuery suppresses this behaviour, but MooTools and YUI do not. To assist with handling this, the each library adapter attaches this class to the <strong>body</strong> at drag start:</p>
-<pre><code>_jsPlumb_drag_select</code></pre>
+<pre><code class="lang-css">    _jsPlumb_drag_select</code></pre>
 <p>The class is removed at drag end. </p>
 <p>A suitable value for this class (this is from the jsPlumb demo pages) is:</p>
-<pre><code>._jsPlumb_drag_select * {
+<pre><code class="lang-css">._jsPlumb_drag_select * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;    
-}    </code></pre>
+}</code></pre>
 <p><a name="performance"></a></p>
 <h3>Performance</h3>
 <p>The speed at which jsPlumb executes, and the practical limit to the number of manageable connections, is greatly affected by the browser upon which it is being run.  At the time of writing, it will probably not surprise you to learn that jsPlumb runs fastest in Chrome, followed by Safari/Firefox, and then IE browsers in descending version number order.</p>
 <h4>Suspending Drawing</h4>
 <p>Every <code>connect</code> or <code>addEndpoint</code> call in jsPlumb ordinarily causes a repaint of the associated element, which for many cases is what you want.  But if you are performing some kind of &quot;bulk&quot; operation - like loading data on page load perhaps - it is recommended that you suspend drawing before doing so:</p>
-<pre><code>jsPlumb.setSuspendDrawing(true);
+<pre><code class="lang-javascript">jsPlumb.setSuspendDrawing(true);
 ...
 - load up all your data here -
 ...
@@ -394,13 +389,13 @@ jsPlumb.setSuspendDrawing(false, true);</code></pre>
 <p>I said above it is recommended that you do this.  It really is.  It makes an enormous difference to the load time when you&#39;re dealing with a lot of Connections on slower browsers.</p>
 <h6>doWhileSuspended</h6>
 <p>This function abstracts out the pattern of suspending drawing, doing something, and then re-enabling drawing:</p>
-<pre><code>jsPlumb.doWhileSuspended(fn, [doNotRepaintAfterwards]);</code></pre>
+<pre><code class="lang-javascript">jsPlumb.doWhileSuspended(fn, [doNotRepaintAfterwards]);</code></pre>
 <p>Example usage:</p>
-<pre><code>jsPlumb.doWhileSuspended(function() {
+<pre><code class="lang-javascript">jsPlumb.doWhileSuspended(function() {
   // import a billion things here
 });</code></pre>
 <p>By default, this will run a repaint at the end. But you can suppress that, should you want to:</p>
-<pre><code>jsPlumb.doWhileSuspended(function() {
+<pre><code class="lang-javascript">jsPlumb.doWhileSuspended(function() {
   // import a billion things here
 }, true);</code></pre>
 <p><strong>Note</strong> just in case you take it literally, you should probably <em>not</em> attempt to import a billion things into jsPlumb. You may find that performance suffers a little.    </p>

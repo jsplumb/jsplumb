@@ -33,6 +33,21 @@
             <div class="component window" id="window7"><strong>Window 7</strong></div>            
 
             <iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=box_count"></iframe>
+
+            <div id="retweet_button">
+                        <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://github.hubspot.com/offline/docs/welcome" data-text="Offline.js - Automatically alert your users when they've lost their internet connection." data-count="horizontal" data-via="HubSpotDev">Tweet</a>
+                        <script>
+                          if (Math.random() >= 0.5)
+                            var recommends = ['hubspotdev', 'zackbloom', 'adamfschwartz'];
+                          else
+                            var recommends = ['hubspotdev', 'adamfschwartz', 'zackbloom'];
+
+                          var $button = $('.twitter-share-button');
+                          if ($button.length)
+                            $button.data('related', recommends.join(','));
+                        </script>
+                        <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+                    </div>
         </div>
 		
 		<div id="sidebar">
@@ -85,6 +100,8 @@
 		<script src="../../src/renderers-canvas.js"></script>
 		<!-- vml renderer -->
 		<script src="../../src/renderers-vml.js"></script>
+
+        <script src="../../src/connector-editors.js"></script>
         
         <!-- jquery jsPlumb adapter -->
 		<script src="../../src/jquery.jsPlumb.js"></script>

@@ -96,7 +96,20 @@
 			</div>
 			<div class="markdown-body">
 				<!-- BODY -->
-				<h2>Changes between 1.5.2 and 1.5.3</h2>
+				<h2>1.5.4</h2>
+<h3>Changes between 1.5.3 and 1.5.4</h3>
+<h4>Issues</h4>
+<ul>
+<li><strong>105</strong> - Blank endpoint cleanup fails</li>
+<li><strong>116</strong> - Assign anchors wont connect</li>
+<li><strong>117</strong> - Assign anchors fail on source</li>
+</ul>
+<h4>New Functionality</h4>
+<ul>
+<li><code>&quot;Assign&quot;</code> anchors now work with the makeSource method.</li>
+</ul>
+<h2>1.5.3</h2>
+<h3>Changes between 1.5.2 and 1.5.3</h3>
 <h4>Backwards Compatibility</h4>
 <ul>
 <li>The fix for issue 112 involved making a change to the circumstances under which a <code>connectionDetached</code> event is fired. When you drag the source or target of an existing connection to some other endpoint, <code>connectionDetached</code> is no longer fired. Instead, a <code>connectionMoved</code> event is fired, containing the connection that was moved, the index of the endpoint that changed (0 for source, 1 for target), and the original and new source and target endpoints.</li>
@@ -132,7 +145,8 @@
 <p>  <code>[ [ [ 1,0,0,1], [1,1,1,1] ], { selector:function() { ... } } ]</code></p>
 </li>
 </ul>
-<h2>Changes between 1.5.1 and 1.5.2</h2>
+<h2>1.5.2</h2>
+<h3>Changes between 1.5.1 and 1.5.2</h3>
 <h4>Backwards Compatibility</h4>
 <ul>
 <li>Issue 86, fixed in 1.5.2, changes the priority in which parameters are applied to a connection. The documentation has always stated that source takes priority, but in fact the code was the other way round, with target taking priority. Now source does take priority.</li>
@@ -147,14 +161,16 @@
 <ul>
 <li>An issue that caused the SVG renderer to paint overlays before the connector was ready when the types API was used was also fixed.</li>
 </ul>
-<h2>Changes between 1.5.0 and 1.5.1</h2>
+<h2>1.5.1</h2>
+<h3>Changes between 1.5.0 and 1.5.1</h3>
 <h4>Issues</h4>
 <ul>
 <li><strong>81</strong> - Uncaught TypeError: Cannot read property &#39;uuid&#39; of null</li>
 <li><strong>82</strong> - Blank endpoint doesn&#39;t cleanup properly</li>
 <li><strong>83</strong> - for connections made with makeTarget originalEvent is not set</li>
 </ul>
-<h2>Changes between 1.4.1 and 1.5.0</h2>
+<h2>1.5.0</h2>
+<h3>Changes between 1.4.1 and 1.5.0</h3>
 <p>Release 1.5.0 contains several bugfixes and one or two minor enhancements, but the biggest change since 1.4.1 is the way jsPlumb handles inheritance internally - it has switched from a &#39;module pattern&#39; architecture to a prototypal-based setup.  The module pattern is good for information hiding, but it makes objects bigger, and its far easier to leak memory with that sort of arrangement than it is with a prototypal inheritance scheme. </p>
 <p>The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see <a href="Build">here</a>).</p>
 <ol>
