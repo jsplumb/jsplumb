@@ -205,8 +205,7 @@
                 out.d = jsPlumbGeom.lineLength([x,y], [out.x, out.y]);
                 out.l = fractionInSegment / length;            
                 return out;
-            };
-        }
+            };        
         },
 	
         /*
