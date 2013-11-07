@@ -7,8 +7,7 @@ box-shadow: 2px 2px 19px #aaa;
 border-radius:0.5em;
 opacity:0.8;
 filter:alpha(opacity=80);
-width:5em; height:5em;
-line-height:5em;
+
 text-align:center;
 z-index:20; position:absolute;
 background-color:#eeeeef;

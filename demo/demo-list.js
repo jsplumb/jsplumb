@@ -17,22 +17,50 @@
 
 	jsPlumb.bind("ready", function() {
 		var current = document.body.getAttribute("data-demo-id"),
-			library = document.body.getAttribute("data-library"),
-			idx = jsPlumbUtil.findWithFunction(list, function(i) { return i[0] == current; }),
-			prev = idx == 0 ? list.length - 1 : idx - 1,
-			next = idx == list.length - 1 ? 0 : idx + 1,
-			_d = function(c, p, h) {
-				var d = document.createElement("div");
-				d.className = c;
-				if (p) p.appendChild(d);
-				if (h) d.innerHTML = h;
-				return d;
-			};
+			library = document.body.getAttribute("data-library");
 
-		var d = _d("demo-links", document.body),
-			dp = _d("", d, "<a href='" + list[prev][0] + "/" + library + ".html'>" + list[prev][1] + "<i class='fa fa-arrow-left'></i></a>"),
-			dc = _d("", d, list[idx][1]),
-			dn = _d("", d, "<a href='" + list[next][0] + "/" + library + ".html'><i class='fa fa-arrow-right'></i>" + list[next][1] + "</a>");
+		if (current && library) {
+			var idx = jsPlumbUtil.findWithFunction(list, function(i) { return i[0] == current; }),
+				prev = idx == 0 ? list.length - 1 : idx - 1,
+				next = idx == list.length - 1 ? 0 : idx + 1,
+				_d = function(t, c, p, h, a, atStart) {
+					var d = document.createElement(t);
+					d.className = c;
+					if (p) {
+						if (atStart && p.childNodes.length > 0)
+							p.insertBefore(d, p.firstChild);
+						else
+							p.appendChild(d);
+					}
+					if (h) d.innerHTML = h;
+					if (a) {
+						for (var i in a)
+							d.setAttribute(i, a[i]);
+					}
+					return d;
+				};
+
+			var d = _d("div",  "demo-links", document.body),
+				dp = _d("div",  "", d, "<a href='" + list[prev][0] + "/" + library + ".html'>" + list[prev][1] + "<i class='fa fa-arrow-left'></i></a>"),
+				dc = _d("div",  "", d, list[idx][1]),
+				dn = _d("div",  "", d, "<a href='" + list[next][0] + "/" + library + ".html'><i class='fa fa-arrow-right'></i>" + list[next][1] + "</a>");
+
+
+		// dropdown menu
+			var m = document.getElementsByClassName("menu")[0],
+				dd = _d("div", "dropdown", m, null, null, true),
+				a = _d("a", "", dd, "DEMOS", {href:"#", "data-toggle":"dropdown"}),
+				ul = _d("ul", "dropdown-menu", dd, null, { role:"menu" });
+
+			for (var i = 0; i < list.length; i++) {
+				var li = _d("li", "", ul, null, {role:"presentation"}),
+					aa = _d("a", "", li, list[i][1], { role:"menuitem", tabindex:"-1", href:list[i][0] +"/" + library + ".html"});
+			}
+
+			$(a).dropdown();
+		}
+
+			
 
 	});
 })();

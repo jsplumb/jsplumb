@@ -21,6 +21,16 @@
 
 /** PAGE STRUCTURE **/
 
+.dropdown { 
+  display:inline;
+}
+
+.dropdown-menu>li>a {
+  width:100%;
+  text-transform: uppercase;
+  font-size:12px;
+}
+
 /** FB **/
 #like {
     position: fixed;
@@ -100,14 +110,6 @@ body {
   margin-bottom:25px;
 }
 
-#sidebar {            
-  width: 420px;
-  font-size: 12px;
-  position: fixed;
-  right: 20px;
-  top: 90px;    
-}
-
 .explanation {
   position: absolute;
   text-align: center;
@@ -173,30 +175,6 @@ a:active {
 
 .menu a {
   margin-right: 19px;
-}
-
-#render {
-	padding-top:2px;
-    margin-left:auto;
-	margin-right:auto;
-    z-index:5000;
-	margin-top:0px;  
-    text-align: center;
-    background-color:white;
-    font-size:11.5px;
-    background-color: #5c96bc;
-    color:white;
-}
-
-
-#render ul {
-    padding-left:1em;
-}
-#render ul li {
-    list-style-type:none;
-}
-#render h5 {
-    display:inline;
 }
 
 .otherLibraries {
@@ -277,10 +255,9 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
     position:absolute;    
     color:black;
     padding:0.5em;
-    width:5em; 
-    height:5em;
-    line-height: 5em; 
-    font-size:0.8em;
+    width:80px; 
+    height:80px;
+    line-height: 80px;     
     -webkit-transition: -webkit-box-shadow 0.15s ease-in;
     -moz-transition: -moz-box-shadow 0.15s ease-in;
     -o-transition: -o-box-shadow 0.15s ease-in;

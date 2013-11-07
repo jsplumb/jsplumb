@@ -2,9 +2,8 @@
 	margin-top:5em;
 }
 
-.w { 
-	width:5em;
-	padding:1em;
+.w { 	
+	padding:16px;
 	position:absolute;
 	border: 1px solid black;
 	z-index:4;
@@ -14,8 +13,8 @@
 	-o-box-shadow: 2px 2px 19px #e0e0e0;
 	-webkit-box-shadow: 2px 2px 19px #e0e0e0;
 	-moz-box-shadow: 2px 2px 19px #e0e0e0;
-	-moz-border-radius:0.5em;
-	border-radius:0.5em;
+	-moz-border-radius:8px;
+	border-radius:8px;
 	opacity:0.8;
 	filter:alpha(opacity=80);
 	cursor:move;
