@@ -4,12 +4,12 @@
         
         <title>jsPlumb 1.5.4 demo - jQuery</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
-		<base href="..">
+        <base href="..">        
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 		<link rel="stylesheet" href="demo-all.css">		
-        <link rel="stylesheet" href="statemachine/demo.css">
+        <link rel="stylesheet" href="draggableConnectors/demo.css">
     </head>
-    <body data-demo-id="statemachine" data-library="jquery">
+    <body data-demo-id="draggableConnectors" data-library="jquery">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo">jsPlumb</div>
@@ -31,24 +31,26 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
-        <div id="main">			
-           
-            <div class="explanation">
-                <h4>STATE MACHINE</h4>
-                <p>Nodes are connected with the StateMachine connector.</p>
-                <p>Endpoints are located with 'Continuous' anchors, which are anchors whose location is calculated based on the location of all other connected elements, and which guarantee a unique endpoint per connection.
-                </p>                                
-                <p>Click and drag new Connections from the orange div in each element; the main elements in the UI are configured to be Connection targets. You can drag from one of these divs onto its parent element to create a 'loopback' connection. Each element supports up to 5 Connections.</p>
-                <p>Click on a Connection to delete it.</p>
+		
+        <div id="main">			        
+            <div class="explanation">         
+                <h4>DRAG &amp; DROP</h4>                           
+                <p>Drag from any Endpoint to similar Endpoints on other elements to create Connections.</p>
+                <p>Blue Endpoints use a <strong>beforeDrop</strong> interceptor.  This enables
+                you to intercept a new connection and decide whether or not you wish to allow it to proceed. They are also configured to automatically reattach if you drag a Connection off and drop it on the background.</p>
+                <p>Yellow Endpoints are configured to use a <strong>beforeDetach</strong> interceptor, which provides a way to programmatically override a Connection detach. Yellow connections are painted with the Straight connector</p>            
+                <p>Green Endpoints support up to three Connections. Once a green Endpoint has three connections, when you drag from it you will drag the oldest connection made on the Endpoint.</p>
+                <div class="commands">
+                    <a id="clear" class="cmd" href="#">clear plumbing</a>
+                </div>
             </div>  
-            <div class="demo statemachine-demo" id="statemachine-demo">
-                <div class="w" id="opened">BEGIN<div class="ep"></div></div>
-                <div class="w" id="phone1">PHONE INTERVIEW 1<div class="ep"></div></div>
-                <div class="w" id="phone2">PHONE INTERVIEW 2<div class="ep"></div></div>
-                <div class="w" id="inperson">IN PERSON<div class="ep"></div></div>
-                <div class="w" id="rejected">REJECTED<div class="ep"></div></div>                           
-            </div>
-            
+            <div id="drag-drop-demo" class="demo drag-drop-demo">                                
+                <div class="window" id="dragDropWindow1">one<br/><br/><a href="#" class="cmdLink hide" rel="dragDropWindow1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="dragDropWindow1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="dragDropWindow1">detach all</a></div>
+                <div class="window" id="dragDropWindow2">two<br/><br/><a href="#" class="cmdLink hide" rel="dragDropWindow2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="dragDropWindow2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="dragDropWindow2">detach all</a></div>
+                <div class="window" id="dragDropWindow3">three<br/><br/><a href="#" class="cmdLink hide" rel="dragDropWindow3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="dragDropWindow3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="dragDropWindow3">detach all</a></div>
+                <div class="window" id="dragDropWindow4">four<br/><br/><a href="#" class="cmdLink hide" rel="dragDropWindow4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="dragDropWindow4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="dragDropWindow4">detach all</a></div>          
+                <div id="list"></div>                
+            </div>           
         </div>
 	
         
@@ -96,8 +98,9 @@
 		<!-- /JS -->
 		
 		<!--  demo code -->
-		<script src="statemachine/demo-jquery.js"></script>                
+		<script src="draggableConnectors/demo.js"></script>
 
-		<script src="demo-list.js"></script>
+        <script src="demo-list.js"></script>
+        
     </body>
 </html>

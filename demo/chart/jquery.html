@@ -4,12 +4,12 @@
         
         <title>jsPlumb 1.5.4 demo - jQuery</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
-		<base href="..">
+        <base href="..">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 		<link rel="stylesheet" href="demo-all.css">		
-        <link rel="stylesheet" href="statemachine/demo.css">
+        <link rel="stylesheet" href="chart/demo.css">
     </head>
-    <body data-demo-id="statemachine" data-library="jquery">
+    <body data-demo-id="chart" data-library="jquery">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo">jsPlumb</div>
@@ -31,23 +31,25 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
+
         <div id="main">			
-           
+            
             <div class="explanation">
-                <h4>STATE MACHINE</h4>
-                <p>Nodes are connected with the StateMachine connector.</p>
-                <p>Endpoints are located with 'Continuous' anchors, which are anchors whose location is calculated based on the location of all other connected elements, and which guarantee a unique endpoint per connection.
-                </p>                                
-                <p>Click and drag new Connections from the orange div in each element; the main elements in the UI are configured to be Connection targets. You can drag from one of these divs onto its parent element to create a 'loopback' connection. Each element supports up to 5 Connections.</p>
-                <p>Click on a Connection to delete it.</p>
-            </div>  
-            <div class="demo statemachine-demo" id="statemachine-demo">
-                <div class="w" id="opened">BEGIN<div class="ep"></div></div>
-                <div class="w" id="phone1">PHONE INTERVIEW 1<div class="ep"></div></div>
-                <div class="w" id="phone2">PHONE INTERVIEW 2<div class="ep"></div></div>
-                <div class="w" id="inperson">IN PERSON<div class="ep"></div></div>
-                <div class="w" id="rejected">REJECTED<div class="ep"></div></div>                           
+                <h4>CHART</h4>
+                <p>This is a simple demonstration of using jsPlumb to display hierarchical information.</p>
+                <p>Connectors have a paintStyle of `gray` and specify an endpoint of radius 9.
+                Each connection has an Arrow overlay indicating direction, and paints itself orange on mouse hover.
+                </p>
+                <p>The Bezier curve used in this demo has a 'curviness' of 50</p>
             </div>
+            <div class="demo chart-demo" id="chart-demo">
+                <div class="window" id="chartWindow1">window one</div>
+                <div class="window" id="chartWindow2">window two</div>
+                <div class="window" id="chartWindow3">window three</div>
+                <div class="window" id="chartWindow4">window four</div>
+                <div class="window" id="chartWindow5">window five</div>
+                <div class="window" id="chartWindow6">window six</div>
+            </div>            
             
         </div>
 	
@@ -96,8 +98,9 @@
 		<!-- /JS -->
 		
 		<!--  demo code -->
-		<script src="statemachine/demo-jquery.js"></script>                
+		<script src="chart/demo.js"></script>
 
-		<script src="demo-list.js"></script>
+        <script src="demo-list.js"></script>
+        
     </body>
 </html>

@@ -4,12 +4,12 @@
         
         <title>jsPlumb 1.5.4 demo - jQuery</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
-		<base href="..">
+        <base href="..">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 		<link rel="stylesheet" href="demo-all.css">		
-        <link rel="stylesheet" href="statemachine/demo.css">
+        <link rel="stylesheet" href="sourcesAndTargets/demo.css">        
     </head>
-    <body data-demo-id="statemachine" data-library="jquery">
+    <body data-demo-id="sourcesAndTargets" data-library="jquery">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo">jsPlumb</div>
@@ -31,24 +31,32 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
-        <div id="main">			
-           
+		
+        <div id="main">			          
+
             <div class="explanation">
-                <h4>STATE MACHINE</h4>
-                <p>Nodes are connected with the StateMachine connector.</p>
-                <p>Endpoints are located with 'Continuous' anchors, which are anchors whose location is calculated based on the location of all other connected elements, and which guarantee a unique endpoint per connection.
-                </p>                                
-                <p>Click and drag new Connections from the orange div in each element; the main elements in the UI are configured to be Connection targets. You can drag from one of these divs onto its parent element to create a 'loopback' connection. Each element supports up to 5 Connections.</p>
-                <p>Click on a Connection to delete it.</p>
-            </div>  
-            <div class="demo statemachine-demo" id="statemachine-demo">
-                <div class="w" id="opened">BEGIN<div class="ep"></div></div>
-                <div class="w" id="phone1">PHONE INTERVIEW 1<div class="ep"></div></div>
-                <div class="w" id="phone2">PHONE INTERVIEW 2<div class="ep"></div></div>
-                <div class="w" id="inperson">IN PERSON<div class="ep"></div></div>
-                <div class="w" id="rejected">REJECTED<div class="ep"></div></div>                           
+                <h4>SOURCES &amp; TARGETS</h4>                    
+                <p>Drag Connections from the blue element to any of the green ones. You can also drag existing
+                    Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
+                <p>The <strong>makeSource</strong> and <strong>makeTarget</strong>functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
+                elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
+                <p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>          
+                <p>
+                The `disable` link is excluded from being a drag source through the use of the `filter` parameter on the makeSource call.
+                </p>
+                <p>The green elements are configured as Connection targets, with a `Top` anchor, and are draggable</p>
+            </div>                  
+            <div class="demo source-target-demo" id="source-target-demo">
+                <div class="window" id="sourceWindow1">           
+                    <strong>Window 1</strong>
+                    <a href="#" id="enableDisableSource">disable</a>                
+                </div>
+                <div class="window smallWindow" id="targetWindow2"><strong>Window 2</strong><br/><br/></div>
+                <div class="window smallWindow" id="targetWindow3"><strong>Window 3</strong><br/><br/></div>
+                <div class="window smallWindow" id="targetWindow4"><strong>Window 4</strong><br/><br/></div>
+                <div class="window smallWindow" id="targetWindow5"><strong>Window 5</strong><br/><br/></div>
+                <div class="window smallWindow" id="targetWindow6"><strong>Window 6</strong><br/><br/></div>
             </div>
-            
         </div>
 	
         
@@ -96,8 +104,9 @@
 		<!-- /JS -->
 		
 		<!--  demo code -->
-		<script src="statemachine/demo-jquery.js"></script>                
+		<script src="sourcesAndTargets/demo.js"></script>
 
-		<script src="demo-list.js"></script>
+        <script src="demo-list.js"></script>
+        
     </body>
 </html>

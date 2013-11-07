@@ -4,12 +4,12 @@
         
         <title>jsPlumb 1.5.4 demo - jQuery</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
-		<base href="..">
+        <base href="..">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 		<link rel="stylesheet" href="demo-all.css">		
-        <link rel="stylesheet" href="statemachine/demo.css">
+        <link rel="stylesheet" href="animation/demo.css">
     </head>
-    <body data-demo-id="statemachine" data-library="jquery">
+    <body data-demo-id="animation" data-library="jquery">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo">jsPlumb</div>
@@ -31,22 +31,24 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
+
         <div id="main">			
            
             <div class="explanation">
-                <h4>STATE MACHINE</h4>
-                <p>Nodes are connected with the StateMachine connector.</p>
-                <p>Endpoints are located with 'Continuous' anchors, which are anchors whose location is calculated based on the location of all other connected elements, and which guarantee a unique endpoint per connection.
-                </p>                                
-                <p>Click and drag new Connections from the orange div in each element; the main elements in the UI are configured to be Connection targets. You can drag from one of these divs onto its parent element to create a 'loopback' connection. Each element supports up to 5 Connections.</p>
-                <p>Click on a Connection to delete it.</p>
-            </div>  
-            <div class="demo statemachine-demo" id="statemachine-demo">
-                <div class="w" id="opened">BEGIN<div class="ep"></div></div>
-                <div class="w" id="phone1">PHONE INTERVIEW 1<div class="ep"></div></div>
-                <div class="w" id="phone2">PHONE INTERVIEW 2<div class="ep"></div></div>
-                <div class="w" id="inperson">IN PERSON<div class="ep"></div></div>
-                <div class="w" id="rejected">REJECTED<div class="ep"></div></div>                           
+                <h4>ANIMATION</h4>
+                <p>This is a demonstration of jsPlumb's 'animate' method.</p>
+                <p>Drag orange dots to create connections.</p>
+                <p>Click on or near blue dots to make them move in that direction.</p>                    
+                <div class="commands">
+                    <a id="add" href="#" class="cmd">Add a Disc</a>
+                    <a id="anim-clear" href="#" class="cmd">Remove All Connections</a>
+                </div>
+            </div>
+            <div class="demo animation-demo" id="animation-demo">
+                <div class="bigdot" id="bd1"></div>
+                <div class="bigdot" id="bd2"></div>
+                <div class="bigdot" id="bd3"></div>
+                <div class="bigdot" id="bd4"></div>                                
             </div>
             
         </div>
@@ -96,8 +98,9 @@
 		<!-- /JS -->
 		
 		<!--  demo code -->
-		<script src="statemachine/demo-jquery.js"></script>                
+		<script src="animation/demo.js"></script>		
 
-		<script src="demo-list.js"></script>
+        <script src="demo-list.js"></script>
+        
     </body>
 </html>

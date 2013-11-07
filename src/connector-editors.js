@@ -287,6 +287,8 @@
                     o = jpcl.getOffset(oe),                    
                     minD = Infinity;
 
+                // TODO this is really the way we want to go: get the segment from the connector.
+                // for now it's just here to remind me what to change.
                 var __seg = params.connector.findSegmentForPoint(x-o.left, y-o.top);
                 console.log(__seg);
                 
