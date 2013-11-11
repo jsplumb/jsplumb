@@ -1,3 +1,17 @@
+makeTarget uniqueEndpoint issues
+-------------------------------
+
+- drag off a connection and drop it; it detaches. then try to drag a new connection - you get an error.
+
+
+
+
+
+
+
+
+
+
 future
 
     (none of these things are definite.  i just like to keep a list of ideas that i've bounced around with various people)

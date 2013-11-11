@@ -21,6 +21,16 @@
 
 /** PAGE STRUCTURE **/
 
+.dropdown { 
+  display:inline;
+}
+
+.dropdown-menu>li>a {
+  width:100%;
+  text-transform: uppercase;
+  font-size:12px;
+}
+
 /** FB **/
 #like {
     position: fixed;
@@ -79,7 +89,7 @@ body {
 }
 
  #main {  
-  margin-top:74px;  
+  margin-top:85px;  
   font-size: 80%;    
   width:75%;
   margin-left:auto;
@@ -94,18 +104,10 @@ body {
   position: relative;
   width:100%;
   background-color:white;    
-  height:450px;
+  height:563px;
   overflow:auto;  
   margin-top:35px;
   margin-bottom:25px;
-}
-
-#sidebar {            
-  width: 420px;
-  font-size: 12px;
-  position: fixed;
-  right: 20px;
-  top: 90px;    
 }
 
 .explanation {
@@ -173,30 +175,6 @@ a:active {
 
 .menu a {
   margin-right: 19px;
-}
-
-#render {
-	padding-top:2px;
-    margin-left:auto;
-	margin-right:auto;
-    z-index:5000;
-	margin-top:0px;  
-    text-align: center;
-    background-color:white;
-    font-size:11.5px;
-    background-color: #5c96bc;
-    color:white;
-}
-
-
-#render ul {
-    padding-left:1em;
-}
-#render ul li {
-    list-style-type:none;
-}
-#render h5 {
-    display:inline;
 }
 
 .otherLibraries {
@@ -277,10 +255,9 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
     position:absolute;    
     color:black;
     padding:0.5em;
-    width:5em; 
-    height:5em;
-    line-height: 5em; 
-    font-size:0.8em;
+    width:80px; 
+    height:80px;
+    line-height: 80px;     
     -webkit-transition: -webkit-box-shadow 0.15s ease-in;
     -moz-transition: -moz-box-shadow 0.15s ease-in;
     -o-transition: -o-box-shadow 0.15s ease-in;
@@ -301,11 +278,44 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
     font-family:helvetica;
 }
 
+.demo-links, .library-links {
+  position: fixed;
+  right: 0;
+  top: 44px;
+  font-size: 11px;
+  background-color: white;
+  opacity: 0.8;
+  padding-right: 10px;
+  padding-left: 5px;
+  text-transform: uppercase;
+}
+
+.demo-links div, .library-links a {
+  display:inline;
+  margin-right:7px;
+  margin-left:7px;
+}
+
+.demo-links i, .library-links i {
+  padding:4px;
+}
+
+.library-links {
+    right: 454px;
+    height: 19px;
+    line-height: 19px;
+}
+
+a.current-library {
+  color:#7AB02C ;
+}
+
 /** Z-INDEX **/
 
 ._jsPlumb_connector { z-index:18; }
 ._jsPlumb_endpoint { z-index:19; }
 ._jsPlumb_overlay { z-index:20; }
+/*
 ._jsPlumb_connector._jsPlumb_hover {
     z-index:21 !important;
 }
@@ -315,7 +325,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 ._jsPlumb_overlay._jsPlumb_hover {
     z-index:23 !important;
 }
-
+*/
 
 .aLabel {
   background-color:white; 

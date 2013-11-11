@@ -301,9 +301,9 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 }
 
 .library-links {
-  right: 342px;  
-  height: 19px;
-  line-height: 19px;
+    right: 454px;
+    height: 19px;
+    line-height: 19px;
 }
 
 a.current-library {

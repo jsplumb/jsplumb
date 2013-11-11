@@ -2179,9 +2179,15 @@
 						
 						if (_continue) {
 																	
-							// make a new Endpoint for the target												
+							// make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
+                            // is set.
 							var _el = jpcl.getElementObject(elInfo.el),
-								newEndpoint = _targetEndpoints[elid] || _currentInstance.addEndpoint(_el, p);
+								newEndpoint = _targetEndpoints[elid];
+
+                            // if no cached endpoint, or there was one but it has been cleaned up
+                            // (ie. detached), then create a new one.
+                            if (newEndpoint == null || newEndpoint._jsPlumb == null)
+                                newEndpoint = _currentInstance.addEndpoint(_el, p);
 
 							if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
 							// TODO test options to makeTarget to see if we should do this?
@@ -2358,23 +2364,8 @@
 							if (p.parent) {						
 								var parent = parentElement();
 								if (parent) {	
-									var currentId = ep.elementId,
-										potentialParent = p.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;			
-																	
+									var potentialParent = p.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 									ep.setElement(parent, potentialParent);
-									ep.endpointWillMoveAfterConnection = false;														
-									//_currentInstance.anchorManager.rehomeEndpoint(ep, currentId, parent);																					
-									oldConnection.previousConnection = null;
-									// remove from connectionsByScope
-									jsPlumbUtil.removeWithFunction(connections, function(c) {
-										return c.id === oldConnection.id;
-									});										
-									_currentInstance.anchorManager.connectionDetached({
-										sourceId:oldConnection.sourceId,
-										targetId:oldConnection.targetId,
-										connection:oldConnection
-									});											
-									_finaliseConnection(oldConnection);					
 								}
 							}						
 							

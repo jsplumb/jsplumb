@@ -5,10 +5,16 @@
 	105 - Blank endpoint cleanup fails
 	116 - Assign anchors wont connect
 	117 - Assign anchors fail on source
+	127 - Docs on making elements draggable should note required CSS
+	128 - expose original event on connectionDragStop callback
 
 	NEW FUNCTIONALITY
 
 	- "Assign" anchors now work with the makeSource method.
+
+	MISCELLANEOUS
+
+	- fixed an issue causing SVG gradients to fail when a BASE tag is present in the document.
 
 * 1.5.3
 
