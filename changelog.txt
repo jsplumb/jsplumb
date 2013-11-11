@@ -7,6 +7,7 @@
 	117 - Assign anchors fail on source
 	127 - Docs on making elements draggable should note required CSS
 	128 - expose original event on connectionDragStop callback
+	129 - connection event fired twice by makeTarget with parent option.
 
 	NEW FUNCTIONALITY
 
