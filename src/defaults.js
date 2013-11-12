@@ -1073,8 +1073,7 @@
         this.isAppendedAtTopLevel = true;
 		this.component = params.component;
 		this.loc = params.location == null ? 0.5 : params.location;
-        this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;
-		//this.;
+        this.endpointLoc = params.endpointLocation == null ? [ 0.5, 0.5] : params.endpointLocation;		
 	};
     AbstractOverlay.prototype = {
         cleanup:function() {  
@@ -1090,8 +1089,7 @@
         },
         isVisible : function() { return this.visible; },
         hide : function() { this.setVisible(false); },
-        show : function() { this.setVisible(true); },
-        
+        show : function() { this.setVisible(true); },        
         incrementLocation : function(amount) {
             this.loc += amount;
             this.component.repaint();
@@ -1102,12 +1100,6 @@
         },
         getLocation : function() {
             return this.loc;
-        },
-        setAbsolutePosition : function(p) {
-            this.absolutePosition = p;
-        },
-        clearAbsolutePosition:function() {
-            this.absolutePosition = null;
         }
     };
 	
@@ -1294,14 +1286,14 @@
     		return this._jsPlumb.div;
     	};
 				
-		this.draw = function(component, currentConnectionPaintStyle) {
+		this.draw = function(component, currentConnectionPaintStyle, absolutePosition) {
 	    	var td = _getDimensions(this);
 	    	if (td != null && td.length == 2) {
-				var cxy = {x:0,y:0};
+				var cxy = { x:0,y:0 };
 
-                if (this.absolutePosition) {
-                    cxy.left = this.absolutePosition.left + (td[0] / 2);
-                    cxy.top = this.absolutePosition.top + (td[1] / 2);
+                // absolutePosition would have been set by a call to connection.setAbsoluteOverlayPosition.
+                if (absolutePosition) {
+                    cxy = { x:absolutePosition[0], y:absolutePosition[1] };
                 }
                 else if (component.pointOnPath) {
                     var loc = this.loc, absolute = false;
