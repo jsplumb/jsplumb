@@ -2,19 +2,22 @@
 <html>
     <head>
         
-        <title>jsPlumb 1.5.4 demo - jQuery</title>
-        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-        <link rel="stylesheet" href="../demo-all.css">
-        <link rel="stylesheet" href="demo.css">
+        <title>jsPlumb 1.5.4 demo - yui</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />        
+        <base href="..">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="demo-all.css">     
+        <link rel="stylesheet" href="flowchart/demo.css">
     </head>
-    <body data-demo-id="flowchart" data-library="jquery">
+    <body data-demo-id="flowchart" data-library="yui">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo">jsPlumb</div>
                 <div class="menu">   
                     <a href="http://localhost:4567">DOCS</a>
-                    <a href="../../apidocs">API</a>
-                    <a href="../../tests/all-tests.html">TESTS</a>
+                    <a href="../apidocs">API</a>
+                    <a href="../tests/all-tests.html">TESTS</a>
                     <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
                     <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
                     <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
@@ -37,7 +40,7 @@
                 <p>Hover over connections to highlight them, click to delete. </p>
                 <p>Drag new connections from hollow dots to solid dots. You can also drag connections from their source/target to other sources/targets, or back onto themselves.</p>
                 <p>By default, Flowchart connectors have square corners, but by setting the 'cornerRadius' parameter, as we have here, you can get rounded corners.</p>       
-                <p>This demonstration uses jsPlumb 1.5.4, jQuery 1.9.0 and jQuery UI 1.9.2.For touch support, jQuery Touch Punch is used.</p>                         
+                <p>This demonstration uses YUI 3.3.0.</p>                         
             </div>
             <div class="demo flowchart-demo" id="flowchart-demo">
                 <div class="window" id="flowchartWindow1"><strong>1</strong><br/><br/></div>
@@ -48,56 +51,50 @@
             
         </div>
     
-        
-        <!-- DEP -->
-        <script src="../../lib/jquery-1.9.0.js"></script>
-        <script src="../../lib/jquery-ui-1.9.2-min.js"></script>
-        <script src="../../lib/jquery.ui.touch-punch.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-        <!-- /DEP -->
+        <script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
                 
         <!-- JS -->
         <!-- support lib for bezier stuff -->
-        <script src="../../lib/jsBezier-0.6.js"></script>     
+        <script src="../lib/jsBezier-0.6.js"></script>     
         <!-- jsplumb geom functions -->   
-        <script src="../../lib/jsplumb-geom-0.1.js"></script>
+        <script src="../lib/jsplumb-geom-0.1.js"></script>
         <!-- jsplumb util -->
-        <script src="../../src/util.js"></script>
+        <script src="../src/util.js"></script>
         <!-- base DOM adapter -->
-        <script src="../../src/dom-adapter.js"></script>        
+        <script src="../src/dom-adapter.js"></script>        
         <!-- main jsplumb engine -->
-        <script src="../../src/jsPlumb.js"></script>
+        <script src="../src/jsPlumb.js"></script>
         <!-- endpoint -->
-        <script src="../../src/endpoint.js"></script>                
+        <script src="../src/endpoint.js"></script>                
         <!-- connection -->
-        <script src="../../src/connection.js"></script>
+        <script src="../src/connection.js"></script>
         <!-- anchors -->
-        <script src="../../src/anchors.js"></script>        
+        <script src="../src/anchors.js"></script>        
         <!-- connectors, endpoint and overlays  -->
-        <script src="../../src/defaults.js"></script>
+        <script src="../src/defaults.js"></script>
         <!-- bezier connectors -->
-        <script src="../../src/connectors-bezier.js"></script>
+        <script src="../src/connectors-bezier.js"></script>
         <!-- state machine connectors -->
-        <script src="../../src/connectors-statemachine.js"></script>
+        <script src="../src/connectors-statemachine.js"></script>
         <!-- flowchart connectors -->
-        <script src="../../src/connectors-flowchart.js"></script>
-        <script src="../../src/connector-editors.js"></script>
+        <script src="../src/connectors-flowchart.js"></script>
+        <script src="../src/connector-editors.js"></script>
         <!-- SVG renderer -->
-        <script src="../../src/renderers-svg.js"></script>
+        <script src="../src/renderers-svg.js"></script>
         <!-- canvas renderer -->
-        <script src="../../src/renderers-canvas.js"></script>
+        <script src="../src/renderers-canvas.js"></script>
         <!-- vml renderer -->
-        <script src="../../src/renderers-vml.js"></script>
+        <script src="../src/renderers-vml.js"></script>
         
-        <!-- jquery jsPlumb adapter -->
-        <script src="../../src/jquery.jsPlumb.js"></script>
+        <!-- yui jsPlumb adapter -->
+        <script src="../src/yui.jsPlumb.js"></script>
         <!-- /JS -->
         
         <!--  demo code -->
-        <script src="demo.js"></script>
+        <script src="flowchart/demo.js"></script>    
 
         <!-- demo list -->
-        <script src="../demo-list.js"></script>
+        <script src="demo-list.js"></script>   
         
     </body>
 </html>

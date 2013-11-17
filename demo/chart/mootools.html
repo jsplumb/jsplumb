@@ -1,18 +1,20 @@
 <!doctype html>
 <html>
-    <head>        
-        <title>jsPlumb 1.5.4 demo - jQuery</title>
+    <head>
+        
+        <title>jsPlumb 1.5.4 demo - MooTools</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" href="../demo-all.css">
-		<link rel="stylesheet" href="demo.css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../demo-all.css">
+        <link rel="stylesheet" href="demo.css">
     </head>
-    <body data-demo-id="home" data-library="jquery">
+    <body data-demo-id="chart" data-library="mootools">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo">jsPlumb</div>
                 <div class="menu">   
-                    <a href="http://localhost:4567">DOCS</a>                    
+                    <a href="http://localhost:4567">DOCS</a>
                     <a href="../../apidocs">API</a>
                     <a href="../../tests/all-tests.html">TESTS</a>
                     <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
@@ -29,37 +31,33 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
-		
-        <div id="main">
 
+        <div id="main">			
+            
             <div class="explanation">
-                <h4>JSPLUMB</h4>
-                <p>jsPlumb provides a way to connect elements in a UI.</p>
-                <p>This page contains examples of the various types of connections you can make.</p>
-                <p>There are several other demonstrations that offer
-                a more focused look at some specific part of jsPlumb's functionality - pick one from the drop down or cycle through Next/Previous.
+                <h4>CHART</h4>
+                <p>This is a simple demonstration of using jsPlumb to display hierarchical information.</p>
+                <p>Connectors have a paintStyle of `gray` and specify an endpoint of radius 9.
+                Each connection has an Arrow overlay indicating direction, and paints itself orange on mouse hover.
                 </p>
-                <p>jsPlumb requires one of jQuery, MooTools or YUI3.  See the documentation for a more detailed discussion of requirements.</p>
-                <p>This demonstration uses jsPlumb 1.5.4, jQuery 1.9.0 and jQuery UI 1.9.2.For touch support, jQuery Touch Punch is used.</p>
-            </div> 
-			<div class="demo kitchensink-demo" id="kitchensink-demo">
-                <div class="component window" id="window1"><strong>Window 1</strong></div>
-                <div class="component window" id="window2"><strong>Window 2</strong></div>
-                <div class="component window" id="window3"><strong>Window 3</strong></div>
-                <div class="component window" id="window4"><strong>Window 4</strong></div>
-                <div class="component window" id="window5"><strong>Window 5</strong></div>
-                <div class="component window" id="window6"><strong>Window 6</strong></div>
-                <div class="component window" id="window7"><strong>Window 7</strong></div>                       
+                <p>The Bezier curve used in this demo has a 'curviness' of 50</p>
+                <p>This demonstration uses jsPlumb 1.5.4, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
             </div>
+            <div class="demo chart-demo" id="chart-demo">
+                <div class="window" id="chartWindow1">window one</div>
+                <div class="window" id="chartWindow2">window two</div>
+                <div class="window" id="chartWindow3">window three</div>
+                <div class="window" id="chartWindow4">window four</div>
+                <div class="window" id="chartWindow5">window five</div>
+                <div class="window" id="chartWindow6">window six</div>
+            </div>            
+            
         </div>
-		
-        
+	
         <!-- DEP -->
-	    <script src="../../lib/jquery-1.9.0.js"></script>
-		<script src="../../lib/jquery-ui-1.9.2-min.js"></script>
-        <script src="../../lib/jquery.ui.touch-punch.min.js"></script>
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-		<!-- /DEP -->
+        <script src="../../lib/mootools-1.3.2-yui-compressed.js"></script>
+        <!-- /DEP -->
+        <script src="../../lib/mootools-1.3.2.1-more.js"></script>        
 				
 		<!-- JS -->
 		<!-- support lib for bezier stuff -->
@@ -86,23 +84,21 @@
 		<script src="../../src/connectors-statemachine.js"></script>
         <!-- flowchart connectors -->
 		<script src="../../src/connectors-flowchart.js"></script>
+        <script src="../../src/connector-editors.js"></script>
 		<!-- SVG renderer -->
 		<script src="../../src/renderers-svg.js"></script>
 		<!-- canvas renderer -->
 		<script src="../../src/renderers-canvas.js"></script>
 		<!-- vml renderer -->
 		<script src="../../src/renderers-vml.js"></script>
-
-        <script src="../../src/connector-editors.js"></script>
         
-        <!-- jquery jsPlumb adapter -->
-		<script src="../../src/jquery.jsPlumb.js"></script>
+        <!-- mootools jsPlumb adapter -->
+		<script src="../../src/mootools.jsPlumb.js"></script>
 		<!-- /JS -->
 		
 		<!--  demo code -->
 		<script src="demo.js"></script>
-		
-		<!--  demo list and helper code. you don't need this stuff if you're just copying the single demo. -->
+
         <script src="../demo-list.js"></script>
         
     </body>

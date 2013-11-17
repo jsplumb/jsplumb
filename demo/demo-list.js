@@ -29,28 +29,28 @@
 			var idx = jsPlumbUtil.findWithFunction(list, function(i) { return i[0] == current; }),
 				prev = idx == 0 ? list.length - 1 : idx - 1,
 				next = idx == list.length - 1 ? 0 : idx + 1,
-				_d = function(t, c, p, h, a, atStart) {
-					var d = document.createElement(t);
-					d.className = c;
-					if (p) {
-						if (atStart && p.childNodes.length > 0)
-							p.insertBefore(d, p.firstChild);
+				_d = function(tag, clazz, parent, html, atts, atStart) {
+					var d = document.createElement(tag);
+					d.className = clazz;
+					if (parent) {
+						if (atStart && parent.childNodes.length > 0)
+							parent.insertBefore(d, parent.firstChild);
 						else
-							p.appendChild(d);
+							parent.appendChild(d);
 					}
-					if (h) d.innerHTML = h;
-					if (a) {
-						for (var i in a)
-							d.setAttribute(i, a[i]);
+					if (html) d.innerHTML = html;
+					if (atts) {
+						for (var i in atts)
+							d.setAttribute(i, atts[i]);
 					}
 					return d;
 				};
 
 			// next/previous links
 			var d = _d("div",  "demo-links", document.body),
-				dp = _d("div",  "", d, "<a href='" + list[prev][0] + "/" + library + ".html'>" + list[prev][1] + "<i class='fa fa-arrow-left'></i></a>"),
+				dp = _d("div",  "", d, "<a href='../" + list[prev][0] + "/" + library + ".html'>" + list[prev][1] + "<i class='fa fa-arrow-left'></i></a>"),
 				dc = _d("div",  "", d, list[idx][1]),
-				dn = _d("div",  "", d, "<a href='" + list[next][0] + "/" + library + ".html'><i class='fa fa-arrow-right'></i>" + list[next][1] + "</a>");
+				dn = _d("div",  "", d, "<a href='../" + list[next][0] + "/" + library + ".html'><i class='fa fa-arrow-right'></i>" + list[next][1] + "</a>");
 
 			if (typeof jQuery != "undefined") {
 				// dropdown menu
@@ -68,6 +68,14 @@
 			}
 			else {
 				// make a drop down.
+				var m = document.getElementsByClassName("menu")[0],
+					sel = _d("select", "", m, null, null, true);
+				for (var i = 0; i < list.length; i++) {
+					_d("option", "", sel, list[i][1], {"data-href":list[i][0] +"/" + library + ".html", "selected":list[i][0] == current}, null);
+				}
+				jsPlumb.CurrentLibrary.bind(sel, "change", function() {
+					document.location = sel.options[sel.selectedIndex].getAttribute("data-href");					
+				});
 			}
 
 			// library links
