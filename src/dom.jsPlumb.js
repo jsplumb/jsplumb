@@ -59,6 +59,18 @@
 (function($) {	
 	
 	//var getBoundingClientRectSupported = "getBoundingClientRect" in document.documentElement;
+
+    /*
+
+    METHODS TO USE/INVESTIGATE:
+
+        getBoundingClientRect
+        element.matches(...)
+        document.querySelector/querySelectorAll
+        element.classList (has add and remove methods)
+
+     */
+
     
     var _setClassName = function(el, val) {        
             if (el.className.baseVal) 
