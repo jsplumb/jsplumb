@@ -177,7 +177,7 @@
 		bind : function(el, event, callback) {
 			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
 			for (var i = 0; i < els.length; i++)
-				els[i].on(event, callback);
+				Y.one(els[i]).on(event, callback);
 		},
 
 		destroyDraggable : function(el) {
