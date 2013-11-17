@@ -1,15 +1,16 @@
 <!doctype html>
 <html>
-    <head>        
+    <head>
+        
         <title>jsPlumb 1.5.4 demo - MooTools</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
-		<base href="..">
+        <base href="..">
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
 		<link rel="stylesheet" href="demo-all.css">		
-        <link rel="stylesheet" href="statemachine/demo.css">
+        <link rel="stylesheet" href="perimeterAnchors/demo.css">
     </head>
-    <body data-demo-id="statemachine" data-library="mootools">
+    <body data-demo-id="perimeterAnchors" data-library="mootools">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo">jsPlumb</div>
@@ -31,36 +32,34 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
+
         <div id="main">			
-           
+            
             <div class="explanation">
-                <h4>STATE MACHINE</h4>
-                <p>Nodes are connected with the StateMachine connector.</p>
-                <p>Endpoints are located with 'Continuous' anchors, which are anchors whose location is calculated based on the location of all other connected elements, and which guarantee a unique endpoint per connection.
-                </p>                                
-                <p>Click and drag new Connections from the orange div in each element; the main elements in the UI are configured to be Connection targets. You can drag from one of these divs onto its parent element to create a 'loopback' connection. Each element supports up to 5 Connections.</p>
-                <p>Click on a Connection to delete it.</p>
+                <h4>PERIMETER ANCHORS</h4>
+                <p>These are anchors that track the perimeter of some shape.</p>     
                 <p>This demonstration uses jsPlumb 1.5.4, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>
-            </div>  
-            <div class="demo statemachine-demo" id="statemachine-demo">
-                <div class="w" id="opened">BEGIN<div class="ep"></div></div>
-                <div class="w" id="phone1">PHONE INTERVIEW 1<div class="ep"></div></div>
-                <div class="w" id="phone2">PHONE INTERVIEW 2<div class="ep"></div></div>
-                <div class="w" id="inperson">IN PERSON<div class="ep"></div></div>
-                <div class="w" id="rejected">REJECTED<div class="ep"></div></div>                           
             </div>
+            <div class="demo perimeter-demo" id="perimeter-demo">
+                <div class="shape" data-shape="Rectangle">Rectangle</div>
+                <div class="shape" data-shape="Ellipse">Ellipse</div>
+                <div class="shape" data-shape="Circle">Circle</div>
+                <div class="shape" data-shape="Diamond">Diamond</div>
+                <div class="shape" data-shape="Triangle" style="left:700px;top:380px;">Triangle</div>
+                <div class="shape _90" data-shape="Triangle" data-rotation="90" style="left:60px;top:500px;">90&#176; rotation</div>                  
+            </div>  
             
         </div>
-	
-        
+	        
         <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>
-	    <script src="../lib/mootools-1.3.2.1-more.js"></script>        
+        <script src="../lib/mootools-1.3.2.1-more.js"></script>        
 				
 		<script type='text/javascript' src='../js/mootools.jsPlumb-1.5.4-min.js'></script>
 		
 		<!--  demo code -->
-		<script src="statemachine/demo-mootools.js"></script>                
+		<script src="perimeterAnchors/demo.js"></script>
 
-		<script src="demo-list.js"></script>
+        <script src="demo-list.js"></script>
+        
     </body>
 </html>

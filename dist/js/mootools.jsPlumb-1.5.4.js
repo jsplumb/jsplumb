@@ -5775,6 +5775,7 @@
                         sE = this.endpoints[sIdx], tE = this.endpoints[tIdx];
 
                     if (params.clearEdits) {
+                        this._jsPlumb.overlayPositions = null;
                         sE.anchor.clearUserDefinedLocation();
                         tE.anchor.clearUserDefinedLocation();
                         this.connector.setEdited(false);
@@ -8208,16 +8209,9 @@
 		this.draw = function(component, currentConnectionPaintStyle, absolutePosition) {
 	    	var td = _getDimensions(this);
 	    	if (td != null && td.length == 2) {
-				var cxy = {x:0,y:0};
+				var cxy = { x:0,y:0 };
 
-               /* if (this.absolutePosition) {
-                    cxy.left = this.absolutePosition.left + (td[0] / 2);
-                    cxy.top = this.absolutePosition.top + (td[1] / 2);
-                }
-                else */
-
-// TODO HERE we want to test if the compnent wants to place us somewhere (which would have been set via setOverlayPosition on OverlayCapable component)
-
+                // absolutePosition would have been set by a call to connection.setAbsoluteOverlayPosition.
                 if (absolutePosition) {
                     cxy = { x:absolutePosition[0], y:absolutePosition[1] };
                 }
