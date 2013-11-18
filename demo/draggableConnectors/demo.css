@@ -8,12 +8,16 @@
 .drag-drop-demo .window {  
     font-family:serif;
     font-style:italic;
-    padding-top:14px; 
-    line-height:10px;    
+    padding-top:5px; 
+    line-height:13px;    
 }
 
 .drag-drop-demo a, .drag-drop-demo a:visited {
     color:#057D9F;
+}
+
+.drag-drop-demo a:hover {
+    color:orange;
 }
 
 /** LINKS IN WINDOWS **/

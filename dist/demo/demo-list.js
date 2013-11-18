@@ -49,7 +49,7 @@
 			// next/previous links
 			var d = _d("div",  "demo-links", document.body),
 				dp = _d("div",  "", d, "<a href='../" + list[prev][0] + "/" + library + ".html'>" + list[prev][1] + "<i class='fa fa-arrow-left'></i></a>"),
-				dc = _d("div",  "", d, list[idx][1]),
+				dc = _d("div",  "current-library", d, list[idx][1]),
 				dn = _d("div",  "", d, "<a href='../" + list[next][0] + "/" + library + ".html'><i class='fa fa-arrow-right'></i>" + list[next][1] + "</a>");
 
 			if (typeof jQuery != "undefined") {
@@ -61,7 +61,7 @@
 
 				for (var i = 0; i < list.length; i++) {
 					var li = _d("li", "", ul, null, {role:"presentation"}),
-						aa = _d("a", "", li, list[i][1], { role:"menuitem", tabindex:"-1", href:list[i][0] +"/" + library + ".html"});
+						aa = _d("a", "", li, list[i][1], { role:"menuitem", tabindex:"-1", href:"../" + list[i][0] +"/" + library + ".html"});
 				}
 
 				$(a).dropdown();
@@ -71,7 +71,7 @@
 				var m = document.getElementsByClassName("menu")[0],
 					sel = _d("select", "", m, null, null, true);
 				for (var i = 0; i < list.length; i++) {
-					_d("option", "", sel, list[i][1], {"data-href":list[i][0] +"/" + library + ".html", "selected":list[i][0] == current}, null);
+					_d("option", "", sel, list[i][1], {"data-href":"../" + list[i][0] +"/" + library + ".html", "selected":list[i][0] == current}, null);
 				}
 				jsPlumb.CurrentLibrary.bind(sel, "change", function() {
 					document.location = sel.options[sel.selectedIndex].getAttribute("data-href");					
@@ -83,7 +83,7 @@
 				ld = _d("div", "library-links", document.body);
 
 			for (var i = 0; i <libs.length; i++) {
-				_d("a", libs[i][0] == library ? "current-library" : "", ld, libs[i][1], {href:current + "/" + libs[i][0] + ".html"});
+				_d("a", libs[i][0] == library ? "current-library" : "", ld, libs[i][1], {href:"../" + current + "/" + libs[i][0] + ".html"});
 			}
 
 

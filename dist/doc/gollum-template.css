@@ -40,6 +40,7 @@ a[name]:before {
   font-size: 85%;
   text-align: left;
   width: 90%;
+  max-width: none;
 }
 nav {
   padding-bottom: 10px;
@@ -80,7 +81,7 @@ nav h2 {
 }
 
 .apidoc-main {
-  margin-left: 255px;  
+  margin-left: 255px !important;  
   height: auto;
   width: auto;
   background-color: white;
@@ -142,7 +143,7 @@ img {
   border: 0;
 }
 
-a {
+a, a:visited {
   color: #4183C4;
   text-decoration: none;
   padding:0.3em;

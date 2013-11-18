@@ -139,7 +139,7 @@ module.exports = function(grunt) {
                     },
                     {
                         search:"<a href=\"http://localhost:4567\">",
-                        replace:"<a href=\"../doc/\">",
+                        replace:"<a href=\"../../doc/\">",
                         flags:"gm"
                     }
                 ]
@@ -232,6 +232,15 @@ module.exports = function(grunt) {
                         expand:true,
                         src:"../jsPlumb.wiki/*.md",
                         dest:"TEMPOUT/"
+                    }
+                ]
+            },
+            logo:{
+                files:[
+                    {
+                        expand:false,
+                        src:"./logo-bw.png",
+                        dest:"dist/logo-bw.png"
                     }
                 ]
             }
@@ -352,7 +361,7 @@ module.exports = function(grunt) {
     */
 
 
-    grunt.registerTask('build', [/*'qunit', */'prepare', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
+    grunt.registerTask('build', [/*'qunit', */'prepare', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 

@@ -538,7 +538,7 @@
 					var o = this._jsPlumb.overlays[idx];
 					if (o.cleanup) o.cleanup();
 					this._jsPlumb.overlays.splice(idx, 1);
-					delete this._jsPlumb.overlayPositions[overlayId];
+					this._jsPlumb.overlayPositions && delete this._jsPlumb.overlayPositions[overlayId];
 				}
 			},
 			removeOverlays : function() {

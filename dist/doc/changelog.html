@@ -9,7 +9,7 @@
 	<body>
 		<div id="headerWrapper">
 			<div id="header">
-				<div class="logo">jsPlumb</div>
+				<div class="logo"><img src="../../logo-bw.png"></div>
 				<div class="menu">
 					<a href="home">DOCS</a>
 					<a href="../demo/">DEMOS</a>
@@ -103,10 +103,18 @@
 <li><strong>105</strong> - Blank endpoint cleanup fails</li>
 <li><strong>116</strong> - Assign anchors wont connect</li>
 <li><strong>117</strong> - Assign anchors fail on source</li>
+<li><strong>127</strong> - Docs on making elements draggable should note required CSS</li>
+<li><strong>128</strong> - expose original event on <code>connectionDragStop</code> callback</li>
+<li><strong>129</strong> - connection event fired twice by makeTarget with parent option.</li>
 </ul>
 <h4>New Functionality</h4>
 <ul>
-<li><code>&quot;Assign&quot;</code> anchors now work with the makeSource method.</li>
+<li><code>&quot;Assign&quot;</code> anchors now work with the <code>makeSource</code> method.</li>
+<li>The <code>connectionDragStop</code> event now supplies the original event as the second argument to the callback function.</li>
+</ul>
+<h4>Miscellaneous</h4>
+<ul>
+<li>fixed an issue causing SVG gradients to fail when a BASE tag is present in the document.</li>
 </ul>
 <h2>1.5.3</h2>
 <h3>Changes between 1.5.2 and 1.5.3</h3>
