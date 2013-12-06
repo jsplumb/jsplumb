@@ -99,7 +99,7 @@
 				<h2>jsPlumb</h2>
 <p>jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG in modern browsers, and VML on IE 8 and below. </p>
 <p>jsPlumb can be used with jQuery, MooTools or YUI3 (or another library of your choice if you feel like implementing an adapter for it).</p>
-<p>The latest version is 1.5.4.</p>
+<p>The latest version is 1.5.5.</p>
 <h2>Required Imports and Basic Setup</h2>
 <p>I strongly encourage you to read this entire page. There are a few things you need to know about integrating jsPlumb with your UI.</p>
 <ol>
@@ -319,7 +319,7 @@ jsPlumb.connect({ source:someDiv, target:someOtherDiv });</code></pre>
 });</code></pre>
 <h5>jQuery and the &#39;revert&#39; option</h5>
 <p>jQuery offers a <code>revert</code> option that you can use to instruct it to revert a drag under some condition. This is rendered in the UI as an animation that returns the drag object from its current location to wherever it started out. It&#39;s a nice feature.</p>
-<p>Unfortunately, the animation that runs the revert does not offer any lifecycle callback methods - no &#39;step&#39;, no &#39;complete&#39;, etc - so its not possible for jsPlumb to know that the revert animation is taking place, meaning jsPlumb &quot;doesn&#39;t work&quot;, as it were, with the revert option.</p>
+<p>Unfortunately, the animation that runs the revert does not offer any lifecycle callback methods - no &quot;<code>step</code>&quot;, no &quot;<code>complete</code>&quot;, etc - so it&#39;s not possible for jsPlumb to know that the revert animation is taking place, meaning jsPlumb &quot;doesn&#39;t work&quot;, as it were, with the revert option.</p>
 <h6>YUI</h6>
 <p>Drag containment is also supported if you are using YUI - for this you can supply either a <code>constrain2Node</code> parameter (this is YUI&#39;s parameter name), or <code>containment</code>, as with jQuery, and jsPlumb will convert it:</p>
 <pre><code class="lang-javascript">jsPlumb.draggable($(&quot;someSelector&quot;), {
