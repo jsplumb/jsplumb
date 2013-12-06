@@ -655,6 +655,7 @@
 * @name jsPlumbInstance#repaintEverything 
 * @desc Repaints all connections and endpoints.
 * @function
+* @param {Boolean} [clearEdits=false] If true, clear all edits made since last paint (anchors having moved, conenctions edited, absolute overlay positions etc)
 * @returns {jsPlumbInstance} The current jsPlumb instance.
 * @see jsPlumbInstance#repaint
 */

@@ -1,3 +1,10 @@
+* 1.5.5
+
+	ISSUES
+
+	138 - allow for connection type to be derived from connection params AND endpoint params.
+
+
 * 1.5.4
 
 	ISSUES

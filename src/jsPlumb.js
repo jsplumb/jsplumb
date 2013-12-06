@@ -2600,14 +2600,14 @@
 		};
 
 		// repaint every endpoint and connection.
-		this.repaintEverything = function() {	
+		this.repaintEverything = function(clearEdits) {	
 			// TODO this timestamp causes continuous anchors to not repaint properly.
 			// fix this. do not just take out the timestamp. it runs a lot faster with 
 			// the timestamp included.
 			//var timestamp = null;
 			var timestamp = _timestamp();
 			for ( var elId in endpointsByElement) {
-				_draw(elId, null, timestamp);				
+				_draw(elId, null, timestamp, clearEdits);				
 			}
 			return _currentInstance;
 		};

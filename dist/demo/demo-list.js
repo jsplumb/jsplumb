@@ -54,7 +54,7 @@
 
 			if (typeof jQuery != "undefined") {
 				// dropdown menu
-				var m = document.getElementsByClassName("menu")[0],
+				var m = document.querySelectorAll(".menu")[0],
 					dd = _d("div", "dropdown", m, null, null, true),
 					a = _d("a", "", dd, "DEMOS", {href:"#", "data-toggle":"dropdown"}),
 					ul = _d("ul", "dropdown-menu", dd, null, { role:"menu" });

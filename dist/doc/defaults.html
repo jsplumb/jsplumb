@@ -99,7 +99,7 @@
 				<h2>Configuring Defaults</h2>
 <p>The easiest way to set a look and feel for your plumbing is to override the defaults that jsPlumb uses. If you do not do this you are forced to provide your overridden values on every call.  Every argument to the <code>connect</code> and <code>addEndpoint</code> methods has an associated default value in jsPlumb.</p>
 <p>The defaults that ship with jsPlumb are stored in <code>jsPlumb.Defaults</code>, which is a Javascript object.  Valid entries, and their initial values, are:</p>
-<pre><code>Anchor : &quot;BottomCenter&quot;,
+<pre><code class="lang-javascript">Anchor : &quot;BottomCenter&quot;,
 Anchors : [ null, null ],
 ConnectionsDetachable   : true,
 ConnectionOverlays  : [],
@@ -124,14 +124,14 @@ PaintStyle : { lineWidth : 8, strokeStyle : &quot;#456&quot; },
 ReattachConnections : false,
 RenderMode : &quot;svg&quot;,
 Scope : &quot;jsPlumb_DefaultScope&quot;</code></pre>
-<p>Note that in EndpointHoverStyle, the default <code>fillStyle</code> is <strong>null</strong>.  This instructs jsPlumb to use the <code>strokeStyle</code> from the attached Connector&#39;s hover style to fill the Endpoint.</p>
+<p>Note that in <code>EndpointHoverStyle</code>, the default <code>fillStyle</code> is <strong>null</strong>.  This instructs jsPlumb to use the <code>strokeStyle</code> from the attached Connector&#39;s hover style to fill the Endpoint.</p>
 <p>Note also that you can specify either or both (or neither) of <code>EndpointStyle</code> and <code>EndpointStyles</code>.  This allows you to specify a different
 style for each Endpoint in a Connection.  <code>Endpoint</code> and <code>Endpoints</code> use the same concept.  jsPlumb will look first in the
 individual <code>Endpoint</code>/<code>EndpointStyle</code> arrays, and then fall back to the single default version.</p>
 <p>You can override these defaults by including this in a script somewhere:</p>
-<pre><code>jsPlumb.Defaults.PaintStyle = {
-    lineWidth:13,
-    strokeStyle: &#39;rgba(200,0,0,0.5)&#39;
+<pre><code class="lang-javascript">jsPlumb.Defaults.PaintStyle = {
+  lineWidth:13,
+  strokeStyle: &#39;rgba(200,0,0,0.5)&#39;
 }
 
 jsPlumb.Defaults.DragOptions = { cursor: &quot;crosshair&quot; };
@@ -200,25 +200,31 @@ jsPlumb.Defaults.EndpointStyles = [{ fillStyle:&quot;#225588&quot; }, { fillStyl
 </ul>
 <h4>jsPlumb.importDefaults</h4>
 <p>There is a helper method called <code>importDefaults</code> that allows you to import a set of values with just one call to jsPlumb.  Here&#39;s the previous example using <code>importDefaults</code>:</p>
-<pre><code>jsPlumb.importDefaults({
-    PaintStyle : {
-        lineWidth:13,
-        strokeStyle: &#39;rgba(200,0,0,100)&#39;
-    },
-    DragOptions : { cursor: &quot;crosshair&quot; },
-    Endpoints : [ [ &quot;Dot&quot;, 7 ], [ &quot;Dot&quot;, 11 ] ],
-    EndpointStyles : [{ fillStyle:&quot;#225588&quot; }, { fillStyle:&quot;#558822&quot; }]
+<pre><code class="lang-javascript">jsPlumb.importDefaults({
+  PaintStyle : {
+    lineWidth:13,
+    strokeStyle: &#39;rgba(200,0,0,100)&#39;
+  },
+  DragOptions : { cursor: &quot;crosshair&quot; },
+  Endpoints : [ [ &quot;Dot&quot;, 7 ], [ &quot;Dot&quot;, 11 ] ],
+  EndpointStyles : [
+    { fillStyle:&quot;#225588&quot; }, 
+    { fillStyle:&quot;#558822&quot; }
+  ]
 });</code></pre>
 <h4>Providing defaults to jsPlumb.getInstance</h4>
 <p>When you create a new instance of jsPlumb via <code>jsPlumb.getInstance</code> you can provide defaults for that instance as a constructor parameter - here&#39;s how we&#39;d create a new instance using the same default values as the example above:</p>
-<pre><code>jsPlumb.getInstance({
-    PaintStyle : {
-        lineWidth:13,
-        strokeStyle: &#39;rgba(200,0,0,100)&#39;
-    },
-    DragOptions : { cursor: &quot;crosshair&quot; },
-    Endpoints : [ [ &quot;Dot&quot;, 7 ], [ &quot;Dot&quot;, 11 ] ],
-    EndpointStyles : [{ fillStyle:&quot;#225588&quot; }, { fillStyle:&quot;#558822&quot; }]
+<pre><code class="lang-javascript">jsPlumb.getInstance({
+  PaintStyle : {
+    lineWidth:13,
+    strokeStyle: &#39;rgba(200,0,0,100)&#39;
+  },
+  DragOptions : { cursor: &quot;crosshair&quot; },
+  Endpoints : [ [ &quot;Dot&quot;, 7 ], [ &quot;Dot&quot;, 11 ] ],
+  EndpointStyles : [
+    { fillStyle:&quot;#225588&quot; }, 
+    { fillStyle:&quot;#558822&quot; }
+  ]
 });</code></pre>
 
 				<!-- /BODY -->

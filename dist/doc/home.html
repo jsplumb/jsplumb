@@ -131,12 +131,12 @@
 <h3>Doctype</h3>
 <h6>text/html</h6>
 <p>If you&#39;re serving your pages with content type <code>text/html</code>, as most people are, then you should use this doctype:</p>
-<pre><code>&lt;!doctype html&gt;</code></pre>
+<pre><code class="lang-html">&lt;!doctype html&gt;</code></pre>
 <p>This gives you Standards mode in all browsers and access to HTML5.</p>
 <h6>application/xhtml+xml</h6>
 <p>If you&#39;re serving <code>application/xhtml+xml</code> then you need to include the VML namespace in the <code>html</code> element:</p>
-<pre><code class="lang-xml">    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-    &lt;html xmlns=&#39;http://www.w3.org/1999/xhtml&#39; xmlns:v=&quot;urn:schemas-microsoft-com:vml&quot;&gt;</code></pre>
+<pre><code class="lang-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+  &lt;html xmlns=&#39;http://www.w3.org/1999/xhtml&#39; xmlns:v=&quot;urn:schemas-microsoft-com:vml&quot;&gt;</code></pre>
 <p>Don&#39;t forget that in IE&lt;9, XHTML is not supported.  </p>
 <p><a name="imports"></a></p>
 <h3>Required Imports</h3>
@@ -145,11 +145,9 @@
 <li>jQuery 1.3.x or higher. jsPlumb has been tested with everything up to 2.x. Remember that jQuery 2.x does not support IE&lt;9.</li>
 <li>jQuery UI 1.7.x or higher (if you wish to support drag and drop). Always remember to check that the versions of jQuery and jQuery UI you are using are compatible.</li>
 </ul>
-<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/jquery.jsPlumb-1.5.3-min.js "&gt;&lt;/script&gt;
-</pre>          
-
+<pre><code class="lang-html">&lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;PATH_TO/jquery.jsPlumb-1.5.4-min.js &quot;&gt;&lt;/script&gt;</code></pre>
 <h6>Touch Events</h6>
 <p>There is a neat plugin you can use for this - <a href="http://touchpunch.furf.com/">jQuery UI Touch Punch</a>.  You need to include it in your page after both jQuery and jQueryUI.</p>
 <h5>MooTools</h5>
@@ -157,30 +155,26 @@
 <li>MooTools Core 1.2.4 or higher. jsPlumb has been tested with 1.2.4 and 1.3.3.</li>
 <li>Drag.Move from MooTools More 1.2.4.4 or higher (if you wish to support drag and drop).</li>
 </ul>
-<pre>&lt;script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.3.3/mootools-yui-compressed.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO_MOO_TOOLS_MORE_1_3_2_1"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/mootools.jsPlumb-1.5.3-min.js "&gt;&lt;/script&gt;
-</pre>
-
+<pre><code class="lang-html">&lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/mootools/1.3.3/mootools-yui-compressed.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;PATH_TO_MOO_TOOLS_MORE_1_3_2_1&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;PATH_TO/mootools.jsPlumb-1.5.3-min.js &quot;&gt;&lt;/script&gt;</code></pre>
 <h6>Touch Events</h6>
 <p>There is currently no solution to enable touch events with MooTools and jsPlumb. At least, none that I know of right now.  Maybe The Google can help you with this.</p>
 <h5>YUI3</h5>
 <ul>
 <li>YUI 3.3.x.  jsPlumb has been tested on 3.3.0 only; it is possible other 3.x.x versions will work.</li>
 </ul>
-<pre>&lt;script type="text/javascript" src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="PATH_TO/yui.jsPlumb-1.5.3-min.js "&gt;&lt;/script&gt;
-</pre>
-
+<pre><code class="lang-html">&lt;script src=&quot;http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;PATH_TO/yui.jsPlumb-1.5.3-min.js &quot;&gt;&lt;/script&gt;</code></pre>
 <h6>Touch Events</h6>
 <p>YUI supports touch events out of the box.</p>
 <p><a name="initializing"></a></p>
 <h3>Initializing jsPlumb</h3>
 <p>You should not start making calls to jsPlumb until the DOM has been initialized - perhaps no surprises there.  To handle this, you should bind to the <code>ready</code> event on jsPlumb (or the instance of jsPlumb you are working with):            </p>
 <pre><code class="lang-javascript">jsPlumb.bind(&quot;ready&quot;, function() {
-  ...            
+  ...              
   // your jsPlumb related init code goes here
-  ...
+  ...  
 });</code></pre>
 <p>There&#39;s a helper method that can save you a few precious characters:</p>
 <pre><code class="lang-javascript">jsPlumb.ready(function() {
@@ -323,6 +317,9 @@ jsPlumb.connect({ source:someDiv, target:someOtherDiv });</code></pre>
 <pre><code class="lang-javascript">jsPlumb.draggable($(&quot;someSelector&quot;), {
   containment:&quot;parent&quot;
 });</code></pre>
+<h5>jQuery and the &#39;revert&#39; option</h5>
+<p>jQuery offers a <code>revert</code> option that you can use to instruct it to revert a drag under some condition. This is rendered in the UI as an animation that returns the drag object from its current location to wherever it started out. It&#39;s a nice feature.</p>
+<p>Unfortunately, the animation that runs the revert does not offer any lifecycle callback methods - no &#39;step&#39;, no &#39;complete&#39;, etc - so its not possible for jsPlumb to know that the revert animation is taking place, meaning jsPlumb &quot;doesn&#39;t work&quot;, as it were, with the revert option.</p>
 <h6>YUI</h6>
 <p>Drag containment is also supported if you are using YUI - for this you can supply either a <code>constrain2Node</code> parameter (this is YUI&#39;s parameter name), or <code>containment</code>, as with jQuery, and jsPlumb will convert it:</p>
 <pre><code class="lang-javascript">jsPlumb.draggable($(&quot;someSelector&quot;), {
