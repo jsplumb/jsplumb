@@ -3949,14 +3949,14 @@
 		};
 
 		// repaint every endpoint and connection.
-		this.repaintEverything = function() {	
+		this.repaintEverything = function(clearEdits) {	
 			// TODO this timestamp causes continuous anchors to not repaint properly.
 			// fix this. do not just take out the timestamp. it runs a lot faster with 
 			// the timestamp included.
 			//var timestamp = null;
 			var timestamp = _timestamp();
 			for ( var elId in endpointsByElement) {
-				_draw(elId, null, timestamp);				
+				_draw(elId, null, timestamp, clearEdits);				
 			}
 			return _currentInstance;
 		};
@@ -5572,11 +5572,12 @@
 // END PARAMETERS
 
 // PAINTING
-                                    
-        // the very last thing we do is check to see if a 'type' was supplied in the params
-        var _type = params.type || this.endpoints[0].connectionType || this.endpoints[1].connectionType;
-        if (_type)
-            this.addType(_type, params.data, true);        
+                  
+        // the very last thing we do is apply types, if there are any.
+        var _types = [params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
+        if (/[a-zA-Z]/.test(_types))
+            this.addType(_types, params.data, true);        
+
         
 // END PAINTING    
     };
