@@ -43,7 +43,7 @@ var JS_BEZIER = "0.6", // current js bezier version
         jquery:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script type='text/javascript' src='../../lib/jquery.ui.touch-punch.min.js'></script>",
         mootools:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>",
         yui:""
-    }
+    },
     version = "1.5.0",
     objects = {
         connectors : [
@@ -61,10 +61,10 @@ var JS_BEZIER = "0.6", // current js bezier version
     },
     getOutputFilename = function(grunt, lib, suffix) {
         var suffix2 = grunt.option('outputSuffix') ? ('-' + grunt.option("outputSuffix")) : '';
-        return 'dist/js/' + lib + '.jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js'
+        return 'dist/js/' + lib + '.jsPlumb' + suffix2 + '-<%= pkg.version%>' + suffix + '.js';
     },
     filter = function(l, v, t, o) {
-        if (l.length == 0 || l.indexOf(v) != -1)
+        if (l.length === 0 || l.indexOf(v) != -1)
             o.push("src/" + t + "-" + v + ".js");
     },
     getList = function(grunt, type) {
@@ -143,7 +143,7 @@ module.exports = function(grunt) {
                         flags:"gm"
                     }
                 ]
-            }
+            };
         });
 
         // change media wiki style links into standard markdown links
@@ -158,7 +158,7 @@ module.exports = function(grunt) {
                     flags:"gm"
                 }
             ]
-        }
+        };
 
         return o;
     };
@@ -171,7 +171,7 @@ module.exports = function(grunt) {
         return function() {
             var idx = arguments[1].lastIndexOf("/"), _idx = idx < 0 ? 0 : idx;
             return toDir + "/" + arguments[1].substring(_idx);
-        }
+        };
     };
 
     // Project configuration.
@@ -196,7 +196,7 @@ module.exports = function(grunt) {
                         src:"jquery.jsPlumb-<%=pkg.version%>.js",
                         //dest:"dist/demo/requirejs/scripts/",
                         rename:function() {
-                            return "dist/demo/requirejs/scripts/jsplumb.js"
+                            return "dist/demo/requirejs/scripts/jsplumb.js";
                         }
                     },
                     {
@@ -323,7 +323,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('update', function() {
         var newV = grunt.option("newver");
-        if (newV == null) {
+        if (newV === null) {
             grunt.log.error("You must provide the new version: grunt update --newver=X.X.X");
         }
         else {
@@ -344,8 +344,8 @@ module.exports = function(grunt) {
             re = /(<!-- BODY.*>.*\n)(.*\n)*(.*\/BODY -->)/,
             idx = f.match(re);
 
-        _replace("dist/doc", "*.html", /<\!-- NAV -->/, idx[0], ["contents.html"])
-    })
+        _replace("dist/doc", "*.html", /<\!-- NAV -->/, idx[0], ["contents.html"]);
+    });
 
     /*
 
