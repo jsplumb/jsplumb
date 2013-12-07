@@ -289,7 +289,7 @@ module.exports = function(grunt) {
         watch: {
             scripts: {
                 files: ['src/*.js'],
-                tasks: ['build']
+                tasks: ['build-src']
             }
         }
     });
@@ -367,8 +367,8 @@ module.exports = function(grunt) {
 
     */
 
-
-    grunt.registerTask('build', [/*'qunit', */'prepare', 'concat', 'uglify', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex' ]);
+    grunt.registerTask('build-src', ['prepare', 'concat', 'uglify' ]);
+    grunt.registerTask('build', [/*'qunit', */'build-src', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex']);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 
