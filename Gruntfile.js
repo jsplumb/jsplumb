@@ -285,6 +285,12 @@ module.exports = function(grunt) {
             files:{
                 src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-canvas.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
             }
+        },
+        watch: {
+            scripts: {
+                files: ['src/*.js'],
+                tasks: ['build']
+            }
         }
     });
 
@@ -298,6 +304,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.registerTask('writeIndex', function() {
         // write an index file to the root of the dist dir (redirects to main jquery demo)
