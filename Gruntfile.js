@@ -1,6 +1,6 @@
 /**
-    
-    By default, jsPlumb's build incudes all of the connector types, endpoint types and render modes. But 
+
+    By default, jsPlumb's build incudes all of the connector types, endpoint types and render modes. But
     you can specify which of these you want via command line flags, eg:
 
     grunt --connectors=flowchart,bezier --renderers=svg,vml
@@ -65,21 +65,21 @@ var JS_BEZIER = "0.6", // current js bezier version
     },
     filter = function(l, v, t, o) {
         if (l.length == 0 || l.indexOf(v) != -1)
-            o.push("src/" + t + "-" + v + ".js"); 
+            o.push("src/" + t + "-" + v + ".js");
     },
     getList = function(grunt, type) {
         var ol = optionList(grunt, type), l = objects[type], out = [];
         for (var i = 0; i < l.length; i++)
             filter(ol, l[i], type, out);
-        
+
         return out;
     },
     getSources = function(grunt, lib) {
         var sources = [ getJsBezier(), getJsPlumbGeom() ];
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
-        sources.push.apply(sources, getList(grunt, "renderers")); 
-        sources.push("src/" + lib + ".jsPlumb.js");           
+        sources.push.apply(sources, getList(grunt, "renderers"));
+        sources.push("src/" + lib + ".jsPlumb.js");
         return sources;
     },
     help = "\nBuilding jsPlumb\n" +
@@ -90,7 +90,7 @@ var JS_BEZIER = "0.6", // current js bezier version
            "You can build a custom version of jsPlumb by specifying a list of connectors and/or renderers on the command line, for example:\n\n" +
            "--> grunt build --connectors=flowchart,statemachine --renderers=svg,vml\n\n";
 
-module.exports = function(grunt) {    
+module.exports = function(grunt) {
 
     grunt.registerTask('help', 'Help with the jsPlumb build', function(arg1, arg2) {
         grunt.log.write(help);
@@ -116,7 +116,7 @@ module.exports = function(grunt) {
         });
         return o;
     };
-    
+
     var makeReplacements = function() {
         var o = {};
         // expand out lists of individual imports into concatenated versions for dist.
@@ -126,14 +126,14 @@ module.exports = function(grunt) {
                 src: ['dist/demo/*/' + l + '.html', 'dist/tests/*.html', 'dist/demo/demo-all*.html' ],
                 actions: [
                     {
-                        name:"dep",                        
+                        name:"dep",
                         search:"(<!-- DEP.*>.*\n)(.*\n)*(.*/DEP -->)",
                         replace: runtimeLibraries[l],
                         flags: 'gm'
                     },
                     {
                         name:"js",
-                        search:"(<!-- JS.*>.*\n)(.*\n)*(.*/JS -->)",                        
+                        search:"(<!-- JS.*>.*\n)(.*\n)*(.*/JS -->)",
                         replace:"<script type='text/javascript' src='../js/" + l + ".jsPlumb-<%= pkg.version%>-min.js'></script>",
                         flags:'gm'
                     },
@@ -143,7 +143,7 @@ module.exports = function(grunt) {
                         flags:"gm"
                     }
                 ]
-            }    
+            }
         });
 
         // change media wiki style links into standard markdown links
@@ -158,7 +158,7 @@ module.exports = function(grunt) {
                     flags:"gm"
                 }
             ]
-        }       
+        }
 
         return o;
     };
@@ -166,7 +166,7 @@ module.exports = function(grunt) {
     //
     // this is a helper for the copy task, because the copy task is strange about the way it copies
     // things. basically the only way to get a file from some folder into another is to use a 'rename'
-    // function! wtf.  anyway this is a helper for that.    
+    // function! wtf.  anyway this is a helper for that.
     var moveFolder = function(toDir) {
         return function() {
             var idx = arguments[1].lastIndexOf("/"), _idx = idx < 0 ? 0 : idx;
@@ -176,7 +176,7 @@ module.exports = function(grunt) {
 
     // Project configuration.
     grunt.initConfig({
-   
+
         pkg: grunt.file.readJSON('package.json'),
         concat: fileLists(),
         uglify: fileLists("-min"),
@@ -190,14 +190,14 @@ module.exports = function(grunt) {
                 files:[
                     { expand:true, src:"demo/**/*", dest:"dist" },
                     { expand:true, cwd:"dist/js/", src:"*.js", dest:"dist/demo/js/"},
-                    { 
-                        expand:true, 
-                        cwd:"dist/js/", 
-                        src:"jquery.jsPlumb-<%=pkg.version%>.js", 
+                    {
+                        expand:true,
+                        cwd:"dist/js/",
+                        src:"jquery.jsPlumb-<%=pkg.version%>.js",
                         //dest:"dist/demo/requirejs/scripts/",
-                        rename:function() {                             
-                            return "dist/demo/requirejs/scripts/jsplumb.js" 
-                        } 
+                        rename:function() {
+                            return "dist/demo/requirejs/scripts/jsplumb.js"
+                        }
                     },
                     {
                         expand:true,
@@ -209,19 +209,19 @@ module.exports = function(grunt) {
             },
             tests:{
                 files:[
-                    { 
-                        expand:true, 
-                        src:[ "tests/jsPlumb-tests.js", "tests/qunit-*.*", "tests/all-tests.html", "tests/loadTestHarness.js", "tests/loadTestHarness.html" ],  
-                        dest:"dist/" 
-                    }  
+                    {
+                        expand:true,
+                        src:[ "tests/jsPlumb-tests.js", "tests/qunit-*.*", "tests/all-tests.html", "tests/loadTestHarness.js", "tests/loadTestHarness.html" ],
+                        dest:"dist/"
+                    }
                 ]
             },
             doc:{
                 files:[
-                    { 
-                        expand:true, 
+                    {
+                        expand:true,
                         src:[ "doc/gollum-template.css", "demo/demo-all.css", "demo/*.ttf", "demo/*.woff", "demo/logo_bw_44h.jpg" ],
-                        rename:moveFolder("dist/doc")                        
+                        rename:moveFolder("dist/doc")
                     }
                 ]
             },
@@ -285,12 +285,12 @@ module.exports = function(grunt) {
             files:{
                 src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-canvas.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
             }
-        }   
+        }
     });
-   
+
     // Load the plugin that provides the "docular" tasks.
-    grunt.loadNpmTasks('grunt-contrib-concat');   
-    grunt.loadNpmTasks('grunt-contrib-uglify'); 
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-regex-replace');
@@ -300,17 +300,17 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
 
     grunt.registerTask('writeIndex', function() {
-        // write an index file to the root of the dist dir (redirects to main jquery demo)    
+        // write an index file to the root of the dist dir (redirects to main jquery demo)
         grunt.file.write("dist/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/jquery.html'/></head></html>");
         // write an index file to the root of the docs dir (redirects to 'home')
-        grunt.file.write("dist/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");        
+        grunt.file.write("dist/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");
     });
 
     var _replace = function(cwd, pattern, oldV, newV, exclusions) {
         exclusions = exclusions || [];
         var _one = function(f) {
             if (exclusions.indexOf(f) == -1) {
-                if (!grunt.file.isDir(cwd + "/" + f)) {                    
+                if (!grunt.file.isDir(cwd + "/" + f)) {
                     var c = grunt.file.read(cwd + "/" + f);
                     grunt.file.write(cwd + "/" + f, c.replace(oldV, newV));
                 }
@@ -318,7 +318,7 @@ module.exports = function(grunt) {
         };
         var sources = grunt.file.expand({ cwd:cwd }, pattern);
         for (var i = 0; i < sources.length; i++)
-            _one(sources[i]);    
+            _one(sources[i]);
     };
 
     grunt.registerTask('update', function() {
@@ -326,8 +326,8 @@ module.exports = function(grunt) {
         if (newV == null) {
             grunt.log.error("You must provide the new version: grunt update --newver=X.X.X");
         }
-        else {            
-            var oldV = new RegExp(grunt.config("pkg").version, "g");            
+        else {
+            var oldV = new RegExp(grunt.config("pkg").version, "g");
             // now update version number in all demos and src files
             _replace("src", "*.js", oldV, newV);
             _replace("demo", "**/*.html", oldV, newV);
