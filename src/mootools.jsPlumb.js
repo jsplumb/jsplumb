@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.5
+ * Title:jsPlumb 1.6.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -105,9 +105,9 @@
 	var _getElementObject = function(el) {
 	  return $(el);
 	};
-		
-	jsPlumb.CurrentLibrary = {				
-		
+	
+	// new: move to putting stuff on jsplumb prototype
+	$extend(jsPlumbInstance.prototype, {
 		/**
 		 * adds the given class to the element object.
 		 */
@@ -123,24 +123,44 @@
 				// SVGAnimatedString not supported; no problem.
 				el.addClass(clazz);
 			}						
-		},	
-			
-		animate : function(el, properties, options) {			
+		},
+		doAnimate : function(el, properties, options) {			
 			var m = new jsPlumbMorph(el, options);
 			m.start(properties);
+		},		
+		getSelector : function(context, spec) {
+            if (arguments.length == 2) {
+                return _getElementObject(context).getElements(spec);
+            }
+            else
+			     return $$(context);
+		},
+		hasClass : function(el, clazz) {
+			return el.hasClass(clazz);
 		},
 		
-		appendElement : function(child, parent) {
-			_getElementObject(parent).grab(child);			
+		getDOMElement : function(el) { 
+			if (el == null) return null;
+			// MooTools just decorates the DOM elements. so we have either an ID or an Element here.
+			return typeof(el) == "string" ? document.getElementById(el) : el; 
 		},
 		
-		bind : function(el, event, callback) {
-			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : $$(el);
-			//el = _getElementObject(el);
-			for (var i = 0; i < els.length; i++)
-				els[i].addEvent(event, callback);
+		/**
+		 * removes the given class from the element object.
+		 */
+		removeClass : function(el, clazz) {
+			el = jsPlumb.CurrentLibrary.getElementObject(el);
+			try {
+				if (el.className.constructor == SVGAnimatedString) {
+					jsPlumbUtil.svg.removeClass(el, clazz);
+				}
+				else el.removeClass(clazz);
+			}
+			catch (e) {				
+				// SVGAnimatedString not supported; no problem.
+				el.removeClass(clazz);
+			}
 		},
-
 		destroyDraggable : function(el) {
 			// TODO
 			var id = jsPlumb.getId(el), d = _draggablesById[id];
@@ -155,121 +175,8 @@
 		destroyDroppable : function(el) {
 			// TODO
 		},
-		
-		dragEvents : {
-			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
-			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
-		},
-
-		/*
-		 * wrapper around the library's 'extend' functionality (which it hopefully has.
-		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
-		 * instead.  it's not like its hard.
-		 */
-		extend : function(o1, o2) {
-			return $extend(o1, o2);
-		},
-		
-		getClientXY : function(eventObject) {
-			return [eventObject.event.clientX, eventObject.event.clientY];
-		},
-		
-		getDragObject : function(eventArgs) {
-			return eventArgs[0];
-		},
-		
-		getDragScope : function(el) {
-			var id = jsPlumb.getId(el),
-			    drags = _draggablesById[id];
-			return drags[0].scope;
-		},
-	
-		getDropEvent : function(args) {			
-			return args[2];
-		},
-		
-		getDropScope : function(el) {
-			var id = jsPlumb.getId(el);
-			return _droppableScopesById[id];
-		},
-		
-		getDOMElement : function(el) { 
-			if (el == null) return null;
-			// MooTools just decorates the DOM elements. so we have either an ID or an Element here.
-			return typeof(el) == "string" ? document.getElementById(el) : el; 
-		},
-							
-		getElementObject : _getElementObject,
-		
-		/*
-		  gets the offset for the element object.  this should return a js object like this:
-		  
-		  { left:xxx, top: xxx}
-		 */
-		getOffset : function(el) {
-			var p = el.getPosition();
-			return { left:p.x, top:p.y };
-		},	
-		
-		getOriginalEvent : function(e) {
-			return e.event;
-		},			
-		
-		getPageXY : function(eventObject) {
-			return [eventObject.event.pageX, eventObject.event.pageY];
-		},
-		
-		getParent : function(el) {
-			return jsPlumb.CurrentLibrary.getElementObject(el).getParent();
-		},
-		
-		getScrollLeft : function(el) {
-			return null;
-		},
-		
-		getScrollTop : function(el) {
-			return null;
-		},
-		
-		getSelector : function(context, spec) {
-            if (arguments.length == 2) {
-                return jsPlumb.CurrentLibrary.getElementObject(context).getElements(spec);
-            }
-            else
-			     return $$(context);
-		},
-		
-		getSize : function(el) {
-			var s = el.getSize();
-			return [s.x, s.y];
-		},
-
-        getTagName : function(el) {
-            var e = jsPlumb.CurrentLibrary.getElementObject(el);
-            return e != null ? e.tagName : null;
-        },
-		
-		/*
-		 * takes the args passed to an event function and returns you an object that gives the
-		 * position of the object being moved, as a js object with the same params as the result of
-		 * getOffset, ie: { left: xxx, top: xxx }.
-		 */
-		getUIPosition : function(eventArgs, zoom) {
-		  var ui = eventArgs[0],
-			  el = jsPlumb.CurrentLibrary.getElementObject(ui),
-			  p = el.getPosition();
-			
-		  zoom = zoom || 1;		  
-			
-		  return { left:p.x / zoom, top:p.y / zoom};
-		},		
-		
-		hasClass : function(el, clazz) {
-			return el.hasClass(clazz);
-		},
-		
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
-			var id = jsPlumb.getId(el);
+			var id = this.getId(el);
 			var drag = _draggablesById[id];
 			if (!drag) {
 				var originalZIndex = 0,
@@ -345,7 +252,7 @@
 		initDroppable : function(el, options, isPlumbedComponent, isPermanent) {
 			var scope = options.scope;
             _add(_droppables, scope, el);
-			var id = jsPlumb.getId(el);
+			var id = this.getId(el);
 
             el.setAttribute("_isPermanentDroppable", isPermanent);  // we use this to clear out droppables on drag complete.
 			_droppableOptions[id] = options;
@@ -358,7 +265,7 @@
 		},
 		
 		isAlreadyDraggable : function(el) {
-			return _draggablesById[jsPlumb.getId(el)] != null;
+			return _draggablesById[this.getId(el)] != null;
 		},										
 		
 		isDragSupported : function(el, options) {
@@ -371,34 +278,43 @@
 		isDropSupported : function(el, options) {
 			return (typeof Drag !== undefined && typeof Drag.Move !== undefined);
 		},
+		getDragObject : function(eventArgs) {
+			return eventArgs[0];
+		},
 		
-		/**
-		 * removes the given class from the element object.
+		getDragScope : function(el) {
+			var id = this.getId(el),
+			    drags = _draggablesById[id];
+			return drags[0].scope;
+		},
+	
+		getDropEvent : function(args) {			
+			return args[2];
+		},
+		
+		getDropScope : function(el) {
+			var id = this.getId(el);
+			return _droppableScopesById[id];
+		},
+		/*
+		 * takes the args passed to an event function and returns you an object that gives the
+		 * position of the object being moved, as a js object with the same params as the result of
+		 * getOffset, ie: { left: xxx, top: xxx }.
 		 */
-		removeClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			try {
-				if (el.className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.removeClass(el, clazz);
-				}
-				else el.removeClass(clazz);
-			}
-			catch (e) {				
-				// SVGAnimatedString not supported; no problem.
-				el.removeClass(clazz);
-			}
+		getUIPosition : function(eventArgs, zoom) {
+		  var ui = eventArgs[0],
+			  el = jsPlumb.CurrentLibrary.getElementObject(ui),
+			  p = el.getPosition();
+			
+		  zoom = zoom || 1;		  
+			
+		  return { left:p.x / zoom, top:p.y / zoom};
 		},
-		
-		removeElement : function(element, parent) {
-            var el = _getElementObject(element);
-			if (el) el.dispose();  // ??
-		},
-
 		setDragFilter : function(el, filter) {
 			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");
 		},
 		
-		setDraggable : function(el, draggable) {
+		setElementDraggable : function(el, draggable) {
 			var draggables = _draggablesById[el.get("id")];
 			if (draggables) {
 				draggables.each(function(d) {
@@ -416,6 +332,60 @@
 			drag[0].droppables = droppables;
 		},
 		
+		dragEvents : {
+			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
+			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
+		},
+		
+		/**
+		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
+		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
+		 * from the originalEvent to put in an options object for YUI. 
+		 * @param el
+		 * @param event
+		 * @param originalEvent
+		 */
+		trigger : function(el, event, originalEvent) {
+			originalEvent.stopPropagation();
+			_getElementObject(el).fireEvent(event, originalEvent);
+		},
+		
+		getOriginalEvent : function(e) {
+			return e.event;
+		}
+	});
+		
+	jsPlumb.CurrentLibrary = {							
+		
+		appendElement : function(child, parent) {
+			_getElementObject(parent).grab(child);			
+		},
+		
+		bind : function(el, event, callback) {
+			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : $$(el);
+			//el = _getElementObject(el);
+			for (var i = 0; i < els.length; i++)
+				els[i].addEvent(event, callback);
+		},					
+				
+							
+		getElementObject : _getElementObject,
+		
+		/*
+		  gets the offset for the element object.  this should return a js object like this:
+		  
+		  { left:xxx, top: xxx}
+		 */
+		getOffset : function(el) {
+			var p = el.getPosition();
+			return { left:p.x, top:p.y };
+		},																							
+		
+		removeElement : function(element, parent) {
+            var el = _getElementObject(element);
+			if (el) el.dispose();  // ??
+		},		
+		
 		setOffset : function(el, o) {
 			_getElementObject(el).setPosition({x:o.left, y:o.top});
 		},
@@ -431,18 +401,7 @@
             }
         },
 		
-		/**
-		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
-		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
-		 * from the originalEvent to put in an options object for YUI. 
-		 * @param el
-		 * @param event
-		 * @param originalEvent
-		 */
-		trigger : function(el, event, originalEvent) {
-			originalEvent.stopPropagation();
-			_getElementObject(el).fireEvent(event, originalEvent);
-		},
+		
 		
 		unbind : function(el, event, callback) {
 			el = _getElementObject(el);

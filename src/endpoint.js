@@ -10,7 +10,7 @@
                     stopped = false;
                     return true;
                 }
-                var _ui = jsPlumb.CurrentLibrary.getUIPosition(arguments, _jsPlumb.getZoom());
+                var _ui = jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
         
                 if (placeholder.element) {
                     jsPlumb.CurrentLibrary.setOffset(placeholder.element, _ui);                    
@@ -27,8 +27,7 @@
     var _makeDraggablePlaceholder = function(placeholder, parent, _jsPlumb) {
         var n = document.createElement("div");
         n.style.position = "absolute";
-        var placeholderDragElement = jsPlumb.CurrentLibrary.getElementObject(n);
-        jsPlumb.CurrentLibrary.appendElement(n, parent);
+        parent.appendChild(n);
         var id = _jsPlumb.getId(n);
         _jsPlumb.updateOffset( { elId : id });
         // create and assign an id, and initialize the offset.
@@ -71,8 +70,7 @@
         var _jsPlumb = params._jsPlumb,
             jpcl = jsPlumb.CurrentLibrary,
             _att = jsPlumbAdapter.getAttribute,
-            _gel = jpcl.getElementObject,
-            _dom = jpcl.getDOMElement,
+            _gel = jpcl.getElementObject,            
             _ju = jsPlumbUtil,            
             _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
@@ -112,7 +110,7 @@
             
         this._jsPlumb.enabled = !(params.enabled === false);
         this._jsPlumb.visible = true;        
-        this.element = _dom(params.source);  
+        this.element = jsPlumb.getDOMElement(params.source);  
         this._jsPlumb.uuid = params.uuid;
         this._jsPlumb.floatingEndpoint = null;  
         var inPlaceCopy = null;
@@ -125,11 +123,11 @@
         this._jsPlumb.events = {};
             
         var  _updateAnchorClass = function() {
-            jpcl.removeClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            _jsPlumb.removeClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
             this.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
             this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
             this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-            jpcl.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            _jsPlumb.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
         }.bind(this);
         
         this.setAnchor = function(anchorParams, doNotRepaint) {
@@ -226,7 +224,7 @@
         this.canvas = this.endpoint.canvas;		
         // add anchor class (need to do this on construction because we set anchor first)
         this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
-        jpcl.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+        _jsPlumb.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
         
@@ -306,7 +304,7 @@
             return this.element;
         };		
                  
-        // container not supported in 1.5.5; you cannot change the container once it is set.
+        // container not supported in 1.6.0; you cannot change the container once it is set.
         // it might come back int a future release.
         this.setElement = function(el/*, container*/) {
             var parentId = this._jsPlumb.instance.getId(el),
@@ -315,7 +313,7 @@
             _ju.removeWithFunction(params.endpointsByElement[this.elementId], function(e) {
                 return e.id == this.id;
             }.bind(this));
-            this.element = _dom(el);
+            this.element = jsPlumb.getDOMElement(el);
             this.elementId = _jsPlumb.getId(this.element);                         
             _jsPlumb.anchorManager.rehomeEndpoint(this, curId, this.element);
             _jsPlumb.dragManager.endpointAdded(this.element);            
@@ -418,7 +416,7 @@
         this.initDraggable = function() {
             // is this a connection source? we make it draggable and have the
             // drag listener maintain a connection with a floating endpoint.
-            if (!draggingInitialised && jpcl.isDragSupported(this.element)) {
+            if (!draggingInitialised && jsPlumb.isDragSupported(this.element)) {
                 var placeholderInfo = { id:null, element:null },
                     jpc = null,
                     existingJpc = false,
@@ -526,12 +524,12 @@
                         this.detachFromConnection(jpc);                         // detach from the connection while dragging is occurring.
                         
                         // store the original scope (issue 57)
-                        var dragScope = jsPlumb.CurrentLibrary.getDragScope(canvasElement);
+                        var dragScope = jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
                         // now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
                         // that have our drop scope (issue 57).
-                        var dropScope = jpcl.getDropScope(canvasElement);
-                        jpcl.setDragScope(canvasElement, dropScope);
+                        var dropScope = jsPlumb.getDropScope(canvasElement);
+                        jsPlumb.setDragScope(canvasElement, dropScope);
 
                         // fire an event that informs that a connection is being dragged. we do this before
                         // replacing the original target with the floating element info.
@@ -578,9 +576,9 @@
 
                 var dragOptions = params.dragOptions || {},
                     defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
-                    startEvent = jpcl.dragEvents.start,
-                    stopEvent = jpcl.dragEvents.stop,
-                    dragEvent = jpcl.dragEvents.drag;
+                    startEvent = jsPlumb.dragEvents.start,
+                    stopEvent = jsPlumb.dragEvents.stop,
+                    dragEvent = jsPlumb.dragEvents.drag;
                 
                 dragOptions = jsPlumb.extend(defaultOpts, dragOptions);
                 dragOptions.scope = dragOptions.scope || this.scope;
@@ -594,7 +592,7 @@
                         // if no endpoints, jpc already cleaned up.
                         if (jpc.endpoints != null) {          
                             // get the actual drop event (decode from library args to stop function)
-                            var originalEvent = jpcl.getDropEvent(arguments);                                       
+                            var originalEvent = jsPlumb.getDropEvent(arguments);                                       
                             // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                             var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
                             jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
@@ -620,7 +618,7 @@
                                     }
                                     
                                     // restore the original scope (issue 57)
-                                    jpcl.setDragScope(existingJpcParams[2], existingJpcParams[3]);
+                                    jsPlumb.setDragScope(existingJpcParams[2], existingJpcParams[3]);
                                     jpc.endpoints[idx] = jpc.suspendedEndpoint;
                                     // IF the connection should be reattached, or the other endpoint refuses detach, then
                                     // reset the connection to its original state
@@ -670,7 +668,7 @@
                     }.bind(this));
                 
                 var i = _gel(this.canvas);              
-                jpcl.initDraggable(i, dragOptions, true, _jsPlumb);
+                jsPlumb.initDraggable(i, dragOptions, true, _jsPlumb);
 
                 draggingInitialised = true;
             }
@@ -683,20 +681,20 @@
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections
         // back onto the endpoint you detached it from.
         var _initDropTarget = function(canvas, forceInit, isTransient, endpoint) {
-            if ((this.isTarget || forceInit) && jpcl.isDropSupported(this.element)) {
+            if ((this.isTarget || forceInit) && jsPlumb.isDropSupported(this.element)) {
                 var dropOptions = params.dropOptions || _jsPlumb.Defaults.DropOptions || jsPlumb.Defaults.DropOptions;
                 dropOptions = jsPlumb.extend( {}, dropOptions);
                 dropOptions.scope = dropOptions.scope || this.scope;
-                var dropEvent = jpcl.dragEvents.drop,
-                    overEvent = jpcl.dragEvents.over,
-                    outEvent = jpcl.dragEvents.out,
+                var dropEvent = jsPlumb.dragEvents.drop,
+                    overEvent = jsPlumb.dragEvents.over,
+                    outEvent = jsPlumb.dragEvents.out,
                     drop = function() {                        
 
                         this.removeClass(_jsPlumb.endpointDropAllowedClass);
                         this.removeClass(_jsPlumb.endpointDropForbiddenClass);
                                                     
-                        var originalEvent = jpcl.getDropEvent(arguments),
-                            draggable = _gel(jpcl.getDragObject(arguments)),
+                        var originalEvent = jsPlumb.getDropEvent(arguments),
+                            draggable = _gel(jsPlumb.getDragObject(arguments)),
                             id = _jsPlumb.getAttribute(draggable, "dragId"),
                             elId = _jsPlumb.getAttribute(draggable, "elId"),						
                             scope = _jsPlumb.getAttribute(draggable, "originalScope"),
@@ -715,7 +713,7 @@
                             var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx === 0 ? 1 : 0;
                             
                             // restore the original scope if necessary (issue 57)						
-                            if (scope) jsPlumb.CurrentLibrary.setDragScope(draggable, scope);							
+                            if (scope) jsPlumb.setDragScope(draggable, scope);							
                             
                             var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
                             
@@ -778,7 +776,7 @@
                                     if (!jpc.suspendedEndpoint) {  
                                         // if not an existing connection and
                                         if (params.draggable)
-                                            jsPlumb.CurrentLibrary.initDraggable(this.element, dragOptions, true, _jsPlumb);
+                                            jsPlumb.initDraggable(this.element, dragOptions, true, _jsPlumb);
                                     }
                                     else {
                                         var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
@@ -794,17 +792,6 @@
                                             newTargetEndpoint:idx == 1 ? this : jpc.endpoints[1],
                                             connection:jpc
                                         }, originalEvent);
-                                       /* var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
-                                        // fire a detach event
-                                        _fireDetachEvent({
-                                            source : idx === 0 ? suspendedElement : jpc.source, 
-                                            target : idx == 1 ? suspendedElement : jpc.target,
-                                            sourceId : idx === 0 ? suspendedElementId : jpc.sourceId, 
-                                            targetId : idx == 1 ? suspendedElementId : jpc.targetId,
-                                            sourceEndpoint : idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0], 
-                                            targetEndpoint : idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
-                                            connection : jpc
-                                        }, true, originalEvent);*/
                                     }
 
                                     // TODO this is like the makeTarget drop code.
@@ -868,7 +855,7 @@
                 
                 dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop);
                 dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function() {					
-                    var draggable = jpcl.getDragObject(arguments),
+                    var draggable = jsPlumb.getDragObject(arguments),
                         id = _jsPlumb.getAttribute(draggable, "dragId"),
                         _jpc = floatingConnections[id];
                         
@@ -891,7 +878,7 @@
                 }.bind(this));	
 
                 dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function() {					
-                    var draggable = jpcl.getDragObject(arguments),
+                    var draggable = jsPlumb.getDragObject(arguments),
                         id = _jsPlumb.getAttribute( draggable, "dragId"),
                         _jpc = floatingConnections[id];
                         
@@ -905,7 +892,7 @@
                         }
                     }
                 }.bind(this));
-                jpcl.initDroppable(canvas, dropOptions, true, isTransient);
+                jsPlumb.initDroppable(canvas, dropOptions, true, isTransient);
             }
         }.bind(this);
         
@@ -951,15 +938,15 @@
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
         cleanup : function() {            
-            jsPlumb.CurrentLibrary.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);            
+            this._jsPlumb.instance.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);            
             this.anchor = null;
             this.endpoint.cleanup();
             this.endpoint.destroy();
             this.endpoint = null;
             // drag/drop
             var i = jsPlumb.CurrentLibrary.getElementObject(this.canvas);              
-            jsPlumb.CurrentLibrary.destroyDraggable(i);
-            jsPlumb.CurrentLibrary.destroyDroppable(i);
+            jsPlumb.destroyDraggable(i);
+            jsPlumb.destroyDroppable(i);
         },
         setHover : function(h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())

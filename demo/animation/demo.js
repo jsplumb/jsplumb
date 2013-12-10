@@ -22,12 +22,7 @@
 			discs = [];
 			e.stopPropagation();
 			e.preventDefault();
-		},
-	
-		initHover = function(elId) {
-			_bind(elId, "mouseover", function() { jpcl.addClass(elId, "bigdot-hover") });
-			_bind(elId, "mouseout", function() { jpcl.removeClass(elId, "bigdot-hover") });
-		},
+		},	
 	
 		initAnimation = function(elId) {
 			var el = document.getElementById(elId),
@@ -38,9 +33,10 @@
 					jpcl.removeClass(elId, "jsPlumb_dragged");
 					return;
 				}
+				e =jsPlumb.getOriginalEvent(e);
 				var o = jpcl.getOffset(_el),
-					s = jpcl.getSize(_el),
-					pxy = jpcl.getPageXY(e),
+					s = jsPlumb.getSize(el),
+					pxy = [e.pageX || e.clientX, e.pageY || e.clientY],
 					c = [o.left + (s[0]/2) - pxy[0], o.top + (s[1]/2) - pxy[1]],
 					oo = [c[0] / s[0], c[1] / s[1]],
 					l = oo[0] < 0 ? '+=' : '-=', t = oo[1] < 0 ? "+=" : '-=',
@@ -68,8 +64,7 @@
 			dropOptions:{ tolerance:"touch",hoverClass:"dropHover" }
 		},
 	
-		prepare = function(elId) {
-			initHover(elId);
+		prepare = function(elId) {			
 			initAnimation(elId);
 			
 			return instance.addEndpoint(elId, endpoint);

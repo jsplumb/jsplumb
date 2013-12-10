@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.5
+ * Title:jsPlumb 1.6.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -29,8 +29,14 @@
 	    _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
 	    _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
 	    _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
-	    _pageXY = function(el) { return jsPlumb.CurrentLibrary.getPageXY(el); },
-	    _clientXY = function(el) { return jsPlumb.CurrentLibrary.getClientXY(el); };
+	    _pageXY = function(e) { 
+			e = jsPlumb.getOriginalEvent(e);
+			return e.pageX ? [ e.pageX, e.pageY ] : [e.clientX, e.clientY ];
+		},
+	    _clientXY = function(e) { 
+			e = jsPlumb.getOriginalEvent(e);			
+			return [e.clientX, e.clientY];
+		};
 	
 	/*
 	 * Class:CanvasMouseAdapter

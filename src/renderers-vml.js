@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.5
+ * Title:jsPlumb 1.6.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -57,23 +57,7 @@
 	jsPlumb.vml = {};
 	
 	var scale = 1000,
-
-    _groupMap = {},
-    _getGroup = function(container, connectorClass) {
-        var id = jsPlumb.getId(container),
-            g = _groupMap[id];
-        if(!g) {
-            g = _node("group", [0,0,scale, scale], {"class":connectorClass});
-            //g.style.position=absolute;
-            //g["coordsize"] = "1000,1000";
-            g.style.backgroundColor="red";
-            _groupMap[id] = g;
-            //jsPlumb.appendElement(g, container);  // todo if this gets reinstated, remember to use the current jsplumb instance.
-            //jsPlumb.CurrentLibrary.getDOMElement(container).appendChild(g);
-            //document.body.appendChild(g);
-        }
-        return g;
-    },
+    
 	_atts = function(o, atts) {
 		for (var i in atts) { 
 			// IE8 fix: setattribute does not work after an element has been added to the dom!
@@ -98,7 +82,11 @@
 		if (deferToJsPlumbContainer)
 			_jsPlumb.appendElement(o, parent);
 		else
-			jsPlumb.CurrentLibrary.appendElement(o, parent);
+			// TODO is this failing? that would be because parent is not a plain DOM element.
+			// IF SO, uncomment the line below this one and remove this one.
+			parent.appendChild(o);
+			//jsPlumb.getDOMElement(parent).appendChild(o);
+			
 		o.className = (atts["class"] ? atts["class"] + " " : "") + "jsplumb_vml";
 		_pos(o, d);
 		_atts(o, atts);
@@ -259,11 +247,7 @@
 				if (this.canvas == null) {										
 					p["class"] = clazz;
 					p.coordsize = (d[2] * scale) + "," + (d[3] * scale);					
-					this.canvas = _node("shape", d, p, params.parent, this._jsPlumb.instance, true);					                
-                    //var group = _getGroup(params.parent);                   // test of append everything to a group
-                    //group.appendChild(self.canvas);                           // sort of works but not exactly;
-					//params["_jsPlumb"].appendElement(self.canvas, params.parent);    //before introduction of groups
-
+					this.canvas = _node("shape", d, p, params.parent, this._jsPlumb.instance, true);					                                    
 					this.appendDisplayElement(this.canvas, true);										
 					this.attachListeners(this.canvas, this);					
 					this.initOpacityNodes(this.canvas, ["stroke"]);		
@@ -309,8 +293,6 @@
 		// to the enclosing DIV. what to do?  seems like it would be better to just target the div.
 		// HOWEVER...vml connection has no containing div.  why not? it feels like it should.
 
-		//var group = _getGroup(params.parent);
-        //group.appendChild(self.canvas);
 		params._jsPlumb.appendElement(this.canvas, params.parent);
 
 		this.paint = function(style, anchor) {

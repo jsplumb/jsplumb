@@ -66,8 +66,7 @@
             _newEndpoint = params.newEndpoint,
             jpcl = jsPlumb.CurrentLibrary,
             _att = jpcl.getAttribute,
-            _gel = jpcl.getElementObject,
-            _dom = jpcl.getDOMElement,
+            _gel = jpcl.getElementObject,            
             _ju = jsPlumbUtil,
             _getOffset = jpcl.getOffset;
 
@@ -80,8 +79,8 @@
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
         this.previousConnection = params.previousConnection;
-        this.source = _dom(params.source);
-        this.target = _dom(params.target);
+        this.source = jsPlumb.getDOMElement(params.source);
+        this.target = jsPlumb.getDOMElement(params.target);
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
@@ -339,8 +338,8 @@
         setHover : function(state) {
             if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
                 this.connector.setHover(state);
-                jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
-                jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
+                this._jsPlumb.instance[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
+                this._jsPlumb.instance[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
             }
         },
         getCost : function() { return this._jsPlumb.cost; },
@@ -354,15 +353,18 @@
             var jpcl = jsPlumb.CurrentLibrary, curParent = jpcl.getParent(this.connector.canvas);               
             if (this.connector.bgCanvas) {
                 jpcl.removeElement(this.connector.bgCanvas);
-                jpcl.appendElement(this.connector.bgCanvas, newParent);
+                //jpcl.appendElement(this.connector.bgCanvas, newParent);
+                newParent.appendChild(this.connector.bgCanvas);
             }
             jpcl.removeElement(this.connector.canvas);
-            jpcl.appendElement(this.connector.canvas, newParent);                
+            //jpcl.appendElement(this.connector.canvas, newParent);                
+            newParent.appendChild(this.connector.canvas);
             // this only applies for DOMOverlays
             for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
                 if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
                     jpcl.removeElement(this._jsPlumb.overlays[i].canvas);
-                    jpcl.appendElement(this._jsPlumb.overlays[i].canvas, newParent);
+                    //jpcl.appendElement(this._jsPlumb.overlays[i].canvas, newParent);
+                    newParent.appendChild(this._jsPlumb.overlays[i].canvas);
                     if (this._jsPlumb.overlays[i].reattachListeners) 
                         this._jsPlumb.overlays[i].reattachListeners(this.connector);
                 }

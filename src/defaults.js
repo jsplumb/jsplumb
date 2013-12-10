@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.5
+ * Title:jsPlumb 1.6.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -1272,7 +1272,7 @@
 		
 		this.getElement = function() {
 			if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = jpcl.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));                
+                var div = this._jsPlumb.div = jsPlumb.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));                
                 div.style.position   =   "absolute";     
                 var clazz = params._jsPlumb.overlayClass + " " + 
                     (this.cssClass ? this.cssClass : 
@@ -1326,7 +1326,7 @@
 	};
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
         getDimensions : function() {            
-            return jsPlumb.CurrentLibrary.getSize(jsPlumb.CurrentLibrary.getElementObject(this.getElement()));            
+            return jsPlumb.getSize(this.getElement());            
         },
         setVisible : function(state) {
             this._jsPlumb.div.style.display = state ? "block" : "none";

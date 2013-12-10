@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.5
+ * Title:jsPlumb 1.6.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -340,7 +340,7 @@
 			if (style.outlineColor) {
 				var outlineWidth = style.outlineWidth || 1,
 					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
-				outlineStyle = jsPlumb.CurrentLibrary.extend({}, style);
+				outlineStyle = jsPlumb.extend({}, style);
 				outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
 				outlineStyle.lineWidth = outlineStrokeWidth;
 				

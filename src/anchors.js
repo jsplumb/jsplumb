@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.5
+ * Title:jsPlumb 1.6.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -710,7 +710,7 @@
             jsPlumbInstance = params.jsPlumbInstance,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,
-            size = jpcl.getSize(jpcl.getElementObject(refCanvas)),
+            size = jsPlumb.getSize(refCanvas),
             // these are used to store the current relative position of our
             // anchor wrt the reference anchor. they only indicate
             // direction, so have a value of 1 or -1 (or, very rarely, 0). these
