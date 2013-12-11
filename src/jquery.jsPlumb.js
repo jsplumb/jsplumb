@@ -12,7 +12,6 @@
  * 
  * http://jsplumb.org
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */ 
@@ -274,29 +273,12 @@ TODO: REMOVE!
 		 */
 		appendoElement : function(child, parent) {
 			_getElementObject(parent).append(child);			
-		},   																			
-		
-		/**
-		  * gets the offset for the element object.  this should return a js object like this:
-		  *
-		  * { left:xxx, top: xxx }
-		 */
-		getOffset : function(el) {
-			return el.offset();
-		},
+		},   																					
 				
 		// TODO remove library dependency on a removeElement method.
 		removeElement : function(element) {			
 			_getElementObject(element).remove();
-		},				
-		
-		// TODO remove library dependency on a setOffset function.
-		// we always work in absolute coordinates, right? so we should just write
-		// those.
-		setOffset : function(el, o) {
-			_getElementObject(el).offset(o);
-		},		
-		
+		},						
 		
 		/**
 		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,

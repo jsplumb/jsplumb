@@ -13,7 +13,7 @@
                 var _ui = jsPlumb.getUIPosition(arguments, _jsPlumb.getZoom());
         
                 if (placeholder.element) {
-                    jsPlumb.CurrentLibrary.setOffset(placeholder.element, _ui);                    
+                    jsPlumbAdapter.setPosition(placeholder.element, _ui);                    
                     _jsPlumb.repaint(placeholder.element, _ui);
                 }
             },
@@ -469,11 +469,11 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumb.CurrentLibrary.getOffset(ipcoel, _jsPlumb),
+                        ipco = jsPlumbAdapter.getOffset(ipcoel, _jsPlumb),
                         po = _jsPlumb.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas),
                         canvasElement = _gel(this.canvas);                               
                         
-                    jpcl.setOffset(placeholderInfo.element, {left:po[0], top:po[1]});                                                           
+                    jsPlumbAdapter.setPosition(placeholderInfo.element, {left:po[0], top:po[1]});
                     
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the

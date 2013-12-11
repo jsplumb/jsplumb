@@ -146,7 +146,7 @@
 		 * animates the given element.
 		 */
 		doAnimate : function(el, properties, options) {
-			var o = _extend({node:el, to:properties}, options),			
+			var o = jsPlumb.extend({node:el, to:properties}, options),			
 				id = _getAttribute(el, "id");
 			o.tween = jsPlumbUtil.wrap(properties.tween, function() {
 				// TODO should use a current instance.
@@ -166,6 +166,7 @@
 			     return _convert(Y.all(context));
             }            
 		},
+		getElementObject : _getElementObject,
 		destroyDraggable : function(el) {
 			var id = jsPlumb.getId(el),
 				dd = _draggablesById[id];
@@ -323,7 +324,7 @@
 	
 	jsPlumb.CurrentLibrary = {				
 		
-		appendElement : function(child, parent) {
+		appendoElement : function(child, parent) {
 			_getElementObject (parent).append(child);			
 		},
 		
@@ -334,23 +335,9 @@
 			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
 			for (var i = 0; i < els.length; i++)
 				Y.one(els[i]).on(event, callback);
-		},		
-					
-		
-		getElementObject : _getElementObject,
-		
-		getOffset : function(el) {			
-			var o = Y.DOM.getXY(el._node);
-			return {left:o[0], top:o[1]};
-		},															
+		},																			
 						
-		removeElement : function(el) { _getElementObject(el).remove(); },				
-		
-		setOffset : function(el, o) {
-			el = _getElementObject(el);
-			el.set("top", o.top);
-			el.set("left", o.left);
-		},
+		removeElement : function(el) { _getElementObject(el).remove(); },						
 
         stopDrag : function() {
             Y.DD.DDM.stopDrag();

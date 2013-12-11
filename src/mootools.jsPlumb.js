@@ -127,6 +127,8 @@
 			return typeof(el) == "string" ? document.getElementById(el) : el; 
 		},
 		
+		getElementObject : _getElementObject,
+		
 		destroyDraggable : function(el) {
 			// TODO
 			var id = jsPlumb.getId(el), d = _draggablesById[id];
@@ -323,7 +325,7 @@
 		
 	jsPlumb.CurrentLibrary = {							
 		
-		appendElement : function(child, parent) {
+		appendoElement : function(child, parent) {
 			_getElementObject(parent).grab(child);			
 		},
 		
@@ -332,29 +334,12 @@
 			//el = _getElementObject(el);
 			for (var i = 0; i < els.length; i++)
 				els[i].addEvent(event, callback);
-		},					
-				
-							
-		getElementObject : _getElementObject,
-		
-		/*
-		  gets the offset for the element object.  this should return a js object like this:
-		  
-		  { left:xxx, top: xxx}
-		 */
-		getOffset : function(el) {
-			var p = el.getPosition();
-			return { left:p.x, top:p.y };
-		},																							
+		},																																												
 		
 		removeElement : function(element, parent) {
             var el = _getElementObject(element);
 			if (el) el.dispose();  // ??
-		},		
-		
-		setOffset : function(el, o) {
-			_getElementObject(el).setPosition({x:o.left, y:o.top});
-		},
+		},				
 
         stopDrag : function() {
             for (var i in _draggablesById) {

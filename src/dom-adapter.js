@@ -51,9 +51,9 @@
         */
 		this.register = function(el) {
             var jpcl = jsPlumb.CurrentLibrary,
-            	_el = jsPlumb.getElementObject(el),
+            	//_el = jsPlumb.getElementObject(el),
             	id = _currentInstance.getId(el),                
-                parentOffset = jpcl.getOffset(_el);
+                parentOffset = jsPlumbAdapter.getOffset(el);
                     
             if (!_draggables[id]) {
                 _draggables[id] = el;
@@ -121,8 +121,8 @@
 		*/
 		this.endpointAdded = function(el) {
 			var jpcl = jsPlumb.CurrentLibrary, b = document.body, id = _currentInstance.getId(el), 
-				c = jsPlumb.getElementObject(el), 
-				cLoc = jsPlumb.CurrentLibrary.getOffset(c),
+				//c = jsPlumb.getElementObject(el), 
+				cLoc = jsPlumbAdapter.getOffset(el),
 				p = el.parentNode, done = p == b;
 
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
@@ -223,34 +223,38 @@
 		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
 		
 	var trim = function(str) {
-		return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
-	};
-	
-	var _classManip = function(el, add, clazz) {
-		var classesToAddOrRemove = clazz.split(/\s+/),
-			className = el.className,
-			re = /\s+/,
-			curClasses = className ? typeof className.baseVal != "undefined" ? className.baseVal.split(re) : className.split(re) : [];
+			return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
+		},
+		_setClassName = function(el, cn) {
+			cn = trim(cn);
+			if (typeof el.className.baseVal != "undefined")  // SVG
+				el.className.baseVal = cn;
+			else
+				el.className = cn;
+		},
+		_getClassName = function(el) {
+			return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;	
+		},
+		_classManip = function(el, add, clazz) {
+			var classesToAddOrRemove = clazz.split(/\s+/),
+				className = _getClassName(el),
+				curClasses = className.split(/\s+/);
+				
+			for (var i = 0; i < classesToAddOrRemove.length; i++) {
+				if (add) {
+					if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
+						curClasses.push(classesToAddOrRemove[i]);
+				}
+				else {
+					var idx = curClasses.indexOf(classesToAddOrRemove[i]);
+					if (idx != -1)
+						curClasses.splice(idx, 1);
+				}
+			}			
 			
-		for (var i = 0; i < classesToAddOrRemove.length; i++) {
-			if (add) {
-				if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
-					curClasses.push(classesToAddOrRemove[i]);
-			}
-			else {
-				var idx = curClasses.indexOf(classesToAddOrRemove[i]);
-				if (idx != -1)
-					curClasses.splice(idx, 1);
-			}
-		}
-		
-		var cc = trim(curClasses.join(" "));
-		
-		if (className != null && typeof className.baseVal != "undefined")
-			className.baseVal = cc;
-		else
-			el.className = cc;
-	};
+			_setClassName(el, curClasses.join(" "));
+					
+		};
 	
             
     window.jsPlumbAdapter = {
@@ -310,37 +314,41 @@
 			el = jsPlumb.getDOMElement(el);
 			if (el.classList) return el.classList.contains(clazz);
 			else {
-				var s = el.className ? typeof el.className.baseVal != "undefined" ? el.className.baseVal : el.className : "";
-				return s.indexOf(clazz) != -1;
+				return _getClassName(el).indexOf(clazz) != -1;
 			}
 		},
 		removeClass:function(el, clazz) {
 			_classManip(jsPlumb.getDOMElement(el), false, clazz);
+		},
+		setClass:function(el, clazz) {
+			_setClassName(jsPlumb.getDOMElement(el), clazz);
+		},
+		setPosition:function(el, p) {
+//			el = jsPlumb.getDOMElement(el);
+			el.style.left = p.left + "px";
+			el.style.top = p.top + "px";
+		},
+		getPosition:function(el) {
+			var _one = function(prop) {
+				var v = el.style[prop];
+				return v ? v.substring(0, v.length - 2) : 0;
+			};
+			return {
+				left:_one("left"),
+				top:_one("top")
+			};
+		},
+		getOffset:function(el) {
+			var l = el.offsetLeft, t = el.offsetTop, op = el.offsetParent;
+			while (op != null) {
+				l += op.offsetLeft;
+				t += op.offsetTop;
+				op = op.offsetParent;
+			}
+			return {
+				left:l, top:t
+			};
 		}
     };
-    
-
-    /*
-
-    addClass:
-
-    add: function( elem, classNames ) {
-    jQuery.each((classNames || "").split(/\s+/), function(i, className){
-        if ( elem.nodeType == 1 && !jQuery.className.has( elem.className, className ) )
-            elem.className += (elem.className ? " " : "") + className;
-        });
-    },
-    */
-
-    /*
-
-	removeClass:
-
-    elem.className = classNames !== undefined ?
-    	jQuery.grep(elem.className.split(/\s+/), function(className){
-    		return !jQuery.className.has( classNames, className );
-    	}).join(" ") :
-
-*/
-
+   
 })();

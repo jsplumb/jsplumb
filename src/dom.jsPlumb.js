@@ -71,65 +71,11 @@
 
      */
 
-    
-    var _setClassName = function(el, val) {        
-            if (el.className.baseVal) 
-                el.className.baseVal = val;
-            else 
-                el.className = val;
-        },
-        _getClassName = function(el) {
-            return el.className.baseVal != null ? el.className.baseVal : el.className;
-        },
-        _classManip = function(el, add, clazz) {
-		  var classesToAddOrRemove = clazz.split(" "),			
-			  curClasses = _getClassName(el).split(" ");
-			
-            for (var i = 0; i < classesToAddOrRemove.length; i++) {
-                if (add) {
-                    if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
-                        curClasses.push(classesToAddOrRemove[i]);
-                }
-                else {
-                    var idx = curClasses.indexOf(classesToAddOrRemove[i]);
-                    if (idx != -1)
-                        curClasses.splice(idx, 1);
-                }
-            }
-            
-            _setClassName(el, curClasses.join(" "));
-        },
-        _addClass = function(el, clazz) {
-            _classManip(el, true, clazz);
-        },
-        _removeClass = function(el, clazz) {
-            _classManip(el, false, clazz);
-        };
-    
+       
 
-	jsPlumb.CurrentLibrary = {					        
+	jsPlumb.extend(jsPlumbInstance.prototype, {					        
 		
-		/**
-		 * adds the given class to the element object.
-		 */
-		addClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			try {
-				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.addClass(el[0], clazz);                    
-				}
-			}
-			catch (e) {
-				// SVGAnimatedString not supported; no problem.
-			}
-            try {                
-                el.addClass(clazz);
-            }
-            catch (e) {
-                // you probably have jQuery 1.9 and Firefox.  
-            }
-		},
-		
+	
 		/**
 		 * animates the given element.
 		 */
@@ -143,15 +89,6 @@
 		appendElement : function(child, parent) {
 			jsPlumb.CurrentLibrary.getElementObject(parent).append(child);			
 		},   
-
-		/**
-		* executes an ajax call.
-		*/
-		ajax : function(params) {
-			params = params || {};
-			params.type = params.type || "get";
-			$.ajax(params);
-		},
 		
 		/**
 		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
@@ -169,22 +106,7 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
-				
-		/**
-		 * wrapper around the library's 'extend' functionality (which it hopefully has.
-		 * otherwise you'll have to do it yourself). perhaps jsPlumb could do this for you
-		 * instead.  it's not like its hard.
-		 */
-		extend : function(o1, o2) {
-			return $.extend(o1, o2);
-		},
-		
-		/**
-		 * gets the named attribute from the given element object.  
-		 */
-		getAttribute : function(el, attName) {
-			return el.attr(attName);
-		},
+						
 		
 		getClientXY : function(eventObject) {
 			return [eventObject.clientX, eventObject.clientY];
@@ -237,46 +159,34 @@
 		  * { left:xxx, top: xxx }
 		 */
 		getOffset : function(el) {
-			return el.offset();
+			throw "getOffset not implemented";
 		},
 
 		getOriginalEvent : function(e) {
-			return e.originalEvent;
+			return e;
 		},
 		
 		getPageXY : function(eventObject) {
-			return [eventObject.pageX, eventObject.pageY];
+			return eventObject.pageX != null ? [ eventObject.pageX, eventObject.pageY ] : [ eventObject.clientX, eventObject.clientY ];
 		},
 		
 		getParent : function(el) {
-			return jsPlumb.CurrentLibrary.getElementObject(el).parent();
-		},
-														
-		getScrollLeft : function(el) {
-			return el.scrollLeft();
-		},
-		
-		getScrollTop : function(el) {
-			return el.scrollTop();
-		},
+			return el == null ? null : el.parentNode;
+		},		
 		
 		getSelector : function(context, spec) {
-            if (arguments.length == 2)
-                return jsPlumb.CurrentLibrary.getElementObject(context).find(spec);
-            else
-                return $(context);
+            throw "get selector not implemented. use querySelectorAll ?";
 		},
 		
 		/**
 		 * gets the size for the element object, in an array : [ width, height ].
 		 */
 		getSize : function(el) {
-			return [el.outerWidth(), el.outerHeight()];
+			throw "getSize not implemented. use bounding client rect? what about margin?";
 		},
 
         getTagName : function(el) {
-            var e = jsPlumb.CurrentLibrary.getElementObject(el);
-            return e.length > 0 ? e[0].tagName : null;
+            return e== null ? null : e.tagName;
         },
 		
 		/**
@@ -314,10 +224,6 @@
 			}
             return { left:ret.left / zoom, top: ret.top / zoom };
 		},		
-		
-		hasClass : function(el, clazz) {
-			return el.hasClass(clazz);
-		},
 		
 		/**
 		 * initialises the given element to be draggable.
@@ -357,34 +263,10 @@
 		 */
 		isDropSupported : function(el, options) {
 			return el.droppable;
-		},							
-		
-		/**
-		 * removes the given class from the element object.
-		 */
-		removeClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			try {
-				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.removeClass(el[0], clazz);
-                    return;
-				}
-			}
-			catch (e) {
-				// SVGAnimatedString not supported; no problem.
-			}
-			el.removeClass(clazz);
-		},
+		},									
 		
 		removeElement : function(element) {			
 			jsPlumb.CurrentLibrary.getElementObject(element).remove();
-		},
-		
-		/**
-		 * sets the named attribute on the given element object.  
-		 */
-		setAttribute : function(el, attName, attValue) {
-			el.attr(attName, attValue);
 		},
 		
 		/**
@@ -431,7 +313,7 @@
 			el = jsPlumb.CurrentLibrary.getElementObject(el);
 			el.unbind(event, callback);
 		}
-	};
+	});
 	
 	$(document).ready(jsPlumb.init);
 	

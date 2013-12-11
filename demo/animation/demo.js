@@ -30,11 +30,11 @@
 
 			_bind(el, 'click', function(e, ui) {
 				if (el.className.indexOf("jsPlumb_dragged") > -1) {
-					jpcl.removeClass(elId, "jsPlumb_dragged");
+					jsPlumb.removeClass(elId, "jsPlumb_dragged");
 					return;
 				}
 				e =jsPlumb.getOriginalEvent(e);
-				var o = jpcl.getOffset(_el),
+				var o = jsPlumbAdapter.getOffset(_el),
 					s = jsPlumb.getSize(el),
 					pxy = [e.pageX || e.clientX, e.pageY || e.clientY],
 					c = [o.left + (s[0]/2) - pxy[0], o.top + (s[1]/2) - pxy[1]],

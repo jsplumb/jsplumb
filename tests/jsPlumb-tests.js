@@ -1761,36 +1761,36 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"TopCenter"  });
-		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d17, "ui-droppable"));
 	});
 
 	test(renderMode + ": _jsPlumb.makeTarget (specify two divs in an array)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		_jsPlumb.makeTarget([d16, d17], { isTarget:true,anchor:"TopCenter"  });
-		equal(true, jsPlumb.hasClass(d16, "ui-droppable"));
-		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d17, "ui-droppable"));
 	});
 	
 	test(renderMode + ": _jsPlumb.makeTarget (specify two divs by id in an array)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		_jsPlumb.makeTarget(["d16", "d17"], { isTarget:true,anchor:"TopCenter"  });
-		equal(true, jsPlumb.hasClass(d16, "ui-droppable"));
-		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d17, "ui-droppable"));
 	});
 	
 	test(renderMode + ": _jsPlumb.makeTarget (specify divs by selector)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		d16.addClass("FOO");d17.addClass("FOO");
 		_jsPlumb.makeTarget($(".FOO"), { isTarget:true,anchor:"TopCenter"  });
-		equal(true, jsPlumb.hasClass(d16, "ui-droppable"));
-		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d17, "ui-droppable"));
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
@@ -1804,7 +1804,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
@@ -1818,7 +1818,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true, anchor:"LeftMiddle", uniqueEndpoint:true, maxConnections:-1  }); // give it a non-default anchor, we will check this below.
-		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
@@ -1833,7 +1833,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumbAdapter.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17", newConnection:true});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
@@ -5921,7 +5921,7 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
 		equal(jsPlumbUtil.isEmpty(null), true, "null object is considered empty");
 	});
 	
-	test(renderMode + " : DOM adapter addClass", function() {
+	test(renderMode + " : DOM adapter addClass/hasClass/removeClass", function() {
 		var d1 = _addDiv(d1), // d1 is a jquery selector
 			_d1 = d1[0];  // _d1 is the DOM element. we will test using each one.
 		
@@ -5968,6 +5968,10 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
 		
 		// check SFOO is still there
 		ok(jsPlumbAdapter.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
+		
+		// set class for d1 to be BAZ only
+		jsPlumbAdapter.setClass(d1, "BAZ");
+		equal(_d1.className, "BAZ", "element has only the class set with setClass");
 	});
 };
 
