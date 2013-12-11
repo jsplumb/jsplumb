@@ -108,22 +108,7 @@
 	
 	// new: move to putting stuff on jsplumb prototype
 	$extend(jsPlumbInstance.prototype, {
-		/**
-		 * adds the given class to the element object.
-		 */
-		addClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			try {
-				if (el.className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.addClass(el, clazz);
-				}
-				else el.addClass(clazz);
-			}
-			catch (e) {				
-				// SVGAnimatedString not supported; no problem.
-				el.addClass(clazz);
-			}						
-		},
+		
 		doAnimate : function(el, properties, options) {			
 			var m = new jsPlumbMorph(el, options);
 			m.start(properties);
@@ -135,9 +120,6 @@
             else
 			     return $$(context);
 		},
-		hasClass : function(el, clazz) {
-			return el.hasClass(clazz);
-		},
 		
 		getDOMElement : function(el) { 
 			if (el == null) return null;
@@ -145,22 +127,6 @@
 			return typeof(el) == "string" ? document.getElementById(el) : el; 
 		},
 		
-		/**
-		 * removes the given class from the element object.
-		 */
-		removeClass : function(el, clazz) {
-			el = jsPlumb.CurrentLibrary.getElementObject(el);
-			try {
-				if (el.className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.removeClass(el, clazz);
-				}
-				else el.removeClass(clazz);
-			}
-			catch (e) {				
-				// SVGAnimatedString not supported; no problem.
-				el.removeClass(clazz);
-			}
-		},
 		destroyDraggable : function(el) {
 			// TODO
 			var id = jsPlumb.getId(el), d = _draggablesById[id];

@@ -26,7 +26,7 @@
 	
 		initAnimation = function(elId) {
 			var el = document.getElementById(elId),
-				_el = jpcl.getElementObject(el);
+				_el = jsPlumb.getElementObject(el);
 
 			_bind(el, 'click', function(e, ui) {
 				if (el.className.indexOf("jsPlumb_dragged") > -1) {
@@ -75,7 +75,7 @@
 			var d = document.createElement("div");
 			d.className = "bigdot";
 			document.getElementById("animation-demo").appendChild(d);
-			var id = '' + ((new Date().getTime())), _d = jpcl.getElementObject(d);
+			var id = '' + ((new Date().getTime()));
 			d.setAttribute("id", id);
 			var w = screen.width - 162, h = screen.height - 162;
 			var x = (0.2 * w) + Math.floor(Math.random()*(0.5 * w));

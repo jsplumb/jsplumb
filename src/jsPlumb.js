@@ -13,9 +13,9 @@
 ;(function() {
 			
     var _ju = jsPlumbUtil,
-    	_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },		
+    	//_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },		
 		_getOffset = function(el, _instance) {
-            var o = jsPlumb.CurrentLibrary.getOffset(_gel(el));
+            var o = jsPlumb.CurrentLibrary.getOffset(jsPlumb.getElementObject(el));
 			if (_instance != null) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
@@ -247,12 +247,12 @@
 			
 			addClass : function(clazz) {
 			    if (this.canvas != null)
-			        this._jsPlumb.instance.addClass(this.canvas, clazz);
+			        jsPlumbAdapter.addClass(this.canvas, clazz);
 			},
 						
 			removeClass : function(clazz) {
 			    if (this.canvas != null)
-			        this._jsPlumb.instance.removeClass(this.canvas, clazz);
+			        jsPlumbAdapter.removeClass(this.canvas, clazz);
 			},
 			
 			setType : function(typeId, params, doNotRepaint) {				
@@ -368,7 +368,7 @@
                         
                     if (this.canvas != null) {
                         if (this._jsPlumb.instance.hoverClass != null) {                            
-                            this._jsPlumb.instance[hover ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.hoverClass);						                            
+                            jsPlumbAdapter[hover ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.hoverClass);						                            
                         }                                              
                     }
 		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
@@ -775,12 +775,12 @@
 				if (_ju.isArray(element)) {
 					retVal = [];
 					for ( var i = 0, j = element.length; i < j; i++) {
-						el = _gel(element[i]);
+						el = _currentInstance.getElementObject(element[i]);
 						id = _currentInstance.getAttribute(el, "id");
 						retVal.push(fn(el, id)); // append return values to what we will return
 					}
 				} else {
-					el = _gel(element);
+					el = _currentInstance.getElementObject(element);
 					id = _currentInstance.getAttribute(el, "id");
 					retVal = fn(el, id);
 				}
@@ -819,12 +819,12 @@
 						options[dragEvent] = _ju.wrap(options[dragEvent], function() {                            
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui, null, true);
-							_currentInstance.addClass(element, "jsPlumb_dragged");
+							jsPlumbAdapter.addClass(element, "jsPlumb_dragged");
 						});
 						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui);
-							_currentInstance.removeClass(element, "jsPlumb_dragged");
+							jsPlumbAdapter.removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);							
 							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -1338,7 +1338,7 @@
 		
 		this.animate = function(el, properties, options) {
 			options = options || {};
-			var ele = _gel(el), 
+			var ele = _currentInstance.getElementObject(el), 
 				id = _getId(el),
 				stepFunction = jsPlumb.dragEvents.step,
 				completeFunction = jsPlumb.dragEvents.complete;
@@ -1688,7 +1688,7 @@
 						r.push(input);
 					}
 					else {
-						input = _gel(input);
+						input = _currentInstance.getElementObject(input);
 						if (doNotGetIds) r = input;
 						else { 
 							for (var i = 0, j = input.length; i < j; i++) 
@@ -1791,7 +1791,7 @@
 		
 		var	_makeEndpointSelectHandler = function(list) {
 			var common = _makeCommonSelectHandler(list, _makeEndpointSelectHandler);
-			return jsPlumb.CurrentLibrary.extend(common, {
+			return jsPlumb.extend(common, {
 				setEnabled:setter(list, "setEnabled", _makeEndpointSelectHandler),				
 				setAnchor:setter(list, "setAnchor", _makeEndpointSelectHandler),
 				isEnabled:getter(list, "isEnabled"),
@@ -2120,7 +2120,7 @@
 						_currentInstance.currentlyDragging = false;
 						var originalEvent = jsPlumb.getDropEvent(arguments),
 							targetCount = _currentInstance.select({target:elid}).length,
-							draggable = _gel(jsPlumb.getDragObject(arguments)),
+							draggable = _currentInstance.getElementObject(jsPlumb.getDragObject(arguments)),
 							id = _currentInstance.getAttribute(draggable, "dragId"),										
 							scope = _currentInstance.getAttribute(draggable, "originalScope"),
 							jpc = floatingConnections[id],
@@ -2179,7 +2179,7 @@
 																	
 							// make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
                             // is set.
-							var _el = jpcl.getElementObject(elInfo.el),
+							var _el = _currentInstance.getElementObject(elInfo.el),
 								newEndpoint = _targetEndpoints[elid];
 
                             // if no cached endpoint, or there was one but it has been cleaned up
@@ -2255,7 +2255,7 @@
 					var dropEvent = jsPlumb.dragEvents.drop;
 					dropOptions.scope = dropOptions.scope || targetScope;
 					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
-					jsPlumb.initDroppable(_gel(elInfo.el), dropOptions, true);
+					jsPlumb.initDroppable(_currentInstance.getElementObject(elInfo.el), dropOptions, true);
 				};
 			
 			// YUI collection fix
@@ -2275,7 +2275,7 @@
 		this.unmakeTarget = function(el, doNotClearArrays) {
 			var info = _info(el);
 
-			jsPlumb.CurrentLibrary.destroyDroppable(info.el);
+			jsPlumb.destroyDroppable(info.el);
 			// TODO this is not an exhaustive unmake of a target, since it does not remove the droppable stuff from
 			// the element.  the effect will be to prevent it from behaving as a target, but it's not completely purged.
 			if (!doNotClearArrays) {
@@ -2300,7 +2300,7 @@
 					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
 					// and use the endpoint definition if found.
 					var elid = elInfo.id,
-						_el = _gel(elInfo.el),
+						_el = _currentInstance.getElementObject(elInfo.el),
 						parentElement = function() {
 							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _currentInstance.getDOMElement(p.parent);
 						},
@@ -2941,11 +2941,10 @@
 		},
     	// set parent: change the parent for some node and update all the registrations we need to.
     	setParent : function(el, newParent) {
-    		var jpcl = jsPlumb.CurrentLibrary,
-    			_el = jpcl.getElementObject(el),
+    		var _el = this.getElementObject(el),
     			_dom = this.getDOMElement(_el),
     			_id = this.getId(_dom),
-    			_pel = jpcl.getElementObject(newParent),
+    			_pel = this.getElementObject(newParent),
     			_pdom = this.getDOMElement(_pel),
     			_pid = this.getId(_pdom);
 

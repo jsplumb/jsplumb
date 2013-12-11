@@ -43,7 +43,7 @@ var _addDiv = function(id, parent) {
 	var d1 = document.createElement("div");
 	if (parent) parent.append(d1); else _getContextNode().append(d1);	
 	d1.setAttribute("id", id);
-	d1 = jsPlumb.CurrentLibrary.getElementObject(d1);
+	d1 = jsPlumb.getElementObject(d1);
 	_divs.push(id);
 	return d1;
 };
@@ -98,7 +98,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e = document.createElement("div");
 		e.id = "FOO";
 		document.body.appendChild(e);
-		var el = jpcl.getElementObject(e);
+		var el = jsPlumb.getElementObject(e);
 		equal(el.attr("id"), "FOO");
 	});
 
@@ -106,8 +106,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var e = document.createElement("div");
 		e.id = "FOO";
 		document.body.appendChild(e);
-		var el = jpcl.getElementObject(e);
-		var e2 = jpcl.getDOMElement(el);
+		var el = jsPlumb.getElementObject(e);
+		var e2 = jsPlumb.getDOMElement(el);
 		equal(e2.id, "FOO");
 	});
 	
@@ -1761,36 +1761,36 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"TopCenter"  });
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
 	});
 
 	test(renderMode + ": _jsPlumb.makeTarget (specify two divs in an array)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		_jsPlumb.makeTarget([d16, d17], { isTarget:true,anchor:"TopCenter"  });
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
 	});
 	
 	test(renderMode + ": _jsPlumb.makeTarget (specify two divs by id in an array)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		_jsPlumb.makeTarget(["d16", "d17"], { isTarget:true,anchor:"TopCenter"  });
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
 	});
 	
 	test(renderMode + ": _jsPlumb.makeTarget (specify divs by selector)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		d16.addClass("FOO");d17.addClass("FOO");
 		_jsPlumb.makeTarget($(".FOO"), { isTarget:true,anchor:"TopCenter"  });
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d16, "ui-droppable"));
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d16, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
 	});
 
 	test(renderMode + ": _jsPlumb.connect after makeTarget (simple case)", function() {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
@@ -1804,7 +1804,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
@@ -1818,7 +1818,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false, maxConnections:-1}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true, anchor:"LeftMiddle", uniqueEndpoint:true, maxConnections:-1  }); // give it a non-default anchor, we will check this below.
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17"});
 		_jsPlumb.connect({source:e16, target:"d17"});
 		assertEndpointCount("d16", 1, _jsPlumb);
@@ -1833,7 +1833,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d16 = _addDiv("d16"), d17 = _addDiv("d17"); 
 		var e16 = _jsPlumb.addEndpoint(d16, {isSource:true, isTarget:false}, {anchors:[[0,0.5,0,-1], [1,0.5,0,1]]});
 		_jsPlumb.makeTarget(d17, { isTarget:true,anchor:"LeftMiddle"  }); // give it a non-default anchor, we will check this below.
-		equal(true, jsPlumb.CurrentLibrary.hasClass(d17, "ui-droppable"));
+		equal(true, jsPlumb.hasClass(d17, "ui-droppable"));
 		_jsPlumb.connect({source:e16, target:"d17", newConnection:true});
 		assertEndpointCount("d16", 1, _jsPlumb);
 		assertEndpointCount("d17", 1, _jsPlumb);
@@ -5919,6 +5919,55 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
 		e.foo = "bar";
 		equal(jsPlumbUtil.isEmpty(e), false, "e is not empty");
 		equal(jsPlumbUtil.isEmpty(null), true, "null object is considered empty");
+	});
+	
+	test(renderMode + " : DOM adapter addClass", function() {
+		var d1 = _addDiv(d1), // d1 is a jquery selector
+			_d1 = d1[0];  // _d1 is the DOM element. we will test using each one.
+		
+		// add a single class and test for its existence	
+		jsPlumbAdapter.addClass(d1, "FOO");
+		equal(_d1.className, "FOO", "element has class FOO, using DOM element");		
+		ok(jsPlumbAdapter.hasClass(_d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
+		ok(jsPlumbAdapter.hasClass(d1, "FOO"), "element has class FOO, according to hasClass method, selector");
+		
+		// add multiple classes and test for their existence
+		jsPlumbAdapter.addClass(_d1, "BAZ BAR SHAZ");
+		ok(jsPlumbAdapter.hasClass(_d1, "BAZ"), "element has class BAZ, according to hasClass method, DOM element");
+		ok(jsPlumbAdapter.hasClass(_d1, "BAR"), "element has class BAR, according to hasClass method, DOM element");
+		ok(jsPlumbAdapter.hasClass(_d1, "SHAZ"), "element has class SHAZ, according to hasClass method, DOM element");
+		
+		// remove one class
+		jsPlumbAdapter.removeClass(d1, "BAR");
+		ok(!jsPlumbAdapter.hasClass(_d1, "BAR"), "element doesn't have class BAR, according to hasClass method, DOM element");
+		
+		// remove two more classes
+		jsPlumbAdapter.removeClass(d1, "BAZ SHAZ");
+		ok(!jsPlumbAdapter.hasClass(_d1, "BAZ"), "element doesn't have class BAZ, according to hasClass method, DOM element");
+		ok(!jsPlumbAdapter.hasClass(_d1, "SHAZ"), "element doesn't have class SHAZ, according to hasClass method, DOM element");
+		
+		// check FOO is still there
+		ok(jsPlumbAdapter.hasClass(_d1, "FOO"), "element has class FOO, according to hasClass method, DOM element");
+		
+		// now for an SVG element.
+		var s1 = jsPlumbUtil.svg.node("svg");
+		document.body.appendChild(s1);
+		jsPlumbAdapter.addClass(s1, "SFOO");
+		ok(jsPlumbAdapter.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
+		
+		jsPlumbAdapter.addClass(s1, "BAZ BAR SHAZ");
+		
+		// remove one class
+		jsPlumbAdapter.removeClass(s1, "BAR");
+		ok(!jsPlumbAdapter.hasClass(s1, "BAR"), "SVG element doesn't have class BAR, according to hasClass method, DOM element");
+		
+		// remove two more classes
+		jsPlumbAdapter.removeClass(s1, "BAZ SHAZ");
+		ok(!jsPlumbAdapter.hasClass(s1, "BAZ"), "SVG element doesn't have class BAZ, according to hasClass method, DOM element");
+		ok(!jsPlumbAdapter.hasClass(s1, "SHAZ"), "SVG element doesn't have class SHAZ, according to hasClass method, DOM element");
+		
+		// check SFOO is still there
+		ok(jsPlumbAdapter.hasClass(s1, "SFOO"), "SVG element has class SFOO, according to hasClass method, DOM element");
 	});
 };
 

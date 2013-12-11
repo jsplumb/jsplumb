@@ -141,10 +141,7 @@
         return eee;
 	};
 	
-	jsPlumb.extend(jsPlumbInstance.prototype, {
-		addClass : function(el, clazz) {
-			_getElementObject(el).addClass(clazz);
-		},
+	jsPlumb.extend(jsPlumbInstance.prototype, {		
 		/**
 		 * animates the given element.
 		 */
@@ -168,12 +165,6 @@
             else {
 			     return _convert(Y.all(context));
             }            
-		},
-		hasClass : function(el, clazz) {
-			return el.hasClass(clazz);
-		},
-		removeClass : function(el, clazz) { 
-			_getElementObject(el).removeClass(clazz); 
 		},
 		destroyDraggable : function(el) {
 			var id = jsPlumb.getId(el),

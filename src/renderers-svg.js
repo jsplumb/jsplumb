@@ -164,27 +164,6 @@
 
 		return {size:bits[1] + bits[2], font:bits[3]};		
 	},
-	_classManip = function(el, add, clazz) {
-		var classesToAddOrRemove = clazz.split(" "),
-			className = el.className,
-			curClasses = className.baseVal.split(" ");
-			
-		for (var i = 0; i < classesToAddOrRemove.length; i++) {
-			if (add) {
-				if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
-					curClasses.push(classesToAddOrRemove[i]);
-			}
-			else {
-				var idx = curClasses.indexOf(classesToAddOrRemove[i]);
-				if (idx != -1)
-					curClasses.splice(idx, 1);
-			}
-		}
-		
-		el.className.baseVal = curClasses.join(" ");
-	},
-	_addClass = function(el, clazz) { _classManip(el, true, clazz); },
-	_removeClass = function(el, clazz) { _classManip(el, false, clazz); },
 	_appendAtIndex = function(svg, path, idx) {
 		if (svg.childNodes.length > idx) {
 			svg.insertBefore(path, svg.childNodes[idx]);
@@ -196,8 +175,6 @@
 		utility methods for other objects to use.
 	*/
 	jsPlumbUtil.svg = {
-		addClass:_addClass,
-		removeClass:_removeClass,
 		node:_node,
 		attr:_attr,
 		pos:_pos

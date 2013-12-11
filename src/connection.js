@@ -64,9 +64,8 @@
     jsPlumb.Connection = function(params) {
         var _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
-            jpcl = jsPlumb.CurrentLibrary,
-            _att = jpcl.getAttribute,
-            _gel = jpcl.getElementObject,            
+            jpcl = jsPlumb.CurrentLibrary,            
+            _gel = jsPlumb.getElementObject,            
             _ju = jsPlumbUtil,
             _getOffset = jpcl.getOffset;
 
@@ -338,8 +337,8 @@
         setHover : function(state) {
             if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
                 this.connector.setHover(state);
-                this._jsPlumb.instance[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
-                this._jsPlumb.instance[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
+                jsPlumbAdapter[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
+                jsPlumbAdapter[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
             }
         },
         getCost : function() { return this._jsPlumb.cost; },
@@ -350,7 +349,7 @@
         //
         // TODO ensure moveParent method still works (the overlay stuff in particular)
         moveParent : function(newParent) {
-            var jpcl = jsPlumb.CurrentLibrary, curParent = jpcl.getParent(this.connector.canvas);               
+            var jpcl = jsPlumb.CurrentLibrary, curParent = jsPlumb.getParent(this.connector.canvas);               
             if (this.connector.bgCanvas) {
                 jpcl.removeElement(this.connector.bgCanvas);
                 //jpcl.appendElement(this.connector.bgCanvas, newParent);

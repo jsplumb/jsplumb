@@ -63,46 +63,7 @@
 		
 		
 // ---------------------------- DOM MANIPULATION ---------------------------------------		
-		
-		/**
-		 * adds the given class to the element object.
-		 */
-		addClass : function(el, clazz) {
-			el = _getElementObject(el);
-			try {
-				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.addClass(el[0], clazz);                    
-				}
-			}
-			catch (e) {
-				// SVGAnimatedString not supported; no problem.
-			}
-            try {                
-                el.addClass(clazz);
-            }
-            catch (e) {
-                // you probably have jQuery 1.9 and Firefox.  
-            }
-		},
-		hasClass : function(el, clazz) {
-			return el.hasClass(clazz);
-		},
-		/**
-		 * removes the given class from the element object.
-		 */
-		removeClass : function(el, clazz) {
-			el = _getElementObject(el);
-			try {
-				if (el[0].className.constructor == SVGAnimatedString) {
-					jsPlumbUtil.svg.removeClass(el[0], clazz);
-                    return;
-				}
-			}
-			catch (e) {
-				// SVGAnimatedString not supported; no problem.
-			}
-			el.removeClass(clazz);
-		},
+				
 		
 		/**
 		* gets a DOM element from the given input, which might be a string (in which case we just do document.getElementById),
@@ -115,6 +76,15 @@
 			else if (el.context || el.length != null) return el[0];
 			else return el;
 		},
+		
+		/**
+		 * gets an "element object" from the given input.  this means an object that is used by the
+		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
+		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
+		 * function is used to find the element, using the given String as the element's id.
+		 * 
+		 */		
+		getElementObject : _getElementObject,
 		
 // ---------------------------- END DOM MANIPULATION ---------------------------------------
 
@@ -304,17 +274,7 @@ TODO: REMOVE!
 		 */
 		appendoElement : function(child, parent) {
 			_getElementObject(parent).append(child);			
-		},   																
-		
-	
-		/**
-		 * gets an "element object" from the given input.  this means an object that is used by the
-		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
-		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
-		 * function is used to find the element, using the given String as the element's id.
-		 * 
-		 */		
-		getElementObject : _getElementObject,
+		},   																			
 		
 		/**
 		  * gets the offset for the element object.  this should return a js object like this:

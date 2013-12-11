@@ -70,7 +70,7 @@
         var _jsPlumb = params._jsPlumb,
             jpcl = jsPlumb.CurrentLibrary,
             _att = jsPlumbAdapter.getAttribute,
-            _gel = jpcl.getElementObject,            
+            _gel = jsPlumb.getElementObject,            
             _ju = jsPlumbUtil,            
             _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
@@ -123,11 +123,11 @@
         this._jsPlumb.events = {};
             
         var  _updateAnchorClass = function() {
-            _jsPlumb.removeClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            jsPlumbAdapter.removeClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
             this.removeClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
             this._jsPlumb.currentAnchorClass = this.anchor.getCssClass();
             this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
-            _jsPlumb.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+            jsPlumbAdapter.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
         }.bind(this);
         
         this.setAnchor = function(anchorParams, doNotRepaint) {
@@ -224,7 +224,7 @@
         this.canvas = this.endpoint.canvas;		
         // add anchor class (need to do this on construction because we set anchor first)
         this.addClass(_jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);	
-        _jsPlumb.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
+        jsPlumbAdapter.addClass(this.element, _jsPlumb.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);
         this.connections = params.connections || [];
         this.connectorPointerEvents = params["connector-pointer-events"];
         
@@ -938,13 +938,13 @@
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
         cleanup : function() {            
-            this._jsPlumb.instance.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);            
+            jsPlumbAdapter.removeClass(this.element, this._jsPlumb.instance.endpointAnchorClassPrefix + "_" + this._jsPlumb.currentAnchorClass);            
             this.anchor = null;
             this.endpoint.cleanup();
             this.endpoint.destroy();
             this.endpoint = null;
             // drag/drop
-            var i = jsPlumb.CurrentLibrary.getElementObject(this.canvas);              
+            var i = jsPlumb.getElementObject(this.canvas);              
             jsPlumb.destroyDraggable(i);
             jsPlumb.destroyDroppable(i);
         },
@@ -966,7 +966,7 @@
             this.anchor.elementId = _elId;
         },        
         setReferenceElement : function(_el) {
-            this.element = jsPlumb.CurrentLibrary.getDOMElement(_el);
+            this.element = jsPlumb.getDOMElement(_el);
         },
         setDragAllowedWhenFull : function(allowed) {
             this.dragAllowedWhenFull = allowed;

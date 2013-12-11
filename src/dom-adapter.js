@@ -51,7 +51,7 @@
         */
 		this.register = function(el) {
             var jpcl = jsPlumb.CurrentLibrary,
-            	_el = jpcl.getElementObject(el),
+            	_el = jsPlumb.getElementObject(el),
             	id = _currentInstance.getId(el),                
                 parentOffset = jpcl.getOffset(_el);
                     
@@ -66,7 +66,7 @@
                 if (p) {											
                     for (var i = 0; i < p.childNodes.length; i++) {
                         if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
-                            var cEl = jpcl.getElementObject(p.childNodes[i]),
+                            var cEl = jsPlumb.getElementObject(p.childNodes[i]),
                                 cid = _currentInstance.getId(p.childNodes[i], null, true);
                             if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
                                 var cOff = jpcl.getOffset(cEl);
@@ -91,15 +91,15 @@
 		// refresh the offsets for child elements of this element. 
 		this.updateOffsets = function(elId) {
 			var jpcl = jsPlumb.CurrentLibrary,
-				el = jpcl.getElementObject(elId),
-				domEl = jpcl.getDOMElement(el),
+				el = jsPlumb.getElementObject(elId),
+				domEl = jsPlumb.getDOMElement(el),
 				id = _currentInstance.getId(domEl),
 				children = _delements[id],
 				parentOffset = jpcl.getOffset(el);
 				
 			if (children) {
 				for (var i in children) {
-					var cel = jpcl.getElementObject(i),
+					var cel = jsPlumb.getElementObject(i),
 						cOff = jpcl.getOffset(cel);
 						
 					_delements[id][i] = {
@@ -121,7 +121,7 @@
 		*/
 		this.endpointAdded = function(el) {
 			var jpcl = jsPlumb.CurrentLibrary, b = document.body, id = _currentInstance.getId(el), 
-				c = jpcl.getElementObject(el), 
+				c = jsPlumb.getElementObject(el), 
 				cLoc = jsPlumb.CurrentLibrary.getOffset(c),
 				p = el.parentNode, done = p == b;
 
@@ -130,7 +130,7 @@
 			while (p != null && p != b) {
 				var pid = _currentInstance.getId(p, null, true);
 				if (pid && _draggables[pid]) {
-					var idx = -1, pEl = jpcl.getElementObject(p), pLoc = jpcl.getOffset(pEl);
+					var idx = -1, pEl = jsPlumb.getElementObject(p), pLoc = jpcl.getOffset(pEl);
 					
 					if (_delements[pid][id] == null) {						
 						_delements[pid][id] = {
@@ -221,6 +221,37 @@
     // for those browsers that dont have it.  they still don't have it! but at least they won't crash.
 	if (!window.console)
 		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
+		
+	var trim = function(str) {
+		return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
+	};
+	
+	var _classManip = function(el, add, clazz) {
+		var classesToAddOrRemove = clazz.split(/\s+/),
+			className = el.className,
+			re = /\s+/,
+			curClasses = className ? typeof className.baseVal != "undefined" ? className.baseVal.split(re) : className.split(re) : [];
+			
+		for (var i = 0; i < classesToAddOrRemove.length; i++) {
+			if (add) {
+				if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
+					curClasses.push(classesToAddOrRemove[i]);
+			}
+			else {
+				var idx = curClasses.indexOf(classesToAddOrRemove[i]);
+				if (idx != -1)
+					curClasses.splice(idx, 1);
+			}
+		}
+		
+		var cc = trim(curClasses.join(" "));
+		
+		if (className != null && typeof className.baseVal != "undefined")
+			className.baseVal = cc;
+		else
+			el.className = cc;
+	};
+	
             
     window.jsPlumbAdapter = {
         
@@ -271,7 +302,21 @@
             }
 
 			return renderMode;
-        }
+        },
+		addClass:function(el, clazz) {			
+			_classManip(jsPlumb.getDOMElement(el), true, clazz);
+		},
+		hasClass:function(el, clazz) {
+			el = jsPlumb.getDOMElement(el);
+			if (el.classList) return el.classList.contains(clazz);
+			else {
+				var s = el.className ? typeof el.className.baseVal != "undefined" ? el.className.baseVal : el.className : "";
+				return s.indexOf(clazz) != -1;
+			}
+		},
+		removeClass:function(el, clazz) {
+			_classManip(jsPlumb.getDOMElement(el), false, clazz);
+		}
     };
     
 
