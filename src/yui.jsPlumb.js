@@ -323,15 +323,11 @@
 	});
 	
 	jsPlumb.CurrentLibrary = {				
-		
-		appendoElement : function(child, parent) {
-			_getElementObject (parent).append(child);			
-		},
-		
+	
 		/**
 		 * event binding wrapper.  
 		 */
-		bind : function(el, event, callback) {
+		on : function(el, event, callback) {
 			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
 			for (var i = 0; i < els.length; i++)
 				Y.one(els[i]).on(event, callback);
@@ -347,7 +343,7 @@
 		/**
 		 * event unbinding wrapper.  
 		 */
-		unbind : function(el, event, callback) {
+		off : function(el, event, callback) {
 			_getElementObject(el).detach(event, callback);
 		}
 	};				

@@ -271,7 +271,7 @@
 		 */
 		getUIPosition : function(eventArgs, zoom) {
 		  var ui = eventArgs[0],
-			  el = jsPlumb.CurrentLibrary.getElementObject(ui),
+			  el = jsPlumb.getElementObject(ui),
 			  p = el.getPosition();
 			
 		  zoom = zoom || 1;		  
@@ -323,13 +323,9 @@
 		}
 	});
 		
-	jsPlumb.CurrentLibrary = {							
+	jsPlumb.CurrentLibrary = {									
 		
-		appendoElement : function(child, parent) {
-			_getElementObject(parent).grab(child);			
-		},
-		
-		bind : function(el, event, callback) {
+		on : function(el, event, callback) {
 			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : $$(el);
 			//el = _getElementObject(el);
 			for (var i = 0; i < els.length; i++)
@@ -354,7 +350,7 @@
 		
 		
 		
-		unbind : function(el, event, callback) {
+		off : function(el, event, callback) {
 			el = _getElementObject(el);
 			el.removeEvent(event, callback);
 		}

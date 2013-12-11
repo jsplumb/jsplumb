@@ -2,7 +2,7 @@
 
 	var _initialised = false,
 		jpcl = jsPlumb.CurrentLibrary,
-		_bind = jpcl.bind,
+		_bind = jpcl.on,
 		listDiv = document.getElementById("list"),
 
 		showConnectionInfo = function(s) {

@@ -879,8 +879,8 @@
 
                 dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function() {					
                     var draggable = jsPlumb.getDragObject(arguments),
-                        id = _jsPlumb.getAttribute( draggable, "dragId"),
-                        _jpc = floatingConnections[id];
+                        id = draggable == null ? null : _jsPlumb.getAttribute( draggable, "dragId"),
+                        _jpc = id? floatingConnections[id] : null;
                         
                     if (_jpc != null) {
                         var idx = _jpc.floatingAnchorIndex == null ? 1 : _jpc.floatingAnchorIndex;

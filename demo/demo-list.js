@@ -73,7 +73,7 @@
 				for (var i = 0; i < list.length; i++) {
 					_d("option", "", sel, list[i][1], {"data-href":"../" + list[i][0] +"/" + library + ".html", "selected":list[i][0] == current}, null);
 				}
-				jsPlumb.CurrentLibrary.bind(sel, "change", function() {
+				jsPlumb.CurrentLibrary.on(sel, "change", function() {
 					document.location = sel.options[sel.selectedIndex].getAttribute("data-href");					
 				});
 			}

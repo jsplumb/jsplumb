@@ -31,7 +31,7 @@
         });
 
 		// click listener for the enable/disable link.
-        jsPlumb.CurrentLibrary.bind(document.getElementById("enableDisableSource"), "click", function(e) {
+        jsPlumb.CurrentLibrary.on(document.getElementById("enableDisableSource"), "click", function(e) {
 			var state = instance.toggleSourceEnabled("sourceWindow1");
 			this.innerHTML = (state ? "disable" : "enable");
 			e.stopPropagation();

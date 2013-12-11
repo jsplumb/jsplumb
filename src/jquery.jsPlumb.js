@@ -263,17 +263,7 @@
 	});
 
 	jsPlumb.CurrentLibrary = {					        
-										
-		
-		/**
-		 * appends the given child to the given parent.
-
-TODO: REMOVE!
-
-		 */
-		appendoElement : function(child, parent) {
-			_getElementObject(parent).append(child);			
-		},   																					
+																															
 				
 		// TODO remove library dependency on a removeElement method.
 		removeElement : function(element) {			
@@ -286,13 +276,13 @@ TODO: REMOVE!
 		 */
 		 
 		 // TODO rename to 'on'
-		bind : function(el, event, callback) {
+		on : function(el, event, callback) {
 			el = _getElementObject(el);
 			el.bind(event, callback);
 		},				
 		
 		// TODO rename to 'off'
-		unbind : function(el, event, callback) {
+		off : function(el, event, callback) {
 			el = _getElementObject(el);
 			el.unbind(event, callback);
 		}
