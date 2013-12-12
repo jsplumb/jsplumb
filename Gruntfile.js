@@ -36,14 +36,22 @@
 
 var JS_BEZIER = "0.6", // current js bezier version
     JS_PLUMB_GEOM = "0.1",
+    TOUCH_ADAPTER = "0.2",
     getJsBezier = function() { return "lib/jsBezier-" + JS_BEZIER + ".js"; },
     getJsPlumbGeom = function() { return "lib/jsplumb-geom-" + JS_PLUMB_GEOM + ".js"; },
-    libraries = [ "jquery", "mootools", "yui" ],
+    libraries = [ "jquery", "mootools", "yui", "dom" ],
     runtimeLibraries = {
         jquery:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script type='text/javascript' src='../../lib/jquery.ui.touch-punch.min.js'></script>",
         mootools:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>",
-        yui:""
+        yui:"",
+        dom:""
     },
+    extraLibraries = {
+        jquery:[],
+        mootools:[],
+        yui:[],
+        dom:[ "lib/touch-adapter-" + TOUCH_ADAPTER + ".js" ]
+    }
     version = "1.5.0",
     objects = {
         connectors : [
@@ -76,6 +84,7 @@ var JS_BEZIER = "0.6", // current js bezier version
     },
     getSources = function(grunt, lib) {
         var sources = [ getJsBezier(), getJsPlumbGeom() ];
+        sources.push.apply(sources, extraLibraries[lib]);
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
         sources.push.apply(sources, getList(grunt, "renderers"));
@@ -305,6 +314,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-jsdoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-devtools');
 
     grunt.registerTask('writeIndex', function() {
         // write an index file to the root of the dist dir (redirects to main jquery demo)
