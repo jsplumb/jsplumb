@@ -2,9 +2,8 @@
 <html>
     
     <head>
-        <script src="../../lib/jsplumb-geom-0.1.js"></script>
-        <script src="../../lib/touch-adapter-0.1.js"></script>
-        <script src="../../lib/katavorio-0.1.js"></script>
+        <script src="src/simple-event-bind.js"></script>
+        <script src="src/katavorio-0.1.js"></script>
         <style>
             .w {
                 position:absolute;width:50px;height:50px;border:1px solid black;
@@ -69,7 +68,7 @@
     
         <script>
             function init() {
-                var ta = new TouchAdapter();
+                var seh = new SimpleEventHelper();
                 var k = window.k = new Katavorio({
                     getPosition:function(el) {
                         return [ el.offsetLeft, el.offsetTop ];
@@ -83,9 +82,9 @@
                     },
                     addClass:function(el, c) { el.classList.add(c) },
                     removeClass:function(el, c) { el.classList.remove(c); },
-                    bind:ta.bind,
-                    unbind:ta.unbind,
-                    fireEvent:function() { console.log(arguments); }
+                    bind:seh.addEvent,
+                    unbind:ta.seh.removeEvent,
+                    fireEvent:function() { /*console.log(arguments);*/ }
                 });
               
                 var w = document.querySelectorAll(".w");

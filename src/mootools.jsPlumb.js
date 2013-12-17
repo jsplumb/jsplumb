@@ -320,17 +320,22 @@
 		
 		getOriginalEvent : function(e) {
 			return e.event;
-		}
-	});
-		
-	jsPlumb.CurrentLibrary = {									
-		
+		},
 		on : function(el, event, callback) {
 			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : $$(el);
 			//el = _getElementObject(el);
 			for (var i = 0; i < els.length; i++)
 				els[i].addEvent(event, callback);
-		},																																												
+		},
+		off : function(el, event, callback) {
+			el = _getElementObject(el);
+			el.removeEvent(event, callback);
+		}
+	});
+		
+	jsPlumb.CurrentLibrary = {									
+		
+		
 		
 		removeElement : function(element, parent) {
             var el = _getElementObject(element);
@@ -346,14 +351,7 @@
                         d.element.setStyle("z-index", d.originalZIndex);
                 }
             }
-        },
-		
-		
-		
-		off : function(el, event, callback) {
-			el = _getElementObject(el);
-			el.removeEvent(event, callback);
-		}
+        }
 	};
 	
 	window.addEvent('domready', jsPlumb.init);

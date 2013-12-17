@@ -257,21 +257,7 @@
 		},
 		getOriginalEvent : function(e) {
 			return e.originalEvent;
-		}
-
-// -------------------------------------- END EVENTS	---------------------------------		
-
-		
-	});
-
-	jsPlumb.CurrentLibrary = {					        
-																															
-				
-		// TODO remove library dependency on a removeElement method.
-		removeElement : function(element) {			
-			_getElementObject(element).remove();
-		},						
-		
+		},
 		/**
 		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
 		 * uses 'on'.
@@ -288,6 +274,21 @@
 			el = _getElementObject(el);
 			el.unbind(event, callback);
 		}
+
+// -------------------------------------- END EVENTS	---------------------------------		
+
+		
+	});
+
+	jsPlumb.CurrentLibrary = {					        
+																															
+				
+		// TODO remove library dependency on a removeElement method.
+		removeElement : function(element) {			
+			_getElementObject(element).remove();
+		}
+		
+		
 	};
 	
 	$(document).ready(jsPlumb.init);

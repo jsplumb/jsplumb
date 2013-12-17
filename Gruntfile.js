@@ -34,11 +34,14 @@
 // https://github.com/ModelN/grunt-blanket-qunit
 
 
-var JS_BEZIER = "0.6", // current js bezier version
-    JS_PLUMB_GEOM = "0.1",
-    TOUCH_ADAPTER = "0.2",
-    getJsBezier = function() { return "lib/jsBezier-" + JS_BEZIER + ".js"; },
-    getJsPlumbGeom = function() { return "lib/jsplumb-geom-" + JS_PLUMB_GEOM + ".js"; },
+var versions = {
+        JS_BEZIER : { f:"jsBezier", v:"0.6" },
+        BILTONG : { f:"biltong", v:"0.1" }, 
+        TOUCH_ADAPTER : {f:"touch-adapter", v:"0.2" },
+        KATAVORIO : {f:"katavorio", v:"0.1" }
+    },
+    getLibrary = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
+    
     libraries = [ "jquery", "mootools", "yui", "dom" ],
     runtimeLibraries = {
         jquery:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script type='text/javascript' src='../../lib/jquery.ui.touch-punch.min.js'></script>",
@@ -50,7 +53,7 @@ var JS_BEZIER = "0.6", // current js bezier version
         jquery:[],
         mootools:[],
         yui:[],
-        dom:[ "lib/touch-adapter-" + TOUCH_ADAPTER + ".js" ]
+        dom:[ get("TOUCH_ADAPTER"), get("KATAVORIO") ]
     }
     version = "1.5.0",
     objects = {
@@ -83,7 +86,7 @@ var JS_BEZIER = "0.6", // current js bezier version
         return out;
     },
     getSources = function(grunt, lib) {
-        var sources = [ getJsBezier(), getJsPlumbGeom() ];
+        var sources = [ get("JS_BEZIER"), get("BILTONG") ];
         sources.push.apply(sources, extraLibraries[lib]);
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));

@@ -319,11 +319,7 @@
 		},
 		getOriginalEvent : function(e) {
 			return e._event;
-		}
-	});
-	
-	jsPlumb.CurrentLibrary = {				
-	
+		},
 		/**
 		 * event binding wrapper.  
 		 */
@@ -331,13 +327,7 @@
 			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
 			for (var i = 0; i < els.length; i++)
 				Y.one(els[i]).on(event, callback);
-		},																			
-						
-		removeElement : function(el) { _getElementObject(el).remove(); },						
-
-        stopDrag : function() {
-            Y.DD.DDM.stopDrag();
-        },
+		},
 			
 		
 		/**
@@ -346,5 +336,13 @@
 		off : function(el, event, callback) {
 			_getElementObject(el).detach(event, callback);
 		}
+	});
+	
+	jsPlumb.CurrentLibrary = {				
+		removeElement : function(el) { _getElementObject(el).remove(); },						
+
+        stopDrag : function() {
+            Y.DD.DDM.stopDrag();
+        }
 	};				
 })();

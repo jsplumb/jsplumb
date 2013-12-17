@@ -169,12 +169,12 @@
 						fn = function(ee) {
 							c.fire(filteredEvent, c, ee);
 						};
-					domListeners.push([o, evt, fn]);
-					jpcl.on(o, evt, fn);
+					domListeners.push([o, evt, fn, c]);
+					c._jsPlumb.instance.on(o, evt, fn);
 				},
-				unbindOne = function(o, evt, fn) {
+				unbindOne = function(o, evt, fn, c) {
 					var filteredEvent = eventFilters[evt] || evt;
-					jpcl.off(o, evt, fn);
+					c._jsPlumb.instance.off(o, evt, fn);
 				};
 
             this.bindListeners = function(obj, _self, _hoverFunction) {
@@ -212,7 +212,7 @@
 			};	
 			this.detachListeners = function() {
 				for (var i = 0; i < domListeners.length; i++) {
-					unbindOne(domListeners[i][0], domListeners[i][1], domListeners[i][2]);
+					unbindOne(domListeners[i][0], domListeners[i][1], domListeners[i][2], domListeners[i][3]);
 				}
 				domListeners = null;
 			};	   		    
@@ -2336,7 +2336,7 @@
 	                    _currentInstance.currentlyDragging = false;						
 						if (ep._jsPlumb != null) { // if not cleaned up...
 
-							jpcl.off(ep.canvas, "mousedown"); 
+							_currentInstance.off(ep.canvas, "mousedown"); 
 									
 							// reset the anchor to the anchor that was initially provided. the one we were using to drag
 							// the connection was just a placeholder that was located at the place the user pressed the
@@ -2650,7 +2650,7 @@
 				for (var i in _registeredListeners) {
 					for (var j = 0, jj = _registeredListeners[i].length; j < jj; j++) {
 						var info = _registeredListeners[i][j];
-						jsPlumb.CurrentLibrary.off(info.el, info.event, info.listener);
+						_currentInstance.off(info.el, info.event, info.listener);
 					}
 				}
 				_registeredListeners = {};
@@ -2659,12 +2659,12 @@
         // internal register listener method.  gives us a hook to clean things up
         // with if the user calls jsPlumb.reset.
         this.registerListener = function(el, type, listener) {
-            jsPlumb.CurrentLibrary.on(el, type, listener);
+            _currentInstance.on(el, type, listener);
             jsPlumbUtil.addToList(_registeredListeners, type, {el:el, event:type, listener:listener});
         };
 
         this.unregisterListener = function(el, type, listener) {
-        	jsPlumb.CurrentLibrary.off(el, type, listener);
+        	_currentInstance.off(el, type, listener);
         	jsPlumbUtil.removeWithFunction(_registeredListeners, function(rl) {
         		return rl.type == type && rl.listener == listener;
         	});
@@ -2812,7 +2812,7 @@
 			// entire document otherwise.
 			if (renderMode == jsPlumb.CANVAS) {
 				var bindOne = function(event) {
-	                jsPlumb.CurrentLibrary.on(document, event, function(e) {
+	                _currentInstance.on(document, event, function(e) {
 	                    if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
 	                        // try connections first
 	                        for (i = 0, ii = connections.length; i < ii; i++ ) {

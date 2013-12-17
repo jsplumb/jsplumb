@@ -82,7 +82,7 @@
                 length, m, m2, x1, x2, y1, y2,
                 _recalc = function() {
                     length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-                    m = jsPlumbGeom.gradient({x:x1, y:y1}, {x:x2, y:y2});
+                    m = Biltong.gradient({x:x1, y:y1}, {x:x2, y:y2});
                     m2 = -1 / m;                
                 };
                 
@@ -120,7 +120,7 @@
                     return { x:x2, y:y2 };
                 else {
                     var l = absolute ? location > 0 ? location : length + location : location * length;
-                    return jsPlumbGeom.pointOnLine({x:x1, y:y1}, {x:x2, y:y2}, l);
+                    return Biltong.pointOnLine({x:x1, y:y1}, {x:x2, y:y2}, l);
                 }
             };
             
@@ -149,7 +149,7 @@
     
                 if (distance <= 0 && Math.abs(distance) > 1) distance *= -1;
     
-                return jsPlumbGeom.pointOnLine(p, farAwayPoint, distance);
+                return Biltong.pointOnLine(p, farAwayPoint, distance);
             };
             
             // is c between a and b?
@@ -201,8 +201,8 @@
                     out.y = within(y1,y2,_y1) ? _y1 : closest(y1,y2,_y1);//_y1;                    
                 }
 
-                var fractionInSegment = jsPlumbGeom.lineLength([ out.x, out.y ], [ x1, y1 ]);
-                out.d = jsPlumbGeom.lineLength([x,y], [out.x, out.y]);
+                var fractionInSegment = Biltong.lineLength([ out.x, out.y ], [ x1, y1 ]);
+                out.d = Biltong.lineLength([x,y], [out.x, out.y]);
                 out.l = fractionInSegment / length;            
                 return out;
             };        
@@ -232,7 +232,7 @@
         Arc : function(params) {
             var _super = jsPlumb.Segments.AbstractSegment.apply(this, arguments),
                 _calcAngle = function(_x, _y) {
-                    return jsPlumbGeom.theta([params.cx, params.cy], [_x, _y]);    
+                    return Biltong.theta([params.cx, params.cy], [_x, _y]);    
                 },
                 _calcAngleForLocation = function(segment, location) {
                     if (segment.anticlockwise) {
@@ -274,7 +274,7 @@
             if (this.startAngle < 0) this.startAngle += TWO_PI;   
 
             // segment is used by vml     
-            this.segment = jsPlumbGeom.quadrant([this.x1, this.y1], [this.x2, this.y2]);
+            this.segment = Biltong.quadrant([this.x1, this.y1], [this.x2, this.y2]);
             
             // we now have startAngle and endAngle as positive numbers, meaning the
             // absolute difference (|d|) between them is the sweep (s) of this arc, unless the
@@ -339,7 +339,7 @@
              */
             this.gradientAtPoint = function(location, absolute) {
                 var p = this.pointOnPath(location, absolute);
-                var m = jsPlumbGeom.normal( [ params.cx, params.cy ], [p.x, p.y ] );
+                var m = Biltong.normal( [ params.cx, params.cy ], [p.x, p.y ] );
                 if (!this.anticlockwise && (m == Infinity || m == -Infinity)) m *= -1;
                 return m;
             };	              
@@ -558,7 +558,7 @@
         
         var _prepareCompute = function(params) {
             this.lineWidth = params.lineWidth;
-            var segment = jsPlumbGeom.quadrant(params.sourcePos, params.targetPos),
+            var segment = Biltong.quadrant(params.sourcePos, params.targetPos),
                 swapX = params.targetPos[0] < params.sourcePos[0],
                 swapY = params.targetPos[1] < params.sourcePos[1],
                 lw = params.lineWidth || 1,       
@@ -1131,7 +1131,7 @@
 		AbstractOverlay.apply(this, arguments);
         this.isAppendedAtTopLevel = false;
 		params = params || {};
-		var _ju = jsPlumbUtil, _jg = jsPlumbGeom;
+		var _ju = jsPlumbUtil, _jg = Biltong;
 		
     	this.length = params.length || 20;
     	this.width = params.width || 20;
@@ -1397,9 +1397,9 @@
 
             var head = connector.pointAlongPathFrom(self.loc, self.length / 2),
                 mid = connector.pointOnPath(self.loc),
-                tail = jsPlumbGeom.pointOnLine(head, mid, self.length),
-                tailLine = jsPlumbGeom.perpendicularLineTo(head, tail, 40),
-                headLine = jsPlumbGeom.perpendicularLineTo(tail, head, 20);
+                tail = Biltong.pointOnLine(head, mid, self.length),
+                tailLine = Biltong.perpendicularLineTo(head, tail, 40),
+                headLine = Biltong.perpendicularLineTo(tail, head, 20);
 
             return {
                 connector:connector,

@@ -64,8 +64,8 @@
             //      x1 = (b2 - b) / (m - m2)
                 _x1 = (b2 -b) / (m - m2),
                 _y1 = (m * _x1) + b,
-                d = jsPlumbGeom.lineLength([ x, y ], [ _x1, _y1 ]),
-                fractionInSegment = jsPlumbGeom.lineLength([ _x1, _y1 ], [ seg[0], seg[1] ]);
+                d = Biltong.lineLength([ x, y ], [ _x1, _y1 ]),
+                fractionInSegment = Biltong.lineLength([ _x1, _y1 ], [ seg[0], seg[1] ]);
             
             out.d = d;
             out.x = _x1;
@@ -345,15 +345,15 @@
         this.setSuspendEvents(true);
         this.fire(EDIT_STARTED, {
             path:this.connector.getPath()
-        });            
+        });
         this._jsPlumb.instance.setHoverSuspended(true);
     };
 
-    jsPlumb.Connection.prototype.editCompleted = function() {            
+    jsPlumb.Connection.prototype.editCompleted = function() {
         this.fire(EDIT_COMPLETED, {
             path:this.connector.getPath()
-        });       
-        this.setSuspendEvents(false);        
+        });
+        this.setSuspendEvents(false);
         this._jsPlumb.instance.setHoverSuspended(false);
         this.setHover(false);
     };
@@ -361,7 +361,7 @@
     jsPlumb.Connection.prototype.editCanceled = function() {
         this.fire(EDIT_CANCELED, {
             path:this.connector.getPath()
-        });        
+        });
         this._jsPlumb.instance.setHoverSuspended(false);
         this.setHover(false);
     };
