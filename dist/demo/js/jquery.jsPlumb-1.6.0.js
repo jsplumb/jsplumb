@@ -1084,7 +1084,6 @@
     
 		var canvasAvailable = !!document.createElement('canvas').getContext,
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
 		vmlAvailable = function() {		    
             if (vmlAvailable.vml === undefined) { 
                 var a = document.body.appendChild(document.createElement('div'));
@@ -1115,8 +1114,7 @@
         */
 		this.register = function(el) {
             var jpcl = jsPlumb.CurrentLibrary,
-            	//_el = jsPlumb.getElementObject(el),
-            	id = _currentInstance.getId(el),                
+            	id = _currentInstance.getId(el),
                 parentOffset = jsPlumbAdapter.getOffset(el);
                     
             if (!_draggables[id]) {
@@ -1127,26 +1125,26 @@
 				
 			// look for child elements that have endpoints and register them against this draggable.
 			var _oneLevel = function(p, startOffset) {
-                if (p) {											
-                    for (var i = 0; i < p.childNodes.length; i++) {
-                        if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
-                            var cEl = jsPlumb.getElementObject(p.childNodes[i]),
-                                cid = _currentInstance.getId(p.childNodes[i], null, true);
-                            if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-                                var cOff = jpcl.getOffset(cEl);
-                                _delements[id][cid] = {
-                                    id:cid,
-                                    offset:{
-                                        left:cOff.left - parentOffset.left,
-                                        top:cOff.top - parentOffset.top
-                                    }
-                                };
-                                _draggablesForElements[cid] = id;
-                            }
-                            _oneLevel(p.childNodes[i]);
-                        }	
-                    }
-                }
+				if (p) {
+					for (var i = 0; i < p.childNodes.length; i++) {
+						if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
+							var cEl = jsPlumb.getElementObject(p.childNodes[i]),
+								cid = _currentInstance.getId(p.childNodes[i], null, true);
+							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+								var cOff = jpcl.getOffset(cEl);
+								_delements[id][cid] = {
+									id:cid,
+									offset:{
+										left:cOff.left - parentOffset.left,
+										top:cOff.top - parentOffset.top
+									}
+								};
+								_draggablesForElements[cid] = id;
+							}
+							_oneLevel(p.childNodes[i]);
+						}
+					}
+				}
 			};
 
 			_oneLevel(el);
@@ -1314,13 +1312,13 @@
 					if (idx != -1)
 						curClasses.splice(idx, 1);
 				}
-			}			
-			
+			}
 			_setClassName(el, curClasses.join(" "));
 		},
 		_each = function(spec, fn) {
 			if (spec == null) return;
-			if (typeof spec === "string") fn(jsPlumb.getDOMElement(spec));
+			if (typeof spec === "string") 
+				fn(jsPlumb.getDOMElement(spec));
 			else if (spec.length != null) {
 				for (var i = 0; i < spec.length; i++)
 					fn(jsPlumb.getDOMElement(spec[i]));
@@ -1328,8 +1326,7 @@
 			else
 				fn(spec); // assume it's an element.
 		}
-	
-            
+
     window.jsPlumbAdapter = {
         
         headless:false,
@@ -1368,7 +1365,7 @@
                     svgAvailable = this.isRenderModeAvailable("svg"),
                     vmlAvailable = this.isRenderModeAvailable("vml");
                 
-                // now test we actually have the capability to do this.						
+                // now test we actually have the capability to do this.
                 if (mode === "svg") {
                     if (svgAvailable) renderMode = "svg";
                     else if (canvasAvailable) renderMode = "canvas";
@@ -1380,8 +1377,7 @@
 
 			return renderMode;
         },
-		addClass:function(el, clazz) {			
-			//_classManip(jsPlumb.getDOMElement(el), true, clazz);
+		addClass:function(el, clazz) {
 			_each(el, function(e) {
 				_classManip(e, true, clazz);
 			});
@@ -1394,19 +1390,16 @@
 			}
 		},
 		removeClass:function(el, clazz) {
-			//_classManip(jsPlumb.getDOMElement(el), false, clazz);
 			_each(el, function(e) {
 				_classManip(e, false, clazz);
 			});
 		},
 		setClass:function(el, clazz) {
-			//_setClassName(jsPlumb.getDOMElement(el), clazz);
 			_each(el, function(e) {
 				_setClassName(e, clazz);
 			});
 		},
 		setPosition:function(el, p) {
-//			el = jsPlumb.getDOMElement(el);
 			el.style.left = p.left + "px";
 			el.style.top = p.top + "px";
 		},
@@ -1420,12 +1413,12 @@
 				top:_one("top")
 			};
 		},
-		getOffset:function(el) {
+		getOffset:function(el, relativeToRoot) {
 			var l = el.offsetLeft, t = el.offsetTop, op = el.offsetParent;
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
-				op = op.offsetParent;
+				op = relativeToRoot ? op.offsetParent : null;
 			}
 			return {
 				left:l, top:t
@@ -1449,9 +1442,8 @@
 ;(function() {
 			
     var _ju = jsPlumbUtil,
-    	//_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },		
-		_getOffset = function(el, _instance) {
-            var o = jsPlumbAdapter.getOffset(el);
+    	_getOffset = function(el, _instance, relativeToRoot) {
+            var o = jsPlumbAdapter.getOffset(el, relativeToRoot);
 			if (_instance != null) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
@@ -3834,15 +3826,18 @@
 								}, e);
 							}
 							return false;
-						}					
+						}
+
+						// get container offset
+						var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container), _currentInstance, true);
 
 						// make sure we have the latest offset for this div 
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
-							z = _currentInstance.getZoom(),		
-							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left) / myOffsetInfo.width, 
-						    y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top) / myOffsetInfo.height,
+							z = _currentInstance.getZoom(),
+							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
+							y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
 						    parentX = x, 
-						    parentY = y;					
+						    parentY = y;
 								
 						// if there is a parent, the endpoint will actually be added to it now, rather than the div
 						// that was the source.  in that case, we have to adjust the anchor position so it refers to
@@ -3850,8 +3845,8 @@
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width; 
-						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height;
+							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
+						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
 						}											
 						
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -3878,9 +3873,6 @@
 						ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
 
 						endpointAddedButNoDragYet = true;
-						// we set this to prevent connections from firing attach events before this function has had a chance
-						// to move the endpoint.
-						ep.endpointWillMoveAfterConnection = p.parent != null;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
 
 						// TODO test options to makeSource to see if we should do this?
@@ -4315,7 +4307,10 @@
         */
 		this.adjustForParentOffsetAndScroll = function(xy, el) {
 
+			//console.log("ADJUSTING FOR PARENT OFFSET AND SCROLL");
+
 			var offsetParent = null, result = xy;
+			/*
 			if (el.tagName.toLowerCase() === "svg" && el.parentNode) {
 				offsetParent = el.parentNode;
 			}
@@ -4335,7 +4330,7 @@
 				result[0] = xy[0] - po.left + so.left;
 				result[1] = xy[1] - po.top + so.top;
 			}
-		
+		//*/
 			return result;
 			
 		};
@@ -4343,7 +4338,8 @@
 		if (!jsPlumbAdapter.headless) {
 			_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 			_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-	    }	    
+	    }	
+		
 				    
     };
 
@@ -11073,7 +11069,7 @@
 			}
 			else {
 				var ui = eventArgs[1],
-				  _offset = ui.offset;
+				  _offset = ui.position;//ui.offset;
 				  
 				ret = _offset || ui.absolutePosition;
 				

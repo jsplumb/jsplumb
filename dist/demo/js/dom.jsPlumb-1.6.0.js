@@ -626,7 +626,7 @@
 /**
  drag/drop functionality for use with jsPlumb but with
  no knowledge of jsPlumb. supports multiple scopes, dragging
- multiple elements, containment, drop filters, drag start filters, custom
+ multiple elements, constrain to parent, drop filters, drag start filters, custom
  css classes.
  
  a lot of the functionality of this script is expected to be plugged in:
@@ -646,124 +646,139 @@
 
 ;(function() {
     
+    "use strict";
+    
     var _classes = {
-            drag : "jsplumb-drag",
-            active : "jsplumb-drag-active",
-            hover : "jsplumb-drag-hover",
-            noSelect : "jsplumb-drag-no-select"
+            draggable:"jsplumb-draggable",    // draggable elements
+            droppable:"jsplumb-droppable",    // droppable elements
+            drag : "jsplumb-drag",            // elements currently being dragged            
+            selected:"jsplumb-drag-selected", // elements in current drag selection
+            active : "jsplumb-drag-active",   // droppables that are targets of a currently dragged element
+            hover : "jsplumb-drag-hover",     // droppables over which a matching drag element is hovering
+            noSelect : "jsplumb-drag-no-select" // added to the body to provide a hook to suppress text selection
         }, 
         _scope = "jsplumb-drag-scope",
-        _pageLocation = function(e) {
+        _events = [ "stop", "start", "drag", "drop", "over", "out" ],
+        _devNull = function() {},
+        _pl = function(e) {
             return e.pageX ?
                    [ e.pageX, e.pageY ] :
                    [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
-        },        
-        _positions = {},        
+        },                
         _each = function(l, fn, from) {
             for (var i = 0; i < l.length; i++) {
                 if (l[i] != from)
                     fn(l[i]);
             }
         },
-        _setDroppablesActive = function(dd, val, andHover) {
+        _setDroppablesActive = function(dd, val, andHover, drag) {
             _each(dd, function(e) {
                 e.setActive(val);
                 if (val) e.updatePosition();
-                if (andHover) e.setHover(val);
+                if (andHover) e.setHover(drag, val);
             });
         };
         
     var Super = function(el, params) {
+        params.addClass(el, this._class);
         this.el = el;
         var enabled = true;
-        this.scopes = params.scope ? params.scope.split(/\s+/) : [ _scope ];        
+        this.scopes = params.scope ? params.scope.split(/\s+/) : [ _scope ];
         this.setEnabled = function(e) { enabled = e; };
         this.isEnabled = function() { return enabled; };
         return params.katavorio;
     };
-    
-    // 
+        
     var Drag = function(el, params) {
+        this._class = _classes.draggable;
         var k = Super.apply(this, arguments),
-            downAt = [0,0], down= false, posAtDown = null,
-            constrain = params.constrain || function(pos) { return pos; },
+            downAt = [0,0], posAtDown = null,
+            constrain = params.constrain ? function(pos) {
+                var r = { x:pos[0], y:pos[1], w:this.size[0], h:this.size[1] },
+                    x = Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
+                    y = Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]));
+                   
+                return [ x, y ];
+            }.bind(this) : function(pos) { return pos; },
+            canDrag = params.canDrag || function() { return true; },
+            constrainRect,
             matchingDroppables = [], intersectingDroppables = [],            
-            _mark = function() {
-                posAtDown = params.getPosition(el);
-                this.size = params.getSize(el);
-            }.bind(this),
             downListener = function(e) {
-                if (this.isEnabled()) {
-                    downAt = _pageLocation(e);
-                    _mark();
+                if (this.isEnabled() && canDrag()) {
+                    downAt = _pl(e);
+                    this.mark();
                     params.bind(document, "mousemove", moveListener);
-                    params.bind(document, "mouseup", upListener);
-                    down = true;
-                    matchingDroppables = k.getMatchingDroppables(this);
-                    _setDroppablesActive(matchingDroppables, true);                    
+                    params.bind(document, "mouseup", upListener);                    
                     k.markSelection(this);                    
-                    params.addClass(el, params.dragClass || _classes.drag);
                     params.addClass(document.body, _classes.noSelect);
-                    params.fireEvent("start", el, posAtDown, e);
+                    params.events["start"]({el:el, pos:posAtDown, e:e, drag:this});
                 }
-            }.bind(this),
-            _moveBy = function(dx, dy, e) {                
-                var cPos = constrain([posAtDown[0] + dx, posAtDown[1] + dy]),
-                    rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
-                                        
-                params.setPosition(el, cPos);
-                for (var i = 0; i < matchingDroppables.length; i++) {
-                    var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
-                    if (params.intersects(rect, r2) && matchingDroppables[i].canDrop(this)) {
-                        intersectingDroppables.push(matchingDroppables[i]);
-                        matchingDroppables[i].setHover(this, true);
-                    }
-                    else if (matchingDroppables[i].el._katavorioDragHover)
-                        matchingDroppables[i].setHover(this, false);
-                }
-                                
-                if (e) params.fireEvent("drag", el, cPos, e);
-                
-            }.bind(this),
+            }.bind(this),            
             moveListener = function(e) {
-                if (down) {
+                if (downAt) {
                     intersectingDroppables.length = 0;
-                    var pos = _pageLocation(e),
-                        dx = pos[0] - downAt[0],
-                        dy = pos[1] - downAt[1];
-                        
-                    _moveBy(dx, dy, e);
+                    var pos = _pl(e), dx = pos[0] - downAt[0], dy = pos[1] - downAt[1],
+                    z = k.getZoom();
+                    dx /= z;
+                    dy /= z;
+                    this.moveBy(dx, dy, e);
                     k.updateSelection(dx, dy, this);
                 }                
             }.bind(this),
-            upListener = function(e) {                
-                down = false;
-                params.unbind(document, moveListener);
-                params.unbind(document, upListener);
-                params.removeClass(el, params.dragClass || _classes.drag);
+            upListener = function(e) {
+                downAt = null;
+                params.unbind(document, "mousemove", moveListener);
+                params.unbind(document, "mouseup", upListener);            
                 params.removeClass(document.body, _classes.noSelect);
-                _setDroppablesActive(matchingDroppables, false, true);                
-                
-                // if over anything, tell it to fire a drop event.
-                for (var i = 0; i < intersectingDroppables.length; i++)
-                    intersectingDroppables[i].drop(this, e);
-                    
-                intersectingDroppables.length = 0;                             
-                params.fireEvent("stop", el, null, e);
+                this.unmark(e);
+                k.unmarkSelection(this, e);
+                params.events["stop"]({el:el, pos:params.getPosition(el), e:e, drag:this});
             }.bind(this);
             
-        params.bind(el, "mousedown", downListener);
-                
-        this.destroy = function() {
-            params.unbind(el, downListener);
+        params.bind(el, "mousedown", downListener);                  
+        
+        this.mark = function() {
+            posAtDown = params.getPosition(el);
+            this.size = params.getSize(el);
+            matchingDroppables = k.getMatchingDroppables(this);
+            _setDroppablesActive(matchingDroppables, true, false, this);
+            params.addClass(el, params.dragClass || _classes.drag);
+            if (params.constrain) {
+                var cs = params.getSize(this.el.parentNode);
+                constrainRect = { w:cs[0], h:cs[1] };
+            }
         };
-        this.mark = _mark;
-        this.moveBy = _moveBy;               
+        this.unmark = function(e) {
+            _setDroppablesActive(matchingDroppables, false, true, this);
+            matchingDroppables.length = 0;
+            for (var i = 0; i < intersectingDroppables.length; i++)
+                intersectingDroppables[i].drop(this, e);
+            params.removeClass(el, params.dragClass || _classes.drag);
+        };
+        this.moveBy = function(dx, dy, e) {
+            intersectingDroppables.length = 0;
+            var cPos = constrain([posAtDown[0] + dx, posAtDown[1] + dy]),
+                rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
+            params.setPosition(el, cPos);
+            for (var i = 0; i < matchingDroppables.length; i++) {
+                var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
+                if (params.intersects(rect, r2) && matchingDroppables[i].canDrop(this)) {
+                    intersectingDroppables.push(matchingDroppables[i]);
+                    matchingDroppables[i].setHover(this, true, e);
+                }
+                else if (matchingDroppables[i].el._katavorioDragHover) {
+                    matchingDroppables[i].setHover(this, false, e);
+                }
+            }
+            if (e)
+                params.events["drag"]({el:el, pos:cPos, e:e, drag:this});
+        };
     };
     
     var Drop = function(el, params) {
-        var k = Super.apply(this, arguments), hover = false;   
-        
+        this._class = _classes.droppable;
+        var k = Super.apply(this, arguments), hover = false;
+                
         this.setActive = function(val) {
             params[val ? "addClass" : "removeClass"](el, _classes.active);
         };
@@ -773,29 +788,31 @@
             this.size = params.getSize(el);
         };
         
-        this.canDrop = function(drag) {
-           return true; // TODO
+        this.canDrop = params.canDrop || function(drag) {
+           return true;
         };
         
-        this.setHover = function(drag, val) {
+        this.setHover = function(drag, val, e) {
             // if turning off hover but this was not the drag that caused the hover, ignore.
             if (val || el._katavorioDragHover == null || el._katavorioDragHover == drag.el._katavorio) {
                 params[val ? "addClass" : "removeClass"](el, _classes.hover);
-                el._katavorioDragHover = val ? drag.el._katavorio : null;    
+                el._katavorioDragHover = val ? drag.el._katavorio : null;
+                if (hover !== val)
+                    params.events[val ? "over" : "out"]({el:el, e:e, drag:drag, drop:this});
+                hover = val;
             }
-            
         };
         
         this.drop = function(drag, event) {
-            params.fireEvent("drop", { drag:drag, event:event });
+            params.events["drop"]({ drag:drag, event:event, drop:this });
         };
-    };       
+    };
     
-    var _uuid = function() {                             
+    var _uuid = function() {
         return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
             return v.toString(16);
-        }));        
+        }));
     };
     
     var _gel = function(el) {
@@ -804,64 +821,62 @@
         return el;
     };
         
-    this.Katavorio = function(katavorioParams) {    
+    this.Katavorio = function(katavorioParams) {
 
-        var _selection = [], 
+        var _selection = [],
             _selectionMap = {},
             _dragsByScope = {},
             _dropsByScope = {},
-            _registerByScope = function(obj, map) {
+            _zoom = 1,
+            _reg = function(obj, map) {
                 for(var i = 0; i < obj.scopes.length; i++) {
                     map[obj.scopes[i]] = map[obj.scopes[i]] || [];
                     map[obj.scopes[i]].push(obj);
                 }
             },
             _getMatchingDroppables = this.getMatchingDroppables = function(drag) {
-                var dd = [];
+                var dd = [], _m = {};
                 for (var i = 0; i < drag.scopes.length; i++) {
                     var _dd = _dropsByScope[drag.scopes[i]];
-                    if (_dd) dd.push.apply(dd, _dd);
+                    if (_dd) {
+                        for (var j = 0; j < _dd.length; j++) {
+                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].el._katavorio]) {
+                                _m[_dd[j].el._katavorio] = true;
+                                dd.push(_dd[j]);
+                            }
+                        }
+                    }
                 }
-                // TODO: there might be duplicates
                 return dd;
-            };
-    
-        var _prepareParams = function(p) {
-            p = p || {};
-            var _p = {};            
-            for (var i in katavorioParams) _p[i] = katavorioParams[i];
-            for (var i in p) _p[i] = p[i];                
-            _p.katavorio = this;
-            return _p;
-        }.bind(this);
+            },
+            _prepareParams = function(p) {
+                p = p || {};
+                var _p = {
+                    events:{}
+                };
+                for (var i in katavorioParams) _p[i] = katavorioParams[i];
+                for (var i in p) _p[i] = p[i];
+                // events
+                
+                for (var i = 0; i < _events.length; i++) {
+                    _p.events[_events[i]] = p[_events[i]] || _devNull;
+                }
+                _p.katavorio = this;
+                return _p;
+            }.bind(this);
         
         this.draggable = function(el, params) {
-            el = _gel(el);            
-            var p = _prepareParams(params, this);
-            // add constrain stuff
-            if (p.constrain) {
-                // constrain may be to "parent", a dom element, or an arbitrary selector,                 
-                // but only a single element, so if you provide a selector,
-                // the first element will be used.
-                var cel = typeof p.constrain == "string" ?
-                            p.constrain === "parent" ? el.parentNode :
-                            document.querySelectorAll(p.constrain)[0] :
-                            p.constrain;
-                            
-                p.constrain = function(pos, size) {
-                    //console.log("asking for constrain ", pos, size, cel);
-                    return pos;
-                };
-            }
+            el = _gel(el);
+            var p = _prepareParams(params, this);            
             el._katavorioDrag = new Drag(el, p);
-            _registerByScope(el._katavorioDrag, _dragsByScope);
+            _reg(el._katavorioDrag, _dragsByScope);
         };
         
         this.droppable = function(el, params) {
             el = _gel(el);
             el._katavorioDrop = new Drop(el, _prepareParams(params));
-            _registerByScope(el._katavorioDrop, _dropsByScope);
-        };    
+            _reg(el._katavorioDrop, _dropsByScope);
+        };
         
         /**
         * @name Katavorio#select
@@ -871,10 +886,11 @@
         */
         this.select = function(el) {
             el = _gel(el);
-            if (el && el._katavorioDrag) {                
+            if (el && el._katavorioDrag) {
                 if (!_selectionMap[el._katavorio]) {
                     _selection.push(el._katavorioDrag);
                     _selectionMap[el._katavorio] = [ el, _selection.length - 1 ];
+                    katavorioParams.addClass(el, _classes.selected);
                 }
             }
         };
@@ -890,8 +906,10 @@
             if (el && el._katavorio) {
                 var e = _selectionMap[el._katavorio];
                 if (e) {
+                    params.removeClass(el, _classes.dragSelect);
                     _selection.splice(e[1], 1);
                     delete _selectionMap[el._katavorio];
+                    katavorioParams.removeClass(el, _classes.selected);
                 }
             }
         };
@@ -905,6 +923,10 @@
             _each(_selection, function(e) { e.mark(); }, drag);
         };
         
+        this.unmarkSelection = function(drag, event) {
+            _each(_selection, function(e) { e.unmark(event); }, drag);
+        };
+        
         this.getSelection = function() {
             return _selection.slice(0);
         };
@@ -912,8 +934,13 @@
         this.updateSelection = function(dx, dy, drag) {
             _each(_selection, function(e) { e.moveBy(dx, dy); }, drag);
         };
-    };
         
+        this.setZoom = function(z) {
+            _zoom = z;
+        };
+        
+        this.getZoom = function() { return _zoom; };
+    };        
 }).call(this);
 /*
  * jsPlumb
@@ -1376,7 +1403,6 @@
     
 		var canvasAvailable = !!document.createElement('canvas').getContext,
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
 		vmlAvailable = function() {		    
             if (vmlAvailable.vml === undefined) { 
                 var a = document.body.appendChild(document.createElement('div'));
@@ -1407,8 +1433,7 @@
         */
 		this.register = function(el) {
             var jpcl = jsPlumb.CurrentLibrary,
-            	//_el = jsPlumb.getElementObject(el),
-            	id = _currentInstance.getId(el),                
+            	id = _currentInstance.getId(el),
                 parentOffset = jsPlumbAdapter.getOffset(el);
                     
             if (!_draggables[id]) {
@@ -1419,26 +1444,26 @@
 				
 			// look for child elements that have endpoints and register them against this draggable.
 			var _oneLevel = function(p, startOffset) {
-                if (p) {											
-                    for (var i = 0; i < p.childNodes.length; i++) {
-                        if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
-                            var cEl = jsPlumb.getElementObject(p.childNodes[i]),
-                                cid = _currentInstance.getId(p.childNodes[i], null, true);
-                            if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-                                var cOff = jpcl.getOffset(cEl);
-                                _delements[id][cid] = {
-                                    id:cid,
-                                    offset:{
-                                        left:cOff.left - parentOffset.left,
-                                        top:cOff.top - parentOffset.top
-                                    }
-                                };
-                                _draggablesForElements[cid] = id;
-                            }
-                            _oneLevel(p.childNodes[i]);
-                        }	
-                    }
-                }
+				if (p) {
+					for (var i = 0; i < p.childNodes.length; i++) {
+						if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
+							var cEl = jsPlumb.getElementObject(p.childNodes[i]),
+								cid = _currentInstance.getId(p.childNodes[i], null, true);
+							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+								var cOff = jpcl.getOffset(cEl);
+								_delements[id][cid] = {
+									id:cid,
+									offset:{
+										left:cOff.left - parentOffset.left,
+										top:cOff.top - parentOffset.top
+									}
+								};
+								_draggablesForElements[cid] = id;
+							}
+							_oneLevel(p.childNodes[i]);
+						}
+					}
+				}
 			};
 
 			_oneLevel(el);
@@ -1606,13 +1631,13 @@
 					if (idx != -1)
 						curClasses.splice(idx, 1);
 				}
-			}			
-			
+			}
 			_setClassName(el, curClasses.join(" "));
 		},
 		_each = function(spec, fn) {
 			if (spec == null) return;
-			if (typeof spec === "string") fn(jsPlumb.getDOMElement(spec));
+			if (typeof spec === "string") 
+				fn(jsPlumb.getDOMElement(spec));
 			else if (spec.length != null) {
 				for (var i = 0; i < spec.length; i++)
 					fn(jsPlumb.getDOMElement(spec[i]));
@@ -1620,8 +1645,7 @@
 			else
 				fn(spec); // assume it's an element.
 		}
-	
-            
+
     window.jsPlumbAdapter = {
         
         headless:false,
@@ -1660,7 +1684,7 @@
                     svgAvailable = this.isRenderModeAvailable("svg"),
                     vmlAvailable = this.isRenderModeAvailable("vml");
                 
-                // now test we actually have the capability to do this.						
+                // now test we actually have the capability to do this.
                 if (mode === "svg") {
                     if (svgAvailable) renderMode = "svg";
                     else if (canvasAvailable) renderMode = "canvas";
@@ -1672,8 +1696,7 @@
 
 			return renderMode;
         },
-		addClass:function(el, clazz) {			
-			//_classManip(jsPlumb.getDOMElement(el), true, clazz);
+		addClass:function(el, clazz) {
 			_each(el, function(e) {
 				_classManip(e, true, clazz);
 			});
@@ -1686,19 +1709,16 @@
 			}
 		},
 		removeClass:function(el, clazz) {
-			//_classManip(jsPlumb.getDOMElement(el), false, clazz);
 			_each(el, function(e) {
 				_classManip(e, false, clazz);
 			});
 		},
 		setClass:function(el, clazz) {
-			//_setClassName(jsPlumb.getDOMElement(el), clazz);
 			_each(el, function(e) {
 				_setClassName(e, clazz);
 			});
 		},
 		setPosition:function(el, p) {
-//			el = jsPlumb.getDOMElement(el);
 			el.style.left = p.left + "px";
 			el.style.top = p.top + "px";
 		},
@@ -1712,12 +1732,12 @@
 				top:_one("top")
 			};
 		},
-		getOffset:function(el) {
+		getOffset:function(el, relativeToRoot) {
 			var l = el.offsetLeft, t = el.offsetTop, op = el.offsetParent;
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
-				op = op.offsetParent;
+				op = relativeToRoot ? op.offsetParent : null;
 			}
 			return {
 				left:l, top:t
@@ -1741,9 +1761,8 @@
 ;(function() {
 			
     var _ju = jsPlumbUtil,
-    	//_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },		
-		_getOffset = function(el, _instance) {
-            var o = jsPlumbAdapter.getOffset(el);
+    	_getOffset = function(el, _instance, relativeToRoot) {
+            var o = jsPlumbAdapter.getOffset(el, relativeToRoot);
 			if (_instance != null) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
@@ -4126,15 +4145,18 @@
 								}, e);
 							}
 							return false;
-						}					
+						}
+
+						// get container offset
+						var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container), _currentInstance, true);
 
 						// make sure we have the latest offset for this div 
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
-							z = _currentInstance.getZoom(),		
-							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left) / myOffsetInfo.width, 
-						    y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top) / myOffsetInfo.height,
+							z = _currentInstance.getZoom(),
+							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
+							y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
 						    parentX = x, 
-						    parentY = y;					
+						    parentY = y;
 								
 						// if there is a parent, the endpoint will actually be added to it now, rather than the div
 						// that was the source.  in that case, we have to adjust the anchor position so it refers to
@@ -4142,8 +4164,8 @@
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width; 
-						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height;
+							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
+						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
 						}											
 						
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -4170,9 +4192,6 @@
 						ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
 
 						endpointAddedButNoDragYet = true;
-						// we set this to prevent connections from firing attach events before this function has had a chance
-						// to move the endpoint.
-						ep.endpointWillMoveAfterConnection = p.parent != null;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
 
 						// TODO test options to makeSource to see if we should do this?
@@ -4607,7 +4626,10 @@
         */
 		this.adjustForParentOffsetAndScroll = function(xy, el) {
 
+			//console.log("ADJUSTING FOR PARENT OFFSET AND SCROLL");
+
 			var offsetParent = null, result = xy;
+			/*
 			if (el.tagName.toLowerCase() === "svg" && el.parentNode) {
 				offsetParent = el.parentNode;
 			}
@@ -4627,7 +4649,7 @@
 				result[0] = xy[0] - po.left + so.left;
 				result[1] = xy[1] - po.top + so.top;
 			}
-		
+		//*/
 			return result;
 			
 		};
@@ -4635,7 +4657,8 @@
 		if (!jsPlumbAdapter.headless) {
 			_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 			_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-	    }	    
+	    }	
+		
 				    
     };
 
@@ -11172,28 +11195,42 @@
      */
 	 
 	 var _getDragManager = function(instance) {
-		 var k = instance._katavorio;
-		 if (!k) {
-			 k = instance._katavorio = new Katavorio( {
-				 
-			 })
-		 }
-		 return k;
-	 };
-	 
-	 var getEventManager = function(instance) {
+		var k = instance._katavorio,
+			e = _getEventManager(instance);
+			
+		if (!k) {
+			k = instance._katavorio = new Katavorio( {
+				bind:e.bind,
+				unbind:e.unbind,
+				getSize:jsPlumb.getSize,
+				getPosition:function(el) {
+					return [el.offsetLeft, el.offsetTop];
+				},
+				setPosition:function(el, xy) {
+					el.style.left = xy[0] + "px";
+					el.style.top = xy[1] + "px";
+				},
+				addClass:jsPlumbAdapter.addClass,
+				removeClass:jsPlumbAdapter.removeClass,
+				intersects:Biltong.intersects
+			});
+		}
+		return k;
+	};
+
+	 var _getEventManager = function(instance) {
 		 var e = instance._evensi;
 		 if (!e) {
 			 e = instance._evensi = new TouchAdapter({
-				 
+
 			 });
 		 }
 		 return e;
-	 };       
+	 };
 
 	jsPlumb.extend(jsPlumbInstance.prototype, {		
 	
-		getDOMElement:function(el) { return el; },
+		getDOMElement:function(el) { return typeof el === "string" ? document.getElementById(el) : el; },
 		getElementObject:function(el) { return el; },
 		doAnimate:function() { throw "not implemented!" },
 		getSelector:function(spec) { return document.querySelectorAll(spec); },
@@ -11201,8 +11238,14 @@
 		
 		
 		// DRAG/DROP
-		destroyDraggable:function(el) {},
-		destroyDroppable:function(el) {},
+		destroyDraggable:function(el) {
+			// TODO add destroy methods to Katavorio
+			//_getDragManager(this).destroyDraggable(el);
+		},
+		destroyDroppable:function(el) {
+			// TODO add destroy methods to Katavorio
+			//_getDragManager(this).destroyDroppable(el);
+		},
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
 			_getDragManager(this).draggable(el, options);
 		},
@@ -11212,11 +11255,16 @@
 		isAlreadyDraggable : function(el) { return el._katavorioDrag != null; },
 		isDragSupported : function(el, options) { return true; },
 		isDropSupported : function(el, options) { return true; },
-		getDragObject : function(eventArgs) { },
+		getDragObject : function(eventArgs) { return eventArgs[0].drag.el; },
 		getDragScope : function(el) { },
-		getDropEvent : function(args) { },
+		getDropEvent : function(args) { return args[0].event; },
 		getDropScope : function(el) { },
-		getUIPosition : function(eventArgs, zoom) { },
+		getUIPosition : function(eventArgs, zoom) {
+			return {
+				left:eventArgs[0].pos[0],
+				top:eventArgs[0].pos[1]
+			};
+		},
 		setDragFilter : function(el, filter) { },
 		setElementDraggable : function(el, draggable) { },
 		setDragScope : function(el, scope) { },
@@ -11226,36 +11274,27 @@
 		},
 		trigger : function(el, event, originalEvent) { },
 		getOriginalEvent : function(e) { return e; },
-		
-		
-	});
-	
-	jsPlumb.CurrentLibrary = {					        
-																															
-				
-		// TODO remove library dependency on a removeElement method.
-		removeElement : function(element) {			
-			_getElementObject(element).remove();
-		},						
-		
-		/**
-		 * event binding wrapper.  it just so happens that jQuery uses 'bind' also.  yui3, for example,
-		 * uses 'on'.
-		 */
-		 
-		 // TODO rename to 'on'
 		on : function(el, event, callback) {
-			el = _getElementObject(el);
-			el.bind(event, callback);
-		},				
-		
-		// TODO rename to 'off'
+			_getEventManager(this).bind(el, event, callback);
+		},
 		off : function(el, event, callback) {
-			el = _getElementObject(el);
-			el.unbind(event, callback);
+			_getEventManager(this).unbind(el, event, callback);
+		}
+	});
+
+	jsPlumb.CurrentLibrary = {
+		// TODO use the touch adapter's remove method; it unregisters
+		// event listeners properly.
+		removeElement : function(element) {
+			(element && element.parentNode) && element.parentNode.removeChild(element);
 		}
 	};
-	
-	//$(document).ready(jsPlumb.init);
+
+	var ready = function (f) {
+        (/complete|loaded|interactive/.test(document.readyState)) ?
+            f() :
+            setTimeout(ready, 9, f);
+    };
+	ready(jsPlumb.init);
 	
 }).call(this);

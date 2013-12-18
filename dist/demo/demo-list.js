@@ -18,7 +18,8 @@
 	var libs = [
 		[ "jquery", "jQuery"],
 		[ "mootools", "MooTools" ],
-		[ "yui", "YUI3" ]
+		[ "yui", "YUI3" ],
+		[ "dom", "No Library"]
 	];
 
 	jsPlumb.bind("ready", function() {
@@ -73,7 +74,7 @@
 				for (var i = 0; i < list.length; i++) {
 					_d("option", "", sel, list[i][1], {"data-href":"../" + list[i][0] +"/" + library + ".html", "selected":list[i][0] == current}, null);
 				}
-				jsPlumb.CurrentLibrary.on(sel, "change", function() {
+				jsPlumb.on(sel, "change", function() {
 					document.location = sel.options[sel.selectedIndex].getAttribute("data-href");					
 				});
 			}
