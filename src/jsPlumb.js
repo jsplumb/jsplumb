@@ -13,9 +13,8 @@
 ;(function() {
 			
     var _ju = jsPlumbUtil,
-    	//_gel = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },		
-		_getOffset = function(el, _instance) {
-            var o = jsPlumbAdapter.getOffset(el);
+    	_getOffset = function(el, _instance, relativeToRoot) {
+            var o = jsPlumbAdapter.getOffset(el, relativeToRoot);
 			if (_instance != null) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
@@ -2398,15 +2397,18 @@
 								}, e);
 							}
 							return false;
-						}					
+						}
+
+						// get container offset
+						var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container), _currentInstance, true);
 
 						// make sure we have the latest offset for this div 
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
-							z = _currentInstance.getZoom(),		
-							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left) / myOffsetInfo.width, 
-						    y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top) / myOffsetInfo.height,
+							z = _currentInstance.getZoom(),
+							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
+							y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
 						    parentX = x, 
-						    parentY = y;					
+						    parentY = y;
 								
 						// if there is a parent, the endpoint will actually be added to it now, rather than the div
 						// that was the source.  in that case, we have to adjust the anchor position so it refers to
@@ -2414,8 +2416,8 @@
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left) / myOffsetInfo.width; 
-						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top) / myOffsetInfo.height;
+							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
+						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
 						}											
 						
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -2442,9 +2444,6 @@
 						ep = _currentInstance.addEndpoint(elid, tempEndpointParams);
 
 						endpointAddedButNoDragYet = true;
-						// we set this to prevent connections from firing attach events before this function has had a chance
-						// to move the endpoint.
-						ep.endpointWillMoveAfterConnection = p.parent != null;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
 
 						// TODO test options to makeSource to see if we should do this?
@@ -2879,7 +2878,10 @@
         */
 		this.adjustForParentOffsetAndScroll = function(xy, el) {
 
+			//console.log("ADJUSTING FOR PARENT OFFSET AND SCROLL");
+
 			var offsetParent = null, result = xy;
+			/*
 			if (el.tagName.toLowerCase() === "svg" && el.parentNode) {
 				offsetParent = el.parentNode;
 			}
@@ -2899,7 +2901,7 @@
 				result[0] = xy[0] - po.left + so.left;
 				result[1] = xy[1] - po.top + so.top;
 			}
-		
+		//*/
 			return result;
 			
 		};
@@ -2907,7 +2909,8 @@
 		if (!jsPlumbAdapter.headless) {
 			_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 			_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-	    }	    
+	    }	
+		
 				    
     };
 
