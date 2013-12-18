@@ -1154,26 +1154,26 @@
 		
 		// refresh the offsets for child elements of this element. 
 		this.updateOffsets = function(elId) {
-			var jpcl = jsPlumb.CurrentLibrary,
-				el = jsPlumb.getElementObject(elId),
-				domEl = jsPlumb.getDOMElement(el),
-				id = _currentInstance.getId(domEl),
-				children = _delements[id],
-				parentOffset = jpcl.getOffset(el);
-				
-			if (children) {
-				for (var i in children) {
-					var cel = jsPlumb.getElementObject(i),
-						cOff = jpcl.getOffset(cel);
-						
-					_delements[id][i] = {
-						id:i,
-						offset:{
-							left:cOff.left - parentOffset.left,
-							top:cOff.top - parentOffset.top
-						}
-					};
-					_draggablesForElements[i] = id;
+			if (elId != null) {
+				var domEl = jsPlumb.getDOMElement(elId),
+					id = _currentInstance.getId(domEl),
+					children = _delements[id],
+					parentOffset = jsPlumbAdapter.getOffset(domEl);
+					
+				if (children) {
+					for (var i in children) {
+						var cel = jsPlumb.getElementObject(i),
+							cOff = jpcl.getOffset(cel);
+							
+						_delements[id][i] = {
+							id:i,
+							offset:{
+								left:cOff.left - parentOffset.left,
+								top:cOff.top - parentOffset.top
+							}
+						};
+						_draggablesForElements[i] = id;
+					}
 				}
 			}
 		};
@@ -1194,7 +1194,7 @@
 			while (p != null && p != b) {
 				var pid = _currentInstance.getId(p, null, true);
 				if (pid && _draggables[pid]) {
-					var idx = -1, pEl = jsPlumb.getElementObject(p), pLoc = jpcl.getOffset(pEl);
+					var idx = -1, pLoc = jsPlumbAdapter.getOffset(p);
 					
 					if (_delements[pid][id] == null) {						
 						_delements[pid][id] = {
@@ -1270,8 +1270,8 @@
 					_delements[pId] = {};
 				_delements[pId][elId] = _delements[current][elId];
 				delete _delements[current][elId];
-				var pLoc = jsPlumb.CurrentLibrary.getOffset(p),
-					cLoc = jsPlumb.CurrentLibrary.getOffset(el);
+				var pLoc = jsPlumbAdapter.getOffset(p),
+					cLoc = jsPlumbAdapter.getOffset(el);
 				_delements[pId][elId].offset = {
 					left:cLoc.left - pLoc.left,
 					top:cLoc.top - pLoc.top
@@ -1317,8 +1317,17 @@
 			}			
 			
 			_setClassName(el, curClasses.join(" "));
-					
-		};
+		},
+		_each = function(spec, fn) {
+			if (spec == null) return;
+			if (typeof spec === "string") fn(jsPlumb.getDOMElement(spec));
+			else if (spec.length != null) {
+				for (var i = 0; i < spec.length; i++)
+					fn(jsPlumb.getDOMElement(spec[i]));
+			}
+			else
+				fn(spec); // assume it's an element.
+		}
 	
             
     window.jsPlumbAdapter = {
@@ -1372,7 +1381,10 @@
 			return renderMode;
         },
 		addClass:function(el, clazz) {			
-			_classManip(jsPlumb.getDOMElement(el), true, clazz);
+			//_classManip(jsPlumb.getDOMElement(el), true, clazz);
+			_each(el, function(e) {
+				_classManip(e, true, clazz);
+			});
 		},
 		hasClass:function(el, clazz) {
 			el = jsPlumb.getDOMElement(el);
@@ -1382,10 +1394,16 @@
 			}
 		},
 		removeClass:function(el, clazz) {
-			_classManip(jsPlumb.getDOMElement(el), false, clazz);
+			//_classManip(jsPlumb.getDOMElement(el), false, clazz);
+			_each(el, function(e) {
+				_classManip(e, false, clazz);
+			});
 		},
 		setClass:function(el, clazz) {
-			_setClassName(jsPlumb.getDOMElement(el), clazz);
+			//_setClassName(jsPlumb.getDOMElement(el), clazz);
+			_each(el, function(e) {
+				_setClassName(e, clazz);
+			});
 		},
 		setPosition:function(el, p) {
 //			el = jsPlumb.getDOMElement(el);

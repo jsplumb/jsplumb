@@ -1550,7 +1550,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.remove("d2");        
 
         _jsPlumb.repaint("d1"); // shouldn't complain
-        _jsPlumb.recalculateOffsets();
+        _jsPlumb.recalculateOffsets("d1");
         
         ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the main div");                
         ok(_jsPlumb.getTestHarness().endpointsByElement["d2"] ==  null, "no endpoints for the nested div");                        
@@ -5972,6 +5972,61 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
 		// set class for d1 to be BAZ only
 		jsPlumbAdapter.setClass(d1, "BAZ");
 		equal(_d1.className, "BAZ", "element has only the class set with setClass");
+	});
+	
+	test(renderMode + " : DOM adapter addClass/removeClass, multiple elements, with selector", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		d1.addClass("BAZ");
+		d2.addClass("BAZ");
+		
+		var els = $(".BAZ");
+		
+		// add a single class and test for its existence	
+		jsPlumbAdapter.addClass(els, "FOO");
+		ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
+		ok(jsPlumbAdapter.hasClass(d2, "FOO"), "d1 has class FOO");
+		
+		// remove a single class and test for its non-existence.
+		jsPlumbAdapter.removeClass(els, "FOO");
+		ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+		ok(!jsPlumbAdapter.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
+		
+	});
+	
+	test(renderMode + " : DOM adapter addClass/removeClass, multiple elements, with array of DOM elements", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		d1.addClass("BAZ");
+		d2.addClass("BAZ");
+		
+		var els = [ d1[0], d2[0] ];
+		
+		// add a single class and test for its existence	
+		jsPlumbAdapter.addClass(els, "FOO");
+		ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
+		ok(jsPlumbAdapter.hasClass(d2, "FOO"), "d1 has class FOO");
+		
+		// remove a single class and test for its non-existence.
+		jsPlumbAdapter.removeClass(els, "FOO");
+		ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+		ok(!jsPlumbAdapter.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
+	});
+	
+	test(renderMode + " : DOM adapter addClass/removeClass, multiple elements, with array of IDs", function() {
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
+		d1.addClass("BAZ");
+		d2.addClass("BAZ");
+		
+		var els = [ "d1", "d2" ];
+		
+		// add a single class and test for its existence	
+		jsPlumbAdapter.addClass(els, "FOO");
+		ok(jsPlumbAdapter.hasClass(d1, "FOO"), "d1 has class FOO");
+		ok(jsPlumbAdapter.hasClass(d2, "FOO"), "d1 has class FOO");
+		
+		// remove a single class and test for its non-existence.
+		jsPlumbAdapter.removeClass(els, "FOO");
+		ok(!jsPlumbAdapter.hasClass(d1, "FOO"), "d1 doesn't have class FOO");
+		ok(!jsPlumbAdapter.hasClass(d2, "FOO"), "d1 doesn't have class FOO");
 	});
 };
 
