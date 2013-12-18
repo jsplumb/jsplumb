@@ -3,7 +3,7 @@
 	var instance, 
 		discs = [],
 		jpcl = jsPlumb.CurrentLibrary,
-		_bind = jpcl.on,
+		_bind = jsPlumb.on,
 
 		addDisc = function(evt) {
 			var info = createDisc();
