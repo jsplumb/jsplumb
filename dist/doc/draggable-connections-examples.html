@@ -1,0 +1,287 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>Draggable Connections Examples</h3>
+<p>This is a list of examples of how to use jsPlumb to create Connections using drag and drop.  The basic procedure is:</p>
+<ol>
+<li>Create Endpoints and register them on elements in your UI, or create a source Endpoint and then make some element a drop target</li>
+<li>Drag and Drop            </li>
+</ol>
+<p>There are plenty of options you can set when doing this...it will be easier to show you some examples:            </p>
+<ul>
+<li><p>Define an Endpoint with default appearance, that is both a source and target of new Connections:</p>
+<pre>
+    var endpointOptions = { isSource:true, isTarget:true }; 
+</pre>
+</li>
+<li><p>Register that Endpoint on window3, specifying that it should be located in the top center of the element:
+<pre>
+var window3Endpoint = jsPlumb.addEndpoint(&#39;window3&#39;, { anchor:&quot;TopCenter&quot; }, endpointOptions );<br></pre>
+Notice here the usage of the three-argument addEndpoint  - we can reuse <code>endpointOptions</code> with a different Anchor for another element.  This is a useful practice to get into.</p>
+</li>
+<li><p>Register that Endpoint on window4, specifying that it should be located in the bottom center of the element:
+<pre>
+var window4Endpoint = jsPlumb.addEndpoint(&#39;window4&#39;, {
+anchor:&quot;BottomCenter&quot; }, endpointOptions );<br></pre>
+Now we have two Endpoints, both of which support drag and drop of new Connections.  We can use these to make a programmatic Connection, too, though:</p>
+</li>
+<li><p>Connect window3 to window4 with a 25px wide yellow Bezier that has a &#39;curviness&#39; of 175:</p>
+<pre>
+jsPlumb.connect({ 
+    source:window3Endpoint,
+    target:window4Endpoint,
+    connector: [ "Bezier", { curviness:175 } ],
+    paintStyle:{ lineWidth:25, strokeStyle:'yellow' }
+});  
+</pre>    
+</li>
+<li><p>Define an Endpoint that creates Connections that are 20px wide straight lines, that is both a source and target of new Connections, and that has a <code>scope</code> of <code>blueline</code>. Also, this Endpoint mandates that once it is full, Connections can no longer be dragged from it (even if <code>reattach</code> is specified on a Connection):</p>
+<pre>
+var endpointOptions = { 
+    isSource:true, 
+    isTarget:true,
+    connector : "Straight",
+    connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+    scope:"blueline",
+    dragAllowedWhenFull:false     
+}; 
+</pre>    
+</li>
+<li><p>Define an Endpoint that will be anchored to <code>TopCenter</code>.  It creates Connections that are 20px wide straight lines, that are both a source and target of new Connections, and that have a <code>scope</code> of <code>blueline</code>. Also, this Endpoint mandates that once it is full, Connections can no longer be dragged from it (even if <code>reattach</code> is specified on a Connection):</p>
+<pre>
+var endpointOptions = {
+    anchor:"Top", 
+    isSource:true, 
+    isTarget:true,
+    connector : "Straight",
+    connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+    scope:"blueline",
+    dragAllowedWhenFull:false     
+}; 
+</pre>
+</li>
+<li><p>Define an Endpoint that will create a dynamic anchor which can be positioned at <code>TopCenter</code> or <code>BottomCenter</code>.  It creates Connections that are 20px wide straight lines, it is both a source and target of new Connections, and it has a &#39;scope&#39; of &#39;blueline&#39;. Also, this Endpoint mandates that once it is full, Connections can no longer be dragged from it (even if <code>reattach</code> is specified on a Connection):</p>
+<pre>
+var endpointOptions = {
+    anchor:[ "TopCenter", "BottomCenter" ], 
+    isSource:true, 
+    isTarget:true,
+    connector : "Straight",
+    connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+    scope:"blueline",
+    dragAllowedWhenFull:false     
+}; 
+</pre>    
+</li>
+<li><p>Exactly the same as before, but shows how you can use <code>anchors</code> instead of <code>anchor</code>, if that makes you feel happier:</p>
+<pre>
+var endpointOptions = {
+    anchors:[ "TopCenter", "BottomCenter" ], 
+    isSource:true, 
+    isTarget:true,
+    connector : "Straight",
+    connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+    scope:"blueline",
+    dragAllowedWhenFull:false     
+}; 
+</pre>    
+</li>
+<li><p>Define an Endpoint that is a 30px blue dot, creates Connections that are 20px wide straight lines, is both a source and target of new Connections, has a <code>scope</code> of <code>blueline</code>, and has an event handler that pops up an alert on drop (note: the event handler name means this example is jQuery - MooTools and YUI3 use different event handler names):</p>
+<pre>
+var endpointOptions = { 
+    isSource:true, 
+    isTarget:true,
+    endpoint: [ "Dot", { radius:30 } ],
+    style:{fillStyle:'blue'},
+    connector : "Straight",
+    connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+    scope:"blueline",
+    dropOptions:{ 
+      drop:function(e, ui) { 
+        alert('drop!'); 
+      } 
+    }     
+}; 
+</pre>
+</li>
+<li><p>Same example as before, but this is for MooTools, and the Endpoint can support up to 5 connections (the default is 1):</p>
+<pre>
+var endpointOptions = { 
+    isSource:true, 
+    isTarget:true,
+    endpoint: [ "Dot", { radius:30 } ],
+    style:{ fillStyle:'blue' },
+    maxConnections:5,
+    connector : "Straight",
+    connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+    scope:"blueline",
+    dropOptions:{ 
+    onDrop:function(e, ui) { 
+        alert('drop!'); 
+      } 
+    }     
+  }; 
+</pre>
+</li>
+<li><p>Same example again, but <code>maxConnections</code> being set to -1 means that the Endpoint has no maximum limit of Connections:</p>
+<pre>
+var endpointOptions = { 
+    isSource:true, 
+    isTarget:true,
+    endpoint: [ "Dot", {radius:30} ],
+    style:{ fillStyle:'blue' },
+    maxConnections:-1,
+    connector : "Straight",
+    connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+    scope:"blueline",
+    dropOptions:{ 
+    onDrop:function(e, ui) { 
+        alert('drop!'); 
+      } 
+    }     
+}; 
+</pre>
+</li>
+<li><p>Same example again, but for YUI3.  Note the drop callback is &quot;drop:hit&quot;:</p>
+<pre>
+var endpointOptions = { 
+    isSource:true, 
+    isTarget:true,
+    endpoint: [ "Dot", { radius:30 } ],
+    style:{fillStyle:'blue'},
+    maxConnections:-1,
+    connector : "Straight",
+    connectorStyle: { lineWidth:20, strokeStyle:'blue' },
+    scope:"blueline",
+    dropOptions:{ 
+      "drop:hit":function(e, ui) { 
+           alert('drop!'); 
+        } 
+    }         
+}; 
+</pre>            
+</li>
+<li><p>Assign a UUID to the Endpoint options created above, and add as Endpoints to &quot;window1&quot; and &quot;window2&quot;:</p>
+<pre>
+jsPlumb.addEndpoint("window1", { uuid:"abcdefg" }, endpointOptions );
+jsPlumb.addEndpoint("window2", { uuid:"hijklmn" }, endpointOptions );
+</pre>
+</li>
+<li><p>Connect the two Endpoints we just registered on &quot;window1&quot; and &quot;window2&quot;:</p>
+<pre>
+jsPlumb.connect({uuids:["abcdefg", "hijklmn"]});
+</pre>
+</li>
+<li><p>Create a source Endpoint, register it on some element, then make some other element a Connection target:
+<pre>
+var sourceEndpoint = { isSource:true, endpoint:[ &quot;Dot&quot;, { radius:50 } ] };
+var targetEndpoint = { endpoint:[ &quot;Rectangle&quot;, { width:10, height:10 } ] };
+jsPlumb.addEndpoint( &quot;window1&quot;, sourceEndpoint );
+jsPlumb.makeTarget( &quot;window2&quot;, targetEndpoint );
+</pre>
+Notice that the endpoint definition we use on the target window does not include the <code>isTarget:true</code> directive.  jsPlumb ignores that flag when creating a Connection using an element as the target; but if you then tried to drag another connection to the Endpoint that was created, you would not be able to.  To permit that, you would set <code>isTarget:true</code> on the targetEndpoint options defined above.</p>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

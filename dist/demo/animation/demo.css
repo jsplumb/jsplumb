@@ -1,0 +1,27 @@
+/** JSPLUMB ARTEFACTS **/
+._jsPlumb_overlay { z-index:51; }
+._jsPlumb_endpoint { z-index:50; cursor:move; }
+._jsPlumb_connector { z-index:1; }
+
+/** ELEMENTS **/
+.bigdot { 
+	cursor:pointer;
+	width:162px; 
+	height:162px; 
+	background-image:url(bigdot.png); 
+	z-index:5; 
+	position:absolute; 
+	border-radius:81px;
+}
+.bigdot-hover { 
+	border:2px solid orange; 
+}
+.dropHover { 
+	border:1px solid orange; 
+}
+
+/** ELEMENT POSITIONS **/
+#bd1 { top:10em;left:26em;}
+#bd2 { top:3em;left:3em;}
+#bd3 { top:19em;left:4.5em;}
+#bd4 { top:19em;left:46em;}

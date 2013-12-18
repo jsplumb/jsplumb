@@ -1,0 +1,363 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>Paint Styles</h3>
+<p>Defining the appearance of Connectors and Endpoints is achieved through a <code>paintStyle</code> (or a quite similar name) object passed as a parameter to one of <code>jsPlumb.connect</code>, <code>jsPlumb.addEndpoint</code>, <code>jsPlumb.makeSource</code> or <code>jsPlumb.makeTarget</code>.
+Depending on the method you are calling, the parameter names vary.</p>
+<h5>Connector Paint Styles</h5>
+<p>These are specified in a <code>paintStyle</code> parameter on a call to <code>jsPlumb.connect</code>:</p>
+<pre><code>jsPlumb.connect({
+    source:&quot;el1&quot;,
+    target:&quot;el2&quot;,
+    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+});</code></pre>
+<p>or in the <code>connectorPaintStyle</code> parameter on a call to <code>jsPlumb.addEndpoint</code> or <code>jsPlumb.makeSource</code>:</p>
+<pre><code>jsPlumb.addEndpoint(&quot;el1&quot;, {
+    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+});
+
+jsPlumb.makeSource(&quot;el1&quot;, {
+    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+});</code></pre>
+<p>Notice the <code>paintStyle</code> parameter in those examples: it is the paint style for the Endpoint, which we&#39;ll discuss below.</p>
+<h5>Endpoint Paint Styles</h5>
+<p>These are specified in a <code>paintStyle</code> parameter on a call to <code>addEndpoint</code>. This is the example from just above:</p>
+<pre><code>jsPlumb.addEndpoint(&quot;el1&quot;, {
+    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+});</code></pre>
+<p>...or as the <code>endpointStyle</code> parameter to a <code>connect</code> call:        </p>
+<pre><code>jsPlumb.connect({
+    source:&quot;el1&quot;,
+    target:&quot;el2&quot;,
+    endpointStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+});</code></pre>
+<p>... or as an entry in the <code>endpointStyles</code> array passed to a <code>jsPlumb.connect</code> call:</p>
+<pre><code>jsPlumb.connect({
+    source:&quot;el1&quot;,
+    target:&quot;el2&quot;,
+    endpointStyles:[ 
+        { fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+        { fillStyle:&quot;green&quot; }
+    ],
+    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 }
+});</code></pre>
+<p>or as the <code>paintStyle</code> parameter passed to a <code>makeTarget</code> or <code>makeSource</code> call:</p>
+<pre><code>jsPlumb.makeTarget(&quot;el1&quot;, {
+    ...
+    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    ...
+});
+
+jsPlumb.makeSource(&quot;el1&quot;, {
+    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 }
+    parent:&quot;someOtherDivIJustPutThisHereToRemindYouYouCanDoThis&quot;
+});</code></pre>
+<p>In the first example we  made <code>el1</code> into a drop target, and defined a paint style for the Endpoint jsPlumb will create when a Connection is established.  In the second we made el1 a connection source and assigned the same values for the Endpoint jsPlumb will create when a Connection is dragged from that element.</p>
+<h5>Overlay Paint Styles</h5>
+<p>The preferred way to set paint styles for Overlays is to use the <code>cssClass</code> parameter in the constructor arguments of an Overlay definition.</p>
+<h4>Paint Style Parameters</h4>
+<p>This is the full list of parameters you can set in a paintStyle object, but note that <code>fillStyle</code> is ignored by Connectors, and <code>strokeStyle</code> is ignored by Endpoints.  Also, if you create a Connection using jsPlumb.connect and do not specify any Endpoint styles, the Endpoints will derive their fillStyle from the Connector&#39;s strokeStyle.</p>
+<p><code>fillStyle</code>, <code>strokeStyle</code> and <code>outlineColor</code> can be specified using any valid CSS3 syntax.</p>
+<ul>
+<li><strong>fillStyle</strong> - color for an Endpoint, eg. rgba(100,100,100,50), &quot;blue&quot;, &quot;#456&quot;, &quot;#993355&quot;, rgb(34, 56, 78).</li>
+<li><strong>strokeStyle</strong> - color for a Connector. see fillStyle examples.</li>
+<li><strong>lineWidth</strong> - width of a Connector&#39;s line. An integer.</li>
+<li><strong>outlineWidth</strong> - width of the outline for an Endpoint or Connector. An integer.</li>
+<li><strong>outlineColor</strong> - color of the outline for an Endpoint or Connector. see fillStyle examples.</li>
+<li><strong>dashstyle</strong> - VML and SVG only. This comes from VML, and allows you to create dashed or dotted lines.  It has a better syntax than the equivalent attribute in SVG (<code>stroke-dasharray</code>, discussed below), so jsPlumb supports this for both renderers.  The <code>dashstyle</code> attribute is specified as an array of strokes and spaces, where each value is some multiple of <strong>the width of the Connector</strong>, and that&#39;s where it&#39;s better than SVG, which just uses absolute pixel values.</li>
+</ul>
+<p><a href="http://www.w3.org/TR/NOTE-VML">The VML spec</a> is a good place to find valid values for dashstyle. Note that jsPlumb does not support the string values for this attribute (&quot;solid&quot;, &quot;dashdot&quot;, etc).</p>
+<p>In SVG render mode, jsPlumb uses the <code>lineWidth</code> parameter in conjunction with the values in a <code>dashstyle</code> attribute to create an appropriate value for <code>stroke-dasharray</code>.</p>
+<ul>
+<li><strong>stroke-dasharray</strong> - SVG only. This is the SVG equivalent of <code>dashstyle</code>.  <a href="http://www.w3.org/TR/SVG/painting.html">The SVG spec</a> discusses valid values for this parameter.  But be aware that jsPlumb does not convert this into a valid <code>dashstyle</code> attribute when using the VML renderer. Better to use <code>dashstyle</code>.</li>
+<li><strong>stroke-dashoffset</strong> - SVG only.  This is used in SVG to specify how far into the dash pattern to start painting.  For more information, see <a href="http://www.w3.org/TR/SVG/painting.html">the SVG spec</a></li>
+<li><strong>joinstyle</strong> - VML and SVG only.  As with <code>dashstyle</code>, this is a VML attribute that jsPlumb supports for both VML and SVG - jsPlumb turns this into a <code>stroke-linejoin</code> attribute when rendering with SVG.  This attribute specifies how you want individual segments of connectors to be joined; the VML and SVG specs both have examples of this, of which many are the same between the two, which is why jsPlumb will automatically convert this attribute into the SVG equivalent.</li>
+<li><strong>stroke-linejoin</strong> - SVG only.  This is the equivalent of VML&#39;s <code>joinstyle</code> attribute, but as with <code>stroke-dasharray</code>, jsPlumb does not convert this into something approriate for VML.  So, using <code>joinstyle</code> will enable you to support more browsers with less effort.        </li>
+</ul>
+<h4>Hover Paint Styles</h4>
+<p>Connectors and Endpoints both support the concept of a &quot;hover&quot; paint style - a paint style to use when the mouse is hovering over the component.  These are specified in the exact same format as paint styles discussed above, but hover paint styles also inherit any values from the main paint style.  This is because you will typically want to just change the color, or perhaps outline color, of a Connector or Endpoint when the mouse is hovering, but leave everything else the same.  So having hover paint styles inherit their values precludes you from having to define things in more than one place.</p>
+<p>The naming convention adopted for hover paint styles is pretty much to insert the word &#39;hover&#39; into the corresponding main paint style parameters.  Here are a couple of examples:</p>
+<pre><code>jsPlumb.connect({
+    source:&quot;el1&quot;,
+    target:&quot;el2&quot;,
+    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
+    hoverPaintStyle:{ strokeStyle:&quot;red&quot; },
+    endpointStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    endpointHoverStyle:{ fillStyle:&quot;red&quot; }
+});</code></pre>
+<p>In this example we specified a hover style for both the Connector, and each of its Endpoints.  Here&#39;s the same thing, but using the plural version, to specify a different hover style for each Endpoint:    </p>
+<pre><code>jsPlumb.connect({
+    source:&quot;el1&quot;,
+    target:&quot;el2&quot;,
+    paintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
+    hoverPaintStyle:{ strokeStyle:&quot;red&quot; },
+    endpointStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    endpointHoverStyles:[ 
+        { fillStyle:&quot;red&quot; }, 
+        { fillStyle:&quot;yellow&quot; } 
+    ]
+});</code></pre>
+<p>Calls to <code>addEndpoint</code>, <code>makeSource</code> and <code>makeTarget</code> can also specify various hover paint styles:</p>
+<pre><code>jsPlumb.addEndpoint(&quot;el1&quot;, {
+    paintStyle:{ fillStyle:&quot;blue&quot;, outlineColor:&quot;black&quot;, outlineWidth:1 },
+    hoverPaintStyle:{ fillStyle:&quot;red&quot; },
+    connectorPaintStyle:{ strokeStyle:&quot;blue&quot;, lineWidth:10 },
+    connectorHoverPaintStyle:{ strokeStyle:&quot;red&quot;, outlineColor:&quot;yellow&quot;, outlineWidth:1 }
+});
+
+jsPlumb.makeSource(&quot;el2&quot;, {
+    paintStyle:{ 
+        fillStyle:&quot;transparent&quot;, 
+        outlineColor:&quot;yellow&quot;, 
+        outlineWidth:1 
+    },
+    hoverPaintStyle:{ fillStyle:&quot;red&quot; },
+    connectorPaintStyle:{ 
+        strokeStyle:&quot;green&quot;, 
+        lineWidth:3 
+    },
+    connectorHoverPaintStyle:{ 
+        strokeStyle:&quot;#678&quot;, 
+        outlineColor:&quot;yellow&quot;, 
+        outlineWidth:1 
+    }
+});
+
+jsPlumb.makeTarget(&quot;el3&quot;, {
+    paintStyle:{ 
+        fillStyle:&quot;transparent&quot;, 
+        outlineColor:&quot;yellow&quot;, 
+        outlineWidth:1 
+    },
+    hoverPaintStyle:{ fillStyle:&quot;red&quot; }
+});</code></pre>
+<p>In these examples we specified a hover paint style for both the Endpoint we are adding, and any Connections to/from the Endpoint.</p>
+<p><strong>Note</strong> that <code>makeTarget</code> does not support Connector parameters. It is for creating targets only; Connector parameters will be set by the source Endpoint in any Connections that are made to the element that you turned into a target by using this method.</p>
+<h4>Gradients</h4>
+<p>The Canvas and SVG renderers both support gradients. The VML renderer does not.  jsPlumb uses its own syntax to define gradients, to abstract out the differences between the syntax required by canvas and that required by SVG.  </p>
+<p>There are two types of gradients available - a <code>linear</code> gradient, which consists of colored lines all going in one direction, and a <code>radial</code> gradient, which consists of colored circles emanating from one circle to another. Because of their basic shape, jsPlumb supports only linear gradients for Connectors.  But for Endpoints, jsPlumb supports both linear and radial gradients.            </p>
+<h5>Connector gradients</h5>
+<p>To specify a linear gradient to use in a Connector, you must add a <code>gradient</code> object to your Connector&#39;s <code>paintStyle</code>, for instance:</p>
+<pre><code>jsPlumb.connect({
+      source : &quot;window2&quot;,
+      target : &quot;window3&quot;,
+      paintStyle:{
+            gradient:{
+                  stops:[[0,&quot;green&quot;], [1,&quot;red&quot;]]
+            },
+            lineWidth:15
+      }
+});</code></pre>
+<p>Here we have connected window2 to window3 with a 15 pixel wide connector that has a gradient from green to red.</p>
+<p>Notice the <code>gradient</code> object and the <code>stops</code> list inside it - the gradient consists of an arbitrary number of these &quot;color stops&quot;.  Each color stop is comprised of two values - [position, color].  Position must be a decimal value between 0 and 1 (inclusive), and indicates where the color stop is situated as a fraction of the length of the entire gradient.  Valid values for the colors in the stops list are the same as those that are valid for strokeStyle when describing a color.</p>
+<p>As mentioned, the stops list can hold an arbitrary number of entries.  Here&#39;s an example of a gradient that goes from red to blue to green, and back again through blue to red:</p>
+<pre><code>jsPlumb.connect({
+      source : &#39;window2&#39;,
+      target : &#39;window3&#39;,
+      paintStyle : {
+            gradient:{
+                  stops:[[0,&#39;red&#39;], [0.33,&#39;blue&#39;], [0.66,&#39;green&#39;], [0.33,&#39;blue&#39;], [1,&#39;red&#39;]]
+            },
+            lineWidth : 15
+      }
+});</code></pre>
+<p><strong>Note:</strong> when using the VML renderer, jsPlumb will simply ignore the gradient directive, so it is best to ensure you also supply a <code>strokeStyle</code> in your paintStyle object, to give jsPlumb something to fall back on.  If you do not supply a <code>strokeStyle</code> your Connectors will be painted black.  The previous example might look like this, for instance:</p>
+<pre><code>jsPlumb.connect({
+      source : &#39;window2&#39;,
+      target : &#39;window3&#39;,
+      paintStyle:{
+            strokeStyle:&#39;red&#39;,
+            gradient:{
+                  stops:[[0,&#39;red&#39;], [0.33,&#39;blue&#39;], [0.66,&#39;green&#39;], [0.33,&#39;blue&#39;], [1,&#39;red&#39;]]
+            },
+            lineWidth:15
+      }
+});</code></pre>
+<p>Notice the <code>strokeStyle:&#39;red&#39;</code> directive at the beginning of the parameter list in <code>paintStyle</code>.</p>
+<h5>Endpoint gradients</h5>
+<p>Endpoint gradients are specified using the same syntax as Connector gradients.  You put the gradient specifier either in the <code>endpoint</code> member, or if you are specifying different Endpoints for each end of the Connector, in one or both of the values in the <code>endpoints</code> array.  Also, this information applies to the case that you are creating standalone Endpoints that you will be configuring for drag and drop creation of new Connections. </p>
+<p>This is an example of an Endpoint gradient that is different for each Endpoint in the Connector.  This comes from the main demo; it is the Connector joining Window 2 to Window 3:</p>
+<pre><code>var w23Stroke = &#39;rgb(189,11,11)&#39;;
+jsPlumb.connect({
+      source : &#39;window2&#39;,
+      target : &#39;window3&#39;,
+      paintStyle:{
+            lineWidth:8,
+            strokeStyle:w23Stroke
+      },
+       anchors:[ [0.3,1,0,1], &quot;TopCenter&quot; ],
+       endpoint:&quot;Rectangle&quot;,
+       endpointStyles:[
+             { 
+            gradient : {
+                stops:[[0, w23Stroke], [1, &#39;#558822&#39;]] 
+            } 
+        },
+          { 
+            gradient : {
+                stops:[[0, w23Stroke], [1, &#39;#882255&#39;]] 
+            } 
+        }
+    ]
+});</code></pre>
+<p>The first entry in the gradient will be the one that is on the Connector end of the Endpoint.  You can of course have as many color stops as
+you want in this gradient, just like with Connector gradients.</p>
+<h5>Applying the gradient in Endpoints</h5>
+<p>Only the Dot and Rectangle endpoints honour the presence of a gradient (and, remember, not in VML). The Image endpoint of course ignores a gradient as it does no painting of its own.</p>
+<p>The type of gradient you will see depends on the Endpoint type:</p>
+<ul>
+<li><strong>Dot</strong> - renders a radial endpoint, with color stop 0 on the outside, progressing inwards as we move through color stops.</li>
+</ul>
+<p>Radial gradients actually require more data than linear gradients - in a linear gradient we just move from one point to another, whereas in a radial gradient we move from one <em>circle</em> to another.  By default, jsPlumb will render a radial gradient using a source circle of the same radius as the Endpoint itself, and a target circle of 1/3 of the radius of the Endpoint (both circles share the same center as the Endpoint itself). This circle will be offset by radius/2 in each direction.</p>
+<p>You can supply your own values for these inside the gradient descriptor:</p>
+<pre><code>var w34Stroke = &#39;rgba(50, 50, 200, 1)&#39;;
+var w34HlStroke = &#39;rgba(180, 180, 200, 1)&#39;;
+jsPlumb.connect({
+      source : &#39;window3&#39;,
+      target : &#39;window4&#39;,
+    paintStyle:{
+         lineWidth:10,
+         strokeStyle:w34Stroke
+    },
+    anchors:[ &quot;RightMiddle&quot;, &quot;LeftMiddle&quot; ],
+    endpointStyle:{
+          gradient : {
+                stops:[ [0, w34Stroke], [1, w34HlStroke] ],
+                offset:37.5,
+                innerRadius:40
+          },
+          radius:55
+    }
+ });</code></pre>
+<p>Here we have instructed jsPlumb to make the gradient&#39;s inner radius 10px instead of the default 25/3 = 8 ish pixels, and the offset in each direction will be 5px, instead of the default radius / 2 = 12.5 pixels.</p>
+<p>It is also possible to specify the offset and inner radius as percentages - enter the values as strings with a &#39;%&#39; symbol on the end:</p>
+<pre><code>var w34Stroke = &#39;rgba(50, 50, 200, 1)&#39;;
+var w34HlStroke = &#39;rgba(180, 180, 200, 1)&#39;;
+jsPlumb.connect({
+      source : &#39;window3&#39;, 
+      target : &#39;window4&#39;,
+    paintStyle:{
+        lineWidth:10,
+          strokeStyle:w34Stroke
+    },
+      anchors:[ &quot;RightMiddle&quot;, &quot;LeftMiddle&quot; ],
+      endpointStyle:{
+            gradient : {
+                  stops:[ [0, w34Stroke], [1, w34HlStroke] ],
+                  offset:&#39;68%&#39;,
+                  innerRadius:&#39;73%&#39;
+           },
+           radius:25
+     }
+});</code></pre>
+<p>This will give roughly the same output as the example above (the percentages are not entirely exact).</p>
+<ul>
+<li><strong>Rectangle</strong> - renders a linear endpoint, with color stop 0 closest to the end of the Connector</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

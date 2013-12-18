@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>Connection &amp; Endpoint Parameters</h3>
+<p>jsPlumb has a mechanism that allows you to set/get parameters on a per-connection basis.  These are not parameters that affect the appearance of operation of the object on which they are set; they are a means for you to associate information with jsPlumb objects.  This can be achieved in a few different ways:</p>
+<ul>
+<li>Providing parameters to a <code>jsPlumb.connect</code> call</li>
+<li>Providing parameters to a <code>jsPlumb.addEndpoint</code> call to/from which a connection is subsequently established using the mouse</li>
+<li>using the <code>setParameter</code> or <code>setParameters</code> method on a Connection</li>
+</ul>
+<p>Getting parameters is achieved through either the <code>getParameter(key)</code> or <code>getParameters</code> method on a Connection.</p>
+<h4>jsPlumb.connect</h4>
+<p>Parameters can be passed in via an object literal to a jsPlumb.connect call:</p>
+<pre><code>var myConnection = jsPlumb.connect({
+    source:&quot;foo&quot;,
+    target:&quot;bar&quot;,
+    parameters:{
+        &quot;p1&quot;:34,
+        &quot;p2&quot;:new Date(),
+        &quot;p3&quot;:function() { console.log(&quot;i am p3&quot;); }
+    }
+});</code></pre>
+<p>Note that they can be any valid Javascript objects - it&#39;s just an object literal.  You then access them like this:</p>
+<pre><code>myConnection.getParameter(&quot;p3&quot;)();     // prints &#39;i am p3&#39; to the console.</code></pre>
+<h4>jsPlumb.addEndpoint</h4>
+<p>The information in this section also applies to the <code>makeSource</code> and <code>makeTarget</code> functions.</p>
+<p>Using <code>jsPlumb.addEndpoint</code>, you can set parameters that will be copied in to any Connections that are established from or to the given Endpoint using the mouse.  (If you set parameters on both a source and target Endpoints and then connect them, the parameters set on the target Endpoint are copied in first, followed by those on the source. So the source Endpoint&#39;s parameters take precedence if they happen to have one or more with the same keys as those in the target).</p>
+<p>Consider this example:</p>
+<pre><code>var e1 = jsPlumb.addEndpoint(&quot;d1&quot;, {
+    isSource:true,
+    parameters:{
+        &quot;p1&quot;:34,
+        &quot;p2&quot;:new Date(),
+        &quot;p3&quot;:function() { console.log(&quot;i am p3&quot;); }
+    }
+});
+
+var e2 = jsPlumb.addEndpoint(&quot;d2&quot;, {
+    isTarget:true,
+    parameters:{
+        &quot;p5&quot;:343,
+        &quot;p3&quot;:function() { console.log(&quot;FOO FOO FOO&quot;); }
+    }
+});
+
+var conn = jsPlumb.connect({source:e1, target:e2});</code></pre>
+<p>&#39;conn&#39; will have four parameters set on it, with the value for &quot;p3&quot; coming from the source Endpoint:</p>
+<pre><code>var params = conn.getParameters();
+console.log(params.p1);       // 34
+console.log(params.p2);       // Mon May 14 2012 12:57:12 GMT+1000 (EST) (or however your console prints out a Date)
+console.log((params.p3)()); // &quot;i am p3&quot;  (note: we executed the function after retrieving it)
+console.log(params.p5);       // 343</code></pre>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

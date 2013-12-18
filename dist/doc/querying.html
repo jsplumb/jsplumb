@@ -1,0 +1,376 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h2>Querying jsPlumb</h2>
+<h3>Connections</h3>
+<p>There are two ways of retrieving connection information from jsPlumb. <code>getConnections</code> is the original method; this method has since been supplanted by <code>jsPlumb.select</code>, a much more versatile variant (although which, admittedly, uses getConnections internally).</p>
+<p><a id="getConnections"></a></p>
+<h4>getConnections</h4>
+<h5>Retrieving connections for a single scope</h5>
+<p>To do this, you call getConnections with either no arguments, in which case jsPlumb uses the default scope, or with a string specifying one scope</p>
+<pre><code>var connectionList = jsPlumb.getConnections(); // you get a list of Connection objects that are in the default scope.</code></pre>
+<p>Compare this with:</p>
+<pre><code>var connectionList = jsPlumb.getConnections(&quot;myScope&quot;);     // you get a list of Connection objects that are in &quot;myScope&quot;.</code></pre>
+<h5>More advanced filtering</h5>
+<p>getConnections optionally takes a JS object specifying filter parameters, of which there are three:</p>
+<ul>
+<li><strong>scope</strong> - the scope(s) of the connection type(s) you wish to retrieve</li>
+<li><strong>source</strong> - limits the returned connections to those that have this source id</li>
+<li><strong>target</strong> - limits the returned connections to those that have this target id</li>
+</ul>
+<p>Each of these three parameters may be supplied as a string, which for source and target is an element id and for scope is the name of the scope, or a list of strings.  Also, you can pass &quot;*&quot; in as the value for any of these - a wildcard, meaning any value.  See the examples below.</p>
+<p><strong>Important:</strong> The return value of a call to getConnection using a JS object as parameter varies on how many scopes you defined.  If you defined only a single scope then jsPlumb returns you a list of Connections in that scope.  Otherwise the return value is a dictionary whose keys are  scope names, and whose values are lists of Connections. For example, the following call:</p>
+<pre><code>jsPlumb.getConnections({
+    scope:[&quot;someScope&quot;, &quot;someCustomScope&quot;]
+});</code></pre>
+<p>would result in this output:            </p>
+<pre><code>{
+      &quot;someScope&quot; : [ 1..n Connections ],
+      &quot;someCustomScope&quot;: [ 1..m Connections ]
+}</code></pre>
+<p>This has tripped up many a developer who has been reluctant to take the time to read the documentation.  </p>
+<p>There is an optional second parameter that tells getConnections to flatten its output and just return you an array.  The previous example with this parameter would look like this:</p>
+<pre><code>jsPlumb.getConnections({
+    scope:[&quot;someScope&quot;, &quot;someCustomScope&quot;]
+}, true);</code></pre>
+<p>...and would result in this output:            </p>
+<pre><code>[ 1..n Connections ]</code></pre>
+<p>The following examples show the various ways you can get connection information:</p>
+<ul>
+<li>Get all connections:    <pre>
+jsPlumb.getAllConnections();
+</pre></li>
+<li>Get all connections for the default scope only(return value is a list):<pre>
+jsPlumb.getConnections();
+</pre></li>
+<li>Get all connections for the given scope (return value is a list):    <pre>
+jsPlumb.getConnections({scope:"myTestScope"});</pre></li>
+<li>Get all connections for the given scopes (return value is a map of scope names to connection lists):    <pre>
+jsPlumb.getConnections({
+      scope:["myTestScope", "yourTestScope"]
+});
+</pre></li>
+<li>Get all connections for the given source (return value is a map of scope names to connection lists):<pre>
+jsPlumb.getConnections({
+      source:"mySourceElement"
+});
+</pre></li>
+<li>Get all connections for the given sources (return value is a map of scope names to connection lists):    <pre>
+jsPlumb.getConnections({
+      source:["mySourceElement", "yourSourceElement"]
+});
+</pre></li>
+<li>Get all connections for the given target (return value is a map of scope names to connection lists):<pre>
+jsPlumb.getConnections({
+      target:"myTargetElement"
+});
+</pre></li>
+<li>Get all connections for the given source and targets (return value is a map of scope names to connection lists):<pre>
+jsPlumb.getConnections({
+      source:"mySourceElement", 
+      target:["target1", "target2"]
+});
+</pre></li>
+<li>Get all connections for the given scope, with the given source and target (return value is a list of connections):<pre>
+jsPlumb.getConnections({
+      scope:'myScope", 
+      source:"mySourceElement", 
+      target:"myTargetElement"
+});
+</pre>
+
+</li>
+</ul>
+<p><a id="select"></a></p>
+<h4>jsPlumb.select</h4>
+<p>This function provides a fluid interface for working with lists of Connections.  The syntax used to specify which Connections you want is identical to that which you use for getConnections, but the return value is an object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Connections in the selection along with the return value for that Connection.</p>
+<p>This is the full list of setter operations supported by jsPlumb.select:</p>
+<ul>
+<li>addClass</li>
+<li>removeClass</li>
+<li>addOverlay</li>
+<li>removeOverlay</li>
+<li>removeOverlays</li>
+<li>showOverlay</li>
+<li>hideOverlay</li>
+<li>showOverlays</li>
+<li>hideOverlays</li>
+<li>removeAllOverlays</li>
+<li>setLabel</li>
+<li>setPaintStyle</li>
+<li>setHoverPaintStyle</li>
+<li>setDetachable</li>
+<li>setReattach</li>
+<li>setConnector</li>
+<li>setParameter</li>
+<li>setParameters</li>
+<li>detach</li>
+<li>repaint</li>
+<li>setType</li>
+<li>addType</li>
+<li>removeType</li>
+<li>toggleType</li>
+<li>setVisible</li>
+</ul>
+<p>Each of these operations returns a selector that can be chained.</p>
+<p>These is the full list of getter operations supported by jsPlumb.select:</p>
+<ul>
+<li>getLabel</li>
+<li>getOverlay</li>
+<li>isHover</li>
+<li>isVisible</li>
+<li>isDetachable</li>
+<li>isReattach</li>
+<li>getParameter</li>
+<li>getParameters</li>
+<li>getType    </li>
+<li>hasType</li>
+</ul>
+<p>Each of these operations returns an array whose entries are [ value, Connection ] arrays, where <code>value</code> is the return value from the given Connection.  Remember that the return values from a getter are not chainable, but a getter may be called at the end of a chain of setters.</p>
+<p>Some examples:</p>
+<ul>
+<li>Select all Connections and set their hover state to be false:<pre>
+jsPlumb.select().setHover(false);
+</pre></li>
+<li>Select all Connections from &quot;d1&quot; and remove all Overlays:<pre>
+jsPlumb.select({source:"d1"}).removeAllOverlays();
+</pre></li>
+<li>Select all connections in scope &quot;foo&quot; and set their paint style to be a thick blue line:<pre>
+jsPlumb.select({scope:"foo"}).setPaintStyle({
+      strokeStyle:"blue", 
+      lineWidth:5 
+});
+</pre></li>
+<li>Select all Connections from &quot;d1&quot; and detach them:<pre>
+jsPlumb.select({source:"d1"}).detach();
+</pre></li>
+<li>Select all Connections and add the classes &quot;foo&quot; and &quot;bar&quot; to them :<pre>
+jsPlumb.select().addClass("foo bar");
+</pre></li>
+<li>Select all Connections and remove the class &quot;foo&quot; from them :<pre>
+jsPlumb.select().removeClass("foo");
+</pre>                                 
+##### .each iterator
+The return value of jsPlumb.select has a `.each` function that allows you to iterate through the list, performing an operation on each one:
+<pre>
+jsPlumb.select({scope:"foo"}).each(function(connection) {
+      // do something 
+});
+</pre>
+`.each` is itself chainable:
+<pre>
+jsPlumb.select({scope:"foo"}).each(function(connection) {    
+      // do something 
+}).setHover(true);
+</pre>
+
+</li>
+</ul>
+<h5>Other properties/functions</h5>
+<ul>
+<li><strong>length</strong> - this member reports the number of Connections in the selection</li>
+<li><strong>get(idx)</strong> - this function allows you to retrieve a Connection from the selection</li>
+</ul>
+<h3>Selecting Endpoints</h3>
+<p><code>jsPlumb.selectEndpoints</code> provides a fluid interface for working with lists of Endpoints.</p>
+<p>The syntax used to specify which Endpoints you want is identical to that which you use for <code>jsPlumb.select</code>, and the return value is an object that supports most operations that you can perform on an Endpoint (and which is also chainable, for setter methods). Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Endpoints in the selection along with the return value for that Endpoint.    </p>
+<p>Four parameters are supported by selectEndpoints - each of these except <code>scope</code> can be provided as either a string, a selector, a DOM element, or an array of a mixture of these types.  <code>scope</code> can be provided as either a string or an array of strings:        </p>
+<ul>
+<li><strong>element</strong> - element(s) to get both source and target endpoints from</li>
+<li><strong>source</strong> - element(s) to get source endpoints from</li>
+<li><strong>target</strong> - element(s) to get target endpoints from</li>
+<li><strong>scope</strong> - scope(s) for endpoints to retrieve                    </li>
+</ul>
+<p>This is the full list of setter operations supported by jsPlumb.selectEndpoints: </p>
+<ul>
+<li>addClass                </li>
+<li>removeClass</li>
+<li>addOverlay</li>
+<li>removeOverlay</li>
+<li>removeOverlays</li>
+<li>showOverlay</li>
+<li>hideOverlay</li>
+<li>showOverlays</li>
+<li>hideOverlays</li>
+<li>removeAllOverlays</li>
+<li>setLabel</li>
+<li>setPaintStyle</li>
+<li>setHoverPaintStyle</li>
+<li>setConnector</li>
+<li>setParameter</li>
+<li>setParameters</li>
+<li>repaint</li>
+<li>setType</li>
+<li>addType</li>
+<li>removeType</li>
+<li>toggleType</li>
+<li>setVisible</li>
+<li>setAnchor</li>
+</ul>
+<p>Each of these operations returns a selector that can be chained.</p>
+<p>This is the full list of getter operations supported by jsPlumb.select:     </p>
+<ul>
+<li>getLabel</li>
+<li>getOverlay</li>
+<li>isHover</li>
+<li>isVisible                </li>
+<li>getParameter</li>
+<li>getParameters</li>
+<li>getType</li>
+<li>hasType  </li>
+<li>getAnchor</li>
+</ul>
+<p>Each of these operations returns an array whose entries are <code>[ value, Endpoint ]</code> arrays, where &#39;value&#39; is the return value from the given Endpoint. Remember that the return values from a getter are not chainable, but a getter may be called at the end of a chain of setters.</p>
+<p>Other methods (not chainable):</p>
+<ul>
+<li>delete - deletes the Endpoints in the selection</li>
+<li>detachAll - detaches all Connections from the Endpoints in the selection          </li>
+</ul>
+<p>Some examples:</p>
+<ul>
+<li>Select all Endpoints and set their hover state to be false:<pre>
+jsPlumb.selectEndpoints().setHover(false);
+</pre></li>
+<li>Select all source Endpoints on &quot;d1&quot; and remove all Overlays:<pre>
+jsPlumb.selectEndpoints({source:"d1"}).removeAllOverlays();
+</pre></li>
+<li>Select all source Endpoints on &quot;d1&quot; and add the classes &quot;foo&quot; and &quot;bar&quot; to them :<pre>
+jsPlumb.selectEndpoints({source:"d1"}).addClass("foo bar");
+</pre></li>
+<li>Select all source Endpoints on &quot;d1&quot; and remove the class &quot;foo&quot; from them :<pre>
+jsPlumb.selectEndpoints({source:"d1"}).removeClass("foo");
+</pre></li>
+<li>Select all Endpoints in scope &quot;foo&quot; and set their fill style to be blue:<pre>
+jsPlumb.selectEndpoints({ scope:"foo" }).setPaintStyle({ fillStyle:"blue" });
+</pre></li>
+<li>Select all Endpoints from &quot;d1&quot; and detach their Connections:<pre>
+jsPlumb.selectEndpoints({source:"d1"}).detachAll();
+</pre>
+
+</li>
+</ul>
+<h5><code>.each</code> iterator</h5>
+<p>The return value of jsPlumb.selectEndpoints also has a <code>.each</code> function that allows you to iterate through the list, performing an operation on each one:</p>
+<pre>
+jsPlumb.selectEndpoints({scope:"foo"}).each(function(endpoint) {
+
+        // do something 
+});
+</pre>
+`.each` is itself chainable:
+<pre>
+jsPlumb.selectEndpoints({scope:"foo"}).each(function(endpoint) {
+
+        // do something 
+
+}).setHover(true);
+</pre>
+
+<h5>Other properties/functions</h5>
+<ul>
+<li><strong>length</strong> - this member reports the number of Endpoints in the selection</li>
+<li><strong>get(idx)</strong> - this function allows you to retrieve an Endpoint from the selection</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

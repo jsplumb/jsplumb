@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>Boilerplate</h3>
+<p>Here&#39;s a simple page that you can copy in order to get going.  A few basic things are illustrated here:</p>
+<ul>
+<li>Nodes (with class <strong>w</strong>) are positioned absolute.</li>
+<li>CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of <strong>_jsPlumb_connector</strong>). In this case, nodes are placed above connectors.</li>
+<li>You should use <code>jsPlumb.ready</code> to wrap your initial access to jsPlumb.</li>
+<li>A listener is bound to the <code>connection</code> event on jsPlumb.</li>
+</ul>
+<p>-
+      &lt;!doctype html&gt;
+      <html>
+        <head>
+            <title>jsPlumb simple example</title>
+            <style type="text/css">
+                .w { 
+                    border:1px solid #456;
+                    position:absolute;
+                    width:60px;
+                    height:60px;
+                    z-index:10;
+                 }</p>
+<pre><code>             ._jsPlumb_connector { 
+                 z-index:9;
+             }
+
+             #one { 
+                 left:50px;
+                 top:50px;
+             }
+
+             #two {
+                 left:350px;
+                 top:350px;
+             }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;div id=&quot;one&quot;&gt;one&lt;/div&gt;
+        &lt;div id=&quot;two&quot;&gt;two&lt;/div&gt;
+        Drag a connection from &lt;strong&gt;one&lt;/strong&gt; to &lt;strong&gt;two&lt;/strong&gt;
+        &lt;div id=&quot;debug&quot;&gt;&lt;/div&gt;
+
+        &lt;script type=&#39;text/javascript&#39; src=&#39;http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js&#39;&gt;&lt;/script&gt;
+        &lt;script type=&#39;text/javascript&#39; src=&#39;http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js&#39;&gt;&lt;/script&gt;
+        &lt;script type=&quot;text/javascript&quot; src=&quot;http://cdnjs.cloudflare.com/ajax/libs/jsPlumb/1.4.1/jquery.jsPlumb-1.4.1-all.js&quot;&gt;&lt;/script&gt;
+
+        &lt;script type=&quot;text/javascript&quot;&gt;
+            jsPlumb.ready(function() {
+                jsPlumb.addEndpoint(&quot;one&quot;, { isSource:true });
+                jsPlumb.addEndpoint(&quot;two&quot;, { isTarget:true });
+
+                jsPlumb.bind(&quot;connection&quot;, function(info) {
+                    console.log(&quot;new connection:&quot;, info);
+                    $(&quot;#debug&quot;).html(&quot;hello.&quot;);
+                });
+            });
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

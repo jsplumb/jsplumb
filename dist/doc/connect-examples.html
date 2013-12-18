@@ -1,0 +1,259 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>jsPlumb.connect Examples</h3>
+<p>This section provides various examples of how to use the programmatic API to establish Connections. </p>
+<p>The basic syntax of a call is that you execute &#39;connect&#39;, providing a source and a target, and optionally a paintStyle and preferences for where you want the plumbing to be anchored on each element, as well as the type of connector to use. </p>
+<ul>
+<li><p>Connect window1 to window2 with the default settings:</p>
+<pre>
+jsPlumb.connect({source:"window1", target:"window2"});
+</pre>
+</li>
+<li><p>Connect window1 to window2 with a 15 pixel wide yellow Connector, and a slightly brighter endpoint (remember the default Endpoint is a Dot):</p>
+<pre>
+jsPlumb.connect({
+    source:'window1',
+    target:'window2',
+    paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
+    endpointStyle:{fillStyle:'rgb(243,229,0)'}
+});
+</pre></li>
+<li>Connect window1 to window2 with a 15 pixel wide yellow Connector, and a slightly brighter endpoint:<pre>
+jsPlumb.connect({
+    source:'window1',
+    target:'window2',
+    paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
+    endpointStyle:{fillStyle:'rgb(243,229,0)'}
+});
+</pre></li>
+<li>Connect window3 to &#39;window4&#39; with a 10 pixel wide, semi opaque blue Connector, anchored to the left middle of window3, and the right middle of window4, with a Rectangle endpoint of width 10 and height 8:<pre>
+jsPlumb.connect({
+    source:'window3',
+    target:'window4',
+    paintStyle:{ lineWidth:10, strokeStyle:'rgba(0, 0, 200, 0.5)' },
+    anchors:["Right", "Left"],
+    endpoint:[ "Rectangle", { width:10, height:8 } ]
+});
+</pre></li>
+<li><p>Connect window2 to window3 with a default Connector from the top center of window2 to the bottom center of window3, and rectangular endpoints:</p>
+<pre>
+jsPlumb.connect({
+    source:'window2',
+    target:'window3',
+    paintStyle:{lineWidth:8, strokeStyle:'rgb(189,11,11    )'},
+    anchors:["Bottom", "Top"],
+    endpoint:"Rectangle"
+});
+</pre>
+</li>
+<li><p>Connect window1 to window2 with a 15 px wide yellow Bezier. Endpoints are a slightly lighter shade of yellow.</p>
+<pre>
+jsPlumb.connect({
+    source:'window1',
+    target:'window2',
+    anchors:["Bottom", [0.75,0,0,-1]],
+    paintStyle:{lineWidth:15,strokeStyle:'rgb(243,230,18)'},
+    endpointStyle:{fillStyle:'rgb(243,229,0)'}
+});
+</pre>
+</li>
+<li><p>Connect window3 to window4 with a 10px wide blue-ish half transparent Bezier. Put Endpoints underneath the element they attach to.  The Endpoints have a radial gradient. Both ways of specifying gradient positioning are shown here.</p>
+<pre><code>  var w34Stroke = &#39;rgba(50, 50, 200, 1)&#39;;
+  var w34HlStroke = &#39;rgba(180, 180, 200, 1)&#39;;
+  jsPlumb.connect( {
+      source:&#39;window3&#39;,
+      target:&#39;window4&#39;,
+    paintStyle:{lineWidth:10, strokeStyle:w34Stroke},
+    anchors:[&quot;RightMiddle&quot;, &quot;LeftMiddle&quot;],
+    endpointStyle:{ gradient : {stops:[[ 0, w34Stroke ], [ 1, w34HlStroke ]], offset:17.5, innerRadius:15 }, radius:35},
+    //endpointStyle:{ gradient : {stops:[[0, w34Stroke], [1, w34HlStroke]], offset:&#39;78%&#39;, innerRadius:&#39;73%&#39;}, radius:35 }
+  });</code></pre>
+</li>
+</ul>
+<ul>
+<li><p>Connect window2 to window3 with an 8px red Bezier and default rectangular endpoints.  See also how the first Anchor is specified here - this is how you create Anchors in locations jsPlumb does not offer shortcuts for.  The Endpoints in this example have linear gradients applied.</p>
+<pre><code>  var w23Stroke = &#39;rgb(189,11,11)&#39;;
+  jsPlumb.connect({
+      source:&#39;window2&#39;,
+      target:&#39;window3&#39;,
+      paintStyle:{lineWidth:8,strokeStyle:w23Stroke},
+        anchors:[[0.3,1,0,1], &quot;Top&quot;],
+        endpoint:&quot;Rectangle&quot;,
+        endpointStyles:[{ gradient : {stops:[[0, w23Stroke], [1, &#39;#558822&#39;]] }},
+                 { gradient : {stops:[[0, w23Stroke], [1, &#39;#882255&#39;]] }}]
+  });</code></pre>
+</li>
+</ul>
+<ul>
+<li><p>Connect window5 to window6 from center to center, 5px wide line that is green and half transparent. the Endpoints are 125px in radius and spill out from underneath their elements.</p>
+<pre>
+jsPlumb.connect({
+    source:'window5',
+    target:'window6',
+    anchors:["Center", "Center"],
+    paintStyle:{lineWidth:5,strokeStyle:'rgba(0,255,0,0.5)'},
+    endpointStyle:{radius:125}
+});
+</pre>
+</li>
+<li><p>Connect window4 to window5 from bottom right to top left, with a 7px straight line purple Connector, and an image as the endpoint,
+placed on top of the element it is connected to.</p>
+<pre>
+jsPlumb.connect({
+  source:"window4",
+  target:"window5",
+  anchors:[ "BottomRight","TopLeft" ],
+  paintStyle:{ lineWidth:7, strokeStyle:"rgb(131,8,135)" },
+  endpoint:[ "Image", { src:"http://morrisonpitt.com/jsPlumb/img/endpointTest1.png" } ],
+  connector:"Straight"
+});
+</pre></li>
+<li><p>Connect window5 to window6 between their center points with a semi-opaque connector, and 125px endpoints:</p>
+<pre>
+jsPlumb.connect({
+    source:"window5",
+    target:"window6",
+    anchors:[ "Center", "Center" ],
+    paintStyle:{ lineWidth:5, strokeStyle:"rgba(0,255,0,0.5)" },
+    endpointStyle:{ radius:125 }
+});
+</pre>
+</li>
+<li><p>Connect window7 to window8 with a 10 pixel wide blue Connector, anchored on the top left of window7 and the bottom right of window8:</p>
+<pre>
+jsPlumb.connect({
+    source:"window7",
+    target:"window8",
+    paintStyle:{ lineWidth:10, strokeStyle:"blue" },
+    anchors:[ "TopLeft", "BottomRight" ]
+});
+</pre>
+</li>
+<li><p>Connect the bottom right corner of window4 to the top left corner of window5, with rectangular Endpoints of size 40x40 and a hover color of light blue:</p>
+<pre>
+jsPlumb.connect({
+    source:"window4",
+    target:"window5",
+    anchors:["BottomRight","TopLeft"],
+    paintStyle:{lineWidth:7,strokeStyle:'rgb(131,8,135)'},
+    hoverPaintStyle:{ strokeStyle:"rgb(0, 0, 135)" },
+    endpointStyle:{ width:40, height:40 },
+    endpoint:"Rectangle",
+    connector:"Straight"
+});
+</pre></li>
+<li>Connect window1 to window2 with the default paint settings but provide some drag options (which are passed through to the underlying library&#39;s draggable call):<pre>
+jsPlumb.connect({
+    source:'window1', 
+    target:'window2',
+    dragOptions:{
+      cursor:'crosshair'
+    }
+});
+</pre>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

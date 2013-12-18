@@ -1,0 +1,236 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h2>Configuring Defaults</h2>
+<p>The easiest way to set a look and feel for your plumbing is to override the defaults that jsPlumb uses. If you do not do this you are forced to provide your overridden values on every call.  Every argument to the <code>connect</code> and <code>addEndpoint</code> methods has an associated default value in jsPlumb.</p>
+<p>The defaults that ship with jsPlumb are stored in <code>jsPlumb.Defaults</code>, which is a Javascript object.  Valid entries, and their initial values, are:</p>
+<pre><code class="lang-javascript">Anchor : &quot;BottomCenter&quot;,
+Anchors : [ null, null ],
+ConnectionsDetachable   : true,
+ConnectionOverlays  : [],
+Connector : &quot;Bezier&quot;,
+Container : null,
+DoNotThrowErrors  : false,
+DragOptions : { },
+DropOptions : { },
+Endpoint : &quot;Dot&quot;,
+Endpoints : [ null, null ],
+EndpointOverlays : [ ],
+EndpointStyle : { fillStyle : &quot;#456&quot; },
+EndpointStyles : [ null, null ],
+EndpointHoverStyle : null,
+EndpointHoverStyles : [ null, null ],
+HoverPaintStyle : null,
+LabelStyle : { color : &quot;black&quot; },
+LogEnabled : false,
+Overlays : [ ],
+MaxConnections : 1,
+PaintStyle : { lineWidth : 8, strokeStyle : &quot;#456&quot; },
+ReattachConnections : false,
+RenderMode : &quot;svg&quot;,
+Scope : &quot;jsPlumb_DefaultScope&quot;</code></pre>
+<p>Note that in <code>EndpointHoverStyle</code>, the default <code>fillStyle</code> is <strong>null</strong>.  This instructs jsPlumb to use the <code>strokeStyle</code> from the attached Connector&#39;s hover style to fill the Endpoint.</p>
+<p>Note also that you can specify either or both (or neither) of <code>EndpointStyle</code> and <code>EndpointStyles</code>.  This allows you to specify a different
+style for each Endpoint in a Connection.  <code>Endpoint</code> and <code>Endpoints</code> use the same concept.  jsPlumb will look first in the
+individual <code>Endpoint</code>/<code>EndpointStyle</code> arrays, and then fall back to the single default version.</p>
+<p>You can override these defaults by including this in a script somewhere:</p>
+<pre><code class="lang-javascript">jsPlumb.Defaults.PaintStyle = {
+  lineWidth:13,
+  strokeStyle: &#39;rgba(200,0,0,0.5)&#39;
+}
+
+jsPlumb.Defaults.DragOptions = { cursor: &quot;crosshair&quot; };
+
+jsPlumb.Default.Endpoints = [ [ &quot;Dot&quot;, 7 ], [ &quot;Dot&quot;, 11 ] ];
+
+jsPlumb.Defaults.EndpointStyles = [{ fillStyle:&quot;#225588&quot; }, { fillStyle:&quot;#558822&quot; }];</code></pre>
+<p>...after the jsPlumb script has been loaded of course!  Here we have specified the following default behaviour:</p>
+<ul>
+<li>connectors are 13 pixels wide and painted with a semi-transparent red line</li>
+<li>when dragging an element the crosshair cursor is used</li>
+<li>the source endpoint is a dot of radius 7; the target endpoint is a dot of radius 11</li>
+<li>the source endpoint is blue; the target endpoint is green</li>
+</ul>
+<h5>Explanation of each Default setting</h5>
+<ul>
+<li><strong>Anchor</strong>  - this will be used as the Anchor for any Endpoint for which no Anchor is declared - this applies to both the source and/or target of any Connection.</li>
+</ul>
+<ul>
+<li><p><strong>Anchors</strong> - default source and target Anchors for Connections.</p>
+</li>
+<li><p><strong>Connector</strong> - The default Connector to use.</p>
+</li>
+<li><p><strong>ConnectionsDetachable</strong> - Whether or not Connections are detachable by default using the mouse.</p>
+</li>
+<li><p><strong>DoNotThrowErrors</strong> - Whether or not jsPlumb will actually throw an exception if an Anchor, Endpoint or Connector that does not exist is requested.</p>
+</li>
+<li><p><strong>ConnectionOverlays</strong> - Default Overlays to attach to every Connection</p>
+</li>
+<li><p><strong>DragOptions</strong>  - Default options with which to configure any element made draggable with <code>jsPlumb.draggable</code></p>
+</li>
+<li><p><strong>DropOptions</strong> - Default options with which to configure the droppable behaviour of any target Endpoint.</p>
+</li>
+<li><p><strong>Endpoint</strong> - The default Endpoint definition. Will be used whenever an Endpoint is added or otherwise created and jsPlumb has not been given any explicit Endpoint definition.</p>
+</li>
+<li><p><strong>Endpoints</strong> - Default source and target Endpoint definitions for use with <code>jsPlumb.connect</code>.</p>
+</li>
+<li><p><strong>EndpointOverlays</strong> - Default Overlays to attach to every Endpoint.</p>
+</li>
+<li><p><strong>EndpointStyle</strong> - Default appearance of an Endpoint.</p>
+</li>
+<li><p><strong>EndpointStyles</strong> - Default appearance of the source and target Endpoints in a Connection</p>
+</li>
+<li><p><strong>EndpointHoverStyle</strong> - Default appearance of an Endpoint in hover state.</p>
+</li>
+<li><p><strong>EndpointHoverStyles</strong> - Default appearance of the source and target Endpoints in a Connection in hover state.</p>
+</li>
+<li><p><strong>HoverPaintStyle</strong> - Default appearance of a Connection in hover state.</p>
+</li>
+<li><p><strong>LabelStyle</strong> - Default style for a Label. <strong>Deprecated</strong>: use CSS for this instead.</p>
+</li>
+<li><p><strong>LogEnabled</strong> - Whether or not jsPlumb&#39;s internal logging is switched on.</p>
+</li>
+<li><p><strong>Overlays</strong> - Default Overlays to add to both Connections and Endpoints</p>
+</li>
+<li><p><strong>MaxConnections</strong> - The default maximum number of Connections any given Endpoint supports.</p>
+</li>
+<li><p><strong>PaintStyle</strong> - The default appearance of a Connector</p>
+</li>
+<li><p><strong>ReattachConnections</strong> - Whether or not to reattach Connections that were detached using the mouse and then neither reconnected to their original Endpoint nor connected to some other Endpoint.</p>
+</li>
+<li><p><strong>RenderMode</strong> - The default render mode. </p>
+</li>
+<li><p><strong>Scope</strong> - The default scope of Endpoints and Connections. Scope provides a rudimentary control over which Endpoints can be connected to which other Endpoints.</p>
+</li>
+</ul>
+<h4>jsPlumb.importDefaults</h4>
+<p>There is a helper method called <code>importDefaults</code> that allows you to import a set of values with just one call to jsPlumb.  Here&#39;s the previous example using <code>importDefaults</code>:</p>
+<pre><code class="lang-javascript">jsPlumb.importDefaults({
+  PaintStyle : {
+    lineWidth:13,
+    strokeStyle: &#39;rgba(200,0,0,100)&#39;
+  },
+  DragOptions : { cursor: &quot;crosshair&quot; },
+  Endpoints : [ [ &quot;Dot&quot;, 7 ], [ &quot;Dot&quot;, 11 ] ],
+  EndpointStyles : [
+    { fillStyle:&quot;#225588&quot; }, 
+    { fillStyle:&quot;#558822&quot; }
+  ]
+});</code></pre>
+<h4>Providing defaults to jsPlumb.getInstance</h4>
+<p>When you create a new instance of jsPlumb via <code>jsPlumb.getInstance</code> you can provide defaults for that instance as a constructor parameter - here&#39;s how we&#39;d create a new instance using the same default values as the example above:</p>
+<pre><code class="lang-javascript">jsPlumb.getInstance({
+  PaintStyle : {
+    lineWidth:13,
+    strokeStyle: &#39;rgba(200,0,0,100)&#39;
+  },
+  DragOptions : { cursor: &quot;crosshair&quot; },
+  Endpoints : [ [ &quot;Dot&quot;, 7 ], [ &quot;Dot&quot;, 11 ] ],
+  EndpointStyles : [
+    { fillStyle:&quot;#225588&quot; }, 
+    { fillStyle:&quot;#558822&quot; }
+  ]
+});</code></pre>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

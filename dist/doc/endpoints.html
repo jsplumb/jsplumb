@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h2>Endpoints</h2>
+<p>An <code>Endpoint</code> models the appearance and behaviour of one end of a <code>Connection</code>; it delegates its location to an underlying <code>Anchor</code>. </p>
+<p>jsPlumb comes with four Endpoint implementations - <code>Dot</code>, <code>Rectangle</code>, <code>Blank</code> and <code>Image</code>. You optionally specify Endpoint properties using the <code>endpoint</code> parameter in a call to <strong>jsPlumb.connect</strong>, <strong>jsPlumb.addEndpoint</strong>, <strong>jsPlumb.makeSource</strong> or <strong>jsPlumb.makeTarget</strong>.</p>
+<p>As with Connectors and Overlays, you specify Endpoints using the syntax described the page on <a href="basic-concepts#definitions">basic concepts</a>.</p>
+<h3>Creating an Endpoint</h3>
+<p>Endpoints are created in a number of different ways:</p>
+<ul>
+<li>when you call <code>jsPlumb.connect(..)</code> and pass an element id or DOM element as source/target, a new Endpoint is created and assigned.</li>
+<li>when you call <code>jsPlumb.addEndpoint(...)</code> a new Endpoint is created (and returned from the call)</li>
+<li>when you have configured an element using <code>jsPlumb.makeSource(...)</code> and subsequently drag a connection from that element, a new Endpoint is created and assigned.</li>
+</ul>
+<p>In each of these different cases, the parameters you can use to specify the Endpoint you wish to have created are exactly the same.</p>
+<h3>Specifying Endpoint parameters</h3>
+<h3>Endpoint types</h3>
+<ul>
+<li><p><strong>Dot</strong> This Endpoint draws a dot on the screen. It supports three constructor parameters:                                            </p>
+<ul>
+<li><code>radius</code> - Optional; defaults to 10 pixels. Defines the radius of the dot.                    </li>
+<li><code>cssClass</code> - Optional.  A CSS class to attach to the element the Endpoint creates.                       </li>
+<li><code>hoverClass</code> - Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the element or an attached Connection.                    </li>
+</ul>
+</li>
+<li><p><strong>Rectangle</strong> Draws a rectangle. Supported constructor parameters are:</p>
+<ul>
+<li><code>width</code> Optional; defaults to 20 pixels. Defines the width of the rectangle.</li>
+<li><code>height</code> Optional; defaults to 20 pixels. Defines the height of the rectangle.</li>
+<li><code>cssClass</code> Optional.  A CSS class to attach to the element the Endpoint creates.</li>
+<li><code>hoverClass</code> Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the element or an attached Connection.</li>
+</ul>
+</li>
+<li><p><strong>Image</strong> Draws an image from a given URL.  This Endpoint supports three constructor parameters:</p>
+<ul>
+<li><code>src</code> Required.  Specifies the URL of the image to use</li>
+<li><code>cssClass</code> Optional.  A CSS class to attach to the element the Endpoint creates.</li>
+<li><code>hoverClass</code> Optional.  A CSS class to attach to the element the Endpoint creates whenever the mouse is hovering over the element or an attached Connection.</li>
+</ul>
+</li>
+<li><p><strong>Blank</strong> Does not draw anything visible to the user.  This Endpoint is probably not what you want if you need your users to be able to drag existing Connections - for that, use a Rectangle or Dot Endpoint and assign to it a CSS class that causes it to be transparent.</p>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

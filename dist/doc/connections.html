@@ -1,0 +1,558 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>Connections</h3>
+<ol>
+<li><a href="#programmatic">Programmatic Connections</a></li>
+<li><a href="#draganddrop">Drag and Drop Connections</a>          </li>
+<li><a href="#sourcesandtargets">Elements as sources and targets</a><ul>
+<li><a href="#makesource">Sources</a>    </li>
+<li><a href="#maketarget">Targets</a></li>
+</ul>
+</li>
+</ol>
+<p><a name="programmatic"></a></p>
+<h4>Programmatic Connections</h4>
+<p>The most simple connection you can make with jsPlumb looks like this:</p>
+<pre><code>jsPlumb.connect({source:&quot;element1&quot;, target:&quot;element2&quot;});</code></pre>
+<p>In this example we have created a Connection from &#39;element1&#39; to &#39;element2&#39;.  Remember that a Connection in jsPlumb consists of two Endpoints, a Connector, and zero or more Overlays.  But this call to &#39;connect&#39; supplied none of those things, so jsPlumb uses the default values wherever it needs to.  In this case, default values have been used for the following: </p>
+<ul>
+<li>The type and appearance of each Endpoint in the Connection. jsPlumb&#39;s default for this is the &quot;Dot&quot; endpoint, of radius 10, with fill color &quot;#456&quot;.</li>
+<li>The Anchors that define where the Connection&#39;s Endpoints appear on each element. The jsPlumb default is <code>Bottom</code></li>
+<li>Whether or not each Endpoint can be a source or target for new Connections. The default is false.</li>
+<li>The type and appearance of the Connection&#39;s Connector. The default is a &quot;Bezier&quot; connector of line width 8, and color &quot;#456&quot;.</li>
+</ul>
+<p>So this call will result in an 8px Bezier, colored &quot;#456&quot;, from the bottom center of &#39;element1&#39; to the bottom center of &#39;element2&#39;, and each Endpoint will be a 10px radius Dot Endpoint, colored &quot;#456&quot;.</p>
+<p>Let&#39;s beef up this call a little and tell jsPlumb what sort of Endpoints we want, and where we want them:        </p>
+<pre><code>jsPlumb.connect({
+    source:&quot;element1&quot;, 
+    target:&quot;element2&quot;,
+    anchors:[&quot;Right&quot;, &quot;Left&quot; ],
+    endpoint:&quot;Rectangle&quot;,
+    endpointStyle:{ fillStyle: &quot;yellow&quot; }
+});</code></pre>
+<p>This is what we have told jsPlumb we want this time:</p>
+<ul>
+<li><strong>anchors</strong> - this array tells jsPlumb where the source and target Endpoints should be located on their parent elements. In this case, we use the shorthand syntax to name one of jsPlumb&#39;s default anchors; you can also specify custom locations (see <a href="anchors">Anchors</a>. Instead of <code>anchors</code> you can use <code>anchor</code>, if you want the source and target Endpoints to be located at the same place on their parent elements.        </li>
+<li><strong>endpoint</strong>  - this tells jsPlumb to use the <code>Rectangle</code> Endpoint for both the source and target of the Connection.  As with anchors, <code>endpoint</code> has a plural version that allows you to specify a different Endpoint for each end of the Connection.</li>
+<li><strong>endpointStyle</strong> - this is the definition of the appearance of the Endpoint you specified above.  Again, there is a plural equivalent of this that allows you to specify a different style for each end of the Connection. For more information about allowed values for this value, see <a href="basic-concepts#definitions">Connector, Endpoint, Anchor &amp; Overlay definitions</a>.</li>
+</ul>
+<p><a name="common"></a></p>
+<h5>Reusing common settings between jsPlumb.connect calls</h5>
+<p>A fairly common situation you will find yourself in is wanting to create a bunch of Connections that have only minor differences between them.  To support that, <code>jsPlumb.connect</code> takes an optional second argument. For example:             </p>
+<pre><code>var common = {
+    anchors:[ &quot;BottomCenter&quot;, &quot;TopCenter&quot; ],
+    endpoints:[&quot;Dot&quot;, &quot;Blank&quot; ]
+};
+
+jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot; }, common);
+
+jsPlumb.connect({ source:&quot;aThirdElement&quot;, target:&quot;yetAnotherElement&quot; }, common);</code></pre>
+<h5>Endpoints created by jsPlumb.connect</h5>
+<p>If you supply an element id or selector for either the source or target, jsPlumb.connect will automatically create an Endpoint on the given element.  These automatically created Endpoints are not marked as drag source or targets, and cannot be interacted with.  For some situations this behaviour is perfectly fine, but for more interactive UIs you should set things up using one of the drag and drop methods discussed below.</p>
+<p><strong>Note</strong>: given that <code>jsPlumb.connect</code> creates its own Endpoints in some circumstances, in order to avoid leaving orphaned Endpoints around the place, if the Connection is subsequently deleted, these automatically created Endpoints are deleted too.  Should you want to, you can override this behaviour by setting <code>deleteEndpointsOnDetach</code> to false in the connect call:</p>
+<pre><code>jsPlumb.connect({ 
+    source:&quot;aThirdElement&quot;, 
+    target:&quot;yetAnotherElement&quot;,
+    deleteEndpointsOnDetach:false 
+});</code></pre>
+<p><a name="detaching"></a></p>
+<h5>Detaching Connections</h5>
+<p>By default, connections made with <code>jsPlumb.connect</code> will be detachable via the mouse.  You can prevent this by either setting an appropriate default value:</p>
+<pre><code>jsPlumb.importDefaults({ 
+    ...
+    ConnectionsDetachable:false
+    ...
+});</code></pre>
+<p>...or by specifying it on the connect call like this:</p>
+<pre><code>jsPlumb.connect({ 
+    source:&quot;aThirdElement&quot;, 
+    target:&quot;yetAnotherElement&quot;,
+    detachable:false
+});</code></pre>
+<p><a name="draganddrop"></a></p>
+<h4>Drag and Drop Connections</h4>
+<p>To support drag and drop connections, you first need to set a few things up.  Every drag and drop connection needs at least a source Endpoint that the user can drag a connection from. Here&#39;s a simple example of how to create an Endpoint:</p>
+<pre><code>var endpointOptions = { isSource:true };
+var endpoint = jsPlumb.addEndpoint(&#39;elementId&#39;, endpointOptions);</code></pre>
+<p>This Endpoint will act as a source for new Connections, and will use the jsPlumb defaults for its own appearance and that of any Connections that are drawn from it.                            </p>
+<h6>Tip: use the three-argument addEndpoint method for common data</h6>
+<p>One thing that happens quite often is that you have an Endpoint whose appearance and behaviour is largely the same between usages on different elements, with just a few differences. </p>
+<pre><code>var exampleGreyEndpointOptions = {
+    endpoint:&quot;Rectangle&quot;,
+    paintStyle:{ width:25, height:21, fillStyle:&#39;#666&#39; },
+    isSource:true,
+    connectorStyle : { strokeStyle:&quot;#666&quot; },
+    isTarget:true
+};</code></pre>
+<p>Notice there is no <code>anchor</code> set.  Here we apply it to two elements, at a different location in each:</p>
+<pre><code>jsPlumb.addEndpoint(&#39;element1&#39;, { 
+    anchor:&quot;BottomCenter&quot; 
+}, exampleGreyEndpointOptions)); 
+
+jsPlumb.addEndpoint(&#39;element2&#39;, { 
+    anchor:&quot;TopCenter&quot; 
+}, exampleGreyEndpointOptions));        </code></pre>
+<p>Now that you have a source Endpoint, you need to either create a target Endpoint on some element, or notify jsPlumb that you wish to make an entire element a drop target.  Let&#39;s look at how to attach a target Endpoint first:</p>
+<pre><code>var endpointOptions = { isTarget:true, endpoint:&quot;Rectangle&quot;, paintStyle:{ fillStyle:&quot;gray&quot; } };
+var endpoint = jsPlumb.addEndpoint(&quot;otherElementId&quot;, endpointOptions);</code></pre>
+<p>This Endpoint, a gray rectangle, has declared that it can act as a drop target for Connections. </p>
+<p><a name="sourcesandtargets"></a></p>
+<h4>Elements as sources &amp; targets</h4>
+<p>jsPlumb also supports turning entire elements into Connection sources and targets, using the methods <code>makeSource</code> and <code>makeTarget</code>.  With these methods you mark an element as a source or target, and provide an Endpoint specification for jsPlumb to use when a Connection is established.  <code>makeSource</code> also gives you the ability to mark some child element as the place from which you wish to drag Connections, but still have the Connection on the main element after it has been established.</p>
+<p>These methods honour the jsPlumb defaults - if, for example you set up the default Anchors to be this:</p>
+<pre><code>jsPlumb.Defaults.Anchors = [ &quot;LeftMiddle&quot;, &quot;BottomRight&quot; ];</code></pre>
+<p>... and then used <code>makeSource</code> and <code>makeTarget</code> without specifying Anchor locations, jsPlumb would use <code>LeftMiddle</code> for the <code>makeSource</code> element and <code>BottomRight</code> for the <code>makeTarget</code> element.</p>
+<p>A further thing to note about <code>makeSource</code> and <code>makeTarget</code> is that any prior calls to one of these methods is honoured by subsequent calls to <code>jsPlumb.connect</code>. This helps when you&#39;re building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created Connections (obviously quite a common use case).  </p>
+<p>For example:</p>
+<pre><code>jsPlumb.makeSource(&quot;el1&quot;, {
+    anchor:&quot;Continuous&quot;,
+    endpoint:[&quot;Rectangle&quot;, { width:40, height:20 }],
+    maxConnections:3
+});
+
+...
+
+jsPlumb.connect({source:&quot;el1&quot;, target:&quot;el2&quot;});</code></pre>
+<p>In this example, the source of the connection will be a Rectangle of size 40x20, having a Continuous Anchor.  The source is also configured to allow a maximum of three Connections.</p>
+<p>You can override this behaviour by setting a <code>newConnection</code> parameter on the connect call:</p>
+<pre><code>jsPlumb.makeSource(&quot;el1&quot;, {
+    anchor:&quot;Continuous&quot;,
+    endpoint:[&quot;Rectangle&quot;, { width:40, height:20 }],
+    maxConnections:1,
+    onMaxConnections:function(info, originalEvent) {
+        console.log(&quot;element is &quot;, info.element, &quot;maxConnections is&quot;, info.maxConnections);    
+    }
+});
+
+...
+
+jsPlumb.connect({ 
+  source:&quot;el1&quot;, 
+  target:&quot;el2&quot;, 
+  newConnection:true 
+});</code></pre>
+<p>Note the <code>onMaxConnections</code> parameter to this call - it allows you to supply a function to call if the user tries to drag a new Connection when the source has already reached capacity.</p>
+<p><a name="maketarget"></a></p>
+<h5>jsPlumb.makeTarget</h5>
+<p>This method takes two arguments, the first of which specifies some element (or list of elements); the second specifies the Endpoint you wish to create on that element whenever a Connection is established on it.  In this example we will use the exact same target Endpoint we used before - the gray rectangle - but we will tell jsPlumb that the element <code>aTargetDiv</code> will be the drop target:</p>
+<pre><code>var endpointOptions = { 
+  isTarget:true, 
+  maxConnections:5,
+  endpoint:&quot;Rectangle&quot;, 
+  paintStyle:{ fillStyle:&quot;gray&quot; } 
+};
+jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);</code></pre>
+<p>The allowed values in &#39;endpointOptions&#39; are identical for both the <code>jsPlumb.addEndpoint</code> and <code>jsPlumb.makeTarget</code> methods, but <code>makeTarget</code> supports an extended Anchor syntax that allows you more control over the location of the target endpoint.  This is discussed below.    </p>
+<p>Notice in the <code>endpointOptions</code> object above there is a parameted called <code>isTarget</code> - this may seem incongruous, since you know you&#39;re going to make some element a target.  Remember that the <code>endpointOptions</code> object is the information jsPlumb will use to create an Endpoint on the given target element each time a Connection is established to it. It takes the exact same format as you would pass to <code>addEndpoint</code>; <code>makeTarget</code> is essentially a deferred <code>addEndpoint</code> call followed by a <code>connect</code> call.  So in this case, we&#39;re telling jsPlumb that any Endpoints it happens to create on some element that was configured by the <code>makeTarget</code> call are themselves Connection targets.  You may or may not want this behaviour in your application - just control it by setting the approriate value for that parameter (it defaults to false).</p>
+<p><code>makeTarget</code> also supports the <code>maxConnections</code> and <code>onMaxConnections</code> parameters, as <code>makeSource</code> does, but note that <code>onMaxConnections</code> is passed one extra parameter than its corresponding callback from <code>makeSource</code> - the Connection the user tried to drop:</p></p>
+<pre><code>jsPlumb.makeTarget(&quot;aTargetDiv&quot;, { 
+  isTarget:true, 
+  maxConnections:5,
+  endpoint:&quot;Rectangle&quot;, 
+  paintStyle:{ fillStyle:&quot;gray&quot; },
+  maxConnections:3,
+  onMaxConnections:function(info, originalEvent) {
+    console.log(&quot;user tried to drop connection&quot;, info.connection, &quot;on element&quot;, info.element, &quot;with max connections&quot;, info.maxConnections);
+  }
+};</code></pre>
+<h5>Unique Endpoint per Target</h5>
+<p>jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on the target element, by default, but you can override this behaviour and tell jsPlumb that it should create at most one Endpoint, which it should attempt to use for subsequent Connections:</p>
+<pre><code>var endpointOptions = { 
+  isTarget:true, 
+  uniqueEndpoint:true,
+  endpoint:&quot;Rectangle&quot;, 
+  paintStyle:{ fillStyle:&quot;gray&quot; } 
+};
+jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);</code></pre>
+<p>Here, the <code>uniqueEndpoint</code> parameter tells jsPlumb that there should be at most one Endpoint on this element.  Notice that <code>maxConnections</code> is not set: the default is 1, so in this setup we have told jsPlumb that <code>aTargetDiv</code> can receive one Connection and no more.</p>
+<h5>Deleting Endpoints on Detach</h5>
+<p>By default, any Endpoints created using makeTarget have <code>deleteEndpointsOnDetach</code> set to true, which means that once all Connections to that Endpoint are removed, the Endpoint is deleted.  You can override this by setting the flag to true on the <code>makeTarget</code> call:</p>
+<pre><code>var endpointOptions = { 
+  isTarget:true, 
+  maxConnections:5,
+  uniqueEndpoint:true,
+  deleteEndpointsOnDetach:false,
+  endpoint:&quot;Rectangle&quot;, 
+  paintStyle:{ fillStyle:&quot;gray&quot; } 
+};
+jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);</code></pre>
+<p>In this setup we have told jsPlumb to create an Endpoint the first time <code>aTargetElement</code> receives a Connection, and to not delete it even if there are no longer any Connections to it.  The created Endpoint will be reused for subsequent Connections, and can support a maximum of 5.</p>
+<h5>Detaching connections made with the mouse</h5>
+<p>As with <code>jsPlumb.connect</code>, Connections made with the mouse after setting up Endpoints with one of the functions we&#39;ve just covered will be, by default, detachable.  You can prevent this in the jsPlumb defaults, as previously mentioned:</p>
+<pre><code>jsPlumb.importDefaults({ 
+    ...
+    ConnectionsDetachable:false,
+    ...
+});</code></pre>
+<p>And you can also set this on a per-endpoint (or source/target) level, like in these examples:</p>
+<pre><code>jsPlumb.addEndpoint(&quot;someElementId&quot;, { 
+    connectionsDetachable:false    
+});
+
+jsPlumb.makeSource(&quot;someOtherElement&quot;, {
+    ...
+    connectionsDetachable:false,
+    ...
+});
+
+jsPlumb.makeTarget(&quot;yetAnotherElement&quot;, {
+    ...
+    connectionsDetachable:false,
+    ...
+});</code></pre>
+<p>Note that in the jsPlumb defaults, by convention each word in a parameter is capitalised (&quot;ConnectionsDetachable&quot;), whereas for a call to one of these methods, we use camel case (&quot;connectionsDetachable&quot;).</p>
+<h5>Target Anchors positions with makeTarget</h5>
+<p>When using the <code>makeTarget</code> method, jsPlumb allows you to provide a callback function to be used to determine
+the appropriate location of a target Anchor for every new Connection dropped on the given target.  It may be the
+case that you want to take some special action rather than just relying on one of the standard Anchor mechanisms.</p>
+<p>This is achieved through an extended Anchor syntax (note that this syntax is <strong>not supported</strong> in the <code>jsPlumb.addEndpoint</code> method) that supplies a &quot;positionFinder&quot; to the anchor specification.  jsPlumb provides two of these by default; you can register your own on jsPlumb and refer to them by name, or just supply a function. Here&#39;s a few examples:</p>
+<ul>
+<li>Instruct jsPlumb to place the target anchor at the exact location at which the mouse button was released on the target element. Note that you tell jsPlumb the anchor is of type &quot;Assign&quot;, and you then provide a &quot;position&quot;
+parameter, which can be the name of some position finder, or a position finder function itself:</li>
+</ul>
+<pre>
+jsPlumb.makeTarget("someElement", {
+  anchor:[ "Assign", { 
+    position:"Fixed"
+  }]
+});
+</pre>
+`Fixed` is one of the two default position finders provided by jsPlumb. The other is `Grid`:
+
+<pre>
+jsPlumb.makeTarget("someElement", {
+  anchor:[ "Assign", { 
+    position:"Grid",
+    grid:[3,3]
+  }]
+});
+</pre>
+
+<p>The Grid position finder takes a <code>grid</code> parameter that defines the size of the grid required. [3,3] means 3 rows and 3 columns.</p>
+<h5>Supplying your own position finder</h5>
+<p>To supply your own position finder to jsPlumb you first need to create the callback function. First let&#39;s take a look at what the source code for the <code>Grid</code> position finder looks like:</p>
+<pre>
+function(eventOffset, elementOffset, elementSize, constructorParams) {
+  var dx = eventOffset.left - elementOffset.left, dy = eventOffset.top - elementOffset.top,
+      gx = elementSize[0] / (constructorParams.grid[0]), 
+      gy = elementSize[1] / (constructorParams.grid[1]),
+      mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
+
+  return [ ((mx * gx) + (gx / 2)) / elementSize[0], ((my * gy) + (gy / 2)) / elementSize[1] ];
+}
+</pre>
+
+<p>The four arguments are:
+- <strong>eventOffset</strong> - Page left/top where the mouse button was released (a JS object containing left/top members like you get from a jQuery offset call)
+- <strong>elementOffset</strong> - JS offset object containing offsets for the element on which the Connection is to be created
+- <strong>elementSize</strong> - [width, height] array of the dimensions of the element on which the Connection is to be created
+- <strong>constructorParams</strong> - the parameters that were passed to the Anchor&#39;s constructor. In the example given above, those parameters are &#39;position&#39; and &#39;grid&#39;; you can pass arbitrary parameters.</p>
+<p>The return value of this function is an array of [x, y] - proportional values between 0 and 1 inclusive, such as you can pass to a static Anchor.</p>
+<p>To make your own position finder you need to create a function that takes those four arguments and returns an [x, y] position for the anchor, for example:</p>
+<pre>
+jsPlumb.AnchorPositionFinders.MyFinder = function(dp, ep, es, params) {
+  ... do some maths ...    
+  console.log("my custom parameter is ", params.myCustomParameter);
+  return [ x, y ];    
+};
+</pre>
+Then refer to it in a makeTarget call:
+<pre>
+jsPlumb.makeTarget("someElement", {  
+  anchor:[ "Assign", { 
+    position:"MyFinder",
+    myCustomParameter:"foo",
+    anInteger:5
+  }]
+});
+</pre>
+
+<p><a name="makesource"></a></p>
+<h5>jsPlumb.makeSource</h5>
+<p>There are two use cases supported by this method.  The first is the case that you want to drag a Connection from the element itself and have an Endpoint attached to the element when a Connection is established.  The second is a more specialised case: you want to drag a Connection from the element, but once the Connection is established you want jsPlumb to move it so that its source is on some other element.</p>
+<p>Here&#39;s an example code snippet for the basic use case of makeSource:</p>
+<pre><code>jsPlumb.makeSource(someDiv, {
+  paintStyle:{ fillStyle:&quot;yellow&quot; },
+  endpoint:&quot;Blank&quot;,
+  anchor:&quot;BottomCenter&quot;
+});</code></pre>
+<p>Notice again that the second argument is the same as the second argument to an <code>addEndpoint</code> call.  <code>makeSource</code> is, essentially, a type of <code>addEndpoint</code> call.  In this example we have told jsPlumb that we will support dragging Connections directly from <code>someDiv</code>.  Whenever a Connection is established between <code>someDiv</code> and some other element, jsPlumb assigns an Endpoint at BottomCenter of <code>someDiv</code>, fills it yellow, and sets that Endpoint as the newly created Connection&#39;s source. </p>
+<p><a name="sourcefilter"></a></p>
+<h5>Specifying drag source area</h5>
+<p>Configuring an element to be an entire Connection source using makeSource means that the element cannnot itself be draggable.  There would be no way for jsPlumb to distinguish between the user attempting to drag the element and attempting to drag a Connection from the element.  jsPlumb has two ways for you to handle this. Why two?  The second one didn&#39;t occur to me until later. The first one will probably be discontinued at some stage.</p>
+<h6>Supplying a &#39;parent&#39; parameter</h6>
+<p>In this code snippet, note the <code>parent</code> parameter.  It instructs jsPlumb to configure the source Endpoint on the element specified - in this case, <code>someDiv</code> (the value of this parameter may be a String id or a selector).</p>
+<pre><code>jsPlumb.makeSource(&quot;someConnectionSourceDiv&quot;, {
+  paintStyle:{ fillStyle:&quot;yellow&quot; },
+  endpoint:&quot;Blank&quot;,
+  anchor:&quot;BottomCenter&quot;,
+  parent:&quot;someDiv&quot;
+});</code></pre>
+<p>If you just want to say &quot;use the parent of this element&quot;, you can supply &quot;parent&quot;:</p>
+<pre><code>jsPlumb.makeSource(&quot;someConnectionSourceDiv&quot;, {
+  paintStyle:{ fillStyle:&quot;yellow&quot; },
+  endpoint:&quot;Blank&quot;,
+  anchor:&quot;BottomCenter&quot;,
+  parent:&quot;parent&quot;
+});</code></pre>
+<p>This was the original way of handling the <code>makeSource</code> drag conundrum in jsPlumb, but it&#39;s not as good as supplying a <code>filter</code> parameter, which is discussed below. The main problem is that when you use this mechanism you don&#39;t actually register the makeSource call on the element you want; instead you register it on some child of that element and supply the element you&#39;re really configuring as <strong>parent</strong>.  It&#39;s just not quite &#39;right&#39;, conceptually.</p>
+<h6>Supplying a <code>filter</code> parameter</h6>
+<p>The second way to handle the drag problem makes much more sense:you supply a &#39;filter&#39; parameter to the makeSource call, which can be either a function object or a selector. Consider this markup:</p>
+<pre><code>&lt;div id=&quot;foo&quot;&gt;
+  FOO
+  &lt;button&gt;click me&lt;/button&gt;
+&lt;div&gt;</code></pre>
+<p>Suppose we do not want to interfere with the operation of the &quot;click me&quot; button. We can supply a filter to the makeSource call to do so:</p>
+<pre><code>jsPlumb.makeSource(&quot;foo&quot;, {
+  filter:&quot;:not(button)&quot;
+});</code></pre>
+<p>or</p>
+<pre><code>jsPlumb.makeSource(&quot;foo&quot;, {
+  filter:function(event, element) {
+    return event.target.tagName !== &quot;BUTTON&quot;;
+  }
+});</code></pre>
+<p>In this second example, if the filter returns anything other than a boolean false, the drag will begin. It&#39;s important to note that only boolean false will prevent a drag. False-y values will not. </p>
+<h5>Endpoint options with makeSource</h5>
+<p>There are many things you can set in an Endpoint options object; for a thorough list see the API documentation for Endpoint.  </p>
+<p>Here&#39;s an example of specifying that you want an Arrow overlay halfway along any Connection dragged from this Endpoint:</p>
+<pre><code>var exampleGreyEndpointOptions = {
+  endpoint:&quot;Rectangle&quot;,
+  paintStyle:{ width:25, height:21, fillStyle:&#39;#666&#39; },
+  isSource:true,
+  connectorStyle : { strokeStyle:&quot;#666&quot; },
+  isTarget:true,
+  connectorOverlays: [ [ &quot;Arrow&quot;, { location:0.5 } ] ]
+};</code></pre>
+<p>This is an Endpoint that moves around the element it is attached to dependent on the location of other elements in the connections it is attached to (a &#39;dynamic&#39; anchor):</p>
+<pre><code>var exampleGreyEndpointOptions = {
+  endpoint:&quot;Rectangle&quot;,
+  paintStyle:{ width:25, height:21, fillStyle:&#39;#666&#39; },
+  isSource:true,
+  connectorStyle : { strokeStyle:&quot;#666&quot; },
+  isTarget:true,
+  connectorOverlays: [ [ &quot;Arrow&quot;, { location:0.5 } ] ]
+  anchor:[ &quot;TopCenter&quot;,&quot;RightMiddle&quot;,&quot;BottomCenter&quot;,&quot;LeftMiddle&quot; ]
+};</code></pre>
+<h5>Testing if an element is a target or source</h5>
+<p>You can test if some element has been made a connection source or target using these methods:</p>
+<ul>
+<li><code>isTarget(some id, selector or DOM element)</code></li>
+<li><code>isSource(some id, selector or DOM element)</code></li>
+</ul>
+<p>The return value is a boolean.</p>
+<h5>Toggling an element as connection target or source</h5>
+<p>You can toggle the state of some source or target using these methods:</p>
+<ul>
+<li><code>setTargetEnabled(some id, selector or DOM element)</code></li>
+<li><code>setSourceEnabled(some id, selector or DOM element)</code></li>
+</ul>
+<p>The return value from these methods is the current jsPlumb instance, allowing you to chain them:</p>
+<pre><code>jsPlumb.setTargetEnabled(&quot;aDivId&quot;).setSourceEnabled($(&quot;.aSelector&quot;));</code></pre>
+<p>Note that if you call either of these methods on an element that was not originally configured as a target or source, nothing will happen.</p>
+<p>You can check the enabled state of some target or source using these methods:</p>
+<ul>
+<li><code>isTargetEnabled(some id, selector or DOM element)</code></li>
+<li><code>isSourceEnabled(some id, selector or DOM element)</code></li>
+</ul>
+<h5>Canceling previous makeTarget and/or makeSource calls</h5>
+<p>jsPlumb offers four methods to let you cancel previous <code>makeTarget</code> or <code>makeSource</code> calls. Each of these methods returns the current jsPlumb instance, and so can be chained:</p>
+<ul>
+<li><code>unmakeTarget(some id, selector or DOM element)</code></li>
+<li><code>unmakeSource(some id, selector or DOM element)</code></li>
+<li><code>unmakeEveryTarget</code></li>
+<li><code>unmakeEverySource</code></li>
+</ul>
+<p>These last two are analogous to the <code>removeEveryConnection</code> and <code>deleteEveryEndpoint</code> methods that have been in jsPlumb for a while now.</p>
+<p><code>unmakeTarget</code> and <code>unmakeSource</code> both take as argument the same sorts of values that <code>makeTarget</code> and <code>makeSource</code> accept - a string id, or a selector, or an array of either of these:</p>
+<pre><code>jsPlumb.unmakeTarget(&quot;aDivId&quot;).unmakeSource($(&quot;.aSelector&quot;));</code></pre>
+<h5>Drag Options</h5>
+<p>These are options that will be passed through to the supporting library&#39;s drag API.  jsPlumb passes everything you supply here through, inserting wrapping functions if necessary for the various lifecycle events that jsPlumb needs to know about.  So if, for example, you pass a function to be called when dragging starts, jsPlumb will wrap that function with a function that does what jsPlumb needs to do, then call yours.</p>
+<p>At the time of writing, jsPlumb supports jQuery, MooTools and YUI3, and each of those libraries uses different terminology.  In addition, jQuery&#39;s API is more fully featured, providing easy support for setting the zIndex and opacity of elements being dragged, as well as the &#39;scope&#39; for a drag/drop (allowing you to specify more than one type of drag/drop pair), and hover classes for when a draggable is on the move or over a droppable. If you&#39;re using jQuery you can of course just supply these values on the dragOptions; to make it easier, jsPlumb&#39;s MooTools and YUI3 adapters recognize  these options and add appropriate callbacks for you.  </p>
+<p>Given that the options here are library-specific, and they are all well-documented, we&#39;re going to discuss just the three drag options that behave the same way in all (see below for hoverClass):</p>
+<ul>
+<li><strong>opacity</strong> - the opacity of an element that is being dragged.  Should be a fraction between 0 and 1 inclusive.</li>
+<li><strong>zIndex</strong> - the zIndex of an element that is being dragged.</li>
+<li><strong>scope</strong> - the scope of the draggable.  can only be dropped on a droppable with the same scope.  this is discussed below.</li>
+</ul>
+<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable">jQuery</a>, <a href="http://mootools.net/docs/more/Drag/Drag.Move">MooTools</a>, or <a href="http://developer.yahoo.com/yui/3/dd">YUI3</a> docs.    </p>
+<h5>Drop Options</h5>
+<p>Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  MooTools does not have drop options like jQuery and YUI3 do; droppable functionality in MooTools is actually implemented by the Drag.Move class - the one used to initialise a draggable.  But when you setup an Endpoint in jsPlumb you should ignore that fact, and treat droppables like you would in jQuery or YUI3.  jsPlumb wires everything up for you under the hood.</p>
+<p>There are three jQuery droppable options that jsPlumb treats as shortcuts in MooTools and YUI3, for the sake of consistency:</p>
+<ul>
+<li><strong>hoverClass</strong> - the CSS class to attach to the droppable when a draggable is hovering over it.</li>
+<li><strong>activeClass</strong> - the CSS class to attach to the droppable when a draggable is, um, being dragged.</li>
+<li><strong>scope</strong> - the scope of the draggable.  The draggable can only be dropped on a droppable with the same scope.  This is discussed below.</li>
+</ul>
+<p>For more information about drop options when using jQuery, see <a href="http://docs.jquery.com/UI/Droppable">here</a></p>
+<h5>Drag and Drop Scope</h5>
+<p>jsPlumb borrowed the concept of &#39;scope&#39; from jQuery&#39;s drag/drop implementation: the notion of which draggables can be dropped on which droppables.  In jsPlumb you can provide a &#39;scope&#39; entry when creating an Endpoint.  Here&#39;s the example grey Endpoint example with &#39;scope&#39; added:</p>
+<pre><code>var exampleGreyEndpointOptions = {
+  endpoint:&quot;Rectangle&quot;,
+  paintStyle:{ width:25, height:21, fillStyle:&quot;#666&quot; },
+  isSource:true,
+  connectionStyle : { strokeStyle:&quot;#666&quot; },
+  isTarget:true,
+  scope:&quot;exampleGreyConnection&quot;
+};</code></pre>
+<p>If you do not provide a &#39;scope&#39; entry, jsPlumb uses a default scope.  Its value is accessible through this method:</p>
+<pre><code>jsPlumb.getDefaultScope();</code></pre>
+<p>If you want to change it for some reason you can do so with this method:</p>
+<pre><code>jsPlumb.setDefaultScope(&quot;mySpecialDefaultScope&quot;);</code></pre>
+<p>You can also, should you want to, provide the scope value separately on the drag/drop options, like this:</p>
+<pre><code>var exampleGreyEndpointOptions = {
+  endpoint:&quot;Rectangle&quot;,
+  paintStyle:{ width:25, height:21, fillStyle:&#39;#666&#39; },
+  isSource:true,
+  connectionStyle : { strokeStyle:&quot;#666&quot; },
+  isTarget:true,
+  dragOptions:{ scope:&quot;dragScope&quot; },
+  dropOptions:{ scope:&quot;dropScope&quot; }
+};</code></pre>
+<p><a name="disconnectreconnect"></a></p>
+<h5>Disconnecting and Reconnecting</h5>
+<p>By default, jsPlumb will allow you to detach connections from either Endpoint by dragging (assuming the Endpoint allows it; Blank Endpoints, for example, have nothing you can grab with the mouse). If you then drop a Connection you have dragged off an Endpoint, the Connection will be detached. This behaviour can be controlled using the <code>detachable</code> and <code>reattach</code>parameters, or their equivalents in the jsPlumb Defaults.</p>
+<p>Some examples should help explain:      </p>
+<ul>
+<li><p>Create a Connection that is detachable using the mouse, from either Endpoint, and which does not reattach:</p>
+<pre>
+jsPlumb.connect({ source:"someElement", target:"someOtherElement" });
+</pre>        
+</li>
+<li><p>Create a Connection that is not detachable using the mouse:</p>
+<pre>
+jsPlumb.connect({ source:"someElement", target:"someOtherElement", detachable:false });
+</pre>        
+</li>
+<li><p>Create a Connection that is detachable using the mouse and which reattaches on drop:</p>
+<pre>
+jsPlumb.connect({ source:"someElement", target:"someOtherElement", reattach:true });
+</pre>        
+
+</li>
+</ul>
+<p>This behaviour can also be controlled using jsPlumb defaults:</p>
+<pre>
+jsPlumb.importDefaults({
+  ConnectionsDetachable:true,
+  ReattachConnections:true
+});
+</pre>        
+
+<p>The default value of ConnectionsDetachable is <strong>true</strong>, and the default value of ReattachConnections is <strong>false</strong>,
+so in actual fact those defaults are kind of pointless. But you probably get the point.</p>
+<h5>Setting detachable/reattach on Endpoints</h5>
+<p>Endpoints support the &#39;detachable&#39; and &#39;reattach&#39; parameters too. If you create an Endpoint and mark &#39;detachable:false&#39;, then
+all Connections made from that Endpoint will not be detachable.  However, since there are two Endpoints involved in any
+Connection, jsPlumb takes into account the &#39;detachable&#39; and &#39;reattach&#39; parameters from both Endpoints when establishing
+a Connection. If either Endpoint declares either of these values as true, jsPlumb assumes the value to be true.  It is possible
+that in a future version of jsPlumb the concepts of detachable and reattach could be made more granular, through the
+introduction of parameters like <code>sourceDetachable</code>/<code>targetReattach</code> etc.</p>
+<h5>Dropping a dragged Connection on another Endpoint</h5>
+<p>If you drag a Connection from its target Endpoint you can then drop it on another suitable target Endpoint - suitable meaning
+that it is of the correct scope and it is not full.  If you try to drop a Connection on another target that is full, the drop will be aborted and then the same rules will apply as if you had dropped the Connection in whitespace: if &#39;reattach&#39; is set, the Connection will reattach, otherwise it will be removed.</p>
+<p>You can drag a Connection from its source Endpoint, but you can only drop it back on its source Endpoint - if you try to drop it on any other source or target Endpoint jsPlumb will treat the drop as if it happened in whitespace. Note that there is an issue with the hoverClass parameter when dragging a source Endpoint: target Endpoints are assigned the hover class, as if you could drop there. But you cannot; this is caused by how jsPlumb uses the underlying library&#39;s drag and drop, and is something that will be addressed in a future release.</p>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

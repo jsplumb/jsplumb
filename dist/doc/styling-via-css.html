@@ -1,0 +1,224 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h2>Styling via CSS</h2>
+<p>Using CSS to style the artefacts that jsPlumb creates is a lot more flexible than using <code>paintStyle</code> or <code>hoverPaintStyle</code>, as previously discussed, but due to the fact that the Canvas renderer is completely unaware of CSS, and also that you cannot style things like stroke color or line width in VML, it&#39;s only really useful for SVG.  Of course, if you know your users won&#39;t be using VML then it&#39;s a great choice - and nowadays that is just a question of whether or not you will have any users on versions of IE earlier than 9.</p>
+<p>On this page we&#39;ll first run through the default CSS classes that jsPlumb attaches, followed by a quick explanation for how to attach your own, and then we&#39;ll discuss how to style SVG (and then how you <em>would</em> style VML, if it were supported)</p>
+<h3>Z Index</h3>
+<p>One thing you can - and should - use CSS for, regardless of the renderer, is z-index. Every Connection, Endpoint and Overlay in jsPlumb adds some element to the UI, and you should take care to establish appropriate z-indices for each of these, in conjunction with the nodes in your application. </p>
+<h3>Basic CSS classes</h3>
+<p>By default, jsPlumb adds a specific class to each of the three types of elements it creates (These class names are exposed on the jsPlumb object and can be overridden if you need to do so - see the third column in the table) </p>
+<table width="90%" class="table" style="align:left;font-size:12px;">
+<tr><th>Component</th><th>CSS Class</th><th>jsPlumb Member</th></tr>
+<tr><td>Connector</td><td>_jsPlumb_connector</td><td>connectorClass</td></tr>
+<tr><td>Endpoint</td><td>_jsPlumb_endpoint</td><td>endpointClass</td></tr>
+<tr><td>Endpoint when full</td><td>_jsPlumb_endpoint_full</td><td>endpointFullClass</td></tr>
+<tr><td>Overlay</td><td>_jsPlumb_overlay</td><td>overlayClass</td></tr>
+</table>
+
+<p>In a simple UI, you can set appropriate z-index values for these classes. The jsPlumb demo pages, for instance, typically use a class of <code>.window</code> for the nodes in each demo page, and the z-index of the UI is controlled with CSS rules like this:</p>
+<pre>
+.window { z-index:20; }
+._jsPlumb_connector { z-index:4; }
+._jsPlumb_endpoint { z-index:5; }
+._jsPlumb_overlay { z-index:6; }
+</pre>
+
+<h3>Interactive CSS Classes</h3>
+<p>jsPlumb assigns these classes on both Connectors and Endpoints when specific user interactivity occurs:</p>
+<table width="90%" class="table" style="align:left;font-size:12px;">
+<tr><th>Activity</th><th>CSS Class</th><th>jsPlumb Member</th><td>Description</th></tr>
+<tr><td>Mouse Hover</td><td><em>jsPlumb_hover</td><td>hoverClass</td><td>Assigned to both Connectors and Endpoints when the mouse is hovering over them</td></tr>
+<tr><td>Connection Drag</td><td>_jsPlumb_dragging</td><td>draggingClass</td><td>Assigned to a Connection when it is being dragged (either a new Connection or an existing Connection)</td></tr>
+<tr><td>Element Dragging</td><td>_jsPlumb_element_dragging</td><td>elementDraggingClass</td><td>Assigned to all Connections whose source or target element is currently being dragged, and to their Endpoints.</td></tr>
+<tr><td>Source Element Dragging</td><td>_jsPlumb_source_element_dragging</td><td>sourceElementDraggingClass</td><td>Assigned to all Connections whose source element is being dragged, and to their Endpoints</td></tr>
+<tr><td>Target Element Dragging</td><td>_jsPlumb_target_element_dragging</td><td>targetElementDraggingClass</td><td>Assigned to all Connections whose target element is being dragged, and to their Endpoints</td></tr>
+<tr><td>Anchor Class</td><td>_jsPlumb_endpoint_anchor</em><strong><em></td><td>endpointAnchorClassPrefix</td><td>Assigned to Endpoints, and their associated elements, that have either a static Anchor with an associated class, or a Dynamic Anchor whose individual locations have an associated CSS class. The `</em></strong>` suffix in the class name above is the associated class.  Note that this class is added to both the artefact that jsPlumb creates and also the element on which the Endpoint resides, so you will normally have to build a selector with more criteria than just this class in order to target things properly. See the documentation regarding Anchors for a discussion of this.</td></tr>
+<tr><td>Drop Allowed on Endpoint</td><td>_jsPlumb_endpoint_drop_allowed</td><td>endpointDropAllowedClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would be allowed</td></tr>
+<tr><td>Drop Forbidden on Endpoint</td><td>_jsPlumb_endpoint_drop_forbidden</td><td>endpointDropForbiddenClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would not be allowed</td></tr>
+<tr><td>Connection Hover</td><td>_jsPlumb_source_hover</td><td>hoverSourceClass</td><td>Assigned to the source element in a Connection when the mouse is hovering over the Connection</td></tr>
+<tr><td>Connection Hover</td><td>_jsPlumb_target_hover</td><td>hoverTargetClass</td><td>Assigned to the target element in a Connection when the mouse is hovering over the Connection</td></tr>
+<tr><td>Drag</td><td>_jsPlumb_drag_select</td><td>dragSelectClass</td><td>Assigned to the document body whenever a drag is in progress. Mostly for MooTools/YUI, it allows you to ensure document selection is disabled - see <a href="home#dragSelection">here</a></td></tr>
+</table>
+
+<p><strong>Note</strong> the last two classes work in conjunction with the <code>checkDropAllowed</code> interceptor that you can register on jsPlumb. For more information about interceptors, see <a href="interceptors">here</a>, but in a nutshell you just provide a function that takes the two Endpoints and a Connection as argument, and returns whether not a drop would be allowed:</p>
+<pre><code>jsPlumb.bind(&quot;checkDropAllowed&quot;, function(params) {
+  // Here you have access to:
+  // params.sourceEndpoint
+  // params.targetEndpoint
+  // params.connection
+
+  return true; // or false.  in this case we say drop is allowed.
+});</code></pre>
+<h3>Preventing selection while dragging</h3>
+<p>MooTools and YUI3 do not prevent the default browser behaviour of selecting DOM elements when dragging, so jsPlumb puts a class on the body that you can use to disable it yourself:</p>
+<pre><code>_jsPlumb_drag_select</code></pre>
+<p>A suitable value for this (from the jsPlumb demos) is:</p>
+<pre><code>._jsPlumb_drag_select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;    
+}</code></pre>
+<h3>Custom CSS Classes</h3>
+<p>In addition to the default CSS classes, each of the main methods you use to configure Endpoints or make Connections in jsPlumb support the following two parameters:</p>
+<ul>
+<li><strong>cssClass</strong> - class(es) to set on the display elements</li>
+<li><strong>hoverClass</strong> - class(es) to set on the display elements when in hover mode</li>
+</ul>
+<p>In addition, addEndpoint and makeSource allow you to specify what these classes will be for any Connections that are dragged from them:</p>
+<ul>
+<li><strong>connectorClass</strong> - class(es) to set on the display elements of Connections</li>
+<li><strong>connectorHoverClass</strong> - class(es) to set on the display elements of Connections when in hover mode</li>
+</ul>
+<p>These parameters should be supplied as a String; they will be appended as-is to the class member, so feel free to include multiple classes.  jsPlumb won&#39;t even know.</p>
+<h3>CSS for SVG elements</h3>
+<h4>Connections</h4>
+<p>SVG connections in jsPlumb consist of a parent <code>svg</code> element, inside of which there are one or more <code>path</code> elements, depending on whether or not you have specified an <code>outlineStyle</code>.  To target the path element for some connection, you need a rule like this:</p>
+<pre><code>svg path {
+  stroke:red;
+}</code></pre>
+<p>Hooking this up to the custom class mechanism, you might do something like this:    </p>
+<pre><code>jsPlumb.connect({
+    source:&quot;someElement&quot;,
+    target:&quot;someOtherElement&quot;,
+    cssClass:&quot;redLine&quot;
+});</code></pre>
+<p>CSS:</p>
+<pre><code>svg.redLine path {
+    stroke:red;
+    stroke-width:3;
+}</code></pre>
+<p>You might be thinking to yourself, why have the <code>svg</code> and <code>path</code> elements in this?  In fact they are  perhaps not required: they&#39;re just there to call out the fact that this is a style on an SVG connector.</p>
+<h4>Endpoints</h4>
+<p>SVG Endpoints created by jsPlumb consist of a <code>div</code>, inside of which is an <code>svg</code> parent element, inside of which there is some shape, the tag name of which depends on the type of Endpoint:</p>
+<table>
+  <tr><th>Endpoint Type</th><th>SVG Shape</th></tr>
+  <tr><td>Rectangle</td><td>rect</td></tr>
+  <tr><td>Dot</td><td>circle</td></tr>
+</table>
+
+<p>So you can choose, when writing CSS rules for these, whether or not you specify the shape exactly, or just leave it up to a wildcard:</p>
+<pre><code>jsPlumb.addEndpoint(&quot;someElement&quot;, {
+    cssClass:&quot;aRedEndpoint&quot;,
+    endpoint:&quot;Dot&quot;
+});</code></pre>
+<p>CSS:</p>
+<pre><code>.aRedEndpoint svg circle {
+    fill:red;
+    stroke:yellow;
+}</code></pre>
+<p>...or:</p>
+<pre><code>.aRedEndpoint svg * {
+    fill:red;
+    stroke:yellow;
+}</code></pre>
+<p>For a full discussion of the properties you can configure on an SVG element via CSS, I refer you to <a href="http://www.w3.org/TR/SVG/styling.html#StylingWithCSS">the SVG spec</a>.</p>
+<h3>CSS for VML elements</h3>
+<p>VML does not really support styling via CSS.  There are some properties you can set, but these are typically things that are under jsPlumb&#39;s control and not something you should mess with.</p>
+<p><a href="http://www.w3.org/TR/NOTE-VML#_Toc416858381">The VML spec</a> has a brief discussion of styling VML with CSS.  jsPlumb creates a top level <code>shape</code> element in VML, inside of which it attaches whatever elements are required for the Endpoint or Connector in question.  This <code>shape</code> element would be the thing that you would style via CSS, if it were possible.  But <a href="http://www.w3.org/TR/NOTE-VML#_Toc416858386">here&#39;s</a> a link to the discussion about which properties you can style via CSS.  Note that all the paint type ones are all VML only.</p>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

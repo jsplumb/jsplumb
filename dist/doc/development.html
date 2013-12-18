@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h2>jsPlumb Development</h2>
+<p>In development, jsPlumb is broken up into various scripts:</p>
+<ul>
+<li><strong>util.js</strong>
+jsPlumb utility functions (and some base classes).</li>
+<li><strong>dom-adapter.js</strong>
+Interface between jsPlumb and the DOM</li>
+<li><strong>jsPlumb.js</strong>
+Main jsPlumb engine.</li>
+<li><strong>anchors.js</strong>
+Anchors and anchor manager</li>
+<li><strong>defaults.js</strong>
+Default Endpoint, Connector and Overlay implementations.</li>
+<li><strong>endpoint.js</strong>
+Endpoint class</li>
+<li><strong>connection.js</strong>
+Connection class</li>
+<li><strong>renderers-canvas.js</strong>
+HTML5 canvas renderer.</li>
+<li><strong>renderers-svg.js</strong>
+SVG renderer.</li>
+<li><strong>renderers-vml.js</strong>
+VML renderer.</li>
+<li><strong>connectors-statemachine.js</strong>
+The State Machine connector.</li>
+<li><strong>connectors-flowchart.js</strong>
+The Flowchart connector.</li>
+<li><strong>connectors-bezier.js</strong>
+The Bezier connector.</li>
+<li><strong>&lt;LIBRARY_PREFIX&gt;.jsPlumb.js</strong>
+Contains library-specific helper methods.  jsPlumb ships with three of these - one each for jQuery, MooTools and YUI3. See below for information on how to create a new library implementation.</li>
+<li><strong>jsBezier-0.X-min.js</strong>
+These are the Bezier curve functions; they are maintained in a separate project called <a href="https://github.com/sporritt/jsBezier">jsBezier</a>.</li>
+<li><strong>jsplumb-geom-0.x.js</strong>
+Various geometry functions used by jsPlumb that were extracted to a <a href="https://github.com/sporritt/jsplumb-geom">separate project</a> because they might be useful for other people.</li>
+</ul>
+<p>These files are packaged together to form the scripts that people use, of which there are two for each supported library:</p>
+<ul>
+<li><strong>jquery.jsPlumb-1.5.3.js</strong></li>
+<li><strong>jquery.jsPlumb-1.5.3-min.js</strong></li>
+</ul>
+<p>Instructions for running a build can be found <a href="Build">here</a>.</p>
+<h4>Pluggable Library Support</h4>
+<p>Out of the box, jsPlumb can be run on top of jQuery, MooTools or YUI3.  This is achieved by delegating several core methods - tasks such as finding an element by id, finding an element&#39;s position or dimensions, initialising a draggable, etc - to the library in question.</p>
+<p>To develop one of these, your test page should include the first two scripts discussed above, and then your own script containing your library specific functionality.  The existing implementations may be documented well enough for you to create your own, but contact me if you need assistance.  If you do this, it would be great to share it with everyone...</p>
+<h6>ExtJS</h6>
+<p>To date, I&#39;ve been contacted by a few different groups who have been working on an ExtJS adapter, but nothing seems to have yet come to fruition.</p>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

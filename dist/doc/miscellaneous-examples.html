@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>Utility Functions</h3>
+<ul>
+<li>Detach window5 from all connections<pre>
+jsPlumb.detachAll("window5");
+</pre></li>
+<li>Hide all window5&#39;s connections<pre>
+jsPlumb.hide("window5");
+</pre></li>
+<li>Hide all window5&#39;s connections endpoints<pre>
+jsPlumb.hide("window5", true);
+</pre></li>
+<li>Show all window5&#39;s connections<pre>
+jsPlumb.show("window5");
+</pre></li>
+<li>Show all window5&#39;s connections and endpoints.  Note that in the case that you call jsPlumb.show with two arguments, jsPlumb will also not make a connection visible if it determines that the other endpoint in the connection is not visible.<pre>
+jsPlumb.show("window5", hide);
+</pre></li>
+<li>Toggle the visibility of window5&#39;s connections<pre>
+jsPlumb.toggle("window5");
+</pre></li>
+<li>Force repaint of all of window5&#39;s connections<pre>
+jsPlumb.repaint("window5");
+</pre></li>
+<li>Force repaint of all of window5, window6 and window11&#39;s connections<pre>
+jsPlumb.repaint( [ "window5", "window6", "window11" ] );
+</pre></li>
+<li>Force repaint of every connection<pre>
+jsPlumb.repaintEverything();
+</pre></li>
+<li>Detach every connection that the given instance of jsPlumb is managing<pre>
+jsPlumb.detachEveryConnection();
+</pre></li>
+<li>Detach all connections from &quot;window1&quot;<pre>
+jsPlumb.detachAllConnections("window1");
+</pre></li>
+<li>Remove all Endpoints for the element &#39;window1&#39;, deleting their Connections.<pre>
+jsPlumb.removeAllEndpoints("window1");
+</pre></li>
+<li>Deletes every Endpoint managed by this instance of jsPlumb, deleting all Connections. This is the same as jsPlumb.reset(), effectively, but it does not clear out the event listeners list. <pre>
+jsPlumb.deleteEveryEndpoint();
+</pre></li>
+<li>Deletes the given Endpoint and all its Connections. <pre>
+jsPlumb.deleteEndpoint(endpoint);
+</pre></li>
+<li>Removes every endpoint, detaches every connection, and clears the event listeners list.  Returns jsPlumb instance to its initial state.  <pre>
+jsPlumb.reset();
+</pre></li>
+<li>Set window1 to be not draggable, no matter what some jsPlumb command may request.<pre>
+jsPlumb.setDraggable("window1", false);
+</pre></li>
+<li>Set window1 and window2 to be not draggable, no matter what some jsPlumb command may request.<pre>
+jsPlumb.setDraggable(["window1","window2"], false);
+</pre></li>
+<li>Initialises window1 as a draggable element (all libraries). Passes in an on drag callback                <pre>
+jsPlumb.draggable("window1");
+</pre></li>
+<li>Initialises window1 and window2 as draggable elements (all libraries)<pre>
+jsPlumb.draggable(["window1","window2"]);
+</pre></li>
+<li>Initialises window1 as a draggable element (all libraries)<pre>
+jsPlumb.draggable("window1");
+</pre></li>
+<li>Initialises all elements with class &#39;window&#39; as draggable elements (jQuery)<pre>
+jsPlumb.draggable($(".window"));
+</pre></li>
+<li>Initialises all elements with class &#39;window&#39; as draggable elements (MooTools)
+jsPlumb.draggable($$(&quot;.window&quot;));
+</pre></li>
+<li>Initialises all elements with class &#39;window&#39; as draggable elements (YIU3)<pre>
+jsPlumb.draggable(Y.all(".window"));
+</pre></li>
+<li>Initialises window1 as a draggable element (jQuery)<pre>
+jsPlumb.draggable($("#window1"));
+</pre></li>
+<li>Initialises window1 as a draggable element (MooTools)<pre>
+jsPlumb.draggable($("window1"));
+</pre></li>
+<li>Initialises window1 as a draggable element (YUI3)<pre>
+jsPlumb.draggable(Y.one("window1"));
+</pre>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

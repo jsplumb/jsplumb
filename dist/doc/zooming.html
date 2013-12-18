@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h2>Zooming</h2>
+<p>A fairly common requirement with the sorts of applications that use jsPlumb is the ability to zoom in and out.  As of release 1.5.0 there is a way to do this for browsers that support CSS3 (meaning, essentially, everything except IE &lt; 9).</p>
+<p>Changing zoom requires that you do two things:</p>
+<ol>
+<li>Set a <code>transform</code> property on an appropriate container</li>
+<li>Tell jsPlumb what the zoom level is.</li>
+</ol>
+<h4>Container</h4>
+<p>You need to identify some element that is the parent of all of your nodes and the jsPlumb artefacts. This is probably fairly obvious. What you might not know about, though, is the <code>Container</code> concept in jsPlumb.  If you don&#39;t, I&#39;d encourage you to go <a href="home#container">read this page</a> just quickly, because the best thing to do is to correctly configure a <code>Container</code> and then manipulate the <code>transform</code> property of that element.</p>
+<p>Let&#39;s say we have some <code>div</code> called <code>drawing</code>, and we&#39;re going to use that as the <code>Container</code>:</p>
+<pre><code>jsPlumb.Defaults.Container = $(&quot;#drawing&quot;);</code></pre>
+<h4>CSS <code>transform</code> property</h4>
+<p>Now to set the zoom to 0.75, say, we change the <code>transform</code> property accordingly. Remember that <code>transform</code> is one of those properties that have several vendor prefix versions, so there are several ways to do what I&#39;ve got here, and, given that you&#39;re probably a computer programmer, you&#39;ve most likely got a favourite.  But anyway, here&#39;s something.</p>
+<pre><code>$(&quot;#drawing&quot;).css({
+    &quot;-webkit-transform&quot;:&quot;scale(0.75)&quot;,
+    &quot;-moz-transform&quot;:&quot;scale(0.75)&quot;,
+    &quot;-ms-transform&quot;:&quot;scale(0.75)&quot;,
+    &quot;-o-transform&quot;:&quot;scale(0.75)&quot;,
+    &quot;transform&quot;:&quot;scale(0.75)&quot;
+});</code></pre>
+<h4>jsPlumb.setZoom</h4>
+<p>You now need to tell jsPlumb about the new zoom level:</p>
+<pre><code>jsPlumb.setZoom(0.75);</code></pre>
+<h4>A Helper Function</h4>
+<p>If you&#39;re using jQuery, maybe you&#39;d like to just grab this:</p>
+<pre><code>var setZoom = function(z, el) {
+    var p = [ &quot;-webkit-&quot;, &quot;-moz-&quot;, &quot;-ms-&quot;, &quot;-o-&quot;, &quot;&quot; ],
+        s = &quot;scale(&quot; + z + &quot;)&quot;;
+
+    for (var i = 0; i &lt; p.length; i++)
+        el.css(p[i] + &quot;transform&quot;, s);
+
+    jsPlumb.setZoom(z);    
+};</code></pre>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>Utility Functions</h3>
+<p>This page contains a summary of some common scenarios you may find when using jsPlumb, and what functions jsPlumb offers to help you.</p>
+<h4>Repainting an element or elements</h4>
+<p>Assuming you use <code>jsPlumb.draggable</code> to initialise your draggable elements, you do not typically need to instruct jsPlumb to repaint.  However, there are times when you need to, for instance:</p>
+<ul>
+<li>you have resized an element and you need jsPlumb to recompute the location of Endpoints on that element</li>
+<li>you have moved an element programmatically</li>
+<li>you didn&#39;t actually use <code>jsPlumb.draggable</code> to initialise some draggable element.</li>
+</ul>
+<p>To force a repaint, use:</p>
+<pre><code>jsPlumb.repaint(el, [ui])</code></pre>
+<p>The first argument - <code>el</code> - can be a number of different datatypes:</p>
+<ul>
+<li>a string, representing the id of some element</li>
+<li>a list of strings, representing the ids of some elements</li>
+<li>a DOM element</li>
+<li>a list of DOM elements</li>
+<li>a selector from your underlying library</li>
+</ul>
+<h4>Performance: provide the element offset</h4>
+<p>Notice the <code>ui</code> argument?  This is an offset in the form:</p>
+<pre><code>{ left:X, top:Y }</code></pre>
+<p>...which, if provided, means that jsPlumb does not have to go and compute the offset of the element. </p>
+<p><strong>Note</strong> this is of course relevant only if you are repainting a single element. If you provide this when you&#39;re painting multiple elements, they will all be assumed to be at the given offset!</p>
+<h4>Repainting everything</h4>
+<p>To repaint everything:</p>
+<pre><code>jsPlumb.repaintEverything();</code></pre>
+<h3>Element Ids</h3>
+<p>jsPlumb uses element ids as keys for Connections and Endpoints, so if an element id changes, jsPlumb needs to know about it.  You can either have jsPlumb do it for you:</p>
+<pre><code>jsPlumb.setId(el, newId);</code></pre>
+<p>or tell jsPlumb about it afterwards:</p>
+<pre><code>jsPlumb.setIdChanged(oldId, newId);</code></pre>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>

@@ -92,6 +92,7 @@ var versions = {
         sources.push.apply(sources, getList(grunt, "connectors"));
         sources.push.apply(sources, getList(grunt, "renderers"));
         sources.push("src/" + lib + ".jsPlumb.js");
+        console.dir(sources);
         return sources;
     },
     help = "\nBuilding jsPlumb\n" +

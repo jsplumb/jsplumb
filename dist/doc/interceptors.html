@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb Documentation - </title>
+		<link rel="stylesheet" href="demo-all.css">
+		<link rel="stylesheet" href="gollum-template.css">		
+	</head>
+
+	<body>
+		<div id="headerWrapper">
+			<div id="header">
+				<div class="logo"><img src="../../logo-bw.png"></div>
+				<div class="menu">
+					<a href="home">DOCS</a>
+					<a href="../demo/">DEMOS</a>
+					<a href="../apidocs">API</a>
+					<a href="../tests/all-tests.html">TESTS</a>
+					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
+					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+				</div>
+			</div>
+		</div>	
+		
+		<div id="main">
+			<div class="nav">
+				<!-- BODY -->
+				<h3>Contents</h3>
+<ul>
+<li><a href="changelog">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home#browser">Browser Compatibility</a></li>
+<li><a href="home#setup">Setup</a></li>
+<li><a href="home#doctype">Doctype</a></li>
+<li><a href="home#imports">Required Imports</a></li>
+<li><a href="home#initializing">Initializing jsPlumb</a></li>
+<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home#zindex">Z-Index Considerations</a></li>
+<li><a href="home#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home#dragging">Element Dragging</a></li>
+<li><a href="home#performance">Performance</a></li>
+<li><a href="zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults">Configuring Defaults</a></li>
+<li><a href="basic-concepts">Basic Concepts</a><ul>
+<li><a href="anchors">Anchors</a></li>
+<li><a href="connectors">Connectors</a></li>
+<li><a href="endpoints">Endpoints</a></li>
+<li><a href="overlays">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections">Establishing Connections</a><ul>
+<li><a href="connections#programmatic">Programmatic Connections</a></li>
+<li><a href="connections#common">Reusing Common Settings</a></li>
+<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections#maketarget">Element Targets</a></li>
+<li><a href="connections#makesource">Element Sources</a></li>
+<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing">Removing Connections/Endpoints</a></li>
+<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types">Connection &amp; Endpoint Types</a></li>
+<li><a href="events">Events</a><ul>
+<li><a href="interceptors">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying">Querying jsPlumb</a></li>
+<li><a href="animation">Animation</a></li>
+<li><a href="utilities">Utility Functions</a></li>
+<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development">Which files are which?</a></li>
+<li><a href="Build">Building jsPlumb</a></li>
+<li><a href="development-documentation">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+
+				<!-- /BODY -->
+			</div>
+			<div class="markdown-body">
+				<!-- BODY -->
+				<h3>Interceptors</h3>
+<p>Interceptors are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that it was doing.  There are currently two interceptors supported - <code>beforeDrop</code>, which is called when the user has dropped a Connection onto some target, and <code>beforeDetach</code>, which is called when the user is attempting to detach a Connection. </p>
+<p>Interceptors can be registered via the <code>bind</code> method on jsPlumb just like any other event listeners, and they can also be passed in to the <code>jsPlumb.addEndpoint</code>, <code>jsPlumb.makeSource</code> and <code>jsPlumb.makeTarget</code> methods.  </p>
+<p>Note that binding <code>beforeDrop</code> (as an example) on jsPlumb itself is like a catch-all: it will be called every time a Connection is dropped on <em>any</em> Endpoint, unless that Endpoint has its own <code>beforeDrop</code> interceptor. But passing a beforeDrop callback into an Endpoint constrains that callback to just the Endpoint in question.          </p>
+<h4>beforeDrop</h4>
+<p>This event is fired when a new or existing connection has been dropped. Your callback is passed a JS object with these fields:</p>
+<ul>
+<li><strong>sourceId</strong> - the id of the source element in the connection</li>
+<li><strong>targetId</strong> - the id of the target element in the connection</li>
+<li><strong>scope</strong> - the scope of the connection</li>
+<li><strong>connection</strong> - the actual Connection object.  You can access the &#39;endpoints&#39; array in a Connection to get the Endpoints involved in the Connection, but be aware that when a Connection is being dragged, one of these Endpoints will always be a transient Endpoint that exists only for the life of the drag. To get the Endpoint on which the Connection is being dropped, use the &#39;dropEndpoint&#39; member.</li>
+<li><strong>dropEndpoint</strong> - this is the actual Endpoint on which the Connection is being dropped.  This <strong>may be null</strong>, because it will not be set if the Connection is being dropped on an element on which makeTarget has been called. </li>
+</ul>
+<p>If you return false (or nothing) from this callback, the new Connection is aborted and removed from the UI.</p>
+<h4>beforeDetach</h4>
+<p>This is called when the user has detached a Connection, which can happen for a number of reasons: by default, jsPlumb allows users to drag Connections off of target Endpoints, but this can also result from a programmatic &#39;detach&#39; call.  Every case is treated the same by jsPlumb, so in fact it is possible for you to write code that attempts to detach a Connection but then denies itself!  You might want to be careful with that. </p>
+<p>Note that this interceptor is passed the actual Connection object; this is different from the beforeDrop interceptor discussed above: in this case, we&#39;ve already got a Connection, but with beforeDrop we are yet to confirm that a Connection should be created.</p>
+<p>Returning false - or nothing - from this callback will cause the detach to be abandoned, and the Connection will be reinstated or left on its current target.</p>
+
+				<!-- /BODY -->
+			</div>					
+		</div>
+
+	</body>		
+
+</html>
