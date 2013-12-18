@@ -36,16 +36,16 @@
 
 var versions = {
         JS_BEZIER : { f:"jsBezier", v:"0.6" },
-        BILTONG : { f:"biltong", v:"0.1" }, 
+        BILTONG : { f:"biltong", v:"0.2" }, 
         TOUCH_ADAPTER : {f:"touch-adapter", v:"0.2" },
         KATAVORIO : {f:"katavorio", v:"0.1" }
     },
-    getLibrary = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
+    get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
     
     libraries = [ "jquery", "mootools", "yui", "dom" ],
     runtimeLibraries = {
-        jquery:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script type='text/javascript' src='../../lib/jquery.ui.touch-punch.min.js'></script>",
-        mootools:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>",
+        jquery:"<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script src='../../lib/jquery.ui.touch-punch.min.js'></script>",
+        mootools:"<script src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>",
         yui:"",
         dom:""
     },
@@ -55,7 +55,7 @@ var versions = {
         yui:[],
         dom:[ get("TOUCH_ADAPTER"), get("KATAVORIO") ]
     }
-    version = "1.5.0",
+    version = "1.6.0",
     objects = {
         connectors : [
             "flowchart", "statemachine", "bezier", "straight"
