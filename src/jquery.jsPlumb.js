@@ -208,7 +208,7 @@
 			}
 			else {
 				var ui = eventArgs[1],
-				  _offset = ui.offset;
+				  _offset = ui.position;//ui.offset;
 				  
 				ret = _offset || ui.absolutePosition;
 				
