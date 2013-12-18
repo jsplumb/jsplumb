@@ -20,7 +20,6 @@
     
 		var canvasAvailable = !!document.createElement('canvas').getContext,
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-		// http://stackoverflow.com/questions/654112/how-do-you-detect-support-for-vml-or-svg-in-a-browser
 		vmlAvailable = function() {		    
             if (vmlAvailable.vml === undefined) { 
                 var a = document.body.appendChild(document.createElement('div'));
@@ -51,8 +50,7 @@
         */
 		this.register = function(el) {
             var jpcl = jsPlumb.CurrentLibrary,
-            	//_el = jsPlumb.getElementObject(el),
-            	id = _currentInstance.getId(el),                
+            	id = _currentInstance.getId(el),
                 parentOffset = jsPlumbAdapter.getOffset(el);
                     
             if (!_draggables[id]) {
@@ -63,26 +61,26 @@
 				
 			// look for child elements that have endpoints and register them against this draggable.
 			var _oneLevel = function(p, startOffset) {
-                if (p) {											
-                    for (var i = 0; i < p.childNodes.length; i++) {
-                        if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
-                            var cEl = jsPlumb.getElementObject(p.childNodes[i]),
-                                cid = _currentInstance.getId(p.childNodes[i], null, true);
-                            if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-                                var cOff = jpcl.getOffset(cEl);
-                                _delements[id][cid] = {
-                                    id:cid,
-                                    offset:{
-                                        left:cOff.left - parentOffset.left,
-                                        top:cOff.top - parentOffset.top
-                                    }
-                                };
-                                _draggablesForElements[cid] = id;
-                            }
-                            _oneLevel(p.childNodes[i]);
-                        }	
-                    }
-                }
+				if (p) {
+					for (var i = 0; i < p.childNodes.length; i++) {
+						if (p.childNodes[i].nodeType != 3 && p.childNodes[i].nodeType != 8) {
+							var cEl = jsPlumb.getElementObject(p.childNodes[i]),
+								cid = _currentInstance.getId(p.childNodes[i], null, true);
+							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
+								var cOff = jpcl.getOffset(cEl);
+								_delements[id][cid] = {
+									id:cid,
+									offset:{
+										left:cOff.left - parentOffset.left,
+										top:cOff.top - parentOffset.top
+									}
+								};
+								_draggablesForElements[cid] = id;
+							}
+							_oneLevel(p.childNodes[i]);
+						}
+					}
+				}
 			};
 
 			_oneLevel(el);
@@ -250,8 +248,7 @@
 					if (idx != -1)
 						curClasses.splice(idx, 1);
 				}
-			}			
-			
+			}
 			_setClassName(el, curClasses.join(" "));
 		},
 		_each = function(spec, fn) {
@@ -265,8 +262,7 @@
 			else
 				fn(spec); // assume it's an element.
 		}
-	
-            
+
     window.jsPlumbAdapter = {
         
         headless:false,
@@ -305,7 +301,7 @@
                     svgAvailable = this.isRenderModeAvailable("svg"),
                     vmlAvailable = this.isRenderModeAvailable("vml");
                 
-                // now test we actually have the capability to do this.						
+                // now test we actually have the capability to do this.
                 if (mode === "svg") {
                     if (svgAvailable) renderMode = "svg";
                     else if (canvasAvailable) renderMode = "canvas";
@@ -317,8 +313,7 @@
 
 			return renderMode;
         },
-		addClass:function(el, clazz) {			
-			//_classManip(jsPlumb.getDOMElement(el), true, clazz);
+		addClass:function(el, clazz) {
 			_each(el, function(e) {
 				_classManip(e, true, clazz);
 			});
@@ -331,19 +326,16 @@
 			}
 		},
 		removeClass:function(el, clazz) {
-			//_classManip(jsPlumb.getDOMElement(el), false, clazz);
 			_each(el, function(e) {
 				_classManip(e, false, clazz);
 			});
 		},
 		setClass:function(el, clazz) {
-			//_setClassName(jsPlumb.getDOMElement(el), clazz);
 			_each(el, function(e) {
 				_setClassName(e, clazz);
 			});
 		},
 		setPosition:function(el, p) {
-//			el = jsPlumb.getDOMElement(el);
 			el.style.left = p.left + "px";
 			el.style.top = p.top + "px";
 		},
@@ -357,12 +349,12 @@
 				top:_one("top")
 			};
 		},
-		getOffset:function(el) {
+		getOffset:function(el, relativeToRoot) {
 			var l = el.offsetLeft, t = el.offsetTop, op = el.offsetParent;
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
-				op = op.offsetParent;
+				op = relativeToRoot ? op.offsetParent : null;
 			}
 			return {
 				left:l, top:t
