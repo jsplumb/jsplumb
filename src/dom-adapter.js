@@ -256,7 +256,8 @@
 		},
 		_each = function(spec, fn) {
 			if (spec == null) return;
-			if (typeof spec === "string") fn(jsPlumb.getDOMElement(spec));
+			if (typeof spec === "string") 
+				fn(jsPlumb.getDOMElement(spec));
 			else if (spec.length != null) {
 				for (var i = 0; i < spec.length; i++)
 					fn(jsPlumb.getDOMElement(spec[i]));
