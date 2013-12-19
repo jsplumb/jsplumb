@@ -642,6 +642,7 @@
 
         	this.setZoom = function(z, repaintEverything) {
             	_zoom = z;
+				_currentInstance.fire("zoom", _zoom);
             	if (repaintEverything) _currentInstance.repaintEverything();
         	};
         	this.getZoom = function() { return _zoom; };
