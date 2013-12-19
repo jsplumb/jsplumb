@@ -15,7 +15,7 @@
     var _ju = jsPlumbUtil,
     	_getOffset = function(el, _instance, relativeToRoot) {
             var o = jsPlumbAdapter.getOffset(el, relativeToRoot);
-			if (_instance != null) {
+			if (false/*_instance != null*/) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
             }
@@ -824,7 +824,7 @@
 							jsPlumbAdapter.addClass(element, "jsPlumb_dragged");
 						});
 						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
-							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
+							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
 							_draw(element, ui);
 							jsPlumbAdapter.removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);							
@@ -1183,7 +1183,7 @@
 		 * passed in from a drag call) because it's faster; but if it is null,
 		 * or if 'recalc' is true in order to force a recalculation, we get the current values.
 		 */
-		_updateOffset = function(params) {
+		_updateOffset = this.updateOffset = function(params) {
 			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
 			if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
 			if (!recalc) {
@@ -1877,13 +1877,6 @@
 			var o = offsets[id]; 
 			return _updateOffset({elId:id});
 		};
-		
-		// get the size of the element with the given id, perhaps from cache.
-		this.getCachedSize = function(id) { 
-			var s = sizes[id]; 
-			if (!s) _updateOffset({elId:id});
-			return sizes[id];
-		};		
 		
 		this.appendElement = _appendElement;
 		
@@ -2786,15 +2779,11 @@
 			}			
 			if (!_wasSuspended)
 				_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
-        };
-            
-        this.updateOffset = _updateOffset;
-        this.getOffset = function(elId) { return offsets[elId]; };
-        this.getCachedSize = function(elId) { return sizes[elId]; };            
-        this.getCachedData = _getCachedData;
-        this.timestamp = _timestamp;
-		
-		
+		};
+
+		this.getOffset = function(elId) { return offsets[elId]; };
+		this.getCachedData = _getCachedData;
+		this.timestamp = _timestamp;
 		
 		/**
 		 * @doc function
@@ -2847,73 +2836,16 @@
 			return _currentInstance;
 		};		
 
-		/**
-		 * gets some test hooks. nothing writable.
-		 */
-		this.getTestHarness = function() {
-			return {
-				endpointsByElement : endpointsByElement,  
-				endpointCount : function(elId) {
-					var e = endpointsByElement[elId];
-					return e ? e.length : 0;
-				},
-				connectionCount : function(scope) {
-					scope = scope || DEFAULT_SCOPE;
-					var c = _currentInstance.getConnections({scope:scope});
-					return c ? c.length : 0;
-				},
-				getId : _getId,
-				makeAnchor:self.makeAnchor,
-				makeDynamicAnchor:self.makeDynamicAnchor
-			};
-		};
-		
-		
 		// TODO: update this method to return the current state.
 		this.toggleVisible = _toggleVisible;
 		this.toggleDraggable = _toggleDraggable;						
 		this.addListener = this.bind;
-		
-        /*
-            helper method to take an xy location and adjust it for the parent's offset and scroll.
-        */
-		this.adjustForParentOffsetAndScroll = function(xy, el) {
-
-			//console.log("ADJUSTING FOR PARENT OFFSET AND SCROLL");
-
-			var offsetParent = null, result = xy;
-			/*
-			if (el.tagName.toLowerCase() === "svg" && el.parentNode) {
-				offsetParent = el.parentNode;
-			}
-			else if (el.offsetParent) {
-				offsetParent = el.offsetParent;					
-			}
-			if (offsetParent != null) {
-				var po = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(offsetParent, _currentInstance),
-					so = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:offsetParent.scrollLeft, top:offsetParent.scrollTop};					
-
-				// i thought it might be cool to do this:
-				//	lastReturnValue[0] = lastReturnValue[0] - offsetParent.offsetLeft + offsetParent.scrollLeft;
-				//	lastReturnValue[1] = lastReturnValue[1] - offsetParent.offsetTop + offsetParent.scrollTop;					
-				// but i think it ignores margins.  my reasoning was that it's quicker to not hand off to some underlying					
-				// library.
-				
-				result[0] = xy[0] - po.left + so.left;
-				result[1] = xy[1] - po.top + so.top;
-			}
-		//*/
-			return result;
-			
-		};
 
 		if (!jsPlumbAdapter.headless) {
 			_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 			_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-	    }	
-		
-				    
-    };
+		}
+	};
 
     jsPlumbUtil.extend(jsPlumbInstance, jsPlumbUtil.EventGenerator, {
     	setAttribute : function(el, a, v) {

@@ -1444,7 +1444,7 @@
     var _ju = jsPlumbUtil,
     	_getOffset = function(el, _instance, relativeToRoot) {
             var o = jsPlumbAdapter.getOffset(el, relativeToRoot);
-			if (_instance != null) {
+			if (false/*_instance != null*/) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
             }
@@ -2071,6 +2071,7 @@
 
         	this.setZoom = function(z, repaintEverything) {
             	_zoom = z;
+				_currentInstance.fire("zoom", _zoom);
             	if (repaintEverything) _currentInstance.repaintEverything();
         	};
         	this.getZoom = function() { return _zoom; };
@@ -2252,7 +2253,7 @@
 							jsPlumbAdapter.addClass(element, "jsPlumb_dragged");
 						});
 						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
-							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
+							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
 							_draw(element, ui);
 							jsPlumbAdapter.removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);							
@@ -11052,7 +11053,8 @@
 		 * different libraries have different signatures for their event callbacks.  
 		 * see getDragObject as well
 		 */
-		getUIPosition : function(eventArgs, zoom) {
+		getUIPosition : function(eventArgs, zoom, dontAdjustHelper) {
+			var ret;
 			
 			zoom = zoom || 1;
 			// this code is a workaround for the case that the element being dragged has a margin set on it. jquery UI passes
@@ -11074,10 +11076,13 @@
 				ret = _offset || ui.absolutePosition;
 				
 				// adjust ui position to account for zoom, because jquery ui does not do this.
-				ui.position.left /= zoom;
-				ui.position.top /= zoom;
+				if (!dontAdjustHelper) {
+					ui.position.left /= zoom;
+					ui.position.top /= zoom;
+				}
 			}
-            return { left:ret.left / zoom, top: ret.top / zoom };
+            //return { left:ret.left / zoom, top: ret.top / zoom };
+			return { left:ret.left, top: ret.top  };
 		},
 		
 		setDragFilter : function(el, filter) {

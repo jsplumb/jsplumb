@@ -110,6 +110,7 @@
     <li><a href="#evt-contextmenu">contextmenu</a></li>
     <li><a href="#evt-beforedrop">beforeDrop</a></li>
     <li><a href="#evt-beforedetach">beforeDetach</a></li>
+    <li><a href="#evt-zoom">zoom</a></li>
 </ul></li>
 <li><a href="#connectionEvents">Connection Events</a></li>
 <li><a href="#endpointEvents">Endpoint Events</a></li>
@@ -203,6 +204,9 @@
 <p><a name="evt-beforedetach"></a>        </p>
 <h5>beforeDetach(connection)</h5>
 <p>This event is fired when a Connection is about to be detached, for whatever reason. Your callback function is passed the Connection that the user has just detached. Returning false from this interceptor aborts the Connection detach.</p>
+<p><a name="evt-zoom"></a></p>
+<h5>zoom(value)</h5>
+<p>Notification the current zoom was changed.</p>
 <p><a name="connectionEvents"></a></p>
 <h3>Connection Events</h3>
 <p>To bind to an event on a Connection, you also use the <code>bind</code> method:</p>

@@ -1763,7 +1763,7 @@
     var _ju = jsPlumbUtil,
     	_getOffset = function(el, _instance, relativeToRoot) {
             var o = jsPlumbAdapter.getOffset(el, relativeToRoot);
-			if (_instance != null) {
+			if (false/*_instance != null*/) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
             }
@@ -2390,6 +2390,7 @@
 
         	this.setZoom = function(z, repaintEverything) {
             	_zoom = z;
+				_currentInstance.fire("zoom", _zoom);
             	if (repaintEverything) _currentInstance.repaintEverything();
         	};
         	this.getZoom = function() { return _zoom; };
@@ -2571,7 +2572,7 @@
 							jsPlumbAdapter.addClass(element, "jsPlumb_dragged");
 						});
 						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
-							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
+							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
 							_draw(element, ui);
 							jsPlumbAdapter.removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);							
@@ -11214,6 +11215,7 @@
 				removeClass:jsPlumbAdapter.removeClass,
 				intersects:Biltong.intersects
 			});
+			instance.bind("zoom", k.setZoom);
 		}
 		return k;
 	};

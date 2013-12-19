@@ -469,11 +469,10 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel, _jsPlumb),
-                        po = _jsPlumb.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas),
+                        ipco = jsPlumbAdapter.getOffset(ipcoel, _jsPlumb),                        
                         canvasElement = _gel(this.canvas);                               
                         
-                    jsPlumbAdapter.setPosition(placeholderInfo.element, {left:po[0], top:po[1]});
+                    jsPlumbAdapter.setPosition(placeholderInfo.element, {left:ipco[0], top:ipco[1]});
                     
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the
