@@ -34,6 +34,7 @@
 				removeClass:jsPlumbAdapter.removeClass,
 				intersects:Biltong.intersects
 			});
+			instance.bind("zoom", k.setZoom);
 		}
 		return k;
 	};
