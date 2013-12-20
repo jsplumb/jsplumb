@@ -2,13 +2,13 @@
 <html>
     <head>
         
-        <title>jsPlumb 1.6.0 demo - no library</title>
-        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        <title>jsPlumb 1.6.0 demo - jQuery</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		              
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" href="../demo-all.css">
+        <link rel="stylesheet" href="../demo-all.css">		
         <link rel="stylesheet" href="demo.css">
     </head>
-    <body data-demo-id="flowchart" data-library="dom">
+    <body data-demo-id="draggableConnectors" data-library="dom">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo"><img src="../../logo-bw.png"></div>
@@ -30,25 +30,30 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
-        
-        <div id="main">         
-            <div class="explanation">
-                <h4>FLOWCHART</h4>
-                <p>Nodes are connected with the Flowchart connector.</p>
-                <p>Hover over connections to highlight them, click to delete. </p>
-                <p>Drag new connections from hollow dots to solid dots. You can also drag connections from their source/target to other sources/targets, or back onto themselves.</p>
-                <p>By default, Flowchart connectors have square corners, but by setting the 'cornerRadius' parameter, as we have here, you can get rounded corners.</p>       
-                <p>This demonstration uses jsPlumb 1.6.0.  No external libraries are required.</p>
-            </div>
-            <div class="demo flowchart-demo" id="flowchart-demo">
-                <div class="window" id="flowchartWindow1"><strong>1</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow2"><strong>2</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow3"><strong>3</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow4"><strong>4</strong><br/><br/></div>                     
-            </div>          
-            
+		
+        <div id="main">			        
+            <div class="explanation">         
+                <h4>DRAG &amp; DROP</h4>                           
+                <p>Drag from any Endpoint to similar Endpoints on other elements to create Connections.</p>
+                <p>Blue Endpoints use a <strong>beforeDrop</strong> interceptor.  This enables
+                you to intercept a new connection and decide whether or not you wish to allow it to proceed. They are also configured to automatically reattach if you drag a Connection off and drop it on the background.</p>
+                <p>Yellow Endpoints are configured to use a <strong>beforeDetach</strong> interceptor, which provides a way to programmatically override a Connection detach. Yellow connections are painted with the Straight connector</p>            
+                <p>Green Endpoints support up to three Connections. Once a green Endpoint has three connections, when you drag from it you will drag the oldest connection made on the Endpoint.</p>
+                <div class="commands">
+                    <a id="clear" class="cmd" href="#">clear plumbing</a>
+                </div>
+                <p>This demonstration uses jsPlumb 1.6.0  No external libraries are required.</p>
+            </div>  
+            <div id="drag-drop-demo" class="demo drag-drop-demo">                                
+                <div class="window" id="dragDropWindow1">one<br/><br/><a href="#" class="cmdLink hide" rel="dragDropWindow1">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="dragDropWindow1">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="dragDropWindow1">detach all</a></div>
+                <div class="window" id="dragDropWindow2">two<br/><br/><a href="#" class="cmdLink hide" rel="dragDropWindow2">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="dragDropWindow2">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="dragDropWindow2">detach all</a></div>
+                <div class="window" id="dragDropWindow3">three<br/><br/><a href="#" class="cmdLink hide" rel="dragDropWindow3">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="dragDropWindow3">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="dragDropWindow3">detach all</a></div>
+                <div class="window" id="dragDropWindow4">four<br/><br/><a href="#" class="cmdLink hide" rel="dragDropWindow4">toggle connections</a><br/><a href="#" class="cmdLink drag" rel="dragDropWindow4">disable dragging</a><br/><a href="#" class="cmdLink detach" rel="dragDropWindow4">detach all</a></div>          
+                <div id="list"></div>                
+            </div>           
         </div>
-  
+	
+        
         <!-- JS -->
         <!-- support lib for bezier stuff -->
         <script src="../../lib/jsBezier-0.6.js"></script>     
@@ -88,11 +93,10 @@
         <!-- no library jsPlumb adapter -->
         <script src="../../src/dom.jsPlumb.js"></script>
         <!-- /JS -->
-        
-        <!--  demo code -->
-        <script src="demo.js"></script>
+		
+		<!--  demo code -->
+		<script src="demo.js"></script>
 
-        <!-- demo list -->
         <script src="../demo-list.js"></script>
         
     </body>

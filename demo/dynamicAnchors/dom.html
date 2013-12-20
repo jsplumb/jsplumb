@@ -1,14 +1,13 @@
 <!doctype html>
 <html>
-    <head>
-        
-        <title>jsPlumb 1.6.0 demo - no library</title>
-        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <head>    
+        <title>jsPlumb 1.6.0 demo</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" href="../demo-all.css">
+        <link rel="stylesheet" href="../demo-all.css">		
         <link rel="stylesheet" href="demo.css">
     </head>
-    <body data-demo-id="flowchart" data-library="dom">
+    <body data-demo-id="dynamicAnchors" data-library="dom">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo"><img src="../../logo-bw.png"></div>
@@ -30,25 +29,26 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
-        
-        <div id="main">         
+
+        <div id="main">			            
             <div class="explanation">
-                <h4>FLOWCHART</h4>
-                <p>Nodes are connected with the Flowchart connector.</p>
-                <p>Hover over connections to highlight them, click to delete. </p>
-                <p>Drag new connections from hollow dots to solid dots. You can also drag connections from their source/target to other sources/targets, or back onto themselves.</p>
-                <p>By default, Flowchart connectors have square corners, but by setting the 'cornerRadius' parameter, as we have here, you can get rounded corners.</p>       
-                <p>This demonstration uses jsPlumb 1.6.0.  No external libraries are required.</p>
+                <h4>DYNAMIC ANCHORS</h4>
+                <p>This is a demonstration of anchors that change position dependent on the location of the other element in a connection. Each Connection is decorated with a Diamond overlay, located halfway along the connector.</p>
+                <p>You can drag new connections between Endpoints.</p>
+                <p>Endpoints support an unlimited number of Connections.</p>
+                <p>This demonstration uses jsPlumb 1.6.0.  No external dependencies are required.</p>
             </div>
-            <div class="demo flowchart-demo" id="flowchart-demo">
-                <div class="window" id="flowchartWindow1"><strong>1</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow2"><strong>2</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow3"><strong>3</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow4"><strong>4</strong><br/><br/></div>                     
-            </div>          
+            <div class="demo dynamic-demo" id="dynamic-demo">
+                <div class="window" id="dynamicWindow1"><strong>1</strong><br/><br/></div>
+                <div class="window" id="dynamicWindow2"><strong>2</strong><br/><br/></div>
+                <div class="window" id="dynamicWindow3"><strong>3</strong><br/><br/></div>
+                <div class="window" id="dynamicWindow4"><strong>4</strong><br/><br/></div>
+                <div class="window" id="dynamicWindow5"><strong>5</strong><br/><br/></div>
+                <div class="window" id="dynamicWindow6"><strong>6</strong><br/><br/></div>
+            </div>
             
         </div>
-  
+	
         <!-- JS -->
         <!-- support lib for bezier stuff -->
         <script src="../../lib/jsBezier-0.6.js"></script>     
@@ -88,11 +88,10 @@
         <!-- no library jsPlumb adapter -->
         <script src="../../src/dom.jsPlumb.js"></script>
         <!-- /JS -->
-        
-        <!--  demo code -->
-        <script src="demo.js"></script>
+		
+		<!--  demo code -->
+		<script src="demo.js"></script>
 
-        <!-- demo list -->
         <script src="../demo-list.js"></script>
         
     </body>

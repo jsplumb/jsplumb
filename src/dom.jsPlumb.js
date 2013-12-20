@@ -54,9 +54,13 @@
 		getDOMElement:function(el) { return typeof el === "string" ? document.getElementById(el) : el; },
 		getElementObject:function(el) { return el; },
 		doAnimate:function() { throw "not implemented!" },
-		getSelector:function(spec) { return document.querySelectorAll(spec); },
-		
-		
+		getSelector:function(ctx, spec) { 
+			if (arguments.length == 1) {
+				return ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
+			}
+			else
+				return document.querySelectorAll(spec, ctx); 
+		},
 		
 		// DRAG/DROP
 		destroyDraggable:function(el) {
@@ -77,18 +81,32 @@
 		isDragSupported : function(el, options) { return true; },
 		isDropSupported : function(el, options) { return true; },
 		getDragObject : function(eventArgs) { return eventArgs[0].drag.el; },
-		getDragScope : function(el) { },
+		getDragScope : function(el) {
+			console.log("get drag scope!");
+				throw "not implemented";
+		},
 		getDropEvent : function(args) { return args[0].event; },
-		getDropScope : function(el) { },
+		getDropScope : function(el) {
+			console.log("get drop scope!");
+				throw "not implemented";
+		},
 		getUIPosition : function(eventArgs, zoom) {
 			return {
 				left:eventArgs[0].pos[0],
 				top:eventArgs[0].pos[1]
 			};
 		},
-		setDragFilter : function(el, filter) { },
-		setElementDraggable : function(el, draggable) { },
-		setDragScope : function(el, scope) { },
+		setDragFilter : function(el, filter) {
+			if (el._katavorioDrag) {
+				el._katavorioDrag.setFilter(filter);
+			}
+		},
+		setElementDraggable : function(el, draggable) { 
+			throw "not implemented";
+		},
+		setDragScope : function(el, scope) { 
+			throw "not implemented";
+		},
 		dragEvents : {
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'

@@ -2,8 +2,6 @@
 	
 	var instance, 
 		discs = [],
-		jpcl = jsPlumb.CurrentLibrary,
-		_bind = jsPlumb.on,
 
 		addDisc = function(evt) {
 			var info = createDisc();
@@ -28,7 +26,7 @@
 			var el = document.getElementById(elId),
 				_el = jsPlumb.getElementObject(el);
 
-			_bind(el, 'click', function(e, ui) {
+			instance.on(el, 'click', function(e, ui) {
 				if (el.className.indexOf("jsPlumb_dragged") > -1) {
 					jsPlumb.removeClass(elId, "jsPlumb_dragged");
 					return;
@@ -104,7 +102,7 @@
 				clearBtn = jsPlumb.getSelector("#anim-clear"),
 				addBtn = jsPlumb.getSelector("#add");
 
-			_bind(clearBtn, "click", function(e) {
+			instance.on(clearBtn, "click", function(e) {
 				e.preventDefault();
 				e.stopPropagation();
 				instance.detachEveryConnection(); 
@@ -114,7 +112,7 @@
 			instance.connect({ source:e1, target:e3 });
 			instance.connect({ source:e1, target:e4 });
 
-			_bind(addBtn, 'click', addDisc );							
+			instance.on(addBtn, 'click', addDisc );							
 		});
 	});
 	

@@ -2612,7 +2612,7 @@
 		 * passed in from a drag call) because it's faster; but if it is null,
 		 * or if 'recalc' is true in order to force a recalculation, we get the current values.
 		 */
-		_updateOffset = function(params) {
+		_updateOffset = this.updateOffset = function(params) {
 			var timestamp = params.timestamp, recalc = params.recalc, offset = params.offset, elId = params.elId, s;
 			if (_suspendDrawing && !timestamp) timestamp = _suspendedAt;
 			if (!recalc) {
@@ -3306,13 +3306,6 @@
 			var o = offsets[id]; 
 			return _updateOffset({elId:id});
 		};
-		
-		// get the size of the element with the given id, perhaps from cache.
-		this.getCachedSize = function(id) { 
-			var s = sizes[id]; 
-			if (!s) _updateOffset({elId:id});
-			return sizes[id];
-		};		
 		
 		this.appendElement = _appendElement;
 		
@@ -4215,15 +4208,11 @@
 			}			
 			if (!_wasSuspended)
 				_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
-        };
-            
-        this.updateOffset = _updateOffset;
-        this.getOffset = function(elId) { return offsets[elId]; };
-        this.getCachedSize = function(elId) { return sizes[elId]; };            
-        this.getCachedData = _getCachedData;
-        this.timestamp = _timestamp;
-		
-		
+		};
+
+		this.getOffset = function(elId) { return offsets[elId]; };
+		this.getCachedData = _getCachedData;
+		this.timestamp = _timestamp;
 		
 		/**
 		 * @doc function
@@ -4276,73 +4265,16 @@
 			return _currentInstance;
 		};		
 
-		/**
-		 * gets some test hooks. nothing writable.
-		 */
-		this.getTestHarness = function() {
-			return {
-				endpointsByElement : endpointsByElement,  
-				endpointCount : function(elId) {
-					var e = endpointsByElement[elId];
-					return e ? e.length : 0;
-				},
-				connectionCount : function(scope) {
-					scope = scope || DEFAULT_SCOPE;
-					var c = _currentInstance.getConnections({scope:scope});
-					return c ? c.length : 0;
-				},
-				getId : _getId,
-				makeAnchor:self.makeAnchor,
-				makeDynamicAnchor:self.makeDynamicAnchor
-			};
-		};
-		
-		
 		// TODO: update this method to return the current state.
 		this.toggleVisible = _toggleVisible;
 		this.toggleDraggable = _toggleDraggable;						
 		this.addListener = this.bind;
-		
-        /*
-            helper method to take an xy location and adjust it for the parent's offset and scroll.
-        */
-		this.adjustForParentOffsetAndScroll = function(xy, el) {
-
-			//console.log("ADJUSTING FOR PARENT OFFSET AND SCROLL");
-
-			var offsetParent = null, result = xy;
-			/*
-			if (el.tagName.toLowerCase() === "svg" && el.parentNode) {
-				offsetParent = el.parentNode;
-			}
-			else if (el.offsetParent) {
-				offsetParent = el.offsetParent;					
-			}
-			if (offsetParent != null) {
-				var po = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : _getOffset(offsetParent, _currentInstance),
-					so = offsetParent.tagName.toLowerCase() === "body" ? {left:0,top:0} : {left:offsetParent.scrollLeft, top:offsetParent.scrollTop};					
-
-				// i thought it might be cool to do this:
-				//	lastReturnValue[0] = lastReturnValue[0] - offsetParent.offsetLeft + offsetParent.scrollLeft;
-				//	lastReturnValue[1] = lastReturnValue[1] - offsetParent.offsetTop + offsetParent.scrollTop;					
-				// but i think it ignores margins.  my reasoning was that it's quicker to not hand off to some underlying					
-				// library.
-				
-				result[0] = xy[0] - po.left + so.left;
-				result[1] = xy[1] - po.top + so.top;
-			}
-		//*/
-			return result;
-			
-		};
 
 		if (!jsPlumbAdapter.headless) {
 			_currentInstance.dragManager = jsPlumbAdapter.getDragManager(_currentInstance);
 			_currentInstance.recalculateOffsets = _currentInstance.dragManager.updateOffsets;
-	    }	
-		
-				    
-    };
+		}
+	};
 
     jsPlumbUtil.extend(jsPlumbInstance, jsPlumbUtil.EventGenerator, {
     	setAttribute : function(el, a, v) {
@@ -4906,11 +4838,10 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel, _jsPlumb),
-                        po = _jsPlumb.adjustForParentOffsetAndScroll([ipco.left, ipco.top], inPlaceCopy.canvas),
+                        ipco = jsPlumbAdapter.getOffset(ipcoel, _jsPlumb),                        
                         canvasElement = _gel(this.canvas);                               
                         
-                    jsPlumbAdapter.setPosition(placeholderInfo.element, {left:po[0], top:po[1]});
+                    jsPlumbAdapter.setPosition(placeholderInfo.element, {left:ipco[0], top:ipco[1]});
                     
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the
@@ -6085,9 +6016,8 @@
                                                      isHorizontal, otherMultiplier, reverse );
         
                         // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-                        var _setAnchorLocation = function(endpoint, anchorPos) {
-                            var a = jsPlumbInstance.adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
-                            continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
+                        var _setAnchorLocation = function(endpoint, anchorPos) {                            
+                            continuousAnchorLocations[endpoint.id] = [ anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3] ];
                             continuousAnchorOrientations[endpoint.id] = orientation;
                         };
         
@@ -6571,28 +6501,25 @@
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;        
         this.compute = function(params) {
-            
-            var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp; 
 
-            if(params.clearUserDefinedLocation)
-                this.userDefinedLocation = null;
-            
-            if (timestamp && timestamp === self.timestamp)
-                return this.lastReturnValue;        
-            
-            if (this.userDefinedLocation != null) {
-                this.lastReturnValue = this.userDefinedLocation;
-            }
-            else {                
-                
-                this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1] ];                    
-                // adjust loc if there is an offsetParent
-                this.lastReturnValue = jsPlumbInstance.adjustForParentOffsetAndScroll(this.lastReturnValue, element.canvas);
-            }
-            
-            this.timestamp = timestamp;
-            return this.lastReturnValue;
-        };
+			var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp; 
+
+			if(params.clearUserDefinedLocation)
+				this.userDefinedLocation = null;
+
+			if (timestamp && timestamp === self.timestamp)
+				return this.lastReturnValue;
+
+			if (this.userDefinedLocation != null) {
+				this.lastReturnValue = this.userDefinedLocation;
+			}
+			else {
+				this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1] ];
+			}
+
+			this.timestamp = timestamp;
+			return this.lastReturnValue;
+		};
 
         this.getCurrentLocation = function(params) { 
             return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp != params.timestamp)) ? this.compute(params) : this.lastReturnValue; 
@@ -6658,16 +6585,12 @@
 
         this.isFloating = true;
 
-        this.compute = function(params) {
-            var xy = params.xy, element = params.element,
-            result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-                        
-            // adjust loc if there is an offsetParent
-            result = jsPlumbInstance.adjustForParentOffsetAndScroll(result, element.canvas);
-            
-            _lastResult = result;
-            return result;
-        };
+		this.compute = function(params) {
+			var xy = params.xy, element = params.element,
+				result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+			_lastResult = result;
+			return result;
+		};
 
         this.getOrientation = function(_endpoint) {
             if (orientation) return orientation;
@@ -7031,11 +6954,11 @@
 		this.dblclick  = 
 		this.click = 
 		this.mousedown = 
-		this.mouseup = function(e) { };					
+		this.mouseup = function(e) { };
 	});
-	
+
 	jsPlumb.Segments = {
-        	
+
         /*
          * Class: AbstractSegment
          * A Connector is made up of 1..N Segments, each of which has a Type, such as 'Straight', 'Arc',
@@ -7414,17 +7337,17 @@
         }
     };
 
-    /*
-        Class: AbstractComponent
-        Superclass for AbstractConnector and AbstractEndpoint.
-    */
-    var AbstractComponent = function() {        
-        this.resetBounds = function() {
-            this.bounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
-        };
-        this.resetBounds();        
-    };
-	
+	/*
+		Class: AbstractComponent
+		Superclass for AbstractConnector and AbstractEndpoint.
+	*/
+	var AbstractComponent = function() {
+		this.resetBounds = function() {
+			this.bounds = { minX:Infinity, minY:Infinity, maxX:-Infinity, maxY:-Infinity };
+		};
+		this.resetBounds();
+	};
+
 	/*
 	 * Class: AbstractConnector
 	 * Superclass for all Connectors; here is where Segments are managed.  This is exposed on jsPlumb just so it
@@ -7437,31 +7360,30 @@
 	 */ 
 	jsPlumb.Connectors.AbstractConnector = function(params) {
 		
-        AbstractComponent.apply(this, arguments);        
+		AbstractComponent.apply(this, arguments);
 
-		var //self = this, 
-            segments = [],
-            editing = false,
+		var segments = [],
+			editing = false,
 			totalLength = 0,
 			segmentProportions = [],
-			segmentProportionalLengths = [],        
-            stub = params.stub || 0, 
-            sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
-            targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
-            gap = params.gap || 0,
-            sourceGap = jsPlumbUtil.isArray(gap) ? gap[0] : gap,
-            targetGap = jsPlumbUtil.isArray(gap) ? gap[1] : gap,
-            userProvidedSegments = null,
-            edited = false,
-            paintInfo = null;            
-        
-        // subclasses should override.
-        this.isEditable = function() { return false; };                        
-        this.setEdited = function(ed) { edited = ed; };
+			segmentProportionalLengths = [],
+			stub = params.stub || 0, 
+			sourceStub = jsPlumbUtil.isArray(stub) ? stub[0] : stub,
+			targetStub = jsPlumbUtil.isArray(stub) ? stub[1] : stub,
+			gap = params.gap || 0,
+			sourceGap = jsPlumbUtil.isArray(gap) ? gap[0] : gap,
+			targetGap = jsPlumbUtil.isArray(gap) ? gap[1] : gap,
+			userProvidedSegments = null,
+			edited = false,
+			paintInfo = null;
 
-        // to be overridden by subclasses.
-        this.getPath = function() { };
-        this.setPath = function(path) { };
+		// subclasses should override.
+		this.isEditable = function() { return false; };
+		this.setEdited = function(ed) { edited = ed; };
+
+		// to be overridden by subclasses.
+		this.getPath = function() { };
+		this.setPath = function(path) { };
         
         /**
         * Function: findSegmentForPoint
@@ -7493,9 +7415,9 @@
                 }
             }
             
-            return out;                
+            return out;
         };
-			
+
 		var _updateSegmentProportions = function() {
                 var curLoc = 0;
                 for (var i = 0; i < segments.length; i++) {
@@ -7515,46 +7437,40 @@
              * as the absolute distance in pixels, rather than a proportion of the total path. 
              */
             _findSegmentForLocation = function(location, absolute) {
-                if (absolute) {
-                    location = location > 0 ? location / totalLength : (totalLength + location) / totalLength;
-                }
-    
-                var idx = segmentProportions.length - 1, inSegmentProportion = 1;
-                //if (location < 1) {
-                    for (var i = 0; i < segmentProportions.length; i++) {
-                        if (segmentProportions[i][1] >= location) {
-                            idx = i;
-                            // todo is this correct for all connector path types?
-                            inSegmentProportion = location == 1 ? 1 : location === 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
-                            break;
-                        }
-                    }
-                //}
-                return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
-            },		
-            _addSegment = function(conn, type, params) {
-                if (params.x1 == params.x2 && params.y1 == params.y2) return;
-                var s = new jsPlumb.Segments[type](params);
-                segments.push(s);
-                totalLength += s.getLength();	
-                conn.updateBounds(s);	                                
-            },					
-            _clearSegments = function() {
-                totalLength = 0;
-                segments.splice(0, segments.length);
-                segmentProportions.splice(0, segmentProportions.length);
-                segmentProportionalLengths.splice(0, segmentProportionalLengths.length);
-            };
-        
-        this.setSegments = function(_segs) {
-            userProvidedSegments = [];
-            totalLength = 0;
-            for (var i = 0; i < _segs.length; i++) {      
-                userProvidedSegments.push(_segs[i]);
-                totalLength += _segs[i].getLength();			            
-            }            
-        };  
-        
+				if (absolute) {
+					location = location > 0 ? location / totalLength : (totalLength + location) / totalLength;
+				}
+				var idx = segmentProportions.length - 1, inSegmentProportion = 1;
+				for (var i = 0; i < segmentProportions.length; i++) {
+					if (segmentProportions[i][1] >= location) {
+						idx = i;
+						// todo is this correct for all connector path types?
+						inSegmentProportion = location == 1 ? 1 : location === 0 ? 0 : (location - segmentProportions[i][0]) / segmentProportionalLengths[i];                    
+						break;
+					}
+				}
+				return { segment:segments[idx], proportion:inSegmentProportion, index:idx };
+			},
+			_addSegment = function(conn, type, params) {
+				if (params.x1 == params.x2 && params.y1 == params.y2) return;
+				var s = new jsPlumb.Segments[type](params);
+				segments.push(s);
+				totalLength += s.getLength();
+				conn.updateBounds(s);
+			},
+			_clearSegments = function() {
+				totalLength = segments.length = segmentProportions.length = segmentProportionalLengths.length = 0;
+			};
+
+		this.setSegments = function(_segs) {
+			userProvidedSegments = [];
+			totalLength = 0;
+			for (var i = 0; i < _segs.length; i++) {
+				userProvidedSegments.push(_segs[i]);
+				totalLength += _segs[i].getLength();
+			}
+		};
+
         var _prepareCompute = function(params) {
             this.lineWidth = params.lineWidth;
             var segment = Biltong.quadrant(params.sourcePos, params.targetPos),
@@ -7625,9 +7541,9 @@
                 console.log(segments[i].type, segments[i].getLength(), segmentProportions[i]);
             }
         };
-		
+
 		this.pointOnPath = function(location, absolute) {
-            var seg = _findSegmentForLocation(location, absolute);      
+            var seg = _findSegmentForLocation(location, absolute);
             return seg.segment && seg.segment.pointOnPath(seg.proportion, absolute) || [0,0];
         };
         
@@ -7685,84 +7601,8 @@
     };
     jsPlumbUtil.extend(jsPlumb.Connectors.Straight, jsPlumb.Connectors.AbstractConnector);
     jsPlumb.registerConnectorType(Straight, "Straight");
-                    
-    /**
-     * Class:Connectors.Bezier
-     * This Connector draws a Bezier curve with two control points.  You can provide a 'curviness' value which gets applied to jsPlumb's
-     * internal voodoo machine and ends up generating locations for the two control points.  See the constructor documentation below.
-     */
-    /**
-     * Function:Constructor
-     * 
-     * Parameters:
-     * 	curviness - How 'curvy' you want the curve to be! This is a directive for the placement of control points, not endpoints of the curve, so your curve does not 
-     * actually touch the given point, but it has the tendency to lean towards it.  The larger this value, the greater the curve is pulled from a straight line.
-     * Optional; defaults to 150.
-     * stub - optional value for a distance to travel from the connector's endpoint before beginning the Bezier curve. defaults to 0.
-     * 
-     */
-    var Bezier = function(params) {
-        params = params || {};
 
-    	var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
-            stub = params.stub || 50,
-            majorAnchor = params.curviness || 150,
-            minorAnchor = 10;            
 
-        this.type = "Bezier";	
-        this.getCurviness = function() { return majorAnchor; };	
-        
-        this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint) {
-        	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
-        	// points around if so (code could be tightened up)
-        	var soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint), 
-        		too = targetEndpoint.anchor.getOrientation(targetEndpoint),
-        		perpendicular = soo[0] != too[0] || soo[1] == too[1],
-            	p = [];                
-            	
-            if (!perpendicular) {
-                if (soo[0] === 0) // X
-                    p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
-                else p.push(point[0] - (majorAnchor * soo[0]));
-                                 
-                if (soo[1] === 0) // Y
-                	p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
-                else p.push(point[1] + (majorAnchor * too[1]));
-            }
-             else {
-                if (too[0] === 0) // X
-                	p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
-                else p.push(point[0] + (majorAnchor * too[0]));
-                
-                if (too[1] === 0) // Y
-                	p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
-                else p.push(point[1] + (majorAnchor * soo[1]));
-             }
-
-            return p;                
-        };        
-
-        this._compute = function(paintInfo, p) {                                
-			var sp = p.sourcePos,
-				tp = p.targetPos,				
-                _w = Math.abs(sp[0] - tp[0]),
-                _h = Math.abs(sp[1] - tp[1]),            
-                _sx = sp[0] < tp[0] ? _w : 0,
-                _sy = sp[1] < tp[1] ? _h : 0,
-                _tx = sp[0] < tp[0] ? 0 : _w,
-                _ty = sp[1] < tp[1] ? 0 : _h,
-                _CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint),
-                _CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint);
-
-			_super.addSegment(this, "Bezier", {
-				x1:_sx, y1:_sy, x2:_tx, y2:_ty,
-				cp1x:_CP[0], cp1y:_CP[1], cp2x:_CP2[0], cp2y:_CP2[1]
-			});                    
-        };               
-    };    
-    jsPlumbUtil.extend(Bezier, jsPlumb.Connectors.AbstractConnector);
-    jsPlumb.registerConnectorType(Bezier, "Bezier");
-    
  // ********************************* END OF CONNECTOR TYPES *******************************************************************
     
  // ********************************* ENDPOINT TYPES *******************************************************************
@@ -7826,51 +7666,37 @@
 		};
 	};
     jsPlumbUtil.extend(jsPlumb.Endpoints.Dot, jsPlumb.Endpoints.AbstractEndpoint);
-	
-	/**
-	 * Class: Endpoints.Rectangle
-	 * A Rectangular Endpoint, with default size 20x20.
-	 */
-	/**
-	 * Function: Constructor
-	 * 
-	 * Parameters:
-	 * 
-	 * 	width	- width of the endpoint. defaults to 20 pixels.
-	 * 	height	- height of the endpoint. defaults to 20 pixels.	
-	 */
+
 	jsPlumb.Endpoints.Rectangle = function(params) {
 		this.type = "Rectangle";
 		var _super = jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 		params = params || {};
 		this.width = params.width || 20;
 		this.height = params.height || 20;
-		
+
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			var width = endpointStyle.width || this.width,
 				height = endpointStyle.height || this.height,
 				x = anchorPoint[0] - (width/2),
 				y = anchorPoint[1] - (height/2);
-                
+
 			return [ x, y, width, height];
 		};
 	};
-    jsPlumbUtil.extend(jsPlumb.Endpoints.Rectangle, jsPlumb.Endpoints.AbstractEndpoint);
-	
+	jsPlumbUtil.extend(jsPlumb.Endpoints.Rectangle, jsPlumb.Endpoints.AbstractEndpoint);
 
-    var DOMElementEndpoint = function(params) {
-        jsPlumb.DOMElementComponent.apply(this, arguments);        
-        this._jsPlumb.displayElements = [  ];                
-    };
-    jsPlumbUtil.extend(DOMElementEndpoint, jsPlumb.DOMElementComponent, {
-       // jsPlumb.Endpoints.AbstractEndpoint
-        getDisplayElements : function() { 
-            return this._jsPlumb.displayElements; 
-        },        
-        appendDisplayElement : function(el) {
-            this._jsPlumb.displayElements.push(el);
-        }
-    });
+	var DOMElementEndpoint = function(params) {
+		jsPlumb.DOMElementComponent.apply(this, arguments);
+		this._jsPlumb.displayElements = [];
+	};
+	jsPlumbUtil.extend(DOMElementEndpoint, jsPlumb.DOMElementComponent, {
+		getDisplayElements : function() { 
+			return this._jsPlumb.displayElements; 
+		},
+		appendDisplayElement : function(el) {
+			this._jsPlumb.displayElements.push(el);
+		}
+	});
 
 	/**
 	 * Class: Endpoints.Image
@@ -7890,35 +7716,34 @@
 
 	 */
 	jsPlumb.Endpoints.Image = function(params) {
-				
+
 		this.type = "Image";
 		DOMElementEndpoint.apply(this, arguments);
-        jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
-		
-		var _onload = params.onload, 
-            src = params.src || params.url,
-            parent = params.parent,
-            clazz = params.cssClass ? " " + params.cssClass : "";
+		jsPlumb.Endpoints.AbstractEndpoint.apply(this, arguments);
 
-        this._jsPlumb.img = new Image();		
-        this._jsPlumb.ready = false;
-        this._jsPlumb.initialized = false;
-        this._jsPlumb.deleted = false;
-        this._jsPlumb.widthToUse = params.width;
-        this._jsPlumb.heightToUse = params.height;
-        this._jsPlumb.endpoint = params.endpoint;
+		var _onload = params.onload, 
+			src = params.src || params.url,
+			parent = params.parent,
+			clazz = params.cssClass ? " " + params.cssClass : "";
+
+		this._jsPlumb.img = new Image();
+		this._jsPlumb.ready = false;
+		this._jsPlumb.initialized = false;
+		this._jsPlumb.deleted = false;
+		this._jsPlumb.widthToUse = params.width;
+		this._jsPlumb.heightToUse = params.height;
+		this._jsPlumb.endpoint = params.endpoint;
 
 		this._jsPlumb.img.onload = function() {
-            // check we weren't actually discarded before use (in fact mostly happens in tests)
-            if (this._jsPlumb != null) {
-    			this._jsPlumb.ready = true;            
-    			this._jsPlumb.widthToUse = this._jsPlumb.widthToUse || this._jsPlumb.img.width;
-    			this._jsPlumb.heightToUse = this._jsPlumb.heightToUse || this._jsPlumb.img.height;
-                if (_onload) {
-                    _onload(this);
-                }
-            }
-		}.bind(this);        
+			if (this._jsPlumb != null) {
+				this._jsPlumb.ready = true;
+				this._jsPlumb.widthToUse = this._jsPlumb.widthToUse || this._jsPlumb.img.width;
+				this._jsPlumb.heightToUse = this._jsPlumb.heightToUse || this._jsPlumb.img.height;
+				if (_onload) {
+					_onload(this);
+				}
+			}
+		}.bind(this);
 
         /*
             Function: setImage
@@ -7937,18 +7762,7 @@
                 this.canvas.setAttribute("src", this._jsPlumb.img.src);
         }.bind(this);
 
-        this._jsPlumb.endpoint.setImage(src, _onload);
-        /*        
-            var s = src.constructor == String ? src : src.src;
-            //_onload = onload; 
-            this._jsPlumb.img.src = src;
-
-            if (this.canvas != null)
-                this.canvas.setAttribute("src", this._jsPlumb.img.src);
-       // }.bind(this);
-
-        //this._jsPlumb.endpoint.setImage(src, _onload);*/
-
+		this._jsPlumb.endpoint.setImage(src, _onload);
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
 			this.anchorPoint = anchorPoint;
 			if (this._jsPlumb.ready) return [anchorPoint[0] - this._jsPlumb.widthToUse / 2, anchorPoint[1] - this._jsPlumb.heightToUse / 2, 
@@ -7965,7 +7779,7 @@
 		if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
 		if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);		
 		this._jsPlumb.instance.appendElement(this.canvas, parent);
-		this.attachListeners(this.canvas, this);		
+		this.attachListeners(this.canvas, this);
 		
 		this.actuallyPaint = function(d, style, anchor) {
 			if (!this._jsPlumb.deleted) {
@@ -7986,7 +7800,7 @@
         			this.actuallyPaint(style, anchor);
     			}
     			else { 
-    				window.setTimeout(function() {    					
+    				window.setTimeout(function() {
     					this.paint(style, anchor);
     				}.bind(this), 200);
     			}
@@ -9136,70 +8950,69 @@
 	//			    }
               //}
     */
-
 ;(function() {
 
 	var Bezier = function(params) {
-        params = params || {};
+		params = params || {};
 
-    	var self = this,
-			_super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
-            stub = params.stub || 50,
-            majorAnchor = params.curviness || 150,
-            minorAnchor = 10;            
+		var _super =  jsPlumb.Connectors.AbstractConnector.apply(this, arguments),
+			stub = params.stub || 50,
+			majorAnchor = params.curviness || 150,
+			minorAnchor = 10;
 
-        this.type = "Bezier";	
-        this.getCurviness = function() { return majorAnchor; };	
-        
-        this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint) {
-        	// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
-        	// points around if so (code could be tightened up)
-        	var soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint), 
-        		too = targetEndpoint.anchor.getOrientation(targetEndpoint),
-        		perpendicular = soo[0] != too[0] || soo[1] == too[1],
-            	p = [];                
-            	
-            if (!perpendicular) {
-                if (soo[0] === 0) // X
-                    p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
-                else p.push(point[0] - (majorAnchor * soo[0]));
-                                 
-                if (soo[1] === 0) // Y
-                	p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
-                else p.push(point[1] + (majorAnchor * too[1]));
-            }
-             else {
-                if (too[0] === 0) // X
-                	p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
-                else p.push(point[0] + (majorAnchor * too[0]));
-                
-                if (too[1] === 0) // Y
-                	p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
-                else p.push(point[1] + (majorAnchor * soo[1]));
-             }
+		this.type = "Bezier";
+		this.getCurviness = function() { return majorAnchor; };
 
-            return p;                
-        };        
+		this._findControlPoint = function(point, sourceAnchorPosition, targetAnchorPosition, sourceEndpoint, targetEndpoint) {
+			// determine if the two anchors are perpendicular to each other in their orientation.  we swap the control 
+			// points around if so (code could be tightened up)
+			var soo = sourceEndpoint.anchor.getOrientation(sourceEndpoint), 
+				too = targetEndpoint.anchor.getOrientation(targetEndpoint),
+				perpendicular = soo[0] != too[0] || soo[1] == too[1],
+				p = [];
 
-        this._compute = function(paintInfo, p) {                                
+			if (!perpendicular) {
+				if (soo[0] === 0) // X
+					p.push(sourceAnchorPosition[0] < targetAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
+				else p.push(point[0] - (majorAnchor * soo[0]));
+
+				if (soo[1] === 0) // Y
+					p.push(sourceAnchorPosition[1] < targetAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
+				else p.push(point[1] + (majorAnchor * too[1]));
+			}
+			else {
+				if (too[0] === 0) // X
+					p.push(targetAnchorPosition[0] < sourceAnchorPosition[0] ? point[0] + minorAnchor : point[0] - minorAnchor);
+				else p.push(point[0] + (majorAnchor * too[0]));
+
+				if (too[1] === 0) // Y
+					p.push(targetAnchorPosition[1] < sourceAnchorPosition[1] ? point[1] + minorAnchor : point[1] - minorAnchor);
+				else p.push(point[1] + (majorAnchor * soo[1]));
+			}
+
+			return p;
+		};
+
+		this._compute = function(paintInfo, p) {
 			var sp = p.sourcePos,
-				tp = p.targetPos,				
-                _w = Math.abs(sp[0] - tp[0]),
-                _h = Math.abs(sp[1] - tp[1]),            
-                _sx = sp[0] < tp[0] ? _w : 0,
-                _sy = sp[1] < tp[1] ? _h : 0,
-                _tx = sp[0] < tp[0] ? 0 : _w,
-                _ty = sp[1] < tp[1] ? 0 : _h,
-                _CP = self._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint),
-                _CP2 = self._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint);
+				tp = p.targetPos,
+				_w = Math.abs(sp[0] - tp[0]),
+				_h = Math.abs(sp[1] - tp[1]),
+				_sx = sp[0] < tp[0] ? _w : 0,
+				_sy = sp[1] < tp[1] ? _h : 0,
+				_tx = sp[0] < tp[0] ? 0 : _w,
+				_ty = sp[1] < tp[1] ? 0 : _h,
+				_CP = this._findControlPoint([_sx, _sy], sp, tp, p.sourceEndpoint, p.targetEndpoint),
+				_CP2 = this._findControlPoint([_tx, _ty], tp, sp, p.targetEndpoint, p.sourceEndpoint);
 
 			_super.addSegment(this, "Bezier", {
 				x1:_sx, y1:_sy, x2:_tx, y2:_ty,
 				cp1x:_CP[0], cp1y:_CP[1], cp2x:_CP2[0], cp2y:_CP2[1]
-			});                    
-        }; 
+			});
+		};
 	};
 
+	jsPlumbUtil.extend(Bezier, jsPlumb.Connectors.AbstractConnector);
 	jsPlumb.registerConnectorType(Bezier, "Bezier");
 
 })();

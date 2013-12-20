@@ -19,7 +19,9 @@ var assertContextEmpty = function() {
 };
 
 var assertEndpointCount = function(elId, count, _jsPlumb) {
-	equal(_jsPlumb.getTestHarness().endpointCount(elId), count, elId + " has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint"));
+	var ep = _jsPlumb.getEndpoints(elId),
+		epl = ep ? ep.length : 0;
+	equal(epl, count, elId + " has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint"));
 	equal(_jsPlumb.anchorManager.getEndpointsFor(elId).length, count, "anchor manager has " + count + ((count > 1 || count == 0) ? " endpoints" : " endpoint") + " for " + elId);
 };
 
@@ -28,7 +30,7 @@ var assertConnectionCount = function(endpoint, count) {
 };
 
 var assertConnectionByScopeCount = function(scope, count, _jsPlumb) {
-	equal(_jsPlumb.getTestHarness().connectionCount(scope), count, 'Scope ' + scope + " has " + count + (count > 1) ? "connections" : "connection");
+	equal(_jsPlumb.select({scope:scope}).length, count, 'Scope ' + scope + " has " + count + (count > 1) ? "connections" : "connection");
 };
 
 var VERY_SMALL_NUMBER = 0.00000000001;
@@ -1341,7 +1343,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.deleteEndpoint(uuid);
 		var f = _jsPlumb.getEndpoint(uuid);
 		equal(f, null, "endpoint has been deleted");
-		var ebe = _jsPlumb.getTestHarness().endpointsByElement["d16"];
+		var ebe = _jsPlumb.getEndpoints("d16");
 		ok(ebe == null, "no endpoints registered for element d16 anymore");
 		assertContextSize(0);
 	});
@@ -1364,9 +1366,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(f, null, "endpoint has been deleted");
 		equal(e16.connections.length, 0, "e16 has no connections");
 		equal(e17.connections.length, 0, "e17 has no connections");
-		var ebe = _jsPlumb.getTestHarness().endpointsByElement["d16"];
+		var ebe = _jsPlumb.getEndpoints("d16");
 		ok(ebe == null, "no endpoints registered for element d16 anymore");
-		ebe = _jsPlumb.getTestHarness().endpointsByElement["d17"];
+		ebe = _jsPlumb.getEndpoints("d17");
 		equal(ebe.length, 1, "element d17 still has its Endpoint");
 		assertContextSize(1);
 		
@@ -1374,7 +1376,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.deleteEndpoint(e17);
 		f = _jsPlumb.getEndpoint(e17);
 		equal(f, null, "endpoint has been deleted");
-		ebe = _jsPlumb.getTestHarness().endpointsByElement["d17"];
+		ebe = _jsPlumb.getEndpoints("d17");
 		ok(ebe == null, "element d17 no longer has any Endpoints");
 		assertContextSize(0);
 	});
@@ -1458,7 +1460,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.repaintEverything();
 
         _jsPlumb.addEndpoint(d1);        
-        equal(_jsPlumb.getTestHarness().endpointsByElement["d1"].length, 1, "one endpoint for the given element");        
+        equal(_jsPlumb.getEndpoints("d1").length, 1, "one endpoint for the given element");        
         
         expect(1);
     });
@@ -1474,7 +1476,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.repaintEverything();
 
         _jsPlumb.addEndpoint(d1);        
-        equal(_jsPlumb.getTestHarness().endpointsByElement["d1"].length, 1, "one endpoint for the given element");        
+        equal(_jsPlumb.getEndpoints("d1").length, 1, "one endpoint for the given element");        
         
         expect(1);
     });    
@@ -1503,7 +1505,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 
         _jsPlumb.repaintEverything(); // shouldn't complain
         
-        ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the given element");                
+        ok(_jsPlumb.getEndpoints("d1") ==  null, "no endpoints for the given element");                
         
         expect(1);
     });
@@ -1518,7 +1520,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 
         _jsPlumb.repaintEverything(); // shouldn't complain
         
-        ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the given element");                
+        ok(_jsPlumb.getEndpoints("d1") ==  null, "no endpoints for the given element");                
         
         expect(1);
     });    
@@ -1534,8 +1536,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 
         _jsPlumb.repaintEverything(); // shouldn't complain
         
-        ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the main div");                
-        ok(_jsPlumb.getTestHarness().endpointsByElement["d2"] ==  null, "no endpoints for the nested div");                        
+        ok(_jsPlumb.getEndpoints("d1") ==  null, "no endpoints for the main div");                
+        ok(_jsPlumb.getEndpoints("d2") ==  null, "no endpoints for the nested div");                        
         
         expect(2);
     });
@@ -1552,8 +1554,8 @@ var testSuite = function(renderMode, _jsPlumb) {
         _jsPlumb.repaint("d1"); // shouldn't complain
         _jsPlumb.recalculateOffsets("d1");
         
-        ok(_jsPlumb.getTestHarness().endpointsByElement["d1"] ==  null, "no endpoints for the main div");                
-        ok(_jsPlumb.getTestHarness().endpointsByElement["d2"] ==  null, "no endpoints for the nested div");                        
+        ok(_jsPlumb.getEndpoints("d1") ==  null, "no endpoints for the main div");                
+        ok(_jsPlumb.getEndpoints("d2") ==  null, "no endpoints for the nested div");                        
         
         expect(2);
     });  
@@ -1583,7 +1585,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         eps = _jsPlumb.getEndpoints("d1");
         equal(eps, null, "there are zero endpoints for d1");
         
-        equal(_jsPlumb.getTestHarness().endpointsByElement["d1"].length, 0, "no endpoints for the given element");                        
+        equal(_jsPlumb.getEndpoints("d1").length, 0, "no endpoints for the given element");                        
     });  
 */    
     
