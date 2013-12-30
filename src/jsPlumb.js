@@ -2399,8 +2399,9 @@
 						// make sure we have the latest offset for this div 
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
 							z = _currentInstance.getZoom(),
-							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
-							y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
+							// TODO does the clientX/clientY work for IE8?
+							x = ( ((e.pageX || e.clientX) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
+							y = ( ((e.pageY || e.clientY) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
 						    parentX = x, 
 						    parentY = y;
 								
@@ -2410,8 +2411,8 @@
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
-						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
+							parentX = ((e.pageX || e.clientX) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
+						    parentY = ((e.pageY || e.clientY) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
 						}											
 						
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with

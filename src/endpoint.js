@@ -469,10 +469,10 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel, _jsPlumb),                        
+                        ipco = jsPlumbAdapter.getOffset(ipcoel),                        
                         canvasElement = _gel(this.canvas);                               
                         
-                    jsPlumbAdapter.setPosition(placeholderInfo.element, {left:ipco[0], top:ipco[1]});
+                    jsPlumbAdapter.setPosition(placeholderInfo.element, ipco);
                     
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the
@@ -522,6 +522,7 @@
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
                         this.detachFromConnection(jpc);                         // detach from the connection while dragging is occurring.
                         
+                        //*
                         // store the original scope (issue 57)
                         var dragScope = jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
@@ -529,6 +530,7 @@
                         // that have our drop scope (issue 57).
                         var dropScope = jsPlumb.getDropScope(canvasElement);
                         jsPlumb.setDragScope(canvasElement, dropScope);
+                        //*/
 
                         // fire an event that informs that a connection is being dragged. we do this before
                         // replacing the original target with the floating element info.

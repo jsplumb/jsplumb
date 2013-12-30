@@ -69,7 +69,7 @@
 			}
 			else {
 				// make a drop down.
-				var m = document.getElementsByClassName("menu")[0],
+				var m = document.querySelectorAll(".menu")[0],
 					sel = _d("select", "", m, null, null, true);
 				for (var i = 0; i < list.length; i++) {
 					_d("option", "", sel, list[i][1], {"data-href":"../" + list[i][0] +"/" + library + ".html", "selected":list[i][0] == current}, null);

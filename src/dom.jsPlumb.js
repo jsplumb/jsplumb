@@ -32,7 +32,8 @@
 				},
 				addClass:jsPlumbAdapter.addClass,
 				removeClass:jsPlumbAdapter.removeClass,
-				intersects:Biltong.intersects
+				intersects:Biltong.intersects,
+				indexOf:jsPlumbUtil.indexOf
 			});
 			instance.bind("zoom", k.setZoom);
 		}
@@ -82,13 +83,11 @@
 		isDropSupported : function(el, options) { return true; },
 		getDragObject : function(eventArgs) { return eventArgs[0].drag.el; },
 		getDragScope : function(el) {
-			console.log("get drag scope!");
-				throw "not implemented";
+			return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
 		},
 		getDropEvent : function(args) { return args[0].event; },
 		getDropScope : function(el) {
-			console.log("get drop scope!");
-				throw "not implemented";
+			return el._katavorioDrop && el._katavorioDrop.scopes.join(" ") || "";
 		},
 		getUIPosition : function(eventArgs, zoom) {
 			return {
@@ -105,13 +104,56 @@
 			throw "not implemented";
 		},
 		setDragScope : function(el, scope) { 
-			throw "not implemented";
+			if (el._katavorioDrag)
+				el._katavorioDrag.k.setDragScope(el, scope);
 		},
 		dragEvents : {
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
-		trigger : function(el, event, originalEvent) { },
+		trigger : function(el, event, originalEvent) { 
+			console.log("trigger", event)
+			var evt;
+			/*if (typeof MouseEvent !== "undefined") {
+				event = new MouseEvent(event, {
+					pageX:originalEvent.pageX,
+					pagY:originalEvent.pageY,
+					clientX:originalEvent.clientX,
+					clientY:originalEvent.clientY
+				});
+			}*/
+			//else if (typeof document.createEvent !== "undefined") {
+			if (document.createEvent) {
+				evt = document.createEvent("MouseEvents");
+				evt.initMouseEvent(event, true, true, window, 0,
+				originalEvent.screenX, originalEvent.screenY,
+				originalEvent.clientX, originalEvent.clientY,
+				false, false, false, false, 1, null);
+				
+				el.dispatchEvent(evt);
+			}
+			else if (document.createEventObject) {
+				evt = document.createEventObject();
+				evt.eventType = event;
+				evt.eventName = event;
+				evt.screenX = originalEvent.screenX;
+				evt.screenY = originalEvent.screenY;
+				evt.clientX = originalEvent.clientX;
+				evt.clientY = originalEvent.clientY;
+				el.fireEvent('on' + event, evt);
+			}
+				
+				/* eventType, canBubble, cancelable, 
+				viewArg, detailArg, screenXArg, screenYArg, 
+				clientXArg, clientYArg, ctrlKeyArg, 
+				altKeyArg, shiftKeyArg, metaKeyArg, 
+				buttonArg, relatedTargetArg
+				*/
+			//}
+			//else {
+				
+			//}			
+		},
 		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
 			_getEventManager(this).bind(el, event, callback);

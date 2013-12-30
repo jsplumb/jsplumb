@@ -1284,6 +1284,8 @@
 	if (!window.console)
 		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
 		
+		
+	// TODO: katavorio default helper uses this stuff.  should i extract to a support lib?	
 	var trim = function(str) {
 			return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
 		},
@@ -1298,17 +1300,20 @@
 			return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;	
 		},
 		_classManip = function(el, add, clazz) {
+			
+			// TODO if classList exists, use it.
+			
 			var classesToAddOrRemove = clazz.split(/\s+/),
 				className = _getClassName(el),
 				curClasses = className.split(/\s+/);
 				
 			for (var i = 0; i < classesToAddOrRemove.length; i++) {
 				if (add) {
-					if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
+					if (jsPlumbUtil.indexOf(curClasses, classesToAddOrRemove[i]) == -1)
 						curClasses.push(classesToAddOrRemove[i]);
 				}
 				else {
-					var idx = curClasses.indexOf(classesToAddOrRemove[i]);
+					var idx = jsPlumbUtil.indexOf(curClasses, classesToAddOrRemove[i]);
 					if (idx != -1)
 						curClasses.splice(idx, 1);
 				}
@@ -1325,7 +1330,7 @@
 			}
 			else
 				fn(spec); // assume it's an element.
-		}
+		};
 
     window.jsPlumbAdapter = {
         
@@ -1414,7 +1419,7 @@
 			};
 		},
 		getOffset:function(el, relativeToRoot) {
-			var l = el.offsetLeft, t = el.offsetTop, op = el.offsetParent;
+			var l = el.offsetLeft, t = el.offsetTop, op = relativeToRoot ?  el.offsetParent : null;
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
@@ -3828,8 +3833,9 @@
 						// make sure we have the latest offset for this div 
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
 							z = _currentInstance.getZoom(),
-							x = ( ((e.pageX || e.page.x) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
-							y = ( ((e.pageY || e.page.y) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
+							// TODO does the clientX/clientY work for IE8?
+							x = ( ((e.pageX || e.clientX) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
+							y = ( ((e.pageY || e.clientY) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
 						    parentX = x, 
 						    parentY = y;
 								
@@ -3839,8 +3845,8 @@
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = ((e.pageX || e.page.x) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
-						    parentY = ((e.pageY || e.page.y) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
+							parentX = ((e.pageX || e.clientX) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
+						    parentY = ((e.pageY || e.clientY) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
 						}											
 						
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -9670,7 +9676,8 @@
 		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
         //document.location.toString()
 		//node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
-        node.setAttribute(STYLE, applyGradientTo + ":url(" + document.location.toString() + "#" + id + ")");
+        //node.setAttribute(STYLE, applyGradientTo + ":url(" + document.location.toString() + "#" + id + ")");
+		node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
 	},
 	_applyStyles = function(parent, node, style, dimensions, uiComponent) {
 		

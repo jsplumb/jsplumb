@@ -111,7 +111,8 @@
 		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
         //document.location.toString()
 		//node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
-        node.setAttribute(STYLE, applyGradientTo + ":url(" + document.location.toString() + "#" + id + ")");
+        //node.setAttribute(STYLE, applyGradientTo + ":url(" + document.location.toString() + "#" + id + ")");
+		node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
 	},
 	_applyStyles = function(parent, node, style, dimensions, uiComponent) {
 		

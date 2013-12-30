@@ -220,6 +220,8 @@
 	if (!window.console)
 		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
 		
+		
+	// TODO: katavorio default helper uses this stuff.  should i extract to a support lib?	
 	var trim = function(str) {
 			return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
 		},
@@ -234,17 +236,20 @@
 			return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;	
 		},
 		_classManip = function(el, add, clazz) {
+			
+			// TODO if classList exists, use it.
+			
 			var classesToAddOrRemove = clazz.split(/\s+/),
 				className = _getClassName(el),
 				curClasses = className.split(/\s+/);
 				
 			for (var i = 0; i < classesToAddOrRemove.length; i++) {
 				if (add) {
-					if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
+					if (jsPlumbUtil.indexOf(curClasses, classesToAddOrRemove[i]) == -1)
 						curClasses.push(classesToAddOrRemove[i]);
 				}
 				else {
-					var idx = curClasses.indexOf(classesToAddOrRemove[i]);
+					var idx = jsPlumbUtil.indexOf(curClasses, classesToAddOrRemove[i]);
 					if (idx != -1)
 						curClasses.splice(idx, 1);
 				}
@@ -261,7 +266,7 @@
 			}
 			else
 				fn(spec); // assume it's an element.
-		}
+		};
 
     window.jsPlumbAdapter = {
         
@@ -350,7 +355,7 @@
 			};
 		},
 		getOffset:function(el, relativeToRoot) {
-			var l = el.offsetLeft, t = el.offsetTop, op = el.offsetParent;
+			var l = el.offsetLeft, t = el.offsetTop, op = relativeToRoot ?  el.offsetParent : null;
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
