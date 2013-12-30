@@ -180,18 +180,18 @@
                 bindAListener(obj, "click", function(ep, e) { _self.fire("click", _self, e); });             
              	bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
                 bindAListener(obj, "contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
+                bindAListener(obj, "mouseexit", function(ep, e) {
+                    if (_self.isHover()) {
+                        _hoverFunction(false);
+                        _self.fire("mouseexit", _self, e);
+                    }
+                });
                 bindAListener(obj, "mouseenter", function(ep, e) {
                     if (!_self.isHover()) {
                         _hoverFunction(true);
                         _self.fire("mouseenter", _self, e);
                     }
                 });
-                bindAListener(obj, "mouseexit", function(ep, e) {
-                    if (_self.isHover()) {
-                        _hoverFunction(false);
-                        _self.fire("mouseexit", _self, e);
-                    }
-                });	  
                 bindAListener(obj, "mousedown", function(ep, e) { _self.fire("mousedown", _self, e); });
                 bindAListener(obj, "mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
             };
@@ -245,13 +245,11 @@
 			},			
 			
 			addClass : function(clazz) {
-			    if (this.canvas != null)
-			        jsPlumbAdapter.addClass(this.canvas, clazz);
+			    jsPlumbAdapter.addClass(this.canvas, clazz);
 			},
 						
 			removeClass : function(clazz) {
-			    if (this.canvas != null)
-			        jsPlumbAdapter.removeClass(this.canvas, clazz);
+			    jsPlumbAdapter.removeClass(this.canvas, clazz);
 			},
 			
 			setType : function(typeId, params, doNotRepaint) {				

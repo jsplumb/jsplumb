@@ -1614,18 +1614,18 @@
                 bindAListener(obj, "click", function(ep, e) { _self.fire("click", _self, e); });             
              	bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
                 bindAListener(obj, "contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
+                bindAListener(obj, "mouseexit", function(ep, e) {
+                    if (_self.isHover()) {
+                        _hoverFunction(false);
+                        _self.fire("mouseexit", _self, e);
+                    }
+                });
                 bindAListener(obj, "mouseenter", function(ep, e) {
                     if (!_self.isHover()) {
                         _hoverFunction(true);
                         _self.fire("mouseenter", _self, e);
                     }
                 });
-                bindAListener(obj, "mouseexit", function(ep, e) {
-                    if (_self.isHover()) {
-                        _hoverFunction(false);
-                        _self.fire("mouseexit", _self, e);
-                    }
-                });	  
                 bindAListener(obj, "mousedown", function(ep, e) { _self.fire("mousedown", _self, e); });
                 bindAListener(obj, "mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
             };
@@ -1679,13 +1679,11 @@
 			},			
 			
 			addClass : function(clazz) {
-			    if (this.canvas != null)
-			        jsPlumbAdapter.addClass(this.canvas, clazz);
+			    jsPlumbAdapter.addClass(this.canvas, clazz);
 			},
 						
 			removeClass : function(clazz) {
-			    if (this.canvas != null)
-			        jsPlumbAdapter.removeClass(this.canvas, clazz);
+			    jsPlumbAdapter.removeClass(this.canvas, clazz);
 			},
 			
 			setType : function(typeId, params, doNotRepaint) {				
@@ -4844,10 +4842,10 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel, _jsPlumb),                        
+                        ipco = jsPlumbAdapter.getOffset(ipcoel),                        
                         canvasElement = _gel(this.canvas);                               
                         
-                    jsPlumbAdapter.setPosition(placeholderInfo.element, {left:ipco[0], top:ipco[1]});
+                    jsPlumbAdapter.setPosition(placeholderInfo.element, ipco);
                     
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the
@@ -4897,6 +4895,7 @@
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
                         this.detachFromConnection(jpc);                         // detach from the connection while dragging is occurring.
                         
+                        //*
                         // store the original scope (issue 57)
                         var dragScope = jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
@@ -4904,6 +4903,7 @@
                         // that have our drop scope (issue 57).
                         var dropScope = jsPlumb.getDropScope(canvasElement);
                         jsPlumb.setDragScope(canvasElement, dropScope);
+                        //*/
 
                         // fire an event that informs that a connection is being dragged. we do this before
                         // replacing the original target with the floating element info.

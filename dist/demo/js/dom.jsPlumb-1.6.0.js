@@ -625,7 +625,7 @@
 }).call(this);
 /**
  drag/drop functionality for use with jsPlumb but with
- no knowledge of jsPlumb. supports multiple scopes, dragging
+ no knowledge of jsPlumb. supports multiple scopes (separated by whitespace), dragging
  multiple elements, constrain to parent, drop filters, drag start filters, custom
  css classes.
  
@@ -698,9 +698,15 @@
         params.addClass(el, this._class);
         this.el = el;
         var enabled = true;
-        this.scopes = params.scope ? params.scope.split(/\s+/) : [ _scope ];
         this.setEnabled = function(e) { enabled = e; };
         this.isEnabled = function() { return enabled; };
+		
+		this.setScope = function(scopes) {
+			this.scopes = scopes ? scopes.split(/\s+/) : [ _scope ];
+		};
+		
+		this.setScope(params.scope);
+		this.k = params.katavorio;
         return params.katavorio;
     };
         
@@ -708,12 +714,19 @@
         this._class = _classes.draggable;
         var k = Super.apply(this, arguments),
             downAt = [0,0], posAtDown = null,
-            constrain = params.constrain ? function(pos) {
-                var r = { x:pos[0], y:pos[1], w:this.size[0], h:this.size[1] },
-                    x = Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
-                    y = Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]));
-                   
-                return [ x, y ];
+			toGrid = function(pos) {
+				return params.grid == null ? pos :
+					[
+						params.grid[0] * Math.floor(pos[0] / params.grid[0]),
+						params.grid[1] * Math.floor(pos[1] / params.grid[1])
+					];
+			},
+			constrain = params.constrain ? function(pos) {
+                var r = { x:pos[0], y:pos[1], w:this.size[0], h:this.size[1] };
+                return [ 
+					Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
+					Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]))
+				];
             }.bind(this) : function(pos) { return pos; },
             filter = _true,
             _setFilter = this.setFilter = function(f) {
@@ -724,7 +737,7 @@
                     };
                 }
             },
-            canDrag = params.canDrag || function() { return true; },
+            canDrag = params.canDrag || _true,
             constrainRect,
             matchingDroppables = [], intersectingDroppables = [],            
             downListener = function(e) {
@@ -758,10 +771,7 @@
                 k.unmarkSelection(this, e);
                 params.events["stop"]({el:el, pos:params.getPosition(el), e:e, drag:this});
             }.bind(this);
-            
-        params.bind(el, "mousedown", downListener);
-        _setFilter(params.filter);
-        
+
         this.mark = function() {
             posAtDown = params.getPosition(el);
             this.size = params.getSize(el);
@@ -782,7 +792,7 @@
         };
         this.moveBy = function(dx, dy, e) {
             intersectingDroppables.length = 0;
-            var cPos = constrain([posAtDown[0] + dx, posAtDown[1] + dy]),
+            var cPos = constrain(toGrid(([posAtDown[0] + dx, posAtDown[1] + dy]))),
                 rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
             params.setPosition(el, cPos);
             for (var i = 0; i < matchingDroppables.length; i++) {
@@ -795,9 +805,12 @@
                     matchingDroppables[i].setHover(this, false, e);
                 }
             }
-          //  if (e)
-                params.events["drag"]({el:el, pos:cPos, e:e, drag:this});
+          	params.events["drag"]({el:el, pos:cPos, e:e, drag:this});
         };
+
+		// init:register mousedown, and perhaps set a filter
+		params.bind(el, "mousedown", downListener);
+        _setFilter(params.filter);
     };
     
     var Drop = function(el, params) {
@@ -861,13 +874,23 @@
                     map[obj.scopes[i]].push(obj);
                 }
             },
+			_unreg = function(obj, map) {
+				for(var i = 0; i < obj.scopes.length; i++) {
+                    if (map[obj.scopes[i]]) {
+						debugger;
+						var idx = katavorioParams.indexOf(map[obj.scopes[i]], obj);
+						if (idx != -1)
+							map[obj.scopes[i]].splice(idx, 1);
+					}
+                }
+			},
             _getMatchingDroppables = this.getMatchingDroppables = function(drag) {
                 var dd = [], _m = {};
                 for (var i = 0; i < drag.scopes.length; i++) {
                     var _dd = _dropsByScope[drag.scopes[i]];
                     if (_dd) {
                         for (var j = 0; j < _dd.length; j++) {
-                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].el._katavorio]) {
+                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].el._katavorio] && _dd[j].el !== drag.el) {
                                 _m[_dd[j].el._katavorio] = true;
                                 dd.push(_dd[j]);
                             }
@@ -894,15 +917,17 @@
         
         this.draggable = function(el, params) {
             el = _gel(el);
-            var p = _prepareParams(params, this);            
+            var p = _prepareParams(params, this);
             el._katavorioDrag = new Drag(el, p);
             _reg(el._katavorioDrag, _dragsByScope);
+			return el._katavorioDrag;
         };
         
         this.droppable = function(el, params) {
             el = _gel(el);
             el._katavorioDrop = new Drop(el, _prepareParams(params));
             _reg(el._katavorioDrop, _dropsByScope);
+			return el._katavorioDrop;
         };
         
         /**
@@ -945,29 +970,65 @@
             _selection.length = 0;
             _selectionMap = {};
         };
-        
+
         this.markSelection = function(drag) {
             _each(_selection, function(e) { e.mark(); }, drag);
         };
-        
+
         this.unmarkSelection = function(drag, event) {
             _each(_selection, function(e) { e.unmark(event); }, drag);
         };
-        
+
         this.getSelection = function() {
             return _selection.slice(0);
         };
-        
+
         this.updateSelection = function(dx, dy, drag) {
             _each(_selection, function(e) { e.moveBy(dx, dy); }, drag);
         };
-        
+
         this.setZoom = function(z) {
             _zoom = z;
         };
-        
+
         this.getZoom = function() { return _zoom; };
-    };        
+		
+		// does the work of changing scopes
+		var _setScope = function(kObj, scopes, map) {
+			if (kObj != null) {
+				// deregister existing scopes
+				_unreg(kObj, map);
+				// set scopes
+				kObj.setScope(scopes);
+				// register new ones
+				_reg(kObj, map);
+			}
+		};
+		
+		// sets the scope of the given object, both for drag and drop if it
+		// is registered for both. to target just drag or drop, see setDragScope
+		// and setDropScope
+		this.setScope = function(el, scopes) {
+			_setScope(el._katavorioDrag, scopes, _dragsByScope);
+			_setScope(el._katavorioDrop, scopes, _dropsByScope);
+		};
+		
+		this.setDragScope = function(el, scopes) {
+			_setScope(el._katavorioDrag, scopes, _dragsByScope);
+		};
+		
+		this.setDropScope = function(el, scopes) {
+			_setScope(el._katavorioDrop, scopes, _dropsByScope);
+		};
+		
+		this.getDragsForScope = function(s) {
+			return _dragsByScope[s];
+		}; 
+		
+		this.getDropsForScope = function(s) {
+			return _dropsByScope[s];
+		};
+    };
 }).call(this);
 /*
  * jsPlumb
@@ -1960,18 +2021,18 @@
                 bindAListener(obj, "click", function(ep, e) { _self.fire("click", _self, e); });             
              	bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
                 bindAListener(obj, "contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
+                bindAListener(obj, "mouseexit", function(ep, e) {
+                    if (_self.isHover()) {
+                        _hoverFunction(false);
+                        _self.fire("mouseexit", _self, e);
+                    }
+                });
                 bindAListener(obj, "mouseenter", function(ep, e) {
                     if (!_self.isHover()) {
                         _hoverFunction(true);
                         _self.fire("mouseenter", _self, e);
                     }
                 });
-                bindAListener(obj, "mouseexit", function(ep, e) {
-                    if (_self.isHover()) {
-                        _hoverFunction(false);
-                        _self.fire("mouseexit", _self, e);
-                    }
-                });	  
                 bindAListener(obj, "mousedown", function(ep, e) { _self.fire("mousedown", _self, e); });
                 bindAListener(obj, "mouseup", function(ep, e) { _self.fire("mouseup", _self, e); });
             };
@@ -2025,13 +2086,11 @@
 			},			
 			
 			addClass : function(clazz) {
-			    if (this.canvas != null)
-			        jsPlumbAdapter.addClass(this.canvas, clazz);
+			    jsPlumbAdapter.addClass(this.canvas, clazz);
 			},
 						
 			removeClass : function(clazz) {
-			    if (this.canvas != null)
-			        jsPlumbAdapter.removeClass(this.canvas, clazz);
+			    jsPlumbAdapter.removeClass(this.canvas, clazz);
 			},
 			
 			setType : function(typeId, params, doNotRepaint) {				
@@ -5190,10 +5249,10 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel, _jsPlumb),                        
+                        ipco = jsPlumbAdapter.getOffset(ipcoel),                        
                         canvasElement = _gel(this.canvas);                               
                         
-                    jsPlumbAdapter.setPosition(placeholderInfo.element, {left:ipco[0], top:ipco[1]});
+                    jsPlumbAdapter.setPosition(placeholderInfo.element, ipco);
                     
                     // when using makeSource and a parent, we first draw the source anchor on the source element, then
                     // move it to the parent.  note that this happens after drawing the placeholder for the
@@ -5243,6 +5302,7 @@
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
                         this.detachFromConnection(jpc);                         // detach from the connection while dragging is occurring.
                         
+                        //*
                         // store the original scope (issue 57)
                         var dragScope = jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
@@ -5250,6 +5310,7 @@
                         // that have our drop scope (issue 57).
                         var dropScope = jsPlumb.getDropScope(canvasElement);
                         jsPlumb.setDragScope(canvasElement, dropScope);
+                        //*/
 
                         // fire an event that informs that a connection is being dragged. we do this before
                         // replacing the original target with the floating element info.
@@ -11060,7 +11121,8 @@
 				},
 				addClass:jsPlumbAdapter.addClass,
 				removeClass:jsPlumbAdapter.removeClass,
-				intersects:Biltong.intersects
+				intersects:Biltong.intersects,
+				indexOf:jsPlumbUtil.indexOf
 			});
 			instance.bind("zoom", k.setZoom);
 		}
@@ -11110,13 +11172,11 @@
 		isDropSupported : function(el, options) { return true; },
 		getDragObject : function(eventArgs) { return eventArgs[0].drag.el; },
 		getDragScope : function(el) {
-			console.log("get drag scope!");
-				throw "not implemented";
+			return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
 		},
 		getDropEvent : function(args) { return args[0].event; },
 		getDropScope : function(el) {
-			console.log("get drop scope!");
-				throw "not implemented";
+			return el._katavorioDrop && el._katavorioDrop.scopes.join(" ") || "";
 		},
 		getUIPosition : function(eventArgs, zoom) {
 			return {
@@ -11133,7 +11193,8 @@
 			throw "not implemented";
 		},
 		setDragScope : function(el, scope) { 
-			throw "not implemented";
+			if (el._katavorioDrag)
+				el._katavorioDrag.k.setDragScope(el, scope);
 		},
 		dragEvents : {
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
