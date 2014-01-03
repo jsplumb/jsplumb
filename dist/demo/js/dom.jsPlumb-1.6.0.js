@@ -760,7 +760,8 @@
                     dy /= z;
                     this.moveBy(dx, dy, e);
                     k.updateSelection(dx, dy, this);
-                }                
+                }   
+				e.preventDefault();
             }.bind(this),
             upListener = function(e) {
                 downAt = null;
@@ -11109,8 +11110,8 @@
 			
 		if (!k) {
 			k = instance._katavorio = new Katavorio( {
-				bind:e.bind,
-				unbind:e.unbind,
+				bind:e.on,
+				unbind:e.off,
 				getSize:jsPlumb.getSize,
 				getPosition:function(el) {
 					return [el.offsetLeft, el.offsetTop];
@@ -11132,7 +11133,7 @@
 	 var _getEventManager = function(instance) {
 		 var e = instance._evensi;
 		 if (!e) {
-			 e = instance._evensi = new TouchAdapter({
+			 e = instance._evensi = new Mottle({
 
 			 });
 		 }
@@ -11200,6 +11201,8 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
+		// TODO: we want to pass the instance in here, and then have the Mottle event manager
+		// handle the trigger.
 		trigger : function(el, event, originalEvent) { 
 			console.log("trigger", event)
 			var evt;
@@ -11245,10 +11248,10 @@
 		},
 		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
-			_getEventManager(this).bind(el, event, callback);
+			_getEventManager(this).on(el, event, callback);
 		},
 		off : function(el, event, callback) {
-			_getEventManager(this).unbind(el, event, callback);
+			_getEventManager(this).off(el, event, callback);
 		}
 	});
 
