@@ -1521,8 +1521,7 @@
             possible that will continue to be the case.
         */
 		this.register = function(el) {
-            var jpcl = jsPlumb.CurrentLibrary,
-            	id = _currentInstance.getId(el),
+            var id = _currentInstance.getId(el),
                 parentOffset = jsPlumbAdapter.getOffset(el);
                     
             if (!_draggables[id]) {
@@ -1539,7 +1538,7 @@
 							var cEl = jsPlumb.getElementObject(p.childNodes[i]),
 								cid = _currentInstance.getId(p.childNodes[i], null, true);
 							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-								var cOff = jpcl.getOffset(cEl);
+								var cOff = jsPlumb.getOffset(cEl);
 								_delements[id][cid] = {
 									id:cid,
 									offset:{
@@ -1569,7 +1568,7 @@
 				if (children) {
 					for (var i in children) {
 						var cel = jsPlumb.getElementObject(i),
-							cOff = jpcl.getOffset(cel);
+							cOff = jsPlumb.getOffset(cel);
 							
 						_delements[id][i] = {
 							id:i,
@@ -1590,8 +1589,7 @@
 			el to that parent's list of elements to update on drag (if it is not there already)
 		*/
 		this.endpointAdded = function(el) {
-			var jpcl = jsPlumb.CurrentLibrary, b = document.body, id = _currentInstance.getId(el), 
-				//c = jsPlumb.getElementObject(el), 
+			var b = document.body, id = _currentInstance.getId(el), 
 				cLoc = jsPlumbAdapter.getOffset(el),
 				p = el.parentNode, done = p == b;
 
@@ -5832,8 +5830,7 @@
             _newEndpoint = params.newEndpoint,
             jpcl = jsPlumb.CurrentLibrary,            
             _gel = jsPlumb.getElementObject,            
-            _ju = jsPlumbUtil,
-            _getOffset = jpcl.getOffset;
+            _ju = jsPlumbUtil;
 
         this.connector = null;                        
         this.idPrefix = "_jsplumb_c_";
@@ -11248,6 +11245,7 @@
 		},
 		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
+			event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
 			_getEventManager(this).on(el, event, callback);
 		},
 		off : function(el, event, callback) {
