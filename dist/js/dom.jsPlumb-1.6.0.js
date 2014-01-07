@@ -1522,7 +1522,7 @@
         */
 		this.register = function(el) {
             var id = _currentInstance.getId(el),
-                parentOffset = jsPlumbAdapter.getOffset(el);
+                parentOffset = jsPlumbAdapter.getOffset(el, _currentInstance);
                     
             if (!_draggables[id]) {
                 _draggables[id] = el;
@@ -1563,12 +1563,12 @@
 				var domEl = jsPlumb.getDOMElement(elId),
 					id = _currentInstance.getId(domEl),
 					children = _delements[id],
-					parentOffset = jsPlumbAdapter.getOffset(domEl);
+					parentOffset = jsPlumbAdapter.getOffset(domEl, _currentInstance);
 					
 				if (children) {
 					for (var i in children) {
 						var cel = jsPlumb.getElementObject(i),
-							cOff = jsPlumb.getOffset(cel);
+							cOff = jsPlumb.getOffset(cel, _currentInstance);
 							
 						_delements[id][i] = {
 							id:i,
@@ -1590,7 +1590,7 @@
 		*/
 		this.endpointAdded = function(el) {
 			var b = document.body, id = _currentInstance.getId(el), 
-				cLoc = jsPlumbAdapter.getOffset(el),
+				cLoc = jsPlumbAdapter.getOffset(el, _currentInstance),
 				p = el.parentNode, done = p == b;
 
 			_elementsWithEndpoints[id] = _elementsWithEndpoints[id] ? _elementsWithEndpoints[id] + 1 : 1;
@@ -1598,7 +1598,7 @@
 			while (p != null && p != b) {
 				var pid = _currentInstance.getId(p, null, true);
 				if (pid && _draggables[pid]) {
-					var idx = -1, pLoc = jsPlumbAdapter.getOffset(p);
+					var idx = -1, pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
 					
 					if (_delements[pid][id] == null) {						
 						_delements[pid][id] = {
@@ -1674,8 +1674,8 @@
 					_delements[pId] = {};
 				_delements[pId][elId] = _delements[current][elId];
 				delete _delements[current][elId];
-				var pLoc = jsPlumbAdapter.getOffset(p),
-					cLoc = jsPlumbAdapter.getOffset(el);
+				var pLoc = jsPlumbAdapter.getOffset(p, _currentInstance),
+					cLoc = jsPlumbAdapter.getOffset(el, _currentInstance);
 				_delements[pId][elId].offset = {
 					left:cLoc.left - pLoc.left,
 					top:cLoc.top - pLoc.top
@@ -1824,12 +1824,14 @@
 				top:_one("top")
 			};
 		},
-		getOffset:function(el, relativeToRoot) {
+		getOffset:function(el, _instance, relativeToRoot) {
+			var container = jsPlumb.getDOMElement(_instance.Defaults.Container);
 			var l = el.offsetLeft, t = el.offsetTop, op = relativeToRoot ?  el.offsetParent : null;
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
-				op = relativeToRoot ? op.offsetParent : null;
+				op = relativeToRoot ? op.offsetParent : 
+					op == container ? null : op.offsetParent;
 			}
 			return {
 				left:l, top:t
@@ -1854,7 +1856,7 @@
 			
     var _ju = jsPlumbUtil,
     	_getOffset = function(el, _instance, relativeToRoot) {
-            var o = jsPlumbAdapter.getOffset(el, relativeToRoot);
+            var o = jsPlumbAdapter.getOffset(el, _instance, relativeToRoot);
 			if (false/*_instance != null*/) {
                 var z = _instance.getZoom();
                 return {left:o.left / z, top:o.top / z };    
@@ -5248,7 +5250,7 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel),                        
+                        ipco = jsPlumbAdapter.getOffset(ipcoel, this._jsPlumb.instance),                        
                         canvasElement = _gel(this.canvas);                               
                         
                     jsPlumbAdapter.setPosition(placeholderInfo.element, ipco);
