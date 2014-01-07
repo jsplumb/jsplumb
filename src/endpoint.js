@@ -469,7 +469,7 @@
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
                     // does the same stuff.
                     var ipcoel = _gel(inPlaceCopy.canvas),
-                        ipco = jsPlumbAdapter.getOffset(ipcoel),                        
+                        ipco = jsPlumbAdapter.getOffset(ipcoel, this._jsPlumb.instance),                        
                         canvasElement = _gel(this.canvas);                               
                         
                     jsPlumbAdapter.setPosition(placeholderInfo.element, ipco);
