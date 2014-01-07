@@ -66,8 +66,7 @@
             _newEndpoint = params.newEndpoint,
             jpcl = jsPlumb.CurrentLibrary,            
             _gel = jsPlumb.getElementObject,            
-            _ju = jsPlumbUtil,
-            _getOffset = jpcl.getOffset;
+            _ju = jsPlumbUtil;
 
         this.connector = null;                        
         this.idPrefix = "_jsplumb_c_";

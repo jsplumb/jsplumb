@@ -93,8 +93,7 @@
         "Flowchart":function(params) {
             AbstractEditor.apply(this, arguments);            
             
-            var jpcl = jsPlumb.CurrentLibrary,
-                clickConsumer = function(conn) {                     
+            var clickConsumer = function(conn) {                     
                     conn._jsPlumb.afterEditClick = function() {
                         console.log("after edit click");
                         conn.unbind("click", conn._jsPlumb.afterEditClick);
@@ -111,12 +110,12 @@
                     //if (editing)
                     //    clickConsumer(params.connection);
 
-                    jpcl.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
+                    jsPlumb.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
                     params.connection._jsPlumb.instance.setConnectionBeingDragged(false);
                     e.stopPropagation();
                     e.preventDefault();
-                    jpcl.unbind(document, upEvent, documentMouseUp);
-                    jpcl.unbind(document, moveEvent, documentMouseMove);                    
+                    jsPlumb.off(document, upEvent, documentMouseUp);
+                    jsPlumb.off(document, moveEvent, documentMouseMove);                    
                     downAt = null;
                     currentSegments = null;
                     selectedSegment = null; 
@@ -162,12 +161,12 @@
                 },
                 // attempt to shift anchor
                 _shiftAnchor = function(endpoint, horizontal, value) {                    
-                    var elementSize = jpcl.getSize(endpoint.element),
+                    var elementSize = jsPlumb.getSize(endpoint.element),
                         sizeValue = elementSize[horizontal ? 1 : 0],
-                        ee = jpcl.getElementObject(endpoint.element),
-                        off = jpcl.getOffset(ee), 
-                        cc = jpcl.getElementObject(params.connector.canvas.parentNode),
-                        co = jpcl.getOffset(cc),
+                        ee = jsPlumb.getElementObject(endpoint.element),
+                        off = jsPlumb.getOffset(ee), 
+                        cc = jsPlumb.getElementObject(params.connector.canvas.parentNode),
+                        co = jsPlumb.getOffset(cc),
                         offValue = off[horizontal ? "top" : "left"] - co[horizontal ? "top" : "left"], 
                         ap = endpoint.anchor.getCurrentLocation({element:endpoint}),
                         desiredLoc = horizontal ? params.connector.y + value : params.connector.x + value;
@@ -283,8 +282,8 @@
             params.connector.bind(downEvent, function(c, e) {
                 var x = (e.pageX || e.page.x),
                     y = (e.pageY || e.page.y),
-                    oe = jpcl.getElementObject(params.connection.getConnector().canvas),
-                    o = jpcl.getOffset(oe),                    
+                    oe = jsPlumb.getElementObject(params.connection.getConnector().canvas),
+                    o = jsPlumb.getOffset(oe),                    
                     minD = Infinity;
 
                 // TODO this is really the way we want to go: get the segment from the connector.
@@ -309,9 +308,9 @@
                 downAt = [ x, y ];
                 
                 if (selectedSegment != null) {                    
-                    jpcl.bind(document, upEvent, documentMouseUp);
-                    jpcl.bind(document, moveEvent, documentMouseMove);                                      
-                    jpcl.addClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
+                    jsPlumb.on(document, upEvent, documentMouseUp);
+                    jsPlumb.on(document, moveEvent, documentMouseMove);                                      
+                    jsPlumb.addClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
                     params.connection._jsPlumb.instance.setConnectionBeingDragged(true);
                     params.connection.editStarted();                
                     return false;

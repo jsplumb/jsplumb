@@ -158,6 +158,7 @@
 		},
 		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
+			event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
 			_getEventManager(this).on(el, event, callback);
 		},
 		off : function(el, event, callback) {
