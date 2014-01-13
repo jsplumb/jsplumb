@@ -1011,7 +1011,10 @@
 		this.type = "Blank";
 		DOMElementEndpoint.apply(this, arguments);		
 		this._compute = function(anchorPoint, orientation, endpointStyle, connectorPaintStyle) {
-			return [anchorPoint[0], anchorPoint[1],10,0];
+			// changed last two array elements from "..,10,0]" to ",1,1]" so is has 
+			// a height for an overlay to calculate its position from, made it 1,1
+			// instead of 10,10 to be pixel precise
+			return [anchorPoint[0], anchorPoint[1],1,1];
 		};
 		
 		this.canvas = document.createElement("div");
