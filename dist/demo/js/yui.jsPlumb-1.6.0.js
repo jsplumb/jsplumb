@@ -1418,12 +1418,12 @@
 		},
 		getOffset:function(el, _instance, relativeToRoot) {
 			var container = jsPlumb.getDOMElement(_instance.Defaults.Container);
-			var l = el.offsetLeft, t = el.offsetTop, op = relativeToRoot ?  el.offsetParent : null;
+			var l = el.offsetLeft, t = el.offsetTop, op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null;
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
 				op = relativeToRoot ? op.offsetParent : 
-					op == container ? null : op.offsetParent;
+					op.offsetParent == container ? null : op.offsetParent;
 			}
 			return {
 				left:l, top:t
@@ -3761,7 +3761,8 @@
 	                    _currentInstance.currentlyDragging = false;						
 						if (ep._jsPlumb != null) { // if not cleaned up...
 
-							_currentInstance.off(ep.canvas, "mousedown"); 
+							// TODO what is this trying to unbind? there is no function.
+							//_currentInstance.off(ep.canvas, "mousedown"); 
 									
 							// reset the anchor to the anchor that was initially provided. the one we were using to drag
 							// the connection was just a placeholder that was located at the place the user pressed the
@@ -3784,20 +3785,20 @@
 								newAnchor.y = ap[1];
 							}
 
-							ep.setAnchor(newAnchor, true);																							
+							ep.setAnchor(newAnchor, true);
 							
-							if (p.parent) {						
+							if (p.parent) {
 								var parent = parentElement();
 								if (parent) {	
 									var potentialParent = p.container || _currentInstance.Defaults.Container || jsPlumb.Defaults.Container;
 									ep.setElement(parent, potentialParent);
 								}
-							}						
+							}
 							
-							ep.repaint();			
-							_currentInstance.repaint(ep.elementId);																		
+							ep.repaint();
+							_currentInstance.repaint(ep.elementId);
 							_currentInstance.repaint(oldConnection.targetId);
-						}				
+						}
 					});
 					// when the user presses the mouse, add an Endpoint, if we are enabled.
 					var mouseDownListener = function(e) {

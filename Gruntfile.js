@@ -37,7 +37,7 @@
 var versions = {
         JS_BEZIER : { f:"jsBezier", v:"0.6" },
         BILTONG : { f:"biltong", v:"0.2" }, 
-        TOUCH_ADAPTER : {f:"touch-adapter", v:"0.2" },
+        MOTTLE : {f:"mottle", v:"0.2" },
         KATAVORIO : {f:"katavorio", v:"0.1" }
     },
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
@@ -53,7 +53,7 @@ var versions = {
         jquery:[],
         mootools:[],
         yui:[],
-        dom:[ get("TOUCH_ADAPTER"), get("KATAVORIO") ]
+        dom:[ get("MOTTLE"), get("KATAVORIO") ]
     }
     version = "1.6.0",
     objects = {

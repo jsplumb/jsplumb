@@ -354,7 +354,7 @@
 		},
 		getOffset:function(el, _instance, relativeToRoot) {
 			var container = jsPlumb.getDOMElement(_instance.Defaults.Container);
-			var l = el.offsetLeft, t = el.offsetTop, op = (relativeToRoot  || el.offsetParent != container) ?  el.offsetParent : null;
+			var l = el.offsetLeft, t = el.offsetTop, op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null;
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
