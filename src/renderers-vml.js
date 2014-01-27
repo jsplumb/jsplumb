@@ -185,8 +185,8 @@
 	};
 	jsPlumbUtil.extend(VmlComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {			
-			if (this.bgCanvas) jsPlumbUtil.removeElement(this.bgCanvas);
-			jsPlumbUtil.removeElement(this.canvas);            				
+			this.bgCanvas && this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+			this.canvas && this.canvas.parentNode.removeChild(this.canvas);
 		}
 	});
 
@@ -418,8 +418,8 @@
     	superclass.apply(this, originalArgs);
     	VmlComponent.apply(this, originalArgs);
     	var self = this, path = null;
-    	self.canvas = null; 
-    	self.isAppendedAtTopLevel = true;
+    	this.canvas = null; 
+    	this.isAppendedAtTopLevel = true;
     	var getPath = function(d) {    		
     		return "m " + _conv(d.hxy.x) + "," + _conv(d.hxy.y) +
     		       " l " + _conv(d.tail[0].x) + "," + _conv(d.tail[0].y) + 
@@ -478,11 +478,11 @@
     	};
     	
     	this.reattachListeners = function() {
-			if (self.canvas) self.reattachListenersForElement(self.canvas, self);
+			if (this.canvas) this.reattachListenersForElement(self.canvas, this);
 		};
 
 		this.cleanup = function() {
-    		if (self.canvas != null) jsPlumb.CurrentLibrary.removeElement(self.canvas);
+    		if (this.canvas != null) this._jsPlumb.instance.removeElement(this.canvas);
     	};
     };
     jsPlumbUtil.extend(AbstractVmlArrowOverlay, [VmlComponent, jsPlumb.Overlays.AbstractOverlay], {

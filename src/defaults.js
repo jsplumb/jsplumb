@@ -888,7 +888,7 @@
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
         cleanup : function() {            
             this._jsPlumb.deleted = true;
-            jsPlumbUtil.removeElement(this.canvas);
+            this.canvas && this.canvas.parentNode.removeChild(this.canvas);
             this.canvas = null;
         } 
     });
@@ -1234,7 +1234,7 @@
         },
         cleanup : function() {
             if (this._jsPlumb.div != null) 
-                jsPlumb.CurrentLibrary.removeElement(this._jsPlumb.div);
+                this._jsPlumb.instance.removeElement(this._jsPlumb.div);
         },
         computeMaxSize : function() {
             var td = _getDimensions(this);

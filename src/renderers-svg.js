@@ -261,7 +261,7 @@
 	};
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
-			jsPlumbUtil.removeElement(this.canvas);            
+			this.canvas && this.canvas.parentNode && this.canvas.parentNode.removeChild(this.canvas);
 			this.svg = null;
 			this.canvas = null;
 			this.path = null;			
@@ -527,7 +527,7 @@
     };
     jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
     	cleanup : function() {
-    		if (this.path != null) jsPlumb.CurrentLibrary.removeElement(this.path);
+    		if (this.path != null) this._jsPlumb.instance.removeElement(this.path);
     	},
     	setVisible:function(v) {
     		if(this.path != null) (this.path.style.display = (v ? "block" : "none"));
