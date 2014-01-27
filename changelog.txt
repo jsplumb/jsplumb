@@ -1,3 +1,15 @@
+* 1.6.0
+
+	- reduced the amount of functionality that is delegated to a support library
+	- rewrote the way support libraries are integrated
+	- introduced a version of jsPlumb that does not depend on jQuery, YUI or MooTools.
+	- added support (in no library version) for multiple element dragging
+	- added support (in no library version) for multiple drag/drop scopes
+	
+	MISCELLANEOUS
+	
+	- events now have "this" set correctly
+
 * 1.5.5
 
 	ISSUES
