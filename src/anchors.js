@@ -32,7 +32,6 @@
 			self = this,
             anchorLists = {},
             jsPlumbInstance = params.jsPlumbInstance,
-            jpcl = jsPlumb.CurrentLibrary,
             floatingConnections = {},
             // TODO this functions uses a crude method of determining orientation between two elements.
             // 'diagonal' should be chosen when the angle of the line between the two centers is around
@@ -198,7 +197,7 @@
                 registerConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if ((sourceId == targetId) && otherAnchor.isContinuous){
                        // remove the target endpoint's canvas.  we dont need it.
-                        jpcl.removeElement(ep[1].canvas);
+                        conn._jsPlumb.instance.removeElement(ep[1].canvas);
                         doRegisterTarget = false;
                     }
 					jsPlumbUtil.addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == jsPlumb.DynamicAnchor]);
@@ -702,7 +701,6 @@
         // this is the anchor that this floating anchor is referenced to for
         // purposes of calculating the orientation.
         var ref = params.reference,
-            jpcl = jsPlumb.CurrentLibrary,
             jsPlumbInstance = params.jsPlumbInstance,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,

@@ -64,11 +64,10 @@
     jsPlumb.Connection = function(params) {
         var _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
-            jpcl = jsPlumb.CurrentLibrary,            
-            _gel = jsPlumb.getElementObject,            
+            _gel = jsPlumb.getElementObject,
             _ju = jsPlumbUtil;
 
-        this.connector = null;                        
+        this.connector = null;
         this.idPrefix = "_jsplumb_c_";
         this.defaultLabelLocation = 0.5;
         this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
@@ -270,48 +269,11 @@
         isVisible : function() { return this._jsPlumb.visible; },
         setVisible : function(v) {
             this._jsPlumb.visible = v;
-            //this[v ? "showOverlays" : "hideOverlays"]();
             if (this.connector) 
                 this.connector.setVisible(v);
             this.repaint();
         },
-
-        /* TODO move to connecto editors; it should put these on the prototype.
-
-        setEditable : function(e) {
-            if (this.connector && this.connector.isEditable())
-                this._jsPlumb.editable = e;
-            
-            return this._jsPlumb.editable;
-        },
-        isEditable : function() { return this._jsPlumb.editable; },
-        editStarted : function() {  
-            this.setSuspendEvents(true);
-            this.fire("editStarted", {
-                path:this.connector.getPath()
-            });            
-            this._jsPlumb.instance.setHoverSuspended(true);
-        },
-        editCompleted : function() {            
-            this.fire("editCompleted", {
-                path:this.connector.getPath()
-            });       
-            this.setSuspendEvents(false);
-            this.setHover(false);     
-            this._jsPlumb.instance.setHoverSuspended(false);
-        },
-        editCanceled : function() {
-            this.fire("editCanceled", {
-                path:this.connector.getPath()
-            });
-            this.setHover(false);
-            this._jsPlumb.instance.setHoverSuspended(false);
-        },
-
-*/
-
         cleanup:function() {
-            //this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
             this.source = null;
             this.target = null;                    
@@ -348,20 +310,17 @@
         //
         // TODO ensure moveParent method still works (the overlay stuff in particular)
         moveParent : function(newParent) {
-            var jpcl = jsPlumb.CurrentLibrary, curParent = jsPlumb.getParent(this.connector.canvas);               
+            var curParent = jsPlumb.getParent(this.connector.canvas);               
             if (this.connector.bgCanvas) {
-                jpcl.removeElement(this.connector.bgCanvas);
-                //jpcl.appendElement(this.connector.bgCanvas, newParent);
+                this._jsPlumb.instance.removeElement(this.connector.bgCanvas);
                 newParent.appendChild(this.connector.bgCanvas);
             }
-            jpcl.removeElement(this.connector.canvas);
-            //jpcl.appendElement(this.connector.canvas, newParent);                
+            this._jsPlumb.instance.removeElement(this.connector.canvas);
             newParent.appendChild(this.connector.canvas);
             // this only applies for DOMOverlays
             for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
                 if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    jpcl.removeElement(this._jsPlumb.overlays[i].canvas);
-                    //jpcl.appendElement(this._jsPlumb.overlays[i].canvas, newParent);
+                    this._jsPlumb.instance.removeElement(this._jsPlumb.overlays[i].canvas);
                     newParent.appendChild(this._jsPlumb.overlays[i].canvas);
                     if (this._jsPlumb.overlays[i].reattachListeners) 
                         this._jsPlumb.overlays[i].reattachListeners(this.connector);

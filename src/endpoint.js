@@ -68,7 +68,6 @@
 
     jsPlumb.Endpoint = function(params) {
         var _jsPlumb = params._jsPlumb,
-            jpcl = jsPlumb.CurrentLibrary,
             _att = jsPlumbAdapter.getAttribute,
             _gel = jsPlumb.getElementObject,            
             _ju = jsPlumbUtil,            
@@ -216,7 +215,7 @@
         this.setHoverPaintStyle(params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
         this._jsPlumb.paintStyleInUse = this.getPaintStyle();
 
-        _ju.copyValues(typeParameters, params, this);        
+        jsPlumb.extend(this, params, typeParameters);
 
         this.isSource = params.isSource || false;
         this.isTarget = params.isTarget || false;        
@@ -576,7 +575,7 @@
                 }.bind(this);
 
                 var dragOptions = params.dragOptions || {},
-                    defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
+                    defaultOpts = {},
                     startEvent = jsPlumb.dragEvents.start,
                     stopEvent = jsPlumb.dragEvents.stop,
                     dragEvent = jsPlumb.dragEvents.drag;
@@ -931,7 +930,7 @@
         applyType : function(t, doNotRepaint) {         
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
-            jsPlumbUtil.copyValues(typeParameters, t, this);
+            jsPlumb.extend(this, t, typeParameters);
             if (t.anchor) {
                 this.anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
             }

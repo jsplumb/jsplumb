@@ -81,8 +81,7 @@
 			var self = this, 
 				a = arguments, 				 				
 				idPrefix = self.idPrefix,
-				id = idPrefix + (new Date()).getTime(),
-				jpcl = jsPlumb.CurrentLibrary;
+				id = idPrefix + (new Date()).getTime();
 
 			this._jsPlumb = { 
 				instance: params._jsPlumb,
@@ -356,8 +355,7 @@
 			isHover : function() { return this._jsPlumb.hover; },
 			
 			setHover : function(hover, ignoreAttachedElements, timestamp) {
-				var jpcl = jsPlumb.CurrentLibrary;
-		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
+				// while dragging, we ignore these events.  this keeps the UI from flashing and
 		    	// swishing and whatevering.
 				if (this._jsPlumb && !this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
 		    
@@ -698,12 +696,10 @@
 				//
 				_appendElement = function(el, parent) {
 					if (_currentInstance.Defaults.Container)
-						//jsPlumb.CurrentLibrary.appendoElement(el, _currentInstance.Defaults.Container);
 						jsPlumb.getDOMElement(_currentInstance.Defaults.Container).appendChild(el);
 					else if (!parent)
 						jsPlumbAdapter.appendToRoot(el);
 					else
-						//jsPlumb.CurrentLibrary.appendoElement(el, parent);
 						jsPlumb.getDOMElement(parent).appendChild(el);
 				},		
 				
@@ -780,8 +776,8 @@
 						retVal.push(fn(el, id)); // append return values to what we will return
 					}
 				} else {
-					el = _currentInstance.getElementObject(element);
-					id = _currentInstance.getAttribute(el, "id");
+					el = _currentInstance.getDOMElement(element);
+					id = _currentInstance.getId(el);
 					retVal = fn(el, id);
 				}
 				return retVal;
@@ -800,7 +796,7 @@
 		_initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
 			// TODO move to DragManager?
 			if (!jsPlumbAdapter.headless) {
-				var _draggable = isDraggable == null ? false : isDraggable, jpcl = jsPlumb.CurrentLibrary;
+				var _draggable = isDraggable == null ? false : isDraggable;
 				if (_draggable) {
 					if (jsPlumb.isDragSupported(element) && !jsPlumb.isAlreadyDraggable(element)) {
 						var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
@@ -1152,7 +1148,7 @@
 				var state = draggableStates[elId] == null ? false : draggableStates[elId];
 				state = !state;
 				draggableStates[elId] = state;
-				jsPlumb.CurrentLibrary.setDraggable(el, state);
+				jsPlumb.setDraggable(el, state);
 				return state;
 			});
 		},
@@ -1650,12 +1646,6 @@
 			return _currentInstance;
 		};
 
-
-		// just a library-agnostic wrapper.
-		//this.extend = function(o1, o2) {
-		//	return jsPlumb.CurrentLibrary.extend(o1, o2);
-	//	};
-
 		// helpers for select/selectEndpoints
 		var _setOperation = function(list, func, args, selector) {
 				for (var i = 0, j = list.length; i < j; i++) {
@@ -2078,19 +2068,18 @@
 	        };
 
 		// see API docs
-		this.makeTarget = function(el, params, referenceParams) {						
-			
+		this.makeTarget = function(el, params, referenceParams) {
+
 			// put jsplumb ref into params without altering the params passed in
 			var p = jsPlumb.extend({_jsPlumb:_currentInstance}, referenceParams);
 			jsPlumb.extend(p, params);
 
-			// calculate appropriate paint styles and anchor from the params given			
-			_setEndpointPaintStylesAndAnchor(p, 1);                               
+			// calculate appropriate paint styles and anchor from the params given
+			_setEndpointPaintStylesAndAnchor(p, 1);
 
-			var jpcl = jsPlumb.CurrentLibrary,
-			    targetScope = p.scope || _currentInstance.Defaults.Scope,
-			    deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
-			    maxConnections = p.maxConnections || -1,
+			var targetScope = p.scope || _currentInstance.Defaults.Scope,
+				deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
+				maxConnections = p.maxConnections || -1,
 				onMaxConnections = p.onMaxConnections,
 
 				_doOne = function(el) {
@@ -2104,6 +2093,7 @@
 						dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 
 					// store the definitions keyed against the element id.
+					// TODO why not just store inside the element itself?
 					_targetEndpointDefinitions[elid] = p;
 					_targetEndpointsUnique[elid] = p.uniqueEndpoint;
 					_targetMaxConnections[elid] = maxConnections;
@@ -2286,8 +2276,7 @@
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			_setEndpointPaintStylesAndAnchor(p, 0);   
-			var jpcl = jsPlumb.CurrentLibrary,
-				maxConnections = p.maxConnections || -1,
+			var maxConnections = p.maxConnections || -1,
 				onMaxConnections = p.onMaxConnections,
 				_doOne = function(elInfo) {
 					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -2393,7 +2382,8 @@
 						}
 
 						// get container offset
-						var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container), _currentInstance, true);
+						//var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container), _currentInstance, true);
+						var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container || this.offsetParent || document.body), _currentInstance, true);
 
 						// make sure we have the latest offset for this div 
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
@@ -2542,6 +2532,11 @@
 					a[info.id] = toggle ? !a[info.id] : state;
 				}
 			}	
+			// otherwise a DOM element
+			else {
+				var id = _info(el).id;
+				a[id] = toggle ? !a[id] : state;
+			}
 			return _currentInstance;
 		};
 
@@ -2635,7 +2630,7 @@
             	_currentInstance.anchorManager.clearFor(info.id);						
             	_currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
-            if(info.el) jsPlumb.CurrentLibrary.removeElement(info.el);
+            if(info.el) _currentInstance.removeElement(info.el);
         };
 
 		var _registeredListeners = {},
@@ -2899,9 +2894,13 @@
 		getSize : function(el) {
 			return [ el.offsetWidth, el.offsetHeight ];
 		},
-		extend : function(o1, o2) {
-			for (var i in o2)
-				o1[i] = o2[i];
+		extend : function(o1, o2, names) {
+			if (names) {
+				for (var i = 0; i < names.length; i++)
+					o1[names[i]] = o2[names[i]];
+			}
+			else
+				for (var i in o2) o1[i] = o2[i];
 			return o1;
 		}
     });
