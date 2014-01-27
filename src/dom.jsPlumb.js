@@ -41,36 +41,45 @@
 	};
 
 	 var _getEventManager = function(instance) {
-		 var e = instance._evensi;
+		 var e = instance._mottle;
 		 if (!e) {
-			 e = instance._evensi = new Mottle({
-
-			 });
+			 e = instance._mottle = new Mottle();
 		 }
 		 return e;
 	 };
 
 	jsPlumb.extend(jsPlumbInstance.prototype, {		
 	
-		getDOMElement:function(el) { return typeof el === "string" ? document.getElementById(el) : el; },
+		getDOMElement:function(el) { 
+			if (el == null) return null;
+			// here we pluck the first entry if el was a list of entries.
+			// this is not my favourite thing to do, but previous versions of 
+			// jsplumb supported jquery selectors, and it is possible a selector 
+			// will be passed in here.
+			el = typeof el === "string" ? el : el.length != null ? el[0] : el;
+			return typeof el === "string" ? document.getElementById(el) : el; 
+		},
 		getElementObject:function(el) { return el; },
+		removeElement : function(element) {
+			_getEventManager(this).remove(element);
+		},
 		doAnimate:function() { throw "not implemented!" },
 		getSelector:function(ctx, spec) { 
+			var sel = null;
 			if (arguments.length == 1) {
-				return ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
+				sel = ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
 			}
 			else
-				return document.querySelectorAll(spec, ctx); 
+				sel = document.querySelectorAll(spec, ctx); 
+				
+			return sel;// == null ? null : sel.length == 1 ? sel[0] : sel;
 		},
-		
 		// DRAG/DROP
 		destroyDraggable:function(el) {
-			// TODO add destroy methods to Katavorio
-			//_getDragManager(this).destroyDraggable(el);
+			_getDragManager(this).destroyDraggable(el);
 		},
 		destroyDroppable:function(el) {
-			// TODO add destroy methods to Katavorio
-			//_getDragManager(this).destroyDroppable(el);
+			_getDragManager(this).destroyDroppable(el);
 		},
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
 			_getDragManager(this).draggable(el, options);
@@ -101,7 +110,9 @@
 			}
 		},
 		setElementDraggable : function(el, draggable) { 
-			throw "not implemented";
+			el = jsPlumb.getDOMElement(el);
+			if (el._katavorioDrag)
+				el._katavorioDrag.setEnabled(draggable);
 		},
 		setDragScope : function(el, scope) { 
 			if (el._katavorioDrag)
@@ -111,68 +122,36 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
-		// TODO: we want to pass the instance in here, and then have the Mottle event manager
-		// handle the trigger.
+// 		MULTIPLE ELEMENT DRAG
+		// these methods are unique to this adapter, because katavorio
+		// supports dragging multiple elements.
+		addToDragSelection:function(spec) {
+			_getDragManager(this).select(spec);
+		},
+		removeFromDragSelection:function(spec) {
+			_getDragManager(this).deselect(spec);
+		},
+		clearDragSelection:function() {
+			_getDragManager(this).deselectAll();
+		},
+//           EVENTS
 		trigger : function(el, event, originalEvent) { 
-			console.log("trigger", event)
-			var evt;
-			/*if (typeof MouseEvent !== "undefined") {
-				event = new MouseEvent(event, {
-					pageX:originalEvent.pageX,
-					pagY:originalEvent.pageY,
-					clientX:originalEvent.clientX,
-					clientY:originalEvent.clientY
-				});
-			}*/
-			//else if (typeof document.createEvent !== "undefined") {
-			if (document.createEvent) {
-				evt = document.createEvent("MouseEvents");
-				evt.initMouseEvent(event, true, true, window, 0,
-				originalEvent.screenX, originalEvent.screenY,
-				originalEvent.clientX, originalEvent.clientY,
-				false, false, false, false, 1, null);
-				
-				el.dispatchEvent(evt);
-			}
-			else if (document.createEventObject) {
-				evt = document.createEventObject();
-				evt.eventType = event;
-				evt.eventName = event;
-				evt.screenX = originalEvent.screenX;
-				evt.screenY = originalEvent.screenY;
-				evt.clientX = originalEvent.clientX;
-				evt.clientY = originalEvent.clientY;
-				el.fireEvent('on' + event, evt);
-			}
-				
-				/* eventType, canBubble, cancelable, 
-				viewArg, detailArg, screenXArg, screenYArg, 
-				clientXArg, clientYArg, ctrlKeyArg, 
-				altKeyArg, shiftKeyArg, metaKeyArg, 
-				buttonArg, relatedTargetArg
-				*/
-			//}
-			//else {
-				
-			//}			
+			_getEventManager(this).trigger(el, event, originalEvent);
 		},
 		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
-			event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
-			_getEventManager(this).on(el, event, callback);
+			// TODO: here we would like to map the tap event if we know its
+			// and internal bind to a click. we have to know its internal because only
+			// then can we be sure that the UP event wont be consumed (tap is a synthesized
+			// event from a mousedown followed by a mouseup).
+			//event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
+			
+			_getEventManager(this).on.apply(this, arguments);
 		},
 		off : function(el, event, callback) {
-			_getEventManager(this).off(el, event, callback);
+			_getEventManager(this).off.apply(this, arguments);
 		}
 	});
-
-	jsPlumb.CurrentLibrary = {
-		// TODO use the touch adapter's remove method; it unregisters
-		// event listeners properly.
-		removeElement : function(element) {
-			(element && element.parentNode) && element.parentNode.removeChild(element);
-		}
-	};
 
 	var ready = function (f) {
         (/complete|loaded|interactive/.test(document.readyState)) ?
