@@ -89,10 +89,6 @@
             }
             return c;
         },
-        copyValues:function(names, from, to) {
-            for (var i = 0; i < names.length; i++)
-                to[names[i]] = from[names[i]];
-        },
         //
         // chain a list of functions, supplied by [ object, method name, args ], and return on the first
         // one that returns the failValue. if none return the failValue, return the successValue.
@@ -167,32 +163,20 @@
             if (a)
                 for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
             return -1;
-        },
-        clampToGrid : function(x, y, grid, dontClampX, dontClampY) {
-            var _gridClamp = function(n, g) { 
-                var e = n % g, 
-                    f = Math.floor(n / g), 
-                    inc = e >= (g / 2) ? 1 : 0; 
-                return (f + inc) * g; 
-            };
-            return [
-                dontClampX || grid == null ? x : _gridClamp(x, grid[0]),
-                dontClampY || grid == null ? y : _gridClamp(y, grid[1])
-            ];		
-        },
-        indexOf : function(l, v) {
-            return jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });	
-        },
-        removeWithFunction : function(a, f) {
-            var idx = jsPlumbUtil.findWithFunction(a, f);
-            if (idx > -1) a.splice(idx, 1);
-            return idx != -1;
-        },
-        remove : function(l, v) {
-            var idx = jsPlumbUtil.indexOf(l, v);	
-            if (idx > -1) l.splice(idx, 1);
-            return idx != -1;
-        },
+		},
+		indexOf : function(l, v) {
+			return l.indexOf ? l.indexOf(v) : jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });
+		},
+		removeWithFunction : function(a, f) {
+			var idx = jsPlumbUtil.findWithFunction(a, f);
+			if (idx > -1) a.splice(idx, 1);
+			return idx != -1;
+		},
+		remove : function(l, v) {
+			var idx = jsPlumbUtil.indexOf(l, v);
+			if (idx > -1) l.splice(idx, 1);
+			return idx != -1;
+		},
         // TODO support insert index
         addWithFunction : function(list, item, hashFunction) {
             if (jsPlumbUtil.findWithFunction(list, hashFunction) == -1) list.push(item);
@@ -200,8 +184,7 @@
         addToList : function(map, key, value, insertAtStart) {
             var l = map[key];
             if (l == null) {
-                l = [];
-                map[key] = l;
+                l = [], map[key] = l;
             }
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
@@ -255,26 +238,6 @@
                 catch (e) {} 
             }
         },
-        group : function(g) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.group(g); },
-        groupEnd : function(g) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.groupEnd(g); },
-        time : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.time(t); },
-        timeEnd : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.timeEnd(t); },
-        
-        /**
-		 * helper to remove an element from the DOM.
-		 */
-		removeElement : function(element) {
-			if (element != null && element.parentNode != null) {
-				element.parentNode.removeChild(element);
-			}
-		},
-        /**
-		 * helper to remove a list of elements from the DOM.
-		 */
-		removeElements : function(elements) {
-			for ( var i = 0; i < elements.length; i++)
-				jsPlumbUtil.removeElement(elements[i]);
-		},
         /*
          * Function: sizeElement 
          * Helper to size and position an element. You would typically use
@@ -331,86 +294,75 @@
             };
         }
     };
+	
+	/*
+	jsPlumbUtil.indexOf = typeof Array.prototype.indexOf !== "undefined" ? Array.prototype.indexOf : function(l, v) {
+		return jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });
+	};
+	//*/
 
-    
-    jsPlumbUtil.EventGenerator = function() {
-        var _listeners = {}, eventsSuspended = false;
-        
-        // this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
-        // jsPlumb, but it seems feasible that people might want to manipulate this list.  the thinking is that we don't want event
-        // listeners to bring down jsPlumb - or do we.  i can't make up my mind about this, but i know i want to hear about it if the "ready"
-        // event fails, because then my page has most likely not initialised.  so i have this halfway-house solution.  it will be interesting
-        // to hear what other people think.
-        var eventsToDieOn = [ "ready" ];
-                                        
-        this.bind = function(event, listener, insertAtStart) {
-            jsPlumbUtil.addToList(_listeners, event, listener, insertAtStart);     
-            return this;        
-        };
-                 
-        this.fire = function(event, value, originalEvent) {
-            if (!eventsSuspended && _listeners[event]) {
-                // instead of looping through the array we get a counter and a length, because it is possible
-                // that an event fired from here could cause the object to get cleaned up, which would throw
-                // away the listeners. so after each cycle through the loop we check to ensure we haven't
-                // been nuked.
-                var l = _listeners[event].length, i = 0, _gone = false, ret = null;
-                if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
-                    while (!_gone && i < l && ret !== false) {                    
-                    
-                        // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
-                        // method will have the whole call stack available in the debugger.
-                        if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event; }) != -1) 
-                            _listeners[event][i](value, originalEvent);
-                        else {
-                            // for events we don't want to die on, catch and log.
-                            try {                            
-                                ret = _listeners[event][i](value, originalEvent);
-                            } catch (e) {
-                                jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
-                            }
-                        }
-                        i++;
-                        if (_listeners == null || _listeners[event] == null) _gone = true;                    
-                    }
-                }
-            }
-            return this;
-        };
-        
-        this.unbind = function(event) {
-            if (event)
-                delete _listeners[event];
-            else {
-                _listeners = {};
-            }
-            return this;
-        };
-        
-        this.getListener = function(forEvent) {
-            return _listeners[forEvent];
-        };              
-        this.setSuspendEvents = function(val) {
-            eventsSuspended = val;    
-        };        
-        this.isSuspendEvents = function() {
-            return eventsSuspended;
-        };        
-        this.cleanupListeners = function() {
-            for (var i in _listeners) {
-                _listeners[i].splice(0);
-                delete _listeners[i];
-            }
-        };
-    };
+	jsPlumbUtil.EventGenerator = function() {
+		var _listeners = {}, 
+			eventsSuspended = false,
+			// this is a list of events that should re-throw any errors that occur during their dispatch. it is current private.
+			eventsToDieOn = { "ready":true };
 
+		this.bind = function(event, listener, insertAtStart) {
+			jsPlumbUtil.addToList(_listeners, event, listener, insertAtStart);
+			return this;
+		};
 
-    jsPlumbUtil.EventGenerator.prototype = {
-        cleanup:function() {
-            this.cleanupListeners();
-        }
-    };
+		this.fire = function(event, value, originalEvent) {
+			if (!eventsSuspended && _listeners[event]) {
+				var l = _listeners[event].length, i = 0, _gone = false, ret = null;
+				if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
+					while (!_gone && i < l && ret !== false) {
+						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
+						// method will have the whole call stack available in the debugger.
+						if (eventsToDieOn[event]) 
+							//_listeners[event][i](value, originalEvent);
+							_listeners[event][i].apply(this, [ value, originalEvent]);
+						else {
+							try {
+								//ret = _listeners[event][i](value, originalEvent);
+								ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
+							} catch (e) {
+								jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
+							}
+						}
+						i++;
+						if (_listeners == null || _listeners[event] == null) 
+							_gone = true;
+					}
+				}
+			}
+			return this;
+		};
 
+		this.unbind = function(event) {
+			if (event)
+				delete _listeners[event];
+			else {
+				_listeners = {};
+			}
+			return this;
+		};
+
+		this.getListener = function(forEvent) { return _listeners[forEvent]; };
+		this.setSuspendEvents = function(val) { eventsSuspended = val; };
+		this.isSuspendEvents = function() { return eventsSuspended; };
+		this.cleanupListeners = function() {
+			for (var i in _listeners) {
+				_listeners[i] = null;
+			}
+		};
+	};
+
+	jsPlumbUtil.EventGenerator.prototype = {
+		cleanup:function() {
+			this.cleanupListeners();
+		}
+	};
 
     // thanks MDC
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind
