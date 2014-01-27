@@ -129,6 +129,11 @@
 		
 		getElementObject : _getElementObject,
 		
+		removeElement : function(element, parent) {
+            var el = _getElementObject(element);
+			if (el) el.dispose();  // ??
+		},
+		
 		destroyDraggable : function(el) {
 			// TODO
 			var id = jsPlumb.getId(el), d = _draggablesById[id];
@@ -264,6 +269,18 @@
 			var id = this.getId(el);
 			return _droppableScopesById[id];
 		},
+		
+		stopDrag : function() {
+            for (var i in _draggablesById) {
+                for (var j = 0; j < _draggablesById[i].length; j++) {
+                    var d = _draggablesById[i][j];
+                    d.stop();
+                    if (d.originalZIndex !== 0)
+                        d.element.setStyle("z-index", d.originalZIndex);
+                }
+            }
+        },
+		
 		/*
 		 * takes the args passed to an event function and returns you an object that gives the
 		 * position of the object being moved, as a js object with the same params as the result of
@@ -332,27 +349,6 @@
 			el.removeEvent(event, callback);
 		}
 	});
-		
-	jsPlumb.CurrentLibrary = {									
-		
-		
-		
-		removeElement : function(element, parent) {
-            var el = _getElementObject(element);
-			if (el) el.dispose();  // ??
-		},				
 
-        stopDrag : function() {
-            for (var i in _draggablesById) {
-                for (var j = 0; j < _draggablesById[i].length; j++) {
-                    var d = _draggablesById[i][j];
-                    d.stop();
-                    if (d.originalZIndex !== 0)
-                        d.element.setStyle("z-index", d.originalZIndex);
-                }
-            }
-        }
-	};
-	
 	window.addEvent('domready', jsPlumb.init);
 })();

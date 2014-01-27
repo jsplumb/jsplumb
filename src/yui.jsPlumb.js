@@ -167,6 +167,7 @@
             }            
 		},
 		getElementObject : _getElementObject,
+		removeElement : function(el) { _getElementObject(el).remove(); },
 		destroyDraggable : function(el) {
 			var id = jsPlumb.getId(el),
 				dd = _draggablesById[id];
@@ -307,7 +308,11 @@
 		dragEvents : {
 			"start":"drag:start", "stop":"drag:end", "drag":"drag:drag", "step":"step",
 			"over":"drop:enter", "out":"drop:exit", "drop":"drop:hit"
-		},				
+		},
+		
+		stopDrag : function() {
+            Y.DD.DDM.stopDrag();
+        },
 		
 		getDOMElement : function(el) { 	
 			if (el == null) return null;		
@@ -337,12 +342,4 @@
 			_getElementObject(el).detach(event, callback);
 		}
 	});
-	
-	jsPlumb.CurrentLibrary = {				
-		removeElement : function(el) { _getElementObject(el).remove(); },						
-
-        stopDrag : function() {
-            Y.DD.DDM.stopDrag();
-        }
-	};				
 })();

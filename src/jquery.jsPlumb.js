@@ -87,6 +87,15 @@
 		 */		
 		getElementObject : _getElementObject,
 		
+		/**
+		* removes an element from the DOM.  doing it via the library is
+		* safer from a memory perspective, as it ix expected that the library's 
+		* remove method will unbind any event listeners before removing the element from the DOM.
+		*/
+		removeElement:function(element) {
+			_getElementObject(element).remove();
+		},
+		
 // ---------------------------- END DOM MANIPULATION ---------------------------------------
 
 // ---------------------------- MISCELLANEOUS ---------------------------------------
@@ -214,15 +223,15 @@
 		
 		setDragFilter : function(el, filter) {
 			if (jsPlumb.isAlreadyDraggable(el))
-				el.draggable("option", "cancel", filter);
+				$(el).draggable("option", "cancel", filter);
 		},
 		
 		setElementDraggable : function(el, draggable) {
-			el.draggable("option", "disabled", !draggable);
+			$(el).draggable("option", "disabled", !draggable);
 		},
 		
 		setDragScope : function(el, scope) {
-			el.draggable("option", "scope", scope);
+			$(el).draggable("option", "scope", scope);
 		},
 		/**
          * mapping of drag events for jQuery
@@ -273,6 +282,7 @@
 		
 	});
 
+/*
 	jsPlumb.CurrentLibrary = {					        
 																															
 				
@@ -283,6 +293,7 @@
 		
 		
 	};
+	*/
 	
 	$(document).ready(jsPlumb.init);
 	
