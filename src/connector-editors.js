@@ -110,7 +110,7 @@
                     //if (editing)
                     //    clickConsumer(params.connection);
 
-                    jsPlumb.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
+                    jsPlumbAdapter.removeClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
                     params.connection._jsPlumb.instance.setConnectionBeingDragged(false);
                     e.stopPropagation();
                     e.preventDefault();
@@ -283,7 +283,7 @@
                 var x = (e.pageX || e.page.x),
                     y = (e.pageY || e.page.y),
                     oe = jsPlumb.getElementObject(params.connection.getConnector().canvas),
-                    o = jsPlumb.getOffset(oe),                    
+                    o = jsPlumbAdapter.getOffset(oe, params.connection._jsPlumb.instance),                    
                     minD = Infinity;
 
                 // TODO this is really the way we want to go: get the segment from the connector.
@@ -310,7 +310,7 @@
                 if (selectedSegment != null) {                    
                     jsPlumb.on(document, upEvent, documentMouseUp);
                     jsPlumb.on(document, moveEvent, documentMouseMove);                                      
-                    jsPlumb.addClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
+                    jsPlumbAdapter.addClass(document.body, params.connection._jsPlumb.instance.dragSelectClass);
                     params.connection._jsPlumb.instance.setConnectionBeingDragged(true);
                     params.connection.editStarted();                
                     return false;
