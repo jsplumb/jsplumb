@@ -1,8 +1,7 @@
 
 /**
-* @namespace jsPlumb.Connectors
-* @desc Parent for all Connector types. When you provide a Connector definition to an appropriate jsPlumb method,
-* you can do so either as a string, or as an array of the form `[String, Object]`.  In the former case, the string
+* Parent for all Connector types. When you provide a Connector definition to an appropriate jsPlumb method,
+* you can do so either as a `String`, or as an Array of the form `[String, Object]`.  In the former case, the String
 * must be one of the members from this namespace, such as `"Bezier"` or `"StateMachine"`. In the latter case,
 * the first argument to the array is the Connector name, and the second is a JS object containing 
 * constructor parameters for the Connector, for instance
@@ -11,44 +10,40 @@
 *    `[ "Bezier", { curviness:75 } ]`
 *
 *
-* Valid values for the constructor parameters for each Connector type are given below.
+* Each Connector type supports its own set of parameters, with some parameters (such as stub) being shared by most.
+* @class Connector
 */
 
 /**
-* @name jsPlumb.Connectors.Flowchart
-* @desc Provides 'Flowchart' connectors.
+* The Connector's associated DOM element.
+* @property canvas
+* @type {Element}
 */
 
 /**
- * @name jsPlumb.Connectors.Flowchart
- * @constructor 
- * @function
- * @param {Object} params Constructor parameters
- * @param {Integer|Integer[]} [params.stub=30] Minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
- * or an array of two integers, giving separate values for each end. 
- * @param {Integer} [params.gap=0]  Gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  
- *           Like stub, this can be an array or a single value.
- * @param {Float} [params.cornerRadius=0] Optional, defines the radius of corners between segments. Defaults to 0 (hard edged corners).
- * @param {Boolean} [params.alwaysRespectStubs=false] Whether or not the connectors should always draw the stub, or, if the two elements
- *                       are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
+* Provides `Flowchart` connectors.
+* @class Connectors.Flowchart
+* @constructor 
+* @param {Object} params Constructor parameters
+* @param {Integer|Integer[]} [params.stub=30] Minimum length for the stub at each end of the connector. This can be an integer, giving a value for both ends of the connections, 
+* or an array of two integers, giving separate values for each end. 
+* @param {Integer} [params.gap=0]  Gap to leave between the end of the connector and the element on which the endpoint resides. if you make this larger than stub then you will see some odd looking behaviour.  
+*           Like stub, this can be an array or a single value.
+* @param {Float} [params.cornerRadius=0] Optional, defines the radius of corners between segments. Defaults to 0 (hard edged corners).
+* @param {Boolean} [params.alwaysRespectStubs=false] Whether or not the connectors should always draw the stub, or, if the two elements
+*                       are in close proximity to each other (closer than the sum of the two stubs), to adjust the stubs.
+*/
+
+ /**
+ * Gets the path inscribed by the connector, as a series of [x,y] points.
+ * @method getPath 
+ * @return {Array} An array of [x,y] locations.
  */
 
  /**
- * @name jsPlumb.Connectors.Flowchart#getPath 
- * @desc Gets the path inscribed by the connector, as a series of [x,y] points.
- * @function
- * @returns {Array} An array of [x,y] locations.
- */
-
- /**
- * @name jsPlumb.Connectors.StateMachine
- * @desc Provides 'state machine' connectors.
- */
-
- /**
- * @name jsPlumb.Connectors.StateMachine
+ * Provides "state machine" connectors. These are a quadratic bezier curve.
+ * @class Connectors.StateMachine
  * @constructor
- * @function
  * @param {Object} params Constructor parameters. 
  * @param {Float} [params.curviness=10] Measure of how "curvy" the connectors will be.  this is translated as the distance that the
  *                Bezier curve's control point is from the midpoint of the straight line connecting the two
@@ -63,14 +58,9 @@
  */
 
 /**
-* @name jsPlumb.Connectors.Straight
-* @desc The Straight connector draws a simple straight line between the two anchor points.  
-*/
-
-/**
-* @name jsPlumb.Connectors.Straight
+* The Straight connector draws a simple straight line between the two anchor points.  
+* @class Connectors.Straight
 * @constructor
-* @function
 * @param {Object} params Constructor parameters.
 * @param {Integer} [params.stub=0] Optional distance to travel from each endpoint before making the connection between the two.
 * @param {Integer} [params.sourceStub] Optional stub for the source endpoint only.
@@ -81,18 +71,13 @@
 */  
 
 /**
- * @name jsPlumb.Connectors.Bezier
- * @desc This Connector draws a Bezier curve with two control points.  You can provide a 'curviness' value which gets applied to jsPlumb's
- * internal voodoo machine and ends up generating locations for the two control points.  See the constructor documentation below.
- */
-/**
- * @name jsPlumb.Connectors.Bezier
- * @constructor
- * @function
- * @param {Object} params Constructor parameters.
- * @param {Integer} [params.curviness=150] How 'curvy' you want the curve to be! This is a directive for the placement of control points, not endpoints of the curve, so your curve does not 
- * actually touch the given point, but it has the tendency to lean towards it.  The larger this value, the greater the curve is pulled from a straight line.
- * @param {Integer} [params.stub=0] Optional value for a distance to travel from the connector's endpoint before beginning the Bezier curve.
- * 
- */
+* This Connector draws a Bezier curve with two control points.  You can provide a 'curviness' value which gets applied to jsPlumb's
+* internal voodoo machine and ends up generating locations for the two control points.
+* @class Connectors.Bezier
+* @constructor
+* @param {Object} params Constructor parameters.
+* @param {Integer} [params.curviness=150] How 'curvy' you want the curve to be! This is a directive for the placement of control points, not endpoints of the curve, so your curve does not 
+* actually touch the given point, but it has the tendency to lean towards it.  The larger this value, the greater the curve is pulled from a straight line.
+* @param {Integer} [params.stub=0] Optional value for a distance to travel from the connector's endpoint before beginning the Bezier curve.
+*/
    	

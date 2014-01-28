@@ -829,11 +829,11 @@
 					_bind(obj, "mouseover", _curryChildFilter(children, obj, over, "mouseover"), over);
 					_bind(obj, "mouseout", _curryChildFilter(children, obj, out, "mouseout"), out);
 				}
-				
+
 				fn.__taUnstore = function() {
 					delete obj.__tamee[evt][fn.__tauid];
 				};
-				
+
 				_store(obj, evt, fn);
 				obj.__tamee[evt][fn.__tauid] = fn;
 			};
@@ -866,7 +866,6 @@
 			}
 		},
 		_getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
-		_OLDtouches = function(e) { return e.touches || [ e ]; },
 		_touches = function(e) {
 			return e.touches && e.touches.length > 0 ? e.touches : 
 				   e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
@@ -889,20 +888,28 @@
 			}
 		},
 		_unbind = function( obj, type, fn) {
-			_unstore(obj, type, fn);
-			// it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
-			if (fn.__tauid != null) {
-				if (obj.removeEventListener)
-					obj.removeEventListener( type, fn, false );
-				else if (obj.detachEvent) {
-					var key = type + fn.__tauid;
-					obj[key] && obj.detachEvent( "on"+type, obj[key] );
-					obj[key] = null;
-					obj["e"+key] = null;
+			_each(obj, function() {
+				var _el = _gel(this);
+				_unstore(_el, type, fn);
+				// it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
+				if (fn.__tauid != null) {
+					if (_el.removeEventListener)
+						_el.removeEventListener( type, fn, false );
+					else if (this.detachEvent) {
+						var key = type + fn.__tauid;
+						_el[key] && _el.detachEvent( "on"+type, _el[key] );
+						_el[key] = null;
+						_el["e"+key] = null;
+					}
 				}
-			}
+			});
 		},
-		_devNull = function() {};
+		_devNull = function() {},
+		_each = function(obj, fn) {
+			obj = (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj : [ obj ];
+			for (var i = 0; i < obj.length; i++)
+				fn.apply(obj[i]);
+		};
 
 	this.Mottle = function(params) {
 		params = params || {};
@@ -913,15 +920,18 @@
 			tapHandler = new TapHandler(clickThreshold, dblClickThreshold),
 			_smartClicks = params.smartClicks,
 			_doBind = function(obj, evt, fn, children) {
-				if (_smartClicks && evt === "click")
-					SmartClickHandler(obj, evt, fn, children);
-				else if (evt === "tap" || evt === "dbltap" || evt === "contextmenu") {
-					tapHandler(obj, evt, fn, children);
-				}
-				else if (evt === "mouseenter" || evt == "mouseexit")
-					mouseEnterExitHandler(obj, evt, fn, children);
-				else 
-					DefaultHandler(obj, evt, fn, children);
+				_each(obj, function() {
+					var _el = _gel(this);
+					if (_smartClicks && evt === "click")
+						SmartClickHandler(_el, evt, fn, children);
+					else if (evt === "tap" || evt === "dbltap" || evt === "contextmenu") {
+						tapHandler(_el, evt, fn, children);
+					}
+					else if (evt === "mouseenter" || evt == "mouseexit")
+						mouseEnterExitHandler(_el, evt, fn, children);
+					else 
+						DefaultHandler(_el, evt, fn, children);
+				});
 			};
 
 		/**
@@ -933,15 +943,17 @@
 		* @returns {Mottle} The current Mottle instance; you can chain this method.
 		*/
 		this.remove = function(el) {
-			el = _gel(el);
-			if (el.__ta) {
-				for (var evt in el.__ta) {
-					for (var h in el.__ta[evt]) {
-						_unbind(el, evt, el.__ta[evt][h]);
+			_each(el, function() {
+				var _el = _gel(this);
+				if (_el.__ta) {
+					for (var evt in _el.__ta) {
+						for (var h in _el.__ta[evt]) {
+							_unbind(_el, evt, _el.__ta[evt][h]);
+						}
 					}
 				}
-			}
-			el.parentNode && el.parentNode.removeChild(el);
+				_el.parentNode && _el.parentNode.removeChild(_el);
+			});
 			return this;
 		};
 
@@ -963,7 +975,7 @@
 				_e = arguments[arguments.length - 2],
 				_f = arguments[arguments.length - 1];
 
-			_doBind(_gel(_el), _e, _f, _c);
+			_doBind(_el, _e, _f, _c);
 			return this;
 		};	
 
@@ -994,29 +1006,30 @@
 		* @returns {Mottle} The current Mottle instance; you can chain this method.
 		*/
 		this.trigger = function(el, event, originalEvent) {
-			el = _gel(el);
-			var evt;
-			if (document.createEvent) {
-				evt = document.createEvent("MouseEvents");
-				evt.initMouseEvent(event, true, true, window, 0,
-								   originalEvent.screenX, originalEvent.screenY,
-								   originalEvent.clientX, originalEvent.clientY,
-								   false, false, false, false, 1, null);
-				el.dispatchEvent(evt);
-			}
-			else if (document.createEventObject) {
-				evt = document.createEventObject();
-				evt.eventType = evt.eventName = event;
-				evt.screenX = originalEvent.screenX;
-				evt.screenY = originalEvent.screenY;
-				evt.clientX = originalEvent.clientX;
-				evt.clientY = originalEvent.clientY;
-				el.fireEvent('on' + event, evt);
-			}
+			_each(el, function() {
+				var _el = _gel(this), evt;
+				if (document.createEvent) {
+					evt = document.createEvent("MouseEvents");
+					evt.initMouseEvent(event, true, true, window, 0,
+						originalEvent.screenX, originalEvent.screenY,
+						originalEvent.clientX, originalEvent.clientY,
+						false, false, false, false, 1, null);
+					_el.dispatchEvent(evt);
+				}
+				else if (document.createEventObject) {
+					evt = document.createEventObject();
+					evt.eventType = evt.eventName = event;
+					evt.screenX = originalEvent.screenX;
+					evt.screenY = originalEvent.screenY;
+					evt.clientX = originalEvent.clientX;
+					evt.clientY = originalEvent.clientY;
+					_el.fireEvent('on' + event, evt);
+				}
+			});
 			return this;
 		}
 	};
-	
+
 	/**
 	* @name Mottle#consume
 	* @desc Static method to assist in 'consuming' an element.
@@ -1029,6 +1042,7 @@
 		if (!doNotPreventDefault && e.preventDefault)
 			 e.preventDefault();
 	};
+
 }).call(this);
 
 /**
@@ -1088,19 +1102,25 @@
                    [ e.pageX, e.pageY ] :
                    [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
         },                
-        _each = function(l, fn, from) {
+        _foreach = function(l, fn, from) {
             for (var i = 0; i < l.length; i++) {
                 if (l[i] != from)
                     fn(l[i]);
             }
         },
         _setDroppablesActive = function(dd, val, andHover, drag) {
-            _each(dd, function(e) {
+            _foreach(dd, function(e) {
                 e.setActive(val);
                 if (val) e.updatePosition();
                 if (andHover) e.setHover(drag, val);
             });
-        };
+        },
+		_each = function(obj, fn) {
+			if (obj == null) return;
+			obj = (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj : [ obj ];
+			for (var i = 0; i < obj.length; i++)
+				fn.apply(obj[i]);
+		};
         
     var Super = function(el, params) {
         params.addClass(el, this._class);
@@ -1108,6 +1128,7 @@
         var enabled = true;
         this.setEnabled = function(e) { enabled = e; };
         this.isEnabled = function() { return enabled; };
+		this.toggleEnabled = function() { enabled = !enabled; };
 		
 		this.setScope = function(scopes) {
 			this.scopes = scopes ? scopes.split(/\s+/) : [ _scope ];
@@ -1147,18 +1168,18 @@
             },
             canDrag = params.canDrag || _true,
             constrainRect,
-            matchingDroppables = [], intersectingDroppables = [],            
+            matchingDroppables = [], intersectingDroppables = [],
             downListener = function(e) {
                 if (this.isEnabled() && canDrag() && filter(e)) {
                     downAt = _pl(e);
                     this.mark();
                     params.bind(document, "mousemove", moveListener);
-                    params.bind(document, "mouseup", upListener);                    
-                    k.markSelection(this);                    
+                    params.bind(document, "mouseup", upListener);
+                    k.markSelection(this);
                     params.addClass(document.body, _classes.noSelect);
                     params.events["start"]({el:el, pos:posAtDown, e:e, drag:this});
                 }
-            }.bind(this),            
+            }.bind(this),
             moveListener = function(e) {
                 if (downAt) {
                     intersectingDroppables.length = 0;
@@ -1174,7 +1195,7 @@
             upListener = function(e) {
                 downAt = null;
                 params.unbind(document, "mousemove", moveListener);
-                params.unbind(document, "mouseup", upListener);            
+                params.unbind(document, "mouseup", upListener);
                 params.removeClass(document.body, _classes.noSelect);
                 this.unmark(e);
                 k.unmarkSelection(this, e);
@@ -1198,49 +1219,52 @@
             for (var i = 0; i < intersectingDroppables.length; i++)
                 intersectingDroppables[i].drop(this, e);
             params.removeClass(el, params.dragClass || _classes.drag);
-        };
-        this.moveBy = function(dx, dy, e) {
-            intersectingDroppables.length = 0;
-            var cPos = constrain(toGrid(([posAtDown[0] + dx, posAtDown[1] + dy]))),
-                rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
-            params.setPosition(el, cPos);
-            for (var i = 0; i < matchingDroppables.length; i++) {
-                var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
-                if (params.intersects(rect, r2) && matchingDroppables[i].canDrop(this)) {
-                    intersectingDroppables.push(matchingDroppables[i]);
-                    matchingDroppables[i].setHover(this, true, e);
-                }
-                else if (matchingDroppables[i].el._katavorioDragHover) {
-                    matchingDroppables[i].setHover(this, false, e);
-                }
-            }
-          	params.events["drag"]({el:el, pos:cPos, e:e, drag:this});
-        };
+		};
+		this.moveBy = function(dx, dy, e) {
+			intersectingDroppables.length = 0;
+			var cPos = constrain(toGrid(([posAtDown[0] + dx, posAtDown[1] + dy]))),
+				rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
+			params.setPosition(el, cPos);
+			for (var i = 0; i < matchingDroppables.length; i++) {
+				var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
+				if (params.intersects(rect, r2) && matchingDroppables[i].canDrop(this)) {
+					intersectingDroppables.push(matchingDroppables[i]);
+					matchingDroppables[i].setHover(this, true, e);
+				}
+				else if (matchingDroppables[i].el._katavorioDragHover) {
+					matchingDroppables[i].setHover(this, false, e);
+				}
+			}
+			params.events["drag"]({el:el, pos:cPos, e:e, drag:this});
+		};
+		this.destroy = function() {
+			params.unbind(el, "mousedown", downListener);
+		};
 
 		// init:register mousedown, and perhaps set a filter
 		params.bind(el, "mousedown", downListener);
-        _setFilter(params.filter);
-    };
-    
-    var Drop = function(el, params) {
-        this._class = _classes.droppable;
-        this._activeClass = params.activeClass || _classes.active;
-        this._hoverClass = params.hoverClass || _classes.hover;
-        var k = Super.apply(this, arguments), hover = false;
-                
-        this.setActive = function(val) {
-            params[val ? "addClass" : "removeClass"](el, this._activeClass);
-        };
-        
-        this.updatePosition = function() {
-            this.position = params.getPosition(el);
-            this.size = params.getSize(el);
-        };
-        
-        this.canDrop = params.canDrop || function(drag) {
-           return true;
-        };
-        
+		_setFilter(params.filter);
+	};
+
+	var Drop = function(el, params) {
+		this._class = _classes.droppable;
+		this._activeClass = params.activeClass || _classes.active;
+		this._hoverClass = params.hoverClass || _classes.hover;
+		var k = Super.apply(this, arguments), hover = false;
+
+		this.setActive = function(val) {
+			params[val ? "addClass" : "removeClass"](el, this._activeClass);
+		};
+
+		this.updatePosition = function() {
+			this.position = params.getPosition(el);
+			this.size = params.getSize(el);
+		};
+
+		this.canDrop = params.canDrop || function(drag) {
+			return true;
+		};
+
         this.setHover = function(drag, val, e) {
             // if turning off hover but this was not the drag that caused the hover, ignore.
             if (val || el._katavorioDragHover == null || el._katavorioDragHover == drag.el._katavorio) {
@@ -1255,6 +1279,8 @@
         this.drop = function(drag, event) {
             params.events["drop"]({ drag:drag, event:event, drop:this });
         };
+		
+		this.destroy = function() {};
     };
     
     var _uuid = function() {
@@ -1265,7 +1291,9 @@
     };
     
     var _gel = function(el) {
+		if (el == null) return null;
         el = typeof el === "string" ? document.getElementById(el) : el;
+		if (el == null) return null;
         el._katavorio = el._katavorio || _uuid();
         return el;
     };
@@ -1277,6 +1305,7 @@
             _dragsByScope = {},
             _dropsByScope = {},
             _zoom = 1,
+			self = this,
             _reg = function(obj, map) {
                 for(var i = 0; i < obj.scopes.length; i++) {
                     map[obj.scopes[i]] = map[obj.scopes[i]] || [];
@@ -1286,7 +1315,6 @@
 			_unreg = function(obj, map) {
 				for(var i = 0; i < obj.scopes.length; i++) {
                     if (map[obj.scopes[i]]) {
-						debugger;
 						var idx = katavorioParams.indexOf(map[obj.scopes[i]], obj);
 						if (idx != -1)
 							map[obj.scopes[i]].splice(idx, 1);
@@ -1325,18 +1353,31 @@
             }.bind(this);
         
         this.draggable = function(el, params) {
-            el = _gel(el);
-            var p = _prepareParams(params, this);
-            el._katavorioDrag = new Drag(el, p);
-            _reg(el._katavorioDrag, _dragsByScope);
-			return el._katavorioDrag;
+			var o = [];
+			_each(el, function() {
+				var _el = _gel(this);
+				if (_el != null) {
+					var p = _prepareParams(params);
+					_el._katavorioDrag = new Drag(_el, p);
+					_reg(_el._katavorioDrag, _dragsByScope);
+					o.push(_el._katavorioDrag);
+				}
+			});
+			return o;
+            
         };
         
         this.droppable = function(el, params) {
-            el = _gel(el);
-            el._katavorioDrop = new Drop(el, _prepareParams(params));
-            _reg(el._katavorioDrop, _dropsByScope);
-			return el._katavorioDrop;
+			var o = [];
+			_each(el, function() {
+				var _el = _gel(this);
+				if (_el != null) {
+					_el._katavorioDrop = new Drop(_el, _prepareParams(params));
+					_reg(_el._katavorioDrop, _dropsByScope);
+					o.push(_el._katavorioDrop);
+				}
+			});
+			return o;
         };
         
         /**
@@ -1346,14 +1387,17 @@
         * @param {Element|String} DOM element - or id of the element - to add.
         */
         this.select = function(el) {
-            el = _gel(el);
-            if (el && el._katavorioDrag) {
-                if (!_selectionMap[el._katavorio]) {
-                    _selection.push(el._katavorioDrag);
-                    _selectionMap[el._katavorio] = [ el, _selection.length - 1 ];
-                    katavorioParams.addClass(el, _classes.selected);
-                }
-            }
+			_each(el, function() {
+				var _el = _gel(this);
+				if (_el && _el._katavorioDrag) {
+					if (!_selectionMap[_el._katavorio]) {
+						_selection.push(_el._katavorioDrag);
+						_selectionMap[_el._katavorio] = [ _el, _selection.length - 1 ];
+						katavorioParams.addClass(_el, _classes.selected);
+					}
+				}
+			});
+            return this;
         };
         
         /**
@@ -1362,55 +1406,52 @@
         * @desc Removes an element from the current selection (for multiple node drag)
         * @param {Element|String} DOM element - or id of the element - to remove.
         */
-        this.deselect = function(el) {
-            el = _gel(el);
-            if (el && el._katavorio) {
-                var e = _selectionMap[el._katavorio];
-                if (e) {
-                    params.removeClass(el, _classes.dragSelect);
-                    _selection.splice(e[1], 1);
-                    delete _selectionMap[el._katavorio];
-                    katavorioParams.removeClass(el, _classes.selected);
-                }
-            }
-        };
-        
-        this.deselectAll = function() {
-            _selection.length = 0;
-            _selectionMap = {};
-        };
+		this.deselect = function(el) {
+			_each(el, function() {
+				var _el = _gel(this);
+				if (_el && _el._katavorio) {
+					var e = _selectionMap[_el._katavorio];
+					if (e) {
+						var _s = [];
+						for (var i = 0; i < _selection.length; i++)
+							if (_selection[i].el !== _el) _s.push(_selection[i]);
+						_selection = _s;
+						delete _selectionMap[_el._katavorio];
+						katavorioParams.removeClass(_el, _classes.selected);
+					}
+				}
+			});
+			return this;
+		};
 
-        this.markSelection = function(drag) {
-            _each(_selection, function(e) { e.mark(); }, drag);
-        };
+		this.deselectAll = function() {
+			_selection.length = 0;
+			_selectionMap = {};
+		};
 
-        this.unmarkSelection = function(drag, event) {
-            _each(_selection, function(e) { e.unmark(event); }, drag);
-        };
+		this.markSelection = function(drag) {
+			_foreach(_selection, function(e) { e.mark(); }, drag);
+		};
 
-        this.getSelection = function() {
-            return _selection.slice(0);
-        };
+		this.unmarkSelection = function(drag, event) {
+			_foreach(_selection, function(e) { e.unmark(event); }, drag);
+		};
 
-        this.updateSelection = function(dx, dy, drag) {
-            _each(_selection, function(e) { e.moveBy(dx, dy); }, drag);
-        };
+		this.getSelection = function() { return _selection.slice(0); };
 
-        this.setZoom = function(z) {
-            _zoom = z;
-        };
+		this.updateSelection = function(dx, dy, drag) {
+			_foreach(_selection, function(e) { e.moveBy(dx, dy); }, drag);
+		};
 
-        this.getZoom = function() { return _zoom; };
-		
+		this.setZoom = function(z) { _zoom = z; };
+		this.getZoom = function() { return _zoom; };
+
 		// does the work of changing scopes
 		var _setScope = function(kObj, scopes, map) {
 			if (kObj != null) {
-				// deregister existing scopes
-				_unreg(kObj, map);
-				// set scopes
-				kObj.setScope(scopes);
-				// register new ones
-				_reg(kObj, map);
+				_unreg(kObj, map);  // deregister existing scopes
+				kObj.setScope(scopes); // set scopes
+				_reg(kObj, map); // register new ones
 			}
 		};
 		
@@ -1422,20 +1463,26 @@
 			_setScope(el._katavorioDrop, scopes, _dropsByScope);
 		};
 		
-		this.setDragScope = function(el, scopes) {
-			_setScope(el._katavorioDrag, scopes, _dragsByScope);
+		this.setDragScope = function(el, scopes) { _setScope(el._katavorioDrag, scopes, _dragsByScope); };
+		this.setDropScope = function(el, scopes) { _setScope(el._katavorioDrop, scopes, _dropsByScope); };
+		this.getDragsForScope = function(s) { return _dragsByScope[s]; }; 
+		this.getDropsForScope = function(s) { return _dropsByScope[s]; };
+		
+		var _destroy = function(el, type, map) {
+			el = _gel(el);
+			if (el[type]) {
+				el[type].destroy();
+				_unreg(el[type], map);
+				el[type] = null;
+			}
 		};
 		
-		this.setDropScope = function(el, scopes) {
-			_setScope(el._katavorioDrop, scopes, _dropsByScope);
+		this.destroyDraggable = function(el) {
+			_destroy(el, "_katavorioDrag", _dragsByScope);
 		};
 		
-		this.getDragsForScope = function(s) {
-			return _dragsByScope[s];
-		}; 
-		
-		this.getDropsForScope = function(s) {
-			return _dropsByScope[s];
+		this.destroyDroppable = function(el) {
+			_destroy(el, "_katavorioDrop", _dropsByScope);
 		};
     };
 }).call(this);
@@ -1530,10 +1577,6 @@
             }
             return c;
         },
-        copyValues:function(names, from, to) {
-            for (var i = 0; i < names.length; i++)
-                to[names[i]] = from[names[i]];
-        },
         //
         // chain a list of functions, supplied by [ object, method name, args ], and return on the first
         // one that returns the failValue. if none return the failValue, return the successValue.
@@ -1608,32 +1651,20 @@
             if (a)
                 for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
             return -1;
-        },
-        clampToGrid : function(x, y, grid, dontClampX, dontClampY) {
-            var _gridClamp = function(n, g) { 
-                var e = n % g, 
-                    f = Math.floor(n / g), 
-                    inc = e >= (g / 2) ? 1 : 0; 
-                return (f + inc) * g; 
-            };
-            return [
-                dontClampX || grid == null ? x : _gridClamp(x, grid[0]),
-                dontClampY || grid == null ? y : _gridClamp(y, grid[1])
-            ];		
-        },
-        indexOf : function(l, v) {
-            return jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });	
-        },
-        removeWithFunction : function(a, f) {
-            var idx = jsPlumbUtil.findWithFunction(a, f);
-            if (idx > -1) a.splice(idx, 1);
-            return idx != -1;
-        },
-        remove : function(l, v) {
-            var idx = jsPlumbUtil.indexOf(l, v);	
-            if (idx > -1) l.splice(idx, 1);
-            return idx != -1;
-        },
+		},
+		indexOf : function(l, v) {
+			return l.indexOf ? l.indexOf(v) : jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });
+		},
+		removeWithFunction : function(a, f) {
+			var idx = jsPlumbUtil.findWithFunction(a, f);
+			if (idx > -1) a.splice(idx, 1);
+			return idx != -1;
+		},
+		remove : function(l, v) {
+			var idx = jsPlumbUtil.indexOf(l, v);
+			if (idx > -1) l.splice(idx, 1);
+			return idx != -1;
+		},
         // TODO support insert index
         addWithFunction : function(list, item, hashFunction) {
             if (jsPlumbUtil.findWithFunction(list, hashFunction) == -1) list.push(item);
@@ -1641,8 +1672,7 @@
         addToList : function(map, key, value, insertAtStart) {
             var l = map[key];
             if (l == null) {
-                l = [];
-                map[key] = l;
+                l = [], map[key] = l;
             }
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
@@ -1696,26 +1726,6 @@
                 catch (e) {} 
             }
         },
-        group : function(g) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.group(g); },
-        groupEnd : function(g) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.groupEnd(g); },
-        time : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.time(t); },
-        timeEnd : function(t) { if (jsPlumbUtil.logEnabled && typeof console != "undefined") console.timeEnd(t); },
-        
-        /**
-		 * helper to remove an element from the DOM.
-		 */
-		removeElement : function(element) {
-			if (element != null && element.parentNode != null) {
-				element.parentNode.removeChild(element);
-			}
-		},
-        /**
-		 * helper to remove a list of elements from the DOM.
-		 */
-		removeElements : function(elements) {
-			for ( var i = 0; i < elements.length; i++)
-				jsPlumbUtil.removeElement(elements[i]);
-		},
         /*
          * Function: sizeElement 
          * Helper to size and position an element. You would typically use
@@ -1772,86 +1782,75 @@
             };
         }
     };
+	
+	/*
+	jsPlumbUtil.indexOf = typeof Array.prototype.indexOf !== "undefined" ? Array.prototype.indexOf : function(l, v) {
+		return jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });
+	};
+	//*/
 
-    
-    jsPlumbUtil.EventGenerator = function() {
-        var _listeners = {}, eventsSuspended = false;
-        
-        // this is a list of events that should re-throw any errors that occur during their dispatch. as of 1.3.0 this is private to
-        // jsPlumb, but it seems feasible that people might want to manipulate this list.  the thinking is that we don't want event
-        // listeners to bring down jsPlumb - or do we.  i can't make up my mind about this, but i know i want to hear about it if the "ready"
-        // event fails, because then my page has most likely not initialised.  so i have this halfway-house solution.  it will be interesting
-        // to hear what other people think.
-        var eventsToDieOn = [ "ready" ];
-                                        
-        this.bind = function(event, listener, insertAtStart) {
-            jsPlumbUtil.addToList(_listeners, event, listener, insertAtStart);     
-            return this;        
-        };
-                 
-        this.fire = function(event, value, originalEvent) {
-            if (!eventsSuspended && _listeners[event]) {
-                // instead of looping through the array we get a counter and a length, because it is possible
-                // that an event fired from here could cause the object to get cleaned up, which would throw
-                // away the listeners. so after each cycle through the loop we check to ensure we haven't
-                // been nuked.
-                var l = _listeners[event].length, i = 0, _gone = false, ret = null;
-                if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
-                    while (!_gone && i < l && ret !== false) {                    
-                    
-                        // doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
-                        // method will have the whole call stack available in the debugger.
-                        if (jsPlumbUtil.findWithFunction(eventsToDieOn, function(e) { return e === event; }) != -1) 
-                            _listeners[event][i](value, originalEvent);
-                        else {
-                            // for events we don't want to die on, catch and log.
-                            try {                            
-                                ret = _listeners[event][i](value, originalEvent);
-                            } catch (e) {
-                                jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
-                            }
-                        }
-                        i++;
-                        if (_listeners == null || _listeners[event] == null) _gone = true;                    
-                    }
-                }
-            }
-            return this;
-        };
-        
-        this.unbind = function(event) {
-            if (event)
-                delete _listeners[event];
-            else {
-                _listeners = {};
-            }
-            return this;
-        };
-        
-        this.getListener = function(forEvent) {
-            return _listeners[forEvent];
-        };              
-        this.setSuspendEvents = function(val) {
-            eventsSuspended = val;    
-        };        
-        this.isSuspendEvents = function() {
-            return eventsSuspended;
-        };        
-        this.cleanupListeners = function() {
-            for (var i in _listeners) {
-                _listeners[i].splice(0);
-                delete _listeners[i];
-            }
-        };
-    };
+	jsPlumbUtil.EventGenerator = function() {
+		var _listeners = {}, 
+			eventsSuspended = false,
+			// this is a list of events that should re-throw any errors that occur during their dispatch. it is current private.
+			eventsToDieOn = { "ready":true };
 
+		this.bind = function(event, listener, insertAtStart) {
+			jsPlumbUtil.addToList(_listeners, event, listener, insertAtStart);
+			return this;
+		};
 
-    jsPlumbUtil.EventGenerator.prototype = {
-        cleanup:function() {
-            this.cleanupListeners();
-        }
-    };
+		this.fire = function(event, value, originalEvent) {
+			if (!eventsSuspended && _listeners[event]) {
+				var l = _listeners[event].length, i = 0, _gone = false, ret = null;
+				if (!this.shouldFireEvent || this.shouldFireEvent(event, value, originalEvent)) {
+					while (!_gone && i < l && ret !== false) {
+						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
+						// method will have the whole call stack available in the debugger.
+						if (eventsToDieOn[event]) 
+							//_listeners[event][i](value, originalEvent);
+							_listeners[event][i].apply(this, [ value, originalEvent]);
+						else {
+							try {
+								//ret = _listeners[event][i](value, originalEvent);
+								ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
+							} catch (e) {
+								jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
+							}
+						}
+						i++;
+						if (_listeners == null || _listeners[event] == null) 
+							_gone = true;
+					}
+				}
+			}
+			return this;
+		};
 
+		this.unbind = function(event) {
+			if (event)
+				delete _listeners[event];
+			else {
+				_listeners = {};
+			}
+			return this;
+		};
+
+		this.getListener = function(forEvent) { return _listeners[forEvent]; };
+		this.setSuspendEvents = function(val) { eventsSuspended = val; };
+		this.isSuspendEvents = function() { return eventsSuspended; };
+		this.cleanupListeners = function() {
+			for (var i in _listeners) {
+				_listeners[i] = null;
+			}
+		};
+	};
+
+	jsPlumbUtil.EventGenerator.prototype = {
+		cleanup:function() {
+			this.cleanupListeners();
+		}
+	};
 
     // thanks MDC
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind?redirectlocale=en-US&redirectslug=JavaScript%2FReference%2FGlobal_Objects%2FFunction%2Fbind
@@ -2331,8 +2330,7 @@
 			var self = this, 
 				a = arguments, 				 				
 				idPrefix = self.idPrefix,
-				id = idPrefix + (new Date()).getTime(),
-				jpcl = jsPlumb.CurrentLibrary;
+				id = idPrefix + (new Date()).getTime();
 
 			this._jsPlumb = { 
 				instance: params._jsPlumb,
@@ -2606,8 +2604,7 @@
 			isHover : function() { return this._jsPlumb.hover; },
 			
 			setHover : function(hover, ignoreAttachedElements, timestamp) {
-				var jpcl = jsPlumb.CurrentLibrary;
-		    	// while dragging, we ignore these events.  this keeps the UI from flashing and
+				// while dragging, we ignore these events.  this keeps the UI from flashing and
 		    	// swishing and whatevering.
 				if (this._jsPlumb && !this._jsPlumb.instance.currentlyDragging && !this._jsPlumb.instance.isHoverSuspended()) {
 		    
@@ -2948,12 +2945,10 @@
 				//
 				_appendElement = function(el, parent) {
 					if (_currentInstance.Defaults.Container)
-						//jsPlumb.CurrentLibrary.appendoElement(el, _currentInstance.Defaults.Container);
 						jsPlumb.getDOMElement(_currentInstance.Defaults.Container).appendChild(el);
 					else if (!parent)
 						jsPlumbAdapter.appendToRoot(el);
 					else
-						//jsPlumb.CurrentLibrary.appendoElement(el, parent);
 						jsPlumb.getDOMElement(parent).appendChild(el);
 				},		
 				
@@ -3030,8 +3025,8 @@
 						retVal.push(fn(el, id)); // append return values to what we will return
 					}
 				} else {
-					el = _currentInstance.getElementObject(element);
-					id = _currentInstance.getAttribute(el, "id");
+					el = _currentInstance.getDOMElement(element);
+					id = _currentInstance.getId(el);
 					retVal = fn(el, id);
 				}
 				return retVal;
@@ -3050,7 +3045,7 @@
 		_initDraggableIfNecessary = function(element, isDraggable, dragOptions) {
 			// TODO move to DragManager?
 			if (!jsPlumbAdapter.headless) {
-				var _draggable = isDraggable == null ? false : isDraggable, jpcl = jsPlumb.CurrentLibrary;
+				var _draggable = isDraggable == null ? false : isDraggable;
 				if (_draggable) {
 					if (jsPlumb.isDragSupported(element) && !jsPlumb.isAlreadyDraggable(element)) {
 						var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
@@ -3402,7 +3397,7 @@
 				var state = draggableStates[elId] == null ? false : draggableStates[elId];
 				state = !state;
 				draggableStates[elId] = state;
-				jsPlumb.CurrentLibrary.setDraggable(el, state);
+				jsPlumb.setDraggable(el, state);
 				return state;
 			});
 		},
@@ -3900,12 +3895,6 @@
 			return _currentInstance;
 		};
 
-
-		// just a library-agnostic wrapper.
-		//this.extend = function(o1, o2) {
-		//	return jsPlumb.CurrentLibrary.extend(o1, o2);
-	//	};
-
 		// helpers for select/selectEndpoints
 		var _setOperation = function(list, func, args, selector) {
 				for (var i = 0, j = list.length; i < j; i++) {
@@ -4328,19 +4317,18 @@
 	        };
 
 		// see API docs
-		this.makeTarget = function(el, params, referenceParams) {						
-			
+		this.makeTarget = function(el, params, referenceParams) {
+
 			// put jsplumb ref into params without altering the params passed in
 			var p = jsPlumb.extend({_jsPlumb:_currentInstance}, referenceParams);
 			jsPlumb.extend(p, params);
 
-			// calculate appropriate paint styles and anchor from the params given			
-			_setEndpointPaintStylesAndAnchor(p, 1);                               
+			// calculate appropriate paint styles and anchor from the params given
+			_setEndpointPaintStylesAndAnchor(p, 1);
 
-			var jpcl = jsPlumb.CurrentLibrary,
-			    targetScope = p.scope || _currentInstance.Defaults.Scope,
-			    deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
-			    maxConnections = p.maxConnections || -1,
+			var targetScope = p.scope || _currentInstance.Defaults.Scope,
+				deleteEndpointsOnDetach = !(p.deleteEndpointsOnDetach === false),
+				maxConnections = p.maxConnections || -1,
 				onMaxConnections = p.onMaxConnections,
 
 				_doOne = function(el) {
@@ -4354,6 +4342,7 @@
 						dropOptions = jsPlumb.extend({}, p.dropOptions || {});
 
 					// store the definitions keyed against the element id.
+					// TODO why not just store inside the element itself?
 					_targetEndpointDefinitions[elid] = p;
 					_targetEndpointsUnique[elid] = p.uniqueEndpoint;
 					_targetMaxConnections[elid] = maxConnections;
@@ -4536,8 +4525,7 @@
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			_setEndpointPaintStylesAndAnchor(p, 0);   
-			var jpcl = jsPlumb.CurrentLibrary,
-				maxConnections = p.maxConnections || -1,
+			var maxConnections = p.maxConnections || -1,
 				onMaxConnections = p.onMaxConnections,
 				_doOne = function(elInfo) {
 					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -4643,7 +4631,8 @@
 						}
 
 						// get container offset
-						var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container), _currentInstance, true);
+						//var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container), _currentInstance, true);
+						var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container || this.offsetParent || document.body), _currentInstance, true);
 
 						// make sure we have the latest offset for this div 
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
@@ -4792,6 +4781,11 @@
 					a[info.id] = toggle ? !a[info.id] : state;
 				}
 			}	
+			// otherwise a DOM element
+			else {
+				var id = _info(el).id;
+				a[id] = toggle ? !a[id] : state;
+			}
 			return _currentInstance;
 		};
 
@@ -4885,7 +4879,7 @@
             	_currentInstance.anchorManager.clearFor(info.id);						
             	_currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
-            if(info.el) jsPlumb.CurrentLibrary.removeElement(info.el);
+            if(info.el) _currentInstance.removeElement(info.el);
         };
 
 		var _registeredListeners = {},
@@ -5149,9 +5143,13 @@
 		getSize : function(el) {
 			return [ el.offsetWidth, el.offsetHeight ];
 		},
-		extend : function(o1, o2) {
-			for (var i in o2)
-				o1[i] = o2[i];
+		extend : function(o1, o2, names) {
+			if (names) {
+				for (var i = 0; i < names.length; i++)
+					o1[names[i]] = o2[names[i]];
+			}
+			else
+				for (var i in o2) o1[i] = o2[i];
 			return o1;
 		}
     });
@@ -5258,7 +5256,6 @@
 
     jsPlumb.Endpoint = function(params) {
         var _jsPlumb = params._jsPlumb,
-            jpcl = jsPlumb.CurrentLibrary,
             _att = jsPlumbAdapter.getAttribute,
             _gel = jsPlumb.getElementObject,            
             _ju = jsPlumbUtil,            
@@ -5406,7 +5403,7 @@
         this.setHoverPaintStyle(params.hoverPaintStyle || _jsPlumb.Defaults.EndpointHoverStyle || jsPlumb.Defaults.EndpointHoverStyle, true);
         this._jsPlumb.paintStyleInUse = this.getPaintStyle();
 
-        _ju.copyValues(typeParameters, params, this);        
+        jsPlumb.extend(this, params, typeParameters);
 
         this.isSource = params.isSource || false;
         this.isTarget = params.isTarget || false;        
@@ -5766,7 +5763,7 @@
                 }.bind(this);
 
                 var dragOptions = params.dragOptions || {},
-                    defaultOpts = jsPlumb.extend( {}, jpcl.defaultDragOptions),
+                    defaultOpts = {},
                     startEvent = jsPlumb.dragEvents.start,
                     stopEvent = jsPlumb.dragEvents.stop,
                     dragEvent = jsPlumb.dragEvents.drag;
@@ -6121,7 +6118,7 @@
         applyType : function(t, doNotRepaint) {         
             if (t.maxConnections != null) this._jsPlumb.maxConnections = t.maxConnections;
             if (t.scope) this.scope = t.scope;
-            jsPlumbUtil.copyValues(typeParameters, t, this);
+            jsPlumb.extend(this, t, typeParameters);
             if (t.anchor) {
                 this.anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
             }
@@ -6239,11 +6236,10 @@
     jsPlumb.Connection = function(params) {
         var _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
-            jpcl = jsPlumb.CurrentLibrary,            
-            _gel = jsPlumb.getElementObject,            
+            _gel = jsPlumb.getElementObject,
             _ju = jsPlumbUtil;
 
-        this.connector = null;                        
+        this.connector = null;
         this.idPrefix = "_jsplumb_c_";
         this.defaultLabelLocation = 0.5;
         this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
@@ -6445,48 +6441,11 @@
         isVisible : function() { return this._jsPlumb.visible; },
         setVisible : function(v) {
             this._jsPlumb.visible = v;
-            //this[v ? "showOverlays" : "hideOverlays"]();
             if (this.connector) 
                 this.connector.setVisible(v);
             this.repaint();
         },
-
-        /* TODO move to connecto editors; it should put these on the prototype.
-
-        setEditable : function(e) {
-            if (this.connector && this.connector.isEditable())
-                this._jsPlumb.editable = e;
-            
-            return this._jsPlumb.editable;
-        },
-        isEditable : function() { return this._jsPlumb.editable; },
-        editStarted : function() {  
-            this.setSuspendEvents(true);
-            this.fire("editStarted", {
-                path:this.connector.getPath()
-            });            
-            this._jsPlumb.instance.setHoverSuspended(true);
-        },
-        editCompleted : function() {            
-            this.fire("editCompleted", {
-                path:this.connector.getPath()
-            });       
-            this.setSuspendEvents(false);
-            this.setHover(false);     
-            this._jsPlumb.instance.setHoverSuspended(false);
-        },
-        editCanceled : function() {
-            this.fire("editCanceled", {
-                path:this.connector.getPath()
-            });
-            this.setHover(false);
-            this._jsPlumb.instance.setHoverSuspended(false);
-        },
-
-*/
-
         cleanup:function() {
-            //this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
             this.source = null;
             this.target = null;                    
@@ -6523,20 +6482,17 @@
         //
         // TODO ensure moveParent method still works (the overlay stuff in particular)
         moveParent : function(newParent) {
-            var jpcl = jsPlumb.CurrentLibrary, curParent = jsPlumb.getParent(this.connector.canvas);               
+            var curParent = jsPlumb.getParent(this.connector.canvas);               
             if (this.connector.bgCanvas) {
-                jpcl.removeElement(this.connector.bgCanvas);
-                //jpcl.appendElement(this.connector.bgCanvas, newParent);
+                this._jsPlumb.instance.removeElement(this.connector.bgCanvas);
                 newParent.appendChild(this.connector.bgCanvas);
             }
-            jpcl.removeElement(this.connector.canvas);
-            //jpcl.appendElement(this.connector.canvas, newParent);                
+            this._jsPlumb.instance.removeElement(this.connector.canvas);
             newParent.appendChild(this.connector.canvas);
             // this only applies for DOMOverlays
             for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
                 if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    jpcl.removeElement(this._jsPlumb.overlays[i].canvas);
-                    //jpcl.appendElement(this._jsPlumb.overlays[i].canvas, newParent);
+                    this._jsPlumb.instance.removeElement(this._jsPlumb.overlays[i].canvas);
                     newParent.appendChild(this._jsPlumb.overlays[i].canvas);
                     if (this._jsPlumb.overlays[i].reattachListeners) 
                         this._jsPlumb.overlays[i].reattachListeners(this.connector);
@@ -6711,7 +6667,6 @@
 			self = this,
             anchorLists = {},
             jsPlumbInstance = params.jsPlumbInstance,
-            jpcl = jsPlumb.CurrentLibrary,
             floatingConnections = {},
             // TODO this functions uses a crude method of determining orientation between two elements.
             // 'diagonal' should be chosen when the angle of the line between the two centers is around
@@ -6877,7 +6832,7 @@
                 registerConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if ((sourceId == targetId) && otherAnchor.isContinuous){
                        // remove the target endpoint's canvas.  we dont need it.
-                        jpcl.removeElement(ep[1].canvas);
+                        conn._jsPlumb.instance.removeElement(ep[1].canvas);
                         doRegisterTarget = false;
                     }
 					jsPlumbUtil.addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == jsPlumb.DynamicAnchor]);
@@ -7381,7 +7336,6 @@
         // this is the anchor that this floating anchor is referenced to for
         // purposes of calculating the orientation.
         var ref = params.reference,
-            jpcl = jsPlumb.CurrentLibrary,
             jsPlumbInstance = params.jsPlumbInstance,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,
@@ -8632,7 +8586,7 @@
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
         cleanup : function() {            
             this._jsPlumb.deleted = true;
-            jsPlumbUtil.removeElement(this.canvas);
+            this.canvas && this.canvas.parentNode.removeChild(this.canvas);
             this.canvas = null;
         } 
     });
@@ -8978,7 +8932,7 @@
         },
         cleanup : function() {
             if (this._jsPlumb.div != null) 
-                jsPlumb.CurrentLibrary.removeElement(this._jsPlumb.div);
+                this._jsPlumb.instance.removeElement(this._jsPlumb.div);
         },
         computeMaxSize : function() {
             var td = _getDimensions(this);
@@ -9866,9 +9820,9 @@
 		
 	// TODO refactor to renderer common script.  put a ref to jsPlumb.sizeCanvas in there too.
 	var _connectionBeingDragged = null,
-	    _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
-	    _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
-	    _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
+	    _hasClass = function(el, clazz) { return jsPlumb.hasClass(_getElementObject(el), clazz); },
+	    _getElementObject = function(el) { return jsPlumb.getElementObject(el); },
+	    _getOffset = function(el) { return jsPlumb.getOffset(_getElementObject(el)); },
 	    _pageXY = function(e) { 
 			e = jsPlumb.getOriginalEvent(e);
 			return e.pageX ? [ e.pageX, e.pageY ] : [e.clientX, e.clientY ];
@@ -10642,7 +10596,7 @@
 	};
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
-			jsPlumbUtil.removeElement(this.canvas);            
+			this.canvas && this.canvas.parentNode && this.canvas.parentNode.removeChild(this.canvas);
 			this.svg = null;
 			this.canvas = null;
 			this.path = null;			
@@ -10908,7 +10862,7 @@
     };
     jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
     	cleanup : function() {
-    		if (this.path != null) jsPlumb.CurrentLibrary.removeElement(this.path);
+    		if (this.path != null) this._jsPlumb.instance.removeElement(this.path);
     	},
     	setVisible:function(v) {
     		if(this.path != null) (this.path.style.display = (v ? "block" : "none"));
@@ -11172,8 +11126,8 @@
 	};
 	jsPlumbUtil.extend(VmlComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {			
-			if (this.bgCanvas) jsPlumbUtil.removeElement(this.bgCanvas);
-			jsPlumbUtil.removeElement(this.canvas);            				
+			this.bgCanvas && this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+			this.canvas && this.canvas.parentNode.removeChild(this.canvas);
 		}
 	});
 
@@ -11405,8 +11359,8 @@
     	superclass.apply(this, originalArgs);
     	VmlComponent.apply(this, originalArgs);
     	var self = this, path = null;
-    	self.canvas = null; 
-    	self.isAppendedAtTopLevel = true;
+    	this.canvas = null; 
+    	this.isAppendedAtTopLevel = true;
     	var getPath = function(d) {    		
     		return "m " + _conv(d.hxy.x) + "," + _conv(d.hxy.y) +
     		       " l " + _conv(d.tail[0].x) + "," + _conv(d.tail[0].y) + 
@@ -11465,11 +11419,11 @@
     	};
     	
     	this.reattachListeners = function() {
-			if (self.canvas) self.reattachListenersForElement(self.canvas, self);
+			if (this.canvas) this.reattachListenersForElement(self.canvas, this);
 		};
 
 		this.cleanup = function() {
-    		if (self.canvas != null) jsPlumb.CurrentLibrary.removeElement(self.canvas);
+    		if (this.canvas != null) this._jsPlumb.instance.removeElement(this.canvas);
     	};
     };
     jsPlumbUtil.extend(AbstractVmlArrowOverlay, [VmlComponent, jsPlumb.Overlays.AbstractOverlay], {
@@ -11539,36 +11493,45 @@
 	};
 
 	 var _getEventManager = function(instance) {
-		 var e = instance._evensi;
+		 var e = instance._mottle;
 		 if (!e) {
-			 e = instance._evensi = new Mottle({
-
-			 });
+			 e = instance._mottle = new Mottle();
 		 }
 		 return e;
 	 };
 
 	jsPlumb.extend(jsPlumbInstance.prototype, {		
 	
-		getDOMElement:function(el) { return typeof el === "string" ? document.getElementById(el) : el; },
+		getDOMElement:function(el) { 
+			if (el == null) return null;
+			// here we pluck the first entry if el was a list of entries.
+			// this is not my favourite thing to do, but previous versions of 
+			// jsplumb supported jquery selectors, and it is possible a selector 
+			// will be passed in here.
+			el = typeof el === "string" ? el : el.length != null ? el[0] : el;
+			return typeof el === "string" ? document.getElementById(el) : el; 
+		},
 		getElementObject:function(el) { return el; },
+		removeElement : function(element) {
+			_getEventManager(this).remove(element);
+		},
 		doAnimate:function() { throw "not implemented!" },
 		getSelector:function(ctx, spec) { 
+			var sel = null;
 			if (arguments.length == 1) {
-				return ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
+				sel = ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
 			}
 			else
-				return document.querySelectorAll(spec, ctx); 
+				sel = document.querySelectorAll(spec, ctx); 
+				
+			return sel;// == null ? null : sel.length == 1 ? sel[0] : sel;
 		},
-		
 		// DRAG/DROP
 		destroyDraggable:function(el) {
-			// TODO add destroy methods to Katavorio
-			//_getDragManager(this).destroyDraggable(el);
+			_getDragManager(this).destroyDraggable(el);
 		},
 		destroyDroppable:function(el) {
-			// TODO add destroy methods to Katavorio
-			//_getDragManager(this).destroyDroppable(el);
+			_getDragManager(this).destroyDroppable(el);
 		},
 		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
 			_getDragManager(this).draggable(el, options);
@@ -11599,7 +11562,9 @@
 			}
 		},
 		setElementDraggable : function(el, draggable) { 
-			throw "not implemented";
+			el = jsPlumb.getDOMElement(el);
+			if (el._katavorioDrag)
+				el._katavorioDrag.setEnabled(draggable);
 		},
 		setDragScope : function(el, scope) { 
 			if (el._katavorioDrag)
@@ -11609,68 +11574,36 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
-		// TODO: we want to pass the instance in here, and then have the Mottle event manager
-		// handle the trigger.
+// 		MULTIPLE ELEMENT DRAG
+		// these methods are unique to this adapter, because katavorio
+		// supports dragging multiple elements.
+		addToDragSelection:function(spec) {
+			_getDragManager(this).select(spec);
+		},
+		removeFromDragSelection:function(spec) {
+			_getDragManager(this).deselect(spec);
+		},
+		clearDragSelection:function() {
+			_getDragManager(this).deselectAll();
+		},
+//           EVENTS
 		trigger : function(el, event, originalEvent) { 
-			console.log("trigger", event)
-			var evt;
-			/*if (typeof MouseEvent !== "undefined") {
-				event = new MouseEvent(event, {
-					pageX:originalEvent.pageX,
-					pagY:originalEvent.pageY,
-					clientX:originalEvent.clientX,
-					clientY:originalEvent.clientY
-				});
-			}*/
-			//else if (typeof document.createEvent !== "undefined") {
-			if (document.createEvent) {
-				evt = document.createEvent("MouseEvents");
-				evt.initMouseEvent(event, true, true, window, 0,
-				originalEvent.screenX, originalEvent.screenY,
-				originalEvent.clientX, originalEvent.clientY,
-				false, false, false, false, 1, null);
-				
-				el.dispatchEvent(evt);
-			}
-			else if (document.createEventObject) {
-				evt = document.createEventObject();
-				evt.eventType = event;
-				evt.eventName = event;
-				evt.screenX = originalEvent.screenX;
-				evt.screenY = originalEvent.screenY;
-				evt.clientX = originalEvent.clientX;
-				evt.clientY = originalEvent.clientY;
-				el.fireEvent('on' + event, evt);
-			}
-				
-				/* eventType, canBubble, cancelable, 
-				viewArg, detailArg, screenXArg, screenYArg, 
-				clientXArg, clientYArg, ctrlKeyArg, 
-				altKeyArg, shiftKeyArg, metaKeyArg, 
-				buttonArg, relatedTargetArg
-				*/
-			//}
-			//else {
-				
-			//}			
+			_getEventManager(this).trigger(el, event, originalEvent);
 		},
 		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
-			event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
-			_getEventManager(this).on(el, event, callback);
+			// TODO: here we would like to map the tap event if we know its
+			// and internal bind to a click. we have to know its internal because only
+			// then can we be sure that the UP event wont be consumed (tap is a synthesized
+			// event from a mousedown followed by a mouseup).
+			//event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
+			
+			_getEventManager(this).on.apply(this, arguments);
 		},
 		off : function(el, event, callback) {
-			_getEventManager(this).off(el, event, callback);
+			_getEventManager(this).off.apply(this, arguments);
 		}
 	});
-
-	jsPlumb.CurrentLibrary = {
-		// TODO use the touch adapter's remove method; it unregisters
-		// event listeners properly.
-		removeElement : function(element) {
-			(element && element.parentNode) && element.parentNode.removeChild(element);
-		}
-	};
 
 	var ready = function (f) {
         (/complete|loaded|interactive/.test(document.readyState)) ?

@@ -53,31 +53,19 @@
 				dc = _d("div",  "current-library", d, list[idx][1]),
 				dn = _d("div",  "", d, "<a href='../" + list[next][0] + "/" + library + ".html'><i class='fa fa-arrow-right'></i>" + list[next][1] + "</a>");
 
-			if (typeof jQuery != "undefined") {
-				// dropdown menu
-				var m = document.querySelectorAll(".menu")[0],
-					dd = _d("div", "dropdown", m, null, null, true),
-					a = _d("a", "", dd, "DEMOS", {href:"#", "data-toggle":"dropdown"}),
-					ul = _d("ul", "dropdown-menu", dd, null, { role:"menu" });
-
-				for (var i = 0; i < list.length; i++) {
-					var li = _d("li", "", ul, null, {role:"presentation"}),
-						aa = _d("a", "", li, list[i][1], { role:"menuitem", tabindex:"-1", href:"../" + list[i][0] +"/" + library + ".html"});
-				}
-
-				$(a).dropdown();
+			// make a drop down.
+			var m = document.querySelectorAll(".menu")[0],
+				sel = _d("select", "", m, null, null, true);
+			for (var i = 0; i < list.length; i++) {
+				var opts = {"data-href":"../" + list[i][0] +"/" + library + ".html"};
+				if (list[i][0] == current)
+					opts["selected"] = true;
+				_d("option", "", sel, list[i][1], opts, null);
 			}
-			else {
-				// make a drop down.
-				var m = document.querySelectorAll(".menu")[0],
-					sel = _d("select", "", m, null, null, true);
-				for (var i = 0; i < list.length; i++) {
-					_d("option", "", sel, list[i][1], {"data-href":"../" + list[i][0] +"/" + library + ".html", "selected":list[i][0] == current}, null);
-				}
-				jsPlumb.on(sel, "change", function() {
-					document.location = sel.options[sel.selectedIndex].getAttribute("data-href");					
-				});
-			}
+			jsPlumb.on(sel, "change", function() {
+				document.location = sel.options[sel.selectedIndex].getAttribute("data-href");					
+			});
+			sel.style.marginRight = "20px";
 
 			// library links
 			var lidx = jsPlumbUtil.findWithFunction(libs, function(l) { return l[0] == library; }),
@@ -89,8 +77,6 @@
 
 
 		}
-
-			
 
 	});
 })();

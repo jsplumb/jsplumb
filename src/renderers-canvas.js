@@ -26,9 +26,9 @@
 		
 	// TODO refactor to renderer common script.  put a ref to jsPlumb.sizeCanvas in there too.
 	var _connectionBeingDragged = null,
-	    _hasClass = function(el, clazz) { return jsPlumb.CurrentLibrary.hasClass(_getElementObject(el), clazz); },
-	    _getElementObject = function(el) { return jsPlumb.CurrentLibrary.getElementObject(el); },
-	    _getOffset = function(el) { return jsPlumb.CurrentLibrary.getOffset(_getElementObject(el)); },
+	    _hasClass = function(el, clazz) { return jsPlumb.hasClass(_getElementObject(el), clazz); },
+	    _getElementObject = function(el) { return jsPlumb.getElementObject(el); },
+	    _getOffset = function(el) { return jsPlumb.getOffset(_getElementObject(el)); },
 	    _pageXY = function(e) { 
 			e = jsPlumb.getOriginalEvent(e);
 			return e.pageX ? [ e.pageX, e.pageY ] : [e.clientX, e.clientY ];
