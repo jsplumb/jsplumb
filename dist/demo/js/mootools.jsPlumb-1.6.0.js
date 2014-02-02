@@ -3548,13 +3548,9 @@
 							fireMoveEvent({
 								index:idx,
 								originalSourceId:idx === 0 ? suspendedElementId : jpc.sourceId,
-								newSourceId:idx === 0 ? this.elementId : jpc.sourceId,
+								newSourceId:idx === 0 ? elid : jpc.sourceId,
 								originalTargetId:idx == 1 ? suspendedElementId : jpc.targetId,
-								newTargetId:idx == 1 ? this.elementId : jpc.targetId,
-								originalSourceEndpoint:idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0],
-								newSourceEndpoint:idx === 0 ? this : jpc.endpoints[0],
-								originalTargetEndpoint:idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
-								newTargetEndpoint:idx == 1 ? this : jpc.endpoints[1],
+								newTargetId:idx == 1 ? elid : jpc.targetId,
 								connection:jpc
 							}, originalEvent);
 							
@@ -9529,6 +9525,7 @@
 	DASHSTYLE = "dashstyle",
 	LINEAR_GRADIENT = "linearGradient",
 	RADIAL_GRADIENT = "radialGradient",
+	DEFS = "defs",
 	FILL = "fill",
 	STOP = "stop",
 	STROKE = "stroke",
@@ -9556,7 +9553,7 @@
 	_pos = function(d) { return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px"; },	
 	_clearGradient = function(parent) {
 		for (var i = 0; i < parent.childNodes.length; i++) {
-			if (parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
+			if (parent.childNodes[i].tagName == DEFS || parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
 				parent.removeChild(parent.childNodes[i]);
 		}
 	},		
@@ -9581,7 +9578,10 @@
 			});			
 		}
 		
-		parent.appendChild(g);
+		var defs = _node(DEFS);
+		parent.appendChild(defs);
+		defs.appendChild(g);
+		//parent.appendChild(g);
 		
 		// the svg radial gradient seems to treat stops in the reverse 
 		// order to how canvas does it.  so we want to keep all the maths the same, but
@@ -9594,10 +9594,16 @@
 			g.appendChild(s);
 		}
 		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
-        node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
+        //node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
+		//node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
+		//node.setAttribute(applyGradientTo,  "url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
+		node.setAttribute(applyGradientTo,  "url(#" + id + ")");
 	},
 	_applyStyles = function(parent, node, style, dimensions, uiComponent) {
 		
+		node.setAttribute(FILL, style.fillStyle ? jsPlumbUtil.convertStyle(style.fillStyle, true) : NONE);
+			node.setAttribute(STROKE, style.strokeStyle ? jsPlumbUtil.convertStyle(style.strokeStyle, true) : NONE);
+			
 		if (style.gradient) {
 			_updateGradient(parent, node, style, dimensions, uiComponent);			
 		}
@@ -9607,8 +9613,7 @@
 			node.setAttribute(STYLE, "");
 		}
 		
-		node.setAttribute(FILL, style.fillStyle ? jsPlumbUtil.convertStyle(style.fillStyle, true) : NONE);
-		node.setAttribute(STROKE, style.strokeStyle ? jsPlumbUtil.convertStyle(style.strokeStyle, true) : NONE);		
+		
 		if (style.lineWidth) {
 			node.setAttribute(STROKE_WIDTH, style.lineWidth);
 		}

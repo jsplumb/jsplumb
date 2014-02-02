@@ -67,8 +67,7 @@
 			
 			// and finally, make a couple of connections
 			instance.connect({ source:"opened", target:"phone1" });
-			var cc = instance.connect({ source:"phone1", target:"phone1" });
-			instance.detach(cc);
+			instance.connect({ source:"phone1", target:"phone1" });
 			instance.connect({ source:"phone1", target:"inperson" });
 			
 		});
