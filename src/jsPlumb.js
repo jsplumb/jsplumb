@@ -2161,13 +2161,9 @@
 							fireMoveEvent({
 								index:idx,
 								originalSourceId:idx === 0 ? suspendedElementId : jpc.sourceId,
-								newSourceId:idx === 0 ? this.elementId : jpc.sourceId,
+								newSourceId:idx === 0 ? elid : jpc.sourceId,
 								originalTargetId:idx == 1 ? suspendedElementId : jpc.targetId,
-								newTargetId:idx == 1 ? this.elementId : jpc.targetId,
-								originalSourceEndpoint:idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0],
-								newSourceEndpoint:idx === 0 ? this : jpc.endpoints[0],
-								originalTargetEndpoint:idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
-								newTargetEndpoint:idx == 1 ? this : jpc.endpoints[1],
+								newTargetId:idx == 1 ? elid : jpc.targetId,
 								connection:jpc
 							}, originalEvent);
 							
