@@ -288,12 +288,10 @@
 		 */
 		getUIPosition : function(eventArgs, zoom) {
 		  var ui = eventArgs[0],
-			  el = jsPlumb.getElementObject(ui),
-			  p = el.getPosition();
-			
-		  zoom = zoom || 1;		  
-			
-		  return { left:p.x / zoom, top:p.y / zoom};
+		  	el = jsPlumb.getDOMElement(ui),
+			o = jsPlumbAdapter.getOffset(el, this);
+			zoom = zoom || 1;
+			return { left:o.left / zoom, top:o.top/zoom };
 		},
 		setDragFilter : function(el, filter) {
 			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");

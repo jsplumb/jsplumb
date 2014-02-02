@@ -274,8 +274,8 @@
 		getUIPosition : function(args, zoom) {
 			zoom = zoom || 1;
 			var el = args[0].currentTarget.el._node || args[0].currentTarget.el;
-			var o = Y.DOM.getXY(el);
-			return {left:o[0] / zoom, top:o[1] / zoom };
+			var o = jsPlumbAdapter.getOffset(el, this);
+			return { left:o.left / zoom, top:o.top/zoom };
 		},
 		setDragFilter : function(el, filter) {
 			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");
