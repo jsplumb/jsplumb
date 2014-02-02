@@ -907,19 +907,19 @@
 			if (_p.target && !_p.target.endpoint && !_p.targetEndpoint && !_p.newConnection) {
 				tid = _getId(_p.target);
 				tep =_targetEndpointDefinitions[tid];
-				existingUniqueEndpoint = _targetEndpoints[tid];			
 
-				if (tep) {			
+				if (tep) {
+					
 					// if target not enabled, return.
-					if (!_targetsEnabled[tid]) return;
+					if (!tep.enabled) return;
 
 					// TODO this is dubious. i think it is there so that the endpoint can subsequently
 					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					tep.isTarget = true;
 
 					// check for max connections??						
-					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.target, tep);
-					if (_targetEndpointsUnique[tid]) _targetEndpoints[tid] = newEndpoint;
+					newEndpoint = tep.endpoint != null ? tep.endpoint : _currentInstance.addEndpoint(_p.target, tep.def);
+					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
 					 // TODO test options to makeTarget to see if we should do this?
 					 newEndpoint._doNotDeleteOnDetach = false; // reset.
@@ -931,18 +931,17 @@
 			if (_p.source && !_p.source.endpoint && !_p.sourceEndpoint && !_p.newConnection) {
 				tid = _getId(_p.source);
 				tep = _sourceEndpointDefinitions[tid];
-				existingUniqueEndpoint = _sourceEndpoints[tid];				
 
 				if (tep) {
 					// if source not enabled, return.					
-					if (!_sourcesEnabled[tid]) return;
+					if (!tep.enabled) return;
 
 					// TODO this is dubious. i think it is there so that the endpoint can subsequently
 					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					//tep.isSource = true;
 				
-					newEndpoint = existingUniqueEndpoint != null ? existingUniqueEndpoint : _currentInstance.addEndpoint(_p.source, tep);
-					if (_sourceEndpointsUnique[tid]) _sourceEndpoints[tid] = newEndpoint;
+					newEndpoint = tep.endpoint != null ? tep.endpoint : _currentInstance.addEndpoint(_p.source, tep.def);
+					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.sourceEndpoint = newEndpoint;
 					 // TODO test options to makeSource to see if we should do this?
 					 newEndpoint._doNotDeleteOnDetach = false; // reset.
@@ -2019,9 +2018,6 @@
 // --------------------- makeSource/makeTarget ---------------------------------------------- 
 		
 		var _targetEndpointDefinitions = {},
-			_targetEndpoints = {},
-			_targetEndpointsUnique = {},
-			_targetMaxConnections = {},
 			_setEndpointPaintStylesAndAnchor = function(ep, epIndex) {
 				ep.paintStyle = ep.paintStyle ||
 				 				_currentInstance.Defaults.EndpointStyles[epIndex] ||
@@ -2048,12 +2044,6 @@
 			},
 			// TODO put all the source stuff inside one parent, keyed by id.
 			_sourceEndpointDefinitions = {},
-			_sourceEndpoints = {},
-			_sourceEndpointsUnique = {},
-			_sourcesEnabled = {},
-			_sourceTriggers = {},
-			_sourceMaxConnections = {},
-			_targetsEnabled = {},
 			selectorFilter = function(evt, _el, selector) {	            
                 var t = evt.target || evt.srcElement, ok = false, 
                     sel = _currentInstance.getSelector(_el, selector);
@@ -2093,26 +2083,29 @@
 
 					// store the definitions keyed against the element id.
 					// TODO why not just store inside the element itself?
-					_targetEndpointDefinitions[elid] = p;
-					_targetEndpointsUnique[elid] = p.uniqueEndpoint;
-					_targetMaxConnections[elid] = maxConnections;
-					_targetsEnabled[elid] = true;				
+					_targetEndpointDefinitions[elid] = {
+						def:p,
+						uniqueEndpoint:p.uniqueEndpoint,
+						maxConnections:maxConnections,
+						enabled:true
+					};
 
 					var _drop = function() {
 						_currentInstance.currentlyDragging = false;
 						var originalEvent = jsPlumb.getDropEvent(arguments),
 							targetCount = _currentInstance.select({target:elid}).length,
 							draggable = _currentInstance.getElementObject(jsPlumb.getDragObject(arguments)),
-							id = _currentInstance.getAttribute(draggable, "dragId"),										
+							id = _currentInstance.getAttribute(draggable, "dragId"),
 							scope = _currentInstance.getAttribute(draggable, "originalScope"),
 							jpc = floatingConnections[id],
 							idx = jpc.endpoints[0].isFloating() ? 0 : 1,
 							// this is not necessarily correct. if the source is being dragged,
 							// then the source endpoint is actually the currently suspended endpoint.
 							source = jpc.endpoints[0],
-							_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {};					
+							_endpoint = p.endpoint ? jsPlumb.extend({}, p.endpoint) : {},
+							def = _targetEndpointDefinitions[elid];
 							
-						if (!_targetsEnabled[elid] || _targetMaxConnections[elid] > 0 && targetCount >= _targetMaxConnections[elid]){
+						if (!def.enabled || def.maxConnections > 0 && targetCount >= def.maxConnections){
 							if (onMaxConnections) {
 								// TODO here we still have the id of the floating element, not the
 								// actual target.
@@ -2133,9 +2126,9 @@
 						// if no suspendedEndpoint and not pending, it is likely there was a drop on two 
 						// elements that are on top of each other. abort.
 						if (jpc.suspendedEndpoint == null && !jpc.pending)
-							return false;		
+							return false;
 						
-						// check if drop is allowed here.					
+						// check if drop is allowed here.
 						// if the source is being dragged then in fact
 						// the source and target ids to pass into the drop interceptor are
 						// source - elid
@@ -2145,7 +2138,7 @@
 						// source - jpc.sourceId
 						// target - elid
 						//
-						var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null);							
+						var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null);
 
 						// reinstate any suspended endpoint; this just puts the connection back into
 						// a state in which it will report sensible values if someone asks it about
@@ -2155,21 +2148,21 @@
 							jpc[idx ? "targetId" : "sourceId"] = jpc.suspendedEndpoint.elementId;
 							jpc[idx ? "target" : "source"] = jpc.suspendedEndpoint.element;
 							jpc.endpoints[idx] = jpc.suspendedEndpoint;
-						}																										
+						}
 						
 						if (_continue) {
 																	
 							// make a new Endpoint for the target, or get it from the cache if uniqueEndpoint
                             // is set.
 							var _el = _currentInstance.getElementObject(elInfo.el),
-								newEndpoint = _targetEndpoints[elid];
+								newEndpoint = def.endpoint;
 
                             // if no cached endpoint, or there was one but it has been cleaned up
                             // (ie. detached), then create a new one.
                             if (newEndpoint == null || newEndpoint._jsPlumb == null)
                                 newEndpoint = _currentInstance.addEndpoint(_el, p);
 
-							if (p.uniqueEndpoint) _targetEndpoints[elid] = newEndpoint;  // may of course just store what it just pulled out. that's ok.
+							if (p.uniqueEndpoint) def.endpoint = newEndpoint;  // may of course just store what it just pulled out. that's ok.
 							// TODO test options to makeTarget to see if we should do this?
 							newEndpoint._doNotDeleteOnDetach = false; // reset.
 							newEndpoint._deleteOnDetach = true;
@@ -2230,7 +2223,7 @@
 									source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
 							}
 							
-						}														
+						}
 					};
 					
 					// wrap drop events as needed and initialise droppable
@@ -2262,9 +2255,6 @@
 			// the element.  the effect will be to prevent it from behaving as a target, but it's not completely purged.
 			if (!doNotClearArrays) {
 				delete _targetEndpointDefinitions[info.id];
-				delete _targetEndpointsUnique[info.id];
-				delete _targetMaxConnections[info.id];
-				delete _targetsEnabled[info.id];                
 			}
 
 			return _currentInstance;
@@ -2287,10 +2277,12 @@
 						},
 						idToRegisterAgainst = p.parent != null ? _currentInstance.getId(parentElement()) : elid;
 					
-					_sourceEndpointDefinitions[idToRegisterAgainst] = p;
-					_sourceEndpointsUnique[idToRegisterAgainst] = p.uniqueEndpoint;
-					_sourcesEnabled[idToRegisterAgainst] = true;
-
+					_sourceEndpointDefinitions[idToRegisterAgainst] = {
+						def:p,
+						uniqueEndpoint:p.uniqueEndpoint,
+						maxConnections:maxConnections,
+						enabled:true
+					};
 					var stopEvent = jsPlumb.dragEvents.stop,
 						dragEvent = jsPlumb.dragEvents.drag,
 						dragOptions = jsPlumb.extend({ }, p.dragOptions || {}),
@@ -2299,7 +2291,7 @@
 						ep = null,
 						endpointAddedButNoDragYet = false;
 				
-					_sourceMaxConnections[idToRegisterAgainst] = maxConnections;	
+					
 
 					// set scope if its not set in dragOptions but was passed in in params
 					dragOptions.scope = dragOptions.scope || p.scope;
@@ -2357,8 +2349,10 @@
 					// when the user presses the mouse, add an Endpoint, if we are enabled.
 					var mouseDownListener = function(e) {
 
+						var def = _sourceEndpointDefinitions[idToRegisterAgainst];
+						
 						// if disabled, return.
-						if (!_sourcesEnabled[idToRegisterAgainst]) return;
+						if (!def.enabled) return;
 	                    
 	                    // if a filter was given, run it, and return if it says no.
 						if (p.filter) {
@@ -2370,7 +2364,7 @@
 						
 						// if maxConnections reached
 						var sourceCount = _currentInstance.select({source:idToRegisterAgainst}).length;
-						if (_sourceMaxConnections[idToRegisterAgainst] >= 0 && sourceCount >= _sourceMaxConnections[idToRegisterAgainst]) {
+						if (def.maxConnections >= 0 && sourceCount >= def.maxConnections) {
 							if (onMaxConnections) {
 								onMaxConnections({
 									element:_el,
@@ -2455,7 +2449,7 @@
 	               
 	                // register this on jsPlumb so that it can be cleared by a reset.
 	                _currentInstance.registerListener(_el, "mousedown", mouseDownListener);
-	                _sourceTriggers[elid] = mouseDownListener;
+	                _sourceEndpointDefinitions[idToRegisterAgainst].trigger = mouseDownListener;
 
 	                // lastly, if a filter was provided, set it as a dragFilter on the element,
 	                // to prevent the element drag function from kicking in when we want to
@@ -2469,7 +2463,7 @@
 			
 			var inputs = el.length && el.constructor != String ? el : [ el ];
 						
-			for (var i = 0, ii = inputs.length; i < ii; i++) {			
+			for (var i = 0, ii = inputs.length; i < ii; i++) {
 				_doOne(_info(inputs[i]));
 			}
 
@@ -2479,17 +2473,13 @@
 		// see api docs		
 		this.unmakeSource = function(el, doNotClearArrays) {
 			var info = _info(el),
-				mouseDownListener = _sourceTriggers[info.id];
+				mouseDownListener = _sourceEndpointDefinitions[info.id].trigger;
 			
 			if (mouseDownListener) 
 				_currentInstance.unregisterListener(info.el, "mousedown", mouseDownListener);
 
 			if (!doNotClearArrays) {
 				delete _sourceEndpointDefinitions[info.id];
-				delete _sourceEndpointsUnique[info.id];
-				delete _sourcesEnabled[info.id];
-				delete _sourceTriggers[info.id];
-				delete _sourceMaxConnections[info.id];
 			}
 
 			return _currentInstance;
@@ -2497,64 +2487,69 @@
 
 		// see api docs
 		this.unmakeEverySource = function() {
-			for (var i in _sourcesEnabled)
+			for (var i in _sourceEndpointDefinitions)
 				_currentInstance.unmakeSource(i, true);
 
 			_sourceEndpointDefinitions = {};
-			_sourceEndpointsUnique = {};
-			_sourcesEnabled = {};
-			_sourceTriggers = {};
 		};
 		
 		// see api docs
 		this.unmakeEveryTarget = function() {
-			for (var i in _targetsEnabled)
+			for (var i in _targetEndpointDefinitions)
 				_currentInstance.unmakeTarget(i, true);
 			
 			_targetEndpointDefinitions = {};
-			_targetEndpointsUnique = {};
-			_targetMaxConnections = {};
-			_targetsEnabled = {};
 
 			return _currentInstance;
 		};			
 
 		// does the work of setting a source enabled or disabled.
 		var _setEnabled = function(type, el, state, toggle) {
-			var a = type == "source" ? _sourcesEnabled : _targetsEnabled;									
+			var a = type == "source" ? _sourceEndpointDefinitions : _targetEndpointDefinitions;
 			el = _convertYUICollection(el);
 
-			if (_ju.isString(el)) a[el] = toggle ? !a[el] : state;
+			if (_ju.isString(el)) a[el].enabled = toggle ? !a[el].enabled : state;
 			else if (el.length) {				
 				for (var i = 0, ii = el.length; i < ii; i++) {
 					var info = _info(el[i]);
-					a[info.id] = toggle ? !a[info.id] : state;
+					if (a[info.id])
+						a[info.id].enabled = toggle ? !a[info.id].enabled : state;
 				}
 			}	
 			// otherwise a DOM element
 			else {
 				var id = _info(el).id;
-				a[id] = toggle ? !a[id] : state;
+				a[id].enabled = toggle ? !a[id].enabled : state;
 			}
 			return _currentInstance;
 		};
 
 		this.toggleSourceEnabled = function(el) {
-			_setEnabled("source", el, null, true);	
+			_setEnabled("source", el, null, true);
 			return _currentInstance.isSourceEnabled(el);
 		};
 
 		this.setSourceEnabled = function(el, state) { return _setEnabled("source", el, state); };
-		this.isSource = function(el) { return _sourcesEnabled[_info(el).id] != null; };		
-		this.isSourceEnabled = function(el) { return _sourcesEnabled[_info(el).id] === true; };
+		this.isSource = function(el) { 
+			return _sourceEndpointDefinitions[_info(el).id] != null; 
+		};
+		this.isSourceEnabled = function(el) { 
+			var sep = _sourceEndpointDefinitions[_info(el).id];
+			return sep && sep.enabled === true;
+		};
 
 		this.toggleTargetEnabled = function(el) {
 			_setEnabled("target", el, null, true);	
 			return _currentInstance.isTargetEnabled(el);
 		};
 		
-		this.isTarget = function(el) { return _targetsEnabled[_info(el).id] != null; };		
-		this.isTargetEnabled = function(el) { return _targetsEnabled[_info(el).id] === true; };
+		this.isTarget = function(el) { 
+			return _targetEndpointDefinitions[_info(el).id] != null; 
+		};
+		this.isTargetEnabled = function(el) { 
+			var tep = _targetEndpointDefinitions[_info(el).id];
+			return tep && tep.enabled === true;
+		};
 		this.setTargetEnabled = function(el, state) { return _setEnabled("target", el, state); };
 
 // --------------------- end makeSource/makeTarget ---------------------------------------------- 				
@@ -2661,13 +2656,7 @@
 			_currentInstance.deleteEveryEndpoint();
 			_currentInstance.unbind();
 			_targetEndpointDefinitions = {};
-			_targetEndpoints = {};
-			_targetEndpointsUnique = {};
-			_targetMaxConnections = {};
 			_sourceEndpointDefinitions = {};
-			_sourceEndpoints = {};
-			_sourceEndpointsUnique = {};
-			_sourceMaxConnections = {};
 			connections.splice(0);
 			_unbindRegisteredListeners();
 			_currentInstance.anchorManager.reset();
