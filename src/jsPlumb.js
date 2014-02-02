@@ -921,7 +921,7 @@
 					tep.isTarget = true;
 
 					// check for max connections??						
-					newEndpoint = tep.endpoint != null ? tep.endpoint : _currentInstance.addEndpoint(_p.target, tep.def);
+					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _currentInstance.addEndpoint(_p.target, tep.def);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
 					 // TODO test options to makeTarget to see if we should do this?
@@ -943,7 +943,7 @@
 					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					//tep.isSource = true;
 				
-					newEndpoint = tep.endpoint != null ? tep.endpoint : _currentInstance.addEndpoint(_p.source, tep.def);
+					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _currentInstance.addEndpoint(_p.source, tep.def);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.sourceEndpoint = newEndpoint;
 					 // TODO test options to makeSource to see if we should do this?
