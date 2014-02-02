@@ -1369,6 +1369,7 @@
 			};
 		},
 		getOffset:function(el, _instance, relativeToRoot) {
+			el = jsPlumb.getDOMElement(el);
 			var container = jsPlumb.getDOMElement(_instance.Defaults.Container);
 			var l = el.offsetLeft, t = el.offsetTop, op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null;
 			while (op != null) {
@@ -2198,7 +2199,10 @@
 							_currentInstance.setConnectionBeingDragged(true);
 						});
 	
-						options[dragEvent] = _ju.wrap(options[dragEvent], function() {                            
+						options[dragEvent] = _ju.wrap(options[dragEvent], function() {
+							// TODO: here we could actually use getDragObject, and then compute it ourselves,
+							// since every adapter does the same thing. but i'm not sure why YUI's getDragObject
+							// differs from getUIPosition so much
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui, null, true);
 							jsPlumbAdapter.addClass(element, "jsPlumb_dragged");
@@ -2304,7 +2308,7 @@
 					tep.isTarget = true;
 
 					// check for max connections??						
-					newEndpoint = tep.endpoint != null ? tep.endpoint : _currentInstance.addEndpoint(_p.target, tep.def);
+					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _currentInstance.addEndpoint(_p.target, tep.def);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
 					 // TODO test options to makeTarget to see if we should do this?
@@ -2326,7 +2330,7 @@
 					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					//tep.isSource = true;
 				
-					newEndpoint = tep.endpoint != null ? tep.endpoint : _currentInstance.addEndpoint(_p.source, tep.def);
+					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _currentInstance.addEndpoint(_p.source, tep.def);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.sourceEndpoint = newEndpoint;
 					 // TODO test options to makeSource to see if we should do this?
@@ -2719,8 +2723,9 @@
 		
 		this.animate = function(el, properties, options) {
 			options = options || {};
-			var ele = _currentInstance.getElementObject(el), 
-				id = _getId(el),
+			var ele = jsPlumb.getElementObject(el), 
+				del = jsPlumb.getDOMElement(el),
+				id = _getId(del),
 				stepFunction = jsPlumb.dragEvents.step,
 				completeFunction = jsPlumb.dragEvents.complete;
 
@@ -3536,6 +3541,23 @@
 							jpc[idx ? "targetId" : "sourceId"] = jpc.suspendedEndpoint.elementId;
 							jpc[idx ? "target" : "source"] = jpc.suspendedEndpoint.element;
 							jpc.endpoints[idx] = jpc.suspendedEndpoint;
+							
+							// TODO this and the normal endpoint drop should
+							// be refactored to share more of the common code.
+							var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
+							fireMoveEvent({
+								index:idx,
+								originalSourceId:idx === 0 ? suspendedElementId : jpc.sourceId,
+								newSourceId:idx === 0 ? this.elementId : jpc.sourceId,
+								originalTargetId:idx == 1 ? suspendedElementId : jpc.targetId,
+								newTargetId:idx == 1 ? this.elementId : jpc.targetId,
+								originalSourceEndpoint:idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0],
+								newSourceEndpoint:idx === 0 ? this : jpc.endpoints[0],
+								originalTargetEndpoint:idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
+								newTargetEndpoint:idx == 1 ? this : jpc.endpoints[1],
+								connection:jpc
+							}, originalEvent);
+							
 						}
 
 						if (_continue) {
@@ -7384,6 +7406,9 @@
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
                 h = Math.abs(params.targetPos[1] - params.sourcePos[1]);
+				
+			if (w == 0) w = 1;
+			if (h == 0) h = 1;
             
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
@@ -9569,10 +9594,7 @@
 			g.appendChild(s);
 		}
 		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
-        //document.location.toString()
-		//node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
-        //node.setAttribute(STYLE, applyGradientTo + ":url(" + document.location.toString() + "#" + id + ")");
-		node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
+        node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
 	},
 	_applyStyles = function(parent, node, style, dimensions, uiComponent) {
 		
@@ -10865,12 +10887,10 @@
 		 */
 		getUIPosition : function(eventArgs, zoom) {
 		  var ui = eventArgs[0],
-			  el = jsPlumb.getElementObject(ui),
-			  p = el.getPosition();
-			
-		  zoom = zoom || 1;		  
-			
-		  return { left:p.x / zoom, top:p.y / zoom};
+		  	el = jsPlumb.getDOMElement(ui),
+			o = jsPlumbAdapter.getOffset(el, this);
+			zoom = zoom || 1;
+			return { left:o.left / zoom, top:o.top/zoom };
 		},
 		setDragFilter : function(el, filter) {
 			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");

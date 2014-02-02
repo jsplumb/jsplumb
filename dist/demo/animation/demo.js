@@ -32,7 +32,7 @@
 					return;
 				}
 				e =jsPlumb.getOriginalEvent(e);
-				var o = jsPlumbAdapter.getOffset(_el),
+				var o = jsPlumbAdapter.getOffset(_el, instance, true),
 					s = jsPlumb.getSize(el),
 					pxy = [e.pageX || e.clientX, e.pageY || e.clientY],
 					c = [o.left + (s[0]/2) - pxy[0], o.top + (s[1]/2) - pxy[1]],
@@ -45,7 +45,8 @@
 				// notice the easing here.  you can pass any args into this animate call; they
 				// are passed through to jquery as-is by jsPlumb.
 				var id = el.getAttribute("id");
-				instance.animate(id, {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
+				//instance.animate(id, {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
+				instance.animate($(el), {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
 			});
 		},
 	

@@ -48,6 +48,7 @@
 			// would recommend you do. Note also here that we use the 'filter' option to tell jsPlumb
 			// which parts of the element should actually respond to a drag start.
 			instance.makeSource(windows, {
+				uniqueEndpoint:true,
 				filter:".ep",				// only supported by jquery
 				anchor:"Continuous",
 				connector:[ "StateMachine", { curviness:20 } ],
@@ -66,8 +67,10 @@
 			
 			// and finally, make a couple of connections
 			instance.connect({ source:"opened", target:"phone1" });
-			instance.connect({ source:"phone1", target:"inperson" });              
-			instance.connect({ source:"phone1", target:"phone1" });
+			var cc = instance.connect({ source:"phone1", target:"phone1" });
+			instance.detach(cc);
+			instance.connect({ source:"phone1", target:"inperson" });
+			
 		});
 	
 	});
