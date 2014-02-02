@@ -1333,8 +1333,9 @@
 		
 		this.animate = function(el, properties, options) {
 			options = options || {};
-			var ele = _currentInstance.getElementObject(el), 
-				id = _getId(el),
+			var ele = jsPlumb.getElementObject(el), 
+				del = jsPlumb.getDOMElement(el),
+				id = _getId(del),
 				stepFunction = jsPlumb.dragEvents.step,
 				completeFunction = jsPlumb.dragEvents.complete;
 

@@ -353,6 +353,7 @@
 			};
 		},
 		getOffset:function(el, _instance, relativeToRoot) {
+			el = jsPlumb.getDOMElement(el);
 			var container = jsPlumb.getDOMElement(_instance.Defaults.Container);
 			var l = el.offsetLeft, t = el.offsetTop, op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null;
 			while (op != null) {
