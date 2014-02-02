@@ -812,7 +812,10 @@
 							_currentInstance.setConnectionBeingDragged(true);
 						});
 	
-						options[dragEvent] = _ju.wrap(options[dragEvent], function() {                            
+						options[dragEvent] = _ju.wrap(options[dragEvent], function() {
+							// TODO: here we could actually use getDragObject, and then compute it ourselves,
+							// since every adapter does the same thing. but i'm not sure why YUI's getDragObject
+							// differs from getUIPosition so much
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui, null, true);
 							jsPlumbAdapter.addClass(element, "jsPlumb_dragged");
