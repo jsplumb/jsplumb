@@ -1,12 +1,10 @@
 /**
-* Models an endpoint. Can have 1 to `maxConnections` connections emanating from it (set maxConnections to -1 
- * to allow unlimited).  If you use 'jsPlumb.connect' to programmatically connect two elements, you won't
- * actually deal with the underlying Endpoint objects.  But if you wish to support drag and drop Connections, one of the ways you
- * do so is by creating and registering endpoints using 'jsPlumb.addEndpoint', and marking these endpoints as 'source' and/or
- * 'target' endpoints for connections. 
- *
- * You never need to create one of these directly. Parent for all Endpoint types. When you provide an Endpoint definition to an appropriate 
- * jsPlumb method, you can do so either as a string, or as an array of the form `[String, Object]`.  In the former case, the string
+* Models an Endpoint - one end of a Connection. An Endpoint has an underlying Anchor, which is what determines the
+* Endpoint's position. Each Endpoint can have 1 to `maxConnections` connections emanating from it (set `maxConnections` to -1 
+* to allow unlimited Connections; the default is 1).
+*
+* You never need to create an Endpoint directly. When you provide an Endpoint definition to an appropriate 
+* jsPlumb method, you can do so either as a string, or as an array of the form `[String, Object]`.  In the former case, the string
 * must be the name of some available Endpoint, such as `"Dot"` or `"Rectangle"`. In the latter case,
 * the first argument to the array is the Endpoint name, and the second is a JS object containing 
 * constructor parameters for the Endpoint, for instance
@@ -61,7 +59,6 @@
  * @property scope
  * @type {Array|String}
  */
-
 
  /**
  * Sets the anchor to use for this Endpoint.  `anchorParams` is an object in the same
@@ -165,11 +162,13 @@
 /**
 * Does not draw anything visible to the user. This Endpoint is probably not what you want if you need your users to be able to drag existing Connections - for that, use a Rectangle or Dot Endpoint and assign to it a CSS class that causes it to be transparent.
 * @class Endpoints.Blank
+* @extends Endpoint
 */
 
 /**
 * A circular Endpoint with configurable radius.
 * @class Endpoints.Dot
+* @extends Endpoint
 * @constructor
 * @param {Object} params Constructor parameters
 * @param {Integer} [params.radius=10] Radius of the Endpoint
@@ -180,6 +179,7 @@
 /**
 * A rectangular Endpoint with configurable width/height.
 * @class Endpoints.Rectangle
+* @extends Endpoint
 * @constructor
 * @param {Object} params Constructor parameters
 * @param {Integer} [params.width=20] Width of the Endpoint
@@ -191,13 +191,11 @@
 /**
 * An Endpoint that uses an Image.
 * @class Endpoints.Image
+* @extends Endpoint
 * @constructor
 * @param {Object} params Constructor parameters
 * @param {Integer} params.src Url of the image to display
 * @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
 * @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
 */
-
-
-
 

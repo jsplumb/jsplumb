@@ -2983,7 +2983,7 @@
 				    var o = _updateOffset( { elId : id, offset : ui, recalc : false, timestamp : timestamp });
 
 			        if (repaintEls) {
-			    	    for (var i in repaintEls) {									 							
+			    	    for (var i in repaintEls) {
 			    	    	// TODO this seems to cause a lag, but we provide the offset, so in theory it 
 			    	    	// should not.  is the timestamp failing?
 				    		_updateOffset( { 
@@ -3835,7 +3835,7 @@
 					if (deleteAttachedObjects) {
 						for (var i = 0; i < endpoint.connections.length; i++) {
 							var c = endpoint.connections[i];
-							unravelConnection(c);						
+							unravelConnection(c);
 						}
 					}
 				}
@@ -3850,7 +3850,6 @@
 				var c = result.connections[i];
 				c.endpoints[0].detachFromConnection(c);
 				c.endpoints[1].detachFromConnection(c);
-				//_currentInstance.unregisterConnection(c);
 				jsPlumbUtil.removeWithFunction(connections, function(_c) {
 				    return c.id == _c.id;
 				});
@@ -3904,7 +3903,7 @@
 			},
 			_getOperation = function(list, func, args) {
 				var out = [];
-				for (var i = 0, j = list.length; i < j; i++) {					
+				for (var i = 0, j = list.length; i < j; i++) {
 					out.push([ list[i][func].apply(list[i], args), list[i] ]);
 				}	
 				return out;
@@ -4014,7 +4013,7 @@
 		var	_makeConnectionSelectHandler = function(list) {
 			var common = _makeCommonSelectHandler(list, _makeConnectionSelectHandler);
 			return jsPlumb.extend(common, {
-				// setters									
+				// setters
 				setDetachable:setter(list, "setDetachable", _makeConnectionSelectHandler),
 				setReattach:setter(list, "setReattach", _makeConnectionSelectHandler),
 				setConnector:setter(list, "setConnector", _makeConnectionSelectHandler),			

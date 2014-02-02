@@ -274,18 +274,8 @@ module.exports = function(grunt) {
             }
         },
         clean:{
-            temp:"jsPlumb.wiki"
-        },
-        //http://www.kajabity.com/2012/02/how-i-introduced-jsdoc-into-a-javascript-project-and-found-my-eclipse-outline/
-        jsdoc : {
-            dist : {
-                src:['doc/api/README.md', 'doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js', 'doc/api/connectors.js', 'doc/api/overlays-api.js'],
-                options: {
-                    destination: 'dist/apidocs/',
-                    configure:'jsdoc.json',
-                    "private":false
-                }
-            }
+            //temp:"jsPlumb.wiki"
+            temp:"dist"
         },
         jshint: {
             options: {
@@ -296,7 +286,7 @@ module.exports = function(grunt) {
                   '-W038':true
                 },
             files:{
-                src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-canvas.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
+                src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-canvas.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
             }
         },
         watch: {
@@ -304,6 +294,19 @@ module.exports = function(grunt) {
                 files: ['src/*.js'],
                 tasks: ['build-src']
             }
+        },
+        yuidoc:{
+            compile: {
+            name: '<%= pkg.name %>',
+            description: '<%= pkg.description %>',
+            version: '<%= pkg.version %>',
+            url: '<%= pkg.homepage %>',
+            options: {
+              paths: 'doc/api/',
+              themedir: 'yuitheme/',
+              outdir: 'dist/apidocs/'
+            }
+          }
         }
     });
 
@@ -315,14 +318,14 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-regex-replace');
     grunt.loadNpmTasks('grunt-markdown');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-devtools');
 
     grunt.registerTask('writeIndex', function() {
-        // write an index file to the root of the dist dir (redirects to main jquery demo)
-        grunt.file.write("dist/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/jquery.html'/></head></html>");
+        // write an index file to the root of the dist dir (redirects to main "no library" demo)
+        grunt.file.write("dist/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/dom.html'/></head></html>");
         // write an index file to the root of the docs dir (redirects to 'home')
         grunt.file.write("dist/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");
     });
@@ -359,6 +362,7 @@ module.exports = function(grunt) {
 
     });
 
+/*
     // reads the contents of home.html (the docs index), and writes it into all of the other files.
     grunt.registerTask("docIndex", function() {
         var f = grunt.file.read("dist/doc/contents.html"),
@@ -367,22 +371,10 @@ module.exports = function(grunt) {
 
         _replace("dist/doc", "*.html", /<\!-- NAV -->/, idx[0], ["contents.html"]);
     });
+*/
 
-    /*
-
-    <target name="upgrade-jsbezier" depends="old,new">
-        <!-- replace refs to old version in demo html to new version -->
-        <replace dir="demo/jquery" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
-        <replace dir="demo/yui3" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
-        <replace dir="demo/mootools" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
-    </target>
-
-    // also add one for jsplumb-geom
-
-    */
-
-    grunt.registerTask('build-src', ['prepare', 'concat', 'uglify' ]);
-    grunt.registerTask('build', [/*'qunit', */'build-src', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex']);
+    grunt.registerTask('build-src', ['clean', 'prepare', 'concat', 'uglify' ]);
+    grunt.registerTask('build', [/*'qunit', */'build-src', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', 'markdown', 'yuidoc' /*'docIndex' /*'clean'*/, 'info', 'writeIndex']);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 

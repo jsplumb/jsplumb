@@ -4,6 +4,7 @@
 * see the {{#crossLink "jsPlumbInstance"}}{{/crossLink}} API docs.
 * @class jsPlumb
 * @static
+* @extends jsPlumbInstance
 */
 
 /**
