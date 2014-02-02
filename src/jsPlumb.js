@@ -2154,6 +2154,23 @@
 							jpc[idx ? "targetId" : "sourceId"] = jpc.suspendedEndpoint.elementId;
 							jpc[idx ? "target" : "source"] = jpc.suspendedEndpoint.element;
 							jpc.endpoints[idx] = jpc.suspendedEndpoint;
+							
+							// TODO this and the normal endpoint drop should
+							// be refactored to share more of the common code.
+							var suspendedElement = jpc.suspendedEndpoint.getElement(), suspendedElementId = jpc.suspendedEndpoint.elementId;
+							fireMoveEvent({
+								index:idx,
+								originalSourceId:idx === 0 ? suspendedElementId : jpc.sourceId,
+								newSourceId:idx === 0 ? this.elementId : jpc.sourceId,
+								originalTargetId:idx == 1 ? suspendedElementId : jpc.targetId,
+								newTargetId:idx == 1 ? this.elementId : jpc.targetId,
+								originalSourceEndpoint:idx === 0 ? jpc.suspendedEndpoint : jpc.endpoints[0],
+								newSourceEndpoint:idx === 0 ? this : jpc.endpoints[0],
+								originalTargetEndpoint:idx == 1 ? jpc.suspendedEndpoint : jpc.endpoints[1],
+								newTargetEndpoint:idx == 1 ? this : jpc.endpoints[1],
+								connection:jpc
+							}, originalEvent);
+							
 						}
 
 						if (_continue) {
