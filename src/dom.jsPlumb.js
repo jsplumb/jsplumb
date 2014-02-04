@@ -61,6 +61,7 @@
 		},
 		getElementObject:function(el) { return el; },
 		removeElement : function(element) {
+			_getDragManager(this).elementRemoved(element);
 			_getEventManager(this).remove(element);
 		},
 		doAnimate:function() { throw "not implemented!" },
@@ -122,6 +123,11 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
+		stopDrag : function(el) {
+            //Y.DD.DDM.stopDrag();
+			if (el._katavorioDrag)
+				el._katavorioDrag.abort();
+        },
 // 		MULTIPLE ELEMENT DRAG
 		// these methods are unique to this adapter, because katavorio
 		// supports dragging multiple elements.
