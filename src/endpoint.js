@@ -442,7 +442,7 @@
                         // this is for mootools and yui. returning false from this causes jquery to stop drag.
                         // the events are wrapped in both mootools and yui anyway, but i don't think returning
                         // false from the start callback would stop a drag.
-                        if (jpcl.stopDrag) jpcl.stopDrag();
+                        if (_jsPlumb.stopDrag) _jsPlumb.stopDrag(this.canvas);
                         _dragHandler.stopDrag();
                         return false;
                     }
@@ -590,7 +590,7 @@
 
                         _jsPlumb.setConnectionBeingDragged(false);  
                         // if no endpoints, jpc already cleaned up.
-                        if (jpc.endpoints != null) {          
+                        if (jpc && jpc.endpoints != null) {          
                             // get the actual drop event (decode from library args to stop function)
                             var originalEvent = jsPlumb.getDropEvent(arguments);                                       
                             // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
@@ -639,7 +639,8 @@
                         // (and its associated floating endpoint and visual artefacts)                                        
                         _jsPlumb.remove(placeholderInfo.element, false);
                         // remove the inplace copy
-                        _jsPlumb.remove(inPlaceCopy.canvas, false);
+                        //_jsPlumb.remove(inPlaceCopy.canvas, false);
+                        _jsPlumb.deleteObject({endpoint:inPlaceCopy});
 
                         // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
                         if (this.deleteAfterDragStop) {                        
