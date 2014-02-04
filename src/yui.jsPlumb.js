@@ -310,7 +310,7 @@
 			"over":"drop:enter", "out":"drop:exit", "drop":"drop:hit"
 		},
 		
-		stopDrag : function() {
+		stopDrag : function(el) {
             Y.DD.DDM.stopDrag();
         },
 		
