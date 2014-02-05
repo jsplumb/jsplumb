@@ -45,8 +45,7 @@
 				// notice the easing here.  you can pass any args into this animate call; they
 				// are passed through to jquery as-is by jsPlumb.
 				var id = el.getAttribute("id");
-				//instance.animate(id, {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
-				instance.animate($(el), {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
+				instance.animate(el, {left:l, top:t}, { duration:350, easing:'easeOutBack' });
 			});
 		},
 	

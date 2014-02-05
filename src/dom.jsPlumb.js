@@ -64,7 +64,41 @@
 			_getDragManager(this).elementRemoved(element);
 			_getEventManager(this).remove(element);
 		},
-		doAnimate:function() { throw "not implemented!" },
+		//
+		// this adapter supports a rudimentary animation function. no easing is supported.  only
+		// left/top properties are supported. property delta args are expected to be in the form
+		//
+		// +=x.xxxx
+		//
+		// or
+		//
+		// -=x.xxxx
+		//
+		doAnimate:function(el, properties, options) { 
+			options = options || {};
+			var o = jsPlumbAdapter.getOffset(el, this),
+				lmult = properties.left ? properties.left.match(/-=/) ? -1 : 1 : 0,
+				ldist = properties.left ? properties.left.substring(2) : 0,
+				tmult = properties.top ? properties.top.match(/-=/) ? -1 : 1 : 0,
+				tdist = properties.top ? properties.top.substring(2) : 0,
+				d = options.duration || 250,
+				step = 15, steps = d / step,
+				linc = (step / d) * ldist,
+				tinc = (step / d) * tdist,
+				idx = 0,
+				int = setInterval(function() {
+					jsPlumbAdapter.setPosition(el, {
+						left:o.left + (lmult * linc * (idx + 1)),
+						top:o.top + (tmult * tinc * (idx + 1))
+					});
+					options.step && options.step();
+					idx++;
+					if (idx >= steps) {
+						window.clearInterval(int);
+						options.complete && options.complete()
+					}
+				}, step);
+		},
 		getSelector:function(ctx, spec) { 
 			var sel = null;
 			if (arguments.length == 1) {
@@ -124,7 +158,6 @@
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
 		stopDrag : function(el) {
-            //Y.DD.DDM.stopDrag();
 			if (el._katavorioDrag)
 				el._katavorioDrag.abort();
         },
