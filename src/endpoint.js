@@ -632,38 +632,38 @@
                                     }
                                 }                                                               
                             }
-                        }
 
-                        // remove the element associated with the floating endpoint 
-                        // (and its associated floating endpoint and visual artefacts)                                        
-                        _jsPlumb.remove(placeholderInfo.element, false);
-                        // remove the inplace copy
-                        //_jsPlumb.remove(inPlaceCopy.canvas, false);
-                        _jsPlumb.deleteObject({endpoint:inPlaceCopy});
-
-                        // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
-                        if (this.deleteAfterDragStop) {                        
-                            _jsPlumb.deleteObject({endpoint:this});
-                        }
-                        else {
-                            if (this._jsPlumb) {
-                                this._jsPlumb.floatingEndpoint = null;
-                                // repaint this endpoint.
-                                // make our canvas visible (TODO: hand off to library; we should not know about DOM)
-                                this.canvas.style.visibility = "visible";
-                                // unlock our anchor
-                                this.anchor.locked = false;
-                                this.paint({recalc:false});                        
+                            // remove the element associated with the floating endpoint 
+                            // (and its associated floating endpoint and visual artefacts)                                        
+                            _jsPlumb.remove(placeholderInfo.element, false);
+                            // remove the inplace copy
+                            //_jsPlumb.remove(inPlaceCopy.canvas, false);
+                            _jsPlumb.deleteObject({endpoint:inPlaceCopy});
+    
+                            // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
+                            if (this.deleteAfterDragStop) {                        
+                                _jsPlumb.deleteObject({endpoint:this});
                             }
-                        }                                                    
-
-                        // although the connection is no longer valid, there are use cases where this is useful.
-                        _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
-
-                        // tell jsplumb that dragging is finished.
-                        _jsPlumb.currentlyDragging = false;
-
-                        jpc = null;
+                            else {
+                                if (this._jsPlumb) {
+                                    this._jsPlumb.floatingEndpoint = null;
+                                    // repaint this endpoint.
+                                    // make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                                    this.canvas.style.visibility = "visible";
+                                    // unlock our anchor
+                                    this.anchor.locked = false;
+                                    this.paint({recalc:false});                        
+                                }
+                            }                                                    
+    
+                            // although the connection is no longer valid, there are use cases where this is useful.
+                            _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
+    
+                            // tell jsplumb that dragging is finished.
+                            _jsPlumb.currentlyDragging = false;
+    
+                            jpc = null;
+                        }
 
                     }.bind(this));
                 
