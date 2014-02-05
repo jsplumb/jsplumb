@@ -48,8 +48,7 @@
 			// would recommend you do. Note also here that we use the 'filter' option to tell jsPlumb
 			// which parts of the element should actually respond to a drag start.
 			instance.makeSource(windows, {
-				uniqueEndpoint:true,
-				filter:".ep",				// only supported by jquery
+				filter:".ep",				// only supported by jquery/no adapter versions.
 				anchor:"Continuous",
 				connector:[ "StateMachine", { curviness:20 } ],
 				connectorStyle:{ strokeStyle:"#5c96bc", lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
@@ -57,20 +56,20 @@
 				onMaxConnections:function(info, e) {
 					alert("Maximum connections (" + info.maxConnections + ") reached");
 				}
-			});						
-
-			// initialise all '.w' elements as connection targets.
-	        instance.makeTarget(windows, {
-				dropOptions:{ hoverClass:"dragHover" },
-				anchor:"Continuous"				
 			});
-			
-			// and finally, make a couple of connections
-			instance.connect({ source:"opened", target:"phone1" });
-			instance.connect({ source:"phone1", target:"phone1" });
-			instance.connect({ source:"phone1", target:"inperson" });
-			
 		});
+
+		// initialise all '.w' elements as connection targets.
+		instance.makeTarget(windows, {
+			dropOptions:{ hoverClass:"dragHover" },
+			anchor:"Continuous"				
+		});
+		
+		// and finally, make a couple of connections
+		instance.connect({ source:"opened", target:"phone1" });
+		instance.connect({ source:"phone1", target:"phone1" });
+		instance.connect({ source:"phone1", target:"inperson" });
+			
 	
 	});
 })();
