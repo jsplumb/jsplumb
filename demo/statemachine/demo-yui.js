@@ -14,7 +14,8 @@
 					foldback:0.8
 				} ],
 				[ "Label", { label:"FOO", id:"label", cssClass:"aLabel" }]
-			]
+			],
+			Container:"statemachine-demo"
 		});
 
 		var windows = Y.all(".w");
