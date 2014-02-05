@@ -4412,7 +4412,7 @@
         this.idPrefix = "_jsplumb_e_";			
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        this.parent = params.parent;
+        this.parent = jsPlumb.getDOMElement(params.parent);
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
         
 // TYPE		
@@ -4667,6 +4667,7 @@
                 };
 
             return _newEndpoint( { 
+                dropOptions:params.dropOptions,
                 anchor : inPlaceAnchor, 
                 source : this.element, 
                 paintStyle : this.getPaintStyle(), 
@@ -4773,7 +4774,7 @@
                         // this is for mootools and yui. returning false from this causes jquery to stop drag.
                         // the events are wrapped in both mootools and yui anyway, but i don't think returning
                         // false from the start callback would stop a drag.
-                        if (jpcl.stopDrag) jpcl.stopDrag();
+                        if (_jsPlumb.stopDrag) _jsPlumb.stopDrag(this.canvas);
                         _dragHandler.stopDrag();
                         return false;
                     }
@@ -4839,14 +4840,12 @@
                         jpc.pending = true; // mark this connection as not having been established.
                         jpc.addClass(_jsPlumb.draggingClass);
                         this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
-                        // fire an event that informs that a connection is being dragged                        
+                        // fire an event that informs that a connection is being dragged
                         _jsPlumb.fire("connectionDrag", jpc);
 
                     } else {
                         existingJpc = true;
-                        jpc.setHover(false);                        
-                        // if existing connection, allow to be dropped back on the source endpoint (issue 51).
-                        _initDropTarget(ipcoel, false, true);
+                        jpc.setHover(false);
                         // new anchor idx
                         var anchorIdx = jpc.endpoints[0].id == this.id ? 0 : 1;
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
@@ -4921,7 +4920,7 @@
 
                         _jsPlumb.setConnectionBeingDragged(false);  
                         // if no endpoints, jpc already cleaned up.
-                        if (jpc.endpoints != null) {          
+                        if (jpc && jpc.endpoints != null) {          
                             // get the actual drop event (decode from library args to stop function)
                             var originalEvent = jsPlumb.getDropEvent(arguments);                                       
                             // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
@@ -4964,37 +4963,38 @@
                                     }
                                 }                                                               
                             }
-                        }
 
-                        // remove the element associated with the floating endpoint 
-                        // (and its associated floating endpoint and visual artefacts)                                        
-                        _jsPlumb.remove(placeholderInfo.element, false);
-                        // remove the inplace copy
-                        _jsPlumb.remove(inPlaceCopy.canvas, false);
-
-                        // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
-                        if (this.deleteAfterDragStop) {                        
-                            _jsPlumb.deleteObject({endpoint:this});
-                        }
-                        else {
-                            if (this._jsPlumb) {
-                                this._jsPlumb.floatingEndpoint = null;
-                                // repaint this endpoint.
-                                // make our canvas visible (TODO: hand off to library; we should not know about DOM)
-                                this.canvas.style.visibility = "visible";
-                                // unlock our anchor
-                                this.anchor.locked = false;
-                                this.paint({recalc:false});                        
+                            // remove the element associated with the floating endpoint 
+                            // (and its associated floating endpoint and visual artefacts)                                        
+                            _jsPlumb.remove(placeholderInfo.element, false);
+                            // remove the inplace copy
+                            //_jsPlumb.remove(inPlaceCopy.canvas, false);
+                            _jsPlumb.deleteObject({endpoint:inPlaceCopy});
+    
+                            // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
+                            if (this.deleteAfterDragStop) {                        
+                                _jsPlumb.deleteObject({endpoint:this});
                             }
-                        }                                                    
-
-                        // although the connection is no longer valid, there are use cases where this is useful.
-                        _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
-
-                        // tell jsplumb that dragging is finished.
-                        _jsPlumb.currentlyDragging = false;
-
-                        jpc = null;
+                            else {
+                                if (this._jsPlumb) {
+                                    this._jsPlumb.floatingEndpoint = null;
+                                    // repaint this endpoint.
+                                    // make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                                    this.canvas.style.visibility = "visible";
+                                    // unlock our anchor
+                                    this.anchor.locked = false;
+                                    this.paint({recalc:false});                        
+                                }
+                            }                                                    
+    
+                            // although the connection is no longer valid, there are use cases where this is useful.
+                            _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
+    
+                            // tell jsplumb that dragging is finished.
+                            _jsPlumb.currentlyDragging = false;
+    
+                            jpc = null;
+                        }
 
                     }.bind(this));
                 
@@ -5228,7 +5228,8 @@
         }.bind(this);
         
         // initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
-        _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
+        if (!this.anchor.isFloating)
+            _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
         
          // finally, set type if it was provided
          if (params.type)

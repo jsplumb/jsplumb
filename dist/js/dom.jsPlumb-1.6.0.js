@@ -662,7 +662,7 @@
 			return g;
 		},
 		_unstore = function(obj, event, fn) {
-			obj.__ta[event] && delete obj.__ta[event][fn.__tauid];
+			obj.__ta && obj.__ta[event] && delete obj.__ta[event][fn.__tauid];
 			// a handler might have attached extra functions, so we unbind those too.
 			if (fn.__taExtra) {
 				for (var i = 0; i < fn.__taExtra.length; i++) {
@@ -1142,7 +1142,7 @@
     var Drag = function(el, params) {
         this._class = _classes.draggable;
         var k = Super.apply(this, arguments),
-            downAt = [0,0], posAtDown = null,
+            downAt = [0,0], posAtDown = null, moving = false,
 			toGrid = function(pos) {
 				return params.grid == null ? pos :
 					[
@@ -1172,16 +1172,22 @@
             downListener = function(e) {
                 if (this.isEnabled() && canDrag() && filter(e)) {
                     downAt = _pl(e);
-                    this.mark();
+					params.events["start"]({el:el, pos:posAtDown, e:e, drag:this});
+                    //
                     params.bind(document, "mousemove", moveListener);
                     params.bind(document, "mouseup", upListener);
                     k.markSelection(this);
                     params.addClass(document.body, _classes.noSelect);
-                    params.events["start"]({el:el, pos:posAtDown, e:e, drag:this});
+                    
                 }
             }.bind(this),
             moveListener = function(e) {
                 if (downAt) {
+					if (!moving) {
+						this.mark();
+						moving = true;
+					}
+					
                     intersectingDroppables.length = 0;
                     var pos = _pl(e), dx = pos[0] - downAt[0], dy = pos[1] - downAt[1],
                     z = k.getZoom();
@@ -1194,6 +1200,7 @@
             }.bind(this),
             upListener = function(e) {
                 downAt = null;
+				moving = false;
                 params.unbind(document, "mousemove", moveListener);
                 params.unbind(document, "mouseup", upListener);
                 params.removeClass(document.body, _classes.noSelect);
@@ -1201,6 +1208,11 @@
                 k.unmarkSelection(this, e);
                 params.events["stop"]({el:el, pos:params.getPosition(el), e:e, drag:this});
             }.bind(this);
+			
+		this.abort = function() {
+			if (downAt != null)
+				upListener();
+		};
 
         this.mark = function() {
             posAtDown = params.getPosition(el);
@@ -1475,6 +1487,11 @@
 				_unreg(el[type], map);
 				el[type] = null;
 			}
+		};
+		
+		this.elementRemoved = function(el) {
+			this.destroyDraggable(el);
+			this.destroyDroppable(el);
 		};
 		
 		this.destroyDraggable = function(el) {
@@ -5275,7 +5292,7 @@
         this.idPrefix = "_jsplumb_e_";			
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        this.parent = params.parent;
+        this.parent = jsPlumb.getDOMElement(params.parent);
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
         
 // TYPE		
@@ -5530,6 +5547,7 @@
                 };
 
             return _newEndpoint( { 
+                dropOptions:params.dropOptions,
                 anchor : inPlaceAnchor, 
                 source : this.element, 
                 paintStyle : this.getPaintStyle(), 
@@ -5636,7 +5654,7 @@
                         // this is for mootools and yui. returning false from this causes jquery to stop drag.
                         // the events are wrapped in both mootools and yui anyway, but i don't think returning
                         // false from the start callback would stop a drag.
-                        if (jpcl.stopDrag) jpcl.stopDrag();
+                        if (_jsPlumb.stopDrag) _jsPlumb.stopDrag(this.canvas);
                         _dragHandler.stopDrag();
                         return false;
                     }
@@ -5702,14 +5720,12 @@
                         jpc.pending = true; // mark this connection as not having been established.
                         jpc.addClass(_jsPlumb.draggingClass);
                         this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);
-                        // fire an event that informs that a connection is being dragged                        
+                        // fire an event that informs that a connection is being dragged
                         _jsPlumb.fire("connectionDrag", jpc);
 
                     } else {
                         existingJpc = true;
-                        jpc.setHover(false);                        
-                        // if existing connection, allow to be dropped back on the source endpoint (issue 51).
-                        _initDropTarget(ipcoel, false, true);
+                        jpc.setHover(false);
                         // new anchor idx
                         var anchorIdx = jpc.endpoints[0].id == this.id ? 0 : 1;
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
@@ -5784,7 +5800,7 @@
 
                         _jsPlumb.setConnectionBeingDragged(false);  
                         // if no endpoints, jpc already cleaned up.
-                        if (jpc.endpoints != null) {          
+                        if (jpc && jpc.endpoints != null) {          
                             // get the actual drop event (decode from library args to stop function)
                             var originalEvent = jsPlumb.getDropEvent(arguments);                                       
                             // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
@@ -5827,37 +5843,38 @@
                                     }
                                 }                                                               
                             }
-                        }
 
-                        // remove the element associated with the floating endpoint 
-                        // (and its associated floating endpoint and visual artefacts)                                        
-                        _jsPlumb.remove(placeholderInfo.element, false);
-                        // remove the inplace copy
-                        _jsPlumb.remove(inPlaceCopy.canvas, false);
-
-                        // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
-                        if (this.deleteAfterDragStop) {                        
-                            _jsPlumb.deleteObject({endpoint:this});
-                        }
-                        else {
-                            if (this._jsPlumb) {
-                                this._jsPlumb.floatingEndpoint = null;
-                                // repaint this endpoint.
-                                // make our canvas visible (TODO: hand off to library; we should not know about DOM)
-                                this.canvas.style.visibility = "visible";
-                                // unlock our anchor
-                                this.anchor.locked = false;
-                                this.paint({recalc:false});                        
+                            // remove the element associated with the floating endpoint 
+                            // (and its associated floating endpoint and visual artefacts)                                        
+                            _jsPlumb.remove(placeholderInfo.element, false);
+                            // remove the inplace copy
+                            //_jsPlumb.remove(inPlaceCopy.canvas, false);
+                            _jsPlumb.deleteObject({endpoint:inPlaceCopy});
+    
+                            // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
+                            if (this.deleteAfterDragStop) {                        
+                                _jsPlumb.deleteObject({endpoint:this});
                             }
-                        }                                                    
-
-                        // although the connection is no longer valid, there are use cases where this is useful.
-                        _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
-
-                        // tell jsplumb that dragging is finished.
-                        _jsPlumb.currentlyDragging = false;
-
-                        jpc = null;
+                            else {
+                                if (this._jsPlumb) {
+                                    this._jsPlumb.floatingEndpoint = null;
+                                    // repaint this endpoint.
+                                    // make our canvas visible (TODO: hand off to library; we should not know about DOM)
+                                    this.canvas.style.visibility = "visible";
+                                    // unlock our anchor
+                                    this.anchor.locked = false;
+                                    this.paint({recalc:false});                        
+                                }
+                            }                                                    
+    
+                            // although the connection is no longer valid, there are use cases where this is useful.
+                            _jsPlumb.fire("connectionDragStop", jpc, originalEvent);
+    
+                            // tell jsplumb that dragging is finished.
+                            _jsPlumb.currentlyDragging = false;
+    
+                            jpc = null;
+                        }
 
                     }.bind(this));
                 
@@ -6091,7 +6108,8 @@
         }.bind(this);
         
         // initialise the endpoint's canvas as a drop target.  this will be ignored if the endpoint is not a target or drag is not supported.
-        _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
+        if (!this.anchor.isFloating)
+            _initDropTarget(_gel(this.canvas), true, !(params._transient || this.anchor.isFloating), this);
         
          // finally, set type if it was provided
          if (params.type)
@@ -11528,9 +11546,44 @@
 		},
 		getElementObject:function(el) { return el; },
 		removeElement : function(element) {
+			_getDragManager(this).elementRemoved(element);
 			_getEventManager(this).remove(element);
 		},
-		doAnimate:function() { throw "not implemented!" },
+		//
+		// this adapter supports a rudimentary animation function. no easing is supported.  only
+		// left/top properties are supported. property delta args are expected to be in the form
+		//
+		// +=x.xxxx
+		//
+		// or
+		//
+		// -=x.xxxx
+		//
+		doAnimate:function(el, properties, options) { 
+			options = options || {};
+			var o = jsPlumbAdapter.getOffset(el, this),
+				lmult = properties.left ? properties.left.match(/-=/) ? -1 : 1 : 0,
+				ldist = properties.left ? properties.left.substring(2) : 0,
+				tmult = properties.top ? properties.top.match(/-=/) ? -1 : 1 : 0,
+				tdist = properties.top ? properties.top.substring(2) : 0,
+				d = options.duration || 250,
+				step = 15, steps = d / step,
+				linc = (step / d) * ldist,
+				tinc = (step / d) * tdist,
+				idx = 0,
+				int = setInterval(function() {
+					jsPlumbAdapter.setPosition(el, {
+						left:o.left + (lmult * linc * (idx + 1)),
+						top:o.top + (tmult * tinc * (idx + 1))
+					});
+					options.step && options.step();
+					idx++;
+					if (idx >= steps) {
+						window.clearInterval(int);
+						options.complete && options.complete()
+					}
+				}, step);
+		},
 		getSelector:function(ctx, spec) { 
 			var sel = null;
 			if (arguments.length == 1) {
@@ -11589,6 +11642,10 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
+		stopDrag : function(el) {
+			if (el._katavorioDrag)
+				el._katavorioDrag.abort();
+        },
 // 		MULTIPLE ELEMENT DRAG
 		// these methods are unique to this adapter, because katavorio
 		// supports dragging multiple elements.

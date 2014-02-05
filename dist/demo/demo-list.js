@@ -75,6 +75,15 @@
 				_d("a", libs[i][0] == library ? "current-library" : "", ld, libs[i][1], {href:"../" + current + "/" + libs[i][0] + ".html"});
 			}
 
+			// explanation hide/show
+			var expl = document.getElementsByClassName("explanation")[0];
+			var iExpl = jsPlumb.getSelector(".explanation i")[0];
+			jsPlumb.on(iExpl, "click", function() {
+				var has = jsPlumbAdapter.hasClass(expl, "expanded");
+				
+				iExpl.className = "fa fa-" + (has ? "info" : "times") + "-circle";
+				jsPlumbAdapter[has ? "removeClass" : "addClass"](expl, "expanded");
+			});
 
 		}
 

@@ -76,6 +76,18 @@ body {
   padding-left: 50px;
 }
 
+.explanation i {
+	float: right;
+	margin-right: 25px;
+	margin-top: 13px;
+	font-size: 25px;
+	cursor:pointer;
+}
+
+.explanation i:hover {
+	color:orange;
+}
+
 .logo {  
   font-size:30px;
   color:#1f1f1f;
@@ -124,7 +136,7 @@ body {
   box-shadow: 0px 0px 10px gray;
 }
 
-.explanation:hover {
+.explanation.expanded {
   height:auto;
   min-height:54px;
     max-height:100%;    
