@@ -33,7 +33,10 @@
 				addClass:jsPlumbAdapter.addClass,
 				removeClass:jsPlumbAdapter.removeClass,
 				intersects:Biltong.intersects,
-				indexOf:jsPlumbUtil.indexOf
+				indexOf:jsPlumbUtil.indexOf,
+				css:{
+					noSelect : instance.dragSelectClass
+				}
 			});
 			instance.bind("zoom", k.setZoom);
 		}
