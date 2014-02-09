@@ -1055,15 +1055,22 @@
  
  addClass
  removeClass
+ 
+ addEvent
+ removeEvent
+ 
  getPosition
  setPosition
- fireEvent
+ getSize
+ 
+ indexOf
+ intersects
  
  the name came from here:
  
  http://mrsharpoblunto.github.io/foswig.js/
  
- copyright 2013 Simon Porritt
+ copyright 2014 Simon Porritt
 */ 
 
 ;(function() {
@@ -1085,15 +1092,15 @@
 	};
     
     var _classes = {
-            draggable:"jsplumb-draggable",    // draggable elements
-            droppable:"jsplumb-droppable",    // droppable elements
-            drag : "jsplumb-drag",            // elements currently being dragged            
-            selected:"jsplumb-drag-selected", // elements in current drag selection
-            active : "jsplumb-drag-active",   // droppables that are targets of a currently dragged element
-            hover : "jsplumb-drag-hover",     // droppables over which a matching drag element is hovering
-            noSelect : "jsplumb-drag-no-select" // added to the body to provide a hook to suppress text selection
+            draggable:"katavorio-draggable",    // draggable elements
+            droppable:"katavorio-droppable",    // droppable elements
+            drag : "katavorio-drag",            // elements currently being dragged            
+            selected:"katavorio-drag-selected", // elements in current drag selection
+            active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
+            hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
+            noSelect : "katavorio-drag-no-select" // added to the body to provide a hook to suppress text selection
         }, 
-        _scope = "jsplumb-drag-scope",
+        _defaultScope = "katavorio-drag-scope",
         _events = [ "stop", "start", "drag", "drop", "over", "out" ],
         _devNull = function() {},
         _true = function() { return true; },
@@ -1122,7 +1129,7 @@
 				fn.apply(obj[i]);
 		};
         
-    var Super = function(el, params) {
+    var Super = function(el, params, css, scope) {
         params.addClass(el, this._class);
         this.el = el;
         var enabled = true;
@@ -1131,7 +1138,7 @@
 		this.toggleEnabled = function() { enabled = !enabled; };
 		
 		this.setScope = function(scopes) {
-			this.scopes = scopes ? scopes.split(/\s+/) : [ _scope ];
+			this.scopes = scopes ? scopes.split(/\s+/) : [ scope ];
 		};
 		
 		this.setScope(params.scope);
@@ -1139,8 +1146,8 @@
         return params.katavorio;
     };
         
-    var Drag = function(el, params) {
-        this._class = _classes.draggable;
+    var Drag = function(el, params, css, scope) {
+        this._class = css.draggable;
         var k = Super.apply(this, arguments),
             downAt = [0,0], posAtDown = null, moving = false,
 			toGrid = function(pos) {
@@ -1177,7 +1184,7 @@
                     params.bind(document, "mousemove", moveListener);
                     params.bind(document, "mouseup", upListener);
                     k.markSelection(this);
-                    params.addClass(document.body, _classes.noSelect);
+                    params.addClass(document.body, css.noSelect);
                     
                 }
             }.bind(this),
@@ -1203,7 +1210,7 @@
 				moving = false;
                 params.unbind(document, "mousemove", moveListener);
                 params.unbind(document, "mouseup", upListener);
-                params.removeClass(document.body, _classes.noSelect);
+                params.removeClass(document.body, css.noSelect);
                 this.unmark(e);
                 k.unmarkSelection(this, e);
                 params.events["stop"]({el:el, pos:params.getPosition(el), e:e, drag:this});
@@ -1219,7 +1226,7 @@
             this.size = params.getSize(el);
             matchingDroppables = k.getMatchingDroppables(this);
             _setDroppablesActive(matchingDroppables, true, false, this);
-            params.addClass(el, params.dragClass || _classes.drag);
+            params.addClass(el, params.dragClass || css.drag);
             if (params.constrain) {
                 var cs = params.getSize(this.el.parentNode);
                 constrainRect = { w:cs[0], h:cs[1] };
@@ -1230,7 +1237,7 @@
             matchingDroppables.length = 0;
             for (var i = 0; i < intersectingDroppables.length; i++)
                 intersectingDroppables[i].drop(this, e);
-            params.removeClass(el, params.dragClass || _classes.drag);
+            params.removeClass(el, params.dragClass || css.drag);
 		};
 		this.moveBy = function(dx, dy, e) {
 			intersectingDroppables.length = 0;
@@ -1258,10 +1265,10 @@
 		_setFilter(params.filter);
 	};
 
-	var Drop = function(el, params) {
-		this._class = _classes.droppable;
-		this._activeClass = params.activeClass || _classes.active;
-		this._hoverClass = params.hoverClass || _classes.hover;
+	var Drop = function(el, params, css, scope) {
+		this._class = css.droppable;
+		this._activeClass = params.activeClass || css.active;
+		this._hoverClass = params.hoverClass || css.hover;
 		var k = Super.apply(this, arguments), hover = false;
 
 		this.setActive = function(val) {
@@ -1362,7 +1369,14 @@
                 }
                 _p.katavorio = this;
                 return _p;
-            }.bind(this);
+            }.bind(this),
+			_css = {},
+			overrideCss = katavorioParams.css || {},
+			_scope = katavorioParams.scope || _defaultScope;
+			
+		// prepare map of css classes based on defaults frst, then optional overrides
+		for (var i in _classes) _css[i] = _classes[i];
+		for (var i in overrideCss) _css[i] = overrideCss[i];
         
         this.draggable = function(el, params) {
 			var o = [];
@@ -1370,7 +1384,7 @@
 				var _el = _gel(this);
 				if (_el != null) {
 					var p = _prepareParams(params);
-					_el._katavorioDrag = new Drag(_el, p);
+					_el._katavorioDrag = new Drag(_el, p, _css, _scope);
 					_reg(_el._katavorioDrag, _dragsByScope);
 					o.push(_el._katavorioDrag);
 				}
@@ -1384,7 +1398,7 @@
 			_each(el, function() {
 				var _el = _gel(this);
 				if (_el != null) {
-					_el._katavorioDrop = new Drop(_el, _prepareParams(params));
+					_el._katavorioDrop = new Drop(_el, _prepareParams(params), _css, _scope);
 					_reg(_el._katavorioDrop, _dropsByScope);
 					o.push(_el._katavorioDrop);
 				}
@@ -1405,7 +1419,7 @@
 					if (!_selectionMap[_el._katavorio]) {
 						_selection.push(_el._katavorioDrag);
 						_selectionMap[_el._katavorio] = [ _el, _selection.length - 1 ];
-						katavorioParams.addClass(_el, _classes.selected);
+						katavorioParams.addClass(_el, _css.selected);
 					}
 				}
 			});
@@ -1429,7 +1443,7 @@
 							if (_selection[i].el !== _el) _s.push(_selection[i]);
 						_selection = _s;
 						delete _selectionMap[_el._katavorio];
-						katavorioParams.removeClass(_el, _classes.selected);
+						katavorioParams.removeClass(_el, _css.selected);
 					}
 				}
 			});
@@ -3065,7 +3079,7 @@
 			if (!jsPlumbAdapter.headless) {
 				var _draggable = isDraggable == null ? false : isDraggable;
 				if (_draggable) {
-					if (jsPlumb.isDragSupported(element) && !jsPlumb.isAlreadyDraggable(element)) {
+					if (jsPlumb.isDragSupported(element, _currentInstance) && !jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
 						var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
 						options = jsPlumb.extend( {}, options); // make a copy.
 						var dragEvent = jsPlumb.dragEvents.drag,
@@ -3101,7 +3115,7 @@
 						draggableStates[elId] = true;  
 						var draggable = draggableStates[elId];
 						options.disabled = draggable == null ? false : !draggable;
-						jsPlumb.initDraggable(element, options, false, _currentInstance);
+						_currentInstance.initDraggable(element, options, false);
 						_currentInstance.dragManager.register(element);
 					}
 				}
@@ -3947,11 +3961,15 @@
 						r.push(input);
 					}
 					else {
-						input = _currentInstance.getElementObject(input);
 						if (doNotGetIds) r = input;
 						else { 
-							for (var i = 0, j = input.length; i < j; i++) 
-								r.push(_info(input[i]).id);
+							if (input.length) {
+								//input = _currentInstance.getElementObject(input);
+								for (var i = 0, j = input.length; i < j; i++) 
+									r.push(_info(input[i]).id);
+							}
+							else
+								r.push(_info(input).id);
 						}	
 					}
 				}
@@ -4807,6 +4825,15 @@
 			}
 			return this;
 		}.bind(this);
+		
+		var _first = function(el, fn) {
+			el = _convertYUICollection(el);
+			if (_ju.isString(el) || !el.length) 
+				return fn.apply(this, [ el ]);
+			else if (el.length) 
+				return fn.apply(this, [ el[0] ]);
+				
+		}.bind(this);
 
 		this.toggleSourceEnabled = function(el) {
 			_setEnabled("source", el, null, true);
@@ -4815,24 +4842,32 @@
 
 		this.setSourceEnabled = function(el, state) { return _setEnabled("source", el, state); };
 		this.isSource = function(el) { 
-			return this.sourceEndpointDefinitions[_info(el).id] != null; 
+			return _first(el, function(_el) { 
+				return this.sourceEndpointDefinitions[_info(_el).id] != null; 
+			});
 		};
 		this.isSourceEnabled = function(el) { 
-			var sep = this.sourceEndpointDefinitions[_info(el).id];
-			return sep && sep.enabled === true;
+			return _first(el, function(_el) {
+				var sep = this.sourceEndpointDefinitions[_info(_el).id];
+				return sep && sep.enabled === true;
+			});
 		};
 
 		this.toggleTargetEnabled = function(el) {
-			_setEnabled("target", el, null, true);	
+			_setEnabled("target", el, null, true);
 			return this.isTargetEnabled(el);
 		};
 		
 		this.isTarget = function(el) { 
-			return this.targetEndpointDefinitions[_info(el).id] != null; 
+			return _first(el, function(_el) {
+				return this.targetEndpointDefinitions[_info(_el).id] != null; 
+			});
 		};
 		this.isTargetEnabled = function(el) { 
-			var tep = this.targetEndpointDefinitions[_info(el).id];
-			return tep && tep.enabled === true;
+			return _first(el, function(_el) {
+				var tep = this.targetEndpointDefinitions[_info(_el).id];
+				return tep && tep.enabled === true;
+			});
 		};
 		this.setTargetEnabled = function(el, state) { return _setEnabled("target", el, state); };
 
@@ -5879,7 +5914,7 @@
                     }.bind(this));
                 
                 var i = _gel(this.canvas);              
-                jsPlumb.initDraggable(i, dragOptions, true, _jsPlumb);
+                _jsPlumb.initDraggable(i, dragOptions, true, _jsPlumb);
 
                 draggingInitialised = true;
             }
@@ -11518,7 +11553,11 @@
 				addClass:jsPlumbAdapter.addClass,
 				removeClass:jsPlumbAdapter.removeClass,
 				intersects:Biltong.intersects,
-				indexOf:jsPlumbUtil.indexOf
+				indexOf:jsPlumbUtil.indexOf,
+				css:{
+					noSelect : instance.dragSelectClass,
+					droppable:"jsplumb-droppable"
+				}
 			});
 			instance.bind("zoom", k.setZoom);
 		}

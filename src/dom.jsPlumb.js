@@ -35,7 +35,8 @@
 				intersects:Biltong.intersects,
 				indexOf:jsPlumbUtil.indexOf,
 				css:{
-					noSelect : instance.dragSelectClass
+					noSelect : instance.dragSelectClass,
+					droppable:"jsplumb-droppable"
 				}
 			});
 			instance.bind("zoom", k.setZoom);

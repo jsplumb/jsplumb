@@ -17,6 +17,9 @@
 	MISCELLANEOUS
 	
 	- events now have "this" set correctly
+	- added qunit tests for no library, yui and mootools versions
+	- various yui and mootools methods were upgraded to support passing in an 
+	  element list (setId for one)
 
 * 1.5.5
 

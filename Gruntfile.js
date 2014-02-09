@@ -224,7 +224,7 @@ module.exports = function(grunt) {
                 files:[
                     {
                         expand:true,
-                        src:[ "tests/jsPlumb-tests.js", "tests/qunit-*.*", "tests/all-tests.html", "tests/loadTestHarness.js", "tests/loadTestHarness.html" ],
+                        src:[ "tests/jsPlumb-tests.js", "tests/test-support-*.js", "tests/loadtest-*.js", "tests/qunit-*.*", "tests/all-tests.html", "tests/loadTestHarness.js", "tests/loadTestHarness.html" ],
                         dest:"dist/"
                     }
                 ]

@@ -2,6 +2,12 @@
 
 QUnit.config.reorder = false;
 
+var makeContent = function(s) {
+	var d =  document.createElement("div");
+	d.innerHTML = s;
+	return d.firstChild;
+};
+
 var assertEndpointCount = function(elId, count, _jsPlumb) {
 	var ep = _jsPlumb.getEndpoints(elId),
 		epl = ep ? ep.length : 0;
@@ -46,6 +52,7 @@ var _triggerEvent = function(el, eventId) {
 var defaults = null,
 	_cleanup = function(_jsPlumb) {		
 		_jsPlumb.reset();
+	//	_jsPlumb.draggablesById = {};
 		if (_jsPlumb.select().length != 0)
 			throw "there are connections!";
 
@@ -168,7 +175,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 */	
 
 	test(renderMode + ' jsPlumb.remove after element removed from DOM', function() {
-		var container = $('<div id="container2"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>');
+		var d = document.createElement("div");
+		d.innerHTML = '<div id="container2"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>';
+		var container = d.firstChild;
 		document.body.appendChild(jsPlumb.getDOMElement(container));
 		var e1 = _jsPlumb.addEndpoint("in1", { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
 			e2 = _jsPlumb.addEndpoint("in2", { maxConnections: 1, isSource: false, isTarget: true, anchor: [ 0, 0.4, -1, 0 ] }),
@@ -177,7 +186,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.connect({source:e3, target:e1});
 		
 		// the element gets removed out of jsplumb's control
-		$("#output").remove();
+		var op = document.getElementById("output");
+		op.parentNode.removeChild(op);
 		
 		// but you can tell jsPlumb about it after the fact
 		_jsPlumb.remove("output");		
@@ -986,7 +996,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		ok(returnedParams.sourceEndpoint != null, "source endpoint is not null");
 		ok(returnedParams.targetEndpoint != null, "target endpoint is not null");
 		_jsPlumb.bind("connectionDetached", function(params) {
-			returnedParams = $.extend({}, params);
+			returnedParams = jsPlumb.extend({}, params);
 		});
 		_jsPlumb.detach(c);
 		ok(returnedParams.connection != null, 'connection is set');		
@@ -2652,10 +2662,10 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
 		var connectCallback = null, detachCallback = null;
 		_jsPlumb.bind("connection", function(params) {
-				connectCallback = $.extend({}, params);
+				connectCallback = jsPlumb.extend({}, params);
 			});
 		_jsPlumb.bind("connectionDetached", function(params) {
-				detachCallback = $.extend({}, params);
+				detachCallback = jsPlumb.extend({}, params);
 			});
 		_jsPlumb.connect({source:d1, target:d2});                // auto connect with default endpoint and anchor set
 		ok(connectCallback != null, "connect callback was made");
@@ -3061,7 +3071,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		_jsPlumb.Defaults.ConnectionOverlays = [
 			["Custom",{ id:"custom", create:function(connection) {
 				ok(connection != null, "we were passed in a connection");
-				return $("<div custom='true'>" + connection.id + "</div>");
+				return makeContent("<div custom='true'>" + connection.id + "</div>");
 			}}]
 		];
 		var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
@@ -3224,7 +3234,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(c1.getConnector().canvas.style.display, "none");
 		c1.setVisible(true);
 		equal(true, c1.isVisible(), "Connection is visible after calling setVisible(true).");
-		equal(c1.getConnector().canvas.style.display, "block");
+		equal(c1.getConnector().canvas.style.display, "");
 	});
 	
 	test(renderMode + ": Endpoint.isVisible/setVisible basic test (no connections)", function() {
@@ -3616,12 +3626,19 @@ var testSuite = function(renderMode, _jsPlumb) {
 		    }]                                                    		    
 		]});
 		// TODO jquery specific.
-		var o = c.getOverlay("label"), el = $(o.getElement());
+		var o = c.getOverlay("label"), el = o.getElement();//el = $(o.getElement());
+		equal(el.style.borderWidth, "2px", "border width 2");
+		equal(el.style.borderColor, "red", "border color red");
+		equal(el.style.backgroundColor, "blue", "bg color blue");
+		equal(el.style.color, "green", "color green");
+		equal(el.style.font, "12px foo", "bg font 12px foo");
+		/*
 		equal(el.css("border-width"), "2px", "border width 2");
 		equal(el.css("border-color"), "rgb(255, 0, 0)", "border color red");
 		equal(el.css("background-color"), "rgb(0, 0, 255)", "bg color blue");
 		equal(el.css("color"), "rgb(0, 128, 0)", "color green");
 		equal(el.css("font"), "normal normal normal 12px/normal foo", "bg font 12px foo");
+		*/
 	});	
 	
 	test(renderMode + " parameters object works for Endpoint", function() {
@@ -3944,7 +3961,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1, target:e2}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
 
-		_jsPlumb.setId($("#d1")[0], "d3");
+		_jsPlumb.setId(document.getElementById("d1"), "d3");
 		assertEndpointCount("d3", 2, _jsPlumb);
 		assertEndpointCount("d1", 0, _jsPlumb);
 
@@ -4008,7 +4025,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1, target:e2, scope:"FOO"}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
 
-		_jsPlumb.setId($("#d1"), "d3");
+		_jsPlumb.setId(jsPlumb.getSelector("#d1"), "d3");
 		assertEndpointCount("d3", 2, _jsPlumb);
 		assertEndpointCount("d1", 0, _jsPlumb);
 
@@ -4040,7 +4057,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		var c = _jsPlumb.connect({source:e1, target:e2, scope:"FOO"}),
 			c2 = _jsPlumb.connect({source:e2, target:e1});
 
-		_jsPlumb.setId($("#d1")[0], "d3");
+		_jsPlumb.setId(jsPlumb.getSelector("#d1")[0], "d3");
 		assertEndpointCount("d3", 2, _jsPlumb);
 		assertEndpointCount("d1", 0, _jsPlumb);
 
@@ -4423,8 +4440,8 @@ var testSuite = function(renderMode, _jsPlumb) {
 			
 		equal(_jsPlumb.selectEndpoints({element:"d1"}).length, 2, "using id, there are two endpoints on d1");
 		equal(_jsPlumb.selectEndpoints({element:d1}).length, 2, "using dom element, there are two endpoints on d1");
-		equal(_jsPlumb.selectEndpoints({element:$("#d1")}).length, 2, "using selector, there are two endpoints on d1");
-		equal(_jsPlumb.selectEndpoints({element:$(d1)}).length, 2, "using selector with dom element, there are two endpoints on d1");		
+		equal(_jsPlumb.selectEndpoints({element:jsPlumb.getSelector("#d1")}).length, 2, "using selector, there are two endpoints on d1");
+		equal(_jsPlumb.selectEndpoints({element:jsPlumb.getSelector(d1)}).length, 2, "using selector with dom element, there are two endpoints on d1");		
 		
 	});
 	
@@ -5622,7 +5639,7 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
     
     test(renderMode + " jsPlumb.getSelector, with context node given as selector", function() {
         var d1 = _addDiv("d1");
-        var d = $("<div id='foo'></div>");
+        var d = makeContent("<div id='foo'></div>");
         d1.appendChild(jsPlumb.getDOMElement(d));
         var s = _jsPlumb.getSelector(d1, "#foo");
         equal(s.length, 1, "foo found by getSelector with context d1");        
@@ -5631,7 +5648,7 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
     
     test(renderMode + " jsPlumb.getSelector, with context node given as DOM element", function() {
         var d1 = _addDiv("d1");
-        var d = $("<div id='foo'></div>");
+        var d = makeContent("<div id='foo'></div>");
         d1.appendChild(jsPlumb.getDOMElement(d));
         var s = _jsPlumb.getSelector(d1, "#foo");
         equal(s.length, 1, "foo found by getSelector with context d1");        
@@ -5643,13 +5660,13 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
 	        _addDiv("d1"); _addDiv("d2");
 	        var c = _jsPlumb.connect({source:"d1", target:"d2"});
 	        c.addClass("foo");
-	        ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
+	        ok(!(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
 	        ok(c.canvas.className.baseVal.indexOf("foo") != -1, "connection has class 'bar'");        
 	        c.addClass("bar", true);
-	        ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint has class 'bar'");        
+	        ok(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "bar"), "endpoint has class 'bar'");        
 	        c.removeClass("bar", true);
 	        ok(c.canvas.className.baseVal.indexOf("bar") == -1, "connection doesn't have class 'bar'");                
-	        ok(!$(c.endpoints[0].canvas).hasClass("bar"), "endpoint doesnt have class 'bar'");  
+	        ok(!jsPlumbAdapter.hasClass(c.endpoints[0].canvas,"bar"), "endpoint doesnt have class 'bar'");  
 	    }
 	    else
 	    	expect(0);
@@ -5661,11 +5678,11 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
         var c = _jsPlumb.connect({source:"d1", target:"d2"});
         equal(_jsPlumb.select().length, 1, "there is one connection");
         _jsPlumb.select().addClass("foo");
-        ok(!($(c.endpoints[0].canvas).hasClass("foo")), "endpoint does not have class 'foo'");
+        ok(!(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "foo")), "endpoint does not have class 'foo'");
         _jsPlumb.select().addClass("bar", true);
-        ok($(c.endpoints[0].canvas).hasClass("bar"), "endpoint hasclass 'bar'");        
+        ok(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "bar"), "endpoint hasclass 'bar'");        
         _jsPlumb.select().removeClass("bar", true);
-        ok(!($(c.endpoints[0].canvas).hasClass("bar")), "endpoint doesn't have class 'bar'");                
+        ok(!(jsPlumbAdapter.hasClass(c.endpoints[0].canvas, "bar")), "endpoint doesn't have class 'bar'");                
     });   
     
 // ******************* override pointer events ********************
@@ -5673,7 +5690,8 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
     	if (_jsPlumb.getRenderMode() == jsPlumb.SVG) {
 	        _addDiv("d1");_addDiv("d2");
 	        var c = _jsPlumb.connect({source:"d1",target:"d2", "pointer-events":"BANANA"});
-	        equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+	        //equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+			equal(jsPlumb.getSelector(c.getConnector().canvas, "path")[0].getAttribute("pointer-events"), "BANANA", "pointer events passed through to svg elements");
 	    }
 	    else
 	    	expect(0);

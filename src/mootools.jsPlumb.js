@@ -45,10 +45,38 @@
 		}
 	});
 	
+	var JSPLUMB_MOOTOOLS_DROPPABLE = "jsplumb-mootools-droppable";
+	
 	var _droppables = {},
 	_droppableOptions = {},
 	_draggablesByScope = {},
 	_draggablesById = {},
+	_getDraggable = function(el, instance) {
+		var id = instance.getId(el), d = instance.draggablesById;
+			
+		if (d != null)
+			return d[id];
+	},
+	_clearDraggables= function(el, instance) {
+		var d = instance.draggablesById;
+		if (d) {
+			delete d[instance.getId(el)];
+		}
+	},
+	_addDraggable = function(el, instance, drag) {
+		var d = instance.draggablesById, id = instance.getId(el);
+			
+		if (d == null) {
+			d = instance.draggablesById = {};
+			var re = instance.reset;
+			instance.reset = function() {
+				re.apply(instance);
+				instance.draggablesById = {};
+			};
+		}
+		
+		d[id] = drag;
+	},
 	_droppableScopesById = {};
 	/*
 	 * 
@@ -123,8 +151,8 @@
 		
 		getDOMElement : function(el) { 
 			if (el == null) return null;
-			// MooTools just decorates the DOM elements. so we have either an ID or an Element here.
-			return typeof(el) == "string" ? document.getElementById(el) : el; 
+			// MooTools just decorates the DOM elements. so we have either an ID, an element list, or an Element here.
+			return typeof(el) == "string" ? document.getElementById(el) : el.length ? el[0] : el; 
 		},
 		
 		getElementObject : _getElementObject,
@@ -135,22 +163,18 @@
 		},
 		
 		destroyDraggable : function(el) {
-			// TODO
-			var id = jsPlumb.getId(el), d = _draggablesById[id];
+			var d = _getDraggable(el, this);
 			if (d) {
-				for (var i = 0; i < d.length; i++)
-					d[i].detach();
-
-				delete _draggablesById[id];
+				d.detach();
+				_clearDraggables(el, this);
 			}
 		},
 
 		destroyDroppable : function(el) {
 			// TODO
 		},
-		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
-			var id = this.getId(el);
-			var drag = _draggablesById[id];
+		initDraggable : function(el, options, isPlumbedComponent) {
+			var drag = _getDraggable(el, this);
 			if (!drag) {
 				var originalZIndex = 0,
                     originalCursor = null,
@@ -164,7 +188,7 @@
 						originalCursor = this.element.getStyle('cursor');
 						this.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
 					}
-					$(document.body).addClass(_jsPlumb.dragSelectClass);
+					$(document.body).addClass(this.dragSelectClass);
 				});
 				
 				options.onComplete = jsPlumbUtil.wrap(options.onComplete, function() {
@@ -172,7 +196,7 @@
 					if (originalCursor) {
 						this.element.setStyle('cursor', originalCursor);
 					}                    
-					$(document.body).removeClass(_jsPlumb.dragSelectClass);
+					$(document.body).removeClass(this.dragSelectClass);
 				});
 				
 				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element
@@ -211,7 +235,7 @@
 				drag = new Drag.Move(el, options);
 				drag.scope = scope;
                 drag.originalZIndex = originalZIndex;
-                _add(_draggablesById, el.get("id"), drag);
+				_addDraggable(el, this, drag);
 				// again, only keep a record of this for scope stuff if this is a plumbed component (an endpoint)
                 if (isPlumbedComponent) {
 				    _add(_draggablesByScope, scope, drag);
@@ -227,6 +251,7 @@
             _add(_droppables, scope, el);
 			var id = this.getId(el);
 
+			jsPlumbAdapter.addClass(el, JSPLUMB_MOOTOOLS_DROPPABLE);
             el.setAttribute("_isPermanentDroppable", isPermanent);  // we use this to clear out droppables on drag complete.
 			_droppableOptions[id] = options;
 			_droppableScopesById[id] = scope;
@@ -238,7 +263,7 @@
 		},
 		
 		isAlreadyDraggable : function(el) {
-			return _draggablesById[this.getId(el)] != null;
+			return _getDraggable(el, this) != null;
 		},										
 		
 		isDragSupported : function(el, options) {
@@ -256,12 +281,10 @@
 		},
 		
 		getDragScope : function(el) {
-			var id = this.getId(el),
-			    drags = _draggablesById[id];
-			return drags[0].scope;
+			return _getDraggable(el, this).scope;
 		},
 	
-		getDropEvent : function(args) {			
+		getDropEvent : function(args) {
 			return args[2];
 		},
 		
@@ -271,14 +294,15 @@
 		},
 		
 		stopDrag : function() {
-            for (var i in _draggablesById) {
-                for (var j = 0; j < _draggablesById[i].length; j++) {
-                    var d = _draggablesById[i][j];
+			var did = _draggablesById[this.getInstanceIndex()]
+            for (var i in did) {
+                for (var j = 0; j < did[i].length; j++) {
+                    var d = did[i][j];
                     d.stop();
                     if (d.originalZIndex !== 0)
                         d.element.setStyle("z-index", d.originalZIndex);
                 }
-            }
+        ;    }
         },
 		
 		/*
@@ -298,21 +322,18 @@
 		},
 		
 		setElementDraggable : function(el, draggable) {
-			var draggables = _draggablesById[el.get("id")];
-			if (draggables) {
-				draggables.each(function(d) {
-					if (draggable) d.attach(); else d.detach();
-				});
-			}
+			var d = _getDraggable(el, this);
+			if (d)
+				d[draggable ? "attach" : "detach"]();
 		},
 		
 		setDragScope : function(el, scope) {
-			var drag = _draggablesById[el.get("id")];
+			var drag = _getDraggable(el, this);
 			var filterFunc = function(entry) {
 				return entry.get("id") != el.get("id");
 			};
 			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
-			drag[0].droppables = droppables;
+			drag.droppables = droppables;
 		},
 		
 		dragEvents : {
@@ -345,6 +366,9 @@
 		off : function(el, event, callback) {
 			el = _getElementObject(el);
 			el.removeEvent(event, callback);
+		},
+		reset:function() {
+			console.log("RESET")
 		}
 	});
 

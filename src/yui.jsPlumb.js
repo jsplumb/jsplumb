@@ -181,15 +181,15 @@
 		destroyDroppable : function(el) {
 			// TODO
 		},
-		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
+		initDraggable : function(el, options, isPlumbedComponent) {
 			var _opts = _getDDOptions(options),
-				id = _jsPlumb.getId(el);
+				id = this.getId(el);
 			_opts.node = "#" + id;	
 			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
-				Y.one(document.body).addClass(_jsPlumb.dragSelectClass);				
+				Y.one(document.body).addClass(this.dragSelectClass);				
 			}, false);	
 			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
-				Y.one(document.body).removeClass(_jsPlumb.dragSelectClass);
+				Y.one(document.body).removeClass(this.dragSelectClass);
 			});	
 			var dd = new Y.DD.Drag(_opts), 
                 containment = options.constrain2node || options.containment;
@@ -203,7 +203,7 @@
             }
 			
 			if (isPlumbedComponent) {
-				var scope = options.scope || _jsPlumb.Defaults.Scope;
+				var scope = options.scope || this.Defaults.Scope;
 				dd.scope = scope;
 				_add(_draggablesByScope, scope, dd);
 			}
@@ -320,6 +320,8 @@
 				return document.getElementById(el);
 			else if (el._node) 
 				return el._node;
+			else if (el.length)
+				return el[0];
 			else return el;
 		},
 		getOriginalEvent : function(e) {

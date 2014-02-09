@@ -798,7 +798,7 @@
 			if (!jsPlumbAdapter.headless) {
 				var _draggable = isDraggable == null ? false : isDraggable;
 				if (_draggable) {
-					if (jsPlumb.isDragSupported(element) && !jsPlumb.isAlreadyDraggable(element)) {
+					if (jsPlumb.isDragSupported(element, _currentInstance) && !jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
 						var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
 						options = jsPlumb.extend( {}, options); // make a copy.
 						var dragEvent = jsPlumb.dragEvents.drag,
@@ -834,7 +834,7 @@
 						draggableStates[elId] = true;  
 						var draggable = draggableStates[elId];
 						options.disabled = draggable == null ? false : !draggable;
-						jsPlumb.initDraggable(element, options, false, _currentInstance);
+						_currentInstance.initDraggable(element, options, false);
 						_currentInstance.dragManager.register(element);
 					}
 				}
@@ -1680,11 +1680,15 @@
 						r.push(input);
 					}
 					else {
-						input = _currentInstance.getElementObject(input);
 						if (doNotGetIds) r = input;
 						else { 
-							for (var i = 0, j = input.length; i < j; i++) 
-								r.push(_info(input[i]).id);
+							if (input.length) {
+								//input = _currentInstance.getElementObject(input);
+								for (var i = 0, j = input.length; i < j; i++) 
+									r.push(_info(input[i]).id);
+							}
+							else
+								r.push(_info(input).id);
 						}	
 					}
 				}
@@ -2540,6 +2544,15 @@
 			}
 			return this;
 		}.bind(this);
+		
+		var _first = function(el, fn) {
+			el = _convertYUICollection(el);
+			if (_ju.isString(el) || !el.length) 
+				return fn.apply(this, [ el ]);
+			else if (el.length) 
+				return fn.apply(this, [ el[0] ]);
+				
+		}.bind(this);
 
 		this.toggleSourceEnabled = function(el) {
 			_setEnabled("source", el, null, true);
@@ -2548,24 +2561,32 @@
 
 		this.setSourceEnabled = function(el, state) { return _setEnabled("source", el, state); };
 		this.isSource = function(el) { 
-			return this.sourceEndpointDefinitions[_info(el).id] != null; 
+			return _first(el, function(_el) { 
+				return this.sourceEndpointDefinitions[_info(_el).id] != null; 
+			});
 		};
 		this.isSourceEnabled = function(el) { 
-			var sep = this.sourceEndpointDefinitions[_info(el).id];
-			return sep && sep.enabled === true;
+			return _first(el, function(_el) {
+				var sep = this.sourceEndpointDefinitions[_info(_el).id];
+				return sep && sep.enabled === true;
+			});
 		};
 
 		this.toggleTargetEnabled = function(el) {
-			_setEnabled("target", el, null, true);	
+			_setEnabled("target", el, null, true);
 			return this.isTargetEnabled(el);
 		};
 		
 		this.isTarget = function(el) { 
-			return this.targetEndpointDefinitions[_info(el).id] != null; 
+			return _first(el, function(_el) {
+				return this.targetEndpointDefinitions[_info(_el).id] != null; 
+			});
 		};
 		this.isTargetEnabled = function(el) { 
-			var tep = this.targetEndpointDefinitions[_info(el).id];
-			return tep && tep.enabled === true;
+			return _first(el, function(_el) {
+				var tep = this.targetEndpointDefinitions[_info(_el).id];
+				return tep && tep.enabled === true;
+			});
 		};
 		this.setTargetEnabled = function(el, state) { return _setEnabled("target", el, state); };
 
