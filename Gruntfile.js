@@ -43,12 +43,6 @@ var versions = {
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
     
     libraries = [ "jquery", "mootools", "yui", "dom" ],
-    runtimeLibraries = {
-        jquery:"<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script src='../../lib/jquery.ui.touch-punch.min.js'></script>",
-        mootools:"<script src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>",
-        yui:"",
-        dom:""
-    },
     extraLibraries = {
         jquery:[],
         mootools:[],
@@ -139,12 +133,6 @@ module.exports = function(grunt) {
                 src: ['dist/demo/*/' + l + '.html', 'dist/tests/*.html', 'dist/demo/demo-all*.html' ],
                 actions: [
                     {
-                        name:"dep",
-                        search:"(<!-- DEP.*>.*\n)(.*\n)*(.*/DEP -->)",
-                        replace: runtimeLibraries[l],
-                        flags: 'gm'
-                    },
-                    {
                         name:"js",
                         search:"(<!-- JS.*>.*\n)(.*\n)*(.*/JS -->)",
                         replace:"<script type='text/javascript' src='../js/" + l + ".jsPlumb-<%= pkg.version%>-min.js'></script>",
@@ -160,7 +148,7 @@ module.exports = function(grunt) {
         });
 
         // change media wiki style links into standard markdown links
-        // [[Changes since version 1.4.0|changelog]]  -> [Changes since version 1.4.0](changelog)
+        /* [[Changes since version 1.4.0|changelog]]  -> [Changes since version 1.4.0](changelog)
         o["doc"] = {
             src:['jsPlumb.wiki/*.md'],
             actions:[
@@ -171,7 +159,7 @@ module.exports = function(grunt) {
                     flags:"gm"
                 }
             ]
-        };
+        };*/
 
         return o;
     };
@@ -211,12 +199,6 @@ module.exports = function(grunt) {
                         rename:function() {
                             return "dist/demo/requirejs/scripts/jsplumb.js";
                         }
-                    },
-                    {
-                        expand:true,
-                        cwd:"lib",
-                        src:["mootools-1.3.2.1-more.js", "jquery-1.9.0.js", "jquery-ui-1.9.2-min.js", "jquery.ui.touch-punch.min.js"],
-                        dest:"dist/lib/"
                     }
                 ]
             },
@@ -224,7 +206,7 @@ module.exports = function(grunt) {
                 files:[
                     {
                         expand:true,
-                        src:[ "tests/jsPlumb-tests.js", "tests/test-support-*.js", "tests/loadtest-*.js", "tests/qunit-*.*", "tests/all-tests.html", "tests/loadTestHarness.js", "tests/loadTestHarness.html" ],
+                        src:[ "tests/jsPlumb-tests.js", "tests/test-support-*.js", "tests/qunit-*.*", "tests/index.html", "tests/loadtest-dom.js", "tests/loadtest-*.html" ],
                         dest:"dist/"
                     }
                 ]
@@ -238,7 +220,7 @@ module.exports = function(grunt) {
                     }
                 ]
             },
-            // copy markdown to temp dir for pre-processing
+            /* copy markdown to temp dir for pre-processing
             temp:{
                 files:[
                     {
@@ -247,7 +229,7 @@ module.exports = function(grunt) {
                         dest:"TEMPOUT/"
                     }
                 ]
-            },
+            },*/
             logo:{
                 files:[
                     {
@@ -259,7 +241,7 @@ module.exports = function(grunt) {
             }
         },
         "regex-replace": makeReplacements(),
-        markdown: {
+        /*markdown: {
             all: {
                 files: [{
                     expand: true,
@@ -272,7 +254,7 @@ module.exports = function(grunt) {
                     template:'./doc/doc-template.html'
                 }
             }
-        },
+        },*/
         clean:{
             //temp:"jsPlumb.wiki"
             temp:"dist"
@@ -294,7 +276,7 @@ module.exports = function(grunt) {
                 files: ['src/*.js'],
                 tasks: ['build-src']
             }
-        },
+        }/*,
         yuidoc:{
             compile: {
             name: '<%= pkg.name %>',
@@ -307,7 +289,7 @@ module.exports = function(grunt) {
               outdir: 'dist/apidocs/'
             }
           }
-        }
+        }*/
     });
 
     // Load the plugin that provides the "docular" tasks.
@@ -316,9 +298,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-regex-replace');
-    grunt.loadNpmTasks('grunt-markdown');
+    //grunt.loadNpmTasks('grunt-markdown');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-yuidoc');
+    //grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-devtools');
@@ -374,7 +356,7 @@ module.exports = function(grunt) {
 */
 
     grunt.registerTask('build-src', ['clean', 'prepare', 'concat', 'uglify' ]);
-    grunt.registerTask('build', [/*'qunit', */'build-src', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', 'markdown', 'yuidoc' /*'docIndex' /*'clean'*/, 'info', 'writeIndex']);
+    grunt.registerTask('build', [/*'qunit', */'build-src', /*'copy:temp',*/ 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', /*'markdown', 'yuidoc' /*'docIndex' /*'clean'*/, 'info', 'writeIndex']);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 
