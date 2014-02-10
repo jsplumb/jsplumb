@@ -1580,24 +1580,24 @@
                 var c = {};
                 for (var j in a)
                     c[j] = this.clone(a[j]);
-                return c;		
+                return c;
             }
             else return a;
         },
-        merge : function(a, b) {		
-            var c = this.clone(a);		
+        merge : function(a, b) {
+            var c = this.clone(a);
             for (var i in b) {
                 if (c[i] == null || _iss(b[i]) || _isb(b[i]))
                     c[i] = b[i];
                 else {
-                    if (_isa(b[i])/* && this.isArray(c[i])*/) {
+                    if (_isa(b[i])) {
                         var ar = [];
                         // if c's object is also an array we can keep its values.
                         if (_isa(c[i])) ar.push.apply(ar, c[i]);
                         ar.push.apply(ar, b[i]);
                         c[i] = ar;
                     }
-                    else if(_iso(b[i])) {	
+                    else if(_iso(b[i])) {
                         // overwite c's value with an object if it is not already one.
                         if (!_iso(c[i])) 
                             c[i] = {};
@@ -1612,17 +1612,17 @@
         // chain a list of functions, supplied by [ object, method name, args ], and return on the first
         // one that returns the failValue. if none return the failValue, return the successValue.
         //
-        functionChain : function(successValue, failValue, fns) {        
+        functionChain : function(successValue, failValue, fns) {
             for (var i = 0; i < fns.length; i++) {
                 var o = fns[i][0][fns[i][1]].apply(fns[i][0], fns[i][2]);
                 if (o === failValue) {
                     return o;
                 }
-            }                
+            }
             return successValue;
         },
         // take the given model and expand out any parameters.
-        populate : function(model, values) {		
+        populate : function(model, values) {
             // for a string, see if it has parameter matches, and if so, try to make the substitutions.
             var getValue = function(fromString) {
                     var matches = fromString.match(/(\${.*?})/g);
@@ -1632,7 +1632,7 @@
                             if (val != null) {
                                 fromString = fromString.replace(matches[i], val);
                             }
-                        }							
+                        }
                     }
                     return fromString;
                 },		
@@ -1712,10 +1712,8 @@
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
         // class members, any of which may be null.
         //
-        extend : function(child, parent, _protoFn, _protoAtts) {
-            _protoFn = _protoFn || {};
-            _protoAtts = _protoAtts || {};
-            parent = _isa(parent) ? parent : [ parent ];            
+        extend : function(child, parent, _protoFn) {
+            parent = _isa(parent) ? parent : [ parent ];
 
             for (var i = 0; i < parent.length; i++) {
                 for (var j in parent[i].prototype) {
@@ -1725,19 +1723,26 @@
                 }
             }
 
-            var _makeFn = function(name) {
+            var _makeFn = function(name, protoFn) {
                 return function() {
                     for (var i = 0; i < parent.length; i++) {
                         if (parent[i].prototype[name])
                             parent[i].prototype[name].apply(this, arguments);
                     }                    
-                    return _protoFn[name].apply(this, arguments);
+                    return protoFn.apply(this, arguments);
                 };
             };
+			
+			var _oneSet = function(fns) {
+				for (var k in fns) {
+					child.prototype[k] = _makeFn(k, fns[k]);
+				}
+			};
 
-            for (var k in _protoFn) {
-                child.prototype[k] = _makeFn(k);
-            }
+			if (arguments.length > 2) {
+				for (var i = 2; i < arguments.length; i++)
+					_oneSet(arguments[i]);
+			}
 
             return child;
         },
@@ -1813,12 +1818,6 @@
             };
         }
     };
-	
-	/*
-	jsPlumbUtil.indexOf = typeof Array.prototype.indexOf !== "undefined" ? Array.prototype.indexOf : function(l, v) {
-		return jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });
-	};
-	//*/
 
 	jsPlumbUtil.EventGenerator = function() {
 		var _listeners = {}, 
@@ -1839,11 +1838,9 @@
 						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
 						// method will have the whole call stack available in the debugger.
 						if (eventsToDieOn[event]) 
-							//_listeners[event][i](value, originalEvent);
 							_listeners[event][i].apply(this, [ value, originalEvent]);
 						else {
 							try {
-								//ret = _listeners[event][i](value, originalEvent);
 								ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
 							} catch (e) {
 								jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
@@ -2623,13 +2620,13 @@
 		    getHoverPaintStyle : function() {
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
-			cleanup:function() {		
+			cleanup:function() {
 				this.unbindListeners();
 				this.detachListeners();
 			},
 			destroy:function() {
 				this.cleanupListeners();
-				this.clone = null;				
+				this.clone = null;
 				this._jsPlumb = null;
 			},
 			
@@ -2643,9 +2640,9 @@
 			    	this._jsPlumb.hover = hover;
                         
                     if (this.canvas != null) {
-                        if (this._jsPlumb.instance.hoverClass != null) {                            
-                            jsPlumbAdapter[hover ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.hoverClass);						                            
-                        }                                              
+                        if (this._jsPlumb.instance.hoverClass != null) {
+							this._jsPlumb.instance[hover ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.hoverClass);
+                        }
                     }
 		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
 						this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
@@ -2679,12 +2676,12 @@
 				return idx;
 			},
 			// this is a shortcut helper method to let people add a label as
-			// overlay.						
+			// overlay.
 			_makeLabelOverlay = function(component, params) {
 
 				var _params = {
 					cssClass:params.cssClass,
-					labelStyle : component.labelStyle,					
+					labelStyle : component.labelStyle,
 					id:_internalLabelOverlayId,
 					component:component,
 					_jsPlumb:component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
@@ -2901,7 +2898,7 @@
 		
 			this.logEnabled = this.Defaults.LogEnabled;
 			this._connectionTypes = {};
-			this._endpointTypes = {};		
+			this._endpointTypes = {};
 
 			jsPlumbUtil.EventGenerator.apply(this);
 
@@ -2979,7 +2976,7 @@
 					if (_currentInstance.Defaults.Container)
 						jsPlumb.getDOMElement(_currentInstance.Defaults.Container).appendChild(el);
 					else if (!parent)
-						jsPlumbAdapter.appendToRoot(el);
+						_currentInstance.appendToRoot(el);
 					else
 						jsPlumb.getDOMElement(parent).appendChild(el);
 				},		
@@ -3099,12 +3096,12 @@
 							// differs from getUIPosition so much
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui, null, true);
-							jsPlumbAdapter.addClass(element, "jsPlumb_dragged");
+							_currentInstance.addClass(element, "jsPlumb_dragged");
 						});
 						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
 							_draw(element, ui);
-							jsPlumbAdapter.removeClass(element, "jsPlumb_dragged");
+							_currentInstance.removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);							
 							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -3518,7 +3515,7 @@
 		_getId = function(element, uuid, doNotCreateIfNotFound) {
 			if (jsPlumbUtil.isString(element)) return element;			
 			if (element == null) return null;			
-			var id = jsPlumbAdapter.getAttribute(element, "id");
+			var id = _currentInstance.getAttribute(element, "id");
 			if (!id || id === "undefined") {
 				// check if fixed uuid parameter is given
 				if (arguments.length == 2 && arguments[1] !== undefined)
@@ -3526,7 +3523,7 @@
 				else if (arguments.length == 1 || (arguments.length == 3 && !arguments[2]))
 					id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
 				
-                if (!doNotCreateIfNotFound) jsPlumbAdapter.setAttribute(element, "id", id);
+                if (!doNotCreateIfNotFound) _currentInstance.setAttribute(element, "id", id);
 			}
 			return id;
 		};
@@ -4385,7 +4382,7 @@
 						this.currentlyDragging = false;
 						var originalEvent = jsPlumb.getDropEvent(arguments),
 							targetCount = this.select({target:elid}).length,
-							draggable = this.getElementObject(jsPlumb.getDragObject(arguments)),
+							draggable = this.getDOMElement(jsPlumb.getDragObject(arguments)),
 							id = this.getAttribute(draggable, "dragId"),
 							scope = this.getAttribute(draggable, "originalScope"),
 							jpc = floatingConnections[id],
@@ -4533,7 +4530,7 @@
 					var dropEvent = jsPlumb.dragEvents.drop;
 					dropOptions.scope = dropOptions.scope || targetScope;
 					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
-					jsPlumb.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
+					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
 				}.bind(this);
 			
 			// YUI collection fix
@@ -4650,7 +4647,7 @@
 					
 					// when the user presses the mouse, add an Endpoint, if we are enabled.
 					var mouseDownListener = function(e) {
-
+						var evt = jsPlumb.getOriginalEvent(e);
 						var def = this.sourceEndpointDefinitions[idToRegisterAgainst];
 						
 						// if disabled, return.
@@ -4658,8 +4655,7 @@
 	                    
 	                    // if a filter was given, run it, and return if it says no.
 						if (p.filter) {
-							var evt = jsPlumb.getOriginalEvent(e),
-								r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
+							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
 							
 							if (r === false) return;
 						}
@@ -4684,8 +4680,8 @@
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
 							z = this.getZoom(),
 							// TODO does the clientX/clientY work for IE8?
-							x = ( ((e.pageX || e.clientX) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
-							y = ( ((e.pageY || e.clientY) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
+							x = ( ((evt.pageX || evt.clientX) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
+							y = ( ((evt.pageY || evt.clientY) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
 						    parentX = x, 
 						    parentY = y;
 								
@@ -4695,8 +4691,8 @@
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = ((e.pageX || e.clientX) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
-						    parentY = ((e.pageY || e.clientY) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
+							parentX = ((evt.pageX || evt.clientX) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
+						    parentY = ((evt.pageY || evt.clientY) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
 						}											
 						
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -5001,21 +4997,21 @@
 				id = el;
 			}
 			else {
-				el = _currentInstance.getDOMElement(el);
-				id = _currentInstance.getId(el);
+				el = this.getDOMElement(el);
+				id = this.getId(el);
 			}
 
-			var sConns = _currentInstance.getConnections({source:id, scope:'*'}, true),
-				tConns = _currentInstance.getConnections({target:id, scope:'*'}, true);
+			var sConns = this.getConnections({source:id, scope:'*'}, true),
+				tConns = this.getConnections({target:id, scope:'*'}, true);
 
 			newId = "" + newId;
 
 			if (!doNotSetAttribute) {
-				el = _currentInstance.getDOMElement(id);
-				jsPlumbAdapter.setAttribute(el, "id", newId);
+				el = this.getDOMElement(id);
+				this.setAttribute(el, "id", newId);
 			}
 			else
-				el = _currentInstance.getDOMElement(newId);
+				el = this.getDOMElement(newId);
 
 			endpointsByElement[newId] = endpointsByElement[id] || [];
 			for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
@@ -5024,9 +5020,8 @@
 			}
 			delete endpointsByElement[id];
 
-			_currentInstance.anchorManager.changeId(id, newId);
-			if (!jsPlumbAdapter.headless)
-				_currentInstance.dragManager.changeId(id, newId);
+			this.anchorManager.changeId(id, newId);
+			this.dragManager && this.dragManager.changeId(id, newId);
 
 			var _conns = function(list, epIdx, type) {
 				for (var i = 0, ii = list.length; i < ii; i++) {
@@ -5039,7 +5034,7 @@
 			_conns(sConns, 0, "source");
 			_conns(tConns, 1, "target");
 
-			_currentInstance.repaint(newId);
+			this.repaint(newId);
 		};
 
 		this.setDebugLog = function(debugLog) {
@@ -5050,7 +5045,7 @@
 			var curVal = _suspendDrawing;
 		    _suspendDrawing = val;
 				if (val) _suspendedAt = new Date().getTime(); else _suspendedAt = null;
-		    if (repaintAfterwards) _currentInstance.repaintEverything();
+		    if (repaintAfterwards) this.repaintEverything();
 		    return curVal;
 		};
 
@@ -5069,10 +5064,10 @@
         * @param {boolean} doNotRepaintAfterwards If true, jsPlumb won't run a full repaint. Otherwise it will.
         * @description Suspends drawing, runs the given function, then re-enables drawing (and repaints, unless you tell it not to)
         */
-        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {     
-        	var _wasSuspended = _currentInstance.isSuspendDrawing();        	
+        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {
+        	var _wasSuspended = this.isSuspendDrawing();
         	if (!_wasSuspended)
-				_currentInstance.setSuspendDrawing(true);
+				this.setSuspendDrawing(true);
 			try {
 				fn();
 			}
@@ -5080,7 +5075,7 @@
 				_ju.log("Function run while suspended failed", e);
 			}
 			if (!_wasSuspended)
-				_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
+				this.setSuspendDrawing(false, !doNotRepaintAfterwards);
 		};
 
 		this.getOffset = function(elId) { return offsets[elId]; };
@@ -5151,10 +5146,10 @@
 
     jsPlumbUtil.extend(jsPlumbInstance, jsPlumbUtil.EventGenerator, {
     	setAttribute : function(el, a, v) {
-    		jsPlumbAdapter.setAttribute(el, a, v);
+    		this.setAttribute(el, a, v);
     	},
     	getAttribute : function(el, a) {
-    		return jsPlumbAdapter.getAttribute(jsPlumb.getDOMElement(el), a);
+    		return this.getAttribute(jsPlumb.getDOMElement(el), a);
     	},    	
     	registerConnectionType : function(id, type) {
     		this._connectionTypes[id] = jsPlumb.extend({}, type);
@@ -5210,7 +5205,7 @@
 				for (var i in o2) o1[i] = o2[i];
 			return o1;
 		}
-    });
+    }, jsPlumbAdapter);
 
 // --------------------- static instance + AMD registration -------------------------------------------	
 	
@@ -5768,12 +5763,12 @@
                         
                         //*
                         // store the original scope (issue 57)
-                        var dragScope = jsPlumb.getDragScope(canvasElement);
+                        var dragScope = _jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
                         // now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
                         // that have our drop scope (issue 57).
-                        var dropScope = jsPlumb.getDropScope(canvasElement);
-                        jsPlumb.setDragScope(canvasElement, dropScope);
+                        var dropScope = _jsPlumb.getDropScope(canvasElement);
+                        _jsPlumb.setDragScope(canvasElement, dropScope);
                         //*/
 
                         // fire an event that informs that a connection is being dragged. we do this before
@@ -5940,7 +5935,7 @@
                         this.removeClass(_jsPlumb.endpointDropForbiddenClass);
                                                     
                         var originalEvent = jsPlumb.getDropEvent(arguments),
-                            draggable = _gel(jsPlumb.getDragObject(arguments)),
+                            draggable = jsPlumb.getDOMElement(jsPlumb.getDragObject(arguments)),
                             id = _jsPlumb.getAttribute(draggable, "dragId"),
                             elId = _jsPlumb.getAttribute(draggable, "elId"),						
                             scope = _jsPlumb.getAttribute(draggable, "originalScope"),
@@ -6102,7 +6097,7 @@
                 dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop);
                 dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function() {					
                     var draggable = jsPlumb.getDragObject(arguments),
-                        id = _jsPlumb.getAttribute(draggable, "dragId"),
+                        id = _jsPlumb.getAttribute(jsPlumb.getDOMElement(draggable), "dragId"),
                         _jpc = floatingConnections[id];
                         
                     if (_jpc != null) {								
@@ -6125,7 +6120,7 @@
 
                 dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function() {					
                     var draggable = jsPlumb.getDragObject(arguments),
-                        id = draggable == null ? null : _jsPlumb.getAttribute( draggable, "dragId"),
+                        id = draggable == null ? null : _jsPlumb.getAttribute( jsPlumb.getDOMElement(draggable), "dragId"),
                         _jpc = id? floatingConnections[id] : null;
                         
                     if (_jpc != null) {
@@ -6138,7 +6133,7 @@
                         }
                     }
                 }.bind(this));
-                jsPlumb.initDroppable(canvas, dropOptions, true, isTransient);
+                _jsPlumb.initDroppable(canvas, dropOptions, true, isTransient);
             }
         }.bind(this);
         
@@ -8925,7 +8920,8 @@
 			if (this._jsPlumb.div == null) {
                 var div = this._jsPlumb.div = jsPlumb.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));                
                 div.style.position   =   "absolute";     
-                var clazz = params._jsPlumb.overlayClass + " " + 
+                //var clazz = params._jsPlumb.overlayClass + " " + 
+				var clazz = this._jsPlumb.overlayClass + " " + 
                     (this.cssClass ? this.cssClass : 
                     params.cssClass ? params.cssClass : "");        
                 div.className = clazz;
@@ -11519,27 +11515,16 @@
     
 })();
 
-;(function() {	
+;(function() {
 
 	"use strict";
-	
-    /*
 
-    METHODS TO USE/INVESTIGATE:
-
-        getBoundingClientRect
-        element.matches(...)
-        document.querySelector/querySelectorAll
-        element.classList (has add and remove methods)
-
-     */
-	 
 	 var _getDragManager = function(instance) {
 		var k = instance._katavorio,
 			e = _getEventManager(instance);
 			
 		if (!k) {
-			k = instance._katavorio = new Katavorio( {
+			k = new Katavorio( {
 				bind:e.on,
 				unbind:e.off,
 				getSize:jsPlumb.getSize,
@@ -11559,6 +11544,7 @@
 					droppable:"jsplumb-droppable"
 				}
 			});
+			instance._katavorio = k;
 			instance.bind("zoom", k.setZoom);
 		}
 		return k;
@@ -11572,7 +11558,7 @@
 		 return e;
 	 };
 
-	jsPlumb.extend(jsPlumbInstance.prototype, {		
+	jsPlumb.extend(jsPlumbInstance.prototype, {
 	
 		getDOMElement:function(el) { 
 			if (el == null) return null;
@@ -11631,7 +11617,7 @@
 			else
 				sel = document.querySelectorAll(spec, ctx); 
 				
-			return sel;// == null ? null : sel.length == 1 ? sel[0] : sel;
+			return sel;
 		},
 		// DRAG/DROP
 		destroyDraggable:function(el) {
@@ -11704,11 +11690,10 @@
 		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
 			// TODO: here we would like to map the tap event if we know its
-			// and internal bind to a click. we have to know its internal because only
+			// an internal bind to a click. we have to know its internal because only
 			// then can we be sure that the UP event wont be consumed (tap is a synthesized
 			// event from a mousedown followed by a mouseup).
 			//event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
-			
 			_getEventManager(this).on.apply(this, arguments);
 		},
 		off : function(el, event, callback) {

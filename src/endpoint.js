@@ -522,12 +522,12 @@
                         
                         //*
                         // store the original scope (issue 57)
-                        var dragScope = jsPlumb.getDragScope(canvasElement);
+                        var dragScope = _jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
                         // now we want to get this endpoint's DROP scope, and set it for now: we can only be dropped on drop zones
                         // that have our drop scope (issue 57).
-                        var dropScope = jsPlumb.getDropScope(canvasElement);
-                        jsPlumb.setDragScope(canvasElement, dropScope);
+                        var dropScope = _jsPlumb.getDropScope(canvasElement);
+                        _jsPlumb.setDragScope(canvasElement, dropScope);
                         //*/
 
                         // fire an event that informs that a connection is being dragged. we do this before
@@ -694,7 +694,7 @@
                         this.removeClass(_jsPlumb.endpointDropForbiddenClass);
                                                     
                         var originalEvent = jsPlumb.getDropEvent(arguments),
-                            draggable = _gel(jsPlumb.getDragObject(arguments)),
+                            draggable = jsPlumb.getDOMElement(jsPlumb.getDragObject(arguments)),
                             id = _jsPlumb.getAttribute(draggable, "dragId"),
                             elId = _jsPlumb.getAttribute(draggable, "elId"),						
                             scope = _jsPlumb.getAttribute(draggable, "originalScope"),
@@ -856,7 +856,7 @@
                 dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], drop);
                 dropOptions[overEvent] = _ju.wrap(dropOptions[overEvent], function() {					
                     var draggable = jsPlumb.getDragObject(arguments),
-                        id = _jsPlumb.getAttribute(draggable, "dragId"),
+                        id = _jsPlumb.getAttribute(jsPlumb.getDOMElement(draggable), "dragId"),
                         _jpc = floatingConnections[id];
                         
                     if (_jpc != null) {								
@@ -879,7 +879,7 @@
 
                 dropOptions[outEvent] = _ju.wrap(dropOptions[outEvent], function() {					
                     var draggable = jsPlumb.getDragObject(arguments),
-                        id = draggable == null ? null : _jsPlumb.getAttribute( draggable, "dragId"),
+                        id = draggable == null ? null : _jsPlumb.getAttribute( jsPlumb.getDOMElement(draggable), "dragId"),
                         _jpc = id? floatingConnections[id] : null;
                         
                     if (_jpc != null) {
@@ -892,7 +892,7 @@
                         }
                     }
                 }.bind(this));
-                jsPlumb.initDroppable(canvas, dropOptions, true, isTransient);
+                _jsPlumb.initDroppable(canvas, dropOptions, true, isTransient);
             }
         }.bind(this);
         

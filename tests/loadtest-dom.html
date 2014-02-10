@@ -2,39 +2,11 @@
 <html>
 	<head>
 		<title>jsPlumb 1.6.0 load test harness - No Library</title>
-		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<link rel="stylesheet" href="../demo/css/demo-all.css">
-		
-        <style type="text/css">
-            ._jsPlumb_connection { z-index:3; }
-            .jspLoad {
-                z-index:4;
-                position:absolute;
-                width:70px;
-                height:70px;
-                cursor:pointer;
-            }
-
-            #header {
-            	height:11em;
-            	border:2px solid #824563;
-            }
-            #setup {
-            	float:left;
-            }
-            #demo {
-            	margin-top:10em;
-            	position:relative;
-            }
-            #setup, #output {
-            	font-size:12px;
-            }
-
-        </style>
+		<link rel="stylesheet" href="loadtest.css">
 	</head>
 	<body>
-	
-
 		<div>
 			<div id="setup">
 				<table>
@@ -93,6 +65,7 @@
 				</table>
 			</div>
 			<button id="btnTest">Run Test</button>
+			<button id="btnReset">Reset</button>
 		</div>
 		
 		<div id="demo"></div>	

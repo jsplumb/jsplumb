@@ -50,7 +50,6 @@
 	var _droppables = {},
 	_droppableOptions = {},
 	_draggablesByScope = {},
-	_draggablesById = {},
 	_getDraggable = function(el, instance) {
 		var id = instance.getId(el), d = instance.draggablesById;
 			
@@ -181,23 +180,23 @@
 				    dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
                 
 				options.onStart = jsPlumbUtil.wrap(options.onStart, function() {
-                    originalZIndex = this.element.getStyle('z-index');
-					this.element.setStyle('z-index', dragZIndex);
+                    originalZIndex = drag.element.getStyle('z-index');
+					drag.element.setStyle('z-index', dragZIndex);
                     drag.originalZIndex = originalZIndex;
 					if (jsPlumb.Defaults.DragOptions.cursor) {
-						originalCursor = this.element.getStyle('cursor');
-						this.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
+						originalCursor = drag.element.getStyle('cursor');
+						drag.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
 					}
 					$(document.body).addClass(this.dragSelectClass);
-				});
+				}.bind(this));
 				
 				options.onComplete = jsPlumbUtil.wrap(options.onComplete, function() {
-					this.element.setStyle('z-index', originalZIndex);
+					drag.element.setStyle('z-index', originalZIndex);
 					if (originalCursor) {
-						this.element.setStyle('cursor', originalCursor);
+						drag.element.setStyle('cursor', originalCursor);
 					}                    
 					$(document.body).removeClass(this.dragSelectClass);
-				});
+				}.bind(this));
 				
 				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element
                 // draggable.  this is the only library adapter that has to care about this parameter.

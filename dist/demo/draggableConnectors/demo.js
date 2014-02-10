@@ -55,6 +55,13 @@
 				instance.bind("connectionDetached", function(info, originalEvent) {
 					updateConnections(info.connection, true);
 				});
+				
+				instance.bind("connectionMoved", function(info, originalEvent) {
+					//  only remove here, because a 'connection' event is also fired.
+					// in a future release of jsplumb this extra connection event will not
+					// be fired.
+					updateConnections(info.connection, true);
+				});
 
 				// configure some drop options for use by all endpoints.
 				var exampleDropOptions = {

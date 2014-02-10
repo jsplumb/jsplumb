@@ -1,12 +1,9 @@
 <!doctype html>
 <html>
 	<head>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 		<link rel="stylesheet" href="../demo/demo-all.css">
-		<style>		
-		body {
-			background-color: white;
-		}
+		<style>
 		#iframe { 
 			width:100%; 
 			height:1000px; 
@@ -14,18 +11,15 @@
 			top:14px; 
 			left:38px;
 			border:0;
-		}			
-		#render { height:20px;}
+		}
 		a:hover { text-decoration:underline; }
-		#links {			
-			width: 172px;
+		#links {
+			width: 165px;
 			font-size: 14px;
-			padding-left: 22px;
 			position: fixed;
 			left: 0px;
 			top: 43px;
 			z-index: 20;
-			background-color: white;									
 		}
 		ul { padding:0; }
 		li {
@@ -41,14 +35,14 @@
 			max-width: none;
 			margin-top: 44px;
 		}
-		</style>		
+		</style>
 	</head>
 	<body>		
 		
 
     	<div id="headerWrapper">
         	<div id="header">
-        		<div class="logo"><img src="../../logo-bw.png"></div>
+        		<div class="logo"><img src="../logo-bw.png"></div>
         		<div class="menu">    
         			<a href="../doc/home">DOCS</a>
         			<a href="../demo/">DEMOS</a>
@@ -62,19 +56,17 @@
         	</div>
         </div>
 		
+		<!-- content -->
 		<div id="main">
-			<div id="render"></div>
 			<div id="links">
 				<h3>Unit Tests</h3>
 				<ul>
-					<li><h5>jsPlumb</h5></li>
-					<li><a href="qunit-svg-jquery.html">SVG</a></li>				
-					<li><a href="qunit-canvas-jquery.html">Canvas</a></li>								
-					<li><a href="qunit-vml-jquery.html">VML</a></li>
-					<li><h5>jsPlumb Instance</h5></li>
-					<li><a href="qunit-svg-jquery-instance.html">SVG</a></li>
-					<li><a href="qunit-canvas-jquery-instance.html">Canvas</a></li>
-					<li><a href="qunit-vml-jquery-instance.html">VML</a></li>				
+					<li><h5>SVG</h5></li>
+					<li><a href="qunit-svg-dom-instance.html">No Library</a></li>
+					<li><a href="qunit-svg-jquery-instance.html">jQuery</a></li>
+					<li><a href="qunit-svg-mootools-instance.html">MooTools</a></li>
+					<li><a href="qunit-svg-yui-instance.html">YUI</a></li>
+					
 				</ul>
 				<h3>Load Tests</h3>
 				<ul>
@@ -102,9 +94,11 @@
 
 				$("#body").height($(window).height() - $("#header").height());
 
-				load("qunit-svg-jquery.html");
+				load("qunit-svg-dom-instance.html");
 
 			});
 		</script>
+		<!-- /content -->
+		
 	</body>
 </html>

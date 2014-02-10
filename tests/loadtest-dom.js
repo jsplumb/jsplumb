@@ -36,6 +36,7 @@
         },
 
         reset : function(thenRun) {
+            endpoints = {};
             empty(["numConnections", "createTime", "totalCreateTime", "averageCreateTime", "repaintTime", "averageRepaintTime", "demo" ]);
             var t = new Date().getTime();
             jsPlumb.reset();
@@ -131,5 +132,7 @@
 
     jsPlumb.ready(function() {
         jsPlumb.on(document.getElementById("btnTest"), "click", jsPlumbLoadTest.reset);
+        
+        jsPlumb.on(document.getElementById("btnReset"), "click", function() { jsPlumbLoadTest.reset(false); });
     });
 })();

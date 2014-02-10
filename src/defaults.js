@@ -1168,7 +1168,8 @@
 			if (this._jsPlumb.div == null) {
                 var div = this._jsPlumb.div = jsPlumb.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));                
                 div.style.position   =   "absolute";     
-                var clazz = params._jsPlumb.overlayClass + " " + 
+                //var clazz = params._jsPlumb.overlayClass + " " + 
+				var clazz = this._jsPlumb.overlayClass + " " + 
                     (this.cssClass ? this.cssClass : 
                     params.cssClass ? params.cssClass : "");        
                 div.className = clazz;

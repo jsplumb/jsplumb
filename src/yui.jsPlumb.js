@@ -186,11 +186,11 @@
 				id = this.getId(el);
 			_opts.node = "#" + id;	
 			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
-				Y.one(document.body).addClass(this.dragSelectClass);				
-			}, false);	
+				Y.one(document.body).addClass(this.dragSelectClass);
+			}.bind(this), false);	
 			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
 				Y.one(document.body).removeClass(this.dragSelectClass);
-			});	
+			}.bind(this));	
 			var dd = new Y.DD.Drag(_opts), 
                 containment = options.constrain2node || options.containment;
 

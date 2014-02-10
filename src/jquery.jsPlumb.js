@@ -129,16 +129,16 @@
 		/**
 		 * initialises the given element to be draggable.
 		 */
-		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
+		initDraggable : function(el, options, isPlumbedComponent) {
 			options = options || {};
 			el = $(el);
 
 			options.start = jsPlumbUtil.wrap(options.start, function() {
-				$("body").addClass(_jsPlumb.dragSelectClass);
+				$("body").addClass(this.dragSelectClass);
 			}, false);
 
 			options.stop = jsPlumbUtil.wrap(options.stop, function() {
-				$("body").removeClass(_jsPlumb.dragSelectClass);
+				$("body").removeClass(this.dragSelectClass);
 			});
 
 			// remove helper directive if present and no override

@@ -342,13 +342,13 @@
 		    getHoverPaintStyle : function() {
 		    	return this._jsPlumb.hoverPaintStyle;
 		    },
-			cleanup:function() {		
+			cleanup:function() {
 				this.unbindListeners();
 				this.detachListeners();
 			},
 			destroy:function() {
 				this.cleanupListeners();
-				this.clone = null;				
+				this.clone = null;
 				this._jsPlumb = null;
 			},
 			
@@ -362,9 +362,9 @@
 			    	this._jsPlumb.hover = hover;
                         
                     if (this.canvas != null) {
-                        if (this._jsPlumb.instance.hoverClass != null) {                            
-                            jsPlumbAdapter[hover ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.hoverClass);						                            
-                        }                                              
+                        if (this._jsPlumb.instance.hoverClass != null) {
+							this._jsPlumb.instance[hover ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.hoverClass);
+                        }
                     }
 		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
 						this._jsPlumb.paintStyleInUse = hover ? this._jsPlumb.hoverPaintStyle : this._jsPlumb.paintStyle;
@@ -398,12 +398,12 @@
 				return idx;
 			},
 			// this is a shortcut helper method to let people add a label as
-			// overlay.						
+			// overlay.
 			_makeLabelOverlay = function(component, params) {
 
 				var _params = {
 					cssClass:params.cssClass,
-					labelStyle : component.labelStyle,					
+					labelStyle : component.labelStyle,
 					id:_internalLabelOverlayId,
 					component:component,
 					_jsPlumb:component._jsPlumb.instance  // TODO not necessary, since the instance can be accessed through the component.
@@ -620,7 +620,7 @@
 		
 			this.logEnabled = this.Defaults.LogEnabled;
 			this._connectionTypes = {};
-			this._endpointTypes = {};		
+			this._endpointTypes = {};
 
 			jsPlumbUtil.EventGenerator.apply(this);
 
@@ -698,7 +698,7 @@
 					if (_currentInstance.Defaults.Container)
 						jsPlumb.getDOMElement(_currentInstance.Defaults.Container).appendChild(el);
 					else if (!parent)
-						jsPlumbAdapter.appendToRoot(el);
+						_currentInstance.appendToRoot(el);
 					else
 						jsPlumb.getDOMElement(parent).appendChild(el);
 				},		
@@ -818,12 +818,12 @@
 							// differs from getUIPosition so much
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui, null, true);
-							jsPlumbAdapter.addClass(element, "jsPlumb_dragged");
+							_currentInstance.addClass(element, "jsPlumb_dragged");
 						});
 						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
 							_draw(element, ui);
-							jsPlumbAdapter.removeClass(element, "jsPlumb_dragged");
+							_currentInstance.removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);							
 							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -1237,7 +1237,7 @@
 		_getId = function(element, uuid, doNotCreateIfNotFound) {
 			if (jsPlumbUtil.isString(element)) return element;			
 			if (element == null) return null;			
-			var id = jsPlumbAdapter.getAttribute(element, "id");
+			var id = _currentInstance.getAttribute(element, "id");
 			if (!id || id === "undefined") {
 				// check if fixed uuid parameter is given
 				if (arguments.length == 2 && arguments[1] !== undefined)
@@ -1245,7 +1245,7 @@
 				else if (arguments.length == 1 || (arguments.length == 3 && !arguments[2]))
 					id = "jsPlumb_" + _instanceIndex + "_" + _idstamp();
 				
-                if (!doNotCreateIfNotFound) jsPlumbAdapter.setAttribute(element, "id", id);
+                if (!doNotCreateIfNotFound) _currentInstance.setAttribute(element, "id", id);
 			}
 			return id;
 		};
@@ -2104,7 +2104,7 @@
 						this.currentlyDragging = false;
 						var originalEvent = jsPlumb.getDropEvent(arguments),
 							targetCount = this.select({target:elid}).length,
-							draggable = this.getElementObject(jsPlumb.getDragObject(arguments)),
+							draggable = this.getDOMElement(jsPlumb.getDragObject(arguments)),
 							id = this.getAttribute(draggable, "dragId"),
 							scope = this.getAttribute(draggable, "originalScope"),
 							jpc = floatingConnections[id],
@@ -2252,7 +2252,7 @@
 					var dropEvent = jsPlumb.dragEvents.drop;
 					dropOptions.scope = dropOptions.scope || targetScope;
 					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
-					jsPlumb.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
+					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
 				}.bind(this);
 			
 			// YUI collection fix
@@ -2369,7 +2369,7 @@
 					
 					// when the user presses the mouse, add an Endpoint, if we are enabled.
 					var mouseDownListener = function(e) {
-
+						var evt = jsPlumb.getOriginalEvent(e);
 						var def = this.sourceEndpointDefinitions[idToRegisterAgainst];
 						
 						// if disabled, return.
@@ -2377,8 +2377,7 @@
 	                    
 	                    // if a filter was given, run it, and return if it says no.
 						if (p.filter) {
-							var evt = jsPlumb.getOriginalEvent(e),
-								r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
+							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
 							
 							if (r === false) return;
 						}
@@ -2403,8 +2402,8 @@
 						var myOffsetInfo = _updateOffset({elId:elid}).o,
 							z = this.getZoom(),
 							// TODO does the clientX/clientY work for IE8?
-							x = ( ((e.pageX || e.clientX) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
-							y = ( ((e.pageY || e.clientY) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
+							x = ( ((evt.pageX || evt.clientX) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
+							y = ( ((evt.pageY || evt.clientY) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
 						    parentX = x, 
 						    parentY = y;
 								
@@ -2414,8 +2413,8 @@
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = ((e.pageX || e.clientX) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
-						    parentY = ((e.pageY || e.clientY) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
+							parentX = ((evt.pageX || evt.clientX) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
+						    parentY = ((evt.pageY || evt.clientY) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
 						}											
 						
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -2720,21 +2719,21 @@
 				id = el;
 			}
 			else {
-				el = _currentInstance.getDOMElement(el);
-				id = _currentInstance.getId(el);
+				el = this.getDOMElement(el);
+				id = this.getId(el);
 			}
 
-			var sConns = _currentInstance.getConnections({source:id, scope:'*'}, true),
-				tConns = _currentInstance.getConnections({target:id, scope:'*'}, true);
+			var sConns = this.getConnections({source:id, scope:'*'}, true),
+				tConns = this.getConnections({target:id, scope:'*'}, true);
 
 			newId = "" + newId;
 
 			if (!doNotSetAttribute) {
-				el = _currentInstance.getDOMElement(id);
-				jsPlumbAdapter.setAttribute(el, "id", newId);
+				el = this.getDOMElement(id);
+				this.setAttribute(el, "id", newId);
 			}
 			else
-				el = _currentInstance.getDOMElement(newId);
+				el = this.getDOMElement(newId);
 
 			endpointsByElement[newId] = endpointsByElement[id] || [];
 			for (var i = 0, ii = endpointsByElement[newId].length; i < ii; i++) {
@@ -2743,9 +2742,8 @@
 			}
 			delete endpointsByElement[id];
 
-			_currentInstance.anchorManager.changeId(id, newId);
-			if (!jsPlumbAdapter.headless)
-				_currentInstance.dragManager.changeId(id, newId);
+			this.anchorManager.changeId(id, newId);
+			this.dragManager && this.dragManager.changeId(id, newId);
 
 			var _conns = function(list, epIdx, type) {
 				for (var i = 0, ii = list.length; i < ii; i++) {
@@ -2758,7 +2756,7 @@
 			_conns(sConns, 0, "source");
 			_conns(tConns, 1, "target");
 
-			_currentInstance.repaint(newId);
+			this.repaint(newId);
 		};
 
 		this.setDebugLog = function(debugLog) {
@@ -2769,7 +2767,7 @@
 			var curVal = _suspendDrawing;
 		    _suspendDrawing = val;
 				if (val) _suspendedAt = new Date().getTime(); else _suspendedAt = null;
-		    if (repaintAfterwards) _currentInstance.repaintEverything();
+		    if (repaintAfterwards) this.repaintEverything();
 		    return curVal;
 		};
 
@@ -2788,10 +2786,10 @@
         * @param {boolean} doNotRepaintAfterwards If true, jsPlumb won't run a full repaint. Otherwise it will.
         * @description Suspends drawing, runs the given function, then re-enables drawing (and repaints, unless you tell it not to)
         */
-        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {     
-        	var _wasSuspended = _currentInstance.isSuspendDrawing();        	
+        this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {
+        	var _wasSuspended = this.isSuspendDrawing();
         	if (!_wasSuspended)
-				_currentInstance.setSuspendDrawing(true);
+				this.setSuspendDrawing(true);
 			try {
 				fn();
 			}
@@ -2799,7 +2797,7 @@
 				_ju.log("Function run while suspended failed", e);
 			}
 			if (!_wasSuspended)
-				_currentInstance.setSuspendDrawing(false, !doNotRepaintAfterwards);
+				this.setSuspendDrawing(false, !doNotRepaintAfterwards);
 		};
 
 		this.getOffset = function(elId) { return offsets[elId]; };
@@ -2870,10 +2868,10 @@
 
     jsPlumbUtil.extend(jsPlumbInstance, jsPlumbUtil.EventGenerator, {
     	setAttribute : function(el, a, v) {
-    		jsPlumbAdapter.setAttribute(el, a, v);
+    		this.setAttribute(el, a, v);
     	},
     	getAttribute : function(el, a) {
-    		return jsPlumbAdapter.getAttribute(jsPlumb.getDOMElement(el), a);
+    		return this.getAttribute(jsPlumb.getDOMElement(el), a);
     	},    	
     	registerConnectionType : function(id, type) {
     		this._connectionTypes[id] = jsPlumb.extend({}, type);
@@ -2929,7 +2927,7 @@
 				for (var i in o2) o1[i] = o2[i];
 			return o1;
 		}
-    });
+    }, jsPlumbAdapter);
 
 // --------------------- static instance + AMD registration -------------------------------------------	
 	

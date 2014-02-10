@@ -61,24 +61,24 @@
                 var c = {};
                 for (var j in a)
                     c[j] = this.clone(a[j]);
-                return c;		
+                return c;
             }
             else return a;
         },
-        merge : function(a, b) {		
-            var c = this.clone(a);		
+        merge : function(a, b) {
+            var c = this.clone(a);
             for (var i in b) {
                 if (c[i] == null || _iss(b[i]) || _isb(b[i]))
                     c[i] = b[i];
                 else {
-                    if (_isa(b[i])/* && this.isArray(c[i])*/) {
+                    if (_isa(b[i])) {
                         var ar = [];
                         // if c's object is also an array we can keep its values.
                         if (_isa(c[i])) ar.push.apply(ar, c[i]);
                         ar.push.apply(ar, b[i]);
                         c[i] = ar;
                     }
-                    else if(_iso(b[i])) {	
+                    else if(_iso(b[i])) {
                         // overwite c's value with an object if it is not already one.
                         if (!_iso(c[i])) 
                             c[i] = {};
@@ -93,17 +93,17 @@
         // chain a list of functions, supplied by [ object, method name, args ], and return on the first
         // one that returns the failValue. if none return the failValue, return the successValue.
         //
-        functionChain : function(successValue, failValue, fns) {        
+        functionChain : function(successValue, failValue, fns) {
             for (var i = 0; i < fns.length; i++) {
                 var o = fns[i][0][fns[i][1]].apply(fns[i][0], fns[i][2]);
                 if (o === failValue) {
                     return o;
                 }
-            }                
+            }
             return successValue;
         },
         // take the given model and expand out any parameters.
-        populate : function(model, values) {		
+        populate : function(model, values) {
             // for a string, see if it has parameter matches, and if so, try to make the substitutions.
             var getValue = function(fromString) {
                     var matches = fromString.match(/(\${.*?})/g);
@@ -113,7 +113,7 @@
                             if (val != null) {
                                 fromString = fromString.replace(matches[i], val);
                             }
-                        }							
+                        }
                     }
                     return fromString;
                 },		
@@ -193,10 +193,8 @@
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
         // class members, any of which may be null.
         //
-        extend : function(child, parent, _protoFn, _protoAtts) {
-            _protoFn = _protoFn || {};
-            _protoAtts = _protoAtts || {};
-            parent = _isa(parent) ? parent : [ parent ];            
+        extend : function(child, parent, _protoFn) {
+            parent = _isa(parent) ? parent : [ parent ];
 
             for (var i = 0; i < parent.length; i++) {
                 for (var j in parent[i].prototype) {
@@ -206,19 +204,26 @@
                 }
             }
 
-            var _makeFn = function(name) {
+            var _makeFn = function(name, protoFn) {
                 return function() {
                     for (var i = 0; i < parent.length; i++) {
                         if (parent[i].prototype[name])
                             parent[i].prototype[name].apply(this, arguments);
                     }                    
-                    return _protoFn[name].apply(this, arguments);
+                    return protoFn.apply(this, arguments);
                 };
             };
+			
+			var _oneSet = function(fns) {
+				for (var k in fns) {
+					child.prototype[k] = _makeFn(k, fns[k]);
+				}
+			};
 
-            for (var k in _protoFn) {
-                child.prototype[k] = _makeFn(k);
-            }
+			if (arguments.length > 2) {
+				for (var i = 2; i < arguments.length; i++)
+					_oneSet(arguments[i]);
+			}
 
             return child;
         },
@@ -294,12 +299,6 @@
             };
         }
     };
-	
-	/*
-	jsPlumbUtil.indexOf = typeof Array.prototype.indexOf !== "undefined" ? Array.prototype.indexOf : function(l, v) {
-		return jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });
-	};
-	//*/
 
 	jsPlumbUtil.EventGenerator = function() {
 		var _listeners = {}, 
@@ -320,11 +319,9 @@
 						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
 						// method will have the whole call stack available in the debugger.
 						if (eventsToDieOn[event]) 
-							//_listeners[event][i](value, originalEvent);
 							_listeners[event][i].apply(this, [ value, originalEvent]);
 						else {
 							try {
-								//ret = _listeners[event][i](value, originalEvent);
 								ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
 							} catch (e) {
 								jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);

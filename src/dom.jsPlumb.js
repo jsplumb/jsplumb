@@ -1,25 +1,14 @@
 
-;(function() {	
+;(function() {
 
 	"use strict";
-	
-    /*
 
-    METHODS TO USE/INVESTIGATE:
-
-        getBoundingClientRect
-        element.matches(...)
-        document.querySelector/querySelectorAll
-        element.classList (has add and remove methods)
-
-     */
-	 
 	 var _getDragManager = function(instance) {
 		var k = instance._katavorio,
 			e = _getEventManager(instance);
 			
 		if (!k) {
-			k = instance._katavorio = new Katavorio( {
+			k = new Katavorio( {
 				bind:e.on,
 				unbind:e.off,
 				getSize:jsPlumb.getSize,
@@ -39,6 +28,7 @@
 					droppable:"jsplumb-droppable"
 				}
 			});
+			instance._katavorio = k;
 			instance.bind("zoom", k.setZoom);
 		}
 		return k;
@@ -52,7 +42,7 @@
 		 return e;
 	 };
 
-	jsPlumb.extend(jsPlumbInstance.prototype, {		
+	jsPlumb.extend(jsPlumbInstance.prototype, {
 	
 		getDOMElement:function(el) { 
 			if (el == null) return null;
@@ -111,7 +101,7 @@
 			else
 				sel = document.querySelectorAll(spec, ctx); 
 				
-			return sel;// == null ? null : sel.length == 1 ? sel[0] : sel;
+			return sel;
 		},
 		// DRAG/DROP
 		destroyDraggable:function(el) {
@@ -184,11 +174,10 @@
 		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
 			// TODO: here we would like to map the tap event if we know its
-			// and internal bind to a click. we have to know its internal because only
+			// an internal bind to a click. we have to know its internal because only
 			// then can we be sure that the UP event wont be consumed (tap is a synthesized
 			// event from a mousedown followed by a mouseup).
 			//event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
-			
 			_getEventManager(this).on.apply(this, arguments);
 		},
 		off : function(el, event, callback) {
