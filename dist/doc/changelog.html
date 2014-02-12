@@ -110,6 +110,9 @@
 <ul>
 <li>There is no support for the canvas renderer in jsPlumb 1.6.0.</li>
 <li>The way in which library adapters inject their functionality into jsPlumb has changed. This will affect very few people; contact jsPlumb if you need help with this.</li>
+<li>All elements added by jsPlumb are appended to the current &quot;Container&quot;, which defaults to the document body. This differs
+from previous versions, in which if there was no Container set then jsPlumb would append elements to the parent of a connection&#39;s source endpoint. For this reason it is now more than ever recommended that you set a Container.<br></li>
+<li>The <code>container</code> parameter on <code>addEndpoint</code> or <code>connect</code> calls is no longer supported.</li>
 </ul>
 
 <h4>Issues</h4>
