@@ -161,7 +161,8 @@ module.exports = function(grunt) {
             options:{
                 force:true
             },
-            stage:[ "jekyll/doc", "jekyll/apidocs", "jekyll/demo", "jekyll/tests", "jekyll/css", "jekyll/js", "jekyll/img" ]
+            stage:[ "jekyll/doc", "jekyll/apidocs", "jekyll/demo", "jekyll/tests", "jekyll/css", "jekyll/js", "jekyll/img" ],
+            site: [ 'jekyll/_site' ]
         },
         jshint: {
             options: {
@@ -370,7 +371,7 @@ module.exports = function(grunt) {
     grunt.registerTask('createTests', _createTests);
     grunt.registerTask('createDemos', _createDemos);
     grunt.registerTask('prepare', _prepareSite);
-    grunt.registerTask("build", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stage' ]);
+    grunt.registerTask("build", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stage', 'clean:site' ]);
     grunt.registerTask('build-src', ['clean', 'prepare', 'concat', 'uglify' ]);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
