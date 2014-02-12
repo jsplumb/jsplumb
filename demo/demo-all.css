@@ -688,3 +688,30 @@ ANALOGIC SCHEME
           border-radius: 4px;
 }
 
+
+/* load test */
+
+.loadtest ._jsPlumb_connection { z-index:3; }
+.loadtest .jspLoad {
+    z-index:4;
+    position:absolute;
+    width:70px;
+    height:70px;
+    cursor:pointer;
+}
+
+.loadtest #header {
+  height:11em;
+  border:2px solid #824563;
+}
+
+.loadtest #setup {
+  float:left;
+}
+.loadtest #demo {
+  margin-top:10em;
+  position:relative;
+}
+.loadtest #setup, .loadtest #output {
+  font-size:12px;
+}
