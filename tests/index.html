@@ -2,40 +2,8 @@
 <html>
 	<head>
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-		<link rel="stylesheet" href="../demo/demo-all.css">
-		<style>
-		#iframe { 
-			width:100%; 
-			height:1000px; 
-			position:absolute; 			
-			top:14px; 
-			left:38px;
-			border:0;
-		}
-		a:hover { text-decoration:underline; }
-		#links {
-			width: 165px;
-			font-size: 14px;
-			position: fixed;
-			left: 0px;
-			top: 43px;
-			z-index: 20;
-		}
-		ul { padding:0; }
-		li {
-			list-style-type:none;
-		}
-		.current-tests {
-			color:orange !important;
-		}
-		#qunit-tests li.pass, #qunit-tests li.fail {
-			background-color:transparent;
-		}
-		#main {
-			max-width: none;
-			margin-top: 44px;
-		}
-		</style>
+		<link rel="stylesheet" href="../css/jsplumb.css">
+		<link rel="stylesheet" href="loadtest.css">
 	</head>
 	<body>		
 		
@@ -57,7 +25,7 @@
         </div>
 		
 		<!-- content -->
-		<div id="main">
+		<div id="main" class="test">
 			<div id="links">
 				<h3>Unit Tests</h3>
 				<ul>
