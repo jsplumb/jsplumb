@@ -101,7 +101,7 @@ body {
 }
 
  #main {  
-  margin-top: 48px;  
+  margin-top: 106px;  
   font-size: 80%;    
   width:75%;
   margin-left:auto;
@@ -118,7 +118,7 @@ body {
   background-color:white;    
   height:563px;
   overflow:auto;  
-  margin-top:35px;
+  margin-top: 53px;
   margin-bottom:25px;
 }
 
@@ -691,18 +691,45 @@ ANALOGIC SCHEME
 
 /* load test */
 
-body.test {
-  text-align: left !important;
-  background-color: white;
-}
 
-.test #main {
-  max-width: none;
-  text-align: left;
-}
+    #iframe { 
+      width:100%; 
+      height:1000px; 
+      position:absolute;      
+      top: 8px; 
+      left: 28px;
+      border:0;
+    }     
+    #render { height:20px;}
+    a:hover { text-decoration:underline; }
+    #links {      
+      width: 143px;
+      font-size: 14px;
+      padding-left: 0px;
+      position: fixed;
+      left: 9px;
+      top: 52px;
+      z-index: 20;
+      background-color: white;                  
+    }
+    ul { padding:0; }
+    li {
+      list-style-type:none;
+    }
+    .current-tests {
+      color:orange !important;
+    }
+    #qunit-tests li.pass, #qunit-tests li.fail {
+      background-color:transparent;
+    }
+    #main {
+      max-width: none;
+      margin-top: 44px;
+    }
 
-.test ._jsPlumb_connection { z-index:3; }
-.test .jspLoad {
+
+.loadtest ._jsPlumb_connection { z-index:3; }
+.loadtest .jspLoad {
     z-index:4;
     position:absolute;
     width:70px;
@@ -710,56 +737,18 @@ body.test {
     cursor:pointer;
 }
 
-.test #header {
+.loadtest #header {
   height:11em;
   border:2px solid #824563;
 }
 
-.test #setup {
+.loadtest #setup {
   float:left;
 }
-.test #demo {
+.loadtest #demo {
   margin-top:10em;
   position:relative;
 }
-.test #setup, .test #output {
+.loadtest #setup, .loadtest #output {
   font-size:12px;
 }
-
-/* unit tests */
-
-    #iframe { 
-      width:100%; 
-      height:1000px; 
-      position:absolute;      
-      top:14px; 
-      left:38px;
-      border:0;
-    }     
-    .test #render { height:20px;}
-    .test a:hover { text-decoration:underline; }
-    .test #links {      
-      width: 139px;
-      font-size: 12px;
-      padding-left: 22px;
-      position: fixed;
-      left: 5px;
-      top: 49px;
-      z-index: 20;
-      background-color: white;                  
-    }
-    .test ul { padding:0; }
-    .test li {
-      list-style-type:none;
-    }
-    .test .current-tests {
-      color:orange !important;
-    }
-    .test #qunit-tests li.pass, #qunit-tests li.fail {
-      background-color:transparent;
-    }
-    #main.test {
-      max-width: none;
-      margin-top: 35px;
-      text-align: left;
-    }
