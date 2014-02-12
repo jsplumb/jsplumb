@@ -760,3 +760,12 @@ a.absent {
 .type-csharp .highlight .sc {
   color: #A31515;
 }
+
+/* api docs */
+.apidocs {
+  margin-top: 20px !important;
+}
+
+.apidoc-intro {
+  padding-top:30px !important;
+}
