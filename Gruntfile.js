@@ -27,7 +27,7 @@ var versions = {
         yui:[],
         dom:[ get("MOTTLE"), get("KATAVORIO") ]
     }
-    version = "1.6.0",
+   // version = "1.6.0",
     objects = {
         connectors : [
             "flowchart", "statemachine", "bezier", "straight"
@@ -161,8 +161,7 @@ module.exports = function(grunt) {
             options:{
                 force:true
             },
-            stage:[ "jekyll/doc", "jekyll/apidocs", "jekyll/demo", "jekyll/tests", "jekyll/css", "jekyll/js", "jekyll/img" ],
-            stageCleanup:[ "stage" ]
+            stage:[ "jekyll/doc", "jekyll/apidocs", "jekyll/demo", "jekyll/tests", "jekyll/css", "jekyll/js", "jekyll/img" ]
         },
         jshint: {
             options: {
@@ -371,10 +370,10 @@ module.exports = function(grunt) {
     grunt.registerTask('createTests', _createTests);
     grunt.registerTask('createDemos', _createDemos);
     grunt.registerTask('prepare', _prepareSite);
-    grunt.registerTask("stage", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stageCleanup' ]);
-
-
-    // ------------------------- / prepare jekyll site task --------------------------------------------------------
+    grunt.registerTask("build", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stage' ]);
+    grunt.registerTask('build-src', ['clean', 'prepare', 'concat', 'uglify' ]);
+    grunt.registerTask('default', ['help']);
+    grunt.registerTask('build-all', ['qunit', 'build']);
 
     grunt.registerTask('update', function() {
         var newV = grunt.option("newver");
@@ -393,23 +392,4 @@ module.exports = function(grunt) {
 
     });
 
-/*
-    // reads the contents of home.html (the docs index), and writes it into all of the other files.
-    grunt.registerTask("docIndex", function() {
-        var f = grunt.file.read("dist/doc/contents.html"),
-            re = /(<!-- BODY.*>.*\n)(.*\n)*(.*\/BODY -->)/,
-            idx = f.match(re);
-
-        _replace("dist/doc", "*.html", /<\!-- NAV -->/, idx[0], ["contents.html"]);
-    });
-*/
-
-    grunt.registerTask('build-src', ['clean', 'prepare', 'concat', 'uglify' ]);
-    grunt.registerTask('build', [/*'qunit', */'build-src', /*'copy:temp',*/ 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', /*'markdown', 'yuidoc' /*'docIndex' /*'clean'*/, 'info', 'writeIndex']);
-    grunt.registerTask('default', ['help']);
-    grunt.registerTask('build-all', ['qunit', 'build']);
-
-   /* grunt.registerTask("build-all", function() {
-        grunt.task.run("build")
-    })*/
 };
