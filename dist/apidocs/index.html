@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="./assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="./assets/css/main.css" id="site_styles">
-    <link rel="shortcut icon" type="image/png" href="./assets/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="../img/favicon.png">
     <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
     <style>
         #doc {
@@ -182,13 +182,21 @@
                 <div id="docs-main">
                     <div class="content">
                         <div class="apidocs">
-    <div id="docs-main" class="content">
-        jsPlumb provides a means to visually connect elements of your UI together.
-        <p>
-        Browse to a module or class using the sidebar to view its API documentation.
+    <div id="docs-main" class="content apidoc-intro">
+        <h3>jsPlumb API documentation</h3>
+        jsPlumb is organised into several classes and namespaces.
+        <p>The main classes you will deal with are <code>jsPlumbInstance</code>, <code>Endpoint</code>, <code>Connection</code>, <code>Anchor</code> and <code>Overlay</code>, but only rarely will you deal 
+        with these directly.  All objects are constructed by jsPlumb from "definitions" that you provide, and most of the operations you 
+        wish to perform on jsPlumb objects are mediated through an instance of the <code>jsPlumbInstance</code> class.
         </p>
+        <h4>Static jsPlumb instance</h4>
+        <p>An important point to keep in mind is that the global <code>jsPlumb</code> object is just an instance of the 
+        <a href="classes/jsPlumbInstance.html">jsPlumbInstance</a> class that is registered by default on the browser window.</p>  
+        <p>For many people this single static instance is sufficient, but others need more than one instance.</p>
+        <p>Either way, remember as you read through the API documentation that a reference to a method on the <code>jsPlumbInstance</code> 
+        class means that <code>jsPlumb</code> has that method.</p>  
 
-        <h2>Keyboard Shortcuts</h2>
+        <h5>Keyboard Shortcuts</h5>
 
         <ul>
             <li><p>Press <kbd>s</kbd> to focus the API search box.</p></li>

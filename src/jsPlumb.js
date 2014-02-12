@@ -1,7 +1,6 @@
 /**
  * @module jsPlumb
- * @description Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.   
+ * @description Provides a way to visually connect elements on an HTML page, using either SVG or VML.   
  * 
  * - [Demo Site](http://jsplumb.org)
  * - [GitHub](http://github.com/sporritt/jsplumb)
@@ -1275,14 +1274,12 @@
 		this.dragSelectClass = "_jsPlumb_drag_select";
 
 		this.Anchors = {};		
-		this.Connectors = {  "canvas":{}, "svg":{}, "vml":{} };				
-		this.Endpoints = { "canvas":{}, "svg":{}, "vml":{} };
-		this.Overlays = { "canvas":{}, "svg":{}, "vml":{}};		
+		this.Connectors = {  "svg":{}, "vml":{} };				
+		this.Endpoints = { "svg":{}, "vml":{} };
+		this.Overlays = { "svg":{}, "vml":{}};		
 		this.ConnectorRenderers = {};				
 		this.SVG = "svg";
-		this.CANVAS = "canvas";		
-		this.VML = "vml";
-				
+		this.VML = "vml";				
 
 // --------------------------- jsPLumbInstance public API ---------------------------------------------------------
 					
@@ -1883,7 +1880,7 @@
 				return jsPlumbAdapter.isRenderModeAvailable(m);
 			};
 		};
-		this.isCanvasAvailable = _isAvailable("canvas");
+
 		this.isSVGAvailable = _isAvailable("svg");
 		this.isVMLAvailable = _isAvailable("vml");
 
@@ -1897,7 +1894,7 @@
 		this.idstamp = _idstamp;
 
 		this.connectorsInitialized = false;
-		var connectorTypes = [], rendererTypes = ["canvas", "svg", "vml"];
+		var connectorTypes = [], rendererTypes = ["svg", "vml"];
 		this.registerConnectorType = function(connector, name) {
 			connectorTypes.push([connector, name]);
 		};
@@ -2326,9 +2323,6 @@
 						if (existingStop) existingStop.apply(this, arguments);
 	                    this.currentlyDragging = false;
 						if (ep._jsPlumb != null) { // if not cleaned up...
-
-							// TODO what is this trying to unbind? there is no function.
-							//_currentInstance.off(ep.canvas, "mousedown"); 
 									
 							// reset the anchor to the anchor that was initially provided. the one we were using to drag
 							// the connection was just a placeholder that was located at the place the user pressed the
@@ -2807,38 +2801,15 @@
 		/**
 		 * @doc function
 		 * @name jsPlumb.class:setRenderMode
-		 * @param {string} mode One of `jsPlumb.SVG, `jsPlumb.VML` or `jsPlumb.CANVAS`.
+		 * @param {string} mode One of `jsPlumb.SVG or `jsPlumb.VML.
 		 * @description Sets render mode.  jsPlumb will fall back to VML if it determines that
 		 * what you asked for is not supported (and that VML is).  If you asked for VML but the browser does
 		 * not support it, jsPlumb uses SVG.
 		 * @return {string} The render mode that jsPlumb set, which of course may be different from that requested.
 		 */
 		this.setRenderMode = function(mode) {
+			if (mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new TypeError("Render mode [" + mode + "] not supported");
 			renderMode = jsPlumbAdapter.setRenderMode(mode);
-			var i, ii;
-			// only add this if the renderer is canvas; we dont want these listeners registered on te
-			// entire document otherwise.
-			if (renderMode == jsPlumb.CANVAS) {
-				var bindOne = function(event) {
-	                _currentInstance.on(document, event, function(e) {
-	                    if (!_currentInstance.currentlyDragging && renderMode == jsPlumb.CANVAS) {
-	                        // try connections first
-	                        for (i = 0, ii = connections.length; i < ii; i++ ) {
-                                var t = connections[i].getConnector()[event](e);
-                                if (t) return;	
-                            }
-	                        for (var el in endpointsByElement) {
-	                            var ee = endpointsByElement[el];
-	                            for ( i = 0, ii = ee.length; i < ii; i++ ) {
-	                                if (ee[i].endpoint[event] && ee[i].endpoint[event](e)) return;
-	                            }
-	                        }
-	                    }
-	                });
-				};
-				bindOne("click");bindOne("dblclick");bindOne("mousemove");bindOne("mousedown");bindOne("mouseup");bindOne("contextmenu");				
-			}
-
 			return renderMode;
 		};
 
@@ -2846,7 +2817,7 @@
 		 * @doc function
 		 * @name jsPlumb.class:getRenderMode
 		 * @description Gets the current render mode for this instance of jsPlumb.
-		 * @return {string} The current render mode - "canvas", "svg" or "vml".
+		 * @return {string} The current render mode - "svg" or "vml".
 		 */
 		this.getRenderMode = function() { return renderMode; };
 		

@@ -762,13 +762,6 @@
   */
 
   /**
-  * Constant for use with the setRenderMode method  
-  * @property CANVAS
-  * @static
-  * @type {String}
-  */
-
-  /**
   * Constant for use with the setRenderMode method
   * @property VML
   * @static
@@ -901,7 +894,7 @@
   * @type {Boolean}
   */
   /**
-  * What mode to use to paint with.  If you're on IE<9, you don't really get to choose this.  You'll just get VML.  Otherwise, the jsPlumb default is to use SVG, but you can ask for Canvas if you wish.
+  * What mode to use to paint with.  If you're on IE<9, you don't really get to choose this.  You'll just get VML.  Otherwise, jsPlumb uses SVG. Note that from 1.6.0 onwards, support for Canvas has been removed.
   * @property Defaults.RenderMode     
   * @type {String}
   */

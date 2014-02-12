@@ -26,7 +26,6 @@
 	 * 
 	 */
 	jsPlumb.DOMElementComponent = jsPlumbUtil.extend(jsPlumb.jsPlumbUIComponent, function(params) {		
-		// when render mode is canvas, these functions may be called by the canvas mouse handler.  
 		// this component is safe to pipe this stuff to /dev/null.
 		this.mousemove = 
 		this.dblclick  = 

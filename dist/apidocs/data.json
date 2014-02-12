@@ -3394,7 +3394,7 @@
             "line": 764,
             "description": "Constant for use with the setRenderMode method",
             "itemtype": "property",
-            "name": "CANVAS",
+            "name": "VML",
             "static": 1,
             "type": "{String}",
             "class": "jsPlumbInstance"
@@ -3404,16 +3404,6 @@
             "line": 771,
             "description": "Constant for use with the setRenderMode method",
             "itemtype": "property",
-            "name": "VML",
-            "static": 1,
-            "type": "{String}",
-            "class": "jsPlumbInstance"
-        },
-        {
-            "file": "doc/api/jsplumb-api.js",
-            "line": 778,
-            "description": "Constant for use with the setRenderMode method",
-            "itemtype": "property",
             "name": "SVG",
             "static": 1,
             "type": "{String}",
@@ -3421,7 +3411,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 785,
+            "line": 778,
             "description": "These are the default settings for jsPlumb.  They are what will be used if you do not supply specific pieces of information \nto the various API calls. A convenient way to implement your own look and feel can be to override these defaults \nby including a script somewhere after the jsPlumb include, but before you make any calls to jsPlumb.",
             "itemtype": "property",
             "name": "Defaults",
@@ -3430,7 +3420,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 792,
+            "line": 785,
             "description": "The default anchor to use for all connections (both source and target). Default is \"Bottom\".",
             "itemtype": "property",
             "name": "Defaults.Anchor",
@@ -3439,7 +3429,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 797,
+            "line": 790,
             "description": "The default anchors to use as (`[source, target]`) for all connections. Defaults are `[\"Bottom\", \"Bottom\"]`.",
             "itemtype": "property",
             "name": "Defaults.Anchors",
@@ -3448,7 +3438,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 802,
+            "line": 795,
             "description": "Whether or not connections are detachable by default (using the mouse). Defaults to true.",
             "itemtype": "property",
             "name": "Defaults.ConnectionsDetachable",
@@ -3457,7 +3447,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 807,
+            "line": 800,
             "description": "The default overlay definitions for Connections. Defaults to an empty list.",
             "itemtype": "property",
             "name": "Defaults.ConnectionOverlays",
@@ -3466,7 +3456,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 812,
+            "line": 805,
             "description": "Name of the default connector definition to use for all connections.  Default is \"Bezier\".",
             "itemtype": "property",
             "name": "Defaults.Connector",
@@ -3475,7 +3465,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 817,
+            "line": 810,
             "description": "Optional selector or element id that instructs jsPlumb to append elements it creates to a specific element.",
             "itemtype": "property",
             "name": "Defaults.Container",
@@ -3484,7 +3474,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 822,
+            "line": 815,
             "description": "Defaults to false; whether or not to throw errors if a user specifies an unknown anchor, endpoint or connector type.",
             "itemtype": "property",
             "name": "Defaults.DoNotThrowErrors",
@@ -3493,7 +3483,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 827,
+            "line": 820,
             "description": "The default drag options to pass in to {@link jsPlumbInstance#connect}, {@link jsPlumbInstance#makeTarget} and {@link jsPlumbInstance#addEndpoint} calls. Default is empty.",
             "itemtype": "property",
             "name": "Defaults.DragOptions",
@@ -3502,7 +3492,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 832,
+            "line": 825,
             "description": "The default drop options to pass in to {@link jsPlumbInstance#connect}, {@link jsPlumbInstance#makeTarget} and {@link jsPlumbInstance#addEndpoint} calls. Default is empty.",
             "itemtype": "property",
             "name": "Defaults.DropOptions",
@@ -3511,7 +3501,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 837,
+            "line": 830,
             "description": "The name of the default endpoint to use for all connections (both source and target).  Default is `\"Dot\"`.",
             "itemtype": "property",
             "name": "Defaults.Endpoint",
@@ -3520,7 +3510,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 842,
+            "line": 835,
             "description": "The names of the default endpoint definitions ([ source, target ]) to use for all connections.  Defaults are `[\"Dot\", \"Dot\"]`.",
             "itemtype": "property",
             "name": "Defaults.Endpoints",
@@ -3529,7 +3519,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 847,
+            "line": 840,
             "description": "The default style definition to use for all endpoints. Default is `{ fillStyle:\"#456\" }`",
             "itemtype": "property",
             "name": "Defaults.EndpointStyle",
@@ -3538,7 +3528,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 852,
+            "line": 845,
             "description": "The default style definitions ([ source, target ]) to use for all endpoints.  Defaults are empty.",
             "itemtype": "property",
             "name": "Defaults.EndpointStyles",
@@ -3547,7 +3537,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 857,
+            "line": 850,
             "description": "The default hover style definition to use for all endpoints. Default is null.",
             "itemtype": "property",
             "name": "Defaults.EndpointHoverStyle",
@@ -3556,7 +3546,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 862,
+            "line": 855,
             "description": "The default hover style definitions ([ source, target ]) to use for all endpoints. Defaults are null.",
             "itemtype": "property",
             "name": "Defaults.EndpointHoverStyles",
@@ -3565,7 +3555,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 867,
+            "line": 860,
             "description": "The default hover style definition to use for all connections. Defaults are null.",
             "itemtype": "property",
             "name": "Defaults.HoverPaintStyle",
@@ -3574,7 +3564,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 872,
+            "line": 865,
             "description": "The default style to use for label overlays on connections.",
             "itemtype": "property",
             "name": "Defaults.LabelStyle",
@@ -3585,7 +3575,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 878,
+            "line": 871,
             "description": "Whether or not the jsPlumb log is enabled. defaults to false.",
             "itemtype": "property",
             "name": "Defaults.LogEnabled",
@@ -3594,7 +3584,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 883,
+            "line": 876,
             "description": "The default overlay definitions (for both Connections and Endpoint). Defaults to an empty list.",
             "itemtype": "property",
             "name": "Defaults.Overlays",
@@ -3603,7 +3593,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 888,
+            "line": 881,
             "description": "The default maximum number of connections for an Endpoint.  Defaults to 1.",
             "itemtype": "property",
             "name": "Defaults.MaxConnections",
@@ -3612,7 +3602,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 893,
+            "line": 886,
             "description": "The default paint style for a connection. Default is line width of 8 pixels, with color \"#456\".",
             "itemtype": "property",
             "name": "Defaults.PaintStyle",
@@ -3621,7 +3611,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 898,
+            "line": 891,
             "description": "Whether or not to reattach Connections that a user has detached with the mouse and then dropped. Default is false.",
             "itemtype": "property",
             "name": "Defaults.ReattachConnections",
@@ -3630,8 +3620,8 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 903,
-            "description": "What mode to use to paint with.  If you're on IE<9, you don't really get to choose this.  You'll just get VML.  Otherwise, the jsPlumb default is to use SVG, but you can ask for Canvas if you wish.",
+            "line": 896,
+            "description": "What mode to use to paint with.  If you're on IE<9, you don't really get to choose this.  You'll just get VML.  Otherwise, jsPlumb uses SVG. Note that from 1.6.0 onwards, support for Canvas has been removed.",
             "itemtype": "property",
             "name": "Defaults.RenderMode",
             "type": "{String}",
@@ -3639,7 +3629,7 @@
         },
         {
             "file": "doc/api/jsplumb-api.js",
-            "line": 908,
+            "line": 901,
             "description": "The default \"scope\" to use for connections. Scope lets you assign connections to different categories.",
             "itemtype": "property",
             "name": "Defaults.Scope",
