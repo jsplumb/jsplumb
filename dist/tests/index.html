@@ -1,63 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-	<head>
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-		<link rel="stylesheet" href="../demo/demo-all.css">
-		<style>
-		#iframe { 
-			width:100%; 
-			height:1000px; 
-			position:absolute; 			
-			top:14px; 
-			left:38px;
-			border:0;
-		}
-		a:hover { text-decoration:underline; }
-		#links {
-			width: 165px;
-			font-size: 14px;
-			position: fixed;
-			left: 0px;
-			top: 43px;
-			z-index: 20;
-		}
-		ul { padding:0; }
-		li {
-			list-style-type:none;
-		}
-		.current-tests {
-			color:orange !important;
-		}
-		#qunit-tests li.pass, #qunit-tests li.fail {
-			background-color:transparent;
-		}
-		#main {
-			max-width: none;
-			margin-top: 44px;
-		}
-		</style>
-	</head>
-	<body>		
-		
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <title></title>
+        
+        
 
-    	<div id="headerWrapper">
-        	<div id="header">
-        		<div class="logo"><img src="http://jsplumbtoolkit.com/logo-bw.png"></div>
-        		<div class="menu">    
-        			<a href="../doc/home">DOCS</a>
-        			<a href="../demo/">DEMOS</a>
-        			<a href="../apidocs">API</a>
-        			<a href="../tests/all-tests.html">TESTS</a>
-        			<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
-        			<a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
-        			<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
-        			<a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
-        		</div>
-        	</div>
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/jsplumb.css">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    </head>
+    <body>
+        <div id="headerWrapper">
+    <div id="header">
+        <div class="logo"><img src="http://jsplumbtoolkit.com/logo-bw.png"></div>
+        <div class="menu">   
+            <a href="../demo">DEMOS</a>
+            <a href="../doc/home.html">DOCS</a>                    
+            <a href="../apidocs">API</a>
+            <a href="../tests/index.html">TESTS</a>
+            <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+            <a href="http://blog.jsplumbtoolkit.com">BLOG</a>
+            <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
+            <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+            <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
         </div>
-		
-		<!-- content -->
-		<div id="main">
+    </div>
+</div> 
+        <div class="site">
+            <!-- content -->
+		<div id="main" class="test">
 			<div id="links">
 				<h3>Unit Tests</h3>
 				<ul>
@@ -99,6 +73,25 @@
 			});
 		</script>
 		<!-- /content -->
-		
-	</body>
+            <div class="footer">
+            </div>
+        </div>        
+        <script type="text/javascript">
+        var sc_project=9494764; 
+        var sc_invisible=1; 
+        var sc_security="91a51706"; 
+        var scJsHost = (("https:" == document.location.protocol) ?
+        "https://secure." : "http://www.");
+        document.write("<sc"+"ript type='text/javascript' src='" +
+        scJsHost+
+        "statcounter.com/counter/counter.js'></"+"script>");
+        </script>
+        <noscript><div class="statcounter"><a title="free hit
+        counter" href="http://statcounter.com/free-hit-counter/"
+        target="_blank"><img class="statcounter"
+        src="http://c.statcounter.com/9494764/0/91a51706/1/"
+        alt="free hit counter"></a></div></noscript>
+
+
+    </body>
 </html>

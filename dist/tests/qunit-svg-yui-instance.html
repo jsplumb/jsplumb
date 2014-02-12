@@ -1,32 +1,36 @@
+
 <!doctype html>
 <html>
-<head>
-	<title>jsPlumb Instance 1.5.0 qUnit tests</title>
-	<link rel="stylesheet" href="qunit-1.11.0.css">
-	<link rel="stylesheet" href="../doc/gollum-template.css">
-	<script type="text/javascript" src="qunit-1.11.0.js"></script>
+	<head>
+		
 
-    <script src="http://yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
-			
-	<script type='text/javascript' src='../js/jquery.jsPlumb-1.6.0-min.js'></script>
-			
-	<!-- TEST -->
-	<script src="jsPlumb-tests.js"></script>
-	<script src="test-support-yui.js"></script>
-	<!-- /TEST -->
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/jsplumb.css">
+		<link rel="stylesheet" href="qunit-1.11.0.css">
+		<script src="qunit-1.11.0.js"></script>
 	
-</head>
-<body>	
-	<h2 id="qunit-banner"></h2>
-	<div id="qunit-testrunner-toolbar"></div>
-	<h2 id="qunit-userAgent"></h2>
-	<ol id="qunit-tests"></ol>
-	
-	<script type="text/javascript">
-	jsPlumb.ready(function() {				
-		testSuite(jsPlumb.SVG, jsPlumb.getInstance());
-	});
-	
-	</script>
-</body>
+		
+		
+		<script src="//yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js"></script>
+
+<script src="../js/yui.jsPlumb-1.6.0-min.js"></script>
+				
+		<!-- TEST -->
+		<script src="jsPlumb-tests.js"></script>
+		<script src="test-support-yui.js"></script>
+		<!-- /TEST -->
+		
+	</head>
+	<body class="test">
+		<h2 id="qunit-banner"></h2>
+		<div id="qunit-testrunner-toolbar"></div>
+		<h2 id="qunit-userAgent"></h2>
+		<ol id="qunit-tests"></ol>
+
+		<script type="text/javascript">
+		jsPlumb.ready(function() {
+			testSuite("svg", jsPlumb.getInstance());
+		});
+		</script>
+	</body>
 </html>

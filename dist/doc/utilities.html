@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <title></title>
+
+        
+
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/jsplumb.css">
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+    </head>
+    <body>
+        <div id="headerWrapper">
+    <div id="header">
+        <div class="logo"><img src="http://jsplumbtoolkit.com/logo-bw.png"></div>
+        <div class="menu">   
+            <a href="../demo">DEMOS</a>
+            <a href="../doc/home.html">DOCS</a>                    
+            <a href="../apidocs">API</a>
+            <a href="../tests/index.html">TESTS</a>
+            <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+            <a href="http://blog.jsplumbtoolkit.com">BLOG</a>
+            <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
+            <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+            <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+        </div>
+    </div>
+</div> 
+
+        <div class="main">
+            <div class="nav">
+                <h3>Contents</h3>
+<ul>
+<li><a href="changelog.html">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home.html#browser">Browser Compatibility</a></li>
+<li><a href="home.html#setup">Setup</a></li>
+<li><a href="home.html#doctype">Doctype</a></li>
+<li><a href="home.html#imports">Required Imports</a></li>
+<li><a href="home.html#initializing">Initializing jsPlumb</a></li>
+<li><a href="home.html#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home.html#zindex">Z-Index Considerations</a></li>
+<li><a href="home.html#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home.html#dragging">Element Dragging</a></li>
+<li><a href="home.html#performance">Performance</a></li>
+<li><a href="zooming.html">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults.html">Configuring Defaults</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a><ul>
+<li><a href="anchors.html">Anchors</a></li>
+<li><a href="connectors.html">Connectors</a></li>
+<li><a href="endpoints.html">Endpoints</a></li>
+<li><a href="overlays.html">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections.html">Establishing Connections</a><ul>
+<li><a href="connections.html#programmatic">Programmatic Connections</a></li>
+<li><a href="connections.html#common">Reusing Common Settings</a></li>
+<li><a href="connections.html#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections.html#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections.html#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections.html#maketarget">Element Targets</a></li>
+<li><a href="connections.html#makesource">Element Sources</a></li>
+<li><a href="connections.html#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing.html">Removing Connections/Endpoints</a></li>
+<li><a href="parameters.html">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types.html">Connection &amp; Endpoint Types</a></li>
+<li><a href="events.html">Events</a><ul>
+<li><a href="interceptors.html">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles.html">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css.html">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying.html">Querying jsPlumb</a></li>
+<li><a href="animation.html">Animation</a></li>
+<li><a href="utilities.html">Utility Functions</a></li>
+<li><a href="loader-support.html">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples.html">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples.html">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples.html">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development.html">Which files are which?</a></li>
+<li><a href="Build.html">Building jsPlumb</a></li>
+<li><a href="development-documentation.html">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+            </div>
+            <div class="markdown-body">
+                <h3>Utility Functions</h3>
+
+<p>This page contains a summary of some common scenarios you may find when using jsPlumb, and what functions jsPlumb offers to help you.</p>
+
+<h4>Repainting an element or elements</h4>
+
+<p>Assuming you use <code>jsPlumb.draggable</code> to initialise your draggable elements, you do not typically need to instruct jsPlumb to repaint.  However, there are times when you need to, for instance:</p>
+
+<ul>
+<li>you have resized an element and you need jsPlumb to recompute the location of Endpoints on that element</li>
+<li>you have moved an element programmatically</li>
+<li>you didn&#39;t actually use <code>jsPlumb.draggable</code> to initialise some draggable element.</li>
+</ul>
+
+<p>To force a repaint, use:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.repaint(el, [ui])
+</code></pre></div>
+<p>The first argument - <code>el</code> - can be a number of different datatypes:</p>
+
+<ul>
+<li>a string, representing the id of some element</li>
+<li>a list of strings, representing the ids of some elements</li>
+<li>a DOM element</li>
+<li>a list of DOM elements</li>
+<li>a selector from your underlying library</li>
+</ul>
+
+<h4>Performance: provide the element offset</h4>
+
+<p>Notice the <code>ui</code> argument?  This is an offset in the form:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">{ left:X, top:Y }
+</code></pre></div>
+<p>...which, if provided, means that jsPlumb does not have to go and compute the offset of the element. </p>
+
+<p><strong>Note</strong> this is of course relevant only if you are repainting a single element. If you provide this when you&#39;re painting multiple elements, they will all be assumed to be at the given offset!</p>
+
+<h4>Repainting everything</h4>
+
+<p>To repaint everything:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.repaintEverything();
+</code></pre></div>
+<h3>Element Ids</h3>
+
+<p>jsPlumb uses element ids as keys for Connections and Endpoints, so if an element id changes, jsPlumb needs to know about it.  You can either have jsPlumb do it for you:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.setId(el, newId);
+</code></pre></div>
+<p>or tell jsPlumb about it afterwards:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.setIdChanged(oldId, newId);
+</code></pre></div>
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+var sc_project=9535223; 
+var sc_invisible=1; 
+var sc_security="4906ec12"; 
+var scJsHost = (("https:" == document.location.protocol) ?
+"https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript><div class="statcounter"><a title="free hit
+counter" href="http://statcounter.com/free-hit-counter/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/9535223/0/4906ec12/1/"
+alt="free hit counter"></a></div></noscript>
+
+
+    </body>
+</html>
