@@ -33,7 +33,7 @@ var versions = {
             "flowchart", "statemachine", "bezier", "straight"
         ],
         renderers : [
-            "canvas", "svg", "vml"
+            "svg", "vml"
         ],
         common:[
             'util.js', 'dom-adapter.js', 'jsPlumb.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js'
@@ -71,7 +71,7 @@ var versions = {
            "-----------------\n" +
            "To build jsPlumb, execute the 'build' task:\n\n" +
            "--> grunt build\n\n" +
-           "this will, by default, build a version of jsPlumb with all the available connectors and renderers (SVG, Canvas and VML).\n\n" +
+           "this will, by default, build a version of jsPlumb with all the available connectors and renderers (SVG and VML).\n\n" +
            "You can build a custom version of jsPlumb by specifying a list of connectors and/or renderers on the command line, for example:\n\n" +
            "--> grunt build --connectors=flowchart,statemachine --renderers=svg,vml\n\n";
 
@@ -102,20 +102,6 @@ module.exports = function(grunt) {
         return o;
     };
 
-    // change media wiki style links into standard markdown links
-    /* [[Changes since version 1.4.0|changelog]]  -> [Changes since version 1.4.0](changelog)
-    o["doc"] = {
-        src:['jsPlumb.wiki/*.md'],
-        actions:[
-            {
-                name:"links",
-                search:"\\[\\[(.*)\\|(.*)\\]\\]",
-                replace:"[$1]($2)",
-                flags:"gm"
-            }
-        ]
-    };*/
-
     // Project configuration.
     grunt.initConfig({
 
@@ -124,13 +110,12 @@ module.exports = function(grunt) {
         uglify: fileLists("-min"),
         qunit:{
             target: {
-                src: ['tests/qunit-svg-jquery*.html'/*, 'tests/qunit-canvas-jquery*.html'*/ ]
+                src: [ 'tests/qunit-*.html' ]
             }
         },
         copy:{
             site:{
                 files:[
-                    //{ expand:true, cwd:"doc", src:"gollum-template.css", dest:"jekyll/css" },
                     { expand:true, cwd:"css", src:"*.*", dest:"jekyll/css" },
                     { expand:true, cwd:"demo/font", src:"*.*", dest:"jekyll/css" },
                     { expand:true, cwd:"img", src:"*.*", dest:"jekyll/img" }
@@ -173,7 +158,7 @@ module.exports = function(grunt) {
                   '-W038':true
                 },
             files:{
-                src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-canvas.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
+                src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
             }
         },
         watch: {
