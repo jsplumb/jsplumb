@@ -1,0 +1,19 @@
+{% comment %}
+
+	Template for load test pages.
+
+{% endcomment %}
+<!doctype html>
+<html>
+	<head>
+		<title>jsPlumb 1.6.0 load test harness - {{page.libraryName}}</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		{% include css.html %}
+		{% assign libimport='' %}
+		{% capture libimport %}{{page.library}}.jsplumb.html{% endcapture %}
+		{% include {{libimport}} %}
+	</head>
+	<body class="test">		
+		{{ content }}
+	</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <title></title>
+
+        
+
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/jsplumb.css">
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+    </head>
+    <body>
+        <div id="headerWrapper">
+    <div id="header">
+        <div class="logo"><img src="http://jsplumbtoolkit.com/logo-bw.png"></div>
+        <div class="menu">   
+            <a href="../demo">DEMOS</a>
+            <a href="../doc/home.html">DOCS</a>                    
+            <a href="../apidocs">API</a>
+            <a href="../tests/index.html">TESTS</a>
+            <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+            <a href="http://blog.jsplumbtoolkit.com">BLOG</a>
+            <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
+            <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+            <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+        </div>
+    </div>
+</div> 
+
+        <div class="main">
+            <div class="nav">
+                <h3>Contents</h3>
+<ul>
+<li><a href="changelog.html">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home.html#browser">Browser Compatibility</a></li>
+<li><a href="home.html#setup">Setup</a></li>
+<li><a href="home.html#doctype">Doctype</a></li>
+<li><a href="home.html#imports">Required Imports</a></li>
+<li><a href="home.html#initializing">Initializing jsPlumb</a></li>
+<li><a href="home.html#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home.html#zindex">Z-Index Considerations</a></li>
+<li><a href="home.html#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home.html#dragging">Element Dragging</a></li>
+<li><a href="home.html#performance">Performance</a></li>
+<li><a href="zooming.html">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults.html">Configuring Defaults</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a><ul>
+<li><a href="anchors.html">Anchors</a></li>
+<li><a href="connectors.html">Connectors</a></li>
+<li><a href="endpoints.html">Endpoints</a></li>
+<li><a href="overlays.html">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections.html">Establishing Connections</a><ul>
+<li><a href="connections.html#programmatic">Programmatic Connections</a></li>
+<li><a href="connections.html#common">Reusing Common Settings</a></li>
+<li><a href="connections.html#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections.html#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections.html#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections.html#maketarget">Element Targets</a></li>
+<li><a href="connections.html#makesource">Element Sources</a></li>
+<li><a href="connections.html#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing.html">Removing Connections/Endpoints</a></li>
+<li><a href="parameters.html">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types.html">Connection &amp; Endpoint Types</a></li>
+<li><a href="events.html">Events</a><ul>
+<li><a href="interceptors.html">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles.html">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css.html">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying.html">Querying jsPlumb</a></li>
+<li><a href="animation.html">Animation</a></li>
+<li><a href="utilities.html">Utility Functions</a></li>
+<li><a href="loader-support.html">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples.html">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples.html">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples.html">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development.html">Which files are which?</a></li>
+<li><a href="Build.html">Building jsPlumb</a></li>
+<li><a href="development-documentation.html">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+            </div>
+            <div class="markdown-body">
+                <h2>jsPlumb Development</h2>
+
+<p>In development, jsPlumb is broken up into various scripts:</p>
+
+<ul>
+<li><strong>util.js</strong>
+jsPlumb utility functions (and some base classes).</li>
+<li><strong>dom-adapter.js</strong>
+Interface between jsPlumb and the DOM</li>
+<li><strong>jsPlumb.js</strong>
+Main jsPlumb engine.</li>
+<li><strong>anchors.js</strong>
+Anchors and anchor manager</li>
+<li><strong>defaults.js</strong>
+Default Endpoint, Connector and Overlay implementations.</li>
+<li><strong>endpoint.js</strong>
+Endpoint class</li>
+<li><strong>connection.js</strong>
+Connection class</li>
+<li><strong>renderers-canvas.js</strong>
+HTML5 canvas renderer.</li>
+<li><strong>renderers-svg.js</strong>
+SVG renderer.</li>
+<li><strong>renderers-vml.js</strong>
+VML renderer.</li>
+<li><strong>connectors-statemachine.js</strong>
+The State Machine connector.</li>
+<li><strong>connectors-flowchart.js</strong>
+The Flowchart connector.</li>
+<li><strong>connectors-bezier.js</strong>
+The Bezier connector.</li>
+<li><strong>&lt;LIBRARY_PREFIX&gt;.jsPlumb.js</strong>
+Contains library-specific helper methods.  jsPlumb ships with three of these - one each for jQuery, MooTools and YUI3. See below for information on how to create a new library implementation.</li>
+<li><strong>jsBezier-0.X-min.js</strong>
+These are the Bezier curve functions; they are maintained in a separate project called <a href="https://github.com/sporritt/jsBezier">jsBezier</a>.</li>
+<li><strong>jsplumb-geom-0.x.js</strong>
+Various geometry functions used by jsPlumb that were extracted to a <a href="https://github.com/sporritt/jsplumb-geom">separate project</a> because they might be useful for other people.</li>
+</ul>
+
+<p>These files are packaged together to form the scripts that people use, of which there are two for each supported library:</p>
+
+<ul>
+<li><strong>jquery.jsPlumb-1.5.3.js</strong></li>
+<li><strong>jquery.jsPlumb-1.5.3-min.js</strong></li>
+</ul>
+
+<p>Instructions for running a build can be found <a href="Build">here</a>.</p>
+
+<h4>Pluggable Library Support</h4>
+
+<p>Out of the box, jsPlumb can be run on top of jQuery, MooTools or YUI3.  This is achieved by delegating several core methods - tasks such as finding an element by id, finding an element&#39;s position or dimensions, initialising a draggable, etc - to the library in question.</p>
+
+<p>To develop one of these, your test page should include the first two scripts discussed above, and then your own script containing your library specific functionality.  The existing implementations may be documented well enough for you to create your own, but contact me if you need assistance.  If you do this, it would be great to share it with everyone...</p>
+
+<h6>ExtJS</h6>
+
+<p>To date, I&#39;ve been contacted by a few different groups who have been working on an ExtJS adapter, but nothing seems to have yet come to fruition.</p>
+
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+var sc_project=9535223; 
+var sc_invisible=1; 
+var sc_security="4906ec12"; 
+var scJsHost = (("https:" == document.location.protocol) ?
+"https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript><div class="statcounter"><a title="free hit
+counter" href="http://statcounter.com/free-hit-counter/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/9535223/0/4906ec12/1/"
+alt="free hit counter"></a></div></noscript>
+
+
+    </body>
+</html>

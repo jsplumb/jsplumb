@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <title></title>
+
+        
+
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/jsplumb.css">
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+    </head>
+    <body>
+        <div id="headerWrapper">
+    <div id="header">
+        <div class="logo"><img src="http://jsplumbtoolkit.com/logo-bw.png"></div>
+        <div class="menu">   
+            <a href="../demo">DEMOS</a>
+            <a href="../doc/home.html">DOCS</a>                    
+            <a href="../apidocs">API</a>
+            <a href="../tests/index.html">TESTS</a>
+            <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+            <a href="http://blog.jsplumbtoolkit.com">BLOG</a>
+            <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
+            <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+            <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+        </div>
+    </div>
+</div> 
+
+        <div class="main">
+            <div class="nav">
+                <h3>Contents</h3>
+<ul>
+<li><a href="changelog.html">Changelog</a></li>
+<li>Required imports and basic setup<ul>
+<li><a href="home.html#browser">Browser Compatibility</a></li>
+<li><a href="home.html#setup">Setup</a></li>
+<li><a href="home.html#doctype">Doctype</a></li>
+<li><a href="home.html#imports">Required Imports</a></li>
+<li><a href="home.html#initializing">Initializing jsPlumb</a></li>
+<li><a href="home.html#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home.html#zindex">Z-Index Considerations</a></li>
+<li><a href="home.html#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home.html#dragging">Element Dragging</a></li>
+<li><a href="home.html#performance">Performance</a></li>
+<li><a href="zooming.html">Zooming</a></li>
+</ul>
+</li>
+<li><a href="defaults.html">Configuring Defaults</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a><ul>
+<li><a href="anchors.html">Anchors</a></li>
+<li><a href="connectors.html">Connectors</a></li>
+<li><a href="endpoints.html">Endpoints</a></li>
+<li><a href="overlays.html">Overlays</a></li>
+</ul>
+</li>
+<li><a href="connections.html">Establishing Connections</a><ul>
+<li><a href="connections.html#programmatic">Programmatic Connections</a></li>
+<li><a href="connections.html#common">Reusing Common Settings</a></li>
+<li><a href="connections.html#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections.html#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections.html#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections.html#maketarget">Element Targets</a></li>
+<li><a href="connections.html#makesource">Element Sources</a></li>
+<li><a href="connections.html#sourcefilter">Specifying drag source area</a></li>
+</ul>
+</li>
+<li><a href="removing.html">Removing Connections/Endpoints</a></li>
+<li><a href="parameters.html">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types.html">Connection &amp; Endpoint Types</a></li>
+<li><a href="events.html">Events</a><ul>
+<li><a href="interceptors.html">Interceptors</a></li>
+</ul>
+</li>
+<li>Appearance<ul>
+<li><a href="paint-styles.html">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css.html">Styling via CSS</a></li>
+</ul>
+</li>
+<li><a href="querying.html">Querying jsPlumb</a></li>
+<li><a href="animation.html">Animation</a></li>
+<li><a href="utilities.html">Utility Functions</a></li>
+<li><a href="loader-support.html">Loader Support (RequireJS)</a></li>
+<li>Examples<ul>
+<li><a href="connect-examples.html">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples.html">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples.html">Miscellaneous</a></li>
+</ul>
+</li>
+<li>Development<ul>
+<li><a href="development.html">Which files are which?</a></li>
+<li><a href="Build.html">Building jsPlumb</a></li>
+<li><a href="development-documentation.html">Documentation while developing</a></li>
+</ul>
+</li>
+</ul>
+            </div>
+            <div class="markdown-body">
+                <h2>1.6.0</h2>
+
+<p>Version 1.6.0 is a major release of jsPlumb. With this version ships a &quot;no library&quot; adapter - a version of jsPlumb that relies on no external libraries, and which has a few features that the  other library adapters do not. We&#39;re calling this the &quot;DOM Adapter&quot;.</p>
+
+<h3>Changes between 1.5.5 and 1.6.0</h3>
+
+<h4>Backwards Compatibility</h4>
+
+<ul>
+<li>There is no support for the canvas renderer in jsPlumb 1.6.0.</li>
+<li>The way in which library adapters inject their functionality into jsPlumb has changed. This will affect very few people; contact jsPlumb if you need help with this.</li>
+</ul>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>143</strong> - SVG gradient fails when page url already contains a hash</li>
+<li><strong>153</strong> - jsPlumb.animate no longer supports jQuery selectors</li>
+<li><strong>157</strong> - connectionMoved event not fired (when using makeTarget)</li>
+<li><strong>162</strong> - when two anchor points are in identical positions, flowchart connector fails.</li>
+<li><strong>164</strong> - makeSource fails when used in conjunction with uniqueEndpoint</li>
+</ul>
+
+<h4>New Functionality</h4>
+
+<h5>DOM Adapter</h5>
+
+<p>It isn&#39;t actually true to say that this adapter has no external dependencies; it actually relies on a couple of new projects written specifically for this (<a href="https://github.com/jsplumb/mottle">Mottle</a> for events, and <a href="https://github.com/jsplumb/katavorio">Katavorio</a> for drag/drop support. However, these dependencies are wrapped into the concatenated jsPlumb 1.6.0 JS file.</p>
+
+<h6>Multiple element dragging</h6>
+
+<p>The DOM adapter supports dragging (and dropping!) multiple elements at once.</p>
+
+<h6>Multiple drag/drop scopes</h6>
+
+<p>Also supported are multiple scopes for each draggable/droppable element.</p>
+
+<h4>Miscellaneous</h4>
+
+<ul>
+<li>Events now have <code>this</code> set correctly</li>
+<li>Added qUnit tests for DOM, YUI and MooTools adapters</li>
+<li>Various YUI and MooTools methods were upgraded to support passing in an element list (<code>setId</code> for one)</li>
+</ul>
+
+<h2>1.5.5</h2>
+
+<h3>Changes between 1.5.4 and 1.5.5</h3>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>138</strong> - allow for connection type to be derived from connection params AND endpoint params.</li>
+</ul>
+
+<h2>1.5.4</h2>
+
+<h3>Changes between 1.5.3 and 1.5.4</h3>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>105</strong> - Blank endpoint cleanup fails</li>
+<li><strong>116</strong> - Assign anchors wont connect</li>
+<li><strong>117</strong> - Assign anchors fail on source</li>
+<li><strong>127</strong> - Docs on making elements draggable should note required CSS</li>
+<li><strong>128</strong> - expose original event on <code>connectionDragStop</code> callback</li>
+<li><strong>129</strong> - connection event fired twice by makeTarget with parent option.</li>
+</ul>
+
+<h4>New Functionality</h4>
+
+<ul>
+<li><code>&quot;Assign&quot;</code> anchors now work with the <code>makeSource</code> method.</li>
+<li>The <code>connectionDragStop</code> event now supplies the original event as the second argument to the callback function.</li>
+</ul>
+
+<h4>Miscellaneous</h4>
+
+<ul>
+<li>fixed an issue causing SVG gradients to fail when a BASE tag is present in the document.</li>
+</ul>
+
+<h2>1.5.3</h2>
+
+<h3>Changes between 1.5.2 and 1.5.3</h3>
+
+<h4>Backwards Compatibility</h4>
+
+<ul>
+<li>The fix for issue 112 involved making a change to the circumstances under which a <code>connectionDetached</code> event is fired. When you drag the source or target of an existing connection to some other endpoint, <code>connectionDetached</code> is no longer fired. Instead, a <code>connectionMoved</code> event is fired, containing the connection that was moved, the index of the endpoint that changed (0 for source, 1 for target), and the original and new source and target endpoints.</li>
+</ul>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>77</strong> - Endpoint types should support Anchor parameter<br></li>
+<li><strong>88</strong> - reinstate labelStyle parameter on Label overlay.</li>
+<li><strong>90</strong> - overlay setVisible not working (SVG/VML)</li>
+<li><strong>95</strong> - Nested element positions not updated</li>
+<li><strong>100</strong> - add setParent function</li>
+<li><strong>101</strong> - JS error when detaching connection during connection callback</li>
+<li><strong>103</strong> - IE8: connector hide does not hide overlays or background lines</li>
+<li><strong>107</strong> - remove the necessity to set isSource/isTarget in order to make an endpoint draggable</li>
+<li><strong>108</strong> - strange anchor orientation behaviour</li>
+<li><strong>109</strong> - Dropping new connections on overlapping elements leads to crash after connection is deleted</li>
+<li><strong>111</strong> - Absolute positioned arrow in wrong location</li>
+<li><strong>112</strong> - Deleting a connection after changing its source endpoint causes failure.</li>
+<li><strong>113</strong> - IE8 - state machine - loops are not displayed</li>
+</ul>
+
+<h4>New Functionality</h4>
+
+<ul>
+<li>A setParent function was added. jsPlumb changes the parent of some element and updates its internal references accordingly (issue 100).</li>
+<li>Endpoint types now support the anchor parameter (issue 77)</li>
+<li>The <code>labelStyle</code> parameter on Label overlays has made a comeback (issue 88). The argument went along the lines of it being useful if you wanted to programmatically generate a label style.</li>
+<li>jsPlumb now automatically updates the internal offsets of some element that has draggable children (obviating the need for you to call <code>recalculateOffsets</code> yourself).</li>
+<li>When making a programmatic connection to an endpoint that was not marked <code>isSource:true</code> or <code>isTarget:true</code>, if the connection is detachable then the endpoint is made draggable, in order to allow users to drag the connection to detach it. Connections dragged off of source or target endpoints in this way can be dropped back onto their original endpoint or onto other endpoints with the same scope, but you cannot subsequently drag a new connection from an endpoint that has been made draggable by this method.</li>
+<li><code>connectionMoved</code> event added. This is fired whenever the source or target of an existing connection is dragged to some other Endpoint.</li>
+</ul>
+
+<h4>Miscellaneous</h4>
+
+<ul>
+<li><p>An issue was fixed that was preventing the ability to supply a dynamic anchor with parameters, eg</p>
+
+<p><code>[ [ [ 1,0,0,1], [1,1,1,1] ], { selector:function() { ... } } ]</code></p></li>
+</ul>
+
+<h2>1.5.2</h2>
+
+<h3>Changes between 1.5.1 and 1.5.2</h3>
+
+<h4>Backwards Compatibility</h4>
+
+<ul>
+<li>Issue 86, fixed in 1.5.2, changes the priority in which parameters are applied to a connection. The documentation has always stated that source takes priority, but in fact the code was the other way round, with target taking priority. Now source does take priority.</li>
+</ul>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>84</strong> - jsPlumb 1.5.1 Arrow Disappears on IE8 when connector is straight</li>
+<li><strong>85</strong> - dragging target endpoints created by makeTarget not working</li>
+<li><strong>86</strong> - Connection parameters override order</li>
+</ul>
+
+<h4>Miscellaneous</h4>
+
+<ul>
+<li>An issue that caused the SVG renderer to paint overlays before the connector was ready when the types API was used was also fixed.</li>
+</ul>
+
+<h2>1.5.1</h2>
+
+<h3>Changes between 1.5.0 and 1.5.1</h3>
+
+<h4>Issues</h4>
+
+<ul>
+<li><strong>81</strong> - Uncaught TypeError: Cannot read property &#39;uuid&#39; of null</li>
+<li><strong>82</strong> - Blank endpoint doesn&#39;t cleanup properly</li>
+<li><strong>83</strong> - for connections made with makeTarget originalEvent is not set</li>
+</ul>
+
+<h2>1.5.0</h2>
+
+<h3>Changes between 1.4.1 and 1.5.0</h3>
+
+<p>Release 1.5.0 contains several bugfixes and one or two minor enhancements, but the biggest change since 1.4.1 is the way jsPlumb handles inheritance internally - it has switched from a &#39;module pattern&#39; architecture to a prototypal-based setup.  The module pattern is good for information hiding, but it makes objects bigger, and its far easier to leak memory with that sort of arrangement than it is with a prototypal inheritance scheme. </p>
+
+<p>The build has been switched from the original Ant build to Grunt with release 1.5.0, and with this has come the ability to build versions of jsPlumb that omit functionality you do not need (see [[here|Build]]).</p>
+
+<ol>
+<li><a href="#backwards">Backwards Compatibility</a></li>
+<li><a href="#new">New Functionality</a></li>
+<li><a href="#issues">Issues Fixed</a></li>
+<li><a href="#misc">Miscellaneous</a></li>
+</ol>
+
+<p><a name="backwards"></a></p>
+
+<h3>Backwards Compatibility</h3>
+
+<ul>
+<li><code>jsPlumb.addClass</code>, <code>jsPlumb.removeClass</code> and removed <code>jsPlumb.hasClass</code> removed. You don&#39;t need these. You can use the methods from the underlying library.</li>
+<li><code>makeTargets</code> method removed from jsPlumb. You can pass an array or selector to <code>makeTarget</code>.</li>
+<li><code>makeSources</code> method removed from jsPlumb. You can pass an array or selector to <code>makeSource</code>.</li>
+<li><code>jsPlumb.detach</code> no longer supports passing in two elements as arguments.  Use instead either </li>
+</ul>
+
+<p><code>jsPlumb.detach({source:someDiv, target:someOtherDiv});</code></p>
+
+<p>or</p>
+
+<p><code>jsPlumb.select({source:someDiv, target:someOtherDiv}).detach();</code></p>
+
+<ul>
+<li><code>jsPlumbConnectionDetached</code> event, which was deprecated, has been removed. Use <code>connectionDetached</code>.</li>
+<li><code>jsPlumbConnection</code> event, which was deprecated, has been removed. Use <code>connection</code>.</li>
+<li><code>Endpoint.isConnectedTo</code> method removed.  it didnt work properly as it only checked for connections where the Endpoint was the source.</li>
+<li>Many places in jsPlumb that used to use library-specific selectors for elements now use pure DOM elements.  It is best to re-select any elements you are getting from a jsPlumb object, even if you supplied them as a selector, as jsPlumb will have unwrapped your selector into a DOM element.</li>
+</ul>
+
+<p><a name="new"></a></p>
+
+<h3>New Functionality</h3>
+
+<ul>
+<li><code>jsPlumb.setSuspendDrawing</code> returns the value of <code>suspendDrawing</code> <em>before</em> the call was made.</li>
+<li><code>Endpoint.setElement</code> works properly now.</li>
+</ul>
+
+<p><a name="issues"></a></p>
+
+<h3>Issues Fixed</h3>
+
+<ul>
+<li><strong>27</strong> - investigate why a new connection is created after drag<br></li>
+<li><strong>37</strong> - .addClass() not working - IE8</li>
+<li><strong>39</strong> - problem about connectionDrag event</li>
+<li><strong>49</strong> - Calling detachEveryConnection winds up calling repaintEverything once for each endpoint</li>
+<li><strong>51</strong> - arrow overlay orientation at location 1 on flowchart connectors</li>
+<li><strong>54</strong> - Memory Leak Issue</li>
+<li><strong>57</strong> - DOMException while dragging endpoints</li>
+<li><strong>60</strong> - flowchart connector start position wrong</li>
+<li><strong>63</strong>  - Flowchart midpoint=0 is ignored </li>
+<li><strong>65</strong> - Uncaught exception in IE 8</li>
+<li><strong>69</strong> - jsPlumb.detach(connection) is really slow with larger graphs</li>
+<li><strong>72</strong> - Drag and drop connections fail to work correctly when using makeTarget</li>
+<li><strong>75</strong> - changing continuous anchor is ignored</li>
+<li><strong>76</strong> - jsPlumb doesn&#39;t work in XHTML documents<br></li>
+</ul>
+
+<p><a name="misc"></a></p>
+
+<h3>Miscellaneous</h3>
+
+<p>Nothing to report.</p>
+
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+var sc_project=9535223; 
+var sc_invisible=1; 
+var sc_security="4906ec12"; 
+var scJsHost = (("https:" == document.location.protocol) ?
+"https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript><div class="statcounter"><a title="free hit
+counter" href="http://statcounter.com/free-hit-counter/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/9535223/0/4906ec12/1/"
+alt="free hit counter"></a></div></noscript>
+
+
+    </body>
+</html>
