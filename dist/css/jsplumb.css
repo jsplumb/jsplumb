@@ -101,15 +101,15 @@ body {
 }
 
  #main {  
-  /* margin-top: 106px; */  
-  /* font-size: 80%; */    
-  /* width:75%; */
-  /* margin-left:auto; */
-  /* margin-right: auto; */  
-  /* height:600px; */
-  /* text-align: center; */
-  /* position: relative; */
-  /* max-width:852px; */
+  margin-top: 106px;  
+  font-size: 80%;    
+  width:75%;
+  margin-left:auto;
+  margin-right: auto;  
+  height:600px;
+  text-align: center;
+  position: relative;
+  max-width:852px;
 }
 
 .demo {
@@ -690,6 +690,46 @@ ANALOGIC SCHEME
 
 
 /* load test */
+
+
+    #iframe { 
+      width:100%; 
+      height:1000px; 
+      position:absolute;      
+      top: 8px; 
+      left: 0px;
+      border:0;
+    }     
+    #render { height:20px;}
+    a:hover { text-decoration:underline; }
+    #links {      
+      width: 143px;
+      font-size: 14px;
+      padding-left: 0px;
+      position: fixed;
+      left: 9px;
+      top: 52px;
+      z-index: 20;
+      background-color: white;                  
+    }
+    ul { padding:0; }
+    li {
+      list-style-type:none;
+    }
+    .current-tests {
+      color:orange !important;
+    }
+    #qunit-tests li.pass, #qunit-tests li.fail {
+      background-color:transparent;
+    }
+    .loadtest #main, #main.test  {
+      max-width: none;
+      margin-top: 52px;
+      background-color: white;
+    
+      margin-left: 162px;
+}
+
 
 .loadtest ._jsPlumb_connection { z-index:3; }
 .loadtest .jspLoad {
