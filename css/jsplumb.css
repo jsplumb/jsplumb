@@ -697,7 +697,7 @@ ANALOGIC SCHEME
       height:1000px; 
       position:absolute;      
       top: 8px; 
-      left: 28px;
+      left: 0px;
       border:0;
     }     
     #render { height:20px;}
@@ -722,10 +722,13 @@ ANALOGIC SCHEME
     #qunit-tests li.pass, #qunit-tests li.fail {
       background-color:transparent;
     }
-    #main {
+    .loadtest #main, #main.test  {
       max-width: none;
-      margin-top: 44px;
-    }
+      margin-top: 52px;
+      background-color: white;
+    
+      margin-left: 162px;
+}
 
 
 .loadtest ._jsPlumb_connection { z-index:3; }
