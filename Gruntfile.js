@@ -1,38 +1,3 @@
-/**
-
-    By default, jsPlumb's build incudes all of the connector types, endpoint types and render modes. But
-    you can specify which of these you want via command line flags, eg:
-
-    grunt --connectors=flowchart,bezier --renderers=svg,vml
-
-    Connectors
-    ----------
-    flowchart
-    statemachine
-    bezier
-    straight
-
-    Endpoints
-    ---------
-    dot
-    rectangle
-    image
-
-    Renderers
-    ---------
-    canvas
-    svg
-    vml
-
-
-*/
-
-
-// http://flippinawesome.org/2013/07/01/building-a-javascript-library-with-grunt-js/?utm_source=javascriptweekly&utm_medium=email
-
-// also to checkout:
-// https://github.com/ModelN/grunt-blanket-qunit
-
 
 var versions = {
         JS_BEZIER : { f:"jsBezier", v:"0.6" },
@@ -40,9 +5,22 @@ var versions = {
         MOTTLE : {f:"mottle", v:"0.2" },
         KATAVORIO : {f:"katavorio", v:"0.1" }
     },
-    get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
+    get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },    
     
     libraries = [ "jquery", "mootools", "yui", "dom" ],
+    libraryNames = [ "jQuery", "MooTools", "YUI3", "No Library" ],
+    renderers = [ "svg", "vml" ],
+    demos = [ 
+        [ "home", "Kitchen Sink" ], 
+        [ "flowchart", "Flowchart" ], 
+        [ "statemachine", "State Machine" ],  
+        [ "draggableConnectors", "Drag and Drop"], 
+        [ "perimeterAnchors", "Perimeter Anchors"], 
+        [ "chart", "Hierarchical Chart" ], 
+        [ "sourcesAndTargets", "Sources and Targets" ], 
+        [ "dynamicAnchors", "Dynamic Anchors" ], 
+        [ "animation", "Animation" ] 
+    ],
     extraLibraries = {
         jquery:[],
         mootools:[],
@@ -124,56 +102,19 @@ module.exports = function(grunt) {
         return o;
     };
 
-    var makeReplacements = function() {
-        var o = {};
-        // expand out lists of individual imports into concatenated versions for dist.
-        // also replace link to docs
-        libraries.forEach(function(l) {
-            o[l] = {
-                src: ['dist/demo/*/' + l + '.html', 'dist/tests/*.html', 'dist/demo/demo-all*.html' ],
-                actions: [
-                    {
-                        name:"js",
-                        search:"(<!-- JS.*>.*\n)(.*\n)*(.*/JS -->)",
-                        replace:"<script type='text/javascript' src='../js/" + l + ".jsPlumb-<%= pkg.version%>-min.js'></script>",
-                        flags:'gm'
-                    },
-                    {
-                        search:"<a href=\"http://localhost:4567\">",
-                        replace:"<a href=\"../../doc/\">",
-                        flags:"gm"
-                    }
-                ]
-            };
-        });
-
-        // change media wiki style links into standard markdown links
-        /* [[Changes since version 1.4.0|changelog]]  -> [Changes since version 1.4.0](changelog)
-        o["doc"] = {
-            src:['jsPlumb.wiki/*.md'],
-            actions:[
-                {
-                    name:"links",
-                    search:"\\[\\[(.*)\\|(.*)\\]\\]",
-                    replace:"[$1]($2)",
-                    flags:"gm"
-                }
-            ]
-        };*/
-
-        return o;
-    };
-
-    //
-    // this is a helper for the copy task, because the copy task is strange about the way it copies
-    // things. basically the only way to get a file from some folder into another is to use a 'rename'
-    // function! wtf.  anyway this is a helper for that.
-    var moveFolder = function(toDir) {
-        return function() {
-            var idx = arguments[1].lastIndexOf("/"), _idx = idx < 0 ? 0 : idx;
-            return toDir + "/" + arguments[1].substring(_idx);
-        };
-    };
+    // change media wiki style links into standard markdown links
+    /* [[Changes since version 1.4.0|changelog]]  -> [Changes since version 1.4.0](changelog)
+    o["doc"] = {
+        src:['jsPlumb.wiki/*.md'],
+        actions:[
+            {
+                name:"links",
+                search:"\\[\\[(.*)\\|(.*)\\]\\]",
+                replace:"[$1]($2)",
+                flags:"gm"
+            }
+        ]
+    };*/
 
     // Project configuration.
     grunt.initConfig({
@@ -187,77 +128,41 @@ module.exports = function(grunt) {
             }
         },
         copy:{
+            site:{
+                files:[
+                    //{ expand:true, cwd:"doc", src:"gollum-template.css", dest:"jekyll/css" },
+                    { expand:true, cwd:"css", src:"*.*", dest:"jekyll/css" },
+                    { expand:true, cwd:"demo/font", src:"*.*", dest:"jekyll/css" },
+                    { expand:true, cwd:"img", src:"*.*", dest:"jekyll/img" }
+                ]
+            },
             demos:{
                 files:[
-                    { expand:true, src:"demo/**/*", dest:"dist" },
-                    { expand:true, cwd:"dist/js/", src:"*.js", dest:"dist/demo/js/"},
-                    {
-                        expand:true,
-                        cwd:"dist/js/",
-                        src:"jquery.jsPlumb-<%=pkg.version%>.js",
-                        //dest:"dist/demo/requirejs/scripts/",
-                        rename:function() {
-                            return "dist/demo/requirejs/scripts/jsplumb.js";
-                        }
-                    }
+                    { expand: true, cwd:"demo", src:"demo-list.js", dest:"jekyll/js"}
                 ]
             },
             tests:{
+              files:[
+                { expand:true, cwd:"tests", src:[ "*.css", "qunit-*.js", "*.js", "loadtest-template.html"  ], dest:"jekyll/tests" }
+              ]
+            },
+            js:{
                 files:[
-                    {
-                        expand:true,
-                        src:[ "tests/jsPlumb-tests.js", "tests/test-support-*.js", "tests/qunit-*.*", "tests/index.html", "tests/loadtest-dom.js", "tests/loadtest-*.html" ],
-                        dest:"dist/"
-                    }
+                    { expand:true, cwd:"dist/js", src:"*.js", dest:"jekyll/js" }
                 ]
             },
-            doc:{
+            dist:{
                 files:[
-                    {
-                        expand:true,
-                        src:[ "doc/gollum-template.css", "demo/demo-all.css", "demo/*.ttf", "demo/*.woff", "demo/logo_bw_44h.jpg" ],
-                        rename:moveFolder("dist/doc")
-                    }
-                ]
-            },
-            /* copy markdown to temp dir for pre-processing
-            temp:{
-                files:[
-                    {
-                        expand:true,
-                        src:"../jsPlumb.wiki/*.md",
-                        dest:"TEMPOUT/"
-                    }
-                ]
-            },*/
-            logo:{
-                files:[
-                    {
-                        expand:false,
-                        src:"./logo-bw.png",
-                        dest:"dist/logo-bw.png"
-                    }
+                    { expand:true, cwd:"jekyll/_site", src:"**/*.*", dest:"dist" }
                 ]
             }
         },
-        "regex-replace": makeReplacements(),
-        /*markdown: {
-            all: {
-                files: [{
-                    expand: true,
-                    flatten:true,
-                    src: 'jsPlumb.wiki/*.md',
-                    dest: 'dist/doc/',
-                    ext: '.html'
-                }],
-                options:{
-                    template:'./doc/doc-template.html'
-                }
-            }
-        },*/
         clean:{
-            //temp:"jsPlumb.wiki"
-            temp:"dist"
+            options:{
+                force:true
+            },
+            stage:[ "jekyll/doc", "jekyll/apidocs", "jekyll/demo", "jekyll/tests", "jekyll/css", "jekyll/js", "jekyll/img" ],
+            stageCleanup:[ "stage" ]
         },
         jshint: {
             options: {
@@ -276,20 +181,33 @@ module.exports = function(grunt) {
                 files: ['src/*.js'],
                 tasks: ['build-src']
             }
-        }/*,
-        yuidoc:{
+        },
+		jekyll: {
+    		options: {
+				src:'jekyll'
+    		},
+			dist:{
+				options:{
+					dest:"jekyll/_site",
+					config:'jekyll/_config.yml'
+				}
+			}
+		},
+        yuidoc: {
             compile: {
-            name: '<%= pkg.name %>',
-            description: '<%= pkg.description %>',
-            version: '<%= pkg.version %>',
-            url: '<%= pkg.homepage %>',
-            options: {
-              paths: 'doc/api/',
-              themedir: 'yuitheme/',
-              outdir: 'dist/apidocs/'
+                name: '<%= pkg.name %>',
+                description: '<%= pkg.description %>',
+                version: '<%= pkg.version %>',
+                url: '<%= pkg.homepage %>',
+                options: {
+                    paths: 'doc/api/',
+                    themedir: 'jekyll/yuitheme/',
+                    outdir: 'jekyll/apidocs/',
+                    helpers:['jekyll/yuitheme/helpers.js']
+                }
+                
             }
-          }
-        }*/
+        }         
     });
 
     // Load the plugin that provides the "docular" tasks.
@@ -297,35 +215,166 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-regex-replace');
-    //grunt.loadNpmTasks('grunt-markdown');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    //grunt.loadNpmTasks('grunt-contrib-yuidoc');
+    grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-devtools');
+    grunt.loadNpmTasks('grunt-jekyll');
+
+
+
+// ------------------------- prepare jekyll site task --------------------------------------------------------
+
+    //
+    // helper to create front matter from a JS object.
+    //
+    var _createFrontMatter = function(options) {
+        var f = "---\n";
+        for (var k in options)
+            f += (k + ": " + options[k] + "\n");
+        f += "---\n";
+        return f;
+    };
+
+    var timestamp = function() {
+        var d = new Date();
+        return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate() + " 12:00:00";
+    };
+
+    var _createDemos = function() {
+        for (var i = 0; i < demos.length; i++) {
+            var d = demos[i][0],
+                js = grunt.file.read("demo/" + d + "/demo.js"),
+                css = grunt.file.read("demo/" + d + "/demo.css");
+
+            grunt.file.mkdir("jekyll/demo/" + d);
+            for (var j = 0; j < libraries.length; j++) {
+                var html = grunt.file.read("demo/" + d + "/" + libraries[j] + ".html");
+                    m = html.match(/(<!-- demo.*>.*\n)(.*\n)*(.*\/demo -->)/),
+                    t = m[0].match(/<h4>(.*)<\/h4>/)[0];
+
+                grunt.file.write("jekyll/demo/" + d + "/demo.js", js);
+                grunt.file.write("jekyll/demo/" + d + "/demo.css", css);
+                var fm = _createFrontMatter({
+                    layout:"demo",
+                    date:timestamp(),
+                    categories:"demo",
+                    library:libraries[j],
+                    libraryName:libraryNames[j],
+                    title:t,
+                    base:"../..",
+                    demo:d
+                });
+                grunt.file.write("jekyll/demo/" + demos[i][0] + "/" + libraries[j] +  ".html", fm + m[0]);
+            }
+        }
+    };
+
+    //
+    //  creates qunit test pages: we only need to create markdown files here; the jekyll layout fills in the rest.
+    //
+    var _createTests = function() {
+        // unit tests
+        for (var j = 0; j < renderers.length; j++) {
+            for (var i = 0; i < libraries.length; i++) {
+                var frontMatter = _createFrontMatter({
+                    layout:"test",
+                    date:timestamp(),
+                    categories:"test",
+                    library:libraries[i],
+                    renderer:renderers[j],
+                    base:".."
+                }); 
+                grunt.file.write("jekyll/tests/qunit-" + renderers[j] + "-"  + libraries[i] + "-instance.html", frontMatter);
+            }
+        }
+
+        // load tests
+        var lt = grunt.file.read("tests/loadtest-template.html");
+        for (var i = 0; i < libraries.length; i++) {
+            var frontMatter = _createFrontMatter({
+                layout:"loadtest",
+                date:timestamp(),
+                categories:"test",
+                library:libraries[i],
+                libraryName:libraryNames[i],
+                base:".."
+            }); 
+            grunt.file.write("jekyll/tests/loadtest-"  + libraries[i] + ".html", frontMatter + lt);
+        }
+
+        // now create index page
+        var ip = grunt.file.read("tests/index.html"),
+            m  = ip.match(/(<!-- content.*>.*\n)(.*\n)*(.*\/content -->)/),
+            fm = _createFrontMatter({
+                layout:"default",
+                date:timestamp(),
+                base:".."
+            });
+
+        grunt.file.write("jekyll/tests/index.html", fm + m[0]);
+    };
+
+    var _prepareSite = function() {
+
+        // jekyll base dir (where layouts, includes etc are kept)
+        var jekyllBase = "jekyll";
+        // input markdown doc dir
+        var docInput = "../jsPlumb.wiki";
+        // input markdown file pattern
+        var docInputPattern = "*";
+        // output doc dir
+        var docOutput = "jekyll/doc";
+        var apidocOutput = "jekyll/apidocs";
+        var demoOutput = "jekyll/demo";
+        var testsOutput = "jekyll/tests";
+        // output doc template (will be in <jekyllBase>/_layouts/<outputDocTemplate>)
+        var outputDocTemplate = "doc";
+        // exclusions from input doc dir
+        var exclusions = ["node_modules", "ff.htl"];
+
+        var processMarkdownFile = function(inputDir, f) {
+            var s = grunt.file.read(inputDir + "/" + f),
+                o = _createFrontMatter({
+                    layout:outputDocTemplate,
+                    date:timestamp(),
+                    base:".."
+                });
+
+            grunt.file.write(docOutput + "/" + f, o + s);
+        };
+
+        // 1. create directories for docs, apidocs, demos and tests.
+        grunt.file.mkdir(docOutput);
+        grunt.file.mkdir(demoOutput);
+        grunt.file.mkdir(apidocOutput);
+        grunt.file.mkdir(testsOutput);
+
+        // 2. copy files from markdown directory into 'doc', and then give each one some front matter.
+        var sources = grunt.file.expand({ cwd:docInput }, docInputPattern);
+        for (var i = 0; i < sources.length; i++) {
+            if (exclusions.indexOf(sources[i]) == -1)
+                processMarkdownFile(docInput, sources[i]);
+        }
+    };
 
     grunt.registerTask('writeIndex', function() {
+        var defaultDemo = "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/dom.html'/></head></html>";
         // write an index file to the root of the dist dir (redirects to main "no library" demo)
-        grunt.file.write("dist/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/dom.html'/></head></html>");
+        grunt.file.write("jekyll/index.html", defaultDemo);
+        // and to the demo directory root
+        grunt.file.write("jekyll/demo/index.html", defaultDemo);
         // write an index file to the root of the docs dir (redirects to 'home')
-        grunt.file.write("dist/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");
+        grunt.file.write("jekyll/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home.html'/></head></html>");
     });
 
-    var _replace = function(cwd, pattern, oldV, newV, exclusions) {
-        exclusions = exclusions || [];
-        var _one = function(f) {
-            if (exclusions.indexOf(f) == -1) {
-                if (!grunt.file.isDir(cwd + "/" + f)) {
-                    var c = grunt.file.read(cwd + "/" + f);
-                    grunt.file.write(cwd + "/" + f, c.replace(oldV, newV));
-                }
-            }
-        };
-        var sources = grunt.file.expand({ cwd:cwd }, pattern);
-        for (var i = 0; i < sources.length; i++)
-            _one(sources[i]);
-    };
+    grunt.registerTask('createTests', _createTests);
+    grunt.registerTask('createDemos', _createDemos);
+    grunt.registerTask('prepare', _prepareSite);
+    grunt.registerTask("stage", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stageCleanup' ]);
+
+
+    // ------------------------- / prepare jekyll site task --------------------------------------------------------
 
     grunt.registerTask('update', function() {
         var newV = grunt.option("newver");
