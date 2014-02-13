@@ -104,7 +104,6 @@ module.exports = function(grunt) {
 
     // Project configuration.
     grunt.initConfig({
-
         pkg: grunt.file.readJSON('package.json'),
         concat: fileLists(),
         uglify: fileLists("-min"),
@@ -210,22 +209,6 @@ module.exports = function(grunt) {
 
 // ------------------------- prepare jekyll site task --------------------------------------------------------
 
-    //
-    // helper to create front matter from a JS object.
-    //
-    var _createFrontMatter = function(options) {
-        var f = "---\n";
-        for (var k in options)
-            f += (k + ": " + options[k] + "\n");
-        f += "---\n";
-        return f;
-    };
-
-    var timestamp = function() {
-        var d = new Date();
-        return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate() + " 12:00:00";
-    };
-
     var _createDemos = function() {
         for (var i = 0; i < demos.length; i++) {
             var d = demos[i][0],
@@ -240,9 +223,9 @@ module.exports = function(grunt) {
 
                 grunt.file.write("jekyll/demo/" + d + "/demo.js", js);
                 grunt.file.write("jekyll/demo/" + d + "/demo.css", css);
-                var fm = _createFrontMatter({
+                var fm = support.createFrontMatter({
                     layout:"demo",
-                    date:timestamp(),
+                    date:support.timestamp(),
                     categories:"demo",
                     library:libraries[j],
                     libraryName:libraryNames[j],
@@ -255,6 +238,9 @@ module.exports = function(grunt) {
         }
     };
 
+    var package = require('./package.json');
+    var support = require("./jekyll/build-support.js");
+
     //
     //  creates qunit test pages: we only need to create markdown files here; the jekyll layout fills in the rest.
     //
@@ -262,9 +248,9 @@ module.exports = function(grunt) {
         // unit tests
         for (var j = 0; j < renderers.length; j++) {
             for (var i = 0; i < libraries.length; i++) {
-                var frontMatter = _createFrontMatter({
+                var frontMatter = support.createFrontMatter({
                     layout:"test",
-                    date:timestamp(),
+                    date:support.timestamp(),
                     categories:"test",
                     library:libraries[i],
                     renderer:renderers[j],
@@ -277,9 +263,9 @@ module.exports = function(grunt) {
         // load tests
         var lt = grunt.file.read("tests/loadtest-template.html");
         for (var i = 0; i < libraries.length; i++) {
-            var frontMatter = _createFrontMatter({
+            var frontMatter = support.createFrontMatter({
                 layout:"loadtest",
-                date:timestamp(),
+                date:support.timestamp(),
                 categories:"test",
                 library:libraries[i],
                 libraryName:libraryNames[i],
@@ -291,9 +277,9 @@ module.exports = function(grunt) {
         // now create index page
         var ip = grunt.file.read("tests/index.html"),
             m  = ip.match(/(<!-- content.*>.*\n)(.*\n)*(.*\/content -->)/),
-            fm = _createFrontMatter({
+            fm = support.createFrontMatter({
                 layout:"default",
-                date:timestamp(),
+                date:support.timestamp(),
                 base:".."
             });
 
@@ -305,7 +291,7 @@ module.exports = function(grunt) {
         // jekyll base dir (where layouts, includes etc are kept)
         var jekyllBase = "jekyll";
         // input markdown doc dir
-        var docInput = "../jsPlumb.wiki";
+        var docInput = package.jsPlumbWiki;
         // input markdown file pattern
         var docInputPattern = "*";
         // output doc dir
@@ -320,9 +306,9 @@ module.exports = function(grunt) {
 
         var processMarkdownFile = function(inputDir, f) {
             var s = grunt.file.read(inputDir + "/" + f),
-                o = _createFrontMatter({
+                o = support.createFrontMatter({
                     layout:outputDocTemplate,
-                    date:timestamp(),
+                    date:support.timestamp(),
                     base:".."
                 });
 
