@@ -1451,6 +1451,11 @@
 		};
 
 		this.deselectAll = function() {
+			for (var i in _selectionMap) {
+				var d = _selectionMap[i];
+				katavorioParams.removeClass(d[0], _css.selected);
+			}
+				
 			_selection.length = 0;
 			_selectionMap = {};
 		};
