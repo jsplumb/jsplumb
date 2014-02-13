@@ -668,7 +668,7 @@
                     }.bind(this));
                 
                 var i = _gel(this.canvas);              
-                _jsPlumb.initDraggable(i, dragOptions, true, _jsPlumb);
+                _jsPlumb.initDraggable(i, dragOptions, true);
 
                 draggingInitialised = true;
             }
