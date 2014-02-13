@@ -5880,7 +5880,7 @@
                     }.bind(this));
                 
                 var i = _gel(this.canvas);              
-                _jsPlumb.initDraggable(i, dragOptions, true, _jsPlumb);
+                _jsPlumb.initDraggable(i, dragOptions, true);
 
                 draggingInitialised = true;
             }
@@ -10948,8 +10948,8 @@
 
 	"use strict";
 
-	 var _getDragManager = function(instance) {
-		var k = instance._katavorio,
+	 var _getDragManager = function(instance, isPlumbedComponent) {
+		var k = instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"],
 			e = _getEventManager(instance);
 			
 		if (!k) {
@@ -10970,10 +10970,15 @@
 				indexOf:jsPlumbUtil.indexOf,
 				css:{
 					noSelect : instance.dragSelectClass,
-					droppable:"jsplumb-droppable"
+					droppable:"jsplumb-droppable",
+					draggable:"jsplumb-draggable",
+					drag:"jsplumb-drag",
+					selected:"jsplumb-drag-selected",
+					active:"jsplumb-drag-active",
+					hover:"jsplumb-drag-hover"
 				}
 			});
-			instance._katavorio = k;
+			instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"] = k;
 			instance.bind("zoom", k.setZoom);
 		}
 		return k;
@@ -11055,11 +11060,11 @@
 		destroyDroppable:function(el) {
 			_getDragManager(this).destroyDroppable(el);
 		},
-		initDraggable : function(el, options, isPlumbedComponent, _jsPlumb) {
-			_getDragManager(this).draggable(el, options);
+		initDraggable : function(el, options, isPlumbedComponent) {
+			_getDragManager(this, isPlumbedComponent).draggable(el, options);
 		},
-		initDroppable : function(el, options) { 
-			_getDragManager(this).droppable(el, options);
+		initDroppable : function(el, options, isPlumbedComponent) { 
+			_getDragManager(this, isPlumbedComponent).droppable(el, options);
 		},
 		isAlreadyDraggable : function(el) { return el._katavorioDrag != null; },
 		isDragSupported : function(el, options) { return true; },
