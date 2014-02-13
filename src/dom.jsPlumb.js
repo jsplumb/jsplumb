@@ -25,7 +25,12 @@
 				indexOf:jsPlumbUtil.indexOf,
 				css:{
 					noSelect : instance.dragSelectClass,
-					droppable:"jsplumb-droppable"
+					droppable:"jsplumb-droppable",
+					draggable:"jsplumb-draggable",
+					drag:"jsplumb-drag",
+					selected:"jsplumb-drag-selected",
+					active:"jsplumb-drag-active",
+					hover:"jsplumb-drag-hover"
 				}
 			});
 			instance._katavorio = k;
