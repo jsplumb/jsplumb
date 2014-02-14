@@ -227,7 +227,7 @@
                   
         // the very last thing we do is apply types, if there are any.
         var _types = [params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
-        if (/[a-zA-Z]/.test(_types))
+        if (/[^\s]/.test(_types))
             this.addType(_types, params.data, true);        
 
         
