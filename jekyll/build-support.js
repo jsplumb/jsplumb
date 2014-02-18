@@ -16,5 +16,16 @@ module.exports = {
 	timestamp : function() {
 	    var d = new Date();
 	    return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate() + " 12:00:00";
+	},
+
+	processMarkdownFile : function(grunt, inputDir, filename, template, base, outputDir) {
+	    var s = grunt.file.read(inputDir + "/" + filename),
+	        o = this.createFrontMatter({
+	            layout:template,
+	            date:this.timestamp(),
+	            base:base
+	        });
+
+	    grunt.file.write(outputDir + "/" + filename, o + s);
 	}
 };

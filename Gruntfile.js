@@ -287,45 +287,20 @@ module.exports = function(grunt) {
     };
 
     var _prepareSite = function() {
-
-        // jekyll base dir (where layouts, includes etc are kept)
-        var jekyllBase = "jekyll";
-        // input markdown doc dir
-        var docInput = package.jsPlumbWiki;
-        // input markdown file pattern
-        var docInputPattern = "*";
-        // output doc dir
-        var docOutput = "jekyll/doc";
-        var apidocOutput = "jekyll/apidocs";
-        var demoOutput = "jekyll/demo";
-        var testsOutput = "jekyll/tests";
-        // output doc template (will be in <jekyllBase>/_layouts/<outputDocTemplate>)
-        var outputDocTemplate = "doc";
         // exclusions from input doc dir
-        var exclusions = ["node_modules", "ff.htl"];
+        var exclusions = ["node_modules", "ff.htl"],
+            docOutput = "jekyll/doc";
 
-        var processMarkdownFile = function(inputDir, f) {
-            var s = grunt.file.read(inputDir + "/" + f),
-                o = support.createFrontMatter({
-                    layout:outputDocTemplate,
-                    date:support.timestamp(),
-                    base:".."
-                });
-
-            grunt.file.write(docOutput + "/" + f, o + s);
-        };
-
-        // 1. create directories for docs, apidocs, demos and tests.
+        // 1. create directories for docs.
         grunt.file.mkdir(docOutput);
-        grunt.file.mkdir(demoOutput);
-        grunt.file.mkdir(apidocOutput);
-        grunt.file.mkdir(testsOutput);
 
         // 2. copy files from markdown directory into 'doc', and then give each one some front matter.
-        var sources = grunt.file.expand({ cwd:docInput }, docInputPattern);
+        var sources = grunt.file.expand({ cwd:package.jsPlumbWiki }, "*");
         for (var i = 0; i < sources.length; i++) {
-            if (exclusions.indexOf(sources[i]) == -1)
-                processMarkdownFile(docInput, sources[i]);
+            if (exclusions.indexOf(sources[i]) == -1) {
+                var layout = sources[i] == "contents.md" ? "plain" : "doc";
+                support.processMarkdownFile(grunt, package.jsPlumbWiki, sources[i], layout, "..", docOutput);
+            }
         }
     };
 
