@@ -1127,6 +1127,10 @@
 			obj = (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj : [ obj ];
 			for (var i = 0; i < obj.length; i++)
 				fn.apply(obj[i]);
+		},
+		_consume = function(e) {
+			e.stopPropagation();
+			e.preventDefault();
 		};
         
     var Super = function(el, params, css, scope) {
@@ -1150,6 +1154,7 @@
         this._class = css.draggable;
         var k = Super.apply(this, arguments),
             downAt = [0,0], posAtDown = null, moving = false,
+			consumeStartEvent = params.consumeStartEvent !== false,
 			toGrid = function(pos) {
 				return params.grid == null ? pos :
 					[
@@ -1177,15 +1182,21 @@
             constrainRect,
             matchingDroppables = [], intersectingDroppables = [],
             downListener = function(e) {
-                if (this.isEnabled() && canDrag() && filter(e)) {
-                    downAt = _pl(e);
-					params.events["start"]({el:el, pos:posAtDown, e:e, drag:this});
-                    //
-                    params.bind(document, "mousemove", moveListener);
-                    params.bind(document, "mouseup", upListener);
-                    k.markSelection(this);
-                    params.addClass(document.body, css.noSelect);
-                    
+                if (this.isEnabled() && canDrag()) {
+					var _f =  filter(e);
+					if (_f) {
+						consumeStartEvent && _consume(e);
+						downAt = _pl(e);
+						params.events["start"]({el:el, pos:posAtDown, e:e, drag:this});
+						//
+						params.bind(document, "mousemove", moveListener);
+						params.bind(document, "mouseup", upListener);
+						k.markSelection(this);
+						params.addClass(document.body, css.noSelect);
+					}
+					else if (params.consumeFilteredEvents) {
+						_consume(e);
+					}
                 }
             }.bind(this),
             moveListener = function(e) {
@@ -6429,7 +6440,7 @@
                   
         // the very last thing we do is apply types, if there are any.
         var _types = [params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
-        if (/[a-zA-Z]/.test(_types))
+        if (/[^\s]/.test(_types))
             this.addType(_types, params.data, true);        
 
         
@@ -8882,32 +8893,30 @@
     var AbstractDOMOverlay = function(params) {
 		jsPlumb.DOMElementComponent.apply(this, arguments);
     	AbstractOverlay.apply(this, arguments);
-		
-		var jpcl = jsPlumb.CurrentLibrary;		
+
 		this.id = params.id;
-        this._jsPlumb.div = null;		
+        this._jsPlumb.div = null;
         this._jsPlumb.initialised = false;
         this._jsPlumb.component = params.component;
         this._jsPlumb.cachedDimensions = null;
         this._jsPlumb.create = params.create;
-		
+
 		this.getElement = function() {
 			if (this._jsPlumb.div == null) {
-                var div = this._jsPlumb.div = jsPlumb.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));                
+                var div = this._jsPlumb.div = jsPlumb.getDOMElement(this._jsPlumb.create(this._jsPlumb.component));
                 div.style.position   =   "absolute";     
-                //var clazz = params._jsPlumb.overlayClass + " " + 
-				var clazz = this._jsPlumb.overlayClass + " " + 
+                var clazz = this._jsPlumb.instance.overlayClass + " " + 
                     (this.cssClass ? this.cssClass : 
-                    params.cssClass ? params.cssClass : "");        
+                    params.cssClass ? params.cssClass : "");
                 div.className = clazz;
                 this._jsPlumb.instance.appendElement(div, this._jsPlumb.component.parent);
-                this._jsPlumb.instance.getId(div);      
+                this._jsPlumb.instance.getId(div);
                 this.attachListeners(div, this);
                 this.canvas = div;
 			}
     		return this._jsPlumb.div;
     	};
-				
+
 		this.draw = function(component, currentConnectionPaintStyle, absolutePosition) {
 	    	var td = _getDimensions(this);
 	    	if (td != null && td.length == 2) {
@@ -8928,9 +8937,9 @@
                 else {
                     var locToUse = this.loc.constructor == Array ? this.loc : this.endpointLoc;
                     cxy = { x:locToUse[0] * component.w,
-                            y:locToUse[1] * component.h };      
+                            y:locToUse[1] * component.h };
                 } 
-                           
+
 				var minx = cxy.x - (td[0] / 2),
 				    miny = cxy.y - (td[1] / 2);
 
@@ -8941,14 +8950,14 @@
                     maxX:minx + td[0], 
                     minY:miny, 
                     maxY:miny + td[1]
-                };								
+                };
         	}
 	    	else return {minX:0,maxX:0,minY:0,maxY:0};
-	    };	   	   		
+	    };
 	};
     jsPlumbUtil.extend(AbstractDOMOverlay, [jsPlumb.DOMElementComponent, AbstractOverlay], {
-        getDimensions : function() {            
-            return jsPlumb.getSize(this.getElement());            
+        getDimensions : function() {
+            return jsPlumb.getSize(this.getElement());
         },
         setVisible : function(state) {
             this._jsPlumb.div.style.display = state ? "block" : "none";
@@ -8984,7 +8993,7 @@
                 this._jsPlumb.initialised = true;
             }
             this._jsPlumb.div.style.left = (p.component.x + p.d.minx) + "px";
-            this._jsPlumb.div.style.top = (p.component.y + p.d.miny) + "px";            
+            this._jsPlumb.div.style.top = (p.component.y + p.d.miny) + "px";
         }
     });
 	
