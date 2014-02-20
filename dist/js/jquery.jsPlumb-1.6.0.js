@@ -1079,7 +1079,7 @@
 							var cEl = jsPlumb.getElementObject(p.childNodes[i]),
 								cid = _currentInstance.getId(p.childNodes[i], null, true);
 							if (cid && _elementsWithEndpoints[cid] && _elementsWithEndpoints[cid] > 0) {
-								var cOff = jsPlumbAdapter.getOffset(cEl);
+								var cOff = jsPlumbAdapter.getOffset(cEl, _currentInstance);
 								_delements[id][cid] = {
 									id:cid,
 									offset:{
