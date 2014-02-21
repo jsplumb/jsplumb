@@ -306,9 +306,9 @@ module.exports = function(grunt) {
 
     grunt.registerTask('writeIndex', function() {
         // write an index file to the root of the dist dir (redirects to main "no library" demo)
-        grunt.file.write("jekyll/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/dom.html'/></head></html>");
+        grunt.file.write("jekyll/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/flowchart/dom.html'/></head></html>");
         // and to the demo directory root
-        grunt.file.write("jekyll/demo/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home/dom.html'/></head></html>");
+        grunt.file.write("jekyll/demo/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=flowchart/dom.html'/></head></html>");
         // write an index file to the root of the docs dir (redirects to 'home')
         grunt.file.write("jekyll/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home.html'/></head></html>");
     });
