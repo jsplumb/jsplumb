@@ -13,13 +13,7 @@
 			
     var _ju = jsPlumbUtil,
     	_getOffset = function(el, _instance, relativeToRoot) {
-            var o = jsPlumbAdapter.getOffset(el, _instance, relativeToRoot);
-			if (false/*_instance != null*/) {
-                var z = _instance.getZoom();
-                return {left:o.left / z, top:o.top / z };    
-            }
-            else
-                return o;
+            return jsPlumbAdapter.getOffset(el, _instance, relativeToRoot);
         },
 		
 		/**
@@ -2388,29 +2382,22 @@
 							return false;
 						}
 
-						// get container offset
-						//var co = _getOffset(jsPlumb.getDOMElement(_currentInstance.Defaults.Container), _currentInstance, true);
-						var co = _getOffset(jsPlumb.getDOMElement(this.Defaults.Container || this.offsetParent || document.body), this, true);
-
-						// make sure we have the latest offset for this div 
-						var myOffsetInfo = _updateOffset({elId:elid}).o,
-							z = this.getZoom(),
-							// TODO does the clientX/clientY work for IE8?
-							x = ( ((evt.pageX || evt.clientX) / z) - myOffsetInfo.left - co.left) / myOffsetInfo.width, 
-							y = ( ((evt.pageY || evt.clientY) / z) - myOffsetInfo.top - co.top) / myOffsetInfo.height,
-						    parentX = x, 
-						    parentY = y;
-								
-						// if there is a parent, the endpoint will actually be added to it now, rather than the div
-						// that was the source.  in that case, we have to adjust the anchor position so it refers to
-						// the parent.
+						// TODO fails in mootools right now.
+						var evtSource = evt.srcElement || evt.target,
+							esOffset = _updateOffset({elId:_currentInstance.getId(evtSource)}).o,
+							myOffsetInfo = _updateOffset({elId:elid}).o,
+							x = (evt.offsetX + esOffset.left - myOffsetInfo.left) / myOffsetInfo.width, 
+							y = (evt.offsetY + esOffset.top - myOffsetInfo.top) / myOffsetInfo.height, 
+							parentX = x, 
+							parentY = y;
+							
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = ((evt.pageX || evt.clientX) - myOffsetInfo.left - co.left) / myOffsetInfo.width; 
-						    parentY = ((evt.pageY || evt.clientY) - myOffsetInfo.top - co.top) / myOffsetInfo.height;
-						}											
-						
+							parentX = (evt.offsetX + esOffset.left - myOffsetInfo.left) / myOffsetInfo.width;
+							parentY = (evt.offsetY + esOffset.top - myOffsetInfo.top) / myOffsetInfo.height;
+						}
+							
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
 						// the params passed in, because after a connection is established we're going to reset the endpoint
 						// to have the anchor we were given.
@@ -2457,7 +2444,7 @@
 						
 						// and then trigger its mousedown event, which will kick off a drag, which will start dragging
 						// a new connection from this endpoint.
-						jsPlumb.trigger(ep.canvas, "mousedown", e);
+						_currentInstance.trigger(ep.canvas, "mousedown", e);
 						
 					}.bind(this);
 	               
@@ -2469,7 +2456,7 @@
 	                // to prevent the element drag function from kicking in when we want to
 	                // drag a new connection
 	                if (p.filter && jsPlumbUtil.isString(p.filter)) {
-	                	jsPlumb.setDragFilter(_el, p.filter);
+	                	_currentInstance.setDragFilter(_el, p.filter);
 	                }
 				}.bind(this);
 			
@@ -2773,13 +2760,6 @@
         // return timestamp for when drawing was suspended.
         this.getSuspendedAt = function() { return _suspendedAt; };
 
-        /**
-        * @doc function
-        * @name jsPlumb.class:doWhileSuspended
-        * @param {function} fn Function to run while suspended.
-        * @param {boolean} doNotRepaintAfterwards If true, jsPlumb won't run a full repaint. Otherwise it will.
-        * @description Suspends drawing, runs the given function, then re-enables drawing (and repaints, unless you tell it not to)
-        */
         this.doWhileSuspended = function(fn, doNotRepaintAfterwards) {
         	var _wasSuspended = this.isSuspendDrawing();
         	if (!_wasSuspended)
@@ -2797,30 +2777,12 @@
 		this.getOffset = function(elId) { return offsets[elId]; };
 		this.getCachedData = _getCachedData;
 		this.timestamp = _timestamp;
-
-		/**
-		 * @doc function
-		 * @name jsPlumb.class:setRenderMode
-		 * @param {string} mode One of `jsPlumb.SVG or `jsPlumb.VML.
-		 * @description Sets render mode.  jsPlumb will fall back to VML if it determines that
-		 * what you asked for is not supported (and that VML is).  If you asked for VML but the browser does
-		 * not support it, jsPlumb uses SVG.
-		 * @return {string} The render mode that jsPlumb set, which of course may be different from that requested.
-		 */
 		this.setRenderMode = function(mode) {
 			if (mode !== jsPlumb.SVG && mode !== jsPlumb.VML) throw new TypeError("Render mode [" + mode + "] not supported");
 			renderMode = jsPlumbAdapter.setRenderMode(mode);
 			return renderMode;
 		};
-
-		/**
-		 * @doc function
-		 * @name jsPlumb.class:getRenderMode
-		 * @description Gets the current render mode for this instance of jsPlumb.
-		 * @return {string} The current render mode - "svg" or "vml".
-		 */
 		this.getRenderMode = function() { return renderMode; };
-		
 		this.show = function(el, changeEndpoints) {
 			_setVisible(el, "block", changeEndpoints);
 			return _currentInstance;
@@ -2907,11 +2869,6 @@
 	// register on window if defined (lets us run on server)
 	if (typeof window != 'undefined') window.jsPlumb = jsPlumb;	
 	// add 'getInstance' method to static instance
-	/**
-	* @name jsPlumb.getInstance
-	* @param {object} [_defaults] Optional default settings for the new instance.
-	* @desc Gets a new instance of jsPlumb.
-	*/
 	jsPlumb.getInstance = function(_defaults) {
 		var j = new jsPlumbInstance(_defaults);
 		j.init();
