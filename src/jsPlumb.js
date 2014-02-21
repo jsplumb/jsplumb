@@ -766,12 +766,13 @@
 					for ( var i = 0, j = element.length; i < j; i++) {
 						el = _currentInstance.getElementObject(element[i]);
 						id = _currentInstance.getAttribute(el, "id");
-						retVal.push(fn(el, id)); // append return values to what we will return
+						//retVal.push(fn(el, id)); // append return values to what we will return
+						retVal.push(fn.apply(_currentInstance, [el, id])); // append return values to what we will return
 					}
 				} else {
 					el = _currentInstance.getDOMElement(element);
 					id = _currentInstance.getId(el);
-					retVal = fn(el, id);
+					retVal = fn.apply(_currentInstance, [el, id]);
 				}
 				return retVal;
 			},				
@@ -1096,8 +1097,8 @@
 		_setDraggable = function(element, draggable) {
 			return _elementProxy(element, function(el, id) {
 				draggableStates[id] = draggable;
-				if (jsPlumb.isDragSupported(el)) {
-					jsPlumb.setElementDraggable(el, draggable);
+				if (this.isDragSupported(el)) {
+					this.setElementDraggable(el, draggable);
 				}
 			});
 		},
@@ -1143,7 +1144,7 @@
 				var state = draggableStates[elId] == null ? false : draggableStates[elId];
 				state = !state;
 				draggableStates[elId] = state;
-				jsPlumb.setDraggable(el, state);
+				this.setDraggable(el, state);
 				return state;
 			});
 		},
@@ -1327,8 +1328,8 @@
 		
 		this.animate = function(el, properties, options) {
 			options = options || {};
-			var ele = jsPlumb.getElementObject(el), 
-				del = jsPlumb.getDOMElement(el),
+			var ele = this.getElementObject(el), 
+				del = this.getDOMElement(el),
 				id = _getId(del),
 				stepFunction = jsPlumb.dragEvents.step,
 				completeFunction = jsPlumb.dragEvents.complete;
@@ -2093,9 +2094,9 @@
 
 					var _drop = function() {
 						this.currentlyDragging = false;
-						var originalEvent = jsPlumb.getDropEvent(arguments),
+						var originalEvent = this.getDropEvent(arguments),
 							targetCount = this.select({target:elid}).length,
-							draggable = this.getDOMElement(jsPlumb.getDragObject(arguments)),
+							draggable = this.getDOMElement(this.getDragObject(arguments)),
 							id = this.getAttribute(draggable, "dragId"),
 							scope = this.getAttribute(draggable, "originalScope"),
 							jpc = floatingConnections[id],
@@ -2122,7 +2123,7 @@
 						source.anchor.locked = false;
 
 						// restore the original scope if necessary (issue 57)
-						if (scope) jsPlumb.setDragScope(draggable, scope);		
+						if (scope) this.setDragScope(draggable, scope);		
 
 						// if no suspendedEndpoint and not pending, it is likely there was a drop on two 
 						// elements that are on top of each other. abort.
@@ -2286,7 +2287,7 @@
 					var elid = elInfo.id,
 						_el = this.getElementObject(elInfo.el),
 						parentElement = function() {
-							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : jsPlumb.getDOMElement(p.parent);
+							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _currentInstance.getDOMElement(p.parent);
 						},
 						idToRegisterAgainst = p.parent != null ? this.getId(parentElement()) : elid;
 					
@@ -2354,10 +2355,17 @@
 							this.repaint(oldConnection.targetId);
 						}
 					}.bind(this));
+
+					var _setEventOffsets = function(event) {
+						if(event.offsetX == null) {
+						    event.offsetX = event.layerX;// - event.currentTarget.offsetLeft;
+						    event.offsetY = event.layerY;// - event.currentTarget.offsetTop;
+						}
+					};
 					
 					// when the user presses the mouse, add an Endpoint, if we are enabled.
 					var mouseDownListener = function(e) {
-						var evt = jsPlumb.getOriginalEvent(e);
+						var evt = this.getOriginalEvent(e);
 						var def = this.sourceEndpointDefinitions[idToRegisterAgainst];
 						
 						// if disabled, return.
@@ -2381,6 +2389,8 @@
 							}
 							return false;
 						}
+
+						_setEventOffsets(evt);
 
 						// TODO fails in mootools right now.
 						var evtSource = evt.srcElement || evt.target,
@@ -2416,7 +2426,7 @@
 							if (potentialParent)
 								tempEndpointParams.container = potentialParent;
 							else
-								tempEndpointParams.container = jsPlumb.getParent(parentElement());
+								tempEndpointParams.container = this.getParent(parentElement());
 						}
 						
 						ep = this.addEndpoint(elid, tempEndpointParams);

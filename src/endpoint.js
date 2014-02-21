@@ -591,7 +591,7 @@
                         // if no endpoints, jpc already cleaned up.
                         if (jpc && jpc.endpoints != null) {          
                             // get the actual drop event (decode from library args to stop function)
-                            var originalEvent = jsPlumb.getDropEvent(arguments);                                       
+                            var originalEvent = _jsPlumb.getDropEvent(arguments);                                       
                             // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                             var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
                             jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
@@ -617,7 +617,7 @@
                                     }
                                     
                                     // restore the original scope (issue 57)
-                                    jsPlumb.setDragScope(existingJpcParams[2], existingJpcParams[3]);
+                                    _jsPlumb.setDragScope(existingJpcParams[2], existingJpcParams[3]);
                                     jpc.endpoints[idx] = jpc.suspendedEndpoint;
                                     // IF the connection should be reattached, or the other endpoint refuses detach, then
                                     // reset the connection to its original state
@@ -693,8 +693,8 @@
                         this.removeClass(_jsPlumb.endpointDropAllowedClass);
                         this.removeClass(_jsPlumb.endpointDropForbiddenClass);
                                                     
-                        var originalEvent = jsPlumb.getDropEvent(arguments),
-                            draggable = jsPlumb.getDOMElement(jsPlumb.getDragObject(arguments)),
+                        var originalEvent = _jsPlumb.getDropEvent(arguments),
+                            draggable = _jsPlumb.getDOMElement(_jsPlumb.getDragObject(arguments)),
                             id = _jsPlumb.getAttribute(draggable, "dragId"),
                             elId = _jsPlumb.getAttribute(draggable, "elId"),						
                             scope = _jsPlumb.getAttribute(draggable, "originalScope"),
@@ -713,7 +713,7 @@
                             var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx === 0 ? 1 : 0;
                             
                             // restore the original scope if necessary (issue 57)						
-                            if (scope) jsPlumb.setDragScope(draggable, scope);							
+                            if (scope) _jsPlumb.setDragScope(draggable, scope);							
                             
                             var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
                             
