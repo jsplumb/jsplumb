@@ -1331,8 +1331,8 @@
 			var ele = this.getElementObject(el), 
 				del = this.getDOMElement(el),
 				id = _getId(del),
-				stepFunction = jsPlumb.dragEvents.step,
-				completeFunction = jsPlumb.dragEvents.complete;
+				stepFunction = jsPlumb.animEvents.step,
+				completeFunction = jsPlumb.animEvents.complete;
 
 			options[stepFunction] = _ju.wrap(options[stepFunction], function() {
 				_currentInstance.repaint(id);
@@ -1344,7 +1344,7 @@
 			});
 
 			_currentInstance.doAnimate(ele, properties, options);
-		};		
+		};
 		
 		/**
 		* checks for a listener for the given condition, executing it if found, passing in the given value.
