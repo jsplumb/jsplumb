@@ -2144,14 +2144,15 @@
 			// arguments.
 			//
 			_elementProxy = function(element, fn) {
-				var retVal = null, el, id;
+				var retVal = null, el, id, del;
 				if (_ju.isArray(element)) {
 					retVal = [];
 					for ( var i = 0, j = element.length; i < j; i++) {
 						el = _currentInstance.getElementObject(element[i]);
-						id = _currentInstance.getAttribute(el, "id");
+						del = _currentInstance.getDOMElement(el);
+						id = _currentInstance.getAttribute(del, "id");
 						//retVal.push(fn(el, id)); // append return values to what we will return
-						retVal.push(fn.apply(_currentInstance, [el, id])); // append return values to what we will return
+						retVal.push(fn.apply(_currentInstance, [del, id])); // append return values to what we will return
 					}
 				} else {
 					el = _currentInstance.getDOMElement(element);
