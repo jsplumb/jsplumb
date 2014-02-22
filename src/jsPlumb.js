@@ -86,7 +86,7 @@
 				beforeDetach:params.beforeDetach,
 				beforeDrop:params.beforeDrop,
 				overlayPlacements : [],
-				hoverClass: params.hoverClass || params._jsPlumb.Defaults.HoverClass || jsPlumb.Defaults.HoverClass,
+				hoverClass: params.hoverClass || params._jsPlumb.Defaults.HoverClass,
 				types:[]
 			};
 
@@ -451,7 +451,7 @@
 				
 				if (params.label) {
 					var loc = params.labelLocation || this.defaultLabelLocation || 0.5,
-						labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle || jsPlumb.Defaults.LabelStyle;
+						labelStyle = params.labelStyle || this._jsPlumb.instance.Defaults.LabelStyle;
 
 					this._jsPlumb.overlays.push(_makeLabelOverlay(this, {
 						label:params.label,
@@ -793,7 +793,7 @@
 				var _draggable = isDraggable == null ? false : isDraggable;
 				if (_draggable) {
 					if (jsPlumb.isDragSupported(element, _currentInstance) && !jsPlumb.isAlreadyDraggable(element, _currentInstance)) {
-						var options = dragOptions || _currentInstance.Defaults.DragOptions || jsPlumb.Defaults.DragOptions;
+						var options = dragOptions || _currentInstance.Defaults.DragOptions;
 						options = jsPlumb.extend( {}, options); // make a copy.
 						var dragEvent = jsPlumb.dragEvents.drag,
 							stopEvent = jsPlumb.dragEvents.stop,
@@ -1283,8 +1283,8 @@
 			referenceParams = referenceParams || {};
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
-			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint || jsPlumb.Defaults.Endpoint;
-			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle || jsPlumb.Defaults.EndpointStyle;
+			p.endpoint = p.endpoint || _currentInstance.Defaults.Endpoint;
+			p.paintStyle = p.paintStyle || _currentInstance.Defaults.EndpointStyle;
             // YUI wrapper
 			el = _convertYUICollection(el);							
 
@@ -2021,26 +2021,19 @@
 		var _setEndpointPaintStylesAndAnchor = function(ep, epIndex, _instance) {
 				ep.paintStyle = ep.paintStyle ||
 				 				_instance.Defaults.EndpointStyles[epIndex] ||
-	                            _instance.Defaults.EndpointStyle ||
-	                            jsPlumb.Defaults.EndpointStyles[epIndex] ||
-	                            jsPlumb.Defaults.EndpointStyle;
+	                            _instance.Defaults.EndpointStyle;
+								
 				ep.hoverPaintStyle = ep.hoverPaintStyle ||
 	                           _instance.Defaults.EndpointHoverStyles[epIndex] ||
-	                           _instance.Defaults.EndpointHoverStyle ||
-	                           jsPlumb.Defaults.EndpointHoverStyles[epIndex] ||
-	                           jsPlumb.Defaults.EndpointHoverStyle;                            
+	                           _instance.Defaults.EndpointHoverStyle;                            
 
 				ep.anchor = ep.anchor ||
 	                      	_instance.Defaults.Anchors[epIndex] ||
-	                      	_instance.Defaults.Anchor ||
-	                      	jsPlumb.Defaults.Anchors[epIndex] ||
-	                      	jsPlumb.Defaults.Anchor;                           
+	                      	_instance.Defaults.Anchor;
 					
 				ep.endpoint = ep.endpoint ||
 							  _instance.Defaults.Endpoints[epIndex] ||
-							  _instance.Defaults.Endpoint ||
-							  jsPlumb.Defaults.Endpoints[epIndex] ||
-							  jsPlumb.Defaults.Endpoint;
+							  _instance.Defaults.Endpoint;
 			};
 			
 			// TODO put all the source stuff inside one parent, keyed by id.
@@ -2345,7 +2338,7 @@
 							if (p.parent) {
 								var parent = parentElement();
 								if (parent) {	
-									var potentialParent = p.container || this.Defaults.Container || jsPlumb.Defaults.Container;
+									var potentialParent = p.container || this.Defaults.Container;
 									ep.setElement(parent, potentialParent);
 								}
 							}
@@ -2422,7 +2415,7 @@
 						// the user has specified a 'container' on the endpoint definition or on 
 						// the defaults, we should use that.
 						if (p.parent) {
-							var potentialParent = tempEndpointParams.container || this.Defaults.Container || jsPlumb.Defaults.Container;
+							var potentialParent = tempEndpointParams.container || this.Defaults.Container;
 							if (potentialParent)
 								tempEndpointParams.container = potentialParent;
 							else
