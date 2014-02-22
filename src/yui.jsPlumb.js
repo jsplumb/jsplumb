@@ -58,6 +58,7 @@
 	
 	YUI().use('node', 'dd', 'dd-constrain', 'anim', 'node-event-simulate', function(_Y) {
 		Y = _Y;	
+		window.Y = Y;
 		Y.on("domready", function() { jsPlumb.init(); });
 	});
 	
@@ -146,7 +147,7 @@
 		 * animates the given element.
 		 */
 		doAnimate : function(el, properties, options) {
-			var o = jsPlumb.extend({node:el._node, to:properties}, options),			
+			var o = jsPlumb.extend({node:el, to:properties}, options),			
 				id = _getAttribute(el, "id");
 			o.tween = jsPlumbUtil.wrap(properties.tween, function() {
 				// TODO should use a current instance.
