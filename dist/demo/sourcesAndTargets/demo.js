@@ -29,6 +29,17 @@
         	},
         	Container:"source-target-demo"
         });
+		
+		window.setZoom = function(z, el) {
+    var p = [ "webkit", "moz", "ms", "o", "" ],
+        s = "scale(" + z + ")";
+
+    for (var i = 0; i < p.length; i++)
+		el.style[p[i] + "Transform"] = s;
+
+    instance.setZoom(z);    
+};
+
 
 		// click listener for the enable/disable link.
         jsPlumb.on(document.getElementById("enableDisableSource"), "click", function(e) {

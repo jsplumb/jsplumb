@@ -42,14 +42,15 @@
 					l = l + Math.abs(oo[0] * DIST),
 					t = t + Math.abs(oo[1] * DIST);
 
-				l = new String(o.left + Math.abs(oo[0] * DIST));
-				t = new String(o.top + Math.abs(oo[1] * DIST));
+				//l = Math.abs(oo[0] * DIST);
+				//t = Math.abs(oo[1] * DIST);
 
 				// notice the easing here.  you can pass any args into this animate call; they
 				// are passed through to jquery as-is by jsPlumb.
 				var id = el.getAttribute("id");
-				//instance.animate(el, {left:l, top:t}, { duration:350, easing:'easeOutBack' });
 				instance.animate(el, {left:l, top:t}, { duration:350, easing:'easeOutBack' });
+				//instance.animate(el, {left:l, top:t}, { duration:350, easing:'easeOutBack' });
+				//instance.animate(el, {left:l, top:t}, { duration:0.35});
 			});
 		},
 	

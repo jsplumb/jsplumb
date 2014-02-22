@@ -750,6 +750,34 @@
 */
 
 /**
+ * Sets render mode.  jsPlumb will fall back to VML if it determines that
+ * what you asked for is not supported (and that VML is).  If you asked for VML but the browser does
+ * not support it, jsPlumb uses SVG.
+ * @method setRenderMode
+ * @param {String} mode One of &#x60;jsPlumb.SVG or &#x60;jsPlumb.VML.
+ * @return {String} The render mode that jsPlumb set, which of course may be different from that requested.
+ */
+ 
+ /**
+* Gets the current render mode for this instance of jsPlumb.
+ * @method getRenderMode
+ * @return {String} The current render mode - &quot;svg&quot; or &quot;vml&quot;.
+ */
+ 
+ /**
+  * Gets a new instance of jsPlumb.
+  * @method getInstance
+  * @param {object} [_defaults] Optional default settings for the new instance.
+  */
+ 
+ /**
+  * Suspends drawing, runs the given function, then re-enables drawing (and repaints, unless you tell it not to)
+  * @method doWhileSuspended
+  * @param {Function} fn Function to run while suspended.
+  * @param {Boolean} doNotRepaintAfterwards If true, jsPlumb won&#x27;t run a full repaint. Otherwise it will.
+  */
+
+/**
 * Sets the default scope for Connections and Endpoints. A scope defines a type of Endpoint/Connection; supplying a
 * scope to an Endpoint or Connection allows you to support different
 * types of Connections in the same UI.  If you&#x27;re only interested in
