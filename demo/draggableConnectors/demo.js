@@ -1,8 +1,6 @@
 ;(function() {
 
-	var _initialised = false,
-		jpcl = jsPlumb.CurrentLibrary,
-		_bind = jpcl.bind,
+	var _initialised = false,		
 		listDiv = document.getElementById("list"),
 
 		showConnectionInfo = function(s) {
@@ -55,6 +53,13 @@
 					updateConnections(info.connection);
 				});
 				instance.bind("connectionDetached", function(info, originalEvent) {
+					updateConnections(info.connection, true);
+				});
+				
+				instance.bind("connectionMoved", function(info, originalEvent) {
+					//  only remove here, because a 'connection' event is also fired.
+					// in a future release of jsplumb this extra connection event will not
+					// be fired.
 					updateConnections(info.connection, true);
 				});
 
@@ -177,14 +182,14 @@
 				instance.addEndpoint(jsPlumb.getSelector(".drag-drop-demo .window"), exampleEndpoint3);
 				
 				var hideLinks = jsPlumb.getSelector(".drag-drop-demo .hide");
-				_bind(hideLinks, "click", function(e) {
+				instance.on(hideLinks, "click", function(e) {
 					instance.toggleVisible(this.getAttribute("rel"));
 					e.stopPropagation();
 					e.preventDefault();
 				});
 
 				var dragLinks = jsPlumb.getSelector(".drag-drop-demo .drag");
-				_bind(dragLinks, "click", function(e) {
+				instance.on(dragLinks, "click", function(e) {
 					var s = instance.toggleDraggable(this.getAttribute("rel"));
 					this.innerHTML = (s ? 'disable dragging' : 'enable dragging');				
 					e.stopPropagation();
@@ -192,13 +197,13 @@
 				});
 
 				var detachLinks = jsPlumb.getSelector(".drag-drop-demo .detach");
-				_bind(detachLinks, "click", function(e) {
+				instance.on(detachLinks, "click", function(e) {
 					instance.detachAllConnections(this.getAttribute("rel"));
 					e.stopPropagation();
 					e.preventDefault();
 				});
 
-				_bind(document.getElementById("clear"), "click", function(e) { 
+				instance.on(document.getElementById("clear"), "click", function(e) { 
 					instance.detachEveryConnection();
 					showConnectionInfo("");
 					e.stopPropagation();

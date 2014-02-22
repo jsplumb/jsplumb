@@ -2,10 +2,10 @@
 <html>
     <head>
         
-        <title>jsPlumb 1.5.5 demo - MooTools</title>
+        <title>jsPlumb 1.6.0 demo - MooTools</title>
         <meta http-equiv="content-type" content="text/html;charset=utf-8" />                
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">        
-        <link rel="stylesheet" href="../demo-all.css">     
+        <link rel="stylesheet" href="../../css/jsplumb.css">     
         <link rel="stylesheet" href="demo.css">
     </head>
     <body data-demo-id="flowchart" data-library="mootools">
@@ -15,7 +15,7 @@
                 <div class="menu">   
                     <a href="http://localhost:4567">DOCS</a>
                     <a href="../../apidocs/">API</a>
-                    <a href="../../tests/all-tests.html">TESTS</a>
+                    <a href="../../tests/index.html">TESTS</a>
                     <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
                     <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
                     <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
@@ -31,34 +31,34 @@
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
         
-        <div id="main">         
+        <div id="main">
+            <!-- demo -->
             <div class="explanation">
+                <i class="fa fa-info-circle"></i>
                 <h4>FLOWCHART</h4>
                 <p>Nodes are connected with the Flowchart connector.</p>
                 <p>Hover over connections to highlight them, click to delete. </p>
                 <p>Drag new connections from hollow dots to solid dots. You can also drag connections from their source/target to other sources/targets, or back onto themselves.</p>
                 <p>By default, Flowchart connectors have square corners, but by setting the 'cornerRadius' parameter, as we have here, you can get rounded corners.</p>       
-                <p>This demonstration uses jsPlumb 1.5.5, MooTools 1.3.2 and MooTools More 1.3.2.1.</p>                      
+                <p>This demonstration uses jsPlumb 1.6.0, MooTools 1.4.5 and MooTools More 1.4.0.1.</p>                      
             </div>
             <div class="demo flowchart-demo" id="flowchart-demo">
                 <div class="window" id="flowchartWindow1"><strong>1</strong><br/><br/></div>
                 <div class="window" id="flowchartWindow2"><strong>2</strong><br/><br/></div>
                 <div class="window" id="flowchartWindow3"><strong>3</strong><br/><br/></div>
                 <div class="window" id="flowchartWindow4"><strong>4</strong><br/><br/></div>                     
-            </div>          
-            
+            </div>
+            <!-- /demo -->
         </div>
             
-        <!-- DEP -->
-        <script src="../../lib/mootools-1.3.2-yui-compressed.js"></script>
-        <!-- /DEP -->
-        <script src="../../lib/mootools-1.3.2.1-more.js"></script>        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/mootools/1.4.5/mootools-core-full-compat-yc.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/mootools-more/1.4.0.1/mootools-more-yui-compressed.min.js"></script>
                 
         <!-- JS -->
         <!-- support lib for bezier stuff -->
         <script src="../../lib/jsBezier-0.6.js"></script>     
-        <!-- jsplumb geom functions -->   
-        <script src="../../lib/jsplumb-geom-0.1.js"></script>
+        <!-- geom functions -->   
+        <script src="../../lib/biltong-0.2.js"></script>
         <!-- jsplumb util -->
         <script src="../../src/util.js"></script>
         <!-- base DOM adapter -->
@@ -82,8 +82,8 @@
         <script src="../../src/connector-editors.js"></script>
         <!-- SVG renderer -->
         <script src="../../src/renderers-svg.js"></script>
-        <!-- canvas renderer -->
-        <script src="../../src/renderers-canvas.js"></script>
+        
+        
         <!-- vml renderer -->
         <script src="../../src/renderers-vml.js"></script>
         

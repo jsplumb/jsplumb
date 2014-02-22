@@ -2,8 +2,6 @@
 	
 	var instance, 
 		discs = [],
-		jpcl = jsPlumb.CurrentLibrary,
-		_bind = jpcl.bind,
 
 		addDisc = function(evt) {
 			var info = createDisc();
@@ -22,25 +20,21 @@
 			discs = [];
 			e.stopPropagation();
 			e.preventDefault();
-		},
-	
-		initHover = function(elId) {
-			_bind(elId, "mouseover", function() { jpcl.addClass(elId, "bigdot-hover") });
-			_bind(elId, "mouseout", function() { jpcl.removeClass(elId, "bigdot-hover") });
-		},
+		},	
 	
 		initAnimation = function(elId) {
 			var el = document.getElementById(elId),
-				_el = jpcl.getElementObject(el);
+				_el = jsPlumb.getElementObject(el);
 
-			_bind(el, 'click', function(e, ui) {
+			instance.on(el, 'click', function(e, ui) {
 				if (el.className.indexOf("jsPlumb_dragged") > -1) {
-					jpcl.removeClass(elId, "jsPlumb_dragged");
+					jsPlumb.removeClass(elId, "jsPlumb_dragged");
 					return;
 				}
-				var o = jpcl.getOffset(_el),
-					s = jpcl.getSize(_el),
-					pxy = jpcl.getPageXY(e),
+				e =jsPlumb.getOriginalEvent(e);
+				var o = jsPlumbAdapter.getOffset(_el, instance, true),
+					s = jsPlumb.getSize(el),
+					pxy = [e.pageX || e.clientX, e.pageY || e.clientY],
 					c = [o.left + (s[0]/2) - pxy[0], o.top + (s[1]/2) - pxy[1]],
 					oo = [c[0] / s[0], c[1] / s[1]],
 					l = oo[0] < 0 ? '+=' : '-=', t = oo[1] < 0 ? "+=" : '-=',
@@ -51,7 +45,7 @@
 				// notice the easing here.  you can pass any args into this animate call; they
 				// are passed through to jquery as-is by jsPlumb.
 				var id = el.getAttribute("id");
-				instance.animate(id, {left:l, top:t}, { duration:1400, easing:'easeOutBack' });
+				instance.animate(el, {left:l, top:t}, { duration:350, easing:'easeOutBack' });
 			});
 		},
 	
@@ -68,8 +62,7 @@
 			dropOptions:{ tolerance:"touch",hoverClass:"dropHover" }
 		},
 	
-		prepare = function(elId) {
-			initHover(elId);
+		prepare = function(elId) {			
 			initAnimation(elId);
 			
 			return instance.addEndpoint(elId, endpoint);
@@ -80,7 +73,7 @@
 			var d = document.createElement("div");
 			d.className = "bigdot";
 			document.getElementById("animation-demo").appendChild(d);
-			var id = '' + ((new Date().getTime())), _d = jpcl.getElementObject(d);
+			var id = '' + ((new Date().getTime()));
 			d.setAttribute("id", id);
 			var w = screen.width - 162, h = screen.height - 162;
 			var x = (0.2 * w) + Math.floor(Math.random()*(0.5 * w));
@@ -95,7 +88,7 @@
 		// get a jsPlumb instance, setting some appropriate defaults and a Container.
 		instance = jsPlumb.getInstance({
 			DragOptions : { cursor: 'wait', zIndex:20 },
-			Endpoint : [ "Image", { url:"littledot.png" } ],
+			Endpoint : [ "Image", { url:"../../img/littledot.png" } ],
 			Connector : [ "Bezier", { curviness: 90 } ],
 			Container:"animation-demo"
 		});				
@@ -109,7 +102,7 @@
 				clearBtn = jsPlumb.getSelector("#anim-clear"),
 				addBtn = jsPlumb.getSelector("#add");
 
-			_bind(clearBtn, "click", function(e) {
+			instance.on(clearBtn, "click", function(e) {
 				e.preventDefault();
 				e.stopPropagation();
 				instance.detachEveryConnection(); 
@@ -119,7 +112,7 @@
 			instance.connect({ source:e1, target:e3 });
 			instance.connect({ source:e1, target:e4 });
 
-			_bind(addBtn, 'click', addDisc );							
+			instance.on(addBtn, 'click', addDisc );							
 		});
 	});
 	

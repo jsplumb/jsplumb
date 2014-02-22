@@ -1,0 +1,49 @@
+{% comment %}
+
+	Template for api doc pages.  The yuidoc theme has been overridden so that it just 
+    puts out markdown formatted fragments, with some front matter.  This template wraps
+    the yuidoc with the page layout and tracking tags.
+
+{% endcomment %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <title>{{ page.title }}</title>
+
+    {% include css.html %}
+    <link rel="stylesheet" href="{{page.base}}/css/jsplumb-doc.css">
+
+    <!-- yuidoc -->
+    <link rel="stylesheet" href="{{ page.yuiGridsUrl }}">
+    <link rel="stylesheet" href="{{ page.projectAssets }}/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="{{ page.projectAssets }}/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="{{page.base}}/img/favicon.png">
+    <script src="{{ page.yuiSeedUrl }}"></script>
+    <style>
+        #doc {
+            text-align:left;
+            margin-top:44px;
+        }
+    </style>
+</head>
+<body class="yui3-skin-sam">
+
+    {% include header.html %}
+    
+    {{ content }}
+    
+    {% include track-apidocs.html %}
+    
+<script src="{{ page.projectAssets }}/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="{{ page.projectAssets }}/js/yui-prettify.js"></script>
+<script src="{{ page.projectAssets }}/../api.js"></script>
+<script src="{{ page.projectAssets }}/js/api-filter.js"></script>
+<script src="{{ page.projectAssets }}/js/api-list.js"></script>
+<script src="{{ page.projectAssets }}/js/api-search.js"></script>
+<script src="{{ page.projectAssets }}/js/apidocs.js"></script>
+</body>
+</html>

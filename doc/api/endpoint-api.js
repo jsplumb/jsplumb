@@ -1,24 +1,19 @@
 /**
- * @name Endpoint 
+* Models an Endpoint - one end of a Connection. An Endpoint has an underlying Anchor, which is what determines the
+* Endpoint's position. Each Endpoint can have 1 to `maxConnections` connections emanating from it (set `maxConnections` to -1 
+* to allow unlimited Connections; the default is 1).
+*
+* You never need to create an Endpoint directly. When you provide an Endpoint definition to an appropriate 
+* jsPlumb method, you can do so either as a string, or as an array of the form `[String, Object]`.  In the former case, the string
+* must be the name of some available Endpoint, such as `"Dot"` or `"Rectangle"`. In the latter case,
+* the first argument to the array is the Endpoint name, and the second is a JS object containing 
+* constructor parameters for the Endpoint, for instance
+* 
+*    `[ "Dot", { radius:75 } ]`
+*
+ * @class Endpoint 
  * @extends OverlayCapableJsPlumbUIComponent
- * @class
- * @classdesc Models an endpoint. Can have 1 to `maxConnections` connections emanating from it (set maxConnections to -1 
- * to allow unlimited).  If you use 'jsPlumb.connect' to programmatically connect two elements, you won't
- * actually deal with the underlying Endpoint objects.  But if you wish to support drag and drop Connections, one of the ways you
- * do so is by creating and registering endpoints using 'jsPlumb.addEndpoint', and marking these endpoints as 'source' and/or
- * 'target' endpoints for connections. 
- *
- * You never need to create one of these directly; jsPlumb will create them as needed, but check the docs for the constructor
- * as anything supported there can be set in the parameters passed to {@link jsPlumbInstance#addEndpoint}, 
- * {@link jsPlumbInstance#makeSource} or {@link jsPlumbInstance#makeTarget}.
- */
-
-/**
- * @name Endpoint#Endpoint
  * @constructor 
- * @function
- * @desc You never instantiate an Endpoint directly, but, with the exception of `source`, all of the constructor parameters described here are valid
- * in the params object you pass to a `jsPlumb.addEndpoint`, `jsPlumb.makeSource` or `jsPlumb.makeTarget` call. 
  * @param {Object} params Constructor parameters.
  * @param {String|Array} [params.anchor] Definition of the Anchor for the endpoint.  See the jsPlumb documentation for a discussion of this.
  * @param {String|Array} [params.endpoint] Endpoint definition. See the jsPlumb documentation for a discussion of this.
@@ -48,127 +43,116 @@
  */
 
  /**
- * @name Endpoint#canvas
- * @desc The Endpoint's drawing area
+ * The Endpoint's drawing area
+ * @property canvas
+ * @type {Element}
  */
 
  /**
- * @name Endpoint#connections
- * @desc List of Connections for the Endpoint.
+ * List of Connections for the Endpoint.
+ * @property connections
+ * @type {Array}
  */
 
  /**
- * @name Endpoint#scope
- * @desc Scope descriptor for the Endpoint.
+ * Scope descriptor for the Endpoint.
+ * @property scope
+ * @type {Array|String}
  */
 
-
  /**
- * @name Endpoint#setAnchor
- * @function
- * @param {object} anchorParams Parameters for the anchor
- * @param {boolean} [doNotRepaint = false] Instructs jsPlumb to not repaint after setting the new anchor.
- * @desc Sets the anchor to use for this Endpoint.  `anchorParams` is an object in the same
+ * Sets the anchor to use for this Endpoint.  `anchorParams` is an object in the same
  * form that you would pass as the `anchor` parameter to `jsPlumb.addEndpoint` or `jsPlumb.connect`.
- * @returns {Endpoint} The Endpoint.
+ * @method setAnchor
+ * @param {Object} anchorParams Parameters for the anchor
+ * @param {Boolean} [doNotRepaint = false] Instructs jsPlumb to not repaint after setting the new anchor.
+ * @return {Endpoint} The Endpoint.
  */
 
  /**
- * @name Endpoint#setEndpoint
- * @function
- * @param {Object} ep Parameters for the endpoint
- * @desc Sets the underlying visual representation to use for this Endpoint.  `ep` is an object in the same
+ * Sets the underlying visual representation to use for this Endpoint.  `ep` is an object in the same
  * form that you would pass as the `endpoint` parameter to `jsPlumb.addEndpoint` or `jsPlumb.makeSource`.
+ * @method setEndpoint
+ * @param {Object} ep Parameters for the endpoint
  */
 
  /**
- * @name Endpoint#detachFromConnection
- * @function
+ * Detach from the given Connection, without cleaning up or destroying the Connection.
+ * @method detachFromConnection
  * @param {Connection} connection
- * @description Detach from the given connection, without cleaning up or destroying the connection.
  */
 
  /**
- * @name Endpoint#detach
- * @function
+ * Detach and cleanup a connection. 
+ * @method detach
  * @param {Connection} connection
- * @desc Detach and cleanup a connection. 
  */
 
  /**
- * @name Endpoint#detachAll
- * @function
- * @desc Detach all connections for this endpoint.
- * @param {Boolean} [fireEvent=true] Whether or not to fire an event for each detach.       
+ * Detach all connections for this endpoint.
+ * @method detachAll
+ * @param {Boolean} [fireEvent=true] Whether or not to fire an event for each detach.
  */
 
  /**
- * @name Endpoint#detachFrom
- * @function
- * @desc Detach from the given target endpoint.
- * @param {Endpoint} targetEndpoint Endpoint between which and this Endpoint to detach all connections.
+ * Detach all Connections from this Endpoint to/from the given target endpoint.
+ * @method detachFrom
+ * @param {Endpoint} targetEndpoint Endpoint between which and this Endpoint to detach all Connections.
  * @param {Boolean} [fireEvent=true] Whether or not to fire an event.
  */
 
 /**
-* @name Endpoint#getElement
-* @function
-* @returns {Element} The DOM element this Endpoint is attached to.
+* Gets the Element to which this Endpoint belongs.
+* @method getElement
+* @return {Element} The DOM element this Endpoint is attached to.
 */
 
 /**
-* @name Endpoint#getUuid
-* @function
-* @returns {String} The UUID for this Endpoint, if there is one. Otherwise returns null.
+* Gets the Endpoint's UUID.
+* @method getUuid
+* @return {String} The UUID for this Endpoint, if there is one. Otherwise returns null.
 */
 
 /**
-* @name Endpoint#isEnabled
-* @function
-* @returns {Boolean} True if the Endpoint is enabled for drag/drop connections enabled, false otherwise.
+* @method isEnabled
+* @return {Boolean} True if the Endpoint is enabled for drag/drop connections enabled, false otherwise.
 */
 
 /**
-* @name Endpoint#isFull
-* @function
-* @returns {Boolean} True if the Endpoint cannot accept any more Connections, false otherwise.
+* @method isFull
+* @return {Boolean} True if the Endpoint cannot accept any more Connections, false otherwise.
 */
 
 /**
-* @name Endpoint#isVisible
-* @function
-* @returns {Boolean} Whether or not the Endpoint is currently visible.
+* @method isVisible
+* @return {Boolean} Whether or not the Endpoint is currently visible.
 */ 
 
 /**
-* @name Endpoint#setDragAllowedWhenFull
-* @function
-* @desc Sets whether or not connections can be dragged from this Endpoint once it is full. You would use this in a UI in 
+* Sets whether or not connections can be dragged from this Endpoint once it is full. You would use this in a UI in 
 *   which you're going to provide some other way of breaking connections, if you need to break them at all. This property 
-*   is by default true; use it in conjunction with the 'reattach' option on a connect call.
+*   is by default true; use it in conjunction with the `reattach` option on a connect call.
+* @method setDragAllowedWhenFull
 * @param {Boolean} allowed Whether drag is allowed or not when the Endpoint is full.
 */   
 
 /**
- * @name Endpoint#setElement
- * @function
- * @desc Sets the DOM element this Endpoint is attached to.
+* Sets the DOM element this Endpoint is attached to.
+ * @method setElement
  * @param {String|Selector|Element} el	Element id, DOM element or selector identifying the new element
- * param {String|Selector|Element} [container] Specifies the actual parent element to use as the parent for this Endpoint's visual representation. See the jsPlumb documentation for a discussion about this.
- * @returns {Endpoint} The Endpoint.
+ * @param {String|Selector|Element} [container] Specifies the actual parent element to use as the parent for this Endpoint's visual representation. See the jsPlumb documentation for a discussion about this.
+ * @return {Endpoint} The Endpoint.
  */ 
 
 /**
-* @name Endpoint#setEnabled
-* @function
-* @desc Sets whether or not the Endpoint is enabled for drag/drop connections.
-* @param {Boolean} enabled Whether or not the Endpoint is enabled.			
+* Sets whether or not the Endpoint is enabled for drag/drop connections.
+* @method setEnabled
+* @param {Boolean} enabled Whether or not the Endpoint is enabled.
 */
 
 /**
-* @name Endpoint#setVisible
-* @function
-* @desc Sets whether or not the Endpoint is currently visible.
+* Sets whether or not the Endpoint is currently visible.
+* @method setVisible
 * @param {Boolean} visible Whether or not the Endpoint should be visible.
 * @param {Boolean} [doNotChangeConnections=false] Instructs jsPlumb to not pass the visible state on to any attached Connections.
 * @param {Boolean} [doNotNotifyOtherEndpoint=false] Instructs jsPlumb to not pass the visible state on to Endpoints at the other end of any attached Connections.
@@ -176,23 +160,16 @@
 
 
 /**
-* @namespace jsPlumb.Endpoints
-* @desc Parent for all Endpoint types. When you provide an Endpoint definition to an appropriate jsPlumb method,
-* you can do so either as a string, or as an array of the form `[String, Object]`.  In the former case, the string
-* must be one of the members from this namespace, such as `"Dot"` or `"Rectangle"`. In the latter case,
-* the first argument to the array is the Endpoint name, and the second is a JS object containing 
-* constructor parameters for the Endpoint, for instance
-*
-* 
-*    `[ "Dot", { radius:75 } ]`
-*
-*
-* Valid values for the constructor parameters for each Endpoint type are given below.
+* Does not draw anything visible to the user. This Endpoint is probably not what you want if you need your users to be able to drag existing Connections - for that, use a Rectangle or Dot Endpoint and assign to it a CSS class that causes it to be transparent.
+* @class Endpoints.Blank
+* @extends Endpoint
 */
 
 /**
-* @name jsPlumb.Endpoints.Dot
-* @desc A circular Endpoint.
+* A circular Endpoint with configurable radius.
+* @class Endpoints.Dot
+* @extends Endpoint
+* @constructor
 * @param {Object} params Constructor parameters
 * @param {Integer} [params.radius=10] Radius of the Endpoint
 * @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
@@ -200,8 +177,10 @@
 */
 
 /**
-* @name jsPlumb.Endpoints.Rectangle
-* @desc A rectangular Endpoint.
+* A rectangular Endpoint with configurable width/height.
+* @class Endpoints.Rectangle
+* @extends Endpoint
+* @constructor
 * @param {Object} params Constructor parameters
 * @param {Integer} [params.width=20] Width of the Endpoint
 * @param {Integer} [params.height=20] Height of the Endpoint
@@ -210,48 +189,13 @@
 */
 
 /**
-* @name jsPlumb.Endpoints.Image
-* @desc An Image Endpoint.
+* An Endpoint that uses an Image.
+* @class Endpoints.Image
+* @extends Endpoint
+* @constructor
 * @param {Object} params Constructor parameters
 * @param {Integer} params.src Url of the image to display
 * @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
 * @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
 */
-
-/**
-* @name jsPlumb.Endpoints.Blank
-* @desc Does not draw anything visible to the user. This Endpoint is probably not what you want if you need your users to be able to drag existing Connections - for that, use a Rectangle or Dot Endpoint and assign to it a CSS class that causes it to be transparent.
-*/
-
-/**
-* @name jsPlumb.Endpoints.Dot
-* @constructor
-* @function
-* @param {Object} params Constructor parameters
-* @param {Integer} [params.radius=10] Radius of the Endpoint
-* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
-* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
-*/
-
-/**
-* @name jsPlumb.Endpoints.Rectangle
-* @constructor
-* @function
-* @param {Object} params Constructor parameters
-* @param {Integer} [params.width=20] Width of the Endpoint
-* @param {Integer} [params.height=20] Height of the Endpoint
-* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
-* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
-*/
-
-/**
-* @name jsPlumb.Endpoints.Image
-* @constructor
-* @function
-* @param {Object} params Constructor parameters
-* @param {Integer} params.src Url of the image to display
-* @param {String} [params.cssClass] Optional space-delimited list of CSS classes to attach to the Endpoint.
-* @param {String} [params.hoverClass] Optional space-delimited list of CSS classes to attach to the Endpoint when the mouse is hovering over it.
-*/
-
 

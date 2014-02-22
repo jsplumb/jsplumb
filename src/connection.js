@@ -64,14 +64,10 @@
     jsPlumb.Connection = function(params) {
         var _newConnection = params.newConnection,
             _newEndpoint = params.newEndpoint,
-            jpcl = jsPlumb.CurrentLibrary,
-            _att = jpcl.getAttribute,
-            _gel = jpcl.getElementObject,
-            _dom = jpcl.getDOMElement,
-            _ju = jsPlumbUtil,
-            _getOffset = jpcl.getOffset;
+            _gel = jsPlumb.getElementObject,
+            _ju = jsPlumbUtil;
 
-        this.connector = null;                        
+        this.connector = null;
         this.idPrefix = "_jsplumb_c_";
         this.defaultLabelLocation = 0.5;
         this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
@@ -80,8 +76,8 @@
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
         this.previousConnection = params.previousConnection;
-        this.source = _dom(params.source);
-        this.target = _dom(params.target);
+        this.source = jsPlumb.getDOMElement(params.source);
+        this.target = jsPlumb.getDOMElement(params.target);
         // sourceEndpoint and targetEndpoint override source/target, if they are present. but 
         // source is not overridden if the Endpoint has declared it is not the final target of a connection;
         // instead we use the source that the Endpoint declares will be the final source element.
@@ -231,7 +227,7 @@
                   
         // the very last thing we do is apply types, if there are any.
         var _types = [params.type, this.endpoints[0].connectionType, this.endpoints[1].connectionType ].join(" ");
-        if (/[a-zA-Z]/.test(_types))
+        if (/[^\s]/.test(_types))
             this.addType(_types, params.data, true);        
 
         
@@ -273,48 +269,11 @@
         isVisible : function() { return this._jsPlumb.visible; },
         setVisible : function(v) {
             this._jsPlumb.visible = v;
-            //this[v ? "showOverlays" : "hideOverlays"]();
             if (this.connector) 
                 this.connector.setVisible(v);
             this.repaint();
         },
-
-        /* TODO move to connecto editors; it should put these on the prototype.
-
-        setEditable : function(e) {
-            if (this.connector && this.connector.isEditable())
-                this._jsPlumb.editable = e;
-            
-            return this._jsPlumb.editable;
-        },
-        isEditable : function() { return this._jsPlumb.editable; },
-        editStarted : function() {  
-            this.setSuspendEvents(true);
-            this.fire("editStarted", {
-                path:this.connector.getPath()
-            });            
-            this._jsPlumb.instance.setHoverSuspended(true);
-        },
-        editCompleted : function() {            
-            this.fire("editCompleted", {
-                path:this.connector.getPath()
-            });       
-            this.setSuspendEvents(false);
-            this.setHover(false);     
-            this._jsPlumb.instance.setHoverSuspended(false);
-        },
-        editCanceled : function() {
-            this.fire("editCanceled", {
-                path:this.connector.getPath()
-            });
-            this.setHover(false);
-            this._jsPlumb.instance.setHoverSuspended(false);
-        },
-
-*/
-
         cleanup:function() {
-            //this.endpointsToDeleteOnDetach = null;
             this.endpoints = null;
             this.source = null;
             this.target = null;                    
@@ -339,8 +298,8 @@
         setHover : function(state) {
             if (this.connector && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged()) {
                 this.connector.setHover(state);
-                jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
-                jsPlumb.CurrentLibrary[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
+                jsPlumbAdapter[state ? "addClass" : "removeClass"](this.source, this._jsPlumb.instance.hoverSourceClass);
+                jsPlumbAdapter[state ? "addClass" : "removeClass"](this.target, this._jsPlumb.instance.hoverTargetClass);
             }
         },
         getCost : function() { return this._jsPlumb.cost; },
@@ -351,18 +310,18 @@
         //
         // TODO ensure moveParent method still works (the overlay stuff in particular)
         moveParent : function(newParent) {
-            var jpcl = jsPlumb.CurrentLibrary, curParent = jpcl.getParent(this.connector.canvas);               
+            var curParent = jsPlumb.getParent(this.connector.canvas);               
             if (this.connector.bgCanvas) {
-                jpcl.removeElement(this.connector.bgCanvas);
-                jpcl.appendElement(this.connector.bgCanvas, newParent);
+                this._jsPlumb.instance.removeElement(this.connector.bgCanvas);
+                newParent.appendChild(this.connector.bgCanvas);
             }
-            jpcl.removeElement(this.connector.canvas);
-            jpcl.appendElement(this.connector.canvas, newParent);                
+            this._jsPlumb.instance.removeElement(this.connector.canvas);
+            newParent.appendChild(this.connector.canvas);
             // this only applies for DOMOverlays
             for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
                 if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    jpcl.removeElement(this._jsPlumb.overlays[i].canvas);
-                    jpcl.appendElement(this._jsPlumb.overlays[i].canvas, newParent);
+                    this._jsPlumb.instance.removeElement(this._jsPlumb.overlays[i].canvas);
+                    newParent.appendChild(this._jsPlumb.overlays[i].canvas);
                     if (this._jsPlumb.overlays[i].reattachListeners) 
                         this._jsPlumb.overlays[i].reattachListeners(this.connector);
                 }

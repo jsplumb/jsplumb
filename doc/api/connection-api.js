@@ -1,20 +1,18 @@
 /**
- * @name Connection 
+* Models a Connection.  A Connection consists of two Endpoints (each of which belongs to some DOM element), a Connector (the actual path inscribed by the
+* Connection), and zero or more Overlays.
+ * @class Connection 
  * @extends OverlayCapableJsPlumbUIComponent
- * @class
- * @classdesc Models a connection.
  */
 
 
  /**
-  * @name Connection#Connection
-  * @constructor
-  * @function
-  * @desc Connection constructor. You should not ever create one of these directly. If you make a call to jsPlumb.connect, all of
+ * Connection constructor. You should not ever create one of these directly. If you make a call to jsPlumb.connect, all of
   * the parameters that you pass in to that function will be passed to the Connection constructor; if your UI
   * uses the various Endpoint-centric methods like addEndpoint/makeSource/makeTarget, along with drag and drop,
   * then the parameters you set on those functions are translated and passed in to the Connection constructor. So
   * you should check the documentation for each of those methods.
+  * @constructor
   * @param {Object} params Constructor parameters 
   * @param {String|Element|Selector|Endpoint} [params.source] Either an element id, a selector for an element, or an Endpoint.
   * @param {String|Element|Selector|Endpoint} [params.target] Either an element id, a selector for an element, or an Endpoint
@@ -36,100 +34,103 @@
   */ 
 
   /**
-  * @name Connection#sourceId
-  * @desc ID of the source element.
+  * ID of the source element.
+  * @property sourceId
+  * @type {String} 
   */
 
   /**
-  * @name Connection#targetId
-  * @desc ID of the target element.
+  * ID of the target element.
+  * @property targetId
+  * @type {String}
   */
 
   /**
-  * @name Connection#scope
-  * @desc Scope descriptor for the Connection.
+  * Scope descriptor for the Connection.
+  * @property scope
+  * @type {String}
+  * @default "_jsPlumb_Default_Scope"
   */
 
   /**
-  * @name Connection#source
-  * @desc Source element in the Connection.
+  * Source element in the Connection.
+  * @property source
+  * @type {Element}
   */
 
   /**
-  * @name Connection#target
-  * @desc Target element in the Connection..
+  * Target element in the Connection.
+  * @property target
+  * @type {Element}
   */
+
+  /**
+  * Array of Endpoints.
+  * @property endpoints
+  * @type {Endpoint[]}
+  */
+
 
 /**
-* @name Connection#getConnector
-* @function
-* @desc Gets the underlying Connector for this Connection (eg. a Bezier connector, straight line connector, flowchart connector etc)
-* @returns {Connector} The current Connector.
+* Gets the underlying Connector for this Connection. A Connector is the path the user sees between the two Endpoints.
+* @method getConnector
+* @return {Connector} The current Connector.
 */
 
 /**
-* @name Connection#isDetachable
-* @function
-* @desc Returns whether or not this connection can be detached from its target/source endpoint.  By default this
+* Returns whether or not this Connection can be detached from its target/source endpoint.  By default this
 * is false; use it in conjunction with the `reattach` parameter.
-* @returns {Boolean} True if can be detached, false otherwise.
+* @method isDetachable
+* @return {Boolean} True if can be detached, false otherwise.
 */
 
 /**
-* @name Connection#isEditable
-* @function
-* @desc Returns whether or not the Connection is editable.
-* @returns {Boolean} True if editable, false if not.
+* Returns whether or not the Connection is editable.
+* @method isEditable
+* @return {Boolean} True if editable, false if not.
 */
 
 /**
-* @name Connection#isReattach
-* @function
-* @desc Returns whether or not this connection will be reattached after having been detached via the mouse and dropped.  by default this
-* is false; use it in conjunction with the 'detachable' parameter.
-* @returns {Boolean} True if will reattach, false if not.
+* Returns whether or not this Connection will be reattached after having been detached via the mouse and dropped.  By default this
+* is false; use it in conjunction with the `detachable` parameter.
+* @method isReattach
+* @return {Boolean} True if will reattach, false if not.
 */
 
 /**
-* @name Connection#isVisible
-* @function
-* @desc Returns whether or not the Connection is currently visible.
-* @returns True if visible, false if not.
+* Returns whether or not the Connection is currently visible.
+* @method isVisible
+* @return {Boolean} True if visible, false if not.
 */
 
 /**
-* @name Connection#setConnector
-* @function
-* @desc Sets the Connection's connector (eg `Bezier`, `Flowchart`, etc).  You pass a Connector definition into this method, the same
+* Sets the Connection's connector (eg `Bezier`, `Flowchart`, etc).  You pass a Connector definition into this method, the same
 * thing that you would set as the `connector` property on a `jsPlumb.connect` call.
+* @method setConnector
 * @param {String|Object} connector Connector definition. See jsPlumb documentation for a discussion.
 */   
 
 /**
-* @name Connection#setDetachable
-* @function
-* @desc Sets whether or not this connection is detachable.
+* Sets whether or not this connection is detachable.
+* @method setDetachable
 * @param {Boolean} detachable Whether or not to set the Connection to be detachable.
 */
 
 /**
-* @name Connection#setEditable
-* @function
-* @desc Sets whether or not the Connection is editable. This will only be honoured if
+* Sets whether or not the Connection is editable. This will only be honoured if
 * the underlying Connector is editable - not all types are.
-* @param {Boolean} editable Whether or not to set the Connection to be editable
+* @method setEditable
+* @param {Boolean} editable Whether or not to set the Connection to be editable.
 */
 
 /**
-* @name Connection#setReattach
-* @function
-* @desc Sets whether or not this connection will reattach after having been detached via the mouse and dropped.
-* @param {Boolean} reattach	Whether or not to set the Connection to reattach after drop in whitespace.
+* Sets whether or not this connection will reattach after having been detached via the mouse and dropped.
+* @method setReattach
+* @param {Boolean} reattach	Whether or not to set the Connection to reattach after it has been dropped in whitespace.
 */
 
 /**
-* @name Connection#setVisible
-* @function
-* @desc Sets whether or not the Connection should be visible.
+* Sets whether or not the Connection should be visible.
+* @method setVisible
 * @param {Boolean} visible Boolean indicating desired visible state.
 */

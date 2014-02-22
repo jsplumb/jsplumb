@@ -1,8 +1,9 @@
 {
   "name": "jsPlumb",
-  "version": "1.5.5",
+  "version": "1.6.0",
   "description": "pipe up your life",
   "main": "index.js",
+  "jsPlumbWiki": "../jsPlumb.wiki",
   "directories": {
     "doc": "doc",
     "test": "tests"
@@ -28,12 +29,8 @@
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-qunit": "~0.2.2",
     "grunt-contrib-jshint": "~0.6.2",
-    "grunt-docular": "~0.1.1",
-    "grunt-regex-replace": "~0.2.5",
-    "grunt-markdown": "~0.3.0",
     "grunt-contrib-clean": "~0.5.0",
-    "jsdoc": "git://github.com/sporritt/jsdoc.git",
-    "grunt-jsdoc": "~0.4.0",
-    "grunt-contrib-watch": "~0.5.3"
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-jekyll": "~0.4.1"
   }
 }

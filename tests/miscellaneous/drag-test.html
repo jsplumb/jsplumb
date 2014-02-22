@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+    
+    <head>
+        <script src="src/simple-event-bind.js"></script>
+        <script src="src/katavorio-0.1.js"></script>
+        <style>
+            .w {
+                position:absolute;width:50px;height:50px;border:1px solid black;
+                font-size:12px;
+                border-radius:5px;
+                text-align:center;
+            }
+            #parentConstrain, #constrainBySelector {
+                width:700px;
+                height:500px;
+                border:2px solid red;
+                position:relative;
+            }
+            
+            #one, #eleven { top:50px;left:50px; }
+            #two, #twelve { top:350px;left:350px; }
+            #three, #thirteen { top:50px; left:300px; }
+            #four, #fourteen { top: 300px; left:70px; }
+            #five { top:450px; left:250px; }
+            #six { top:250px; left:450px; }
+            #seven { left:720px; top:0px;}
+            #eight { left:790px; top:60px;}
+            #nine { left:920px; top:10px;}
+            #ten { left:820px; top:200px;}
+            
+            .jsplumb-drag {
+                background-color:#999;
+                color:white;
+            }
+            .jsplumb-drag-active {
+                border:3px solid green;
+            }
+            .jsplumb-drag-hover {
+                background:#E77;
+                color:whitesmoke
+            }
+        </style>
+    </head>
+    <body onload="init();">
+    
+        <div id="parentConstrain">
+            CONSTRAINED TO PARENT
+            <div class="w" id="one" scope="FOO BAR" drag constrain="parent">FOO BAR <strong>DRAG</strong></div>
+            <div class="w" id="two" scope="BAR BAZ" drop>BAR BAZ <strong>DROP</strong></div>
+            <div class="w" id="three" scope="BAZ" drop>BAZ <strong>DROP</strong></div>
+            <div class="w" id="four" scope="BAZ" drag constrain="parent">BAZ <strong>DRAG</strong></div>
+            <div class="w" id="five" scope="FOO BAR BAZ" drag>FOO BAR BAZ <strong>DRAG</strong></div>
+            <div class="w" id="six" scope="FOO" drop>FOO<strong>DROP</strong></div>
+       </div>
+    
+        <div class="w free" id="seven" scope="FOO QUX" drag>FOO QUX<strong>DRAG</strong></div>
+        <div class="w free" id="eight" scope="QUX" drop>QUX <strong>DROP</strong></div>
+        <div class="w free" id="nine" scope="POO QUX" drag>POO QUX<strong>DRAG</strong></div>
+        <div class="w free" id="ten" scope="POO" drop>POO <strong>DROP</strong></div>
+        
+        <div id="constrainBySelector">
+            <div class="w" id="eleven" scope="FOO QUX" drag>FOO QUX<strong>DRAG</strong></div>
+            <div class="w" id="twelve" scope="QUX" drop>QUX <strong>DROP</strong></div>
+            <div class="w" id="thirteen" scope="POO QUX" drag>POO QUX<strong>DRAG</strong></div>
+            <div class="w" id="fourteen" scope="POO" drop>POO <strong>DROP</strong></div>
+        </div>
+    
+        <script>
+            function init() {
+                var seh = new SimpleEventHelper();
+                var k = window.k = new Katavorio({
+                    getPosition:function(el) {
+                        return [ el.offsetLeft, el.offsetTop ];
+                    },
+                    setPosition:function(el, p) {
+                        el.style.left = p[0] + "px";
+                        el.style.top = p[1] + "px";
+                    },
+                    getSize:function(el) {
+                        return [ el.offsetWidth, el.offsetHeight ];
+                    },
+                    addClass:function(el, c) { el.classList.add(c) },
+                    removeClass:function(el, c) { el.classList.remove(c); },
+                    bind:seh.addEvent,
+                    unbind:ta.seh.removeEvent,
+                    fireEvent:function() { /*console.log(arguments);*/ }
+                });
+              
+                var w = document.querySelectorAll(".w");
+                for (var i = 0; i < w.length; i++) {
+                    var method = w[i].getAttribute("drag") != null ? "draggable" : "droppable";                        
+                    k[method](w[i], {
+                        scope:w[i].getAttribute("scope"),
+                        // note that the 'constrain' attribute means nothing
+                        // to a droppable, but neither does it matter if we 
+                        // supply it, so to save on code that's what i'm doing.
+                        constrain:w[i].getAttribute("constrain")
+                    });
+                }
+            }
+        </script>
+        
+    </body>
+    
+</html>    

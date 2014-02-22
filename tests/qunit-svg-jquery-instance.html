@@ -14,9 +14,9 @@
 			
 	<!-- JS -->
 	<!-- support lib for bezier stuff -->
-	<script src="../lib/jsBezier-0.6.js"></script> 
-	<!-- jsplumb geom functions -->   
-	<script src="../lib/jsplumb-geom-0.1.js"></script>       
+	<script src="../lib/jsBezier-0.6.js"></script>   
+	<!-- geom functions -->   
+	<script src="../lib/biltong-0.2.js"></script>     
 	<!-- jsplumb util -->
 	<script src="../src/util.js"></script>
     <!-- base DOM adapter -->
@@ -31,6 +31,8 @@
 	<script src="../src/anchors.js"></script>        
 	<!-- connectors, endpoint and overlays  -->
 	<script src="../src/defaults.js"></script>
+	<!-- bezier connectors -->
+	<script src="../src/connectors-bezier.js"></script>
 	<!-- state machine connectors -->
 	<script src="../src/connectors-statemachine.js"></script>
     <!-- flowchart connectors -->
@@ -47,7 +49,8 @@
 	<!-- /JS -->
 			
 	<!-- TEST -->
-	<script type="text/javascript" src="jsPlumb-tests.js"></script>
+	<script src="jsPlumb-tests.js"></script>
+	<script src="test-support-jquery.js"></script>
 	<!-- /TEST -->
 	
 </head>
@@ -58,7 +61,7 @@
 	<ol id="qunit-tests"></ol>
 	
 	<script type="text/javascript">
-	$(document).ready(function() {				
+	jsPlumb.ready(function() {				
 		testSuite(jsPlumb.SVG, jsPlumb.getInstance());
 	});
 	

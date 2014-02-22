@@ -1,0 +1,40 @@
+{% comment %}
+
+	Template for unit test pages.  The gruntfile creates markdown files that consist solely of
+front matter, with the library id and renderer id specified - it's all this page needs, because
+the unit test code is library-agnostic.
+
+These pages are rendered inside an iframe in another page that contains the full layout.
+
+{% endcomment %}
+<!doctype html>
+<html>
+	<head>
+	<link rel="shortcut icon" type="image/png" href="{{page.base}}/img/favicon.png">
+		{% include css.html %}
+		<link rel="stylesheet" href="qunit-1.11.0.css">
+		<script src="qunit-1.11.0.js"></script>
+	
+		{% assign libimport='' %}
+		{% capture libimport %}{{page.library}}.jsplumb.html{% endcapture %}
+		{% include {{libimport}} %}
+				
+		<!-- TEST -->
+		<script src="jsPlumb-tests.js"></script>
+		<script src="test-support-{{page.library}}.js"></script>
+		<!-- /TEST -->
+		
+	</head>
+	<body class="test">
+		<h2 id="qunit-banner"></h2>
+		<div id="qunit-testrunner-toolbar"></div>
+		<h2 id="qunit-userAgent"></h2>
+		<ol id="qunit-tests"></ol>
+
+		<script type="text/javascript">
+		jsPlumb.ready(function() {
+			testSuite("{{page.renderer}}", jsPlumb.getInstance());
+		});
+		</script>
+	</body>
+</html>

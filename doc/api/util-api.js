@@ -1,112 +1,115 @@
 /**
-* @name jsPlumbUtil
-* @class
-* @classdesc A set of helper methods for use by jsPlumb.
+* A set of helper methods for use by jsPlumb.
+* @class jsPlumbUtil
+* @static
 */
 
 /** 
 * Returns whether the given object is an Array. 
-* @name jsPlumbUtil.isArray
-* @function
+* @method isArray
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is an Array, false otherwise.
 */
 
 /** 
 * Returns whether the given object is a String. 
-* @name jsPlumbUtil.isString
-* @function
+* @method isString
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is a String, false otherwise.
 */
 
 /** 
 * Returns whether the given object is a Boolean. 
-* @name jsPlumbUtil.isBoolean
-* @function
+* @method isBoolean
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is a Boolean, false otherwise.
 */
 
 /** 
 * Returns whether the given object is null. 
-* @name jsPlumbUtil.isNull
-* @function
+* @method isNull
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is null, false otherwise.
 */
 
 /** 
 * Returns whether the given object is an Object. 
-* @name jsPlumbUtil.isObject
-* @function
+* @method isObject
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is an Object, false otherwise.
 */
 /** 
 * Returns whether the given object is a Date. 
-* @name jsPlumbUtil.isDate
-* @function
+* @method isDate
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is a Date, false otherwise.
 */
 /** 
 * Returns whether the given object is a Function. 
-* @name jsPlumbUtil.isFunction
-* @function
+* @method isFunction
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is a Function, false otherwise.
 */
 /** 
 * Returns whether the given object (an Object or Array) is empty. 
-* @name jsPlumbUtil.isEmpty
-* @function
+* @method isEmpty
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is empty, false otherwise.
 */
 /** 
 * Returns whether the given object is a Number. 
-* @name jsPlumbUtil.isNumber
-* @function
+* @method isNumber
+* @static
+* @param {Object} obj Object to test
+* @return {Boolean} True if the object is a Number, false otherwise.
 */
 
 /**
-* @name jsPlumbUtil.perpendicularLineTo
-* @function
-* @desc calculates a perpendicular to the line fromPoint->toPoint, that passes through toPoint and is 'length' long.
-* @param fromPoint
-* @param toPoint
-* @param length
-*/
-
-/**
- * @name jsPlumbUtil.EventGenerator 
- * @class
- * @classdesc Provides event bind/fire functionality.
+ * Provides event bind/fire functionality.
+ * @class jsPlumbUtil.EventGenerator 
  */
 
- /**
-  * @name jsPlumbUtil.EventGenerator#bind
-  * @function
-  * @description Binds a listener to an event.  
-  * @param {String} event Name of the event to bind to.
-  * @param {Function} listener Function to execute.
-  * @param {Boolean} [insertAtStart=false] Whether or not to insert this listener at the start of the listener list, so it is fired before the other currently registered listeners.
-  */
+/**
+ * Binds a listener to an event.
+ * @method bind
+ * @param {String} event Name of the event to bind to.
+ * @param {Function} listener Function to execute.
+ * @param {Boolean} [insertAtStart=false] Whether or not to insert this listener at the start of the listener list, so it is fired before the other currently registered listeners.
+ */
 
   /**
-   * @name jsPlumbUtil.EventGenerator#fire
-   * @function
+   * Fires an update for the given event.
+   * @method fire
    * @private
-   * @description Fires an update for the given event.
    * @param {String} event Event to fire
    * @param {Object} value Value to pass to the event listener(s).
    * @param {Event} originalEvent The original event from the browser
    */
 
    /**
-   * @name jsPlumbUtil.EventGenerator#unbind
-   * @function
-   * @description Clears either all listeners, or listeners for some specific event.
-   * @param {String} [event] Optional. constrains the clear to just listeners for this event.
+   * Clears either all listeners, or listeners for some specific event.
+   * @method unbind
+   * @param {String} [event] Constrains the clear to just listeners for this event.
    */
    /**
-   * @name jsPlumbUtil.EventGenerator#setSuspendEvents
-   * @function
+   * Sets whether or not events are suspended.
+   * @method setSuspendEvents
    * @param {Boolean} val Whether or not to suspend events.
-   * @desc Sets whether or not events are suspended.
    */
    /**
-   * @name jsPlumbUtil.EventGenerator#isSuspendEvents        
-   * @function
-   * @returns {Boolean} True if events are suspended, false otherwise.
+   * Checks whether or not events are currently suspended.
+   * @method isSuspendEvents
+   * @return {Boolean} True if events are suspended, false otherwise.
    */
    /**
-   * @name jsPlumbUtil.EventGenerator#cleanupListeners
-   * @function
-   * @desc Removes all listeners.
+   * Removes all listeners.
+   * @method cleanupListeners
    */

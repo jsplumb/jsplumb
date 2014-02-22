@@ -1,123 +1,131 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-	<head>
-		<title>jsPlumb Documentation - </title>
-		<link rel="stylesheet" href="demo-all.css">
-		<link rel="stylesheet" href="gollum-template.css">		
-	</head>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" type="image/png" href="../img/favicon.png">
+        <title></title>
 
-	<body>
-		<div id="headerWrapper">
-			<div id="header">
-				<div class="logo"><img src="../../logo-bw.png"></div>
-				<div class="menu">
-					<a href="home">DOCS</a>
-					<a href="../demo/">DEMOS</a>
-					<a href="../apidocs">API</a>
-					<a href="../tests/all-tests.html">TESTS</a>
-					<a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
-					<a href="http://github.com/sporritt/jsPlumb/">GITHUB</a>
-					<a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
-					<a href="http://github.com/sporritt/jsPlumb/issues">ISSUES</a>
-				</div>
-			</div>
-		</div>	
-		
-		<div id="main">
-			<div class="nav">
-				<!-- BODY -->
-				<h3>Contents</h3>
+        
+
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/jsplumb.css">
+        <link rel="stylesheet" href="../css/jsplumb-doc.css">
+    </head>
+    <body>
+        <div id="headerWrapper">
+    <div id="header">
+        <div class="logo"><img src="http://jsplumbtoolkit.com/logo-bw.png"></div>
+        <div class="menu">   
+            <a href="../demo">DEMOS</a>
+            <a href="../doc/home.html">DOCS</a>                    
+            <a href="../apidocs">API</a>
+            <a href="../tests/index.html">TESTS</a>
+            <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
+            <a href="../blog">BLOG</a>
+            <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
+            <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
+            <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
+        </div>
+    </div>
+</div> 
+
+        <div class="main">
+            <div class="nav">
+                <h3>Contents</h3>
 <ul>
-<li><a href="changelog">Changelog</a></li>
+<li><a href="changelog.html">Changelog</a></li>
 <li>Required imports and basic setup<ul>
-<li><a href="home#browser">Browser Compatibility</a></li>
-<li><a href="home#setup">Setup</a></li>
-<li><a href="home#doctype">Doctype</a></li>
-<li><a href="home#imports">Required Imports</a></li>
-<li><a href="home#initializing">Initializing jsPlumb</a></li>
-<li><a href="home#multiple">Multiple jsPlumb Instances</a></li>
-<li><a href="home#zindex">Z-Index Considerations</a></li>
-<li><a href="home#container">Where does jsPlumb add elements?</a></li>
-<li><a href="home#dragging">Element Dragging</a></li>
-<li><a href="home#performance">Performance</a></li>
-<li><a href="zooming">Zooming</a></li>
+<li><a href="home.html#browser">Browser Compatibility</a></li>
+<li><a href="home.html#setup">Setup</a></li>
+<li><a href="home.html#doctype">Doctype</a></li>
+<li><a href="home.html#imports">Required Imports</a></li>
+<li><a href="home.html#initializing">Initializing jsPlumb</a></li>
+<li><a href="home.html#multiple">Multiple jsPlumb Instances</a></li>
+<li><a href="home.html#zindex">Z-Index Considerations</a></li>
+<li><a href="home.html#container">Where does jsPlumb add elements?</a></li>
+<li><a href="home.html#dragging">Element Dragging</a></li>
+<li><a href="home.html#performance">Performance</a></li>
+<li><a href="zooming.html">Zooming</a></li>
 </ul>
 </li>
-<li><a href="defaults">Configuring Defaults</a></li>
-<li><a href="basic-concepts">Basic Concepts</a><ul>
-<li><a href="anchors">Anchors</a></li>
-<li><a href="connectors">Connectors</a></li>
-<li><a href="endpoints">Endpoints</a></li>
-<li><a href="overlays">Overlays</a></li>
+<li><a href="defaults.html">Configuring Defaults</a></li>
+<li><a href="basic-concepts.html">Basic Concepts</a><ul>
+<li><a href="anchors.html">Anchors</a></li>
+<li><a href="connectors.html">Connectors</a></li>
+<li><a href="endpoints.html">Endpoints</a></li>
+<li><a href="overlays.html">Overlays</a></li>
 </ul>
 </li>
-<li><a href="connections">Establishing Connections</a><ul>
-<li><a href="connections#programmatic">Programmatic Connections</a></li>
-<li><a href="connections#common">Reusing Common Settings</a></li>
-<li><a href="connections#detaching">Detaching Programmatic Connections</a></li>
-<li><a href="connections#draganddrop">Drag and Drop Connections</a></li>
-<li><a href="connections#sourcesandtargets">Elements as sources &amp; targets</a></li>
-<li><a href="connections#maketarget">Element Targets</a></li>
-<li><a href="connections#makesource">Element Sources</a></li>
-<li><a href="connections#sourcefilter">Specifying drag source area</a></li>
+<li><a href="connections.html">Establishing Connections</a><ul>
+<li><a href="connections.html#programmatic">Programmatic Connections</a></li>
+<li><a href="connections.html#common">Reusing Common Settings</a></li>
+<li><a href="connections.html#detaching">Detaching Programmatic Connections</a></li>
+<li><a href="connections.html#draganddrop">Drag and Drop Connections</a></li>
+<li><a href="connections.html#sourcesandtargets">Elements as sources &amp; targets</a></li>
+<li><a href="connections.html#maketarget">Element Targets</a></li>
+<li><a href="connections.html#makesource">Element Sources</a></li>
+<li><a href="connections.html#sourcefilter">Specifying drag source area</a></li>
 </ul>
 </li>
-<li><a href="removing">Removing Connections/Endpoints</a></li>
-<li><a href="parameters">Connection &amp; Endpoint Parameters</a></li>
-<li><a href="types">Connection &amp; Endpoint Types</a></li>
-<li><a href="events">Events</a><ul>
-<li><a href="interceptors">Interceptors</a></li>
+<li><a href="removing.html">Removing Connections/Endpoints</a></li>
+<li><a href="parameters.html">Connection &amp; Endpoint Parameters</a></li>
+<li><a href="types.html">Connection &amp; Endpoint Types</a></li>
+<li><a href="events.html">Events</a><ul>
+<li><a href="interceptors.html">Interceptors</a></li>
 </ul>
 </li>
 <li>Appearance<ul>
-<li><a href="paint-styles">Styling via Paint Styles</a></li>
-<li><a href="styling-via-css">Styling via CSS</a></li>
+<li><a href="paint-styles.html">Styling via Paint Styles</a></li>
+<li><a href="styling-via-css.html">Styling via CSS</a></li>
 </ul>
 </li>
-<li><a href="querying">Querying jsPlumb</a></li>
-<li><a href="animation">Animation</a></li>
-<li><a href="utilities">Utility Functions</a></li>
-<li><a href="loader-support">Loader Support (RequireJS)</a></li>
+<li><a href="querying.html">Querying jsPlumb</a></li>
+<li><a href="animation.html">Animation</a></li>
+<li><a href="utilities.html">Utility Functions</a></li>
+<li><a href="loader-support.html">Loader Support (RequireJS)</a></li>
 <li>Examples<ul>
-<li><a href="connect-examples">jsPlumb.connect</a></li>
-<li><a href="draggable-connections-examples">Draggable Connections</a></li>
-<li><a href="miscellaneous-examples">Miscellaneous</a></li>
+<li><a href="connect-examples.html">jsPlumb.connect</a></li>
+<li><a href="draggable-connections-examples.html">Draggable Connections</a></li>
+<li><a href="miscellaneous-examples.html">Miscellaneous</a></li>
 </ul>
 </li>
 <li>Development<ul>
-<li><a href="development">Which files are which?</a></li>
-<li><a href="Build">Building jsPlumb</a></li>
-<li><a href="development-documentation">Documentation while developing</a></li>
+<li><a href="development.html">Which files are which?</a></li>
+<li><a href="Build.html">Building jsPlumb</a></li>
+<li><a href="development-documentation.html">Documentation while developing</a></li>
 </ul>
 </li>
 </ul>
+            </div>
+            <div class="markdown-body">
+                <h3>Boilerplate</h3>
 
-				<!-- /BODY -->
-			</div>
-			<div class="markdown-body">
-				<!-- BODY -->
-				<h3>Boilerplate</h3>
 <p>Here&#39;s a simple page that you can copy in order to get going.  A few basic things are illustrated here:</p>
+
 <ul>
 <li>Nodes (with class <strong>w</strong>) are positioned absolute.</li>
-<li>CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of <strong>_jsPlumb_connector</strong>). In this case, nodes are placed above connectors.</li>
+<li>CSS is used to set the z-index of nodes and of jsPlumb connectors (which have a class of <strong><em>jsPlumb</em>connector</strong>). In this case, nodes are placed above connectors.</li>
 <li>You should use <code>jsPlumb.ready</code> to wrap your initial access to jsPlumb.</li>
 <li>A listener is bound to the <code>connection</code> event on jsPlumb.</li>
 </ul>
-<p>-
-      &lt;!doctype html&gt;
-      <html>
-        <head>
-            <title>jsPlumb simple example</title>
-            <style type="text/css">
-                .w { 
-                    border:1px solid #456;
-                    position:absolute;
-                    width:60px;
-                    height:60px;
-                    z-index:10;
-                 }</p>
-<pre><code>             ._jsPlumb_connector { 
+
+<h2></h2>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">  &lt;!doctype html&gt;
+  &lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;jsPlumb simple example&lt;/title&gt;
+        &lt;style type=&quot;text/css&quot;&gt;
+            .w { 
+                border:1px solid #456;
+                position:absolute;
+                width:60px;
+                height:60px;
+                z-index:10;
+             }
+
+             ._jsPlumb_connector { 
                  z-index:9;
              }
 
@@ -154,12 +162,27 @@
             });
         &lt;/script&gt;
     &lt;/body&gt;
-&lt;/html&gt;</code></pre>
+&lt;/html&gt;
+</code></pre></div>
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+var sc_project=9535223; 
+var sc_invisible=1; 
+var sc_security="4906ec12"; 
+var scJsHost = (("https:" == document.location.protocol) ?
+"https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost+
+"statcounter.com/counter/counter.js'></"+"script>");
+</script>
+<noscript><div class="statcounter"><a title="free hit
+counter" href="http://statcounter.com/free-hit-counter/"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/9535223/0/4906ec12/1/"
+alt="free hit counter"></a></div></noscript>
 
-				<!-- /BODY -->
-			</div>					
-		</div>
 
-	</body>		
-
+    </body>
 </html>

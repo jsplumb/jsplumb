@@ -1,56 +1,39 @@
-/**
 
-    By default, jsPlumb's build incudes all of the connector types, endpoint types and render modes. But
-    you can specify which of these you want via command line flags, eg:
-
-    grunt --connectors=flowchart,bezier --renderers=svg,vml
-
-    Connectors
-    ----------
-    flowchart
-    statemachine
-    bezier
-    straight
-
-    Endpoints
-    ---------
-    dot
-    rectangle
-    image
-
-    Renderers
-    ---------
-    canvas
-    svg
-    vml
-
-
-*/
-
-
-// http://flippinawesome.org/2013/07/01/building-a-javascript-library-with-grunt-js/?utm_source=javascriptweekly&utm_medium=email
-
-// also to checkout:
-// https://github.com/ModelN/grunt-blanket-qunit
-
-
-var JS_BEZIER = "0.6", // current js bezier version
-    JS_PLUMB_GEOM = "0.1",
-    getJsBezier = function() { return "lib/jsBezier-" + JS_BEZIER + ".js"; },
-    getJsPlumbGeom = function() { return "lib/jsplumb-geom-" + JS_PLUMB_GEOM + ".js"; },
-    libraries = [ "jquery", "mootools", "yui" ],
-    runtimeLibraries = {
-        jquery:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script><script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js'></script><script type='text/javascript' src='../../lib/jquery.ui.touch-punch.min.js'></script>",
-        mootools:"<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/mootools/1.3.2/mootools-yui-compressed.js'></script>",
-        yui:""
+var versions = {
+        JS_BEZIER : { f:"jsBezier", v:"0.6" },
+        BILTONG : { f:"biltong", v:"0.2" }, 
+        MOTTLE : {f:"mottle", v:"0.2" },
+        KATAVORIO : {f:"katavorio", v:"0.1" }
     },
-    version = "1.5.0",
+    get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },    
+    
+    libraries = [ "jquery", "mootools", "yui", "dom" ],
+    libraryNames = [ "jQuery", "MooTools", "YUI3", "No Library" ],
+    renderers = [ "svg", "vml" ],
+    demos = [ 
+        [ "home", "Kitchen Sink" ], 
+        [ "flowchart", "Flowchart" ], 
+        [ "statemachine", "State Machine" ],  
+        [ "draggableConnectors", "Drag and Drop"], 
+        [ "perimeterAnchors", "Perimeter Anchors"], 
+        [ "chart", "Hierarchical Chart" ], 
+        [ "sourcesAndTargets", "Sources and Targets" ], 
+        [ "dynamicAnchors", "Dynamic Anchors" ], 
+        [ "animation", "Animation" ] 
+    ],
+    extraLibraries = {
+        jquery:[],
+        mootools:[],
+        yui:[],
+        dom:[ get("MOTTLE"), get("KATAVORIO") ]
+    }
+   // version = "1.6.0",
     objects = {
         connectors : [
             "flowchart", "statemachine", "bezier", "straight"
         ],
         renderers : [
-            "canvas", "svg", "vml"
+            "svg", "vml"
         ],
         common:[
             'util.js', 'dom-adapter.js', 'jsPlumb.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js'
@@ -75,18 +58,20 @@ var JS_BEZIER = "0.6", // current js bezier version
         return out;
     },
     getSources = function(grunt, lib) {
-        var sources = [ getJsBezier(), getJsPlumbGeom() ];
+        var sources = [ get("JS_BEZIER"), get("BILTONG") ];
+        sources.push.apply(sources, extraLibraries[lib]);
         sources.push.apply(sources, objects.common.map(function(v) { return "src/" + v; }));
         sources.push.apply(sources, getList(grunt, "connectors"));
         sources.push.apply(sources, getList(grunt, "renderers"));
         sources.push("src/" + lib + ".jsPlumb.js");
+        console.dir(sources);
         return sources;
     },
     help = "\nBuilding jsPlumb\n" +
            "-----------------\n" +
            "To build jsPlumb, execute the 'build' task:\n\n" +
            "--> grunt build\n\n" +
-           "this will, by default, build a version of jsPlumb with all the available connectors and renderers (SVG, Canvas and VML).\n\n" +
+           "this will, by default, build a version of jsPlumb with all the available connectors and renderers (SVG and VML).\n\n" +
            "You can build a custom version of jsPlumb by specifying a list of connectors and/or renderers on the command line, for example:\n\n" +
            "--> grunt build --connectors=flowchart,statemachine --renderers=svg,vml\n\n";
 
@@ -117,162 +102,51 @@ module.exports = function(grunt) {
         return o;
     };
 
-    var makeReplacements = function() {
-        var o = {};
-        // expand out lists of individual imports into concatenated versions for dist.
-        // also replace link to docs
-        libraries.forEach(function(l) {
-            o[l] = {
-                src: ['dist/demo/*/' + l + '.html', 'dist/tests/*.html', 'dist/demo/demo-all*.html' ],
-                actions: [
-                    {
-                        name:"dep",
-                        search:"(<!-- DEP.*>.*\n)(.*\n)*(.*/DEP -->)",
-                        replace: runtimeLibraries[l],
-                        flags: 'gm'
-                    },
-                    {
-                        name:"js",
-                        search:"(<!-- JS.*>.*\n)(.*\n)*(.*/JS -->)",
-                        replace:"<script type='text/javascript' src='../js/" + l + ".jsPlumb-<%= pkg.version%>-min.js'></script>",
-                        flags:'gm'
-                    },
-                    {
-                        search:"<a href=\"http://localhost:4567\">",
-                        replace:"<a href=\"../../doc/\">",
-                        flags:"gm"
-                    }
-                ]
-            };
-        });
-
-        // change media wiki style links into standard markdown links
-        // [[Changes since version 1.4.0|changelog]]  -> [Changes since version 1.4.0](changelog)
-        o["doc"] = {
-            src:['jsPlumb.wiki/*.md'],
-            actions:[
-                {
-                    name:"links",
-                    search:"\\[\\[(.*)\\|(.*)\\]\\]",
-                    replace:"[$1]($2)",
-                    flags:"gm"
-                }
-            ]
-        };
-
-        return o;
-    };
-
-    //
-    // this is a helper for the copy task, because the copy task is strange about the way it copies
-    // things. basically the only way to get a file from some folder into another is to use a 'rename'
-    // function! wtf.  anyway this is a helper for that.
-    var moveFolder = function(toDir) {
-        return function() {
-            var idx = arguments[1].lastIndexOf("/"), _idx = idx < 0 ? 0 : idx;
-            return toDir + "/" + arguments[1].substring(_idx);
-        };
-    };
-
     // Project configuration.
     grunt.initConfig({
-
         pkg: grunt.file.readJSON('package.json'),
         concat: fileLists(),
         uglify: fileLists("-min"),
         qunit:{
             target: {
-                src: ['tests/qunit-svg-jquery*.html'/*, 'tests/qunit-canvas-jquery*.html'*/ ]
+                src: [ 'tests/qunit-*.html' ]
             }
         },
         copy:{
+            site:{
+                files:[
+                    { expand:true, cwd:"css", src:"*.*", dest:"jekyll/css" },
+                    { expand:true, cwd:"demo/font", src:"*.*", dest:"jekyll/css" },
+                    { expand:true, cwd:"img", src:"*.*", dest:"jekyll/img" }
+                ]
+            },
             demos:{
                 files:[
-                    { expand:true, src:"demo/**/*", dest:"dist" },
-                    { expand:true, cwd:"dist/js/", src:"*.js", dest:"dist/demo/js/"},
-                    {
-                        expand:true,
-                        cwd:"dist/js/",
-                        src:"jquery.jsPlumb-<%=pkg.version%>.js",
-                        //dest:"dist/demo/requirejs/scripts/",
-                        rename:function() {
-                            return "dist/demo/requirejs/scripts/jsplumb.js";
-                        }
-                    },
-                    {
-                        expand:true,
-                        cwd:"lib",
-                        src:["mootools-1.3.2.1-more.js", "jquery-1.9.0.js", "jquery-ui-1.9.2-min.js", "jquery.ui.touch-punch.min.js"],
-                        dest:"dist/lib/"
-                    }
+                    { expand: true, cwd:"demo", src:"demo-list.js", dest:"jekyll/js"}
                 ]
             },
             tests:{
+              files:[
+                { expand:true, cwd:"tests", src:[ "*.css", "qunit-*.js", "*.js", "loadtest-template.html"  ], dest:"jekyll/tests" }
+              ]
+            },
+            js:{
                 files:[
-                    {
-                        expand:true,
-                        src:[ "tests/jsPlumb-tests.js", "tests/qunit-*.*", "tests/all-tests.html", "tests/loadTestHarness.js", "tests/loadTestHarness.html" ],
-                        dest:"dist/"
-                    }
+                    { expand:true, cwd:"dist/js", src:"*.js", dest:"jekyll/js" }
                 ]
             },
-            doc:{
+            dist:{
                 files:[
-                    {
-                        expand:true,
-                        src:[ "doc/gollum-template.css", "demo/demo-all.css", "demo/*.ttf", "demo/*.woff", "demo/logo_bw_44h.jpg" ],
-                        rename:moveFolder("dist/doc")
-                    }
+                    { expand:true, cwd:"jekyll/_site", src:"**/*.*", dest:"dist" }
                 ]
-            },
-            // copy markdown to temp dir for pre-processing
-            temp:{
-                files:[
-                    {
-                        expand:true,
-                        src:"../jsPlumb.wiki/*.md",
-                        dest:"TEMPOUT/"
-                    }
-                ]
-            },
-            logo:{
-                files:[
-                    {
-                        expand:false,
-                        src:"./logo-bw.png",
-                        dest:"dist/logo-bw.png"
-                    }
-                ]
-            }
-        },
-        "regex-replace": makeReplacements(),
-        markdown: {
-            all: {
-                files: [{
-                    expand: true,
-                    flatten:true,
-                    src: 'jsPlumb.wiki/*.md',
-                    dest: 'dist/doc/',
-                    ext: '.html'
-                }],
-                options:{
-                    template:'./doc/doc-template.html'
-                }
             }
         },
         clean:{
-            temp:"jsPlumb.wiki"
-        },
-        //http://www.kajabity.com/2012/02/how-i-introduced-jsdoc-into-a-javascript-project-and-found-my-eclipse-outline/
-        jsdoc : {
-            dist : {
-                src:['doc/api/README.md', 'doc/api/util-api.js', 'doc/api/jsplumb-api.js', 'doc/api/uicomponent.js', 'doc/api/overlaycomponent.js', 'doc/api/endpoint-api.js', 'doc/api/connection-api.js', 'doc/api/connectors.js', 'doc/api/overlays-api.js'],
-                options: {
-                    destination: 'dist/apidocs/',
-                    configure:'jsdoc.json',
-                    "private":false
-                }
-            }
+            options:{
+                force:true
+            },
+            stage:[ "jekyll/doc", "jekyll/apidocs", "jekyll/demo", "jekyll/tests", "jekyll/css", "jekyll/js", "jekyll/img" ],
+            site: [ 'jekyll/_site' ]
         },
         jshint: {
             options: {
@@ -283,7 +157,7 @@ module.exports = function(grunt) {
                   '-W038':true
                 },
             files:{
-                src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-canvas.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
+                src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
             }
         },
         watch: {
@@ -291,7 +165,33 @@ module.exports = function(grunt) {
                 files: ['src/*.js'],
                 tasks: ['build-src']
             }
-        }
+        },
+		jekyll: {
+    		options: {
+				src:'jekyll'
+    		},
+			dist:{
+				options:{
+					dest:"jekyll/_site",
+					config:'jekyll/_config.yml'
+				}
+			}
+		},
+        yuidoc: {
+            compile: {
+                name: '<%= pkg.name %>',
+                description: '<%= pkg.description %>',
+                version: '<%= pkg.version %>',
+                url: '<%= pkg.homepage %>',
+                options: {
+                    paths: 'doc/api/',
+                    themedir: 'jekyll/yuitheme/',
+                    outdir: 'jekyll/apidocs/',
+                    helpers:['jekyll/yuitheme/helpers.js']
+                }
+                
+            }
+        }         
     });
 
     // Load the plugin that provides the "docular" tasks.
@@ -299,34 +199,127 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-regex-replace');
-    grunt.loadNpmTasks('grunt-markdown');
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-contrib-yuidoc');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-jekyll');
+
+
+
+// ------------------------- prepare jekyll site task --------------------------------------------------------
+
+    var _createDemos = function() {
+        for (var i = 0; i < demos.length; i++) {
+            var d = demos[i][0],
+                js = grunt.file.read("demo/" + d + "/demo.js"),
+                css = grunt.file.read("demo/" + d + "/demo.css");
+
+            grunt.file.mkdir("jekyll/demo/" + d);
+            for (var j = 0; j < libraries.length; j++) {
+                var html = grunt.file.read("demo/" + d + "/" + libraries[j] + ".html");
+                    m = html.match(/(<!-- demo.*>.*\n)(.*\n)*(.*\/demo -->)/),
+                    t = m[0].match(/<h4>(.*)<\/h4>/)[0];
+
+                grunt.file.write("jekyll/demo/" + d + "/demo.js", js);
+                grunt.file.write("jekyll/demo/" + d + "/demo.css", css);
+                var fm = support.createFrontMatter({
+                    layout:"demo",
+                    date:support.timestamp(),
+                    categories:"demo",
+                    library:libraries[j],
+                    libraryName:libraryNames[j],
+                    title:t,
+                    base:"../..",
+                    demo:d
+                });
+                grunt.file.write("jekyll/demo/" + demos[i][0] + "/" + libraries[j] +  ".html", fm + m[0]);
+            }
+        }
+    };
+
+    var package = require('./package.json');
+    var support = require("./jekyll/build-support.js");
+
+    //
+    //  creates qunit test pages: we only need to create markdown files here; the jekyll layout fills in the rest.
+    //
+    var _createTests = function() {
+        // unit tests
+        for (var j = 0; j < renderers.length; j++) {
+            for (var i = 0; i < libraries.length; i++) {
+                var frontMatter = support.createFrontMatter({
+                    layout:"test",
+                    date:support.timestamp(),
+                    categories:"test",
+                    library:libraries[i],
+                    renderer:renderers[j],
+                    base:".."
+                }); 
+                grunt.file.write("jekyll/tests/qunit-" + renderers[j] + "-"  + libraries[i] + "-instance.html", frontMatter);
+            }
+        }
+
+        // load tests
+        var lt = grunt.file.read("tests/loadtest-template.html");
+        for (var i = 0; i < libraries.length; i++) {
+            var frontMatter = support.createFrontMatter({
+                layout:"loadtest",
+                date:support.timestamp(),
+                categories:"test",
+                library:libraries[i],
+                libraryName:libraryNames[i],
+                base:".."
+            }); 
+            grunt.file.write("jekyll/tests/loadtest-"  + libraries[i] + ".html", frontMatter + lt);
+        }
+
+        // now create index page
+        var ip = grunt.file.read("tests/index.html"),
+            m  = ip.match(/(<!-- content.*>.*\n)(.*\n)*(.*\/content -->)/),
+            fm = support.createFrontMatter({
+                layout:"default",
+                date:support.timestamp(),
+                base:".."
+            });
+
+        grunt.file.write("jekyll/tests/index.html", fm + m[0]);
+    };
+
+    var _prepareSite = function() {
+        // exclusions from input doc dir
+        var exclusions = ["node_modules", "ff.htl"],
+            docOutput = "jekyll/doc";
+
+        // 1. create directories for docs.
+        grunt.file.mkdir(docOutput);
+
+        // 2. copy files from markdown directory into 'doc', and then give each one some front matter.
+        var sources = grunt.file.expand({ cwd:package.jsPlumbWiki }, "*");
+        for (var i = 0; i < sources.length; i++) {
+            if (exclusions.indexOf(sources[i]) == -1) {
+                var layout = sources[i] == "contents.md" ? "plain" : "doc";
+                support.processMarkdownFile(grunt, package.jsPlumbWiki, sources[i], layout, "..", docOutput);
+            }
+        }
+    };
 
     grunt.registerTask('writeIndex', function() {
-        // write an index file to the root of the dist dir (redirects to main jquery demo)
-        grunt.file.write("dist/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/jquery.html'/></head></html>");
+        // write an index file to the root of the dist dir (redirects to main "no library" demo)
+        grunt.file.write("jekyll/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/home/dom.html'/></head></html>");
+        // and to the demo directory root
+        grunt.file.write("jekyll/demo/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home/dom.html'/></head></html>");
         // write an index file to the root of the docs dir (redirects to 'home')
-        grunt.file.write("dist/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home'/></head></html>");
+        grunt.file.write("jekyll/doc/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=home.html'/></head></html>");
     });
 
-    var _replace = function(cwd, pattern, oldV, newV, exclusions) {
-        exclusions = exclusions || [];
-        var _one = function(f) {
-            if (exclusions.indexOf(f) == -1) {
-                if (!grunt.file.isDir(cwd + "/" + f)) {
-                    var c = grunt.file.read(cwd + "/" + f);
-                    grunt.file.write(cwd + "/" + f, c.replace(oldV, newV));
-                }
-            }
-        };
-        var sources = grunt.file.expand({ cwd:cwd }, pattern);
-        for (var i = 0; i < sources.length; i++)
-            _one(sources[i]);
-    };
+    grunt.registerTask('createTests', _createTests);
+    grunt.registerTask('createDemos', _createDemos);
+    grunt.registerTask('prepare', _prepareSite);
+    grunt.registerTask("build", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stage', 'clean:site' ]);
+    grunt.registerTask('build-src', ['clean', 'prepare', 'concat', 'uglify' ]);
+    grunt.registerTask('default', ['help']);
+    grunt.registerTask('build-all', ['qunit', 'build']);
 
     grunt.registerTask('update', function() {
         var newV = grunt.option("newver");
@@ -345,34 +338,4 @@ module.exports = function(grunt) {
 
     });
 
-    // reads the contents of home.html (the docs index), and writes it into all of the other files.
-    grunt.registerTask("docIndex", function() {
-        var f = grunt.file.read("dist/doc/contents.html"),
-            re = /(<!-- BODY.*>.*\n)(.*\n)*(.*\/BODY -->)/,
-            idx = f.match(re);
-
-        _replace("dist/doc", "*.html", /<\!-- NAV -->/, idx[0], ["contents.html"]);
-    });
-
-    /*
-
-    <target name="upgrade-jsbezier" depends="old,new">
-        <!-- replace refs to old version in demo html to new version -->
-        <replace dir="demo/jquery" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
-        <replace dir="demo/yui3" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
-        <replace dir="demo/mootools" token="jsBezier-${old}.js" value="jsBezier-${new}.js"/>
-    </target>
-
-    // also add one for jsplumb-geom
-
-    */
-
-    grunt.registerTask('build-src', ['prepare', 'concat', 'uglify' ]);
-    grunt.registerTask('build', [/*'qunit', */'build-src', 'copy:temp', 'copy:demos', 'copy:tests', 'copy:doc', 'copy:logo', 'regex-replace', 'markdown', 'docIndex', 'jsdoc', 'info', 'clean', 'writeIndex']);
-    grunt.registerTask('default', ['help']);
-    grunt.registerTask('build-all', ['qunit', 'build']);
-
-   /* grunt.registerTask("build-all", function() {
-        grunt.task.run("build")
-    })*/
 };

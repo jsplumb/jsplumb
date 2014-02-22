@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" type="image/png" href="{{page.base}}/img/favicon.png">
+        <title>{{ page.title }}</title>
+
+        {% include css.html %}
+        <link rel="stylesheet" href="{{page.base}}/css/jsplumb-doc.css">
+    </head>
+    <body>
+        {% include header.html %}
+
+        <div class="main">
+            <div class="nav">
+                {% include contents.html %}
+            </div>
+            <div class="markdown-body">
+                {{ content }}
+            </div>
+        </div>
+        
+        {% include track-doc.html %}
+
+    </body>
+</html>

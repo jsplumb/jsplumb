@@ -10,16 +10,16 @@
 			Container:"perimeter-demo"
 		});
 
-		var shapes = jsPlumb.getSelector(".shape");			
+		var shapes = jsPlumb.getSelector(".shape");
 		// make everything draggable
 		instance.draggable(shapes);
 		  
 		// suspend drawing and initialise.
-		instance.doWhileSuspended(function() {			
+		instance.doWhileSuspended(function() {
 				
 			// loop through them and connect each one to each other one.
 			for (var i = 0; i < shapes.length; i++) {
-				for (var j = i + 1; j < shapes.length; j++) {						
+				for (var j = i + 1; j < shapes.length; j++) {
 					instance.connect({
 						source:shapes[i],  // just pass in the current node in the selector for source 
 						target:shapes[j],
@@ -29,7 +29,7 @@
 							[ "Perimeter", { shape:shapes[i].getAttribute("data-shape"), rotation:shapes[i].getAttribute("data-rotation") }],
 							[ "Perimeter", { shape:shapes[j].getAttribute( "data-shape"), rotation:shapes[j].getAttribute("data-rotation") }]
 						]
-					});				
+					});
 				}	
 			}   
 		});

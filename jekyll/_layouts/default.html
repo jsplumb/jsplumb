@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" type="image/png" href="{{page.base}}/img/favicon.png">
+        <title>{{ page.title }}</title>
+        
+        {% include css.html %}
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    </head>
+    <body>
+        {% include header.html %}
+        <div class="site">
+            {{ content }}
+            <div class="footer">
+            </div>
+        </div>        
+        {% include track-blog.html %}
+    </body>
+</html>

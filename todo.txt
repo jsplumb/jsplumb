@@ -24,6 +24,8 @@ future
 
     - text on path (see demo)?
 
+    - svg labels (using svg label element) ?
+
     - performance tests: 
         - single SVG element, many paths (what are mouse interaction/zindex ramifications?)
         - single canvas (have to paint nodes). 
@@ -38,9 +40,16 @@ future
 
         http://jsfiddle.net/sporritt/S4Fxk/12/   (connect to intermediate endpoint)
         http://jsfiddle.net/sporritt/ZUm7p/50/  (connect list items)
-        http://jsfiddle.net/sporritt/ZQcEc/25/ (drag multiple nodes at once)
 
-        extending a connector:
+        Dragging Multiple Nodes:
+
+        http://jsfiddle.net/sporritt/ZQcEc/25/ 
+
+        This is actually offered out of the box in the no library version of jsPlumb 1.6.0. but maybe people
+        will still want to see instructions for jquery.
+
+        Extending a Connector:
+
         jsPlumb.Connectors.Flowchart2 = function(params) {
             jsPlumb.Connectors.Flowchart.apply(this, arguments);
             var _c = this._compute;

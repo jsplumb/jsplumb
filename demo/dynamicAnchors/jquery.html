@@ -1,10 +1,10 @@
 <!doctype html>
 <html>
     <head>    
-        <title>jsPlumb 1.5.5 demo - jQuery</title>
+        <title>jsPlumb 1.6.0 demo - jQuery</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" href="../demo-all.css">		
+        <link rel="stylesheet" href="../../css/jsplumb.css">		
         <link rel="stylesheet" href="demo.css">
     </head>
     <body data-demo-id="dynamicAnchors" data-library="jquery">
@@ -14,7 +14,7 @@
                 <div class="menu">   
                     <a href="http://localhost:4567">DOCS</a>
                     <a href="../../apidocs">API</a>
-                    <a href="../../tests/all-tests.html">TESTS</a>
+                    <a href="../../tests/index.html">TESTS</a>
                     <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
                     <a href="http://github.com/sporritt/jsplumb/">GITHUB</a>
                     <a href="https://groups.google.com/forum/?fromgroups#!forum/jsplumb">DISCUSS</a>
@@ -30,13 +30,15 @@
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
 
-        <div id="main">			            
+        <div id="main">
+			<!-- demo -->
             <div class="explanation">
+				<i class="fa fa-info-circle"></i>
                 <h4>DYNAMIC ANCHORS</h4>
                 <p>This is a demonstration of anchors that change position dependent on the location of the other element in a connection. Each Connection is decorated with a Diamond overlay, located halfway along the connector.</p>
                 <p>You can drag new connections between Endpoints.</p>
                 <p>Endpoints support an unlimited number of Connections.</p>
-                <p>This demonstration uses jsPlumb 1.5.5, jQuery 1.9.0 and jQuery UI 1.9.2.For touch support, jQuery Touch Punch is used.</p>
+                <p>This demonstration uses jsPlumb 1.6.0, jQuery 1.9.0 and jQuery UI 1.9.2.For touch support, jQuery Touch Punch is used.</p>
             </div>
             <div class="demo dynamic-demo" id="dynamic-demo">
                 <div class="window" id="dynamicWindow1"><strong>1</strong><br/><br/></div>
@@ -46,24 +48,18 @@
                 <div class="window" id="dynamicWindow5"><strong>5</strong><br/><br/></div>
                 <div class="window" id="dynamicWindow6"><strong>6</strong><br/><br/></div>
             </div>
-            
+            <!-- /demo -->
         </div>
-	
         
-        <!-- DEP -->
-	    <script src="../../lib/jquery-1.9.0.js"></script>
-		<script src="../../lib/jquery-ui-1.9.2-min.js"></script>
-        <script src="../../lib/jquery.ui.touch-punch.min.js"></script>        
-		<!-- /DEP -->
-
-        <!-- for demo dropdown. not a jsplumb dependency -->
-        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+	    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.2/jquery.ui.touch-punch.min.js"></script>        
 				
 		<!-- JS -->
 		<!-- support lib for bezier stuff -->
 		<script src="../../lib/jsBezier-0.6.js"></script>     
-        <!-- jsplumb geom functions -->   
-        <script src="../../lib/jsplumb-geom-0.1.js"></script>
+        <!-- geom functions -->   
+        <script src="../../lib/biltong-0.2.js"></script>
 		<!-- jsplumb util -->
 		<script src="../../src/util.js"></script>
         <!-- base DOM adapter -->
@@ -87,8 +83,8 @@
         <script src="../../src/connector-editors.js"></script>
 		<!-- SVG renderer -->
 		<script src="../../src/renderers-svg.js"></script>
-		<!-- canvas renderer -->
-		<script src="../../src/renderers-canvas.js"></script>
+		
+		
 		<!-- vml renderer -->
 		<script src="../../src/renderers-vml.js"></script>
         

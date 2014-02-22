@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.5
+ * Title:jsPlumb 1.6.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -32,7 +32,6 @@
 			self = this,
             anchorLists = {},
             jsPlumbInstance = params.jsPlumbInstance,
-            jpcl = jsPlumb.CurrentLibrary,
             floatingConnections = {},
             // TODO this functions uses a crude method of determining orientation between two elements.
             // 'diagonal' should be chosen when the angle of the line between the two centers is around
@@ -159,9 +158,8 @@
                                                      isHorizontal, otherMultiplier, reverse );
         
                         // takes a computed anchor position and adjusts it for parent offset and scroll, then stores it.
-                        var _setAnchorLocation = function(endpoint, anchorPos) {
-                            var a = jsPlumbInstance.adjustForParentOffsetAndScroll([anchorPos[0], anchorPos[1]], endpoint.canvas);
-                            continuousAnchorLocations[endpoint.id] = [ a[0], a[1], anchorPos[2], anchorPos[3] ];
+                        var _setAnchorLocation = function(endpoint, anchorPos) {                            
+                            continuousAnchorLocations[endpoint.id] = [ anchorPos[0], anchorPos[1], anchorPos[2], anchorPos[3] ];
                             continuousAnchorOrientations[endpoint.id] = orientation;
                         };
         
@@ -199,7 +197,7 @@
                 registerConnection = function(otherIndex, otherEndpoint, otherAnchor, elId, c) {
 					if ((sourceId == targetId) && otherAnchor.isContinuous){
                        // remove the target endpoint's canvas.  we dont need it.
-                        jpcl.removeElement(ep[1].canvas);
+                        conn._jsPlumb.instance.removeElement(ep[1].canvas);
                         doRegisterTarget = false;
                     }
 					jsPlumbUtil.addToList(connectionsByElementId, elId, [c, otherEndpoint, otherAnchor.constructor == jsPlumb.DynamicAnchor]);
@@ -645,28 +643,25 @@
         this.offsets = params.offsets || [ 0, 0 ];
         this.timestamp = null;        
         this.compute = function(params) {
-            
-            var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp; 
 
-            if(params.clearUserDefinedLocation)
-                this.userDefinedLocation = null;
-            
-            if (timestamp && timestamp === self.timestamp)
-                return this.lastReturnValue;        
-            
-            if (this.userDefinedLocation != null) {
-                this.lastReturnValue = this.userDefinedLocation;
-            }
-            else {                
-                
-                this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1] ];                    
-                // adjust loc if there is an offsetParent
-                this.lastReturnValue = jsPlumbInstance.adjustForParentOffsetAndScroll(this.lastReturnValue, element.canvas);
-            }
-            
-            this.timestamp = timestamp;
-            return this.lastReturnValue;
-        };
+			var xy = params.xy, wh = params.wh, element = params.element, timestamp = params.timestamp; 
+
+			if(params.clearUserDefinedLocation)
+				this.userDefinedLocation = null;
+
+			if (timestamp && timestamp === self.timestamp)
+				return this.lastReturnValue;
+
+			if (this.userDefinedLocation != null) {
+				this.lastReturnValue = this.userDefinedLocation;
+			}
+			else {
+				this.lastReturnValue = [ xy[0] + (this.x * wh[0]) + this.offsets[0], xy[1] + (this.y * wh[1]) + this.offsets[1] ];
+			}
+
+			this.timestamp = timestamp;
+			return this.lastReturnValue;
+		};
 
         this.getCurrentLocation = function(params) { 
             return (this.lastReturnValue == null || (params.timestamp != null && this.timestamp != params.timestamp)) ? this.compute(params) : this.lastReturnValue; 
@@ -706,11 +701,10 @@
         // this is the anchor that this floating anchor is referenced to for
         // purposes of calculating the orientation.
         var ref = params.reference,
-            jpcl = jsPlumb.CurrentLibrary,
             jsPlumbInstance = params.jsPlumbInstance,
             // the canvas this refers to.
             refCanvas = params.referenceCanvas,
-            size = jpcl.getSize(jpcl.getElementObject(refCanvas)),
+            size = jsPlumb.getSize(refCanvas),
             // these are used to store the current relative position of our
             // anchor wrt the reference anchor. they only indicate
             // direction, so have a value of 1 or -1 (or, very rarely, 0). these
@@ -732,16 +726,12 @@
 
         this.isFloating = true;
 
-        this.compute = function(params) {
-            var xy = params.xy, element = params.element,
-            result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
-                        
-            // adjust loc if there is an offsetParent
-            result = jsPlumbInstance.adjustForParentOffsetAndScroll(result, element.canvas);
-            
-            _lastResult = result;
-            return result;
-        };
+		this.compute = function(params) {
+			var xy = params.xy, element = params.element,
+				result = [ xy[0] + (size[0] / 2), xy[1] + (size[1] / 2) ]; // return origin of the element. we may wish to improve this so that any object can be the drag proxy.
+			_lastResult = result;
+			return result;
+		};
 
         this.getOrientation = function(_endpoint) {
             if (orientation) return orientation;

@@ -8,7 +8,7 @@
 	cursor:pointer;
 	width:162px; 
 	height:162px; 
-	background-image:url(bigdot.png); 
+	background-image:url(../../img/bigdot.png); 
 	z-index:5; 
 	position:absolute; 
 	border-radius:81px;

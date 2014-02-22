@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.5.5
+ * Title:jsPlumb 1.6.0
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -44,6 +44,7 @@
 	DASHSTYLE = "dashstyle",
 	LINEAR_GRADIENT = "linearGradient",
 	RADIAL_GRADIENT = "radialGradient",
+	DEFS = "defs",
 	FILL = "fill",
 	STOP = "stop",
 	STROKE = "stroke",
@@ -71,7 +72,7 @@
 	_pos = function(d) { return "position:absolute;left:" + d[0] + "px;top:" + d[1] + "px"; },	
 	_clearGradient = function(parent) {
 		for (var i = 0; i < parent.childNodes.length; i++) {
-			if (parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
+			if (parent.childNodes[i].tagName == DEFS || parent.childNodes[i].tagName == LINEAR_GRADIENT || parent.childNodes[i].tagName == RADIAL_GRADIENT)
 				parent.removeChild(parent.childNodes[i]);
 		}
 	},		
@@ -96,7 +97,10 @@
 			});			
 		}
 		
-		parent.appendChild(g);
+		var defs = _node(DEFS);
+		parent.appendChild(defs);
+		defs.appendChild(g);
+		//parent.appendChild(g);
 		
 		// the svg radial gradient seems to treat stops in the reverse 
 		// order to how canvas does it.  so we want to keep all the maths the same, but
@@ -109,12 +113,16 @@
 			g.appendChild(s);
 		}
 		var applyGradientTo = style.strokeStyle ? STROKE : FILL;
-        //document.location.toString()
+        //node.setAttribute(STYLE, applyGradientTo + ":url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
 		//node.setAttribute(STYLE, applyGradientTo + ":url(#" + id + ")");
-        node.setAttribute(STYLE, applyGradientTo + ":url(" + document.location.toString() + "#" + id + ")");
+		//node.setAttribute(applyGradientTo,  "url(" + /[^#]+/.exec(document.location.toString()) + "#" + id + ")");
+		node.setAttribute(applyGradientTo,  "url(#" + id + ")");
 	},
 	_applyStyles = function(parent, node, style, dimensions, uiComponent) {
 		
+		node.setAttribute(FILL, style.fillStyle ? jsPlumbUtil.convertStyle(style.fillStyle, true) : NONE);
+			node.setAttribute(STROKE, style.strokeStyle ? jsPlumbUtil.convertStyle(style.strokeStyle, true) : NONE);
+			
 		if (style.gradient) {
 			_updateGradient(parent, node, style, dimensions, uiComponent);			
 		}
@@ -124,8 +132,7 @@
 			node.setAttribute(STYLE, "");
 		}
 		
-		node.setAttribute(FILL, style.fillStyle ? jsPlumbUtil.convertStyle(style.fillStyle, true) : NONE);
-		node.setAttribute(STROKE, style.strokeStyle ? jsPlumbUtil.convertStyle(style.strokeStyle, true) : NONE);		
+		
 		if (style.lineWidth) {
 			node.setAttribute(STROKE_WIDTH, style.lineWidth);
 		}
@@ -164,27 +171,6 @@
 
 		return {size:bits[1] + bits[2], font:bits[3]};		
 	},
-	_classManip = function(el, add, clazz) {
-		var classesToAddOrRemove = clazz.split(" "),
-			className = el.className,
-			curClasses = className.baseVal.split(" ");
-			
-		for (var i = 0; i < classesToAddOrRemove.length; i++) {
-			if (add) {
-				if (curClasses.indexOf(classesToAddOrRemove[i]) == -1)
-					curClasses.push(classesToAddOrRemove[i]);
-			}
-			else {
-				var idx = curClasses.indexOf(classesToAddOrRemove[i]);
-				if (idx != -1)
-					curClasses.splice(idx, 1);
-			}
-		}
-		
-		el.className.baseVal = curClasses.join(" ");
-	},
-	_addClass = function(el, clazz) { _classManip(el, true, clazz); },
-	_removeClass = function(el, clazz) { _classManip(el, false, clazz); },
 	_appendAtIndex = function(svg, path, idx) {
 		if (svg.childNodes.length > idx) {
 			svg.insertBefore(path, svg.childNodes[idx]);
@@ -196,8 +182,6 @@
 		utility methods for other objects to use.
 	*/
 	jsPlumbUtil.svg = {
-		addClass:_addClass,
-		removeClass:_removeClass,
 		node:_node,
 		attr:_attr,
 		pos:_pos
@@ -283,7 +267,7 @@
 	};
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
-			jsPlumbUtil.removeElement(this.canvas);            
+			this.canvas && this.canvas.parentNode && this.canvas.parentNode.removeChild(this.canvas);
 			this.svg = null;
 			this.canvas = null;
 			this.path = null;			
@@ -340,7 +324,7 @@
 			if (style.outlineColor) {
 				var outlineWidth = style.outlineWidth || 1,
 					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
-				outlineStyle = jsPlumb.CurrentLibrary.extend({}, style);
+				outlineStyle = jsPlumb.extend({}, style);
 				outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
 				outlineStyle.lineWidth = outlineStrokeWidth;
 				
@@ -549,7 +533,7 @@
     };
     jsPlumbUtil.extend(AbstractSvgArrowOverlay, [jsPlumb.jsPlumbUIComponent, jsPlumb.Overlays.AbstractOverlay], {
     	cleanup : function() {
-    		if (this.path != null) jsPlumb.CurrentLibrary.removeElement(this.path);
+    		if (this.path != null) this._jsPlumb.instance.removeElement(this.path);
     	},
     	setVisible:function(v) {
     		if(this.path != null) (this.path.style.display = (v ? "block" : "none"));
