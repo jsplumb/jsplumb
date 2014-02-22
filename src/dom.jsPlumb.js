@@ -156,6 +156,9 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
+		animEvents:{
+			'step':"step", 'complete':'complete'
+		},
 		stopDrag : function(el) {
 			if (el._katavorioDrag)
 				el._katavorioDrag.abort();

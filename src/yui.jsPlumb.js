@@ -146,12 +146,12 @@
 		 * animates the given element.
 		 */
 		doAnimate : function(el, properties, options) {
-			var o = jsPlumb.extend({node:el, to:properties}, options),			
+			var o = jsPlumb.extend({node:el._node, to:properties}, options),			
 				id = _getAttribute(el, "id");
 			o.tween = jsPlumbUtil.wrap(properties.tween, function() {
 				// TODO should use a current instance.
 				this.repaint(id);
-			});
+			}.bind(this));
 			var a = new Y.Anim(o);
 			_attachListeners(a, o, animEvents);
 			a.run();
@@ -309,7 +309,9 @@
 			"start":"drag:start", "stop":"drag:end", "drag":"drag:drag", "step":"step",
 			"over":"drop:enter", "out":"drop:exit", "drop":"drop:hit"
 		},
-		
+		animEvents:{
+			'step':"tween", 'complete':'end'
+		},
 		stopDrag : function(el) {
             Y.DD.DDM.stopDrag();
         },

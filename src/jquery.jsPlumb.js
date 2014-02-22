@@ -241,6 +241,9 @@
 			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
 			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
+		animEvents:{
+			'step':"step", 'complete':'complete'
+		},
 		
 // -------------------------------------- END DRAG/DROP	---------------------------------		
 

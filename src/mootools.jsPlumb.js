@@ -301,7 +301,7 @@
                     if (d.originalZIndex !== 0)
                         d.element.setStyle("z-index", d.originalZIndex);
                 }
-        ;    }
+            }
         },
 		
 		/*
@@ -338,6 +338,9 @@
 		dragEvents : {
 			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
 			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
+		},
+		animEvents:{
+			'step':"onStep", 'complete':'onComplete'
 		},
 		
 		/**
