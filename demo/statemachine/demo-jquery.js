@@ -17,6 +17,18 @@
 			],
 			Container:"statemachine-demo"
 		});
+		
+				window.setZoom = function(z) {
+					
+					var el = document.getElementById("statemachine-demo");
+    var p = [ "webkit", "moz", "ms", "o", "" ],
+        s = "scale(" + z + ")";
+
+    for (var i = 0; i < p.length; i++)
+		el.style[p[i] + "Transform"] = s;
+
+    instance.setZoom(z);    
+};
 
 		var windows = jsPlumb.getSelector(".statemachine-demo .w");
 

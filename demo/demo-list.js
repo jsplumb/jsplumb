@@ -76,11 +76,10 @@
 			}
 
 			// explanation hide/show
-			var expl = document.getElementsByClassName("explanation")[0];
+			var expl = jsPlumb.getSelector(".explanation")[0];
 			var iExpl = jsPlumb.getSelector(".explanation i")[0];
 			jsPlumb.on(iExpl, "click", function() {
 				var has = jsPlumbAdapter.hasClass(expl, "expanded");
-				
 				iExpl.className = "fa fa-" + (has ? "info" : "times") + "-circle";
 				jsPlumbAdapter[has ? "removeClass" : "addClass"](expl, "expanded");
 			});
