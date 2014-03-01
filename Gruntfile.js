@@ -8,7 +8,7 @@ var versions = {
     get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },    
     
     libraries = [ "jquery", "mootools", "yui", "dom" ],
-    libraryNames = [ "jQuery", "MooTools", "YUI3", "No Library" ],
+    libraryNames = [ "jQuery", "MooTools", "YUI3", "Vanilla" ],
     renderers = [ "svg", "vml" ],
     demos = [ 
         [ "home", "Kitchen Sink" ], 
@@ -305,7 +305,7 @@ module.exports = function(grunt) {
     };
 
     grunt.registerTask('writeIndex', function() {
-        // write an index file to the root of the dist dir (redirects to main "no library" demo)
+        // write an index file to the root of the dist dir (redirects to main "Vanilla" demo)
         grunt.file.write("jekyll/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=demo/flowchart/dom.html'/></head></html>");
         // and to the demo directory root
         grunt.file.write("jekyll/demo/index.html", "<!doctype html><html><head><meta http-equiv='refresh' content='0;url=flowchart/dom.html'/></head></html>");

@@ -15,7 +15,7 @@
   margin-right: 10px;
 }
 
-.markdown-body li {
+li {
   list-style-type: disc;
 }
 

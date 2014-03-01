@@ -19,7 +19,7 @@
 		[ "jquery", "jQuery"],
 		[ "mootools", "MooTools" ],
 		[ "yui", "YUI3" ],
-		[ "dom", "No Library"]
+		[ "dom", "Vanilla"]
 	];
 
 	jsPlumb.bind("ready", function() {
