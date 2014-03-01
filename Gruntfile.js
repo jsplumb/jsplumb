@@ -239,7 +239,7 @@ module.exports = function(grunt) {
     };
 
     var package = require('./package.json');
-    var support = require("./jekyll/build-support.js");
+    var support = require("./build-support.js");
 
     //
     //  creates qunit test pages: we only need to create markdown files here; the jekyll layout fills in the rest.
