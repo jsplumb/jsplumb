@@ -58,7 +58,6 @@
 	
 	YUI().use('node', 'dd', 'dd-constrain', 'anim', 'node-event-simulate', function(_Y) {
 		Y = _Y;	
-		window.Y = Y;
 		Y.on("domready", function() { jsPlumb.init(); });
 	});
 	
@@ -124,8 +123,7 @@
 				var options = _droppableOptions[id];
 				if (options) {
 					if (options.hoverClass) {
-						if (entering) el.addClass(options.hoverClass);
-						else el.removeClass(options.hoverClass);
+						el[entering ? "addClass" : "removeClass"](options.hoverClass);
 					}
 				}
 			}
@@ -147,10 +145,25 @@
 		 * animates the given element.
 		 */
 		doAnimate : function(el, properties, options) {
-			var o = jsPlumb.extend({node:el, to:properties}, options),			
+			var o = jsPlumb.extend({node:el, to:properties}, options),
 				id = _getAttribute(el, "id");
+				
+			// duration will be in milliseconds here; we have to divide by 1000
+			// if it is present and it is a number.
+			if (o.duration && jsPlumbUtil.isNumber(o.duration))
+				o.duration /= 1000;
+			
+			// also, if easing was provided as a string, we want to see if it is
+			// a support member in Y.Easing. if it is, we use that. otherwise
+			// we delete it.
+			if (o.easing && jsPlumbUtil.isString(o.easing)) {
+				if (Y.Easing[o.easing]) 
+					o.easing = Y.Easing[o.easing];
+				else
+					delete o.easing;
+			}
+				
 			o.tween = jsPlumbUtil.wrap(properties.tween, function() {
-				// TODO should use a current instance.
 				this.repaint(id);
 			}.bind(this));
 			var a = new Y.Anim(o);
@@ -170,7 +183,7 @@
 		getElementObject : _getElementObject,
 		removeElement : function(el) { _getElementObject(el).remove(); },
 		destroyDraggable : function(el) {
-			var id = jsPlumb.getId(el),
+			var id = this.getId(el),
 				dd = _draggablesById[id];
 
 			if (dd) {
@@ -215,7 +228,7 @@
 		
 		initDroppable : function(el, options) {
 			var _opts = _getDDOptions(options),
-				id = jsPlumb.getId(el);
+				id = this.getId(el);
 			_opts.node = "#" + id;			
 			var dd = new Y.DD.Drop(_opts);
 			
@@ -259,7 +272,7 @@
 		},
 		
 		getDragScope : function(el) {
-			var id = jsPlumb.getId(el),
+			var id = this.getId(el),
 				dd = _draggablesById[id];
 			return dd.scope;
 		},
@@ -269,7 +282,7 @@
 		},
 		
 		getDropScope : function(el) {
-			var id = jsPlumb.getId(el);
+			var id = this.getId(el);
 			return _droppableScopesById[id];
 		},
 		getUIPosition : function(args, zoom) {
@@ -278,6 +291,8 @@
 			var o = jsPlumbAdapter.getOffset(el, this);
 			return { left:o.left / zoom, top:o.top/zoom };
 		},
+		isDragFilterSupported:function() { return false; },
+		
 		setDragFilter : function(el, filter) {
 			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");
 		},
