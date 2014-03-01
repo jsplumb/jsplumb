@@ -2,7 +2,6 @@
   "name": "jsPlumb",
   "version": "1.6.0",
   "ignore": [
-    "ant",
     "demo",
     "dist/apidocs",
     "dist/demo",
@@ -13,18 +12,15 @@
     "doc",
     "img",
     "lib",
+    "jekyll",
     "node_modules",
     "src",
     "tests",
     "Gruntfile.js",
-    "Languages.txt",
-    "Menu.txt",
     "README.md",
-    "Topics.txt",
-    "build.properties",
     "changelog.txt",
     "index.html",
-    "jsdoc.json",
+    "build-support.js",
     "package.json",
     "todo.txt"
   ]
