@@ -46,6 +46,22 @@
 		 }
 		 return e;
 	 };
+	 
+	 var _animProps = function(o, p) {
+		var _one = function(pName) {
+			if (p[pName]) {
+				if (jsPlumbUtil.isString(p[pName])) {
+					var m = p[pName].match(/-=/) ? -1 : 1,
+						v = p[pName].substring(2);
+					return o[pName] + (m * v);
+				}
+				else return p[pName];
+			}
+			else 
+				return o[pName];
+		};
+		return [ _one("left"), _one("top") ];
+	 };
 
 	jsPlumb.extend(jsPlumbInstance.prototype, {
 	
@@ -76,10 +92,9 @@
 		doAnimate:function(el, properties, options) { 
 			options = options || {};
 			var o = jsPlumbAdapter.getOffset(el, this),
-				lmult = properties.left ? properties.left.match(/-=/) ? -1 : 1 : 0,
-				ldist = properties.left ? properties.left.substring(2) : 0,
-				tmult = properties.top ? properties.top.match(/-=/) ? -1 : 1 : 0,
-				tdist = properties.top ? properties.top.substring(2) : 0,
+				ap = _animProps(o, properties),
+				ldist = ap[0] - o.left,
+				tdist = ap[1] - o.top,
 				d = options.duration || 250,
 				step = 15, steps = d / step,
 				linc = (step / d) * ldist,
@@ -87,8 +102,8 @@
 				idx = 0,
 				int = setInterval(function() {
 					jsPlumbAdapter.setPosition(el, {
-						left:o.left + (lmult * linc * (idx + 1)),
-						top:o.top + (tmult * tinc * (idx + 1))
+						left:o.left + (linc * (idx + 1)),
+						top:o.top + (tinc * (idx + 1))
 					});
 					options.step && options.step();
 					idx++;
@@ -138,6 +153,7 @@
 				top:eventArgs[0].pos[1]
 			};
 		},
+		isDragFilterSupported:function() { return true; },
 		setDragFilter : function(el, filter) {
 			if (el._katavorioDrag) {
 				el._katavorioDrag.setFilter(filter);
