@@ -10326,6 +10326,9 @@
 			zoom = zoom || 1;
 			return { left:o.left / zoom, top:o.top/zoom };
 		},
+		
+		isDragFilterSupported:function() { return false; },
+		
 		setDragFilter : function(el, filter) {
 			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");
 		},
