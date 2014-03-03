@@ -4681,6 +4681,7 @@
 					var mouseDownListener = function(e) {
 						var evt = this.getOriginalEvent(e);
 						var def = this.sourceEndpointDefinitions[idToRegisterAgainst];
+						elid = this.getId(this.getDOMElement(_el)); // elid might have changed since this method was called to configure the element.
 						
 						// if disabled, return.
 						if (!def.enabled) return;
