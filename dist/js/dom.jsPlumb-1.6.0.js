@@ -8288,8 +8288,8 @@
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
                 h = Math.abs(params.targetPos[1] - params.sourcePos[1]);
 				
-			if (w == 0) w = 1;
-			if (h == 0) h = 1;
+			//if (w == 0) w = 1;
+			//if (h == 0) h = 1;
             
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
@@ -11157,9 +11157,14 @@
 	});
 
 	var ready = function (f) {
-        (/complete|loaded|interactive/.test(document.readyState)) ?
-            f() :
-            setTimeout(ready, 9, f);
+		var _do = function() {
+			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "undefined" && document.body != null)
+	            f();	        
+	        else
+	            setTimeout(_do, 9);
+		};
+		
+		_do();
     };
 	ready(jsPlumb.init);
 	
