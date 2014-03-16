@@ -560,9 +560,10 @@
                 y = swapY ? params.targetPos[1] : params.sourcePos[1],
                 w = Math.abs(params.targetPos[0] - params.sourcePos[0]),
                 h = Math.abs(params.targetPos[1] - params.sourcePos[1]);
-				
-			if (w == 0) w = 1;
-			if (h == 0) h = 1;
+			
+            // SP: an early attempy at fixing #162; this fix caused #177, so reverted.	
+			//if (w == 0) w = 1;
+			//if (h == 0) h = 1;
             
             // if either anchor does not have an orientation set, we derive one from their relative
             // positions.  we fix the axis to be the one in which the two elements are further apart, and
