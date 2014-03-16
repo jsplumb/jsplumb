@@ -210,9 +210,14 @@
 	});
 
 	var ready = function (f) {
-        (/complete|loaded|interactive/.test(document.readyState)) ?
-            f() :
-            setTimeout(ready, 9, f);
+		var _do = function() {
+			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "undefined" && document.body != null)
+	            f();	        
+	        else
+	            setTimeout(_do, 9);
+		};
+		
+		_do();
     };
 	ready(jsPlumb.init);
 	
