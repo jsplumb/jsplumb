@@ -7,27 +7,25 @@
 	- All elements added by jsPlumb are appended to the current "Container", which defaults to the document body. This differs
 	 from previous versions, in which if there was no Container set then jsPlumb would append elements to the parent of a connection's source endpoint. For this reason it is now more than ever recommended that you set a Container.	 
 	- The `container` parameter on `addEndpoint` or `connect` calls is no longer supported.
-
-
 	- reduced the amount of functionality that is delegated to a support library
 	- rewrote the way support libraries are integrated
-	- introduced a version of jsPlumb that does not depend on jQuery, YUI or MooTools.
-	- added support (in no library version) for multiple element dragging
-	- added support (in no library version) for multiple drag/drop scopes
+	- introduced a version of jsPlumb ("Vanilla") that does not depend on jQuery, YUI or MooTools.
+	- added support (in Vanilla jsPlumb) for multiple element dragging
+	- added support (in Vanilla jsPlumb) for multiple drag/drop scopes
 	
 	ISSUES
 	
+	91  - Old ID is being used on events after setId
 	143 - SVG gradient fails when page url already contains a hash
 	153 - jsPlumb.animate no longer supports jQuery selectors
 	157 - connectionMoved event not fired (when using makeTarget)
-	162 - when two anchor points are in identical positions, flowchart connector fails.
 	164 - makeSource fails when used in conjunction with uniqueEndpoint
 	
 	MISCELLANEOUS
 	
 	- events now have "this" set correctly
-	- added qunit tests for no library, yui and mootools versions
-	- various yui and mootools methods were upgraded to support passing in an 
+	- added qunit tests and load tests for Vanilla, YUI and Mootools versions
+	- various YUI and Mootools methods were upgraded to support passing in an 
 	  element list (setId for one)
 
 * 1.5.5
