@@ -1050,7 +1050,7 @@
 		*/
 		_newEndpoint = function(params) {
 				var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
-				var _p = jsPlumb.extend({}, params);				
+				var _p = jsPlumb.extend({}, params);
 				_p.parent = _getParentFromParams(_p);
 				_p._jsPlumb = _currentInstance;
                 _p.newConnection = _newConnection;
@@ -1409,16 +1409,65 @@
 			return jpc;
 		};		
 		
+		var stTypes = [
+			{ el:"source", elId:"sourceId", epDefs:"sourceEndpointDefinitions" },
+			{ el:"target", elId:"targetId", epDefs:"targetEndpointDefinitions" }
+		];
+		
+		var _set = function(c, el, idx) {
+			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid;
+			
+			c.endpoints[idx].detachFromConnection(c);
+			if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
+				ep = el;
+			}
+			else {
+				var sid = _getId(el),
+					sep = this[_st.epDefs][sid];
+					
+				if (sep) {
+					if (!sep.enabled) return;
+					ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
+					if (sep.uniqueEndpoint) sep.endpoint = ep;
+					 ep._doNotDeleteOnDetach = false;
+					 ep._deleteOnDetach = true;
+				}
+				else {
+					ep = c.makeEndpoint(idx == 0, el, sid);
+				}
+			}
+			
+			ep.addConnection(c);
+			c.endpoints[idx] = ep;
+			c[_st.el] = ep.element;
+			c[_st.elId] = ep.elementId;
+			
+			
+			fireMoveEvent({
+				index:idx,
+				originalSourceId:idx === 0 ? cId : c.sourceId,
+				newSourceId:c.sourceId,
+				originalTargetId:idx == 1 ? cId : c.targetId,
+				newTargetId:c.targetId,
+				connection:c
+			});
+			
+			
+		}.bind(this);
+
+		this.setSource = function(connection, el) { _set(connection, el, 0); };
+		this.setTarget = function(connection, el) { _set(connection, el, 1); };
+		
 		this.deleteEndpoint = function(object, doNotRepaintAfterwards) {
 			var _is = _currentInstance.setSuspendDrawing(true);
-			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;			
+			var endpoint = (typeof object == "string") ? endpointsByUUID[object] : object;
 			if (endpoint) {		
 				_currentInstance.deleteObject({
 					endpoint:endpoint
 				});
 			}
 			if(!_is) _currentInstance.setSuspendDrawing(false, doNotRepaintAfterwards);
-			return _currentInstance;									
+			return _currentInstance;
 		};		
 		
 		this.deleteEveryEndpoint = function() {
