@@ -133,7 +133,7 @@
                 selectedSegment = null,
                 segmentCoords = null,
                 editing = false,
-                anchorsMoveable = params.params.anchorsMoveable,
+                anchorsMoveable = true,//params.params.anchorsMoveable,
                 sgn = function(p1, p2) {
                     if (p1[0] == p2[0])
                         return p1[1] < p2[1]  ? 1 : -1;

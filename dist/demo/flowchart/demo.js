@@ -119,12 +119,12 @@ window.setZoom = function(z, el) {
 			//jsPlumb.draggable(document.querySelectorAll(".window"), { grid: [20, 20] });
 	        
 			// connect a few up
-			/*instance.connect({uuids:["Window2BottomCenter", "Window3TopCenter"], editable:true});
+			instance.connect({uuids:["Window2BottomCenter", "Window3TopCenter"], editable:true});
 			instance.connect({uuids:["Window2LeftMiddle", "Window4LeftMiddle"], editable:true});
 			instance.connect({uuids:["Window4TopCenter", "Window4RightMiddle"], editable:true});
-			instance.connect({uuids:["Window3RightMiddle", "Window2RightMiddle"], editable:true});*/
+			instance.connect({uuids:["Window3RightMiddle", "Window2RightMiddle"], editable:true});
 			instance.connect({uuids:["Window4BottomCenter", "Window1TopCenter"], editable:true});
-			//instance.connect({uuids:["Window3BottomCenter", "Window1BottomCenter"], editable:true});
+			instance.connect({uuids:["Window3BottomCenter", "Window1BottomCenter"], editable:true});
 			//
 	        
 			//

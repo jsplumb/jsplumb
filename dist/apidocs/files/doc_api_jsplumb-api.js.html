@@ -260,6 +260,24 @@
 */
 
 /**
+* Sets the source for some Connection. A &#x60;connectionMoved&#x60; event is fired.
+* @method setSource
+* @param {Connection} connection The connection to set the source for
+* @param {String|Element|Endpoint} source Either an element, element id, or existing Endpoint. If you pass an element or element id for an element that
+* has been registered as a Connection source via makeSource, the Endpoint properties from that call are used.
+* @return {jsPlumbInstance}  The current jsPlumb instance
+*/
+
+/**
+* Sets the target for some Connection. A &#x60;connectionMoved&#x60; event is fired.
+* @method setTarget
+* @param {Connection} connection The connection to set the target for
+* @param {String|Element|Endpoint} target Either an element, element id, or existing Endpoint. If you pass an element or element id for an element that
+* has been registered as a Connection target via makeTarget, the Endpoint properties from that call are used.
+* @return {jsPlumbInstance}  The current jsPlumb instance
+*/
+
+/**
 * Suspends drawing operations.  This can (and should!) be used when you have a lot of connections to make or endpoints to register;
 * it will save you a lot of time.
  * @method setSuspendDrawing
