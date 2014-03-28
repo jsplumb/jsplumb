@@ -2,6 +2,7 @@
 
 	BACKWARDS COMPATIBILITY
 
+	- Connection's `mouseexit` event was renamed to `mouseleave`.
 	- There is no support for the canvas renderer in jsPlumb 1.6.0.
 	- The way in which library adapters inject their functionality into jsPlumb has changed. This will affect very few people; contact jsPlumb if you need help with this.
 	- All elements added by jsPlumb are appended to the current "Container", which defaults to the document body. This differs

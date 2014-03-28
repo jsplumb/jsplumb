@@ -1313,17 +1313,14 @@
             if (mode) {
 				mode = mode.toLowerCase();            
 			            
-                var canvasAvailable = this.isRenderModeAvailable("canvas"),
-                    svgAvailable = this.isRenderModeAvailable("svg"),
+                var svgAvailable = this.isRenderModeAvailable("svg"),
                     vmlAvailable = this.isRenderModeAvailable("vml");
                 
                 // now test we actually have the capability to do this.
                 if (mode === "svg") {
                     if (svgAvailable) renderMode = "svg";
-                    else if (canvasAvailable) renderMode = "canvas";
                     else if (vmlAvailable) renderMode = "vml";
                 }
-                else if (mode === "canvas" && canvasAvailable) renderMode = "canvas";
                 else if (vmlAvailable) renderMode = "vml";
             }
 
@@ -1421,7 +1418,7 @@
 			}
 		},		
 		events = [ "click", "dblclick", "mouseenter", "mouseout", "mousemove", "mousedown", "mouseup", "contextmenu" ],
-		eventFilters = { "mouseout":"mouseexit" },
+		eventFilters = { "mouseout":"mouseleave", "mouseexit":"mouseleave" },
 		_updateAttachedElements = function(component, state, timestamp, sourceElement) {
 			var affectedElements = component.getAttachedElements();
 			if (affectedElements) {
@@ -1556,10 +1553,10 @@
                 bindAListener(obj, "click", function(ep, e) { _self.fire("click", _self, e); });             
              	bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
                 bindAListener(obj, "contextmenu", function(ep, e) { _self.fire("contextmenu", _self, e); });
-                bindAListener(obj, "mouseexit", function(ep, e) {
+                bindAListener(obj, "mouseleave", function(ep, e) {
                     if (_self.isHover()) {
                         _hoverFunction(false);
-                        _self.fire("mouseexit", _self, e);
+                        _self.fire("mouseleave", _self, e);
                     }
                 });
                 bindAListener(obj, "mouseenter", function(ep, e) {
@@ -4302,6 +4299,12 @@
 		 */
 		getSize : function(el) {
 			return [ el.offsetWidth, el.offsetHeight ];
+		},
+		getWidth : function(el) {
+			return el.offsetWidth;
+		},
+		getHeight : function(el) {
+			return el.offsetHeight;
 		},
 		extend : function(o1, o2, names) {
 			if (names) {
