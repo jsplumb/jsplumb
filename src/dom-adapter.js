@@ -300,17 +300,14 @@
             if (mode) {
 				mode = mode.toLowerCase();            
 			            
-                var canvasAvailable = this.isRenderModeAvailable("canvas"),
-                    svgAvailable = this.isRenderModeAvailable("svg"),
+                var svgAvailable = this.isRenderModeAvailable("svg"),
                     vmlAvailable = this.isRenderModeAvailable("vml");
                 
                 // now test we actually have the capability to do this.
                 if (mode === "svg") {
                     if (svgAvailable) renderMode = "svg";
-                    else if (canvasAvailable) renderMode = "canvas";
                     else if (vmlAvailable) renderMode = "vml";
                 }
-                else if (mode === "canvas" && canvasAvailable) renderMode = "canvas";
                 else if (vmlAvailable) renderMode = "vml";
             }
 
