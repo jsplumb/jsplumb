@@ -353,22 +353,24 @@
         // 2. updating the source information for the target of the connection
         // 3. re-registering the connection in connectionsByElementId with the newId
         //
-        this.sourceChanged = function(originalId, newId, connection) {            
-            // remove the entry that points from the old source to the target
-            jsPlumbUtil.removeWithFunction(connectionsByElementId[originalId], function(info) {
-                return info[0].id === connection.id;
-            });
-            // find entry for target and update it
-            var tIdx = jsPlumbUtil.findWithFunction(connectionsByElementId[connection.targetId], function(i) {
-                return i[0].id === connection.id;
-            });
-            if (tIdx > -1) {
-                connectionsByElementId[connection.targetId][tIdx][0] = connection;
-                connectionsByElementId[connection.targetId][tIdx][1] = connection.endpoints[0];
-                connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor;
+        this.sourceChanged = function(originalId, newId, connection) {        
+            if (originalId !== newId) {    
+                // remove the entry that points from the old source to the target
+                jsPlumbUtil.removeWithFunction(connectionsByElementId[originalId], function(info) {
+                    return info[0].id === connection.id;
+                });
+                // find entry for target and update it
+                var tIdx = jsPlumbUtil.findWithFunction(connectionsByElementId[connection.targetId], function(i) {
+                    return i[0].id === connection.id;
+                });
+                if (tIdx > -1) {
+                    connectionsByElementId[connection.targetId][tIdx][0] = connection;
+                    connectionsByElementId[connection.targetId][tIdx][1] = connection.endpoints[0];
+                    connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor;
+                }
+                // add entry for new source
+                jsPlumbUtil.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor]);         
             }
-            // add entry for new source
-            jsPlumbUtil.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor]);         
         };
 
         //

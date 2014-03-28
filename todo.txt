@@ -34,6 +34,10 @@ future
     - type selector that takes some data and decides which types to apply to a 
     connection or endpoint.
 
+    - assign css classes to elements from params in Connection/Endpoint types
+
+    - support cssClass in Connection/Endpoint types
+
 
 
     FAQ
@@ -113,18 +117,11 @@ future
 
             are there too many calls to updateOffset/getSize ?   
 
-            would i be better off just lifting a decent .offset function from somewhere?  then i could
-            take CSS3 transforms into account, and margins, and scroll.
 
         - anchorManager
 
             is the redraw routine in anchor manager optimized?
 
-        - native calls
-
-            would there be any gain in introducing a layer that used native methods like getElementById,
-            querySelector, querySelectorAll, and set CSS properties direvtly?  does el.classList exist in all
-            browsers?  does it work on SVG elements?  does it work on VML elements?
 
         - 
 

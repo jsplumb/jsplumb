@@ -1098,11 +1098,7 @@
     
     "use strict";
 
-    var ms = typeof HTMLElement != "undefined" ? (HTMLElement.prototype.webkitMatchesSelector || HTMLElement.prototype.mozMatchesSelector || HTMLElement.prototype.oMatchesSelector || HTMLElement.prototype.msMatchesSelector) : null;
-	var matchesSelector = function(el, selector, ctx) {
-		if (ms)
-            return ms.apply(el, [ selector, ctx ]);
-
+    var matchesSelector = function(el, selector, ctx) {
 		ctx = ctx || el.parentNode;
 		var possibles = ctx.querySelectorAll(selector);
 		for (var i = 0; i < possibles.length; i++) {
@@ -1111,8 +1107,36 @@
 		}
 		return false;
 	};
-    
-    var _classes = {
+
+	var iev = (function() {
+                var rv = -1;
+                if (navigator.appName == 'Microsoft Internet Explorer') {
+                        var ua = navigator.userAgent,
+                                re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+                        if (re.exec(ua) != null)
+                                rv = parseFloat(RegExp.$1);
+                }
+                return rv;
+        })(),
+        isIELT9 = iev > -1 && iev < 9,
+        _pl = function(e) {
+                if (isIELT9) {
+                        return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
+                }
+                else {
+                        var ts = _touches(e), t = _getTouch(ts, 0);
+                        // this is for iPad. may not fly for Android.
+                        return [t.pageX, t.pageY];
+                }
+        }, 
+        _getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
+        _touches = function(e) {
+                return e.touches && e.touches.length > 0 ? e.touches :
+                           e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
+                           e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
+                           [ e ];
+        },
+        _classes = {
             draggable:"katavorio-draggable",    // draggable elements
             droppable:"katavorio-droppable",    // droppable elements
             drag : "katavorio-drag",            // elements currently being dragged            
@@ -1124,12 +1148,7 @@
         _defaultScope = "katavorio-drag-scope",
         _events = [ "stop", "start", "drag", "drop", "over", "out" ],
         _devNull = function() {},
-        _true = function() { return true; },
-        _pl = function(e) {
-            return e.pageX ?
-                   [ e.pageX, e.pageY ] :
-                   [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
-        },                
+        _true = function() { return true; },               
         _foreach = function(l, fn, from) {
             for (var i = 0; i < l.length; i++) {
                 if (l[i] != from)
@@ -3734,8 +3753,17 @@
 			{ el:"target", elId:"targetId", epDefs:"targetEndpointDefinitions" }
 		];
 		
-		var _set = function(c, el, idx) {
+		var _set = function(c, el, idx, doNotRepaint) {
 			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid;
+			
+			var evtParams = {
+				index:idx,
+				originalSourceId:idx === 0 ? cId : c.sourceId,
+				newSourceId:c.sourceId,
+				originalTargetId:idx == 1 ? cId : c.targetId,
+				newTargetId:c.targetId,
+				connection:c
+			};
 			
 			c.endpoints[idx].detachFromConnection(c);
 			if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
@@ -3744,6 +3772,8 @@
 			else {
 				var sid = _getId(el),
 					sep = this[_st.epDefs][sid];
+
+				if (sid === c[_st.elId]) return evtParams;  // dont change source/target if the element is already the one given.
 					
 				if (sep) {
 					if (!sep.enabled) return;
@@ -3760,23 +3790,26 @@
 			ep.addConnection(c);
 			c.endpoints[idx] = ep;
 			c[_st.el] = ep.element;
-			c[_st.elId] = ep.elementId;
+			c[_st.elId] = ep.elementId;			
+			evtParams[idx == 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+
+			fireMoveEvent(evtParams);
 			
-			
-			fireMoveEvent({
-				index:idx,
-				originalSourceId:idx === 0 ? cId : c.sourceId,
-				newSourceId:c.sourceId,
-				originalTargetId:idx == 1 ? cId : c.targetId,
-				newTargetId:c.targetId,
-				connection:c
-			});
-			
+			if (!doNotRepaint)
+				c.repaint();
+
+			return evtParams;
 			
 		}.bind(this);
 
-		this.setSource = function(connection, el) { _set(connection, el, 0); };
-		this.setTarget = function(connection, el) { _set(connection, el, 1); };
+		this.setSource = function(connection, el, doNotRepaint) { 
+			var p = _set(connection, el, 0, doNotRepaint); 
+			this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection);
+		};
+		this.setTarget = function(connection, el, doNotRepaint) { 
+			var p = _set(connection, el, 1, doNotRepaint); 
+			this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
+		};
 		
 		this.deleteEndpoint = function(object, doNotRepaintAfterwards) {
 			var _is = _currentInstance.setSuspendDrawing(true);
@@ -6062,8 +6095,8 @@
                                     // TODO this is like the makeTarget drop code.
                                     if (idx == 1)
                                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
-                                    else                                    
-                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);                                   
+                                    else
+                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
 
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
@@ -7072,22 +7105,24 @@
         // 2. updating the source information for the target of the connection
         // 3. re-registering the connection in connectionsByElementId with the newId
         //
-        this.sourceChanged = function(originalId, newId, connection) {            
-            // remove the entry that points from the old source to the target
-            jsPlumbUtil.removeWithFunction(connectionsByElementId[originalId], function(info) {
-                return info[0].id === connection.id;
-            });
-            // find entry for target and update it
-            var tIdx = jsPlumbUtil.findWithFunction(connectionsByElementId[connection.targetId], function(i) {
-                return i[0].id === connection.id;
-            });
-            if (tIdx > -1) {
-                connectionsByElementId[connection.targetId][tIdx][0] = connection;
-                connectionsByElementId[connection.targetId][tIdx][1] = connection.endpoints[0];
-                connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor;
+        this.sourceChanged = function(originalId, newId, connection) {        
+            if (originalId !== newId) {    
+                // remove the entry that points from the old source to the target
+                jsPlumbUtil.removeWithFunction(connectionsByElementId[originalId], function(info) {
+                    return info[0].id === connection.id;
+                });
+                // find entry for target and update it
+                var tIdx = jsPlumbUtil.findWithFunction(connectionsByElementId[connection.targetId], function(i) {
+                    return i[0].id === connection.id;
+                });
+                if (tIdx > -1) {
+                    connectionsByElementId[connection.targetId][tIdx][0] = connection;
+                    connectionsByElementId[connection.targetId][tIdx][1] = connection.endpoints[0];
+                    connectionsByElementId[connection.targetId][tIdx][2] = connection.endpoints[0].anchor.constructor == jsPlumb.DynamicAnchor;
+                }
+                // add entry for new source
+                jsPlumbUtil.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor]);         
             }
-            // add entry for new source
-            jsPlumbUtil.addToList(connectionsByElementId, newId, [connection, connection.endpoints[1], connection.endpoints[1].anchor.constructor == jsPlumb.DynamicAnchor]);         
         };
 
         //

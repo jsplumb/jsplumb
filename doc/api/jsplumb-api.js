@@ -78,6 +78,7 @@
 * @param {Connection} connection The connection to set the source for
 * @param {String|Element|Endpoint} source Either an element, element id, or existing Endpoint. If you pass an element or element id for an element that
 * has been registered as a Connection source via makeSource, the Endpoint properties from that call are used.
+* @param {Boolean} [doNotRepaint=false] If true, the Connection will not be repainted after the source is changed.
 * @return {jsPlumbInstance}  The current jsPlumb instance
 */
 
@@ -87,6 +88,7 @@
 * @param {Connection} connection The connection to set the target for
 * @param {String|Element|Endpoint} target Either an element, element id, or existing Endpoint. If you pass an element or element id for an element that
 * has been registered as a Connection target via makeTarget, the Endpoint properties from that call are used.
+* @param {Boolean} [doNotRepaint=false] If true, the Connection will not be repainted after the target is changed.
 * @return {jsPlumbInstance}  The current jsPlumb instance
 */
 

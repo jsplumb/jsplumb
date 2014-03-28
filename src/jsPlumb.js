@@ -1414,8 +1414,17 @@
 			{ el:"target", elId:"targetId", epDefs:"targetEndpointDefinitions" }
 		];
 		
-		var _set = function(c, el, idx) {
+		var _set = function(c, el, idx, doNotRepaint) {
 			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid;
+			
+			var evtParams = {
+				index:idx,
+				originalSourceId:idx === 0 ? cId : c.sourceId,
+				newSourceId:c.sourceId,
+				originalTargetId:idx == 1 ? cId : c.targetId,
+				newTargetId:c.targetId,
+				connection:c
+			};
 			
 			c.endpoints[idx].detachFromConnection(c);
 			if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
@@ -1424,6 +1433,8 @@
 			else {
 				var sid = _getId(el),
 					sep = this[_st.epDefs][sid];
+
+				if (sid === c[_st.elId]) return evtParams;  // dont change source/target if the element is already the one given.
 					
 				if (sep) {
 					if (!sep.enabled) return;
@@ -1440,23 +1451,26 @@
 			ep.addConnection(c);
 			c.endpoints[idx] = ep;
 			c[_st.el] = ep.element;
-			c[_st.elId] = ep.elementId;
+			c[_st.elId] = ep.elementId;			
+			evtParams[idx == 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+
+			fireMoveEvent(evtParams);
 			
-			
-			fireMoveEvent({
-				index:idx,
-				originalSourceId:idx === 0 ? cId : c.sourceId,
-				newSourceId:c.sourceId,
-				originalTargetId:idx == 1 ? cId : c.targetId,
-				newTargetId:c.targetId,
-				connection:c
-			});
-			
+			if (!doNotRepaint)
+				c.repaint();
+
+			return evtParams;
 			
 		}.bind(this);
 
-		this.setSource = function(connection, el) { _set(connection, el, 0); };
-		this.setTarget = function(connection, el) { _set(connection, el, 1); };
+		this.setSource = function(connection, el, doNotRepaint) { 
+			var p = _set(connection, el, 0, doNotRepaint); 
+			this.anchorManager.sourceChanged(p.originalSourceId, p.newSourceId, connection);
+		};
+		this.setTarget = function(connection, el, doNotRepaint) { 
+			var p = _set(connection, el, 1, doNotRepaint); 
+			this.anchorManager.updateOtherEndpoint(p.originalSourceId, p.originalTargetId, p.newTargetId, connection);
+		};
 		
 		this.deleteEndpoint = function(object, doNotRepaintAfterwards) {
 			var _is = _currentInstance.setSuspendDrawing(true);

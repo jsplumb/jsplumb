@@ -797,8 +797,8 @@
                                     // TODO this is like the makeTarget drop code.
                                     if (idx == 1)
                                         _jsPlumb.anchorManager.updateOtherEndpoint(jpc.sourceId, jpc.suspendedElementId, jpc.targetId, jpc);
-                                    else                                    
-                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);                                   
+                                    else
+                                        _jsPlumb.anchorManager.sourceChanged(jpc.suspendedEndpoint.elementId, jpc.sourceId, jpc);
 
                                     // finalise will inform the anchor manager and also add to
                                     // connectionsByScope if necessary.
