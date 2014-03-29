@@ -24,7 +24,9 @@
 	143 - SVG gradient fails when page url already contains a hash
 	153 - jsPlumb.animate no longer supports jQuery selectors
 	157 - connectionMoved event not fired (when using makeTarget)
+	162 - Connector 'Flowchart' occurs an error.
 	164 - makeSource fails when used in conjunction with uniqueEndpoint
+	177 - Flowchart straight Line
 	
 	MISCELLANEOUS
 	

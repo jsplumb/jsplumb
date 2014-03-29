@@ -116,10 +116,12 @@
                     }                    
                     current = next;
                 }
-                // last segment
-                _super.addSegment(conn, "Straight", {
-                    x1:next[0], y1:next[1], x2:next[2], y2:next[3]
-                });                             
+                if (next != null) {
+                    // last segment
+                    _super.addSegment(conn, "Straight", {
+                        x1:next[0], y1:next[1], x2:next[2], y2:next[3]
+                    });                             
+                }
             };
         
         this.setSegments = function(s) {
