@@ -65,6 +65,15 @@
             }
             else return a;
         },
+        matchesSelector : function(el, selector, ctx) {
+            ctx = ctx || el.parentNode;
+            var possibles = ctx.querySelectorAll(selector);
+            for (var i = 0; i < possibles.length; i++) {
+                if (possibles[i] === el)
+                    return true;
+            }
+            return false;
+        },
         merge : function(a, b) {
             var c = this.clone(a);
             for (var i in b) {
