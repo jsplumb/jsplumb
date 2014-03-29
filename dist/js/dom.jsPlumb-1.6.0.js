@@ -1352,7 +1352,7 @@
         };
         
         this.drop = function(drag, event) {
-            params.events["drop"]({ drag:drag, event:event, drop:this });
+            params.events["drop"]({ drag:drag, e:event, drop:this });
         };
 		
 		this.destroy = function() {};
@@ -1644,6 +1644,15 @@
                 return c;
             }
             else return a;
+        },
+        matchesSelector : function(el, selector, ctx) {
+            ctx = ctx || el.parentNode;
+            var possibles = ctx.querySelectorAll(selector);
+            for (var i = 0; i < possibles.length; i++) {
+                if (possibles[i] === el)
+                    return true;
+            }
+            return false;
         },
         merge : function(a, b) {
             var c = this.clone(a);
@@ -11184,7 +11193,7 @@
 		getDragScope : function(el) {
 			return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
 		},
-		getDropEvent : function(args) { return args[0].event; },
+		getDropEvent : function(args) { return args[0].e; },
 		getDropScope : function(el) {
 			return el._katavorioDrop && el._katavorioDrop.scopes.join(" ") || "";
 		},
