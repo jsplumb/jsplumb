@@ -143,7 +143,7 @@
 		getDragScope : function(el) {
 			return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
 		},
-		getDropEvent : function(args) { return args[0].event; },
+		getDropEvent : function(args) { return args[0].event || args[0].e; },
 		getDropScope : function(el) {
 			return el._katavorioDrop && el._katavorioDrop.scopes.join(" ") || "";
 		},
