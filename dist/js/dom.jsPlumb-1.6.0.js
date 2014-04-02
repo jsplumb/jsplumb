@@ -5054,8 +5054,8 @@
             	_currentInstance.anchorManager.clearFor(info.id);						
             	_currentInstance.anchorManager.removeFloatingConnection(info.id);
             }, doNotRepaint === false);
-            if (info.el) this.removeElement(info.el);
-			return this;
+            if (info.el) _currentInstance.removeElement(info.el);
+			return _currentInstance;
         };
 
 		var _registeredListeners = {},

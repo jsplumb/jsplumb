@@ -1,0 +1,39 @@
+
+<!doctype html>
+<html>
+	<head>
+	<link rel="shortcut icon" type="image/png" href="../img/favicon.png">
+		
+
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" href="../css/jsplumb.css">
+		<link rel="stylesheet" href="qunit-1.11.0.css">
+		<script src="qunit-1.11.0.js"></script>
+	
+		
+		
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.2/jquery.ui.touch-punch.min.js"></script>
+
+<script src="../js/jquery.jsPlumb-1.6.0-min.js"></script>
+				
+		<!-- TEST -->
+		<script src="jsPlumb-tests.js"></script>
+		<script src="test-support-jquery.js"></script>
+		<!-- /TEST -->
+		
+	</head>
+	<body class="test">
+		<h2 id="qunit-banner"></h2>
+		<div id="qunit-testrunner-toolbar"></div>
+		<h2 id="qunit-userAgent"></h2>
+		<ol id="qunit-tests"></ol>
+
+		<script type="text/javascript">
+		jsPlumb.ready(function() {
+			testSuite("vml", jsPlumb.getInstance());
+		});
+		</script>
+	</body>
+</html>
