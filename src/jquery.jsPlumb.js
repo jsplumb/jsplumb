@@ -57,7 +57,7 @@
 	//var getBoundingClientRectSupported = "getBoundingClientRect" in document.documentElement;
 
 	var _getElementObject = function(el) {			
-		return typeof(el) == "string" ? $("#" + el) : $(el);
+		return typeof(el) == "string" ? $("#" + el.replace(new RegExp( "\\b:\\b", "gi" ),"\\:")) : $(el);
 	};
 
 	jsPlumb.CurrentLibrary = {					        
