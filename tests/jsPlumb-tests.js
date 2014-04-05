@@ -162,6 +162,15 @@ var testSuite = function(renderMode, _jsPlumb) {
 		assertEndpointCount("d2", 1, _jsPlumb);
 	});
 
+	
+	test(renderMode + ': create two simple endpoints containing : in their names (issue 192)', function() {
+		var d1 = _addDiv("d1:0"), d2 = _addDiv("d2:0");
+		d1.addClass("window");d2.addClass("window");
+		var endpoints = _jsPlumb.addEndpoint(["d1:0", "d2:0"], {});
+		equal(endpoints.length, 2, "endpoint added to both windows");  
+		assertEndpointCount("d1:0", 1, _jsPlumb);
+		assertEndpointCount("d2:0", 1, _jsPlumb);
+	});
 /*
 	test(renderMode + ' jsPlumb.removeAllEndpoints after element removed from DOM', function() {
 		var container = $('<div id="container"><ul id="targets"><li id="in1">input 1</li><li id="in2">input 2</li></ul><ul id="sources"><li id="output">output</li></ul></div>');
