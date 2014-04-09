@@ -51,7 +51,7 @@ body {
     padding:0;
     margin:0;    
     font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;    
-    background-color:#eaedef;
+    background-color: whitesmoke;
    
 }
 
@@ -103,23 +103,27 @@ body {
  #main {  
   margin-top: 106px;  
   font-size: 80%;    
-  width:75%;
+  /* width:75%; */
   margin-left:auto;
   margin-right: auto;  
-  height:600px;
+  height: 800px;
   text-align: center;
   position: relative;
-  max-width:852px;
+  /* max-width:852px; */
+  max-width: 1100px;
+  max-height: 1000px;
+  /* bottom: 0; */
 }
 
 .demo {
   position: relative;
   width:100%;
   background-color:white;    
-  height:563px;
+  /* height:563px; */
   overflow:auto;  
   margin-top: 53px;
   margin-bottom:25px;
+  height: 600px;
 }
 
 .explanation {
