@@ -143,7 +143,9 @@ body {
 .explanation.expanded {
   height:auto;
   min-height:54px;
-    max-height:100%;    
+    
+  -webkit-transition: max-height 0.8s;
+  max-height:100%;    
 }
 
 .commands {

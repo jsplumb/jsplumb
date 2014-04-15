@@ -103,14 +103,14 @@ body {
  #main {  
   margin-top: 106px;  
   font-size: 80%;    
-  /* width:75%; */
+  width: 80%;
   margin-left:auto;
   margin-right: auto;  
-  height: 800px;
+  height: 600px;
   text-align: center;
   position: relative;
   /* max-width:852px; */
-  max-width: 1100px;
+  max-width: 1200px;
   max-height: 1000px;
   /* bottom: 0; */
 }
@@ -143,7 +143,9 @@ body {
 .explanation.expanded {
   height:auto;
   min-height:54px;
-    max-height:100%;    
+    
+  -webkit-transition: max-height 0.8s;
+  max-height:100%;    
 }
 
 .commands {
