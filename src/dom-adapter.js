@@ -99,17 +99,24 @@
 				
 			if (children) {
 				for (var i in children) {
-					var cel = jpcl.getElementObject(i),
-						cOff = jpcl.getOffset(cel);
+					var cel = jpcl.getElementObject(i);
 						
-					_delements[id][i] = {
-						id:i,
-						offset:{
-							left:cOff.left - parentOffset.left,
-							top:cOff.top - parentOffset.top
-						}
-					};
-					_draggablesForElements[i] = id;
+					// need to check if cel is available, it might've been deleted
+					// if it's deleted, we want to update the internal reference
+					if (cel.length == 0) {	
+                        delete _delements[id][i];
+                        delete _draggablesForElements[i];
+                    } else {
+                        var cOff = jpcl.getOffset(cel);
+                        _delements[id][i] = {
+                            id:i,
+                            offset:{
+                                left:cOff.left - parentOffset.left,
+                                top:cOff.top - parentOffset.top
+                            }
+                        };
+                        _draggablesForElements[i] = id;
+                    }
 				}
 			}
 		};
