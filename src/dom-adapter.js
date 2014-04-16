@@ -97,6 +97,7 @@
 				children = _delements[id],
 				parentOffset = jpcl.getOffset(el);
 				
+				var inv_zoom = 1/_currentInstance.getZoom();
 			if (children) {
 				for (var i in children) {
 					var cel = jpcl.getElementObject(i);
@@ -111,8 +112,8 @@
                         _delements[id][i] = {
                             id:i,
                             offset:{
-                                left:cOff.left - parentOffset.left,
-                                top:cOff.top - parentOffset.top
+                                left: (cOff.left - parentOffset.left) * inv_zoom, //need to remove zoom because these offsets will have zoom applied later
+                                top: (cOff.top - parentOffset.top) * inv_zoom
                             }
                         };
                         _draggablesForElements[i] = id;
