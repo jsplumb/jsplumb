@@ -117,7 +117,8 @@ module.exports = function(grunt) {
                 files:[
                     { expand:true, cwd:"css", src:"*.*", dest:"jekyll/css" },
                     { expand:true, cwd:"demo/font", src:"*.*", dest:"jekyll/css" },
-                    { expand:true, cwd:"img", src:"*.*", dest:"jekyll/img" }
+                    { expand:true, cwd:"img", src:"*.*", dest:"jekyll/img" },
+                    { expand:true, cwd:"demo", src:["**/*.jpg", "**/*.png" ], dest:"dist/demo/"}
                 ]
             },
             demos:{
