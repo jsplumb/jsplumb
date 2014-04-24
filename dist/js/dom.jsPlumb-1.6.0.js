@@ -1200,6 +1200,8 @@
         var k = Super.apply(this, arguments),
             downAt = [0,0], posAtDown = null, moving = false,
 			consumeStartEvent = params.consumeStartEvent !== false,
+			dragEl = el,
+			clone = params.clone,
 			toGrid = function(pos) {
 				return params.grid == null ? pos :
 					[
@@ -1230,6 +1232,14 @@
                 if (this.isEnabled() && canDrag()) {
 					var _f =  filter(e);
 					if (_f) {
+						if (!clone)
+							dragEl = el;
+						else {
+							dragEl = el.cloneNode(true);
+							dragEl.setAttribute("id", null);
+							dragEl.style.position = "absolute";
+							document.body.appendChild(dragEl);
+						}
 						consumeStartEvent && _consume(e);
 						downAt = _pl(e);
 						params.events["start"]({el:el, pos:posAtDown, e:e, drag:this});
@@ -1259,7 +1269,6 @@
                     this.moveBy(dx, dy, e);
                     k.updateSelection(dx, dy, this);
                 }   
-				//e.preventDefault();
             }.bind(this),
             upListener = function(e) {
                 downAt = null;
@@ -1269,12 +1278,18 @@
                 params.removeClass(document.body, css.noSelect);
                 this.unmark(e);
                 k.unmarkSelection(this, e);
-                params.events["stop"]({el:el, pos:params.getPosition(el), e:e, drag:this});
+                params.events["stop"]({el:dragEl, pos:params.getPosition(dragEl), e:e, drag:this});
+				dragEl && document.body.removeChild(dragEl);
+				dragEl = null;
             }.bind(this);
 			
 		this.abort = function() {
 			if (downAt != null)
 				upListener();
+		};
+		
+		this.getDragElement = function() {
+			return dragEl || el;
 		};
 
         this.mark = function() {
@@ -1282,7 +1297,7 @@
             this.size = params.getSize(el);
             matchingDroppables = k.getMatchingDroppables(this);
             _setDroppablesActive(matchingDroppables, true, false, this);
-            params.addClass(el, params.dragClass || css.drag);
+            params.addClass(dragEl, params.dragClass || css.drag);
             if (params.constrain || params.containment) {
                 var cs = params.getSize(this.el.parentNode);
                 constrainRect = { w:cs[0], h:cs[1] };
@@ -1293,13 +1308,13 @@
             matchingDroppables.length = 0;
             for (var i = 0; i < intersectingDroppables.length; i++)
                 intersectingDroppables[i].drop(this, e);
-            params.removeClass(el, params.dragClass || css.drag);
+            params.removeClass(dragEl, params.dragClass || css.drag);
 		};
 		this.moveBy = function(dx, dy, e) {
 			intersectingDroppables.length = 0;
 			var cPos = constrain(toGrid(([posAtDown[0] + dx, posAtDown[1] + dy]))),
 				rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
-			params.setPosition(el, cPos);
+			params.setPosition(dragEl, cPos);
 			for (var i = 0; i < matchingDroppables.length; i++) {
 				var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
 				if (params.intersects(rect, r2) && matchingDroppables[i].canDrop(this)) {
@@ -2471,28 +2486,30 @@
 			
 			// user can supply a beforeDrop callback, which will be executed before a dropped
 			// connection is confirmed. user can return false to reject connection.			
-			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint) {
-				var r = this._jsPlumb.instance.checkCondition("beforeDrop", { 
-					sourceId:sourceId, 
-					targetId:targetId, 
-					scope:scope,
-					connection:connection,
-					dropEndpoint:dropEndpoint 
-				});
-				if (this._jsPlumb.beforeDrop) {
-					try { 
-						r = this._jsPlumb.beforeDrop({ 
-							sourceId:sourceId, 
-							targetId:targetId, 
-							scope:scope, 
-							connection:connection,
-							dropEndpoint:dropEndpoint
-						}); 
+			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint, source, target) {
+					var r = this._jsPlumb.instance.checkCondition("beforeDrop", { 
+						sourceId:sourceId, 
+						targetId:targetId, 
+						scope:scope,
+						connection:connection,
+						dropEndpoint:dropEndpoint,
+						source:source, target:target
+					});
+					if (this._jsPlumb.beforeDrop) {
+						try { 
+							r = this._jsPlumb.beforeDrop({ 
+								sourceId:sourceId, 
+								targetId:targetId, 
+								scope:scope, 
+								connection:connection,
+								dropEndpoint:dropEndpoint,
+								source:source, target:target
+							}); 
+						}
+						catch (e) { _ju.log("jsPlumb: beforeDrop callback failed", e); }
 					}
-					catch (e) { _ju.log("jsPlumb: beforeDrop callback failed", e); }
-				}
-				return r;
-			};													
+					return r;
+				};													
 
 		    var boundListeners = [],
 		    	bindAListener = function(obj, type, fn) {
@@ -4543,7 +4560,7 @@
 						// source - jpc.sourceId
 						// target - elid
 						//
-						var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null);
+						var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null, idx === 0 ? elInfo.el : jpc.source, idx === 0 ? jpc.target : elInfo.el);
 
 						// reinstate any suspended endpoint; this just puts the connection back into
 						// a state in which it will report sensible values if someone asks it about
@@ -4565,7 +4582,6 @@
 								newTargetId:idx == 1 ? elid : jpc.targetId,
 								connection:jpc
 							}, originalEvent);
-							
 						}
 
 						if (_continue) {
@@ -11192,7 +11208,7 @@
 		isAlreadyDraggable : function(el) { return el._katavorioDrag != null; },
 		isDragSupported : function(el, options) { return true; },
 		isDropSupported : function(el, options) { return true; },
-		getDragObject : function(eventArgs) { return eventArgs[0].drag.el; },
+		getDragObject : function(eventArgs) { return eventArgs[0].drag.getDragElement(); },
 		getDragScope : function(el) {
 			return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
 		},
