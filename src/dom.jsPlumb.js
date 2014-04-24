@@ -139,7 +139,7 @@
 		isAlreadyDraggable : function(el) { return el._katavorioDrag != null; },
 		isDragSupported : function(el, options) { return true; },
 		isDropSupported : function(el, options) { return true; },
-		getDragObject : function(eventArgs) { return eventArgs[0].drag.el; },
+		getDragObject : function(eventArgs) { return eventArgs[0].drag.getDragElement(); },
 		getDragScope : function(el) {
 			return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
 		},
