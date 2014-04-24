@@ -126,28 +126,30 @@
 			
 			// user can supply a beforeDrop callback, which will be executed before a dropped
 			// connection is confirmed. user can return false to reject connection.			
-			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint) {
-				var r = this._jsPlumb.instance.checkCondition("beforeDrop", { 
-					sourceId:sourceId, 
-					targetId:targetId, 
-					scope:scope,
-					connection:connection,
-					dropEndpoint:dropEndpoint 
-				});
-				if (this._jsPlumb.beforeDrop) {
-					try { 
-						r = this._jsPlumb.beforeDrop({ 
-							sourceId:sourceId, 
-							targetId:targetId, 
-							scope:scope, 
-							connection:connection,
-							dropEndpoint:dropEndpoint
-						}); 
+			this.isDropAllowed = function(sourceId, targetId, scope, connection, dropEndpoint, source, target) {
+					var r = this._jsPlumb.instance.checkCondition("beforeDrop", { 
+						sourceId:sourceId, 
+						targetId:targetId, 
+						scope:scope,
+						connection:connection,
+						dropEndpoint:dropEndpoint,
+						source:source, target:target
+					});
+					if (this._jsPlumb.beforeDrop) {
+						try { 
+							r = this._jsPlumb.beforeDrop({ 
+								sourceId:sourceId, 
+								targetId:targetId, 
+								scope:scope, 
+								connection:connection,
+								dropEndpoint:dropEndpoint,
+								source:source, target:target
+							}); 
+						}
+						catch (e) { _ju.log("jsPlumb: beforeDrop callback failed", e); }
 					}
-					catch (e) { _ju.log("jsPlumb: beforeDrop callback failed", e); }
-				}
-				return r;
-			};													
+					return r;
+				};													
 
 		    var boundListeners = [],
 		    	bindAListener = function(obj, type, fn) {
@@ -2198,7 +2200,7 @@
 						// source - jpc.sourceId
 						// target - elid
 						//
-						var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null);
+						var _continue = proxyComponent.isDropAllowed(idx === 0 ? elid : jpc.sourceId, idx === 0 ? jpc.targetId : elid, jpc.scope, jpc, null, idx === 0 ? elInfo.el : jpc.source, idx === 0 ? jpc.target : elInfo.el);
 
 						// reinstate any suspended endpoint; this just puts the connection back into
 						// a state in which it will report sensible values if someone asks it about
@@ -2220,7 +2222,6 @@
 								newTargetId:idx == 1 ? elid : jpc.targetId,
 								connection:jpc
 							}, originalEvent);
-							
 						}
 
 						if (_continue) {
