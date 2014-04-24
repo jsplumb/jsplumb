@@ -158,7 +158,7 @@
 					joinstyle:"miter"
 				},
 				hoverPaintStyle:hoverPaintStyle, 
-				endpoint:["Image", {url:"../../img/endpointTest1.png"}], 
+				endpoint:["Image", {url:"endpointTest1.png"}], 
 				connector:"Straight", 
 				endpointsOnTop:true,
 				overlays:[ ["Label", {
