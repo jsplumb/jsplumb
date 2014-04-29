@@ -6,11 +6,9 @@
 		showConnectionInfo = function(s) {
 			list.innerHTML = s;
 			list.style.display = "block";
-			jsPlumb.repaintEverything();
 		},	
 		hideConnectionInfo = function() {
 			list.style.display = "none";
-			jsPlumb.repaintEverything();
 		},
 		connections = [],
 		updateConnections = function(conn, remove) {
@@ -184,30 +182,26 @@
 				var hideLinks = jsPlumb.getSelector(".drag-drop-demo .hide");
 				instance.on(hideLinks, "click", function(e) {
 					instance.toggleVisible(this.getAttribute("rel"));
-					e.stopPropagation();
-					e.preventDefault();
+					jsPlumbUtil.consume(e);
 				});
 
 				var dragLinks = jsPlumb.getSelector(".drag-drop-demo .drag");
 				instance.on(dragLinks, "click", function(e) {
 					var s = instance.toggleDraggable(this.getAttribute("rel"));
 					this.innerHTML = (s ? 'disable dragging' : 'enable dragging');				
-					e.stopPropagation();
-					e.preventDefault();
+					jsPlumbUtil.consume(e);
 				});
 
 				var detachLinks = jsPlumb.getSelector(".drag-drop-demo .detach");
 				instance.on(detachLinks, "click", function(e) {
 					instance.detachAllConnections(this.getAttribute("rel"));
-					e.stopPropagation();
-					e.preventDefault();
+					jsPlumbUtil.consume(e);
 				});
 
 				instance.on(document.getElementById("clear"), "click", function(e) { 
 					instance.detachEveryConnection();
 					showConnectionInfo("");
-					e.stopPropagation();
-					e.preventDefault();
+					jsPlumbUtil.consume(e);
 				});
 			});
 			
