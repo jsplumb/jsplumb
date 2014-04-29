@@ -3786,7 +3786,9 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(el.style.borderColor, "red", "border color red");
 		equal(el.style.backgroundColor, "blue", "bg color blue");
 		equal(el.style.color, "green", "color green");
-		equal(el.style.font, "12px foo", "bg font 12px foo");
+		var f = el.style.font;
+		ok(f == "12px foo" || f == "12px/normal foo"
+, "bg font 12px foo");
 		/*
 		equal(el.css("border-width"), "2px", "border width 2");
 		equal(el.css("border-color"), "rgb(255, 0, 0)", "border color red");
