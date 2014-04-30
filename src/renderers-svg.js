@@ -330,7 +330,7 @@
 					var rt = e.relatedTarget;
 					return rt == null || (rt != self.path && rt != self.bgPath);
 				},
-				"mouseexit":function(e) {
+				"mouseout":function(e) {
 					var rt = e.relatedTarget;
 					return rt == null || (rt != self.path && rt != self.bgPath);
 				}
