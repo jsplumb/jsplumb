@@ -31,27 +31,27 @@
         });
 		
 		window.setZoom = function(z, el) {
-    var p = [ "webkit", "moz", "ms", "o", "" ],
-        s = "scale(" + z + ")";
+		    var p = [ "webkit", "moz", "ms", "o", "" ],
+		        s = "scale(" + z + ")";
 
-    for (var i = 0; i < p.length; i++)
-		el.style[p[i] + "Transform"] = s;
+		    for (var i = 0; i < p.length; i++)
+				el.style[p[i] + "Transform"] = s;
 
-    instance.setZoom(z);    
-};
+		    instance.setZoom(z);    
+		};
 
 
 		// click listener for the enable/disable link.
         jsPlumb.on(document.getElementById("enableDisableSource"), "click", function(e) {
 			var state = instance.toggleSourceEnabled("sourceWindow1");
 			this.innerHTML = (state ? "disable" : "enable");
-			e.stopPropagation();
-			e.preventDefault();
+			jsPlumbUtil.consume(e);
 		});
 
         // bind to a connection event, just for the purposes of pointing out that it can be done.
 		instance.bind("connection", function(i,c) { 
-			console.dir(i.connection); 
+			if (typeof console !== "undefined")
+				console.dir(i.connection); 
 		});
 
         // get the list of ".smallWindow" elements.            
