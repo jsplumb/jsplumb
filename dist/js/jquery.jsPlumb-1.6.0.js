@@ -823,6 +823,15 @@
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
         },
+        consume : function(e, doNotPreventDefault) {
+            if (e.stopPropagation)
+                e.stopPropagation();
+            else 
+                e.returnValue = false;
+            
+            if (!doNotPreventDefault && e.preventDefault)
+                 e.preventDefault();
+        },
         //
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
         // class members, any of which may be null.
@@ -1547,9 +1556,10 @@
 			    	obj.bind(type, fn);
 			    },
 		    	domListeners = [],
-            	bindOne = function(o, c, evt) {
+            	bindOne = function(o, c, evt, override) {
 					var filteredEvent = eventFilters[evt] || evt,
 						fn = function(ee) {
+							if (override && override(ee) === false) return;
 							c.fire(filteredEvent, c, ee);
 						};
 					domListeners.push([o, evt, fn, c]);
@@ -1588,9 +1598,10 @@
             	boundListeners = null;
             };            
 		    
-		    this.attachListeners = function(o, c) {
+		    this.attachListeners = function(o, c, overrides) {
+				overrides = overrides || {};
 				for (var i = 0, j = events.length; i < j; i++) {
-					bindOne(o, c, events[i]); 			
+					bindOne(o, c, events[i], overrides[events[i]]); 			
 				}
 			};	
 			this.detachListeners = function() {
@@ -1748,7 +1759,11 @@
                         
                     if (this.canvas != null) {
                         if (this._jsPlumb.instance.hoverClass != null) {
-							this._jsPlumb.instance[hover ? "addClass" : "removeClass"](this.canvas, this._jsPlumb.instance.hoverClass);
+                        	var method = hover ? "addClass" : "removeClass";
+							this._jsPlumb.instance[method](this.canvas, this._jsPlumb.instance.hoverClass);
+                        }
+                        if (this._jsPlumb.hoverClass != null) {
+							this._jsPlumb.instance[method](this.canvas, this._jsPlumb.hoverClass);
                         }
                     }
 		   		 	if (this._jsPlumb.hoverPaintStyle != null) {
@@ -9172,7 +9187,7 @@
 		var pointerEventsSpec = params.pointerEventsSpec || "all", renderer = {};
 			
 		jsPlumb.jsPlumbUIComponent.apply(this, params.originalArgs);
-		this.canvas = null;this.path = null;this.svg = null; 
+		this.canvas = null;this.path = null;this.svg = null; this.bgCanvas = null;
 	
 		var clazz = params.cssClass + " " + (params.originalArgs[0].cssClass || ""),		
 			svgParams = {
@@ -9182,7 +9197,9 @@
 				"pointer-events":pointerEventsSpec,
 				"position":"absolute"
 			};				
+		
 		this.svg = _node("svg", svgParams);
+		
 		if (params.useDivWrapper) {
 			this.canvas = document.createElement("div");
 			this.canvas.style.position = "absolute";
@@ -9241,12 +9258,15 @@
 			renderer:renderer
 		};
 	};
+	
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
 			this.canvas && this.canvas.parentNode && this.canvas.parentNode.removeChild(this.canvas);
 			this.svg = null;
 			this.canvas = null;
+			this.bgCanvas = null;
 			this.path = null;			
+			this.group = null;
 		},
 		setVisible:function(v) {
 			if (this.canvas) {
@@ -9294,7 +9314,18 @@
 					"pointer-events":params["pointer-events"] || "visibleStroke"
 				}, 
                 outlineStyle = null,
-                d = [self.x,self.y,self.w,self.h];						
+                d = [self.x,self.y,self.w,self.h];
+				
+			var mouseInOutFilters = {
+				"mouseenter":function(e) {
+					var rt = e.relatedTarget;
+					return rt == null || (rt != self.path && rt != self.bgPath);
+				},
+				"mouseexit":function(e) {
+					var rt = e.relatedTarget;
+					return rt == null || (rt != self.path && rt != self.bgPath);
+				}
+			};
 			
 			// outline style.  actually means drawing an svg object underneath the main one.
 			if (style.outlineColor) {
@@ -9307,7 +9338,7 @@
 				if (self.bgPath == null) {
 					self.bgPath = _node("path", a);
 			    	_appendAtIndex(self.svg, self.bgPath, 0);
-		    		self.attachListeners(self.bgPath, self);
+		    		self.attachListeners(self.bgPath, self, mouseInOutFilters);
 				}
 				else {
 					_attr(self.bgPath, a);
@@ -9318,8 +9349,8 @@
 			
 	    	if (self.path == null) {
 		    	self.path = _node("path", a);
-		    	_appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
-	    		self.attachListeners(self.path, self);	    		    		
+				_appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
+		    	self.attachListeners(self.path, self, mouseInOutFilters);	    		    		
 	    	}
 	    	else {
 	    		_attr(self.path, a);

@@ -11,10 +11,16 @@ makeTarget uniqueEndpoint issues
 
 
 
-
 future
 
     (none of these things are definite.  i just like to keep a list of ideas that i've bounced around with various people)
+
+    - use a <g> element around everything in the SVG renderer, and then only attach mouse events to that element. this will give us
+    a fix for the bg/fg mouseenter/leave bug, and also support a path per segment etc. much better.
+
+    can i wrap that up with dropping support for vml (ie8?)
+
+    
 
     - have a toFront and toBack method available on Connection (and on return value from jsPlumb.select method).
     would require some notion of what the default zindex was. how best to do that?

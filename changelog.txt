@@ -26,7 +26,10 @@
 	157 - connectionMoved event not fired (when using makeTarget)
 	162 - Connector 'Flowchart' occurs an error.
 	164 - makeSource fails when used in conjunction with uniqueEndpoint
+	173 - jsPlumb.setDraggable([element_id],false); fails
 	177 - Flowchart straight Line
+	202 - spurious mouse events in connector with outline
+	203 - hoverClass on endpoints doesn't work
 	
 	MISCELLANEOUS
 	
