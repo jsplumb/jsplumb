@@ -157,9 +157,10 @@
 			    	obj.bind(type, fn);
 			    },
 		    	domListeners = [],
-            	bindOne = function(o, c, evt) {
+            	bindOne = function(o, c, evt, override) {
 					var filteredEvent = eventFilters[evt] || evt,
 						fn = function(ee) {
+							if (override && override(ee) === false) return;
 							c.fire(filteredEvent, c, ee);
 						};
 					domListeners.push([o, evt, fn, c]);
@@ -198,9 +199,10 @@
             	boundListeners = null;
             };            
 		    
-		    this.attachListeners = function(o, c) {
+		    this.attachListeners = function(o, c, overrides) {
+				overrides = overrides || {};
 				for (var i = 0, j = events.length; i < j; i++) {
-					bindOne(o, c, events[i]); 			
+					bindOne(o, c, events[i], overrides[events[i]]); 			
 				}
 			};	
 			this.detachListeners = function() {
