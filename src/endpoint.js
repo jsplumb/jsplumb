@@ -700,7 +700,8 @@
                             scope = _jsPlumb.getAttribute(draggable, "originalScope"),
                             jpc = floatingConnections[id];
                             
-                        // if this is a drop back where the connection came from, mark it force rettach and
+                        if (jpc != null) {
+                            // if this is a drop back where the connection came from, mark it force rettach and
                         // return; the stop handler will reattach. without firing an event.
                         var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id == this.id ||
                                         this.referenceEndpoint && jpc.suspendedEndpoint.id == this.referenceEndpoint.id) ;							
@@ -708,8 +709,6 @@
                             jpc._forceReattach = true;
                             return;
                         }
-
-                        if (jpc != null) {
                             var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx === 0 ? 1 : 0;
                             
                             // restore the original scope if necessary (issue 57)						
