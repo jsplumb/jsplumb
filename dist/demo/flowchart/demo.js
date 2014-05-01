@@ -146,6 +146,8 @@ window.setZoom = function(z, el) {
 			instance.bind("connectionMoved", function(params) {
 				console.log("connection " + params.connection.id + " was moved");
 			});
+
+			instance.connect({source:"flowchartWindow4",target:"flowchartWindow2"})
 		});
 		
 	});

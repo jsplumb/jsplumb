@@ -373,7 +373,7 @@
 			el.removeEvent(event, callback);
 		},
 		reset:function() {
-			console.log("RESET")
+
 		}
 	});
 
