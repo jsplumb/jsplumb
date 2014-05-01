@@ -310,62 +310,65 @@
 			var segments = self.getSegments(), p = "", offset = [0,0];			
 			if (extents.xmin < 0) offset[0] = -extents.xmin;
 			if (extents.ymin < 0) offset[1] = -extents.ymin;			
+
+			if (segments.length > 0) {
 			
-			// create path from segments.	
-			for (var i = 0; i < segments.length; i++) {
-				p += jsPlumb.Segments.svg.SegmentRenderer.getPath(segments[i]);
-				p += " ";
-			}			
-			
-			var a = { 
-					d:p,
-					transform:"translate(" + offset[0] + "," + offset[1] + ")",
-					"pointer-events":params["pointer-events"] || "visibleStroke"
-				}, 
-                outlineStyle = null,
-                d = [self.x,self.y,self.w,self.h];
+				// create path from segments.	
+				for (var i = 0; i < segments.length; i++) {
+					p += jsPlumb.Segments.svg.SegmentRenderer.getPath(segments[i]);
+					p += " ";
+				}			
 				
-			var mouseInOutFilters = {
-				"mouseenter":function(e) {
-					var rt = e.relatedTarget;
-					return rt == null || (rt != self.path && rt != self.bgPath);
-				},
-				"mouseout":function(e) {
-					var rt = e.relatedTarget;
-					return rt == null || (rt != self.path && rt != self.bgPath);
-				}
-			};
-			
-			// outline style.  actually means drawing an svg object underneath the main one.
-			if (style.outlineColor) {
-				var outlineWidth = style.outlineWidth || 1,
-					outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
-				outlineStyle = jsPlumb.extend({}, style);
-				outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
-				outlineStyle.lineWidth = outlineStrokeWidth;
+				var a = { 
+						d:p,
+						transform:"translate(" + offset[0] + "," + offset[1] + ")",
+						"pointer-events":params["pointer-events"] || "visibleStroke"
+					}, 
+	                outlineStyle = null,
+	                d = [self.x,self.y,self.w,self.h];
+					
+				var mouseInOutFilters = {
+					"mouseenter":function(e) {
+						var rt = e.relatedTarget;
+						return rt == null || (rt != self.path && rt != self.bgPath);
+					},
+					"mouseout":function(e) {
+						var rt = e.relatedTarget;
+						return rt == null || (rt != self.path && rt != self.bgPath);
+					}
+				};
 				
-				if (self.bgPath == null) {
-					self.bgPath = _node("path", a);
-			    	_appendAtIndex(self.svg, self.bgPath, 0);
-		    		self.attachListeners(self.bgPath, self, mouseInOutFilters);
-				}
-				else {
-					_attr(self.bgPath, a);
-				}
+				// outline style.  actually means drawing an svg object underneath the main one.
+				if (style.outlineColor) {
+					var outlineWidth = style.outlineWidth || 1,
+						outlineStrokeWidth = style.lineWidth + (2 * outlineWidth);
+					outlineStyle = jsPlumb.extend({}, style);
+					outlineStyle.strokeStyle = jsPlumbUtil.convertStyle(style.outlineColor);
+					outlineStyle.lineWidth = outlineStrokeWidth;
+					
+					if (self.bgPath == null) {
+						self.bgPath = _node("path", a);
+				    	_appendAtIndex(self.svg, self.bgPath, 0);
+			    		self.attachListeners(self.bgPath, self, mouseInOutFilters);
+					}
+					else {
+						_attr(self.bgPath, a);
+					}
+					
+					_applyStyles(self.svg, self.bgPath, outlineStyle, d, self);
+				}			
 				
-				_applyStyles(self.svg, self.bgPath, outlineStyle, d, self);
-			}			
-			
-	    	if (self.path == null) {
-		    	self.path = _node("path", a);
-				_appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
-		    	self.attachListeners(self.path, self, mouseInOutFilters);	    		    		
-	    	}
-	    	else {
-	    		_attr(self.path, a);
-	    	}
-	    		    	
-	    	_applyStyles(self.svg, self.path, style, d, self);
+		    	if (self.path == null) {
+			    	self.path = _node("path", a);
+					_appendAtIndex(self.svg, self.path, style.outlineColor ? 1 : 0);
+			    	self.attachListeners(self.path, self, mouseInOutFilters);	    		    		
+		    	}
+		    	else {
+		    		_attr(self.path, a);
+		    	}
+		    		    	
+		    	_applyStyles(self.svg, self.path, style, d, self);
+		    }
 		};
 		
 		this.reattachListeners = function() {
