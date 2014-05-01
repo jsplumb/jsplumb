@@ -627,6 +627,10 @@
 
 	"use strict";
 
+	var Sniff = {
+		android:navigator.userAgent.toLowerCase().indexOf("android") > -1
+	};
+
 	var matchesSelector = function(el, selector, ctx) {
 			ctx = ctx || el.parentNode;
 			var possibles = ctx.querySelectorAll(selector);
@@ -855,15 +859,25 @@
 			return rv;
 		})(),
 		isIELT9 = iev > -1 && iev < 9, 
+		_genLoc = function(e, prefix) {
+			if (e == null) return [ 0, 0 ];
+			var ts = _touches(e), t = _getTouch(ts, 0);
+			return [t[prefix + "X"], t[prefix + "Y"]];
+		},
 		_pageLocation = function(e) {
+			if (e == null) return [ 0, 0 ];
 			if (isIELT9) {
 				return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
 			}
 			else {
-				var ts = _touches(e), t = _getTouch(ts, 0);
-				// this is for iPad. may not fly for Android.
-				return [t.pageX, t.pageY];
+				return _genLoc(e, "page");
 			}
+		},
+		_screenLocation = function(e) {
+			return _genLoc(e, "screen");
+		},
+		_clientLocation = function(e) {
+			return _genLoc(e, "client");
 		},
 		_getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
 		_touches = function(e) {
@@ -924,6 +938,7 @@
 	* (don't fire click if the mouse has moved betweeb mousedown and mouseup),
 	* and synthesized click/tap events.
 	* @class Mottle
+	* @constructor
 	* @param {Object} params Constructor params
 	* @param {Integer} [params.clickThreshold=150] Threshold, in milliseconds beyond which a touchstart followed by a touchend is not considered to be a click.
 	* @param {Integer} [params.dblClickThreshold=350] Threshold, in milliseconds beyond which two successive tap events are not considered to be a click.
@@ -959,7 +974,7 @@
 		* to ensure you don't leak memory.
 		* @method remove
 		* @param {String|Element} el Element, or id of the element, to remove.
-		* @returns {Mottle} The current Mottle instance; you can chain this method.
+		* @return {Mottle} The current Mottle instance; you can chain this method.
 		*/
 		this.remove = function(el) {
 			_each(el, function() {
@@ -985,7 +1000,7 @@
 		* @param {String} [children] Comma-delimited list of selectors identifying allowed children.
 		* @param {String} event Event ID.
 		* @param {Function} fn Event handler function.
-		* @returns {Mottle} The current Mottle instance; you can chain this method.
+		* @return {Mottle} The current Mottle instance; you can chain this method.
 		*/
 		this.on = function(el, children, event, fn) {
 			var _el = arguments[0],
@@ -1005,7 +1020,7 @@
 		* @param {Element[]|Element|String} el Element - or ID of element - from which to remove event listener.
 		* @param {String} event Event ID.
 		* @param {Function} fn Event handler function.
-		* @returns {Mottle} The current Mottle instance; you can chain this method.
+		* @return {Mottle} The current Mottle instance; you can chain this method.
 		*/
 		this.off = function(el, evt, fn) {
 			_unbind(el, evt, fn);
@@ -1013,41 +1028,77 @@
 		};
 
 		/**
-		* @name Mottle#trigger
-		* @function
-		* @desc Triggers some event for a given element.
+		* Triggers some event for a given element.
+		* @method trigger
 		* @param {Element} el Element for which to trigger the event.
 		* @param {String} event Event ID.
 		* @param {Event} originalEvent The original event. Should be optional of course, but currently is not, due
 		* to the jsPlumb use case that caused this method to be added.
-		* @returns {Mottle} The current Mottle instance; you can chain this method.
+		* @param {Object} [payload] Optional object to set as `payload` on the generated event; useful for message passing.
+		* @return {Mottle} The current Mottle instance; you can chain this method.
 		*/
-		this.trigger = function(el, event, originalEvent) {
-			event = (isTouchDevice && touchMap[event]) ? touchMap[event] : event;
+		this.trigger = function(el, event, originalEvent, payload) {
+			var eventToBind = (isTouchDevice && touchMap[event]) ? touchMap[event] : event;
+			var pl = _pageLocation(originalEvent), sl = _screenLocation(originalEvent), cl = _clientLocation(originalEvent);
 			_each(el, function() {
 				var _el = _gel(this), evt;
 				originalEvent = originalEvent || {
-					screenX:0,
-					screenY:0,
-					clientX:0,
-					clientY:0
+					screenX:sl[0],
+					screenY:sl[1],
+					clientX:cl[0],
+					clientY:cl[1]
 				};
+
+				var _decorate = function(_evt) {
+					if (payload) _evt.payload = payload;
+				};
+
+				var eventGenerators = {
+					"TouchEvent":function(evt) {
+						var t = document.createTouch(window, _el, 0, pl[0], pl[1], 
+									sl[0], sl[1],
+									cl[0], cl[1],
+									0,0,0,0);
+
+						evt.initTouchEvent(eventToBind, true, true, window, 0, 
+							sl[0], sl[1],
+							cl[0], cl[1],
+							false, false, false, false, document.createTouchList(t));
+					},
+					"MouseEvents":function(evt) {
+						evt.initMouseEvent(eventToBind, true, true, window, 0,
+							sl[0], sl[1],
+							cl[0], cl[1],
+							false, false, false, false, 1, _el);
+						
+						if (Sniff.android) {
+							// Android's touch events are not standard.
+							var t = document.createTouch(window, _el, 0, pl[0], pl[1], 
+										sl[0], sl[1],
+										cl[0], cl[1],
+										0,0,0,0);
+
+							evt.touches = evt.targetTouches = evt.changedTouches = document.createTouchList(t);
+						}
+					}
+				};
+
 				if (document.createEvent) {
-					evt = document.createEvent("MouseEvents");
-					evt.initMouseEvent(event, true, true, window, 0,
-						originalEvent.screenX, originalEvent.screenY,
-						originalEvent.clientX, originalEvent.clientY,
-						false, false, false, false, 1, null);
+					var ite = (isTouchDevice && touchMap[event] && !Sniff.android), evtName = ite ? "TouchEvent" : "MouseEvents";
+					evt = document.createEvent(evtName);
+					eventGenerators[evtName](evt);
+					_decorate(evt);
 					_el.dispatchEvent(evt);
 				}
 				else if (document.createEventObject) {
 					evt = document.createEventObject();
-					evt.eventType = evt.eventName = event;
-					evt.screenX = originalEvent.screenX;
-					evt.screenY = originalEvent.screenY;
-					evt.clientX = originalEvent.clientX;
-					evt.clientY = originalEvent.clientY;
-					_el.fireEvent('on' + event, evt);
+					evt.eventType = evt.eventName = eventToBind;
+					evt.screenX = sl[0];
+					evt.screenY = sl[1];
+					evt.clientX = cl[0];
+					evt.clientY = cl[1];
+					_decorate(evt);
+					_el.fireEvent('on' + eventToBind, evt);
 				}
 			});
 			return this;
@@ -1055,8 +1106,10 @@
 	};
 
 	/**
-	* @name Mottle#consume
-	* @desc Static method to assist in 'consuming' an element.
+	* Static method to assist in 'consuming' an element: uses `stopPropagation` where available, or sets `e.returnValue=false` where it is not.
+	* @method Mottle.consume
+	* @param {Event} e Event to consume
+	* @param {Boolean} [doNotPreventDefault=false] If true, does not call `preventDefault()` on the event.
 	*/
 	Mottle.consume = function(e, doNotPreventDefault) {
 		if (e.stopPropagation)
@@ -1067,6 +1120,14 @@
 		if (!doNotPreventDefault && e.preventDefault)
 			 e.preventDefault();
 	};
+
+	/**
+	* Gets the page location corresponding to the given event. For touch events this means get the page location of the first touch.
+	* @method Mottle.pageLocation
+	* @param {Event} e Event to get page location for.
+	* @return {Integer[]} [left, top] for the given event.
+	*/
+	Mottle.pageLocation = _pageLocation;
 
 }).call(this);
 
@@ -2025,22 +2086,62 @@
  */
 ;(function() {
     
-		var canvasAvailable = !!document.createElement('canvas').getContext,
+	var canvasAvailable = !!document.createElement('canvas').getContext,
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		vmlAvailable = function() {		    
-            if (vmlAvailable.vml === undefined) { 
-                var a = document.body.appendChild(document.createElement('div'));
-            	a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
-            	var b = a.firstChild;
-            	if (b != null && b.style != null) {
+	        if (vmlAvailable.vml === undefined) { 
+	            var a = document.body.appendChild(document.createElement('div'));
+	        	a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
+	        	var b = a.firstChild;
+	        	if (b != null && b.style != null) {
 	            	b.style.behavior = "url(#default#VML)";
 	            	vmlAvailable.vml = b ? typeof b.adj == "object": true;
 	            }
 	            else
 	            	vmlAvailable.vml = false;
-            	a.parentNode.removeChild(a);
-            }
-            return vmlAvailable.vml;
+	        	a.parentNode.removeChild(a);
+	        }
+	        return vmlAvailable.vml;
+		},
+		// TODO: remove this once we remove all library adapter versions and have only vanilla jsplumb: this functionality
+		// comes from Mottle.
+		iev = (function() {
+			var rv = -1; 
+			if (navigator.appName == 'Microsoft Internet Explorer') {
+				var ua = navigator.userAgent,
+					re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+				if (re.exec(ua) != null)
+					rv = parseFloat(RegExp.$1);
+			}
+			return rv;
+		})(),
+		isIELT9 = iev > -1 && iev < 9, 
+		_genLoc = function(e, prefix) {
+			if (e == null) return [ 0, 0 ];
+			var ts = _touches(e), t = _getTouch(ts, 0);
+			return [t[prefix + "X"], t[prefix + "Y"]];
+		},
+		_pageLocation = function(e) {
+			if (e == null) return [ 0, 0 ];
+			if (isIELT9) {
+				return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
+			}
+			else {
+				return _genLoc(e, "page");
+			}
+		},
+		_screenLocation = function(e) {
+			return _genLoc(e, "screen");
+		},
+		_clientLocation = function(e) {
+			return _genLoc(e, "client");
+		},
+		_getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
+		_touches = function(e) {
+			return e.touches && e.touches.length > 0 ? e.touches : 
+				   e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
+				   e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
+				   [ e ];
 		};
         
     /**
@@ -2276,6 +2377,10 @@
     window.jsPlumbAdapter = {
         
         headless:false,
+
+        pageLocation:_pageLocation,
+        screenLocation:_screenLocation,
+        clientLocation:_clientLocation,
 
         getAttribute:function(el, attName) {
         	return el.getAttribute(attName);
@@ -4795,13 +4900,6 @@
 							this.repaint(oldConnection.targetId);
 						}
 					}.bind(this));
-
-					var _setEventOffsets = function(event) {
-						if(event.offsetX == null) {
-						    event.offsetX = event.layerX;// - event.currentTarget.offsetLeft;
-						    event.offsetY = event.layerY;// - event.currentTarget.offsetTop;
-						}
-					};
 					
 					// when the user presses the mouse, add an Endpoint, if we are enabled.
 					var mouseDownListener = function(e) {
@@ -4831,22 +4929,26 @@
 							return false;
 						}
 
-						_setEventOffsets(evt);
-
-						// TODO fails in mootools right now.
 						var evtSource = evt.srcElement || evt.target,
-							esOffset = _updateOffset({elId:_currentInstance.getId(evtSource)}).o,
+							esOffset = jsPlumbAdapter.getOffset(evtSource, _currentInstance, true),
+							elOffset = jsPlumbAdapter.getOffset(_el, _currentInstance, true),
 							myOffsetInfo = _updateOffset({elId:elid}).o,
-							x = (evt.offsetX + esOffset.left - myOffsetInfo.left) / myOffsetInfo.width, 
-							y = (evt.offsetY + esOffset.top - myOffsetInfo.top) / myOffsetInfo.height, 
+							cl = jsPlumbAdapter.pageLocation(evt),
+							ox = cl[0] - esOffset.left + (esOffset.left - elOffset.left),
+							oy = cl[1] - esOffset.top + (esOffset.top - elOffset.top),
+							x = ox / myOffsetInfo.width,
+							y = oy / myOffsetInfo.height,
 							parentX = x, 
 							parentY = y;
 							
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = (evt.offsetX + esOffset.left - myOffsetInfo.left) / myOffsetInfo.width;
-							parentY = (evt.offsetY + esOffset.top - myOffsetInfo.top) / myOffsetInfo.height;
+							var pOffset = jsPlumbAdapter.getOffset(pEl, _currentInstance, true);
+							ox = cl[0] - esOffset.left + (esOffset.left - pOffset.left);
+							oy = cl[1] - esOffset.top + (esOffset.top - pOffset.top);
+							parentX = ox / myOffsetInfo.width;
+							parentY = oy / myOffsetInfo.height;
 						}
 							
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -4896,6 +4998,8 @@
 						// and then trigger its mousedown event, which will kick off a drag, which will start dragging
 						// a new connection from this endpoint.
 						_currentInstance.trigger(ep.canvas, "mousedown", e);
+
+						jsPlumbUtil.consume(e);
 						
 					}.bind(this);
 	               
