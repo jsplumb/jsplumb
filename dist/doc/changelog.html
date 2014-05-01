@@ -102,7 +102,7 @@
             <div class="markdown-body">
                 <h2>1.6.0</h2>
 
-<p>Version 1.6.0 is a major release of jsPlumb. With this version ships a &quot;no library&quot; adapter - a version of jsPlumb that relies on no external libraries, and which has a few features that the  other library adapters do not. We&#39;re calling this the &quot;DOM Adapter&quot;.</p>
+<p>Version 1.6.0 is a major release of jsPlumb. With this version ships a &quot;vanilla&quot; version - it relies on no external libraries, and also has a few features that the other library adapters do not (see below). </p>
 
 <h3>Changes between 1.5.5 and 1.6.0</h3>
 
@@ -111,19 +111,23 @@
 <ul>
 <li>There is no support for the canvas renderer in jsPlumb 1.6.0.</li>
 <li>The way in which library adapters inject their functionality into jsPlumb has changed. This will affect very few people; contact jsPlumb if you need help with this.</li>
-<li>All elements added by jsPlumb are appended to the current &quot;Container&quot;, which defaults to the document body. This differs
-from previous versions, in which if there was no Container set then jsPlumb would append elements to the parent of a connection&#39;s source endpoint. For this reason it is now more than ever recommended that you set a Container.<br></li>
+<li>All elements added by jsPlumb are appended to the current &quot;Container&quot;, which defaults to the document body. This differs from previous versions, in which if there was no Container set then jsPlumb would append elements to the parent of a connection&#39;s source endpoint. For this reason it is now more than ever recommended that you set a Container.<br></li>
 <li>The <code>container</code> parameter on <code>addEndpoint</code> or <code>connect</code> calls is no longer supported.</li>
 </ul>
 
 <h4>Issues</h4>
 
 <ul>
+<li><strong>91</strong>  - Old ID is being used on events after setId</li>
 <li><strong>143</strong> - SVG gradient fails when page url already contains a hash</li>
 <li><strong>153</strong> - jsPlumb.animate no longer supports jQuery selectors</li>
 <li><strong>157</strong> - connectionMoved event not fired (when using makeTarget)</li>
-<li><strong>162</strong> - when two anchor points are in identical positions, flowchart connector fails.</li>
+<li><strong>162</strong> - Connector &#39;Flowchart&#39; occurs an error.</li>
 <li><strong>164</strong> - makeSource fails when used in conjunction with uniqueEndpoint</li>
+<li><strong>173</strong> - jsPlumb.setDraggable([element_id],false); fails</li>
+<li><strong>177</strong> - Flowchart straight Line</li>
+<li><strong>202</strong> - Spurious mouse events in connector with outline</li>
+<li><strong>203</strong> - hoverClass on endpoints doesn&#39;t work</li>
 </ul>
 
 <h4>New Functionality</h4>
@@ -140,12 +144,19 @@ from previous versions, in which if there was no Container set then jsPlumb woul
 
 <p>Also supported are multiple scopes for each draggable/droppable element.</p>
 
+<h6>Using Vanilla jsPlumb with jQuery</h6>
+
+<p>Even if you have jQuery in the page you can use vanilla jsPlumb; it will accept jQuery selectors as arguments. Keep in mind that you won&#39;t get jQuery selectors out of it, though - any methods that return an Element will return plain DOM Elements and you&#39;ll need to turn them in jQuery selectors yourself.</p>
+
 <h4>Miscellaneous</h4>
 
 <ul>
 <li>Events now have <code>this</code> set correctly</li>
-<li>Added qUnit tests for DOM, YUI and MooTools adapters</li>
+<li>Added qUnit tests for Vanilla, YUI and MooTools adapters</li>
 <li>Various YUI and MooTools methods were upgraded to support passing in an element list (<code>setId</code> for one)</li>
+<li>Added setSource/setTarget methods, allowing you to retarget a Connection programmatically.</li>
+<li>Reduced the amount of functionality that is delegated to a support library</li>
+<li>Rewrote the way support libraries are integrated</li>
 </ul>
 
 <h2>1.5.5</h2>

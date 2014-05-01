@@ -33,12 +33,19 @@ var within = function(val, target, _ok, msg) {
 var _divs = [];
 var _addDiv = function(id, parent) {
 	var d1 = document.createElement("div");
+	d1.style.position = "absolute";
 	if (parent) parent.appendChild(d1); else document.getElementById("container").appendChild(d1);	
 	d1.setAttribute("id", id);
-	//d1 = jsPlumb.getElementObject(d1);
+	d1.style.left = (Math.floor(Math.random() * 1000)) + "px";
+	d1.style.top = (Math.floor(Math.random() * 1000)) + "px";
 	_divs.push(id);
 	return d1;
 };
+
+var _addDivs = function(ids, parent) {
+	for (var i = 0; i < ids.length; i++)
+		_addDiv(ids[i], parent);
+}
 
 var _triggerEvent = function(el, eventId) {
     var o = $(el).offset();
@@ -5845,10 +5852,9 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
 // ******************* override pointer events ********************
     test(renderMode + "pointer-events, jsPlumb.connect", function() {
     	if (_jsPlumb.getRenderMode() == jsPlumb.SVG) {
-	        _addDiv("d1");_addDiv("d2");
+	        _addDivs(["d1", "d2"]);
 	        var c = _jsPlumb.connect({source:"d1",target:"d2", "pointer-events":"BANANA"});
-	        //equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
-			equal(jsPlumb.getSelector(c.getConnector().canvas, "path")[0].getAttribute("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+	        equal(jsPlumb.getSelector(c.getConnector().canvas, "path")[0].getAttribute("pointer-events"), "BANANA", "pointer events passed through to svg elements");
 	    }
 	    else
 	    	expect(0);
@@ -5856,11 +5862,10 @@ test(renderMode + " jsPlumbUtil.extend, multiple parents", function() {
     
     test(renderMode + "connector-pointer-events, jsPlumb.addEndpoint", function() {
     	if (_jsPlumb.getRenderMode() == jsPlumb.SVG) {
-	        _addDiv("d1");_addDiv("d2");
+	        _addDivs(["d1", "d2"]);
 	        var e1 = _jsPlumb.addEndpoint("d1", { "connector-pointer-events":"BANANA" });
 	        var c = _jsPlumb.connect({source:e1,target:"d2"});
-	        //equal($(c.getConnector().canvas).find("path").attr("pointer-events"), "BANANA", "pointer events passed through to svg elements");
-			equal(jsPlumb.getSelector(c.getConnector().canvas, "path")[0].getAttribute("pointer-events"), "BANANA", "pointer events passed through to svg elements");
+	        equal(jsPlumb.getSelector(c.getConnector().canvas, "path")[0].getAttribute("pointer-events"), "BANANA", "pointer events passed through to svg elements");
 	     }
 	     else
 	       	expect(0);

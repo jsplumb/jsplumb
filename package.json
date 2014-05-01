@@ -3,7 +3,7 @@
   "version": "1.6.0",
   "description": "pipe up your life",
   "main": "index.js",
-  "jsPlumbWiki": "../jsPlumb.wiki",
+  "jsPlumbWiki": "../wiki/jsPlumb.wiki",
   "directories": {
     "doc": "doc",
     "test": "tests"
