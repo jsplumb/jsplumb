@@ -2456,22 +2456,35 @@
 							return false;
 						}
 
-						_setEventOffsets(evt);
+					//	_setEventOffsets(evt);
 
 						// TODO fails in mootools right now.
 						var evtSource = evt.srcElement || evt.target,
-							esOffset = _updateOffset({elId:_currentInstance.getId(evtSource)}).o,
+							//esOffset = _updateOffset({elId:_currentInstance.getId(evtSource)}).o,
+							esOffset = jsPlumbAdapter.getOffset(evtSource, _currentInstance, true),
+							elOffset = jsPlumbAdapter.getOffset(_el, _currentInstance, true),
 							myOffsetInfo = _updateOffset({elId:elid}).o,
-							x = (evt.offsetX + esOffset.left - myOffsetInfo.left) / myOffsetInfo.width, 
-							y = (evt.offsetY + esOffset.top - myOffsetInfo.top) / myOffsetInfo.height, 
+							//myOffsetInfo = jsPlumbAdapter.getOffset(_el, _currentInstance, true),
+							cl = jsPlumbAdapter.pageLocation(evt),
+							ox = cl[0] - esOffset.left,
+							oy = cl[1] - esOffset.top,
+							x = ox / myOffsetInfo.width,
+							y = oy / myOffsetInfo.height,
+							//x = (cl[0] /*+ esOffset.left*/ - myOffsetInfo.left) / myOffsetInfo.width, 
+							//y = (cl[1] /*+ esOffset.top*/ - myOffsetInfo.top) / myOffsetInfo.height, 
 							parentX = x, 
 							parentY = y;
 							
 						if (p.parent) {
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
-							parentX = (evt.offsetX + esOffset.left - myOffsetInfo.left) / myOffsetInfo.width;
-							parentY = (evt.offsetY + esOffset.top - myOffsetInfo.top) / myOffsetInfo.height;
+							var pOffset = jsPlumbAdapter.getOffset(pEl, _currentInstance, true);
+							ox = (cl[0] - pOffset.left) - esOffset.left;
+							oy = (cl[1] - pOffset.top) - esOffset.top;
+							parentX = ox / myOffsetInfo.width;
+							parentY = oy / myOffsetInfo.height;
+							//parentX = (evt.offsetX + esOffset.left - myOffsetInfo.left) / myOffsetInfo.width;
+							//parentY = (evt.offsetY + esOffset.top - myOffsetInfo.top) / myOffsetInfo.height;
 						}
 							
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -2521,6 +2534,8 @@
 						// and then trigger its mousedown event, which will kick off a drag, which will start dragging
 						// a new connection from this endpoint.
 						_currentInstance.trigger(ep.canvas, "mousedown", e);
+
+						jsPlumbUtil.consume(e);
 						
 					}.bind(this);
 	               
