@@ -2420,13 +2420,6 @@
 							this.repaint(oldConnection.targetId);
 						}
 					}.bind(this));
-
-					var _setEventOffsets = function(event) {
-						if(event.offsetX == null) {
-						    event.offsetX = event.layerX;// - event.currentTarget.offsetLeft;
-						    event.offsetY = event.layerY;// - event.currentTarget.offsetTop;
-						}
-					};
 					
 					// when the user presses the mouse, add an Endpoint, if we are enabled.
 					var mouseDownListener = function(e) {
@@ -2456,22 +2449,15 @@
 							return false;
 						}
 
-					//	_setEventOffsets(evt);
-
-						// TODO fails in mootools right now.
 						var evtSource = evt.srcElement || evt.target,
-							//esOffset = _updateOffset({elId:_currentInstance.getId(evtSource)}).o,
 							esOffset = jsPlumbAdapter.getOffset(evtSource, _currentInstance, true),
 							elOffset = jsPlumbAdapter.getOffset(_el, _currentInstance, true),
 							myOffsetInfo = _updateOffset({elId:elid}).o,
-							//myOffsetInfo = jsPlumbAdapter.getOffset(_el, _currentInstance, true),
 							cl = jsPlumbAdapter.pageLocation(evt),
-							ox = cl[0] - esOffset.left,
-							oy = cl[1] - esOffset.top,
+							ox = cl[0] - esOffset.left + (esOffset.left - elOffset.left),
+							oy = cl[1] - esOffset.top + (esOffset.top - elOffset.top),
 							x = ox / myOffsetInfo.width,
 							y = oy / myOffsetInfo.height,
-							//x = (cl[0] /*+ esOffset.left*/ - myOffsetInfo.left) / myOffsetInfo.width, 
-							//y = (cl[1] /*+ esOffset.top*/ - myOffsetInfo.top) / myOffsetInfo.height, 
 							parentX = x, 
 							parentY = y;
 							
@@ -2479,12 +2465,10 @@
 							var pEl = parentElement(), pId = _getId(pEl);
 							myOffsetInfo = _updateOffset({elId:pId}).o;
 							var pOffset = jsPlumbAdapter.getOffset(pEl, _currentInstance, true);
-							ox = (cl[0] - pOffset.left) - esOffset.left;
-							oy = (cl[1] - pOffset.top) - esOffset.top;
+							ox = cl[0] - esOffset.left + (esOffset.left - pOffset.left);
+							oy = cl[1] - esOffset.top + (esOffset.top - pOffset.top);
 							parentX = ox / myOffsetInfo.width;
 							parentY = oy / myOffsetInfo.height;
-							//parentX = (evt.offsetX + esOffset.left - myOffsetInfo.left) / myOffsetInfo.width;
-							//parentY = (evt.offsetY + esOffset.top - myOffsetInfo.top) / myOffsetInfo.height;
 						}
 							
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
