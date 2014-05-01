@@ -18,22 +18,62 @@
  */
 ;(function() {
     
-		var canvasAvailable = !!document.createElement('canvas').getContext,
+	var canvasAvailable = !!document.createElement('canvas').getContext,
 		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		vmlAvailable = function() {		    
-            if (vmlAvailable.vml === undefined) { 
-                var a = document.body.appendChild(document.createElement('div'));
-            	a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
-            	var b = a.firstChild;
-            	if (b != null && b.style != null) {
+	        if (vmlAvailable.vml === undefined) { 
+	            var a = document.body.appendChild(document.createElement('div'));
+	        	a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
+	        	var b = a.firstChild;
+	        	if (b != null && b.style != null) {
 	            	b.style.behavior = "url(#default#VML)";
 	            	vmlAvailable.vml = b ? typeof b.adj == "object": true;
 	            }
 	            else
 	            	vmlAvailable.vml = false;
-            	a.parentNode.removeChild(a);
-            }
-            return vmlAvailable.vml;
+	        	a.parentNode.removeChild(a);
+	        }
+	        return vmlAvailable.vml;
+		},
+		// TODO: remove this once we remove all library adapter versions and have only vanilla jsplumb: this functionality
+		// comes from Mottle.
+		iev = (function() {
+			var rv = -1; 
+			if (navigator.appName == 'Microsoft Internet Explorer') {
+				var ua = navigator.userAgent,
+					re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+				if (re.exec(ua) != null)
+					rv = parseFloat(RegExp.$1);
+			}
+			return rv;
+		})(),
+		isIELT9 = iev > -1 && iev < 9, 
+		_genLoc = function(e, prefix) {
+			if (e == null) return [ 0, 0 ];
+			var ts = _touches(e), t = _getTouch(ts, 0);
+			return [t[prefix + "X"], t[prefix + "Y"]];
+		},
+		_pageLocation = function(e) {
+			if (e == null) return [ 0, 0 ];
+			if (isIELT9) {
+				return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
+			}
+			else {
+				return _genLoc(e, "page");
+			}
+		},
+		_screenLocation = function(e) {
+			return _genLoc(e, "screen");
+		},
+		_clientLocation = function(e) {
+			return _genLoc(e, "client");
+		},
+		_getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
+		_touches = function(e) {
+			return e.touches && e.touches.length > 0 ? e.touches : 
+				   e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
+				   e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
+				   [ e ];
 		};
         
     /**
@@ -269,6 +309,10 @@
     window.jsPlumbAdapter = {
         
         headless:false,
+
+        pageLocation:_pageLocation,
+        screenLocation:_screenLocation,
+        clientLocation:_clientLocation,
 
         getAttribute:function(el, attName) {
         	return el.getAttribute(attName);
