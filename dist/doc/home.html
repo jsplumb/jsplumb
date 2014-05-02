@@ -410,9 +410,13 @@
 <p>You can also pass a selector from your library in to this method:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.someClass&quot;</span><span class="p">));</span>
 </code></pre></div>
-<p>This method is just a wrapper for the underlying library&#39;s draggable functionality, and there is a two-argument version in which the second argument is passed down to the underlying library (example below).  </p>
+<p>This method is just a wrapper for the underlying library&#39;s draggable functionality, and there is a two-argument version in which the second argument is passed down to the underlying library (example below). </p>
 
 <p>If you absolutely cannot use <code>jsPlumb.draggable</code>, you will have to arrange to repaint the drag element manually, via <code>jsPlumb.repaint</code>.</p>
+
+<h6>Vanilla jsPlumb</h6>
+
+<p>In vanilla jsPlumb, drag support is provided by a bundled library called <a href="https://github.com/jsplumb/katavorio">Katavorio</a>. Katavorio supports drag containment and constraining elements to a grid, as well as drag/drop of multiple elements.</p>
 
 <h5>Required CSS</h5>
 
@@ -441,9 +445,9 @@
 
 <p>Unfortunately, the animation that runs the revert does not offer any lifecycle callback methods - no &quot;<code>step</code>&quot;, no &quot;<code>complete</code>&quot;, etc - so it&#39;s not possible for jsPlumb to know that the revert animation is taking place, meaning jsPlumb &quot;doesn&#39;t work&quot;, as it were, with the revert option.</p>
 
-<h6>DOM Adapter</h6>
+<h6>Vanilla</h6>
 
-<p>The &quot;no library&quot; version of jsPlumb offers support for containing a dragged element within the bounds of its parent:</p>
+<p>Vanilla jsPlumb offers support for containing a dragged element within the bounds of its parent:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="p">{</span>
    <span class="nx">containment</span><span class="o">:</span><span class="kc">true</span>
 <span class="p">});</span>
