@@ -1174,32 +1174,32 @@
 	};
 
 	var iev = (function() {
-                var rv = -1;
-                if (navigator.appName == 'Microsoft Internet Explorer') {
-                        var ua = navigator.userAgent,
-                                re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-                        if (re.exec(ua) != null)
-                                rv = parseFloat(RegExp.$1);
-                }
-                return rv;
+            var rv = -1;
+            if (navigator.appName == 'Microsoft Internet Explorer') {
+                    var ua = navigator.userAgent,
+                            re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+                    if (re.exec(ua) != null)
+                            rv = parseFloat(RegExp.$1);
+            }
+            return rv;
         })(),
         isIELT9 = iev > -1 && iev < 9,
         _pl = function(e) {
-                if (isIELT9) {
-                        return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
-                }
-                else {
-                        var ts = _touches(e), t = _getTouch(ts, 0);
-                        // this is for iPad. may not fly for Android.
-                        return [t.pageX, t.pageY];
-                }
+            if (isIELT9) {
+                    return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
+            }
+            else {
+                    var ts = _touches(e), t = _getTouch(ts, 0);
+                    // this is for iPad. may not fly for Android.
+                    return [t.pageX, t.pageY];
+            }
         }, 
         _getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
         _touches = function(e) {
-                return e.touches && e.touches.length > 0 ? e.touches :
-                           e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
-                           e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
-                           [ e ];
+            return e.touches && e.touches.length > 0 ? e.touches :
+                       e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
+                       e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
+                       [ e ];
         },
         _classes = {
             draggable:"katavorio-draggable",    // draggable elements
@@ -1241,7 +1241,14 @@
 			else {
 				e.returnValue = false;
 			}
-		};
+		},
+        _defaultInputFilterSelector = "input,textarea,select",
+        //
+        // filters out events on all input elements, like textarea, checkbox, input, select.
+        _inputFilter = function(e, el, _katavorio) {
+            var t = e.srcElement || e.target;
+            return !matchesSelector(t, _katavorio.getInputFilterSelector(), el);
+        };
         
     var Super = function(el, params, css, scope) {
         params.addClass(el, this._class);
@@ -1295,7 +1302,7 @@
             matchingDroppables = [], intersectingDroppables = [],
             downListener = function(e) {
                 if (this.isEnabled() && canDrag()) {
-					var _f =  filter(e);
+					var _f =  filter(e) && _inputFilter(e, el, this.k);
 					if (_f) {
 						if (!clone)
 							dragEl = el;
@@ -1515,6 +1522,25 @@
 		// prepare map of css classes based on defaults frst, then optional overrides
 		for (var i in _classes) _css[i] = _classes[i];
 		for (var i in overrideCss) _css[i] = overrideCss[i];
+
+        var inputFilterSelector = katavorioParams.inputFilterSelector || _defaultInputFilterSelector;
+        /**
+        * Gets the selector identifying which input elements to filter from drag events.
+        * @method getInputFilterSelector
+        * @return {String} Current input filter selector.
+        */
+        this.getInputFilterSelector = function() { return inputFilterSelector; }; 
+
+        /**
+        * Sets the selector identifying which input elements to filter from drag events.
+        * @method setInputFilterSelector
+        * @param {String} selector Input filter selector to set.
+        * @return {Katavorio} Current instance; method may be chained.
+        */
+        this.setInputFilterSelector = function(selector) { 
+            inputFilterSelector = selector; 
+            return this;
+        }; 
         
         this.draggable = function(el, params) {
 			var o = [];
