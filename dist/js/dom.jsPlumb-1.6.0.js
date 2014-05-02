@@ -1242,7 +1242,7 @@
 				e.returnValue = false;
 			}
 		},
-        _defaultInputFilterSelector = "input,textarea,select",
+        _defaultInputFilterSelector = "input,textarea,select,button",
         //
         // filters out events on all input elements, like textarea, checkbox, input, select.
         _inputFilter = function(e, el, _katavorio) {
@@ -3319,7 +3319,7 @@
 							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
 							_currentInstance.setConnectionBeingDragged(true);
-							if (dragOptions.canDrag) return dragOptions.canDrag();
+							if (options.canDrag) return dragOptions.canDrag();
 						}, false);
 	
 						options[dragEvent] = _ju.wrap(options[dragEvent], function() {

@@ -104,9 +104,9 @@
 
 <p>jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG in modern browsers, and VML on IE 8 and below. </p>
 
-<p>jsPlumb can be used with jQuery, MooTools or YUI3 (or another library of your choice if you feel like implementing an adapter for it).</p>
+<p>The latest version is 1.6.0. Starting with 1.6.0, jsPlumb ships with a version that has no external dependencies. This is referred to as &quot;vanilla&quot; jsPlumb; the filename has a prefix of <strong>dom-</strong>.</p>
 
-<p>The latest version is 1.6.0.</p>
+<p>jQuery/MooTools/YUI adapter versions are still shipped in 1.6.x, but unless you have a specific need to use one of them, vanilla jsPlumb is recommended.</p>
 
 <h2>Required Imports and Basic Setup</h2>
 
@@ -167,10 +167,11 @@
 
 <h3>Required Imports</h3>
 
-<h5>DOM Adapter</h5>
+<h5>Vanilla</h5>
 
 <p>No required imports. </p>
-
+<div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/dom.jsPlumb-1.6.0-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</code></pre></div>
 <h6>Touch events</h6>
 
 <p>Touch events are supported out of the box.</p>
@@ -301,7 +302,7 @@
 
 <p>jsPlumb supports selectors as arguments for elements.</p>
 
-<p>When using the DOM adapter, you can use a <code>NodeList</code> - it is, effectively, the native equivalent of the selectors we just discussed.  There are several ways of getting a <code>NodeList</code> from the DOM; perhaps the most useful (supported in IE8+) is <code>document.querySelectorAll(&quot;.myClass&quot;)</code>.</p>
+<p>When using vanilla jsPlumb, you can use a <code>NodeList</code> - it is, effectively, the native equivalent of the selectors we just discussed.  There are several ways of getting a <code>NodeList</code> from the DOM; perhaps the most useful (supported in IE8+) is <code>document.querySelectorAll(&quot;.myClass&quot;)</code>.</p>
 
 <p>You will see <strong>selector</strong> referred to in many places in the jsPlumb documentation. Just think of it as a list of elements that match some CSS spec.</p>
 

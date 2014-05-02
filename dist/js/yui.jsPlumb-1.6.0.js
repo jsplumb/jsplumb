@@ -2256,7 +2256,7 @@
 							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
 							_currentInstance.setConnectionBeingDragged(true);
-							if (dragOptions.canDrag) return dragOptions.canDrag();
+							if (options.canDrag) return dragOptions.canDrag();
 						}, false);
 	
 						options[dragEvent] = _ju.wrap(options[dragEvent], function() {
