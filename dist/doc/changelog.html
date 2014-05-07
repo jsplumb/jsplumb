@@ -100,7 +100,27 @@
 </ul>
             </div>
             <div class="markdown-body">
-                <h2>1.6.0</h2>
+                <h2>1.6.1</h2>
+
+<p>This is a minor release in which a few issues related to zooming have been fixed, and now jsPlumb offers a zoom function as part of its API.</p>
+
+<h3>Changes between 1.6.0 and 1.6.1</h3>
+
+<h4>Backwards Compatibility</h4>
+
+<ul>
+<li>The <code>setZoom</code> function now manipulates CSS3 transforms on the current Container, meaning the UI&#39;s zoom is now actually changed by this method. This is distinct from previous versions, in which <code>setZoom</code> was just an advisory for jsPlumb; it was used to adjust various offset values, but no changes were applied to the DOM itself by jsPlumb.  The original <code>setZoom</code> function is now available (but deprecated) as <code>setZoomValue</code></li>
+</ul>
+
+<h4>Issues</h4>
+
+<p>See <strong>Backwards Compatibility</strong>.</p>
+
+<h4>New Functionality</h4>
+
+<p>See <strong>Backwards Compatibility</strong>.</p>
+
+<h2>1.6.0</h2>
 
 <p>Version 1.6.0 is a major release of jsPlumb. With this version ships a &quot;vanilla&quot; version - it relies on no external libraries, and also has a few features that the other library adapters do not (see below). </p>
 

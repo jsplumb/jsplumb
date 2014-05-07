@@ -38,6 +38,16 @@
 			info.connection.getOverlay("label").setLabel(info.connection.id);
         });
 
+        window.setZoom = function(z, el) {
+            var p = [ "webkit", "moz", "ms", "o", "" ],
+                s = "scale(" + z + ")";
+
+            for (var i = 0; i < p.length; i++)
+        		el.style[p[i] + "Transform"] = s;
+
+            instance.setZoom(z);    
+        };
+
 		// suspend drawing and initialise.
 		instance.doWhileSuspended(function() {
 			var isFilterSupported = instance.isDragFilterSupported();
@@ -92,6 +102,8 @@
 		instance.connect({ source:"opened", target:"phone1" });
 		instance.connect({ source:"phone1", target:"phone1" });
 		instance.connect({ source:"phone1", target:"inperson" });
+
+		setZoom(0.5,document.getElementById("statemachine-demo"))		
 			
 	
 	});
