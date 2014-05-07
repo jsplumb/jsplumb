@@ -2351,6 +2351,7 @@
 					// and use the endpoint definition if found.
 					var elid = elInfo.id,
 						_el = this.getElementObject(elInfo.el),
+						_del = this.getDOMElement(_el),
 						parentElement = function() {
 							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _currentInstance.getDOMElement(p.parent);
 						},
@@ -2449,26 +2450,32 @@
 							return false;
 						}
 
-						var evtSource = evt.srcElement || evt.target,
-							esOffset = jsPlumbAdapter.getOffset(evtSource, _currentInstance, true),
-							elOffset = jsPlumbAdapter.getOffset(_el, _currentInstance, true),
-							myOffsetInfo = _updateOffset({elId:elid}).o,
+						var box = typeof _del.getBoundingClientRect !== "undefined" ? _del.getBoundingClientRect() : { left:0, top:0, width:0, height:0 },
+							body = document.body,
+				    		docElem = document.documentElement,
+				    		offPar = _del.offsetParent,
+				    		scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+							scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+							clientTop = docElem.clientTop || body.clientTop || 0,
+							clientLeft = docElem.clientLeft || body.clientLeft || 0,
+							pst = offPar ? offPar.scrollTop : 0,
+							psl = offPar ? offPar.scrollLeft : 0,
+							top  = box.top +  scrollTop - clientTop + (pst * _zoom),
+							left = box.left + scrollLeft - clientLeft + (psl * _zoom),
 							cl = jsPlumbAdapter.pageLocation(evt),
-							ox = cl[0] - esOffset.left + (esOffset.left - elOffset.left),
-							oy = cl[1] - esOffset.top + (esOffset.top - elOffset.top),
-							x = ox / myOffsetInfo.width,
-							y = oy / myOffsetInfo.height,
-							parentX = x, 
-							parentY = y;
+							x = parentX = (cl[0] - left) / box.width,
+							y = parentY = (cl[1] - top) / box.height;
 							
 						if (p.parent) {
-							var pEl = parentElement(), pId = _getId(pEl);
-							myOffsetInfo = _updateOffset({elId:pId}).o;
-							var pOffset = jsPlumbAdapter.getOffset(pEl, _currentInstance, true);
-							ox = cl[0] - esOffset.left + (esOffset.left - pOffset.left);
-							oy = cl[1] - esOffset.top + (esOffset.top - pOffset.top);
-							parentX = ox / myOffsetInfo.width;
-							parentY = oy / myOffsetInfo.height;
+							var pEl = parentElement();
+							box = pEl.getBoundingClientRect();
+							offPar = pEl.offsetParent;
+							pst = offPar ? offPar.scrollTop : 0;
+							psl = offPar ? offPar.scrollLeft : 0;
+							top  = box.top +  scrollTop - clientTop + (pst * _zoom);
+							left = box.left + scrollLeft - clientLeft + (psl * _zoom);
+							parentX = (cl[0] - left) / box.width;
+							parentY = (cl[1] - top) / box.height;
 						}
 							
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with

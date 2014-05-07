@@ -406,6 +406,12 @@
 			return {
 				left:l, top:t
 			};
+		},
+		//
+		// return x+y proportion of the given element's size corresponding to the location of the given event.
+		//
+		getPositionOnElement:function(evt, el) {
+
 		}
     };
    
