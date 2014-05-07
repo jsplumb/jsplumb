@@ -2434,7 +2434,6 @@
 	                    // if a filter was given, run it, and return if it says no.
 						if (p.filter) {
 							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
-							
 							if (r === false) return;
 						}
 						
@@ -2450,32 +2449,12 @@
 							return false;
 						}
 
-						var box = typeof _del.getBoundingClientRect !== "undefined" ? _del.getBoundingClientRect() : { left:0, top:0, width:0, height:0 },
-							body = document.body,
-				    		docElem = document.documentElement,
-				    		offPar = _del.offsetParent,
-				    		scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-							scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-							clientTop = docElem.clientTop || body.clientTop || 0,
-							clientLeft = docElem.clientLeft || body.clientLeft || 0,
-							pst = offPar ? offPar.scrollTop : 0,
-							psl = offPar ? offPar.scrollLeft : 0,
-							top  = box.top +  scrollTop - clientTop + (pst * _zoom),
-							left = box.left + scrollLeft - clientLeft + (psl * _zoom),
-							cl = jsPlumbAdapter.pageLocation(evt),
-							x = parentX = (cl[0] - left) / box.width,
-							y = parentY = (cl[1] - top) / box.height;
-							
+						// find the position on the element at which the mouse was pressed; this is where the endpoint 
+						// will be located.
+						var elxy = jsPlumbAdapter.getPositionOnElement(evt, _del, _zoom), pelxy = elxy;
+						// for mootools/YUI..this parent stuff should be deprecated.
 						if (p.parent) {
-							var pEl = parentElement();
-							box = pEl.getBoundingClientRect();
-							offPar = pEl.offsetParent;
-							pst = offPar ? offPar.scrollTop : 0;
-							psl = offPar ? offPar.scrollLeft : 0;
-							top  = box.top +  scrollTop - clientTop + (pst * _zoom);
-							left = box.left + scrollLeft - clientLeft + (psl * _zoom);
-							parentX = (cl[0] - left) / box.width;
-							parentY = (cl[1] - top) / box.height;
+							pelxy = jsPlumbAdapter.getPositionOnElement(evt, parentElement(), _zoom);
 						}
 							
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -2484,8 +2463,8 @@
 						var tempEndpointParams = {};
 						jsPlumb.extend(tempEndpointParams, p);
 						tempEndpointParams.isSource = true;
-						tempEndpointParams.anchor = [x,y,0,0];
-						tempEndpointParams.parentAnchor = [ parentX, parentY, 0, 0 ];
+						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
+						tempEndpointParams.parentAnchor = [ pelxy[0], pelxy[1], 0, 0 ];
 						tempEndpointParams.dragOptions = dragOptions;
 						// if a parent was given we need to turn that into a "container" argument.  this is, by default,
 						// the parent of the element we will move to, so parent of p.parent in this case.  however, if
@@ -2582,7 +2561,6 @@
 				_currentInstance.unmakeTarget(i, true);
 			
 			this.targetEndpointDefinitions = {};
-
 			return this;
 		};
 

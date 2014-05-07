@@ -3,8 +3,7 @@
  * 
  * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
  * 
  * This file contains the base functionality for DOM type adapters. 
  *
@@ -18,8 +17,7 @@
  */
 ;(function() {
     
-	var canvasAvailable = !!document.createElement('canvas').getContext,
-		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
+	var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		vmlAvailable = function() {		    
 	        if (vmlAvailable.vml === undefined) { 
 	            var a = document.body.appendChild(document.createElement('div'));
@@ -225,7 +223,7 @@
 		};
 
 		//
-		// notification drag ended. from 1.6.1 we check automatically if need to update some
+		// notification drag ended. We check automatically if need to update some
 		// ancestor's offsets.
 		//
 		this.dragEnded = function(el) {			
@@ -326,11 +324,10 @@
             document.body.appendChild(node);
         },
         getRenderModes : function() {
-            return [ "canvas", "svg", "vml" ];
+            return [ "svg", "vml" ];
         },
         isRenderModeAvailable : function(m) {
             return {
-                "canvas":canvasAvailable,
                 "svg":svgAvailable,
                 "vml":vmlAvailable()
             }[m];
@@ -410,8 +407,24 @@
 		//
 		// return x+y proportion of the given element's size corresponding to the location of the given event.
 		//
-		getPositionOnElement:function(evt, el) {
+		getPositionOnElement:function(evt, el, zoom) {
+			var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left:0, top:0, width:0, height:0 },
+				body = document.body,
+    			docElem = document.documentElement,
+    			offPar = el.offsetParent,
+    			scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+				scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+				clientTop = docElem.clientTop || body.clientTop || 0,
+				clientLeft = docElem.clientLeft || body.clientLeft || 0,
+				pst = offPar ? offPar.scrollTop : 0,
+				psl = offPar ? offPar.scrollLeft : 0,
+				top  = box.top +  scrollTop - clientTop + (pst * zoom),
+				left = box.left + scrollLeft - clientLeft + (psl * zoom),
+				cl = jsPlumbAdapter.pageLocation(evt),
+				x = parentX = (cl[0] - left) / box.width,
+				y = parentY = (cl[1] - top) / box.height;
 
+			return [ x, y ];
 		}
     };
    
