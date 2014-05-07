@@ -24,9 +24,10 @@
     };
         
     // creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.    
-    var _makeDraggablePlaceholder = function(placeholder, parent, _jsPlumb) {
+    var _makeDraggablePlaceholder = function(placeholder, _jsPlumb) {
         var n = document.createElement("div");
         n.style.position = "absolute";
+        var parent = _jsPlumb.Defaults.Container ? _jsPlumb.getDOMElement(_jsPlumb.Defaults.Container) : document.body;
         parent.appendChild(n);
         var id = _jsPlumb.getId(n);
         _jsPlumb.updateOffset( { elId : id });
@@ -81,7 +82,6 @@
         this.idPrefix = "_jsplumb_e_";			
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        this.parent = jsPlumb.getDOMElement(params.parent);
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
         
 // TYPE		
@@ -174,7 +174,6 @@
             var endpointArgs = {
                 _jsPlumb:this._jsPlumb.instance,
                 cssClass:params.cssClass,
-                parent:params.parent,
                 container:params.container,
                 tooltip:params.tooltip,
                 connectorTooltip:params.connectorTooltip,
@@ -303,9 +302,7 @@
             return this.element;
         };		
                  
-        // container not supported in 1.6.1; you cannot change the container once it is set.
-        // it might come back int a future release.
-        this.setElement = function(el/*, container*/) {
+        this.setElement = function(el) {
             var parentId = this._jsPlumb.instance.getId(el),
                 curId = this.elementId;
             // remove the endpoint from the list for the current endpoint's element
@@ -463,7 +460,7 @@
                     inPlaceCopy.referenceEndpoint = this;
                     inPlaceCopy.paint();                                                                
                     
-                    _makeDraggablePlaceholder(placeholderInfo, this.parent, _jsPlumb);
+                    _makeDraggablePlaceholder(placeholderInfo, _jsPlumb);
                     
                     // set the offset of this div to be where 'inPlaceCopy' is, to start with.
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it

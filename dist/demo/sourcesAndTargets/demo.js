@@ -84,7 +84,7 @@
 	        instance.connect({ source:"sourceWindow1", target:"targetWindow5" });
 	        instance.connect({ source:"sourceWindow1", target:"targetWindow2" });	
 
-	        //setZoom(0.5,document.getElementById("source-target-demo"))		
+	        setZoom(0.5,document.getElementById("source-target-demo"))		
 		});
 	});	
 })();

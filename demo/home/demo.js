@@ -10,7 +10,8 @@
 			
 			jsPlumb.importDefaults({
 				DragOptions : { cursor: "pointer", zIndex:2000 },
-				HoverClass:"connector-hover"
+				HoverClass:"connector-hover",
+				Container:"kitchensink-demo"
 			});
 	
 			var connectorStrokeColor = "rgba(50, 50, 200, 1)",

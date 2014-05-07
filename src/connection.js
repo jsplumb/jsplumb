@@ -20,7 +20,6 @@
         this.idPrefix = "_jsplumb_c_";
         this.defaultLabelLocation = 0.5;
         this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
-        this.parent = params.parent;
         // if a new connection is the result of moving some existing connection, params.previousConnection
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
@@ -45,7 +44,6 @@
         this._jsPlumb.visible = true;
         this._jsPlumb.editable = params.editable === true;    
         this._jsPlumb.params = {
-            parent:params.parent,
             cssClass:params.cssClass,
             container:params.container,
             "pointer-events":params["pointer-events"],
@@ -294,7 +292,6 @@
 
             var connectorArgs = { 
                     _jsPlumb:this._jsPlumb.instance, 
-                    parent:this._jsPlumb.params.parent, 
                     cssClass:this._jsPlumb.params.cssClass, 
                     container:this._jsPlumb.params.container,                 
                     "pointer-events":this._jsPlumb.params["pointer-events"]

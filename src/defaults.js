@@ -804,7 +804,6 @@
 
 		var _onload = params.onload, 
 			src = params.src || params.url,
-			parent = params.parent,
 			clazz = params.cssClass ? " " + params.cssClass : "";
 
 		this._jsPlumb.img = new Image();
@@ -859,7 +858,7 @@
 		this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
 		if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
 		if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);		
-		this._jsPlumb.instance.appendElement(this.canvas, parent);
+		this._jsPlumb.instance.appendElement(this.canvas);
 		this.attachListeners(this.canvas, this);
 		
 		this.actuallyPaint = function(d, style, anchor) {
@@ -915,7 +914,7 @@
 		this.canvas.style.background = "transparent";
 		this.canvas.style.position = "absolute";
 		this.canvas.className = this._jsPlumb.endpointClass;
-		jsPlumb.appendElement(this.canvas, params.parent);
+		jsPlumb.appendElement(this.canvas);
 		
 		this.paint = function(style, anchor) {
 			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);	
@@ -1171,7 +1170,7 @@
                     (this.cssClass ? this.cssClass : 
                     params.cssClass ? params.cssClass : "");
                 div.className = clazz;
-                this._jsPlumb.instance.appendElement(div, this._jsPlumb.component.parent);
+                this._jsPlumb.instance.appendElement(div);
                 this._jsPlumb.instance.getId(div);
                 this.attachListeners(div, this);
                 this.canvas = div;

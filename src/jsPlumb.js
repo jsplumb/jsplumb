@@ -961,17 +961,7 @@
 		
 		_newConnection = function(params) {
 			var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
-			    endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;			    
-			
-			if (params.container)
-				params.parent = params.container;
-			else {
-				if (params.sourceEndpoint)
-					params.parent = params.sourceEndpoint.parent;
-				else if (params.source.constructor == endpointFunc)
-					params.parent = params.source.parent;
-				else params.parent = _currentInstance.getParent(params.source);
-			}
+			    endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;			    			
 			
 			params._jsPlumb = _currentInstance;
             params.newConnection = _newConnection;
@@ -1034,24 +1024,6 @@
 			});
 		},
 		
-		/*
-		 * for the given endpoint params, returns an appropriate parent element for the UI elements that will be added.
-		 * this function is used by _newEndpoint (directly below), and also in the makeSource function in jsPlumb.
-		 * 
-		 *   the logic is to first look for a "container" member of params, and pass that back if found.  otherwise we
-		 *   handoff to the 'getParent' function in the current library.
-		 */
-		_getParentFromParams = function(params) {
-			if (params.container)
-				return params.container;
-			else {
-                var tag = params.source.tagName,
-                    p = _currentInstance.getParent(params.source);
-                if (tag && tag.toLowerCase() === "td")
-                    return _currentInstance.getParent(p);
-                else return p;
-            }
-		},
 		
 		/*
 			factory method to prepare a new endpoint.  this should always be used instead of creating Endpoints
@@ -1060,7 +1032,6 @@
 		_newEndpoint = function(params) {
 				var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
 				var _p = jsPlumb.extend({}, params);
-				_p.parent = _getParentFromParams(_p);
 				_p._jsPlumb = _currentInstance;
                 _p.newConnection = _newConnection;
                 _p.newEndpoint = _newEndpoint;                
@@ -1070,7 +1041,6 @@
                 _p.fireDetachEvent = fireDetachEvent;
                 _p.fireMoveEvent = fireMoveEvent;
                 _p.floatingConnections = floatingConnections;
-                _p.getParentFromParams = _getParentFromParams;
                 _p.elementId = _getId(_p.source);                
 				var ep = new endpointFunc(_p);			
 				ep.id = "ep_" + _idstamp();
@@ -2466,23 +2436,9 @@
 						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
 						tempEndpointParams.parentAnchor = [ pelxy[0], pelxy[1], 0, 0 ];
 						tempEndpointParams.dragOptions = dragOptions;
-						// if a parent was given we need to turn that into a "container" argument.  this is, by default,
-						// the parent of the element we will move to, so parent of p.parent in this case.  however, if
-						// the user has specified a 'container' on the endpoint definition or on 
-						// the defaults, we should use that.
-						if (p.parent) {
-							var potentialParent = tempEndpointParams.container || this.Defaults.Container;
-							if (potentialParent)
-								tempEndpointParams.container = potentialParent;
-							else
-								tempEndpointParams.container = this.getParent(parentElement());
-						}
-						
 						ep = this.addEndpoint(elid, tempEndpointParams);
-
 						endpointAddedButNoDragYet = true;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
-
 						// TODO test options to makeSource to see if we should do this?
 						ep._doNotDeleteOnDetach = false; // reset.
 						ep._deleteOnDetach = true;
@@ -2902,9 +2858,6 @@
     		_pdom.appendChild(_dom);
     		this.dragManager.setParent(_el, _id, _pel, _pid);
     	},
-		appendyElement : function(el, parent) {
-			parent.appendChild(el);
-		},
 		/**
 		 * gets the size for the element object, in an array : [ width, height ].
 		 */

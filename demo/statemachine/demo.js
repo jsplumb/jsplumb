@@ -103,7 +103,7 @@
 		instance.connect({ source:"phone1", target:"phone1" });
 		instance.connect({ source:"phone1", target:"inperson" });
 
-		setZoom(0.5,document.getElementById("statemachine-demo"))		
+		//setZoom(0.5,document.getElementById("statemachine-demo"))		
 			
 	
 	});
