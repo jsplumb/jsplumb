@@ -322,6 +322,21 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 
+    var _replace = function(cwd, pattern, oldV, newV, exclusions) {
+        exclusions = exclusions || [];
+        var _one = function(f) {
+            if (exclusions.indexOf(f) == -1) {
+                if (!grunt.file.isDir(cwd + "/" + f)) {
+                    var c = grunt.file.read(cwd + "/" + f);
+                    grunt.file.write(cwd + "/" + f, c.replace(oldV, newV));
+                }
+            }
+        };
+        var sources = grunt.file.expand({ cwd:cwd }, pattern);
+        for (var i = 0; i < sources.length; i++)
+            _one(sources[i]);
+    };
+
     grunt.registerTask('update', function() {
         var newV = grunt.option("newver");
         if (newV ===null) {

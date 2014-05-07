@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
  * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
  * elements, or VML.  
@@ -225,7 +225,7 @@
 		};
 
 		//
-		// notification drag ended. from 1.6.0 we check automatically if need to update some
+		// notification drag ended. from 1.6.1 we check automatically if need to update some
 		// ancestor's offsets.
 		//
 		this.dragEnded = function(el) {			
