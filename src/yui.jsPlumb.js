@@ -3,47 +3,20 @@
  * 
  * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the YUI3 adapter.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-
-/**
- * addClass				adds a class to the given element
- * animate				calls the underlying library's animate functionality
- * appendElement		appends a child element to a parent element.
- * bind					binds some event to an element
- * dragEvents			a dictionary of event names
- * extend				extend some js object with another.  probably not overly necessary; jsPlumb could just do this internally.
- * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
- * getDragScope			gets the drag scope for a given element.
- * getElementObject		turns an id or dom element into an element object of the underlying library's type.
- * getOffset			gets an element's offset
- * getOriginalEvent     gets the original browser event from some wrapper event.
- * getScrollLeft		gets an element's scroll left.  TODO: is this actually used?  will it be?
- * getScrollTop			gets an element's scroll top.  TODO: is this actually used?  will it be?
- * getSize				gets an element's size.
- * getUIPosition		gets the position of some element that is currently being dragged, by extracting it from the arguments passed to a drag callback.
- * initDraggable		initializes an element to be draggable 
- * initDroppable		initializes an element to be droppable
- * isDragSupported		returns whether or not drag is supported for some element.
- * isDropSupported		returns whether or not drop is supported for some element.
- * removeClass			removes a class from a given element.
- * removeElement		removes some element completely from the DOM.
- * setDraggable			sets whether or not some element should be draggable.
- * setDragScope			sets the drag scope for a given element.
- * setOffset			sets the offset of some element.
- */
-(function() {
+;(function() {
+	
+	"use strict";
 	
 	if (!Array.prototype.indexOf) {
 		Array.prototype.indexOf = function( v, b, s ) {

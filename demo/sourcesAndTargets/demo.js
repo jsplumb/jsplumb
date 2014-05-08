@@ -11,7 +11,7 @@
 			[ 1, 1, 0, 1 ]				
 		];
         
-        var instance = jsPlumb.getInstance({
+        var instance = window.instance = jsPlumb.getInstance({
         	// set default anchors.  the 'connect' calls below will pick these up, and in fact setting these means
         	// that you also do not need to supply anchor definitions to the makeSource or makeTarget functions. 
             Anchors : [ sourceAnchors, "TopCenter" ],
@@ -73,5 +73,27 @@
 	        instance.connect({ source:"sourceWindow1", target:"targetWindow5" });
 	        instance.connect({ source:"sourceWindow1", target:"targetWindow2" });	
 		});
+		
+		window.setZoom = function(zoom, instance, transformOrigin, el) {
+  transformOrigin = transformOrigin || [ 0.5, 0.5 ];
+  el = el || instance.Defaults.Container;
+  var p = [ "webkit", "moz", "ms", "o" ],
+      s = "scale(" + zoom + ")",
+      oString = (transformOrigin[0] * 100) + "% " + (transformOrigin[1] * 100) + "%";
+
+  for (var i = 0; i < p.length; i++) {
+    el.style[p[i] + "Transform"] = s;
+    el.style[p[i] + "TransformOrigin"] = oString;
+  }
+
+  el.style["transform"] = s;
+  el.style["transformOrigin"] = oString;
+
+  instance.setZoom(zoom);    
+};
+
+	setZoom(0.5, instance, [0.7,0.7])
+	
+
 	});	
 })();

@@ -137,11 +137,11 @@
 <h4>A Helper Function</h4>
 
 <p>Maybe you&#39;d like to just grab this:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nb">window</span><span class="p">.</span><span class="nx">setZoom</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">zoom</span><span class="p">,</span> <span class="nx">instance</span><span class="p">,</span> <span class="nx">el</span><span class="p">,</span> <span class="nx">transformOrigin</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nb">window</span><span class="p">.</span><span class="nx">setZoom</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">zoom</span><span class="p">,</span> <span class="nx">instance</span><span class="p">,</span> <span class="nx">transformOrigin</span><span class="p">,</span> <span class="nx">el</span><span class="p">)</span> <span class="p">{</span>
   <span class="nx">transformOrigin</span> <span class="o">=</span> <span class="nx">transformOrigin</span> <span class="o">||</span> <span class="p">[</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span> <span class="p">];</span>
   <span class="nx">el</span> <span class="o">=</span> <span class="nx">el</span> <span class="o">||</span> <span class="nx">instance</span><span class="p">.</span><span class="nx">Defaults</span><span class="p">.</span><span class="nx">Container</span><span class="p">;</span>
   <span class="kd">var</span> <span class="nx">p</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;webkit&quot;</span><span class="p">,</span> <span class="s2">&quot;moz&quot;</span><span class="p">,</span> <span class="s2">&quot;ms&quot;</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span> <span class="p">],</span>
-      <span class="nx">s</span> <span class="o">=</span> <span class="s2">&quot;scale(&quot;</span> <span class="o">+</span> <span class="nx">z</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
+      <span class="nx">s</span> <span class="o">=</span> <span class="s2">&quot;scale(&quot;</span> <span class="o">+</span> <span class="nx">zoom</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
       <span class="nx">oString</span> <span class="o">=</span> <span class="p">(</span><span class="nx">transformOrigin</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;% &quot;</span> <span class="o">+</span> <span class="p">(</span><span class="nx">transformOrigin</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&quot;</span><span class="p">;</span>
 
   <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">p</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
@@ -152,14 +152,14 @@
   <span class="nx">el</span><span class="p">.</span><span class="nx">style</span><span class="p">[</span><span class="s2">&quot;transform&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">s</span><span class="p">;</span>
   <span class="nx">el</span><span class="p">.</span><span class="nx">style</span><span class="p">[</span><span class="s2">&quot;transformOrigin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nx">oString</span><span class="p">;</span>
 
-  <span class="nx">instance</span><span class="p">.</span><span class="nx">setZoom</span><span class="p">(</span><span class="nx">z</span><span class="p">);</span>    
+  <span class="nx">instance</span><span class="p">.</span><span class="nx">setZoom</span><span class="p">(</span><span class="nx">zoom</span><span class="p">);</span>    
 <span class="p">};</span>
 </code></pre></div>
 <p><strong>Notes</strong></p>
 
 <ul>
 <li>This is not a jQuery function. It does not, amazingly, even know jQuery exists.</li>
-<li><code>el</code> must be a plain DOM element. If you&#39;ve got a jQuery selector, pass in <code>el[0]</code>. You don&#39;t have to pass in <code>el</code>; if you do not, it uses the Container from the jsPlumb instance. But note that in that case, you should not have used a jQuery selector for the Container. It must always be a plain DOM element.</li>
+<li><code>el</code> must be a plain DOM element. If you&#39;ve got a jQuery selector, pass in <code>el[0]</code>. You don&#39;t have to pass in <code>el</code>; if you do not, it uses the Container from the jsPlumb instance. Note that jsPlumb automatically converts the Container into a plain DOM element, so it doesn&#39;t matter what you pass to jsPlumb as the value of Container.</li>
 <li><code>transformOrigin</code> is optional; it defaults to [0.5, 0.5] - the middle of the element (this is the browser default too)</li>
 <li><code>instance</code> is an instance of jsPlumb - either <code>jsPlumb</code>, the static instance, or some instance you got through <code>jsPlumb.newInstance(...)</code>.</li>
 <li><code>zoom</code> is a decimal where 1 means 100%.</li>

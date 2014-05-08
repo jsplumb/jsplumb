@@ -3,20 +3,19 @@
  * 
  * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
- * This file contains the util functions
+ * This file contains the utility functions.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-
 ;(function() {
+
 
     var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
         _isnum = function(n) { return Object.prototype.toString.call(n) === "[object Number]"; },
@@ -193,7 +192,8 @@
         addToList : function(map, key, value, insertAtStart) {
             var l = map[key];
             if (l == null) {
-                l = [], map[key] = l;
+                l = []; 
+				map[key] = l;
             }
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
@@ -212,9 +212,10 @@
         // class members, any of which may be null.
         //
         extend : function(child, parent, _protoFn) {
+			var i;
             parent = _isa(parent) ? parent : [ parent ];
 
-            for (var i = 0; i < parent.length; i++) {
+            for (i = 0; i < parent.length; i++) {
                 for (var j in parent[i].prototype) {
                     if(parent[i].prototype.hasOwnProperty(j)) {
                         child.prototype[j] = parent[i].prototype[j];
@@ -224,7 +225,7 @@
 
             var _makeFn = function(name, protoFn) {
                 return function() {
-                    for (var i = 0; i < parent.length; i++) {
+                    for (i = 0; i < parent.length; i++) {
                         if (parent[i].prototype[name])
                             parent[i].prototype[name].apply(this, arguments);
                     }                    
@@ -239,7 +240,7 @@
 			};
 
 			if (arguments.length > 2) {
-				for (var i = 2; i < arguments.length; i++)
+				for (i = 2; i < arguments.length; i++)
 					_oneSet(arguments[i]);
 			}
 

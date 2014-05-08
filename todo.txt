@@ -43,6 +43,20 @@ future
     - assign css classes to elements from params in Connection/Endpoint types
 
     - support cssClass in Connection/Endpoint types
+	
+	/**
+ * SVG support for jsPlumb.
+ * 
+ * things to investigate:
+ * 
+ * gradients:  https://developer.mozilla.org/en/svg_in_html_introduction
+ * css:http://tutorials.jenkov.com/svg/svg-and-css.html
+ * text on a path: http://www.w3.org/TR/SVG/text.html#TextOnAPath
+ * pointer events: https://developer.mozilla.org/en/css/pointer-events
+ *
+ * IE9 hover jquery: http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events
+ *
+ */
 
 
 

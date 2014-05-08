@@ -1,4 +1,19 @@
-
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the 'vanilla' adapter - having no external dependencies other than bundled libs.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
 
 	"use strict";
@@ -105,11 +120,11 @@
 						left:o.left + (linc * (idx + 1)),
 						top:o.top + (tinc * (idx + 1))
 					});
-					options.step && options.step();
+					if (options.step != null) options.step();
 					idx++;
 					if (idx >= steps) {
 						window.clearInterval(int);
-						options.complete && options.complete()
+						if (options.complete != null) options.complete();
 					}
 				}, step);
 		},
@@ -119,7 +134,7 @@
 				sel = ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
 			}
 			else
-				sel = document.querySelectorAll(spec, ctx); 
+				sel = ctx.querySelectorAll(spec); 
 				
 			return sel;
 		},

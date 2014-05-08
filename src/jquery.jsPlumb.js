@@ -3,57 +3,20 @@
  * 
  * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the jQuery adapter.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */ 
-/* 
- * MISCELLANEOUS:
- * 
- * doAnimate			calls the underlying library's animate functionality
- * getElementObject		turns an id or dom element into an element object of the underlying library's type.
- * getDOMElement      	extract the underlying DOM element from some library specific selector
- * getSize				gets an element's size.
- * removeElement		removes some element completely from the DOM.  
- * getSelector 			gets a selector from some string specification.
- */
- 
- /*
- * EVENTS:
- *
- * on					binds some event to an element 
- * getPageXY			gets some event's xy location on the page.
- * getOriginalEvent     gets the original browser event from some wrapper event
- * trigger				triggers some event on an element.
- * off					unbinds some listener from some element.
- */
- 
- /*
- * DRAG/DROP:
- *
- * dragEvents			a dictionary of event names
- * getDragObject		gets the object that is being dragged, by extracting it from the arguments passed to a drag callback
- * getDragScope			gets the drag scope for a given element.
- * getDropScope			gets the drop scope for a given element.
- * getUIPosition		gets the position of some element that is currently being dragged, by extracting it from the arguments passed to a drag callback. 
- * initDraggable		initializes an element to be draggable 
- * initDroppable		initializes an element to be droppable
- * isDragSupported		returns whether or not drag is supported for some element.
- * isDropSupported		returns whether or not drop is supported for some element. 
- * setDragFilter		sets a filter for some element that indicates areas of the element that should not respond to dragging.
- * setDraggable			sets whether or not some element should be draggable.
- * setDragScope			sets the drag scope for a given element.  
- */
- 
+ */  
 ;(function($) {
+	
+	"use strict";
 
 	var _getElementObject = function(el) {
 		return typeof(el) == "string" ? $("#" + el) : $(el);

@@ -3,21 +3,21 @@
  * 
  * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the VML renderers.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
 
 ;(function() {
+	
+	"use strict";
 	
 	// http://ajaxian.com/archives/the-vml-changes-in-ie-8
 	// http://www.nczonline.net/blog/2010/01/19/internet-explorer-8-document-and-browser-modes/
@@ -185,8 +185,8 @@
 	};
 	jsPlumbUtil.extend(VmlComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {			
-			this.bgCanvas && this.bgCanvas.parentNode.removeChild(this.bgCanvas);
-			this.canvas && this.canvas.parentNode.removeChild(this.canvas);
+			if (this.bgCanvas) this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+			if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
 		}
 	});
 

@@ -1,3 +1,19 @@
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the code for the Bezier connector type.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
 
 	var Bezier = function(params) {

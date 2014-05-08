@@ -3,36 +3,22 @@
  * 
  * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the SVG renderers.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */
-
-/**
- * SVG support for jsPlumb.
- * 
- * things to investigate:
- * 
- * gradients:  https://developer.mozilla.org/en/svg_in_html_introduction
- * css:http://tutorials.jenkov.com/svg/svg-and-css.html
- * text on a path: http://www.w3.org/TR/SVG/text.html#TextOnAPath
- * pointer events: https://developer.mozilla.org/en/css/pointer-events
- *
- * IE9 hover jquery: http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events
- *
  */
 ;(function() {
 	
 // ************************** SVG utility methods ********************************************	
+
+	"use strict";
 	
 	var svgAttributeMap = {
 		"joinstyle":"stroke-linejoin",
@@ -270,7 +256,7 @@
 	
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
-			this.canvas && this.canvas.parentNode && this.canvas.parentNode.removeChild(this.canvas);
+			if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
 			this.svg = null;
 			this.canvas = null;
 			this.bgCanvas = null;

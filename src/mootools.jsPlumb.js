@@ -3,21 +3,20 @@
  * 
  * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the MooTools adapter.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (http://jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-
 ;(function() {
+	
+	"use strict";
 	
 	/*
 	 * overrides the FX class to inject 'step' functionality, which MooTools does not
@@ -293,7 +292,7 @@
 		},
 		
 		stopDrag : function() {
-			var did = _draggablesById[this.getInstanceIndex()]
+			var did = _draggablesById[this.getInstanceIndex()];
             for (var i in did) {
                 for (var j = 0; j < did[i].length; j++) {
                     var d = did[i][j];

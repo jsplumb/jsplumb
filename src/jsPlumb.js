@@ -1,15 +1,22 @@
-/**
- * @module jsPlumb
- * @description Provides a way to visually connect elements on an HTML page, using either SVG or VML.   
+/*
+ * jsPlumb
  * 
- * - [Demo Site](http://jsplumb.org)
- * - [GitHub](http://github.com/sporritt/jsplumb)
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the core code.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
  */
 ;(function() {
+	
+	"use strict";
 			
     var _ju = jsPlumbUtil,
     	_getOffset = function(el, _instance, relativeToRoot) {
@@ -527,7 +534,8 @@
 					var o = this._jsPlumb.overlays[idx];
 					if (o.cleanup) o.cleanup();
 					this._jsPlumb.overlays.splice(idx, 1);
-					this._jsPlumb.overlayPositions && delete this._jsPlumb.overlayPositions[overlayId];
+					if (this._jsPlumb.overlayPositions)  
+						delete this._jsPlumb.overlayPositions[overlayId];
 				}
 			},
 			removeOverlays : function() {
@@ -660,6 +668,7 @@
 				for (var i in d) {
 					_currentInstance.Defaults[i] = d[i];
 				}	
+				_ensureContainer();	
 				return _currentInstance;
 			};		
 			
@@ -1398,7 +1407,7 @@
 		];
 		
 		var _set = function(c, el, idx, doNotRepaint) {
-			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid;
+			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep;
 			
 			var evtParams = {
 				index:idx,
@@ -1414,8 +1423,8 @@
 				ep = el;
 			}
 			else {
-				var sid = _getId(el),
-					sep = this[_st.epDefs][sid];
+				sid = _getId(el);
+				sep = this[_st.epDefs][sid];
 
 				if (sid === c[_st.elId]) return evtParams;  // dont change source/target if the element is already the one given.
 					
@@ -1427,7 +1436,7 @@
 					 ep._deleteOnDetach = true;
 				}
 				else {
-					ep = c.makeEndpoint(idx == 0, el, sid);
+					ep = c.makeEndpoint(idx === 0, el, sid);
 				}
 			}
 			
@@ -1435,7 +1444,7 @@
 			c.endpoints[idx] = ep;
 			c[_st.el] = ep.element;
 			c[_st.elId] = ep.elementId;			
-			evtParams[idx == 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+			evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
 
 			fireMoveEvent(evtParams);
 			
@@ -1941,6 +1950,11 @@
 			connectorTypes.push([connector, name]);
 		};
 		
+		var _ensureContainer = function() {
+			if (_currentInstance.Defaults.Container)
+				_currentInstance.Defaults.Container = _currentInstance.getDOMElement(_currentInstance.Defaults.Container);
+		};
+		
 		/**
 		 * callback from the current library to tell us to prepare ourselves (attach
 		 * mouse listeners etc; can't do that until the library has provided a bind method)		 
@@ -1965,6 +1979,7 @@
 			}
 			
 			if (!initialized) {                
+				_ensureContainer();	
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
 				initialized = true;
@@ -2744,7 +2759,7 @@
 			delete endpointsByElement[id];
 
 			this.anchorManager.changeId(id, newId);
-			this.dragManager && this.dragManager.changeId(id, newId);
+			if (this.dragManager) this.dragManager.changeId(id, newId);
 
 			var _conns = function(list, epIdx, type) {
 				for (var i = 0, ii = list.length; i < ii; i++) {
@@ -2875,12 +2890,13 @@
 			return el.offsetHeight;
 		},
 		extend : function(o1, o2, names) {
+			var i;
 			if (names) {
-				for (var i = 0; i < names.length; i++)
+				for (i = 0; i < names.length; i++)
 					o1[names[i]] = o2[names[i]];
 			}
 			else
-				for (var i in o2) o1[i] = o2[i];
+				for (i in o2) o1[i] = o2[i];
 			return o1;
 		}
     }, jsPlumbAdapter);

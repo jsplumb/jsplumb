@@ -3473,50 +3473,6 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(bodyElementCount + 3, document.body.childNodes.length, "3 new elements added to the document body");
 	});
 	
-	test(renderMode + " container specified to connect call, with a selector", function() {
-		equal(0, document.getElementById("container").childNodes.length);
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		equal(2, document.getElementById("container").childNodes.length);  // the divs we added have been added to the 'container' div.
-		var bodyElementCount = document.body.childNodes.length;
-		// but here we tell _jsPlumb to add its elements to the body, so this connect call should not add another few elements to the container:
-		_jsPlumb.connect({source:d1, target:d2, container:document.body});
-		equal(2, document.getElementById("container").childNodes.length);
-		equal(bodyElementCount + 3, document.body.childNodes.length, "3 new elements added to the document body");
-	});
-	
-	test(renderMode + " container specified to connect call, with a string ID", function() {
-		equal(0, document.getElementById("container").childNodes.length);
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-		equal(3, document.getElementById("container").childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
-		var d3ElementCount = document.getElementById("d3").childNodes.length;
-		// but here we tell _jsPlumb to add its elements to "d3", so this connect call should not add another few elements to the container:
-		_jsPlumb.connect({source:d1, target:d2, container:"d3"});
-		equal(3, document.getElementById("container").childNodes.length, "container still has only the divs we added");
-		equal(d3ElementCount + 3, document.getElementById("d3").childNodes.length, "3 new elements added to div d3");
-	});	
-	
-	test(renderMode + " container specified to addEndpoint call, with a selector", function() {
-		equal(0,document.getElementById("container").childNodes.length);
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2");
-		equal(2, document.getElementById("container").childNodes.length);  // the divs we added have been added to the 'container' div.
-		var bodyElementCount = document.body.childNodes.length;
-		// but here we tell _jsPlumb to add its elements to the body, so this connect call should not add another few elements to the container:
-		_jsPlumb.addEndpoint(d1, {container:document.body});
-		equal(2, document.getElementById("container").childNodes.length);
-		equal(bodyElementCount + 1, document.body.childNodes.length, "1 new element added to the document body");
-	});
-	
-	test(renderMode + " container specified to addEndpoint call, with a string ID", function() {
-		equal(0, document.getElementById("container").childNodes.length);
-		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
-		equal(3, document.getElementById("container").childNodes.length, "container has divs we added");  // the divs we added have been added to the 'container' div.
-		var d3ElementCount = document.getElementById("d3").childNodes.length;
-		// but here we tell _jsPlumb to add its elements to "d3", so this connect call should not add another few elements to the container:
-		_jsPlumb.addEndpoint(d1, { container:"d3" });
-		equal(3, document.getElementById("container").childNodes.length, "container still has only the divs we added");
-		equal(d3ElementCount + 1, document.getElementById("d3").childNodes.length, "1 new element added to div d3");
-	});
-
     test(renderMode + " detachable defaults to true when connection made between two endpoints", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
             e1 = _jsPlumb.addEndpoint(d1), e2 = _jsPlumb.addEndpoint(d2),
@@ -3940,16 +3896,7 @@ var testSuite = function(renderMode, _jsPlumb) {
         });
         expect(0);
     });
-    
-    test(renderMode + "attach endpoint to table when desired element was td", function() {
-        var table = document.createElement("table"),
-            tr = document.createElement("tr"),
-            td = document.createElement("td");
-        table.appendChild(tr); tr.appendChild(td);
-        document.body.appendChild(table);
-        var ep = _jsPlumb.addEndpoint(td);
-        equal(ep.canvas.parentNode.tagName.toLowerCase(), "table");
-    });
+
 
 // issue 190 - regressions with getInstance.  these tests ensure that generated ids are unique across
 // instances.    

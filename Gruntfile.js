@@ -155,7 +155,10 @@ module.exports = function(grunt) {
                   loopfunc:true,
                   '-W099': true,
                   '-W018':true,
-                  '-W038':true
+                  '-W038':true,
+				  '-W044':true,
+				  '-W053':true,
+				  '-W055':true
                 },
             files:{
                 src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
@@ -318,7 +321,7 @@ module.exports = function(grunt) {
     grunt.registerTask('createDemos', _createDemos);
     grunt.registerTask('prepare', _prepareSite);
     grunt.registerTask("build", [ 'build-src', 'clean:stage', 'prepare', 'copy:site', 'copy:tests', 'copy:js', 'copy:demos', 'yuidoc', 'createTests', 'createDemos',  'writeIndex', 'jekyll', 'copy:dist', 'clean:stage', 'clean:site' ]);
-    grunt.registerTask('build-src', ['clean', 'prepare', 'concat', 'uglify' ]);
+    grunt.registerTask('build-src', ['clean', 'jshint', 'prepare', 'concat', 'uglify' ]);
     grunt.registerTask('default', ['help']);
     grunt.registerTask('build-all', ['qunit', 'build']);
 

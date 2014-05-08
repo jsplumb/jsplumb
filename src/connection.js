@@ -1,4 +1,22 @@
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the code for Connections.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
+    
+    "use strict";
 
     var makeConnector = function(_jsPlumb, renderMode, connectorName, connectorArgs) {
             if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
@@ -448,12 +466,13 @@
                         _makeAnchor(_jsPlumb.Defaults.Anchor, elementId,_jsPlumb) || 
                         _makeAnchor(jsPlumb.Defaults.Anchor, elementId, _jsPlumb),                  
                     u = params.uuids ? params.uuids[index] : null;
-                    e = _newEndpoint({ 
-                        paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ conn ], 
-                        uuid : u,  anchor : a,  source : element, scope  : params.scope, container:params.container,
-                        reattach:params.reattach || _jsPlumb.Defaults.ReattachConnections,
-                        detachable:params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
-                    });
+                    
+                e = _newEndpoint({ 
+                    paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ conn ], 
+                    uuid : u,  anchor : a,  source : element, scope  : params.scope,
+                    reattach:params.reattach || _jsPlumb.Defaults.ReattachConnections,
+                    detachable:params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
+                });
                 conn.endpoints[index] = e;
                 
                 if (params.drawEndpoints === false) e.setVisible(false, true, true);
