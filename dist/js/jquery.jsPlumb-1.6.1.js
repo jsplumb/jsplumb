@@ -626,22 +626,21 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
- * This file contains the util functions
+ * This file contains the utility functions.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-
 ;(function() {
+
 
     var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
         _isnum = function(n) { return Object.prototype.toString.call(n) === "[object Number]"; },
@@ -818,7 +817,8 @@
         addToList : function(map, key, value, insertAtStart) {
             var l = map[key];
             if (l == null) {
-                l = [], map[key] = l;
+                l = []; 
+				map[key] = l;
             }
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
@@ -837,9 +837,10 @@
         // class members, any of which may be null.
         //
         extend : function(child, parent, _protoFn) {
+			var i;
             parent = _isa(parent) ? parent : [ parent ];
 
-            for (var i = 0; i < parent.length; i++) {
+            for (i = 0; i < parent.length; i++) {
                 for (var j in parent[i].prototype) {
                     if(parent[i].prototype.hasOwnProperty(j)) {
                         child.prototype[j] = parent[i].prototype[j];
@@ -849,7 +850,7 @@
 
             var _makeFn = function(name, protoFn) {
                 return function() {
-                    for (var i = 0; i < parent.length; i++) {
+                    for (i = 0; i < parent.length; i++) {
                         if (parent[i].prototype[name])
                             parent[i].prototype[name].apply(this, arguments);
                     }                    
@@ -864,7 +865,7 @@
 			};
 
 			if (arguments.length > 2) {
-				for (var i = 2; i < arguments.length; i++)
+				for (i = 2; i < arguments.length; i++)
 					_oneSet(arguments[i]);
 			}
 
@@ -940,8 +941,11 @@
                 }
                 return r;
             };
-        }
+        },
+        ieVersion : /MSIE\s([\d.]+)/.test(navigator.userAgent) ? (new Number(RegExp.$1)) : -1
     };
+
+    jsPlumbUtil.oldIE = jsPlumbUtil.ieVersion > -1 && jsPlumbUtil.ieVersion < 9;
 
 	jsPlumbUtil.EventGenerator = function() {
 		var _listeners = {}, 
@@ -1032,25 +1036,22 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the base functionality for DOM type adapters. 
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {
     
-	var canvasAvailable = !!document.createElement('canvas').getContext,
-		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
+	var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		vmlAvailable = function() {		    
 	        if (vmlAvailable.vml === undefined) { 
 	            var a = document.body.appendChild(document.createElement('div'));
@@ -1256,7 +1257,7 @@
 		};
 
 		//
-		// notification drag ended. from 1.6.0 we check automatically if need to update some
+		// notification drag ended. We check automatically if need to update some
 		// ancestor's offsets.
 		//
 		this.dragEnded = function(el) {			
@@ -1357,11 +1358,10 @@
             document.body.appendChild(node);
         },
         getRenderModes : function() {
-            return [ "canvas", "svg", "vml" ];
+            return [ "svg", "vml" ];
         },
         isRenderModeAvailable : function(m) {
             return {
-                "canvas":canvasAvailable,
                 "svg":svgAvailable,
                 "vml":vmlAvailable()
             }[m];
@@ -1437,22 +1437,53 @@
 			return {
 				left:l, top:t
 			};
+		},
+		//
+		// return x+y proportion of the given element's size corresponding to the location of the given event.
+		//
+		getPositionOnElement:function(evt, el, zoom) {
+			var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left:0, top:0, width:0, height:0 },
+				body = document.body,
+    			docElem = document.documentElement,
+    			offPar = el.offsetParent,
+    			scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+				scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+				clientTop = docElem.clientTop || body.clientTop || 0,
+				clientLeft = docElem.clientLeft || body.clientLeft || 0,
+				pst = 0,//offPar ? offPar.scrollTop : 0,
+				psl = 0,//offPar ? offPar.scrollLeft : 0,
+				top  = box.top +  scrollTop - clientTop + (pst * zoom),
+				left = box.left + scrollLeft - clientLeft + (psl * zoom),
+				cl = jsPlumbAdapter.pageLocation(evt),
+				w = box.width || (el.offsetWidth * zoom),
+				h = box.height || (el.offsetHeight * zoom),
+				x = (cl[0] - left) / w,
+				y = (cl[1] - top) / h;
+
+			return [ x, y ];
 		}
     };
    
 })();
-/**
- * @module jsPlumb
- * @description Provides a way to visually connect elements on an HTML page, using either SVG or VML.   
+/*
+ * jsPlumb
  * 
- * - [Demo Site](http://jsplumb.org)
- * - [GitHub](http://github.com/sporritt/jsplumb)
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the core code.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
  */
 ;(function() {
+	
+	"use strict";
 			
     var _ju = jsPlumbUtil,
     	_getOffset = function(el, _instance, relativeToRoot) {
@@ -1970,7 +2001,8 @@
 					var o = this._jsPlumb.overlays[idx];
 					if (o.cleanup) o.cleanup();
 					this._jsPlumb.overlays.splice(idx, 1);
-					this._jsPlumb.overlayPositions && delete this._jsPlumb.overlayPositions[overlayId];
+					if (this._jsPlumb.overlayPositions)  
+						delete this._jsPlumb.overlayPositions[overlayId];
 				}
 			},
 			removeOverlays : function() {
@@ -2081,9 +2113,13 @@
 	        this.getInstanceIndex = function() { return _instanceIndex; };
 
         	this.setZoom = function(z, repaintEverything) {
-            	_zoom = z;
-				_currentInstance.fire("zoom", _zoom);
-            	if (repaintEverything) _currentInstance.repaintEverything();
+        		if (!jsPlumbUtil.oldIE) {
+	            	_zoom = z;
+					_currentInstance.fire("zoom", _zoom);
+	            	if (repaintEverything) _currentInstance.repaintEverything();
+	            }
+	            return !jsPlumbUtil.oldIE;
+
         	};
         	this.getZoom = function() { return _zoom; };
                         
@@ -2099,6 +2135,7 @@
 				for (var i in d) {
 					_currentInstance.Defaults[i] = d[i];
 				}	
+				_ensureContainer();	
 				return _currentInstance;
 			};		
 			
@@ -2404,17 +2441,7 @@
 		
 		_newConnection = function(params) {
 			var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
-			    endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;			    
-			
-			if (params.container)
-				params.parent = params.container;
-			else {
-				if (params.sourceEndpoint)
-					params.parent = params.sourceEndpoint.parent;
-				else if (params.source.constructor == endpointFunc)
-					params.parent = params.source.parent;
-				else params.parent = _currentInstance.getParent(params.source);
-			}
+			    endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;			    			
 			
 			params._jsPlumb = _currentInstance;
             params.newConnection = _newConnection;
@@ -2477,24 +2504,6 @@
 			});
 		},
 		
-		/*
-		 * for the given endpoint params, returns an appropriate parent element for the UI elements that will be added.
-		 * this function is used by _newEndpoint (directly below), and also in the makeSource function in jsPlumb.
-		 * 
-		 *   the logic is to first look for a "container" member of params, and pass that back if found.  otherwise we
-		 *   handoff to the 'getParent' function in the current library.
-		 */
-		_getParentFromParams = function(params) {
-			if (params.container)
-				return params.container;
-			else {
-                var tag = params.source.tagName,
-                    p = _currentInstance.getParent(params.source);
-                if (tag && tag.toLowerCase() === "td")
-                    return _currentInstance.getParent(p);
-                else return p;
-            }
-		},
 		
 		/*
 			factory method to prepare a new endpoint.  this should always be used instead of creating Endpoints
@@ -2503,7 +2512,6 @@
 		_newEndpoint = function(params) {
 				var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
 				var _p = jsPlumb.extend({}, params);
-				_p.parent = _getParentFromParams(_p);
 				_p._jsPlumb = _currentInstance;
                 _p.newConnection = _newConnection;
                 _p.newEndpoint = _newEndpoint;                
@@ -2513,7 +2521,6 @@
                 _p.fireDetachEvent = fireDetachEvent;
                 _p.fireMoveEvent = fireMoveEvent;
                 _p.floatingConnections = floatingConnections;
-                _p.getParentFromParams = _getParentFromParams;
                 _p.elementId = _getId(_p.source);                
 				var ep = new endpointFunc(_p);			
 				ep.id = "ep_" + _idstamp();
@@ -2867,7 +2874,7 @@
 		];
 		
 		var _set = function(c, el, idx, doNotRepaint) {
-			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid;
+			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep;
 			
 			var evtParams = {
 				index:idx,
@@ -2883,8 +2890,8 @@
 				ep = el;
 			}
 			else {
-				var sid = _getId(el),
-					sep = this[_st.epDefs][sid];
+				sid = _getId(el);
+				sep = this[_st.epDefs][sid];
 
 				if (sid === c[_st.elId]) return evtParams;  // dont change source/target if the element is already the one given.
 					
@@ -2896,7 +2903,7 @@
 					 ep._deleteOnDetach = true;
 				}
 				else {
-					ep = c.makeEndpoint(idx == 0, el, sid);
+					ep = c.makeEndpoint(idx === 0, el, sid);
 				}
 			}
 			
@@ -2904,7 +2911,7 @@
 			c.endpoints[idx] = ep;
 			c[_st.el] = ep.element;
 			c[_st.elId] = ep.elementId;			
-			evtParams[idx == 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+			evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
 
 			fireMoveEvent(evtParams);
 			
@@ -3410,6 +3417,11 @@
 			connectorTypes.push([connector, name]);
 		};
 		
+		var _ensureContainer = function() {
+			if (_currentInstance.Defaults.Container)
+				_currentInstance.Defaults.Container = _currentInstance.getDOMElement(_currentInstance.Defaults.Container);
+		};
+		
 		/**
 		 * callback from the current library to tell us to prepare ourselves (attach
 		 * mouse listeners etc; can't do that until the library has provided a bind method)		 
@@ -3434,6 +3446,7 @@
 			}
 			
 			if (!initialized) {                
+				_ensureContainer();	
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
 				initialized = true;
@@ -3794,6 +3807,7 @@
 					// and use the endpoint definition if found.
 					var elid = elInfo.id,
 						_el = this.getElementObject(elInfo.el),
+						_del = this.getDOMElement(_el),
 						parentElement = function() {
 							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _currentInstance.getDOMElement(p.parent);
 						},
@@ -3876,7 +3890,6 @@
 	                    // if a filter was given, run it, and return if it says no.
 						if (p.filter) {
 							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
-							
 							if (r === false) return;
 						}
 						
@@ -3892,26 +3905,12 @@
 							return false;
 						}
 
-						var evtSource = evt.srcElement || evt.target,
-							esOffset = jsPlumbAdapter.getOffset(evtSource, _currentInstance, true),
-							elOffset = jsPlumbAdapter.getOffset(_el, _currentInstance, true),
-							myOffsetInfo = _updateOffset({elId:elid}).o,
-							cl = jsPlumbAdapter.pageLocation(evt),
-							ox = cl[0] - esOffset.left + (esOffset.left - elOffset.left),
-							oy = cl[1] - esOffset.top + (esOffset.top - elOffset.top),
-							x = ox / myOffsetInfo.width,
-							y = oy / myOffsetInfo.height,
-							parentX = x, 
-							parentY = y;
-							
+						// find the position on the element at which the mouse was pressed; this is where the endpoint 
+						// will be located.
+						var elxy = jsPlumbAdapter.getPositionOnElement(evt, _del, _zoom), pelxy = elxy;
+						// for mootools/YUI..this parent stuff should be deprecated.
 						if (p.parent) {
-							var pEl = parentElement(), pId = _getId(pEl);
-							myOffsetInfo = _updateOffset({elId:pId}).o;
-							var pOffset = jsPlumbAdapter.getOffset(pEl, _currentInstance, true);
-							ox = cl[0] - esOffset.left + (esOffset.left - pOffset.left);
-							oy = cl[1] - esOffset.top + (esOffset.top - pOffset.top);
-							parentX = ox / myOffsetInfo.width;
-							parentY = oy / myOffsetInfo.height;
+							pelxy = jsPlumbAdapter.getPositionOnElement(evt, parentElement(), _zoom);
 						}
 							
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -3920,26 +3919,12 @@
 						var tempEndpointParams = {};
 						jsPlumb.extend(tempEndpointParams, p);
 						tempEndpointParams.isSource = true;
-						tempEndpointParams.anchor = [x,y,0,0];
-						tempEndpointParams.parentAnchor = [ parentX, parentY, 0, 0 ];
+						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
+						tempEndpointParams.parentAnchor = [ pelxy[0], pelxy[1], 0, 0 ];
 						tempEndpointParams.dragOptions = dragOptions;
-						// if a parent was given we need to turn that into a "container" argument.  this is, by default,
-						// the parent of the element we will move to, so parent of p.parent in this case.  however, if
-						// the user has specified a 'container' on the endpoint definition or on 
-						// the defaults, we should use that.
-						if (p.parent) {
-							var potentialParent = tempEndpointParams.container || this.Defaults.Container;
-							if (potentialParent)
-								tempEndpointParams.container = potentialParent;
-							else
-								tempEndpointParams.container = this.getParent(parentElement());
-						}
-						
 						ep = this.addEndpoint(elid, tempEndpointParams);
-
 						endpointAddedButNoDragYet = true;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
-
 						// TODO test options to makeSource to see if we should do this?
 						ep._doNotDeleteOnDetach = false; // reset.
 						ep._deleteOnDetach = true;
@@ -4018,7 +4003,6 @@
 				_currentInstance.unmakeTarget(i, true);
 			
 			this.targetEndpointDefinitions = {};
-
 			return this;
 		};
 
@@ -4242,7 +4226,7 @@
 			delete endpointsByElement[id];
 
 			this.anchorManager.changeId(id, newId);
-			this.dragManager && this.dragManager.changeId(id, newId);
+			if (this.dragManager) this.dragManager.changeId(id, newId);
 
 			var _conns = function(list, epIdx, type) {
 				for (var i = 0, ii = list.length; i < ii; i++) {
@@ -4360,9 +4344,6 @@
     		_pdom.appendChild(_dom);
     		this.dragManager.setParent(_el, _id, _pel, _pid);
     	},
-		appendyElement : function(el, parent) {
-			parent.appendChild(el);
-		},
 		/**
 		 * gets the size for the element object, in an array : [ width, height ].
 		 */
@@ -4376,12 +4357,13 @@
 			return el.offsetHeight;
 		},
 		extend : function(o1, o2, names) {
+			var i;
 			if (names) {
-				for (var i = 0; i < names.length; i++)
+				for (i = 0; i < names.length; i++)
 					o1[names[i]] = o2[names[i]];
 			}
 			else
-				for (var i in o2) o1[i] = o2[i];
+				for (i in o2) o1[i] = o2[i];
 			return o1;
 		}
     }, jsPlumbAdapter);
@@ -4413,8 +4395,25 @@
 	
 })();
 
-
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the code for Endpoints.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
+    
+    "use strict";
         
     // create the drag handler for a connection
     var _makeConnectionDragHandler = function(placeholder, _jsPlumb) {
@@ -4439,9 +4438,10 @@
     };
         
     // creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.    
-    var _makeDraggablePlaceholder = function(placeholder, parent, _jsPlumb) {
+    var _makeDraggablePlaceholder = function(placeholder, _jsPlumb) {
         var n = document.createElement("div");
         n.style.position = "absolute";
+        var parent = _jsPlumb.Defaults.Container ? _jsPlumb.getDOMElement(_jsPlumb.Defaults.Container) : document.body;
         parent.appendChild(n);
         var id = _jsPlumb.getId(n);
         _jsPlumb.updateOffset( { elId : id });
@@ -4496,7 +4496,6 @@
         this.idPrefix = "_jsplumb_e_";			
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        this.parent = jsPlumb.getDOMElement(params.parent);
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
         
 // TYPE		
@@ -4589,7 +4588,6 @@
             var endpointArgs = {
                 _jsPlumb:this._jsPlumb.instance,
                 cssClass:params.cssClass,
-                parent:params.parent,
                 container:params.container,
                 tooltip:params.tooltip,
                 connectorTooltip:params.connectorTooltip,
@@ -4718,9 +4716,7 @@
             return this.element;
         };		
                  
-        // container not supported in 1.6.0; you cannot change the container once it is set.
-        // it might come back int a future release.
-        this.setElement = function(el/*, container*/) {
+        this.setElement = function(el) {
             var parentId = this._jsPlumb.instance.getId(el),
                 curId = this.elementId;
             // remove the endpoint from the list for the current endpoint's element
@@ -4878,7 +4874,7 @@
                     inPlaceCopy.referenceEndpoint = this;
                     inPlaceCopy.paint();                                                                
                     
-                    _makeDraggablePlaceholder(placeholderInfo, this.parent, _jsPlumb);
+                    _makeDraggablePlaceholder(placeholderInfo, _jsPlumb);
                     
                     // set the offset of this div to be where 'inPlaceCopy' is, to start with.
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
@@ -5398,7 +5394,25 @@
     });
 })();
 
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the code for Connections.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
+    
+    "use strict";
 
     var makeConnector = function(_jsPlumb, renderMode, connectorName, connectorArgs) {
             if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
@@ -5420,7 +5434,6 @@
         this.idPrefix = "_jsplumb_c_";
         this.defaultLabelLocation = 0.5;
         this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
-        this.parent = params.parent;
         // if a new connection is the result of moving some existing connection, params.previousConnection
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
@@ -5445,7 +5458,6 @@
         this._jsPlumb.visible = true;
         this._jsPlumb.editable = params.editable === true;    
         this._jsPlumb.params = {
-            parent:params.parent,
             cssClass:params.cssClass,
             container:params.container,
             "pointer-events":params["pointer-events"],
@@ -5694,7 +5706,6 @@
 
             var connectorArgs = { 
                     _jsPlumb:this._jsPlumb.instance, 
-                    parent:this._jsPlumb.params.parent, 
                     cssClass:this._jsPlumb.params.cssClass, 
                     container:this._jsPlumb.params.container,                 
                     "pointer-events":this._jsPlumb.params["pointer-events"]
@@ -5851,12 +5862,13 @@
                         _makeAnchor(_jsPlumb.Defaults.Anchor, elementId,_jsPlumb) || 
                         _makeAnchor(jsPlumb.Defaults.Anchor, elementId, _jsPlumb),                  
                     u = params.uuids ? params.uuids[index] : null;
-                    e = _newEndpoint({ 
-                        paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ conn ], 
-                        uuid : u,  anchor : a,  source : element, scope  : params.scope, container:params.container,
-                        reattach:params.reattach || _jsPlumb.Defaults.ReattachConnections,
-                        detachable:params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
-                    });
+                    
+                e = _newEndpoint({ 
+                    paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ conn ], 
+                    uuid : u,  anchor : a,  source : element, scope  : params.scope,
+                    reattach:params.reattach || _jsPlumb.Defaults.ReattachConnections,
+                    detachable:params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
+                });
                 conn.endpoints[index] = e;
                 
                 if (params.drawEndpoints === false) e.setVisible(false, true, true);
@@ -5870,18 +5882,16 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the code for creating and manipulating anchors.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
@@ -6935,23 +6945,22 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the default Connectors, Endpoint and Overlay definitions.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */
-
+ */  
 ;(function() {	
+
+	"use strict";
 				
 	/**
 	 * 
@@ -7738,7 +7747,6 @@
 
 		var _onload = params.onload, 
 			src = params.src || params.url,
-			parent = params.parent,
 			clazz = params.cssClass ? " " + params.cssClass : "";
 
 		this._jsPlumb.img = new Image();
@@ -7793,7 +7801,7 @@
 		this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
 		if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
 		if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);		
-		this._jsPlumb.instance.appendElement(this.canvas, parent);
+		this._jsPlumb.instance.appendElement(this.canvas);
 		this.attachListeners(this.canvas, this);
 		
 		this.actuallyPaint = function(d, style, anchor) {
@@ -7825,7 +7833,7 @@
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
         cleanup : function() {            
             this._jsPlumb.deleted = true;
-            this.canvas && this.canvas.parentNode.removeChild(this.canvas);
+            if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
             this.canvas = null;
         } 
     });
@@ -7849,7 +7857,7 @@
 		this.canvas.style.background = "transparent";
 		this.canvas.style.position = "absolute";
 		this.canvas.className = this._jsPlumb.endpointClass;
-		jsPlumb.appendElement(this.canvas, params.parent);
+		jsPlumb.appendElement(this.canvas);
 		
 		this.paint = function(style, anchor) {
 			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);	
@@ -8105,7 +8113,7 @@
                     (this.cssClass ? this.cssClass : 
                     params.cssClass ? params.cssClass : "");
                 div.className = clazz;
-                this._jsPlumb.instance.appendElement(div, this._jsPlumb.component.parent);
+                this._jsPlumb.instance.appendElement(div);
                 this._jsPlumb.instance.getId(div);
                 this.attachListeners(div, this);
                 this.canvas = div;
@@ -8337,22 +8345,22 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the 'flowchart' connectors, consisting of vertical and horizontal line segments.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {
+    
+    "use strict";
    
     /**
      * Function: Constructor
@@ -8700,26 +8708,23 @@
 })();
 /*
  * jsPlumb
- *
- * Title:jsPlumb 1.6.0
- *
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.
- *
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
  * This file contains the state machine connectors.
  *
- * Thanks to Brainstorm Mobile Solutions for supporting the development of these.
- *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
- *
- * http://jsplumb.org
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
- *
+ * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-
-;(function() {
+ ;(function() {
+	 
+	"use strict";
 
 	var Line = function(x1, y1, x2, y2) {
 
@@ -8966,6 +8971,22 @@
 	//			    }
               //}
     */
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the code for the Bezier connector type.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
 
 	var Bezier = function(params) {
@@ -9035,38 +9056,24 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the SVG renderers.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */
-
-/**
- * SVG support for jsPlumb.
- * 
- * things to investigate:
- * 
- * gradients:  https://developer.mozilla.org/en/svg_in_html_introduction
- * css:http://tutorials.jenkov.com/svg/svg-and-css.html
- * text on a path: http://www.w3.org/TR/SVG/text.html#TextOnAPath
- * pointer events: https://developer.mozilla.org/en/css/pointer-events
- *
- * IE9 hover jquery: http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events
- *
  */
 ;(function() {
 	
 // ************************** SVG utility methods ********************************************	
+
+	"use strict";
 	
 	var svgAttributeMap = {
 		"joinstyle":"stroke-linejoin",
@@ -9304,7 +9311,7 @@
 	
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
-			this.canvas && this.canvas.parentNode && this.canvas.parentNode.removeChild(this.canvas);
+			if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
 			this.svg = null;
 			this.canvas = null;
 			this.bgCanvas = null;
@@ -9666,23 +9673,23 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the VML renderers.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
 
 ;(function() {
+	
+	"use strict";
 	
 	// http://ajaxian.com/archives/the-vml-changes-in-ie-8
 	// http://www.nczonline.net/blog/2010/01/19/internet-explorer-8-document-and-browser-modes/
@@ -9850,8 +9857,8 @@
 	};
 	jsPlumbUtil.extend(VmlComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {			
-			this.bgCanvas && this.bgCanvas.parentNode.removeChild(this.bgCanvas);
-			this.canvas && this.canvas.parentNode.removeChild(this.canvas);
+			if (this.bgCanvas) this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+			if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
 		}
 	});
 
@@ -10177,351 +10184,217 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
- * This file contains the MooTools adapter.
+ * This file contains the jQuery adapter.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */
+ */  
+;(function($) {
+	
+	"use strict";
 
-;(function() {
-	
-	/*
-	 * overrides the FX class to inject 'step' functionality, which MooTools does not
-	 * offer, and which makes me sad.  they don't seem keen to add it, either, despite
-	 * the fact that it could be useful:
-	 * 
-	 * https://mootools.lighthouseapp.com/projects/2706/tickets/668
-	 * 
-	 */
-	var jsPlumbMorph = new Class({
-		Extends:Fx.Morph,
-		onStep : null,
-		initialize : function(el, options) {
-			this.parent(el, options);
-			if (options.onStep) {
-				this.onStep = options.onStep;
-			}
-		},
-		step : function(now) {
-			this.parent(now);
-			if (this.onStep) { 
-				try { this.onStep(); } 
-				catch(e) { } 
-			}
-		}
-	});
-	
-	var JSPLUMB_MOOTOOLS_DROPPABLE = "jsplumb-mootools-droppable";
-	
-	var _droppables = {},
-	_droppableOptions = {},
-	_draggablesByScope = {},
-	_getDraggable = function(el, instance) {
-		var id = instance.getId(el), d = instance.draggablesById;
-			
-		if (d != null)
-			return d[id];
-	},
-	_clearDraggables= function(el, instance) {
-		var d = instance.draggablesById;
-		if (d) {
-			delete d[instance.getId(el)];
-		}
-	},
-	_addDraggable = function(el, instance, drag) {
-		var d = instance.draggablesById, id = instance.getId(el);
-			
-		if (d == null) {
-			d = instance.draggablesById = {};
-			var re = instance.reset;
-			instance.reset = function() {
-				re.apply(instance);
-				instance.draggablesById = {};
-			};
-		}
-		
-		d[id] = drag;
-	},
-	_droppableScopesById = {};
-	/*
-	 * 
-	 */
-	var _executeDroppableOption = function(el, dr, event, originalEvent) {
-		if (dr) {
-			var id = dr.get("id");
-			if (id) {
-				var options = _droppableOptions[id];
-				if (options) {
-					if (options[event]) {
-						options[event](el, dr, originalEvent);
-					}
-				}
-			}
-		}
-	};	
-	
-	var _checkHover = function(el, entering) {
-		if (el) {
-			var id = el.get("id");
-			if (id) {
-				var options = _droppableOptions[id];
-				if (options) {
-					if (options.hoverClass) {
-						if (entering) el.addClass(options.hoverClass);
-						else el.removeClass(options.hoverClass);
-					}
-				}
-			}
-		}
-	};
-
-	/**
-	 * adds the given value to the given list, with the given scope. creates the scoped list
-	 * if necessary.
-	 * used by initDraggable and initDroppable.
-	 */
-	var _add = function(list, _scope, value) {
-		var l = list[_scope];
-		if (!l) {
-			l = [];
-			list[_scope] = l;
-		}
-		l.push(value);
-	};
-	
-	/*
-	 * gets an "element object" from the given input.  this means an object that is used by the
-	 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
-	 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
-	 * function is used to find the element, using the given String as the element's id.
-	 */
 	var _getElementObject = function(el) {
-	  return $(el);
+		return typeof(el) == "string" ? $("#" + el) : $(el);
 	};
-	
-	// new: move to putting stuff on jsplumb prototype
-	$extend(jsPlumbInstance.prototype, {
+
+	$.extend(jsPlumbInstance.prototype, {
+
+// ---------------------------- DOM MANIPULATION ---------------------------------------		
+				
 		
-		doAnimate : function(el, properties, options) {			
-			var m = new jsPlumbMorph(el, options);
-			m.start(properties);
-		},		
-		getSelector : function(context, spec) {
-            if (arguments.length == 2) {
-                return _getElementObject(context).getElements(spec);
-            }
-            else
-			     return $$(context);
-		},
-		
-		getDOMElement : function(el) { 
+		/**
+		* gets a DOM element from the given input, which might be a string (in which case we just do document.getElementById),
+		* a selector (in which case we return el[0]), or a DOM element already (we assume this if it's not either of the other
+		* two cases).  this is the opposite of getElementObject below.
+		*/
+		getDOMElement : function(el) {
 			if (el == null) return null;
-			// MooTools just decorates the DOM elements. so we have either an ID, an element list, or an Element here.
-			return typeof(el) == "string" ? document.getElementById(el) : el.length ? el[0] : el; 
+			if (typeof(el) == "string") return document.getElementById(el);
+			else if (el.context || el.length != null) return el[0];
+			else return el;
 		},
 		
+		/**
+		 * gets an "element object" from the given input.  this means an object that is used by the
+		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
+		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
+		 * function is used to find the element, using the given String as the element's id.
+		 * 
+		 */
 		getElementObject : _getElementObject,
-		
-		removeElement : function(element, parent) {
-            var el = _getElementObject(element);
-			if (el) el.dispose();  // ??
+
+		/**
+		* removes an element from the DOM.  doing it via the library is
+		* safer from a memory perspective, as it ix expected that the library's 
+		* remove method will unbind any event listeners before removing the element from the DOM.
+		*/
+		removeElement:function(element) {
+			_getElementObject(element).remove();
 		},
+
+// ---------------------------- END DOM MANIPULATION ---------------------------------------
+
+// ---------------------------- MISCELLANEOUS ---------------------------------------
+
+		/**
+		 * animates the given element.
+		 */
+		doAnimate : function(el, properties, options) {
+			el.animate(properties, options);
+		},	
+		getSelector : function(context, spec) {
+            if (arguments.length == 2)
+                return _getElementObject(context).find(spec);
+            else
+                return $(context);
+		},
+
+// ---------------------------- END MISCELLANEOUS ---------------------------------------		
+
+// -------------------------------------- DRAG/DROP	---------------------------------
 		
 		destroyDraggable : function(el) {
-			var d = _getDraggable(el, this);
-			if (d) {
-				d.detach();
-				_clearDraggables(el, this);
-			}
+			if ($(el).data("draggable"))
+				$(el).draggable("destroy");
 		},
 
 		destroyDroppable : function(el) {
-			// TODO
+			if ($(el).data("droppable"))
+				$(el).droppable("destroy");
 		},
+		/**
+		 * initialises the given element to be draggable.
+		 */
 		initDraggable : function(el, options, isPlumbedComponent) {
-			var drag = _getDraggable(el, this);
-			if (!drag) {
-				var originalZIndex = 0,
-                    originalCursor = null,
-				    dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
-                
-				options.onStart = jsPlumbUtil.wrap(options.onStart, function() {
-                    originalZIndex = drag.element.getStyle('z-index');
-					drag.element.setStyle('z-index', dragZIndex);
-                    drag.originalZIndex = originalZIndex;
-					if (jsPlumb.Defaults.DragOptions.cursor) {
-						originalCursor = drag.element.getStyle('cursor');
-						drag.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
-					}
-					$(document.body).addClass(this.dragSelectClass);
-				}.bind(this));
-				
-				options.onComplete = jsPlumbUtil.wrap(options.onComplete, function() {
-					drag.element.setStyle('z-index', originalZIndex);
-					if (originalCursor) {
-						drag.element.setStyle('cursor', originalCursor);
-					}                    
-					$(document.body).removeClass(this.dragSelectClass);
-				}.bind(this));
-				
-				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element
-                // draggable.  this is the only library adapter that has to care about this parameter.
-				var scope = "" + (options.scope || jsPlumb.Defaults.Scope),
-				    filterFunc = function(entry) {
-					    return entry.get("id") != el.get("id");
-				    },
-				    droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
+			options = options || {};
+			el = $(el);
 
-                if (isPlumbedComponent) {
+			options.start = jsPlumbUtil.wrap(options.start, function() {
+				$("body").addClass(this.dragSelectClass);
+			}, false);
 
-				    options.droppables = droppables;
-				    options.onLeave = jsPlumbUtil.wrap(options.onLeave, function(el, dr) {
-		    			if (dr) {
-			    			_checkHover(dr, false);
-				    		_executeDroppableOption(el, dr, 'onLeave');
-					    }
-				    });
-				    options.onEnter = jsPlumbUtil.wrap(options.onEnter, function(el, dr) {
-					    if (dr) {
-						    _checkHover(dr, true);
-						    _executeDroppableOption(el, dr, 'onEnter');
-					    }
-				    });
-				    options.onDrop = function(el, dr, event) {
-					    if (dr) {
-						    _checkHover(dr, false);
-						    _executeDroppableOption(el, dr, 'onDrop', event);
-					    }
-				    };
-                }
-                else
-                    options.droppables = [];
-				
-				drag = new Drag.Move(el, options);
-				drag.scope = scope;
-                drag.originalZIndex = originalZIndex;
-				_addDraggable(el, this, drag);
-				// again, only keep a record of this for scope stuff if this is a plumbed component (an endpoint)
-                if (isPlumbedComponent) {
-				    _add(_draggablesByScope, scope, drag);
-                }
-				// test for disabled.
-				if (options.disabled) drag.detach();
-			}
-			return drag;
+			options.stop = jsPlumbUtil.wrap(options.stop, function() {
+				$("body").removeClass(this.dragSelectClass);
+			});
+
+			// remove helper directive if present and no override
+			if (!options.doNotRemoveHelper)
+				options.helper = null;
+			if (isPlumbedComponent)
+				options.scope = options.scope || jsPlumb.Defaults.Scope;
+			el.draggable(options);
 		},
 		
-		initDroppable : function(el, options, isPlumbedComponent, isPermanent) {
-			var scope = options.scope;
-            _add(_droppables, scope, el);
-			var id = this.getId(el);
-
-			jsPlumbAdapter.addClass(el, JSPLUMB_MOOTOOLS_DROPPABLE);
-            el.setAttribute("_isPermanentDroppable", isPermanent);  // we use this to clear out droppables on drag complete.
-			_droppableOptions[id] = options;
-			_droppableScopesById[id] = scope;
-			var filterFunc = function(entry) { return entry.element != el; },
-			    draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
-			for (var i = 0; i < draggables.length; i++) {
-				draggables[i].droppables.push(el);
-			}
+		/**
+		 * initialises the given element to be droppable.
+		 */
+		initDroppable : function(el, options) {
+			options.scope = options.scope || jsPlumb.Defaults.Scope;
+			$(el).droppable(options);
 		},
 		
 		isAlreadyDraggable : function(el) {
-			return _getDraggable(el, this) != null;
-		},										
+			return $(el).hasClass("ui-draggable");
+		},
 		
+		/**
+		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
+		 */
 		isDragSupported : function(el, options) {
-			return typeof Drag != 'undefined' ;
-		},	
-		
-		/*
-		 * you need Drag.Move imported to make drop work.
+			return $(el).draggable;
+		},
+
+		/**
+		 * returns whether or not drop is supported (by the library, not whether or not it is disabled) for the given element.
 		 */
 		isDropSupported : function(el, options) {
-			return (typeof Drag !== undefined && typeof Drag.Move !== undefined);
+			return $(el).droppable;
 		},
+		/**
+		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
+		 */
 		getDragObject : function(eventArgs) {
-			return eventArgs[0];
+			//return eventArgs[1].draggable || eventArgs[1].helper;
+			return eventArgs[1].helper || eventArgs[1].draggable;
 		},
 		
 		getDragScope : function(el) {
-			return _getDraggable(el, this).scope;
+			return $(el).draggable("option", "scope");
 		},
-	
+
 		getDropEvent : function(args) {
-			return args[2];
+			return args[0];
 		},
 		
 		getDropScope : function(el) {
-			var id = this.getId(el);
-			return _droppableScopesById[id];
+			return $(el).droppable("option", "scope");
 		},
-		
-		stopDrag : function() {
-			var did = _draggablesById[this.getInstanceIndex()]
-            for (var i in did) {
-                for (var j = 0; j < did[i].length; j++) {
-                    var d = did[i][j];
-                    d.stop();
-                    if (d.originalZIndex !== 0)
-                        d.element.setStyle("z-index", d.originalZIndex);
-                }
-            }
-        },
-		
-		/*
+		/**
 		 * takes the args passed to an event function and returns you an object that gives the
 		 * position of the object being moved, as a js object with the same params as the result of
 		 * getOffset, ie: { left: xxx, top: xxx }.
+		 * 
+		 * different libraries have different signatures for their event callbacks.  
+		 * see getDragObject as well
 		 */
-		getUIPosition : function(eventArgs, zoom) {
-		  var ui = eventArgs[0],
-		  	el = jsPlumb.getDOMElement(ui),
-			o = jsPlumbAdapter.getOffset(el, this);
+		getUIPosition : function(eventArgs, zoom, dontAdjustHelper) {
+			var ret;
 			zoom = zoom || 1;
-			return { left:o.left / zoom, top:o.top/zoom };
+			if (eventArgs.length == 1) {
+				ret = { left: eventArgs[0].pageX, top:eventArgs[0].pageY };
+			}
+			else {
+				var ui = eventArgs[1],
+				  _offset = ui.position;//ui.offset;
+				  
+				ret = _offset || ui.absolutePosition;
+				
+				// adjust ui position to account for zoom, because jquery ui does not do this.
+				if (!dontAdjustHelper) {
+					ui.position.left /= zoom;
+					ui.position.top /= zoom;
+				}
+			}
+			return { left:ret.left, top: ret.top  };
 		},
 		
-		isDragFilterSupported:function() { return false; },
+		isDragFilterSupported:function() { return true; },
 		
 		setDragFilter : function(el, filter) {
-			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");
+			if (jsPlumb.isAlreadyDraggable(el))
+				$(el).draggable("option", "cancel", filter);
 		},
 		
 		setElementDraggable : function(el, draggable) {
-			var d = _getDraggable(el, this);
-			if (d)
-				d[draggable ? "attach" : "detach"]();
+			$(el).draggable("option", "disabled", !draggable);
 		},
 		
 		setDragScope : function(el, scope) {
-			var drag = _getDraggable(el, this);
-			var filterFunc = function(entry) {
-				return entry.get("id") != el.get("id");
-			};
-			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
-			drag.droppables = droppables;
+			$(el).draggable("option", "scope", scope);
 		},
-		
+		/**
+         * mapping of drag events for jQuery
+         */
 		dragEvents : {
-			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
-			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
+			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
+			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
 		animEvents:{
-			'step':"onStep", 'complete':'onComplete'
+			'step':"step", 'complete':'complete'
 		},
 		
+// -------------------------------------- END DRAG/DROP	---------------------------------		
+
+// -------------------------------------- EVENTS	---------------------------------		
+
 		/**
 		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
 		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
@@ -10531,27 +10404,32 @@
 		 * @param originalEvent
 		 */
 		trigger : function(el, event, originalEvent) {
-			originalEvent.stopPropagation();
-			_getElementObject(el).fireEvent(event, originalEvent);
+			var h = jQuery._data(_getElementObject(el)[0], "handle");
+            h(originalEvent);
 		},
-		
 		getOriginalEvent : function(e) {
-			return e.event;
+			return e.originalEvent;
 		},
+
+		// note: for jquery we support the delegation stuff here
 		on : function(el, event, callback) {
-			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : $$(el);
-			//el = _getElementObject(el);
-			for (var i = 0; i < els.length; i++)
-				els[i].addEvent(event, callback);
-		},
+			el = _getElementObject(el);
+			var a = []; a.push.apply(a, arguments);
+			el.on.apply(el, a.slice(1));
+		},				
+		
+		// note: for jquery we support the delegation stuff here
 		off : function(el, event, callback) {
 			el = _getElementObject(el);
-			el.removeEvent(event, callback);
-		},
-		reset:function() {
-
+			var a = []; a.push.apply(a, arguments);
+			el.off.apply(el, a.slice(1));
 		}
+
+// -------------------------------------- END EVENTS	---------------------------------		
+
 	});
 
-	window.addEvent('domready', jsPlumb.init);
-})();
+	$(document).ready(jsPlumb.init);
+
+})(jQuery);
+

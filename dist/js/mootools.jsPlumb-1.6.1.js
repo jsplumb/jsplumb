@@ -623,1088 +623,24 @@
 		    return [{x:toPoint.x + x, y:toPoint.y + y}, {x:toPoint.x - x, y:toPoint.y - y}];
 		};	
 }).call(this);
-;(function() {
-
-	"use strict";
-
-	var Sniff = {
-		android:navigator.userAgent.toLowerCase().indexOf("android") > -1
-	};
-
-	var matchesSelector = function(el, selector, ctx) {
-			ctx = ctx || el.parentNode;
-			var possibles = ctx.querySelectorAll(selector);
-			for (var i = 0; i < possibles.length; i++) {
-				if (possibles[i] === el) {
-					return true;
-				}
-			}
-			return false;
-		},
-		_gel = function(el) { return typeof el == "string" ? document.getElementById(el) : el; },
-		_t = function(e) { return e.srcElement || e.target; },
-		_d = function(l, fn) {
-			for (var i = 0, j = l.length; i < j; i++) {
-				if (l[i] == fn) break;
-			}
-			if (i < l.length) l.splice(i, 1);
-		},
-		guid = 1,
-		//
-		// this function generates a guid for every handler, sets it on the handler, then adds
-		// it to the associated object's map of handlers for the given event. this is what enables us 
-		// to unbind all events of some type, or all events (the second of which can be requested by the user, 
-		// but it also used by Mottle when an element is removed.)
-		_store = function(obj, event, fn) {
-			var g = guid++;
-			obj.__ta = obj.__ta || {};
-			obj.__ta[event] = obj.__ta[event] || {};
-			// store each handler with a unique guid.
-			obj.__ta[event][g] = fn;
-			// set the guid on the handler.
-			fn.__tauid = g;
-			return g;
-		},
-		_unstore = function(obj, event, fn) {
-			obj.__ta && obj.__ta[event] && delete obj.__ta[event][fn.__tauid];
-			// a handler might have attached extra functions, so we unbind those too.
-			if (fn.__taExtra) {
-				for (var i = 0; i < fn.__taExtra.length; i++) {
-					_unbind(obj, fn.__taExtra[i][0], fn.__taExtra[i][1]);
-				}
-				fn.__taExtra.length = 0;
-			}
-			// a handler might have attached an unstore callback
-			fn.__taUnstore && fn.__taUnstore();
-		},
-		_curryChildFilter = function(children, obj, fn, evt) {
-			if (children == null) return fn;
-			else {
-				var c = children.split(","),
-					_fn = function(e) {
-						_fn.__tauid = fn.__tauid;
-						var t = _t(e);
-						for (var i = 0; i < c.length; i++) {
-							if (matchesSelector(t, c[i], obj)) {
-								fn.apply(t, arguments);
-							}
-						}
-					};
-				registerExtraFunction(fn, evt, _fn);
-				return _fn;
-			}
-		},
-		//
-		// registers an 'extra' function on some event listener function we were given - a function that we
-		// created and bound to the element as part of our housekeeping, and which we want to unbind and remove
-		// whenever the given function is unbound.
-		registerExtraFunction = function(fn, evt, newFn) {
-			fn.__taExtra = fn.__taExtra || [];
-			fn.__taExtra.push([evt, newFn]);
-		},
-		DefaultHandler = function(obj, evt, fn, children) {
-			// TODO: this was here originally because i wanted to handle devices that are both touch AND mouse. however this can cause certain of the helper
-			// functions to be bound twice, as - for example - on a nexus 4, both a mouse event and a touch event are fired.  the use case i had in mind
-			// was a device such as an Asus touch pad thing, which has a touch pad but can also be controlled with a mouse.
-			//if (isMouseDevice)
-			//	_bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
-			
-			if (isTouchDevice && touchMap[evt]) {
-				_bind(obj, touchMap[evt], _curryChildFilter(children, obj, fn, touchMap[evt]), fn);
-			}
-			else
-				_bind(obj, evt, _curryChildFilter(children, obj, fn, evt), fn);
-		},
-		SmartClickHandler = function(obj, evt, fn, children) {
-			if (obj.__taSmartClicks == null) {
-				var down = function(e) { obj.__tad = _pageLocation(e); },
-					up = function(e) { obj.__tau = _pageLocation(e); },
-					click = function(e) {
-						if (obj.__tad && obj.__tau && obj.__tad[0] === obj.__tau[0] && obj.__tad[1] === obj.__tau[1]) {
-							for (var i = 0; i < obj.__taSmartClicks.length; i++)
-								obj.__taSmartClicks[i].apply(_t(e), [ e ]);
-						}
-					};
-				DefaultHandler(obj, "mousedown", down, children);
-				DefaultHandler(obj, "mouseup", up, children);
-				DefaultHandler(obj, "click", click, children);
-				obj.__taSmartClicks = [];
-			}
-			
-			// store in the list of callbacks
-			obj.__taSmartClicks.push(fn);
-			// the unstore function removes this function from the object's listener list for this type.
-			fn.__taUnstore = function() {
-				_d(obj.__taSmartClicks, fn);
-			};
-		},
-		_tapProfiles = {
-			"tap":{touches:1, taps:1},
-			"dbltap":{touches:1, taps:2},
-			"contextmenu":{touches:2, taps:1}
-		},
-		TapHandler = function(clickThreshold, dblClickThreshold) {
-			return function(obj, evt, fn, children) {
-				// if event is contextmenu, for devices which are mouse only, we want to
-				// use the default bind. 
-				if (evt == "contextmenu" && isMouseDevice)
-					DefaultHandler(obj, evt, fn, children);
-				else {
-					if (obj.__taTapHandler == null) {
-						var tt = obj.__taTapHandler = {
-							tap:[],
-							dbltap:[],
-							contextmenu:[],
-							down:false,
-							taps:0
-						};
-						var down = function(e) {
-								tt.down = true;
-								setTimeout(clearSingle, clickThreshold);
-								setTimeout(clearDouble, dblClickThreshold);
-							},
-							up = function(e) {
-								if (tt.down) {
-									tt.taps++;
-									var tc = _touchCount(e);
-									for (var t in _tapProfiles) {
-										var p = _tapProfiles[t];
-										if (p.touches === tc && (p.taps === 1 || p.taps === tt.taps)) {
-											for (var i = 0; i < tt[t].length; i++) {
-												tt[t][i].apply(_t(e), [ e ]);
-											}
-										}
-									}
-								}
-							},
-							clearSingle = function() {
-								tt.down = false;
-							},
-							clearDouble = function() {
-								tt.taps = 0;
-							};
-						
-						DefaultHandler(obj, "mousedown", down, children);
-						DefaultHandler(obj, "mouseup", up, children);
-					}
-					obj.__taTapHandler[evt].push(fn);
-					// the unstore function removes this function from the object's listener list for this type.
-					fn.__taUnstore = function() {
-						_d(obj.__taTapHandler[evt], fn);
-					};
-				}
-			};
-		},
-		meeHelper = function(type, evt, obj, target) {
-			for (var i in obj.__tamee[type]) {
-				obj.__tamee[type][i].apply(target, [ evt ]);
-			}
-		},
-		MouseEnterExitHandler = function() {
-			var activeElements = [];
-			return function(obj, evt, fn, children) {
-				if (!obj.__tamee) {
-					// __tamee holds a flag saying whether the mouse is currently "in" the element, and a list of
-					// both mouseenter and mouseexit functions.
-					obj.__tamee = { over:false, mouseenter:[], mouseexit:[] };
-					// register over and out functions
-					var over = function(e) {
-							var t = _t(e);
-							if ( (children== null && (t == obj && !obj.__tamee.over)) || (matchesSelector(t, children, obj) && (t.__tamee == null || !t.__tamee.over)) ) {
-								meeHelper("mouseenter", e, obj, t);
-								t.__tamee = t.__tamee || {};
-								t.__tamee.over = true;
-								activeElements.push(t);
-							}
-						},
-						out = function(e) {
-							var t = _t(e);
-							// is the current target one of the activeElements? and is the 
-							// related target NOT a descendant of it?
-							for (var i = 0; i < activeElements.length; i++) {
-								if (t == activeElements[i] && !matchesSelector((e.relatedTarget || e.toElement), "*", t)) {
-									t.__tamee.over = false;
-									activeElements.splice(i, 1);
-									meeHelper("mouseexit", e, obj, t);
-								}
-							}
-						};
-						
-					_bind(obj, "mouseover", _curryChildFilter(children, obj, over, "mouseover"), over);
-					_bind(obj, "mouseout", _curryChildFilter(children, obj, out, "mouseout"), out);
-				}
-
-				fn.__taUnstore = function() {
-					delete obj.__tamee[evt][fn.__tauid];
-				};
-
-				_store(obj, evt, fn);
-				obj.__tamee[evt][fn.__tauid] = fn;
-			};
-		},
-		isTouchDevice = "ontouchstart" in document.documentElement,
-		isMouseDevice = "onmousedown" in document.documentElement,
-		touchMap = { "mousedown":"touchstart", "mouseup":"touchend", "mousemove":"touchmove" },
-		touchstart="touchstart",touchend="touchend",touchmove="touchmove",
-		ta_down = "__MottleDown", ta_up = "__MottleUp", 
-		ta_context_down = "__MottleContextDown", ta_context_up = "__MottleContextUp",
-		iev = (function() {
-			var rv = -1; 
-			if (navigator.appName == 'Microsoft Internet Explorer') {
-				var ua = navigator.userAgent,
-					re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-				if (re.exec(ua) != null)
-					rv = parseFloat(RegExp.$1);
-			}
-			return rv;
-		})(),
-		isIELT9 = iev > -1 && iev < 9, 
-		_genLoc = function(e, prefix) {
-			if (e == null) return [ 0, 0 ];
-			var ts = _touches(e), t = _getTouch(ts, 0);
-			return [t[prefix + "X"], t[prefix + "Y"]];
-		},
-		_pageLocation = function(e) {
-			if (e == null) return [ 0, 0 ];
-			if (isIELT9) {
-				return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
-			}
-			else {
-				return _genLoc(e, "page");
-			}
-		},
-		_screenLocation = function(e) {
-			return _genLoc(e, "screen");
-		},
-		_clientLocation = function(e) {
-			return _genLoc(e, "client");
-		},
-		_getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
-		_touches = function(e) {
-			return e.touches && e.touches.length > 0 ? e.touches : 
-				   e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
-				   e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
-				   [ e ];
-		},
-		_touchCount = function(e) { return _touches(e).length; },
-		//http://www.quirksmode.org/blog/archives/2005/10/_and_the_winner_1.html
-		_bind = function( obj, type, fn, originalFn) {
-			_store(obj, type, fn);
-			originalFn.__tauid = fn.__tauid;
-			if (obj.addEventListener)
-				obj.addEventListener( type, fn, false );
-			else if (obj.attachEvent) {
-				var key = type + fn.__tauid;
-				obj["e" + key] = fn;
-				// TODO look at replacing with .call(..)
-				obj[key] = function() { 
-					obj["e"+key] && obj["e"+key]( window.event ); 
-				};
-				obj.attachEvent( "on"+type, obj[key] );
-			}
-		},
-		_unbind = function( obj, type, fn) {
-			if (fn == null) return;
-			_each(obj, function() {
-				var _el = _gel(this);
-				_unstore(_el, type, fn);
-				// it has been bound if there is a tauid. otherwise it was not bound and we can ignore it.
-				if (fn.__tauid != null) {
-					if (_el.removeEventListener)
-						_el.removeEventListener( type, fn, false );
-					else if (this.detachEvent) {
-						var key = type + fn.__tauid;
-						_el[key] && _el.detachEvent( "on"+type, _el[key] );
-						_el[key] = null;
-						_el["e"+key] = null;
-					}
-				}
-			});
-		},
-		_devNull = function() {},
-		_each = function(obj, fn) {
-			if (obj == null) return;
-			// if a list (or list-like), use it. if a string, get a list 
-			// by running the string through querySelectorAll. else, assume 
-			// it's an Element.
-			obj = (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj : typeof obj === "string" ? document.querySelectorAll(obj) : [ obj ];
-			for (var i = 0; i < obj.length; i++)
-				fn.apply(obj[i]);
-		};
-
-	/**
-	* Event handler.  Offers support for abstracting out the differences
-	* between touch and mouse devices, plus "smart click" functionality
-	* (don't fire click if the mouse has moved betweeb mousedown and mouseup),
-	* and synthesized click/tap events.
-	* @class Mottle
-	* @constructor
-	* @param {Object} params Constructor params
-	* @param {Integer} [params.clickThreshold=150] Threshold, in milliseconds beyond which a touchstart followed by a touchend is not considered to be a click.
-	* @param {Integer} [params.dblClickThreshold=350] Threshold, in milliseconds beyond which two successive tap events are not considered to be a click.
-	* @param {Boolean} [params.smartClicks=false] If true, won't fire click events if the mouse has moved between mousedown and mouseup. Note that this functionality
-	* requires that Mottle consume the mousedown event, and so may not be viable in all use cases.
-	*/
-	this.Mottle = function(params) {
-		params = params || {};
-		var self = this, 
-			clickThreshold = params.clickThreshold || 150,
-			dblClickThreshold = params.dblClickThreshold || 350,
-			mouseEnterExitHandler = new MouseEnterExitHandler(),
-			tapHandler = new TapHandler(clickThreshold, dblClickThreshold),
-			_smartClicks = params.smartClicks,
-			_doBind = function(obj, evt, fn, children) {
-				if (fn == null) return;
-				_each(obj, function() {
-					var _el = _gel(this);
-					if (_smartClicks && evt === "click")
-						SmartClickHandler(_el, evt, fn, children);
-					else if (evt === "tap" || evt === "dbltap" || evt === "contextmenu") {
-						tapHandler(_el, evt, fn, children);
-					}
-					else if (evt === "mouseenter" || evt == "mouseexit")
-						mouseEnterExitHandler(_el, evt, fn, children);
-					else 
-						DefaultHandler(_el, evt, fn, children);
-				});
-			};
-
-		/**
-		* Removes an element from the DOM, and unregisters all event handlers for it. You should use this
-		* to ensure you don't leak memory.
-		* @method remove
-		* @param {String|Element} el Element, or id of the element, to remove.
-		* @return {Mottle} The current Mottle instance; you can chain this method.
-		*/
-		this.remove = function(el) {
-			_each(el, function() {
-				var _el = _gel(this);
-				if (_el.__ta) {
-					for (var evt in _el.__ta) {
-						for (var h in _el.__ta[evt]) {
-							_unbind(_el, evt, _el.__ta[evt][h]);
-						}
-					}
-				}
-				_el.parentNode && _el.parentNode.removeChild(_el);
-			});
-			return this;
-		};
-
-		/**
-		* Register an event handler, optionally as a delegate for some set of descendant elements. Note
-		* that this method takes either 3 or 4 arguments - if you supply 3 arguments it is assumed you have 
-		* omitted the `children` parameter, and that the event handler should be bound directly to the given element.
-		* @method on
-		* @param {Element[]|Element|String} el Either an Element, or a CSS spec for a list of elements, or an array of Elements.
-		* @param {String} [children] Comma-delimited list of selectors identifying allowed children.
-		* @param {String} event Event ID.
-		* @param {Function} fn Event handler function.
-		* @return {Mottle} The current Mottle instance; you can chain this method.
-		*/
-		this.on = function(el, children, event, fn) {
-			var _el = arguments[0],
-				_c = arguments.length == 4 ? arguments[1] : null,
-				_e = arguments[arguments.length - 2],
-				_f = arguments[arguments.length - 1];
-
-			_doBind(_el, _e, _f, _c);
-			return this;
-		};	
-
-		/**
-		* Cancel delegate event handling for the given function. Note that unlike with 'on' you do not supply
-		* a list of child selectors here: it removes event delegation from all of the child selectors for which the
-		* given function was registered (if any).
-		* @method off
-		* @param {Element[]|Element|String} el Element - or ID of element - from which to remove event listener.
-		* @param {String} event Event ID.
-		* @param {Function} fn Event handler function.
-		* @return {Mottle} The current Mottle instance; you can chain this method.
-		*/
-		this.off = function(el, evt, fn) {
-			_unbind(el, evt, fn);
-			return this;
-		};
-
-		/**
-		* Triggers some event for a given element.
-		* @method trigger
-		* @param {Element} el Element for which to trigger the event.
-		* @param {String} event Event ID.
-		* @param {Event} originalEvent The original event. Should be optional of course, but currently is not, due
-		* to the jsPlumb use case that caused this method to be added.
-		* @param {Object} [payload] Optional object to set as `payload` on the generated event; useful for message passing.
-		* @return {Mottle} The current Mottle instance; you can chain this method.
-		*/
-		this.trigger = function(el, event, originalEvent, payload) {
-			var eventToBind = (isTouchDevice && touchMap[event]) ? touchMap[event] : event;
-			var pl = _pageLocation(originalEvent), sl = _screenLocation(originalEvent), cl = _clientLocation(originalEvent);
-			_each(el, function() {
-				var _el = _gel(this), evt;
-				originalEvent = originalEvent || {
-					screenX:sl[0],
-					screenY:sl[1],
-					clientX:cl[0],
-					clientY:cl[1]
-				};
-
-				var _decorate = function(_evt) {
-					if (payload) _evt.payload = payload;
-				};
-
-				var eventGenerators = {
-					"TouchEvent":function(evt) {
-						var t = document.createTouch(window, _el, 0, pl[0], pl[1], 
-									sl[0], sl[1],
-									cl[0], cl[1],
-									0,0,0,0);
-
-						evt.initTouchEvent(eventToBind, true, true, window, 0, 
-							sl[0], sl[1],
-							cl[0], cl[1],
-							false, false, false, false, document.createTouchList(t));
-					},
-					"MouseEvents":function(evt) {
-						evt.initMouseEvent(eventToBind, true, true, window, 0,
-							sl[0], sl[1],
-							cl[0], cl[1],
-							false, false, false, false, 1, _el);
-						
-						if (Sniff.android) {
-							// Android's touch events are not standard.
-							var t = document.createTouch(window, _el, 0, pl[0], pl[1], 
-										sl[0], sl[1],
-										cl[0], cl[1],
-										0,0,0,0);
-
-							evt.touches = evt.targetTouches = evt.changedTouches = document.createTouchList(t);
-						}
-					}
-				};
-
-				if (document.createEvent) {
-					var ite = (isTouchDevice && touchMap[event] && !Sniff.android), evtName = ite ? "TouchEvent" : "MouseEvents";
-					evt = document.createEvent(evtName);
-					eventGenerators[evtName](evt);
-					_decorate(evt);
-					_el.dispatchEvent(evt);
-				}
-				else if (document.createEventObject) {
-					evt = document.createEventObject();
-					evt.eventType = evt.eventName = eventToBind;
-					evt.screenX = sl[0];
-					evt.screenY = sl[1];
-					evt.clientX = cl[0];
-					evt.clientY = cl[1];
-					_decorate(evt);
-					_el.fireEvent('on' + eventToBind, evt);
-				}
-			});
-			return this;
-		}
-	};
-
-	/**
-	* Static method to assist in 'consuming' an element: uses `stopPropagation` where available, or sets `e.returnValue=false` where it is not.
-	* @method Mottle.consume
-	* @param {Event} e Event to consume
-	* @param {Boolean} [doNotPreventDefault=false] If true, does not call `preventDefault()` on the event.
-	*/
-	Mottle.consume = function(e, doNotPreventDefault) {
-		if (e.stopPropagation)
-			e.stopPropagation();
-		else 
-			e.returnValue = false;
-
-		if (!doNotPreventDefault && e.preventDefault)
-			 e.preventDefault();
-	};
-
-	/**
-	* Gets the page location corresponding to the given event. For touch events this means get the page location of the first touch.
-	* @method Mottle.pageLocation
-	* @param {Event} e Event to get page location for.
-	* @return {Integer[]} [left, top] for the given event.
-	*/
-	Mottle.pageLocation = _pageLocation;
-
-}).call(this);
-
-/**
- drag/drop functionality for use with jsPlumb but with
- no knowledge of jsPlumb. supports multiple scopes (separated by whitespace), dragging
- multiple elements, constrain to parent, drop filters, drag start filters, custom
- css classes.
- 
- a lot of the functionality of this script is expected to be plugged in:
- 
- addClass
- removeClass
- 
- addEvent
- removeEvent
- 
- getPosition
- setPosition
- getSize
- 
- indexOf
- intersects
- 
- the name came from here:
- 
- http://mrsharpoblunto.github.io/foswig.js/
- 
- copyright 2014 Simon Porritt
-*/ 
-
-;(function() {
-    
-    "use strict";
-
-    var matchesSelector = function(el, selector, ctx) {
-		ctx = ctx || el.parentNode;
-		var possibles = ctx.querySelectorAll(selector);
-		for (var i = 0; i < possibles.length; i++) {
-			if (possibles[i] === el)
-				return true;
-		}
-		return false;
-	};
-
-	var iev = (function() {
-            var rv = -1;
-            if (navigator.appName == 'Microsoft Internet Explorer') {
-                    var ua = navigator.userAgent,
-                            re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-                    if (re.exec(ua) != null)
-                            rv = parseFloat(RegExp.$1);
-            }
-            return rv;
-        })(),
-        isIELT9 = iev > -1 && iev < 9,
-        _pl = function(e) {
-            if (isIELT9) {
-                    return [ e.clientX + document.documentElement.scrollLeft, e.clientY + document.documentElement.scrollTop ];
-            }
-            else {
-                    var ts = _touches(e), t = _getTouch(ts, 0);
-                    // this is for iPad. may not fly for Android.
-                    return [t.pageX, t.pageY];
-            }
-        }, 
-        _getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
-        _touches = function(e) {
-            return e.touches && e.touches.length > 0 ? e.touches :
-                       e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
-                       e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
-                       [ e ];
-        },
-        _classes = {
-            draggable:"katavorio-draggable",    // draggable elements
-            droppable:"katavorio-droppable",    // droppable elements
-            drag : "katavorio-drag",            // elements currently being dragged            
-            selected:"katavorio-drag-selected", // elements in current drag selection
-            active : "katavorio-drag-active",   // droppables that are targets of a currently dragged element
-            hover : "katavorio-drag-hover",     // droppables over which a matching drag element is hovering
-            noSelect : "katavorio-drag-no-select" // added to the body to provide a hook to suppress text selection
-        }, 
-        _defaultScope = "katavorio-drag-scope",
-        _events = [ "stop", "start", "drag", "drop", "over", "out" ],
-        _devNull = function() {},
-        _true = function() { return true; },               
-        _foreach = function(l, fn, from) {
-            for (var i = 0; i < l.length; i++) {
-                if (l[i] != from)
-                    fn(l[i]);
-            }
-        },
-        _setDroppablesActive = function(dd, val, andHover, drag) {
-            _foreach(dd, function(e) {
-                e.setActive(val);
-                if (val) e.updatePosition();
-                if (andHover) e.setHover(drag, val);
-            });
-        },
-		_each = function(obj, fn) {
-			if (obj == null) return;
-			obj = (typeof obj !== "string") && (obj.tagName == null && obj.length != null) ? obj : [ obj ];
-			for (var i = 0; i < obj.length; i++)
-				fn.apply(obj[i]);
-		},
-		_consume = function(e) {
-			if (e.stopPropagation) {
-				e.stopPropagation();
-				e.preventDefault();
-			}
-			else {
-				e.returnValue = false;
-			}
-		},
-        _defaultInputFilterSelector = "input,textarea,select,button",
-        //
-        // filters out events on all input elements, like textarea, checkbox, input, select.
-        _inputFilter = function(e, el, _katavorio) {
-            var t = e.srcElement || e.target;
-            return !matchesSelector(t, _katavorio.getInputFilterSelector(), el);
-        };
-        
-    var Super = function(el, params, css, scope) {
-        params.addClass(el, this._class);
-        this.el = el;
-        var enabled = true;
-        this.setEnabled = function(e) { enabled = e; };
-        this.isEnabled = function() { return enabled; };
-		this.toggleEnabled = function() { enabled = !enabled; };
-		
-		this.setScope = function(scopes) {
-			this.scopes = scopes ? scopes.split(/\s+/) : [ scope ];
-		};
-		
-		this.setScope(params.scope);
-		this.k = params.katavorio;
-        return params.katavorio;
-    };
-        
-    var Drag = function(el, params, css, scope) {
-        this._class = css.draggable;
-        var k = Super.apply(this, arguments),
-            downAt = [0,0], posAtDown = null, moving = false,
-			consumeStartEvent = params.consumeStartEvent !== false,
-			dragEl = el,
-			clone = params.clone,
-			toGrid = function(pos) {
-				return params.grid == null ? pos :
-					[
-						params.grid[0] * Math.floor(pos[0] / params.grid[0]),
-						params.grid[1] * Math.floor(pos[1] / params.grid[1])
-					];
-			},
-			constrain = (params.constrain || params.containment) ? function(pos) {
-                var r = { x:pos[0], y:pos[1], w:this.size[0], h:this.size[1] };
-                return [ 
-					Math.max(0, Math.min(constrainRect.w - this.size[0], pos[0])),
-					Math.max(0, Math.min(constrainRect.h - this.size[1], pos[1]))
-				];
-            }.bind(this) : function(pos) { return pos; },
-            filter = _true,
-            _setFilter = this.setFilter = function(f) {
-                if (f) {
-                    filter = function(e) {
-                        var t = e.srcElement || e.target;
-                        return !matchesSelector(t, f, el);
-                    };
-                }
-            },
-            canDrag = params.canDrag || _true,
-            constrainRect,
-            matchingDroppables = [], intersectingDroppables = [],
-            downListener = function(e) {
-                if (this.isEnabled() && canDrag()) {
-					var _f =  filter(e) && _inputFilter(e, el, this.k);
-					if (_f) {
-						if (!clone)
-							dragEl = el;
-						else {
-							dragEl = el.cloneNode(true);
-							dragEl.setAttribute("id", null);
-							dragEl.style.position = "absolute";
-							document.body.appendChild(dragEl);
-						}
-						consumeStartEvent && _consume(e);
-						downAt = _pl(e);
-						params.events["start"]({el:el, pos:posAtDown, e:e, drag:this});
-						//
-						params.bind(document, "mousemove", moveListener);
-						params.bind(document, "mouseup", upListener);
-						k.markSelection(this);
-						params.addClass(document.body, css.noSelect);
-					}
-					else if (params.consumeFilteredEvents) {
-						_consume(e);
-					}
-                }
-            }.bind(this),
-            moveListener = function(e) {
-                if (downAt) {
-					if (!moving) {
-						this.mark();
-						moving = true;
-					}
-					
-                    intersectingDroppables.length = 0;
-                    var pos = _pl(e), dx = pos[0] - downAt[0], dy = pos[1] - downAt[1],
-                    z = k.getZoom();
-                    dx /= z;
-                    dy /= z;
-                    this.moveBy(dx, dy, e);
-                    k.updateSelection(dx, dy, this);
-                }   
-            }.bind(this),
-            upListener = function(e) {
-                downAt = null;
-				moving = false;
-                params.unbind(document, "mousemove", moveListener);
-                params.unbind(document, "mouseup", upListener);
-                params.removeClass(document.body, css.noSelect);
-                this.unmark(e);
-                k.unmarkSelection(this, e);
-                params.events["stop"]({el:dragEl, pos:params.getPosition(dragEl), e:e, drag:this});
-                if (clone) {
-				    dragEl && dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
-				    dragEl = null;
-                }
-            }.bind(this);
-			
-		this.abort = function() {
-			if (downAt != null)
-				upListener();
-		};
-		
-		this.getDragElement = function() {
-			return dragEl || el;
-		};
-
-        this.mark = function() {
-            posAtDown = params.getPosition(el);
-            this.size = params.getSize(el);
-            matchingDroppables = k.getMatchingDroppables(this);
-            _setDroppablesActive(matchingDroppables, true, false, this);
-            params.addClass(dragEl, params.dragClass || css.drag);
-            if (params.constrain || params.containment) {
-                var cs = params.getSize(this.el.parentNode);
-                constrainRect = { w:cs[0], h:cs[1] };
-            }
-        };
-        this.unmark = function(e) {
-            _setDroppablesActive(matchingDroppables, false, true, this);
-            matchingDroppables.length = 0;
-            for (var i = 0; i < intersectingDroppables.length; i++)
-                intersectingDroppables[i].drop(this, e);
-            params.removeClass(dragEl, params.dragClass || css.drag);
-		};
-		this.moveBy = function(dx, dy, e) {
-			intersectingDroppables.length = 0;
-			var cPos = constrain(toGrid(([posAtDown[0] + dx, posAtDown[1] + dy]))),
-				rect = { x:cPos[0], y:cPos[1], w:this.size[0], h:this.size[1]};
-			params.setPosition(dragEl, cPos);
-			for (var i = 0; i < matchingDroppables.length; i++) {
-				var r2 = { x:matchingDroppables[i].position[0], y:matchingDroppables[i].position[1], w:matchingDroppables[i].size[0], h:matchingDroppables[i].size[1]};
-				if (params.intersects(rect, r2) && matchingDroppables[i].canDrop(this)) {
-					intersectingDroppables.push(matchingDroppables[i]);
-					matchingDroppables[i].setHover(this, true, e);
-				}
-				else if (matchingDroppables[i].el._katavorioDragHover) {
-					matchingDroppables[i].setHover(this, false, e);
-				}
-			}
-			params.events["drag"]({el:el, pos:cPos, e:e, drag:this});
-		};
-		this.destroy = function() {
-			params.unbind(el, "mousedown", downListener);
-		};
-
-		// init:register mousedown, and perhaps set a filter
-		params.bind(el, "mousedown", downListener);
-		_setFilter(params.filter);
-	};
-
-	var Drop = function(el, params, css, scope) {
-		this._class = css.droppable;
-		this._activeClass = params.activeClass || css.active;
-		this._hoverClass = params.hoverClass || css.hover;
-		var k = Super.apply(this, arguments), hover = false;
-
-		this.setActive = function(val) {
-			params[val ? "addClass" : "removeClass"](el, this._activeClass);
-		};
-
-		this.updatePosition = function() {
-			this.position = params.getPosition(el);
-			this.size = params.getSize(el);
-		};
-
-		this.canDrop = params.canDrop || function(drag) {
-			return true;
-		};
-
-        this.setHover = function(drag, val, e) {
-            // if turning off hover but this was not the drag that caused the hover, ignore.
-            if (val || el._katavorioDragHover == null || el._katavorioDragHover == drag.el._katavorio) {
-                params[val ? "addClass" : "removeClass"](el, this._hoverClass);
-                el._katavorioDragHover = val ? drag.el._katavorio : null;
-                if (hover !== val)
-                    params.events[val ? "over" : "out"]({el:el, e:e, drag:drag, drop:this});
-                hover = val;
-            }
-        };
-        
-        this.drop = function(drag, event) {
-            params.events["drop"]({ drag:drag, e:event, drop:this });
-        };
-		
-		this.destroy = function() {};
-    };
-    
-    var _uuid = function() {
-        return ('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-            return v.toString(16);
-        }));
-    };
-    
-    var _gel = function(el) {
-		if (el == null) return null;
-        el = typeof el === "string" ? document.getElementById(el) : el;
-		if (el == null) return null;
-        el._katavorio = el._katavorio || _uuid();
-        return el;
-    };
-        
-    this.Katavorio = function(katavorioParams) {
-
-        var _selection = [],
-            _selectionMap = {},
-            _dragsByScope = {},
-            _dropsByScope = {},
-            _zoom = 1,
-			self = this,
-            _reg = function(obj, map) {
-                for(var i = 0; i < obj.scopes.length; i++) {
-                    map[obj.scopes[i]] = map[obj.scopes[i]] || [];
-                    map[obj.scopes[i]].push(obj);
-                }
-            },
-			_unreg = function(obj, map) {
-				for(var i = 0; i < obj.scopes.length; i++) {
-                    if (map[obj.scopes[i]]) {
-						var idx = katavorioParams.indexOf(map[obj.scopes[i]], obj);
-						if (idx != -1)
-							map[obj.scopes[i]].splice(idx, 1);
-					}
-                }
-			},
-            _getMatchingDroppables = this.getMatchingDroppables = function(drag) {
-                var dd = [], _m = {};
-                for (var i = 0; i < drag.scopes.length; i++) {
-                    var _dd = _dropsByScope[drag.scopes[i]];
-                    if (_dd) {
-                        for (var j = 0; j < _dd.length; j++) {
-                            if (_dd[j].canDrop(drag) &&  !_m[_dd[j].el._katavorio] && _dd[j].el !== drag.el) {
-                                _m[_dd[j].el._katavorio] = true;
-                                dd.push(_dd[j]);
-                            }
-                        }
-                    }
-                }
-                return dd;
-            },
-            _prepareParams = function(p) {
-                p = p || {};
-                var _p = {
-                    events:{}
-                };
-                for (var i in katavorioParams) _p[i] = katavorioParams[i];
-                for (var i in p) _p[i] = p[i];
-                // events
-                
-                for (var i = 0; i < _events.length; i++) {
-                    _p.events[_events[i]] = p[_events[i]] || _devNull;
-                }
-                _p.katavorio = this;
-                return _p;
-            }.bind(this),
-			_css = {},
-			overrideCss = katavorioParams.css || {},
-			_scope = katavorioParams.scope || _defaultScope;
-			
-		// prepare map of css classes based on defaults frst, then optional overrides
-		for (var i in _classes) _css[i] = _classes[i];
-		for (var i in overrideCss) _css[i] = overrideCss[i];
-
-        var inputFilterSelector = katavorioParams.inputFilterSelector || _defaultInputFilterSelector;
-        /**
-        * Gets the selector identifying which input elements to filter from drag events.
-        * @method getInputFilterSelector
-        * @return {String} Current input filter selector.
-        */
-        this.getInputFilterSelector = function() { return inputFilterSelector; }; 
-
-        /**
-        * Sets the selector identifying which input elements to filter from drag events.
-        * @method setInputFilterSelector
-        * @param {String} selector Input filter selector to set.
-        * @return {Katavorio} Current instance; method may be chained.
-        */
-        this.setInputFilterSelector = function(selector) { 
-            inputFilterSelector = selector; 
-            return this;
-        }; 
-        
-        this.draggable = function(el, params) {
-			var o = [];
-			_each(el, function() {
-				var _el = _gel(this);
-				if (_el != null) {
-					var p = _prepareParams(params);
-					_el._katavorioDrag = new Drag(_el, p, _css, _scope);
-					_reg(_el._katavorioDrag, _dragsByScope);
-					o.push(_el._katavorioDrag);
-				}
-			});
-			return o;
-            
-        };
-        
-        this.droppable = function(el, params) {
-			var o = [];
-			_each(el, function() {
-				var _el = _gel(this);
-				if (_el != null) {
-					_el._katavorioDrop = new Drop(_el, _prepareParams(params), _css, _scope);
-					_reg(_el._katavorioDrop, _dropsByScope);
-					o.push(_el._katavorioDrop);
-				}
-			});
-			return o;
-        };
-        
-        /**
-        * @name Katavorio#select
-        * @function
-        * @desc Adds an element to the current selection (for multiple node drag)
-        * @param {Element|String} DOM element - or id of the element - to add.
-        */
-        this.select = function(el) {
-			_each(el, function() {
-				var _el = _gel(this);
-				if (_el && _el._katavorioDrag) {
-					if (!_selectionMap[_el._katavorio]) {
-						_selection.push(_el._katavorioDrag);
-						_selectionMap[_el._katavorio] = [ _el, _selection.length - 1 ];
-						katavorioParams.addClass(_el, _css.selected);
-					}
-				}
-			});
-            return this;
-        };
-        
-        /**
-        * @name Katavorio#deselect
-        * @function
-        * @desc Removes an element from the current selection (for multiple node drag)
-        * @param {Element|String} DOM element - or id of the element - to remove.
-        */
-		this.deselect = function(el) {
-			_each(el, function() {
-				var _el = _gel(this);
-				if (_el && _el._katavorio) {
-					var e = _selectionMap[_el._katavorio];
-					if (e) {
-						var _s = [];
-						for (var i = 0; i < _selection.length; i++)
-							if (_selection[i].el !== _el) _s.push(_selection[i]);
-						_selection = _s;
-						delete _selectionMap[_el._katavorio];
-						katavorioParams.removeClass(_el, _css.selected);
-					}
-				}
-			});
-			return this;
-		};
-
-		this.deselectAll = function() {
-			for (var i in _selectionMap) {
-				var d = _selectionMap[i];
-				katavorioParams.removeClass(d[0], _css.selected);
-			}
-				
-			_selection.length = 0;
-			_selectionMap = {};
-		};
-
-		this.markSelection = function(drag) {
-			_foreach(_selection, function(e) { e.mark(); }, drag);
-		};
-
-		this.unmarkSelection = function(drag, event) {
-			_foreach(_selection, function(e) { e.unmark(event); }, drag);
-		};
-
-		this.getSelection = function() { return _selection.slice(0); };
-
-		this.updateSelection = function(dx, dy, drag) {
-			_foreach(_selection, function(e) { e.moveBy(dx, dy); }, drag);
-		};
-
-		this.setZoom = function(z) { _zoom = z; };
-		this.getZoom = function() { return _zoom; };
-
-		// does the work of changing scopes
-		var _setScope = function(kObj, scopes, map) {
-			if (kObj != null) {
-				_unreg(kObj, map);  // deregister existing scopes
-				kObj.setScope(scopes); // set scopes
-				_reg(kObj, map); // register new ones
-			}
-		};
-		
-		// sets the scope of the given object, both for drag and drop if it
-		// is registered for both. to target just drag or drop, see setDragScope
-		// and setDropScope
-		this.setScope = function(el, scopes) {
-			_setScope(el._katavorioDrag, scopes, _dragsByScope);
-			_setScope(el._katavorioDrop, scopes, _dropsByScope);
-		};
-		
-		this.setDragScope = function(el, scopes) { _setScope(el._katavorioDrag, scopes, _dragsByScope); };
-		this.setDropScope = function(el, scopes) { _setScope(el._katavorioDrop, scopes, _dropsByScope); };
-		this.getDragsForScope = function(s) { return _dragsByScope[s]; }; 
-		this.getDropsForScope = function(s) { return _dropsByScope[s]; };
-		
-		var _destroy = function(el, type, map) {
-			el = _gel(el);
-			if (el[type]) {
-				el[type].destroy();
-				_unreg(el[type], map);
-				el[type] = null;
-			}
-		};
-		
-		this.elementRemoved = function(el) {
-			this.destroyDraggable(el);
-			this.destroyDroppable(el);
-		};
-		
-		this.destroyDraggable = function(el) {
-			_destroy(el, "_katavorioDrag", _dragsByScope);
-		};
-		
-		this.destroyDroppable = function(el) {
-			_destroy(el, "_katavorioDrop", _dropsByScope);
-		};
-    };
-}).call(this);
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
- * This file contains the util functions
+ * This file contains the utility functions.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-
 ;(function() {
+
 
     var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
         _isnum = function(n) { return Object.prototype.toString.call(n) === "[object Number]"; },
@@ -1881,7 +817,8 @@
         addToList : function(map, key, value, insertAtStart) {
             var l = map[key];
             if (l == null) {
-                l = [], map[key] = l;
+                l = []; 
+				map[key] = l;
             }
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
@@ -1900,9 +837,10 @@
         // class members, any of which may be null.
         //
         extend : function(child, parent, _protoFn) {
+			var i;
             parent = _isa(parent) ? parent : [ parent ];
 
-            for (var i = 0; i < parent.length; i++) {
+            for (i = 0; i < parent.length; i++) {
                 for (var j in parent[i].prototype) {
                     if(parent[i].prototype.hasOwnProperty(j)) {
                         child.prototype[j] = parent[i].prototype[j];
@@ -1912,7 +850,7 @@
 
             var _makeFn = function(name, protoFn) {
                 return function() {
-                    for (var i = 0; i < parent.length; i++) {
+                    for (i = 0; i < parent.length; i++) {
                         if (parent[i].prototype[name])
                             parent[i].prototype[name].apply(this, arguments);
                     }                    
@@ -1927,7 +865,7 @@
 			};
 
 			if (arguments.length > 2) {
-				for (var i = 2; i < arguments.length; i++)
+				for (i = 2; i < arguments.length; i++)
 					_oneSet(arguments[i]);
 			}
 
@@ -2003,8 +941,11 @@
                 }
                 return r;
             };
-        }
+        },
+        ieVersion : /MSIE\s([\d.]+)/.test(navigator.userAgent) ? (new Number(RegExp.$1)) : -1
     };
+
+    jsPlumbUtil.oldIE = jsPlumbUtil.ieVersion > -1 && jsPlumbUtil.ieVersion < 9;
 
 	jsPlumbUtil.EventGenerator = function() {
 		var _listeners = {}, 
@@ -2095,25 +1036,22 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the base functionality for DOM type adapters. 
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {
     
-	var canvasAvailable = !!document.createElement('canvas').getContext,
-		svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
+	var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
 		vmlAvailable = function() {		    
 	        if (vmlAvailable.vml === undefined) { 
 	            var a = document.body.appendChild(document.createElement('div'));
@@ -2319,7 +1257,7 @@
 		};
 
 		//
-		// notification drag ended. from 1.6.0 we check automatically if need to update some
+		// notification drag ended. We check automatically if need to update some
 		// ancestor's offsets.
 		//
 		this.dragEnded = function(el) {			
@@ -2420,11 +1358,10 @@
             document.body.appendChild(node);
         },
         getRenderModes : function() {
-            return [ "canvas", "svg", "vml" ];
+            return [ "svg", "vml" ];
         },
         isRenderModeAvailable : function(m) {
             return {
-                "canvas":canvasAvailable,
                 "svg":svgAvailable,
                 "vml":vmlAvailable()
             }[m];
@@ -2500,22 +1437,53 @@
 			return {
 				left:l, top:t
 			};
+		},
+		//
+		// return x+y proportion of the given element's size corresponding to the location of the given event.
+		//
+		getPositionOnElement:function(evt, el, zoom) {
+			var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left:0, top:0, width:0, height:0 },
+				body = document.body,
+    			docElem = document.documentElement,
+    			offPar = el.offsetParent,
+    			scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
+				scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+				clientTop = docElem.clientTop || body.clientTop || 0,
+				clientLeft = docElem.clientLeft || body.clientLeft || 0,
+				pst = 0,//offPar ? offPar.scrollTop : 0,
+				psl = 0,//offPar ? offPar.scrollLeft : 0,
+				top  = box.top +  scrollTop - clientTop + (pst * zoom),
+				left = box.left + scrollLeft - clientLeft + (psl * zoom),
+				cl = jsPlumbAdapter.pageLocation(evt),
+				w = box.width || (el.offsetWidth * zoom),
+				h = box.height || (el.offsetHeight * zoom),
+				x = (cl[0] - left) / w,
+				y = (cl[1] - top) / h;
+
+			return [ x, y ];
 		}
     };
    
 })();
-/**
- * @module jsPlumb
- * @description Provides a way to visually connect elements on an HTML page, using either SVG or VML.   
+/*
+ * jsPlumb
  * 
- * - [Demo Site](http://jsplumb.org)
- * - [GitHub](http://github.com/sporritt/jsplumb)
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the core code.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
  */
 ;(function() {
+	
+	"use strict";
 			
     var _ju = jsPlumbUtil,
     	_getOffset = function(el, _instance, relativeToRoot) {
@@ -3033,7 +2001,8 @@
 					var o = this._jsPlumb.overlays[idx];
 					if (o.cleanup) o.cleanup();
 					this._jsPlumb.overlays.splice(idx, 1);
-					this._jsPlumb.overlayPositions && delete this._jsPlumb.overlayPositions[overlayId];
+					if (this._jsPlumb.overlayPositions)  
+						delete this._jsPlumb.overlayPositions[overlayId];
 				}
 			},
 			removeOverlays : function() {
@@ -3144,9 +2113,13 @@
 	        this.getInstanceIndex = function() { return _instanceIndex; };
 
         	this.setZoom = function(z, repaintEverything) {
-            	_zoom = z;
-				_currentInstance.fire("zoom", _zoom);
-            	if (repaintEverything) _currentInstance.repaintEverything();
+        		if (!jsPlumbUtil.oldIE) {
+	            	_zoom = z;
+					_currentInstance.fire("zoom", _zoom);
+	            	if (repaintEverything) _currentInstance.repaintEverything();
+	            }
+	            return !jsPlumbUtil.oldIE;
+
         	};
         	this.getZoom = function() { return _zoom; };
                         
@@ -3162,6 +2135,7 @@
 				for (var i in d) {
 					_currentInstance.Defaults[i] = d[i];
 				}	
+				_ensureContainer();	
 				return _currentInstance;
 			};		
 			
@@ -3467,17 +2441,7 @@
 		
 		_newConnection = function(params) {
 			var connectionFunc = _currentInstance.Defaults.ConnectionType || _currentInstance.getDefaultConnectionType(),
-			    endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;			    
-			
-			if (params.container)
-				params.parent = params.container;
-			else {
-				if (params.sourceEndpoint)
-					params.parent = params.sourceEndpoint.parent;
-				else if (params.source.constructor == endpointFunc)
-					params.parent = params.source.parent;
-				else params.parent = _currentInstance.getParent(params.source);
-			}
+			    endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;			    			
 			
 			params._jsPlumb = _currentInstance;
             params.newConnection = _newConnection;
@@ -3540,24 +2504,6 @@
 			});
 		},
 		
-		/*
-		 * for the given endpoint params, returns an appropriate parent element for the UI elements that will be added.
-		 * this function is used by _newEndpoint (directly below), and also in the makeSource function in jsPlumb.
-		 * 
-		 *   the logic is to first look for a "container" member of params, and pass that back if found.  otherwise we
-		 *   handoff to the 'getParent' function in the current library.
-		 */
-		_getParentFromParams = function(params) {
-			if (params.container)
-				return params.container;
-			else {
-                var tag = params.source.tagName,
-                    p = _currentInstance.getParent(params.source);
-                if (tag && tag.toLowerCase() === "td")
-                    return _currentInstance.getParent(p);
-                else return p;
-            }
-		},
 		
 		/*
 			factory method to prepare a new endpoint.  this should always be used instead of creating Endpoints
@@ -3566,7 +2512,6 @@
 		_newEndpoint = function(params) {
 				var endpointFunc = _currentInstance.Defaults.EndpointType || jsPlumb.Endpoint;
 				var _p = jsPlumb.extend({}, params);
-				_p.parent = _getParentFromParams(_p);
 				_p._jsPlumb = _currentInstance;
                 _p.newConnection = _newConnection;
                 _p.newEndpoint = _newEndpoint;                
@@ -3576,7 +2521,6 @@
                 _p.fireDetachEvent = fireDetachEvent;
                 _p.fireMoveEvent = fireMoveEvent;
                 _p.floatingConnections = floatingConnections;
-                _p.getParentFromParams = _getParentFromParams;
                 _p.elementId = _getId(_p.source);                
 				var ep = new endpointFunc(_p);			
 				ep.id = "ep_" + _idstamp();
@@ -3930,7 +2874,7 @@
 		];
 		
 		var _set = function(c, el, idx, doNotRepaint) {
-			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid;
+			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep;
 			
 			var evtParams = {
 				index:idx,
@@ -3946,8 +2890,8 @@
 				ep = el;
 			}
 			else {
-				var sid = _getId(el),
-					sep = this[_st.epDefs][sid];
+				sid = _getId(el);
+				sep = this[_st.epDefs][sid];
 
 				if (sid === c[_st.elId]) return evtParams;  // dont change source/target if the element is already the one given.
 					
@@ -3959,7 +2903,7 @@
 					 ep._deleteOnDetach = true;
 				}
 				else {
-					ep = c.makeEndpoint(idx == 0, el, sid);
+					ep = c.makeEndpoint(idx === 0, el, sid);
 				}
 			}
 			
@@ -3967,7 +2911,7 @@
 			c.endpoints[idx] = ep;
 			c[_st.el] = ep.element;
 			c[_st.elId] = ep.elementId;			
-			evtParams[idx == 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+			evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
 
 			fireMoveEvent(evtParams);
 			
@@ -4473,6 +3417,11 @@
 			connectorTypes.push([connector, name]);
 		};
 		
+		var _ensureContainer = function() {
+			if (_currentInstance.Defaults.Container)
+				_currentInstance.Defaults.Container = _currentInstance.getDOMElement(_currentInstance.Defaults.Container);
+		};
+		
 		/**
 		 * callback from the current library to tell us to prepare ourselves (attach
 		 * mouse listeners etc; can't do that until the library has provided a bind method)		 
@@ -4497,6 +3446,7 @@
 			}
 			
 			if (!initialized) {                
+				_ensureContainer();	
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
 				initialized = true;
@@ -4857,6 +3807,7 @@
 					// and use the endpoint definition if found.
 					var elid = elInfo.id,
 						_el = this.getElementObject(elInfo.el),
+						_del = this.getDOMElement(_el),
 						parentElement = function() {
 							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _currentInstance.getDOMElement(p.parent);
 						},
@@ -4939,7 +3890,6 @@
 	                    // if a filter was given, run it, and return if it says no.
 						if (p.filter) {
 							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
-							
 							if (r === false) return;
 						}
 						
@@ -4955,26 +3905,12 @@
 							return false;
 						}
 
-						var evtSource = evt.srcElement || evt.target,
-							esOffset = jsPlumbAdapter.getOffset(evtSource, _currentInstance, true),
-							elOffset = jsPlumbAdapter.getOffset(_el, _currentInstance, true),
-							myOffsetInfo = _updateOffset({elId:elid}).o,
-							cl = jsPlumbAdapter.pageLocation(evt),
-							ox = cl[0] - esOffset.left + (esOffset.left - elOffset.left),
-							oy = cl[1] - esOffset.top + (esOffset.top - elOffset.top),
-							x = ox / myOffsetInfo.width,
-							y = oy / myOffsetInfo.height,
-							parentX = x, 
-							parentY = y;
-							
+						// find the position on the element at which the mouse was pressed; this is where the endpoint 
+						// will be located.
+						var elxy = jsPlumbAdapter.getPositionOnElement(evt, _del, _zoom), pelxy = elxy;
+						// for mootools/YUI..this parent stuff should be deprecated.
 						if (p.parent) {
-							var pEl = parentElement(), pId = _getId(pEl);
-							myOffsetInfo = _updateOffset({elId:pId}).o;
-							var pOffset = jsPlumbAdapter.getOffset(pEl, _currentInstance, true);
-							ox = cl[0] - esOffset.left + (esOffset.left - pOffset.left);
-							oy = cl[1] - esOffset.top + (esOffset.top - pOffset.top);
-							parentX = ox / myOffsetInfo.width;
-							parentY = oy / myOffsetInfo.height;
+							pelxy = jsPlumbAdapter.getPositionOnElement(evt, parentElement(), _zoom);
 						}
 							
 						// we need to override the anchor in here, and force 'isSource', but we don't want to mess with
@@ -4983,26 +3919,12 @@
 						var tempEndpointParams = {};
 						jsPlumb.extend(tempEndpointParams, p);
 						tempEndpointParams.isSource = true;
-						tempEndpointParams.anchor = [x,y,0,0];
-						tempEndpointParams.parentAnchor = [ parentX, parentY, 0, 0 ];
+						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
+						tempEndpointParams.parentAnchor = [ pelxy[0], pelxy[1], 0, 0 ];
 						tempEndpointParams.dragOptions = dragOptions;
-						// if a parent was given we need to turn that into a "container" argument.  this is, by default,
-						// the parent of the element we will move to, so parent of p.parent in this case.  however, if
-						// the user has specified a 'container' on the endpoint definition or on 
-						// the defaults, we should use that.
-						if (p.parent) {
-							var potentialParent = tempEndpointParams.container || this.Defaults.Container;
-							if (potentialParent)
-								tempEndpointParams.container = potentialParent;
-							else
-								tempEndpointParams.container = this.getParent(parentElement());
-						}
-						
 						ep = this.addEndpoint(elid, tempEndpointParams);
-
 						endpointAddedButNoDragYet = true;
 						ep.endpointWillMoveTo = p.parent ? parentElement() : null;
-
 						// TODO test options to makeSource to see if we should do this?
 						ep._doNotDeleteOnDetach = false; // reset.
 						ep._deleteOnDetach = true;
@@ -5081,7 +4003,6 @@
 				_currentInstance.unmakeTarget(i, true);
 			
 			this.targetEndpointDefinitions = {};
-
 			return this;
 		};
 
@@ -5305,7 +4226,7 @@
 			delete endpointsByElement[id];
 
 			this.anchorManager.changeId(id, newId);
-			this.dragManager && this.dragManager.changeId(id, newId);
+			if (this.dragManager) this.dragManager.changeId(id, newId);
 
 			var _conns = function(list, epIdx, type) {
 				for (var i = 0, ii = list.length; i < ii; i++) {
@@ -5423,9 +4344,6 @@
     		_pdom.appendChild(_dom);
     		this.dragManager.setParent(_el, _id, _pel, _pid);
     	},
-		appendyElement : function(el, parent) {
-			parent.appendChild(el);
-		},
 		/**
 		 * gets the size for the element object, in an array : [ width, height ].
 		 */
@@ -5439,12 +4357,13 @@
 			return el.offsetHeight;
 		},
 		extend : function(o1, o2, names) {
+			var i;
 			if (names) {
-				for (var i = 0; i < names.length; i++)
+				for (i = 0; i < names.length; i++)
 					o1[names[i]] = o2[names[i]];
 			}
 			else
-				for (var i in o2) o1[i] = o2[i];
+				for (i in o2) o1[i] = o2[i];
 			return o1;
 		}
     }, jsPlumbAdapter);
@@ -5476,8 +4395,25 @@
 	
 })();
 
-
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the code for Endpoints.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
+    
+    "use strict";
         
     // create the drag handler for a connection
     var _makeConnectionDragHandler = function(placeholder, _jsPlumb) {
@@ -5502,9 +4438,10 @@
     };
         
     // creates a placeholder div for dragging purposes, adds it to the DOM, and pre-computes its offset.    
-    var _makeDraggablePlaceholder = function(placeholder, parent, _jsPlumb) {
+    var _makeDraggablePlaceholder = function(placeholder, _jsPlumb) {
         var n = document.createElement("div");
         n.style.position = "absolute";
+        var parent = _jsPlumb.Defaults.Container ? _jsPlumb.getDOMElement(_jsPlumb.Defaults.Container) : document.body;
         parent.appendChild(n);
         var id = _jsPlumb.getId(n);
         _jsPlumb.updateOffset( { elId : id });
@@ -5559,7 +4496,6 @@
         this.idPrefix = "_jsplumb_e_";			
         this.defaultLabelLocation = [ 0.5, 0.5 ];
         this.defaultOverlayKeys = ["Overlays", "EndpointOverlays"];
-        this.parent = jsPlumb.getDOMElement(params.parent);
         OverlayCapableJsPlumbUIComponent.apply(this, arguments);        
         
 // TYPE		
@@ -5652,7 +4588,6 @@
             var endpointArgs = {
                 _jsPlumb:this._jsPlumb.instance,
                 cssClass:params.cssClass,
-                parent:params.parent,
                 container:params.container,
                 tooltip:params.tooltip,
                 connectorTooltip:params.connectorTooltip,
@@ -5781,9 +4716,7 @@
             return this.element;
         };		
                  
-        // container not supported in 1.6.0; you cannot change the container once it is set.
-        // it might come back int a future release.
-        this.setElement = function(el/*, container*/) {
+        this.setElement = function(el) {
             var parentId = this._jsPlumb.instance.getId(el),
                 curId = this.elementId;
             // remove the endpoint from the list for the current endpoint's element
@@ -5941,7 +4874,7 @@
                     inPlaceCopy.referenceEndpoint = this;
                     inPlaceCopy.paint();                                                                
                     
-                    _makeDraggablePlaceholder(placeholderInfo, this.parent, _jsPlumb);
+                    _makeDraggablePlaceholder(placeholderInfo, _jsPlumb);
                     
                     // set the offset of this div to be where 'inPlaceCopy' is, to start with.
                     // TODO merge this code with the code in both Anchor and FloatingAnchor, because it
@@ -6461,7 +5394,25 @@
     });
 })();
 
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the code for Connections.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
+    
+    "use strict";
 
     var makeConnector = function(_jsPlumb, renderMode, connectorName, connectorArgs) {
             if (!_jsPlumb.Defaults.DoNotThrowErrors && jsPlumb.Connectors[renderMode][connectorName] == null)
@@ -6483,7 +5434,6 @@
         this.idPrefix = "_jsplumb_c_";
         this.defaultLabelLocation = 0.5;
         this.defaultOverlayKeys = ["Overlays", "ConnectionOverlays"];
-        this.parent = params.parent;
         // if a new connection is the result of moving some existing connection, params.previousConnection
         // will have that Connection in it. listeners for the jsPlumbConnection event can look for that
         // member and take action if they need to.
@@ -6508,7 +5458,6 @@
         this._jsPlumb.visible = true;
         this._jsPlumb.editable = params.editable === true;    
         this._jsPlumb.params = {
-            parent:params.parent,
             cssClass:params.cssClass,
             container:params.container,
             "pointer-events":params["pointer-events"],
@@ -6757,7 +5706,6 @@
 
             var connectorArgs = { 
                     _jsPlumb:this._jsPlumb.instance, 
-                    parent:this._jsPlumb.params.parent, 
                     cssClass:this._jsPlumb.params.cssClass, 
                     container:this._jsPlumb.params.container,                 
                     "pointer-events":this._jsPlumb.params["pointer-events"]
@@ -6914,12 +5862,13 @@
                         _makeAnchor(_jsPlumb.Defaults.Anchor, elementId,_jsPlumb) || 
                         _makeAnchor(jsPlumb.Defaults.Anchor, elementId, _jsPlumb),                  
                     u = params.uuids ? params.uuids[index] : null;
-                    e = _newEndpoint({ 
-                        paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ conn ], 
-                        uuid : u,  anchor : a,  source : element, scope  : params.scope, container:params.container,
-                        reattach:params.reattach || _jsPlumb.Defaults.ReattachConnections,
-                        detachable:params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
-                    });
+                    
+                e = _newEndpoint({ 
+                    paintStyle : es,  hoverPaintStyle:ehs,  endpoint : ep,  connections : [ conn ], 
+                    uuid : u,  anchor : a,  source : element, scope  : params.scope,
+                    reattach:params.reattach || _jsPlumb.Defaults.ReattachConnections,
+                    detachable:params.detachable || _jsPlumb.Defaults.ConnectionsDetachable
+                });
                 conn.endpoints[index] = e;
                 
                 if (params.drawEndpoints === false) e.setVisible(false, true, true);
@@ -6933,18 +5882,16 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the code for creating and manipulating anchors.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
@@ -7998,23 +6945,22 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the default Connectors, Endpoint and Overlay definitions.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */
-
+ */  
 ;(function() {	
+
+	"use strict";
 				
 	/**
 	 * 
@@ -8801,7 +7747,6 @@
 
 		var _onload = params.onload, 
 			src = params.src || params.url,
-			parent = params.parent,
 			clazz = params.cssClass ? " " + params.cssClass : "";
 
 		this._jsPlumb.img = new Image();
@@ -8856,7 +7801,7 @@
 		this.canvas.className = this._jsPlumb.instance.endpointClass + clazz;
 		if (this._jsPlumb.widthToUse) this.canvas.setAttribute("width", this._jsPlumb.widthToUse);
 		if (this._jsPlumb.heightToUse) this.canvas.setAttribute("height", this._jsPlumb.heightToUse);		
-		this._jsPlumb.instance.appendElement(this.canvas, parent);
+		this._jsPlumb.instance.appendElement(this.canvas);
 		this.attachListeners(this.canvas, this);
 		
 		this.actuallyPaint = function(d, style, anchor) {
@@ -8888,7 +7833,7 @@
     jsPlumbUtil.extend(jsPlumb.Endpoints.Image, [ DOMElementEndpoint, jsPlumb.Endpoints.AbstractEndpoint ], {
         cleanup : function() {            
             this._jsPlumb.deleted = true;
-            this.canvas && this.canvas.parentNode.removeChild(this.canvas);
+            if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
             this.canvas = null;
         } 
     });
@@ -8912,7 +7857,7 @@
 		this.canvas.style.background = "transparent";
 		this.canvas.style.position = "absolute";
 		this.canvas.className = this._jsPlumb.endpointClass;
-		jsPlumb.appendElement(this.canvas, params.parent);
+		jsPlumb.appendElement(this.canvas);
 		
 		this.paint = function(style, anchor) {
 			jsPlumbUtil.sizeElement(this.canvas, this.x, this.y, this.w, this.h);	
@@ -9168,7 +8113,7 @@
                     (this.cssClass ? this.cssClass : 
                     params.cssClass ? params.cssClass : "");
                 div.className = clazz;
-                this._jsPlumb.instance.appendElement(div, this._jsPlumb.component.parent);
+                this._jsPlumb.instance.appendElement(div);
                 this._jsPlumb.instance.getId(div);
                 this.attachListeners(div, this);
                 this.canvas = div;
@@ -9400,22 +8345,22 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the 'flowchart' connectors, consisting of vertical and horizontal line segments.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {
+    
+    "use strict";
    
     /**
      * Function: Constructor
@@ -9763,26 +8708,23 @@
 })();
 /*
  * jsPlumb
- *
- * Title:jsPlumb 1.6.0
- *
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.
- *
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
  * This file contains the state machine connectors.
  *
- * Thanks to Brainstorm Mobile Solutions for supporting the development of these.
- *
- * Copyright (c) 2010 - 2013 Simon Porritt (simon.porritt@gmail.com)
- *
- * http://jsplumb.org
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
- *
+ * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
-
-;(function() {
+ ;(function() {
+	 
+	"use strict";
 
 	var Line = function(x1, y1, x2, y2) {
 
@@ -10029,6 +8971,22 @@
 	//			    }
               //}
     */
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the code for the Bezier connector type.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
 
 	var Bezier = function(params) {
@@ -10098,38 +9056,24 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the SVG renderers.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */
-
-/**
- * SVG support for jsPlumb.
- * 
- * things to investigate:
- * 
- * gradients:  https://developer.mozilla.org/en/svg_in_html_introduction
- * css:http://tutorials.jenkov.com/svg/svg-and-css.html
- * text on a path: http://www.w3.org/TR/SVG/text.html#TextOnAPath
- * pointer events: https://developer.mozilla.org/en/css/pointer-events
- *
- * IE9 hover jquery: http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events
- *
  */
 ;(function() {
 	
 // ************************** SVG utility methods ********************************************	
+
+	"use strict";
 	
 	var svgAttributeMap = {
 		"joinstyle":"stroke-linejoin",
@@ -10367,7 +9311,7 @@
 	
 	jsPlumbUtil.extend(SvgComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {
-			this.canvas && this.canvas.parentNode && this.canvas.parentNode.removeChild(this.canvas);
+			if (this.canvas && this.canvas.parentNode) this.canvas.parentNode.removeChild(this.canvas);
 			this.svg = null;
 			this.canvas = null;
 			this.bgCanvas = null;
@@ -10729,23 +9673,23 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.0
+ * Title:jsPlumb 1.6.1
  * 
- * Provides a way to visually connect elements on an HTML page, using either SVG, Canvas
- * elements, or VML.  
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
  * This file contains the VML renderers.
  *
- * Copyright (c) 2010 - 2013 Simon Porritt (http://jsplumb.org)
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
- * http://jsplumb.org
+ * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * http://code.google.com/p/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
  */
 
 ;(function() {
+	
+	"use strict";
 	
 	// http://ajaxian.com/archives/the-vml-changes-in-ie-8
 	// http://www.nczonline.net/blog/2010/01/19/internet-explorer-8-document-and-browser-modes/
@@ -10913,8 +9857,8 @@
 	};
 	jsPlumbUtil.extend(VmlComponent, jsPlumb.jsPlumbUIComponent, {
 		cleanup:function() {			
-			this.bgCanvas && this.bgCanvas.parentNode.removeChild(this.bgCanvas);
-			this.canvas && this.canvas.parentNode.removeChild(this.canvas);
+			if (this.bgCanvas) this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+			if (this.canvas) this.canvas.parentNode.removeChild(this.canvas);
 		}
 	});
 
@@ -11237,227 +10181,383 @@
 // ******************************* /vml overlays *****************************************************    
     
 })();
-
+/*
+ * jsPlumb
+ * 
+ * Title:jsPlumb 1.6.1
+ * 
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
+ * 
+ * This file contains the MooTools adapter.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (http://jsplumbtoolkit.com)
+ * 
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ * 
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
 ;(function() {
-
+	
 	"use strict";
-
-	 var _getDragManager = function(instance, isPlumbedComponent) {
-		var k = instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"],
-			e = _getEventManager(instance);
-			
-		if (!k) {
-			k = new Katavorio( {
-				bind:e.on,
-				unbind:e.off,
-				getSize:jsPlumb.getSize,
-				getPosition:function(el) {
-					return [el.offsetLeft, el.offsetTop];
-				},
-				setPosition:function(el, xy) {
-					el.style.left = xy[0] + "px";
-					el.style.top = xy[1] + "px";
-				},
-				addClass:jsPlumbAdapter.addClass,
-				removeClass:jsPlumbAdapter.removeClass,
-				intersects:Biltong.intersects,
-				indexOf:jsPlumbUtil.indexOf,
-				css:{
-					noSelect : instance.dragSelectClass,
-					droppable:"jsplumb-droppable",
-					draggable:"jsplumb-draggable",
-					drag:"jsplumb-drag",
-					selected:"jsplumb-drag-selected",
-					active:"jsplumb-drag-active",
-					hover:"jsplumb-drag-hover"
-				}
-			});
-			instance[isPlumbedComponent ? "_internalKatavorio" : "_katavorio"] = k;
-			instance.bind("zoom", k.setZoom);
+	
+	/*
+	 * overrides the FX class to inject 'step' functionality, which MooTools does not
+	 * offer, and which makes me sad.  they don't seem keen to add it, either, despite
+	 * the fact that it could be useful:
+	 * 
+	 * https://mootools.lighthouseapp.com/projects/2706/tickets/668
+	 * 
+	 */
+	var jsPlumbMorph = new Class({
+		Extends:Fx.Morph,
+		onStep : null,
+		initialize : function(el, options) {
+			this.parent(el, options);
+			if (options.onStep) {
+				this.onStep = options.onStep;
+			}
+		},
+		step : function(now) {
+			this.parent(now);
+			if (this.onStep) { 
+				try { this.onStep(); } 
+				catch(e) { } 
+			}
 		}
-		return k;
+	});
+	
+	var JSPLUMB_MOOTOOLS_DROPPABLE = "jsplumb-mootools-droppable";
+	
+	var _droppables = {},
+	_droppableOptions = {},
+	_draggablesByScope = {},
+	_getDraggable = function(el, instance) {
+		var id = instance.getId(el), d = instance.draggablesById;
+			
+		if (d != null)
+			return d[id];
+	},
+	_clearDraggables= function(el, instance) {
+		var d = instance.draggablesById;
+		if (d) {
+			delete d[instance.getId(el)];
+		}
+	},
+	_addDraggable = function(el, instance, drag) {
+		var d = instance.draggablesById, id = instance.getId(el);
+			
+		if (d == null) {
+			d = instance.draggablesById = {};
+			var re = instance.reset;
+			instance.reset = function() {
+				re.apply(instance);
+				instance.draggablesById = {};
+			};
+		}
+		
+		d[id] = drag;
+	},
+	_droppableScopesById = {};
+	/*
+	 * 
+	 */
+	var _executeDroppableOption = function(el, dr, event, originalEvent) {
+		if (dr) {
+			var id = dr.get("id");
+			if (id) {
+				var options = _droppableOptions[id];
+				if (options) {
+					if (options[event]) {
+						options[event](el, dr, originalEvent);
+					}
+				}
+			}
+		}
+	};	
+	
+	var _checkHover = function(el, entering) {
+		if (el) {
+			var id = el.get("id");
+			if (id) {
+				var options = _droppableOptions[id];
+				if (options) {
+					if (options.hoverClass) {
+						if (entering) el.addClass(options.hoverClass);
+						else el.removeClass(options.hoverClass);
+					}
+				}
+			}
+		}
 	};
 
-	 var _getEventManager = function(instance) {
-		 var e = instance._mottle;
-		 if (!e) {
-			 e = instance._mottle = new Mottle();
-		 }
-		 return e;
-	 };
-	 
-	 var _animProps = function(o, p) {
-		var _one = function(pName) {
-			if (p[pName]) {
-				if (jsPlumbUtil.isString(p[pName])) {
-					var m = p[pName].match(/-=/) ? -1 : 1,
-						v = p[pName].substring(2);
-					return o[pName] + (m * v);
-				}
-				else return p[pName];
-			}
-			else 
-				return o[pName];
-		};
-		return [ _one("left"), _one("top") ];
-	 };
-
-	jsPlumb.extend(jsPlumbInstance.prototype, {
+	/**
+	 * adds the given value to the given list, with the given scope. creates the scoped list
+	 * if necessary.
+	 * used by initDraggable and initDroppable.
+	 */
+	var _add = function(list, _scope, value) {
+		var l = list[_scope];
+		if (!l) {
+			l = [];
+			list[_scope] = l;
+		}
+		l.push(value);
+	};
 	
-		getDOMElement:function(el) { 
+	/*
+	 * gets an "element object" from the given input.  this means an object that is used by the
+	 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
+	 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
+	 * function is used to find the element, using the given String as the element's id.
+	 */
+	var _getElementObject = function(el) {
+	  return $(el);
+	};
+	
+	// new: move to putting stuff on jsplumb prototype
+	$extend(jsPlumbInstance.prototype, {
+		
+		doAnimate : function(el, properties, options) {			
+			var m = new jsPlumbMorph(el, options);
+			m.start(properties);
+		},		
+		getSelector : function(context, spec) {
+            if (arguments.length == 2) {
+                return _getElementObject(context).getElements(spec);
+            }
+            else
+			     return $$(context);
+		},
+		
+		getDOMElement : function(el) { 
 			if (el == null) return null;
-			// here we pluck the first entry if el was a list of entries.
-			// this is not my favourite thing to do, but previous versions of 
-			// jsplumb supported jquery selectors, and it is possible a selector 
-			// will be passed in here.
-			el = typeof el === "string" ? el : el.length != null ? el[0] : el;
-			return typeof el === "string" ? document.getElementById(el) : el; 
+			// MooTools just decorates the DOM elements. so we have either an ID, an element list, or an Element here.
+			return typeof(el) == "string" ? document.getElementById(el) : el.length ? el[0] : el; 
 		},
-		getElementObject:function(el) { return el; },
-		removeElement : function(element) {
-			_getDragManager(this).elementRemoved(element);
-			_getEventManager(this).remove(element);
+		
+		getElementObject : _getElementObject,
+		
+		removeElement : function(element, parent) {
+            var el = _getElementObject(element);
+			if (el) el.dispose();  // ??
 		},
-		//
-		// this adapter supports a rudimentary animation function. no easing is supported.  only
-		// left/top properties are supported. property delta args are expected to be in the form
-		//
-		// +=x.xxxx
-		//
-		// or
-		//
-		// -=x.xxxx
-		//
-		doAnimate:function(el, properties, options) { 
-			options = options || {};
-			var o = jsPlumbAdapter.getOffset(el, this),
-				ap = _animProps(o, properties),
-				ldist = ap[0] - o.left,
-				tdist = ap[1] - o.top,
-				d = options.duration || 250,
-				step = 15, steps = d / step,
-				linc = (step / d) * ldist,
-				tinc = (step / d) * tdist,
-				idx = 0,
-				int = setInterval(function() {
-					jsPlumbAdapter.setPosition(el, {
-						left:o.left + (linc * (idx + 1)),
-						top:o.top + (tinc * (idx + 1))
-					});
-					options.step && options.step();
-					idx++;
-					if (idx >= steps) {
-						window.clearInterval(int);
-						options.complete && options.complete()
-					}
-				}, step);
-		},
-		getSelector:function(ctx, spec) { 
-			var sel = null;
-			if (arguments.length == 1) {
-				sel = ctx.nodeType != null ? ctx : document.querySelectorAll(ctx);
+		
+		destroyDraggable : function(el) {
+			var d = _getDraggable(el, this);
+			if (d) {
+				d.detach();
+				_clearDraggables(el, this);
 			}
-			else
-				sel = document.querySelectorAll(spec, ctx); 
-				
-			return sel;
 		},
-		// DRAG/DROP
-		destroyDraggable:function(el) {
-			_getDragManager(this).destroyDraggable(el);
-		},
-		destroyDroppable:function(el) {
-			_getDragManager(this).destroyDroppable(el);
+
+		destroyDroppable : function(el) {
+			// TODO
 		},
 		initDraggable : function(el, options, isPlumbedComponent) {
-			_getDragManager(this, isPlumbedComponent).draggable(el, options);
+			var drag = _getDraggable(el, this);
+			if (!drag) {
+				var originalZIndex = 0,
+                    originalCursor = null,
+				    dragZIndex = jsPlumb.Defaults.DragOptions.zIndex || 2000;
+                
+				options.onStart = jsPlumbUtil.wrap(options.onStart, function() {
+                    originalZIndex = drag.element.getStyle('z-index');
+					drag.element.setStyle('z-index', dragZIndex);
+                    drag.originalZIndex = originalZIndex;
+					if (jsPlumb.Defaults.DragOptions.cursor) {
+						originalCursor = drag.element.getStyle('cursor');
+						drag.element.setStyle('cursor', jsPlumb.Defaults.DragOptions.cursor);
+					}
+					$(document.body).addClass(this.dragSelectClass);
+				}.bind(this));
+				
+				options.onComplete = jsPlumbUtil.wrap(options.onComplete, function() {
+					drag.element.setStyle('z-index', originalZIndex);
+					if (originalCursor) {
+						drag.element.setStyle('cursor', originalCursor);
+					}                    
+					$(document.body).removeClass(this.dragSelectClass);
+				}.bind(this));
+				
+				// DROPPABLES - only relevant if this is a plumbed component, ie. not just the result of the user making some DOM element
+                // draggable.  this is the only library adapter that has to care about this parameter.
+				var scope = "" + (options.scope || jsPlumb.Defaults.Scope),
+				    filterFunc = function(entry) {
+					    return entry.get("id") != el.get("id");
+				    },
+				    droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
+
+                if (isPlumbedComponent) {
+
+				    options.droppables = droppables;
+				    options.onLeave = jsPlumbUtil.wrap(options.onLeave, function(el, dr) {
+		    			if (dr) {
+			    			_checkHover(dr, false);
+				    		_executeDroppableOption(el, dr, 'onLeave');
+					    }
+				    });
+				    options.onEnter = jsPlumbUtil.wrap(options.onEnter, function(el, dr) {
+					    if (dr) {
+						    _checkHover(dr, true);
+						    _executeDroppableOption(el, dr, 'onEnter');
+					    }
+				    });
+				    options.onDrop = function(el, dr, event) {
+					    if (dr) {
+						    _checkHover(dr, false);
+						    _executeDroppableOption(el, dr, 'onDrop', event);
+					    }
+				    };
+                }
+                else
+                    options.droppables = [];
+				
+				drag = new Drag.Move(el, options);
+				drag.scope = scope;
+                drag.originalZIndex = originalZIndex;
+				_addDraggable(el, this, drag);
+				// again, only keep a record of this for scope stuff if this is a plumbed component (an endpoint)
+                if (isPlumbedComponent) {
+				    _add(_draggablesByScope, scope, drag);
+                }
+				// test for disabled.
+				if (options.disabled) drag.detach();
+			}
+			return drag;
 		},
-		initDroppable : function(el, options, isPlumbedComponent) { 
-			_getDragManager(this, isPlumbedComponent).droppable(el, options);
-		},
-		isAlreadyDraggable : function(el) { return el._katavorioDrag != null; },
-		isDragSupported : function(el, options) { return true; },
-		isDropSupported : function(el, options) { return true; },
-		getDragObject : function(eventArgs) { return eventArgs[0].drag.getDragElement(); },
-		getDragScope : function(el) {
-			return el._katavorioDrag && el._katavorioDrag.scopes.join(" ") || "";
-		},
-		getDropEvent : function(args) { return args[0].e; },
-		getDropScope : function(el) {
-			return el._katavorioDrop && el._katavorioDrop.scopes.join(" ") || "";
-		},
-		getUIPosition : function(eventArgs, zoom) {
-			return {
-				left:eventArgs[0].pos[0],
-				top:eventArgs[0].pos[1]
-			};
-		},
-		isDragFilterSupported:function() { return true; },
-		setDragFilter : function(el, filter) {
-			if (el._katavorioDrag) {
-				el._katavorioDrag.setFilter(filter);
+		
+		initDroppable : function(el, options, isPlumbedComponent, isPermanent) {
+			var scope = options.scope;
+            _add(_droppables, scope, el);
+			var id = this.getId(el);
+
+			jsPlumbAdapter.addClass(el, JSPLUMB_MOOTOOLS_DROPPABLE);
+            el.setAttribute("_isPermanentDroppable", isPermanent);  // we use this to clear out droppables on drag complete.
+			_droppableOptions[id] = options;
+			_droppableScopesById[id] = scope;
+			var filterFunc = function(entry) { return entry.element != el; },
+			    draggables = _draggablesByScope[scope] ? _draggablesByScope[scope].filter(filterFunc) : [];
+			for (var i = 0; i < draggables.length; i++) {
+				draggables[i].droppables.push(el);
 			}
 		},
-		setElementDraggable : function(el, draggable) { 
-			el = jsPlumb.getDOMElement(el);
-			if (el._katavorioDrag)
-				el._katavorioDrag.setEnabled(draggable);
+		
+		isAlreadyDraggable : function(el) {
+			return _getDraggable(el, this) != null;
+		},										
+		
+		isDragSupported : function(el, options) {
+			return typeof Drag != 'undefined' ;
+		},	
+		
+		/*
+		 * you need Drag.Move imported to make drop work.
+		 */
+		isDropSupported : function(el, options) {
+			return (typeof Drag !== undefined && typeof Drag.Move !== undefined);
 		},
-		setDragScope : function(el, scope) { 
-			if (el._katavorioDrag)
-				el._katavorioDrag.k.setDragScope(el, scope);
+		getDragObject : function(eventArgs) {
+			return eventArgs[0];
 		},
+		
+		getDragScope : function(el) {
+			return _getDraggable(el, this).scope;
+		},
+	
+		getDropEvent : function(args) {
+			return args[2];
+		},
+		
+		getDropScope : function(el) {
+			var id = this.getId(el);
+			return _droppableScopesById[id];
+		},
+		
+		stopDrag : function() {
+			var did = _draggablesById[this.getInstanceIndex()];
+            for (var i in did) {
+                for (var j = 0; j < did[i].length; j++) {
+                    var d = did[i][j];
+                    d.stop();
+                    if (d.originalZIndex !== 0)
+                        d.element.setStyle("z-index", d.originalZIndex);
+                }
+            }
+        },
+		
+		/*
+		 * takes the args passed to an event function and returns you an object that gives the
+		 * position of the object being moved, as a js object with the same params as the result of
+		 * getOffset, ie: { left: xxx, top: xxx }.
+		 */
+		getUIPosition : function(eventArgs, zoom) {
+		  var ui = eventArgs[0],
+		  	el = jsPlumb.getDOMElement(ui),
+			o = jsPlumbAdapter.getOffset(el, this);
+			zoom = zoom || 1;
+			return { left:o.left / zoom, top:o.top/zoom };
+		},
+		
+		isDragFilterSupported:function() { return false; },
+		
+		setDragFilter : function(el, filter) {
+			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");
+		},
+		
+		setElementDraggable : function(el, draggable) {
+			var d = _getDraggable(el, this);
+			if (d)
+				d[draggable ? "attach" : "detach"]();
+		},
+		
+		setDragScope : function(el, scope) {
+			var drag = _getDraggable(el, this);
+			var filterFunc = function(entry) {
+				return entry.get("id") != el.get("id");
+			};
+			var droppables = _droppables[scope] ? _droppables[scope].filter(filterFunc) : [];
+			drag.droppables = droppables;
+		},
+		
 		dragEvents : {
-			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
-			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
+			'start':'onStart', 'stop':'onComplete', 'drag':'onDrag', 'step':'onStep',
+			'over':'onEnter', 'out':'onLeave','drop':'onDrop', 'complete':'onComplete'
 		},
 		animEvents:{
-			'step':"step", 'complete':'complete'
+			'step':"onStep", 'complete':'onComplete'
 		},
-		stopDrag : function(el) {
-			if (el._katavorioDrag)
-				el._katavorioDrag.abort();
-        },
-// 		MULTIPLE ELEMENT DRAG
-		// these methods are unique to this adapter, because katavorio
-		// supports dragging multiple elements.
-		addToDragSelection:function(spec) {
-			_getDragManager(this).select(spec);
+		
+		/**
+		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
+		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
+		 * from the originalEvent to put in an options object for YUI. 
+		 * @param el
+		 * @param event
+		 * @param originalEvent
+		 */
+		trigger : function(el, event, originalEvent) {
+			originalEvent.stopPropagation();
+			_getElementObject(el).fireEvent(event, originalEvent);
 		},
-		removeFromDragSelection:function(spec) {
-			_getDragManager(this).deselect(spec);
+		
+		getOriginalEvent : function(e) {
+			return e.event;
 		},
-		clearDragSelection:function() {
-			_getDragManager(this).deselectAll();
-		},
-//           EVENTS
-		trigger : function(el, event, originalEvent) { 
-			_getEventManager(this).trigger(el, event, originalEvent);
-		},
-		getOriginalEvent : function(e) { return e; },
 		on : function(el, event, callback) {
-			// TODO: here we would like to map the tap event if we know its
-			// an internal bind to a click. we have to know its internal because only
-			// then can we be sure that the UP event wont be consumed (tap is a synthesized
-			// event from a mousedown followed by a mouseup).
-			//event = { "click":"tap", "dblclick":"dbltap"}[event] || event;
-			_getEventManager(this).on.apply(this, arguments);
+			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : $$(el);
+			//el = _getElementObject(el);
+			for (var i = 0; i < els.length; i++)
+				els[i].addEvent(event, callback);
 		},
 		off : function(el, event, callback) {
-			_getEventManager(this).off.apply(this, arguments);
+			el = _getElementObject(el);
+			el.removeEvent(event, callback);
+		},
+		reset:function() {
+
 		}
 	});
 
-	var ready = function (f) {
-		var _do = function() {
-			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "undefined" && document.body != null)
-	            f();	        
-	        else
-	            setTimeout(_do, 9);
-		};
-		
-		_do();
-    };
-	ready(jsPlumb.init);
-	
-}).call(this);
+	window.addEvent('domready', jsPlumb.init);
+})();
