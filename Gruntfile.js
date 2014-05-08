@@ -27,7 +27,6 @@ var versions = {
         yui:[],
         dom:[ get("MOTTLE"), get("KATAVORIO") ]
     }
-   // version = "1.6.0",
     objects = {
         connectors : [
             "flowchart", "statemachine", "bezier", "straight"
