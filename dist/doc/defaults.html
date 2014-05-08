@@ -145,7 +145,7 @@ individual <code>Endpoint</code>/<code>EndpointStyle</code> arrays, and then fal
 
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">Defaults</span><span class="p">.</span><span class="nx">DragOptions</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">cursor</span><span class="o">:</span> <span class="s2">&quot;crosshair&quot;</span> <span class="p">};</span>
 
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">Default</span><span class="p">.</span><span class="nx">Endpoints</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="mi">7</span> <span class="p">],</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="mi">11</span> <span class="p">]</span> <span class="p">];</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">Defaults</span><span class="p">.</span><span class="nx">Endpoints</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span> <span class="p">],</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">11</span> <span class="p">}</span> <span class="p">]</span> <span class="p">];</span>
 
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">Defaults</span><span class="p">.</span><span class="nx">EndpointStyles</span> <span class="o">=</span> <span class="p">[{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;#225588&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;#558822&quot;</span> <span class="p">}];</span>
 </code></pre></div>
@@ -165,6 +165,7 @@ individual <code>Endpoint</code>/<code>EndpointStyle</code> arrays, and then fal
 <li><p><strong>Anchors</strong> - default source and target Anchors for Connections.</p></li>
 <li><p><strong>Connector</strong> - The default Connector to use.</p></li>
 <li><p><strong>ConnectionsDetachable</strong> - Whether or not Connections are detachable by default using the mouse.</p></li>
+<li><p><strong>Container</strong> - The element to use as the parent for all artefacts added by jsPlumb. It is highly recommended you set this.  Future versions of jsPlumb will mandate that you do so. See <a href="home#container">here</a> for a discussion of this.</p></li>
 <li><p><strong>DoNotThrowErrors</strong> - Whether or not jsPlumb will actually throw an exception if an Anchor, Endpoint or Connector that does not exist is requested.</p></li>
 <li><p><strong>ConnectionOverlays</strong> - Default Overlays to attach to every Connection</p></li>
 <li><p><strong>DragOptions</strong>  - Default options with which to configure any element made draggable with <code>jsPlumb.draggable</code></p></li>
@@ -212,7 +213,7 @@ individual <code>Endpoint</code>/<code>EndpointStyle</code> arrays, and then fal
     <span class="nx">strokeStyle</span><span class="o">:</span> <span class="s1">&#39;rgba(200,0,0,100)&#39;</span>
   <span class="p">},</span>
   <span class="nx">DragOptions</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">cursor</span><span class="o">:</span> <span class="s2">&quot;crosshair&quot;</span> <span class="p">},</span>
-  <span class="nx">Endpoints</span> <span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="mi">7</span> <span class="p">],</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="mi">11</span> <span class="p">]</span> <span class="p">],</span>
+  <span class="nx">Endpoints</span> <span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">7</span> <span class="p">}</span> <span class="p">],</span> <span class="p">[</span> <span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">radius</span><span class="o">:</span><span class="mi">11</span> <span class="p">}</span> <span class="p">]</span> <span class="p">],</span>
   <span class="nx">EndpointStyles</span> <span class="o">:</span> <span class="p">[</span>
     <span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;#225588&quot;</span> <span class="p">},</span> 
     <span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;#558822&quot;</span> <span class="p">}</span>

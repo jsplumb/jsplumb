@@ -315,8 +315,11 @@
                 }
                 return r;
             };
-        }
+        },
+        ieVersion : /MSIE\s([\d.]+)/.test(navigator.userAgent) ? (new Number(RegExp.$1)) : -1
     };
+
+    jsPlumbUtil.oldIE = jsPlumbUtil.ieVersion > -1 && jsPlumbUtil.ieVersion < 9;
 
 	jsPlumbUtil.EventGenerator = function() {
 		var _listeners = {}, 

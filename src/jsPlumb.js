@@ -638,9 +638,13 @@
 	        this.getInstanceIndex = function() { return _instanceIndex; };
 
         	this.setZoom = function(z, repaintEverything) {
-            	_zoom = z;
-				_currentInstance.fire("zoom", _zoom);
-            	if (repaintEverything) _currentInstance.repaintEverything();
+        		if (!jsPlumbUtil.oldIE) {
+	            	_zoom = z;
+					_currentInstance.fire("zoom", _zoom);
+	            	if (repaintEverything) _currentInstance.repaintEverything();
+	            }
+	            return !jsPlumbUtil.oldIE;
+
         	};
         	this.getZoom = function() { return _zoom; };
                         

@@ -29,17 +29,6 @@
         	},
         	Container:"source-target-demo"
         });
-		
-		window.setZoom = function(z, el) {
-		    var p = [ "webkit", "moz", "ms", "o", "" ],
-		        s = "scale(" + z + ")";
-
-		    for (var i = 0; i < p.length; i++)
-				el.style[p[i] + "Transform"] = s;
-
-		    instance.setZoom(z);    
-		};
-
 
 		// click listener for the enable/disable link.
         jsPlumb.on(document.getElementById("enableDisableSource"), "click", function(e) {
@@ -51,7 +40,7 @@
         // bind to a connection event, just for the purposes of pointing out that it can be done.
 		instance.bind("connection", function(i,c) { 
 			if (typeof console !== "undefined")
-				console.dir(i.connection); 
+				console.log("connection", i.connection); 
 		});
 
         // get the list of ".smallWindow" elements.            
@@ -83,8 +72,6 @@
 	        // and finally connect a couple of small windows, just so its obvious what's going on when this demo loads.           
 	        instance.connect({ source:"sourceWindow1", target:"targetWindow5" });
 	        instance.connect({ source:"sourceWindow1", target:"targetWindow2" });	
-
-	        setZoom(0.5,document.getElementById("source-target-demo"))		
 		});
 	});	
 })();

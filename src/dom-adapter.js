@@ -416,13 +416,15 @@
 				scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
 				clientTop = docElem.clientTop || body.clientTop || 0,
 				clientLeft = docElem.clientLeft || body.clientLeft || 0,
-				pst = offPar ? offPar.scrollTop : 0,
-				psl = offPar ? offPar.scrollLeft : 0,
+				pst = 0,//offPar ? offPar.scrollTop : 0,
+				psl = 0,//offPar ? offPar.scrollLeft : 0,
 				top  = box.top +  scrollTop - clientTop + (pst * zoom),
 				left = box.left + scrollLeft - clientLeft + (psl * zoom),
 				cl = jsPlumbAdapter.pageLocation(evt),
-				x = parentX = (cl[0] - left) / box.width,
-				y = parentY = (cl[1] - top) / box.height;
+				w = box.width || (el.offsetWidth * zoom),
+				h = box.height || (el.offsetHeight * zoom),
+				x = (cl[0] - left) / w,
+				y = (cl[1] - top) / h;
 
 			return [ x, y ];
 		}

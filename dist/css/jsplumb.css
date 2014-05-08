@@ -58,15 +58,43 @@ body {
 
 #header {
 	margin-top:0;
-  height:44px;
+  
+	height:44px;
   font-size:13px;
 	margin-left:auto;
 	margin-right:auto;    
-  padding-right: 50px;
-  padding-left: 50px;
+  
 	line-height: 44px;
   max-width:1000px;
   width:80%;
+}
+
+@media screen and (max-width:1000px) {
+	#header {
+		width:100%;
+	}
+}
+
+@media screen and (max-width:800px) {
+	#header select {
+		display:none;
+	}
+}
+
+@media screen and (max-width:700px) {
+	.library-links {
+		right:330px;
+	}
+}
+
+@media screen and (max-width:640px) {
+	.logo {
+		display:none;
+	}
+	#header {
+		text-align:center;
+		overflow:hidden;
+	}
 }
 
 .explanation i {
@@ -301,9 +329,10 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 }
 
 .library-links {
-    right: 454px;
+    right: 331px;
     height: 19px;
     line-height: 19px;
+    /* left: 60%; */
 }
 
 .current-library {
