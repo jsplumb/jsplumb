@@ -1,5 +1,5 @@
-;(function() {
-	
+jsPlumb.ready(function() {	
+
 	var instance, 
 		discs = [],
 
@@ -80,38 +80,36 @@
 			d.style.left= x + 'px';
 			return {d:d, id:id};
 		};
+
+	// get a jsPlumb instance, setting some appropriate defaults and a Container.
+	instance = jsPlumb.getInstance({
+		DragOptions : { cursor: 'wait', zIndex:20 },
+		Endpoint : [ "Image", { url:"../../img/littledot.png" } ],
+		Connector : [ "Bezier", { curviness: 90 } ],
+		Container:"animation-demo"
+	});				
 		
-	jsPlumb.ready(function() {
+	// suspend drawing and initialise.
+	instance.doWhileSuspended(function() {
+		var e1 = prepare("bd1"),
+			e2 = prepare("bd2"),
+			e3 = prepare("bd3"),
+			e4 = prepare("bd4"),
+			clearBtn = jsPlumb.getSelector("#anim-clear"),
+			addBtn = jsPlumb.getSelector("#add");
 
-		// get a jsPlumb instance, setting some appropriate defaults and a Container.
-		instance = jsPlumb.getInstance({
-			DragOptions : { cursor: 'wait', zIndex:20 },
-			Endpoint : [ "Image", { url:"../../img/littledot.png" } ],
-			Connector : [ "Bezier", { curviness: 90 } ],
-			Container:"animation-demo"
-		});				
-			
-		// suspend drawing and initialise.
-		instance.doWhileSuspended(function() {
-			var e1 = prepare("bd1"),
-				e2 = prepare("bd2"),
-				e3 = prepare("bd3"),
-				e4 = prepare("bd4"),
-				clearBtn = jsPlumb.getSelector("#anim-clear"),
-				addBtn = jsPlumb.getSelector("#add");
-
-			instance.on(clearBtn, "click", function(e) {
-				e.preventDefault();
-				e.stopPropagation();
-				instance.detachEveryConnection(); 
-			});
-
-			instance.connect({ source:e1, target:e2 });
-			instance.connect({ source:e1, target:e3 });
-			instance.connect({ source:e1, target:e4 });
-
-			instance.on(addBtn, 'click', addDisc );							
+		instance.on(clearBtn, "click", function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			instance.detachEveryConnection(); 
 		});
+
+		instance.connect({ source:e1, target:e2 });
+		instance.connect({ source:e1, target:e3 });
+		instance.connect({ source:e1, target:e4 });
+
+		instance.on(addBtn, 'click', addDisc );							
 	});
-	
-})();
+
+	jsPlumb.fire("jsPlumbDemoLoaded", instance);
+});

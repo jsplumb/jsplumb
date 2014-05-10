@@ -97,5 +97,7 @@ jsPlumb.ready(function() {
 		// Y.all(".window")		yui3
 		//
 		instance.draggable(divsWithWindowClass);	
+
+		jsPlumb.fire("jsPlumbDemoLoaded", instance);
 	});
 });
