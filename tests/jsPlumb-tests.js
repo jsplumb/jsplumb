@@ -45,7 +45,7 @@ var _addDiv = function(id, parent) {
 var _addDivs = function(ids, parent) {
 	for (var i = 0; i < ids.length; i++)
 		_addDiv(ids[i], parent);
-}
+};
 
 var _triggerEvent = function(el, eventId) {
     var o = $(el).offset();
@@ -90,8 +90,6 @@ var testSuite = function(renderMode, _jsPlumb) {
 	var container = document.createElement("div");
 	container.id = "container";
 	document.body.appendChild(container);
-
-	var jpcl = jsPlumb.CurrentLibrary;
 
 	_jsPlumb.setRenderMode(renderMode);
 
