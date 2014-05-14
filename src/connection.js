@@ -330,6 +330,7 @@
             }.bind(this));
             
             this.canvas = this.connector.canvas;
+            this.bgCanvas = this.connector.bgCanvas;
 
             if (this._jsPlumb.editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.connector.type] && this.connector.isEditable()) {
                 new jsPlumb.ConnectorEditors[this.connector.type]({
