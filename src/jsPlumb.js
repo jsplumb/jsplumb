@@ -542,6 +542,22 @@
 				for (var i = 0, j = arguments.length; i < j; i++)
 					this.removeOverlay(arguments[i]);
 			},
+			moveParent:function(newParent) {
+				if (this.bgCanvas) {
+				    this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+				    newParent.appendChild(this.bgCanvas);
+				}
+				
+				this.canvas.parentNode.removeChild(this.canvas);
+				newParent.appendChild(this.canvas);
+
+				for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+				    if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
+				        this._jsPlumb.overlays[i].canvas.parentNode.removeChild(this._jsPlumb.overlays[i].canvas);
+				        newParent.appendChild(this._jsPlumb.overlays[i].canvas);  
+				    }
+				}
+			},
 			getLabel : function() {
 				var lo = this.getOverlay(_internalLabelOverlayId);
 				return lo != null ? lo.getLabel() : null;
@@ -2101,7 +2117,7 @@
 			// TODO put all the source stuff inside one parent, keyed by id.
 			this.sourceEndpointDefinitions = {};
 			
-			var selectorFilter = function(evt, _el, selector, _instance) {
+			var selectorFilter = function(evt, _el, selector, _instance, negate) {
                 var t = evt.target || evt.srcElement, ok = false, 
                     sel = _instance.getSelector(_el, selector);
                 for (var j = 0; j < sel.length; j++) {
@@ -2110,7 +2126,7 @@
                         break;
                     }
                 }
-                return ok;
+                return negate ? !ok : ok;
 	        };
 
 		// see API docs
@@ -2422,7 +2438,7 @@
 	                    
 	                    // if a filter was given, run it, and return if it says no.
 						if (p.filter) {
-							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
+							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this, p.filterExclude) : p.filter(evt, _el);
 							if (r === false) return;
 						}
 						
@@ -2861,9 +2877,6 @@
     	setIdChanged : function(oldId, newId) {
     		this.setId(oldId, newId, true);
     	},
-		getParent : function(el) {
-			return el.parentNode;
-		},
     	// set parent: change the parent for some node and update all the registrations we need to.
     	setParent : function(el, newParent) {
     		var _el = this.getElementObject(el),
@@ -2878,7 +2891,7 @@
     		this.dragManager.setParent(_el, _id, _pel, _pid);
     	},
 		/**
-		 * gets the size for the element object, in an array : [ width, height ].
+		 * gets the size for the element, in an array : [ width, height ].
 		 */
 		getSize : function(el) {
 			return [ el.offsetWidth, el.offsetHeight ];
@@ -2898,6 +2911,16 @@
 			else
 				for (i in o2) o1[i] = o2[i];
 			return o1;
+		},
+		setContainer:function(c) {
+			c = this.getDOMElement(c);
+			this.select().each(function(conn) {
+				conn.moveParent(c);
+			});
+			this.selectEndpoints().each(function(ep) {
+				ep.moveParent(c);
+			});
+			this.Defaults.Container = c;
 		}
     }, jsPlumbAdapter);
 

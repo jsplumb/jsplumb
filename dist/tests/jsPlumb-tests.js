@@ -3470,6 +3470,59 @@ var testSuite = function(renderMode, _jsPlumb) {
 		// test to see if 3 elements have been added
 		equal(bodyElementCount + 3, document.body.childNodes.length, "3 new elements added to the document body");
 	});
+
+	test(" change Container programmatically", function() {
+
+		_jsPlumb.Defaults.Container = container;
+
+		var newContainer = document.createElement("div");
+		newContainer.id = "newContainer";
+		document.body.appendChild(newContainer);
+
+		var d1 = _addDiv("d1"), d2 = _addDiv("d2"), d3 = _addDiv("d3");
+		var e1 = _jsPlumb.addEndpoint(d1, {
+				overlays:[
+					[ "Label", { label:"FOO", id:"label" }]
+				]
+			}),
+			e2 = _jsPlumb.addEndpoint(d2, {
+				overlays:[
+					[ "Label", { label:"FOO", id:"label" }]
+				]
+			}),
+			e3 = _jsPlumb.addEndpoint(d1, {
+				overlays:[
+					[ "Label", { label:"FOO", id:"label" }]
+				]
+			});
+
+		var c = _jsPlumb.connect({
+			source:e1, target:e2,
+			paintStyle:{
+				outline:4,
+				outlineStyle:"red",
+				strokeStyle:"red",
+				lineWidth:2
+			},
+			overlays:[
+				"Label", "Arrow"
+			]
+		});
+
+		equal(e1.canvas.parentNode, container, "e1 canvas parent is container");
+		equal(e1.getOverlays()[0].canvas.parentNode, container, "e1 overlay parent is container");
+		equal(c.getConnector().canvas.parentNode, container, "connector parent is container");
+		equal(c.getOverlays()[0].canvas.parentNode, container, "first overlay parent is container");
+		equal(c.getOverlays()[1].canvas.parentNode, container, "second overlay parent is container");
+
+		_jsPlumb.setContainer(newContainer);
+
+		equal(e1.canvas.parentNode, newContainer, "e1 canvas parent is newContainer");
+		equal(e1.getOverlays()[0].canvas.parentNode, newContainer, "e1 overlay parent is newContainer");
+		equal(c.getConnector().canvas.parentNode, newContainer, "connector parent is newContainer");
+		equal(c.getOverlays()[0].canvas.parentNode, newContainer, "first overlay parent is newContainer");
+		equal(c.getOverlays()[1].canvas.parentNode, newContainer, "second overlay parent is newContainer");
+	});
 	
     test(renderMode + " detachable defaults to true when connection made between two endpoints", function() {
         var d1 = _addDiv("d1"), d2 = _addDiv("d2"),
