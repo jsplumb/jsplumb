@@ -453,74 +453,92 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 
 <h5>Specifying drag source area</h5>
 
-<p>Configuring an element to be an entire Connection source using makeSource means that the element cannnot itself be draggable.  There would be no way for jsPlumb to distinguish between the user attempting to drag the element and attempting to drag a Connection from the element.  jsPlumb has two ways for you to handle this. Why two?  The second one didn&#39;t occur to me until later. The first one will probably be discontinued at some stage.</p>
+<p>Configuring an element to be an entire Connection source using makeSource means that the element cannnot itself be draggable.  There would be no way for jsPlumb to distinguish between the user attempting to drag the element and attempting to drag a Connection from the element.  jsPlumb has two ways for you to handle this. </p>
 
-<h6>Supplying a &#39;parent&#39; parameter</h6>
+<h5>Supplying a <code>filter</code> parameter</h5>
+
+<p>This is the preferred way to handle the problem, but it works only in jQuery and Vanilla jsPlumb. How it works is that you supply a <code>filter</code> parameter to the makeSource call, which can be either a function object or a selector. Consider this markup:</p>
+<div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;foo&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;span&gt;</span>FOO<span class="nt">&lt;/span&gt;</span>
+  <span class="nt">&lt;button&gt;</span>click me<span class="nt">&lt;/button&gt;</span>
+<span class="nt">&lt;div&gt;</span>
+</code></pre></div>
+<p>Let&#39;s suppose we do not want to interfere with the operation of the &quot;click me&quot; button. </p>
+
+<h6>Selector Filter</h6>
+
+<p>We can supply a selector filter to the <code>makeSource</code> call to do so:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">filter</span><span class="o">:</span><span class="s2">&quot;:not(button)&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>Valid values for a filter selector are <a href="http://www.w3.org/TR/css3-selectors/">as per the spec</a>. </p>
+
+<h6>Negating a Selector Filter</h6>
+
+<p>One of the limitations of CSS3 selectors is that the contents of a <code>:not</code> selector are restricted to what are called <strong>simple selectors</strong>. What this means is that only one item may appear inside a <code>:not</code>, eg. <code>:not(.someClass)</code>, <code>:not(button)</code> etc. You cannot, however, do something like this: <code>:not(.myClass button)</code>.  </p>
+
+<p>To allow for these sorts of negation selectors, you can set the <code>filterExclude:true</code> flag and re-write your selector:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">filter</span><span class="o">:</span><span class="s2">&quot;span&quot;</span><span class="p">,</span>
+  <span class="nx">filterExclude</span><span class="o">:</span><span class="kc">true</span>
+<span class="p">});</span>
+</code></pre></div>
+<h6>Filter Function</h6>
+
+<p>Alternatively, you can supply a function as the filter:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">filter</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">element</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">tagName</span> <span class="o">!==</span> <span class="s2">&quot;BUTTON&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>In this example, if the filter returns anything other than a boolean false, the drag will begin. It&#39;s important to note that only boolean false will prevent a drag. False-y values will not. </p>
+
+<h5>Supplying a <code>parent</code> parameter</h5>
+
+<p>This was the original solution to the dragging problem, but it isn&#39;t as good as the filter solution we just discussed. However, if you are using MooTools or YUI then only this option will work for you.</p>
 
 <p>In this code snippet, note the <code>parent</code> parameter.  It instructs jsPlumb to configure the source Endpoint on the element specified - in this case, <code>someDiv</code> (the value of this parameter may be a String id or a selector).</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeSource(&quot;someConnectionSourceDiv&quot;, {
-  paintStyle:{ fillStyle:&quot;yellow&quot; },
-  endpoint:&quot;Blank&quot;,
-  anchor:&quot;BottomCenter&quot;,
-  parent:&quot;someDiv&quot;
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;someConnectionSourceDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span> <span class="p">},</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Blank&quot;</span><span class="p">,</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span>
+  <span class="nx">parent</span><span class="o">:</span><span class="s2">&quot;someDiv&quot;</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>If you just want to say &quot;use the parent of this element&quot;, you can supply &quot;parent&quot;:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeSource(&quot;someConnectionSourceDiv&quot;, {
-  paintStyle:{ fillStyle:&quot;yellow&quot; },
-  endpoint:&quot;Blank&quot;,
-  anchor:&quot;BottomCenter&quot;,
-  parent:&quot;parent&quot;
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;someConnectionSourceDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;yellow&quot;</span> <span class="p">},</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Blank&quot;</span><span class="p">,</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span>
+  <span class="nx">parent</span><span class="o">:</span><span class="s2">&quot;parent&quot;</span>
+<span class="p">});</span>
 </code></pre></div>
-<p>This was the original way of handling the <code>makeSource</code> drag conundrum in jsPlumb, but it&#39;s not as good as supplying a <code>filter</code> parameter, which is discussed below. The main problem is that when you use this mechanism you don&#39;t actually register the makeSource call on the element you want; instead you register it on some child of that element and supply the element you&#39;re really configuring as <strong>parent</strong>.  It&#39;s just not quite &#39;right&#39;, conceptually.</p>
-
-<h6>Supplying a <code>filter</code> parameter</h6>
-
-<p>The second way to handle the drag problem makes much more sense:you supply a &#39;filter&#39; parameter to the makeSource call, which can be either a function object or a selector. Consider this markup:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">&lt;div id=&quot;foo&quot;&gt;
-  FOO
-  &lt;button&gt;click me&lt;/button&gt;
-&lt;div&gt;
-</code></pre></div>
-<p>Suppose we do not want to interfere with the operation of the &quot;click me&quot; button. We can supply a filter to the makeSource call to do so:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeSource(&quot;foo&quot;, {
-  filter:&quot;:not(button)&quot;
-});
-</code></pre></div>
-<p>or</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeSource(&quot;foo&quot;, {
-  filter:function(event, element) {
-    return event.target.tagName !== &quot;BUTTON&quot;;
-  }
-});
-</code></pre></div>
-<p>In this second example, if the filter returns anything other than a boolean false, the drag will begin. It&#39;s important to note that only boolean false will prevent a drag. False-y values will not. </p>
-
 <h5>Endpoint options with makeSource</h5>
 
 <p>There are many things you can set in an Endpoint options object; for a thorough list see the API documentation for Endpoint.  </p>
 
 <p>Here&#39;s an example of specifying that you want an Arrow overlay halfway along any Connection dragged from this Endpoint:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var exampleGreyEndpointOptions = {
-  endpoint:&quot;Rectangle&quot;,
-  paintStyle:{ width:25, height:21, fillStyle:&#39;#666&#39; },
-  isSource:true,
-  connectorStyle : { strokeStyle:&quot;#666&quot; },
-  isTarget:true,
-  connectorOverlays: [ [ &quot;Arrow&quot;, { location:0.5 } ] ]
-};
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connectorOverlays</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">location</span><span class="o">:</span><span class="mf">0.5</span> <span class="p">}</span> <span class="p">]</span> <span class="p">]</span>
+<span class="p">};</span>
 </code></pre></div>
 <p>This is an Endpoint that moves around the element it is attached to dependent on the location of other elements in the connections it is attached to (a &#39;dynamic&#39; anchor):</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var exampleGreyEndpointOptions = {
-  endpoint:&quot;Rectangle&quot;,
-  paintStyle:{ width:25, height:21, fillStyle:&#39;#666&#39; },
-  isSource:true,
-  connectorStyle : { strokeStyle:&quot;#666&quot; },
-  isTarget:true,
-  connectorOverlays: [ [ &quot;Arrow&quot;, { location:0.5 } ] ]
-  anchor:[ &quot;TopCenter&quot;,&quot;RightMiddle&quot;,&quot;BottomCenter&quot;,&quot;LeftMiddle&quot; ]
-};
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connectorOverlays</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">location</span><span class="o">:</span><span class="mf">0.5</span> <span class="p">}</span> <span class="p">]</span> <span class="p">]</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;TopCenter&quot;</span><span class="p">,</span><span class="s2">&quot;RightMiddle&quot;</span><span class="p">,</span><span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span><span class="s2">&quot;LeftMiddle&quot;</span> <span class="p">]</span>
+<span class="p">};</span>
 </code></pre></div>
 <h5>Testing if an element is a target or source</h5>
 
@@ -543,8 +561,9 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 </ul>
 
 <p>The return value from these methods is the current jsPlumb instance, allowing you to chain them:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.setTargetEnabled(&quot;aDivId&quot;).setSourceEnabled($(&quot;.aSelector&quot;));
-</code></pre></div>
+
+<p><code>jsPlumb.setTargetEnabled(&quot;aDivId&quot;).setSourceEnabled($(&quot;.aSelector&quot;));</code></p>
+
 <p>Note that if you call either of these methods on an element that was not originally configured as a target or source, nothing will happen.</p>
 
 <p>You can check the enabled state of some target or source using these methods:</p>
@@ -554,7 +573,7 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <li><code>isSourceEnabled(some id, selector or DOM element)</code></li>
 </ul>
 
-<h5>Canceling previous makeTarget and/or makeSource calls</h5>
+<h5>Canceling previous <code>makeTarget</code> and/or <code>makeSource</code> calls</h5>
 
 <p>jsPlumb offers four methods to let you cancel previous <code>makeTarget</code> or <code>makeSource</code> calls. Each of these methods returns the current jsPlumb instance, and so can be chained:</p>
 
@@ -574,7 +593,7 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 
 <p>These are options that will be passed through to the supporting library&#39;s drag API.  jsPlumb passes everything you supply here through, inserting wrapping functions if necessary for the various lifecycle events that jsPlumb needs to know about.  So if, for example, you pass a function to be called when dragging starts, jsPlumb will wrap that function with a function that does what jsPlumb needs to do, then call yours.</p>
 
-<p>At the time of writing, jsPlumb supports jQuery, MooTools and YUI3, and each of those libraries uses different terminology.  In addition, jQuery&#39;s API is more fully featured, providing easy support for setting the zIndex and opacity of elements being dragged, as well as the &#39;scope&#39; for a drag/drop (allowing you to specify more than one type of drag/drop pair), and hover classes for when a draggable is on the move or over a droppable. If you&#39;re using jQuery you can of course just supply these values on the dragOptions; to make it easier, jsPlumb&#39;s MooTools and YUI3 adapters recognize  these options and add appropriate callbacks for you.  </p>
+<p>At the time of writing, jsPlumb supports jQuery, MooTools and YUI3, as well as having its own built-in support (actually supplied by a bundled library called <a href="https://github.com/jsplumb/katavorio">Katavorio</a>, and each of those libraries uses different terminology.  In addition, jQuery&#39;s API is more fully featured, providing easy support for setting the zIndex and opacity of elements being dragged, as well as the &#39;scope&#39; for a drag/drop (allowing you to specify more than one type of drag/drop pair), and hover classes for when a draggable is on the move or over a droppable. If you&#39;re using jQuery you can of course just supply these values on the dragOptions; to make it easier, jsPlumb&#39;s MooTools and YUI3 adapters recognize  these options and add appropriate callbacks for you.  The best drag library to use, though, is Katavorio, which is bundled in vanilla jsPlumb from 1.6.0 onwards: it supports everything jQuery drag supports, as well as multiple scopes and multiple element dragging.</p>
 
 <p>Given that the options here are library-specific, and they are all well-documented, we&#39;re going to discuss just the three drag options that behave the same way in all (see below for hoverClass):</p>
 
@@ -584,13 +603,13 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <li><strong>scope</strong> - the scope of the draggable.  can only be dropped on a droppable with the same scope.  this is discussed below.</li>
 </ul>
 
-<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable">jQuery</a>, <a href="http://mootools.net/docs/more/Drag/Drag.Move">MooTools</a>, or <a href="http://developer.yahoo.com/yui/3/dd">YUI3</a> docs.   </p>
+<p>For more information about drag options, take a look at the <a href="http://docs.jquery.com/UI/Draggable">jQuery</a>, <a href="http://mootools.net/docs/more/Drag/Drag.Move">MooTools</a>, <a href="http://developer.yahoo.com/yui/3/dd">YUI3</a>, or <a href="https://github.com/jsplumb/katavorio">Katavorio</a> docs.    </p>
 
 <h5>Drop Options</h5>
 
-<p>Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  MooTools does not have drop options like jQuery and YUI3 do; droppable functionality in MooTools is actually implemented by the Drag.Move class - the one used to initialise a draggable.  But when you setup an Endpoint in jsPlumb you should ignore that fact, and treat droppables like you would in jQuery or YUI3.  jsPlumb wires everything up for you under the hood.</p>
+<p>Drop options are treated by jsPlumb in the same way as drag options - they are passed through to the underlying library.  MooTools does not have drop options like jQuery, Katavorio and YUI3 do; droppable functionality in MooTools is actually implemented by the Drag.Move class - the one used to initialise a draggable.  But when you setup an Endpoint in jsPlumb you should ignore that fact, and treat droppables like you would in jQuery, Karavorio or YUI3.  jsPlumb wires everything up for you under the hood.</p>
 
-<p>There are three jQuery droppable options that jsPlumb treats as shortcuts in MooTools and YUI3, for the sake of consistency:</p>
+<p>There are three jQuery/Katavorio droppable options that jsPlumb treats as shortcuts in MooTools and YUI3, for the sake of consistency:</p>
 
 <ul>
 <li><strong>hoverClass</strong> - the CSS class to attach to the droppable when a draggable is hovering over it.</li>
@@ -603,31 +622,33 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <h5>Drag and Drop Scope</h5>
 
 <p>jsPlumb borrowed the concept of &#39;scope&#39; from jQuery&#39;s drag/drop implementation: the notion of which draggables can be dropped on which droppables.  In jsPlumb you can provide a &#39;scope&#39; entry when creating an Endpoint.  Here&#39;s the example grey Endpoint example with &#39;scope&#39; added:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var exampleGreyEndpointOptions = {
-  endpoint:&quot;Rectangle&quot;,
-  paintStyle:{ width:25, height:21, fillStyle:&quot;#666&quot; },
-  isSource:true,
-  connectionStyle : { strokeStyle:&quot;#666&quot; },
-  isTarget:true,
-  scope:&quot;exampleGreyConnection&quot;
-};
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;exampleGreyConnection&quot;</span>
+<span class="p">};</span>
 </code></pre></div>
 <p>If you do not provide a &#39;scope&#39; entry, jsPlumb uses a default scope.  Its value is accessible through this method:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.getDefaultScope();
-</code></pre></div>
+
+<p><code>jsPlumb.getDefaultScope();</code></p>
+
 <p>If you want to change it for some reason you can do so with this method:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.setDefaultScope(&quot;mySpecialDefaultScope&quot;);
-</code></pre></div>
+
+<p><code>jsPlumb.setDefaultScope(&quot;mySpecialDefaultScope&quot;);</code></p>
+
 <p>You can also, should you want to, provide the scope value separately on the drag/drop options, like this:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var exampleGreyEndpointOptions = {
-  endpoint:&quot;Rectangle&quot;,
-  paintStyle:{ width:25, height:21, fillStyle:&#39;#666&#39; },
-  isSource:true,
-  connectionStyle : { strokeStyle:&quot;#666&quot; },
-  isTarget:true,
-  dragOptions:{ scope:&quot;dragScope&quot; },
-  dropOptions:{ scope:&quot;dropScope&quot; }
-};
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connectionStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">dragOptions</span><span class="o">:</span><span class="p">{</span> <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;dragScope&quot;</span> <span class="p">},</span>
+  <span class="nx">dropOptions</span><span class="o">:</span><span class="p">{</span> <span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;dropScope&quot;</span> <span class="p">}</span>
+<span class="p">};</span>
 </code></pre></div>
 <p><a name="disconnectreconnect"></a></p>
 
@@ -638,46 +659,41 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <p>Some examples should help explain:    </p>
 
 <ul>
-<li><p>Create a Connection that is detachable using the mouse, from either Endpoint, and which does not reattach:
-<pre>
-jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot; });
-</pre>      </p></li>
-<li><p>Create a Connection that is not detachable using the mouse:
-<pre>
-jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot;, detachable:false });
-</pre>      </p></li>
-<li><p>Create a Connection that is detachable using the mouse and which reattaches on drop:
-<pre>
-jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot;, reattach:true });
-</pre>      </p></li>
+<li>Create a Connection that is detachable using the mouse, from either Endpoint, and which does not reattach:</li>
 </ul>
 
-<p>This behaviour can also be controlled using jsPlumb defaults:
-<pre>
-jsPlumb.importDefaults({
+<p><code>jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot; });</code></p>
+
+<ul>
+<li>Create a Connection that is not detachable using the mouse:</li>
+</ul>
+
+<p><code>jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot;, detachable:false });</code></p>
+
+<ul>
+<li>Create a Connection that is detachable using the mouse and which reattaches on drop:</li>
+</ul>
+
+<p><code>jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot;, reattach:true });</code></p>
+
+<p>This behaviour can also be controlled using jsPlumb defaults:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.importDefaults({
   ConnectionsDetachable:true,
   ReattachConnections:true
 });
-</pre>      </p>
-
-<p>The default value of ConnectionsDetachable is <strong>true</strong>, and the default value of ReattachConnections is <strong>false</strong>,
-so in actual fact those defaults are kind of pointless. But you probably get the point.</p>
+</code></pre></div>
+<p>The default value of ConnectionsDetachable is <strong>true</strong>, and the default value of ReattachConnections is <strong>false</strong>, so in actual fact those defaults are kind of pointless. But you probably get the idea.</p>
 
 <h5>Setting detachable/reattach on Endpoints</h5>
 
-<p>Endpoints support the &#39;detachable&#39; and &#39;reattach&#39; parameters too. If you create an Endpoint and mark &#39;detachable:false&#39;, then
-all Connections made from that Endpoint will not be detachable.  However, since there are two Endpoints involved in any
-Connection, jsPlumb takes into account the &#39;detachable&#39; and &#39;reattach&#39; parameters from both Endpoints when establishing
-a Connection. If either Endpoint declares either of these values as true, jsPlumb assumes the value to be true.  It is possible
-that in a future version of jsPlumb the concepts of detachable and reattach could be made more granular, through the
+<p>Endpoints support the <code>detachable</code> and <code>reattach</code> parameters too. If you create an Endpoint and mark <code>detachable:false</code>, then all Connections made from that Endpoint will not be detachable.  However, since there are two Endpoints involved in any Connection, jsPlumb takes into account the <code>detachable</code> and <code>reattach</code> parameters from both Endpoints when establishing a Connection. If either Endpoint declares either of these values as true, jsPlumb assumes the value to be true.  It is possible that in a future version of jsPlumb the concepts of detachable and reattach could be made more granular, through the
 introduction of parameters like <code>sourceDetachable</code>/<code>targetReattach</code> etc.</p>
 
 <h5>Dropping a dragged Connection on another Endpoint</h5>
 
-<p>If you drag a Connection from its target Endpoint you can then drop it on another suitable target Endpoint - suitable meaning
-that it is of the correct scope and it is not full.  If you try to drop a Connection on another target that is full, the drop will be aborted and then the same rules will apply as if you had dropped the Connection in whitespace: if &#39;reattach&#39; is set, the Connection will reattach, otherwise it will be removed.</p>
+<p>If you drag a Connection from its target Endpoint you can then drop it on another suitable target Endpoint - suitable meaning that it is of the correct scope and it is not full.  If you try to drop a Connection on another target that is full, the drop will be aborted and then the same rules will apply as if you had dropped the Connection in whitespace: if <code>reattach</code> is set, the Connection will reattach, otherwise it will be removed.</p>
 
-<p>You can drag a Connection from its source Endpoint, but you can only drop it back on its source Endpoint - if you try to drop it on any other source or target Endpoint jsPlumb will treat the drop as if it happened in whitespace. Note that there is an issue with the hoverClass parameter when dragging a source Endpoint: target Endpoints are assigned the hover class, as if you could drop there. But you cannot; this is caused by how jsPlumb uses the underlying library&#39;s drag and drop, and is something that will be addressed in a future release.</p>
+<p>You can drag a Connection from its source Endpoint, but you can only drop it back on its source Endpoint - if you try to drop it on any other source or target Endpoint jsPlumb will treat the drop as if it happened in whitespace. Note that there is an issue with the <code>hoverClass</code> parameter when dragging a source Endpoint: target Endpoints are assigned the hover class, as if you could drop there. But you cannot; this is caused by how jsPlumb uses the underlying library&#39;s drag and drop, and is something that will be addressed in a future release.</p>
 
             </div>
         </div>
