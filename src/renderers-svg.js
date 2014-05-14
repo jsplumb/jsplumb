@@ -507,6 +507,7 @@
 	    			});
 	    			params.component.svg.appendChild(this.path);
 	    			
+	    			this.canvas = params.component.svg; // for the sake of completeness; this behaves the same as other overlays
 	    			this.attachListeners(this.path, params.component);
 	    			this.attachListeners(this.path, this);
 	    		}
