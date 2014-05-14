@@ -276,30 +276,6 @@
         getCost : function() { return this._jsPlumb.cost; },
         setCost : function(c) { this._jsPlumb.cost = c; },
         isDirected : function() { return this._jsPlumb.directed === true; },
-        //
-        // changes the parent element of this connection to newParent.  not exposed for the public API.
-        //
-        // TODO ensure moveParent method still works (the overlay stuff in particular)
-        moveParent : function(newParent) {
-            var curParent = jsPlumb.getParent(this.connector.canvas);               
-            if (this.connector.bgCanvas) {
-                this._jsPlumb.instance.removeElement(this.connector.bgCanvas);
-                newParent.appendChild(this.connector.bgCanvas);
-            }
-            this._jsPlumb.instance.removeElement(this.connector.canvas);
-            newParent.appendChild(this.connector.canvas);
-            // this only applies for DOMOverlays
-            for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    this._jsPlumb.instance.removeElement(this._jsPlumb.overlays[i].canvas);
-                    newParent.appendChild(this._jsPlumb.overlays[i].canvas);
-                    if (this._jsPlumb.overlays[i].reattachListeners) 
-                        this._jsPlumb.overlays[i].reattachListeners(this.connector);
-                }
-            }
-            if (this.connector.reattachListeners)       // this is for SVG/VML; change an element's parent and you have to reinit its listeners.
-                this.connector.reattachListeners();     // the Canvas implementation doesn't have to care about this
-        },
         getConnector : function() { return this.connector; },
         setConnector : function(connectorSpec, doNotRepaint) {
             var _ju = jsPlumbUtil;
