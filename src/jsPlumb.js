@@ -1423,7 +1423,8 @@
 		];
 		
 		var _set = function(c, el, idx, doNotRepaint) {
-			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep;
+			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep,
+				oldEndpoint = c.endpoints[idx];
 			
 			var evtParams = {
 				index:idx,
@@ -1433,39 +1434,44 @@
 				newTargetId:c.targetId,
 				connection:c
 			};
-			
-			c.endpoints[idx].detachFromConnection(c);
+
 			if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
 				ep = el;
+				ep.addConnection(c);
 			}
 			else {
 				sid = _getId(el);
 				sep = this[_st.epDefs][sid];
 
-				if (sid === c[_st.elId]) return evtParams;  // dont change source/target if the element is already the one given.
-					
-				if (sep) {
+				if (sid === c[_st.elId]) 
+					ep = null;  // dont change source/target if the element is already the one given.
+				else if (sep) {
 					if (!sep.enabled) return;
 					ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
 					if (sep.uniqueEndpoint) sep.endpoint = ep;
-					 ep._doNotDeleteOnDetach = false;
-					 ep._deleteOnDetach = true;
+					ep._doNotDeleteOnDetach = false;
+					ep._deleteOnDetach = true;
+					ep.addConnection(c);
 				}
 				else {
 					ep = c.makeEndpoint(idx === 0, el, sid);
+					ep._doNotDeleteOnDetach = false;
+					ep._deleteOnDetach = true;
 				}
 			}
 			
-			ep.addConnection(c);
-			c.endpoints[idx] = ep;
-			c[_st.el] = ep.element;
-			c[_st.elId] = ep.elementId;			
-			evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+			if (ep != null) {
+				oldEndpoint.detachFromConnection(c);
+				c.endpoints[idx] = ep;
+				c[_st.el] = ep.element;
+				c[_st.elId] = ep.elementId;			
+				evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
 
-			fireMoveEvent(evtParams);
-			
-			if (!doNotRepaint)
-				c.repaint();
+				fireMoveEvent(evtParams);
+				
+				if (!doNotRepaint)
+					c.repaint();
+			}
 
 			return evtParams;
 			
@@ -1532,6 +1538,7 @@
 		};
 
 		this.unregisterEndpoint = function(endpoint) {
+			//if (endpoint._jsPlumb == null) return;
 			if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
 			_currentInstance.anchorManager.deleteEndpoint(endpoint);			
 			// TODO at least replace this with a removeWithFunction call.			
@@ -1666,23 +1673,29 @@
 			// loop through connections
 			for (var i in result.connections) {
 				var c = result.connections[i];
-				c.endpoints[0].detachFromConnection(c);
-				c.endpoints[1].detachFromConnection(c);
-				jsPlumbUtil.removeWithFunction(connections, function(_c) {
-				    return c.id == _c.id;
-				});
-				fireDetachEvent(c, fireEvent, params.originalEvent);
-				c.cleanup();
-				c.destroy();
+				if (c._jsPlumb) {
+					jsPlumbUtil.removeWithFunction(connections, function(_c) {
+						return c.id == _c.id;
+					});
+					fireDetachEvent(c, fireEvent, params.originalEvent);
+					
+					c.endpoints[0].detachFromConnection(c);
+					c.endpoints[1].detachFromConnection(c);
+					// sp was ere
+					c.cleanup();
+					c.destroy();
+				}
 			}
 
 			// loop through endpoints
 			for (var j in result.endpoints) {
 				var e = result.endpoints[j];	
-				_currentInstance.unregisterEndpoint(e);
-				// FIRE some endpoint deleted event?
-				e.cleanup();
-				e.destroy();
+				if (e._jsPlumb) {
+					_currentInstance.unregisterEndpoint(e);
+					// FIRE some endpoint deleted event?
+					e.cleanup();
+					e.destroy();
+				}
 			}	
 
 			return result;

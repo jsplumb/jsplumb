@@ -59,7 +59,6 @@ var _triggerEvent = function(el, eventId) {
 var defaults = null,
 	_cleanup = function(_jsPlumb) {		
 		_jsPlumb.reset();
-	//	_jsPlumb.draggablesById = {};
 		if (_jsPlumb.select().length != 0)
 			throw "there are connections!";
 
@@ -2037,10 +2036,12 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(c.targetId, "d17");
 		
 		equal(c.endpoints[0].type, "Rectangle", "endpoint is type Rectangle");
+		equal(c.endpoints[0].connections.length, 1, "endpoint has one connection");
 
 		_jsPlumb.setSource(c, d18);
 		equal(c.sourceId, "d18", "source is now d18");
 		equal(c.endpoints[0].type, "Rectangle", "endpoint is still type Rectangle");
+		equal(c.endpoints[0].connections.length, 1, "endpoint has one connection");
 		
 		equal(sc, true, "connectionMoved event fired");
 

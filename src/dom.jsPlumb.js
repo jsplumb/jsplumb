@@ -28,7 +28,8 @@
 				unbind:e.off,
 				getSize:jsPlumb.getSize,
 				getPosition:function(el) {
-					return [el.offsetLeft, el.offsetTop];
+					var o = jsPlumbAdapter.getOffset(el, instance);
+					return [o.left, o.top];
 				},
 				setPosition:function(el, xy) {
 					el.style.left = xy[0] + "px";

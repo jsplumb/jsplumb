@@ -263,12 +263,30 @@
             this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
         };	
         
+        /*
         this.detachFromConnection = function(connection, idx) {
             idx = idx == null ? findConnectionIndex(connection, this) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
                 this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
                 this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);                 
+            }
+        };*/
+
+        this.detachFromConnection = function(connection, idx) {
+            idx = idx == null ? findConnectionIndex(connection, this) : idx;
+            if (idx >= 0) {
+                this.connections.splice(idx, 1);
+                this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
+                this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);
+
+                if (this._deleteOnDetach && this.connections.length === 0) {
+                    _jsPlumb.deleteObject({
+                        endpoint:this,
+                        fireEvent:false,
+                        deleteAttachedObjects:false
+                    });
+                }
             }
         };
 
@@ -286,7 +304,8 @@
                     _jsPlumb.deleteObject({
                         connection:connection, 
                         fireEvent:(!ignoreTarget && fireEvent), 
-                        originalEvent:originalEvent
+                        originalEvent:originalEvent,
+                        deleteAttachedObjects:false
                     });
                     actuallyDetached = true;                       
                 }
@@ -959,8 +978,8 @@
             this.endpoint = null;
             // drag/drop
             var i = jsPlumb.getElementObject(this.canvas);              
-            jsPlumb.destroyDraggable(i);
-            jsPlumb.destroyDroppable(i);
+            this._jsPlumb.instance.destroyDraggable(i);
+            this._jsPlumb.instance.destroyDroppable(i);
         },
         setHover : function(h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())
