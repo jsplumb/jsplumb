@@ -300,6 +300,22 @@
    * Removes all listeners.
    * @method cleanupListeners
    */
+
+/**
+* Replaces values inside some JS object according to a given path spec. A path spec is a string in dotted notation,
+* with each component optionally declaring an array index. Some examples are:
+*
+* foo.bar
+* foo.baz[2]
+* foo.qux[3].baz[3].shwee
+*
+* The function fails gracefully if the path identifies a non-existent object.
+*
+* @method jsPlumbUtil.replace 
+* @param {Object} inObj Object to perform replacements inside.
+* @param {String} path Path to use for replacements
+* @param {Object} value Value to set.
+*/
     </pre>
 </div>
 

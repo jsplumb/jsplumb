@@ -44,7 +44,7 @@
     var _makeDraggablePlaceholder = function(placeholder, _jsPlumb) {
         var n = document.createElement("div");
         n.style.position = "absolute";
-        var parent = _jsPlumb.Defaults.Container ? _jsPlumb.getDOMElement(_jsPlumb.Defaults.Container) : document.body;
+        var parent = _jsPlumb.getContainer() || document.body;
         parent.appendChild(n);
         var id = _jsPlumb.getId(n);
         _jsPlumb.updateOffset( { elId : id });
@@ -262,31 +262,21 @@
             this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
             this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
         };	
-        
-        /*
-        this.detachFromConnection = function(connection, idx) {
-            idx = idx == null ? findConnectionIndex(connection, this) : idx;
-            if (idx >= 0) {
-                this.connections.splice(idx, 1);
-                this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
-                this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);                 
-            }
-        };*/
 
-        this.detachFromConnection = function(connection, idx) {
+        this.detachFromConnection = function(connection, idx, doNotCleanup) {
             idx = idx == null ? findConnectionIndex(connection, this) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
                 this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
                 this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);
-
-                if (this._deleteOnDetach && this.connections.length === 0) {
-                    _jsPlumb.deleteObject({
-                        endpoint:this,
-                        fireEvent:false,
-                        deleteAttachedObjects:false
-                    });
-                }
+            }
+            
+            if (!doNotCleanup && this._deleteOnDetach && this.connections.length === 0) {
+                _jsPlumb.deleteObject({
+                    endpoint:this,
+                    fireEvent:false,
+                    deleteAttachedObjects:false
+                });
             }
         };
 
@@ -298,8 +288,6 @@
 
             if (idx >= 0) {		                
                 if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) )) {
-
-                    //connection.setHover(false);
 
                     _jsPlumb.deleteObject({
                         connection:connection, 
@@ -316,7 +304,6 @@
         this.detachAll = function(fireEvent, originalEvent) {
             while (this.connections.length > 0) {
                 // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
-                // TODO now it defaults to fireEvent true.  will that mess with things?
                 this.detach(this.connections[0], false, true, fireEvent !== false, originalEvent, this, 0);
             }
             return this;
@@ -377,15 +364,7 @@
                 _transient:true,
                 scope:this.scope
             });
-        };
-                
-
-        /**
-         * private but needs to be exposed.
-         */
-        this.isFloating = function() {
-            return this.anchor != null && this.anchor.isFloating;
-        };
+        };            
         
         /**
          * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
@@ -551,7 +530,7 @@
                         // new anchor idx
                         var anchorIdx = jpc.endpoints[0].id == this.id ? 0 : 1;
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
-                        this.detachFromConnection(jpc);                         // detach from the connection while dragging is occurring.
+                        this.detachFromConnection(jpc, null, true);                         // detach from the connection while dragging is occurring. but dont cleanup automatically.
                         
                         //*
                         // store the original scope (issue 57)
@@ -663,6 +642,8 @@
                                         jpc.suspendedEndpoint.addConnection(jpc);
                                         _jsPlumb.repaint(existingJpcParams[1]);
                                     }
+                                    else
+                                        jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
                                 }                                                               
                             }
 
@@ -987,6 +968,12 @@
         },
         isFull : function() {
             return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);              
+        },
+        /**
+         * private but needs to be exposed.
+         */
+        isFloating : function() {
+            return this.anchor != null && this.anchor.isFloating;
         },
         getConnectionCost : function() { return this._jsPlumb.connectionCost; },
         setConnectionCost : function(c) {

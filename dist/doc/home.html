@@ -104,7 +104,7 @@
 
 <p>jsPlumb provides a means for a developer to visually connect elements on their web pages. It uses SVG in modern browsers, and VML on IE 8 and below. </p>
 
-<p>The latest version is 1.6.1. Starting with 1.6.0, jsPlumb ships with a version that has no external dependencies. This is referred to as &quot;vanilla&quot; jsPlumb; the filename has a prefix of <strong>dom-</strong>.</p>
+<p>The latest version is 1.6.2. Starting with 1.6.0, jsPlumb ships with a version that has no external dependencies. This is referred to as &quot;vanilla&quot; jsPlumb; the filename has a prefix of <strong>dom-</strong>.</p>
 
 <p>jQuery/MooTools/YUI adapter versions are still shipped in 1.6.x, but unless you have a specific need to use one of them, vanilla jsPlumb is recommended.</p>
 
@@ -170,7 +170,7 @@
 <h5>Vanilla</h5>
 
 <p>No required imports. </p>
-<div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/dom.jsPlumb-1.6.1-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/dom.jsPlumb-1.6.2-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div>
 <h6>Touch events</h6>
 
@@ -184,7 +184,7 @@
 </ul>
 <div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/jquery.jsPlumb-1.6.1-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/jquery.jsPlumb-1.6.2-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div>
 <h6>Touch Events</h6>
 
@@ -198,7 +198,7 @@
 </ul>
 <div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdnjs.cloudflare.com/ajax/libs/mootools/1.4.5/mootools-core-full-compat-yc.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//cdnjs.cloudflare.com/ajax/libs/mootools-more/1.4.0.1/mootools-more-yui-compressed.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/mootools.jsPlumb-1.6.1-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/mootools.jsPlumb-1.6.2-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div>
 <h6>Touch Events</h6>
 
@@ -210,7 +210,7 @@
 <li>YUI 3.3.x.  jsPlumb has been tested on 3.3.0 only; it is possible other 3.x.x versions will work.</li>
 </ul>
 <div class="highlight"><pre><code class="html language-html" data-lang="html"><span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;//yui.yahooapis.com/3.3.0/build/simpleyui/simpleyui-min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
-<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/yui.jsPlumb-1.6.0-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;PATH_TO/yui.jsPlumb-1.6.2-min.js &quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
 </code></pre></div>
 <h6>Touch Events</h6>
 
@@ -345,8 +345,9 @@
 <p>It&#39;s important to understand where in the DOM jsPlumb will add any elements it creates. If you want a TL;DR version, then it boils down to this:</p>
 
 <ul>
-<li>Everything is added to the document body unless you specify a Container, in which case everything is added to the specified Container.</li>
-<li>It is strongly recommended that you set a Container.</li>
+<li>It is strongly recommended that you set a Container before you begin plumbing.</li>
+<li>A Container is some element that jsPlumb will use as the parent for all of the artefacts it adds to the UI. Typically, you would make this the parent element of the nodes you are connecting.</li>
+<li>If you do not specify a Container, jsPlumb will infer that the Container should be the <code>offsetParent</code> of the first element on which you call <code>addEndpoint</code>, <code>makeSource</code> or <code>makeTarget</code>, or the <code>offsetParent</code> of the source element in the first <code>connect</code> - whichever happens first.</li>
 </ul>
 
 <p>Let&#39;s discuss this in more detail.</p>
@@ -359,29 +360,30 @@
 
 <h4>Container</h4>
 
-<p>You can - and <strong>should</strong> - instruct jsPlumb to use some element as the parent of everything jsPlumb adds to the UI through usage of the <code>jsPlumb.Defaults.Container</code> property.</p>
+<p>You can - and <strong>should</strong> - instruct jsPlumb to use some element as the parent of everything jsPlumb adds to the UI through usage of the <code>setContainer</code> method in jsPlumb, or by providing the Container in the parameters to <code>jsPlumb.getInstance</code> call.</p>
+
+<p><strong>Important</strong> This is a change from previous versions of jsPlumb. In previous versions of jsPlumb you could assign the Container directly via the <code>jsPlumb.Defaults.Container</code> property. You can still do this - we&#39;re in Javascript here of course, it&#39;s a free-for-all - but it will be ignored.</p>
 
 <p>Some examples:</p>
 
 <ul>
-<li>Set a container to use as the default container, using a jQuery selector (you can supply MooTools/YUI selectors if that&#39;s the library you&#39;re using), and then add an Endpoint.  The related UI artefact will be a child of the document body:</li>
+<li>Set a Container to use as the default Container, using a jQuery selector, and then add an Endpoint.  The related UI artefact will be a child of the document body:</li>
 </ul>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">Defaults</span><span class="p">.</span><span class="nx">Container</span> <span class="o">=</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">));</span>
 <span class="p">...</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span> <span class="nx">endpoint</span> <span class="nx">options</span> <span class="p">});</span>
 </code></pre></div>
 <ul>
 <li>Set a container to use as the default container, using Plain Old DOM:</li>
 </ul>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">someElement</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">);</span>
-<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">Defaults</span><span class="p">.</span><span class="nx">Container</span> <span class="o">=</span> <span class="nx">someElement</span><span class="p">;</span>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">));</span>
 <span class="p">...</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span> <span class="nx">endpoint</span> <span class="nx">options</span> <span class="p">});</span>
 </code></pre></div>
 <ul>
 <li>Set a container to use as the default container, using an element id, and then connect two elements.  The elements created in this example will be children of the element with id &quot;containerId&quot;:</li>
 </ul>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">Defaults</span><span class="p">.</span><span class="nx">Container</span> <span class="o">=</span> <span class="s2">&quot;containerId&quot;</span><span class="p">;</span>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">setContainer</span><span class="p">(</span><span class="s2">&quot;containerId&quot;</span><span class="p">);</span>
 <span class="p">...</span>
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> <span class="nx">source</span><span class="o">:</span><span class="nx">someDiv</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="nx">someOtherDiv</span> <span class="p">});</span>
 </code></pre></div>
@@ -402,17 +404,19 @@
 
 <h3>Element Dragging</h3>
 
-<p>A common feature of interfaces using jsPlumb is that the elements are draggable.  You should use <code>jsPlumb.draggable</code> to configure this:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;elementId&quot;</span><span class="p">);</span>
+<p>A common feature of interfaces using jsPlumb is that the elements are draggable.  You should use <code>jsPlumbInstance.draggable</code> to configure this:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">myInstanceOfJsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="s2">&quot;elementId&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p>...because if you don&#39;t, jsPlumb won&#39;t know that an element has been dragged, and it won&#39;t repaint the element.</p>
 
 <p>You can also pass a selector from your library in to this method:</p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.someClass&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">myInstanceOfJsPlumb</span><span class="p">.</span><span class="nx">draggable</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;.someClass&quot;</span><span class="p">));</span>
 </code></pre></div>
 <p>This method is just a wrapper for the underlying library&#39;s draggable functionality, and there is a two-argument version in which the second argument is passed down to the underlying library (example below). </p>
 
 <p>If you absolutely cannot use <code>jsPlumb.draggable</code>, you will have to arrange to repaint the drag element manually, via <code>jsPlumb.repaint</code>.</p>
+
+<p><strong>Note</strong> <code>jsPlumb</code> is an instance of the <code>jsPlumbInstance</code> class. If you are working with your own instances of jsPlumb, be sure to call the <code>draggable</code> method on those instances, not the global instance.</p>
 
 <h6>Vanilla jsPlumb</h6>
 

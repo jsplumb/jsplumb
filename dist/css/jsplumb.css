@@ -109,6 +109,16 @@ body {
 	color:orange;
 }
 
+.words {
+  text-align: left;
+  padding:50px;
+  background-color:white;
+}
+
+.code {
+  border:1px solid #456;
+}
+
 .logo {  
   font-size:30px;
   color:#1f1f1f;

@@ -2,8 +2,7 @@ jsPlumb.ready(function() {
 		
 	var instance = jsPlumb.getInstance({
 		DragOptions : { cursor: "pointer", zIndex:2000 },
-		HoverClass:"connector-hover",
-		Container:"kitchensink-demo"
+		HoverClass:"connector-hover"
 	});
 
 	var connectorStrokeColor = "rgba(50, 50, 200, 1)",
@@ -50,6 +49,7 @@ jsPlumb.ready(function() {
 			}],
 			["Arrow", {
 				cssClass:"l1arrow",
+				id:"arrow",
 				location:0.5, width:20,length:20,
 				events:{
 					"click":function(arrow, evt) {

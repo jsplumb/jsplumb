@@ -218,6 +218,21 @@
 */
 
 /**
+* Sets the current element to use as the Container for the given jsPlumbInstance - the element that will be the parent for
+* all artefacts added by jsPlumb. By default, the Container is set to the offsetParent of the first element on which 
+* &#x60;connect&#x60;, &#x60;addEndpoint&#x60;, &#x60;makeSource&#x60; or &#x60;makeTarget&#x60; is called, but you are encouraged to set a Container either in the
+* arguments to the &#x60;jsPlumb.newInstance(...)&#x60; method, or via &#x60;jsPlumbInstance.importDefaults&#x60;.
+* @method setContainer
+* @param {String|Element|Selector} container Either an element id, a DOM element, or a selector from the underlying library
+*/
+
+/**
+* Gets the current element in use as the Container for the given jsPlumbInstance
+* @method getContainer
+* @return {Element} The current element in use as the Container.
+*/
+
+/**
 * Sets whether or not the given element(s) should be draggable, regardless of what a particular method may request.
 * @method setDraggable
 * @param {String|Object|Array} el Some identifier for the element(s) - may be a string id, a selector, or an array of ids/selectors

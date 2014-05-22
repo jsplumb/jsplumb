@@ -3474,7 +3474,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 
 	test(" change Container programmatically", function() {
 
-		_jsPlumb.Defaults.Container = container;
+		_jsPlumb.setContainer(container);
 
 		var newContainer = document.createElement("div");
 		newContainer.id = "newContainer";
@@ -5529,6 +5529,71 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(b.nested.foo, "b_foo", "b has b's nested foo");
 		equal(a.nested.foo, "a_foo", "a has a's nested foo");
 	});
+
+	test("jsPlumbUtil.replace", function() {
+		var d, data = function() {
+			return { 
+				foo:{
+					bar:{
+						baz:23
+					}, 
+					ber:[ 
+						{},
+						{
+							baz:22
+						}
+					]
+				}
+			};
+		};
+		
+		var s1 = "foo.bar.baz",
+			s2 = "foo.ber[1].baz",
+			s3 = "foo.ber[0]",
+			f1 = "foo.qux",
+			f2 = "foo.bar.qux",
+			f3 = "foo.ber[3]",
+			f4 = "foo.ber[0].qux",
+			f5 = "foo.qux.qux",
+			f6 = "foo.qux[6].qux";;
+
+		d = data();
+		jsPlumbUtil.replace(d, s1, 99);
+		equal(d.foo.bar.baz, 99, s1 + " successful");
+
+		d = data();
+		jsPlumbUtil.replace(d, s2, 99);
+		equal(d.foo.ber[1].baz, 99, s2 + " successful");
+
+		d = data();
+		jsPlumbUtil.replace(d, s3, 99);
+		equal(d.foo.ber[0], 99, s3 + " successful");
+
+		d = data();
+		jsPlumbUtil.replace(d, f1, 99);
+		equal(d.foo.qux, 99, f1 + " successful");
+
+		d = data();
+		jsPlumbUtil.replace(d, f2, 99);
+		equal(d.foo.bar.qux, 99, f2 + " successful");
+
+		d = data();
+		jsPlumbUtil.replace(d, f3, 99);
+		equal(d.foo.ber[3], 99, f3 + " successful");
+
+		d = data();
+		jsPlumbUtil.replace(d, f4, 99);
+		equal(d.foo.ber[0].qux, 99, f4 + " successful");
+
+		d = data();
+		jsPlumbUtil.replace(d, f5, 99);
+		equal(d.foo.qux.qux, 99, f5 + " successful");
+
+		d = data();
+		jsPlumbUtil.replace(d, f6, 99);
+		equal(d.foo.qux[6].qux, 99, f6 + " successful");
+
+	})
 	
     
     test(renderMode + " arc segment tests", function() {							

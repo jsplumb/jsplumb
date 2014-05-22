@@ -118,6 +118,16 @@ future
             } 
          });
 
+         -------------------------------------------------------------
+
+         blog post about connecting svg elements with jsplumb (note all fiddles broken here because of outdated
+         jsplumb links):
+
+         https://groups.google.com/forum/#!topic/jsplumb/l4oRdrclmyc
+
+         FIDDLE for 1.6.x : http://jsfiddle.net/RpCv4/37/
+
+
 
     Performance
     -----------

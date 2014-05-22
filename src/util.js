@@ -97,6 +97,35 @@
             }
             return c;
         },
+        replace:function(inObj, path, value) {
+            var q = inObj, t = q;
+            path.replace(/([^\.])+/g, function(term, lc, pos, str) {             
+                var array = term.match(/([^\[0-9]+){1}(\[)([0-9+])/),
+                    last = pos + term.length >= str.length,
+                    _getArray = function() {
+                        return t[array[1]] || (function() {  t[array[1]] = []; return t[array[1]]; })();
+                    };
+                
+                if (last) {
+                    // set term = value on current t, creating term as array if necessary.
+                    if (array)
+                        _getArray()[array[3]] = value;
+                    else
+                        t[term] = value;
+                }
+                else {
+                    // set to current t[term], creating t[term] if necessary.
+                    if (array) {
+                        var a = _getArray();
+                        t = a[array[3]] || (function() { a[array[3]] = {}; return a[array[3]]; })();
+                    }
+                    else
+                        t = t[term] || (function() { t[term] = {}; return t[term]; })();
+                }
+            });
+
+            return inObj;
+        },
         //
         // chain a list of functions, supplied by [ object, method name, args ], and return on the first
         // one that returns the failValue. if none return the failValue, return the successValue.
@@ -254,7 +283,7 @@
         },
         logEnabled : true,
         log : function() {
-            if (jsPlumbUtil.logEnabled && typeof console != "1.6.2") {
+            if (jsPlumbUtil.logEnabled && typeof console != "undefined") {
                 try {
                     var msg = arguments[arguments.length - 1];
                     console.log(msg);
@@ -285,12 +314,12 @@
             }
         },
         /**
-        * @name jsPlumbUtil.wrap
-        * @desc Wraps one function with another, creating a placeholder for the
+        * Wraps one function with another, creating a placeholder for the
         * wrapped function if it was null. this is used to wrap the various
         * drag/drop event functions - to allow jsPlumb to be notified of
         * important lifecycle events without imposing itself on the user's
         * drag/drop functionality. 
+        * @method jsPlumbUtil.wrap
         * @param {Function} wrappedFunction original function to wrap; may be null.
         * @param {Function} newFunction function to wrap the original with.
         * @param {Object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should 

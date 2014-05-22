@@ -100,7 +100,34 @@
 </ul>
             </div>
             <div class="markdown-body">
-                <h2>1.6.1</h2>
+                <h2>1.6.2</h2>
+
+<h3>Changes between 1.6.1 and 1.6.2</h3>
+
+<h4>Backwards Compatibility</h4>
+
+<ul>
+<li><p>1.6.2 has improved behaviour for determining what element to use as the Container. Previous 1.6.x versions defaulted to the document body, with the docs strongly recommending you set a Container. From 1.6.2, if there is no Container set when the user makes a first call to either addEndpoint, makeSource, makeTarget or connect, the Container is set to be the offsetParent of either the element being configure (in the case of <code>addEndpoint</code>, <code>makeSource</code> and <code>makeTarget</code>), or the source element, for the <code>connect</code> method.</p></li>
+<li><p>a consequence of this is that you can no longer manipulate <code>Defaults.Container</code> manually. Your changes will be ignored; <code>Defaults.Container</code> is referenced only in the constructor or in the <code>importDefaults</code> method. If you need access to the current Container, use the <code>getContainer</code> method.</p></li>
+<li><p>the order of parameters to the function <code>jsPlumbInstance.on</code> has changed, in the case that you are passing 4 parameters and using it for event delegation.  Previously, the order was <code>(element, filter, eventId, callback)</code> and now the order is <code>(element, eventId, filter, callback)</code>. This brings it into line with the order of parameters in jQuery&#39;s <code>on</code> function.  It is not very likely this will affect you: <code>jsPlumbInstance.on</code> is used internally, mostly (although it can be used to register events independently of jsPlumb if you want to use it).</p></li>
+</ul>
+
+<h3>New Functionality</h3>
+
+<ul>
+<li>The Container inferencing discussed above is both a backwards compatibility issue and also new functionality!</li>
+<li>added <code>setContainer</code>, to allow you to move an entire jsPlumb UI to some new parent</li>
+<li>added <code>getContainer</code>, to allow you to retrieve the current Container.</li>
+</ul>
+
+<h3>Issues</h3>
+
+<ul>
+<li><strong>207</strong> - problem with absolute overlays</li>
+<li><strong>211</strong> - setVisible(true) on hidden overlay whose connection has moved causes the overlay to repaint in the wrong place</li>
+</ul>
+
+<h2>1.6.1</h2>
 
 <p>This is a minor release in which a few issues related to zooming have been fixed.</p>
 

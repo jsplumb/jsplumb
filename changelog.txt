@@ -1,3 +1,53 @@
+* 1.6.2
+
+	BACKWARDS COMPATIBILITY
+
+	- 1.6.2 has improved behaviour for determining what element to use as the Container. Previous 1.6.x versions
+	  defaulted to the document body, with the docs strongly recommending you set a Container. From 1.6.2, if there
+	  is no Container set when the user makes a first call to either addEndpoint, makeSource, makeTarget or connect, the
+	  Container is set to be the offsetParent of either the element being configure (in the case of `addEndpoint`, `makeSource` and `makeTarget`), or the source element, for the `connect` method.
+
+	- a consequence of this is that you can no longer manipulate Defaults.Container manually. Your changes will be ignored;
+	  Defaults.Container is only referenced in the constructor or in the `importDefaults` method. If you need access to
+	  the current Container, use the `getContainer` method.
+
+	- the order of parameters to the function `jsPlumbInstance.on` has changed, in the case that you are passing 4 parameters
+	  and using it for event delegation.  Previously, the order was `(element, filter, eventId, callback)` and now the order
+	  is `(element, eventId, filter, callback)`. This brings it into line with the order of parameters in jQuery's `on`
+	  function.  It is not very likely this will affect you; `jsPlumbInstance.on` is used internally, mostly (although
+	  it can be used to register events independently of jsPlumb if you want to use it).
+
+	 NEW FUNCTIONALITY
+
+	- The Container inferencing discussed above is both a backwards compatibility issue and also new functionality!
+	- added setContainer, to allow you to move an entire jsPlumb UI to some new parent
+	- added getContainer, to allow you to retrieve the current Container.
+
+	ISSUES
+
+	207 - problem with absolute overlays
+	211 - setVisible(true) on hidden overlay whose connection has moved causes the overlay to repaint in the wrong place
+
+
+
+* 1.6.1
+
+
+	BACKWARDS COMPATIBILITY
+
+	No issues
+
+
+	NEW FUNCTIONALITY
+
+	- Better handling of zooming in vanilla jsPlumb.
+
+
+	ISSUES
+
+	206 Fix documentation error about jsPlumb.Defaults.Endpoints
+
+
 * 1.6.0
 
 	BACKWARDS COMPATIBILITY

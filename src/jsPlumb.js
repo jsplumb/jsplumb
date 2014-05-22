@@ -674,6 +674,21 @@
                         
 			for (var i in this.Defaults)
 				_initialDefaults[i] = this.Defaults[i];
+
+			var _container;
+			this.setContainer = function(c) {
+				c = this.getDOMElement(c);
+				this.select().each(function(conn) {
+					conn.moveParent(c);
+				});
+				this.selectEndpoints().each(function(ep) {
+					ep.moveParent(c);
+				});
+				_container = c;
+			};
+			this.getContainer = function() {
+				return _container;
+			};
 			
 			this.bind = function(event, fn) {		
 				if ("ready" === event && initialized) fn();
@@ -683,8 +698,10 @@
 			_currentInstance.importDefaults = function(d) {
 				for (var i in d) {
 					_currentInstance.Defaults[i] = d[i];
-				}	
-				_ensureContainer();	
+				}
+				if (d.Container)
+					this.setContainer(d.Container);
+
 				return _currentInstance;
 			};		
 			
@@ -719,14 +736,14 @@
 				//
 				// appends an element to some other element, which is calculated as follows:
 				// 
-				// 1. if _currentInstance.Defaults.Container exists, use that element.
+				// 1. if Container exists, use that element.
 				// 2. if the 'parent' parameter exists, use that.
 				// 3. otherwise just use the root element (for DOM usage, the document body).
 				// 
 				//
 				_appendElement = function(el, parent) {
-					if (_currentInstance.Defaults.Container)
-						jsPlumb.getDOMElement(_currentInstance.Defaults.Container).appendChild(el);
+					if (_container)
+						_container.appendChild(el);
 					else if (!parent)
 						_currentInstance.appendToRoot(el);
 					else
@@ -1304,6 +1321,7 @@
 				var _el = _currentInstance.getDOMElement(inputs[i]), id = _getId(_el);
 				p.source = _el;
 
+				_ensureContainer(p.source);
                 _updateOffset({ elId : id, timestamp:_suspendedAt });
 				var e = _newEndpoint(p);
 				if (p.parentAnchor) e.parentAnchor = p.parentAnchor;
@@ -1409,6 +1427,7 @@
 			// will return null (and log something) if either endpoint was full.  what would be nicer is to 
 			// create a dedicated 'error' object.
 			if (_p) {
+				_ensureContainer(_p.source);
 				// create the connection.  it is not yet registered 
 				jpc = _newConnection(_p);
 				// now add it the model, fire an event, and redraw
@@ -1979,9 +1998,22 @@
 			connectorTypes.push([connector, name]);
 		};
 		
-		var _ensureContainer = function() {
+		// ensure that, if the current container exists, it is a DOM element and not a selector.
+		// if it does not exist and `candidate` is supplied, the offset parent of that element will be set as the Container.
+		// this is used to do a better default behaviour for the case that the user has not set a container:
+		// addEndpoint, makeSource, makeTarget and connect all call this method with the offsetParent of the 
+		// element in question (for connect it is the source element). So if no container is set, it is inferred
+		// to be the offsetParent of the first element the user tries to connect.
+		var _ensureContainer = function(candidate) {
+			if (!_container && candidate) {
+				var can = _currentInstance.getDOMElement(candidate);
+				if (can.offsetParent) _container = can.offsetParent;
+			}
+		};
+
+		var _getContainerFromDefaults = function() {
 			if (_currentInstance.Defaults.Container)
-				_currentInstance.Defaults.Container = _currentInstance.getDOMElement(_currentInstance.Defaults.Container);
+				_container = _currentInstance.getDOMElement(_currentInstance.Defaults.Container);
 		};
 		
 		/**
@@ -2008,7 +2040,7 @@
 			}
 			
 			if (!initialized) {                
-				_ensureContainer();	
+				_getContainerFromDefaults();	
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
 				initialized = true;
@@ -2166,6 +2198,8 @@
 						elid = elInfo.id,
 						proxyComponent = new jsPlumbUIComponent(p),
 						dropOptions = jsPlumb.extend({}, p.dropOptions || {});
+
+					_ensureContainer(elid);
 
 					// store the definitions keyed against the element id.
 					// TODO why not just store inside the element itself?
@@ -2374,6 +2408,8 @@
 							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _currentInstance.getDOMElement(p.parent);
 						},
 						idToRegisterAgainst = p.parent != null ? this.getId(parentElement()) : elid;
+
+					_ensureContainer(idToRegisterAgainst);
 					
 					this.sourceEndpointDefinitions[idToRegisterAgainst] = {
 						def:p,
@@ -2429,7 +2465,7 @@
 							if (p.parent) {
 								var parent = parentElement();
 								if (parent) {	
-									var potentialParent = p.container || this.Defaults.Container;
+									var potentialParent = p.container || _container;
 									ep.setElement(parent, potentialParent);
 								}
 							}
@@ -2924,16 +2960,6 @@
 			else
 				for (i in o2) o1[i] = o2[i];
 			return o1;
-		},
-		setContainer:function(c) {
-			c = this.getDOMElement(c);
-			this.select().each(function(conn) {
-				conn.moveParent(c);
-			});
-			this.selectEndpoints().each(function(ep) {
-				ep.moveParent(c);
-			});
-			this.Defaults.Container = c;
 		}
     }, jsPlumbAdapter);
 
