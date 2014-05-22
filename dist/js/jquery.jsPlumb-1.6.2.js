@@ -626,7 +626,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -721,6 +721,35 @@
                 }
             }
             return c;
+        },
+        replace:function(inObj, path, value) {
+            var q = inObj, t = q;
+            path.replace(/([^\.])+/g, function(term, lc, pos, str) {             
+                var array = term.match(/([^\[0-9]+){1}(\[)([0-9+])/),
+                    last = pos + term.length >= str.length,
+                    _getArray = function() {
+                        return t[array[1]] || (function() {  t[array[1]] = []; return t[array[1]]; })();
+                    };
+                
+                if (last) {
+                    // set term = value on current t, creating term as array if necessary.
+                    if (array)
+                        _getArray()[array[3]] = value;
+                    else
+                        t[term] = value;
+                }
+                else {
+                    // set to current t[term], creating t[term] if necessary.
+                    if (array) {
+                        var a = _getArray();
+                        t = a[array[3]] || (function() { a[array[3]] = {}; return a[array[3]]; })();
+                    }
+                    else
+                        t = t[term] || (function() { t[term] = {}; return t[term]; })();
+                }
+            });
+
+            return inObj;
         },
         //
         // chain a list of functions, supplied by [ object, method name, args ], and return on the first
@@ -910,12 +939,12 @@
             }
         },
         /**
-        * @name jsPlumbUtil.wrap
-        * @desc Wraps one function with another, creating a placeholder for the
+        * Wraps one function with another, creating a placeholder for the
         * wrapped function if it was null. this is used to wrap the various
         * drag/drop event functions - to allow jsPlumb to be notified of
         * important lifecycle events without imposing itself on the user's
         * drag/drop functionality. 
+        * @method jsPlumbUtil.wrap
         * @param {Function} wrappedFunction original function to wrap; may be null.
         * @param {Function} newFunction function to wrap the original with.
         * @param {Object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should 
@@ -1036,7 +1065,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -1426,7 +1455,7 @@
 		},
 		getOffset:function(el, _instance, relativeToRoot) {
 			el = jsPlumb.getDOMElement(el);
-			var container = jsPlumb.getDOMElement(_instance.Defaults.Container);
+			var container = _instance.getContainer();
 			var l = el.offsetLeft, t = el.offsetTop, op = (relativeToRoot  || (container != null && el.offsetParent != container)) ?  el.offsetParent : null;
 			while (op != null) {
 				l += op.offsetLeft;
@@ -1468,7 +1497,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -2009,6 +2038,22 @@
 				for (var i = 0, j = arguments.length; i < j; i++)
 					this.removeOverlay(arguments[i]);
 			},
+			moveParent:function(newParent) {
+				if (this.bgCanvas) {
+				    this.bgCanvas.parentNode.removeChild(this.bgCanvas);
+				    newParent.appendChild(this.bgCanvas);
+				}
+				
+				this.canvas.parentNode.removeChild(this.canvas);
+				newParent.appendChild(this.canvas);
+
+				for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
+				    if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
+				        this._jsPlumb.overlays[i].canvas.parentNode.removeChild(this._jsPlumb.overlays[i].canvas);
+				        newParent.appendChild(this._jsPlumb.overlays[i].canvas);  
+				    }
+				}
+			},
 			getLabel : function() {
 				var lo = this.getOverlay(_internalLabelOverlayId);
 				return lo != null ? lo.getLabel() : null;
@@ -2125,6 +2170,21 @@
                         
 			for (var i in this.Defaults)
 				_initialDefaults[i] = this.Defaults[i];
+
+			var _container;
+			this.setContainer = function(c) {
+				c = this.getDOMElement(c);
+				this.select().each(function(conn) {
+					conn.moveParent(c);
+				});
+				this.selectEndpoints().each(function(ep) {
+					ep.moveParent(c);
+				});
+				_container = c;
+			};
+			this.getContainer = function() {
+				return _container;
+			};
 			
 			this.bind = function(event, fn) {		
 				if ("ready" === event && initialized) fn();
@@ -2134,8 +2194,10 @@
 			_currentInstance.importDefaults = function(d) {
 				for (var i in d) {
 					_currentInstance.Defaults[i] = d[i];
-				}	
-				_ensureContainer();	
+				}
+				if (d.Container)
+					this.setContainer(d.Container);
+
 				return _currentInstance;
 			};		
 			
@@ -2170,14 +2232,14 @@
 				//
 				// appends an element to some other element, which is calculated as follows:
 				// 
-				// 1. if _currentInstance.Defaults.Container exists, use that element.
+				// 1. if Container exists, use that element.
 				// 2. if the 'parent' parameter exists, use that.
 				// 3. otherwise just use the root element (for DOM usage, the document body).
 				// 
 				//
 				_appendElement = function(el, parent) {
-					if (_currentInstance.Defaults.Container)
-						jsPlumb.getDOMElement(_currentInstance.Defaults.Container).appendChild(el);
+					if (_container)
+						_container.appendChild(el);
 					else if (!parent)
 						_currentInstance.appendToRoot(el);
 					else
@@ -2755,6 +2817,7 @@
 				var _el = _currentInstance.getDOMElement(inputs[i]), id = _getId(_el);
 				p.source = _el;
 
+				_ensureContainer(p.source);
                 _updateOffset({ elId : id, timestamp:_suspendedAt });
 				var e = _newEndpoint(p);
 				if (p.parentAnchor) e.parentAnchor = p.parentAnchor;
@@ -2860,6 +2923,7 @@
 			// will return null (and log something) if either endpoint was full.  what would be nicer is to 
 			// create a dedicated 'error' object.
 			if (_p) {
+				_ensureContainer(_p.source);
 				// create the connection.  it is not yet registered 
 				jpc = _newConnection(_p);
 				// now add it the model, fire an event, and redraw
@@ -2874,7 +2938,8 @@
 		];
 		
 		var _set = function(c, el, idx, doNotRepaint) {
-			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep;
+			var ep, _st = stTypes[idx], cId = c[_st.elId], cEl = c[_st.el], sid, sep,
+				oldEndpoint = c.endpoints[idx];
 			
 			var evtParams = {
 				index:idx,
@@ -2884,39 +2949,44 @@
 				newTargetId:c.targetId,
 				connection:c
 			};
-			
-			c.endpoints[idx].detachFromConnection(c);
+
 			if (el.constructor == jsPlumb.Endpoint) { // TODO here match the current endpoint class; users can change it {
 				ep = el;
+				ep.addConnection(c);
 			}
 			else {
 				sid = _getId(el);
 				sep = this[_st.epDefs][sid];
 
-				if (sid === c[_st.elId]) return evtParams;  // dont change source/target if the element is already the one given.
-					
-				if (sep) {
+				if (sid === c[_st.elId]) 
+					ep = null;  // dont change source/target if the element is already the one given.
+				else if (sep) {
 					if (!sep.enabled) return;
 					ep = sep.endpoint != null && sep.endpoint._jsPlumb ? sep.endpoint : this.addEndpoint(el, sep.def);
 					if (sep.uniqueEndpoint) sep.endpoint = ep;
-					 ep._doNotDeleteOnDetach = false;
-					 ep._deleteOnDetach = true;
+					ep._doNotDeleteOnDetach = false;
+					ep._deleteOnDetach = true;
+					ep.addConnection(c);
 				}
 				else {
 					ep = c.makeEndpoint(idx === 0, el, sid);
+					ep._doNotDeleteOnDetach = false;
+					ep._deleteOnDetach = true;
 				}
 			}
 			
-			ep.addConnection(c);
-			c.endpoints[idx] = ep;
-			c[_st.el] = ep.element;
-			c[_st.elId] = ep.elementId;			
-			evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
+			if (ep != null) {
+				oldEndpoint.detachFromConnection(c);
+				c.endpoints[idx] = ep;
+				c[_st.el] = ep.element;
+				c[_st.elId] = ep.elementId;			
+				evtParams[idx === 0 ? "newSourceId" : "newTargetId"] = ep.elementId;
 
-			fireMoveEvent(evtParams);
-			
-			if (!doNotRepaint)
-				c.repaint();
+				fireMoveEvent(evtParams);
+				
+				if (!doNotRepaint)
+					c.repaint();
+			}
 
 			return evtParams;
 			
@@ -2983,6 +3053,7 @@
 		};
 
 		this.unregisterEndpoint = function(endpoint) {
+			//if (endpoint._jsPlumb == null) return;
 			if (endpoint._jsPlumb.uuid) endpointsByUUID[endpoint._jsPlumb.uuid] = null;				
 			_currentInstance.anchorManager.deleteEndpoint(endpoint);			
 			// TODO at least replace this with a removeWithFunction call.			
@@ -3117,23 +3188,29 @@
 			// loop through connections
 			for (var i in result.connections) {
 				var c = result.connections[i];
-				c.endpoints[0].detachFromConnection(c);
-				c.endpoints[1].detachFromConnection(c);
-				jsPlumbUtil.removeWithFunction(connections, function(_c) {
-				    return c.id == _c.id;
-				});
-				fireDetachEvent(c, fireEvent, params.originalEvent);
-				c.cleanup();
-				c.destroy();
+				if (c._jsPlumb) {
+					jsPlumbUtil.removeWithFunction(connections, function(_c) {
+						return c.id == _c.id;
+					});
+					fireDetachEvent(c, fireEvent, params.originalEvent);
+					
+					c.endpoints[0].detachFromConnection(c);
+					c.endpoints[1].detachFromConnection(c);
+					// sp was ere
+					c.cleanup();
+					c.destroy();
+				}
 			}
 
 			// loop through endpoints
 			for (var j in result.endpoints) {
 				var e = result.endpoints[j];	
-				_currentInstance.unregisterEndpoint(e);
-				// FIRE some endpoint deleted event?
-				e.cleanup();
-				e.destroy();
+				if (e._jsPlumb) {
+					_currentInstance.unregisterEndpoint(e);
+					// FIRE some endpoint deleted event?
+					e.cleanup();
+					e.destroy();
+				}
 			}	
 
 			return result;
@@ -3417,9 +3494,22 @@
 			connectorTypes.push([connector, name]);
 		};
 		
-		var _ensureContainer = function() {
+		// ensure that, if the current container exists, it is a DOM element and not a selector.
+		// if it does not exist and `candidate` is supplied, the offset parent of that element will be set as the Container.
+		// this is used to do a better default behaviour for the case that the user has not set a container:
+		// addEndpoint, makeSource, makeTarget and connect all call this method with the offsetParent of the 
+		// element in question (for connect it is the source element). So if no container is set, it is inferred
+		// to be the offsetParent of the first element the user tries to connect.
+		var _ensureContainer = function(candidate) {
+			if (!_container && candidate) {
+				var can = _currentInstance.getDOMElement(candidate);
+				if (can.offsetParent) _container = can.offsetParent;
+			}
+		};
+
+		var _getContainerFromDefaults = function() {
 			if (_currentInstance.Defaults.Container)
-				_currentInstance.Defaults.Container = _currentInstance.getDOMElement(_currentInstance.Defaults.Container);
+				_container = _currentInstance.getDOMElement(_currentInstance.Defaults.Container);
 		};
 		
 		/**
@@ -3446,7 +3536,7 @@
 			}
 			
 			if (!initialized) {                
-				_ensureContainer();	
+				_getContainerFromDefaults();	
                 _currentInstance.anchorManager = new jsPlumb.AnchorManager({jsPlumbInstance:_currentInstance});                
 				_currentInstance.setRenderMode(_currentInstance.Defaults.RenderMode);  // calling the method forces the capability logic to be run.														
 				initialized = true;
@@ -3568,7 +3658,7 @@
 			// TODO put all the source stuff inside one parent, keyed by id.
 			this.sourceEndpointDefinitions = {};
 			
-			var selectorFilter = function(evt, _el, selector, _instance) {
+			var selectorFilter = function(evt, _el, selector, _instance, negate) {
                 var t = evt.target || evt.srcElement, ok = false, 
                     sel = _instance.getSelector(_el, selector);
                 for (var j = 0; j < sel.length; j++) {
@@ -3577,7 +3667,7 @@
                         break;
                     }
                 }
-                return ok;
+                return negate ? !ok : ok;
 	        };
 
 		// see API docs
@@ -3604,6 +3694,8 @@
 						elid = elInfo.id,
 						proxyComponent = new jsPlumbUIComponent(p),
 						dropOptions = jsPlumb.extend({}, p.dropOptions || {});
+
+					_ensureContainer(elid);
 
 					// store the definitions keyed against the element id.
 					// TODO why not just store inside the element itself?
@@ -3812,6 +3904,8 @@
 							return p.parent == null ? null : p.parent === "parent" ? elInfo.el.parentNode : _currentInstance.getDOMElement(p.parent);
 						},
 						idToRegisterAgainst = p.parent != null ? this.getId(parentElement()) : elid;
+
+					_ensureContainer(idToRegisterAgainst);
 					
 					this.sourceEndpointDefinitions[idToRegisterAgainst] = {
 						def:p,
@@ -3867,7 +3961,7 @@
 							if (p.parent) {
 								var parent = parentElement();
 								if (parent) {	
-									var potentialParent = p.container || this.Defaults.Container;
+									var potentialParent = p.container || _container;
 									ep.setElement(parent, potentialParent);
 								}
 							}
@@ -3889,7 +3983,7 @@
 	                    
 	                    // if a filter was given, run it, and return if it says no.
 						if (p.filter) {
-							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this) : p.filter(evt, _el);
+							var r = jsPlumbUtil.isString(p.filter) ? selectorFilter(evt, _el, p.filter, this, p.filterExclude) : p.filter(evt, _el);
 							if (r === false) return;
 						}
 						
@@ -4328,9 +4422,6 @@
     	setIdChanged : function(oldId, newId) {
     		this.setId(oldId, newId, true);
     	},
-		getParent : function(el) {
-			return el.parentNode;
-		},
     	// set parent: change the parent for some node and update all the registrations we need to.
     	setParent : function(el, newParent) {
     		var _el = this.getElementObject(el),
@@ -4345,7 +4436,7 @@
     		this.dragManager.setParent(_el, _id, _pel, _pid);
     	},
 		/**
-		 * gets the size for the element object, in an array : [ width, height ].
+		 * gets the size for the element, in an array : [ width, height ].
 		 */
 		getSize : function(el) {
 			return [ el.offsetWidth, el.offsetHeight ];
@@ -4398,7 +4489,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -4441,7 +4532,7 @@
     var _makeDraggablePlaceholder = function(placeholder, _jsPlumb) {
         var n = document.createElement("div");
         n.style.position = "absolute";
-        var parent = _jsPlumb.Defaults.Container ? _jsPlumb.getDOMElement(_jsPlumb.Defaults.Container) : document.body;
+        var parent = _jsPlumb.getContainer() || document.body;
         parent.appendChild(n);
         var id = _jsPlumb.getId(n);
         _jsPlumb.updateOffset( { elId : id });
@@ -4659,13 +4750,21 @@
             this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
             this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass); 
         };	
-        
-        this.detachFromConnection = function(connection, idx) {
+
+        this.detachFromConnection = function(connection, idx, doNotCleanup) {
             idx = idx == null ? findConnectionIndex(connection, this) : idx;
             if (idx >= 0) {
                 this.connections.splice(idx, 1);
                 this[(this.connections.length > 0 ? "add" : "remove") + "Class"](_jsPlumb.endpointConnectedClass);       
-                this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);                 
+                this[(this.isFull() ? "add" : "remove") + "Class"](_jsPlumb.endpointFullClass);
+            }
+            
+            if (!doNotCleanup && this._deleteOnDetach && this.connections.length === 0) {
+                _jsPlumb.deleteObject({
+                    endpoint:this,
+                    fireEvent:false,
+                    deleteAttachedObjects:false
+                });
             }
         };
 
@@ -4678,12 +4777,11 @@
             if (idx >= 0) {		                
                 if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) )) {
 
-                    //connection.setHover(false);
-
                     _jsPlumb.deleteObject({
                         connection:connection, 
                         fireEvent:(!ignoreTarget && fireEvent), 
-                        originalEvent:originalEvent
+                        originalEvent:originalEvent,
+                        deleteAttachedObjects:false
                     });
                     actuallyDetached = true;                       
                 }
@@ -4694,7 +4792,6 @@
         this.detachAll = function(fireEvent, originalEvent) {
             while (this.connections.length > 0) {
                 // TODO this could pass the index in to the detach method to save some time (index will always be zero in this while loop)
-                // TODO now it defaults to fireEvent true.  will that mess with things?
                 this.detach(this.connections[0], false, true, fireEvent !== false, originalEvent, this, 0);
             }
             return this;
@@ -4755,15 +4852,7 @@
                 _transient:true,
                 scope:this.scope
             });
-        };
-                
-
-        /**
-         * private but needs to be exposed.
-         */
-        this.isFloating = function() {
-            return this.anchor != null && this.anchor.isFloating;
-        };
+        };            
         
         /**
          * returns a connection from the pool; used when dragging starts.  just gets the head of the array if it can.
@@ -4929,7 +5018,7 @@
                         // new anchor idx
                         var anchorIdx = jpc.endpoints[0].id == this.id ? 0 : 1;
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
-                        this.detachFromConnection(jpc);                         // detach from the connection while dragging is occurring.
+                        this.detachFromConnection(jpc, null, true);                         // detach from the connection while dragging is occurring. but dont cleanup automatically.
                         
                         //*
                         // store the original scope (issue 57)
@@ -5041,6 +5130,8 @@
                                         jpc.suspendedEndpoint.addConnection(jpc);
                                         _jsPlumb.repaint(existingJpcParams[1]);
                                     }
+                                    else
+                                        jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
                                 }                                                               
                             }
 
@@ -5356,8 +5447,8 @@
             this.endpoint = null;
             // drag/drop
             var i = jsPlumb.getElementObject(this.canvas);              
-            jsPlumb.destroyDraggable(i);
-            jsPlumb.destroyDroppable(i);
+            this._jsPlumb.instance.destroyDraggable(i);
+            this._jsPlumb.instance.destroyDroppable(i);
         },
         setHover : function(h) {
             if (this.endpoint && this._jsPlumb && !this._jsPlumb.instance.isConnectionBeingDragged())
@@ -5365,6 +5456,12 @@
         },
         isFull : function() {
             return !(this.isFloating() || this._jsPlumb.maxConnections < 1 || this.connections.length < this._jsPlumb.maxConnections);              
+        },
+        /**
+         * private but needs to be exposed.
+         */
+        isFloating : function() {
+            return this.anchor != null && this.anchor.isFloating;
         },
         getConnectionCost : function() { return this._jsPlumb.connectionCost; },
         setConnectionCost : function(c) {
@@ -5397,7 +5494,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -5672,30 +5769,6 @@
         getCost : function() { return this._jsPlumb.cost; },
         setCost : function(c) { this._jsPlumb.cost = c; },
         isDirected : function() { return this._jsPlumb.directed === true; },
-        //
-        // changes the parent element of this connection to newParent.  not exposed for the public API.
-        //
-        // TODO ensure moveParent method still works (the overlay stuff in particular)
-        moveParent : function(newParent) {
-            var curParent = jsPlumb.getParent(this.connector.canvas);               
-            if (this.connector.bgCanvas) {
-                this._jsPlumb.instance.removeElement(this.connector.bgCanvas);
-                newParent.appendChild(this.connector.bgCanvas);
-            }
-            this._jsPlumb.instance.removeElement(this.connector.canvas);
-            newParent.appendChild(this.connector.canvas);
-            // this only applies for DOMOverlays
-            for (var i = 0; i < this._jsPlumb.overlays.length; i++) {
-                if (this._jsPlumb.overlays[i].isAppendedAtTopLevel) {
-                    this._jsPlumb.instance.removeElement(this._jsPlumb.overlays[i].canvas);
-                    newParent.appendChild(this._jsPlumb.overlays[i].canvas);
-                    if (this._jsPlumb.overlays[i].reattachListeners) 
-                        this._jsPlumb.overlays[i].reattachListeners(this.connector);
-                }
-            }
-            if (this.connector.reattachListeners)       // this is for SVG/VML; change an element's parent and you have to reinit its listeners.
-                this.connector.reattachListeners();     // the Canvas implementation doesn't have to care about this
-        },
         getConnector : function() { return this.connector; },
         setConnector : function(connectorSpec, doNotRepaint) {
             var _ju = jsPlumbUtil;
@@ -5726,6 +5799,7 @@
             }.bind(this));
             
             this.canvas = this.connector.canvas;
+            this.bgCanvas = this.connector.bgCanvas;
 
             if (this._jsPlumb.editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.connector.type] && this.connector.isEditable()) {
                 new jsPlumb.ConnectorEditors[this.connector.type]({
@@ -5882,7 +5956,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -6945,7 +7019,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -7568,12 +7642,12 @@
 
 		this.pointOnPath = function(location, absolute) {
             var seg = _findSegmentForLocation(location, absolute);
-            return seg.segment && seg.segment.pointOnPath(seg.proportion, absolute) || [0,0];
+            return seg.segment && seg.segment.pointOnPath(seg.proportion, false) || [0,0];
         };
         
-        this.gradientAtPoint = function(location) {
+        this.gradientAtPoint = function(location, absolute) {
             var seg = _findSegmentForLocation(location, absolute);          
-            return seg.segment && seg.segment.gradientAtPoint(seg.proportion, absolute) || 0;
+            return seg.segment && seg.segment.gradientAtPoint(seg.proportion, false) || 0;
         };
         
         this.pointAlongPathFrom = function(location, distance, absolute) {
@@ -7919,9 +7993,7 @@
         },
         setVisible : function(val) { 
             this.visible = val;
-            // TODO this is only actually necessary for canvas. so, the Canvas overlay should
-            // override setVisible and call this.
-            //this.component.repaint();
+            this.component.repaint();
         },
         isVisible : function() { return this.visible; },
         hide : function() { this.setVisible(false); },
@@ -8345,7 +8417,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -8709,7 +8781,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -8974,7 +9046,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9056,7 +9128,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9562,6 +9634,7 @@
 	    			});
 	    			params.component.svg.appendChild(this.path);
 	    			
+	    			this.canvas = params.component.svg; // for the sake of completeness; this behaves the same as other overlays
 	    			this.attachListeners(this.path, params.component);
 	    			this.attachListeners(this.path, this);
 	    		}
@@ -9673,7 +9746,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10184,11 +10257,11 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.1
+ * Title:jsPlumb 1.6.2
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
- * This file contains the YUI3 adapter.
+ * This file contains the jQuery adapter.
  *
  * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
  * 
@@ -10196,241 +10269,138 @@
  * http://github.com/sporritt/jsplumb
  * 
  * Dual licensed under the MIT and GPL2 licenses.
- */
-;(function() {
+ */  
+;(function($) {
 	
 	"use strict";
-	
-	if (!Array.prototype.indexOf) {
-		Array.prototype.indexOf = function( v, b, s ) {
-			for( var i = +b || 0, l = this.length; i < l; i++ ) {
-	  			if( this[i]===v || s && this[i]==v ) { return i; }
-	 		}
-	 		return -1;
-		};
-	}
-	
-	var Y;
-	
-	YUI().use('node', 'dd', 'dd-constrain', 'anim', 'node-event-simulate', function(_Y) {
-		Y = _Y;	
-		Y.on("domready", function() { jsPlumb.init(); });
-	});
-	
-	/**
-	 * adds the given value to the given list, with the given scope. creates the scoped list
-	 * if necessary.
-	 * used by initDraggable and initDroppable.
-	 */
-	var _add = function(list, scope, value) {
-		var l = list[scope];
-		if (!l) {
-			l = [];
-			list[scope] = l;
-		}
-		l.push(value);
-	},	
-	ddEvents = [ "drag:mouseDown", "drag:afterMouseDown", "drag:mouseup",
-	     "drag:align", "drag:removeHandle", "drag:addHandle", "drag:removeInvalid", "drag:addInvalid",
-	     "drag:start", "drag:end", "drag:drag", "drag:over", "drag:enter",
-	     "drag:exit", "drag:drophit", "drag:dropmiss", "drop:over", "drop:enter", "drop:exit", "drop:hit"	     	               
-	],	
-	animEvents = [ "tween" ],	
-	/**
-	 * helper function to curry callbacks for some element. 
-	 */
-	_wrapper = function(fn) {
-		return function() {
-			try {
-				return fn.apply(this, arguments);
-			}
-			catch (e) { }
-		};
-	},	
-	/**
-	 * extracts options from the given options object, leaving out event handlers.
-	 */
-	_getDDOptions = function(options) {
-		var o = {};
-		for (var i in options) if (ddEvents.indexOf(i) == -1) o[i] = options[i];
-		return o;
-	},	
-	/**
-	 * attaches all event handlers found in options to the given dragdrop object, and registering
-	 * the given el as the element of interest.
-	 */
-	_attachListeners = function(dd, options, eventList) {	
-	    for (var ev in options) {
-	    	if (eventList.indexOf(ev) != -1) {
-	    		var w = _wrapper(options[ev]);
-	    		dd.on(ev, w);
-	    	}
-	    }
-	},
-	_droppables = {},
-	_droppableOptions = {},
-	_draggablesByScope = {},
-	_draggablesById = {},
-	_droppableScopesById = {},
-	_checkHover = function(el, entering) {
-		if (el) {
-			var id = el.get("id");
-			if (id) {
-				var options = _droppableOptions[id];
-				if (options) {
-					if (options.hoverClass) {
-						el[entering ? "addClass" : "removeClass"](options.hoverClass);
-					}
-				}
-			}
-		}
-	},
-	_lastDragObject = null,	
-	_getAttribute = function(el, attributeId) {
-		return el.getAttribute(attributeId);
-	},
-	_getElementObject = function(el) {
-		if (el == null) return null;
-		var eee = null;
-        eee = typeof el == 'string' ? Y.one('#' + el) : el._node ? el : Y.one(el);        
-        return eee;
+
+	var _getElementObject = function(el) {
+		return typeof(el) == "string" ? $("#" + el) : $(el);
 	};
-	
-	jsPlumb.extend(jsPlumbInstance.prototype, {		
+
+	$.extend(jsPlumbInstance.prototype, {
+
+// ---------------------------- DOM MANIPULATION ---------------------------------------		
+				
+		
+		/**
+		* gets a DOM element from the given input, which might be a string (in which case we just do document.getElementById),
+		* a selector (in which case we return el[0]), or a DOM element already (we assume this if it's not either of the other
+		* two cases).  this is the opposite of getElementObject below.
+		*/
+		getDOMElement : function(el) {
+			if (el == null) return null;
+			if (typeof(el) == "string") return document.getElementById(el);
+			else if (el.context || el.length != null) return el[0];
+			else return el;
+		},
+		
+		/**
+		 * gets an "element object" from the given input.  this means an object that is used by the
+		 * underlying library on which jsPlumb is running.  'el' may already be one of these objects,
+		 * in which case it is returned as-is.  otherwise, 'el' is a String, the library's lookup 
+		 * function is used to find the element, using the given String as the element's id.
+		 * 
+		 */
+		getElementObject : _getElementObject,
+
+		/**
+		* removes an element from the DOM.  doing it via the library is
+		* safer from a memory perspective, as it ix expected that the library's 
+		* remove method will unbind any event listeners before removing the element from the DOM.
+		*/
+		removeElement:function(element) {
+			_getElementObject(element).remove();
+		},
+
+// ---------------------------- END DOM MANIPULATION ---------------------------------------
+
+// ---------------------------- MISCELLANEOUS ---------------------------------------
+
 		/**
 		 * animates the given element.
 		 */
 		doAnimate : function(el, properties, options) {
-			var o = jsPlumb.extend({node:el, to:properties}, options),
-				id = _getAttribute(el, "id");
-				
-			// duration will be in milliseconds here; we have to divide by 1000
-			// if it is present and it is a number.
-			if (o.duration && jsPlumbUtil.isNumber(o.duration))
-				o.duration /= 1000;
-			
-			// also, if easing was provided as a string, we want to see if it is
-			// a support member in Y.Easing. if it is, we use that. otherwise
-			// we delete it.
-			if (o.easing && jsPlumbUtil.isString(o.easing)) {
-				if (Y.Easing[o.easing]) 
-					o.easing = Y.Easing[o.easing];
-				else
-					delete o.easing;
-			}
-				
-			o.tween = jsPlumbUtil.wrap(properties.tween, function() {
-				this.repaint(id);
-			}.bind(this));
-			var a = new Y.Anim(o);
-			_attachListeners(a, o, animEvents);
-			a.run();
-		},
+			el.animate(properties, options);
+		},	
 		getSelector : function(context, spec) {
-			var _convert = function(s) { return s && s ._nodes ? s._nodes : []; };
-            
-            if (arguments.length == 2) {            
-                return _convert(_getElementObject(context).all(spec));
-            }
-            else {
-			     return _convert(Y.all(context));
-            }            
+            if (arguments.length == 2)
+                return _getElementObject(context).find(spec);
+            else
+                return $(context);
 		},
-		getElementObject : _getElementObject,
-		removeElement : function(el) { _getElementObject(el).remove(); },
-		destroyDraggable : function(el) {
-			var id = this.getId(el),
-				dd = _draggablesById[id];
 
-			if (dd) {
-				dd.destroy();
-				delete _draggablesById[id];
-			}
+// ---------------------------- END MISCELLANEOUS ---------------------------------------		
+
+// -------------------------------------- DRAG/DROP	---------------------------------
+		
+		destroyDraggable : function(el) {
+			if ($(el).data("draggable"))
+				$(el).draggable("destroy");
 		},
 
 		destroyDroppable : function(el) {
-			// TODO
+			if ($(el).data("droppable"))
+				$(el).droppable("destroy");
 		},
+		/**
+		 * initialises the given element to be draggable.
+		 */
 		initDraggable : function(el, options, isPlumbedComponent) {
-			var _opts = _getDDOptions(options),
-				id = this.getId(el);
-			_opts.node = "#" + id;	
-			options["drag:start"] = jsPlumbUtil.wrap(options["drag:start"], function() {
-				Y.one(document.body).addClass(this.dragSelectClass);
-			}.bind(this), false);	
-			options["drag:end"] = jsPlumbUtil.wrap(options["drag:end"], function() {
-				Y.one(document.body).removeClass(this.dragSelectClass);
-			}.bind(this));	
-			var dd = new Y.DD.Drag(_opts), 
-                containment = options.constrain2node || options.containment;
+			options = options || {};
+			el = $(el);
 
-			dd.el = el;	
-            
-            if (containment) {
-                dd.plug(Y.Plugin.DDConstrained, {
-                    constrain2node: containment
-                });
-            }
-			
-			if (isPlumbedComponent) {
-				var scope = options.scope || this.Defaults.Scope;
-				dd.scope = scope;
-				_add(_draggablesByScope, scope, dd);
-			}
-			
-			_draggablesById[id] = dd;						
-			_attachListeners(dd, options, ddEvents);
+			options.start = jsPlumbUtil.wrap(options.start, function() {
+				$("body").addClass(this.dragSelectClass);
+			}, false);
+
+			options.stop = jsPlumbUtil.wrap(options.stop, function() {
+				$("body").removeClass(this.dragSelectClass);
+			});
+
+			// remove helper directive if present and no override
+			if (!options.doNotRemoveHelper)
+				options.helper = null;
+			if (isPlumbedComponent)
+				options.scope = options.scope || jsPlumb.Defaults.Scope;
+			el.draggable(options);
 		},
 		
+		/**
+		 * initialises the given element to be droppable.
+		 */
 		initDroppable : function(el, options) {
-			var _opts = _getDDOptions(options),
-				id = this.getId(el);
-			_opts.node = "#" + id;			
-			var dd = new Y.DD.Drop(_opts);
-			
-			_droppableOptions[id] = options;
-			
-			options = jsPlumb.extend({}, options);
-			var scope = options.scope || jsPlumb.Defaults.Scope;					
-			_droppableScopesById[id] = scope;
-			
-			options["drop:enter"] = jsPlumbUtil.wrap(options["drop:enter"], function(e) {
-				if (e.drag.scope !== scope) return true;
-				_checkHover(el, true);
-			}, true);
-			options["drop:exit"] = jsPlumbUtil.wrap(options["drop:exit"], function(e) {
-				_checkHover(el, false);
-			});
-			options["drop:hit"] = jsPlumbUtil.wrap(options["drop:hit"], function(e) {
-				if (e.drag.scope !== scope) return true;
-				_checkHover(el, false);
-			}, true);
-			
-			_attachListeners(dd, options, ddEvents);
+			options.scope = options.scope || jsPlumb.Defaults.Scope;
+			$(el).droppable(options);
 		},
 		
 		isAlreadyDraggable : function(el) {
-			el = _getElementObject(el);
-			return el.hasClass("yui3-dd-draggable");
+			return $(el).hasClass("ui-draggable");
 		},
 		
-		isDragSupported : function(el) { return true; },		
-		isDropSupported : function(el) { return true; },
+		/**
+		 * returns whether or not drag is supported (by the library, not whether or not it is disabled) for the given element.
+		 */
+		isDragSupported : function(el, options) {
+			return $(el).draggable;
+		},
+
+		/**
+		 * returns whether or not drop is supported (by the library, not whether or not it is disabled) for the given element.
+		 */
+		isDropSupported : function(el, options) {
+			return $(el).droppable;
+		},
 		/**
 		 * takes the args passed to an event function and returns you an object representing that which is being dragged.
 		 */
 		getDragObject : function(eventArgs) {
-			// this is a workaround for the unfortunate fact that in YUI3, the 'drop:exit' event does
-			// not contain a reference to the drag that just exited.  single-threaded js to the 
-			// rescue: we'll just keep it for ourselves.
-			if (eventArgs[0].drag) _lastDragObject = eventArgs[0].drag.el;
-			return _lastDragObject;
+			//return eventArgs[1].draggable || eventArgs[1].helper;
+			return eventArgs[1].helper || eventArgs[1].draggable;
 		},
 		
 		getDragScope : function(el) {
-			var id = this.getId(el),
-				dd = _draggablesById[id];
-			return dd.scope;
+			return $(el).draggable("option", "scope");
 		},
 
 		getDropEvent : function(args) {
@@ -10438,84 +10408,101 @@
 		},
 		
 		getDropScope : function(el) {
-			var id = this.getId(el);
-			return _droppableScopesById[id];
+			return $(el).droppable("option", "scope");
 		},
-		getUIPosition : function(args, zoom) {
+		/**
+		 * takes the args passed to an event function and returns you an object that gives the
+		 * position of the object being moved, as a js object with the same params as the result of
+		 * getOffset, ie: { left: xxx, top: xxx }.
+		 * 
+		 * different libraries have different signatures for their event callbacks.  
+		 * see getDragObject as well
+		 */
+		getUIPosition : function(eventArgs, zoom, dontAdjustHelper) {
+			var ret;
 			zoom = zoom || 1;
-			var el = args[0].currentTarget.el._node || args[0].currentTarget.el;
-			var o = jsPlumbAdapter.getOffset(el, this);
-			return { left:o.left / zoom, top:o.top/zoom };
+			if (eventArgs.length == 1) {
+				ret = { left: eventArgs[0].pageX, top:eventArgs[0].pageY };
+			}
+			else {
+				var ui = eventArgs[1],
+				  _offset = ui.position;//ui.offset;
+				  
+				ret = _offset || ui.absolutePosition;
+				
+				// adjust ui position to account for zoom, because jquery ui does not do this.
+				if (!dontAdjustHelper) {
+					ui.position.left /= zoom;
+					ui.position.top /= zoom;
+				}
+			}
+			return { left:ret.left, top: ret.top  };
 		},
-		isDragFilterSupported:function() { return false; },
+		
+		isDragFilterSupported:function() { return true; },
 		
 		setDragFilter : function(el, filter) {
-			jsPlumbUtil.log("NOT IMPLEMENTED: setDragFilter");
+			if (jsPlumb.isAlreadyDraggable(el))
+				$(el).draggable("option", "cancel", filter);
 		},
 		
-		/**
-		 * sets the draggable state for the given element
-		 */
 		setElementDraggable : function(el, draggable) {
-			var id = this.getId(el),
-				dd = _draggablesById[id];
-			if (dd) dd.set("lock", !draggable);
+			$(el).draggable("option", "disabled", !draggable);
 		},
 		
 		setDragScope : function(el, scope) {
-			var id = this.getId(el),
-				dd = _draggablesById[id];
-			if (dd) dd.scope = scope;
+			$(el).draggable("option", "scope", scope);
 		},
-		
-		trigger : function(el, event, originalEvent) {
-			originalEvent.stopPropagation();
-			_getElementObject(el).simulate(event, {
-				pageX:originalEvent.pageX, 
-				pageY:originalEvent.pageY, 
-				clientX:originalEvent.clientX, 
-				clientY:originalEvent.clientY
-			});			
-		},
+		/**
+         * mapping of drag events for jQuery
+         */
 		dragEvents : {
-			"start":"drag:start", "stop":"drag:end", "drag":"drag:drag", "step":"step",
-			"over":"drop:enter", "out":"drop:exit", "drop":"drop:hit"
+			'start':'start', 'stop':'stop', 'drag':'drag', 'step':'step',
+			'over':'over', 'out':'out', 'drop':'drop', 'complete':'complete'
 		},
 		animEvents:{
-			'step':"tween", 'complete':'end'
+			'step':"step", 'complete':'complete'
 		},
-		stopDrag : function(el) {
-            Y.DD.DDM.stopDrag();
-        },
 		
-		getDOMElement : function(el) { 	
-			if (el == null) return null;		
-			if (typeof(el) == "string") 
-				return document.getElementById(el);
-			else if (el._node) 
-				return el._node;
-			else if (el.length)
-				return el[0];
-			else return el;
+// -------------------------------------- END DRAG/DROP	---------------------------------		
+
+// -------------------------------------- EVENTS	---------------------------------		
+
+		/**
+		 * note that jquery ignores the name of the event you wanted to trigger, and figures it out for itself.
+		 * the other libraries do not.  yui, in fact, cannot even pass an original event.  we have to pull out stuff
+		 * from the originalEvent to put in an options object for YUI. 
+		 * @param el
+		 * @param event
+		 * @param originalEvent
+		 */
+		trigger : function(el, event, originalEvent) {
+			var h = jQuery._data(_getElementObject(el)[0], "handle");
+            h(originalEvent);
 		},
 		getOriginalEvent : function(e) {
-			return e._event;
+			return e.originalEvent;
 		},
-		/**
-		 * event binding wrapper.  
-		 */
+
+		// note: for jquery we support the delegation stuff here
 		on : function(el, event, callback) {
-			var els = jsPlumbUtil.isString(el) || typeof el.length == "undefined" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
-			for (var i = 0; i < els.length; i++)
-				Y.one(els[i]).on(event, callback);
-		},
-			
+			el = _getElementObject(el);
+			var a = []; a.push.apply(a, arguments);
+			el.on.apply(el, a.slice(1));
+		},				
 		
-		/**
-		 * event unbinding wrapper.  
-		 */
+		// note: for jquery we support the delegation stuff here
 		off : function(el, event, callback) {
-			_getElementObject(el).detach(event, callback);
+			el = _getElementObject(el);
+			var a = []; a.push.apply(a, arguments);
+			el.off.apply(el, a.slice(1));
 		}
+
+// -------------------------------------- END EVENTS	---------------------------------		
+
 	});
-})();
+
+	$(document).ready(jsPlumb.init);
+
+})(jQuery);
+
