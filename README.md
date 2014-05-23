@@ -15,6 +15,9 @@ Note that the demos in the `demos` directory are always pointing at the current 
 jsPlumb reluctantly uses GitHub's pedestrian issue tracker for enhancements and bugs.  But please do check the [Google Group](https://groups.google.com/forum/?fromgroups#!forum/jsplumb) before posting an issue, particularly if you're just asking a question.
 
 ## Requirements
+- Vanilla
+
+Vanilla jsPlumb (`dom.jsPlumb-x.x.x.js`) has no external dependencies and offers support for touch devices out of the box. 
 - jQuery:
 
 jsPlumb requires jQuery 1.3.x or later; it has been tested on 1.3.2, 1.4.x, 1.5.x, 1.6.x, 1.7.x, 1.8.x and 1.9.x. To support dragging, you will need jQueryUI 1.7.x or 1.8.x. NOTE: jQuery 1.8.x only works with jQueryUI 1.8.22 and above.
