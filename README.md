@@ -48,9 +48,6 @@ code, or you cannot be sure that everything that is required is available:
 ## jsPlumb in action
 Links to various demonstrations can be found [here](http://jsplumb.org).
 
-[TweetPlumb](http://tweetplumb.com) is a great Twitter visualisation built (I say it's great because I built it 
-myself!) using jsPlumb.
-
 ## Documentation
 Documentation can be found in the doc folder of the project, or you can view it online [here](http://jsplumb.org/doc).
 
@@ -58,19 +55,27 @@ API documentation is in the apidoc folder of the project, and online [here](http
 
 ## jsPlumb Helper Projects
 
-The Bezier curve functions used by jsPlumb have been extracted to a separate project:
+- Bezier curve functions:
 
 [https://github.com/sporritt/jsBezier](https://github.com/sporritt/jsBezier)
 
-...as have various simple geometry functions:
+- Simple geometry functions:
 
-[https://github.com/sporritt/jsplumb-geom](https://github.com/sporritt/jsplumb-geom)
+[https://github.com/jsplumb/biltong](https://github.com/jsplumb/biltong)
+
+- Drag+drop:
+
+[https://github.com/jsplumb/katavorio](https://github.com/jsplumb/katavorio)
+
+- Events:
+
+[https://github.com/jsplumb/mottle](https://github.com/jsplumb/mottle)
 
 ## Tests
-Tests can be found [here](http://jsplumb.org/tests/all-tests.html)
+There is a full suite of unit tests checked in to the `test` and `dist/test` directories.
 
 ## Twitter
-The Twitter account I use for this project is [jsplumblib](http://twitter.com/jsplumblib)
+The Twitter account for this project is [jsplumblib](http://twitter.com/jsplumblib)
 
 ..but of course things fall through the cracks with Twitter. So maybe use this instead:
 
