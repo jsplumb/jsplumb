@@ -352,6 +352,7 @@ module.exports = function(grunt) {
             _replace(".", "bower.json", oldV, newV);
             _replace(".", "package.json", oldV, newV);
             _replace(".", "README.md", oldV, newV);
+            _replace("jekyll", "**/*.*", oldV, newV);
         }
 
     });
