@@ -1,3 +1,17 @@
+* 1.6.3
+
+	BACKWARDS COMPATIBILITY
+
+	- no issues
+
+	NEW FUNCTIONALITY
+
+	- added optional `allowLoopback`	boolean parameter to vanilla jsPlumb's `makeTarget` method. 
+
+	ISSUES
+
+	- none
+
 * 1.6.2
 
 	BACKWARDS COMPATIBILITY

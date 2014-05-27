@@ -84,7 +84,8 @@ jsPlumb.ready(function() {
 	// initialise all '.w' elements as connection targets.
 	instance.makeTarget(windows, {
 		dropOptions:{ hoverClass:"dragHover" },
-		anchor:"Continuous"				
+		anchor:"Continuous",
+		allowLoopback:true			
 	});
 	
 	// and finally, make a couple of connections

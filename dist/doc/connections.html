@@ -108,8 +108,21 @@
 <li><a href="#sourcesandtargets">Elements as sources and targets</a>
 
 <ul>
-<li><a href="#makesource">Sources</a><br></li>
-<li><a href="#maketarget">Targets</a></li>
+<li><a href="#makesource">Sources</a><br>
+
+<ul>
+<li><a href="#sourcefilter">Specifying drag source area</a></li>
+<li><a href="#makeSourceOptions">Endpoint options</a></li>
+</ul></li>
+<li><a href="#maketarget">Targets</a>
+
+<ul>
+<li><a href="#loopback">Preventing Loopback Connections</a></li>
+<li><a href="#uniqueEndpoint">Unique Endpoint per Target</a></li>
+<li><a href="#deleteOnDetach">Deleting Endpoints on Detach</a></li>
+<li><a href="#detachMouse">Detaching connections made with the mouse</a></li>
+<li><a href="#targetAnchorPositions">Target Anchors positions with makeTarget</a></li>
+</ul></li>
 </ul></li>
 </ol>
 
@@ -291,17 +304,28 @@ jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
 <p>Notice in the <code>endpointOptions</code> object above there is a parameted called <code>isTarget</code> - this may seem incongruous, since you know you&#39;re going to make some element a target.  Remember that the <code>endpointOptions</code> object is the information jsPlumb will use to create an Endpoint on the given target element each time a Connection is established to it. It takes the exact same format as you would pass to <code>addEndpoint</code>; <code>makeTarget</code> is essentially a deferred <code>addEndpoint</code> call followed by a <code>connect</code> call.  So in this case, we&#39;re telling jsPlumb that any Endpoints it happens to create on some element that was configured by the <code>makeTarget</code> call are themselves Connection targets.  You may or may not want this behaviour in your application - just control it by setting the approriate value for that parameter (it defaults to false).</p>
 
 <p><code>makeTarget</code> also supports the <code>maxConnections</code> and <code>onMaxConnections</code> parameters, as <code>makeSource</code> does, but note that <code>onMaxConnections</code> is passed one extra parameter than its corresponding callback from <code>makeSource</code> - the Connection the user tried to drop:</p></p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeTarget(&quot;aTargetDiv&quot;, { 
-  isTarget:true, 
-  maxConnections:5,
-  endpoint:&quot;Rectangle&quot;, 
-  paintStyle:{ fillStyle:&quot;gray&quot; },
-  maxConnections:3,
-  onMaxConnections:function(info, originalEvent) {
-    console.log(&quot;user tried to drop connection&quot;, info.connection, &quot;on element&quot;, info.element, &quot;with max connections&quot;, info.maxConnections);
-  }
-};
+<div class="highlight"><pre><code class="js language-js" data-lang="js"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">},</span>
+  <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span>
+  <span class="nx">onMaxConnections</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">info</span><span class="p">,</span> <span class="nx">originalEvent</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;user tried to drop connection&quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">connection</span><span class="p">,</span> <span class="s2">&quot;on element&quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">element</span><span class="p">,</span> <span class="s2">&quot;with max connections&quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">maxConnections</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span>
 </code></pre></div>
+<p><a id="loopback"></a></p>
+
+<h5>Preventing Loopback Connections</h5>
+
+<p>In vanilla jsPlumb only, you can instruct jsPlumb to prevent loopback connections without having to resort to a [[beforeDrop interceptor|interceptors]]. You do this by setting <code>allowLoopback:false</code> on the parameters passed to the <code>makeTarget</code> method:</p>
+<div class="highlight"><pre><code class="js language-js" data-lang="js"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">allowLoopback</span><span class="o">:</span><span class="kc">false</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><a id="uniqueEndpoint"></a></p>
+
 <h5>Unique Endpoint per Target</h5>
 
 <p>jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on the target element, by default, but you can override this behaviour and tell jsPlumb that it should create at most one Endpoint, which it should attempt to use for subsequent Connections:</p>
@@ -315,7 +339,9 @@ jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
 </code></pre></div>
 <p>Here, the <code>uniqueEndpoint</code> parameter tells jsPlumb that there should be at most one Endpoint on this element.  Notice that <code>maxConnections</code> is not set: the default is 1, so in this setup we have told jsPlumb that <code>aTargetDiv</code> can receive one Connection and no more.</p>
 
-<h5>Deleting Endpoints on Detach</h5>
+<p><a id="deleteOnDetach"></a></p>
+
+<h5>de</h5>
 
 <p>By default, any Endpoints created using makeTarget have <code>deleteEndpointsOnDetach</code> set to true, which means that once all Connections to that Endpoint are removed, the Endpoint is deleted.  You can override this by setting the flag to true on the <code>makeTarget</code> call:</p>
 <div class="highlight"><pre><code class="text language-text" data-lang="text">var endpointOptions = { 
@@ -329,6 +355,8 @@ jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
 jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
 </code></pre></div>
 <p>In this setup we have told jsPlumb to create an Endpoint the first time <code>aTargetElement</code> receives a Connection, and to not delete it even if there are no longer any Connections to it.  The created Endpoint will be reused for subsequent Connections, and can support a maximum of 5.</p>
+
+<p><a id="detachMouse"></a></p>
 
 <h5>Detaching connections made with the mouse</h5>
 
@@ -358,11 +386,12 @@ jsPlumb.makeTarget(&quot;yetAnotherElement&quot;, {
 </code></pre></div>
 <p>Note that in the jsPlumb defaults, by convention each word in a parameter is capitalised (&quot;ConnectionsDetachable&quot;), whereas for a call to one of these methods, we use camel case (&quot;connectionsDetachable&quot;).</p>
 
+<p><a id="targetAnchorPositions"></a></p>
+
 <h5>Target Anchors positions with makeTarget</h5>
 
 <p>When using the <code>makeTarget</code> method, jsPlumb allows you to provide a callback function to be used to determine
-the appropriate location of a target Anchor for every new Connection dropped on the given target.  It may be the
-case that you want to take some special action rather than just relying on one of the standard Anchor mechanisms.</p>
+the appropriate location of a target Anchor for every new Connection dropped on the given target.  It may be the case that you want to take some special action rather than just relying on one of the standard Anchor mechanisms.</p>
 
 <p>This is achieved through an extended Anchor syntax (note that this syntax is <strong>not supported</strong> in the <code>jsPlumb.addEndpoint</code> method) that supplies a &quot;positionFinder&quot; to the anchor specification.  jsPlumb provides two of these by default; you can register your own on jsPlumb and refer to them by name, or just supply a function. Here&#39;s a few examples:</p>
 
@@ -392,7 +421,7 @@ jsPlumb.makeTarget("someElement", {
 
 <p>The Grid position finder takes a <code>grid</code> parameter that defines the size of the grid required. [3,3] means 3 rows and 3 columns.</p>
 
-<h5>Supplying your own position finder</h5>
+<h6>Supplying your own position finder</h6>
 
 <p>To supply your own position finder to jsPlumb you first need to create the callback function. First let&#39;s take a look at what the source code for the <code>Grid</code> position finder looks like:</p>
 
@@ -515,6 +544,8 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
   <span class="nx">parent</span><span class="o">:</span><span class="s2">&quot;parent&quot;</span>
 <span class="p">});</span>
 </code></pre></div>
+<p><a id="makeSourceOptions"></a></p>
+
 <h5>Endpoint options with makeSource</h5>
 
 <p>There are many things you can set in an Endpoint options object; for a thorough list see the API documentation for Endpoint.  </p>

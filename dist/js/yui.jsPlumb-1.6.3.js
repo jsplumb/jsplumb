@@ -619,7 +619,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -1058,7 +1058,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -1490,7 +1490,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -3849,7 +3849,14 @@
 					// wrap drop events as needed and initialise droppable
 					var dropEvent = jsPlumb.dragEvents.drop;
 					dropOptions.scope = dropOptions.scope || targetScope;
-					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
+					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);
+					// vanilla jsplumb only
+					if (p.allowLoopback === false) {
+						dropOptions.canDrop = function(_drag) {
+							var de = _drag.getDragElement()._jsPlumbRelatedElement;
+							return de != elInfo.el;
+						};
+					}
 					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
 				}.bind(this);
 			
@@ -4482,7 +4489,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -5056,6 +5063,7 @@
                         this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);                    
 
                     }
+                
                     // register it and register connection on it.
                     floatingConnections[placeholderInfo.id] = jpc;
                     _jsPlumb.anchorManager.addFloatingConnection(placeholderInfo.id, jpc);               
@@ -5164,6 +5172,7 @@
                 
                 var i = _gel(this.canvas);              
                 _jsPlumb.initDraggable(i, dragOptions, true);
+                this.canvas._jsPlumbRelatedElement = this.element;
 
                 draggingInitialised = true;
             }
@@ -5487,7 +5496,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -5949,7 +5958,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -7012,7 +7021,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -8410,7 +8419,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -8774,7 +8783,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9039,7 +9048,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9121,7 +9130,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -9739,7 +9748,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10250,7 +10259,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.2
+ * Title:jsPlumb 1.6.3
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -10571,7 +10580,7 @@
 		 * event binding wrapper.  
 		 */
 		on : function(el, event, callback) {
-			var els = jsPlumbUtil.isString(el) || typeof el.length == "1.6.2" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
+			var els = jsPlumbUtil.isString(el) || typeof el.length == "1.6.3" ? [ _getElementObject(el) ] : Y.all(el)._nodes;
 			for (var i = 0; i < els.length; i++)
 				Y.one(els[i]).on(event, callback);
 		},
