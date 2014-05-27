@@ -2360,7 +2360,14 @@
 					// wrap drop events as needed and initialise droppable
 					var dropEvent = jsPlumb.dragEvents.drop;
 					dropOptions.scope = dropOptions.scope || targetScope;
-					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);				
+					dropOptions[dropEvent] = _ju.wrap(dropOptions[dropEvent], _drop);
+					// vanilla jsplumb only
+					if (p.allowLoopback === false) {
+						dropOptions.canDrop = function(_drag) {
+							var de = _drag.getDragElement()._jsPlumbRelatedElement;
+							return de != elInfo.el;
+						};
+					}
 					this.initDroppable(this.getElementObject(elInfo.el), dropOptions, true);
 				}.bind(this);
 			

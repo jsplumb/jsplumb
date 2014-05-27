@@ -575,6 +575,7 @@
                         this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);                    
 
                     }
+                
                     // register it and register connection on it.
                     floatingConnections[placeholderInfo.id] = jpc;
                     _jsPlumb.anchorManager.addFloatingConnection(placeholderInfo.id, jpc);               
@@ -683,6 +684,7 @@
                 
                 var i = _gel(this.canvas);              
                 _jsPlumb.initDraggable(i, dragOptions, true);
+                this.canvas._jsPlumbRelatedElement = this.element;
 
                 draggingInitialised = true;
             }
