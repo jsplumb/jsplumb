@@ -426,11 +426,11 @@
 					// there's also a three arg version:
 					// ["Arrow", { width:50 }, {location:0.7}] 
 					// which merges the 3rd arg into the 2nd.
-					var type = o[0],
+					var type = o[0], 
 						// make a copy of the object so as not to mess up anyone else's reference...
 						p = jsPlumb.extend({component:component, _jsPlumb:component._jsPlumb.instance}, o[1]);
 					if (o.length == 3) jsPlumb.extend(p, o[2]);
-					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);					
+					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
 				} else if (o.constructor == String) {
 					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component:component, _jsPlumb:component._jsPlumb.instance});
 				} else {
@@ -947,6 +947,23 @@
             // pointer events
             if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents)
                 _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
+
+            var _mergeOverrides = function(def, values) {
+            	var m = jsPlumb.extend({}, def);
+            	for (var i in values) {
+            		if (values[i]) m[i] = values[i];
+            	}
+            	return m;
+            };
+
+            var _addEndpoint = function(el, def, idx) {
+            	return _currentInstance.addEndpoint(el, _mergeOverrides(tep.def, {
+            		anchor:_p.anchors ? _p.anchors[idx] : _p.anchor,
+            		endpoint:_p.endpoints ? _p.endpoints[idx] : _p.endpoint,
+            		paintStyle:_p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
+            		hoverPaintStyle:_p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
+            	}));
+            };
 									
 			// if there's a target specified (which of course there should be), and there is no
 			// target endpoint specified, and 'newConnection' was not set to true, then we check to
@@ -971,7 +988,7 @@
 					tep.isTarget = true;
 
 					// check for max connections??						
-					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _currentInstance.addEndpoint(_p.target, tep.def);
+					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p.target, tep.def, 1);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
 					 // TODO test options to makeTarget to see if we should do this?
@@ -993,7 +1010,7 @@
 					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					//tep.isSource = true;
 				
-					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _currentInstance.addEndpoint(_p.source, tep.def);
+					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p.source, tep.def, 0);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.sourceEndpoint = newEndpoint;
 					 // TODO test options to makeSource to see if we should do this?

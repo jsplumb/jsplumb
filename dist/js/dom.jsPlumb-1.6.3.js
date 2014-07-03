@@ -1370,7 +1370,8 @@
                 params.removeClass(document.body, css.noSelect);
                 this.unmark(e);
                 k.unmarkSelection(this, e);
-                params.events["stop"]({el:dragEl, pos:params.getPosition(dragEl), e:e, drag:this});
+                this.stop(e);
+                k.notifySelectionDragStop(this, e);
                 if (clone) {
                     dragEl && dragEl.parentNode && dragEl.parentNode.removeChild(dragEl);
                     dragEl = null;
@@ -1384,6 +1385,10 @@
         
         this.getDragElement = function() {
             return dragEl || el;
+        };
+
+        this.stop = function(e) {
+            params.events["stop"]({el:dragEl, pos:params.getPosition(dragEl), e:e, drag:this});
         };
 
         this.mark = function() {
@@ -1658,6 +1663,10 @@
             _foreach(_selection, function(e) { e.moveBy(dx, dy); }, drag);
         };
 
+        this.notifySelectionDragStop = function(drag, evt) {
+            _foreach(_selection, function(e) { e.stop(evt); }, drag);   
+        };
+
         this.setZoom = function(z) { _zoom = z; };
         this.getZoom = function() { return _zoom; };
 
@@ -1854,7 +1863,7 @@
                     var matches = fromString.match(/(\${.*?})/g);
                     if (matches != null) {
                         for (var i = 0; i < matches.length; i++) {
-                            var val = values[matches[i].substring(2, matches[i].length - 1)];
+                            var val = values[matches[i].substring(2, matches[i].length - 1)] || "";
                             if (val != null) {
                                 fromString = fromString.replace(matches[i], val);
                             }
@@ -3005,11 +3014,11 @@
 					// there's also a three arg version:
 					// ["Arrow", { width:50 }, {location:0.7}] 
 					// which merges the 3rd arg into the 2nd.
-					var type = o[0],
+					var type = o[0], 
 						// make a copy of the object so as not to mess up anyone else's reference...
 						p = jsPlumb.extend({component:component, _jsPlumb:component._jsPlumb.instance}, o[1]);
 					if (o.length == 3) jsPlumb.extend(p, o[2]);
-					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);					
+					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][type](p);
 				} else if (o.constructor == String) {
 					_newOverlay = new jsPlumb.Overlays[component._jsPlumb.instance.getRenderMode()][o]({component:component, _jsPlumb:component._jsPlumb.instance});
 				} else {
@@ -3526,6 +3535,23 @@
             // pointer events
             if (!_p["pointer-events"] && _p.sourceEndpoint && _p.sourceEndpoint.connectorPointerEvents)
                 _p["pointer-events"] = _p.sourceEndpoint.connectorPointerEvents;
+
+            var _mergeOverrides = function(def, values) {
+            	var m = jsPlumb.extend({}, def);
+            	for (var i in values) {
+            		if (values[i]) m[i] = values[i];
+            	}
+            	return m;
+            };
+
+            var _addEndpoint = function(el, def, idx) {
+            	return _currentInstance.addEndpoint(el, _mergeOverrides(tep.def, {
+            		anchor:_p.anchors ? _p.anchors[idx] : _p.anchor,
+            		endpoint:_p.endpoints ? _p.endpoints[idx] : _p.endpoint,
+            		paintStyle:_p.endpointStyles ? _p.endpointStyles[idx] : _p.endpointStyle,
+            		hoverPaintStyle:_p.endpointHoverStyles ? _p.endpointHoverStyles[idx] : _p.endpointHoverStyle
+            	}));
+            };
 									
 			// if there's a target specified (which of course there should be), and there is no
 			// target endpoint specified, and 'newConnection' was not set to true, then we check to
@@ -3550,7 +3576,7 @@
 					tep.isTarget = true;
 
 					// check for max connections??						
-					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _currentInstance.addEndpoint(_p.target, tep.def);
+					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p.target, tep.def, 1);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.targetEndpoint = newEndpoint;
 					 // TODO test options to makeTarget to see if we should do this?
@@ -3572,7 +3598,7 @@
 					// be dragged (ie it kicks off the draggable registration). but it is dubious.
 					//tep.isSource = true;
 				
-					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _currentInstance.addEndpoint(_p.source, tep.def);
+					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p.source, tep.def, 0);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
 					 _p.sourceEndpoint = newEndpoint;
 					 // TODO test options to makeSource to see if we should do this?
@@ -9251,8 +9277,8 @@
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Diamond, jsPlumb.Overlays.Arrow);
 
-    var _getDimensions = function(component) {
-        if (component._jsPlumb.cachedDimensions == null)
+    var _getDimensions = function(component, forceRefresh) {
+        if (component._jsPlumb.cachedDimensions == null || forceRefresh)
             component._jsPlumb.cachedDimensions = component.getDimensions();
         return component._jsPlumb.cachedDimensions;
     };      
@@ -9268,6 +9294,7 @@
         this._jsPlumb.component = params.component;
         this._jsPlumb.cachedDimensions = null;
         this._jsPlumb.create = params.create;
+        this._jsPlumb.initiallyInvisible = params.visible === false;
 
 		this.getElement = function() {
 			if (this._jsPlumb.div == null) {
@@ -9281,6 +9308,9 @@
                 this._jsPlumb.instance.getId(div);
                 this.attachListeners(div, this);
                 this.canvas = div;
+
+                if (params.visible === false)
+                    div.style.display = "none";
 			}
     		return this._jsPlumb.div;
     	};
@@ -9329,6 +9359,12 @@
         },
         setVisible : function(state) {
             this._jsPlumb.div.style.display = state ? "block" : "none";
+            // if initially invisible, dimensions are 0,0 and never get updated
+            if (state && this._jsPlumb.initiallyInvisible) {
+                _getDimensions(this, true);
+                this.component.repaint();
+                this._jsPlumb.initiallyInvisible = false;
+            }
         },
         /*
          * Function: clearCachedDimensions

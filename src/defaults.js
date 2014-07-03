@@ -1141,8 +1141,8 @@
     };
     jsPlumbUtil.extend(jsPlumb.Overlays.Diamond, jsPlumb.Overlays.Arrow);
 
-    var _getDimensions = function(component) {
-        if (component._jsPlumb.cachedDimensions == null)
+    var _getDimensions = function(component, forceRefresh) {
+        if (component._jsPlumb.cachedDimensions == null || forceRefresh)
             component._jsPlumb.cachedDimensions = component.getDimensions();
         return component._jsPlumb.cachedDimensions;
     };      
@@ -1158,6 +1158,7 @@
         this._jsPlumb.component = params.component;
         this._jsPlumb.cachedDimensions = null;
         this._jsPlumb.create = params.create;
+        this._jsPlumb.initiallyInvisible = params.visible === false;
 
 		this.getElement = function() {
 			if (this._jsPlumb.div == null) {
@@ -1171,6 +1172,9 @@
                 this._jsPlumb.instance.getId(div);
                 this.attachListeners(div, this);
                 this.canvas = div;
+
+                if (params.visible === false)
+                    div.style.display = "none";
 			}
     		return this._jsPlumb.div;
     	};
@@ -1219,6 +1223,12 @@
         },
         setVisible : function(state) {
             this._jsPlumb.div.style.display = state ? "block" : "none";
+            // if initially invisible, dimensions are 0,0 and never get updated
+            if (state && this._jsPlumb.initiallyInvisible) {
+                _getDimensions(this, true);
+                this.component.repaint();
+                this._jsPlumb.initiallyInvisible = false;
+            }
         },
         /*
          * Function: clearCachedDimensions

@@ -7,6 +7,9 @@
 	NEW FUNCTIONALITY
 
 	- added optional `allowLoopback`	boolean parameter to vanilla jsPlumb's `makeTarget` method. 
+	- when using parameterized types, unmatched values are now replaced with blank strings, rather than being left in place. For instance, if you had label="${foo}", and you passed a blank 'foo' value, you used to see "${foo}". Now you see "".
+	- you can set `visible:false` on an overlay spec, to have it initially invisible.
+	- added setHoverEnabled method to jsPlumb.
 
 	ISSUES
 

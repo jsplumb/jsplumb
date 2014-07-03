@@ -54,7 +54,8 @@ jsPlumb.ready(function() {
 		if (isFilterSupported) {
 			instance.makeSource(windows, {
 				filter:".ep",
-				anchor:"Continuous",
+				//anchor:"Continuous",
+				anchor:["Continuous", { faces:["left", "right"] } ],
 				connector:[ "StateMachine", { curviness:20 } ],
 				connectorStyle:{ strokeStyle:"#5c96bc", lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
 				maxConnections:5,
@@ -69,7 +70,8 @@ jsPlumb.ready(function() {
 				var e = eps[i], p = e.parentNode;
 				instance.makeSource(e, {
 					parent:p,
-					anchor:"Continuous",
+					//anchor:"Continuous",
+					anchor:["Continuous", { faces:["left", "right"] } ],
 					connector:[ "StateMachine", { curviness:20 } ],
 					connectorStyle:{ strokeStyle:"#5c96bc",lineWidth:2, outlineColor:"transparent", outlineWidth:4 },
 					maxConnections:5,
