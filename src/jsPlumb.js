@@ -2234,8 +2234,11 @@
 							draggable = this.getDOMElement(this.getDragObject(arguments)),
 							id = this.getAttribute(draggable, "dragId"),
 							scope = this.getAttribute(draggable, "originalScope"),
-							jpc = floatingConnections[id],
-							idx = jpc.endpoints[0].isFloating() ? 0 : 1,
+							jpc = floatingConnections[id];
+
+						if (jpc == null) return;
+
+						var idx = jpc.endpoints[0].isFloating() ? 0 : 1,
 							// this is not necessarily correct. if the source is being dragged,
 							// then the source endpoint is actually the currently suspended endpoint.
 							source = jpc.endpoints[0],

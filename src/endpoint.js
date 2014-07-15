@@ -249,7 +249,7 @@
         this.connectionsDetachable = _jsPlumb.Defaults.ConnectionsDetachable;
         if (params.connectionsDetachable === false || params.detachable === false)
             this.connectionsDetachable = false;
-        this.dragAllowedWhenFull = params.dragAllowedWhenFull || true;
+        this.dragAllowedWhenFull = params.dragAllowedWhenFull !== false;
         
         if (params.onMaxConnections)
             this.bind("maxConnections", params.onMaxConnections);        
@@ -717,20 +717,19 @@
                             
                         if (jpc != null) {
                             // if this is a drop back where the connection came from, mark it force rettach and
-                        // return; the stop handler will reattach. without firing an event.
-                        var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id == this.id ||
-                                        this.referenceEndpoint && jpc.suspendedEndpoint.id == this.referenceEndpoint.id) ;							
-                        if (redrop) {								
-                            jpc._forceReattach = true;
-                            return;
-                        }
-                            var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx === 0 ? 1 : 0;
-                            
+                            // return; the stop handler will reattach. without firing an event.
+                            var redrop = jpc.suspendedEndpoint && (jpc.suspendedEndpoint.id == this.id ||
+                                            this.referenceEndpoint && jpc.suspendedEndpoint.id == this.referenceEndpoint.id) ;							
+                            if (redrop) {								
+                                jpc._forceReattach = true;
+                                return;
+                            }
+                        
+                            var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex, oidx = idx === 0 ? 1 : 0;                            
                             // restore the original scope if necessary (issue 57)						
-                            if (scope) _jsPlumb.setDragScope(draggable, scope);							
-                            
+                            if (scope) _jsPlumb.setDragScope(draggable, scope);							                            
                             var endpointEnabled = endpoint != null ? endpoint.isEnabled() : true;
-                            
+                                
                             if (this.isFull()) {
                                 this.fire("maxConnections", { 
                                     endpoint:this, 
