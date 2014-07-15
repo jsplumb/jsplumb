@@ -5104,7 +5104,7 @@
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
                     function() {        
-
+                        //if (this._jsPlumb == null) return; // cleaned up already.
                         _jsPlumb.setConnectionBeingDragged(false);  
                         // if no endpoints, jpc already cleaned up.
                         if (jpc && jpc.endpoints != null) {          
@@ -5113,15 +5113,14 @@
                             // unlock the other endpoint (if it is dynamic, it would have been locked at drag start)
                             var idx = jpc.floatingAnchorIndex == null ? 1 : jpc.floatingAnchorIndex;
                             jpc.endpoints[idx === 0 ? 1 : 0].anchor.locked = false;
-                            // WHY does this need to happen?  i suppose because the connection might not get 
-                            // deleted.  TODO: i dont want to know about css classes inside jsplumb, ideally.
+                            // TODO: Dont want to know about css classes inside jsplumb, ideally.
                             jpc.removeClass(_jsPlumb.draggingClass);   
                         
                             // if we have the floating endpoint then the connection has not been dropped
                             // on another endpoint.  If it is a new connection we throw it away. If it is an 
                             // existing connection we check to see if we should reattach it, throwing it away 
                             // if not.
-                            if (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint) {
+                            if (this._jsPlumb && (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint)) {
                                 // 6a. if the connection was an existing one...
                                 if (existingJpc && jpc.suspendedEndpoint) {
                                     // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
