@@ -249,7 +249,7 @@
         this.connectionsDetachable = _jsPlumb.Defaults.ConnectionsDetachable;
         if (params.connectionsDetachable === false || params.detachable === false)
             this.connectionsDetachable = false;
-        this.dragAllowedWhenFull = params.dragAllowedWhenFull === true;
+        this.dragAllowedWhenFull = params.dragAllowedWhenFull !== false;
         
         if (params.onMaxConnections)
             this.bind("maxConnections", params.onMaxConnections);        
