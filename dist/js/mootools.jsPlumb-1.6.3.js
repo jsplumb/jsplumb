@@ -4795,7 +4795,10 @@
                 fireEvent = (fireEvent !== false);
 
             if (idx >= 0) {		                
-                if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) )) {
+
+                //!_jsPlumb.checkCondition("beforeDetach", jpc)
+
+                if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) && _jsPlumb.checkCondition("beforeDetach", connection) )) {
 
                     _jsPlumb.deleteObject({
                         connection:connection, 

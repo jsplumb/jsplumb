@@ -104,9 +104,9 @@
 
 <p>Interceptors are basically event handlers from which you can return a value that tells jsPlumb to abort what it is that it was doing.  There are currently two interceptors supported - <code>beforeDrop</code>, which is called when the user has dropped a Connection onto some target, and <code>beforeDetach</code>, which is called when the user is attempting to detach a Connection. </p>
 
-<p>Interceptors can be registered via the <code>bind</code> method on jsPlumb just like any other event listeners, and they can also be passed in to the <code>jsPlumb.addEndpoint</code>, <code>jsPlumb.makeSource</code> and <code>jsPlumb.makeTarget</code> methods.  </p>
+<p>Interceptors can be registered via the <code>bind</code> method on an instance of jsPlumb just like any other event listeners, and they can also be passed in to the <code>addEndpoint</code>, <code>makeSource</code> and <code>makeTarget</code> methods.  </p>
 
-<p>Note that binding <code>beforeDrop</code> (as an example) on jsPlumb itself is like a catch-all: it will be called every time a Connection is dropped on <em>any</em> Endpoint, unless that Endpoint has its own <code>beforeDrop</code> interceptor. But passing a beforeDrop callback into an Endpoint constrains that callback to just the Endpoint in question.          </p>
+<p>Note that binding <code>beforeDrop</code> (as an example) on a jsPlumb instance itself is like a catch-all: it will be called every time a Connection is dropped on <em>any</em> Endpoint, unless that Endpoint has its own <code>beforeDrop</code> interceptor. But passing a beforeDrop callback into an Endpoint constrains that callback to just the Endpoint in question.       </p>
 
 <h4>beforeDrop</h4>
 

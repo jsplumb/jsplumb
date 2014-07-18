@@ -105,10 +105,27 @@
 <ol>
 <li><a href="#intro">Introduction</a></li>
 <li><a href="#static">Static Anchors</a></li>
-<li><a href="#dynamic">Dynamic Anchors</a></li>
-<li><a href="#perimeter">Perimeter Anchors</a></li>
-<li><a href="#continuous">Continuous Anchors</a></li>
-<li><a href="#css">Associating CSS classes with Anchors</a></li>
+<li><a href="#dynamic">Dynamic Anchors</a>
+
+<ul>
+<li><a href="#dynamicdefault">Default Dynamic Anchor</a></li>
+<li><a href="#dynamiclocation">Location Selection</a></li>
+</ul></li>
+<li><a href="#perimeter">Perimeter Anchors</a>
+
+<ul>
+<li><a href="#perimeterrotation">Perimeter Anchor Rotation</a></li>
+</ul></li>
+<li><a href="#continuous">Continuous Anchors</a>
+
+<ul>
+<li><a href="#continuousfaces">Continuous Anchor Faces</a></li>
+</ul></li>
+<li><a href="#css">Associating CSS classes with Anchors</a>
+
+<ul>
+<li><a href="#anchorprefix">Changing the anchor class prefix</a></li>
+</ul></li>
 </ol>
 
 <p><a name="intro"></a></p>
@@ -142,8 +159,8 @@
 <li><code>Center</code></li>
 </ul>
 
-<p>Each of these string representations is just a wrapper around the underlying array-based syntax  <code>[x, y, dx, dy]</code>, where <code>x</code> and <code>y</code>are coordinates in the interval <code>[0,1]</code> specifying the position of the anchor, and <code>dx</code> and <code>dy</code> are coordinates in the interval <code>[-1, 1]</code> specifying the orientation of the curve incident to the anchor. For example, <code>[0, 0.5, -1, 0]</code> defines a <code>LeftCenter</code> anchor with a connector curve that emanates leftward from the anchor. Similarly, <code>[0.5, 0, 0, -1]</code> defines a <code>CenterTop</code> anchor with a connector curve emanating upwards. </p>
-<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({....,</span> <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span> <span class="p">...</span> <span class="p">});</span>
+<p>Each of these string representations is just a wrapper around the underlying array-based syntax  <code>[x, y, dx, dy]</code>, where <code>x</code> and <code>y</code>are coordinates in the interval <code>[0,1]</code> specifying the position of the anchor, and <code>dx</code> and <code>dy</code>,which specify the orientation of the curve incident to the anchor, can have a value of 0, 1 or -1. For example, <code>[0, 0.5, -1, 0]</code> defines a <code>Left</code> anchor with a connector curve that emanates leftward from the anchor. Similarly, <code>[0.5, 0, 0, -1]</code> defines a <code>Top</code> anchor with a connector curve emanating upwards.    </p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({....,</span> <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Bottom&quot;</span><span class="p">,</span> <span class="p">...</span> <span class="p">});</span>
 </code></pre></div>
 <p>is identical to:
 <code>javascript
@@ -161,17 +178,27 @@ jsPlumb.connect({...., anchor:[ 0.5, 1, 0, 1 ], ... });
 
 <p>These are Anchors that can be positioned in one of a number of locations, choosing the one that is most appropriate each time something moves or is painted in the UI.</p>
 
-<p>There is no special syntax for creating a DynamicAnchor; you just provide an array of individual Static Anchor specifications, eg:</p>
+<p>There is no special syntax for creating a Dynamic Anchor; you just provide an array of individual Static Anchor specifications, eg:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">dynamicAnchors</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="p">],</span>  <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span> <span class="p">],</span> 
                <span class="p">[</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="p">],</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span> <span class="p">]</span> <span class="p">];</span>
 
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({....,</span> <span class="nx">anchor</span><span class="o">:</span><span class="nx">dynamicAnchors</span><span class="p">,</span> <span class="p">...</span> <span class="p">});</span>
 </code></pre></div>
+<p>Note that you can mix the types of these individual Static Anchor specifications:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">dynamicAnchors</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="p">],</span>  <span class="p">[</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span> <span class="p">],</span> 
+               <span class="s2">&quot;Top&quot;</span><span class="p">,</span> <span class="s2">&quot;Bottom&quot;</span> <span class="p">];</span>
+
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({....,</span> <span class="nx">anchor</span><span class="o">:</span><span class="nx">dynamicAnchors</span><span class="p">,</span> <span class="p">...</span> <span class="p">});</span>
+</code></pre></div>
+<p><a name="dynamicdefault"></a></p>
+
 <h5>Default Dynamic Anchor</h5>
 
 <p>jsPlumb provides a dynamic anchor called <code>AutoDefault</code> that chooses from <code>Top</code>, <code>Right</code>, <code>Bottom</code> and <code>Left</code>:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({....,</span> <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;AutoDefault&quot;</span><span class="p">,</span> <span class="p">...</span> <span class="p">});</span>
 </code></pre></div>
+<p><a name="dynamiclocation"></a></p>
+
 <h5>Location Selection</h5>
 
 <p>The algorithm that decides which location to choose just calculates which location is closest to the center of the other element in the Connection.  It is possible that future versions of jsPlumb could support more sophisticated choice algorithms, if the need arose.</p>
@@ -227,6 +254,8 @@ supports six shapes:</p>
     <span class="p">]</span>
 <span class="p">});</span>
 </code></pre></div>
+<p><a name="perimeterrotation"></a></p>
+
 <h5>Perimeter Anchor Rotation</h5>
 
 <p>You can supply a <code>rotation</code> value to a Perimeter anchor - an example can be seen in <a href="../jquery/perimeterAnchorsDemo.html" target="_blank">this demo</a>. Here&#39;s how you would use it:</p>
@@ -255,38 +284,40 @@ supports six shapes:</p>
 </code></pre></div>
 <p>Note in this example I specified only &quot;anchor&quot;, rather than &quot;anchors&quot; - jsPlumb will use the same spec for both anchors.  But I could have said this:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
-    <span class="nx">source</span><span class="o">:</span><span class="nx">someDiv</span><span class="p">,</span>
-    <span class="nx">target</span><span class="o">:</span><span class="nx">someOtherDiv</span><span class="p">,</span>
-    <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span> <span class="s2">&quot;Continuous&quot;</span><span class="p">]</span>
+  <span class="nx">source</span><span class="o">:</span><span class="nx">someDiv</span><span class="p">,</span>
+  <span class="nx">target</span><span class="o">:</span><span class="nx">someOtherDiv</span><span class="p">,</span>
+  <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;Continuous&quot;</span><span class="p">]</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>...which would have resulted in the source element having a Static Anchor at <code>BottomCenter</code>.  In practise, though, it seems the Continuous Anchors work best if both elements in a Connection are using them.</p>
 
 <p>Note also that Continuous Anchors can be specified on <code>addEndpoint</code> calls:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
-    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>...and in <code>makeSource</code> / <code>makeTarget</code>:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
-    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
 <span class="p">});</span>
 
 <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
-    <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span> <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>... and in the jsPlumb defaults:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">Defaults</span><span class="p">.</span><span class="nx">Anchor</span> <span class="o">=</span> <span class="s2">&quot;Continuous&quot;</span><span class="p">;</span>
 </code></pre></div>
+<p><a name="continuousfaces"></a>          </p>
+
 <h5>Continuous Anchor Faces</h5>
 
 <p>By default, a Continuous anchor will choose points from all four faces of the element on which it resides.  You can control this behaviour, though, with the <code>faces</code> parameter on the anchor spec:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="nx">someDiv</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">faces</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">]</span> <span class="p">}</span> <span class="p">]</span>
+    <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">faces</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span> <span class="p">]</span> <span class="p">}</span> <span class="p">]</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>Allowed values are:
@@ -343,6 +374,8 @@ supports six shapes:</p>
 <p>and</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">bar</span>
 </code></pre></div>
+<p><a name="anchorprefix"></a></p>
+
 <h5>Changing the anchor class prefix</h5>
 
 <p>The prefix used with anchor classes is stored as the jsPlumb member <code>endpointAnchorClass</code>.  You can change this to whatever you like on some instance of jsPlumb:</p>
