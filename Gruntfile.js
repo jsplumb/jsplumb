@@ -1,25 +1,25 @@
 
 var versions = {
         JS_BEZIER : { f:"jsBezier", v:"0.6" },
-        BILTONG : { f:"biltong", v:"0.2" }, 
+        BILTONG : { f:"biltong", v:"0.2" },
         MOTTLE : {f:"mottle", v:"0.3" },
         KATAVORIO : {f:"katavorio", v:"0.3" }
     },
-    get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },    
-    
+    get = function(name) { return "lib/" + versions[name].f + "-" + versions[name].v + ".js"; },
+
     libraries = [ "jquery", "mootools", "yui", "dom" ],
     libraryNames = [ "jQuery", "MooTools", "YUI3", "Vanilla" ],
     renderers = [ "svg", "vml" ],
-    demos = [ 
-        [ "home", "Kitchen Sink" ], 
-        [ "flowchart", "Flowchart" ], 
-        [ "statemachine", "State Machine" ],  
-        [ "draggableConnectors", "Drag and Drop"], 
-        [ "perimeterAnchors", "Perimeter Anchors"], 
-        [ "chart", "Hierarchical Chart" ], 
-        [ "sourcesAndTargets", "Sources and Targets" ], 
-        [ "dynamicAnchors", "Dynamic Anchors" ], 
-        [ "animation", "Animation" ] 
+    demos = [
+        [ "home", "Kitchen Sink" ],
+        [ "flowchart", "Flowchart" ],
+        [ "statemachine", "State Machine" ],
+        [ "draggableConnectors", "Drag and Drop"],
+        [ "perimeterAnchors", "Perimeter Anchors"],
+        [ "chart", "Hierarchical Chart" ],
+        [ "sourcesAndTargets", "Sources and Targets" ],
+        [ "dynamicAnchors", "Dynamic Anchors" ],
+        [ "animation", "Animation" ]
     ],
     extraLibraries = {
         jquery:[],
@@ -35,7 +35,7 @@ var versions = {
             "svg", "vml"
         ],
         common:[
-            'util.js', 'dom-adapter.js', 'jsPlumb.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js'
+            'util.js', 'browser-util.js', 'dom-adapter.js', 'jsPlumb.js', 'endpoint.js', 'connection.js', 'anchors.js', 'defaults.js'
         ]
     },
     optionList = function(grunt, type) {
@@ -160,7 +160,7 @@ module.exports = function(grunt) {
 				  '-W055':true
                 },
             files:{
-                src: ['src/anchors.js', 'src/util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
+                src: ['src/anchors.js', 'src/util.js', 'src/browser-util.js', 'src/connection.js', 'src/connectors-bezier.js', 'src/connectors-flowchart.js', 'src/connectors-statemachine.js', 'src/defaults.js', 'src/dom-adapter.js', 'src/endpoint.js', 'src/dom.jsPlumb.js', 'src/jquery.jsPlumb.js', 'src/mootools.jsPlumb.js', 'src/renderers-svg.js', 'src/renderers-vml.js', 'src/yui.jsPlumb.js', 'src/jsPlumb.js']
             }
         },
         watch: {
@@ -192,9 +192,9 @@ module.exports = function(grunt) {
                     outdir: 'jekyll/apidocs/',
                     helpers:['jekyll/yuitheme/helpers.js']
                 }
-                
+
             }
-        }         
+        }
     });
 
     // Load the plugin that provides the "docular" tasks.
@@ -258,7 +258,7 @@ module.exports = function(grunt) {
                     library:libraries[i],
                     renderer:renderers[j],
                     base:".."
-                }); 
+                });
                 grunt.file.write("jekyll/tests/qunit-" + renderers[j] + "-"  + libraries[i] + "-instance.html", frontMatter);
             }
         }
@@ -273,7 +273,7 @@ module.exports = function(grunt) {
                 library:libraries[i],
                 libraryName:libraryNames[i],
                 base:".."
-            }); 
+            });
             grunt.file.write("jekyll/tests/loadtest-"  + libraries[i] + ".html", frontMatter + lt);
         }
 

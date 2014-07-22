@@ -6,10 +6,10 @@
 	<link rel="stylesheet" href="../doc/gollum-template.css">
 	<script type="text/javascript" src="qunit-1.11.0.js"></script>
 
-			
+
 	<!-- JS -->
 	<!-- support lib for bezier stuff -->
-	<script src="../lib/jsBezier-0.6.js"></script>   
+	<script src="../lib/jsBezier-0.6.js"></script>
 	<!-- event adapter -->
 	<script src="../lib/mottle-0.3.js"></script>
 	<!-- geometry functions -->
@@ -18,16 +18,17 @@
     <script src="../lib/katavorio-0.3.js"></script>
 	<!-- jsplumb util -->
 	<script src="../src/util.js"></script>
+	<script src="../src/browser-util.js"></script>
     <!-- base DOM adapter -->
-	<script src="../src/dom-adapter.js"></script>    
+	<script src="../src/dom-adapter.js"></script>
 	<!-- main jsplumb engine -->
 	<script src="../src/jsPlumb.js"></script>
     <!-- endpoint -->
-	<script src="../src/endpoint.js"></script>                
+	<script src="../src/endpoint.js"></script>
     <!-- connection -->
 	<script src="../src/connection.js"></script>
     <!-- anchors -->
-	<script src="../src/anchors.js"></script>        
+	<script src="../src/anchors.js"></script>
 	<!-- connectors, endpoint and overlays  -->
 	<script src="../src/defaults.js"></script>
 	<!-- bezier connectors -->
@@ -40,28 +41,28 @@
 	<script src="../src/renderers-svg.js"></script>
 	<!-- vml renderer -->
 	<script src="../src/renderers-vml.js"></script>
-    
+
     <!-- jquery jsPlumb adapter -->
 	<script src="../src/dom.jsPlumb.js"></script>
 	<!-- /JS -->
-			
+
 	<!-- TEST -->
 	<script src="jsPlumb-tests.js"></script>
 	<script src="test-support-dom.js"></script>
 	<!-- /TEST -->
-	
+
 </head>
-<body>	
+<body>
 	<h2 id="qunit-banner"></h2>
 	<div id="qunit-testrunner-toolbar"></div>
 	<h2 id="qunit-userAgent"></h2>
 	<ol id="qunit-tests"></ol>
-	
+
 	<script type="text/javascript">
-	jsPlumb.ready(function() {				
+	jsPlumb.ready(function() {
 		testSuite(jsPlumb.SVG, jsPlumb.getInstance());
 	});
-	
+
 	</script>
 </body>
 </html>

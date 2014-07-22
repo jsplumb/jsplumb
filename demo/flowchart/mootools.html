@@ -1,18 +1,18 @@
 <!doctype html>
 <html>
     <head>
-        
+
         <title>jsPlumb 1.6.3 demo - MooTools</title>
-        <meta http-equiv="content-type" content="text/html;charset=utf-8" />                
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">        
-        <link rel="stylesheet" href="../../css/jsplumb.css">     
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/jsplumb.css">
         <link rel="stylesheet" href="demo.css">
     </head>
     <body data-demo-id="flowchart" data-library="mootools">
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo"><img src="../../logo-bw.png"></div>
-                <div class="menu">   
+                <div class="menu">
                     <a href="http://localhost:4567">DOCS</a>
                     <a href="../../apidocs/">API</a>
                     <a href="../../tests/index.html">TESTS</a>
@@ -22,7 +22,7 @@
                     <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
                 </div>
             </div>
-        </div>    
+        </div>
 
         <iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=button_count"></iframe>
 
@@ -30,7 +30,7 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
-        
+
         <div id="main">
             <!-- demo -->
             <div class="demo flowchart-demo" id="flowchart-demo">
@@ -40,37 +40,38 @@
                     <p>Nodes are connected with the Flowchart connector.</p>
                     <p>Hover over connections to highlight them, click to delete. </p>
                     <p>Drag new connections from hollow dots to solid dots. You can also drag connections from their source/target to other sources/targets, or back onto themselves.</p>
-                    <p>By default, Flowchart connectors have square corners, but by setting the 'cornerRadius' parameter, as we have here, you can get rounded corners.</p>       
-                    <p>This demonstration uses jsPlumb 1.6.3, MooTools 1.4.5 and MooTools More 1.4.0.1.</p>                      
+                    <p>By default, Flowchart connectors have square corners, but by setting the 'cornerRadius' parameter, as we have here, you can get rounded corners.</p>
+                    <p>This demonstration uses jsPlumb 1.6.3, MooTools 1.4.5 and MooTools More 1.4.0.1.</p>
                 </div>
                 <div class="window" id="flowchartWindow1"><strong>1</strong><br/><br/></div>
                 <div class="window" id="flowchartWindow2"><strong>2</strong><br/><br/></div>
                 <div class="window" id="flowchartWindow3"><strong>3</strong><br/><br/></div>
-                <div class="window" id="flowchartWindow4"><strong>4</strong><br/><br/></div>                     
+                <div class="window" id="flowchartWindow4"><strong>4</strong><br/><br/></div>
             </div>
             <!-- /demo -->
         </div>
-            
+
         <script src="//cdnjs.cloudflare.com/ajax/libs/mootools/1.4.5/mootools-core-full-compat-yc.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/mootools-more/1.4.0.1/mootools-more-yui-compressed.min.js"></script>
-                
+
         <!-- JS -->
         <!-- support lib for bezier stuff -->
-        <script src="../../lib/jsBezier-0.6.js"></script>     
-        <!-- geom functions -->   
+        <script src="../../lib/jsBezier-0.6.js"></script>
+        <!-- geom functions -->
         <script src="../../lib/biltong-0.2.js"></script>
         <!-- jsplumb util -->
         <script src="../../src/util.js"></script>
+        <script src="../../src/browser-util.js"></script>
         <!-- base DOM adapter -->
-        <script src="../../src/dom-adapter.js"></script>        
+        <script src="../../src/dom-adapter.js"></script>
         <!-- main jsplumb engine -->
         <script src="../../src/jsPlumb.js"></script>
         <!-- endpoint -->
-        <script src="../../src/endpoint.js"></script>                
+        <script src="../../src/endpoint.js"></script>
         <!-- connection -->
         <script src="../../src/connection.js"></script>
         <!-- anchors -->
-        <script src="../../src/anchors.js"></script>        
+        <script src="../../src/anchors.js"></script>
         <!-- connectors, endpoint and overlays  -->
         <script src="../../src/defaults.js"></script>
         <!-- bezier connectors -->
@@ -82,20 +83,20 @@
         <script src="../../src/connector-editors.js"></script>
         <!-- SVG renderer -->
         <script src="../../src/renderers-svg.js"></script>
-        
-        
+
+
         <!-- vml renderer -->
         <script src="../../src/renderers-vml.js"></script>
-        
+
         <!-- mootools jsPlumb adapter -->
         <script src="../../src/mootools.jsPlumb.js"></script>
         <!-- /JS -->
-        
+
         <!--  demo code -->
-        <script src="demo.js"></script>    
+        <script src="demo.js"></script>
 
         <!-- demo list -->
-        <script src="../demo-list.js"></script>   
-        
+        <script src="../demo-list.js"></script>
+
     </body>
 </html>

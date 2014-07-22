@@ -42,23 +42,23 @@
 							<label><input value="no" type="radio" name="chkLabel">no</label>
 						</td>
 					</tr>
-				</table>			
-			</div>			
+				</table>
+			</div>
 			<div id="output">
 				<table colspacing="20">
 					<tr>
 						<td colspan="2">Num Connections:</td><td colspan="2" id="numConnections"></td>
 					</tr>
 					<tr>
-						<td>Reset time:</td><td id="resetTime"></td>					
+						<td>Reset time:</td><td id="resetTime"></td>
 						<td>Total time:</td><td id="totalCreateTime"></td>
 					</tr>
 					<tr>
-						<td>Create time:</td><td id="createTime"></td>					
+						<td>Create time:</td><td id="createTime"></td>
 						<td>Average create time:</td><td id="averageCreateTime"></td>
 					</tr>
 					<tr>
-						<td>Repaint time:</td><td id="repaintTime"></td>					
+						<td>Repaint time:</td><td id="repaintTime"></td>
 						<td>Average Repaint time:</td><td id="averageRepaintTime"></td>
 					</tr>
 				</table>
@@ -66,30 +66,31 @@
 			<button id="btnTest">Run Test</button>
 			<button id="btnReset">Reset</button>
 		</div>
-		
-		<div id="demo"></div>	
-	    	    
+
+		<div id="demo"></div>
+
 	    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.2/jquery.ui.touch-punch.min.js"></script>        
-				
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.2/jquery.ui.touch-punch.min.js"></script>
+
 		<!-- JS -->
 		<!-- support lib for bezier stuff -->
 		<script src="../lib/jsBezier-0.6.js"></script>
-		<!-- jsplumb geom functions -->   
+		<!-- jsplumb geom functions -->
 		<script src="../lib/biltong-0.2.js"></script>
 		<!-- jsplumb util-->
 		<script src="../src/util.js"></script>
+		<script src="../src/browser-util.js"></script>
 		<!-- base DOM adapter -->
-		<script src="../src/dom-adapter.js"></script>		
+		<script src="../src/dom-adapter.js"></script>
 		<!-- main jsplumb engine -->
 		<script src="../src/jsPlumb.js"></script>
         <!-- anchors -->
-		<script src="../src/anchors.js"></script> 
+		<script src="../src/anchors.js"></script>
         <!-- endpoint -->
-		<script src="../src/endpoint.js"></script>  
+		<script src="../src/endpoint.js"></script>
         <!-- connection -->
-		<script src="../src/connection.js"></script>		
+		<script src="../src/connection.js"></script>
 		<!-- connectors, endpoint and overlays  -->
 		<script src="../src/defaults.js"></script>
 		<!-- bezier connectors -->
@@ -104,10 +105,10 @@
 		<!-- jquery jsPlumb adapter -->
 		<script src="../src/jquery.jsPlumb.js"></script>
 		<!-- /JS -->
-		
+
 		<!--  load test code -->
 		<script src="loadtest.js"></script>
-			
+
 
 	</body>
 </html>

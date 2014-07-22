@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
-    <head>        
+    <head>
         <title>jsPlumb 1.6.3 demo - MooTools</title>
-		<meta http-equiv="content-type" content="text/html;charset=utf-8" />		        
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">        
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
 		<link rel="stylesheet" href="../../css/jsplumb.css">
 		<link rel="stylesheet" href="demo.css">
     </head>
@@ -11,8 +11,8 @@
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo"><img src="../../logo-bw.png"></div>
-                <div class="menu">   
-                    <a href="http://localhost:4567">DOCS</a>                    
+                <div class="menu">
+                    <a href="http://localhost:4567">DOCS</a>
                     <a href="../../apidocs">API</a>
                     <a href="../../tests/index.html">TESTS</a>
                     <a href="mailto:hello@jsplumbtoolkit.com">CONTACT</a>
@@ -21,7 +21,7 @@
                     <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
                 </div>
             </div>
-        </div>    
+        </div>
 
         <iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=button_count"></iframe>
 
@@ -29,7 +29,7 @@
             <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://jsplumb.org" data-text="jsPlumb - visually connect DOM elements." data-count="horizontal" data-via="jsPlumb">Tweet</a>
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
-		
+
         <div id="main">
 			<!-- demo -->
 			<div class="demo kitchensink-demo" id="kitchensink-demo">
@@ -50,31 +50,32 @@
                 <div class="component window" id="window4"><strong>Window 4</strong></div>
                 <div class="component window" id="window5"><strong>Window 5</strong></div>
                 <div class="component window" id="window6"><strong>Window 6</strong></div>
-                <div class="component window" id="window7"><strong>Window 7</strong></div>                       
+                <div class="component window" id="window7"><strong>Window 7</strong></div>
             </div>
 			<!-- /demo -->
-        </div>		
-        
+        </div>
+
 	    <script src="//cdnjs.cloudflare.com/ajax/libs/mootools/1.4.5/mootools-core-full-compat-yc.min.js"></script>
 	    <script src="//cdnjs.cloudflare.com/ajax/libs/mootools-more/1.4.0.1/mootools-more-yui-compressed.min.js"></script>
-				
+
 		<!-- JS -->
 		<!-- support lib for bezier stuff -->
-		<script src="../../lib/jsBezier-0.6.js"></script>     
-        <!-- geom functions -->   
+		<script src="../../lib/jsBezier-0.6.js"></script>
+        <!-- geom functions -->
         <script src="../../lib/biltong-0.2.js"></script>
 		<!-- jsplumb util -->
 		<script src="../../src/util.js"></script>
+    <script src="../../src/browser-util.js"></script>
         <!-- base DOM adapter -->
-		<script src="../../src/dom-adapter.js"></script>        
+		<script src="../../src/dom-adapter.js"></script>
 		<!-- main jsplumb engine -->
 		<script src="../../src/jsPlumb.js"></script>
         <!-- endpoint -->
-		<script src="../../src/endpoint.js"></script>                
+		<script src="../../src/endpoint.js"></script>
         <!-- connection -->
 		<script src="../../src/connection.js"></script>
         <!-- anchors -->
-		<script src="../../src/anchors.js"></script>        
+		<script src="../../src/anchors.js"></script>
 		<!-- connectors, endpoint and overlays  -->
 		<script src="../../src/defaults.js"></script>
         <!-- bezier connectors -->
@@ -85,22 +86,22 @@
 		<script src="../../src/connectors-flowchart.js"></script>
 		<!-- SVG renderer -->
 		<script src="../../src/renderers-svg.js"></script>
-		
-		
+
+
 		<!-- vml renderer -->
 		<script src="../../src/renderers-vml.js"></script>
 
         <script src="../../src/connector-editors.js"></script>
-        
+
         <!-- jquery jsPlumb adapter -->
 		<script src="../../src/mootools.jsPlumb.js"></script>
 		<!-- /JS -->
-		
+
 		<!--  demo code -->
 		<script src="demo.js"></script>
-		
+
 		<!--  demo list and helper code. you don't need this stuff if you're just copying the single demo. -->
         <script src="../demo-list.js"></script>
-        
+
     </body>
 </html>

@@ -1,10 +1,10 @@
 <!doctype html>
 <html>
     <head>
-        
+
         <title>jsPlumb 1.6.3 demo</title>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">        
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
 		<link rel="stylesheet" href="../../css/jsplumb.css">
         <link rel="stylesheet" href="demo.css">
     </head>
@@ -12,7 +12,7 @@
         <div id="headerWrapper">
             <div id="header">
                 <div class="logo"><img src="http://jsplumbtoolkit.com/logo-bw.png"></div>
-                <div class="menu">   
+                <div class="menu">
                     <a href="http://localhost:4567">DOCS</a>
                     <a href="../../apidocs">API</a>
                     <a href="../../tests/index.html">TESTS</a>
@@ -22,7 +22,7 @@
                     <a href="https://github.com/sporritt/jsPlumb/issues">ISSUES</a>
                 </div>
             </div>
-        </div>    
+        </div>
 
         <iframe id="like" src="http://www.facebook.com/widgets/like.php?href=http://jsplumb.com&amp;layout=button_count"></iframe>
 
@@ -31,7 +31,7 @@
             <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
         </div>
 
-        <div id="main">			
+        <div id="main">
            	<!-- demo -->
             <div class="demo animation-demo" id="animation-demo">
                 <div class="explanation">
@@ -39,7 +39,7 @@
                     <h4>ANIMATION</h4>
                     <p>This is a demonstration of jsPlumb's 'animate' method.</p>
                     <p>Drag orange dots to create connections.</p>
-                    <p>Click on or near blue dots to make them move in that direction.</p>                    
+                    <p>Click on or near blue dots to make them move in that direction.</p>
                     <div class="commands">
                         <a id="add" href="#" class="cmd">Add a Disc</a>
                         <a id="anim-clear" href="#" class="cmd">Remove All Connections</a>
@@ -49,14 +49,14 @@
                 <div class="bigdot" id="bd1"></div>
                 <div class="bigdot" id="bd2"></div>
                 <div class="bigdot" id="bd3"></div>
-                <div class="bigdot" id="bd4"></div>                                
+                <div class="bigdot" id="bd4"></div>
             </div>
             <!-- /demo -->
         </div>
-	        
+
         <!-- JS -->
         <!-- support lib for bezier stuff -->
-        <script src="../../lib/jsBezier-0.6.js"></script>     
+        <script src="../../lib/jsBezier-0.6.js"></script>
         <!-- event adapter -->
 		<script src="../../lib/mottle-0.3.js"></script>
 		<!-- geometry functions -->
@@ -65,16 +65,17 @@
         <script src="../../lib/katavorio-0.3.js"></script>
         <!-- jsplumb util -->
         <script src="../../src/util.js"></script>
+        <script src="../../src/browser-util.js"></script>
         <!-- base DOM adapter -->
-        <script src="../../src/dom-adapter.js"></script>        
+        <script src="../../src/dom-adapter.js"></script>
         <!-- main jsplumb engine -->
         <script src="../../src/jsPlumb.js"></script>
         <!-- endpoint -->
-        <script src="../../src/endpoint.js"></script>                
+        <script src="../../src/endpoint.js"></script>
         <!-- connection -->
         <script src="../../src/connection.js"></script>
         <!-- anchors -->
-        <script src="../../src/anchors.js"></script>        
+        <script src="../../src/anchors.js"></script>
         <!-- connectors, endpoint and overlays  -->
         <script src="../../src/defaults.js"></script>
         <!-- bezier connectors -->
@@ -86,19 +87,19 @@
         <script src="../../src/connector-editors.js"></script>
         <!-- SVG renderer -->
         <script src="../../src/renderers-svg.js"></script>
-        
-        
+
+
         <!-- vml renderer -->
         <script src="../../src/renderers-vml.js"></script>
-        
+
         <!-- no library jsPlumb adapter -->
         <script src="../../src/dom.jsPlumb.js"></script>
         <!-- /JS -->
-		
+
 		<!--  demo code -->
 		<script src="demo.js"></script>
 
         <script src="../demo-list.js"></script>
-        
+
     </body>
 </html>
