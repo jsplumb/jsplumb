@@ -13,10 +13,12 @@
 
 	ISSUES
 
+	222 - Endpoints incorrectly calculated when the anchor faces of source/target are set to left/right
 	223 - beforeDetach not fired by jsPlumb
 	224 - endpointStyle of the jsPlumb.connect method does not work
 	227 - MaxConnections=1 console log error
 	230 - Endpoints not cleaned up after connector move
+	236 - makeTarget/makeSource drag issues
 
 
 * 1.6.2

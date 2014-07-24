@@ -26,66 +26,77 @@
             userDefinedContinuousAnchorLocations = {},        
             continuousAnchorOrientations = {},
             Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
+            axes = ["left", "top", "right", "bottom"],
 			connectionsByElementId = {},
 			self = this,
             anchorLists = {},
             jsPlumbInstance = params.jsPlumbInstance,
-            floatingConnections = {},
-            // TODO this functions uses a crude method of determining orientation between two elements.
-            // 'diagonal' should be chosen when the angle of the line between the two centers is around
-            // one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
-            // used by AnchorManager.redraw
+            floatingConnections = {},            
             calculateOrientation = function(sourceId, targetId, sd, td, sourceAnchor, targetAnchor) {
         
                 if (sourceId === targetId) return {
                     orientation:Orientation.IDENTITY,
                     a:["top", "top"]
+                };        
+
+// --------------------------------------------------------------------------------------
+
+				// improved face calculation. get midpoints of each face for source and target, then put in an array with all combinations of
+				// source/target faces. sort this array by distance between midpoints. the entry at index 0 is our preferred option. we can 
+				// go through the array one by one until we find an entry in which each requested face is supported.
+				var candidates = [], midpoints = { };
+				(function(types, dim) {
+					for (var i = 0; i < types.length; i++) {
+						midpoints[types[i]] = {
+							"left":[ dim[i].left, dim[i].centery ],
+							"right":[ dim[i].right, dim[i].centery ],
+							"top":[ dim[i].centerx, dim[i].top ],
+							"bottom":[ dim[i].centerx , dim[i].bottom]
+						};
+					}
+				})([ "source", "target" ], [ sd, td ]);
+
+				for (var sf = 0; sf < axes.length; sf++) {
+					for (var tf = 0; tf < axes.length; tf++) {
+						if (sf != tf) {
+							candidates.push({ 
+								source:axes[sf], 
+								target:axes[tf], 
+								dist:d = Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]]) 
+							});
+						}
+					}
+				}
+
+				candidates.sort(function(a, b) {
+					return a.dist < b.dist ? -1 : a.dist > b.dist ? 1 : 0;
+				});
+
+				// now go through this list and try to get an entry that satisfies both (there will be one, unless one of the anchors
+				// declares no available faces)
+				var sourceEdge = candidates[0].source, targetEdge = candidates[0].target;
+				for (var i = 0; i < candidates.length; i++) {
+					
+					if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source))
+						sourceEdge = candidates[i].source;
+					else
+						sourceEdge = null;
+
+					if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target))
+						targetEdge = candidates[i].target;
+					else {
+						targetEdge = null;
+					}
+
+					if (sourceEdge != null && targetEdge != null) break;
+				}				
+
+// --------------------------------------------------------------------------------------
+
+                return {
+                	a : [ sourceEdge, targetEdge ]
+                	//TODO: set out.orientation ?
                 };
-        
-                var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),
-                    theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx)),
-                    h = ((sd.left <= td.left && sd.right >= td.left) || (sd.left <= td.right && sd.right >= td.right) ||
-                        (sd.left <= td.left && sd.right >= td.right) || (td.left <= sd.left && td.right >= sd.right)),
-                    v = ((sd.top <= td.top && sd.bottom >= td.top) || (sd.top <= td.bottom && sd.bottom >= td.bottom) ||
-                        (sd.top <= td.top && sd.bottom >= td.bottom) || (td.top <= sd.top && td.bottom >= sd.bottom)),
-                    possiblyTranslateEdges = function(edges) {
-                        // this function checks to see if either anchor is Continuous, and if so, runs the suggested edge
-                        // through the anchor: Continuous anchors can say which faces they support, and they get to choose 
-                        // whether a certain face is honoured, or, if not, which face to replace it with. the behaviour when
-                        // choosing an alternate face is to try for the opposite face first, then the next one clockwise, and then
-                        // the opposite of that one.
-                        return [
-                            sourceAnchor.isContinuous ? sourceAnchor.verifyEdge(edges[0]) : edges[0],    
-                            targetAnchor.isContinuous ? targetAnchor.verifyEdge(edges[1]) : edges[1]
-                        ];
-                    },
-                    out = {
-                        orientation:Orientation.DIAGONAL,
-                        theta:theta,
-                        theta2:theta2
-                    };                        
-                
-                if (! (h || v)) {                    
-                    if (td.left > sd.left && td.top > sd.top)
-                        out.a = ["right", "top"];
-                    else if (td.left > sd.left && sd.top > td.top)
-                        out.a = [ "top", "left"];
-                    else if (td.left < sd.left && td.top < sd.top)
-                        out.a = [ "top", "right"];
-                    else if (td.left < sd.left && td.top > sd.top)
-                        out.a = ["left", "top" ];                            
-                }
-                else if (h) {
-                    out.orientation = Orientation.HORIZONTAL;
-                    out.a = sd.top < td.top ? ["bottom", "top"] : ["top", "bottom"];                    
-                }
-                else {
-                    out.orientation = Orientation.VERTICAL;
-                    out.a = sd.left < td.left ? ["right", "left"] : ["left", "right"];
-                }
-                
-                out.a = possiblyTranslateEdges(out.a);
-                return out;
             },
                 // used by placeAnchors function
             placeAnchorsOnLine = function(desc, elementDimensions, elementPosition,
@@ -110,18 +121,9 @@
                 return function(a,b) {
                     var r = true;
                     if (reverseAngles) {
-                        /*if (a[0][0] < b[0][0])
-                            r = true;
-                        else
-                            r = a[0][1] > b[0][1];*/
                         r = a[0][0] < b[0][0];
                     }
-                    else {
-                        /*if (a[0][0] > b[0][0])
-                            r= true;
-                        else
-                            r =a[0][1] > b[0][1];
-                        */
+                    else {                        
                         r = a[0][0] > b[0][0];
                     }
                     return r === false ? -1 : 1;
@@ -583,6 +585,10 @@
                 else if (availableFaces[secondBest[edge]]) return secondBest[edge];
                 else if (availableFaces[lastChoice[edge]]) return lastChoice[edge];
                 return edge; // we have to give them something.
+            };
+
+            this.isEdgeSupported = function(edge) {
+            	return availableFaces[edge] === true;
             };
             
             this.compute = function(params) {

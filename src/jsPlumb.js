@@ -2317,6 +2317,10 @@
 							// TODO test options to makeTarget to see if we should do this?
 							newEndpoint._doNotDeleteOnDetach = false; // reset.
 							newEndpoint._deleteOnDetach = true;
+
+							// if connection is detachable, init the new endpoint to be draggable, to support that happening.
+							if (jpc.isDetachable())
+								newEndpoint.initDraggable();
 																	
 							// if the anchor has a 'positionFinder' set, then delegate to that function to find
 							// out where to locate the anchor.

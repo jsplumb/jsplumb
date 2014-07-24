@@ -42,21 +42,21 @@
             <div class="demo source-target-demo" id="source-target-demo">
                 <div class="explanation">
                     <i class="fa fa-info-circle"></i>
-                    <h4>SOURCES &amp; TARGETS</h4>                    
+                    <h4>SOURCES &amp; TARGETS</h4>
                     <p>Drag Connections from the blue element to any of the green ones. You can also drag existing
                         Connections from one green element to another - Connections are, by default, detachable (this behaviour can be overridden).</p>
                     <p>The <strong>makeSource</strong> and <strong>makeTarget</strong>functions provide an alternative means of setting up your UI to support draggable connections - here we treat entire
                     elements as sources and targets, and only when Connections are established do we assign Endpoints for them.</p>
-                    <p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>          
+                    <p>The blue element is configured as a Connection source (and is not draggable), with a list of possible Anchor locations.</p>
                     <p>
                     The `disable` link is excluded from being a drag source through the use of the `filter` parameter on the makeSource call.
                     </p>
                     <p>The green elements are configured as Connection targets, with a `Top` anchor, and are draggable</p>
                     <p>This demonstration uses jsPlumb 1.6.3.  No external dependencies are required.</p>
                 </div>
-                <div class="window" id="sourceWindow1">           
+                <div class="window" id="sourceWindow1">
                     <strong>Window 1</strong>
-                    <a href="#" id="enableDisableSource">disable</a>                
+                    <a href="#" id="enableDisableSource">disable</a>
                 </div>
                 <div class="window smallWindow" id="targetWindow2"><strong>Window 2</strong><br/><br/></div>
                 <div class="window smallWindow" id="targetWindow3"><strong>Window 3</strong><br/><br/></div>

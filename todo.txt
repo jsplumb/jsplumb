@@ -1,7 +1,7 @@
 makeTarget uniqueEndpoint issues
 -------------------------------
 
-- drag off a connection and drop it; it detaches. then try to drag a new connection - you get an error.
+- drag off a connection and drop it; it detaches. then try to drag a new connection - you get an error.  FIXED in 1.6.3.
 
 
 
@@ -20,7 +20,7 @@ future
 
     can i wrap that up with dropping support for vml (ie8?)
 
-    
+
 
     - have a toFront and toBack method available on Connection (and on return value from jsPlumb.select method).
     would require some notion of what the default zindex was. how best to do that?
@@ -32,23 +32,23 @@ future
 
     - svg labels (using svg label element) ?
 
-    - performance tests: 
+    - performance tests:
         - single SVG element, many paths (what are mouse interaction/zindex ramifications?)
-        - single canvas (have to paint nodes). 
+        - single canvas (have to paint nodes).
         - VML groups.
 
-    - type selector that takes some data and decides which types to apply to a 
+    - type selector that takes some data and decides which types to apply to a
     connection or endpoint.
 
     - assign css classes to elements from params in Connection/Endpoint types
 
     - support cssClass in Connection/Endpoint types
-	
+
 	/**
  * SVG support for jsPlumb.
- * 
+ *
  * things to investigate:
- * 
+ *
  * gradients:  https://developer.mozilla.org/en/svg_in_html_introduction
  * css:http://tutorials.jenkov.com/svg/svg-and-css.html
  * text on a path: http://www.w3.org/TR/SVG/text.html#TextOnAPath
@@ -67,7 +67,7 @@ future
 
         Dragging Multiple Nodes:
 
-        http://jsfiddle.net/sporritt/ZQcEc/25/ 
+        http://jsfiddle.net/sporritt/ZQcEc/25/
 
         This is actually offered out of the box in the no library version of jsPlumb 1.6.0. but maybe people
         will still want to see instructions for jquery.
@@ -99,23 +99,23 @@ future
                               $('.w').droppable("enable");
                           }
                       }
-        
+
         ---
 
         CSS to disable drag highlight:
-        
+
         http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting
 
 
         ---------------
 
         Create a new node at the point a connection is dropped and attach a new connection to it:
-        
+
         jsPlumb.bind('connectionDragStop', function (data) {
-            if (data.target == null) {                            
+            if (data.target == null) {
                 var newBlock = createNewBlock(null);
-                jsPlumb.connect({ source:data.sourceId, target:newBlock.id + "-parent" });                            
-            } 
+                jsPlumb.connect({ source:data.sourceId, target:newBlock.id + "-parent" });
+            }
          });
 
          -------------------------------------------------------------
@@ -134,7 +134,7 @@ future
 
     What takes most of the time?
 
-        - jsBezier 
+        - jsBezier
 
             jsBezier load test with 100 000 curves took tens of milliseconds, so we can discount this.
 
@@ -145,7 +145,7 @@ future
 
         - getting offsets/size info
 
-            are there too many calls to updateOffset/getSize ?   
+            are there too many calls to updateOffset/getSize ?
 
 
         - anchorManager
@@ -153,14 +153,14 @@ future
             is the redraw routine in anchor manager optimized?
 
 
-        - 
+        -
 
 
 1.3.16
 
-    - add "perimeter" anchors: basically helper methods that create a set of dynamic anchors that together approximate the perimeter of some shape.  so if you had circles, for instance, it would be straightforward to get a set of anchors that travel around the circumference of each one.  or ellipses. whatever.  also look into the possibility of jsPlumb interacting directly with SVG/VML elements to determine their perimeter.        
-		
-		
+    - add "perimeter" anchors: basically helper methods that create a set of dynamic anchors that together approximate the perimeter of some shape.  so if you had circles, for instance, it would be straightforward to get a set of anchors that travel around the circumference of each one.  or ellipses. whatever.  also look into the possibility of jsPlumb interacting directly with SVG/VML elements to determine their perimeter.
+
+
 	-  multiple paint styles, referenced by name.  a simple case in on example app i saw could be "up", which paints green,
 	and "down" which paints red.  then you could have "fat" and "skinny" for the bandwidth, for example.  this would be backed with an API that behaved like classes on DOM elements -
 	you could have multiple assigned at once and jsPlumb would merge them all together.
@@ -177,10 +177,10 @@ future
     - do not set jsplumb scope on draggables when it's just some div you are making draggable. (issue 245) DONE
 
 1.3.5
-       
-    - refactor assigning endpoint styles into a common helper method    DONE    
+
+    - refactor assigning endpoint styles into a common helper method    DONE
     - oncontextmenu event bind  DONE
-    
+
 1.3.6
 
 	- mix of standard anchors on one end and continuous on the other does not paint  (done)
@@ -196,7 +196,7 @@ possible future enhancements
     - single SVG element/single VML group/single Canvas per page?
     - qunit: add helper methods to simulate mousedown and drag.  then write some functional tests.
     - image overlay?
-    - make AnchorManager the source of knowledge about connections (remove connections by scope etc)   
+    - make AnchorManager the source of knowledge about connections (remove connections by scope etc)
 
     - z-index: make a highlighted connection or one which is connected to an element that is being dragged come to the top over other connections.  have a toFront and toBack method available on Connection (and on return value from jsPlumb.select method)
 

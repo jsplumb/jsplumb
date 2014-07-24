@@ -1717,46 +1717,46 @@
 }).call(this);
 /*
  * jsPlumb
- * 
+ *
  * Title:jsPlumb 1.6.3
- * 
- * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
- * 
- * This file contains the utility functions.
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.
+ *
+ * This file contains utility functions that run in both browsers and headless.
  *
  * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
- * 
+ *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * 
+ *
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {
 
+  var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
+      _isnum = function(n) { return Object.prototype.toString.call(n) === "[object Number]"; },
+      _iss = function(s) { return typeof s === "string"; },
+      _isb = function(s) { return typeof s === "boolean"; },
+      _isnull = function(s) { return s == null; },
+      _iso = function(o) { return o == null ? false : Object.prototype.toString.call(o) === "[object Object]"; },
+      _isd = function(o) { return Object.prototype.toString.call(o) === "[object Date]"; },
+      _isf = function(o) { return Object.prototype.toString.call(o) === "[object Function]"; },
+      _ise = function(o) {
+          for (var i in o) { if (o.hasOwnProperty(i)) return false; }
+          return true;
+      },
+      pointHelper = function(p1, p2, fn) {
+          p1 = _isa(p1) ? p1 : [p1.x, p1.y];
+          p2 = _isa(p2) ? p2 : [p2.x, p2.y];
+          return fn(p1, p2);
+      };
 
-    var _isa = function(a) { return Object.prototype.toString.call(a) === "[object Array]"; },
-        _isnum = function(n) { return Object.prototype.toString.call(n) === "[object Number]"; },
-        _iss = function(s) { return typeof s === "string"; },
-        _isb = function(s) { return typeof s === "boolean"; },
-        _isnull = function(s) { return s == null; },  
-        _iso = function(o) { return o == null ? false : Object.prototype.toString.call(o) === "[object Object]"; },
-        _isd = function(o) { return Object.prototype.toString.call(o) === "[object Date]"; },
-        _isf = function(o) { return Object.prototype.toString.call(o) === "[object Function]"; },
-        _ise = function(o) {
-            for (var i in o) { if (o.hasOwnProperty(i)) return false; }
-            return true;
-        },
-        pointHelper = function(p1, p2, fn) {
-            p1 = _isa(p1) ? p1 : [p1.x, p1.y];
-            p2 = _isa(p2) ? p2 : [p2.x, p2.y];    
-            return fn(p1, p2);
-        };
-    
-    jsPlumbUtil = {        
-        isArray : _isa,        
-        isString : _iss,        
-        isBoolean: _isb,        
-        isNull : _isnull,        
+  var root = this;
+  var exports = root.jsPlumbUtil = {
+        isArray : _isa,
+        isString : _iss,
+        isBoolean: _isb,
+        isNull : _isnull,
         isObject : _iso,
         isDate : _isd,
         isFunction: _isf,
@@ -1781,15 +1781,6 @@
             }
             else return a;
         },
-        matchesSelector : function(el, selector, ctx) {
-            ctx = ctx || el.parentNode;
-            var possibles = ctx.querySelectorAll(selector);
-            for (var i = 0; i < possibles.length; i++) {
-                if (possibles[i] === el)
-                    return true;
-            }
-            return false;
-        },
         merge : function(a, b) {
             var c = this.clone(a);
             for (var i in b) {
@@ -1805,7 +1796,7 @@
                     }
                     else if(_iso(b[i])) {
                         // overwite c's value with an object if it is not already one.
-                        if (!_iso(c[i])) 
+                        if (!_iso(c[i]))
                             c[i] = {};
                         for (var j in b[i])
                             c[i][j] = b[i][j];
@@ -1816,13 +1807,13 @@
         },
         replace:function(inObj, path, value) {
             var q = inObj, t = q;
-            path.replace(/([^\.])+/g, function(term, lc, pos, str) {             
+            path.replace(/([^\.])+/g, function(term, lc, pos, str) {
                 var array = term.match(/([^\[0-9]+){1}(\[)([0-9+])/),
                     last = pos + term.length >= str.length,
                     _getArray = function() {
                         return t[array[1]] || (function() {  t[array[1]] = []; return t[array[1]]; })();
                     };
-                
+
                 if (last) {
                     // set term = value on current t, creating term as array if necessary.
                     if (array)
@@ -1870,7 +1861,7 @@
                         }
                     }
                     return fromString;
-                },		
+                },
                 // process one entry.
                 _one = function(d) {
                     if (d != null) {
@@ -1878,7 +1869,7 @@
                             return getValue(d);
                         }
                         else if (_isa(d)) {
-                            var r = [];	
+                            var r = [];
                             for (var i = 0; i < d.length; i++)
                                 r.push(_one(d[i]));
                             return r;
@@ -1895,8 +1886,8 @@
                         }
                     }
                 };
-            
-            return _one(model);	
+
+            return _one(model);
         },
         convertStyle : function(s, ignoreAlpha) {
             // TODO: jsPlumb should support a separate 'opacity' style member.
@@ -1908,7 +1899,7 @@
             if (s.match(pattern)) {
                 var parts = s.match(pattern)[2].split(",");
                 o = "#" + hex(parts[0]) + hex(parts[1]) + hex(parts[2]);
-                if (!ignoreAlpha && parts.length == 4) 
+                if (!ignoreAlpha && parts.length == 4)
                     o = o + hex(parts[3]);
             }
             return o;
@@ -1917,48 +1908,39 @@
             if (a)
                 for (var i = 0; i < a.length; i++) if (f(a[i])) return i;
             return -1;
-		},
+          },
 		indexOf : function(l, v) {
-			return l.indexOf ? l.indexOf(v) : jsPlumbUtil.findWithFunction(l, function(_v) { return _v == v; });
+			return l.indexOf ? l.indexOf(v) : exports.findWithFunction(l, function(_v) { return _v == v; });
 		},
 		removeWithFunction : function(a, f) {
-			var idx = jsPlumbUtil.findWithFunction(a, f);
+			var idx = exports.findWithFunction(a, f);
 			if (idx > -1) a.splice(idx, 1);
 			return idx != -1;
 		},
 		remove : function(l, v) {
-			var idx = jsPlumbUtil.indexOf(l, v);
+			var idx = exports.indexOf(l, v);
 			if (idx > -1) l.splice(idx, 1);
 			return idx != -1;
 		},
         // TODO support insert index
         addWithFunction : function(list, item, hashFunction) {
-            if (jsPlumbUtil.findWithFunction(list, hashFunction) == -1) list.push(item);
+            if (exports.findWithFunction(list, hashFunction) == -1) list.push(item);
         },
         addToList : function(map, key, value, insertAtStart) {
             var l = map[key];
             if (l == null) {
-                l = []; 
-				map[key] = l;
+                l = [];
+				        map[key] = l;
             }
             l[insertAtStart ? "unshift" : "push"](value);
             return l;
-        },
-        consume : function(e, doNotPreventDefault) {
-            if (e.stopPropagation)
-                e.stopPropagation();
-            else 
-                e.returnValue = false;
-            
-            if (!doNotPreventDefault && e.preventDefault)
-                 e.preventDefault();
         },
         //
         // extends the given obj (which can be an array) with the given constructor function, prototype functions, and
         // class members, any of which may be null.
         //
         extend : function(child, parent, _protoFn) {
-			var i;
+			       var i;
             parent = _isa(parent) ? parent : [ parent ];
 
             for (i = 0; i < parent.length; i++) {
@@ -1974,11 +1956,11 @@
                     for (i = 0; i < parent.length; i++) {
                         if (parent[i].prototype[name])
                             parent[i].prototype[name].apply(this, arguments);
-                    }                    
+                    }
                     return protoFn.apply(this, arguments);
                 };
             };
-			
+
 			var _oneSet = function(fns) {
 				for (var k in fns) {
 					child.prototype[k] = _makeFn(k, fns[k]);
@@ -2000,49 +1982,28 @@
         },
         logEnabled : true,
         log : function() {
-            if (jsPlumbUtil.logEnabled && typeof console != "undefined") {
+            if (exports.logEnabled && typeof console != "undefined") {
                 try {
                     var msg = arguments[arguments.length - 1];
                     console.log(msg);
                 }
-                catch (e) {} 
+                catch (e) {}
             }
         },
-        /*
-         * Function: sizeElement 
-         * Helper to size and position an element. You would typically use
-         * this when writing your own Connector or Endpoint implementation.
-         * 
-         * Parameters: 
-         *  x - [int] x position for the element origin 
-         *  y - [int] y position for the element origin 
-         *  w - [int] width of the element 
-         *  h - [int] height of the element
-         *  
-         */
-        sizeElement : function(el, x, y, w, h) {
-            if (el) {
-                el.style.height = h + "px";
-                el.height = h;
-                el.style.width = w + "px";
-                el.width = w;
-                el.style.left = x + "px";
-                el.style.top = y + "px";
-            }
-        },
+
         /**
         * Wraps one function with another, creating a placeholder for the
         * wrapped function if it was null. this is used to wrap the various
         * drag/drop event functions - to allow jsPlumb to be notified of
         * important lifecycle events without imposing itself on the user's
-        * drag/drop functionality. 
+        * drag/drop functionality.
         * @method jsPlumbUtil.wrap
         * @param {Function} wrappedFunction original function to wrap; may be null.
         * @param {Function} newFunction function to wrap the original with.
-        * @param {Object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should 
+        * @param {Object} [returnOnThisValue] Optional. Indicates that the wrappedFunction should
         * not be executed if the newFunction returns a value matching 'returnOnThisValue'.
         * note that this is a simple comparison and only works for primitives right now.
-        */        
+        */
         wrap : function(wrappedFunction, newFunction, returnOnThisValue) {
             wrappedFunction = wrappedFunction || function() { };
             newFunction = newFunction || function() { };
@@ -2051,31 +2012,28 @@
                 try {
                     r = newFunction.apply(this, arguments);
                 } catch (e) {
-                    jsPlumbUtil.log("jsPlumb function failed : " + e);
+                    exports.log("jsPlumb function failed : " + e);
                 }
                 if (returnOnThisValue == null || (r !== returnOnThisValue)) {
                     try {
                         r = wrappedFunction.apply(this, arguments);
                     } catch (e) {
-                        jsPlumbUtil.log("wrapped function failed : " + e);
+                        exports.log("wrapped function failed : " + e);
                     }
                 }
                 return r;
             };
-        },
-        ieVersion : /MSIE\s([\d.]+)/.test(navigator.userAgent) ? (new Number(RegExp.$1)) : -1
+        }
     };
 
-    jsPlumbUtil.oldIE = jsPlumbUtil.ieVersion > -1 && jsPlumbUtil.ieVersion < 9;
-
-	jsPlumbUtil.EventGenerator = function() {
-		var _listeners = {}, 
+  exports.EventGenerator = function() {
+		var _listeners = {},
 			eventsSuspended = false,
 			// this is a list of events that should re-throw any errors that occur during their dispatch. it is current private.
 			eventsToDieOn = { "ready":true };
 
 		this.bind = function(event, listener, insertAtStart) {
-			jsPlumbUtil.addToList(_listeners, event, listener, insertAtStart);
+			exports.addToList(_listeners, event, listener, insertAtStart);
 			return this;
 		};
 
@@ -2086,17 +2044,17 @@
 					while (!_gone && i < l && ret !== false) {
 						// doing it this way rather than catching and then possibly re-throwing means that an error propagated by this
 						// method will have the whole call stack available in the debugger.
-						if (eventsToDieOn[event]) 
+						if (eventsToDieOn[event])
 							_listeners[event][i].apply(this, [ value, originalEvent]);
 						else {
 							try {
 								ret = _listeners[event][i].apply(this, [ value, originalEvent ]);
 							} catch (e) {
-								jsPlumbUtil.log("jsPlumb: fire failed for event " + event + " : " + e);
+								exports.log("jsPlumb: fire failed for event " + event + " : " + e);
 							}
 						}
 						i++;
-						if (_listeners == null || _listeners[event] == null) 
+						if (_listeners == null || _listeners[event] == null)
 							_gone = true;
 					}
 				}
@@ -2123,7 +2081,7 @@
 		};
 	};
 
-	jsPlumbUtil.EventGenerator.prototype = {
+	exports.EventGenerator.prototype = {
 		cleanup:function() {
 			this.cleanupListeners();
 		}
@@ -2138,8 +2096,8 @@
           throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
         }
 
-        var aArgs = Array.prototype.slice.call(arguments, 1), 
-            fToBind = this, 
+        var aArgs = Array.prototype.slice.call(arguments, 1),
+            fToBind = this,
             fNOP = function () {},
             fBound = function () {
               return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
@@ -2153,28 +2111,102 @@
       };
     }
 
-})();
+}).call(this);
+
 /*
  * jsPlumb
- * 
+ *
  * Title:jsPlumb 1.6.3
- * 
- * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
- * 
- * This file contains the base functionality for DOM type adapters. 
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.
+ *
+ * This file contains utility functions that run browsers only.
  *
  * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
- * 
+ *
  * http://jsplumbtoolkit.com
  * http://github.com/sporritt/jsplumb
- * 
+ *
+ * Dual licensed under the MIT and GPL2 licenses.
+ */
+ ;(function() {
+
+   var root = this;
+   var exports = root.jsPlumbUtil;
+
+   exports.ieVersion = /MSIE\s([\d.]+)/.test(navigator.userAgent) ? (new Number(RegExp.$1)) : -1;
+
+   exports.oldIE = exports.ieVersion > -1 && exports.ieVersion < 9;
+
+   exports.matchesSelector = function(el, selector, ctx) {
+       ctx = ctx || el.parentNode;
+       var possibles = ctx.querySelectorAll(selector);
+       for (var i = 0; i < possibles.length; i++) {
+           if (possibles[i] === el)
+               return true;
+       }
+       return false;
+   };
+
+   exports.consume = function(e, doNotPreventDefault) {
+       if (e.stopPropagation)
+           e.stopPropagation();
+       else
+           e.returnValue = false;
+
+       if (!doNotPreventDefault && e.preventDefault)
+            e.preventDefault();
+   };
+
+   /*
+    * Function: sizeElement
+    * Helper to size and position an element. You would typically use
+    * this when writing your own Connector or Endpoint implementation.
+    *
+    * Parameters:
+    *  x - [int] x position for the element origin
+    *  y - [int] y position for the element origin
+    *  w - [int] width of the element
+    *  h - [int] height of the element
+    *
+    */
+   exports.sizeElement = function(el, x, y, w, h) {
+       if (el) {
+           el.style.height = h + "px";
+           el.height = h;
+           el.style.width = w + "px";
+           el.width = w;
+           el.style.left = x + "px";
+           el.style.top = y + "px";
+       }
+   };
+
+
+ }).call(this);
+
+/*
+ * jsPlumb
+ *
+ * Title:jsPlumb 1.6.3
+ *
+ * Provides a way to visually connect elements on an HTML page, using SVG or VML.
+ *
+ * This file contains the base functionality for DOM type adapters.
+ *
+ * Copyright (c) 2010 - 2014 Simon Porritt (simon@jsplumbtoolkit.com)
+ *
+ * http://jsplumbtoolkit.com
+ * http://github.com/sporritt/jsplumb
+ *
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {
-    
+
+  var root = this;
+
 	var svgAvailable = !!window.SVGAngle || document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"),
-		vmlAvailable = function() {		    
-	        if (vmlAvailable.vml === undefined) { 
+		vmlAvailable = function() {
+	        if (vmlAvailable.vml === undefined) {
 	            var a = document.body.appendChild(document.createElement('div'));
 	        	a.innerHTML = '<v:shape id="vml_flag1" adj="1" />';
 	        	var b = a.firstChild;
@@ -2191,7 +2223,7 @@
 		// TODO: remove this once we remove all library adapter versions and have only vanilla jsplumb: this functionality
 		// comes from Mottle.
 		iev = (function() {
-			var rv = -1; 
+			var rv = -1;
 			if (navigator.appName == 'Microsoft Internet Explorer') {
 				var ua = navigator.userAgent,
 					re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
@@ -2200,7 +2232,7 @@
 			}
 			return rv;
 		})(),
-		isIELT9 = iev > -1 && iev < 9, 
+		isIELT9 = iev > -1 && iev < 9,
 		_genLoc = function(e, prefix) {
 			if (e == null) return [ 0, 0 ];
 			var ts = _touches(e), t = _getTouch(ts, 0);
@@ -2223,19 +2255,19 @@
 		},
 		_getTouch = function(touches, idx) { return touches.item ? touches.item(idx) : touches[idx]; },
 		_touches = function(e) {
-			return e.touches && e.touches.length > 0 ? e.touches : 
+			return e.touches && e.touches.length > 0 ? e.touches :
 				   e.changedTouches && e.changedTouches.length > 0 ? e.changedTouches :
 				   e.targetTouches && e.targetTouches.length > 0 ? e.targetTouches :
 				   [ e ];
 		};
-        
+
     /**
 		Manages dragging for some instance of jsPlumb.
 	*/
-	var DragManager = function(_currentInstance) {		
-		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},			
+	var DragManager = function(_currentInstance) {
+		var _draggables = {}, _dlist = [], _delements = {}, _elementsWithEndpoints = {},
 			// elementids mapped to the draggable to which they belong.
-			_draggablesForElements = {};			
+			_draggablesForElements = {};
 
         /**
             register some element as draggable.  right now the drag init stuff is done elsewhere, and it is
@@ -2244,13 +2276,13 @@
 		this.register = function(el) {
             var id = _currentInstance.getId(el),
                 parentOffset = jsPlumbAdapter.getOffset(el, _currentInstance);
-                    
+
             if (!_draggables[id]) {
                 _draggables[id] = el;
                 _dlist.push(el);
                 _delements[id] = {};
             }
-				
+
 			// look for child elements that have endpoints and register them against this draggable.
 			var _oneLevel = function(p, startOffset) {
 				if (p) {
@@ -2277,20 +2309,20 @@
 
 			_oneLevel(el);
 		};
-		
-		// refresh the offsets for child elements of this element. 
+
+		// refresh the offsets for child elements of this element.
 		this.updateOffsets = function(elId) {
 			if (elId != null) {
 				var domEl = jsPlumb.getDOMElement(elId),
 					id = _currentInstance.getId(domEl),
 					children = _delements[id],
 					parentOffset = jsPlumbAdapter.getOffset(domEl, _currentInstance);
-					
+
 				if (children) {
 					for (var i in children) {
 						var cel = jsPlumb.getElementObject(i),
 							cOff = jsPlumbAdapter.getOffset(cel, _currentInstance);
-							
+
 						_delements[id][i] = {
 							id:i,
 							offset:{
@@ -2310,7 +2342,7 @@
 			el to that parent's list of elements to update on drag (if it is not there already)
 		*/
 		this.endpointAdded = function(el) {
-			var b = document.body, id = _currentInstance.getId(el), 
+			var b = document.body, id = _currentInstance.getId(el),
 				cLoc = jsPlumbAdapter.getOffset(el, _currentInstance),
 				p = el.parentNode, done = p == b;
 
@@ -2320,8 +2352,8 @@
 				var pid = _currentInstance.getId(p, null, true);
 				if (pid && _draggables[pid]) {
 					var idx = -1, pLoc = jsPlumbAdapter.getOffset(p, _currentInstance);
-					
-					if (_delements[pid][id] == null) {						
+
+					if (_delements[pid][id] == null) {
 						_delements[pid][id] = {
 							id:id,
 							offset:{
@@ -2334,7 +2366,7 @@
 					break;
 				}
 				p = p.parentNode;
-			}	
+			}
 		};
 
 		this.endpointDeleted = function(endpoint) {
@@ -2348,18 +2380,18 @@
                         }
 					}
 				}
-			}		
-		};	
-		
-		this.changeId = function(oldId, newId) {				
-			_delements[newId] = _delements[oldId];			
+			}
+		};
+
+		this.changeId = function(oldId, newId) {
+			_delements[newId] = _delements[oldId];
 			_delements[oldId] = {};
 			_draggablesForElements[newId] = _draggablesForElements[oldId];
-			_draggablesForElements[oldId] = null;			
+			_draggablesForElements[oldId] = null;
 		};
 
 		this.getElementsForDraggable = function(id) {
-			return _delements[id];	
+			return _delements[id];
 		};
 
 		this.elementRemoved = function(elementId) {
@@ -2381,7 +2413,7 @@
 		// notification drag ended. We check automatically if need to update some
 		// ancestor's offsets.
 		//
-		this.dragEnded = function(el) {			
+		this.dragEnded = function(el) {
 			var id = _currentInstance.getId(el),
 				ancestor = _draggablesForElements[id];
 
@@ -2400,19 +2432,19 @@
 				_delements[pId][elId].offset = {
 					left:cLoc.left - pLoc.left,
 					top:cLoc.top - pLoc.top
-				};				
+				};
 				_draggablesForElements[elId] = pId;
-			}			
+			}
 		};
-		
+
 	};
-        
+
     // for those browsers that dont have it.  they still don't have it! but at least they won't crash.
 	if (!window.console)
 		window.console = { time:function(){}, timeEnd:function(){}, group:function(){}, groupEnd:function(){}, log:function(){} };
-		
-		
-	// TODO: katavorio default helper uses this stuff.  should i extract to a support lib?	
+
+
+	// TODO: katavorio default helper uses this stuff.  should i extract to a support lib?
 	var trim = function(str) {
 			return str == null ? null : (str.replace(/^\s\s*/, '').replace(/\s\s*$/, ''));
 		},
@@ -2424,16 +2456,16 @@
 				el.className = cn;
 		},
 		_getClassName = function(el) {
-			return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;	
+			return (typeof el.className.baseVal == "undefined") ? el.className : el.className.baseVal;
 		},
 		_classManip = function(el, add, clazz) {
-			
+
 			// TODO if classList exists, use it.
-			
+
 			var classesToAddOrRemove = clazz.split(/\s+/),
 				className = _getClassName(el),
 				curClasses = className.split(/\s+/);
-				
+
 			for (var i = 0; i < classesToAddOrRemove.length; i++) {
 				if (add) {
 					if (jsPlumbUtil.indexOf(curClasses, classesToAddOrRemove[i]) == -1)
@@ -2449,7 +2481,7 @@
 		},
 		_each = function(spec, fn) {
 			if (spec == null) return;
-			if (typeof spec === "string") 
+			if (typeof spec === "string")
 				fn(jsPlumb.getDOMElement(spec));
 			else if (spec.length != null) {
 				for (var i = 0; i < spec.length; i++)
@@ -2460,7 +2492,7 @@
 		};
 
     window.jsPlumbAdapter = {
-        
+
         headless:false,
 
         pageLocation:_pageLocation,
@@ -2474,7 +2506,7 @@
         setAttribute:function(el, a, v) {
         	el.setAttribute(a, v);
         },
-        
+
         appendToRoot : function(node) {
             document.body.appendChild(node);
         },
@@ -2492,13 +2524,13 @@
         },
         setRenderMode : function(mode) {
             var renderMode;
-            
+
             if (mode) {
-				mode = mode.toLowerCase();            
-			            
+				mode = mode.toLowerCase();
+
                 var svgAvailable = this.isRenderModeAvailable("svg"),
                     vmlAvailable = this.isRenderModeAvailable("vml");
-                
+
                 // now test we actually have the capability to do this.
                 if (mode === "svg") {
                     if (svgAvailable) renderMode = "svg";
@@ -2552,7 +2584,7 @@
 			while (op != null) {
 				l += op.offsetLeft;
 				t += op.offsetTop;
-				op = relativeToRoot ? op.offsetParent : 
+				op = relativeToRoot ? op.offsetParent :
 					op.offsetParent == container ? null : op.offsetParent;
 			}
 			return {
@@ -2562,30 +2594,69 @@
 		//
 		// return x+y proportion of the given element's size corresponding to the location of the given event.
 		//
-		getPositionOnElement:function(evt, el, zoom) {
-			var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left:0, top:0, width:0, height:0 },
-				body = document.body,
+    getPositionOnElement:function(evt, el, zoom) {
+      var box = typeof el.getBoundingClientRect !== "undefined" ? el.getBoundingClientRect() : { left:0, top:0, width:0, height:0 },
+				  body = document.body,
     			docElem = document.documentElement,
     			offPar = el.offsetParent,
     			scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop,
-				scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-				clientTop = docElem.clientTop || body.clientTop || 0,
-				clientLeft = docElem.clientLeft || body.clientLeft || 0,
-				pst = 0,//offPar ? offPar.scrollTop : 0,
-				psl = 0,//offPar ? offPar.scrollLeft : 0,
-				top  = box.top +  scrollTop - clientTop + (pst * zoom),
-				left = box.left + scrollLeft - clientLeft + (psl * zoom),
-				cl = jsPlumbAdapter.pageLocation(evt),
-				w = box.width || (el.offsetWidth * zoom),
-				h = box.height || (el.offsetHeight * zoom),
-				x = (cl[0] - left) / w,
-				y = (cl[1] - top) / h;
+				  scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+				  clientTop = docElem.clientTop || body.clientTop || 0,
+				  clientLeft = docElem.clientLeft || body.clientLeft || 0,
+				  pst = 0,//offPar ? offPar.scrollTop : 0,
+				  psl = 0,//offPar ? offPar.scrollLeft : 0,
+				  top  = box.top +  scrollTop - clientTop + (pst * zoom),
+				  left = box.left + scrollLeft - clientLeft + (psl * zoom),
+				  cl = jsPlumbAdapter.pageLocation(evt),
+				  w = box.width || (el.offsetWidth * zoom),
+				  h = box.height || (el.offsetHeight * zoom),
+				  x = (cl[0] - left) / w,
+				  y = (cl[1] - top) / h;
 
-			return [ x, y ];
-		}
+			 return [ x, y ];
+     },
+
+     /**
+    * Gets the absolute position of some element as read from the left/top properties in its style.
+    * @method getAbsolutePosition
+    * @param {Element} el The element to retrieve the absolute coordinates from. **Note** this is a DOM element, not a selector from the underlying library.
+    * @return [Float, Float] [left, top] pixel values.
+    */
+    getAbsolutePosition : function(el) {
+        var _one = function(s) {
+            var ss = el.style[s];
+            if (ss) return parseFloat(ss.substring(0, ss.length - 2));
+        };
+        return [ _one("left"), _one("top") ];
+    },
+
+    /**
+    * Sets the absolute position of some element by setting the left/top properties in its style.
+    * @method setAbsolutePosition
+    * @param {Element} el The element to set the absolute coordinates on. **Note** this is a DOM element, not a selector from the underlying library.
+    * @param {Float[]} xy x and y coordinates
+	  * @param {Float[]} [animateFrom] Optional previous xy to animate from.
+    */
+    setAbsolutePosition : function(el, xy, animateFrom, animateOptions) {
+		  if (animateFrom) {
+			     root.jsPlumb.animate(el, {
+				     left: "+=" + (xy[0] - animateFrom[0]),
+				     top: "+=" + (xy[1] - animateFrom[1])
+			     }, animateOptions);
+		  }
+		  else {
+			  el.style.left = xy[0] + "px";
+			  el.style.top = xy[1] + "px";
+		  }
+    },
+
+
+
+
     };
-   
-})();
+
+}).call(this);
+
 /*
  * jsPlumb
  * 
@@ -4905,6 +4976,10 @@
 							// TODO test options to makeTarget to see if we should do this?
 							newEndpoint._doNotDeleteOnDetach = false; // reset.
 							newEndpoint._deleteOnDetach = true;
+
+							// if connection is detachable, init the new endpoint to be draggable, to support that happening.
+							if (jpc.isDetachable())
+								newEndpoint.initDraggable();
 																	
 							// if the anchor has a 'positionFinder' set, then delegate to that function to find
 							// out where to locate the anchor.
@@ -5894,8 +5969,6 @@
                 fireEvent = (fireEvent !== false);
 
             if (idx >= 0) {		                
-
-                //!_jsPlumb.checkCondition("beforeDetach", jpc)
 
                 if (forceDetach || connection._forceDetach || (connection.isDetachable() && connection.isDetachAllowed(connection) && this.isDetachAllowed(connection) && _jsPlumb.checkCondition("beforeDetach", connection) )) {
 
@@ -7103,66 +7176,77 @@
             userDefinedContinuousAnchorLocations = {},        
             continuousAnchorOrientations = {},
             Orientation = { HORIZONTAL : "horizontal", VERTICAL : "vertical", DIAGONAL : "diagonal", IDENTITY:"identity" },
+            axes = ["left", "top", "right", "bottom"],
 			connectionsByElementId = {},
 			self = this,
             anchorLists = {},
             jsPlumbInstance = params.jsPlumbInstance,
-            floatingConnections = {},
-            // TODO this functions uses a crude method of determining orientation between two elements.
-            // 'diagonal' should be chosen when the angle of the line between the two centers is around
-            // one of 45, 135, 225 and 315 degrees. maybe +- 15 degrees.
-            // used by AnchorManager.redraw
+            floatingConnections = {},            
             calculateOrientation = function(sourceId, targetId, sd, td, sourceAnchor, targetAnchor) {
         
                 if (sourceId === targetId) return {
                     orientation:Orientation.IDENTITY,
                     a:["top", "top"]
+                };        
+
+// --------------------------------------------------------------------------------------
+
+				// improved face calculation. get midpoints of each face for source and target, then put in an array with all combinations of
+				// source/target faces. sort this array by distance between midpoints. the entry at index 0 is our preferred option. we can 
+				// go through the array one by one until we find an entry in which each requested face is supported.
+				var candidates = [], midpoints = { };
+				(function(types, dim) {
+					for (var i = 0; i < types.length; i++) {
+						midpoints[types[i]] = {
+							"left":[ dim[i].left, dim[i].centery ],
+							"right":[ dim[i].right, dim[i].centery ],
+							"top":[ dim[i].centerx, dim[i].top ],
+							"bottom":[ dim[i].centerx , dim[i].bottom]
+						};
+					}
+				})([ "source", "target" ], [ sd, td ]);
+
+				for (var sf = 0; sf < axes.length; sf++) {
+					for (var tf = 0; tf < axes.length; tf++) {
+						if (sf != tf) {
+							candidates.push({ 
+								source:axes[sf], 
+								target:axes[tf], 
+								dist:d = Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]]) 
+							});
+						}
+					}
+				}
+
+				candidates.sort(function(a, b) {
+					return a.dist < b.dist ? -1 : a.dist > b.dist ? 1 : 0;
+				});
+
+				// now go through this list and try to get an entry that satisfies both (there will be one, unless one of the anchors
+				// declares no available faces)
+				var sourceEdge = candidates[0].source, targetEdge = candidates[0].target;
+				for (var i = 0; i < candidates.length; i++) {
+					
+					if (!sourceAnchor.isContinuous || sourceAnchor.isEdgeSupported(candidates[i].source))
+						sourceEdge = candidates[i].source;
+					else
+						sourceEdge = null;
+
+					if (!targetAnchor.isContinuous || targetAnchor.isEdgeSupported(candidates[i].target))
+						targetEdge = candidates[i].target;
+					else {
+						targetEdge = null;
+					}
+
+					if (sourceEdge != null && targetEdge != null) break;
+				}				
+
+// --------------------------------------------------------------------------------------
+
+                return {
+                	a : [ sourceEdge, targetEdge ]
+                	//TODO: set out.orientation ?
                 };
-        
-                var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),
-                    theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx)),
-                    h = ((sd.left <= td.left && sd.right >= td.left) || (sd.left <= td.right && sd.right >= td.right) ||
-                        (sd.left <= td.left && sd.right >= td.right) || (td.left <= sd.left && td.right >= sd.right)),
-                    v = ((sd.top <= td.top && sd.bottom >= td.top) || (sd.top <= td.bottom && sd.bottom >= td.bottom) ||
-                        (sd.top <= td.top && sd.bottom >= td.bottom) || (td.top <= sd.top && td.bottom >= sd.bottom)),
-                    possiblyTranslateEdges = function(edges) {
-                        // this function checks to see if either anchor is Continuous, and if so, runs the suggested edge
-                        // through the anchor: Continuous anchors can say which faces they support, and they get to choose 
-                        // whether a certain face is honoured, or, if not, which face to replace it with. the behaviour when
-                        // choosing an alternate face is to try for the opposite face first, then the next one clockwise, and then
-                        // the opposite of that one.
-                        return [
-                            sourceAnchor.isContinuous ? sourceAnchor.verifyEdge(edges[0]) : edges[0],    
-                            targetAnchor.isContinuous ? targetAnchor.verifyEdge(edges[1]) : edges[1]
-                        ];
-                    },
-                    out = {
-                        orientation:Orientation.DIAGONAL,
-                        theta:theta,
-                        theta2:theta2
-                    };                        
-                
-                if (! (h || v)) {                    
-                    if (td.left > sd.left && td.top > sd.top)
-                        out.a = ["right", "top"];
-                    else if (td.left > sd.left && sd.top > td.top)
-                        out.a = [ "top", "left"];
-                    else if (td.left < sd.left && td.top < sd.top)
-                        out.a = [ "top", "right"];
-                    else if (td.left < sd.left && td.top > sd.top)
-                        out.a = ["left", "top" ];                            
-                }
-                else if (h) {
-                    out.orientation = Orientation.HORIZONTAL;
-                    out.a = sd.top < td.top ? ["bottom", "top"] : ["top", "bottom"];                    
-                }
-                else {
-                    out.orientation = Orientation.VERTICAL;
-                    out.a = sd.left < td.left ? ["right", "left"] : ["left", "right"];
-                }
-                
-                out.a = possiblyTranslateEdges(out.a);
-                return out;
             },
                 // used by placeAnchors function
             placeAnchorsOnLine = function(desc, elementDimensions, elementPosition,
@@ -7187,18 +7271,9 @@
                 return function(a,b) {
                     var r = true;
                     if (reverseAngles) {
-                        /*if (a[0][0] < b[0][0])
-                            r = true;
-                        else
-                            r = a[0][1] > b[0][1];*/
                         r = a[0][0] < b[0][0];
                     }
-                    else {
-                        /*if (a[0][0] > b[0][0])
-                            r= true;
-                        else
-                            r =a[0][1] > b[0][1];
-                        */
+                    else {                        
                         r = a[0][0] > b[0][0];
                     }
                     return r === false ? -1 : 1;
@@ -7660,6 +7735,10 @@
                 else if (availableFaces[secondBest[edge]]) return secondBest[edge];
                 else if (availableFaces[lastChoice[edge]]) return lastChoice[edge];
                 return edge; // we have to give them something.
+            };
+
+            this.isEdgeSupported = function(edge) {
+            	return availableFaces[edge] === true;
             };
             
             this.compute = function(params) {
