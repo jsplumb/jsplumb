@@ -69,6 +69,12 @@
 */
 
 /**
+* Clears all `types` for a given component.
+* @method clearTypes
+* @param {Boolean} [doNotRepaint=false] Tells jsPlumb not to repaint after clearing the types.
+*/
+
+/**
 * Reapplies the current list of types with the given (optional) parameters. See the 
 * jsPlumb documentation for a full discussion of types.
 * @method reapplyTypes
