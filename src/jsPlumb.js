@@ -61,7 +61,7 @@
 					
 				var o = _ju.merge({}, component.getDefaultType());
 				for (var i = 0, j = component._jsPlumb.types.length; i < j; i++)
-					o = _ju.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td));						
+					o = _ju.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td), [ "cssClass" ]);
 					
 				if (params) {
 					o = _ju.populate(o, params);
