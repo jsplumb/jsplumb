@@ -102,115 +102,43 @@
             <div class="markdown-body">
                 <h2>Querying jsPlumb</h2>
 
+<ul>
+<li><strong>Connections</strong>
+
+<ul>
+<li><a href="#select">Selecting and operating on a list of Connections</a></li>
+<li><a href="#selectSetters">Setter operations</a></li>
+<li><a href="#selectGetters">Getter operations</a></li>
+<li><a href="#selectExamples">Examples</a></li>
+<li><a href="#selectIterate">Iterating through results</a></li>
+<li><a href="#selectOther">Other properties/functions</a></li>
+<li><a href="#getConnections">Retrieving static Connection lists</a></li>
+<li><a href="#getConnectionsSingleScope">Retrieving connections for a single scope</a></li>
+<li><a href="#getConnectionsAdvanced">Filtering by source, target and/or scope</a></li>
+<li><a href="#getConnectionsExamples">Examples</a></li>
+</ul></li>
+<li><strong>Endpoints</strong>
+
+<ul>
+<li><a href="#selectEndpoints">Selecting and operating on a list of Endpoints</a></li>
+<li><a href="#selectEndpointsSetters">Setter Methods</a></li>
+<li><a href="#selectEndpointsGetters">Getter Methods</a></li>
+<li><a href="#selectEndpointsOther">Other Methods/Properties</a></li>
+<li><a href="#selectEndpointsExamples">Examples</a></li>
+</ul></li>
+</ul>
+
 <h3>Connections</h3>
 
-<p>There are two ways of retrieving connection information from jsPlumb. <code>getConnections</code> is the original method; this method has since been supplanted by <code>jsPlumb.select</code>, a much more versatile variant (although which, admittedly, uses getConnections internally).</p>
+<p><a name="select"></a></p>
 
-<p><a id="getConnections"></a></p>
+<h4>Selecting and operating on a list of Connections</h4>
 
-<h4>getConnections</h4>
+<p>The <code>jsPlumb.select</code> function provides a fluid interface for working with lists of Connections.  The syntax used to specify which Connections you want is identical to that which you use for <code>getConnections</code>, but the return value is an object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Connections in the selection along with the return value for that Connection.</p>
 
-<h5>Retrieving connections for a single scope</h5>
+<p><a name="selectSetters"></a></p>
 
-<p>To do this, you call getConnections with either no arguments, in which case jsPlumb uses the default scope, or with a string specifying one scope</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var connectionList = jsPlumb.getConnections(); // you get a list of Connection objects that are in the default scope.
-</code></pre></div>
-<p>Compare this with:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var connectionList = jsPlumb.getConnections(&quot;myScope&quot;);     // you get a list of Connection objects that are in &quot;myScope&quot;.
-</code></pre></div>
-<h5>More advanced filtering</h5>
-
-<p>getConnections optionally takes a JS object specifying filter parameters, of which there are three:</p>
-
-<ul>
-<li><strong>scope</strong> - the scope(s) of the connection type(s) you wish to retrieve</li>
-<li><strong>source</strong> - limits the returned connections to those that have this source id</li>
-<li><strong>target</strong> - limits the returned connections to those that have this target id</li>
-</ul>
-
-<p>Each of these three parameters may be supplied as a string, which for source and target is an element id and for scope is the name of the scope, or a list of strings.  Also, you can pass &quot;*&quot; in as the value for any of these - a wildcard, meaning any value.  See the examples below.</p>
-
-<p><strong>Important:</strong> The return value of a call to getConnection using a JS object as parameter varies on how many scopes you defined.  If you defined only a single scope then jsPlumb returns you a list of Connections in that scope.  Otherwise the return value is a dictionary whose keys are  scope names, and whose values are lists of Connections. For example, the following call:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.getConnections({
-    scope:[&quot;someScope&quot;, &quot;someCustomScope&quot;]
-});
-</code></pre></div>
-<p>would result in this output:            </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">{
-      &quot;someScope&quot; : [ 1..n Connections ],
-      &quot;someCustomScope&quot;: [ 1..m Connections ]
-}
-</code></pre></div>
-<p>This has tripped up many a developer who has been reluctant to take the time to read the documentation.  </p>
-
-<p>There is an optional second parameter that tells getConnections to flatten its output and just return you an array.  The previous example with this parameter would look like this:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.getConnections({
-    scope:[&quot;someScope&quot;, &quot;someCustomScope&quot;]
-}, true);
-</code></pre></div>
-<p>...and would result in this output:         </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">[ 1..n Connections ]
-</code></pre></div>
-<p>The following examples show the various ways you can get connection information:</p>
-
-<ul>
-<li>Get all connections:<br>
-<pre>
-jsPlumb.getAllConnections();
-</pre></li>
-<li>Get all connections for the default scope only(return value is a list):
-<pre>
-jsPlumb.getConnections();
-</pre></li>
-<li>Get all connections for the given scope (return value is a list): 
-<pre>
-jsPlumb.getConnections({scope:&quot;myTestScope&quot;});</pre></li>
-<li>Get all connections for the given scopes (return value is a map of scope names to connection lists):<br>
-<pre>
-jsPlumb.getConnections({
-    scope:[&quot;myTestScope&quot;, &quot;yourTestScope&quot;]
-});
-</pre></li>
-<li>Get all connections for the given source (return value is a map of scope names to connection lists):
-<pre>
-jsPlumb.getConnections({
-    source:&quot;mySourceElement&quot;
-});
-</pre></li>
-<li>Get all connections for the given sources (return value is a map of scope names to connection lists): 
-<pre>
-jsPlumb.getConnections({
-    source:[&quot;mySourceElement&quot;, &quot;yourSourceElement&quot;]
-});
-</pre></li>
-<li>Get all connections for the given target (return value is a map of scope names to connection lists):
-<pre>
-jsPlumb.getConnections({
-    target:&quot;myTargetElement&quot;
-});
-</pre></li>
-<li>Get all connections for the given source and targets (return value is a map of scope names to connection lists):
-<pre>
-jsPlumb.getConnections({
-    source:&quot;mySourceElement&quot;, 
-    target:[&quot;target1&quot;, &quot;target2&quot;]
-});
-</pre></li>
-<li>Get all connections for the given scope, with the given source and target (return value is a list of connections):
-<pre>
-jsPlumb.getConnections({
-    scope:&#39;myScope&quot;, 
-    source:&quot;mySourceElement&quot;, 
-    target:&quot;myTargetElement&quot;
-});
-</pre></li>
-</ul>
-
-<p><a id="select"></a></p>
-
-<h4>jsPlumb.select</h4>
-
-<p>This function provides a fluid interface for working with lists of Connections.  The syntax used to specify which Connections you want is identical to that which you use for getConnections, but the return value is an object that supports most operations that you can perform on a Connection, and which is also chainable, for setter methods. Certain getter methods are also supported, but these are not chainable; they return an array consisting of all the Connections in the selection along with the return value for that Connection.</p>
+<h5>Setter Operations</h5>
 
 <p>This is the full list of setter operations supported by jsPlumb.select:</p>
 
@@ -244,7 +172,11 @@ jsPlumb.getConnections({
 
 <p>Each of these operations returns a selector that can be chained.</p>
 
-<p>These is the full list of getter operations supported by jsPlumb.select:</p>
+<p><a name="selectGetters"></a></p>
+
+<h5>Getter Operations</h5>
+
+<p>This is the full list of getter operations supported by <code>jsPlumb.select</code>:</p>
 
 <ul>
 <li>getLabel</li>
@@ -261,50 +193,57 @@ jsPlumb.getConnections({
 
 <p>Each of these operations returns an array whose entries are [ value, Connection ] arrays, where <code>value</code> is the return value from the given Connection.  Remember that the return values from a getter are not chainable, but a getter may be called at the end of a chain of setters.</p>
 
-<p>Some examples:</p>
+<p><a name="selectExamples"></a></p>
+
+<h5>Examples</h5>
 
 <ul>
-<li>Select all Connections and set their hover state to be false:
-<pre>
-jsPlumb.select().setHover(false);
-</pre></li>
-<li>Select all Connections from &quot;d1&quot; and remove all Overlays:
-<pre>
-jsPlumb.select({source:&quot;d1&quot;}).removeAllOverlays();
-</pre></li>
-<li>Select all connections in scope &quot;foo&quot; and set their paint style to be a thick blue line:
-<pre>
+<li>Select all Connections and set their hover state to be false:</li>
+</ul>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">().</span><span class="nx">setHover</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+</code></pre></div>
+<ul>
+<li>Select all Connections from &quot;d1&quot; and remove all Overlays:</li>
+</ul>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">}).</span><span class="nx">removeAllOverlays</span><span class="p">();</span>
+</code></pre></div>
+<ul>
+<li><p>Select all connections in scope &quot;foo&quot; and set their paint style to be a thick blue line:
+<code>javascript
 jsPlumb.select({scope:&quot;foo&quot;}).setPaintStyle({
     strokeStyle:&quot;blue&quot;, 
     lineWidth:5 
 });
-</pre></li>
-<li>Select all Connections from &quot;d1&quot; and detach them:
-<pre>
+</code></p></li>
+<li><p>Select all Connections from &quot;d1&quot; and detach them:
+<code>javascript
 jsPlumb.select({source:&quot;d1&quot;}).detach();
-</pre></li>
-<li>Select all Connections and add the classes &quot;foo&quot; and &quot;bar&quot; to them :
-<pre>
+</code></p></li>
+<li><p>Select all Connections and add the classes &quot;foo&quot; and &quot;bar&quot; to them :
+<code>javascript
 jsPlumb.select().addClass(&quot;foo bar&quot;);
-</pre></li>
-<li>Select all Connections and remove the class &quot;foo&quot; from them :
-<pre>
+</code></p></li>
+<li><p>Select all Connections and remove the class &quot;foo&quot; from them :
+<code>javascript
 jsPlumb.select().removeClass(&quot;foo&quot;);
-</pre><br>
-##### .each iterator
-The return value of jsPlumb.select has a <code>.each</code> function that allows you to iterate through the list, performing an operation on each one:
-<pre>
-jsPlumb.select({scope:&quot;foo&quot;}).each(function(connection) {
-    // do something 
-});
-</pre>
-<code>.each</code> is itself chainable:
-<pre>
-jsPlumb.select({scope:&quot;foo&quot;}).each(function(connection) {<br>
-    // do something 
-}).setHover(true);
-</pre></li>
+</code>    </p></li>
 </ul>
+
+<p><a name="selectIterate"></a>                      </p>
+
+<h5>Iterating through results</h5>
+
+<p>The return value of <code>jsPlumb.select</code> has a <code>.each</code> function that allows you to iterate through the list, performing an operation on each one:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// do something </span>
+<span class="p">});</span>
+</code></pre></div>
+<p><code>.each</code> is itself chainable:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">select</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">connection</span><span class="p">)</span> <span class="p">{</span>   
+        <span class="c1">// do something </span>
+<span class="p">}).</span><span class="nx">setHover</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</code></pre></div>
+<p><a name="selectOther"></a></p>
 
 <h5>Other properties/functions</h5>
 
@@ -313,7 +252,117 @@ jsPlumb.select({scope:&quot;foo&quot;}).each(function(connection) {<br>
 <li><strong>get(idx)</strong> - this function allows you to retrieve a Connection from the selection</li>
 </ul>
 
-<h3>Selecting Endpoints</h3>
+<p><a name="getConnections"></a></p>
+
+<h4>Retrieving static Connection lists</h4>
+
+<p>As well as the <code>select</code> method, jsPlumb has another method that can be used to retrieve static lists of Connections - <code>getConnections</code>. The return value of this method is not chainable and does not offer operations on the Connections in the way that the return value of <code>select</code> does.</p>
+
+<p><a name="getConnectionsSingleScope"></a></p>
+
+<h5>Retrieving connections for a single scope</h5>
+
+<p>To do this, you call <code>getConnections</code> with either no arguments, in which case jsPlumb uses the default scope, or with a string specifying one scope</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connectionList</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">();</span> <span class="c1">// you get a list of Connection objects that are in the default scope.</span>
+</code></pre></div>
+<p>Compare this with:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connectionList</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">(</span><span class="s2">&quot;myScope&quot;</span><span class="p">);</span>     <span class="c1">// you get a list of Connection objects that are in &quot;myScope&quot;.</span>
+</code></pre></div>
+<p><a name="getConnectionsAdvanced"></a></p>
+
+<h5>Filtering by source, target and/or scope</h5>
+
+<p><code>getConnections</code> optionally takes a JS object specifying filter parameters, of which there are three:</p>
+
+<ul>
+<li><strong>scope</strong> - the scope(s) of the connection type(s) you wish to retrieve</li>
+<li><strong>source</strong> - limits the returned connections to those that have this source id</li>
+<li><strong>target</strong> - limits the returned connections to those that have this target id</li>
+</ul>
+
+<p>Each of these three parameters may be supplied as a string, which for source and target is an element id and for scope is the name of the scope, or a list of strings.  Also, you can pass &quot;*&quot; in as the value for any of these - a wildcard, meaning any value.  See the examples below.</p>
+
+<p><strong>Important:</strong> The return value of a call to <code>getConnection</code> using a JS object as parameter varies on how many scopes you defined.  If you defined only a single scope then jsPlumb returns you a list of Connections in that scope.  Otherwise the return value is a dictionary whose keys are  scope names, and whose values are lists of Connections. For example, the following call:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">({</span>
+  <span class="nx">scope</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;someScope&quot;</span><span class="p">,</span> <span class="s2">&quot;someCustomScope&quot;</span><span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>would result in this output:            </p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="p">{</span>
+  <span class="s2">&quot;someScope&quot;</span> <span class="o">:</span> <span class="p">[</span> <span class="mi">1</span><span class="p">..</span><span class="nx">n</span> <span class="nx">Connections</span> <span class="p">],</span>
+  <span class="s2">&quot;someCustomScope&quot;</span><span class="o">:</span> <span class="p">[</span> <span class="mi">1</span><span class="p">..</span><span class="nx">m</span> <span class="nx">Connections</span> <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This has tripped up many a developer who has been reluctant to take the time to read the documentation.  </p>
+
+<p>There is an optional second parameter that tells getConnections to flatten its output and just return you an array.  The previous example with this parameter would look like this:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">getConnections</span><span class="p">({</span>
+  <span class="nx">scope</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;someScope&quot;</span><span class="p">,</span> <span class="s2">&quot;someCustomScope&quot;</span><span class="p">]</span>
+<span class="p">},</span> <span class="kc">true</span><span class="p">);</span>
+</code></pre></div>
+<p>...and would result in this output:         </p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">[ 1..n Connections ]
+</code></pre></div>
+<p><a name="getConnectionsExamples"></a>
+The following examples show the various ways you can get connection information:</p>
+
+<ul>
+<li>Get all connections:<br>
+<code>
+jsPlumb.getAllConnections();
+</code></li>
+<li>Get all connections for the default scope only(return value is a list):
+<code>javascript
+jsPlumb.getConnections();
+</code></li>
+<li><p>Get all connections for the given scope (return value is a list): 
+<code>javascript
+jsPlumb.getConnections({scope:&quot;myTestScope&quot;});&lt;/pre&gt;
+</code></p></li>
+<li><p>Get all connections for the given scopes (return value is a map of scope names to connection lists):<br>
+<code>javascript
+jsPlumb.getConnections({
+    scope:[&quot;myTestScope&quot;, &quot;yourTestScope&quot;]
+});
+</code></p></li>
+<li><p>Get all connections for the given source (return value is a map of scope names to connection lists):
+<code>javascript
+jsPlumb.getConnections({
+    source:&quot;mySourceElement&quot;
+});
+</code></p></li>
+<li><p>Get all connections for the given sources (return value is a map of scope names to connection lists): 
+<code>javascript
+jsPlumb.getConnections({
+    source:[&quot;mySourceElement&quot;, &quot;yourSourceElement&quot;]
+});
+</code></p></li>
+<li><p>Get all connections for the given target (return value is a map of scope names to connection lists):
+<code>javascript
+jsPlumb.getConnections({
+    target:&quot;myTargetElement&quot;
+});
+</code></p></li>
+<li><p>Get all connections for the given source and targets (return value is a map of scope names to connection lists):
+<code>javascript
+jsPlumb.getConnections({
+    source:&quot;mySourceElement&quot;, 
+    target:[&quot;target1&quot;, &quot;target2&quot;]
+});
+</code></p></li>
+<li><p>Get all connections for the given scope, with the given source and target (return value is a list of connections):
+<code>javascript
+jsPlumb.getConnections({
+    scope:&#39;myScope&quot;, 
+    source:&quot;mySourceElement&quot;, 
+    target:&quot;myTargetElement&quot;
+});
+</code></p></li>
+</ul>
+
+<p><a name="selectEndpoints"></a></p>
+
+<h3>Selecting and operating on a list of Endpoints</h3>
 
 <p><code>jsPlumb.selectEndpoints</code> provides a fluid interface for working with lists of Endpoints.</p>
 
@@ -328,7 +377,11 @@ jsPlumb.select({scope:&quot;foo&quot;}).each(function(connection) {<br>
 <li><strong>scope</strong> - scope(s) for endpoints to retrieve<br></li>
 </ul>
 
-<p>This is the full list of setter operations supported by jsPlumb.selectEndpoints: </p>
+<p><a name="selectEndpointsSetters"></a></p>
+
+<h4>Setter Operations</h4>
+
+<p>This is the full list of setter operations supported by <code>jsPlumb.selectEndpoints</code>: </p>
 
 <ul>
 <li>addClass<br></li>
@@ -358,7 +411,11 @@ jsPlumb.select({scope:&quot;foo&quot;}).each(function(connection) {<br>
 
 <p>Each of these operations returns a selector that can be chained.</p>
 
-<p>This is the full list of getter operations supported by jsPlumb.select:     </p>
+<p><a name="selectEndpointsGetters"></a></p>
+
+<h4>Getter Operations</h4>
+
+<p>This is the full list of getter operations supported by <code>jsPlumb.selectEndpoints</code>:     </p>
 
 <ul>
 <li>getLabel</li>
@@ -374,66 +431,65 @@ jsPlumb.select({scope:&quot;foo&quot;}).each(function(connection) {<br>
 
 <p>Each of these operations returns an array whose entries are <code>[ value, Endpoint ]</code> arrays, where &#39;value&#39; is the return value from the given Endpoint. Remember that the return values from a getter are not chainable, but a getter may be called at the end of a chain of setters.</p>
 
-<p>Other methods (not chainable):</p>
+<p><a name="selectEndpointsOther"></a></p>
+
+<h4>Other methods/properties (not chainable):</h4>
 
 <ul>
-<li>delete - deletes the Endpoints in the selection</li>
-<li>detachAll - detaches all Connections from the Endpoints in the selection<br></li>
+<li><strong>delete</strong> - deletes the Endpoints in the selection</li>
+<li><strong>detachAll</strong> - detaches all Connections from the Endpoints in the selection<br></li>
+<li><strong>length</strong> - this member reports the number of Endpoints in the selection</li>
+<li><strong>get(idx)</strong> - this function allows you to retrieve an Endpoint from the selection</li>
 </ul>
 
-<p>Some examples:</p>
+<p><a name="selectEndpointsExamples"></a></p>
+
+<h4>Examples</h4>
 
 <ul>
-<li>Select all Endpoints and set their hover state to be false:
-<pre>
+<li><p>Select all Endpoints and set their hover state to be false:
+<code>javascript
 jsPlumb.selectEndpoints().setHover(false);
-</pre></li>
-<li>Select all source Endpoints on &quot;d1&quot; and remove all Overlays:
-<pre>
+</code></p></li>
+<li><p>Select all source Endpoints on &quot;d1&quot; and remove all Overlays:
+<code>javascript
 jsPlumb.selectEndpoints({source:&quot;d1&quot;}).removeAllOverlays();
-</pre></li>
-<li>Select all source Endpoints on &quot;d1&quot; and add the classes &quot;foo&quot; and &quot;bar&quot; to them :
-<pre>
+</code></p></li>
+<li><p>Select all source Endpoints on &quot;d1&quot; and add the classes &quot;foo&quot; and &quot;bar&quot; to them :
+<code>javascript
 jsPlumb.selectEndpoints({source:&quot;d1&quot;}).addClass(&quot;foo bar&quot;);
-</pre></li>
-<li>Select all source Endpoints on &quot;d1&quot; and remove the class &quot;foo&quot; from them :
-<pre>
+</code></p></li>
+<li><p>Select all source Endpoints on &quot;d1&quot; and remove the class &quot;foo&quot; from them :
+<code>javascript
 jsPlumb.selectEndpoints({source:&quot;d1&quot;}).removeClass(&quot;foo&quot;);
-</pre></li>
-<li>Select all Endpoints in scope &quot;foo&quot; and set their fill style to be blue:
-<pre>
+</code></p></li>
+<li><p>Select all Endpoints in scope &quot;foo&quot; and set their fill style to be blue:
+<code>javascript
 jsPlumb.selectEndpoints({ scope:&quot;foo&quot; }).setPaintStyle({ fillStyle:&quot;blue&quot; });
-</pre></li>
-<li>Select all Endpoints from &quot;d1&quot; and detach their Connections:
-<pre>
+</code></p></li>
+<li><p>Select all Endpoints from &quot;d1&quot; and detach their Connections:
+<code>javascript
 jsPlumb.selectEndpoints({source:&quot;d1&quot;}).detachAll();
-</pre></li>
+</code></p></li>
 </ul>
 
 <h5><code>.each</code> iterator</h5>
 
 <p>The return value of jsPlumb.selectEndpoints also has a <code>.each</code> function that allows you to iterate through the list, performing an operation on each one:
-<pre>
+```javascript
 jsPlumb.selectEndpoints({scope:&quot;foo&quot;}).each(function(endpoint) {</p>
 <div class="highlight"><pre><code class="text language-text" data-lang="text">    // do something 
 </code></pre></div>
 <p>});
-</pre>
-<code>.each</code> is itself chainable:
-<pre>
-jsPlumb.selectEndpoints({scope:&quot;foo&quot;}).each(function(endpoint) {</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">    // do something 
+```</p>
+
+<p><code>.each</code> is itself chainable:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">selectEndpoints</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">}).</span><span class="nx">each</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">endpoint</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// do something </span>
+
+<span class="p">}).</span><span class="nx">setHover</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
 </code></pre></div>
-<p>}).setHover(true);
-</pre></p>
-
-<h5>Other properties/functions</h5>
-
-<ul>
-<li><strong>length</strong> - this member reports the number of Endpoints in the selection</li>
-<li><strong>get(idx)</strong> - this function allows you to retrieve an Endpoint from the selection</li>
-</ul>
-
             </div>
         </div>
         

@@ -1316,7 +1316,8 @@
             constrainRect,
             matchingDroppables = [], intersectingDroppables = [],
             downListener = function(e) {
-                if (this.isEnabled() && canDrag()) {
+                var isNotRightClick = params.rightButtonCanDrag || (e.which !== 3 && e.button !== 2);
+                if (isNotRightClick && this.isEnabled() && canDrag()) {
                     var _f =  filter(e) && _inputFilter(e, el, this.k);
                     if (_f) {
                         if (!clone)
@@ -1781,14 +1782,30 @@
             }
             else return a;
         },
-        merge : function(a, b) {
+        merge : function(a, b, collations) {
+            // first change the collations array - if present - into a lookup table, because its faster.
+            var cMap = {}, ar, i;
+            collations = collations || [];
+            for (i = 0; i < collations.length; i++)
+                cMap[collations[i]] = true;
+
             var c = this.clone(a);
-            for (var i in b) {
-                if (c[i] == null || _iss(b[i]) || _isb(b[i]))
+            for (i in b) {
+                if (c[i] == null)
                     c[i] = b[i];
+                else if (_iss(b[i]) || _isb(b[i])) {
+                    if (!cMap[i]) c[i] = b[i]; // if we dont want to collate, just copy it in.
+                    else {
+                        ar = [];
+                        // if c's object is also an array we can keep its values.
+                        ar.push.apply(ar, _isa(c[i]) ? c[i] :  [ c[i] ] );
+                        ar.push.apply(ar, _isa(b[i]) ? b[i] :  [ b[i] ] );
+                        c[i] = ar;
+                    }
+                }
                 else {
                     if (_isa(b[i])) {
-                        var ar = [];
+                        ar = [];
                         // if c's object is also an array we can keep its values.
                         if (_isa(c[i])) ar.push.apply(ar, c[i]);
                         ar.push.apply(ar, b[i]);
@@ -2131,6 +2148,8 @@
  */
  ;(function() {
 
+  "use strict";
+
    var root = this;
    var exports = root.jsPlumbUtil;
 
@@ -2462,7 +2481,7 @@
 
 			// TODO if classList exists, use it.
 
-			var classesToAddOrRemove = clazz.split(/\s+/),
+			var classesToAddOrRemove = jsPlumbUtil.isArray(clazz) ? clazz : clazz.split(/\s+/),
 				className = _getClassName(el),
 				curClasses = className.split(/\s+/);
 
@@ -2720,7 +2739,7 @@
 					
 				var o = _ju.merge({}, component.getDefaultType());
 				for (var i = 0, j = component._jsPlumb.types.length; i < j; i++)
-					o = _ju.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td));						
+					o = _ju.merge(o, component._jsPlumb.instance.getType(component._jsPlumb.types[i], td), [ "cssClass" ]);
 					
 				if (params) {
 					o = _ju.populate(o, params);
@@ -2888,6 +2907,17 @@
 		    };		    	    			                      
 		};
 
+		var _removeTypeCssHelper = function(component, typeIndex) {
+			var typeId = component._jsPlumb.types[typeIndex],
+				type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
+
+			if (type != null) {
+
+				if (type.cssClass && component.canvas)
+					component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
+			}
+		};
+
 		jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
 			
 			getParameter : function(name) { 
@@ -2914,7 +2944,8 @@
 			    jsPlumbAdapter.removeClass(this.canvas, clazz);
 			},
 			
-			setType : function(typeId, params, doNotRepaint) {				
+			setType : function(typeId, params, doNotRepaint) {	
+				this.clearTypes();			
 				this._jsPlumb.types = _splitType(typeId) || [];
 				_applyTypes(this, params, doNotRepaint);									
 			},
@@ -2948,6 +2979,8 @@
 				var t = _splitType(typeId), _cont = false, _one = function(tt) {
 						var idx = _ju.indexOf(this._jsPlumb.types, tt);
 						if (idx != -1) {
+							// remove css class if necessary
+							_removeTypeCssHelper(this, idx);
 							this._jsPlumb.types.splice(idx, 1);
 							return true;
 						}
@@ -2961,14 +2994,24 @@
 					if (_cont) _applyTypes(this, null, doNotRepaint);
 				}
 			},
+			clearTypes : function(doNotRepaint) {
+				var i = this._jsPlumb.types.length;
+				for (var j = 0; j < i; j++) {
+					_removeTypeCssHelper(this, 0);
+					this._jsPlumb.types.splice(0, 1);
+				}
+				_applyTypes(this, {}, doNotRepaint);
+			},
 			
 			toggleType : function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId);
 				if (t != null) {
 					for (var i = 0, j = t.length; i < j; i++) {
 						var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, t[i]);
-						if (idx != -1)
+						if (idx != -1) {
+							_removeTypeCssHelper(this, idx);
 							this._jsPlumb.types.splice(idx, 1);
+						}
 						else
 							this._jsPlumb.types.push(t[i]);
 					}
@@ -3664,10 +3707,6 @@
 				if (tep) {
 					// if source not enabled, return.					
 					if (!tep.enabled) return;
-
-					// TODO this is dubious. i think it is there so that the endpoint can subsequently
-					// be dragged (ie it kicks off the draggable registration). but it is dubious.
-					//tep.isSource = true;
 				
 					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p.source, tep.def, 0);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
@@ -6631,6 +6670,7 @@
             if (t.anchor) {
                 this.anchor = this._jsPlumb.instance.makeAnchor(t.anchor);
             }
+            if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
         },
         isEnabled : function() { return this._jsPlumb.enabled; },
         setEnabled : function(e) { this._jsPlumb.enabled = e; },
@@ -6900,6 +6940,7 @@
             if (t.scope) this.scope = t.scope;
             //editable = t.editable;  // TODO
             this.setConnector(t.connector, doNotRepaint);
+            if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
         },
         getTypeDescriptor : function() { return "connection"; },
         getAttachedElements : function() {
@@ -7165,6 +7206,8 @@
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {	
+
+    "use strict";
     
     //
 	// manages anchors for all elements.
@@ -7212,7 +7255,7 @@
 							candidates.push({ 
 								source:axes[sf], 
 								target:axes[tf], 
-								dist:d = Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]]) 
+								dist:Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]]) 
 							});
 						}
 					}

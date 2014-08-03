@@ -1273,7 +1273,7 @@
             "plugin_for": [],
             "extension_for": [],
             "file": "doc/api/util-api.js",
-            "line": 75,
+            "line": 84,
             "description": "Provides event bind/fire functionality."
         }
     },
@@ -4112,6 +4112,23 @@
         {
             "file": "doc/api/uicomponent.js",
             "line": 71,
+            "description": "Clears all `types` for a given component.",
+            "itemtype": "method",
+            "name": "clearTypes",
+            "params": [
+                {
+                    "name": "doNotRepaint",
+                    "description": "Tells jsPlumb not to repaint after clearing the types.",
+                    "type": "Boolean",
+                    "optional": true,
+                    "optdefault": "false"
+                }
+            ],
+            "class": "jsPlumbUIComponent"
+        },
+        {
+            "file": "doc/api/uicomponent.js",
+            "line": 77,
             "description": "Reapplies the current list of types with the given (optional) parameters. See the \njsPlumb documentation for a full discussion of types.",
             "itemtype": "method",
             "name": "reapplyTypes",
@@ -4127,7 +4144,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 78,
+            "line": 84,
             "description": "Returns whether or not the component currently has the given type.",
             "itemtype": "method",
             "name": "hasType",
@@ -4146,7 +4163,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 85,
+            "line": 91,
             "description": "Adds a type to the component. Note this is distinct from {@link #setType}, which overrides all current types - this function just adds a type to the existing list.",
             "itemtype": "method",
             "name": "addType",
@@ -4174,7 +4191,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 93,
+            "line": 99,
             "description": "Removes the given type from the component.",
             "itemtype": "method",
             "name": "removeType",
@@ -4196,7 +4213,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 100,
+            "line": 106,
             "description": "Toggles the given type on the component.",
             "itemtype": "method",
             "name": "toggleType",
@@ -4224,7 +4241,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 108,
+            "line": 114,
             "description": "Returns whether or not the object is currently in hover state",
             "itemtype": "method",
             "name": "isHover",
@@ -4236,7 +4253,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 114,
+            "line": 120,
             "description": "Sets the paint style to use when the mouse is hovering over the component. This is null by default.\nThe hover paint style is applied as extensions to the paintStyle; it does not entirely replace\nit. This is because people will most likely want to change just one thing when hovering, say the\ncolor for example, but leave the rest of the appearance the same.",
             "itemtype": "method",
             "name": "setHoverPaintStyle",
@@ -4277,7 +4294,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 127,
+            "line": 133,
             "description": "Sets/unsets the hover state of this component.",
             "itemtype": "method",
             "name": "setHover",
@@ -4299,7 +4316,7 @@
         },
         {
             "file": "doc/api/uicomponent.js",
-            "line": 134,
+            "line": 140,
             "description": "Sets the component's paint style and then repaints the component.",
             "itemtype": "method",
             "name": "setPaintStyle",
@@ -4521,7 +4538,33 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 80,
+            "line": 75,
+            "description": "Merges one object into another, optionally folding individual values into arrays.",
+            "itemtype": "method",
+            "name": "merge",
+            "static": 1,
+            "params": [
+                {
+                    "name": "a",
+                    "description": "Object to merge into",
+                    "type": "Object"
+                },
+                {
+                    "name": "b",
+                    "description": "Object to merge from.",
+                    "type": "Object"
+                },
+                {
+                    "name": "String[",
+                    "description": "[collations] Optional list of parameter keys for values that, if present in both 'a' and 'b', should result in an array with values from each (rather than the default behaviour of overwriting a's value with b's)",
+                    "optional": true
+                }
+            ],
+            "class": "jsPlumbUtil"
+        },
+        {
+            "file": "doc/api/util-api.js",
+            "line": 89,
             "description": "Binds a listener to an event.",
             "itemtype": "method",
             "name": "bind",
@@ -4548,7 +4591,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 88,
+            "line": 97,
             "description": "Fires an update for the given event.",
             "itemtype": "method",
             "name": "fire",
@@ -4575,7 +4618,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 97,
+            "line": 106,
             "description": "Clears either all listeners, or listeners for some specific event.",
             "itemtype": "method",
             "name": "unbind",
@@ -4591,7 +4634,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 102,
+            "line": 111,
             "description": "Sets whether or not events are suspended.",
             "itemtype": "method",
             "name": "setSuspendEvents",
@@ -4606,7 +4649,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 107,
+            "line": 116,
             "description": "Checks whether or not events are currently suspended.",
             "itemtype": "method",
             "name": "isSuspendEvents",
@@ -4618,7 +4661,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 112,
+            "line": 121,
             "description": "Removes all listeners.",
             "itemtype": "method",
             "name": "cleanupListeners",
@@ -4626,7 +4669,7 @@
         },
         {
             "file": "doc/api/util-api.js",
-            "line": 117,
+            "line": 126,
             "description": "Replaces values inside some JS object according to a given path spec. A path spec is a string in dotted notation,\nwith each component optionally declaring an array index. Some examples are:\n\nfoo.bar\nfoo.baz[2]\nfoo.qux[3].baz[3].shwee\n\nThe function fails gracefully if the path identifies a non-existent object.",
             "itemtype": "method",
             "name": "jsPlumbUtil.replace",

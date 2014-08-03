@@ -15,6 +15,8 @@
  * Dual licensed under the MIT and GPL2 licenses.
  */
 ;(function() {	
+
+    "use strict";
     
     //
 	// manages anchors for all elements.
@@ -62,7 +64,7 @@
 							candidates.push({ 
 								source:axes[sf], 
 								target:axes[tf], 
-								dist:d = Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]]) 
+								dist:Biltong.lineLength(midpoints.source[axes[sf]], midpoints.target[axes[tf]]) 
 							});
 						}
 					}

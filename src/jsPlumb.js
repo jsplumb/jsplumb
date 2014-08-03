@@ -331,7 +331,7 @@
 					for (var i = 0, j = t.length; i < j; i++) {
 						var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, t[i]);
 						if (idx != -1) {
-							_removeTypeCssHelper(this, idx)
+							_removeTypeCssHelper(this, idx);
 							this._jsPlumb.types.splice(idx, 1);
 						}
 						else

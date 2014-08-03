@@ -200,7 +200,11 @@ jsPlumb.ready(function() {
 	// that enables me to reuse this code across all three libraries. In your own usage of jsPlumb you can use
 	// your library's selector method - "$" for jQuery, "$$" for MooTools, "Y.all" for YUI3.
 	//instance.draggable(jsPlumb.getSelector(".window"), { containment:".demo"});    
-	instance.draggable(jsPlumb.getSelector(".window"));    
+	instance.draggable(jsPlumb.getSelector(".window"), {
+		drag:function() {
+			//console.log("DRAG")
+		}
+	});    
 
 	jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });	

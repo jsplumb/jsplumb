@@ -16,6 +16,8 @@
  */
  ;(function() {
 
+  "use strict";
+
    var root = this;
    var exports = root.jsPlumbUtil;
 

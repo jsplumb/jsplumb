@@ -113,13 +113,23 @@
 <h3>New Functionality</h3>
 
 <ul>
-<li>added optional <code>allowLoopback</code> boolean parameter to vanilla jsPlumb&#39;s <code>makeTarget</code> method. </li>
+<li>Added optional <code>allowLoopback</code> boolean parameter to vanilla jsPlumb&#39;s <code>makeTarget</code> method. </li>
+<li>When using parameterized types, unmatched values are now replaced with blank strings, rather than being left in place. For instance, if you had <code>label=&quot;${foo}&quot;</code>, and you passed a blank &#39;foo&#39; value, you used to see <code>&quot;${foo}&quot;</code>. Now you see <code>&quot;&quot;</code>.</li>
+<li>You can set <code>visible:false</code> on an overlay spec, to have it initially invisible.</li>
+<li>Added <code>setHoverEnabled</code> method to jsPlumb.</li>
+<li>Added <code>clearTypes</code> method to Connection and Endpoint</li>
+<li>Connection and Endpoint types now support <code>cssClass</code> property. These are merged into an array if multiple types declare a cssClass.</li>
 </ul>
 
 <h3>Issues</h3>
 
 <ul>
-<li>None</li>
+<li><strong>222</strong> - Endpoints incorrectly calculated when the anchor faces of source/target are set to left/right</li>
+<li><strong>223</strong> - beforeDetach not fired by jsPlumb</li>
+<li><strong>224</strong> - endpointStyle of the jsPlumb.connect method does not work</li>
+<li><strong>227</strong> - MaxConnections=1 console log error</li>
+<li><strong>230</strong> - Endpoints not cleaned up after connector move</li>
+<li><strong>236</strong> - makeTarget/makeSource drag issues</li>
 </ul>
 
 <h2>1.6.2</h2>
