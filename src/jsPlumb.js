@@ -229,6 +229,17 @@
 		    };		    	    			                      
 		};
 
+		var _removeTypeCssHelper = function(component, typeIndex) {
+			var typeId = component._jsPlumb.types[typeIndex],
+				type = component._jsPlumb.instance.getType(typeId, component.getTypeDescriptor());
+
+			if (type != null) {
+
+				if (type.cssClass && component.canvas)
+					component._jsPlumb.instance.removeClass(component.canvas, type.cssClass);
+			}
+		};
+
 		jsPlumbUtil.extend(jsPlumbUIComponent, jsPlumbUtil.EventGenerator, {
 			
 			getParameter : function(name) { 
@@ -255,7 +266,8 @@
 			    jsPlumbAdapter.removeClass(this.canvas, clazz);
 			},
 			
-			setType : function(typeId, params, doNotRepaint) {				
+			setType : function(typeId, params, doNotRepaint) {	
+				this.clearTypes();			
 				this._jsPlumb.types = _splitType(typeId) || [];
 				_applyTypes(this, params, doNotRepaint);									
 			},
@@ -289,6 +301,8 @@
 				var t = _splitType(typeId), _cont = false, _one = function(tt) {
 						var idx = _ju.indexOf(this._jsPlumb.types, tt);
 						if (idx != -1) {
+							// remove css class if necessary
+							_removeTypeCssHelper(this, idx);
 							this._jsPlumb.types.splice(idx, 1);
 							return true;
 						}
@@ -302,14 +316,24 @@
 					if (_cont) _applyTypes(this, null, doNotRepaint);
 				}
 			},
+			clearTypes : function(doNotRepaint) {
+				var i = this._jsPlumb.types.length;
+				for (var j = 0; j < i; j++) {
+					_removeTypeCssHelper(this, 0);
+					this._jsPlumb.types.splice(0, 1);
+				}
+				_applyTypes(this, {}, doNotRepaint);
+			},
 			
 			toggleType : function(typeId, params, doNotRepaint) {
 				var t = _splitType(typeId);
 				if (t != null) {
 					for (var i = 0, j = t.length; i < j; i++) {
 						var idx = jsPlumbUtil.indexOf(this._jsPlumb.types, t[i]);
-						if (idx != -1)
+						if (idx != -1) {
+							_removeTypeCssHelper(this, idx)
 							this._jsPlumb.types.splice(idx, 1);
+						}
 						else
 							this._jsPlumb.types.push(t[i]);
 					}
