@@ -1005,10 +1005,6 @@
 				if (tep) {
 					// if source not enabled, return.					
 					if (!tep.enabled) return;
-
-					// TODO this is dubious. i think it is there so that the endpoint can subsequently
-					// be dragged (ie it kicks off the draggable registration). but it is dubious.
-					//tep.isSource = true;
 				
 					newEndpoint = tep.endpoint != null && tep.endpoint._jsPlumb ? tep.endpoint : _addEndpoint(_p.source, tep.def, 0);
 					if (tep.uniqueEndpoint) tep.endpoint = newEndpoint;
