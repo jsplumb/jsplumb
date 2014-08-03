@@ -73,6 +73,15 @@
 */
 
 /**
+* Merges one object into another, optionally folding individual values into arrays.
+* @method merge
+* @static
+* @param {Object} a Object to merge into
+* @param {Object} b Object to merge from.
+* @param [String[]] [collations] Optional list of parameter keys for values that, if present in both 'a' and 'b', should result in an array with values from each (rather than the default behaviour of overwriting a's value with b's)
+*/
+
+/**
  * Provides event bind/fire functionality.
  * @class jsPlumbUtil.EventGenerator 
  */
