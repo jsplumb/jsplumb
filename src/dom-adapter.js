@@ -276,7 +276,7 @@
 
 			// TODO if classList exists, use it.
 
-			var classesToAddOrRemove = clazz.split(/\s+/),
+			var classesToAddOrRemove = jsPlumbUtil.isArray(clazz) ? clazz : clazz.split(/\s+/),
 				className = _getClassName(el),
 				curClasses = className.split(/\s+/);
 
