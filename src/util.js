@@ -64,11 +64,27 @@
             }
             else return a;
         },
-        merge : function(a, b) {
+        merge : function(a, b, collations) {
+            // first change the collations array - if present - into a lookup table, because its faster.
+            var cMap = {};
+            collations = collations || [];
+            for (var i = 0; i < collations.length; i++)
+                cMap[collations[i]] = true;
+
             var c = this.clone(a);
             for (var i in b) {
-                if (c[i] == null || _iss(b[i]) || _isb(b[i]))
+                if (c[i] == null)
                     c[i] = b[i];
+                else if (_iss(b[i]) || _isb(b[i])) {
+                    if (!cMap[i]) c[i] = b[i]; // if we dont want to collate, just copy it in.
+                    else {
+                        var ar = [];
+                        // if c's object is also an array we can keep its values.
+                        ar.push.apply(ar, _isa(c[i]) ? c[i] :  [ c[i] ] );
+                        ar.push.apply(ar, _isa(b[i]) ? b[i] :  [ b[i] ] );
+                        c[i] = ar;
+                    }
+                }
                 else {
                     if (_isa(b[i])) {
                         var ar = [];
