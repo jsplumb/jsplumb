@@ -41,6 +41,9 @@
                     a:["top", "top"]
                 };        
 
+                var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),
+                    theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx));
+
 // --------------------------------------------------------------------------------------
 
 				// improved face calculation. get midpoints of each face for source and target, then put in an array with all combinations of
@@ -96,7 +99,9 @@
 // --------------------------------------------------------------------------------------
 
                 return {
-                	a : [ sourceEdge, targetEdge ]
+                	a : [ sourceEdge, targetEdge ],
+                    theta:theta,
+                    theta2:theta2
                 	//TODO: set out.orientation ?
                 };
             },
