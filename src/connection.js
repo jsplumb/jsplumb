@@ -212,6 +212,7 @@
             if (t.scope) this.scope = t.scope;
             //editable = t.editable;  // TODO
             this.setConnector(t.connector, doNotRepaint);
+            if (t.cssClass != null && this.canvas) this._jsPlumb.instance.addClass(this.canvas, t.cssClass);
         },
         getTypeDescriptor : function() { return "connection"; },
         getAttachedElements : function() {
