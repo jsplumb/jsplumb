@@ -86,7 +86,7 @@ jsPlumb.ready(function() {
 		dropOptions:{ hoverClass:"dragHover" },
 		anchor:"Continuous",
 		allowLoopback:true,
-		anchor:["Continuous", { faces:["left", "right"] } ]
+		anchor:"Continuous"
 	});
 
 	// and finally, make a couple of connections
