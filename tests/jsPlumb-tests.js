@@ -5416,16 +5416,52 @@ var testSuite = function(renderMode, _jsPlumb) {
 	
 	test(" simple Endpoint type tests.", function() {
 		_jsPlumb.registerEndpointType("basic", {
-			paintStyle:{fillStyle:"blue"}
+			paintStyle:{fillStyle:"blue"},
+			cssClass:"FOO"
+		});
+
+		_jsPlumb.registerEndpointType("other", {
+			paintStyle:{fillStyle:"blue"},
+			cssClass:"BAR"
 		});
 		
 		var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
 		e.setType("basic");
 		equal(e.getPaintStyle().fillStyle, "blue", "fill style is correct");
+		ok(jsPlumb.hasClass(e.canvas, "FOO"), "css class was set");
+		e.removeType("basic");
+		ok(!jsPlumb.hasClass(e.canvas, "FOO"), "css class was removed");
+
+		// add basic type again; FOO should be back
+		e.addType("basic");
+		ok(jsPlumb.hasClass(e.canvas, "FOO"), "css class was set");
+		// now set type to something else: FOO should be removed.
+		e.setType("other");
+		ok(!jsPlumb.hasClass(e.canvas, "FOO"), "FOO css class was removed");
+		ok(jsPlumb.hasClass(e.canvas, "BAR"), "BAR css class was added");
+
+		// toggle type: now BAR css class should be removed
+		e.toggleType("other");
+		ok(!jsPlumb.hasClass(e.canvas, "BAR"), "BAR css class was removed");
 		
 		var d2 = _addDiv('d2'), e2 = _jsPlumb.addEndpoint(d2, {type:"basic"});
 		equal(e2.getPaintStyle().fillStyle, "blue", "fill style is correct");
 	});
+
+test(" clearTypes", function() {
+	_jsPlumb.registerEndpointType("basic", {
+		paintStyle:{fillStyle:"blue"},
+		cssClass:"FOO"
+	});
+	
+	var d = _addDiv('d1'), e = _jsPlumb.addEndpoint(d);
+	e.setType("basic");
+	equal(e.getPaintStyle().fillStyle, "blue", "fill style is correct");
+	ok(jsPlumb.hasClass(e.canvas, "FOO"), "css class was set");
+
+	e.clearTypes();
+	ok(!jsPlumb.hasClass(e.canvas, "FOO"), "FOO css class was removed");
+});
 	
 	test(" create connection from Endpoints - with connector settings in Endpoint type.", function() {
 			
