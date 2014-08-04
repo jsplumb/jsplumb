@@ -5072,18 +5072,9 @@
 									jpc.suspendedEndpoint.addConnection(jpc);
 									this.repaint(source.elementId);
 								}
-								else {
-									jpc.deleteConnectionNow = true;
+								else
 									//source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
-									//jpc.suspendedEndpoint.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
-									//source.detachFromConnection(jpc);
-									//jpc.suspendedEndpoint.detachFromConnection(jpc);
-									//source
-									//_currentInstance.deleteObject({connection:jpc});
-									//_currentInstance.deleteObject({endpoint:jpc.suspendedEndpoint});
-									//jpc.endpoints[idx].detachFromConnection(jpc);
-									//_currentInstance.deleteObject({connection:jpc});
-								}
+									jpc.deleteConnectionNow = true;
 							}
 							
 						}
@@ -6263,8 +6254,7 @@
                         var anchorIdx = jpc.endpoints[0].id == this.id ? 0 : 1;
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
                         this.detachFromConnection(jpc, null, true);                         // detach from the connection while dragging is occurring. but dont cleanup automatically.
-                        
-                        //*
+                                                
                         // store the original scope (issue 57)
                         var dragScope = _jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
@@ -6375,12 +6365,9 @@
                                         jpc.suspendedEndpoint.addConnection(jpc);
                                         _jsPlumb.repaint(existingJpcParams[1]);
                                     }
-                                    else {
-                                    	_jsPlumb.deleteObject({endpoint:fe});
-                                    	//jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
-                                    	
-                                    }
-
+                                    else
+                                        //jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
+                                        _jsPlumb.deleteObject({endpoint:fe});
                                 }                                                               
                             }
 
