@@ -2386,7 +2386,6 @@
 							// TODO this code is identical (pretty much) to what happens when a connection
 							// dragged from a normal endpoint is in this situation. refactor.
 							// is this an existing connection, and will we reattach?
-							// TODO also this assumes the source needs to detach - is that always valid?
 							if (jpc.suspendedEndpoint) {
 								if (jpc.isReattach()) {
 									jpc.setHover(false);
@@ -2395,10 +2394,8 @@
 									this.repaint(source.elementId);
 								}
 								else
-									//source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
 									jpc.deleteConnectionNow = true;
-							}
-							
+							}							
 						}
 					}.bind(this);
 					

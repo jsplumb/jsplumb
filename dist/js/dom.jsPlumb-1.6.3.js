@@ -5064,7 +5064,6 @@
 							// TODO this code is identical (pretty much) to what happens when a connection
 							// dragged from a normal endpoint is in this situation. refactor.
 							// is this an existing connection, and will we reattach?
-							// TODO also this assumes the source needs to detach - is that always valid?
 							if (jpc.suspendedEndpoint) {
 								if (jpc.isReattach()) {
 									jpc.setHover(false);
@@ -5073,10 +5072,8 @@
 									this.repaint(source.elementId);
 								}
 								else
-									//source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
 									jpc.deleteConnectionNow = true;
-							}
-							
+							}							
 						}
 					}.bind(this);
 					
@@ -6295,7 +6292,6 @@
 
                         jpc.addClass(_jsPlumb.draggingClass);
                         this._jsPlumb.floatingEndpoint.addClass(_jsPlumb.draggingClass);                    
-
                     }
                 
                     // register it and register connection on it.
@@ -6321,7 +6317,6 @@
                 dragOptions[dragEvent] = _ju.wrap(dragOptions[dragEvent], _dragHandler.drag);
                 dragOptions[stopEvent] = _ju.wrap(dragOptions[stopEvent],
                     function() {        
-                        //if (this._jsPlumb == null) return; // cleaned up already.
                         _jsPlumb.setConnectionBeingDragged(false);  
                         // if no endpoints, jpc already cleaned up.
                         if (jpc && jpc.endpoints != null) {          
@@ -6366,7 +6361,6 @@
                                         _jsPlumb.repaint(existingJpcParams[1]);
                                     }
                                     else
-                                        //jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
                                         _jsPlumb.deleteObject({endpoint:fe});
                                 }                                                               
                             }
@@ -6375,7 +6369,6 @@
                             // (and its associated floating endpoint and visual artefacts)                                        
                             _jsPlumb.remove(placeholderInfo.element, false);
                             // remove the inplace copy
-                            //_jsPlumb.remove(inPlaceCopy.canvas, false);
                             _jsPlumb.deleteObject({endpoint:inPlaceCopy});
     
                             // makeTargets sets this flag, to tell us we have been replaced and should delete ourself.
