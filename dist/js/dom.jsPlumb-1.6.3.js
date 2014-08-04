@@ -5072,8 +5072,18 @@
 									jpc.suspendedEndpoint.addConnection(jpc);
 									this.repaint(source.elementId);
 								}
-								else
-									source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+								else {
+									jpc.deleteConnectionNow = true;
+									//source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+									//jpc.suspendedEndpoint.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+									//source.detachFromConnection(jpc);
+									//jpc.suspendedEndpoint.detachFromConnection(jpc);
+									//source
+									//_currentInstance.deleteObject({connection:jpc});
+									//_currentInstance.deleteObject({endpoint:jpc.suspendedEndpoint});
+									//jpc.endpoints[idx].detachFromConnection(jpc);
+									//_currentInstance.deleteObject({connection:jpc});
+								}
 							}
 							
 						}
@@ -6337,7 +6347,7 @@
                             // on another endpoint.  If it is a new connection we throw it away. If it is an 
                             // existing connection we check to see if we should reattach it, throwing it away 
                             // if not.
-                            if (this._jsPlumb && (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint)) {
+                            if (this._jsPlumb && (jpc.deleteConnectionNow || jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint)) {
                                 // 6a. if the connection was an existing one...
                                 if (existingJpc && jpc.suspendedEndpoint) {
                                     // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
@@ -6350,6 +6360,7 @@
                                         jpc.targetId = existingJpcParams[1];
                                     }
                                     
+                                    var fe = this._jsPlumb.floatingEndpoint; // store for later removal.
                                     // restore the original scope (issue 57)
                                     _jsPlumb.setDragScope(existingJpcParams[2], existingJpcParams[3]);
                                     jpc.endpoints[idx] = jpc.suspendedEndpoint;
@@ -6364,8 +6375,12 @@
                                         jpc.suspendedEndpoint.addConnection(jpc);
                                         _jsPlumb.repaint(existingJpcParams[1]);
                                     }
-                                    else
-                                        jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
+                                    else {
+                                    	_jsPlumb.deleteObject({endpoint:fe});
+                                    	//jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
+                                    	
+                                    }
+
                                 }                                                               
                             }
 
@@ -7232,6 +7247,9 @@
                     a:["top", "top"]
                 };        
 
+                var theta = Math.atan2((td.centery - sd.centery) , (td.centerx - sd.centerx)),
+                    theta2 = Math.atan2((sd.centery - td.centery) , (sd.centerx - td.centerx));
+
 // --------------------------------------------------------------------------------------
 
 				// improved face calculation. get midpoints of each face for source and target, then put in an array with all combinations of
@@ -7287,7 +7305,9 @@
 // --------------------------------------------------------------------------------------
 
                 return {
-                	a : [ sourceEdge, targetEdge ]
+                	a : [ sourceEdge, targetEdge ],
+                    theta:theta,
+                    theta2:theta2
                 	//TODO: set out.orientation ?
                 };
             },

@@ -532,8 +532,7 @@
                         var anchorIdx = jpc.endpoints[0].id == this.id ? 0 : 1;
                         jpc.floatingAnchorIndex = anchorIdx;                    // save our anchor index as the connection's floating index.                        
                         this.detachFromConnection(jpc, null, true);                         // detach from the connection while dragging is occurring. but dont cleanup automatically.
-                        
-                        //*
+                                                
                         // store the original scope (issue 57)
                         var dragScope = _jsPlumb.getDragScope(canvasElement);
                         _jsPlumb.setAttribute(this.canvas, "originalScope", dragScope);
@@ -616,7 +615,7 @@
                             // on another endpoint.  If it is a new connection we throw it away. If it is an 
                             // existing connection we check to see if we should reattach it, throwing it away 
                             // if not.
-                            if (this._jsPlumb && (jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint)) {
+                            if (this._jsPlumb && (jpc.deleteConnectionNow || jpc.endpoints[idx] == this._jsPlumb.floatingEndpoint)) {
                                 // 6a. if the connection was an existing one...
                                 if (existingJpc && jpc.suspendedEndpoint) {
                                     // fix for issue35, thanks Sylvain Gizard: when firing the detach event make sure the
@@ -629,6 +628,7 @@
                                         jpc.targetId = existingJpcParams[1];
                                     }
                                     
+                                    var fe = this._jsPlumb.floatingEndpoint; // store for later removal.
                                     // restore the original scope (issue 57)
                                     _jsPlumb.setDragScope(existingJpcParams[2], existingJpcParams[3]);
                                     jpc.endpoints[idx] = jpc.suspendedEndpoint;
@@ -644,7 +644,8 @@
                                         _jsPlumb.repaint(existingJpcParams[1]);
                                     }
                                     else
-                                        jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
+                                        //jpc.suspendedEndpoint.detachFromConnection(jpc);  // confirm we want it to detach; it may decide to self-destruct
+                                        _jsPlumb.deleteObject({endpoint:fe});
                                 }                                                               
                             }
 

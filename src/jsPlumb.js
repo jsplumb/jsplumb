@@ -2395,7 +2395,8 @@
 									this.repaint(source.elementId);
 								}
 								else
-									source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+									//source.detach(jpc, false, true, true, originalEvent);  // otherwise, detach the connection and tell everyone about it.
+									jpc.deleteConnectionNow = true;
 							}
 							
 						}
