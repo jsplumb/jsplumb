@@ -234,6 +234,7 @@
         jsPlumb.extend(this, params, typeParameters);
 
         this.isSource = params.isSource || false;
+        this.isTemporarySource = params.isTemporarySource || false;
         this.isTarget = params.isTarget || false;        
         this._jsPlumb.maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.                
         this.canvas = this.endpoint.canvas;		
@@ -440,11 +441,14 @@
                 // drag might have started on an endpoint that is not actually a source, but which has
                 // one or more connections.
                     jpc = this.connectorSelector();
+
+//console.log("start drag, connection is ", jpc, this.FOO);
+
                     var _continue = true;
                     // if not enabled, return
                     if (!this.isEnabled()) _continue = false;
-                    // if no connection and we're not a source, return.
-                    if (jpc == null && !this.isSource) _continue = false;
+                    // if no connection and we're not a source - or temporarily a source, as is the case with makeSource - return.
+                    if (jpc == null && !this.isSource && !this.isTemporarySource) _continue = false;
                     // otherwise if we're full and not allowed to drag, also return false.
                     if (this.isSource && this.isFull() && !this.dragAllowedWhenFull) _continue = false;
                     // if the connection was setup as not detachable or one of its endpoints
@@ -688,7 +692,7 @@
         };
 
         // if marked as source or target at create time, init the dragging.
-        if (this.isSource || this.isTarget)
+        if (this.isSource || this.isTarget || this.isTemporarySource)
             this.initDraggable();        
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections

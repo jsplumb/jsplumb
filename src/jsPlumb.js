@@ -1091,6 +1091,9 @@
 			// add to list of connections (by scope).
             if (!jpc.suspendedEndpoint)
 			    connections.push(jpc);
+
+			// turn off isTemporarySource on the source endpoint (only viable on first draw)
+			jpc.endpoints[0].isTemporarySource = false;
 			
             // always inform the anchor manager
             // except that if jpc has a suspended endpoint it's not true to say the
@@ -2460,7 +2463,7 @@
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			_setEndpointPaintStylesAndAnchor(p, 0, this);
-			var maxConnections = p.maxConnections || -1,
+			var maxConnections = p.maxConnections || 1,
 				onMaxConnections = p.onMaxConnections,
 				_doOne = function(elInfo) {
 					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -2580,7 +2583,7 @@
 						// to have the anchor we were given.
 						var tempEndpointParams = {};
 						jsPlumb.extend(tempEndpointParams, p);
-						tempEndpointParams.isSource = true;
+						tempEndpointParams.isTemporarySource = true;
 						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
 						tempEndpointParams.parentAnchor = [ pelxy[0], pelxy[1], 0, 0 ];
 						tempEndpointParams.dragOptions = dragOptions;
