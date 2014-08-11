@@ -1718,10 +1718,14 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
 	});
 
+	/**
+	TODO: create a connection with an overlay. change connector. ensure the overlay still exists 
+	and is being painted.
+
 	test(": setConnector, overlays should be informed", function() {
 		_addDiv("d1"); _addDiv("d2");
 		var def = {
-			Connector : [ "Bezier", { curviness:45 } ]
+			Connector : [ "Bezier", { curviness:45 } ]			
 		};
 		var j = jsPlumb.getInstance(def);
 		var c = j.connect({source:"d1",target:"d2"});
@@ -1729,6 +1733,7 @@ var testSuite = function(renderMode, _jsPlumb) {
 		c.setConnector(["Bezier", { curviness:789 }]);
 		equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
 	});
+*/
 
 // ******************  makeTarget (and associated methods) tests ********************************************	
 	

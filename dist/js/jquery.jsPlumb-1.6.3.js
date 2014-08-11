@@ -2669,6 +2669,9 @@
 			// add to list of connections (by scope).
             if (!jpc.suspendedEndpoint)
 			    connections.push(jpc);
+
+			// turn off isTemporarySource on the source endpoint (only viable on first draw)
+			jpc.endpoints[0].isTemporarySource = false;
 			
             // always inform the anchor manager
             // except that if jpc has a suspended endpoint it's not true to say the
@@ -4038,7 +4041,7 @@
 			var p = jsPlumb.extend({}, referenceParams);
 			jsPlumb.extend(p, params);
 			_setEndpointPaintStylesAndAnchor(p, 0, this);
-			var maxConnections = p.maxConnections || -1,
+			var maxConnections = p.maxConnections || 1,
 				onMaxConnections = p.onMaxConnections,
 				_doOne = function(elInfo) {
 					// get the element's id and store the endpoint definition for it.  jsPlumb.connect calls will look for one of these,
@@ -4158,7 +4161,7 @@
 						// to have the anchor we were given.
 						var tempEndpointParams = {};
 						jsPlumb.extend(tempEndpointParams, p);
-						tempEndpointParams.isSource = true;
+						tempEndpointParams.isTemporarySource = true;
 						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
 						tempEndpointParams.parentAnchor = [ pelxy[0], pelxy[1], 0, 0 ];
 						tempEndpointParams.dragOptions = dragOptions;
@@ -4868,6 +4871,7 @@
         jsPlumb.extend(this, params, typeParameters);
 
         this.isSource = params.isSource || false;
+        this.isTemporarySource = params.isTemporarySource || false;
         this.isTarget = params.isTarget || false;        
         this._jsPlumb.maxConnections = params.maxConnections || _jsPlumb.Defaults.MaxConnections; // maximum number of connections this endpoint can be the source of.                
         this.canvas = this.endpoint.canvas;		
@@ -5074,11 +5078,14 @@
                 // drag might have started on an endpoint that is not actually a source, but which has
                 // one or more connections.
                     jpc = this.connectorSelector();
+
+//console.log("start drag, connection is ", jpc, this.FOO);
+
                     var _continue = true;
                     // if not enabled, return
                     if (!this.isEnabled()) _continue = false;
-                    // if no connection and we're not a source, return.
-                    if (jpc == null && !this.isSource) _continue = false;
+                    // if no connection and we're not a source - or temporarily a source, as is the case with makeSource - return.
+                    if (jpc == null && !this.isSource && !this.isTemporarySource) _continue = false;
                     // otherwise if we're full and not allowed to drag, also return false.
                     if (this.isSource && this.isFull() && !this.dragAllowedWhenFull) _continue = false;
                     // if the connection was setup as not detachable or one of its endpoints
@@ -5322,7 +5329,7 @@
         };
 
         // if marked as source or target at create time, init the dragging.
-        if (this.isSource || this.isTarget)
+        if (this.isSource || this.isTarget || this.isTemporarySource)
             this.initDraggable();        
 
         // pulled this out into a function so we can reuse it for the inPlaceCopy canvas; you can now drop detached connections

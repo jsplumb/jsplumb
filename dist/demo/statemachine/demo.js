@@ -2,7 +2,7 @@ jsPlumb.ready(function() {
 
 	// setup some defaults for jsPlumb.
 	var instance = jsPlumb.getInstance({
-		Endpoint : ["Dot", {radius:2}],
+		Endpoint : ["Dot", {radius:12}],
 		HoverPaintStyle : {strokeStyle:"#1e8151", lineWidth:2 },
 		ConnectionOverlays : [
 			[ "Arrow", {
