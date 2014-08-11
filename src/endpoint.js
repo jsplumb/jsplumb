@@ -441,9 +441,6 @@
                 // drag might have started on an endpoint that is not actually a source, but which has
                 // one or more connections.
                     jpc = this.connectorSelector();
-
-//console.log("start drag, connection is ", jpc, this.FOO);
-
                     var _continue = true;
                     // if not enabled, return
                     if (!this.isEnabled()) _continue = false;
