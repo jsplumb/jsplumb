@@ -1,8 +1,3 @@
-makeTarget uniqueEndpoint issues
--------------------------------
-
-- drag off a connection and drop it; it detaches. then try to drag a new connection - you get an error.  FIXED in 1.6.3.
-
 
 
 
@@ -42,7 +37,7 @@ future
 
     - assign css classes to elements from params in Connection/Endpoint types
 
-    - support cssClass in Connection/Endpoint types
+    
 
 	/**
  * SVG support for jsPlumb.
@@ -57,6 +52,14 @@ future
  * IE9 hover jquery: http://forum.jquery.com/topic/1-6-2-broke-svg-hover-events
  *
  */
+
+ FIXED in 1.6.3
+
+ - drag off a connection and drop it; it detaches. then try to drag a new connection - you get an error.  .
+
+ - support cssClass in Connection/Endpoint types
+
+
 
 
 

@@ -114,7 +114,7 @@
                           this.endpoints[1].connector || 
                           params.connector || 
                           _jsPlumb.Defaults.Connector || 
-                          jsPlumb.Defaults.Connector, true);
+                          jsPlumb.Defaults.Connector, true, true);
 
         if (params.path)
             this.connector.setPath(params.path);
@@ -278,7 +278,7 @@
         setCost : function(c) { this._jsPlumb.cost = c; },
         isDirected : function() { return this._jsPlumb.directed === true; },
         getConnector : function() { return this.connector; },
-        setConnector : function(connectorSpec, doNotRepaint) {
+        setConnector : function(connectorSpec, doNotRepaint, doNotChangeListenerComponent) {
             var _ju = jsPlumbUtil;
             if (this.connector != null) {
                 this.connector.cleanup();
@@ -308,6 +308,8 @@
             
             this.canvas = this.connector.canvas;
             this.bgCanvas = this.connector.bgCanvas;
+
+            if (!doNotChangeListenerComponent) this.setListenerComponent(this.connector);
 
             if (this._jsPlumb.editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.connector.type] && this.connector.isEditable()) {
                 new jsPlumb.ConnectorEditors[this.connector.type]({

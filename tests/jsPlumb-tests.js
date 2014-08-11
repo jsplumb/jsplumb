@@ -1718,6 +1718,18 @@ var testSuite = function(renderMode, _jsPlumb) {
 		equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
 	});
 
+	test(": setConnector, overlays should be informed", function() {
+		_addDiv("d1"); _addDiv("d2");
+		var def = {
+			Connector : [ "Bezier", { curviness:45 } ]
+		};
+		var j = jsPlumb.getInstance(def);
+		var c = j.connect({source:"d1",target:"d2"});
+		equal(c.getConnector().type, "Bezier", "connector is the default");
+		c.setConnector(["Bezier", { curviness:789 }]);
+		equal(def.Connector[1].curviness, 45, "curviness unchanged by setConnector call");
+	});
+
 // ******************  makeTarget (and associated methods) tests ********************************************	
 	
 	test(": _jsPlumb.makeTarget (simple case)", function() {

@@ -1756,6 +1756,14 @@
 					c._jsPlumb.instance.off(o, evt, fn);
 				};
 
+			// sets the component associated with listener events. for instance, an overlay delegates
+			// its events back to a connector. but if the connector is swapped on the underlying connection,
+			// then this component must be changed. This is called by setConnector in the Connection class.
+			this.setListenerComponent = function(c) {
+				for (var i = 0; i < domListeners.length; i++)
+					domListeners[i][3] = c;
+			};
+
             this.bindListeners = function(obj, _self, _hoverFunction) {
                 bindAListener(obj, "click", function(ep, e) { _self.fire("click", _self, e); });             
              	bindAListener(obj, "dblclick", function(ep, e) { _self.fire("dblclick", _self, e); });
@@ -2075,7 +2083,14 @@
 						location:loc,
 						labelStyle:labelStyle
 					}));
-				}			                                  
+				}		
+
+				this.setListenerComponent = function(c) {
+					if (this._jsPlumb) {
+						for (var i = 0; i < this._jsPlumb.overlays.length; i++)
+							this._jsPlumb.overlays[i].setListenerComponent(c);
+					}
+				};
 			};
 
 		jsPlumbUtil.extend(OverlayCapableJsPlumbUIComponent, jsPlumbUIComponent, {
@@ -5737,7 +5752,7 @@
                           this.endpoints[1].connector || 
                           params.connector || 
                           _jsPlumb.Defaults.Connector || 
-                          jsPlumb.Defaults.Connector, true);
+                          jsPlumb.Defaults.Connector, true, true);
 
         if (params.path)
             this.connector.setPath(params.path);
@@ -5901,7 +5916,7 @@
         setCost : function(c) { this._jsPlumb.cost = c; },
         isDirected : function() { return this._jsPlumb.directed === true; },
         getConnector : function() { return this.connector; },
-        setConnector : function(connectorSpec, doNotRepaint) {
+        setConnector : function(connectorSpec, doNotRepaint, doNotChangeListenerComponent) {
             var _ju = jsPlumbUtil;
             if (this.connector != null) {
                 this.connector.cleanup();
@@ -5931,6 +5946,8 @@
             
             this.canvas = this.connector.canvas;
             this.bgCanvas = this.connector.bgCanvas;
+
+            if (!doNotChangeListenerComponent) this.setListenerComponent(this.connector);
 
             if (this._jsPlumb.editable && jsPlumb.ConnectorEditors != null && jsPlumb.ConnectorEditors[this.connector.type] && this.connector.isEditable()) {
                 new jsPlumb.ConnectorEditors[this.connector.type]({

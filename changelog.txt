@@ -21,6 +21,7 @@
 	227 - MaxConnections=1 console log error
 	230 - Endpoints not cleaned up after connector move
 	236 - makeTarget/makeSource drag issues
+	241 - Dropping existing connection creates an orphaned endpoint when beforeDrop returns false
 
 
 * 1.6.2
