@@ -1356,6 +1356,19 @@
 			}
 		};
 
+		// SP NEW
+		this.getDragAncestor = function(el) {
+			var de = jsPlumb.getDOMElement(el),
+				id = _currentInstance.getId(de),
+				aid = _draggablesForElements[id];
+
+			if (aid) 
+				return jsPlumb.getDOMElement(aid);
+			else
+				return null;
+		};
+		// /SP NEW
+
 	};
 
     // for those browsers that dont have it.  they still don't have it! but at least they won't crash.
@@ -2483,9 +2496,31 @@
 							// TODO: here we could actually use getDragObject, and then compute it ourselves,
 							// since every adapter does the same thing. but i'm not sure why YUI's getDragObject
 							// differs from getUIPosition so much
+
+							/* original
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
 							_draw(element, ui, null, true);
 							_currentInstance.addClass(element, "jsPlumb_dragged");
+							*/
+
+							// SP NEW
+							var _do = _currentInstance.getDragObject(arguments),
+								_ado = _currentInstance.dragManager.getDragAncestor(_do);
+
+							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
+							if (_ado != null) {
+								var ao = jsPlumbAdapter.getOffset(_ado, _currentInstance);
+								ui.left += ao.left;
+								ui.top += ao.top;
+							}
+
+
+							_draw(element, ui, null, true);
+							_currentInstance.addClass(element, "jsPlumb_dragged");
+
+							console.log("drag ancestor is", _ado)
+
+							
 						});
 						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
@@ -5078,9 +5113,6 @@
                 // drag might have started on an endpoint that is not actually a source, but which has
                 // one or more connections.
                     jpc = this.connectorSelector();
-
-//console.log("start drag, connection is ", jpc, this.FOO);
-
                     var _continue = true;
                     // if not enabled, return
                     if (!this.isEnabled()) _continue = false;
