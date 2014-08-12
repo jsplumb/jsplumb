@@ -2573,7 +2573,7 @@
 						
 						// if maxConnections reached
 						var sourceCount = this.select({source:idToRegisterAgainst}).length;
-						if (def.maxConnections >= 0 && sourceCount >= def.maxConnections) {
+						if (def.maxConnections >= 0 && (def.uniqueEndpoint && sourceCount >= def.maxConnections)) {
 							if (onMaxConnections) {
 								onMaxConnections({
 									element:_el,
@@ -2596,7 +2596,8 @@
 						// to have the anchor we were given.
 						var tempEndpointParams = {};
 						jsPlumb.extend(tempEndpointParams, p);
-						tempEndpointParams.isTemporarySource = true;
+						//tempEndpointParams.isTemporarySource = true;
+						tempEndpointParams.isSource = true;
 						tempEndpointParams.anchor = [ elxy[0], elxy[1] , 0,0];
 						tempEndpointParams.parentAnchor = [ pelxy[0], pelxy[1], 0, 0 ];
 						tempEndpointParams.dragOptions = dragOptions;
