@@ -115,16 +115,16 @@
 
 <p>1.5.0 introduced the ability to build custom versions of jsPlumb, omitting connectors or renderers you do not need.  This does not, admittedly, save you a huge amount; future releases will take this ability a step further and allow you, for instance, to leave out the whole <code>makeTarget</code>/<code>makeSource</code> module, should you wish to.</p>
 
-<p>Say you want to leave out the Canvas renderer, for example. You would do this:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">grunt build --renderers=svg,vml
+<p>Say you want to leave out the VML renderer, for example. You would do this:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">grunt build --renderers=svg
 </code></pre></div>
 <p>If you only need the Flowchart connectors, you&#39;d do this:</p>
 <div class="highlight"><pre><code class="text language-text" data-lang="text">grunt build --connectors=flowchart
 </code></pre></div>
-<p>If you need only the State Machine connectors and no Canvas renderer:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">grunt build --connectors=statemachine --renderers=svg,vml
+<p>If you need only the State Machine connectors and no VML renderer:</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">grunt build --connectors=statemachine --renderers=svg
 </code></pre></div>
-<p>Valid values for <code>renderers</code> are <code>svg</code>, <code>vml</code> and <code>canvas</code>. Valid values for <code>connectors</code> are connector names, all in lower case.</p>
+<p>Valid values for <code>renderers</code> are <code>svg</code> and <code>vml</code>. Valid values for <code>connectors</code> are connector names, all in lower case.</p>
 
 <p><strong>Note</strong> It is important you do not leave a space between values for the <code>connectors</code> or <code>renderers</code> parameters. Grunt will get confused if you do.</p>
 

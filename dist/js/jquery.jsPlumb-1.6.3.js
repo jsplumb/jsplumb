@@ -2482,9 +2482,16 @@
 						options = jsPlumb.extend( {}, options); // make a copy.
 						var dragEvent = jsPlumb.dragEvents.drag,
 							stopEvent = jsPlumb.dragEvents.stop,
-							startEvent = jsPlumb.dragEvents.start;
+							startEvent = jsPlumb.dragEvents.start,
+							ancestorOffset = null,
+							_del = _currentInstance.getDOMElement(element),
+							_ancestor = _currentInstance.dragManager.getDragAncestor(_del),
+							_noOffset = {left:0, top:0},
+							_ancestorOffset = _noOffset,
+							_started = false;
 	
 						options[startEvent] = _ju.wrap(options[startEvent], function() {
+							_ancestorOffset = _ancestor != null ? jsPlumbAdapter.getOffset(_ancestor, _currentInstance) : _noOffset;								
 							_currentInstance.setHoverSuspended(true);							
 							_currentInstance.select({source:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);
 							_currentInstance.select({target:element}).addClass(_currentInstance.elementDraggingClass + " " + _currentInstance.targetElementDraggingClass, true);
@@ -2495,36 +2502,20 @@
 						options[dragEvent] = _ju.wrap(options[dragEvent], function() {
 							// TODO: here we could actually use getDragObject, and then compute it ourselves,
 							// since every adapter does the same thing. but i'm not sure why YUI's getDragObject
-							// differs from getUIPosition so much
-
-							/* original
+							// differs from getUIPosition so much						
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
+							// adjust by ancestor offset if there is one: this is for the case that a draggable
+							// is contained inside some other element that is not the Container.
+							ui.left += _ancestorOffset.left;
+							ui.top += _ancestorOffset.top;	
 							_draw(element, ui, null, true);
-							_currentInstance.addClass(element, "jsPlumb_dragged");
-							*/
-
-							// SP NEW
-							var _do = _currentInstance.getDragObject(arguments),
-								_ado = _currentInstance.dragManager.getDragAncestor(_do);
-
-							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom());
-							if (_ado != null) {
-								var ao = jsPlumbAdapter.getOffset(_ado, _currentInstance);
-								ui.left += ao.left;
-								ui.top += ao.top;
-							}
-
-
-							_draw(element, ui, null, true);
-							_currentInstance.addClass(element, "jsPlumb_dragged");
-
-							console.log("drag ancestor is", _ado)
-
-							
+							if (_started) _currentInstance.addClass(element, "jsPlumb_dragged");							
+							_started = true;
 						});
 						options[stopEvent] = _ju.wrap(options[stopEvent], function() {
 							var ui = _currentInstance.getUIPosition(arguments, _currentInstance.getZoom(), true);
 							_draw(element, ui);
+							_started = false;
 							_currentInstance.removeClass(element, "jsPlumb_dragged");
 							_currentInstance.setHoverSuspended(false);							
 							_currentInstance.select({source:element}).removeClass(_currentInstance.elementDraggingClass + " " + _currentInstance.sourceElementDraggingClass, true);

@@ -102,61 +102,19 @@
             <div class="markdown-body">
                 <h2>jsPlumb Development</h2>
 
-<p>In development, jsPlumb is broken up into various scripts:</p>
-
-<ul>
-<li><strong>util.js</strong>
-jsPlumb utility functions (and some base classes).</li>
-<li><strong>dom-adapter.js</strong>
-Interface between jsPlumb and the DOM</li>
-<li><strong>jsPlumb.js</strong>
-Main jsPlumb engine.</li>
-<li><strong>anchors.js</strong>
-Anchors and anchor manager</li>
-<li><strong>defaults.js</strong>
-Default Endpoint, Connector and Overlay implementations.</li>
-<li><strong>endpoint.js</strong>
-Endpoint class</li>
-<li><strong>connection.js</strong>
-Connection class</li>
-<li><strong>renderers-canvas.js</strong>
-HTML5 canvas renderer.</li>
-<li><strong>renderers-svg.js</strong>
-SVG renderer.</li>
-<li><strong>renderers-vml.js</strong>
-VML renderer.</li>
-<li><strong>connectors-statemachine.js</strong>
-The State Machine connector.</li>
-<li><strong>connectors-flowchart.js</strong>
-The Flowchart connector.</li>
-<li><strong>connectors-bezier.js</strong>
-The Bezier connector.</li>
-<li><strong>&lt;LIBRARY_PREFIX&gt;.jsPlumb.js</strong>
-Contains library-specific helper methods.  jsPlumb ships with three of these - one each for jQuery, MooTools and YUI3. See below for information on how to create a new library implementation.</li>
-<li><strong>jsBezier-0.X-min.js</strong>
-These are the Bezier curve functions; they are maintained in a separate project called <a href="https://github.com/sporritt/jsBezier">jsBezier</a>.</li>
-<li><strong>jsplumb-geom-0.x.js</strong>
-Various geometry functions used by jsPlumb that were extracted to a <a href="https://github.com/sporritt/jsplumb-geom">separate project</a> because they might be useful for other people.</li>
-</ul>
-
-<p>These files are packaged together to form the scripts that people use, of which there are two for each supported library:</p>
-
-<ul>
-<li><strong>jquery.jsPlumb-1.5.3.js</strong></li>
-<li><strong>jquery.jsPlumb-1.5.3-min.js</strong></li>
-</ul>
+<h4>Building jsPlumb</h4>
 
 <p>Instructions for running a build can be found <a href="Build">here</a>.</p>
 
 <h4>Pluggable Library Support</h4>
 
-<p>Out of the box, jsPlumb can be run on top of jQuery, MooTools or YUI3.  This is achieved by delegating several core methods - tasks such as finding an element by id, finding an element&#39;s position or dimensions, initialising a draggable, etc - to the library in question.</p>
+<p>Out of the box, jsPlumb can be run standalone, or on top of jQuery, MooTools or YUI3.  This is achieved by delegating several core methods - tasks such as finding an element by id, finding an element&#39;s position or dimensions, initialising a draggable, etc - to the library in question.</p>
 
-<p>To develop one of these, your test page should include the first two scripts discussed above, and then your own script containing your library specific functionality.  The existing implementations may be documented well enough for you to create your own, but contact me if you need assistance.  If you do this, it would be great to share it with everyone...</p>
+<p>It is possible to develop your own library adapter, should you need to, although since the introduction of &quot;vanilla&quot; jsPlumb there is less reason to do so.  If you do decide to do so, the existing implementations may be documented well enough for you to create your own, but contact us if you need assistance.  </p>
 
 <h6>ExtJS</h6>
 
-<p>To date, I&#39;ve been contacted by a few different groups who have been working on an ExtJS adapter, but nothing seems to have yet come to fruition.</p>
+<p>To date, we&#39;ve been contacted by a few different groups who have been working on an ExtJS adapter, but nothing seems to have yet come to fruition.</p>
 
             </div>
         </div>

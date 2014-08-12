@@ -131,13 +131,13 @@
 <h4>Programmatic Connections</h4>
 
 <p>The most simple connection you can make with jsPlumb looks like this:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({source:&quot;element1&quot;, target:&quot;element2&quot;});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;element1&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;element2&quot;</span><span class="p">});</span>
 </code></pre></div>
 <p>In this example we have created a Connection from &#39;element1&#39; to &#39;element2&#39;.  Remember that a Connection in jsPlumb consists of two Endpoints, a Connector, and zero or more Overlays.  But this call to &#39;connect&#39; supplied none of those things, so jsPlumb uses the default values wherever it needs to.  In this case, default values have been used for the following: </p>
 
 <ul>
 <li>The type and appearance of each Endpoint in the Connection. jsPlumb&#39;s default for this is the &quot;Dot&quot; endpoint, of radius 10, with fill color &quot;#456&quot;.</li>
-<li>The Anchors that define where the Connection&#39;s Endpoints appear on each element. The jsPlumb default is <code>Bottom</code></li>
+<li>The Anchors that define where the Connection&#39;s Endpoints appear on each element. The jsPlumb default is <code>Bottom</code>.</li>
 <li>Whether or not each Endpoint can be a source or target for new Connections. The default is false.</li>
 <li>The type and appearance of the Connection&#39;s Connector. The default is a &quot;Bezier&quot; connector of line width 8, and color &quot;#456&quot;.</li>
 </ul>
@@ -145,20 +145,20 @@
 <p>So this call will result in an 8px Bezier, colored &quot;#456&quot;, from the bottom center of &#39;element1&#39; to the bottom center of &#39;element2&#39;, and each Endpoint will be a 10px radius Dot Endpoint, colored &quot;#456&quot;.</p>
 
 <p>Let&#39;s beef up this call a little and tell jsPlumb what sort of Endpoints we want, and where we want them:       </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
-    source:&quot;element1&quot;, 
-    target:&quot;element2&quot;,
-    anchors:[&quot;Right&quot;, &quot;Left&quot; ],
-    endpoint:&quot;Rectangle&quot;,
-    endpointStyle:{ fillStyle: &quot;yellow&quot; }
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;element1&quot;</span><span class="p">,</span> 
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;element2&quot;</span><span class="p">,</span>
+  <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Right&quot;</span><span class="p">,</span> <span class="s2">&quot;Left&quot;</span> <span class="p">],</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
+  <span class="nx">endpointStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span> <span class="s2">&quot;yellow&quot;</span> <span class="p">}</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>This is what we have told jsPlumb we want this time:</p>
 
 <ul>
-<li><strong>anchors</strong> - this array tells jsPlumb where the source and target Endpoints should be located on their parent elements. In this case, we use the shorthand syntax to name one of jsPlumb&#39;s default anchors; you can also specify custom locations (see [[Anchors|anchors]]. Instead of <code>anchors</code> you can use <code>anchor</code>, if you want the source and target Endpoints to be located at the same place on their parent elements.<br></li>
+<li><strong>anchors</strong> - this array tells jsPlumb where the source and target Endpoints should be located on their parent elements. In this case, we use the shorthand syntax to name one of jsPlumb&#39;s default anchors; you can also specify custom locations (see <a href="anchors">Anchors</a>. Instead of <code>anchors</code> you can use <code>anchor</code>, if you want the source and target Endpoints to be located at the same place on their parent elements.<br></li>
 <li><strong>endpoint</strong>  - this tells jsPlumb to use the <code>Rectangle</code> Endpoint for both the source and target of the Connection.  As with anchors, <code>endpoint</code> has a plural version that allows you to specify a different Endpoint for each end of the Connection.</li>
-<li><strong>endpointStyle</strong> - this is the definition of the appearance of the Endpoint you specified above.  Again, there is a plural equivalent of this that allows you to specify a different style for each end of the Connection. For more information about allowed values for this value, see [[Connector, Endpoint, Anchor &amp; Overlay definitions|basic-concepts#definitions]].</li>
+<li><strong>endpointStyle</strong> - this is the definition of the appearance of the Endpoint you specified above.  Again, there is a plural equivalent of this that allows you to specify a different style for each end of the Connection. For more information about allowed values for this value, see <a href="basic-concepts#definitions">Connector, Endpoint, Anchor &amp; Overlay definitions</a>.</li>
 </ul>
 
 <p><a name="common"></a></p>
@@ -166,77 +166,77 @@
 <h5>Reusing common settings between jsPlumb.connect calls</h5>
 
 <p>A fairly common situation you will find yourself in is wanting to create a bunch of Connections that have only minor differences between them.  To support that, <code>jsPlumb.connect</code> takes an optional second argument. For example:           </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var common = {
-    anchors:[ &quot;BottomCenter&quot;, &quot;TopCenter&quot; ],
-    endpoints:[&quot;Dot&quot;, &quot;Blank&quot; ]
-};
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">common</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">anchors</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;BottomCenter&quot;</span><span class="p">,</span> <span class="s2">&quot;TopCenter&quot;</span> <span class="p">],</span>
+  <span class="nx">endpoints</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Dot&quot;</span><span class="p">,</span> <span class="s2">&quot;Blank&quot;</span> <span class="p">]</span>
+<span class="p">};</span>
 
-jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot; }, common);
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;someOtherElement&quot;</span> <span class="p">},</span> <span class="nx">common</span><span class="p">);</span>
 
-jsPlumb.connect({ source:&quot;aThirdElement&quot;, target:&quot;yetAnotherElement&quot; }, common);
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;aThirdElement&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;yetAnotherElement&quot;</span> <span class="p">},</span> <span class="nx">common</span><span class="p">);</span>
 </code></pre></div>
 <h5>Endpoints created by jsPlumb.connect</h5>
 
 <p>If you supply an element id or selector for either the source or target, jsPlumb.connect will automatically create an Endpoint on the given element.  These automatically created Endpoints are not marked as drag source or targets, and cannot be interacted with.  For some situations this behaviour is perfectly fine, but for more interactive UIs you should set things up using one of the drag and drop methods discussed below.</p>
 
 <p><strong>Note</strong>: given that <code>jsPlumb.connect</code> creates its own Endpoints in some circumstances, in order to avoid leaving orphaned Endpoints around the place, if the Connection is subsequently deleted, these automatically created Endpoints are deleted too.  Should you want to, you can override this behaviour by setting <code>deleteEndpointsOnDetach</code> to false in the connect call:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({ 
-    source:&quot;aThirdElement&quot;, 
-    target:&quot;yetAnotherElement&quot;,
-    deleteEndpointsOnDetach:false 
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> 
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;aThirdElement&quot;</span><span class="p">,</span> 
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;yetAnotherElement&quot;</span><span class="p">,</span>
+  <span class="nx">deleteEndpointsOnDetach</span><span class="o">:</span><span class="kc">false</span> 
+<span class="p">});</span>
 </code></pre></div>
 <p><a name="detaching"></a></p>
 
 <h5>Detaching Connections</h5>
 
 <p>By default, connections made with <code>jsPlumb.connect</code> will be detachable via the mouse.  You can prevent this by either setting an appropriate default value:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.importDefaults({ 
-    ...
-    ConnectionsDetachable:false
-    ...
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">importDefaults</span><span class="p">({</span> 
+  <span class="p">...</span>
+  <span class="nx">ConnectionsDetachable</span><span class="o">:</span><span class="kc">false</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>...or by specifying it on the connect call like this:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({ 
-    source:&quot;aThirdElement&quot;, 
-    target:&quot;yetAnotherElement&quot;,
-    detachable:false
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> 
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;aThirdElement&quot;</span><span class="p">,</span> 
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;yetAnotherElement&quot;</span><span class="p">,</span>
+  <span class="nx">detachable</span><span class="o">:</span><span class="kc">false</span>
+<span class="p">});</span>
 </code></pre></div>
 <p><a name="draganddrop"></a></p>
 
 <h4>Drag and Drop Connections</h4>
 
 <p>To support drag and drop connections, you first need to set a few things up.  Every drag and drop connection needs at least a source Endpoint that the user can drag a connection from. Here&#39;s a simple example of how to create an Endpoint:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var endpointOptions = { isSource:true };
-var endpoint = jsPlumb.addEndpoint(&#39;elementId&#39;, endpointOptions);
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span> <span class="p">};</span>
+<span class="kd">var</span> <span class="nx">endpoint</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s1">&#39;elementId&#39;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
 <p>This Endpoint will act as a source for new Connections, and will use the jsPlumb defaults for its own appearance and that of any Connections that are drawn from it.                            </p>
 
 <h6>Tip: use the three-argument addEndpoint method for common data</h6>
 
 <p>One thing that happens quite often is that you have an Endpoint whose appearance and behaviour is largely the same between usages on different elements, with just a few differences. </p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var exampleGreyEndpointOptions = {
-    endpoint:&quot;Rectangle&quot;,
-    paintStyle:{ width:25, height:21, fillStyle:&#39;#666&#39; },
-    isSource:true,
-    connectorStyle : { strokeStyle:&quot;#666&quot; },
-    isTarget:true
-};
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">exampleGreyEndpointOptions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">25</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">21</span><span class="p">,</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s1">&#39;#666&#39;</span> <span class="p">},</span>
+  <span class="nx">isSource</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">connectorStyle</span> <span class="o">:</span> <span class="p">{</span> <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;#666&quot;</span> <span class="p">},</span>
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span>
+<span class="p">};</span>
 </code></pre></div>
 <p>Notice there is no <code>anchor</code> set.  Here we apply it to two elements, at a different location in each:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.addEndpoint(&#39;element1&#39;, { 
-    anchor:&quot;BottomCenter&quot; 
-}, exampleGreyEndpointOptions)); 
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s1">&#39;element1&#39;</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Bottom&quot;</span>
+<span class="p">},</span> <span class="nx">exampleGreyEndpointOptions</span><span class="p">));</span> 
 
-jsPlumb.addEndpoint(&#39;element2&#39;, { 
-    anchor:&quot;TopCenter&quot; 
-}, exampleGreyEndpointOptions));        
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s1">&#39;element2&#39;</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Top&quot;</span> 
+<span class="p">},</span> <span class="nx">exampleGreyEndpointOptions</span><span class="p">));</span>
 </code></pre></div>
 <p>Now that you have a source Endpoint, you need to either create a target Endpoint on some element, or notify jsPlumb that you wish to make an entire element a drop target.  Let&#39;s look at how to attach a target Endpoint first:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var endpointOptions = { isTarget:true, endpoint:&quot;Rectangle&quot;, paintStyle:{ fillStyle:&quot;gray&quot; } };
-var endpoint = jsPlumb.addEndpoint(&quot;otherElementId&quot;, endpointOptions);
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> <span class="p">};</span>
+<span class="kd">var</span> <span class="nx">endpoint</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;otherElementId&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
 <p>This Endpoint, a gray rectangle, has declared that it can act as a drop target for Connections. </p>
 
@@ -247,45 +247,62 @@ var endpoint = jsPlumb.addEndpoint(&quot;otherElementId&quot;, endpointOptions);
 <p>jsPlumb also supports turning entire elements into Connection sources and targets, using the methods <code>makeSource</code> and <code>makeTarget</code>.  With these methods you mark an element as a source or target, and provide an Endpoint specification for jsPlumb to use when a Connection is established.  <code>makeSource</code> also gives you the ability to mark some child element as the place from which you wish to drag Connections, but still have the Connection on the main element after it has been established.</p>
 
 <p>These methods honour the jsPlumb defaults - if, for example you set up the default Anchors to be this:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.Defaults.Anchors = [ &quot;LeftMiddle&quot;, &quot;BottomRight&quot; ];
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">importDefaults</span><span class="p">({</span>
+  <span class="nx">Anchors</span> <span class="o">:</span> <span class="p">[</span> <span class="s2">&quot;Left&quot;</span><span class="p">,</span> <span class="s2">&quot;BottomRight&quot;</span> <span class="p">]</span>
+<span class="p">});</span>
 </code></pre></div>
-<p>... and then used <code>makeSource</code> and <code>makeTarget</code> without specifying Anchor locations, jsPlumb would use <code>LeftMiddle</code> for the <code>makeSource</code> element and <code>BottomRight</code> for the <code>makeTarget</code> element.</p>
+<p>... and then used <code>makeSource</code> and <code>makeTarget</code> without specifying Anchor locations, jsPlumb would use <code>Left</code> for the <code>makeSource</code> element and <code>BottomRight</code> for the <code>makeTarget</code> element.</p>
 
 <p>A further thing to note about <code>makeSource</code> and <code>makeTarget</code> is that any prior calls to one of these methods is honoured by subsequent calls to <code>jsPlumb.connect</code>. This helps when you&#39;re building a UI that uses this functionality at runtime but which loads some initial data, and you want the statically loaded data to have the same appearance and behaviour as dynamically created Connections (obviously quite a common use case).  </p>
 
 <p>For example:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeSource(&quot;el1&quot;, {
-    anchor:&quot;Continuous&quot;,
-    endpoint:[&quot;Rectangle&quot;, { width:40, height:20 }],
-    maxConnections:3
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;el1&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">40</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">20</span> <span class="p">}],</span>
+  <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">3</span>
+<span class="p">});</span>    
 
-...
+<span class="p">...</span>
 
-jsPlumb.connect({source:&quot;el1&quot;, target:&quot;el2&quot;});
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span><span class="nx">source</span><span class="o">:</span><span class="s2">&quot;el1&quot;</span><span class="p">,</span> <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;el2&quot;</span><span class="p">});</span>
 </code></pre></div>
 <p>In this example, the source of the connection will be a Rectangle of size 40x20, having a Continuous Anchor.  The source is also configured to allow a maximum of three Connections.</p>
 
 <p>You can override this behaviour by setting a <code>newConnection</code> parameter on the connect call:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeSource(&quot;el1&quot;, {
-    anchor:&quot;Continuous&quot;,
-    endpoint:[&quot;Rectangle&quot;, { width:40, height:20 }],
-    maxConnections:1,
-    onMaxConnections:function(info, originalEvent) {
-        console.log(&quot;element is &quot;, info.element, &quot;maxConnections is&quot;, info.maxConnections); 
-    }
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;el1&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">40</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">20</span> <span class="p">}],</span>
+  <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+  <span class="nx">onMaxConnections</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">info</span><span class="p">,</span> <span class="nx">originalEvent</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;element is &quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">element</span><span class="p">,</span> <span class="s2">&quot;maxConnections is&quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">maxConnections</span><span class="p">);</span> 
+  <span class="p">}</span>
+<span class="p">});</span>
 
-...
+<span class="p">...</span>
 
-jsPlumb.connect({ 
-  source:&quot;el1&quot;, 
-  target:&quot;el2&quot;, 
-  newConnection:true 
-});
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span> 
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;el1&quot;</span><span class="p">,</span> 
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;el2&quot;</span><span class="p">,</span> 
+  <span class="nx">newConnection</span><span class="o">:</span><span class="kc">true</span> 
+<span class="p">});</span>
 </code></pre></div>
 <p>Note the <code>onMaxConnections</code> parameter to this call - it allows you to supply a function to call if the user tries to drag a new Connection when the source has already reached capacity.</p>
 
+<h5>Reference Parameters</h5>
+
+<p>As with <code>jsPlumb.connect</code>, <code>makeSource</code> can take an optional third argument consisting of parameters that may be common across several different calls:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">common</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">40</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">20</span> <span class="p">}],</span>
+<span class="p">};</span>
+
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;el1&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+  <span class="nx">onMaxConnections</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">info</span><span class="p">,</span> <span class="nx">originalEvent</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;element is &quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">element</span><span class="p">,</span> <span class="s2">&quot;maxConnections is&quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">maxConnections</span><span class="p">);</span> 
+  <span class="p">}</span>
+<span class="p">},</span> <span class="nx">common</span><span class="p">);</span>
+</code></pre></div>
 <p><a name="maketarget"></a></p>
 
 <h5>jsPlumb.makeTarget</h5>
@@ -304,7 +321,7 @@ jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
 <p>Notice in the <code>endpointOptions</code> object above there is a parameted called <code>isTarget</code> - this may seem incongruous, since you know you&#39;re going to make some element a target.  Remember that the <code>endpointOptions</code> object is the information jsPlumb will use to create an Endpoint on the given target element each time a Connection is established to it. It takes the exact same format as you would pass to <code>addEndpoint</code>; <code>makeTarget</code> is essentially a deferred <code>addEndpoint</code> call followed by a <code>connect</code> call.  So in this case, we&#39;re telling jsPlumb that any Endpoints it happens to create on some element that was configured by the <code>makeTarget</code> call are themselves Connection targets.  You may or may not want this behaviour in your application - just control it by setting the approriate value for that parameter (it defaults to false).</p>
 
 <p><code>makeTarget</code> also supports the <code>maxConnections</code> and <code>onMaxConnections</code> parameters, as <code>makeSource</code> does, but note that <code>onMaxConnections</code> is passed one extra parameter than its corresponding callback from <code>makeSource</code> - the Connection the user tried to drop:</p></p>
-<div class="highlight"><pre><code class="js language-js" data-lang="js"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="p">{</span> 
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="p">{</span> 
   <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
   <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span>
   <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
@@ -315,12 +332,27 @@ jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
   <span class="p">}</span>
 <span class="p">};</span>
 </code></pre></div>
+<h5>Reference Parameters</h5>
+
+<p>As with <code>jsPlumb.connect</code> and <code>jsPlumb.makeSource</code>, <code>jsPlumb.makeTarget</code> can take an optional third argument consisting of parameters that may be common across several different calls:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">common</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Continuous&quot;</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">40</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">20</span> <span class="p">}],</span>
+<span class="p">};</span>
+
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;el1&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span>
+  <span class="nx">onMaxConnections</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">info</span><span class="p">,</span> <span class="nx">originalEvent</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;element is &quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">element</span><span class="p">,</span> <span class="s2">&quot;maxConnections is&quot;</span><span class="p">,</span> <span class="nx">info</span><span class="p">.</span><span class="nx">maxConnections</span><span class="p">);</span> 
+  <span class="p">}</span>
+<span class="p">},</span> <span class="nx">common</span><span class="p">);</span>
+</code></pre></div>
 <p><a id="loopback"></a></p>
 
 <h5>Preventing Loopback Connections</h5>
 
-<p>In vanilla jsPlumb only, you can instruct jsPlumb to prevent loopback connections without having to resort to a [[beforeDrop interceptor|interceptors]]. You do this by setting <code>allowLoopback:false</code> on the parameters passed to the <code>makeTarget</code> method:</p>
-<div class="highlight"><pre><code class="js language-js" data-lang="js"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="p">{</span>
+<p>In vanilla jsPlumb only, you can instruct jsPlumb to prevent loopback connections without having to resort to a <a href="interceptors">beforeDrop interceptor</a>. You do this by setting <code>allowLoopback:false</code> on the parameters passed to the <code>makeTarget</code> method:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="p">{</span>
   <span class="nx">allowLoopback</span><span class="o">:</span><span class="kc">false</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -329,30 +361,30 @@ jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
 <h5>Unique Endpoint per Target</h5>
 
 <p>jsPlumb will create a new Endpoint using the supplied information every time a new Connection is established on the target element, by default, but you can override this behaviour and tell jsPlumb that it should create at most one Endpoint, which it should attempt to use for subsequent Connections:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var endpointOptions = { 
-  isTarget:true, 
-  uniqueEndpoint:true,
-  endpoint:&quot;Rectangle&quot;, 
-  paintStyle:{ fillStyle:&quot;gray&quot; } 
-};
-jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">uniqueEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
 <p>Here, the <code>uniqueEndpoint</code> parameter tells jsPlumb that there should be at most one Endpoint on this element.  Notice that <code>maxConnections</code> is not set: the default is 1, so in this setup we have told jsPlumb that <code>aTargetDiv</code> can receive one Connection and no more.</p>
 
 <p><a id="deleteOnDetach"></a></p>
 
-<h5>de</h5>
+<h5>Deleting Endpoints on detach</h5>
 
 <p>By default, any Endpoints created using makeTarget have <code>deleteEndpointsOnDetach</code> set to true, which means that once all Connections to that Endpoint are removed, the Endpoint is deleted.  You can override this by setting the flag to true on the <code>makeTarget</code> call:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var endpointOptions = { 
-  isTarget:true, 
-  maxConnections:5,
-  uniqueEndpoint:true,
-  deleteEndpointsOnDetach:false,
-  endpoint:&quot;Rectangle&quot;, 
-  paintStyle:{ fillStyle:&quot;gray&quot; } 
-};
-jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">endpointOptions</span> <span class="o">=</span> <span class="p">{</span> 
+  <span class="nx">isTarget</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span> 
+  <span class="nx">maxConnections</span><span class="o">:</span><span class="mi">5</span><span class="p">,</span>
+  <span class="nx">uniqueEndpoint</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">deleteEndpointsOnDetach</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Rectangle&quot;</span><span class="p">,</span> 
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span> <span class="nx">fillStyle</span><span class="o">:</span><span class="s2">&quot;gray&quot;</span> <span class="p">}</span> 
+<span class="p">};</span>
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;aTargetDiv&quot;</span><span class="p">,</span> <span class="nx">endpointOptions</span><span class="p">);</span>
 </code></pre></div>
 <p>In this setup we have told jsPlumb to create an Endpoint the first time <code>aTargetElement</code> receives a Connection, and to not delete it even if there are no longer any Connections to it.  The created Endpoint will be reused for subsequent Connections, and can support a maximum of 5.</p>
 
@@ -361,28 +393,28 @@ jsPlumb.makeTarget(&quot;aTargetDiv&quot;, endpointOptions);
 <h5>Detaching connections made with the mouse</h5>
 
 <p>As with <code>jsPlumb.connect</code>, Connections made with the mouse after setting up Endpoints with one of the functions we&#39;ve just covered will be, by default, detachable.  You can prevent this in the jsPlumb defaults, as previously mentioned:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.importDefaults({ 
-    ...
-    ConnectionsDetachable:false,
-    ...
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">importDefaults</span><span class="p">({</span> 
+  <span class="p">...</span>
+  <span class="nx">ConnectionsDetachable</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>And you can also set this on a per-endpoint (or source/target) level, like in these examples:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.addEndpoint(&quot;someElementId&quot;, { 
-    connectionsDetachable:false 
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someElementId&quot;</span><span class="p">,</span> <span class="p">{</span> 
+  <span class="nx">connectionsDetachable</span><span class="o">:</span><span class="kc">false</span>   
+<span class="p">});</span>
 
-jsPlumb.makeSource(&quot;someOtherElement&quot;, {
-    ...
-    connectionsDetachable:false,
-    ...
-});
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;someOtherElement&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="p">...</span>
+  <span class="nx">connectionsDetachable</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 
-jsPlumb.makeTarget(&quot;yetAnotherElement&quot;, {
-    ...
-    connectionsDetachable:false,
-    ...
-});
+<span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;yetAnotherElement&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="p">...</span>
+  <span class="nx">connectionsDetachable</span><span class="o">:</span><span class="kc">false</span><span class="p">,</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>Note that in the jsPlumb defaults, by convention each word in a parameter is capitalised (&quot;ConnectionsDetachable&quot;), whereas for a call to one of these methods, we use camel case (&quot;connectionsDetachable&quot;).</p>
 
@@ -399,43 +431,34 @@ the appropriate location of a target Anchor for every new Connection dropped on 
 <li>Instruct jsPlumb to place the target anchor at the exact location at which the mouse button was released on the target element. Note that you tell jsPlumb the anchor is of type &quot;Assign&quot;, and you then provide a &quot;position&quot;
 parameter, which can be the name of some position finder, or a position finder function itself:</li>
 </ul>
-
-<pre>
-jsPlumb.makeTarget("someElement", {
-  anchor:[ "Assign", { 
-    position:"Fixed"
-  }]
-});
-</pre>
-
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Assign&quot;</span><span class="p">,</span> <span class="p">{</span> 
+    <span class="nx">position</span><span class="o">:</span><span class="s2">&quot;Fixed&quot;</span>
+  <span class="p">}]</span>
+<span class="p">});</span>
+</code></pre></div>
 <p><code>Fixed</code> is one of the two default position finders provided by jsPlumb. The other is <code>Grid</code>:</p>
-
-<pre>
-jsPlumb.makeTarget("someElement", {
-  anchor:[ "Assign", { 
-    position:"Grid",
-    grid:[3,3]
-  }]
-});
-</pre>
-
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeTarget</span><span class="p">(</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Assign&quot;</span><span class="p">,</span> <span class="p">{</span> 
+    <span class="nx">position</span><span class="o">:</span><span class="s2">&quot;Grid&quot;</span><span class="p">,</span>
+    <span class="nx">grid</span><span class="o">:</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+  <span class="p">}]</span>
+<span class="p">});</span>
+</code></pre></div>
 <p>The Grid position finder takes a <code>grid</code> parameter that defines the size of the grid required. [3,3] means 3 rows and 3 columns.</p>
 
 <h6>Supplying your own position finder</h6>
 
 <p>To supply your own position finder to jsPlumb you first need to create the callback function. First let&#39;s take a look at what the source code for the <code>Grid</code> position finder looks like:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">function</span><span class="p">(</span><span class="nx">eventOffset</span><span class="p">,</span> <span class="nx">elementOffset</span><span class="p">,</span> <span class="nx">elementSize</span><span class="p">,</span> <span class="nx">constructorParams</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">dx</span> <span class="o">=</span> <span class="nx">eventOffset</span><span class="p">.</span><span class="nx">left</span> <span class="o">-</span> <span class="nx">elementOffset</span><span class="p">.</span><span class="nx">left</span><span class="p">,</span> <span class="nx">dy</span> <span class="o">=</span> <span class="nx">eventOffset</span><span class="p">.</span><span class="nx">top</span> <span class="o">-</span> <span class="nx">elementOffset</span><span class="p">.</span><span class="nx">top</span><span class="p">,</span>
+      <span class="nx">gx</span> <span class="o">=</span> <span class="nx">elementSize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="nx">constructorParams</span><span class="p">.</span><span class="nx">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> 
+      <span class="nx">gy</span> <span class="o">=</span> <span class="nx">elementSize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="nx">constructorParams</span><span class="p">.</span><span class="nx">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+      <span class="nx">mx</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">dx</span> <span class="o">/</span> <span class="nx">gx</span><span class="p">),</span> <span class="nx">my</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">dy</span> <span class="o">/</span> <span class="nx">gy</span><span class="p">);</span>
 
-<pre>
-function(eventOffset, elementOffset, elementSize, constructorParams) {
-  var dx = eventOffset.left - elementOffset.left, dy = eventOffset.top - elementOffset.top,
-      gx = elementSize[0] / (constructorParams.grid[0]), 
-      gy = elementSize[1] / (constructorParams.grid[1]),
-      mx = Math.floor(dx / gx), my = Math.floor(dy / gy);
-
-  return [ ((mx * gx) + (gx / 2)) / elementSize[0], ((my * gy) + (gy / 2)) / elementSize[1] ];
-}
-</pre>
-
+  <span class="k">return</span> <span class="p">[</span> <span class="p">((</span><span class="nx">mx</span> <span class="o">*</span> <span class="nx">gx</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nx">gx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="nx">elementSize</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">((</span><span class="nx">my</span> <span class="o">*</span> <span class="nx">gy</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nx">gy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="nx">elementSize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>The four arguments are:
 - <strong>eventOffset</strong> - Page left/top where the mouse button was released (a JS object containing left/top members like you get from a jQuery offset call)
 - <strong>elementOffset</strong> - JS offset object containing offsets for the element on which the Connection is to be created
@@ -708,10 +731,10 @@ jsPlumb.makeTarget(&quot;someElement&quot;, {<br>
 <p><code>jsPlumb.connect({ source:&quot;someElement&quot;, target:&quot;someOtherElement&quot;, reattach:true });</code></p>
 
 <p>This behaviour can also be controlled using jsPlumb defaults:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.importDefaults({
-  ConnectionsDetachable:true,
-  ReattachConnections:true
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">importDefaults</span><span class="p">({</span>
+  <span class="nx">ConnectionsDetachable</span><span class="o">:</span><span class="kc">true</span><span class="p">,</span>
+  <span class="nx">ReattachConnections</span><span class="o">:</span><span class="kc">true</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>The default value of ConnectionsDetachable is <strong>true</strong>, and the default value of ReattachConnections is <strong>false</strong>, so in actual fact those defaults are kind of pointless. But you probably get the idea.</p>
 

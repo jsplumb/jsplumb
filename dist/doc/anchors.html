@@ -162,11 +162,9 @@
 <p>Each of these string representations is just a wrapper around the underlying array-based syntax  <code>[x, y, dx, dy]</code>, where <code>x</code> and <code>y</code>are coordinates in the interval <code>[0,1]</code> specifying the position of the anchor, and <code>dx</code> and <code>dy</code>,which specify the orientation of the curve incident to the anchor, can have a value of 0, 1 or -1. For example, <code>[0, 0.5, -1, 0]</code> defines a <code>Left</code> anchor with a connector curve that emanates leftward from the anchor. Similarly, <code>[0.5, 0, 0, -1]</code> defines a <code>Top</code> anchor with a connector curve emanating upwards.    </p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({....,</span> <span class="nx">anchor</span><span class="o">:</span><span class="s2">&quot;Bottom&quot;</span><span class="p">,</span> <span class="p">...</span> <span class="p">});</span>
 </code></pre></div>
-<p>is identical to:
-<code>javascript
-jsPlumb.connect({...., anchor:[ 0.5, 1, 0, 1 ], ... });
-</code></p>
-
+<p>is identical to:</p>
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({....,</span> <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="p">],</span> <span class="p">...</span> <span class="p">});</span>
+</code></pre></div>
 <h5>Anchor Offsets</h5>
 
 <p>In addition to supplying the location and orientation of an anchor, you can optionally supply two more parameters that define an offset in pixels from the given location.  Here&#39;s the anchor specified above, but with a 50 pixel offset below the element in the y axis:  </p>
@@ -207,14 +205,13 @@ jsPlumb.connect({...., anchor:[ 0.5, 1, 0, 1 ], ... });
 
 <p>Dynamic Anchors and Draggable Connections can interoperate: jsPlumb locks the position of a dynamic anchor when you start to drag a connection from it, and unlocks it once the connection is either established or abandoned. At that point you may see the position of the dynamic anchor change, as jsPlumb optimises the connection.  </p>
 
-<p>You can see this behaviour in the <a href="http://jsplumbtoolkit.com/jquery/draggableConnectorsDemo.html">draggable connections</a> demonstration, when you drag a connection from the blue endpoint on window 1 to the blue endpoint on window 3 - the connection is established and then window 1&#39;s blue endpoint jumps down to a location that is closer to window 3.</p>
+<p>You can see this behaviour in the <a href="http://jsplumbtoolkit.com/demo/draggableConnectors/dom.html">draggable connections</a> demonstration, when you drag a connection from the blue endpoint on window 1 to the blue endpoint on window 3 - the connection is established and then window 1&#39;s blue endpoint jumps down to a location that is closer to window 3.</p>
 
 <p><a name="perimeter"></a></p>
 
 <h4>Perimeter Anchors</h4>
 
-<p>These are a form of Dynamic Anchor in which the anchor locations are chosen from the perimeter of some given shape. jsPlumb
-supports six shapes:</p>
+<p>These are a form of Dynamic Anchor in which the anchor locations are chosen from the perimeter of some given shape. jsPlumb supports six shapes:</p>
 
 <ul>
 <li><code>Circle</code></li>
@@ -227,8 +224,8 @@ supports six shapes:</p>
 
 <p><code>Rectangle</code> and <code>Square</code>, are not, strictly speaking, necessary, since rectangular shapes are the norm in a web page. But they are included for completeness.</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someElement&quot;</span><span class="p">,</span> <span class="p">{</span>
-    <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Dot&quot;</span><span class="p">,</span>
-    <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Perimeter&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">shape</span><span class="o">:</span><span class="s2">&quot;Circle&quot;</span> <span class="p">}</span> <span class="p">]</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="s2">&quot;Dot&quot;</span><span class="p">,</span>
+  <span class="nx">anchor</span><span class="o">:</span><span class="p">[</span> <span class="s2">&quot;Perimeter&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">shape</span><span class="o">:</span><span class="s2">&quot;Circle&quot;</span> <span class="p">}</span> <span class="p">]</span>
 <span class="p">});</span>
 </code></pre></div>
 <p>In this example our anchor will travel around the path inscribed by a circle whose diameter is the width and height of the underlying element. </p>

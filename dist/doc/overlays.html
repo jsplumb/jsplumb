@@ -171,71 +171,70 @@
 
 <h3>Adding Overlays</h3>
 
-<p>You can specify one or more overlays when making a call to jsPlumb.connect, jsPlumb.addEndpoint or jsPlumb.makeSource (but not jsPlumb.makeTarget; overlays are always derived from what the source of a Connection defines)  The three cases are discussed below:</p>
+<p>You can specify one or more overlays when making a call to <code>jsPlumb.connect</code>, <code>jsPlumb.addEndpoint</code> or <code>jsPlumb.makeSource</code> (but not <code>jsPlumb.makeTarget</code>: overlays are always derived from what the source of a Connection defines)  The three cases are discussed below:</p>
 
-<h6>Specifying one or more overlays on a <code>jsPlumb.connect</code> call</h6>
+<h6>Specifying one or more overlays on a jsPlumb.connect call</h6>
 
 <p>In this example we&#39;ll create an Arrow with the default options for an Arrow, and a label with the text &quot;foo&quot;:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
-    ...
-    overlays:[ 
-        &quot;Arrow&quot;, 
-        [ &quot;Label&quot;, { label:&quot;foo&quot;, location:0.25, id:&quot;myLabel&quot; } ]
-    ],
-    ...
-});         
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="p">...</span>
+  <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span> 
+    <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> 
+      <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">location</span><span class="o">:</span><span class="mf">0.25</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;myLabel&quot;</span> <span class="p">}</span> <span class="p">]</span>
+    <span class="p">],</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 </code></pre></div>
-<p>This connection will have an arrow located halfway along it, and the label &quot;foo&quot; one quarter of the way along.  Notice the <strong>id</strong>
-parameter; it can be used later if you wish to remove the Overlay or change its visibility (see below).</p>
+<p>This connection will have an arrow located halfway along it, and the label &quot;foo&quot; one quarter of the way along.  Notice the <strong>id</strong> parameter; it can be used later if you wish to remove the Overlay or change its visibility (see below).</p>
 
 <p>Another example, this time with an absolute location of 50 pixels from the source:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.connect({
-    ...
-    overlays:[ 
-        &quot;Arrow&quot;, 
-        [ &quot;Label&quot;, { label:&quot;foo&quot;, location:50, id:&quot;myLabel&quot; } ]
-    ],
-    ...
-});         
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="p">...</span>
+  <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span> 
+    <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> 
+      <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">location</span><span class="o">:</span><span class="mi">50</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;myLabel&quot;</span> <span class="p">}</span> <span class="p">]</span>
+    <span class="p">],</span>
+    <span class="p">...</span>
+<span class="p">});</span>
 </code></pre></div>
-<h6>Specifying one or more overlays on a <code>jsPlumb.addEndpoint</code> call.</h6>
+<h6>Specifying one or more overlays on a jsPlumb.addEndpoint call.</h6>
 
 <p><strong>Note</strong> in this example that we use the parameter <code>connectorOverlays</code> and not <code>overlays</code> as in the last example.  This is because <code>overlays</code> would refer to Endpoint Overlays:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.addEndpoint(&quot;someDiv&quot;, {
-  ...
-  overlays:[
-    [ &quot;Label&quot;, { label:&quot;foo&quot;, id:&quot;label&quot;, location:[-0.5, -0.5] } ]
-  ],
-  connectorOverlays:[ 
-    [ &quot;Arrow&quot;, { width:10, length:30, location:1, id:&quot;arrow&quot; } ],
-    [ &quot;Label&quot;, { label:&quot;foo&quot;, id:&quot;label&quot; } ]
-  ],
-  ...
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="p">...</span>
+  <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span>
+    <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="nx">location</span><span class="o">:</span><span class="p">[</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">]</span> <span class="p">}</span> <span class="p">]</span>
+  <span class="p">],</span>
+  <span class="nx">connectorOverlays</span><span class="o">:</span><span class="p">[</span> 
+    <span class="p">[</span> <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">length</span><span class="o">:</span><span class="mi">30</span><span class="p">,</span> <span class="nx">location</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;arrow&quot;</span> <span class="p">}</span> <span class="p">],</span>
+    <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;label&quot;</span> <span class="p">}</span> <span class="p">]</span>
+  <span class="p">],</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>This connection will have a 10x30 Arrow located right at the head of the connection, and the label &quot;foo&quot; located at the halfway point. The Endpoint itself also has an overlay, located at [ -0.5 * width, -0.5 * height ] relative to the Endpoint&#39;s top,left corner.</p>
 
-<h6>Specifying one or more overlays on a <code>jsPlumb.makeSource</code> call.</h6>
+<h6>Specifying one or more overlays on a jsPlumb.makeSource call.</h6>
 
 <p><strong>Note</strong> in this example that we again use the parameter <code>connectorOverlays</code> and not <code>overlays</code>.  The <code>endpoint</code> parameter to <code>jsPlumb.makeSource</code> supports everything you might pass to the second argument of a <code>jsPlumb.addEndpoint</code> call:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">jsPlumb.makeSource(&quot;someDiv&quot;, {
-  ...
-  endpoint:{
-    connectorOverlays:[ 
-      [ &quot;Arrow&quot;, { width:10, length:30, location:1, id:&quot;arrow&quot; } ], 
-      [ &quot;Label&quot;, { label:&quot;foo&quot;, id:&quot;label&quot; } ]
-    ]
-  }
-  ...
-});
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">makeSource</span><span class="p">(</span><span class="s2">&quot;someDiv&quot;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="p">...</span>
+  <span class="nx">endpoint</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">connectorOverlays</span><span class="o">:</span><span class="p">[</span> 
+      <span class="p">[</span> <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">length</span><span class="o">:</span><span class="mi">30</span><span class="p">,</span> <span class="nx">location</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;arrow&quot;</span> <span class="p">}</span> <span class="p">],</span> 
+      <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;label&quot;</span> <span class="p">}</span> <span class="p">]</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>This connection will have a 10x30 Arrow located right at the head of the connection, and the label &quot;foo&quot; located at the halfway point. </p>
 
 <h6>Using the <code>addOverlay</code> method on an Endpoint or Connection</h6>
 
 <p>Endpoints and Connections both have an <code>addOverlay</code> method that takes as an argument a single Overlay definition. An example:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var e = jsPlumb.addEndpoint(&quot;someElement&quot;);
-e.addOverlay([ &quot;Arrow&quot;, { width:10, height:10, id:&quot;arrow&quot; }]); 
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">e</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">addEndpoint</span><span class="p">(</span><span class="s2">&quot;someElement&quot;</span><span class="p">);</span>
+<span class="nx">e</span><span class="p">.</span><span class="nx">addOverlay</span><span class="p">([</span> <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">width</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">height</span><span class="o">:</span><span class="mi">10</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;arrow&quot;</span> <span class="p">}]);</span> 
 </code></pre></div>
 <p><a name="types"></a></p>
 
@@ -291,76 +290,73 @@ e.addOverlay([ &quot;Arrow&quot;, { width:10, height:10, id:&quot;arrow&quot; }]
 </ul>
 
 <p>The Label overlay offers two methods - <code>getLabel</code> and <code>setLabel</code> - for accessing/manipulating its content dynamically:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var c = jsPlumb.connect({
-    source:&quot;d1&quot;, 
-    target:&quot;d2&quot;, 
-    overlays:[
-        [ &quot;Label&quot;, {label:&quot;FOO&quot;, id:&quot;label&quot;}]
-    ]   
-});                 
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">c</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">,</span> 
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;d2&quot;</span><span class="p">,</span> 
+  <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span>
+    <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nx">label</span><span class="o">:</span><span class="s2">&quot;FOO&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;label&quot;</span><span class="p">}]</span>
+  <span class="p">]</span> 
+<span class="p">});</span>
 
-...
+<span class="p">...</span>
 
-var label = c.getOverlay(&quot;label&quot;);
-console.log(&quot;Label is currently&quot;, label.getLabel());
-label.setLabel(&quot;BAR&quot;);
-console.log(&quot;Label is now&quot;, label.getLabel());
+<span class="kd">var</span> <span class="nx">label</span> <span class="o">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">getOverlay</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Label is currently&quot;</span><span class="p">,</span> <span class="nx">label</span><span class="p">.</span><span class="nx">getLabel</span><span class="p">());</span>
+<span class="nx">label</span><span class="p">.</span><span class="nx">setLabel</span><span class="p">(</span><span class="s2">&quot;BAR&quot;</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Label is now&quot;</span><span class="p">,</span> <span class="nx">label</span><span class="p">.</span><span class="nx">getLabel</span><span class="p">());</span>
 </code></pre></div>
 <p>In this example you can see that the Label Overlay is assigned an id of &quot;label&quot; in the connect call, and then retrieved using that id in the call to Connection&#39;s getOverlay method.</p>
 
 <p>Both Connections and Endpoints support Label Overlays, and because changing labels is quite a common operation, <strong>setLabel</strong> and <strong>getLabel</strong> methods have been added to these objects:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var conn = jsPlumb.connect({
-    source:&quot;d1&quot;, 
-    target:&quot;d2&quot;,
-    label:&quot;FOO&quot;
-});                 
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">conn</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">,</span> 
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;d2&quot;</span><span class="p">,</span>
+  <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;FOO&quot;</span>
+<span class="p">});</span>
 
-...
+<span class="p">...</span>
 
-console.log(&quot;Label is currently&quot;, conn.getLabel());
-conn.setLabel(&quot;BAR&quot;);
-console.log(&quot;Label is now&quot;, conn.getLabel());
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Label is currently&quot;</span><span class="p">,</span> <span class="nx">conn</span><span class="p">.</span><span class="nx">getLabel</span><span class="p">());</span>
+<span class="nx">conn</span><span class="p">.</span><span class="nx">setLabel</span><span class="p">(</span><span class="s2">&quot;BAR&quot;</span><span class="p">);</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Label is now&quot;</span><span class="p">,</span> <span class="nx">conn</span><span class="p">.</span><span class="nx">getLabel</span><span class="p">());</span>
 </code></pre></div>
 <p>These methods support passing in a Function instead of a String, and jsPlumb will create a label overlay for you if one does not yet exist when you call setLabel:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var conn = jsPlumb.connect({
-    source:&quot;d1&quot;, 
-    target:&quot;d2&quot;
-});                 
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">conn</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">,</span> 
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;d2&quot;</span>
+<span class="p">});</span>                 
 
-...
+<span class="p">...</span>
 
-conn.setLabel(function(c) {
-    var s = new Date();
-    return s.getTime() + &quot;milliseconds have elapsed since 01/01/1970&quot;;
-});
-console.log(&quot;Label is now&quot;, conn.getLabel());
+<span class="nx">conn</span><span class="p">.</span><span class="nx">setLabel</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+  <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;milliseconds have elapsed since 01/01/1970&quot;</span><span class="p">;</span>
+<span class="p">});</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Label is now&quot;</span><span class="p">,</span> <span class="nx">conn</span><span class="p">.</span><span class="nx">getLabel</span><span class="p">());</span>
 </code></pre></div>
 <p><a name="type-custom"></a></p>
 
 <h6>Custom</h6>
 
 <p>The Custom Overlay allows you to create your own Overlays, which jsPlumb will position for you.  You need to implement one method - <code>create(component)</code> - which is passed the component on which the Overlay is located as an argument, and which returns either a DOM element or a valid selector from the underlying library:</p>
-
-<pre>
-var conn = jsPlumb.connect({
-        source:"d1",
-        target:"d2",
-        paintStyle:{
-            strokeStyle:"red",
-            lineWidth:3
-        },
-        overlays:[
-            ["Custom", {
-                create:function(component) {
-                    return $("&lt;select id='myDropDown'&gt;&lt;option value='foo'&gt;foo&lt;/option&gt;&lt;option value='bar'&gt;bar&lt;/option&gt;&lt;/select&gt;");                
-                },
-                location:0.7,
-                id:"customOverlay"
-            }]
-        ]
-    });
-</pre>
-
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">conn</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="nx">source</span><span class="o">:</span><span class="s2">&quot;d1&quot;</span><span class="p">,</span>
+  <span class="nx">target</span><span class="o">:</span><span class="s2">&quot;d2&quot;</span><span class="p">,</span>
+  <span class="nx">paintStyle</span><span class="o">:</span><span class="p">{</span>
+    <span class="nx">strokeStyle</span><span class="o">:</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+    <span class="nx">lineWidth</span><span class="o">:</span><span class="mi">3</span>
+  <span class="p">},</span>
+  <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span>
+    <span class="p">[</span><span class="s2">&quot;Custom&quot;</span><span class="p">,</span> <span class="p">{</span>
+      <span class="nx">create</span><span class="o">:</span><span class="kd">function</span><span class="p">(</span><span class="nx">component</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;&amp;lt;select id=&#39;myDropDown&#39;&amp;gt;&amp;lt;option value=&#39;foo&#39;&amp;gt;foo&amp;lt;/option&amp;gt;&amp;lt;option value=&#39;bar&#39;&amp;gt;bar&amp;lt;/option&amp;gt;&amp;lt;/select&amp;gt;&quot;</span><span class="p">);</span>                
+      <span class="p">},</span>
+      <span class="nx">location</span><span class="o">:</span><span class="mf">0.7</span><span class="p">,</span>
+      <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;customOverlay&quot;</span>
+    <span class="p">}]</span>
+  <span class="p">]</span>
+<span class="p">});</span>
+</code></pre></div>
 <p>Here we have created a select box with a couple of values, assigned to it the id of &#39;customOverlay&#39; and placed it at location 0.7. Note that the &#39;id&#39; we assigned is distinct from the element&#39;s id. You can use the id you provided to later retrieve this Overlay using the <code>getOverlay(id)</code> method on a Connection or an Endpoint.</p>
 
 <p><a name="visibility"></a></p>
@@ -370,59 +366,59 @@ var conn = jsPlumb.connect({
 <p>You can control the visibility of Overlays using the <code>setVisible</code> method of Overlays themselves, or with <code>showOverlay(id)</code> or <code>hideOverlay(id)</code> on a Connection.</p>
 
 <p>Remember the <strong>id</strong> parameter that we specified in the examples above?  This can be used to retrieve the Overlay from a Connection:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var connection = jsPlumb.connect({
-    ...
-    overlays:[ 
-        &quot;Arrow&quot;, 
-        [ &quot;Label&quot;, { label:&quot;foo&quot;, location:0.25, id:&quot;myLabel&quot; } ]
-    ],
-    ...
-});     
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connection</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="p">...</span>
+  <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span> 
+    <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> 
+    <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">location</span><span class="o">:</span><span class="mf">0.25</span><span class="p">,</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;myLabel&quot;</span> <span class="p">}</span> <span class="p">]</span>
+  <span class="p">],</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 
-// time passes
+<span class="c1">// time passes</span>
 
-var overlay = connection.getOverlay(&quot;myLabel&quot;);
-// now you can hide this Overlay:
-overlay.setVisible(false);
-// there are also hide/show methods:
-overlay.show();
-overlay.hide();
+<span class="kd">var</span> <span class="nx">overlay</span> <span class="o">=</span> <span class="nx">connection</span><span class="p">.</span><span class="nx">getOverlay</span><span class="p">(</span><span class="s2">&quot;myLabel&quot;</span><span class="p">);</span>
+<span class="c1">// now you can hide this Overlay:</span>
+<span class="nx">overlay</span><span class="p">.</span><span class="nx">setVisible</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+<span class="c1">// there are also hide/show methods:</span>
+<span class="nx">overlay</span><span class="p">.</span><span class="nx">show</span><span class="p">();</span>
+<span class="nx">overlay</span><span class="p">.</span><span class="nx">hide</span><span class="p">();</span>
 </code></pre></div>
 <p>However, Connection and Endpoint also have two convenience methods you could use instead:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var connection = jsPlumb.connect({
-    ...
-    overlays:[ 
-        &quot;Arrow&quot;, 
-        [ &quot;Label&quot;, { label:&quot;foo&quot;, location:-30 }, id:&quot;myLabel&quot; ]
-    ],
-    ...
-});     
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connection</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="p">...</span>
+  <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span> 
+    <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> 
+    <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">location</span><span class="o">:-</span><span class="mi">30</span> <span class="p">},</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;myLabel&quot;</span> <span class="p">]</span>
+  <span class="p">],</span>
+  <span class="p">...</span>
+<span class="p">});</span>
 
-// time passes
+<span class="c1">// time passes</span>
 
-connection.hideOverlay(&quot;myLabel&quot;);
+<span class="nx">connection</span><span class="p">.</span><span class="nx">hideOverlay</span><span class="p">(</span><span class="s2">&quot;myLabel&quot;</span><span class="p">);</span>
 
-// more time passes
+<span class="c1">// more time passes</span>
 
-connection.showOverlay(&quot;myLabel&quot;);              
+<span class="nx">connection</span><span class="p">.</span><span class="nx">showOverlay</span><span class="p">(</span><span class="s2">&quot;myLabel&quot;</span><span class="p">);</span>
 </code></pre></div>
 <p><a name="removing"></a></p>
 
 <h3>Removing Overlays</h3>
 
 <p>Connection and Endpoint also have a <code>removeOverlay</code> method, that does what you might expect:</p>
-<div class="highlight"><pre><code class="text language-text" data-lang="text">var connection = jsPlumb.connect({
-    ...
-    overlays:[ 
-        &quot;Arrow&quot;, 
-        [ &quot;Label&quot;, { label:&quot;foo&quot;, location:0.25 }, id:&quot;myLabel&quot; ]
-    ],
-    ...
-});     
+<div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">connection</span> <span class="o">=</span> <span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">connect</span><span class="p">({</span>
+  <span class="p">...</span>
+  <span class="nx">overlays</span><span class="o">:</span><span class="p">[</span> 
+    <span class="s2">&quot;Arrow&quot;</span><span class="p">,</span> 
+    <span class="p">[</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span><span class="s2">&quot;foo&quot;</span><span class="p">,</span> <span class="nx">location</span><span class="o">:</span><span class="mf">0.25</span> <span class="p">},</span> <span class="nx">id</span><span class="o">:</span><span class="s2">&quot;myLabel&quot;</span> <span class="p">]</span>
+  <span class="p">],</span>
+  <span class="p">...</span>
+<span class="p">});</span>     
 
-// time passes
+<span class="c1">// time passes</span>
 
-connection.removeOverlay(&quot;myLabel&quot;);
+<span class="nx">connection</span><span class="p">.</span><span class="nx">removeOverlay</span><span class="p">(</span><span class="s2">&quot;myLabel&quot;</span><span class="p">);</span>
 </code></pre></div>
             </div>
         </div>

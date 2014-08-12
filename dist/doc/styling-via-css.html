@@ -130,21 +130,22 @@
 </code></pre></div>
 <h3>Interactive CSS Classes</h3>
 
-<p>jsPlumb assigns these classes on both Connectors and Endpoints when specific user interactivity occurs:
+<p>jsPlumb assigns these classes on both Connectors and Endpoints when specific user interactivity occurs:</p>
+
 <table width="90%" class="table" style="align:left;font-size:12px;">
-<tr><th>Activity</th><th>CSS Class</th><th>jsPlumb Member</th><td>Description</th></tr>
-<tr><td>Mouse Hover</td><td><em>jsPlumb</em>hover</td><td>hoverClass</td><td>Assigned to both Connectors and Endpoints when the mouse is hovering over them</td></tr>
-<tr><td>Connection Drag</td><td><em>jsPlumb</em>dragging</td><td>draggingClass</td><td>Assigned to a Connection when it is being dragged (either a new Connection or an existing Connection)</td></tr>
-<tr><td>Element Dragging</td><td><em>jsPlumb</em>element<em>dragging</td><td>elementDraggingClass</td><td>Assigned to all Connections whose source or target element is currently being dragged, and to their Endpoints.</td></tr>
-<tr><td>Source Element Dragging</td><td></em>jsPlumb<em>source</em>element<em>dragging</td><td>sourceElementDraggingClass</td><td>Assigned to all Connections whose source element is being dragged, and to their Endpoints</td></tr>
-<tr><td>Target Element Dragging</td><td></em>jsPlumb<em>target</em>element<em>dragging</td><td>targetElementDraggingClass</td><td>Assigned to all Connections whose target element is being dragged, and to their Endpoints</td></tr>
-<tr><td>Anchor Class</td><td>***</em>jsPlumb<em>endpoint</em>anchor<em>***</td><td>endpointAnchorClassPrefix</td><td>Assigned to Endpoints, and their associated elements, that have either a static Anchor with an associated class, or a Dynamic Anchor whose individual locations have an associated CSS class. The <code>***</code> suffix in the class name above is the associated class.  Note that this class is added to both the artefact that jsPlumb creates and also the element on which the Endpoint resides, so you will normally have to build a selector with more criteria than just this class in order to target things properly. See the documentation regarding Anchors for a discussion of this.</td></tr>
-<tr><td>Drop Allowed on Endpoint</td><td></em>jsPlumb<em>endpoint</em>drop<em>allowed</td><td>endpointDropAllowedClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would be allowed</td></tr>
-<tr><td>Drop Forbidden on Endpoint</td><td></em>jsPlumb<em>endpoint</em>drop<em>forbidden</td><td>endpointDropForbiddenClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would not be allowed</td></tr>
-<tr><td>Connection Hover</td><td></em>jsPlumb<em>source</em>hover</td><td>hoverSourceClass</td><td>Assigned to the source element in a Connection when the mouse is hovering over the Connection</td></tr>
-<tr><td>Connection Hover</td><td><em>jsPlumb</em>target<em>hover</td><td>hoverTargetClass</td><td>Assigned to the target element in a Connection when the mouse is hovering over the Connection</td></tr>
-<tr><td>Drag</td><td></em>jsPlumb<em>drag</em>select</td><td>dragSelectClass</td><td>Assigned to the document body whenever a drag is in progress. Mostly for MooTools/YUI, it allows you to ensure document selection is disabled - see <a href="home#dragSelection">here</a></td></tr>
-</table></p>
+<tr><th>Activity</th><th>CSS Class</th><th>jsPlumb Member</th><th>Description</th></tr>
+<tr><td>Mouse Hover</td><td>_jsPlumb_hover</td><td>hoverClass</td><td>Assigned to both Connectors and Endpoints when the mouse is hovering over them</td></tr>
+<tr><td>Connection Drag</td><td>_jsPlumb_dragging</td><td>draggingClass</td><td>Assigned to a Connection when it is being dragged (either a new Connection or an existing Connection)</td></tr>
+<tr><td>Element Dragging</td><td>_jsPlumb_element_dragging</td><td>elementDraggingClass</td><td>Assigned to all Connections whose source or target element is currently being dragged, and to their Endpoints.</td></tr>
+<tr><td>Source Element Dragging</td><td>_jsPlumb_source_element_dragging</td><td>sourceElementDraggingClass</td><td>Assigned to all Connections whose source element is being dragged, and to their Endpoints</td></tr>
+<tr><td>Target Element Dragging</td><td>_jsPlumb_target_element_dragging</td><td>targetElementDraggingClass</td><td>Assigned to all Connections whose target element is being dragged, and to their Endpoints</td></tr>
+<tr><td>Anchor Class</td><td>***_jsPlumb_endpoint_anchor_***</td><td>endpointAnchorClassPrefix</td><td>Assigned to Endpoints, and their associated elements, that have either a static Anchor with an associated class, or a Dynamic Anchor whose individual locations have an associated CSS class. The `***` suffix in the class name above is the associated class.  Note that this class is added to both the artefact that jsPlumb creates and also the element on which the Endpoint resides, so you will normally have to build a selector with more criteria than just this class in order to target things properly. See the documentation regarding Anchors for a discussion of this.</td></tr>
+<tr><td>Drop Allowed on Endpoint</td><td>_jsPlumb_endpoint_drop_allowed</td><td>endpointDropAllowedClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would be allowed</td></tr>
+<tr><td>Drop Forbidden on Endpoint</td><td>_jsPlumb_endpoint_drop_forbidden</td><td>endpointDropForbiddenClass</td><td>Assigned to an Endpoint when another Endpoint is hovering over it and a drop would not be allowed</td></tr>
+<tr><td>Connection Hover</td><td>_jsPlumb_source_hover</td><td>hoverSourceClass</td><td>Assigned to the source element in a Connection when the mouse is hovering over the Connection</td></tr>
+<tr><td>Connection Hover</td><td>_jsPlumb_target_hover</td><td>hoverTargetClass</td><td>Assigned to the target element in a Connection when the mouse is hovering over the Connection</td></tr>
+<tr><td>Drag</td><td>_jsPlumb_drag_select</td><td>dragSelectClass</td><td>Assigned to the document body whenever a drag is in progress. Mostly for MooTools/YUI, it allows you to ensure document selection is disabled - see [here](home#dragSelection)</td></tr>
+</table>
 
 <p><strong>Note</strong> the last two classes work in conjunction with the <code>checkDropAllowed</code> interceptor that you can register on jsPlumb. For more information about interceptors, see [[here|interceptors]], but in a nutshell you just provide a function that takes the two Endpoints and a Connection as argument, and returns whether not a drop would be allowed:</p>
 <div class="highlight"><pre><code class="javascript language-javascript" data-lang="javascript"><span class="nx">jsPlumb</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s2">&quot;checkDropAllowed&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
