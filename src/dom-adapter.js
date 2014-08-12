@@ -251,6 +251,17 @@
 			}
 		};
 
+		this.getDragAncestor = function(el) {
+			var de = jsPlumb.getDOMElement(el),
+				id = _currentInstance.getId(de),
+				aid = _draggablesForElements[id];
+
+			if (aid) 
+				return jsPlumb.getDOMElement(aid);
+			else
+				return null;
+		};
+
 	};
 
     // for those browsers that dont have it.  they still don't have it! but at least they won't crash.
