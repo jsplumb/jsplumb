@@ -1,6 +1,6 @@
 {
   "name": "jsPlumb",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "pipe up your life",
   "main": "index.js",
   "jsPlumbWiki": "../wiki/jsPlumb.wiki",

@@ -1,7 +1,7 @@
 /*
  * jsPlumb
  * 
- * Title:jsPlumb 1.6.3
+ * Title:jsPlumb 1.6.4
  * 
  * Provides a way to visually connect elements on an HTML page, using SVG or VML.  
  * 
@@ -227,7 +227,7 @@
 
 	var ready = function (f) {
 		var _do = function() {
-			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "1.6.3" && document.body != null)
+			if (/complete|loaded|interactive/.test(document.readyState) && typeof(document.body) != "1.6.4" && document.body != null)
 	            f();	        
 	        else
 	            setTimeout(_do, 9);
