@@ -346,7 +346,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('update', function() {
         var newV = grunt.option("newver");
-        if (newV ===null) {
+        if (newV == null) {
             grunt.log.error("You must provide the new version: grunt update --newver=X.X.X");
         }
         else {
